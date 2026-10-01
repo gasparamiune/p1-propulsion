@@ -33,9 +33,11 @@ def build(p):
     dx, dz = detent_point(p)
     ch = ch - cyl_y(6.25, y0 - 1, y0 + p.cheek_t + 1, x=dx, z=dz)
     ch = ch - hex_prism_y(NUT_AF[12] + 0.3, y0 + p.cheek_t - NUT_M[12] - 0.5, y0 + p.cheek_t + 0.1, x=dx, z=dz)
-    # insertos M6 en el canto inferior (pernos desde la base)
+    # pernos M6 desde la base con TUERCA CAUTIVA transversal (arranque por corte de ~2·t·20 mm)
     for x in (p.swivel_x - 18, p.swivel_x + 24):
-        ch = ch - cyl_z(INSERT_HOLE[6] / 2, z0 - 1, z0 + INSERT_LEN[6] + 1, x=x, y=p.cheek_y)
+        ch = ch - cyl_z(3.3, z0 - 1, z0 + 30, x=x, y=p.cheek_y)
+        ch = ch - box(x - (NUT_AF[6] + 0.4) / 2, x + (NUT_AF[6] + 0.4) / 2, y0 - 1, y0 + p.cheek_t + 1,
+                      z0 + 18, z0 + 18 + NUT_M[6] + 0.6)
     return ch
 
 

@@ -12,9 +12,11 @@ def build(p):
     rim = 12.0
     Lo, Wo = Li + 2 * rim, Wi + 2 * rim
     lid = box(-Lo / 2, Lo / 2, -Wo / 2, Wo / 2, 0, 4)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            lid = lid - cyl_z(2.2, -1, 5, x=sx * (Lo / 2 - 4.5), y=sy * (Wo / 2 - 4.5))
+    import importlib.util, os
+    spec = importlib.util.spec_from_file_location("eb", os.path.join(os.path.dirname(__file__), "P1-ELE-01_esc_box.py"))
+    eb = importlib.util.module_from_spec(spec); spec.loader.exec_module(eb)
+    for (x, y) in eb.lid_holes(p):
+        lid = lid - cyl_z(2.2, -1, 5, x=x, y=y)
     return lid
 
 

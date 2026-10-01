@@ -73,13 +73,13 @@ def load(inputs_path=None, sizing_path=None) -> P:
     # --- abrazadera (MNT-01) ---
     d["clamp_w"] = m["clamp_width_mm"]                    # ancho a lo largo del espejo (y)
     d["clamp_screw_d"] = m["clamp_screw_d_mm"]
-    d["leg_t"] = 22.0                                     # espesor de patas [SUPUESTO; FS en structural.py]
+    d["leg_t"] = m["clamp_leg_t_mm"]                      # espesor de patas (FS en structural.py)
     d["bridge_t"] = 18.0                                  # espesor del puente sobre el espejo
     d["leg_depth"] = 130.0                                # largo de patas hacia abajo
     d["pad_t"] = 12.0                                     # espesor de la zapata (MNT-02)
     d["pad_d"] = 40.0
     d["clamp_gap"] = d["tr_t_max"] + 6.0                  # luz interior (espejo máx + holgura)
-    d["screw_z"] = [-45.0, -95.0]                         # alturas de los tornillos de apriete
+    d["screw_z"] = [m["clamp_screw_z_mm"]]                # altura de los tornillos de apriete
     d["swivel_x"] = 42.0                                  # eje de dirección (x_s)
     d["swivel_pin_d"] = m["swivel_pin_d_mm"]
     d["swivel_bush_od"] = d["swivel_pin_d"] + 8.0         # buje de POM en el soporte
@@ -89,7 +89,7 @@ def load(inputs_path=None, sizing_path=None) -> P:
 
     # --- horquilla (MNT-03 base, MNT-04 mejillas) ---
     d["disc_d"] = 90.0
-    d["disc_t"] = 12.0
+    d["disc_t"] = 20.0                                    # (FS de la base en structural.py)
     d["washer_t"] = 1.5                                   # arandela UHMW/PTFE bajo el disco
     d["disc_z0"] = d["shelf_top_z"] + d["washer_t"]
     d["cradle_w"] = 76.0                                  # ancho de la cuna (w)
@@ -149,17 +149,30 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["u_lh_fwd"], d["u_lh_aft"] = lay["u_lh_fwd"], lay["u_lh_aft"]
     d["guard_clr"] = inp["propeller"]["guard"]["radial_clearance_mm"]
     d["guard_ri"] = d["prop_D"] / 2 + d["guard_clr"]
-    d["guard_t"] = 6.0
+    d["guard_t"] = 7.0
     d["guard_L"] = 50.0
     d["guard_segments"] = 4
     d["skeg_t"] = 12.0
     d["skeg_below_guard"] = 12.0
+    d["skeg_fuse_force"] = inp["propeller"]["skeg_fuse_force_n"]
+    d["lh_bottom"] = 42.0                                 # carcasa inferior bajo el eje
+    d["skeg_tongue"] = 14.0
+    # cintura fusible del patín: rompe con F_fuse horizontal en su punta inferior
+    pet = inp["materials"]["PETG"]
+    sig_break = pet["sigma_t_xy_mpa"] * inp["materials"]["design_factors"]["f_water"]   # resistencia media húmeda
+    Ro = d["guard_ri"] + d["guard_t"]
+    v_neck = -d["e"] - d["lh_bottom"] - 4.0
+    v_tip = -d["e"] - Ro - d["skeg_below_guard"]
+    d["skeg_neck_v"] = v_neck
+    d["skeg_neck_lever"] = v_neck - v_tip
+    d["skeg_neck_len"] = (6 * d["skeg_fuse_force"] * d["skeg_neck_lever"] / (sig_break * d["skeg_t"])) ** 0.5
+    d["skeg_sig_break"] = sig_break
 
     # --- tapa, caña ---
     d["cover_wall"] = 2.4
     d["tiller_tube_od"] = 30.0                            # Al 6061-T6 Ø30×3 (LC7)
-    d["tiller_len"] = 420.0
-    d["tiller_angle"] = 15.0                              # sobre la horizontal en marcha [°]
+    d["tiller_len"] = 550.0                               # tubo de caña (HSG-06)
+    d["tiller_angle"] = 25.0                              # = θ: caña paralela al eje de hélice (25° sobre la horizontal en marcha)
 
     # --- caja ESC ---
     d["esc_in"] = tuple(g["esc_box_inner_mm"])

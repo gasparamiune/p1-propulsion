@@ -116,11 +116,20 @@ def optimize(inp: dict) -> dict:
                          "I_peak_A": I_pk, "tip_depth_mm": tip_depth,
                          "cost_eur": b["price_eur"] + p["price_eur"],
                          **{f"ok_{k}": v for k, v in ok.items()}, "all_ok": all(ok.values())})
-    feas = [r for r in rows if r["all_ok"]]
+    # Restricciones DURAS (seguridad / requisito de autonomía) vs BLANDA (V máx "por ratos").
+    hard = ("ok_energy", "ok_current", "ok_voltage", "ok_cavitation", "ok_draft", "ok_esc_margin")
+    for r in rows:
+        r["hard_ok"] = all(r[k] for k in hard)
+        r["autonomy_des_h"] = r["E_nom_wh"] * inp["battery"]["usable_dod"] / r["P_bat_cruise_des_W"]
+    feas = [r for r in rows if r["hard_ok"]]
     if feas:
-        best = min(feas, key=lambda r: (r["cost_eur"], r["P_bat_cruise_des_W"]))
-    else:  # ninguna cumple todo: la que más requisitos cumple, luego la más barata
-        best = max(rows, key=lambda r: (sum(r[k] for k in r if k.startswith("ok_")), -r["cost_eur"]))
+        cmin = min(r["cost_eur"] for r in feas)
+        tol = inp["costs"].get("selection_cost_band_frac", 0.10)
+        band = [r for r in feas if r["cost_eur"] <= cmin * (1 + tol)]
+        # dentro de la franja de costo: primero cumplir V máx, luego mayor autonomía, luego menor costo
+        best = max(band, key=lambda r: (r["ok_vmax"], r["autonomy_des_h"], -r["cost_eur"]))
+    else:  # ninguna cumple lo duro: la que más restricciones duras cumple, luego la más barata
+        best = max(rows, key=lambda r: (sum(r[k] for k in hard), -r["cost_eur"]))
     return {"best": best, "rows": rows}
 
 
@@ -333,7 +342,8 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
     out = {
         "inputs_version": inp["meta"]["version"],
         "masses": ms, "hydrostatics": hs, "hull_speed": hsp,
-        "optimization": hist, "requirements_met": opt["best"]["all_ok"],
+        "optimization": hist, "requirements_met": opt["best"]["hard_ok"],
+        "vmax_target_met": opt["best"]["ok_vmax"],
         "selection": {"propeller": inp["propeller"]["chosen"], "prop_model": drv.prop.model,
                       "motor": drv.motor.name, "esc": inp["esc"]["chosen"],
                       "battery": bat_key, "battery_desc": bat["desc"],

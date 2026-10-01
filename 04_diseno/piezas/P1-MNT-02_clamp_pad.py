@@ -20,7 +20,7 @@ def build(p):
 def placements(p, steer=0.0, tilt=0.0):
     from build123d import Pos, Rot
     x_face = -p.tr_t                     # cara interior del espejo
-    return [Pos(x_face, y, -70) * Rot(0, -90, 0) for y in (-45, 45)]
+    return [Pos(x_face, y, p.screw_z[0]) * Rot(0, -90, 0) for y in (-45, 45)]
 
 
 def checks(p, part):

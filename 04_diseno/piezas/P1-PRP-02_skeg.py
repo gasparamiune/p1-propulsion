@@ -11,8 +11,8 @@ META = dict(
 )
 
 
-LH_BOTTOM = 42.0
-TONGUE = 14.0
+LH_BOTTOM = 42.0     # = params lh_bottom
+TONGUE = 14.0        # = params skeg_tongue
 
 
 def profile(p):
@@ -24,9 +24,14 @@ def profile(p):
     vring = vs - Ro                     # cara exterior inferior del anillo
     vbot = vring - p.skeg_below_guard
     top = vs - R + TONGUE               # tope de la lengüeta (dentro de la ranura)
-    pts = [(u0 + 8.2, top), (u1 - 8.2, top), (u1 - 8.2, vs - R), (s - p.prop_D / 2 * 0 - 40, vs - R),
+    # cintura fusible (largo p.skeg_neck_len) justo debajo de la carcasa
+    um = 0.5 * (u0 + u1)
+    L = p.skeg_neck_len
+    vn = p.skeg_neck_v
+    pts = [(u0 + 8.2, top), (u1 - 8.2, top), (u1 - 8.2, vs - R), (um + L / 2, vs - R),
+           (um + L / 2, vn - 4), (s - 40, vn - 12),
            (s - 40, vring), (s + p.guard_L / 2, vring), (s + p.guard_L / 2, vbot),
-           (s - 70, vbot), (u0 + 8.2, vs - R - 30)]
+           (s - 70, vbot), (um - L / 2, vn - 20), (um - L / 2, vs - R), (u0 + 8.2, vs - R)]
     return pts
 
 
@@ -52,4 +57,5 @@ def placements(p, steer=0.0, tilt=0.0):
 def checks(p, part):
     vs = -p.e
     Ro = p.guard_ri + p.guard_t
-    return [("patín por debajo de la punta de hélice [mm]", (vs - p.prop_D / 2) - (vs - Ro - p.skeg_below_guard), 15.0, ">=")]
+    return [("patín por debajo de la punta de hélice [mm]", (vs - p.prop_D / 2) - (vs - Ro - p.skeg_below_guard), 15.0, ">="),
+            ("largo de la cintura fusible [mm]", p.skeg_neck_len, 12.0, ">=")]

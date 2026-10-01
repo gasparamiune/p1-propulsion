@@ -21,6 +21,16 @@ def gland_groove(p):
     return depth, width
 
 
+def lid_holes(p):
+    Li, Wi, Hi = p.esc_in
+    rim = 12.0
+    Lo, Wo = Li + 2 * rim, Wi + 2 * rim
+    xs = (-Lo / 2 + 4.5, 0.0, Lo / 2 - 4.5)
+    ys = (-Wo / 2 + 4.5, Wo / 2 - 4.5)
+    pts = [(x, y) for x in xs for y in ys] + [(-Lo / 2 + 4.5, 0.0), (Lo / 2 - 4.5, 0.0)]
+    return pts
+
+
 def build(p):
     Li, Wi, Hi = p.esc_in
     t, tf, rim = 3.2, 3.2, 12.0
@@ -33,10 +43,9 @@ def build(p):
     outer = box(-Li / 2 - c - width / 2, Li / 2 + c + width / 2, -Wi / 2 - c - width / 2, Wi / 2 + c + width / 2, z1 - depth, z1 + 1)
     inner = box(-Li / 2 - c + width / 2, Li / 2 + c - width / 2, -Wi / 2 - c + width / 2, Wi / 2 + c - width / 2, z1 - depth - 1, z1 + 2)
     box_ = box_ - (outer - inner)
-    # 4 insertos M4 en las esquinas del reborde (fuera de la ranura)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            box_ = box_ - cyl_z(INSERT_HOLE[4] / 2, z1 - INSERT_LEN[4] - 1, z1 + 1, x=sx * (Lo / 2 - 4.5), y=sy * (Wo / 2 - 4.5))
+    # 8 insertos M4 en el reborde, por fuera de la ranura (compresión uniforme del O-ring)
+    for (x, y_) in lid_holes(p):
+        box_ = box_ - cyl_z(INSERT_HOLE[4] / 2, z1 - INSERT_LEN[4] - 1, z1 + 1, x=x, y=y_)
     # prensaestopas: 3×M16 (fases) en un extremo, 2×M16 (batería) + 1×M12 (señal) en el otro
     zc = tf + Hi / 2
     for y in (-25.0, 0.0, 25.0):

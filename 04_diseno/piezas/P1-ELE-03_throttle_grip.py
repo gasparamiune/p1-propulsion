@@ -13,21 +13,21 @@ META = dict(
 L_GRIP = 110.0
 
 
-def _tm():
+def _tc():
     here = os.path.dirname(__file__)
-    spec = importlib.util.spec_from_file_location("tm", os.path.join(here, "P1-HSG-04_tiller_mount.py"))
+    spec = importlib.util.spec_from_file_location("tc", os.path.join(here, "P1-HSG-04_tiller_clamp.py"))
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
     return m
 
 
 def tiller_loc(p, along):
+    """Marco a 'along' mm del extremo de popa del tubo de caña, eje local Z = eje del tubo hacia proa."""
     from build123d import Pos, Rot
-    tm = _tm()
-    u_c, v_c = tm.tiller_origin(p)
-    du, dv = tm.tiller_dir(p)
-    beta = math.degrees(math.atan2(dv, du))
-    return Pos(u_c, tm.W_OFF, v_c) * Rot(0, -beta, 0) * Pos(along, 0, 0) * Rot(0, 90, 0)
+    tc = _tc()
+    u_c, v_c, w_c = tc.tiller_axis(p)
+    u_aft = 85.0 + 50.0
+    return Pos(u_aft - along, w_c, v_c) * Rot(0, -90, 0)
 
 
 def build(p):
@@ -42,7 +42,7 @@ def build(p):
 def placements(p, steer=0.0, tilt=0.0):
     from params import loc_unit
     from importlib import import_module
-    tube_len = 700.0
+    tube_len = 550.0
     return [loc_unit(p, steer, tilt) * tiller_loc(p, tube_len - 18 - L_GRIP - 2)]
 
 

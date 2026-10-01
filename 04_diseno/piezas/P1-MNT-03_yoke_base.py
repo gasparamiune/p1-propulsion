@@ -2,7 +2,7 @@
 
 Marco: HORQUILLA (= BOTE con ψ=0). Gira sobre el plano superior de MNT-01 con una
 arandela UHMW/PTFE intermedia, alrededor del perno de dirección (MNT-07). Recibe las dos
-mejillas (MNT-04, 2×M6 c/u) y el tornillo de trimado/tope de marcha (M8 A4).
+mejillas (MNT-04, 2×M6 c/u a tuercas cautivas) y el tornillo de trimado/tope de marcha (M8 A4).
 """
 import math
 from cadlib import *

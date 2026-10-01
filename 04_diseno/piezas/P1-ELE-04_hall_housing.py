@@ -29,7 +29,7 @@ def placements(p, steer=0.0, tilt=0.0):
     g = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(g)
     from params import loc_unit
-    return [loc_unit(p, steer, tilt) * g.tiller_loc(p, 700.0 - 18 - g.L_GRIP - 2 - L_H - 1)]
+    return [loc_unit(p, steer, tilt) * g.tiller_loc(p, 550.0 - 18 - g.L_GRIP - 2 - L_H - 1)]
 
 
 def checks(p, part):

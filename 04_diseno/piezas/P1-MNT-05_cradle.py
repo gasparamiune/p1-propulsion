@@ -70,10 +70,10 @@ def build(p):
             h = (NUT_AF[6] + 0.3) / 2
             y0, y1 = (w - h, W + 1) if w > 0 else (-W - 1, w + h)
             body = body - box(u0 + 18, u0 + 18 + NUT_M[6] + 0.6, y0, y1, v - h, v + h)
-    # insertos M6 para la tapa (desde el plano de partición hacia arriba)
+    # 4×M6 pasantes para la tapa (cabeza abajo, arandela Ø24 + nyloc arriba)
     for u in (20.0, 80.0):
         for w in (-29.0, 29.0):
-            body = body - cyl_z(INSERT_HOLE[6] / 2, vs - 1, vs + INSERT_LEN[6] + 1, x=u, y=w)
+            body = body - cyl_z(3.25, vs - 1, p.cradle_vtop + 1, x=u, y=w)
     # ojal de cabo de seguridad: inserto M8 para cáncamo A4 (arriba, atrás)
     body = body - cyl_z(INSERT_HOLE[6] / 2 + 0.6, p.cradle_vtop - 16, p.cradle_vtop + 1, x=70.0, y=0)
     # hoyuelos del retén (cono 2·40°) en ambas caras

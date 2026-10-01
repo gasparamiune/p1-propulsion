@@ -41,7 +41,7 @@ def build(p):
     # tornillos de apriete M12 con tuerca cautiva (empuje hacia el espejo)
     d = p.clamp_screw_d
     for y in (-45, 45):
-        for z in (-70,):
+        for z in p.screw_z:
             body = body - cyl_x((d + p.bolt_clr) / 2, x_in1 - 1, x_in0 + 1, y=y, z=z)
             body = body - hex_prism_x(NUT_AF[d] + 0.3, x_in0 - NUT_M[d] - 0.6, x_in0 + 0.1, y=y, z=z)
     # ojal para cabo de seguridad secundario (Ø10)
