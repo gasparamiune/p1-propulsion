@@ -1,7 +1,8 @@
-"""P1-STE-04 — Brida del yugo de dirección, Al 5083 8 mm (corte por agua/láser + taladrado).
+"""P1-STE-04 — Brida del yugo de dirección, Al 5083 20 mm (corte por agua/láser + taladrado).
 
 Apoya sobre la torre de la boquilla (detrás del extremo de la oreja de la bomba) y lleva el par de
-dirección del poste (P1-STE-06) al cuerpo con 2 × M6 A4 + 2 pasadores Ø6 (escariar en el montaje). Cruza el plano de los brazos del bucket por delante del cuerno (X' ≤ 28, fuera de su barrido) y
+dirección del poste (P1-STE-06) al cuerpo con 4 × M8 A4 (Tef-Gel). 20 mm: el momento del poste
+entra en la brida como torsión (ver structural_direccion). Cruza el plano de los brazos del bucket por delante del cuerno (X' 16–30, fuera de su barrido) y
 termina en el poste a (X', Y) = (STE_post_x, STE_post_y), fuera del barrido del bucket (|Y| > 63,8)."""
 import os
 import sys
@@ -11,7 +12,7 @@ from cadlib import cyl_z, prism_xy  # noqa: E402
 from _dir_common import hull  # noqa: E402
 
 META = dict(
-    id="P1-STE-04", name="brida_yugo", desc="Brida del yugo de dirección (Al 5083 8 mm)",
+    id="P1-STE-04", name="brida_yugo", desc="Brida del yugo de dirección (Al 5083 20 mm)",
     material="Al 5083", process="torneada", qty=1, frame="steer", group="jet",
     load_case="Par de dirección + flexión del poste (biela M66)", print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Placa plana; plano en planos_direccion",
@@ -25,8 +26,10 @@ def outline_parts(p):
     x0, x1 = p.STE_riser_x
     ry = p.STE_riser_y
     root = [(x0, -ry), (x1, -ry), (x1, ry), (x0, ry)]
-    strip = hull(c(px, py, 14) + [(x0 + 2.0, 0.0), (x1 - 2.0, 0.0)])   # diagonal: no avanza hacia el espejo al girar
-    return root, strip
+    # banda X' 16–30 (delante de la oreja/refuerzo del bucket, X' ≥ 34) hasta el poste
+    band = [(16.0, -ry + 0.5), (30.0, -ry + 0.5), (30.0, py + 10.0), (16.0, py + 10.0)]
+    end = hull(c(px, py, 13) + [(16.0, py + 10.0), (30.0, py + 10.0)])
+    return root, band, end
 
 
 def build(p):
@@ -37,9 +40,8 @@ def build(p):
     for poly in outline_parts(p):
         q = prism_xy([(Xp + u, v) for u, v in poly], z0, z1)
         s = q if s is None else s + q
-    x0, x1 = p.STE_riser_x
-    for xx in (x0 + 7.0, x1 - 6.0):
-        s = s - cyl_z(3.3, z0 - 1, z1 + 1, x=Xp + xx)                       # M6 pasante a la torre
+    for (xx, yy) in p.STE_riser_bolts:
+        s = s - cyl_z(4.5, z0 - 1, z1 + 1, x=Xp + xx, y=yy)                 # M8 pasante a la torre
     s = s - cyl_z(8.25, z0 - 1, z1 + 1, x=Xp + p.STE_post_x, y=p.STE_post_y)   # M16 del poste
     return s
 
@@ -59,5 +61,6 @@ def checks(p, part):
     head_x0 = p.X_bucket_pivot - p.X_steer_pivot - p.REV_head_d / 2
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("luz al espejo (−x_bote máx. en ±δmax) [mm]", -max(xs), 5.0, ">="),
-            ("brida del poste ↔ cabeza del perno del bucket (X') [mm]", head_x0 - (p.STE_post_x + 14), 3.0, ">="),
-            ("brida del poste fuera del brazo del bucket (|Y|) [mm]", abs(p.STE_post_y) - 14 - (p.REV_y_in + p.REV_t), 2.0, ">=")]
+            ("banda ↔ refuerzo del pivote del bucket (X') [mm]", (p.X_bucket_pivot - p.X_steer_pivot - p.REV_boss_r) - 30.0, 3.0, ">="),
+            ("brida del poste fuera de la cabeza del perno del bucket (|Y|) [mm]",
+             abs(p.STE_post_y) - 13 - (p.REV_y_in + 2 * p.REV_t + 0.3 + p.REV_head_t), 1.0, ">=")]

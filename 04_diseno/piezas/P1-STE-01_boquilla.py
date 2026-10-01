@@ -12,7 +12,7 @@ en X = X_steer_pivot. Geometría (marco JET, δ = 0):
   - torre del yugo (X' 15–40) detrás del extremo de la oreja de la bomba, con 2 × M6 para la brida
     P1-STE-04 (que lleva el poste y el brazo del cable M66 por encima de la flotación);
   - orejas del bucket (±Y 40–48) con Ø8,4 para el perno con hombro P1-REV-02 y, del lado +Y (estribor
-    del bote), rosca M16 del émbolo indexador P1-REV-04 (traba arriba/abajo).
+    del bote), rosca M20 del émbolo indexador P1-REV-04 (traba arriba/abajo).
 PETG descartado: FS < 3 en orejas del bucket y pernos (ver structural_direccion.py)."""
 import math
 import os
@@ -77,7 +77,7 @@ def ear_outline(p, sign):
     pts = circ(Xb, Zb, p.STE_ear_r) + [(Xb - 18, -2.0), (Xb + 18, -2.0), (Xb - 16, 40.0), (Xb + 16, 40.0)]
     if sign > 0:
         lx, lz = lock_point(p)
-        pts += circ(lx, lz, 13.0) + [(lx + 14, -2.0), (lx + 14, 30.0)]
+        pts += circ(lx, lz, 15.0) + [(lx + 10, -2.0), (lx + 12, 30.0)]
     return hull(pts)
 
 
@@ -105,14 +105,13 @@ def build(p):
     zt, dpt = p.STE_ear_top, p.STE_m6_depth
     b = b - cyl_z(2.5, zt - dpt, zt + 1, x=Xp) - cyl_z(2.5, -zt - 1, -zt + dpt, x=Xp)
     # roscas M6 de la brida del yugo (Ø5,0 × 12) en la torre
-    x0, x1 = p.STE_riser_x
-    for xx in (x0 + 7.0, x1 - 6.0):
-        b = b - cyl_z(2.5, p.STE_riser_top - 12, p.STE_riser_top + 1, x=Xp + xx)
+    for (xx, yy) in p.STE_riser_bolts:                                      # M8 (Ø6,8 × 16)
+        b = b - cyl_z(3.4, p.STE_riser_top - 16, p.STE_riser_top + 1, x=Xp + xx, y=yy)
     # orejas del bucket: Ø8,4 pasante (perno con hombro Ø10 apoya en la cara exterior; tuerca adentro)
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     b = b - cyl_y(4.2, -p.STE_ear_y1 - 1, p.STE_ear_y1 + 1, x=Xb, z=Zb)
     lx, lz = lock_point(p)
-    b = b - cyl_y(8.0, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=lx, z=lz)               # M16 del émbolo
+    b = b - cyl_y(10.0, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=lx, z=lz)              # M20 del émbolo
     b = b - bore_cut(p)
     return b
 
@@ -168,4 +167,5 @@ def checks(p, part):
         ("piso de la rosca M6 sobre la boca [mm]", (p.STE_ear_top - p.STE_m6_depth) - p.STE_rf, 2.5, ">="),
         ("luz axial a la oreja de la bomba (con arandela) [mm]", p.STE_gz - p.STE_wash_t, 0.3, ">="),
         ("oreja del bucket fuera del cuerpo: Y_oreja_ext − r_ext [mm]", p.STE_ear_y1 - p.STE_ro, 0.0, ">="),
+        ("rosca M8 de la torre: piel bajo el agujero (sobre la boca) [mm]", (p.STE_riser_top - 16) - p.STE_rf, 10.0, ">="),
     ]

@@ -56,7 +56,8 @@ def extend(d):
     d["STE_ear_rp"] = min(d.get("pmp_steer_ear_r", 13.0) - 0.5, 12.5)   # radio de la oreja alrededor del perno
     d["STE_ear_w"] = min(d.get("pmp_steer_ear_w", 24.0), 2 * d["STE_ear_rp"])
     d["STE_free_r"] = d.get("pmp_steer_free_r", 61.1)   # zona libre de la tobera fija (radio)
-    d["STE_riser_x"] = (15.0, 40.0)    # torre del yugo detrás del extremo de la oreja de la bomba (X')
+    d["STE_riser_x"] = (15.0, 42.0)    # torre del yugo detrás del extremo de la oreja de la bomba (X')
+    d["STE_riser_bolts"] = [(19.0, -8.0), (19.0, 8.0), (38.0, -8.0), (38.0, 8.0)]   # 4 × M8 A4 (X', Y)
     d["STE_riser_y"] = 14.0
     d["STE_riser_top"] = 80.0          # [CALCULADO: sobre la oreja de la bomba + cabeza del perno]
     d["STE_zc_top"] = d["STE_riser_top"]   # apoyo de la brida del yugo
@@ -71,13 +72,13 @@ def extend(d):
     d["STE_head_z0"] = zl + d["STE_lug_t"] + d["STE_gz"]   # apoyo de la cabeza
     d["STE_m6_depth"] = 8.0
     # yugo de dirección
-    d["STE_yoke_t"] = 8.0              # brida del yugo sobre la torre (Al 5083 8 mm)
-    d["STE_post_x"] = 20.0             # poste: X' (desde el eje de giro) [CALCULADO: libra la cabeza del perno del bucket]
-    d["STE_post_y"] = -70.0            # poste: Y_jet (babor del bote) [CALCULADO: fuera del barrido del bucket |Y| ≤ 63,8]
+    d["STE_yoke_t"] = 20.0             # brida del yugo sobre la torre (Al 5083 20 mm) [CALCULADO: torsión del poste, structural_direccion]
+    d["STE_post_x"] = 25.0             # poste: X' (desde el eje de giro) [CALCULADO: fuera de la placa de espejo con δ = −δmax]
+    d["STE_post_y"] = -78.0            # poste: Y_jet (babor del bote) [CALCULADO: fuera del barrido del bucket |Y| ≤ 63,8]
     d["STE_post_d"] = 22.0             # [CALCULADO: ver structural_direccion]
     d["STE_post_z1"] = 245.0           # cara superior del brazo [CALCULADO: rótula a Z ≈ 257 → z_bote ≈ 345 > flotación 273]
     d["STE_arm_t"] = 10.0
-    d["STE_stud_x"] = 60.0             # rótula del brazo superior en (X', Y) = (60, −70)
+    d["STE_stud_x"] = 66.0             # rótula del brazo superior en (X', Y) = (66, STE_post_y) [CALCULADO: luz de la barra al espejo]
     d["STE_stud_hole"] = 8.4           # rótula angular M8 (DIN 71802) [ESTIMADO: buscar "Winkelgelenk DIN 71802 M8 A4"]
     d["STE_ball_h"] = 12.0             # centro de bola sobre la cara del brazo [ESTIMADO: DIN 71802 M8]
     d["STE_link_L"] = 60.0             # biela cable M66 → brazo [CALCULADO: recorrido simétrico ±29,6 mm]
@@ -105,17 +106,19 @@ def extend(d):
     d["REV_bush_L"] = 8.0              # brazo 4 + refuerzo 4
     d["REV_head_d"] = 16.0
     d["REV_head_t"] = 6.0
-    # biela del Mach5: perno en un lóbulo del brazo +Y a REV_stud_r del pivote, a 215° (arriba) y
-    # 145° (abajo): cuerda VERTICAL → la varilla del Mach5 trabaja vertical, anclada en la boquilla
+    # biela del Mach5: perno en el brazo +Y a REV_stud_r del pivote, a +35° (arriba) y −35° (abajo):
+    # cuerda VERTICAL a popa del pivote → la varilla del Mach5 trabaja vertical, anclada en la boquilla,
+    # y nada del mando avanza hacia la tobera fija al girar (pmp_fixed_aft_env)
     d["REV_stud_r"] = 40.0             # [CALCULADO: carrera 2·r·sin35° = 45,9 mm < carrera del Mach5]
-    d["REV_stud_up_ang"] = 215.0       # ° desde +X hacia +Z, bucket ARRIBA (marco natural)
+    d["REV_stud_up_ang"] = 35.0        # ° desde +X hacia +Z, bucket ARRIBA (marco natural)
     d["REV_stud_d"] = 8.0              # perno con hombro Ø8 / M6 (316)
+    d["REV_eye_off"] = 4.0             # separador POM entre el brazo y la rótula (la vaina libra el brazo)
     d["REV_eye_w"] = 8.0               # ojo de la varilla (rótula hembra M6) [ESTIMADO: DIN ISO 12240-4 M6; buscar]
-    d["REV_sleeve_z0"] = 125.0         # fin de la vaina rígida del Mach5 (sale la varilla) [CALCULADO]
-    d["REV_lock_r"] = 40.0             # émbolo indexador a 40 mm del pivote
-    d["REV_lock_ang"] = -35.0          # ° (marco de la boquilla) [CALCULADO: libra el cuerpo de la boquilla]
-    d["REV_lock_pin_d"] = 10.0         # [ESTIMADO: émbolo indexador A4 M16×1,5 con perno Ø10; buscar "GN 617 A4 M16"]
-    d["REV_lock_hole_d"] = 10.5
+    d["REV_sleeve_z0"] = 130.0         # fin de la vaina rígida del Mach5 (sale la varilla) [CALCULADO]
+    d["REV_lock_r"] = 45.0             # émbolo indexador a 45 mm del pivote [CALCULADO: FS ≥ 2 del perno Ø12]
+    d["REV_lock_ang"] = 10.0           # ° (marco de la boquilla) [CALCULADO: arriba-popa del pivote, libra la varilla del Mach5]
+    d["REV_lock_pin_d"] = 12.0         # [ESTIMADO: émbolo indexador A4 M20×1,5 con perno Ø12; buscar "GN 617-12-M20 A4"]
+    d["REV_lock_hole_d"] = 12.5
     d["REV_mach5_stroke"] = 76.0       # [ESTIMADO: cable 33C/Mach5 carrera 3" típica; buscar "Ultraflex Mach5 stroke"]
     d["REV_impact"] = 2.0              # [SUPUESTO: R10b H10 — bisagra para ≥ 2 × 760 N]
     d["REV_F_design"] = max(loads["F_bucket_N"], 1408.0)   # [CALCULADO: research/R12 §7.5 — 1408 N (7,2 kW, k_r = 1); se toma el mayor con sizing]

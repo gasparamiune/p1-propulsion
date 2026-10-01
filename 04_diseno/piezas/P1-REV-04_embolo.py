@@ -2,7 +2,7 @@
 
 [ESTIMADO: émbolo indexador A4 M16×1,5 con perno Ø10, carrera ~8 mm, con pomo y retén de tirar;
 buscar "GN 617-10-M16 A4" / "Arretierbolzen Edelstahl M16"]. Se enrosca en la oreja +Y de la boquilla
-(contratuerca por dentro) y su perno entra en el agujero del brazo del bucket que corresponde a cada
+(contratuerca M20 por dentro) y su perno entra en el agujero del brazo del bucket que corresponde a cada
 posición: la carga del chorro en reversa (R12: 53–85 N·m en la bisagra) la toma el perno, no el cable
 Mach5. Se libera tirando del pomo con un Bowden inox desde el gatillo de la palanca del bucket
 (P1-CTL-10); al soltar el gatillo, el resorte lo vuelve a meter (traba automática al llegar)."""
@@ -10,20 +10,20 @@ import math
 from cadlib import cyl_y
 
 META = dict(
-    id="P1-REV-04", name="embolo", desc="Émbolo indexador A4 M16 / perno Ø10 (comprado)",
+    id="P1-REV-04", name="embolo", desc="Émbolo indexador A4 M20 / perno Ø12 (comprado)",
     material="AISI 316", process="comprada", qty=1, frame="steer", group="jet",
     load_case="Corte del perno Ø10: momento del bucket en reversa / REV_lock_r", print_rot=(0, 0, 0),
-    solid_frac=1.0, orientation="—", mass_g=110.0,   # [ESTIMADO: catálogo de émbolos M16]
+    solid_frac=1.0, orientation="—", mass_g=160.0,   # [ESTIMADO: catálogo de émbolos M20]
 )
 
 
 def build(p):
     y0, y1, yi = p.STE_ear_y0, p.STE_ear_y1, p.REV_y_in
-    s = cyl_y(p.REV_lock_pin_d / 2, y1 - 0.01, yi + p.REV_t + 1.0)       # perno
-    s = s + cyl_y(7.9, y0, y1)                                         # rosca en la oreja (modelado Ø15,8)
-    s = s + cyl_y(12.0, y0 - 7.0, y0)                                  # contratuerca M16 (Ø24)
-    s = s + cyl_y(8.0, y0 - 14.0, y0 - 7.0)                            # cuerpo
-    s = s + cyl_y(10.0, y0 - 24.0, y0 - 14.0)                          # pomo Ø20
+    s = cyl_y(p.REV_lock_pin_d / 2, y1 - 0.01, yi + p.REV_t + 1.0)       # perno Ø12
+    s = s + cyl_y(9.9, y0, y1)                                         # rosca M20 en la oreja (modelado Ø19,8)
+    s = s + cyl_y(15.0, y0 - 8.0, y0)                                  # contratuerca M20 (Ø30)
+    s = s + cyl_y(10.0, y0 - 14.0, y0 - 8.0)                           # cuerpo Ø20
+    s = s + cyl_y(12.5, y0 - 24.0, y0 - 14.0)                          # pomo Ø25
     return s
 
 
@@ -43,7 +43,9 @@ def checks(p, part):
     x, z = lock_xz(p)
     ybot = p.STE_ear_y0 - 24.0
     zbody = math.sqrt(max(p.STE_ro ** 2 - ybot ** 2, 0.0))
+    znut = math.sqrt(max(p.STE_ro ** 2 - (p.STE_ear_y0 - 8.0) ** 2, 0.0))
     return [("un solo sólido", len(part.solids()), 1, "="),
-            ("pomo sobre el cuerpo de la boquilla [mm]", (z - 10.0) - zbody, 2.0, ">="),
+            ("pomo sobre el cuerpo de la boquilla [mm]", (z - 12.5) - zbody, 2.0, ">="),
+            ("contratuerca sobre el cuerpo de la boquilla [mm]", (z - 15.0) - znut, 2.0, ">="),
             ("perno sobresale de la cara exterior del brazo [mm]", 1.0, 0.5, ">="),
             ("holgura diametral perno ↔ agujero del brazo [mm]", p.REV_lock_hole_d - p.REV_lock_pin_d, 0.3, ">=")]

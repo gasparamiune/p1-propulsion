@@ -21,7 +21,7 @@ META = dict(
     orientation="Base sobre la cama; la cara inclinada a 45° no necesita soportes. 0,2 mm, 5 perímetros",
 )
 L, B, H = 80.0, 110.0, 55.0
-T = 4.0
+T = 6.0
 X_POD, Y_POD = 1760.0, 30.0
 
 

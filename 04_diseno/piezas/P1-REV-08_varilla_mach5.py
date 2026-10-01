@@ -1,6 +1,6 @@
 """P1-REV-08 — Varilla del Mach5 con rótula hembra M6 en el perno del bucket (COMPRADA con el cable).
 
-Vertical (la cuerda del perno es vertical): baja REV dz al bajar el bucket... sube/baja sin girar.
+Vertical (la cuerda del perno es vertical, a popa del pivote): baja 45,9 mm al bajar el bucket, sin girar.
 Placements: marco de la boquilla + traslación en Z según el estado del bucket."""
 import os
 import sys
@@ -21,6 +21,7 @@ def build(p):
     ry = M5.rod_y(p)
     w = p.REV_eye_w
     eye = cyl_y(9.0, ry - w / 2, ry + w / 2, x=sx, z=sz) - cyl_y(p.REV_stud_d / 2 + 0.1, ry - w, ry + w, x=sx, z=sz)
+    # (el separador POM entre brazo y ojo viene con el perno)
     rod = cyl_z(3.2, sz + 8.0, p.REV_sleeve_z0 + 60.0, x=sx, y=ry)
     return eye + rod
 
@@ -32,8 +33,11 @@ def placements(p, steer=0.0, bucket=0):
 
 
 def checks(p, part):
-    top_dn = p.REV_sleeve_z0 + 60.0 + M5.dz(p)
+    dz = M5.dz(p)
+    top = p.REV_sleeve_z0 + 60.0
+    tops = (top, top + dz)
+    zs = (M5.stud_xz(p)[1], M5.stud_xz(p, True)[1])
     return [("un solo sólido", len(part.solids()), 1, "="),
-            ("varilla dentro de la vaina con el bucket abajo (margen al fondo) [mm]",
-             (p.REV_sleeve_z0 + M5.SLEEVE_L + M5.HUB_L - 5) - top_dn, 5.0, ">="),
-            ("varilla expuesta mínima (abajo) [mm]", p.REV_sleeve_z0 - (M5.stud_xz(p, True)[1] + 9.0), 8.0, ">=")]
+            ("varilla dentro de la vaina (mínimo) [mm]", min(tops) - p.REV_sleeve_z0, 10.0, ">="),
+            ("varilla: margen al fondo de la vaina [mm]", (p.REV_sleeve_z0 + M5.SLEEVE_L + M5.HUB_L - 5) - max(tops), 5.0, ">="),
+            ("varilla expuesta mínima [mm]", p.REV_sleeve_z0 - (max(zs) + 9.0), 8.0, ">=")]

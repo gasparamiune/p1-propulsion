@@ -8,7 +8,7 @@ def stud_xz(p, down=False):
 
 
 def rod_y(p):
-    return p.REV_y_in + p.REV_t + 1.0 + p.REV_eye_w / 2
+    return p.REV_y_in + p.REV_t + p.REV_eye_off + p.REV_eye_w / 2
 
 
 def dz(p):

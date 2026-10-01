@@ -24,20 +24,21 @@ X0, X1 = -95.0, 62.0
 Y0, Y1 = -27.0, 27.5
 ZT = 40.0
 W = 3.5
+WT = 6.0          # tapa (mano apoyada 150 N, structural_direccion)
 SENSOR = (5.0, 4.5, 2.5)     # bolsillo del A1324 (x, z, y) [ESTIMADO: SIP-3 4,1 × 3 × 1,5 + epoxi]
 
 
 def slot(p, ylo, yhi, th_min, th_max, half_w):
     zt = ZT
-    xa = min(zt * math.tan(math.radians(th_min)), (zt - W) * math.tan(math.radians(th_min)))
-    xb = max(zt * math.tan(math.radians(th_max)), (zt - W) * math.tan(math.radians(th_max)))
+    xa = min(zt * math.tan(math.radians(th_min)), (zt - WT) * math.tan(math.radians(th_min)))
+    xb = max(zt * math.tan(math.radians(th_max)), (zt - WT) * math.tan(math.radians(th_max)))
     pad = half_w / math.cos(math.radians(max(abs(th_min), abs(th_max)))) + 2.0
-    return box(xa - pad, xb + pad, ylo, yhi, zt - W - 1, zt + 1)
+    return box(xa - pad, xb + pad, ylo, yhi, zt - WT - 1, zt + 1)
 
 
 def build_local(p):
     zb = U.top_local(p)
-    s = box(X0, X1, Y0, Y1, zb, ZT) - box(X0 + W, X1 - W, Y0 + W, Y1 - W, zb - 1, ZT - W)
+    s = box(X0, X1, Y0, Y1, zb, ZT) - box(X0 + W, X1 - W, Y0 + W, Y1 - W, zb - 1, ZT - WT)
     s = s + (box(X0 - 12, X1 + 12, Y0 - 12, Y1 + 12, zb, zb + 4) - box(X0 + W, X1 - W, Y0 + W, Y1 - W, zb - 1, zb + 5))
     s = s - slot(p, U.Y_THR[0] - 2, U.Y_THR[1] + 2, -p.CTL_thr_rev, p.CTL_thr_fwd, 8.0)
     s = s - slot(p, U.Y_BKT[0] - 2, U.Y_BKT[1] + 2, -p.CTL_bkt_travel, 0.0, 8.0)
@@ -64,10 +65,10 @@ def placements(p, steer=0.0, bucket=0):
 
 def checks(p, part):
     gap = (U.Y_HEAD[0]) - (Y0 + W - 1.0) - 0.0
-    hub_clear = (X1 - W) - (U.CRANK_R + 9.0)
+    hub_clear = min((X1 - W) - U.HUB_R, -(X0 + W) - (U.CRANK_R + 9.0))
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("entrehierro imán ↔ cara del sensor [mm]", U.Y_HEAD[0] - (Y0 + W - 1.0), p.CTL_hall_gap, "="),
             ("luz cabeza del eje ↔ pared [mm]", U.Y_HEAD[0] - (Y0 + W), 1.0, ">="),
             ("manivela dentro de la caja (x) [mm]", hub_clear, 2.0, ">="),
-            ("cubo de palanca bajo la tapa (z) [mm]", (ZT - W) - U.HUB_R, 3.0, ">="),
+            ("cubo de palanca bajo la tapa (z) [mm]", (ZT - WT) - U.HUB_R, 3.0, ">="),
             ("pared mínima [mm]", W, p.wall, ">=")]

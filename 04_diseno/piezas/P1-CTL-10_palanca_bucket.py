@@ -2,8 +2,8 @@
 
 Mango desplazado 20 mm hacia babor (no choca con el del acelerador) con gatillo (no modelado) que tira
 del Bowden de liberación del émbolo P1-REV-04 en la boquilla: apretar → libera la traba; soltar → traba
-en la otra posición. La manivela hacia proa (r = 46, φ −30° → +30°) sube la varilla del Mach5 de la
-consola 46 mm (= carrera en la boquilla): la varilla de la boquilla sube y baja el bucket.
+en la otra posición. La manivela hacia popa (r = 46, φ 150° → 210°) mete 46 mm la varilla del Mach5 de la
+consola en su vaina (= carrera en la boquilla): en la boquilla la varilla sale y baja el bucket.
 Muescas del enclavamiento en la cara interior (2: ARRIBA, 3: ABAJO). Gira en el eje con buje POM."""
 import math
 import os
@@ -20,9 +20,9 @@ META = dict(
     load_case="100 N en el pomo contra el enclavamiento / tope", print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Fresado CNC + escalón soldado",
 )
-STEP_Z = (92.0, 104.0)
+STEP_Z = (100.0, 112.0)
 TOP_Y = (25.0, 33.0)
-TOP_Z = 125.0
+TOP_Z = 135.0
 
 
 def build_local(p):
@@ -58,8 +58,8 @@ def checks(p, part):
     cd = U.crank_pin(U.CRANK_PHI_UP + p.CTL_bkt_travel)
     import _mach5 as M5
     return [("un solo sólido", len(part.solids()), 1, "="),
-            ("carrera de la manivela (vertical) [mm]", cd[1] - cu[1], abs(M5.dz(p)), "="),
+            ("carrera de la manivela (vertical) [mm]", abs(cd[1] - cu[1]), abs(M5.dz(p)), "="),
             ("cuerda vertical de la manivela |Δx| [mm]", abs(cd[0] - cu[0]), 0.5, "<="),
             ("escalón del mango sobre la caja con el bucket abajo [mm]",
-             STEP_Z[0] * math.cos(math.radians(p.CTL_bkt_travel)) - 40.0, 3.0, ">="),
+             STEP_Z[0] * math.cos(math.radians(p.CTL_bkt_travel)) - 8.0 * math.sin(math.radians(p.CTL_bkt_travel)) - 40.0, 2.0, ">="),
             ("separación de los pomos (y) [mm]", (TOP_Y[0] + TOP_Y[1]) / 2 - (U.Y_THR[0] + U.Y_THR[1]) / 2, 35.0, ">=")]

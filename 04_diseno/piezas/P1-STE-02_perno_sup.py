@@ -29,8 +29,10 @@ def placements(p, steer=0.0, bucket=0):
 def checks(p, part):
     import math
     rh = math.hypot(p.STE_head_z0 + p.STE_head_t, p.STE_head_d / 2)
+    x_head0 = p.X_steer_pivot - p.STE_head_d / 2
+    x_col = p.raw.get("pmp_collar_X1", -1e9)
+    ok = (x_head0 - x_col) if rh > p.raw.get("pmp_tp_bore_R", 1e9) else 99.0
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("largo del hombro − (oreja + 2 luces) [mm]", (p.STE_head_z0 - p.STE_ear_top) - (p.STE_lug_t + 2 * p.STE_gz), 0.0, "="),
-            ("cabeza dentro del cuello de la placa de espejo: r_cuello − r_cabeza [mm]",
-             p.raw.get("pmp_tp_bore_R", rh + 1.0) - rh, 0.5, ">="),
+            ("cabeza a popa del cuello de la placa de espejo (o dentro de su agujero) [mm]", ok, 1.0, ">="),
             ("rosca útil M6 [mm]", p.STE_m6_depth - 1.0, 6.0, ">=")]

@@ -7,8 +7,8 @@ Se diseña en la posición ABAJO (bucket_down_deg) y se lleva a ARRIBA (marco na
     proa y abajo por el labio inferior; nervio central de 4 mm en el lomo (franja de 46 mm);
   - brazos laterales (±Y 49,5–53,5) con aro de refuerzo en el pivote (buje POM P1-REV-03, perno
     con hombro P1-REV-02);
-  - brazo +Y: lóbulo con el perno de la varilla del Mach5 (P1-REV-06) en una cuerda VERTICAL
-    (215° arriba / 145° abajo, r = REV_stud_r) y dos agujeros de traba para el émbolo P1-REV-04
+  - brazo +Y: perno de la varilla del Mach5 (P1-REV-06) en una cuerda VERTICAL a popa del pivote
+    (+35° arriba / −35° abajo, r = REV_stud_r) y dos agujeros de traba para el émbolo P1-REV-04
     (arriba y abajo): la carga del chorro en reversa NO pasa por el cable.
 En ARRIBA no toca el cono del chorro (5°)."""
 import math
@@ -67,9 +67,9 @@ def build_down(p):
         y0, y1 = (yi, yi + t) if sg > 0 else (-yi - t, -yi)
         a_main = hull(circ(*P, p.REV_boss_r) + outer)
         plate = prism_xz(a_main, y0, y1)
-        if sg > 0:
-            plate = plate + prism_xz(hull(circ(*P, p.REV_boss_r) + circ(*sd, 11.0)), y0, y1)
-            plate = plate + prism_xz(hull(circ(*P, p.REV_boss_r) + circ(*lk_up, 11.0)), y0, y1)
+        if sg > 0:                                    # lóbulos: perno de la varilla y 2 trabas
+            for q in (sd, lk, lk_up):
+                plate = plate + prism_xz(hull(circ(*P, p.REV_boss_r) + circ(*q, 12.0)), y0, y1)
         ring_y = (y1, y1 + t) if sg > 0 else (y0 - t, y0)
         plate = plate + prism_xz(circ(*P, p.REV_boss_r, 32), *ring_y)
         s = s + plate

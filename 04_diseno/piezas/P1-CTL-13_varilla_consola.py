@@ -1,6 +1,6 @@
 """P1-CTL-13 — Varilla del Mach5 en la consola con rótula hembra M6 (comprada con el cable).
 
-Vertical (la manivela barre una cuerda vertical): sube CRANK_R al bajar el bucket. Placements según el
+Vertical (la manivela barre una cuerda vertical): baja CRANK_R al bajar el bucket. Placements según el
 estado del bucket."""
 import os
 import sys
@@ -38,6 +38,8 @@ def placements(p, steer=0.0, bucket=0):
 def checks(p, part):
     up = U.crank_pin(U.CRANK_PHI_UP)
     dn = U.crank_pin(U.CRANK_PHI_UP + p.CTL_bkt_travel)
+    bot = U.SLEEVE_TOP_Z - 60.0
+    bots = (bot, bot + (dn[1] - up[1]))
     return [("un solo sólido", len(part.solids()), 1, "="),
-            ("varilla dentro de la vaina con el bucket abajo [mm]", U.SLEEVE_TOP_Z - (U.SLEEVE_TOP_Z - 60.0 + (dn[1] - up[1])), 10.0, ">="),
-            ("varilla expuesta con el bucket arriba [mm]", (up[1] - 9.0) - U.SLEEVE_TOP_Z, 5.0, ">=")]
+            ("varilla dentro de la vaina (mínimo) [mm]", U.SLEEVE_TOP_Z - max(bots), 10.0, ">="),
+            ("varilla expuesta mínima [mm]", (min(up[1], dn[1]) - 9.0) - U.SLEEVE_TOP_Z, 5.0, ">=")]

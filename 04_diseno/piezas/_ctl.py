@@ -21,7 +21,8 @@ Y_HEAD = (-22.0, -16.0)
 HUB_R = 30.0
 CONSOLE_TOP_LOCAL = None      # se calcula con p
 CRANK_R = 46.0                # [CALCULADO: carrera = 2·r·sin30° = carrera del Mach5 en la boquilla]
-CRANK_PHI_UP = -30.0          # manivela hacia proa; ARRIBA → φ = −30°, ABAJO → +30° (sube: tira la varilla)
+CRANK_PHI_UP = 150.0          # manivela hacia popa; ARRIBA → φ = 150°, ABAJO → 210° (baja: mete la varilla
+                              # en la vaina → en la boquilla la varilla sale y baja el bucket)
 ROD_Y = 17.0
 SLEEVE_TOP_Z = -38.0          # fin de la vaina del Mach5 de la consola (sale la varilla hacia arriba)
 GROOVES_T = {2: (60.0, 90.0), 3: (270.0, 310.0)}
