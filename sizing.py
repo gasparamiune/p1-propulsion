@@ -490,6 +490,10 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
     need = max(I_top * e["fuse_factor"], I_pk)
     fuse_a = next((r for r in e["fuse_ratings_a"] if r >= need), e["fuse_ratings_a"][-1])
     cab_dc = power.cable(inp, I_pk, e["len_battery_to_esc_m"], ba["v_nom"], I_ampacity=fuse_a)
+    # baterías en paralelo: un fusible por rama, cerca del borne (corriente pico / n, con reparto 60/40)
+    n_par = ba.get("parallel", 1)
+    need_b = 0.6 * I_pk if n_par > 1 else need
+    fuse_branch = next((r for r in e["fuse_ratings_a"] if r >= need_b), e["fuse_ratings_a"][-1]) if n_par > 1 else fuse_a
     cab_ph = power.cable(inp, i_ph, e["len_esc_to_motor_m"], ba["v_nom"])
     out = {
         "status": status,
@@ -527,7 +531,8 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
         "legal_speed": legal, "energy": energy, "thermal": thermal,
         "electrical": {"I_bat_peak_A": I_pk, "I_bat_top_A": I_top, "I_phase_limit_A": i_ph, "I_bat_limit_A": i_bat,
                        "P_bat_cont_W": P_cont, "P_bat_peak_W": P_peak, "cable_dc": cab_dc, "cable_phase": cab_ph,
-                       "fuse_a": fuse_a, "fuse_protects_cable": fuse_a <= cab_dc["ampacity_a"]},
+                       "fuse_a": fuse_a, "fuse_protects_cable": fuse_a <= cab_dc["ampacity_a"],
+                       "n_parallel": n_par, "fuse_branch_a": fuse_branch},
         "mech": mechanical(inp, d), "loads": loads(inp, d),
         "sensitivity": sensitivity(inp, best, d["pump"]),
         "optimization": {"status": status, "n_evaluated": len(rows),

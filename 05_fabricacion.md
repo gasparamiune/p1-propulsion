@@ -338,7 +338,7 @@ Latón 0,4 para todo P1 (PETG). **Boquilla endurecida solo si P2 usa fibra** (PE
 Bobinas de 1 kg a comprar: **11** [CALCULADO: máx(g) × 1.30 de purga, fallas y reimpresiones (= bom.py)]. Laminado: PrusaSlicer-2.7.2+UNKNOWN based on Slic3r (with GUI support), perfiles y ajustes por objeto de esta página, sin soportes (con soportes automáticos suma 26 g). El ritmo real de las piezas es **9,9 g/h**, no los 18 g/h de inputs.yaml (printer.print_rate_g_h): 6 perímetros y velocidades moderadas. Corregir ese valor en inputs.yaml para el plan de impresión.
 <!-- /FAB:totales -->
 
-Totales del CAD (manifest): <!--V:manifest.totals.printed_mass_g:.0f-->6011<!--/V--> g y <!--V:manifest.totals.printed_hours:.0f-->334<!--/V--> h a 18 g/h. Todas las piezas entran en la zona útil 210 × 210 × 260 (verificado en `build_all.py` y `build_probetas.py`).
+Totales del CAD (manifest): <!--V:manifest.totals.printed_mass_g:.0f-->1020<!--/V--> g y <!--V:manifest.totals.printed_hours:.0f-->57<!--/V--> h a 18 g/h. Todas las piezas entran en la zona útil 210 × 210 × 260 (verificado en `build_all.py` y `build_probetas.py`).
 
 ---
 

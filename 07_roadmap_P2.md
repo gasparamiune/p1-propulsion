@@ -19,7 +19,7 @@ Ningún ítem cambia el código de P1: cada uno entra en P2 cuando se cumple su 
 | Motor en crucero de diseño: T estacionaria / tiempo hasta 85 °C | <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->80<!--/V--> °C / <!--V:sizing.thermal.cruise_design.t_to_limit_min:.0f-->inf<!--/V--> min | [CALCULADO con R_th 0,45 K/W ESTIMADO y aire a 30 °C] |
 | ESC: pérdida en crucero / disipador exigido | <!--V:sizing.thermal_esc.esc_cruise.P_loss_esc_W:.0f-->26<!--/V--> W / ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.44<!--/V--> K/W | [CALCULADO: 02 §5.2] |
 | Batería (2 × 12 V 100 Ah LFP) | <!--V:sizing.battery.E_nom_wh:.0f-->2560<!--/V--> Wh, <!--V:sizing.battery.mass_kg:.0f-->22<!--/V--> kg | [CALCULADO] |
-| Impresión total PETG | <!--V:manifest.totals.printed_hours:.0f-->334<!--/V--> h, <!--V:manifest.totals.printed_mass_g:.0f-->6011<!--/V--> g | [CALCULADO: resultados/manifest.json] |
+| Impresión total PETG | <!--V:manifest.totals.printed_hours:.0f-->57<!--/V--> h, <!--V:manifest.totals.printed_mass_g:.0f-->1020<!--/V--> g | [CALCULADO: resultados/manifest.json] |
 | Carga útil / placa de capacidad estimada | <!--V:sizing.masses.payload_kg:.0f-->248<!--/V--> / <!--V:sizing.masses.capacity_kg:.0f-->160<!--/V--> kg | [CALCULADO] / [ESTIMADO: R04, D-16] |
 
 ## 1. Resumen priorizado
@@ -70,7 +70,7 @@ Ningún ítem cambia el código de P1: cada uno entra en P2 cuando se cumple su 
 
 ### 2.4 Trimado: menos espejo sumergido
 - **Qué:** batería y bultos hacia el centro/proa hasta que el espejo deje de arrastrar agua; marca de flotación de popa pintada en el casco.
-- **Por qué:** el espejo sumergido aporta 40 N de 134 N a 6 km/h (30 %), es el término con menos base empírica y, según la fórmula, no se ventila por debajo de 24,5 km/h [VERIFICADO: R09 §1.4, Holtrop-Mennen]. Hoy el bote va a <!--V:sizing.masses.capacity_ratio:.0%-->155%<!--/V--> de la placa estimada, con calado <!--V:sizing.hydrostatics.draft_m:.3f-->0.198<!--/V--> m.
+- **Por qué:** el espejo sumergido aporta 40 N de 134 N a 6 km/h (30 %), es el término con menos base empírica y, según la fórmula, no se ventila por debajo de 24,5 km/h [VERIFICADO: R09 §1.4, Holtrop-Mennen]. Hoy el bote va a <!--V:sizing.masses.capacity_ratio:.0%-->155%<!--/V--> de la placa estimada, con calado <!--V:sizing.hydrostatics.draft_m:.3f-->0.285<!--/V--> m.
 - **Beneficio:** A_T −25 % → R_TR −20 % ≈ −8 N ≈ −6 % de R [CALCULADO: R09 §1.4]. En el modelo, −20 % de ancho de espejo sumergido → P_bat 834 W (−8 %) [CALCULADO: resultados/sizing.json → sensitivity].
 - **Costo / tiempo:** 0 €; 0,5 día. Llevar la batería 1 m más a proa alarga el cable DC: la caída pasa de <!--V:sizing.cables.dc.drop_frac:.1%-->0.9%<!--/V--> a ≈ 1,8 %, debajo del 3 % [CALCULADO: caída ∝ largo].
 - **Disparador:** P0.2 con francobordo de popa cerca de 150 mm; estela del espejo en las fotos de T3; Wh/km de T4 por encima del modelo.
@@ -125,7 +125,7 @@ Ningún ítem cambia el código de P1: cada uno entra en P2 cuando se cumple su 
 
 ### 3.2 Batería de 36 V (D-28)
 - **Qué:** LiTime 36 V 50 Ah (12S) y motor de 140 KV (D-28) en lugar de 2 × 12 V 100 Ah.
-- **Por qué:** es más liviana y más barata: 15 kg contra 22 kg, y 399,99 + 132,99 € (cargador) contra <!--V:bom.battery_charger_eur:.2f-->578.17<!--/V--> € del par actual con su cargador [VERIFICADO precios: R08a, D-19].
+- **Por qué:** es más liviana y más barata: 15 kg contra 22 kg, y 399,99 + 132,99 € (cargador) contra <!--V:bom.battery_charger_eur:.2f-->1072.97<!--/V--> € del par actual con su cargador [VERIFICADO precios: R08a, D-19].
 - **Beneficio:** −7 kg (≈ −3 % de P_bat, [ESTIMADO: sensibilidad de masa de sizing, ≈ 3,7 W/kg]) y ≈ −45 € [CALCULADO]. La V máx no mejora de forma útil: con 2 personas el bote no llega a 5 kn en ninguna banda (D-30).
 - **Costo / tiempo:** con la hélice y la R actuales **no cumple**: requiere 2 222 Wh contra 1 920 Wh, y el BMS es de 50 A [CALCULADO: resultados/sizing.json → optimization, MKP32 con LFP36_50]. Cumple solo junto con 3.1, o si la calibración (2.3) da R ≤ banda nominal. El fusible y el portafusible de 58 V ya quedan comprados (D-28).
 - **Disparador:** 2.3 con R medida ≤ nominal y/o 3.1 hecho; o el reemplazo de la batería al final de su vida.

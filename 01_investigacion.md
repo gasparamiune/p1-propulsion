@@ -104,7 +104,7 @@ Casi no hay jon boats de aluminio < 2,5 m en catálogo: los más chicos de Track
 | Peso máx. colgado del espejo | 18–28 kg; 35 kg tope absoluto | unidad completa <!--V:verify.unit_mass.cad_kg:.2f-->8.85<!--/V--> kg (CAD) contra 18 kg de `inputs.yaml` | [VERIFICADO: R04 S4, S11, S18] + [CALCULADO: verify.json] |
 | Carga máx. de placa | 34–63 kg/m² → **100–185 kg** | 160 kg (USCG 33 CFR 183.35) | [CALCULADO: R04 §A.3–A.4] |
 
-**Riesgo n.º 1.** La regla USCG da carga máx = (desplazamiento máx − peso del bote)/5 ≈ (845 − 45)/5 = 160 kg [CALCULADO: R04 §A.4]. P1 lleva <!--V:sizing.masses.payload_kg:.0f-->248<!--/V--> kg de carga útil contra <!--V:sizing.masses.capacity_kg:.0f-->160<!--/V--> kg (×<!--V:sizing.masses.capacity_ratio:.2f-->1.55<!--/V-->), con calado <!--V:sizing.hydrostatics.draft_m:.3f-->0.198<!--/V--> m y francobordo <!--V:sizing.hydrostatics.freeboard_m:.3f-->0.182<!--/V--> m [CALCULADO]. No se sube la placa por cálculo propio (D-16).
+**Riesgo n.º 1.** La regla USCG da carga máx = (desplazamiento máx − peso del bote)/5 ≈ (845 − 45)/5 = 160 kg [CALCULADO: R04 §A.4]. P1 lleva <!--V:sizing.masses.payload_kg:.0f-->248<!--/V--> kg de carga útil contra <!--V:sizing.masses.capacity_kg:.0f-->160<!--/V--> kg (×<!--V:sizing.masses.capacity_ratio:.2f-->1.55<!--/V-->), con calado <!--V:sizing.hydrostatics.draft_m:.3f-->0.285<!--/V--> m y francobordo <!--V:sizing.hydrostatics.freeboard_m:.3f-->0.182<!--/V--> m [CALCULADO]. No se sube la placa por cálculo propio (D-16).
 
 ### 3.2 R(v) medida en botes chicos
 
@@ -133,7 +133,7 @@ Banda propuesta para el jon boat de 2,44 m con 2 adultos: **R(6 km/h) = 95–150
 | Bollard avante | <!--V:sizing.bollard_fwd.T_horiz:.0f-->253<!--/V--> N | 290–310 N (0,28–0,29 N/W) | [CALCULADO] / [VERIFICADO: R04 S60] |
 | Rendimiento total batería → R·V (crucero, diseño) | <!--V:sizing.cruise.design.eta_total:.0%-->30%<!--/V--> | 49–55 % máx | [CALCULADO] / [VERIFICADO: R04 S31, S34] |
 | Energía de batería (P1 usable / comercial nominal) | <!--V:sizing.battery.E_usable_wh:.0f-->2304<!--/V--> Wh | 1.080–1.276 Wh | [CALCULADO] / [VERIFICADO: R04 §B.1] |
-| Costo del sistema | <!--V:bom.total_eur:.0f-->2281<!--/V--> € (BOM con envíos, IVA y contingencia; sin equipo de seguridad, que suma hasta <!--V:bom.total_with_gear_eur:.0f-->2550<!--/V--> €) | 2.549 € (DE) a ~2.930 € (DK) el Spirit Evo completo | [CALCULADO: bom.py] / [VERIFICADO: R04 S33] + [CALCULADO: R04 §B.4, 21.886 kr / 7,4755] |
+| Costo del sistema | <!--V:bom.total_eur:.0f-->10606<!--/V--> € (BOM con envíos, IVA y contingencia; sin equipo de seguridad, que suma hasta <!--V:bom.total_with_gear_eur:.0f-->10821<!--/V--> €) | 2.549 € (DE) a ~2.930 € (DK) el Spirit Evo completo | [CALCULADO: bom.py] / [VERIFICADO: R04 S33] + [CALCULADO: R04 §B.4, 21.886 kr / 7,4755] |
 
 Lectura: P1 queda 3–10 % por debajo del empuje comercial medido y casi duplica la energía, pero su rendimiento total es bastante menor (hélice de trolling, η0 <!--V:sizing.cruise.design.prop_eta0:.2f-->0.41<!--/V-->; protector; eje a 25°) y su costo queda cerca del techo que fijó R04 ("bastante menos que ~2.550–2.930 €"). La ventaja de P1 es autonomía, basculación con pasador de corte y reparabilidad, no el precio.
 
@@ -183,7 +183,7 @@ Tuerca A4 cautiva en bolsillo de fondo: 166 kg de arrancamiento contra 119 kg de
 - **Motor seco arriba:** un outrunner inundado exige desarmar y enjuagar rotor y estator **tras cada uso**, según instrucciones para el Maytech 6579 publicadas por un usuario de foil.zone (no atribuidas explícitamente al fabricante) [VERIFICADO: R06 §1.1]. El inrunner sellado FS65161 depende de un sello dinámico (punto único de falla); R03 documenta agua pasando ese sello en 2–3 temporadas [VERIFICADO: R03 S25].
 - **VESC** (Flipsky 75100 V2.0, 14–84 V, 100 A) [VERIFICADO: R08a §2]. Defaults inútiles para un bote [VERIFICADO: R06 §2.4, código `mcconf_default.h` / `appconf_default.h`]: corte de batería 10,0/8,0 V (en 8S LFP poner 24,0/22,4 V [CALCULADO: 8 × 3,0/2,8 V por celda, ESTIMADO en R06]); `l_in_current_max` 99 A genérico y 100 A en el target 75_100 (bajar a ≤ 80 % del BMS: ≤ 80 A con BMS de 100 A); rampas 0,3/0,1 s (R06 pide ~0,5–1 s para no invertir el torque de golpe sobre la correa [ESTIMADO: R06 §2.6]; P1 lo resuelve en el MCU con rampa de subida de 1 s y 0,5 s en cero antes de invertir, 04_diseno/electronica/README.md §5); en ADC "Current Reverse Center" con `voltage_min` = 0,0 V un cursor cortado da **reversa máxima**.
 - `KILL_SW_MODE` aparece recién en FW 5.03; Flipsky pide **apagar el filtro de fase** con FW ≥ 5.03 o el ESC se daña [VERIFICADO: R06 §2.2; R08a §2]. En el firmware oficial ≥ 6.00 el target 75_100 ya trae el filtro apagado, pero hay que **releerlo en VESC Tool** tras el asistente [VERIFICADO: R06 §2.2]. Timeout PPM 1000 ms → rueda libre + safe start [VERIFICADO: R06 §2.5].
-- Hélice fuera del agua en modo corriente → embalamiento hasta `l_max_erpm` [ESTIMADO: R06 §2.6]; P1 fija un tope de <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> ERPM, que además es el límite legal (D-30).
+- Hélice fuera del agua en modo corriente → embalamiento hasta `l_max_erpm` [ESTIMADO: R06 §2.6]; P1 fija un tope de <!--V:sizing.legal_speed.erpm_cap:.0f-->3700<!--/V--> ERPM, que además es el límite legal (D-30).
 
 ### 5.2 Baterías
 
@@ -305,7 +305,7 @@ Todo "a confirmar con la autoridad local" (Syd- og Sønderjyllands Politi, Søfa
 | ASA y filamentos cargados | Sprite de serie ≤ 260 °C; ASA pide 260 ± 5 °C, cama 110 °C y cerramiento | [VERIFICADO: R08b §8] |
 | Maytech MTO6374 | Menos corriente; eje de 26 mm de saliente | [VERIFICADO: R08a §1] + D-32 |
 
-**No encontrados con link abierto:** barra 316/316L Ø14–16, contactor DC de servicio continuo en DK/UE, hélice 10 × 8 de 3 palas con pasador, barra de POM-C, inserto roscado inoxidable, spring plunger inox, tubo de fibra pultruido (todos con "buscar:" en R08a y en R08b §11). BOM vigente: <!--V:bom.total_eur:.0f-->2281<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->17052<!--/V--> DKK con envíos, IVA y contingencia; <!--V:bom.verified_frac_of_subtotal:.0%-->71%<!--/V--> del subtotal con precio verificado [CALCULADO: bom.py].
+**No encontrados con link abierto:** barra 316/316L Ø14–16, contactor DC de servicio continuo en DK/UE, hélice 10 × 8 de 3 palas con pasador, barra de POM-C, inserto roscado inoxidable, spring plunger inox, tubo de fibra pultruido (todos con "buscar:" en R08a y en R08b §11). BOM vigente: <!--V:bom.total_eur:.0f-->10606<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->79287<!--/V--> DKK con envíos, IVA y contingencia; <!--V:bom.verified_frac_of_subtotal:.0%-->32%<!--/V--> del subtotal con precio verificado [CALCULADO: bom.py].
 
 ## 8. Métodos de cálculo (R09)
 
@@ -344,7 +344,7 @@ Todo "a confirmar con la autoridad local" (Syd- og Sønderjyllands Politi, Søfa
 | 5 | R(6 km/h) = 95–150 N (banda estimada desde mediciones); tablas de fabricante piden 2–3× menos energía (R04) | Modelo por componentes con banda [0,75; 1,15], diseño con el borde alto | D-05 |
 | 6 | ΔC_F ITTC-78 negativa con L = 2 m; Prohaska no vale; (1+k) entre 1,0 y 1,47 (R09) | Remolque mide R(v) total con h ≥ 1,5 m y ajusta `wave_cw` | PENDIENTES P0.3–P0.4 |
 | 7 | 1 kW → 7,6–8,0 km/h; 2,5 hp de nafta no planea con 2 (R04); Gerr 6,4 km/h; Savitsky no aplica (R09) | No se dimensiona para 12 km/h; meta de V máx blanda 8 km/h, que el diseño **no alcanza** (<!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.1<!--/V--> km/h nominal) y se acepta | inputs `vmax_target_kmh` [SUPUESTO], 02 §4.1 |
-| 8 | ≤ 5 kn a < 300 m de la costa (R07) | Tope de ERPM "modo costa" <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> (con 1 persona el bote haría <!--V:sizing.legal_speed.vmax_light_low_kmh:.1f-->9.5<!--/V--> km/h) | D-30 |
+| 8 | ≤ 5 kn a < 300 m de la costa (R07) | Tope de ERPM "modo costa" <!--V:sizing.legal_speed.erpm_cap:.0f-->3700<!--/V--> (con 1 persona el bote haría <!--V:sizing.legal_speed.vmax_light_low_kmh:.1f-->9.5<!--/V--> km/h) | D-30 |
 | 9 | Eléctricos de 1 kW usan hélices de 10–11" a 1200–1450 rpm; 7,8" rinde η0 0,42 contra 0,49 de 10 × 8 (R04, R09) | Hélice de ~254 mm (MKP-32, medidas [ESTIMADO]; η0 0,41, sin ganancia sobre la 7,8"); 10 × 8 de 3 palas como objetivo no comprable | D-06 |
 | 10 | Hélice OEM de 2,5–3,5 hp = 7,4"; bore y pasador no publicados (R08b) | Comprar y medir la hélice antes de tornear el eje | D-06, PENDIENTES P0.7 |
 | 11 | Hélice impresa: −61 % de empuje (PLA); pala de PETG fisurada al desmontarla tras 4 meses en el mar (R02, R03) | Hélice comprada; PRP-03 es solo volumen barrido | D-06, 02 §4.4 |
@@ -376,7 +376,7 @@ Todo "a confirmar con la autoridad local" (Syd- og Sønderjyllands Politi, Søfa
 | 37 | Viento fuerte SW/W de tierra; ola corta del largo del bote (R07) | Remos, ancla y chalecos en la BOM; salida ≤ 6 m/s; +25 % de R por ola | D-35, inputs `wave_added_frac` |
 | 38 | LiTime corta la carga < 0 °C y la Power Queen 24 V < 5 °C; en la PQ 12 V 100 Ah elegida no están verificados ni el corte en frío ni el IP (R08a §4) | Cargar en interior a ≥ 5 °C; batería removible, tratada como no estanca hasta leer la ficha | 02 §6, 06 PU.5 |
 | 39 | Carcasa de ~2 kg = 3 días de impresión → segmentar a ≤ 12–16 h por impresión [ESTIMADO]; hélice comprada desbalanceada (R02 C3) | Protector en 6 segmentos; **sin aplicar** a MNT-01 (103 h) ni MNT-05 (65 h) [CALCULADO: manifest.json]; balanceo de la hélice en el torno: **pendiente** de incorporar a 06 | D-26, 05_fabricacion, 06 |
-| 40 | Techo de costo = ePropulsion completo 2.549 € (DE) a ~2.930 € (DK) (R04) | BOM de <!--V:bom.total_eur:.0f-->2281<!--/V--> €: la justificación de P1 es autonomía y basculación, no precio | bom.csv, 03_arquitectura |
+| 40 | Techo de costo = ePropulsion completo 2.549 € (DE) a ~2.930 € (DK) (R04) | BOM de <!--V:bom.total_eur:.0f-->10606<!--/V--> €: la justificación de P1 es autonomía y basculación, no precio | bom.csv, 03_arquitectura |
 
 ### 9.1 Qué deja abierto la investigación (hacer antes de comprar, mecanizar o salir)
 
@@ -385,7 +385,7 @@ Todo "a confirmar con la autoridad local" (Syd- og Sønderjyllands Politi, Søfa
 3. Remolque con dinamómetro a 2–8 km/h con h ≥ 1,5 m para calibrar R(v) total (P0.3–P0.4); recién después comprar la batería (P0.5).
 4. Leer en la ficha de la Power Queen 12 V 100 Ah el grado IP y el corte de carga en frío (§5.2); hasta entonces, batería no estanca y carga en interior a ≥ 5 °C.
 5. Confirmar HDT(1,8 MPa) ≥ 70 °C del filamento antes de comprarlo; si la ficha no lo declara, PolyLite (D-29, §7.2).
-6. Configurar el VESC antes del agua (P2.2): filtro de fase apagado, `voltage_min` ≈ 0,3 V, corte 24,0/22,4 V, `l_in_current_max` ≤ 80 % del BMS, parámetros de 04_diseno/electronica/README.md §6 y tope de <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> ERPM (§5.1).
+6. Configurar el VESC antes del agua (P2.2): filtro de fase apagado, `voltage_min` ≈ 0,3 V, corte 24,0/22,4 V, `l_in_current_max` ≤ 80 % del BMS, parámetros de 04_diseno/electronica/README.md §6 y tope de <!--V:sizing.legal_speed.erpm_cap:.0f-->3700<!--/V--> ERPM (§5.1).
 7. Balancear la hélice en el torno antes de montarla (R02 C3) y montar el fusible a ≤ 175 mm del borne (§5.4).
 8. Cada temporada: desmontar el eje e inspeccionar picaduras bajo los bujes (§5.5); si aparecen, ánodo o eje dúplex (D-36).
 9. Medir temperaturas en T2.3/T2.5 de 06: el modelo da <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->80<!--/V--> °C estacionarios en el motor en crucero de diseño (> 85 °C del VESC, H-7 de 06), y las piezas impresas deben quedar ≤ 40 °C con f_temp 0,85 (§4.2).

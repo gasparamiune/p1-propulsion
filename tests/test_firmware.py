@@ -1,8 +1,12 @@
-"""Tests de la lógica del acelerador de P1 (04_diseno/electronica/firmware/throttle_logic.c).
+"""Tests de la lógica del acelerador del waterjet de P1 (04_diseno/electronica/firmware/throttle_logic.c).
 
 Compila throttle_logic.c con gcc (C99 estricto, -Werror) a una librería compartida en un directorio
-temporal y la usa vía ctypes. Los estados/flags se leen del header (no se duplican aquí); los
-requisitos (tiempo de corte, límite de reversa) se leen de inputs.yaml / calc_electronica.py.
+temporal y la ejecuta desde Python vía ctypes, tick a tick (banco de pruebas `Sim`). Los estados/flags
+se leen del header (no se duplican aquí); los requisitos (tiempo de corte, límite con el bucket abajo,
+l_min_erpm de la limpieza de rejilla) se leen de inputs.yaml / calc_electronica.py.
+
+Waterjet: la marcha atrás es el BUCKET; el motor gira siempre en avance (comando >= 0) salvo en la
+limpieza de rejilla (pulsador, acelerador en 0, <= 3 s, |comando| <= weed_cmd).
 """
 from __future__ import annotations
 
@@ -38,36 +42,42 @@ def _defines():
 
 D = _defines()
 ST = {k[3:]: v for k, v in D.items() if k in ("TL_DISARMED", "TL_ARMED", "TL_RUN_FWD", "TL_RUN_REV",
-                                               "TL_DWELL_ZERO", "TL_FAULT")}
-ARMED_STATES = {ST["ARMED"], ST["RUN_FWD"], ST["RUN_REV"], ST["DWELL_ZERO"]}
+                                               "TL_DWELL_ZERO", "TL_FAULT", "TL_WEED")}
+ARMED_STATES = {ST["ARMED"], ST["RUN_FWD"], ST["RUN_REV"], ST["DWELL_ZERO"], ST["WEED"]}
 F = {k[5:]: v for k, v in D.items() if k.startswith("TL_F_")}
+COAST, OPEN = D["TL_PROF_COAST"], D["TL_PROF_OPEN"]
 
 
 # ------------------------------------------------------------------ espejo ctypes de los structs
 class Cfg(ctypes.Structure):
     _fields_ = [("deadband", c_float), ("expo", c_float), ("reverse_limit", c_float), ("jump_travel_per_s", c_float),
+                ("weed_cmd", c_float),
                 ("adc_rev", c_uint16), ("adc_center", c_uint16), ("adc_fwd", c_uint16), ("adc_fault_low", c_uint16),
                 ("adc_fault_high", c_uint16), ("min_half_span", c_uint16), ("jump_noise_counts", c_uint16),
                 ("arm_hold_ms", c_uint16), ("ramp_up_ms", c_uint16), ("ramp_down_ms", c_uint16),
                 ("dwell_ms", c_uint16), ("watchdog_ms", c_uint16), ("ppm_min_us", c_uint16),
-                ("ppm_center_us", c_uint16), ("ppm_max_us", c_uint16), ("cal_valid", c_uint8), ("use_vesc_ok", c_uint8)]
+                ("ppm_center_us", c_uint16), ("ppm_max_us", c_uint16), ("weed_max_ms", c_uint16),
+                ("weed_hold_ms", c_uint16), ("sw_debounce_ms", c_uint16), ("cal_valid", c_uint8), ("use_vesc_ok", c_uint8)]
 
 
 class Inp(ctypes.Structure):
     _fields_ = [("adc", c_uint16), ("kill_cord_ok", c_uint8), ("estop_ok", c_uint8), ("vesc_ok", c_uint8),
-                ("_pad", c_uint8 * 3)]
+                ("bucket_up", c_uint8), ("sel_open", c_uint8), ("weed_btn", c_uint8)]
 
 
 class Out(ctypes.Structure):
-    _fields_ = [("cmd", c_float), ("target", c_float), ("ppm_us", c_uint16), ("flags", c_uint16),
-                ("state", c_uint8), ("enable", c_uint8), ("_pad", c_uint8 * 2)]
+    _fields_ = [("cmd", c_float), ("target", c_float), ("flags", c_uint32), ("ppm_us", c_uint16),
+                ("state", c_uint8), ("enable", c_uint8), ("profile", c_uint8), ("_pad", c_uint8 * 3)]
 
 
 class Ctx(ctypes.Structure):
     _fields_ = [("cfg", Cfg), ("last", Out), ("out", c_float), ("uptime_ms", c_uint32), ("arm_ms", c_uint32),
-                ("zero_ms", c_uint32), ("latched", c_uint16), ("prev_adc", c_uint16), ("prev_valid", c_uint8),
+                ("zero_ms", c_uint32), ("latched", c_uint32), ("bkt_up_ms", c_uint32), ("sel_ms", c_uint32),
+                ("weed_press_ms", c_uint32), ("weed_ms", c_uint32), ("prev_adc", c_uint16), ("prev_valid", c_uint8),
                 ("armed", c_uint8), ("arm_run", c_uint8), ("zero_run", c_uint8), ("last_dir", c_int8),
-                ("cfg_err", c_uint8), ("_pad", c_uint8 * 2)]
+                ("cfg_err", c_uint8), ("bkt_down", c_uint8), ("bkt_up_run", c_uint8), ("bkt_hold", c_uint8),
+                ("sel_db", c_uint8), ("sel_run", c_uint8), ("sel_ready", c_uint8), ("profile", c_uint8),
+                ("weed_run", c_uint8), ("weed_ready", c_uint8), ("weed_press_run", c_uint8), ("_pad", c_uint8 * 2)]
 
 
 # ------------------------------------------------------------------ compilación
@@ -94,6 +104,8 @@ def lib(tmp_path_factory):
     L.tl_position.restype = c_float
     L.tl_shape.argtypes = [POINTER(Cfg), c_float]
     L.tl_shape.restype = c_float
+    L.tl_thrust.argtypes = [POINTER(Cfg), c_float, c_uint8]
+    L.tl_thrust.restype = c_float
     L.tl_cmd_to_ppm.argtypes = [POINTER(Cfg), c_float]
     L.tl_cmd_to_ppm.restype = c_uint16
     L.tl_state_name.argtypes = [c_uint8]
@@ -111,13 +123,21 @@ def default_cfg(L, calibrated=True):
     return c
 
 
+def vesc_values():
+    import calc_electronica as ce
+    return ce.compute()["vesc_values"]
+
+
 class Sim:
     """Banco de pruebas: llama tl_tick con dt fijo y guarda la traza.
-    Los movimientos grandes del puño se hacen con goto() (mano real, 100 ms): un salto instantáneo
-    centro→tope es físicamente imposible y el detector de saltos lo marca como falla (test aparte)."""
+    Los movimientos grandes de la palanca se hacen con goto() (mano real, 100 ms): un salto instantáneo
+    centro→tope es físicamente imposible y el detector de saltos lo marca como falla (test aparte).
+    Entradas persistentes (se cambian asignando el atributo): bucket (1 = fin de carrera cerrado =
+    ARRIBA), sel (1 = selector en ABIERTO), weed (1 = pulsador de rejilla apretado)."""
 
-    def __init__(self, L, cfg=None, dt=DT):
+    def __init__(self, L, cfg=None, dt=DT, bucket=1, sel=0, weed=0):
         self.L, self.dt, self.t, self.pos = L, dt, 0, 0.0
+        self.bucket, self.sel, self.weed = bucket, sel, weed
         self.cfg = cfg if cfg is not None else default_cfg(L)
         self.ctx = Ctx()
         L.tl_init(byref(self.ctx), byref(self.cfg))
@@ -132,16 +152,20 @@ class Sim:
     def in_zero(self, adc):
         return abs(self.L.tl_position(byref(self.cfg), adc)) <= self.cfg.deadband + 1e-6
 
-    def step(self, adc=None, pos=None, kill=1, estop=1, vesc=1, dt=None):
+    def step(self, adc=None, pos=None, kill=1, estop=1, vesc=1, bucket=None, sel=None, weed=None, dt=None):
         if adc is None:
             if pos is not None:
                 self.pos = pos
             adc = self.adc(self.pos)
         dt = self.dt if dt is None else dt
-        o = self.L.tl_tick(byref(self.ctx), byref(Inp(adc, kill, estop, vesc)), dt)
+        bucket = self.bucket if bucket is None else bucket
+        sel = self.sel if sel is None else sel
+        weed = self.weed if weed is None else weed
+        o = self.L.tl_tick(byref(self.ctx), byref(Inp(adc, kill, estop, vesc, bucket, sel, weed)), dt)
         self.t += dt
         self.trace.append(dict(t=self.t, adc=adc, kill=kill, estop=estop, dt=dt, cmd=o.cmd, ppm=o.ppm_us,
-                               state=o.state, flags=o.flags, en=o.enable, target=o.target))
+                               state=o.state, flags=o.flags, en=o.enable, target=o.target, prof=o.profile,
+                               bucket=bucket, sel=sel, weed=weed))
         return o
 
     def goto(self, pos, ms=100, **kw):
@@ -164,6 +188,9 @@ class Sim:
         assert o.state == ST["ARMED"], self.L.tl_state_name(o.state)
         return o
 
+    def since(self, n0):
+        return self.trace[n0:]
+
 
 def is_neutral(o):
     return o.cmd == 0.0 and o.ppm_us == 1500 and o.enable == 0
@@ -177,7 +204,21 @@ def last_zero_before(trace, idx):
     return trace[j]["t"] if j >= 0 else 0
 
 
-# ================================================================== tests
+def runs(trace, pred):
+    """Tramos consecutivos [i0, i1] de la traza donde pred(r) es verdadero."""
+    out, i0 = [], None
+    for i, r in enumerate(trace):
+        if pred(r) and i0 is None:
+            i0 = i
+        elif not pred(r) and i0 is not None:
+            out.append((i0, i - 1))
+            i0 = None
+    if i0 is not None:
+        out.append((i0, len(trace) - 1))
+    return out
+
+
+# ================================================================== estructura y configuración
 def test_struct_layout_matches_c(lib):
     """El espejo ctypes tiene el mismo tamaño que los structs de C (si no, todo lo demás es inválido)."""
     assert ctypes.sizeof(Cfg) == lib.tl_sizeof_config()
@@ -186,30 +227,54 @@ def test_struct_layout_matches_c(lib):
     assert ctypes.sizeof(Ctx) == lib.tl_sizeof_ctx()
 
 
-def test_defaults_match_requirements(lib, inp):
+def test_defaults_match_requirements(lib, inp, sizing):
     c = default_cfg(lib, calibrated=False)
     assert c.cal_valid == 0                       # sin calibrar no arma
     assert abs(c.deadband - 0.08) < 1e-6          # ±8 % de la carrera
     assert c.ramp_up_ms >= 1000                   # 0→100 % en ≥ 1 s
     assert c.ramp_down_ms < c.ramp_up_ms          # bajada rápida
     assert c.dwell_ms >= 500 and c.arm_hold_ms >= 1000 and c.watchdog_ms == 100
-    assert abs(c.reverse_limit - inp["motor"]["reverse_current_frac"]) < 1e-6
     assert (c.ppm_min_us, c.ppm_center_us, c.ppm_max_us) == (1000, 1500, 2000)
     assert abs(c.adc_fault_low * 5.0 / 1023 - 0.3) < 0.01 and abs(c.adc_fault_high * 5.0 / 1023 - 4.7) < 0.01
-    import calc_electronica as ce
-    assert ce.compute()["vesc_values"]["pulse_us"] == [c.ppm_min_us, c.ppm_center_us, c.ppm_max_us]
+    vv = vesc_values()
+    assert vv["pulse_us"] == [c.ppm_min_us, c.ppm_center_us, c.ppm_max_us]
+    # bucket abajo: límite = P_frac^(2/3) de calc_electronica (bomba P ∝ T^1,5)
+    p_rev = inp["waterjet"]["reverse"]["power_limit_frac"]
+    assert vv["reverse_current_frac"] == pytest.approx(p_rev ** (2 / 3))
+    assert c.reverse_limit == pytest.approx(vv["reverse_current_frac"], abs=0.005)
+    # limpieza de rejilla: ≤ 3 s, comando chico, pulsación sostenida; la velocidad la topea el VESC
+    assert 0 < c.weed_max_ms <= 3000 and c.weed_max_ms <= D["TL_WEED_MAX_MS_LIMIT"]
+    assert 0.0 < c.weed_cmd <= 0.15
+    assert c.weed_hold_ms >= 200 and c.sw_debounce_ms <= 100
+    pp = vv["motor_poles"] / 2
+    assert vv["l_min_erpm"] < 0 and -vv["l_min_erpm"] < 0.5 * vv["l_max_erpm"]       # giro inverso LENTO
+    assert -vv["l_min_erpm"] / pp == pytest.approx(vv["n_rev_weed_rpm"], abs=50 / pp + 1e-9)
+    assert vv["n_rev_weed_rpm"] <= 0.25 * sizing["legal_speed"]["n_legal_rpm"] + 1e-6
+
+
+@pytest.mark.parametrize("field,value", [("weed_max_ms", 3001), ("weed_cmd", 0.3), ("weed_cmd", -0.1),
+                                         ("weed_hold_ms", 0), ("reverse_limit", 0.0), ("reverse_limit", 1.2),
+                                         ("sw_debounce_ms", 2000)])
+def test_config_check_rejects_unsafe_params(lib, field, value):
+    c = default_cfg(lib)
+    setattr(c, field, value)
+    assert lib.tl_config_check(byref(c)) & D["TL_CFG_ERR_PARAM"]
+    s = Sim(lib, cfg=c)                           # con la config inválida no arma nunca
+    o = s.hold(3000, pos=0.0)
+    assert o.state == ST["FAULT"] and o.flags & F["CAL"] and is_neutral(o)
 
 
 def test_uncalibrated_never_arms(lib):
-    s = Sim(lib, cfg=default_cfg(lib, calibrated=False))
+    s = Sim(lib, cfg=default_cfg(lib, calibrated=False), sel=1)
     o = s.hold(5000, pos=0.0)
     assert o.state == ST["FAULT"] and o.flags & F["CAL"] and is_neutral(o)
-    assert all(r["en"] == 0 and r["cmd"] == 0.0 for r in s.trace)
+    assert all(r["en"] == 0 and r["cmd"] == 0.0 and r["prof"] == COAST for r in s.trace)
 
 
-@pytest.mark.parametrize("pos", [0.6, 1.0, -1.0])
-def test_power_on_with_throttle_open_does_not_start(lib, pos):
-    s = Sim(lib)
+# ================================================================== armado, rampa, kill
+@pytest.mark.parametrize("pos,bucket", [(0.6, 1), (1.0, 1), (-1.0, 0), (0.5, 0)])
+def test_power_on_with_throttle_open_does_not_start(lib, pos, bucket):
+    s = Sim(lib, bucket=bucket)
     s.step(pos=pos)                               # ya abierto en el primer tick tras encender
     o = s.hold(5000)
     assert o.state == ST["DISARMED"] and o.flags & F["NOT_ZERO"]
@@ -261,7 +326,7 @@ def test_ramp_down_fast(lib):
     s.arm()
     s.hold(1500, pos=1.0)
     start = s.t
-    s.goto(0.0, ms=30)                            # resortes devuelven el puño en ~30 ms
+    s.goto(0.0, ms=30)                            # resortes devuelven la palanca en ~30 ms
     while s.trace[-1]["cmd"] > 0.0:
         s.step(pos=0.0)
         assert s.t - start <= s.cfg.ramp_down_ms + 3 * DT
@@ -289,7 +354,7 @@ def test_kill_and_estop_cut_same_tick_and_latch(lib, which):
 
 @pytest.mark.parametrize("which", ["kill", "estop"])
 def test_power_on_with_cord_or_estop_open_never_arms(lib, which):
-    """Encendido con el cordón afuera (o la seta pulsada) y el puño en cero: no arma nunca; al reponerlo
+    """Encendido con el cordón afuera (o la seta pulsada) y la palanca en cero: no arma nunca; al reponerlo
     arma recién tras ≥ arm_hold_ms continuos con todo OK (el tiempo previo en cero no cuenta)."""
     s = Sim(lib)
     o = s.hold(5000, pos=0.0, **{which: 0})
@@ -310,52 +375,6 @@ def test_single_tick_kill_glitch_disarms(lib):
     assert is_neutral(o) and o.state == ST["DISARMED"]
 
 
-def test_reverse_limited_to_50_percent(lib, inp):
-    lim = inp["motor"]["reverse_current_frac"]
-    s = Sim(lib)
-    s.arm()
-    n0 = len(s.trace)
-    o = s.hold(3000, pos=-1.0)
-    assert o.state == ST["RUN_REV"] and o.flags & F["REV_LIM"]
-    assert o.cmd == pytest.approx(-lim, abs=1e-6)
-    assert min(r["cmd"] for r in s.trace) >= -lim - 1e-6
-    assert o.ppm_us == round(1500 - 500 * lim)
-    i_full = next(i for i, r in enumerate(s.trace) if i >= n0 and r["cmd"] <= -lim + 1e-6)
-    assert s.trace[i_full]["t"] - last_zero_before(s.trace, i_full) >= lim * s.cfg.ramp_up_ms
-
-
-@pytest.mark.parametrize("first,second", [(1.0, -1.0), (-1.0, 1.0)])
-def test_direction_reversal_requires_dwell(lib, first, second):
-    s = Sim(lib)
-    s.arm()
-    s.hold(2000, pos=first)
-    n0 = len(s.trace)
-    s.hold(2000, pos=second)                      # inversión del puño tope a tope en 100 ms
-    tr = s.trace[n0:]
-    sgn = 1 if first > 0 else -1
-    t_zero = next(r["t"] for r in tr if r["cmd"] == 0.0)
-    t_opp = next(r["t"] for r in tr if r["cmd"] * sgn < 0)
-    waiting = [r for r in tr if t_zero <= r["t"] < t_opp]
-    assert all(r["cmd"] == 0.0 and r["ppm"] == 1500 for r in waiting)     # en cero todo el dwell
-    assert t_opp - t_zero >= s.cfg.dwell_ms
-    assert all(r["state"] == ST["DWELL_ZERO"] for r in waiting)
-    assert any(r["flags"] & F["DWELL"] for r in waiting)
-    assert tr[-1]["state"] == (ST["RUN_REV"] if second < 0 else ST["RUN_FWD"])
-
-
-def test_slow_sweep_through_zero_still_needs_dwell(lib):
-    s = Sim(lib)
-    s.arm()
-    s.hold(2000, pos=1.0)
-    n0 = len(s.trace)
-    s.goto(-1.0, ms=300)                          # barrido lineal +1 → −1 en 300 ms
-    s.hold(1500)
-    tr = s.trace[n0:]
-    t_zero = next(r["t"] for r in tr if r["cmd"] == 0.0)
-    t_neg = next(r["t"] for r in tr if r["cmd"] < 0.0)
-    assert t_neg - t_zero >= s.cfg.dwell_ms
-
-
 def test_same_direction_reapply_has_no_dwell(lib):
     s = Sim(lib)
     s.arm()
@@ -369,6 +388,306 @@ def test_same_direction_reapply_has_no_dwell(lib):
     assert o.state == ST["ARMED"]
 
 
+# ================================================================== bucket (marcha atrás)
+def test_bucket_down_limits_output(lib):
+    """Bucket abajo + palanca a tope atrás: el motor gira en AVANCE con comando = reverse_limit."""
+    s = Sim(lib)
+    s.arm()
+    rl = s.cfg.reverse_limit
+    s.bucket = 0                                  # palanca del bucket abajo (acelerador en 0)
+    o = s.hold(200)
+    assert o.state == ST["ARMED"] and o.flags & F["BKT_DOWN"] and not o.flags & F["BKT_HOLD"]
+    n0 = len(s.trace)
+    o = s.hold(3000, pos=-1.0)
+    assert o.state == ST["RUN_REV"] and o.flags & F["BKT_LIM"] and not o.flags & F["BKT_MISM"]
+    assert o.cmd == pytest.approx(rl, abs=1e-6) and o.ppm_us == round(1500 + 500 * rl)
+    tr = s.since(n0)
+    assert all(0.0 <= r["cmd"] <= rl + 1e-6 for r in tr)                    # nunca negativo, nunca > límite
+    i_full = next(i for i, r in enumerate(s.trace) if i >= n0 and r["cmd"] >= rl - 1e-6)
+    assert s.trace[i_full]["t"] - last_zero_before(s.trace, i_full) >= rl * s.cfg.ramp_up_ms  # con rampa
+    # a mitad de recorrido: proporcional y limitado
+    o = s.hold(500, pos=-0.5)
+    assert o.cmd == pytest.approx(rl * lib.tl_shape(byref(s.cfg), 0.5), abs=1e-4)
+
+
+def test_bucket_switch_open_at_power_on_limits_forward_too(lib):
+    """Fin de carrera abierto (cable cortado) desde el encendido: se arma, pero el avance queda limitado
+    (fail-safe) y se marca la incoherencia palanca/fin de carrera."""
+    s = Sim(lib, bucket=0)
+    s.arm()
+    o = s.hold(3000, pos=1.0)
+    assert o.cmd == pytest.approx(s.cfg.reverse_limit, abs=1e-6) and o.state == ST["RUN_REV"]
+    assert o.flags & F["BKT_MISM"] and o.flags & F["BKT_LIM"]
+    assert max(r["cmd"] for r in s.trace) <= s.cfg.reverse_limit + 1e-6
+
+
+def test_reverse_side_with_bucket_up_gives_zero(lib):
+    """Palanca del lado de reversa con el fin de carrera en ARRIBA (enclavamiento roto o fin de carrera
+    pegado): sin empuje (el bote iría hacia adelante cuando se pide atrás)."""
+    s = Sim(lib)
+    s.arm()
+    o = s.hold(2000, pos=-1.0)
+    assert o.cmd == 0.0 and o.enable == 1 and o.flags & F["BKT_MISM"] and o.state == ST["ARMED"]
+    assert all(r["cmd"] == 0.0 for r in s.trace)
+
+
+def test_never_reverse_rotation_without_weed_button(lib):
+    """Sin el pulsador de rejilla el comando nunca es negativo, con cualquier palanca y bucket."""
+    for bucket in (1, 0):
+        s = Sim(lib, bucket=bucket)
+        s.arm()
+        for p in (1.0, -1.0, 0.0, -0.5, 0.7, -1.0, 0.0, 1.0, -1.0):
+            s.goto(p, ms=150)
+            s.hold(600)
+        assert min(r["cmd"] for r in s.trace) >= 0.0
+        assert all(r["state"] != ST["WEED"] for r in s.trace)
+
+
+def test_bucket_down_is_immediate_up_needs_debounce(lib):
+    s = Sim(lib)
+    s.arm()
+    deb = s.cfg.sw_debounce_ms
+    o = s.step(bucket=0)                          # contacto abierto: ABAJO en el mismo tick
+    assert o.flags & F["BKT_DOWN"]
+    for k in range(41):                           # rebote 10 ms abierto / 10 ms cerrado: sigue ABAJO
+        o = s.step(bucket=k % 2)
+        assert o.flags & F["BKT_DOWN"]
+    s.bucket = 1
+    t0 = s.t + DT                                 # primera muestra cerrada
+    while s.step().flags & F["BKT_DOWN"]:
+        assert s.t - t0 <= deb + DT
+    assert s.t - t0 >= deb
+
+
+@pytest.mark.parametrize("start_bucket,lever", [(1, 0.6), (0, -0.6), (0, 0.6)])
+def test_bucket_transition_with_throttle_open_holds_zero(lib, start_bucket, lever):
+    """Si el fin de carrera cambia con el acelerador fuera de cero (falla de cable/enclavamiento, o el
+    bucket llegando tarde): salida 0 en ese tick y hasta que el acelerador vuelva a cero."""
+    s = Sim(lib, bucket=start_bucket)
+    s.arm()
+    s.hold(1500, pos=lever)
+    assert s.trace[-1]["cmd"] > 0.0
+    s.bucket = 1 - start_bucket
+    n0 = len(s.trace)
+    while True:                                   # hacia ARRIBA hay antirrebote: buscar el tick del cambio
+        o = s.step()
+        if bool(o.flags & F["BKT_DOWN"]) != bool(start_bucket == 0):
+            break
+        assert s.t - s.trace[n0]["t"] <= s.cfg.sw_debounce_ms + DT
+    assert o.cmd == 0.0 and o.enable == 1 and o.flags & F["BKT_HOLD"]   # mismo tick, sin rampa
+    n_tr = len(s.trace) - 1
+    o = s.hold(2000)                              # acelerador sigue abierto: sigue en 0
+    assert all(r["cmd"] == 0.0 and r["en"] == 1 for r in s.since(n_tr))
+    assert o.flags & F["BKT_HOLD"]
+    o = s.goto(0.0)                               # vuelve a cero: se libera
+    assert not o.flags & F["BKT_HOLD"] and o.state in ARMED_STATES
+    o = s.hold(1500, pos=abs(lever))              # y vuelve a responder (limitado si quedó abajo)
+    expect = lib.tl_thrust(byref(s.cfg), abs(lever), 1 if start_bucket == 1 else 0)
+    assert o.cmd == pytest.approx(expect, abs=1e-4) and o.cmd > 0.0
+
+
+def test_bucket_change_with_throttle_at_zero_no_hold(lib):
+    s = Sim(lib)
+    s.arm()
+    for b in (0, 1, 0):
+        s.bucket = b
+        s.hold(200)
+    o = s.hold(1500, pos=-0.8)
+    assert o.cmd > 0.0 and o.state == ST["RUN_REV"]
+    assert not any(r["flags"] & F["BKT_HOLD"] for r in s.trace)
+
+
+def test_bucket_lowered_while_output_ramping_down_is_clamped(lib):
+    s = Sim(lib)
+    s.arm()
+    s.hold(1500, pos=1.0)
+    s.goto(0.0, ms=30)                            # suelta: la salida baja por rampa (250 ms)
+    assert s.trace[-1]["cmd"] > s.cfg.reverse_limit
+    o = s.step(bucket=0)                          # baja el bucket enseguida (el enclavamiento lo permite)
+    assert 0.0 < o.cmd <= s.cfg.reverse_limit + 1e-6
+
+
+# ================================================================== limpieza de rejilla
+def test_weed_clear_slow_reverse_limited_in_time(lib):
+    s = Sim(lib)
+    s.arm()
+    c = s.cfg
+    n0 = len(s.trace)
+    t_press = s.t + DT
+    s.weed = 1
+    s.hold(6000)                                  # pulsador sostenido 6 s
+    tr = s.since(n0)
+    neg = runs(tr, lambda r: r["cmd"] < 0.0)
+    assert len(neg) == 1, "una sola limpieza por pulsación"
+    i0, i1 = neg[0]
+    assert tr[i0]["t"] - t_press >= c.weed_hold_ms                     # pulsación sostenida
+    assert (i1 - i0 + 1) * DT <= c.weed_max_ms                         # ≤ 3 s de giro inverso
+    assert tr[i1]["t"] - tr[i0]["t"] >= c.weed_max_ms - 3 * DT          # y dura lo pedido
+    assert all(-c.weed_cmd - 1e-6 <= r["cmd"] for r in tr)              # |comando| ≤ weed_cmd
+    assert all(r["state"] == ST["WEED"] and r["flags"] & F["WEED"] for r in tr[i0:i1 + 1])
+    assert min(r["ppm"] for r in tr) == round(1500 - 500 * c.weed_cmd)
+    assert all(r["cmd"] == 0.0 for r in tr[i1 + 1:])                   # terminó: no re-arranca sostenido
+    s.weed = 0                                    # soltar y volver a apretar: otra limpieza
+    s.hold(100)
+    n1 = len(s.trace)
+    s.weed = 1
+    s.hold(1000)
+    assert any(r["cmd"] < 0.0 for r in s.since(n1))
+    s.weed = 0                                    # soltar corta en el mismo tick
+    o = s.step()
+    assert o.cmd == 0.0 and o.state == ST["DWELL_ZERO"]
+
+
+def test_weed_requires_throttle_zero_and_motor_stopped(lib):
+    s = Sim(lib)
+    s.arm()
+    c = s.cfg
+    s.hold(1000, pos=0.5)                         # avanzando
+    n0 = len(s.trace)
+    s.weed = 1
+    o = s.hold(1000)                              # pulsador con el acelerador abierto: nada
+    assert all(r["cmd"] > 0.0 for r in s.since(n0)) and o.flags & F["WEED_WAIT"]
+    s.goto(0.0, ms=30)
+    s.hold(4500)                                  # acelerador a 0 y pulsador sostenido
+    tr = s.since(n0)
+    i_neg = next(i for i, r in enumerate(tr) if r["cmd"] < 0.0)
+    i_zero = next(i for i, r in enumerate(tr) if r["cmd"] == 0.0)
+    assert tr[i_neg]["t"] - tr[i_zero]["t"] >= c.dwell_ms             # motor parado ≥ dwell antes de invertir
+    assert all(s.in_zero(r["adc"]) for r in tr[i_neg:] if r["cmd"] < 0.0)
+    (j0, j1), = runs(tr, lambda r: r["cmd"] < 0.0)                     # la ventana de 3 s cuenta desde que
+    assert tr[j1]["t"] - tr[j0]["t"] >= c.weed_max_ms - 3 * DT          # gira al revés, no durante el dwell
+    assert not any(r["state"] == ST["WEED"] for r in tr[:j0])
+
+
+@pytest.mark.parametrize("case", ["reverse_side_bucket_up", "bucket_hold"])
+def test_weed_never_starts_with_lever_off_zero_even_if_output_is_zero(lib, case):
+    """Salida en 0 pero palanca fuera de cero (lado de reversa con el bucket arriba, o retención por
+    cambio de bucket): el pulsador no invierte el giro."""
+    s = Sim(lib)
+    s.arm()
+    if case == "reverse_side_bucket_up":
+        s.hold(1000, pos=-0.6)
+    else:
+        s.hold(1500, pos=0.6)
+        s.bucket = 0
+        s.hold(1000)
+        assert s.trace[-1]["flags"] & F["BKT_HOLD"]
+    assert s.trace[-1]["cmd"] == 0.0
+    n0 = len(s.trace)
+    s.weed = 1
+    o = s.hold(2000)
+    assert all(r["cmd"] >= 0.0 for r in s.since(n0)) and o.flags & F["WEED_WAIT"]
+
+
+def test_weed_aborts_when_throttle_moves_and_forward_waits_dwell(lib):
+    s = Sim(lib)
+    s.arm()
+    s.weed = 1
+    s.hold(1000)
+    assert s.trace[-1]["cmd"] < 0.0
+    n0 = len(s.trace)
+    s.goto(0.6)                                   # mueve el acelerador durante la limpieza
+    tr = s.since(n0)
+    i_out = next(i for i, r in enumerate(tr) if not s.in_zero(r["adc"]))
+    assert tr[i_out]["cmd"] == 0.0 and all(r["cmd"] >= 0.0 for r in tr[i_out:])   # corte inmediato
+    s.hold(1500)
+    tr = s.since(n0)
+    t_pos = next(r["t"] for r in tr if r["cmd"] > 0.0)
+    assert t_pos - tr[i_out]["t"] >= s.cfg.dwell_ms - DT                # avance recién tras el dwell
+    assert all(r["cmd"] >= 0.0 for r in tr[i_out:])                     # sostener el pulsador no re-invierte
+
+
+def test_weed_short_press_and_bounce_ignored(lib):
+    s = Sim(lib)
+    s.arm()
+    s.weed = 1
+    s.hold(s.cfg.weed_hold_ms - 2 * DT)           # pulsación corta
+    s.weed = 0
+    s.hold(200)
+    for k in range(100):                          # rebote/golpes 10 ms on/off durante 1 s
+        s.step(weed=k % 2)
+    assert all(r["cmd"] >= 0.0 for r in s.trace)
+
+
+def test_weed_button_held_at_arming_is_ignored(lib):
+    """Pulsador apretado (o en corto) desde el encendido: no hace nada hasta soltarlo y volver a apretar."""
+    s = Sim(lib, weed=1)
+    s.arm()
+    s.hold(3000)
+    assert all(r["cmd"] == 0.0 for r in s.trace)
+    s.weed = 0
+    s.hold(100)
+    s.weed = 1
+    s.hold(600)
+    assert any(r["cmd"] < 0.0 for r in s.trace)
+
+
+def test_weed_cut_by_kill_and_not_resumed(lib):
+    s = Sim(lib)
+    s.arm()
+    s.weed = 1
+    s.hold(800)
+    assert s.trace[-1]["cmd"] < 0.0
+    o = s.step(kill=0)
+    assert is_neutral(o) and o.state == ST["DISARMED"]
+    o = s.hold(1500)                              # re-arma con el pulsador todavía apretado: no invierte
+    assert o.state == ST["ARMED"] and all(r["cmd"] == 0.0 for r in s.trace[-150:])
+
+
+# ================================================================== perfil costa / abierto
+@pytest.mark.parametrize("sel_at_power_on", [0, 1])
+def test_profile_coast_by_default_at_power_on(lib, sel_at_power_on):
+    s = Sim(lib, sel=sel_at_power_on)
+    s.arm()
+    o = s.hold(2000)
+    assert all(r["prof"] == COAST for r in s.trace)                    # COSTA aunque el selector diga abierto
+    assert bool(o.flags & F["PROF_WAIT"]) == bool(sel_at_power_on)
+    s.sel = 0                                     # pasar el selector por costa → abierto
+    s.hold(100)
+    s.sel = 1
+    o = s.hold(100)
+    assert o.profile == OPEN and o.flags & F["PROF_OPEN"] and not o.flags & F["PROF_WAIT"]
+
+
+def test_profile_open_needs_throttle_zero_and_coast_is_immediate(lib):
+    s = Sim(lib)
+    s.arm()
+    s.hold(1500, pos=0.6)
+    s.sel = 1
+    o = s.hold(1000)                              # abierto pedido en marcha: sigue en costa
+    assert o.profile == COAST and o.flags & F["PROF_WAIT"]
+    n0 = len(s.trace)
+    s.goto(0.0, ms=30)
+    s.hold(500)
+    tr = s.since(n0)
+    i_open = next(i for i, r in enumerate(tr) if r["prof"] == OPEN)
+    assert tr[i_open]["cmd"] == 0.0                                     # cambia solo con la salida en 0
+    s.hold(1500, pos=0.6)
+    assert s.trace[-1]["prof"] == OPEN and s.trace[-1]["cmd"] > 0.0
+    t0 = s.t
+    s.sel = 0                                     # volver a costa: en marcha, inmediato (antirrebote)
+    while s.step().profile != COAST:
+        assert s.t - t0 <= s.cfg.sw_debounce_ms + 2 * DT
+    s.step(sel=1)                                 # un glitch del selector no vuelve a abierto
+    assert s.hold(300).profile == COAST
+
+
+def test_profile_resets_to_coast_on_disarm_and_rearm(lib):
+    s = Sim(lib)
+    s.arm()
+    s.sel = 1
+    assert s.hold(100).profile == OPEN
+    o = s.step(kill=0)
+    assert o.profile == COAST and o.state == ST["DISARMED"]
+    o = s.hold(1500)                              # re-armado con el selector en abierto: COSTA
+    assert o.state == ST["ARMED"] and o.profile == COAST and o.flags & F["PROF_WAIT"]
+    s.sel = 0
+    s.hold(100)
+    s.sel = 1
+    assert s.hold(100).profile == OPEN
+
+
+# ================================================================== sensor, watchdog, forma
 @pytest.mark.parametrize("adc,flag", [(0, "SENS_LOW"), (30, "SENS_LOW"), (60, "SENS_LOW"),
                                       (963, "SENS_HIGH"), (1000, "SENS_HIGH"), (1023, "SENS_HIGH")])
 def test_sensor_open_or_short_gives_neutral_and_fault(lib, adc, flag):
@@ -381,6 +700,20 @@ def test_sensor_open_or_short_gives_neutral_and_fault(lib, adc, flag):
     assert o.state == ST["FAULT"] and is_neutral(o)
     o = s.hold(600)                               # re-armado tras ≥ 1 s en cero con sensor sano
     assert o.state == ST["ARMED"]
+
+
+def test_sensor_fault_during_weed_and_bucket_down(lib):
+    for setup in ("weed", "bucket"):
+        s = Sim(lib, bucket=0 if setup == "bucket" else 1)
+        s.arm()
+        if setup == "weed":
+            s.weed = 1
+            s.hold(800)
+        else:
+            s.hold(1500, pos=-1.0)
+        assert s.trace[-1]["cmd"] != 0.0
+        o = s.step(adc=0)
+        assert is_neutral(o) and o.state == ST["FAULT"]
 
 
 def test_sensor_band_edges_are_valid(lib):
@@ -406,6 +739,7 @@ def test_sensor_impossible_jump_is_fault_but_hand_motion_is_not(lib):
 
 
 def test_logic_watchdog(lib):
+    """Timeout de señal/lazo: un tick tardío (> watchdog_ms) corta y desarma."""
     s = Sim(lib)
     s.arm()
     s.hold(1500, pos=0.5)
@@ -426,15 +760,21 @@ def test_logic_watchdog(lib):
     assert o.state == ST["DISARMED"]
 
 
-def test_deadband(lib):
+def test_deadband_and_thrust(lib):
     c = default_cfg(lib)
-    db = c.deadband
+    db, rl = c.deadband, c.reverse_limit
     for pos in (0.0, 0.5 * db, 0.99 * db, -0.99 * db, db, -db):
         assert lib.tl_shape(byref(c), pos) == 0.0
     small = lib.tl_shape(byref(c), db + 0.01)
     assert 0.0 < small < 0.02                     # continuo en el borde de la zona muerta
     assert lib.tl_shape(byref(c), 1.0) == pytest.approx(1.0)
-    assert lib.tl_shape(byref(c), -1.0) == pytest.approx(-c.reverse_limit)
+    assert lib.tl_shape(byref(c), -1.0) == pytest.approx(-1.0)
+    # empuje (siempre ≥ 0): bucket arriba / abajo × lado de la palanca
+    assert lib.tl_thrust(byref(c), 1.0, 0) == pytest.approx(1.0)
+    assert lib.tl_thrust(byref(c), -1.0, 0) == 0.0
+    assert lib.tl_thrust(byref(c), -1.0, 1) == pytest.approx(rl)
+    assert lib.tl_thrust(byref(c), 1.0, 1) == pytest.approx(rl)
+    assert all(lib.tl_thrust(byref(c), x / 50, b) >= 0.0 for x in range(-50, 51) for b in (0, 1))
     s = Sim(lib)
     o = s.hold(1100, pos=0.9 * db)                # dentro de la zona muerta se puede armar
     assert o.state == ST["ARMED"] and o.cmd == 0.0
@@ -493,9 +833,14 @@ def test_total_cut_time_below_requirement(lib, inp):
     req = inp["electrical"]["kill_switch_response_s_max"]
     rnd = random.Random(1)
     for _ in range(30):
-        s = Sim(lib)
+        mode = rnd.choice(["fwd", "half", "bucket", "weed"])
+        s = Sim(lib, bucket=0 if mode == "bucket" else 1)
         s.arm()
-        s.hold(rnd.randint(1200, 2500), pos=rnd.choice([1.0, 0.5, -1.0]))
+        if mode == "weed":
+            s.weed = 1
+            s.hold(rnd.randint(500, 2500))
+        else:
+            s.hold(rnd.randint(1200, 2500), pos={"fwd": 1.0, "half": 0.5, "bucket": -1.0}[mode])
         assert s.trace[-1]["cmd"] != 0.0
         which = rnd.choice(["kill", "estop"])
         o = s.step(**{which: 0})                  # el evento ocurrió dentro de este intervalo de tick
@@ -509,41 +854,73 @@ def test_total_cut_time_below_requirement(lib, inp):
 
 
 def test_fuzz_invariants(lib):
-    """20 000 ticks aleatorios (glitches, kill, seta, dt tardíos): invariantes de seguridad."""
+    """30 000 ticks aleatorios (glitches, kill, seta, dt tardíos, bucket, pulsador, selector): invariantes."""
     rnd = random.Random(42)
     s = Sim(lib)
     c = s.cfg
     pos, seg_left, mode, last_sign, zero_since = 0.0, 0, "rest", 0, None
+    bucket, weed, sel = 1, 0, 0
+    neg_start, press_start, n_weed, prev_prof = None, None, 0, COAST
 
-    for i in range(20000):
-        if seg_left <= 0:                         # segmentos: descanso en cero, manejo, golpes de puño
-            mode = rnd.choice(["rest", "rest", "ride", "ride", "snap"])
+    for i in range(30000):
+        if seg_left <= 0:                         # segmentos: descanso en cero, manejo, golpes de palanca
+            mode = rnd.choice(["rest", "rest", "rest", "ride", "ride", "snap"])
             seg_left = rnd.randint(50, 250)
         seg_left -= 1
         if mode == "rest":
             pos = max(-0.07, min(0.07, pos * 0.5 + rnd.uniform(-0.01, 0.01)))
+            if rnd.random() < 0.01:
+                bucket = 1 - bucket               # bucket se mueve con el acelerador en neutro
         elif mode == "ride":
-            pos = max(-1.0, min(1.0, pos + rnd.uniform(-0.05, 0.05)))
+            lo, hi = (-1.0, 0.1) if bucket == 0 else (-0.1, 1.0)
+            pos = max(lo, min(hi, pos + rnd.uniform(-0.05, 0.05)))
         elif rnd.random() < 0.05:
             pos = rnd.choice([-1.0, -0.5, 0.0, 0.3, 1.0])              # a veces "imposible" → FAULT
+        if rnd.random() < 0.004:
+            weed = 1 - weed
+        if rnd.random() < 0.002:
+            sel = 1 - sel
+        b_in = bucket if rnd.random() > 0.002 else 1 - bucket          # glitch del fin de carrera
         adc = s.adc(pos)
         if rnd.random() < 0.001:
             adc = rnd.choice([0, 20, 1010, 1023, rnd.randint(0, 1023)])
-        kill = 0 if rnd.random() < 0.001 else 1
-        estop = 0 if rnd.random() < 0.0005 else 1
+        kill = 0 if rnd.random() < 0.0007 else 1
+        estop = 0 if rnd.random() < 0.0004 else 1
         dt = DT if rnd.random() > 0.004 else rnd.choice([0, 1, 25, c.watchdog_ms, c.watchdog_ms + 1, 400])
         prev_cmd = s.trace[-1]["cmd"] if s.trace else 0.0
-        o = s.step(adc=adc, kill=kill, estop=estop, dt=dt)
+        press_start = (press_start if press_start is not None else s.t) if weed else None
+        o = s.step(adc=adc, kill=kill, estop=estop, dt=dt, bucket=b_in, sel=sel, weed=weed)
         assert 1000 <= o.ppm_us <= 2000
         assert (o.ppm_us == 1500) == (o.cmd == 0.0) or abs(o.cmd) < 0.002
-        assert o.cmd >= -c.reverse_limit - 1e-6
         unsafe = (not kill or not estop or dt > c.watchdog_ms or adc < c.adc_fault_low or adc > c.adc_fault_high)
         if unsafe:
             assert is_neutral(o) and o.state in (ST["DISARMED"], ST["FAULT"]), i
         assert (o.enable == 1) == (o.state in ARMED_STATES)
+        # giro inverso: solo limpieza de rejilla, lenta, con acelerador en 0 y pulsador sostenido
+        assert o.cmd >= -c.weed_cmd - 1e-6, i
+        if o.cmd < 0.0:
+            assert weed and s.in_zero(adc) and o.state == ST["WEED"], i
+            if neg_start is None:
+                neg_start = s.t
+                n_weed += 1
+                assert s.t - press_start >= c.weed_hold_ms, i
+            assert s.t - neg_start < c.weed_max_ms, i
+        else:
+            neg_start = None
+        # bucket abajo (contacto abierto en este tick): nunca más que reverse_limit
+        if not b_in:
+            assert o.cmd <= c.reverse_limit + 1e-6, i
+        if o.flags & F["BKT_HOLD"]:
+            assert o.cmd == 0.0, i
+        # perfil: abierto solo armado, y el paso costa → abierto solo con la salida en 0
+        if o.profile == OPEN:
+            assert o.state in ARMED_STATES and sel, i
+            if prev_prof == COAST:
+                assert o.cmd == 0.0, i
+        prev_prof = o.profile
         if abs(o.cmd) > abs(prev_cmd) and o.cmd * prev_cmd >= 0:
             assert abs(o.cmd) - abs(prev_cmd) <= dt / c.ramp_up_ms + 1e-5, i
-        if o.cmd == 0.0:                          # inversión: ≥ dwell en cero entre signos opuestos
+        if o.cmd == 0.0:                          # cambio de sentido: ≥ dwell en cero entre signos opuestos
             zero_since = s.t if zero_since is None else zero_since
         else:
             sg = 1 if o.cmd > 0 else -1
@@ -561,34 +938,58 @@ def test_fuzz_invariants(lib):
     for k in range(1, len(tr)):
         if tr[k]["state"] in ARMED_STATES and tr[k - 1]["state"] not in ARMED_STATES:
             n_arm += 1
+            assert tr[k]["prof"] == COAST, k     # cada armado arranca en COSTA
             j = k
             while j - 1 >= 0 and ok(tr[j - 1]):
                 j -= 1
             assert ok(tr[k]) and tr[k]["t"] - tr[j]["t"] >= c.arm_hold_ms, k
     assert n_arm >= 5                             # el fuzz efectivamente re-armó varias veces
+    assert n_weed >= 3                            # … y ejercitó la limpieza de rejilla
+    assert any(r["prof"] == OPEN for r in tr) and any(r["state"] == ST["RUN_REV"] for r in tr)
 
 
+# ================================================================== tabla de verdad y coherencia
 def test_truth_table_only_all_ok_runs():
     import calc_electronica as ce
     tt = ce.truth_table()
-    assert len(tt) == 2 ** 8 * 3
-    runs = [r for r in tt if r["motor"] != "PARADO"]
-    assert len(runs) == 2 and {r["K1"] for r in runs} == {"normal", "soldado"}
-    for r in runs:
+    assert len(tt) == 2 ** 9 * 3
+    runs_ = [r for r in tt if r["motor"] != "PARADO"]
+    assert len(runs_) == 4
+    assert {(r["K1"], r["fin_carrera_bucket"]) for r in runs_} == {(k, b) for k in ("normal", "soldado") for b in (0, 1)}
+    for r in runs_:
         assert (r["cordon"], r["seta"], r["desconectador"], r["F1"], r["F2"], r["MCU_armado"],
                 r["timeout_VESC"], r["falla_sensor"]) == (1, 1, 1, 1, 1, 1, 0, 0)
+        assert ("reverse_limit" in r["limite_cmd"]) == (r["fin_carrera_bucket"] == 0)
     for r in tt:
         if r["cordon"] == 0 or r["seta"] == 0:
-            assert r["motor"] == "PARADO" and r["n_barreras"] >= 1
+            assert r["motor"] == "PARADO" and r["n_barreras"] >= 1 and r["limite_cmd"] == "0"
             if r["MCU_coherente"] and r["K1"] == "normal" and r["desconectador"] and r["F1"]:
                 assert r["n_barreras"] >= 3      # contactor + kill ADC2 + MCU neutro
     nominal = {v[0]: v[2] for v in ce.VARS}
-    for name, values, ok in ce.VARS:          # cualquier desvío único del estado nominal para el motor
+    for name, values, ok in ce.VARS:          # cualquier desvío único del estado nominal para el motor…
         for v in values:
             if v == ok or (name == "K1" and v == "soldado"):
                 continue
             d = dict(nominal, **{name: v})
+            if name == "fin_carrera_bucket":      # … salvo el bucket: no para, limita (siempre en avance)
+                assert ce.chain(**d)["motor"] == "PUEDE GIRAR" and "reverse_limit" in ce.chain(**d)["limite_cmd"]
+                continue
             assert ce.chain(**d)["motor"] == "PARADO", (name, v)
+
+
+def test_truth_table_bucket_rows_match_firmware(lib):
+    """Las filas que giran de tabla_verdad.csv coinciden con la lógica real: con el fin de carrera
+    cerrado la palanca a fondo da 100 %; abierto, reverse_limit; nunca negativo."""
+    import calc_electronica as ce
+    for r in (r for r in ce.truth_table() if r["motor"] != "PARADO"):
+        s = Sim(lib, bucket=r["fin_carrera_bucket"])
+        s.arm()
+        s.hold(2500, pos=1.0)
+        s.goto(0.0)
+        s.hold(1000, pos=-1.0)
+        mx = max(x["cmd"] for x in s.trace)
+        assert min(x["cmd"] for x in s.trace) >= 0.0
+        assert mx == pytest.approx(1.0 if r["fin_carrera_bucket"] else s.cfg.reverse_limit, abs=1e-6)
 
 
 def test_sketch_uses_identical_logic_copy_and_required_io():
@@ -597,8 +998,18 @@ def test_sketch_uses_identical_logic_copy_and_required_io():
             f"copiar firmware/{f} a firmware/p1_throttle/src/"
     ino = (FW / "p1_throttle" / "p1_throttle.ino").read_text(encoding="utf-8")
     for needle in ("WDTO_120MS", "PIN_HALL = A0", "PIN_KILL = 2", "PIN_ESTOP = 3", "PIN_PPM = 9",
+                   "PIN_BUCKET = 5", "PIN_PROFILE_SEL = 7", "PIN_WEED = 8", "PIN_PROFILE_OUT = 12",
+                   "pinMode(PIN_BUCKET, INPUT_PULLUP)", "pinMode(PIN_PROFILE_SEL, INPUT_PULLUP)",
+                   "pinMode(PIN_WEED, INPUT_PULLUP)", "in.bucket_up = (digitalRead(PIN_BUCKET) == LOW)",
+                   "in.sel_open = (digitalRead(PIN_PROFILE_SEL) == LOW)", "in.weed_btn = (digitalRead(PIN_WEED) == LOW)",
                    "INPUT_PULLUP", "tl_tick(", "ISR(INT0_vect)", "ISR(INT1_vect)", "wdt_reset()"):
         assert needle in ino, needle
+    pins = re.findall(r"static const uint8_t (PIN_\w+) = (\w+);", ino)
+    assert len({v for _, v in pins}) == len(pins), f"pines repetidos: {pins}"
+    # D10 es OC1B del Timer1 del PPM y D13 el LED: no usarlos para entradas/salidas nuevas
+    assert not {"10", "13"} & {v for _, v in pins}
+    # la salida de perfil arranca en COSTA (BAJO) antes de configurar el pin como salida
+    assert ino.index("digitalWrite(PIN_PROFILE_OUT, LOW)") < ino.index("pinMode(PIN_PROFILE_OUT, OUTPUT)")
     assert ino.count("wdt_reset();") == 1         # una sola llamada: solo tras un tick completo
     # con -flto, una función en .init3 sin `used` se descarta (nadie la llama): el WDT no se apagaría
     m = re.search(r"void p1_early_init\(void\)([^;]*);", ino)
@@ -634,16 +1045,18 @@ def test_avr_build_if_toolchain_available(tmp_path):
 
 
 def test_vesc_config_consistent_with_sizing(inp, sizing):
-    import calc_electronica as ce
-    vv = ce.compute()["vesc_values"]
-    assert vv["l_current_max"] == inp["motor"]["current_limit_a"]
-    assert vv["l_current_min"] == pytest.approx(-inp["motor"]["reverse_current_frac"] * vv["l_current_max"])
+    vv = vesc_values()
+    assert vv["l_current_max"] == round(sizing["electrical"]["I_phase_limit_A"], 0)
+    assert vv["l_current_min"] == pytest.approx(-vv["brake_frac"] * vv["l_current_max"])
+    assert vv["l_current_reverse"] == pytest.approx(round(vv["reverse_current_frac"] * vv["l_current_max"]))
     assert vv["l_in_current_max"] <= 0.8 * vv["i_bms"] + 1e-9
-    assert vv["i_in_limited"] or vv["l_in_current_max"] >= sizing["esc"]["I_bat_peak_a"]
+    assert vv["i_in_limited"] or vv["l_in_current_max"] >= sizing["electrical"]["I_bat_peak_A"]
     assert vv["l_battery_cut_start"] > vv["l_battery_cut_end"]
     pp = vv["motor_poles"] / 2
-    assert vv["n_max_loaded_rpm"] < vv["l_max_erpm"] / pp < vv["n_noload_rpm"]
-    assert vv["n_rev_bollard_rpm"] < -vv["l_min_erpm"] / pp
+    assert vv["n_max_loaded_rpm"] < vv["erpm_tech"] / pp < vv["n_noload_rpm"]      # perfil abierto
+    assert vv["l_max_erpm"] <= vv["erpm_tech"]                                      # perfil costa (por defecto)
+    if vv["erpm_legal"]:
+        assert vv["l_max_erpm"] <= vv["erpm_legal"]
     assert vv["timeout_msec"] / 1000 < inp["electrical"]["kill_switch_response_s_max"]
     sel = sizing["selection"]["motor"]
     mot = inp["motor"]["options"][sel]
@@ -682,8 +1095,8 @@ def test_wiring_diagram_generates(tmp_path, sizing):
     out = dc.build(tmp_path / "d.svg")
     doc = xml.dom.minidom.parse(str(out))
     texts = " ".join(t.firstChild.nodeValue for t in doc.getElementsByTagName("text") if t.firstChild)
-    for needle in ("F1", "S1 desconectador", "K1 contactor", "R_pre", "CORDÓN", "SETA", "F2", "Bobina K1",
+    for needle in ("F1", "S1 desconectador", "K1 ", "R_pre", "CORDÓN", "SETA", "F2", "Bobina K1",
                    "DC-DC", "Arduino Nano", "Sensor hall", "J1 IP68", "ADC2", "PPM", "Q_EN", "BAT−", "CASCO",
-                   "ISO 13297", "≤ 178 mm"):
+                   "ISO 13297", "≤ 178 mm", "D5 ← bucket"):
         assert needle in texts, needle
-    assert f"F1 {sizing['fuse']['rating_a']:.0f} A" in texts
+    assert f"F1 {sizing['electrical']['fuse_a']:.0f} A" in texts

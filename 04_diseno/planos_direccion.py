@@ -31,33 +31,45 @@ def draw(p, H):
 
     # ---------------- P1-STE-01 boquilla (perfil torneado + notas de fresado)
     Rs, ro, rf, rb = p.STE_Rs, p.STE_ro, p.STE_rf, p.STE_rb
-    xt = math.sqrt(max(Rs ** 2 - ro ** 2, 0.0))
+    xt = math.sqrt(max(Rs ** 2 - p.STE_ro_front ** 2, 0.0))
     Xb = p.X_bucket_pivot - p.X_steer_pivot
     lx = p.X_bucket_pivot + p.REV_lock_r * math.cos(math.radians(p.REV_lock_ang)) - p.X_steer_pivot
     lz = p.Z_bucket_pivot + p.REV_lock_r * math.sin(math.radians(p.REV_lock_ang))
     out.append(T("P1-STE-01", "boquilla", "Al 6061-T6 (anodizado duro 50 µm)",
                  [(round(xt, 2), round(2 * Rs, 2), f"esfera SR{Rs:g} (centro en la cara)"),
-                  (round(p.L_steer - xt, 2), round(2 * ro, 2), "cuerpo")],
+                  (round(16.0 - xt, 2), round(2 * p.STE_ro_front, 2), "tramo en la rótula"),
+                  (6.0, round(2 * ro, 2), "cono"), (round(p.L_steer - 22.0, 2), round(2 * ro, 2), "cuerpo")],
                  feats=[(0.0, "cara = eje de giro (X_steer_pivot)"), (p.STE_bell_L, f"fin abocinado → Ø{2*rb:.2f}"),
                         (Xb, f"eje del bucket Z={p.Z_bucket_pivot:.2f}, Ø8,4 pasante ±Y"),
                         (p.STE_riser_x[0], f"torre del yugo X' {p.STE_riser_x[0]:g}–{p.STE_riser_x[1]:g}, 4×M8×16")],
                  notes=[f"Paso interior: boca Ø{2*rf:.1f} en la cara, arco tangente a Ø{2*rb:.2f} H11 en {p.STE_bell_L:g} mm; recto hasta la salida",
+                        f"Exterior: SR{Rs:g}, Ø{2*p.STE_ro_front:g} hasta X' 16, cono a Ø{2*ro:g} en X' 22; mejilla superior Z {p.STE_cheek_z0:.2f}–{p.STE_riser_top:.2f} con Ø8 H7",
                         f"Orejas de pivote ±Z: cara a |Z| = {p.STE_ear_top:.2f} (−0,1/0), R{p.STE_ear_rp:g} alrededor del eje de giro; M6×{p.STE_m6_depth:g} en el eje",
                         f"Orejas del bucket |Y| {p.STE_ear_y0:g}–{p.STE_ear_y1:g}; +Y: M20×1,5 del émbolo en X'={lx:.1f}, Z={lz:.1f}",
                         f"Hueco de las orejas de la bomba (|Z| {p.Z_steer_lug:.2f}–{p.Z_steer_lug + p.STE_lug_t:.2f}): fresar el barrido ±{p.STE_sweep:g}° (STEP)",
                         "Cotas 3D completas en step/P1-STE-01_boquilla.step (marco JET, δ = 0)"]))
     # ---------------- pernos de pivote
     sh = p.STE_head_z0 - p.STE_ear_top
-    for pid, nm in (("P1-STE-02", "perno_sup"), ("P1-STE-05", "perno_inf")):
-        out.append(T(pid, nm, M316,
-                     [(p.STE_m6_depth - 1.0, 6.0, "M6 (Loctite 243)"), (round(sh, 2), p.steer_pin_d, "hombro Ø8 e8"),
-                      (p.STE_head_t, p.STE_head_d, "cabeza")],
-                     feats=[(p.STE_m6_depth - 1.0, "escalón: apoya en la oreja de la boquilla")],
-                     notes=["Hombro Ø8 e8 (7,947–7,972), Ra 0,8; gira en el Ø8,2 de la oreja de la bomba",
-                            "Hexágono interior 5 en la cabeza; chaflanes 0,5 × 45°"]))
+    out.append(T("P1-STE-02", "perno_sup", M316,
+                 [(p.STE_m6_depth - 1.0, 6.0, "M6 (Loctite 243)"), (round(sh, 2), p.steer_pin_d, "hombro Ø8 e8"),
+                  (p.STE_head_t, p.STE_head_d, "cabeza")],
+                 feats=[(p.STE_m6_depth - 1.0, "escalón: apoya en la oreja de la boquilla")],
+                 notes=["Hombro Ø8 e8 (7,947–7,972), Ra 0,8; gira en el buje POM Ø8,1 de la oreja de la bomba (P1-PMP-11)",
+                        "Mejilla superior de la boquilla Ø8 H7 escariado: cabeza apretada (biempotrado)", "Hexágono interior 5"]))
+    sh5 = (p.Z_steer_lug + p.STE_lug_t - 1.0) - p.STE_ear_top
+    out.append(T("P1-STE-05", "perno_inf", M316,
+                 [(p.STE_m6_depth - 1.0, 6.0, "M6 (Loctite 243)"), (round(sh5, 2), p.steer_pin_d, "hombro Ø8 e8")],
+                 notes=["Espárrago sin cabeza: hexágono interior 4 en la punta (abajo)", "Punta 1 mm adentro del buje de la bomba"]))
     out.append(T("P1-STE-03", "arandela_pom", "POM-C",
                  [(p.STE_wash_t, p.STE_wash_od, f"Ø{p.STE_wash_id:g} interior")],
-                 notes=["Arandela de empuje ×4", "Planitud 0,05"]))
+                 notes=["Arandela de empuje ×3", "Planitud 0,05"]))
+    m8t = _mod("P1-STE-08_tope_direccion")
+    Rp, th0, dlt = m8t.geom(p)
+    out.append(PL("P1-STE-08", "tope_direccion", "Al 5083-H111", 150.0, 90.0, 8.0,
+                  [(20.0, 15.0, 6.6, "M6 al espejo (ala)"), (60.0, 15.0, 6.6, "M6 al espejo (ala)")],
+                  notes=[f"Arco alrededor del eje de giro: ranura R{Rp - 12:.1f}–R{Rp + 12:.1f} entre {th0 - p.STE_stop_deg - dlt:.1f}° y {th0 + p.STE_stop_deg + dlt:.1f}° (marco JET)",
+                         f"Topes a ±{p.STE_stop_deg:g}° (poste del yugo); taco POM 3 mm pegado en cada cara de tope",
+                         f"Plano de la placa ⟂ eje de giro, Z = {p.STE_stop_z[0]:g}–{p.STE_stop_z[1]:g}; ala doblada 90° (STEP)"]))
     # ---------------- yugo
     m4 = _mod("P1-STE-04_brida_yugo")
     polys = m4.outline_parts(p)
@@ -108,6 +120,12 @@ def draw(p, H):
     out.append(PL("P1-REV-05", "soporte_mach5", "Al 5083-H111", 95.0 - 25.0, 248.0 - 124.0, 6.0,
                   [(54.0, 14.0 + 6.0, 12.8, "grapa inferior (bloque soldado)"), (54.0, 110.0 + 6.0, 12.8, "grapa superior")],
                   notes=["Placa lateral; alma transversal 6 mm en X' 25–31 y base 27 × 28 con 4 × Ø9 (STEP)"]))
+    out.append(PL("P1-REV-09", "soporte_bowden", "Al 5083-H111", 38.0, 16.0, 4.0,
+                  [(26.0, 8.0, 6.5, "regulador M6 del Bowden")],
+                  notes=["Doblado en L: pata a la oreja +Y con 2 × M5 A4", "Recorrido libre pomo ↔ placa ≥ liberación + 2 mm"]))
+    out.append(PL("P1-CTL-14", "gatillo", "Al 6061-T6", 18.0, 32.0, 6.0,
+                  [(4.0, 28.0, 4.2, "pivote Ø4"), (4.0, 8.0, 3.2, "cable del Bowden")],
+                  notes=["Resorte de torsión de retorno; recorrido 32° → 11 mm de cable"]))
     out.append(T("P1-REV-06", "perno_varilla", "AISI 316",
                  [(p.REV_t + p.REV_eye_off - 0.5, 6.0, "M6"), (p.REV_eye_w + 2.0, p.REV_stud_d, "hombro Ø8 f7"), (4.0, 13.0, "cabeza")],
                  notes=["Rótula hembra M6 del Mach5 en el hombro"]))

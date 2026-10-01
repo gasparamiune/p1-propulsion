@@ -295,18 +295,19 @@ def build(out_path: Path) -> Path:
     s.line([(470, 646), (470, 905)], C_CTL, 1.8)
     s.box(405, 905, 160, 66, "DC-DC → 5 V", f"{cl['dcdc'][:26]}\n5 V (aguas arriba de K1)", fill="#eafaf1")
     s.gnd(450, 971, label="")
-    s.box(660, 900, 240, 185, "Arduino Nano (ATmega328P)", "p1_throttle.ino + throttle_logic.c\nWDT 120 ms · tick 10 ms\n"
+    s.box(660, 900, 240, 222, "Arduino Nano (ATmega328P)", "p1_throttle.ino + throttle_logic.c v2\nWDT 120 ms · tick 10 ms\n"
           "PPM por Timer1 (OC1A)", fill="#f4f6f7")
     for yy, lab in ((990, "5V"), (1020, "GND"), (1050, "A0")):
         s.text(666, yy + 4, lab, size=10, weight="bold")
-    for yy, lab in ((975, "D5 ← bucket"), (990, "D2 ← U2"), (1005, "D3 ← U1"), (1025, "D9 → PPM"), (1045, "D4 → Q_EN"), (1065, "D6 → LED")):
+    for yy, lab in ((975, "D5 ← bucket"), (990, "D2 ← U2"), (1005, "D3 ← U1"), (1025, "D9 → PPM"), (1045, "D4 → Q_EN"), (1065, "D6 → LED"),
+                    (1082, "D7 ← perfil"), (1097, "D8 ← rejilla"), (1112, "D12 → perfil")):
         s.text(894, yy + 4, lab, size=10, weight="bold", anchor="end")
     s.line([(565, 935), (610, 935), (610, 990), (660, 990)], C_5V, 2)
     s.line([(660, 1020), (635, 1020), (635, 1024)], C_NEG, 1.6)
     s.gnd(635, 1024, label="")
     s.text(574, 928, "5 V", size=10, color=C_5V, weight="bold")
     s.line([(610, 990), (610, 1100), (426, 1100)], C_5V, 2)
-    s.text(600, 1146, "D2/D3: INPUT_PULLUP + 10 k externo + 100 nF\nA0: 1 k + 100 nF (RC) y 100 k a GND", size=10, color=C_SIG)
+    s.text(600, 1146, "D2/D3/D5: INPUT_PULLUP + 10 k externo + 100 nF; D7/D8: INPUT_PULLUP\nA0: 1 k + 100 nF (RC) y 100 k a GND", size=10, color=C_SIG)
     s.line([(426, 1050), (590, 1050), (660, 1050)], C_SIG, 1.8)
     s.dot(590, 1050, C_SIG)
     s.res_v(590, 1056, "100 k", C_SIG, h=26)
@@ -325,6 +326,14 @@ def build(out_path: Path) -> Path:
     s.line([(320, 1050), (414, 1050)], C_SIG, 1.8)
     s.line([(320, 1075), (414, 1075)], C_NEG, 1.6)
     s.line([(320, 1100), (414, 1100)], C_5V, 1.8)
+    # consola: selector de perfil (D7), pulsador de limpieza de rejilla (D8); D12 → ADC1 del VESC (LispBM)
+    s.line([(900, 1082), (1000, 1082)], C_SIG, 1.4)
+    s.text(1004, 1086, "SELECTOR perfil a GND: cerrado = ABIERTO; abierto/cortado = COSTA 5 kn", size=9, color=C_SIG)
+    s.line([(900, 1097), (1000, 1097)], C_SIG, 1.4)
+    s.text(1004, 1101, "PULSADOR rejilla NA a GND: giro inverso lento ≤ 3 s, solo con acelerador en 0", size=9, color=C_SIG)
+    s.line([(900, 1112), (1000, 1112)], C_SIG, 1.4)
+    s.text(1004, 1116, f"D12 → 10 k → ADC1 del VESC, 20 k a GND (≈ 3,3 V) → vesc_perfil.lisp: "
+           f"ERPM {vv['l_max_erpm']:.0f} / {vv['erpm_tech']:.0f}", size=9, color=C_SIG)
     s.line([(900, 1065), (940, 1065)], C_SIG, 1.4)
     s.d.add(s.d.circle((950, 1065), 8, fill="#f9e79f", stroke="#7d6608", stroke_width=1.5))
     s.text(964, 1069, "LED de estado (panel)", size=10)
@@ -334,7 +343,7 @@ def build(out_path: Path) -> Path:
     s.box(lx, ly, 300, 250, "Leyenda", fill="#fdfefe")
     items = [(C_POS, 4, "Potencia + (" + f"{cab['dc_mm2']} mm²)"), (C_NEG, 4, "Potencia − / BAT− flotante"),
              (C_PH, 3.5, f"Fases ({cab['phase_mm2']} mm²)"), (C_CTL, 2.2, f"Mando (bobina {b['V_nom']:.0f} V, optos)"),
-             (C_5V, 2, "5 V lógica"), (C_SIG, 1.8, "Señales (PPM, ADC2, hall, D2/D3)"),
+             (C_5V, 2, "5 V lógica"), (C_SIG, 1.8, "Señales (PPM, ADC1/2, hall, D2–D12)"),
              (C_MECH, 1.2, "Acción mecánica")]
     for i, (c, w_, lab) in enumerate(items):
         yy = ly + 46 + 24 * i
@@ -351,7 +360,7 @@ def build(out_path: Path) -> Path:
              "6. BAT− NO va al casco: sistema flotante.\n"
              "7. Un cable redondo por prensaestopas;\n   grasa dieléctrica en J1/J2; PCB con\n   barniz conformal (no en conectores).\n"
              "8. 5 V del VESC: NO unir al 5 V del MCU.\n"
-             f"9. ERPM: perfil legal {vv['l_max_erpm']:.0f} (5 kn) por defecto.")
+             f"9. ERPM: perfil legal {vv['l_max_erpm']:.0f} (5 kn) por defecto;\n   abierto {vv['erpm_tech']:.0f} solo vía D12 + LispBM.")
     s.text(rx + 12, ry + 40, rules, size=11)
     s.text(30, H - 16, "Generado por 04_diseno/electronica/diagrama_cableado.py desde inputs.yaml + resultados/sizing.json "
                        "(vía calc_electronica.py). Valores con etiqueta en README.md.", size=10, color="#7f8c8d")

@@ -106,7 +106,7 @@ Orden: M1 cardán → M2 cola → M3 cuna y cabezal → M4 eje y pila → M5 cor
 | M9.3 | ELE-01 (interior 160×110×45, D-20), ELE-02 | ESC y antichispa con pad térmico a la tapa; disipador con pasta; un cable redondo por prensaestopas (H-10); O-ring con grasa de silicona; tapa en cruz en 2 pasadas | T1 antes de navegar | U-21…U-24 |
 | M9.4 | Fases 3 × 10 mm² | Conectores bala soldados dentro del capó; fijar los cables a la cuna junto al pivote | — | U-28 |
 | M9.5 | Todos los cables a la unidad | Bucle de servicio ≥ 150 mm [ESTIMADO: arco de ±35° a ≈ 110 mm del eje de dirección + 25° a ≈ 80 mm del pivote] | Barrido T0.M4 sin tensar cables | — |
-| M9.6 | ESC Flipsky 75100 V2.0 | Configuración de README electrónica §6 (FW ≥ 5.03, filtro de fase apagado), con `l_max_erpm` = <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> (D-30; H-8) | T0.6 | — |
+| M9.6 | ESC Flipsky 75100 V2.0 | Configuración de README electrónica §6 (FW ≥ 5.03, filtro de fase apagado), con `l_max_erpm` = <!--V:sizing.legal_speed.erpm_cap:.0f-->3700<!--/V--> (D-30; H-8) | T0.6 | — |
 | M10.1 | Cardán + unidad | Sobre el espejo (2 personas); apretar U-01 | C apoyada en el borde y en la cara exterior, sin luz | U-01 (H-1) |
 | M10.2 | B-LANYARD | Cabo de seguridad: cáncamo de la unidad → punto fuerte del bote con lazo textil; el mosquetón no apoya en el aluminio [SUPUESTO] | Largo libre ≤ 1 m [SUPUESTO]: si la abrazadera se suelta, la unidad queda colgando junto al espejo y no se va al fondo | U-29 (H-9) |
 | M10.3 | ELE-01 | Caja alta y a la sombra, sobre tabla de HDPE o madera amarrada al banco (sin agujeros en el casco) [SUPUESTO] | — | U-25 |
@@ -213,7 +213,7 @@ Condiciones: unidad completa sobre el tablón de 40 mm (o en el bote en tierra);
 | T0.M6 | Abrazadera en el tablón con U-01: medir la apertura de la C al pie de la pata a 0 y 24 h; luego 200 N verticales en el puño | Δ apertura ≤ 0,5 mm en 24 h; con 200 N la unidad no se mueve > 2 mm y vuelve [SUPUESTO] | **H-1** (el FEA anticipa que no pasa) |
 | T0.M7 | Hélice montada: salto de la punta de pala y holgura al aro en un giro | Salto ≤ 2 mm; holgura ≥ 5 mm en todo el giro [SUPUESTO] | Revisar asiento y aro |
 | T0.M8 | Aislación con multímetro (S1 OFF): eje ↔ tubo; tornillos M12 ↔ casco; tubo ↔ casco; tapa ELE-02 ↔ BAT− | > 1 MΩ [ESTIMADO: criterio de research/R06 §6.4] | Buscar el contacto antes de mojar nada |
-| T0.M9 | Con correa y **sin hélice**, a fondo 10 s | rpm de motor ≤ <!--V:sizing.legal_speed.rpm_cap_motor:.0f-->4309<!--/V--> (tope `l_max_erpm` <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> ERPM con 7 pares de polos; contar los imanes); sin vibración ni ruido de rodamiento | Corregir `si_motor_poles` / `l_max_erpm` (H-8) |
+| T0.M9 | Con correa y **sin hélice**, a fondo 10 s | rpm de motor ≤ <!--V:sizing.legal_speed.rpm_cap_motor:.0f-->4309<!--/V--> (tope `l_max_erpm` <!--V:sizing.legal_speed.erpm_cap:.0f-->3700<!--/V--> ERPM con 7 pares de polos; contar los imanes); sin vibración ni ruido de rodamiento | Corregir `si_motor_poles` / `l_max_erpm` (H-8) |
 
 ### T1 — estanqueidad
 Condiciones: tanque o balde de ≥ 0,6 m, agua dulce; papel tisú y gel de sílice dentro de la caja; cables reales cortos con las puntas selladas.
@@ -249,7 +249,7 @@ Condiciones: 0,6–1,2 m de agua (se hace pie), fondo de arena, sin olas, viento
 | T3.2 | Varada controlada en arena a ≈ 2 km/h | Bascula; el patín toca primero y no rompe; vuelve a marcha | Si rompe: revisar P1.8; si no bascula: bajar la precarga (P5.1) |
 | T3.3 | Límite legal: 1 persona, batería llena, a fondo, 2 pasadas opuestas ≥ 200 m con GPS | Media ≤ 9,0 km/h (PENDIENTES P4; límite <!--V:sizing.legal_speed.limit_kmh:.2f-->9.26<!--/V--> km/h, D-30) | `l_max_erpm` nuevo = actual × 9,0 / v medida; repetir |
 | T3.4 | Crucero con la carga real (2 personas solo si pasó P0.2): 6,0 km/h media de ida y vuelta | P_bat (VESC Tool) ≤ <!--V:sizing.success.cruise_P_bat_max_W:.0f-->879<!--/V--> W | Re-calibrar R(v) (P0.3–P0.4); crucero a 5,5 km/h |
-| T3.5 | V máx con 2 personas, tope puesto | ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->6.0<!--/V--> km/h | Ídem T3.4; revisar ventilación |
+| T3.5 | V máx con 2 personas, tope puesto | ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->21.5<!--/V--> km/h | Ídem T3.4; revisar ventilación |
 | T3.6 | Giros cerrados y aceleraciones a fondo | Sin ventilación sostenida (rpm sube > 20 % sin ganar velocidad) [SUPUESTO] | Trimado (M7.3), placa PRP-05 |
 
 ### T4 — Als Fjord en calma, a < 300 m de la costa
@@ -327,7 +327,7 @@ Escalas 1–10 [ESTIMADO: criterio del autor]: S severidad, O ocurrencia, D dete
 | H-5 | Pernos del puente HSG-02 a 28,9 mm del eje del motor: tuerca o punta en la cara de popa contra la campana (r 31,5 mm) | M4.4 | Este documento |
 | H-6 | Cabezas M4 del motor en 2 mm de luz contra la polea del motor | M3.4 | Este documento |
 | H-7 | Motor a <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->80<!--/V--> °C estacionario en crucero de diseño (> 85 °C, ≈ <!--V:sizing.thermal.cruise_design.t_to_limit_min:.0f-->inf<!--/V--> min); no está entre las restricciones duras | T4.1 si T2.5 no pasa | Este documento |
-| H-8 | README electrónica §6 pone `l_max_erpm` 30000 > tope legal <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> | T3 | Este documento |
+| H-8 | README electrónica §6 pone `l_max_erpm` 30000 > tope legal <!--V:sizing.legal_speed.erpm_cap:.0f-->3700<!--/V--> | T3 | Este documento |
 | H-9 | Cáncamo M8 del cabo sobre inserto de latón en zona de salpicadura, tocando la placa Al | M10.2 | Este documento |
 | H-10 | Caja ESC: faltan pasos (2.º M16, mando, DC-DC) para "un cable por prensaestopas" | M9.3, T1 | README electrónica §11 + este documento |
 | H-11 | V-ring sin alojamiento ni secuencia de montaje en el CAD | T1.6 | Este documento |

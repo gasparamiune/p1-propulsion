@@ -34,24 +34,22 @@ abajo comprueba que el ganador no depende de un peso puntual ni de un puntaje ai
 ## 3. Matriz ponderada y sensibilidad
 
 <!-- AUTO:arch -->
-| Opción | eficiencia (15 %) | seguridad (18 %) | viabilidad_petg (10 %) | sellado (8 %) | corrosion (7 %) | costo (12 %) | tiempo (6 %) | reparabilidad (7 %) | poca_prof (10 %) | falla_mar (7 %) | **Total** | Gana en MC |
+| Opción | seguridad (18 %) | concepto (12 %) | prestaciones (14 %) | eficiencia_5kn (8 %) | poca_prof (8 %) | viabilidad (10 %) | costo (10 %) | tiempo (7 %) | reparabilidad (6 %) | riesgo (7 %) | **Total** | Gana en MC |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **A3** Cola larga: motor seco arriba + correa + eje inclinado | 4 | 5 | 4 | 5 | 4 | 3 | 3 | 5 | 5 | 4 | **4.25** | 86 % |
-| **F** Motor comercial completo (trolling de agua salada 55 lb + LiFePO4) | 3 | 5 | 5 | 5 | 4 | 4 | 5 | 2 | 2 | 4 | **3.93** | 14 % |
-| **B** Conversión de trolling motor (soporte kick-up + protector impresos) | 3 | 4 | 4 | 4 | 4 | 4 | 4 | 3 | 3 | 4 | **3.68** | 0 % |
-| **A2** Fueraborda con motor en pod inundado | 4 | 3 | 3 | 3 | 2 | 3 | 3 | 3 | 2 | 3 | **2.98** | 0 % |
-| **C** Waterjet impreso | 2 | 4 | 2 | 3 | 3 | 3 | 2 | 3 | 4 | 3 | **2.97** | 0 % |
-| **E** Propulsión aérea eléctrica (solo comparación) | 1 | 1 | 3 | 5 | 5 | 4 | 3 | 4 | 5 | 2 | **2.96** | 0 % |
-| **D** Hélice entubada / rim-driven impreso | 3 | 4 | 2 | 2 | 2 | 3 | 2 | 2 | 3 | 3 | **2.80** | 0 % |
-| **A1** Fueraborda con motor en pod seco sellado | 4 | 3 | 2 | 1 | 3 | 3 | 2 | 2 | 2 | 3 | **2.66** | 0 % |
+| **B** Waterjet comercial AWT JT132 (Ø130) + el tren eléctrico de este diseño | 4 | 5 | 4 | 2 | 3 | 4 | 4 | 4 | 3 | 3 | **3.75** | 89 % |
+| **C** Bomba de jet ski usada (Sea-Doo Spark 140) adaptada | 4 | 5 | 3 | 2 | 3 | 3 | 4 | 3 | 4 | 3 | **3.50** | 1 % |
+| **A** Waterjet propio (impulsor CNC + bomba Al + toma soldada) — este diseño | 4 | 5 | 4 | 2 | 3 | 2 | 3 | 2 | 3 | 2 | **3.24** | 0 % |
+| **E** Cola larga / surface drive (diseño P1 anterior, adaptado) | 3 | 1 | 2 | 4 | 5 | 4 | 4 | 3 | 5 | 3 | **3.18** | 6 % |
+| **D** Fueraborda eléctrico de 3–6 kW con hélice | 2 | 1 | 4 | 4 | 2 | 5 | 2 | 5 | 2 | 5 | **3.04** | 3 % |
+| **F** Hélice entubada en túnel bajo el casco (pump-jet / rim-drive) | 4 | 3 | 3 | 3 | 2 | 2 | 3 | 2 | 2 | 2 | **2.80** | 0 % |
 
 Sensibilidad: variando cada peso ±50 % (renormalizado), el ganador **no cambia** en ninguno de los 20 casos.
-Monte Carlo (20000 juegos de pesos Dirichlet alrededor de los nominales): A3 86 %, F 14 %.
+Monte Carlo (20000 juegos de pesos Dirichlet alrededor de los nominales): B 89 %, C 1 %, D 3 %, E 6 %.
 <!-- /AUTO:arch -->
 
 ### 3.1 Sensibilidad a los puntajes [CALCULADO: sobre `resultados/arquitectura.json`, sin re-correr]
 
-- Margen A3 − F = <!--V:arch.totals.A3:.2f-->4.25<!--/V--> − <!--V:arch.totals.F:.2f-->3.93<!--/V--> = 0,32. B queda en <!--V:arch.totals.B:.2f-->3.68<!--/V-->.
+- Margen A3 − F = <!--V:arch.totals.A3:.2f-->4.25<!--/V--> − <!--V:arch.totals.F:.2f-->2.80<!--/V--> = 0,32. B queda en <!--V:arch.totals.B:.2f-->3.75<!--/V-->.
 - Bajar 1 punto a A3 en **un** criterio cualquiera no cambia el ganador (el peso máximo es 0,18).
 - Bajar a la vez eficiencia **y** seguridad de A3 sí lo cambia: A3 3,92 contra F 3,93. De las 120 combinaciones de tres bajas de 1 punto, 44 dejan a A3 empatado o detrás de F.
 - Subir 1 o 2 puntos a F en cualquier criterio no lo hace ganar (como mucho 4,20).
@@ -62,16 +60,16 @@ Monte Carlo (20000 juegos de pesos Dirichlet alrededor de los nominales): A3 86 
 **A3 — cola larga (<!--V:arch.totals.A3:.2f-->4.25<!--/V-->; gana en el <!--V:arch.mc_win_frac.A3:.0%-->86%<!--/V--> del Monte Carlo)**
 - **Eficiencia 4.** Hélice grande y lenta con reducción: <!--V:sizing.cruise.design.prop_n_rpm:.0f-->1491<!--/V--> rpm y η0 <!--V:sizing.cruise.design.prop_eta0:.2f-->0.41<!--/V--> en crucero de diseño [CALCULADO: 02 §1]. El long-tail seco gastó un 33 % menos que un trolling optimizado [CALCULADO: research/R02 B1]. **Punto débil:** el rendimiento total batería → R·V de diseño es <!--V:sizing.cruise.design.eta_total:.0%-->30%<!--/V--> [CALCULADO], debajo del 44–55 % máximo de los fuerabordas eléctricos de 1 kW [VERIFICADO: research/R04 §B.1]. Lo bajan el eje a 25° (1 − cos 25° = 9,4 % [CALCULADO]), el aro (−10 % de empuje [ESTIMADO: D-26]) y una hélice de trolling (P/D ≈ 0,4) fuera de la serie B (D-40). El 4 es optimista [SUPUESTO]; con 3, A3 sigue primero (4,10 contra 3,93) [CALCULADO].
 - **Seguridad 5.** Ni electrónica ni sellos dinámicos bajo el agua [VERIFICADO: research/R05 §1, R06 §0]. Corte de emergencia por contactor monoestable con cordón y seta; el antichispa MOSFET no cuenta como corte porque falla en corto [VERIFICADO: research/R06 §0; D-22]. Sistema eléctrico flotante, aislado del casco [VERIFICADO: research/R06 §6.4]. **Condición:** el 5 vale solo con H-1…H-3 resueltos (riesgo 3).
-- **Viabilidad PETG 4.** Lo impreso queda fuera de la ruta de carga alterna, como pide research/R05 §A6 (f_fatiga 0,06): placa motriz y cartucho en Al (D-25), tubo de Al, pernos de 316. Precio en impresión: <!--V:manifest.totals.printed_mass_g:.0f-->6011<!--/V--> g y <!--V:manifest.totals.printed_hours:.0f-->334<!--/V--> h [CALCULADO: manifest].
+- **Viabilidad PETG 4.** Lo impreso queda fuera de la ruta de carga alterna, como pide research/R05 §A6 (f_fatiga 0,06): placa motriz y cartucho en Al (D-25), tubo de Al, pernos de 316. Precio en impresión: <!--V:manifest.totals.printed_mass_g:.0f-->1020<!--/V--> g y <!--V:manifest.totals.printed_hours:.0f-->57<!--/V--> h [CALCULADO: manifest].
 - **Sellado 5.** Solo sellos estáticos sobre la flotación (caja ESC con O-ring de 3,53 mm, D-23) y un V-ring excluidor en la boca del tubo. Ningún sello trabaja contra el eje bajo el agua.
 - **Corrosión 4, no 5.** El 316 en rendija bajo los bujes pasa a activo (−550 mV) y se pica [VERIFICADO: research/R06 §6.2]. "Propeller shafts made from 316 are usually galvanically protected" [VERIFICADO: research/R05 §A12], y P1 va sin ánodo (D-36).
-- **Costo 3.** <!--V:bom.total_eur:.0f-->2281<!--/V--> € con batería [CALCULADO: bom.py]: ~1,7–1,8× el plan B y ~1,9× F (§4.3).
+- **Costo 3.** <!--V:bom.total_eur:.0f-->10606<!--/V--> € con batería [CALCULADO: bom.py]: ~1,7–1,8× el plan B y ~1,9× F (§4.3).
 - **Tiempo 3.** 334 h de impresión, más el torneado de eje, pernos, separadores y cartucho y el mecanizado de tres piezas de chapa de Al.
 - **Reparabilidad 5.** Todo lo que se rompe está arriba del agua o es estándar y barato: 6202-2RS de Biltema, poleas y correa de Dold, bujes igus, pasadores. Patín y segmentos de aro se reimprimen [VERIFICADO: research/R08b §3–4].
 - **Poca profundidad 5.** Kick-up de 25° con retén de 15 N·m que libera con <!--V:sizing.mech.kickup.F_release_at_skeg_fwd_N:.0f-->90<!--/V--> N en el patín [CALCULADO: 02 §8], patín fusible de <!--V:est.loads.F_skeg_fuse_N:.0f-->300<!--/V--> N (D-12) y pasador de corte. La punta de pala queda ≈ 356 mm bajo la flotación, ≈ 158 mm bajo el fondo del espejo [CALCULADO: `sizing.json → layout`]. En research/R02 B5 el trimado del eje permitió navegar en ~200 mm de agua; en P1 el equivalente es bascular la cola y el tornillo de trimado (±5°, D-04).
 - **Falla en el mar 4.** Las fallas probables (pasador, correa, patín) se arreglan a bordo con el kit de 06 §9. Si no, remos y ancla (D-35).
 
-**F — trolling de agua salada + LiFePO4, tal cual (<!--V:arch.totals.F:.2f-->3.93<!--/V-->; <!--V:arch.mc_win_frac.F:.0%-->14%<!--/V--> del Monte Carlo)**
+**F — trolling de agua salada + LiFePO4, tal cual (<!--V:arch.totals.F:.2f-->2.80<!--/V-->; <!--V:arch.mc_win_frac.F:.0%-->0%<!--/V--> del Monte Carlo)**
 - **Eficiencia 3.** 620 W eléctricos (50 A × 12 V) en el Riptide Endura C2 55 [VERIFICADO: research/R04 §B.1]: menos de la mitad de los <!--V:sizing.vmax.design_vmin.P_bat:.0f-->1134<!--/V-->–<!--V:sizing.vmax.nominal_vnom.P_bat:.0f-->1323<!--/V--> W de batería de P1 a V máx [CALCULADO: 02 §1]. Su empuje declarado (0,40 N/W) es optimista en un 10–20 % [CALCULADO: research/R04 §B.2].
 - **Seguridad, sellado, viabilidad PETG y tiempo 5.** Producto terminado y garantizado. En salado se recomienda la serie Riptide y se evitan los modelos con controlador dentro de la carcasa sumergida [VERIFICADO: research/R02 D2].
 - **Corrosión 4.** Está hecho para salado, pero el Riptide 55 SC trae ánodo de zinc [VERIFICADO: research/R04 §B.1], que en agua salobre protege poco [VERIFICADO: research/R06 §6.3].
@@ -79,7 +77,7 @@ Monte Carlo (20000 juegos de pesos Dirichlet alrededor de los nominales): A3 86 
 - **Reparabilidad 2.** Motor sellado y sumergido, sin repuestos de usuario.
 - **Poca profundidad 2.** Sin basculación protegida y con una pata de 107 cm para un espejo de 381 mm [VERIFICADO: research/R04 §B.1, §B.4; espejo ESTIMADO: `inputs.yaml`].
 
-**B — conversión de trolling (<!--V:arch.totals.B:.2f-->3.68<!--/V-->).** Lo mismo que F más un soporte basculante, un protector y un patín impresos: sube poca profundidad a 3 y reparabilidad a 3. Pierde un punto en seguridad y en sellado: el soporte impreso entra en la ruta de carga, hereda el riesgo de fluencia del PETG (riesgo 3) y la columna del trolling se sujeta con una abrazadera que no es la de fábrica. Pierde otro en viabilidad PETG y en tiempo, porque hay que diseñar, imprimir y ensayar ese soporte.
+**B — conversión de trolling (<!--V:arch.totals.B:.2f-->3.75<!--/V-->).** Lo mismo que F más un soporte basculante, un protector y un patín impresos: sube poca profundidad a 3 y reparabilidad a 3. Pierde un punto en seguridad y en sellado: el soporte impreso entra en la ruta de carga, hereda el riesgo de fluencia del PETG (riesgo 3) y la columna del trolling se sujeta con una abrazadera que no es la de fábrica. Pierde otro en viabilidad PETG y en tiempo, porque hay que diseñar, imprimir y ensayar ese soporte.
 
 **A1 — pod seco sellado (2,66).** Sellado 1: un retén radial necesita eje ≥ 45 HRC, Ra 0,2–0,8 µm y presión ≤ 0,03 MPa [VERIFICADO: research/R05 §B6], y en los pods el bombeo térmico mete agua [VERIFICADO: research/R03 §5]. Viabilidad PETG 2: una cápsula impresa no sella sin mecanizar (Sa 10–24 µm contra Ra ≤ 0,8–1,6 µm requerido [VERIFICADO: research/R05 §1]).
 
@@ -140,7 +138,7 @@ o T2 de P1 no pasan y hace falta propulsión para la temporada; o H-1…H-3 no s
 
 | Solución | Costo | Energía | Potencia | Basculación protegida y fusibles mecánicos | Fuente |
 |---|---|---|---|---|---|
-| **P1 (A3)** | <!--V:bom.total_eur:.0f-->2281<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->17052<!--/V--> kr; sin batería ni cargador <!--V:bom.fixed_excl_battery_eur:.0f-->1645<!--/V--> € | <!--V:sizing.battery.E_nom_wh:.0f-->2560<!--/V--> Wh | <!--V:sizing.vmax.nominal_vnom.P_shaft_W:.0f-->1047<!--/V--> W al eje a V máx | Sí: kick-up, patín, pasador | [CALCULADO: bom.py, con envíos, IVA de importación y 10 % de imprevistos; <!--V:bom.verified_frac_of_subtotal:.0%-->71%<!--/V--> del subtotal con precio verificado] |
+| **P1 (A3)** | <!--V:bom.total_eur:.0f-->10606<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->79287<!--/V--> kr; sin batería ni cargador <!--V:bom.fixed_excl_battery_eur:.0f-->9426<!--/V--> € | <!--V:sizing.battery.E_nom_wh:.0f-->2560<!--/V--> Wh | <!--V:sizing.vmax.nominal_vnom.P_shaft_W:.0f-->1047<!--/V--> W al eje a V máx | Sí: kick-up, patín, pasador | [CALCULADO: bom.py, con envíos, IVA de importación y 10 % de imprevistos; <!--V:bom.verified_frac_of_subtotal:.0%-->32%<!--/V--> del subtotal con precio verificado] |
 | Plan B | ≈ 1 270–1 350 € ≈ 9 500–10 100 kr | 1 280 Wh | 620 W eléctricos | Kick-up y patín impresos | [ESTIMADO: §4.2] |
 | F tal cual | ≈ 1 190 € ≈ 8 860 kr | 1 280 Wh | 620 W eléctricos | No | [CALCULADO: §4.2 sin impresos] |
 | ePropulsion Spirit 1.0 Plus + batería | 8 930 + 9 390 = 18 320 kr ≈ 2 451 € | 1 276 Wh | 1 kW | De fábrica | [VERIFICADO: research/R08b §0]; suma [CALCULADO]; si incluye caña y cargador: no verificado |
@@ -148,7 +146,7 @@ o T2 de P1 no pasan y hace falta propulsión para la temporada; o H-1…H-3 no s
 | ídem, comprado en DE | 2 549 € | 1 276 Wh | 1 kW | De fábrica | [VERIFICADO: research/R04 §B.4, S33]; envío a DK no verificado |
 | Spirit Evo + 2.ª batería (la energía de P1) | 31 276 kr ≈ 4 184 € | 2 552 Wh | 1 kW | De fábrica | [CALCULADO] |
 
-El equipo de seguridad para salir (+<!--V:bom.operation_gear_eur:.0f-->270<!--/V--> €, D-35) es igual para todas y no se suma.
+El equipo de seguridad para salir (+<!--V:bom.operation_gear_eur:.0f-->215<!--/V--> €, D-35) es igual para todas y no se suma.
 
 **Lectura.**
 - P1 cuesta ~1,9× el trolling tal cual y ~1,7–1,8× el plan B [CALCULADO].
@@ -187,5 +185,5 @@ orientación de impresión en 04_diseno/README.md.
 
 **Otros riesgos abiertos** (detalle en el FMEA y en los bloqueos de 06 §8 y §10):
 - **Térmico del motor (H-7):** <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->80<!--/V--> °C estacionario en crucero de diseño, contra el límite de 85 °C del VESC [VERIFICADO: research/R09 §6]; llegaría en ≈ <!--V:sizing.thermal.cruise_design.t_to_limit_min:.0f-->inf<!--/V--> min [CALCULADO]. R_th del motor [ESTIMADO]. Lo cierra T2.5.
-- **Límite legal:** 5 kn a < 300 m de la costa [VERIFICADO: research/R07 §1.2]. Con 1 persona el modelo da <!--V:sizing.legal_speed.vmax_light_low_kmh:.1f-->9.5<!--/V--> km/h, así que va el tope de <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> ERPM [CALCULADO: D-30]; 06 §10 registra que el README de electrónica ponía 30 000 (H-8). Lo cierran T0.M9 y T3 (media ≤ 9,0 km/h con 1 persona).
+- **Límite legal:** 5 kn a < 300 m de la costa [VERIFICADO: research/R07 §1.2]. Con 1 persona el modelo da <!--V:sizing.legal_speed.vmax_light_low_kmh:.1f-->9.5<!--/V--> km/h, así que va el tope de <!--V:sizing.legal_speed.erpm_cap:.0f-->3700<!--/V--> ERPM [CALCULADO: D-30]; 06 §10 registra que el README de electrónica ponía 30 000 (H-8). Lo cierran T0.M9 y T3 (media ≤ 9,0 km/h con 1 persona).
 - **Autonomía con poco margen:** <!--V:sizing.cruise.autonomy_design_h:.2f-->2.62<!--/V--> h de diseño contra 2,4 h exigidas (2 h + 20 %) [CALCULADO]. Calibrar R(v) por remolque (P0.3) antes de comprar la batería; si no alcanza, crucero a 5,5 km/h.

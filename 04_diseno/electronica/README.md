@@ -69,24 +69,25 @@ Requisito 1,0 s [VERIFICADO: inputs.yaml electrical.kill_switch_response_s_max];
 Variables: cordón (1 = clip puesto), seta (1 = liberada), desconectador S1 (1 = ON), fusibles F1/F2 (1 = sano), K1 (normal / soldado / bobina abierta), MCU armado (1 = el MCU habilita; 1 con cordón afuera modela un **MCU defectuoso**), timeout del VESC (1 = PPM perdida), falla de sensor hall. "Barreras activas" cuenta cuántas de las 4 barreras de §2 están deteniendo el motor (mín–máx sobre las combinaciones agrupadas). Modelo lógico: `calc_electronica.chain()`; lo verifica `test_truth_table_only_all_ok_runs`.
 
 <!-- ELEC:verdad -->
-| Caso | Cordón | Seta | Descon. | F1 | F2 | K1 | MCU armado | Timeout VESC | Falla sensor | Motor | Barreras activas (mín–máx) | Comb. |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Todo OK, MCU armado | 1 | 1 | 1 | 1 | 1 | normal | 1 | 0 | 0 | **PUEDE GIRAR** | 0–0: — | 1 |
-| Cordón tirado (MCU sano → desarma) | 0 | 1 | 1 | 1 | 1 | normal | 0 | – | – | **PARADO** | 3–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 4 |
-| Cordón tirado + MCU defectuoso que sigue armado | 0 | 1 | 1 | 1 | 1 | normal | 1 | – | – | **PARADO** | 2–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 4 |
-| Cordón tirado + K1 soldado (MCU sano) | 0 | 1 | 1 | 1 | 1 | soldado | 0 | – | – | **PARADO** | 2–3: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM | 4 |
-| Cordón tirado + K1 soldado + MCU defectuoso | 0 | 1 | 1 | 1 | 1 | soldado | 1 | – | – | **PARADO** | 1–3: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM | 4 |
-| Seta pulsada (cualquier cordón/MCU/K1) | – | 0 | 1 | 1 | 1 | – | – | – | – | **PARADO** | 1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 48 |
-| Desconectador OFF (cualquier otro estado) | – | – | 0 | – | – | – | – | – | – | **PARADO** | 4–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 384 |
-| Fusible principal F1 fundido | – | – | – | 0 | – | – | – | – | – | **PARADO** | 4–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 384 |
-| Fusible de mando F2 fundido | – | – | 1 | 1 | 0 | – | – | – | – | **PARADO** | 1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 96 |
-| K1 con bobina abierta (no cierra) | – | – | – | – | – | bobina_abierta | – | – | – | **PARADO** | 1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 256 |
-| K1 soldado, todo lo demás OK | 1 | 1 | 1 | 1 | 1 | soldado | 1 | 0 | 0 | **PUEDE GIRAR** | 0–0: — | 1 |
-| MCU desarmado (arranque, re-armado pendiente) | – | – | – | – | – | – | 0 | – | – | **PARADO** | 2–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 384 |
-| PPM perdida (timeout del VESC) | – | – | – | – | – | – | – | 1 | – | **PARADO** | 1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 384 |
-| Falla de sensor hall | – | – | – | – | – | – | – | – | 1 | **PARADO** | 1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 384 |
+| Caso | Cordón | Seta | Descon. | F1 | F2 | K1 | MCU armado | Timeout VESC | Falla sensor | Fin de carrera bucket | Motor | Límite del comando | Barreras activas (mín–máx) | Comb. |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Todo OK, MCU armado | 1 | 1 | 1 | 1 | 1 | normal | 1 | 0 | 0 | 1 | **PUEDE GIRAR** | 100 % avance | 0–0: — | 1 |
+| Todo OK, bucket abajo (o fin de carrera cortado) | 1 | 1 | 1 | 1 | 1 | normal | 1 | 0 | 0 | 0 | **PUEDE GIRAR** | ≤ reverse_limit, avance (bucket abajo) | 0–0: — | 1 |
+| Cordón tirado (MCU sano → desarma) | 0 | 1 | 1 | 1 | 1 | normal | 0 | – | – | – | **PARADO** | 0 | 3–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 8 |
+| Cordón tirado + MCU defectuoso que sigue armado | 0 | 1 | 1 | 1 | 1 | normal | 1 | – | – | – | **PARADO** | 0 | 2–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 8 |
+| Cordón tirado + K1 soldado (MCU sano) | 0 | 1 | 1 | 1 | 1 | soldado | 0 | – | – | – | **PARADO** | 0 | 2–3: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM | 8 |
+| Cordón tirado + K1 soldado + MCU defectuoso | 0 | 1 | 1 | 1 | 1 | soldado | 1 | – | – | – | **PARADO** | 0 | 1–3: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM | 8 |
+| Seta pulsada (cualquier cordón/MCU/K1) | – | 0 | 1 | 1 | 1 | – | – | – | – | – | **PARADO** | 0 | 1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 96 |
+| Desconectador OFF (cualquier otro estado) | – | – | 0 | – | – | – | – | – | – | – | **PARADO** | 0 | 4–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 768 |
+| Fusible principal F1 fundido | – | – | – | 0 | – | – | – | – | – | – | **PARADO** | 0 | 4–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 768 |
+| Fusible de mando F2 fundido | – | – | 1 | 1 | 0 | – | – | – | – | – | **PARADO** | 0 | 1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 192 |
+| K1 con bobina abierta (no cierra) | – | – | – | – | – | bobina_abierta | – | – | – | – | **PARADO** | 0 | 1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 512 |
+| K1 soldado, todo lo demás OK | 1 | 1 | 1 | 1 | 1 | soldado | 1 | 0 | 0 | – | **PUEDE GIRAR** | 100 % avance / ≤ reverse_limit, avance (bucket abajo) | 0–0: — | 2 |
+| MCU desarmado (arranque, re-armado pendiente) | – | – | – | – | – | – | 0 | – | – | – | **PARADO** | 0 | 2–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 768 |
+| PPM perdida (timeout del VESC) | – | – | – | – | – | – | – | 1 | – | – | **PARADO** | 0 | 1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 768 |
+| Falla de sensor hall | – | – | – | – | – | – | – | – | 1 | – | **PARADO** | 0 | 1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1) | 768 |
 
-Enumeración completa: **768 combinaciones** en [`tabla_verdad.csv`](tabla_verdad.csv) (1 = cerrado/sano/sí, 0 = abierto/fundido/no; "–" = cualquier valor). El motor puede girar en **2** de ellas: todas exigen cordón, seta, desconectador, F1, F2, MCU armado, PPM válido y sensor sano; la única variable libre es K1 (normal o soldado): un K1 soldado no se nota en marcha → se prueba antes de cada salida.
+Enumeración completa: **1536 combinaciones** en [`tabla_verdad.csv`](tabla_verdad.csv) (1 = cerrado/sano/sí, 0 = abierto/fundido/no; "–" = cualquier valor). El motor puede girar en **4** de ellas: todas exigen cordón, seta, desconectador, F1, F2, MCU armado, PPM válido y sensor sano; las variables libres son K1 (normal o soldado: un K1 soldado no se nota en marcha → se prueba antes de cada salida) y el fin de carrera del bucket, que no detiene el motor: abierto (bucket abajo o cable cortado) limita el comando a reverse_limit, siempre en avance (§5).
 <!-- /ELEC:verdad -->
 
 Lectura: (a) el cordón o la seta detienen el motor en **todas** las combinaciones, incluso con K1 soldado **y** un MCU defectuoso (queda U3 → kill del VESC); (b) con el MCU sano y K1 normal hay ≥ 3 barreras simultáneas; (c) la combinación peligrosa que la tabla **no** cubre es un **cortocircuito entre los dos conductores del cordón** (puentea el interruptor para K1 *y* para U2/U3): ver §8 y la prueba previa a cada salida.
@@ -126,24 +127,35 @@ Lectura: (a) el cordón o la seta detienen el motor en **todas** las combinacion
 
 ## 5. Firmware
 
+Firmware v2.0 del waterjet. **La marcha atrás es el BUCKET** (palanca + cable Mach5, enclavamiento mecánico con el acelerador, `04_diseno/piezas/_ctl.py`): el motor gira **siempre en avance** y con el bucket abajo el comando se limita a `reverse_limit`. El único giro inverso es la **limpieza de rejilla** (pulsador dedicado, lento y por tiempo limitado). [NO EJECUTADO en hardware]; lógica verificada en PC (§5.8).
+
 ### 5.1 Estructura
 
-- `throttle_logic.c/.h`: función de paso `tl_outputs_t tl_tick(tl_ctx_t *s, const tl_inputs_t *in, uint32_t dt_ms)`. Entradas: lectura ADC 10 bits del hall (ratiométrico, Vref = AVCC = alimentación del sensor), `kill_cord_ok`, `estop_ok`, `vesc_ok` (opcional), `dt_ms`. Salidas: `cmd` ∈ [−1, 1], `ppm_us` ∈ [1000, 2000] (1500 = neutro), `state`, `flags`, `enable`. Sin dependencias de Arduino; solo tipos de ancho fijo y `float` (en AVR `double` = `float`).
-- `p1_throttle.ino`: lee entradas cada 10 ms [SUPUESTO], llama `tl_tick`, aplica salidas; las ISR de INT0/INT1 (D2/D3) ponen neutro y abren Q_EN **dentro de ~1 ms** del flanco a kill [ESTIMADO: 0,92 τ hasta V_IH = 0,6·Vcc con τ = 10 kΩ × 100 nF = 1 ms; algo menos con el pull-up interno en paralelo], antes del próximo tick. El neutro del PPM entra en la **próxima trama** (OCR1A tiene doble buffer: ≤ 20 ms); Q_EN abre en el acto.
+- `throttle_logic.c/.h`: función de paso `tl_outputs_t tl_tick(tl_ctx_t *s, const tl_inputs_t *in, uint32_t dt_ms)`. Entradas: ADC 10 bits del hall A1324 de la palanca del acelerador (ratiométrico, Vref = AVCC = alimentación del sensor), `kill_cord_ok`, `estop_ok`, `vesc_ok` (opcional), `bucket_up` (fin de carrera), `sel_open` (selector de perfil), `weed_btn` (pulsador de rejilla), `dt_ms`. Salidas: `cmd` ∈ [−`weed_cmd`, 1], `ppm_us` ∈ [1000, 2000] (1500 = neutro), `state`, `flags` (32 bits), `enable`, `profile`. Sin dependencias de Arduino; solo tipos de ancho fijo y `float` (en AVR `double` = `float`). Auxiliares puros: `tl_position`, `tl_shape` (zona muerta + expo, con signo), `tl_thrust` (objetivo ≥ 0 según lado de la palanca y bucket), `tl_cmd_to_ppm`.
+- `p1_throttle.ino`: lee entradas cada 10 ms [SUPUESTO], llama `tl_tick`, aplica salidas; las ISR de INT0/INT1 (D2/D3) ponen neutro y abren Q_EN **dentro de ~1 ms** del flanco a kill [ESTIMADO: 0,92 τ hasta V_IH = 0,6·Vcc con τ = 10 kΩ × 100 nF = 1 ms], antes del próximo tick. El neutro del PPM entra en la **próxima trama** (OCR1A con doble buffer: ≤ 20 ms); Q_EN abre en el acto.
 
-### 5.2 Máquina de estados
+### 5.2 Máquina de estados y reglas
 
 | Estado | Salida | Entra cuando | Sale cuando |
 |---|---|---|---|
-| `DISARMED` | neutro, `enable` = 0 | power-on; cordón/seta abiertos; watchdog lógico | ≥ `arm_hold_ms` continuos con cordón+seta OK, sensor válido, calibración válida y acelerador en zona muerta → `ARMED` |
-| `FAULT` | neutro, `enable` = 0 | ADC < `adc_fault_low` o > `adc_fault_high`; salto imposible; VESC en falla (si se usa); calibración inválida | igual que `DISARMED` (re-armado con 1 s en cero) |
-| `ARMED` | 0, `enable` = 1 | armado y acelerador en zona muerta, sin dwell pendiente | comando ≠ 0 → `RUN_*` |
-| `RUN_FWD` / `RUN_REV` | rampa hacia el objetivo | comando > 0 / < 0 | soltar → `DWELL_ZERO`; cualquier falla → `DISARMED`/`FAULT` en el **mismo tick** |
-| `DWELL_ZERO` | 0 | la salida llegó a 0 tras marchar; o se pidió el sentido opuesto | `dwell_ms` cumplido → `ARMED`/sentido nuevo; mismo sentido → sigue sin esperar |
+| `DISARMED` | neutro, `enable` = 0, perfil COSTA | power-on; cordón/seta abiertos; watchdog lógico | ≥ `arm_hold_ms` continuos con cordón+seta OK, sensor y calibración válidos y acelerador en zona muerta → `ARMED` |
+| `FAULT` | neutro, `enable` = 0 | ADC < `adc_fault_low` o > `adc_fault_high`; salto imposible; VESC en falla (si se usa); calibración/config inválida | igual que `DISARMED` (re-armado con 1 s en cero) |
+| `ARMED` | 0, `enable` = 1 | armado, acelerador en zona muerta, sin dwell pendiente | comando ≠ 0 |
+| `RUN_FWD` | rampa hacia el objetivo, ≤ 100 % | comando > 0 con el bucket ARRIBA | soltar → `DWELL_ZERO`; falla → `DISARMED`/`FAULT` en el **mismo tick** |
+| `RUN_REV` | rampa, **en avance**, ≤ `reverse_limit` | comando > 0 con el bucket ABAJO (marcha atrás por el bucket) | ídem |
+| `WEED` | −`weed_cmd` (giro inverso) | limpieza de rejilla (abajo) | soltar el pulsador, mover el acelerador o `weed_max_ms` → 0 inmediato |
+| `DWELL_ZERO` | 0 | la salida llegó a 0 tras girar; o se pidió el sentido opuesto | `dwell_ms` cumplido; mismo sentido → sigue sin esperar |
 
-Reglas: (1) todo corte de seguridad es **inmediato** (sin rampa); (2) cualquier kill/fault/watchdog **latchea** el desarme: aunque el cordón vuelva, no arranca hasta 1 s continuo en cero; (3) un `dt_ms` > `watchdog_ms` no cuenta como tiempo en cero; (4) la marcha atrás **escala** el comando (tope atrás = −`reverse_limit`), no lo recorta; (5) la inversión exige que la **salida** permanezca en 0 durante ≥ `dwell_ms`, aunque el puño pase rápido por el centro.
+Reglas:
+1. **Armado**: solo con el acelerador en cero ≥ 1 s continuo y todo OK; cualquier kill/fault/watchdog **latchea** el desarme (aunque el cordón vuelva, no arranca hasta 1 s continuo en cero); un `dt_ms` > `watchdog_ms` (lazo colgado, timeout de señal) corta y no cuenta como tiempo en cero. Kill, seta y contactor sin cambios respecto de v1.
+2. **Sensor**: fuera de banda (abierto/corto) o salto imposible → neutro + `FAULT` en el mismo tick. Todo corte de seguridad es **inmediato** (sin rampa); la subida tiene rampa (0→100 % en ≥ `ramp_up_ms`) y la bajada es rápida (`ramp_down_ms`).
+3. **Bucket** (fin de carrera NC en D5: cerrado = ARRIBA; abierto = ABAJO **o cable cortado**): con el bucket ABAJO el objetivo es `|forma(pos)| × reverse_limit`, siempre ≥ 0 (motor en avance), sea cual sea el lado de la palanca. Pasar a ABAJO es inmediato; pasar a ARRIBA exige `sw_debounce_ms` de contacto cerrado continuo (un rebote no habilita el 100 %). Si el bucket baja mientras la salida todavía baja por rampa, se recorta a `reverse_limit` en el acto.
+4. **Cambio de bucket con el acelerador fuera de cero** (el enclavamiento mecánico lo impide: indica falla de cable/fin de carrera o el bucket llegando tarde): salida 0 **en ese tick** y retenida (`BKT_HOLD`, `enable` sigue en 1) hasta que el acelerador vuelve a la zona muerta. Esperar el clic del fin de carrera antes de acelerar tras subir el bucket.
+5. **Incoherencias palanca/fin de carrera** (`BKT_MISM`): palanca del lado de reversa con el fin de carrera en ARRIBA → **salida 0** (si el enclavamiento se rompió el bucket está arriba y el bote iría hacia adelante); palanca de avance con el fin de carrera abierto → limitado a `reverse_limit` (caso típico: cable cortado → se vuelve a puerto con potencia reducida).
+6. **Nunca se invierte el giro** salvo la **limpieza de rejilla**: pulsador D8 sostenido ≥ `weed_hold_ms` (un golpe o rebote no la inicia), soltado al menos una vez desde el armado (un pulsador en corto no hace nada), acelerador en cero y salida en 0 ≥ `dwell_ms` (impulsor frenado). Comando −`weed_cmd`; la **velocidad** inversa la topea el VESC con `l_min_erpm` (§6, ≈ 25 % de las rpm de 5 kn). Termina en el acto al soltar el pulsador, al mover el acelerador o a los `weed_max_ms` (≤ 3 s; `tl_config_check` rechaza más de 3000 ms o `weed_cmd` > 0,25); para repetir hay que soltar y volver a apretar. Tras la limpieza el avance exige `dwell_ms` en cero.
+7. **Perfil** (selector D7: a GND = ABIERTO; abierto/cortado = COSTA): arranca **siempre en COSTA (5 kn)** al encender y en cada armado, aunque el selector esté en ABIERTO; ABIERTO se toma solo si el selector pasó por COSTA después del armado **y** con la salida en 0 y el acelerador en cero (`PROF_WAIT` mientras tanto). Volver a COSTA es inmediato (tras el antirrebote), también en marcha. Desarmado = COSTA.
 
-Flags (`tl_outputs_t.flags`, bits en `throttle_logic.h`): `KILL_CORD`, `ESTOP`, `SENS_LOW`, `SENS_HIGH`, `SENS_JUMP`, `WATCHDOG`, `VESC` (latcheados hasta el próximo armado); `CAL`, `NOT_ZERO`, `RAMP`, `REV_LIM`, `DWELL`, `ARMING` (instantáneos).
+Flags (`tl_outputs_t.flags`, bits en `throttle_logic.h`): `KILL_CORD`, `ESTOP`, `SENS_LOW`, `SENS_HIGH`, `SENS_JUMP`, `WATCHDOG`, `VESC` (latcheados hasta el próximo armado); `CAL`, `NOT_ZERO`, `RAMP`, `BKT_LIM`, `DWELL`, `ARMING`, `BKT_DOWN`, `BKT_HOLD`, `BKT_MISM`, `WEED`, `WEED_WAIT`, `PROF_OPEN`, `PROF_WAIT` (instantáneos).
 
 ### 5.3 Parámetros por defecto (leídos de `tl_default_config()`)
 
@@ -151,12 +163,13 @@ Flags (`tl_outputs_t.flags`, bits en `throttle_logic.h`): `KILL_CORD`, `ESTOP`, 
 | Parámetro (`tl_config_t`) | Valor por defecto | Etiqueta |
 |---|---|---|
 | `deadband` | 0,08 | [SUPUESTO: ±8 % de la semicarrera (pedido de diseño); ajustar en T0] |
-| `expo` | 0,0 | [SUPUESTO: lineal; la rampa ya suaviza. 0,3 si el puño resulta "nervioso"] |
-| `reverse_limit` | 0,5 | [SUPUESTO: = inputs.yaml motor.reverse_current_frac (0,5)] |
-| `jump_travel_per_s` | 25,0 | [SUPUESTO: el puño no recorre tope a tope en < 40 ms; validar en T0.9] |
-| `adc_rev` | 1,30 V → 266 cuentas | [ESTIMADO: provisorio tipo SS49E; lo reemplaza la calibración (T0.5); con cal_valid = 0 no arma] |
-| `adc_center` | 2,50 V → 512 cuentas | [ESTIMADO: provisorio tipo SS49E; lo reemplaza la calibración (T0.5); con cal_valid = 0 no arma] |
-| `adc_fwd` | 3,70 V → 757 cuentas | [ESTIMADO: provisorio tipo SS49E; lo reemplaza la calibración (T0.5); con cal_valid = 0 no arma] |
+| `expo` | 0,0 | [SUPUESTO: lineal; la rampa ya suaviza. 0,3 si la palanca resulta "nerviosa"] |
+| `reverse_limit` | 0,63 | [CALCULADO: calc_electronica reverse_current_frac = waterjet.reverse.power_limit_frac 0,5^(2/3) (bomba P ∝ T^1,5)] |
+| `jump_travel_per_s` | 25,0 | [SUPUESTO: la palanca no recorre tope a tope en < 40 ms; validar en T0.9] |
+| `weed_cmd` | 0,10 | [SUPUESTO: 10 % de l_current_max en giro inverso, solo para soltar algas; la velocidad la topea el VESC con l_min_erpm] |
+| `adc_rev` | 1,30 V → 266 cuentas | [ESTIMADO: provisorio A1324 2,5 V en reposo con imán diametral; lo reemplaza la calibración (T0.5)] |
+| `adc_center` | 2,50 V → 512 cuentas | [ESTIMADO: provisorio A1324 2,5 V en reposo con imán diametral; lo reemplaza la calibración (T0.5)] |
+| `adc_fwd` | 3,70 V → 757 cuentas | [ESTIMADO: provisorio A1324 2,5 V en reposo con imán diametral; lo reemplaza la calibración (T0.5)] |
 | `adc_fault_low` | 0,30 V → 61 cuentas | [SUPUESTO: ~0,3 V (pedido de diseño)] |
 | `adc_fault_high` | 4,70 V → 962 cuentas | [SUPUESTO: ~4,7 V (pedido de diseño)] |
 | `min_half_span` | 0,50 V → 102 cuentas | [SUPUESTO: semicarrera >= 0,5 V -> >= 102 cuentas de resolución] |
@@ -164,29 +177,38 @@ Flags (`tl_outputs_t.flags`, bits en `throttle_logic.h`): `KILL_CORD`, `ESTOP`, 
 | `arm_hold_ms` | 1000 | [SUPUESTO: >= 1 s en cero para armar (pedido de diseño)] |
 | `ramp_up_ms` | 1000 | [SUPUESTO: 0->100 % en >= 1 s (pedido de diseño; R06 §2.6 sugiere ~1 s)] |
 | `ramp_down_ms` | 250 | [SUPUESTO: bajada rápida 100->0 % en 0,25 s; los cortes de seguridad son inmediatos] |
-| `dwell_ms` | 500 | [SUPUESTO: >= 0,5 s en cero antes de invertir (pedido de diseño; correa HTD)] |
+| `dwell_ms` | 500 | [SUPUESTO: >= 0,5 s en cero antes de girar al revés (el impulsor se frena en el agua)] |
 | `watchdog_ms` | 100 | [SUPUESTO: tick nominal 10 ms; > 100 ms sin tick = lazo colgado] |
 | `ppm_min_us` | 1000 | [VERIFICADO: VESC appconf_default.h APPCONF_PPM_PULSE_START 1,0 ms] |
 | `ppm_center_us` | 1500 | [VERIFICADO: APPCONF_PPM_PULSE_CENTER 1,5 ms] |
 | `ppm_max_us` | 2000 | [VERIFICADO: APPCONF_PPM_PULSE_END 2,0 ms] |
+| `weed_max_ms` | 3000 | [SUPUESTO: limpieza de rejilla <= 3 s por pulsación (pedido de diseño)] |
+| `weed_hold_ms` | 300 | [SUPUESTO: pulsación sostenida 0,3 s: un golpe o un rebote no la inicia] |
+| `sw_debounce_ms` | 50 | [SUPUESTO: antirrebote del fin de carrera (solo hacia ARRIBA) y del selector] |
 | `cal_valid` | 0 | — |
 | `use_vesc_ok` | 0 | [SUPUESTO: sin telemetría UART en P1; hook para P2] |
 <!-- /ELEC:firmware -->
 
-Detección de "salto imposible": entre dos muestras se admite `jump_noise_counts + |adc_fwd − adc_rev| × jump_travel_per_s × dt` [CALCULADO: con los valores de arriba ≈ 135 cuentas en 10 ms = 27 % de la carrera total]. Un puño a mano (0→100 % en 150 ms) o el retorno por resortes en 30 ms no disparan; un salto centro→tope en un tick sí (tests).
+`reverse_limit` = 0,63 sale de `calc_electronica.py` (`vesc_values.reverse_current_frac` = `waterjet.reverse.power_limit_frac`^(2/3), bomba P ∝ T^1,5); `test_defaults_match_requirements` exige que coincidan. Detección de "salto imposible": entre dos muestras se admite `jump_noise_counts + |adc_fwd − adc_rev| × jump_travel_per_s × dt` [CALCULADO: ≈ 135 cuentas en 10 ms = 27 % de la carrera total]. Una palanca a mano (0→100 % en 150 ms) o el retorno por resortes en 30 ms no disparan; un salto centro→tope en un tick sí (tests).
 
 ### 5.4 Pines del Nano
 
 | Pin | Función | Hardware | Falla → resultado |
 |---|---|---|---|
-| A0 | Hall (ADC, Vref AVCC 5 V) | 1 kΩ + 100 nF; 100 kΩ a GND | señal o 5 V cortados → ≈ 0 V → `SENS_LOW` |
+| A0 | Hall A1324 de la palanca del acelerador (ADC, Vref AVCC 5 V) | 1 kΩ + 100 nF; 100 kΩ a GND | señal o 5 V cortados → ≈ 0 V → `SENS_LOW` |
 | D2 (INT0) | Cordón (opto U2) | `INPUT_PULLUP` + 10 kΩ externo + 100 nF | ALTO = kill (abierto/cortado/suelto) |
 | D3 (INT1) | Seta (opto U1) | ídem | ALTO = e-stop |
+| D5 | Fin de carrera del bucket, NC a GND | `INPUT_PULLUP` + 10 kΩ externo [SUPUESTO] | cable cortado → ALTO = bucket ABAJO → comando ≤ `reverse_limit` (fail-safe) |
+| D7 | Selector de perfil a GND | `INPUT_PULLUP` | cable cortado → COSTA |
+| D8 | Pulsador de limpieza de rejilla NA a GND | `INPUT_PULLUP` | cortado → sin limpieza; en corto → ignorado (exige soltar) |
 | D9 (OC1A) | PPM, Timer1 modo 14, prescaler 8, 50 Hz | 10 kΩ a GND en el VESC | reset del MCU → sin pulsos → timeout del VESC |
 | D4 | Q_EN (habilita ADC2 a GND) | NPN, base 1 kΩ, 10 kΩ a GND | reset → transistor abierto → kill del VESC |
+| D12 | Perfil al VESC: ALTO = ABIERTO | 10 kΩ a GND [SUPUESTO] | reset/cortado → BAJO = COSTA |
 | D6 / D13 | LED de estado | panel IP67 | — |
 
-Coherencia del cableado en serie: si D2 dice "cordón OK" pero D3 dice "seta abierta" (imposible con la serie seta→cordón), el sketch trata ambos como abiertos. WDT de hardware `WDTO_120MS`; `wdt_reset()` solo tras un tick completo; el registro de reset (MCUSR) se imprime al arrancar (bit 0x08 = reset por WDT; con Optiboot puede leer 0 [ESTIMADO]). `p1_early_init()` (en `.init3`: copia MCUSR y apaga el WDT antes de `setup()`) lleva `__attribute__((used))`: el core compila con `-flto` y **sin `used` el enlazador la descartaba** (revisión adversarial: el ELF no tenía ningún acceso a MCUSR; sin Optiboot, tras un reset por WDT el WDT seguía activo a 16 ms → bucle de reset). Lo verifica `test_avr_build_if_toolchain_available` con `avr-objdump`.
+D10 queda libre a propósito (OC1B del Timer1 del PPM). **Pendiente del lado del VESC [NO IMPLEMENTADO]**: D12 solo indica el perfil; el VESC arranca con `l_max_erpm` legal (§6) y cambiar al perfil 2 requiere leer esa línea en el VESC (p. ej. script LispBM en FW ≥ 6 que lea ADC1 y ajuste `l_max_erpm`) o mandar el `mcconf` temporal por UART. Sin eso el selector no tiene efecto y el bote queda en 5 kn (lado seguro). El diagrama de cableado muestra D5; faltan D7, D8 y D12.
+
+Coherencia del cableado en serie: si D2 dice "cordón OK" pero D3 dice "seta abierta" (imposible con la serie seta→cordón), el sketch trata ambos como abiertos. WDT de hardware `WDTO_120MS`; `wdt_reset()` solo tras un tick completo; el registro de reset (MCUSR) se imprime al arrancar (bit 0x08 = reset por WDT; con Optiboot puede leer 0 [ESTIMADO]). `p1_early_init()` (en `.init3`: copia MCUSR y apaga el WDT antes de `setup()`) lleva `__attribute__((used))`: el core compila con `-flto` y sin `used` el enlazador la descarta (sin Optiboot, tras un reset por WDT el WDT seguiría activo a 16 ms → bucle de reset). Lo verifica `test_avr_build_if_toolchain_available` con `avr-objdump`.
 
 ### 5.5 Compilación
 
@@ -198,19 +220,19 @@ arduino-cli compile --fqbn arduino:avr:nano --build-property "compiler.cpp.extra
 arduino-cli upload  --fqbn arduino:avr:nano -p /dev/ttyUSB0 04_diseno/electronica/firmware/p1_throttle
 ```
 
-Resultado en esta sesión [VERIFICADO: arduino-cli 1.5.2-rc.1, arduino:avr 1.8.8, avr-gcc 7.3.0]: compila sin advertencias en los archivos del proyecto; 11 270 B / 436 B (versión de agua) y 11 390 B (versión T0), con `used` en `p1_early_init` (antes 11 244 B: la función no estaba en el binario) y `serial_poll()` procesando un carácter por vuelta de `loop()` (una ráfaga por USB ya no puede bloquear el lazo hasta el WDT). Si se modifica la lógica: `cp firmware/throttle_logic.[ch] firmware/p1_throttle/src/` (el test lo exige). FQBN `arduino:avr:nano` = bootloader nuevo; con un clon de bootloader viejo, regrabar el bootloader o comprobar T0.18.
+v2.0 **no se compiló para AVR en esta sesión** (sin `avr-gcc`/`arduino-cli`; el test correspondiente se salta): la lógica compila con gcc en C99 estricto con `-Wconversion -Werror`. Ojo AVR: los flags son `uint32_t` y los menores a 0x10000 son `unsigned int` de 16 bits → negarlos siempre como `~(uint32_t)TL_F_x`. Si se modifica la lógica: `cp firmware/throttle_logic.[ch] firmware/p1_throttle/src/` (el test lo exige). FQBN `arduino:avr:nano` = bootloader nuevo; con un clon de bootloader viejo, regrabar el bootloader o comprobar T0.18.
 
 ### 5.6 Calibración (una vez, y tras cambiar imán/sensor)
 
-Monitor serie 115200. Con **el cordón afuera** (K1 abierto; el sketch se niega a calibrar con el cordón puesto): `c` → soltar el puño, `1` → tope avance, `2` → tope atrás, `3` → `s`. `tl_calibrate()` exige orden monótono, semicarrera ≥ 102 cuentas y los tres puntos dentro de la banda válida; se guarda en EEPROM con CRC-8. Sin calibración válida el estado es `FAULT` permanente (no arma). Se admite el imán invertido (avance con tensión decreciente).
+Monitor serie 115200. Con **el cordón afuera** (K1 abierto; el sketch se niega a calibrar con el cordón puesto): `c` → soltar la palanca, `1` → tope avance, `2` → **bajar el bucket** (el enclavamiento solo deja ir al lado de reversa con el bucket abajo) y llevar a tope atrás, `3` → `s`. `tl_calibrate()` exige orden monótono, semicarrera ≥ 102 cuentas y los tres puntos dentro de la banda válida; se guarda en EEPROM con CRC-8. Sin calibración válida el estado es `FAULT` permanente (no arma). Se admite el imán invertido.
 
 ### 5.7 LED y telemetría
 
-LED: fijo = armado; 4 Hz = desarmado con acelerador fuera de cero; 2 Hz = contando 1 s en cero; destello cada 2 s = cordón/seta abiertos; 10 Hz = `FAULT`. Telemetría CSV cada 100 ms (`t` la activa/desactiva): `t_ms, estado, adc, cmd, ppm_us, flags, enable` — es el registro que usa T0.
+LED: fijo = armado; parpadeo corto (2 de cada 3 × 100 ms) = limpieza de rejilla; 4 Hz = desarmado con acelerador fuera de cero; 2 Hz = contando 1 s en cero; destello cada 2 s = cordón/seta abiertos; 10 Hz = `FAULT`. Telemetría CSV cada 100 ms (`t` la activa/desactiva): `t_ms, estado, adc, cmd, ppm_us, flags, enable, perfil` (bucket abajo = bit 0x2000 de `flags`) — es el registro que usa T0.
 
 ### 5.8 Tests (`pytest -q tests/test_firmware.py`)
 
-Compila `throttle_logic.c` con `gcc -std=c99 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wdouble-promotion -Werror` a una librería compartida en un directorio temporal y la usa por ctypes (el tamaño de cada struct se verifica contra C). Movimientos del puño realistas (`goto` de 100 ms). Escenarios: estructuras; defaults vs requisitos e `inputs.yaml`; sin calibración no arma; **no arranca con acelerador fuera de cero al encender** (60 %, +100 %, −100 %); **arma tras 1 s continuo en cero** (y una interrupción reinicia el conteo); **rampa de subida** ≤ 1 %/10 ms y 0→100 % en ≥ 1 s; **bajada rápida**; **cordón y seta → neutro en el mismo tick, latch y re-armado solo tras 1 s en cero**; **encendido con el cordón afuera o la seta pulsada → no arma, y al reponerlos exige 1 s más**; glitch de un tick; **reversa ≤ 50 %** (PPM 1250 µs); **inversión con dwell ≥ 0,5 s** (ambos sentidos, barrido lento por el centro, re-aplicación en el mismo sentido sin espera); **sensor abierto/en corto** (6 valores) → neutro + `FAULT` + re-armado; bordes de la banda válidos; **salto imposible** vs mano real; **watchdog lógico** (100 ms pasa, 101 ms corta; un dt largo no cuenta como cero); **zona muerta**; expo; calibración (incl. imán invertido); entrada de falla del VESC; **tiempo total de corte < 1 s** por camino; fuzz de 20 000 ticks con invariantes (PPM en rango, neutro ante cualquier condición insegura, rampa, dwell entre signos opuestos, cada armado precedido por ≥ 1 s en cero con todo OK); tabla de verdad; copia del sketch idéntica, E/S requeridas y `used` en `p1_early_init`; config VESC coherente con sizing e `inputs.yaml` (polos, temperatura de motor); hallazgos del circuito reflejados en la lista de componentes; el diagrama se genera; **README/JSON/CSV/SVG vigentes** respecto de `inputs.yaml` + `sizing.json`. El tick de los tests se lee de `TICK_MS` del sketch. Resultado: **40 passed, 1 skipped** (la compilación AVR se salta si no hay `avr-gcc`/`arduino-cli`; con `P1_ARDUINO_CLI=<ruta>` y `avr-gcc` en el PATH también pasó, incluida la verificación con `avr-objdump` de que `p1_early_init` está en `.init3`).
+Compila `throttle_logic.c` con `gcc -std=c99 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wdouble-promotion -Werror` a una librería compartida y la ejecuta desde Python por ctypes, tick a tick (el tamaño de cada struct se verifica contra C; el tick se lee de `TICK_MS` del sketch; movimientos de palanca realistas). Escenarios: defaults vs requisitos, `inputs.yaml` y `calc_electronica` (`reverse_limit` = 0,63, `l_min_erpm`); config insegura rechazada (limpieza > 3 s, `weed_cmd` > 0,25…); sin calibración no arma; **arranque con acelerador ≠ 0 no arma** (incl. bucket abajo); armado tras 1 s continuo en cero; rampa de subida y bajada rápida; cordón/seta → neutro en el mismo tick + latch; **bucket abajo limita** a `reverse_limit` siempre en avance (y con el fin de carrera cortado desde el encendido); lado de reversa con bucket arriba → 0; **nunca negativo sin el pulsador**; bucket hacia abajo inmediato / hacia arriba con antirrebote; **cambio de bucket con acelerador > 0 → salida 0 hasta volver a cero** (3 casos); cambio con acelerador en 0 sin retención; recorte al bajar el bucket durante la rampa; **limpieza de rejilla**: lenta, ≤ `weed_cmd`, ≤ 3 s aunque se sostenga, una por pulsación, corte al soltar o mover el acelerador, exige acelerador en 0 y motor parado ≥ dwell, ignora pulsaciones cortas/rebotes y un pulsador apretado al armar, no arranca con la palanca fuera de cero aunque la salida sea 0, la corta el kill; **perfil COSTA por defecto** al encender y en cada re-armado (aunque el selector esté en abierto), ABIERTO solo pasando por costa y con salida 0, vuelta a costa inmediata; **sensor fuera de rango** (6 valores, también durante limpieza y con bucket abajo) → neutro + `FAULT`; salto imposible vs mano real; **watchdog/timeout** (100 ms pasa, 101 ms corta); zona muerta y `tl_thrust`; expo; calibración; falla del VESC; tiempo de corte < 1 s; **fuzz** de 30 000 ticks con invariantes (PPM en rango, neutro ante condición insegura, comando ≥ −`weed_cmd` y negativo solo en limpieza con pulsador sostenido ≥ `weed_hold_ms` y acelerador en 0, ≤ 3 s, bucket abierto ⇒ ≤ `reverse_limit`, rampa, dwell entre signos, perfil abierto solo armado y desde salida 0, cada armado en COSTA y tras ≥ 1 s en cero); **tabla de verdad** (1536 filas, ahora con el fin de carrera del bucket) y sus filas que giran contrastadas contra la lógica; copia del sketch idéntica, pines requeridos y sin repetir; config VESC coherente con sizing; archivos generados vigentes. Una prueba de mutación (11 alteraciones de la lógica: sin retención por bucket, limpieza sin tope de tiempo / sin acelerador en 0 / sin dwell, reversa negativa, avance sin límite con bucket abajo, perfil sin pasar por costa / sin salida 0, sin antirrebote, sin recorte, pulsador sin soltar) fue detectada en los 11 casos. Resultado: **68 passed, 1 skipped** (la compilación AVR se salta sin `avr-gcc`/`arduino-cli`).
 
 ## 6. Configuración obligatoria del VESC
 
@@ -224,15 +246,15 @@ Los valores por defecto del firmware **no sirven** para el bote [VERIFICADO: R06
 | Motor | `si_motor_poles` | 4 | — | 14 | [inputs.yaml motor.options.MTI120116_150.pole_pairs = 2 (allí con su etiqueta)] · default FW 14 [VERIFICADO: mcconf_default.h MCCONF_SI_MOTOR_POLES]; CONTAR imanes del motor real | — |
 | Motor | `l_current_max` | 292 | A | 60 | [CALCULADO: sizing.json electrical.I_phase_limit_A = 292 A: par T_max 18,6 N·m < par de corte del pasador / 1,8] · default 60 A [VERIFICADO: mcconf_default.h] | Límite de FASE: fija el par máx. (el pasador de corte no corta en arranques). En PPM Current acelera con servo × l_current_max [VERIFICADO: app_ppm.c] |
 | Motor | `l_current_min` | -87,6 | A | -60 | [CALCULADO: −0,3 × l_current_max] · [SUPUESTO: corriente de frenado = 30 % de l_current_max (un jet casi no regenera; protege BMS)] | Corriente de FRENADO (servo opuesto a las rpm) [VERIFICADO: app_ppm.c] |
-| Motor | `límite de potencia en REVERSA (bucket abajo, MCU)` | P ≤ 0,5 × P → corriente ≤ 0,63 × l_current_max = 184 | A | — | [CALCULADO: inputs.yaml waterjet.reverse.power_limit_frac 0,5; [CALCULADO: bomba con T ∝ n², P ∝ n³ → P ∝ T^1,5; límite de par = P_frac^(2/3)]] | El jet NO invierte el giro: la reversa es el bucket. El MCU lee el fin de carrera del bucket y topea el PPM (reverse_limit del firmware = este valor; adaptar p1_throttle a la entrada del bucket — pendiente) |
-| Batería | `l_in_current_max` | 192 | A | 99 (100 en target 75_100) | [CALCULADO: ⌈1,05 × I_bat pico 221 A⌉ a 5 A, ≤ 80 % × BMS 240 A] | LIMITA la V máx: I_bat pico de sizing > 80 % del BMS |
+| Motor | `límite de potencia en REVERSA (bucket abajo, MCU)` | P ≤ 0,5 × P → corriente ≤ 0,63 × l_current_max = 184 | A | — | [CALCULADO: inputs.yaml waterjet.reverse.power_limit_frac 0,5; [CALCULADO: bomba con T ∝ n², P ∝ n³ → P ∝ T^1,5; límite de par = P_frac^(2/3)]] | El jet NO invierte el giro: la reversa es el bucket. El MCU lee el fin de carrera del bucket y topea el PPM (reverse_limit del firmware = este valor; fin de carrera en D5, README §5) |
+| Batería | `l_in_current_max` | 192 | A | 99 (100 en target 75_100) | [CALCULADO: ⌈1,05 × I_bat pico 192 A⌉ a 5 A, ≤ 80 % × BMS 240 A] | LIMITA la V máx: I_bat pico de sizing > 80 % del BMS |
 | Batería | `l_in_current_min` | -10 | A | -60 (-100 en target 75_100) | [SUPUESTO: la hélice regenera poco; protege el BMS al frenar/invertir] · defaults [VERIFICADO: mcconf_default.h; hw_75_100.h (research/R06_electrica.md §2.4)] | — |
 | Batería | `l_battery_cut_start` | 36 | V | 10 | [CALCULADO: 12 celdas × 3 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 3,0 V/celda] | — |
 | Batería | `l_battery_cut_end` | 33,6 | V | 8 | [CALCULADO: 12 × 2,8 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 2,8 V/celda] | — |
 | Batería | `l_max_vin` | 53 | V | 57 (90 en target 75_100) | [CALCULADO: 1,2 × 43,8 V] · [SUPUESTO: l_max_vin = 1,2 × V carga plena → protege el DC-DC ante un BMS abierto regenerando] | OJO: ≥ entrada máx. del DC-DC → usar R-78HB (72 V) |
-| Velocidad | `l_max_erpm` | 4100 | ERPM | 100000 | [CALCULADO: tope legal 'modo costa' = rpm a 5 kn con carga liviana (sizing.legal_speed, D-30); techo técnico 11300 = 1,15 × 4932 rpm × 2 pares de polos] | Sin carga (hélice fuera del agua) el motor iría a 6570 rpm = 13140 ERPM [CALCULADO: KV 150 × 43,8 V]; el límite lo baja a 2050 rpm |
-| Velocidad | `l_max_erpm (perfil 2: fuera de la franja de 300 m)` | 11300 | ERPM | 100000 | [CALCULADO: 1,15 × 4932 rpm (n máx. de sizing) × 2 pares de polos] | Segundo perfil del VESC (o mcconf alternativo cargado por UART); por defecto arranca SIEMPRE en el perfil legal de 5 kn (R13) |
-| Velocidad | `l_min_erpm` | -1400 | ERPM | -100000 | [CALCULADO: −699 rpm × 2 pares de polos] · [SUPUESTO: giro inverso lento (≤ 25 % de las rpm de 5 kn) solo para soltar algas de la rejilla] | Solo giro inverso lento para limpiar la rejilla; la reversa de marcha es el bucket |
+| Velocidad | `l_max_erpm` | 3700 | ERPM | 100000 | [CALCULADO: tope legal 'modo costa' = rpm a 5 kn con carga liviana (sizing.legal_speed, D-30); techo técnico 9600 = 1,15 × 4195 rpm × 2 pares de polos] | Sin carga (hélice fuera del agua) el motor iría a 6570 rpm = 13140 ERPM [CALCULADO: KV 150 × 43,8 V]; el límite lo baja a 1850 rpm |
+| Velocidad | `l_max_erpm (perfil 2: fuera de la franja de 300 m)` | 9600 | ERPM | 100000 | [CALCULADO: 1,15 × 4195 rpm (n máx. de sizing) × 2 pares de polos] | Segundo perfil del VESC (o mcconf alternativo cargado por UART); por defecto arranca SIEMPRE en el perfil legal de 5 kn (R13) |
+| Velocidad | `l_min_erpm` | -1300 | ERPM | -100000 | [CALCULADO: −625 rpm × 2 pares de polos] · [SUPUESTO: giro inverso lento (≤ 25 % de las rpm de 5 kn) solo para soltar algas de la rejilla] | Solo giro inverso lento para limpiar la rejilla; la reversa de marcha es el bucket |
 | Velocidad | `l_max_duty` | 0,95 | — | 0,95 | [VERIFICADO: mcconf_default.h MCCONF_L_MAX_DUTY 0,95; mantener] | — |
 | Temperatura | `l_temp_fet_start / end` | 85 / 100 | °C | 85 / 100 | [VERIFICADO: mcconf_default.h; mantener] | — |
 | Temperatura | `l_temp_motor_start / end` | 85 / 100 | °C | 85 / 100 | [CALCULADO: start = mín(85 default, t_winding_max_c 120 °C de inputs.yaml); end = start + 15 como el default] · default 85/100 [VERIFICADO: mcconf_default.h] | sizing toma t_winding_max_c como la temperatura donde el VESC EMPIEZA a limitar: no subir start sin rehacer el cálculo térmico. Requiere NTC 10 k en el bobinado (TEMP_SENSOR_NTC_10K_25C, R06 §1.2) |
@@ -261,7 +283,7 @@ Notas: (1) `l_current_max` es el límite de corriente de motor de `inputs.yaml` 
 | R de precarga (en paralelo con K1) | 100 Ω, ≥ 30 W (carcasa de Al sobre la tapa-disipador) | [SUPUESTO: research/R06_electrica.md §3.4 (100 Ω → 5τ ≤ 1 s)]; potencia [CALCULADO: 1,5 × V²/R en corto del bus] |
 | τ = R·C_bus / 5τ | 0,20 s / 1,00 s | [CALCULADO] con C_bus 2 mF [ESTIMADO: research/R06_electrica.md §3.4, C de bus del VESC 1–2 mF no publicado; se toma el mayor] |
 | Pico de corriente / energía en R | 0,44 A / 1,92 J | [CALCULADO: V_máx/R; ½·C·V²] |
-| Potencia máx. que pasa por R con K1 abierto | 4,8 W = 0,29 % del crucero (1651 W, sizing) | [CALCULADO: V²/4R] → sin empuje con K1 abierto |
+| Potencia máx. que pasa por R con K1 abierto | 4,8 W = 0,29 % del crucero (1678 W, sizing) | [CALCULADO: V²/4R] → sin empuje con K1 abierto |
 | Espera con cordón AFUERA tras encender S1 | ≥ 2 s | [CALCULADO: ≥ 2 × 5τ, redondeado] |
 | Bobina K1 | 48 V, R = 177,2–329,1 Ω, I máx 0,25 A a 43,8 V | [CALCULADO] desde [VERIFICADO: Albright SW80, bobina continua 7–13 W (research/R06_electrica.md §3.3)]; rango de bobina requerido 36,0–43,8 V |
 | Bobina a carga plena (sobretensión) | Us 36 V: 122 % Us → 10,4–19,2 W, cierra con ≤ 23,8 V (✔ vs 36,0 V en reposo al corte, margen 12,2 V); Us 48 V: 91 % Us → 5,8–10,8 W, cierra con ≤ 31,7 V (✔ vs 36,0 V en reposo al corte, margen 4,3 V) | [CALCULADO: V_máx²/R_bobina] · [VERIFICADO: Albright SW80, bobina prolongada 13–15 W (research/R06_electrica.md §3.3)] · [VERIFICADO: Albright SW80, cierre máx. 66 % Us, tipo continuo (research/R06_electrica.md §3.3)] · [VERIFICADO: Albright SW80/SW80B, bobinas de 6–240 V CC (research/R06_electrica.md §3.3)]; se elige la menor con V_máx/Us ≤ 1,10 y cierre ≤ V en reposo al corte → bobina elegida 48 V ([SUPUESTO: sobretensión continua de bobina ≤ 110 % Us sin confirmación del fabricante]) |

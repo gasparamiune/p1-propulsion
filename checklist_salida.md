@@ -40,7 +40,7 @@ Una casilla sin marcar = **no se sale**. Fuentes: R07 = research/R07_dinamarca.m
 - [ ] Cordón atado al chaleco del timonel (nunca al bote) [R07 §1.4; D-22]
 - [ ] Arranque solo con acelerador en cero: con el puño abierto no arranca (LED a 4 Hz); 1 s en cero → arma (LED fijo) [elec §5.7, T0.7]
 - [ ] Prueba de corte en el muelle con el motor al mínimo: tirar del cordón → para y se oye K1 en < 1 s; repetir con la seta [elec §10; 02 §11]
-- [ ] Modo costa: `l_max_erpm` = <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> ERPM en VESC Tool; si muestra otro valor (p. ej. el de elec §6), cargar este [02 §3.1; D-30]
+- [ ] Modo costa: `l_max_erpm` = <!--V:sizing.legal_speed.erpm_cap:.0f-->3700<!--/V--> ERPM en VESC Tool; si muestra otro valor (p. ej. el de elec §6), cargar este [02 §3.1; D-30]
 
 ## 5. En el agua
 - [ ] Siempre a < 300 m de la costa danesa [R07 §1.2]

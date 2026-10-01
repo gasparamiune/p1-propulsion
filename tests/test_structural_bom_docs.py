@@ -30,14 +30,28 @@ def test_load_cases_covered(root):
 def test_bom(root):
     rows = list(csv.DictReader(open(root / "bom.csv", encoding="utf-8")))
     ids = {r["ID"] for r in rows}
-    for must in ("B-MOT", "B-ESC", "B-BAT", "B-PROP", "B-FUSE", "B-KILL", "B-ASW"):
-        assert must in ids
+    for must in ("B-MOT", "B-ESC", "B-BAT", "B-CHG", "B-FUSE", "B-CONT", "B-KILL", "B-SEAL", "B-BRG", "B-CPL",
+                 "B-PETG", "S-CNC-IMP", "S-CNC-STAT", "R-PIN", "B-BILGE", "B-FOAM", "B-PFD"):
+        assert must in ids, must
     for r in rows:
-        if r["ID"].startswith("B-"):
+        if r["ID"].startswith(("B-", "S-", "R-", "H-", "MP-")):
             assert r["link_o_busqueda"].startswith(("http", "buscar:")), r["ID"]
             assert r["fecha"]
+            assert r["etiqueta"].startswith(("[VERIFICADO", "[ESTIMADO", "[CALCULADO")), r["ID"]
+            assert (r["verificado"] == "sí") == r["etiqueta"].startswith("[VERIFICADO"), r["ID"]
     tot = [r for r in rows if r["descripcion"] == "TOTAL SISTEMA EUR"][0]
     assert float(tot["precio_total_EUR"]) > 300
+    # cobertura del CAD: compradas con precio; mecanizadas con materia prima o servicio
+    man = json.load(open(root / "resultados" / "manifest.json", encoding="utf-8"))
+    cov = {pid for r in rows for pid in (r.get("cubre") or "").split()}
+    for p in man["parts"]:
+        if p["process"] in ("comprada", "torneada", "impresa"):
+            assert p["id"] in cov, p["id"]
+    summ = json.load(open(root / "resultados" / "bom_resumen.json", encoding="utf-8"))
+    for k in ("subtotal_eur", "shipping_eur", "contingency_eur", "total_eur", "total_dkk", "by_category",
+              "verified_frac_of_subtotal", "operation_gear_eur", "fixed_excl_battery_eur", "hull_changes_eur"):
+        assert k in summ, k
+    assert not summ["unpriced_bought_parts"] and not summ["machined_without_service"]
 
 
 def test_docs_in_sync(root):
