@@ -95,6 +95,10 @@ def extend(d):
     d["STE_stud_hole"] = 8.4           # rótula angular M8 (DIN 71802) [ESTIMADO: buscar "Winkelgelenk DIN 71802 M8 A4"]
     d["STE_ball_h"] = 12.0             # centro de bola sobre la cara del brazo [ESTIMADO: DIN 71802 M8]
     d["STE_link_L"] = 60.0             # biela cable M66 → brazo [CALCULADO: recorrido simétrico ±29,6 mm]
+    d["STE_stop_deg"] = smax + 1.5     # topes mecánicos de dirección (P1-STE-08) [SUPUESTO: 1,5° sobre δmax]
+    d["STE_stop_z"] = (222.0, 230.0)   # placa de topes, entre el bucket arriba y el brazo del yugo [CALCULADO]
+    d["REV_release_need"] = 7.0        # recorrido del pomo del émbolo para liberar el brazo (+0,5 de luz) [CALCULADO en checks]
+    d["REV_plunger_stroke"] = 10.0     # [ESTIMADO: carrera del émbolo GN 617-12; buscar ficha]
     d["STE_e_frac"] = 0.5              # [ESTIMADO: research/R12 §7.4 — brazo del momento 0,3–0,5 L]
     d["STE_F_design"] = max(loads["F_steer_side_N"], 364.0)   # [CALCULADO: research/R12 §7.4 — 364 N (7,2 kW, δ 30°); se toma el mayor con sizing]
     # orejas del bucket sobre la boquilla
