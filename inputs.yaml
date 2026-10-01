@@ -1,0 +1,452 @@
+# =============================================================================
+# inputs.yaml — ÚNICA FUENTE DE ENTRADAS del proyecto P1
+# Todo el proyecto (cálculos, CAD, verificación, BOM, documentos) se regenera
+# desde este archivo con:  python run_all.py
+#
+# Etiquetas (en el comentario de cada valor numérico):
+#   [VERIFICADO: fuente]  dato leído en una fuente abierta en esta sesión
+#   [CALCULADO]           resultado de un cálculo documentado
+#   [ESTIMADO: base]      inferencia de ingeniería con base explícita
+#   [SUPUESTO]            decisión de diseño / supuesto conservador
+# Unidades SI salvo indicación; geometría en mm.
+# Las decisiones y "qué cambia si el dato real difiere" están en decisiones.md
+# =============================================================================
+
+meta:
+  project: "P1 propulsión eléctrica long-tail para jon boat de aluminio"
+  version: "1.0"
+  date: "2026-10-01"
+  currency: "EUR"
+  eur_to_dkk: 7.46            # [ESTIMADO: tipo fijo DKK/EUR (ERM II, central 7.46038)]
+
+# -----------------------------------------------------------------------------
+# EMBARCACIÓN (jon boat de aluminio < 2,5 m). Valores de diseño + rango.
+# -----------------------------------------------------------------------------
+boat:
+  loa_m: 2.44                 # [ESTIMADO: jon boat 8 ft = 2.44 m; rango 2.1–2.5]
+  lwl_m: 2.00                 # [ESTIMADO: LOA − proa lanzada ~0.4 m; menor LWL = Fr mayor = conservador]
+  beam_m: 1.20                # [ESTIMADO: manga típica 8 ft jon 1.1–1.25 m]
+  chine_beam_m: 0.95          # [ESTIMADO: ancho de fondo típico 0.8–1.0 m]
+  transom_beam_m: 0.90        # [ESTIMADO: ancho del espejo en flotación]
+  side_height_m: 0.38         # [ESTIMADO: puntal típico 8 ft jon 0.33–0.40 m]
+  hull_mass_kg: 45.0          # [ESTIMADO: 8 ft jon aluminio 30–45 kg; se toma el alto]
+  block_coeff: 0.72           # [ESTIMADO: caja con proa lanzada, Cb 0.65–0.80]
+  waterplane_coeff: 0.85      # [ESTIMADO: fondo plano con proa lanzada]
+  max_capacity_kg: 250.0      # [ESTIMADO: placa de capacidad típica 8 ft 2 personas; MEDIR placa real]
+  transom:
+    height_mm: 381            # [ESTIMADO: espejo "short shaft" 15 in = 381 mm]
+    height_range_mm: [330, 430]   # [ESTIMADO: rango de diseño]
+    thickness_mm: 40          # [ESTIMADO: chapa Al ~2 mm + refuerzo de madera ~38 mm]
+    thickness_range_mm: [20, 60]  # [SUPUESTO: rango que cubre la abrazadera]
+    rake_deg: 0.0             # [SUPUESTO: espejo vertical; la mayoría de jon boats 0–14°]
+    top_width_mm: 900         # [ESTIMADO: ancho útil del borde superior del espejo]
+
+# -----------------------------------------------------------------------------
+# CARGA
+# -----------------------------------------------------------------------------
+load:
+  n_persons: 2                # [VERIFICADO: requisito del usuario]
+  mass_per_person_kg: 100.0   # [SUPUESTO: conservador, incluye ropa y chaleco]
+  safety_gear_kg: 12.0        # [ESTIMADO: remos 2 kg, ancla+cabo 4 kg, achicador, botiquín, bolso estanco]
+  misc_kg: 5.0                # [SUPUESTO: margen]
+
+# -----------------------------------------------------------------------------
+# AGUA Y AIRE (Als Fjord, Báltico occidental — agua salobre)
+# -----------------------------------------------------------------------------
+water:
+  salinity_psu: 18.0          # [ESTIMADO: Báltico occidental superficial 10–22 PSU; ver research/R07]
+  density_kg_m3: 1013.0       # [CALCULADO: ~1000 + 0.75·S a 10 °C]
+  kinematic_viscosity_m2_s: 1.35e-6   # [ESTIMADO: agua salobre ~10 °C (dulce 10 °C: 1.31e-6)]
+  temp_min_c: 2.0             # [ESTIMADO: invierno; ver research/R07]
+  temp_max_c: 20.0            # [ESTIMADO: agosto]
+  vapor_pressure_pa: 2340.0   # [ESTIMADO: presión de vapor a 20 °C (caso peor para cavitación)]
+  p_atm_pa: 101325.0          # [VERIFICADO: atmósfera estándar]
+air:
+  density_kg_m3: 1.225        # [VERIFICADO: atmósfera estándar ISA]
+  temp_max_c: 30.0            # [SUPUESTO: día de verano con sol]
+
+# -----------------------------------------------------------------------------
+# OPERACIÓN
+# -----------------------------------------------------------------------------
+operation:
+  cruise_speed_kmh: 6.0       # [VERIFICADO: requisito del usuario; se verifica vs velocidad de casco]
+  cruise_time_h: 2.0          # [VERIFICADO: requisito del usuario]
+  reserve_frac: 0.20          # [VERIFICADO: requisito del usuario]
+  max_speed_range_kmh: [8.0, 12.0]   # [VERIFICADO: requisito del usuario, "por ratos"]
+  max_shore_distance_m: 300   # [VERIFICADO: requisito del usuario]
+  design_headwind_m_s: 6.0    # [SUPUESTO: límite operativo de salida (≈ 4 Beaufort bajo)]
+  design_current_m_s: 0.5     # [ESTIMADO: corriente de viento/estrecho ~1 kn; ver research/R07]
+  wave_added_frac: 0.25       # [ESTIMADO: resistencia añadida en ola corta de fiordo +20–30 %]
+  min_speed_over_ground_kmh: 3.0   # [SUPUESTO: avance mínimo contra viento+corriente de diseño]
+  speed_sweep_kmh: [1.0, 14.0, 0.25]  # [SUPUESTO: barrido de cálculo min, max, paso]
+  vmax_target_kmh: 8.0        # [SUPUESTO: mínimo de la franja 8–12 km/h, banda nominal, batería nominal]
+  vmax_tolerance_kmh: 0.10    # [SUPUESTO: tolerancia numérica del criterio de V máx]
+  max_prop_tip_depth_mm: 380   # [SUPUESTO: calado máximo de la punta de hélice bajo flotación en marcha (aguas someras)]
+
+# -----------------------------------------------------------------------------
+# MODELO DE RESISTENCIA (ver 02_calculos.md §2). Calibrable con remolque.
+# R = R_F·(1+k) + R_TR + R_W + R_air ;  R_W = W·c_w·Fr⁴/(1+(Fr/Fr_h)⁴)
+# -----------------------------------------------------------------------------
+resistance:
+  form_factor_k: 0.20         # [ESTIMADO: casco romo de fondo plano, 0.1–0.3]
+  delta_cf: 0.0004            # [ESTIMADO: rugosidad de remaches/abolladuras de casco de aluminio]
+  wave_cw: 1.50               # [ESTIMADO: calibrado para R/W≈0.045 a Fr_L≈0.37 (jon boat + trolling 55 lb); CALIBRAR con remolque]
+  wave_fr_hump: 0.55          # [ESTIMADO: joroba de casco plano pesado Fr_L 0.5–0.7]
+  air_cd: 1.0                 # [ESTIMADO: personas sentadas + borda, Cd 0.8–1.2]
+  air_frontal_area_m2: 1.0    # [ESTIMADO: 2 personas sentadas (0.35 m²·2) + casco 0.3 m²]
+  band_low: 0.80              # [SUPUESTO: banda de incertidumbre inferior]
+  band_high: 1.30             # [SUPUESTO: banda superior — se usa para dimensionar]
+  design_band: "high"         # [SUPUESTO: dimensionar con la banda alta]
+
+# -----------------------------------------------------------------------------
+# ARQUITECTURA Y GEOMETRÍA DE LA COLA LARGA (long-tail)
+# -----------------------------------------------------------------------------
+architecture:
+  id: "A3-longtail"           # [SUPUESTO: ver 03_arquitectura.md]
+  shaft_angle_deg: 25.0       # [SUPUESTO: 20–30°; pérdida axial 1−cos θ]
+  pivot_height_above_transom_mm: 70   # [SUPUESTO: eje de basculación sobre el borde del espejo]
+  pivot_aft_of_transom_mm: 75         # [SUPUESTO: eje de dirección/basculación detrás del espejo]
+  shaft_line_offset_below_pivot_mm: 55  # [SUPUESTO: e; empuje avante "clava" la cola, ver §mecánica; deja 36 mm de pared entre perno y tubo]
+  prop_tip_immersion_frac_D: 0.40     # [ESTIMADO: inmersión mínima de puntera para evitar ventilación]
+  steer_range_deg: 35.0       # [SUPUESTO: ±35° de dirección]
+  tilt_range_deg: 55.0        # [SUPUESTO: basculación total desde la posición de marcha]
+  shaft_top_ahead_of_pivot_mm: 70     # [SUPUESTO: cara de popa de la placa motriz delante del pivote (u)]
+  bearing_spacing_mm: 32              # [SUPUESTO: distancia entre centros de los dos 6002]
+  unit_mass_estimate_kg: 9.0          # [ESTIMADO: unidad completa; se contrasta con la masa del CAD en verify]
+
+# -----------------------------------------------------------------------------
+# HÉLICE (comprada, aluminio, fueraborda 2.5–3.5 hp, pasador de corte)
+# -----------------------------------------------------------------------------
+propeller:
+  chosen: "auto"              # [SUPUESTO: "auto" = sizing elige la combinación de mínimo costo que cumple requisitos]
+  options:
+    OB78x6:
+      desc: "Hélice aluminio 3 palas 7.8x6 in (fueraborda 2.5–3.5 hp)"
+      D_mm: 198.0             # [ESTIMADO: 7.8 in]
+      P_mm: 152.4             # [ESTIMADO: 6 in]
+      Z: 3                    # [ESTIMADO: típico fueraborda chico]
+      BAR: 0.45               # [ESTIMADO: AE/A0 típico fueraborda chico 0.40–0.55]
+      hub_length_mm: 60       # [ESTIMADO: envolvente del cubo]
+      hub_d_mm: 40            # [ESTIMADO]
+      bore_mm: 12.0           # [ESTIMADO: a MEDIR en la hélice comprada; el eje se tornea a medida]
+      mass_kg: 0.45           # [ESTIMADO]
+      price_eur: 45.0         # [ESTIMADO: hélice aftermarket aluminio 7.8 in 35–60 €]
+    OB74x55:
+      desc: "Hélice aluminio 3 palas 7.4x5.5 in (fueraborda 2–2.5 hp)"
+      D_mm: 188.0             # [ESTIMADO: 7.4 in]
+      P_mm: 139.7             # [ESTIMADO: 5.5 in]
+      Z: 3                    # [ESTIMADO]
+      BAR: 0.45               # [ESTIMADO]
+      hub_length_mm: 55       # [ESTIMADO]
+      hub_d_mm: 38            # [ESTIMADO]
+      bore_mm: 12.0           # [ESTIMADO]
+      mass_kg: 0.40           # [ESTIMADO]
+      price_eur: 40.0         # [ESTIMADO]
+    EO10x8:
+      desc: "Hélice aluminio/compuesto 3 palas 10x8 in, cubo con pasador (objetivo de compra, motor eléctrico ~1 kW)"
+      D_mm: 254.0             # [SUPUESTO: objetivo de diseño; producto concreto en BOM]
+      P_mm: 203.2             # [SUPUESTO: P/D 0.8]
+      Z: 3                    # [SUPUESTO]
+      BAR: 0.50               # [SUPUESTO]
+      hub_length_mm: 60       # [ESTIMADO]
+      hub_d_mm: 42            # [ESTIMADO]
+      bore_mm: 16.0           # [SUPUESTO: elegir hélice con bore ≥ 16 mm o bujear; MEDIR la real]
+      mass_kg: 0.55           # [ESTIMADO]
+      price_eur: 60.0         # [ESTIMADO: hélice de repuesto de motor eléctrico chico 40–90 €]
+    EO11x8:
+      desc: "Hélice 3 palas 11x8 in, cubo con pasador (objetivo de compra)"
+      D_mm: 279.4             # [SUPUESTO]
+      P_mm: 203.2             # [SUPUESTO: P/D 0.73]
+      Z: 3                    # [SUPUESTO]
+      BAR: 0.50               # [SUPUESTO]
+      hub_length_mm: 62       # [ESTIMADO]
+      hub_d_mm: 44            # [ESTIMADO]
+      bore_mm: 16.0           # [SUPUESTO]
+      mass_kg: 0.65           # [ESTIMADO]
+      price_eur: 75.0         # [ESTIMADO]
+    WW10x4:
+      desc: "Hélice compuesta 2 palas weedless 10x4 in (trolling motor)"
+      D_mm: 254.0             # [ESTIMADO: 10 in]
+      P_mm: 101.6             # [ESTIMADO: 4 in]
+      Z: 2                    # [ESTIMADO]
+      BAR: 0.35               # [ESTIMADO]
+      hub_length_mm: 70       # [ESTIMADO]
+      hub_d_mm: 45            # [ESTIMADO]
+      bore_mm: 9.5            # [ESTIMADO]
+      mass_kg: 0.25           # [ESTIMADO]
+      price_eur: 35.0         # [ESTIMADO]
+  wake_fraction: 0.02         # [ESTIMADO: hélice ~1 m detrás del espejo, flujo casi libre]
+  thrust_deduction: 0.02      # [ESTIMADO: idem]
+  eta_relative_rotative: 1.0  # [SUPUESTO]
+  efficiency_factor: 1.0      # [SUPUESTO: multiplicador de η0 del modelo de hélice (calibración/sensibilidad)]
+  guard:
+    type: "ring"              # [SUPUESTO: aro protector impreso + patín]
+    thrust_loss_frac: 0.06    # [ESTIMADO: aro corto no perfilado 3–8 % de empuje a velocidad]
+    bollard_gain_frac: 0.00   # [SUPUESTO: un aro no perfilado no se acredita ganancia]
+    radial_clearance_mm: 10.0 # [SUPUESTO: holgura puntera–aro]
+  shear_pin:
+    target_factor_vs_qmax: 2.0     # [SUPUESTO: corta a 2× el torque máximo normal del eje]
+    material: "Al6061-T6"     # [SUPUESTO: Al o latón; inox demasiado fuerte para el torque de P1]
+    tau_ult_mpa: 207.0        # [ESTIMADO: Al 6061-T6 corte último ~207 MPa (MatWeb típico)]
+
+# -----------------------------------------------------------------------------
+# TRANSMISIÓN (correa HTD-5M arriba del agua) Y EJE
+# -----------------------------------------------------------------------------
+drivetrain:
+  belt_type: "HTD-5M"         # [SUPUESTO]
+  belt_width_mm: 15           # [SUPUESTO: verificar capacidad en §mecánica]
+  z_motor_options: [14, 15, 16, 18, 20, 22, 24]          # [SUPUESTO: poleas HTD-5M de stock, bore 8 mm]
+  z_shaft_options: [36, 40, 44, 48, 50, 56, 60, 64, 72]  # [SUPUESTO: poleas HTD-5M de stock]
+  belt_pitch_mm: 5.0          # [VERIFICADO: HTD-5M = paso 5 mm (definición)]
+  center_distance_mm: 125     # [SUPUESTO: ajustable ±8 mm por ranuras]
+  eta_belt: 0.96              # [ESTIMADO: correa dentada 0.95–0.98]
+  eta_bearings: 0.98          # [ESTIMADO: 2 rodamientos + 3 bujes en agua]
+  belt_allow_tension_n: 400   # [ESTIMADO: HTD-5M 15 mm, tensión de trabajo admisible ~300–450 N; verificar catálogo]
+shaft:
+  material: "AISI 316"        # [SUPUESTO]
+  d_mm: 16.0                  # [CALCULADO: Ø12 daba FS fatiga 1.1 y torsión en pasador 1.3 (ver decisiones D-07)]
+  d_bearing_mm: 15.0          # [SUPUESTO: muñón torneado para rodamiento 6002]
+  E_gpa: 193.0                # [ESTIMADO: 316 típico]
+  sy_mpa: 205.0               # [ESTIMADO: 316 recocido, mínimo ASTM A276 ~205 MPa]
+  su_mpa: 515.0               # [ESTIMADO: 316 recocido, mínimo ~515 MPa]
+  se_mpa: 120.0               # [ESTIMADO: límite de fatiga corregido en agua salobre (corrosión-fatiga) ~0.25·Su]
+  se_dry_mpa: 150.0           # [ESTIMADO: 0.45·Su (pulido) × 0.8 sup. × 0.9 tamaño × 0.9 confiab. ≈ 150 MPa; muñones secos]
+  kf_shoulder: 1.45           # [ESTIMADO: escalón 16→15 mm con radio r=1 mm (r/d≈0.07), Kt≈1.5, q≈0.9]
+  density_kg_m3: 8000.0       # [ESTIMADO]
+  n_bushings: 3               # [SUPUESTO: arriba(tubo), medio, abajo]
+  tube_od_mm: 25.0            # [SUPUESTO: tubo inox 316 25×1.5]
+  tube_wall_mm: 1.5           # [SUPUESTO]
+  bushing_material: "POM-C"   # [SUPUESTO: torneado; alternativa igus iglide]
+bearings:
+  name: "6002-2RS inox (15×32×9)"   # [SUPUESTO: par de rodamientos, uno a cada lado de la polea conducida]
+  d_mm: 15                    # [VERIFICADO: designación 6002 = 15×32×9 mm (ISO 15)]
+  D_mm: 32                    # [VERIFICADO: idem]
+  B_mm: 9                     # [VERIFICADO: idem]
+  C_N: 5590.0                 # [ESTIMADO: 6002 acero al cromo, catálogo típico 5.59 kN]
+  C0_N: 2850.0                # [ESTIMADO: 6002 acero al cromo 2.85 kN]
+  stainless_factor: 0.80      # [ESTIMADO: AISI 440C ≈ 80 % de la capacidad del cromo]
+
+# -----------------------------------------------------------------------------
+# MOTOR / ESC (catálogo provisorio; precios y datos a refinar con research/R08a)
+# Modelo DC: Kt = 60/(2π·KV) ; V = ω/KV_rad + I·R ; Q = Kt·(I − I0)
+# -----------------------------------------------------------------------------
+motor:
+  chosen: "OR6374_190"        # [SUPUESTO: ver 02_calculos.md §5]
+  options:
+    OR6374_190:
+      desc: "Outrunner 6374 190 KV (clase e-skate)"
+      kv_rpm_v: 190.0         # [ESTIMADO: dato de catálogo típico]
+      r_ohm: 0.030            # [ESTIMADO: fase-fase típica 6374 ~25–40 mΩ]
+      i0_a: 1.5               # [ESTIMADO]
+      i_max_a: 80.0           # [ESTIMADO: catálogo típico 6374]
+      p_max_w: 3000.0         # [ESTIMADO]
+      mass_kg: 0.95           # [ESTIMADO]
+      d_mm: 63.0              # [VERIFICADO: designación 63xx = Ø63 mm]
+      l_mm: 74.0              # [VERIFICADO: designación xx74 = 74 mm]
+      shaft_d_mm: 8.0         # [ESTIMADO: típico 6374 eje 8 mm]
+      mount_bolt_circle_mm: 30.0  # [ESTIMADO: patrón 4×M4 en Ø30 típico; MEDIR]
+      price_eur: 75.0         # [ESTIMADO]
+      rth_k_w: 0.45           # [ESTIMADO: outrunner autoventilado con capó ventilado]
+      tau_th_s: 600.0         # [ESTIMADO: constante térmica ~10 min]
+      t_winding_max_c: 120.0  # [SUPUESTO: límite conservador de bobinado]
+    OR6384_140:
+      desc: "Outrunner 6384 140 KV"
+      kv_rpm_v: 140.0         # [ESTIMADO]
+      r_ohm: 0.040            # [ESTIMADO]
+      i0_a: 1.3               # [ESTIMADO]
+      i_max_a: 80.0           # [ESTIMADO]
+      p_max_w: 3500.0         # [ESTIMADO]
+      mass_kg: 1.15           # [ESTIMADO]
+      d_mm: 63.0              # [VERIFICADO: designación]
+      l_mm: 84.0              # [VERIFICADO: designación]
+      shaft_d_mm: 8.0         # [ESTIMADO]
+      mount_bolt_circle_mm: 30.0  # [ESTIMADO]
+      price_eur: 90.0         # [ESTIMADO]
+      rth_k_w: 0.42           # [ESTIMADO]
+      tau_th_s: 700.0         # [ESTIMADO]
+      t_winding_max_c: 120.0  # [SUPUESTO]
+  current_limit_a: 70.0       # [SUPUESTO: límite de corriente de fase configurado en el ESC]
+  reverse_current_frac: 0.5   # [SUPUESTO: límite de marcha atrás por firmware]
+esc:
+  chosen: "VESC75100"         # [SUPUESTO]
+  options:
+    VESC75100:
+      desc: "ESC tipo VESC 75 V / 100 A (bidireccional, FOC)"
+      v_max: 75.0             # [ESTIMADO: designación 75100]
+      i_cont_a: 100.0         # [ESTIMADO: designación; con disipador]
+      eta: 0.97               # [ESTIMADO: FOC MOSFET a carga media]
+      mass_kg: 0.25           # [ESTIMADO]
+      price_eur: 110.0        # [ESTIMADO]
+  margin_min_frac: 0.30       # [VERIFICADO: requisito del usuario ≥ 30 %]
+
+# -----------------------------------------------------------------------------
+# BATERÍA (catálogo provisorio; refinar con research/R08a)
+# -----------------------------------------------------------------------------
+battery:
+  chemistry: "LiFePO4"        # [SUPUESTO: ver 02_calculos.md §6 y research/R06]
+  chosen: "auto"              # [SUPUESTO: "auto" = mínimo costo que cumple energía, corriente y V máx objetivo]
+  usable_dod: 0.90            # [ESTIMADO: BMS corta ~95 %, se reserva 5 % adicional]
+  v_sag_frac_at_max: 0.06     # [ESTIMADO: caída bajo carga a 1C con SoC bajo]
+  options:
+    LFP24_50:
+      desc: "LiFePO4 25.6 V 50 Ah con BMS 100 A"
+      series_units: 1         # [SUPUESTO]
+      v_nom: 25.6             # [VERIFICADO: 8S × 3.2 V]
+      v_min: 22.0             # [ESTIMADO: 8S × 2.75 V bajo carga]
+      ah: 50.0                # [ESTIMADO]
+      i_cont_a: 100.0         # [ESTIMADO]
+      mass_kg: 11.5           # [ESTIMADO]
+      price_eur: 330.0        # [ESTIMADO]
+    LFP24_100:
+      desc: "LiFePO4 25.6 V 100 Ah con BMS 100 A"
+      series_units: 1         # [SUPUESTO]
+      v_nom: 25.6             # [VERIFICADO: 8S × 3.2 V]
+      v_min: 22.0             # [ESTIMADO]
+      ah: 100.0               # [ESTIMADO]
+      i_cont_a: 100.0         # [ESTIMADO]
+      mass_kg: 21.0           # [ESTIMADO]
+      price_eur: 560.0        # [ESTIMADO]
+    LFP12_100x2:
+      desc: "2 × LiFePO4 12.8 V 100 Ah en serie (BMS 100 A c/u)"
+      series_units: 2         # [SUPUESTO]
+      v_nom: 25.6             # [VERIFICADO: 2 × 4S × 3.2 V]
+      v_min: 22.0             # [ESTIMADO]
+      ah: 100.0               # [ESTIMADO]
+      i_cont_a: 100.0         # [ESTIMADO]
+      mass_kg: 22.0           # [ESTIMADO: 2 × 11 kg]
+      price_eur: 380.0        # [ESTIMADO: 2 × 190 €]
+    LFP12_50x2:
+      desc: "2 × LiFePO4 12.8 V 50 Ah en serie (BMS 50 A c/u)"
+      series_units: 2         # [SUPUESTO]
+      v_nom: 25.6             # [VERIFICADO]
+      v_min: 22.0             # [ESTIMADO]
+      ah: 50.0                # [ESTIMADO]
+      i_cont_a: 50.0          # [ESTIMADO]
+      mass_kg: 12.0           # [ESTIMADO]
+      price_eur: 260.0        # [ESTIMADO]
+    LFP48_50:
+      desc: "LiFePO4 51.2 V 50 Ah (16S) con BMS 100 A"
+      series_units: 1         # [SUPUESTO]
+      v_nom: 51.2             # [VERIFICADO: 16S × 3.2 V]
+      v_min: 44.0             # [ESTIMADO: 16S × 2.75 V bajo carga]
+      ah: 50.0                # [ESTIMADO]
+      i_cont_a: 100.0         # [ESTIMADO]
+      mass_kg: 22.0           # [ESTIMADO]
+      price_eur: 600.0        # [ESTIMADO]
+    LFP48_30:
+      desc: "LiFePO4 51.2 V 30 Ah (16S) con BMS 60 A"
+      series_units: 1         # [SUPUESTO]
+      v_nom: 51.2             # [VERIFICADO: 16S × 3.2 V]
+      v_min: 44.0             # [ESTIMADO]
+      ah: 30.0                # [ESTIMADO]
+      i_cont_a: 60.0          # [ESTIMADO]
+      mass_kg: 14.0           # [ESTIMADO]
+      price_eur: 420.0        # [ESTIMADO]
+    LFP24_60:
+      desc: "LiFePO4 25.6 V 60 Ah con BMS 100 A"
+      series_units: 1         # [SUPUESTO]
+      v_nom: 25.6             # [VERIFICADO]
+      v_min: 22.0             # [ESTIMADO]
+      ah: 60.0                # [ESTIMADO]
+      i_cont_a: 100.0         # [ESTIMADO]
+      mass_kg: 13.5           # [ESTIMADO]
+      price_eur: 380.0        # [ESTIMADO]
+  energy_price_eur_per_wh: 0.30   # [ESTIMADO: LiFePO4 EU 2026 0.15–0.40 €/Wh, para la curva de costo]
+  energy_mass_kg_per_wh: 0.0090   # [ESTIMADO: LiFePO4 con caja ~110 Wh/kg]
+
+# -----------------------------------------------------------------------------
+# CABLEADO Y PROTECCIONES
+# -----------------------------------------------------------------------------
+electrical:
+  len_battery_to_esc_m: 1.5   # [SUPUESTO: un sentido, batería centrada atrás → caja ESC]
+  len_esc_to_motor_m: 2.0     # [SUPUESTO: fases a la unidad basculante con bucle de servicio]
+  rho_cu_ohm_m: 2.1e-8        # [ESTIMADO: cobre a ~70 °C]
+  max_drop_frac: 0.03         # [VERIFICADO: requisito del usuario (< 3 %)]
+  cable_sections_mm2: [4, 6, 10, 16, 25, 35]       # [SUPUESTO: secciones normalizadas]
+  ampacity_a: [40, 55, 75, 100, 135, 170]          # [ESTIMADO: cable 105 °C fuera de sala de motores, conservador; verificar tabla ISO 13297/ABYC]
+  fuse_ratings_a: [60, 80, 100, 125, 150]          # [SUPUESTO: valores ANL/MIDI normalizados]
+  fuse_factor: 1.25           # [ESTIMADO: fusible ≥ 1.25 × I continua]
+  kill_switch_response_s_max: 1.0   # [VERIFICADO: requisito del usuario (< 1 s)]
+  max_nominal_voltage_v: 48.0       # [VERIFICADO: requisito del usuario (≤ 48 V salvo justificación)]
+
+# -----------------------------------------------------------------------------
+# MATERIALES (provisorio; refinar con research/R05)
+# -----------------------------------------------------------------------------
+materials:
+  PETG:
+    density_g_cm3: 1.27       # [ESTIMADO: TDS típicos PETG 1.27]
+    sigma_t_xy_mpa: 45.0      # [ESTIMADO: probeta impresa XY, TDS típicos 40–50 MPa]
+    sigma_t_z_mpa: 25.0       # [ESTIMADO: unión entre capas ~50–60 % de XY]
+    E_mpa: 1900.0             # [ESTIMADO: TDS típicos 1.8–2.1 GPa]
+    tg_c: 80.0                # [ESTIMADO: PETG Tg ~78–85 °C]
+    t_service_max_c: 60.0     # [SUPUESTO: Tg − 20 K; límite de servicio de piezas impresas]
+    price_eur_per_kg: 22.0    # [ESTIMADO: PETG 1 kg EU 18–28 €]
+  ASA:
+    density_g_cm3: 1.07       # [ESTIMADO]
+    sigma_t_xy_mpa: 40.0      # [ESTIMADO]
+    sigma_t_z_mpa: 22.0       # [ESTIMADO]
+    E_mpa: 2000.0             # [ESTIMADO]
+    tg_c: 100.0               # [ESTIMADO]
+    t_service_max_c: 75.0     # [SUPUESTO]
+    price_eur_per_kg: 26.0    # [ESTIMADO]
+  design_factors:             # Factores de reducción FDM (multiplican la resistencia)
+    f_water: 0.85             # [ESTIMADO: PETG saturado en agua pierde ~5–15 %]
+    f_temp: 0.85              # [ESTIMADO: a 40 °C de servicio]
+    f_process: 0.80           # [ESTIMADO: variabilidad de impresión, poros, costura]
+    f_creep: 0.50             # [ESTIMADO: carga sostenida horas–días a ≤ 40 °C]
+    f_fatigue: 0.30           # [ESTIMADO: 1e7–1e8 ciclos, termoplástico amorfo]
+    f_z: 0.55                 # [ESTIMADO: cuando la carga cruza capas (evitar por diseño)]
+  fs_target_printed: 3.0      # [VERIFICADO: requisito del usuario FS ≥ 3]
+  fs_target_metal: 2.0        # [SUPUESTO: metales con propiedades certificadas]
+
+# -----------------------------------------------------------------------------
+# FABRICACIÓN (fijo por el usuario)
+# -----------------------------------------------------------------------------
+printer:
+  model: "Creality Ender-3 S1"    # [VERIFICADO: dato del usuario]
+  envelope_mm: [210, 210, 260]    # [VERIFICADO: dato del usuario (X, Y, Z)]
+  nozzle_mm: 0.4                  # [VERIFICADO: dato del usuario]
+  hotend_max_c: 260               # [VERIFICADO: dato del usuario]
+  bed_max_c: 100                  # [VERIFICADO: dato del usuario]
+  layer_mm: 0.20                  # [SUPUESTO: perfil estructural]
+  print_rate_g_h: 18.0            # [ESTIMADO: PETG 0.4 mm a ~60 mm/s con 6 perímetros]
+
+geometry:
+  clearance_mm: 0.25          # [SUPUESTO: holgura inicial 0.2–0.3, confirmar con probeta]
+  press_fit_mm: -0.05         # [SUPUESTO: interferencia para rodamientos en PETG (confirmar con probeta)]
+  min_wall_mm: 3.2            # [SUPUESTO: 8 perímetros de 0.4 mm]
+  bolt_clearance_mm: 0.4      # [SUPUESTO: agujero pasante = d + 0.4]
+  interference_tol_mm3: 1.0   # [SUPUESTO: volumen de intersección admisible (ruido numérico)]
+  tilt_check_step_deg: 5.0    # [SUPUESTO: paso de barrido de basculación en verify]
+  esc_box_inner_mm: [130, 80, 45]   # [ESTIMADO: VESC 75100 con disipador ~ 110×70×35 + cables]
+  oring_cs_mm: 2.5            # [SUPUESTO: cordón O-ring 2.5 mm (NBR 70)]
+  oring_squeeze_frac: 0.25    # [ESTIMADO: sello axial estático 20–30 % (Parker ORD 5700, a verificar)]
+  oring_gland_fill_frac: 0.75 # [ESTIMADO: llenado de ranura ≤ 85 %]
+
+# -----------------------------------------------------------------------------
+# MONTAJE / BASCULACIÓN (kick-up)
+# -----------------------------------------------------------------------------
+mount:
+  clamp_screw_d_mm: 12        # [SUPUESTO: tornillo de abrazadera M12 A4 con mango en T]
+  clamp_screws: 2             # [SUPUESTO]
+  clamp_width_mm: 150         # [SUPUESTO: ancho de la abrazadera a lo largo del espejo]
+  swivel_pin_d_mm: 16         # [SUPUESTO: perno de dirección (torneado 316)]
+  tilt_pin_d_mm: 12           # [SUPUESTO: eje de basculación (perno A4 M12 / torneado)]
+  detent_release_moment_nm: 15.0   # [SUPUESTO: retén de bola; ver cálculo de kick-up]
+  detent_notch_flank_deg: 40.0     # [SUPUESTO: ángulo de flanco de la muesca]
+  detent_radius_mm: 55.0           # [SUPUESTO: radio del sector de retén]
+  friction_coeff_detent: 0.15      # [ESTIMADO: bola inox sobre PETG/inox húmedo]
+  impact_speed_m_s: 2.5            # [SUPUESTO: impacto a ~9 km/h]
+  impact_contact_time_s: 0.010     # [ESTIMADO: contacto blando (arena/madera/patín impreso)]
+  impact_peak_factor: 2.0          # [ESTIMADO: pico / medio de pulso semiseno ≈ π/2 → 2]
+  handling_load_n: 300.0           # [SUPUESTO: manipulación: levantar/soltar la unidad sobre el espejo]
+  wave_slam_g: 3.0                 # [ESTIMADO: aceleración vertical en ola corta, bote chico]
+  safety_lanyard_breaking_n: 3000  # [SUPUESTO: cabo de 6 mm + mosquetón inox]
+
+# -----------------------------------------------------------------------------
+# COSTOS (para curva costo–autonomía y BOM)
+# -----------------------------------------------------------------------------
+costs:
+  shipping_frac: 0.10         # [ESTIMADO: envío ~10 % del material comprado]
+  contingency_frac: 0.10      # [SUPUESTO: imprevistos]
+  hardware_fixed_eur: 0.0     # [CALCULADO: se suma desde la BOM]
