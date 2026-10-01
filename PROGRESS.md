@@ -2,16 +2,20 @@
 
 Leyenda: [x] hecho · [~] en curso · [ ] pendiente
 
-## Pasada 1 — Funcional de punta a punta
+## Pasada 1 — Funcional de punta a punta ✅ (2026-10-01)
 - [x] PROMPT.md guardado
-- [~] Investigación lanzada en paralelo (subagentes → `research/`)
-- [ ] inputs.yaml (única fuente de entradas)
-- [ ] sizing.py + 02_calculos.md mínimo
-- [ ] 04_diseno/params.py + piezas/ + build_all.py (STEP + STL)
-- [ ] verify_parts.py (envolvente, manifold, interferencias, kick-up)
-- [ ] bom.csv generado
-- [ ] run_all.py + requirements.txt + tests/
-- [ ] Documentos mínimos: README, decisiones, PENDIENTES_GASPAR, 01..07, checklist_salida
+- [~] Investigación lanzada en paralelo (subagentes → `research/`): R01–R06 listos y verificados; R07–R09 en curso
+- [x] inputs.yaml (única fuente de entradas, cada número etiquetado)
+- [x] sizing.py + p1calc/ + 02_calculos.md (optimizador hélice × batería × poleas)
+- [x] 04_diseno/params.py + 34 piezas + build_all.py (STEP + STL)
+- [x] verify_parts.py (envolvente, manifold, cotas, interferencias con barrido ψ × φ) — OK
+- [x] structural.py (44 FS por pieza/caso) — OK
+- [x] planos.py (10 SVG de torneado/mecanizado)
+- [x] bom.csv + curvas costo–autonomía
+- [x] arquitectura.py (matriz ponderada + sensibilidad Monte Carlo)
+- [x] run_all.py (exit 0 desde cero en ~4 min) + requirements.txt + 24 tests pytest (OK)
+- [x] Renders Blender headless (bpy 5.0.1) + vistas matplotlib
+- [x] Documentos mínimos: README, decisiones, PENDIENTES_GASPAR, 01..07, checklist_salida, auditoria
 
 ## Pasada 2 — Profundidad
 - [ ] 01_investigacion.md completo (videos, ≥8 proyectos, jon boats, materiales, sellado, BLDC, normativa)
@@ -44,3 +48,8 @@ Leyenda: [x] hecho · [~] en curso · [ ] pendiente
 
 ## Bitácora
 - 2026-10-01: inicio. V1/V2: títulos verificados vía YouTube oEmbed (canal "Clean Energy").
+- 2026-10-01: Pasada 1 cerrada. `run_all.py` exit 0 desde cero (4 min 15 s); pytest 24/24.
+  Pendientes de Pasada 2 detectados por la investigación: factores de material R05 (fatiga 0,06,
+  creep 0,35, agua 0,75, T servicio 50 °C) → placa motriz de Al; kill switch por contactor (R06);
+  O-ring 3,53 mm con caras refrentadas; aro protector perfilado (R03); arrastre de apéndices;
+  opción 12S/36 V; firmware + tests; FEA; perfiles PrusaSlicer + probetas; 06 completo + FMEA.

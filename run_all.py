@@ -48,6 +48,7 @@ def main():
     step("4/8 Planos de torneado", ["04_diseno/planos.py"])
     step("5/8 Verificación", ["04_diseno/verify_parts.py"])
     step("6/8 BOM y costos", ["bom.py"])
+    step("6b/8 Matriz de arquitectura", ["arquitectura.py"])
     step("7/8 Documentos (bloques AUTO)", ["docgen.py"])
     if not a.skip_render:
         have_bpy = importlib.util.find_spec("bpy") is not None

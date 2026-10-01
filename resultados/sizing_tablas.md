@@ -25,7 +25,7 @@
 | Bollard pull avante (horizontal) | 291 N (29.6 kgf) — limita: corriente de motor | [CALCULADO] |
 | Bollard pull marcha atrás | 92 N | [CALCULADO] |
 | Corriente pico de batería / margen ESC | 68 A / 46 % | [CALCULADO] |
-| Cable DC / fases | 10 mm² (2.0 %) / 10 mm² (2.7 %) | [CALCULADO] |
+| Cable DC / fases | 16 mm² (1.2 %) / 10 mm² (2.7 %) | [CALCULADO] |
 | Fusible principal | 100 A | [CALCULADO] |
 | Pasador de corte | Ø2.5 mm Al6061-T6 → corta a 16.3 N·m | [CALCULADO] |
 | Velocidad crítica del eje / rpm máx. | 5692 / 1212 rpm | [CALCULADO] |

@@ -13,8 +13,9 @@ FIG_DIR = ROOT / "figuras"
 
 
 def load_inputs(path: Path | str | None = None) -> dict:
-    """Carga inputs.yaml (o la ruta dada) y devuelve un dict."""
-    p = Path(path) if path else INPUTS
+    """Carga inputs.yaml (o la ruta dada, o $P1_INPUTS) y devuelve un dict."""
+    import os
+    p = Path(path) if path else Path(os.environ.get("P1_INPUTS", INPUTS))
     with open(p, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 

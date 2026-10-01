@@ -72,6 +72,13 @@ def resolve(item, inp, sz, man):
         spec = f"{c['section_mm2']} mm² cobre estañado, 3 conductores (caída {c['drop_frac']*100:.1f} % a {c['I_a']:.0f} A)"
         qty = round(3 * c["length_m"] * 1.25, 1)
         unit = "m"
+    elif s == "auto:clamp_screw":
+        tr = inp["boat"]["transom"]
+        gap = tr["thickness_range_mm"][1] + 6.0
+        L = gap - tr["thickness_range_mm"][0] + inp["mount"]["clamp_leg_t_mm"] + 12 + 40   # carrera + pata + zapata + manija
+        L = int(math.ceil(L / 10.0) * 10)
+        spec = (f"M12 A4-70, largo ≥ {L} mm (espejos {tr['thickness_range_mm'][0]}–{tr['thickness_range_mm'][1]} mm), "
+                f"apriete ≤ {inp['mount']['clamp_screw_torque_nm']} N·m; placa de reparto A4 40×40×4 tras la tuerca")
     elif s == "auto:plunger":
         spec = f"M12 inox, bola, fuerza de punta ≥ {m['detent']['Fs_per_plunger_N']:.0f} N (o resorte + bola Ø10 ajustable)"
     elif s == "auto:filament":

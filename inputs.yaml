@@ -503,7 +503,7 @@ bom:
     - {id: B-ORING, cat: "Sellado", desc: "Cordón de O-ring NBR70 2.5 mm (caja ESC) + pegamento", spec: "NBR 70 Shore A, Ø2.5 mm, 1 m + cianoacrilato para unir", qty: 1, supplier: "Distribuidor de juntas", link: "buscar: o-ring cord 2.5mm NBR", price_eur: 6.0, tag: "[ESTIMADO]"}
     - {id: B-SPRING, cat: "Montaje", desc: "Émbolo de bola con resorte M12 inox (retén de basculación)", spec: "auto:plunger", qty: 2, supplier: "Distribuidor de elementos normalizados UE", link: "buscar: stainless spring plunger M12 heavy", price_eur: 7.0, tag: "[ESTIMADO]"}
     - {id: B-HW, cat: "Tornillería", desc: "Tornillería A4 (M5/M6/M8/M12/M16), tuercas nyloc, arandelas", spec: "Ver 06_ensamblaje_y_pruebas.md (lista de tornillería)", qty: 1, supplier: "Ferretería / distribuidor A4", link: "buscar: A4 stainless bolt assortment M6", price_eur: 45.0, tag: "[ESTIMADO, juego]"}
-    - {id: B-CLAMP, cat: "Tornillería", desc: "Tornillos de apriete de popa M12 A4 con mango en T (o varilla + manija)", spec: "M12 A4, 120 mm", qty: 2, supplier: "Ferretería", link: "buscar: M12 T handle clamp screw stainless", price_eur: 8.0, tag: "[ESTIMADO]"}
+    - {id: B-CLAMP, cat: "Tornillería", desc: "Tornillos de apriete de popa M12 A4 con mango en T (o varilla + manija) + placa de reparto A4 40×40×4", spec: "auto:clamp_screw", qty: 2, supplier: "Ferretería", link: "buscar: M12 T handle clamp screw stainless", price_eur: 8.0, tag: "[ESTIMADO]"}
     - {id: B-INS, cat: "Tornillería", desc: "Insertos térmicos M4/M6 (inox preferido; latón solo en piezas secas)", spec: "M4×8.1 (×10), M6×12.7 (×16)", qty: 1, supplier: "Distribuidor 3D", link: "buscar: heat set insert M6 stainless", price_eur: 15.0, tag: "[ESTIMADO, juego]"}
     - {id: B-ISO, cat: "Corrosión", desc: "Compuesto aislante anti-galvánico + arandelas/vainas aislantes", spec: "Tipo Tef-Gel/Duralac; arandelas nylon/G10 M6–M12; vainas PTFE para perno de carcasa inferior", qty: 1, supplier: "Tienda náutica", link: "buscar: Tef-Gel 1/2 oz", price_eur: 25.0, tag: "[ESTIMADO]"}
     - {id: B-WASH, cat: "Montaje", desc: "Arandela UHMW/PTFE Ø90 × 1.5 (plato de dirección)", spec: "UHMW-PE o PTFE 1.5 mm", qty: 1, supplier: "Distribuidor de plásticos", link: "buscar: UHMW sheet 1.5mm", price_eur: 6.0, tag: "[ESTIMADO]"}
@@ -512,3 +512,32 @@ bom:
     - {id: B-PETG, cat: "Filamento", desc: "Filamento PETG 1.75 mm", spec: "auto:filament", qty: auto, supplier: "Distribuidor 3D UE", link: "buscar: PETG filament 1kg 1.75", price_eur: 22.0, tag: "[ESTIMADO, €/kg]"}
     - {id: B-NOZ, cat: "Fabricación", desc: "Boquilla endurecida 0.4 mm para Ender-3 S1 (Sprite) — solo si se usa PA-CF/PETG-CF (P2)", spec: "Acero endurecido, rosca M6, compatible Sprite", qty: 0, supplier: "Distribuidor 3D", link: "buscar: Ender 3 S1 hardened steel nozzle", price_eur: 12.0, tag: "[ESTIMADO, opcional]"}
     - {id: B-EPOXY, cat: "Fabricación", desc: "Epoxi estructural/sellado (recubrimiento de caja ESC y sensor)", spec: "Epoxi 2 componentes de baja viscosidad", qty: 1, supplier: "Ferretería / náutica", link: "buscar: epoxy resin marine low viscosity", price_eur: 18.0, tag: "[ESTIMADO]"}
+
+# -----------------------------------------------------------------------------
+# MATRIZ DE ARQUITECTURA (03_arquitectura.md). Puntajes 1–5 [SUPUESTO: juicio de
+# ingeniería, justificado en 03_arquitectura.md con research/R02–R06]; pesos [SUPUESTO]
+# justificados por las prioridades del usuario (seguridad > autonomía/costo > resto).
+# -----------------------------------------------------------------------------
+architecture_matrix:
+  criteria:
+    eficiencia:      {w: 0.15, desc: "Empuje y eficiencia en 5–8 km/h (autonomía)"}
+    seguridad:       {w: 0.18, desc: "Seguridad eléctrica y mecánica con personas a bordo"}
+    viabilidad_petg: {w: 0.10, desc: "Viabilidad con PETG + Ender-3 S1 + torno"}
+    sellado:         {w: 0.08, desc: "Sellos requeridos (dinámicos/estáticos sumergidos)"}
+    corrosion:       {w: 0.07, desc: "Corrosión en agua salobre / galvánica con casco Al"}
+    costo:           {w: 0.12, desc: "Costo total con batería"}
+    tiempo:          {w: 0.06, desc: "Tiempo hasta un P1 probado"}
+    reparabilidad:   {w: 0.07, desc: "Reparabilidad con herramienta común"}
+    poca_prof:       {w: 0.10, desc: "Aptitud para poca profundidad y arena"}
+    falla_mar:       {w: 0.07, desc: "Consecuencia de una falla en el mar"}
+  options:
+    A1: {name: "Fueraborda con motor en pod seco sellado", scores: {eficiencia: 4, seguridad: 3, viabilidad_petg: 2, sellado: 1, corrosion: 3, costo: 3, tiempo: 2, reparabilidad: 2, poca_prof: 2, falla_mar: 3}}
+    A2: {name: "Fueraborda con motor en pod inundado", scores: {eficiencia: 4, seguridad: 3, viabilidad_petg: 3, sellado: 3, corrosion: 2, costo: 3, tiempo: 3, reparabilidad: 3, poca_prof: 2, falla_mar: 3}}
+    A3: {name: "Cola larga: motor seco arriba + correa + eje inclinado", scores: {eficiencia: 4, seguridad: 5, viabilidad_petg: 4, sellado: 5, corrosion: 4, costo: 3, tiempo: 3, reparabilidad: 5, poca_prof: 5, falla_mar: 4}}
+    B:  {name: "Conversión de trolling motor (soporte kick-up + protector impresos)", scores: {eficiencia: 3, seguridad: 4, viabilidad_petg: 4, sellado: 4, corrosion: 4, costo: 4, tiempo: 4, reparabilidad: 3, poca_prof: 3, falla_mar: 4}}
+    C:  {name: "Waterjet impreso", scores: {eficiencia: 2, seguridad: 4, viabilidad_petg: 2, sellado: 3, corrosion: 3, costo: 3, tiempo: 2, reparabilidad: 3, poca_prof: 4, falla_mar: 3}}
+    D:  {name: "Hélice entubada / rim-driven impreso", scores: {eficiencia: 3, seguridad: 4, viabilidad_petg: 2, sellado: 2, corrosion: 2, costo: 3, tiempo: 2, reparabilidad: 2, poca_prof: 3, falla_mar: 3}}
+    E:  {name: "Propulsión aérea eléctrica (solo comparación)", scores: {eficiencia: 1, seguridad: 1, viabilidad_petg: 3, sellado: 5, corrosion: 5, costo: 4, tiempo: 3, reparabilidad: 4, poca_prof: 5, falla_mar: 2}}
+    F:  {name: "Motor comercial completo (trolling de agua salada 55 lb + LiFePO4)", scores: {eficiencia: 3, seguridad: 5, viabilidad_petg: 5, sellado: 5, corrosion: 4, costo: 4, tiempo: 5, reparabilidad: 2, poca_prof: 2, falla_mar: 4}}
+  weight_perturbation: 0.5   # [SUPUESTO: ±50 % por criterio en el análisis de sensibilidad]
+  monte_carlo_n: 20000       # [SUPUESTO: muestras de pesos aleatorios (Dirichlet α=1·w·20)]

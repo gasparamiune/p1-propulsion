@@ -32,17 +32,20 @@ def select_battery(inp: dict, E_req_wh: float, I_bat_max_a: float) -> tuple[str,
     return best["key"], rows
 
 
-def cable(inp: dict, I_a: float, length_one_way_m: float, V_sys: float, n_cond: int = 2) -> dict:
-    """Sección mínima por caída de tensión (ida y vuelta) y ampacidad."""
+def cable(inp: dict, I_a: float, length_one_way_m: float, V_sys: float, n_cond: int = 2,
+          I_ampacity: float | None = None) -> dict:
+    """Sección mínima por caída de tensión (ida y vuelta, a I_a) y por ampacidad
+    (≥ I_ampacity, p. ej. el calibre del fusible que lo protege)."""
     e = inp["electrical"]
     rho = e["rho_cu_ohm_m"]
     L = length_one_way_m * n_cond
     A_drop = rho * L * I_a / (e["max_drop_frac"] * V_sys) * 1e6   # mm²
     sec = e["cable_sections_mm2"]
     amp = e["ampacity_a"]
+    I_need = max(I_a, I_ampacity or 0.0)
     choice = None
     for s, a in zip(sec, amp):
-        if s >= A_drop and a >= I_a:
+        if s >= A_drop and a >= I_need:
             choice = (s, a)
             break
     if choice is None:

@@ -248,8 +248,10 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
     esc = drv.esc
     esc_margin = esc["i_cont_a"] / I_bat_peak - 1
     I_phase = inp["motor"]["current_limit_a"]
-    cab_dc = power.cable(inp, I_bat_peak, inp["electrical"]["len_battery_to_esc_m"], bat["v_min"])
-    cab_ph = power.cable(inp, I_phase, inp["electrical"]["len_esc_to_motor_m"], bat["v_min"])
+    fus0 = power.fuse(inp, I_bat_peak, 1e9)                          # calibre por corriente
+    cab_dc = power.cable(inp, I_bat_peak, inp["electrical"]["len_battery_to_esc_m"], bat["v_min"],
+                         I_ampacity=fus0["rating_a"])                  # el fusible protege al cable
+    cab_ph = power.cable(inp, I_phase, inp["electrical"]["len_esc_to_motor_m"], bat["v_min"], n_cond=2)
     fus = power.fuse(inp, I_bat_peak, cab_dc["ampacity_a"])
 
     # ---- mecánica ----------------------------------------------------------------
