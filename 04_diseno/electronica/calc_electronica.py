@@ -242,7 +242,7 @@ def compute(inp=None, sz=None):
     add("App", "app_to_use", "PPM", "—", "UART", "[VERIFICADO: appconf_default.h APPCONF_APP_TO_USE = APP_UART → cambiar]")
     add("App PPM", "ctrl_type", "PPM_CTRL_TYPE_CURRENT", "—", "NONE",
         f"[VERIFICADO: {VESC_SRC}/applications/app_ppm.c — reversa directa con signo]",
-        "La lógica de dwell/inversión la hace el MCU; alternativa DUTY si la hélice ventila (R06 §2.6)")
+        "Bucket, dwell y el único giro inverso (limpieza de rejilla) los gestiona el MCU (§5); alternativa DUTY si la bomba cavita (R06 §2.6)")
     add("App PPM", "pulse_start / center / end", "1,0 / 1,5 / 2,0", "ms", "1,0 / 1,5 / 2,0",
         "[VERIFICADO: appconf_default.h] = salida del MCU (throttle_logic.c)")
     add("App PPM", "hyst (zona muerta VESC)", val("vesc_hyst"), "—", 0.15, tag("vesc_hyst"),

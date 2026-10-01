@@ -25,7 +25,7 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 - *Si difiere:* la masa es la 2.ª entrada más influyente en la V máx. (02 §10).
 
 **D-04 La estabilidad del casco es el RIESGO N.º 1 y bloquea la navegación hasta resolverla.**
-- Justificación: con 0,80 m de manga y el piloto sentado alto, GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.015<!--/V--> m [CALCULADO]: correr el piloto 0,1 m a una banda escora <!--V:sizing.heel_pilot_0p1m_deg:.0f-->70<!--/V-->° en el modelo lineal (o sea: vuelca). La propulsión no lo resuelve; es un cambio de casco (manga en la flotación ≥ 0,9 m, R10b H1, o flotadores laterales, asiento más bajo).
+- Justificación: con 0,80 m de manga y el piloto sentado alto, GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m [CALCULADO]: correr el piloto 0,1 m a una banda escora <!--V:sizing.heel_pilot_0p1m_deg:.0f-->79<!--/V-->° en el modelo lineal (o sea: vuelca). La propulsión no lo resuelve; es un cambio de casco (manga en la flotación ≥ 0,9 m, R10b H1, o flotadores laterales, asiento más bajo).
 - [CALCULADO con casco ESTIMADO].
 - *Si difiere:* ensayo de escora con carga desplazada (R13 §5) antes de cualquier prueba con motor.
 
@@ -33,7 +33,7 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 
 **D-05 Recomendación: pedir cotización de la AWT JT132 en paralelo (opción B) y usar este diseño (A) si no cierra.**
 - Alternativas: A (bomba propia, este paquete), C (bomba de Sea-Doo Spark usada), D (fueraborda eléctrico), E (cola larga), F (hélice entubada).
-- Justificación: la matriz ponderada da B primero (<!--V:arch.totals.B:.2f-->3.75<!--/V--> contra <!--V:arch.totals.A:.2f-->3.24<!--/V--> de A) y gana en el <!--V:arch.mc_win_frac.B:.0%-->89%<!--/V--> del Monte Carlo de pesos: es la misma bomba de la foto de Jorge, más liviana (12 kg contra <!--V:cmp.A_jet_mass_kg:.1f-->19.7<!--/V--> kg de la toma + bomba + dirección propias) y sin impulsor a medida. El tren eléctrico, la toma de refrigeración, los mandos y el firmware de este paquete sirven para las dos.
+- Justificación: la matriz ponderada da B primero (<!--V:arch.totals.B:.2f-->3.75<!--/V--> contra <!--V:arch.totals.A:.2f-->3.24<!--/V--> de A) y gana en el <!--V:arch.mc_win_frac.B:.0%-->89%<!--/V--> del Monte Carlo de pesos: es la misma bomba de la foto de Jorge, más liviana (12 kg contra <!--V:cmp.A_jet_mass_kg:.1f-->20.1<!--/V--> kg de la toma + bomba + dirección propias) y sin impulsor a medida. El tren eléctrico, la toma de refrigeración, los mandos y el firmware de este paquete sirven para las dos.
 - [CALCULADO: arquitectura.py; precio de la JT132 ESTIMADO, R11 §4].
 - *Si difiere:* si AWT no confirma la brida de toma, la altura del eje (cebado) y la curva de la bomba, o el costo puesto en DK supera ~1 500 €, A queda como camino completo y fabricable.
 
@@ -112,7 +112,7 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 ## Legal
 
 **D-20 Diseño para NO ser "vandscooter" ni "speedbåd".**
-- Justificación: la definición de vandscooter pide operar "på – snarere end i – skroget" (BEK 809/2019); el piloto va sentado dentro con volante. Speedbåd desde 19 kW de potencia propulsiva (BEK 749/2020); el pico de este diseño es <!--V:sizing.performance.P_shaft_peak_kW:.1f-->9.0<!--/V--> kW. Los 30 km/h solo son legales a más de 300 m de la costa y nunca en Als Sund (4 kn) ni en Augustenborg Fjord.
+- Justificación: la definición de vandscooter pide operar "på – snarere end i – skroget" (BEK 809/2019); el piloto va sentado dentro con volante. Speedbåd desde 19 kW de potencia propulsiva (BEK 749/2020); el pico de este diseño es <!--V:sizing.performance.P_shaft_peak_kW:.1f-->6.5<!--/V--> kW. Los 30 km/h solo son legales a más de 300 m de la costa y nunca en Als Sund (4 kn) ni en Augustenborg Fjord.
 - [VERIFICADO: research/R13]. Confirmar por escrito con Søfartsstyrelsen (preguntas en danés en R13 §8).
 
 ## Historia

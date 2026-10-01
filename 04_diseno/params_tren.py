@@ -8,14 +8,14 @@ Pila axial (de popa a proa), ver extend():
   pasador de corte (X = pmp_pin_X) · anillo DIN 471-20 de empuje delante del impulsor (X ≈ 0) · tramo
   mojado Ø20 por el conducto · anillo DIN 471-20 de respaldo de la cabeza del sello · cabeza rotante
   del sello mecánico (en la cámara mojada de P1-DRV-02) · asiento fijo · linterna de goteo/testigo ·
-  collar Ø25 (apoyo de los aros interiores) · 2 × 7204 BEP en O · tuerca KM4 + MB4 · asiento del cubo
+  collar Ø26 (apoyo de los aros interiores) · 2 × 7204 BEP en O · tuerca KM4 + MB4 · asiento del cubo
   del acople Ø20 con chaveta 6×6 · acople Rotex 24 · eje del motor · motor (cara de brida en S_motor0).
 
 Secuencia de montaje (A-08: cada pieza pasa por los Ø de lo ya montado) — la verifican los checks de
 P1-DRV-01:
   1. Banco: deslizar desde la PUNTA DE POPA del eje la caja del sello P1-DRV-02 (con el asiento fijo ya
      prensado) hasta el collar, y después la cabeza rotante hasta su anillo DIN 471 de respaldo.
-     Pasan por: rosca M16, asiento del impulsor, ranuras (todo ≤ Ø20) → nunca por el collar Ø25.
+     Pasan por: rosca M16, asiento del impulsor, ranuras (todo ≤ Ø20) → nunca por el collar Ø26.
   2. Bote: el subconjunto entra desde PROA, punta de popa primero, por el buje del sello de la toma
      (Ø seal_spigot_d), el conducto y el cubo del impulsor (ya puesto en el anillo de desgaste).
      Se centra el espigón de la caja en el buje y se aprietan los 4 × M6.
@@ -170,7 +170,7 @@ def extend(d):
     d["drv_S_brgA"] = d["drv_S_hsg_front"] + d["drv_gap_hsg_brg"] + d["drv_brg_shoulder_t"]   # cara trasera del rodamiento de popa
     d["drv_S_brgB"] = d["drv_S_brgA"] + 2 * BEARING["B"]                # cara delantera del rodamiento de proa
     d["drv_collar_l"] = d["drv_gap_hsg_brg"] + d["drv_brg_shoulder_t"] - 0.5   # collar: de 0,5 mm delante de la caja del sello al aro
-    d["drv_collar_d"] = 25.0                                            # [SUPUESTO: collar = barra Ø25 sin tornear (eje torneado desde barra 1.4404 Ø25, R11 §5)]
+    d["drv_collar_d"] = 26.0                                            # [CALCULADO: ≥ da_min 25,6 del 7204 (BEARING, ESTIMADO catálogo SKF); torneado desde barra Ø28]
     
     d["drv_hsg_od"] = BEARING["D"] + 2 * 9.0                            # alojamiento Ø65 [SUPUESTO: pared 9 mm]
     d["drv_cover_t"] = 7.0                                              # [SUPUESTO: tapa anular 7 mm; la KM4 gira dentro de su agujero Ø34 (laberinto 1 mm)]
@@ -208,7 +208,7 @@ def extend(d):
     d["drv_S_thread0"] = d["drv_S_brgB"] + KM["mb_t"]                    # rosca M20×1 desde la cara del rodamiento + MB4
     d["drv_thread_l"] = KM["b"] + 2.0
     d["drv_shaft_L"] = d["drv_X_aft"] + d["drv_S_front"]                # largo total del eje
-    d["drv_bar_d"] = 25.0                                               # [VERIFICADO: research/R11 §5 — barra 1.4404 Ø25 (Metallstore)]
+    d["drv_bar_d"] = 28.0                                               # [SUPUESTO: barra 1.4404 Ø28 (la compra la BOM); R11 §5 verificó Ø20/Ø25 — buscar precio Ø28]
 
     # ---------------- soporte del motor ----------------
     d["mot_plate_t"] = 10.0                                             # [SUPUESTO: Al 6082-T651 10 mm]

@@ -10,12 +10,13 @@
 ## Lista de piezas
 
 <!-- AUTO:parts_totals -->
-Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de la unidad de jet (CAD, sin motor): **24.08 kg**.
+Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de la unidad de jet (CAD, sin motor): **24.25 kg**.
 <!-- /AUTO:parts_totals -->
 
 <!-- AUTO:parts_list -->
 | ID | Función | Envolvente [mm] | Material | Proceso | Cant. | Caso de carga dominante | Orientación de impresión | g c/u | h c/u |
 |---|---|---|---|---|---|---|---|---|---|
+| P1-BAT-01_bateria | Batería LFP de la selección (modelo de referencia, una por rama) | 532×207×215 | referencia | comprada | 2 | — | — | 19800 | — |
 | P1-CTL-01_placa_espejo | Placa interior del espejo para M66 + 2 prensaestopas (Al 5083 6 mm) | 6×342×90 | Al 5083 | torneada | 1 | Reacción del M66 (momento de dirección / brazo) en el espejo | — | 476 | — |
 | P1-CTL-02_caja_acel | Caja PETG de palancas con sensor hall | 181×78×68 | PETG | impresa | 1 | Pisada/golpe 300 N sobre la tapa [SUPUESTO]; sin cargas de mando (van a P1-CTL-08) | Tapa sobre la cama (ranuras planas, sin soportes); ala arriba. 0,2 mm, 5 perímetros, 30 % giroide | 103 | 5.7 |
 | P1-CTL-03_soporte_kill | Soporte PETG del kill switch con cordón y de la seta | 100×130×55 | PETG | impresa | 1 | Tirón del cordón 150 N [SUPUESTO] + golpe de mano sobre la seta 200 N [SUPUESTO] | Base sobre la cama; la cara inclinada a 45° no necesita soportes. 0,2 mm, 5 perímetros | 120 | 6.7 |
@@ -29,9 +30,10 @@ Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de
 | P1-CTL-11_eje_palancas | Eje Ø12 con cabeza portaimán (316) | 18×38×18 | AISI 316 | torneada | 1 | Flexión y torsión: 100 N en el pomo del acelerador | — | 39 | — |
 | P1-CTL-12_perno_enclav | Perno de enclavamiento Ø6 × 13 (316) | 6×13×6 | AISI 316 | torneada | 2 | Corte: 100 N en el pomo del bucket contra el enclavamiento | — | 3 | — |
 | P1-CTL-13_varilla_consola | Varilla Ø6,4 + rótula M6 del Mach5 en la consola (comprada) | 18×8×130 | AISI 316 | comprada | 1 | — | — | 40 | — |
+| P1-CTL-14_gatillo | Gatillo del Bowden de liberación (Al 6061 6 mm) | 18×6×32 | Al 6061-T6 | torneada | 1 | Apriete de la mano 100 N [SUPUESTO] | — | 6 | — |
 | P1-CTL-20_consola_ref | Consola (referencia, medir la real) | 250×360×532 | referencia | referencia | 1 | — | — | 0 | — |
 | P1-CTL-21_volante_ref | Volante Ø320 + timonería T85 (referencia) | 242×320×320 | referencia | referencia | 1 | — | — | 0 | — |
-| P1-DRV-01_shaft | Eje Ø20 AISI 316 torneado: impulsor (pasador de corte) → sello → 2×7204 → acople | 470×25×25 | AISI 316 | torneada | 1 | Par T_max del controlador y par de corte del pasador; empuje Fa a punto fijo; velocidad crítica | — | 1180 | — |
+| P1-DRV-01_shaft | Eje Ø20 AISI 316 torneado: impulsor (pasador de corte) → sello → 2×7204 → acople | 470×26×26 | AISI 316 | torneada | 1 | Par T_max del controlador y par de corte del pasador; empuje Fa a punto fijo; velocidad crítica | — | 1181 | — |
 | P1-DRV-02_seal_housing | Caja del sello mecánico 316: espigón Ø42, brida 4×M6, cámara mojada, linterna de goteo | 44×70×70 | AISI 316 | torneada | 1 | Presión de diseño de la bomba 0,2 MPa + resorte del sello; bulones M6 al buje de la toma | — | 311 | — |
 | P1-DRV-03_bearing_bracket | Pórtico Al 6082 sobre el conducto: alojamiento 2×7204 BEP, 4×M8 a la placa base | 150×296×173 | Al 5052/6082 | torneada | 1 | Empuje Fa a punto fijo + reacción radial + 3 g vertical del tren; bulones M8 a la placa base de Al | — | 1715 | — |
 | P1-DRV-04_bearing_7204BEP | Rodamiento SKF 7204 BEP (par en O), comprado | 14×47×47 | Acero | comprada | 2 | Empuje Fa + reacción radial (L10 en sizing) | — | 110 | — |
@@ -43,7 +45,7 @@ Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de
 | P1-ELE-02_esc_hood | Capota antisalpicaduras PETG del controlador (4 × M5 a la base) | 208×126×55 | PETG | impresa | 1 | Apriete de la almohadilla EPDM (4 × M5) y 3 g vertical del ESC hacia arriba (golpe de ola) | Techo sobre la cama, paredes y nervios hacia arriba (sin soportes). | 207 | 11.5 |
 | P1-ELE-03_cooling_outlet | Pasacasco 316 de salida del agua de refrigeración (testigo en el espejo) | 37×28×28 | AISI 316 | comprada | 1 | — | — | 45 | — |
 | P1-ELE-04_esc | Controlador VESC de la selección (FSESC 75350 con caja de agua) | 200×95×50 | referencia | comprada | 1 | — | — | 2000 | — |
-| P1-INT-01_conducto | Conducto de toma enrasada Al 5083 soldado: rampa C2, transición a Ø D_bore, brida bomba, buje del sello, chimenea de inspección | 447×198×345 | Al 5083 | torneada | 1 | Presión interna −p_pump_max…+p_pump_max, golpe de fondo, 3 g agua; empuje NO pasa por acá | — | 4709 | — |
+| P1-INT-01_conducto | Conducto de toma enrasada Al 5083 soldado: rampa C2, transición a Ø D_bore, brida bomba, buje del sello, chimenea de inspección | 447×198×350 | Al 5083 | torneada | 1 | Presión interna −p_pump_max…+p_pump_max, golpe de fondo, 3 g agua; empuje NO pasa por acá | — | 4730 | — |
 | P1-INT-02_placa_base | Placa base de la toma Al 5083 10 mm: cuerpo enrasado + ala abulonada al casco, cuña de la rampa, roscas del conducto y del soporte de rodamientos | 565×350×10 | Al 5083 | torneada | 1 | Golpe de fondo, empuje del tren por el soporte de rodamientos, tracción de los bulones del conducto | — | 3044 | — |
 | P1-INT-03_rejilla | Rejilla 316: 7 pletinas perfiladas 4 × 20 longitudinales enrasadas, pletina de popa y tirante de proa, 4 × M5 A4 | 368×182×21 | AISI 316 | torneada | 1 | Rejilla tapada a la presión de cierre de la bomba; golpe de objeto 200 N en el centro de una barra | — | 1599 | — |
 | P1-INT-04_tapa_inspeccion | Tapa PETG Ø160 × 10 de la chimenea de inspección, O-ring de cara, 4 × M6 | 160×160×19 | PETG | impresa | 1 | Presión interna de la toma (succión de cierre / recuperación a 30 km/h) sobre Ø de la junta | Cara de la ranura del O-ring y del hexágono de la tuerca sobre la cama (fondos lisos), resalte arriba, 100 % relleno | 327 | 18.2 |
@@ -61,7 +63,7 @@ Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de
 | P1-PMP-10_transom_gasket | Junta NBR 2 mm del espejo (bajo la placa P1-PMP-09) | 2×211×196 | NBR | comprada | 1 | Compresión de los 7 × M6 | — | 35 | — |
 | P1-PMP-11_pivot_bushing | Buje POM-C de pivote de la boquilla en las orejas de la placa de espejo (×2) | 12×12×26 | POM-C | torneada | 2 | F lateral de la boquilla / F del bucket (aplastamiento) | — | 2 | — |
 | P1-REF-01_casco | Casco de referencia (popa 1,4 m): fondo con astilla muerta y paño plano, pantoque, costados, espejo; recorte de la toma y agujero del espejo | 1400×798×516 | referencia | referencia | 1 | — | — | 0 | — |
-| P1-REV-01_bucket | Bucket de reversa Al 5083 4 mm (cuchara + brazos + nervio) | 195×123×143 | Al 5083 | torneada | 1 | Chorro desviado en reversa (R12: 1,4 kN) × impacto 2; presión dinámica en la chapa | — | 539 | — |
+| P1-REV-01_bucket | Bucket de reversa Al 5083 4 mm (cuchara + brazos + nervio) | 191×123×141 | Al 5083 | torneada | 1 | Chorro desviado en reversa (R12: 1,4 kN) × impacto 2; presión dinámica en la chapa | — | 531 | — |
 | P1-REV-02_perno_bucket | Perno con hombro Ø10 × 9,8 / M8 del bucket (316) | 16×34×16 | AISI 316 | torneada | 2 | Corte simple + flexión: reacción del bucket (R12 1,4 kN × impacto 2) / 2 | — | 23 | — |
 | P1-REV-03_buje_bucket | Buje con brida POM-C Ø10,1/Ø14 × 8 + brida Ø20 × 1 | 20×9×20 | POM-C | torneada | 2 | Aplastamiento: reacción del bucket / 2 | — | 1 | — |
 | P1-REV-04_embolo | Émbolo indexador A4 M20 / perno Ø12 (comprado) | 30×38×30 | AISI 316 | comprada | 1 | Corte del perno Ø10: momento del bucket en reversa / REV_lock_r | — | 160 | — |
@@ -69,6 +71,8 @@ Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de
 | P1-REV-06_perno_varilla | Tornillo con hombro Ø8 × 10 / M6 (316) | 13×22×13 | AISI 316 | torneada | 1 | Fuerza de maniobra del Mach5 (bucket sin carga del chorro) | — | 9 | — |
 | P1-REV-07_terminal_mach5 | Terminal Mach5 (vaina + cabeza) en la boquilla — comprado | 22×22×140 | Acero | comprada | 1 | — | — | 120 | — |
 | P1-REV-08_varilla_mach5 | Varilla Ø6,4 + rótula M6 del Mach5 (comprada) | 18×8×94 | AISI 316 | comprada | 1 | — | — | 40 | — |
+| P1-REV-09_soporte_bowden | Soporte en L del Bowden de liberación (Al 5083 4 mm) | 38×41×16 | Al 5083 | torneada | 1 | Tiro del Bowden (resorte del émbolo + fricción) 60 N [ESTIMADO] | — | 12 | — |
+| P1-REV-10_bowden_embolo | Bowden inox de liberación del émbolo (extremo, comprado) | 10×53×10 | AISI 316 | comprada | 1 | — | — | 60 | — |
 | P1-STE-01_boquilla | Boquilla direccional con orejas de pivote, torre del yugo y orejas del bucket | 144×104×165 | Al 6061-T6 | torneada | 1 | Desvío del chorro F_steer (R12: 364 N) + reacciones del bucket (R12: 1,4 kN, impacto ×2) | — | 845 | — |
 | P1-STE-02_perno_sup | Tornillo con hombro Ø8 / M6 del pivote superior (316 estirado) | 14×14×49 | AISI 316 | torneada | 1 | Flexión en doble apoyo + corte: reacción superior (bucket R12 + dirección) | — | 20 | — |
 | P1-STE-03_arandela_pom | Arandela de empuje POM-C Ø8,4/Ø18 × 1 | 18×18×1 | POM-C | torneada | 3 | Empuje axial: peso de la boquilla + bucket y componente vertical del chorro | — | 0 | — |
@@ -76,19 +80,13 @@ Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de
 | P1-STE-05_perno_inf | Espárrago con hombro Ø8 / M6 del pivote inferior (316) | 8×8×33 | AISI 316 | torneada | 1 | Flexión en voladizo + corte: F_s/2 | — | 11 | — |
 | P1-STE-06_poste | Poste del yugo Ø22 con brida Ø44 y M16 (6061-T6) | 44×44×140 | Al 6061-T6 | torneada | 1 | Flexión + torsión por la fuerza de la biela del M66 | — | 151 | — |
 | P1-STE-07_brazo | Brazo del yugo con rótula M8 (Al 5083 10 mm) | 61×32×10 | Al 5083 | torneada | 1 | Fuerza de la biela del M66 (momento de dirección / brazo) | — | 34 | — |
+| P1-STE-08_tope_direccion | Topes de dirección ±δmax+1,5° (Al 5083 8 mm) | 148×89×32 | Al 5083 | torneada | 1 | Timón forzado contra el tope: 2 × fuerza de la biela del M66 [SUPUESTO] | — | 79 | — |
 <!-- /AUTO:parts_list -->
 
 ## Verificación
 
 <!-- AUTO:verify -->
-Resultado: **FALLAS** — 60 piezas, 8718 pares×estados de interferencia; boquilla δ ∈ [-25.0, 0.0, 25.0]°, bucket {arriba, abajo}; masa de la unidad de jet (CAD) 24.08 kg.
-
-Fallas:
-- P1-CTL-14: falta en manifest (no construida)
-- P1-REV-01: cota crítica 'abajo: punto más bajo sobre la quilla (z_bote, ±δmax) [mm]' = 3.746 (ref >= 5.0)
-- P1-REV-09: falta en manifest (no construida)
-- P1-REV-10: falta en manifest (no construida)
-- P1-STE-08: falta en manifest (no construida)
+Resultado: **OK** — 65 piezas, 10566 pares×estados de interferencia; boquilla δ ∈ [-25.0, 0.0, 25.0]°, bucket {arriba, abajo}; masa de la unidad de jet (CAD) 24.25 kg.
 <!-- /AUTO:verify -->
 
 ## Ajustes (iniciales, a confirmar con probetas P1.1–P1.2)

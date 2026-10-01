@@ -1016,6 +1016,30 @@ def test_sketch_uses_identical_logic_copy_and_required_io():
     assert m and "used" in m.group(1) and ".init3" in m.group(1), "p1_early_init necesita __attribute__((used))"
 
 
+def test_vesc_profile_lisp_matches_electronica_json():
+    """firmware/vesc_perfil.lisp (D12 → ADC1 del VESC): topes de ERPM = electronica.json, arranca en COSTA,
+    COSTA en una muestra y ABIERTO con confirmación; paréntesis balanceados."""
+    import json
+    lsp = (FW / "vesc_perfil.lisp").read_text(encoding="utf-8")
+    code = "\n".join(ln.split(";", 1)[0] for ln in lsp.splitlines())
+    vv = json.loads((ELEC / "electronica.json").read_text(encoding="utf-8"))["vesc_values"]
+    num = {m.group(1): float(m.group(2)) for m in re.finditer(r"\(define ([\w-]+) (-?[\d.]+)\)", code)}
+    assert num["erpm-costa"] == pytest.approx(vv["l_max_erpm"]), "actualizar erpm-costa en vesc_perfil.lisp"
+    assert num["erpm-abierto"] == pytest.approx(vv["erpm_tech"]), "actualizar erpm-abierto en vesc_perfil.lisp"
+    assert num["erpm-costa"] < num["erpm-abierto"]
+    # D12 5 V con divisor 10 k / 20 k ≈ 3,3 V: el umbral queda entre 0 V y el ALTO
+    assert 0.5 < num["v-umbral"] < 5.0 * 20 / 30 - 0.5
+    assert "(get-adc 0)" in code and code.count("(conf-set 'l-max-erpm") == 3
+    assert code.index("(conf-set 'l-max-erpm erpm-costa)") < code.index("(loopwhile")   # COSTA al arrancar
+    assert num["n-req"] >= 2 and "(= n-alto 0)" in code
+    assert "conf-store" not in code                                       # nunca guarda ABIERTO en flash
+    depth = 0
+    for ch in code.replace("{", "(").replace("}", ")"):
+        depth += (ch == "(") - (ch == ")")
+        assert depth >= 0
+    assert depth == 0
+
+
 def test_avr_build_if_toolchain_available(tmp_path):
     """Compila para ATmega328P si hay avr-gcc o arduino-cli (P1_ARDUINO_CLI=ruta); si no, se salta."""
     import os
@@ -1097,6 +1121,7 @@ def test_wiring_diagram_generates(tmp_path, sizing):
     texts = " ".join(t.firstChild.nodeValue for t in doc.getElementsByTagName("text") if t.firstChild)
     for needle in ("F1", "S1 desconectador", "K1 ", "R_pre", "CORDÓN", "SETA", "F2", "Bobina K1",
                    "DC-DC", "Arduino Nano", "Sensor hall", "J1 IP68", "ADC2", "PPM", "Q_EN", "BAT−", "CASCO",
-                   "ISO 13297", "≤ 178 mm", "D5 ← bucket"):
+                   "ISO 13297", "≤ 178 mm", "D5 ← bucket", "D7 ← perfil", "D8 ← rejilla", "D12 → perfil",
+                   "vesc_perfil.lisp"):
         assert needle in texts, needle
     assert f"F1 {sizing['electrical']['fuse_a']:.0f} A" in texts

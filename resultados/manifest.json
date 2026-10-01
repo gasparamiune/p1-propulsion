@@ -1,6 +1,116 @@
 {
   "parts": [
     {
+      "id": "P1-BAT-01",
+      "name": "bateria",
+      "desc": "Batería LFP de la selección (modelo de referencia, una por rama)",
+      "material": "referencia",
+      "process": "comprada",
+      "qty": 2,
+      "frame": "boat",
+      "group": "bat",
+      "load_case": "—",
+      "print_rot": [
+        0,
+        0,
+        0
+      ],
+      "solid_frac": 1.0,
+      "orientation": "—",
+      "mass_g": 19800.0,
+      "file_stem": "P1-BAT-01_bateria",
+      "valid_solid": true,
+      "volume_mm3": 23676660.0,
+      "mass_g_each": 19800.0,
+      "mass_g_total": 39600.0,
+      "bbox_mm": [
+        532.0,
+        207.0,
+        215.0
+      ],
+      "files": [
+        "04_diseno/step/P1-BAT-01_bateria.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "posición de la batería en inputs (masses.battery.x_m) = CAD [mm]",
+          "value": 1280.0,
+          "ref": 1281.8,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "extremo de proa dentro del 75 % de la eslora (zona de fondo útil, no la proa lanzada) [mm]",
+          "value": 1547.8,
+          "ref": 1725.0,
+          "op": "<=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            1281.8
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            -109.5
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            75.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            1281.8
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            109.5
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            75.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 0.02
+    },
+    {
       "id": "P1-CTL-01",
       "name": "placa_espejo",
       "desc": "Placa interior del espejo para M66 + 2 prensaestopas (Al 5083 6 mm)",
@@ -40,7 +150,7 @@
         },
         {
           "name": "pasos sobre la flotación estática (z mín. − Ø/2 − calado) [mm]",
-          "value": 54.328,
+          "value": 53.941,
           "ref": 30.0,
           "op": ">=",
           "ok": true
@@ -88,7 +198,7 @@
           ]
         ]
       ],
-      "build_s": 0.97
+      "build_s": 0.09
     },
     {
       "id": "P1-CTL-02",
@@ -302,7 +412,7 @@
           ]
         ]
       ],
-      "build_s": 0.2
+      "build_s": 0.26
     },
     {
       "id": "P1-CTL-04",
@@ -735,7 +845,7 @@
           ]
         ]
       ],
-      "build_s": 0.46
+      "build_s": 0.41
     },
     {
       "id": "P1-CTL-09",
@@ -929,7 +1039,7 @@
           ]
         ]
       ],
-      "build_s": 0.34
+      "build_s": 0.42
     },
     {
       "id": "P1-CTL-11",
@@ -1284,7 +1394,7 @@
           ]
         ]
       ],
-      "build_s": 0.04
+      "build_s": 0.05
     },
     {
       "id": "P1-CTL-20",
@@ -1358,7 +1468,7 @@
           ]
         ]
       ],
-      "build_s": 0.24
+      "build_s": 0.09
     },
     {
       "id": "P1-CTL-21",
@@ -1439,7 +1549,7 @@
           ]
         ]
       ],
-      "build_s": 0.23
+      "build_s": 0.18
     },
     {
       "id": "P1-DRV-01",
@@ -1470,13 +1580,13 @@
       },
       "file_stem": "P1-DRV-01_shaft",
       "valid_solid": true,
-      "volume_mm3": 147534.14514622628,
-      "mass_g_each": 1180.2731611698102,
-      "mass_g_total": 1180.2731611698102,
+      "volume_mm3": 147674.33873215364,
+      "mass_g_each": 1181.3947098572291,
+      "mass_g_total": 1181.3947098572291,
       "bbox_mm": [
         470.43,
-        25.0,
-        25.0
+        26.0,
+        26.0
       ],
       "files": [
         "04_diseno/step/P1-DRV-01_shaft.step"
@@ -1525,7 +1635,21 @@
           "ok": true
         },
         {
-          "name": "apoyo radial collar ↔ aro interior (Ø collar − Ø20 − 2·r_s)/2 ≥ 1 [mm]",
+          "name": "collar ≥ da_min del 7204 (apoyo del aro interior) [mm]",
+          "value": 26.0,
+          "ref": 25.6,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "collar ≤ Ø barra (se tornea) [mm]",
+          "value": 26.0,
+          "ref": 28.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "laberinto collar ↔ resalte del soporte (holgura radial) [mm]",
           "value": 1.5,
           "ref": 1.0,
           "op": ">=",
@@ -1609,7 +1733,7 @@
           ]
         ]
       ],
-      "build_s": 0.14
+      "build_s": 0.15
     },
     {
       "id": "P1-DRV-02",
@@ -1804,9 +1928,9 @@
       },
       "file_stem": "P1-DRV-03_bearing_bracket",
       "valid_solid": true,
-      "volume_mm3": 640100.564783343,
-      "mass_g_each": 1715.4695136193593,
-      "mass_g_total": 1715.4695136193593,
+      "volume_mm3": 639966.2616973991,
+      "mass_g_each": 1715.1095813490297,
+      "mass_g_total": 1715.1095813490297,
       "bbox_mm": [
         150.0,
         296.0,
@@ -1853,7 +1977,7 @@
         },
         {
           "name": "resalte ≤ Da máx. del aro exterior: Ø paso < Da_max [mm]",
-          "value": 28.0,
+          "value": 29.0,
           "ref": 41.4,
           "op": "<=",
           "ok": true
@@ -1943,7 +2067,7 @@
           ]
         ]
       ],
-      "build_s": 0.23
+      "build_s": 0.27
     },
     {
       "id": "P1-DRV-04",
@@ -1998,7 +2122,7 @@
         },
         {
           "name": "L10 a V máx. (sizing) ≥ vida objetivo [h]",
-          "value": 966443.139,
+          "value": 1053938.854,
           "ref": 2000.0,
           "op": ">=",
           "ok": true
@@ -2065,7 +2189,7 @@
           ]
         ]
       ],
-      "build_s": 0.01
+      "build_s": 0.02
     },
     {
       "id": "P1-DRV-05",
@@ -2153,7 +2277,7 @@
           ]
         ]
       ],
-      "build_s": 0.02
+      "build_s": 0.03
     },
     {
       "id": "P1-DRV-06",
@@ -2247,7 +2371,7 @@
           ]
         ]
       ],
-      "build_s": 0.04
+      "build_s": 0.05
     },
     {
       "id": "P1-DRV-07",
@@ -2444,7 +2568,7 @@
           ]
         ]
       ],
-      "build_s": 0.02
+      "build_s": 0.04
     },
     {
       "id": "P1-ELE-01",
@@ -2562,7 +2686,7 @@
           ]
         ]
       ],
-      "build_s": 0.78
+      "build_s": 0.8
     },
     {
       "id": "P1-ELE-02",
@@ -2666,7 +2790,7 @@
           ]
         ]
       ],
-      "build_s": 0.24
+      "build_s": 0.26
     },
     {
       "id": "P1-ELE-03",
@@ -2709,8 +2833,8 @@
         },
         {
           "name": "presión del puerto a rpm de 5 kn ≥ 3 × Δp del circuito (Q 0.95 L/min, 2.6 m de manguera) [Pa]",
-          "value": 23969.202,
-          "ref": 16426.212,
+          "value": 23992.584,
+          "ref": 16396.102,
           "op": ">=",
           "ok": true
         },
@@ -2850,13 +2974,13 @@
       },
       "file_stem": "P1-INT-01_conducto",
       "valid_solid": true,
-      "volume_mm3": 1770124.6697782206,
-      "mass_g_each": 4708.531621610067,
-      "mass_g_total": 4708.531621610067,
+      "volume_mm3": 1778372.5730444524,
+      "mass_g_each": 4730.471044298243,
+      "mass_g_total": 4730.471044298243,
       "bbox_mm": [
         446.91,
         198.0,
-        345.0
+        350.0
       ],
       "files": [
         "04_diseno/step/P1-INT-01_conducto.step"
@@ -3011,7 +3135,7 @@
         },
         {
           "name": "chimenea: brida ≥ 60 mm sobre la flotación estática [mm]",
-          "value": 60.067,
+          "value": 64.68,
           "ref": 60.0,
           "op": ">=",
           "ok": true
@@ -3059,7 +3183,7 @@
           ]
         ]
       ],
-      "build_s": 52.92
+      "build_s": 48.61
     },
     {
       "id": "P1-INT-02",
@@ -3224,7 +3348,7 @@
           ]
         ]
       ],
-      "build_s": 1.67
+      "build_s": 1.89
     },
     {
       "id": "P1-INT-03",
@@ -3353,7 +3477,7 @@
           ]
         ]
       ],
-      "build_s": 1.25
+      "build_s": 1.04
     },
     {
       "id": "P1-INT-04",
@@ -3429,7 +3553,7 @@
         },
         {
           "name": "tapa sobre la flotación estática [mm]",
-          "value": 60.067,
+          "value": 64.68,
           "ref": 50.0,
           "op": ">=",
           "ok": true
@@ -3484,7 +3608,7 @@
           ]
         ]
       ],
-      "build_s": 0.15
+      "build_s": 0.19
     },
     {
       "id": "P1-MOT-01",
@@ -3707,7 +3831,7 @@
           ]
         ]
       ],
-      "build_s": 0.18
+      "build_s": 0.2
     },
     {
       "id": "P1-PMP-01",
@@ -4158,7 +4282,7 @@
           ]
         ]
       ],
-      "build_s": 10.67
+      "build_s": 10.09
     },
     {
       "id": "P1-PMP-04",
@@ -4251,7 +4375,7 @@
           ]
         ]
       ],
-      "build_s": 0.06
+      "build_s": 0.07
     },
     {
       "id": "P1-PMP-05",
@@ -4496,7 +4620,7 @@
           ]
         ]
       ],
-      "build_s": 2.08
+      "build_s": 2.1
     },
     {
       "id": "P1-PMP-07",
@@ -4603,7 +4727,7 @@
           ]
         ]
       ],
-      "build_s": 0.06
+      "build_s": 0.07
     },
     {
       "id": "P1-PMP-08",
@@ -4747,7 +4871,7 @@
           ]
         ]
       ],
-      "build_s": 0.47
+      "build_s": 0.49
     },
     {
       "id": "P1-PMP-09",
@@ -4926,7 +5050,7 @@
           ]
         ]
       ],
-      "build_s": 0.63
+      "build_s": 0.62
     },
     {
       "id": "P1-PMP-10",
@@ -5012,7 +5136,7 @@
           ]
         ]
       ],
-      "build_s": 0.37
+      "build_s": 0.36
     },
     {
       "id": "P1-PMP-11",
@@ -5124,7 +5248,7 @@
           ]
         ]
       ],
-      "build_s": 0.02
+      "build_s": 0.01
     },
     {
       "id": "P1-REF-01",
@@ -5215,7 +5339,7 @@
           ]
         ]
       ],
-      "build_s": 0.49
+      "build_s": 0.5
     },
     {
       "id": "P1-REV-01",
@@ -5365,7 +5489,7 @@
           ]
         ]
       ],
-      "build_s": 7.05
+      "build_s": 6.66
     },
     {
       "id": "P1-REV-02",
@@ -5904,7 +6028,7 @@
         },
         {
           "name": "salida del cable sobre la flotación estática [mm]",
-          "value": 66.386,
+          "value": 65.999,
           "ref": 30.0,
           "op": ">=",
           "ok": true
@@ -6203,7 +6327,7 @@
           ]
         ]
       ],
-      "build_s": 0.03
+      "build_s": 0.04
     },
     {
       "id": "P1-STE-01",
@@ -6375,7 +6499,7 @@
           ]
         ]
       ],
-      "build_s": 10.98
+      "build_s": 11.09
     },
     {
       "id": "P1-STE-02",
@@ -6683,7 +6807,7 @@
           ]
         ]
       ],
-      "build_s": 0.27
+      "build_s": 0.26
     },
     {
       "id": "P1-STE-05",
@@ -6849,7 +6973,7 @@
           ]
         ]
       ],
-      "build_s": 0.06
+      "build_s": 0.07
     },
     {
       "id": "P1-STE-07",
@@ -6919,7 +7043,7 @@
         },
         {
           "name": "rótula sobre la flotación estática (z_bote − calado) [mm]",
-          "value": 60.317,
+          "value": 59.93,
           "ref": 30.0,
           "op": ">=",
           "ok": true
@@ -7057,7 +7181,7 @@
           ]
         ]
       ],
-      "build_s": 0.92
+      "build_s": 0.89
     }
   ],
   "inputs_version": "2.0",
@@ -7828,8 +7952,8 @@
     "toma_tube_od": 44.0,
     "toma_tube_id": 34.0,
     "toma_cbore_L": 8.0,
-    "toma_draft": 284.93267732670114,
-    "toma_chim_top": 345.0,
+    "toma_draft": 285.31968151005935,
+    "toma_chim_top": 350.0,
     "toma_chim_id": 100.0,
     "toma_chim_x": 360.0,
     "toma_chim_fl_od": 160.0,
@@ -7952,7 +8076,7 @@
     "drv_S_brgA": 301.6328043280854,
     "drv_S_brgB": 329.6328043280854,
     "drv_collar_l": 3.5,
-    "drv_collar_d": 25.0,
+    "drv_collar_d": 26.0,
     "drv_hsg_od": 65.0,
     "drv_cover_t": 7.0,
     "drv_S_brg_front": 337.6328043280854,
@@ -7988,7 +8112,7 @@
     "drv_S_thread0": 330.6328043280854,
     "drv_thread_l": 9.0,
     "drv_shaft_L": 470.4328043280854,
-    "drv_bar_d": 25.0,
+    "drv_bar_d": 28.0,
     "mot_plate_t": 10.0,
     "mot_hole_d": 64.0,
     "mot_foot_z": 75.0,
@@ -8052,7 +8176,7 @@
   "totals": {
     "printed_mass_g": 1019.940839570502,
     "printed_hours": 56.663379976139,
-    "jet_unit_mass_kg": 24.222937306506513,
-    "n_parts": 64
+    "jet_unit_mass_kg": 24.245638345611777,
+    "n_parts": 65
   }
 }

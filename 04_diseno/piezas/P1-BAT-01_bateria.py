@@ -51,4 +51,5 @@ def checks(p, part):
     x_m = p.inp["masses"]["items"]["battery"]["x_m"] * 1000
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("posición de la batería en inputs (masses.battery.x_m) = CAD [mm]", x_m, xc, "="),
-            ("entra dentro del largo de casco de referencia (≤ 1400 mm) [mm]", xc + L / 2, 1400.0, "<=")]
+            ("extremo de proa dentro del 75 % de la eslora (zona de fondo útil, no la proa lanzada) [mm]",
+             xc + L / 2, 0.75 * p.inp["boat"]["loa_m"] * 1000, "<=")]

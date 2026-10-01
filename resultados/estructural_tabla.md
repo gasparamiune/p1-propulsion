@@ -1,14 +1,14 @@
 <!-- generado por 04_diseno/structural.py -->
 | Pieza | Caso de carga | Modelo | σ [MPa] | Admisible | S [MPa] | FS | Obj. | OK |
 |---|---|---|---|---|---|---|---|---|
-| P1-PMP-03 | Álabe en la raíz: par de diseño 15.2 N·m + empuje | voladizo: F_t=T/(Z·r_m)=61 N a span/2 + F_a=153 N/álabe en r̄; M=2.98 N·m; W_mín perfil cubo=80 mm³ (c=53.9, t=4.31) | 37.43 | metal | 205.0 | 5.48 | 2.0 | ✔ |
+| P1-PMP-03 | Álabe en la raíz: par de diseño 15.2 N·m + empuje | voladizo: F_t=T/(Z·r_m)=61 N a span/2 + F_a=153 N/álabe en r̄; M=2.98 N·m; W_mín perfil cubo=80 mm³ (c=53.9, t=4.31) | 37.44 | metal | 205.0 | 5.48 | 2.0 | ✔ |
 | P1-PMP-03 | Álabe en la raíz, fatiga: par de diseño 15.2 N·m + empuje | σ_a = 0.30·σ_m (paso por 7 álabes del estator, toma); K_f 1.5; S_e 316 | 11.23 | metal | 120.0 | 10.69 | 2.0 | ✔ |
 | P1-PMP-03 | Álabe en la raíz: par máx. del controlador 18.6 N·m + empuje | voladizo: F_t=T/(Z·r_m)=75 N a span/2 + F_a=153 N/álabe en r̄; M=3.06 N·m; W_mín perfil cubo=80 mm³ (c=53.9, t=4.31) | 38.49 | metal | 205.0 | 5.33 | 2.0 | ✔ |
 | P1-PMP-03 | Álabe en la raíz, fatiga: par máx. del controlador 18.6 N·m + empuje | σ_a = 0.30·σ_m (paso por 7 álabes del estator, toma); K_f 1.5; S_e 316 | 11.55 | metal | 120.0 | 10.39 | 2.0 | ✔ |
-| P1-PMP-03 | Álabe en la raíz: par de corte del pasador 33.5 N·m (traba repartida) | voladizo: F_t=T/(Z·r_m)=135 N a span/2 + F_a=153 N/álabe en r̄; M=3.58 N·m; W_mín perfil cubo=80 mm³ (c=53.9, t=4.31) | 45.00 | metal | 205.0 | 4.56 | 2.0 | ✔ |
+| P1-PMP-03 | Álabe en la raíz: par de corte del pasador 33.5 N·m (traba repartida) | voladizo: F_t=T/(Z·r_m)=135 N a span/2 + F_a=153 N/álabe en r̄; M=3.58 N·m; W_mín perfil cubo=80 mm³ (c=53.9, t=4.31) | 45.01 | metal | 205.0 | 4.56 | 2.0 | ✔ |
 | P1-PMP-03 | Cubo: aplastamiento del pasador al par de corte | F=837 N por lado sobre 3.5×20 mm (r medio) | 11.96 | metal | 307.5 | 25.72 | 2.0 | ✔ |
 | P1-PMP-05 | Par máx. del controlador (margen contra corte intempestivo) | corte doble τ=T/(d_eje·A)=96.5 MPa; τ_u=0,6·S_u=174 MPa; T_corte/T_máx=1.80 (criterio R12 ≥ 1,5) | 96.50 | metal | 174.0 | 1.8 | 2.0 | ✔ (justif.) |
-| P1-PMP-05 | Fatiga a par de crucero (Goodman en corte) | τ_m=73.4, τ_a=11.0 MPa (T_top 14.1 N·m, ±15%); S_e,τ=0,577·S_e; índice Goodman 0.62 | 0.62 | metal | 1.0 | 1.61 | 2.0 | ✔ (justif.) |
+| P1-PMP-05 | Fatiga a par de crucero (Goodman en corte) | τ_m=73.3, τ_a=11.0 MPa (T_top 14.1 N·m, ±15%); S_e,τ=0,577·S_e; índice Goodman 0.62 | 0.62 | metal | 1.0 | 1.61 | 2.0 | ✔ (justif.) |
 | P1-PMP-06 | Álabe del estator en la raíz: par de diseño 15.2 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=44 N, F_a=38 N, F_r buje=22 N; W_mín=68 mm³ (c=44.4, t=4.44) | 25.04 | metal | 240.0 | 9.58 | 2.0 | ✔ |
 | P1-PMP-06 | Álabe del estator, fatiga: par de diseño | σ_a=0.30·σ_m (estelas de 5 álabes); S_e Al anodizado = 0.6·S_e; K_f 1.5 | 7.51 | metal | 38.4 | 5.11 | 2.0 | ✔ |
 | P1-PMP-06 | Álabe del estator en la raíz: par máx. del controlador 18.6 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=54 N, F_a=38 N, F_r buje=22 N; W_mín=68 mm³ (c=44.4, t=4.44) | 26.93 | metal | 240.0 | 8.91 | 2.0 | ✔ |
@@ -18,7 +18,7 @@
 | P1-PMP-01 | Bulones brida toma (8×M6): presión + bucket + momentos | F_ax=2276 N, M=171.3 N·m (boquilla 323 N, bucket 698 N, peso) → F_bulón=804 N sobre A_s=20.1 mm² (sin precarga) | 40.01 | metal | 450.0 | 11.25 | 2.0 | ✔ |
 | P1-PMP-08 | Bulones brida carcasa–tobera (8×M6): presión + bucket + momentos | F_ax=2276 N, M=118.6 N·m (boquilla 323 N, bucket 698 N, peso) → F_bulón=633 N sobre A_s=20.1 mm² (sin precarga) | 31.51 | metal | 450.0 | 14.28 | 2.0 | ✔ |
 | P1-PMP-01 | Tornillos anti-rotación del estator (2×M5) al corte | F=130 N por tornillo (T_max 18.6 N·m, r=71.4) | 9.16 | metal | 259.6 | 28.35 | 2.0 | ✔ |
-| P1-PMP-09 | Oreja: aplastamiento del alojamiento del buje — F lateral de la boquilla 323 N | σ_b=F/(d·t), d=12.0, t=25.5 | 1.05 | metal | 187.5 | 177.87 | 2.0 | ✔ |
+| P1-PMP-09 | Oreja: aplastamiento del alojamiento del buje — F lateral de la boquilla 323 N | σ_b=F/(d·t), d=12.0, t=25.5 | 1.05 | metal | 187.5 | 177.86 | 2.0 | ✔ |
 | P1-PMP-09 | Oreja: sección neta y desgarro — F lateral de la boquilla 323 N | máx(F/((w−d)·t), F/(2·(e−d/2)·t)·√3), w=24.0, e=12.0 | 1.83 | metal | 125.0 | 68.46 | 2.0 | ✔ |
 | P1-PMP-09 | Oreja: flexión en el arranque — F lateral de la boquilla 323 N | M=F·15.0 mm, W=w·t²/6 (eje débil) | 1.86 | metal | 125.0 | 67.3 | 2.0 | ✔ |
 | P1-PMP-09 | Oreja: fatiga — F lateral de la boquilla 323 N | σ_a = σ flexión (maniobras, ~1e5–1e6 ciclos); S_e 5083; K_f 1.5 | 1.86 | metal | 73.3 | 39.48 | 2.0 | ✔ |
@@ -29,8 +29,8 @@
 | P1-PMP-09 | Oreja: fatiga — F del bucket 698 N | σ_a = σ flexión (maniobras, ~1e5–1e6 ciclos); S_e 5083; K_f 1.5 | 4.01 | metal | 73.3 | 18.27 | 2.0 | ✔ |
 | P1-PMP-11 | Buje de pivote POM: presión — F del bucket 698 N | p=F/(d·L), d=8.0, L=25.5 (un solo buje) | 3.42 | metal | 25.0 | 7.31 | 2.0 | ✔ |
 | P1-PMP-09 | Bulones placa–espejo (6×M6): F del bucket 698 N + momento | brazo 36 mm al espejo; F_bulón=207 N sobre A_s=20.1 mm² | 10.30 | metal | 450.0 | 43.67 | 2.0 | ✔ |
-| P1-PMP-09 | Cuello: F lateral de la boquilla con el O-ring a tope | voladizo del cuello M=F·L=5.3 N·m, W anillo=116736 mm³ | 0.04 | metal | 125.0 | 2753.99 | 2.0 | ✔ |
-| P1-STE-01 | Flexión del tubo por el desvío del chorro (fatiga, sizing) | M = F_s·e = 323 N × 66 mm; Z tubo Ø101.1/Ø91.1 | 0.62 | metal | 90.0 | 145.96 | 2.0 | ✔ |
+| P1-PMP-09 | Cuello: F lateral de la boquilla con el O-ring a tope | voladizo del cuello M=F·L=5.3 N·m, W anillo=116736 mm³ | 0.04 | metal | 125.0 | 2753.89 | 2.0 | ✔ |
+| P1-STE-01 | Flexión del tubo por el desvío del chorro (fatiga, sizing) | M = F_s·e = 323 N × 66 mm; Z tubo Ø101.1/Ø91.1 | 0.62 | metal | 90.0 | 145.95 | 2.0 | ✔ |
 | P1-STE-01 | Oreja del bucket: flexión en su plano (bucket R12, corta) | F/2 = 704 N a 52 mm de la raíz; sección 8 × 36 | 21.12 | metal | 240.0 | 11.36 | 2.0 | ✔ |
 | P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga) | F/2 = 349 N a 52 mm; 8 × 36 | 10.47 | metal | 90.0 | 8.59 | 2.0 | ✔ |
 | P1-STE-01 | Oreja de pivote (dentro de la de la bomba): flexión de la raíz | F = √((F_b/2)²+(F_s/2)²) = 727 N a 12 mm; 25 × 30 | 2.33 | metal | 240.0 | 103.14 | 2.0 | ✔ |
@@ -59,7 +59,7 @@
 | P1-REV-02 | Perno con hombro Ø10: flexión + corte (bucket R12, corta) | F/2 = 704 N a 5.5 mm | 44.54 | metal | 205.0 | 4.6 | 2.0 | ✔ |
 | P1-REV-02 | Perno con hombro Ø10: flexión (fatiga) | F/2 = 349 N | 19.56 | metal | 180.0 | 9.2 | 2.0 | ✔ |
 | P1-REV-03 | Buje POM Ø10/Ø14 × 8: presión (bucket R12, corta) | 704 N / (10 × 8) | 8.80 | metal | 20.0 | 2.27 | 2.0 | ✔ |
-| P1-REV-03 | Buje POM: presión (reversa sizing, oscilación) | 349 N / (10 × 8) | 4.36 | metal | 10.0 | 2.29 | 2.0 | ✔ |
+| P1-REV-03 | Buje POM: presión (reversa sizing, oscilación) | 349 N / (10 × 8) | 4.37 | metal | 10.0 | 2.29 | 2.0 | ✔ |
 | P1-REV-04 | Perno del émbolo Ø12: flexión + corte (M_h con bucket R12) | F = 2817 N a 3.5 mm; 316 | 81.76 | metal | 205.0 | 2.51 | 2.0 | ✔ |
 | P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga) | F = 1397 N | 28.82 | metal | 180.0 | 6.25 | 2.0 | ✔ |
 | P1-REV-06 | Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada) | F = 100 N × 125/46 = 272 N a 6 mm | 32.44 | metal | 205.0 | 6.32 | 2.0 | ✔ |
@@ -85,7 +85,7 @@
 | P1-INT-01 | Tubo junto a la brida de la bomba: momento del bucket (sin placa de espejo) | σ = M/(π r² t), M = F_bucket·358 | 3.13 | metal | 125.0 | 39.98 | 2.0 | ✔ |
 | P1-INT-01 | Bulones M6 de la brida de la bomba: precarga + momento del bucket | σ = (F_v + Φ·4M/(n·r_bc))/A_s, Φ = 0,25 (VDI 2230) | 217.90 | metal | 450.0 | 2.07 | 2.0 | ✔ |
 | P1-INT-01 | Tubo del eje en voladizo (sin contar el alma): caja del sello | σ = F·L/W, L = 74 | 2.35 | metal | 125.0 | 53.27 | 2.0 | ✔ |
-| P1-INT-01 | Chimenea de inspección: presión de cierre (aro) | σ = p·r/t | 0.74 | metal | 125.0 | 168.6 | 2.0 | ✔ |
+| P1-INT-01 | Chimenea de inspección: presión de cierre (aro) | σ = p·r/t | 0.74 | metal | 125.0 | 168.59 | 2.0 | ✔ |
 | P1-INT-02 | Paño lateral entre bulones del conducto y del ala: golpe de fondo | σ = p·b²/(2t²), b = 68 | 1.17 | metal | 125.0 | 106.56 | 2.0 | ✔ |
 | P1-INT-02 | Tornillos M8 A4-70 del soporte (ISO 10642 desde abajo + tuerca): precarga + vuelco del empuje | σ = (F_v + Φ·F_t)/A_s, F_v = 7000 N, F_t = 451 N, Φ = 0,25 | 194.34 | metal | 450.0 | 2.32 | 2.0 | ✔ |
 | P1-INT-02 | Asiento cónico de la cabeza M8 en el 5083 (aplastamiento) | σ_b = F/(π/4·(dk² − d²)) (proyección del cono) | 47.82 | metal | 125.0 | 2.61 | 2.0 | ✔ |
@@ -93,7 +93,7 @@
 | P1-INT-02 | Bulones M6 del ala al casco (26): precarga + golpe de fondo + presión en la abertura | σ = (F_v + Φ·F/n)/A_s, F = 8768 N, Φ = 0,25 | 203.20 | metal | 450.0 | 2.21 | 2.0 | ✔ |
 | P1-INT-02 | Aplastamiento del casco (Al 4 mm) por el empuje en los bulones del ala | σ_b = (T/n)/(d·t) | 1.23 | metal | 125.0 | 102.03 | 2.0 | ✔ |
 | P1-INT-02 | Arranque de la cabeza avellanada M6 en el casco de 4 mm (corte del labio de 1,2 mm) | τ = (F/n)/(π·d_m·t_labio), d_m = 9 | 9.94 | metal | 72.2 | 7.26 | 2.0 | ✔ |
-| P1-INT-03 | Barra con la rejilla tapada (bolsa) a la presión de cierre | viga simplemente apoyada L = 330, w = p·paso, W = 212 mm³ (sección perfilada) | 87.91 | metal | 205.0 | 2.33 | 2.0 | ✔ |
+| P1-INT-03 | Barra con la rejilla tapada (bolsa) a la presión de cierre | viga simplemente apoyada L = 330, w = p·paso, W = 212 mm³ (sección perfilada) | 87.92 | metal | 205.0 | 2.33 | 2.0 | ✔ |
 | P1-INT-03 | Barra: golpe de objeto 200 N en el centro | M = P·L/4 | 77.88 | metal | 205.0 | 2.63 | 2.0 | ✔ |
 | P1-INT-03 | Apoyo de la barra contra la cuña de la placa (aplastamiento del Al) | σ_b = R/(b·9 mm) | 6.27 | metal | 125.0 | 19.93 | 2.0 | ✔ |
 | P1-INT-04 | Tapa: succión/contrapresión de cierre (corta) | σ = 3(3+ν)p a²/(8t²), a = 58, t = 13.0 | 1.72 | short | 24.0 | 13.9 | 3.0 | ✔ |
@@ -102,21 +102,21 @@
 | P1-INT-04 | Tapa en la purga (r = 32, espesor neto 13.6): ciclo Δp (olas/maniobras) | σ_r = 3(3+ν)p(a² − r²)/(8t²) | 0.69 | lcf | 3.6 | 5.24 | 3.0 | ✔ |
 | P1-INT-04 | Tapa: aplastamiento bajo arandela M6 Ø18 (sostenido) | σ = F/(π/4(18² − 6,4²)) | 0.30 | sust | 8.4 | 28.28 | 3.0 | ✔ |
 | P1-DRV-01 | Agujero del pasador: par de corte del pasador (traba con piedra) | τ = T_corte/(πd³/16 − d_h·d²/6), T_corte 33.5 N·m, sección neta, K_t = 1 (dúctil, estático) | 25.07 | metal | 118.3 | 4.72 | 2.0 | ✔ |
-| P1-DRV-01 | Agujero del pasador: fatiga en V máx. (T_top ± 10 %) | Goodman τ_a/τ_e + τ_m/τ_u, K_ts 2.0 (Peterson), S_e corrosión 180 MPa; σ_eq = τ_a·τ_u/τ_e + τ_m | 27.19 | metal | 297.1 | 10.93 | 2.0 | ✔ |
+| P1-DRV-01 | Agujero del pasador: fatiga en V máx. (T_top ± 10 %) | Goodman τ_a/τ_e + τ_m/τ_u, K_ts 2.0 (Peterson), S_e corrosión 180 MPa; σ_eq = τ_a·τ_u/τ_e + τ_m | 27.17 | metal | 297.1 | 10.94 | 2.0 | ✔ |
 | P1-DRV-01 | Ranura DIN 471 de empuje: par de corte del pasador + Fa | von Mises √(σ² + 3τ²), τ = T_corte/(π·19³/16), σ = Fa/A_fondo, K_t = 1 (dúctil, estático) | 43.14 | metal | 205.0 | 4.75 | 2.0 | ✔ |
-| P1-DRV-01 | Ranura DIN 471 de empuje: fatiga en V máx. | Goodman von Mises σ_a/S_e + σ_m/S_u; K_ts 3.0, K_t ax 4.0; empuje en V máx. ∝ T_top | 70.31 | metal | 515.0 | 7.32 | 2.0 | ✔ |
+| P1-DRV-01 | Ranura DIN 471 de empuje: fatiga en V máx. | Goodman von Mises σ_a/S_e + σ_m/S_u; K_ts 3.0, K_t ax 4.0; empuje en V máx. ∝ T_top | 70.23 | metal | 515.0 | 7.33 | 2.0 | ✔ |
 | P1-DRV-01 | Chaveta 6×6 del acople: aplastamiento a T_max | p = 2T/(d·(h − t1)·(l − b)), l = 22 mm, cubo de acero | 46.42 | metal | 100.0 | 2.15 | 2.0 | ✔ |
 | P1-DRV-01 | Rosca M20×1 (KM4): Fa en reversa + par T_max | von Mises en el núcleo (d − 1,083·P), σ = Fa/A, τ = 16T/(π d3³) | 24.35 | metal | 205.0 | 8.42 | 2.0 | ✔ |
 | P1-DRV-02 | Presión de diseño 0.20 MPa en la cámara mojada (espigón) | anillo de pared delgada σ = p·r/t (espigón, la sección más delgada) | 1.20 | metal | 205.0 | 170.83 | 2.0 | ✔ |
 | P1-DRV-02 | Bulones 4 × M6 A4-70 al buje de la toma: presión + resorte del sello | σ = F/(4·A_s), F = p·π/4·Ø42² + 150 N (sin precarga) | 5.31 | metal | 450.0 | 84.71 | 2.0 | ✔ |
 | P1-DRV-02 | Brida de 8 mm: flexión entre espigón y bulones | placa anular como viga por unidad de perímetro: σ = 6·F·e/(π·BC·t²) | 1.42 | metal | 205.0 | 144.76 | 2.0 | ✔ |
-| P1-DRV-03 | Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa) | flexión en su plano σ = M/(t·L²/6), M = Fa/2 · 121 mm, L = 150 mm, ZAT soldada | 1.02 | metal | 115.0 | 112.35 | 2.0 | ✔ |
+| P1-DRV-03 | Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa) | flexión en su plano σ = M/(t·L²/6), M = Fa/2 · 121 mm, L = 150 mm, ZAT soldada | 1.02 | metal | 115.0 | 112.34 | 2.0 | ✔ |
 | P1-DRV-03 | Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico | σ = P·L/4/(b t²/6) + Fa·e/(t·b²/6)/2, L = 200, b = 31, e = 35 mm, ZAT | 16.11 | metal | 115.0 | 7.14 | 2.0 | ✔ |
 | P1-DRV-03 | Espárragos 4 × ISO 10642 M8 A4-70: vuelco por Fa + corte (servicio) | F_t = Fa·h/Δx/2 + 3g/4, F_s = Fa/4; von Mises sobre A_s (carga de servicio; Δx = 120) | 15.40 | metal | 450.0 | 29.21 | 2.0 | ✔ |
 | P1-DRV-03 | Tuerca ISO 4032 A4 sobre espárrago A4: precarga (15 N·m) + F_t | barrido de filetes τ = F/(π·d·m·0,6), m = 6.8, F = T/(K·d) + F_t (K 0.18) vs 0,58·R_p0,2 A4-70 | 106.03 | metal | 261.0 | 2.46 | 2.0 | ✔ |
 | P1-DRV-03 | Avellanado de 90° en la placa base de Al (TOMA): precarga + F_t | aplastamiento p = F/A_cono (Ø16→Ø8,4, 90°) vs R_p0,2 5083-H111 125 MPa [ESTIMADO] | 52.79 | metal | 125.0 | 2.37 | 2.0 | ✔ |
 | P1-DRV-03 | Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo | corte del resalte τ = Fa/(π·D·t_resalte), σ_eq = √3·τ | 2.99 | metal | 240.0 | 80.29 | 2.0 | ✔ |
-| P1-DRV-06 | Tapa: empuje Fa hacia proa entre el aro exterior y los M5 | placa anular por unidad de perímetro σ = 6·Fa·e/(2π r_m t²) | 3.51 | metal | 240.0 | 68.4 | 2.0 | ✔ |
+| P1-DRV-06 | Tapa: empuje Fa hacia proa entre el aro exterior y los M5 | placa anular por unidad de perímetro σ = 6·Fa·e/(2π r_m t²) | 3.51 | metal | 240.0 | 68.39 | 2.0 | ✔ |
 | P1-DRV-06 | Bulones 4 × M5 A4-70 de la tapa: Fa | σ = Fa/(4·A_s) (sin precarga) | 13.46 | metal | 450.0 | 33.43 | 2.0 | ✔ |
 | P1-MOT-02 | Placa: 3 g vertical del motor en voladizo (sin cartelas) | σ = W·e/(b t²/6), W = 3 g × 4.4 kg, e = 63 mm, b = 2·95 − Ø64 | 3.88 | metal | 115.0 | 29.6 | 2.0 | ✔ |
 | P1-MOT-02 | Placa: par de reacción T_max (en su plano) + 3 g | corte en la sección por el agujero τ = (T/ (2·y_pie) + W/2)/(b·t) , σ_eq = √3·τ | 0.27 | metal | 115.0 | 423.85 | 2.0 | ✔ |

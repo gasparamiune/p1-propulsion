@@ -4,7 +4,7 @@ requerido: tensiones muy bajas) o mecanizado de bloque.
 Toma TODO el empuje axial (Fa a punto fijo) del par 7204 BEP en O y lo baja a la placa base de la toma
 por los 4 × M8 de la interfaz (brg_bracket_holes, z = base_top_z). Es un PUENTE sobre el conducto:
   • alojamiento Ø47 H7 (marco JET, coaxial) con resalte trasero (apoyo del aro exterior de popa; el
-    agujero Ø28 hace laberinto con el collar Ø25 del eje) y 4 × M5 en la cara delantera para la tapa
+    agujero Ø collar + 3 hace laberinto con el collar Ø26 del eje) y 4 × M5 en la cara delantera para la tapa
     P1-DRV-06, que toma el empuje hacia proa;
   • tablero horizontal POR ENCIMA del eje, del que cuelga el alojamiento;
   • dos mejillas longitudinales (planos xz, a |y| ≥ drv_cheek_y) que bajan a dos zapatas sobre la placa
@@ -74,7 +74,7 @@ def build(p):
         part = part + prism_xz(pts, ya, yb)
         pa, pb = (py0, py1) if sy > 0 else (-py1, -py0)
         part = part + box(x0, x1, pa, pb, zb0, zb1)
-    # alojamiento: agujero Ø47 H7, resalte con paso Ø28 (laberinto con el collar Ø25)
+    # alojamiento: agujero Ø47 H7, resalte con paso Ø collar + 3 (laberinto con el collar)
     bore = cyl_s(brg["D"] / 2, p.drv_S_brgA, g["S_h1"] + 1.0)
     bore = bore + cyl_s((p.drv_collar_d + 3.0) / 2, g["S_h0"] - 1.0, p.drv_S_brgA + 0.01)
     holes = None

@@ -1,11 +1,11 @@
-"""P1-DRV-01 — Eje de la bomba, AISI 316 (1.4404) torneado desde barra Ø25 (research/R11 §5).
+"""P1-DRV-01 — Eje de la bomba, AISI 316 (1.4404) torneado desde barra Ø28 (BOM; R11 §5).
 
 Marco JET (X a popa; estación S = −X). De popa a proa:
   muñón del buje de agua del estator Ø pmp_journal_d f7 (BOMBA, si existe) · ranura DIN 471 de retención
   a popa del impulsor (opcional) · asiento del impulsor Ø20 g6 con agujero transversal del PASADOR DE
   CORTE (eje Y, X = pmp_pin_X, Ø H8) · ranura DIN 471-20 del anillo de EMPUJE (+ arandela) contra la nariz
   del impulsor (X = pmp_imp_front_X) · tramo mojado Ø20 h8 (conducto, buje de la toma) · ranura DIN 471
-  de respaldo de la cabeza del sello · Ø20 h8 bajo el sello y la linterna · collar Ø25 (apoyo de los aros
+  de respaldo de la cabeza del sello · Ø20 h8 bajo el sello y la linterna · collar Ø26 (≥ da_min) (apoyo de los aros
   interiores) · muñón Ø20 k5 (2 × 7204 BEP en O) · rosca M20×1 (KM4) con ranura para la MB4 · asiento del
   cubo Rotex 24 Ø20 h6 con chavetero 6 × 3,5 (DIN 6885 A).
 Sin bomba con buje (params_bomba ausente): extremo de popa en X_shaft_aft con rosca M16 (tuerca).
@@ -49,7 +49,7 @@ def segments(p):
     S_c0 = p.drv_S_brgA - p.drv_collar_l
     segs.append((S_aft, -p.drv_imp_front_X, sd, "asiento impulsor Ø20 g6"))
     segs.append((-p.drv_imp_front_X, S_c0, sd, "tramo mojado / sello Ø20 h8"))
-    segs.append((S_c0, p.drv_S_brgA, p.drv_collar_d, "collar Ø25"))
+    segs.append((S_c0, p.drv_S_brgA, p.drv_collar_d, f"collar Ø{p.drv_collar_d:g}"))
     segs.append((p.drv_S_brgA, p.drv_S_brgB, sd, "muñón 2×7204 Ø20 k5"))
     S_t1 = p.drv_S_brgB + p.drv_km["mb_t"] + p.drv_km["b"] + 1.0
     segs.append((p.drv_S_brgB, S_t1, sd - 0.1, "rosca M20×1 (KM4)"))
@@ -112,8 +112,9 @@ def checks(p, part):
          max(aft_of_collar), p.seal_spigot_d - 6.0, "<="),
         ("montaje: Ø máx. a proa del muñón ≤ Ø agujero 7204 (rodamientos entran por proa) [mm]",
          max(fwd_of_journal), brg["d"], "<="),
-        ("apoyo radial collar ↔ aro interior (Ø collar − Ø20 − 2·r_s)/2 ≥ 1 [mm]",
-         (p.drv_collar_d - brg["d"] - 2 * brg["r_s"]) / 2, 1.0, ">="),
+        ("collar ≥ da_min del 7204 (apoyo del aro interior) [mm]", p.drv_collar_d, brg["da_min"], ">="),
+        ("collar ≤ Ø barra (se tornea) [mm]", p.drv_collar_d, p.drv_bar_d, "<="),
+        ("laberinto collar ↔ resalte del soporte (holgura radial) [mm]", ((p.drv_collar_d + 3.0) - p.drv_collar_d) / 2, 1.0, ">="),
         ("collar libre de la caja del sello (S_collar0 − S_frente_caja) [mm]",
          p.drv_S_brgA - p.drv_collar_l - p.drv_S_hsg_front, 0.5, ">="),
         ("eje dentro del cubo del acople (encastre) [mm]", tooth_ok, 0.8 * cpl["l_hub_shaft"], ">="),

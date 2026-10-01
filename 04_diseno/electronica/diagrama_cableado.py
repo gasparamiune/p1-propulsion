@@ -143,7 +143,7 @@ def build(out_path: Path) -> Path:
     s.region(380, 95, 120, 330, "Consola")
     dwg.add(dwg.polygon([(560, 95), (1550, 95), (1550, 1135), (378, 1135), (378, 520), (560, 520)], fill="none",
                         stroke="#95a5a6", stroke_width=1.4, stroke_dasharray="8,5"))
-    s.text(940, 1127, "Zona del controlador: ESC IP65 con caja de agua sobre base elevada P1-ELE-01 + capota P1-ELE-02; "
+    s.text(940, 1131, "Zona del controlador: ESC IP65 con caja de agua sobre base elevada P1-ELE-01 + capota P1-ELE-02; "
            "mando y MCU en caja estanca de consola", size=11, color="#5d6d7e", italic=True)
     s.region(770, 548, 210, 127, "Consola: cordón (fuera de la caja)", fill="#ffffff")
     s.region(612, 552, 122, 104, "Consola", fill="#ffffff")
@@ -328,12 +328,11 @@ def build(out_path: Path) -> Path:
     s.line([(320, 1100), (414, 1100)], C_5V, 1.8)
     # consola: selector de perfil (D7), pulsador de limpieza de rejilla (D8); D12 → ADC1 del VESC (LispBM)
     s.line([(900, 1082), (1000, 1082)], C_SIG, 1.4)
-    s.text(1004, 1086, "SELECTOR perfil a GND: cerrado = ABIERTO; abierto/cortado = COSTA 5 kn", size=9, color=C_SIG)
+    s.text(1004, 1086, "SELECTOR (a GND = ABIERTO)", size=9, color=C_SIG)
     s.line([(900, 1097), (1000, 1097)], C_SIG, 1.4)
-    s.text(1004, 1101, "PULSADOR rejilla NA a GND: giro inverso lento ≤ 3 s, solo con acelerador en 0", size=9, color=C_SIG)
+    s.text(1004, 1101, "PULSADOR rejilla NA (≤ 3 s, lento)", size=9, color=C_SIG)
     s.line([(900, 1112), (1000, 1112)], C_SIG, 1.4)
-    s.text(1004, 1116, f"D12 → 10 k → ADC1 del VESC, 20 k a GND (≈ 3,3 V) → vesc_perfil.lisp: "
-           f"ERPM {vv['l_max_erpm']:.0f} / {vv['erpm_tech']:.0f}", size=9, color=C_SIG)
+    s.text(1004, 1116, "→ 10 k → ADC1 del VESC, 20 k a GND (≈ 3,3 V): vesc_perfil.lisp", size=9, color=C_SIG)
     s.line([(900, 1065), (940, 1065)], C_SIG, 1.4)
     s.d.add(s.d.circle((950, 1065), 8, fill="#f9e79f", stroke="#7d6608", stroke_width=1.5))
     s.text(964, 1069, "LED de estado (panel)", size=10)

@@ -34,11 +34,11 @@ def jet_group_cost(man, bom_csv):
         return None, sorted(ids)
     with open(bom_csv, encoding="utf-8") as f:
         for r in csv.DictReader(f):
-            refs = (r.get("piezas") or r.get("parts") or "")
+            refs = (r.get("cubre") or r.get("piezas") or r.get("parts") or "")
             cat = (r.get("categoria") or r.get("cat") or "").lower()
             if any(i in refs for i in ids) or cat.startswith(("waterjet", "bomba", "toma", "dirección", "reversa")):
                 try:
-                    tot += float(r.get("total_eur") or r.get("subtotal_eur") or 0)
+                    tot += float(r.get("precio_total_EUR") or r.get("total_eur") or r.get("subtotal_eur") or 0)
                 except ValueError:
                     pass
     return tot, sorted(ids)

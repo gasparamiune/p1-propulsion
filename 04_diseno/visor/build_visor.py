@@ -167,18 +167,20 @@ def side_section(p, mods, man_by, out_png: Path, sz):
                                      alpha=0.45 if r["process"] == "referencia" else 0.95))
     T = sz["hydrostatics"]["draft_m"] * 1000
     ax.axhline(T, color="#1d7486", lw=1.2, ls="--")
-    ax.text(1350, T + 8, f"flotación con {sz['masses']['total_kg']:.0f} kg (calado {T:.0f} mm)", color="#1d7486", ha="right", fontsize=9)
-    for x, lab in ((p.x_if, "cara del impulsor"), (p.x_lip, "labio"), (p.x_tan, "tangencia de la rampa")):
-        ax.annotate(f"{lab}\n{x:.0f} mm", xy=(x, 0), xytext=(x, -120), ha="center", fontsize=8.5,
+    ax.text(0.01, (T + 175) / 735 + 0.012, f"flotación en reposo con {sz['masses']['total_kg']:.0f} kg (calado {T:.0f} mm)",
+            transform=ax.transAxes, color="#1d7486", ha="left", fontsize=9)
+    for x, lab, dy in ((p.x_if, "cara del impulsor", -105), (p.x_lip, "labio", -150), (p.x_tan, "tangencia de la rampa", -105)):
+        ax.annotate(f"{lab}\n{x:.0f} mm", xy=(x, 0), xytext=(x, dy), ha="center", fontsize=8.5,
                     arrowprops=dict(arrowstyle="->", lw=0.8))
-    ax.annotate("", xy=(p.x_lip, -60), xytext=(p.x_tan, -60), arrowprops=dict(arrowstyle="<->", lw=1.0, color="#e2601a"))
-    ax.text(0.5 * (p.x_lip + p.x_tan), -52, f"abertura con rejilla {p.L_open:.0f} mm — entera A PROA del impulsor",
+    ax.annotate("", xy=(p.x_lip, -40), xytext=(p.x_tan, -40), arrowprops=dict(arrowstyle="<->", lw=1.0, color="#e2601a"))
+    ax.text(0.5 * (p.x_lip + p.x_tan), -32, f"abertura con rejilla ({p.L_open:.0f} mm): toda A PROA del impulsor",
             ha="center", fontsize=9, color="#e2601a", weight="bold")
-    ax.annotate("espejo (x = 0)", xy=(0, 380), xytext=(-150, 470), fontsize=8.5, arrowprops=dict(arrowstyle="->", lw=0.8))
-    ax.set_xlim(-480, 1420); ax.set_ylim(-170, 560); ax.set_aspect("equal")
+    ax.annotate("espejo (x = 0)", xy=(0, 400), xytext=(-140, 480), fontsize=8.5, arrowprops=dict(arrowstyle="->", lw=0.8))
+    ax.text(1400, 470, "← PROA", fontsize=9, color="#56686d", ha="left")
+    ax.set_xlim(-480, 1420); ax.set_ylim(-175, 560); ax.set_aspect("equal")
     ax.set_xlabel("x desde el espejo hacia proa [mm]"); ax.set_ylabel("z sobre la quilla [mm]")
     ax.invert_xaxis()
-    ax.set_title("Corte por crujía del CAD (proa a la derecha... popa a la izquierda)", fontsize=10)
+    ax.set_title("Corte por crujía del CAD (proa a la izquierda, popa y chorro a la derecha)", fontsize=10)
     ax.grid(alpha=0.25)
     fig.tight_layout(); fig.savefig(out_png, dpi=120); plt.close(fig)
 
@@ -204,15 +206,34 @@ def main():
             blob += arr.tobytes()
         frame, M00 = detect_frame(mod, p)
         F0inv = np.linalg.inv(frame_matrix(p, frame))
-        # validación: placements(δ, β) == F(δ, β)·local
+        # validación: placements(δ, β) == F(δ, β)·local; si no, pieza con pivote propio (p. ej. palanca
+        # del bucket en la consola): se exporta la rotación entre bucket arriba y abajo (eje + punto)
         Mt = [np.array(loc_matrix(L)) for L in mod.placements(p, 17.0, 1)]
         Ft = frame_matrix(p, frame, 17.0, 1)
         c_local = mraw.bounds.mean(axis=0)
         for k, (M, Mx) in enumerate(zip(M00, Mt)):
             local = F0inv @ M
-            assert np.allclose(Ft @ local, Mx, atol=1e-5), f"cinemática distinta en {pid}"
-            instances.append({"part": pid, "k": k, "frame": frame, "local": local.round(6).tolist(),
-                              "c_world": (M @ np.append(c_local, 1.0))[:3].tolist()})
+            inst = {"part": pid, "k": k, "frame": frame, "local": local.round(6).tolist(),
+                    "c_world": (M @ np.append(c_local, 1.0))[:3].tolist()}
+            if not np.allclose(Ft @ local, Mx, atol=1e-5):
+                M1 = np.array(loc_matrix(mod.placements(p, 0.0, 1)[k]))
+                Ms = np.array(loc_matrix(mod.placements(p, 17.0, 0)[k]))
+                if not np.allclose(Ms, M, atol=1e-5):
+                    # mecanismo (p. ej. varilla de cable): tabla de poses dirección × bucket, la página interpola
+                    S = [-p.steer_max, -p.steer_max / 2, 0.0, p.steer_max / 2, p.steer_max]
+                    tab = [[np.array(loc_matrix(mod.placements(p, sv, bv)[k])).round(6).tolist() for sv in S] for bv in (0, 1)]
+                    inst.update({"frame": "table", "local": np.eye(4).tolist(), "steers": S, "table": tab})
+                    instances.append(inst)
+                    continue
+                Dm = M1 @ np.linalg.inv(M)
+                R, t = Dm[:3, :3], Dm[:3, 3]
+                ang = float(np.arccos(np.clip((np.trace(R) - 1) / 2, -1, 1)))
+                ax = np.array([R[2, 1] - R[1, 2], R[0, 2] - R[2, 0], R[1, 0] - R[0, 1]])
+                ax = ax / (np.linalg.norm(ax) or 1.0)
+                c = np.linalg.lstsq(np.eye(3) - R, t, rcond=None)[0]
+                inst.update({"frame": "own", "local": M.round(6).tolist(), "axis": ax.round(6).tolist(),
+                             "angle": ang, "pivot": c.round(3).tolist()})
+            instances.append(inst)
         rows = [x for x in est["rows"] if x["part"].startswith(pid) or pid in x["part"]]
         fs = [x for x in rows if x.get("FS") is not None]
         sub = pid.split("-")[1]
@@ -238,7 +259,7 @@ def main():
         ex_w, k_in = EXPLODE.get(sub, ((0, 0, 0), 0.5))
         for i in ins:
             v_w = np.array(ex_w, dtype=float) + k_in * (np.array(i["c_world"]) - cg)
-            F = frame_matrix(p, i["frame"])
+            F = frame_matrix(p, i["frame"]) if i["frame"] not in ("own", "table") else np.eye(4)
             i["explode"] = (np.linalg.inv(F[:3, :3]) @ v_w).round(2).tolist()
     (HERE / "mallas.bin").write_bytes(bytes(blob))
     (HERE / "mallas.txt").write_text(base64.b64encode(bytes(blob)).decode("ascii"), encoding="ascii")
