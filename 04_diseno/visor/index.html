@@ -37,6 +37,7 @@
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
+img { max-width: 100%; height: auto; }
 body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: var(--step-0); line-height: 1.55; }
 .wrap { max-width: 1320px; margin: 0 auto; padding-inline: clamp(16px, 3vw, 32px); padding-block: 20px 56px; display: grid; gap: 28px; }
 h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.02; }
@@ -119,12 +120,15 @@ aside.panel { background: var(--surface); border: 1px solid var(--line); border-
 .steps li::before { content: counter(s); font-family: var(--font-display); font-weight: 900; font-size: 1.9rem; color: var(--accent); line-height: 1; text-align: right; }
 .steps b { display: block; }
 .steps p { color: var(--muted); font-size: 0.95rem; }
-.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
 @media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--step--1); color: var(--muted); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
 .jet { display: grid; gap: 14px; }
+.jet-figs { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .jet-figs { grid-template-columns: minmax(0, 1fr); } }
+.steps { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); column-gap: 28px; }
 .jet figure { margin: 0; display: grid; gap: 6px; }
 .jet figure img { border: 1px solid var(--line); border-radius: 8px; background: #ffffff; }
 .jet figcaption { font-size: var(--step--1); color: var(--muted); }
@@ -187,17 +191,16 @@ code { font-family: var(--font-mono); font-size: 0.85em; }
     <div class="parts-grid" id="parts-grid"></div>
   </section>
 
-  <section class="two" aria-labelledby="t-revisar">
-    <div style="display:grid;gap:14px;min-width:0">
-      <div class="eyebrow">Antes de comprar e imprimir</div>
-      <h2 id="t-revisar">Lo principal a revisar, en orden</h2>
-      <ol class="steps" id="steps"></ol>
-    </div>
-    <div class="jet" id="jet" style="min-width:0">
-      <div class="eyebrow">Tu plano del waterjet</div>
-      <h2>La toma de succión, como dijiste, está muy atrás</h2>
-      <div id="jet-body"></div>
-    </div>
+  <section aria-labelledby="t-revisar" style="display:grid;gap:14px;min-width:0">
+    <div class="eyebrow">Antes de comprar e imprimir</div>
+    <h2 id="t-revisar">Lo principal a revisar, en orden</h2>
+    <ol class="steps" id="steps"></ol>
+  </section>
+
+  <section class="jet" id="jet" aria-labelledby="t-jet" style="min-width:0">
+    <div class="eyebrow">Tu plano del waterjet</div>
+    <h2 id="t-jet">La toma de succión, como dijiste, está muy atrás</h2>
+    <div id="jet-body" style="display:grid;gap:14px"></div>
   </section>
 
   <footer>
@@ -287,7 +290,7 @@ code { font-family: var(--font-mono); font-size: 0.85em; }
     }
     let h = `<p class="verdict">${esc(J.veredicto)}</p>`;
     if (J.puntos && J.puntos.length) h += `<ul style="margin:0;padding-left:18px;display:grid;gap:6px">${J.puntos.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
-    (J.figuras || []).forEach((f) => { h += `<figure><img src="${esc(f.src)}" alt="${esc(f.alt)}" loading="lazy"><figcaption>${esc(f.cap)}</figcaption></figure>`; });
+    h += `<div class="jet-figs">` + (J.figuras || []).map((f) => `<figure><img src="${esc(f.src)}" alt="${esc(f.alt)}" loading="lazy"><figcaption>${esc(f.cap)}</figcaption></figure>`).join("") + `</div>`;
     if (J.p1) h += `<p>${esc(J.p1)}</p>`;
     $("jet-body").innerHTML = h;
   }
@@ -398,11 +401,14 @@ code { font-family: var(--font-mono); font-size: 0.85em; }
   }
 
   async function loadModel() {
-    const [dr, br] = await Promise.all([fetch("datos.json"), fetch("mallas.bin")]);
+    const [dr, br] = await Promise.all([fetch("datos.json"), fetch("mallas.txt")]);
     if (!dr.ok || !br.ok) throw new Error("No se pudieron leer los archivos del modelo");
     D = await dr.json();
     try { const jr = await fetch("jet.json"); if (jr.ok) D.jet = await jr.json(); } catch (e) { /* opcional */ }
-    const buf = await br.arrayBuffer();
+    const b64 = (await br.text()).trim();
+    const bin = atob(b64), u8 = new Uint8Array(bin.length);
+    for (let k = 0; k < bin.length; k++) u8[k] = bin.charCodeAt(k);
+    const buf = u8.buffer;
     renderStatic();
     if (!initScene()) return;
     const geoms = {};

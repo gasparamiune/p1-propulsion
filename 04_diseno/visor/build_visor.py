@@ -171,6 +171,8 @@ def main():
             v_l = np.linalg.inv(F[:3, :3]) @ v_w          # al marco padre (sigue a la cola si se bascula)
             i["explode"] = v_l.round(2).tolist()
     (HERE / "mallas.bin").write_bytes(bytes(blob))
+    import base64                                   # copia en texto: los artifacts web no sirven .bin
+    (HERE / "mallas.txt").write_text(base64.b64encode(bytes(blob)).decode("ascii"), encoding="ascii")
 
     lay = sz["layout"]
     tr = sz.get("hydrostatics", {})
