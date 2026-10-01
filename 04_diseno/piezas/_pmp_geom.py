@@ -73,7 +73,6 @@ def section_wire(*a, n=48, **k):
     up = pts[:n + 1]
     lo = pts[n + 1:]
     e1 = Spline(*up)
-    lo_pts = [pts[n]] if False else []
     # intradós: del BF inferior al BA (el último punto de 'lo' es contiguo al BA)
     lo_full = [lo[0]] + lo[1:] + [up[0]]
     e2 = Line(up[-1], lo_full[0])

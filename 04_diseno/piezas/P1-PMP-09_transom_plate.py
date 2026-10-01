@@ -74,13 +74,12 @@ def checks(p, part):
     zb = min(z for _, z in bolt_yz(p))
     # cuello: debe cubrir la ranura del O-ring en todo el perímetro (la placa está inclinada α respecto del eje)
     sa, ca = math.sin(math.radians(p.alpha)), math.cos(math.radians(p.alpha))
-    x_aft = -(p.pmp_gasket_t + p.pmp_tp_t)
-    X_face_max = (p.x_if - x_aft + p.pmp_collar_R * sa) / ca      # cara de popa de la placa, abajo
+    X_face_max = (p.x_if + p.pmp_gasket_t + p.pmp_land_R * sa) / ca   # cara de PROA de la placa, abajo (la más a popa)
     return [
         ("un solo sólido", len(part.solids()), 1, "="),
         ("agujero = resalte de la tobera + 0,1 (H8/f7) [mm]", p.pmp_tp_bore_R - p.pmp_land_R, 0.1, "="),
         ("pasa sobre las orejas de pivote [mm]", p.pmp_tp_bore_R - lug_r, 2.0, ">="),
-        ("cuello cubre el O-ring en todo el perímetro (X) [mm]", p.pmp_or_X - p.pmp_or_width / 2 - X_face_max, 0.0, ">="),
+        ("placa+cuello cubren el O-ring en todo el perímetro (X) [mm]", p.pmp_or_X - p.pmp_or_width / 2 - X_face_max, 0.0, ">="),
         ("cuello: fin ≥ O-ring + ancho [mm]", p.pmp_collar_X1 - (p.pmp_or_X + p.pmp_or_width / 2), 1.0, ">="),
         ("ligamento agujero del espejo → bulones [mm]", p.pmp_tp_bc_R - (p.pmp_tp_bolt + p.bolt_clr) / 2 - p.transom_hole_d / 2, 8.0, ">="),
         ("ligamento bulones → borde [mm]", p.pmp_tp_R - p.pmp_tp_bc_R - (p.pmp_tp_bolt + p.bolt_clr) / 2, 8.0, ">="),

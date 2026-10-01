@@ -22,7 +22,7 @@ META = dict(
 )
 L, B, H = 80.0, 110.0, 55.0
 T = 4.0
-X_POD, Y_POD = 1735.0, 30.0
+X_POD, Y_POD = 1760.0, 30.0
 
 
 def holes():

@@ -56,6 +56,10 @@ def sec_params(p, X, kind, off=0.0):
         w = W2 + lam * (R - W2)
         rt = p.toma_r_top + lam * (R - p.toma_r_top)
         rb = p.toma_r_bot + lam * (R - p.toma_r_bot)
+        # 0,3 mm hacia adentro en el empalme con el tramo de la abertura: evita superficies casi
+        # coincidentes (caras astilla que no triangulan); escalón resultante ≤ 0,3 mm a favor del flujo
+        sh = 0.3 * (1.0 - lam)
+        w, Zt = w - sh, Zt - sh
         if lam >= 1.0 - 1e-9:
             Zt, Zb, w, rt, rb = R, -R, R, R, R
         H = Zt - Zb
@@ -130,17 +134,16 @@ def _fwd_prism(p, off, x_aft, x_fwd, z_bot):
     """Tramo de la abertura (marco BOTE): costados planos en ±(W/2 + off), techo = curva C2 del
     techo desplazada off según su normal (chapa curvada en una sola dirección, conformable)."""
     from build123d import Line, Face, extrude
-    xs = np.linspace(x_aft, p.x_tan, 90)
+    xs = np.linspace(x_aft, p.x_tan, 121)
     zs = p.toma_roof_z(xs)
     dz = np.gradient(zs, xs)
     nrm = np.sqrt(1 + dz ** 2)
     px, pz = xs - off * dz / nrm, zs + off / nrm
-    roof = [Vector(float(a), 0, float(b)) for a, b in zip(px, pz)]
+    # techo como poligonal fina (120 tramos, error < 0,05 mm): triangula sin fallas después de los cortes
     x_end = float(px[-1])
-    e_roof = Edge.make_spline(roof)
-    pts_tail = [Vector(x_end, 0, float(pz[-1])), Vector(x_end, 0, z_bot), Vector(float(px[0]), 0, z_bot),
-                Vector(float(px[0]), 0, float(pz[0]))]
-    edges = [e_roof] + [Edge.make_line(pts_tail[i], pts_tail[i + 1]) for i in range(3)]
+    pts = [Vector(float(a), 0, float(b)) for a, b in zip(px, pz)]
+    pts += [Vector(x_end, 0, z_bot), Vector(float(px[0]), 0, z_bot)]
+    edges = [Edge.make_line(pts[i], pts[(i + 1) % len(pts)]) for i in range(len(pts))]
     face = Face(Wire(edges))
     w = p.W_open / 2 + off
     sol = extrude(face, amount=2 * w, dir=(0, 1, 0))
@@ -153,9 +156,9 @@ def _cached(key):
     p, what = _REG[key]
     LJ = loc_jet(p)
     if what == "P_fwd":
-        return _fwd_prism(p, 0.0, p.toma_x_n + 1.5, p.x_tan, -30.0)
+        return _fwd_prism(p, 0.0, p.toma_x_n - 10.0, p.x_tan, -30.0)     # arranca dentro del bloque del labio
     if what == "O_fwd":
-        return _fwd_prism(p, p.toma_t, p.toma_x_n, p.x_tan, -35.0)
+        return _fwd_prism(p, p.toma_t, p.toma_x_n - 12.0, p.x_tan, -35.0)
     if what == "P_aft":
         s = _loft(p, stations_aft(p, ext=3.0, da=2.0), "aft", 0.0)
     elif what == "O_aft":
@@ -191,3 +194,13 @@ def rounded_rect_xy(x0, x1, y0, y1, r, z0, z1):
     if r > 0:
         b = fillet(b.edges().filter_by(Axis.Z), radius=r)
     return b
+
+
+def bool_op(a, b, op="cut", fuzzy=0.01):
+    """Booleana OCC con tolerancia difusa (los lofts del codo tocan casi tangentes a los prismas)."""
+    from OCP.BRepAlgoAPI import BRepAlgoAPI_Common, BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
+    alg = {"cut": BRepAlgoAPI_Cut, "fuse": BRepAlgoAPI_Fuse, "common": BRepAlgoAPI_Common}[op]()
+    alg.SetFuzzyValue(fuzzy)
+    res = a._bool_op((a,), (b,), alg)
+    sols = res.solids()
+    return sols[0] if len(sols) == 1 else res

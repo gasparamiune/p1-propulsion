@@ -107,7 +107,8 @@ def build(p):
     # --- recorte: nada por debajo de la cara de la placa (salvo el labio) ni a proa de la barra
     A = A & box(150.0, xb, -400, 400, ztop, 1000)
     # --- pasaje
-    A = A - G.solid(p, "P_fwd") - G.solid(p, "P_aft")
+    A = A - G.solid(p, "P_fwd")
+    A = A - G.solid(p, "P_aft")
     # --- labio
     lip = lip_solid(p) - G.solid(p, "P_aft")
     A = A + lip

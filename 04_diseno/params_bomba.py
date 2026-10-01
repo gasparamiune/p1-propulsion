@@ -251,15 +251,20 @@ def extend(d):
     d["pmp_sock_X1"] = d["X_steer_pivot"] - d["pmp_steer_ear_r"]
     d["pmp_steer_free_r"] = round(math.hypot(d["Z_steer_lug"] - 0.5, d["pmp_steer_ear_w"] / 2) + 1.5, 1)
     # orejas de pivote fijas (afuera de las de la boquilla): |Z| ∈ [Z_steer_lug, Z_steer_lug + t]
-    d["pmp_lug_t"] = 10.0
+    d["pmp_lug_t"] = 12.0                                # [CALCULADO: fatiga con F_bucket, structural_bomba]
     d["pmp_lug_w"] = 24.0
     d["pmp_lug_hole"] = d["steer_pin_d"] + 0.2
     d["pmp_lug_X1"] = d["X_steer_pivot"] + d["pmp_lug_w"] / 2
     # resalte (land) del sello del espejo + O-ring radial
     d["pmp_land_R"] = 75.0                               # > envolvente de las orejas (la placa pasa por encima)
     d["pmp_land_X0"] = 264.0
-    d["pmp_land_X1"] = 294.0
-    d["pmp_or_X"] = 289.5                                # ranura del O-ring en el resalte
+    d["pmp_pin_head_clr_r"] = 10.0                       # cabeza/arandela del perno de la boquilla (arandela Ø18 de DIRECCIÓN + 1)
+    d["pmp_land_X1"] = round(d["X_steer_pivot"] - d["pmp_pin_head_clr_r"], 1)   # el resalte termina antes de la arandela
+    # O-ring: dentro de la placa en todo el perímetro (la cara de proa de la placa está más a popa abajo, por α)
+    sa, ca = math.sin(math.radians(d["alpha"])), math.cos(math.radians(d["alpha"]))
+    d["pmp_tp_front_Xmax"] = (d["x_if"] + 2.0 + 75.0 * sa) / ca      # cara de proa de la placa (sobre la junta 2 mm), abajo, r = 75
+    d["pmp_or_X"] = round(0.5 * ((d["pmp_tp_front_Xmax"] + d["pmp_gl_width"] / 2 + 0.3)
+                                 + (d["pmp_land_X1"] - 1.0 - d["pmp_gl_width"] / 2)), 1)
     d["pmp_or_depth"] = d["pmp_gl_depth"]
     d["pmp_or_width"] = d["pmp_gl_width"]
 
@@ -274,4 +279,8 @@ def extend(d):
     d["pmp_collar_R"] = 81.0
     d["pmp_collar_X1"] = d["pmp_land_X1"]
     d["pmp_tp_bore_R"] = d["pmp_land_R"] + 0.1           # H8/f7 sobre el resalte; sella el O-ring
+    # → DIRECCIÓN/REVERSA: envolvente fija a popa del espejo que no debe invadir lo que gira con la boquilla
+    #   (resalte + cuello hasta X1 con radio R; placa de espejo de radio plate_R alrededor del eje en el espejo)
+    d["pmp_fixed_aft_env"] = dict(X1=d["pmp_land_X1"], R=d["pmp_collar_R"], plate_R=d["pmp_tp_R"],
+                                  free_r=d["pmp_steer_free_r"], sock_R=d["pmp_sock_R"])
     return d

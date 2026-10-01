@@ -26,7 +26,7 @@ def build(p):
         import math
         c, sn = math.cos(math.radians(a)), math.sin(math.radians(a))
         s = s + Pos(xw, (R - 20) / 2 * c, zw + (R - 20) / 2 * sn) * Rot(a, 0, 0) * box(-6, 6, -(R - 20) / 2, (R - 20) / 2, -4, 4)
-    s = s + cyl_x(10.0, xw + 29, x0 + p.CTL_ply_t + 1)
+    s = s + cyl_x(10.0, xw + 29, x0 + p.CTL_ply_t + 1, z=zw)
     s = s + box(x0 + p.CTL_ply_t + 0.5, x0 + p.CTL_ply_t + 110, -60, 60, zw - 70, zw + 60)
     return s
 

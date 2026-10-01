@@ -6,8 +6,8 @@ atrás la aprieta la espiga de la tobera; 2 × M5 radiales ±Y la traban al giro
 libre) y salida axial con sobregiro δ ≤ 8° (regla de Constant, R12 §3.2), cubo Ø D_hub con el buje de
 agua P1-PMP-07 (2.º apoyo del eje, entra desde proa) y cono de cola dentro de la tobera, con agujero
 de salida del agua de lubricación. Agujero Ø pmp_cool_bore_d arriba, alineado con el puerto G1/8.
-Metal y no PETG: con PETG la FS a fatiga de los álabes no llega a 3 sin álabes de ~12 mm (bloqueo
-del 40 % en el cubo) y el alojamiento del buje no mantendría la concentricidad del eje (structural_bomba).
+Metal y no PETG: con PETG la FS a fatiga de los álabes no llega a 3 sin álabes de ~18 mm (bloqueo
+de más del 60 % en el cubo) y el alojamiento del buje no mantendría la concentricidad del eje (structural_bomba).
 """
 import math
 import sys

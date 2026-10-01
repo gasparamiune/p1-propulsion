@@ -20,7 +20,7 @@ META = dict(
     print_rot=(180, 0, 0), solid_frac=0.55,
     orientation="Tapa sobre la cama (ranuras planas, sin soportes); ala arriba. 0,2 mm, 5 perímetros, 30 % giroide",
 )
-X0, X1 = -95.0, 60.0
+X0, X1 = -95.0, 62.0
 Y0, Y1 = -27.0, 27.5
 ZT = 40.0
 W = 3.5

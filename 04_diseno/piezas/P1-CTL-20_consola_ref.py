@@ -25,7 +25,7 @@ def build(p):
     s = s + box(x0 + t, x1, hw - t, hw, z0, zt) + box(x0 + t, x1, -hw, -hw + t, z0, zt)   # costados
     ax, ay, az = p.CTL_axis
     s = s - box(ax - 90, ax + 55, ay - 24, ay + 24, zt - 1, zt + t + 1)    # recorte de la unidad de palancas
-    s = s - cyl_z(10.0, zt - 1, zt + t + 1, x=1735.0, y=30.0)             # pasacables del kill switch
+    s = s - cyl_z(10.0, zt - 1, zt + t + 1, x=1760.0, y=30.0)             # pasacables del kill switch
     s = s - cyl_x(14.0, x0 - 1, x0 + t + 1, z=p.CTL_wheel_z)               # eje del timón
     return s
 

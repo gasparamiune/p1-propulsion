@@ -18,15 +18,15 @@
 | P1-PMP-01 | Bulones brida toma (8×M6): presión + bucket + momentos | F_ax=2347 N, M=150.6 N·m (boquilla 281 N, bucket 607 N, peso) → F_bulón=749 N sobre A_s=20.1 mm² (sin precarga) | 37.25 | metal | 450.0 | 12.08 | 2.0 | ✔ |
 | P1-PMP-08 | Bulones brida carcasa–tobera (8×M6): presión + bucket + momentos | F_ax=2347 N, M=104.8 N·m (boquilla 281 N, bucket 607 N, peso) → F_bulón=602 N sobre A_s=20.1 mm² (sin precarga) | 29.93 | metal | 450.0 | 15.04 | 2.0 | ✔ |
 | P1-PMP-01 | Tornillos anti-rotación del estator (2×M5) al corte | F=130 N por tornillo (T_max 18.6 N·m, r=71.7) | 9.12 | metal | 259.6 | 28.46 | 2.0 | ✔ |
-| P1-PMP-08 | Oreja: aplastamiento — F lateral de la boquilla 281 N | σ_b=F/(d·t), d=8.0, t=10.0 | 3.51 | metal | 360.0 | 102.58 | 2.0 | ✔ |
-| P1-PMP-08 | Oreja: sección neta y desgarro — F lateral de la boquilla 281 N | máx(F/((w−d)·t), F/(2·(e−d/2)·t)·√3), w=24.0, e=12.0 | 3.08 | metal | 240.0 | 77.98 | 2.0 | ✔ |
-| P1-PMP-08 | Oreja: flexión en el arranque — F lateral de la boquilla 281 N | M=F·6.7 mm, W=w·t²/6 (eje débil) | 4.70 | metal | 240.0 | 51.03 | 2.0 | ✔ |
-| P1-PMP-08 | Oreja: fatiga — F lateral de la boquilla 281 N | σ_a = σ flexión (maniobras, ~1e5–1e6 ciclos); S_e Al anodizado 0.6·S_e; K_f 1.5 | 4.70 | metal | 38.4 | 8.17 | 2.0 | ✔ |
-| P1-PMP-08 | Oreja: aplastamiento — F del bucket 607 N | σ_b=F/(d·t), d=8.0, t=10.0 | 7.58 | metal | 360.0 | 47.46 | 2.0 | ✔ |
-| P1-PMP-08 | Oreja: sección neta y desgarro — F del bucket 607 N | máx(F/((w−d)·t), F/(2·(e−d/2)·t)·√3), w=24.0, e=12.0 | 6.65 | metal | 240.0 | 36.08 | 2.0 | ✔ |
-| P1-PMP-08 | Oreja: flexión en el arranque — F del bucket 607 N | M=F·6.7 mm, W=w·t²/6 (eje débil) | 10.16 | metal | 240.0 | 23.61 | 2.0 | ✔ |
-| P1-PMP-08 | Oreja: fatiga — F del bucket 607 N | σ_a = σ flexión (maniobras, ~1e5–1e6 ciclos); S_e Al anodizado 0.6·S_e; K_f 1.5 | 10.16 | metal | 38.4 | 3.78 | 2.0 | ✔ |
-| P1-PMP-09 | Cuello: F lateral de la boquilla con el O-ring a tope | voladizo del cuello M=F·L=6.9 N·m, W anillo=108957 mm³ | 0.06 | metal | 125.0 | 1963.96 | 2.0 | ✔ |
+| P1-PMP-08 | Oreja: aplastamiento — F lateral de la boquilla 281 N | σ_b=F/(d·t), d=8.0, t=12.0 | 2.92 | metal | 360.0 | 123.09 | 2.0 | ✔ |
+| P1-PMP-08 | Oreja: sección neta y desgarro — F lateral de la boquilla 281 N | máx(F/((w−d)·t), F/(2·(e−d/2)·t)·√3), w=24.0, e=12.0 | 2.56 | metal | 240.0 | 93.57 | 2.0 | ✔ |
+| P1-PMP-08 | Oreja: flexión en el arranque — F lateral de la boquilla 281 N | M=F·15.0 mm, W=w·t²/6 (eje débil) | 7.31 | metal | 240.0 | 32.83 | 2.0 | ✔ |
+| P1-PMP-08 | Oreja: fatiga — F lateral de la boquilla 281 N | σ_a = σ flexión (maniobras, ~1e5–1e6 ciclos); S_e Al anodizado 0.6·S_e; K_f 1.5 | 7.31 | metal | 38.4 | 5.25 | 2.0 | ✔ |
+| P1-PMP-08 | Oreja: aplastamiento — F del bucket 607 N | σ_b=F/(d·t), d=8.0, t=12.0 | 6.32 | metal | 360.0 | 56.95 | 2.0 | ✔ |
+| P1-PMP-08 | Oreja: sección neta y desgarro — F del bucket 607 N | máx(F/((w−d)·t), F/(2·(e−d/2)·t)·√3), w=24.0, e=12.0 | 5.54 | metal | 240.0 | 43.29 | 2.0 | ✔ |
+| P1-PMP-08 | Oreja: flexión en el arranque — F del bucket 607 N | M=F·15.0 mm, W=w·t²/6 (eje débil) | 15.80 | metal | 240.0 | 15.19 | 2.0 | ✔ |
+| P1-PMP-08 | Oreja: fatiga — F del bucket 607 N | σ_a = σ flexión (maniobras, ~1e5–1e6 ciclos); S_e Al anodizado 0.6·S_e; K_f 1.5 | 15.80 | metal | 38.4 | 2.43 | 2.0 | ✔ |
+| P1-PMP-09 | Cuello: F lateral de la boquilla con el O-ring a tope | voladizo del cuello M=F·L=4.6 N·m, W anillo=108957 mm³ | 0.04 | metal | 125.0 | 2957.92 | 2.0 | ✔ |
 | P1-INT-01 | Techo plano entre costados, p = máx(p_cierre, p_golpe) | placa larga empotrada: σ = p·b²/(2t²), b = W_open = 158, t = 5.0 | 35.67 | metal | 125.0 | 3.5 | 2.0 | ✔ |
 | P1-INT-01 | Costado plano más alto (en el labio), p = máx(p_cierre, p_golpe) | placa empotrada brida–techo: σ = p·h²/(2t²), h = 156 | 34.67 | metal | 125.0 | 3.61 | 2.0 | ✔ |
 | P1-INT-01 | Fatiga de la soldadura del costado: Δp = p_ram + p_succión = 40 kPa, 1e+05 ciclos | Δσ = Δp·h²/(2t²) vs FAT 25 (IIW, m = 3) → 68 MPa | 19.40 | metal | 67.9 | 3.5 | 2.0 | ✔ |
