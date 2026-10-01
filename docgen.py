@@ -4,7 +4,7 @@
 Reemplaza en todos los .md del proyecto:
   • Bloques   <!-- AUTO:nombre --> ... <!-- /AUTO:nombre -->   por tablas generadas.
   • Valores   <!--V:fuente.ruta.al.valor:formato-->texto<!--/V-->  por el valor actual.
-    fuente ∈ {sizing, bom, manifest, est, verify}; formato estilo Python (p. ej. .0f, .2f).
+    fuente ∈ {sizing, bom, manifest, est, verify, arch, cmp}; formato estilo Python (p. ej. .0f, .2f).
 Así ningún número de los documentos queda desincronizado de resultados/*.json.
 """
 from __future__ import annotations
@@ -42,12 +42,20 @@ def table(headers, rows):
     return "\n".join(out)
 
 
+def _fmt(x, f=".0f", inf="∞"):
+    try:
+        return inf if x == float("inf") or x > 1e8 else format(x, f)
+    except (TypeError, ValueError):
+        return str(x)
+
+
 def blocks(sz, bom, man, est, ver):
     B = {}
-    B["sizing_main"] = sizing_section("Resumen")
-    B["sizing_sweep"] = sizing_section("Barrido de velocidad")
-    B["sizing_sustain"] = sizing_section("Tiempo sostenible a velocidad alta")
-    B["sizing_sens"] = sizing_section("Sensibilidad")
+    if (RES / "sizing_tablas.md").exists():
+        B["sizing_main"] = sizing_section("Resumen")
+        B["sizing_curve"] = sizing_section("Curva a fondo (potencia pico, banda de diseño, batería nominal)")
+        B["sizing_pump"] = sizing_section("Triángulos de velocidad del impulsor")
+        B["optimization"] = sizing_section("Optimizador (15 mejores)")
     if est:
         B["estructural"] = (RES / "estructural_tabla.md").read_text(encoding="utf-8").split("\n", 1)[1].strip()
     if man:
@@ -62,57 +70,75 @@ def blocks(sz, bom, man, est, ver):
                                  "Orientación de impresión", "g c/u", "h c/u"], rows)
         t = man["totals"]
         B["parts_totals"] = (f"Total impreso: **{t['printed_mass_g']/1000:.2f} kg** de PETG, **{t['printed_hours']:.0f} h** de impresión "
-                             f"(a {load_inputs_rate()} g/h); masa de la unidad basculante (CAD): **{t['unit_mass_kg_cad']:.2f} kg**.")
+                             f"(a {load_inputs_rate()} g/h); masa de la unidad de jet (CAD, sin motor): **{t.get('jet_unit_mass_kg', 0):.2f} kg**.")
     if bom:
         rows = [[k, f"{v:.0f}"] for k, v in sorted(bom["by_category"].items(), key=lambda kv: -kv[1]) if v > 0]
         rows += [["**Subtotal**", f"**{bom['subtotal_eur']:.0f}**"], ["Envío", f"{bom['shipping_eur']:.0f}"],
                  ["Imprevistos", f"{bom['contingency_eur']:.0f}"],
                  ["**TOTAL**", f"**{bom['total_eur']:.0f} € ≈ {bom['total_dkk']:.0f} DKK**"]]
-        B["bom_summary"] = table(["Categoría", "EUR [ESTIMADO]"], rows)
+        B["bom_summary"] = table(["Categoría", "EUR"], rows)
     if ver:
         B["verify"] = (f"Resultado: **{'OK' if ver['ok'] else 'FALLAS'}** — {len(ver['parts'])} piezas, "
-                       f"{ver['n_pair_checks']} pares×estados de interferencia; dirección ψ ∈ {ver['states']['steer']}°, "
-                       f"basculación φ ∈ {ver['states']['tilt']}°; masa unidad CAD {ver['unit_mass']['cad_kg']:.2f} kg vs "
-                       f"estimación {ver['unit_mass']['estimate_kg']} kg." + ("" if ver["ok"] else "\n\nFallas:\n" + "\n".join("- " + f for f in ver["fails"])))
+                       f"{ver['n_pair_checks']} pares×estados de interferencia; boquilla δ ∈ {ver['states']['steer']}°, "
+                       f"bucket {{arriba, abajo}}; masa de la unidad de jet (CAD) {ver.get('jet_mass', {}).get('cad_kg', 0):.2f} kg."
+                       + ("" if ver["ok"] else "\n\nFallas:\n" + "\n".join("- " + f for f in ver["fails"])))
     if sz:
-        rows = []
-        for r in sorted(sz["optimization"], key=lambda r: (not r["hard_ok"], r["cost_eur"]))[:14]:
-            fails = [k[3:] for k in r if k.startswith("ok_") and not r[k]]
-            rows.append([r["prop"], r["battery"], f"{r['z_motor']}:{r['z_shaft']}", f"{r['P_bat_cruise_des_W']:.0f}",
-                         f"{r['E_req_wh']:.0f}/{r['E_nom_wh']:.0f}", f"{r['autonomy_des_h']:.2f}", f"{r['vmax_nom_kmh']:.1f}",
-                         f"{r['bollard_N']:.0f}", f"{r['cost_eur']:.0f}", ", ".join(fails) or "—"])
-        B["optimization"] = table(["Hélice", "Batería", "Poleas", "P_bat crucero diseño [W]", "E req/nom [Wh]",
-                                   "Autonomía diseño [h]", "V máx nom [km/h]", "Bollard [N]", "Costo hélice+bat [€]",
-                                   "No cumple"], rows)
-        cav = sz["cavitation"]
-        B["cavitation"] = table(["Condición", "T [N]", "n [rpm]", "σ0.7R", "τc", "τc límite (Burrill aprox.)", "AE/A0 mín Keller", "AE/A0"],
-                                [[k, f"{v['T_N']:.0f}", f"{v['n_rpm']:.0f}", f"{v['sigma07']:.2f}", f"{v['tau_c']:.3f}",
-                                  f"{v['tau_limit']:.3f}", f"{v['keller_min_BAR']:.2f}", f"{v['BAR']:.2f}"] for k, v in cav.items()])
-        th = sz["thermal"]
-        B["thermal"] = table(["Condición", "Pérdida motor [W]", "Pérdida ESC [W]", "T motor estac. [°C]", "t a límite [min]"],
-                             [[k, f"{v['P_loss_motor_W']:.0f}", f"{v.get('P_loss_esc_W', float('nan')):.0f}",
-                               f"{v.get('T_motor_steady_C', float('nan')):.0f}",
-                               "∞" if v["t_to_limit_min"] == float("inf") or v["t_to_limit_min"] > 1e6 else f"{v['t_to_limit_min']:.0f}"]
-                              for k, v in th.items()])
-        te = sz["thermal_esc"]
-        hs = te["heatsink"]
-        B["thermal_esc"] = table(["Condición", "Pérdida ESC [W]", "Sol [W]", "R disipador máx. [K/W]"],
-                                 [[k, f"{te[k]['P_loss_esc_W']:.0f}", f"{te[k]['sun_W']:.0f}", f"{te[k]['R_hs_max_K_W']:.2f}"]
-                                  for k in ("esc_cruise", "esc_vmax")]
-                                 + [["Requisito de compra (crucero → caja ≤ " + f"{hs['T_box_max_C']:.0f} °C)", "", "",
-                                     f"**≤ {hs['R_hs_required_K_W']:.2f}**"],
-                                    [f"Con ese disipador, a V máx sostenida: {hs['T_vmax_steady_C']:.0f} °C estacionario "
-                                     f"(límite ESC {hs['t_esc_limit_C']:.0f} °C)", "", "",
-                                     "∞" if hs["t_vmax_to_limit_min"] == float("inf") else f"{hs['t_vmax_to_limit_min']:.0f} min"]])
-        lg = sz["legal_speed"]
+        sn = sz.get("sensitivity", {})
+        if sn:
+            B["sizing_sens"] = table(["Entrada incierta", "Rango", "V máx. sostenida [km/h] (bajo / alto)",
+                                      "Margen en la joroba (bajo / alto)", "¿Planea en ambos extremos?"],
+                                     [[r["label"], f"{_fmt(r['lo']['value'], '.3g')} – {_fmt(r['hi']['value'], '.3g')}",
+                                       f"{r['lo']['vmax']:.1f} / {r['hi']['vmax']:.1f}",
+                                       f"{r['lo']['hump']*100:.0f} % / {r['hi']['hump']*100:.0f} %",
+                                       "sí" if (r["lo"]["planes"] and r["hi"]["planes"]) else "**NO**"] for r in sn["rows"]])
+        lg, pf = sz["legal_speed"], sz["performance"]
         B["legal_speed"] = table(["Magnitud", "Valor", "Etiqueta"], [
-            ["Límite legal a < 300 m de la costa", f"{lg['limit_kmh']:.2f} km/h (5 kn)", "[VERIFICADO: research/R07 §1.2]"],
-            [f"V máx con carga liviana ({lg['mass_light_kg']:.0f} kg), batería llena, banda baja", f"{lg['vmax_light_low_kmh']:.1f} km/h", "[CALCULADO]"],
-            ["¿Cumple sin limitador?", "sí" if lg["ok_by_physics"] else "**no → tope de ERPM 'modo costa'**", "[CALCULADO]"],
-            ["Tope de rpm del motor / ERPM (VESC `l_max_erpm`)", f"{lg['rpm_cap_motor']:.0f} rpm / {lg['erpm_cap']:.0f} ERPM", "[CALCULADO]"],
-            ["V máx a plena carga con el tope (banda nominal)", f"{lg['vmax_full_load_with_cap_kmh']:.1f} km/h", "[CALCULADO]"],
+            ["Límite legal a < 300 m de la costa", f"{sz_inputs('operation.legal_speed_limit_kmh'):.2f} km/h (5 kn)", "[VERIFICADO: research/R07, R13]"],
+            ["Potencia de batería a 5 kn (banda de diseño)", f"{lg['P_bat_legal_W']:.0f} W", "[CALCULADO]"],
+            ["Autonomía a 5 kn", f"{lg['autonomy_legal_h']:.1f} h", "[CALCULADO]"],
+            [f"Tope de rpm 'modo costa' (piloto liviano, {lg['mass_light_kg']:.0f} kg, banda baja, batería llena)",
+             f"{lg['rpm_cap']:.0f} rpm / {lg['erpm_cap']:.0f} ERPM", "[CALCULADO] → VESC `l_max_erpm` en el perfil de costa"],
+        ])
+        th, el, en, me, cl = sz["thermal"], sz["electrical"], sz["energy"], sz["mech"], sz.get("cooling", {})
+        B["thermal"] = table(["Magnitud", "Valor", "Etiqueta"], [
+            ["Pérdida del motor a V máx. sostenida", f"{th['P_loss_motor_W']:.0f} W", "[CALCULADO]"],
+            ["T del motor estacionaria (aire 30 °C, refrigeración por agua)", f"{th['T_motor_steady_C']:.0f} °C (máx. {th['t_winding_max_C']:.0f})", "[CALCULADO, R_th ESTIMADO]"],
+            ["Pérdida del controlador a V máx. sostenida", f"{th['P_loss_esc_W']:.0f} W", "[CALCULADO]"],
+            ["Agua de refrigeración (orificio, a V máx. / a 5 kn)", f"{cl.get('Q_l_min_top', 0):.1f} / {cl.get('Q_l_min_legal', 0):.1f} L/min", "[CALCULADO]"],
+            ["Salto de temperatura del agua", f"{cl.get('dT_water_K', 0):.1f} K", "[CALCULADO]"],
+            ["V máx. por ratos (potencia pico)", f"{pf.get('vmax_peak_kmh', 0):.1f} km/h, "
+             + ("sin límite térmico del motor" if pf.get('t_peak_from_cruise_min', 0) in (float('inf'),) or pf.get('t_peak_from_cruise_min', 0) > 1e6
+                else f"{pf.get('t_peak_from_cruise_min', 0):.0f} min hasta el límite"), "[CALCULADO]"],
+        ])
+        B["electrical"] = table(["Magnitud", "Valor", "Etiqueta"], [
+            ["Corriente de batería pico / a V máx. sostenida", f"{el['I_bat_peak_A']:.0f} / {el['I_bat_top_A']:.0f} A", "[CALCULADO]"],
+            ["Límite de corriente de fase (controlador)", f"{el['I_phase_limit_A']:.0f} A", "[CALCULADO]"],
+            ["Fusible principal", f"{el['fuse_a']} A", "[CALCULADO]"],
+            ["Cable DC / fases", f"{el['cable_dc']['section_mm2']} mm² ({el['cable_dc']['drop_frac']*100:.1f} %) / "
+             f"{el['cable_phase']['section_mm2']} mm² ({el['cable_phase']['drop_frac']*100:.1f} %)", "[CALCULADO]"],
+            ["Energía usable / requerida por la misión", f"{en['E_usable_wh']:.0f} / {en['E_req_wh']:.0f} Wh", "[CALCULADO]"],
+        ])
+        sp = me.get("shear_pin", {})
+        B["mech"] = table(["Magnitud", "Valor", "Etiqueta"], [
+            ["Par máx. del controlador / a V máx.", f"{me['T_max_Nm']:.1f} / {me['T_top_Nm']:.1f} N·m", "[CALCULADO]"],
+            ["Eje Ø20 316: FS estático / fatiga", f"{me['fs_shaft_static']:.1f} / {me['fs_shaft_fatigue']:.1f}", "[CALCULADO]"],
+            ["Pasador de corte", f"Ø{sp.get('d_mm', 0)} {sp.get('material', '')}: corta a {sp.get('T_cut_Nm', 0):.1f} N·m "
+             f"(FS del eje al corte {sp.get('fs_shaft_at_cut', 0):.1f})", "[CALCULADO: research/R12 §7.6]"],
+            ["Empuje axial máx. al par de rodamientos", f"{me['Fa_max_N']:.0f} N", "[CALCULADO]"],
+            ["Vida L10 a V máx.", f"{_fmt(me['L10_top_h'])} h", "[CALCULADO]"],
+            ["Velocidad crítica / rpm máx.", f"{me['n_crit_rpm']:.0f} / {me['n_max_rpm']:.0f} rpm ({me['crit_ratio']:.1f}×)", "[CALCULADO]"],
+            ["Velocidad periférica en el sello", f"{me['seal_speed_ms']:.1f} m/s", "[CALCULADO]"],
         ])
     return B
+
+
+def sz_inputs(path):
+    import yaml
+    with open(ROOT / "inputs.yaml", encoding="utf-8") as f:
+        d = yaml.safe_load(f)
+    for k in path.split("."):
+        d = d[k]
+    return d
 
 
 def load_inputs_rate():

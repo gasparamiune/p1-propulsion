@@ -132,13 +132,20 @@ def extend(d):
     d["mot_key"], d["mot"], d["mot_known"] = mkey, mot, known
 
     # ---------------- popa del eje (interfaz con BOMBA) ----------------
-    d["drv_X_aft"] = d.get("pmp_shaft_X_aft", d["X_shaft_aft"])         # extremo de popa (marco JET)
+    # BOMBA (params_bomba.py) define el buje de agua del estator: muñón Ø pmp_journal_d de X_shaft_aft a
+    # pmp_shaft_aft_X; el impulsor apoya hacia proa contra un tope (anillo DIN 471) en pmp_imp_front_X.
+    d["drv_X_aft"] = d.get("pmp_shaft_aft_X", d.get("pmp_shaft_X_aft", d["X_shaft_aft"]))   # extremo de popa (marco JET)
+    d["drv_journal_d"] = d.get("pmp_journal_d", d["shaft_d"])          # muñón del buje del estator (f7)
+    d["drv_bush"] = ((d["pmp_brg_X0"], d["pmp_brg_X0"] + d["pmp_brg_L"]) if "pmp_brg_X0" in d else None)
+    d["drv_imp_front_X"] = d.get("pmp_imp_front_X", 0.0)               # cara de proa del cubo del impulsor
+    d["drv_imp_m_kg"] = 1.0                                             # [ESTIMADO: impulsor 316 Ø132 ≈ 0,8–1,3 kg (R11 §6); el manifest de BOMBA lo reemplaza]
     d["drv_pin_X"] = d.get("pmp_pin_X", d["X_imp1"] / 2)                # agujero del pasador (BOMBA)
     d["drv_pin_d"] = sz["mech"].get("shear_pin", {}).get("d_mm", 3.5)   # [CALCULADO: sizing.json mech.shear_pin]
     d["drv_pin_hole"] = d["drv_pin_d"] + 0.03                           # [SUPUESTO: agujero H8 escariado (pasador h8 deslizante)]
     d["drv_thread_d"] = 16.0                                            # [SUPUESTO: tuerca del impulsor M16 (brief del grupo)]
     d["drv_imp_seat_X0"] = 0.0                                          # asiento del impulsor X ∈ [0, X_imp1]
-    d["drv_thrust_groove"] = (-CIRCLIP20["m"], 0.0)                     # ranura del anillo de empuje (X0, X1)
+    d["drv_thrust_groove"] = (d["drv_imp_front_X"] - CIRCLIP20["m"], d["drv_imp_front_X"])   # ranura del anillo de empuje (X0, X1)
+    d["drv_aft_groove"] = (d["X_imp1"] + 0.3, d["X_imp1"] + 0.3 + CIRCLIP20["m"])   # anillo de retención a popa (opcional, en la luz rotor–estator)
 
     # ---------------- sello (estación S_seal = cara del buje de la toma) ----------------
     S0 = d["S_seal"]
@@ -167,9 +174,16 @@ def extend(d):
     d["drv_S_brg_front"] = d["drv_S_brgB"] + d["drv_cover_t"]           # cara delantera de la tapa
     d["drv_cover_bolt"] = 5                                             # [SUPUESTO: 4 × M5 A4 tapa ↔ soporte]
     d["drv_cover_bc"] = BEARING["D"] + 2 * 4.5                          # [CALCULADO: Ø47 + 2 × 4,5]
-    d["drv_bracket_base_t"] = 12.0                                      # [SUPUESTO: placa base 12 mm (Al 6082-T651)]
-    d["drv_bracket_web_t"] = 14.0                                       # [SUPUESTO: alma longitudinal 14 mm]
-    d["drv_bracket_w"] = 120.0                                          # [SUPUESTO: ancho de la placa base (y), agujeros a ±45]
+    # soporte = PÓRTICO sobre el conducto: dos mejillas longitudinales (planos xz) con zapatas sobre la
+    # placa base a ambos lados de la abertura (agujeros en |y| = brg_bracket_y) y un tablero horizontal
+    # por ENCIMA del eje del que cuelga el alojamiento: nada del soporte baja entre las mejillas.
+    d["drv_bracket_base_t"] = 12.0                                      # [SUPUESTO: zapatas 12 mm (Al 6082-T651)]
+    d["drv_bracket_web_t"] = 12.0                                       # [SUPUESTO: mejillas 12 mm]
+    d["drv_bracket_pad_w"] = 48.0                                       # [SUPUESTO: ancho de zapata (y)]
+    by = d.get("brg_bracket_y", 45.0)
+    d["drv_cheek_y"] = (by - 24.2, by - 12.2)                           # [SUPUESTO: cara interior a 12 mm del eje del bulón → llave Allen por arriba]
+    d["drv_pad_y"] = (by - 24.2, by + 23.8)
+    d["drv_deck_t"] = 12.0                                              # [SUPUESTO: tablero 12 mm]
     d["drv_bracket_hole"] = d["brg_bracket_bolt"] + 1.0                 # [SUPUESTO: Ø9 (M8 + 1): ±0,5 mm de ajuste para alinear con el buje del sello; luego 2 pasadores Ø6 escariados en montaje]
 
     # ---------------- acople y motor ----------------
@@ -190,7 +204,7 @@ def extend(d):
     d["mot_hole_d"] = COUPLING["D"] + 9.0                               # paso del acople por la placa
     d["mot_foot_z"] = d["floor_z"]                                      # pies sobre el piso (interfaz con el casco)
     d["mot_foot_t"] = 10.0
-    d["mot_foot_y"] = (d["motor_d"] / 2 * 0.62, d["motor_d"] / 2 * 0.62 + 55.0)  # [SUPUESTO: pies a los costados del recorte del piso]
+    d["mot_foot_y"] = (0.75 * d["motor_d"] / 2, 0.75 * d["motor_d"] / 2 + 50.0)  # [SUPUESTO: pies hacia proa, a los costados del cuerpo]
     d["mot_foot_l"] = 60.0                                              # largo de los pies (x)
     d["mot_foot_bolt"] = 8
     d["mot_clear_min"] = 10.0                                           # [VERIFICADO: brief — luz motor–fondo ≥ 10 mm]
@@ -200,7 +214,8 @@ def extend(d):
     d["mot_bottom_z_min"] = z_ax0 - d["motor_d"] / 2 * ca
     d["mot_axis_z0"] = z_ax0
     d["mot_clear_bottom"] = d["mot_bottom_z_min"] - d["bottom_t"]
-    d["mot_floor_clash"] = d["mot_bottom_z_min"] < d["floor_z"] + d["mot_clear_min"]
+    d["mot_floor_clash"] = d["mot_bottom_z_min"] < d["floor_z"]
+    d["mot_clear_floor"] = d["mot_bottom_z_min"] - d["floor_z"]
     d["mot_x0"] = d["x_if"] + S_m0 * ca
     d["mot_x1"] = d["x_if"] + d["S_motor1"] * ca
 
