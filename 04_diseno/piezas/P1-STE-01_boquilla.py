@@ -48,14 +48,17 @@ def _bell(p):
             for a in [a0 + (-90 - a0) * i / 12 for i in range(13)]]
 
 
+X_FRONT, X_CONE = 16.0, 22.0     # tramo delantero (dentro de la rótula de BOMBA) y cono al cuerpo
+
+
 def body_profile(p):
     Xp, L = p.X_steer_pivot, p.L_steer
-    Rs, ro = p.STE_Rs, p.STE_ro
-    xt = math.sqrt(max(Rs ** 2 - ro ** 2, 0.0))
-    ph1 = math.degrees(math.atan2(ro, xt))
+    Rs, r1, ro = p.STE_Rs, p.STE_ro_front, p.STE_ro
+    xt = math.sqrt(max(Rs ** 2 - r1 ** 2, 0.0))
+    ph1 = math.degrees(math.atan2(r1, xt))
     outer = [(Xp + Rs * math.cos(math.radians(a)), Rs * math.sin(math.radians(a)))
              for a in [90 - (90 - ph1) * i / 8 for i in range(9)]]
-    outer += [(Xp + L - 1.0, ro), (Xp + L, ro - 1.0)]
+    outer += [(Xp + X_FRONT, r1), (Xp + X_CONE, ro), (Xp + L - 1.0, ro), (Xp + L, ro - 1.0)]
     inner = [(Xp + L, p.STE_rb)] + list(reversed(_bell(p)))
     return outer + inner
 
@@ -82,14 +85,17 @@ def ear_outline(p, sign):
 
 
 def pivot_ear(p, sign):
-    """Oreja de pivote de la boquilla (por dentro de la de la bomba)."""
+    """Oreja de pivote de la boquilla (por dentro de la de la bomba). Arriba: + torre del yugo y mejilla
+    superior sobre la oreja de la bomba (el hueco lo abre el barrido de la oreja)."""
     Xp = p.X_steer_pivot
-    r, zt = p.STE_ear_rp, p.STE_ear_top
-    e = cyl_z(r, 38.0, zt, x=Xp) + box(Xp, Xp + 30.0, -r, r, 38.0, zt)
+    r = p.STE_ear_rp
     if sign > 0:
+        zt = p.STE_riser_top
         x0, x1 = p.STE_riser_x
-        e = e + box(Xp + x0, Xp + x1, -p.STE_riser_y, p.STE_riser_y, 38.0, p.STE_riser_top)
-        return e
+        e = cyl_z(r, 38.0, zt, x=Xp) + box(Xp, Xp + 30.0, -r, r, 38.0, zt)
+        return e + box(Xp + x0, Xp + x1, -p.STE_riser_y, p.STE_riser_y, 38.0, zt)
+    zt = p.STE_ear_top
+    e = cyl_z(r, 38.0, zt, x=Xp) + box(Xp, Xp + 30.0, -r, r, 38.0, zt)
     return Rot(180, 0, 0) * e        # espejo en Z (la oreja es simétrica en Y)
 
 
@@ -104,6 +110,7 @@ def build(p):
     # roscas M6 de los tornillos de pivote (Ø5,0 × STE_m6_depth)
     zt, dpt = p.STE_ear_top, p.STE_m6_depth
     b = b - cyl_z(2.5, zt - dpt, zt + 1, x=Xp) - cyl_z(2.5, -zt - 1, -zt + dpt, x=Xp)
+    b = b - cyl_z(4.1, p.STE_cheek_z0 - 1, p.STE_riser_top + 1, x=Xp)          # Ø8,2 en la mejilla superior
     # roscas M6 de la brida del yugo (Ø5,0 × 12) en la torre
     for (xx, yy) in p.STE_riser_bolts:                                      # M8 (Ø6,8 × 16)
         b = b - cyl_z(3.4, p.STE_riser_top - 16, p.STE_riser_top + 1, x=Xp + xx, y=yy)
@@ -146,26 +153,62 @@ def free_angle(p, part, fixed):
     return free
 
 
+def intercept_fraction(p, n=400):
+    """Fracción del área del chorro (r_chorro) cuya huella en el plano de la boca (elipse r/cos δ × r)
+    queda fuera del círculo de la boca R_f con δ = δmax."""
+    rj, Rf = p.STE_r_jet, p.STE_rf
+    c = math.cos(math.radians(p.steer_max))
+    out = tot = 0
+    for i in range(n):
+        for k in range(n):
+            u, v = -1 + 2 * (i + 0.5) / n, -1 + 2 * (k + 0.5) / n
+            if u * u + v * v > 1:
+                continue
+            tot += 1
+            if (u * rj / c) ** 2 + (v * rj) ** 2 > Rf ** 2:
+                out += 1
+    return out / tot
+
+
 def checks(p, part):
     smax = p.steer_max
     rj = p.STE_r_jet
     lug = pump_lug_proxy(p, 1) + pump_lug_proxy(p, -1)
     free_proxy = free_angle(p, part, lug)
-    m = _other("P1-PMP-08_fixed_nozzle")
-    free_real = free_angle(p, part, m.build(p)) if m is not None else free_proxy
-    ell = rj / math.cos(math.radians(smax))         # semieje de la huella del chorro en la boca con δmax
+    fixed = None
+    for stem in ("P1-PMP-08_fixed_nozzle", "P1-PMP-09_transom_plate"):
+        m = _other(stem)
+        if m is not None:
+            sh = m.build(p)
+            if stem.startswith("P1-PMP-09"):           # placa en el BOTE → marco JET
+                from params import loc_jet
+                sh = sh.moved(loc_jet(p).inverse())
+            fixed = sh if fixed is None else fixed + sh
+    free_real = free_angle(p, part, fixed) if fixed is not None else free_proxy
     rr = math.hypot(p.STE_ear_top, p.STE_ear_rp)
     return [
         ("un solo sólido", len(part.solids()), 1, "="),
         ("giro libre contra las orejas de la bomba (modelo) [°]", free_proxy, smax + 2.5, ">="),
-        ("giro libre contra la tobera fija P1-PMP-08 real [°]", free_real, smax + 2.5, ">="),
-        ("boca: R − r_chorro/cos δmax (huella del chorro) [mm]", p.STE_rf - ell, 0.3, ">="),
+        ("giro libre contra tobera fija + placa de espejo reales (P1-PMP-08/09) [°]", free_real, smax + 2.5, ">="),
+        ("boca: fracción del chorro que toca el labio con δmax", intercept_fraction(p), p.STE_intercept_max, "<="),
+        ("boca: fracción interceptada con δ = 20°", _frac20(p), 0.0, "<="),
         ("frente esférico ≤ R máx. de la rótula de la tobera fija [mm]", p.STE_Rs, p.raw.get("pmp_steer_ball_R_max", p.STE_Rs), "<="),
         ("pared en el labio de entrada [mm]", p.STE_Rs - p.STE_rf, 1.8, ">="),
         ("pared del cuerpo [mm]", p.STE_ro - p.STE_rb, 4.0, ">="),
+        ("pared del tramo delantero (dentro de la rótula) [mm]", p.STE_ro_front - p.STE_rb, 2.5, ">="),
+        ("mejilla superior por encima del cuello de la placa (z − R_cuello) [mm]",
+         p.STE_cheek_z0 - p.raw.get("pmp_collar_R", p.STE_cheek_z0 - 3.0), 2.0, ">="),
         ("oreja de pivote dentro de la zona libre de la tobera fija (r) [mm]", p.STE_free_r - rr, 1.0, ">="),
         ("piso de la rosca M6 sobre la boca [mm]", (p.STE_ear_top - p.STE_m6_depth) - p.STE_rf, 2.5, ">="),
         ("luz axial a la oreja de la bomba (con arandela) [mm]", p.STE_gz - p.STE_wash_t, 0.3, ">="),
         ("oreja del bucket fuera del cuerpo: Y_oreja_ext − r_ext [mm]", p.STE_ear_y1 - p.STE_ro, 0.0, ">="),
         ("rosca M8 de la torre: piel bajo el agujero (sobre la boca) [mm]", (p.STE_riser_top - 16) - p.STE_rf, 10.0, ">="),
     ]
+
+
+def _frac20(p):
+    class Q:
+        pass
+    q = Q()
+    q.STE_r_jet, q.STE_rf, q.steer_max = p.STE_r_jet, p.STE_rf, 20.0
+    return intercept_fraction(q, 200)

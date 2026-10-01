@@ -1,12 +1,12 @@
-"""P1-STE-03 — Arandela de empuje de POM-C (×4) de los pivotes de la boquilla, torneada.
+"""P1-STE-03 — Arandela de empuje de POM-C (×3) de los pivotes de la boquilla, torneada.
 
-Ø8,4 × Ø18 × 1: entre la oreja de la boquilla y la de la bomba, y entre la oreja de la bomba y la
-cabeza del tornillo con hombro (luz axial 1,5 → 0,5 mm). Pieza de desgaste reemplazable."""
+Ø8,4 × Ø18 × 1: entre cada oreja de la boquilla y la de la bomba, y entre la oreja superior de la
+bomba y la mejilla superior (luz axial 1,5 → 0,5 mm). Pieza de desgaste reemplazable."""
 from cadlib import cyl_z
 
 META = dict(
     id="P1-STE-03", name="arandela_pom", desc="Arandela de empuje POM-C Ø8,4/Ø18 × 1",
-    material="POM-C", process="torneada", qty=4, frame="steer", group="jet",
+    material="POM-C", process="torneada", qty=3, frame="steer", group="jet",
     load_case="Empuje axial: peso de la boquilla + bucket y componente vertical del chorro",
     print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
 )
@@ -19,7 +19,7 @@ def build(p):
 def zs(p):
     a = p.STE_ear_top
     b = p.Z_steer_lug + p.STE_lug_t + (p.STE_gz - p.STE_wash_t) / 2
-    return [a, b, -a - p.STE_wash_t, -b - p.STE_wash_t]
+    return [a, b, -a - p.STE_wash_t]
 
 
 def placements(p, steer=0.0, bucket=0):

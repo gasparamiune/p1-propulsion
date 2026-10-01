@@ -212,7 +212,6 @@ def extend(d):
     d["pmp_st_table"] = {"cubo": vane_row(rh), "medio": vane_row(rm), "punta": vane_row(R_bore)}
     d["pmp_st_loft_r"] = [(rh - 2.0, rh), (rm, rm), (R_bore, R_bore), (R_bore + 2.0, R_bore)]
     # cono de cola del cubo del estator (dentro de la tobera)
-    d["pmp_tail_L"] = round(1.1 * d["D_hub"], 1)        # [ESTIMADO; área de paso monótona decreciente, ver checks]
     d["pmp_tail_tip_r"] = 5.0
     d["pmp_tail_hole_d"] = 6.0                           # salida del agua de lubricación del buje
     # buje lubricado por agua (2.º apoyo del eje, pedido por TREN) y extremo de popa del eje
@@ -238,8 +237,13 @@ def extend(d):
 
     # ------------------------------------------------------------------ tobera fija
     d["pmp_noz_wall"] = 5.0
-    d["pmp_noz_cyl"] = round(0.2 * d["D_noz"], 1)        # tramo cilíndrico final [R12 §3.3: 0,3–0,5 D_n; acortado por largo]
+    # tramo cilíndrico final [R12 §3.3: 0,3–0,5 D_n]; se acorta (≥ 0,1·D_n) para que el semiángulo
+    # del cono no pase de 13,9° con la tobera más chica del optimizador (L_noz es fijo)
+    dR = R_bore - d["D_noz"] / 2
+    d["pmp_noz_cyl"] = round(max(0.1 * d["D_noz"], min(0.2 * d["D_noz"], d["L_noz"] - dR / math.tan(math.radians(13.9)))), 1)
     d["pmp_noz_cone_X1"] = d["X_noz1"] - d["pmp_noz_cyl"]
+    # cono de cola del estator: termina dentro del cono de la tobera (área de paso monótona decreciente)
+    d["pmp_tail_L"] = round(0.8 * (d["pmp_noz_cone_X1"] - d["X_st1"]), 1)   # [CALCULADO: ver check del estator]
     d["pmp_noz_half_angle"] = _deg(math.atan((R_bore - d["D_noz"] / 2) / (d["pmp_noz_cone_X1"] - d["X_st1"])))
     d["pmp_noz_f_t"] = 12.0
     # alojamiento esférico para la boquilla direccional (rótula alrededor del pivote)

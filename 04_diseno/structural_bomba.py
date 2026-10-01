@@ -184,21 +184,31 @@ def cases(p, A, row, rows, T3, T2):
         f"F={Fsc:.0f} N por tornillo (T_max {M['T_max_Nm']:.1f} N·m, r={p.pmp_D_seat/2:.1f})", Fsc / 14.2,
         0.577 * A4, A, T2)
 
-    # orejas de pivote (Al 6061-T6): un solo lado toma toda la carga (conservador)
+    # orejas de pivote (en la placa de espejo, Al 5083): un solo lado toma toda la carga (conservador)
     d, t, w = p.pmp_lug_hole, p.pmp_lug_t, p.pmp_lug_w
     e = w / 2                                # distancia del centro del agujero al borde (extremo redondeado)
     lever = p.X_steer_pivot - p.pmp_land_X1 + 5.0
+    S_pom = 25.0                             # POM-C: presión admisible estática en buje [ESTIMADO: catálogos POM-C, verificar]
     for F, lab in ((Fs, f"F lateral de la boquilla {Fs:.0f} N"), (Fb, f"F del bucket {Fb:.0f} N")):
-        row(rows, "P1-PMP-08", f"Oreja: aplastamiento — {lab}", f"σ_b=F/(d·t), d={p.steer_pin_d}, t={t}",
-            F / (p.steer_pin_d * t), 1.5 * Al["Sy"], A, T2)
-        row(rows, "P1-PMP-08", f"Oreja: sección neta y desgarro — {lab}",
+        row(rows, "P1-PMP-09", f"Oreja: aplastamiento del alojamiento del buje — {lab}", f"σ_b=F/(d·t), d={d}, t={t:.1f}",
+            F / (d * t), 1.5 * Al5["Sy"], A, T2)
+        row(rows, "P1-PMP-09", f"Oreja: sección neta y desgarro — {lab}",
             f"máx(F/((w−d)·t), F/(2·(e−d/2)·t)·√3), w={w}, e={e}", max(F / ((w - d) * t), math.sqrt(3) * F / (2 * (e - d / 2) * t)),
-            Al["Sy"], A, T2)
-        row(rows, "P1-PMP-08", f"Oreja: flexión en el arranque — {lab}",
-            f"M=F·{lever:.1f} mm, W=w·t²/6 (eje débil)", F * lever / (w * t ** 2 / 6), Al["Sy"], A, T2)
-        row(rows, "P1-PMP-08", f"Oreja: fatiga — {lab}",
-            f"σ_a = σ flexión (maniobras, ~1e5–1e6 ciclos); S_e Al anodizado {f_anod}·S_e; K_f {Kf}",
-            F * lever / (w * t ** 2 / 6), Al["Se"] * f_anod / Kf, A, T2)
+            Al5["Sy"], A, T2)
+        row(rows, "P1-PMP-09", f"Oreja: flexión en el arranque — {lab}",
+            f"M=F·{lever:.1f} mm, W=w·t²/6 (eje débil)", F * lever / (w * t ** 2 / 6), Al5["Sy"], A, T2)
+        row(rows, "P1-PMP-09", f"Oreja: fatiga — {lab}",
+            f"σ_a = σ flexión (maniobras, ~1e5–1e6 ciclos); S_e 5083; K_f {Kf}",
+            F * lever / (w * t ** 2 / 6), Al5["Se"] / Kf, A, T2)
+        row(rows, "P1-PMP-11", f"Buje de pivote POM: presión — {lab}",
+            f"p=F/(d·L), d={p.steer_pin_d}, L={p.pmp_lug_bush_L:.1f} (un solo buje)", F / (p.steer_pin_d * p.pmp_lug_bush_L),
+            S_pom, A, T2)
+    # bulones de la placa al espejo: fuerza del bucket con brazo hasta el espejo
+    arm = (p.X_steer_pivot - p.X_noz1) / 1000 + 0.010
+    nb = len(p.pmp_tp_bolt_ang)
+    Fbt = Fb / nb + Fb * arm * 1000 * 2 / (nb * p.pmp_tp_bc_R)
+    row(rows, "P1-PMP-09", f"Bulones placa–espejo ({nb}×M6): F del bucket {Fb:.0f} N + momento",
+        f"brazo {arm*1000:.0f} mm al espejo; F_bulón={Fbt:.0f} N sobre A_s={As_M6} mm²", Fbt / As_M6, A4, A, T2)
 
     # placa de espejo: el cuello toma la carga lateral si la tobera se apoya (O-ring a tope)
     Mc = Fs * (p.pmp_collar_X1 - p.X_noz1) / 1000

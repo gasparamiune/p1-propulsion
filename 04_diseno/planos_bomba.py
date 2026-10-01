@@ -203,7 +203,7 @@ def draw(p, H):
                          (p.pmp_noz_spigot + p.pmp_or_X - p.X_st1, f"ranura O-ring {_f(p.pmp_or_width)} × {_f(p.pmp_or_depth)} prof.")],
                   notes=[f"Interior: Ø{_f(p.D_bore)} → Ø{_f(p.D_noz)} cono (semiángulo {_f(p.pmp_noz_half_angle, 1)}°) de X {_f(p.X_st1, 1)} a {_f(p.pmp_noz_cone_X1, 1)}; "
                          f"alojamiento esférico R{_f(p.pmp_sock_R)} centrado en el pivote (X {_f(p.X_steer_pivot, 1)}) hasta X {_f(p.pmp_sock_X1, 1)}; luego Ø{_f(2*p.pmp_steer_free_r, 1)}.",
-                         f"Orejas ±Z: caras interiores en |Z| = {_f(p.Z_steer_lug)}, t {p.pmp_lug_t:g}, ancho {p.pmp_lug_w:g}, agujero Ø{_f(p.pmp_lug_hole, 1)} H9 en X {_f(p.X_steer_pivot, 1)}.",
+                         "Sin orejas: las orejas de pivote de la boquilla están en la placa de espejo P1-PMP-09.",
                          f"Brida: 8 × Ø6,4 en Ø{_f(p.pmp_f2_bc, 0)} a {p.pmp_flange_ang0:g}° + k·45°. Área de salida π/4·{_f(p.D_noz)}² = {_f(math.pi/4*p.D_noz**2, 0)} mm²."]))
     # ---------------- placa de espejo (contorno en el plano del espejo)
     R = p.pmp_tp_R
@@ -213,9 +213,15 @@ def draw(p, H):
         y = R + p.pmp_tp_bc_R * math.cos(math.radians(a))
         z = p.z_noz - p.pmp_tp_zmin + p.pmp_tp_bc_R * math.sin(math.radians(a))
         holes.append((y, z, 6.4, f"M6 pasante ({a:g}°)"))
-    made.append(PL("P1-PMP-09", "transom_plate", "Al 5083 8 mm", 2 * R, h, p.pmp_tp_t, holes,
+    made.append(T("P1-PMP-11", "pivot_bushing", "POM-C torneado (alt. iglidur con collar 8×12)",
+                  [(p.pmp_lug_bush_L, p.pmp_lug_bush_od, f"Ø ext {_f(p.pmp_lug_bush_od, 0)} s6 · Ø int {_f(p.pmp_lug_bush_id, 1)} H9")],
+                  notes=["2 piezas, una por oreja de la placa de espejo; el tornillo con hombro Ø8 e8 316 (DIRECCIÓN) gira dentro.",
+                         "Medir el Ø interior tras 48 h en agua (hinchamiento del POM) [ESTIMADO]."]))
+    made.append(PL("P1-PMP-09", "transom_plate", "Al 5083 8 mm + orejas 5083", 2 * R, h, p.pmp_tp_t, holes,
                    notes=[f"Contorno: círculo R{_f(R, 1)} centrado en el eje de la tobera en el espejo (z {_f(p.z_noz, 1)} sobre la quilla), "
                           f"recortado a z ≥ {_f(p.pmp_tp_zmin, 1)}.",
                           f"Cuello soldado/mecanizado coaxial con el jet: Ø ext {_f(2*p.pmp_collar_R, 0)}, hasta X {_f(p.pmp_collar_X1, 1)} (marco JET).",
-                          "Va por fuera del espejo sobre la junta NBR 2 mm P1-PMP-10 + sellador; 7 × M6 A4 con arandelas aislantes."]))
+                          f"Orejas ±Z_jet: |Z| {_f(p.pmp_lug_z0)}–{_f(p.pmp_lug_z1)}, ancho {p.pmp_lug_w:g}, extremo R{p.pmp_lug_w/2:g} en X {_f(p.X_steer_pivot, 1)}; "
+                          f"alojamiento Ø{_f(p.pmp_lug_hole, 0)} H7 para el buje P1-PMP-11 (eje Z_jet, ⟂ al eje del jet).",
+                          f"Va por fuera del espejo sobre la junta NBR 2 mm P1-PMP-10 + sellador; {len(p.pmp_tp_bolt_ang)} × M6 A4 con arandelas aislantes y contraplaca."]))
     return made

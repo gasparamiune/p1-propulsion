@@ -4,7 +4,7 @@ Pivota sobre las orejas de la boquilla (X_bucket_pivot, ±Y, Z_bucket_pivot) y s
 Se diseña en la posición ABAJO (bucket_down_deg) y se lleva a ARRIBA (marco natural) girando −70°:
   - cuchara: chapa curvada (arco elíptico semiejes REV_cup_ax × REV_cup_az, centro a REV_cup_dx de la
     salida) entre los brazos; tapa el chorro (proyección ≥ 90 %, ver checks) y lo devuelve hacia
-    proa y abajo por el labio inferior; nervio central de 4 mm en el lomo (franja de 46 mm);
+    proa y abajo por el labio inferior; nervio central de 4 mm en el lomo (zona de impacto, t 70°…−60°);
   - brazos laterales (±Y 49,5–53,5) con aro de refuerzo en el pivote (buje POM P1-REV-03, perno
     con hombro P1-REV-02);
   - brazo +Y: perno de la varilla del Mach5 (P1-REV-06) en una cuerda VERTICAL a popa del pivote
@@ -58,7 +58,7 @@ def build_down(p):
     P = P_(p)
     inner, outer = cup_pts(p, 0.0), cup_pts(p, t)
     cup = prism_xz(inner + list(reversed(outer)), -yi - 0.01, yi + 0.01)
-    rib = prism_xz(cup_pts(p, t - 0.5, 70, -95) + list(reversed(cup_pts(p, t + 12, 70, -95))), -2.0, 2.0)
+    rib = prism_xz(cup_pts(p, t - 0.5, 70, -60) + list(reversed(cup_pts(p, t + 10, 70, -60))), -2.0, 2.0)   # nervio en la zona de impacto (no baja a la quilla)
     s = cup + rib
     lk = lock_pt(p)                                   # traba ABAJO: el agujero está en el émbolo
     lk_up = rot_xz(lk, P, p.bucket_down_deg)          # traba ARRIBA (el mismo punto del brazo, bajado)

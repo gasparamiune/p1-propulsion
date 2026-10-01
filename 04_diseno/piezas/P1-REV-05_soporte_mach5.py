@@ -36,9 +36,10 @@ def build(p):
     ry = M5.rod_y(p)
     ys0, ys1 = side_y(p)
     s = box(Xp + p.STE_riser_x[0], Xp + p.STE_riser_x[1], -14, 14, z0, z0 + 6)
-    web = [(-14, z0 + 5.99), (14, z0 + 5.99), (14, 118.0), (ys1, 128.0), (ys1, 150.0), (-14, 150.0)]
+    ztop = max(z0 + 36.0, CLAMPS[0][1])
+    web = [(-14, z0 + 5.99), (14, z0 + 5.99), (14, z0 + 12.0), (ys1, z0 + 22.0), (ys1, ztop), (-14, ztop)]
     s = s + prism_yz(web, Xp + X0, Xp + X1)
-    s = s + box(Xp + X0, sx + 16.0, ys0, ys1, *Z_SIDE)
+    s = s + box(Xp + X0, sx + 16.0, ys0, ys1, min(Z_SIDE[0], z0 + 12.0), Z_SIDE[1])
     for (za, zb) in CLAMPS:
         s = s + box(sx - 10, sx + 10, ry - 6.0, ys0 + 0.01, za, zb)
         s = s - cyl_z(M5.SLEEVE_D / 2 + 0.05, za - 1, zb + 1, x=sx, y=ry)

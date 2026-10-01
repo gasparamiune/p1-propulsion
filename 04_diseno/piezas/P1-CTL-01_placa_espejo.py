@@ -24,7 +24,7 @@ META = dict(
 
 def build(p):
     x0 = p.transom_t
-    s = box(x0, x0 + T.PLATE_T, *T.PLATE_Y, *T.PLATE_Z)
+    s = box(x0, x0 + T.PLATE_T, *T.plate_y(p), *T.PLATE_Z)
     for y, z, d, _ in T.holes(p):
         s = s - cyl_x(d / 2, x0 - 1, x0 + T.PLATE_T + 1, y=y, z=z)
     return s
@@ -38,7 +38,8 @@ def placements(p, steer=0.0, bucket=0):
 def checks(p, part):
     wl = p.sz["hydrostatics"]["draft_m"] * 1000
     zt = p.inp["boat"]["transom_height_m"] * 1000
-    edge = min(min(abs(y - T.PLATE_Y[0]), abs(T.PLATE_Y[1] - y), abs(z - T.PLATE_Z[0]), abs(T.PLATE_Z[1] - z)) - d / 2
+    PY = T.plate_y(p)
+    edge = min(min(abs(y - PY[0]), abs(PY[1] - y), abs(z - T.PLATE_Z[0]), abs(T.PLATE_Z[1] - z)) - d / 2
                for y, z, d, _ in T.holes(p))
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("pasos sobre la flotación estática (z mín. − Ø/2 − calado) [mm]",

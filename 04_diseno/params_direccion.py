@@ -65,7 +65,11 @@ def extend(d):
     d["STE_riser_x"] = (15.0, 42.0)    # torre del yugo detrás del extremo de la oreja de la bomba (X')
     d["STE_riser_bolts"] = [(19.0, -8.0), (19.0, 8.0), (38.0, -8.0), (38.0, 8.0)]   # 4 × M8 A4 (X', Y)
     d["STE_riser_y"] = 14.0
-    d["STE_riser_top"] = max(80.0, math.ceil(zl + d["STE_lug_t"] + d["STE_gz"] + 3.0 + 1.5))   # [CALCULADO: sobre oreja de bomba + cabeza]
+    # mejilla superior por ENCIMA de la oreja de la bomba (ya fuera del cuello de la placa, r > pmp_collar_R):
+    # el perno superior trabaja en doble apoyo (oreja de la boquilla abajo + mejilla arriba)
+    d["STE_cheek_z0"] = zl + d["STE_lug_t"] + d["STE_gz"]
+    d["STE_cheek_t"] = 10.0            # [SUPUESTO]
+    d["STE_riser_top"] = round(d["STE_cheek_z0"] + d["STE_cheek_t"], 2)   # cara superior de torre y mejilla
     d["STE_zc_top"] = d["STE_riser_top"]   # apoyo de la brida del yugo
     # pernos de pivote Ø8 (interfaz steer_pin_d): tornillo con hombro 316, hombro Ø8 e8 (modelado Ø7,9)
     # que gira en el agujero Ø8,2 de la oreja de la bomba; rosca M6 a la oreja de la boquilla
@@ -75,7 +79,7 @@ def extend(d):
     d["STE_wash_t"] = 1.0              # arandela de empuje POM-C [SUPUESTO]
     d["STE_head_d"] = 14.0
     d["STE_head_t"] = 3.0              # [CALCULADO: la cabeza no entra en el cuello de la placa (r ≥ pmp_tp_bore_R)]
-    d["STE_head_z0"] = zl + d["STE_lug_t"] + d["STE_gz"]   # apoyo de la cabeza
+    d["STE_head_z0"] = d["STE_riser_top"]   # la cabeza apoya sobre la mejilla superior
     d["STE_m6_depth"] = 8.0
     # yugo de dirección
     d["STE_yoke_t"] = 20.0             # brida del yugo sobre la torre (Al 5083 20 mm) [CALCULADO: torsión del poste, structural_direccion]
