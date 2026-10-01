@@ -128,6 +128,9 @@ def main(argv=None):
             rec["print_hours_each"] = mass_g / rate
             rec["files"] = [f"04_diseno/step/{stem}.step", f"04_diseno/stl/{stem}.stl"]
         else:
+            stale = HERE / "stl" / f"{stem}.stl"        # una pieza que dejó de imprimirse no deja STL viejo
+            if stale.exists():
+                stale.unlink()
             export_step(part, str(HERE / "step" / f"{stem}.step"))
             bb = part.bounding_box()
             rec["bbox_mm"] = [round(bb.max.X - bb.min.X, 2), round(bb.max.Y - bb.min.Y, 2), round(bb.max.Z - bb.min.Z, 2)]

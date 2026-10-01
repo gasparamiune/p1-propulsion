@@ -1,0 +1,698 @@
+[
+ {
+  "id": "EST-01",
+  "severidad": "critica",
+  "archivo": "04_diseno/structural.py",
+  "problema": "P1-MNT-01 (abrazadera en C) se verifica con el módulo resistente de la pata (leg_t = 34 mm), pero la sección que manda es el puente sobre el espejo: en el CAD mide shelf_top_z = 12 mm. Con el apriete de diseño, la C impresa queda con FS ≈ 0,4 a creep, y structural.py, 02 §9, README e inputs.yaml declaran FS 3,23 ✔.",
+  "evidencia": "structural.py:86 `Zc = p.clamp_w * p.leg_t**2 / 6`. El brazo de la línea 85 ya usa el centro del puente (36 mm = 30 + 12/2). En piezas/P1-MNT-01_clamp_bracket.py:26 está `bridge = box(x_in1, p.leg_t, -W/2, W/2, 0, top)` con top = shelf_top_z = 12 (params.py:86). Además params.py:77 define `bridge_t = 18` y la línea `d[\"bridge_t\"] = lay[\"t_bridge\"]` lo pisa con 12 (el puente HSG-02). Recalculé en una copia: M = 2·1042 N·0,036 m = 75 N·m; Z_puente = 150·12²/6 = 3600 mm³ → σ = 20,8 MPa contra S_sost = 8,39 → FS = 0,40 (structural.py da 2,60 MPa y FS 3,23). Impacto + apriete: (75 + 501·0,141)/3600 → 40,5 MPa, FS 0,59 contra S_corta. El FEA (04_diseno/fea/README.md:267-269) lo confirma: FS 0,32 sostenido, 0,79–0,91 al impacto y σZ = 10,0 MPa entre capas contra S_Z,sost = 3,21. Para FS 3 sostenido hace falta t ≥ √(6·75000·3/(150·8,39)) = 32,8 mm (cálculo de mano; el FEA pide 38,5). inputs.yaml:472-474 etiqueta clamp_screw_torque y clamp_leg_t como [CALCULADO: FS ≥ 3 a creep], y estructural.json da n_fail = 0.",
+  "propuesta": "En structural.py usar Z = clamp_w·min(shelf_top_z, leg_t)²/6, es decir la sección del puente, en las tres filas de MNT-01; así run_all fallará hasta que se corrija la pieza. Rediseñar el puente con t ≥ 33–39 mm, nervios verticales sobre el puente o un ángulo/placa de Al 6082 embebido que tome el momento, o bien bajar el brazo tornillo–puente. Agregar una fila σZ = ν·σx contra S_Z. Corregir las etiquetas de inputs.yaml:472/474 y el texto de D-13. Re-correr el FEA y cerrar H-1 en auditoria.md."
+ },
+ {
+  "id": "EST-02",
+  "severidad": "critica",
+  "archivo": "04_diseno/structural.py",
+  "problema": "El caso LC5 de cola trabada (M_lock = 338 N·m, limitado por el patín fusible) solo se aplica al agarre del tubo en la cuna, a la tapa, a STR-01 y al tubo. No se propaga a lo que está detrás del pivote: reacción en el perno, mejillas MNT-04, tuercas M6 cautivas, base MNT-03 ni abrazadera MNT-01/espejo. Esas piezas se dimensionan con H_imp/2 = 250 N, pero la cola trabada les mete kN. D-12 afirma lo contrario.",
+  "evidencia": "structural.py:105-123 usa H_imp = 0,5·F_pico = 501 N para MNT-03/MNT-04 y el perno; la línea 130 calcula M_lock pero solo se usa en las líneas 134, 160-163, 206-208 y 238. Hice la estática en una copia (V = 300 N a u = 1176 mm, tope en (u, v) = (30, −85)). Con la hipótesis del propio structural.py (fuerza ⟂ al radio, brazo 90 mm): F_tope = 3913 N y perno → horquilla 3824 N. Mejilla en el plano: M = 1884 N·0,1015 m = 191 N·m → σ ≈ 20,4 MPa, FS 1,18. Apoyo del perno Ø12×14: 11,4 MPa, FS 2,1. Tuerca M6 cautiva: ≈ 4,4 kN por perno, τ = 8,7 MPa contra 0,5·S = 12 → FS 1,38. Con la reacción normal a la cara (brazo 30 mm, ver EST-03): F_perno = 11,46 kN, mejilla FS 0,76, apoyo FS 0,70, tuerca FS 0,72. El momento en la abrazadera queda en ≈ 340–390 N·m, contra los 70,6 N·m (H_imp·h_piv) que usa la fila LC5 de MNT-01. decisiones.md:87-89 (D-12) dice que con 300 N 'todas las piezas impresas aguas arriba [tienen] FS ≥ 3 (02 §9)'. La probeta P1.3 (05_fabricacion.md:193) pide ≥ 1,8–2,1 kN, cuando la tuerca vería 4,4–8,4 kN.",
+  "propuesta": "Agregar en structural.py filas 'LC5 cola trabada' para MNT-08, MNT-04 (apoyo, flexión en el plano, tuercas), MNT-03 (flexión de la base entre el tornillo de tope y las mejillas), MNT-01 y el tornillo de tope M8, con la reacción en el pivote sacada de la estática. Después elegir: (a) bajar F_fuse hasta que el eslabón más débil aguas arriba tenga FS ≥ 3 (la cadena completa debe ser más fuerte que el fusible), o (b) llevar el tope de marcha a un apoyo metálico con brazo grande (≥ 90 mm, normal a la cara) para que la reacción en el pivote baje. Actualizar los umbrales de P1.3 y el texto de D-12."
+ },
+ {
+  "id": "EST-03",
+  "severidad": "critica",
+  "archivo": "04_diseno/structural.py",
+  "problema": "El brazo del tope de marcha se toma como r_stop = hypot(30, 85) = 90 mm. El tornillo de trimado M8 es vertical y apoya en una cara de la tapa inclinada θ = 25°. Sin fricción la reacción es normal a esa cara y su brazo respecto del pivote es u = 30 mm, así que todas las fuerzas del tope se triplican. structural.py sigue usando 90 mm aunque el FEA ya lo señaló.",
+  "evidencia": "structural.py:135 `r_stop = math.hypot(30.0, p.cradle_vbot) / 1000`. MNT-03_yoke_base.py:19-25 y 39-43 ponen el tornillo según cyl_z (vertical) en (u, v) = (30, −85). Recalculado con r = 30 mm en una copia. Tope sostenido: F = 1221 N, FS 3,37. Ola 3 g: 3165 N, FS 3,72. Ola ±1 g en LCF: 1055 N → 2,15 MPa contra 3,6 → FS 1,67 (1,12 con Goodman, sumando la media sostenida, que structural.py tampoco incluye). Cola trabada: 11,3 kN sobre Ø25 → 23,0 MPa, FS 1,04. El FEA (fea/README.md:271, 315) da F_tope = 10411 N y MNT-06 con FS 0,74. Tornillo M8 A4-70: 11757 N / 36,6 mm² = 321 MPa contra Rp0,2 450 → FS 1,40 < 2, y no hay ninguna fila que lo verifique. estructural.json igual reporta las filas del tope con FS 5–11 ✔.",
+  "propuesta": "Corregir r_stop en structural.py al brazo de la reacción normal a la cara (u_tope·cos 0 = 30 mm) o, mejor, rediseñar: tope perpendicular a la tapa y lejos del pivote, con una placa de reparto A4/Al en la tapa. Agregar filas para el M8 de trimado (compresión y pandeo) y para la tuerca M8 cautiva. Aplicar Goodman (σa/S_lcf + σm/S_sost) en las filas de fatiga del tope."
+ },
+ {
+  "id": "EST-04",
+  "severidad": "alta",
+  "archivo": "04_diseno/params.py",
+  "problema": "El patín fusible se dimensiona para romper a 300 N con la resistencia MEDIA HÚMEDA (σ_XY·f_water = 35,25 MPa). Toda la cadena que protege se verifica a 300 N, pero el criterio de aceptación físico admite roturas de hasta 400 N y un patín nuevo o seco rompe a ≈ 400 N. Con ese límite superior el tubo de Al baja de FS 2.",
+  "evidencia": "params.py:171 `sig_break = σ_t_xy · f_water  # resistencia media húmeda`. PENDIENTES_GASPAR.md:29 (P1.8) dice 'Rompe entre 200 y 400 N (diseño 300 N)'. Un patín seco rompe a 47/35,25 = 1,33× → 400 N. structural.py:238 da STR-02 en cola trabada σ = 112,7 MPa, FS 2,13; a 400 N son 150,3 MPa → FS 1,60 < 2. Todas las filas LC5 de cola trabada (MNT-05, MNT-06, STR-01 y las de EST-02) escalan ×1,33. inputs.yaml:182 justifica los 300 N con 'el patín rompe antes de que el tubo Al 40×3 baje de FS 2', lo que no se cumple en el extremo superior de la ventana aceptada.",
+  "propuesta": "Verificar la cadena protegida con F_fuse,máx: el máximo de la ventana P1.8 o σ_XY seco/σ húmedo × F_nom, es decir ≥ 400 N. Otra opción es diseñar la cintura para que la rotura máxima (seca, perfil 'fusible') sea 300 N y aceptar en P1.8 un intervalo de 225–300 N. Agregar en structural.py la variable F_fuse_max y usarla en todas las filas de cola trabada."
+ },
+ {
+  "id": "EST-05",
+  "severidad": "alta",
+  "archivo": "04_diseno/structural.py",
+  "problema": "LC6 a frecuencia de paso de pala (≈1e7–1e8 ciclos, S_fat = 1,44 MPa) solo se verifica en MNT-05 y en la placa de Al. Con la misma carga que el propio script usa para LC6 (±20 % de T_crucero lateral en la hélice), la mejilla impresa MNT-04 da FS 1,5 con la fórmula de mano y < 1 con el FEA. MNT-01, MNT-03, MNT-06, STR-01 y DRV-02 tampoco tienen fila de fatiga, aunque PROMPT §4 exige el caso.",
+  "evidencia": "structural.py:146-148 aplica `M_fat = amp * T_cr * L_tail` (fuerza lateral ±0,2·194,6 = ±38,9 N en la hélice) solo a MNT-05. Esa fuerza lateral la reacciona el perno en las mejillas: ±19,5 N por mejilla. Con la fórmula de la línea 122 (Z = 64·14²/6 = 2091 mm³, h = 101,5 mm): σa = 0,95 MPa → FS 1,438/0,95 = 1,52. Descontando los agujeros Ø6,6 de los M6 en la raíz (MNT-04_yoke_cheek.py:38-41, sección neta de 50,8 mm): σa = 1,19 MPa → FS 1,21. Escalando el caso b50 del FEA (100 N por mejilla → σ1 máx* 12,42 MPa, p99 5,56; fea/README.md:275): σa = 2,42 MPa (FS 0,59) o 1,08 MPa con el p99 (FS 1,33). Además las ranuras de las tuercas M6 (sección neta de 43,2 mm a 18–24 mm de la raíz) no entran en Z = L·t²/6. El FEA da FS 0,86–1,93 para el golpe lateral estático contra 4,94 de la mano (H-3 abierto en 06 §10).",
+  "propuesta": "Agregar filas LC6 de paso de pala para MNT-04 (sección neta + Kt de ranura), MNT-03, MNT-01, MNT-06, STR-01 y DRV-02, con Goodman frente a la media. Rediseñar la mejilla: más espesor (t ≥ 20–22 mm para FS 3 con la sección neta), ranuras de tuerca con radio ≥ 2 mm o tuercas fuera de la raíz, o pasar a una mejilla de Al. Usar en Z la sección neta descontando agujeros y ranuras."
+ },
+ {
+  "id": "EST-06",
+  "severidad": "alta",
+  "archivo": "auditoria.md",
+  "problema": "Los FS < 3 que encontró el FEA (MNT-01 0,32; MNT-06 0,74; MNT-04 0,86) no están resueltos ni justificados en el cálculo oficial. structural.py no lee resultados_fea.json, test_fea solo comprueba FS > 0, y auditoria.md sigue en '(Pendiente)'. El pipeline, 02 §9 y README declaran FS ≥ 3. Esto incumple los puntos 5, 7 y 8 de PROMPT §9.",
+  "evidencia": "resultados/estructural.json: \"n_fail\": 0. tests/test_fea.py:147 `assert fs[\"gobernante\"] > 0`. run_all.py:57 corre el FEA con required=False. auditoria.md:3 dice '(Pendiente — se completa en la Pasada 3.)' y no menciona el FEA. README.md:17 dice 'FS ≥ 3 calculados' y la línea 36 dice 'FS ≥ 3 (impresas)… [CALCULADO]'. 02_calculos.md §9 (tabla AUTO) muestra todas las filas ✔. Solo 06_ensamblaje_y_pruebas.md:322-324 (H-1…H-3) y la FMEA F1 lo reconocen como abierto.",
+  "propuesta": "Hacer que structural.py (o un paso de verify) lea resultados_fea.json y falle si el FS gobernante de algún caso es < fs_target y no está en JUSTIFIED. Registrar en auditoria.md, como críticos abiertos, EST-01…EST-05 y H-1…H-3. Corregir README/02 §9 para que no digan FS ≥ 3 hasta cerrarlos."
+ },
+ {
+  "id": "EST-07",
+  "severidad": "media",
+  "archivo": "04_diseno/structural.py",
+  "problema": "PROMPT §4 pide el caso 'empuje máximo sostenido (avance y marcha atrás)', pero el bollard/empuje máximo se compara con S_corta (sin f_creep). 02 §5.1 muestra que el empuje máximo puede durar ~14 min, y el ensayo T2 de bollard es continuo. Con S_sost, varias filas bajan de 3.",
+  "evidencia": "structural.py:64 `T_bol = ... # corta`. Las líneas 95, 145 y 151 usan \"short\". 02_calculos.md:221 (tabla AUTO sizing_sustain): 7 km/h nominal, sostenible 14 min. Con S_sost = 8,39: MNT-01 'LC1 empuje avante' σ = 4,00 MPa → FS 2,10, aun con el Z de la pata (con el Z del puente, ver EST-01, es mucho menor). Tope de marcha con T_bol y brazo de 30 mm: (17,4 + 25,9)/0,03 = 1443 N → 2,94 MPa → FS 2,85. LC2 (marcha atrás) tiene una sola fila (cartucho, FS 240); no se verifica el efecto de T_rev sobre la abrazadera, que tira la unidad hacia popa y carga el puente vía los tornillos.",
+  "propuesta": "Clasificar LC1/LC2 a empuje máximo como sostenidos (S_sost), o definir un factor de creep por duración con fuente (R05) para cargas de minutos. Agregar filas LC2 para MNT-01 (tracción hacia popa a la altura del pivote más el apriete) y para el retén."
+ },
+ {
+  "id": "EST-08",
+  "severidad": "media",
+  "archivo": "04_diseno/structural.py",
+  "problema": "Los insertos M4 de la caja ESC (P1-ELE-01) cargan de forma sostenida la compresión del O-ring. Su FS = 1000 N/F_inserto se calcula sin ninguno de los factores R05 (agua, temperatura, proceso, creep) que sí se aplican a todas las otras piezas. Los 1000 N vienen de insertos PEM en ABS INYECTADO, en seco y a corto plazo. Con los factores, el FS queda < 1 y el sello se afloja por fluencia.",
+  "evidencia": "structural.py:227-230: `(F_or/8)/1000 * A[\"sust\"]` es una σ ficticia que fuerza FS = 1000/220,5 = 4,54. 05_fabricacion.md:194 da como base 'PEM M4 en ABS inyectado 912–1646 N [VERIFICADO: R05 S29]'. Aplicando f_water·f_temp·f_process·f_creep = 0,75·0,85·0,8·0,35 = 0,1785, la capacidad sostenida es ≈ 178 N < 220 N por inserto → FS 0,81 (1,08 sin f_water). La probeta P1.4 acepta ≥ 662 N de arranque a corto plazo (3 × 220), lo que no cubre el creep. La caja ESC sale en la tabla con σ = 1,85 MPa 'sust', una cifra sin significado físico.",
+  "propuesta": "Calcular FS = F_arranque,medido·f_water·f_temp·f_process·f_creep / F_inserto. Subir el umbral de P1.4 a ≥ 3·220/0,1785 ≈ 3,7 kN, o cambiar el diseño: más tornillos o pasantes A4 con tuerca, un O-ring de sección menor o de cara con limitador de compresión metálico, o un cordón con menor fuerza por mm. Quitar la σ ficticia de la tabla."
+ },
+ {
+  "id": "EST-09",
+  "severidad": "media",
+  "archivo": "04_diseno/structural.py",
+  "problema": "El golpe de ola de 3 g y el peso propio (carga permanente) solo se verifican en el tope de marcha. El momento que la unidad colgada transmite a la abrazadera MNT-01 y a la horquilla (MNT-03/04) no se verifica, y con 3 g supera el momento de impacto LC5 usado para dimensionar MNT-01.",
+  "evidencia": "structural.py:140-143 aplica wave_slam_g solo a F_slam en el tope. Brazo del CG: M_grav/W = 25,92/79,11 = 0,328 m a popa del pivote, y el pivote está a 80 mm del espejo (layout pivot_xz = [80, 135]). Momento sobre el espejo: 3·79,1 N·(0,080 + 0,328) m = 96,7 N·m con ola de 3 g, y 32 N·m permanentes con 1 g. La fila MNT-01 'LC5 impacto + apriete' usa H_imp·h_piv = 501·0,141 = 70,6 N·m. La fila 'Apriete (sostenido)' de MNT-01 no suma los 32 N·m permanentes del peso.",
+  "propuesta": "Agregar filas para MNT-01, MNT-03 y MNT-04: ola de 3 g (corta), ola ±1 g (LCF, con Goodman sobre la media del peso) y peso propio sumado al apriete en el caso sostenido, usando la sección del puente (EST-01)."
+ },
+ {
+  "id": "EST-10",
+  "severidad": "baja",
+  "archivo": "04_diseno/piezas/P1-MNT-04_yoke_cheek.py",
+  "problema": "El retén de basculación (émbolo de bola M12) no tiene ningún chequeo estructural, y su tuerca cautiva está en un bolsillo abierto hacia la cara EXTERIOR. La reacción del resorte empuja el émbolo hacia afuera, y nada en la pieza impresa retiene la tuerca en ese sentido. La contratuerca (AF18) apoya sobre un bolsillo AF18,3, casi sin área de PETG.",
+  "evidencia": "MNT-04_yoke_cheek.py:32-35: `hex_prism_y(NUT_AF[12]+0.3, y0+t−NUT_M[12]−0.5, y0+t+0.1)`, abierto en y0+t (cara exterior); el agujero Ø12,5 es de paso, sin rosca. 06_ensamblaje_y_pruebas.md:140 (U-19) dice '2 émbolos M12 en tuerca cautiva de la mejilla + contratuerca'. bom.csv:51 pide una fuerza de punta ≥ 121 N, que es la carga hacia afuera sobre la tuerca. La consecuencia queda acotada: en reversa M_grav = 25,9 N·m ya supera M_thrust_rev = 5,5 N·m (FS 4,7 sin retén), pero la posición basculada y la calibración de M_release (58 N·m, T0.M5) dependen de esa tuerca.",
+  "propuesta": "Abrir el bolsillo hacia la cara INTERIOR, para que la reacción apriete la tuerca contra el fondo del bolsillo, o usar un inserto M12 inox con reborde. Agregar una fila estructural del retén: arranque de la tuerca con la fuerza del resorte sostenida (S_sost) y contacto bola–hoyuelo de la cuna."
+ },
+ {
+  "id": "M-01",
+  "severidad": "critica",
+  "archivo": "04_diseno/piezas/P1-MNT-01_clamp_bracket.py",
+  "problema": "El perno de dirección MNT-07 no se puede cerrar. La arandela y la tuerca M16 de su extremo inferior chocan con la pata exterior de la abrazadera, y el propio perno Ø16 roza esa cara con luz cero. Sin la tuerca, la horquilla y toda la unidad quedan retenidas en vertical solo por gravedad: el empuje avante tiene componente vertical hacia arriba (T·sin25°) y las olas también levantan. Además, la cabeza del perno es redonda (Ø24×5, plano MNT-07): no hay cómo sujetarlo para apretar la tuerca autoblocante ni para regular la fricción de dirección (U-02).",
+  "evidencia": "MNT-01:25 outer = box(0, leg_t=34, …, z −130…12). El perno va en x_s = 42 (params.py:83), así que su cara a x = 34 es tangente a la pata en z −92…−70 (MNT-07:13-14). Cálculo (scratchpad/hw.py): con arandela DIN 125 M16 Ø30×3 y tuerca DIN 985 M16 (e = 26,75, m = 16) bajo boss_bot_z = −70, la arandela interfiere 322,1 mm³ y la tuerca 1281,3 mm³ con P1-MNT-01. El borde de la arandela cae en x = 27 y el de la tuerca (entre caras) en x = 30, contra la cara de la pata en x = 34. El paso M1.4 de 06 ('perno desde arriba, tuerca abajo') no se puede ejecutar. verify_parts.py no lo detecta porque no modela tornillería.",
+  "propuesta": "Correr el eje de dirección hasta x_s ≥ leg_t + 15 + 2 = 51 mm, o vaciar la pata bajo el buje (x 25…34, z < −70) para dejar espacio a la tuerca y a una llave de vaso Ø36, con una nueva cota en checks(). Agregar un hexágono o dos planos en la cabeza de MNT-07 y una arandela con lengüeta que impida el giro. Agregar a verify_parts.py envolventes de herrajes (arandela, tuerca y vaso) por unión, para atrapar esta clase de defectos."
+ },
+ {
+  "id": "M-02",
+  "severidad": "alta",
+  "archivo": "04_diseno/piezas/P1-MNT-04_yoke_cheek.py",
+  "problema": "La posición basculada no se sostiene y no hay tope superior. A 25° la gravedad (29,3 N·m) duplica el momento del retén (15 N·m, o 7,5 N·m con un solo émbolo, ver M-08): la cola cae de vuelta y golpea el tope de marcha. Tampoco hay un tope previsto más allá de 25°. Si se varada sobre un banco o el operador la levanta con la mano, la cola sigue girando hasta que el cubrecorrea (PETG de 2,4 mm) y la polea conducida golpean la base de la horquilla, a unos 29–30°. Contradice D-17 ('a 25° queda ~110 mm sobre la flotación') y M7.1 ('el retén enclava en marcha y basculada').",
+  "evidencia": "Con las masas de sizing.py:348-356, M_g(φ) = Σ m·g·(u·cos(θ−φ) + v·sin(θ−φ)) da 25,9 / 27,9 / 29,1 / 29,3 N·m para φ = 0/10/20/25°. inputs.yaml:478 fija detent_release_moment_nm = 15. El barrido con las mallas asm (scratchpad/overtilt.py, ψ = 0) da: φ = 26–28° libre; φ = 30°: HSG-03↔MNT-03 762 mm³, DRV-06↔MNT-03 9 mm³, HSG-03↔MNT-04 1,1 mm³; φ = 34°: HSG-01↔MNT-03 y HSG-03↔MNT-01; φ = 42°: HSG-03↔ESPEJO 1535 mm³. verify_parts.py solo barre φ ∈ [0, tilt_range].",
+  "propuesta": "Agregar un tope mecánico de basculación a ≈ 26° en la mejilla, actuando sobre la cuna con un brazo grande y no sobre piezas de cobertura. Agregar una traba manual de la posición basculada: un pasador Ø8 con cordón que atraviese mejillas y cuna, o un trinquete. Alternativa: dimensionar el retén de 25° por separado, con M_retén ≥ 1,5·M_g(25°) ≈ 44 N·m, sin tocar el de marcha. Extender verify a φ = tilt_range + 5° y exigir que el primer contacto sea el tope."
+ },
+ {
+  "id": "M-03",
+  "severidad": "alta",
+  "archivo": "04_diseno/piezas/P1-MNT-03_yoke_base.py",
+  "problema": "La geometría del tope de marcha y trimado no es realizable. (a) El contacto cae casi bajo el pivote, sobre una cara inclinada 25°: el agujero M8 está en x = 71,3 contra el pivote en x = 80. El tope de la BOM (B-STOP, goma Ø25×15 con espárrago M8) mide más que la luz disponible (11,8 mm en el centro, 5,9 mm en el borde de popa), así que la cola apoya con φ ≈ 16,75°: eje a 8° en vez de 25°, ventilación de la hélice según D-04. (b) Aunque sea un tope plano Ø25 a la altura del CAD, apoya primero el borde de popa y la cola queda en φ ≈ 8,75°. La sensibilidad es de ≈ 2° por mm de altura, así que la compresión de la goma bajo carga cambia el trimado. (c) 'Tornillo desde abajo' (M1.5) es imposible: la base apoya sobre el plato con 1,5 mm de arandela, y la tuerca cautiva queda abierta hacia abajo. El ±5° de trimado de D-04 no existe: con la punta del tornillo al ras de la base y sin poder bajar más, el recorrido útil es ≈ 6 mm de rosca. (La subestimación ×3 de la fuerza por el brazo de 90 mm ya figura en fea/README.md y no se repite acá.)",
+  "evidencia": "MNT-03:19-25: stop_point(u = 30, v = cradle_vbot = −85) da (71,3; 45,3). La base termina en z = 33,5. Altura disponible en x = 71,3: 11,77 mm; en x = 83,8 (borde de popa de un Ø25): 5,94 mm. Cálculo Python del φ de reposo con un tope de altura h sobre la base: h = 11,8 → 8,75°; h = 13 → 11,25°; h = 15 (B-STOP) → 16,75°. bom.csv:39 especifica B-STOP 'NBR/EPDM Ø25×15, espárrago M8'. El check de MNT-03:54-55 solo exige ≥ 2 mm en el centro. MNT-03:43 hace hex_prism_z(…, z0 − 0.1, z0 + NUT_M + 0.5), un bolsillo abierto en la cara inferior.",
+  "propuesta": "Llevar el tope a un brazo grande y con contacto normal a la cara. Por ejemplo, un tope en las mejillas contra la cara delantera de la cuna (u ≈ −70), o un apoyo en la tapa a u ≥ 80 con la cara del tope paralela a la cara inferior de la cuna (cuña a 25°). Rehacer stop_point y el check para que usen la altura real del tope elegido (Ø, altura y compresión) y el borde más desfavorable. Corregir M1.5 (espárrago desde arriba más contratuerca) y el '±5°' de D-04 al recorrido real."
+ },
+ {
+  "id": "M-04",
+  "severidad": "alta",
+  "archivo": "04_diseno/piezas/P1-HSG-01_drive_plate.py",
+  "problema": "La correa no se puede tensar ni re-tensar. Los 4 M4 del motor, que hay que aflojar y apretar con la correa puesta para correr el motor en los colisos (M5.1, P5.3), quedan debajo de la polea del motor. Están en r = 15 mm del eje del motor y la polea tiene r ≈ 18,9 mm, con 2 mm de luz a la placa: no hay acceso axial ni lateral para la llave. Es un problema distinto de H-6, que trata solo la altura de las cabezas.",
+  "evidencia": "HSG-01:50-53: r = motor_bc/2·0,7071 → (±10,6; ±10,6), radio 15 mm. Una cabeza ISO 4762 M4 Ø7 ocupa r 11,5–18,5. DRV-05:10 modela la polea con radio pd_motor/2 + 3 = 18,9 en u −99…−78. p1calc/geometry.py:59 da u_pulley_c = u_plate_fwd − 2 − w/2: 2 mm de luz. 06:92 (M5.1) dice 'tensar corriendo el motor en los colisos'.",
+  "propuesta": "Montar el motor sobre una subplaca de Al (adaptador) con los 4 M4 del motor fijos, y deslizar la subplaca en la placa motriz con 2–4 tornillos M5 en r ≥ 30 mm del eje del motor, accesibles por fuera de la polea, más un tornillo empujador para tensar. Otra opción es motor fijo con tensor de rodillo en el ramal flojo. Agregar al CAD una cota de 'acceso de llave' (r_tornillo − r_polea ≥ 4 mm o luz axial ≥ 8 mm)."
+ },
+ {
+  "id": "M-05",
+  "severidad": "alta",
+  "archivo": "04_diseno/piezas/P1-HSG-01_drive_plate.py",
+  "problema": "La cara de proa de la placa motriz tiene solo 2 mm de luz a la polea conducida. Las cabezas de las uniones U-04 (los 2 M6 placa→cuna inferiores) y U-07 (3 M4 cartucho→placa) chocan con la polea. Además, la tuerca autoblocante de U-07 no entra del lado de popa: la brida del cartucho queda dentro de un rebaje de la cuna de apenas 4,2 mm. La pila M3.3 → M3.5 → M4.3 no se puede cerrar como está especificada (U-07: '3 × M4 + nyloc').",
+  "evidencia": "scratchpad/hw.py: cabeza ISO 4762 M6 Ø10×6 en u −82…−76, (v = −73, w = ±26), a 31,6 mm del eje: interferencia de 313,3 mm³ con DRV-06. Los M6 superiores (v = 18) dan 0. Cabeza M4 Ø7×4 en el círculo r = 24,5 (HSG-01:43-45): 76,7 mm³ con DRV-06. Nyloc M4 (e = 7,66, m = 5) detrás de la brida (u −66…−61): 213,7 mm³ con MNT-05, cuyo rebaje en r 24,5 llega solo a u_0 + cart_fl_t + 0,2 (MNT-05:64-65). 06:125 y 06:128 describen U-04 'cabeza sobre Al' y U-07 '3 × M4 + nyloc'.",
+  "propuesta": "Opción 1: tornillos avellanados ISO 10642 en la placa (6 mm de Al admite M6 con cabeza de 3,3 mm y M4 con 2,2 mm) y brida del cartucho roscada M4, engrosada a 6 mm para tener rosca suficiente. Opción 2: aumentar la luz placa–polea a ≥ 8 mm, revisando el saliente del eje del motor (check de HSG-01:72) y la flexión del eje. Actualizar U-04 y U-07, y modelar estas cabezas en verify."
+ },
+ {
+  "id": "M-06",
+  "severidad": "alta",
+  "archivo": "04_diseno/piezas/P1-MNT-01_clamp_bracket.py",
+  "problema": "El bolsillo de la tuerca M12 del tornillo de apriete solo admite la tuerca hexagonal. La 'placa de reparto A4 40×40×4 tras la tuerca' (BOM B-CLAMP, M1.2, structural.py) no tiene dónde ir. Con la tuerca apoyando directo sobre el PETG, la presión sostenida da FS 1,29 y no 12,89 como dice la tabla 02 §9. El bolsillo fluye por creep, la abrazadera se afloja y aparece el modo F3 (S = 9).",
+  "evidencia": "MNT-01:46 hace hex_prism_x(NUT_AF[12] + 0.3 = 18,3; profundidad NUT_M + 0,7 = 11,5). En scratchpad/hw2.py, una placa 40×40×4 detrás de la tuerca (y = 45, z = −30) interfiere 5917,4 mm³ con MNT-01. structural.py:96-98 calcula p = F/(40·40) = 0,65 MPa → FS 12,89 (resultados/estructural_tabla.md:7). Solo tuerca: A = 0,866·18² − π·6,2² = 159,8 mm²; F = 1042 N por tornillo → p = 6,52 MPa → FS_sost = 8,39/6,52 = 1,29 < 3.",
+  "propuesta": "Modelar un bolsillo cuadrado de 40,5×40,5×(4 + 0,5) mm detrás del hexágono, o un bolsillo para una tuerca-placa soldada o una tuerca de brida ancha. Verificar que la pared resultante de la pata interior siga cumpliendo (FEA de H-1). Hacer que structural.py lea el área de apoyo real del CAD."
+ },
+ {
+  "id": "M-07",
+  "severidad": "alta",
+  "archivo": "04_diseno/piezas/P1-ELE-04_hall_housing.py",
+  "problema": "El puño del acelerador no tiene el mecanismo de retorno a cero, ni topes, ni retención axial. ELE-04 no tiene alojamientos de resorte ni pasador de tope. ELE-03 tiene una sola ranura, sin pieza que la enganche. La BOM no incluye resortes ni pasador. Nada impide que el puño salga deslizando por el extremo delantero del tubo de caña (quedan 20 mm de tubo libre). Sin retorno, soltar el puño deja el motor andando (solo lo para el cordón), y el firmware supone 'resortes devuelven el puño en ~30 ms'.",
+  "evidencia": "ELE-04:66-73: solo un cilindro, el bolsillo del PCB, la ranura de apriete, el M5 y el prensaestopas; no hay resortes pese al docstring de la línea 2. ELE-03:35-38: brida, bolsillo del imán y una 'ranura de tope' sin contraparte. El puño ocupa de 420 a 530 mm del extremo de popa de un tubo de 550 mm (ELE-03:46) y no hay ningún elemento en 530–550. En bom.csv solo aparecen B-HALL y B-MAG; B-SPRING es el émbolo del retén. tests/test_firmware.py:264 dice 's.goto(0.0, ms=30) # resortes devuelven el puño'. 06:101 (M8.2) pide 'resortes' que no existen.",
+  "propuesta": "Diseñar en ELE-04 dos bolsillos para resortes de compresión, o uno para un resorte de torsión, y un pasador de tope que trabaje en una ranura de ±30° de la brida de ELE-03. Agregar resortes y pasador a la BOM. Retener el puño axialmente con un collar de apriete o un tapón roscado en el extremo del tubo. Agregar a T0 un ensayo 'soltar a 100 % → 0 en < 0,1 s' con el puño real."
+ },
+ {
+  "id": "M-08",
+  "severidad": "media",
+  "archivo": "04_diseno/piezas/P1-MNT-04_yoke_cheek.py",
+  "problema": "Las dos mejillas son la misma pieza trasladada, no espejada. El bolsillo de la tuerca cautiva del émbolo M12 queda en la cara exterior de babor y en la cara interior de estribor. En babor, la reacción de la bola (hacia afuera) empuja la tuerca fuera de su bolsillo abierto: el émbolo no tiene retención axial y la contratuerca exterior no apoya en nada. En la práctica funciona un solo émbolo y el retén queda en la mitad del previsto, lo que invalida la calibración de M7.2 y T0.M5.",
+  "evidencia": "MNT-04:35: el bolsillo va de y0 + t − NUT_M − 0,5 a y0 + t + 0,1, es decir, abierto hacia +y. MNT-04:48 coloca la segunda mejilla con L * Pos(0, −2·cheek_y, 0), una traslación. Babor: y0 = 39, bolsillo en y 41,7…53,1, abierto a la cara exterior (y = 53). Estribor: y −50,3…−38,9, abierto a la cara interior (y = −39), con 2,7 mm de piso hacia afuera. p1calc/mech.py:172 supone n_plungers = 2.",
+  "propuesta": "Generar la mejilla de babor espejada (pieza izquierda y derecha, STL separados) para que en ambas el bolsillo abra hacia la cuna y el piso de 2,7 mm quede afuera. Otra opción: rosca o inserto metálico en la mejilla. Agregar un check de que el piso del bolsillo quede del lado exterior."
+ },
+ {
+  "id": "M-09",
+  "severidad": "media",
+  "archivo": "06_ensamblaje_y_pruebas.md",
+  "problema": "La secuencia instala la correa (M5.1) después del puente del rodamiento B (M4.4), pero con el puente montado la correa queda enlazada. El lazo placa → separador → puente → rodamiento B → eje → cartucho → placa pasa por dentro del lazo de la correa, en la polea conducida. Por eso hoy la correa no se puede poner ni cambiar sin desmontar HSG-02, y eso no está documentado en montaje ni en mantenimiento.",
+  "evidencia": "HSG-02:28-36: el puente abraza el rodamiento B en el eje y se une a la placa por 2 separadores DRV-03 en (v = 70, w = ±28,9), fuera del lazo de la correa (A-06). Ese anillo rígido atraviesa el plano de la correa (u = −88,5) una vez fuera del lazo (separador) y otra dentro (eje): número de enlace 1. 06:91 (M4.4) monta el puente y 06:92 (M5.1) monta la correa después.",
+  "propuesta": "Poner la correa en M4.3 (con la polea, antes del puente) o pasar M5.1 antes de M4.4. Agregar al plan de mantenimiento el procedimiento 'cambio de correa: retirar cubrecorrea, 2 × M6 de U-09, deslizar HSG-02 hacia −u, cambiar, reinstalar'."
+ },
+ {
+  "id": "M-10",
+  "severidad": "media",
+  "archivo": "04_diseno/piezas/P1-DRV-08_bearing_cartridge.py",
+  "problema": "En marcha atrás, el aro exterior del rodamiento A no tiene hombro hacia popa. El asiento del cartucho es pasante hacia popa, y el aro queda 1,3 mm separado del fondo de PETG de la cuna. El empuje en reversa pasa solo por el ajuste M7, que es de transición: entre 25 µm de apriete y 11 µm de juego, y se afloja más con la dilatación del Al. El eje y la polea pueden moverse 1,3 mm en cada inversión de marcha, con golpeteo y fretting. structural.py supone un camino 'cartucho contra el fondo del rebaje' que no existe para esta carga.",
+  "evidencia": "DRV-08:19-20: seat0 = u_end − B − 1; el asiento se corta hasta u_end + 1, abierto a popa. El rodamiento A ocupa u −66…−55 y el rebaje de la cuna llega a u_boss_aft + 0,3 = −53,7 (MNT-05:65): luz de 1,3 mm. 06:84 (M3.2) instala el rodamiento 'hasta el labio' (proa). structural.py:155-158 calcula 'LC2 marcha atrás: cartucho contra el fondo del rebaje' con el área del cartucho. ISO 286 M7 para Ø35: ES 0, EI −25 µm; aro exterior 0/−11 µm.",
+  "propuesta": "Agregar una arandela de 316 Ø41/Ø26 × 1,3 mm entre el cartucho y el fondo de la cuna que apoye sobre el aro exterior, o llevar el rodamiento al ras del extremo del cartucho y cerrar con un anillo DIN 472-35 (alargar el cartucho unos 2 mm). Corregir la fila LC2 de structural.py para que siga el camino real."
+ },
+ {
+  "id": "M-11",
+  "severidad": "media",
+  "archivo": "04_diseno/piezas/P1-HSG-05_motor_hood.py",
+  "problema": "El capó del motor, que es la protección contra el contacto con la campana giratoria del outrunner, no tiene cómo fijarse. No tiene orejas ni agujeros, y la placa HSG-01 no tiene agujeros para él. Además, su pared de popa choca con la arandela Ø24 y la tuerca autoblocante de U-05 en u = 20 sobre la placa de caña.",
+  "evidencia": "HSG-05:24-31 es una cáscara con rejillas, sin agujeros. HSG-01:35-62 no tiene agujeros para el capó, aunque el docstring dice que 'atornilla a la cara de popa de la placa motriz'. El capó llega a u1 = u0 + motor_l + 12 = 16,3. scratchpad/hw.py con arandela Ø24×2 y tuerca M6 (e = 11,05, m = 8) en v = 40, u = 20, w = ±29: interferencias de 106,7 y 82,4 mm³ con HSG-05 (en u = 80 dan 0). 06:126 especifica para U-05 'arandela Ø24 + nyloc sobre el Al'.",
+  "propuesta": "Acortar el capó a u1 ≤ 7 mm (el motor termina en u = 4,2), o correr los pernos U-05 delanteros a u ≥ 30. Agregar 2–3 orejas M4 al capó con agujeros roscados en la placa HSG-01, fuera de la zona de la correa. Este punto es análogo a H-13 (cubrecorrea)."
+ },
+ {
+  "id": "M-12",
+  "severidad": "media",
+  "archivo": "04_diseno/piezas/P1-PRP-02_skeg.py",
+  "problema": "El único apoyo inferior del aro protector es el propio fusible. El par de orejas a 270° está tomado por la montura del patín, y la cintura fusible del patín está entre la carcasa inferior y esa montura. Cuando el fusible actúa (300 N, el caso de diseño), el aro de 6 segmentos queda colgado de un solo par de orejas superiores (un M4 tangencial en un alojamiento de PETG de 16×10 mm), arrastrando además el cuerpo roto del patín. La holgura radial a la hélice es de solo 6 mm.",
+  "evidencia": "PRP-02:1-5 ('una montura abraza el par de orejas inferiores… el cuerpo pasa por debajo') y PRP-02:139-161: la cintura está en um ± L/2 = 1107 ± 10,8, bajo STR-01, y la montura de las orejas está en u_hole ≈ 1160. PRP-01:7-8: arriba el brazo de STR-01, abajo el patín; no hay otro apoyo. Check de PRP-01:74: holgura de 6 mm.",
+  "propuesta": "Dar al aro un segundo apoyo inferior que no sea el fusible, por ejemplo una riostra desde STR-01 a las uniones de 210° y 330°. Otra opción: montar el patín al aro por delante de la cintura, de modo que al romper quede el apoyo. Documentar en 06 y FMEA la inspección y el regreso a puerto tras la rotura del fusible."
+ },
+ {
+  "id": "M-13",
+  "severidad": "media",
+  "archivo": "04_diseno/piezas/P1-MNT-05_cradle.py",
+  "problema": "El tubo de cola no tiene traba antigiro en la cuna. El giro alrededor de su eje queda retenido solo por la fricción de la abrazadera partida, con 4 M6 a 0,4 N·m en PETG que además se relajan por creep (06 §4). Un golpe lateral en la punta del patín o en el aro gira toda la pata inferior (aleta, patín, aro, placa antiventilación), y el control 'aleta en el plano de simetría ±1°' de M4.2 se pierde sin que nada lo devuelva.",
+  "evidencia": "MNT-05:59-60 y MNT-06:16-17: el agujero es Ø40,3 liso, sin pasador, chaveta ni plano. U-05 a 0,4 N·m da F = 0,4/(0,2·0,006) = 333 N por perno, 1333 N en total. Par de fricción ≈ 2·μ·F·r = 2·0,3·1333·0,02 = 16,0 N·m con μ = 0,3 optimista. Con el golpe lateral de 200 N que supone structural.py:122, aplicado en la punta del patín (v_bot − eje = −169,9 mm, calculado con PRP-02.levels), el par es de 34,0 N·m.",
+  "propuesta": "Agregar un pasador radial Ø6 de 316 (con vaina aislante y Tef-Gel), o un M6 a tuerca cautiva, a través de la mitad superior de la cuna hasta un agujero en el tubo, en la zona de agarre u −46…95. Otra opción: un plano fresado en el tubo con su contraforma en la tapa. Agregar una cota en checks()."
+ },
+ {
+  "id": "M-14",
+  "severidad": "baja",
+  "archivo": "04_diseno/piezas/P1-STR-01_lower_housing.py",
+  "problema": "El perno transversal M6 de STR-01 (que 'traba también el portabuje inferior') atraviesa el portabuje DRV-02 inferior, pero esa pieza no tiene el agujero. Las tres son idénticas y solo tienen el radial M5. El agujero quedaría con 0,8–1 mm de pared contra el buje igus.",
+  "evidencia": "STR-01:37: cyl_y(3.2, …, x = u0 + 15 = 1094,7, z = vs + 13). El portabuje inferior ocupa u 1082,7…1122,7. scratchpad/hw2.py: un perno Ø6 en esa posición interfiere 530,8 mm³ con DRV-02#2 y 0,0 con el eje. Borde del perno: r = 13 − 3 = 10 mm, contra el Ø ext. del buje de 18 (r = 9).",
+  "propuesta": "Mover el perno fuera del portabuje (u ≥ 1123, o portabuje desplazado) o crear la variante DRV-02b con agujero transversal Ø6,4 y mayor pared. Si se mantiene el taladrado en obra, indicarlo en M2.3 con plantilla."
+ },
+ {
+  "id": "M-15",
+  "severidad": "baja",
+  "archivo": "04_diseno/piezas/P1-MNT-02_clamp_pad.py",
+  "problema": "El pasador de retención Ø3 de la zapata 'giratoria' cruza el centro del alojamiento de la punta del tornillo M12. El tornillo no puede entrar más de unos 2 mm. Si se perfora la punta para pasar el pasador, la zapata deja de girar y frota el casco al apretar. El plano o la especificación del tornillo (B-CLAMP) tampoco menciona una garganta en la punta.",
+  "evidencia": "MNT-02:15: alojamiento Ø12,6 desde z = 4 hasta 13. MNT-02:16: cyl_y(1.6, …, z = t − 3,5 = 8,5), con x por defecto 0, así que pasa por el eje. El tornillo se detiene en z ≈ 10,1. bom.csv:53 (B-CLAMP) no menciona garganta.",
+  "propuesta": "Desplazar el pasador tangencialmente (x ≈ ±6,3, secante al alojamiento) para que enganche una garganta torneada en la punta del M12 (Ø9 × 3,5). Agregar la garganta a la especificación de B-CLAMP y al plano."
+ },
+ {
+  "id": "PROP-01",
+  "severidad": "alta",
+  "archivo": "PENDIENTES_GASPAR.md",
+  "problema": "La acción física P2.2 (configurar el VESC) manda poner 'corriente de motor 70 A', pero el diseño se dimensionó con 60 A (inputs.yaml:288 motor.current_limit_a, decisión D-42). Con 70 A se viola la restricción dura del asiento de hélice (FS ≥ 2 al corte del pasador) y el optimizador no encuentra ninguna combinación factible. También suben el torque de rotor trabado, la carga de la correa y el calentamiento en bollard.",
+  "evidencia": "PENDIENTES_GASPAR.md:39: '`l_in_current_max` ≤ 80 % del BMS; corriente de motor 70 A; reversa 50 %'. inputs.yaml:288: current_limit_a: 60.0 '60 A deja el asiento de hélice con FS ≥ 2 al corte del pasador … (decisiones D-42)'. decisiones.md:220: 'si R_th es menor que 0,45 K/W se puede volver a 70 A' (condicional, no por defecto). Corrí sizing.optimize() en una copia con current_limit_a = 70: MKP32+LFP12_100x2 da fs_prop_seat 1.87 (ok False) y hard_ok False; best = EO10x8 (no comprable) con hard_ok False. Con 60 A: fs_prop_seat 2.18, hard_ok True. La electrónica genera l_current_max = 60 (04_diseno/electronica/README.md:225), así que P2.2 contradice la tabla que dice usar.",
+  "propuesta": "En P2.2 reemplazar '70 A' por el marcador <!--V:…motor.current_limit_a…--> (60 A) o remitir a la tabla de 04_diseno/electronica/README.md §6. Agregar un test que falle si algún .md cita una corriente de motor distinta de inputs.motor.current_limit_a. Mantener la vuelta a 70 A solo como condicional explícito de D-42, tras medir R_th y re-correr el sizing."
+ },
+ {
+  "id": "PROP-02",
+  "severidad": "media",
+  "archivo": "sizing.py",
+  "problema": "La corriente pico de batería (I_bat_peak = 47,2 A) se toma solo de V máx a v_min (24,0 V) y del bollard a v_nom. Con la batería a tensión nominal o llena el motor llega a más rpm antes del límite de duty y el modelo pide 52–58 A. Con ese pico de 47,2 A se derivan l_in_current_max = 50 A (VESC), el fusible de 60 A y el cable. Consecuencias: (a) la V máx publicada (7,06 km/h nominal a 25,6 V, README punto 4) exige 51,7 A y no es alcanzable con el VESC configurado a 50 A; (b) la fila de 7 km/h de la tabla 'sostenible' pide 50,2 A, en el límite; (c) la afirmación de la electrónica 'No limita el pico de sizing' es falsa para el punto que se publica; (d) Drive limita I_bat con 0,8 × BMS = 80 A en vez de con el l_in_current_max realmente configurado.",
+  "evidencia": "sizing.py:313: I_bat_peak = max(vmax['design_vmin']['I_bat'], bol_f['I_bat']). sizing.py:317–321: fusible y cable desde ese valor. system.py:41–42: i_bat_lim = min(i_cont × 0.8, esc). 04_diseno/electronica/README.md:228: l_in_current_max 50 A '⌈1,05 × I_bat pico 47,2 A⌉ … No limita el pico de sizing (47,2 A)'. Drive(20:48).max_speed(293 kg) en una copia: 24,0 V design 6,43 km/h con 47,2 A; 25,6 V nominal 7,06 km/h con 51,7 A; 25,6 V design 6,76 km/h con 53,2 A; 26,8 V design 7,01 km/h con 57,9 A; 29,2 V low 8,51 km/h con 57,5 A.",
+  "propuesta": "Calcular I_bat_peak como el máximo sobre V_bat ∈ {v_min, v_nom, tensión de carga completa bajo carga (~26,8 V)} y las bandas nominal y de diseño. Hay dos salidas: (1) dimensionar con ese máximo l_in_current_max, el fusible (1,25 × I) y el cable; o (2) mantener 50 A pero modelarlo en Drive (i_bat_lim = l_in_current_max configurado) para que la V máx publicada sea la alcanzable. En ambos casos actualizar la nota de 04_diseno/electronica/README.md:228."
+ },
+ {
+  "id": "PROP-03",
+  "severidad": "media",
+  "archivo": "p1calc/system.py",
+  "problema": "El bollard predicho (287 N, base del criterio pasa/no-pasa de T2.2 ≥ 244 N) no aplica la pérdida del protector (thrust_loss_frac 0,10) ni la deducción de empuje (t = 0,02). El resto del modelo sí las aplica (shaft_thrust_required). Además guard.bollard_gain_frac no lo usa ningún script. El modelo DC además toma Kt = 1/KV_rad por amper de corriente de motor. En FOC, el VESC limita iq (amplitud de fase) y el torque por amper es (√3/2)·Kt_DC ≈ 0,866·Kt_DC, por lo que con l_current_max = 60 A el torque real es menor. Resultado: un sistema correcto puede no pasar T2.2.",
+  "evidencia": "system.py:47 aplica (1−t)·cosθ·(1−guard_loss) en avance; system.py:94: T_h = pp['T']·cos(θ) sin protector ni t. grep 'bollard_gain_frac' en *.py: 0 resultados. Cálculo en una copia: bollard 287,1 N → con ×0,9×0,98 = 253,2 N; además con Kt FOC (límite de 60 A equivalente a 52 A DC) bollard 247,6 N, y con el protector 218,4 N, frente al umbral round(0,85 × 287) = 244 N (sizing.py:401; 06_ensamblaje_y_pruebas.md:236). Derivación: torque = 1,5·pp·λ·iq; V_ll,pk = √3·pp·λ·ω → Kt_iq = 1,5/(√3·KV_rad) = 0,866/KV_rad.",
+  "propuesta": "En Drive.bollard() aplicar el factor (1 − guard_loss + bollard_gain)·(1 − t) al empuje neto que se compara con el dinamómetro. Dejar el empuje sin descontar solo para los casos de carga estructurales LC1 y LC2, donde es conservador. Documentar la convención de corriente del VESC (iq) y usar Kt_iq = (√3/2)/KV_rad para relacionar l_current_max con el torque, o bien calibrar Kt en T0 con el dinamómetro y palanca. Recalcular el umbral de T2.2 con el valor neto."
+ },
+ {
+  "id": "PROP-04",
+  "severidad": "media",
+  "archivo": "sizing.py",
+  "problema": "El 'tiempo sostenible a velocidad alta' (pedido explícito del PROMPT: 'cuantificá cuánto tiempo se sostiene') calcula el tiempo térmico partiendo del motor a temperatura ambiente (30 °C). En uso real, el rato a velocidad alta llega después del crucero, con el motor ya a 71–80 °C. El tiempo publicado sobreestima entre 2,5 y 5 veces lo que se sostiene.",
+  "evidencia": "sizing.py:226: t_th = drv.motor.time_to_limit_s(st['P_loss_motor'], T_amb); motor.py: time_to_limit_s parte de T_amb. 02_calculos.md §5.1 publica '7 km/h nominal … 14 min'. Recalculé en una copia con T0 = temperatura estacionaria de crucero (nominal 71,1 °C; diseño 79,9 °C) y τ = 600 s: 7 km/h nominal 13,5 min desde frío y 5,5 min desde crucero; 6,5 km/h diseño 16,2 min desde frío y 3,2 min desde crucero.",
+  "propuesta": "Agregar en motor.py un argumento T_start a time_to_limit_s y en sizing.py:226 usar T_start = steady_temp(P_loss de crucero en la misma banda). Publicar las dos columnas (desde frío y desde crucero) y usar la segunda como 'sostenible por ratos' en 02 §5.1 y en el README."
+ },
+ {
+  "id": "PROP-05",
+  "severidad": "media",
+  "archivo": "inputs.yaml",
+  "problema": "La restricción dura 'thermal_cruise' (2 h a 6 km/h sin recorte del VESC) cumple por 5 K: 79,9 °C estacionario contra 85 °C. Ese margen depende de R_th = 0,45 K/W [ESTIMADO] y de aire a 30 °C, y alcanza con un +10 % de R_th para perderlo. Además, la protección que se supone (el VESC recorta a 85 °C) exige un NTC en el bobinado. Para el Flipsky 6374 elegido, la research no confirma ni sensor hall ni NTC, y la BOM no incluye un NTC para instalar. La sensibilidad no incluye R_th ni la temperatura del aire.",
+  "evidencia": "resultados/sizing.json thermal.cruise_design.T_motor_steady_C = 79.87. R_th que llega a 85 °C: (85 − 30)/110,8 W = 0,496 K/W (+10 %). inputs.yaml:263 rth_k_w 0.45 '[ESTIMADO: outrunner autoventilado…]'; inputs.yaml:247 desc '(con sensores hall)'. research/R08a_bom_electrica.md:31: 'hall: [NO VERIFICADO: la página de flipsky.net no menciona sensor/hall…]'. 04_diseno/electronica/README.md:112 exige 'NTC 10 k en el bobinado'. grep -i 'ntc|termistor' bom.csv: 0 resultados. sizing.py:472–482 SENS_PARAMS no incluye rth_k_w ni air.temp_max_c.",
+  "propuesta": "Agregar a la BOM un NTC 10 k (B3950) con su procedimiento de pegado al estator, o elegir un motor con sensor verificado (Maytech MTO6374-HA-C según R08a). Sumar a PENDIENTES una verificación al recibir el motor (el NTC se lee en VESC Tool). Incluir rth_k_w (±30 %) y air.temp_max_c en SENS_PARAMS. Que T2.5 (medición de R_th) sea condición previa a T4, con la regla: si R_th > 0,45, re-correr el sizing (cambia la relación de poleas o la corriente)."
+ },
+ {
+  "id": "PROP-06",
+  "severidad": "baja",
+  "archivo": "sizing.py",
+  "problema": "Térmico del ESC: el disipador se dimensiona para que la caja PETG no pase de 50 °C en crucero. A V máx sostenida la temperatura estacionaria es 55,8 °C, por encima del límite de servicio del PETG, y la verificación transitoria la compara con el límite del ESC (80 °C) y reporta ∞. La tabla publicada dice 'límite ESC 80 °C … ∞' y oculta que la caja impresa con O-ring supera su temperatura de servicio.",
+  "evidencia": "sizing.py:290 T_box_max = PETG t_service_max_c (50); sizing.py:301: if T_amb + dT_ss <= et['t_esc_limit_c'] → t = inf. sizing.json thermal_esc.heatsink: T_vmax_steady_C 55.81, t_vmax_to_limit_min Infinity. τ = (0,61 + 0,15)·450 = 342 s, así que en los 14–18 min de V máx se llega cerca de la estacionaria.",
+  "propuesta": "Calcular también el tiempo hasta T_box_max (50 °C) a V máx y publicarlo, o dimensionar R_hs con la pérdida a V máx (≤ 0,44 K/W, ya calculado en esc_vmax) como requisito de compra."
+ },
+ {
+  "id": "PROP-07",
+  "severidad": "baja",
+  "archivo": "sizing.py",
+  "problema": "La tabla resumen muestra 'Energía requerida / usable = 2343 / 2304 Wh' y parece que el requisito de 2 h + 20 % no se cumple. 2343 Wh es la energía nominal bruta requerida (ya dividida por DoD 0,9), así que no es comparable con la usable. La verificación del código es correcta (E_nom 2560 ≥ 2343), pero el documento induce a error al lector.",
+  "evidencia": "sizing.py:559 imprime E_required_wh / E_usable_wh. power.py: required_energy_wh = P·2·1,2/usable_dod. 02_calculos.md:27 '2343 / 2304 Wh'. Recalculado: usable necesaria 879 × 2 × 1,2 = 2109 Wh ≤ 2304 usable; bruta 2343 ≤ 2560 nominal.",
+  "propuesta": "Mostrar pares homogéneos: 'Requerida usable / usable disponible = 2109 / 2304 Wh' o 'Requerida bruta / nominal = 2343 / 2560 Wh'. Corregir la misma mezcla en 02 §6."
+ },
+ {
+  "id": "PROP-08",
+  "severidad": "baja",
+  "archivo": "sizing.py",
+  "problema": "Métricas eléctricas del optimizador mal definidas. (a) El margen del ESC ≥ 30 % se calcula con la corriente de batería (100/47 → 112 %), pero los 100 A del VESC son corriente de motor. La métrica correcta es 100 / l_current_max 60 A = 67 % (también cumple, pero el 112 % publicado no es el número que pide el requisito). (b) La restricción 'ok_current' no puede fallar nunca: Drive ya limita I_bat a 0,8 × BMS y después se verifica que I_pk ≤ 0,8 × BMS. Una batería con BMS chico no se rechaza; solo baja su V máx sin que se informe.",
+  "evidencia": "sizing.py:119 y :315 esc_margin = i_cont / I_bat_peak − 1. system.py:41–42 i_bat_lim = min(i_cont × derate, esc) y system.py:62–63 lo exigen en feasible(). sizing.py:114 ok_current = i_cont × derate ≥ I_pk. sizing.json optimization: las baterías de 50 A dan I_peak_A = 40,0 exacto (= 50 × 0,8), así que el límite actuó y el check pasó igual.",
+  "propuesta": "Calcular el margen del ESC como esc.i_cont_a / max(l_current_max, I_m pico) − 1, y si se quiere, el de batería por separado. Reemplazar ok_current por una verificación con contenido, por ejemplo que el bollard y el crucero no queden limitados por la corriente de batería, o informar el 'limiter' de cada fila."
+ },
+ {
+  "id": "PROP-09",
+  "severidad": "baja",
+  "archivo": "sizing.py",
+  "problema": "El análisis de sensibilidad ('las 3 entradas inciertas que más mueven el resultado') omite el diámetro y el paso de la hélice MKP-32. Ambos son [ESTIMADO] y de ellos depende si el crucero es factible con la relación de poleas fija. Además, a P/D = 0,5 el modelo salta de la aproximación lineal a la B-series y P_bat cambia un 6 %.",
+  "evidencia": "sizing.py:472–482 SENS_PARAMS sin propeller.options.*.P_mm/D_mm; inputs.yaml:149–150 D 254 y P 101,6 [ESTIMADO … MEDIR]. Corrida en una copia (20:48, LFP12_100x2): P = 3 in → crucero NO factible (duty 0,966), V máx nominal 6,14 km/h; P = 4,5 in → V máx 7,26 y T motor 84,0 °C; P = 5 in (B-series) → P_bat 830 contra 878 W con 4,5 in (salto del modelo).",
+  "propuesta": "Agregar a SENS_PARAMS el paso (±25 %) y el diámetro (±5 %) de la hélice elegida, y reportar también la factibilidad del crucero. Mantener D-06 ('comprar y medir la hélice primero') como bloqueo previo al torneado."
+ },
+ {
+  "id": "PROP-10",
+  "severidad": "baja",
+  "archivo": "sizing.py",
+  "problema": "El rendimiento de la hélice en marcha atrás (0,65) está fijado en el código y no está en inputs.yaml, que según el PROMPT es la única fuente de entradas. Alimenta el bollard en reversa, LC2 y la retención del kick-up.",
+  "evidencia": "sizing.py:214: rev_eff = 0.65 '[ESTIMADO: … 0.55–0.75 …]'. Con 0,75 (borde superior) M_rev pasa de 5,5 a 6,4 N·m y fs_reverse_hold de 7,4 a ~6,4: sigue holgado, pero no se puede variar desde inputs.",
+  "propuesta": "Mover el valor a inputs.yaml (propeller.reverse_thrust_eff con su etiqueta) y usar el borde superior (0,75) para los casos de carga LC2 y kick-up y el valor medio para el desempeño."
+ },
+ {
+  "id": "PROP-11",
+  "severidad": "baja",
+  "archivo": "02_calculos.md",
+  "problema": "El texto fijo de §3.1 no coincide con el código: dice que con 2 personas la V máx en banda baja es 8,7 km/h y que sacar el tope de ERPM 'recupera ~0,5 km/h'. El modelo da 8,0 km/h, y el tope (4309 rpm de motor) recorta solo ~0,05 km/h. Incumple el ítem de coherencia de PROMPT §9.",
+  "evidencia": "02_calculos.md:117–118. Drive(20:48).max_speed(293 kg, 26,8 V, 'low') = 8,02 km/h a 4335 rpm de motor (tope 4309); a 25,6 V low 7,71 km/h a 4158 rpm (no toca el tope); sizing.json legal_speed.cap_reduces_full_load_vmax = false.",
+  "propuesta": "Reemplazar los números por marcadores <!--V:…--> generados desde sizing (V máx de 2 personas, banda baja, batería llena, con y sin tope) y agregar ese caso a legal_speed en sizing.py."
+ },
+ {
+  "id": "E-01",
+  "severidad": "alta",
+  "archivo": "04_diseno/piezas/P1-ELE-01_esc_box.py",
+  "problema": "La caja ESC ELE-01 no tiene lugar para K1, R_pre, el Nano, el DC-DC, la placa de optos/Q_EN ni F2/F3, y el diagrama y el README los ponen adentro. No se puede montar como está dibujado.",
+  "evidencia": "- inputs.yaml:461 `esc_box_inner_mm: [160, 110, 45]` está calculado solo para 'ESC 103×58×24 + antichispa 84×45×17 lado a lado'.\n- Los checks de P1-ELE-01_esc_box.py:113-115 dan margen de largo 160−103−50 = 7 mm, de ancho 110−(58+45+5) = 2 mm y de alto 45−(24+15) = 6 mm.\n- diagrama_cableado.py:142-145 dibuja el polígono 'Caja ESC P1-ELE-01' (x 560–1550, y 95–1135, con escalón en 378–560). Ahí adentro quedan K1 (650,175), R_pre (640,128), DC-DC (405,905), Nano (660,900), bobina K1 (1060,600) y F3 (470,600).\n- README.md:103 dice 'R_pre … carcasa de Al atornillada a la tapa-disipador'. README.md:286 dice 'Bobina de K1 … dentro de la caja de PETG' y T0.4 (README.md:332) pide 'la bobina 1 h energizada en la caja cerrada'.\n- El SW80 (350 g, 100 A, según R06 §3.3) no tiene dimensiones en el repo. Un contactor de esa clase no entra en 6 mm libres sobre el ESC ni en 2 mm de ancho.",
+  "propuesta": "Opción recomendada: sacar K1, R_pre y la placa de mando (Nano, DC-DC, optos, F2/F3) a una segunda caja estanca de mando en la consola, junto a S1. Así queda separado el calor de la bobina.\n\nSi no, redimensionar ELE-01:\n- Agregar a inputs.yaml las dimensiones medidas o de catálogo de K1 (SW80), de R_pre y de la placa.\n- Sumarlas a los checks de `checks()` (huella y alto).\n- Actualizar el polígono del diagrama y los textos del README §7/§8/T0.4."
+ },
+ {
+  "id": "E-02",
+  "severidad": "alta",
+  "archivo": "decisiones.md",
+  "problema": "El contacto del cordón (Watski de 12 V nominales) y el de la seta, que no tiene tensión especificada, ven unos 59 V al abrir la bobina de K1 con el supresor diodo+R. D-33 justifica el riesgo diciendo que no hay arco inductivo, y es al revés. Ese único contacto alimenta K1, U2 y U3: si se suelda, tirar del cordón no activa ninguna de las tres barreras.",
+  "evidencia": "- electronica.json bobina: `V_N2_negativo_V: -29.9` con `R_sup_ohm 44.3` e `I_max_A 0.659`. En el instante de apertura el contacto queda entre N1 = V_bat (29,2 V, con la seta cerrada) y N2 = −29,9 V. Cálculo: 29,2 + 29,9 = **59,1 V** sobre el contacto, que corta 0,66 A inductivos.\n- Con supresor de solo diodo serían unos 30 V.\n- decisiones.md:178 dice: 'se usa a 24 V con ≤ 0,6 A de bobina, con supresor en la bobina (sin arco inductivo en el contacto)'. inputs.yaml:532 (B-KILL) dice 'usado a 24 V con ≤ 0,6 A'. Pero el README §7 da 0,66 A a 29,2 V.\n- La seta (B-ESTOP, README §4) solo pide 'NC ≥ 1 A', sin tensión ni categoría CC.\n- README §3 reconoce como única falla latente el corto entre conductores del cordón. Una soldadura del contacto tiene el mismo efecto (D2 en bajo, K1 cerrado, U3 conduciendo) y no se analiza.",
+  "propuesta": "- Corregir D-33, B-KILL y el README §4 con 0,66 A y 59 V de pico.\n- Especificar la seta con contacto DC-13 de al menos 1 A a 60 V CC o más.\n- Para el cordón, una de dos:\n  - usar un interruptor de cordón con tensión nominal de 60 V CC o más, o\n  - hacer que el cordón y la seta comanden un relé auxiliar de 24 V con contactos de clase CC 60 V y bobina de baja corriente (el 'relé auxiliar' que D-33 ya menciona como plan B), y que ese relé corte la bobina de K1.\n- Si se mantiene el diodo+R, poner un TVS o un snubber RC sobre el contacto del cordón.\n- Ampliar T0.19 midiendo la tensión sobre el contacto con osciloscopio, y agregar la soldadura del contacto del cordón como falla latente en README §3/§8."
+ },
+ {
+  "id": "E-03",
+  "severidad": "media",
+  "archivo": "sizing.py",
+  "problema": "El balance térmico de la caja ESC (el R_th requerido del disipador) solo cuenta la pérdida del ESC. No incluye la bobina de K1, que según el diagrama y el README va dentro de la misma caja. Con la bobina, la caja supera el límite de 50 °C del PETG.",
+  "evidencia": "- sizing.py:290-294 calcula `Pl = st[\"P_loss_esc\"] + et[\"sun_load_w\"]` con T_box_max = PETG t_service_max_c (50 °C). Da R_hs_required 0,609 K/W para 26,36 W.\n- La bobina (electronica.json) disipa 7,96–14,79 W a 25,6 V y 10,4–19,2 W a 29,2 V con Us 24 V.\n- Cálculo con los mismos parámetros (T_aire 30 °C, r_interface 0,15, R_hs 0,609): T_box ≈ 30 + 26,36×0,759 + P_bobina×0,609 = **54,8 °C (8 W) / 59,0 °C (14,8 W) / 61,7 °C (19,2 W)**, contra un límite de 50 °C.\n- README §8 (línea 286) reconoce el recalentamiento solo como 'degradación térmica lenta' y lo deja para T0.4.",
+  "propuesta": "- Sumar la potencia de la bobina (V²/R_bobina con R mínima a V_máx) y la caída de contactos de K1 a la potencia de la caja en sizing.py si K1 sigue dentro, y redimensionar el disipador.\n- Mejor: sacar K1 de la caja (ver E-01) o usar la bobina de 36 V (4,6–8,6 W).\n- Agregar un test que compare T_box con t_service_max_c incluyendo todas las fuentes de calor internas."
+ },
+ {
+  "id": "E-04",
+  "severidad": "media",
+  "archivo": "04_diseno/electronica/calc_electronica.py",
+  "problema": "La configuración del VESC no fija `l_erpm_start`. Con su valor por defecto (0,8), el VESC empieza a recortar corriente a 24 080 ERPM (3440 rpm), por debajo de las rpm de V máx a plena carga. El tope legal sí reduce la V máx a plena carga y la SOG en condición adversa, al contrario de lo que dicen D-30 y sizing.",
+  "evidencia": "- [VERIFICADO hoy] motor/mcconf_default.h de vedderb/bldc: `#define MCCONF_L_RPM_START 0.8 // Fraction of full speed where RPM current limiting starts`.\n- [VERIFICADO hoy] mc_interface.c:2421-2428: `rpm_pos_cut_start = conf->l_max_erpm * conf->l_erpm_start; … lo_max_rpm = utils_map(rpm_now, rpm_pos_cut_start, rpm_pos_cut_end, l_current_max_tmp, 0.0)`.\n- hw_75_100.h no redefine ese valor.\n- La tabla §6 del README (ELEC:vesc) no incluye `l_erpm_start`.\n- Simulé el Drive de sizing en una copia con el recorte lineal entre 24 080 y 30 100 ERPM:\n  - V máx nominal a V nominal: 7,06 → **6,41 km/h**.\n  - V máx de diseño a V mínima: 6,43 → 6,14 km/h.\n  - Adverso (viento + olas, V mínima): 5,65 → 5,35 km/h, y SOG 3,85 → **3,55 km/h** (mínimo 3,0).\n  - Crucero de diseño: 3579 rpm y 40,9 A, contra un límite recortado de 50,3 A (sigue cumpliendo).\n- sizing.json `legal_speed.cap_reduces_full_load_vmax: false` y D-30 ('a plena carga baja la V máx nominal de 7,1 a 7,1') quedan incorrectos.",
+  "propuesta": "- Agregar `l_erpm_start` a la configuración obligatoria (README §6, generado por calc_electronica.py). Un valor de 0,95–0,98 hace que el recorte empiece por encima de 4125 rpm × 7 = 28 875 ERPM.\n- Modelar el recorte en sizing.py (`legal_speed` y `max_speed`) para que `cap_reduces_full_load_vmax` y la SOG adversa lo reflejen.\n- Agregar al test de coherencia del VESC la verificación l_erpm_start × l_max_erpm ≥ ERPM de V máx a plena carga."
+ },
+ {
+  "id": "E-05",
+  "severidad": "media",
+  "archivo": "bom.csv",
+  "problema": "La BOM compra el SW80 con bobina de 24 V sin la condición que exige el README. Y la alternativa que propone el README (bobina de 36 V) no cerraría en caliente con la batería a tensión nominal: tras un corte, K1 podría no volver a cerrar.",
+  "evidencia": "- bom.csv:24 B-CONT: 'bobina 24 V ≤ 13 W', sin condición.\n- README §4 (K1): '24 V solo con confirmación escrita de 122 % Us continuo; si no, 36 V'. README §11.8 y R06 §3.3 d también lo piden (R06 incluso recomienda 48 V continua).\n- electronica.json opciones.36: `pullin_max_V 23.76`, contra `v_rest_min 24.0`: margen 0,24 V calculado a 20 °C.\n- Cálculo con el coeficiente del cobre 0,393 %/K (la tensión de cierre escala con R_bobina): 66 % × 36 V × (1 + 0,00393×ΔT) = **26,6 V a 50 °C** y **27,5 V a 60 °C**, por encima de los 25,6 V nominales.\n- Según E-03, la caja estaría a 55–62 °C.\n- Supuesto: que el 66 % Us de la ficha del SW80 esté especificado con la bobina a 20 °C, que es lo habitual.",
+  "propuesta": "- Hacer que B-CONT copie la especificación del README: bobina apta para 29,2 V continuos con confirmación escrita, o la variante elegida.\n- Elegir la tensión de bobina verificando el cierre con la bobina a la temperatura real de su caja: que cierre con ≤ 24 V con R_bobina caliente. Evaluar bobina de 24 V con 'economizer' o PWM de retención, o mantener 24 V con confirmación de Albright.\n- Agregar a T0.4 una prueba de re-cierre con la bobina caliente (después de 1 h) con el pack a 25,6 V."
+ },
+ {
+  "id": "E-06",
+  "severidad": "media",
+  "archivo": "inputs.yaml",
+  "problema": "La sección del cable DC no es coherente entre documentos. El dimensionamiento, la BOM de cable y el diagrama dicen 10 mm², pero los terminales, el Anderson, los prensaestopas, el puente serie y D-21 dicen 16 mm². Un terminal tubular de 16 mm² crimpado sobre cable de 10 mm² en el conductor principal (47 A continuos) deja un engarce flojo y puede calentarse.",
+  "evidencia": "- resultados/sizing.json: `cables.dc.section_mm2: 10`, `fuse.rating_a: 60`. B-CAB-DC (bom.csv) = '10 mm² cobre estañado'. El diagrama dice 'puente serie 10 mm²'.\n- inputs.yaml B-TERM: 'Terminales tubulares estañados Skyllermarks 16 mm²'. B-GLAND20: '2 × DC 16 mm²'. B-ANDERSON: 'cable hasta 16 mm²'.\n- 06_ensamblaje_y_pruebas.md:104 dice 'puente serie de 16 mm²'; :29 y :148 (U-27) dicen 'Terminales 16 mm²'. 02_calculos.md:264 dice 'Anderson SB50 (120 A, 16 mm²)'.\n- decisiones.md:127 (D-21) dice 'Cable DC 16 mm² (el fusible de 100 A lo protege)'. auditoria.md A-04 da como resolución 'Cable DC 16 mm²'. Pero hoy el fusible es de 60 A y el cable de 10 mm².",
+  "propuesta": "Elegir una sola sección y propagarla. Lo más simple es fijar 16 mm² como mínimo para el DC: más margen, coincide con el Anderson, los terminales y D-21, y la caída es menor. Para eso:\n- Agregar en inputs.yaml `electrical.dc_min_section_mm2: 16`, o que sizing elija ≥ 16.\n- Que bom.py derive de sizing.json la sección de B-TERM, B-ANDERSON y B-GLAND20.\n\nSi se queda en 10 mm²: comprar terminales y contactos SB50 de 10 mm² (8 AWG o 6 AWG según el contacto).\n\nEn cualquier caso, actualizar D-21, A-04 y 06 M9.1/U-27."
+ },
+ {
+  "id": "E-07",
+  "severidad": "media",
+  "archivo": "04_diseno/piezas/P1-ELE-01_esc_box.py",
+  "problema": "La caja ELE-01 y la tapa ELE-02 no tienen pasos para la seta, el LED de panel, el botón del antichispa ni el acceso USB para calibrar. Con la regla 'un cable redondo por prensaestopas' no se puede cablear sin perforar a mano y perder el IP68. Sin un botón accesible, el antichispa (B-ASW, dentro de la caja según D-20) no se puede encender con la caja cerrada.",
+  "evidencia": "- El CAD tiene GLANDS (5 × M20 y 1 × M16), SIG2 (otro M16, 'cordón + seta hacia el MCU') y VENT M12, nada más (P1-ELE-01_esc_box.py:32-37 y 72-89). P1-ELE-02 solo tiene los agujeros de tornillos (`lid_holes`).\n- Cables que tienen que salir de la caja según el diagrama: DC+, DC−, 3 fases, hall (J1), cordón (J2). A eso se suman la seta ('Consola/tapa', fuera del bloque, 2 hilos), el LED de estado del panel (README §5.4, D6), el botón LED de 16 mm del antichispa (B-ASW) y el USB para la calibración y T0 (README §5.6, telemetría).\n- README §11.3 ya pedía 'prever lugar para la seta (Ø22)', y 06:332 (H-10) lo tiene abierto.",
+  "propuesta": "- Definir dónde va físicamente cada mando: seta y LED en la consola o en la caja de mando de E-01.\n- Agregar al CAD los pasos que faltan: M16 para la seta, M12 para el LED, agujero sellado para el botón del antichispa (o eliminar el antichispa, que es opcional) y un conector USB estanco o tapa de servicio.\n- Agregar un check que cuente cables contra prensaestopas."
+ },
+ {
+  "id": "E-08",
+  "severidad": "media",
+  "archivo": "04_diseno/electronica/diagrama_cableado.py",
+  "problema": "El conector Anderson SB50 (BOM ×2, 'batería ↔ instalación'; el cargador usa el mismo) no aparece en el diagrama, y no se define si va antes o después de F1. Si va entre el borne y F1, el tramo y el conector, que es la toma de carga y se desconecta con la mano, quedan sin protección contra sobrecorriente.",
+  "evidencia": "- inputs.yaml B-ANDERSON: qty 2, 'batería ↔ instalación; el cargador usa el mismo conector'. D-33 y 02_calculos.md:264 dicen lo mismo.\n- Los textos del SVG (extraídos con grep) no contienen 'Anderson' ni 'SB50'.\n- El diagrama dibuja BAT2+ → F1 '≤ 178 mm del borne +' → S1, sin conector.\n- 06:171 (S14) solo dice 'Anderson SB50 en zona seca'.\n- El diagrama dibuja una sola 'Caja de batería', pero la BOM compra 2 (B-BOX qty 2).",
+  "propuesta": "- Dibujar el SB50 en el diagrama aguas abajo de F1 (F1 en el borne, dentro de la caja de BAT2; SB50 entre F1 y S1). Así el conector y el cable a la consola quedan protegidos.\n- Que la carga se haga por ese mismo punto con S1 OFF.\n- Mostrar las 2 cajas de batería y el recorrido del puente serie entre ellas.\n- Indicar en el diagrama la regla de los 175 mm medidos sin contar el conector."
+ },
+ {
+  "id": "E-09",
+  "severidad": "baja",
+  "archivo": "bom.csv",
+  "problema": "La BOM no coincide con la lista de componentes del README: faltan piezas de seguridad y F2 está duplicado.",
+  "evidencia": "- Faltan el supresor de bobina de K1 (diodo + R de unos 44 Ω, con su potencia, o TVS), que solo aparece como texto en la especificación de B-CONT. También faltan los 3 × 1N4148 antiparalelo que pide README §4/§11.8: B-PCB no los nombra ('3 optoacopladores, transistor Q_EN, pull-down…, resistencias y bornes').\n- Faltan los cables de mando y señal del README §4: cordón 2 × 0,75 mm² redondo, hall 4 × 0,25 mm² apantallado, mando 0,75–1 mm².\n- F2 está dos veces: B-CFUSE ('Fusible de mando … 2 A + portafusible') y dentro de B-PCB ('fusible F2 2 A + portafusible').\n- README §4 (tabla generada) sigue diciendo 'genérica (agregar a la BOM)' para R_pre, F2, F3, U1–U3 y D_U1–D_U3, aunque ya están en B-PCB y B-DCDC.",
+  "propuesta": "- Agregar a inputs.yaml `bom.items` el supresor de K1 (valor y potencia de calc_electronica), los 1N4148 y los cables de mando y señal con metros.\n- Quitar F2 de B-PCB o eliminar B-CFUSE.\n- Hacer que calc_electronica.py lea los IDs de la BOM para la columna 'Elegido / referencia', así 'agregar a la BOM' se actualiza solo."
+ },
+ {
+  "id": "E-10",
+  "severidad": "baja",
+  "archivo": "04_diseno/electronica/README.md",
+  "problema": "Hay textos desactualizados o contradictorios sobre seguridad eléctrica y el tope legal. PROMPT §9 exige coherencia entre los .md y el código.",
+  "evidencia": "- README.md:17: '(no están en run_all.py: ver §11)', pero run_all.py tiene los pasos 6c/6d con calc_electronica y diagrama_cableado.\n- README.md:35: '(la BOM actual dice lo contrario, ver §11)', pero la BOM ya tiene B-DCDC.\n- §11.1/§11.2/§11.4/§11.5 ya están resueltos (DC-DC y B-PCB en la BOM; inputs v_min = 24,0 = battery_cut_start; run_all actualizado).\n- 06_ensamblaje_y_pruebas.md:330 (H-8): 'pone l_max_erpm 30000 > tope legal 30164'. Es falso (30000 < 30164) y además ya es 30100.\n- 06:160 (S3) dice 'El CAD tiene 1 × M16', pero hoy tiene 2.\n- 02_calculos.md:117 tiene '8,7 km/h' escrito a mano. El modelo da 8,02 km/h (2 personas, banda baja, 26,8 V) y 8,51 km/h a 29,2 V (corrida en una copia con Drive.max_speed). La conclusión 'no llega a 5 kn' sigue siendo válida.\n- README.md:29 dice 'montar a ≤ 175 mm', pero el diagrama, la BOM (B-FUSEH) y 02 dicen '≤ 178 mm'.",
+  "propuesta": "- Borrar o actualizar README l.17, l.35 y §11.\n- Cerrar H-8 y S3 en 06.\n- Poner el 8,7 km/h como valor <!--V:…--> generado por sizing.\n- Unificar en '≤ 175 mm' en BOM, diagrama y 02, que es lo conservador y lo que dice el texto de ABYC."
+ },
+ {
+  "id": "README-FEA",
+  "severidad": "alta",
+  "archivo": "README.md",
+  "problema": "El README (resumen ítem 9 y tabla de estado) presenta 'FS ≥ 3 (impresas) / ≥ 2 (metal) por caso de carga' como verificado en software. No menciona que el FEA 3D da FS 0,32 (MNT-01), 0,74 (MNT-06) y 0,86 (MNT-04), ni que H-1…H-3 bloquean T3/T4. Viola PROMPT §8 y §9 ('los < 3 están resueltos o justificados'; estado verificado/no verificado).",
+  "evidencia": "`grep -n -i 'fea\\|H-1\\|0,32\\|MNT-01' README.md` → solo línea 46 ('opcional FEA: sudo apt-get install libglu1-mesa'). README.md:15 dice 'todo está verificado en software (... FS ≥ 3 calculados ...)'; README.md:34 '| FS ≥ 3 (impresas) / ≥ 2 (metal) por caso de carga | [CALCULADO] structural.py'. En cambio 04_diseno/fea/README.md:314 dice 'σvm p99 = 19.9 MPa ... contra S_sost = 8.39 MPa → **FS = 0.32**', y :315-316 da FS 0.74 (MNT-06) y 0.86 (MNT-04). 06:323-325 y checklist_salida.md:7 bloquean T3/T4 por esto. resultados/estructural.json n_fail = 0 solo porque structural.py usa la sección equivocada (fea/README:314).",
+  "propuesta": "En el resumen ejecutivo y en la tabla de estado agregar una fila: 'FEA 3D: FS 0,32 / 0,74 / 0,86 en MNT-01 / MNT-06 / MNT-04 (objetivo 3) → H-1…H-3 abiertos; T3/T4 bloqueados hasta rediseño (07 §2.1)', con marcadores a un JSON del FEA. Cambiar 'FS ≥ 3 calculados' por 'FS ≥ 3 a mano en structural.py; el FEA contradice 3 piezas'."
+ },
+ {
+  "id": "README-REGEN",
+  "severidad": "alta",
+  "archivo": "README.md",
+  "problema": "El README afirma que la regeneración desde inputs.yaml está 'probado: auditoria.md §Regeneración'. Esa sección no existe y PROGRESS.md tiene el ítem sin tildar. Es una afirmación falsa de algo que PROMPT §9 exige probar y documentar (§8: 'No declares nada como probado si no lo está').",
+  "evidencia": "README.md:50: 'Cambiar cualquier dato en `inputs.yaml` ... regenera cálculos, geometría, planos, BOM y documentos (probado: [auditoria.md](auditoria.md) §Regeneración)'. `grep -n -i regenera auditoria.md PROGRESS.md` → solo PROGRESS.md:36 '- [ ] Prueba de regeneración desde inputs.yaml documentada' y :42 '- [ ] Cambio en inputs.yaml regenera todo (probado y documentado)'. auditoria.md tiene 23 líneas, ninguna sobre regeneración, y su línea 3 dice '(Pendiente — se completa en la Pasada 3.)'.",
+  "propuesta": "Ejecutar la prueba en una copia (p. ej. boat.transom.thickness_range_mm 20–65 → 20–70), registrar los diffs de sizing.json, manifest.json y bom.csv en una sección '§Regeneración' de auditoria.md y recién entonces dejar 'probado'. Mientras tanto, cambiar el README a '[NO EJECUTADO]'."
+ },
+ {
+  "id": "PEND-VESC-I",
+  "severidad": "alta",
+  "archivo": "PENDIENTES_GASPAR.md",
+  "problema": "P2.2 manda configurar el VESC con 'corriente de motor 70 A' y '`l_in_current_max` ≤ 80 % del BMS' (= 80 A). Contradice el límite de diseño de 60 A (D-42, inputs.yaml motor current_limit_a) y la configuración generada (l_current_max 60, l_in_current_max 50). 80 A supera el fusible F1 de 60 A y la ampacidad de 75 A del cable de 10 mm². Siguiendo el documento de acción física, el VESC queda fuera de lo calculado: más par en bollard, menos margen térmico y fusible que salta en el agua (pérdida de propulsión, FMEA F13).",
+  "evidencia": "PENDIENTES_GASPAR.md:39: '`l_in_current_max` ≤ 80 % del BMS; corriente de motor 70 A'. inputs.yaml:288 'current_limit_a: 60.0 ... (decisiones D-42)'. 04_diseno/electronica/electronica.json vesc_values: \"l_current_max\": 60.0, \"l_in_current_max\": 50.0. sizing.json: fuse.rating_a = 60, cables.dc.ampacity_a = 75, selection.battery i_bms 100 A → 0,8×100 = 80 A. bollard_fwd.I_m = 60.0 (limiter 'corriente de motor').",
+  "propuesta": "Reemplazar P2.2 por los valores de electronica.json con marcadores: 'l_current_max = <!--V:...-->60 A; l_in_current_max = 50 A (≤ min(0,8·I_BMS, fusible F1, ampacidad del cable)); l_current_min −30 A; l_max_erpm según elec §6'. Agregar el criterio 'el XML exportado coincide con 04_diseno/electronica/electronica.json'."
+ },
+ {
+  "id": "CABLE-16",
+  "severidad": "alta",
+  "archivo": "06_ensamblaje_y_pruebas.md",
+  "problema": "06 (y 03) especifican cable DC y terminales de 16 mm², pero sizing y la BOM compran cable DC de 10 mm². B-TERM compra terminales tubulares de 16 mm² y la crimpadora es de golpe. Un terminal de 16 mm² crimpado sobre un conductor de 10 mm² queda flojo: unión de potencia de alta resistencia, justo el modo F9 (S = 9, incendio) del FMEA.",
+  "evidencia": "06:104 'puente serie de 16 mm²'; 06:148 'U-27 | Terminales 16 mm²'; 06:29 'Terminales 16 mm²'; 03_arquitectura.md:173 'cable 16 y 10 mm²'. resultados/sizing.json cables.dc.section_mm2 = 10 (ampacity 75 A, drop 1,2 %). bom.csv:28 'B-CAB-DC ... 10 mm² cobre estañado ... (caída 1.2 % a 47 A)'; bom.csv:30 'B-TERM ... Terminales tubulares estañados Skyllermarks 16 mm²'; bom.csv:35 'B-GLAND20 ... 2 × DC 16 mm²'. auditoria.md A-04 dice 'Cable DC 16 mm² (D-21)', resolución que ya no rige porque el fusible bajó a 60 A.",
+  "propuesta": "Elegir una sección y propagarla. Si queda 10 mm² (válido con F1 60 A y 75 A de ampacidad): cambiar B-TERM a terminales de 10 mm² con agujeros M8/M10 y cambiar 06 §1, M9.1, U-27, S2, 03 §5 y B-GLAND20 a 10 mm² usando el marcador sizing.cables.dc.section_mm2. Si se prefiere 16 mm², que sizing/BOM compren 16 mm². En cualquier caso, agregar en U-27 una prueba de tracción con una carga numérica según la sección."
+ },
+ {
+  "id": "06-POLEA",
+  "severidad": "media",
+  "archivo": "06_ensamblaje_y_pruebas.md",
+  "problema": "La tabla de piezas torneadas pide 'Dold 40 T' para la polea del eje DRV-06, pero el diseño, el plano y la BOM son de 48 T (relación 20:48). Con 40 T la correa de 425 mm y la distancia entre centros no cierran, y cambian la relación y las rpm de hélice. Además, T0.M1 convierte 0,3 N·m a 10 N con r = 32 mm (radio de una 40 T); el radio real de la 48 T es 38,2 mm.",
+  "evidencia": "06:48 '| DRV-06 polea del eje | Dold 40 T (B-PUL-S) |'. sizing.json selection.z_shaft = 48, mech.belt.d2_mm = 76.39. Plano P1-DRV-06_pulley_shaft_rebore.svg: texto 'Ø76.3944'. bom.csv:11 B-PUL-S 'HTD-5M 48 dientes'. 06:208 T0.M1 '≤ 0,3 N·m (≤ 10 N tangente a la polea, r 32 mm)'. Cálculo: 0,3/0,0382 = 7,85 N, así que el criterio de 10 N acepta 0,38 N·m (+27 %).",
+  "propuesta": "06:48 → 'Dold <!--V:sizing.selection.z_shaft:d-->48<!--/V--> T'. T0.M1 → '≤ 0,3 N·m (≤ 7,8 N tangente a la polea, r = d2/2 = 38,2 mm [CALCULADO: sizing.mech.belt.d2_mm])', o medir con el dinamómetro sobre un brazo fijo de 30 mm, como en M4.1."
+ },
+ {
+  "id": "CRIT-T2-IBAT",
+  "severidad": "media",
+  "archivo": "06_ensamblaje_y_pruebas.md",
+  "problema": "El criterio de T2.2 (y PENDIENTES P3) acepta corriente de batería ≤ 75 A, por encima del fusible F1 (60 A) y de l_in_current_max (50 A): no detecta un VESC mal configurado. PENDIENTES P3 además sigue usando 247 N (0,85 × un predicho viejo) cuando el umbral vigente es 244 N.",
+  "evidencia": "06:236 'I_bat ≤ 75 A (PENDIENTES P3; modelo 47 A)'. PENDIENTES_GASPAR.md:44 '(≥ 247 N; predicho 287 N), corriente de batería ≤ 75 A'. sizing.json: fuse.rating_a = 60, success.bollard_pull_min_N = 244.0, bollard_fwd.I_bat = 46.8. electronica.json l_in_current_max = 50.0. 0,85 × 287,08 = 244,0.",
+  "propuesta": "T2.2 y P3: 'I_bat ≤ l_in_current_max = 50 A (modelo 47 A); si el registro muestra > 50 A, la configuración está mal (P2.2)'. Reemplazar '247 N' por <!--V:sizing.success.bollard_pull_min_N:.0f-->244<!--/V--> N en PENDIENTES (esto cierra parte de H-15)."
+ },
+ {
+  "id": "README-COMP",
+  "severidad": "media",
+  "archivo": "README.md",
+  "problema": "La tabla de comparación y el veredicto del README contradicen a 03 y a research. (a) Usa para el ePropulsion 18 589 kr ≈ 2 490 €, precio que R04 marcó como erróneo y corrigió a 21 886 kr (caña y cargador aparte). (b) Dice 'eje 316 + ánodo' para P1, pero D-36 es 'sin ánodo'. (c) El trolling cuesta ~1 000 € en el README y ≈ 1 190 € en 03, y su V máx es '~6–7 km/h' en el README y '≈ 5,5–6 km/h' en 03 §4.2. (d) El veredicto 'más del doble que un trolling' choca con '~1,9×' de 03.",
+  "evidencia": "README.md:25 '18 589 kr ≈ 2 490 € con 1 276 Wh [VERIFICADO: research/R04 S32]'. research/R04_bote_y_referencias.md:322 'S32 Watski: \"18.589 kr completo\" | **corregido** | ... = **21.886 kr**'; 03_arquitectura.md:147 '21 886 kr ≈ 2 928 €'. README.md:23 'Motor seco, eje 316 + ánodo' contra decisiones.md:190 'D-36 Sin ánodo de sacrificio en P1'. README.md:24 '~1 000 €' y '~6–7 km/h' contra 03:145 '≈ 1 190 €' y 03:128 'V máx ≈ 5,5–6 km/h con 2 personas'. README.md:27 'casi lo mismo que un fueraborda ... más del doble que un trolling' contra 03:154-155 '~1,9× el trolling', '23 % menos' que el fueraborda en DK. 2281/1190 = 1,92.",
+  "propuesta": "Tomar la fila del fueraborda de 03 §4.3 (21 886 kr ≈ 2 928 € DK / 2 549 € DE). Cambiar 'eje 316 + ánodo' por 'eje 316, sin ánodo (D-36); aislamiento galvánico'. Trolling: '≈ 1 190 € [CALCULADO: 03 §4.3]' y '≈ 5,5–6 km/h [ESTIMADO: 03 §4.2]'. Reescribir el veredicto: 'P1 cuesta ~1,9× un trolling y ~10–22 % menos que un fueraborda de 1 kW con la mitad de energía'. Idealmente generar la fila desde un JSON."
+ },
+ {
+  "id": "PEND-BAT-ALT",
+  "severidad": "media",
+  "archivo": "PENDIENTES_GASPAR.md",
+  "problema": "P0.5 invita a comprar la LiTime 36 V 50 Ah (12S) si la R medida es ≤ nominal, y P0.2 propone la LFP24_50 como 'batería chica'. Ninguno advierte que la electrónica comprada está fijada para 8S/24 V: el DC-DC del MCU (TSR 1-2450E, máx. 36 V) no soporta los 43,8 V de un 12S cargado, la bobina del contactor es de 24 V, el cordón Watski es de 12 V/15 A, el VESC tiene l_max_vin 35 V y l_battery_cut 24/22,4 V, y D-28 exige motor de 140 KV. Con la LFP24_50 (BMS 50 A) el l_in_current_max debería bajar a 40 A, menos que los 47 A de bollard. run_all.py no bloquea esto (dcdc_ok no se usa como puerta).",
+  "evidencia": "PENDIENTES_GASPAR.md:14 'con R medida ≤ nominal alcanza la LiTime 36 V 50 Ah, más liviana y barata'. :11 'usar batería chica (LFP24_50)'. inputs.yaml:367-371 LFP36_50 '12S', v_nom 38.4 → V plena = 12 × 3,65 = 43,8 V. bom.csv:46 B-DCDC 'TRACO TSR 1-2450E 7–36 V'. calc_electronica.py:43 'coil_v_nom 24 V ... para el pack 8S'; :256 dcdc_ok = max_vin < dcdc_vin_max (solo informativo, sin raise/exit). electronica.json l_max_vin 35.0. decisiones.md:155 'D-28 12S / 36 V (LiTime 36 V 50 Ah + motor 140 KV)'. LFP24_50: BMS 50 A × 0,8 = 40 A < bollard_fwd.I_bat 46,8 A. 07 §3.2 tampoco lista el DC-DC ni el contactor como costo.",
+  "propuesta": "Agregar a P0.5 (y a 07 §3.2): 'Pasar a 36 V implica cambiar el motor (140 KV, D-28), el DC-DC (p. ej. RECOM R-78HB 9–72 V, ya citado en elec §4), la bobina del contactor (36 V), el cordón (verificar a 43,8 V) y los parámetros del VESC (l_max_vin, cortes); no comprar solo la batería'. Para LFP24_50: 'l_in_current_max = 40 A y re-correr sizing'. Hacer que calc_electronica.py termine con exit ≠ 0 si dcdc_ok es False."
+ },
+ {
+  "id": "CHK-TORQUE",
+  "severidad": "media",
+  "archivo": "checklist_salida.md",
+  "problema": "El paso de seguridad del apriete de la abrazadera (H-1/F3, S = 9) no se puede ejecutar tal como está escrito. Exige una 'llave dinamométrica sobre cabeza hexagonal' y reconoce que no está en la BOM. Pero la BOM compra tornillos M12 con mango en T (sin cabeza hexagonal), y 06 define otro método (dinamómetro + brazo de 0,20 m) y lleva una 'llave en T M12' en el kit. Sin herramienta en el muelle, o se aprieta a ojo (la C ya tiene FS 0,32 a 2,5 N·m) o no se sale. Además el checklist dice '2 de repuesto' para el pasador y 06 §9 dice '5 pasadores'.",
+  "evidencia": "checklist_salida.md:27 'Abrazadera re-apretada a ≤ 2,5 N·m con llave dinamométrica sobre cabeza hexagonal (con mango en T el par no se mide; la llave no está en la BOM)'. bom.csv:53 'B-CLAMP ... Tornillos de apriete de popa M12 A4 con mango en T'. 06:28 'Palanca de torque | Llave fija o de tubo + brazo de 0,20 m tirado a 90° con el dinamómetro: T = F · 0,20 m (2,5 N·m = 12,5 N)'. 06:317 'Kit a bordo | 5 pasadores, botador Ø2, llave en T M12'. checklist_salida.md:30 '2 de repuesto + herramienta a bordo'.",
+  "propuesta": "Unificar en un solo método ejecutable: 'enganchar el dinamómetro en el extremo del mango en T a r = __ mm (medido) y tirar a 90° hasta F = 2,5/r N (p. ej. 25 N a 0,10 m); parar ahí'. Agregar el dinamómetro y la marca de radio al kit a bordo de 06 §9. O, si se decide usar cabeza hexagonal, agregar a la BOM una llave dinamométrica de 1–5 N·m y cambiar B-CLAMP. Unificar repuestos de pasador (5)."
+ },
+ {
+  "id": "06-H-OBSOLETOS",
+  "severidad": "media",
+  "archivo": "06_ensamblaje_y_pruebas.md",
+  "problema": "La lista de bloqueos de 06 §10 (repetida en 03 §6) tiene ítems que, con el diseño actual, se contradicen o ya no aplican, y aun así bloquean ensayos. H-7 dice 'Motor a 80 °C ... (> 85 °C, ≈ inf min)': 80 < 85 y el marcador imprime 'inf'. H-8 dice 'l_max_erpm 30000 > tope legal 30164': 30000 < 30164, y elec §6 ya tiene 30100. T3 exige 'H-8 resuelto'. S3/H-10 dicen que el CAD tiene 1 × M16, pero ELE-01 ya tiene 2. La checklist manda sobrescribir el 30100 de elec §6 con 30164, el tope exacto y sin margen. El operador no puede saber qué está cerrado.",
+  "evidencia": "06:329 'H-7 | Motor a 80 °C estacionario en crucero de diseño (> 85 °C, ≈ inf min)'; sizing.json thermal.cruise_design.T_motor_steady_C = 79.87, t_to_limit_min = inf. 06:330 'H-8 | README electrónica §6 pone `l_max_erpm` 30000 > tope legal 30164'; 04_diseno/electronica/README.md:233 '`l_max_erpm` | 30100'. 06:244 '**Requiere H-1, H-2, H-3 y H-8 resueltos.**'. 06:160 'El CAD tiene 1 × M16'; 04_diseno/piezas/P1-ELE-01_esc_box.py:3 '2 × M16 para señales: acelerador y cordón/seta' y :37 'SIG2 = (16.5, 28.0) # 2.º paso de señal M16'. checklist_salida.md:43 'si muestra otro valor (p. ej. el de elec §6), cargar este'. 03_arquitectura.md:189-190 repite H-7 'llegaría en ≈ inf min' y H-8 '30 000'. F5 del FMEA (O = 6) usa H-7 como causa.",
+  "propuesta": "Marcar H-7 como 'cerrado por D-42 en el modelo; lo confirma T2.5' (o redefinirlo como 'R_th real > 0,495 K/W'), y dejar de mostrar t_to_limit cuando es inf. Cerrar H-8: un solo valor (el de electronica.json) en 06 M9.6, T0.M9 y la checklist, y quitar H-8 de las condiciones de T3. Actualizar S3/H-10 a 'faltan solo los pasos del DC-DC/mando'. Revisar F5 (O) con el estado nuevo."
+ },
+ {
+  "id": "07-NUM-VIEJOS",
+  "severidad": "media",
+  "archivo": "07_roadmap_P2.md",
+  "problema": "Muchos números de 07 escritos a mano (sin marcador) son de un sizing anterior a D-42 o están mal calculados, y sostienen disparadores y beneficios. El peor: §2.9 dice que en la banda nominal el motor queda en ≈ 81 °C '[30 + 0,45 × 91 W]', que da 71 °C. Además dice que bajar R_th a 0,39 K/W 'elimina el recorte', cuando con 0,45 K/W ya no hay recorte (el límite es 0,495).",
+  "evidencia": "Cálculos en Python contra sizing.json: 30+0,45×91,2 = 71,0 °C (07:109 dice 81). (85−30)/110,8 = 0,496 K/W > 0,45 (07:110 'bajar R_th 13 % (0,45 → 0,39) elimina el recorte'). Sensibilidad (sizing.sensitivity.rows): c_w ±30 % → 708–1061 W (07:66 '729–1 104'); protector 0–25 % → 768–1113 W (07:66/88 '793–1 159', '793 W (−13 %)'); masa ±20 % → 743–1022 W (07:66 '767–1 061'); espejo −20 % → 807 W (07:74 '834 W'). 879/6 = 146,5 Wh/km (07:16 '≈ 152'). Autonomía base 2,62 h (07:36/95 '2,53 → 2,72'). Umbral de bollard 244 N (07:36/165 '< 238 N'). R_hs 0,61 (07:110 '0,58 → 0,80'). 3,02 × 5,14 × 0,94 = 14,6 N·m (07:122 '≈ 17 N·m'). 07:103 'recupera V máx de 7.1 a 7.1 km/h' (cap_reduces_full_load_vmax = False).",
+  "propuesta": "Pasar a marcadores <!--V:sizing.sensitivity.rows.N.P_minus/P_plus-->, cruise.design.P_bat/6, cruise.autonomy_design_h y success.bollard_pull_min_N. Corregir 81 → 71 °C y 17 → 14,6 N·m. Reescribir §2.9: el motor ya no recorta en el modelo; el disparador es R_th medida > 0,495 K/W. Eliminar la frase '7,1 a 7,1 km/h' o condicionarla a cap_reduces_full_load_vmax. Volver a sacar 2.7 (EO10x8) de optimization con el sizing actual."
+ },
+ {
+  "id": "03-NUM-VIEJOS",
+  "severidad": "baja",
+  "archivo": "03_arquitectura.md",
+  "problema": "Varias cifras derivadas escritas a mano no coinciden con lo que se recalcula desde resultados/arquitectura.json y bom_resumen.json. No cambian el ganador, pero son números de diseño 'CALCULADO' falsos.",
+  "evidencia": "Script Python sobre arquitectura.json. De las 120 ternas de bajas de 1 punto a A3, 39 pierden y 11 empatan con F = 50 (03:56 dice '44'). Subir 1–2 puntos a F en un criterio da como máximo 4,23 (03:57 dice 'como mucho 4,20'). Con total 17 052 kr: 1−17052/21886 = 22 % (03:155 '23 %'), 1−17052/18320 = 7 % ('8 %'), 1−17052/19000 = 10 % ('11–23 %'). 03:185 'la V máx es \"por ratos\" (8 min, 02 §5.1)', pero 02 §5.1 da 14 min sostenibles a 7 km/h nominal y sizing thermal.vmax_design.t_to_limit_min = 18,3.",
+  "propuesta": "Generar §3.1 desde arquitectura.py (contador de ternas y máximo de F) y los porcentajes de §4.3 con marcadores de bom.total_dkk. Corregir: 44 → 50 (39 + 11 empates), 4,20 → 4,23, 23/8/11–23 % → 22/7/10–22 %, 8 min → 14 min (marcador del AUTO:sizing_sustain)."
+ },
+ {
+  "id": "CHK-1PAG",
+  "severidad": "baja",
+  "archivo": "checklist_salida.md",
+  "problema": "PROMPT §5.7 pide un checklist de una página imprimible. Con 5 965 caracteres y líneas de hasta ~300 caracteres, el archivo ocupa unas 87–99 líneas impresas, casi dos páginas A4 a 10 pt.",
+  "evidencia": "Script Python (marcadores resueltos): 5965 caracteres; a 95 caracteres por línea → 99 líneas impresas; a 110 → 87. Una A4 a 10 pt con márgenes normales tiene ~55–65 líneas [ESTIMADO]. Ejemplos: las líneas 5, 7 y 19 superan los 250 caracteres cada una.",
+  "propuesta": "Sacar las fuentes largas a pie (dejar solo [R07], [06]…) y la línea 5 de leyenda. Pasar la línea 7 ('Una sola vez…') a 06. Hacer cada ítem de ≤ 1 línea, y generar un PDF de prueba (p. ej. con LibreOffice) verificando 1 página."
+ },
+ {
+  "id": "TEST-NO-NUM",
+  "severidad": "baja",
+  "archivo": "06_ensamblaje_y_pruebas.md",
+  "problema": "Algunos criterios pasa/no-pasa de T1–T3 no son numéricos, aunque el modelo da el número para fijarlos.",
+  "evidencia": "06:235 T2.1 'Empuje crece en cada escalón' (sin valores esperados al 25/50/75 %). 06:249 T3.2 'Bascula; el patín toca primero y no rompe' (sin velocidad ni ángulo de basculación ni fuerza). 06:224-225 T1.2/T1.3 'Seca' (T1.1 sí define 0 g). sizing.json tiene bollard_fwd.T_horiz = 287 N a I_m 60 A y mech.kickup.F_release_at_skeg_fwd_N = 90 N.",
+  "propuesta": "T2.1: 'empuje en cada escalón ≥ 0,85 × modelo a esa corriente (generar la tabla en sizing)'. T3.2: 'bascula ≥ 20° a ≤ 2 km/h GPS; patín sin fisura; vuelve a enclavar con 60–130 N (P5.1)'. T1.2/T1.3: '0 g de agua (papel tisú pesado ±0,01 g)'."
+ },
+ {
+  "id": "07-GALV",
+  "severidad": "baja",
+  "archivo": "07_roadmap_P2.md",
+  "problema": "07 §3.4 justifica la falta de ánodo con que 'no hay pares metálicos mojados conectados'. 06 §6 documenta pares A4/Al sumergidos (G4: M5 A4 de los portabujes y M6 A4 de la carcasa inferior contra el tubo de Al), y el M6 queda en contacto directo porque su vaina no cabe (H-12).",
+  "evidencia": "07_roadmap_P2.md:142 'P1 va sin ánodo porque no hay pares metálicos mojados conectados'. 06:183 'G4 | M5 A4 de portabujes y M6 A4 de la carcasa inferior ↔ tubo Al | Sumergido | ≈ 670 mV ... (la del M6 no cabe en Ø6,4: H-12)'. 06:334 'H-12 | Perno M6 de STR-01 \"con vaina\" en agujero Ø6,4'.",
+  "propuesta": "Corregir 07 §3.4: 'el grupo giratorio no tiene pares; quedan pares A4/Al estáticos sumergidos (G4) mitigados con Tef-Gel y vaina, con el tubo como ánodo grande'. Agregar a su disparador 'corrosión del tubo alrededor de los M5/M6 en la inspección de temporada', y resolver H-12 con un perno de 316 de Ø5 en el agujero de Ø6,4 con vaina, o con un agujero de Ø8."
+ },
+ {
+  "id": "FAB-01",
+  "severidad": "critica",
+  "archivo": "04_diseno/piezas/P1-HSG-02_bearing_bridge.py",
+  "problema": "El puente del rodamiento B se construye como DOS sólidos separados. El asiento pasante Ø35,1 (radio 17,55) corta la tira de ±12 mm y la parte superior de la caja inferior, que llega solo hasta vs+10. La herradura que rodea al rodamiento queda suelta, sin unión al puente ni a los separadores, así que el rodamiento B no tiene apoyo radial y el tiro de la correa no tiene camino de carga. El FS 14,77/25,24 de estructural.json supone una sección continua 24×t que no existe.",
+  "evidencia": "(1) STL: `trimesh.load('04_diseno/stl/P1-HSG-02_bearing_bridge.stl').split()` da 2 cuerpos de 8182,1 y 44391,7 mm³. (2) Reconstruido con build123d en una copia (`params.load()`, `m.build(p).solids()`): 2 sólidos de 8174,8 y 44388,5 mm³. El primero va de v −79 a −45 (herradura); el segundo de v −42,19 a 79 (tira), con un hueco de 2,8 mm entre ambos. (3) Ninguna otra pieza impresa tiene más de 1 cuerpo. El control de cuerpo único solo existe para probetas (tests/test_probetas.py:96); verify.json marca HSG-02 como manifold=true. 05 §8.3 detectó que el asiento atraviesa el puente, pero no la separación.",
+  "propuesta": "Rediseñar HSG-02 con material continuo alrededor del asiento. Opciones: llevar la caja inferior hasta al menos vs+R_asiento+4 (≥ vs+22) y ensanchar la tira a ≥ Ø35,1 + 2×4,5 = 44 mm en la zona del rodamiento, o hacer la tira tan ancha como la caja (±22) hasta por encima del asiento; dejar un labio de tope si se quiere ubicación axial. Agregar en verify_parts.py/test un control de 1 cuerpo para TODAS las piezas impresas (`len(mesh.split())==1`) y recalcular el FS de HSG-02 con la sección real mínima (2 × 4,45 mm de pared lateral)."
+ },
+ {
+  "id": "FAB-02",
+  "severidad": "alta",
+  "archivo": "04_diseno/piezas/P1-HSG-04_tiller_clamp.py",
+  "problema": "Los 2 pernos M6 de cada abrazadera de caña (y los agujeros de la placa HSG-07, a w_c±12) están a 12 mm del eje del tubo de caña Ø30 (radio 15). El perno atraviesa la pared y el interior del tubo de aluminio, así que la abrazadera no se puede montar sin taladrar el tubo de lado a lado (4 agujeros que lo debilitan). El modelo LC7 'sección 2×8×22' supone que los pernos están en las patas laterales, no dentro del agujero.",
+  "evidencia": "HSG-04 L42-43: `blk - cyl_x(rt + 0.1, ...)` con rt = 15, y `for w in (-12.0, 12.0): blk - cyl_z(3.25, ..., y=w)`. HSG-07 L27-29: agujeros en `W_TILLER ± 12`. Cálculo en una copia (build123d): la intersección del vástago Ø6 con el tubo HSG-06 Ø30×3 da 343,2 mm³ para cada uno de los 4 pernos (u = 30 y 85; w = 58 y 82).",
+  "propuesta": "Llevar los pernos a w_c ± (rt + 3,25 + ≥ 1,5) ≈ ±20 mm y ensanchar el bloque de la abrazadera a ±(rt + 12) ≈ ±27 mm en HSG-04 y HSG-07 (verificar el margen de la mejilla con el check existente). Modelar los pernos como cilindros en verify_parts para detectar estos choques, y recalcular LC7 con la sección real de las patas."
+ },
+ {
+  "id": "FAB-03",
+  "severidad": "alta",
+  "archivo": "04_diseno/probetas/PRB-P1.2_alojamiento_rodamiento.py",
+  "problema": "P1.2 calibra un ajuste que no existe en el diseño: asientos a presión Ø35 −0,15/−0,10/−0,05 para un 6202 en PETG. El rodamiento A va prensado en el cartucho de Al (DRV-08, M7) y el B es deslizante (+0,10) en HSG-02; ninguna pieza de PETG prensa un 6202. Su criterio dice 'actualizar geometry.press_fit_mm', pero ese parámetro solo gobierna el alojamiento Ø18 del buje igus en DRV-02. Una interferencia medida en Ø35 con pared de 4,45 mm se volcaría a un buje Ø18 de 20 mm de largo. A la vez, PENDIENTES §P1.2 pide 'buje igus H370 Ø18 (−0,05/−0,10/−0,15)' y no hay ninguna probeta para eso: P1.1A solo tiene Ø18 −0,05/0,00 en una placa de 8 mm. Además, 05 §4.1 afirma que PENDIENTES cita '6002 Ø32', lo cual ya es falso.",
+  "evidencia": "PENDIENTES_GASPAR.md:23 (igus Ø18). probetas_manifest.json → tests.P1.2.criterios: rodamiento '6202-2RS', asientos_presion_mm [-0.15,-0.1,-0.05], pasa_si '…actualizar geometry.press_fit_mm'. DRV-08 L20: `cyl_x(p.brg_D/2 …) # asiento (prensado en Al: M7)`. HSG-02 L33: `(p.brg_D + 0.1)`. Único uso de `p.press`: DRV-02 L21 `(p.bush_od + p.press)`. holguras_por_d_mm['18'] = [-0.05, 0.0, 0.15…] (sin −0,10/−0,15). 05_fabricacion.md:200 nota (1).",
+  "propuesta": "Rehacer P1.2 como réplica recortada de DRV-02: portabuje Ø33,7 × 20–40 mm de pie, con agujeros Ø18 −0,05/−0,10/−0,15 y un buje H370SM-1618-20 real. Medir el Ø interior del buje ya prensado contra el eje Ø16 (igus: el ID cierra al prensar) y fijar el criterio en 'buje no gira y el eje Ø16 entra sin trabar'. Si se quiere conservar el ensayo del 6202, dejar solo el asiento deslizante +0,10 de HSG-02 y quitar el vínculo con press_fit_mm. Actualizar la nota de 05 §4.1."
+ },
+ {
+  "id": "FAB-04",
+  "severidad": "alta",
+  "archivo": "04_diseno/piezas/P1-PRP-02_skeg.py",
+  "problema": "En la orientación elegida (print_rot (90,0,0)), la montura de las orejas sobresale ±(lt+5,3) = ±13,3 mm, mientras que el cuerpo del patín mide ±6. El cuerpo completo, cintura fusible incluida, empieza a Z = 7,3 mm sobre la cama: solo la placa de la montura (281 mm²) apoya en la cama y 5633 mm² de cara inferior se imprimen sobre soporte o en puente. La probeta P1.8, que fija la carga de rotura del fusible (200–400 N), se imprime con la cintura apoyada en la cama (3918 mm² en Z = 0). La probeta no reproduce la pieza: cara inferior sobre interfaz de soporte frente a cara de cama con compensación de pata de elefante. En el caso 'Fuerza lateral en giro (eje débil)' esa cara es fibra extrema. Además, el perfil fusible trae support_material = 0: si no se activa el soporte, el patín se imprime en el aire.",
+  "evidencia": "Áreas de caras horizontales hacia abajo por Z (trimesh). Skeg: {0,0: 281, 7,3: 5633, 21,6: 185} mm². P1.8: {0,0: 3918}. PrusaSlicer 2.7.2 sin soporte avisa 'Floating bridge anchors, Loose extrusions, Long bridging extrusions'. Con --support-material --support-material-auto genera 5,7 g de soporte entre Z 0,2 y 7,2 (la cintura apoya sobre soporte) y la capa Z 7,6 sigue saliendo como 'Bridge infill' (564 mm de filamento). Código: skeg L66-69 (cajas de la montura en y = ±(lt+0,3 … lt+5,3)); P1_impresion_fusible_0.20.ini: support_material = 0, dont_support_bridges = 1.",
+  "propuesta": "Hacer que la cara del patín apoye en la cama. Por ejemplo, montura de un solo lado (cheeks solo hacia +Z) más una pieza de cierre atornillada, o imprimir la montura aparte y unirla con el tornillo M4 tangencial. Si no se cambia, P1.8 debe reproducir exactamente la condición de impresión: la misma elevación de 7,3 mm sobre soporte, el mismo soporte y la misma interfaz. En las dos opciones, fijar en el perfil o en el 3MF el soporte por objeto (no confiar en el clic manual) y repetir el cálculo del umbral."
+ },
+ {
+  "id": "FAB-05",
+  "severidad": "media",
+  "archivo": "04_diseno/params.py",
+  "problema": "El circuito de calibración P1.1 → 'actualizar geometry.clearance_mm' → run_all.py no cambia los ajustes críticos: casi todas las holguras están escritas a mano en el CAD. `p.clr` solo se usa en el buje Ø24 de MNT-01. Tubo Ø40 (+0,3 en MNT-05, MNT-06 y STR-01), caña Ø30 (+0,4 ELE-03, +0,3 ELE-04/SAF-01, +0,2 HSG-04), perno de basculación (+0,1 MNT-04) y cartucho (+0,25/+0,3 MNT-05) quedan igual con cualquier valor medido.",
+  "evidencia": "grep: MNT-05 L59 `rt = (p.tube_od + 0.3) / 2`; MNT-06 L17 `(p.tube_od + 0.3)`; STR-01 L33 `(p.tube_od + 0.3)`; ELE-03 L34 `+ 0.4`; ELE-04 L17 `+ 0.3`; SAF-01 L16 `+ 0.3`; HSG-04 L41 `rt + 0.1`; MNT-04 L31 `tilt_pin_d + 0.1`; MNT-05 L64-65 `+0.3`, `+0.25`. params.py:56 `d['clr'] = c` solo se usa en MNT-01 L37. PENDIENTES §P1.1 y 05 §4.3 dicen 'Resultado → inputs.yaml geometry.clearance_mm'.",
+  "propuesta": "Crear en inputs.yaml → geometry un juego de holguras por tipo y orientación de impresión (p. ej. `fit_slide_vertical_mm`, `fit_slide_horizontal_mm`, `fit_tube_mm`, `fit_pin_mm`) que salgan directamente de P1.1A/B y P1.1H. Reemplazar los literales del CAD por esos parámetros y agregar un test que cambie un valor y compruebe que cambia el Ø en las piezas correspondientes."
+ },
+ {
+  "id": "FAB-06",
+  "severidad": "media",
+  "archivo": "prusaslicer/P1_impresion_estructural_0.20.ini",
+  "problema": "05 §3.1 indica para los agujeros horizontales grandes (tubo Ø40,3 en MNT-05, MNT-06 y STR-01; Ø24,25 en MNT-01; Ø30,2 en HSG-04) 'Con soporte interior: quitarlo y repasar'. Pero todos los perfiles traen support_material_buildplate_only = 1, que impide generar soporte dentro de un agujero (el arco se apoya sobre la propia pieza). El arco superior del alojamiento del tubo, que es la ruta de carga LC5 de la cuna (p = 6M/(d·L²) supone contacto en toda la circunferencia), se imprime sin soporte, y con +0,15 mm de holgura radial el arco caído impide la entrada del tubo o deja contacto puntual.",
+  "evidencia": "P1_impresion_estructural_0.20.ini:71 y P1_impresion_fusible_0.20.ini:68 `support_material_buildplate_only = 1`. slice_report.json: MNT-05 sin soporte 1128,17 g frente a 1128,26 g con soporte automático (+0,09 g: no hay soporte en el Ø40,3). Laminado propio de MNT-05 al 90 %: aviso 'Collapsing overhang' y 0 mm de 'Support material'. 05_fabricacion.md:148.",
+  "propuesta": "Dar a los agujeros horizontales ≥ Ø18 forma de gota o techo plano en el CAD (vértice a 45° en el arco superior, que se repasa después) o activar buildplate_only = 0 por objeto en MNT-05/06/STR-01/MNT-01 con un bloqueador fuera del agujero. Corregir el texto de 05 §3.1. Medir con P1.1H la cota vertical (no solo el Ø medio) antes de imprimir la cuna."
+ },
+ {
+  "id": "FAB-07",
+  "severidad": "media",
+  "archivo": "04_diseno/piezas/P1-MNT-01_clamp_bracket.py",
+  "problema": "MNT-01 se imprime con 85 % de gyroid (solid_frac 0,85, el relleno base del perfil estructural). Sin embargo, structural.py verifica FS ≥ 3 sobre la sección llena, y el propio .ini aclara que f_process = 0,80 'NO cubre un relleno ralo'. En la esquina de la C (t = leg_t = 34 mm) solo 2,7 mm por cara son perímetros macizos y el núcleo de 28,6 mm es gyroid. Con el FS mínimo de 3,23 (apriete sostenido, caso de fluencia), el núcleo debe conservar al menos el 88 % de la resistencia maciza para mantener FS ≥ 3, lo que no está demostrado para un 85 % de gyroid. Esto ocurre en la pieza más larga (1,83 kg, 166,6 h).",
+  "evidencia": "Python: core = 34 − 2·6·0,45 = 28,6; (core/t)³ = 0,595; FS_ef = 3,23·[1 − (1−k)·0,595] → k = 0,85 da 2,94; k = 0,80 da 2,85; k mínimo = 0,88. structural.py:86 `Zc = p.clamp_w * p.leg_t**2 / 6` (sin solid_frac; grep no encuentra solid_frac en structural.py). P1_impresion_estructural_0.20.ini, comentario del encabezado y línea 'fill_density = 85%'. estructural.json: MNT-01 'Apriete (sostenido)' FS 3,23.",
+  "propuesta": "Aplicar en structural.py la reducción del núcleo, Z_ef = Z·[1 − (1 − k_inf)·((t − 2·n·w)/t)³] con k_inf conservador (p. ej. solid_frac^1,5 [SUPUESTO] hasta tener datos de P1.5), o imprimir MNT-01 al 100 % rectilíneo en la zona de la esquina de la C mediante un modificador. Volver a calcular masa y horas en los dos casos."
+ },
+ {
+  "id": "FAB-08",
+  "severidad": "media",
+  "archivo": "bom.csv",
+  "problema": "Los insertos están especificados de forma contradictoria. La BOM compra 'Insertos térmicos de LATÓN M4' (ruthex) y 06 U-21 dice 'insertos de latón'. En cambio, 05 §5.3 ('Insertos térmicos de inox'), la probeta P1.4 y PENDIENTES P1.4 ('Inserto M4 inox') ensayan inox, con otra temperatura de instalación (250–260 °C frente a 245 °C). La probeta no representa lo que se compra. Además, el inserto M8 inox que 05 §5.3 exige en MNT-05 (cáncamo del cabo de seguridad, zona mojada) no figura en la BOM, y su agujero Ø9,2 sale de un `INSERT_HOLE[6]/2 + 0.6` ad hoc, sin fuente (INSERT_HOLE no tiene clave 8).",
+  "evidencia": "bom.csv:54 B-INS 'Insertos térmicos de latón M4'. 06_ensamblaje_y_pruebas.md:142 '8 × M4 en insertos de latón'. 05_fabricacion.md §5.3 'Insertos térmicos de inox … y el M8 del cáncamo de MNT-05 (zona mojada → inox obligatorio)'. PENDIENTES_GASPAR.md:25. MNT-05 L79-80 `cyl_z(INSERT_HOLE[6] / 2 + 0.6, …)`. cadlib.py:90 `INSERT_HOLE = {3: 4.0, 4: 5.6, 5: 6.4, 6: 8.0}`. grep de 'M8' en bom.csv: no hay ningún inserto M8.",
+  "propuesta": "Elegir un solo material para el M4 de ELE-01, comprar ese mismo para P1.4 y alinear 05, 06, PENDIENTES y la BOM. Agregar a la BOM el inserto M8 inox (con link verificado) y definir `INSERT_HOLE[8]` con el agujero que da el fabricante. Validar el arranque del M8 con una probeta: es el anclaje del cabo de seguridad."
+ },
+ {
+  "id": "FAB-09",
+  "severidad": "media",
+  "archivo": "bom.csv",
+  "problema": "La compra de filamento no alcanza y contradice 05. La BOM pide 8 kg ('masa impresa 6,01 kg + 30 % (probetas, fallas)'). 05 §6 dice que hacen falta 11 bobinas de 1 kg y que ese número es '= bom.py'. Solo las probetas son 1,69 kg (28 % de 6,01), así que el 30 % queda consumido sin margen para purga, soportes, fallas ni la impresión de 7 días de MNT-01 que requiere cambio de bobina.",
+  "evidencia": "bom.csv:60 B-PETG qty 8,0 kg. 05_fabricacion.md:338 'Bobinas de 1 kg a comprar: 11 … (= bom.py)'. Python: (6011 + 1690) × 1,3 = 10 011 g; 8000/7701 = 1,039 (margen del 3,9 %).",
+  "propuesta": "Hacer que bom.py calcule B-PETG como ceil((piezas + probetas, en g de PrusaSlicer de slice_report) × 1,3 / 1000) = 11 kg, y que 05 §6 lea ese mismo valor del BOM en lugar de afirmarlo. Exigir en la especificación la HDT ≥ 70 °C del material elegido (05 §1 descarta Prusament y Bambu; eSUN PETG+ no está verificado)."
+ },
+ {
+  "id": "FAB-10",
+  "severidad": "media",
+  "archivo": "inputs.yaml",
+  "problema": "Las horas de impresión publicadas están subestimadas en torno a 2×. `printer.print_rate_g_h = 18` genera 334 h en manifest, README, 03 y 07, y por pieza en la BOM (MNT-01 103 h). PrusaSlicer, con los perfiles del propio repo, da 603 h de piezas más 161 h de probetas (764 h, unos 32 días seguidos); MNT-01 son 166,6 h y MNT-05 148,3 h. 05 §8.1 lo detecta, pero el valor no se corrigió y el README sigue mostrando 334 h como costo de tiempo del proyecto.",
+  "evidencia": "inputs.yaml:452 `print_rate_g_h: 18.0`. README.md:23 '~334 h de impresión'. 03_arquitectura.md:65,69,157. 07_roadmap_P2.md:22,53 ('MNT-01 103 h'). slice_report.json → laminado.totales: pieza h 603,1, probeta h 160,6. MNT-01 h 166,55.",
+  "propuesta": "Tomar las horas por pieza de slice_report.json (o fijar print_rate_g_h = 9,9 [CALCULADO] desde ese informe) y regenerar manifest, BOM, README, 03 y 07. Indicar en el README las horas de piezas y de probetas por separado."
+ },
+ {
+  "id": "FAB-11",
+  "severidad": "media",
+  "archivo": "PENDIENTES_GASPAR.md",
+  "problema": "Los criterios pasa/no-pasa de las probetas de fijación no coinciden con 05 ni con el FS. P1.4: PENDIENTES aprueba con 'Arranque ≥ 0,6 kN', pero 05 §4.1 exige ≥ 662 N (= 3 × 220 N por inserto). Un inserto de 600–661 N pasa la lista de Gaspar y deja la tapa del ESC con FS < 3. P1.3: PENDIENTES remite a '3 × la carga de 05 §4.1', y 05 §4.1 dice 'PENDIENTES pide ≥ 2 100 N → usar el mayor'. Es una referencia circular a un valor que ya no está en PENDIENTES, y el umbral queda ambiguo entre 1816 y 2100 N. El ejemplo de torque de 05 §4.3 usa 2,1 kN.",
+  "evidencia": "PENDIENTES_GASPAR.md:24-25. 05_fabricacion.md:193 (P1.3) y la fila P1.4 de §4.1 ('≥ 662 N (= 3 × 220 N); PENDIENTES ≥ 600 N'). 05 §4.3 '(≈ 0,8 N·m con 2,1 kN)'. estructural.json ELE-01: 1764 N / 8 insertos = 220 N.",
+  "propuesta": "Generar los umbrales de PENDIENTES desde estructural.json, igual que la tabla FAB:criterios (P1.3 ≥ 1816 N, P1.4 ≥ 662 N), quitar el 'usar el mayor' y el 2,1 kN de 05, y agregar un test que compare los umbrales de los dos documentos."
+ },
+ {
+  "id": "FAB-12",
+  "severidad": "baja",
+  "archivo": "05_fabricacion.md",
+  "problema": "05 §3.1, §4.4 y §8.5 presentan el Ø18,0 de STR-01 como 'buje igus Ø18,0 a presión' que se calibra con 'la fila Ø18 de P1.1H'. En el CAD es el paso del eje Ø16 con drenaje (1 mm radial de luz) y no lleva ningún buje. Además, P1.1H no incluye Ø18. La instrucción puede llevar a prensar un buje donde no va o a buscar en la probeta una fila que no existe.",
+  "evidencia": "STR-01 L36 `h - cyl_x(9.0, u0, u1 + 1, z=vs)  # paso de eje + agua`. probetas_manifest.json → P1.1.criterios.horizontales_mm = [12, 24, 30, 40]. 05_fabricacion.md:148 y la tabla FAB:ajustes ('P1-STR-01 | Ø18 | 18,00 | +0,00 | horizontal | ajuste a presión: fila Ø18 de P1.1H').",
+  "propuesta": "En el escáner de ajustes (tabla_fabricacion.py / PRB-P1.1), excluir los pasos de eje (o etiquetar el agujero en el CAD) y corregir el texto de 05. Si se quiere controlar ese paso, basta con revisarlo a ojo."
+ },
+ {
+  "id": "FAB-13",
+  "severidad": "baja",
+  "archivo": "04_diseno/probetas/familias.py",
+  "problema": "La regla de borde (brim) usa la caja envolvente y no la huella real. Los segmentos del protector PRP-01 (×6, 76 mm de alto, 115 g) apoyan sobre un filo de unos 2 mm de ancho (280 mm² de contacto) y quedan sin borde porque alto / lado menor de la caja = 76/116,7 < 2. Riesgo de despegue en una pieza de fatiga a ~50 Hz que se imprime 6 veces.",
+  "evidencia": "familias.py:66-72 `r = bb[2] / min(bb[0], bb[1])`. trimesh: área en cama de PRP-01 = 280,4 mm²; perímetro de la sección a Z = 0,5 de 286,1 mm, es decir, un ancho medio de huella de 2·280/286 ≈ 1,96 mm. slice_report: sin brim y con aviso de estabilidad ('Floating bridge anchors' al relaminar).",
+  "propuesta": "Calcular la regla con la huella real (área en Z = 0 y ancho mínimo, o alto / (2·área/perímetro)) y asignar un borde de 5–8 mm a PRP-01. Volver a laminar y actualizar la tabla de 05 §3."
+ },
+ {
+  "id": "FAB-14",
+  "severidad": "baja",
+  "archivo": "prusaslicer/slice_report.json",
+  "problema": "slice_report.json no fue generado por la versión actual de validar_perfiles.py. Los avisos registrados dicen 'print warning: Detected print stability issues:', un texto que no está en la lista ISSUES con la que el script filtra, de modo que se pierde qué problema hay en cada pieza (Collapsing overhang, Floating bridge anchors, Long bridging extrusions). La columna 'Soporte auto / avisos' de 05 §3 no sirve para preparar la impresión.",
+  "evidencia": "validar_perfiles.py: `issues.add(name)` con name ∈ ISSUES. slice_report.json, ítems MNT-01, MNT-05, PRP-02, STR-01: avisos ['print warning: Detected print stability issues:']. Al relaminar en una copia: MNT-01 'Floating bridge anchors, Long bridging extrusions'; MNT-05 'Collapsing overhang'; PRP-02 'Floating bridge anchors, Loose extrusions, Long bridging extrusions'.",
+  "propuesta": "Volver a correr validar_perfiles.py (en el pipeline) y regenerar las tablas FAB. Agregar un test que verifique que cada aviso del informe pertenece a ISSUES."
+ },
+ {
+  "id": "DOD-01",
+  "severidad": "critica",
+  "archivo": "04_diseno/structural.py",
+  "problema": "Tres piezas impresas estructurales del montaje tienen FS < 3 según el FEA del propio pipeline: MNT-01 0,32, MNT-06 0,74 y MNT-04 0,86. structural.py, 02_calculos §9 y el README dicen FS ≥ 3 porque la abrazadera en C se calcula con la sección equivocada (la pata de 34 mm en vez del puente de 12 mm). Ningún test ni verify_parts frena esto, así que §9 'los FS < 3 están resueltos o justificados' no se cumple.",
+  "evidencia": "structural.py:86 `Zc = p.clamp_w * p.leg_t**2 / 6` con leg_t=34, cuando el puente es bridge_t=12 (params cargados en la copia: clamp_w 150, leg_t 34.0, bridge_t 12.0). Calculé M = 2083 N × 36 mm = 75 N·m: con t=34 da σ = 2,59 MPa y FS 3,23 (lo que se informa); con t=12 da σ = 20,83 MPa y FS 0,40 contra S_sost 8,39 MPa; para FS 3 hace falta t ≥ 32,8 mm. Corrí `python run_all.py` completo en la copia (exit 0) y resultados_fea.json da P1-MNT-01 FS_min=0.32 y P1-MNT-04 FS_min=0.86; P1-MNT-05 FS_min=3.40, pero dentro de ese caso la tapa P1-MNT-06 da 0.738. Según 04_diseno/fea/README.md:314 'la C se abre 26.3 mm'. 06_ensamblaje_y_pruebas.md:322-324 (H-1…H-3) y checklist_salida.md:7 lo reconocen; README:17 ('FS ≥ 3 calculados') y la tabla de estado ('FS ≥ 3 (impresas)') no. tests/test_fea.py:143 solo exige FS > 0.",
+  "propuesta": "Corregir structural.py para que el apriete y el LC5 de MNT-01 usen la sección del puente (bridge_t) y que el caso de MNT-06 use la cabeza real del perno en lugar de la arandela Ø24, que no cabe. Rediseñar MNT-01 (puente ≥ 33 mm, o brazo/apriete menores, o abrazadera de Al), MNT-06 y las ranuras de tuerca de MNT-04/03 hasta FS ≥ 3, y volver a correr el FEA. Agregar un test que falle si algún FS_min de resultados_fea.json o de estructural.json queda por debajo del objetivo sin justificación, y que compare el FEA con el cálculo a mano (por ejemplo, error > 2× = falla). Hasta entonces, sacar de README/02 la afirmación 'FS ≥ 3' y registrar el hallazgo como crítico abierto en auditoria.md."
+ },
+ {
+  "id": "DOD-02",
+  "severidad": "alta",
+  "archivo": "auditoria.md",
+  "problema": "La Pasada 3 no está hecha y la Definición de terminado está sin tildar. auditoria.md dice '(Pendiente — se completa en la Pasada 3.)' y solo lista A-01…A-15 ya corregidos. Los 15 bloqueos abiertos (H-1…H-15, incluidos 3 de FS < 3 que bloquean T3/T4) están solo en 06 §10. El README asegura que la regeneración está 'probado: auditoria.md §Regeneración', pero esa sección no existe.",
+  "evidencia": "auditoria.md:3 '(Pendiente — se completa en la Pasada 3.)'. `grep -rn Regenera *.md` solo encuentra README.md:51. 06_ensamblaje_y_pruebas.md:318-337 'Bloqueos abiertos' H-1…H-15. PROGRESS.md: 'Pasada 3 — [ ] Ronda 1 [ ] Ronda 2 [ ] Prueba de regeneración desde inputs.yaml documentada' y los 10 ítems de 'Definición de terminado' en [ ].",
+  "propuesta": "Pasar H-1…H-15 a auditoria.md con severidad y estado (abierto/resuelto) y no cerrar con ningún crítico abierto. Agregar la sección '§Regeneración' con lo hecho: cambio de boat.transom.thickness_range_mm a [20, 80] y de load.mass_per_person_kg a 85 (lo que hace tests/test_regeneration_full.py), comando, y el delta observado en sizing/manifest/BOM. Actualizar PROGRESS.md (Pasadas y DoD)."
+ },
+ {
+  "id": "DOD-03",
+  "severidad": "alta",
+  "archivo": "04_diseno/stl/P1-HSG-01_drive_plate.stl",
+  "problema": "Quedó en la carpeta de STL para imprimir un STL viejo de la placa motriz HSG-01 en PETG (196×196×14 mm). Hoy la pieza es una placa de Al de 6×74×208 mm (cambio A-03, que fue crítico porque la placa impresa llegaba a σ ≈ 200 MPa). build_all.py no limpia stl/, así que el archivo sobrevive a cada regeneración y alguien podría imprimir una placa que ya se descartó por insegura.",
+  "evidencia": "`git log -1 -- 04_diseno/stl/P1-HSG-01_drive_plate.stl` da 13:16, mientras el resto de stl/*.stl es de 15:18. trimesh sobre ese STL: extents [196.2 196.2 14.0], 97.6 cm³. manifest.json da P1-HSG-01 process 'torneada', material 'Al 5052/6082', bbox [6.0, 74.0, 208.5], y files solo con el .step. Después de correr `python run_all.py` completo en la copia, el archivo sigue en 04_diseno/stl/.",
+  "propuesta": "Borrar 04_diseno/stl/P1-HSG-01_drive_plate.stl. Que build_all.py elimine de stl/ todo STL que no esté en el manifest (o que limpie stl/*.stl antes de exportar). Agregar un test: el conjunto de stl/*.stl debe ser igual al de piezas con process=='impresa'."
+ },
+ {
+  "id": "DOD-04",
+  "severidad": "alta",
+  "archivo": "README.md",
+  "problema": "La comparación con el motor comercial (ítem obligatorio de §9) usa para el ePropulsion un precio que research/R04 ya marcó como incorrecto: '18 589 kr ≈ 2 490 € [VERIFICADO: research/R04 S32]'. El precio corregido es 21 886 kr ≈ 2 928 €. Con eso, el veredicto 'P1 cuesta casi lo mismo que un fueraborda eléctrico' queda mal: P1 (2281 €) sale ~22 % más barato. El README contradice a 03_arquitectura.md y a 01_investigacion.md.",
+  "evidencia": "README.md:25 '18 589 kr ≈ 2 490 € con 1 276 Wh [VERIFICADO: research/R04 S32]'. research/R04_bote_y_referencias.md:322 'S32 Watski: \"18.589 kr completo\" | corregido | ... Completo: 9.199 + 9.390 + 2.578 (caña) + 719 (cargador) = 21.886 kr'. 03_arquitectura.md:147 '21 886 kr ≈ 2 928 €'. 01_investigacion.md:136 '~2.930 € (DK)'. Cálculo: 21886/7.4755 = 2928 €; 2281/2928 = 0,78.",
+  "propuesta": "En la fila del README poner '21 886 kr ≈ 2 928 € en DK (motor + batería 1 276 Wh + caña + cargador) / 2 549 € en DE [VERIFICADO: research/R04 S32, S33]' y reescribir el veredicto: P1 ≈ 0,78–0,89 × el fueraborda de 1 kW con el doble de energía, y ≈ 2,3 × el trolling. Mejor aún, generar ese precio con un marcador <!--V:...--> desde inputs.yaml para que no vuelva a desfasarse."
+ },
+ {
+  "id": "DOD-05",
+  "severidad": "alta",
+  "archivo": "bom.py",
+  "problema": "Se eligió como fusible principal un midiOTO (MIDI, 58 V), cuyo poder de corte es de solo 1 kA. La propia investigación advierte que con 2× 12 V 100 Ah la corriente de cortocircuito probablemente supera 1 kA y recomienda megaOTO HV (2500 A a 70 VDC). Esa advertencia no llegó a la BOM, a decisiones ni a 02, y el calibre tampoco coincide entre documentos (01 dice 80 A, la BOM 60 A). Un fusible que no corta el cortocircuito a bordo es un riesgo de incendio.",
+  "evidencia": "research/R08a_bom_electrica.md:256 'Fusible principal: usar megaOTO HV en vez de midiOTO. El midiOTO 80 A tiene poder de corte de solo 1 kA a 58 V ... con 2× 12V 100Ah probablemente > 1 kA'. bom.py:95 `spec = f\"{r} A MIDI (IMAXX midiOTO o equivalente)...\"`; bom.csv:21 B-FUSE '60 A MIDI (IMAXX midiOTO...)', 'buscar: midiOTO 60A 58V'. resultados/sizing.json fuse.rating_a = 60. 01_investigacion.md:282 'midiOTO 80 A 58 V'. decisiones.md:177 D-33 midiOTO. `grep -rn 'poder de corte'` fuera de research/ no da resultados.",
+  "propuesta": "Cambiar B-FUSE a megaOTO HV (o a un fusible clase T/ANL con AIC ≥ corriente de cortocircuito estimada) en el mismo portafusible HMD4 (posición M8). Agregar a inputs.yaml `fuse_aic_min_a` y en sizing un chequeo AIC ≥ V_bat/R_int_total. Actualizar D-33, 01 §6 y 02 §6 con calibre único (60 A según sizing)."
+ },
+ {
+  "id": "DOD-06",
+  "severidad": "media",
+  "archivo": "sizing.py",
+  "problema": "La corriente pico de batería que dimensiona ESC, fusible, cable y el límite del VESC sale solo del caso vmax 'design_vmin' (47,2 A). Los casos de vmax con tensión nominal, que son los que publica el README, piden 51,7–53,2 A. Como el VESC queda configurado con l_in_current_max = 50 A, los 7,1 km/h del README no se alcanzan con la configuración entregada, y los márgenes eléctricos se calculan con una corriente menor que la real.",
+  "evidencia": "sizing.py:313 `I_bat_peak = max(vmax[\"design_vmin\"][\"I_bat\"], bol_f[\"I_bat\"])`. resultados/sizing.json da vmax.nominal_vnom I_bat 51.68 A (V 7.06 km/h, publicado en README:12), design_vnom 53.23 A, design_vmin 47.25 A y esc.I_bat_peak_a 47.25. 04_diseno/electronica/electronica.json:71-77 l_in_current_max 50.0 ('⌈1,05 × I_bat pico 47,2 A⌉'). 02_calculos §5.1, fila 7 km/h nominal: I_bat 50 A.",
+  "propuesta": "Tomar I_bat_peak = max de todos los casos vmax (design/nominal × vmin/vnom) y del bollard. Recalcular fusible, cable, margen del ESC y l_in_current_max (≥ 1,05 × 53,2 → 60 A, siempre ≤ 80 % del BMS). O bien declarar la vmax del README como la que se obtiene con el límite de 50 A. Agregar un test: para la vmax publicada, I_bat ≤ l_in_current_max."
+ },
+ {
+  "id": "DOD-07",
+  "severidad": "media",
+  "archivo": "blender/renders/render_lateral.png",
+  "problema": "Los renders de Blender, el .blend y las vistas matplotlib commiteadas son de 13:16, antes de los cambios de la Pasada 2 (placa motriz de Al, aro protector perfilado, placa antiventilación PRP-05, eje corregido A-08, caja ESC agrandada). Muestran una geometría que ya no es la del CAD, y son lo que va a mirar quien arme la unidad.",
+  "evidencia": "`git log -1 --format=%ad` da 13:16 para blender/renders/render_lateral.png, vista_lateral_marcha.png y P1_ensamblaje.blend, mientras 04_diseno/step/P1-ASM_marcha.step es de 15:25. En la copia regeneré con blender/preview_views.py: la nueva vista_lateral_marcha.png muestra la placa antiventilación y el aro perfilado, la commiteada muestra un protector plano y no tiene placa antiventilación. PROGRESS.md: 'Blender (scripts + renders) — re-render al final' sigue pendiente.",
+  "propuesta": "Volver a correr `python run_all.py` con bpy (requirements-render.txt) para regenerar renders, animación y .blend, y commitear. Agregar un chequeo en run_all/tests: el mtime o el hash del manifest guardado en el .blend debe coincidir con resultados/manifest.json, y si no coincide marcar los renders [DESACTUALIZADO]."
+ },
+ {
+  "id": "DOD-08",
+  "severidad": "media",
+  "archivo": "04_diseno/planos.py",
+  "problema": "Hay piezas torneadas o mecanizadas sin plano acotado, aunque PROMPT §5.4 lo exige: el cartucho DRV-08 (asiento de rodamiento Ø35 M7, la cota más crítica del tren) y la placa motriz HSG-01. Además, la materia prima de la BOM no alcanza para fabricarlas (H-14), y siguen faltando ítems en bom.csv.",
+  "evidencia": "Comparé manifest.json con 04_diseno/planos/: P1-DRV-08 'torneada' y P1-HSG-01 'torneada' no tienen SVG. 06_ensamblaje_y_pruebas.md:49 'DRV-08 ... sin SVG ... Ø55 no alcanza la brida Ø56' y :54 'HSG-01 ... sin SVG: plantilla 1:1 desde el STEP'. bom.csv:40 B-CARTBAR 'Barra Al 6082-T6 Ø55 × 60' frente a brida Ø56. bom.csv:15 B-BAR-PIN 'Ø20' frente a la cabeza Ø24 de MNT-07 (06:50). 06:336 H-14 lista además como faltantes en la BOM: inserto M8, prensaestopas M12, DIN 9021, DIN 471, tuercas M12×1,25 y M16×1,5.",
+  "propuesta": "Agregar a planos.py un SVG de DRV-08 (Ø35 M7, labio Ø21, brida, 3×Ø4,4 en Ø49) y uno de HSG-01 (plantilla 1:1 con colisos y agujeros acotados). En inputs.yaml, derivar el Ø de barra de la geometría (≥ Ø máx. + 3 mm de sobremedida: Ø60 para DRV-08, Ø25 para MNT-07) y sumar a bom.csv los ítems faltantes de H-14. Agregar un test: todo process=='torneada' tiene plano, y el Ø de barra en la BOM es ≥ Ø máx. de la pieza."
+ },
+ {
+  "id": "DOD-09",
+  "severidad": "media",
+  "archivo": "resultados/estructural.json",
+  "problema": "PROMPT §5.4 pide cálculo a mano de todas las piezas, pero varias que llevan carga no tienen ningún FS: el portabuje impreso DRV-02 (×3, bajo el agua, recibe las reacciones radiales del eje incluido el golpe de hélice), el perno de dirección MNT-07 (por él pasa todo el momento de vuelco LC5/LC1), los bujes POM MNT-09/10 y la placa antiventilación PRP-05.",
+  "evidencia": "Crucé manifest.json con las piezas de resultados/estructural.json: P1-DRV-02 (PETG, load_case 'Reacciones radiales del eje (p = F/(d·L) en el portabuje)'), P1-MNT-07 (AISI 316, 'LC5/LC1 momento de vuelco'), P1-MNT-09/10 (POM-C) y P1-PRP-05 (PETG) no tienen ninguna fila. `grep -n 'DRV-02\\|MNT-07\\|PRP-05' 04_diseno/structural.py 02_calculos.md` no devuelve nada.",
+  "propuesta": "Agregar filas en structural.py: DRV-02, apoyo p = R/(d·L) con las reacciones de sizing (LC1, LC4 y LC6 en fatiga) contra S_sust/S_fat; MNT-07, flexión y corte con M_vuelco de LC5 (F_fus·L) y apoyo en MNT-09; MNT-09/10, presión de apoyo del POM; PRP-05, golpe leve y presión. Extender el test de test_structural_bom_docs.py:15 para que exija al menos un FS por cada pieza no comprada."
+ },
+ {
+  "id": "DOD-10",
+  "severidad": "baja",
+  "archivo": "README.md",
+  "problema": "El resumen ejecutivo no cumple '≤ 15 líneas': son 9 párrafos de ~390 palabras, unas 27 líneas a 100 columnas. Además tiene números sin etiqueta ni fuente, aunque §1 y la tarea piden fuente para todo número.",
+  "evidencia": "Medí README.md:9-17 con textwrap(100) quitando los marcadores: 27 líneas y 391 palabras. Números sin etiqueta: README:13 '(≈ Torqeedo 1103 / ePropulsion 1.0 medidos: 290–310 N)'; README:16 '~100–185 kg según normas USCG/CE'; README:12 '~1,5 kW'; README:24 '~6–7 km/h (~0,6 kW)'; README:9 '~10\"' e 'inclinado 25°'. Las fuentes existen (research/R04:137, :353, :153; inputs.yaml:113), pero el README no las cita.",
+  "propuesta": "Dejar el resumen en ≤ 15 líneas (una por idea; mandar el detalle a las secciones) y agregar la etiqueta a cada número: [VERIFICADO: research/R04 S31/S36], [CALCULADO: R04 §A.3], [ESTIMADO: R04 §B.4]. El '~1,5 kW' conviene reemplazarlo por un marcador <!--V:sizing.vmax.nominal_vnom.P_bat-->."
+ },
+ {
+  "id": "DOD-11",
+  "severidad": "baja",
+  "archivo": "PENDIENTES_GASPAR.md",
+  "problema": "Hay números fijos desactualizados respecto del código, en contra de §9 'Coherencia'. tools_check_md.py no los detecta porque solo revisa marcadores. Algunos son criterios pasa/no-pasa de pruebas físicas.",
+  "evidencia": "PENDIENTES_GASPAR.md:44 '(≥ 247 N; predicho 287 N)', pero sizing.success.bollard_pull_min_N = 244.0; en la misma línea 'corriente de batería ≤ 75 A', pero el fusible es de 60 A y l_in_current_max de 50 A. decisiones.md:127 D-21 'el fusible de 100 A lo protege', pero sizing.fuse.rating_a = 60. 06:331 H-7 'Motor a 80 °C ... (> 85 °C, ≈ inf min)' se contradice solo, y 06:332 H-8 dice que 30000 es '> tope legal 30164', cosa falsa. PROGRESS.md dice '34 piezas', 'pytest 64 OK' y 'Costo total 2 255 € (72 % verificado)', mientras manifest da 38, el pytest de la copia da 84 passed y la BOM 2281 € / 71 %.",
+  "propuesta": "Pasar a marcadores <!--V:...--> el umbral de bollard (sizing.success.bollard_pull_min_N), el límite de corriente (electronica l_in_current_max) y el fusible de D-21. Cerrar o actualizar H-7, H-8 y H-15, y refrescar la bitácora de PROGRESS.md."
+ },
+ {
+  "id": "DOD-12",
+  "severidad": "baja",
+  "archivo": ".gitignore",
+  "problema": "Hay 9 wheels de Python (~7,4 MB, entre ellas pillow, cairosvg y cffi) commiteadas en la raíz del repo. Ningún script las usa ni figuran en requirements.txt.",
+  "evidencia": "`git ls-files | grep whl` lista 9 archivos (pillow-12.3.0-cp311...whl de 6,9 MB, cairosvg-2.9.1, cairocffi, cffi, cssselect2, defusedxml, pycparser, tinycss2, webencodings). `grep -rln 'cairosvg|from PIL|import PIL' --include=*.py .` no devuelve nada.",
+  "propuesta": "Hacer `git rm *.whl` y agregar `*.whl` a .gitignore. Si se usaron para convertir SVG a PNG, documentar la dependencia en requirements-render.txt."
+ }
+]
