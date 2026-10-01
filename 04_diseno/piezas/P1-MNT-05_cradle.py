@@ -59,10 +59,12 @@ def build(p):
     rt = (p.tube_od + 0.3) / 2
     body = body - cyl_x(rt, p.u_tube_top, u1 + 1, z=vs)
     body = body - cyl_x(11.0, u0 - 1, p.u_tube_top + 0.1, z=vs)
-    # rebaje para el buje del rodamiento A de la placa motriz
+    # rebaje escalonado para el cartucho del rodamiento A (brida + cuerpo)
     lay = p.layout
-    boss_r = (p.brg_D + 10.0) / 2 + 0.25
-    body = body - cyl_x(boss_r, u0 - 1, lay["u_boss_aft"] + 0.5, z=vs)
+    body = body - cyl_x(p.cart_fl_d / 2 + 0.3, u0 - 1, u0 + p.cart_fl_t + 0.2, z=vs)
+    body = body - cyl_x(p.cart_od / 2 + 0.25, u0 - 1, lay["u_boss_aft"] + 0.3, z=vs)
+    # drenaje del paso de eje hacia abajo (agua que suba por el tubo)
+    body = body - cyl_z(3.0, p.cradle_vbot - 1, vs, x=lay["u_boss_aft"] + 4.0)
     # 4×M6 placa motriz → tuercas cautivas abiertas a los lados
     for v in (vb + 12, 18.0):
         for w in (-26.0, 26.0):

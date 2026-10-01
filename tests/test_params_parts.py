@@ -11,7 +11,7 @@ def test_params_consistent_with_sizing(sizing):
     assert abs((p.u_shaft_bot - p.u_shaft_top) - lay["shaft_length_mm"]) < 1e-6
     assert abs(p.s_prop - lay["s_prop_mm"]) < 1e-9
     assert p.clamp_gap >= p.tr_t_max + 4
-    assert p.guard_ri - p.prop_D / 2 >= 8
+    assert 0.02 * p.prop_D <= p.guard_ri - p.prop_D / 2 <= 0.05 * p.prop_D   # 2–5 % de D (research/R03)
     assert abs(p.center_dist - (p.motor_v + p.e)) < 1e-9
 
 

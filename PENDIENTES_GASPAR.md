@@ -31,7 +31,7 @@ Ver 06_ensamblaje_y_pruebas.md §T0–T1. Criterios clave: kill switch corta en 
 
 ## P3 — Tanque / muelle (T2)
 
-Bollard pull con el dinamómetro (bote amarrado al muelle con el dinamómetro en el cabo): **pasa si ≥ 0,85 × predicho** (≥ 247 N; predicho <!--V:sizing.bollard_fwd.T_horiz:.0f-->291<!--/V--> N), corriente de batería ≤ 75 A, motor ≤ 80 °C de carcasa tras 3 min, piezas impresas cerca del motor ≤ 50 °C (termómetro IR).
+Bollard pull con el dinamómetro (bote amarrado al muelle con el dinamómetro en el cabo): **pasa si ≥ 0,85 × predicho** (≥ 247 N; predicho <!--V:sizing.bollard_fwd.T_horiz:.0f-->297<!--/V--> N), corriente de batería ≤ 75 A, motor ≤ 80 °C de carcasa tras 3 min, piezas impresas cerca del motor ≤ 50 °C (termómetro IR).
 
 ## P4 — Agua (T3, T4)
 

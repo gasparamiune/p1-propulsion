@@ -4,7 +4,8 @@
 Resistencias de diseño del PETG impreso (inputs.yaml → materials):
     S_corta    = σ_XY · f_agua · f_temp · f_proceso          (cargas de corta duración)
     S_sost     = S_corta · f_creep                            (cargas sostenidas horas–días)
-    S_fat      = S_corta · f_fatiga                           (amplitud, 1e7–1e8 ciclos)
+    S_fat      = S_corta · f_fatiga                           (amplitud, 1e7–1e8 ciclos: paso de pala)
+    S_lcf      = S_corta · f_fatiga_lcf                       (amplitud, ~1e5–1e6 ciclos: olas, maniobras)
     × f_Z si la tensión cruza capas (se evita por orientación; ver META de cada pieza)
 FS = S / σ_aplicada. Requisito: FS ≥ 3 (impresas), ≥ 2 (metálicas).
 Salidas: resultados/estructural.json, resultados/estructural_tabla.md. Exit ≠ 0 si algún
@@ -36,8 +37,8 @@ def allowables(inp):
     m = inp["materials"]["PETG"]
     f = inp["materials"]["design_factors"]
     S = m["sigma_t_xy_mpa"] * f["f_water"] * f["f_temp"] * f["f_process"]
-    return {"short": S, "sust": S * f["f_creep"], "fat": S * f["f_fatigue"], "fz": f["f_z"],
-            "sigma_xy": m["sigma_t_xy_mpa"]}
+    return {"short": S, "sust": S * f["f_creep"], "fat": S * f["f_fatigue"],
+            "lcf": S * f.get("f_fatigue_lcf", f["f_fatigue"]), "fz": f["f_z"], "sigma_xy": m["sigma_t_xy_mpa"]}
 
 
 def row(rows, part, lc, model, sigma, kind, A, target, extra=""):
@@ -71,6 +72,7 @@ def main():
     slam = inp["mount"]["wave_slam_g"]
     F_hand = inp["mount"]["handling_load_n"]
     lay = p.layout
+    amp = inp["architecture"]["blade_rate_amplitude_frac"]   # ±fracción de T a paso de pala
     L_tail = (lay["s_prop_mm"] - p.cradle_u1 / 2) / 1000    # brazo cuna→hélice
     H_imp = 0.5 * F_imp                                      # reacción en el pivote (centro de percusión)
     e = p.e / 1000
@@ -130,16 +132,27 @@ def main():
     row(rows, "P1-MNT-05", "LC5 cola trabada (corta)", f"p = 6M/(d·L²), M = F_fus·L = {M_lock:.0f} N·m", pc_lock, "short", A, T3)
     r_stop = math.hypot(30.0, p.cradle_vbot) / 1000
     F_stop = (T_cr * e + M_grav) / r_stop
-    row(rows, "P1-MNT-05/06", "Tope de marcha (sostenido)", f"F = (T·e + M_grav)/r = {F_stop:.0f} N sobre tapón Ø16",
-        F_stop / (math.pi * 16**2 / 4), "sust", A, T3)
+    Ap = math.pi * p.stop_pad_d**2 / 4
+    row(rows, "P1-MNT-05/06", "Tope de marcha (sostenido)", f"F = (T·e + M_grav)/r = {F_stop:.0f} N sobre tope Ø{p.stop_pad_d:.0f}",
+        F_stop / Ap, "sust", A, T3)
     F_slam = slam * W_unit * 0.40 / r_stop                   # [ESTIMADO: CG de la unidad ~0.40 m del pivote]
-    row(rows, "P1-MNT-05/06", "LC6 golpe de ola 3 g en el tope (corta)", f"F = {F_slam:.0f} N", F_slam / (math.pi * 16**2 / 4), "short", A, T3)
+    row(rows, "P1-MNT-05/06", "LC6 golpe de ola 3 g en el tope (corta)", f"F = {F_slam:.0f} N", F_slam / Ap, "short", A, T3)
     F_fat = 1.0 * W_unit * 0.40 / r_stop
-    row(rows, "P1-MNT-05/06", "LC6 ola ±1 g (fatiga)", f"F_a = {F_fat:.0f} N", F_fat / (math.pi * 16**2 / 4), "fat", A, T3)
+    row(rows, "P1-MNT-05/06", "LC6 ola ±1 g (fatiga ~1e6 ciclos)", f"F_a = {F_fat:.0f} N", F_fat / Ap, "lcf", A, T3)
     F_piv = math.hypot(T_bol, F_stop)
     row(rows, "P1-MNT-05", "LC1 apoyo del buje del pivote (corta)", "p = F/(d·w), POM Ø20 × ancho", F_piv / (20 * p.cradle_w), "short", A, T3)
-    M_fat = 0.15 * T_cr * L_tail                             # fuerza lateral 1P ±15 % T
-    row(rows, "P1-MNT-05", "LC6 1P lateral ±15 % T (fatiga)", "p_a = 6M/(d·L²)", 6 * M_fat * 1000 / (p.tube_od * Lc**2), "fat", A, T3)
+    M_fat = amp * T_cr * L_tail                              # fuerza lateral a paso de pala ±amp·T
+    row(rows, "P1-MNT-05", f"LC6 paso de pala ±{amp*100:.0f} % T lateral (fatiga 1e7–1e8)", "p_a = 6M/(d·L²)",
+        6 * M_fat * 1000 / (p.tube_od * Lc**2), "fat", A, T3)
+    F_tb = T_bol / 4
+    row(rows, "P1-MNT-05", "LC1 tuercas cautivas de la placa motriz: arranque por corte (corta)",
+        "τ = (T/4)/(2·12·18) (bolsillo a 18 mm de la cara)", F_tb / (2 * 12 * 18), 0.5 * A["short"], A, T3)
+    row(rows, "P1-MNT-05", "LC6 tuercas de placa motriz ±amp·T (fatiga 1e7–1e8)", "τ_a = (amp·T_cr/4)/(2·12·18)",
+        amp * T_cr / 4 / (2 * 12 * 18), 0.5 * A["fat"], A, T3)
+    T_rev_s = sz["bollard_rev"]["T_shaft"]
+    A_floor = math.pi * ((p.cart_od / 2) ** 2 - 11.0**2)
+    row(rows, "P1-MNT-05", "LC2 marcha atrás: cartucho contra el fondo del rebaje (corta)", "p = T_rev/A_anillo",
+        T_rev_s / A_floor, "short", A, T3)
 
     # ------------------------- MNT-06 tapa (pernos pasantes) -------------------------
     F_end = M_lock / (0.8 * Lc / 1000)
@@ -147,20 +160,21 @@ def main():
     row(rows, "P1-MNT-06", "LC5: arandela Ø24 de perno pasante (corta)", "p = (F_ext/2)/(π(24²−6.4²)/4)",
         (F_end / 2) / (math.pi * (24**2 - 6.4**2) / 4), "short", A, T3)
 
-    # ------------------------- HSG-01 placa motriz -------------------------
-    Zs = 30 * p.plate_t**2 / 6
-    for lc, T, kind in (("LC1 empuje bollard (corta)", T_bol, "short"), ("Crucero (sostenido)", T_cr, "sust"),
-                        ("LC6 ±15 % empuje (fatiga)", 0.15 * T_cr, "fat")):
-        row(rows, "P1-HSG-01", lc, f"franja buje→pernos: M = (T/2)·11 mm, Z = 30·t²/6 (t={p.plate_t:.0f})",
-            (T / 2) * 11 / Zs, kind, A, T3)
-    R_A = m["bearing_max"]["R_A_N"]
-    row(rows, "P1-HSG-01", "LC3 tiro de correa en el alojamiento (corta)", "p = R_A/(D·B)", R_A / (p.brg_D * p.brg_B), "short", A, T3)
+    # ------------------------- HSG-01 placa motriz (Al 6082-T6) -------------------------
+    Sy_al = 240.0                                            # [ESTIMADO: 6082-T6 chapa ≥ 240–260 MPa]
+    Se_al = 60.0                                             # [ESTIMADO: fatiga Al 6082 ~90 MPa a 5e8 ciclos × 0,7 (superficie/agua salina)]
+    t_pl = p.plate_t
+    Zs = 30 * t_pl**2 / 6
+    row(rows, "P1-HSG-01 placa Al", "LC1 empuje bollard", f"franja cartucho→pernos: M = (T/2)·11 mm, Z = 30·t²/6 (t={t_pl:.0f})",
+        (T_bol / 2) * 11 / Zs, Sy_al, A, T2)
+    row(rows, "P1-HSG-01 placa Al", f"LC6 ±{amp*100:.0f} % empuje (fatiga)", "σ_a = (amp·T/2)·11/Z", (amp * T_cr / 2) * 11 / Zs, Se_al, A, T2)
     Fe_pin = m["belt"]["Fe_at_shear_pin_N"]
-    RA_pin = 2.5 * Fe_pin * lay["pulley_b_mm"] / lay["bearing_spacing_mm"]
-    row(rows, "P1-HSG-01", "LC4 golpe de hélice: tirón de correa (corta)", "p = R_A,pin/(D·B)", RA_pin / (p.brg_D * p.brg_B), "short", A, T3)
     Qm = m["Q_lock_motor_Nm"]
-    row(rows, "P1-HSG-01", "LC3 torque de rotor trabado en colisos M4 (corta)", "p = Q/(4·r·d·t)",
-        Qm / (4 * p.motor_bc / 2000) / (4 * p.plate_t), "short", A, T3)
+    row(rows, "P1-HSG-01 placa Al", "LC3 torque de rotor trabado en colisos M4", "p = Q/(4·r·d·t)",
+        Qm / (4 * p.motor_bc / 2000) / (4 * t_pl), Sy_al, A, T2)
+    row(rows, "P1-DRV-08 cartucho Al", "LC1 empuje en el labio (corte)", "τ = T/(π·Ø21·espesor labio)",
+        T_bol / (math.pi * 21 * (p.layout["u_boss_aft"] - p.brg_B - 1.0 - p.plate_u_fwd)), 0.577 * Sy_al, A, T2)
+    R_A = m["bearing_max"]["R_A_N"]
 
     # ------------------------- HSG-02 puente -------------------------
     R_B = m["bearing_max"]["R_B_N"]

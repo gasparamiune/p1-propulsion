@@ -102,7 +102,7 @@ def optimize(inp: dict) -> dict:
             E_nom = power.battery_energy_wh(b)
             ok = {
                 "energy": E_nom >= E_req,
-                "current": b["i_cont_a"] >= I_pk,
+                "current": b["i_cont_a"] * ii["battery"].get("bms_current_derate", 1.0) >= I_pk,
                 "vmax": vmn["V"] * 3.6 >= op["vmax_target_kmh"] - op["vmax_tolerance_kmh"],
                 "voltage": b["v_nom"] <= ii["electrical"]["max_nominal_voltage_v"],
                 "cavitation": drv.prop.keller_min_bar(bol["T_shaft"], _h_shaft(ii, mass), ii["water"]) <= drv.prop.BAR,
@@ -164,7 +164,7 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
     for i, V in enumerate(vs):
         row = {"v_kmh": vk[i], "Fr_L": res["Fr_L"][i], "R_N": res["R"][i],
                "R_low_N": res["R_low"][i], "R_high_N": res["R_high"][i],
-               "RF_N": res["RF"][i], "RTR_N": res["RTR"][i], "RW_N": res["RW"][i],
+               "RF_N": res["RF"][i], "RTR_N": res["RTR"][i], "RW_N": res["RW"][i], "Rapp_N": res["Rapp"][i],
                "Rair_N": res["Rair"][i]}
         for band, key in (("nom", "R"), ("des", "R_high")):
             st = drv.at_speed(V, float(res[key][i]), bat["v_nom"])
@@ -406,7 +406,7 @@ SENS_PARAMS = [
     ("boat.lwl_m", 0.10, "Eslora de flotación"),
     ("boat.hull_mass_kg", 0.30, "Masa del casco"),
     ("propeller.efficiency_factor", 0.10, "Rendimiento de hélice (modelo)"),
-    ("propeller.guard.thrust_loss_frac", 0.50, "Pérdida por protector"),
+    ("propeller.guard.thrust_loss_frac", (0.0, 0.25), "Pérdida por protector (0–25 %)"),
     ("architecture.shaft_angle_deg", 0.20, "Ángulo de eje"),
     ("boat.transom_beam_m", 0.20, "Ancho de espejo sumergido"),
     ("motor.options.OR6374_190.r_ohm", 0.30, "Resistencia del motor"),
@@ -446,14 +446,16 @@ def sensitivity(inp, ratio_best, bat_key, mass0):
         except KeyError:
             continue
         out = {}
-        for sgn in (-1, 1):
+        for k, sgn in enumerate((-1, 1)):
             ii = copy.deepcopy(inp)
-            _set(ii, path, v0 * (1 + sgn * rel))
+            val = rel[k] if isinstance(rel, tuple) else v0 * (1 + sgn * rel)
+            _set(ii, path, val)
             P, V = evaluate(ii)
             out[sgn] = (P, V)
         dP = (max(out[1][0], out[-1][0]) - base_P) / base_P
         dV = (min(out[1][1], out[-1][1]) - base_V) / base_V
-        rows.append({"param": path, "label": label, "rel_change": rel,
+        rows.append({"param": path, "label": label, "rel_change": rel if not isinstance(rel, tuple) else None,
+                     "range": list(rel) if isinstance(rel, tuple) else None,
                      "P_minus": out[-1][0], "P_plus": out[1][0],
                      "V_minus": out[-1][1], "V_plus": out[1][1],
                      "dP_worst_frac": dP, "dV_worst_frac": dV,
@@ -525,7 +527,8 @@ def write_tables(o: dict, inp: dict):
     Sx = ["| Entrada | ±Δ | P_bat crucero (−/+) [W] | V máx (−/+) [km/h] | Variación P | ",
           "|---|---|---|---|---|"]
     for r in o["sensitivity"]["rows"]:
-        Sx.append(f"| {r['label']} | ±{r['rel_change']*100:.0f} % | {r['P_minus']:.0f} / {r['P_plus']:.0f} | "
+        dl = f"±{r['rel_change']*100:.0f} %" if r["rel_change"] is not None else f"{r['range'][0]:g}–{r['range'][1]:g}"
+        Sx.append(f"| {r['label']} | {dl} | {r['P_minus']:.0f} / {r['P_plus']:.0f} | "
                   f"{r['V_minus']:.1f} / {r['V_plus']:.1f} | {r['swing_P_frac']*100:.0f} % |")
     sens = "\n".join(Sx)
 
@@ -556,6 +559,7 @@ def plots(o: dict, inp: dict):
     ax.plot(v, col("RF_N"), "--", label="Fricción ITTC-57·(1+k)")
     ax.plot(v, col("RTR_N"), "--", label="Espejo sumergido (Holtrop)")
     ax.plot(v, col("RW_N"), "--", label="Olas/joroba (calibrable)")
+    ax.plot(v, col("Rapp_N"), ":", label="Apéndices de la cola")
     ax.axvline(vh, color="gray", ls=":", label=f"Vel. de casco {vh:.1f} km/h")
     ax.axvline(vc, color="green", ls=":", label=f"Crucero {vc:.1f} km/h")
     ax.set_xlabel("Velocidad [km/h]"); ax.set_ylabel("Resistencia [N]")
@@ -603,7 +607,7 @@ def plots(o: dict, inp: dict):
         lo, hi = sorted([r["P_minus"], r["P_plus"]])
         ax.barh(i, hi - lo, left=lo, color="#3182bd")
     ax.set_yticks(range(len(rows)))
-    ax.set_yticklabels([f"{r['label']} ±{r['rel_change']*100:.0f}%" for r in reversed(rows)], fontsize=8)
+    ax.set_yticklabels([(f"{r['label']} ±{r['rel_change']*100:.0f}%" if r["rel_change"] is not None else r["label"]) for r in reversed(rows)], fontsize=8)
     ax.axvline(base, color="k")
     ax.set_xlabel("P de batería en crucero [W] (banda de diseño)")
     ax.set_title("Sensibilidad (tornado)"); ax.grid(alpha=0.3, axis="x")

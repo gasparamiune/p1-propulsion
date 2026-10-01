@@ -21,25 +21,35 @@ def gland_groove(p):
     return depth, width
 
 
+RIM = 18.0          # reborde: ranura del O-ring cerca del interior, insertos cerca del exterior
+INS_EDGE = 5.0      # centro de inserto a 5 mm del borde exterior
+
+
+def groove_center_offset(p):
+    """Distancia del centro de la ranura a la pared interior."""
+    depth, width = gland_groove(p)
+    return 1.0 + width / 2 + 1.5
+
+
 def lid_holes(p):
     Li, Wi, Hi = p.esc_in
-    rim = 12.0
-    Lo, Wo = Li + 2 * rim, Wi + 2 * rim
-    xs = (-Lo / 2 + 4.5, 0.0, Lo / 2 - 4.5)
-    ys = (-Wo / 2 + 4.5, Wo / 2 - 4.5)
-    pts = [(x, y) for x in xs for y in ys] + [(-Lo / 2 + 4.5, 0.0), (Lo / 2 - 4.5, 0.0)]
+    Lo, Wo = Li + 2 * RIM, Wi + 2 * RIM
+    e = INS_EDGE
+    xs = (-Lo / 2 + e, 0.0, Lo / 2 - e)
+    ys = (-Wo / 2 + e, Wo / 2 - e)
+    pts = [(x, y) for x in xs for y in ys] + [(-Lo / 2 + e, 0.0), (Lo / 2 - e, 0.0)]
     return pts
 
 
 def build(p):
     Li, Wi, Hi = p.esc_in
-    t, tf, rim = 3.2, 3.2, 12.0
+    t, tf, rim = 3.2, 3.2, RIM
     Lo, Wo = Li + 2 * rim, Wi + 2 * rim
     box_ = box(-Lo / 2, Lo / 2, -Wo / 2, Wo / 2, 0, tf + Hi)
     box_ = box_ - box(-Li / 2, Li / 2, -Wi / 2, Wi / 2, tf, tf + Hi + 1)
     depth, width = gland_groove(p)
     z1 = tf + Hi
-    c = rim / 2 - 0.5                     # centro de la ranura respecto del interior
+    c = groove_center_offset(p)            # centro de la ranura respecto del interior
     outer = box(-Li / 2 - c - width / 2, Li / 2 + c + width / 2, -Wi / 2 - c - width / 2, Wi / 2 + c + width / 2, z1 - depth, z1 + 1)
     inner = box(-Li / 2 - c + width / 2, Li / 2 + c - width / 2, -Wi / 2 - c + width / 2, Wi / 2 + c - width / 2, z1 - depth - 1, z1 + 2)
     box_ = box_ - (outer - inner)
@@ -66,5 +76,7 @@ def placements(p, steer=0.0, tilt=0.0):
 
 def checks(p, part):
     depth, width = gland_groove(p)
+    sep = (RIM - INS_EDGE - INSERT_HOLE[4] / 2) - (groove_center_offset(p) + width / 2)
     return [("profundidad de ranura O-ring [mm]", depth, p.oring_cs * 0.70, ">="),
-            ("ancho de ranura O-ring [mm]", width, p.oring_cs * 1.2, ">=")]
+            ("ancho de ranura O-ring [mm]", width, p.oring_cs * 1.2, ">="),
+            ("pared entre ranura de O-ring e inserto [mm]", sep, 2.0, ">=")]

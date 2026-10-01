@@ -158,7 +158,7 @@ def main():
                              "NO reemplazar por inox: protegería menos al eje y la hélice"]))
     # ---- placas ----
     Li, Wi, Hi = p.esc_in
-    Lo, Wo = Li + 24, Wi + 24
+    Lo, Wo = Li + 36, Wi + 36
     spec = importlib.util.spec_from_file_location("eb", HERE / "piezas" / "P1-ELE-01_esc_box.py")
     eb = importlib.util.module_from_spec(spec); spec.loader.exec_module(eb)
     holes = [(x + Lo / 2, y + Wo / 2, 4.4, "pasante M4") for (x, y) in eb.lid_holes(p)]

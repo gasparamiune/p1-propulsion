@@ -35,7 +35,7 @@ MASS_OVERRIDE_KG = {"P1-DRV-04": "motor", "P1-PRP-03": "prop"}
 
 def load_parts():
     mods = []
-    for f in sorted((HERE / "piezas").glob("P1-*.py")):
+    for f in sorted((HERE / "piezas").glob("P1-*.py")):      # los auxiliares empiezan con "_"
         spec = importlib.util.spec_from_file_location(f.stem.replace("-", "_"), f)
         m = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(m)

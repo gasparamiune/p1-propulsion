@@ -8,11 +8,11 @@
 
 1. **Arquitectura:** cola larga (*long-tail*, tipo *mud motor*) eléctrica: motor BLDC **seco arriba del agua**, correa HTD-5M, eje inox 316 inclinado 25° dentro de un tubo de aluminio con bujes de agua, hélice comercial de 10" con pasador de corte, protector y patín fusible impresos, cardán (dirección + basculación con retén) sobre una abrazadera de popa impresa.
 2. **Por qué:** cero sellos dinámicos y cero electrónica bajo el agua (agua salobre), basculación natural para arena y poca profundidad, todo reparable con herramienta común. Gana la matriz ponderada (03) con <!--V:arch.totals.A3:.2f-->4.25<!--/V--> / 5 frente a <!--V:arch.totals.F:.2f-->3.93<!--/V--> del motor comercial.
-3. **Prestaciones calculadas (sin validar en agua):** crucero 6 km/h con <!--V:sizing.cruise.nominal.P_bat:.0f-->580<!--/V--> W de batería (banda nominal; <!--V:sizing.cruise.design.P_bat:.0f-->697<!--/V--> W en la banda alta de diseño) → **autonomía <!--V:sizing.cruise.autonomy_nominal_h:.1f-->4.0<!--/V--> h nominal / <!--V:sizing.cruise.autonomy_design_h:.1f-->3.3<!--/V--> h diseño** (requisito ≥ 2 h + 20 %).
-4. **Velocidad máxima:** <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.9<!--/V--> km/h (nominal, batería llena); 12 km/h **no es alcanzable** con este casco y ~1 kW (está en la joroba de resistencia; los comerciales de 1 kW logran 7,6–8,0 km/h con 2 personas en botes de 2,75 m).
-5. **Empuje a punto fijo:** <!--V:sizing.bollard_fwd.T_horiz:.0f-->291<!--/V--> N (≈ Torqeedo 1103 / ePropulsion 1.0 medidos: 290–310 N).
+3. **Prestaciones calculadas (sin validar en agua):** crucero 6 km/h con <!--V:sizing.cruise.nominal.P_bat:.0f-->643<!--/V--> W de batería (banda nominal; <!--V:sizing.cruise.design.P_bat:.0f-->774<!--/V--> W en la banda alta de diseño) → **autonomía <!--V:sizing.cruise.autonomy_nominal_h:.1f-->3.6<!--/V--> h nominal / <!--V:sizing.cruise.autonomy_design_h:.1f-->3.0<!--/V--> h diseño** (requisito ≥ 2 h + 20 %).
+4. **Velocidad máxima:** <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.7<!--/V--> km/h (nominal, batería llena); 12 km/h **no es alcanzable** con este casco y ~1 kW (está en la joroba de resistencia; los comerciales de 1 kW logran 7,6–8,0 km/h con 2 personas en botes de 2,75 m).
+5. **Empuje a punto fijo:** <!--V:sizing.bollard_fwd.T_horiz:.0f-->297<!--/V--> N (≈ Torqeedo 1103 / ePropulsion 1.0 medidos: 290–310 N).
 6. **Batería:** <!--V:sizing.selection.battery_desc:-->2 × LiFePO4 12.8 V 100 Ah en serie (BMS 100 A c/u)<!--/V--> — 24 V, <!--V:sizing.battery.E_usable_wh:.0f-->2304<!--/V--> Wh usables.
-7. **Costo total estimado:** **<!--V:bom.total_eur:.0f-->1711<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->12767<!--/V--> DKK** con batería, envío e imprevistos (precios [ESTIMADO] salvo los marcados [VERIFICADO] en `bom.csv`).
+7. **Costo total estimado:** **<!--V:bom.total_eur:.0f-->1930<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->14397<!--/V--> DKK** con batería, envío e imprevistos (precios [ESTIMADO] salvo los marcados [VERIFICADO] en `bom.csv`).
 8. **Riesgo n.º 1 (no es la propulsión):** la **capacidad del bote**. Un jon boat de ≤ 2,5 m carga ~100–185 kg según normas USCG/CE; 2 adultos + equipo + propulsión ≈ <!--V:sizing.masses.payload_kg:.0f-->248<!--/V--> kg = <!--V:sizing.masses.capacity_ratio:.0%-->155%<!--/V--> de la capacidad estimada. **Leer la placa / medir el bote antes de salir con 2 personas.**
 9. **Honestidad:** todo está verificado *en software* (scripts, CAD sin interferencias, FS ≥ 3 calculados, tests). **Nada está probado físicamente**: faltan medidas del bote real, probetas, estanqueidad y pruebas en agua (ver [PENDIENTES_GASPAR.md](PENDIENTES_GASPAR.md)).
 
@@ -20,7 +20,7 @@
 
 | Opción | Costo aprox. (con batería) | V máx con 2 p. | Basculación con protección | Marcha atrás | Agua salada | Comentario |
 |---|---|---|---|---|---|---|
-| **P1 cola larga (este proyecto)** | <!--V:bom.total_eur:.0f-->1711<!--/V--> € | ~7,9 km/h | Sí (retén + patín fusible + pasador de corte) | Sí | Motor seco, eje 316 + ánodo | Aprendizaje, reparable, apto arena; requiere ~10 días de impresión y torno |
+| **P1 cola larga (este proyecto)** | <!--V:bom.total_eur:.0f-->1930<!--/V--> € | ~7,9 km/h | Sí (retén + patín fusible + pasador de corte) | Sí | Motor seco, eje 316 + ánodo | Aprendizaje, reparable, apto arena; requiere ~10 días de impresión y torno |
 | Trolling de agua salada 55 lb + LiFePO4 12 V 100 Ah | ~1 000 € [ESTIMADO: research/R04 §B.4] | ~6–7 km/h (~0,6 kW) | No (pata larga, sin protección ante golpes) | Sí | Sí | **La opción más barata y rápida** si basta 6 km/h y el agua es profunda |
 | Fueraborda eléctrico 1 kW (ePropulsion Spirit 1.0 Evo) | 18 589 kr ≈ 2 490 € [VERIFICADO: research/R04 S32] | 7,6–8,0 km/h | Sí | Sí | Sí, IP67 | Producto terminado; lo que P1 intenta igualar por ~⅔ del precio |
 
@@ -31,8 +31,8 @@
 | Ítem | Estado |
 |---|---|
 | Pipeline `run_all.py` (sizing → CAD → FS → planos → verify → BOM → docs → renders) | Ejecuta con exit 0 (ver bitácora en PROGRESS.md) |
-| CAD: <!--V:manifest.totals.n_parts:d-->34<!--/V--> piezas, STEP + STL, manifold, envolvente ≤ 210×210×260 | [VERIFICADO en software] `verify_parts.py` |
-| Interferencias, incluida basculación 0–25° × dirección ±35° | [VERIFICADO en software] <!--V:verify.n_pair_checks:d-->6980<!--/V--> pares×estados |
+| CAD: <!--V:manifest.totals.n_parts:d-->36<!--/V--> piezas, STEP + STL, manifold, envolvente ≤ 210×210×260 | [VERIFICADO en software] `verify_parts.py` |
+| Interferencias, incluida basculación 0–25° × dirección ±35° | [VERIFICADO en software] <!--V:verify.n_pair_checks:d-->7411<!--/V--> pares×estados |
 | FS ≥ 3 (impresas) / ≥ 2 (metal) por caso de carga | [CALCULADO] `structural.py` ([02_calculos.md](02_calculos.md) §9) — **depende de probetas** |
 | R(v), potencia, autonomía | [CALCULADO + contrastado con datos medidos de botes análogos]; **calibrar con remolque** |
 | Precios y links | Parcialmente verificados (ver `bom.csv`, columna etiqueta) |

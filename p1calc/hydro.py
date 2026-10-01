@@ -2,7 +2,7 @@
 
 Modelo por componentes (ver 02_calculos.md §2):
 
-    R = R_F·(1+k) + R_TR + R_W + R_air            [N]
+    R = R_F·(1+k) + R_TR + R_W + R_app + R_air    [N]
 
     R_F   fricción ITTC-1957:  C_F = 0.075 / (log10 Re − 2)²  (+ ΔC_F rugosidad)
     R_TR  espejo sumergido (Holtrop & Mennen 1982):
@@ -14,6 +14,7 @@ Modelo por componentes (ver 02_calculos.md §2):
           ~Fr⁴ por debajo de la velocidad de casco (crecimiento rápido de las olas)
           y meseta (joroba) por encima de Fr_h. c_w y Fr_h se calibran con el
           ensayo de remolque con dinamómetro (PENDIENTES_GASPAR.md).
+    R_app apéndices de la cola: ½ ρ V² (Cd·A)_app
     R_air arrastre aerodinámico ½ ρ_a Cd A (V + V_viento)²
 
 Ninguna serie sistemática cubre un casco tan corto y lleno (L/∇^(1/3) ≈ 3), por eso
@@ -111,13 +112,15 @@ def resistance(inp: dict, total_mass_kg: float, v_ms, wind_ms: float = 0.0,
     a = inp["air"]
     Rair = 0.5 * a["density_kg_m3"] * r["air_cd"] * r["air_frontal_area_m2"] * (v + wind_ms) ** 2
 
-    Rhydro = RF + RTR + RW
+    # apéndices sumergidos de la cola (tubo en flujo cruzado, carcasa, patín, aleta)
+    Rapp = 0.5 * rho * v**2 * r.get("appendage_cda_m2", 0.0)
+    Rhydro = RF + RTR + RW + Rapp
     if waves:
         Rhydro = Rhydro * (1.0 + inp["operation"]["wave_added_frac"])
     R = Rhydro + Rair
     return {
         "v_ms": v, "Fr_L": Fr, "Re": Re, "FnT": FnT,
-        "RF": RF, "RTR": RTR, "RW": RW, "Rair": Rair, "R": R,
+        "RF": RF, "RTR": RTR, "RW": RW, "Rapp": Rapp, "Rair": Rair, "R": R,
         "R_low": R * r["band_low"], "R_high": R * r["band_high"],
         "R_over_W": R / W,
     }

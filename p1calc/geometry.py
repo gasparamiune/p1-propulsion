@@ -44,16 +44,18 @@ def layout(inp: dict, draft_m: float) -> dict:
     z_prop = z_wl - h_c
 
     hub_L = pr["hub_length_mm"]
-    # --- placa motriz (rodamiento A en buje trasero), polea conducida y puente (rodamiento B) ---
+    # --- placa motriz de Al (con cartucho torneado del rodamiento A), poleas y puente (rodamiento B) ---
     motor = inp["motor"]["options"][inp["motor"]["chosen"]]
     w_pulley = dt["belt_width_mm"] + 6.0                  # ancho de polea (bridas)
-    # alma de montaje del motor: el eje del motor debe alcanzar la polea completa
-    t_plate = max(5.0, motor["shaft_protrusion_mm"] - w_pulley - 2.0)
+    t_plate = dt["drive_plate_t_mm"]
+    if t_plate + 2.0 + w_pulley > motor["shaft_protrusion_mm"]:
+        raise ValueError("el eje del motor no alcanza la polea: placa demasiado gruesa")
     u_plate_aft = -a["shaft_top_ahead_of_pivot_mm"]       # cara de popa de la placa = cara delantera de la cuna
     u_plate_fwd = u_plate_aft - t_plate
-    boss_len = brg["B_mm"] + 5.0                          # buje del rodamiento A (sobresale hacia popa)
-    u_boss_aft = u_plate_aft + boss_len - t_plate         # entra en un rebaje de la cuna
-    u_brgA = u_boss_aft - brg["B_mm"] / 2                 # rodamiento A (localizador, axial)
+    t_fl = dt["cartridge_flange_t_mm"]
+    u_brgA = u_plate_aft + t_fl + brg["B_mm"] / 2         # rodamiento A (localizador, axial) en el cartucho
+    u_boss_aft = u_plate_aft + t_fl + brg["B_mm"] + 1.0   # extremo de popa del cartucho
+    boss_len = u_boss_aft - u_plate_fwd
     u_pulley_c = u_plate_fwd - 2.0 - w_pulley / 2         # plano de correa (ambas poleas)
     t_bridge = 12.0                                       # espesor del puente [SUPUESTO]
     u_bridge_aft = u_pulley_c - w_pulley / 2 - 3.0

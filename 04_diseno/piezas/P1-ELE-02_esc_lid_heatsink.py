@@ -9,7 +9,7 @@ META = dict(id="P1-ELE-02", name="esc_lid_heatsink", desc="Tapa-disipador Al 4 m
 
 def build(p):
     Li, Wi, Hi = p.esc_in
-    rim = 12.0
+    rim = 18.0                       # = ELE-01 RIM
     Lo, Wo = Li + 2 * rim, Wi + 2 * rim
     lid = box(-Lo / 2, Lo / 2, -Wo / 2, Wo / 2, 0, 4)
     import importlib.util, os

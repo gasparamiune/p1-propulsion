@@ -94,6 +94,7 @@ resistance:
   wave_cw: 1.50               # [ESTIMADO: calibrado para R/W≈0.045 a Fr_L≈0.37 (jon boat + trolling 55 lb); CALIBRAR con remolque]
   wave_fr_hump: 0.55          # [ESTIMADO: joroba de casco plano pesado Fr_L 0.5–0.7]
   air_cd: 1.0                 # [ESTIMADO: personas sentadas + borda, Cd 0.8–1.2]
+  appendage_cda_m2: 0.0035    # [ESTIMADO: tubo Ø40 ~0,5 m sumergido en flujo cruzado (Cd 1,1·sin²25°) + carcasa inferior + patín + aleta; research/R02: carenar el tubo baja 16 %]
   air_frontal_area_m2: 1.0    # [ESTIMADO: 2 personas sentadas (0.35 m²·2) + casco 0.3 m²]
   band_low: 0.75              # [ESTIMADO: borde inferior de la banda medida R(6 km/h)=95–150 N (research/R04 §C.3) / R nominal]
   band_high: 1.15             # [ESTIMADO: borde superior de la banda medida (150 N a 6 km/h, research/R04 §C.3); se usa para dimensionar]
@@ -112,6 +113,8 @@ architecture:
   steer_range_deg: 35.0       # [SUPUESTO: ±35° de dirección]
   tilt_range_deg: 25.0        # [CALCULADO: la punta de hélice sale del agua con ~22° y queda ~110 mm sobre la flotación a 25° (02_calculos.md §8); verify confirma despeje]
   shaft_top_ahead_of_pivot_mm: 70     # [SUPUESTO: cara de popa de la placa motriz delante del pivote (u)]
+  stop_pad_d_mm: 25.0                 # [CALCULADO: tope de marcha Ø25 (goma sobre arandela A4) → fatiga por ola con FS ≥ 3 (structural.py)]
+  blade_rate_amplitude_frac: 0.10     # [ESTIMADO: fluctuación de empuje/fuerza lateral a paso de pala ±10 % de T (hélice en flujo uniforme oblicuo; armónicos 1P se cancelan con 3 palas)]
   unit_mass_estimate_kg: 9.0          # [ESTIMADO: unidad completa; se contrasta con la masa del CAD en verify]
 
 # -----------------------------------------------------------------------------
@@ -181,9 +184,11 @@ propeller:
   efficiency_factor: 1.0      # [SUPUESTO: multiplicador de η0 del modelo de hélice (calibración/sensibilidad)]
   guard:
     type: "ring"              # [SUPUESTO: aro protector impreso + patín]
-    thrust_loss_frac: 0.06    # [ESTIMADO: aro corto no perfilado 3–8 % de empuje a velocidad]
+    thrust_loss_frac: 0.10    # [ESTIMADO: research/R03 — aro perfilado (L/D≈0,3, holgura 2–3 % D, sin barras delante): K_Q +12 % (Ladd); un aro romo perdería hasta 25 % de K_T]
     bollard_gain_frac: 0.00   # [SUPUESTO: un aro no perfilado no se acredita ganancia]
-    radial_clearance_mm: 10.0 # [SUPUESTO: holgura puntera–aro]
+    radial_clearance_mm: 6.0  # [ESTIMADO: research/R03 — 2–3 % de D (Ladd); 6 mm = 2,4 % D con 254 mm, deja margen a la flexión del PETG]
+    profile_length_mm: 76.0   # [ESTIMADO: research/R03 — L/D ≈ 0,3]
+    profile_thickness_frac: 0.15  # [SUPUESTO: espesor máximo del perfil t/c 0,15 (tipo NACA 0015 unilateral)]
   skeg_fuse_force_n: 300.0    # [CALCULADO: el patín rompe antes de que el tubo Al 40×3 baje de FS 2 con la cola trabada (04_diseno/structural.py)]
   shear_pin:
     target_factor_vs_qmax: 2.0     # [SUPUESTO: corta a 2× el torque máximo normal del eje]
@@ -203,6 +208,10 @@ drivetrain:
   eta_belt: 0.96              # [ESTIMADO: correa dentada 0.95–0.98]
   eta_bearings: 0.98          # [ESTIMADO: 2 rodamientos + 3 bujes en agua]
   belt_allow_tension_n: 400   # [ESTIMADO: HTD-5M 15 mm, tensión de trabajo admisible ~300–450 N; verificar catálogo]
+  drive_plate_t_mm: 6.0       # [SUPUESTO: placa motriz de chapa Al 6082-T6 de 6 mm estándar (research/R05: empuje y correa a metal)]
+  cartridge_flange_t_mm: 4.0  # [SUPUESTO: brida del cartucho torneado del rodamiento A]
+  cartridge_od_mm: 40.0       # [SUPUESTO: cuerpo del cartucho Ø40 (pared 4 mm sobre Ø32)]
+  cartridge_flange_d_mm: 52.0 # [SUPUESTO: brida Ø52 con 3×M4 en Ø46]
 shaft:
   material: "AISI 316"        # [SUPUESTO]
   d_mm: 16.0                  # [CALCULADO: Ø12 daba FS fatiga 1.1 y torsión en pasador 1.3 (ver decisiones D-07)]
@@ -294,6 +303,7 @@ battery:
   chemistry: "LiFePO4"        # [SUPUESTO: ver 02_calculos.md §6 y research/R06]
   chosen: "auto"              # [SUPUESTO: "auto" = mínimo costo que cumple energía, corriente y V máx objetivo]
   usable_dod: 0.90            # [ESTIMADO: BMS corta ~95 %, se reserva 5 % adicional]
+  bms_current_derate: 0.80    # [VERIFICADO: research/R06 — l_in_current_max del VESC ≤ 80 % de la corriente continua del BMS]
   v_sag_frac_at_max: 0.06     # [ESTIMADO: caída bajo carga a 1C con SoC bajo]
   options:
     LFP24_50:
@@ -350,6 +360,15 @@ battery:
       i_cont_a: 60.0          # [ESTIMADO]
       mass_kg: 14.0           # [ESTIMADO]
       price_eur: 420.0        # [ESTIMADO]
+    LFP36_50:
+      desc: "LiFePO4 38.4 V 50 Ah (12S) para trolling, BMS 50 A (IP65, sin carga < 0 °C)"
+      series_units: 1         # [SUPUESTO]
+      v_nom: 38.4             # [VERIFICADO: 12S × 3.2 V; research/R06]
+      v_min: 33.0             # [ESTIMADO: 12S × 2.75 V bajo carga]
+      ah: 50.0                # [VERIFICADO: research/R06 LiTime 36 V 50 Ah (1920 Wh)]
+      i_cont_a: 50.0          # [VERIFICADO: research/R06 LiTime: BMS 50 A continuo / 250 A 1 s]
+      mass_kg: 15.0           # [VERIFICADO: research/R06 LiTime 33,14 lb = 15,0 kg]
+      price_eur: 365.0        # [ESTIMADO: 395,99 USD (VERIFICADO research/R06) × 0,92 EUR/USD; sin envío ni IVA DK]
     LFP24_60:
       desc: "LiFePO4 25.6 V 60 Ah con BMS 100 A"
       series_units: 1         # [SUPUESTO]
@@ -383,11 +402,12 @@ electrical:
 materials:
   PETG:
     density_g_cm3: 1.27       # [ESTIMADO: TDS típicos PETG 1.27]
-    sigma_t_xy_mpa: 45.0      # [ESTIMADO: probeta impresa XY, TDS típicos 40–50 MPa]
-    sigma_t_z_mpa: 25.0       # [ESTIMADO: unión entre capas ~50–60 % de XY]
-    E_mpa: 1900.0             # [ESTIMADO: TDS típicos 1.8–2.1 GPa]
-    tg_c: 80.0                # [ESTIMADO: PETG Tg ~78–85 °C]
-    t_service_max_c: 60.0     # [SUPUESTO: Tg − 20 K; límite de servicio de piezas impresas]
+    sigma_t_xy_mpa: 47.0      # [VERIFICADO: research/R05 S1 Prusament PETG TDS 47±2 MPa (PolyLite 50.8)]
+    sigma_t_z_mpa: 18.0       # [VERIFICADO: research/R05 S1 "interlayer adhesion" 18±4 MPa]
+    E_mpa: 1500.0             # [VERIFICADO: research/R05 S1 Prusament 1500 MPa (el menor de los TDS: conservador para deformación)]
+    tg_c: 69.0                # [VERIFICADO: research/R05 S3 Bambu 69 °C (PolyLite 81); HDT 68 °C a 1,8 MPa]
+    t_service_max_c: 50.0     # [ESTIMADO: research/R05 — HDT 65,7–68 °C menos ~15–18 K por creep y humedad]
+    hdt_min_purchase_c: 70.0  # [VERIFICADO: research/R05 — comprar PETG con HDT(1,8 MPa) ≥ 70 °C, p. ej. PolyLite 75 °C]
     price_eur_per_kg: 22.0    # [ESTIMADO: PETG 1 kg EU 18–28 €]
   ASA:
     density_g_cm3: 1.07       # [ESTIMADO]
@@ -398,12 +418,13 @@ materials:
     t_service_max_c: 75.0     # [SUPUESTO]
     price_eur_per_kg: 26.0    # [ESTIMADO]
   design_factors:             # Factores de reducción FDM (multiplican la resistencia)
-    f_water: 0.85             # [ESTIMADO: PETG saturado en agua pierde ~5–15 %]
+    f_water: 0.75             # [VERIFICADO: research/R05 S13 — PETG −17 a −28 % de tracción a 30 días en agua de mar]
     f_temp: 0.85              # [ESTIMADO: a 40 °C de servicio]
     f_process: 0.80           # [ESTIMADO: variabilidad de impresión, poros, costura]
-    f_creep: 0.50             # [ESTIMADO: carga sostenida horas–días a ≤ 40 °C]
-    f_fatigue: 0.30           # [ESTIMADO: 1e7–1e8 ciclos, termoplástico amorfo]
-    f_z: 0.55                 # [ESTIMADO: cuando la carga cruza capas (evitar por diseño)]
+    f_creep: 0.35             # [VERIFICADO: research/R05 S15 (fluencia de PETG impreso) — admisible sostenida ≈ 35 %]
+    f_fatigue: 0.06           # [CALCULADO: research/R05 S16 — 30 % UTS a ~1e5 ciclos, Basquin → ~6 % a 1e7–1e8 (paso de pala)]
+    f_fatigue_lcf: 0.15       # [CALCULADO: misma curva Basquin a ~1e6 ciclos (olas, maniobras, ~1e5–1e6 por temporada)]
+    f_z: 0.40                 # [VERIFICADO: research/R05 — Z/XY = 0,38 (Prusament) a 0,84 (PolyLite)]
   fs_target_printed: 3.0      # [VERIFICADO: requisito del usuario FS ≥ 3]
   fs_target_metal: 2.0        # [SUPUESTO: metales con propiedades certificadas]
 
@@ -427,9 +448,9 @@ geometry:
   interference_tol_mm3: 1.0   # [SUPUESTO: volumen de intersección admisible (ruido numérico)]
   tilt_check_step_deg: 5.0    # [SUPUESTO: paso de barrido de basculación en verify]
   esc_box_inner_mm: [130, 80, 45]   # [ESTIMADO: VESC 75100 con disipador ~ 110×70×35 + cables]
-  oring_cs_mm: 2.5            # [SUPUESTO: cordón O-ring 2.5 mm (NBR 70)]
-  oring_squeeze_frac: 0.25    # [ESTIMADO: sello axial estático 20–30 % (Parker ORD 5700, a verificar)]
-  oring_gland_fill_frac: 0.75 # [ESTIMADO: llenado de ranura ≤ 85 %]
+  oring_cs_mm: 3.53           # [VERIFICADO: research/R05 — con ±0,15 mm de tolerancia FDM la compresión queda en 21–29 % (con 2,5 mm: 17–33 %)]
+  oring_squeeze_frac: 0.25    # [VERIFICADO: research/R05 S24 Parker ORD 5700 — sello de cara estático 20–30 %]
+  oring_gland_fill_frac: 0.78 # [VERIFICADO: research/R05 S24 — llenado 60–85 % (ranura 2,57–2,72 × 4,50–4,75 mm)]
 
 # -----------------------------------------------------------------------------
 # MONTAJE / BASCULACIÓN (kick-up)
@@ -438,8 +459,8 @@ mount:
   clamp_screw_d_mm: 12        # [SUPUESTO: tornillo de abrazadera M12 A4 con mango en T]
   clamp_screws: 2             # [SUPUESTO]
   clamp_screw_torque_nm: 2.5  # [CALCULADO: máximo para FS ≥ 3 a creep en la C impresa (≈1 kN por tornillo, K=0.2); re-apretar antes de cada salida]
-  clamp_screw_z_mm: -35.0     # [SUPUESTO: tornillos altos → menor momento en el puente de la C]
-  clamp_leg_t_mm: 30.0        # [CALCULADO: FS ≥ 3 a creep con el apriete de diseño (structural.py)]
+  clamp_screw_z_mm: -30.0     # [SUPUESTO: tornillos altos → menor momento en el puente de la C]
+  clamp_leg_t_mm: 34.0        # [CALCULADO: FS ≥ 3 a creep (f_creep 0,35, research/R05) con el apriete de diseño (structural.py)]
   clamp_width_mm: 150         # [SUPUESTO: ancho de la abrazadera a lo largo del espejo]
   swivel_pin_d_mm: 16         # [SUPUESTO: perno de dirección (torneado 316)]
   tilt_pin_d_mm: 12           # [SUPUESTO: eje de basculación (perno A4 M12 / torneado)]
@@ -490,17 +511,26 @@ bom:
     - {id: B-ALPLATE, cat: "Electrónica", desc: "Chapa Al 5052/6082 4 mm (tapa-disipador ESC)", spec: "≥ 160×110×4 mm", qty: 1, supplier: "Distribuidor de aluminio UE", link: "buscar: aluminium plate 4mm 5052", price_eur: 10.0, tag: "[ESTIMADO]"}
     - {id: B-FUSE, cat: "Eléctrico", desc: "Fusible principal + portafusible estanco", spec: "auto:fuse", qty: 1, supplier: "Tienda náutica / automotriz DK", link: "buscar: MIDI fuse holder waterproof", price_eur: 18.0, tag: "[ESTIMADO]"}
     - {id: B-SW, cat: "Eléctrico", desc: "Desconectador de batería marino", spec: "≥ 100 A continuos, 32 V DC, con llave/perilla", qty: 1, supplier: "Tienda náutica DK", link: "buscar: marine battery switch 100A", price_eur: 20.0, tag: "[ESTIMADO]"}
-    - {id: B-ASW, cat: "Seguridad", desc: "Interruptor antichispa MOSFET (corte de potencia por kill cord)", spec: "≥ 100 A, entrada de contacto mantenido (abierto = OFF), precarga integrada", qty: 1, supplier: "Flipsky / similar", link: "buscar: anti spark switch 200A VESC", price_eur: 35.0, tag: "[ESTIMADO]"}
-    - {id: B-KILL, cat: "Seguridad", desc: "Interruptor de hombre al agua con cordón (kill switch marino)", spec: "Contacto NA/NC seleccionable, cordón en espiral con mosquetón, IP67", qty: 1, supplier: "Tienda náutica DK", link: "buscar: marine kill switch lanyard universal", price_eur: 20.0, tag: "[ESTIMADO]"}
+    - {id: B-CONT, cat: "Seguridad", desc: "Contactor monoestable de emergencia (bobina en serie con cordón + seta)", spec: "NA, ≥ 100 A continuos, corte bajo carga ≥ 48 V CC, bobina 24 V (o 12–48 V) ≤ 13 W, con supresor diodo+R o TVS (research/R06: clase Albright SW80)", qty: 1, supplier: "Distribuidor de componentes EV / náutico", link: "https://www.albrightinternational.com/wpcms/wp-content/uploads/2020/08/SW80-Data-Sheet.pdf", price_eur: 90.0, tag: "[ESTIMADO: precio; ficha VERIFICADO research/R06]"}
+    - {id: B-KILL, cat: "Seguridad", desc: "Interruptor de hombre al agua con cordón, contacto CERRADO con clip (fail-safe)", spec: "Cerrado con clip / abierto sin clip, ≥ 1 A (bobina), cordón en espiral con mosquetón (p. ej. Sea Dog SD-420487-1, 5 A)", qty: 1, supplier: "Tienda náutica", link: "https://shop.hamiltonmarine.com/products/sea-dog-switch-kill-gray-cap-with-lanyard-normall-closed-29836.html", price_eur: 15.0, tag: "[VERIFICADO: research/R06 15,69 USD; EUR ESTIMADO]"}
+    - {id: B-ESTOP, cat: "Seguridad", desc: "Seta de emergencia NC con enclavamiento, IP65", spec: "Contacto NC ≥ 1 A, montaje Ø22, IP65, girar para rearmar", qty: 1, supplier: "Distribuidor eléctrico DK", link: "buscar: emergency stop button 22mm NC IP65", price_eur: 12.0, tag: "[ESTIMADO]"}
+    - {id: B-ASW, cat: "Seguridad", desc: "Interruptor antichispa MOSFET aguas abajo del contactor (solo arranque suave / precarga)", spec: "≥ 100 A, ≤ 60 V; NO es elemento de seguridad (falla en corto, research/R06)", qty: 1, supplier: "Flipsky / similar", link: "https://flipsky.net/products/flipsky-antispark-switch-pro-with-aluminum-pcb-case-200a-for-electric-skateboard-ebike-scooter-robots", price_eur: 35.0, tag: "[ESTIMADO: precio; producto VERIFICADO research/R06]"}
+    - {id: B-CFUSE, cat: "Seguridad", desc: "Fusible de mando del circuito de bobina + portafusible", spec: "2 A, en línea, estanco", qty: 1, supplier: "Tienda automotriz", link: "buscar: inline fuse holder waterproof 2A", price_eur: 5.0, tag: "[ESTIMADO]"}
     - {id: B-CAB-DC, cat: "Eléctrico", desc: "Cable marino estañado (batería–ESC, rojo+negro)", spec: "auto:cable_dc", qty: auto, supplier: "Tienda náutica DK", link: "buscar: tinned marine cable 10mm2", price_eur: 4.0, tag: "[ESTIMADO, €/m]"}
     - {id: B-CAB-PH, cat: "Eléctrico", desc: "Cable de fases (ESC–motor, 3 conductores)", spec: "auto:cable_ph", qty: auto, supplier: "Tienda náutica DK", link: "buscar: tinned marine cable 10mm2", price_eur: 4.0, tag: "[ESTIMADO, €/m]"}
     - {id: B-CONN, cat: "Eléctrico", desc: "Conectores de potencia (fases desmontables) + terminales de ojo", spec: "Bala 5.5 mm dorados o MR60/XT90; terminales estañados 10 mm² M8", qty: 1, supplier: "Distribuidor RC / automotriz", link: "buscar: 5.5mm bullet connector 10 pairs", price_eur: 15.0, tag: "[ESTIMADO, juego]"}
-    - {id: B-GLAND, cat: "Eléctrico", desc: "Prensaestopas IP68 nylon", spec: "5 × M16×1.5 (4–8 mm) + 1 × M12×1.5 con tuerca", qty: 6, supplier: "Distribuidor eléctrico DK", link: "buscar: cable gland M16 IP68 nylon", price_eur: 1.5, tag: "[ESTIMADO]"}
+    - {id: B-GLAND, cat: "Eléctrico", desc: "Prensaestopas IP68 con junta CR anti-UV (tipo LAPP SKINTOP ST-M) + contratuerca", spec: "5 × M16×1.5 (un cable redondo por prensaestopas) + 1 × M12×1.5; IP68 5 bar/30 min", qty: 6, supplier: "Distribuidor eléctrico DK", link: "buscar: LAPP SKINTOP ST-M M16 IP68", price_eur: 3.0, tag: "[ESTIMADO: precio; tipo VERIFICADO research/R05 S40]"}
+    - {id: B-VENT, cat: "Sellado", desc: "Respiradero de membrana (caja ESC) contra bombeo térmico", spec: "M12, membrana ePTFE IP68", qty: 1, supplier: "Distribuidor eléctrico", link: "buscar: M12 breather vent membrane IP68", price_eur: 6.0, tag: "[ESTIMADO; necesidad VERIFICADO research/R03]"}
+    - {id: B-VRING, cat: "Sellado", desc: "V-ring excluidor en la boca superior del eje (con drenaje)", spec: "V-ring NBR para eje Ø15–17 (tipo VA 0016)", qty: 2, supplier: "Distribuidor de juntas", link: "buscar: V-ring VA 16 NBR", price_eur: 3.0, tag: "[ESTIMADO; función VERIFICADO research/R05]"}
+    - {id: B-STOP, cat: "Montaje", desc: "Tope de goma Ø25 con espárrago M8 (tope de marcha / trimado)", spec: "NBR/EPDM Ø25×15, espárrago M8 A2/A4", qty: 1, supplier: "Ferretería industrial", link: "buscar: rubber bumper M8 25mm stud", price_eur: 3.0, tag: "[ESTIMADO]"}
+    - {id: B-CARTBAR, cat: "Material torneado", desc: "Barra Al 6082-T6 Ø55 × 60 (cartucho del rodamiento A)", spec: "Al 6082-T6 o 6061-T6", qty: 1, supplier: "Distribuidor de aluminio UE", link: "buscar: aluminium round bar 55mm 6082", price_eur: 8.0, tag: "[ESTIMADO]"}
+    - {id: B-PLATE6, cat: "Estructura", desc: "Chapa Al 6082-T6 6 mm (placa motriz HSG-01)", spec: "≥ 210 × 90 × 6 mm", qty: 1, supplier: "Distribuidor de aluminio UE", link: "buscar: aluminium plate 6mm 6082 T6", price_eur: 12.0, tag: "[ESTIMADO]"}
+    - {id: B-PLATE10, cat: "Estructura", desc: "Chapa Al 6082-T6 10 mm (placa de caña HSG-07)", spec: "≥ 80 × 165 × 10 mm", qty: 1, supplier: "Distribuidor de aluminio UE", link: "buscar: aluminium plate 10mm 6082 T6", price_eur: 12.0, tag: "[ESTIMADO]"}
     - {id: B-SIGNAL, cat: "Electrónica", desc: "Conector de señal estanco 4 polos (caña ↔ caja ESC)", spec: "IP68, 4 polos, ≥ 2 A", qty: 1, supplier: "Distribuidor electrónico", link: "buscar: IP68 waterproof connector 4 pin", price_eur: 8.0, tag: "[ESTIMADO]"}
     - {id: B-MCU, cat: "Electrónica", desc: "Microcontrolador (acelerador/seguridad)", spec: "Arduino Nano compatible ATmega328P 5 V o RP2040", qty: 1, supplier: "Distribuidor electrónico", link: "buscar: Arduino Nano ATmega328P", price_eur: 8.0, tag: "[ESTIMADO]"}
     - {id: B-HALL, cat: "Electrónica", desc: "Sensor hall lineal + imán", spec: "SS49E o A1324 (ratiométrico 5 V) + imán NdFeB Ø10×3 diametral", qty: 1, supplier: "Distribuidor electrónico", link: "buscar: SS49E linear hall sensor", price_eur: 5.0, tag: "[ESTIMADO]"}
     - {id: B-DCDC, cat: "Electrónica", desc: "Regulador DC-DC 24→5 V", spec: "Entrada 12–36 V, 5 V 1 A, aislado opcional", qty: 1, supplier: "Distribuidor electrónico", link: "buscar: DC-DC buck 24V to 5V 1A", price_eur: 5.0, tag: "[ESTIMADO]"}
-    - {id: B-ORING, cat: "Sellado", desc: "Cordón de O-ring NBR70 2.5 mm (caja ESC) + pegamento", spec: "NBR 70 Shore A, Ø2.5 mm, 1 m + cianoacrilato para unir", qty: 1, supplier: "Distribuidor de juntas", link: "buscar: o-ring cord 2.5mm NBR", price_eur: 6.0, tag: "[ESTIMADO]"}
+    - {id: B-ORING, cat: "Sellado", desc: "Cordón de O-ring NBR70 3.53 mm (caja ESC) + cianoacrilato + grasa de silicona", spec: "NBR 70 Shore A, Ø3.53 mm, 1 m; grasa de silicona (no mineral)", qty: 1, supplier: "Distribuidor de juntas", link: "buscar: o-ring cord 3.53mm NBR70", price_eur: 8.0, tag: "[ESTIMADO; especificación VERIFICADO research/R05]"}
     - {id: B-SPRING, cat: "Montaje", desc: "Émbolo de bola con resorte M12 inox (retén de basculación)", spec: "auto:plunger", qty: 2, supplier: "Distribuidor de elementos normalizados UE", link: "buscar: stainless spring plunger M12 heavy", price_eur: 7.0, tag: "[ESTIMADO]"}
     - {id: B-HW, cat: "Tornillería", desc: "Tornillería A4 (M5/M6/M8/M12/M16), tuercas nyloc, arandelas", spec: "Ver 06_ensamblaje_y_pruebas.md (lista de tornillería)", qty: 1, supplier: "Ferretería / distribuidor A4", link: "buscar: A4 stainless bolt assortment M6", price_eur: 45.0, tag: "[ESTIMADO, juego]"}
     - {id: B-CLAMP, cat: "Tornillería", desc: "Tornillos de apriete de popa M12 A4 con mango en T (o varilla + manija) + placa de reparto A4 40×40×4", spec: "auto:clamp_screw", qty: 2, supplier: "Ferretería", link: "buscar: M12 T handle clamp screw stainless", price_eur: 8.0, tag: "[ESTIMADO]"}

@@ -113,6 +113,9 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["plate_u_aft"] = lay["u_plate_aft"]
     d["plate_u_fwd"] = lay["u_plate_fwd"]
     d["brg_d"], d["brg_D"], d["brg_B"] = brg["d_mm"], brg["D_mm"], brg["B_mm"]
+    dtr = inp["drivetrain"]
+    d["cart_od"], d["cart_fl_d"], d["cart_fl_t"] = dtr["cartridge_od_mm"], dtr["cartridge_flange_d_mm"], dtr["cartridge_flange_t_mm"]
+    d["stop_pad_d"] = a["stop_pad_d_mm"]
     d["motor_d"], d["motor_l"] = motor["d_mm"], motor["l_mm"]
     d["motor_shaft_d"] = motor["shaft_d_mm"]
     d["motor_bc"] = motor["mount_bolt_circle_mm"]
@@ -149,9 +152,12 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["u_lh_fwd"], d["u_lh_aft"] = lay["u_lh_fwd"], lay["u_lh_aft"]
     d["guard_clr"] = inp["propeller"]["guard"]["radial_clearance_mm"]
     d["guard_ri"] = d["prop_D"] / 2 + d["guard_clr"]
-    d["guard_t"] = 7.0
-    d["guard_L"] = 50.0
-    d["guard_segments"] = 4
+    gd = inp["propeller"]["guard"]
+    d["guard_L"] = gd["profile_length_mm"]
+    d["guard_tc"] = gd["profile_thickness_frac"]
+    d["guard_t"] = 2 * 5 * d["guard_tc"] * 0.1 * 0 + d["guard_tc"] * d["guard_L"]   # espesor máx. del perfil
+    d["guard_segments"] = 6
+    d["guard_lug"] = (8.0, 16.0, 10.0)                    # oreja: tangencial, axial, radial sobre el perfil [mm]
     d["skeg_t"] = 12.0
     d["skeg_below_guard"] = 12.0
     d["skeg_fuse_force"] = inp["propeller"]["skeg_fuse_force_n"]

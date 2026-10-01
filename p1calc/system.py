@@ -38,7 +38,8 @@ class Drive:
         self.guard_loss = pr["guard"]["thrust_loss_frac"]
         self.rho = inp["water"]["density_kg_m3"]
         self.i_lim = inp["motor"]["current_limit_a"]
-        self.i_bat_lim = min(self.bat["i_cont_a"], self.esc["i_cont_a"])
+        self.i_bat_lim = min(self.bat["i_cont_a"] * inp["battery"].get("bms_current_derate", 1.0),
+                             self.esc["i_cont_a"])
 
     # ------------------------------------------------------------------
     def shaft_thrust_required(self, R: float) -> float:
