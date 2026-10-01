@@ -4,7 +4,7 @@ Leyenda: [x] hecho · [~] en curso · [ ] pendiente
 
 ## Pasada 1 — Funcional de punta a punta ✅ (2026-10-01)
 - [x] PROMPT.md guardado
-- [~] Investigación lanzada en paralelo (subagentes → `research/`): R01–R06 listos y verificados; R07–R09 en curso
+- [x] Investigación en paralelo (subagentes → `research/`): R01–R09 completos (R08 en dos partes: eléctrica y mecánica)
 - [x] inputs.yaml (única fuente de entradas, cada número etiquetado)
 - [x] sizing.py + p1calc/ + 02_calculos.md (optimizador hélice × batería × poleas)
 - [x] 04_diseno/params.py + 34 piezas + build_all.py (STEP + STL)
@@ -18,16 +18,17 @@ Leyenda: [x] hecho · [~] en curso · [ ] pendiente
 - [x] Documentos mínimos: README, decisiones, PENDIENTES_GASPAR, 01..07, checklist_salida, auditoria
 
 ## Pasada 2 — Profundidad
-- [ ] 01_investigacion.md completo (videos, ≥8 proyectos, jon boats, materiales, sellado, BLDC, normativa)
-- [ ] Cálculos refinados (R(v) por régimen, hélice, cavitación, motor, batería, cables, térmico, mecánico, sensibilidad)
-- [ ] 03_arquitectura.md (matriz ponderada + sensibilidad de pesos)
-- [ ] CAD detallado + planos de torneado
-- [ ] FEA 2–3 piezas críticas
-- [ ] Electrónica + firmware + tests de lógica
-- [ ] 05_fabricacion.md + perfiles PrusaSlicer + probetas CAD
-- [ ] 06_ensamblaje_y_pruebas.md + FMEA + checklist_salida.md
-- [ ] Blender (scripts + renders)
-- [ ] 07_roadmap_P2.md
+- [~] 01_investigacion.md completo (workflow de documentos en curso)
+- [x] Cálculos refinados: B-series verificada, Burrill tabulado, R en caliente, térmico del ESC, límite legal, fatiga del pasador, poleas/correas existentes, asiento de hélice
+- [~] 03_arquitectura.md actualizado con R08 (workflow de documentos en curso)
+- [x] CAD detallado (38 piezas) + 12 planos; corrección del montaje del eje (A-08)
+- [~] FEA 2–3 piezas críticas (workflow de electrónica/FEA/fabricación en curso)
+- [~] Electrónica + firmware + tests de lógica (firmware y tests listos; README en curso)
+- [~] 05_fabricacion.md + perfiles PrusaSlicer + probetas CAD (en curso)
+- [~] 06_ensamblaje_y_pruebas.md + FMEA + checklist_salida.md (workflow de documentos en curso)
+- [x] Blender (scripts + renders) — re-render al final
+- [~] 07_roadmap_P2.md (workflow de documentos en curso)
+- [x] Integración R07 (normativa DK), R08a/R08b (BOM verificada: 72 % del subtotal), R09 (métodos)
 
 ## Pasada 3 — Auditoría adversarial
 - [ ] Ronda 1
@@ -53,3 +54,7 @@ Leyenda: [x] hecho · [~] en curso · [ ] pendiente
   creep 0,35, agua 0,75, T servicio 50 °C) → placa motriz de Al; kill switch por contactor (R06);
   O-ring 3,53 mm con caras refrentadas; aro protector perfilado (R03); arrastre de apéndices;
   opción 12S/36 V; firmware + tests; FEA; perfiles PrusaSlicer + probetas; 06 completo + FMEA.
+- 2026-10-01 14:10: Pasada 2 — integrados R07, R08a, R08b, R09. Cambios de diseño: tope de ERPM legal,
+  caja ESC 160×110×45 con prensaestopas M20 rebajados + disipador con R_th requerida, rodamientos 6202,
+  bujes igus H370, poleas/correas Dold existentes, hélice MKP-32 (comprable), pasador 316, sin ánodo,
+  eje montable (A-08). Costo total sistema 2 255 € (72 % verificado). pytest 64 OK.
