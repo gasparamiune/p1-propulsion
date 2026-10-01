@@ -16,7 +16,7 @@ Una casilla sin marcar = **no se sale**. Fuentes: R07 = research/R07_dinamarca.m
 - [ ] Alcohol: 0,0 ‰ [R07 §1.2, política del proyecto]
 
 ## 2. Bote y carga
-- [ ] Carga útil (personas + equipo + batería <!--V:sizing.battery.mass_kg:.0f-->22<!--/V--> kg + unidad <!--V:manifest.totals.unit_mass_kg_cad:.1f-->8.8<!--/V--> kg) ≤ placa de capacidad (____ kg); sin placa vale la estimada de <!--V:sizing.masses.capacity_kg:.0f-->160<!--/V--> kg → 1 adulto [P0.2; D-16]
+- [ ] Carga útil (personas + equipo + batería <!--V:sizing.battery.mass_kg:.0f-->22<!--/V--> kg + unidad <!--V:manifest.totals.unit_mass_kg_cad:.1f-->8.9<!--/V--> kg) ≤ placa de capacidad (____ kg); sin placa vale la estimada de <!--V:sizing.masses.capacity_kg:.0f-->160<!--/V--> kg → 1 adulto [P0.2; D-16]
 - [ ] Francobordo en popa ≥ 150 mm con todos a bordo, medido en el muelle [P0.2]
 - [ ] Batería fija en su caja estanca, tapa puesta, por encima del agua de sentina; bultos al centro/proa, bote nivelado [elec §9; R09 §1.4]
 - [ ] Chalecos con cuello (CE/ratmærke, talla y peso correctos) **puestos y cerrados**, todos [R07 §1.2, §3.3]
@@ -40,7 +40,7 @@ Una casilla sin marcar = **no se sale**. Fuentes: R07 = research/R07_dinamarca.m
 - [ ] Cordón atado al chaleco del timonel (nunca al bote) [R07 §1.4; D-22]
 - [ ] Arranque solo con acelerador en cero: con el puño abierto no arranca (LED a 4 Hz); 1 s en cero → arma (LED fijo) [elec §5.7, T0.7]
 - [ ] Prueba de corte en el muelle con el motor al mínimo: tirar del cordón → para y se oye K1 en < 1 s; repetir con la seta [elec §10; 02 §11]
-- [ ] Modo costa: `l_max_erpm` = <!--V:sizing.legal_speed.erpm_cap:.0f-->25137<!--/V--> ERPM en VESC Tool; si muestra otro valor (p. ej. el de elec §6), cargar este [02 §3.1; D-30]
+- [ ] Modo costa: `l_max_erpm` = <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> ERPM en VESC Tool; si muestra otro valor (p. ej. el de elec §6), cargar este [02 §3.1; D-30]
 
 ## 5. En el agua
 - [ ] Siempre a < 300 m de la costa danesa [R07 §1.2]

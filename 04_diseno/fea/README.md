@@ -239,7 +239,7 @@ modelo en el cálculo a mano:
 
 <!-- FEA:AUTO:INICIO (generado por fea_run.py; no editar a mano) -->
 
-Corrida: 2026-10-01 · inputs v1.0 · 124 s · admisibles vigentes: S_corta = 23.97 MPa, S_sost = 8.39 MPa, S_Z corta/sost = 9.18/3.21 MPa [CALCULADO]
+Corrida: 2026-10-01 · inputs v1.0 · 106 s · admisibles vigentes: S_corta = 23.97 MPa, S_sost = 8.39 MPa, S_Z corta/sost = 9.18/3.21 MPa [CALCULADO]
 
 ### Orientación de impresión (anisotropía)
 

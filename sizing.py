@@ -44,13 +44,17 @@ def select_ratio(inp, mass, bat_key):
             cr = drv.at_speed(v_cr, R_at(inp, mass, v_cr, "design"), bat["v_nom"])
             if not cr["feasible"]:
                 continue
+            T_cr = drv.motor.steady_temp(cr["P_loss_motor"], inp["air"]["temp_max_c"])
             rows.append({"z_motor": zm, "z_shaft": zs, "ratio": zs / zm,
                          "vmax_kmh": vmax["V"] * 3.6, "P_bat_cruise": cr["P_bat"],
-                         "duty_cruise": cr["duty"]})
+                         "duty_cruise": cr["duty"], "T_motor_cruise_C": T_cr,
+                         "thermal_ok": T_cr <= drv.motor.t_max})
     if not rows:
         raise RuntimeError("ninguna relación de poleas es factible")
-    vbest = max(r["vmax_kmh"] for r in rows)
-    cand = [r for r in rows if r["vmax_kmh"] >= 0.99 * vbest]
+    # crucero de diseño sostenido sin que el VESC recorte por temperatura del motor (requisito de 2 h)
+    pool = [r for r in rows if r["thermal_ok"]] or rows
+    vbest = max(r["vmax_kmh"] for r in pool)
+    cand = [r for r in pool if r["vmax_kmh"] >= 0.99 * vbest]
     best = min(cand, key=lambda r: (r["P_bat_cruise"], -r["ratio"]))
     return best, rows
 
@@ -114,6 +118,7 @@ def optimize(inp: dict) -> dict:
                 "draft": tip_depth <= op["max_prop_tip_depth_mm"],
                 "esc_margin": ii["esc"]["options"][ii["esc"]["chosen"]]["i_cont_a"] >= (1 + ii["esc"]["margin_min_frac"]) * I_pk,
                 "prop_seat": fs_seat >= 2.0,
+                "thermal_cruise": rb["thermal_ok"],
                 "purchasable": bool(p.get("purchasable", True)) or bool(inp["propeller"].get("allow_unverified_products", False)),
             }
             rows.append({"prop": pk, "battery": bk, "z_motor": rb["z_motor"], "z_shaft": rb["z_shaft"],
@@ -125,7 +130,7 @@ def optimize(inp: dict) -> dict:
                          **{f"ok_{k}": v for k, v in ok.items()}, "all_ok": all(ok.values())})
     # Restricciones DURAS (seguridad / requisito de autonomía) vs BLANDA (V máx "por ratos").
     hard = ("ok_energy", "ok_current", "ok_voltage", "ok_cavitation", "ok_draft", "ok_esc_margin",
-            "ok_prop_seat", "ok_purchasable")
+            "ok_prop_seat", "ok_purchasable", "ok_thermal_cruise")
     for r in rows:
         r["hard_ok"] = all(r[k] for k in hard)
         r["autonomy_des_h"] = r["E_nom_wh"] * inp["battery"]["usable_dod"] / r["P_bat_cruise_des_W"]

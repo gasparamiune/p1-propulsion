@@ -119,8 +119,8 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se exp
 - *Si difiere:* si el remolque da la banda nominal o menor, la LiTime 36 V 50 Ah (o una 24 V de 60–80 Ah) pasa a cumplir y se ahorra ~45 € y 7 kg; correr `run_all.py` con los puntos medidos lo decide solo.
 
 **D-20 ESC + antichispa en caja estanca impresa (ELE-01, interior 160×110×45) con tapa de aluminio (ELE-02) y disipador de aletas comprado; caja a la sombra, dentro del bote, cerca de la batería.**
-- Alternativas: caja comercial IP67 BOX4U 177×126×56 (14,65 €, research/R08a §10): estanqueidad certificada pero tapa plástica → el ESC (<!--V:sizing.thermal_esc.esc_cruise.P_loss_esc_W:.0f-->27<!--/V--> W de pérdida en crucero con η = 0,97) no tiene camino de calor; ESC refrigerado por agua (P2).
-- Justificación: la caja impresa permite tapa de Al como camino térmico. Requisito calculado del disipador: **R_th ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.58<!--/V--> K/W** para que la caja no pase de 50 °C en crucero (02 §5.2). Los prensaestopas M20 no podían atravesar la pared de 18 mm del reborde (rosca ~10–15 mm): se rebaja la pared a 5 mm en cada prensaestopas y se fija con contratuerca por dentro (verificado con 10 cotas en `build_all`).
+- Alternativas: caja comercial IP67 BOX4U 177×126×56 (14,65 €, research/R08a §10): estanqueidad certificada pero tapa plástica → el ESC (<!--V:sizing.thermal_esc.esc_cruise.P_loss_esc_W:.0f-->26<!--/V--> W de pérdida en crucero con η = 0,97) no tiene camino de calor; ESC refrigerado por agua (P2).
+- Justificación: la caja impresa permite tapa de Al como camino térmico. Requisito calculado del disipador: **R_th ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.61<!--/V--> K/W** para que la caja no pase de 50 °C en crucero (02 §5.2). Los prensaestopas M20 no podían atravesar la pared de 18 mm del reborde (rosca ~10–15 mm): se rebaja la pared a 5 mm en cada prensaestopas y se fija con contratuerca por dentro (verificado con 10 cotas en `build_all`).
 - [CALCULADO].
 - *Si difiere:* si el ensayo T1 de la caja impresa no pasa (porosidad del PETG), usar la BOX4U IP67 con una ventana fresada en la tapa y la placa ELE-02 atornillada con junta como tapa-disipador.
 
@@ -161,8 +161,8 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se exp
 - [VERIFICADO: research/R05]. *Si difiere:* las probetas P1.5/P1.7 (PENDIENTES) recalibran `materials.*` y `structural.py` re-verifica.
 
 **D-30 Límite legal 5 kn a < 300 m de la costa → V máx útil 9,26 km/h; tope de ERPM en el VESC ("modo costa") por defecto.**
-- Alternativas: sin tope (con 1 persona el modelo da <!--V:sizing.legal_speed.vmax_light_low_kmh:.1f-->11.1<!--/V--> km/h: ilegal); limitador por GPS en el Arduino (P2).
-- Justificación: Sejladsreglement Syd- og Sønderjyllands Politi §4 (research/R07). El tope = rpm del motor a 5 kn en el caso más rápido (carga liviana, banda baja, batería llena): <!--V:sizing.legal_speed.erpm_cap:.0f-->25137<!--/V--> ERPM; a plena carga baja la V máx nominal de <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.4<!--/V--> a <!--V:sizing.legal_speed.vmax_full_load_with_cap_kmh:.1f-->7.3<!--/V--> km/h. Con 2 personas el bote no llega a 5 kn en ninguna banda (8,7 km/h en la baja), así que quitar el tope con 2 a bordo es legal. Los 12 km/h del pedido no se persiguen.
+- Alternativas: sin tope (con 1 persona el modelo da <!--V:sizing.legal_speed.vmax_light_low_kmh:.1f-->9.5<!--/V--> km/h: ilegal); limitador por GPS en el Arduino (P2).
+- Justificación: Sejladsreglement Syd- og Sønderjyllands Politi §4 (research/R07). El tope = rpm del motor a 5 kn en el caso más rápido (carga liviana, banda baja, batería llena): <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> ERPM; a plena carga baja la V máx nominal de <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.1<!--/V--> a <!--V:sizing.legal_speed.vmax_full_load_with_cap_kmh:.1f-->7.1<!--/V--> km/h. Con 2 personas el bote no llega a 5 kn en ninguna banda (8,7 km/h en la baja), así que quitar el tope con 2 a bordo es legal. Los 12 km/h del pedido no se persiguen.
 - [VERIFICADO: research/R07 §1.2 + CALCULADO: sizing.py `legal_speed`].
 - *Si difiere:* recalibrar el tope con el GPS en T3 (velocidad a tope con 1 persona ≤ 9,0 km/h).
 
@@ -178,8 +178,10 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se exp
 - Riesgo aceptado y ensayado: el interruptor Watski es de 12 V–15 A y se usa a 24 V con ≤ 0,6 A de bobina, con supresor en la bobina (sin arco inductivo en el contacto). Ensayo T0: 200 aperturas con la bobina real sin soldadura de contactos; si falla, relé auxiliar de 24 V.
 - [VERIFICADO: research/R08a §3, §6, §8].
 
-**D-34 Sin conversor DC-DC: el BEC 5 V / 1 A del VESC alimenta Arduino Nano + sensor hall (< 50 mA).**
-- [VERIFICADO: research/R08a §2]. El Nano solo tiene energía con el contactor cerrado: tras un corte siempre arranca desarmado (firmware: armado solo con acelerador en cero).
+**D-34 El Arduino Nano y el sensor se alimentan con su propio DC-DC (TRACO TSR 1-2450E, 7–36 V → 5 V) aguas ARRIBA del contactor, no con el BEC del VESC.**
+- Alternativa descartada: BEC 5 V del VESC (research/R08a lo proponía para ahorrar el DC-DC).
+- Justificación: con el contactor abierto el VESC solo recibe ≤ 2,1 W por la resistencia de precarga en paralelo; su BEC quedaría en brown-out y el MCU se reiniciaría en ciclos. Alimentado aguas arriba, el MCU sigue vivo durante un corte, latchea el desarme y exige 1 s con el acelerador en cero para re-armar (04_diseno/electronica §1–§2).
+- [VERIFICADO: research/R08a §9 (producto); CALCULADO: 04_diseno/electronica/calc_electronica.py].
 
 **D-35 Equipo de seguridad de operación (2 chalecos con cuello, remos, ancla + cabo, luz todo horizonte, achicador, bolsa estanca) en la BOM como alcance aparte (~270 €).**
 - Justificación: research/R07 §1.4 (viento de tierra W/SW dominante; agua < 15 °C fuera de temporada). No se suma al costo del sistema para compararlo con un motor comercial, pero es obligatorio para salir.
@@ -211,6 +213,15 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se exp
 
 **D-41 Térmico con los límites reales del VESC (85 °C de motor y MOSFET) y resistencia del cobre en caliente (+23,6 % a 80 °C).**
 - [VERIFICADO: research/R09 §6]. R_th del motor 0,45 K/W sigue [ESTIMADO]: medir con el método de resistencia en T2.
+
+**D-42 Límite de corriente de motor 60 A, relación de poleas elegida con restricción térmica en crucero y tensión mínima de cálculo = corte del VESC (24 V).**
+- Problema (revisión adversarial de 01): con 70 A y relación 2,0 el motor se estabilizaba a 93 °C en crucero de diseño, por encima de los 85 °C en que el VESC empieza a recortar (~20 min): no se sostenían 2 h a 6 km/h. Además, la tensión mínima de cálculo (22 V) quedaba por debajo de `l_battery_cut_end`.
+- Solución: `select_ratio` descarta las relaciones cuyo motor supera `t_winding_max_c` en crucero de diseño (y el optimizador lo exige como restricción dura); con la relación que lo cumple (20:48) el torque de rotor trabado sube y el asiento de hélice quedaba en FS 1,87 < 2 → límite de fase 60 A. Empuje a punto fijo prácticamente igual (limita la corriente de motor en ambos casos). `battery.v_min` = celdas × 3,0 V.
+- [CALCULADO: sizing.py]. *Si difiere:* medir R_th del motor en T2.5; si es menor que 0,45 K/W se puede volver a 70 A.
+
+**D-43 Plano preliminar de waterjet de Jorge (26/09/2026): evaluado, no cambia la base de P1 hasta confirmar el casco.**
+- Jorge tiene razón: la rejilla está a popa del impulsor y sin conducto; además el impulsor queda sobre la flotación estática (no ceba), el casco de 0,80 m de manga es inestable y carga 1 persona, 72 V > 50 V CC y ≥ 30 km/h es ilegal a < 300 m. Corrección de la toma y auditoría completa en research/R10a y R10b; croquis en referencias/.
+- *Si difiere:* si la lancha real es la del plano (2,30 × 0,80 m), actualizar `boat.*` y `load.*` en inputs.yaml y correr `run_all.py`.
 
 ## Software y entorno
 

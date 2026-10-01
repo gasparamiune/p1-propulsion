@@ -97,9 +97,9 @@ Lectura: (a) el cordón o la seta detienen el motor en **todas** las combinacion
 | Ref. | Componente | Especificación mínima | Elegido / referencia (BOM) | Etiqueta |
 |---|---|---|---|---|
 | BAT1, BAT2 | Batería LiFePO4 12,8 V en serie (8S) | BMS ≥ 100 A cont. c/u; el fabricante debe admitir conexión en serie; bornes cubiertos | 2 × Power Queen 12V 100Ah en serie (BMS 100 A c/u) (B-BAT) | [SUPUESTO: selección de sizing; apto serie: confirmar por escrito] |
-| F1 | Fusible principal | 80 A (≥ 77,2 A), ≥ 32 V CC, a ≤ 178 mm del borne + | IMAXX midiOTO 58 V + portafusible HMD4-MG1-H (B-FUSE, B-FUSEH) | [CALCULADO: sizing.json fuse] · 178 mm [VERIFICADO: R06 §5.1 ABYC E-11] · 58 V [VERIFICADO: R08a §6]; poder de corte no publicado [ESTIMADO] |
-| S1 | Desconectador manual | ≥ 80 A cont., ≥ 32 V CC, llave removible | Biltema Hovedafbryder AFD 275 A 12–48 V (B-SW) | [VERIFICADO: R08a §3] |
-| K1 | Contactor MONOestable (nunca biestable) | NA, ≥ 80 A cont., corte bajo carga ≥ 29,2 V CC, bobina apta para 29,2 V CONTINUOS y que cierre con ≤ 24,0 V (24 V solo con confirmación escrita de 122 % Us continuo; si no, 36 V), supresor diodo+R/TVS | Albright SW80 24 V (B-CONT); NO relés sin corte CC publicado (p. ej. FRC3) | [VERIFICADO: R06 §3.3 SW80: 48 V con corte, 8–20 ms, cierre ≤ 66 % Us] · sobretensión de bobina [CALCULADO, §7] |
+| F1 | Fusible principal | 60 A (≥ 59,1 A), ≥ 32 V CC, a ≤ 178 mm del borne + | IMAXX midiOTO 58 V + portafusible HMD4-MG1-H (B-FUSE, B-FUSEH) | [CALCULADO: sizing.json fuse] · 178 mm [VERIFICADO: R06 §5.1 ABYC E-11] · 58 V [VERIFICADO: R08a §6]; poder de corte no publicado [ESTIMADO] |
+| S1 | Desconectador manual | ≥ 60 A cont., ≥ 32 V CC, llave removible | Biltema Hovedafbryder AFD 275 A 12–48 V (B-SW) | [VERIFICADO: R08a §3] |
+| K1 | Contactor MONOestable (nunca biestable) | NA, ≥ 60 A cont., corte bajo carga ≥ 29,2 V CC, bobina apta para 29,2 V CONTINUOS y que cierre con ≤ 24,0 V (24 V solo con confirmación escrita de 122 % Us continuo; si no, 36 V), supresor diodo+R/TVS | Albright SW80 24 V (B-CONT); NO relés sin corte CC publicado (p. ej. FRC3) | [VERIFICADO: R06 §3.3 SW80: 48 V con corte, 8–20 ms, cierre ≤ 66 % Us] · sobretensión de bobina [CALCULADO, §7] |
 | R_pre | Resistencia de precarga ∥ K1 | 100 Ω, ≥ 15 W, carcasa de Al atornillada a la tapa-disipador | genérica (agregar a la BOM) | [CALCULADO] [SUPUESTO: research/R06_electrica.md §3.4 (100 Ω → 5τ ≤ 1 s)] |
 | ASW | Antichispa MOSFET (OPCIONAL) | solo arranque suave aguas abajo de K1; falla en corto → NO es seguridad | Flipsky Antispark Pro V3.0 (B-ASW) | [VERIFICADO: R06 §3.1] |
 | F2 | Fusible de mando (bobina) | 2 A, portafusible en línea estanco | genérico (agregar a la BOM) | [CALCULADO] |
@@ -119,7 +119,7 @@ Lectura: (a) el cordón o la seta detienen el motor en **todas** las combinacion
 | Q_EN | Transistor de habilitación (ADC2 del VESC) | NPN Vceo ≥ 30 V, Ic ≥ 50 mA; base 1 kΩ desde D4 y 10 kΩ a GND | genérico | [SUPUESTO] |
 | Pasivos | Pull-ups y filtros | D2/D3: 10 kΩ a 5 V + 100 nF; ADC2: 10 kΩ a 3,3 V; A0: 1 kΩ + 100 nF + 100 kΩ a GND; PPM: 10 kΩ a GND | genéricos | [SUPUESTO: pull-up externo 10 kΩ (D2/D3 a 5 V; ADC2 a 3,3 V, R06 §2.5)] · [SUPUESTO: 10 kΩ × 100 nF en D2/D3 (inmunidad a ruido del motor)] |
 | LED | LED de estado de panel | IP67, 5 V con resistencia | genérico | [SUPUESTO] |
-| Cables | Potencia / mando / señal | DC 16 mm², fases 10 mm² (estañados); mando 0,75–1 mm² estañado; hall: 4 × 0,25 mm² apantallado redondo; cordón: 2 × 0,75 mm² redondo | Skyllermarks estañado (B-CAB-DC, B-CAB-PH) | [CALCULADO: sizing.json cables] · mando/señal [SUPUESTO] |
+| Cables | Potencia / mando / señal | DC 10 mm², fases 10 mm² (estañados); mando 0,75–1 mm² estañado; hall: 4 × 0,25 mm² apantallado redondo; cordón: 2 × 0,75 mm² redondo | Skyllermarks estañado (B-CAB-DC, B-CAB-PH) | [CALCULADO: sizing.json cables] · mando/señal [SUPUESTO] |
 | Prensaestopas | Pasamuros IP68 | un cable REDONDO por prensaestopas; M20 6–12 mm (DC, fases), M16 4–8 mm (hall, cordón) | Biltema M20 / M16 (B-GLAND20, B-GLAND16) | [VERIFICADO: R08a §8] · regla de un cable [ESTIMADO: R05 §B8] |
 | Respiradero | Membrana ePTFE M12 | IP68, en la cara inferior de la caja | B-VENT | [ESTIMADO; necesidad: R03/R05 bombeo térmico] |
 <!-- /ELEC:componentes -->
@@ -222,16 +222,16 @@ Los valores por defecto del firmware **no sirven** para el bote [VERIFICADO: R06
 | Firmware | `versión de firmware` | ≥ 5.03 | — | — | [VERIFICADO: research/R06_electrica.md §2.2 — KILL_SW_MODE aparece en 5.03; no existe en 5.02] | — |
 | Firmware | `foc_phase_filter_enable` | false | — | true (false en target 75_100, FW ≥ 6.00) | [VERIFICADO: research/R06_electrica.md §2.1 — Flipsky: con FW ≥ 5.3 apagar el filtro de fase o se daña el 75100]; default [VERIFICADO: mcconf_default.h MCCONF_FOC_PHASE_FILTER_ENABLE; hw_75_100.h false (research/R06_electrica.md §2.2)] | Solo Flipsky 75100/75200; un VESC con filtro de fase por hardware puede dejarlo |
 | Motor | `si_motor_poles` | 14 | — | 14 | [inputs.yaml motor.options.OR6374_190.pole_pairs = 7 (allí con su etiqueta)] · default FW 14 [VERIFICADO: mcconf_default.h MCCONF_SI_MOTOR_POLES]; CONTAR imanes del motor real | — |
-| Motor | `l_current_max` | 70 | A | 60 | [SUPUESTO: inputs.yaml motor.current_limit_a]; default 60 A [VERIFICADO: mcconf_default.h] | En PPM Current acelera con servo × l_current_max en AMBOS sentidos [VERIFICADO: app_ppm.c] |
-| Motor | `l_current_min` | -35 | A | -60 | [CALCULADO: −reverse_current_frac × l_current_max] | Corriente de FRENADO (servo opuesto a las rpm) [VERIFICADO: app_ppm.c] |
-| Motor | `límite de reversa (MCU)` | 0,5 × l_current_max = 35 | A | — | [CALCULADO: firmware escala el PPM negativo a −reverse_limit] | Coincide con bollard en reversa de sizing: I_m = 35 A |
-| Batería | `l_in_current_max` | 65 | A | 99 (100 en target 75_100) | [CALCULADO: ⌈1,05 × I_bat pico 61,8 A⌉ a 5 A, ≤ 80 % × BMS 100 A] | No limita el pico de sizing (61,8 A) y deja 15 A de margen al 80 % del BMS |
+| Motor | `l_current_max` | 60 | A | 60 | [SUPUESTO: inputs.yaml motor.current_limit_a]; default 60 A [VERIFICADO: mcconf_default.h] | En PPM Current acelera con servo × l_current_max en AMBOS sentidos [VERIFICADO: app_ppm.c] |
+| Motor | `l_current_min` | -30 | A | -60 | [CALCULADO: −reverse_current_frac × l_current_max] | Corriente de FRENADO (servo opuesto a las rpm) [VERIFICADO: app_ppm.c] |
+| Motor | `límite de reversa (MCU)` | 0,5 × l_current_max = 30 | A | — | [CALCULADO: firmware escala el PPM negativo a −reverse_limit] | Coincide con bollard en reversa de sizing: I_m = 30 A |
+| Batería | `l_in_current_max` | 50 | A | 99 (100 en target 75_100) | [CALCULADO: ⌈1,05 × I_bat pico 47,2 A⌉ a 5 A, ≤ 80 % × BMS 100 A] | No limita el pico de sizing (47,2 A) y deja 30 A de margen al 80 % del BMS |
 | Batería | `l_in_current_min` | -10 | A | -60 (-100 en target 75_100) | [SUPUESTO: la hélice regenera poco; protege el BMS al frenar/invertir] · defaults [VERIFICADO: mcconf_default.h; hw_75_100.h (research/R06_electrica.md §2.4)] | — |
 | Batería | `l_battery_cut_start` | 24 | V | 10 | [CALCULADO: 8 celdas × 3 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 3,0 V/celda] | — |
-| Batería | `l_battery_cut_end` | 22,4 | V | 8 | [CALCULADO: 8 × 2,8 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 2,8 V/celda] | OJO: sizing usa V mín bajo carga = 22 V < cut_end → con batería baja el VESC recorta antes de lo que supone el cálculo de V máx |
+| Batería | `l_battery_cut_end` | 22,4 | V | 8 | [CALCULADO: 8 × 2,8 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 2,8 V/celda] | — |
 | Batería | `l_max_vin` | 35 | V | 57 (90 en target 75_100) | [CALCULADO: 1,2 × 29,2 V] · [SUPUESTO: l_max_vin = 1,2 × V carga plena → protege el DC-DC ante un BMS abierto regenerando] | < entrada máx. del DC-DC TSR 1-2450E 36 V |
-| Velocidad | `l_max_erpm` | 29100 | ERPM | 100000 | [CALCULADO: 1,15 × 3619 rpm (máx. con carga, sizing) × 7 pares de polos] | Sin carga (hélice fuera del agua) el motor iría a 5548 rpm = 38836 ERPM [CALCULADO: KV 190 × 29,2 V]; el límite lo baja a 4157 rpm |
-| Velocidad | `l_min_erpm` | -18900 | ERPM | -100000 | [CALCULADO: −1,5 × 1796 rpm (bollard reversa, sizing) × 7] · [SUPUESTO: 50 % sobre las rpm del bollard en reversa (arrancada hacia atrás)] | — |
+| Velocidad | `l_max_erpm` | 30100 | ERPM | 100000 | [CALCULADO: tope legal 'modo costa' = rpm a 5 kn con carga liviana (sizing.legal_speed, D-30); techo técnico 33200 = 1,15 × 4125 rpm × 7 pares de polos] | Sin carga (hélice fuera del agua) el motor iría a 5548 rpm = 38836 ERPM [CALCULADO: KV 190 × 29,2 V]; el límite lo baja a 4300 rpm |
+| Velocidad | `l_min_erpm` | -22900 | ERPM | -100000 | [CALCULADO: −1,5 × 2178 rpm (bollard reversa, sizing) × 7] · [SUPUESTO: 50 % sobre las rpm del bollard en reversa (arrancada hacia atrás)] | — |
 | Velocidad | `l_max_duty` | 0,95 | — | 0,95 | [VERIFICADO: mcconf_default.h MCCONF_L_MAX_DUTY 0,95; mantener] | — |
 | Temperatura | `l_temp_fet_start / end` | 85 / 100 | °C | 85 / 100 | [VERIFICADO: mcconf_default.h; mantener] | — |
 | Temperatura | `l_temp_motor_start / end` | 85 / 100 | °C | 85 / 100 | [CALCULADO: start = mín(85 default, t_winding_max_c 85 °C de inputs.yaml); end = start + 15 como el default] · default 85/100 [VERIFICADO: mcconf_default.h] | sizing toma t_winding_max_c como la temperatura donde el VESC EMPIEZA a limitar: no subir start sin rehacer el cálculo térmico. Requiere NTC 10 k en el bobinado (TEMP_SENSOR_NTC_10K_25C, R06 §1.2) |
@@ -260,19 +260,19 @@ Notas: (1) `l_current_max` es el límite de corriente de motor de `inputs.yaml` 
 | R de precarga (en paralelo con K1) | 100 Ω, ≥ 15 W (carcasa de Al sobre la tapa-disipador) | [SUPUESTO: research/R06_electrica.md §3.4 (100 Ω → 5τ ≤ 1 s)]; potencia [CALCULADO: 1,5 × V²/R en corto del bus] |
 | τ = R·C_bus / 5τ | 0,20 s / 1,00 s | [CALCULADO] con C_bus 2 mF [ESTIMADO: research/R06_electrica.md §3.4, C de bus del VESC 1–2 mF no publicado; se toma el mayor] |
 | Pico de corriente / energía en R | 0,29 A / 0,85 J | [CALCULADO: V_máx/R; ½·C·V²] |
-| Potencia máx. que pasa por R con K1 abierto | 2,1 W = 0,23 % del crucero (910 W, sizing) | [CALCULADO: V²/4R] → sin empuje con K1 abierto |
+| Potencia máx. que pasa por R con K1 abierto | 2,1 W = 0,24 % del crucero (879 W, sizing) | [CALCULADO: V²/4R] → sin empuje con K1 abierto |
 | Espera con cordón AFUERA tras encender S1 | ≥ 2 s | [CALCULADO: ≥ 2 × 5τ, redondeado] |
-| Bobina K1 | 24 V, R = 44,3–82,3 Ω, I máx 0,66 A a 29,2 V | [CALCULADO] desde [VERIFICADO: Albright SW80, bobina continua 7–13 W (research/R06_electrica.md §3.3)]; rango de bobina requerido 22,0–29,2 V |
+| Bobina K1 | 24 V, R = 44,3–82,3 Ω, I máx 0,66 A a 29,2 V | [CALCULADO] desde [VERIFICADO: Albright SW80, bobina continua 7–13 W (research/R06_electrica.md §3.3)]; rango de bobina requerido 24,0–29,2 V |
 | Bobina a carga plena (sobretensión) | Us 24 V: 122 % Us → 10,4–19,2 W, cierra con ≤ 15,8 V (✔ vs 24,0 V en reposo al corte, margen 8,2 V); Us 36 V: 81 % Us → 4,6–8,6 W, cierra con ≤ 23,8 V (✔ vs 24,0 V en reposo al corte, margen 0,2 V) | [CALCULADO: V_máx²/R_bobina] · [VERIFICADO: Albright SW80, bobina prolongada 13–15 W (research/R06_electrica.md §3.3)] · [VERIFICADO: Albright SW80, cierre máx. 66 % Us, tipo continuo (research/R06_electrica.md §3.3)] · [SUPUESTO: tensión de bobina alternativa a evaluar con Albright (6–240 V CC disponibles, R06 §3.3)] → con 24 V la bobina queda a 122 % Us sin tolerancia publicada (R06 §3.3 d): pedir confirmación escrita o usar 36 V |
 | Consumo de bobina en 2 h | 15,9–29,6 Wh = 0,7–1,3 % de la energía usable (sizing) | [CALCULADO: V_nom²/R × t] |
 | Fusible de mando F2 | 2,0 A | [CALCULADO: primer valor normalizado ≥ 3 × I_bobina máx] · factor [SUPUESTO: fusible de mando ≥ 3 × I_bobina máx.] |
 | Margen del interruptor de cordón | 5,0 A / 0,66 A = 7,6× (peor caso: Sea Dog 5 A; Watski 15 A) | [VERIFICADO: Sea Dog SD-420487-1, 5 A máx. (research/R06_electrica.md §3.2)] · [VERIFICADO: research/R08a §3 — Watski 'Dødmands kontakt universal' 12 V – 15 A] |
-| R serie de U2+U3 (nodo bobina) | 3900 Ω, 5,0–6,9 mA, P 0,18 W → 0,5 W | [CALCULADO: E12 ≤ (V_nom − 2·Vf)/I] [ESTIMADO: LED IR de optoacoplador típico 1,1–1,4 V] |
-| R serie de U1 (nodo seta) | 4700 Ω, 4,4–6,0 mA, P 0,17 W → 0,5 W | [CALCULADO] |
+| R serie de U2+U3 (nodo bobina) | 3900 Ω, 5,5–6,9 mA, P 0,18 W → 0,5 W | [CALCULADO: E12 ≤ (V_nom − 2·Vf)/I] [ESTIMADO: LED IR de optoacoplador típico 1,1–1,4 V] |
+| R serie de U1 (nodo seta) | 4700 Ω, 4,9–6,0 mA, P 0,17 W → 0,5 W | [CALCULADO] |
 | Tensión inversa en los LED de U1–U3 al abrir la bobina | N2 → -29,9 V (supresor diodo + R 44 Ω) vs V_R máx. 5 V → **diodo 1N4148 en antiparalelo con cada LED** (conduce 7,3 mA de pico por R2) | [CALCULADO: −(V_d + I_bobina·R_sup)] · [SUPUESTO: R del supresor diodo+R ≈ R de bobina (pico ≈ 2·V); el valor real lo fija T0.4] · [ESTIMADO: V_R máx. del LED de optoacopladores de fototransistor típicos 5–6 V; verificar en la hoja del elegido] |
 | Precarga con el consumo en reposo del VESC | I_q ≤ 25,6 mA para llegar al 90 % con K1 abierto; al 80 % la energía del cierre de K1 es 26 mJ | [CALCULADO: 0,1·V_nom/R; ½·C·(0,2·V_nom)²] · [SUPUESTO: el consumo en reposo del VESC 75100 no está publicado; se mide en T0.3] |
-| Corriente de colector mínima (CTR 50 %) vs pull-up | 2,51 mA ≫ 0,50 mA (5 V) / 0,33 mA (3,3 V) | [CALCULADO] [SUPUESTO: especificación mínima de compra CTR ≥ 50 %] |
-| Fusible principal F1 / cable DC / fases | 80 A (mín. 77,2) / 16 mm² / 10 mm² | [CALCULADO: resultados/sizing.json fuse, cables] |
+| Corriente de colector mínima (CTR 50 %) vs pull-up | 2,77 mA ≫ 0,50 mA (5 V) / 0,33 mA (3,3 V) | [CALCULADO] [SUPUESTO: especificación mínima de compra CTR ≥ 50 %] |
+| Fusible principal F1 / cable DC / fases | 60 A (mín. 59,1) / 10 mm² / 10 mm² | [CALCULADO: resultados/sizing.json fuse, cables] |
 <!-- /ELEC:calc -->
 
 Procedimiento de encendido que se deriva: **S1 ON con el cordón AFUERA** → esperar el tiempo de la tabla (la R_pre carga el bus) → colocar el cordón (K1 cierra sobre un bus ya cargado) → soltar el acelerador 1 s → armado. Si se enciende con el cordón puesto, K1 cierra sobre el bus descargado: el pico lo limita solo la ESR [VERIFICADO: R06 §3.4, "thousands of Amps… weld contacts"]; el antichispa opcional aguas abajo evita ese caso.

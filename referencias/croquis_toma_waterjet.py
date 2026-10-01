@@ -714,6 +714,7 @@ def plot(res, g, out_svg):
              "fabricación. Números etiquetados en research/R10a_toma_waterjet.md.", fontsize=7, color="#555")
     fig.tight_layout(rect=(0, 0.01, 1, 0.97))
     fig.savefig(out_svg, format="svg")
+    fig.savefig(str(out_svg).replace(".svg", ".png"), format="png", dpi=110)
     plt.close(fig)
 
 

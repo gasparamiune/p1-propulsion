@@ -21,7 +21,7 @@ Después de cada medición: actualizar `inputs.yaml` y correr `python run_all.py
 |---|---|---|---|
 | P1.1 | Peine de holguras (agujeros/ejes Ø12, 16, 20, 25, 30, 40; holgura 0,15/0,20/0,25/0,30) | Calibre + pernos reales | Encuentra la holgura que da ajuste deslizante sin juego visible; actualizar `geometry.clearance_mm` |
 | P1.2 | Alojamiento de buje igus H370 Ø18 en PETG (Ø18 −0,05/−0,10/−0,15) | Prensar a mano / prensa de banco | Entra con prensa sin fisurar y no gira con la mano; actualizar `press_fit_mm` |
-| P1.3 | Tuerca cautiva M6 (bolsillo transversal, h = 18 mm) | Tracción con el dinamómetro + palanca, 3 probetas | Arranque ≥ 2,1 kN (FS 3 sobre 701 N) |
+| P1.3 | Tuerca cautiva M6 (bolsillo transversal, h = 18 mm) | Tracción con el dinamómetro + palanca, 3 probetas | Arranque ≥ 3 × la carga por tuerca de 05_fabricacion.md §4.1 (generado desde structural.py) |
 | P1.4 | Inserto M4 inox en PETG (caja ESC) | Tracción, 3 probetas | Arranque ≥ 0,6 kN |
 | P1.5 | Barra de flexión impresa en XY 10×10×100 seca vs 7 días en agua salada (25 g/L) | Flexión 3 puntos con dinamómetro | Pérdida ≤ 25 % (si es mayor, bajar `f_water`) |
 | P1.6 | Caja con O-ring (ELE-01 reducida) + tapa Al | 24 h sumergida a 0,5 m con papel tisú adentro | Papel seco; 0 gotas |
@@ -41,7 +41,7 @@ Ver 06_ensamblaje_y_pruebas.md §T0–T1. Criterios clave: kill switch corta en 
 
 ## P3 — Tanque / muelle (T2)
 
-Bollard pull con el dinamómetro (bote amarrado al muelle con el dinamómetro en el cabo): **pasa si ≥ 0,85 × predicho** (≥ 247 N; predicho <!--V:sizing.bollard_fwd.T_horiz:.0f-->280<!--/V--> N), corriente de batería ≤ 75 A, motor ≤ 80 °C de carcasa tras 3 min, piezas impresas cerca del motor ≤ 50 °C (termómetro IR).
+Bollard pull con el dinamómetro (bote amarrado al muelle con el dinamómetro en el cabo): **pasa si ≥ 0,85 × predicho** (≥ 247 N; predicho <!--V:sizing.bollard_fwd.T_horiz:.0f-->287<!--/V--> N), corriente de batería ≤ 75 A, motor ≤ 80 °C de carcasa tras 3 min, piezas impresas cerca del motor ≤ 50 °C (termómetro IR).
 
 ## P4 — Agua (T3, T4)
 

@@ -152,6 +152,10 @@ def compute(inp=None, sz=None):
     n_rev = sz["bollard_rev"]["n_m_rpm"]
     n_noload = mot["kv_rpm_v"] * v_max
     erpm_max = round(val("erpm_margin") * n_max * pp, -2)
+    erpm_tech = erpm_max
+    erpm_legal = sz.get('legal_speed', {}).get('erpm_cap')
+    if erpm_legal:
+        erpm_max = min(erpm_max, int(erpm_legal // 100 * 100))   # modo costa (D-30): 5 kn a < 300 m
     erpm_min = -round(val("erpm_rev_margin") * n_rev * pp, -2)
     i_in_max = ceil_to(val("i_in_margin") * i_bat_pk, 5.0)
     i_in_cap = val("bms_frac") * i_bms
@@ -199,7 +203,10 @@ def compute(inp=None, sz=None):
         f"< entrada máx. del DC-DC TSR 1-2450E {val('dcdc_vin_max'):.0f} V" if max_vin < val("dcdc_vin_max") else
         "OJO: ≥ entrada máx. del DC-DC → usar R-78HB (72 V)")
     add("Velocidad", "l_max_erpm", erpm_max, "ERPM", 100000,
-        f"[CALCULADO: {fa(val('erpm_margin'))} × {n_max:.0f} rpm (máx. con carga, sizing) × {pp:.0f} pares de polos]",
+        (f"[CALCULADO: tope legal 'modo costa' = rpm a 5 kn con carga liviana (sizing.legal_speed, D-30); "
+         f"techo técnico {erpm_tech:.0f} = {fa(val('erpm_margin'))} × {n_max:.0f} rpm × {pp:.0f} pares de polos]"
+         if erpm_max < erpm_tech else
+         f"[CALCULADO: {fa(val('erpm_margin'))} × {n_max:.0f} rpm (máx. con carga, sizing) × {pp:.0f} pares de polos]"),
         f"Sin carga (hélice fuera del agua) el motor iría a {n_noload:.0f} rpm = {n_noload * pp:.0f} ERPM "
         f"[CALCULADO: KV {mot['kv_rpm_v']:.0f} × {fa(v_max)} V]; el límite lo baja a {erpm_max / pp:.0f} rpm")
     add("Velocidad", "l_min_erpm", erpm_min, "ERPM", -100000,

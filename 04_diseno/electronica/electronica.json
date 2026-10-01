@@ -9,7 +9,7 @@
     "cells_series": 8,
     "v_nom": 25.6,
     "v_max": 29.2,
-    "v_min_load": 22.0
+    "v_min_load": 24.0
   },
   "vesc": [
     {
@@ -42,7 +42,7 @@
     {
       "grupo": "Motor",
       "parametro": "l_current_max",
-      "valor": 70.0,
+      "valor": 60.0,
       "unidad": "A",
       "default": 60.0,
       "tag": "[SUPUESTO: inputs.yaml motor.current_limit_a]; default 60 A [VERIFICADO: mcconf_default.h]",
@@ -51,7 +51,7 @@
     {
       "grupo": "Motor",
       "parametro": "l_current_min",
-      "valor": -35.0,
+      "valor": -30.0,
       "unidad": "A",
       "default": -60.0,
       "tag": "[CALCULADO: −reverse_current_frac × l_current_max]",
@@ -60,20 +60,20 @@
     {
       "grupo": "Motor",
       "parametro": "límite de reversa (MCU)",
-      "valor": "0,5 × l_current_max = 35",
+      "valor": "0,5 × l_current_max = 30",
       "unidad": "A",
       "default": "—",
       "tag": "[CALCULADO: firmware escala el PPM negativo a −reverse_limit]",
-      "nota": "Coincide con bollard en reversa de sizing: I_m = 35 A"
+      "nota": "Coincide con bollard en reversa de sizing: I_m = 30 A"
     },
     {
       "grupo": "Batería",
       "parametro": "l_in_current_max",
-      "valor": 65.0,
+      "valor": 50.0,
       "unidad": "A",
       "default": "99 (100 en target 75_100)",
-      "tag": "[CALCULADO: ⌈1,05 × I_bat pico 61,8 A⌉ a 5 A, ≤ 80 % × BMS 100 A]",
-      "nota": "No limita el pico de sizing (61,8 A) y deja 15 A de margen al 80 % del BMS"
+      "tag": "[CALCULADO: ⌈1,05 × I_bat pico 47,2 A⌉ a 5 A, ≤ 80 % × BMS 100 A]",
+      "nota": "No limita el pico de sizing (47,2 A) y deja 30 A de margen al 80 % del BMS"
     },
     {
       "grupo": "Batería",
@@ -100,7 +100,7 @@
       "unidad": "V",
       "default": 8.0,
       "tag": "[CALCULADO: 8 × 2,8 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 2,8 V/celda]",
-      "nota": "OJO: sizing usa V mín bajo carga = 22 V < cut_end → con batería baja el VESC recorta antes de lo que supone el cálculo de V máx"
+      "nota": ""
     },
     {
       "grupo": "Batería",
@@ -114,19 +114,19 @@
     {
       "grupo": "Velocidad",
       "parametro": "l_max_erpm",
-      "valor": 29100.0,
+      "valor": 30100,
       "unidad": "ERPM",
       "default": 100000,
-      "tag": "[CALCULADO: 1,15 × 3619 rpm (máx. con carga, sizing) × 7 pares de polos]",
-      "nota": "Sin carga (hélice fuera del agua) el motor iría a 5548 rpm = 38836 ERPM [CALCULADO: KV 190 × 29,2 V]; el límite lo baja a 4157 rpm"
+      "tag": "[CALCULADO: tope legal 'modo costa' = rpm a 5 kn con carga liviana (sizing.legal_speed, D-30); techo técnico 33200 = 1,15 × 4125 rpm × 7 pares de polos]",
+      "nota": "Sin carga (hélice fuera del agua) el motor iría a 5548 rpm = 38836 ERPM [CALCULADO: KV 190 × 29,2 V]; el límite lo baja a 4300 rpm"
     },
     {
       "grupo": "Velocidad",
       "parametro": "l_min_erpm",
-      "valor": -18900.0,
+      "valor": -22900.0,
       "unidad": "ERPM",
       "default": -100000,
-      "tag": "[CALCULADO: −1,5 × 1796 rpm (bollard reversa, sizing) × 7] · [SUPUESTO: 50 % sobre las rpm del bollard en reversa (arrancada hacia atrás)]",
+      "tag": "[CALCULADO: −1,5 × 2178 rpm (bollard reversa, sizing) × 7] · [SUPUESTO: 50 % sobre las rpm del bollard en reversa (arrancada hacia atrás)]",
       "nota": ""
     },
     {
@@ -266,15 +266,15 @@
     }
   ],
   "vesc_values": {
-    "l_current_max": 70.0,
-    "l_current_min": -35.0,
-    "l_in_current_max": 65.0,
+    "l_current_max": 60.0,
+    "l_current_min": -30.0,
+    "l_in_current_max": 50.0,
     "l_in_current_min": -10.0,
     "l_battery_cut_start": 24.0,
     "l_battery_cut_end": 22.4,
     "l_max_vin": 35.0,
-    "l_max_erpm": 29100.0,
-    "l_min_erpm": -18900.0,
+    "l_max_erpm": 30100,
+    "l_min_erpm": -22900.0,
     "timeout_msec": 250.0,
     "ramp_time_pos": 1.0,
     "ramp_time_neg": 0.1,
@@ -285,15 +285,15 @@
       2000
     ],
     "motor_poles": 14,
-    "i_bat_peak": 61.79432315704853,
+    "i_bat_peak": 47.24740169284434,
     "i_bms": 100.0,
     "l_temp_motor_start": 85.0,
     "l_temp_motor_end": 100.0,
     "t_winding_max_c": 85.0,
     "i_in_limited": false,
-    "n_max_loaded_rpm": 3619.336953529595,
+    "n_max_loaded_rpm": 4125.127800508194,
     "n_noload_rpm": 5548.0,
-    "n_rev_bollard_rpm": 1796.2484239811317,
+    "n_rev_bollard_rpm": 2177.901809084576,
     "reverse_frac": 0.5,
     "dcdc_vin_max": 36.0,
     "dcdc_ok": true
@@ -309,8 +309,8 @@
     "P_short_W": 8.5264,
     "P_rating_W": 15.0,
     "P_max_transfer_W": 2.1316,
-    "P_cruise_W": 909.7487003784884,
-    "transfer_frac_of_cruise": 0.002343064627751793,
+    "P_cruise_W": 878.6494555220452,
+    "transfer_frac_of_cruise": 0.002425995926593411,
     "wait_s": 2.0,
     "Iq_max_90pct_A": 0.025600000000000005,
     "E_cierre_80pct_J": 0.026214400000000013
@@ -339,7 +339,7 @@
     "kill_switch_rating_A": 5.0,
     "kill_switch_margin": 7.586933614330874,
     "v_range_required": [
-      22.0,
+      24.0,
       29.2
     ],
     "opciones": {
@@ -375,17 +375,17 @@
   "optos": {
     "R_U2U3_ohm": 3900.0,
     "I_U2U3_A": [
-      0.005025641025641026,
+      0.005538461538461539,
       0.006871794871794872
     ],
     "P_R_U2U3_W": 0.18416410256410257,
     "R_U1_ohm": 4700.0,
     "I_U1_A": [
-      0.004425531914893617,
+      0.004851063829787234,
       0.005957446808510639
     ],
     "P_R_U1_W": 0.16680851063829788,
-    "Ic_min_A": 0.002512820512820513,
+    "Ic_min_A": 0.0027692307692307695,
     "I_pullup_5V_A": 0.0005,
     "I_pullup_3V3_A": 0.00033,
     "V_inversa_LED_V": 29.9,
@@ -430,13 +430,13 @@
     "peor_s": 0.25
   },
   "cables": {
-    "dc_mm2": 16,
+    "dc_mm2": 10,
     "phase_mm2": 10,
-    "dc_drop_frac": 0.0110597794286763,
-    "phase_drop_frac": 0.026727272727272725,
-    "fuse_a": 80,
-    "fuse_min_a": 77.24290394631066,
-    "ampacity_dc_a": 100
+    "dc_drop_frac": 0.012402442944371641,
+    "phase_drop_frac": 0.021,
+    "fuse_a": 60,
+    "fuse_min_a": 59.059252116055426,
+    "ampacity_dc_a": 75
   },
   "tabla_resumen": [
     {

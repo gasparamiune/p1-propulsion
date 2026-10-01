@@ -285,7 +285,7 @@ motor:
       tau_th_s: 700.0         # [ESTIMADO]
       t_winding_max_c: 85.0   # [VERIFICADO: research/R09 §6 — el VESC empieza a limitar a 85 °C de motor y MOSFET por defecto; también mcconf_default.h]
       r_hot_factor: 1.236     # [VERIFICADO: research/R09 §6.1 — cobre +23,6 % de resistencia a 80 °C respecto de 20 °C]
-  current_limit_a: 70.0       # [SUPUESTO: límite de corriente de fase configurado en el ESC]
+  current_limit_a: 60.0       # [SUPUESTO: límite de corriente de fase del VESC; 60 A deja el asiento de hélice con FS ≥ 2 al corte del pasador con la relación que mantiene el motor ≤ 85 °C en crucero (decisiones D-42)]
   reverse_current_frac: 0.5   # [SUPUESTO: límite de marcha atrás por firmware]
 esc:
   chosen: "VESC75100"         # [SUPUESTO]
@@ -325,7 +325,7 @@ battery:
       link: "https://www.litime.de/products/24v-50ah-bluetooth-lithium-batterie-fur-elektromotor-boote"
       series_units: 1         # [VERIFICADO: batería única 8S]
       v_nom: 25.6             # [VERIFICADO: research/R08a §4]
-      v_min: 22.0             # [ESTIMADO: 8S × 2.75 V bajo carga]
+      v_min: 24.0             # [CALCULADO: 8 celdas × 3,0 V = l_battery_cut_start del VESC (04_diseno/electronica §6); por debajo el VESC recorta]
       ah: 50.0                # [VERIFICADO: research/R08a §4]
       i_cont_a: 50.0          # [VERIFICADO: research/R08a §4 — BMS 50 A / 250 A 1 s]
       mass_kg: 9.6            # [VERIFICADO: research/R08a §4 — 21,15 lb]
@@ -336,7 +336,7 @@ battery:
       link: "https://www.ipowerqueen.de/products/power-queen-12-v-100-ah-lifepo4-deep-cycle-batterie"
       series_units: 2         # [VERIFICADO: research/R08a §4 — fabricante admite hasta 4P4S]
       v_nom: 25.6             # [VERIFICADO: 2 × 12,8 V]
-      v_min: 22.0             # [ESTIMADO]
+      v_min: 24.0             # [CALCULADO: 8 celdas × 3,0 V = l_battery_cut_start del VESC (04_diseno/electronica §6); por debajo el VESC recorta]
       ah: 100.0               # [VERIFICADO: research/R08a §4]
       i_cont_a: 100.0         # [VERIFICADO: research/R08a §4 — BMS 100 A]
       mass_kg: 22.0           # [ESTIMADO: 2 × ~11 kg (peso de envío, research/R08a §4)]
@@ -347,7 +347,7 @@ battery:
       link: "https://www.litime.de/products/12v-100ah-lifepo4-batterie-elektromotoren-tieftemperaturschutz-tm"
       series_units: 2         # [VERIFICADO: research/R08a §4]
       v_nom: 25.6             # [VERIFICADO]
-      v_min: 22.0             # [ESTIMADO]
+      v_min: 24.0             # [CALCULADO: 8 celdas × 3,0 V = l_battery_cut_start del VESC (04_diseno/electronica §6); por debajo el VESC recorta]
       ah: 100.0               # [VERIFICADO: research/R08a §4]
       i_cont_a: 100.0         # [ESTIMADO: BMS no leído (buscar); clase 100 Ah típica 100 A]
       mass_kg: 20.1           # [ESTIMADO: 2 × 10,05 kg peso de envío (research/R08a §4)]
@@ -358,7 +358,7 @@ battery:
       link: "https://www.ipowerqueen.de/products/power-queen-12v-50ah-lifepo4-batterie-eingebautes-50a-bms"
       series_units: 2         # [VERIFICADO]
       v_nom: 25.6             # [VERIFICADO]
-      v_min: 22.0             # [ESTIMADO]
+      v_min: 24.0             # [CALCULADO: 8 celdas × 3,0 V = l_battery_cut_start del VESC (04_diseno/electronica §6); por debajo el VESC recorta]
       ah: 50.0                # [VERIFICADO: research/R08a §4]
       i_cont_a: 50.0          # [VERIFICADO: research/R08a §4]
       mass_kg: 10.6           # [VERIFICADO: research/R08a §4 — 2 × 5,29 kg]
@@ -369,7 +369,7 @@ battery:
       link: "https://www.litime.de/products/36v-50ah-bluetooth-lithium-batterie-group31-marine-trolling-motor"
       series_units: 1         # [VERIFICADO]
       v_nom: 38.4             # [VERIFICADO: 12S × 3.2 V; research/R06]
-      v_min: 33.0             # [ESTIMADO: 12S × 2.75 V bajo carga]
+      v_min: 36.0             # [CALCULADO: 12 celdas × 3,0 V = l_battery_cut_start]
       ah: 50.0                # [VERIFICADO: research/R06/R08a]
       i_cont_a: 50.0          # [VERIFICADO: research/R06 — BMS 50 A continuo / 250 A 1 s]
       mass_kg: 15.0           # [VERIFICADO: research/R06 — 33,14 lb; R08a lee ~9,6 kg de peso de envío (incoherente con 1,92 kWh LFP): se usa el mayor]
@@ -380,7 +380,7 @@ battery:
       link: "buscar: LiFePO4 48V 50Ah trolling"
       series_units: 1         # [SUPUESTO]
       v_nom: 51.2             # [VERIFICADO: 16S × 3.2 V]
-      v_min: 44.0             # [ESTIMADO: 16S × 2.75 V bajo carga]
+      v_min: 48.0             # [CALCULADO: 16 celdas × 3,0 V = l_battery_cut_start]
       ah: 50.0                # [ESTIMADO]
       i_cont_a: 100.0         # [ESTIMADO]
       mass_kg: 22.0           # [ESTIMADO]
@@ -540,7 +540,7 @@ bom:
     - {id: B-ANDERSON, cat: "Eléctrico", desc: "Conector Anderson SB50 gris (batería ↔ instalación; el cargador usa el mismo conector)", spec: "SB50, cable hasta 16 mm², 120 A", qty: 2, supplier: "Watski DK", link: "https://www.watski.dk/anderson-pp51s-graa-16mm2-1st-11GKJ", price_dkk: 90.0, tag: "[VERIFICADO: research/R08a §8]"}
     - {id: B-CONN, cat: "Eléctrico", desc: "Conectores bala 5,5 mm dorados (fases desmontables en la unidad) + funda", spec: "5,5 mm, ≥ 70 A, 3 pares + repuesto", qty: 1, supplier: "Distribuidor RC", link: "buscar: 5.5mm bullet connector 10 pairs", price_eur: 12.0, tag: "[ESTIMADO, juego]"}
     - {id: B-GLAND20, cat: "Eléctrico", desc: "Prensaestopas IP68 M20 (6–12 mm), pack de 2: 2 × DC 16 mm² + 3 × fases", spec: "M20×1,5, IP68, −20…+80 °C", qty: 3, supplier: "Biltema DK", link: "https://www.biltema.dk/byggeri/elinstallationer/eldaser/kabelforskruning-m20-6-12-mm-2-stk-2000064968", price_dkk: 24.9, tag: "[VERIFICADO: research/R08a §8]"}
-    - {id: B-GLAND16, cat: "Eléctrico", desc: "Prensaestopas IP68 M16 (4–8 mm), pack de 2: señal del acelerador", spec: "M16×1,5, IP68", qty: 1, supplier: "Biltema DK", link: "https://www.biltema.dk/byggeri/elinstallationer/eldaser/kabelforskruning-m16-4-8-mm-2-stk-2000064967", price_dkk: 24.9, tag: "[VERIFICADO: research/R08a §8]"}
+    - {id: B-GLAND16, cat: "Eléctrico", desc: "Prensaestopas IP68 M16 (4–8 mm), pack de 2: señal del acelerador + cordón/seta", spec: "M16×1,5, IP68", qty: 1, supplier: "Biltema DK", link: "https://www.biltema.dk/byggeri/elinstallationer/eldaser/kabelforskruning-m16-4-8-mm-2-stk-2000064967", price_dkk: 24.9, tag: "[VERIFICADO: research/R08a §8]"}
     - {id: B-VENT, cat: "Sellado", desc: "Respiradero de membrana (caja ESC) contra bombeo térmico", spec: "M12, membrana ePTFE IP68", qty: 1, supplier: "Distribuidor eléctrico", link: "buscar: M12 breather vent membrane IP68", price_eur: 6.0, tag: "[ESTIMADO; necesidad VERIFICADO research/R03]"}
     - {id: B-VRING, cat: "Sellado", desc: "V-ring excluidor en la boca superior del eje (con drenaje)", spec: "V-ring NBR para eje Ø15–17 (tipo VA 0016)", qty: 2, supplier: "Distribuidor de juntas", link: "buscar: V-ring VA 16 NBR", price_eur: 3.0, tag: "[ESTIMADO; función VERIFICADO research/R05]"}
     - {id: B-STOP, cat: "Montaje", desc: "Tope de goma Ø25 con espárrago M8 (tope de marcha / trimado)", spec: "NBR/EPDM Ø25×15, espárrago M8 A2/A4", qty: 1, supplier: "Ferretería industrial", link: "buscar: rubber bumper M8 25mm stud", price_eur: 3.0, tag: "[ESTIMADO]"}
@@ -549,7 +549,9 @@ bom:
     - {id: B-PLATE10, cat: "Estructura", desc: "Chapa Al 6082-T6 10 mm (placa de caña HSG-07)", spec: "≥ 80 × 165 × 10 mm", qty: 1, supplier: "Distribuidor de aluminio UE", link: "buscar: aluminium plate 10mm 6082 T6", price_eur: 12.0, tag: "[ESTIMADO]"}
     - {id: B-SIGNAL, cat: "Electrónica", desc: "Conector de señal IP68 4 polos apantallado (caña ↔ caja ESC): Lumberg 0332-04 + 0322-04", spec: "IP68, 4 polos, apantallado", qty: 1, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/plug_round_connector_ip_68_360_shielded_4-pin-116121", price_eur: 14.85, tag: "[VERIFICADO: research/R08a §8 (7,34 + 7,51 €)]"}
     - {id: B-KCONN, cat: "Seguridad", desc: "Conector IP68 2 polos (cordón/seta ↔ bobina), Cliffcon 68", spec: "IP68, 2 polos", qty: 1, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/cliffcon_68_cable_connector_2_pin_ip68-230124", price_eur: 8.39, tag: "[VERIFICADO: research/R08a §8]"}
-    - {id: B-MCU, cat: "Electrónica", desc: "Arduino Nano V3 (ATmega328, 5 V) — firmware 04_diseno/electronica/firmware", spec: "ATmega328P 5 V, ADC 10 bits; alimentado por el BEC 5 V/1 A del VESC (no hace falta DC-DC)", qty: 1, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/arduino_nano_v3_atmega_328_mini_usb-142943", price_eur: 20.69, tag: "[VERIFICADO: research/R08a §9]"}
+    - {id: B-MCU, cat: "Electrónica", desc: "Arduino Nano V3 (ATmega328, 5 V, bootloader Optiboot) — firmware 04_diseno/electronica/firmware", spec: "ATmega328P 5 V, ADC 10 bits; alimentado por su propio DC-DC aguas arriba del contactor (04_diseno/electronica §1)", qty: 1, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/arduino_nano_v3_atmega_328_mini_usb-142943", price_eur: 20.69, tag: "[VERIFICADO: research/R08a §9]"}
+    - {id: B-DCDC, cat: "Electrónica", desc: "DC-DC TRACO TSR 1-2450E 7–36 V → 5 V 1 A (MCU y sensor, aguas arriba del contactor) + fusible F3 1 A en línea", spec: "Entrada ≥ l_max_vin del VESC; ver 04_diseno/electronica §4", qty: 1, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/dc_dc_converter_tsr_1e_1_a_7-36_5_0_vdc_sip-3-288648", price_eur: 4.19, tag: "[VERIFICADO: research/R08a §9]"}
+    - {id: B-PCB, cat: "Electrónica", desc: "Placa perforada del mando: 3 optoacopladores, transistor Q_EN, pull-down 10 kΩ del PPM, LED de panel, resistencias y bornes; R de precarga 100 Ω ≥ 15 W en paralelo con el contactor; fusible F2 2 A + portafusible", spec: "Ver lista de componentes en 04_diseno/electronica/README.md §4", qty: 1, supplier: "Reichelt DK", link: "buscar: PC817 optocoupler, 100 ohm 25 W aluminium resistor, perfboard", price_eur: 25.0, tag: "[ESTIMADO, juego]"}
     - {id: B-HALL, cat: "Electrónica", desc: "Sensor hall lineal Allegro A1324 (1 + 1 de repuesto) + imán NdFeB Ø10×3 diametral", spec: "Ratiométrico 5 V, −40…+150 °C", qty: 2, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/low_noise_linear_sensor_sip-3-189140", price_eur: 1.68, tag: "[VERIFICADO: research/R08a §9 (sensor); imán ESTIMADO]"}
     - {id: B-MAG, cat: "Electrónica", desc: "Imanes NdFeB Ø10×3 diametrales (pack)", spec: "N35+, magnetización diametral", qty: 1, supplier: "Distribuidor de imanes UE", link: "buscar: neodymium magnet 10x3 diametrically magnetized", price_eur: 6.0, tag: "[ESTIMADO]"}
     - {id: B-ORING, cat: "Sellado", desc: "Cordón de O-ring NBR70 3.53 mm (caja ESC) + cianoacrilato + grasa de silicona", spec: "NBR 70 Shore A, Ø3.53 mm, 1 m; grasa de silicona (no mineral)", qty: 1, supplier: "Distribuidor de juntas", link: "buscar: o-ring cord 3.53mm NBR70", price_eur: 8.0, tag: "[ESTIMADO; especificación VERIFICADO research/R05]"}

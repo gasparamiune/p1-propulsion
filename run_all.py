@@ -7,6 +7,7 @@
     4. 04_diseno/planos.py        planos acotados (SVG) de piezas torneadas
     5. 04_diseno/verify_parts.py  verificación (exit ≠ 0 si falla)
     6. bom.py                     bom.csv + curvas costo–autonomía
+    6c–6g. electrónica (VESC, diagrama), probetas, FEA (si hay gmsh), visor 3D
     7. docgen.py                  inserta resultados en los .md (bloques AUTO)
     8. renders                    Blender headless si hay bpy; si no, vistas matplotlib
 Uso: python run_all.py [--fast] [--skip-render]
@@ -49,6 +50,14 @@ def main():
     step("5/8 Verificación", ["04_diseno/verify_parts.py"])
     step("6/8 BOM y costos", ["bom.py"])
     step("6b/8 Matriz de arquitectura", ["arquitectura.py"])
+    step("6c/8 Electrónica (config. VESC, tabla de verdad, diagrama)", ["04_diseno/electronica/calc_electronica.py"])
+    step("6d/8 Diagrama de cableado", ["04_diseno/electronica/diagrama_cableado.py"])
+    step("6e/8 Probetas (CAD)", ["04_diseno/probetas/build_probetas.py"])
+    if importlib.util.find_spec("gmsh") is not None and not a.fast:
+        step("6f/8 FEA de piezas críticas", ["04_diseno/fea/fea_run.py"], required=False)
+    else:
+        print("FEA [NO EJECUTADO en este corrido]: requiere gmsh (y no corre con --fast); resultados previos en 04_diseno/fea/")
+    step("6g/8 Visor 3D web (datos)", ["04_diseno/visor/build_visor.py"])
     step("7/8 Documentos (bloques AUTO)", ["docgen.py"])
     if not a.skip_render:
         have_bpy = importlib.util.find_spec("bpy") is not None

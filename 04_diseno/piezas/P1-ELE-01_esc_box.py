@@ -1,6 +1,6 @@
 """P1-ELE-01 — Caja estanca del ESC + antichispa con ranura de O-ring axial (cordón 3.53 mm
 NBR70), 8 insertos M4 para la tapa-disipador de aluminio (ELE-02) y 6 prensaestopas IP68
-(5 × M20 para DC 16 mm² y fases 10 mm², 1 × M16 para señal) + respiradero M12.
+(5 × M20 para DC 16 mm² y fases 10 mm², 2 × M16 para señales: acelerador y cordón/seta) + respiradero M12.
 Los prensaestopas atraviesan una pared de GLAND_WALL mm en el fondo de un rebaje exterior
 (la pared de 18 mm del reborde es más larga que la rosca del prensaestopas) y se fijan con
 contratuerca por dentro. Se monta dentro del bote, alto y a la sombra, cerca de la batería."""
@@ -34,6 +34,7 @@ GLANDS = {          # extremo: [(y, Ø agujero, Ø rebaje)]  — fases a un lado
     "-x": [(-GLAND_Y, 20.5, 32.0), (0.0, 20.5, 32.0), (GLAND_Y, 16.5, 28.0)],
 }
 VENT = (12.5, 22.0)  # respiradero M12 en la pared lateral +y: Ø agujero, Ø rebaje
+SIG2 = (16.5, 28.0)  # 2.º paso de señal M16 (cordón/seta → MCU) en la pared lateral −y
 
 
 def groove_center_offset(p):
@@ -79,6 +80,9 @@ def build(p):
     # respiradero de membrana en la pared lateral +y
     box_ = box_ - cyl_y(VENT[0] / 2, Wi / 2 - 1, Wo / 2 + 1, x=0.0, z=zc)
     box_ = box_ - cyl_y(VENT[1] / 2, Wi / 2 + GLAND_WALL, Wo / 2 + 1, x=0.0, z=zc)
+    # segundo paso de señal M16 (cordón + seta hacia el MCU) en la pared lateral −y
+    box_ = box_ - cyl_y(SIG2[0] / 2, -Wo / 2 - 1, -Wi / 2 + 1, x=0.0, z=zc)
+    box_ = box_ - cyl_y(SIG2[1] / 2, -Wo / 2 - 1, -Wi / 2 - GLAND_WALL, x=0.0, z=zc)
     # 4 orejas de montaje M5 en los lados largos (la huella entra en la cama de 210 mm)
     for sy in (-1, 1):
         for xe in (-Lo / 2 + 30, Lo / 2 - 30):

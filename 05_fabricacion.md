@@ -122,20 +122,20 @@ La orientación es la del CAD (`print_rot` de cada `META`; `build_all.py` export
 | ID | Pieza | Cant. | Perfil, relleno | Carga dominante (manifest) | Orientación de impresión: por qué (manifest) | Envolvente impresión [mm] | FS mín. (estructural.json) | Soporte auto / avisos PrusaSlicer | g c/u (CAD) | h c/u (18 g/h) | h c/u (PrusaSlicer) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | P1-DRV-02 | tube_bushing | 3 | **estructural** 100 % | Reacciones radiales del eje (p = F/(d·L) en el portabuje) | Eje vertical (de pie): alojamiento del buje redondo y preciso en XY. `print_rot=(0, 90, 0)` | 34×34×40 | — | no | 31 | 1,7 | 2,7 |
-| P1-ELE-01 | esc_box | 1 | **sellado** 100 % | Estanqueidad (IP67 objetivo), compresión del O-ring | Fondo sobre la cama; la cara del O-ring queda arriba, lisa (última capa + lijado). `print_rot=(0, 0, 0)` | 196×174×48 | 4,54 (Compresión del O-ring en insertos M4 () | no · print warning: Detected print stability issues: | 648 | 36,0 | 74,2 |
+| P1-ELE-01 | esc_box | 1 | **sellado** 100 % | Estanqueidad (IP67 objetivo), compresión del O-ring | Fondo sobre la cama; la cara del O-ring queda arriba, lisa (última capa + lijado). `print_rot=(0, 0, 0)` | 196×174×48 | 4,54 (Compresión del O-ring en insertos M4 (sostenido)) | no · print warning: Detected print stability issues: | 637 | 35,4 | 74,2 |
 | P1-ELE-03 | throttle_grip | 1 | **estructural** 100 %, brim 5 | Torsión de mano (~5 N·m), golpes | Eje vertical (Z): anillos de capa en la dirección del torque. `print_rot=(0, 0, 0)` | 48×48×110 | — | sí | 102 | 5,6 | 8,9 |
 | P1-ELE-04 | hall_housing | 1 | **estructural** 100 % | Reacción de resortes, golpes | Eje vertical (Z). `print_rot=(0, 0, 0)` | 56×56×34 | — | no | 71 | 4,0 | 5,2 |
-| P1-HSG-02 | bearing_bridge | 1 | **estructural** 100 % | LC3/LC4 tiro de correa (reacción R_B) | Plana (u = Z): reacción radial en el plano de capas; alojamiento vertical. `print_rot=(0, -90, 0)` | 154×154×12 | 12,31 (LC4 tirón de correa (corta)) | no | 67 | 3,7 | 4,7 |
-| P1-HSG-03 | belt_guard | 1 | **cubiertas** 25 % | Salpicaduras, manipulación leve | Cara cerrada sobre la cama, abierto arriba (sin puentes). `print_rot=(0, -90, 0)` | 201×85×54 | — | no | 139 | 7,7 | 9,6 |
-| P1-HSG-04 | tiller_clamp | 2 | **estructural** 100 %, brim 5 | LC7 manipulación (par de fuerzas entre abrazaderas) | De canto: la media caña y los pernos en el plano de capas. `print_rot=(90, 0, 0)` | 22×35×46 | 5,62 (LC7 tracción de la abrazadera (2 M6, s) | no · print warning: Detected print stability issues: | 24 | 1,3 | 2,2 |
+| P1-HSG-02 | bearing_bridge | 1 | **estructural** 100 % | LC3/LC4 tiro de correa (reacción R_B) | Plana (u = Z): reacción radial en el plano de capas; alojamiento vertical. `print_rot=(0, -90, 0)` | 154×154×12 | 14,77 (LC4 tirón de correa (corta)) | no | 67 | 3,7 | 4,7 |
+| P1-HSG-03 | belt_guard | 1 | **cubiertas** 25 % | Salpicaduras, manipulación leve | Cara cerrada sobre la cama, abierto arriba (sin puentes). `print_rot=(0, -90, 0)` | 207×93×54 | — | no | 151 | 8,4 | 9,6 |
+| P1-HSG-04 | tiller_clamp | 2 | **estructural** 100 %, brim 5 | LC7 manipulación (par de fuerzas entre abrazaderas) | De canto: la media caña y los pernos en el plano de capas. `print_rot=(90, 0, 0)` | 22×35×46 | 5,62 (LC7 tracción de la abrazadera (2 M6, sección 2×8×22) (corta)) | no · print warning: Detected print stability issues: | 24 | 1,3 | 2,2 |
 | P1-HSG-05 | motor_hood | 1 | **cubiertas** 25 % | Salpicaduras; temperatura del motor (≤ 60 °C en la pieza) | Cara trasera sobre la cama (techo y laterales verticales, sin puentes largos). `print_rot=(0, 90, 0)` | 82×72×86 | — | no | 66 | 3,7 | 4,8 |
 | P1-MNT-01 | clamp_bracket | 1 | **estructural** 85 % | LC5 impacto (reacción en pivote) / LC1 empuje / LC7 manipulación | Perfil x-z sobre la cama (ancho y = Z de impresión): cargas en el plano XY de capas. `print_rot=(90, 0, 0)` | 187×189×150 | 3,23 (Apriete (sostenido)) | sí · print warning: Detected print stability issues: | 1 857 | 103,2 | 166,6 |
 | P1-MNT-02 | clamp_pad | 2 | **estructural** 100 % | Apriete del tornillo (compresión) | Plana, cara de apoyo sobre la cama; compresión a través de capas (admisible). `print_rot=(0, 0, 0)` | 40×40×12 | 10,12 (Apriete (sostenido, compresión)) | no | 18 | 1,0 | 1,2 |
 | P1-MNT-03 | yoke_base | 1 | **estructural** 90 % | LC5 impacto / LC1 empuje (momento de vuelco sobre el perno) | Plana: momentos de vuelco en el plano de capas. `print_rot=(0, 0, 0)` | 75×112×20 | 5,28 (LC5 vuelco (corta)) | sí · print warning: Detected print stability issues: | 180 | 10,0 | 21,9 |
 | P1-MNT-04 | yoke_cheek | 2 | **estructural** 90 % | LC5 impacto (reacción en el pivote) / LC1–LC2 empuje | Plana (espesor = Z): flexión de la mejilla en el plano de capas. `print_rot=(90, 0, 0)` | 116×121×14 | 4,94 (Golpe lateral 200 N (corta)) | no | 107 | 5,9 | 12,9 |
-| P1-MNT-05 | cradle | 1 | **estructural** 90 % | LC5 impacto (momento del tubo) / LC1 empuje / retén | De canto (w = Z): flexión del tubo y empuje en el plano u–v = plano de capas. `print_rot=(90, 0, 0)` | 165×115×76 | 4,04 (LC6 paso de pala ±20 % T lateral (fati) | sí · print warning: Detected print stability issues: | 1 174 | 65,2 | 148,3 |
+| P1-MNT-05 | cradle | 1 | **estructural** 90 % | LC5 impacto (momento del tubo) / LC1 empuje / retén | De canto (w = Z): flexión del tubo y empuje en el plano u–v = plano de capas. `print_rot=(90, 0, 0)` | 165×115×76 | 4,04 (LC6 paso de pala ±20 % T lateral (fatiga 1e7–1e8)) | sí · print warning: Detected print stability issues: | 1 174 | 65,2 | 148,3 |
 | P1-MNT-06 | cradle_cap | 1 | **estructural** 90 % | LC5 impacto (flexión del tubo) / tope de marcha | Cara inferior sobre la cama, media caña hacia arriba (sin soportes). `print_rot=(0, 0, 0)` | 90×76×30 | 5,03 (LC6 ola ±1 g (fatiga ~1e6 ciclos)) | sí | 162 | 9,0 | 19,6 |
-| P1-PRP-01 | guard_segment | 6 | **fusible** 100 % | Golpes en el aro (LC5 secundario), arrastre | Eje del anillo = Z: impactos radiales y flexión del arco en el plano de capas. `print_rot=(0, -90, 0)` | 117×117×76 | 14,57 (Golpe radial 150 N en el anillo (corta) | sí · print warning: Detected print stability issues: | 113 | 6,3 | 8,6 |
+| P1-PRP-01 | guard_segment | 6 | **fusible** 100 % | Golpes en el aro (LC5 secundario), arrastre | Eje del anillo = Z: impactos radiales y flexión del arco en el plano de capas. `print_rot=(0, -90, 0)` | 117×117×76 | 14,57 (Golpe radial 150 N en el anillo (corta)) | sí · print warning: Detected print stability issues: | 113 | 6,3 | 8,6 |
 | P1-PRP-02 | skeg | 1 | **fusible** 100 % | LC5 varada/impacto (fusible mecánico) | Plano u–v sobre la cama: flexión en el plano de capas, rotura predecible en la cintura. `print_rot=(90, 0, 0)` | 126×142×27 | 1,00 (LC5 fusible) — fusible por diseño | sí · print warning: Detected print stability issues: | 91 | 5,1 | 6,3 |
 | P1-PRP-05 | antivent_plate | 1 | **estructural** 100 % | Presión hidrodinámica baja; golpes leves | Plana: flexión en el plano de capas. `print_rot=(0, 0, 0)` | 100×120×5 | — | no | 76 | 4,2 | 4,9 |
 | P1-SAF-01 | killswitch_mount | 1 | **estructural** 100 % | Tirón del cordón (~100 N) al caer al agua | Eje del collar = Z; tirón del cordón en el plano de capas de la placa. `print_rot=(0, 0, 0)` | 75×75×30 | 3,52 (Tirón del cordón 100 N (corta)) | no | 39 | 2,1 | 3,2 |
@@ -172,14 +172,14 @@ La orientación es la del CAD (`print_rot` de cada `META`; `build_all.py` export
 | P1.1 | `P1.1H_agujeros_horizontales` | estructural (fill_density=100%, fill_pattern=rectilinear) | 1 | 181×104×57 | 147,1 | 15,1 | sí | Agujeros horizontales Ø(d+c) para Ø12, Ø24, Ø30, Ø40 (diámetros que las piezas reales imprimen acostados) |
 | P1.2 | `P1.2_alojamiento_rodamiento` | estructural (fill_density=100%, fill_pattern=rectilinear) | 2 | 187×53×12 | 44,8 | 3,7 | sí | Asientos Ø35-.15/-.10/-.05/+.10 para 6202-2RS (15×35×11), pared 4.45 mm (= HSG-02), labio 1.5 mm |
 | P1.3 | `P1.3_tuerca_cautiva_M6` | estructural (fill_density=90%) | 3 | 38×74×15 | 41,0 | 4,8 | sí | Recorte de P1-MNT-04 en el perno x=24 (ligamento mín. 6.8 mm), bolsillo transversal a h=18 mm, 10.4×5.8 mm; agarre Ø12.5 |
-| P1.4 | `P1.4_inserto_M4` | sellado | 3 | 20×19×31 | 12,5 | 1,7 | sí | Recorte del reborde de P1-ELE-01 (RIM 18 mm, inserto a 5 mm del borde, ranura de O-ring vecina); agujero Ø5.6×9.1; pasador Ø8.4 |
+| P1.4 | `P1.4_inserto_M4` | sellado | 3 | 20×19×31 | 12,5 | 1,7 | sí | Recorte del reborde de P1-ELE-01 (RIM 18 mm, inserto de esquina a 5 mm del borde, ranura de O-ring vecina); agujero Ø5.6×9.1; pasador Ø8.4 |
 | P1.5 | `P1.5A_barra_flexion_XY` | estructural (fill_density=100%, fill_pattern=rectilinear) | 6 | 100×10×11 | 12,7 | 1,0 | sí | Barra 10×10×100 acostada (rótulo fuera de la luz) |
 | P1.5 | `P1.5B_barra_flexion_Z` | estructural (fill_density=100%, fill_pattern=rectilinear, brim_width=8) | 3 | 10×10×101 | 12,7 | 2,3 | sí | Barra 10×10×100 de pie (σ a través de capas) |
 | P1.6 | `P1.6A_caja_oring` | sellado | 1 | 106×86×48 | 330,0 | 35,6 | sí | Caja 70×50×45 interior, reborde 18, ranura 2.65×4.74 (cordón 3.53 mm), 4 insertos M4, 1 prensaestopas M20, respiradero M12 |
 | P1.6 | `P1.6B_tapa_prueba_impresa` | sellado | 1 | 106×86×7 | 69,2 | 8,6 | sí | Tapa plana impresa 106×86×6 SOLO DE PRUEBA (la real es Al 4 mm, ELE-02) y plantilla de taladrado |
-| P1.7 | `P1.7A_cubo_absorcion_A` | estructural (fill_density=100%, fill_pattern=rectilinear) | 1 | 20×20×21 | 10,2 | 0,8 | sí | Cubo 20 mm rotulado A |
-| P1.7 | `P1.7B_cubo_absorcion_B` | estructural (fill_density=100%, fill_pattern=rectilinear) | 1 | 20×20×21 | 10,2 | 0,8 | sí | Cubo 20 mm rotulado B |
-| P1.7 | `P1.7C_cubo_absorcion_C` | estructural (fill_density=100%, fill_pattern=rectilinear) | 1 | 20×20×21 | 10,2 | 0,8 | sí | Cubo 20 mm rotulado C |
+| P1.7 | `P1.7A_cubo_absorcion_A` | estructural | 1 | 20×20×21 | 8,6 | 0,8 | sí | Cubo 20 mm rotulado A |
+| P1.7 | `P1.7B_cubo_absorcion_B` | estructural | 1 | 20×20×21 | 8,6 | 0,8 | sí | Cubo 20 mm rotulado B |
+| P1.7 | `P1.7C_cubo_absorcion_C` | estructural | 1 | 20×20×21 | 8,6 | 0,8 | sí | Cubo 20 mm rotulado C |
 | P1.8 | `P1.8_cuello_patin` | fusible | 6 | 39×140×13 | 59,7 | 4,2 | sí | Lengüeta + cintura 21.67×12 mm del patín real + brazo; carga a 110.4 mm de la sección de referencia (agujero Ø8.5) |
 <!-- /FAB:probetas -->
 
@@ -332,8 +332,8 @@ Latón 0,4 para todo P1 (PETG). **Boquilla endurecida solo si P2 usa fibra** (PE
 | Conjunto | Impresiones | g (CAD × solid_frac) | g (PrusaSlicer) | h (18 g/h, inputs.yaml) | h (PrusaSlicer) |
 |---|---|---|---|---|---|
 | Piezas P1 (19 tipos) | 29 | 6 011 | 5 946 | 334 | 603 |
-| Probetas P1.1–P1.8 | 33 | 1 695 | 1 712 | 94 | 161 |
-| **Total** |  | **7 706** | **7 658** | **428** | **764** |
+| Probetas P1.1–P1.8 | 33 | 1 690 | 1 712 | 94 | 161 |
+| **Total** |  | **7 701** | **7 658** | **428** | **764** |
 
 Bobinas de 1 kg a comprar: **11** [CALCULADO: máx(g) × 1.30 de purga, fallas y reimpresiones (= bom.py)]. Laminado: PrusaSlicer-2.7.2+UNKNOWN based on Slic3r (with GUI support), perfiles y ajustes por objeto de esta página, sin soportes (con soportes automáticos suma 26 g). El ritmo real de las piezas es **9,9 g/h**, no los 18 g/h de inputs.yaml (printer.print_rate_g_h): 6 perímetros y velocidades moderadas. Corregir ese valor en inputs.yaml para el plan de impresión.
 <!-- /FAB:totales -->

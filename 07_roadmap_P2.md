@@ -11,13 +11,13 @@ Ningún ítem cambia el código de P1: cada uno entra en P2 cuando se cumple su 
 
 | Magnitud | P1 | Etiqueta |
 |---|---|---|
-| P_bat a 6 km/h (nominal / diseño) | <!--V:sizing.cruise.nominal.P_bat:.0f-->759<!--/V--> / <!--V:sizing.cruise.design.P_bat:.0f-->910<!--/V--> W | [CALCULADO] |
-| Autonomía a 6 km/h (nominal / diseño) | <!--V:sizing.cruise.autonomy_nominal_h:.2f-->3.04<!--/V--> / <!--V:sizing.cruise.autonomy_design_h:.2f-->2.53<!--/V--> h | [CALCULADO] |
+| P_bat a 6 km/h (nominal / diseño) | <!--V:sizing.cruise.nominal.P_bat:.0f-->736<!--/V--> / <!--V:sizing.cruise.design.P_bat:.0f-->879<!--/V--> W | [CALCULADO] |
+| Autonomía a 6 km/h (nominal / diseño) | <!--V:sizing.cruise.autonomy_nominal_h:.2f-->3.13<!--/V--> / <!--V:sizing.cruise.autonomy_design_h:.2f-->2.62<!--/V--> h | [CALCULADO] |
 | Energía por km (diseño) | ≈ 152 Wh/km | [CALCULADO: P_bat de diseño / 6 km/h] |
-| η0 de la hélice MKP-32 en crucero / rendimiento total batería → R·V | <!--V:sizing.cruise.design.prop_eta0:.2f-->0.41<!--/V--> / <!--V:sizing.cruise.design.eta_total:.0%-->29%<!--/V--> | [ESTIMADO: fuera del rango B-series, D-40] / [CALCULADO] |
-| V máx con 2 personas (nominal) · bollard avante · bollard atrás | <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.4<!--/V--> km/h · <!--V:sizing.bollard_fwd.T_horiz:.0f-->280<!--/V--> N · <!--V:sizing.bollard_rev.T_horiz:.0f-->89<!--/V--> N | [CALCULADO] |
-| Motor en crucero de diseño: T estacionaria / tiempo hasta 85 °C | <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->93<!--/V--> °C / <!--V:sizing.thermal.cruise_design.t_to_limit_min:.0f-->20<!--/V--> min | [CALCULADO con R_th 0,45 K/W ESTIMADO y aire a 30 °C] |
-| ESC: pérdida en crucero / disipador exigido | <!--V:sizing.thermal_esc.esc_cruise.P_loss_esc_W:.0f-->27<!--/V--> W / ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.58<!--/V--> K/W | [CALCULADO: 02 §5.2] |
+| η0 de la hélice MKP-32 en crucero / rendimiento total batería → R·V | <!--V:sizing.cruise.design.prop_eta0:.2f-->0.41<!--/V--> / <!--V:sizing.cruise.design.eta_total:.0%-->30%<!--/V--> | [ESTIMADO: fuera del rango B-series, D-40] / [CALCULADO] |
+| V máx con 2 personas (nominal) · bollard avante · bollard atrás | <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.1<!--/V--> km/h · <!--V:sizing.bollard_fwd.T_horiz:.0f-->287<!--/V--> N · <!--V:sizing.bollard_rev.T_horiz:.0f-->91<!--/V--> N | [CALCULADO] |
+| Motor en crucero de diseño: T estacionaria / tiempo hasta 85 °C | <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->80<!--/V--> °C / <!--V:sizing.thermal.cruise_design.t_to_limit_min:.0f-->inf<!--/V--> min | [CALCULADO con R_th 0,45 K/W ESTIMADO y aire a 30 °C] |
+| ESC: pérdida en crucero / disipador exigido | <!--V:sizing.thermal_esc.esc_cruise.P_loss_esc_W:.0f-->26<!--/V--> W / ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.61<!--/V--> K/W | [CALCULADO: 02 §5.2] |
 | Batería (2 × 12 V 100 Ah LFP) | <!--V:sizing.battery.E_nom_wh:.0f-->2560<!--/V--> Wh, <!--V:sizing.battery.mass_kg:.0f-->22<!--/V--> kg | [CALCULADO] |
 | Impresión total PETG | <!--V:manifest.totals.printed_hours:.0f-->334<!--/V--> h, <!--V:manifest.totals.printed_mass_g:.0f-->6011<!--/V--> g | [CALCULADO: resultados/manifest.json] |
 | Carga útil / placa de capacidad estimada | <!--V:sizing.masses.payload_kg:.0f-->248<!--/V--> / <!--V:sizing.masses.capacity_kg:.0f-->160<!--/V--> kg | [CALCULADO] / [ESTIMADO: R04, D-16] |
@@ -66,19 +66,19 @@ Ningún ítem cambia el código de P1: cada uno entra en P2 cuando se cumple su 
 - **Por qué:** las entradas que más mueven P_bat son inciertas. c_w ±30 % → 729–1 104 W; pérdida del protector 0–25 % → 793–1 159 W; masa por persona ±20 % → 767–1 061 W [CALCULADO: resultados/sizing.json → sensitivity]. El η0 de la MKP-32 es [ESTIMADO] porque su P/D ≈ 0,4 queda fuera de la B-series (D-40).
 - **Beneficio:** la banda de P_bat de crucero pasa de ≈ ±20 % a ≤ ±10 % [SUPUESTO: criterio de P0.4]. Decide 2.6, 2.7, 3.1 y 3.2. Si la R medida es ≤ nominal, abre la batería de 36 V (3.2).
 - **Costo / tiempo:** 0 €; 1–2 días de análisis [ESTIMADO].
-- **Disparador:** siempre después de T4. Prioridad alta si la P_bat medida a 6 km/h se aparta más de 10 % de la banda <!--V:sizing.cruise.nominal.P_bat:.0f-->759<!--/V-->–<!--V:sizing.cruise.design.P_bat:.0f-->910<!--/V--> W, o si el bollard da < <!--V:sizing.success.bollard_pull_min_N:.0f-->238<!--/V--> N.
+- **Disparador:** siempre después de T4. Prioridad alta si la P_bat medida a 6 km/h se aparta más de 10 % de la banda <!--V:sizing.cruise.nominal.P_bat:.0f-->736<!--/V-->–<!--V:sizing.cruise.design.P_bat:.0f-->879<!--/V--> W, o si el bollard da < <!--V:sizing.success.bollard_pull_min_N:.0f-->244<!--/V--> N.
 
 ### 2.4 Trimado: menos espejo sumergido
 - **Qué:** batería y bultos hacia el centro/proa hasta que el espejo deje de arrastrar agua; marca de flotación de popa pintada en el casco.
 - **Por qué:** el espejo sumergido aporta 40 N de 134 N a 6 km/h (30 %), es el término con menos base empírica y, según la fórmula, no se ventila por debajo de 24,5 km/h [VERIFICADO: R09 §1.4, Holtrop-Mennen]. Hoy el bote va a <!--V:sizing.masses.capacity_ratio:.0%-->155%<!--/V--> de la placa estimada, con calado <!--V:sizing.hydrostatics.draft_m:.3f-->0.198<!--/V--> m.
 - **Beneficio:** A_T −25 % → R_TR −20 % ≈ −8 N ≈ −6 % de R [CALCULADO: R09 §1.4]. En el modelo, −20 % de ancho de espejo sumergido → P_bat 834 W (−8 %) [CALCULADO: resultados/sizing.json → sensitivity].
-- **Costo / tiempo:** 0 €; 0,5 día. Llevar la batería 1 m más a proa alarga el cable DC: la caída pasa de <!--V:sizing.cables.dc.drop_frac:.1%-->1.1%<!--/V--> a ≈ 1,8 %, debajo del 3 % [CALCULADO: caída ∝ largo].
+- **Costo / tiempo:** 0 €; 0,5 día. Llevar la batería 1 m más a proa alarga el cable DC: la caída pasa de <!--V:sizing.cables.dc.drop_frac:.1%-->1.2%<!--/V--> a ≈ 1,8 %, debajo del 3 % [CALCULADO: caída ∝ largo].
 - **Disparador:** P0.2 con francobordo de popa cerca de 150 mm; estela del espejo en las fotos de T3; Wh/km de T4 por encima del modelo.
 
 ### 2.5 Marcha atrás: datos de cuatro cuadrantes
 - **Qué:** medir en T2 el empuje atrás al 25 y al 50 % de corriente, y en T3 la parada desde 6 km/h (tiempo y distancia con GPS). Reemplazar el rendimiento de hélice invertida 0,65 de 02 §3.
-- **Por qué:** no hay datos abiertos de la B-series en cuatro cuadrantes [VERIFICADO: R09 §2.1, propy]. El bollard atrás de <!--V:sizing.bollard_rev.T_horiz:.0f-->89<!--/V--> N usa ese 0,65 [ESTIMADO]. Con protector, la reversa puede no mejorar (R03 §3: −1,5 % con una tobera impresa).
-- **Beneficio:** reemplaza un [ESTIMADO] y permite decidir si se sube la reversa del 50 al 70 % de corriente. El FS de retención de la basculación bajaría de <!--V:sizing.mech.kickup.fs_reverse_hold:.1f-->7.6<!--/V--> a ≈ 5,4 [ESTIMADO: momento de empuje ∝ corriente en punto fijo; D-10].
+- **Por qué:** no hay datos abiertos de la B-series en cuatro cuadrantes [VERIFICADO: R09 §2.1, propy]. El bollard atrás de <!--V:sizing.bollard_rev.T_horiz:.0f-->91<!--/V--> N usa ese 0,65 [ESTIMADO]. Con protector, la reversa puede no mejorar (R03 §3: −1,5 % con una tobera impresa).
+- **Beneficio:** reemplaza un [ESTIMADO] y permite decidir si se sube la reversa del 50 al 70 % de corriente. El FS de retención de la basculación bajaría de <!--V:sizing.mech.kickup.fs_reverse_hold:.1f-->7.4<!--/V--> a ≈ 5,4 [ESTIMADO: momento de empuje ∝ corriente en punto fijo; D-10].
 - **Costo / tiempo:** 0 €; 2 h dentro de T2 [ESTIMADO].
 - **Disparador:** siempre en T2. Subir el límite solo si en T3 el bote no frena o no maniobra con el viento de diseño de 6 m/s.
 
@@ -94,20 +94,20 @@ Ningún ítem cambia el código de P1: cada uno entra en P2 cuando se cumple su 
 - **Por qué:** la MKP-32 es de trolling (P/D ≈ 0,4) y queda fuera de la B-series. Una 10 × 8 está dentro: η0 0,49 contra 0,42 de una 7,8 in [CALCULADO: R09 §2.3].
 - **Beneficio:** P_bat 910 → 848 W (−7 %); autonomía de diseño 2,53 → 2,72 h [CALCULADO: resultados/sizing.json → optimization, EO10x8 con LFP12_100x2].
 - **Costo / tiempo:** no se halló producto (R08b §5): buscar: "electric outboard spare propeller 10 inch 3 blade shear pin". Asiento del eje re-torneado al bore real; 1 día [ESTIMADO].
-- **Disparador:** T2 con bollard < 0,85 × <!--V:sizing.bollard_fwd.T_horiz:.0f-->280<!--/V--> N, T4 con P_bat a 6 km/h > 910 W, o η0 calibrado de la MKP-32 por debajo del modelado.
+- **Disparador:** T2 con bollard < 0,85 × <!--V:sizing.bollard_fwd.T_horiz:.0f-->287<!--/V--> N, T4 con P_bat a 6 km/h > 910 W, o η0 calibrado de la MKP-32 por debajo del modelado.
 
 ### 2.8 Telemetría (VESC + ESP32) y límite de velocidad por GPS
 - **Qué:** ESP32 en la UART del VESC para leer V, I, Wh, rpm, duty y temperaturas de motor y MOSFET, más un GPS (velocidad sobre el fondo). Registro CSV a 10 Hz y lectura de Wh consumidos a bordo. Usa el gancho `use_vesc_ok` del firmware del Nano [elec §5.3]. Que el VESC atienda PPM y UART a la vez es [ESTIMADO: memoria técnica, app "PPM_UART"; confirmar en VESC Tool].
 - **Límite GPS:** el ESP32 baja el comando si la velocidad GPS supera 9,0 km/h; el tope de ERPM queda como respaldo fijo. El limitador **nunca** entra en la cadena de corte (elec §2): solo reduce el comando.
 - **Por qué:** P1 no mide SoC ni Wh (el checklist exige "carga completa ≤ 48 h"). La calibración (2.3) necesita cientos de puntos V–P, no 3–4. El tope de ERPM se calcula en agua calma, con 1 persona y batería llena (D-30): no ve la corriente a favor.
-- **Beneficio:** Wh/km, temperaturas y recortes reales en cada salida; límite legal sobre la velocidad medida. Con 2 personas recupera V máx de <!--V:sizing.legal_speed.vmax_full_load_with_cap_kmh:.1f-->7.3<!--/V--> a <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.4<!--/V--> km/h [CALCULADO], que es poco: el valor está en los datos y en la certeza legal.
+- **Beneficio:** Wh/km, temperaturas y recortes reales en cada salida; límite legal sobre la velocidad medida. Con 2 personas recupera V máx de <!--V:sizing.legal_speed.vmax_full_load_with_cap_kmh:.1f-->7.1<!--/V--> a <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.1<!--/V--> km/h [CALCULADO], que es poco: el valor está en los datos y en la certeza legal.
 - **Costo / tiempo:** buscar: "ESP32 DevKit", "GPS NEO-M8N", "microSD SPI module"; firmware y caja estanca 3–5 días [ESTIMADO].
 - **Disparador:** T4 sin Wh/km reales para 2.3; T3 con 1 persona a fondo y media > 9,0 km/h (P4); sospecha de recorte térmico (2.9).
 
 ### 2.9 Refrigeración del ESC (por agua o reubicación) y del motor
 - **Qué:** (a) ESC: apoyar la tapa-disipador ELE-02 sobre una placa de Al en contacto con el fondo del casco, con pad térmico **aislante** para que el sistema siga flotante (R06 §3.5, D-36); o placa fría con agua del fiordo tomada en la carcasa inferior. (b) Motor: capó con entrada y salida de aire y ventilación forzada [ESTIMADO: R03 §5 remite a motores secos con ventilación forzada de R02].
-- **Por qué:** con R_th 0,45 K/W [ESTIMADO] y aire a 30 °C, el motor llega a <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->93<!--/V--> °C estacionario en el crucero de diseño y el VESC empieza a recortar a 85 °C a los <!--V:sizing.thermal.cruise_design.t_to_limit_min:.0f-->20<!--/V--> min [CALCULADO]. En la banda nominal queda en ≈ 81 °C [CALCULADO: 30 °C + 0,45 K/W × <!--V:sizing.cruise.nominal.P_loss_motor:.0f-->114<!--/V--> W]. El ESC necesita un disipador ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.58<!--/V--> K/W en convección natural para que la caja impresa no pase de 50 °C (02 §5.2).
-- **Beneficio:** motor: bajar R_th 13 % (0,45 → 0,39 K/W) elimina el recorte en la banda de diseño [CALCULADO: (85 − 30) °C / <!--V:sizing.thermal.cruise_design.P_loss_motor_W:.0f-->141<!--/V--> W]. ESC: con un sumidero a ≤ 24 °C (agua, D-31) la R admisible sube de 0,58 a ≈ 0,80 K/W [CALCULADO: (50 − 24) °C / 27 W − 0,15 K/W de interfaz].
+- **Por qué:** con R_th 0,45 K/W [ESTIMADO] y aire a 30 °C, el motor llega a <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->80<!--/V--> °C estacionario en el crucero de diseño y el VESC empieza a recortar a 85 °C a los <!--V:sizing.thermal.cruise_design.t_to_limit_min:.0f-->inf<!--/V--> min [CALCULADO]. En la banda nominal queda en ≈ 81 °C [CALCULADO: 30 °C + 0,45 K/W × <!--V:sizing.cruise.nominal.P_loss_motor:.0f-->91<!--/V--> W]. El ESC necesita un disipador ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.61<!--/V--> K/W en convección natural para que la caja impresa no pase de 50 °C (02 §5.2).
+- **Beneficio:** motor: bajar R_th 13 % (0,45 → 0,39 K/W) elimina el recorte en la banda de diseño [CALCULADO: (85 − 30) °C / <!--V:sizing.thermal.cruise_design.P_loss_motor_W:.0f-->111<!--/V--> W]. ESC: con un sumidero a ≤ 24 °C (agua, D-31) la R admisible sube de 0,58 a ≈ 0,80 K/W [CALCULADO: (50 − 24) °C / 27 W − 0,15 K/W de interfaz].
 - **Costo / tiempo:** pad aislante y placa de Al (referencia: B-ALPLATE, 12 € [ESTIMADO en bom.csv]); 1–3 días [ESTIMADO]. La toma de agua agrega un punto que se tapa con arena: usarla solo si (a) no alcanza.
 - **Disparador:** T2 con 30 min a potencia de crucero: tapa del ESC > 50 °C (P2.3) o carcasa del motor > 80 °C (02 §11); recorte por temperatura en el registro de 2.8; R_th medida > 0,39 K/W (D-41).
 
@@ -119,7 +119,7 @@ Ningún ítem cambia el código de P1: cada uno entra en P2 cuando se cumple su 
 - **Beneficio:** con el factor de escala 0,95 (D-40), η0 0,53–0,55 contra 0,41 de la MKP-32. Eso da P_bat ≈ 680–700 W (−23 a −25 %) y autonomía ≈ 3,3 h con la batería actual. La energía requerida, ≈ 1 820–1 880 Wh, entraría en una LiTime 36 V 50 Ah de 1 920 Wh (3.2) [ESTIMADO: misma eficiencia de cadena que el crucero de diseño de sizing].
 - **Costo / tiempo:** alto.
   - Calado: con la regla actual (eje a 0,9 D, punta superior a 0,4 D) la punta inferior baja a 420–476 mm, sobre el límite de 380 mm de `operation.max_prop_tip_depth_mm` (hoy: <!--V:sizing.layout.prop_center_depth_mm:.0f-->229<!--/V--> + 127 = 356 mm) [CALCULADO]. Si se respetan los 380 mm, la punta superior queda a 80–40 mm (0,27–0,12 D) y ventila (R02 B5, D-27). Solo sirve donde haya ≥ 0,5 m de agua [ESTIMADO].
-  - Par: el par de rotor trabado en el eje sube de <!--V:sizing.mech.Q_lock_shaft_Nm:.1f-->6.6<!--/V--> a ≈ 17 N·m [CALCULADO: <!--V:sizing.mech.Q_lock_motor_Nm:.2f-->3.52<!--/V--> N·m × 5,14 × 0,94]. El pasador 316 pasa de Ø<!--V:sizing.mech.shear_pin.d_std_mm:.1f-->2.0<!--/V--> a ≈ Ø3,3 mm, y el asiento Ø<!--V:sizing.mech.shaft.d_prop_seat_mm:.1f-->12.7<!--/V--> quedaría con FS ≈ 0,9 en torsión al corte (hoy <!--V:sizing.mech.shaft.fs_torsion_at_shear_pin:.2f-->2.40<!--/V-->). Hace falta un asiento ≥ Ø17 mm y un eje Ø18–20 [CALCULADO: escala d ∝ Q^⅓ desde sizing].
+  - Par: el par de rotor trabado en el eje sube de <!--V:sizing.mech.Q_lock_shaft_Nm:.1f-->6.8<!--/V--> a ≈ 17 N·m [CALCULADO: <!--V:sizing.mech.Q_lock_motor_Nm:.2f-->3.02<!--/V--> N·m × 5,14 × 0,94]. El pasador 316 pasa de Ø<!--V:sizing.mech.shear_pin.d_std_mm:.1f-->2.0<!--/V--> a ≈ Ø3,3 mm, y el asiento Ø<!--V:sizing.mech.shaft.d_prop_seat_mm:.1f-->12.7<!--/V--> quedaría con FS ≈ 0,9 en torsión al corte (hoy <!--V:sizing.mech.shaft.fs_torsion_at_shear_pin:.2f-->2.40<!--/V-->). Hace falta un asiento ≥ Ø17 mm y un eje Ø18–20 [CALCULADO: escala d ∝ Q^⅓ desde sizing].
   - Producto: no identificado. buscar: "13 inch 3 blade propeller shear pin 20 mm bore"; verificar cavitación (Burrill, 02 §4.3) a 550 rpm.
 - **Disparador:** T4 calibrado muestra que la hélice es la pérdida dominante (η0 de la MKP-32 por debajo del modelo) **y** la zona de uso tiene ≥ 0,5 m de agua; o 2.7 no encuentra producto.
 
@@ -151,7 +151,7 @@ Ningún ítem cambia el código de P1: cada uno entra en P2 cuando se cumple su 
 - **Disparador:** P1.5 con pérdida en flexión mojada > 25 %, P1.7 con absorción > 1 %, o fisuras/fluencia en T3/T4 en piezas que no pasen a Al (2.1).
 
 ## 4. Descartado para P2
-- **Tobera Kort 19A:** exige holgura de punta ≤ 0,5 % D ≈ 1,3 mm, inviable con arena, con PETG que flexa, con basculación y con una hélice comercial; lo que se traba entre hélice y tobera es difícil de sacar [VERIFICADO: R09 §4, R03 §3]. La ganancia está en el bollard (+26–30 %) [VERIFICADO: R09 §4], que P1 no necesita (<!--V:sizing.bollard_fwd.T_horiz:.0f-->280<!--/V--> N ≥ <!--V:sizing.success.bollard_pull_min_N:.0f-->238<!--/V--> N). En crucero da 0 a +5 % neto [ESTIMADO: R03]. Reabrir solo si el uso pasa a agua profunda sin arena, con banco de ensayo.
+- **Tobera Kort 19A:** exige holgura de punta ≤ 0,5 % D ≈ 1,3 mm, inviable con arena, con PETG que flexa, con basculación y con una hélice comercial; lo que se traba entre hélice y tobera es difícil de sacar [VERIFICADO: R09 §4, R03 §3]. La ganancia está en el bollard (+26–30 %) [VERIFICADO: R09 §4], que P1 no necesita (<!--V:sizing.bollard_fwd.T_horiz:.0f-->287<!--/V--> N ≥ <!--V:sizing.success.bollard_pull_min_N:.0f-->244<!--/V--> N). En crucero da 0 a +5 % neto [ESTIMADO: R03]. Reabrir solo si el uso pasa a agua profunda sin arena, con banco de ensayo.
 - **Waterjet y rim-drive:** a 6 km/h necesitan 1,35–5,4 veces la potencia al eje de la cola larga [CALCULADO: R03 §2.3].
 
 ## 5. Disparadores por prueba
