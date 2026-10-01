@@ -14,20 +14,20 @@ tubo de cola, tubo de caña, bujes); el escaneo de las piezas también se guarda
 ("ajustes_en_piezas") para la tabla de 05_fabricacion.md.
 """
 from cadlib import *  # noqa: F401,F403
-from _probelib import label, label_on_plane, fmt_mm, cyl_faces, Plane
+from _probelib import label, label_on_plane, fmt_mm, cyl_faces, Plane, fuse_all, cut_all
 
 TEST = "P1.1"
 NOMINALES_BASE = [12, 15, 16, 20, 25, 30, 40]   # [VERIFICADO: PENDIENTES_GASPAR §P1.1 + tarea de fabricación]
 HOLGURAS_BASE = [0.15, 0.20, 0.25, 0.30]         # [VERIFICADO: PENDIENTES_GASPAR §P1.1]
 WALL = 4.0          # pared del anillo [SUPUESTO: ≥ geometry.min_wall_mm; ~6 perímetros + relleno]
 H_RING = 8.0        # largo del agujero [SUPUESTO: suficiente para juzgar juego radial]
-H_PIN = 12.0        # altura útil del perno (> H_RING: atraviesa el anillo)
+H_PIN = 10.0        # altura útil del perno (> H_RING: atraviesa el anillo)
 TAB_T = 2.0         # espesor de la franja de rótulos
 TAB_W = 9.0         # ancho de la franja de rótulos
 COL_W = 16.0        # columna del rótulo de fila "Ø<d>"
 GAP_PIN = 6.0       # luz entre pernos
 MAX_PLATE = 200.0   # [SUPUESTO: 210 útiles − 10 de margen para la falda]
-H_THICK = 10.0      # espesor de la pared con agujeros horizontales (largo del agujero)
+H_THICK = 6.0       # espesor de la pared con agujeros horizontales (largo del agujero) [SUPUESTO]
 FOOT = 10.0         # pie de apoyo de la pared horizontal a cada lado
 
 
@@ -63,16 +63,13 @@ def hole_row(d, cs):
     pitch = max(ids) + WALL
     x0 = COL_W + od / 2
     xs = [x0 + i * pitch for i in range(len(cs))]
-    s = box(0, xs[-1] + od / 2, -od / 2 - TAB_W, 0, 0, TAB_T)          # franja
-    for x in xs:
-        s = s + cyl_z(od / 2, 0, H_RING, x=x)
-    for x, idd in zip(xs, ids):
-        s = s - cyl_z(idd / 2, -1, H_RING + 1, x=x)
     yl = -od / 2 - TAB_W / 2
-    s = s + label(_dlabel(d), COL_W / 2 + 0.5, -od / 4 - TAB_W / 2, TAB_T, size=4.5)
-    for x, c in zip(xs, cs):
-        s = s + label(fmt_mm(c), x, yl, TAB_T, size=4.5)
-    return s, od + TAB_W, xs[-1] + od / 2
+    body = fuse_all([box(0, xs[-1] + od / 2, -od / 2 - TAB_W, 0, 0, TAB_T)]            # franja
+                    + [cyl_z(od / 2, 0, H_RING, x=x) for x in xs])
+    body = cut_all(body, [cyl_z(idd / 2, -1, H_RING + 1, x=x) for x, idd in zip(xs, ids)])
+    labels = [label(_dlabel(d), COL_W / 2 + 0.5, -od / 4 - TAB_W / 2, TAB_T, size=4.5)]
+    labels += [label(fmt_mm(c), x, yl, TAB_T, size=4.5) for x, c in zip(xs, cs)]
+    return fuse_all([body] + labels), od + TAB_W, xs[-1] + od / 2
 
 
 def pin_row(d, cs):
@@ -81,33 +78,29 @@ def pin_row(d, cs):
     x0 = COL_W + d / 2 + 2
     xs = [x0 + i * (d + GAP_PIN) for i in range(len(cs))]
     y_top = d / 2 + 2
-    s = box(0, xs[-1] + d / 2 + 2, -d / 2 - TAB_W - 1, y_top, 0, TAB_T)
-    for x, od in zip(xs, ods):
-        pin = cyl_z(od / 2, TAB_T - 0.01, TAB_T + H_PIN, x=x)
-        if d >= 20:
-            pin = pin - cyl_z(od / 2 - WALL, TAB_T + 1.0, TAB_T + H_PIN + 1, x=x)
-        s = s + pin
+    base = box(0, xs[-1] + d / 2 + 2, -d / 2 - TAB_W - 1, y_top, 0, TAB_T)
+    pins = [cyl_z(od / 2, TAB_T - 0.01, TAB_T + H_PIN, x=x) for x, od in zip(xs, ods)]
+    body = fuse_all([base] + pins)
+    if d >= 20:
+        body = cut_all(body, [cyl_z(od / 2 - WALL, TAB_T + 1.0, TAB_T + H_PIN + 1, x=x) for x, od in zip(xs, ods)])
     yl = -d / 2 - TAB_W / 2 - 0.5
-    s = s + label(_dlabel(d), COL_W / 2 + 0.5, yl + 2, TAB_T, size=4.5)
-    for x, c in zip(xs, cs):
-        s = s + label(fmt_mm(-c), x, yl, TAB_T, size=4.5)
-    return s, (y_top + d / 2 + TAB_W + 1), xs[-1] + d / 2 + 2
+    labels = [label(_dlabel(d), COL_W / 2 + 0.5, yl + 2, TAB_T, size=4.5)]
+    labels += [label(fmt_mm(-c), x, yl, TAB_T, size=4.5) for x, c in zip(xs, cs)]
+    return fuse_all([body] + labels), (y_top + d / 2 + TAB_W + 1), xs[-1] + d / 2 + 2
 
 
 def stack(rows):
     """Apila filas en +Y (cada fila solapa 1 mm a la anterior) + lomo izquierdo que las une."""
-    out = None
+    placed = []
     y = 0.0
     ymax = 0.0
     for solid, h, lx, ytop in rows:
         # ytop = extensión de la fila por encima de su origen (+Y); h = alto total
         off = y + (h - ytop)
-        placed = Pos(0, off, 0) * solid
-        out = placed if out is None else out + placed
+        placed.append(Pos(0, off, 0) * solid)
         y = off + ytop - 1.0
         ymax = off + ytop
-    out = out + box(0, 3, 0, ymax, 0, TAB_T)
-    return out
+    return fuse_all(placed + [box(0, 3, 0, ymax, 0, TAB_T)])
 
 
 def plates(rows_spec, build_row):
@@ -184,29 +177,29 @@ def horizontal_wall(p, ds, csd):
         wcur += w
     if cur:
         groups.append(cur)
-    out = None
+    blocks, holes, labels = [], [], []
     y0 = FOOT
     for g in groups:
         x = 0.0
         for d, w in g:
             cs = csd[d]
             hmax = d + max(cs) + 2 * WALL + 9.0
-            blk = box(x, x + w, y0, y0 + H_THICK, 0, hmax)
+            blocks.append(box(x, x + w, y0, y0 + H_THICK, 0, hmax))
             zc = WALL + (d + max(cs)) / 2 + 2.0
             for i, c in enumerate(cs):
                 xc = x + WALL + (d + max(cs)) / 2 + i * (d + max(cs) + WALL)
-                blk = blk - cyl_y((d + c) / 2, y0 - 1, y0 + H_THICK + 1, x=xc, z=zc)
+                holes.append(cyl_y((d + c) / 2, y0 - 1, y0 + H_THICK + 1, x=xc, z=zc))
                 pl = Plane(origin=(xc, y0, hmax - 4.5), x_dir=(1, 0, 0), z_dir=(0, -1, 0))
-                blk = blk + label_on_plane(fmt_mm(c), pl, size=4.0)
+                labels.append(label_on_plane(fmt_mm(c), pl, size=4.0))
             pl = Plane(origin=(x + w / 2, y0 + H_THICK, hmax - 4.5), x_dir=(-1, 0, 0), z_dir=(0, 1, 0))
-            blk = blk + label_on_plane(f"Ø{d:g} H", pl, size=4.5)
-            out = blk if out is None else out + blk
+            labels.append(label_on_plane(f"Ø{d:g} H", pl, size=4.5))
             x += w
         y0 += H_THICK + 2 * FOOT
     ymax = y0 - FOOT
     xmax = max(sum(w for _, w in g) for g in groups)
-    out = out + box(0, xmax, 0, ymax, 0, 2.0)                       # pie común
-    return out
+    body = fuse_all(blocks + [box(0, xmax, 0, ymax, 0, 2.0)])       # pie común
+    body = cut_all(body, holes)
+    return fuse_all([body] + labels)
 
 
 # ---------------------------------------------------------------------------
@@ -241,7 +234,7 @@ def build(p, ctx):
                           "(diámetros que las piezas reales imprimen acostados)",
                      test=TEST, profile="estructural", qty=1, solid_frac=1.0,
                      orientation="De pie: eje del agujero horizontal (Y), como en MNT-05/STR-01."),
-                horizontal_wall(p, ds, cs)))
+                horizontal_wall(p, ds, {d: holguras_d(p, ctx, d, "horizontal") for d in ds})))
     return res
 
 

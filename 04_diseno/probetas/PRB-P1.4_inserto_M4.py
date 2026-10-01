@@ -1,6 +1,7 @@
 """PRB-P1.4 — Inserto térmico M4 inox en PETG (PENDIENTES_GASPAR §P1.4).
 
-RECORTE del reborde real de la caja del ESC (P1-ELE-01) alrededor de un inserto M4 de la tapa:
+RECORTE del reborde real de la caja del ESC (P1-ELE-01) alrededor de un inserto M4 de la tapa
+(se prefiere uno de ESQUINA: dos bordes libres a INS_EDGE = caso más desfavorable):
 misma sección del reborde (RIM), misma distancia al borde (INS_EDGE), ranura del O-ring vecina,
 agujero de inserto cadlib.INSERT_HOLE[4] × (INSERT_LEN[4] + 1). Se elige el primer inserto cuyo
 recorte no contiene otros agujeros (prensaestopas, respiradero, orejas). Abajo se agrega un
@@ -25,9 +26,16 @@ def _pick(p, ctx):
     Li, Wi, Hi = p.esc_in
     Wo = Wi + 2 * eb.RIM
     H = INSERT_LEN[4] + 1 + BELOW
-    for (x, y) in eb.lid_holes(p):
+    Lo = Li + 2 * eb.RIM
+
+    def n_edges(xy):                                            # bordes exteriores a INS_EDGE del inserto
+        x, y = xy
+        return (abs(abs(x) - (Lo / 2 - eb.INS_EDGE)) < 1e-6) + (abs(abs(y) - (Wo / 2 - eb.INS_EDGE)) < 1e-6)
+
+    # primero los de esquina (dos bordes a INS_EDGE: el caso más desfavorable para rajar el reborde)
+    for (x, y) in sorted(eb.lid_holes(p), key=lambda xy: -n_edges(xy)):
         if abs(abs(y) - (Wo / 2 - eb.INS_EDGE)) > 1e-6:
-            continue                                            # solo insertos de los lados largos
+            continue                                            # solo insertos sobre los lados largos
         sy = 1 if y > 0 else -1
         y0, y1 = sorted((sy * Wi / 2, sy * Wo / 2))
         cut = part & box(x - HALF_X, x + HALF_X, y0, y1, z1 - H, z1 + 1)
@@ -35,7 +43,7 @@ def _pick(p, ctx):
         extra = [cf for cf in holes if abs(cf["r"] - INSERT_HOLE[4] / 2) > 1e-3]
         cbb = cut.bounding_box()
         if not extra and abs((cbb.max.Z - cbb.min.Z) - H) < 1e-3 and abs((cbb.max.Y - cbb.min.Y) - eb.RIM) < 1e-3:
-            return dict(x=x, y=y, sy=sy, y0=y0, y1=y1, z1=z1, H=H, cut=cut)
+            return dict(x=x, y=y, sy=sy, y0=y0, y1=y1, z1=z1, H=H, cut=cut, n_edges=n_edges((x, y)))
     raise RuntimeError("P1.4: no hay inserto de lado largo con recorte limpio en ELE-01")
 
 
@@ -49,7 +57,8 @@ def build(p, ctx):
     s = s + label_on_plane("M4", pl, size=5.0)
     rot = eb.META["print_rot"]
     meta = dict(id="P1.4", name="inserto_M4",
-                desc=f"Recorte del reborde de {SRC} (RIM {eb.RIM:g} mm, inserto a {eb.INS_EDGE:g} mm del borde, "
+                desc=f"Recorte del reborde de {SRC} (RIM {eb.RIM:g} mm, inserto de {'esquina' if g['n_edges'] == 2 else 'lado'} "
+                     f"a {eb.INS_EDGE:g} mm del borde, "
                      f"ranura de O-ring vecina); agujero Ø{INSERT_HOLE[4]}×{INSERT_LEN[4] + 1:g}; pasador Ø{PIN_D}",
                 test=TEST, profile="sellado", qty=3, solid_frac=eb.META.get("solid_frac", 1.0),
                 orientation=f"Como {SRC}: fondo en la cama, inserto vertical abierto hacia arriba.")

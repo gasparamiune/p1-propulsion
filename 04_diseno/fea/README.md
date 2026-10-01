@@ -19,7 +19,7 @@ regenera `fea_run.py` y no se edita a mano.
 
 ```bash
 python 04_diseno/fea/fea_run.py              # todo: ~2 min con 3 procesos (límite pedido: 6 min)
-python 04_diseno/fea/fea_run.py --serial     # un proceso
+python 04_diseno/fea/fea_run.py --serial     # un proceso (~3,5 min)
 python 04_diseno/fea/fea_run.py --quick --out /tmp/q.json   # solo malla gruesa, sin imágenes (~45 s)
 python 04_diseno/fea/fea_run.py --only P1-MNT-05 --h P1-MNT-05=10,6   # otra pieza / otros tamaños de malla
 pytest tests/test_fea.py                     # ~10 s
@@ -48,8 +48,8 @@ test. Las tres ya están en `requirements.txt` como opcionales de FEA. gmsh nece
    - El ensamble es vectorizado y propio. Coincide con `skfem.ElementTetP2` hasta 3·10⁻¹¹ en
      la flecha de una viga ([CALCULADO], test).
    - Por qué no se usó el ensamble de scikit-fem: tarda ~20 s en 2,6·10⁴ elementos. Con
-     SuperLU directo, factorizar 1,3·10⁵ gdl llevó 92 s y 9 GB ([CALCULADO]: medido en esta
-     máquina).
+     SuperLU directo, factorizar 1,3·10⁵ gdl llevó 92 s con orden MMD, y 189 s y ~9 GB con
+     COLAMD ([CALCULADO]: medido en esta máquina).
 5. **Solver.**
    - Gradiente conjugado precondicionado, tolerancia relativa 10⁻⁷.
    - El precondicionador es de dos niveles. El nivel grueso es la interpolación P1 de la misma
@@ -239,7 +239,7 @@ modelo en el cálculo a mano:
 
 <!-- FEA:AUTO:INICIO (generado por fea_run.py; no editar a mano) -->
 
-Corrida: 2026-10-01 · inputs v1.0 · 136 s · admisibles vigentes: S_corta = 23.97 MPa, S_sost = 8.39 MPa, S_Z corta/sost = 9.18/3.21 MPa [CALCULADO]
+Corrida: 2026-10-01 · inputs v1.0 · 124 s · admisibles vigentes: S_corta = 23.97 MPa, S_sost = 8.39 MPa, S_Z corta/sost = 9.18/3.21 MPa [CALCULADO]
 
 ### Orientación de impresión (anisotropía)
 

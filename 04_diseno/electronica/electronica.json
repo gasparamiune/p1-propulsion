@@ -26,8 +26,8 @@
       "parametro": "foc_phase_filter_enable",
       "valor": "false",
       "unidad": "—",
-      "default": "true",
-      "tag": "[VERIFICADO: research/R06_electrica.md §2.1 — Flipsky: con FW ≥ 5.3 apagar el filtro de fase o se daña el 75100]; default [VERIFICADO: mcconf_default.h MCCONF_FOC_PHASE_FILTER_ENABLE]",
+      "default": "true (false en target 75_100, FW ≥ 6.00)",
+      "tag": "[VERIFICADO: research/R06_electrica.md §2.1 — Flipsky: con FW ≥ 5.3 apagar el filtro de fase o se daña el 75100]; default [VERIFICADO: mcconf_default.h MCCONF_FOC_PHASE_FILTER_ENABLE; hw_75_100.h false (research/R06_electrica.md §2.2)]",
       "nota": "Solo Flipsky 75100/75200; un VESC con filtro de fase por hardware puede dejarlo"
     },
     {
@@ -36,7 +36,7 @@
       "valor": 14,
       "unidad": "—",
       "default": 14,
-      "tag": "[VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/motor/mcconf_default.h MCCONF_SI_MOTOR_POLES 14 (default); CONTAR imanes del 6374 real y corregir]",
+      "tag": "[inputs.yaml motor.options.OR6374_190.pole_pairs = 7 (allí con su etiqueta)] · default FW 14 [VERIFICADO: mcconf_default.h MCCONF_SI_MOTOR_POLES]; CONTAR imanes del motor real",
       "nota": ""
     },
     {
@@ -69,19 +69,19 @@
     {
       "grupo": "Batería",
       "parametro": "l_in_current_max",
-      "valor": 70.0,
+      "valor": 65.0,
       "unidad": "A",
-      "default": 99.0,
-      "tag": "[CALCULADO: ⌈1,05 × I_bat pico 62,1 A⌉ a 5 A, ≤ 80 % × BMS 100 A]",
-      "nota": "No limita el pico de sizing (62,1 A) y deja 10 A de margen al 80 % del BMS"
+      "default": "99 (100 en target 75_100)",
+      "tag": "[CALCULADO: ⌈1,05 × I_bat pico 61,8 A⌉ a 5 A, ≤ 80 % × BMS 100 A]",
+      "nota": "No limita el pico de sizing (61,8 A) y deja 15 A de margen al 80 % del BMS"
     },
     {
       "grupo": "Batería",
       "parametro": "l_in_current_min",
       "valor": -10.0,
       "unidad": "A",
-      "default": -60.0,
-      "tag": "[SUPUESTO: la hélice regenera poco; protege el BMS al frenar/invertir]",
+      "default": "-60 (-100 en target 75_100)",
+      "tag": "[SUPUESTO: la hélice regenera poco; protege el BMS al frenar/invertir] · defaults [VERIFICADO: mcconf_default.h; hw_75_100.h (research/R06_electrica.md §2.4)]",
       "nota": ""
     },
     {
@@ -107,26 +107,26 @@
       "parametro": "l_max_vin",
       "valor": 35.0,
       "unidad": "V",
-      "default": 57.0,
+      "default": "57 (90 en target 75_100)",
       "tag": "[CALCULADO: 1,2 × 29,2 V] · [SUPUESTO: l_max_vin = 1,2 × V carga plena → protege el DC-DC ante un BMS abierto regenerando]",
       "nota": "< entrada máx. del DC-DC TSR 1-2450E 36 V"
     },
     {
       "grupo": "Velocidad",
       "parametro": "l_max_erpm",
-      "valor": 30000.0,
+      "valor": 29100.0,
       "unidad": "ERPM",
       "default": 100000,
-      "tag": "[CALCULADO: 1,15 × 3731 rpm (máx. con carga, sizing) × 7 pares de polos]",
-      "nota": "Sin carga (hélice fuera del agua) el motor iría a 5548 rpm = 38836 ERPM [CALCULADO: KV 190 × 29,2 V]; el límite lo baja a 4286 rpm"
+      "tag": "[CALCULADO: 1,15 × 3619 rpm (máx. con carga, sizing) × 7 pares de polos]",
+      "nota": "Sin carga (hélice fuera del agua) el motor iría a 5548 rpm = 38836 ERPM [CALCULADO: KV 190 × 29,2 V]; el límite lo baja a 4157 rpm"
     },
     {
       "grupo": "Velocidad",
       "parametro": "l_min_erpm",
-      "valor": -19400.0,
+      "valor": -18900.0,
       "unidad": "ERPM",
       "default": -100000,
-      "tag": "[CALCULADO: −1,5 × 1843 rpm (bollard reversa, sizing) × 7] · [SUPUESTO: 50 % sobre las rpm del bollard en reversa (arrancada hacia atrás)]",
+      "tag": "[CALCULADO: −1,5 × 1796 rpm (bollard reversa, sizing) × 7] · [SUPUESTO: 50 % sobre las rpm del bollard en reversa (arrancada hacia atrás)]",
       "nota": ""
     },
     {
@@ -153,8 +153,8 @@
       "valor": "85 / 100",
       "unidad": "°C",
       "default": "85 / 100",
-      "tag": "[VERIFICADO: default; < t_winding_max 120 °C (inputs.yaml)]",
-      "nota": "Requiere NTC 10 k en el bobinado (TEMP_SENSOR_NTC_10K_25C, R06 §1.2)"
+      "tag": "[CALCULADO: start = mín(85 default, t_winding_max_c 85 °C de inputs.yaml); end = start + 15 como el default] · default 85/100 [VERIFICADO: mcconf_default.h]",
+      "nota": "sizing toma t_winding_max_c como la temperatura donde el VESC EMPIEZA a limitar: no subir start sin rehacer el cálculo térmico. Requiere NTC 10 k en el bobinado (TEMP_SENSOR_NTC_10K_25C, R06 §1.2)"
     },
     {
       "grupo": "App",
@@ -190,7 +190,7 @@
       "unidad": "—",
       "default": 0.15,
       "tag": "[SUPUESTO: el MCU ya aplica la zona muerta; default 0,15 VERIFICADO se comería el 15 % inferior]",
-      "nota": "app_ppm.c aplica utils_deadband(servo, hyst) [VERIFICADO]"
+      "nota": "app_ppm.c aplica utils_deadband(servo, hyst) [VERIFICADO: app_ppm.c]"
     },
     {
       "grupo": "App PPM",
@@ -268,13 +268,13 @@
   "vesc_values": {
     "l_current_max": 70.0,
     "l_current_min": -35.0,
-    "l_in_current_max": 70.0,
+    "l_in_current_max": 65.0,
     "l_in_current_min": -10.0,
     "l_battery_cut_start": 24.0,
     "l_battery_cut_end": 22.4,
     "l_max_vin": 35.0,
-    "l_max_erpm": 30000.0,
-    "l_min_erpm": -19400.0,
+    "l_max_erpm": 29100.0,
+    "l_min_erpm": -18900.0,
     "timeout_msec": 250.0,
     "ramp_time_pos": 1.0,
     "ramp_time_neg": 0.1,
@@ -285,12 +285,15 @@
       2000
     ],
     "motor_poles": 14,
-    "i_bat_peak": 62.06778247009856,
+    "i_bat_peak": 61.79432315704853,
     "i_bms": 100.0,
+    "l_temp_motor_start": 85.0,
+    "l_temp_motor_end": 100.0,
+    "t_winding_max_c": 85.0,
     "i_in_limited": false,
-    "n_max_loaded_rpm": 3730.5993627134026,
+    "n_max_loaded_rpm": 3619.336953529595,
     "n_noload_rpm": 5548.0,
-    "n_rev_bollard_rpm": 1842.892555762886,
+    "n_rev_bollard_rpm": 1796.2484239811317,
     "reverse_frac": 0.5,
     "dcdc_vin_max": 36.0,
     "dcdc_ok": true
@@ -306,9 +309,11 @@
     "P_short_W": 8.5264,
     "P_rating_W": 15.0,
     "P_max_transfer_W": 2.1316,
-    "P_cruise_W": 919.6311193073866,
-    "transfer_frac_of_cruise": 0.002317885894950357,
-    "wait_s": 2.0
+    "P_cruise_W": 909.7487003784884,
+    "transfer_frac_of_cruise": 0.002343064627751793,
+    "wait_s": 2.0,
+    "Iq_max_90pct_A": 0.025600000000000005,
+    "E_cierre_80pct_J": 0.026214400000000013
   },
   "bobina": {
     "V_nom": 24.0,
@@ -336,7 +341,36 @@
     "v_range_required": [
       22.0,
       29.2
-    ]
+    ],
+    "opciones": {
+      "24": {
+        "Us_V": 24.0,
+        "frac_Us_at_vmax": 1.2166666666666666,
+        "P_at_vmax_W": [
+          10.361944444444443,
+          19.24361111111111
+        ],
+        "pullin_max_V": 15.84,
+        "closes_at_v_rest_min": true,
+        "I_max_A": 0.6590277777777778,
+        "P_vmax_le_prolonged": false
+      },
+      "36": {
+        "Us_V": 36.0,
+        "frac_Us_at_vmax": 0.8111111111111111,
+        "P_at_vmax_W": [
+          4.605308641975308,
+          8.552716049382715
+        ],
+        "pullin_max_V": 23.76,
+        "closes_at_v_rest_min": true,
+        "I_max_A": 0.29290123456790124,
+        "P_vmax_le_prolonged": true
+      }
+    },
+    "v_rest_min": 24.0,
+    "R_sup_ohm": 44.30769230769231,
+    "V_N2_negativo_V": -29.9
   },
   "optos": {
     "R_U2U3_ohm": 3900.0,
@@ -353,18 +387,22 @@
     "P_R_U1_W": 0.16680851063829788,
     "Ic_min_A": 0.002512820512820513,
     "I_pullup_5V_A": 0.0005,
-    "I_pullup_3V3_A": 0.00033
+    "I_pullup_3V3_A": 0.00033,
+    "V_inversa_LED_V": 29.9,
+    "V_R_max_V": 5.0,
+    "necesita_diodo_antiparalelo": true,
+    "I_diodo_antiparalelo_A": 0.007307692307692308
   },
   "corte": {
     "requisito_s": 1.0,
     "caminos": {
       "MCU → PPM neutro → VESC (rampa negativa)": {
-        "t_s": 0.1307,
+        "t_s": 0.13091629073187416,
         "base": "filtro RC + 1 tick + 1 trama PPM + ramp_time_neg",
         "ok": true
       },
       "MCU → Q_EN abre → kill por ADC2 del VESC": {
-        "t_s": 0.0207,
+        "t_s": 0.020916290731874156,
         "base": "filtro RC + 1 tick + sondeo de 10 ms del VESC",
         "ok": true
       },
@@ -382,6 +420,11 @@
         "t_s": 0.25,
         "base": "timeout_msec configurado",
         "ok": true
+      },
+      "MCU colgado: WDT de hardware → reset → Q_EN abre → kill ADC2": {
+        "t_s": 0.14200000000000002,
+        "base": "WDTO_120MS del sketch × 1,1 [ESTIMADO: tolerancia del oscilador del WDT] + sondeo 10 ms",
+        "ok": true
       }
     },
     "peor_s": 0.25
@@ -389,10 +432,10 @@
   "cables": {
     "dc_mm2": 16,
     "phase_mm2": 10,
-    "dc_drop_frac": 0.011108722430727866,
+    "dc_drop_frac": 0.0110597794286763,
     "phase_drop_frac": 0.026727272727272725,
     "fuse_a": 80,
-    "fuse_min_a": 77.58472808762319,
+    "fuse_min_a": 77.24290394631066,
     "ampacity_dc_a": 100
   },
   "tabla_resumen": [

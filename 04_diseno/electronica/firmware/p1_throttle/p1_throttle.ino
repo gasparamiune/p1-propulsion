@@ -57,9 +57,12 @@ static uint8_t g_cal_step = 0;            /* 0 = sin calibrar en curso */
 static uint16_t g_cal_center = 0, g_cal_fwd = 0, g_cal_rev = 0;
 static uint8_t g_last_kill_ok = 1;    /* último kill_ok usado; 1 hasta que un tick confirme el cordón afuera */
 
-/* Copia de MCUSR (causa de reset) y WDT apagado lo antes posible tras un reset por WDT. */
+/* Copia de MCUSR (causa de reset) y WDT apagado lo antes posible tras un reset por WDT.
+ * `used` es OBLIGATORIO: el core arduino:avr compila con -flto y, sin él, el enlazador descarta esta
+ * función (nadie la llama; solo está en .init3) -> tras un reset por WDT sin Optiboot el WDT seguiría
+ * activo con 16 ms y el MCU quedaría en bucle de reset. Verificado con avr-objdump (tests/test_firmware.py). */
 uint8_t g_mcusr __attribute__((section(".noinit")));
-void p1_early_init(void) __attribute__((naked)) __attribute__((section(".init3")));
+void p1_early_init(void) __attribute__((naked, used)) __attribute__((section(".init3")));
 void p1_early_init(void)
 {
     g_mcusr = MCUSR;
@@ -208,7 +211,9 @@ static void print_help(void)
 
 static void serial_poll(void)
 {
-    while (Serial.available() > 0) {
+    /* UN carácter por vuelta de loop(): una ráfaga por USB no puede bloquear el lazo (cada respuesta
+     * puede esperar ~10 ms a que se vacíe el buffer TX) hasta disparar el WDT con el motor en marcha. */
+    if (Serial.available() > 0) {
         char ch = (char)Serial.read();
         const bool may_cal = (g_out.state == TL_DISARMED || g_out.state == TL_FAULT) && !g_last_kill_ok;
         switch (ch) {

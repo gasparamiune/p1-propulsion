@@ -17,7 +17,7 @@ from _probelib import label, scan
 TEST = "P1.6"
 SRC = "P1-ELE-01"
 LI, WI = 70.0, 50.0      # interior reducido [SUPUESTO: entra el contratuerca M20 y el papel tisú]
-T_LID = 8.0              # tapa impresa de prueba [SUPUESTO: más gruesa que la de Al para limitar la flecha]
+T_LID = 6.0              # tapa impresa de prueba [SUPUESTO: más gruesa que la de Al (4 mm) para limitar la flecha]
 R05_DEPTH = (2.57, 2.72)  # [VERIFICADO: research/R05 B3 (Parker ORD 5700 Design Chart 4-3), cordón 3,53]
 R05_WIDTH = (4.50, 4.75)  # [VERIFICADO: idem]
 

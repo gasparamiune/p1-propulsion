@@ -159,7 +159,7 @@ def build(out_path: Path) -> Path:
     # positivo
     s.line([(210, yp), (264, yp)], C_POS, 4)
     s.fuse(270, yp, f"F1 {cab['fuse_a']:.0f} A", C_POS)
-    s.text(295, yp + 26, "≤ 178 mm del borne +\n(ABYC E-11)", size=10, anchor="middle", color="#5d6d7e")
+    s.text(295, yp + 26, "≤ 178 mm del borne +\n(7 in; ABYC E-11\nescribe 175 mm)", size=10, anchor="middle", color="#5d6d7e")
     s.line([(320, yp), (405, yp)], C_POS, 4)
     s.sw_no(405, yp, "S1 desconectador", C_POS)
     s.text(435, yp + 36, f"≥ {cab['fuse_a']:.0f} A, ≥ 32 V CC", size=10, anchor="middle", color="#5d6d7e")
@@ -226,7 +226,7 @@ def build(out_path: Path) -> Path:
     s.box(1060, yc - 22, 90, 44, "Bobina K1", f"{b['V_nom']:.0f} V", fill="#fef5e7", tsize=11)
     s.line([(1150, yc), (1180, yc)], C_CTL, 2.2)
     s.gnd(1180, yc)
-    s.text(1062, yc + 40, "en paralelo: diodo + TVS\n(apertura 8–20 ms)", size=10, color="#5d6d7e")
+    s.text(1062, yc + 40, "en paralelo: diodo + R (o TVS)\n(apertura 8–20 ms)", size=10, color="#5d6d7e")
     s.line([(1105, yc - 22), (1105, 536), (685, 536), (685, 224)], C_MECH, 1.2, dash="4,4")
     s.text(700, 530, "acción mecánica: bobina → contactos de K1", size=10, color=C_MECH)
 
@@ -243,6 +243,8 @@ def build(out_path: Path) -> Path:
     s.line([(1010, 796), (1010, 820)], C_CTL, 1.8)
     cU3, eU3 = s.opto(990, 820, "U3 (kill HW)", C_CTL, C_SIG)
     s.gnd(1010, 876, label="")
+    s.text(725, 688, f"1N4148 antiparalelo\nen cada LED U1–U3\n(N1/N2 → {n(R['bobina']['V_N2_negativo_V'])} V\nal abrir la bobina)",
+           size=10, anchor="end", color=C_CTL)
     s.line([cU1, (840, cU1[1])], C_SIG, 1.6)
     s.text(844, cU1[1] + 4, "→ D3", size=11, color=C_SIG, weight="bold")
     s.line([eU1, (812, eU1[1]), (812, 800)], C_SIG, 1.6)

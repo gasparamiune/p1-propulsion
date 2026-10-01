@@ -1,0 +1,111 @@
+{
+  "inputs_version": "1.0",
+  "envelope_mm": [
+    210.0,
+    210.0,
+    260.0
+  ],
+  "probetas": [
+    {
+      "id": "P1.4",
+      "name": "inserto_M4",
+      "desc": "Recorte del reborde de P1-ELE-01 (RIM 18 mm, inserto de esquina a 5 mm del borde, ranura de O-ring vecina); agujero Ø5.6×9.1; pasador Ø8.4",
+      "test": "P1.4",
+      "profile": "sellado",
+      "qty": 3,
+      "solid_frac": 1.0,
+      "orientation": "Como P1-ELE-01: fondo en la cama, inserto vertical abierto hacia arriba.",
+      "file_stem": "P1.4_inserto_M4",
+      "valid_solid": true,
+      "volume_mm3": 9836.6,
+      "print_bbox_mm": [
+        20.0,
+        18.6,
+        31.1
+      ],
+      "print_zrot_deg": 0,
+      "z_min_mm": 0.0,
+      "mass_g_each": 12.5,
+      "mass_g_total": 37.5,
+      "print_hours_each": 0.69,
+      "mesh": {
+        "watertight": true,
+        "winding_consistent": true,
+        "volume_mm3": 9837.762571235637,
+        "bodies": 1,
+        "bounds": [
+          [
+            -10.0,
+            -9.3,
+            0.0
+          ],
+          [
+            10.0,
+            9.3,
+            31.1
+          ]
+        ]
+      },
+      "files": [
+        "04_diseno/probetas/step/P1.4_inserto_M4.step",
+        "04_diseno/probetas/stl/P1.4_inserto_M4.stl"
+      ],
+      "ok_envelope": true,
+      "ok_manifold": true
+    }
+  ],
+  "tests": {
+    "P1.4": {
+      "modulo": "PRB-P1.4_inserto_M4",
+      "doc": "PRB-P1.4 — Inserto térmico M4 inox en PETG (PENDIENTES_GASPAR §P1.4).",
+      "checks": [
+        {
+          "name": "agujero de inserto = cadlib.INSERT_HOLE[4] [mm]",
+          "value": 5.6,
+          "ref": 5.6,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "ancho del reborde (sin relieve del rótulo) = ELE-01 RIM [mm]",
+          "value": 18.0,
+          "ref": 18.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "pared ranura–inserto ≥ 2 mm (como ELE-01) [mm]",
+          "value": 2.961,
+          "ref": 2.0,
+          "op": ">=",
+          "ok": true
+        }
+      ],
+      "criterios": {
+        "F_inserto_N": 220.5,
+        "fuente_carga": "resultados/estructural.json: fila P1-ELE-01 'Compresión del O-ring en insertos M4'",
+        "FS": 3.0,
+        "umbral_N": 662.0,
+        "umbral_PENDIENTES_N": 600.0,
+        "instalacion": "Inserto M4 de inox 300 [VERIFICADO: research/R05 S29 existen]; soldador a ~250–260 °C [ESTIMADO: research/R05 A10.3]; hundir 90 % con la punta y el resto con herramienta plana [VERIFICADO: R05 S28].",
+        "ensayo": "Tornillo M4 A4 con cáncamo/varilla en el inserto; pasador M8 en el agujero inferior a una horquilla fija; tirar con dinamómetro (+ palanca si hace falta). 3 probetas. Además: torque de giro del inserto con llave dinamométrica o brazo + dinamómetro.",
+        "pasa_si": "Las 3 resisten ≥ max(umbral, 0,6 kN de PENDIENTES) sin arrancar; torque de giro del inserto ≥ 2 × 1,0 N·m (apriete de tapa M4 [ESTIMADO: research/R05 A10.3]) [SUPUESTO: criterio]."
+      },
+      "build_s": 1.0
+    }
+  },
+  "notes": [],
+  "totals": {
+    "n_stl": 1,
+    "n_impresiones": 3,
+    "mass_g": 38.0,
+    "hours": 2.1,
+    "por_perfil": {
+      "estructural": 0,
+      "sellado": 38.0,
+      "fusible": 0,
+      "cubiertas": 0
+    }
+  },
+  "fails": []
+}

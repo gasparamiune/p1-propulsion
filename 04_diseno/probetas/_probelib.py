@@ -182,3 +182,18 @@ def r3(v):
 
 def deg(a):
     return math.degrees(a)
+
+
+# ---------------------------------------------------------------------------
+# Booleanas en lote (una sola operación OCCT: mucho más rápido que sumar de a uno)
+# ---------------------------------------------------------------------------
+def fuse_all(solids):
+    solids = [s for s in solids if s is not None]
+    if len(solids) == 1:
+        return solids[0]
+    return solids[0].fuse(*solids[1:]).clean()
+
+
+def cut_all(base, tools):
+    tools = [t for t in tools if t is not None]
+    return base.cut(*tools).clean() if tools else base

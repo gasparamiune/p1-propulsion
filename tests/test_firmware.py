@@ -24,7 +24,9 @@ FW = ELEC / "firmware"
 SRC_C, SRC_H = FW / "throttle_logic.c", FW / "throttle_logic.h"
 sys.path.insert(0, str(ELEC))
 
-DT = 10  # ms, igual que TICK_MS del sketch
+INO = FW / "p1_throttle" / "p1_throttle.ino"
+# Tick del banco de pruebas = TICK_MS del sketch (leído, no duplicado)
+DT = int(re.search(r"\bTICK_MS\s*=\s*(\d+)", INO.read_text(encoding="utf-8")).group(1))
 
 
 # ------------------------------------------------------------------ constantes del header
@@ -283,6 +285,19 @@ def test_kill_and_estop_cut_same_tick_and_latch(lib, which):
     assert o.state == ST["DISARMED"] and is_neutral(o)
     o = s.hold(30)
     assert o.state == ST["ARMED"] and o.flags == 0     # el armado limpia el latch
+
+
+@pytest.mark.parametrize("which", ["kill", "estop"])
+def test_power_on_with_cord_or_estop_open_never_arms(lib, which):
+    """Encendido con el cordón afuera (o la seta pulsada) y el puño en cero: no arma nunca; al reponerlo
+    arma recién tras ≥ arm_hold_ms continuos con todo OK (el tiempo previo en cero no cuenta)."""
+    s = Sim(lib)
+    o = s.hold(5000, pos=0.0, **{which: 0})
+    assert all(r["en"] == 0 and r["cmd"] == 0.0 for r in s.trace) and o.state == ST["DISARMED"]
+    o = s.hold(s.cfg.arm_hold_ms - 2 * DT)
+    assert o.state == ST["DISARMED"] and is_neutral(o)
+    o = s.hold(3 * DT)
+    assert o.state == ST["ARMED"]
 
 
 def test_single_tick_kill_glitch_disarms(lib):
@@ -585,6 +600,9 @@ def test_sketch_uses_identical_logic_copy_and_required_io():
                    "INPUT_PULLUP", "tl_tick(", "ISR(INT0_vect)", "ISR(INT1_vect)", "wdt_reset()"):
         assert needle in ino, needle
     assert ino.count("wdt_reset();") == 1         # una sola llamada: solo tras un tick completo
+    # con -flto, una función en .init3 sin `used` se descarta (nadie la llama): el WDT no se apagaría
+    m = re.search(r"void p1_early_init\(void\)([^;]*);", ino)
+    assert m and "used" in m.group(1) and ".init3" in m.group(1), "p1_early_init necesita __attribute__((used))"
 
 
 def test_avr_build_if_toolchain_available(tmp_path):
@@ -599,9 +617,20 @@ def test_avr_build_if_toolchain_available(tmp_path):
                             str(SRC_C), "-o", str(tmp_path / "tl.o")], capture_output=True, text=True)
         assert r.returncode == 0, r.stderr
     if cli:
-        r = subprocess.run([cli, "compile", "--fqbn", "arduino:avr:nano", "--build-path", str(tmp_path / "b"),
+        bp = tmp_path / "b"
+        r = subprocess.run([cli, "compile", "--fqbn", "arduino:avr:nano", "--build-path", str(bp),
                             str(FW / "p1_throttle")], capture_output=True, text=True)
         assert r.returncode == 0, r.stdout + r.stderr
+        # p1_early_init sobrevivió a LTO: el ELF lee MCUSR (I/O 0x34) dentro de .init3, antes de main
+        pr = subprocess.run([cli, "compile", "--fqbn", "arduino:avr:nano", "--show-properties", str(FW / "p1_throttle")],
+                            capture_output=True, text=True)
+        tool = re.search(r"^runtime\.tools\.avr-gcc\.path=(.+)$", pr.stdout, re.M)
+        objdump = Path(tool.group(1).strip()) / "bin" / "avr-objdump" if tool else None
+        if objdump and objdump.exists():
+            dis = subprocess.run([str(objdump), "-d", str(bp / "p1_throttle.ino.elf")], capture_output=True, text=True).stdout
+            init = dis.split("<__do_copy_data>:")[0]
+            assert re.search(r"<_Z13p1_early_initv>:", init) and re.search(r"\bin\s+r\d+, 0x34", init), \
+                "p1_early_init no está en .init3 del ELF (LTO la descartó)"
 
 
 def test_vesc_config_consistent_with_sizing(inp, sizing):
@@ -616,6 +645,36 @@ def test_vesc_config_consistent_with_sizing(inp, sizing):
     assert vv["n_max_loaded_rpm"] < vv["l_max_erpm"] / pp < vv["n_noload_rpm"]
     assert vv["n_rev_bollard_rpm"] < -vv["l_min_erpm"] / pp
     assert vv["timeout_msec"] / 1000 < inp["electrical"]["kill_switch_response_s_max"]
+    sel = sizing["selection"]["motor"]
+    mot = inp["motor"]["options"][sel]
+    assert vv["motor_poles"] == 2 * mot["pole_pairs"]                  # inputs.yaml es la única fuente
+    assert vv["l_temp_motor_start"] <= mot["t_winding_max_c"]          # el VESC limita desde t_winding_max de sizing
+
+
+def test_circuit_findings_are_reflected():
+    """Sobretensión de bobina y tensión inversa en los LED de los optos: si el cálculo las detecta,
+    la lista de componentes las exige (no basta con calcularlas)."""
+    import calc_electronica as ce
+    R = ce.compute()
+    comp = ce.blocks(R)["componentes"]
+    if R["optos"]["necesita_diodo_antiparalelo"]:
+        assert "D_U1–D_U3" in comp and "1N4148" in comp
+    o24 = R["bobina"]["opciones"][f"{R['bobina']['V_nom']:.0f}"]
+    if not o24["P_vmax_le_prolonged"]:
+        assert "CONTINUOS" in comp                                     # K1: bobina apta para V_máx continua
+    sk = ce.sketch_consts()
+    assert sk["tick_ms"] == DT and sk["ppm_frame_ms"] == 20.0
+
+
+def test_generated_files_are_current(tmp_path):
+    """README (bloques ELEC), electronica.json, tabla_verdad.csv y el SVG coinciden con lo que generan hoy
+    calc_electronica.py y diagrama_cableado.py a partir de inputs.yaml + sizing.json (no quedaron viejos)."""
+    import calc_electronica as ce
+    import diagrama_cableado as dc
+    assert ce.main(["--check"]) == 0, "correr: python 04_diseno/electronica/calc_electronica.py"
+    out = dc.build(tmp_path / "d.svg")
+    assert out.read_bytes() == (ELEC / "diagrama_cableado.svg").read_bytes(), \
+        "correr: python 04_diseno/electronica/diagrama_cableado.py"
 
 
 def test_wiring_diagram_generates(tmp_path, sizing):

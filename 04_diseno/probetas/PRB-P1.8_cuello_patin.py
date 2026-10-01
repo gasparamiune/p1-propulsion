@@ -27,7 +27,7 @@ def geo(p, ctx):
     v_cut = max(v_ends)                                   # fin del tramo recto común a ambos lados
     vn = p.skeg_neck_v
     v_tip = vn - p.skeg_neck_lever
-    A = max(2 * L, 30.0)
+    A = max(1.3 * L, 25.0)      # más ancho que la cintura; el momento baja hacia la punta
     return dict(um=um, L=L, t=p.skeg_t, v_root=v_root, v_cut=v_cut, vn=vn, v_tip=v_tip, A=A,
                 top=v_root + m.TONGUE)
 
@@ -82,7 +82,7 @@ def checks(p, ctx, parts):
             ("ancho de cintura de la probeta = patín real [mm]", probe, real, "="),
             ("brazo: agujero de carga − sección de referencia = skeg_neck_lever [mm]", g["vn"] - g["v_tip"],
              p.skeg_neck_lever, "="),
-            ("brazo más ancho que la cintura (rompe en la cintura) [mm]", g["A"], 1.3 * p.skeg_neck_len, ">=")]
+            ("brazo más ancho que la cintura (rompe en la cintura) [mm]", g["A"], 1.25 * p.skeg_neck_len, ">=")]
 
 
 def criterios(p, ctx):

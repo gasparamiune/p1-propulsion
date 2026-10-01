@@ -10,6 +10,7 @@ from _probelib import label
 TEST = "P1.7"
 A = 20.0                     # [VERIFICADO: PENDIENTES_GASPAR §P1.7 / tarea: cubos de 20 mm]
 SALT_G_L = 25.0              # [VERIFICADO: PENDIENTES_GASPAR §P1.5: agua salada 25 g/L]
+SOLID_FRAC = 0.85            # = relleno base del perfil estructural (85 % gyroid): sin modificador → poros reales
 
 
 def build(p, ctx):
@@ -17,7 +18,7 @@ def build(p, ctx):
     for k in "ABC":
         c = box(-A / 2, A / 2, -A / 2, A / 2, 0, A) + label(k, 0, 0, A, size=8.0)
         out.append((dict(id=f"P1.7{k}", name=f"cubo_absorcion_{k}", desc=f"Cubo {A:g} mm rotulado {k}",
-                         test=TEST, profile="estructural", qty=1, solid_frac=1.0,
+                         test=TEST, profile="estructural", qty=1, solid_frac=SOLID_FRAC,
                          orientation="Cara de cama abajo; rótulo arriba."), c))
     return out
 

@@ -11,16 +11,16 @@ Convenciones: [VERIFICADO: url] = leído en esta sesión; "cálculo propio" = es
 
 | Tema | Resultado para NUESTRO bote | Etiqueta |
 |---|---|---|
-| Matrícula / registro | No existe registro posible ni obligatorio: el Skibsregistret es obligatorio solo desde 20 BT y desde 2018 los < 20 BT **no se pueden** registrar | [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/fritidsfartoejer/registrer-fritidsfartoej] |
+| Matrícula / registro | No existe registro posible ni obligatorio: el Skibsregistret es obligatorio solo desde 20 BT y los < 20 BT **ya no se pueden** registrar ("kan ikke længere"; la fecha del cambio no figura en la fuente) | [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/fritidsfartoejer/registrer-fritidsfartoej] |
 | Licencia (speedbådsbevis) | No requerida: casco < 4 m planeante requiere licencia solo con ≥ **19 kW / 25 HK** | [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/beviser-og-certifikater/speedbaadsbevis] |
 | Límite de velocidad costero | **≤ 5 nudos (9,26 km/h) dentro de 300 m de la costa**, todo el año, toda motorbåd, en toda la costa de la Politikreds (incluye Sønderborg) | [VERIFICADO: https://politi.dk/politikredse/syd-og-soenderjyllands-politi/sejladsreglement] |
 | Chaleco | Obligatorio **llevar** uno aprobado (CE o ratmærke) de la talla correcta por persona; **usarlo puesto no es obligatorio** por ley | [VERIFICADO: https://www.lovtidende.dk/api/pdf/242869 (BEK 765/2024 §5)] |
 | Kill cord / nødstop | No encontré obligación legal en DK para este bote; la RCD exige parada de emergencia ligada al timonel solo para fuerabordas de combustión con caña | [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/annex/I (5.1.6)] + [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/article/3] |
-| CE / RCD | Fuera de alcance: la RCD cubre cascos 2,5–24 m; y excluye construcción propia no vendida en 5 años | [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/article/3] [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/article/2] |
+| CE / RCD | Fuera de alcance: la RCD cubre cascos 2,5–24 m. (La exclusión de "construcción propia" (vii) es para embarcaciones "predominantly built by its future user" (Art. 3(4)); un casco comprado con propulsión propia NO entra ahí → si L ≥ 2,5 m aplica la vía "major craft conversion") | [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/article/3] [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/article/2] |
 | Seguro | Obligatorio solo para speedbåde/vandscootere (desde 15‑05‑2018); para nosotros opcional | [VERIFICADO: https://forsikringsoplysningen.dk/bil-og-motor/baadforsikring/] |
 | Alcohol | Límite fijo 0,50 ‰ solo para botes que requieren certificado (no el nuestro); para el resto, prohibición general de navegar "incapaz de hacerlo de forma plenamente segura" | [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/fritidsfartoejer/faq-om-spiritussejlads] |
 | Luces de noche | < 7 m y vel. máx ≤ 7 nudos → basta **una luz blanca todo horizonte** (+ luces de costado "si es practicable") | [VERIFICADO: https://www.navcen.uscg.gov/navigation-rules-amalgamated (Regla 23(d)(ii))] |
-| Salinidad superficial | Media mensual 13,6–17,6 PSU; p10–p90 mensual 11,3–20,5 PSU | [VERIFICADO: Copernicus BAL reanálisis, cálculo propio, §2] |
+| Salinidad superficial | Media mensual 13,6–17,5 PSU; p10–p90 mensual 11,3–20,5 PSU | [VERIFICADO: Copernicus BAL reanálisis, cálculo propio, §2] |
 | Agua (temp.) | Media diaria < 15 °C en ≥ 90 % de los días de oct–may; ≥ 12 °C casi siempre jun–sep | [VERIFICADO: DMI Fynshav, cálculo propio, §3] |
 | Viento (may–sep, día) | ≤ 6 m/s el 57 % (Kegnæs Fyr, expuesto) – 79 % (Sønderborg Lufthavn, abrigado) de las horas | [VERIFICADO: DMI metObs, cálculo propio, §4] |
 
@@ -43,7 +43,7 @@ Convenciones: [VERIFICADO: url] = leído en esta sesión; "cálculo propio" = es
 | Tema | Regla (texto/umbral) | ¿Aplica al P1? | Etiqueta |
 |---|---|---|---|
 | **Registro** | Obligatorio para ≥ 20 BT; "du kan ikke længere registrere dit fritidsfartøj hvis det har en bruttotonnage under 20" | No. No hay matrícula ni número de casco obligatorio. Marcar nombre/teléfono del dueño en el casco es buena práctica para SAR [SUPUESTO] | [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/fritidsfartoejer/registrer-fritidsfartoej] |
-| **Licencia speedbåd: definición de "planeante"** | "fartøj uden egentlig køl med ren V-formet bund eller med **flad bund i den agterste tredjedel**…" — un jon boat de fondo plano ES "planende" legalmente, aunque vaya a 6 km/h | Sí, entra en la definición; lo que decide es la potencia | [VERIFICADO: https://www.retsinformation.dk/api/pdf/208169 (BEK 554/2020 §1 stk.4, versión histórica; modificada por BEK 664/2020)] |
+| **Licencia speedbåd: definición de "planeante"** | "fartøj uden egentlig køl med ren V-formet bund eller med **flad bund i den agterste tredjedel**…" — un jon boat de fondo plano ES "planende" legalmente, aunque vaya a 6 km/h | Sí, entra en la definición; lo que decide es la potencia | [VERIFICADO: https://www.retsinformation.dk/api/pdf/208169 (BEK 554/2020 §1 stk.4, versión histórica; modificada por BEK 664/2020)]; en la versión vigente la definición es "§1, stk. 5" con el mismo texto [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/beviser-og-certifikater/speedbaadsbevis] |
 | **Licencia speedbåd: umbral** | Casco < 4 m planeante: licencia si motor **≥ 19 kW / 25 HK**. 4–15 m: si P[kW] ≥ L² + 3 | No (P1 ≈ 1–3 kW). Margen ≈ ×6–×19 | [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/beviser-og-certifikater/speedbaadsbevis] [VERIFICADO: https://dansketursejlere.dk/hvornar-kraeves-der-speedbadskorekort/] |
 | Edad mínima | Speedbåd: 16 años. Para botes sin certificado no encontré edad mínima legal | Buscar: "alderskrav fører fritidsfartøj under 15 m" | [VERIFICADO: https://www.retsinformation.dk/api/pdf/208169 §2] |
 | **Velocidad < 300 m de costa** | §4: "Indenfor en afstand af 300 meter fra kystlinjen må sejlads med motorbåd … kun foregå med en fart af **højst 5 knob**". Sin restricción estacional en el texto. Excepción §4 stk.2: si corriente o viento impiden maniobrar con seguridad a ≤ 5 kn, se puede subir "til den laveste fart, der er nødvendig for sikker manøvrering" | **Sí, siempre** (operamos < 300 m). 5 kn = **9,26 km/h** [ESTIMADO: 1 kn = 1,852 km/h]. 12 km/h (6,5 kn) es ilegal dentro de la franja | [VERIFICADO: https://politi.dk/politikredse/syd-og-soenderjyllands-politi/sejladsreglement] |
@@ -54,12 +54,12 @@ Convenciones: [VERIFICADO: url] = leído en esta sesión; "cálculo propio" = es
 | Uso del chaleco | La norma exige "medbringe" (llevar), no usar | Recomendado usarlo SIEMPRE y que sea **redningsvest con cuello** (ver §3.3) | [VERIFICADO: idem] |
 | Equipo de seguridad | §4: "Ethvert fritidsfartøj skal være forsynet med sikkerhedsudstyr i fornødent omfang" según estación, tipo, tamaño, uso y duración. **No hay lista cerrada** | Sí (criterio del patrón) → lista propuesta en §1.4 | [VERIFICADO: https://www.lovtidende.dk/api/pdf/242869] |
 | Kill cord | No aparece en BEK 765/2024. RCD Anexo I 5.1.6: "Tiller-controlled outboard propulsion engines shall be equipped with an emergency stopping device which can be linked to the helmsman" pero "propulsion engine" = "any spark or compression ignition, internal combustion engine" | Legalmente no aplica a eléctrico; **lo mantenemos como requisito del proyecto** | [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/annex/I] [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/article/3] |
-| CE (RCD 2013/53/UE) | "recreational craft … of hull length from 2,5 m to 24 m"; excluye "(vii) watercraft built for own use, provided that they are not subsequently placed on the Union market during a period of five years" | Casco < 2,5 m → fuera. Si el casco real midiera ≥ 2,5 m, cambiar la propulsión es "major craft conversion" (Art. 3(7)); para uso propio sin venta, a confirmar con Søfartsstyrelsen | [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/article/3] [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/article/2] [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/fritidsfartoejer/ce-maerkning] |
-| Directiva de baja tensión | 48 V CC estaría por debajo del límite de 75 V CC de la LVD | Buscar: "2014/35/EU 75 V DC scope" | [ESTIMADO: memoria técnica, no verificado] |
-| **Luces** | Regla 23(d)(ii): "a power-driven vessel of less than 7 meters in length whose maximum speed does not exceed 7 knots may … exhibit an all-round white light and shall, if practicable, also exhibit sidelights". Regla 22(d): luz todo horizonte visible 2 millas en < 12 m | Sí, si se navega de noche o con visibilidad reducida. 12 km/h = 6,48 kn ≤ 7 kn ✔ | [VERIFICADO: https://www.navcen.uscg.gov/navigation-rules-amalgamated] |
+| CE (RCD 2013/53/UE) | "recreational craft … of hull length from 2,5 m to 24 m"; excluye "(vii) watercraft built for own use, provided that they are not subsequently placed on the Union market during a period of five years" | Casco < 2,5 m → fuera. Si el casco real midiera ≥ 2,5 m, cambiar la propulsión es "major craft conversion" (Art. 3(7); dentro del alcance por Art. 2(1)(f)). La exclusión (vii) cubre solo "watercraft predominantly built by its future user" (Art. 3(4)), no un casco comercial modificado → a confirmar con Søfartsstyrelsen | [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/article/3] [VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/article/2] [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/fritidsfartoejer/ce-maerkning] |
+| Directiva de baja tensión | LVD Art. 1: aplica a equipos "between 50 and 1 000 V for alternating current and between 75 and 1 500 V for direct current" → el bus de 48 V nominal (≤ 58,8 V a carga plena con 14S [ESTIMADO: 4,2 V/celda]) queda fuera; el **cargador de 230 V CA sí está dentro** (comprarlo con CE) | No aplica al bus de 48 V; sí al cargador | [VERIFICADO: https://www.legislation.gov.uk/eudr/2014/35/article/1 (texto retenido UK)] |
+| **Luces** | Regla 23(d)(ii): "a power-driven vessel of less than 7 meters in length whose maximum speed does not exceed 7 knots may … exhibit an all-round white light and shall, if practicable, also exhibit sidelights". Regla 22(c)(v): luz todo horizonte visible 2 millas en < 12 m (corregido: antes decía 22(d), que es para objetos remolcados semisumergidos) | Sí, si se navega de noche o con visibilidad reducida. 12 km/h = 6,48 kn ≤ 7 kn ✔. Ojo: cuenta la **velocidad máxima del bote**, no la de uso → si el sistema puede pasar de 7 kn (≈ 13 km/h), la excepción cae | [VERIFICADO: https://www.navcen.uscg.gov/navigation-rules-amalgamated] |
 | Homologación de luces | Guía de Søsportens Sikkerhedsråd: luces de fritidsbåde deben estar aprobadas (marca NP o NK, o certificado); para < 7 m y ≤ 7 kn basta luz blanca todo horizonte; "Det tilrådes, at kun joller benytter sig af undtagelsesreglen" | A confirmar (guía sin fecha; marcado actual probablemente rueda de timón/MED [ESTIMADO: memoria técnica, no verificado]) | [VERIFICADO: http://egaasejlklub.dk/sejlerskole/materialer/lovogretpaavandet.pdf] |
 | Señal sonora | Regla 33(b): < 12 m no obligado a pito/campana, "but … shall be provided with some other means of making an efficient signal" | Sí → silbato (p. ej. el del chaleco) [ESTIMADO: interpretación] | [VERIFICADO: https://www.navcen.uscg.gov/navigation-rules-amalgamated] |
-| **Alcohol** | Límite fijo **0,50 ‰** para botes ≥ 15 m, speedbåde con licencia y vandscootere. Resto: prohibido si "så påvirket … at du er ude af stand til på fuldt betryggende måde at udføre dine opgaver". Multa ≈ 1 mes de ingreso neto × promille (mín. 1.500 DKK) | Sin límite numérico fijo para nosotros; política del proyecto: **0,0 ‰** [SUPUESTO] | [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/fritidsfartoejer/faq-om-spiritussejlads] |
+| **Alcohol** | Límite fijo **0,50 ‰** para botes ≥ 15 m, speedbåde con licencia y vandscootere. Resto: prohibido si "så påvirket … at du er ude af stand til på fuldt betryggende måde at udføre dine opgaver". Multa ≈ 1 mes de ingreso neto × promille (con promille < 2,00; mín. 1.500 DKK) | Sin límite numérico fijo para nosotros; política del proyecto: **0,0 ‰** [SUPUESTO] | [VERIFICADO: https://www.soefartsstyrelsen.dk/fritidssejlads/fritidsfartoejer/faq-om-spiritussejlads] |
 | Seguro | "Siden den 15. maj 2018 skal alle speedbåde med en skroglængde på under 15 meter, vandscootere og lignende fartøjer have en ansvarsforsikring". Botes ≤ 5,5 m "normalt dækket af en indboforsikring" (con fueraborda hasta cierto HK) | No obligatorio. Verificar cobertura del seguro de hogar (indbo) [SUPUESTO] | [VERIFICADO: https://forsikringsoplysningen.dk/bil-og-motor/baadforsikring/] |
 | Lado alemán del Flensborg Fjord | Orilla sur = Schleswig‑Holstein (DE); allí rigen reglas alemanas | Quedarse del lado danés (< 300 m de costa DK lo garantiza). Buscar: "Sportbootführerschein See Pflicht 15 PS Elektro" | [ESTIMADO: geografía] |
 | Áreas protegidas | La policía remite a Natura 2000 (Styrelsen for Grøn Arealomlægning og Vandmiljø); puede haber vildtreservater con restricción a motorbåde | Buscar: "vildtreservat Nybøl Nor sejlads motorbåd forbud", "Natura 2000 Flensborg Fjord sejlads" | [VERIFICADO (solo la remisión): https://politi.dk/politikredse/syd-og-soenderjyllands-politi/sejladsreglement] |
@@ -85,7 +85,7 @@ No hay prohibición general encontrada; el requisito es luces (Regla 23(d)). Con
 ### 2.1 Fuente y método
 - **Copernicus Marine BALTICSEA_MULTIYEAR_PHY_003_011** (reanálisis NEMO de DMI, "1 nautical mile horizontal resolution, and 56 vertical layers", desde 1993; DOI 10.48670/moi-00013) [VERIFICADO: https://stac.marine.copernicus.eu/metadata/BALTICSEA_MULTIYEAR_PHY_003_011/product.stac.json].
 - Leí medias **mensuales** 1995–2024 (360 meses) del Zarr público [VERIFICADO: https://s3.waw3-1.cloudferro.com/mdl-arco-geo-002/arco/BALTICSEA_MULTIYEAR_PHY_003_011/cmems_mod_bal_phy_my_P1M-m_202303/geoChunked.zarr], celda de agua más cercana a cada punto; cálculo propio. SSS = capa superficial (0,5 m); SOB = salinidad de fondo del modelo.
-- Limitaciones: (a) son medias mensuales → los extremos instantáneos son mayores; (b) **Als Sund (≈ 0,3–0,5 km de ancho) no está resuelto** con 1 nmi: la celda más cercana (4 km) cae en Augustenborg Fjord; (c) la profundidad modelada de Als Fjord (15,6 m) es menor que la real "indtil 27 m" [VERIFICADO: https://da.wikipedia.org/wiki/Als_Fjord] → la estratificación de Als Fjord probablemente está subestimada [ESTIMADO].
+- Limitaciones: (a) son medias mensuales → los extremos instantáneos son mayores; (b) **Als Sund ("8 km langt, ca. 500 meter bredt og 8-10 meter dybt" [VERIFICADO: https://da.wikipedia.org/wiki/Als_Sund]) no está resuelto** con 1 nmi: la celda más cercana (4 km) cae en Augustenborg Fjord; (c) la profundidad modelada de Als Fjord (15,6 m) es menor que la real "indtil 27 m" [VERIFICADO: https://da.wikipedia.org/wiki/Als_Fjord] → la estratificación de Als Fjord probablemente está subestimada [ESTIMADO].
 - Datos de geometría: Als Fjord "ca. 10 km langt", "2 til 3 km bredt" [VERIFICADO: https://da.wikipedia.org/wiki/Als_Fjord]; Flensburger Förde "40 bis 50 Kilometer lang", ancho 1,5–4 km [VERIFICADO: https://de.wikipedia.org/wiki/Flensburger_Förde].
 
 ### 2.2 Resumen por punto (1995–2024, PSU) [VERIFICADO: Copernicus BAL MY, cálculo propio]
@@ -93,24 +93,24 @@ No hay prohibición general encontrada; el requisito es luces (Regla 23(d)). Con
 | Punto (celda) | Prof. modelo | SSS media mensual min (mes) – max (mes) | SSS p10 min / p90 max | SSS mín–máx de medias mensuales | Estratificación SOB−SSS feb / may / ago |
 |---|---|---|---|---|---|
 | Als Fjord centro (54,992 N 9,708 E) | 15,6 m | 16,2 (jun) – 17,0 (oct) | 14,9 / 19,2 | 13,8 – 20,7 | 0,5 / 1,1 / 0,4 |
-| Augustenborg Fjord (54,958 N 9,819 E; proxy Als Sund N, a 4 km) | 3,6 m | 16,4 (feb) – 17,3 (sep) | 14,6 / 19,4 | 13,9 – 21,2 | ≈ 0 (bien mezclado) |
+| Augustenborg Fjord (54,958 N 9,819 E; proxy Als Sund N, a 4 km) | 3,6 m | 16,3 (feb) – 17,3 (sep) | 14,6 / 19,4 | 13,9 – 21,2 | ≈ 0 (bien mezclado) |
 | Sønderborg Bugt (54,875 N 9,819 E) | 17,5 m | 13,8 (may) – 17,2 (ene) | 11,6 / 20,5 | 10,2 – 22,6 | 2,7 / 4,9 / 6,6 |
-| Flensborg Fjord interior (54,842 N 9,514 E) | 8,2 m | 15,6 (jun) – 17,6 (ene) | 13,5 / 20,0 | 11,6 – 21,2 | 0,5 / 1,1 / 0,2 |
+| Flensborg Fjord interior (54,842 N 9,514 E) | 8,2 m | 15,6 (jun) – 17,5 (ene) | 13,5 / 20,0 | 11,6 – 21,1 | 0,5 / 1,1 / 0,2 |
 | Flensborg Fjord exterior (54,842 N 9,847 E) | 19,7 m | 13,7 (may) – 17,2 (ene) | 11,6 / 20,4 | 10,2 – 22,4 | 3,2 / 5,7 / 7,3 |
-| Lillebælt S / Fynshav (55,008 N 10,014 E) | 31,9 m | 13,6 (may) – 16,5 (feb) | 11,3 / 19,9 | 10,8 – 21,6 | 6,8 / 9,7 / 10,9 |
+| Lillebælt S / Fynshav (55,008 N 10,014 E) | 31,9 m | 13,6 (may) – 16,5 (feb) | 11,3 / 19,9 | 10,8 – 21,6 | 6,7 / 9,7 / 10,9 |
 
 ### 2.3 Ciclo estacional (medias mensuales SSS, PSU) [VERIFICADO: Copernicus BAL MY, cálculo propio]
 
 | Mes | Als Fjord | Sønderborg Bugt | Flensborg ext. | Flensborg int. | SOB Sønderborg Bugt (fondo) |
 |---|---|---|---|---|---|
-| Ene | 16,6 | 17,2 | 17,2 | 17,6 | 19,8 |
-| Feb | 16,5 | 17,0 | 16,9 | 17,4 | 19,8 |
+| Ene | 16,6 | 17,2 | 17,2 | 17,5 | 19,8 |
+| Feb | 16,5 | 17,0 | 16,9 | 17,4 | 19,7 |
 | Mar | 16,7 | 16,4 | 16,3 | 17,2 | 19,4 |
 | Abr | 16,4 | 14,8 | 14,7 | 16,2 | 19,0 |
 | May | 16,2 | 13,8 | 13,7 | 15,6 | 18,8 |
 | Jun | 16,2 | 14,4 | 14,3 | 15,6 | 19,7 |
 | Jul | 16,5 | 15,3 | 15,1 | 16,2 | 21,4 |
-| Ago | 16,8 | 15,6 | 15,4 | 16,5 | 22,2 |
+| Ago | 16,8 | 15,5 | 15,4 | 16,5 | 22,1 |
 | Sep | 17,0 | 15,9 | 15,8 | 16,9 | 21,9 |
 | Oct | 17,0 | 16,7 | 16,7 | 17,3 | 20,9 |
 | Nov | 16,9 | 17,2 | 17,1 | 17,5 | 20,8 |
@@ -119,7 +119,7 @@ No hay prohibición general encontrada; el requisito es luces (Regla 23(d)). Con
 Lectura: agua de superficie más dulce en primavera (salida de agua báltica de baja salinidad), más salada en otoño‑invierno (entradas desde Kattegat con viento del oeste). Haloclina persistente en las cuencas abiertas (≥ 15 m) con máximo en verano (~7 PSU de diferencia superficie‑fondo); en fiordos someros (Als Fjord interior según el modelo, Augustenborg, Flensborg interior) la columna está casi mezclada.
 
 ### 2.4 Contraste con una serie observada cercana (proxy)
-Boknis Eck (entrada de Eckernförde Bucht, 54°31'N 10°02'E, 28 m, ~45 km al SE): salinidad de fondo (25 m) "26.6 ± 2.0"; "A halocline is present throughout the year, with stronger gradients in summer (March–October)"; termoclina "in March/April and lasted until October at a depth of 10 to 15 m"; salinidad general "approximately 22" [VERIFICADO: https://bg.copernicus.org/articles/11/6323/2014/bg-11-6323-2014.pdf (Lennartz et al. 2014, Biogeosciences 11:6323)]. Coherente con el modelo (fondo 20–28 en cuencas abiertas).
+Boknis Eck (entrada de Eckernförde Bucht, 54°31'N 10°02'E, 28 m, ~45 km al SE): salinidad de fondo (25 m) "26.6 ± 2.0"; "A halocline is present throughout the year, with stronger gradients in summer (March–October)"; termoclina "in March/April and lasted until October at a depth of 10 to 15 m"; salinidad general "approximately 22" (frase del apartado de comparación modelo‑observación, no una media medida) [VERIFICADO: https://bg.copernicus.org/articles/11/6323/2014/bg-11-6323-2014.pdf (Lennartz et al. 2014, Biogeosciences 11:6323)]. Coherente con el modelo (fondo 20–28 en cuencas abiertas).
 
 ### 2.5 Densidad del agua (EOS‑80, presión 0) [ESTIMADO: ecuación UNESCO EOS‑80, validada contra 1023,343 kg/m³ a S=35/T=25 y 1028,106 a S=35/T=0]
 
@@ -136,7 +136,7 @@ Boknis Eck (entrada de Eckernförde Bucht, 54°31'N 10°02'E, 28 m, ~45 km al SE
 ## 3. Temperatura del agua y supervivencia en agua fría
 
 ### 3.1 Observada: DMI Fynshav Havn II (estación 26459, 54,994 N 9,986 E, costa E de Als, Lillebælt)
-Datos de 10 min, 2015–2025, 3 929 días con ≥ 72 registros; estadística de **medias diarias**; cálculo propio [VERIFICADO: https://opendataapi.dmi.dk/v2/oceanObs/collections/observation/items?stationId=26459&parameterId=tw]. Profundidad del sensor no documentada en lo que leí (sensor de puerto).
+Datos de 10 min, 2015–2025, 3 929 días con ≥ 72 registros; estadística de **medias diarias**; cálculo propio [VERIFICADO: https://opendataapi.dmi.dk/v2/oceanObs/collections/observation/items?stationId=26459&parameterId=tw]. Profundidad del sensor no documentada en lo que leí (sensor de puerto). Nota de verificación: la serie cruda trae 1 201 registros < −2,1 °C (mín. −10,6 °C, 6–14 oct 2015, falla de sensor); la tabla y los "3 929 días" se reproducen **solo descartándolos** (sin filtro: 3 938 días y oct media 12,8 °C).
 
 | Mes | Media °C | p5 | p95 | Mín diario | Máx diario | % días < 10 °C | % días < 12 °C | % días < 15 °C |
 |---|---|---|---|---|---|---|---|---|
@@ -164,9 +164,9 @@ Extremos instantáneos (10 min): −2,1 °C y **26,4 °C** [VERIFICADO: misma UR
 | Mar | 3,4 | 3,9 | 3,3 | 3,4 |
 | Abr | 7,3 | 8,8 | 6,4 | 7,5 |
 | May | 12,6 | 14,3 | 11,5 | 13,1 |
-| Jun | 16,6 | 18,0 | 15,6 | 17,4 |
+| Jun | 16,6 | 17,9 | 15,6 | 17,4 |
 | Jul | 18,8 (16,1–21,9) | 19,6 (17,3–23,2) | 17,7 | 19,4 |
-| Ago | 19,6 (17,4–22,0) | 19,8 (17,5–22,8) | 18,7 | 20,0 |
+| Ago | 19,5 (17,4–22,0) | 19,8 (17,5–22,8) | 18,7 | 20,0 |
 | Sep | 17,0 | 16,1 | 16,2 | 16,8 |
 | Oct | 12,6 | 11,2 | 12,7 | 12,3 |
 | Nov | 8,3 | 6,4 | 8,9 | 7,8 |
@@ -178,13 +178,13 @@ Validación: en la celda de Fynshav el modelo da feb 2,3 / ago 18,7 °C vs. obse
 | Fase | Dato | Etiqueta |
 |---|---|---|
 | Umbral de choque por frío | con agua "lower than ~15 °C (59 °F)" la apnea voluntaria cae de 60–90 s a "just a few seconds"; jadeo + taquipnea en los "first 2–3 minutes", respuesta inicial "typically lasts less than 5 minutes" | [VERIFICADO: https://en.wikipedia.org/wiki/Cold_shock_response] |
-| Regla 1‑10‑1 (Giesbrecht) | "1 MINUTE to get control of your breathing, 10 MINUTES of meaningful movement, and 1 HOUR before you become unconscious due to hypothermia" (como la cita y critica la fuente) | [VERIFICADO: https://www.coldwatersafety.org/1-10-1-myth] |
+| Regla 1‑10‑1 (Giesbrecht) | "1 minute to get your breathing under control. 10 minutes of meaningful movement. 1 hour before you become unconscious due to hypothermia." (texto literal corregido; como la cita y critica la fuente) | [VERIFICADO: https://www.coldwatersafety.org/1-10-1-myth] |
 | Crítica 1‑10‑1 | Según escritos del propio Giesbrecht: choque por frío "can kill within seconds to two minutes"; incapacitación "within two to thirty minutes"; cerca de 0 °C "incapacitation can occur within two to ten minutes"; la respiración en el choque no es controlable | [VERIFICADO: https://www.coldwatersafety.org/1-10-1-myth] |
 | Experimento Royal Navy (Søsportens Sikkerhedsråd) | nadadores de competición en agua a 5 °C que nadan de inmediato apenas completan un largo; esperando a controlar la respiración, nadan "længe og effektivt" | [VERIFICADO: https://roning.dk/app/uploads/2016/12/Kulde2013.pdf] |
 | Chaleco con cuello vs svømmevest | "det er kun en redningsvest med krave – der har muligheden for at" mantener las vías aéreas fuera del agua; con svømmevest, al perder fuerza "vil man vende rundt på maven – og drukne" | [VERIFICADO: https://roning.dk/app/uploads/2016/12/Kulde2013.pdf] |
 | Hipotermia | temblores cesan ~33–35 °C de temperatura central; amnesia 30–33 °C; "Alvorlig risiko for hjertestop fra ca. 28ºC" | [VERIFICADO: https://roning.dk/app/uploads/2016/12/Kulde2013.pdf] |
 
-Tiempos orientativos (tabla sin atribución explícita en la página; usualmente atribuida a USCG) [VERIFICADO: https://www.ussartf.org/cold_water_survival.htm]:
+Tiempos orientativos (tabla sin atribución explícita en la página; la atribución a USCG es [ESTIMADO: memoria técnica, no verificado]) [VERIFICADO: https://www.ussartf.org/cold_water_survival.htm]:
 
 | Agua | Agotamiento/inconsciencia | Supervivencia esperada | Meses en Als (media diaria Fynshav) |
 |---|---|---|---|
@@ -208,7 +208,7 @@ Tiempos orientativos (tabla sin atribución explícita en la página; usualmente
 
 ## 4. Viento, oleaje y nivel del mar (margen de empuje)
 
-### 4.1 Viento medido (DMI, media horaria 10 m "wind_speed_past1h", 2005–2025, ~182 000 h por estación; cálculo propio)
+### 4.1 Viento medido (DMI, media horaria "wind_speed_past1h", 2005–2025, ~182 000 h por estación; cálculo propio; altura del anemómetro 10 m = [ESTIMADO: estándar WMO, no verificado en la metadata de estación])
 - **Sønderborg Lufthavn 06118** (54,962 N 9,793 E; aeropuerto en tierra, junto a Als Sund/Augustenborg Fjord → abrigado) [VERIFICADO: https://opendataapi.dmi.dk/v2/metObs/collections/observation/items?stationId=06118&parameterId=wind_speed_past1h]
 - **Kegnæs Fyr 06119** (54,853 N 9,988 E; faro en el extremo sur de Als → expuesto, representativo de agua abierta) [VERIFICADO: https://opendataapi.dmi.dk/v2/metObs/collections/observation/items?stationId=06119&parameterId=wind_speed_past1h]
 - El viento sobre el agua del fiordo debería quedar entre ambas [ESTIMADO: rugosidad tierra vs agua].
@@ -249,7 +249,7 @@ Dirección (Kegnæs Fyr, % de horas 2005–2025): N 4,9 · NE 6,9 · E 11,4 · S
 | 10 m/s | 0,16/1,0 | 0,25/1,4 | 0,36/1,8 | 0,50/2,2 | 0,71/2,8 | 1,00/3,5 |
 | 12 m/s | 0,20/1,1 | 0,31/1,5 | 0,44/1,9 | 0,62/2,4 | 0,87/3,0 | 1,23/3,8 |
 
-Fetch típicos [ESTIMADO: geometría de §2.1]: Als Fjord transversal (W/SW, el viento dominante) 2–3 km; longitudinal ~10 km; Als Sund < 1 km; Sønderborg Bugt/Flensborg exterior con E–SE: 20–40+ km. Lectura: con el criterio de 6 m/s, en Als Fjord Hs ≈ 0,15–0,3 m con **Tp 1,2–1,8 s → longitud de onda λ = gT²/2π ≈ 2,2–5 m, del orden de la eslora** (cabeceo fuerte, rociones, resistencia añadida alta) [ESTIMADO].
+Fetch típicos [ESTIMADO: geometría de §2.1]: Als Fjord transversal (W/SW, el viento dominante) 2–3 km; longitudinal ~10 km; Als Sund ≈ 0,5 km transversal, ≤ 8 km longitudinal [VERIFICADO: https://da.wikipedia.org/wiki/Als_Sund]; Sønderborg Bugt/Flensborg exterior con E–SE: 20–40+ km. Lectura: con el criterio de 6 m/s, en Als Fjord Hs ≈ 0,15–0,3 m con **Tp 1,2–1,8 s → longitud de onda λ = gT²/2π ≈ 2,2–5 m, del orden de la eslora** (cabeceo fuerte, rociones, resistencia añadida alta) [ESTIMADO].
 
 **(b) Modelo de oleaje** (Open‑Meteo marine, 2023–2025 horario; cálculo propio) [VERIFICADO: https://marine-api.open-meteo.com/v1/marine?latitude=54.87&longitude=9.85&hourly=wave_height&models=dwd_ewam&start_date=2023-01-01&end_date=2025-12-31]:
 
@@ -259,9 +259,10 @@ Fetch típicos [ESTIMADO: geometría de §2.1]: Als Fjord transversal (W/SW, el 
 | Sønderborg Bugt, best_match (54,875 N 9,875 E) | 0,22 | 0,56 | 0,90 | 2,08 | 33,9 | 12,8 |
 | Celda más cercana a Als Fjord/Als Sund, best_match (54,958 N 9,792 E) | 0,18 | 0,44 | 0,68 | 1,36 | 25,1 | 5,6 |
 
-Sønderborg Bugt EWAM, may–sep, 07–17 UTC: Hs p50 0,26 · p75 0,44 · p90 0,64 m; > 0,5 m el 17,8 % de las horas. La resolución (~5 km) no resuelve Als Fjord ni Als Sund: tomarlo como **cota superior** para el fiordo y valor representativo de la costa abierta de Sønderborg Bugt [ESTIMADO].
+Sønderborg Bugt EWAM, may–sep, 07–17 UTC: Hs p50 0,26 · p75 0,44 · p90 0,64 m; > 0,5 m el 17,8 % de las horas. La resolución (DWD EWAM "0.05° (~5 km)" [VERIFICADO: https://open-meteo.com/en/docs/marine-weather-api]; best_match devuelve celdas en grilla ≈ 0,083° ≈ 8 km [ESTIMADO: inferido de las coordenadas devueltas]) no resuelve Als Fjord ni Als Sund: tomarlo como **cota superior** para el fiordo y valor representativo de la costa abierta de Sønderborg Bugt [ESTIMADO].
 
-### 4.3 Nivel del mar (DMI Sønderborg Havn I, 9010201, 10 min, 2015–2025, ~565 000 registros; cm, referencia DVR90 inferida porque en Fynshav `sea_reg` = `sealev_dvr`) [VERIFICADO: https://opendataapi.dmi.dk/v2/oceanObs/collections/observation/items?stationId=9010201&parameterId=sea_reg, cálculo propio]
+### 4.3 Nivel del mar (DMI Sønderborg Havn I, 9010201, 54,911 N 9,785 E, 10 min, 2015–2025, ~565 000 registros; cm) [VERIFICADO: https://opendataapi.dmi.dk/v2/oceanObs/collections/observation/items?stationId=9010201&parameterId=sea_reg, cálculo propio]
+Referencia vertical: el borrador decía "DVR90 inferida porque en Fynshav `sea_reg` = `sealev_dvr`" → [NO VERIFICADO]: al re‑consultar, la API devolvió 0 registros de `sealev_dvr` para 26459 y 9010201 (fechas muestreadas 2015–2024), y la metadata de 26459 lista solo `sea_reg` y `tw`. Las variaciones relativas (rango, percentiles respecto de la mediana) no dependen del datum. La serie cruda trae 2 picos espurios (600 y 4 080 cm, 28‑08‑2023) que se descartaron; el máx. +210 cm es real (20‑10‑2023, 13 registros consecutivos 207–210 cm).
 
 | min | p0,1 | p1 | p5 | p50 | p95 | p99 | p99,9 | máx | rango diario p50 / p90 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -293,7 +294,8 @@ Sumado a la resistencia añadida por ola (inputs: +25 %), con 6 m/s de proa el e
 - buscar: "vildtreservat Nybøl Nor sejlads", "Natura 2000 Als Fjord Flensborg Fjord sejlads motorbåd".
 - buscar: "Sønderborg Kommune badestrande kort" (zonas de baño balizadas).
 - buscar: "alderskrav fører motorbåd under 15 m" (edad mínima para botes sin certificado).
-- buscar: "2014/35/EU scope 75 V DC" (confirmar que 48 V queda fuera de LVD).
+- ~~buscar: "2014/35/EU scope 75 V DC"~~ → resuelto en la verificación: 75–1 500 V CC (ver §1.2).
+- Rampa: Sønderborg Lystbådehavn cobra "Brug af slæbested (søsætning og optagning) - PR. GANG" **125 DKK** o **1.250 DKK** por temporada 01.04–31.03 [VERIFICADO: https://irp.cdn-website.com/aa9a85c2/files/uploaded/Takstblad+2026.pdf]. Límite de velocidad en el puerto: sigue sin fuente (los PDF de la marina no lo mencionan).
 - Confirmar versión vigente de la speedbådsførerbekendtgørelse (la BEK 554/2020 que leí figura como "Historisk"; la página de Søfartsstyrelsen da los umbrales vigentes).
 
 ## 6. Fuentes abiertas en esta sesión
@@ -311,23 +313,79 @@ Sumado a la resistencia añadida por ola (inputs: +25 %), con 6 m/s de proa el e
 - Boknis Eck: https://bg.copernicus.org/articles/11/6323/2014/bg-11-6323-2014.pdf
 - DMI open data (oceanObs/metObs): URLs en §3.1, §4.1, §4.3
 - Open‑Meteo marine: URL en §4.2
-- Geografía: https://da.wikipedia.org/wiki/Als_Fjord ; https://de.wikipedia.org/wiki/Flensburger_Förde ; Sønderborg Havn (rampa listada, prof. 9 m): https://www.havneguide.dk/en/havn/sonderborg-harbour , https://marinaguide.dk/sonderborg-havn/om-havnen
+- LVD 2014/35/UE Art. 1: https://www.legislation.gov.uk/eudr/2014/35/article/1 (agregada en la verificación)
+- Geografía: https://da.wikipedia.org/wiki/Als_Fjord ; https://da.wikipedia.org/wiki/Als_Sund (agregada en la verificación) ; https://de.wikipedia.org/wiki/Flensburger_Förde ; Sønderborg Havn (rampa listada, prof. 9 m): https://www.havneguide.dk/en/havn/sonderborg-harbour , https://marinaguide.dk/sonderborg-havn/om-havnen
 
 ---
 
 ## Hallazgos que cambian el diseño
 
 - **La velocidad legal dentro de 300 m de la costa es ≤ 5 kn = 9,26 km/h** (Sejladsreglement Syd- og Sønderjyllands Politi §4, todo el año, toda motorbåd, cubre Sønderborg). Como el P1 opera siempre a < 300 m, **los 12 km/h no tienen uso legal** salvo la excepción de §4 stk.2 (maniobrar con seguridad contra corriente/viento). → Fijar `vmax_target_kmh` en 8–9 km/h, limitar por firmware la velocidad en agua a ~9 km/h (modo costa) y **no dimensionar motor/batería/hélice para 12 km/h**; usar el margen de potencia solo como reserva contra viento/corriente.
-- **Sin licencia, sin matrícula, sin CE, sin seguro obligatorio**: casco < 4 m necesita speedbådsbevis solo con ≥ 19 kW (el P1 usa ~1–3 kW, margen ≥ ×6); < 20 BT no se puede registrar; RCD solo cubre cascos 2,5–24 m y excluye construcción propia. Mantener **potencia pico < 19 kW** (trivial) y casco < 2,5 m; si el casco real mide ≥ 2,5 m, consultar a Søfartsstyrelsen.
+- **Sin licencia, sin matrícula, sin CE, sin seguro obligatorio**: casco < 4 m necesita speedbådsbevis solo con ≥ 19 kW (el P1 usa ~1–3 kW, margen ≥ ×6); < 20 BT no se puede registrar; RCD solo cubre cascos 2,5–24 m. Mantener **potencia pico < 19 kW** (trivial) y casco < 2,5 m; si el casco real mide ≥ 2,5 m, **no** contar con la exclusión de "construcción propia" (es para cascos construidos por el usuario, Art. 3(4)): cambiar la propulsión de un casco comercial es "major craft conversion" (Art. 2(1)(f), 3(7)) → consultar a Søfartsstyrelsen.
 - **Usar RCD Anexo I como checklist de diseño aunque no sea obligatoria**: 5.1.3 → **guarda en la correa HTD‑5M/poleas** ("exposed moving … parts … shall be effectively shielded"); 5.3 → protección de sobrecorriente en todos los circuitos, batería **firmemente sujeta y protegida del ingreso de agua**, ventilación; 5.1.6 → parada de emergencia ligada al timonel (kill cord, ya en el proyecto).
 - **Chaleco**: obligatorio llevar 1 por persona (CE/ratmærke, talla y límite de peso correctos; con 100 kg/persona verificar rango); recomendación de diseño/operación: **redningsvest con cuello puesto + kill cord al chaleco**. El agua es < 15 °C (umbral de choque por frío) en ≥ 90 % de los días de oct–may y < 10 °C en dic–abr (incapacitación en 2–30 min).
 - **Temporada de operación**: 15 jun – 15 sep sin traje térmico (agua media diaria 15,7–18,6 °C jun–sep en Fynshav; ≥ 12 °C en ~100 % de días jul–sep). Esto **acota `water.temp_min_c` operativo a ~12 °C**; mantener 2 °C solo como caso de almacenamiento/frío del PETG.
 - **`water.temp_max_c` = 20 °C es bajo** para cavitación: máx diario observado 23,3 °C, instantáneo 26,4 °C; fiordos someros hasta ~23 °C de media mensual (modelo). Subir a **24 °C** → presión de vapor 2 984 Pa (vs 2 340 Pa) [ESTIMADO: ecuación de Buck]; impacto en el numerador de σ de cavitación (p_atm + ρgh − p_v, h = 0,3 m) ≈ −0,6 % [ESTIMADO: cálculo con ρ = 1 013 kg/m³]; menor, pero gratis de corregir.
-- **Salinidad de diseño**: superficie 13,6–17,6 PSU de media mensual, p90 hasta 20,5 PSU, fondos hasta ~27. El valor de inputs (18 PSU, 1 013 kg/m³) es razonable/conservador para superficie; densidad real 1 010–1 016 kg/m³. Para corrosión diseñar para **~20 PSU** (agua salobre, conductividad alta): aislar galvánicamente el eje 316 del tubo de Al 6061 y del casco de Al; preferir **ánodos de aleación de aluminio** (no zinc) en salobre [ESTIMADO: memoria técnica, no verificado].
+- **Salinidad de diseño**: superficie 13,6–17,5 PSU de media mensual, p90 hasta 20,5 PSU, fondos hasta ~27. El valor de inputs (18 PSU, 1 013 kg/m³) es razonable/conservador para superficie; densidad real 1 010–1 016 kg/m³. Para corrosión diseñar para **~20 PSU** (agua salobre, conductividad alta): aislar galvánicamente el eje 316 del tubo de Al 6061 y del casco de Al. **Ánodos de aleación de aluminio son aptos**: "Aluminium anodes will passivate where chloride concentration is below 1,446 parts per million" [VERIFICADO: https://en.wikipedia.org/wiki/Galvanic_anode] y aquí Cl⁻ ≈ S/1,80655 ≈ 6–11 g/kg (6 000–11 000 ppm) con S = 11–20 PSU [ESTIMADO: relación de Knudsen, memoria técnica] → ×4–×8 sobre el umbral. Que sean **preferibles** al zinc en salobre sigue [ESTIMADO: memoria técnica, no verificado].
 - **Viento de diseño 6 m/s es coherente** con la estadística: may–sep de día, ≤ 6 m/s el 57 % (Kegnæs, expuesto) a 79 % (Sønderborg Lufthavn) de las horas; ≤ 8 m/s 79–95 %. Con 6 m/s de proa, F_aire ≈ 27 N (18–29 % de R a 6 km/h) + ola corta → **empuje requerido +45–55 %** sobre aguas calmas; con 8 m/s +55–70 %. Mantener el criterio de salida ≤ 6 m/s y el margen de empuje de inputs (`wave_added_frac` 0,25) como mínimo.
 - **Ola corta y empinada**: con 6 m/s en Als Fjord Hs ≈ 0,15–0,3 m, Tp 1,2–1,8 s, λ ≈ 2–5 m (≈ eslora) → cabeceo y salpicaduras: **electrónica/ESC/batería IP67 o en caja estanca elevada**, toma de la cola y protector de hélice dimensionados para golpes de ola (`wave_slam_g` 3 g plausible); en Sønderborg Bugt Hs p90 0,64 m (may–sep, día) → ese sector queda fuera del criterio de salida en ~18 % de las horas (Hs > 0,5 m).
 - **Viento fuerte dominante SW/W (51 % de las horas > 8 m/s)** = viento de tierra en la costa E de Als / Sønderborg Bugt → riesgo de deriva mar adentro con falla de motor: **remos + ancla con cabo obligatorios en el BOM**, reserva de batería para volver contra el viento (mantener `reserve_frac` 0,20 o subir a 0,30 en costa E) [SUPUESTO].
 - **Nivel del mar ±0,5 m** (p1 −52 cm, p99 +75 cm; extremos −158/+210 cm DVR90) por viento: en días de nivel bajo los bajos quedan ~0,5 m menos profundos → refuerza **kick‑up + `max_prop_tip_depth_mm` 380** y rampas de botadura utilizables con nivel bajo.
-- **Navegación nocturna**: < 7 m y ≤ 7 kn (12 km/h = 6,48 kn) → basta luz blanca todo horizonte; **política: solo de día**, pero prever en el BOM una luz blanca todo horizonte aprobada + silbato (Regla 33(b)).
+- **Navegación nocturna**: < 7 m y **velocidad máxima del bote** ≤ 7 kn (12 km/h = 6,48 kn; si el sistema puede superar ~13 km/h la excepción no aplica) → basta luz blanca todo horizonte; **política: solo de día**, pero prever en el BOM una luz blanca todo horizonte aprobada + silbato (Regla 33(b)).
 - **Alcohol**: sin límite numérico fijo para este bote (no requiere certificado), pero rige la prohibición general; política del proyecto 0,0 ‰.
-- **Datos aún no verificados que afectan el diseño**: corriente en Als Sund (inputs usa 0,5 m/s), límite de velocidad en el puerto de Sønderborg, restricciones Natura 2000/vildtreservat — ver §5.
+- **Als Sund mide "ca. 500 meter" de ancho** → ningún punto del sund queda a más de ~250 m de la costa: **todo Als Sund está dentro de la franja de 5 kn** (y el fetch transversal es ≈ 0,5 km → ola mínima).
+- **LVD verificada**: el bus de 48 V (≤ 58,8 V con 14S) queda bajo el umbral de 75 V CC; el **cargador de red sí cae en la LVD** → comprar cargador comercial con CE, no fabricarlo.
+- **Costo de botadura** en Sønderborg Lystbådehavn: 125 DKK por uso o 1.250 DKK/temporada (Takstblad 2026) → entra en el costo operativo si no hay rampa gratuita.
+- **Datos aún no verificados que afectan el diseño**: corriente en Als Sund (inputs usa 0,5 m/s), límite de velocidad en el puerto de Sønderborg, restricciones Natura 2000/vildtreservat, datum vertical (DVR90) de la serie de nivel — ver §4.3 y §5.
+
+---
+
+## Verificación (adversarial)
+
+Fecha: 2026-10-01. Método: re‑descarga con curl de las 30 URLs citadas (+ endpoints DMI, Zarr de Copernicus y Open‑Meteo) y búsqueda del texto citado en el contenido descargado. Los "cálculos propios" se **recalcularon desde cero** con los mismos datos (Zarr Copernicus vía `.zmetadata` + chunks; API DMI por año; API Open‑Meteo). Todas las URLs devolvieron HTTP 200 (el Zarr raíz no es navegable; abre `…/geoChunked.zarr/.zmetadata`).
+
+| Afirmación / URL | Estado | Nota |
+|---|---|---|
+| 5 kn < 300 m, §4 stk.2, 19‑06‑2019 / en vigor 01‑07‑2019, ordensbek. §14 stk.3 — politi.dk/…/sejladsreglement | OK | Texto literal coincide; sin restricción estacional; §3 solo vandscootere; remite a Natura 2000 |
+| Jurisdicción (Sønderborg) — politi.dk/syd-og-soenderjyllands-politi | OK | "dækker Esbjerg, Haderslev, Sønderborg, …" |
+| Registro < 20 BT — soefartsstyrelsen …/registrer-fritidsfartoej | corregido | "kan ikke længere registrere" OK; **"desde 2018" no está en la fuente** → eliminado |
+| Speedbådsbevis < 4 m: ≥ 19 kW / 25 HK; edad 16 — soefartsstyrelsen …/speedbaadsbevis | OK | Además la página ubica la definición de "planende" en §1 stk.5 (versión vigente) → nota agregada |
+| Definición "planende" + §2 16 años — retsinformation 208169 (BEK 554/2020) | OK | §1 stk.4 y §2 literales; marcada "Historisk", cambio BEK 664/2020 |
+| BEK 1726/2017 — retsinformation 194222 | OK (contexto) | Es la bek. de "prøver og beviser for fritidssejlere", no la speedbådsførerbek.; no se le atribuye ningún dato |
+| L² + 3 kW (4–15 m) — dansketursejlere.dk | OK | "kvadratet på skroglængden plus 3" |
+| BEK 765/2024 §§1,2,4,5,5 stk.6,12 — lovtidende 242869 | OK | En vigor 01‑07‑2024, deroga 1687/2016; "medbringe" (llevar) chaleco; no menciona kill cord/nødstop |
+| Competencias < 15 m — soefartsstyrelsen …/bemanding | OK | Cita literal |
+| Søloven §131 — dansksejlunion.dk | OK | Cita literal |
+| 200 → 300 m en 2019 — netavisen.nu | OK | |
+| RCD Anexo I 5.1.3 / 5.1.6 / 5.3 — legislation.gov.uk/eudr/2013/53/annex/I | OK | Literales. Nota: 5.1.3 dice "exposed moving or hot parts **of the engine**" (engine = combustión), se usa solo como checklist voluntario |
+| RCD Art. 3 (2,5–24 m; "propulsion engine" = combustión; 3(7)) — …/article/3 | OK | |
+| RCD Art. 2 exclusión (vii) — …/article/2 | corregido (matiz) | La exclusión es para "watercraft built for own use" = "predominantly built by its future user" (Art. 3(4)); un casco comercial modificado no califica → texto ajustado en §0, §1.2 y Hallazgos |
+| CE 2,5–24 m — soefartsstyrelsen …/ce-maerkning | OK | |
+| Seguro obligatorio solo speedbåd/vandscooter desde 15‑05‑2018; ≤ 5,5 m en indbo — forsikringsoplysningen.dk | OK | "påhængsmotor op til et vist antal hk": que un motor eléctrico de cola larga cuente como tal no está dicho → confirmar con aseguradora |
+| Alcohol 0,50 ‰ / prohibición general / multa — soefartsstyrelsen …/faq-om-spiritussejlads | corregido (matiz) | Multa aplica "med en promille på under 2,00" → agregado |
+| COLREG 23(d)(ii), 33(b) — navcen.uscg.gov | OK | Literales |
+| COLREG "Regla 22(d): 2 millas en < 12 m" | corregido | Es **22(c)(v)**; 22(d) es objetos remolcados semisumergidos |
+| Luces homologadas NP/NK; "Det tilrådes, at kun joller…" — egaasejlklub.dk PDF | OK | Literal (Søsportens Sikkerhedsråd) |
+| Pjece Kulde2013 (Royal Navy 5 °C, chaleco con cuello, 112/Lyngby Radio, 28 °C) — roning.dk PDF | OK | Literales |
+| Cold shock (15 °C, 60–90 s → segundos, < 5 min) — en.wikipedia Cold_shock_response | OK | |
+| Regla 1‑10‑1 — coldwatersafety.org | corregido | La cita en mayúsculas no era literal → reemplazada por el texto exacto; citas de Giesbrecht OK |
+| Tabla de supervivencia — ussartf.org | OK | Valores coinciden; atribución "USCG" no está en la página → marcada [ESTIMADO: memoria] |
+| Als Fjord 10 km, 2–3 km, "indtil 27 m" — da.wikipedia | OK | |
+| Flensburger Förde 40–50 km, 1,5–4 km — de.wikipedia | OK | |
+| "Als Sund ≈ 0,3–0,5 km" | corregido | da.wikipedia/Als_Sund: "8 km langt, ca. 500 meter bredt og 8-10 meter dybt" |
+| Boknis Eck 26,6 ± 2,0; haloclina; termoclina 10–15 m — bg.copernicus.org PDF | OK (matiz) | "approximately 22" proviene del apartado modelo‑vs‑observación → aclarado |
+| Copernicus BAL MY: 1 nmi, 56 capas, desde 1993, DOI 10.48670/moi-00013 — STAC json | OK | Institución "Baltic MFC, PU Danish Meteorological Institute"; capa superficial = −0,50 m |
+| Tablas §2.2/§2.3/§3.2 (salinidad, estratificación, SST) — cálculo propio Zarr | corregido (menor) | Reproducidas (mismas celdas, prof. 15,6/3,6/17,5/8,2/19,7/31,9 m). 9 valores distintos diferían en 0,1 por doble redondeo (p. ej. 17,545 → "17,6"): corregidos 16,4→16,3; 17,6→17,5 (en §0, §2.2, §2.3 y Hallazgos); 21,2→21,1; 6,8→6,7; SOB 19,8→19,7 (feb), 22,2→22,1 (ago); SB ago 15,6→15,5; SST 19,6→19,5; 18,0→17,9 |
+| Fynshav agua (tabla §3.1, 3 929 días, extremos −2,1/26,4) — DMI oceanObs 26459 | OK con nota | Reproducida exacta **solo** descartando 1 201 registros < −2,1 °C (falla oct‑2015, mín. −10,6); el filtro no estaba declarado → nota agregada |
+| Viento 06118/06119 (tablas §4.1, dirección) — DMI metObs | OK | Reproducido exacto (182 253 h y 182 947 h); coordenadas de estación coinciden; altura de 10 m no figura en la metadata → [ESTIMADO] |
+| Olas Open‑Meteo (3 celdas, temporada) — marine-api.open-meteo.com | OK | Reproducido exacto; "~5 km" vale para EWAM (docs Open‑Meteo); best_match ≈ 0,083° [ESTIMADO] |
+| Nivel del mar §4.3 — DMI oceanObs 9010201 | OK con nota | Percentiles y rango diario reproducidos; hay 2 picos espurios (600, 4 080 cm) descartados sin declarar; **datum DVR90 [NO VERIFICADO]** (API sin `sealev_dvr`) |
+| Fórmulas CEM (tabla Hm0/Tp), λ = gT²/2π, F_aire, Buck p_v, EOS‑80 | OK | Recalculados: todas las celdas coinciden; EOS‑80 reproduce 1023,343 y 1028,106 kg/m³ |
+| Sønderborg Havn: slipway, prof. 9 m — havneguide.dk / marinaguide.dk | OK | "Slipway", "Depth: 9 m"; marinaguide lista "Slæbested" |
+| LVD 75 V CC (antes [ESTIMADO: memoria]) | corregido → verificado | legislation.gov.uk/eudr/2014/35/article/1: "between 75 and 1 500 V for direct current" |
+| Ánodos de aluminio en salobre (antes [ESTIMADO]) | parcialmente verificado | Umbral de pasivación Cl⁻ < 1 446 ppm (Wikipedia Galvanic_anode); preferencia sobre zinc sigue [ESTIMADO] |
+| Límite de velocidad en puerto "≤ 3 kn" | no verificado | Ya estaba como [ESTIMADO: memoria]; ni la web ni los PDF de Sønderborg Lystbådehavn lo mencionan |
+| Corriente Als Sund 0,5 m/s | no verificado | Sin fuente abierta; sigue "buscar" |
+| Videos, precios, números de pieza, propiedades de materiales | OK | El archivo no cita videos ni números de pieza. El único precio (125 / 1.250 DKK de rampa) se agregó desde el Takstblad 2026 abierto. No hay propiedades de materiales sin etiqueta |
+
+Resumen: 0 URLs caídas. Errores reales corregidos: COLREG 22(d)→22(c)(v), "desde 2018" sin fuente, ancho de Als Sund, cita 1‑10‑1 no literal, alcance de la exclusión RCD (vii), 9 valores ±0,1 por redondeo. Filtros de datos no declarados (Fynshav oct‑2015, picos de nivel 2023) ahora documentados. Se mantiene sin fuente: datum DVR90, límite en puerto, corriente en Als Sund.
