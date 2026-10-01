@@ -115,7 +115,7 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["motor_d"], d["motor_l"] = mo["size_mm"]
     d["L_bearing_housing"] = 80.0                         # [SUPUESTO: par 7204 BEP + sello + tapa]
     d["L_coupling"] = 60.0                                # [ESTIMADO: acople de mordazas L-090/Rotex 24]
-    d["S_seal"] = d["shaft_exit_x"] / ca + 15.0           # distancia a lo largo del eje (desde la cara del impulsor, hacia proa)
+    d["S_seal"] = (d["shaft_exit_x"] - d["x_if"]) / ca + 15.0   # distancia a lo largo del eje desde la cara del impulsor, hacia proa
     d["S_brg0"] = d["S_seal"] + 10.0
     d["S_brg1"] = d["S_brg0"] + d["L_bearing_housing"]
     d["S_cpl1"] = d["S_brg1"] + d["L_coupling"]
@@ -147,8 +147,11 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["base_top_z"] = 10.0                                # cara superior de la placa base de la toma
     d["brg_bracket_x0"] = d["x_if"] + (d["S_brg0"] - 5.0) * ca
     d["brg_bracket_x1"] = d["brg_bracket_x0"] + 150.0
-    d["brg_bracket_holes"] = [(d["brg_bracket_x0"] + 15.0, y) for y in (-45.0, 45.0)] + \
-                             [(d["brg_bracket_x1"] - 15.0, y) for y in (-45.0, 45.0)]   # 4 × M8, (x, y)
+    # el soporte es un PUENTE sobre el conducto de la toma: apoya en la placa base a ambos lados de
+    # la abertura (|y| = W_open/2 + 45), nunca dentro de ella
+    d["brg_bracket_y"] = d["W_open"] / 2 + 45.0
+    d["brg_bracket_holes"] = [(d["brg_bracket_x0"] + 15.0, y) for y in (-d["brg_bracket_y"], d["brg_bracket_y"])] + \
+                             [(d["brg_bracket_x1"] - 15.0, y) for y in (-d["brg_bracket_y"], d["brg_bracket_y"])]   # 4 × M8, (x, y)
     d["brg_bracket_bolt"] = 8
 
     # --- caja del controlador (heredada) ---

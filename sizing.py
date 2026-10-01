@@ -16,7 +16,9 @@ import copy
 import itertools
 import json
 import math
+import os
 import sys
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -186,11 +188,15 @@ def accel_time(rows, mass, v_target, added=0.10):
     return t if V[-1] >= v_target else math.inf
 
 
-def evaluate(inp, mk, ek, bk, D_mm, nr, f_pow=0.0, detail=False):
+def evaluate(inp, mk, ek, bk, D_mm, nr, f_pow=0.0, detail=False, pump_fix=None):
+    """pump_fix = (V_d, P_d, n_d): usa un impulsor ya diseñado (sensibilidad a entradas inciertas)."""
     grid = V_FINE if detail else V_COARSE
     s = build(inp, mk, ek, bk, D_mm, nr)
     R = resistance_for(inp, s["ms"])
-    pump, V_d = design_pump(inp, s, R, f_pow)
+    if pump_fix is None:
+        pump, V_d = design_pump(inp, s, R, f_pow)
+    else:
+        pump, V_d = Pump(s["geo"], *pump_fix), pump_fix[0]
     i_ph, i_bat, P_cont, P_peak = limits(inp, s)
     drv = JetDrive(pump, s["motor"], s["es"], i_ph, i_bat, inp["drivetrain"]["eta_mech"], inp["esc"]["duty_max"])
     ba, op, pmp = s["ba"], inp["operation"], inp["waterjet"]["pump"]
@@ -210,9 +216,12 @@ def evaluate(inp, mk, ek, bk, D_mm, nr, f_pow=0.0, detail=False):
     U_max = max(r["n_rpm"] for r in peak) / 60 * math.pi * D_mm / 1000
     I_bat_pk = max(r["I_bat"] for r in peak)
     v_ok = ba["v_nom"] <= inp["electrical"]["max_nominal_voltage_v"] or inp["electrical"]["allow_72v"]
+    P_mech_peak = max(r["P_shaft"] for r in peak) / 1000
     ok = {
         "voltage": bool(v_ok and s["mo"]["v_class"] == ba["v_class"] == s["es"]["v_class"]
-                        and ba["v_max"] <= s["es"]["v_max"] * 0.95),
+                        and ba["v_max"] <= s["es"]["v_max"] * 0.95
+                        and ba.get("cells", 0) <= s["mo"].get("cells_max", 99)),
+        "speedboat": P_mech_peak < inp["electrical"]["speedboat_power_kw"],
         "planes": a_peak["hump_ok"],
         "energy": E_nom >= E_req,
         "cavitation_top": st_top["S"] <= pmp["suction_s_max"],
@@ -222,7 +231,8 @@ def evaluate(inp, mk, ek, bk, D_mm, nr, f_pow=0.0, detail=False):
         "battery_current": I_bat_pk <= i_bat * 1.001,
         "vmax_target": v_max * 3.6 >= op["top_speed_target_kmh"],
     }
-    cost = s["mo"]["price_eur"] + s["es"]["price_eur"] + ba["price_eur"] + ba.get("charger", {}).get("price_eur", 0.0)
+    cost = s["mo"]["price_eur"] + s["es"]["price_eur"] + ba["price_eur"] + ba.get("charger", {}).get("price_eur", 0.0) \
+        + (inp["electrical"]["extra_72v_eur"] if ba["v_class"] == 72 else 0.0)
     row = {"motor": mk, "esc": ek, "battery": bk, "D_imp_mm": D_mm, "nozzle_ratio": nr, "f_pow": f_pow,
            "P_design_W": pump.P_d,
            "D_noz_mm": D_mm * nr, "mass_kg": s["ms"]["total_kg"], "lcg_m": s["ms"]["lcg_m"],
@@ -231,7 +241,7 @@ def evaluate(inp, mk, ek, bk, D_mm, nr, f_pow=0.0, detail=False):
            "hump_margin": a_peak["hump_margin_min"], "planes": a_peak["planes"],
            "bollard_N": peak[0]["T"], "P_bat_top_W": st_top["P_bat"], "P_bat_legal_W": st_leg["P_bat"],
            "E_req_wh": E_req, "E_nom_wh": E_nom, "S_top": st_top["S"], "U_tip_max": U_max,
-           "I_bat_peak_A": I_bat_pk, "cost_eur": cost,
+           "I_bat_peak_A": I_bat_pk, "P_shaft_peak_kW": P_mech_peak, "cost_eur": cost,
            **{f"ok_{k}": bool(v) for k, v in ok.items()},
            "hard_ok": all(v for k, v in ok.items() if k != "vmax_target")}
     if not detail:
@@ -241,24 +251,94 @@ def evaluate(inp, mk, ek, bk, D_mm, nr, f_pow=0.0, detail=False):
             "v_pl": v_pl, "rep": rep}
 
 
+SENS = [  # (ruta, (bajo, alto) relativo si es número < 1 con signo, o absolutos con "abs"), etiqueta, re-diseña la bomba
+    ("boat.hull_mass_kg", ("rel", 0.30), "Masa del casco ±30 %", False),
+    ("masses.items.pilot.kg", ("abs", 70.0, 110.0), "Masa del piloto 70–110 kg", False),
+    ("masses.items.pilot.x_m", ("abs", 1.20, 1.55), "Posición del piloto (LCG) 1,20–1,55 m", False),
+    ("resistance.r_hump.high", ("rel", 0.25), "R/Δ en la joroba ±25 %", False),
+    ("resistance.planing_band.nominal", ("rel", 0.10), "Resistencia de planeo ±10 %", False),
+    ("boat.deadrise_deg", ("abs", 4.0, 14.0), "Astilla muerta 4–14°", False),
+    ("boat.planing_beam_m", ("rel", 0.10), "Manga de planeo ±10 %", False),
+    ("waterjet.pump.eta_design", ("abs", 0.65, 0.78), "Rendimiento de bomba 0,65–0,78", True),
+    ("waterjet.intake_eta", ("abs", 0.55, 0.85), "Recuperación en la toma 0,55–0,85", False),
+    ("motor.options.{motor}.p_cont_w", ("rel", 0.25), "Potencia continua del motor ±25 %", True),
+]
+
+
+def _set(d, path, val):
+    ks = path.split(".")
+    for k in ks[:-1]:
+        d = d[k]
+    d[ks[-1]] = val
+
+
+def _get(d, path):
+    for k in path.split("."):
+        d = d[k]
+    return d
+
+
+def _sens_one(args):
+    inp, best, path, spec, label, redesign, pump_fix = args
+    path = path.format(motor=best["motor"])
+    v0 = _get(inp, path)
+    lo, hi = (v0 * (1 - spec[1]), v0 * (1 + spec[1])) if spec[0] == "rel" else (spec[1], spec[2])
+    out = {}
+    for tag, val in (("lo", lo), ("hi", hi)):
+        ii = copy.deepcopy(inp)
+        _set(ii, path, val)
+        r = evaluate(ii, best["motor"], best["esc"], best["battery"], best["D_imp_mm"], best["nozzle_ratio"],
+                     best["f_pow"], pump_fix=None if redesign else pump_fix)
+        out[tag] = {"value": val, "vmax": r["vmax_cont_kmh"], "hump": r["hump_margin"], "P_leg": r["P_bat_legal_W"],
+                    "planes": r["planes"]}
+    return {"param": path, "label": label, **out,
+            "swing_vmax_kmh": abs(out["hi"]["vmax"] - out["lo"]["vmax"]),
+            "swing_hump": abs(out["hi"]["hump"] - out["lo"]["hump"])}
+
+
+def sensitivity(inp, best, pump):
+    pf = (pump.V_d, pump.P_d, pump.n_d)
+    jobs = [(inp, best, *x, pf) for x in SENS]
+    workers = max(1, min(len(jobs), (os.cpu_count() or 2) - 1))
+    if workers > 1:
+        with ProcessPoolExecutor(max_workers=workers) as ex:
+            rows = list(ex.map(_sens_one, jobs))
+    else:
+        rows = [_sens_one(j) for j in jobs]
+    rows.sort(key=lambda r: -(r["swing_vmax_kmh"] / 5 + r["swing_hump"]))
+    return {"rows": rows, "top3": [r["label"] for r in rows[:3]],
+            "any_no_plane": [r["label"] for r in rows if not (r["lo"]["planes"] and r["hi"]["planes"])]}
+
+
+def _eval_safe(inp, job):
+    mk, ek, bk, D, nr, fp = job
+    try:
+        return evaluate(inp, mk, ek, bk, D, nr, fp)
+    except (RuntimeError, ValueError, TypeError, ZeroDivisionError) as e:
+        return {"motor": mk, "esc": ek, "battery": bk, "D_imp_mm": D, "nozzle_ratio": nr, "f_pow": fp,
+                "error": str(e), "hard_ok": False, "cost_eur": math.inf}
+
+
 def optimize(inp):
     j = inp["waterjet"]
 
     def pick(sec):
         return [inp[sec]["chosen"]] if inp[sec]["chosen"] != "auto" else list(inp[sec]["options"])
 
-    rows = []
+    jobs = []
     for mk, ek, bk in itertools.product(pick("motor"), pick("esc"), pick("battery")):
         mo, es, ba = inp["motor"]["options"][mk], inp["esc"]["options"][ek], inp["battery"]["options"][bk]
         if not (mo["v_class"] == es["v_class"] == ba["v_class"]):
             continue
         for D, nr, fp in itertools.product(j["impeller_d_options_mm"], j["nozzle_ratio_options"],
                                            j["design_power_frac_options"]):
-            try:
-                rows.append(evaluate(inp, mk, ek, bk, D, nr, fp))
-            except (RuntimeError, ValueError, TypeError, ZeroDivisionError) as e:
-                rows.append({"motor": mk, "esc": ek, "battery": bk, "D_imp_mm": D, "nozzle_ratio": nr,
-                             "error": str(e), "hard_ok": False, "cost_eur": math.inf})
+            jobs.append((mk, ek, bk, D, nr, fp))
+    workers = max(1, min(len(jobs), (os.cpu_count() or 2) - 1))
+    if workers > 1:
+        with ProcessPoolExecutor(max_workers=workers) as ex:
+            rows = list(ex.map(_eval_safe, [inp] * len(jobs), jobs, chunksize=4))
+    else:
+        rows = [_eval_safe(inp, jb) for jb in jobs]
     good = [r for r in rows if r["hard_ok"]]
     if good:
         fast = [r for r in good if r["ok_vmax_target"]]
@@ -293,9 +373,20 @@ def mechanical(inp, d):
     Fr = 0.6 * G + 0.05 * Fa                           # [ESTIMADO: peso del impulsor + 5 % del empuje]
     P_top = 0.35 * Fr + 0.57 * d["st_top"]["T"]        # [ESTIMADO: par 7204 BEP, Fa/Fr > e]
     L10 = (br["C_dyn_n"] / P_top) ** 3 * 1e6 / (60 * max(d["st_top"]["n_rpm"], 1))
+    # velocidad crítica: eje simplemente apoyado entre el par de rodamientos (seco, a proa) y el buje
+    # de agua del cubo del estator (popa), con el impulsor como masa puntual (Dunkerley, sin la masa del eje)
     E, I = sh["e_gpa"] * 1e9, math.pi * dsh ** 4 / 64
-    L_ov, m_imp = 0.10, 0.6                            # [ESTIMADO: voladizo 100 mm, impulsor 0,6 kg]
-    n_crit = math.sqrt(3 * E * I / L_ov ** 3 / m_imp) / (2 * math.pi) * 60
+    D = d["s"]["geo"].D
+    ca = math.cos(math.radians(inp["waterjet"]["shaft_incline_deg"]))
+    S_brg_c = (1.2 * D / ca + 0.015 + 0.010 + 0.040)   # [CALCULADO: misma regla que 04_diseno/params.py]
+    X_bush = 0.48 * D + 0.030                            # [CALCULADO: params_bomba (buje en el cubo del estator)]
+    X_imp_c = 0.21 * D
+    L_span = S_brg_c + X_bush
+    a_, b_ = L_span - (X_bush - X_imp_c), X_bush - X_imp_c
+    nu = inp["waterjet"]["hub_ratio"]
+    m_imp = sh["density_kg_m3"] * math.pi / 4 * (nu * D) ** 2 * 0.42 * D * 1.3   # [ESTIMADO: cubo macizo + 30 % de álabes]
+    k = 3 * E * I * L_span / (a_ ** 2 * b_ ** 2)
+    n_crit = math.sqrt(k / m_imp) / (2 * math.pi) * 60
     v_seal = math.pi * dsh * n_max / 60
     tgt = inp["materials"]["fs_target_metal"]
     # pasador de corte impulsor–eje (corte doble en el eje): T_corte = 2·(π/4·d²)·τ_u·(D_eje/2)
@@ -314,7 +405,7 @@ def mechanical(inp, d):
                 "fs_shaft_at_cut": 0.577 * sh["sy_mpa"] * 1e6 / tau(pin["T_cut_Nm"])})
     return {"T_max_Nm": T_max, "T_top_Nm": T_top, "tau_max_MPa": tau(T_max) / 1e6,
             "fs_shaft_static": fs_static, "fs_shaft_fatigue": fs_fat, "n_max_rpm": n_max,
-            "Fa_max_N": Fa, "Fr_N": Fr, "L10_top_h": L10, "n_crit_rpm": n_crit,
+            "Fa_max_N": Fa, "Fr_N": Fr, "L10_top_h": L10, "n_crit_rpm": n_crit, "L_span_m": L_span, "m_impeller_kg": m_imp,
             "crit_ratio": n_crit / n_max, "seal_speed_ms": v_seal,
             "seal_ok": v_seal <= inp["seal"]["v_max_ms"], "bearing_ok": L10 >= br["life_target_h"],
             "shaft_ok": fs_static >= tgt and fs_fat >= tgt, "crit_ok": n_crit / n_max >= 1.3,
@@ -359,6 +450,22 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
         vm[name] = {"V_bat": vb, "vmax_cont_kmh": sustained_vmax(c, ap["planes"], d["v_pl"]) * 3.6,
                     "planes": ap["planes"], "hump_margin": ap["hump_margin_min"]}
     t_plane = accel_time(d["peak"], ms["total_kg"], d["v_pl"])
+    # V máx. "por ratos" con potencia pico (banda nominal) y cuánto dura antes del límite térmico
+    pk_nom = curve(drv, R, ba["v_nom"], "nominal", i_ph, i_bat, P_peak, s_max)
+    v_pk = sustained_vmax(pk_nom, d["a_peak"]["planes"], d["v_pl"])
+    st_pk = drv.full_throttle(v_pk, ba["v_nom"], i_lim=i_ph, p_bat_lim=P_peak)
+    T_amb = inp["air"]["temp_max_c"]
+    T0 = s["motor"].steady_temp(d["st_top"]["P_loss_motor"], T_amb)
+    t_pk = s["motor"].time_to_limit_s(st_pk["P_loss_motor"], T_amb, T0)
+    # refrigeración por agua: caudal por el orificio con la altura de la bomba a V máx. sostenida
+    cl = inp["waterjet"]["cooling"]
+    A_o = math.pi / 4 * (cl["orifice_d_mm"] / 1000) ** 2
+    q_cool = cl["cd"] * A_o * math.sqrt(2 * G * max(d["st_top"]["H_m"], 0.1))
+    q_cool_legal = cl["cd"] * A_o * math.sqrt(2 * G * max(d["st_leg"]["H_m"], 0.1))
+    P_heat = d["st_top"]["P_loss_motor"] + d["st_top"]["P_loss_esc"]
+    cooling = {"Q_l_min_top": q_cool * 60000, "Q_l_min_legal": q_cool_legal * 60000, "P_heat_W": P_heat,
+               "dT_water_K": P_heat / (4186 * q_cool * inp["water"]["density_kg_m3"]),
+               "ok": P_heat / (4186 * q_cool * inp["water"]["density_kg_m3"]) <= cl["dT_max_k"]}
     # tope legal de rpm: 5 kn con piloto liviano, banda baja y batería llena (caso más rápido)
     ii = copy.deepcopy(inp)
     ii["masses"]["items"]["pilot"]["kg"] = inp["masses"]["light_pilot_kg"]
@@ -374,7 +481,6 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
               "t_top_min": E_us / d["st_top"]["P_bat"] * 60,
               "range_top_km": E_us / d["st_top"]["P_bat"] * d["st_top"]["V"] * 3.6,
               "t_legal_h": legal["autonomy_legal_h"]}
-    T_amb = inp["air"]["temp_max_c"]
     P_loss = d["st_top"]["P_loss_motor"]
     T_m = s["motor"].steady_temp(P_loss, T_amb)
     thermal = {"P_loss_motor_W": P_loss, "T_motor_steady_C": T_m, "t_winding_max_C": s["mo"]["t_winding_max_c"],
@@ -410,12 +516,20 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
                         "bollard_N": d["peak"][0]["T"],
                         "reverse_N": d["peak"][0]["T"] * inp["waterjet"]["reverse"]["thrust_frac"]
                         * inp["waterjet"]["reverse"]["power_limit_frac"] ** (2 / 3),
-                        "top": _slim(d["st_top"]), "legal": _slim(d["st_leg"]), "vmax_by_battery": vm},
+                        "top": _slim(d["st_top"]), "legal": _slim(d["st_leg"]), "vmax_by_battery": vm,
+                        "vmax_peak_kmh": v_pk * 3.6, "peak_top": _slim(st_pk),
+                        "t_peak_from_cruise_min": t_pk / 60 if t_pk != math.inf else math.inf},
+        "cooling": cooling,
+        "success": {"bollard_min_N": d["peak"][0]["T"] * inp["operation"]["success"]["bollard_frac"],
+                    "vmax_min_kmh": best["vmax_cont_kmh"] * inp["operation"]["success"]["vmax_frac"],
+                    "p_legal_max_W": d["st_leg"]["P_bat"] * inp["operation"]["success"]["p_legal_frac"],
+                    "t_plane_max_s": inp["operation"]["accel_target_s"]},
         "legal_speed": legal, "energy": energy, "thermal": thermal,
         "electrical": {"I_bat_peak_A": I_pk, "I_bat_top_A": I_top, "I_phase_limit_A": i_ph, "I_bat_limit_A": i_bat,
                        "P_bat_cont_W": P_cont, "P_bat_peak_W": P_peak, "cable_dc": cab_dc, "cable_phase": cab_ph,
                        "fuse_a": fuse_a, "fuse_protects_cable": fuse_a <= cab_dc["ampacity_a"]},
         "mech": mechanical(inp, d), "loads": loads(inp, d),
+        "sensitivity": sensitivity(inp, best, d["pump"]),
         "optimization": {"status": status, "n_evaluated": len(rows),
                          "n_hard_ok": sum(1 for r in rows if r.get("hard_ok")), "rows": rows},
         "checks": {k: v for k, v in best.items() if k.startswith("ok_")},

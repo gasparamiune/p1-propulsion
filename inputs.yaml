@@ -53,7 +53,7 @@ masses:
     hull:     {desc: "Casco con cubierta, consola y asiento", kg: 38.0, x_m: 0.95, z_m: 0.22, tag: "[ESTIMADO: research/R10b §4.2, §4.4]"}
     pilot:    {desc: "Piloto", kg: 90.0, x_m: 1.38, z_m: 0.55, tag: "[SUPUESTO: 80–100 kg; posición del asiento del plano (R10b §4.4)]"}
     battery:  {desc: "Batería", kg: "sel:battery_kg", x_m: 1.00, z_m: 0.14, machinery: true, tag: "[SUPUESTO: más a popa que en el plano (1,42 m) para bajar el LCG]"}
-    motor:    {desc: "Motor eléctrico", kg: "sel:motor_kg", x_m: 0.66, z_m: 0.16, machinery: true, tag: "[CALCULADO: research/R10a §5.2 — motor a 555–735 mm del espejo]"}
+    motor:    {desc: "Motor eléctrico", kg: "sel:motor_kg", x_m: 0.65, z_m: 0.15, machinery: true, tag: "[CALCULADO: 04_diseno/params.py motor_x_mid / motor_axis_z_mid con Ø132]"}
     jet:      {desc: "Unidad de waterjet (toma, bomba, tobera, dirección, bucket, tren)", kg: "sel:jet_kg", x_m: 0.25, z_m: 0.12, machinery: true, tag: "[CALCULADO: CAD (manifest) o ESTIMADO 12 kg antes del primer CAD]"}
     esc:      {desc: "Controlador, contactor, fusible, cables", kg: 6.0, x_m: 0.90, z_m: 0.30, machinery: true, tag: "[ESTIMADO: research/R10b §4.2 4–7 kg]"}
     water:    {desc: "Agua retenida en toma y bomba", kg: 4.0, x_m: 0.30, z_m: 0.10, tag: "[ESTIMADO: research/R10b §4.2 2–5 kg]"}
@@ -150,6 +150,10 @@ operation:
   plane_margin_frac: 0.10     # [SUPUESTO: empuje ≥ 1,10 × R en toda la joroba (banda de diseño, batería nominal)]
   wave_added_frac: 0.10       # [ESTIMADO: ola corta del fiordo]
   accel_target_s: 15.0        # [SUPUESTO: tiempo máximo de 0 a planeo]
+  success:                    # criterios pasa/no-pasa de las pruebas físicas (06 §T)
+    bollard_frac: 0.80        # [SUPUESTO: empuje a punto fijo medido ≥ 80 % del modelo]
+    vmax_frac: 0.85           # [SUPUESTO: V máx. medida (GPS) ≥ 85 % del modelo, banda nominal]
+    p_legal_frac: 1.30        # [SUPUESTO: P de batería a 5 kn ≤ 1,3 × modelo]
 
 # -----------------------------------------------------------------------------
 # RESISTENCIA (research/R10b §4.4; R09 §1.6; Savitsky 1964 vía openplaning)
@@ -208,6 +212,10 @@ waterjet:
     tau_u_mpa: 174.0          # [CALCULADO: research/R12 §7.6 — τ_u = 0,6 × UTS 290 MPa]
     fuse_factor_vs_tmax: 1.8  # [SUPUESTO: corta a 1,8 × el par máx. que deja pasar el controlador (no corta en arranques)]
     d_options_mm: [3.0, 3.5, 4.0, 4.5, 5.0]   # [SUPUESTO: pasadores comerciales / torneados]
+  cooling:                    # refrigeración por agua del motor y del controlador desde la bomba (como jetboards)
+    orifice_d_mm: 4.0         # [SUPUESTO: restrictor en la toma de agua de la carcasa del estator]
+    cd: 0.6                   # [ESTIMADO: orificio de canto vivo]
+    dT_max_k: 15.0            # [SUPUESTO: salto de temperatura del agua de refrigeración]
   reverse:
     thrust_frac: 0.45         # [ESTIMADO: research/R12 §7 — Hamilton: reversa hasta 60 % (VERIFICADO allí); 0,45 conservador para el empuje útil]
     power_limit_frac: 0.50    # [SUPUESTO: límite de corriente en reversa (R10b H10)]
@@ -244,105 +252,165 @@ seal:
 # -----------------------------------------------------------------------------
 motor:
   chosen: "auto"
-  current_limit_frac: 1.0     # [SUPUESTO: límite de fase = i_max del motor]
+  current_limit_frac: 1.0     # [SUPUESTO: límite de fase = i_max del motor (además del par para el pasador)]
   options:
-    HPM5000B_72:
-      desc: "Golden Motor HPM5000B 72 V (BLDC refrigerado por aire)"
-      kv_rpm_v: 70.0          # [ESTIMADO: 4500 rpm en carga a ~72 V (research/R10b §4.8: 62,5–73,5 rpm/V)]
-      r_ohm: 0.020            # [ESTIMADO]
+    MTI120116_150:
+      desc: "Maytech MTI120116 150 KV (inrunner refrigerado por agua, 10–16S)"
+      kv_rpm_v: 150.0         # [VERIFICADO: research/R11 §1.2 — KV 100/150/200 nominal]
+      r_ohm: 0.006            # [ESTIMADO: inrunner de 18,8 kW; no publicado — medir con VESC Tool]
       r_hot_factor: 1.24      # [ESTIMADO: cobre +60 K]
-      i0_a: 4.0               # [ESTIMADO]
-      i_max_a: 150.0          # [ESTIMADO]
-      p_cont_w: 5000.0        # [VERIFICADO: research/R10b §4.8 (Kelly) — 5 kW nominal]
-      p_max_w: 10000.0        # [ESTIMADO: pico ~2× nominal]
-      mass_kg: 11.0           # [VERIFICADO: research/R10b H17 (Kelly) — 11 kg]
-      size_mm: [206, 126]     # [VERIFICADO: research/R10b H17 — Ø206 × 126 mm]
-      eta: 0.91               # [VERIFICADO: research/R10b H17]
-      v_class: 72
-      price_eur: 1306.48      # [VERIFICADO: research/R10b H17 (Kelly)]
-      rth_k_w: 0.08           # [ESTIMADO]
-      tau_th_s: 1200.0        # [ESTIMADO]
-      t_winding_max_c: 120.0  # [ESTIMADO: clase F con margen]
+      i0_a: 3.0               # [ESTIMADO]
+      i_max_a: 380.0          # [VERIFICADO: research/R11 §1.2 — 380 A máx.]
+      p_cont_w: 6000.0        # [ESTIMADO: continua no publicada (R11 advertencia); jetboards de esta clase 6–10 kW refrigerados por agua — pedir a Maytech]
+      p_max_w: 12000.0        # [ESTIMADO: máx. publicado 18,8 kW (R11); se usa 12 kW]
+      mass_kg: 4.4            # [VERIFICADO: research/R11 §1.2]
+      size_mm: [120, 116]     # [VERIFICADO: research/R11 §1.2 — Ø120 × 116]
+      shaft_d_mm: 15.0        # [VERIFICADO: research/R11 §1.2 — Ø15 × 30 con chavetero]
+      eta: 0.92               # [ESTIMADO: inrunner refrigerado por agua]
+      pole_pairs: 2           # [ESTIMADO: inrunner 4 polos típico — confirmar con VESC Tool]
+      v_class: 48
+      cells_max: 16           # [VERIFICADO: research/R11 §1.2 — 10–16S]
+      cooling: "agua"
+      price_eur: 592.0        # [CALCULADO: 537,50 USD = 473 € (R11) + 25 % IVA de importación]
+      rth_k_w: 0.04           # [ESTIMADO: camisa de agua]
+      tau_th_s: 600.0         # [ESTIMADO]
+      t_winding_max_c: 120.0  # [VERIFICADO: research/R11 §1.2 — "máx. 120 °C"]
     HPM5000B_48:
       desc: "Golden Motor HPM5000B 48 V (BLDC refrigerado por aire)"
-      kv_rpm_v: 105.0         # [ESTIMADO: misma máquina bobinada para 48 V]
-      r_ohm: 0.009            # [ESTIMADO]
+      kv_rpm_v: 91.5          # [VERIFICADO: research/R11 §1.2 — ensayo GM: 4389 rpm en vacío a 47,99 V]
+      r_ohm: 0.012            # [ESTIMADO: coherente con 5,27 kW a 3501 rpm y 132,7 A (83,8 %) del ensayo]
       r_hot_factor: 1.24      # [ESTIMADO]
-      i0_a: 6.0               # [ESTIMADO]
-      i_max_a: 220.0          # [ESTIMADO]
-      p_cont_w: 5000.0        # [ESTIMADO]
-      p_max_w: 10000.0        # [ESTIMADO]
-      mass_kg: 11.0           # [ESTIMADO]
-      size_mm: [206, 126]     # [ESTIMADO]
-      eta: 0.91               # [ESTIMADO]
+      i0_a: 5.0               # [ESTIMADO]
+      i_max_a: 300.0          # [ESTIMADO: 40–45 N·m pico (R11) / K_t 0,104]
+      p_cont_w: 5000.0        # [VERIFICADO: research/R11 §1.2 — "3–7,5 kW rated"; ensayo 5,27 kW]
+      p_max_w: 7500.0         # [VERIFICADO: research/R11 §1.2 — "rated" hasta 7,5 kW]
+      mass_kg: 11.0           # [VERIFICADO: research/R11 §1.2]
+      size_mm: [206, 126]     # [VERIFICADO: research/R11 §1.2 — Ø206 × 126]
+      shaft_d_mm: 22.3        # [VERIFICADO: research/R11 §1.2 (Kelly: Ø22,3, chaveta 5 mm); Monster dice 7/8" → medir]
+      eta: 0.88               # [VERIFICADO: research/R11 §1.2 — 83,8 % a 5,27 kW; 0,88 a carga media]
+      pole_pairs: 4           # [VERIFICADO: research/R11 §1.2 nota (made-in-china)]
       v_class: 48
-      price_eur: 1306.48      # [ESTIMADO: como la versión de 72 V]
-      rth_k_w: 0.08           # [ESTIMADO]
+      cells_max: 14           # [ESTIMADO]
+      cooling: "aire (ventilador)"
+      price_eur: 540.0        # [CALCULADO: 490 USD GM = 432 € (R11) + 25 % IVA]
+      rth_k_w: 0.07           # [ESTIMADO]
       tau_th_s: 1200.0        # [ESTIMADO]
-      t_winding_max_c: 120.0  # [ESTIMADO]
+      t_winding_max_c: 120.0  # [ESTIMADO: KTY84-130]
+    HPM5000L_72:
+      desc: "Golden Motor HPM5000L 72 V refrigerado por líquido, bobinado a pedido ~72 rpm/V"
+      kv_rpm_v: 72.0          # [SUPUESTO: research/R11 §1.3 — pedir bobinado de 70–75 rpm/V por escrito (catálogo: 58,9)]
+      r_ohm: 0.022            # [ESTIMADO]
+      r_hot_factor: 1.24      # [ESTIMADO]
+      i0_a: 3.0               # [ESTIMADO]
+      i_max_a: 200.0          # [ESTIMADO]
+      p_cont_w: 5000.0        # [VERIFICADO: research/R11 §1.2 — ensayo 4,71 kW (90,6 %) y 6,19 kW (88,1 %)]
+      p_max_w: 9000.0         # [ESTIMADO]
+      mass_kg: 11.35          # [VERIFICADO: research/R11 §1.2]
+      size_mm: [206, 126]     # [VERIFICADO: research/R11 §1.2]
+      shaft_d_mm: 22.3        # [VERIFICADO: research/R11 §1.2 → medir]
+      eta: 0.90               # [VERIFICADO: research/R11 §1.2 — 90,6 % a 4,71 kW]
+      pole_pairs: 4           # [VERIFICADO: research/R11 §1.2]
+      v_class: 72
+      cells_max: 24           # [ESTIMADO]
+      cooling: "líquido"
+      price_eur: 600.0        # [CALCULADO: 545 USD = 480 € (R11) + 25 % IVA]
+      rth_k_w: 0.05           # [ESTIMADO]
+      tau_th_s: 900.0         # [ESTIMADO]
+      t_winding_max_c: 120.0  # [ESTIMADO: KTY84-130]
 esc:
   chosen: "auto"
   duty_max: 0.95              # [ESTIMADO: ciclo útil máximo práctico]
-  margin_min_frac: 0.20       # [SUPUESTO: ESC ≥ 1,2 × corriente pico de fase]
+  margin_min_frac: 0.20       # [SUPUESTO: ESC ≥ 1,2 × corriente de fase configurada]
   options:
-    CTRL_48_200:
-      desc: "Controlador VESC 75 V / 200 A (placeholder, research/R11)"
-      v_max: 75.0             # [ESTIMADO]
-      i_cont_a: 200.0         # [ESTIMADO]
+    FSESC75350:
+      desc: "Flipsky FSESC 75350 con caja de agua (VESC, filtro de fase, IP65)"
+      v_max: 84.0             # [VERIFICADO: research/R11 §2.1 — 14–84 V (3–20S)]
+      i_cont_a: 350.0         # [VERIFICADO: research/R11 §2.1 — "50V/350A"]
       eta: 0.97               # [ESTIMADO]
       v_class: 48
-      price_eur: 400.0        # [ESTIMADO]
-      mass_kg: 1.0            # [ESTIMADO]
-    CTRL_72_150:
-      desc: "Controlador clase 100 V / 150 A (placeholder, research/R11)"
-      v_max: 100.0            # [ESTIMADO]
-      i_cont_a: 150.0         # [ESTIMADO]
+      price_eur: 231.0        # [CALCULADO: 210 USD = 185 € (R11) + 25 % IVA]
+      mass_kg: 2.0            # [VERIFICADO: research/R11 §2.1 — 2000 g con caja]
+      size_mm: [200.0, 94.6, 50.0]   # [VERIFICADO: research/R11 §2.1]
+      cooling: "agua"
+    FS75200PRO:
+      desc: "Flipsky 75200 Pro V2.0 (VESC, PCB de aluminio, aire)"
+      v_max: 84.0             # [VERIFICADO: research/R11 §2.1 — 14–84 V]
+      i_cont_a: 200.0         # [VERIFICADO: research/R11 §2.1 — "50v/200A"]
+      eta: 0.97               # [ESTIMADO]
+      v_class: 48
+      price_eur: 165.0        # [CALCULADO: 150 USD = 132 € (R11) + 25 % IVA]
+      mass_kg: 0.88           # [VERIFICADO: research/R11 §2.1 — 700–880 g]
+      size_mm: [130.0, 68.0, 41.0]   # [VERIFICADO: research/R11 §2.1]
+      cooling: "aire"
+    FSESC110300:
+      desc: "Flipsky FSESC 110300 (VESC 110 V / 300 A, PCB de aluminio)"
+      v_max: 110.0            # [VERIFICADO: research/R11 §2.2 — 14–110 V (4–26S)]
+      i_cont_a: 300.0         # [VERIFICADO: research/R11 §2.2 — "110V/300A"]
       eta: 0.97               # [ESTIMADO]
       v_class: 72
-      price_eur: 450.0        # [ESTIMADO]
-      mass_kg: 1.5            # [ESTIMADO]
+      price_eur: 241.0        # [CALCULADO: 219 USD = 193 € (R11) + 25 % IVA]
+      mass_kg: 1.2            # [VERIFICADO: research/R11 §2.2]
+      size_mm: [183.8, 80.2, 43.8]   # [VERIFICADO: research/R11 §2.2]
+      cooling: "aire"
 battery:
   chosen: "auto"
   usable_dod: 0.90            # [ESTIMADO: BMS corta ~95 %, se reserva 5 % adicional]
   bms_current_derate: 1.0     # [SUPUESTO]
   options:
-    LFP_13S_100:
-      desc: "LFP 13S 100 Ah (41,6 V; placeholder research/R11)"
-      v_nom: 41.6             # [CALCULADO: 13 × 3,2 V]
-      v_max: 47.45            # [VERIFICADO: research/R10b §4.8 (R06 §4.3) — 13S cargada 47,45 V]
-      v_min: 39.0             # [CALCULADO: 13 × 3,0 V]
-      ah: 100.0               # [SUPUESTO]
-      i_cont_a: 200.0         # [ESTIMADO]
-      mass_kg: 34.0           # [CALCULADO: 4,16 kWh a 128 Wh/kg (R10b §4.2)]
-      price_eur: 1300.0       # [ESTIMADO]
+    LT36_60x2:
+      desc: "2 × LiTime 36 V 60 Ah Golf Cart en paralelo (12S2P, BMS 2 × 120 A)"
+      v_nom: 38.4             # [CALCULADO: 12 × 3,2 V]
+      v_max: 43.8             # [CALCULADO: 12 × 3,65 V]
+      v_min: 36.0             # [CALCULADO: 12 × 3,0 V bajo carga]
+      ah: 120.0               # [VERIFICADO: research/R11 §3.2 — 2 × 60 Ah]
+      i_cont_a: 240.0         # [VERIFICADO: research/R11 §3.2 — 2 × 120 A ("2C")]
+      mass_kg: 39.6           # [ESTIMADO: research/R11 §3.2 — 2 × 19,8 kg (buscador)]
+      price_eur: 939.98       # [VERIFICADO: research/R11 §3.2 — 2 × 469,99 € con IVA, envío UE gratis]
       v_class: 48
-      charger: {desc: "Cargador LFP 13S 10 A", price_eur: 150.0}   # [ESTIMADO]
-    LFP_13S_60:
-      desc: "LFP 13S 60 Ah (41,6 V; placeholder research/R11)"
+      cells: 12
+      charger: {desc: "LiTime 36 V 15 A IP66", price_eur: 132.99}   # [VERIFICADO: research/R08a §5]
+    LT36_60x1:
+      desc: "1 × LiTime 36 V 60 Ah Golf Cart (12S, BMS 120 A)"
+      v_nom: 38.4             # [CALCULADO]
+      v_max: 43.8             # [CALCULADO]
+      v_min: 36.0             # [CALCULADO]
+      ah: 60.0                # [VERIFICADO: research/R11 §3.2]
+      i_cont_a: 120.0         # [VERIFICADO: research/R11 §3.2]
+      mass_kg: 19.8           # [ESTIMADO: research/R11 §3.2]
+      price_eur: 469.99       # [VERIFICADO: research/R11 §3.2]
+      v_class: 48
+      cells: 12
+      charger: {desc: "LiTime 36 V 15 A IP66", price_eur: 132.99}   # [VERIFICADO: research/R08a §5]
+    LF50K_13S2P:
+      desc: "Pack propio 13S2P EVE LF50K + JK BMS 200 A (41,6 V, 4,16 kWh)"
       v_nom: 41.6             # [CALCULADO]
-      v_max: 47.45            # [VERIFICADO: research/R10b §4.8]
+      v_max: 47.45            # [VERIFICADO: research/R11 §3.2]
       v_min: 39.0             # [CALCULADO]
-      ah: 60.0                # [SUPUESTO]
-      i_cont_a: 150.0         # [ESTIMADO]
-      mass_kg: 20.0           # [CALCULADO: 2,5 kWh a 128 Wh/kg]
-      price_eur: 850.0        # [ESTIMADO]
+      ah: 100.0               # [CALCULADO: 2 × 50 Ah]
+      i_cont_a: 200.0         # [VERIFICADO: research/R11 §3.2 — BMS 200 A; celda 3C]
+      mass_kg: 40.0           # [CALCULADO: 26 × 1,395 kg (R11) + caja y BMS ~3,7 kg ESTIMADO]
+      price_eur: 1082.0       # [VERIFICADO: research/R11 §3.2 — 26 × 35 € + BMS 172 €]
       v_class: 48
-      charger: {desc: "Cargador LFP 13S 10 A", price_eur: 150.0}   # [ESTIMADO]
-    LFP_22S_50:
-      desc: "LFP 22S 50 Ah (70,4 V; placeholder research/R11)"
-      v_nom: 70.4             # [CALCULADO: 22 × 3,2 V]
-      v_max: 80.3             # [VERIFICADO: research/R10b §4.8 — 22S cargada 80,3 V]
-      v_min: 66.0             # [CALCULADO: 22 × 3,0 V]
-      ah: 50.0                # [SUPUESTO]
-      i_cont_a: 120.0         # [ESTIMADO]
-      mass_kg: 28.0           # [CALCULADO: 3,5 kWh a 128 Wh/kg]
-      price_eur: 1300.0       # [ESTIMADO]
+      cells: 13
+      charger: {desc: "Cargador LFP 47,45 V 7 A", price_eur: 124.31}   # [VERIFICADO: research/R11 §3.2]
+    LF50K_23S1P:
+      desc: "Pack propio 23S1P EVE LF50K + JK BMS 200 A (73,6 V, 3,68 kWh)"
+      v_nom: 73.6             # [CALCULADO]
+      v_max: 84.0             # [VERIFICADO: research/R11 §3.2]
+      v_min: 69.0             # [CALCULADO]
+      ah: 50.0                # [VERIFICADO: research/R11 §3.2]
+      i_cont_a: 150.0         # [VERIFICADO: research/R11 §3.2 — 3C ≈ 150 A]
+      mass_kg: 35.0           # [VERIFICADO: research/R11 §3.2 — ≈ 35 kg con caja]
+      price_eur: 977.0        # [VERIFICADO: research/R11 §3.2]
       v_class: 72
-      charger: {desc: "Cargador LFP 22S 10 A", price_eur: 200.0}   # [ESTIMADO]
+      cells: 23
+      charger: {desc: "Cargador LFP 84 V 10 A", price_eur: 84.0}   # [VERIFICADO: research/R11 §3.2]
 
 electrical:
   max_nominal_voltage_v: 50.0 # [VERIFICADO: research/R10b §4.8 (ISO 16315:2016 3.1, R06) — ≤ 50 V CC; regla del proyecto ≤ 48 V salvo justificación]
-  allow_72v: false            # [SUPUESTO: 72 V (pedido de Jorge) solo si se habilita: exige clase 100 V, IMD y protección extra (R10b H8)]
+  allow_72v: false            # [SUPUESTO: 72 V (pedido de Jorge) solo si se habilita: exige clase 100 V, IMD y protección extra (R10b H8, R13 §4)]
+  extra_72v_eur: 709.0        # [VERIFICADO: research/R11 §8 — monitor de aislamiento Bender iso175C-1 (solo 72 V)]
+  speedboat_power_kw: 19.0    # [VERIFICADO: research/R13 §2 — BEK 749/2020: speedbåd desde 19 kW de "fremdrivningseffekt"]
   len_battery_to_esc_m: 0.6   # [SUPUESTO: batería a 1,0 m, controlador a 0,9 m del espejo]
   len_esc_to_motor_m: 0.6     # [SUPUESTO]
   rho_cu_ohm_m: 2.1e-8        # [ESTIMADO: cobre a ~70 °C]
