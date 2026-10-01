@@ -1,19 +1,29 @@
 /*
- * p1_throttle.ino — Acelerador con marcha atrás + cadena de seguridad de P1.
+ * p1_throttle.ino — Acelerador del waterjet de P1: bucket, limpieza de rejilla, perfiles y cadena de seguridad.
  * Placa: Arduino Nano (ATmega328P, 16 MHz, 5 V), bootloader NUEVO (Optiboot; FQBN arduino:avr:nano).
  *
  * [NO EJECUTADO en hardware]. Compilado con arduino-cli (ver README §Firmware). Probar en T0.
  *
- * La lógica (armado, rampa, zona muerta, dwell de inversión, límite de reversa, fallas de sensor,
+ * La marcha atrás es el BUCKET (palanca + cable), no invertir el giro: el motor gira siempre en avance
+ * y con el bucket abajo el comando se limita a reverse_limit. El único giro inverso es la limpieza de
+ * rejilla (pulsador dedicado, acelerador en cero, <= 3 s, lento: l_min_erpm del VESC).
+ *
+ * La lógica (armado, rampa, zona muerta, bucket, limpieza de rejilla, perfil, dwell, fallas de sensor,
  * watchdog lógico) vive en src/throttle_logic.c (C99 puro, copia idéntica de ../throttle_logic.c,
  * testeada en PC con tests/test_firmware.py). Este sketch solo hace E/S:
  *
- *   A0  <- hall lineal ratiométrico (Vref = AVCC = 5 V = alimentación del sensor). Pull-down 100 kΩ
- *          externo: cable de señal o de 5 V cortado -> ~0 V -> FAULT.
+ *   A0  <- hall lineal ratiométrico A1324 de la palanca del acelerador (Vref = AVCC = 5 V = alimentación
+ *          del sensor). Pull-down 100 kΩ externo: cable de señal o de 5 V cortado -> ~0 V -> FAULT.
  *   D2  <- cordón (INT0). INPUT_PULLUP + 10 kΩ externo; el transistor del opto U2 lo lleva a GND
  *          cuando la bobina del contactor está energizada (cordón Y seta cerrados).
  *          ALTO = kill (clip afuera, cable cortado, conector suelto, fusible de mando abierto).
  *   D3  <- seta de emergencia (INT1). Igual, opto U1 (nodo entre seta y cordón). ALTO = e-stop.
+ *   D5  <- fin de carrera del BUCKET, NC a GND, INPUT_PULLUP + 10 kΩ externo. BAJO = cerrado = bucket
+ *          ARRIBA; ALTO = bucket ABAJO o cable cortado (fail-safe: comando limitado a reverse_limit).
+ *   D7  <- selector de perfil a GND, INPUT_PULLUP. BAJO = ABIERTO; ALTO (o cable cortado) = COSTA.
+ *   D8  <- pulsador de limpieza de rejilla NA a GND, INPUT_PULLUP. BAJO = apretado.
+ *   D12 -> perfil al VESC: ALTO = ABIERTO (l_max_erpm técnico); BAJO o MCU en reset = COSTA (5 kn).
+ *          Pull-down 10 kΩ externo. [NO IMPLEMENTADO del lado del VESC: ver README §5.4]
  *   D9  -> PPM al VESC (Timer1/OC1A por hardware, 50 Hz, 1000–2000 µs, 1500 = neutro).
  *   D4  -> Q_EN: habilita el VESC llevando su entrada ADC2 (kill por software) a GND a través del
  *          opto U3 en serie. D4 BAJO o MCU en reset (alta impedancia) -> ADC2 en alto -> VESC en kill.
@@ -38,6 +48,10 @@ static const uint8_t PIN_ESTOP = 3;  /* INT1 */
 static const uint8_t PIN_VESC_EN = 4;
 static const uint8_t PIN_LED = 6;
 static const uint8_t PIN_PPM = 9;    /* OC1A */
+static const uint8_t PIN_BUCKET = 5;      /* fin de carrera NC: BAJO = bucket ARRIBA */
+static const uint8_t PIN_PROFILE_SEL = 7; /* selector: BAJO = perfil ABIERTO          */
+static const uint8_t PIN_WEED = 8;        /* pulsador de limpieza de rejilla: BAJO = apretado */
+static const uint8_t PIN_PROFILE_OUT = 12;/* ALTO = perfil ABIERTO al VESC            */
 
 static const uint16_t TICK_MS = 10;          /* [SUPUESTO: 100 Hz; corte por software <= 1 tick] */
 static const uint16_t TELEMETRY_MS = 100;
@@ -155,7 +169,7 @@ static bool cal_save(uint16_t rev, uint16_t center, uint16_t fwd)
     EEPROM.put(0, r);
     g_cfg = tmp;
     tl_init(&g_ctx, &g_cfg); /* re-inicia DESARMADO con la calibración nueva */
-    Serial.println(F("CAL: guardada. Volver el puno a cero 1 s para armar."));
+    Serial.println(F("CAL: guardada. Volver la palanca a cero 1 s para armar."));
     return true;
 }
 
@@ -173,13 +187,16 @@ static uint16_t read_hall(void)
 static void led_update(uint32_t now)
 {
     bool on;
-    const uint16_t f = g_out.flags;
+    const uint32_t f = g_out.flags;
     switch (g_out.state) {
     case TL_ARMED:
     case TL_RUN_FWD:
     case TL_RUN_REV:
     case TL_DWELL_ZERO:
         on = true;                                  /* fijo: armado */
+        break;
+    case TL_WEED:
+        on = ((now / 100u) % 3u) != 0u;             /* parpadeo corto: limpieza de rejilla (giro inverso) */
         break;
     case TL_FAULT:
         on = ((now / 50u) & 1u) != 0u;              /* 10 Hz: falla (sensor/VESC/calibración) */
@@ -202,7 +219,7 @@ static void led_update(uint32_t now)
 static void print_help(void)
 {
     Serial.println(F("Comandos: t=telemetria on/off, c=calibrar (solo con CORDON AFUERA), "
-                     "1=centro 2=tope avance 3=tope atras s=guardar x=cancelar"
+                     "1=centro 2=tope avance 3=tope atras (bucket ABAJO) s=guardar x=cancelar"
 #if P1_TEST_COMMANDS
                      ", h=colgar lazo (prueba WDT T0)"
 #endif
@@ -222,10 +239,10 @@ static void serial_poll(void)
         case 'c':
             if (!may_cal) { Serial.println(F("CAL: sacar el cordon (contactor abierto) y desarmar primero")); break; }
             g_cal_step = 1;
-            Serial.println(F("CAL: soltar el puno (centro) y enviar 1"));
+            Serial.println(F("CAL: soltar la palanca (centro) y enviar 1"));
             break;
         case '1': if (g_cal_step && may_cal) { g_cal_center = read_hall(); g_cal_step = 2; Serial.println(F("CAL: tope AVANCE y enviar 2")); } break;
-        case '2': if (g_cal_step == 2 && may_cal) { g_cal_fwd = read_hall(); g_cal_step = 3; Serial.println(F("CAL: tope ATRAS y enviar 3")); } break;
+        case '2': if (g_cal_step == 2 && may_cal) { g_cal_fwd = read_hall(); g_cal_step = 3; Serial.println(F("CAL: bajar el BUCKET, tope ATRAS y enviar 3")); } break;
         case '3': if (g_cal_step == 3 && may_cal) { g_cal_rev = read_hall(); g_cal_step = 4; Serial.println(F("CAL: enviar s para guardar")); } break;
         case 's':
             if (g_cal_step == 4 && may_cal) {
@@ -249,14 +266,15 @@ static void serial_poll(void)
 
 static void telemetry(uint32_t now)
 {
-    /* CSV: t_ms,estado,adc,cmd,ppm_us,flags_hex,enable */
+    /* CSV: t_ms,estado,adc,cmd,ppm_us,flags_hex,enable,perfil (flags: bit 0x2000 = bucket ABAJO) */
     Serial.print(now); Serial.print(',');
     Serial.print(tl_state_name(g_out.state)); Serial.print(',');
     Serial.print(g_ctx.prev_adc); Serial.print(',');
     Serial.print(g_out.cmd, 3); Serial.print(',');
     Serial.print(g_out.ppm_us); Serial.print(",0x");
     Serial.print(g_out.flags, HEX); Serial.print(',');
-    Serial.println(g_out.enable);
+    Serial.print(g_out.enable); Serial.print(',');
+    Serial.println(g_out.profile == TL_PROF_OPEN ? F("ABIERTO") : F("COSTA"));
 }
 
 /* ------------------------------------------------------------------ setup / loop */
@@ -267,10 +285,15 @@ void setup()
     pinMode(PIN_VESC_EN, OUTPUT);
     digitalWrite(PIN_PPM, LOW);
     pinMode(PIN_PPM, OUTPUT);
+    digitalWrite(PIN_PROFILE_OUT, LOW);    /* perfil COSTA desde el primer instante */
+    pinMode(PIN_PROFILE_OUT, OUTPUT);
     pinMode(PIN_LED, OUTPUT);
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(PIN_KILL, INPUT_PULLUP);
     pinMode(PIN_ESTOP, INPUT_PULLUP);
+    pinMode(PIN_BUCKET, INPUT_PULLUP);
+    pinMode(PIN_PROFILE_SEL, INPUT_PULLUP);
+    pinMode(PIN_WEED, INPUT_PULLUP);
     analogReference(DEFAULT); /* AVCC = 5 V = alimentación del hall -> ratiométrico */
 
     Serial.begin(115200);
@@ -323,7 +346,9 @@ void loop()
         in.kill_cord_ok = kill_ok;
         in.estop_ok = estop_ok;
         in.vesc_ok = 1; /* [NO IMPLEMENTADO] telemetría UART del VESC (hook para P2) */
-        in._pad[0] = in._pad[1] = in._pad[2] = 0;
+        in.bucket_up = (digitalRead(PIN_BUCKET) == LOW);      /* abierto/cortado = ABAJO */
+        in.sel_open = (digitalRead(PIN_PROFILE_SEL) == LOW);  /* cortado = COSTA */
+        in.weed_btn = (digitalRead(PIN_WEED) == LOW);
 
         g_out = tl_tick(&g_ctx, &in, dt);
 
@@ -335,6 +360,7 @@ void loop()
                 if (g_out.enable) { PORTD |= _BV(PD4); } else { PORTD &= (uint8_t)~_BV(PD4); }
             }
         }
+        digitalWrite(PIN_PROFILE_OUT, g_out.profile == TL_PROF_OPEN ? HIGH : LOW);
         wdt_reset(); /* solo tras un tick completo */
     }
 

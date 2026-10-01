@@ -197,7 +197,7 @@ def compute(inp=None, sz=None):
         f"P ≤ {fa(p_rev)} × P → corriente ≤ {fa(round(t_rev, 2))} × l_current_max = {fa(round(t_rev * i_mot, 0))}", "A", "—",
         f"[CALCULADO: inputs.yaml waterjet.reverse.power_limit_frac {fa(p_rev)}; {tag('pump_P_T_exp')}]",
         "El jet NO invierte el giro: la reversa es el bucket. El MCU lee el fin de carrera del bucket y topea el PPM "
-        "(reverse_limit del firmware = este valor; adaptar p1_throttle a la entrada del bucket — pendiente)")
+        "(reverse_limit del firmware = este valor; fin de carrera en D5, README §5)")
     add("Batería", "l_in_current_max", i_in_max, "A", "99 (100 en target 75_100)",
         f"[CALCULADO: ⌈{fa(val('i_in_margin'))} × I_bat pico {fa(round(i_bat_pk, 1))} A⌉ a 5 A, ≤ {fa(val('bms_frac') * 100)} % × BMS {fa(i_bms)} A]",
         "LIMITA la V máx: I_bat pico de sizing > 80 % del BMS" if i_in_limited else
@@ -403,10 +403,11 @@ VARS = [  # (nombre, valores posibles, valor "sano/OK")
     ("MCU_armado", (1, 0), 1),      # lo que el MCU "cree" (1 también modela un MCU defectuoso)
     ("timeout_VESC", (0, 1), 0),    # 1 = PPM perdida (cable PPM cortado, MCU colgado)
     ("falla_sensor", (0, 1), 0),    # 1 = hall abierto/corto/salto
+    ("fin_carrera_bucket", (1, 0), 1),  # D5: 1 = NC cerrado (bucket ARRIBA); 0 = abierto (ABAJO o cable cortado)
 ]
 
 
-def chain(cordon, seta, desconectador, F1, F2, K1, MCU_armado, timeout_VESC, falla_sensor):
+def chain(cordon, seta, desconectador, F1, F2, K1, MCU_armado, timeout_VESC, falla_sensor, fin_carrera_bucket=1):
     """Evalúa el circuito. Devuelve dict con nodos intermedios, barreras y estado del motor."""
     upstream = bool(F1 and desconectador)            # tensión aguas abajo de F1 y S1
     n1 = upstream and bool(F2 and seta)              # nodo entre seta y cordón (opto U1 → D3)
@@ -434,7 +435,10 @@ def chain(cordon, seta, desconectador, F1, F2, K1, MCU_armado, timeout_VESC, fal
             "precarga_sola": int(upstream and not k1_closed), "kill_liberado": int(kill_released),
             "PPM_valido": int(ppm_ok), "comando_posible": int(cmd), "MCU_coherente": int(coherente),
             "motor": "PUEDE GIRAR" if gira else "PARADO", "n_barreras": len(barreras),
-            "barreras": "; ".join(barreras) if barreras else "—"}
+            "barreras": "; ".join(barreras) if barreras else "—",
+            # firmware (tests/test_firmware.py): el bucket no para el motor, limita el comando (siempre en avance)
+            "limite_cmd": ("0" if not gira else "100 % avance" if fin_carrera_bucket
+                           else "≤ reverse_limit, avance (bucket abajo)")}
 
 
 def truth_table():
@@ -447,7 +451,8 @@ def truth_table():
 
 
 SUMMARY_ROWS = [  # None = cualquier valor (se verifica que el resultado sea el mismo en todas)
-    ("Todo OK, MCU armado", dict(cordon=1, seta=1, desconectador=1, F1=1, F2=1, K1="normal", MCU_armado=1, timeout_VESC=0, falla_sensor=0)),
+    ("Todo OK, MCU armado", dict(cordon=1, seta=1, desconectador=1, F1=1, F2=1, K1="normal", MCU_armado=1, timeout_VESC=0, falla_sensor=0, fin_carrera_bucket=1)),
+    ("Todo OK, bucket abajo (o fin de carrera cortado)", dict(cordon=1, seta=1, desconectador=1, F1=1, F2=1, K1="normal", MCU_armado=1, timeout_VESC=0, falla_sensor=0, fin_carrera_bucket=0)),
     ("Cordón tirado (MCU sano → desarma)", dict(cordon=0, seta=1, desconectador=1, F1=1, F2=1, K1="normal", MCU_armado=0, timeout_VESC=None, falla_sensor=None)),
     ("Cordón tirado + MCU defectuoso que sigue armado", dict(cordon=0, seta=1, desconectador=1, F1=1, F2=1, K1="normal", MCU_armado=1, timeout_VESC=None, falla_sensor=None)),
     ("Cordón tirado + K1 soldado (MCU sano)", dict(cordon=0, seta=1, desconectador=1, F1=1, F2=1, K1="soldado", MCU_armado=0, timeout_VESC=None, falla_sensor=None)),

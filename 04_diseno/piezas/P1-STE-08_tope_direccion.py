@@ -55,9 +55,9 @@ def build(p):
     plate = plate + box(xc - 60.0, xc + 2.0, yc - 15.0, yc + 15.0, z0, z1)
     b = plate.moved(loc_jet(p))
     b = b & box(-1000, -6.0, -1000, 1000, -1000, 2000)                    # a popa del ala
-    bb = b.bounding_box()
-    ym, zm = (bb.min.Y + bb.max.Y) / 2, bb.min.Z + 4.0
-    fl = box(-6.5, -0.01, ym - 32.0, ym + 32.0, zm - 26.0, zm + 6.0)
+    bb = (b & box(-8.0, -5.0, -1000, 1000, -1000, 2000)).bounding_box()    # sección de la lengüeta en el ala
+    ym, zm = (bb.min.Y + bb.max.Y) / 2, bb.min.Z + 2.0
+    fl = box(-6.5, -0.01, ym - 32.0, ym + 32.0, zm - 26.0, bb.max.Z)
     for dy in (-20.0, 20.0):
         fl = fl - cyl_x(3.3, -7.0, 1.0, y=ym + dy, z=zm - 14.0)
     return b + fl

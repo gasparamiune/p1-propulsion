@@ -2,11 +2,14 @@
  * throttle_logic.c — Lógica pura del acelerador de P1 (C99). Ver throttle_logic.h.
  *
  * Convenciones:
- *   - "pos"    = posición del puño normalizada [-1, 1] (antes de la zona muerta).
- *   - "target" = objetivo tras zona muerta, expo y límite de marcha atrás.
- *   - "out"    = comando final tras dwell de inversión y rampa (lo que se manda al VESC).
+ *   - "pos"    = posición de la palanca normalizada [-1, 1] (antes de la zona muerta);
+ *                pos > 0 = lado de avance, pos < 0 = lado de reversa (solo con el bucket abajo).
+ *   - "target" = objetivo tras zona muerta, expo y límite del bucket (>= 0: el motor gira en avance),
+ *                o -weed_cmd durante la limpieza de rejilla.
+ *   - "out"    = comando final tras retención por bucket, dwell y rampa (lo que se manda al VESC).
  *   - Toda transición a neutro por seguridad (kill, seta, sensor, watchdog) es INMEDIATA
- *     (sin rampa) y ocurre en el mismo tick en que se detecta.
+ *     (sin rampa) y ocurre en el mismo tick en que se detecta. También son inmediatas la
+ *     retención por cambio de bucket y el fin de la limpieza de rejilla.
  *
  * Etiquetas de los valores por defecto: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO].
  */
@@ -38,18 +41,34 @@ static uint32_t tl_sat_add(uint32_t a, uint32_t b)
 
 static uint16_t tl_absdiff_u16(uint16_t a, uint16_t b) { return (a > b) ? (uint16_t)(a - b) : (uint16_t)(b - a); }
 
+/* Tiempo continuo con una condición verdadera: la primera muestra arranca el reloj en 0. */
+static void tl_track(uint8_t cond, uint8_t *run, uint32_t *ms, uint32_t dt_ms)
+{
+    if (cond) {
+        if (*run) {
+            *ms = tl_sat_add(*ms, dt_ms);
+        } else {
+            *run = 1u;
+            *ms = 0u;
+        }
+    } else {
+        *run = 0u;
+        *ms = 0u;
+    }
+}
+
 /* ------------------------------------------------------------------ configuración */
 void tl_default_config(tl_config_t *c)
 {
     c->deadband = 0.08f;          /* [SUPUESTO: ±8 % de la semicarrera (pedido de diseño); ajustar en T0]          */
-    c->expo = 0.0f;               /* [SUPUESTO: lineal; la rampa ya suaviza. 0,3 si el puño resulta "nervioso"]   */
-    c->reverse_limit = 0.5f;      /* [SUPUESTO: = inputs.yaml motor.reverse_current_frac (0,5)]                  */
-    c->jump_travel_per_s = 25.0f; /* [SUPUESTO: el puño no recorre tope a tope en < 40 ms; validar en T0.9]       */
-    /* Calibración provisoria [ESTIMADO: hall lineal tipo SS49E ~2,5 V en reposo, ±1,2 V a ±30°; NO verificado].
-     * cal_valid = 0: el sistema NO arma hasta calibrar con el puño real (T0.5). */
-    c->adc_rev = TL_MV_TO_ADC(1300u);
-    c->adc_center = TL_MV_TO_ADC(2500u);
-    c->adc_fwd = TL_MV_TO_ADC(3700u);
+    c->expo = 0.0f;               /* [SUPUESTO: lineal; la rampa ya suaviza. 0,3 si la palanca resulta "nerviosa"] */
+    c->reverse_limit = 0.63f;     /* [CALCULADO: calc_electronica reverse_current_frac = waterjet.reverse.power_limit_frac 0,5^(2/3) (bomba P ∝ T^1,5)] */
+    c->jump_travel_per_s = 25.0f; /* [SUPUESTO: la palanca no recorre tope a tope en < 40 ms; validar en T0.9]    */
+    c->weed_cmd = 0.10f;          /* [SUPUESTO: 10 % de l_current_max en giro inverso, solo para soltar algas; la velocidad la topea el VESC con l_min_erpm] */
+    /* Calibración provisoria: cal_valid = 0 -> el sistema NO arma hasta calibrar con la palanca real (T0.5). */
+    c->adc_rev = TL_MV_TO_ADC(1300u);        /* [ESTIMADO: provisorio A1324 2,5 V en reposo con imán diametral; lo reemplaza la calibración (T0.5)] */
+    c->adc_center = TL_MV_TO_ADC(2500u);     /* [ESTIMADO: provisorio A1324 2,5 V en reposo con imán diametral; lo reemplaza la calibración (T0.5)] */
+    c->adc_fwd = TL_MV_TO_ADC(3700u);        /* [ESTIMADO: provisorio A1324 2,5 V en reposo con imán diametral; lo reemplaza la calibración (T0.5)] */
     c->adc_fault_low = TL_MV_TO_ADC(300u);   /* [SUPUESTO: ~0,3 V (pedido de diseño)] = 61 cuentas  */
     c->adc_fault_high = TL_MV_TO_ADC(4700u); /* [SUPUESTO: ~4,7 V (pedido de diseño)] = 962 cuentas */
     c->min_half_span = TL_MV_TO_ADC(500u);   /* [SUPUESTO: semicarrera >= 0,5 V -> >= 102 cuentas de resolución] */
@@ -57,11 +76,14 @@ void tl_default_config(tl_config_t *c)
     c->arm_hold_ms = 1000u;  /* [SUPUESTO: >= 1 s en cero para armar (pedido de diseño)]                     */
     c->ramp_up_ms = 1000u;   /* [SUPUESTO: 0->100 % en >= 1 s (pedido de diseño; R06 §2.6 sugiere ~1 s)]     */
     c->ramp_down_ms = 250u;  /* [SUPUESTO: bajada rápida 100->0 % en 0,25 s; los cortes de seguridad son inmediatos] */
-    c->dwell_ms = 500u;      /* [SUPUESTO: >= 0,5 s en cero antes de invertir (pedido de diseño; correa HTD)]  */
+    c->dwell_ms = 500u;      /* [SUPUESTO: >= 0,5 s en cero antes de girar al revés (el impulsor se frena en el agua)] */
     c->watchdog_ms = 100u;   /* [SUPUESTO: tick nominal 10 ms; > 100 ms sin tick = lazo colgado]              */
     c->ppm_min_us = 1000u;   /* [VERIFICADO: VESC appconf_default.h APPCONF_PPM_PULSE_START 1,0 ms]           */
     c->ppm_center_us = 1500u;/* [VERIFICADO: APPCONF_PPM_PULSE_CENTER 1,5 ms]                                  */
     c->ppm_max_us = 2000u;   /* [VERIFICADO: APPCONF_PPM_PULSE_END 2,0 ms]                                     */
+    c->weed_max_ms = 3000u;  /* [SUPUESTO: limpieza de rejilla <= 3 s por pulsación (pedido de diseño)]       */
+    c->weed_hold_ms = 300u;  /* [SUPUESTO: pulsación sostenida 0,3 s: un golpe o un rebote no la inicia]       */
+    c->sw_debounce_ms = 50u; /* [SUPUESTO: antirrebote del fin de carrera (solo hacia ARRIBA) y del selector]  */
     c->cal_valid = 0u;
     c->use_vesc_ok = 0u;     /* [SUPUESTO: sin telemetría UART en P1; hook para P2]                           */
 }
@@ -86,8 +108,12 @@ uint8_t tl_config_check(const tl_config_t *c)
     /* Parámetros (las comparaciones fallan con NaN -> error). */
     if (!(c->deadband >= 0.0f && c->deadband <= 0.5f)) { e |= TL_CFG_ERR_PARAM; }
     if (!(c->expo >= 0.0f && c->expo <= 1.0f)) { e |= TL_CFG_ERR_PARAM; }
-    if (!(c->reverse_limit >= 0.0f && c->reverse_limit <= 1.0f)) { e |= TL_CFG_ERR_PARAM; }
+    if (!(c->reverse_limit > 0.0f && c->reverse_limit <= 1.0f)) { e |= TL_CFG_ERR_PARAM; }
     if (!(c->jump_travel_per_s > 0.0f && c->jump_travel_per_s < 1000.0f)) { e |= TL_CFG_ERR_PARAM; }
+    if (!(c->weed_cmd >= 0.0f && c->weed_cmd <= TL_WEED_CMD_LIMIT)) { e |= TL_CFG_ERR_PARAM; }
+    if (c->weed_max_ms > TL_WEED_MAX_MS_LIMIT || c->weed_hold_ms == 0u || c->sw_debounce_ms > 1000u) {
+        e |= TL_CFG_ERR_PARAM;
+    }
     if (c->arm_hold_ms == 0u || c->ramp_up_ms == 0u || c->watchdog_ms == 0u) { e |= TL_CFG_ERR_PARAM; }
     if (!(c->ppm_min_us < c->ppm_center_us && c->ppm_center_us < c->ppm_max_us &&
           c->ppm_min_us >= 800u && c->ppm_max_us <= 2200u)) {
@@ -140,8 +166,20 @@ float tl_shape(const tl_config_t *c, float pos)
     y = (a - c->deadband) / (1.0f - c->deadband);
     y = tl_clampf(y, 0.0f, 1.0f);
     y = (1.0f - c->expo) * y + c->expo * y * y * y;
-    if (pos < 0.0f) {
-        y = -y * c->reverse_limit; /* marcha atrás escalada: tope atrás = -reverse_limit */
+    return (pos < 0.0f) ? -y : y;
+}
+
+float tl_thrust(const tl_config_t *c, float pos, uint8_t bkt_down)
+{
+    float y = tl_shape(c, pos);
+    if (y < 0.0f) {                 /* lado de reversa de la palanca                          */
+        if (!bkt_down) {
+            return 0.0f;            /* fin de carrera en ARRIBA: incoherente -> sin empuje    */
+        }
+        return -y * c->reverse_limit; /* bucket abajo: el motor gira en AVANCE, limitado     */
+    }
+    if (bkt_down) {
+        return y * c->reverse_limit; /* avance con el fin de carrera abierto: también limitado */
     }
     return y;
 }
@@ -169,6 +207,7 @@ const char *tl_state_name(uint8_t state)
     case TL_RUN_REV:    return "RUN_REV";
     case TL_DWELL_ZERO: return "DWELL_ZERO";
     case TL_FAULT:      return "FAULT";
+    case TL_WEED:       return "WEED";
     default:            return "?";
     }
 }
@@ -188,6 +227,11 @@ static void tl_disarm(tl_ctx_t *s)
     s->zero_ms = 0u;
     s->zero_run = 0u;
     s->last_dir = 0;
+    s->bkt_hold = 0u;
+    s->weed_run = 0u;
+    s->weed_ms = 0u;
+    s->weed_ready = 0u;
+    s->profile = TL_PROF_COAST; /* desarmado = perfil costa */
 }
 
 void tl_init(tl_ctx_t *s, const tl_config_t *cfg)
@@ -198,6 +242,15 @@ void tl_init(tl_ctx_t *s, const tl_config_t *cfg)
     s->latched = 0u;
     s->prev_adc = 0u;
     s->prev_valid = 0u;
+    s->bkt_down = 1u;    /* hasta ver el fin de carrera cerrado sw_debounce_ms: bucket ABAJO (limitado) */
+    s->bkt_up_run = 0u;
+    s->bkt_up_ms = 0u;
+    s->sel_db = 0u;      /* selector filtrado arranca en COSTA */
+    s->sel_run = 0u;
+    s->sel_ms = 0u;
+    s->sel_ready = 0u;
+    s->weed_press_run = 0u;
+    s->weed_press_ms = 0u;
     s->_pad[0] = 0u;
     s->_pad[1] = 0u;
     tl_disarm(s);
@@ -207,12 +260,14 @@ void tl_init(tl_ctx_t *s, const tl_config_t *cfg)
     s->last.flags = 0u;
     s->last.state = TL_DISARMED;
     s->last.enable = 0u;
+    s->last.profile = TL_PROF_COAST;
     s->last._pad[0] = 0u;
     s->last._pad[1] = 0u;
+    s->last._pad[2] = 0u;
 }
 
 /* Rampa asimétrica: sube |out| a lo sumo up_step por tick y la baja a lo sumo down_step.
- * Nunca cruza el cero en un mismo tick (la inversión la gestiona el dwell). */
+ * Nunca cruza el cero en un mismo tick (el cambio de sentido lo gestiona el dwell). */
 static float tl_ramp(float out, float eff, float up_step, float down_step)
 {
     int8_t so = tl_signf(out);
@@ -238,9 +293,10 @@ tl_outputs_t tl_tick(tl_ctx_t *s, const tl_inputs_t *in, uint32_t dt_ms)
 {
     const tl_config_t *c = &s->cfg;
     tl_outputs_t o;
-    uint16_t inst = 0u;  /* flags instantáneos de este tick */
-    uint16_t trip;
+    uint32_t inst = 0u;  /* flags instantáneos de este tick */
+    uint32_t trip;
     uint8_t wdt, s_low, s_high, s_jump = 0u, sensor_ok, in_zero = 0u, inversion = 0u;
+    uint8_t bkt_new, bkt_changed, sel_raw;
     float pos = 0.0f, target = 0.0f;
 
     s->uptime_ms += dt_ms;
@@ -274,24 +330,50 @@ tl_outputs_t tl_tick(tl_ctx_t *s, const tl_inputs_t *in, uint32_t dt_ms)
     if (c->use_vesc_ok && !in->vesc_ok) { inst |= TL_F_VESC; }
     if (s->cfg_err != TL_CFG_OK || !c->cal_valid) { inst |= TL_F_CAL; }
 
-    /* 5) Posición -> objetivo (solo con sensor y calibración válidos). */
+    /* 5) Fin de carrera del bucket (NC: cerrado = ARRIBA). Filtro asimétrico: contacto abierto
+     *    (bucket abajo o cable cortado) -> ABAJO en este tick; ARRIBA solo tras sw_debounce_ms cerrado. */
+    tl_track((uint8_t)(in->bucket_up != 0u), &s->bkt_up_run, &s->bkt_up_ms, dt_ms);
+    if (!in->bucket_up) {
+        bkt_new = 1u;
+    } else if (s->bkt_up_ms >= (uint32_t)c->sw_debounce_ms) {
+        bkt_new = 0u;
+    } else {
+        bkt_new = s->bkt_down;
+    }
+    bkt_changed = (uint8_t)(bkt_new != s->bkt_down);
+    s->bkt_down = bkt_new;
+    if (s->bkt_down) { inst |= TL_F_BKT_DOWN; }
+
+    /* 6) Selector de perfil: filtro simétrico de sw_debounce_ms. */
+    sel_raw = (uint8_t)(in->sel_open != 0u);
+    tl_track((uint8_t)(sel_raw != s->sel_db), &s->sel_run, &s->sel_ms, dt_ms);
+    if (sel_raw != s->sel_db && s->sel_ms >= (uint32_t)c->sw_debounce_ms) {
+        s->sel_db = sel_raw;
+        s->sel_run = 0u;
+        s->sel_ms = 0u;
+    }
+
+    /* 7) Posición -> objetivo (solo con sensor y calibración válidos). */
     if (sensor_ok && !(inst & TL_F_CAL)) {
         pos = tl_position(c, in->adc);
         in_zero = (uint8_t)(tl_absf(pos) <= c->deadband);
-        target = tl_shape(c, pos);
-        if (pos < 0.0f && !in_zero) {
-            inst |= TL_F_REV_LIM; /* marcha atrás pedida: el comando se escala a reverse_limit */
+        target = tl_thrust(c, pos, s->bkt_down);
+        if (!in_zero && ((pos < 0.0f) != (s->bkt_down != 0u))) {
+            inst |= TL_F_BKT_MISM; /* el enclavamiento mecánico no permite esta combinación */
+        }
+        if (s->bkt_down && target > 0.0f) {
+            inst |= TL_F_BKT_LIM;
         }
     }
 
-    /* 6) Cualquier condición insegura desarma YA (salida neutra en este tick) y se latchea. */
-    trip = (uint16_t)(inst & (TL_LATCH_MASK | TL_F_CAL));
+    /* 8) Cualquier condición insegura desarma YA (salida neutra en este tick) y se latchea. */
+    trip = inst & (TL_LATCH_MASK | TL_F_CAL);
     if (trip) {
-        s->latched |= (uint16_t)(inst & TL_LATCH_MASK);
+        s->latched |= (inst & TL_LATCH_MASK);
         tl_disarm(s);
     }
 
-    /* 7) Desarmado: contar tiempo continuo en cero con todo OK; armar a los arm_hold_ms. */
+    /* 9) Desarmado: contar tiempo continuo en cero con todo OK; armar a los arm_hold_ms. */
     if (!s->armed) {
         uint8_t can_arm = (uint8_t)(!trip && in_zero);
         if (can_arm) {
@@ -314,14 +396,19 @@ tl_outputs_t tl_tick(tl_ctx_t *s, const tl_inputs_t *in, uint32_t dt_ms)
             s->last_dir = 0;           /* tras >= 1 s en cero no hay dwell pendiente */
             s->zero_run = 1u;
             s->zero_ms = c->dwell_ms;
-            inst &= (uint16_t)~TL_F_ARMING;
+            s->bkt_hold = 0u;
+            s->weed_run = 0u;
+            s->weed_ready = (uint8_t)(!in->weed_btn); /* un pulsador ya apretado (o en corto) no vale */
+            s->profile = TL_PROF_COAST;               /* cada armado arranca en COSTA */
+            s->sel_ready = (uint8_t)(!s->sel_db);     /* ABIERTO exige pasar el selector por COSTA */
+            inst &= ~(uint32_t)TL_F_ARMING;
         }
     }
 
-    /* 8) Armado: dwell de inversión + rampa. */
+    /* 10) Armado: retención por bucket, limpieza de rejilla, dwell, rampa y perfil. */
     if (s->armed) {
         float eff = target;
-        int8_t tdir = tl_signf(target);
+        int8_t tdir;
         float up_step = (float)dt_ms / (float)c->ramp_up_ms;
         float down_step = (c->ramp_down_ms == 0u) ? 2.0f : (float)dt_ms / (float)c->ramp_down_ms;
 
@@ -332,7 +419,47 @@ tl_outputs_t tl_tick(tl_ctx_t *s, const tl_inputs_t *in, uint32_t dt_ms)
                 s->last_dir = 0;       /* dwell cumplido: cualquier sentido permitido */
             }
         }
+
+        /* Cambio de bucket con el acelerador fuera de cero -> salida 0 hasta volver a cero. */
+        if (bkt_changed && !in_zero) { s->bkt_hold = 1u; }
+        if (s->bkt_hold && in_zero) { s->bkt_hold = 0u; }
+
+        /* Pulsador de limpieza de rejilla (exige soltarlo entre usos). */
+        tl_track((uint8_t)(in->weed_btn != 0u), &s->weed_press_run, &s->weed_press_ms, dt_ms);
+        if (!in->weed_btn) { s->weed_ready = 1u; }
+        if (s->weed_run) {
+            s->weed_ms = tl_sat_add(s->weed_ms, dt_ms);
+            if (!in->weed_btn || !in_zero || s->bkt_hold || s->weed_ms >= (uint32_t)c->weed_max_ms) {
+                s->weed_run = 0u;      /* fin inmediato (soltar, acelerador, tiempo) */
+                s->out = 0.0f;
+                s->weed_ready = (uint8_t)(!in->weed_btn);
+            }
+        } else if (in->weed_btn && s->weed_ready) {
+            if (s->weed_press_ms >= (uint32_t)c->weed_hold_ms && in_zero && !s->bkt_hold &&
+                s->out == 0.0f && s->last_dir == 0) {
+                s->weed_run = 1u;      /* acelerador en cero y motor parado >= dwell_ms */
+                s->weed_ms = 0u;
+                s->weed_ready = 0u;
+            } else {
+                inst |= TL_F_WEED_WAIT;
+            }
+        }
+
+        if (s->weed_run) {
+            eff = -c->weed_cmd;        /* ÚNICO caso de giro inverso */
+            target = eff;
+            inst |= TL_F_WEED;
+        } else if (s->bkt_hold) {
+            eff = 0.0f;
+            s->out = 0.0f;             /* inmediato */
+            inst |= TL_F_BKT_HOLD;
+        }
+        if (s->bkt_down && s->out > c->reverse_limit) {
+            s->out = c->reverse_limit; /* el bucket bajó mientras la salida bajaba por rampa */
+        }
+
         /* Pedido de sentido opuesto al último usado -> forzar cero hasta cumplir el dwell. */
+        tdir = tl_signf(eff);
         if (tdir != 0 && s->last_dir != 0 && tdir != s->last_dir) {
             eff = 0.0f;
             inversion = 1u;
@@ -350,22 +477,37 @@ tl_outputs_t tl_tick(tl_ctx_t *s, const tl_inputs_t *in, uint32_t dt_ms)
             s->zero_run = 1u;
             s->zero_ms = 0u;
         }
+
+        /* Perfil: COSTA inmediato; ABIERTO solo con el selector pasado por costa y la salida en 0. */
+        if (!s->sel_db) {
+            s->profile = TL_PROF_COAST;
+            s->sel_ready = 1u;
+        } else if (s->profile == TL_PROF_COAST) {
+            if (s->sel_ready && in_zero && s->out == 0.0f) {
+                s->profile = TL_PROF_OPEN;
+            } else {
+                inst |= TL_F_PROF_WAIT;
+            }
+        }
     }
 
-    /* 9) Salidas. */
+    /* 11) Salidas. */
     o.cmd = s->armed ? s->out : 0.0f;
     o.target = target;
     o.ppm_us = tl_cmd_to_ppm(c, o.cmd);
-    o.flags = (uint16_t)(inst | s->latched);
     o.enable = s->armed;
+    o.profile = s->armed ? s->profile : (uint8_t)TL_PROF_COAST;
+    if (o.profile == TL_PROF_OPEN) { inst |= TL_F_PROF_OPEN; }
+    o.flags = inst | s->latched;
     o._pad[0] = 0u;
     o._pad[1] = 0u;
+    o._pad[2] = 0u;
     if (!s->armed) {
         o.state = ((s->latched & TL_FAULT_MASK) || (inst & TL_FAULT_MASK)) ? TL_FAULT : TL_DISARMED;
+    } else if (s->weed_run || s->out < 0.0f) {
+        o.state = TL_WEED;
     } else if (s->out > 0.0f) {
-        o.state = TL_RUN_FWD;
-    } else if (s->out < 0.0f) {
-        o.state = TL_RUN_REV;
+        o.state = s->bkt_down ? TL_RUN_REV : TL_RUN_FWD;
     } else if (inversion || s->last_dir != 0) {
         o.state = TL_DWELL_ZERO;
     } else {
