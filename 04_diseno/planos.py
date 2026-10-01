@@ -128,8 +128,9 @@ def main():
              (lay["u_pulley_c"] - u0, "plano 1 mm para prisioneros de polea (2×, a 90°)"),
              (p.u_bush[2] - u0, "zona de buje inferior (Ra 0.8)")]
     out.append(turned("P1-DRV-01", "shaft", "AISI 316 (barra Ø16 h9)", segs, feats,
-                      [f"Largo total {p.u_shaft_bot - p.u_shaft_top:.0f} mm; muñones Ø{p.shaft_jd:g} k5 para 6002",
-                       "Roscas M12×1.25 en ambos extremos (tuerca autoblocante A4 + chaveta de seguridad)",
+                      [f"Largo total {p.u_shaft_bot - p.u_shaft_top:.0f} mm; tramo Ø{p.shaft_jd:g} k5 continuo (rodamientos 6202 + polea re-mandrinada Ø{p.shaft_jd:g} H7)",
+                       f"Montaje desde arriba: rodamiento A → separador DRV-10 → polea → separador DRV-09 → rodamiento B → tuerca M12×1.25 A4 autoblocante que aprieta la pila contra el hombro Ø{p.shaft_d:g}",
+                       f"Asiento de hélice Ø{p.prop_seat_d:g} = bore de la hélice comprada: MEDIR antes de tornear; retención según la hélice",
                        f"Pasador de corte: {pin['material']} Ø{pin['d_std_mm']} — corta a {pin['Q_shear_Nm']:.1f} N·m",
                        "Radio de transición r = 1 mm en todos los escalones; sin rayas transversales (fatiga)"]))
     # ---- pernos ----
@@ -147,15 +148,21 @@ def main():
                       [(p.shelf_top_z - p.boss_bot_z, p.swivel_bush_od, f"interior Ø{p.swivel_pin_d + 0.2:g} H8")],
                       notes=["Ajuste en MNT-01: deslizante + gota de epoxi o pasador"]))
     out.append(turned("P1-MNT-10", "pivot_bushing", "POM-C", [(p.cradle_w, 20.0, f"interior Ø{p.tilt_pin_d + 0.25:g}")]))
-    od = p.tube_od - 2 * p.tube_wall - 0.1
-    out.append(turned("P1-DRV-02", "tube_bushing", "POM-C", [(p.bush_len, od, f"interior Ø{p.shaft_d + 0.3:g}; 3 ranuras axiales 3×1.5")],
-                      notes=["Cantidad 3; fijar en el tubo con pasador inox Ø3 transversal (no solo epoxi)",
-                             "Lubricado por agua: enjuagar con agua dulce tras cada uso"]))
+    for pid, nm in (("P1-DRV-09", "spacer_b"), ("P1-DRV-10", "spacer_a")):
+        spec = importlib.util.spec_from_file_location(nm, HERE / "piezas" / f"{pid}_{nm}.py")
+        sm = importlib.util.module_from_spec(spec); spec.loader.exec_module(sm)
+        a_, b_ = sm.span(p)
+        out.append(turned(pid, nm, "AISI 316 (barra Ø20)", [(b_ - a_, sm.OD, f"interior Ø{p.shaft_jd + 0.1:g}")],
+                          notes=["Caras paralelas ±0,02 (parte de la pila apretada)", "Apoya solo en el aro interior del rodamiento"]))
+    out.append(turned("P1-DRV-06", "pulley_shaft_rebore", "Al (polea HTD-5M Dold comprada)",
+                      [(p.pulley_w, p.pd_shaft, f"re-mandrinar bore a Ø{p.shaft_jd:g} H7")],
+                      notes=["Centrar sobre el diámetro primitivo (dientes) con mordazas blandas; comprobar salto ≤ 0,05",
+                             "Prisioneros M5 A4 a 90° sobre el plano del eje + fijador de retención metal-metal (no en PETG)"]))
     Ls = p.plate_u_fwd - p.bridge_u_aft
     out.append(turned("P1-DRV-03", "bridge_spacer", "AISI 316", [(Ls, 12.0, "interior Ø6.5")], notes=["Cantidad 2; caras paralelas ±0.05"]))
-    out.append(turned("P1-PRP-04", "shear_pin", pin["material"], [(p.shaft_d + 6, pin["d_std_mm"], "")],
+    out.append(turned("P1-PRP-04", "shear_pin", pin["material"], [(p.prop_seat_d + 6, pin["d_std_mm"], "")],
                       notes=[f"Corta a {pin['Q_shear_Nm']:.1f} N·m (2× torque máx. normal); llevar 5 de repuesto",
-                             "NO reemplazar por inox: protegería menos al eje y la hélice"]))
+                             "Mismo metal que el eje (sin par galvánico); NO reemplazar por uno más grueso ni de acero templado"]))
     # ---- placas ----
     Li, Wi, Hi = p.esc_in
     Lo, Wo = Li + 36, Wi + 36

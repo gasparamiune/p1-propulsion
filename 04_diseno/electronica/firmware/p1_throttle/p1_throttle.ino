@@ -55,7 +55,7 @@ static volatile uint8_t g_isr_kill = 0;   /* flanco a "kill" visto por INT0 */
 static volatile uint8_t g_isr_estop = 0;  /* flanco a "e-stop" visto por INT1 */
 static uint8_t g_cal_step = 0;            /* 0 = sin calibrar en curso */
 static uint16_t g_cal_center = 0, g_cal_fwd = 0, g_cal_rev = 0;
-static uint8_t g_last_kill_ok = 0;    /* último kill_ok usado (para permitir calibrar) */
+static uint8_t g_last_kill_ok = 1;    /* último kill_ok usado; 1 hasta que un tick confirme el cordón afuera */
 
 /* Copia de MCUSR (causa de reset) y WDT apagado lo antes posible tras un reset por WDT. */
 uint8_t g_mcusr __attribute__((section(".noinit")));
@@ -271,7 +271,7 @@ void setup()
     Serial.begin(115200);
     Serial.print(F("P1 throttle v"));
     Serial.print(TL_VERSION >> 8); Serial.print('.'); Serial.print(TL_VERSION & 0xFF);
-    Serial.print(F(" reset MCUSR=0x")); Serial.println(g_mcusr, HEX); /* bit 3 (0x08) = WDRF: reset por WDT */
+    Serial.print(F(" reset MCUSR=0x")); Serial.println(g_mcusr, HEX); /* 0x08 = WDRF (Optiboot puede dejarlo en 0) */
 
     tl_default_config(&g_cfg);
     if (!cal_load()) {

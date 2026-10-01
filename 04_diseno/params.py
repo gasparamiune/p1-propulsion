@@ -115,6 +115,7 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["brg_d"], d["brg_D"], d["brg_B"] = brg["d_mm"], brg["D_mm"], brg["B_mm"]
     dtr = inp["drivetrain"]
     d["cart_od"], d["cart_fl_d"], d["cart_fl_t"] = dtr["cartridge_od_mm"], dtr["cartridge_flange_d_mm"], dtr["cartridge_flange_t_mm"]
+    d["cart_bc_r"] = (d["cart_od"] / 2 + d["cart_fl_d"] / 2) / 2      # círculo de 3×M4 de la brida
     d["stop_pad_d"] = a["stop_pad_d_mm"]
     d["motor_d"], d["motor_l"] = motor["d_mm"], motor["l_mm"]
     d["motor_shaft_d"] = motor["shaft_d_mm"]
@@ -148,6 +149,8 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["s_prop"] = lay["s_prop_mm"]
     d["prop_D"] = prop["D_mm"]
     d["prop_hub_L"] = prop["hub_length_mm"]
+    d["prop_seat_d"] = min(sh["d_mm"], prop["bore_mm"])                # asiento de hélice = bore de la comprada
+    d["bush_od"] = sh["bushing_od_mm"]                                  # buje igus H370 (Ø ext.)
     d["prop_hub_d"] = prop["hub_d_mm"]
     d["u_lh_fwd"], d["u_lh_aft"] = lay["u_lh_fwd"], lay["u_lh_aft"]
     d["guard_clr"] = inp["propeller"]["guard"]["radial_clearance_mm"]

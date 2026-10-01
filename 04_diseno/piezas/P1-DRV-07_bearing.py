@@ -1,8 +1,8 @@
-"""P1-DRV-07 — Rodamiento 6002-2RS inoxidable (×2, comprado)."""
+"""P1-DRV-07 — Rodamiento 6202-2RS (×2, comprado; zona seca)."""
 from cadlib import *
 
-META = dict(id="P1-DRV-07", name="bearing", desc="Rodamiento 6002-2RS inox 15×32×9 (×2)",
-            material="AISI 440C", process="comprada", qty=2, frame="unit",
+META = dict(id="P1-DRV-07", name="bearing", desc="Rodamiento 6202-2RS 15×35×11 (×2)",
+            material="AISI 52100", process="comprada", qty=2, frame="unit",
             load_case="—", print_rot=(0, 0, 0), solid_frac=1.0, orientation="—")
 
 

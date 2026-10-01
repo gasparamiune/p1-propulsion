@@ -287,7 +287,7 @@ def build(out_path: Path) -> Path:
     s.dot(520, 560, C_CTL)
     s.fuse_v(470, 600, "F3 1 A", C_CTL, h=46)
     s.line([(470, 646), (470, 905)], C_CTL, 1.8)
-    s.box(410, 905, 150, 66, "DC-DC 24→5 V", "entrada ≥ 9–60 V\n5 V ≥ 0,5 A", fill="#eafaf1")
+    s.box(405, 905, 160, 66, "DC-DC 24→5 V", f"TSR 1-2450E: 7–{vv['dcdc_vin_max']:.0f} V in\n5 V 1 A (aguas arriba de K1)", fill="#eafaf1")
     s.gnd(450, 971, label="")
     s.box(660, 900, 240, 185, "Arduino Nano (ATmega328P)", "p1_throttle.ino + throttle_logic.c\nWDT 120 ms · tick 10 ms\n"
           "PPM por Timer1 (OC1A)", fill="#f4f6f7")
@@ -295,10 +295,10 @@ def build(out_path: Path) -> Path:
         s.text(666, yy + 4, lab, size=10, weight="bold")
     for yy, lab in ((985, "D2 ← U2"), (1005, "D3 ← U1"), (1025, "D9 → PPM"), (1045, "D4 → Q_EN"), (1065, "D6 → LED")):
         s.text(894, yy + 4, lab, size=10, weight="bold", anchor="end")
-    s.line([(560, 935), (610, 935), (610, 990), (660, 990)], C_5V, 2)
+    s.line([(565, 935), (610, 935), (610, 990), (660, 990)], C_5V, 2)
     s.line([(660, 1020), (635, 1020), (635, 1024)], C_NEG, 1.6)
     s.gnd(635, 1024, label="")
-    s.text(566, 928, "5 V", size=10, color=C_5V, weight="bold")
+    s.text(574, 928, "5 V", size=10, color=C_5V, weight="bold")
     s.line([(610, 990), (610, 1100), (426, 1100)], C_5V, 2)
     s.text(600, 1146, "D2/D3: INPUT_PULLUP + 10 k externo + 100 nF\nA0: 1 k + 100 nF (RC) y 100 k a GND", size=10, color=C_SIG)
     s.line([(426, 1050), (590, 1050), (660, 1050)], C_SIG, 1.8)

@@ -29,7 +29,8 @@ def build(p):
     b = b + box(p.bridge_u_fwd, p.bridge_u_aft, -12, 12, vs, vtop)
     b = b + box(p.bridge_u_fwd, p.bridge_u_aft, -ws - 9, ws + 9, sp[0][0] - 9, vtop)
     # alojamiento del rodamiento B (pasante desde popa, labio delantero)
-    b = b - cyl_x((p.brg_D + p.press) / 2, p.bridge_u_aft - p.brg_B - 1.5, p.bridge_u_aft + 1, z=vs)
+    # deslizante (+0,1) y 1 mm más profundo que el rodamiento: B flota axialmente (A es el localizador)
+    b = b - cyl_x((p.brg_D + 0.1) / 2, p.bridge_u_aft - p.brg_B - 2.5, p.bridge_u_aft + 1, z=vs)
     b = b - cyl_x(10.5, p.bridge_u_fwd - 1, p.bridge_u_aft, z=vs)
     for v, w in sp:
         b = b - cyl_x(3.2, p.bridge_u_fwd - 1, p.bridge_u_aft + 1, y=w, z=v)

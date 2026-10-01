@@ -32,11 +32,13 @@ def test_holtrop_transom_limits(inp):
 
 
 def test_cruise_power_in_measured_band(sizing):
-    # research/R04 §C.3: P_bat a 6 km/h 352–735 W según η (0.45–0.34)
+    # research/R04 §C.3: R(6 km/h) medida 95–150 N; rendimiento total batería→R·V de sistemas
+    # reales 0,34–0,45 (R04) y ~0,25–0,30 con hélice de trolling (η0 0,40–0,50, research/R02 S34).
     P = sizing["cruise"]["nominal"]["P_bat"]
-    assert 300 < P < 760, P
     R = sizing["cruise"]["nominal"]["R"]
     assert 95 <= R <= 150 * 1.05, R              # banda medida R(6 km/h)=95–150 N
+    eta = R * sizing["cruise"]["nominal"]["V"] / P
+    assert 0.25 <= eta <= 0.50, eta
 
 
 def test_bollard_vs_commercial(sizing):

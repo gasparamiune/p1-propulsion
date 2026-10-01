@@ -72,14 +72,19 @@ def resolve(item, inp, sz, man):
                 f"bore {p['bore_mm']:.0f} mm con ranura de pasador")
     elif s == "auto:shear_pin":
         sp = m["shear_pin"]
-        spec = f"Ø{sp['d_std_mm']} mm {sp['material']} (corta a {sp['Q_shear_Nm']:.1f} N·m), largo = Ø eje + 6 mm"
+        spec = (f"Ø{sp['d_std_mm']} mm {sp['material']} (corta a {sp['Q_shear_Nm']:.1f} N·m), "
+                f"largo = Ø asiento de hélice + 6 mm; calibrar con el ensayo P1.9")
     elif s == "auto:pulley_motor":
-        spec = f"HTD-5M {sel['z_motor']} dientes, correa 15 mm, bore 8 mm con prisioneros + chavetero o plano"
+        spec = f"HTD-5M {sel['z_motor']} dientes, correa 15 mm, bore 8 H7 con prisioneros (eje del motor Ø8 con plano)"
+        price = inp["drivetrain"]["pulley_price_eur"][sel["z_motor"]]
     elif s == "auto:pulley_shaft":
-        spec = f"HTD-5M {sel['z_shaft']} dientes, correa 15 mm, bore 16 mm con 2 prisioneros a 90°"
+        spec = (f"HTD-5M {sel['z_shaft']} dientes, correa 15 mm, bore de fábrica ≤ 14 → re-mandrinar a "
+                f"Ø{inp['shaft']['d_bearing_mm']:g} H7; 2 prisioneros a 90°")
+        price = inp["drivetrain"]["pulley_price_eur"][sel["z_shaft"]]
     elif s == "auto:belt":
         b = m["belt"]
-        spec = f"HTD-5M {b['length_std_mm']:.0f} mm ({b['teeth']} dientes) × 15 mm, refuerzo de fibra de vidrio (1 de repuesto)"
+        spec = (f"HTD-5M {b['length_std_mm']:.0f} mm ({b['teeth']} dientes) × 15 mm, fibra de vidrio; "
+                f"centros reales {b['center_actual_mm']:.1f} mm (colisos ±{inp['drivetrain']['center_adjust_mm']:g})")
     elif s == "auto:shaft_bar":
         spec = f"AISI 316 Ø16 h9, largo ≥ {lay['shaft_length_mm'] + 40:.0f} mm (comprar 1,5 m)"
     elif s == "auto:tube":

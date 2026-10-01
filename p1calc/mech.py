@@ -33,12 +33,12 @@ def shaft_checks(inp: dict, lay: dict, Q_max: float, Q_pin: float, F_belt_radial
     def Zb(x): return math.pi * x**3 / 32
     def Zt(x): return math.pi * x**3 / 16
 
-    # (1) asiento de la polea conducida (entre rodamientos): M = F·a·b/L, Ø d con plano de prisionero
+    # (1) asiento de la polea conducida (entre rodamientos): M = F·a·b/L, Ø d_b con plano de prisionero
     a_, b_ = lay["pulley_a_mm"] / 1000, lay["pulley_b_mm"] / 1000
     M1 = F_belt_radial * a_ * b_ / (a_ + b_)
-    s1 = Kf_shoulder * M1 / Zb(d)
-    t1 = Q_max / Zt(d)
-    vm1 = math.sqrt((Kf_shoulder * M1 / Zb(d))**2 + 3 * t1**2)
+    s1 = Kf_shoulder * M1 / Zb(d_b)     # la polea va sobre Ø d_b (pila apretada desde arriba)
+    t1 = Q_max / Zt(d_b)
+    vm1 = math.sqrt((Kf_shoulder * M1 / Zb(d_b))**2 + 3 * t1**2)
     fs1_static = Sy / vm1
     fs1_fat = 1.0 / (s1 / Se_dry + math.sqrt(3) * t1 / Su)
     # (2) asiento de hélice con pasador
@@ -107,8 +107,19 @@ def belt_checks(inp: dict, Q_m_max: float, z_m: int, z_s: int, Q_pin: float) -> 
     Fe = 2 * Q_m_max / (d1 / 1000)
     C = dt["center_distance_mm"]
     L = 2 * C + math.pi * (d1 + d2) / 2 + (d2 - d1) ** 2 / (4 * C)
-    teeth = round(L / p)
-    L_std = teeth * p
+    # largo comercial: el disponible más cercano (rangos con stock, paso 5 mm); si no hay lista, redondeo
+    avail = []
+    for lo, hi in dt.get("belt_lengths_available_mm", []):
+        avail += list(range(int(lo), int(hi) + 1, 5))
+    if avail:
+        L_std = float(min(avail, key=lambda x: abs(x - L)))
+    else:
+        L_std = round(L / p) * p
+    teeth = int(round(L_std / p))
+    # distancia entre centros real con ese largo (cuadrática en C)
+    bq = math.pi * (d1 + d2) / 2 - L_std
+    C_act = (-bq + math.sqrt(bq * bq - 8 * (d2 - d1) ** 2 / 4)) / 4
+    adj = dt.get("center_adjust_mm", 8.0)
     wrap = math.degrees(math.pi - 2 * math.asin((d2 - d1) / (2 * C)))
     teeth_in_mesh = z_m * wrap / 360
     v_belt = None
@@ -121,6 +132,8 @@ def belt_checks(inp: dict, Q_m_max: float, z_m: int, z_s: int, Q_pin: float) -> 
         "wrap_small_deg": wrap, "teeth_in_mesh": teeth_in_mesh,
         "F_radial_N": F_radial, "Fe_at_shear_pin_N": Fe_pin,
         "pulleys_clear": (d1 + d2) / 2 + 12 < C,
+        "center_actual_mm": C_act, "center_shift_mm": C_act - C,
+        "length_available": abs(C_act - C) <= adj,
     }
 
 

@@ -127,62 +127,47 @@ architecture:
 # -----------------------------------------------------------------------------
 propeller:
   chosen: "auto"              # [SUPUESTO: "auto" = sizing elige la combinación de mínimo costo que cumple requisitos]
+  allow_unverified_products: false   # [SUPUESTO: el optimizador solo elige hélices con producto concreto identificado (purchasable: true); las "objetivo" se muestran como referencia]
   options:
-    OB78x6:
-      desc: "Hélice aluminio 3 palas 7.8x6 in (fueraborda 2.5–3.5 hp)"
-      D_mm: 198.0             # [ESTIMADO: 7.8 in]
-      P_mm: 152.4             # [ESTIMADO: 6 in]
-      Z: 3                    # [ESTIMADO: típico fueraborda chico]
+    TOH74x6:
+      desc: "Tohatsu 309B64107-0, aluminio, 7,4 × 6 in (MFS2.5/3.5), cubo con pasador de corte"
+      link: "buscar: 309B64107-0 propel Tohatsu (spec: https://www.tohatsu.de/zubehoer/propeller)"
+      purchasable: true       # [VERIFICADO: research/R08b §5 — existe y se lista para MFS2.5/3.5; precio y stock a confirmar]
+      D_mm: 188.0             # [VERIFICADO: research/R08b §5 — 188 mm / 7,4 in]
+      P_mm: 152.4             # [VERIFICADO: research/R08b §5 — pitch 6 in]
+      Z: 3                    # [ESTIMADO: hélices OEM de fueraborda chico, 3 palas]
       BAR: 0.45               # [ESTIMADO: AE/A0 típico fueraborda chico 0.40–0.55]
-      hub_length_mm: 60       # [ESTIMADO: envolvente del cubo]
-      hub_d_mm: 40            # [ESTIMADO]
-      bore_mm: 12.0           # [ESTIMADO: a MEDIR en la hélice comprada; el eje se tornea a medida]
-      mass_kg: 0.45           # [ESTIMADO]
-      price_eur: 45.0         # [ESTIMADO: hélice aftermarket aluminio 7.8 in 35–60 €]
-    OB74x55:
-      desc: "Hélice aluminio 3 palas 7.4x5.5 in (fueraborda 2–2.5 hp)"
-      D_mm: 188.0             # [ESTIMADO: 7.4 in]
-      P_mm: 139.7             # [ESTIMADO: 5.5 in]
-      Z: 3                    # [ESTIMADO]
-      BAR: 0.45               # [ESTIMADO]
-      hub_length_mm: 55       # [ESTIMADO]
-      hub_d_mm: 38            # [ESTIMADO]
-      bore_mm: 12.0           # [ESTIMADO]
+      hub_length_mm: 55       # [ESTIMADO: envolvente del cubo; MEDIR]
+      hub_d_mm: 38            # [ESTIMADO: MEDIR]
+      bore_mm: 12.0           # [ESTIMADO: no publicado (research/R08b §5); MEDIR la hélice comprada y actualizar → run_all re-dimensiona eje y pasador]
       mass_kg: 0.40           # [ESTIMADO]
-      price_eur: 40.0         # [ESTIMADO]
+      price_eur: 60.0         # [ESTIMADO: 45–70 € (research/R08b §5, base: hélices Al 7¾" en Watski 411–599 kr)]
+    MKP32:
+      desc: "Minn Kota MKP-32 Weedless Wedge 2 (motores 46–70 lb), con tuerca y pin de arrastre"
+      link: "https://www.watski.dk/MKP-32-propel-wedges-2-11cE4"
+      purchasable: true       # [VERIFICADO: research/R08b §5 — Watski DK, 485 kr, "leveres med møtrik og stift"]
+      D_mm: 254.0             # [ESTIMADO: ~10 in (memoria técnica); MEDIR]
+      P_mm: 101.6             # [ESTIMADO: paso bajo de trolling ~4 in; MEDIR]
+      Z: 2                    # [ESTIMADO: Weedless Wedge 2 de 2 palas]
+      BAR: 0.35               # [ESTIMADO]
+      hub_length_mm: 70       # [ESTIMADO]
+      hub_d_mm: 45            # [ESTIMADO]
+      bore_mm: 12.7           # [ESTIMADO: eje de trolling 1/2 in (no publicado); MEDIR]
+      mass_kg: 0.25           # [ESTIMADO]
+      price_eur: 64.88        # [VERIFICADO: 485 kr (research/R08b §5) / 7,4755]
     EO10x8:
-      desc: "Hélice aluminio/compuesto 3 palas 10x8 in, cubo con pasador (objetivo de compra, motor eléctrico ~1 kW)"
-      D_mm: 254.0             # [SUPUESTO: objetivo de diseño; producto concreto en BOM]
+      desc: "Hélice 3 palas ~10 × 8 in con cubo de pasador para fueraborda eléctrico de ~1 kW (OBJETIVO de compra: no se halló producto concreto)"
+      link: "buscar: electric outboard spare propeller 10 inch 3 blade shear pin"
+      purchasable: false      # [VERIFICADO: research/R08b §5 — no se encontró producto con link abierto]
+      D_mm: 254.0             # [SUPUESTO: objetivo de diseño (los eléctricos de 1 kW usan 10–11 in a 1 200–1 450 rpm, research/R04 §B.3)]
       P_mm: 203.2             # [SUPUESTO: P/D 0.8]
       Z: 3                    # [SUPUESTO]
       BAR: 0.50               # [SUPUESTO]
       hub_length_mm: 60       # [ESTIMADO]
       hub_d_mm: 42            # [ESTIMADO]
-      bore_mm: 16.0           # [SUPUESTO: elegir hélice con bore ≥ 16 mm o bujear; MEDIR la real]
+      bore_mm: 16.0           # [SUPUESTO]
       mass_kg: 0.55           # [ESTIMADO]
       price_eur: 60.0         # [ESTIMADO: hélice de repuesto de motor eléctrico chico 40–90 €]
-    EO11x8:
-      desc: "Hélice 3 palas 11x8 in, cubo con pasador (objetivo de compra)"
-      D_mm: 279.4             # [SUPUESTO]
-      P_mm: 203.2             # [SUPUESTO: P/D 0.73]
-      Z: 3                    # [SUPUESTO]
-      BAR: 0.50               # [SUPUESTO]
-      hub_length_mm: 62       # [ESTIMADO]
-      hub_d_mm: 44            # [ESTIMADO]
-      bore_mm: 16.0           # [SUPUESTO]
-      mass_kg: 0.65           # [ESTIMADO]
-      price_eur: 75.0         # [ESTIMADO]
-    WW10x4:
-      desc: "Hélice compuesta 2 palas weedless 10x4 in (trolling motor)"
-      D_mm: 254.0             # [ESTIMADO: 10 in]
-      P_mm: 101.6             # [ESTIMADO: 4 in]
-      Z: 2                    # [ESTIMADO]
-      BAR: 0.35               # [ESTIMADO]
-      hub_length_mm: 70       # [ESTIMADO]
-      hub_d_mm: 45            # [ESTIMADO]
-      bore_mm: 9.5            # [ESTIMADO]
-      mass_kg: 0.25           # [ESTIMADO]
-      price_eur: 35.0         # [ESTIMADO]
   wake_fraction: 0.02         # [ESTIMADO: hélice ~1 m detrás del espejo, flujo casi libre]
   thrust_deduction: 0.02      # [ESTIMADO: idem]
   eta_relative_rotative: 1.0  # [SUPUESTO]
@@ -197,8 +182,8 @@ propeller:
   skeg_fuse_force_n: 300.0    # [CALCULADO: el patín rompe antes de que el tubo Al 40×3 baje de FS 2 con la cola trabada (04_diseno/structural.py)]
   shear_pin:
     target_factor_vs_qmax: 2.0     # [SUPUESTO: corta a 2× el torque máximo normal del eje]
-    material: "Al6061-T6"     # [SUPUESTO: Al o latón; inox demasiado fuerte para el torque de P1]
-    tau_ult_mpa: 207.0        # [ESTIMADO: Al 6061-T6 corte último ~207 MPa (MatWeb típico)]
+    material: "AISI 316"      # [SUPUESTO: mismo metal que el eje → sin par galvánico (un pasador de Al sobre eje 316 se corroería y perdería resistencia en agua salobre); diámetro chico calibrado]
+    tau_ult_mpa: 310.0        # [ESTIMADO: 0,6 × Su (515 MPa) para 316 recocido; CALIBRAR con el ensayo P1.9 (palanca + dinamómetro)]
 
 # -----------------------------------------------------------------------------
 # TRANSMISIÓN (correa HTD-5M arriba del agua) Y EJE
@@ -206,21 +191,24 @@ propeller:
 drivetrain:
   belt_type: "HTD-5M"         # [SUPUESTO]
   belt_width_mm: 15           # [SUPUESTO: verificar capacidad en §mecánica]
-  z_motor_options: [14, 15, 16, 18, 20, 22, 24]          # [SUPUESTO: poleas HTD-5M de stock, bore 8 mm]
-  z_shaft_options: [36, 40, 44, 48, 50, 56, 60, 64, 72]  # [SUPUESTO: poleas HTD-5M de stock]
+  z_motor_options: [14, 16, 20]   # [VERIFICADO: research/R08b §4 — Dold Mechatronik HTD-5M 15 mm, bore 8 H7 con prisioneros]
+  z_shaft_options: [40, 48, 72]   # [VERIFICADO: research/R08b §4 — Dold: 72 T (bore máx. 14 H7), 48 T y 40 T; no hay 60 T. Se re-mandrina a Ø15 H7 en el torno]
+  pulley_price_eur: {14: 9.40, 16: 12.90, 20: 10.00, 40: 25.0, 48: 28.0, 72: 39.90}   # [VERIFICADO 14/16/20/72: research/R08b §4 (Dold); 40/48: ESTIMADO, ver carrito]
+  belt_lengths_available_mm: [[405, 440], [460, 495], [510, 695]]   # [VERIFICADO: research/R08b §4 — Dold, con stock 2026-10-01 (sin stock: 400, 450, 500, 505); paso 5 mm]
+  center_adjust_mm: 8.0       # [SUPUESTO: carrera de los colisos de tensado de la placa motriz]
   belt_pitch_mm: 5.0          # [VERIFICADO: HTD-5M = paso 5 mm (definición)]
-  center_distance_mm: 125     # [SUPUESTO: ajustable ±8 mm por ranuras]
+  center_distance_mm: 125     # [SUPUESTO: nominal; la distancia real sale del largo de correa disponible (± center_adjust_mm)]
   eta_belt: 0.96              # [ESTIMADO: correa dentada 0.95–0.98]
   eta_bearings: 0.98          # [ESTIMADO: 2 rodamientos + 3 bujes en agua]
   belt_allow_tension_n: 400   # [ESTIMADO: HTD-5M 15 mm, tensión de trabajo admisible ~300–450 N; verificar catálogo]
   drive_plate_t_mm: 6.0       # [SUPUESTO: placa motriz de chapa Al 6082-T6 de 6 mm estándar (research/R05: empuje y correa a metal)]
   cartridge_flange_t_mm: 4.0  # [SUPUESTO: brida del cartucho torneado del rodamiento A]
-  cartridge_od_mm: 40.0       # [SUPUESTO: cuerpo del cartucho Ø40 (pared 4 mm sobre Ø32)]
-  cartridge_flange_d_mm: 52.0 # [SUPUESTO: brida Ø52 con 3×M4 en Ø46]
+  cartridge_od_mm: 42.0       # [SUPUESTO: cuerpo del cartucho Ø42 (pared 3,5 mm sobre el 6202 Ø35)]
+  cartridge_flange_d_mm: 56.0 # [SUPUESTO: brida Ø56 con 3×M4 en Ø49 (≤ 56 para no tocar los M6 placa–cuna)]
 shaft:
   material: "AISI 316"        # [SUPUESTO]
   d_mm: 16.0                  # [CALCULADO: Ø12 daba FS fatiga 1.1 y torsión en pasador 1.3 (ver decisiones D-07)]
-  d_bearing_mm: 15.0          # [SUPUESTO: muñón torneado para rodamiento 6002]
+  d_bearing_mm: 15.0          # [SUPUESTO: muñón torneado para rodamiento 6202 y asiento de la polea re-mandrinada a Ø15]
   E_gpa: 193.0                # [ESTIMADO: 316 típico]
   sy_mpa: 205.0               # [ESTIMADO: 316 recocido, mínimo ASTM A276 ~205 MPa]
   su_mpa: 515.0               # [ESTIMADO: 316 recocido, mínimo ~515 MPa]
@@ -235,16 +223,17 @@ shaft:
   tube_density_kg_m3: 2700.0  # [ESTIMADO: aluminio]
   tube_sy_mpa: 240.0          # [ESTIMADO: 6061-T6 típico ≥ 240 MPa (EN 755-2 6061-T6 tubo ~240)]
   tube_E_gpa: 69.0            # [ESTIMADO: aluminio]
-  bushing_material: "POM-C"   # [SUPUESTO: torneado de barra Ø35; alternativa igus iglide]
-  bushing_length_mm: 40.0     # [SUPUESTO: L/d = 2.5 para buje lubricado por agua]
+  bushing_material: "igus iglidur H370 (2 × H370SM-1618-20) en portabuje PETG impreso"   # [VERIFICADO: research/R08b §3 — igus recomienda H370/UW500 para uso bajo agua; 3,10 €/u]
+  bushing_length_mm: 40.0     # [SUPUESTO: 2 bujes de 20 mm por portabuje → L/d = 2,5]
+  bushing_od_mm: 18.0         # [VERIFICADO: research/R08b §3 — H370SM-1618-20 = Ø16 × Ø18 × 20 (nomenclatura igus d1-d2-b1)]
 bearings:
-  name: "6002-2RS inox (15×32×9)"   # [SUPUESTO: par de rodamientos, uno a cada lado de la polea conducida]
-  d_mm: 15                    # [VERIFICADO: designación 6002 = 15×32×9 mm (ISO 15)]
-  D_mm: 32                    # [VERIFICADO: idem]
-  B_mm: 9                     # [VERIFICADO: idem]
-  C_N: 5590.0                 # [ESTIMADO: 6002 acero al cromo, catálogo típico 5.59 kN]
-  C0_N: 2850.0                # [ESTIMADO: 6002 acero al cromo 2.85 kN]
-  stainless_factor: 0.80      # [ESTIMADO: AISI 440C ≈ 80 % de la capacidad del cromo]
+  name: "6202-2RS (15×35×11)" # [VERIFICADO: research/R08b §3 — Biltema 6202-2RS acero al cromo 36,90 kr (DK); no hay 6002 en tiendas abiertas]
+  d_mm: 15                    # [VERIFICADO: designación 6202 = 15×35×11 mm (ISO 15); research/R08b]
+  D_mm: 35                    # [VERIFICADO: idem]
+  B_mm: 11                    # [VERIFICADO: idem]
+  C_N: 7650.0                 # [ESTIMADO: 6202 catálogo típico 7,6–8,1 kN; se toma el bajo]
+  C0_N: 3750.0                # [ESTIMADO: 6202 catálogo típico 3,75 kN]
+  stainless_factor: 1.00      # [SUPUESTO: acero al cromo (Biltema) en zona seca con sello 2RS; reemplazo por temporada. Inox AISI 420 (S6202, ×0,8) no envía a DK (research/R08b)]
 
 # -----------------------------------------------------------------------------
 # MOTOR / ESC (productos concretos de research/R08a, precios del 2026-10-01)
@@ -521,15 +510,15 @@ bom:
     - {id: B-CHG, cat: "Batería", desc: "Cargador LiFePO4 dedicado (cargar en interior: BMS bloquea < 5 °C)", spec: "auto:charger", qty: 1, supplier: "Power Queen / LiTime (DE)", link: auto, price_eur: auto, ship: incl, tag: "[VERIFICADO: research/R08a §5, 2026-10-01]"}
     - {id: B-BOX, cat: "Batería", desc: "Caja de batería Biltema 340×200×245 (interior) con soporte y correa, 1 por batería", spec: "auto:battery_boxes", qty: auto, supplier: "Biltema DK", link: "https://www.biltema.dk/baad/marinebatterier-og-tilbehor/batteribokse/batteriboks-340-x-200-x-245-mm-2000048673", price_dkk: 105.0, tag: "[VERIFICADO: research/R08a §4; VERIFICAR que la batería real entra]"}
     - {id: B-PROP, cat: "Hélice", desc: "Hélice comprada", spec: "auto:prop", qty: 1, supplier: "Repuestos de fueraborda eléctrico", link: "buscar: propeller 10 inch electric outboard shear pin 16 mm", price_eur: auto, tag: "[ESTIMADO]"}
-    - {id: B-PIN, cat: "Hélice", desc: "Pasadores de corte (repuesto ×5)", spec: "auto:shear_pin", qty: 5, supplier: "Torneado propio de varilla Al 6061", link: "buscar: varilla aluminio 6061 3 mm", price_eur: 1.0, tag: "[ESTIMADO]"}
-    - {id: B-ANODE, cat: "Corrosión", desc: "Ánodo de sacrificio de aluminio (collar de eje)", spec: "Aleación Al-Zn-In para agua salobre; collar para eje Ø16", qty: 1, supplier: "Tienda náutica DK", link: "buscar: aluminium shaft anode 16 mm", price_eur: 12.0, tag: "[ESTIMADO]"}
-    - {id: B-PUL-M, cat: "Transmisión", desc: "Polea HTD-5M motor", spec: "auto:pulley_motor", qty: 1, supplier: "Distribuidor de transmisión (UE)", link: "buscar: HTD 5M pulley 15mm bore 8", price_eur: 12.0, tag: "[ESTIMADO]"}
-    - {id: B-PUL-S, cat: "Transmisión", desc: "Polea HTD-5M eje", spec: "auto:pulley_shaft", qty: 1, supplier: "Distribuidor de transmisión (UE)", link: "buscar: HTD 5M pulley 15mm bore 16", price_eur: 22.0, tag: "[ESTIMADO]"}
-    - {id: B-BELT, cat: "Transmisión", desc: "Correa HTD-5M", spec: "auto:belt", qty: 2, supplier: "Distribuidor de transmisión (UE)", link: "buscar: HTD 5M belt 15mm", price_eur: 9.0, tag: "[ESTIMADO]"}
-    - {id: B-BRG, cat: "Transmisión", desc: "Rodamiento 6002-2RS inoxidable", spec: "15×32×9, AISI 440C, sellado 2RS", qty: 3, supplier: "Distribuidor de rodamientos UE", link: "buscar: S6002-2RS stainless bearing", price_eur: 7.0, tag: "[ESTIMADO]"}
-    - {id: B-BAR16, cat: "Material torneado", desc: "Barra AISI 316 Ø16 h9", spec: "auto:shaft_bar", qty: 1, supplier: "Distribuidor de inox UE", link: "buscar: 316 round bar 16mm 1500mm", price_eur: 35.0, tag: "[ESTIMADO]"}
+    - {id: B-PIN, cat: "Hélice", desc: "Pasadores de corte AISI 316 (1 + 5 de repuesto) — mismo metal que el eje: sin par galvánico", spec: "auto:shear_pin", qty: 6, supplier: "Varilla/pasador inox A4 (ferretería) cortado a medida", link: "buscar: rustfri stift A4 2 mm", price_eur: 1.0, tag: "[ESTIMADO]"}
+    - {id: B-ANODE, cat: "Corrosión", desc: "Ánodo: NO se usa en P1 (no hay ánodo de collar para Ø16 en DK y no hay par metálico disímil conectado; ver decisiones D-36)", spec: "—", qty: 0, supplier: "—", link: "https://www.watski.dk/tecnoseal-akselanode-aluminium-aksel-smal-11Hml", price_dkk: 96.0, tag: "[VERIFICADO: research/R08b §6 — el más chico es para eje Ø25]"}
+    - {id: B-PUL-M, cat: "Transmisión", desc: "Polea HTD-5M 15 mm del motor (Dold Mechatronik, bore 8 H7 con prisioneros)", spec: "auto:pulley_motor", qty: 1, supplier: "Dold Mechatronik (DE, envía a Europa)", link: "https://www.dold-mechatronik.de/Zahnriemenrad-HTD-5M-15mm-breit", price_eur: auto, tag: "[VERIFICADO: research/R08b §4]"}
+    - {id: B-PUL-S, cat: "Transmisión", desc: "Polea HTD-5M 15 mm del eje (Dold Mechatronik), re-mandrinada a Ø15 H7 en el torno (plano DRV-06)", spec: "auto:pulley_shaft", qty: 1, supplier: "Dold Mechatronik (DE, envía a Europa)", link: "https://www.dold-mechatronik.de/Zahnriemenrad-HTD-5M-15mm-breit", price_eur: auto, tag: "[VERIFICADO 72 T: research/R08b §4; 40/48 T: precio ESTIMADO]"}
+    - {id: B-BELT, cat: "Transmisión", desc: "Correa HTD-5M cerrada 15 mm, neopreno con fibra de vidrio (1 + 1 de repuesto)", spec: "auto:belt", qty: 2, supplier: "Dold Mechatronik (DE)", link: "https://www.dold-mechatronik.de/Zahnriemen-geschlossen-HTD-5M-Breite-15mm-Laenge-bis-499mm", price_eur: 7.0, tag: "[VERIFICADO: existencia y 'desde 3,99 €' research/R08b §4; precio por largo ESTIMADO]"}
+    - {id: B-BRG, cat: "Transmisión", desc: "Rodamiento 6202-2RS 15×35×11 acero al cromo, zona seca (2 + 1 de repuesto; cambiar por temporada)", spec: "6202-2RS (Biltema art. 41405)", qty: 3, supplier: "Biltema DK", link: "https://www.biltema.dk/bil---mc/bilreservedele/kuglelejer/kuglelejer-6202-2rs-15x35x11-mm-2000050558", price_dkk: 36.9, tag: "[VERIFICADO: research/R08b §3]"}
+    - {id: B-BAR16, cat: "Material torneado", desc: "Barra AISI 316/316L (1.4401/1.4404) Ø16 h9 — NO 1.4301 (no apto sumergido)", spec: "auto:shaft_bar", qty: 1, supplier: "Metalgrossist local (pedir cotización) o distribuidor UE", link: "buscar: Rundstab 1.4404 h9 16 mm 1500 mm / syrefast rundstål 16 mm", price_eur: 35.0, tag: "[ESTIMADO: research/R08b §2 (no hallado en tienda abierta)]"}
     - {id: B-BAR-PIN, cat: "Material torneado", desc: "Barra AISI 316 Ø20 × 300 (pernos de dirección/basculación, separadores)", spec: "AISI 316, Ø20 mm, 300 mm", qty: 1, supplier: "Distribuidor de inox UE", link: "buscar: 316 round bar 20mm", price_eur: 15.0, tag: "[ESTIMADO]"}
-    - {id: B-POM, cat: "Material torneado", desc: "Barra POM-C Ø35 × 300 (bujes)", spec: "POM-C (acetal copolímero), Ø35, 300 mm", qty: 1, supplier: "Distribuidor de plásticos técnicos UE", link: "buscar: POM-C rod 35mm", price_eur: 14.0, tag: "[ESTIMADO]"}
+    - {id: B-POM, cat: "Material torneado", desc: "Barra POM-C Ø25 × 300 (bujes de dirección MNT-09 y basculación MNT-10)", spec: "POM-C (acetal copolímero), Ø25, 300 mm", qty: 1, supplier: "Distribuidor de plásticos técnicos", link: "buscar: POM-C Rundstab 25 mm Zuschnitt", price_eur: 8.0, tag: "[ESTIMADO: research/R08b §2 (no hallado en tienda abierta)]"}
     - {id: B-TUBE, cat: "Estructura", desc: "Tubo de cola Al 6061-T6", spec: "auto:tube", qty: 1, supplier: "Distribuidor de aluminio UE", link: "buscar: 6061 T6 tube 40x3", price_eur: 30.0, tag: "[ESTIMADO]"}
     - {id: B-TILLER, cat: "Estructura", desc: "Tubo de caña Al 6061-T6 Ø30×3 × 700", spec: "Al 6061-T6, Ø30×3, 700 mm", qty: 1, supplier: "Distribuidor de aluminio UE", link: "buscar: 6061 T6 tube 30x3", price_eur: 15.0, tag: "[ESTIMADO]"}
     - {id: B-ALPLATE, cat: "Electrónica", desc: "Chapa Al 5052/6082 4 mm (tapa-disipador ESC, ELE-02)", spec: "auto:esc_lid", qty: 1, supplier: "Distribuidor de aluminio UE", link: "buscar: aluminium plate 4mm 5052", price_eur: 12.0, tag: "[ESTIMADO]"}
@@ -563,13 +552,15 @@ bom:
     - {id: B-MAG, cat: "Electrónica", desc: "Imanes NdFeB Ø10×3 diametrales (pack)", spec: "N35+, magnetización diametral", qty: 1, supplier: "Distribuidor de imanes UE", link: "buscar: neodymium magnet 10x3 diametrically magnetized", price_eur: 6.0, tag: "[ESTIMADO]"}
     - {id: B-ORING, cat: "Sellado", desc: "Cordón de O-ring NBR70 3.53 mm (caja ESC) + cianoacrilato + grasa de silicona", spec: "NBR 70 Shore A, Ø3.53 mm, 1 m; grasa de silicona (no mineral)", qty: 1, supplier: "Distribuidor de juntas", link: "buscar: o-ring cord 3.53mm NBR70", price_eur: 8.0, tag: "[ESTIMADO; especificación VERIFICADO research/R05]"}
     - {id: B-SPRING, cat: "Montaje", desc: "Émbolo de bola con resorte M12 inox (retén de basculación)", spec: "auto:plunger", qty: 2, supplier: "Distribuidor de elementos normalizados UE", link: "buscar: stainless spring plunger M12 heavy", price_eur: 7.0, tag: "[ESTIMADO]"}
-    - {id: B-HW, cat: "Tornillería", desc: "Tornillería A4 (M5/M6/M8/M12/M16), tuercas nyloc, arandelas", spec: "Ver 06_ensamblaje_y_pruebas.md (lista de tornillería)", qty: 1, supplier: "Ferretería / distribuidor A4", link: "buscar: A4 stainless bolt assortment M6", price_eur: 45.0, tag: "[ESTIMADO, juego]"}
+    - {id: B-HW, cat: "Tornillería", desc: "Tornillería A4 Comstedt en blísteres (M5/M6/M8 tornillos, nyloc, arandelas) + M12/M16 especiales", spec: "Lista en 06_ensamblaje_y_pruebas.md; ~10 blísteres de 27–48 kr + varios", qty: 1, supplier: "Watski DK", link: "https://www.watski.dk/hexagon-machine-screw-a4-11KtO", price_eur: 60.0, tag: "[ESTIMADO: research/R08b §7 (blísteres VERIFICADOS 27–48 kr) + M12/M16]"}
     - {id: B-CLAMP, cat: "Tornillería", desc: "Tornillos de apriete de popa M12 A4 con mango en T (o varilla + manija) + placa de reparto A4 40×40×4", spec: "auto:clamp_screw", qty: 2, supplier: "Ferretería", link: "buscar: M12 T handle clamp screw stainless", price_eur: 8.0, tag: "[ESTIMADO]"}
-    - {id: B-INS, cat: "Tornillería", desc: "Insertos térmicos M4/M6 (inox preferido; latón solo en piezas secas)", spec: "M4×8.1 (×10), M6×12.7 (×16)", qty: 1, supplier: "Distribuidor 3D", link: "buscar: heat set insert M6 stainless", price_eur: 15.0, tag: "[ESTIMADO, juego]"}
-    - {id: B-ISO, cat: "Corrosión", desc: "Compuesto aislante anti-galvánico + arandelas/vainas aislantes", spec: "Tipo Tef-Gel/Duralac; arandelas nylon/G10 M6–M12; vainas PTFE para perno de carcasa inferior", qty: 1, supplier: "Tienda náutica", link: "buscar: Tef-Gel 1/2 oz", price_eur: 25.0, tag: "[ESTIMADO]"}
+    - {id: B-INS, cat: "Tornillería", desc: "Insertos térmicos de latón M4 (solo zona seca: tapa de la caja ESC)", spec: "M4, ≥ 8 u.", qty: 1, supplier: "3DJake (ruthex)", link: "buscar: ruthex Gewindeeinsatz M4 (M5/M6/M8 verificados en https://www.3djake.de/ruthex/gewindeeinsatz-m6-25-stueck)", price_eur: 9.99, tag: "[VERIFICADO: precio de pack ruthex research/R08b §7; M4 a confirmar]"}
+    - {id: B-IGUS, cat: "Transmisión", desc: "Buje igus iglidur H370SM-1618-20 (Ø16×Ø18×20, apto bajo agua): 2 por portabuje DRV-02 + 1 de repuesto", spec: "iglidur H370, d1 16 / d2 18 / b1 20", qty: 7, supplier: "igus.eu", link: "https://www.igus.eu/product/35?artNr=H370SM-1618-20", price_eur: 3.10, tag: "[VERIFICADO: research/R08b §3]"}
+    - {id: B-ISO, cat: "Corrosión", desc: "Compuesto antigalvánico Tikal Tef-Gel 10 g (todo A4 en contacto con Al)", spec: "PTFE, apto agua de mar", qty: 1, supplier: "AWN (DE)", link: "https://awn.de/products/533335-tikal-tef-gel-antikorrosion-t10-lose-weiss-10g", price_eur: 16.99, tag: "[VERIFICADO: research/R08b §6]"}
+    - {id: B-ISOW, cat: "Corrosión", desc: "Arandelas aislantes de fibra/nylon M3–M12 (200 u.) + vainas de nylon para tornillos A4 en Al", spec: "Biltema art. 191083", qty: 1, supplier: "Biltema DK", link: "https://www.biltema.dk/bil---mc/varkstedsudstyr/befastelser/skiver/fiber--og-nylonskiver-200-stk-2000064326", price_dkk: 84.9, tag: "[VERIFICADO: research/R08b §6]"}
     - {id: B-WASH, cat: "Montaje", desc: "Arandela UHMW/PTFE Ø90 × 1.5 (plato de dirección)", spec: "UHMW-PE o PTFE 1.5 mm", qty: 1, supplier: "Distribuidor de plásticos", link: "buscar: UHMW sheet 1.5mm", price_eur: 6.0, tag: "[ESTIMADO]"}
     - {id: B-LANYARD, cat: "Seguridad", desc: "Cabo de seguridad unidad→bote + cáncamo M8 A4 + mosquetón inox", spec: "Cabo 6 mm ≥ 3 kN, cáncamo M8 A4", qty: 1, supplier: "Tienda náutica", link: "buscar: stainless eye bolt M8 A4", price_eur: 15.0, tag: "[ESTIMADO]"}
-    - {id: B-PETG, cat: "Filamento", desc: "Filamento PETG 1.75 mm", spec: "auto:filament", qty: auto, supplier: "Distribuidor 3D UE", link: "buscar: PETG filament 1kg 1.75", price_eur: 22.0, tag: "[ESTIMADO, €/kg]"}
+    - {id: B-PETG, cat: "Filamento", desc: "Filamento PETG 1,75 mm (verificar HDT ≥ 70 °C en la ficha, decisiones D-29)", spec: "auto:filament", qty: auto, supplier: "3DJake (eSUN PETG+)", link: "https://www.3djake.de/esun/petg-yellow-12", price_eur: 15.99, tag: "[VERIFICADO: research/R08b §8, €/kg]"}
     - {id: B-NOZ, cat: "Fabricación", desc: "Boquilla endurecida 0.4 mm para Ender-3 S1 (Sprite) — solo si se usa PA-CF/PETG-CF (P2)", spec: "Acero endurecido, rosca M6, compatible Sprite", qty: 0, supplier: "Distribuidor 3D", link: "buscar: Ender 3 S1 hardened steel nozzle", price_eur: 12.0, tag: "[ESTIMADO, opcional]"}
     - {id: B-EPOXY, cat: "Fabricación", desc: "Epoxi estructural/sellado (recubrimiento de caja ESC y sensor)", spec: "Epoxi 2 componentes de baja viscosidad", qty: 1, supplier: "Ferretería / náutica", link: "buscar: epoxy resin marine low viscosity", price_eur: 18.0, tag: "[ESTIMADO]"}
 

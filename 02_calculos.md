@@ -17,25 +17,25 @@ de la prosa usan marcadores `<!--V:…-->`. Etiquetas: [VERIFICADO: fuente] · [
 | Fr_L a velocidad de crucero | 0.376 | [CALCULADO] |
 | R crucero (nominal / diseño) | 135 / 156 N | [CALCULADO] |
 | Empuje en el eje en crucero (diseño) | 195 N | [CALCULADO] |
-| Hélice | EO10x8 — modelo lineal aproximada [ESTIMADO] | [SUPUESTO] |
-| rpm hélice / J / η0 crucero (diseño) | 976 rpm / 0.36 / 0.46 | [CALCULADO] |
-| Potencia al eje crucero (diseño) | 628 W | [CALCULADO] |
-| Potencia de batería crucero (nominal / diseño) | 661 / 798 W | [CALCULADO] |
-| Rendimiento total batería→R·V (diseño) | 33 % | [CALCULADO] |
-| Relación de correa | 15T : 44T = 2.93 | [CALCULADO] |
+| Hélice | MKP32 — modelo lineal aproximada [ESTIMADO] | [SUPUESTO] |
+| rpm hélice / J / η0 crucero (diseño) | 1542 rpm / 0.23 / 0.40 | [CALCULADO] |
+| Potencia al eje crucero (diseño) | 726 W | [CALCULADO] |
+| Potencia de batería crucero (nominal / diseño) | 770 / 920 W | [CALCULADO] |
+| Rendimiento total batería→R·V (diseño) | 28 % | [CALCULADO] |
+| Relación de correa | 20T : 40T = 2.00 | [CALCULADO] |
 | Batería elegida | 2 × Power Queen 12V 100Ah en serie (BMS 100 A c/u) | [CALCULADO] |
-| Energía requerida / usable | 2127 / 2304 Wh | [CALCULADO] |
-| Autonomía a crucero (nominal / diseño) | 3.49 / 2.89 h | [CALCULADO] |
-| V máx. (diseño, batería baja) | 7.1 km/h — limita: tensión (duty) | [CALCULADO] |
-| V máx. (nominal, batería nominal) | 7.6 km/h | [CALCULADO] |
-| Bollard pull avante (horizontal) | 291 N (29.6 kgf) — limita: corriente de motor | [CALCULADO] |
-| Bollard pull marcha atrás | 92 N | [CALCULADO] |
-| Corriente pico de batería / margen ESC | 66 A / 52 % | [CALCULADO] |
-| Cable DC / fases | 16 mm² (1.2 %) / 10 mm² (2.7 %) | [CALCULADO] |
-| Fusible principal | 100 A | [CALCULADO] |
-| Pasador de corte | Ø2.5 mm Al6061-T6 → corta a 16.3 N·m | [CALCULADO] |
-| Velocidad crítica del eje / rpm máx. | 5763 / 1203 rpm | [CALCULADO] |
-| Largo de eje / tubo | 1352 / 1178 mm | [CALCULADO] |
+| Energía requerida / usable | 2452 / 2304 Wh | [CALCULADO] |
+| Autonomía a crucero (nominal / diseño) | 2.99 / 2.51 h | [CALCULADO] |
+| V máx. (diseño, batería baja) | 6.7 km/h — limita: tensión (duty) | [CALCULADO] |
+| V máx. (nominal, batería nominal) | 7.4 km/h | [CALCULADO] |
+| Bollard pull avante (horizontal) | 280 N (28.6 kgf) — limita: corriente de motor | [CALCULADO] |
+| Bollard pull marcha atrás | 89 N | [CALCULADO] |
+| Corriente pico de batería / margen ESC | 62 A / 61 % | [CALCULADO] |
+| Cable DC / fases | 16 mm² (1.1 %) / 10 mm² (2.7 %) | [CALCULADO] |
+| Fusible principal | 80 A | [CALCULADO] |
+| Pasador de corte | Ø2.0 mm AISI 316 → corta a 12.4 N·m | [CALCULADO] |
+| Velocidad crítica del eje / rpm máx. | 5834 / 1831 rpm | [CALCULADO] |
+| Largo de eje / tubo | 1357 / 1171 mm | [CALCULADO] |
 <!-- /AUTO:sizing_main -->
 
 Figuras: [R(v)](figuras/R_v.png) · [P(v)](figuras/P_v.png) · [autonomía(v)](figuras/autonomia_v.png) ·
@@ -76,18 +76,18 @@ velocidades (GPS), 3 pasadas por sentido; ajustar `resistance.wave_cw` (y si hac
 <!-- AUTO:sizing_sweep -->
 | v [km/h] | Fr_L | R nom [N] | R diseño [N] | P_bat nom [W] | P_bat diseño [W] | rpm hélice | Autonomía nom [h] | Autonomía diseño [h] | Wh/km diseño |
 |---|---|---|---|---|---|---|---|---|---|
-| 2 | 0.13 | 10 | 11 | 19 | 22 | 279 | 120.89 | 105.54 | 11 |
-| 3 | 0.19 | 24 | 27 | 58 | 68 | 430 | 39.91 | 34.01 | 23 |
-| 4 | 0.25 | 48 | 55 | 148 | 176 | 598 | 15.57 | 13.09 | 44 |
-| 5 | 0.31 | 84 | 97 | 333 | 399 | 782 | 6.93 | 5.77 | 80 |
-| 6 | 0.38 | 135 | 156 | 661 | 798 | 976 | 3.49 | 2.89 | 133 |
-| 7 | 0.44 | 198 | 228 | 1164 | 1411 | 1170 | 1.98 | 1.63 | 202 |
-| 8 | 0.50 | 267 | 307 | 1832 | 2225 ✗ | 1352 | 1.26 | 1.04 | 278 |
-| 9 | 0.56 | 335 | 385 | 2613 | 3180 ✗ | 1517 | 0.88 | 0.72 | 353 |
-| 10 | 0.63 | 398 | 458 | 3447 | 4198 ✗ | 1662 | 0.67 | 0.55 | 420 |
-| 11 | 0.69 | 455 | 523 | 4286 | 5220 ✗ | 1790 | 0.54 | 0.44 | 475 |
-| 12 | 0.75 | 505 | 580 | 5102 | 6213 ✗ | 1903 | 0.45 | 0.37 | 518 |
-| 13 | 0.82 | 548 | 630 | 5886 | 7165 ✗ | 2005 | 0.39 | 0.32 | 551 |
+| 2 | 0.13 | 10 | 11 | 22 | 25 | 450 | 102.68 | 90.45 | 13 |
+| 3 | 0.19 | 24 | 27 | 68 | 80 | 692 | 33.66 | 28.97 | 27 |
+| 4 | 0.25 | 48 | 55 | 175 | 206 | 956 | 13.18 | 11.20 | 51 |
+| 5 | 0.31 | 84 | 97 | 390 | 463 | 1242 | 5.91 | 4.98 | 93 |
+| 6 | 0.38 | 135 | 156 | 770 | 920 | 1542 | 2.99 | 2.51 | 153 |
+| 7 | 0.44 | 198 | 228 | 1349 | 1619 ✗ | 1840 | 1.71 | 1.42 | 231 |
+| 8 | 0.50 | 267 | 307 | 2119 | 2550 ✗ | 2124 | 1.09 | 0.90 | 319 |
+| 9 | 0.56 | 335 | 385 | 3025 | 3646 ✗ | 2384 | 0.76 | 0.63 | 405 |
+| 10 | 0.63 | 398 | 458 | 4002 | 4826 ✗ | 2618 | 0.58 | 0.48 | 483 |
+| 11 | 0.69 | 455 | 523 | 4997 | 6026 ✗ | 2827 | 0.46 | 0.38 | 548 |
+| 12 | 0.75 | 505 | 580 | 5982 | 7209 ✗ | 3017 | 0.39 | 0.32 | 601 |
+| 13 | 0.82 | 548 | 630 | 6945 | 8361 ✗ | 3191 | 0.33 | 0.28 | 643 |
 <!-- /AUTO:sizing_sweep -->
 
 ## 3. Empuje requerido y márgenes
@@ -98,13 +98,13 @@ perfilado 3–8 %, research/R03]. Avance: V_a = V(1 − w)·cosθ, w = 0,02.
 
 Márgenes de diseño (condición adversa): viento de proa 6 m/s + olas cortas (+25 % de R
 hidrodinámica) + corriente 0,5 m/s. En esa condición, la velocidad alcanzable es
-<!--V:sizing.adverse.vmax_headwind_waves_kmh:.1f-->6.1<!--/V--> km/h y la velocidad sobre el fondo contra la corriente
-<!--V:sizing.adverse.sog_against_current_kmh:.1f-->4.3<!--/V--> km/h (criterio ≥ 3 km/h) [CALCULADO].
+<!--V:sizing.adverse.vmax_headwind_waves_kmh:.1f-->5.9<!--/V--> km/h y la velocidad sobre el fondo contra la corriente
+<!--V:sizing.adverse.sog_against_current_kmh:.1f-->4.1<!--/V--> km/h (criterio ≥ 3 km/h) [CALCULADO].
 
-**Bollard pull objetivo:** ≥ 0,85 × predicho; predicho <!--V:sizing.bollard_fwd.T_horiz:.0f-->291<!--/V--> N horizontales
+**Bollard pull objetivo:** ≥ 0,85 × predicho; predicho <!--V:sizing.bollard_fwd.T_horiz:.0f-->280<!--/V--> N horizontales
 (<!--V:sizing.bollard_fwd.limiter:-->corriente de motor<!--/V--> limita), igual a los fuerabordas eléctricos de 1 kW medidos (290–310 N,
 0,28–0,29 N/W; research/R04 §B.2). Los "65 lb a 600 W" de algunos trolling exigen FM > 1:
-físicamente imposibles y no se usan como meta. Marcha atrás: <!--V:sizing.bollard_rev.T_horiz:.0f-->92<!--/V--> N (límite de
+físicamente imposibles y no se usan como meta. Marcha atrás: <!--V:sizing.bollard_rev.T_horiz:.0f-->89<!--/V--> N (límite de
 corriente 50 % por firmware × rendimiento de hélice invertida 0,65 [ESTIMADO]).
 
 ### 3.1 Límite legal de velocidad (Sejladsreglement §4: ≤ 5 kn a < 300 m de la costa)
@@ -121,10 +121,10 @@ así que sacar el tope con 2 a bordo es legal y recupera ~0,5 km/h; por defecto 
 | Magnitud | Valor | Etiqueta |
 |---|---|---|
 | Límite legal a < 300 m de la costa | 9.26 km/h (5 kn) | [VERIFICADO: research/R07 §1.2] |
-| V máx con carga liviana (161 kg), batería llena, banda baja | 12.4 km/h | [CALCULADO] |
+| V máx con carga liviana (161 kg), batería llena, banda baja | 11.0 km/h | [CALCULADO] |
 | ¿Cumple sin limitador? | **no → tope de ERPM 'modo costa'** | [CALCULADO] |
-| Tope de rpm del motor / ERPM (VESC `l_max_erpm`) | 3291 rpm / 23034 ERPM | [CALCULADO] |
-| V máx a plena carga con el tope (banda nominal) | 7.1 km/h | [CALCULADO] |
+| Tope de rpm del motor / ERPM (VESC `l_max_erpm`) | 3725 rpm / 26073 ERPM | [CALCULADO] |
+| V máx a plena carga con el tope (banda nominal) | 7.4 km/h | [CALCULADO] |
 <!-- /AUTO:legal_speed -->
 
 ## 4. Hélice
@@ -133,26 +133,30 @@ así que sacar el tope con 2 a bordo es legal y recupera ~0,5 km/h; por defecto 
 Optimizador (sizing.py → `optimize`): recorre hélices × baterías × relaciones de poleas
 HTD-5M y elige el **mínimo costo** que cumple las restricciones **duras** (energía 2 h + 20 %
 en la banda de diseño, corriente BMS/ESC, margen ESC ≥ 30 %, tensión ≤ 48 V, cavitación de
-Keller, calado de punta ≤ 380 mm); dentro de +10 % de costo desempata por V máx (restricción
-blanda, 8 km/h) y autonomía.
+Keller, calado de punta ≤ 380 mm, **asiento de hélice del eje con FS ≥ 2 en torsión al corte del
+pasador** y **hélice con producto concreto identificado**); dentro de +10 % de costo desempata
+por V máx (restricción blanda, 8 km/h) y autonomía (redondeada a 0,1 h). La hélice "objetivo"
+EO10x8 (3 palas, ~10 × 8 in) daría ~13 % menos energía de crucero, pero no se encontró a la venta
+(research/R08b §5): se muestra como referencia y se elige la Minn Kota MKP-32 (decisiones D-06),
+cuyas medidas son [ESTIMADO] hasta medirla (PENDIENTES P0.7).
 
 <!-- AUTO:optimization -->
 | Hélice | Batería | Poleas | P_bat crucero diseño [W] | E req/nom [Wh] | Autonomía diseño [h] | V máx nom [km/h] | Bollard [N] | Costo hélice+bat [€] | No cumple |
 |---|---|---|---|---|---|---|---|---|---|
-| WW10x4 | LFP12_100x2 | 18:36 | 920 | 2452/2560 | 2.51 | 7.4 | 280 | 613 | vmax |
-| OB78x6 | LFP12_100x2 | 18:36 | 952 | 2539/2560 | 2.42 | 7.3 | 259 | 623 | vmax |
-| EO10x8 | LFP12_100x2 | 15:44 | 798 | 2127/2560 | 2.89 | 7.6 | 291 | 638 | vmax |
-| WW10x4 | LFP12_100x2_LT | 18:36 | 913 | 2434/2560 | 2.52 | 7.4 | 280 | 658 | vmax |
-| OB78x6 | LFP12_100x2_LT | 18:36 | 944 | 2518/2560 | 2.44 | 7.3 | 259 | 668 | vmax |
-| EO10x8 | LFP12_100x2_LT | 15:44 | 791 | 2111/2560 | 2.91 | 7.6 | 291 | 683 | vmax |
-| WW10x4 | LFP24_50 | 15:36 | 852 | 2272/1280 | 1.35 | 6.6 | 260 | 448 | energy, vmax |
-| OB74x55 | LFP24_50 | 20:44 | 914 | 2438/1280 | 1.26 | 6.5 | 216 | 453 | energy, vmax |
-| WW10x4 | LFP12_50x2 | 15:36 | 856 | 2282/1280 | 1.35 | 6.6 | 260 | 455 | energy, vmax |
-| OB78x6 | LFP24_50 | 15:36 | 878 | 2340/1280 | 1.31 | 6.6 | 223 | 458 | energy, vmax |
-| OB74x55 | LFP12_50x2 | 20:44 | 918 | 2449/1280 | 1.25 | 6.5 | 216 | 460 | energy, vmax |
-| OB78x6 | LFP12_50x2 | 15:36 | 881 | 2351/1280 | 1.31 | 6.6 | 223 | 465 | energy, vmax |
-| EO10x8 | LFP24_50 | 20:72 | 736 | 1962/1280 | 1.57 | 6.9 | 262 | 473 | energy, vmax |
-| EO10x8 | LFP12_50x2 | 20:72 | 739 | 1970/1280 | 1.56 | 6.9 | 262 | 480 | energy, vmax |
+| MKP32 | LFP12_100x2 | 20:40 | 920 | 2452/2560 | 2.51 | 7.4 | 280 | 643 | vmax |
+| MKP32 | LFP12_100x2_LT | 20:40 | 913 | 2434/2560 | 2.52 | 7.4 | 280 | 688 | vmax |
+| TOH74x6 | LFP24_50 | 20:40 | 922 | 2459/1280 | 1.25 | 6.5 | 212 | 473 | energy, vmax, prop_seat |
+| EO10x8 | LFP24_50 | 20:72 | 736 | 1962/1280 | 1.57 | 6.9 | 262 | 473 | energy, vmax, purchasable |
+| MKP32 | LFP24_50 | 20:48 | 852 | 2272/1280 | 1.35 | 6.6 | 260 | 478 | energy, vmax, prop_seat |
+| TOH74x6 | LFP12_50x2 | 20:40 | 926 | 2470/1280 | 1.24 | 6.5 | 212 | 480 | energy, vmax, prop_seat |
+| EO10x8 | LFP12_50x2 | 20:72 | 739 | 1970/1280 | 1.56 | 6.9 | 262 | 480 | energy, vmax, purchasable |
+| MKP32 | LFP12_50x2 | 20:48 | 856 | 2282/1280 | 1.35 | 6.6 | 260 | 485 | energy, vmax, prop_seat |
+| TOH74x6 | LFP36_50 | 16:48 | 906 | 2417/1920 | 1.91 | 7.3 | 289 | 593 | energy, vmax, prop_seat |
+| EO10x8 | LFP36_50 | 16:72 | 740 | 1974/1920 | 2.33 | 7.8 | 351 | 593 | energy, vmax, prop_seat, purchasable |
+| MKP32 | LFP36_50 | 16:48 | 855 | 2280/1920 | 2.02 | 7.5 | 349 | 598 | energy, vmax, prop_seat |
+| TOH74x6 | LFP12_100x2 | 20:40 | 974 | 2597/2560 | 2.37 | 7.4 | 266 | 638 | energy, vmax, prop_seat |
+| EO10x8 | LFP12_100x2 | 14:40 | 802 | 2138/2560 | 2.87 | 7.5 | 283 | 638 | vmax, purchasable |
+| TOH74x6 | LFP12_100x2_LT | 20:40 | 966 | 2575/2560 | 2.39 | 7.4 | 266 | 683 | energy, vmax, prop_seat |
 <!-- /AUTO:optimization -->
 
 ### 4.2 Modelo de hélice
@@ -160,20 +164,20 @@ KT(J), KQ(J) de la hélice concreta. Mientras no se verifique la tabla de Wageni
 (Oosterveld & van Oossanen 1975; ver research/R09), se usa una aproximación lineal calibrada a
 valores típicos B3 [ESTIMADO]: KT = KT0(1 − J/J_T0), KQ = KQ0(1 − J/J_Q0), KT0 = 0,38·P/D,
 J_T0 = 1,05·P/D, J_Q0 = 1,15·P/D, KQ0 = KT0^1,5/(√(π/2)·2π·FOM_b) con FOM_b = 0,60. Contraste con
-el disco actuador: η_i = 2/(1 + √(1 + C_T)). η0 de crucero = <!--V:sizing.cruise.design.prop_eta0:.2f-->0.46<!--/V--> a J = <!--V:sizing.cruise.design.prop_J:.2f-->0.36<!--/V--> y
-<!--V:sizing.cruise.design.prop_n_rpm:.0f-->976<!--/V--> rpm (los eléctricos comerciales: 1 200–1 450 rpm a plena potencia).
+el disco actuador: η_i = 2/(1 + √(1 + C_T)). η0 de crucero = <!--V:sizing.cruise.design.prop_eta0:.2f-->0.40<!--/V--> a J = <!--V:sizing.cruise.design.prop_J:.2f-->0.23<!--/V--> y
+<!--V:sizing.cruise.design.prop_n_rpm:.0f-->1542<!--/V--> rpm (los eléctricos comerciales: 1 200–1 450 rpm a plena potencia).
 
 ### 4.3 Cavitación (Keller y Burrill)
-Keller: AE/A0 mín = (1,3 + 0,3Z)·T/((p0 + ρgh − pv)·D²) + K, K = 0,2 [VERIFICADO: research/R09];
+Keller: AE/A0 mín = (1,3 + 0,3Z)·T/((p0 + ρgh − pv)·D²) + K, K = 0,2 [ESTIMADO: forma estándar (Carlton, Marine Propellers); verificar con research/R09];
 Burrill: σ0,7R = (p0 + ρgh − pv)/(½ρV_R²), τc = T/(½ρV_R²·A_P), A_P ≈ A_D(1,067 − 0,229·P/D);
 límite τc ≈ 0,3·σ^0,6 [ESTIMADO: ajuste aproximado del diagrama de 2,5 % — a verificar].
 
 <!-- AUTO:cavitation -->
 | Condición | T [N] | n [rpm] | σ0.7R | τc | τc límite (Burrill aprox.) | AE/A0 mín Keller | AE/A0 |
 |---|---|---|---|---|---|---|---|
-| bollard | 321 | 949 | 2.55 | 0.362 | 0.526 | 0.31 | 0.50 |
-| cruise | 195 | 976 | 2.34 | 0.202 | 0.500 | 0.27 | 0.50 |
-| vmax | 290 | 1179 | 1.61 | 0.207 | 0.399 | 0.30 | 0.50 |
+| bollard | 309 | 1318 | 1.32 | 0.234 | 0.354 | 0.29 | 0.35 |
+| cruise | 195 | 1542 | 0.95 | 0.107 | 0.292 | 0.26 | 0.35 |
+| vmax | 254 | 1745 | 0.75 | 0.109 | 0.251 | 0.27 | 0.35 |
 <!-- /AUTO:cavitation -->
 
 ### 4.4 ¿Hélice impresa? No.
@@ -182,7 +186,7 @@ Admisible PETG en fatiga (≥ 10⁷ ciclos, mojado): < 1,5 MPa (research/R05: f_
 FS ≈ 0,05 → **se compra** (research/R02 E1: hélice PETG fisurada tras una temporada a baja carga).
 
 ### 4.5 Efecto del protector
-Aro corto no perfilado: −6 % de empuje en marcha, sin ganancia en bollard [ESTIMADO, research/R03].
+Aro perfilado (espesor 15 %, cuerda 76 mm, holgura 2–3 % D): −10 % de empuje de diseño (rango de sensibilidad 0–25 %), sin ganancia en bollard [ESTIMADO, research/R03; decisiones D-26].
 Una tobera Kort 19A daría +20–30 % de bollard pero no entra impresa (Ø > 210 mm) sin
 segmentarla con perfil exacto → P2.
 
@@ -194,29 +198,29 @@ duty = V/V_bat ≤ 0,95. Motor Flipsky 6374 Battle Hardened 190 KV: 85 A, 3,5 kW
 VERIFICADO research/R08a; Flipsky no publica]; ESC Flipsky 75100 V2.0: 14–84 V, 100 A continuos,
 BEC 5 V 1 A [VERIFICADO: research/R08a §2]; con FW ≥ 5.03 hay que **apagar el filtro de fase**
 (advertencia del fabricante, research/R08a). Relación de
-poleas elegida <!--V:sizing.selection.z_motor:d-->15<!--/V-->T : <!--V:sizing.selection.z_shaft:d-->44<!--/V-->T. Corriente pico de batería
-<!--V:sizing.esc.I_bat_peak_a:.0f-->66<!--/V--> A → margen del ESC (100 A) <!--V:sizing.esc.margin_frac:.0%-->52%<!--/V--> (requisito ≥ 30 %).
-Correa HTD-5M 15 mm: tirón efectivo a corriente máxima <!--V:sizing.mech.belt.Fe_N:.0f-->295<!--/V--> N vs admisible 400 N
-[ESTIMADO: catálogo, a verificar] → FS <!--V:sizing.mech.belt.fs_belt:.2f-->1.36<!--/V-->; correa
-<!--V:sizing.mech.belt.length_std_mm:.0f-->400<!--/V--> mm.
+poleas elegida <!--V:sizing.selection.z_motor:d-->20<!--/V-->T : <!--V:sizing.selection.z_shaft:d-->40<!--/V-->T. Corriente pico de batería
+<!--V:sizing.esc.I_bat_peak_a:.0f-->62<!--/V--> A → margen del ESC (100 A) <!--V:sizing.esc.margin_frac:.0%-->61%<!--/V--> (requisito ≥ 30 %).
+Correa HTD-5M 15 mm: tirón efectivo a corriente máxima <!--V:sizing.mech.belt.Fe_N:.0f-->221<!--/V--> N vs admisible 400 N
+[ESTIMADO: catálogo, a verificar] → FS <!--V:sizing.mech.belt.fs_belt:.2f-->1.81<!--/V-->; correa
+<!--V:sizing.mech.belt.length_std_mm:.0f-->405<!--/V--> mm.
 
 ### 5.1 Tiempo sostenible a velocidad alta ("por ratos")
 
 <!-- AUTO:sizing_sustain -->
 | v [km/h] | Banda | Factible | P_bat [W] | I_bat [A] | t energía [min] | t térmico [min] | Sostenible [min] |
 |---|---|---|---|---|---|---|---|
-| 7 | nominal | sí | 1164 | 45 | 119 | ∞ | 119 |
-| 7 | design | sí | 1411 | 55 | 98 | 47 | 47 |
-| 8 | nominal | no (corriente de motor) | 1832 | 72 | 75 | 14 | 0 |
-| 8 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 2225 | 87 | 62 | 9 | 0 |
-| 9 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 2613 | 102 | 53 | 7 | 0 |
-| 9 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 3180 | 124 | 43 | 5 | 0 |
-| 10 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 3447 | 135 | 40 | 4 | 0 |
-| 10 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 4198 | 164 | 33 | 3 | 0 |
-| 11 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 4286 | 167 | 32 | 3 | 0 |
-| 11 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 5220 | 204 | 26 | 2 | 0 |
-| 12 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 5102 | 199 | 27 | 3 | 0 |
-| 12 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 6213 | 243 | 22 | 2 | 0 |
+| 7 | nominal | sí | 1349 | 53 | 102 | ∞ | 102 |
+| 7 | design | no (corriente de motor) | 1619 | 63 | 85 | 21 | 0 |
+| 8 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 2119 | 83 | 65 | 10 | 0 |
+| 8 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 2550 | 100 | 54 | 7 | 0 |
+| 9 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 3025 | 118 | 46 | 6 | 0 |
+| 9 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 3646 | 142 | 38 | 4 | 0 |
+| 10 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 4002 | 156 | 35 | 4 | 0 |
+| 10 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 4826 | 189 | 29 | 3 | 0 |
+| 11 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 4997 | 195 | 28 | 3 | 0 |
+| 11 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 6026 | 235 | 23 | 2 | 0 |
+| 12 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 5982 | 234 | 23 | 2 | 0 |
+| 12 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 7209 | 282 | 19 | 2 | 0 |
 <!-- /AUTO:sizing_sustain -->
 
 ### 5.2 Térmico del ESC en caja estanca
@@ -229,21 +233,21 @@ cálculo da la resistencia térmica máxima que hay que exigir al comprarlo (pé
 <!-- AUTO:thermal_esc -->
 | Condición | Pérdida ESC [W] | Sol [W] | R disipador máx. [K/W] |
 |---|---|---|---|
-| esc_cruise | 24 | 0 | 0.69 |
-| esc_vmax | 43 | 0 | 0.31 |
-| Requisito de compra (crucero → caja ≤ 50 °C) |  |  | **≤ 0.69** |
-| Con ese disipador, a V máx sostenida: 66 °C estacionario (límite ESC 80 °C) |  |  | ∞ |
+| esc_cruise | 28 | 0 | 0.57 |
+| esc_vmax | 41 | 0 | 0.34 |
+| Requisito de compra (crucero → caja ≤ 50 °C) |  |  | **≤ 0.57** |
+| Con ese disipador, a V máx sostenida: 60 °C estacionario (límite ESC 80 °C) |  |  | ∞ |
 <!-- /AUTO:thermal_esc -->
 
 ## 6. Batería, cables y protecciones
 
-E_req = P_bat,crucero × 2 h × 1,2 / DoD útil (0,90). Requerida <!--V:sizing.battery.E_required_wh:.0f-->2127<!--/V--> Wh;
+E_req = P_bat,crucero × 2 h × 1,2 / DoD útil (0,90). Requerida <!--V:sizing.battery.E_required_wh:.0f-->2452<!--/V--> Wh;
 elegida: <!--V:sizing.selection.battery_desc:-->2 × Power Queen 12V 100Ah en serie (BMS 100 A c/u)<!--/V--> (<!--V:sizing.battery.E_usable_wh:.0f-->2304<!--/V--> Wh usables,
-<!--V:sizing.battery.mass_kg:.1f-->22.0<!--/V--> kg, tasa pico <!--V:sizing.battery.C_rate_peak:.2f-->0.66<!--/V--> C).
+<!--V:sizing.battery.mass_kg:.1f-->22.0<!--/V--> kg, tasa pico <!--V:sizing.battery.C_rate_peak:.2f-->0.62<!--/V--> C).
 Química: LiFePO4 (sin runaway en ensayo ARC; research/R06), fija en caja ventilada, alta y
 centrada (trimado), nunca en el espejo. Cable DC <!--V:sizing.cables.dc.section_mm2:d-->16<!--/V--> mm²
-(caída <!--V:sizing.cables.dc.drop_frac:.1%-->1.2%<!--/V-->), fases <!--V:sizing.cables.phase.section_mm2:d-->10<!--/V--> mm²
-(caída <!--V:sizing.cables.phase.drop_frac:.1%-->2.7%<!--/V-->); fusible <!--V:sizing.fuse.rating_a:d-->100<!--/V--> A a ≤ 178 mm del borne
+(caída <!--V:sizing.cables.dc.drop_frac:.1%-->1.1%<!--/V-->), fases <!--V:sizing.cables.phase.section_mm2:d-->10<!--/V--> mm²
+(caída <!--V:sizing.cables.phase.drop_frac:.1%-->2.7%<!--/V-->); fusible <!--V:sizing.fuse.rating_a:d-->80<!--/V--> A a ≤ 178 mm del borne
 (ABYC E-11; research/R06), que protege al cable. Fusible y portafusible MIDI de **58 V**
 (IMAXX midiOTO + HMD4-MG1-H): los portafusibles de 32 V de Biltema ANL y Blue Sea AMI/MIDI
 quedarían cortos si se pasa a 12S [VERIFICADO: research/R08a §6]. Batería ↔ instalación con
@@ -254,21 +258,21 @@ El BMS bloquea la carga bajo 5 °C (Power Queen): cargar en interior [VERIFICADO
 
 | Ítem | Resultado |
 |---|---|
-| Eje Ø16 316 — FS estático mín. | <!--V:sizing.mech.shaft.fs_static:.2f-->3.66<!--/V--> |
-| Eje — FS fatiga (Goodman) | <!--V:sizing.mech.shaft.fs_fatigue_goodman:.2f-->3.82<!--/V--> |
-| Velocidad crítica / rpm máx | <!--V:sizing.mech.shaft.n_crit_rpm:.0f-->5763<!--/V--> / <!--V:sizing.mech.shaft.n_max_rpm:.0f-->1203<!--/V--> rpm |
-| Rodamiento A (6002 inox), L10 a máxima | <!--V:sizing.mech.bearing_max.L10_h:.0f-->2900<!--/V--> h |
-| Pasador de corte | Ø<!--V:sizing.mech.shear_pin.d_std_mm:-->2.5<!--/V--> mm Al 6061 → <!--V:sizing.mech.shear_pin.Q_shear_Nm:.1f-->16.3<!--/V--> N·m |
-| Torque de rotor trabado en el eje | <!--V:sizing.mech.Q_lock_shaft_Nm:.1f-->9.7<!--/V--> N·m |
+| Eje Ø16 316 — FS estático mín. | <!--V:sizing.mech.shaft.fs_static:.2f-->2.40<!--/V--> |
+| Eje — FS fatiga (Goodman) | <!--V:sizing.mech.shaft.fs_fatigue_goodman:.2f-->2.51<!--/V--> |
+| Velocidad crítica / rpm máx | <!--V:sizing.mech.shaft.n_crit_rpm:.0f-->5834<!--/V--> / <!--V:sizing.mech.shaft.n_max_rpm:.0f-->1831<!--/V--> rpm |
+| Rodamiento A (6202-2RS), L10 a máxima | <!--V:sizing.mech.bearing_max.L10_h:.0f-->10996<!--/V--> h |
+| Pasador de corte | Ø<!--V:sizing.mech.shear_pin.d_std_mm:-->2.0<!--/V--> mm AISI 316 → <!--V:sizing.mech.shear_pin.Q_shear_Nm:.1f-->12.4<!--/V--> N·m (calibrar con P1.9) |
+| Torque de rotor trabado en el eje | <!--V:sizing.mech.Q_lock_shaft_Nm:.1f-->6.6<!--/V--> N·m |
 
 ## 8. Basculación (kick-up), impacto y retención en marcha atrás
 
-Momento de gravedad de la unidad (cola pesada) <!--V:sizing.mech.kickup.M_gravity_Nm:.1f-->28.9<!--/V--> N·m; retén
-<!--V:sizing.mech.kickup.M_detent_Nm:.0f-->15<!--/V--> N·m; empuje en reversa <!--V:sizing.mech.kickup.M_thrust_rev_Nm:.1f-->5.6<!--/V--> N·m →
-FS de retención en reversa <!--V:sizing.mech.kickup.fs_reverse_hold:.1f-->7.8<!--/V-->. En avance, la cola bascula con
-<!--V:sizing.mech.kickup.F_release_at_skeg_fwd_N:.0f-->95<!--/V--> N horizontales en el patín.
-Impacto a 2,5 m/s: impulso J = I_p·v/r_c (I_p = <!--V:sizing.mech.inertia.I_pivot_kgm2:.2f-->2.98<!--/V--> kg·m²) en 10 ms
-→ pico <!--V:sizing.mech.impact.F_peak_N:.0f-->1162<!--/V--> N (semiseno ×2). La hélice sale del agua a ~22° de basculación.
+Momento de gravedad de la unidad (cola pesada) <!--V:sizing.mech.kickup.M_gravity_Nm:.1f-->25.9<!--/V--> N·m; retén
+<!--V:sizing.mech.kickup.M_detent_Nm:.0f-->15<!--/V--> N·m; empuje en reversa <!--V:sizing.mech.kickup.M_thrust_rev_Nm:.1f-->5.4<!--/V--> N·m →
+FS de retención en reversa <!--V:sizing.mech.kickup.fs_reverse_hold:.1f-->7.6<!--/V-->. En avance, la cola bascula con
+<!--V:sizing.mech.kickup.F_release_at_skeg_fwd_N:.0f-->89<!--/V--> N horizontales en el patín.
+Impacto a 2,5 m/s: impulso J = I_p·v/r_c (I_p = <!--V:sizing.mech.inertia.I_pivot_kgm2:.2f-->2.57<!--/V--> kg·m²) en 10 ms
+→ pico <!--V:sizing.mech.impact.F_peak_N:.0f-->1002<!--/V--> N (semiseno ×2). La hélice sale del agua a ~22° de basculación.
 
 ## 9. Estructural — FS por pieza y caso de carga
 
@@ -281,33 +285,33 @@ fusible), LC6 ola y vibración (fatiga a paso de pala), LC7 manipulación.
 | Pieza | Caso de carga | Modelo | σ [MPa] | Admisible | S [MPa] | FS | Obj. | OK |
 |---|---|---|---|---|---|---|---|---|
 | P1-MNT-01 | Apriete (sostenido) | M = F_apriete·brazo = 2083 N·36 mm; Z = b·t²/6 (esquina de la C) | 2.60 | sust | 8.4 | 3.23 | 3.0 | ✔ |
-| P1-MNT-01 | LC5 impacto + apriete (corta) | (M_apriete + H_imp·h) / Z; H_imp = 0.5·F_pico = 581 N | 5.43 | short | 24.0 | 4.41 | 3.0 | ✔ |
-| P1-MNT-01 | LC1 empuje avante (corta) | (M_apriete + T·h)/Z | 4.01 | short | 24.0 | 5.97 | 3.0 | ✔ |
+| P1-MNT-01 | LC5 impacto + apriete (corta) | (M_apriete + H_imp·h) / Z; H_imp = 0.5·F_pico = 501 N | 5.04 | short | 24.0 | 4.76 | 3.0 | ✔ |
+| P1-MNT-01 | LC1 empuje avante (corta) | (M_apriete + T·h)/Z | 3.96 | short | 24.0 | 6.05 | 3.0 | ✔ |
 | P1-MNT-01 | Apriete: apoyo de la placa de reparto (sostenido) | p = F_tornillo / (40×40 mm) | 0.65 | sust | 8.4 | 12.89 | 3.0 | ✔ |
 | P1-MNT-02 | Apriete (sostenido, compresión) | p = F / (π·D²/4) | 0.83 | sust | 8.4 | 10.12 | 3.0 | ✔ |
-| P1-MNT-03 | LC5 vuelco (corta) | M_vuelco=59.0 N·m → F_perno=702 N; flexión local brazo 20 mm, b=40, t=20.0 | 5.26 | short | 24.0 | 4.55 | 3.0 | ✔ |
-| P1-MNT-04 | Tuerca cautiva M6 en mejilla: arranque por corte (corta) | τ = F_perno/(2·t·h), h = 18 mm; admisible 0.5·S | 1.39 | metal | 12.0 | 8.6 | 3.0 | ✔ |
-| P1-MNT-04 | LC5 en el plano (corta) | M = (H/2)·h; Z = t·L²/6 (L=64) | 3.08 | short | 24.0 | 7.77 | 3.0 | ✔ |
+| P1-MNT-03 | LC5 vuelco (corta) | M_vuelco=50.9 N·m → F_perno=605 N; flexión local brazo 20 mm, b=40, t=20.0 | 4.54 | short | 24.0 | 5.28 | 3.0 | ✔ |
+| P1-MNT-04 | Tuerca cautiva M6 en mejilla: arranque por corte (corta) | τ = F_perno/(2·t·h), h = 18 mm; admisible 0.5·S | 1.20 | metal | 12.0 | 9.98 | 3.0 | ✔ |
+| P1-MNT-04 | LC5 en el plano (corta) | M = (H/2)·h; Z = t·L²/6 (L=64) | 2.66 | short | 24.0 | 9.01 | 3.0 | ✔ |
 | P1-MNT-04 | Golpe lateral 200 N (corta) | M=(F/2)·h; Z = L·t²/6 (fuera del plano) | 4.86 | short | 24.0 | 4.94 | 3.0 | ✔ |
-| P1-MNT-04 | Apoyo del perno Ø12 (corta) | p = (H/2)/(d·t) | 1.73 | short | 24.0 | 13.86 | 3.0 | ✔ |
-| P1-MNT-05 | LC5 dinámico (corta) | p = 6M/(d·L²), M = 0.19·F·L = 249 N·m | 4.61 | short | 24.0 | 5.2 | 3.0 | ✔ |
+| P1-MNT-04 | Apoyo del perno Ø12 (corta) | p = (H/2)/(d·t) | 1.49 | short | 24.0 | 16.08 | 3.0 | ✔ |
+| P1-MNT-05 | LC5 dinámico (corta) | p = 6M/(d·L²), M = 0.19·F·L = 215 N·m | 3.98 | short | 24.0 | 6.03 | 3.0 | ✔ |
 | P1-MNT-05 | LC5 cola trabada (corta) | p = 6M/(d·L²), M = F_fus·L = 338 N·m | 6.27 | short | 24.0 | 3.82 | 3.0 | ✔ |
-| P1-MNT-05/06 | Tope de marcha (sostenido) | F = (T·e + M_grav)/r = 440 N sobre tope Ø25 | 0.90 | sust | 8.4 | 9.36 | 3.0 | ✔ |
-| P1-MNT-05/06 | LC6 golpe de ola 3 g en el tope (corta) | F = 1092 N | 2.23 | short | 24.0 | 10.77 | 3.0 | ✔ |
-| P1-MNT-05/06 | LC6 ola ±1 g (fatiga ~1e6 ciclos) | F_a = 364 N | 0.74 | lcf | 3.6 | 4.85 | 3.0 | ✔ |
-| P1-MNT-05 | LC1 apoyo del buje del pivote (corta) | p = F/(d·w), POM Ø20 × ancho | 0.36 | short | 24.0 | 66.94 | 3.0 | ✔ |
+| P1-MNT-05/06 | Tope de marcha (sostenido) | F = (T·e + M_grav)/r = 406 N sobre tope Ø25 | 0.83 | sust | 8.4 | 10.14 | 3.0 | ✔ |
+| P1-MNT-05/06 | LC6 golpe de ola 3 g en el tope (corta) | F = 1053 N | 2.15 | short | 24.0 | 11.17 | 3.0 | ✔ |
+| P1-MNT-05/06 | LC6 ola ±1 g (fatiga ~1e6 ciclos) | F_a = 351 N | 0.71 | lcf | 3.6 | 5.03 | 3.0 | ✔ |
+| P1-MNT-05 | LC1 apoyo del buje del pivote (corta) | p = F/(d·w), POM Ø20 × ancho | 0.34 | short | 24.0 | 71.37 | 3.0 | ✔ |
 | P1-MNT-05 | LC6 paso de pala ±10 % T lateral (fatiga 1e7–1e8) | p_a = 6M/(d·L²) | 0.41 | fat | 1.4 | 3.54 | 3.0 | ✔ |
-| P1-MNT-05 | LC1 tuercas cautivas de la placa motriz: arranque por corte (corta) | τ = (T/4)/(2·12·18) (bolsillo a 18 mm de la cara) | 0.18 | metal | 12.0 | 64.61 | 3.0 | ✔ |
+| P1-MNT-05 | LC1 tuercas cautivas de la placa motriz: arranque por corte (corta) | τ = (T/4)/(2·12·18) (bolsillo a 18 mm de la cara) | 0.18 | metal | 12.0 | 67.01 | 3.0 | ✔ |
 | P1-MNT-05 | LC6 tuercas de placa motriz ±amp·T (fatiga 1e7–1e8) | τ_a = (amp·T_cr/4)/(2·12·18) | 0.01 | metal | 0.7 | 63.84 | 3.0 | ✔ |
-| P1-MNT-05 | LC2 marcha atrás: cartucho contra el fondo del rebaje (corta) | p = T_rev/A_anillo | 0.12 | short | 24.0 | 206.19 | 3.0 | ✔ |
+| P1-MNT-05 | LC2 marcha atrás: cartucho contra el fondo del rebaje (corta) | p = T_rev/A_anillo | 0.10 | short | 24.0 | 245.26 | 3.0 | ✔ |
 | P1-MNT-06 | LC5 cola trabada: apoyo extremo (corta) | p = F_ext/(d·25), F_ext = 4701 N | 4.70 | short | 24.0 | 5.1 | 3.0 | ✔ |
 | P1-MNT-06 | LC5: arandela Ø24 de perno pasante (corta) | p = (F_ext/2)/(π(24²−6.4²)/4) | 5.59 | short | 24.0 | 4.29 | 3.0 | ✔ |
-| P1-HSG-01 placa Al | LC1 empuje bollard | franja cartucho→pernos: M = (T/2)·11 mm, Z = 30·t²/6 (t=6) | 9.79 | metal | 240.0 | 24.5 | 2.0 | ✔ |
+| P1-HSG-01 placa Al | LC1 empuje bollard | franja cartucho→pernos: M = (T/2)·11 mm, Z = 30·t²/6 (t=6) | 9.44 | metal | 240.0 | 25.41 | 2.0 | ✔ |
 | P1-HSG-01 placa Al | LC6 ±10 % empuje (fatiga) | σ_a = (amp·T/2)·11/Z | 0.59 | metal | 60.0 | 100.89 | 2.0 | ✔ |
 | P1-HSG-01 placa Al | LC3 torque de rotor trabado en colisos M4 | p = Q/(4·r·d·t) | 2.44 | metal | 240.0 | 98.23 | 2.0 | ✔ |
-| P1-DRV-08 cartucho Al | LC1 empuje en el labio (corte) | τ = T/(π·Ø21·espesor labio) | 0.49 | metal | 138.5 | 285.02 | 2.0 | ✔ |
-| P1-HSG-02 | LC3 tracción en el plano (corta) | σ = R_B/(24·t) | 1.49 | short | 24.0 | 16.14 | 3.0 | ✔ |
-| P1-HSG-02 | LC4 tirón de correa (corta) | σ = R_B,pin/(24·t) | 2.34 | short | 24.0 | 10.24 | 3.0 | ✔ |
+| P1-DRV-08 cartucho Al | LC1 empuje en el labio (corte) | τ = T/(π·Ø21·espesor labio) | 0.47 | metal | 138.5 | 295.59 | 2.0 | ✔ |
+| P1-HSG-02 | LC3 tracción en el plano (corta) | σ = R_B/(24·t) | 1.11 | short | 24.0 | 21.64 | 3.0 | ✔ |
+| P1-HSG-02 | LC4 tirón de correa (corta) | σ = R_B,pin/(24·t) | 1.95 | short | 24.0 | 12.31 | 3.0 | ✔ |
 | P1-HSG-04 | LC7 apoyo del tubo en la abrazadera (corta) | M = F·L = 82 N·m → F = M/s = 1500 N; p = F/(d·22) | 2.27 | short | 24.0 | 10.55 | 3.0 | ✔ |
 | P1-HSG-04 | LC7 tracción de la abrazadera (2 M6, sección 2×8×22) (corta) | σ = F/(2·8·22) | 4.26 | short | 24.0 | 5.62 | 3.0 | ✔ |
 | P1-HSG-07 placa Al | LC7 torsión de la placa | τ = M/(β·b·t²) | 36.95 | metal | 138.5 | 3.75 | 2.0 | ✔ |
@@ -321,10 +325,10 @@ fusible), LC6 ola y vibración (fatiga a paso de pala), LC7 manipulación.
 | P1-ELE-01 | Compresión del O-ring en insertos M4 (sostenido) | F_total = 1764 N / 8 insertos vs 1 kN arranque [ESTIMADO] | 1.85 | sust | 8.4 | 4.54 | 3.0 | ✔ |
 | P1-SAF-01 | Tirón del cordón 100 N (corta) | placa 7 mm en voladizo 20 mm | 6.80 | short | 24.0 | 3.52 | 3.0 | ✔ |
 | P1-STR-02 tubo Al | LC5 cola trabada (fusible) | σ = F_fus·L/Z = 338 N·m / 3003 mm³ | 112.70 | metal | 240.0 | 2.13 | 2.0 | ✔ |
-| P1-STR-02 tubo Al | LC5 dinámico | σ = 0.19·F·L/Z | 82.94 | metal | 240.0 | 2.89 | 2.0 | ✔ |
+| P1-STR-02 tubo Al | LC5 dinámico | σ = 0.19·F·L/Z | 71.52 | metal | 240.0 | 3.36 | 2.0 | ✔ |
 | P1-HSG-06 caña Al | LC7 manipulación | σ = M/Z (Ø30×3) | 52.72 | metal | 240.0 | 4.55 | 2.0 | ✔ |
-| P1-MNT-08 perno 316 | LC1+LC5 corte doble | τ = (F/2)/A | 2.57 | metal | 118.3 | 46.05 | 2.0 | ✔ |
-| P1-DRV-01 eje 316 | LC3/LC4 torsión+flexión (sizing) | ver 02_calculos.md §7 | — | metal | — | 3.66 | 2.0 | ✔ |
+| P1-MNT-08 perno 316 | LC1+LC5 corte doble | τ = (F/2)/A | 2.26 | metal | 118.3 | 52.41 | 2.0 | ✔ |
+| P1-DRV-01 eje 316 | LC3/LC4 torsión+flexión (sizing) | ver 02_calculos.md §7 | — | metal | — | 2.4 | 2.0 | ✔ |
 <!-- /AUTO:estructural -->
 
 ## 10. Sensibilidad — las 3 entradas que más mueven el resultado
@@ -332,24 +336,24 @@ fusible), LC6 ola y vibración (fatiga a paso de pala), LC7 manipulación.
 <!-- AUTO:sizing_sens -->
 | Entrada | ±Δ | P_bat crucero (−/+) [W] | V máx (−/+) [km/h] | Variación P | 
 |---|---|---|---|---|
-| Coef. de olas c_w (calibración) | ±30 % | 634 / 974 | 7.6 / 6.7 | 43 % |
-| Pérdida por protector (0–25 %) | 0–0.25 | 692 / 1024 | 7.3 / 6.6 | 42 % |
-| Masa por persona | ±20 % | 668 / 936 | 7.4 / 6.8 | 34 % |
-| Eslora de flotación | ±10 % | 941 / 690 | 6.8 / 7.3 | 31 % |
-| Rendimiento de hélice (modelo) | ±10 % | 894 / 721 | 6.9 / 7.1 | 22 % |
-| Masa del casco | ±30 % | 753 / 843 | 7.2 / 7.0 | 11 % |
-| Ancho de espejo sumergido | ±20 % | 729 / 817 | 7.2 / 7.0 | 11 % |
-| Ángulo de eje | ±20 % | 769 / 837 | 7.1 / 7.0 | 8 % |
-| Resistencia del motor | ±30 % | 772 / 824 | 7.2 / 6.9 | 7 % |
+| Coef. de olas c_w (calibración) | ±30 % | 740 / 1112 | 7.1 / 6.4 | 40 % |
+| Pérdida por protector (0–25 %) | 0–0.25 | 804 / 1166 | 6.9 / 6.3 | 39 % |
+| Masa por persona | ±20 % | 777 / 1070 | 7.0 / 6.4 | 32 % |
+| Eslora de flotación | ±10 % | 1076 / 802 | 6.4 / 6.9 | 30 % |
+| Rendimiento de hélice (modelo) | ±10 % | 1031 / 831 | 6.6 / 6.7 | 22 % |
+| Masa del casco | ±30 % | 871 / 970 | 6.8 / 6.6 | 11 % |
+| Ancho de espejo sumergido | ±20 % | 844 / 941 | 6.8 / 6.6 | 11 % |
+| Ángulo de eje | ±20 % | 893 / 956 | 6.7 / 6.7 | 7 % |
+| Resistencia del motor | ±30 % | 890 / 949 | 6.9 / 6.5 | 6 % |
 <!-- /AUTO:sizing_sens -->
 
 ## 11. Criterios de éxito de P1 (con números)
 
 | Criterio | Valor | Cómo se mide |
 |---|---|---|
-| Bollard pull | ≥ <!--V:sizing.success.bollard_pull_min_N:.0f-->247<!--/V--> N | Dinamómetro en el cabo, T2 |
-| Crucero con 2 personas | 6,0 km/h con P_bat ≤ <!--V:sizing.success.cruise_P_bat_max_W:.0f-->798<!--/V--> W | GPS + medidor de energía, T3/T4 |
-| V máx con 2 personas | ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->6.7<!--/V--> km/h | GPS, T3 |
+| Bollard pull | ≥ <!--V:sizing.success.bollard_pull_min_N:.0f-->238<!--/V--> N | Dinamómetro en el cabo, T2 |
+| Crucero con 2 personas | 6,0 km/h con P_bat ≤ <!--V:sizing.success.cruise_P_bat_max_W:.0f-->920<!--/V--> W | GPS + medidor de energía, T3/T4 |
+| V máx con 2 personas | ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->6.3<!--/V--> km/h | GPS, T3 |
 | Autonomía | ≥ 2 h a 6 km/h con ≥ 20 % de reserva | Wh consumidos/h × capacidad, T4 |
 | Estanqueidad | 0 g de agua en la caja ESC tras 30 min a 0,5 m | T1 |
 | Térmico | carcasa motor ≤ 80 °C; piezas impresas ≤ 50 °C | IR, T2 |

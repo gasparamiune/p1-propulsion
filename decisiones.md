@@ -51,17 +51,17 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se exp
 - [ESTIMADO + calibración pendiente].
 - *Si difiere:* el remolque con dinamómetro (PENDIENTES P2) ajusta `resistance.wave_cw`; batería y relación de poleas se recalculan solas.
 
-**D-06 Hélice comprada de 10 × 8 in, 3 palas, cubo con pasador, bore ≥ 16 mm (no impresa).**
-- Alternativas: 7,8 × 6 de fueraborda de 2,5–3,5 hp (η0 ≈ 0,38, +40 % de energía); 11 × 8 (no cumple calado máx.); hélice de PETG.
-- Justificación: una hélice de PETG a ~1 kW tiene σ en raíz ≈ 30 MPa frente a una admisible en fatiga < 1,5 MPa (02 §4.4) → inviable. Los fuerabordas eléctricos de 1 kW usan 10–11" a 1 200–1 450 rpm (research/R04 §B.3).
-- [CALCULADO + VERIFICADO: research/R04].
-- *Si difiere:* cargar diámetro/paso/bore reales en `propeller.options`; el eje se tornea al bore real.
+**D-06 Hélice comprada (no impresa); el optimizador solo elige entre productos concretos identificados → Minn Kota MKP-32 Weedless Wedge 2 (485 kr, Watski DK, con tuerca y pin). Objetivo de mejora: 10 × 8 in 3 palas de fueraborda eléctrico (no se halló producto).**
+- Alternativas: Tohatsu 309B64107-0 aluminio 7,4 × 6 (verificada la ficha, no el precio ni el bore; con bore ~12 mm el asiento del eje no llega a FS 2 en torsión y no cierra la energía de diseño); 10 × 8 de fueraborda eléctrico (−13 % de energía de crucero, pero sin producto con link abierto: research/R08b §5); hélice de PETG.
+- Justificación: una hélice de PETG a ~1 kW tiene σ en raíz ≈ 30 MPa frente a una admisible en fatiga < 1,5 MPa (02 §4.4) → inviable. La MKP-32 es la única opción comprable que cumple energía, asiento de eje y calado con la batería elegida (02 §4.1); η0 de crucero calculado ≈ 0,40, coherente con el 40–50 % medido en hélices de trolling (research/R02 S34).
+- [CALCULADO + VERIFICADO: research/R04, R08b]; diámetro, paso y bore de la MKP-32 son [ESTIMADO].
+- *Si difiere:* **comprar la hélice primero** (PENDIENTES P0.7), medir D, paso, bore, pasador y retención, cargarlos en `propeller.options.MKP32` y correr `run_all.py`: re-dimensiona eje, pasador, protector, patín y carcasa inferior. Si aparece una 10 × 8 de 3 palas con bore ≥ 14 mm, marcar `purchasable: true` y el optimizador la elige.
 
-**D-07 Eje AISI 316 Ø16 con muñones Ø15 (6002).**
+**D-07 Eje AISI 316 Ø16 con tramo superior Ø15 continuo (rodamientos 6202 + polea) que termina en el hombro Ø16; pila apretada por tuerca M12 desde arriba.**
 - Alternativas: Ø12 (FS fatiga 1,1 y torsión en el pasador 1,3: **rechazado**), dúplex 2205 (mejor, más caro).
-- Justificación: FS ≥ 2,5 en todas las secciones (02 §7). Velocidad crítica ≥ 5× la máxima.
-- [CALCULADO].
-- *Si difiere:* si la hélice tiene bore 15,875 mm (5/8"), usar barra de 5/8".
+- Justificación: FS ≥ 2 en todas las secciones (02 §7); velocidad crítica ≥ 4× la máxima. **Corrección de Pasada 2:** la versión anterior tenía el muñón del rodamiento A (Ø15) entre dos tramos Ø16: el rodamiento no se podía montar. Ahora todo lo que va arriba del hombro es ≤ Ø15 (cota verificada en `build_all`), con separadores DRV-09/DRV-10.
+- [CALCULADO]. Barra 316/316L: no se halló en tienda abierta (research/R08b §2) → pedir a un metalgrossist; **1.4301 no sirve sumergido**.
+- *Si difiere:* el asiento de hélice se tornea al bore real medido.
 
 **D-08 Polea conducida entre dos rodamientos (placa motriz + puente).**
 - Alternativas: polea en voladizo con 2 rodamientos en un buje (FS fatiga 1,6 en el muñón).
@@ -79,9 +79,9 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se exp
 - [CALCULADO].
 - *Si difiere:* la precarga del émbolo es regulable; calibrar con dinamómetro (PENDIENTES P5).
 
-**D-11 Pasador de corte de Al 6061-T6 Ø2,5–3 mm → corta a ≈ 2× el torque máximo normal.**
-- Alternativas: inox (corta a ~3× más: no protege), latón (descincifica).
-- Justificación: protege eje, correa y placa (02 §7.4).
+**D-11 Pasador de corte de AISI 316 de diámetro chico (≈ Ø2 mm) → corta a ≈ 2× el torque máximo normal.**
+- Alternativas: Al 6061 (versión anterior: en agua salobre, en contacto con el eje 316, es el ánodo del par y pierde sección → corte prematuro e impredecible); latón (descincifica).
+- Justificación: protege eje, correa y placa (02 §7); mismo metal que el eje. El diámetro sale de τ_u ≈ 0,6·Su [ESTIMADO] → **calibrar con el ensayo P1.9** antes de navegar.
 - [CALCULADO].
 
 **D-12 Patín fusible: rompe con 300 N horizontales en su punta.**
@@ -119,8 +119,8 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se exp
 - *Si difiere:* si el remolque da la banda nominal o menor, la LiTime 36 V 50 Ah (o una 24 V de 60–80 Ah) pasa a cumplir y se ahorra ~45 € y 7 kg; correr `run_all.py` con los puntos medidos lo decide solo.
 
 **D-20 ESC + antichispa en caja estanca impresa (ELE-01, interior 160×110×45) con tapa de aluminio (ELE-02) y disipador de aletas comprado; caja a la sombra, dentro del bote, cerca de la batería.**
-- Alternativas: caja comercial IP67 BOX4U 177×126×56 (14,65 €, research/R08a §10): estanqueidad certificada pero tapa plástica → el ESC (<!--V:sizing.thermal_esc.esc_cruise.P_loss_esc_W:.0f-->24<!--/V--> W de pérdida en crucero con η = 0,97) no tiene camino de calor; ESC refrigerado por agua (P2).
-- Justificación: la caja impresa permite tapa de Al como camino térmico. Requisito calculado del disipador: **R_th ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.69<!--/V--> K/W** para que la caja no pase de 50 °C en crucero (02 §5.2). Los prensaestopas M20 no podían atravesar la pared de 18 mm del reborde (rosca ~10–15 mm): se rebaja la pared a 5 mm en cada prensaestopas y se fija con contratuerca por dentro (verificado con 10 cotas en `build_all`).
+- Alternativas: caja comercial IP67 BOX4U 177×126×56 (14,65 €, research/R08a §10): estanqueidad certificada pero tapa plástica → el ESC (<!--V:sizing.thermal_esc.esc_cruise.P_loss_esc_W:.0f-->28<!--/V--> W de pérdida en crucero con η = 0,97) no tiene camino de calor; ESC refrigerado por agua (P2).
+- Justificación: la caja impresa permite tapa de Al como camino térmico. Requisito calculado del disipador: **R_th ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.57<!--/V--> K/W** para que la caja no pase de 50 °C en crucero (02 §5.2). Los prensaestopas M20 no podían atravesar la pared de 18 mm del reborde (rosca ~10–15 mm): se rebaja la pared a 5 mm en cada prensaestopas y se fija con contratuerca por dentro (verificado con 10 cotas en `build_all`).
 - [CALCULADO].
 - *Si difiere:* si el ensayo T1 de la caja impresa no pasa (porosidad del PETG), usar la BOX4U IP67 con una ventana fresada en la tapa y la placa ELE-02 atornillada con junta como tapa-disipador.
 
@@ -161,8 +161,8 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se exp
 - [VERIFICADO: research/R05]. *Si difiere:* las probetas P1.5/P1.7 (PENDIENTES) recalibran `materials.*` y `structural.py` re-verifica.
 
 **D-30 Límite legal 5 kn a < 300 m de la costa → V máx útil 9,26 km/h; tope de ERPM en el VESC ("modo costa") por defecto.**
-- Alternativas: sin tope (con 1 persona el modelo da <!--V:sizing.legal_speed.vmax_light_low_kmh:.1f-->12.4<!--/V--> km/h: ilegal); limitador por GPS en el Arduino (P2).
-- Justificación: Sejladsreglement Syd- og Sønderjyllands Politi §4 (research/R07). El tope = rpm del motor a 5 kn en el caso más rápido (carga liviana, banda baja, batería llena): <!--V:sizing.legal_speed.erpm_cap:.0f-->23034<!--/V--> ERPM; a plena carga baja la V máx nominal de <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.6<!--/V--> a <!--V:sizing.legal_speed.vmax_full_load_with_cap_kmh:.1f-->7.1<!--/V--> km/h. Con 2 personas el bote no llega a 5 kn en ninguna banda (8,7 km/h en la baja), así que quitar el tope con 2 a bordo es legal. Los 12 km/h del pedido no se persiguen.
+- Alternativas: sin tope (con 1 persona el modelo da <!--V:sizing.legal_speed.vmax_light_low_kmh:.1f-->11.0<!--/V--> km/h: ilegal); limitador por GPS en el Arduino (P2).
+- Justificación: Sejladsreglement Syd- og Sønderjyllands Politi §4 (research/R07). El tope = rpm del motor a 5 kn en el caso más rápido (carga liviana, banda baja, batería llena): <!--V:sizing.legal_speed.erpm_cap:.0f-->26073<!--/V--> ERPM; a plena carga baja la V máx nominal de <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.4<!--/V--> a <!--V:sizing.legal_speed.vmax_full_load_with_cap_kmh:.1f-->7.4<!--/V--> km/h. Con 2 personas el bote no llega a 5 kn en ninguna banda (8,7 km/h en la baja), así que quitar el tope con 2 a bordo es legal. Los 12 km/h del pedido no se persiguen.
 - [VERIFICADO: research/R07 §1.2 + CALCULADO: sizing.py `legal_speed`].
 - *Si difiere:* recalibrar el tope con el GPS en T3 (velocidad a tope con 1 persona ≤ 9,0 km/h).
 
@@ -184,6 +184,26 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se exp
 **D-35 Equipo de seguridad de operación (2 chalecos con cuello, remos, ancla + cabo, luz todo horizonte, achicador, bolsa estanca) en la BOM como alcance aparte (~270 €).**
 - Justificación: research/R07 §1.4 (viento de tierra W/SW dominante; agua < 15 °C fuera de temporada). No se suma al costo del sistema para compararlo con un motor comercial, pero es obligatorio para salir.
 - [VERIFICADO requisito: research/R07; precios ESTIMADO].
+
+**D-36 Sin ánodo de sacrificio en P1; aislamiento galvánico por diseño.**
+- Alternativas: ánodo de collar de Al en el eje (no existe para Ø16 en DK: el más chico es Ø25, research/R08b §6); ánodo atornillado al tubo.
+- Justificación: los metales mojados no forman pares conectados: grupo giratorio todo 316 (eje, pasador, tuerca A4; hélice de compuesto), tubo de Al aislado del eje (bujes igus en portabujes PETG) y del casco (montaje impreso); tornillería A4 sobre Al con Tef-Gel + arandelas/vainas de nylon; sistema eléctrico flotante (sin masa al casco). Si la hélice final es de aluminio, sí hace falta ánodo (buje adaptador Ø16→Ø25 + Tecnoseal Al Ø25, 96 kr).
+- [ESTIMADO: criterio de diseño; ver mapa galvánico en 06].
+- *Si difiere:* inspección de picaduras por temporada (checklist); si aparecen, agregar ánodo (P2).
+
+**D-37 Rodamientos 6202-2RS de acero al cromo (Biltema) en zona seca, cambio por temporada.**
+- Alternativas: 6002 inox (no hallado en tienda abierta), S6202 AISI 420 (Kugellager-Shop ya no envía a DK por la PPWR; posible vía paketshop en Flensburg).
+- Justificación: comprable localmente (36,90 kr), en zona seca con sello 2RS. Cartucho Ø42 con brida Ø56; puente con rodamiento B flotante (deslizante y 1 mm de juego axial).
+- [VERIFICADO: research/R08b §3].
+
+**D-38 Bujes sumergidos igus iglidur H370 (Ø16×Ø18×20, 2 por portabuje) en portabujes de PETG impresos.**
+- Alternativas: POM-C torneado (barra no hallada en tienda abierta), cutlass (no hay para Ø16).
+- Justificación: igus recomienda H370 para uso bajo agua; 3,10 €/u; evita tornear 3 bujes. Presión de contacto en el portabuje < 1 MPa.
+- [VERIFICADO: research/R08b §3].
+
+**D-39 Poleas Dold Mechatronik (motor 14/16/20 T bore 8; eje 40/48/72 T re-mandrinada a Ø15 H7) y correa de un largo con stock.**
+- Justificación: son los dientes y largos que existen (research/R08b §4); el optimizador elige solo entre ellos y `mech.belt_checks` toma el largo con stock más cercano y verifica que la distancia entre centros real quede dentro de los colisos (±8 mm).
+- [VERIFICADO: research/R08b §4].
 
 ## Software y entorno
 

@@ -42,7 +42,7 @@ def build(p):
     import math
     for k in range(3):
         a = math.radians(90 + 120 * k)
-        plate = plate - cyl_x(2.2, uf - 1, ua + 1, y=23 * math.cos(a), z=vs + 23 * math.sin(a))
+        plate = plate - cyl_x(2.2, uf - 1, ua + 1, y=p.cart_bc_r * math.cos(a), z=vs + p.cart_bc_r * math.sin(a))
     # motor: coliso central + 4 colisos M4
     tz = p.tension_slot
     mv = p.motor_v

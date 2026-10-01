@@ -1,5 +1,5 @@
-"""P1-DRV-08 — Cartucho del rodamiento A (Al 6082-T6, torneado de barra Ø55): brida Ø52×4
-con 3×M4 a la placa motriz, cuerpo Ø40, asiento Ø32 M7 para 6002, labio delantero con paso
+"""P1-DRV-08 — Cartucho del rodamiento A (Al 6082-T6, torneado de barra Ø60): brida Ø56×4
+con 3×M4 a la placa motriz, cuerpo Ø42, asiento Ø35 M7 para 6202, labio delantero con paso
 Ø21. Toma el empuje axial en ambos sentidos (rodamiento localizador)."""
 import math
 from cadlib import *
@@ -21,7 +21,7 @@ def build(p):
     c = c - cyl_x(10.5, uf - 1, seat0 + 0.1, z=vs)              # labio con paso de eje
     for k in range(3):
         a = math.radians(90 + 120 * k)
-        c = c - cyl_x(2.2, ua - 1, ua + p.cart_fl_t + 1, y=23 * math.cos(a), z=vs + 23 * math.sin(a))
+        c = c - cyl_x(2.2, ua - 1, ua + p.cart_fl_t + 1, y=p.cart_bc_r * math.cos(a), z=vs + p.cart_bc_r * math.sin(a))
     return c
 
 
@@ -31,4 +31,8 @@ def placements(p, steer=0.0, tilt=0.0):
 
 
 def checks(p, part):
-    return [("pared del cartucho sobre el rodamiento [mm]", (p.cart_od - p.brg_D) / 2, 3.0, ">=")]
+    lig_in = p.cart_bc_r - 2.2 - p.cart_od / 2
+    lig_out = p.cart_fl_d / 2 - p.cart_bc_r - 2.2
+    return [("pared del cartucho sobre el rodamiento [mm]", (p.cart_od - p.brg_D) / 2, 3.0, ">="),
+            ("ligamento agujero M4 → cuerpo [mm]", lig_in, 1.0, ">="),
+            ("ligamento agujero M4 → borde de brida [mm]", lig_out, 1.0, ">=")]

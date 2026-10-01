@@ -16,7 +16,8 @@ def dims(p):
     u1 = p.plate_u_fwd - 0.3
     v0 = vs - p.pd_shaft / 2 - 3 - 6 - t
     v1 = p.motor_v + p.tension_slot + p.pd_motor / 2 + 3 + 3 + t   # polea del motor en su tensado máximo
-    W = p.pd_shaft / 2 + 3.0 + 3.0 + t                          # polea conducida (disco en el plano v–w)
+    # polea conducida (disco en el plano v–w) o puente HSG-02 con sus separadores, lo que sea más ancho
+    W = max(p.pd_shaft / 2 + 3.0 + 3.0, p.pd_motor / 2 + 13.0 + 9.0 + 2.0) + t
     return u0, u1, v0, v1, W, t
 
 
@@ -36,4 +37,5 @@ def placements(p, steer=0.0, tilt=0.0):
 
 def checks(p, part):
     u0, u1, v0, v1, W, t = dims(p)
-    return [("holgura polea conducida–cubrecorrea [mm]", W - t - (p.pd_shaft / 2 + 3), 2.5, ">=")]
+    return [("holgura polea conducida–cubrecorrea [mm]", W - t - (p.pd_shaft / 2 + 3), 2.5, ">="),
+            ("holgura puente HSG-02–cubrecorrea [mm]", W - t - (p.pd_motor / 2 + 13.0 + 9.0), 1.5, ">=")]

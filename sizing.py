@@ -99,6 +99,11 @@ def optimize(inp: dict) -> dict:
             bol = drv.bollard(b["v_nom"])
             I_pk = max(vmd.get("I_bat", 0), bol["I_bat"])
             E_req = power.required_energy_wh(ii, cr["P_bat"])
+            # asiento de hélice con agujero de pasador: torsión al corte del pasador (2× Q máx normal)
+            Q_lock = drv.motor.kt * ii["motor"]["current_limit_a"] * drv.ratio * drv.eta_tr
+            Q_pin = ii["propeller"]["shear_pin"]["target_factor_vs_qmax"] * max(Q_lock, bol["Q_prop"])
+            d_seat = min(ii["shaft"]["d_mm"], p["bore_mm"]) / 1000
+            fs_seat = 0.577 * ii["shaft"]["sy_mpa"] * 1e6 / (1.6 * Q_pin / (math.pi * d_seat**3 / 16))
             E_nom = power.battery_energy_wh(b)
             ok = {
                 "energy": E_nom >= E_req,
@@ -108,16 +113,19 @@ def optimize(inp: dict) -> dict:
                 "cavitation": drv.prop.keller_min_bar(bol["T_shaft"], _h_shaft(ii, mass), ii["water"]) <= drv.prop.BAR,
                 "draft": tip_depth <= op["max_prop_tip_depth_mm"],
                 "esc_margin": ii["esc"]["options"][ii["esc"]["chosen"]]["i_cont_a"] >= (1 + ii["esc"]["margin_min_frac"]) * I_pk,
+                "prop_seat": fs_seat >= 2.0,
+                "purchasable": bool(p.get("purchasable", True)) or bool(inp["propeller"].get("allow_unverified_products", False)),
             }
             rows.append({"prop": pk, "battery": bk, "z_motor": rb["z_motor"], "z_shaft": rb["z_shaft"],
                          "mass_kg": mass, "P_bat_cruise_des_W": cr["P_bat"], "E_req_wh": E_req,
                          "E_nom_wh": E_nom, "vmax_nom_kmh": vmn["V"] * 3.6,
                          "vmax_des_vmin_kmh": vmd["V"] * 3.6, "bollard_N": bol["T_horiz"],
-                         "I_peak_A": I_pk, "tip_depth_mm": tip_depth,
+                         "I_peak_A": I_pk, "tip_depth_mm": tip_depth, "fs_prop_seat": fs_seat,
                          "cost_eur": b["price_eur"] + b.get("charger", {}).get("price_eur", 0.0) + p["price_eur"],
                          **{f"ok_{k}": v for k, v in ok.items()}, "all_ok": all(ok.values())})
     # Restricciones DURAS (seguridad / requisito de autonomía) vs BLANDA (V máx "por ratos").
-    hard = ("ok_energy", "ok_current", "ok_voltage", "ok_cavitation", "ok_draft", "ok_esc_margin")
+    hard = ("ok_energy", "ok_current", "ok_voltage", "ok_cavitation", "ok_draft", "ok_esc_margin",
+            "ok_prop_seat", "ok_purchasable")
     for r in rows:
         r["hard_ok"] = all(r[k] for k in hard)
         r["autonomy_des_h"] = r["E_nom_wh"] * inp["battery"]["usable_dod"] / r["P_bat_cruise_des_W"]
@@ -127,7 +135,8 @@ def optimize(inp: dict) -> dict:
         tol = inp["costs"].get("selection_cost_band_frac", 0.10)
         band = [r for r in feas if r["cost_eur"] <= cmin * (1 + tol)]
         # dentro de la franja de costo: primero cumplir V máx, luego mayor autonomía, luego menor costo
-        best = max(band, key=lambda r: (r["ok_vmax"], r["autonomy_des_h"], -r["cost_eur"]))
+        # autonomía redondeada a 0,1 h: diferencias menores no justifican pagar más  [SUPUESTO]
+        best = max(band, key=lambda r: (r["ok_vmax"], round(r["autonomy_des_h"], 1), -r["cost_eur"]))
     else:  # ninguna cumple lo duro: la que más restricciones duras cumple, luego la más barata
         best = max(rows, key=lambda r: (sum(r[k] for k in hard), -r["cost_eur"]))
     return {"best": best, "rows": rows}

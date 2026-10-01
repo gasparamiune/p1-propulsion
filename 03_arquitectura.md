@@ -6,7 +6,7 @@
 |---|---|---|
 | A1 | Fueraborda, motor en pod **seco sellado** | Motor en cápsula bajo el agua con retén dinámico en el eje |
 | A2 | Fueraborda, motor en pod **inundado** | Outrunner/inrunner mojado (estilo eFoil) |
-| A3 | **Cola larga (long-tail) eléctrica** | Motor seco arriba, correa, eje inclinado en tubo con bujes de agua |
+| A3 | **Cola larga (long-tail) eléctrica** | Motor seco arriba, correa, eje inclinado en tubo con bujes igus aptos bajo agua |
 | B | Conversión de trolling motor | Trolling comercial + soporte basculante, protector y caña impresos |
 | C | Waterjet impreso | Impulsor + estator + tobera impresos (como el video V2) |
 | D | Hélice entubada / rim-driven | Tobera o motor en anillo impresos |
