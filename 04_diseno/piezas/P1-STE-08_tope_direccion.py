@@ -57,7 +57,7 @@ def build(p):
     b = b & box(-1000, -6.0, -1000, 1000, -1000, 2000)                    # a popa del ala
     bb = b.bounding_box()
     ym, zm = (bb.min.Y + bb.max.Y) / 2, bb.min.Z + 4.0
-    fl = box(-6.0, -0.01, ym - 32.0, ym + 32.0, zm - 26.0, zm + 6.0)
+    fl = box(-6.5, -0.01, ym - 32.0, ym + 32.0, zm - 26.0, zm + 6.0)
     for dy in (-20.0, 20.0):
         fl = fl - cyl_x(3.3, -7.0, 1.0, y=ym + dy, z=zm - 14.0)
     return b + fl
