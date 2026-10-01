@@ -342,11 +342,14 @@ class Model:
         for key in ("vm", "s1", "sZ"):
             v = fields[key]
             vb, wb = v[sel], w[sel]
-            vin = v[sel & ~excl]
+            ok = sel & ~excl
+            if not ok.any():
+                ok = sel
             iarg = np.flatnonzero(sel)[np.argmax(vb)]
+            iex = np.flatnonzero(ok)[np.argmax(v[ok])]
             out[key] = {"max": float(vb.max()), "p99": fc.weighted_percentile(vb, wb, 99.0),
-                        "max_excl": float(vin.max()) if len(vin) else float(vb.max()),
-                        "at_max_mm": S.X[iarg].round(1).tolist()}
+                        "max_excl": float(v[iex]), "at_max_mm": S.X[iarg].round(1).tolist(),
+                        "at_max_excl_mm": S.X[iex].round(1).tolist()}
         um = np.linalg.norm(fields["u"], axis=1)[sel]
         out["u_max_mm"] = float(um.max())
         out["excl_frac_vol"] = float(w[sel & excl].sum() / w[sel].sum())

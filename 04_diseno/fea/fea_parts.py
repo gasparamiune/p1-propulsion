@@ -92,7 +92,7 @@ def hand_rows(est, part, keys):
     out = []
     for r in est.get("rows", []):
         if r.get("part") == part and any(k.lower() in r.get("load_case", "").lower() for k in keys):
-            out.append({"load_case": r["load_case"], "sigma_MPa": r.get("sigma_MPa"), "FS": r.get("FS"),
+            out.append({"part": part, "load_case": r["load_case"], "sigma_MPa": r.get("sigma_MPa"), "FS": r.get("FS"),
                         "S_MPa": r.get("S_MPa"), "model": r.get("model")})
     return out
 
@@ -202,7 +202,7 @@ def setup_mnt01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     t_br = p.shelf_top_z                                     # el puente ocupa z ∈ [0, shelf_top_z]
     arm = abs(nut_faces[0]["axis_point"][2]) + t_br / 2
     sig_bridge = 2 * F_scr * arm / (p.clamp_w * t_br ** 2 / 6)
-    checks = {"F_tornillo_N": F_scr, "k_cadena_N_mm": [round(k, 0) for k in k_chain], "k_espejo_N_mm3": k_tr,
+    checks = {"F_tornillo_N": F_scr, "ancho_abrazadera_mm": p.clamp_w, "k_cadena_N_mm": [round(k, 0) for k in k_chain], "k_espejo_N_mm3": k_tr,
               "z_tornillos_mm": [float(nf["axis_point"][2]) for nf in nut_faces],
               "y_tornillos_mm": [float(nf["axis_point"][1]) for nf in nut_faces],
               "x_apoyo_tuerca_mm": [nf["x"] for nf in nut_faces],
@@ -295,7 +295,12 @@ def setup_mnt04(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
         return res
 
     hc = pz - z0
-    checks = {"F_x_por_mejilla_N": Fx, "F_lateral_N": F_lat, "brazo_pivote_pie_mm": hc, "r_buje_mm": r_bush,
+    try:
+        from cadlib import NUT_AF
+        w_slot = NUT_AF[6] + 0.4                         # ranura de tuerca M6 (como en el módulo de la pieza)
+    except Exception:
+        w_slot = None
+    checks = {"ancho_ranura_mm": w_slot, "F_x_por_mejilla_N": Fx, "F_lateral_N": F_lat, "brazo_pivote_pie_mm": hc, "r_buje_mm": r_bush,
               "sigma_mano_x_MPa": Fx * hc / (p.cheek_t * 64.0 ** 2 / 6),
               "sigma_mano_lat200_MPa": F_lat * hc / (64.0 * p.cheek_t ** 2 / 6)}
     hand = hand_rows(est, "P1-MNT-04", ["en el plano", "lateral", "Apoyo del perno"])

@@ -1,0 +1,636 @@
+<title>Langhalen de Jorge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: cabecera de rótulo náutico → visor 3D a todo ancho con panel de pieza al costado → franjas de datos y listas. */
+:root {
+  --bg: #eef2f1;          /* papel de carta náutica, verdoso frío */
+  --surface: #ffffff;
+  --ink: #0f242b;         /* tinta de fiordo */
+  --muted: #56686d;
+  --line: #cfd9d8;
+  --accent: #e2601a;      /* naranja señal = PETG impreso */
+  --accent-ink: #ffffff;
+  --sea: #1d7486;         /* agua de Als Fjord */
+  --ok: #2f8a4f;
+  --warn: #b7791f;
+  --bad: #c0392b;
+  --viewer-bg: #dfe7e6;
+  --font-display: "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Public Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --step--1: 0.8125rem; --step-0: 1rem; --step-1: 1.25rem; --step-2: 1.6rem; --step-3: 2.4rem;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b181d; --surface: #11232a; --ink: #e4eded; --muted: #93a7ab; --line: #22383f;
+    --accent: #ff7a33; --accent-ink: #1a0c04; --sea: #4fb0c2; --ok: #5cc27e; --warn: #e2a84a; --bad: #ef6b5b;
+    --viewer-bg: #0f2228; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b181d; --surface: #11232a; --ink: #e4eded; --muted: #93a7ab; --line: #22383f;
+  --accent: #ff7a33; --accent-ink: #1a0c04; --sea: #4fb0c2; --ok: #5cc27e; --warn: #e2a84a; --bad: #ef6b5b;
+  --viewer-bg: #0f2228; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: var(--step-0); line-height: 1.55; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: clamp(16px, 3vw, 32px); padding-block: 20px 56px; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.02; }
+h2 { font-size: var(--step-3); font-weight: 800; letter-spacing: 0.01em; }
+h3 { font-size: var(--step-2); font-weight: 800; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font-family: var(--font-mono); font-size: var(--step--1); letter-spacing: 0.12em; text-transform: uppercase; color: var(--sea); }
+a { color: var(--sea); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* cabecera */
+header.hero { display: grid; gap: 12px; padding-block: 12px 4px; border-bottom: 2px solid var(--ink); }
+.hero h1 { font-size: clamp(2.4rem, 7vw, 4.8rem); font-weight: 900; text-transform: uppercase; letter-spacing: -0.005em; }
+.hero h1 .name { color: var(--accent); }
+.hero .lead { font-size: 1.12rem; color: var(--ink); max-width: 62ch; }
+.hero .meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
+
+/* visor */
+.viewer-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+@media (max-width: 980px) { .viewer-grid { grid-template-columns: minmax(0, 1fr); } }
+.stage { position: relative; background: var(--viewer-bg); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; height: min(72vh, 720px); min-height: 380px; }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.toolbar { position: absolute; left: 10px; right: 10px; top: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; pointer-events: none; }
+.toolbar > * { pointer-events: auto; }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.seg button, .tbtn { font: 600 var(--step--1) var(--font-body); border: 0; background: transparent; color: var(--ink); padding: 7px 13px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.tbtn { background: var(--surface); border: 1px solid var(--line); }
+.tbtn.demo { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.tbtn.demo[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.controls { position: absolute; left: 10px; bottom: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 8px 14px; background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 12px; font-size: var(--step--1); }
+.controls label { display: grid; gap: 2px; min-width: 140px; flex: 1 1 140px; font-family: var(--font-mono); color: var(--muted); }
+.controls label span b { color: var(--ink); font-weight: 600; }
+.controls input[type=range] { width: 100%; accent-color: var(--accent); }
+.controls .checks { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; flex: 2 1 220px; color: var(--ink); font-family: var(--font-body); }
+.caption { position: absolute; left: 50%; top: 58px; transform: translateX(-50%); max-width: min(92%, 640px); text-align: center; background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: var(--step--1); font-weight: 600; }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-mono); color: var(--muted); }
+.hint { position: absolute; right: 12px; top: 56px; font-size: var(--step--1); color: var(--muted); font-family: var(--font-mono); text-align: right; }
+@media (max-width: 600px) { .hint { display: none; } .stage { height: 64vh; } }
+
+/* panel de pieza */
+aside.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 12px; max-height: min(72vh, 720px); overflow: auto; min-width: 0; }
+@media (max-width: 980px) { aside.panel { max-height: none; } }
+.pid { font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
+.panel h3 { font-size: 1.9rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 600 0.75rem var(--font-mono); padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink); background: var(--bg); }
+.chip.petg { border-color: var(--accent); color: var(--accent); }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: var(--step--1); }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+.panel ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 0.92rem; }
+.panel .sect { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sea); border-top: 1px solid var(--line); padding-top: 10px; }
+.fs { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+.fs td { border-bottom: 1px solid var(--line); padding: 4px 4px; vertical-align: top; }
+.fs td.n { text-align: right; white-space: nowrap; font-family: var(--font-mono); }
+.okv { color: var(--ok); } .badv { color: var(--bad); }
+.empty { color: var(--muted); font-size: 0.95rem; }
+
+/* lista de piezas */
+.parts { display: grid; gap: 14px; }
+.parts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px 18px; }
+.group h4 { font-family: var(--font-display); font-size: 1.25rem; margin: 0 0 6px; font-weight: 800; }
+.group ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.group button { width: 100%; text-align: left; display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; background: transparent; border: 0; padding: 5px 6px; border-radius: 6px; color: var(--ink); font: 0.9rem var(--font-body); cursor: pointer; }
+.group button:hover, .group button[aria-current="true"] { background: var(--surface); }
+.group button .sw { width: 12px; height: 12px; border-radius: 3px; }
+.group button .id { font: 0.72rem var(--font-mono); color: var(--muted); }
+
+/* datos */
+.figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); }
+.fig { padding: 12px 14px 12px 0; display: grid; gap: 2px; }
+.fig .v { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.fig .v small { font-size: 1rem; font-weight: 600; }
+.fig .l { font-size: var(--step--1); color: var(--muted); }
+
+/* pasos */
+.steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; min-width: 0; }
+.steps li::before { content: counter(s); font-family: var(--font-display); font-weight: 900; font-size: 1.9rem; color: var(--accent); line-height: 1; text-align: right; }
+.steps b { display: block; }
+.steps p { color: var(--muted); font-size: 0.95rem; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+@media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--step--1); color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.jet { display: grid; gap: 14px; }
+.jet figure { margin: 0; display: grid; gap: 6px; }
+.jet figure img { border: 1px solid var(--line); border-radius: 8px; background: #ffffff; }
+.jet figcaption { font-size: var(--step--1); color: var(--muted); }
+.verdict { border-left: 4px solid var(--accent); padding: 4px 0 4px 14px; font-size: 1.05rem; }
+footer { font-size: var(--step--1); color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 6px; }
+code { font-family: var(--font-mono); font-size: 0.85em; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">P1 · propulsión eléctrica para tu lancha · Als Fjord</div>
+    <h1>Hola Jorge! Este es tu <span class="name">“Langhalen”</span></h1>
+    <p class="lead">“Langhalen” es “la cola larga” en danés: un motor eléctrico seco arriba del agua que, por una correa y un eje inclinado de inox, mueve una hélice comprada. Todo lo naranja se imprime en PETG; si toca fondo, la cola se levanta sola.</p>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <section aria-label="Visor 3D">
+    <div class="viewer-grid">
+      <div class="stage" id="stage">
+        <div class="loading" id="loading">Cargando el modelo 3D…</div>
+        <div class="toolbar">
+          <div class="seg" role="group" aria-label="Vista">
+            <button type="button" id="b-asm" aria-pressed="true">Ensamblado</button>
+            <button type="button" id="b-exp" aria-pressed="false">Explotado</button>
+          </div>
+          <button type="button" class="tbtn demo" id="b-demo" aria-pressed="false">▶ Demo</button>
+          <button type="button" class="tbtn" id="b-iso" aria-pressed="false">Aislar pieza</button>
+          <button type="button" class="tbtn" id="b-reset">Vista inicial</button>
+        </div>
+        <div class="hint" id="hint">Arrastrá para girar · rueda/pellizco para zoom<br>Tocá una pieza para ver qué es</div>
+        <div class="caption" id="caption" hidden></div>
+        <div class="controls">
+          <label for="r-exp"><span>Explosión <b id="v-exp">0 %</b></span><input id="r-exp" type="range" min="0" max="100" value="0"></label>
+          <label for="r-steer"><span>Dirección ψ <b id="v-steer">0°</b></span><input id="r-steer" type="range" min="-35" max="35" value="0" step="1"></label>
+          <label for="r-tilt"><span>Basculación φ <b id="v-tilt">0°</b></span><input id="r-tilt" type="range" min="0" max="25" value="0" step="1"></label>
+          <div class="checks">
+            <label style="display:flex;gap:6px;align-items:center;min-width:0;flex:none;font-family:var(--font-body);color:var(--ink)"><input type="checkbox" id="c-boat" checked> Espejo y agua</label>
+            <label style="display:flex;gap:6px;align-items:center;min-width:0;flex:none;font-family:var(--font-body);color:var(--ink)"><input type="checkbox" id="c-spin"> Girar hélice</label>
+          </div>
+        </div>
+      </div>
+      <aside class="panel" id="panel" aria-live="polite">
+        <div class="empty" id="panel-empty">
+          <div class="eyebrow">Pieza por pieza</div>
+          <h3 style="margin:6px 0 8px">Tocá una pieza</h3>
+          <p>En el modelo o en la lista de abajo. Vas a ver qué es, de qué material, si se imprime, se tornea o se compra, cuánto pesa, cuántas horas de impresión lleva, cuánto aguanta (factor de seguridad) y qué hay que revisar.</p>
+          <div class="legend" id="legend" style="margin-top:12px"></div>
+        </div>
+        <div id="panel-body" hidden></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="figures" id="figures" aria-label="Números principales"></section>
+
+  <section class="parts" aria-labelledby="t-piezas">
+    <div class="eyebrow">Las <span id="n-piezas"></span> piezas</div>
+    <h2 id="t-piezas">Qué lleva y para qué sirve cada cosa</h2>
+    <div class="parts-grid" id="parts-grid"></div>
+  </section>
+
+  <section class="two" aria-labelledby="t-revisar">
+    <div style="display:grid;gap:14px;min-width:0">
+      <div class="eyebrow">Antes de comprar e imprimir</div>
+      <h2 id="t-revisar">Lo principal a revisar, en orden</h2>
+      <ol class="steps" id="steps"></ol>
+    </div>
+    <div class="jet" id="jet" style="min-width:0">
+      <div class="eyebrow">Tu plano del waterjet</div>
+      <h2>La toma de succión, como dijiste, está muy atrás</h2>
+      <div id="jet-body"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Todo sale del paquete de ingeniería P1 (repositorio <code>p1-propulsion</code>): las piezas y su posición vienen del mismo CAD paramétrico que se verificó sin interferencias, en todo el recorrido de dirección y basculación. Los números vienen de <code>sizing.py</code>, <code>structural.py</code> y <code>bom.py</code>. Para regenerar el visor: <code>python 04_diseno/visor/build_visor.py</code>.</div>
+    <div>Nada está probado todavía en el agua: son cálculos y CAD verificados en software. Los pasos de la izquierda son los que lo confirman.</div>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const fmt = (x, d = 0) => (x == null || Number.isNaN(x)) ? "—" : Number(x).toLocaleString("es-ES", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const MAT = {
+    petg: { hex: 0xe2601a, css: "#e2601a", label: "Impreso en PETG", rough: 0.6, metal: 0.0 },
+    aluminio: { hex: 0xc4ced5, css: "#c4ced5", label: "Aluminio (chapa/torneado)", rough: 0.35, metal: 0.35 },
+    inox: { hex: 0x8d99a2, css: "#8d99a2", label: "Inox 316 / acero", rough: 0.3, metal: 0.45 },
+    pom: { hex: 0xece6d8, css: "#ece6d8", label: "POM torneado", rough: 0.5, metal: 0.0 },
+    comprado: { hex: 0x3a4348, css: "#3a4348", label: "Comprado (motor, hélice, poleas…)", rough: 0.5, metal: 0.2 },
+  };
+  const PROC = { impresa: "Se imprime", torneada: "Se tornea / mecaniza", comprada: "Se compra" };
+
+  let D = null, scene, camera, renderer, controls, root, boatG, yokeG, unitG, ctx = null;
+  const insts = [];           // {part, holder, mesh, local: Matrix4, explode: Vector3, frame, spin}
+  const byPart = {};
+  const state = { explode: 0, steer: 0, tilt: 0, spin: false, spinAngle: 0, selected: null, iso: false, demo: null };
+
+  // ---------- textos estáticos ----------
+  const STEPS = [
+    ["Medir tu bote", "Eslora, manga, fondo, alto y espesor del espejo, peso y la placa de capacidad. Si tu lancha es la del plano de 2,30 × 0,80 m, avisá: cambia la base de cálculo. Todo se regenera desde un solo archivo."],
+    ["Capacidad: el riesgo n.º 1", "Con 2 adultos + equipo + propulsión la carga calculada supera lo que suele cargar un bote así. Leer la placa o hacer la prueba de francobordo (≥ 150 mm en popa) antes de salir con 2 personas."],
+    ["Remolcar con el dinamómetro", "3–4 velocidades, ida y vuelta, en agua de ≥ 1,5 m. Con esos puntos se calibra la resistencia y se confirma la batería ANTES de comprarla."],
+    ["Comprar la hélice primero y medirla", "Minn Kota MKP-32: diámetro, paso, agujero (bore) y pasador. El eje se tornea a esa medida."],
+    ["Imprimir y romper probetas", "Holguras, tuercas cautivas (≥ 2,1 kN), caja con O-ring 24 h sumergida, cuello del patín (rompe a 200–400 N), pasador 316."],
+    ["Banco en seco (T0)", "El cordón de hombre al agua corta en < 1 s, 10 de 10 veces; no arranca si el acelerador no está en cero; marcha atrás limitada; tope de velocidad legal cargado en el VESC."],
+    ["Muelle (T2) y después el fiordo (T3–T4)", "Empuje a punto fijo con el dinamómetro en el cabo, temperaturas, y recién después agua calma, chaleco puesto, < 300 m de la costa y ≤ 5 nudos."],
+  ];
+
+  function legendHTML() {
+    return Object.values(MAT).map((m) => `<span><i style="background:${m.css}"></i>${m.label}</span>`).join("");
+  }
+
+  function renderStatic() {
+    const R = D.resumen;
+    $("meta").innerHTML = [
+      `${fmt(R.n_piezas)} piezas`, `${fmt(R.impreso_kg, 1)} kg de PETG · ~${fmt(R.horas_impresion)} h de impresión`,
+      `unidad ${fmt(R.masa_unidad_kg, 1)} kg`, `datos del ${esc(D.generado)}`,
+    ].map((t) => `<span>${t}</span>`).join("");
+    $("legend").innerHTML = legendHTML();
+    $("n-piezas").textContent = fmt(R.n_piezas);
+    const figs = [
+      [fmt(R.autonomia_dis_h, 1), "h", `autonomía a ${fmt(R.crucero_kmh)} km/h (caso pesado; ${fmt(R.autonomia_nom_h, 1)} h nominal)`],
+      [fmt(R.crucero_kmh), "km/h", `crucero, con ${fmt(R.p_crucero_w)} W de batería`],
+      [fmt(R.vmax_kmh, 1), "km/h", `velocidad máx. con 2 personas (${fmt(R.vmax_tope_kmh, 1)} con el tope legal)`],
+      [fmt(R.bollard_n), "N", "empuje a punto fijo (≈ fueraborda eléctrico de 1 kW)"],
+      [fmt(R.e_usable_wh / 1000, 2), "kWh", esc(R.bateria)],
+      [fmt(R.costo_eur), "€", `costo del sistema ≈ ${fmt(R.costo_dkk)} DKK`],
+    ];
+    $("figures").innerHTML = figs.map(([v, u, l]) => `<div class="fig"><div class="v">${v} <small>${u}</small></div><div class="l">${l}</div></div>`).join("");
+    $("steps").innerHTML = STEPS.map(([t, d]) => `<li><div><b>${esc(t)}</b><p>${esc(d)}</p></div></li>`).join("");
+    // lista de piezas por subsistema
+    const groups = {};
+    D.parts.forEach((p) => { (groups[p.sub] = groups[p.sub] || { name: p.sub_name, items: [] }).items.push(p); });
+    const order = ["MNT", "HSG", "DRV", "STR", "PRP", "ELE", "SAF"];
+    $("parts-grid").innerHTML = order.filter((s) => groups[s]).map((s) => {
+      const g = groups[s];
+      return `<div class="group"><h4>${esc(g.name)}</h4><ol>${g.items.map((p) =>
+        `<li><button type="button" data-part="${p.id}"><span class="sw" style="background:${MAT[p.color].css}"></span><span>${esc(p.desc)}</span><span class="id">${p.id.replace("P1-", "")}${p.qty > 1 ? " ×" + p.qty : ""}</span></button></li>`).join("")}</ol></div>`;
+    }).join("");
+    $("parts-grid").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-part]");
+      if (b) { select(b.dataset.part, true); $("stage").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" }); }
+    });
+    renderJet();
+  }
+
+  function renderJet() {
+    const J = D.jet || null;
+    if (!J) {
+      $("jet-body").innerHTML = `<p class="empty">Análisis en curso.</p>`;
+      return;
+    }
+    let h = `<p class="verdict">${esc(J.veredicto)}</p>`;
+    if (J.puntos && J.puntos.length) h += `<ul style="margin:0;padding-left:18px;display:grid;gap:6px">${J.puntos.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
+    (J.figuras || []).forEach((f) => { h += `<figure><img src="${esc(f.src)}" alt="${esc(f.alt)}" loading="lazy"><figcaption>${esc(f.cap)}</figcaption></figure>`; });
+    if (J.p1) h += `<p>${esc(J.p1)}</p>`;
+    $("jet-body").innerHTML = h;
+  }
+
+  // ---------- panel de pieza ----------
+  function panelHTML(p) {
+    const chips = [
+      `<span class="chip ${p.color === "petg" ? "petg" : ""}">${esc(PROC[p.process] || p.process)}</span>`,
+      `<span class="chip">${esc(p.material)}</span>`,
+      `<span class="chip">× ${p.qty}</span>`,
+    ].join("");
+    const kv = [["Subsistema", esc(p.sub_name)], ["Masa", `${fmt(p.mass_g)} g c/u`]];
+    if (p.process === "impresa") {
+      kv.push(["Impresión", `${fmt(p.print_h, 1)} h c/u`]);
+      if (p.print_bbox) kv.push(["Tamaño en la cama", `${p.print_bbox.map((x) => fmt(x)).join(" × ")} mm`]);
+      kv.push(["Orientación", esc(p.orientation)]);
+    } else if (p.bbox) kv.push(["Medidas", `${p.bbox.map((x) => fmt(x)).join(" × ")} mm`]);
+    kv.push(["Trabaja en", esc(p.load_case)]);
+    let h = `<div class="pid">${p.id}</div><h3>${esc(p.desc)}</h3><div class="chips">${chips}</div>
+      <p style="font-size:.95rem">${esc(p.doc)}</p><dl class="kv">${kv.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>`;
+    if (p.revisar.length) h += `<div class="sect">Qué revisar</div><ul>${p.revisar.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
+    if (p.fs_rows.length) {
+      h += `<div class="sect">Cuánto aguanta (factor de seguridad)</div><table class="fs"><tbody>${p.fs_rows.map((r) =>
+        `<tr><td>${esc(r.caso)}</td><td class="n ${r.ok ? "okv" : "badv"}">${fmt(r.FS, 1)} ${r.ok ? "✓" : "✗"}</td><td class="n" style="color:var(--muted)">obj. ${fmt(r.obj, 0)}</td></tr>`).join("")}</tbody></table>`;
+    }
+    if (p.checks.length) {
+      h += `<div class="sect">Cotas verificadas en el CAD</div><table class="fs"><tbody>${p.checks.map((c) =>
+        `<tr><td>${esc(c.name)}</td><td class="n ${c.ok ? "okv" : "badv"}">${fmt(c.value, 1)} ${c.ok ? "✓" : "✗"}</td></tr>`).join("")}</tbody></table>`;
+    }
+    if (p.bom) h += `<div class="sect">Qué comprar</div><p style="font-size:.9rem">${esc(p.bom)}</p>`;
+    if (p.files.length) h += `<div class="sect">Archivos</div><p style="font-size:.8rem;font-family:var(--font-mono);color:var(--muted);word-break:break-all">${p.files.map(esc).join("<br>")}</p>`;
+    return h;
+  }
+
+  // ---------- escena ----------
+  function initScene() {
+    const stage = $("stage");
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: false });
+    } catch (err) {
+      $("loading").textContent = "Este navegador no pudo iniciar WebGL; los datos de abajo siguen disponibles.";
+      return false;
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    stage.insertBefore(renderer.domElement, stage.firstChild);
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(35, 1, 5, 40000);
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = !reduceMotion;
+    controls.dampingFactor = 0.08;
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x5a6b70, 0.85));
+    const d1 = new THREE.DirectionalLight(0xffffff, 0.85); d1.position.set(-1200, 2200, 1600); scene.add(d1);
+    const d2 = new THREE.DirectionalLight(0xffffff, 0.35); d2.position.set(1800, 600, -1400); scene.add(d2);
+    root = new THREE.Group(); root.rotation.x = -Math.PI / 2; scene.add(root);   // CAD Z-arriba → three Y-arriba
+    boatG = new THREE.Group(); root.add(boatG);
+    yokeG = new THREE.Group(); yokeG.matrixAutoUpdate = false; root.add(yokeG);
+    unitG = new THREE.Group(); unitG.matrixAutoUpdate = false; root.add(unitG);
+    window.addEventListener("resize", resize);
+    resize();
+    return true;
+  }
+
+  function resize() {
+    if (!renderer) return;
+    const r = $("stage").getBoundingClientRect();
+    renderer.setSize(r.width, r.height, false);
+    camera.aspect = r.width / Math.max(r.height, 1);
+    camera.updateProjectionMatrix();
+  }
+
+  function themeColors() {
+    const cs = getComputedStyle(document.documentElement);
+    return { bg: cs.getPropertyValue("--viewer-bg").trim() || "#dfe7e6", sea: cs.getPropertyValue("--sea").trim() || "#1d7486" };
+  }
+
+  function buildContext() {
+    const B = D.bote;
+    ctx = new THREE.Group();
+    const tc = themeColors();
+    // espejo (chapa + taco) y casco esquemático
+    const alu = new THREE.MeshStandardMaterial({ color: 0xb9c3c9, roughness: 0.55, metalness: 0.2, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
+    const tr = new THREE.Mesh(new THREE.BoxGeometry(B.transom_t, B.transom_b, B.transom_h), alu);
+    tr.position.set(-B.transom_t / 2, 0, -B.transom_h / 2);
+    ctx.add(tr);
+    const L = Math.min(B.loa, 2600) - B.transom_t;
+    const x0 = -B.transom_t, x1 = x0 - L * 0.62, zb = -B.transom_h, zt = 0;
+    const hb = B.chine / 2, ht = B.beam / 2;
+    const g = new THREE.BufferGeometry();
+    const v = [
+      x0, -hb, zb, x1, -hb, zb, x1, hb, zb, x0, -hb, zb, x1, hb, zb, x0, hb, zb,            // fondo
+      x0, hb, zb, x1, hb, zb, x1, ht, zt, x0, hb, zb, x1, ht, zt, x0, ht, zt,                 // costado babor
+      x0, -hb, zb, x0, -ht, zt, x1, -ht, zt, x0, -hb, zb, x1, -ht, zt, x1, -hb, zb,           // costado estribor
+    ];
+    g.setAttribute("position", new THREE.Float32BufferAttribute(v, 3)); g.computeVertexNormals();
+    const hull = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0xaab5bb, roughness: 0.7, metalness: 0.1, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }));
+    ctx.add(hull);
+    // agua: plano a la flotación de diseño
+    const zw = -B.transom_h + B.draft;
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(3400, 2400), new THREE.MeshStandardMaterial({ color: new THREE.Color(tc.sea), transparent: true, opacity: 0.16, roughness: 0.2, metalness: 0.0, side: THREE.DoubleSide, depthWrite: false }));
+    water.position.set(700, 0, zw);
+    water.renderOrder = 2;
+    ctx.add(water);
+    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(3400, 2400)), new THREE.LineBasicMaterial({ color: new THREE.Color(tc.sea), transparent: true, opacity: 0.6 }));
+    edge.position.copy(water.position); ctx.add(edge);
+    ctx.userData.water = water; ctx.userData.edge = edge;
+    boatG.add(ctx);
+  }
+
+  async function loadModel() {
+    const [dr, br] = await Promise.all([fetch("datos.json"), fetch("mallas.bin")]);
+    if (!dr.ok || !br.ok) throw new Error("No se pudieron leer los archivos del modelo");
+    D = await dr.json();
+    try { const jr = await fetch("jet.json"); if (jr.ok) D.jet = await jr.json(); } catch (e) { /* opcional */ }
+    const buf = await br.arrayBuffer();
+    renderStatic();
+    if (!initScene()) return;
+    const geoms = {};
+    D.parts.forEach((p) => {
+      const m = p.mesh, o = m.off;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(buf, o, m.nv * 3), 3));
+      g.setAttribute("normal", new THREE.BufferAttribute(new Float32Array(buf, o + m.nv * 12, m.nv * 3), 3));
+      g.setIndex(new THREE.BufferAttribute(new Uint32Array(buf, o + m.nv * 24, m.ni), 1));
+      g.computeBoundingSphere();
+      geoms[p.id] = g;
+      byPart[p.id] = { p, meshes: [] };
+    });
+    D.instances.forEach((i) => {
+      const p = byPart[i.part].p, mc = MAT[p.color];
+      const mat = new THREE.MeshStandardMaterial({ color: mc.hex, roughness: mc.rough, metalness: mc.metal, transparent: false, opacity: 1 });
+      const mesh = new THREE.Mesh(geoms[i.part], mat);
+      mesh.matrixAutoUpdate = false;
+      mesh.userData.part = i.part;
+      const local = new THREE.Matrix4(); local.set(...i.local.flat());
+      const parent = i.frame === "unit" ? unitG : i.frame === "yoke" ? yokeG : boatG;
+      parent.add(mesh);
+      const rec = { part: i.part, mesh, local, explode: new THREE.Vector3(...i.explode), frame: i.frame, spin: p.spin };
+      insts.push(rec); byPart[i.part].meshes.push(mesh);
+    });
+    buildContext();
+    applyPose();
+    frameAll(false);
+    $("loading").hidden = true;
+    bindUI();
+    animate();
+    if (location.hash === "#demo") startDemo();
+  }
+
+  // ---------- cinemática ----------
+  const tmp = new THREE.Matrix4(), tmp2 = new THREE.Matrix4(), tmp3 = new THREE.Matrix4();
+  function applyPose() {
+    const K = D.kin, rad = Math.PI / 180;
+    const yokeM = new THREE.Matrix4().makeTranslation(K.xs, 0, 0)
+      .multiply(tmp.makeRotationZ(state.steer * rad)).multiply(tmp2.makeTranslation(-K.xs, 0, 0));
+    yokeG.matrix.copy(yokeM); yokeG.matrixWorldNeedsUpdate = true;
+    const unitM = yokeM.clone().multiply(tmp.makeTranslation(K.px, 0, K.pz)).multiply(tmp2.makeRotationY((K.theta - state.tilt) * rad));
+    unitG.matrix.copy(unitM); unitG.matrixWorldNeedsUpdate = true;
+    const s = state.explode;
+    insts.forEach((r) => {
+      const M = new THREE.Matrix4().makeTranslation(r.explode.x * s, r.explode.y * s, r.explode.z * s);
+      if (r.spin) {
+        const z0 = r.spin === "shaft" ? -K.e : K.motor_v;
+        const a = r.spin === "shaft" ? state.spinAngle : state.spinAngle * K.ratio;
+        M.multiply(tmp.makeTranslation(0, 0, z0)).multiply(tmp2.makeRotationX(a)).multiply(tmp3.makeTranslation(0, 0, -z0));
+      }
+      M.multiply(r.local);
+      r.mesh.matrix.copy(M); r.mesh.matrixWorldNeedsUpdate = true;
+    });
+  }
+
+  function frameAll(smooth, explodeAt) {
+    const keep = state.explode;
+    if (explodeAt != null) { state.explode = explodeAt; applyPose(); }
+    const box = new THREE.Box3();
+    insts.forEach((r) => { if (r.part.startsWith("P1-ELE-0") && r.frame === "boat") return; r.mesh.updateMatrixWorld(true); box.expandByObject(r.mesh); });
+    const c = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+    const rad = size.length() / 2, vf = camera.fov * Math.PI / 180;
+    const hf = 2 * Math.atan(Math.tan(vf / 2) * camera.aspect);   // pantallas angostas: manda el campo horizontal
+    const dist = rad / Math.sin(Math.min(vf, hf) / 2) * 0.9;
+    const target = c.clone();
+    // vista desde babor, un poco a popa y arriba: la cola larga se ve de perfil
+    const pos = c.clone().add(new THREE.Vector3(dist * 0.45, dist * 0.32, -dist * 0.95));
+    if (explodeAt != null) { state.explode = keep; applyPose(); }
+    flyTo(pos, target, smooth ? 700 : 0);
+  }
+
+  let fly = null;
+  function flyTo(pos, target, ms) {
+    if (!ms || reduceMotion) { camera.position.copy(pos); controls.target.copy(target); controls.update(); return; }
+    fly = { p0: camera.position.clone(), t0: controls.target.clone(), p1: pos, t1: target, start: performance.now(), ms };
+  }
+
+  // ---------- selección ----------
+  function select(id, focus) {
+    state.selected = id;
+    document.querySelectorAll("#parts-grid button[data-part]").forEach((b) => b.setAttribute("aria-current", b.dataset.part === id ? "true" : "false"));
+    insts.forEach((r) => {
+      const on = r.part === id;
+      r.mesh.material.emissive = new THREE.Color(on ? 0x18b4d6 : 0x000000);
+      r.mesh.material.emissiveIntensity = on ? 0.75 : 0;
+      const ghost = !!(state.iso && id && !on);
+      r.mesh.material.transparent = ghost;
+      r.mesh.material.opacity = ghost ? 0.12 : 1;
+      r.mesh.material.depthWrite = !ghost;
+      r.mesh.material.needsUpdate = true;
+    });
+    if (!id) { $("panel-empty").hidden = false; $("panel-body").hidden = true; return; }
+    const p = byPart[id].p;
+    $("panel-empty").hidden = true; $("panel-body").hidden = false;
+    $("panel-body").innerHTML = panelHTML(p) + `<p style="margin-top:10px"><button type="button" class="tbtn" id="b-unsel">Ver todo</button> <button type="button" class="tbtn" id="b-focus">Centrar esta pieza</button></p>`;
+    $("b-unsel").onclick = () => { select(null); };
+    $("b-focus").onclick = () => focusPart(id);
+    if (focus) focusPart(id);
+  }
+
+  function focusPart(id) {
+    const box = new THREE.Box3();
+    byPart[id].meshes.forEach((m) => { m.updateMatrixWorld(true); box.expandByObject(m); });
+    const c = box.getCenter(new THREE.Vector3()), r = Math.max(box.getSize(new THREE.Vector3()).length(), 120);
+    const dir = camera.position.clone().sub(controls.target).normalize();
+    flyTo(c.clone().add(dir.multiplyScalar(r * 1.9)), c, 600);
+  }
+
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  let down = null;
+  function bindUI() {
+    const el = renderer.domElement;
+    el.addEventListener("pointerdown", (e) => { down = { x: e.clientX, y: e.clientY }; });
+    el.addEventListener("pointerup", (e) => {
+      if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
+      const r = el.getBoundingClientRect();
+      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, camera);
+      const hit = ray.intersectObjects(insts.map((i) => i.mesh), false).find((h) => h.object.material.opacity > 0.5);
+      select(hit ? hit.object.userData.part : null);
+    });
+    const setExp = (v) => { state.explode = v; $("r-exp").value = Math.round(v * 100); $("v-exp").textContent = `${Math.round(v * 100)} %`; applyPose(); };
+    $("r-exp").addEventListener("input", (e) => { stopDemo(); setExp(e.target.value / 100); setMode(state.explode > 0 ? "exp" : "asm", false); });
+    $("r-steer").addEventListener("input", (e) => { stopDemo(); state.steer = +e.target.value; $("v-steer").textContent = `${state.steer}°`; applyPose(); });
+    $("r-tilt").addEventListener("input", (e) => { stopDemo(); state.tilt = +e.target.value; $("v-tilt").textContent = `${state.tilt}°`; applyPose(); });
+    $("c-boat").addEventListener("change", (e) => { ctx.visible = e.target.checked; });
+    $("c-spin").addEventListener("change", (e) => { state.spin = e.target.checked; });
+    $("b-asm").onclick = () => { stopDemo(); setMode("asm", true); };
+    $("b-exp").onclick = () => { stopDemo(); setMode("exp", true); };
+    $("b-reset").onclick = () => { stopDemo(); state.steer = 0; state.tilt = 0; syncSliders(); setMode("asm", true); select(null); frameAll(true); };
+    $("b-iso").onclick = () => { state.iso = !state.iso; $("b-iso").setAttribute("aria-pressed", String(state.iso)); select(state.selected); };
+    $("b-demo").onclick = () => { if (state.demo) stopDemo(); else startDemo(); };
+    state.setExp = setExp;
+  }
+
+  function syncSliders() {
+    $("r-steer").value = state.steer; $("v-steer").textContent = `${Math.round(state.steer)}°`;
+    $("r-tilt").value = state.tilt; $("v-tilt").textContent = `${Math.round(state.tilt)}°`;
+    $("r-exp").value = Math.round(state.explode * 100); $("v-exp").textContent = `${Math.round(state.explode * 100)} %`;
+  }
+
+  let tween = null;
+  function setMode(m, animateIt) {
+    $("b-asm").setAttribute("aria-pressed", String(m === "asm"));
+    $("b-exp").setAttribute("aria-pressed", String(m === "exp"));
+    if (!animateIt) return;
+    const to = m === "exp" ? 1 : 0;
+    if (reduceMotion) { state.explode = to; syncSliders(); applyPose(); return; }
+    tween = { from: state.explode, to, start: performance.now(), ms: 900 };
+    frameAll(true, to);
+  }
+
+  // ---------- demo ----------
+  const ease = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const DEMO = [
+    { t: 0, d: 2.6, cap: "Así se arma: abrazadera al espejo, cardán, cabezal con el motor y la cola larga.", from: { explode: 1 }, to: { explode: 0 } },
+    { t: 2.6, d: 4.5, cap: "Motor seco arriba, correa dentada 2:1, eje de inox a 25° y hélice abajo. Nada eléctrico toca el agua.", spin: true },
+    { t: 7.1, d: 4.2, cap: "Dirección con la caña: ±35°.", from: { steer: 0 }, to: { steer: 35 } },
+    { t: 11.3, d: 3.0, from: { steer: 35 }, to: { steer: -35 }, cap: "Dirección con la caña: ±35°." },
+    { t: 14.3, d: 1.8, from: { steer: -35 }, to: { steer: 0 }, cap: "Dirección con la caña: ±35°." },
+    { t: 16.1, d: 3.0, cap: "Si pega en arena o una piedra, la cola bascula hacia arriba (retén de bola + patín fusible + pasador de corte).", from: { tilt: 0 }, to: { tilt: 25 }, spin: false },
+    { t: 19.1, d: 2.0, cap: "A 25° la hélice queda fuera del agua. En marcha atrás la cola no se levanta: el retén y el peso la sostienen.", hold: true },
+    { t: 21.1, d: 2.4, cap: "Y vuelve a la posición de marcha.", from: { tilt: 25 }, to: { tilt: 0 } },
+    { t: 23.5, d: 2.5, cap: "Tocá cualquier pieza para ver qué es, de qué está hecha y qué revisar.", from: { explode: 0 }, to: { explode: 0.55 } },
+  ];
+  const DEMO_LEN = 26;
+  function startDemo() {
+    if (!insts.length) return;
+    state.demo = { start: performance.now(), az0: null };
+    $("b-demo").setAttribute("aria-pressed", "true"); $("b-demo").textContent = "■ Parar demo";
+    $("c-boat").checked = true; ctx.visible = true;
+    select(null);
+    frameAll(true);
+  }
+  function stopDemo() {
+    if (!state.demo) return;
+    state.demo = null; $("caption").hidden = true; $("hint").hidden = false;
+    $("b-demo").setAttribute("aria-pressed", "false"); $("b-demo").textContent = "▶ Demo";
+    state.spin = $("c-spin").checked;
+  }
+  function demoStep(now) {
+    const t = (now - state.demo.start) / 1000;
+    if (t > DEMO_LEN) { stopDemo(); return; }
+    let seg = DEMO[0];
+    for (const s of DEMO) if (t >= s.t) seg = s;
+    const u = Math.min(1, Math.max(0, (t - seg.t) / seg.d));
+    if (seg.from) Object.keys(seg.to).forEach((k) => { state[k] = seg.from[k] + (seg.to[k] - seg.from[k]) * ease(u); });
+    state.spin = t > 2.6 && t < 16.1 || t > 21.1;
+    const cap = $("caption"); if (cap.textContent !== seg.cap) cap.textContent = seg.cap; cap.hidden = false; $("hint").hidden = true;
+    // órbita lenta de la cámara
+    if (!reduceMotion) {
+      const off = camera.position.clone().sub(controls.target);
+      off.applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.0016);
+      camera.position.copy(controls.target).add(off);
+    }
+    syncSliders();
+  }
+
+  let last = performance.now(), frameNo = 0;
+  function animate(now) {
+    requestAnimationFrame(animate);
+    now = now || performance.now();
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (state.demo) demoStep(now);
+    if (tween) {
+      const u = Math.min(1, (now - tween.start) / tween.ms);
+      state.explode = tween.from + (tween.to - tween.from) * ease(u);
+      syncSliders(); if (u >= 1) tween = null;
+    }
+    if (state.spin) state.spinAngle += dt * 2 * Math.PI * 1.2;   // ~72 rpm de hélice en pantalla (visual)
+    if (fly) {
+      const u = Math.min(1, (now - fly.start) / fly.ms), e = ease(u);
+      camera.position.lerpVectors(fly.p0, fly.p1, e); controls.target.lerpVectors(fly.t0, fly.t1, e);
+      if (u >= 1) fly = null;
+    }
+    applyPose();
+    controls.update();
+    if ((frameNo++ % 30) === 0) { const bg = themeColors().bg; if (scene.userData.bg !== bg) { scene.background = new THREE.Color(bg); scene.userData.bg = bg; } }
+    renderer.render(scene, camera);
+  }
+
+  if (typeof THREE === "undefined" || !THREE.OrbitControls) {
+    $("loading").textContent = "No se pudo cargar la librería 3D (three.js). Probá recargar la página.";
+  }
+  loadModel().catch((err) => {
+    $("loading").textContent = "No se pudo cargar el modelo: " + err.message;
+    if (D) renderStatic();
+  });
+})();
+</script>

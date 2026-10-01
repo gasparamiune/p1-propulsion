@@ -45,6 +45,8 @@ CFG = {
     "P1-MNT-04": {"h": (6.0, 3.0), "curv": (6, 12), "hmin": 1.0},
 }
 ORDER = ["P1-MNT-01", "P1-MNT-05", "P1-MNT-04"]
+VIEWS = {"P1-MNT-01": ((22, -58), (-32, 125)), "P1-MNT-05": ((20, -60), (-28, 115)),
+         "P1-MNT-06": ((-38, -62), (-30, 118)), "P1-MNT-04": ((18, -75), (18, 105))}   # (elevación, azimut)
 R_EX_MIN = 4.0          # [SUPUESTO: radio de exclusión alrededor de cargas/apoyos concentrados ≥ 4 mm y ≥ h_fina]
 
 
@@ -198,7 +200,7 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
         nm = out["casos"][gov]["nombre"]
         for i, b in enumerate(bodies):
             summ = out["casos"][gov][level]["resumen"][b]
-            views = ((22, -58), (22, 122))
+            views = VIEWS.get(b, ((22, -58), (22, 122)))
             path = img_dir / f"{b}_vm.png"
             fea_plot.stress_figure(S, fk["vm"], f"{b} — von Mises, caso {gov}: {nm}\nmáx. fuera de zonas de carga "
                                    f"{summ['vm']['max_excl']:.1f} MPa · p99 {summ['vm']['p99']:.1f} MPa · máx. global "
@@ -221,7 +223,8 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
         path = img_dir / f"{bodies[0]}_deformada.png"
         fea_plot.stress_figure(S, np.linalg.norm(u, axis=1), f"{bodies[0]} — desplazamiento, caso {gov} "
                                f"(deformada ×{scale:.1f}; máx. {um:.3f} mm)", path,
-                               body=0 if len(bodies) > 1 else None, views=((22, -58),), label="|u| [mm]",
+                               body=0 if len(bodies) > 1 else None, views=VIEWS.get(bodies[0], ((22, -58),))[:1],
+                               label="|u| [mm]",
                                deform=u, scale=scale, axis_labels=axl)
         imgs.append(str(path.relative_to(ROOT)))
     out["imagenes"] = imgs
@@ -245,7 +248,11 @@ def readme_block(res):
          f"{res['meta']['tiempo_total_s']:.0f} s · admisibles vigentes: S_corta = {res['meta']['admisibles']['S_short']:.2f} MPa, "
          f"S_sost = {res['meta']['admisibles']['S_sust']:.2f} MPa, S_Z corta/sost = {res['meta']['admisibles']['SZ_short']:.2f}/"
          f"{res['meta']['admisibles']['SZ_sust']:.2f} MPa [CALCULADO]", ""]
-    L += ["### Mallas", "", "| Pieza | Malla | h [mm] | Tetraedros | gdl (P2) | γ mín | γ p1 |", "|---|---|---|---|---|---|---|"]
+    L += ["### Orientación de impresión (anisotropía)", "", "| Pieza | print_rot (META) | Z de impresión en el marco de la pieza | Marco |",
+          "|---|---|---|---|"]
+    for pid, r in res["piezas"].items():
+        L.append(f"| {pid} | {tuple(r['print_rot'])} | {tuple(round(x, 3) + 0.0 for x in r['dir_Z_impresion_marco_pieza'])} | {r['frame']} |")
+    L += ["", "### Mallas", "", "| Pieza | Malla | h [mm] | Tetraedros | gdl (P2) | γ mín | γ p1 |", "|---|---|---|---|---|---|---|"]
     for pid, r in res["piezas"].items():
         for lv, m in r["mallas"].items():
             L.append(f"| {pid} | {lv} | {m['h_mm']:.0f} | {m['n_tets']} | {m['n_gdl']} | {m['calidad_gamma_min']:.3f} | {m['calidad_gamma_p01']:.3f} |")
@@ -276,13 +283,15 @@ def readme_block(res):
                 return f"{_f(v['gruesa'], n)} → {_f(v['fina'], n)} ({100 * v['dif_rel']:+.0f} %)"
             L.append(f"| {pid} | {cid} | {r['r_exclusion_mm']:.0f} | {cell('vm_p99')} | {cell('vm_max_excl')} | {cell('vm_max')} | {cell('u_max', 3)} |")
     L += ["", "### Comparación con el cálculo a mano (resultados/estructural.json, structural.py)", "",
-          "| Pieza | Caso FEA | FS FEA | Fila structural.py | σ mano [MPa] | FS mano |", "|---|---|---|---|---|---|"]
+          "| Pieza (FEA) | Caso FEA | FS FEA | Fila structural.py (pieza) | σ mano [MPa] | FS mano |", "|---|---|---|---|---|---|"]
     for pid, r in res["piezas"].items():
         for cid, c in r["casos"].items():
             key = r["case_hand_map"].get(cid, "")
             rows = [h for h in r["calculo_a_mano_structural_py"] if key.lower() in h["load_case"].lower()] if key else []
-            for h in rows[:2] or [{"load_case": "—", "sigma_MPa": None, "FS": None}]:
-                L.append(f"| {pid} | {cid} | {_f(c['FS'][pid]['gobernante'])} | {h['load_case']} | {_f(h['sigma_MPa'])} | {_f(h['FS'])} |")
+            for h in rows[:3] or [{"part": pid, "load_case": "—", "sigma_MPa": None, "FS": None}]:
+                b = h.get("part", pid) if h.get("part") in c["FS"] else pid
+                L.append(f"| {b} | {cid} | {_f(c['FS'][b]['gobernante'])} | {h['load_case']} ({h.get('part', pid)}) | "
+                         f"{_f(h['sigma_MPa'])} | {_f(h['FS'])} |")
     L += ["", "### Hallazgos cuantitativos", ""] + res["hallazgos"] + ["", AUTO1]
     return "\n".join(L)
 
@@ -302,17 +311,19 @@ def findings(res):
         zs = abs(ck["z_tornillos_mm"][0])
         t_req = None
         for t in np.arange(8, 80, 0.5):
-            if F2 * (zs + t / 2) / (150.0 * t * t / 6) <= A["S_sust"] / target:
+            if F2 * (zs + t / 2) / (ck["ancho_abrazadera_mm"] * t * t / 6) <= A["S_sust"] / target:
                 t_req = t
                 break
         hand = [h for h in r1["calculo_a_mano_structural_py"] if "apriete (sostenido)" in h["load_case"].lower()]
         H.append(f"- **P1-MNT-01 — el puente de la C gobierna.** Apriete sostenido: σvm p99 = {s['vm']['p99']:.1f} MPa en el "
                  f"puente de {ck['puente_espesor_mm']:.0f} mm (la viga a mano con esa sección da {ck['sigma_puente_mano_MPa']:.1f} MPa, "
                  f"coincide) contra S_sost = {A['S_sust']:.2f} MPa → **FS = {a['FS']['P1-MNT-01']['gobernante']:.2f}** "
-                 f"(objetivo {target:.0f}). structural.py informa σ = {hand[0]['sigma_MPa'] if hand else '—'} MPa porque usa "
+                 f"(objetivo {target:.0f}). structural.py informa σ = {_f(hand[0]['sigma_MPa'] if hand else None)} MPa porque usa "
                  f"Z = b·leg_t²/6 de la pata (t = leg_t) y no la del puente. La C se abre {s['u_max_mm']:.1f} mm en el pie de la "
                  f"pata interior (análisis lineal: indica flexibilidad excesiva, no un valor exacto). Con el apriete actual el "
-                 f"puente necesita t ≥ {t_req if t_req else '>80'} mm [CALCULADO: viga, verificada por FEA] o bajar el brazo/apriete.")
+                 f"puente necesita t ≥ {t_req if t_req else '>80'} mm [CALCULADO: viga, verificada por FEA] o bajar el brazo/apriete. "
+                 f"Además la pieza se imprime con el ancho (y) como Z: la flexión de placa ancha genera σZ ≈ ν·σx = "
+                 f"{s['sZ']['max_excl']:.1f} MPa a través de capas contra S_Z,sost = {A['SZ_sust']:.2f} MPa.")
     r5 = res["piezas"].get("P1-MNT-05")
     if r5:
         ck = r5["verificacion_mano"]
@@ -325,20 +336,32 @@ def findings(res):
         H.append(f"- **P1-MNT-05/06 — brazo del tope de marcha.** El tornillo de trimado es vertical y apoya en la cara "
                  f"inferior de la tapa, inclinada θ: sin fricción la reacción es normal a esa cara y su brazo respecto del "
                  f"pivote es u = {ck['brazo_tope_real_mm']:.0f} mm, no hypot(30, v_bot) = {ck['brazo_tope_structural_py_mm']:.0f} mm "
-                 f"como en structural.py. Con la cola trabada, el FEA da F_tope = {_f(ft, 0)} N (estática: {ck['F_tope_estatica_N']:.0f} N) "
-                 f"y F_pivote = {_f(fp_, 0)} N. La cuna (MNT-05) queda con FS = {r5['FS_min']:.2f}; la **tapa MNT-06** recibe el tope "
+                 f"como en structural.py. Con la cola trabada, el FEA da F_tope = {ft or 0:.0f} N (estática con el centro del tope: "
+                 f"{ck['F_tope_estatica_N']:.0f} N) y F_pivote = {fp_ or 0:.0f} N. La cuna (MNT-05) queda con FS = {r5['FS_min']:.2f}; la **tapa MNT-06** recibe el tope "
                  f"en un Ø{2 * ck['r_tope_mm']:.0f} y su FS es {_f(fs6)} "
-                 f"(σvm máx. global {_f(s6['vm']['max'] if s6 else None, 1)} MPa en el apoyo del tope). En marcha normal el mismo "
-                 f"brazo triplica la fuerza sostenida del tope respecto de structural.py.")
+                 f"(σvm máx. {_f(s6['vm']['max'] if s6 else None, 1)} MPa, compresión entre tope y tubo; presión media en el tope "
+                 f"F/A = {(ft or 0) / (np.pi * ck['r_tope_mm'] ** 2):.1f} MPa contra S_corta = {A['S_short']:.1f} MPa). En marcha normal "
+                 f"el mismo brazo multiplica por {ck['brazo_tope_structural_py_mm'] / ck['brazo_tope_real_mm']:.1f} la fuerza sostenida "
+                 f"del tope respecto de structural.py.")
     r4 = res["piezas"].get("P1-MNT-04")
     if r4:
         lv = r4["nivel_reportado"]
+        gid = r4["caso_gobernante"]
+        g = r4["casos"][gid]
+        sg = g[lv]["resumen"]["P1-MNT-04"]
+        crit = {"vm": "vm", "s1": "s1", "Z": "sZ"}[r4["criterio_gobernante"]]
         cb = r4["casos"]["b50"][lv]["resumen"]["P1-MNT-04"]
         ck = r4["verificacion_mano"]
-        H.append(f"- **P1-MNT-04 — ranuras de tuerca en la raíz.** Golpe lateral repartido (100 N/mejilla, como structural.py): "
-                 f"σvm máx* = {cb['vm']['max_excl']:.1f} MPa contra {ck['sigma_mano_lat200_MPa'] / 2:.1f} MPa a mano (L = 64 mm "
-                 f"sin descontar las ranuras pasantes de las tuercas M6 ni concentraciones). FS mínimo de la pieza "
-                 f"{r4['FS_min']:.2f} (caso {r4['caso_gobernante']}, criterio {r4['criterio_gobernante']}).")
+        cv = g.get("convergencia", {}).get("P1-MNT-04", {})
+        dmax = cv.get("s1_max_excl" if crit == "s1" else "vm_max_excl", {}).get("dif_rel")
+        hand = [h for h in r4["calculo_a_mano_structural_py"] if "lateral" in h["load_case"].lower()]
+        H.append(f"- **P1-MNT-04 — ranuras pasantes de las tuercas M6 en la raíz.** FS gobernante {r4['FS_min']:.2f} "
+                 f"(caso {gid}: {g['nombre']}; criterio {r4['criterio_gobernante']}) con el máximo en "
+                 f"{tuple(sg[crit]['at_max_excl_mm'])} mm: esquina viva de la ranura/raíz, singular (cambia "
+                 f"{100 * dmax if dmax is not None else 0:+.0f} % al refinar), mientras el p99 converge; con el p99 el FS es "
+                 f"{g['FS']['P1-MNT-04']['vm_p99']:.2f}. Con el reparto de structural.py (100 N por mejilla) σvm máx* = "
+                 f"{cb['vm']['max_excl']:.1f} MPa contra {_f(hand[0]['sigma_MPa'] if hand else None)} MPa a mano (Z = L·t²/6 con L = 64 mm "
+                 f"no descuenta las dos ranuras de {ck.get('ancho_ranura_mm', 10.4):.1f} mm ni la concentración en sus esquinas).")
     return H
 
 

@@ -24,7 +24,7 @@ def _surface(S, body=None):
 
 def _shade(normals, light=(0.4, -0.6, 0.7)):
     L = np.asarray(light) / np.linalg.norm(light)
-    return 0.72 + 0.28 * np.abs(normals @ L)
+    return 0.86 + 0.14 * np.abs(normals @ L)
 
 
 def stress_figure(S, val, title, path, body=None, views=((25, -60), (25, 120)), diverging=False,
@@ -46,9 +46,11 @@ def stress_figure(S, val, title, path, body=None, views=((25, -60), (25, 120)), 
     rgba[:, :3] *= _shade(n)[:, None]
     verts = P[tri]
     lo, hi = verts.reshape(-1, 3).min(0), verts.reshape(-1, 3).max(0)
-    fig = plt.figure(figsize=(5.2 * len(views) + 0.8, 5.0), facecolor=SURF)
+    nv = len(views)
+    fig = plt.figure(figsize=(5.0 * nv + 1.2, 5.0), facecolor=SURF)
+    w = 0.86 / nv
     for i, (el, az) in enumerate(views):
-        ax = fig.add_subplot(1, len(views), i + 1, projection="3d", facecolor=SURF)
+        ax = fig.add_axes([0.01 + i * w, 0.02, w, 0.82], projection="3d", facecolor=SURF)
         pc = Poly3DCollection(verts, facecolors=rgba, edgecolors="none", linewidths=0)
         ax.add_collection3d(pc)
         ax.set_xlim(lo[0], hi[0]); ax.set_ylim(lo[1], hi[1]); ax.set_zlim(lo[2], hi[2])
@@ -61,10 +63,12 @@ def stress_figure(S, val, title, path, body=None, views=((25, -60), (25, 120)), 
         ax.set_ylabel(axis_labels[1] + " [mm]", fontsize=7, color=INK2)
         ax.set_zlabel(axis_labels[2] + " [mm]", fontsize=7, color=INK2)
         ax.tick_params(labelsize=6, colors=INK2)
+        ax.locator_params(nbins=4)
         if mark is not None:
             ax.scatter(*np.asarray(mark)[:, None], s=40, c="none", edgecolors=INK, linewidths=1.2, depthshade=False)
     sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
-    cb = fig.colorbar(sm, ax=fig.axes, shrink=0.75, pad=0.02, fraction=0.03)
+    cax = fig.add_axes([0.9, 0.15, 0.014, 0.6])
+    cb = fig.colorbar(sm, cax=cax)
     cb.set_label(label, color=INK, fontsize=9)
     cb.ax.tick_params(labelsize=7, colors=INK2)
     fig.suptitle(title, fontsize=10, color=INK, x=0.02, ha="left")
