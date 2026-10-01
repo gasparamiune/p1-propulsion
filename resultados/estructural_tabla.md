@@ -3,7 +3,7 @@
 |---|---|---|---|---|---|---|---|---|
 | P1-MNT-01 | Apriete (sostenido) | M = F_apriete·brazo = 2083 N·36 mm; Z = b·t²/6 (esquina de la C) | 2.60 | sust | 8.4 | 3.23 | 3.0 | ✔ |
 | P1-MNT-01 | LC5 impacto + apriete (corta) | (M_apriete + H_imp·h) / Z; H_imp = 0.5·F_pico = 581 N | 5.43 | short | 24.0 | 4.41 | 3.0 | ✔ |
-| P1-MNT-01 | LC1 empuje avante (corta) | (M_apriete + T·h)/Z | 4.04 | short | 24.0 | 5.93 | 3.0 | ✔ |
+| P1-MNT-01 | LC1 empuje avante (corta) | (M_apriete + T·h)/Z | 4.01 | short | 24.0 | 5.97 | 3.0 | ✔ |
 | P1-MNT-01 | Apriete: apoyo de la placa de reparto (sostenido) | p = F_tornillo / (40×40 mm) | 0.65 | sust | 8.4 | 12.89 | 3.0 | ✔ |
 | P1-MNT-02 | Apriete (sostenido, compresión) | p = F / (π·D²/4) | 0.83 | sust | 8.4 | 10.12 | 3.0 | ✔ |
 | P1-MNT-03 | LC5 vuelco (corta) | M_vuelco=59.0 N·m → F_perno=702 N; flexión local brazo 20 mm, b=40, t=20.0 | 5.26 | short | 24.0 | 4.55 | 3.0 | ✔ |
@@ -14,21 +14,21 @@
 | P1-MNT-05 | LC5 dinámico (corta) | p = 6M/(d·L²), M = 0.19·F·L = 249 N·m | 4.61 | short | 24.0 | 5.2 | 3.0 | ✔ |
 | P1-MNT-05 | LC5 cola trabada (corta) | p = 6M/(d·L²), M = F_fus·L = 338 N·m | 6.27 | short | 24.0 | 3.82 | 3.0 | ✔ |
 | P1-MNT-05/06 | Tope de marcha (sostenido) | F = (T·e + M_grav)/r = 440 N sobre tope Ø25 | 0.90 | sust | 8.4 | 9.36 | 3.0 | ✔ |
-| P1-MNT-05/06 | LC6 golpe de ola 3 g en el tope (corta) | F = 1088 N | 2.22 | short | 24.0 | 10.81 | 3.0 | ✔ |
-| P1-MNT-05/06 | LC6 ola ±1 g (fatiga ~1e6 ciclos) | F_a = 363 N | 0.74 | lcf | 3.6 | 4.87 | 3.0 | ✔ |
-| P1-MNT-05 | LC1 apoyo del buje del pivote (corta) | p = F/(d·w), POM Ø20 × ancho | 0.36 | short | 24.0 | 66.42 | 3.0 | ✔ |
+| P1-MNT-05/06 | LC6 golpe de ola 3 g en el tope (corta) | F = 1092 N | 2.23 | short | 24.0 | 10.77 | 3.0 | ✔ |
+| P1-MNT-05/06 | LC6 ola ±1 g (fatiga ~1e6 ciclos) | F_a = 364 N | 0.74 | lcf | 3.6 | 4.85 | 3.0 | ✔ |
+| P1-MNT-05 | LC1 apoyo del buje del pivote (corta) | p = F/(d·w), POM Ø20 × ancho | 0.36 | short | 24.0 | 66.94 | 3.0 | ✔ |
 | P1-MNT-05 | LC6 paso de pala ±10 % T lateral (fatiga 1e7–1e8) | p_a = 6M/(d·L²) | 0.41 | fat | 1.4 | 3.54 | 3.0 | ✔ |
-| P1-MNT-05 | LC1 tuercas cautivas de la placa motriz: arranque por corte (corta) | τ = (T/4)/(2·12·18) (bolsillo a 18 mm de la cara) | 0.19 | metal | 12.0 | 63.17 | 3.0 | ✔ |
+| P1-MNT-05 | LC1 tuercas cautivas de la placa motriz: arranque por corte (corta) | τ = (T/4)/(2·12·18) (bolsillo a 18 mm de la cara) | 0.18 | metal | 12.0 | 64.61 | 3.0 | ✔ |
 | P1-MNT-05 | LC6 tuercas de placa motriz ±amp·T (fatiga 1e7–1e8) | τ_a = (amp·T_cr/4)/(2·12·18) | 0.01 | metal | 0.7 | 63.84 | 3.0 | ✔ |
-| P1-MNT-05 | LC2 marcha atrás: cartucho contra el fondo del rebaje (corta) | p = T_rev/A_anillo | 0.12 | short | 24.0 | 201.61 | 3.0 | ✔ |
+| P1-MNT-05 | LC2 marcha atrás: cartucho contra el fondo del rebaje (corta) | p = T_rev/A_anillo | 0.12 | short | 24.0 | 206.19 | 3.0 | ✔ |
 | P1-MNT-06 | LC5 cola trabada: apoyo extremo (corta) | p = F_ext/(d·25), F_ext = 4701 N | 4.70 | short | 24.0 | 5.1 | 3.0 | ✔ |
 | P1-MNT-06 | LC5: arandela Ø24 de perno pasante (corta) | p = (F_ext/2)/(π(24²−6.4²)/4) | 5.59 | short | 24.0 | 4.29 | 3.0 | ✔ |
-| P1-HSG-01 placa Al | LC1 empuje bollard | franja cartucho→pernos: M = (T/2)·11 mm, Z = 30·t²/6 (t=6) | 10.02 | metal | 240.0 | 23.96 | 2.0 | ✔ |
+| P1-HSG-01 placa Al | LC1 empuje bollard | franja cartucho→pernos: M = (T/2)·11 mm, Z = 30·t²/6 (t=6) | 9.79 | metal | 240.0 | 24.5 | 2.0 | ✔ |
 | P1-HSG-01 placa Al | LC6 ±10 % empuje (fatiga) | σ_a = (amp·T/2)·11/Z | 0.59 | metal | 60.0 | 100.89 | 2.0 | ✔ |
 | P1-HSG-01 placa Al | LC3 torque de rotor trabado en colisos M4 | p = Q/(4·r·d·t) | 2.44 | metal | 240.0 | 98.23 | 2.0 | ✔ |
-| P1-DRV-08 cartucho Al | LC1 empuje en el labio (corte) | τ = T/(π·Ø21·espesor labio) | 0.50 | metal | 138.5 | 278.68 | 2.0 | ✔ |
-| P1-HSG-02 | LC3 tracción en el plano (corta) | σ = R_B/(24·t) | 1.39 | short | 24.0 | 17.21 | 3.0 | ✔ |
-| P1-HSG-02 | LC4 tirón de correa (corta) | σ = R_B,pin/(24·t) | 3.09 | short | 24.0 | 7.76 | 3.0 | ✔ |
+| P1-DRV-08 cartucho Al | LC1 empuje en el labio (corte) | τ = T/(π·Ø21·espesor labio) | 0.49 | metal | 138.5 | 285.02 | 2.0 | ✔ |
+| P1-HSG-02 | LC3 tracción en el plano (corta) | σ = R_B/(24·t) | 1.49 | short | 24.0 | 16.14 | 3.0 | ✔ |
+| P1-HSG-02 | LC4 tirón de correa (corta) | σ = R_B,pin/(24·t) | 2.34 | short | 24.0 | 10.24 | 3.0 | ✔ |
 | P1-HSG-04 | LC7 apoyo del tubo en la abrazadera (corta) | M = F·L = 82 N·m → F = M/s = 1500 N; p = F/(d·22) | 2.27 | short | 24.0 | 10.55 | 3.0 | ✔ |
 | P1-HSG-04 | LC7 tracción de la abrazadera (2 M6, sección 2×8×22) (corta) | σ = F/(2·8·22) | 4.26 | short | 24.0 | 5.62 | 3.0 | ✔ |
 | P1-HSG-07 placa Al | LC7 torsión de la placa | τ = M/(β·b·t²) | 36.95 | metal | 138.5 | 3.75 | 2.0 | ✔ |
@@ -39,10 +39,10 @@
 | P1-PRP-02 | Arrastre a 9 km/h (sostenido) | F = ½ρV²·Cd·A = 6.4 N | 0.75 | sust | 8.4 | 11.19 | 3.0 | ✔ |
 | P1-PRP-02 | Fuerza lateral en giro (corta) | F = ½ρV²·C_L·A = 44 N, brazo 70 mm, eje débil | 5.96 | short | 24.0 | 4.02 | 3.0 | ✔ |
 | P1-PRP-01 | Golpe radial 150 N en el anillo (corta) | M = F·L/8 (arco entre uniones) | 1.65 | short | 24.0 | 14.57 | 3.0 | ✔ |
-| P1-ELE-01 | Compresión del O-ring en insertos M4 (sostenido) | F_total = 1404 N / 8 insertos vs 1 kN arranque [ESTIMADO] | 1.47 | sust | 8.4 | 5.7 | 3.0 | ✔ |
+| P1-ELE-01 | Compresión del O-ring en insertos M4 (sostenido) | F_total = 1764 N / 8 insertos vs 1 kN arranque [ESTIMADO] | 1.85 | sust | 8.4 | 4.54 | 3.0 | ✔ |
 | P1-SAF-01 | Tirón del cordón 100 N (corta) | placa 7 mm en voladizo 20 mm | 6.80 | short | 24.0 | 3.52 | 3.0 | ✔ |
 | P1-STR-02 tubo Al | LC5 cola trabada (fusible) | σ = F_fus·L/Z = 338 N·m / 3003 mm³ | 112.70 | metal | 240.0 | 2.13 | 2.0 | ✔ |
-| P1-STR-02 tubo Al | LC5 dinámico | σ = 0.19·F·L/Z | 82.93 | metal | 240.0 | 2.89 | 2.0 | ✔ |
+| P1-STR-02 tubo Al | LC5 dinámico | σ = 0.19·F·L/Z | 82.94 | metal | 240.0 | 2.89 | 2.0 | ✔ |
 | P1-HSG-06 caña Al | LC7 manipulación | σ = M/Z (Ø30×3) | 52.72 | metal | 240.0 | 4.55 | 2.0 | ✔ |
 | P1-MNT-08 perno 316 | LC1+LC5 corte doble | τ = (F/2)/A | 2.57 | metal | 118.3 | 46.05 | 2.0 | ✔ |
-| P1-DRV-01 eje 316 | LC3/LC4 torsión+flexión (sizing) | ver 02_calculos.md §7 | — | metal | — | 2.54 | 2.0 | ✔ |
+| P1-DRV-01 eje 316 | LC3/LC4 torsión+flexión (sizing) | ver 02_calculos.md §7 | — | metal | — | 3.66 | 2.0 | ✔ |

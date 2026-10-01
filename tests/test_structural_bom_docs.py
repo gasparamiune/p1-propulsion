@@ -36,7 +36,7 @@ def test_bom(root):
         if r["ID"].startswith("B-"):
             assert r["link_o_busqueda"].startswith(("http", "buscar:")), r["ID"]
             assert r["fecha"]
-    tot = [r for r in rows if r["descripcion"] == "TOTAL EUR"][0]
+    tot = [r for r in rows if r["descripcion"] == "TOTAL SISTEMA EUR"][0]
     assert float(tot["precio_total_EUR"]) > 300
 
 

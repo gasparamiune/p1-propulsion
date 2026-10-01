@@ -114,7 +114,7 @@ def optimize(inp: dict) -> dict:
                          "E_nom_wh": E_nom, "vmax_nom_kmh": vmn["V"] * 3.6,
                          "vmax_des_vmin_kmh": vmd["V"] * 3.6, "bollard_N": bol["T_horiz"],
                          "I_peak_A": I_pk, "tip_depth_mm": tip_depth,
-                         "cost_eur": b["price_eur"] + p["price_eur"],
+                         "cost_eur": b["price_eur"] + b.get("charger", {}).get("price_eur", 0.0) + p["price_eur"],
                          **{f"ok_{k}": v for k, v in ok.items()}, "all_ok": all(ok.values())})
     # Restricciones DURAS (seguridad / requisito de autonomía) vs BLANDA (V máx "por ratos").
     hard = ("ok_energy", "ok_current", "ok_voltage", "ok_cavitation", "ok_draft", "ok_esc_margin")
@@ -212,6 +212,33 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
                             "t_energy_min": t_E, "t_thermal_min": t_th,
                             "t_sustain_min": min(t_E, t_th) if st["feasible"] else 0.0})
 
+    # límite legal < 300 m de la costa (research/R07): V máx con carga liviana, batería llena, banda baja
+    m_light = inp["boat"]["hull_mass_kg"] + op["light_load_kg"] + bat["mass_kg"] + unit_m
+    n_cells = round(bat["v_nom"] / 3.2)
+    v_full = n_cells * 3.35          # [ESTIMADO: LFP con SoC alto bajo carga ~3,35 V/celda]
+    vl = drv.max_speed(m_light, v_full, "low")
+    # tope de rpm ("modo costa"): rpm del motor a 5 kn con carga liviana y banda baja (caso más rápido)
+    V_lim = op["legal_speed_limit_kmh"] * KMH
+    st_lim = drv.at_speed(V_lim, R_at(inp, m_light, V_lim, "low"), v_full)
+    rpm_cap = st_lim["prop"]["n"] * 60 * drv.ratio
+    pp = inp["motor"]["options"][inp["motor"]["chosen"]]["pole_pairs"]
+    # con el tope, V máx a plena carga (banda nominal): ¿la recorta?
+    rpm_full = vmax["nominal_vnom"]["prop"]["n"] * 60 * drv.ratio
+    lo_v, hi_v = 0.5, vmax["nominal_vnom"]["V"]
+    for _ in range(30):                      # V a plena carga con el tope de rpm (banda nominal)
+        mid = 0.5 * (lo_v + hi_v)
+        n_req = drv.at_speed(mid, R_at(inp, mass, mid, "nominal"), bat["v_nom"])["prop"]["n"] * 60 * drv.ratio
+        lo_v, hi_v = (mid, hi_v) if n_req <= rpm_cap else (lo_v, mid)
+    legal = {"limit_kmh": op["legal_speed_limit_kmh"], "mass_light_kg": m_light, "V_bat_full": v_full,
+             "vmax_full_load_with_cap_kmh": min(lo_v, vmax["nominal_vnom"]["V"]) * 3.6,
+             "rpm_cap_motor": rpm_cap, "erpm_cap": rpm_cap * pp, "rpm_cap_prop": rpm_cap / drv.ratio,
+             "rpm_motor_at_vmax_full_load": rpm_full, "cap_reduces_full_load_vmax": rpm_full > rpm_cap,
+             "vmax_light_low_kmh": vl["V"] * 3.6,
+             "ok_by_physics": vl["V"] * 3.6 <= op["legal_speed_limit_kmh"],
+             "note": ("V máx físicamente ≤ límite legal: no hace falta limitador por firmware"
+                      if vl["V"] * 3.6 <= op["legal_speed_limit_kmh"] else
+                      "V máx puede superar 5 kn: activar límite de ERPM 'modo costa' en el VESC")}
+
     # condiciones adversas: viento de proa + olas
     adv = drv.max_speed(mass, bat["v_min"], "design", wind_ms=op["design_headwind_m_s"], waves=True)
     sog_adv = adv["V"] - op["design_current_m_s"]
@@ -239,6 +266,27 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
         therm[name] = {"P_loss_motor_W": st["P_loss_motor"], "P_loss_esc_W": st["P_loss_esc"],
                        "T_motor_steady_C": drv.motor.steady_temp(st["P_loss_motor"], T_amb),
                        "t_to_limit_min": drv.motor.time_to_limit_s(st["P_loss_motor"], T_amb) / 60}
+    # ESC en caja estanca: disipador requerido para que la caja impresa no supere su T de servicio
+    et = inp["esc"]["thermal"]
+    therm_esc = {}
+    T_box_max = inp["materials"]["PETG"]["t_service_max_c"]
+    for name, st in (("esc_cruise", cr_des), ("esc_vmax", vmax["design_vmin"])):
+        Pl = st["P_loss_esc"] + et["sun_load_w"]
+        therm_esc[name] = {"P_loss_esc_W": st["P_loss_esc"], "sun_W": et["sun_load_w"],
+                       "R_hs_max_K_W": (T_box_max - T_amb) / Pl - et["r_interface_k_w"]}
+    R_req = therm_esc["esc_cruise"]["R_hs_max_K_W"]
+    P_v = therm_esc["esc_vmax"]["P_loss_esc_W"] + et["sun_load_w"]
+    # a V máx: subida transitoria con la capacidad térmica de tapa + disipador + ESC
+    tau = (R_req + et["r_interface_k_w"]) * et["heat_capacity_j_k"]
+    dT_ss = P_v * (R_req + et["r_interface_k_w"])
+    T0 = T_amb + (therm_esc["esc_cruise"]["P_loss_esc_W"] + et["sun_load_w"]) * (R_req + et["r_interface_k_w"])
+    if T_amb + dT_ss <= et["t_esc_limit_c"]:
+        t_vmax_min = math.inf
+    else:
+        t_vmax_min = -tau * math.log(1 - (et["t_esc_limit_c"] - T0) / (T_amb + dT_ss - T0)) / 60
+    therm_esc["heatsink"] = {"R_hs_required_K_W": R_req, "T_box_max_C": T_box_max,
+                             "T_vmax_steady_C": T_amb + dT_ss, "t_vmax_to_limit_min": t_vmax_min,
+                             "t_esc_limit_C": et["t_esc_limit_c"]}
     bol_th = {"P_loss_motor_W": bol_f["P_loss_motor"],
               "t_to_limit_min": drv.motor.time_to_limit_s(bol_f["P_loss_motor"], T_amb) / 60}
     therm["bollard"] = bol_th
@@ -363,7 +411,7 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
         "adverse": {"vmax_headwind_waves_kmh": adv["V"] * 3.6, "sog_against_current_kmh": sog_adv * 3.6,
                     "ok_min_sog": sog_adv * 3.6 >= op["min_speed_over_ground_kmh"]},
         "bollard_fwd": bol_f, "bollard_rev": bol_r, "sustain": sustain,
-        "cavitation": cav, "thermal": therm,
+        "cavitation": cav, "thermal": therm, "thermal_esc": therm_esc, "legal_speed": legal,
         "esc": {"i_cont_a": esc["i_cont_a"], "I_bat_peak_a": I_bat_peak, "margin_frac": esc_margin,
                 "ok": esc_margin >= inp["esc"]["margin_min_frac"]},
         "cables": {"dc": cab_dc, "phase": cab_ph}, "fuse": fus,

@@ -163,8 +163,10 @@ def main():
     eb = importlib.util.module_from_spec(spec); spec.loader.exec_module(eb)
     holes = [(x + Lo / 2, y + Wo / 2, 4.4, "pasante M4") for (x, y) in eb.lid_holes(p)]
     out.append(plate("P1-ELE-02", "esc_lid_heatsink", "Al 5052-H32 / 6082-T6", Lo, Wo, 4, holes,
-                     ["Cara interior plana (pad térmico del ESC); agujeros del ESC según el modelo comprado",
-                      "Cara exterior: libre para convección (no pintar)"]))
+                     ["Cara interior plana (pad térmico del ESC y del antichispa); agujeros M3 ciegos para ambos según el modelo comprado",
+                      f"Cara exterior: disipador de aletas comprado, R_th ≤ {p.sz['thermal_esc']['heatsink']['R_hs_required_K_W']:.2f} K/W "
+                      "(convección natural), pasta térmica; 4 tornillos M4 desde adentro con arandela de sellado (Dowty)",
+                      "Montar la caja a la sombra; el disipador no debe tocar PETG"]))
     spec = importlib.util.spec_from_file_location("tp", HERE / "piezas" / "P1-HSG-07_tiller_plate.py")
     tp = importlib.util.module_from_spec(spec); spec.loader.exec_module(tp)
     W = p.cradle_w / 2

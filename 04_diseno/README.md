@@ -10,7 +10,7 @@
 ## Lista de piezas
 
 <!-- AUTO:parts_totals -->
-Total impreso: **5.82 kg** de PETG, **324 h** de impresión (a 18.0 g/h); masa de la unidad basculante (CAD): **9.21 kg**.
+Total impreso: **5.91 kg** de PETG, **328 h** de impresión (a 18.0 g/h); masa de la unidad basculante (CAD): **9.18 kg**.
 <!-- /AUTO:parts_totals -->
 
 <!-- AUTO:parts_list -->
@@ -19,18 +19,18 @@ Total impreso: **5.82 kg** de PETG, **324 h** de impresión (a 18.0 g/h); masa d
 | P1-DRV-01_shaft | Eje de hélice 316 Ø16 torneado | 1352×16×16 | AISI 316 | torneada | 1 | LC3/LC4 torsión, flexión por correa, fatiga | — | 2148 | — |
 | P1-DRV-02_tube_bushing | Buje POM Ø16.3×Ø34×40 (×3) | 40×34×34 | POM-C | torneada | 3 | Reacciones radiales del eje | — | 39 | — |
 | P1-DRV-03_bridge_spacer | Separador Ø12/Ø6.5 (×2), 316 | 26×12×12 | AISI 316 | torneada | 2 | Compresión por precarga del perno M6 | — | 17 | — |
-| P1-DRV-04_motor | Motor BLDC outrunner (ver BOM) | 104×63×63 | — | comprada | 1 | — | — | 950 | — |
-| P1-DRV-05_pulley_motor | Polea HTD-5M motor (aluminio, bore 8) | 21×31×31 | Al | comprada | 1 | — | — | 41 | — |
-| P1-DRV-06_pulley_shaft | Polea HTD-5M eje (aluminio, bore 16) | 21×82×82 | Al | comprada | 1 | — | — | 291 | — |
+| P1-DRV-04_motor | Motor BLDC outrunner (ver BOM) | 104×63×63 | — | comprada | 1 | — | — | 980 | — |
+| P1-DRV-05_pulley_motor | Polea HTD-5M motor (aluminio, bore 8) | 21×30×30 | Al | comprada | 1 | — | — | 37 | — |
+| P1-DRV-06_pulley_shaft | Polea HTD-5M eje (aluminio, bore 16) | 21×76×76 | Al | comprada | 1 | — | — | 246 | — |
 | P1-DRV-07_bearing | Rodamiento 6002-2RS inox 15×32×9 (×2) | 9×32×32 | AISI 440C | comprada | 2 | — | — | 43 | — |
 | P1-DRV-08_bearing_cartridge | Cartucho rodamiento A (Al 6082 torneado) | 20×52×52 | Al 5052/6082 | torneada | 1 | LC1/LC2 empuje axial, LC3/LC4 radial | — | 45 | — |
-| P1-ELE-01_esc_box | Caja estanca del ESC (O-ring + prensaestopas) | 194×155×48 | PETG | impresa | 1 | Estanqueidad (IP67 objetivo), compresión del O-ring | Fondo sobre la cama; la cara del O-ring queda arriba, lisa (última capa + lijado). | 553 | 30.7 |
-| P1-ELE-02_esc_lid_heatsink | Tapa-disipador Al 4 mm (mecanizada) | 166×116×4 | Al 5052/6082 | torneada | 1 | Compresión del O-ring; disipación ESC | — | 205 | — |
+| P1-ELE-01_esc_box | Caja estanca del ESC (O-ring + prensaestopas) | 196×174×48 | PETG | impresa | 1 | Estanqueidad (IP67 objetivo), compresión del O-ring | Fondo sobre la cama; la cara del O-ring queda arriba, lisa (última capa + lijado). | 648 | 36.0 |
+| P1-ELE-02_esc_lid_heatsink | Tapa-disipador Al 4 mm (mecanizada) | 196×146×4 | Al 5052/6082 | torneada | 1 | Compresión del O-ring; disipación ESC | — | 305 | — |
 | P1-ELE-03_throttle_grip | Puño giratorio del acelerador (imán) | 48×48×110 | PETG | impresa | 1 | Torsión de mano (~5 N·m), golpes | Eje vertical (Z): anillos de capa en la dirección del torque. | 102 | 5.6 |
 | P1-ELE-04_hall_housing | Collar del sensor hall (fijo a la caña) | 56×56×34 | PETG | impresa | 1 | Reacción de resortes, golpes | Eje vertical (Z). | 71 | 4.0 |
 | P1-HSG-01_drive_plate | Placa motriz Al 6082-T6 6 mm (motor + cartucho + tensado) | 6×74×206 | Al 5052/6082 | torneada | 1 | LC1/LC2 empuje axial, LC3 torque de motor + tiro de correa, LC4 tirón al cortar el pasador, LC6 fatiga | — | 205 | — |
-| P1-HSG-02_bearing_bridge | Puente del rodamiento B (polea entre apoyos) | 152×152×12 | PETG | impresa | 1 | LC3/LC4 tiro de correa (reacción R_B) | Plana (u = Z): reacción radial en el plano de capas; alojamiento vertical. | 68 | 3.8 |
-| P1-HSG-03_belt_guard | Cubrecorrea / protección de poleas | 204×93×54 | PETG | impresa | 1 | Salpicaduras, manipulación leve | Cara cerrada sobre la cama, abierto arriba (sin puentes). | 149 | 8.3 |
+| P1-HSG-02_bearing_bridge | Puente del rodamiento B (polea entre apoyos) | 151×151×12 | PETG | impresa | 1 | LC3/LC4 tiro de correa (reacción R_B) | Plana (u = Z): reacción radial en el plano de capas; alojamiento vertical. | 68 | 3.8 |
+| P1-HSG-03_belt_guard | Cubrecorrea / protección de poleas | 200×87×54 | PETG | impresa | 1 | Salpicaduras, manipulación leve | Cara cerrada sobre la cama, abierto arriba (sin puentes). | 141 | 7.8 |
 | P1-HSG-04_tiller_clamp | Abrazadera del tubo de caña sobre la placa Al (×2) | 22×35×46 | PETG | impresa | 2 | LC7 manipulación (par de fuerzas entre abrazaderas) | De canto: la media caña y los pernos en el plano de capas. | 24 | 1.3 |
 | P1-HSG-05_motor_hood | Capó ventilado del motor | 82×72×86 | PETG | impresa | 1 | Salpicaduras; temperatura del motor (≤ 60 °C en la pieza) | Cara trasera sobre la cama (techo y laterales verticales, sin puentes largos). | 66 | 3.7 |
 | P1-HSG-06_tiller_tube | Tubo de caña Al 6061-T6 Ø30×3 × 550 mm | 550×30×30 | Al 6061-T6 | comprada | 1 | LC7 | — | 378 | — |
@@ -57,7 +57,7 @@ Total impreso: **5.82 kg** de PETG, **324 h** de impresión (a 18.0 g/h); masa d
 ## Verificación
 
 <!-- AUTO:verify -->
-Resultado: **OK** — 36 piezas, 7411 pares×estados de interferencia; dirección ψ ∈ [-35.0, 0.0, 35.0]°, basculación φ ∈ [0.0, 5.0, 10.0, 15.0, 20.0, 25.0]°; masa unidad CAD 9.21 kg vs estimación 9.0 kg.
+Resultado: **OK** — 36 piezas, 7411 pares×estados de interferencia; dirección ψ ∈ [-35.0, 0.0, 35.0]°, basculación φ ∈ [0.0, 5.0, 10.0, 15.0, 20.0, 25.0]°; masa unidad CAD 9.18 kg vs estimación 9.0 kg.
 <!-- /AUTO:verify -->
 
 ## Ajustes (iniciales, a confirmar con probetas P1.1–P1.2)

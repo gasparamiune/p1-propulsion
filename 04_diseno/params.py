@@ -182,6 +182,8 @@ def load(inputs_path=None, sizing_path=None) -> P:
 
     # --- caja ESC ---
     d["esc_in"] = tuple(g["esc_box_inner_mm"])
+    d["esc_size"] = tuple(inp["esc"]["options"][inp["esc"]["chosen"]]["size_mm"])
+    d["asw_size"] = tuple(inp["electrical"]["antispark_size_mm"])
     d["oring_cs"] = g["oring_cs_mm"]
     d["oring_sq"] = g["oring_squeeze_frac"]
     d["oring_fill"] = g["oring_gland_fill_frac"]

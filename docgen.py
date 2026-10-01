@@ -94,6 +94,24 @@ def blocks(sz, bom, man, est, ver):
                                f"{v.get('T_motor_steady_C', float('nan')):.0f}",
                                "∞" if v["t_to_limit_min"] == float("inf") or v["t_to_limit_min"] > 1e6 else f"{v['t_to_limit_min']:.0f}"]
                               for k, v in th.items()])
+        te = sz["thermal_esc"]
+        hs = te["heatsink"]
+        B["thermal_esc"] = table(["Condición", "Pérdida ESC [W]", "Sol [W]", "R disipador máx. [K/W]"],
+                                 [[k, f"{te[k]['P_loss_esc_W']:.0f}", f"{te[k]['sun_W']:.0f}", f"{te[k]['R_hs_max_K_W']:.2f}"]
+                                  for k in ("esc_cruise", "esc_vmax")]
+                                 + [["Requisito de compra (crucero → caja ≤ " + f"{hs['T_box_max_C']:.0f} °C)", "", "",
+                                     f"**≤ {hs['R_hs_required_K_W']:.2f}**"],
+                                    [f"Con ese disipador, a V máx sostenida: {hs['T_vmax_steady_C']:.0f} °C estacionario "
+                                     f"(límite ESC {hs['t_esc_limit_C']:.0f} °C)", "", "",
+                                     "∞" if hs["t_vmax_to_limit_min"] == float("inf") else f"{hs['t_vmax_to_limit_min']:.0f} min"]])
+        lg = sz["legal_speed"]
+        B["legal_speed"] = table(["Magnitud", "Valor", "Etiqueta"], [
+            ["Límite legal a < 300 m de la costa", f"{lg['limit_kmh']:.2f} km/h (5 kn)", "[VERIFICADO: research/R07 §1.2]"],
+            [f"V máx con carga liviana ({lg['mass_light_kg']:.0f} kg), batería llena, banda baja", f"{lg['vmax_light_low_kmh']:.1f} km/h", "[CALCULADO]"],
+            ["¿Cumple sin limitador?", "sí" if lg["ok_by_physics"] else "**no → tope de ERPM 'modo costa'**", "[CALCULADO]"],
+            ["Tope de rpm del motor / ERPM (VESC `l_max_erpm`)", f"{lg['rpm_cap_motor']:.0f} rpm / {lg['erpm_cap']:.0f} ERPM", "[CALCULADO]"],
+            ["V máx a plena carga con el tope (banda nominal)", f"{lg['vmax_full_load_with_cap_kmh']:.1f} km/h", "[CALCULADO]"],
+        ])
     return B
 
 
