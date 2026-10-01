@@ -6,9 +6,9 @@ tramo cilíndrico hasta la SALIDA en X_noz1 (plano del espejo, R12 §3.3). Aguas
 alojamiento esférico R = pmp_sock_R centrado en el pivote de la boquilla (la boquilla direccional
 termina adelante en una rótula R ≤ pmp_steer_ball_R_max, ver informe) y zona libre r ≤ pmp_steer_free_r
 desde pmp_sock_X1 para las orejas de la boquilla. Resalte Ø 2·pmp_land_R con ranura de O-ring radial
-(sella contra el cuello de la placa de espejo P1-PMP-09, que pasa por encima de las orejas).
-Orejas fijas: |Z| ∈ [Z_steer_lug, Z_steer_lug + pmp_lug_t], ancho pmp_lug_w, agujero Ø steer_pin_d + 0,2
-en (X_steer_pivot, 0) — las orejas de la boquilla van POR DENTRO (|Z| ≤ Z_steer_lug − 0,5).
+(sella contra el cuello de la placa de espejo P1-PMP-09). Las orejas de pivote de la boquilla están en
+la placa de espejo (se monta desde popa después de la bomba): el resalte no depende de D_noz y pasa por
+el agujero del espejo para todo el rango del optimizador (D_noz 0,58–0,74·D).
 """
 import math
 import sys
@@ -25,9 +25,9 @@ from params import loc_jet  # noqa: E402
 # allow: contactos nominales de ajuste (prensado/deslizante); la intersección BRep exacta es 0 —
 # lo que mide verify_parts es el facetado de la malla --fast sobre cilindros coincidentes.
 META = dict(id="P1-PMP-08", name="fixed_nozzle",
-            desc="Tobera fija Al: contracción a D_noz, rótula de la boquilla, sello de espejo y orejas de pivote",
+            desc="Tobera fija Al: contracción a D_noz, rótula de la boquilla y resalte del sello de espejo",
             material="Al 6061-T6", process="torneada", qty=1, frame="jet", group="jet",
-            load_case="Presión interna 0,2 MPa; F lateral de la boquilla y F del bucket en las orejas",
+            load_case="Presión interna 0,2 MPa; reacción de la placa de espejo por el O-ring",
             allow={"P1-PMP-01": 300.0, "P1-PMP-06": 300.0, "P1-PMP-09": 50.0})
 
 
@@ -39,10 +39,6 @@ def rn(p, X):
     if X >= p.pmp_noz_cone_X1:
         return Rn
     return Rb - (Rb - Rn) * (X - p.X_st1) / (p.pmp_noz_cone_X1 - p.X_st1)
-
-
-def lug_envelope_r(p):
-    return math.hypot(p.Z_steer_lug + p.pmp_lug_t, p.pmp_lug_w / 2)
 
 
 def build(p):
@@ -61,13 +57,6 @@ def build(p):
     # ranura del O-ring radial del espejo
     n = n - ring_x(p.pmp_land_R + 1, p.pmp_land_R - p.pmp_or_depth,
                    p.pmp_or_X - p.pmp_or_width / 2, p.pmp_or_X + p.pmp_or_width / 2)
-    # orejas de pivote (±Z), extremo redondeado alrededor del perno
-    hw, t = p.pmp_lug_w / 2, p.pmp_lug_t
-    for s in (1, -1):
-        z0, z1 = (p.Z_steer_lug, p.Z_steer_lug + t) if s > 0 else (-p.Z_steer_lug - t, -p.Z_steer_lug)
-        lug = box(p.pmp_land_X1 - 14.0, p.X_steer_pivot, -hw, hw, z0, z1) + cyl_z(hw, z0, z1, x=p.X_steer_pivot)
-        n = n + lug
-        n = n - cyl_z(p.pmp_lug_hole / 2, z0 - 1, z1 + 1, x=p.X_steer_pivot)
     # brida: 8 × M6
     dh = (p.pmp_f2_bolt + p.bolt_clr) / 2
     for k in range(p.pmp_f2_n):
@@ -94,12 +83,9 @@ def checks(p, part):
         ("área de salida = π/4·D_noz² [mm²]", A, math.pi / 4 * p.D_noz ** 2, "="),
         ("la salida termina en X_noz1 (r libre en X_noz1+1 > D_noz/2) [mm]", r_open - p.D_noz / 2, 0.1, ">="),
         ("semiángulo del cono [°] (R12 §3.3: 8–12, ≤ 14 aceptado)", p.pmp_noz_half_angle, 14.0, "<="),
-        ("orejas: agujero Ø steer_pin_d + 0,2", 1.0 if has_radius(part, p.pmp_lug_hole / 2) else 0.0, 1.0, "="),
-        ("orejas: cara interior en |Z| = Z_steer_lug [mm]", p.Z_steer_lug, p.raw["Z_steer_lug"], "="),
-        ("orejas: eje del perno en X_steer_pivot [mm]", p.X_steer_pivot, p.raw["X_steer_pivot"], "="),
         ("rótula: R alojamiento − R bola máx. [mm]", p.pmp_sock_R - p.pmp_steer_ball_R_max, 1.0, ">="),
-        ("zona libre de orejas de la boquilla < Z_steer_lug + t (r) [mm]", p.pmp_steer_free_r, lug_envelope_r(p), "<="),
-        ("la placa de espejo pasa sobre las orejas (bore − envolvente) [mm]", p.pmp_tp_bore_R - lug_envelope_r(p), 2.0, ">="),
+        ("pared del resalte sobre la zona libre, en la ranura del O-ring [mm]", p.pmp_land_R - p.pmp_or_depth - p.pmp_steer_free_r, 3.2, ">="),
+        ("pared del resalte sobre el alojamiento esférico [mm]", p.pmp_land_R - p.pmp_or_depth - p.pmp_sock_R, 3.2, ">="),
         ("resalte pasa por el agujero del espejo (radial) [mm]", p.transom_hole_d / 2 - p.pmp_land_R, 3.0, ">="),
         ("brida = brida trasera de la carcasa (bc) [mm]", p.pmp_f2_bc, p.pmp_f2_bc, "="),
         ("pared mín. del cono [mm]", p.pmp_noz_wall, 3.2, ">="),

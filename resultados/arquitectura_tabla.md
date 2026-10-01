@@ -1,13 +1,11 @@
-| Opción | eficiencia (15 %) | seguridad (18 %) | viabilidad_petg (10 %) | sellado (8 %) | corrosion (7 %) | costo (12 %) | tiempo (6 %) | reparabilidad (7 %) | poca_prof (10 %) | falla_mar (7 %) | **Total** | Gana en MC |
+| Opción | seguridad (18 %) | concepto (12 %) | prestaciones (14 %) | eficiencia_5kn (8 %) | poca_prof (8 %) | viabilidad (10 %) | costo (10 %) | tiempo (7 %) | reparabilidad (6 %) | riesgo (7 %) | **Total** | Gana en MC |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **A3** Cola larga: motor seco arriba + correa + eje inclinado | 4 | 5 | 4 | 5 | 4 | 3 | 3 | 5 | 5 | 4 | **4.25** | 86 % |
-| **F** Motor comercial completo (trolling de agua salada 55 lb + LiFePO4) | 3 | 5 | 5 | 5 | 4 | 4 | 5 | 2 | 2 | 4 | **3.93** | 14 % |
-| **B** Conversión de trolling motor (soporte kick-up + protector impresos) | 3 | 4 | 4 | 4 | 4 | 4 | 4 | 3 | 3 | 4 | **3.68** | 0 % |
-| **A2** Fueraborda con motor en pod inundado | 4 | 3 | 3 | 3 | 2 | 3 | 3 | 3 | 2 | 3 | **2.98** | 0 % |
-| **C** Waterjet impreso | 2 | 4 | 2 | 3 | 3 | 3 | 2 | 3 | 4 | 3 | **2.97** | 0 % |
-| **E** Propulsión aérea eléctrica (solo comparación) | 1 | 1 | 3 | 5 | 5 | 4 | 3 | 4 | 5 | 2 | **2.96** | 0 % |
-| **D** Hélice entubada / rim-driven impreso | 3 | 4 | 2 | 2 | 2 | 3 | 2 | 2 | 3 | 3 | **2.80** | 0 % |
-| **A1** Fueraborda con motor en pod seco sellado | 4 | 3 | 2 | 1 | 3 | 3 | 2 | 2 | 2 | 3 | **2.66** | 0 % |
+| **B** Waterjet comercial AWT JT132 (Ø130) + el tren eléctrico de este diseño | 4 | 5 | 4 | 2 | 3 | 4 | 4 | 4 | 3 | 3 | **3.75** | 89 % |
+| **C** Bomba de jet ski usada (Sea-Doo Spark 140) adaptada | 4 | 5 | 3 | 2 | 3 | 3 | 4 | 3 | 4 | 3 | **3.50** | 1 % |
+| **A** Waterjet propio (impulsor CNC + bomba Al + toma soldada) — este diseño | 4 | 5 | 4 | 2 | 3 | 2 | 3 | 2 | 3 | 2 | **3.24** | 0 % |
+| **E** Cola larga / surface drive (diseño P1 anterior, adaptado) | 3 | 1 | 2 | 4 | 5 | 4 | 4 | 3 | 5 | 3 | **3.18** | 6 % |
+| **D** Fueraborda eléctrico de 3–6 kW con hélice | 2 | 1 | 4 | 4 | 2 | 5 | 2 | 5 | 2 | 5 | **3.04** | 3 % |
+| **F** Hélice entubada en túnel bajo el casco (pump-jet / rim-drive) | 4 | 3 | 3 | 3 | 2 | 2 | 3 | 2 | 2 | 2 | **2.80** | 0 % |
 
 Sensibilidad: variando cada peso ±50 % (renormalizado), el ganador **no cambia** en ninguno de los 20 casos.
-Monte Carlo (20000 juegos de pesos Dirichlet alrededor de los nominales): A3 86 %, F 14 %.
+Monte Carlo (20000 juegos de pesos Dirichlet alrededor de los nominales): B 89 %, C 1 %, D 3 %, E 6 %.

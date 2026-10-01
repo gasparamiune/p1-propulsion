@@ -8,8 +8,12 @@ Marco BOTE. Reemplaza un paño del fondo del casco alrededor de la toma:
   • abertura de la toma: costados verticales en ±W_open/2 (continúan el conducto); a proa, la CUÑA
     del techo (rampa) mecanizada en 3D desde la tangencia hasta donde el techo llega a 9 mm; a popa,
     el alojamiento del bloque del labio de P1-INT-01;
-  • roscas ciegas M6 para la brida del conducto (P1-INT-01), 4 × M8 ciegas para el soporte de
-    rodamientos del grupo TREN (brg_bracket_holes, cara superior plana a base_top_z) y bolsillos
+  • roscas ciegas M6 para la brida del conducto (P1-INT-01); para el soporte de rodamientos del grupo
+    TREN (brg_bracket_holes, cara superior plana a base_top_z): 4 × M8 PASANTES con avellanado 90° por
+    abajo para tornillos ISO 10642 M8 A4-70 colocados desde afuera (cabeza enrasada con el fondo, asentada
+    en Sikaflex-291i) que hacen de espárragos: el soporte baja sobre ellos y se aprieta con tuerca
+    ISO 4032 A4 + arandela por arriba. En 10 mm de Al no entra una rosca ≥ 12 mm ni un inserto
+    Helicoil/Ensat de 1,5–2 d; con tuerca A4 la rosca trabaja acero-acero a resistencia plena; y bolsillos
     + roscas M5 del tirante delantero de la rejilla (P1-INT-03).
 El empuje del tren llega por el soporte de rodamientos a esta placa y de acá al casco por los bulones
 del ala (no pasa por el conducto).
@@ -33,6 +37,8 @@ META = dict(id="P1-INT-02", name="placa_base",
             allow={"P1-INT-01": 30.0, "P1-REF-01": 30.0, "P1-DRV-03": 30.0})
 
 M6_TAP, M8_TAP, M5_TAP = 5.0, 6.8, 4.2   # brocas de roscar ISO [VERIFICADO: tabla ISO 261/DIN 336]
+CSK_D = 16.4                               # avellanado 90° para ISO 10642 M8 (dk máx. 16) [ESTIMADO: tabla ISO 10642]
+CSK_H = (CSK_D - 8.4) / 2                  # profundidad del cono 90°
 
 
 def hull_bolts(p):
@@ -73,9 +79,12 @@ def build(p):
     for x in m.bolt_x(p):
         for s in (1, -1):
             P = P - cyl_z(M6_TAP / 2, zt - 8.0, zt + 1, x=x, y=s * p.toma_bolt_y)
-    # 4 × M8 ciegas (8,5 mm) del soporte de rodamientos (TREN)
+    # 4 × M8 pasantes + avellanado 90° por abajo (ISO 10642, dk = 16) del soporte de rodamientos (TREN)
+    from build123d import Cone, Pos
+    from cadlib import CEN, MIN
     for (x, y) in p.brg_bracket_holes:
-        P = P - cyl_z(M8_TAP / 2, zt - 8.5, zt + 1, x=x, y=y)
+        P = P - cyl_z((8 + p.bolt_clr) / 2, -1, zt + 1, x=x, y=y)
+        P = P - Pos(x, y, -0.01) * Cone(CSK_D / 2, (8 + p.bolt_clr) / 2, CSK_H + 0.01, align=(CEN, CEN, MIN))
     # bulones del ala al casco (M6 pasantes)
     for (x, y) in hull_bolts(p):
         P = P - cyl_z((p.toma_hull_bolt + p.bolt_clr) / 2, p.toma_rim_z0 - 1, zt + 1, x=x, y=y)
@@ -99,7 +108,6 @@ def checks(p, part):
     zt = p.base_top_z
     bb = part.bounding_box()
     # material bajo/encima de las roscas
-    skin_m8 = zt - 8.5 - 0.0
     xs = [h[0] for h in p.brg_bracket_holes]
     ys = [abs(h[1]) for h in p.brg_bracket_holes]
     roof_at_tie = float(p.toma_roof_z(p.toma_x_bf))
@@ -112,8 +120,8 @@ def checks(p, part):
         ("agujeros M8 del soporte dentro del cuerpo de 10 mm: |y| máx. + 9 ≤ semiancho [mm]", max(ys) + 9.0, p.toma_plate_y, "<="),
         ("agujeros M8 del soporte fuera de la abertura: |y| mín. − 4 − W/2 [mm]", min(ys) - 4.0 - W2, 10.0, ">="),
         ("agujeros M8 dentro de la placa en x [mm]", min(min(xs) - p.toma_plate_x0, p.toma_plate_x1 - max(xs)), 15.0, ">="),
-        ("M8 ciegas: piel bajo la rosca [mm]", skin_m8, 1.5, ">="),
-        ("M8 ciegas: rosca útil ≥ 0,9 d [mm]", 8.5 - 1.0, 0.9 * 8, ">="),
+        ("M8 del soporte: espesor de Al sobre la cabeza avellanada [mm]", zt - CSK_H, 5.0, ">="),
+        ("M8 del soporte: rosca en tuerca A4 ISO 4032 (m = 6,8, acero-acero) ≥ 0,8 d [mm]", 6.8, 0.8 * 8, ">="),
         ("cuña de la rampa: espesor mín. en la unión con el conducto [mm]", cuna_min, 0.9, ">="),
         ("escalón techo placa → conducto (≤ 1 mm, hacia afuera del flujo) [mm]", zt - float(p.toma_roof_z(p.toma_x_j)), 1.1, "<="),
         ("luz bloque del labio ↔ placa por lado [mm]", p.toma_seal_gap, 0.5, "="),

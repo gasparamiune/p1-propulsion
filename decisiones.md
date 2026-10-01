@@ -1,230 +1,124 @@
-# Registro de decisiones y supuestos — P1
+# Registro de decisiones y supuestos — P1-J (waterjet del jet boat de Jorge)
 
 Formato: **Decisión** · Alternativas · Justificación · Etiqueta · *Qué cambia si el dato real difiere*.
-Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se explica el porqué.
+Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `resultados/*.json`
+(marcadores `<!--V:…-->`, que `docgen.py` actualiza); acá se explica el porqué.
 
-## Embarcación y carga
+## Requisitos y casco
 
-**D-01 Bote de diseño: jon boat de 8 ft (LOA 2,44 m, LWL 2,0 m, manga 1,20 m, fondo 0,95 m, puntal 0,38 m, casco 45 kg).**
-- Alternativas: 2,1 m (car-topper) o 2,5 m.
-- Justificación: casi no hay jon boats < 2,5 m en catálogos actuales; el del usuario es probablemente un 8 ft estadounidense o similar (research/R04 §A.1). Se toma LWL corta (Fr mayor → más resistencia) y casco pesado: conservador para la propulsión.
-- [ESTIMADO: research/R04 §A.4].
-- *Si difiere:* medir y actualizar `boat.*`; `run_all.py` recalcula R(v), batería, largo de cola (la hélice se ubica a profundidad fija bajo la flotación) y abrazadera.
+**D-01 Cambio de arquitectura: de cola larga para un jon boat a waterjet eléctrico inboard para el jet boat de Jorge.**
+- Alternativas: seguir con la cola larga (2 personas, 6 km/h); adaptar la cola larga al casco nuevo (opción E de la matriz).
+- Justificación: Jorge mostró el tipo de motor que necesita (su plano "Waterjet para jet boat 2,30 m", su croquis de propulsor en chapa, su hoja de impulsor y una foto de la AWT JT132). Los requisitos pasan a ser los de su plano: 1 piloto, ≥ 30 km/h, motor directo de ~5 kW, toma enrasada, boquilla direccional y reversa.
+- [VERIFICADO: referencias/2026-09-26_plano_preliminar_waterjet_jorge.png; pedido del usuario].
+- *Si difiere:* si el uso real es mayormente dentro de 300 m (5 kn), un jet es la opción menos eficiente (matriz 03 §2, criterio eficiencia_5kn); revisar.
 
-**D-02 Carga: 2 × 100 kg + 12 kg de equipo + 5 kg de margen.**
-- Alternativas: 75–85 kg por persona (promedio).
-- Justificación: conservador para resistencia y empuje.
-- [SUPUESTO].
-- *Si difiere:* menos masa → menos potencia de crucero (sensibilidad n.º 2, 02 §10).
+**D-02 Casco: el de Jorge (2,30 × 0,80 m, puntal 0,52 m, espejo 0,42 m) leído del plano.**
+- Alternativas: ninguna; el plano no tiene escala única (R10b §4.1).
+- Justificación: es el casco al que va la propulsión. Fondo, pantoque y astilla muerta se leyeron de la vista trasera.
+- [ESTIMADO: research/R10b §4.3].
+- *Si difiere:* medir el casco (PENDIENTES P0.1) y actualizar `boat.*`; cambian calado, cebado, resistencia, estabilidad y la placa de la toma.
 
-**D-16 Capacidad del bote estimada en 160 kg y señalada como RIESGO N.º 1.**
-- Alternativas: suponer 250 kg (valor inicial, descartado).
-- Justificación: los aluminio de fondo plano cargan 34–63 kg/m² (LOA × manga) → 100–185 kg; la regla USCG 33 CFR 183.35 da ≈ 160 kg (research/R04 §A.3). Con 2 adultos + propulsión la carga útil supera la capacidad. No se "sube la placa por cálculo".
-- [ESTIMADO: research/R04].
-- *Si difiere:* si la placa real es ≥ carga útil, el riesgo baja; si no, operar con 1 adulto + equipo, o 2 personas livianas con batería chica (opción LFP24_50, LiTime 24 V 50 Ah, 9,6 kg, ~1,4 h de autonomía de diseño) y nunca con ola.
+**D-03 Masa de diseño con el CAD real: <!--V:sizing.masses.total_kg:.0f-->217<!--/V--> kg (1 piloto de 90 kg, batería, unidad de jet del CAD).**
+- Alternativas: los 150 kg del plano de Jorge.
+- Justificación: 150 kg no cierra (R10b §4.2: 165–242 kg). La masa de la unidad de jet sale del CAD (manifest) y la toma `sizing.py`.
+- [CALCULADO].
+- *Si difiere:* la masa es la 2.ª entrada más influyente en la V máx. (02 §10).
+
+**D-04 La estabilidad del casco es el RIESGO N.º 1 y bloquea la navegación hasta resolverla.**
+- Justificación: con 0,80 m de manga y el piloto sentado alto, GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.015<!--/V--> m [CALCULADO]: correr el piloto 0,1 m a una banda escora <!--V:sizing.heel_pilot_0p1m_deg:.0f-->70<!--/V-->° en el modelo lineal (o sea: vuelca). La propulsión no lo resuelve; es un cambio de casco (manga en la flotación ≥ 0,9 m, R10b H1, o flotadores laterales, asiento más bajo).
+- [CALCULADO con casco ESTIMADO].
+- *Si difiere:* ensayo de escora con carga desplazada (R13 §5) antes de cualquier prueba con motor.
 
 ## Arquitectura
 
-**D-03 Arquitectura A3 "cola larga" eléctrica (motor seco arriba, correa, eje inclinado, hélice comprada).**
-- Alternativas: pod sellado (A1), pod inundado (A2), conversión de trolling (B), waterjet (C), entubada/rim (D), aérea (E), comercial (F).
-- Justificación: matriz ponderada 03 (gana con amplio margen y en 86 % de 20 000 pesos aleatorios). Decisivo: **cero sellos dinámicos y cero electrónica sumergida** en agua salobre (research/R05, R06), basculación natural para arena (research/R02 B4: los surface drives regulan la profundidad en marcha).
-- [CALCULADO: arquitectura.py].
-- *Si difiere:* si la prioridad pasa a "mínimo costo con 6 km/h en agua profunda", conviene F/B (plan B).
+**D-05 Recomendación: pedir cotización de la AWT JT132 en paralelo (opción B) y usar este diseño (A) si no cierra.**
+- Alternativas: A (bomba propia, este paquete), C (bomba de Sea-Doo Spark usada), D (fueraborda eléctrico), E (cola larga), F (hélice entubada).
+- Justificación: la matriz ponderada da B primero (<!--V:arch.totals.B:.2f-->3.88<!--/V--> contra <!--V:arch.totals.A:.2f-->3.30<!--/V--> de A) y gana en el <!--V:arch.mc_win_frac.B:.0%-->89%<!--/V--> del Monte Carlo de pesos: es la misma bomba de la foto de Jorge, más liviana (12 kg contra <!--V:cmp.A_jet_mass_kg:.1f-->19.7<!--/V--> kg de la toma + bomba + dirección propias) y sin impulsor a medida. El tren eléctrico, la toma de refrigeración, los mandos y el firmware de este paquete sirven para las dos.
+- [CALCULADO: arquitectura.py; precio de la JT132 ESTIMADO, R11 §4].
+- *Si difiere:* si AWT no confirma la brida de toma, la altura del eje (cebado) y la curva de la bomba, o el costo puesto en DK supera ~1 500 €, A queda como camino completo y fabricable.
 
-**D-04 Ángulo de eje 25° y pivote 135 mm sobre el borde del espejo, 80 mm a popa.**
-- Alternativas: 15–20° (más eficiente, cola más larga y ventilación a baja inmersión); 30° (más pérdida axial).
-- Justificación: research/R02 B4 — a 15° la hélice ventilaba; a 20° duplicó la velocidad. 25° da 9,4 % de pérdida axial con cola de ~1,1 m. El pivote alto despeja el plato de dirección y la basculación (verificado por `verify_parts.py`).
-- [SUPUESTO + CALCULADO].
-- *Si difiere:* el tornillo de trimado (MNT-03) permite ±5° in situ; cambiar `architecture.shaft_angle_deg` y regenerar.
+## Bomba y toma
 
-**D-17 Basculación máxima 25°.**
-- Alternativas: 30–45° (choca el cubrecorrea con la base de la horquilla y el espejo).
-- Justificación: con ~22° la punta de la hélice sale del agua; a 25° queda ~110 mm sobre la flotación ([CALCULADO], 02 §8). Más ángulo exige subir el pivote o adelgazar el tren de poleas.
-- [CALCULADO + VERIFICADO en software].
-- *Si difiere:* si se necesita varar o remolcar con la cola más alta, desmontar la unidad (2 tornillos de apriete).
+**D-06 Impulsor axial Ø<!--V:sizing.selection.D_imp_mm:.0f-->132<!--/V-->, 5 álabes, cubo 0,50·D, tobera Ø<!--V:sizing.selection.D_noz_mm:.0f-->87<!--/V-->.**
+- Alternativas: el Ø108 / 4 álabes / tobera Ø72 del plano; Ø100–120.
+- Justificación: el optimizador (02 §4) elige el diámetro y la tobera que planean con margen al menor costo. Con 217 kg el Ø108 no pasa la joroba con la potencia disponible. 5 álabes y cubo 0,50 por difusión (R12 §3: con cubo 0,40 el factor de difusión llega a 0,60).
+- [CALCULADO: sizing.py; R12].
+- *Si difiere:* el impulsor se re-diseña solo (triángulos de velocidad en `sizing.json` → CAD → tabla de ángulos para el taller).
 
-## Hidrodinámica y propulsor
+**D-07 La bomba se diseña para absorber una potencia intermedia (P_cont + 50 %·(P_pico − P_cont)) a plena tensión.**
+- Justificación: con motor directo las rpm las fija la tensión; si la bomba se diseña para la potencia continua, la potencia pico no se puede usar en la joroba. El controlador limita a la potencia continua en crucero.
+- [CALCULADO: optimizador, variable design_power_frac].
 
-**D-05 Modelo de resistencia por componentes (ITTC-57 + espejo de Holtrop + olas/joroba calibrable) con banda [0,75; 1,15].**
-- Alternativas: Savitsky (fuera de rango: no planea), series sistemáticas (L/∇^⅓ ≈ 3 fuera de rango), Gerr (solo contraste).
-- Justificación: ninguna serie cubre un casco tan corto y lleno. La banda se ancló a datos medidos de botes de 2,4–2,75 m (R(6 km/h) = 95–150 N; research/R04 §C.3). Se dimensiona con el borde alto.
-- [ESTIMADO + calibración pendiente].
-- *Si difiere:* el remolque con dinamómetro (PENDIENTES P2) ajusta `resistance.wave_cw`; batería y relación de poleas se recalculan solas.
+**D-08 Toma enrasada entera a proa del impulsor (respuesta al comentario de Jorge "la rejilla está muy atrás").**
+- Justificación: en el plano la rejilla quedaba a popa de la cara del impulsor, sin conducto y sobre la flotación: la bomba no ceba ni recibe agua (R10a). Ahora el labio está a <!--V:manifest.params.x_lip:.0f-->386<!--/V--> mm y la tangencia de la rampa a <!--V:manifest.params.x_tan:.0f-->766<!--/V--> mm del espejo; la cara del impulsor a <!--V:manifest.params.x_if:.0f-->268<!--/V--> mm. Rampa de 27°, techo de curvatura continua, rejilla de 7 pletinas 316 con luz de 16 mm.
+- [CALCULADO: R10a §5, R12 §3.2; CAD P1-INT-*].
+- *Si difiere:* si el fondo no es plano en esa zona o tiene refuerzos, la placa base cambia (PENDIENTES P0.1).
 
-**D-06 Hélice comprada (no impresa); el optimizador solo elige entre productos concretos identificados → Minn Kota MKP-32 Weedless Wedge 2 (485 kr, Watski DK, con tuerca y pin). Objetivo de mejora: 10 × 8 in 3 palas de fueraborda eléctrico (no se halló producto).**
-- Alternativas: Tohatsu 309B64107-0 aluminio 7,4 × 6 (verificada la ficha, no el precio ni el bore; con bore ~12 mm el asiento del eje no llega a FS 2 en torsión y no cierra la energía de diseño); 10 × 8 de fueraborda eléctrico (−13 % de energía de crucero, pero sin producto con link abierto: research/R08b §5); hélice de PETG.
-- Justificación: una hélice de PETG a ~1 kW tiene σ en raíz ≈ 30 MPa frente a una admisible en fatiga < 1,5 MPa (02 §4.4) → inviable. La MKP-32 es la única opción comprable que cumple energía, asiento de eje y calado con la batería elegida (02 §4.1); η0 de crucero calculado ≈ 0,40, coherente con el 40–50 % medido en hélices de trolling (research/R02 S34).
-- [CALCULADO + VERIFICADO: research/R04, R08b]; diámetro, paso y bore de la MKP-32 son [ESTIMADO].
-- *Si difiere:* **comprar la hélice primero** (PENDIENTES P0.7), medir D, paso, bore, pasador y retención, cargarlos en `propeller.options.MKP32` y correr `run_all.py`: re-dimensiona eje, pasador, protector, patín y carcasa inferior. Si aparece una 10 × 8 de 3 palas con bore ≥ 14 mm, marcar `purchasable: true` y el optimizador la elige.
+**D-09 Conducto de la toma en Al 5083 soldado y placa base enrasada con Sikaflex; NO en PETG.**
+- Alternativas: conducto impreso en segmentos (lo que pedía el enfoque original del proyecto).
+- Justificación: en PETG hacían falta ~20 mm de pared para FS 3 a fatiga por el ciclo de presión, más dos juntas en el límite estanco del casco; el 5083 es el metal del casco (sin par galvánico).
+- [CALCULADO: 04_diseno/structural_toma.py].
 
-**D-07 Eje AISI 316 Ø16 con tramo superior Ø15 continuo (rodamientos 6202 + polea) que termina en el hombro Ø16; pila apretada por tuerca M12 desde arriba.**
-- Alternativas: Ø12 (FS fatiga 1,1 y torsión en el pasador 1,3: **rechazado**), dúplex 2205 (mejor, más caro).
-- Justificación: FS ≥ 2 en todas las secciones (02 §7); velocidad crítica ≥ 4× la máxima. **Corrección de Pasada 2:** la versión anterior tenía el muñón del rodamiento A (Ø15) entre dos tramos Ø16: el rodamiento no se podía montar. Ahora todo lo que va arriba del hombro es ≤ Ø15 (cota verificada en `build_all`), con separadores DRV-09/DRV-10.
-- [CALCULADO]. Barra 316/316L: no se halló en tienda abierta (research/R08b §2) → pedir a un metalgrossist; **1.4301 no sirve sumergido**.
-- *Si difiere:* el asiento de hélice se tornea al bore real medido.
+**D-10 Carcasa, estator y tobera de Al mecanizado; anillo de desgaste de 316 torneado en sitio; holgura de punta 0,4 mm.**
+- Justificación: la holgura no se mantiene en PETG (R10b H15); un estator de PETG da FS 0,33 sostenido. 0,3–0,4 mm con anillo torneado (R12 §3).
+- [CALCULADO: structural_bomba.py; R12].
 
-**D-08 Polea conducida entre dos rodamientos (placa motriz + puente).**
-- Alternativas: polea en voladizo con 2 rodamientos en un buje (FS fatiga 1,6 en el muñón).
-- Justificación: momento en el eje ÷2; el puente trabaja en tracción en su plano.
+**D-11 Impulsor de 316 mecanizado en 5 ejes (o impreso en 316L SLM con el Ø torneado), arrastrado por un pasador de corte de Al 6061 Ø<!--V:sizing.mech.shear_pin.d_mm:.1f-->3.5<!--/V--> mm.**
+- Justificación: una piedra libera ~490 J de energía del rotor; el límite de corriente no protege (R12 §7.6). El pasador corta a <!--V:sizing.mech.shear_pin.T_cut_Nm:.0f-->33<!--/V--> N·m, ~1,8 × el par máximo del controlador.
+- [CALCULADO].
+- *Si difiere:* calibrar el corte real con el ensayo de probeta (05 §4) y llevar 5 de repuesto.
+
+## Tren
+
+**D-12 Motor directo (sin reducción) Maytech MTI120116 150 KV refrigerado por agua, 12S.**
+- Alternativas: Golden Motor HPM5000 (el del plano): 91,5 rpm/V a 48 V y 58,9 a 72 V de catálogo → no llega a las rpm del impulsor sin bobinado a pedido (R11 §1.3).
+- Justificación: 4,4 kg, camisa de agua, eje Ø15 con chavetero; único de la clase con precio.
+- [VERIFICADO: R11 §1.2; potencia continua no publicada → ESTIMADO 6 kW: pedir el dato a Maytech].
+- *Si difiere:* es la entrada más influyente en la V máx. (02 §10).
+
+**D-13 Tensión ≤ 50 V (LFP 12S, 2 × LiTime 36 V 60 Ah en paralelo) en lugar de los 72 V del plano.**
+- Justificación: ISO 16315 fija 50 V CC como umbral de tensión segura (R06, R13 §4); a 72 V hacen falta componentes de clase 100 V y monitor de aislamiento (+709 €). No hay packs 13S comerciales en la UE y los "48 V" de catálogo son 16S (58,4 V) (R11 §3).
+- [VERIFICADO: R11, R13].
+- *Si difiere:* `electrical.allow_72v: true` habilita las opciones de 72 V en el optimizador.
+
+**D-14 Eje 316L Ø20 con dos apoyos: par 7204 BEP en seco (toma todo el empuje) y buje de agua de POM en el cubo del estator; sello mecánico SiC/carbón con cámara de goteo y testigo.**
+- Justificación: en voladizo la primera velocidad crítica caía debajo de la de servicio; con el buje queda en <!--V:sizing.mech.crit_ratio:.1f-->3.1<!--/V-->× las rpm máximas. El empuje va por un pórtico de Al sobre el conducto a la placa base, nunca al motor (acople Rotex 24 con juego axial).
+- [CALCULADO: structural_tren.py; sizing.py].
+
+**D-15 Refrigeración por agua desde la bomba: orificio Ø4 en la carcasa del estator → controlador → motor → testigo en el espejo.**
+- Justificación: como los jetboards; <!--V:sizing.cooling.Q_l_min_top:.1f-->5.1<!--/V--> L/min a V máx. alcanzan con un salto de <!--V:sizing.cooling.dT_water_K:.1f-->1.7<!--/V--> K.
 - [CALCULADO].
 
-**D-09 Tubo de cola Al 6061-T6 Ø40×3 (no inox 25×1,5).**
-- Alternativas: inox 316 25×1,5 (capacidad ~120 N·m → **cede** con el momento dinámico de impacto ≈ 0,19·F·L ≈ 250 N·m), inox 38×2 (pesado), GFRP.
-- Justificación: capacidad ≈ 720 N·m, 0,94 kg/m, mismo metal que el casco (no hay par galvánico con él); el eje inox está aislado por bujes de POM.
+## Dirección, reversa y control
+
+**D-16 Boquilla direccional de Al ±25° con cable Ultraflex M66 y timonería T85 al volante; topes mecánicos.**
+- [VERIFICADO: R11 §7 (productos y precios)].
+
+**D-17 Bucket de reversa obligatorio (Al 5083 soldado) con émbolo de traba; reversa limitada al 50 % de la potencia; enclavamiento mecánico de palancas en la consola.**
+- Justificación: sin chorro no hay dirección ni freno (R10b H10). El bucket solo se mueve con el acelerador en 0.
+- [CALCULADO: structural_direccion.py; firmware].
+
+**D-18 Perfil "costa" (≤ 5 kn) por defecto al encender, perfil "abierto" a pedido del piloto; kill switch por cordón + contactor.**
+- Justificación: dentro de 300 m el límite es 5 kn y en Als Sund 4 kn (R13 §3); el tope de ERPM lo hace cumplir.
+- [VERIFICADO: R07, R13].
+
+## Fabricación
+
+**D-19 PETG impreso solo donde da FS ≥ 3: tapa de inspección de la toma, base y capota del controlador, caja de palancas y soporte del kill switch.**
+- Alternativas: imprimir conducto, carcasa, estator y boquilla (no cierran a FS 3, D-09/D-10).
+- Justificación: la bomba de un jet de 5–10 kW es una pieza de presión y de precisión; se imprime lo que no lo es.
 - [CALCULADO].
 
-**D-10 Basculación con retén de bola (15 N·m) + gravedad; marcha atrás limitada al 50 % de corriente por firmware.**
-- Alternativas: traba manual de marcha atrás (si se olvida, anula la protección), amortiguador.
-- Justificación: momento de empuje en reversa ≈ 6 N·m ≪ gravedad + retén ≈ 40 N·m (FS ≈ 7); en avance el impacto libera con ~95 N horizontales en el patín.
-- [CALCULADO].
-- *Si difiere:* la precarga del émbolo es regulable; calibrar con dinamómetro (PENDIENTES P5).
+## Legal
 
-**D-11 Pasador de corte de AISI 316 de diámetro chico (≈ Ø2 mm) → corta a ≈ 2× el torque máximo normal.**
-- Alternativas: Al 6061 (versión anterior: en agua salobre, en contacto con el eje 316, es el ánodo del par y pierde sección → corte prematuro e impredecible); latón (descincifica).
-- Justificación: protege eje, correa y placa (02 §7); mismo metal que el eje. El diámetro sale de τ_u ≈ 0,6·Su [ESTIMADO] → **calibrar con el ensayo P1.9** antes de navegar.
-- [CALCULADO].
+**D-20 Diseño para NO ser "vandscooter" ni "speedbåd".**
+- Justificación: la definición de vandscooter pide operar "på – snarere end i – skroget" (BEK 809/2019); el piloto va sentado dentro con volante. Speedbåd desde 19 kW de potencia propulsiva (BEK 749/2020); el pico de este diseño es <!--V:sizing.performance.P_shaft_peak_kW:.1f-->9.0<!--/V--> kW. Los 30 km/h solo son legales a más de 300 m de la costa y nunca en Als Sund (4 kn) ni en Augustenborg Fjord.
+- [VERIFICADO: research/R13]. Confirmar por escrito con Søfartsstyrelsen (preguntas en danés en R13 §8).
 
-**D-12 Patín fusible: rompe con 300 N horizontales en su punta.**
-- Justificación: con la cola trabada (reversa o retén atascado), 300 N × 1,13 m mantienen el tubo de Al con FS ≥ 2 y todas las piezas impresas aguas arriba con FS ≥ 3 (02 §9). Arena (contacto largo) no lo rompe; una piedra a 9 km/h sí → se reemplaza (impresión de ~4 h).
-- [CALCULADO].
+## Historia
 
-## Montaje
-
-**D-13 Abrazadera en C impresa, tornillos altos (z = −35), apriete ≤ 2,5 N·m, placa de reparto A4 y re-apriete antes de cada salida.**
-- Alternativas: pasantes al espejo (perforar el bote), soporte comercial de fueraborda.
-- Justificación: con 5 N·m la esquina de la C quedaba en FS 1,7 a creep. La C no depende del apriete para el empuje (apoyo directo). Cabo de seguridad obligatorio.
-- [CALCULADO].
-- *Si difiere:* espejo de chapa desnuda de 1,2 mm → agregar taco de HDPE ≥ 25 mm (research/R04 §A.5).
-
-**D-14 Dirección por plato giratorio sobre la abrazadera + horquilla de 3 piezas planas.**
-- Justificación: el tubo pasa por encima del plato; cada pieza se imprime con la carga en el plano de capas.
-- [SUPUESTO + VERIFICADO en software].
-
-**D-15 Caña sobre placa de Al 6082 de 10 mm apretada por los pernos pasantes de la tapa de cuna, desplazada 70 mm a babor.**
-- Alternativas: caña en la placa motriz (7 mm: σ ≈ 200 MPa → rechazado), soporte lateral impreso (aplastamiento FS 0,5 → rechazado).
-- Justificación: el momento de la caña llega a la cuna como par de fuerzas de compresión.
-- [CALCULADO].
-- *Si difiere:* la ergonomía (puño ~34 cm sobre el borde) se revisa en P2.
-
-**D-18 Uniones roscadas: tuerca A4 cautiva como estándar; nunca Loctite 243 sobre PETG.**
-- Justificación: research/R05 (tuerca cautiva 166 kg vs inserto 119 kg; anaeróbicos fisuran termoplásticos).
-- [VERIFICADO: research/R05].
-
-## Eléctrico
-
-**D-19 Batería LiFePO4 24 V: 2 × Power Queen 12,8 V 100 Ah en serie (BMS 100 A c/u), 475,18 € el par, elegida por el optimizador.**
-- Alternativas: 16S 51,2 V (V máx 10 km/h, pero 58,4 V supera 48 V nominal y el umbral de 50 V CC de ISO 16315: **rechazada**); 12S LiTime 36 V 50 Ah (399,99 € + cargador 132,99 €: más barata y 7 kg más liviana, pero 1 920 Wh no cubren 2 h + 20 % en la banda alta de diseño por ~2,5 %; ver D-28); LiTime 24 V 50 Ah (309,99 €; BMS de solo 50 A y 1 280 Wh: no cumple energía); 2 × LiTime 12 V 100 Ah (519,98 €: igual energía, +45 €).
-- Justificación: mínimo costo (batería + cargador + hélice) que cumple energía, corriente, tensión, cavitación y calado (02 §4.1, §6). Es además la de menor €/kWh verificado (186 €/kWh, research/R08a §4) y la única con BMS de 100 A en la franja de precio. LiFePO4 por seguridad térmica (research/R06). 2 BMS en serie: cargar cada 12 V por separado a 14,6 V de vez en cuando para balancear [ESTIMADO: research/R08a].
-- [CALCULADO sobre precios VERIFICADOS: research/R08a §4, 2026-10-01].
-- *Si difiere:* si el remolque da la banda nominal o menor, la LiTime 36 V 50 Ah (o una 24 V de 60–80 Ah) pasa a cumplir y se ahorra ~45 € y 7 kg; correr `run_all.py` con los puntos medidos lo decide solo.
-
-**D-20 ESC + antichispa en caja estanca impresa (ELE-01, interior 160×110×45) con tapa de aluminio (ELE-02) y disipador de aletas comprado; caja a la sombra, dentro del bote, cerca de la batería.**
-- Alternativas: caja comercial IP67 BOX4U 177×126×56 (14,65 €, research/R08a §10): estanqueidad certificada pero tapa plástica → el ESC (<!--V:sizing.thermal_esc.esc_cruise.P_loss_esc_W:.0f-->26<!--/V--> W de pérdida en crucero con η = 0,97) no tiene camino de calor; ESC refrigerado por agua (P2).
-- Justificación: la caja impresa permite tapa de Al como camino térmico. Requisito calculado del disipador: **R_th ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.44<!--/V--> K/W** para que la caja no pase de 50 °C en crucero (02 §5.2). Los prensaestopas M20 no podían atravesar la pared de 18 mm del reborde (rosca ~10–15 mm): se rebaja la pared a 5 mm en cada prensaestopas y se fija con contratuerca por dentro (verificado con 10 cotas en `build_all`).
-- [CALCULADO].
-- *Si difiere:* si el ensayo T1 de la caja impresa no pasa (porosidad del PETG), usar la BOX4U IP67 con una ventana fresada en la tapa y la placa ELE-02 atornillada con junta como tapa-disipador.
-
-**D-21 Cable DC 16 mm² (el fusible de 100 A lo protege), fases 10 mm²; fusible ≤ 178 mm del borne.**
-- Justificación: caída ≤ 3 % y ampacidad ≥ calibre del fusible (un test detectó 10 mm² + 100 A: corregido).
-- [CALCULADO + VERIFICADO: research/R06 ABYC E-11 7"].
-
-**D-22 Corte de emergencia por contactor monoestable cuya bobina pasa por el cordón (contacto cerrado con clip) y la seta; antichispa MOSFET solo como arranque suave; corte por software en el VESC como redundancia.**
-- Alternativas: kill switch cortando solo la señal del acelerador (el ESC puede fallar en conducción); antichispa como único corte (los MOSFET fallan en corto, research/R06).
-- Justificación: falla segura (cable cortado, clip afuera, conector suelto = motor sin energía); el contactor corta bajo carga.
-- [VERIFICADO: research/R06].
-- *Si difiere:* si el contactor elegido no publica corte CC ≥ 48 V bajo carga, no se usa.
-
-**D-23 Caja ESC con O-ring de cordón NBR70 Ø3,53 mm en ranura axial (aplastamiento 25 %, llenado 78 %) y cara de sellado refrentada/lijada.**
-- Alternativas: cordón 2,5 mm (tolerancia de impresión del mismo orden que el aplastamiento); junta plana de goma espuma.
-- Justificación: con 3,53 mm el aplastamiento (0,9 mm) es varias veces la planitud alcanzable en FDM tras lijado (research/R05 S24).
-- [VERIFICADO: research/R05].
-
-**D-25 Placa motriz (HSG-01) de aluminio 6082-T6 de 6 mm y cartucho de rodamiento A torneado en Al.**
-- Alternativas: placa PETG de 14 mm (FS a fatiga < 3 con los factores de R05: fatiga 0,06 a 10⁷–10⁸ ciclos de paso de pala).
-- Justificación: la placa recibe el tiro de la correa y el par a frecuencia de paso de pala; en PETG no cerraba fatiga con FS 3.
-- [CALCULADO: structural.py con factores VERIFICADOS en research/R05].
-
-**D-26 Aro protector perfilado (espesor NACA 15 %, cuerda 76 mm) en 6 segmentos con lengüetas; pérdida de empuje 10 % de diseño (rango de sensibilidad 0–25 %).**
-- Alternativas: aro plano (más arrastre), tobera Kort (P2, research/R03).
-- [ESTIMADO: research/R03].
-
-**D-27 Placa antiventilación impresa (PRP-05) sobre la carcasa inferior.**
-- Justificación: con la hélice a 0,4 D de inmersión y ola corta de fiordo, la ventilación es probable (research/R02).
-- [ESTIMADO].
-
-**D-28 12S / 36 V (LiTime 36 V 50 Ah + motor 140 KV) queda como alternativa documentada, no como elegida.**
-- Justificación: 24 V vs 36 V lo deciden los accesorios marinos baratos (portafusibles de 32 V; desconectadores ≤ 48 V; research/R08a) y la energía: 1 920 Wh fallan la banda alta por ~2,5 %. Se compra el fusible/portafusible de 58 V para no cerrar la puerta.
-- [CALCULADO + VERIFICADO: research/R08a].
-- *Si difiere:* ver D-19.
-
-**D-29 Admisibles del PETG con factores de R05 (agua 0,75 · temperatura 0,85 · proceso 0,80 · fluencia 0,35 · fatiga 0,06 a 10⁷–10⁸ / 0,15 a 10⁵–10⁶ · eje Z 0,40), T de servicio 50 °C, comprar PETG con HDT ≥ 70 °C.**
-- [VERIFICADO: research/R05]. *Si difiere:* las probetas P1.5/P1.7 (PENDIENTES) recalibran `materials.*` y `structural.py` re-verifica.
-
-**D-30 Límite legal 5 kn a < 300 m de la costa → V máx útil 9,26 km/h; tope de ERPM en el VESC ("modo costa") por defecto.**
-- Alternativas: sin tope (con 1 persona el modelo da <!--V:sizing.legal_speed.vmax_light_low_kmh:.1f-->9.5<!--/V--> km/h: ilegal); limitador por GPS en el Arduino (P2).
-- Justificación: Sejladsreglement Syd- og Sønderjyllands Politi §4 (research/R07). El tope = rpm del motor a 5 kn en el caso más rápido (carga liviana, banda baja, batería llena): <!--V:sizing.legal_speed.erpm_cap:.0f-->30164<!--/V--> ERPM; a plena carga baja la V máx nominal de <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.1<!--/V--> a <!--V:sizing.legal_speed.vmax_full_load_with_cap_kmh:.1f-->7.1<!--/V--> km/h. Con 2 personas el bote no llega a 5 kn en ninguna banda (8,7 km/h en la baja), así que quitar el tope con 2 a bordo es legal. Los 12 km/h del pedido no se persiguen.
-- [VERIFICADO: research/R07 §1.2 + CALCULADO: sizing.py `legal_speed`].
-- *Si difiere:* recalibrar el tope con el GPS en T3 (velocidad a tope con 1 persona ≤ 9,0 km/h).
-
-**D-31 Agua: temperatura máxima 24 °C (presión de vapor 2 984 Pa) para cavitación; mínima operativa 12 °C (temporada 15 jun–15 sep); salinidad de corrosión 20,5 PSU.**
-- [VERIFICADO: research/R07 §2–3; presión de vapor ESTIMADO por ecuación de Buck]. Impacto en cavitación ≈ −0,6 % del margen.
-
-**D-32 Motor Flipsky 6374 BH 190 KV y ESC Flipsky 75100 V2.0 comprados a Flipsky (China) con IVA de importación 25 % + envío (~105 € en total).**
-- Alternativas: AliExpress con precio UE (188–243 € el trío motor/ESC/antichispa; vendedor/versión no verificables); Maytech MTO6374 (eje 26 mm, menos corriente).
-- Justificación: datos técnicos publicados y links abiertos (research/R08a). **Declarar el valor real en aduana** (la FAQ del vendedor sugiere lo contrario: es fraude).
-- [VERIFICADO: research/R08a §0–2; envío ESTIMADO 45 €].
-
-**D-33 Protecciones con componentes verificados en DK: fusible MIDI 58 V (IMAXX midiOTO) + portafusible HMD4-MG1-H, desconectador Biltema AFD (12–48 V, 275 A), cordón Watski (cerrado con clip), conector Anderson SB50 batería ↔ instalación (el cargador usa el mismo).**
-- Riesgo aceptado y ensayado: el interruptor Watski es de 12 V–15 A y se usa a 24 V con ≤ 0,6 A de bobina, con supresor en la bobina (sin arco inductivo en el contacto). Ensayo T0: 200 aperturas con la bobina real sin soldadura de contactos; si falla, relé auxiliar de 24 V.
-- [VERIFICADO: research/R08a §3, §6, §8].
-
-**D-34 El Arduino Nano y el sensor se alimentan con su propio DC-DC (TRACO TSR 1-2450E, 7–36 V → 5 V) aguas ARRIBA del contactor, no con el BEC del VESC.**
-- Alternativa descartada: BEC 5 V del VESC (research/R08a lo proponía para ahorrar el DC-DC).
-- Justificación: con el contactor abierto el VESC solo recibe ≤ 2,1 W por la resistencia de precarga en paralelo; su BEC quedaría en brown-out y el MCU se reiniciaría en ciclos. Alimentado aguas arriba, el MCU sigue vivo durante un corte, latchea el desarme y exige 1 s con el acelerador en cero para re-armar (04_diseno/electronica §1–§2).
-- [VERIFICADO: research/R08a §9 (producto); CALCULADO: 04_diseno/electronica/calc_electronica.py].
-
-**D-35 Equipo de seguridad de operación (2 chalecos con cuello, remos, ancla + cabo, luz todo horizonte, achicador, bolsa estanca) en la BOM como alcance aparte (~270 €).**
-- Justificación: research/R07 §1.4 (viento de tierra W/SW dominante; agua < 15 °C fuera de temporada). No se suma al costo del sistema para compararlo con un motor comercial, pero es obligatorio para salir.
-- [VERIFICADO requisito: research/R07; precios ESTIMADO].
-
-**D-36 Sin ánodo de sacrificio en P1; aislamiento galvánico por diseño.**
-- Alternativas: ánodo de collar de Al en el eje (no existe para Ø16 en DK: el más chico es Ø25, research/R08b §6); ánodo atornillado al tubo.
-- Justificación: los metales mojados no forman pares conectados: grupo giratorio todo 316 (eje, pasador, tuerca A4; hélice de compuesto), tubo de Al aislado del eje (bujes igus en portabujes PETG) y del casco (montaje impreso); tornillería A4 sobre Al con Tef-Gel + arandelas/vainas de nylon; sistema eléctrico flotante (sin masa al casco). Si la hélice final es de aluminio, sí hace falta ánodo (buje adaptador Ø16→Ø25 + Tecnoseal Al Ø25, 96 kr).
-- [ESTIMADO: criterio de diseño; ver mapa galvánico en 06].
-- *Si difiere:* inspección de picaduras por temporada (checklist); si aparecen, agregar ánodo (P2).
-
-**D-37 Rodamientos 6202-2RS de acero al cromo (Biltema) en zona seca, cambio por temporada.**
-- Alternativas: 6002 inox (no hallado en tienda abierta), S6202 AISI 420 (Kugellager-Shop ya no envía a DK por la PPWR; posible vía paketshop en Flensburg).
-- Justificación: comprable localmente (36,90 kr), en zona seca con sello 2RS. Cartucho Ø42 con brida Ø56; puente con rodamiento B flotante (deslizante y 1 mm de juego axial).
-- [VERIFICADO: research/R08b §3].
-
-**D-38 Bujes sumergidos igus iglidur H370 (Ø16×Ø18×20, 2 por portabuje) en portabujes de PETG impresos.**
-- Alternativas: POM-C torneado (barra no hallada en tienda abierta), cutlass (no hay para Ø16).
-- Justificación: igus recomienda H370 para uso bajo agua; 3,10 €/u; evita tornear 3 bujes. Presión de contacto en el portabuje < 1 MPa.
-- [VERIFICADO: research/R08b §3].
-
-**D-39 Poleas Dold Mechatronik (motor 14/16/20 T bore 8; eje 40/48/72 T re-mandrinada a Ø15 H7) y correa de un largo con stock.**
-- Justificación: son los dientes y largos que existen (research/R08b §4); el optimizador elige solo entre ellos y `mech.belt_checks` toma el largo con stock más cercano y verifica que la distancia entre centros real quede dentro de los colisos (±8 mm).
-- [VERIFICADO: research/R08b §4].
-
-**D-40 Modelo de hélice: Wageningen B-series verificada dentro de su rango; lineal calibrada contra la serie fuera de él; η0 × 0,95 por escala y rugosidad.**
-- [VERIFICADO: research/R09 §2.1–2.2]. La hélice de trolling elegida (P/D ≈ 0,4) queda fuera del rango de la serie: su η0 es [ESTIMADO] hasta el ensayo de bollard (T2) y el GPS en T3.
-- *Si difiere:* ajustar `propeller.efficiency_factor` con el bollard medido.
-
-**D-41 Térmico con los límites reales del VESC (85 °C de motor y MOSFET) y resistencia del cobre en caliente (+23,6 % a 80 °C).**
-- [VERIFICADO: research/R09 §6]. R_th del motor 0,45 K/W sigue [ESTIMADO]: medir con el método de resistencia en T2.
-
-**D-42 Límite de corriente de motor 60 A, relación de poleas elegida con restricción térmica en crucero y tensión mínima de cálculo = corte del VESC (24 V).**
-- Problema (revisión adversarial de 01): con 70 A y relación 2,0 el motor se estabilizaba a 93 °C en crucero de diseño, por encima de los 85 °C en que el VESC empieza a recortar (~20 min): no se sostenían 2 h a 6 km/h. Además, la tensión mínima de cálculo (22 V) quedaba por debajo de `l_battery_cut_end`.
-- Solución: `select_ratio` descarta las relaciones cuyo motor supera `t_winding_max_c` en crucero de diseño (y el optimizador lo exige como restricción dura); con la relación que lo cumple (20:48) el torque de rotor trabado sube y el asiento de hélice quedaba en FS 1,87 < 2 → límite de fase 60 A. Empuje a punto fijo prácticamente igual (limita la corriente de motor en ambos casos). `battery.v_min` = celdas × 3,0 V.
-- [CALCULADO: sizing.py]. *Si difiere:* medir R_th del motor en T2.5; si es menor que 0,45 K/W se puede volver a 70 A.
-
-**D-43 Plano preliminar de waterjet de Jorge (26/09/2026): evaluado, no cambia la base de P1 hasta confirmar el casco.**
-- Jorge tiene razón: la rejilla está a popa del impulsor y sin conducto; además el impulsor queda sobre la flotación estática (no ceba), el casco de 0,80 m de manga es inestable y carga 1 persona, 72 V > 50 V CC y ≥ 30 km/h es ilegal a < 300 m. Corrección de la toma y auditoría completa en research/R10a y R10b; croquis en referencias/.
-- *Si difiere:* si la lancha real es la del plano (2,30 × 0,80 m), actualizar `boat.*` y `load.*` en inputs.yaml y correr `run_all.py`.
-
-## Software y entorno
-
-**D-24 Blender: `bpy` 5.0.1 (pip) en lugar de Blender 5.1.**
-- Justificación: no hay `bpy` 5.1 para Python 3.11; el `.blend` generado abre en Blender 5.1. FEA con gmsh requiere `libglu1-mesa` del sistema.
-- [VERIFICADO: instalación en esta sesión].
+El diseño anterior (cola larga eléctrica para un jon boat de 2 personas a 6 km/h, decisiones D-01 a D-43
+de esa versión) quedó en el historial de git: commit `5dfada0`
+(`git show 5dfada0:decisiones.md`). De esa versión se reutilizan: el kill switch por cordón + contactor,
+el firmware del acelerador (adaptado al bucket), la investigación de materiales PETG (R05), la normativa
+general (R07) y el marco de cálculo, CAD, verificación y documentación.

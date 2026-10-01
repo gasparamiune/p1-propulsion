@@ -517,7 +517,7 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
                         "reverse_N": d["peak"][0]["T"] * inp["waterjet"]["reverse"]["thrust_frac"]
                         * inp["waterjet"]["reverse"]["power_limit_frac"] ** (2 / 3),
                         "top": _slim(d["st_top"]), "legal": _slim(d["st_leg"]), "vmax_by_battery": vm,
-                        "vmax_peak_kmh": v_pk * 3.6, "peak_top": _slim(st_pk),
+                        "vmax_peak_kmh": v_pk * 3.6, "peak_top": _slim(st_pk), "P_shaft_peak_kW": best["P_shaft_peak_kW"],
                         "t_peak_from_cruise_min": t_pk / 60 if t_pk != math.inf else math.inf},
         "cooling": cooling,
         "success": {"bollard_min_N": d["peak"][0]["T"] * inp["operation"]["success"]["bollard_frac"],

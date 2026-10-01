@@ -184,7 +184,7 @@ waterjet:
   hub_ratio: 0.50             # [CALCULADO: research/R12 §3 — con 0,40 el cubo da D_f 0,60; con 0,50, D_f 0,44 (Peerless 0,45, Oshima 0,483 VERIFICADO allí)]
   blades: 5                   # [CALCULADO: research/R12 §3 — Z = 5 con solidez 1,3/0,95/0,7; el plano de Jorge dice 4 (cambio documentado en decisiones.md)]
   stator_vanes: 7             # [CALCULADO: research/R12 §4 — 7 álabes, coprimo con 5]
-  tip_clearance_frac: 0.005   # [VERIFICADO: research/R03 S10 — Ladd 0,5 % de D (tobera 19A)]
+  tip_clearance_frac: 0.003   # [CALCULADO: research/R12 §3 — 0,3–0,4 mm con anillo de desgaste torneado en sitio (0,003·132 = 0,40); Ladd usó 0,5 % (R03 S10)]
   nozzle_cc: 0.98             # [ESTIMADO: tobera cónica pulida]
   nozzle_loss_k: 0.02         # [VERIFICADO: research/R12 §2 (Bulten ec. 2.56) φ_n = 0,02]
   intake_eta: 0.70            # [VERIFICADO: research/R03 S9 — recuperación en la toma ~70 %]
@@ -405,6 +405,46 @@ battery:
       v_class: 72
       cells: 23
       charger: {desc: "Cargador LFP 84 V 10 A", price_eur: 84.0}   # [VERIFICADO: research/R11 §3.2]
+
+# -----------------------------------------------------------------------------
+# MATRIZ DE ARQUITECTURA (03_arquitectura.md) — propulsión para el jet boat de Jorge
+# Puntajes 1–5 [SUPUESTO con la justificación en 03 §2]
+# -----------------------------------------------------------------------------
+architecture_matrix:
+  criteria:
+    seguridad:     {w: 0.18, desc: "Seguridad: sin hélice expuesta para el piloto en el agua, golpes, parada"}
+    concepto:      {w: 0.12, desc: "Cumple el concepto de Jorge (jet inboard, sin nada colgando del espejo)"}
+    prestaciones:  {w: 0.14, desc: "Planeo y ~30 km/h con ~5 kW continuos"}
+    eficiencia_5kn: {w: 0.08, desc: "Consumo a 5 kn (uso real dentro de 300 m)"}
+    poca_prof:     {w: 0.08, desc: "Aguas someras, arena, algas"}
+    viabilidad:    {w: 0.10, desc: "Fabricable con torno manual + Ender-3 + servicios comprables"}
+    costo:         {w: 0.10, desc: "Costo total de la propulsión"}
+    tiempo:        {w: 0.07, desc: "Tiempo hasta un prototipo probado"}
+    reparabilidad: {w: 0.06, desc: "Repuestos y reparación local"}
+    riesgo:        {w: 0.07, desc: "Riesgo técnico (cosas sin validar que pueden no funcionar)"}
+  options:
+    A:  {name: "Waterjet propio (impulsor CNC + bomba Al + toma soldada) — este diseño", scores: {seguridad: 4, concepto: 5, prestaciones: 4, eficiencia_5kn: 2, poca_prof: 3, viabilidad: 2, costo: 3, tiempo: 2, reparabilidad: 3, riesgo: 2}}
+    B:  {name: "Waterjet comercial AWT JT132 (Ø130) + el tren eléctrico de este diseño", scores: {seguridad: 4, concepto: 5, prestaciones: 4, eficiencia_5kn: 2, poca_prof: 3, viabilidad: 4, costo: 4, tiempo: 4, reparabilidad: 3, riesgo: 3}}
+    C:  {name: "Bomba de jet ski usada (Sea-Doo Spark 140) adaptada", scores: {seguridad: 4, concepto: 5, prestaciones: 3, eficiencia_5kn: 2, poca_prof: 3, viabilidad: 3, costo: 4, tiempo: 3, reparabilidad: 4, riesgo: 3}}
+    D:  {name: "Fueraborda eléctrico de 3–6 kW con hélice", scores: {seguridad: 2, concepto: 1, prestaciones: 4, eficiencia_5kn: 4, poca_prof: 2, viabilidad: 5, costo: 2, tiempo: 5, reparabilidad: 2, riesgo: 5}}
+    E:  {name: "Cola larga / surface drive (diseño P1 anterior, adaptado)", scores: {seguridad: 3, concepto: 1, prestaciones: 2, eficiencia_5kn: 4, poca_prof: 5, viabilidad: 4, costo: 4, tiempo: 3, reparabilidad: 5, riesgo: 3}}
+    F:  {name: "Hélice entubada en túnel bajo el casco (pump-jet / rim-drive)", scores: {seguridad: 4, concepto: 3, prestaciones: 3, eficiencia_5kn: 3, poca_prof: 2, viabilidad: 2, costo: 3, tiempo: 2, reparabilidad: 2, riesgo: 2}}
+  weight_perturbation: 0.5   # [SUPUESTO: ±50 % por criterio en el análisis de sensibilidad]
+  monte_carlo_n: 20000       # [SUPUESTO: muestras de pesos aleatorios (Dirichlet α=1·w·20)]
+
+# -----------------------------------------------------------------------------
+# COMPRAR vs CONSTRUIR (comparacion.py → resultados/comparacion.json)
+# -----------------------------------------------------------------------------
+comparison:
+  jt132_usd: [1000.0, 1100.0]  # [ESTIMADO: research/R11 §4 — precio del buscador, la ficha no lo muestra; cotizar]
+  jt132_mass_kg: 12.0          # [VERIFICADO: research/R11 §4 (wuxiawt.com) — 12 kg neto]
+  jt132_freight_eur: 250.0     # [ESTIMADO: flete aéreo/marítimo de 20 kg brutos a DK; cotizar]
+  import_duty_frac: 0.017      # [ESTIMADO: arancel UE partes de propulsión marina ~1,7 %; verificar código TARIC 8412/8487]
+  maytech_mtwj12kw_usd: 1015.90   # [VERIFICADO: research/R11 §4 — motor + bomba Ø95, 13,2 kW máx.]
+  spark_impeller_eur: 335.0    # [VERIFICADO: research/R11 §4 — Solas 140 Spark 539 CAD]
+  spark_wearring_eur: 202.0    # [VERIFICADO: research/R11 §4 — anillo inox 140 (325 CAD)]
+  spark_pump_used_eur: [400.0, 800.0]   # [ESTIMADO: bomba completa usada en DK (dba.dk); buscar]
+  lampuga_air: {loa_m: 2.30, beam_m: 0.75, power_kw: 10.0, battery_kwh: 3.6, v_max_kmh: 50.0}   # [VERIFICADO: research/R12 §8 — jet boat eléctrico comercial de 2,30 m]
 
 electrical:
   max_nominal_voltage_v: 50.0 # [VERIFICADO: research/R10b §4.8 (ISO 16315:2016 3.1, R06) — ≤ 50 V CC; regla del proyecto ≤ 48 V salvo justificación]

@@ -33,12 +33,17 @@ def extend(d):
     d["STE_cone_deg"] = 5.0            # [ESTIMADO: brief CAD — semiángulo de expansión del chorro]
     d["STE_rb"] = d["D_steer_in"] / 2  # Ø de paso de la boquilla (núcleo)
     # Frente esférico centrado en el pivote: debe entrar en el alojamiento esférico de la tobera fija
-    # del grupo BOMBA (pmp_steer_ball_R_max, si existe) → R_s; la boca abocinada deja 2 mm de pared.
-    d["STE_Rs"] = min(d.get("pmp_steer_ball_R_max", 50.5), 50.5)   # [CALCULADO: interfaz BOMBA (P1-PMP-08)]
-    d["STE_wall_face"] = 2.0           # [SUPUESTO: labio de Al con chaflán]
+    # del grupo BOMBA (pmp_steer_ball_R_max, si existe) → R_s; la boca abocinada deja 1,8 mm de pared.
+    # Escala con D_noz (rango del optimizador 0,58–0,74·D): la rótula de BOMBA pasa por el labio de la
+    # tobera fija (R = √(Δx² + r_chorro²)), así que con δmax = 25° y toberas grandes el labio puede
+    # interceptar una franja del chorro a fondo de giro → check de fracción interceptada (≤ 1,5 %).
+    d["STE_Rs"] = d.get("pmp_steer_ball_R_max",
+                        math.hypot(d["X_steer_pivot"] - d["X_noz1"], r_jet) - 1.0)   # [CALCULADO: interfaz BOMBA (P1-PMP-08)]
+    d["STE_wall_face"] = 1.8           # [SUPUESTO: labio de Al 6061 con chaflán]
     d["STE_rf"] = d["STE_Rs"] - d["STE_wall_face"]
-    # con δmax la huella del chorro en el plano de la boca es una elipse de semieje r_jet/cos δ (check)
-    d["STE_ro"] = round(min(d["STE_rb"] + 5.0, d["STE_Rs"] - 0.1), 2)   # cuerpo dentro de la esfera
+    d["STE_ro"] = round(d["STE_rb"] + 5.0, 2)                    # cuerpo (pared 5 mm) desde X' = 22
+    d["STE_ro_front"] = round(min(d["STE_Rs"] - 1.0, d["STE_ro"]), 2)   # tramo X' ≤ 16 dentro de la rótula de BOMBA
+    d["STE_intercept_max"] = 0.015     # [SUPUESTO: fracción del área del chorro que puede tocar el labio con δmax]
     d["STE_bell_L"] = 12.0             # [SUPUESTO: largo del abocinado]
     d["STE_X_exit"] = d["X_steer_pivot"] + d["L_steer"]   # salida (cara de entrada = plano del pivote)
     # Orejas de la BOMBA (P1-PMP-08): |Z| ∈ [Z_steer_lug, Z_steer_lug + pmp_lug_t], ancho pmp_lug_w,
@@ -60,7 +65,7 @@ def extend(d):
     d["STE_riser_x"] = (15.0, 42.0)    # torre del yugo detrás del extremo de la oreja de la bomba (X')
     d["STE_riser_bolts"] = [(19.0, -8.0), (19.0, 8.0), (38.0, -8.0), (38.0, 8.0)]   # 4 × M8 A4 (X', Y)
     d["STE_riser_y"] = 14.0
-    d["STE_riser_top"] = 80.0          # [CALCULADO: sobre la oreja de la bomba + cabeza del perno]
+    d["STE_riser_top"] = max(80.0, math.ceil(zl + d["STE_lug_t"] + d["STE_gz"] + 3.0 + 1.5))   # [CALCULADO: sobre oreja de bomba + cabeza]
     d["STE_zc_top"] = d["STE_riser_top"]   # apoyo de la brida del yugo
     # pernos de pivote Ø8 (interfaz steer_pin_d): tornillo con hombro 316, hombro Ø8 e8 (modelado Ø7,9)
     # que gira en el agujero Ø8,2 de la oreja de la bomba; rosca M6 a la oreja de la boquilla
@@ -74,20 +79,23 @@ def extend(d):
     d["STE_m6_depth"] = 8.0
     # yugo de dirección
     d["STE_yoke_t"] = 20.0             # brida del yugo sobre la torre (Al 5083 20 mm) [CALCULADO: torsión del poste, structural_direccion]
-    d["STE_post_x"] = 33.0             # poste: X' (desde el eje de giro) [CALCULADO: fuera de la placa de espejo con δ = −δmax]
-    d["STE_post_y"] = -86.0            # poste: Y_jet (babor del bote) [CALCULADO: fuera del barrido del bucket |Y| ≤ 63,8]
+    # poste: Y_jet (babor del bote) fuera de la cabeza del perno del bucket; X' crece con |Y| para que el
+    # poste no avance hacia la placa de espejo con δ = −δmax [CALCULADO]
+    _yin = max(48.0, math.ceil(d["STE_ro"] + 0.5)) + 1.5
+    d["STE_post_y"] = -round(_yin + 2 * 4.0 + 0.3 + 6.0 + 22.0 + 0.5, 1)
+    d["STE_post_x"] = round(33.0 + (abs(d["STE_post_y"]) - 86.0) * math.tan(math.radians(smax)), 1)
     d["STE_post_d"] = 22.0             # [CALCULADO: ver structural_direccion]
     d["STE_post_z1"] = 245.0           # cara superior del brazo [CALCULADO: rótula a Z ≈ 257 → z_bote ≈ 345 > flotación 273]
     d["STE_arm_t"] = 10.0
-    d["STE_stud_x"] = 66.0             # rótula del brazo superior en (X', Y) = (66, STE_post_y) [CALCULADO: luz de la barra al espejo]
+    d["STE_stud_x"] = d["STE_post_x"] + 33.0   # rótula del brazo superior [CALCULADO: luz de la barra al espejo]
     d["STE_stud_hole"] = 8.4           # rótula angular M8 (DIN 71802) [ESTIMADO: buscar "Winkelgelenk DIN 71802 M8 A4"]
     d["STE_ball_h"] = 12.0             # centro de bola sobre la cara del brazo [ESTIMADO: DIN 71802 M8]
     d["STE_link_L"] = 60.0             # biela cable M66 → brazo [CALCULADO: recorrido simétrico ±29,6 mm]
     d["STE_e_frac"] = 0.5              # [ESTIMADO: research/R12 §7.4 — brazo del momento 0,3–0,5 L]
     d["STE_F_design"] = max(loads["F_steer_side_N"], 364.0)   # [CALCULADO: research/R12 §7.4 — 364 N (7,2 kW, δ 30°); se toma el mayor con sizing]
     # orejas del bucket sobre la boquilla
-    d["STE_ear_y0"] = 40.0
-    d["STE_ear_y1"] = 48.0
+    d["STE_ear_y1"] = max(48.0, math.ceil(d["STE_ro"] + 0.5))   # oreja del bucket por fuera del cuerpo
+    d["STE_ear_y0"] = d["STE_ear_y1"] - 8.0
     d["STE_ear_r"] = 12.0
 
     # ------------------------------------------------------------------ bucket (REV)
@@ -96,7 +104,8 @@ def extend(d):
     d["REV_y_in"] = d["STE_ear_y1"] + 1.5   # cara interior de los brazos (luz 1,5 a la oreja; arandela POM 1 mm)
     d["REV_cup_dx"] = 12.0             # centro de la cuchara a 12 mm de la salida [SUPUESTO]
     d["REV_cup_ax"] = 50.0             # semiejes de la cuchara (abajo): X 50, Z 56 [SUPUESTO: cubre r_chorro + cono]
-    d["REV_cup_az"] = 54.0             # [CALCULADO: fondo de la cuchara ≥ 5 mm sobre la quilla]
+    rjc = r_jet + 62.0 * math.tan(math.radians(5.0))      # chorro con cono en el fondo de la cuchara
+    d["REV_cup_az"] = round(max(54.0, rjc + 7.0, (d["STE_ro"] + 4.0) / math.sin(math.radians(75.0)) + 0.5), 1)   # [CALCULADO]
     d["REV_cup_t0"] = 85.0             # arco de la cuchara (ángulo paramétrico, °): labio superior
     d["REV_cup_t1"] = -105.0           # labio inferior: el agua sale hacia proa y abajo
     d["REV_boss_r"] = 12.0

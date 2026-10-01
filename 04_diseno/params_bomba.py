@@ -250,19 +250,15 @@ def extend(d):
     d["pmp_steer_ear_r"] = 13.0                          # radio de barrido de las orejas alrededor del perno
     d["pmp_sock_X1"] = d["X_steer_pivot"] - d["pmp_steer_ear_r"]
     d["pmp_steer_free_r"] = round(math.hypot(d["Z_steer_lug"] - 0.5, d["pmp_steer_ear_w"] / 2) + 1.5, 1)
-    # orejas de pivote fijas (afuera de las de la boquilla): |Z| ∈ [Z_steer_lug, Z_steer_lug + t]
-    d["pmp_lug_t"] = 12.0                                # [CALCULADO: fatiga con F_bucket, structural_bomba]
-    d["pmp_lug_w"] = 24.0
-    d["pmp_lug_hole"] = d["steer_pin_d"] + 0.2
-    d["pmp_lug_X1"] = d["X_steer_pivot"] + d["pmp_lug_w"] / 2
-    # resalte (land) del sello del espejo + O-ring radial
-    d["pmp_land_R"] = 75.0                               # > envolvente de las orejas (la placa pasa por encima)
+    # resalte (land) del sello del espejo + O-ring radial. Ya NO lleva las orejas (están en la placa de
+    # espejo P1-PMP-09): su radio no depende de D_noz y pasa por el agujero del espejo (transom_hole_d fijo).
+    d["pmp_land_R"] = 77.0                               # [CALCULADO: ≤ transom_hole_d/2 − 3; pared ≥ 3,2 sobre la zona libre con D_noz máx.]
     d["pmp_land_X0"] = 264.0
-    d["pmp_pin_head_clr_r"] = 10.0                       # cabeza/arandela del perno de la boquilla (arandela Ø18 de DIRECCIÓN + 1)
-    d["pmp_land_X1"] = round(d["X_steer_pivot"] - d["pmp_pin_head_clr_r"], 1)   # el resalte termina antes de la arandela
+    d["pmp_pin_head_clr_r"] = 10.0                       # arandela Ø18 del perno de DIRECCIÓN + 1
+    d["pmp_land_X1"] = round(d["X_steer_pivot"] - d["pmp_pin_head_clr_r"], 1)
     # O-ring: dentro de la placa en todo el perímetro (la cara de proa de la placa está más a popa abajo, por α)
     sa, ca = math.sin(math.radians(d["alpha"])), math.cos(math.radians(d["alpha"]))
-    d["pmp_tp_front_Xmax"] = (d["x_if"] + 2.0 + 75.0 * sa) / ca      # cara de proa de la placa (sobre la junta 2 mm), abajo, r = 75
+    d["pmp_tp_front_Xmax"] = (d["x_if"] + 2.0 + d["pmp_land_R"] * sa) / ca   # cara de proa de la placa (junta 2 mm), abajo
     d["pmp_or_X"] = round(0.5 * ((d["pmp_tp_front_Xmax"] + d["pmp_gl_width"] / 2 + 0.3)
                                  + (d["pmp_land_X1"] - 1.0 - d["pmp_gl_width"] / 2)), 1)
     d["pmp_or_depth"] = d["pmp_gl_depth"]
@@ -274,11 +270,27 @@ def extend(d):
     d["pmp_tp_R"] = d["transom_hole_d"] / 2 + 25.0
     d["pmp_tp_bc_R"] = d["transom_hole_d"] / 2 + 13.0
     d["pmp_tp_bolt"] = 6
-    d["pmp_tp_bolt_ang"] = [90.0, 40.0, 140.0, -10.0, 190.0, -50.0, 230.0]   # ninguno abajo (fondo)
+    d["pmp_tp_bolt_ang"] = [60.0, 120.0, 10.0, 170.0, -40.0, 220.0]   # ninguno en ±Z (orejas) ni abajo (fondo)
     d["pmp_tp_zmin"] = 0.5                               # recorte inferior sobre la quilla (z BOTE)
-    d["pmp_collar_R"] = 81.0
-    d["pmp_collar_X1"] = d["pmp_land_X1"]
     d["pmp_tp_bore_R"] = d["pmp_land_R"] + 0.1           # H8/f7 sobre el resalte; sella el O-ring
+    d["pmp_collar_R"] = d["pmp_tp_bore_R"] + 6.0
+    d["pmp_collar_X1"] = d["pmp_land_X1"]
+    # OREJAS DE PIVOTE (interfaz DIRECCIÓN) — integradas a la PLACA DE ESPEJO (se monta desde popa
+    # después de la bomba, así que no limitan el resalte; válido para D_noz 0,58–0,74·D).
+    # |Z| ∈ [Z_steer_lug, pmp_lug_z1], ancho pmp_lug_w (Y), extremo redondo R = w/2 en el perno.
+    # Las orejas de la boquilla van POR DENTRO (|Z| ≤ Z_steer_lug − 0,5).
+    d["pmp_lug_z0"] = d["Z_steer_lug"]
+    d["pmp_lug_z1"] = round(d["pmp_collar_R"] + 4.0, 2)  # se une al cuello por encima del resalte
+    d["pmp_lug_t"] = round(d["pmp_lug_z1"] - d["pmp_lug_z0"], 2)
+    d["pmp_lug_w"] = 24.0
+    d["pmp_lug_X0"] = d["pmp_land_X1"] - 12.0            # arranque (sobre el cuello, r ≥ pmp_tp_bore_R)
+    d["pmp_lug_X1"] = d["X_steer_pivot"] + d["pmp_lug_w"] / 2
+    # buje de pivote POM-C (o iglidur con collar) en cada oreja: evita 316 contra Al (pedido de DIRECCIÓN)
+    d["pmp_lug_hole"] = 12.0                             # alojamiento H7 del buje
+    d["pmp_lug_bush_od"] = 12.0
+    d["pmp_lug_bush_id"] = d["steer_pin_d"] + 0.1        # ← DIRECCIÓN: tornillo con hombro Ø8 e8 gira aquí [ESTIMADO: juego POM en agua]
+    d["pmp_lug_bush_L"] = d["pmp_lug_t"]
+    d["pmp_lug_bush_material"] = "POM-C torneado (alt. iglidur con collar 8×12; buscar 'iglidur GFM-0812')"
     # → DIRECCIÓN/REVERSA: envolvente fija a popa del espejo que no debe invadir lo que gira con la boquilla
     #   (resalte + cuello hasta X1 con radio R; placa de espejo de radio plate_R alrededor del eje en el espejo)
     d["pmp_fixed_aft_env"] = dict(X1=d["pmp_land_X1"], R=d["pmp_collar_R"], plate_R=d["pmp_tp_R"],

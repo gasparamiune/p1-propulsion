@@ -1,83 +1,98 @@
 #!/usr/bin/env python3
-"""comparacion.py — P1 frente a comprar un motor (README, 03 §4.3).
+"""comparacion.py — Comprar vs construir el waterjet (README, 03 §4).
 
-Lee inputs.yaml (bloque comparison), resultados/bom_resumen.json y resultados/sizing.json.
+A  = este diseño (bomba propia)                      → sizing.json + bom_resumen.json
+B  = AWT JT132 comprada (Ø130 / tobera Ø70, 12 kg) + el tren eléctrico de este diseño
+     Prestaciones: el mismo modelo de sizing.py con D = 130 y D_tobera = 70 [VERIFICADO: R11 §4],
+     impulsor diseñado por el fabricante (se usa el mismo η de diseño) y la masa de la unidad
+     reemplazada (grupo "jet" del CAD → 12 kg).
+     Costo: total de A − costo de las piezas del grupo "jet" de la BOM + JT132 puesta en DK.
+Lampuga Air: jet boat eléctrico comercial de 2,30 m (referencia de prestaciones, R12).
 Escribe resultados/comparacion.json (marcadores <!--V:cmp.…-->).
-
-    F tal cual   = (trolling + ½ pack de baterías + cargador 12 V + protecciones)·(1 + imprevistos)
-    Plan B       = (F sin imprevistos + impresos/herrajes)·(1 + imprevistos)
-    V máx troll. = V tal que R(V)·V = P_troll·η_total, banda nominal, masa de diseño de P1
 """
 from __future__ import annotations
 
+import copy
+import csv
 import json
+import sys
+from pathlib import Path
 
-import numpy as np
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 
-from p1calc import hydro
-from p1calc.io import RESULTS_DIR, load_inputs
+import sizing  # noqa: E402
+from p1calc.io import RESULTS_DIR, load_inputs  # noqa: E402
 
 
-def _v_at_power(inp, mass, P_eff):
-    vs = np.linspace(0.3, 4.0, 400)
-    Pv = np.array([hydro.resistance(inp, mass, v)["R"][0] * v for v in vs])
-    i = int(np.searchsorted(Pv, P_eff))
-    return float(vs[min(i, len(vs) - 1)])
+def jet_group_cost(man, bom_csv):
+    """Costo en la BOM de las piezas del grupo 'jet' (toma, bomba, dirección, reversa) — las que
+    reemplaza la JT132. Usa la columna 'piezas' de bom.csv si existe, si no la categoría."""
+    ids = {p["id"] for p in man["parts"] if p.get("group") == "jet"}
+    tot = 0.0
+    if not bom_csv.exists():
+        return None, sorted(ids)
+    with open(bom_csv, encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            refs = (r.get("piezas") or r.get("parts") or "")
+            cat = (r.get("categoria") or r.get("cat") or "").lower()
+            if any(i in refs for i in ids) or cat.startswith(("waterjet", "bomba", "toma", "dirección", "reversa")):
+                try:
+                    tot += float(r.get("total_eur") or r.get("subtotal_eur") or 0)
+                except ValueError:
+                    pass
+    return tot, sorted(ids)
 
 
 def run(inp: dict) -> dict:
     c = inp["comparison"]
-    dkk = inp["meta"]["eur_to_dkk"]
-    cont = 1 + inp["costs"]["contingency_frac"]
-    bom = json.loads((RESULTS_DIR / "bom_resumen.json").read_text(encoding="utf-8"))
     sz = json.loads((RESULTS_DIR / "sizing.json").read_text(encoding="utf-8"))
-    p1 = bom["total_eur"]
+    man = json.loads((RESULTS_DIR / "manifest.json").read_text(encoding="utf-8"))
+    bomp = RESULTS_DIR / "bom_resumen.json"
+    bom = json.loads(bomp.read_text(encoding="utf-8")) if bomp.exists() else {}
+    sel = sz["selection"]
+    usd, dkk = inp["meta"]["usd_to_eur"], inp["meta"]["eur_to_dkk"]
 
-    bat = inp["battery"]["options"]["LFP12_100x2"]["price_eur"] * c["trolling_battery_eur_frac_of_pack"]
-    f_base = c["trolling_dkk"] / dkk + bat + c["trolling_charger_eur"] + c["trolling_protections_eur"]
-    f_eur = f_base * cont
-    pb = [(f_base + x) * cont for x in c["planb_printed_eur"]]
-    ob_dk = c["outboard_dk_dkk"] / dkk
-    ob_2bat = (c["outboard_dk_dkk"] + c["outboard_battery_dkk"]) / dkk
-
-    mass = sz["masses"]["total_kg"]
-    v_tr = [_v_at_power(inp, mass, c["trolling_power_w"] * e) * 3.6 for e in c["trolling_eta_total"]]
-    dod = inp["battery"]["usable_dod"]
-    t_full_h = c["trolling_battery_wh"] * dod / c["trolling_power_w"]
-
+    # --- B: prestaciones con la geometría de la JT132 y su masa ---
+    m_jet_cad = sum(p["mass_g_total"] for p in man["parts"] if p.get("group") == "jet") / 1000
+    m_drive_cad = sum(p["mass_g_total"] for p in man["parts"] if p.get("group") == "drive") / 1000
+    ii = copy.deepcopy(inp)
+    ii["masses"]["jet_mass_estimate_kg"] = c["jt132_mass_kg"] + m_drive_cad
+    sizing.jet_mass = lambda _inp: _inp["masses"]["jet_mass_estimate_kg"]      # no leer el manifest
+    rB = sizing.evaluate(ii, sel["motor"], sel["esc"], sel["battery"], 130, 70 / 130, sel["f_pow"])
+    # --- costos ---
+    jet_cost, jet_ids = jet_group_cost(man, ROOT / "bom.csv")
+    jt_lo, jt_hi = [x * usd * (1 + c["import_duty_frac"]) * (1 + inp["costs"]["import_vat_frac"]) + c["jt132_freight_eur"]
+                    for x in c["jt132_usd"]]
+    A_tot = bom.get("total_eur")
     out = {
-        "p1_eur": p1, "p1_dkk": p1 * dkk,
-        "trolling_eur": c["trolling_dkk"] / dkk, "trolling_battery_eur": bat,
-        "F_eur": f_eur, "F_dkk": f_eur * dkk,
-        "planB_eur_min": pb[0], "planB_eur_max": pb[1],
-        "planB_dkk_min": pb[0] * dkk, "planB_dkk_max": pb[1] * dkk,
-        "outboard_dk_eur": ob_dk, "outboard_dk_dkk": c["outboard_dk_dkk"],
-        "outboard_de_eur": c["outboard_de_eur"], "outboard_de_dkk": c["outboard_de_eur"] * dkk,
-        "outboard_2bat_eur": ob_2bat, "outboard_2bat_dkk": ob_2bat * dkk,
-        "ratio_p1_F": p1 / f_eur,
-        "ratio_p1_planB_min": p1 / pb[1], "ratio_p1_planB_max": p1 / pb[0],
-        "p1_below_outboard_dk_frac": 1 - p1 / ob_dk,
-        "p1_below_outboard_de_frac": 1 - p1 / c["outboard_de_eur"],
-        "p1_below_outboard_2bat_frac": 1 - p1 / ob_2bat,
-        "trolling_vmax_kmh_min": v_tr[0], "trolling_vmax_kmh_max": v_tr[1],
-        "trolling_full_throttle_h": t_full_h,
-        "outboard_vmax_kmh_min": c["outboard_vmax_kmh"][0], "outboard_vmax_kmh_max": c["outboard_vmax_kmh"][1],
-        "energy_ratio_p1_outboard": sz["battery"]["E_nom_wh"] / c["outboard_battery_wh"],
-        "mass_kg_used": mass,
-        "_etiquetas": {
-            "F_eur": "[CALCULADO: precios VERIFICADOS (R04 S42, R08a §3–§6) + mitad del pack ESTIMADO + imprevistos]",
-            "trolling_vmax": "[CALCULADO: R(V)·V = 620 W·η_total, η 0,30–0,40 ESTIMADO, banda nominal, masa de diseño de P1]",
-        },
+        "A_total_eur": A_tot, "A_vmax_kmh": sz["performance"]["vmax_cont_kmh"],
+        "A_hump_margin": sz["performance"]["hump_margin_min"], "A_jet_mass_kg": m_jet_cad,
+        "A_jet_cost_eur": jet_cost, "jet_part_ids": jet_ids,
+        "B_jt132_landed_eur_min": jt_lo, "B_jt132_landed_eur_max": jt_hi,
+        "B_total_eur_min": (A_tot - jet_cost * (1 + inp["costs"]["contingency_frac"]) + jt_lo) if (A_tot and jet_cost) else None,
+        "B_total_eur_max": (A_tot - jet_cost * (1 + inp["costs"]["contingency_frac"]) + jt_hi) if (A_tot and jet_cost) else None,
+        "B_jet_mass_kg": c["jt132_mass_kg"], "B_vmax_kmh": rB["vmax_cont_kmh"], "B_hump_margin": rB["hump_margin"],
+        "B_planes": rB["planes"], "B_mass_total_kg": rB["mass_kg"], "B_S_top": rB["S_top"],
+        "B_P_bat_legal_W": rB["P_bat_legal_W"], "B_hard_ok": rB["hard_ok"],
+        "B_fails": [k[3:] for k in rB if k.startswith("ok_") and not rB[k]],
+        "maytech_mtwj12kw_eur": c["maytech_mtwj12kw_usd"] * usd,
+        "spark_parts_eur": c["spark_impeller_eur"] + c["spark_wearring_eur"],
+        "lampuga": c["lampuga_air"],
+        "_etiquetas": {"B": "[CALCULADO: modelo de sizing.py con la geometría VERIFICADA de la JT132 (R11 §4); "
+                            "η y curva del impulsor de AWT ESTIMADOS iguales a los propios; precio ESTIMADO]"},
     }
+    if A_tot:
+        out["A_total_dkk"] = A_tot * dkk
     (RESULTS_DIR / "comparacion.json").write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
     return out
 
 
 def main():
     o = run(load_inputs())
-    print(f"P1 {o['p1_eur']:.0f} € | F {o['F_eur']:.0f} € | plan B {o['planB_eur_min']:.0f}–{o['planB_eur_max']:.0f} € | "
-          f"fueraborda DK {o['outboard_dk_eur']:.0f} € → P1 {o['p1_below_outboard_dk_frac']:.0%} menos | "
-          f"trolling V máx {o['trolling_vmax_kmh_min']:.1f}–{o['trolling_vmax_kmh_max']:.1f} km/h")
+    print(f"A: {o['A_vmax_kmh']:.1f} km/h, jet {o['A_jet_mass_kg']:.1f} kg | B (JT132): {o['B_vmax_kmh']:.1f} km/h, "
+          f"margen joroba {o['B_hump_margin']*100:.0f} %, puesta en DK {o['B_jt132_landed_eur_min']:.0f}–"
+          f"{o['B_jt132_landed_eur_max']:.0f} €; fallas B: {o['B_fails']}")
 
 
 if __name__ == "__main__":

@@ -122,16 +122,23 @@ def cases(p, A, row, rows, T3, T2):
     s = p_slam * b ** 2 / (2 * tb ** 2)
     row(rows, pid, "Paño lateral entre bulones del conducto y del ala: golpe de fondo",
         f"σ = p·b²/(2t²), b = {b:.0f}", s, Sy_al, A, T2)
-    # M8 del soporte de rodamientos: arranque de rosca en 5083 (rosca ciega 7,5 mm)
-    Le = 7.5
-    F_v8 = 3000.0                        # [ESTIMADO: apriete 6 Nm + Loctite 243 — limitar en rosca de Al]
+    # M8 del soporte de rodamientos: ISO 10642 desde abajo (cabeza avellanada en la placa) + tuerca A4 arriba
+    F_v8 = 7000.0                        # [ESTIMADO: M8 A4-70 a ~15 Nm con Tef-Gel (K ≈ 0,25)]
     z_ax = p.z_if + (0.5 * (p.brg_bracket_x0 + p.brg_bracket_x1) - p.x_if) * math.tan(math.radians(p.alpha))
     Mth = L["T_bollard_N"] * (z_ax - tb)
     dx = p.brg_bracket_holes[2][0] - p.brg_bracket_holes[0][0]
     F_t = Mth / dx / 2 + 3 * g * 3.0 / 4            # [ESTIMADO: soporte + rodamientos + eje ≈ 3 kg a 3 g]
-    tau = (F_v8 + F_t) / (0.5 * math.pi * 8 * Le)
-    row(rows, pid, "Roscas M8 ciegas del soporte (7,5 mm en 5083): precarga + vuelco del empuje",
-        f"τ = F/(0,5·π·d·L_e), F_v = {F_v8:.0f} N, F_t = {F_t:.0f} N", tau, Sy_al / math.sqrt(3), A, T2)
+    As8 = 36.6
+    row(rows, pid, "Tornillos M8 A4-70 del soporte (ISO 10642 desde abajo + tuerca): precarga + vuelco del empuje",
+        f"σ = (F_v + Φ·F_t)/A_s, F_v = {F_v8:.0f} N, F_t = {F_t:.0f} N, Φ = 0,25", (F_v8 + 0.25 * F_t) / As8, Sy_a4, A, T2)
+    dk, d8 = 16.4, 8.4
+    hc = (dk - d8) / 2
+    sb = (F_v8 + F_t) / (math.pi / 4 * (dk ** 2 - d8 ** 2))
+    row(rows, pid, "Asiento cónico de la cabeza M8 en el 5083 (aplastamiento)",
+        "σ_b = F/(π/4·(dk² − d²)) (proyección del cono)", sb, Sy_al, A, T2)
+    tau = (F_v8 + F_t) / (math.pi * dk * (tb - hc))
+    row(rows, pid, "Arranque de la cabeza M8 a través de la placa (tapón de Ø dk sobre el cono)",
+        f"τ = F/(π·dk·(t − h_cono)), t − h = {tb - hc:.1f}", tau, Sy_al / math.sqrt(3), A, T2)
     # bulones del ala (M6 ISO 10642): tracción por golpe + presión en la abertura; corte por empuje
     import importlib.util as iu
     spec = iu.spec_from_file_location("_int02", str(here / "P1-INT-02_placa_base.py"))
@@ -186,6 +193,11 @@ def cases(p, A, row, rows, T3, T2):
         k * p_ram * a ** 2 / tc ** 2, "sust", A, T3)
     row(rows, pid, f"Tapa: ciclo marcha ↔ punto fijo Δp = {dp_cyc*1e3:.0f} kPa (olas/maniobras)", "ídem con Δp",
         k * dp_cyc * a ** 2 / tc ** 2, "lcf", A, T3)
+    # purga: hexágono desde abajo con resalte arriba (r = PURGE_R): σ_r de placa apoyada en r
+    tp = p.toma_cover_t + m4.BOSS_H - 5.2 - 0.2
+    rr = m4.PURGE_R
+    row(rows, pid, f"Tapa en la purga (r = {rr:.0f}, espesor neto {tp:.1f}): ciclo Δp (olas/maniobras)",
+        "σ_r = 3(3+ν)p(a² − r²)/(8t²)", k * dp_cyc * (a ** 2 - rr ** 2) / tp ** 2, "lcf", A, T3)
     F_bolt = p_max * math.pi * a ** 2 / 4
     row(rows, pid, "Tapa: aplastamiento bajo arandela M6 Ø18 (sostenido)", "σ = F/(π/4(18² − 6,4²))",
         (p_ram * math.pi * a ** 2 / 4) / (math.pi / 4 * (18 ** 2 - 6.4 ** 2)), "sust", A, T3)

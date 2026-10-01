@@ -32,7 +32,7 @@ def draw(p, H):
         for s in (1, -1):
             holes.append((x - X0, s * p.toma_bolt_y - Y0, 5.0, "M6 ciega prof. 8 (broca Ø5,0 × 9,5) — conducto"))
     for (x, y) in p.brg_bracket_holes:
-        holes.append((x - X0, y - Y0, 6.8, "M8 ciega rosca 7,5 (broca Ø6,8 × 8,5) — soporte de rodamientos"))
+        holes.append((x - X0, y - Y0, 8.4, "Ø8,4 pasante + avellanado 90° Ø16,4 ABAJO — ISO 10642 M8 A4 (soporte de rodamientos)"))
     for (x, y) in m2.tie_screws(p):
         holes.append((x - X0, y - Y0, 4.2, "M5 ciega desde ABAJO prof. 5 — tirante de la rejilla"))
     W2 = p.W_open / 2
@@ -46,7 +46,7 @@ def draw(p, H):
         "Cara superior plana 0,1 mm en la huella del soporte de rodamientos (x_bote "
         f"{p.brg_bracket_x0:.1f}–{p.brg_bracket_x1:.1f}); cara inferior lisa, aristas exteriores redondeadas R1 (flujo).",
         "Montaje: Sikaflex-291i en el ala y en la luz de 0,5 mm del recorte [ESTIMADO R05 S36]; enrasar por fuera; Tef-Gel en tornillería A4.",
-        "Roscas M8 en Al con rosca corta: apriete ≤ 6 Nm + Loctite 243 (ver structural_toma).",
+        "Soporte de rodamientos: 4 × ISO 10642 M8 × 35 A4-70 desde afuera (cabeza en Sikaflex), tuerca ISO 4032 A4 + arandela arriba, ~15 Nm con Tef-Gel.",
     ]
     out.append(H["plate"]("P1-INT-02", "placa_base", "Al 5083-H111 (10 mm)", w, h, 10.0, holes, notes=notes))
     # ---------------- rejilla ----------------
