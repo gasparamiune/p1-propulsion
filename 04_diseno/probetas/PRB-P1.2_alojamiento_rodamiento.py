@@ -21,6 +21,10 @@ WALL_FALLBACK = 4.5                  # [SUPUESTO: si no se puede escanear HSG-02
 
 
 def _hsg02(ctx):
+    return ctx.cached(("P1.2", "hsg02"), lambda: _hsg02_scan(ctx))
+
+
+def _hsg02_scan(ctx):
     """(holgura del alojamiento en HSG-02, pared mínima radial) leídas de la pieza real."""
     p = ctx.p
     part = ctx.built("P1-HSG-02")
@@ -37,7 +41,7 @@ def _hsg02(ctx):
     u_mid = p.bridge_u_aft - p.brg_B / 2                                  # mitad del asiento
     walls = []
     for dy, dz in ((1, 0), (-1, 0), (0, -1), (0, 1), (0.7071, -0.7071), (-0.7071, -0.7071)):
-        tr = scan(part, (u_mid, loc.Y, loc.Z), (0, dy, dz), 80.0, step=0.25)
+        tr = scan(part, (u_mid, loc.Y, loc.Z), (0, dy, dz), 80.0)
         # desde el eje: primero vacío (agujero), luego sólido, luego vacío (exterior)
         ins = [s for s, now_in in tr if now_in]
         outs = [s for s, now_in in tr if not now_in]

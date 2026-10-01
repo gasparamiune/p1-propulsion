@@ -21,6 +21,10 @@ HALF_W = 26.0          # media ventana de recorte en x [SUPUESTO]
 
 
 def geometry(ctx):
+    return ctx.cached(("P1.3", "geo"), lambda: _geometry(ctx))
+
+
+def _geometry(ctx):
     """Lee de MNT-04: base z0, pernos M6, h del bolsillo, alto/ancho del bolsillo, ligamentos."""
     part = ctx.built(SRC)
     bb = part.bounding_box()
@@ -31,7 +35,7 @@ def geometry(ctx):
             bolts[(round(cf["loc"].X, 3), round(cf["loc"].Y, 3))] = cf["r"]
     res = []
     for (x, y), r in sorted(bolts.items()):
-        tz = scan(part, (x + r + 0.7, y, z0 + 0.05), (0, 0, 1), 45.0, step=0.1)
+        tz = scan(part, (x + r + 0.7, y, z0 + 0.05), (0, 0, 1), 45.0, step=0.25)
         outs = [s for s, now_in in tz if not now_in]
         ins = [s for s, now_in in tz if now_in]
         if not outs:
@@ -42,7 +46,7 @@ def geometry(ctx):
         lig = []
         half = []
         for sx in (1, -1):
-            tx = scan(part, (x, y, zm), (sx, 0, 0), 60.0, step=0.1)
+            tx = scan(part, (x, y, zm), (sx, 0, 0), 60.0, step=0.25)
             first_in = next(s for s, now_in in tx if now_in)
             exit_ = next((s for s, now_in in tx if (not now_in) and s > first_in), 60.0)
             half.append(first_in)

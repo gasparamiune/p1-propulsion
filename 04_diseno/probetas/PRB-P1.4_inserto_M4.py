@@ -8,7 +8,7 @@ agujero transversal Ø8,4 para el pasador de tiro. Impresión igual que ELE-01 (
 inserto vertical abierto hacia arriba).
 """
 from cadlib import *  # noqa: F401,F403
-from _probelib import cyl_faces, est_row, rx_float, fs_target, label_on_plane, Plane
+from _probelib import cyl_faces, est_row, rx_float, fs_target, label_on_plane, Plane, LABEL_DEPTH
 
 TEST = "P1.4"
 SRC = "P1-ELE-01"
@@ -63,9 +63,9 @@ def checks(p, ctx, parts):
     depth, width = eb.gland_groove(p)
     return [("agujero de inserto = cadlib.INSERT_HOLE[4] [mm]", 2 * min(hole_r, key=lambda r: abs(r - INSERT_HOLE[4] / 2)),
              INSERT_HOLE[4], "="),
-            ("ancho del reborde = ELE-01 RIM [mm]",
+            ("ancho del reborde (sin relieve del rótulo) = ELE-01 RIM [mm]",
              min(part.bounding_box().max.X - part.bounding_box().min.X,
-                 part.bounding_box().max.Y - part.bounding_box().min.Y), eb.RIM, "="),
+                 part.bounding_box().max.Y - part.bounding_box().min.Y) - LABEL_DEPTH, eb.RIM, "="),
             ("pared ranura–inserto ≥ 2 mm (como ELE-01) [mm]",
              (eb.RIM - eb.INS_EDGE - INSERT_HOLE[4] / 2) - (eb.groove_center_offset(p) + width / 2), 2.0, ">=")]
 

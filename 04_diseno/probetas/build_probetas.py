@@ -83,8 +83,12 @@ def main(argv=None):
                 continue
             assert meta["profile"] in PROFILES, meta
             pp = to_print(part, (0, 0, 0))                      # centrada en XY, apoyada en z = 0
-            ang, dims = build_all.min_xy_footprint(pp)
-            pp = to_print(Rot(0, 0, ang) * pp, (0, 0, 0))
+            b0 = pp.bounding_box()
+            dims = (b0.max.X - b0.min.X, b0.max.Y - b0.min.Y, b0.max.Z - b0.min.Z)
+            ang = 0
+            if not all(d <= e for d, e in zip(dims, env)):     # girar sobre la cama solo si no entra
+                ang, dims = build_all.min_xy_footprint(pp)
+                pp = to_print(Rot(0, 0, ang) * pp, (0, 0, 0))
             parts[meta["id"]] = pp
             stem = f"{meta['id']}_{meta['name']}"
             f_step = HERE / "step" / f"{stem}.step"

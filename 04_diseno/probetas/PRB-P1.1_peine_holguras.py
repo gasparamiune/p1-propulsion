@@ -41,6 +41,13 @@ def holguras(p):
     return sorted({round(c, 3) for c in HOLGURAS_BASE + [float(p.clr)]})
 
 
+def holguras_d(p, ctx, d, eje=None):
+    """Holguras base ∪ las que el CAD usa para ese Ø (escaneo de piezas; incluye ajustes a presión)."""
+    extra = {r["holgura_cad"] for r in ajustes_en_piezas(p, ctx)
+             if r["d_nom"] == d and (eje is None or r["eje_impresion"] == eje)}
+    return sorted({round(c, 3) for c in holguras(p)} | {round(c, 3) for c in extra})
+
+
 def _dlabel(d):
     return f"Ø{d:g}"
 
@@ -122,6 +129,10 @@ def plates(rows_spec, build_row):
 # escaneo de las piezas reales: ¿qué ajustes hay y con qué eje se imprimen?
 # ---------------------------------------------------------------------------
 def ajustes_en_piezas(p, ctx, c_min=-0.16, c_max=0.45):
+    return ctx.cached(("P1.1", "ajustes"), lambda: _ajustes(p, ctx, c_min, c_max))
+
+
+def _ajustes(p, ctx, c_min, c_max):
     noms = nominales(p)
     rows = {}
     for pid, m in sorted(ctx.parts.items()):
@@ -156,11 +167,16 @@ def diam_horizontales(p, ctx):
     return ds, aj
 
 
-def horizontal_wall(p, ds, cs):
-    """Paredes de pie (espesor H_THICK en Y) con agujeros horizontales (eje Y), rótulos en la cara −Y."""
+def horizontal_wall(p, ds, csd):
+    """Paredes de pie (espesor H_THICK en Y) con agujeros horizontales (eje Y), rótulos en la cara −Y.
+    csd: {d: [holguras]}. Cada bloque tiene la altura de su Ø."""
+    def wid(d):
+        cs = csd[d]
+        return len(cs) * (d + max(cs) + WALL) + WALL
+
     groups, cur, wcur = [], [], 0.0
     for d in ds:
-        w = len(cs) * (d + max(cs) + WALL) + WALL
+        w = wid(d)
         if cur and wcur + w > MAX_PLATE:
             groups.append(cur)
             cur, wcur = [], 0.0
@@ -171,10 +187,10 @@ def horizontal_wall(p, ds, cs):
     out = None
     y0 = FOOT
     for g in groups:
-        hmax = max(d for d, _ in g) + max(cs) + 2 * WALL + 9.0
         x = 0.0
-        wall = None
         for d, w in g:
+            cs = csd[d]
+            hmax = d + max(cs) + 2 * WALL + 9.0
             blk = box(x, x + w, y0, y0 + H_THICK, 0, hmax)
             zc = WALL + (d + max(cs)) / 2 + 2.0
             for i, c in enumerate(cs):
@@ -184,9 +200,8 @@ def horizontal_wall(p, ds, cs):
                 blk = blk + label_on_plane(fmt_mm(c), pl, size=4.0)
             pl = Plane(origin=(x + w / 2, y0 + H_THICK, hmax - 4.5), x_dir=(-1, 0, 0), z_dir=(0, 1, 0))
             blk = blk + label_on_plane(f"Ø{d:g} H", pl, size=4.5)
-            wall = blk if wall is None else wall + blk
+            out = blk if out is None else out + blk
             x += w
-        out = wall if out is None else out + wall
         y0 += H_THICK + 2 * FOOT
     ymax = y0 - FOOT
     xmax = max(sum(w for _, w in g) for g in groups)
@@ -205,18 +220,20 @@ def build(p, ctx):
         for i, g in enumerate(groups):
             rows = []
             for d, solid, h, lx in g:
-                ytop = (max(d + c for c in cs) + 2 * WALL) / 2 if kind == "agujeros" else d / 2 + 2
+                cd = holguras_d(p, ctx, d) if kind == "agujeros" else cs
+                ytop = (max(d + c for c in cd) + 2 * WALL) / 2 if kind == "agujeros" else d / 2 + 2
                 rows.append((solid, h, lx, ytop))
             part = stack(rows)
             ids = ", ".join(_dlabel(d) for d, *_ in g)
             pid = f"P1.1{prefix}{letters[i]}" if prefix else f"P1.1{letters[i]}"
             res.append((dict(id=pid, name=f"peine_{kind}_{int(g[0][0])}_{int(g[-1][0])}",
-                             desc=f"{desc} {ids}; holguras {', '.join(fmt_mm(c) for c in cs)} mm",
+                             desc=f"{desc} {ids}; holguras {', '.join(fmt_mm(c) for c in cs)} mm"
+                                  + (" + las del CAD por Ø" if kind == "agujeros" else ""),
                              test=TEST, profile="estructural", qty=1, solid_frac=1.0,
                              orientation="Plana, agujeros/pernos de eje vertical (círculo en el plano XY)."),
                         part))
 
-    mk(plates([(d, cs) for d in noms], hole_row), "", "agujeros", "Agujeros Ø(d+c) de eje vertical:")
+    mk(plates([(d, holguras_d(p, ctx, d)) for d in noms], hole_row), "", "agujeros", "Agujeros Ø(d+c) de eje vertical:")
     mk(plates([(d, cs) for d in noms], pin_row), "P", "pernos", "Pernos Ø(d−c) de eje vertical:")
     ds, _aj = diam_horizontales(p, ctx)
     res.append((dict(id="P1.1H", name="agujeros_horizontales",
@@ -238,7 +255,7 @@ def checks(p, ctx, parts):
     for pid, part in parts.items():
         if pid.startswith("P1.1") and pid[4:5] in "ABCDEFG" and len(pid) == 5:
             radii = {round(cf["r"] * 2, 2) for cf in cyl_faces(part) if cf["hole"]}
-            exp = {round(d + c, 2) for d in noms for c in cs}
+            exp = {round(d + c, 2) for d in noms for c in holguras_d(p, ctx, d)}
             out.append((f"{pid}: agujeros con Ø = d + c", float(radii <= exp and len(radii) > 0), 1.0, ">="))
     return out
 
@@ -252,6 +269,7 @@ def criterios(p, ctx):
                    "(agujeros) → actualizar inputs.yaml geometry.clearance_mm; error del perno impreso ≤ ±0,10 mm "
                    "[SUPUESTO] (si no, usar xy_size_compensation en el perfil).",
         "holguras_mm": holguras(p), "nominales_mm": nominales(p), "horizontales_mm": ds,
+        "holguras_por_d_mm": {f"{d:g}": holguras_d(p, ctx, d) for d in nominales(p)},
         "clearance_cad_mm": float(p.clr),
         "ajustes_en_piezas": aj,
     }

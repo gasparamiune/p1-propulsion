@@ -23,10 +23,14 @@ R05_WIDTH = (4.50, 4.75)  # [VERIFICADO: idem]
 
 
 def _floor_t(ctx):
+    return ctx.cached(("P1.6", "floor"), lambda: _floor_scan(ctx))
+
+
+def _floor_scan(ctx):
     """Espesor de piso de ELE-01 leído del sólido (rayo vertical por el centro)."""
     part = ctx.built(SRC)
     bb = part.bounding_box()
-    tr = scan(part, (0.0, 0.0, bb.min.Z - 0.5), (0, 0, 1), 20.0, step=0.05)
+    tr = scan(part, (0.0, 0.0, bb.min.Z - 0.5), (0, 0, 1), 20.0, step=0.25)
     ins = [s for s, now_in in tr if now_in]
     outs = [s for s, now_in in tr if not now_in]
     return round(outs[0] - ins[0], 3)

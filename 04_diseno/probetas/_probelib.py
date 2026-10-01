@@ -38,6 +38,12 @@ class Ctx:
     est: dict = field(default_factory=dict)      # resultados/estructural.json
     man: dict = field(default_factory=dict)      # resultados/manifest.json (si existe)
     notes: list = field(default_factory=list)    # avisos (fallbacks usados)
+    memo: dict = field(default_factory=dict)     # resultados caros (escaneos) por clave
+
+    def cached(self, key, fn):
+        if key not in self.memo:
+            self.memo[key] = fn()
+        return self.memo[key]
 
     @property
     def inp(self):
@@ -46,11 +52,8 @@ class Ctx:
     def part(self, pid):
         return self.parts[pid]
 
-    def built(self, pid, _cache={}):
-        key = (id(self), pid)
-        if key not in _cache:
-            _cache[key] = self.parts[pid].build(self.p)
-        return _cache[key]
+    def built(self, pid):
+        return self.cached(("built", pid), lambda: self.parts[pid].build(self.p))
 
 
 def load_ctx() -> Ctx:
@@ -100,7 +103,7 @@ def inside(part, x, y, z, tol=1e-3) -> bool:
     return bool(part.is_inside(Vector(x, y, z), tol))
 
 
-def scan(part, start, direction, length, step=0.1):
+def scan(part, start, direction, length, step=0.5):
     """Recorre un rayo y devuelve las transiciones [(s, dentro_después)], s en mm desde start."""
     sx, sy, sz = start
     d = Vector(*direction).normalized()

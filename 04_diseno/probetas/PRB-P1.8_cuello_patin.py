@@ -33,6 +33,10 @@ def geo(p, ctx):
 
 
 def unit_frame(p, ctx):
+    return ctx.cached(("P1.8", "unit"), lambda: _unit_frame(p, ctx))
+
+
+def _unit_frame(p, ctx):
     """Probeta en el marco UNIDAD del patín (X=u, Y=w, Z=v)."""
     g = geo(p, ctx)
     sk = ctx.built(SRC)
@@ -63,7 +67,7 @@ def build(p, ctx):
 
 
 def _neck_width(part, u_c, v):
-    tr = scan(part, (u_c - 60, 0.0, v), (1, 0, 0), 120.0, step=0.05)
+    tr = scan(part, (u_c - 60, 0.0, v), (1, 0, 0), 120.0, step=0.5)
     ins = [s for s, now_in in tr if now_in]
     outs = [s for s, now_in in tr if not now_in]
     return (outs[0] - ins[0]) if ins and outs else 0.0
