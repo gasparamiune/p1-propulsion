@@ -27,16 +27,21 @@ META = dict(id="P1-PMP-03", name="impeller",
             allow={"P1-PMP-05": 60.0, "P1-PMP-04": 30.0})
 
 
+_CACHE = {}
+
+
 def blades(p):
+    key = (id(p), p.D, p.blades, p.D_hub)
+    if key in _CACHE:
+        return _CACHE[key]
     rows = []
     for r in p.pmp_imp_loft_r:
         b = p.pmp_blade_row(r)
         rows.append(dict(r=r, chord=b["chord"], a1=b["bb1"], a2=b["bb2"], tc=b["tc"]))
     bl = loft_blade(rows, -1, p.pmp_imp_le_X)
-    if not bl.is_valid:
-        bl = bl.fix()
     bl = bl & cyl_x(p.pmp_tip_r, -50, 200)          # punta exacta en r = D/2
-    return [Rot(360.0 * k / p.blades, 0, 0) * bl for k in range(p.blades)]
+    _CACHE[key] = [Rot(360.0 * k / p.blades, 0, 0) * bl for k in range(p.blades)]
+    return _CACHE[key]
 
 
 def hub(p):

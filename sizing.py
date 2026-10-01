@@ -378,7 +378,7 @@ def mechanical(inp, d):
     E, I = sh["e_gpa"] * 1e9, math.pi * dsh ** 4 / 64
     D = d["s"]["geo"].D
     ca = math.cos(math.radians(inp["waterjet"]["shaft_incline_deg"]))
-    S_brg_c = (1.2 * D / ca + 0.015 + 0.010 + 0.040)   # [CALCULADO: misma regla que 04_diseno/params.py]
+    S_brg_c = (1.85 * D / ca + 0.015 + 0.010 + 0.040)  # [CALCULADO: misma regla que 04_diseno/params.py]
     X_bush = 0.48 * D + 0.030                            # [CALCULADO: params_bomba (buje en el cubo del estator)]
     X_imp_c = 0.21 * D
     L_span = S_brg_c + X_bush

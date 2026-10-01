@@ -108,7 +108,9 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["bottom_t"] = b["bottom_thickness_mm"]
     d["transom_t"] = b["transom_thickness_mm"]
     d["floor_z"] = b["floor_height_m"] * 1000
-    d["shaft_exit_x"] = d["x_if"] + 1.2 * D               # el eje sale por el techo de la rampa (R10a §5.2: 130 mm con Ø108)
+    # el eje sale por el techo de la rampa; con garganta Ø1,11·D y techo de curvatura continua el techo
+    # libra la caja del sello (eje − 42 mm) recién a ~1,85·D de la cara del impulsor (grupo TOMA, Ø132)
+    d["shaft_exit_x"] = d["x_if"] + 1.85 * D
 
     # --- tren (marco BOTE, a lo largo del eje) ---
     d["shaft_d"] = inp["shaft"]["d_mm"]

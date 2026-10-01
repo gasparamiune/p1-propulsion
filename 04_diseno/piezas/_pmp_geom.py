@@ -82,14 +82,29 @@ def section_wire(*a, n=48, **k):
 
 
 def loft_blade(rows, sign, x_le, theta0=0.0):
-    """rows: lista de dict(r, chord, a1, a2, tc). Devuelve un sólido (loft suave)."""
+    """rows: lista de dict(r, chord, a1, a2, tc). Loft suave por las secciones (sobre cilindros, no
+    planas) + tapas extremas por superficie de relleno, cosido a sólido."""
+    from build123d import Face
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_Sewing, BRepBuilderAPI_MakeSolid
+    from OCP.TopoDS import TopoDS
     wires = [section_wire(rw["r"], rw["chord"], rw["a1"], rw["a2"], rw["tc"], sign, x_le=x_le,
                           theta0=theta0) for rw in rows]
-    return Solid.make_loft(wires, ruled=False)
+    side = Solid.make_loft(wires, ruled=False)
+    faces = list(side.faces()) + [Face.make_surface(wires[0]), Face.make_surface(wires[-1])]
+    sew = BRepBuilderAPI_Sewing(1e-3)
+    for f in faces:
+        sew.Add(f.wrapped)
+    sew.Perform()
+    sol = Solid(BRepBuilderAPI_MakeSolid(TopoDS.Shell(sew.SewedShape())).Solid())
+    if sol.volume < 0:
+        sol = Solid(sol.wrapped.Reversed())
+    if not sol.is_valid:
+        sol = sol.fix()
+    return sol
 
 
-def cyl_x(r, x0, x1):
-    return Pos(x0, 0, 0) * Rot(0, 90, 0) * Cylinder(r, x1 - x0, align=(CEN, CEN, MIN))
+def cyl_x(r, x0, x1, y=0.0, z=0.0):
+    return Pos(x0, y, z) * Rot(0, 90, 0) * Cylinder(r, x1 - x0, align=(CEN, CEN, MIN))
 
 
 def ring_x(ro, ri, x0, x1):

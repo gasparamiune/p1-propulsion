@@ -72,7 +72,7 @@ COUPLING = {  # KTR Rotex 24 (estrella T-PUR 92/98 ShA)
     "bore_max": 35.0,                       # [VERIFICADO: research/R11 §5 — agujero 0–35]
     "n_max_rpm": 12100.0,                   # [VERIFICADO: research/R11 §5 — 12 100–13 800 rpm]
     "l_hub": 30.0, "E": 18.0, "s": 2.0,     # [ESTIMADO: catálogo KTR Rotex 24 (l1 = l2 = 30, E = 18, s = 2); no abierto]
-    "l_hub_shaft": 25.0,                    # [SUPUESTO: el cubo del lado del eje se refrenta a 25 mm para que entre la pila]
+    "l_hub_shaft": 24.0,                    # [SUPUESTO: el cubo del lado del eje se refrenta a 24 mm para que entre la pila]
     "mass_g": 600.0,                        # [ESTIMADO: research/R11 §9 ≈ 0,6 kg]
     "price_eur": 67.47,                     # [VERIFICADO: research/R11 §5]
 }
@@ -88,7 +88,7 @@ MOTORS = {  # por clave de inputs.yaml motor.options (cuerpo Ø × largo sale de
     "MTI120116": {
         "shaft_d": 15.0, "shaft_l": 30.0,   # [VERIFICADO: research/R11 §1.2 — Ø15 × 30 mm con chavetero]
         "key_w": 5.0,                       # [ESTIMADO]
-        "pilot_d": 40.0, "pilot_l": 3.0,    # [ESTIMADO]
+        "pilot_d": 40.0, "pilot_l": 2.5,    # [ESTIMADO: buscar plano MTI120116]
         "mount_pcd": 80.0, "mount_n": 4, "mount_bolt": 6,    # [ESTIMADO: buscar plano MTI120116]
     },
 }
@@ -159,7 +159,7 @@ def extend(d):
     d["drv_lantern_l"] = 7.0                                            # [SUPUESTO: linterna de goteo/testigo con ventanas y drenaje]
     d["drv_S_hsg_front"] = d["drv_S_seat_back"] + d["drv_seat_wall"] + d["drv_lantern_l"]
     d["drv_chamber_d"] = SEAL["head_od"] + 3.0                          # cámara mojada (holgura radial 1,5)
-    d["drv_lantern_d"] = 40.0                                           # [SUPUESTO]
+    d["drv_lantern_d"] = 34.0                                           # [SUPUESTO: pared 4 mm]
     d["drv_drain_tap"] = 8.0                                            # [SUPUESTO: G1/8 (Ø8,8 rosca; macho Ø8,0 para el modelo) — espiga para manguera testigo]
 
     # ---------------- rodamientos y soporte ----------------
@@ -167,11 +167,12 @@ def extend(d):
     d["drv_brg_shoulder_t"] = 3.0                                       # [SUPUESTO: resalto del alojamiento (apoyo del aro exterior trasero)]
     d["drv_S_brgA"] = d["drv_S_hsg_front"] + d["drv_gap_hsg_brg"] + d["drv_brg_shoulder_t"]   # cara trasera del rodamiento de popa
     d["drv_S_brgB"] = d["drv_S_brgA"] + 2 * BEARING["B"]                # cara delantera del rodamiento de proa
+    d["drv_collar_l"] = d["drv_gap_hsg_brg"] + d["drv_brg_shoulder_t"] - 0.5   # collar: de 0,5 mm delante de la caja del sello al aro
     d["drv_collar_d"] = 25.0                                            # [SUPUESTO: collar = barra Ø25 sin tornear (eje torneado desde barra 1.4404 Ø25, R11 §5)]
-    d["drv_collar_l"] = 5.0                                             # [SUPUESTO]
+    
     d["drv_hsg_od"] = BEARING["D"] + 2 * 9.0                            # alojamiento Ø65 [SUPUESTO: pared 9 mm]
-    d["drv_cover_t"] = KM["b"] + KM["mb_t"] + 0.5                       # tapa con alojamiento para la KM4
-    d["drv_S_brg_front"] = d["drv_S_brgB"] + d["drv_cover_t"]           # cara delantera de la tapa
+    d["drv_cover_t"] = 7.0                                              # [SUPUESTO: tapa anular 7 mm; la KM4 gira dentro de su agujero Ø34 (laberinto 1 mm)]
+    d["drv_S_brg_front"] = d["drv_S_brgB"] + max(d["drv_cover_t"], KM["mb_t"] + KM["b"])   # fin de la pila de rodamientos (tapa o tuerca)
     d["drv_cover_bolt"] = 5                                             # [SUPUESTO: 4 × M5 A4 tapa ↔ soporte]
     d["drv_cover_bc"] = BEARING["D"] + 2 * 4.5                          # [CALCULADO: Ø47 + 2 × 4,5]
     # soporte = PÓRTICO sobre el conducto: dos mejillas longitudinales (planos xz) con zapatas sobre la
@@ -187,7 +188,7 @@ def extend(d):
     d["drv_bracket_hole"] = d["brg_bracket_bolt"] + 1.0                 # [SUPUESTO: Ø9 (M8 + 1): ±0,5 mm de ajuste para alinear con el buje del sello; luego 2 pasadores Ø6 escariados en montaje]
 
     # ---------------- acople y motor ----------------
-    d["mot_flange_gap"] = 2.0                                           # [SUPUESTO: cara del cubo del motor a 2 mm de la brida]
+    d["mot_flange_gap"] = 3.5                                           # [SUPUESTO: cara del cubo del motor a 3,5 mm de la cara del motor (1 mm del centrador)]
     d["drv_S_cpl_motor_face"] = d["S_motor0"] - d["mot_flange_gap"]
     d["drv_cpl_L"] = COUPLING["l_hub_shaft"] + COUPLING["E"] + COUPLING["l_hub"]
     d["drv_S_cpl0"] = d["drv_S_cpl_motor_face"] - d["drv_cpl_L"]          # cara de popa del cubo del lado del eje

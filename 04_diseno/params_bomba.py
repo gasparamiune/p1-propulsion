@@ -135,7 +135,7 @@ def extend(d):
     d["pmp_cool_bore_d"] = 5.0                           # paso al flujo
     d["pmp_cool_boss_d"] = 22.0
     d["pmp_cool_boss_top"] = d["pmp_D_barrel"] / 2 + 10.0
-    d["pmp_cool_port"] = (round(d["X_st1"] - 22.0, 2), 0.0, round(d["pmp_cool_boss_top"], 2))  # (X, Y, Z) JET, cara del saliente
+    d["pmp_cool_port"] = (round(d["X_st1"] - 14.0, 2), 0.0, round(d["pmp_cool_boss_top"], 2))  # (X, Y, Z) JET, cara del saliente
     d["pmp_cool_dir"] = (0.0, 0.0, 1.0)                  # eje del puerto (radial, hacia arriba)
 
     # ------------------------------------------------------------------ impulsor
