@@ -24,15 +24,15 @@ de la prosa usan marcadores `<!--V:…-->`. Etiquetas: [VERIFICADO: fuente] · [
 | Rendimiento total batería→R·V (diseño) | 30 % | [CALCULADO] |
 | Relación de correa | 20T : 48T = 2.40 | [CALCULADO] |
 | Batería elegida | 2 × Power Queen 12V 100Ah en serie (BMS 100 A c/u) | [CALCULADO] |
-| Energía requerida / usable | 2343 / 2304 Wh | [CALCULADO] |
+| Energía nominal requerida (2 h + reserva ÷ DoD) / nominal de la batería | 2343 / 2560 Wh | [CALCULADO] |
 | Autonomía a crucero (nominal / diseño) | 3.13 / 2.62 h | [CALCULADO] |
 | V máx. (diseño, batería baja) | 6.4 km/h — limita: tensión (duty) | [CALCULADO] |
 | V máx. (nominal, batería nominal) | 7.1 km/h | [CALCULADO] |
-| Bollard pull avante (horizontal) | 287 N (29.3 kgf) — limita: corriente de motor | [CALCULADO] |
-| Bollard pull marcha atrás | 91 N | [CALCULADO] |
-| Corriente pico de batería / margen ESC | 47 A / 112 % | [CALCULADO] |
-| Cable DC / fases | 10 mm² (1.2 %) / 10 mm² (2.1 %) | [CALCULADO] |
-| Fusible principal | 60 A | [CALCULADO] |
+| Bollard pull avante (horizontal) | 253 N (25.8 kgf) — limita: corriente de motor | [CALCULADO] |
+| Bollard pull marcha atrás | 80 N | [CALCULADO] |
+| Corriente pico de batería / margen ESC | 53 A / 67 % | [CALCULADO] |
+| Cable DC / fases | 16 mm² (0.9 %) / 10 mm² (2.1 %) | [CALCULADO] |
+| Fusible principal | 80 A | [CALCULADO] |
 | Pasador de corte | Ø2.0 mm AISI 316 → corta a 12.4 N·m | [CALCULADO] |
 | Velocidad crítica del eje / rpm máx. | 5834 / 1713 rpm | [CALCULADO] |
 | Largo de eje / tubo | 1357 / 1171 mm | [CALCULADO] |
@@ -101,10 +101,10 @@ hidrodinámica) + corriente 0,5 m/s. En esa condición, la velocidad alcanzable 
 <!--V:sizing.adverse.vmax_headwind_waves_kmh:.1f-->5.6<!--/V--> km/h y la velocidad sobre el fondo contra la corriente
 <!--V:sizing.adverse.sog_against_current_kmh:.1f-->3.8<!--/V--> km/h (criterio ≥ 3 km/h) [CALCULADO].
 
-**Bollard pull objetivo:** ≥ 0,85 × predicho; predicho <!--V:sizing.bollard_fwd.T_horiz:.0f-->287<!--/V--> N horizontales
+**Bollard pull objetivo:** ≥ 0,85 × predicho; predicho <!--V:sizing.bollard_fwd.T_horiz:.0f-->253<!--/V--> N horizontales
 (<!--V:sizing.bollard_fwd.limiter:-->corriente de motor<!--/V--> limita), igual a los fuerabordas eléctricos de 1 kW medidos (290–310 N,
 0,28–0,29 N/W; research/R04 §B.2). Los "65 lb a 600 W" de algunos trolling exigen FM > 1:
-físicamente imposibles y no se usan como meta. Marcha atrás: <!--V:sizing.bollard_rev.T_horiz:.0f-->91<!--/V--> N (límite de
+físicamente imposibles y no se usan como meta. Marcha atrás: <!--V:sizing.bollard_rev.T_horiz:.0f-->80<!--/V--> N (límite de
 corriente 50 % por firmware × rendimiento de hélice invertida 0,65 [ESTIMADO]).
 
 ### 3.1 Límite legal de velocidad (Sejladsreglement §4: ≤ 5 kn a < 300 m de la costa)
@@ -114,8 +114,8 @@ Como P1 opera siempre a < 300 m, la V máx útil es 9,26 km/h [VERIFICADO: resea
 (1 persona) el modelo supera el límite, así que se fija un **tope de ERPM** en el VESC
 (`l_max_erpm`, parámetro de VESC Tool [ESTIMADO: nombre de memoria técnica, confirmar en la
 versión instalada]) calculado como las rpm a 5 kn en el caso más rápido (liviano, banda baja,
-batería llena). Con 2 personas el bote no llega a 5 kn en ninguna banda (8,7 km/h en la banda baja),
-así que sacar el tope con 2 a bordo es legal y recupera ~0,5 km/h; por defecto queda puesto.
+batería llena). Con 2 personas el bote no llega a 5 kn en ninguna banda (<!--V:sizing.legal_speed.vmax_full_load_low_full_bat_kmh:.1f-->8.0<!--/V--> km/h en la banda baja con batería llena [CALCULADO]),
+así que sacar el tope con 2 a bordo es legal, pero recupera apenas <!--V:sizing.legal_speed.cap_loss_full_load_low_kmh:.2f-->0.05<!--/V--> km/h [CALCULADO]; por defecto queda puesto.
 
 <!-- AUTO:legal_speed -->
 | Magnitud | Valor | Etiqueta |
@@ -144,20 +144,20 @@ cuyas medidas son [ESTIMADO] hasta medirla (PENDIENTES P0.7).
 <!-- AUTO:optimization -->
 | Hélice | Batería | Poleas | P_bat crucero diseño [W] | E req/nom [Wh] | Autonomía diseño [h] | V máx nom [km/h] | Bollard [N] | Costo hélice+bat [€] | No cumple |
 |---|---|---|---|---|---|---|---|---|---|
-| MKP32 | LFP12_100x2 | 20:48 | 879 | 2343/2560 | 2.62 | 7.1 | 287 | 643 | vmax |
-| MKP32 | LFP12_100x2_LT | 20:48 | 872 | 2325/2560 | 2.64 | 7.1 | 287 | 688 | vmax |
-| TOH74x6 | LFP24_50 | 16:40 | 932 | 2485/1280 | 1.24 | 6.5 | 206 | 473 | energy, vmax, prop_seat |
-| EO10x8 | LFP24_50 | 20:72 | 774 | 2065/1280 | 1.49 | 6.8 | 247 | 473 | energy, vmax, purchasable |
-| MKP32 | LFP24_50 | 16:40 | 831 | 2216/1280 | 1.39 | 6.7 | 261 | 478 | energy, vmax |
-| TOH74x6 | LFP12_50x2 | 16:40 | 936 | 2496/1280 | 1.23 | 6.5 | 206 | 480 | energy, vmax, prop_seat |
-| EO10x8 | LFP12_50x2 | 20:72 | 778 | 2074/1280 | 1.48 | 6.8 | 247 | 480 | energy, vmax, purchasable |
-| MKP32 | LFP12_50x2 | 16:40 | 834 | 2225/1280 | 1.38 | 6.7 | 261 | 485 | energy, vmax |
-| TOH74x6 | LFP36_50 | 14:48 | 926 | 2469/1920 | 1.87 | 7.3 | 278 | 593 | energy, vmax, prop_seat |
-| EO10x8 | LFP36_50 | 14:72 | 763 | 2034/1920 | 2.27 | 7.7 | 336 | 593 | energy, vmax, purchasable |
-| MKP32 | LFP36_50 | 14:48 | 826 | 2204/1920 | 2.09 | 7.5 | 354 | 598 | energy, vmax, prop_seat |
-| TOH74x6 | LFP12_100x2 | 16:40 | 984 | 2623/2560 | 2.34 | 6.7 | 265 | 638 | energy, vmax, prop_seat |
-| EO10x8 | LFP12_100x2 | 20:72 | 816 | 2176/2560 | 2.82 | 7.5 | 280 | 638 | vmax, purchasable |
-| TOH74x6 | LFP12_100x2_LT | 16:40 | 976 | 2602/2560 | 2.36 | 6.7 | 265 | 683 | energy, vmax, prop_seat |
+| MKP32 | LFP12_100x2 | 20:48 | 879 | 2343/2560 | 2.62 | 7.1 | 253 | 643 | vmax |
+| MKP32 | LFP12_100x2_LT | 20:48 | 872 | 2325/2560 | 2.64 | 7.1 | 253 | 688 | vmax |
+| TOH74x6 | LFP24_50 | 16:40 | 932 | 2485/1280 | 1.24 | 6.5 | 182 | 473 | energy, vmax, prop_seat |
+| EO10x8 | LFP24_50 | 20:72 | 774 | 2065/1280 | 1.49 | 6.8 | 218 | 473 | energy, vmax, purchasable |
+| MKP32 | LFP24_50 | 16:40 | 831 | 2216/1280 | 1.39 | 6.7 | 230 | 478 | energy, vmax |
+| TOH74x6 | LFP12_50x2 | 16:40 | 936 | 2496/1280 | 1.23 | 6.5 | 182 | 480 | energy, vmax, prop_seat |
+| EO10x8 | LFP12_50x2 | 20:72 | 778 | 2074/1280 | 1.48 | 6.8 | 218 | 480 | energy, vmax, purchasable |
+| MKP32 | LFP12_50x2 | 16:40 | 834 | 2225/1280 | 1.38 | 6.7 | 230 | 485 | energy, vmax |
+| TOH74x6 | LFP36_50 | 14:48 | 926 | 2469/1920 | 1.87 | 7.3 | 245 | 593 | energy, vmax, prop_seat |
+| EO10x8 | LFP36_50 | 14:72 | 763 | 2034/1920 | 2.27 | 7.7 | 297 | 593 | energy, vmax, purchasable |
+| MKP32 | LFP36_50 | 14:48 | 826 | 2204/1920 | 2.09 | 7.5 | 312 | 598 | energy, vmax, prop_seat |
+| TOH74x6 | LFP12_100x2 | 16:40 | 984 | 2623/2560 | 2.34 | 6.7 | 233 | 638 | energy, vmax, prop_seat |
+| EO10x8 | LFP12_100x2 | 20:72 | 816 | 2176/2560 | 2.82 | 7.5 | 247 | 638 | vmax, purchasable |
+| TOH74x6 | LFP12_100x2_LT | 16:40 | 976 | 2602/2560 | 2.36 | 6.7 | 233 | 683 | energy, vmax, prop_seat |
 <!-- /AUTO:optimization -->
 
 ### 4.2 Modelo de hélice
@@ -209,7 +209,7 @@ VERIFICADO research/R08a; Flipsky no publica]; ESC Flipsky 75100 V2.0: 14–84 V
 BEC 5 V 1 A [VERIFICADO: research/R08a §2]; con FW ≥ 5.03 hay que **apagar el filtro de fase**
 (advertencia del fabricante, research/R08a). Relación de
 poleas elegida <!--V:sizing.selection.z_motor:d-->20<!--/V-->T : <!--V:sizing.selection.z_shaft:d-->48<!--/V-->T. Corriente pico de batería
-<!--V:sizing.esc.I_bat_peak_a:.0f-->47<!--/V--> A → margen del ESC (100 A) <!--V:sizing.esc.margin_frac:.0%-->112%<!--/V--> (requisito ≥ 30 %).
+<!--V:sizing.esc.I_bat_peak_a:.0f-->53<!--/V--> A → margen del ESC (100 A) <!--V:sizing.esc.margin_frac:.0%-->67%<!--/V--> (requisito ≥ 30 %).
 Correa HTD-5M 15 mm: tirón efectivo a corriente máxima <!--V:sizing.mech.belt.Fe_N:.0f-->189<!--/V--> N vs admisible 400 N
 [ESTIMADO: catálogo, a verificar] → FS <!--V:sizing.mech.belt.fs_belt:.2f-->2.11<!--/V-->; correa
 <!--V:sizing.mech.belt.length_std_mm:.0f-->425<!--/V--> mm.
@@ -219,18 +219,18 @@ Correa HTD-5M 15 mm: tirón efectivo a corriente máxima <!--V:sizing.mech.belt.
 <!-- AUTO:sizing_sustain -->
 | v [km/h] | Banda | Factible | P_bat [W] | I_bat [A] | t energía [min] | t térmico [min] | Sostenible [min] |
 |---|---|---|---|---|---|---|---|
-| 7 | nominal | sí | 1285 | 50 | 108 | 14 | 14 |
-| 7 | design | no (tensión (duty)) | 1541 | 60 | 90 | 9 | 0 |
-| 8 | nominal | no (tensión (duty), corriente de motor) | 2012 | 79 | 69 | 6 | 0 |
-| 8 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 2420 | 95 | 57 | 4 | 0 |
-| 9 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 2865 | 112 | 48 | 4 | 0 |
-| 9 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 3451 | 135 | 40 | 3 | 0 |
-| 10 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 3783 | 148 | 37 | 2 | 0 |
-| 10 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 4559 | 178 | 30 | 2 | 0 |
-| 11 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 4715 | 184 | 29 | 2 | 0 |
-| 11 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 5682 | 222 | 24 | 1 | 0 |
-| 12 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 5636 | 220 | 25 | 1 | 0 |
-| 12 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 6787 | 265 | 20 | 1 | 0 |
+| 7 | nominal | sí | 1285 | 50 | 108 | 2 | 2 |
+| 7 | design | no (tensión (duty)) | 1541 | 60 | 90 | 1 | 0 |
+| 8 | nominal | no (tensión (duty), corriente de motor) | 2012 | 79 | 69 | 1 | 0 |
+| 8 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 2420 | 95 | 57 | 1 | 0 |
+| 9 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 2865 | 112 | 48 | 0 | 0 |
+| 9 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 3451 | 135 | 40 | 0 | 0 |
+| 10 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC) | 3783 | 148 | 37 | 0 | 0 |
+| 10 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 4559 | 178 | 30 | 0 | 0 |
+| 11 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 4715 | 184 | 29 | 0 | 0 |
+| 11 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 5682 | 222 | 24 | 0 | 0 |
+| 12 | nominal | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 5636 | 220 | 25 | 0 | 0 |
+| 12 | design | no (tensión (duty), corriente de motor, corriente de batería/ESC, potencia del motor) | 6787 | 265 | 20 | 0 | 0 |
 <!-- /AUTO:sizing_sustain -->
 
 ### 5.2 Térmico del ESC en caja estanca
@@ -245,19 +245,19 @@ cálculo da la resistencia térmica máxima que hay que exigir al comprarlo (pé
 |---|---|---|---|
 | esc_cruise | 26 | 0 | 0.61 |
 | esc_vmax | 34 | 0 | 0.44 |
-| Requisito de compra (crucero → caja ≤ 50 °C) |  |  | **≤ 0.61** |
-| Con ese disipador, a V máx sostenida: 56 °C estacionario (límite ESC 80 °C) |  |  | ∞ |
+| Requisito de compra (crucero → caja ≤ 50 °C) |  |  | **≤ 0.44** |
+| Con ese disipador, a V máx sostenida: 50 °C estacionario (límite ESC 80 °C) |  |  | ∞ |
 <!-- /AUTO:thermal_esc -->
 
 ## 6. Batería, cables y protecciones
 
 E_req = P_bat,crucero × 2 h × 1,2 / DoD útil (0,90). Requerida <!--V:sizing.battery.E_required_wh:.0f-->2343<!--/V--> Wh;
 elegida: <!--V:sizing.selection.battery_desc:-->2 × Power Queen 12V 100Ah en serie (BMS 100 A c/u)<!--/V--> (<!--V:sizing.battery.E_usable_wh:.0f-->2304<!--/V--> Wh usables,
-<!--V:sizing.battery.mass_kg:.1f-->22.0<!--/V--> kg, tasa pico <!--V:sizing.battery.C_rate_peak:.2f-->0.47<!--/V--> C).
+<!--V:sizing.battery.mass_kg:.1f-->22.0<!--/V--> kg, tasa pico <!--V:sizing.battery.C_rate_peak:.2f-->0.53<!--/V--> C).
 Química: LiFePO4 (sin runaway en ensayo ARC; research/R06), fija en caja ventilada, alta y
-centrada (trimado), nunca en el espejo. Cable DC <!--V:sizing.cables.dc.section_mm2:d-->10<!--/V--> mm²
-(caída <!--V:sizing.cables.dc.drop_frac:.1%-->1.2%<!--/V-->), fases <!--V:sizing.cables.phase.section_mm2:d-->10<!--/V--> mm²
-(caída <!--V:sizing.cables.phase.drop_frac:.1%-->2.1%<!--/V-->); fusible <!--V:sizing.fuse.rating_a:d-->60<!--/V--> A a ≤ 178 mm del borne
+centrada (trimado), nunca en el espejo. Cable DC <!--V:sizing.cables.dc.section_mm2:d-->16<!--/V--> mm²
+(caída <!--V:sizing.cables.dc.drop_frac:.1%-->0.9%<!--/V-->), fases <!--V:sizing.cables.phase.section_mm2:d-->10<!--/V--> mm²
+(caída <!--V:sizing.cables.phase.drop_frac:.1%-->2.1%<!--/V-->); fusible <!--V:sizing.fuse.rating_a:d-->80<!--/V--> A a ≤ 178 mm del borne
 (ABYC E-11; research/R06), que protege al cable. Fusible y portafusible MIDI de **58 V**
 (IMAXX midiOTO + HMD4-MG1-H): los portafusibles de 32 V de Biltema ANL y Blue Sea AMI/MIDI
 quedarían cortos si se pasa a 12S [VERIFICADO: research/R08a §6]. Batería ↔ instalación con
@@ -346,24 +346,28 @@ fusible), LC6 ola y vibración (fatiga a paso de pala), LC7 manipulación.
 ## 10. Sensibilidad — las 3 entradas que más mueven el resultado
 
 <!-- AUTO:sizing_sens -->
-| Entrada | ±Δ | P_bat crucero (−/+) [W] | V máx (−/+) [km/h] | Variación P | 
-|---|---|---|---|---|
-| Coef. de olas c_w (calibración) | ±30 % | 708 / 1061 | 6.8 / 6.1 | 40 % |
-| Pérdida por protector (0–25 %) | 0–0.25 | 768 / 1113 | 6.6 / 6.1 | 39 % |
-| Masa por persona | ±20 % | 743 / 1022 | 6.7 / 6.2 | 32 % |
-| Eslora de flotación | ±10 % | 1027 / 767 | 6.2 / 6.6 | 30 % |
-| Rendimiento de hélice (modelo) | ±10 % | 983 / 795 | 6.4 / 6.5 | 21 % |
-| Masa del casco | ±30 % | 832 / 926 | 6.5 / 6.3 | 11 % |
-| Ancho de espejo sumergido | ±20 % | 807 / 899 | 6.6 / 6.4 | 10 % |
-| Ángulo de eje | ±20 % | 853 / 913 | 6.4 / 6.4 | 7 % |
-| Resistencia del motor | ±30 % | 853 / 904 | 6.6 / 6.3 | 6 % |
+| Entrada | ±Δ | P_bat crucero (−/+) [W] | V máx (−/+) [km/h] | T motor crucero (−/+) [°C] | Variación P | 
+|---|---|---|---|---|---|
+| Coef. de olas c_w (calibración) | ±30 % | 708 / 1061 | 6.8 / 6.1 | 69 / 92 ⚠ | 40 % |
+| Pérdida por protector (0–25 %) | 0–0.25 | 768 / 1113 | 6.6 / 6.1 | 73 / 95 ⚠ | 39 % |
+| Masa por persona | ±20 % | 743 / 1022 | 6.7 / 6.2 | 71 / 89 ⚠ | 32 % |
+| Eslora de flotación | ±10 % | 1027 / 767 | 6.2 / 6.6 | 90 / 73 ⚠ | 30 % |
+| Rendimiento de hélice (modelo) | ±10 % | 983 / 795 | 6.4 / 6.5 | 88 / 74 ⚠ | 21 % |
+| Masa del casco | ±30 % | 832 / 926 | 6.5 / 6.3 | 77 / 83 | 11 % |
+| Ancho de espejo sumergido | ±20 % | 807 / 899 | 6.6 / 6.4 | 75 / 81 | 10 % |
+| Ángulo de eje | ±20 % | 853 / 913 | 6.4 / 6.4 | 78 / 83 | 7 % |
+| Resistencia del motor | ±30 % | 853 / 904 | 6.6 / 6.3 | 69 / 91 ⚠ | 6 % |
+| Diámetro de hélice (medir) | ±5 % | 892 / 869 | 6.2 / 6.6 | 79 / 81 | 3 % |
+| Paso de hélice (medir) | ±10 % | 884 / 878 | 6.1 / 6.7 | 77 / 83 | 1 % |
+| R_th del motor (térmico) | ±20 % | 879 / 879 | 6.4 / 6.4 | 70 / 90 ⚠ | 0 % |
+| Temperatura del aire (20–35 °C) | 20–35 | 879 / 879 | 6.4 / 6.4 | 70 / 85 | 0 % |
 <!-- /AUTO:sizing_sens -->
 
 ## 11. Criterios de éxito de P1 (con números)
 
 | Criterio | Valor | Cómo se mide |
 |---|---|---|
-| Bollard pull | ≥ <!--V:sizing.success.bollard_pull_min_N:.0f-->244<!--/V--> N | Dinamómetro en el cabo, T2 |
+| Bollard pull | ≥ <!--V:sizing.success.bollard_pull_min_N:.0f-->215<!--/V--> N | Dinamómetro en el cabo, T2 |
 | Crucero con 2 personas | 6,0 km/h con P_bat ≤ <!--V:sizing.success.cruise_P_bat_max_W:.0f-->879<!--/V--> W | GPS + medidor de energía, T3/T4 |
 | V máx con 2 personas | ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->6.0<!--/V--> km/h | GPS, T3 |
 | Autonomía | ≥ 2 h a 6 km/h con ≥ 20 % de reserva | Wh consumidos/h × capacidad, T4 |

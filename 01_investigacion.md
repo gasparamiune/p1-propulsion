@@ -130,7 +130,7 @@ Banda propuesta para el jon boat de 2,44 m con 2 adultos: **R(6 km/h) = 95–150
 
 | Magnitud | P1 (diseño vigente) | Comerciales medidos | Etiqueta |
 |---|---|---|---|
-| Bollard avante | <!--V:sizing.bollard_fwd.T_horiz:.0f-->287<!--/V--> N | 290–310 N (0,28–0,29 N/W) | [CALCULADO] / [VERIFICADO: R04 S60] |
+| Bollard avante | <!--V:sizing.bollard_fwd.T_horiz:.0f-->253<!--/V--> N | 290–310 N (0,28–0,29 N/W) | [CALCULADO] / [VERIFICADO: R04 S60] |
 | Rendimiento total batería → R·V (crucero, diseño) | <!--V:sizing.cruise.design.eta_total:.0%-->30%<!--/V--> | 49–55 % máx | [CALCULADO] / [VERIFICADO: R04 S31, S34] |
 | Energía de batería (P1 usable / comercial nominal) | <!--V:sizing.battery.E_usable_wh:.0f-->2304<!--/V--> Wh | 1.080–1.276 Wh | [CALCULADO] / [VERIFICADO: R04 §B.1] |
 | Costo del sistema | <!--V:bom.total_eur:.0f-->2281<!--/V--> € (BOM con envíos, IVA y contingencia; sin equipo de seguridad, que suma hasta <!--V:bom.total_with_gear_eur:.0f-->2550<!--/V--> €) | 2.549 € (DE) a ~2.930 € (DK) el Spirit Evo completo | [CALCULADO: bom.py] / [VERIFICADO: R04 S33] + [CALCULADO: R04 §B.4, 21.886 kr / 7,4755] |
@@ -214,7 +214,7 @@ Kill por software del VESC (`KILL_SW_MODE_ADC2_HIGH`, pull-up a 3,3 V) solo como
 
 ### 5.4 Fusible, cable y normas
 
-Fusible a ≤ 7 in del borne, o ≤ 72 in si el conductor va enfundado (ABYC E-11 11.10.1.1.1) [VERIFICADO: R06 §5.1]. El extracto de ABYC escribe "seven inches (175mm)" (7 in = 177,8 mm [CALCULADO]); D-21 y 06 usan 178 mm → **medir ≤ 175 mm** cumple las dos lecturas. El fusible no puede superar la ampacidad del cable (ABYC 11.10.2.3) [VERIFICADO: R06 §5.2]. P1: MIDI <!--V:sizing.fuse.rating_a:d-->60<!--/V--> A de 58 V (IMAXX midiOTO + portafusible HMD4-MG1-H) y cable de <!--V:sizing.cables.dc.section_mm2:d-->10<!--/V--> mm² (ampacidad <!--V:sizing.fuse.cable_ampacity_a:d-->75<!--/V--> A en el modelo) (D-21, D-33).
+Fusible a ≤ 7 in del borne, o ≤ 72 in si el conductor va enfundado (ABYC E-11 11.10.1.1.1) [VERIFICADO: R06 §5.1]. El extracto de ABYC escribe "seven inches (175mm)" (7 in = 177,8 mm [CALCULADO]); D-21 y 06 usan 178 mm → **medir ≤ 175 mm** cumple las dos lecturas. El fusible no puede superar la ampacidad del cable (ABYC 11.10.2.3) [VERIFICADO: R06 §5.2]. P1: MIDI <!--V:sizing.fuse.rating_a:d-->80<!--/V--> A de 58 V (IMAXX midiOTO + portafusible HMD4-MG1-H) y cable de <!--V:sizing.cables.dc.section_mm2:d-->16<!--/V--> mm² (ampacidad <!--V:sizing.fuse.cable_ampacity_a:d-->100<!--/V--> A en el modelo) (D-21, D-33).
 
 | Norma (como figura en R06) | Alcance verificado | Cláusulas citadas | Uso en P1 |
 |---|---|---|---|
@@ -357,7 +357,7 @@ Todo "a confirmar con la autoridad local" (Syd- og Sønderjyllands Politi, Søfa
 | 18 | Aro romo con holgura 4,5 % D pierde 25 % de K_T; sin rejas delante (R03 Ladd) | Aro perfilado NACA 15 %, holgura 6 mm, pérdida 10 % (sensibilidad 0–25 %) | D-26 |
 | 19 | Tobera Kort: hasta +30 % solo en bollard, la reversa no mejora con todas las toberas, holgura ≤ 0,5 % D (R03, R09) | Tobera a P2 con banco de ensayo | 07_roadmap_P2, 02 §4.5 |
 | 20 | PETG: agua −28 %, Z 0,38, fatiga 0,06, creep desde 50 % (R05) | Factores D-29; ninguna pieza impresa en la ruta de carga alterna | D-29, 02 §9 |
-| 21 | HDT del PETG 65,7–75 °C; epoxi West HDT 48 °C (R05) | T de servicio 50 °C; PETG con HDT ≥ 70 °C; capó ventilado; tapa de Al con disipador ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.61<!--/V--> K/W | D-29, D-20 |
+| 21 | HDT del PETG 65,7–75 °C; epoxi West HDT 48 °C (R05) | T de servicio 50 °C; PETG con HDT ≥ 70 °C; capó ventilado; tapa de Al con disipador ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.44<!--/V--> K/W | D-29, D-20 |
 | 22 | Superficie FDM 10–30× más rugosa que lo que pide un O-ring (R05) | O-ring NBR 70 Ø3,53 mm de cara contra cara refrentada y tapa de Al | D-23 |
 | 23 | Retén radial pide eje ≥ 45 HRC; pod con sello falla por bombeo térmico (R03, R05) | Cero sellos dinámicos sumergidos; bujes igus H370 lubricados por agua | D-03, D-38 |
 | 24 | Tuerca A4 cautiva > inserto; Loctite 243 puede fisurar termoplásticos; latón descincifica (R05) | Tuerca A4 cautiva estándar; latón solo M4 en zona seca | D-18 |
@@ -366,7 +366,7 @@ Todo "a confirmar con la autoridad local" (Syd- og Sønderjyllands Politi, Søfa
 | 27 | Antichispa MOSFET falla en corto (R06) | Contactor monoestable + cordón cerrado con clip + seta; antichispa solo arranque suave | D-22, D-33 |
 | 28 | Defaults del VESC peligrosos; filtro de fase daña el 75100 con FW ≥ 5.03 (R06, R08a) | Configuración obligatoria antes del agua | PENDIENTES P2.2, 04_diseno/electronica |
 | 29 | LFP sin runaway en ARC; 16S supera 58 V; accesorios de 32–48 V (R06, R08a) | LiFePO4 8S, <!--V:sizing.battery.E_nom_wh:.0f-->2560<!--/V--> Wh; 12S documentado | D-19, D-28 |
-| 30 | Fusible ≤ 7 in (ABYC: 175 mm) del borne y ≤ ampacidad del cable; portafusibles MIDI de 58 V baratos (R06, R08a) | MIDI <!--V:sizing.fuse.rating_a:d-->60<!--/V--> A 58 V; D-21 dice ≤ 178 mm → montar a ≤ 175 mm | D-21, D-33 |
+| 30 | Fusible ≤ 7 in (ABYC: 175 mm) del borne y ≤ ampacidad del cable; portafusibles MIDI de 58 V baratos (R06, R08a) | MIDI <!--V:sizing.fuse.rating_a:d-->80<!--/V--> A 58 V; D-21 dice ≤ 178 mm → montar a ≤ 175 mm | D-21, D-33 |
 | 31 | Casco metálico no es conductor; eFoil con fuga a masa le dio una descarga al usuario (R03, R06) | Sistema flotante; prueba de aislamiento fase/BAT− contra casco | D-36, 04_diseno/electronica §1 |
 | 32 | R06 recomienda ánodo de Al; la verificación de R05 lo pasó a "obligatorio, o dúplex 2205"; ambos alertan picado/rendija del 316 bajo bujes (R05 S42, Gerr) | **Desvío consciente:** sin ánodo, aislamiento por diseño (no evita la rendija); ánodo solo si la hélice final es de Al; inspección de picaduras bajo los bujes cada temporada | D-36, 06 |
 | 33 | Pasador de Al 6061 Ø3 propuesto (R09) es ánodo frente al eje 316 | Pasador 316; FS Goodman en crucero <!--V:sizing.mech.shear_pin.fatigue_cruise.fs_goodman:.2f-->1.46<!--/V--> → cambio cada 10 h [SUPUESTO] | D-11, 02 §7 |

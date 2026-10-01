@@ -58,3 +58,10 @@ Leyenda: [x] hecho · [~] en curso · [ ] pendiente
   caja ESC 160×110×45 con prensaestopas M20 rebajados + disipador con R_th requerida, rodamientos 6202,
   bujes igus H370, poleas/correas Dold existentes, hélice MKP-32 (comprable), pasador 316, sin ánodo,
   eje montable (A-08). Costo total sistema 2 255 € (72 % verificado). pytest 64 OK.
+- 2026-10-01 19:00: Pasada 3, ronda 1 — auditoría adversarial con 87 hallazgos (resultados/auditoria_ronda1.json:
+  2 críticos de CAD/FS, ~20 altos). Corrección en curso por subsistema (montaje, cabezal/cola/mando,
+  electrónica, fabricación, documentos). Propulsión (agente principal): bollard neto con deducción y aro,
+  térmico sostenido desde la T de crucero, pico de batería sobre todas las variantes de V máx, margen del
+  ESC contra la corriente de fase, rendimiento de reversa en inputs, sensibilidad con D/P de hélice, R_th
+  y aire (temperatura del motor por entrada), disipador del ESC por el caso V máx, caso legal de 2 personas
+  con batería llena, y comparación con comprar un motor generada (`comparacion.py`).

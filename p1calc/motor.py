@@ -41,13 +41,16 @@ class Motor:
             "P_loss_motor": Pel - Pmech, "P_loss_esc": Pbat - Pel,
         }
 
-    def time_to_limit_s(self, P_loss: float, T_amb: float) -> float:
-        """Tiempo hasta alcanzar t_winding_max desde T_amb (∞ si nunca llega)."""
-        dT_inf = self.rth * P_loss
-        lim = self.t_max - T_amb
-        if dT_inf <= lim:
+    def time_to_limit_s(self, P_loss: float, T_amb: float, T0: float | None = None) -> float:
+        """Tiempo hasta alcanzar t_winding_max partiendo de T0 (por defecto T_amb); ∞ si nunca llega.
+        Modelo de un nodo: T(t) = T∞ + (T0 − T∞)·e^(−t/τ), T∞ = T_amb + R_th·P."""
+        T0 = T_amb if T0 is None else T0
+        T_inf = T_amb + self.rth * P_loss
+        if T_inf <= self.t_max:
             return math.inf
-        return -self.tau * math.log(1 - lim / dT_inf)
+        if T0 >= self.t_max:
+            return 0.0
+        return -self.tau * math.log((T_inf - self.t_max) / (T_inf - T0))
 
     def steady_temp(self, P_loss: float, T_amb: float) -> float:
         return T_amb + self.rth * P_loss

@@ -134,7 +134,8 @@ def getpath(src, path):
 def main():
     sz, bom, man, est, ver = load("sizing.json"), load("bom_resumen.json"), load("manifest.json"), load("estructural.json"), load("verify.json")
     arch = load("arquitectura.json")
-    srcs = {"sizing": sz, "bom": bom, "manifest": man, "est": est, "verify": ver, "arch": arch}
+    cmp_ = load("comparacion.json")
+    srcs = {"sizing": sz, "bom": bom, "manifest": man, "est": est, "verify": ver, "arch": arch, "cmp": cmp_}
     B = blocks(sz, bom, man, est, ver)
     if (RES / "arquitectura_tabla.md").exists():
         B["arch"] = (RES / "arquitectura_tabla.md").read_text(encoding="utf-8").strip()

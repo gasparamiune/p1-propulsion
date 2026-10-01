@@ -168,6 +168,7 @@ propeller:
       bore_mm: 16.0           # [SUPUESTO]
       mass_kg: 0.55           # [ESTIMADO]
       price_eur: 60.0         # [ESTIMADO: hélice de repuesto de motor eléctrico chico 40–90 €]
+  reverse_thrust_frac: 0.65   # [ESTIMADO: research/R09 §2.1 — empuje atrás ≈ 50–70 % del adelante a igual rpm (memoria técnica, no verificado); se toma el medio]
   wake_fraction: 0.02         # [ESTIMADO: hélice ~1 m detrás del espejo, flujo casi libre]
   thrust_deduction: 0.02      # [ESTIMADO: idem]
   eta_relative_rotative: 1.0  # [SUPUESTO]
@@ -578,6 +579,25 @@ bom:
 # ingeniería, justificado en 03_arquitectura.md con research/R02–R06]; pesos [SUPUESTO]
 # justificados por las prioridades del usuario (seguridad > autonomía/costo > resto).
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Comparación con comprar un motor (comparacion.py → resultados/comparacion.json)
+# -----------------------------------------------------------------------------
+comparison:
+  trolling_dkk: 5499.0        # [VERIFICADO: research/R04 §B.1, S42 — Minn Kota Riptide Endura C2 55, Watski DK]
+  trolling_power_w: 620.0     # [VERIFICADO: research/R04 §B.1, S42 — 50 A × 12 V]
+  trolling_battery_wh: 1280.0 # [VERIFICADO: research/R08a §4 — 1 × Power Queen 12,8 V 100 Ah]
+  trolling_battery_eur_frac_of_pack: 0.5   # [ESTIMADO: mitad del pack de 2 de battery.options.LFP12_100x2]
+  trolling_charger_eur: 65.99 # [VERIFICADO: research/R08a §5 — LiTime 14,6 V 10 A]
+  trolling_protections_eur: 39.0   # [CALCULADO: fusible MIDI + portafusible HMD4 + desconectador Biltema AFD, precios VERIFICADOS en research/R08a §3, §6]
+  planb_printed_eur: [80.0, 150.0] # [ESTIMADO: PETG 2–3 kg, A4, pernos 316, émbolos de bola (research/R08b §7–8)]
+  outboard_dk_dkk: 21886.0    # [VERIFICADO: research/R04 §B.4, S32 — ePropulsion Spirit 1.0 Evo: motor 9 199 + batería 9 390 + caña 2 578 + cargador 719 kr]
+  outboard_de_eur: 2549.0     # [VERIFICADO: research/R04 §B.4, S33 — completo con batería, caña y cargador; envío a DK no verificado]
+  outboard_battery_dkk: 9390.0     # [VERIFICADO: research/R04 S32 — batería de 1 276 Wh]
+  outboard_battery_wh: 1276.0 # [VERIFICADO: research/R04 §B.4]
+  outboard_power_w: 1000.0    # [VERIFICADO: research/R04 §B.4]
+  outboard_vmax_kmh: [7.6, 8.0]    # [VERIFICADO: research/R04 §B.4, S61–S62 — medido con 2 personas en botes chicos]
+  trolling_eta_total: [0.30, 0.40] # [ESTIMADO: 30 % como P1 (02 §1) a 47 % que estima research/R02 B1 para un Minn Kota; se toma 0,40 como techo]
+
 architecture_matrix:
   criteria:
     eficiencia:      {w: 0.15, desc: "Empuje y eficiencia en 5–8 km/h (autonomía)"}

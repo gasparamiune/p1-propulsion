@@ -120,7 +120,7 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml); aquí se exp
 
 **D-20 ESC + antichispa en caja estanca impresa (ELE-01, interior 160×110×45) con tapa de aluminio (ELE-02) y disipador de aletas comprado; caja a la sombra, dentro del bote, cerca de la batería.**
 - Alternativas: caja comercial IP67 BOX4U 177×126×56 (14,65 €, research/R08a §10): estanqueidad certificada pero tapa plástica → el ESC (<!--V:sizing.thermal_esc.esc_cruise.P_loss_esc_W:.0f-->26<!--/V--> W de pérdida en crucero con η = 0,97) no tiene camino de calor; ESC refrigerado por agua (P2).
-- Justificación: la caja impresa permite tapa de Al como camino térmico. Requisito calculado del disipador: **R_th ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.61<!--/V--> K/W** para que la caja no pase de 50 °C en crucero (02 §5.2). Los prensaestopas M20 no podían atravesar la pared de 18 mm del reborde (rosca ~10–15 mm): se rebaja la pared a 5 mm en cada prensaestopas y se fija con contratuerca por dentro (verificado con 10 cotas en `build_all`).
+- Justificación: la caja impresa permite tapa de Al como camino térmico. Requisito calculado del disipador: **R_th ≤ <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.44<!--/V--> K/W** para que la caja no pase de 50 °C en crucero (02 §5.2). Los prensaestopas M20 no podían atravesar la pared de 18 mm del reborde (rosca ~10–15 mm): se rebaja la pared a 5 mm en cada prensaestopas y se fija con contratuerca por dentro (verificado con 10 cotas en `build_all`).
 - [CALCULADO].
 - *Si difiere:* si el ensayo T1 de la caja impresa no pasa (porosidad del PETG), usar la BOX4U IP67 con una ventana fresada en la tapa y la placa ELE-02 atornillada con junta como tapa-disipador.
 

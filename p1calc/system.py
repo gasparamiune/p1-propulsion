@@ -91,8 +91,11 @@ class Drive:
             else:
                 hi = n
         pp, op = best
-        T_h = pp["T"] * math.cos(self.theta)            # componente horizontal
-        return {"T_shaft": pp["T"], "T_horiz": T_h, "n_prop_rpm": pp["n"] * 60,
+        T_g = pp["T"] * math.cos(self.theta)            # componente horizontal de la hélice sola
+        # neto en el cabo: con deducción de empuje y pérdida del aro (sin ganancia acreditada)
+        gain = self.inp["propeller"]["guard"].get("bollard_gain_frac", 0.0)
+        T_h = T_g * (1 - self.t) * (1 - self.guard_loss) * (1 + gain)
+        return {"T_shaft": pp["T"], "T_horiz": T_h, "T_horiz_gross": T_g, "n_prop_rpm": pp["n"] * 60,
                 "Q_prop": pp["Q"], **op, "limiter": self.limiter_relaxed(op, i_lim)}
 
     def limiter_relaxed(self, op, i_lim):

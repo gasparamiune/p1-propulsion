@@ -125,6 +125,25 @@ def ajustes_en_piezas(p, ctx, c_min=-0.16, c_max=0.45):
     return ctx.cached(("P1.1", "ajustes"), lambda: _ajustes(p, ctx, c_min, c_max))
 
 
+# Nominales que solo vienen de params (no de la lista base): cuentan como ajuste en una pieza solo si su
+# módulo usa ese parámetro. Evita confundir un paso de eje con drenaje (STR-01: Ø18 = eje Ø16 + 2 mm de luz)
+# con el alojamiento Ø18 a presión del buje igus (solo DRV-02 usa p.bush_od).
+PARAM_NOMINALES = ("tilt_pin_d", "swivel_pin_d", "shaft_d", "shaft_jd", "tube_od", "tiller_tube_od",
+                   "bush_od", "swivel_bush_od")
+
+
+def _usa_param(m, d, p):
+    import inspect
+    names = [k for k in PARAM_NOMINALES if float(getattr(p, k)) == d]
+    if not names or d in {float(x) for x in NOMINALES_BASE}:
+        return True
+    try:
+        src = inspect.getsource(m)
+    except (OSError, TypeError):                                       # pragma: no cover
+        return True
+    return any(f"p.{k}" in src for k in names)
+
+
 def _ajustes(p, ctx, c_min, c_max):
     noms = nominales(p)
     rows = {}
@@ -142,7 +161,7 @@ def _ajustes(p, ctx, c_min, c_max):
             D = 2 * cf["r"]
             for d in noms:
                 c = D - d
-                if c_min - 1e-6 <= c <= c_max + 1e-6:
+                if c_min - 1e-6 <= c <= c_max + 1e-6 and _usa_param(m, d, p):
                     az = abs(cf["d"].Z)
                     eje = "vertical" if az > 0.98 else ("horizontal" if az < 0.2 else "inclinado")
                     key = (pid, d, round(D, 3), eje)

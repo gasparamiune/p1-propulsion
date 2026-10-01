@@ -116,7 +116,8 @@ def optimize(inp: dict) -> dict:
                 "voltage": b["v_nom"] <= ii["electrical"]["max_nominal_voltage_v"],
                 "cavitation": drv.prop.keller_min_bar(bol["T_shaft"], _h_shaft(ii, mass), ii["water"]) <= drv.prop.BAR,
                 "draft": tip_depth <= op["max_prop_tip_depth_mm"],
-                "esc_margin": ii["esc"]["options"][ii["esc"]["chosen"]]["i_cont_a"] >= (1 + ii["esc"]["margin_min_frac"]) * I_pk,
+                "esc_margin": ii["esc"]["options"][ii["esc"]["chosen"]]["i_cont_a"]
+                >= (1 + ii["esc"]["margin_min_frac"]) * max(ii["motor"]["current_limit_a"], I_pk),
                 "prop_seat": fs_seat >= 2.0,
                 "thermal_cruise": rb["thermal_ok"],
                 "purchasable": bool(p.get("purchasable", True)) or bool(inp["propeller"].get("allow_unverified_products", False)),
@@ -211,7 +212,7 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
     bol_f = drv.bollard(bat["v_nom"])
     bol_r = drv.bollard(bat["v_nom"], inp["motor"]["reverse_current_frac"])
     # reversa: hélice de paso fijo girando al revés rinde ~ 60–70 % del empuje avante
-    rev_eff = 0.65   # [ESTIMADO: hélice de fueraborda en marcha atrás 0.55–0.75 del empuje avante a igual potencia]
+    rev_eff = inp["propeller"]["reverse_thrust_frac"]
     bol_r["T_shaft"] *= rev_eff
     bol_r["T_horiz"] *= rev_eff
 
@@ -223,7 +224,9 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
         for band in ("nominal", "design"):
             st = drv.at_speed(V, R_at(inp, mass, V, band), bat["v_nom"])
             t_E = E_use / st["P_bat"] * 60
-            t_th = drv.motor.time_to_limit_s(st["P_loss_motor"], T_amb) / 60
+            # parte del motor ya caliente por el crucero de diseño (no del ambiente)
+            T0 = drv.motor.steady_temp(cr_des["P_loss_motor"], T_amb)
+            t_th = drv.motor.time_to_limit_s(st["P_loss_motor"], T_amb, T0) / 60
             sustain.append({"v_kmh": vk_h, "band": band, "feasible": st["feasible"],
                             "limiter": drv.limiter(st) if not st["feasible"] else "—",
                             "P_bat_W": st["P_bat"], "I_bat_A": st["I_bat"],
@@ -242,16 +245,28 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
     pp = inp["motor"]["options"][inp["motor"]["chosen"]]["pole_pairs"]
     # con el tope, V máx a plena carga (banda nominal): ¿la recorta?
     rpm_full = vmax["nominal_vnom"]["prop"]["n"] * 60 * drv.ratio
-    lo_v, hi_v = 0.5, vmax["nominal_vnom"]["V"]
-    for _ in range(30):                      # V a plena carga con el tope de rpm (banda nominal)
-        mid = 0.5 * (lo_v + hi_v)
-        n_req = drv.at_speed(mid, R_at(inp, mass, mid, "nominal"), bat["v_nom"])["prop"]["n"] * 60 * drv.ratio
-        lo_v, hi_v = (mid, hi_v) if n_req <= rpm_cap else (lo_v, mid)
+
+    def _v_capped(v_hi, band, V_bat):
+        """V máx a plena carga respetando el tope de rpm (bisección en V)."""
+        lo, hi = 0.5, v_hi
+        for _ in range(30):
+            mid = 0.5 * (lo + hi)
+            n_req = drv.at_speed(mid, R_at(inp, mass, mid, band), V_bat)["prop"]["n"] * 60 * drv.ratio
+            lo, hi = (mid, hi) if n_req <= rpm_cap else (lo, mid)
+        return min(lo, v_hi)
+
+    lo_v = _v_capped(vmax["nominal_vnom"]["V"], "nominal", bat["v_nom"])
+    # caso más rápido con 2 personas: banda baja y batería llena, con y sin el tope
+    vfl = drv.max_speed(mass, v_full, "low")
+    vfl_cap = _v_capped(vfl["V"], "low", v_full)
     legal = {"limit_kmh": op["legal_speed_limit_kmh"], "mass_light_kg": m_light, "V_bat_full": v_full,
              "vmax_full_load_with_cap_kmh": min(lo_v, vmax["nominal_vnom"]["V"]) * 3.6,
              "rpm_cap_motor": rpm_cap, "erpm_cap": rpm_cap * pp, "rpm_cap_prop": rpm_cap / drv.ratio,
              "rpm_motor_at_vmax_full_load": rpm_full, "cap_reduces_full_load_vmax": rpm_full > rpm_cap,
              "vmax_light_low_kmh": vl["V"] * 3.6,
+             "vmax_full_load_low_full_bat_kmh": vfl["V"] * 3.6,
+             "vmax_full_load_low_full_bat_cap_kmh": vfl_cap * 3.6,
+             "cap_loss_full_load_low_kmh": (vfl["V"] - vfl_cap) * 3.6,
              "ok_by_physics": vl["V"] * 3.6 <= op["legal_speed_limit_kmh"],
              "note": ("V máx físicamente ≤ límite legal: no hace falta limitador por firmware"
                       if vl["V"] * 3.6 <= op["legal_speed_limit_kmh"] else
@@ -292,7 +307,8 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
         Pl = st["P_loss_esc"] + et["sun_load_w"]
         therm_esc[name] = {"P_loss_esc_W": st["P_loss_esc"], "sun_W": et["sun_load_w"],
                        "R_hs_max_K_W": (T_box_max - T_amb) / Pl - et["r_interface_k_w"]}
-    R_req = therm_esc["esc_cruise"]["R_hs_max_K_W"]
+    # disipador para que la caja PETG no supere su T de servicio ni sostenida a V máx (lo más exigente)
+    R_req = min(therm_esc["esc_cruise"]["R_hs_max_K_W"], therm_esc["esc_vmax"]["R_hs_max_K_W"])
     P_v = therm_esc["esc_vmax"]["P_loss_esc_W"] + et["sun_load_w"]
     # a V máx: subida transitoria con la capacidad térmica de tapa + disipador + ESC
     tau = (R_req + et["r_interface_k_w"]) * et["heat_capacity_j_k"]
@@ -303,6 +319,8 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
     else:
         t_vmax_min = -tau * math.log(1 - (et["t_esc_limit_c"] - T0) / (T_amb + dT_ss - T0)) / 60
     therm_esc["heatsink"] = {"R_hs_required_K_W": R_req, "T_box_max_C": T_box_max,
+                             "governing_case": "esc_vmax" if R_req < therm_esc["esc_cruise"]["R_hs_max_K_W"] else "esc_cruise",
+                             "T_box_vmax_steady_C": T_amb + P_v * (R_req + et["r_interface_k_w"]),
                              "T_vmax_steady_C": T_amb + dT_ss, "t_vmax_to_limit_min": t_vmax_min,
                              "t_esc_limit_C": et["t_esc_limit_c"]}
     bol_th = {"P_loss_motor_W": bol_f["P_loss_motor"],
@@ -310,9 +328,11 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
     therm["bollard"] = bol_th
 
     # ---- ESC / cables / fusible ---------------------------------------------------------
-    I_bat_peak = max(vmax["design_vmin"]["I_bat"], bol_f["I_bat"])
+    # pico de batería: todas las variantes de V máx (con batería nominal llega a más rpm) y el bollard
+    I_bat_peak = max([v.get("I_bat", 0.0) for v in vmax.values()] + [bol_f["I_bat"]])
     esc = drv.esc
-    esc_margin = esc["i_cont_a"] / I_bat_peak - 1
+    # el ESC se especifica por corriente de MOTOR (fase): margen contra el límite de fase configurado
+    esc_margin = esc["i_cont_a"] / max(inp["motor"]["current_limit_a"], I_bat_peak) - 1
     I_phase = inp["motor"]["current_limit_a"]
     fus0 = power.fuse(inp, I_bat_peak, 1e9)                          # calibre por corriente
     cab_dc = power.cable(inp, I_bat_peak, inp["electrical"]["len_battery_to_esc_m"], bat["v_min"],
@@ -505,11 +525,19 @@ def sensitivity(inp, ratio_best, bat_key, mass0):
         drv = Drive(ii, ratio_best["z_motor"], ratio_best["z_shaft"], bat_key)
         cr = drv.at_speed(v_cr, R_at(ii, ms["total_kg"], v_cr, "design"), bat["v_nom"])
         vm = drv.max_speed(ms["total_kg"], bat["v_min"], "design")
-        return cr["P_bat"], vm["V"] * 3.6
+        return cr["P_bat"], vm["V"] * 3.6, drv.motor.steady_temp(cr["P_loss_motor"], ii["air"]["temp_max_c"])
 
-    base_P, base_V = evaluate(inp)
+    base_P, base_V, base_T = evaluate(inp)
+    mk = inp["motor"]["chosen"]
+    pk = inp["propeller"]["chosen"]
+    params = SENS_PARAMS + [
+        (f"propeller.options.{pk}.D_mm", 0.05, "Diámetro de hélice (medir)"),
+        (f"propeller.options.{pk}.P_mm", 0.10, "Paso de hélice (medir)"),
+        (f"motor.options.{mk}.rth_k_w", 0.20, "R_th del motor (térmico)"),
+        ("air.temp_max_c", (20.0, 35.0), "Temperatura del aire (20–35 °C)"),
+    ]
     rows = []
-    for path, rel, label in SENS_PARAMS:
+    for path, rel, label in params:
         try:
             v0 = _get(inp, path)
         except KeyError:
@@ -519,8 +547,7 @@ def sensitivity(inp, ratio_best, bat_key, mass0):
             ii = copy.deepcopy(inp)
             val = rel[k] if isinstance(rel, tuple) else v0 * (1 + sgn * rel)
             _set(ii, path, val)
-            P, V = evaluate(ii)
-            out[sgn] = (P, V)
+            out[sgn] = evaluate(ii)
         dP = (max(out[1][0], out[-1][0]) - base_P) / base_P
         dV = (min(out[1][1], out[-1][1]) - base_V) / base_V
         rows.append({"param": path, "label": label, "rel_change": rel if not isinstance(rel, tuple) else None,
@@ -528,9 +555,14 @@ def sensitivity(inp, ratio_best, bat_key, mass0):
                      "P_minus": out[-1][0], "P_plus": out[1][0],
                      "V_minus": out[-1][1], "V_plus": out[1][1],
                      "dP_worst_frac": dP, "dV_worst_frac": dV,
+                     "T_minus": out[-1][2], "T_plus": out[1][2],
+                     "T_worst_C": max(out[1][2], out[-1][2]),
                      "swing_P_frac": abs(out[1][0] - out[-1][0]) / base_P})
     rows.sort(key=lambda r: -r["swing_P_frac"])
-    return {"base_P_bat_cruise_W": base_P, "base_vmax_kmh": base_V, "rows": rows,
+    t_lim = inp["motor"]["options"][mk]["t_winding_max_c"]
+    return {"base_P_bat_cruise_W": base_P, "base_vmax_kmh": base_V, "base_T_motor_cruise_C": base_T,
+            "T_limit_C": t_lim, "thermal_at_risk": [r["label"] for r in rows if r["T_worst_C"] > t_lim],
+            "rows": rows,
             "top3": [r["label"] for r in rows[:3]]}
 
 
@@ -556,7 +588,7 @@ def write_tables(o: dict, inp: dict):
         ("Rendimiento total batería→R·V (diseño)", f"{cr['design']['eta_total']*100:.0f} %", "[CALCULADO]"),
         ("Relación de correa", f"{s['z_motor']}T : {s['z_shaft']}T = {s['ratio']:.2f}", "[CALCULADO]"),
         ("Batería elegida", f"{s['battery_desc']}", "[CALCULADO]"),
-        ("Energía requerida / usable", f"{o['battery']['E_required_wh']:.0f} / {o['battery']['E_usable_wh']:.0f} Wh", "[CALCULADO]"),
+        ("Energía nominal requerida (2 h + reserva ÷ DoD) / nominal de la batería", f"{o['battery']['E_required_wh']:.0f} / {o['battery']['E_nom_wh']:.0f} Wh", "[CALCULADO]"),
         ("Autonomía a crucero (nominal / diseño)", f"{cr['autonomy_nominal_h']:.2f} / {cr['autonomy_design_h']:.2f} h", "[CALCULADO]"),
         ("V máx. (diseño, batería baja)", f"{vm['design_vmin']['V_kmh']:.1f} km/h — limita: {vm['design_vmin'].get('limiter','')}", "[CALCULADO]"),
         ("V máx. (nominal, batería nominal)", f"{vm['nominal_vnom']['V_kmh']:.1f} km/h", "[CALCULADO]"),
@@ -593,12 +625,13 @@ def write_tables(o: dict, inp: dict):
                  f"{r['t_sustain_min']:.0f} |")
     sustain = "\n".join(T)
 
-    Sx = ["| Entrada | ±Δ | P_bat crucero (−/+) [W] | V máx (−/+) [km/h] | Variación P | ",
-          "|---|---|---|---|---|"]
+    Sx = ["| Entrada | ±Δ | P_bat crucero (−/+) [W] | V máx (−/+) [km/h] | T motor crucero (−/+) [°C] | Variación P | ",
+          "|---|---|---|---|---|---|"]
     for r in o["sensitivity"]["rows"]:
         dl = f"±{r['rel_change']*100:.0f} %" if r["rel_change"] is not None else f"{r['range'][0]:g}–{r['range'][1]:g}"
         Sx.append(f"| {r['label']} | {dl} | {r['P_minus']:.0f} / {r['P_plus']:.0f} | "
-                  f"{r['V_minus']:.1f} / {r['V_plus']:.1f} | {r['swing_P_frac']*100:.0f} % |")
+                  f"{r['V_minus']:.1f} / {r['V_plus']:.1f} | {r['T_minus']:.0f} / {r['T_plus']:.0f}"
+                  f"{' ⚠' if r['T_worst_C'] > o['sensitivity']['T_limit_C'] else ''} | {r['swing_P_frac']*100:.0f} % |")
     sens = "\n".join(Sx)
 
     with open(RESULTS_DIR / "sizing_tablas.md", "w", encoding="utf-8") as f:

@@ -50,6 +50,7 @@ def main():
     step("5/8 Verificación", ["04_diseno/verify_parts.py"])
     step("6/8 BOM y costos", ["bom.py"])
     step("6b/8 Matriz de arquitectura", ["arquitectura.py"])
+    step("6b2/8 Comparación con comprar un motor", ["comparacion.py"])
     step("6c/8 Electrónica (config. VESC, tabla de verdad, diagrama)", ["04_diseno/electronica/calc_electronica.py"])
     step("6d/8 Diagrama de cableado", ["04_diseno/electronica/diagrama_cableado.py"])
     step("6e/8 Probetas (CAD)", ["04_diseno/probetas/build_probetas.py"])
