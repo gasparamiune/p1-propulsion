@@ -19,11 +19,13 @@ P1-DRV-01:
   2. Bote: el subconjunto entra desde PROA, punta de popa primero, por el buje del sello de la toma
      (Ø seal_spigot_d), el conducto y el cubo del impulsor (ya puesto en el anillo de desgaste).
      Se centra el espigón de la caja en el buje y se aprietan los 4 × M6.
-  3. Soporte de rodamientos P1-DRV-03: baja sobre la placa base de la toma pasando el agujero Ø47 por la
-     punta de proa del eje (≤ Ø20); 4 × M8 a mano. Rodamientos (2 × 7204 BEP en O) prensados a la vez
+  3. Soporte de rodamientos P1-DRV-03: baja VERTICAL sobre los 4 espárragos (tornillos ISO 10642 M8 × 35
+     A4-70 colocados desde afuera en la placa base de la toma, cabeza enrasada en Sikaflex) pasando el
+     agujero Ø47 por la punta de proa del eje (≤ Ø20); arandela + tuerca ISO 4032 A4 a mano. Rodamientos (2 × 7204 BEP en O) prensados a la vez
      en el alojamiento y en el muñón desde proa (pasan por el asiento del acople y la rosca M20×1,
-     ambos ≤ Ø20) contra el collar. MB4 + KM4 (precarga), tapa P1-DRV-06, recién ahí se aprietan los
-     M8 del soporte (alineación con el buje con un casquillo de centrado en la caja del sello).
+     ambos ≤ Ø20) contra el collar. MB4 + KM4 (precarga), tapa P1-DRV-06, recién ahí se aprietan las
+     tuercas M8 (drv_nut_torque_Nm, Tef-Gel) con el alojamiento alineado al buje por un casquillo de
+     centrado en la caja del sello (holgura Ø9 sobre M8: ±0,3 mm).
   4. Popa: anillo DIN 471 de empuje, impulsor + pasador de corte, tuerca M16 (grupo BOMBA).
   5. Cubo del acople en el eje (chaveta + prisionero), motor con su cubo y soporte P1-MOT-02.
 """
@@ -185,7 +187,15 @@ def extend(d):
     d["drv_cheek_y"] = (by - 24.2, by - 12.2)                           # [SUPUESTO: cara interior a 12 mm del eje del bulón → llave Allen por arriba]
     d["drv_pad_y"] = (by - 24.2, by + 23.8)
     d["drv_deck_t"] = 12.0                                              # [SUPUESTO: tablero 12 mm]
-    d["drv_bracket_hole"] = d["brg_bracket_bolt"] + 1.0                 # [SUPUESTO: Ø9 (M8 + 1): ±0,5 mm de ajuste para alinear con el buje del sello; luego 2 pasadores Ø6 escariados en montaje]
+    d["drv_bracket_hole"] = d["brg_bracket_bolt"] + 1.0                 # [SUPUESTO: Ø9 sobre espárrago M8: ±0,5 mm de ajuste para alinear con el buje del sello; luego 2 pasadores Ø6 escariados en montaje]
+    # fijación a la placa base (definida por TOMA en P1-INT-02): espárrago = tornillo avellanado desde afuera
+    d["drv_stud"] = "ISO 10642 M8 × 35 A4-70 (desde afuera, cabeza enrasada en Sikaflex) + arandela ISO 7089 + tuerca ISO 4032 A4"
+    d["drv_stud_L"] = 35.0                                              # [VERIFICADO: interfaz de TOMA (mensaje del grupo principal)]
+    d["drv_nut_m"] = 6.8                                                # [ESTIMADO: ISO 4032 M8, m = 6,8]
+    d["drv_washer_t"] = 1.6                                             # [ESTIMADO: ISO 7089 M8, 1,6 mm]
+    d["drv_nut_socket_d"] = 18.0                                        # [ESTIMADO: vaso de 13 mm, Ø ext ≈ 18]
+    d["drv_nut_torque_Nm"] = 15.0                                       # [VERIFICADO: interfaz de TOMA — ~15 N·m con Tef-Gel]
+    d["drv_nut_K"] = 0.18                                               # [ESTIMADO: coeficiente de par A4 con Tef-Gel 0,15–0,20]
 
     # ---------------- acople y motor ----------------
     d["mot_flange_gap"] = 3.5                                           # [SUPUESTO: cara del cubo del motor a 3,5 mm de la cara del motor (1 mm del centrador)]

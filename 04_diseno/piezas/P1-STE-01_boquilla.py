@@ -110,7 +110,7 @@ def build(p):
     # roscas M6 de los tornillos de pivote (Ø5,0 × STE_m6_depth)
     zt, dpt = p.STE_ear_top, p.STE_m6_depth
     b = b - cyl_z(2.5, zt - dpt, zt + 1, x=Xp) - cyl_z(2.5, -zt - 1, -zt + dpt, x=Xp)
-    b = b - cyl_z(4.1, p.STE_cheek_z0 - 1, p.STE_riser_top + 1, x=Xp)          # Ø8,2 en la mejilla superior
+    b = b - cyl_z(4.0, p.STE_cheek_z0 - 1, p.STE_riser_top + 1, x=Xp)          # Ø8 H7 (escariado) en la mejilla superior
     # roscas M6 de la brida del yugo (Ø5,0 × 12) en la torre
     for (xx, yy) in p.STE_riser_bolts:                                      # M8 (Ø6,8 × 16)
         b = b - cyl_z(3.4, p.STE_riser_top - 16, p.STE_riser_top + 1, x=Xp + xx, y=yy)

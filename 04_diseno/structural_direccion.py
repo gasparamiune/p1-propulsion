@@ -103,21 +103,26 @@ def cases(p, A, row, rows, T3, T2):
 
     # ------------------------------------------------------------------ pernos de pivote P1-STE-02/05 (316)
     d = p.steer_pin_d
-    lev_p = p.STE_gz + p.STE_lug_t / 2           # voladizo: carga en el medio de la oreja de la bomba
-    Mp = Fp * lev_p
-    s_b, t_s = Mp / z_round(d), 4 / 3 * Fp / (math.pi * d ** 2 / 4)
-    for pid in ("P1-STE-02", "P1-STE-05"):
-        row(rows, pid, "Hombro Ø8: flexión + corte (bucket R12 + dirección, corta)",
-            f"F = {Fp:.0f} N a {lev_p:.1f} mm de la oreja de la boquilla; 316 estirado", vm(s_b, t_s), SS316_CD, A, T2,
-            "316 recocido (205 MPa) daría FS < 2 → pedir 1.4401+C")
-        Fpn = Fs_n / 2
-        row(rows, pid, "Hombro Ø8: flexión por maniobras (fatiga)",
-            f"F_s/2 = {Fpn:.0f} N a {lev_p:.1f} mm", (Fpn * lev_p) / z_round(d), SS316_FAT, A, T2)
-    Tb = Mp / (d / 2)
-    row(rows, "P1-STE-02", "Rosca M6 A4-70: tracción por el momento del hombro",
-        f"T = M/(d/2) = {Tb:.0f} N; As 20,1 mm²", Tb / 20.1, A4_70, A, T2)
-    row(rows, "P1-STE-02", "Aplastamiento del hombro en la oreja de la bomba (Al 6061)",
-        f"{Fp:.0f} N / (Ø8 × {p.STE_lug_t:.0f})", Fp / (d * p.STE_lug_t), AL6061, A, T2)
+    Zp = p.Z_steer_lug + p.STE_lug_t / 2           # altura de la reacción en cada pivote
+    F_top = math.hypot(Fb * (Zp + Zb) / (2 * Zp), Fs / 2)      # el bucket empuja a Z_bucket_pivot (> 0)
+    F_bot = math.hypot(Fb * abs(Zp - Zb) / (2 * Zp), Fs / 2)
+    Lsp = p.STE_lug_t + 2 * p.STE_gz                # luz entre oreja de la boquilla y mejilla superior
+    Mtop = F_top * Lsp / 8                          # biempotrado: rosca M6 + escalón abajo, cabeza apretada arriba
+    t_top = 4 / 3 * (F_top / 2) / (math.pi * d ** 2 / 4)
+    row(rows, "P1-STE-02", "Hombro Ø8 biempotrado: flexión + corte (bucket R12 + dirección, corta)",
+        f"reacción superior {F_top:.0f} N en luz {Lsp:.1f} mm (M = F·L/8); 316 estirado", vm(Mtop / z_round(d), t_top), SS316_CD, A, T2,
+        "cabeza apretada sobre la mejilla (agujero Ø8 H7) y escalón sobre la oreja")
+    row(rows, "P1-STE-02", "Hombro Ø8: flexión por maniobras (fatiga)",
+        f"F_s/2 = {Fs_n/2:.0f} N, M = F·L/8", (Fs_n / 2) * Lsp / 8 / z_round(d), SS316_FAT, A, T2)
+    lev_p = p.STE_gz + p.STE_lug_t / 2              # inferior: voladizo hasta el medio de la oreja de la bomba
+    row(rows, "P1-STE-05", "Hombro Ø8 en voladizo: flexión + corte (corta)",
+        f"reacción inferior {F_bot:.0f} N a {lev_p:.1f} mm", vm(F_bot * lev_p / z_round(d), 4 / 3 * F_bot / (math.pi * d ** 2 / 4)), SS316_CD, A, T2)
+    row(rows, "P1-STE-05", "Hombro Ø8 en voladizo: flexión por maniobras (fatiga)",
+        f"F_s/2 = {Fs_n/2:.0f} N a {lev_p:.1f} mm", (Fs_n / 2) * lev_p / z_round(d), SS316_FAT, A, T2)
+    Fp = F_top
+    Mp = Mtop
+    row(rows, "P1-STE-02", "Presión en el buje POM de la oreja de la bomba (P1-PMP-11)",
+        f"{Fp:.0f} N / (Ø8 × {p.STE_lug_t:.1f})", Fp / (d * p.STE_lug_t), POM_STAT, A, T2)
     wa = math.pi / 4 * (p.STE_wash_od ** 2 - p.STE_wash_id ** 2)
     row(rows, "P1-STE-03", "Arandela POM: empuje axial (peso boquilla + bucket + componente vertical)",
         f"60 N [ESTIMADO] / {wa:.0f} mm²", 60.0 / wa, POM_DYN, A, T2)
@@ -152,6 +157,15 @@ def cases(p, A, row, rows, T3, T2):
     row(rows, "P1-STE-04", "4 × M8 A4-70 a la torre: tracción por el momento del poste",
         f"F = M/(19 mm)/2 = {Fr:.0f} N por bulón", Fr / 36.6, A4_70, A, T2)
     Ma = F_l * 12.0
+    # topes de dirección P1-STE-08: timón forzado contra el tope (2 × fuerza de la biela)
+    F_st = 2 * F_l
+    Rp = math.hypot(p.STE_post_x, p.STE_post_y)
+    row(rows, "P1-STE-08", "Placa de topes 8 mm: flexión en su plano (timón forzado)",
+        f"F = 2·F_biela = {F_st:.0f} N a 90 mm del ala; sección 32 × 8", F_st * 90.0 / (8 * 32 ** 2 / 6), AL5083, A, T2)
+    row(rows, "P1-STE-06", "Poste contra el tope: flexión (timón forzado)",
+        f"F = {F_st:.0f} N a {p.STE_stop_z[1] - zb:.0f} mm de la brida", F_st * (p.STE_stop_z[1] - zb) / z_round(dpo), AL6061, A, T2)
+    row(rows, "P1-STE-08", "2 × M6 A4-70 del ala al espejo (tracción por el momento)",
+        f"M = F × 40 mm / 30 mm entre bulón y borde", F_st * 40.0 / 30.0 / 20.1, A4_70, A, T2)
     row(rows, "P1-STE-07", "Brazo 10 mm: flexión por la altura de la rótula + tracción",
         f"F_biela {F_l:.0f} N; M = F × 12 mm en 24 × 10", Ma / (24 * 10 ** 2 / 6) + F_l / (24 * 10), AL5083, A, T2)
 
@@ -202,6 +216,10 @@ def cases(p, A, row, rows, T3, T2):
     F_cab = p.CTL_hand_F * 125.0 / 46.0      # palanca forzada contra el tope: 100 N × 125 mm / manivela 46
     row(rows, "P1-REV-06", "Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada)",
         f"F = 100 N × 125/46 = {F_cab:.0f} N a 6 mm", F_cab * 6.0 / z_round(p.REV_stud_d), SS316, A, T2)
+    row(rows, "P1-REV-09", "Soporte del Bowden 4 mm: placa de tope en voladizo",
+        "tiro 60 N [ESTIMADO] a 34 mm; sección 16 × 4", 60.0 * 34.0 / (16 * 4 ** 2 / 6), AL5083, A, T2)
+    row(rows, "P1-CTL-14", "Gatillo 6 mm: flexión por el apriete (100 N a 20 mm del pivote)",
+        "sección 10 × 6", 100.0 * 20.0 / (6 * 10 ** 2 / 6), AL6061, A, T2)
     row(rows, "P1-REV-05", "Soporte del Mach5: placa lateral en voladizo (palanca forzada)",
         f"{F_cab:.0f} N a 48 mm; 6 × 124", F_cab * 48.0 / (6 * 124 ** 2 / 6), AL5083, A, T2)
 
@@ -243,7 +261,8 @@ def cases(p, A, row, rows, T3, T2):
         "F_steer_N": Fs, "F_steer_sizing_N": Fs_n, "e_mm": e, "M_steer_Nm": Ms / 1000,
         "F_link_M66_N": round(F_l, 1), "link_arm_min_mm": round(arm, 1),
         "F_bucket_N": Fb, "F_bucket_sizing_N": Fbn, "M_hinge_Nm": round(Mh / 1000, 1),
-        "F_lock_pin_N": round(Fl, 0), "F_pivot_pin_N": round(Fp, 0),
+        "F_lock_pin_N": round(Fl, 0), "F_pivot_pin_top_N": round(F_top, 0), "F_pivot_pin_bot_N": round(F_bot, 0),
+        "F_stop_N": round(F_st, 0),
         "PETG_boquilla": {"caso": "oreja del bucket 12 mm, reversa sizing, admisible lcf",
                           "sigma_MPa": round(s_petg, 2), "FS": round(petg_fs, 2),
                           "conclusion": "FS < 3 → boquilla de Al 6061-T6 (además el perno Ø8 en PETG: aplastamiento)"},

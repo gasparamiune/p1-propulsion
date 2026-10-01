@@ -34,18 +34,20 @@
 | P1-STE-01 | Oreja del bucket: flexión en su plano (bucket R12, corta) | F/2 = 704 N a 52 mm de la raíz; sección 8 × 36 | 21.12 | metal | 240.0 | 11.36 | 2.0 | ✔ |
 | P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga) | F/2 = 349 N a 52 mm; 8 × 36 | 10.47 | metal | 90.0 | 8.59 | 2.0 | ✔ |
 | P1-STE-01 | Oreja de pivote (dentro de la de la bomba): flexión de la raíz | F = √((F_b/2)²+(F_s/2)²) = 727 N a 12 mm; 25 × 30 | 2.33 | metal | 240.0 | 103.14 | 2.0 | ✔ |
-| P1-STE-02 | Hombro Ø8: flexión + corte (bucket R12 + dirección, corta) | F = 727 N a 14.3 mm de la oreja de la boquilla; 316 estirado | 209.12 | metal | 310.0 | 1.48 | 2.0 | ✘ |
-| P1-STE-02 | Hombro Ø8: flexión por maniobras (fatiga) | F_s/2 = 162 N a 14.3 mm | 45.86 | metal | 180.0 | 3.92 | 2.0 | ✔ |
-| P1-STE-05 | Hombro Ø8: flexión + corte (bucket R12 + dirección, corta) | F = 727 N a 14.3 mm de la oreja de la boquilla; 316 estirado | 209.12 | metal | 310.0 | 1.48 | 2.0 | ✘ |
-| P1-STE-05 | Hombro Ø8: flexión por maniobras (fatiga) | F_s/2 = 162 N a 14.3 mm | 45.86 | metal | 180.0 | 3.92 | 2.0 | ✔ |
-| P1-STE-02 | Rosca M6 A4-70: tracción por el momento del hombro | T = M/(d/2) = 2594 N; As 20,1 mm² | 129.06 | metal | 450.0 | 3.49 | 2.0 | ✔ |
-| P1-STE-02 | Aplastamiento del hombro en la oreja de la bomba (Al 6061) | 727 N / (Ø8 × 26) | 3.56 | metal | 240.0 | 67.44 | 2.0 | ✔ |
+| P1-STE-02 | Hombro Ø8 biempotrado: flexión + corte (bucket R12 + dirección, corta) | reacción superior 1490 N en luz 28.5 mm (M = F·L/8); 316 estirado | 111.17 | metal | 310.0 | 2.79 | 2.0 | ✔ |
+| P1-STE-02 | Hombro Ø8: flexión por maniobras (fatiga) | F_s/2 = 162 N, M = F·L/8 | 11.46 | metal | 180.0 | 15.7 | 2.0 | ✔ |
+| P1-STE-05 | Hombro Ø8 en voladizo: flexión + corte (corta) | reacción inferior 195 N a 14.3 mm | 56.20 | metal | 310.0 | 5.52 | 2.0 | ✔ |
+| P1-STE-05 | Hombro Ø8 en voladizo: flexión por maniobras (fatiga) | F_s/2 = 162 N a 14.3 mm | 45.86 | metal | 180.0 | 3.92 | 2.0 | ✔ |
+| P1-STE-02 | Presión en el buje POM de la oreja de la bomba (P1-PMP-11) | 1490 N / (Ø8 × 25.5) | 7.29 | metal | 20.0 | 2.74 | 2.0 | ✔ |
 | P1-STE-03 | Arandela POM: empuje axial (peso boquilla + bucket + componente vertical) | 60 N [ESTIMADO] / 199 mm² | 0.30 | metal | 10.0 | 33.18 | 2.0 | ✔ |
 | P1-STE-06 | Poste Ø22: flexión + torsión (biela M66, M_s con F_s R12) | F_biela = M_s/79 mm = 304 N a 138 mm de la brida | 41.03 | metal | 240.0 | 5.85 | 2.0 | ✔ |
 | P1-STE-06 | Poste Ø22: flexión (fatiga, sizing) | F_biela = 269 N | 35.67 | metal | 90.0 | 2.52 | 2.0 | ✔ |
 | P1-STE-06 | Brida del poste: 4 × M8 A4-70 en Ø32 (tracción) | F = 4M/(n·BC) = 1313 N; As 36,6 mm² | 35.87 | metal | 450.0 | 12.55 | 2.0 | ✔ |
 | P1-STE-04 | Banda de la brida: torsión (momento del poste) + flexión | T = 42.0 N·m en 24 × 20 (α = 0.217); F_biela × 76 mm | 36.92 | metal | 125.0 | 3.39 | 2.0 | ✔ |
 | P1-STE-04 | 4 × M8 A4-70 a la torre: tracción por el momento del poste | F = M/(19 mm)/2 = 1105 N por bulón | 30.20 | metal | 450.0 | 14.9 | 2.0 | ✔ |
+| P1-STE-08 | Placa de topes 8 mm: flexión en su plano (timón forzado) | F = 2·F_biela = 607 N a 90 mm del ala; sección 32 × 8 | 40.02 | metal | 125.0 | 3.12 | 2.0 | ✔ |
+| P1-STE-06 | Poste contra el tope: flexión (timón forzado) | F = 607 N a 111 mm de la brida | 64.69 | metal | 240.0 | 3.71 | 2.0 | ✔ |
+| P1-STE-08 | 2 × M6 A4-70 del ala al espejo (tracción por el momento) | M = F × 40 mm / 30 mm entre bulón y borde | 40.27 | metal | 450.0 | 11.18 | 2.0 | ✔ |
 | P1-STE-07 | Brazo 10 mm: flexión por la altura de la rótula + tracción | F_biela 304 N; M = F × 12 mm en 24 × 10 | 10.37 | metal | 125.0 | 12.05 | 2.0 | ✔ |
 | P1-REV-01 | Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta) | p = 98 kPa, luz 53.5 mm (nervio central), t = 4 | 8.73 | metal | 125.0 | 14.31 | 2.0 | ✔ |
 | P1-REV-01 | Chapa de la cuchara: franja (fatiga de soldadura, 1e5) | ídem | 8.73 | metal | 68.0 | 7.79 | 2.0 | ✔ |
@@ -61,6 +63,8 @@
 | P1-REV-04 | Perno del émbolo Ø12: flexión + corte (M_h con bucket R12) | F = 2817 N a 3.5 mm; 316 | 81.76 | metal | 205.0 | 2.51 | 2.0 | ✔ |
 | P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga) | F = 1397 N | 28.82 | metal | 180.0 | 6.25 | 2.0 | ✔ |
 | P1-REV-06 | Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada) | F = 100 N × 125/46 = 272 N a 6 mm | 32.44 | metal | 205.0 | 6.32 | 2.0 | ✔ |
+| P1-REV-09 | Soporte del Bowden 4 mm: placa de tope en voladizo | tiro 60 N [ESTIMADO] a 34 mm; sección 16 × 4 | 47.81 | metal | 125.0 | 2.61 | 2.0 | ✔ |
+| P1-CTL-14 | Gatillo 6 mm: flexión por el apriete (100 N a 20 mm del pivote) | sección 10 × 6 | 20.00 | metal | 240.0 | 12.0 | 2.0 | ✔ |
 | P1-REV-05 | Soporte del Mach5: placa lateral en voladizo (palanca forzada) | 272 N a 48 mm; 6 × 124 | 0.85 | metal | 125.0 | 147.35 | 2.0 | ✔ |
 | P1-CTL-09 | Palanca del acelerador: flexión en el cubo (100 N en el pomo) | M = 100 N × 120 mm; barra 16 × 8 | 35.16 | metal | 240.0 | 6.83 | 2.0 | ✔ |
 | P1-CTL-10 | Palanca del bucket: flexión en el escalón (100 N en el pomo) | M = 100 N × 125 mm; 16 × 8 | 36.62 | metal | 240.0 | 6.55 | 2.0 | ✔ |
@@ -108,8 +112,9 @@
 | P1-DRV-02 | Brida de 8 mm: flexión entre espigón y bulones | placa anular como viga por unidad de perímetro: σ = 6·F·e/(π·BC·t²) | 1.42 | metal | 205.0 | 144.76 | 2.0 | ✔ |
 | P1-DRV-03 | Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa) | flexión en su plano σ = M/(t·L²/6), M = Fa/2 · 121 mm, L = 150 mm, ZAT soldada | 1.02 | metal | 115.0 | 112.35 | 2.0 | ✔ |
 | P1-DRV-03 | Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico | σ = P·L/4/(b t²/6) + Fa·e/(t·b²/6)/2, L = 200, b = 31, e = 35 mm, ZAT | 16.11 | metal | 115.0 | 7.14 | 2.0 | ✔ |
-| P1-DRV-03 | Bulones 4 × M8 A4-70 a la placa base: vuelco por Fa + corte | F_t = Fa·h/Δx/2 + 3g/4, F_s = Fa/4; von Mises sobre A_s (sin precarga; Δx = 120) | 15.40 | metal | 450.0 | 29.21 | 2.0 | ✔ |
-| P1-DRV-03 | Rosca M8 en la placa base de Al (TOMA), 8 mm de filete | τ = F_t/(π·d·L_e·0,6) contra τ_adm = 0,58·R_p0,2 de 5083-H111 (125 MPa [ESTIMADO]) | 3.78 | metal | 72.5 | 19.18 | 2.0 | ✔ |
+| P1-DRV-03 | Espárragos 4 × ISO 10642 M8 A4-70: vuelco por Fa + corte (servicio) | F_t = Fa·h/Δx/2 + 3g/4, F_s = Fa/4; von Mises sobre A_s (carga de servicio; Δx = 120) | 15.40 | metal | 450.0 | 29.21 | 2.0 | ✔ |
+| P1-DRV-03 | Tuerca ISO 4032 A4 sobre espárrago A4: precarga (15 N·m) + F_t | barrido de filetes τ = F/(π·d·m·0,6), m = 6.8, F = T/(K·d) + F_t (K 0.18) vs 0,58·R_p0,2 A4-70 | 106.03 | metal | 261.0 | 2.46 | 2.0 | ✔ |
+| P1-DRV-03 | Avellanado de 90° en la placa base de Al (TOMA): precarga + F_t | aplastamiento p = F/A_cono (Ø16→Ø8,4, 90°) vs R_p0,2 5083-H111 125 MPa [ESTIMADO] | 52.79 | metal | 125.0 | 2.37 | 2.0 | ✔ |
 | P1-DRV-03 | Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo | corte del resalte τ = Fa/(π·D·t_resalte), σ_eq = √3·τ | 2.99 | metal | 240.0 | 80.29 | 2.0 | ✔ |
 | P1-DRV-06 | Tapa: empuje Fa hacia proa entre el aro exterior y los M5 | placa anular por unidad de perímetro σ = 6·Fa·e/(2π r_m t²) | 3.51 | metal | 240.0 | 68.4 | 2.0 | ✔ |
 | P1-DRV-06 | Bulones 4 × M5 A4-70 de la tapa: Fa | σ = Fa/(4·A_s) (sin precarga) | 13.46 | metal | 450.0 | 33.43 | 2.0 | ✔ |

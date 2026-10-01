@@ -74,14 +74,15 @@ def draw(p, H):
     y_lo = -p.drv_pad_y[1]
     w = x1 - x0
     h = 2 * p.drv_pad_y[1]
-    holes = [(xh - x0, yh - y_lo, p.drv_bracket_hole, "M8 A4 a la placa base (pasante Ø9)") for xh, yh in p.brg_bracket_holes]
+    holes = [(xh - x0, yh - y_lo, p.drv_bracket_hole, "Ø9 pasante sobre espárrago M8 (ISO 10642 desde la toma)") for xh, yh in p.brg_bracket_holes]
     out.append(plate("P1-DRV-03", "bearing_bracket", "Al 6082-T651 (soldado TIG o de bloque)", w, h, p.drv_bracket_base_t, holes, notes=[
         f"Vista en planta de las zapatas (BOTE): x desde {x0:.1f} (marco BOTE), y desde {y_lo:.1f}. Mejillas 12 mm en |y| = {p.drv_cheek_y[0]:g}–{p.drv_cheek_y[1]:g}.",
         f"Alojamiento Ø{p.drv_bearing['D']:g} H7 × {2 * p.drv_bearing['B']:g} + resalte {p.drv_brg_shoulder_t:g} (paso Ø{p.drv_collar_d + 3:g}); eje a 5° (sube a proa), "
         f"centro en S = {(p.drv_S_brgA + p.drv_S_brgB) / 2:.1f} mm (z = {p.z_if + (p.drv_S_brgA + p.drv_S_brgB) / 2 * math.sin(math.radians(p.alpha)):.1f}).",
         f"Tablero 12 mm a z = {g['zd0']:.1f}–{g['zd1']:.1f}; 4 × M5 roscados en la cara delantera en BC{p.drv_cover_bc:g}.",
         "Mecanizar el Ø47 DESPUÉS de soldar, en una sola atada con la cara delantera (perpendicularidad ≤ 0,02).",
-        "Montaje: alinear con casquillo de centrado en la caja del sello, apretar M8, escariar 2 pasadores Ø6 por zapata."]))
+        f"Fijación: {p.drv_stud}; el soporte baja vertical sobre los espárragos; {p.drv_nut_torque_Nm:g} N·m con Tef-Gel.",
+        "Montaje: alinear con casquillo de centrado en la caja del sello, apretar las tuercas, escariar 2 pasadores Ø6 por zapata."]))
 
     # ---------------- soporte del motor (placa)
     m2 = _mod("P1-MOT-02_motor_mount")

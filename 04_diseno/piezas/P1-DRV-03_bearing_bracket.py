@@ -9,8 +9,11 @@ por los 4 × M8 de la interfaz (brg_bracket_holes, z = base_top_z). Es un PUENTE
   • tablero horizontal POR ENCIMA del eje, del que cuelga el alojamiento;
   • dos mejillas longitudinales (planos xz, a |y| ≥ drv_cheek_y) que bajan a dos zapatas sobre la placa
     base, a ambos lados de la abertura de la toma — nada del soporte baja entre las mejillas.
-Agujeros de las zapatas Ø9 (M8 + 1): ±0,5 mm para alinear el alojamiento con el buje del sello con un
-casquillo de centrado; después se escarian 2 pasadores Ø6 por zapata en montaje.
+Fijación (definida por TOMA en P1-INT-02): 4 espárragos = tornillos avellanados ISO 10642 M8 × 35 A4-70
+colocados desde afuera (cabeza enrasada con el fondo, en Sikaflex). El soporte BAJA VERTICAL sobre ellos
+(agujeros Ø9 de las zapatas, ±0,5 mm para alinear el alojamiento con el buje del sello con un casquillo de
+centrado) y se aprieta con arandela ISO 7089 + tuerca ISO 4032 A4 a drv_nut_torque_Nm con Tef-Gel; después
+se escarian 2 pasadores Ø6 por zapata en montaje.
 """
 import math
 import sys
@@ -94,17 +97,22 @@ def checks(p, part):
     g = geom(p)
     brg = p.drv_bearing
     cy0, cy1 = p.drv_cheek_y
-    head_r = 6.5                                                      # cabeza M8 DIN 912 Ø13
     hy = abs(p.brg_bracket_holes[0][1])
     z_axis_min = min(z_axis(p, g["S_h0"]), z_axis(p, g["S_h1"]))
+    stick = p.drv_stud_L - p.base_top_z - p.drv_bracket_base_t           # espárrago sobre la zapata (cabeza enrasada con z = 0)
+    As8 = 36.6                                                            # [ESTIMADO: ISO 898-1]
+    F_pre = p.drv_nut_torque_Nm * 1e3 / (p.drv_nut_K * p.brg_bracket_bolt)
     return [
         ("un solo sólido", len(part.solids()), 1, "="),
+        ("espárrago sobre la zapata ≥ arandela + tuerca + 2 hilos (2,5 mm) [mm]", stick,
+         p.drv_washer_t + p.drv_nut_m + 2.5, ">="),
+        ("luz vaso de la tuerca M8 (Ø18) ↔ mejilla [mm]", hy - p.drv_nut_socket_d / 2 - cy1, 2.0, ">="),
+        ("precarga a par de apriete ≤ 0,7·Rp0,2·A_s del espárrago A4-70 [N]", F_pre, 0.7 * 450.0 * As8, "<="),
         ("largo del alojamiento = resalte + 2 × B [mm]", g["S_h1"] - g["S_h0"], p.drv_brg_shoulder_t + 2 * brg["B"], "="),
         ("resalte ≤ Da máx. del aro exterior: Ø paso < Da_max [mm]", p.drv_collar_d + 3.0, brg["Da_max"], "<="),
         ("pared del alojamiento [mm]", (p.drv_hsg_od - brg["D"]) / 2, 6.0, ">="),
         ("tablero por encima del agujero Ø47 [mm]", g["zd0"] - (max(z_axis(p, g["S_h0"]), z_axis(p, g["S_h1"])) + brg["D"] / 2), 3.0, ">="),
         ("mejillas fuera de la abertura de la toma: |y| interior − W_open/2 [mm]", cy0 - p.W_open / 2, 15.0, ">="),
-        ("luz cabeza M8 ↔ mejilla (llave Allen por arriba) [mm]", hy - head_r - cy1, 4.0, ">="),
         ("zapata cubre el agujero M8 con borde ≥ 1,5 d [mm]",
          min(hy - p.drv_pad_y[0], p.drv_pad_y[1] - hy), 1.5 * p.brg_bracket_bolt, ">="),
         ("agujeros M8 dentro de la huella x0…x1 [mm]",

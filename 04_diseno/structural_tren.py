@@ -127,13 +127,18 @@ def cases(p, A, row, rows, T3, T2):
     Ft = Fa * (h_ax + p.drv_bracket_base_t) / dx / 2 + Fv / 4
     Fs = math.hypot(Fa, Fr) / 4
     sb = math.sqrt((Ft / AS[8]) ** 2 + 3 * (Fs / AS[8]) ** 2)
-    row(rows, "P1-DRV-03", "Bulones 4 × M8 A4-70 a la placa base: vuelco por Fa + corte",
-        f"F_t = Fa·h/Δx/2 + 3g/4, F_s = Fa/4; von Mises sobre A_s (sin precarga; Δx = {dx:.0f})",
+    row(rows, "P1-DRV-03", "Espárragos 4 × ISO 10642 M8 A4-70: vuelco por Fa + corte (servicio)",
+        f"F_t = Fa·h/Δx/2 + 3g/4, F_s = Fa/4; von Mises sobre A_s (carga de servicio; Δx = {dx:.0f})",
         sb, SY_A4, A, T2)
-    Le = p.raw.get("toma_base_t", 8.0) - 2.0              # [SUPUESTO: agujero ciego roscado en la placa base de la toma (no pasante: es casco), 2 mm de fondo]
-    row(rows, "P1-DRV-03", f"Rosca M8 en la placa base de Al (TOMA), {Le:g} mm de filete",
-        "τ = F_t/(π·d·L_e·0,6) contra τ_adm = 0,58·R_p0,2 de 5083-H111 (125 MPa [ESTIMADO])",
-        Ft / (math.pi * 8 * Le * 0.6), 0.58 * 125.0, A, T2)
+    F_pre = p.drv_nut_torque_Nm * 1e3 / (p.drv_nut_K * 8)
+    F_nut = F_pre + Ft
+    row(rows, "P1-DRV-03", f"Tuerca ISO 4032 A4 sobre espárrago A4: precarga ({p.drv_nut_torque_Nm:g} N·m) + F_t",
+        f"barrido de filetes τ = F/(π·d·m·0,6), m = {p.drv_nut_m:g}, F = T/(K·d) + F_t (K {p.drv_nut_K:g}) vs 0,58·R_p0,2 A4-70",
+        F_nut / (math.pi * 8 * p.drv_nut_m * 0.6), 0.58 * SY_A4, A, T2)
+    A_cs = (math.pi / 4 * (16.0 ** 2 - 8.4 ** 2)) / math.sin(math.radians(45))   # [ESTIMADO: cabeza ISO 10642 M8 Ø16, avellanado 90°]
+    row(rows, "P1-DRV-03", "Avellanado de 90° en la placa base de Al (TOMA): precarga + F_t",
+        "aplastamiento p = F/A_cono (Ø16→Ø8,4, 90°) vs R_p0,2 5083-H111 125 MPa [ESTIMADO]",
+        F_nut / A_cs, 125.0, A, T2)
     row(rows, "P1-DRV-03", "Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo",
         "corte del resalte τ = Fa/(π·D·t_resalte), σ_eq = √3·τ", math.sqrt(3) * Fa / (math.pi * p.drv_bearing["D"] * p.drv_brg_shoulder_t),
         SY_6082, A, T2)
