@@ -79,10 +79,11 @@ def export_tmp(part, name, tmpdir):
     return path
 
 
-def mesh_part(part, pid, tmpdir, h, curv, hmin=1.0):
+def mesh_part(part, pid, tmpdir, h, curv, hmin=1.0, refine=None):
     step = export_tmp(part, pid, tmpdir)
     stl = DISENO / "stl" / "asm" / f"{pid}.stl"
-    X, T, info = fc.mesh_step(step, h, curv_n=curv, hmin=hmin, stl_fallback=stl if stl.exists() else None)
+    X, T, info = fc.mesh_step(step, h, curv_n=curv, hmin=hmin, stl_fallback=stl if stl.exists() else None,
+                              refine=refine)
     return X, T, info
 
 
@@ -330,8 +331,12 @@ def setup_mnt05(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     meta_cap = mods["P1-MNT-06"].META
     cradle = mods["P1-MNT-05"].build(p)
     cap = mods["P1-MNT-06"].build(p)
-    X1, T1, minfo = mesh_part(cradle, "P1-MNT-05", tmpdir, h, curv, hmin)
-    X2, T2, _ = mesh_part(cap, "P1-MNT-06", tmpdir, h, curv, hmin)
+    us0, _ = stop_u(p, mods)
+    hr = max(0.5 * h, hmin)            # refinamiento local: pared pivote–tubo y apoyo del tope (h/2)
+    ref = [(0.0, 0.0, -0.5 * p.e, 0.5 * p.e + 12.0, hr),
+           (us0, 0.0, p.cradle_vbot, 0.5 * float(p.raw.get("stop_pad_d", 16.0)) + 12.0, hr)]
+    X1, T1, minfo = mesh_part(cradle, "P1-MNT-05", tmpdir, h, curv, hmin, refine=ref)
+    X2, T2, _ = mesh_part(cap, "P1-MNT-06", tmpdir, h, curv, hmin, refine=ref)
     X, T, body = fc.merge_meshes([(X1, T1), (X2, T2)])
     A = allowables(p.inp)
     S = fc.P2Space(X, T, body=body)

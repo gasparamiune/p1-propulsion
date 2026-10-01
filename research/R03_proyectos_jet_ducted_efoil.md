@@ -368,3 +368,72 @@ Todo [CALCULADO: momentum ideal; K de [S10]; η de bomba 0,75 = ESTIMADO: impuls
   - Una réplica en PLA dio **−61 %** de empuje [S37]; el PLA FDM rinde 26 % menos que el SLA [S35, CALCULADO: 1 − 1/1,35].
   - Si se imprime un repuesto: PETG al 100 % de relleno con capa de 0,12 mm (plan de [S33]; ese constructor finalmente usó la hélice sin epoxi en V1), epoxi + balanceo [SUPUESTO: buena práctica, no validada en las fuentes], palas gruesas, skew y rake ≤10° [S36: simulación de hélices <100 mm, extrapolada] y el mismo pasador de corte.
 - **La reducción por correa queda validada frente a la tracción directa de alta rpm.** El empuje estático por vatio de las soluciones chicas y rápidas (6–15 g/W: jets de 80 mm y el propulsor chico OpenThruster) es 2,5–6,4 veces peor que el de una hélice grande y lenta (~38 g/W según ficha, sin ensayo independiente) [CALCULADO: §2.1]. Mantener la reducción por correa y la hélice grande del sizing (vigente: **2:1** y 254 mm; la versión anterior decía "3:1 y ≥198 mm", que ya no coincide con `resultados/sizing_tablas.md`). No bajar el diámetro para facilitar el protector.
+
+---
+
+## Verificación (adversarial)
+
+Re-chequeo del 2026-10-01. Se volvieron a abrir **todas** las fuentes de §8: 43 ids y 46 URLs, contando los dos oEmbed de S3, los dos archivos raw de S33 y el intento sobre Printables 681590. Cómo se abrieron:
+- `curl`: HTML, PDF y la API JSON de foil.zone, MakerWorld y DOAJ;
+- `pdftotext`: S10 y S37;
+- WebFetch: las tres páginas de PMC (S35, S38, S42), que con `curl` devuelven reCAPTCHA.
+
+No abrieron:
+- S5: Endless Sphere bloquea con Anubis, también vía WebFetch;
+- S6: mismo bloqueo; solo se pudo leer la meta-descripción;
+- Printables 681590: 403 de Cloudflare.
+
+Además se cotejó la "Referencia de P1" contra `resultados/sizing_tablas.md` e `inputs.yaml` vigentes.
+
+| # | Afirmación / URL | Estado | Nota |
+|---|---|---|---|
+| 1 | S35 OpenThruster: "SLA +35 % y **SLM +18 %** vs PLA" | **corregido** | La fuente dice que el SLA rinde +35 % vs PLA y **+18 % vs el metal**. Metal vs PLA ≈ +14 % [CALCULADO]. El de metal es peor que el SLA |
+| 2 | S37 Rochester: "flecha FEA 6,1 mm (**PLA**) vs 0,16 mm" atribuida a la réplica | **corregido** | 0,241 in y 0,00632 in = 6,1 y 0,16 mm (OK), pero son de la hélice **toroidal**, y el apéndice G dice **ABS** vs Al 6061. El −61 % a 300 rpm de la réplica sí está |
+| 3 | S33 hélice PETG "epoxi + lijado + balanceo" | **corregido** | Era el plan. El doc dice "Epoxy coating on the printed prop was skipped for V1". Las cifras de 0,12 mm y 100 % son del constructor; el perfil de MakerWorld (S34) usa 0,16 mm, 8 paredes y 30 % |
+| 4 | S33/E6 "agua dulce" | **no verificado** | Ni el README ni el doc de propulsión dicen el tipo de agua |
+| 5 | E2 "65161 … **6 kW**" | **eliminado** | No figura en S25 ni en S32. "Inrunner" sí figura en S32 |
+| 6 | S13 FluxJet: hélice de comparación a "7,1 km/h" | **corregido** | La fuente dice 4,3 mph = **6,9 km/h**. Los demás valores (3,5–3,8 mph, 150 W, 4,9–5,0 mph, 700 W, 500–600 W) están OK |
+| 7 | S29: "6384, agua dulce, **varias temporadas**, rodamientos corroídos" | **corregido** | Fueron ~10–11 sesiones en lago (Noruega), 1.ª temporada, con rodamientos "ceased a bit" |
+| 8 | S27: "otro usuario perdió varios motores por corrosión de imanes" | **corregido (matiz)** | Fue en e-bike de invierno en Suecia (sal de ruta), no en el mar |
+| 9 | S41 Arcada: "pala fisurada en servicio a los 4 meses" | **corregido (matiz)** | Se fisuró "when removing the propeller for inspection". La causa (agua salada) es una atribución de los autores sin ensayo. El +25 % es contra la hélice vieja (otro diseño) |
+| 10 | S18 Wikipedia: "algas … se traban", "peor gobierno en reversa" | **corregido** | Dice "ice or any other floating object". Lista "course stability when sailing astern" como desventaja, y "less vulnerability to debris" y menos succión del fondo como ventajas |
+| 11 | S12: "necesita ~305 mm de **agua**" | **corregido** | Son 12 in de luz entre el fondo del jet y el lecho; el calado del jet se suma |
+| 12 | §2.3: "1,6–6×" y "autonomía **<1 h**" | **corregido** | Recalculado: 1,5–6,2×; 0,45–1,1 h con K = 0,6–1,0 (1,8 h con K = 0 y tobera de 100 mm). Con el sizing vigente: 1,35–5,4× |
+| 13 | Referencia de P1 (§0): R, T, J, η0, potencias, bollard, "3:1", "≥198 mm", "136 Wh/km", "reversa 94 N" | **corregido (nota)** | `sizing_tablas.md` vigente: 195 N, 726 W, 770/920 W, bollard 280/89 N, correa 2:1, D = 254 mm, 153 Wh/km |
+| 14 | Hallazgo: criterio "reversa ≥90 N" con protector | **corregido** | Es inalcanzable: el sizing da 89 N sin protector. Pasa a ser ≥90 % de la reversa medida sin protector [SUPUESTO] |
+| 15 | D2 Ladd: hélice "~8,8" [CALCULADO]" | **corregido** | S10 dice 8,75 in de forma explícita |
+| 16 | S10 Ladd: K_T −25 % a J = 0,75 (PR20); K_Q +2 %; tobera 19A L/D = 0,275, holgura 0,04" = 0,5 % de D; K_Q +11,7 %; álabes +23 %; 34,6 / 25,5 / 32,3 / 27,4 kn; canasta +50 % de drag y −1/3 de velocidad; K = 0,6–1,0 → 0,5–0,6; hélices ~0,80; tabla 3.1 | OK | Todo textual. Ladd también dice que el perfil óptimo para un protector sería "neutral" y no acelerador, y que la entrada de la hélice queda desprotegida |
+| 17 | S17 Puzzler300: 3,60 / 6,00 / 5,00 / 4,08 lb avante; 2,03 / 2,00 / 2,6 / 2,34 lb reversa; 40×57 mm, 700 kV | OK | La reversa con tobera "arbitrary" da −1,5 % (el archivo decía −1 %). Medido con balanza de equipaje |
+| 18 | S2 Thingiverse: 80 mm, 6S 22 V, 420 kV, ~2,5 kW "questionable", ~12 km/h, 4 kg a 270 W, pared de 1,8 mm, 608-2RS, impulsor impreso "hot" | OK | og:description y título |
+| 19 | S3 títulos oEmbed | OK | Solo títulos; no se presenta contenido de video como visto |
+| 20 | S4 PRO-JET 80: 26 V / 40 A / 1100 W, 11,5 km/h, 90 kg, 40 A a 10 km/h, shim de 3 mm, S6000 / S608-2RS híbridos, 6374/6384 con epoxi, estator de 55 mm | OK | La fuente dice "12-inch SUP" (errata evidente por 12 ft) |
+| 21 | S5 jet 80 mm + TP100: 78–80 lb, 10 000 rpm, 8S, 180 A, Maytech 300 A | **no verificado** | Anubis |
+| 22 | S6 jet 85 mm: 49,8 kgf, 250 A; "9100–9500 rpm" | **no verificado / corregido** | El título dice ~9600 rpm y 89 %. El cuerpo no abrió |
+| 23 | S8 boatdesign: 42 → 35 kn, holgura 0,002", palas ABS deflectadas, cavitación en toma, rotor y estator | OK (matiz) | "most probably deflected". Jet ABS 1:4: 50 N de bollard máximo, y el ducto filtraba aun al 100 % de relleno |
+| 24 | S9 globalsecurity: 65 % vs 40 % a 16 kn; "severely outclassed … up to about 25 knot"; recuperación en la toma ~70 % | OK | — |
+| 25 | S11 "30 % HP loss, ×0,7"; S12 14 ft × 48", "mid 20 MPH" | OK | — |
+| 26 | S14 New Atlas: motor anular, sin gap para arena, US$2999, 40 kg, 1000 W | OK | Precio de lanzamiento declarado en la nota (2025) |
+| 27 | S15 Fliteboard: "Flite Jet 2 consumes more power than propeller systems" | OK | — |
+| 28 | S16 e-surfer: ESC "blowed up due to water and low quality components" | OK | — |
+| 29 | S19 / S20: 38 A → 100 A a 20 km/h; "did not work, it was too inefficient"; ducto de Flo "effective brake", ~550 g | OK | 12S y 44–46 V vienen de S22 (agregado) |
+| 30 | S21 tunnelvision: PC-Max, "Both don't seem to generate a lot of drag", 32–35 A a ~26 mph, 105 kg, 530 kV, 6,67:1; "big drop above 12 mph" | OK (dato débil) | Los 26 mph a 3500 rpm con 200 mm de paso implican resbalamiento cero; otro usuario lo objetó en el hilo |
+| 31 | S22: +10 A con ducto | OK | Es la lectura de un usuario (erwan) sobre la tabla de superlefax |
+| 32 | S23 Wikipedia rim-driven: 500 kW – 3 MW; rozamiento en el gap; bujes lubricados por agua | OK | El rango es "as of 2017" (agregado) |
+| 33 | S24 Tame Billow: 18 meses, 1–3/semana, enjuague, eje agarrotado, fuga a masa, ESC muerto, US$365 + 185 | OK + **agregado** | No se había registrado que el usuario recibió una **descarga eléctrica** de la carcasa en el agua de mar |
+| 34 | S25 65161: ~3 años en mar, NSK 6001DDU 28×12×8, "few drops of water past the seal", "just enough to kill the bearings", zinc / Duralac, "bad combination", Loctite → tornillos perforados; Lift jet = hélice entubada con tolerancia de punta muy chica | OK | Se leyeron los 73 posts (20 + 53 vía `/posts.json`) |
+| 35 | S26 Lift/FR: 9 psi, aceite una vez por año, sello de un labio, O-ring, bombeo térmico, juego axial >2 mm | OK | — |
+| 36 | S28: 60 °C, 2 capas, 4–6 h, 6384 de 170 kV; "thin coat of normal epoxy" | OK | Se re-redactó el rótulo "Si no se recubre" |
+| 37 | S30: 41–52 Wh/km a 20–23 km/h, 95–105 kg | OK | — |
+| 38 | S31 e-surfer: >100 A, epoxi térmica, Corrosion-X, rodamientos inox o cerámicos | OK | — |
+| 39 | S32 VESC: MG 422B en ambas caras, "within weeks", re-coat anual, regeneración −10 a −20 A (−8 a −10 A en packs chicos), 80 / 100 °C | OK | — |
+| 40 | S33: GORE PolyVent 316L, IP69K, niebla salina; 4169 W; 47,4 °C; 29,94 kg; 14S9P; pasador "drive/shear pin" | OK | — |
+| 41 | S36: <100 mm, PLA FFF, FSI, "except for extreme geometries (… skew, or rake more than 10°)" | OK | Es solo simulación; extrapolarlo a 254 mm es [SUPUESTO] |
+| 42 | S38 Neşer: HDPE + 15 % de CF, 257,1 mm, 5 palas, 16 rps, 88,97 → 20,09 mm (J = 0,3), E de 3125 → 14 258 MPa | OK | — |
+| 43 | S39 Singaravel: PETG −17–28 %, PLA −26–35 %, ABS −15–25 %, Nylon −31–44 %, 30 días | OK | El año del volumen en DOAJ es 2026 |
+| 44 | S40 Chaudhary: difusividad "extremely high", módulo en baja | OK | Solo el resumen; los ensayos son a temperatura elevada |
+| 45 | S42 Madejski: PLA, >3 bar, pared engrosada | OK | Son toberas de chorro (lavado, riego), no propulsión |
+| 46 | S43 Minn Kota Endura C2 30: 12 V, 30 lb, "Max Amp Draw: 30" | OK | Ficha comercial; empuje nominal sin ensayo independiente |
+| 47 | S1 / S45 Hackaday | OK | En S1 lo de los rodamientos sumergidos viene de comentarios. En S45 el acople impreso falló y usó una turbina comercial |
+| 48 | Printables 681590 (vía R02) | **no verificado** | 403 de Cloudflare |
+| 49 | "NACA 4415" en el hallazgo del protector | OK | S18 lo menciona ("very good characteristics"); Puzzler300 también lo cita |
+| 50 | Precios, números de pieza y propiedades de material | OK | No se hallaron precios inventados. Los números de pieza (S6000 / S608-2RS, NSK 6001DDU, MG 422B, GORE PolyVent) están todos en sus fuentes. Las propiedades de material citadas (E, % de tracción) están en S38 y S39 |

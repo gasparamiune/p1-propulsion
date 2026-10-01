@@ -41,7 +41,7 @@ for _p in (str(HERE), str(HERE.parent), str(ROOT)):
 # Tamaños de malla (mm): (gruesa, fina); curvatura = elementos por 2π en agujeros/redondeos.
 CFG = {
     "P1-MNT-01": {"h": (14.0, 7.0), "curv": (6, 12), "hmin": 1.5},
-    "P1-MNT-05": {"h": (12.0, 7.0), "curv": (6, 10), "hmin": 2.0},
+    "P1-MNT-05": {"h": (14.0, 8.0), "curv": (5, 9), "hmin": 2.0},
     "P1-MNT-04": {"h": (6.0, 3.0), "curv": (6, 12), "hmin": 1.0},
 }
 ORDER = ["P1-MNT-01", "P1-MNT-05", "P1-MNT-04"]
@@ -105,7 +105,7 @@ def fs_block(summ, kind, A):
     return out
 
 
-def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None):
+def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=None):
     import fea_parts as fp
     from fea_model import mesh_quality
     t0 = time.time()
@@ -115,7 +115,7 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None):
         print(f"[{pre}] {msg}", flush=True)
     p, mods, est = fp.load_project()
     A = fp.allowables(p.inp)
-    cfg = CFG[pid]
+    cfg = cfg or CFG[pid]
     levels = [("gruesa", cfg["h"][0], cfg["curv"][0])]
     if not quick:
         levels.append(("fina", cfg["h"][1], cfg["curv"][1]))
@@ -349,18 +349,23 @@ def main(argv=None):
     ap.add_argument("--serial", action="store_true")
     ap.add_argument("--no-img", action="store_true")
     ap.add_argument("--out", default=str(HERE / "resultados_fea.json"))
+    ap.add_argument("--h", nargs="*", default=[], metavar="ID=GRUESA,FINA",
+                    help="sobrescribe tamaños de malla, p. ej. P1-MNT-05=10,6")
     a = ap.parse_args(argv)
+    for spec in a.h:
+        k, v = spec.split("=")
+        CFG[k]["h"] = tuple(float(x) for x in v.split(","))
     t0 = time.time()
     pids = [x for x in ORDER if not a.only or x in a.only]
     img_dir = None if (a.no_img or a.quick) else HERE / "img"
     results = {}
     if a.serial or len(pids) == 1:
         for pid in pids:
-            k, v = run_part(pid, a.quick, a.no_img or a.quick, img_dir)
+            k, v = run_part(pid, a.quick, a.no_img or a.quick, img_dir, None, CFG[pid])
             results[k] = v
     else:
         with ProcessPoolExecutor(max_workers=min(3, len(pids)), mp_context=get_context("spawn")) as ex:
-            futs = [ex.submit(run_part, pid, a.quick, a.no_img or a.quick, img_dir) for pid in pids]
+            futs = [ex.submit(run_part, pid, a.quick, a.no_img or a.quick, img_dir, None, CFG[pid]) for pid in pids]
             for f in futs:
                 k, v = f.result()
                 results[k] = v

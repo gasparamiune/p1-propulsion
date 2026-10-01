@@ -26,8 +26,9 @@ import scipy.sparse.linalg as spla
 # ---------------------------------------------------------------------------
 
 
-def mesh_step(step_path, h, curv_n=10, hmin=1.0, stl_fallback=None, algo3d=1):
-    """Importa un STEP (o, si falla, volumetriza un STL) y devuelve (X (N,3), T (Ne,4), info)."""
+def mesh_step(step_path, h, curv_n=10, hmin=1.0, stl_fallback=None, algo3d=1, refine=None):
+    """Importa un STEP (o, si falla, volumetriza un STL) y devuelve (X (N,3), T (Ne,4), info).
+    refine: lista de esferas (cx, cy, cz, radio, h_local) con tamaño de malla reducido."""
     import gmsh
     info = {"source": "step", "h_mm": h, "curv_n": curv_n}
     gmsh.initialize(interruptible=False)
@@ -59,6 +60,18 @@ def mesh_step(step_path, h, curv_n=10, hmin=1.0, stl_fallback=None, algo3d=1):
         gmsh.option.setNumber("Mesh.Algorithm", 6)
         gmsh.option.setNumber("Mesh.Algorithm3D", algo3d)
         gmsh.option.setNumber("Mesh.Optimize", 1)
+        if refine:
+            tags = []
+            for (cx, cy, cz, rr, hl) in refine:
+                ft = gmsh.model.mesh.field.add("Ball")
+                for k, v in (("XCenter", cx), ("YCenter", cy), ("ZCenter", cz), ("Radius", rr),
+                             ("VIn", hl), ("VOut", 1e3 * h), ("Thickness", rr / 2)):
+                    gmsh.model.mesh.field.setNumber(ft, k, v)
+                tags.append(ft)
+            fm = gmsh.model.mesh.field.add("Min")
+            gmsh.model.mesh.field.setNumbers(fm, "FieldsList", tags)
+            gmsh.model.mesh.field.setAsBackgroundMesh(fm)
+            info["refine"] = [list(map(float, r)) for r in refine]
         gmsh.model.mesh.generate(3)
         nt, xyz, _ = gmsh.model.mesh.getNodes()
         et, _, conn = gmsh.model.mesh.getElements(3)
