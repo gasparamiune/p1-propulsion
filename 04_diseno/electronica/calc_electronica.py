@@ -628,11 +628,11 @@ def blocks(R):
                    f"peor camino individual **{c['peor_s'] * 1e3:.0f} ms** [CALCULADO]. El corte real es el del camino más rápido "
                    "que siga sano; el requisito se exige a cada camino por separado.")
     hdr = ["Caso", "Cordón", "Seta", "Descon.", "F1", "F2", "K1", "MCU armado", "Timeout VESC", "Falla sensor",
-           "Motor", "Barreras activas (mín–máx)", "Comb."]
+           "Fin de carrera bucket", "Motor", "Límite del comando", "Barreras activas (mín–máx)", "Comb."]
     rows = []
     for r in R["tabla_resumen"]:
         rows.append([r["caso"], r["cordon"], r["seta"], r["desconectador"], r["F1"], r["F2"], r["K1"], r["MCU_armado"],
-                     r["timeout_VESC"], r["falla_sensor"], f"**{r['motor']}**",
+                     r["timeout_VESC"], r["falla_sensor"], r["fin_carrera_bucket"], f"**{r['motor']}**", r["limite_cmd"],
                      f"{r['barreras_min']}–{r['barreras_max']}: {r['barreras']}", r["n_combinaciones"]])
     n = len(R["tabla_verdad"])
     ng = sum(1 for r in R["tabla_verdad"] if r["motor"] != "PARADO")
@@ -640,7 +640,9 @@ def blocks(R):
         f"\n\nEnumeración completa: **{n} combinaciones** en [`tabla_verdad.csv`](tabla_verdad.csv) "
         f"(1 = cerrado/sano/sí, 0 = abierto/fundido/no; \"–\" = cualquier valor). El motor puede girar en **{ng}** "
         "de ellas: todas exigen cordón, seta, desconectador, F1, F2, MCU armado, PPM válido y sensor sano; "
-        "la única variable libre es K1 (normal o soldado): un K1 soldado no se nota en marcha → se prueba antes de cada salida.")
+        "las variables libres son K1 (normal o soldado: un K1 soldado no se nota en marcha → se prueba antes de cada salida) "
+        "y el fin de carrera del bucket, que no detiene el motor: abierto (bucket abajo o cable cortado) limita el comando "
+        "a reverse_limit, siempre en avance (§5).")
     return B
 
 
