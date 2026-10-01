@@ -7,11 +7,12 @@ apunta a ESTRIBOR del bote (Rot_z(180°) de loc_jet: y_bote = −Y_jet).
 
 Concepto (ver docstrings de cada pieza):
   - Boquilla de Al 6061-T6 (FS de PETG < 3 en orejas y pernos: ver structural_direccion.py) con cara
-    de entrada en el plano del pivote, entrada abocinada y exterior esférico centrado en el pivote
-    (no barre hacia la tobera fija). Horquillas ±Z que abrazan las orejas de la bomba.
-  - Mando de dirección por yugo: brida sobre la horquilla superior → poste vertical desplazado
-    70 mm a babor del eje → brazo superior con rótula a Z ≈ 245 (por ENCIMA de la flotación
+    de entrada en el plano del pivote, entrada abocinada y frente esférico centrado en el pivote que
+    entra en la rótula de la tobera fija (P1-PMP-08). Orejas ±Z por DENTRO de las de la bomba.
+  - Mando de dirección por yugo: brida sobre la torre de la boquilla → poste vertical desplazado
+    86 mm a babor del eje → brazo superior con rótula a Z ≈ 257 (por ENCIMA de la flotación
     estática y del barrido del bucket). Cable Ultraflex M66 (R11 §7) con biela de 60 mm.
+  - Bucket: cable Ultraflex Mach5 anclado EN la boquilla (bucle libre: sin acople con la dirección).
   - Bucket de Al 5083 4 mm con traba por émbolo indexador en ARRIBA y en ABAJO (la carga del
     chorro no pasa por el cable Mach5); el émbolo se libera con el gatillo de la palanca del bucket.
 """
@@ -73,8 +74,8 @@ def extend(d):
     d["STE_m6_depth"] = 8.0
     # yugo de dirección
     d["STE_yoke_t"] = 20.0             # brida del yugo sobre la torre (Al 5083 20 mm) [CALCULADO: torsión del poste, structural_direccion]
-    d["STE_post_x"] = 25.0             # poste: X' (desde el eje de giro) [CALCULADO: fuera de la placa de espejo con δ = −δmax]
-    d["STE_post_y"] = -78.0            # poste: Y_jet (babor del bote) [CALCULADO: fuera del barrido del bucket |Y| ≤ 63,8]
+    d["STE_post_x"] = 33.0             # poste: X' (desde el eje de giro) [CALCULADO: fuera de la placa de espejo con δ = −δmax]
+    d["STE_post_y"] = -86.0            # poste: Y_jet (babor del bote) [CALCULADO: fuera del barrido del bucket |Y| ≤ 63,8]
     d["STE_post_d"] = 22.0             # [CALCULADO: ver structural_direccion]
     d["STE_post_z1"] = 245.0           # cara superior del brazo [CALCULADO: rótula a Z ≈ 257 → z_bote ≈ 345 > flotación 273]
     d["STE_arm_t"] = 10.0
@@ -112,7 +113,7 @@ def extend(d):
     d["REV_stud_r"] = 40.0             # [CALCULADO: carrera 2·r·sin35° = 45,9 mm < carrera del Mach5]
     d["REV_stud_up_ang"] = 35.0        # ° desde +X hacia +Z, bucket ARRIBA (marco natural)
     d["REV_stud_d"] = 8.0              # perno con hombro Ø8 / M6 (316)
-    d["REV_eye_off"] = 4.0             # separador POM entre el brazo y la rótula (la vaina libra el brazo)
+    d["REV_eye_off"] = 4.0             # buje soldado (Ø16 × 4, M6) entre el brazo y la rótula (la vaina libra el brazo)
     d["REV_eye_w"] = 8.0               # ojo de la varilla (rótula hembra M6) [ESTIMADO: DIN ISO 12240-4 M6; buscar]
     d["REV_sleeve_z0"] = 130.0         # fin de la vaina rígida del Mach5 (sale la varilla) [CALCULADO]
     d["REV_lock_r"] = 45.0             # émbolo indexador a 45 mm del pivote [CALCULADO: FS ≥ 2 del perno Ø12]

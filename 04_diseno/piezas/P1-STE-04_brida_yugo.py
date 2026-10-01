@@ -2,7 +2,7 @@
 
 Apoya sobre la torre de la boquilla (detrás del extremo de la oreja de la bomba) y lleva el par de
 dirección del poste (P1-STE-06) al cuerpo con 4 × M8 A4 (Tef-Gel). 20 mm: el momento del poste
-entra en la brida como torsión (ver structural_direccion). Cruza el plano de los brazos del bucket por delante del cuerno (X' 16–30, fuera de su barrido) y
+entra en la brida como torsión (ver structural_direccion). Cruza el plano de los brazos del bucket por delante del cuerno (X' 6–30, fuera de su barrido) y
 termina en el poste a (X', Y) = (STE_post_x, STE_post_y), fuera del barrido del bucket (|Y| > 63,8)."""
 import os
 import sys
@@ -26,9 +26,9 @@ def outline_parts(p):
     x0, x1 = p.STE_riser_x
     ry = p.STE_riser_y
     root = [(x0, -ry), (x1, -ry), (x1, ry), (x0, ry)]
-    # banda X' 16–30 (delante de la oreja/refuerzo del bucket, X' ≥ 34) hasta el poste
-    band = [(16.0, -ry + 0.5), (30.0, -ry + 0.5), (30.0, py + 10.0), (16.0, py + 10.0)]
-    end = hull(c(px, py, 13) + [(16.0, py + 10.0), (30.0, py + 10.0)])
+    # banda X' 6–30 (delante de la oreja/refuerzo del bucket, X' ≥ 34) hasta el poste
+    band = [(6.0, -ry + 0.5), (30.0, -ry + 0.5), (30.0, py + 10.0), (16.0, py + 10.0)]   # borde delantero en diagonal
+    end = hull(c(px, py, 22) + [(16.0, py + 10.0), (30.0, py + 10.0)])
     return root, band, end
 
 
@@ -42,7 +42,11 @@ def build(p):
         s = q if s is None else s + q
     for (xx, yy) in p.STE_riser_bolts:
         s = s - cyl_z(4.5, z0 - 1, z1 + 1, x=Xp + xx, y=yy)                 # M8 pasante a la torre
-    s = s - cyl_z(8.25, z0 - 1, z1 + 1, x=Xp + p.STE_post_x, y=p.STE_post_y)   # M16 del poste
+    s = s - cyl_z(8.1, z1 - 5, z1 + 1, x=Xp + p.STE_post_x, y=p.STE_post_y)    # centrador Ø16 del poste
+    import math as _m
+    for k in range(4):                                                          # 4 × M8 (Ø6,8 × 16) de la brida del poste
+        a = _m.radians(45 + 90 * k)
+        s = s - cyl_z(3.4, z1 - 16, z1 + 1, x=Xp + p.STE_post_x + 16 * _m.cos(a), y=p.STE_post_y + 16 * _m.sin(a))
     return s
 
 
@@ -62,5 +66,5 @@ def checks(p, part):
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("luz al espejo (−x_bote máx. en ±δmax) [mm]", -max(xs), 5.0, ">="),
             ("banda ↔ refuerzo del pivote del bucket (X') [mm]", (p.X_bucket_pivot - p.X_steer_pivot - p.REV_boss_r) - 30.0, 3.0, ">="),
-            ("brida del poste fuera de la cabeza del perno del bucket (|Y|) [mm]",
-             abs(p.STE_post_y) - 13 - (p.REV_y_in + 2 * p.REV_t + 0.3 + p.REV_head_t), 1.0, ">=")]
+            ("extremo de la brida fuera del brazo del bucket (|Y|) [mm]",
+             abs(p.STE_post_y) - 22 - (p.REV_y_in + p.REV_t), 2.0, ">=")]

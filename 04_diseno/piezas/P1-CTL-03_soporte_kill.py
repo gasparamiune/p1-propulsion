@@ -22,6 +22,8 @@ META = dict(
 )
 L, B, H = 80.0, 110.0, 55.0
 T = 6.0
+TF = 10.0         # espesor de la cara inclinada (structural_direccion: seta 200 N cruzando capas)
+PANEL = 5.0       # espesor en los agujeros (rebaje Ø36 por dentro) [ESTIMADO: panel máx. de los pulsadores Ø22 ~6 mm]
 X_POD, Y_POD = 1760.0, 30.0
 
 
@@ -32,8 +34,17 @@ def holes():
 
 def build(p):
     z0 = p.CTL_console_top + p.CTL_ply_t
-    outer = [(0, 0), (L, 0), (L, H), (H, H)] if False else [(0, 0), (L, 0), (L, H), (L - 15, H), (0, 15)]
-    inner = [(T, -1), (L - T, -1), (L - T, H - T), (L - 15 - 0.6 * T, H - T), (T, 15 - 0.4 * T)]
+    outer = [(0, 0), (L, 0), (L, H), (L - 15, H), (0, 15)]
+    a = math.atan2(H - 15, L - 15)
+    # cara interior: la cara inclinada desplazada TF hacia adentro, cortada con x = T y z = H − T
+    nx, nz = math.sin(a), -math.cos(a)                     # normal hacia adentro
+    px, pz = 0.0 + TF * nx, 15.0 + TF * nz
+    z_at_T = pz + (T - px) * math.tan(a)
+    x_at_top = px + ((H - T) - pz) / math.tan(a)
+    if x_at_top < L - T:
+        inner = [(T, -1), (L - T, -1), (L - T, H - T), (x_at_top, H - T), (T, z_at_T)]
+    else:
+        inner = [(T, -1), (L - T, -1), (L - T, pz + (L - T - px) * math.tan(a)), (T, z_at_T)]
     s = prism_xz(outer, -B / 2, B / 2) - prism_xz(inner, -B / 2 + T, B / 2 - T)
     # ala de fijación
     s = s + (box(-10, L + 10, -B / 2 - 10, B / 2 + 10, 0, 4) - box(T, L - T, -B / 2 + T, B / 2 - T, -1, 5))
@@ -44,7 +55,7 @@ def build(p):
     a = math.degrees(math.atan2(H - 15, L - 15))
     xm, zm = (0 + L - 15) / 2, (15 + H) / 2
     for yy, d in zip(holes(), (p.CTL_kill_hole, p.CTL_estop_hole)):
-        h = Pos(xm, yy, zm) * Rot(0, -a, 0) * cyl_z(d / 2, -15, 15)
+        h = Pos(xm, yy, zm) * Rot(0, -a, 0) * (cyl_z(d / 2, -15, 15) + cyl_z(18.0, -30, -PANEL))
         s = s - h
     return Pos(X_POD - L / 2, Y_POD, z0) * s
 
@@ -61,4 +72,5 @@ def checks(p, part):
             ("inclinación de la cara hacia el piloto [°]", a, 30.0, ">="),
             ("separación entre centros de agujeros − Ø [mm]", (holes()[1] - holes()[0]) - p.CTL_kill_hole, 25.0, ">="),
             ("pared [mm]", T, p.wall, ">="),
+            ("espesor de panel en los agujeros (rebaje interior) [mm]", PANEL, 6.0, "<="),
             ("distancia al piloto (x) [mm]", X_POD - p.CTL_x_pilot, 450.0, "<=")]

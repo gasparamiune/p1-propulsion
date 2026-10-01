@@ -27,6 +27,50 @@
 | P1-PMP-08 | Oreja: flexión en el arranque — F del bucket 607 N | M=F·15.0 mm, W=w·t²/6 (eje débil) | 15.80 | metal | 240.0 | 15.19 | 2.0 | ✔ |
 | P1-PMP-08 | Oreja: fatiga — F del bucket 607 N | σ_a = σ flexión (maniobras, ~1e5–1e6 ciclos); S_e Al anodizado 0.6·S_e; K_f 1.5 | 15.80 | metal | 38.4 | 2.43 | 2.0 | ✔ |
 | P1-PMP-09 | Cuello: F lateral de la boquilla con el O-ring a tope | voladizo del cuello M=F·L=4.6 N·m, W anillo=108957 mm³ | 0.04 | metal | 125.0 | 2957.92 | 2.0 | ✔ |
+| P1-STE-01 | Flexión del tubo por el desvío del chorro (fatiga, sizing) | M = F_s·e = 281 N × 66 mm; Z tubo Ø95.0/Ø85.8 | 0.66 | metal | 90.0 | 136.3 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: flexión en su plano (bucket R12, corta) | F/2 = 704 N a 52 mm de la raíz; sección 8 × 36 | 21.12 | metal | 240.0 | 11.36 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga) | F/2 = 303 N a 52 mm; 8 × 36 | 9.10 | metal | 90.0 | 9.89 | 2.0 | ✔ |
+| P1-STE-01 | Oreja de pivote (dentro de la de la bomba): flexión de la raíz | F = √((F_b/2)²+(F_s/2)²) = 727 N a 12 mm; 25 × 30 | 2.33 | metal | 240.0 | 103.14 | 2.0 | ✔ |
+| P1-STE-02 | Hombro Ø8: flexión + corte (bucket R12 + dirección, corta) | F = 727 N a 7.5 mm de la oreja de la boquilla; 316 estirado | 113.52 | metal | 310.0 | 2.73 | 2.0 | ✔ |
+| P1-STE-02 | Hombro Ø8: flexión por maniobras (fatiga) | F_s/2 = 140 N a 7.5 mm | 20.95 | metal | 180.0 | 8.59 | 2.0 | ✔ |
+| P1-STE-05 | Hombro Ø8: flexión + corte (bucket R12 + dirección, corta) | F = 727 N a 7.5 mm de la oreja de la boquilla; 316 estirado | 113.52 | metal | 310.0 | 2.73 | 2.0 | ✔ |
+| P1-STE-05 | Hombro Ø8: flexión por maniobras (fatiga) | F_s/2 = 140 N a 7.5 mm | 20.95 | metal | 180.0 | 8.59 | 2.0 | ✔ |
+| P1-STE-02 | Rosca M6 A4-70: tracción por el momento del hombro | T = M/(d/2) = 1363 N; As 20,1 mm² | 67.83 | metal | 450.0 | 6.63 | 2.0 | ✔ |
+| P1-STE-02 | Aplastamiento del hombro en la oreja de la bomba (Al 6061) | 727 N / (Ø8 × 12) | 7.57 | metal | 240.0 | 31.69 | 2.0 | ✔ |
+| P1-STE-03 | Arandela POM: empuje axial (peso boquilla + bucket + componente vertical) | 60 N [ESTIMADO] / 199 mm² | 0.30 | metal | 10.0 | 33.18 | 2.0 | ✔ |
+| P1-STE-06 | Poste Ø22: flexión + torsión (biela M66, M_s con F_s R12) | F_biela = M_s/76 mm = 316 N a 157 mm de la brida | 48.29 | metal | 240.0 | 4.97 | 2.0 | ✔ |
+| P1-STE-06 | Poste Ø22: flexión (fatiga, sizing) | F_biela = 244 N | 36.65 | metal | 90.0 | 2.46 | 2.0 | ✔ |
+| P1-STE-06 | Brida del poste: 4 × M8 A4-70 en Ø32 (tracción) | F = 4M/(n·BC) = 1552 N; As 36,6 mm² | 42.41 | metal | 450.0 | 10.61 | 2.0 | ✔ |
+| P1-STE-04 | Banda de la brida: torsión (momento del poste) + flexión | T = 49.7 N·m en 24 × 20 (α = 0.217); F_biela × 72 mm | 42.93 | metal | 125.0 | 2.91 | 2.0 | ✔ |
+| P1-STE-04 | 4 × M8 A4-70 a la torre: tracción por el momento del poste | F = M/(19 mm)/2 = 1307 N por bulón | 35.71 | metal | 450.0 | 12.6 | 2.0 | ✔ |
+| P1-STE-07 | Brazo 10 mm: flexión por la altura de la rótula + tracción | F_biela 316 N; M = F × 12 mm en 24 × 10 | 10.81 | metal | 125.0 | 11.56 | 2.0 | ✔ |
+| P1-REV-01 | Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta) | p = 111 kPa, luz 49.5 mm (nervio central), t = 4 | 8.51 | metal | 125.0 | 14.69 | 2.0 | ✔ |
+| P1-REV-01 | Chapa de la cuchara: franja (fatiga de soldadura, 1e5) | ídem | 8.51 | metal | 68.0 | 7.99 | 2.0 | ✔ |
+| P1-REV-01 | Cuchara como viga entre brazos (bucket R12, corta) | M = F·L/8, L = 99; I_arco = 240e3 mm⁴ | 3.29 | metal | 125.0 | 38.01 | 2.0 | ✔ |
+| P1-REV-01 | Brazo lateral: flexión (bucket R12, corta) | F/2 = 704 N a 128 mm; sección 4 × 60 | 37.41 | metal | 125.0 | 3.34 | 2.0 | ✔ |
+| P1-REV-01 | Brazo lateral: flexión (reversa sizing, fatiga de soldadura) | F/2 = 303 N | 16.12 | metal | 68.0 | 4.22 | 2.0 | ✔ |
+| P1-REV-01 | Agujero de traba: aplastamiento del brazo (émbolo Ø12) | F = M_h/r = 127 N·m / 45 mm = 2817 N | 58.68 | metal | 125.0 | 2.13 | 2.0 | ✔ |
+| P1-REV-01 | Pivote: aplastamiento del brazo + refuerzo (buje Ø14 × 8) | F/2 = 704 N | 6.29 | metal | 125.0 | 19.89 | 2.0 | ✔ |
+| P1-REV-02 | Perno con hombro Ø10: flexión + corte (bucket R12, corta) | F/2 = 704 N a 5.5 mm | 44.54 | metal | 205.0 | 4.6 | 2.0 | ✔ |
+| P1-REV-02 | Perno con hombro Ø10: flexión (fatiga) | F/2 = 303 N | 17.00 | metal | 180.0 | 10.59 | 2.0 | ✔ |
+| P1-REV-03 | Buje POM Ø10/Ø14 × 8: presión (bucket R12, corta) | 704 N / (10 × 8) | 8.80 | metal | 20.0 | 2.27 | 2.0 | ✔ |
+| P1-REV-03 | Buje POM: presión (reversa sizing, oscilación) | 303 N / (10 × 8) | 3.79 | metal | 10.0 | 2.64 | 2.0 | ✔ |
+| P1-REV-04 | Perno del émbolo Ø12: flexión + corte (M_h con bucket R12) | F = 2817 N a 3.5 mm; 316 | 81.76 | metal | 205.0 | 2.51 | 2.0 | ✔ |
+| P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga) | F = 1214 N | 25.05 | metal | 180.0 | 7.19 | 2.0 | ✔ |
+| P1-REV-06 | Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada) | F = 100 N × 125/46 = 272 N a 6 mm | 32.44 | metal | 205.0 | 6.32 | 2.0 | ✔ |
+| P1-REV-05 | Soporte del Mach5: placa lateral en voladizo (palanca forzada) | 272 N a 48 mm; 6 × 124 | 0.85 | metal | 125.0 | 147.35 | 2.0 | ✔ |
+| P1-CTL-09 | Palanca del acelerador: flexión en el cubo (100 N en el pomo) | M = 100 N × 120 mm; barra 16 × 8 | 35.16 | metal | 240.0 | 6.83 | 2.0 | ✔ |
+| P1-CTL-10 | Palanca del bucket: flexión en el escalón (100 N en el pomo) | M = 100 N × 125 mm; 16 × 8 | 36.62 | metal | 240.0 | 6.55 | 2.0 | ✔ |
+| P1-CTL-11 | Eje Ø12: torsión (100 N en el pomo del acelerador) | T = 15 N·m | 76.57 | metal | 205.0 | 2.68 | 2.0 | ✔ |
+| P1-CTL-11 | Pasador Ø4 A4 palanca–eje: doble corte | F = T/d = 1250 N | 86.14 | metal | 450.0 | 5.22 | 2.0 | ✔ |
+| P1-CTL-12 | Perno de enclavamiento Ø6: corte (palanca forzada contra el enclavamiento) | F = 100 N × 125 / 22 = 568 N | 46.41 | metal | 205.0 | 4.42 | 2.0 | ✔ |
+| P1-CTL-08 | Placa central: aplastamiento del perno de enclavamiento (6 mm) | 568 N / (6 × 6) | 15.78 | metal | 125.0 | 7.92 | 2.0 | ✔ |
+| P1-CTL-08 | Placa central: flexión bajo el eje (100 N en el pomo) | M = 100 N × 190 mm; sección 6 × 56 | 6.06 | metal | 125.0 | 20.63 | 2.0 | ✔ |
+| P1-CTL-02 | Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta) | franja 50 × 6 apoyada, luz 50: M = F·L/4 | 6.25 | short | 24.0 | 3.84 | 3.0 | ✔ |
+| P1-CTL-03 | Cara PETG 10 mm: tirón del cordón 150 N [SUPUESTO] (corta, cruza capas) | franja 50 × 10 empotrada, luz 76: M = F·L/8; ÷ f_Z (cara inclinada 32°) | 4.28 | short | 24.0 | 5.61 | 3.0 | ✔ |
+| P1-CTL-03 | Cara PETG 10 mm: golpe sobre la seta 200 N [SUPUESTO] (corta, cruza capas) | ídem | 5.70 | short | 24.0 | 4.21 | 3.0 | ✔ |
+| P1-CTL-01 | Placa de refuerzo 6 mm: carga del pasamuros del M66 | placa circular empotrada R 60, carga 316 N en r 10 | 13.97 | metal | 125.0 | 8.95 | 2.0 | ✔ |
+| P1-CTL-04 | Pasamuros M66: cuerpo Ø20/Ø9,6 a tracción + flexión | 316 N; momento por 20 mm de voladizo | 9.82 | metal | 205.0 | 20.88 | 2.0 | ✔ |
 | P1-INT-01 | Techo plano entre costados, p = máx(p_cierre, p_golpe) | placa larga empotrada: σ = p·b²/(2t²), b = W_open = 158, t = 5.0 | 35.67 | metal | 125.0 | 3.5 | 2.0 | ✔ |
 | P1-INT-01 | Costado plano más alto (en el labio), p = máx(p_cierre, p_golpe) | placa empotrada brida–techo: σ = p·h²/(2t²), h = 156 | 34.67 | metal | 125.0 | 3.61 | 2.0 | ✔ |
 | P1-INT-01 | Fatiga de la soldadura del costado: Δp = p_ram + p_succión = 40 kPa, 1e+05 ciclos | Δσ = Δp·h²/(2t²) vs FAT 25 (IIW, m = 3) → 68 MPa | 19.40 | metal | 67.9 | 3.5 | 2.0 | ✔ |

@@ -25,7 +25,7 @@ META = dict(
     load_case="Chorro desviado en reversa (R12: 1,4 kN) × impacto 2; presión dinámica en la chapa",
     print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Chapa cortada a láser, cuchara curvada en rodillo, brazos y nervio soldados (TIG 5183)",
-    allow={"P1-REV-03": 40.0},
+    allow={"P1-REV-03": 40.0, "P1-REV-06": 20.0},
 )
 
 
@@ -72,12 +72,14 @@ def build_down(p):
                 plate = plate + prism_xz(hull(circ(*P, p.REV_boss_r) + circ(*q, 12.0)), y0, y1)
         ring_y = (y1, y1 + t) if sg > 0 else (y0 - t, y0)
         plate = plate + prism_xz(circ(*P, p.REV_boss_r, 32), *ring_y)
+        if sg > 0:                                    # buje soldado del perno de la varilla (M6 roscado)
+            plate = plate + prism_xz(circ(*sd, 8.0, 32), y1 - 0.01, y1 + p.REV_eye_off)
         s = s + plate
     # agujeros: pivote (buje Ø14), traba (Ø10,5), perno de la varilla (M6 Ø6,4)
     s = s - cyl_y(p.REV_bush_od / 2, -yi - 2 * t - 1, yi + 2 * t + 1, x=P[0], z=P[1])
     for q in (lk, lk_up):
         s = s - cyl_y(p.REV_lock_hole_d / 2, yi - 1, yi + t + 1, x=q[0], z=q[1])
-    s = s - cyl_y(3.2, yi - 1, yi + t + 1, x=sd[0], z=sd[1])
+    s = s - cyl_y(2.5, yi - 1, yi + t + p.REV_eye_off + 1, x=sd[0], z=sd[1])    # M6 (Ø5,0) roscado
     return s
 
 

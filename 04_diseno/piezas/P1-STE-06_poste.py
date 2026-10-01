@@ -1,14 +1,12 @@
-"""P1-STE-06 — Poste del yugo de dirección, Al 6061-T6 torneado Ø22 con extremos M16.
+"""P1-STE-06 — Poste del yugo de dirección, Al 6061-T6 torneado: brida Ø44 × 8 (4 × M8 A4 a la brida
+del yugo P1-STE-04, centrador Ø16), caña Ø22 y extremo M16 con doble plano 17 para el brazo P1-STE-07.
 
-Sube desde la brida (P1-STE-04) hasta el brazo superior (P1-STE-07) a Z = STE_post_z1, desplazado a
-babor del eje de giro para quedar fuera del barrido del bucket. Así la rótula del cable de dirección
-queda por ENCIMA de la flotación estática y con lugar para la biela detrás del espejo.
-Tuercas M16 A4 autoblocantes (compradas) abajo de la brida y arriba del brazo; doble plano 17 en el
-extremo superior (traba de giro del brazo)."""
+Desplazado a babor del eje de giro para quedar fuera del barrido del bucket: la rótula del cable de
+dirección queda por ENCIMA de la flotación estática y con lugar para la biela detrás del espejo."""
 from cadlib import cyl_z
 
 META = dict(
-    id="P1-STE-06", name="poste", desc="Poste del yugo Ø22 × 180 con M16 (6061-T6)",
+    id="P1-STE-06", name="poste", desc="Poste del yugo Ø22 con brida Ø44 y M16 (6061-T6)",
     material="Al 6061-T6", process="torneada", qty=1, frame="steer", group="jet",
     load_case="Flexión + torsión por la fuerza de la biela del M66", print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="—",
@@ -24,8 +22,12 @@ def geom(p):
 def build(p):
     zb, zt = geom(p)
     x, y = p.X_steer_pivot + p.STE_post_x, p.STE_post_y
-    s = cyl_z(p.STE_post_d / 2, zb, zt, x=x, y=y)
-    s = s + cyl_z(7.9, zb - p.STE_yoke_t - 10, zb + 0.01, x=x, y=y)        # M16 inferior (modelado Ø15,8)
+    s = cyl_z(22.0, zb, zb + 8.0, x=x, y=y) + cyl_z(p.STE_post_d / 2, zb + 7.99, zt, x=x, y=y)
+    s = s + cyl_z(7.9, zb - 4.0, zb + 0.01, x=x, y=y)                      # centrador Ø16 (modelado Ø15,8)
+    import math
+    for k in range(4):
+        a = math.radians(45 + 90 * k)
+        s = s - cyl_z(4.5, zb - 1, zb + 9, x=x + 16 * math.cos(a), y=y + 16 * math.sin(a))
     s = s + cyl_z(7.9, zt - 0.01, zt + p.STE_arm_t + 10, x=x, y=y)         # M16 superior
     return s
 
