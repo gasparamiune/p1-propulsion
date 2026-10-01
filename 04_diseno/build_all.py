@@ -158,6 +158,11 @@ def main(argv=None):
     if not a.only:
         asm = Compound(children=asm_shapes)
         export_step(asm, str(HERE / "step" / "P1-ASM_marcha.step"))
+        # el STEP de ensamblaje pesa > 50 MB: se versiona comprimido (gzip) y el .step queda local
+        import gzip
+        import shutil
+        with open(HERE / "step" / "P1-ASM_marcha.step", "rb") as fi, gzip.open(HERE / "step" / "P1-ASM_marcha.step.gz", "wb", 9) as fo:
+            shutil.copyfileobj(fi, fo)
     printed = [r for r in manifest["parts"] if r["process"] == "impresa"]
     manifest["totals"] = {
         "printed_mass_g": sum(r["mass_g_total"] for r in printed),
