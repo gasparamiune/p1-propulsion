@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""verify_parts.py — Verificación automática del CAD de P1. Termina con exit code ≠ 0 si
-algo falla.
+"""verify_parts.py — Verificación automática del CAD del waterjet P1-J. Termina con exit code
+≠ 0 si algo falla.
 
 Chequeos:
   V1  Cada pieza impresa tiene STEP + STL.
   V2  Malla STL manifold (estanca, normales consistentes, volumen > 0) y sólido OCC válido.
   V3  Envolvente de impresión ≤ 210 × 210 × 260 mm (orientación de impresión elegida).
   V4  Cotas críticas declaradas por cada pieza (checks()).
-  V5  Sin interferencias en el ensamblaje: barrido de dirección ψ ∈ {−ψmax, 0, +ψmax} ×
-      basculación φ ∈ [0, φmax] (paso configurable), unidad vs abrazadera/horquilla/espejo,
-      y pares internos de la unidad y de la horquilla (rígidos).
-  V6  Coherencia de masa: masa de la unidad del CAD vs estimación usada en sizing.
+  V5  Sin interferencias: pares internos de todo lo fijo (casco de referencia, toma, bomba, tren,
+      motor) y barrido de la boquilla δ ∈ {−δmax, 0, +δmax} × bucket {arriba, abajo} contra lo fijo.
+      Contactos intencionales (prensados, asientos) se declaran en META["allow"] = {id: mm³}.
+  V6  Masa de la unidad de jet del CAD (la usa sizing.py vía manifest).
 Salida: resultados/verify.json + resumen por consola.
 """
 from __future__ import annotations
@@ -30,15 +30,8 @@ ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT))
 
-# Pares con contacto/ajuste prensado intencional: volumen de intersección admisible [mm³]
-ALLOWED = {
-    frozenset(["P1-DRV-07", "P1-HSG-01"]): 15.0,     # rodamiento A prensado
-    frozenset(["P1-DRV-07", "P1-HSG-02"]): 15.0,     # rodamiento B prensado
-    frozenset(["P1-DRV-07", "P1-DRV-01"]): 15.0,     # pista interna en muñón (ajuste)
-}
-FIXED_FRAMES = ("boat",)
-YOKE_FRAMES = ("yoke",)
-UNIT_FRAMES = ("unit",)
+FIXED_FRAMES = ("boat", "jet", "drive")
+MOVING_FRAMES = ("steer", "bucket")
 
 
 def to_np(mat):
@@ -48,13 +41,6 @@ def to_np(mat):
 def placements_np(mod, p, steer, tilt):
     from build_all import loc_matrix
     return [to_np(loc_matrix(L)) for L in mod.placements(p, steer, tilt)]
-
-
-def transom_mesh(p):
-    t, H, W = p.tr_t, p.tr_H, p.inp["boat"]["transom"]["top_width_mm"]
-    m = trimesh.creation.box(extents=(t, W, H))
-    m.apply_translation((-t / 2, 0, -H / 2))
-    return m
 
 
 def intersect_volume(a: trimesh.Trimesh, b: trimesh.Trimesh) -> float:
@@ -70,8 +56,7 @@ def intersect_volume(a: trimesh.Trimesh, b: trimesh.Trimesh) -> float:
         return 0.0
 
 
-def run(p=None, mods=None, manifest=None, tilt_step=None, steer_list=None, quiet=False,
-        extra_fixed=None):
+def run(p=None, mods=None, manifest=None, steer_list=None, quiet=False):
     import params as P
     from build_all import load_parts
     p = p or P.load()
@@ -125,79 +110,58 @@ def run(p=None, mods=None, manifest=None, tilt_step=None, steer_list=None, quiet
         results["parts"][pid] = pr
 
     # ---------------- V5 interferencias ----------------
-    by_frame = {}
+    allowed = {}
     for m in mods:
-        by_frame.setdefault(m.META["frame"], []).append(m)
-    tr = transom_mesh(p)
-    step = tilt_step or p.inp["geometry"]["tilt_check_step_deg"]
-    tilts = list(np.arange(0.0, p.tilt_range + 1e-9, step))
-    if tilts[-1] < p.tilt_range:
-        tilts.append(p.tilt_range)
-    steers = steer_list if steer_list is not None else [-p.steer_range, 0.0, p.steer_range]
+        for other, vol in m.META.get("allow", {}).items():
+            allowed[frozenset([m.META["id"], other])] = float(vol)
+    steers = steer_list if steer_list is not None else [-p.steer_max, 0.0, p.steer_max]
+    buckets = [0, 1]
 
-    def placed(mod, steer, tilt):
+    def placed(mod, steer, bucket):
         out = []
-        for k, M in enumerate(placements_np(mod, p, steer, tilt)):
+        for k, M in enumerate(placements_np(mod, p, steer, bucket)):
             mm = meshes[mod.META["id"]].copy()
             mm.apply_transform(M)
             out.append((f"{mod.META['id']}#{k}", mm))
         return out
 
-    fixed = [("ESPEJO", tr)]
-    for mod in by_frame.get("boat", []):
-        fixed += placed(mod, 0.0, 0.0)
-    if extra_fixed:
-        fixed += extra_fixed
-
     def check(a_name, a, b_name, b, state):
         ida, idb = a_name.split("#")[0], b_name.split("#")[0]
-        if ida == idb and a_name == b_name:
+        if a_name == b_name:
             return
         v = intersect_volume(a, b)
-        allow = ALLOWED.get(frozenset([ida, idb]), tol)
+        allow = allowed.get(frozenset([ida, idb]), tol)
         if v > allow:
-            item = {"a": a_name, "b": b_name, "state": state, "vol_mm3": round(v, 2)}
-            results["interference"].append(item)
+            results["interference"].append({"a": a_name, "b": b_name, "state": state, "vol_mm3": round(v, 2)})
             fails.append(f"interferencia {a_name} ↔ {b_name} en {state}: {v:.1f} mm³")
 
     n_checks = 0
-    # unidad (rígida): pares internos en marcha
-    unit0 = []
-    for mod in by_frame.get("unit", []):
-        unit0 += placed(mod, 0.0, 0.0)
-    yoke0 = []
-    for mod in by_frame.get("yoke", []):
-        yoke0 += placed(mod, 0.0, 0.0)
-    for (na, a), (nb, b) in itertools.combinations(unit0, 2):
-        check(na, a, nb, b, "ψ=0,φ=0 (interno unidad)"); n_checks += 1
-    for (na, a), (nb, b) in itertools.combinations(yoke0, 2):
-        check(na, a, nb, b, "ψ=0 (interno horquilla)"); n_checks += 1
-    # barrido
+    fixed = []
+    for mod in mods:
+        if mod.META["frame"] in FIXED_FRAMES and mod.META["id"] in meshes:
+            fixed += placed(mod, 0.0, 0)
+    for (na, a), (nb, b) in itertools.combinations(fixed, 2):
+        check(na, a, nb, b, "fijo"); n_checks += 1
     for s in steers:
-        yk = []
-        for mod in by_frame.get("yoke", []):
-            yk += placed(mod, s, 0.0)
-        for (na, a) in yk:
-            for (nb, b) in fixed:
-                check(na, a, nb, b, f"ψ={s:+.0f}"); n_checks += 1
-        for t in tilts:
-            un = []
-            for mod in by_frame.get("unit", []):
-                un += placed(mod, s, t)
-            for (na, a) in un:
-                for (nb, b) in fixed + yk:
-                    check(na, a, nb, b, f"ψ={s:+.0f},φ={t:.0f}"); n_checks += 1
+        for bk in buckets:
+            mv = []
+            for mod in mods:
+                if mod.META["frame"] in MOVING_FRAMES and mod.META["id"] in meshes:
+                    mv += placed(mod, s, bk)
+            st = f"δ={s:+.0f}°, bucket {'abajo' if bk else 'arriba'}"
+            for (na, a) in mv:
+                for (nb, b) in fixed:
+                    check(na, a, nb, b, st); n_checks += 1
+            for (na, a), (nb, b) in itertools.combinations(mv, 2):
+                check(na, a, nb, b, st); n_checks += 1
     results["n_pair_checks"] = n_checks
-    results["states"] = {"steer": steers, "tilt": [float(x) for x in tilts]}
+    results["states"] = {"steer": steers, "bucket": buckets}
 
     # ---------------- V6 masa ----------------
-    est = p.inp["architecture"]["unit_mass_estimate_kg"]
-    cad = manifest["totals"]["unit_mass_kg_cad"]
-    results["unit_mass"] = {"cad_kg": cad, "estimate_kg": est, "rel_diff": (cad - est) / est}
-    if abs(cad - est) / est > 0.25:
-        fails.append(f"masa de la unidad CAD {cad:.2f} kg difiere > 25 % de la estimación {est} kg (actualizar inputs.yaml)")
-    elif abs(cad - est) / est > 0.10:
-        notes.append(f"masa de la unidad CAD {cad:.2f} kg vs estimación {est} kg (>10 %)")
+    cad = manifest["totals"].get("jet_unit_mass_kg", 0.0)
+    est = p.inp["masses"]["jet_mass_estimate_kg"]
+    results["jet_mass"] = {"cad_kg": cad, "estimate_kg": est}
+    notes.append(f"masa de la unidad de jet (CAD) {cad:.2f} kg — sizing.py la usa desde manifest (estimación previa {est} kg)")
 
     results["ok"] = not fails
     if not quiet:
@@ -212,9 +176,8 @@ def run(p=None, mods=None, manifest=None, tilt_step=None, steer_list=None, quiet
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tilt-step", type=float, default=None)
-    a = ap.parse_args(argv)
-    res = run(tilt_step=a.tilt_step)
+    ap.parse_args(argv)
+    res = run()
     with open(ROOT / "resultados" / "verify.json", "w", encoding="utf-8") as f:
         json.dump(res, f, indent=2, ensure_ascii=False)
     return 0 if res["ok"] else 1

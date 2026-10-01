@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""build_all.py — Construye todas las piezas P1-<SUB>-<NN>_<nombre> desde params.py y exporta:
+"""build_all.py — Construye todas las piezas P1-<SUB>-<NN>_<nombre> del waterjet desde params.py y exporta:
 
     04_diseno/step/<ID>_<nombre>.step   (impresas: orientación de impresión; resto: marco natural)
     04_diseno/stl/<ID>_<nombre>.stl     (solo impresas, orientación de impresión, mm)
     04_diseno/stl/asm/<ID>.stl          (todas, marco natural; las usa verify_parts.py y Blender)
-    04_diseno/step/P1-ASM_marcha.step   (ensamblaje en posición de marcha)
+    04_diseno/step/P1-ASM_marcha.step   (ensamblaje: boquilla recta, bucket arriba)
     resultados/manifest.json            (envolventes, masas, horas, metadatos, cotas críticas)
 Uso:  python 04_diseno/build_all.py [--only ID] [--fast]
 """
@@ -28,9 +28,11 @@ from build123d import Compound, export_step, export_stl  # noqa: E402
 import params as P  # noqa: E402
 from cadlib import to_print  # noqa: E402
 
-DENSITY = {"PETG": 1.27, "ASA": 1.07, "POM-C": 1.41, "AISI 316": 8.0, "AISI 440C": 7.7,
-           "Al 6061-T6": 2.70, "Al": 2.70, "Al 5052/6082": 2.68}   # g/cm³ [ESTIMADO: valores típicos]
-MASS_OVERRIDE_KG = {"P1-DRV-04": "motor", "P1-PRP-03": "prop"}
+DENSITY = {"PETG": 1.27, "ASA": 1.07, "POM-C": 1.41, "AISI 316": 8.0, "AISI 440C": 7.7, "Acero": 7.85,
+           "Al 6061-T6": 2.70, "Al": 2.70, "Al 5052/6082": 2.68, "Al 5083": 2.66, "CuAl10Ni": 7.6,
+           "Bronce": 8.8, "NBR": 1.3, "referencia": 0.0}   # g/cm³ [ESTIMADO: valores típicos]
+# META["mass_from"] = "motor" → masa del catálogo (inputs) en lugar de volumen × densidad
+# META["group"]: "jet" | "drive" | "motor" | "ele" | "ref" (masa de la unidad = jet + drive)
 
 
 def load_parts():
@@ -105,10 +107,10 @@ def main(argv=None):
         rec = {**meta, "file_stem": stem, "valid_solid": valid, "volume_mm3": vol,
                "frame": meta["frame"]}
         # masa
-        if meta["id"] in MASS_OVERRIDE_KG:
-            k = MASS_OVERRIDE_KG[meta["id"]]
-            mass_g = (inp["motor"]["options"][sel["motor"]]["mass_kg"] if k == "motor"
-                      else inp["propeller"]["options"][sel["propeller"]]["mass_kg"]) * 1000
+        if meta.get("mass_from") == "motor":
+            mass_g = inp["motor"]["options"][sel["motor"]]["mass_kg"] * 1000
+        elif "mass_g" in meta:
+            mass_g = float(meta["mass_g"])
         else:
             rho = DENSITY.get(meta["material"], 1.27)
             mass_g = vol / 1000 * rho * meta.get("solid_frac", 1.0)
@@ -116,7 +118,11 @@ def main(argv=None):
         rec["mass_g_total"] = mass_g * meta["qty"]
         # exportes
         export_stl(part, str(HERE / "stl" / "asm" / f"{meta['id']}.stl"), tolerance=tol, angular_tolerance=atol)
-        if meta["process"] == "impresa":
+        if meta["process"] == "referencia":
+            rec["files"] = []
+            bb = part.bounding_box()
+            rec["bbox_mm"] = [round(bb.max.X - bb.min.X, 2), round(bb.max.Y - bb.min.Y, 2), round(bb.max.Z - bb.min.Z, 2)]
+        elif meta["process"] == "impresa":
             pp = to_print(part, meta["print_rot"])
             ang, dims = min_xy_footprint(pp)
             from build123d import Rot
@@ -140,7 +146,7 @@ def main(argv=None):
             rec["checks"] = [eval_check(c) for c in m.checks(p, part)]
         except Exception as e:  # pragma: no cover
             rec["checks"] = [{"name": f"error en checks: {e}", "value": 0, "ref": 0, "op": "=", "ok": False}]
-        # ubicaciones de ensamblaje en marcha (ψ=0, φ=0)
+        # ubicaciones de ensamblaje en marcha (boquilla recta, bucket arriba)
         rec["placements_running"] = [loc_matrix(L) for L in m.placements(p, 0.0, 0.0)]
         for L in m.placements(p, 0.0, 0.0):
             asm_shapes.append(part.moved(L))
@@ -156,16 +162,16 @@ def main(argv=None):
     manifest["totals"] = {
         "printed_mass_g": sum(r["mass_g_total"] for r in printed),
         "printed_hours": sum(r["print_hours_each"] * r["qty"] for r in printed),
-        "unit_mass_kg_cad": sum(r["mass_g_total"] for r in manifest["parts"]
-                                if r["frame"] == "unit") / 1000,
+        "jet_unit_mass_kg": sum(r["mass_g_total"] for r in manifest["parts"]
+                                if r.get("group") in ("jet", "drive")) / 1000,
         "n_parts": len(manifest["parts"]),
     }
     out = ROOT / "resultados" / ("manifest.json" if not a.only else "manifest_partial.json")
     with open(out, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
     print(f"Total impreso: {manifest['totals']['printed_mass_g']:.0f} g, "
-          f"{manifest['totals']['printed_hours']:.1f} h; masa unidad (CAD) "
-          f"{manifest['totals']['unit_mass_kg_cad']:.2f} kg; {time.time()-t_all:.0f} s")
+          f"{manifest['totals']['printed_hours']:.1f} h; masa de la unidad de jet (CAD) "
+          f"{manifest['totals']['jet_unit_mass_kg']:.2f} kg; {time.time()-t_all:.0f} s")
     return 0
 
 
