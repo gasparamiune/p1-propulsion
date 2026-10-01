@@ -11,22 +11,22 @@
 | P1-MNT-04 | LC5 en el plano (corta) | M = (H/2)·h; Z = t·L²/6 (L=64) | 2.66 | short | 24.0 | 9.01 | 3.0 | ✔ |
 | P1-MNT-04 | Golpe lateral 200 N (corta) | M=(F/2)·h; Z = L·t²/6 (fuera del plano) | 4.86 | short | 24.0 | 4.94 | 3.0 | ✔ |
 | P1-MNT-04 | Apoyo del perno Ø12 (corta) | p = (H/2)/(d·t) | 1.49 | short | 24.0 | 16.08 | 3.0 | ✔ |
-| P1-MNT-05 | LC5 dinámico (corta) | p = 6M/(d·L²), M = 0.19·F·L = 215 N·m | 3.98 | short | 24.0 | 6.03 | 3.0 | ✔ |
-| P1-MNT-05 | LC5 cola trabada (corta) | p = 6M/(d·L²), M = F_fus·L = 338 N·m | 6.27 | short | 24.0 | 3.82 | 3.0 | ✔ |
+| P1-MNT-05 | LC5 dinámico (corta) | p = 6M/(d·L²), M = 0.19·F·L = 215 N·m | 1.74 | short | 24.0 | 13.76 | 3.0 | ✔ |
+| P1-MNT-05 | LC5 cola trabada (corta) | p = 6M/(d·L²), M = F_fus·L = 338 N·m | 2.75 | short | 24.0 | 8.73 | 3.0 | ✔ |
 | P1-MNT-05/06 | Tope de marcha (sostenido) | F = (T·e + M_grav)/r = 406 N sobre tope Ø25 | 0.83 | sust | 8.4 | 10.14 | 3.0 | ✔ |
 | P1-MNT-05/06 | LC6 golpe de ola 3 g en el tope (corta) | F = 1053 N | 2.15 | short | 24.0 | 11.17 | 3.0 | ✔ |
 | P1-MNT-05/06 | LC6 ola ±1 g (fatiga ~1e6 ciclos) | F_a = 351 N | 0.71 | lcf | 3.6 | 5.03 | 3.0 | ✔ |
 | P1-MNT-05 | LC1 apoyo del buje del pivote (corta) | p = F/(d·w), POM Ø20 × ancho | 0.34 | short | 24.0 | 71.37 | 3.0 | ✔ |
-| P1-MNT-05 | LC6 paso de pala ±10 % T lateral (fatiga 1e7–1e8) | p_a = 6M/(d·L²) | 0.41 | fat | 1.4 | 3.54 | 3.0 | ✔ |
-| P1-MNT-05 | LC1 tuercas cautivas de la placa motriz: arranque por corte (corta) | τ = (T/4)/(2·12·18) (bolsillo a 18 mm de la cara) | 0.18 | metal | 12.0 | 67.01 | 3.0 | ✔ |
-| P1-MNT-05 | LC6 tuercas de placa motriz ±amp·T (fatiga 1e7–1e8) | τ_a = (amp·T_cr/4)/(2·12·18) | 0.01 | metal | 0.7 | 63.84 | 3.0 | ✔ |
+| P1-MNT-05 | LC6 paso de pala ±20 % T lateral (fatiga 1e7–1e8) | p_a = 6M/(d·L²) | 0.36 | fat | 1.4 | 4.04 | 3.0 | ✔ |
+| P1-MNT-05 | LC1 tuercas cautivas de la placa motriz: arranque por corte (corta) | τ = (T/4)/(2·12·18) (bolsillo a 18 mm de la cara) | 0.18 | metal | 12.0 | 67.0 | 3.0 | ✔ |
+| P1-MNT-05 | LC6 tuercas de placa motriz ±amp·T (fatiga 1e7–1e8) | τ_a = (amp·T_cr/4)/(2·12·18) | 0.02 | metal | 0.7 | 31.92 | 3.0 | ✔ |
 | P1-MNT-05 | LC2 marcha atrás: cartucho contra el fondo del rebaje (corta) | p = T_rev/A_anillo | 0.10 | short | 24.0 | 245.26 | 3.0 | ✔ |
-| P1-MNT-06 | LC5 cola trabada: apoyo extremo (corta) | p = F_ext/(d·25), F_ext = 4701 N | 4.70 | short | 24.0 | 5.1 | 3.0 | ✔ |
-| P1-MNT-06 | LC5: arandela Ø24 de perno pasante (corta) | p = (F_ext/2)/(π(24²−6.4²)/4) | 5.59 | short | 24.0 | 4.29 | 3.0 | ✔ |
+| P1-MNT-06 | LC5 cola trabada: apoyo extremo (corta) | p = F_ext/(d·25), F_ext = 3111 N | 3.11 | short | 24.0 | 7.71 | 3.0 | ✔ |
+| P1-MNT-06 | LC5: arandela Ø24 de perno pasante (corta) | p = (F_ext/2)/(π(24²−6.4²)/4) | 3.70 | short | 24.0 | 6.48 | 3.0 | ✔ |
 | P1-HSG-01 placa Al | LC1 empuje bollard | franja cartucho→pernos: M = (T/2)·11 mm, Z = 30·t²/6 (t=6) | 9.44 | metal | 240.0 | 25.41 | 2.0 | ✔ |
-| P1-HSG-01 placa Al | LC6 ±10 % empuje (fatiga) | σ_a = (amp·T/2)·11/Z | 0.59 | metal | 60.0 | 100.89 | 2.0 | ✔ |
+| P1-HSG-01 placa Al | LC6 ±20 % empuje (fatiga) | σ_a = (amp·T/2)·11/Z | 1.19 | metal | 60.0 | 50.44 | 2.0 | ✔ |
 | P1-HSG-01 placa Al | LC3 torque de rotor trabado en colisos M4 | p = Q/(4·r·d·t) | 2.44 | metal | 240.0 | 98.23 | 2.0 | ✔ |
-| P1-DRV-08 cartucho Al | LC1 empuje en el labio (corte) | τ = T/(π·Ø21·espesor labio) | 0.47 | metal | 138.5 | 295.59 | 2.0 | ✔ |
+| P1-DRV-08 cartucho Al | LC1 empuje en el labio (corte) | τ = T/(π·Ø21·espesor labio) | 0.47 | metal | 138.5 | 295.58 | 2.0 | ✔ |
 | P1-HSG-02 | LC3 tracción en el plano (corta) | σ = R_B/(24·t) | 1.11 | short | 24.0 | 21.64 | 3.0 | ✔ |
 | P1-HSG-02 | LC4 tirón de correa (corta) | σ = R_B,pin/(24·t) | 1.95 | short | 24.0 | 12.31 | 3.0 | ✔ |
 | P1-HSG-04 | LC7 apoyo del tubo en la abrazadera (corta) | M = F·L = 82 N·m → F = M/s = 1500 N; p = F/(d·22) | 2.27 | short | 24.0 | 10.55 | 3.0 | ✔ |

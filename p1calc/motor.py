@@ -16,7 +16,7 @@ class Motor:
     def __init__(self, spec: dict, name: str = ""):
         self.name = name
         self.kv = spec["kv_rpm_v"]
-        self.R = spec["r_ohm"]
+        self.R = spec["r_ohm"] * spec.get("r_hot_factor", 1.0)   # resistencia en caliente (conservador)
         self.I0 = spec["i0_a"]
         self.i_max = spec["i_max_a"]
         self.p_max = spec["p_max_w"]

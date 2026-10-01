@@ -1,13 +1,17 @@
 """Modelo de hélice de paso fijo + cavitación.
 
 Dos niveles:
-  1. `Propeller` — curvas KT(J), KQ(J) de la hélice concreta (comprada). Si existe
-     `p1calc/bseries_coeffs.json` (polinomios Wageningen B-series de Oosterveld &
-     van Oossanen 1975, verificados), se usan; si no, una aproximación lineal
-     calibrada a valores típicos B-series de 3 palas [ESTIMADO]:
+  1. `Propeller` — curvas KT(J), KQ(J) de la hélice concreta (comprada). Dentro del rango de
+     valididad (2 ≤ Z ≤ 7, 0,30 ≤ AE/A0 ≤ 1,05, 0,5 ≤ P/D ≤ 1,4) se usan los polinomios
+     Wageningen B-series de `p1calc/bseries_coeffs.json` (Oosterveld & van Oossanen,
+     transcritos de Bernitsas, Ray & Kinley 1981 y verificados término a término en
+     research/R09 §2.1). Fuera de rango (p. ej. hélices de trolling con P/D ≈ 0,4) se usa una
+     aproximación lineal calibrada contra esos polinomios (research/R09 §2.1) [ESTIMADO]:
          KT = KT0·(1 − J/J_T0) ,  KQ = KQ0·(1 − J/J_Q0)
-         KT0 = a_T·(P/D),  J_T0 = 1.05·P/D,  J_Q0 = 1.15·P/D
-         KQ0 = KT0^1.5 / (√(π/2)·2π·FOM_b)    (FOM_b = figura de mérito en bollard)
+         KT0 = 0,40·(P/D),  J_T0 = 1,10·P/D,  J_Q0 = 1,20·P/D
+         KQ0 = KT0^1.5 / (√(π/2)·2π·FOM_b),  FOM_b = 0,72 − 0,18·P/D (0,63 a P/D 0,6 … 0,50 a 1,2)
+     En ambos casos η0 efectivo = efficiency_factor·η0 (Rn real 6–8·10⁵ < 2·10⁶ y rugosidad:
+     0,93–0,98 según la corrección ITTC-78 de Holtrop, research/R09 §2.2).
   2. Disco actuador (momento) para el límite ideal y para comparar arquitecturas:
          η_i = 2 / (1 + √(1 + C_T)),  C_T = T / (½ ρ Va² A0)
 
@@ -23,8 +27,19 @@ import numpy as np
 
 _COEF = Path(__file__).with_name("bseries_coeffs.json")
 
-A_T_LINEAR = 0.38        # [ESTIMADO: KT0 ≈ 0.38·P/D para B3 con AE/A0≈0.45–0.5]
-FOM_BOLLARD = 0.60       # [ESTIMADO: figura de mérito típica de hélice abierta en bollard]
+A_T_LINEAR = 0.40        # [VERIFICADO: research/R09 §2.1 — KT0/(P/D) = 0,389–0,406 en B3-50]
+JT0_LINEAR = 1.10        # [VERIFICADO: research/R09 §2.1 — KT = 0 en J ≈ 1,08–1,125·P/D]
+JQ0_LINEAR = 1.20        # [ESTIMADO: KQ se anula algo después que KT]
+
+
+def fom_bollard(pd: float) -> float:
+    """Figura de mérito en punto fijo de B3-50 en función de P/D [ajuste lineal de research/R09 §2.1]."""
+    return 0.72 - 0.18 * pd
+
+
+def bseries_valid(Z, BAR, PD, coef) -> bool:
+    v = coef.get("validity", {"Z": [2, 7], "BAR": [0.30, 1.05], "PD": [0.5, 1.4]})
+    return v["Z"][0] <= Z <= v["Z"][1] and v["BAR"][0] <= BAR <= v["BAR"][1] and v["PD"][0] <= PD <= v["PD"][1]
 
 
 class Propeller:
@@ -37,13 +52,16 @@ class Propeller:
         self._bs = None
         if _COEF.exists():
             with open(_COEF) as f:
-                self._bs = json.load(f)
-        self.model = "B-series (Oosterveld & van Oossanen 1975)" if self._bs else "lineal aproximada [ESTIMADO]"
+                coef = json.load(f)
+            if bseries_valid(Z, BAR, self.PD, coef):
+                self._bs = coef
+        self.model = ("B-series (Oosterveld & van Oossanen) [VERIFICADO: research/R09]" if self._bs else
+                      "lineal calibrada a B-series, fuera del rango de la serie [ESTIMADO]")
         # parámetros del modelo lineal
         self.KT0 = A_T_LINEAR * self.PD
-        self.JT0 = 1.05 * self.PD
-        self.JQ0 = 1.15 * self.PD
-        self.KQ0 = self.KT0**1.5 / (math.sqrt(math.pi / 2) * 2 * math.pi * FOM_BOLLARD)
+        self.JT0 = JT0_LINEAR * self.PD
+        self.JQ0 = JQ0_LINEAR * self.PD
+        self.KQ0 = self.KT0**1.5 / (math.sqrt(math.pi / 2) * 2 * math.pi * fom_bollard(self.PD))
 
     # --- coeficientes ---------------------------------------------------------
     def kt(self, J):
@@ -118,11 +136,16 @@ class Propeller:
         return {"sigma07": sigma, "tau_c": tau, "AP_m2": AP}
 
 
+BURRILL_SIGMA = [0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.80, 1.00, 1.50, 2.00, 3.00]
+BURRILL_TAU_5 = [0.066, 0.118, 0.155, 0.181, 0.201, 0.218, 0.243, 0.260, 0.286, 0.301, 0.320]
+# [VERIFICADO: research/R09 §3.2 — curva de 5 % de cavitación en la cara de succión, digitalizada de
+#  Carlton (2012) fig. 9.21 en el repositorio NAVALARCHITECTURE-POP]
+
+
 def burrill_tau_limit(sigma: float) -> float:
-    """Límite de Burrill para ~2.5 % de cavitación en la cara de succión (buques
-    mercantes). Ajuste τ_c,lim = 0.3·σ^0.6 válido aprox. para 0.2 < σ < 2.
-    [ESTIMADO: ajuste aproximado del diagrama; ver 02_calculos.md, a verificar]"""
-    return 0.3 * max(sigma, 1e-6) ** 0.6
+    """Límite de Burrill (5 % de cavitación en la cara de succión) por interpolación de la
+    curva digitalizada; fuera de la tabla se toma el extremo (conservador para σ > 3)."""
+    return float(np.interp(sigma, BURRILL_SIGMA, BURRILL_TAU_5))
 
 
 def actuator_disk_eta(T: float, Va: float, D: float, rho: float) -> float:

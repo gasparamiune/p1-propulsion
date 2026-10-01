@@ -270,7 +270,29 @@ class P2Space:
         np.add.at(f, self.facet_dofs(fsel).ravel(), fe.ravel())
         return f
 
-    def spring_matrix(self, fsel, k, mode="normal", direction=None, k_t=0.0):
+    def _projector(self, fsel, Xq, kf, k_t=0.0, mode="normal", direction=None, axis=None):
+        """Proyector por punto de cuadratura P (nf,nq,3,3): n nᵀ (+ (k_t/k)(I − n nᵀ)).
+        axis=(punto, dirección): normal radial exacta hacia el eje (agujeros) — evita que un
+        agujero facetado transmita par alrededor de su eje (articulación sin fricción)."""
+        nf, nq = Xq.shape[:2]
+        if mode == "dir":
+            d = np.asarray(direction, float) / np.linalg.norm(direction)
+            n = np.broadcast_to(d, (nf, nq, 3))
+        elif axis is not None:
+            pt, ax = np.asarray(axis[0], float), np.asarray(axis[1], float) / np.linalg.norm(axis[1])
+            v = Xq - pt
+            v = v - (v @ ax)[..., None] * ax
+            n = -v / np.linalg.norm(v, axis=-1, keepdims=True)
+            if np.einsum("fqc,fc->f", n, self.fnormal[fsel]).mean() < 0:      # superficie convexa
+                n = -n
+        else:
+            n = np.broadcast_to(self.fnormal[fsel][:, None, :], (nf, nq, 3))
+        P = np.einsum("fqc,fqd->fqcd", n, n)
+        if k_t and mode != "dir":
+            P = P + (k_t / np.maximum(kf, 1e-30))[:, None, None, None] * (np.eye(3)[None, None] - P)
+        return P
+
+    def spring_matrix(self, fsel, k, mode="normal", direction=None, k_t=0.0, axis=None):
         """∫ k (u·n)(v·n) dA  (+ k_t tangencial).  mode='dir': dirección fija `direction`.
         k puede ser escalar o array por faceta [N/mm³]."""
         fsel = np.asarray(fsel)
@@ -279,22 +301,15 @@ class P2Space:
             return sp.csr_matrix((n, n))
         Xq, W, Nq = self.facet_quad(fsel)
         kf = np.broadcast_to(np.asarray(k, float), (len(fsel),))
-        M = np.einsum("fq,qi,qj->fij", W, Nq, Nq) * kf[:, None, None]  # (nf,6,6)
-        if mode == "dir":
-            d = np.asarray(direction, float) / np.linalg.norm(direction)
-            P = np.broadcast_to(np.outer(d, d), (len(fsel), 3, 3))
-        else:
-            nn = self.fnormal[fsel]
-            P = np.einsum("fc,fd->fcd", nn, nn)
-            if k_t:
-                P = P + (k_t / np.maximum(kf, 1e-30))[:, None, None] * (np.eye(3)[None] - P)
-        Ke = np.einsum("fij,fcd->ficjd", M, P).reshape(len(fsel), 18, 18)
+        P = self._projector(fsel, Xq, kf, k_t, mode, direction, axis)
+        kw = W * kf[:, None]
+        Ke = np.einsum("fq,qi,qj,fqcd->ficjd", kw, Nq, Nq, P).reshape(len(fsel), 18, 18)
         d = self.facet_dofs(fsel)
         r = np.broadcast_to(d[:, :, None], Ke.shape).ravel()
         c = np.broadcast_to(d[:, None, :], Ke.shape).ravel()
         return sp.csr_matrix((Ke.ravel(), (r, c)), shape=(n, n))
 
-    def rigid_coupling(self, fsel, k, rdofs, xref, k_t=0.0):
+    def rigid_coupling(self, fsel, k, rdofs, xref, k_t=0.0, axis=None):
         """Resortes normales (y tangenciales k_t) entre facetas y un cuerpo rígido de 6 gdl
         (U, Θ alrededor de xref) en los índices rdofs. Devuelve la matriz completa."""
         fsel = np.asarray(fsel)
@@ -304,10 +319,7 @@ class P2Space:
         Xq, W, Nq = self.facet_quad(fsel)
         nf = len(fsel)
         kf = np.broadcast_to(np.asarray(k, float), (nf,))
-        nn = self.fnormal[fsel]
-        P = np.einsum("fc,fd->fcd", nn, nn)
-        if k_t:
-            P = P + (k_t / kf)[:, None, None] * (np.eye(3)[None] - P)
+        P = self._projector(fsel, Xq, kf, k_t, "normal", None, axis)          # (nf,q,3,3)
         # R(x) (3×6): u = U - [r]× Θ
         r = Xq - np.asarray(xref)[None, None, :]
         R = np.zeros((nf, 6, 3, 6))
@@ -316,8 +328,8 @@ class P2Space:
         R[:, :, 1, 3], R[:, :, 1, 5] = -r[..., 2], r[..., 0]
         R[:, :, 2, 3], R[:, :, 2, 4] = r[..., 1], -r[..., 0]
         kw = W * kf[:, None]                                           # (nf,q)
-        Kuu = np.einsum("fq,qi,qj,fcd->ficjd", kw, Nq, Nq, P).reshape(nf, 18, 18)
-        PR = np.einsum("fcd,fqda->fqca", P, R)                          # (nf,q,3,6)
+        Kuu = np.einsum("fq,qi,qj,fqcd->ficjd", kw, Nq, Nq, P).reshape(nf, 18, 18)
+        PR = np.einsum("fqcd,fqda->fqca", P, R)                         # (nf,q,3,6)
         Kur = -np.einsum("fq,qi,fqca->fica", kw, Nq, PR).reshape(nf, 18, 6)
         Krr = np.einsum("fq,fqca,fqcb->ab", kw, R, PR)
         d = self.facet_dofs(fsel)

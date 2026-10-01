@@ -78,3 +78,35 @@ def test_max_speed_physics(sizing):
     # techo físico de ~1 kW en casco de 2.4–2.75 m: 7.6–8.0 km/h medidos (research/R04 §C.2)
     v = sizing["vmax"]["nominal_vnom"]["V_kmh"]
     assert 6.5 < v < 9.5
+
+
+def test_bseries_control():
+    # research/R09 §2.1: B3-50, P/D 1,0, J 0,5 → KT 0,2451, KQ 0,03863, η0 0,505
+    from p1calc.prop import Propeller
+    p = Propeller(0.254, 0.254, 3, 0.50)
+    assert "B-series" in p.model
+    assert abs(float(p.kt(0.5)) - 0.2451) < 1e-4
+    assert abs(float(p.kq(0.5)) - 0.03863) < 1e-5
+    assert abs(float(p.eta0(0.5)) - 0.505) < 1e-3
+
+
+def test_bseries_out_of_range_falls_back():
+    from p1calc.prop import Propeller
+    assert "fuera del rango" in Propeller(0.254, 0.1016, 2, 0.35).model   # P/D 0,4 < 0,5
+
+
+def test_burrill_table():
+    # research/R09 §3.2: curva de 5 % (σ=1 → 0,260; σ=2 → 0,301) y monótona
+    from p1calc.prop import burrill_tau_limit
+    assert abs(burrill_tau_limit(1.0) - 0.260) < 1e-9
+    assert abs(burrill_tau_limit(2.0) - 0.301) < 1e-9
+    xs = [0.1 * i for i in range(1, 31)]
+    ys = [burrill_tau_limit(x) for x in xs]
+    assert all(b >= a for a, b in zip(ys, ys[1:]))
+
+
+def test_shaft_span_and_critical_speed(sizing):
+    # research/R09 §5.1: tramo biapoyado ≤ 0,6 m para velocidad crítica ≥ ~4× la máxima
+    assert sizing["layout"]["max_span_mm"] <= 600.0
+    sh = sizing["mech"]["shaft"]
+    assert sh["n_crit_rpm"] >= 3.0 * sh["n_max_rpm"]

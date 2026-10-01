@@ -94,8 +94,8 @@ operation:
 # R = R_F·(1+k) + R_TR + R_W + R_air ;  R_W = W·c_w·Fr⁴/(1+(Fr/Fr_h)⁴)
 # -----------------------------------------------------------------------------
 resistance:
-  form_factor_k: 0.20         # [ESTIMADO: casco romo de fondo plano, 0.1–0.3]
-  delta_cf: 0.0004            # [ESTIMADO: rugosidad de remaches/abolladuras de casco de aluminio]
+  form_factor_k: 0.20         # [ESTIMADO: research/R09 §1.3 — 1+k entre 1,0 (ITTC, lanchas con espejo) y ~1,5 (Holtrop "pram", extrapolado); se calibra R(v) total]
+  delta_cf: 0.0004            # [SUPUESTO: parámetro de calibración (remaches/abolladuras); la ITTC-78 da ΔC_F negativo con L = 2 m (research/R09 §1.2)]
   wave_cw: 1.50               # [ESTIMADO: calibrado para R/W≈0.045 a Fr_L≈0.37 (jon boat + trolling 55 lb); CALIBRAR con remolque]
   wave_fr_hump: 0.55          # [ESTIMADO: joroba de casco plano pesado Fr_L 0.5–0.7]
   air_cd: 1.0                 # [ESTIMADO: personas sentadas + borda, Cd 0.8–1.2]
@@ -119,7 +119,7 @@ architecture:
   tilt_range_deg: 25.0        # [CALCULADO: la punta de hélice sale del agua con ~22° y queda ~110 mm sobre la flotación a 25° (02_calculos.md §8); verify confirma despeje]
   shaft_top_ahead_of_pivot_mm: 70     # [SUPUESTO: cara de popa de la placa motriz delante del pivote (u)]
   stop_pad_d_mm: 25.0                 # [CALCULADO: tope de marcha Ø25 (goma sobre arandela A4) → fatiga por ola con FS ≥ 3 (structural.py)]
-  blade_rate_amplitude_frac: 0.10     # [ESTIMADO: fluctuación de empuje/fuerza lateral a paso de pala ±10 % de T (hélice en flujo uniforme oblicuo; armónicos 1P se cancelan con 3 palas)]
+  blade_rate_amplitude_frac: 0.20     # [ESTIMADO: research/R09 §5.4 — con eje a 25° la carga de cada pala fluctúa ≈ ±17 % una vez por vuelta; se toma ±20 % para fatiga]
   unit_mass_estimate_kg: 9.0          # [ESTIMADO: unidad completa; se contrasta con la masa del CAD en verify]
 
 # -----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ propeller:
   wake_fraction: 0.02         # [ESTIMADO: hélice ~1 m detrás del espejo, flujo casi libre]
   thrust_deduction: 0.02      # [ESTIMADO: idem]
   eta_relative_rotative: 1.0  # [SUPUESTO]
-  efficiency_factor: 1.0      # [SUPUESTO: multiplicador de η0 del modelo de hélice (calibración/sensibilidad)]
+  efficiency_factor: 0.95     # [VERIFICADO: research/R09 §2.2 — corrección de escala/rugosidad ITTC-78 (Holtrop): η0 × 0,93–0,98 con Rn 6–8·10⁵; valor medio]
   guard:
     type: "ring"              # [SUPUESTO: aro protector impreso + patín]
     thrust_loss_frac: 0.10    # [ESTIMADO: research/R03 — aro perfilado (L/D≈0,3, holgura 2–3 % D, sin barras delante): K_Q +12 % (Ladd); un aro romo perdería hasta 25 % de K_T]
@@ -262,7 +262,8 @@ motor:
       import: "cn"            # [VERIFICADO: research/R08a §0 — tienda en China, precio sin aranceles]
       rth_k_w: 0.45           # [ESTIMADO: outrunner autoventilado con capó ventilado]
       tau_th_s: 600.0         # [ESTIMADO: constante térmica ~10 min]
-      t_winding_max_c: 120.0  # [SUPUESTO: límite conservador de bobinado]
+      t_winding_max_c: 85.0   # [VERIFICADO: research/R09 §6 — el VESC empieza a limitar a 85 °C de motor y MOSFET por defecto; también mcconf_default.h]
+      r_hot_factor: 1.236     # [VERIFICADO: research/R09 §6.1 — cobre +23,6 % de resistencia a 80 °C respecto de 20 °C]
     OR6384_140:
       desc: "Flipsky 6384 Battle Hardened 140 KV"
       link: "https://flipsky.net/products/flipsky-bldc-belt-motor-battle-hardened-6384-140kv-170kv-190kv-4000w-for-electric-skateboard"
@@ -282,7 +283,8 @@ motor:
       import: "cn"            # [VERIFICADO: research/R08a §0]
       rth_k_w: 0.42           # [ESTIMADO]
       tau_th_s: 700.0         # [ESTIMADO]
-      t_winding_max_c: 120.0  # [SUPUESTO]
+      t_winding_max_c: 85.0   # [VERIFICADO: research/R09 §6 — el VESC empieza a limitar a 85 °C de motor y MOSFET por defecto; también mcconf_default.h]
+      r_hot_factor: 1.236     # [VERIFICADO: research/R09 §6.1 — cobre +23,6 % de resistencia a 80 °C respecto de 20 °C]
   current_limit_a: 70.0       # [SUPUESTO: límite de corriente de fase configurado en el ESC]
   reverse_current_frac: 0.5   # [SUPUESTO: límite de marcha atrás por firmware]
 esc:

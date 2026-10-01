@@ -131,8 +131,9 @@ class Interface:
     """Resortes de superficie. kind='ground' (contra suelo, opcional desplazamiento de
     referencia) o 'rigid' (contra un cuerpo rígido). unilateral → solo compresión."""
 
-    def __init__(self, name, facets, k, kind="ground", rigid=None, k_t=0.0, unilateral=True, zone=True):
+    def __init__(self, name, facets, k, kind="ground", rigid=None, k_t=0.0, unilateral=True, zone=True, axis=None):
         self.name, self.facets, self.k, self.kind = name, np.asarray(facets), float(k), kind
+        self.axis = axis
         self.rigid, self.k_t, self.unilateral, self.zone = rigid, k_t, unilateral, zone
         self.active = np.ones(len(self.facets), bool)
         if len(self.facets) == 0:
@@ -201,8 +202,19 @@ class Model:
         f = itf.facets[a]
         if itf.kind == "rigid":
             r = self.rigids[itf.rigid]
-            return self.S.rigid_coupling(f, itf.k, r["dofs"], r["xref"], k_t=itf.k_t)
-        return self.S.spring_matrix(f, itf.k, k_t=itf.k_t)
+            return self.S.rigid_coupling(f, itf.k, r["dofs"], r["xref"], k_t=itf.k_t, axis=itf.axis)
+        return self.S.spring_matrix(f, itf.k, k_t=itf.k_t, axis=itf.axis)
+
+    def itf_normals(self, itf):
+        n = self.S.fnormal[itf.facets]
+        if itf.axis is None:
+            return n
+        pt, ax = np.asarray(itf.axis[0], float), np.asarray(itf.axis[1], float)
+        ax = ax / np.linalg.norm(ax)
+        v = self.S.fcent[itf.facets] - pt
+        v = v - np.outer(v @ ax, ax)
+        r = -v / np.linalg.norm(v, axis=1, keepdims=True)
+        return r if np.einsum("ij,ij->i", r, n).mean() >= 0 else -r
 
     def gaps(self, itf, u):
         uc = self.S.facet_values(u, itf.facets)
@@ -210,10 +222,10 @@ class Model:
             r = self.rigids[itf.rigid]
             q = u[r["dofs"]]
             uc = uc - (q[:3][None, :] + np.cross(q[3:][None, :], self.S.fcent[itf.facets] - r["xref"]))
-        return np.einsum("ij,ij->i", uc, self.S.fnormal[itf.facets])
+        return np.einsum("ij,ij->i", uc, self.itf_normals(itf))
 
     # --- solución con contacto unilateral ---
-    def solve(self, f, extra_K=None, extra_f=None, init_active=None, maxit=15, rtol=1e-8, log=None):
+    def solve(self, f, extra_K=None, extra_f=None, init_active=None, maxit=15, rtol=1e-7, log=None, change_tol=0.002):
         S = self.S
         if init_active:
             for itf in self.interfaces:
@@ -229,38 +241,48 @@ class Model:
         cg_total = 0
         for it in range(maxit):
             K = self.base_matrix(extra_K)
-            rebuild = self.pre is None
+            rebuild = self.pre is None or getattr(self, "_last_cg", 0) > 60
             u, info, pre = fc.solve_spd(K, rhs, self.fixed, self.P, x0=u, rtol=rtol,
                                         pre=None if rebuild else self.pre, maxiter=600)
+            self._last_cg = info["cg_iters"]
             if info["cg_flag"] != 0 or info["cg_iters"] > 150:
                 u, info, pre = fc.solve_spd(K, rhs, self.fixed, self.P, x0=u, rtol=rtol, pre=None, maxiter=3000)
             self.pre = pre
             cg_total += info["cg_iters"]
             changed = 0
-            state = []
+            state, old = [], []
             for itf in self.interfaces:
                 if not itf.unilateral:
                     continue
                 g = self.gaps(itf, u)
                 new = g > 0.0
                 changed += int((new != itf.active).sum())
+                old.append((itf, itf.active.copy()))
                 itf.active = new
                 state.append(new.copy())
             hist.append(changed)
             if log:
                 log(f"      contacto it {it}: cambios {changed}, CG {info['cg_iters']} it")
-            if changed == 0:
+            n_uni = sum(len(i.facets) for i in self.interfaces if i.unilateral)
+            if changed <= max(2, change_tol * n_uni):
+                for itf, a in old:                                   # u es consistente con el conjunto previo
+                    itf.active = a
+                accepted = changed
                 break
             key = np.concatenate(state) if state else np.zeros(0, bool)
-            if any(np.array_equal(key, s) for s in seen):          # ciclo → aceptar
+            if any(np.array_equal(key, s) for s in seen):          # ciclo → resolver con el último conjunto
+                accepted = None
                 break
             seen.append(key)
-        # solución final consistente con el conjunto activo final
-        if hist and hist[-1] != 0:
+        else:
+            accepted = None
+        if accepted is None:                                         # solución final con el conjunto activo final
             K = self.base_matrix(extra_K)
             u, info, pre = fc.solve_spd(K, rhs, self.fixed, self.P, x0=u, rtol=rtol, pre=self.pre, maxiter=3000)
-        info.update({"contact_iters": len(hist), "contact_changes": hist, "cg_total": cg_total + info["cg_iters"],
-                     "case_s": time.time() - t0, "converged_contact": bool(hist and hist[-1] == 0)})
+            cg_total += info["cg_iters"]
+        info.update({"contact_iters": len(hist), "contact_changes": hist, "cg_total": cg_total,
+                     "case_s": time.time() - t0, "converged_contact": accepted is not None,
+                     "residual_changes_accepted": accepted})
         self._last_extra = (extra_K, extra_f)
         return u, info
 

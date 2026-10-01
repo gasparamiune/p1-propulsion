@@ -151,7 +151,19 @@ def shear_pin(inp: dict, Q_target: float) -> dict:
     d_std = min(std, key=lambda x: abs(x - d * 1000))
     Q_actual = 2 * (math.pi * (d_std / 1000) ** 2 / 4) * tau * r_s
     return {"material": sp["material"], "d_calc_mm": d * 1000, "d_std_mm": d_std,
-            "Q_target_Nm": Q_target, "Q_shear_Nm": Q_actual}
+            "Q_target_Nm": Q_target, "Q_shear_Nm": Q_actual, "r_seat_m": r_s,
+            "A_pin_m2": math.pi * (d_std / 1000) ** 2 / 4}
+
+
+def shear_pin_fatigue(pin: dict, Q_mean: float, amp_frac: float, tau_e_mpa: float) -> dict:
+    """Fatiga del pasador en crucero (doble corte): τ = Q/(2·A·r); Goodman en corte con
+    τ_a = amp·τ_m. Un FS bajo no es inseguro (el pasador es el fusible) pero obliga a cambiarlo
+    seguido: se informa la vida recomendada."""
+    tau_m = Q_mean / (2 * pin["A_pin_m2"] * pin["r_seat_m"]) / 1e6
+    tau_a = amp_frac * tau_m
+    tau_u = pin["Q_shear_Nm"] / (2 * pin["A_pin_m2"] * pin["r_seat_m"]) / 1e6
+    fs = 1.0 / (tau_a / tau_e_mpa + tau_m / tau_u)
+    return {"tau_mean_MPa": tau_m, "tau_alt_MPa": tau_a, "tau_ult_MPa": tau_u, "fs_goodman": fs}
 
 
 # ----------------------------------------------------------------------------

@@ -79,10 +79,10 @@ def export_tmp(part, name, tmpdir):
     return path
 
 
-def mesh_part(part, pid, tmpdir, h, curv):
+def mesh_part(part, pid, tmpdir, h, curv, hmin=1.0):
     step = export_tmp(part, pid, tmpdir)
     stl = DISENO / "stl" / "asm" / f"{pid}.stl"
-    X, T, info = fc.mesh_step(step, h, curv_n=curv, stl_fallback=stl if stl.exists() else None)
+    X, T, info = fc.mesh_step(step, h, curv_n=curv, hmin=hmin, stl_fallback=stl if stl.exists() else None)
     return X, T, info
 
 
@@ -100,10 +100,10 @@ def hand_rows(est, part, keys):
 # P1-MNT-01 — abrazadera de popa en C
 # ===========================================================================
 
-def setup_mnt01(p, mods, est, h, curv, tmpdir, log=print):
+def setup_mnt01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     meta = mods["P1-MNT-01"].META
     part = mods["P1-MNT-01"].build(p)
-    X, T, minfo = mesh_part(part, "P1-MNT-01", tmpdir, h, curv)
+    X, T, minfo = mesh_part(part, "P1-MNT-01", tmpdir, h, curv, hmin)
     A = allowables(p.inp)
     S = fc.P2Space(X, T)
     M = Model(S, A["E"], A["nu"], print_z_dir(meta))
@@ -244,10 +244,10 @@ def M_active(M):
 # P1-MNT-04 — mejilla de horquilla
 # ===========================================================================
 
-def setup_mnt04(p, mods, est, h, curv, tmpdir, log=print):
+def setup_mnt04(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     meta = mods["P1-MNT-04"].META
     part = mods["P1-MNT-04"].build(p)
-    X, T, minfo = mesh_part(part, "P1-MNT-04", tmpdir, h, curv)
+    X, T, minfo = mesh_part(part, "P1-MNT-04", tmpdir, h, curv, hmin)
     A = allowables(p.inp)
     S = fc.P2Space(X, T)
     M = Model(S, A["E"], A["nu"], print_z_dir(meta))
@@ -255,7 +255,7 @@ def setup_mnt04(p, mods, est, h, curv, tmpdir, log=print):
     cyls = cad_cylinders(part)
     z0 = p.disc_z0 + p.disc_t
     foot = sel_plane(S, (0, 0, -1), -z0)
-    M.fix_facets(foot)                                  # pie empotrado en la base (MNT-03)
+    M.fix_facets(foot, zone=True)                       # pie empotrado en la base (MNT-03); banda r_ex excluida del máx. de diseño
     px, pz = p.pivot_x, p.pivot_z
     r_pin = (p.tilt_pin_d + 0.1) / 2
     if not find_cyl(cyls, r_pin, (0, 1, 0), near=(px, 0, pz), max_dist=0.5):
@@ -325,13 +325,13 @@ def stop_u(p, mods):
     return (x_scr - p.pivot_x) / math.cos(th) - vb * math.tan(th), float(x_scr)
 
 
-def setup_mnt05(p, mods, est, h, curv, tmpdir, log=print):
+def setup_mnt05(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     meta = mods["P1-MNT-05"].META
     meta_cap = mods["P1-MNT-06"].META
     cradle = mods["P1-MNT-05"].build(p)
     cap = mods["P1-MNT-06"].build(p)
-    X1, T1, minfo = mesh_part(cradle, "P1-MNT-05", tmpdir, h, curv)
-    X2, T2, _ = mesh_part(cap, "P1-MNT-06", tmpdir, h, curv)
+    X1, T1, minfo = mesh_part(cradle, "P1-MNT-05", tmpdir, h, curv, hmin)
+    X2, T2, _ = mesh_part(cap, "P1-MNT-06", tmpdir, h, curv, hmin)
     X, T, body = fc.merge_meshes([(X1, T1), (X2, T2)])
     A = allowables(p.inp)
     S = fc.P2Space(X, T, body=body)
@@ -354,7 +354,7 @@ def setup_mnt05(p, mods, est, h, curv, tmpdir, log=print):
     bore = sel_cyl(S, (0, 0, 0), (0, 1, 0), r_piv, body=0)
     t_bush = r_piv - p.tilt_pin_d / 2
     k_pin = E_POM / t_bush
-    M.add_interface(Interface("perno_pivote", bore, k_pin, kind="ground"))
+    M.add_interface(Interface("perno_pivote", bore, k_pin, kind="ground", axis=((0, 0, 0), (0, 1, 0))))
     M.add_static(S.spring_matrix(bore, 1e-3 * k_pin, mode="dir", direction=(0, 1, 0)))
 
     # asiento del tubo en cuna y tapa ↔ tubo rígido (unilateral)
@@ -363,8 +363,9 @@ def setup_mnt05(p, mods, est, h, curv, tmpdir, log=print):
         raise RuntimeError("MNT-05: no se encontró el asiento del tubo")
     seat_cr = sel_cyl(S, (0, 0, vs), (1, 0, 0), r_seat, body=0)
     seat_cap = sel_cyl(S, (0, 0, vs), (1, 0, 0), r_seat, body=1)
-    M.add_interface(Interface("tubo_cuna", seat_cr, k_c, kind="rigid", rigid="tubo", zone=False))
-    M.add_interface(Interface("tubo_tapa", seat_cap, k_c, kind="rigid", rigid="tubo", zone=False))
+    ax_t = ((0, 0, vs), (1, 0, 0))
+    M.add_interface(Interface("tubo_cuna", seat_cr, k_c, kind="rigid", rigid="tubo", zone=False, axis=ax_t))
+    M.add_interface(Interface("tubo_tapa", seat_cap, k_c, kind="rigid", rigid="tubo", zone=False, axis=ax_t))
 
     # pernos pasantes M6 tapa ↔ cuna (resortes entre promedios de parche)
     capc = cad_cylinders(cap)
@@ -424,7 +425,7 @@ def setup_mnt05(p, mods, est, h, curv, tmpdir, log=print):
             M_lock / 1000, V, u_load), "kind": "short", "u": u, "info": info, "extra": extra, "active": M_active(M)}]
 
     r_hand = math.hypot(30.0, p.cradle_vbot)
-    checks = {"r_pivote_mm": r_piv, "k_perno_N_mm3": k_pin, "k_contacto_N_mm3": k_c, "u_tope_mm": us,
+    checks = {"r_pivote_mm": r_piv, "r_tope_mm": r_pad, "k_perno_N_mm3": k_pin, "k_contacto_N_mm3": k_c, "u_tope_mm": us,
               "brazo_tope_real_mm": us, "brazo_tope_structural_py_mm": r_hand, "F_tope_estatica_N": S_stat,
               "pernos_tapa": [{k: v for k, v in b.items() if k != "a_axial"} for b in bolts],
               "nota_tope": "El tornillo de trimado es vertical (marco bote) y apoya sobre la cara inferior de la "

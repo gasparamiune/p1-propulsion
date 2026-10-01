@@ -135,8 +135,12 @@ def optimize(inp: dict) -> dict:
         tol = inp["costs"].get("selection_cost_band_frac", 0.10)
         band = [r for r in feas if r["cost_eur"] <= cmin * (1 + tol)]
         # dentro de la franja de costo: primero cumplir V máx, luego mayor autonomía, luego menor costo
-        # autonomía redondeada a 0,1 h: diferencias menores no justifican pagar más  [SUPUESTO]
-        best = max(band, key=lambda r: (r["ok_vmax"], round(r["autonomy_des_h"], 1), -r["cost_eur"]))
+        # dentro de la franja: primero V máx; luego la más barata entre las que están a ≤ 3 % de la
+        # mejor autonomía (diferencias menores no justifican pagar más)  [SUPUESTO]
+        if any(r["ok_vmax"] for r in band):
+            band = [r for r in band if r["ok_vmax"]]
+        a_best = max(r["autonomy_des_h"] for r in band)
+        best = min((r for r in band if r["autonomy_des_h"] >= 0.97 * a_best), key=lambda r: r["cost_eur"])
     else:  # ninguna cumple lo duro: la que más restricciones duras cumple, luego la más barata
         best = max(rows, key=lambda r: (sum(r[k] for k in hard), -r["cost_eur"]))
     return {"best": best, "rows": rows}
@@ -318,6 +322,9 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
     Q_normal_max = max(Q_lock, bol_f["Q_prop"], vmax["design_vmin"]["prop"]["Q"])
     pin = mech.shear_pin(inp, inp["propeller"]["shear_pin"]["target_factor_vs_qmax"] * Q_normal_max)
     belt = mech.belt_checks(inp, Q_lock_m, drv.z_motor, drv.z_shaft, pin["Q_shear_Nm"])
+    # fatiga del pasador en crucero: τ_e en corte ≈ 0,577·Se (corrosión-fatiga en agua salobre)
+    pin["fatigue_cruise"] = mech.shear_pin_fatigue(pin, cr_des["prop"]["Q"], inp["architecture"]["blade_rate_amplitude_frac"],
+                                                  0.577 * inp["shaft"]["se_mpa"])
     T_ax = max(bol_f["T_shaft"], vmax["design_vmin"]["T_shaft"])
     p_spec = inp["propeller"]["options"][inp["propeller"]["chosen"]]
     F_side = 0.15 * T_ax + p_spec["mass_kg"] * 9.81      # [ESTIMADO: fuerza lateral por flujo oblicuo ~15 % T]
@@ -374,9 +381,9 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
         "LC5_varada_impacto": {"F_N": imp["F_peak_N"], "r_contact_m": r_c,
                                "desc": "Impacto del patín en arena/objeto a v de impacto"},
         "LC6_ola_vibracion": {"f_blade_hz": drv.prop.Z * cr_des["prop"]["n"],
-                              "F_alt_N": 0.15 * cr_des["T_shaft"], "W_unit_N": W_unit,
+                              "F_alt_N": inp["architecture"]["blade_rate_amplitude_frac"] * cr_des["T_shaft"], "W_unit_N": W_unit,
                               "slam_g": inp["mount"]["wave_slam_g"],
-                              "desc": "Fatiga: ±15 % del empuje a frecuencia de paso de pala + golpe de ola"},
+                              "desc": "Fatiga: ± fracción del empuje a frecuencia de paso de pala (inputs) + golpe de ola"},
         "LC7_manipulacion": {"F_N": inp["mount"]["handling_load_n"],
                              "desc": "Manipulación: carga en el extremo de la caña / izado"},
     }

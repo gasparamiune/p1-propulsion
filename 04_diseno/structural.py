@@ -123,7 +123,9 @@ def main():
     row(rows, "P1-MNT-04", "Apoyo del perno Ø12 (corta)", "p = (H/2)/(d·t)", (H_imp / 2) / (p.tilt_pin_d * p.cheek_t), "short", A, T3)
 
     # ------------------------- MNT-05 cuna -------------------------
-    Lc = p.cradle_u1 - 5.0
+    # largo de agarre del tubo en la cuna: de la boca superior del tubo (u_tube_top) a la cara
+    # trasera, menos 5 mm de chaflanes (antes se tomaba solo 0 → u1: subestimaba el agarre)
+    Lc = p.cradle_u1 - p.u_tube_top - 5.0
     M_dyn = 0.19 * F_imp * L_tail                            # momento dinámico máx. en barra pivotada
     M_lock = F_fuse * L_tail                                 # cola trabada: limitado por el fusible
     pc_dyn = 6 * M_dyn * 1000 / (p.tube_od * Lc**2)
