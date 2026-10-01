@@ -262,7 +262,7 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False) -> dict:
 
     # masas concentradas de la unidad (u, v en mm; marco local) [ESTIMADO pre-CAD]
     sh = inp["shaft"]
-    tube_lin = 8000 * math.pi * ((sh["tube_od_mm"] / 1000) ** 2 - ((sh["tube_od_mm"] - 2 * sh["tube_wall_mm"]) / 1000) ** 2) / 4
+    tube_lin = sh["tube_density_kg_m3"] * math.pi * ((sh["tube_od_mm"] / 1000) ** 2 - ((sh["tube_od_mm"] - 2 * sh["tube_wall_mm"]) / 1000) ** 2) / 4
     e = lay["e_mm"]
     Ltube = lay["tube_length_mm"]
     um = {

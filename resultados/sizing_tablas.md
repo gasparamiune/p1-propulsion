@@ -28,8 +28,8 @@
 | Cable DC / fases | 10 mm² (1.9 %) / 10 mm² (2.7 %) | [CALCULADO] |
 | Fusible principal | 100 A | [CALCULADO] |
 | Pasador de corte | Ø3.0 mm Al6061-T6 → corta a 23.4 N·m | [CALCULADO] |
-| Velocidad crítica del eje / rpm máx. | 7635 / 1211 rpm | [CALCULADO] |
-| Largo de eje / tubo | 1194 / 1000 mm | [CALCULADO] |
+| Velocidad crítica del eje / rpm máx. | 5936 / 1211 rpm | [CALCULADO] |
+| Largo de eje / tubo | 1329 / 1161 mm | [CALCULADO] |
 
 ## Barrido de velocidad
 

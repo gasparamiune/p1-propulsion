@@ -44,30 +44,36 @@ def layout(inp: dict, draft_m: float) -> dict:
     z_prop = z_wl - h_c
 
     hub_L = pr["hub_length_mm"]
-    # --- placa motriz y rodamientos ---
-    t_plate = 14.0                                        # espesor placa motriz [SUPUESTO]
-    u_plate_aft = -a["shaft_top_ahead_of_pivot_mm"]       # cara de popa de la placa motriz
-    u_plate_fwd = u_plate_aft - t_plate
-    u_brgA = u_plate_fwd + 1.0 + brg["B_mm"] / 2          # rodamiento delantero (en la placa)
-    u_brgB = u_brgA + a["bearing_spacing_mm"]             # rodamiento trasero (en el buje)
-    u_boss_aft = u_brgB + brg["B_mm"] / 2 + 6.0           # fin del buje de rodamientos
-    # --- poleas (delante de la placa) ---
+    # --- placa motriz (rodamiento A en buje trasero), polea conducida y puente (rodamiento B) ---
+    motor = inp["motor"]["options"][inp["motor"]["chosen"]]
     w_pulley = dt["belt_width_mm"] + 6.0                  # ancho de polea (bridas)
-    u_pulley_c = u_plate_fwd - 3.0 - w_pulley / 2         # centro de polea conducida
-    u_shaft_top = u_pulley_c - w_pulley / 2 - 12.0        # collar + tuerca en el extremo
+    # alma de montaje del motor: el eje del motor debe alcanzar la polea completa
+    t_plate = max(5.0, motor["shaft_protrusion_mm"] - w_pulley - 2.0)
+    u_plate_aft = -a["shaft_top_ahead_of_pivot_mm"]       # cara de popa de la placa = cara delantera de la cuna
+    u_plate_fwd = u_plate_aft - t_plate
+    boss_len = brg["B_mm"] + 5.0                          # buje del rodamiento A (sobresale hacia popa)
+    u_boss_aft = u_plate_aft + boss_len - t_plate         # entra en un rebaje de la cuna
+    u_brgA = u_boss_aft - brg["B_mm"] / 2                 # rodamiento A (localizador, axial)
+    u_pulley_c = u_plate_fwd - 2.0 - w_pulley / 2         # plano de correa (ambas poleas)
+    t_bridge = 12.0                                       # espesor del puente [SUPUESTO]
+    u_bridge_aft = u_pulley_c - w_pulley / 2 - 3.0
+    u_bridge_fwd = u_bridge_aft - t_bridge
+    u_brgB = u_bridge_aft - 1.5 - brg["B_mm"] / 2         # rodamiento B (flotante)
+    u_shaft_top = u_bridge_fwd - 10.0                     # collar + tuerca en el extremo
     # --- tubo ---
-    u_tube_top = u_boss_aft + 2.0                         # tope del tubo (luz al buje)
+    u_tube_top = u_boss_aft + 8.0                         # el tubo arranca detrás del rebaje del buje
     lower_housing_L = 55.0                                # [SUPUESTO]
     gap_hub = 6.0                                         # luz cubo–carcasa inferior
     u_lh_aft = s_prop - hub_L / 2 - gap_hub               # cara de popa carcasa inferior
     u_lh_fwd = u_lh_aft - lower_housing_L
-    u_tube_bot = u_lh_fwd + 35.0                          # el tubo entra 35 mm en la carcasa
+    u_tube_bot = u_lh_fwd + 45.0                          # el tubo entra 45 mm en la carcasa
     u_shaft_bot = s_prop + hub_L / 2 + 22.0               # tuerca + chaveta
     # --- apoyos del eje: 2 rodamientos + bujes de agua ---
-    u_bush_top = u_tube_top + 20.0
-    u_bush_bot = u_lh_aft - 15.0
+    bl = inp["shaft"]["bushing_length_mm"]
+    u_bush_top = u_tube_top + 2.0 + bl / 2
+    u_bush_bot = u_tube_bot - 2.0 - bl / 2                # buje inferior dentro del extremo del tubo
     u_bush_mid = 0.5 * (u_bush_top + u_bush_bot)
-    supports = [u_brgA, u_brgB, u_bush_top, u_bush_mid, u_bush_bot]
+    supports = [u_brgB, u_brgA, u_bush_top, u_bush_mid, u_bush_bot]
     spans = [supports[i + 1] - supports[i] for i in range(len(supports) - 1)]
 
     return {
@@ -78,7 +84,9 @@ def layout(inp: dict, draft_m: float) -> dict:
         "prop_tip_low_z_mm": z_prop - D / 2,
         "keel_z_mm": -H, "transom_t_mm": t_tr, "transom_H_mm": H,
         "u_plate_aft": u_plate_aft, "u_plate_fwd": u_plate_fwd, "t_plate": t_plate,
-        "u_brgA": u_brgA, "u_brgB": u_brgB, "u_boss_aft": u_boss_aft,
+        "u_brgA": u_brgA, "u_brgB": u_brgB,
+        "u_bridge_aft": u_bridge_aft, "u_bridge_fwd": u_bridge_fwd, "t_bridge": t_bridge,
+        "u_boss_aft": u_boss_aft, "boss_len": boss_len,
         "u_pulley_c": u_pulley_c, "w_pulley": w_pulley,
         "u_shaft_top": u_shaft_top, "u_shaft_bot": u_shaft_bot,
         "u_tube_top": u_tube_top, "u_tube_bot": u_tube_bot,
@@ -88,8 +96,9 @@ def layout(inp: dict, draft_m: float) -> dict:
         "max_span_mm": max(spans[1:]),      # vanos entre bujes (el vano entre rodamientos es corto)
         "shaft_length_mm": u_shaft_bot - u_shaft_top,
         "tube_length_mm": u_tube_bot - u_tube_top,
-        "pulley_overhang_mm": u_brgA - u_pulley_c,
-        "bearing_spacing_mm": u_brgB - u_brgA,
+        "pulley_a_mm": u_brgA - u_pulley_c,           # polea → rodamiento A
+        "pulley_b_mm": u_pulley_c - u_brgB,           # polea → rodamiento B
+        "bearing_spacing_mm": u_brgA - u_brgB,
         "prop_overhang_mm": s_prop - u_bush_bot,
         "center_distance_mm": dt["center_distance_mm"],
         "motor_v_mm": -e + dt["center_distance_mm"],   # eje del motor en v (local)

@@ -13,9 +13,10 @@ G = 9.81
 def shaft_checks(inp: dict, lay: dict, Q_max: float, Q_pin: float, F_belt_radial: float,
                  T_axial: float, F_side_prop: float, n_max_rpm: float) -> dict:
     """Eje Ø d con muñones Ø d_b (rodamientos) y asiento de hélice Ø min(d, bore).
-    Secciones críticas: (1) muñón del rodamiento delantero (flexión por correa en voladizo
-    + torsión), (2) asiento de hélice con agujero del pasador (torsión al corte del pasador,
-    flexión por fuerza lateral). Velocidad crítica y pandeo en el vano más largo."""
+    Secciones críticas: (1) asiento de la polea entre dos rodamientos (flexión por tiro de
+    correa + torsión; Kf por plano de prisionero), (2) asiento de hélice con agujero del
+    pasador (torsión al corte del pasador, flexión por fuerza lateral). Velocidad crítica y
+    pandeo en el vano más largo."""
     sh = inp["shaft"]
     pr = inp["propeller"]["options"][inp["propeller"]["chosen"]]
     d = sh["d_mm"] / 1000
@@ -32,11 +33,12 @@ def shaft_checks(inp: dict, lay: dict, Q_max: float, Q_pin: float, F_belt_radial
     def Zb(x): return math.pi * x**3 / 32
     def Zt(x): return math.pi * x**3 / 16
 
-    # (1) muñón delantero
-    M1 = F_belt_radial * lay["pulley_overhang_mm"] / 1000
-    s1 = Kf_shoulder * M1 / Zb(d_b)
-    t1 = Q_max / Zt(d_b)
-    vm1 = math.sqrt((Kf_shoulder * M1 / Zb(d_b))**2 + 3 * t1**2)
+    # (1) asiento de la polea conducida (entre rodamientos): M = F·a·b/L, Ø d con plano de prisionero
+    a_, b_ = lay["pulley_a_mm"] / 1000, lay["pulley_b_mm"] / 1000
+    M1 = F_belt_radial * a_ * b_ / (a_ + b_)
+    s1 = Kf_shoulder * M1 / Zb(d)
+    t1 = Q_max / Zt(d)
+    vm1 = math.sqrt((Kf_shoulder * M1 / Zb(d))**2 + 3 * t1**2)
     fs1_static = Sy / vm1
     fs1_fat = 1.0 / (s1 / Se_dry + math.sqrt(3) * t1 / Su)
     # (2) asiento de hélice con pasador
@@ -54,8 +56,8 @@ def shaft_checks(inp: dict, lay: dict, Q_max: float, Q_pin: float, F_belt_radial
     P_cr = math.pi**2 * E * I / Ls**2
     return {
         "d_mm": sh["d_mm"], "d_bearing_mm": sh["d_bearing_mm"], "d_prop_seat_mm": d_p * 1000,
-        "M_journal_Nm": M1, "sigma_vm_journal_MPa": vm1 / 1e6,
-        "fs_static_journal": fs1_static, "fs_fatigue_journal": fs1_fat,
+        "M_pulley_seat_Nm": M1, "sigma_vm_pulley_seat_MPa": vm1 / 1e6,
+        "fs_static_pulley_seat": fs1_static, "fs_fatigue_pulley_seat": fs1_fat,
         "tau_at_shear_pin_MPa": tau_pin / 1e6, "fs_torsion_at_shear_pin": fs2_pin,
         "M_prop_seat_Nm": M2, "fs_fatigue_prop_seat": fs2_fat,
         "fs_static": min(fs1_static, fs2_pin), "fs_fatigue_goodman": min(fs1_fat, fs2_fat),
@@ -70,14 +72,15 @@ def shaft_checks(inp: dict, lay: dict, Q_max: float, Q_pin: float, F_belt_radial
 # Rodamientos (par de 6002 inox en la placa motriz, polea en voladizo)
 # ----------------------------------------------------------------------------
 def bearing_life(inp: dict, lay: dict, F_belt: float, F_a: float, n_rpm: float) -> dict:
-    """Reacciones por voladizo: R_A = F(a+L)/L (delantero), R_B = F·a/L. El axial lo toma
-    un solo rodamiento (el más cargado, conservador)."""
+    """Polea entre rodamientos: R_A = F·b/L, R_B = F·a/L. El axial lo toma el rodamiento A
+    (localizador, en la placa motriz); se evalúa A con su radial + todo el axial."""
     b = inp["bearings"]
     C = b["C_N"] * b["stainless_factor"]
     C0 = b["C0_N"] * b["stainless_factor"]
-    a = lay["pulley_overhang_mm"]
+    a = lay["pulley_a_mm"]
+    bb = lay["pulley_b_mm"]
     L = lay["bearing_spacing_mm"]
-    RA = F_belt * (a + L) / L
+    RA = F_belt * bb / L
     RB = F_belt * a / L
     Fr, Fa = RA, F_a
     ratio = Fa / C0
@@ -88,7 +91,7 @@ def bearing_life(inp: dict, lay: dict, F_belt: float, F_a: float, n_rpm: float) 
         X, Y = 1.0, 0.0
     P = X * Fr + Y * Fa
     L10 = (C / P) ** 3
-    return {"name": b["name"], "C_N": C, "C0_N": C0, "R_front_N": RA, "R_rear_N": RB,
+    return {"name": b["name"], "C_N": C, "C0_N": C0, "R_A_N": RA, "R_B_N": RB,
             "Fa_N": Fa, "P_N": P, "L10_Mrev": L10,
             "L10_h": L10 * 1e6 / (60 * max(n_rpm, 1)), "static_safety_s0": C0 / max(RA + Fa, 1)}
 
