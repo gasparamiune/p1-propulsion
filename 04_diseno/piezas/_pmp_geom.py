@@ -134,7 +134,8 @@ def bore_radius_at(part, X, r_hi, tol=0.01):
     for _ in range(30):
         m = 0.5 * (lo + hi)
         disk = cyl_x(m, X - 0.05, X + 0.05)
-        v = (part & disk).volume
+        inter = part & disk
+        v = 0.0 if inter is None else inter.volume
         if v > 1e-6:
             hi = m
         else:

@@ -242,7 +242,7 @@ def extend(d):
     # alojamiento esférico para la boquilla direccional (rótula alrededor del pivote)
     dxp = d["X_steer_pivot"] - d["X_noz1"]
     d["pmp_sock_R"] = math.hypot(dxp, d["D_noz"] / 2)   # pasa por el labio de salida (X_noz1, D_noz/2)
-    d["pmp_steer_ball_R_max"] = round(d["pmp_sock_R"] - 1.0, 2)   # → DIRECCIÓN: frente esférico R ≤ esto
+    d["pmp_steer_ball_R_max"] = math.floor((d["pmp_sock_R"] - 1.0) * 10) / 10   # → DIRECCIÓN: frente esférico R ≤ esto
     d["pmp_steer_ear_w"] = 24.0                          # ancho (Y) supuesto de las orejas de la boquilla
     d["pmp_steer_ear_r"] = 13.0                          # radio de barrido de las orejas alrededor del perno
     d["pmp_sock_X1"] = d["X_steer_pivot"] - d["pmp_steer_ear_r"]
