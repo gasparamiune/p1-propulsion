@@ -474,12 +474,13 @@ def truth_summary():
     tt = truth_table()
     out = []
     for label, pat in SUMMARY_ROWS:
-        match = [r for r in tt if all(pat[n] is None or r[n] == pat[n] for n in names)]
+        match = [r for r in tt if all(pat.get(n) is None or r[n] == pat[n] for n in names)]
         motors = {r["motor"] for r in match}
         nb = [r["n_barreras"] for r in match]
         bars = sorted({b for r in match for b in r["barreras"].split("; ") if b != "—"})
-        out.append({"caso": label, **{n: ("–" if pat[n] is None else pat[n]) for n in names},
+        out.append({"caso": label, **{n: ("–" if pat.get(n) is None else pat[n]) for n in names},
                     "n_combinaciones": len(match), "motor": " / ".join(sorted(motors)),
+                    "limite_cmd": " / ".join(sorted({r["limite_cmd"] for r in match})),
                     "barreras_min": min(nb), "barreras_max": max(nb), "barreras": "; ".join(bars) or "—"})
     return out
 
