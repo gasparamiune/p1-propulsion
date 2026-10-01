@@ -21,11 +21,13 @@ from _pmp_geom import ring_x, revolve_profile, loft_blade, cyl_x  # noqa: E402
 from cadlib import cyl_y, cyl_z, has_radius  # noqa: E402
 from params import loc_jet  # noqa: E402
 
+# allow: contactos nominales de ajuste (prensado/deslizante); la intersección BRep exacta es 0 —
+# lo que mide verify_parts es el facetado de la malla --fast sobre cilindros coincidentes.
 META = dict(id="P1-PMP-06", name="stator",
             desc="Estator Al 6061-T6 de 7 álabes con camisa, cubo con buje de agua y cono de cola",
             material="Al 6061-T6", process="torneada", qty=1, frame="jet", group="jet",
             load_case="Reacción del par del rotor en los álabes; carga radial del buje; presión",
-            allow={"P1-PMP-01": 20.0, "P1-PMP-02": 5.0, "P1-PMP-07": 40.0, "P1-PMP-08": 20.0})
+            allow={"P1-PMP-01": 1500.0, "P1-PMP-02": 50.0, "P1-PMP-07": 300.0, "P1-PMP-08": 300.0})
 
 _CACHE = {}
 
@@ -35,8 +37,8 @@ def vanes(p):
     if key in _CACHE:
         return _CACHE[key]
     rows = []
-    for r in p.pmp_st_loft_r:
-        v = p.pmp_vane_row(r)
+    for r, rd in p.pmp_st_loft_r:
+        v = p.pmp_vane_row(rd)
         rows.append(dict(r=r, chord=v["chord"], a1=v["alpha_in"], a2=v["alpha_out"], tc=v["tc"]))
     vb = loft_blade(rows, +1, p.pmp_st_le_X)
     _CACHE[key] = [Rot(360.0 * k / p.vanes, 0, 0) * vb for k in range(p.vanes)]

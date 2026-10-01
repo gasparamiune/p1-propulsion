@@ -137,6 +137,7 @@ def extend(d):
     d["pmp_cool_boss_top"] = d["pmp_D_barrel"] / 2 + 10.0
     d["pmp_cool_port"] = (round(d["X_st1"] - 14.0, 2), 0.0, round(d["pmp_cool_boss_top"], 2))  # (X, Y, Z) JET, cara del saliente
     d["pmp_cool_dir"] = (0.0, 0.0, 1.0)                  # eje del puerto (radial, hacia arriba)
+    d["pmp_cool_tap_X"] = d["pmp_cool_port"][0]          # alias que lee params_tren.py
 
     # ------------------------------------------------------------------ impulsor
     tri, omega, free_ok = free_vortex_model(d)
@@ -183,7 +184,9 @@ def extend(d):
     d["pmp_blade_row"] = blade_row
     d["pmp_imp_table"] = {k: blade_row(S[k]["r_mm"]) for k in ("cubo", "medio", "punta")}
     # secciones del loft (CAD): se extienden dentro del cubo y por fuera de la punta (se recorta a r = D/2)
-    d["pmp_imp_loft_r"] = [rh - 2.5, rh, (rh + rm) / 2, rm, (rm + rt) / 2, rt, rt + 2.0]
+    # (r del loft, r de diseño): las secciones extremas copian la de cubo/punta (extrusión radial corta);
+    # pocas secciones = loft suave y booleanas rápidas
+    d["pmp_imp_loft_r"] = [(rh - 1.5, rh), (rm, rm), (rt, rt), (rt + 2.0, rt)]
 
     # ------------------------------------------------------------------ estator
     d["pmp_st_shell_X0"] = d["pmp_ring_X1"]              # la camisa apoya contra el anillo de desgaste
@@ -207,7 +210,7 @@ def extend(d):
                     chord=s * pitch, tmax=tc * s * pitch, cu2=t["cu2"], cm=t["cm"])
     d["pmp_vane_row"] = vane_row
     d["pmp_st_table"] = {"cubo": vane_row(rh), "medio": vane_row(rm), "punta": vane_row(R_bore)}
-    d["pmp_st_loft_r"] = [rh - 2.0, rh, rm, R_bore, R_bore + 2.0]
+    d["pmp_st_loft_r"] = [(rh - 2.0, rh), (rm, rm), (R_bore, R_bore), (R_bore + 2.0, R_bore)]
     # cono de cola del cubo del estator (dentro de la tobera)
     d["pmp_tail_L"] = round(1.1 * d["D_hub"], 1)        # [ESTIMADO; área de paso monótona decreciente, ver checks]
     d["pmp_tail_tip_r"] = 5.0
@@ -255,8 +258,8 @@ def extend(d):
     # resalte (land) del sello del espejo + O-ring radial
     d["pmp_land_R"] = 75.0                               # > envolvente de las orejas (la placa pasa por encima)
     d["pmp_land_X0"] = 264.0
-    d["pmp_land_X1"] = 293.0
-    d["pmp_or_X"] = 288.5                                # ranura del O-ring en el resalte
+    d["pmp_land_X1"] = 294.0
+    d["pmp_or_X"] = 289.5                                # ranura del O-ring en el resalte
     d["pmp_or_depth"] = d["pmp_gl_depth"]
     d["pmp_or_width"] = d["pmp_gl_width"]
 

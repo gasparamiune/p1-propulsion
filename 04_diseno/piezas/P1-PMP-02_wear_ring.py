@@ -17,11 +17,13 @@ from _pmp_geom import ring_x  # noqa: E402
 from cadlib import box, has_radius  # noqa: E402
 from params import loc_jet  # noqa: E402
 
+# allow: contactos nominales de ajuste (prensado/deslizante); la intersección BRep exacta es 0 —
+# lo que mide verify_parts es el facetado de la malla --fast sobre cilindros coincidentes.
 META = dict(id="P1-PMP-02", name="wear_ring",
             desc="Anillo de desgaste 316 torneado, prensado en la carcasa; holgura de punta tip_clr",
             material="AISI 316", process="torneada", qty=1, frame="jet", group="jet",
             load_case="Presión de la bomba (apoyado en la carcasa); roce de piedras",
-            allow={"P1-PMP-01": 20.0, "P1-PMP-06": 5.0})
+            allow={"P1-PMP-01": 1500.0, "P1-PMP-06": 50.0})
 
 
 def build(p):

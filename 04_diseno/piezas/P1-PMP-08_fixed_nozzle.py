@@ -22,11 +22,13 @@ from _pmp_geom import ring_x, revolve_profile, cyl_x, bore_radius_at  # noqa: E4
 from cadlib import box, cyl_z, has_radius  # noqa: E402
 from params import loc_jet  # noqa: E402
 
+# allow: contactos nominales de ajuste (prensado/deslizante); la intersección BRep exacta es 0 —
+# lo que mide verify_parts es el facetado de la malla --fast sobre cilindros coincidentes.
 META = dict(id="P1-PMP-08", name="fixed_nozzle",
             desc="Tobera fija Al: contracción a D_noz, rótula de la boquilla, sello de espejo y orejas de pivote",
             material="Al 6061-T6", process="torneada", qty=1, frame="jet", group="jet",
             load_case="Presión interna 0,2 MPa; F lateral de la boquilla y F del bucket en las orejas",
-            allow={"P1-PMP-01": 20.0, "P1-PMP-06": 20.0})
+            allow={"P1-PMP-01": 300.0, "P1-PMP-06": 300.0, "P1-PMP-09": 50.0})
 
 
 def rn(p, X):

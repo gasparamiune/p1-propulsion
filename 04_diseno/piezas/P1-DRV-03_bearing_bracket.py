@@ -57,10 +57,12 @@ def build(p):
     # alojamiento (marco JET → BOTE)
     hsg = cyl_s(p.drv_hsg_od / 2, g["S_h0"], g["S_h1"]).moved(loc_jet(p))
     # tablero sobre el eje
-    xd0, xd1 = g["xh0"] - 2.0, g["xh1"] + 2.0
+    # el tablero no pasa los planos de las caras (inclinadas α): arista superior a r_o·sen α hacia popa
+    sa = math.sin(math.radians(p.alpha))
+    xd0, xd1 = g["xh0"] - p.drv_hsg_od / 2 * sa, g["xh1"] - p.drv_hsg_od / 2 * sa - 0.5
     deck = box(xd0, xd1, -cy1, cy1, g["zd0"], g["zd1"])
     # columna central tablero ↔ alojamiento (rellena entre la parte alta del alojamiento y el tablero)
-    web = box(xd0 + 2.0, xd1 - 2.0, -p.drv_hsg_od / 4, p.drv_hsg_od / 4, g["zd0"] - 14.0, g["zd0"] + 1.0)
+    web = box(xd0 + 0.5, xd1 - 0.5, -p.drv_hsg_od / 4, p.drv_hsg_od / 4, g["zd0"] - 14.0, g["zd0"] + 1.0)
     part = hsg + deck + web
     # mejillas (trapecio en xz) y zapatas
     for sy in (-1, 1):

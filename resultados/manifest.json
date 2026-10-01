@@ -3,12 +3,13 @@
     {
       "id": "P1-DRV-01",
       "name": "shaft",
-      "desc": "Eje de hélice 316 Ø16 torneado",
+      "desc": "Eje Ø20 AISI 316 torneado: impulsor (pasador de corte) → sello → 2×7204 → acople",
       "material": "AISI 316",
       "process": "torneada",
       "qty": 1,
-      "frame": "unit",
-      "load_case": "LC3/LC4 torsión, flexión por correa, fatiga",
+      "frame": "jet",
+      "group": "drive",
+      "load_case": "Par T_max del controlador y par de corte del pasador; empuje Fa a punto fijo; velocidad crítica",
       "print_rot": [
         0,
         0,
@@ -16,31 +17,295 @@
       ],
       "solid_frac": 1.0,
       "orientation": "—",
+      "allow": {
+        "P1-DRV-04": 20.0,
+        "P1-DRV-05": 5.0,
+        "P1-DRV-07": 20.0,
+        "P1-DRV-08": 20.0,
+        "P1-PMP-03": 50.0,
+        "P1-PMP-04": 5.0,
+        "P1-PMP-05": 50.0,
+        "P1-PMP-07": 30.0
+      },
       "file_stem": "P1-DRV-01_shaft",
       "valid_solid": true,
-      "volume_mm3": 263011.0580666976,
-      "mass_g_each": 2104.088464533581,
-      "mass_g_total": 2104.088464533581,
+      "volume_mm3": 147534.14514622628,
+      "mass_g_each": 1180.2731611698102,
+      "mass_g_total": 1180.2731611698102,
       "bbox_mm": [
-        1356.71,
-        16.0,
-        16.0
+        470.43,
+        25.0,
+        25.0
       ],
       "files": [
         "04_diseno/step/P1-DRV-01_shaft.step"
       ],
       "checks": [
         {
-          "name": "largo total del eje",
-          "value": 1356.714,
-          "ref": 1356.714,
-          "op": "≈",
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
           "ok": true
         },
         {
-          "name": "Ø máx. sobre el hombro − Ø muñón (montaje desde arriba) [mm]",
-          "value": 0.0,
-          "ref": 0.0,
+          "name": "largo total del eje [mm]",
+          "value": 470.433,
+          "ref": 470.433,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "montaje: Ø máx. a popa del collar ≤ Ø agujero del asiento fijo − 1 (la caja del sello entra por popa) [mm]",
+          "value": 20.0,
+          "ref": 21.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "montaje: Ø máx. a popa del collar ≤ Ø interior de la cabeza del sello (entra por popa) [mm]",
+          "value": 20.0,
+          "ref": 20.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "montaje: Ø máx. a popa del collar ≤ Ø del buje de la toma (seal_spigot_d − 2 × 3) [mm]",
+          "value": 20.0,
+          "ref": 36.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "montaje: Ø máx. a proa del muñón ≤ Ø agujero 7204 (rodamientos entran por proa) [mm]",
+          "value": 20.0,
+          "ref": 20.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "apoyo radial collar ↔ aro interior (Ø collar − Ø20 − 2·r_s)/2 ≥ 1 [mm]",
+          "value": 1.5,
+          "ref": 1.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "collar libre de la caja del sello (S_collar0 − S_frente_caja) [mm]",
+          "value": 0.5,
+          "ref": 0.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "eje dentro del cubo del acople (encastre) [mm]",
+          "value": 22.5,
+          "ref": 19.2,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "punta del eje antes de la estrella del acople (luz) [mm]",
+          "value": 1.5,
+          "ref": 0.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "agujero del pasador dentro del asiento del impulsor (margen a popa) [mm]",
+          "value": 6.235,
+          "ref": 3.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "Ø agujero del pasador / Ø eje ≤ 0,25 (Kt del agujero transversal) [—]",
+          "value": 0.176,
+          "ref": 0.25,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "velocidad periférica en el sello ≤ v máx. del sello [m/s]",
+          "value": 5.165,
+          "ref": 10.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "1.ª velocidad crítica / n máx. ≥ 1,3 (empotrado (par 7204 en O) – apoyado (buje de agua del estator); n_crit 15173 rpm) [—]",
+          "value": 3.077,
+          "ref": 1.3,
+          "op": ">=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 0.41
+    },
+    {
+      "id": "P1-DRV-02",
+      "name": "seal_housing",
+      "desc": "Caja del sello mecánico 316: espigón Ø42, brida 4×M6, cámara mojada, linterna de goteo",
+      "material": "AISI 316",
+      "process": "torneada",
+      "qty": 1,
+      "frame": "jet",
+      "group": "drive",
+      "load_case": "Presión de diseño de la bomba 0,2 MPa + resorte del sello; bulones M6 al buje de la toma",
+      "print_rot": [
+        0,
+        0,
+        0
+      ],
+      "solid_frac": 1.0,
+      "orientation": "—",
+      "allow": {
+        "P1-DRV-07": 30.0
+      },
+      "file_stem": "P1-DRV-02_seal_housing",
+      "valid_solid": true,
+      "volume_mm3": 38855.95053948629,
+      "mass_g_each": 310.84760431589035,
+      "mass_g_total": 310.84760431589035,
+      "bbox_mm": [
+        43.5,
+        70.0,
+        70.0
+      ],
+      "files": [
+        "04_diseno/step/P1-DRV-02_seal_housing.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "espigón Ø (f7 en buje H8 Ø seal_spigot_d) [mm]",
+          "value": 41.95,
+          "ref": 42.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "pared del espigón alrededor de la cámara mojada [mm]",
+          "value": 3.0,
+          "ref": 2.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "holgura radial cabeza del sello ↔ cámara [mm]",
+          "value": 1.5,
+          "ref": 1.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "la cabeza cabe entre su anillo de respaldo y el asiento (largo de trabajo) [mm]",
+          "value": 25.0,
+          "ref": 25.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "asiento pasa por la cámara al montarlo desde popa (Ø cámara − Ø asiento) [mm]",
+          "value": 1.0,
+          "ref": 0.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "paso del eje por la pared del asiento (holgura radial) [mm]",
+          "value": 2.0,
+          "ref": 1.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "pared de la caja en el alojamiento del asiento [mm]",
+          "value": 3.75,
+          "ref": 3.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "luz cabeza M6 (Ø10) ↔ cuerpo [mm]",
+          "value": 0.75,
+          "ref": 0.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "borde brida ↔ agujero M6 [mm]",
+          "value": 4.8,
+          "ref": 4.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "brida Ø ≤ Ø del buje de la toma + 10 [mm]",
+          "value": 70.0,
+          "ref": 74.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "linterna de goteo (largo axial) [mm]",
+          "value": 7.0,
+          "ref": 6.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "pared de la linterna [mm]",
+          "value": 4.25,
+          "ref": 3.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "v en el sello ≤ v máx. [m/s]",
+          "value": 5.165,
+          "ref": 10.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "presión de diseño ≤ p máx. del sello [bar]",
+          "value": 2.0,
+          "ref": 12.0,
           "op": "<=",
           "ok": true
         }
@@ -48,22 +313,22 @@
       "placements_running": [
         [
           [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
           ],
           [
-            0.0,
-            1.0,
+            1.2246467991473532e-16,
+            -1.0,
             0.0,
             0.0
           ],
           [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
           ],
           [
             0,
@@ -73,147 +338,18 @@
           ]
         ]
       ],
-      "build_s": 0.08
-    },
-    {
-      "id": "P1-DRV-02",
-      "name": "tube_bushing",
-      "desc": "Portabuje PETG + 2 bujes igus H370 Ø16×Ø18×20 (×3)",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 3,
-      "frame": "unit",
-      "load_case": "Reacciones radiales del eje (p = F/(d·L) en el portabuje)",
-      "print_rot": [
-        0,
-        90,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "Eje vertical (de pie): alojamiento del buje redondo y preciso en XY.",
-      "file_stem": "P1-DRV-02_tube_bushing",
-      "valid_solid": true,
-      "volume_mm3": 24615.53961698573,
-      "mass_g_each": 31.26173531357188,
-      "mass_g_total": 93.78520594071564,
-      "print_bbox_mm": [
-        33.66,
-        33.66,
-        40.0
-      ],
-      "print_zrot_deg": 45,
-      "print_hours_each": 1.7367630729762156,
-      "files": [
-        "04_diseno/step/P1-DRV-02_tube_bushing.step",
-        "04_diseno/stl/P1-DRV-02_tube_bushing.stl"
-      ],
-      "checks": [
-        {
-          "name": "pared del portabuje bajo la ranura [mm]",
-          "value": 5.95,
-          "ref": 3.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "largo ≥ 2 bujes de 20 mm [mm]",
-          "value": 40.0,
-          "ref": 40.0,
-          "op": ">=",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            35.004608715381934
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            95.29590999476103
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            545.57929571053
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            -142.78897661116787
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            1056.1539827056781
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            -380.87386321709675
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.26
+      "build_s": 0.51
     },
     {
       "id": "P1-DRV-03",
-      "name": "bridge_spacer",
-      "desc": "Separador Ø12/Ø6.5 (×2), 316",
-      "material": "AISI 316",
+      "name": "bearing_bracket",
+      "desc": "Pórtico Al 6082 sobre el conducto: alojamiento 2×7204 BEP, 4×M8 a la placa base",
+      "material": "Al 5052/6082",
       "process": "torneada",
-      "qty": 2,
-      "frame": "unit",
-      "load_case": "Compresión por precarga del perno M6",
+      "qty": 1,
+      "frame": "boat",
+      "group": "drive",
+      "load_case": "Empuje Fa a punto fijo + reacción radial + 3 g vertical del tren; bulones M8 a la placa base de Al",
       "print_rot": [
         0,
         0,
@@ -221,39 +357,224 @@
       ],
       "solid_frac": 1.0,
       "orientation": "—",
-      "file_stem": "P1-DRV-03_bridge_spacer",
+      "allow": {
+        "P1-DRV-04": 30.0,
+        "P1-DRV-06": 2.0
+      },
+      "file_stem": "P1-DRV-03_bearing_bracket",
       "valid_solid": true,
-      "volume_mm3": 2104.1130956683,
-      "mass_g_each": 16.8329047653464,
-      "mass_g_total": 33.6658095306928,
+      "volume_mm3": 640100.564783343,
+      "mass_g_each": 1715.4695136193593,
+      "mass_g_total": 1715.4695136193593,
       "bbox_mm": [
-        26.0,
-        12.0,
-        12.0
+        150.0,
+        296.0,
+        173.23
       ],
       "files": [
-        "04_diseno/step/P1-DRV-03_bridge_spacer.step"
+        "04_diseno/step/P1-DRV-03_bearing_bracket.step"
       ],
-      "checks": [],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "largo del alojamiento = resalte + 2 × B [mm]",
+          "value": 31.0,
+          "ref": 31.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "resalte ≤ Da máx. del aro exterior: Ø paso < Da_max [mm]",
+          "value": 28.0,
+          "ref": 41.4,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "pared del alojamiento [mm]",
+          "value": 9.0,
+          "ref": 6.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "tablero por encima del agujero Ø47 [mm]",
+          "value": 4.0,
+          "ref": 3.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "mejillas fuera de la abertura de la toma: |y| interior − W_open/2 [mm]",
+          "value": 20.8,
+          "ref": 15.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "luz cabeza M8 ↔ mejilla (llave Allen por arriba) [mm]",
+          "value": 5.7,
+          "ref": 4.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "zapata cubre el agujero M8 con borde ≥ 1,5 d [mm]",
+          "value": 23.8,
+          "ref": 12.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "agujeros M8 dentro de la huella x0…x1 [mm]",
+          "value": 15.0,
+          "ref": 12.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "eje del alojamiento sobre la placa base [mm]",
+          "value": 131.028,
+          "ref": 60.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "alojamiento detrás del cubo del acople (luz) [mm]",
+          "value": 2.0,
+          "ref": 1.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "alojamiento delante de la caja del sello (luz) [mm]",
+          "value": 1.0,
+          "ref": 0.5,
+          "op": ">=",
+          "ok": true
+        }
+      ],
       "placements_running": [
         [
           [
-            0.9063077870366499,
+            1.0,
             0.0,
-            0.42261826174069944,
-            17.139884044110673
+            0.0,
+            0.0
           ],
           [
             0.0,
             1.0,
             0.0,
-            -28.915494309189533
+            0.0
           ],
           [
-            -0.42261826174069944,
             0.0,
-            0.9063077870366499,
-            241.54860779011685
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 0.47
+    },
+    {
+      "id": "P1-DRV-04",
+      "name": "bearing_7204BEP",
+      "desc": "Rodamiento SKF 7204 BEP (par en O), comprado",
+      "material": "Acero",
+      "process": "comprada",
+      "qty": 2,
+      "frame": "jet",
+      "group": "drive",
+      "load_case": "Empuje Fa + reacción radial (L10 en sizing)",
+      "print_rot": [
+        0,
+        0,
+        0
+      ],
+      "solid_frac": 1.0,
+      "orientation": "—",
+      "mass_g": 110.0,
+      "allow": {
+        "P1-DRV-03": 30.0,
+        "P1-DRV-01": 20.0,
+        "P1-DRV-04": 1.0
+      },
+      "file_stem": "P1-DRV-04_bearing_7204BEP",
+      "valid_solid": true,
+      "volume_mm3": 19890.993886203774,
+      "mass_g_each": 110.0,
+      "mass_g_total": 220.0,
+      "bbox_mm": [
+        14.0,
+        47.0,
+        47.0
+      ],
+      "files": [
+        "04_diseno/step/P1-DRV-04_bearing_7204BEP.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "C0 / Fa a punto fijo (estático) ≥ 2 [—]",
+          "value": 11.515,
+          "ref": 2.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "L10 a V máx. (sizing) ≥ vida objetivo [h]",
+          "value": 1156249.709,
+          "ref": 2000.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "par en O: 2 × B = largo del muñón [mm]",
+          "value": 28.0,
+          "ref": 28.0,
+          "op": "=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
           ],
           [
             0,
@@ -264,22 +585,22 @@
         ],
         [
           [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            17.139884044110673
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            282.2219579693915
           ],
           [
+            1.2246467991473532e-16,
+            -1.0,
             0.0,
-            1.0,
-            0.0,
-            28.915494309189533
+            -1.7145055188062944e-15
           ],
           [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            241.54860779011685
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            116.22018039846722
           ],
           [
             0,
@@ -292,14 +613,15 @@
       "build_s": 0.02
     },
     {
-      "id": "P1-DRV-04",
-      "name": "motor",
-      "desc": "Motor BLDC outrunner (ver BOM)",
-      "material": "—",
+      "id": "P1-DRV-05",
+      "name": "locknut_KM4",
+      "desc": "Tuerca KM4 M20×1 + arandela MB4 (comprada)",
+      "material": "Acero",
       "process": "comprada",
       "qty": 1,
-      "frame": "unit",
-      "load_case": "—",
+      "frame": "jet",
+      "group": "drive",
+      "load_case": "Empuje en reversa (≤ Fa) y precarga",
       "print_rot": [
         0,
         0,
@@ -307,39 +629,66 @@
       ],
       "solid_frac": 1.0,
       "orientation": "—",
-      "file_stem": "P1-DRV-04_motor",
+      "mass_g": 25.0,
+      "allow": {
+        "P1-DRV-01": 5.0,
+        "P1-DRV-04": 1.0
+      },
+      "file_stem": "P1-DRV-05_locknut_KM4",
       "valid_solid": true,
-      "volume_mm3": 232194.17054902553,
-      "mass_g_each": 980.0,
-      "mass_g_total": 980.0,
+      "volume_mm3": 3823.318259418777,
+      "mass_g_each": 25.0,
+      "mass_g_total": 25.0,
       "bbox_mm": [
-        104.2,
-        63.0,
-        63.0
+        8.0,
+        32.0,
+        32.0
       ],
       "files": [
-        "04_diseno/step/P1-DRV-04_motor.step"
+        "04_diseno/step/P1-DRV-05_locknut_KM4.step"
       ],
-      "checks": [],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "tuerca pasa por el agujero de la tapa (holgura radial) [mm]",
+          "value": 1.0,
+          "ref": 0.8,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "tuerca antes del cubo del acople (luz) [mm]",
+          "value": 2.0,
+          "ref": 1.0,
+          "op": ">=",
+          "ok": true
+        }
+      ],
       "placements_running": [
         [
           [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
           ],
           [
-            0.0,
-            1.0,
+            1.2246467991473532e-16,
+            -1.0,
             0.0,
             0.0
           ],
           [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
           ],
           [
             0,
@@ -352,220 +701,15 @@
       "build_s": 0.04
     },
     {
-      "id": "P1-DRV-05",
-      "name": "pulley_motor",
-      "desc": "Polea HTD-5M motor (aluminio, bore 8)",
-      "material": "Al",
-      "process": "comprada",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "—",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-DRV-05_pulley_motor",
-      "valid_solid": true,
-      "volume_mm3": 22522.90059266684,
-      "mass_g_each": 60.81183160020047,
-      "mass_g_total": 60.81183160020047,
-      "bbox_mm": [
-        21.0,
-        37.83,
-        37.83
-      ],
-      "files": [
-        "04_diseno/step/P1-DRV-05_pulley_motor.step"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.02
-    },
-    {
       "id": "P1-DRV-06",
-      "name": "pulley_shaft",
-      "desc": "Polea HTD-5M eje (aluminio, re-mandrinada Ø15 H7)",
-      "material": "Al",
-      "process": "comprada",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "—",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-DRV-06_pulley_shaft",
-      "valid_solid": true,
-      "volume_mm3": 108249.76165725046,
-      "mass_g_each": 292.2743564745763,
-      "mass_g_total": 292.2743564745763,
-      "bbox_mm": [
-        21.0,
-        82.39,
-        82.39
-      ],
-      "files": [
-        "04_diseno/step/P1-DRV-06_pulley_shaft.step"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.03
-    },
-    {
-      "id": "P1-DRV-07",
-      "name": "bearing",
-      "desc": "Rodamiento 6202-2RS 15×35×11 (×2)",
-      "material": "AISI 52100",
-      "process": "comprada",
-      "qty": 2,
-      "frame": "unit",
-      "load_case": "—",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-DRV-07_bearing",
-      "valid_solid": true,
-      "volume_mm3": 8604.82227818244,
-      "mass_g_each": 10.9281242932917,
-      "mass_g_total": 21.8562485865834,
-      "bbox_mm": [
-        11.0,
-        34.96,
-        34.96
-      ],
-      "files": [
-        "04_diseno/step/P1-DRV-07_bearing.step"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            1.9243744885442169
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            110.72147654829656
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            -42.03155318273332
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            131.21846224272048
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.03
-    },
-    {
-      "id": "P1-DRV-08",
-      "name": "bearing_cartridge",
-      "desc": "Cartucho rodamiento A (Al 6082 torneado)",
+      "name": "bearing_cover",
+      "desc": "Tapa delantera Al de rodamientos (4×M5), toma el empuje hacia proa",
       "material": "Al 5052/6082",
       "process": "torneada",
       "qty": 1,
-      "frame": "unit",
-      "load_case": "LC1/LC2 empuje axial, LC3/LC4 radial",
+      "frame": "jet",
+      "group": "drive",
+      "load_case": "Empuje Fa a punto fijo hacia proa: flexión de la tapa entre el aro y los M5",
       "print_rot": [
         0,
         0,
@@ -573,38 +717,49 @@
       ],
       "solid_frac": 1.0,
       "orientation": "—",
-      "file_stem": "P1-DRV-08_bearing_cartridge",
+      "allow": {
+        "P1-DRV-03": 2.0,
+        "P1-DRV-04": 1.0
+      },
+      "file_stem": "P1-DRV-06_bearing_cover",
       "valid_solid": true,
-      "volume_mm3": 19598.57444200763,
-      "mass_g_each": 52.52417950458045,
-      "mass_g_total": 52.52417950458045,
+      "volume_mm3": 16231.446851816627,
+      "mass_g_each": 43.50027756286857,
+      "mass_g_total": 43.50027756286857,
       "bbox_mm": [
-        22.0,
-        56.0,
-        56.0
+        7.0,
+        65.0,
+        65.0
       ],
       "files": [
-        "04_diseno/step/P1-DRV-08_bearing_cartridge.step"
+        "04_diseno/step/P1-DRV-06_bearing_cover.step"
       ],
       "checks": [
         {
-          "name": "pared del cartucho sobre el rodamiento [mm]",
-          "value": 3.5,
-          "ref": 3.0,
-          "op": ">=",
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
           "ok": true
         },
         {
-          "name": "ligamento agujero M4 → cuerpo [mm]",
-          "value": 1.3,
+          "name": "la tapa apoya en el aro exterior: Ø agujero < D − 2·(D − Da_max)/2… (Ø34 ≤ Da_max) [mm]",
+          "value": 34.0,
+          "ref": 41.4,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "agujero M5 fuera del Ø47 del alojamiento (borde) [mm]",
+          "value": 1.8,
           "ref": 1.0,
           "op": ">=",
           "ok": true
         },
         {
-          "name": "ligamento agujero M4 → borde de brida [mm]",
-          "value": 1.3,
-          "ref": 1.0,
+          "name": "agujero M5 dentro de la tapa (borde exterior) [mm]",
+          "value": 1.8,
+          "ref": 1.5,
           "op": ">=",
           "ok": true
         }
@@ -612,90 +767,22 @@
       "placements_running": [
         [
           [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
           ],
           [
-            0.0,
-            1.0,
+            1.2246467991473532e-16,
+            -1.0,
             0.0,
             0.0
           ],
           [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.11
-    },
-    {
-      "id": "P1-DRV-09",
-      "name": "spacer_b",
-      "desc": "Separador de eje rodamiento B ↔ polea (316)",
-      "material": "AISI 316",
-      "process": "torneada",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "Precarga de la pila (tuerca M12)",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-DRV-09_spacer_b",
-      "valid_solid": true,
-      "volume_mm3": 470.0254578760197,
-      "mass_g_each": 3.7602036630081574,
-      "mass_g_total": 3.7602036630081574,
-      "bbox_mm": [
-        4.5,
-        19.0,
-        19.0
-      ],
-      "files": [
-        "04_diseno/step/P1-DRV-09_spacer_b.step"
-      ],
-      "checks": [
-        {
-          "name": "largo del separador B [mm]",
-          "value": 4.5,
-          "ref": 2.0,
-          "op": ">=",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
           ],
           [
             0,
@@ -708,14 +795,15 @@
       "build_s": 0.06
     },
     {
-      "id": "P1-DRV-10",
-      "name": "spacer_a",
-      "desc": "Separador de eje polea ↔ rodamiento A (316)",
-      "material": "AISI 316",
-      "process": "torneada",
+      "id": "P1-DRV-07",
+      "name": "mech_seal_MG1_20",
+      "desc": "Sello mecánico MG1 Ø20 carbón/SiC (comprado)",
+      "material": "referencia",
+      "process": "comprada",
       "qty": 1,
-      "frame": "unit",
-      "load_case": "Precarga de la pila; empuje en marcha atrás",
+      "frame": "jet",
+      "group": "drive",
+      "load_case": "Presión del conducto, 5 m/s",
       "print_rot": [
         0,
         0,
@@ -723,30 +811,151 @@
       ],
       "solid_frac": 1.0,
       "orientation": "—",
-      "file_stem": "P1-DRV-10_spacer_a",
+      "mass_g": 60.0,
+      "allow": {
+        "P1-DRV-01": 20.0,
+        "P1-DRV-02": 30.0
+      },
+      "file_stem": "P1-DRV-07_mech_seal_MG1_20",
       "valid_solid": true,
-      "volume_mm3": 1253.40122100272,
-      "mass_g_each": 10.02720976802176,
-      "mass_g_total": 10.02720976802176,
+      "volume_mm3": 17893.33365760237,
+      "mass_g_each": 60.0,
+      "mass_g_total": 60.0,
       "bbox_mm": [
-        12.0,
-        19.0,
-        19.0
+        32.5,
+        35.0,
+        35.0
       ],
       "files": [
-        "04_diseno/step/P1-DRV-10_spacer_a.step"
+        "04_diseno/step/P1-DRV-07_mech_seal_MG1_20.step"
       ],
       "checks": [
         {
-          "name": "largo del separador A [mm]",
-          "value": 12.0,
-          "ref": 2.0,
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "Ø interior del asiento − Ø eje (no roza) [mm]",
+          "value": 2.0,
+          "ref": 1.0,
+          "op": ">=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 0.04
+    },
+    {
+      "id": "P1-DRV-08",
+      "name": "coupling_rotex24",
+      "desc": "Acople Rotex 24 Ø20 / Ø motor (comprado; cubo de eje refrentado)",
+      "material": "referencia",
+      "process": "comprada",
+      "qty": 1,
+      "frame": "jet",
+      "group": "drive",
+      "load_case": "Par T_max del controlador; par de corte del pasador (pico)",
+      "print_rot": [
+        0,
+        0,
+        0
+      ],
+      "solid_frac": 1.0,
+      "orientation": "—",
+      "mass_g": 600.0,
+      "allow": {
+        "P1-DRV-01": 20.0,
+        "P1-MOT-01": 20.0
+      },
+      "file_stem": "P1-DRV-08_coupling_rotex24",
+      "valid_solid": true,
+      "volume_mm3": 158223.36875493717,
+      "mass_g_each": 600.0,
+      "mass_g_total": 600.0,
+      "bbox_mm": [
+        72.0,
+        55.0,
+        55.0
+      ],
+      "files": [
+        "04_diseno/step/P1-DRV-08_coupling_rotex24.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "T_KN (estrella 92 ShA) ≥ 1,5 × T_max del controlador [N·m]",
+          "value": 35.0,
+          "ref": 27.852,
           "op": ">=",
           "ok": true
         },
         {
-          "name": "holgura radial al labio del cartucho (Ø21) [mm]",
-          "value": 1.0,
+          "name": "T_Kmax ≥ par de corte del pasador (pico de traba) [N·m]",
+          "value": 70.0,
+          "ref": 33.482,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "n máx. del acople ≥ n máx. [rpm]",
+          "value": 12100.0,
+          "ref": 4931.865,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "agujeros ≤ agujero máx. [mm]",
+          "value": 20.0,
+          "ref": 35.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "eje del motor dentro del cubo (encastre) [mm]",
+          "value": 26.5,
+          "ref": 24.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "eje del motor no toca la estrella (luz) [mm]",
+          "value": 3.5,
           "ref": 0.5,
           "op": ">=",
           "ok": true
@@ -755,22 +964,22 @@
       "placements_running": [
         [
           [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
           ],
           [
-            0.0,
-            1.0,
+            1.2246467991473532e-16,
+            -1.0,
             0.0,
             0.0
           ],
           [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
           ],
           [
             0,
@@ -780,108 +989,92 @@
           ]
         ]
       ],
-      "build_s": 0.03
+      "build_s": 0.04
     },
     {
       "id": "P1-ELE-01",
-      "name": "esc_box",
-      "desc": "Caja estanca del ESC (O-ring + prensaestopas)",
+      "name": "esc_stand",
+      "desc": "Base elevada PETG del controlador IP65 (4 × M6 al piso, 4 insertos M5 para la capota)",
       "material": "PETG",
       "process": "impresa",
       "qty": 1,
-      "frame": "boat_free",
-      "load_case": "Estanqueidad (IP67 objetivo), compresión del O-ring",
+      "frame": "boat",
+      "group": "ele",
+      "load_case": "Peso del ESC + capota a 3 g vertical y 1 g lateral; tirón de cables",
       "print_rot": [
         0,
         0,
         0
       ],
-      "solid_frac": 1.0,
-      "orientation": "Fondo sobre la cama; la cara del O-ring queda arriba, lisa (última capa + lijado).",
-      "file_stem": "P1-ELE-01_esc_box",
+      "solid_frac": 0.6,
+      "orientation": "Base abierta sobre la cama; tablero arriba (puentes de 3,2 mm entre nervios, sin soportes).",
+      "allow": {
+        "P1-ELE-04": 2.0,
+        "P1-ELE-02": 2.0
+      },
+      "file_stem": "P1-ELE-01_esc_stand",
       "valid_solid": true,
-      "volume_mm3": 501496.86608010833,
-      "mass_g_each": 636.9010199217375,
-      "mass_g_total": 636.9010199217375,
+      "volume_mm3": 344918.34638590715,
+      "mass_g_each": 262.82777994606124,
+      "mass_g_total": 262.82777994606124,
       "print_bbox_mm": [
-        196.0,
-        174.0,
-        48.2
+        207.6,
+        138.2,
+        60.0
       ],
       "print_zrot_deg": 0,
-      "print_hours_each": 35.38338999565209,
+      "print_hours_each": 14.601543330336735,
       "files": [
-        "04_diseno/step/P1-ELE-01_esc_box.step",
-        "04_diseno/stl/P1-ELE-01_esc_box.stl"
+        "04_diseno/step/P1-ELE-01_esc_stand.step",
+        "04_diseno/stl/P1-ELE-01_esc_stand.stl"
       ],
       "checks": [
         {
-          "name": "profundidad de ranura O-ring [mm]",
-          "value": 2.647,
-          "ref": 2.471,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "ancho de ranura O-ring [mm]",
-          "value": 4.739,
-          "ref": 4.236,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "pared entre ranura de O-ring e inserto [mm]",
-          "value": 2.961,
-          "ref": 2.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "largo interior − ESC − 2×(contratuerca + curva de cable) [mm]",
-          "value": 7.0,
-          "ref": 0.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "ancho interior − (ESC + antichispa + 5) [mm]",
-          "value": 2.0,
-          "ref": 0.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "alto interior − (ESC + 15 de cables) [mm]",
-          "value": 6.0,
-          "ref": 0.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "margen rebaje de prensaestopas → inserto de la tapa [mm]",
-          "value": 1.1,
+          "name": "un solo sólido",
+          "value": 1.0,
           "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "fondo del ESC sobre el piso [mm]",
+          "value": 60.0,
+          "ref": 50.0,
           "op": ">=",
           "ok": true
         },
         {
-          "name": "margen contratuerca interior → piso [mm]",
-          "value": 4.95,
-          "ref": 1.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "separación entre prensaestopas − hex. M20 entre vértices [mm]",
-          "value": 8.3,
-          "ref": 4.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "contratuerca lateral dentro del ancho interior [mm]",
-          "value": 5.15,
+          "name": "la base apoya el ESC completo (largo base − largo ESC) [mm]",
+          "value": 7.6,
           "ref": 0.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "controlador refrigerado por agua (si no: volver a caja + disipador) [—]",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "dentro de la manga del casco a la altura del ESC [mm]",
+          "value": 84.7,
+          "ref": 10.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "luz al motor: máx(separación en x, separación en y) [mm]",
+          "value": 23.0,
+          "ref": 20.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "pared ≥ min_wall [mm]",
+          "value": 3.2,
+          "ref": 3.2,
           "op": ">=",
           "ok": true
         }
@@ -892,19 +1085,19 @@
             1.0,
             0.0,
             0.0,
-            -700.0
+            900.0
           ],
           [
             0.0,
             1.0,
             0.0,
-            150.0
+            152.1
           ],
           [
             0.0,
             0.0,
             1.0,
-            -300.0
+            75.0
           ],
           [
             0,
@@ -914,265 +1107,100 @@
           ]
         ]
       ],
-      "build_s": 1.16
+      "build_s": 1.38
     },
     {
       "id": "P1-ELE-02",
-      "name": "esc_lid_heatsink",
-      "desc": "Tapa-disipador Al 4 mm (mecanizada)",
-      "material": "Al 5052/6082",
-      "process": "torneada",
-      "qty": 1,
-      "frame": "boat_free",
-      "load_case": "Compresión del O-ring; disipación ESC",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-ELE-02_esc_lid_heatsink",
-      "valid_solid": true,
-      "volume_mm3": 113977.4301298121,
-      "mass_g_each": 305.45951274789644,
-      "mass_g_total": 305.45951274789644,
-      "bbox_mm": [
-        196.0,
-        146.0,
-        4.0
-      ],
-      "files": [
-        "04_diseno/step/P1-ELE-02_esc_lid_heatsink.step"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            1.0,
-            0.0,
-            0.0,
-            -700.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            150.0
-          ],
-          [
-            0.0,
-            0.0,
-            1.0,
-            -251.75
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.11
-    },
-    {
-      "id": "P1-ELE-03",
-      "name": "throttle_grip",
-      "desc": "Puño giratorio del acelerador (imán)",
+      "name": "esc_hood",
+      "desc": "Capota antisalpicaduras PETG del controlador (4 × M5 a la base)",
       "material": "PETG",
       "process": "impresa",
       "qty": 1,
-      "frame": "unit",
-      "load_case": "Torsión de mano (~5 N·m), golpes",
+      "frame": "boat",
+      "group": "ele",
+      "load_case": "Apriete de la almohadilla EPDM (4 × M5) y 3 g vertical del ESC hacia arriba (golpe de ola)",
       "print_rot": [
-        0,
+        180,
         0,
         0
       ],
-      "solid_frac": 1.0,
-      "orientation": "Eje vertical (Z): anillos de capa en la dirección del torque.",
-      "file_stem": "P1-ELE-03_throttle_grip",
+      "solid_frac": 0.8,
+      "orientation": "Techo sobre la cama, paredes y nervios hacia arriba (sin soportes).",
+      "allow": {
+        "P1-ELE-04": 2.0,
+        "P1-ELE-01": 2.0
+      },
+      "file_stem": "P1-ELE-02_esc_hood",
       "valid_solid": true,
-      "volume_mm3": 79952.92992659153,
-      "mass_g_each": 101.54022100677125,
-      "mass_g_total": 101.54022100677125,
+      "volume_mm3": 203488.87429259322,
+      "mass_g_each": 206.74469628127474,
+      "mass_g_total": 206.74469628127474,
       "print_bbox_mm": [
-        48.32,
-        48.4,
-        110.0
+        207.6,
+        126.2,
+        55.45
       ],
       "print_zrot_deg": 0,
-      "print_hours_each": 5.641123389265069,
+      "print_hours_each": 11.485816460070819,
       "files": [
-        "04_diseno/step/P1-ELE-03_throttle_grip.step",
-        "04_diseno/stl/P1-ELE-03_throttle_grip.stl"
+        "04_diseno/step/P1-ELE-02_esc_hood.step",
+        "04_diseno/stl/P1-ELE-02_esc_hood.stl"
       ],
       "checks": [
         {
-          "name": "holgura diametral puño–tubo [mm]",
-          "value": 0.4,
-          "ref": 0.3,
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "holgura ESC ↔ capota por lado [mm]",
+          "value": 0.6,
+          "ref": 0.4,
           "op": ">=",
           "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.42261826174069966,
-            0.0,
-            -0.9063077870366498,
-            -155.05371490970677
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            70.0
-          ],
-          [
-            0.9063077870366498,
-            0.0,
-            0.42261826174069966,
-            305.29313288311505
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.14
-    },
-    {
-      "id": "P1-ELE-04",
-      "name": "hall_housing",
-      "desc": "Collar del sensor hall (fijo a la caña)",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "Reacción de resortes, golpes",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "Eje vertical (Z).",
-      "file_stem": "P1-ELE-04_hall_housing",
-      "valid_solid": true,
-      "volume_mm3": 56086.31474736092,
-      "mass_g_each": 71.22961972914837,
-      "mass_g_total": 71.22961972914837,
-      "print_bbox_mm": [
-        56.3,
-        56.3,
-        34.0
-      ],
-      "print_zrot_deg": 0,
-      "print_hours_each": 3.957201096063798,
-      "files": [
-        "04_diseno/step/P1-ELE-04_hall_housing.step",
-        "04_diseno/stl/P1-ELE-04_hall_housing.stl"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            0.42261826174069966,
-            0.0,
-            -0.9063077870366498,
-            -123.33294236342402
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            70.0
-          ],
-          [
-            0.9063077870366498,
-            0.0,
-            0.42261826174069966,
-            290.5014937221906
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.26
-    },
-    {
-      "id": "P1-HSG-01",
-      "name": "drive_plate",
-      "desc": "Placa motriz Al 6082-T6 6 mm (motor + cartucho + tensado)",
-      "material": "Al 5052/6082",
-      "process": "torneada",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "LC1/LC2 empuje axial, LC3 torque de motor + tiro de correa, LC4 tirón al cortar el pasador, LC6 fatiga",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-HSG-01_drive_plate",
-      "valid_solid": true,
-      "volume_mm3": 76649.7067711023,
-      "mass_g_each": 205.42121414655418,
-      "mass_g_total": 205.42121414655418,
-      "bbox_mm": [
-        6.0,
-        74.0,
-        208.5
-      ],
-      "files": [
-        "04_diseno/step/P1-HSG-01_drive_plate.step"
-      ],
-      "checks": [
+        },
         {
-          "name": "alcance de eje de motor requerido ≤ saliente",
-          "value": 29.0,
-          "ref": 30.0,
+          "name": "ranura de cables/mangueras ≤ ancho del ESC [mm]",
+          "value": 60.0,
+          "ref": 84.6,
           "op": "<=",
           "ok": true
         },
         {
-          "name": "distancia entre centros (nominal)",
-          "value": 125.0,
-          "ref": 125.0,
-          "op": "≈",
+          "name": "ranura de cables: alto ≥ 2 × Ø cable 70 mm² (≈ 15 [ESTIMADO]) [mm]",
+          "value": 36.0,
+          "ref": 30.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "techo ≥ min_wall [mm]",
+          "value": 3.2,
+          "ref": 3.2,
+          "op": ">=",
           "ok": true
         }
       ],
       "placements_running": [
         [
           [
-            0.9063077870366499,
+            1.0,
             0.0,
-            0.42261826174069944,
-            80.0
+            0.0,
+            900.0
           ],
           [
             0.0,
             1.0,
             0.0,
-            0.0
+            152.1
           ],
           [
-            -0.42261826174069944,
             0.0,
-            0.9063077870366499,
+            0.0,
+            1.0,
             135.0
           ],
           [
@@ -1186,338 +1214,15 @@
       "build_s": 0.51
     },
     {
-      "id": "P1-HSG-02",
-      "name": "bearing_bridge",
-      "desc": "Puente del rodamiento B (polea entre apoyos)",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "LC3/LC4 tiro de correa (reacción R_B)",
-      "print_rot": [
-        0,
-        -90,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "Plana (u = Z): reacción radial en el plano de capas; alojamiento vertical.",
-      "file_stem": "P1-HSG-02_bearing_bridge",
-      "valid_solid": true,
-      "volume_mm3": 52563.39407422611,
-      "mass_g_each": 66.75551047426715,
-      "mass_g_total": 66.75551047426715,
-      "print_bbox_mm": [
-        154.09,
-        154.09,
-        12.0
-      ],
-      "print_zrot_deg": 45,
-      "print_hours_each": 3.70863947079262,
-      "files": [
-        "04_diseno/step/P1-HSG-02_bearing_bridge.step",
-        "04_diseno/stl/P1-HSG-02_bearing_bridge.stl"
-      ],
-      "checks": [
-        {
-          "name": "espesor de puente",
-          "value": 12.0,
-          "ref": 10.0,
-          "op": ">=",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.19
-    },
-    {
-      "id": "P1-HSG-03",
-      "name": "belt_guard",
-      "desc": "Cubrecorrea / protección de poleas",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "Salpicaduras, manipulación leve",
-      "print_rot": [
-        0,
-        -90,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "Cara cerrada sobre la cama, abierto arriba (sin puentes).",
-      "file_stem": "P1-HSG-03_belt_guard",
-      "valid_solid": true,
-      "volume_mm3": 118849.87178907375,
-      "mass_g_each": 150.93933717212366,
-      "mass_g_total": 150.93933717212366,
-      "print_bbox_mm": [
-        206.91,
-        93.19,
-        53.7
-      ],
-      "print_zrot_deg": 0,
-      "print_hours_each": 8.385518731784648,
-      "files": [
-        "04_diseno/step/P1-HSG-03_belt_guard.step",
-        "04_diseno/stl/P1-HSG-03_belt_guard.stl"
-      ],
-      "checks": [
-        {
-          "name": "holgura polea conducida–cubrecorrea [mm]",
-          "value": 3.0,
-          "ref": 2.5,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "holgura puente HSG-02–cubrecorrea [mm]",
-          "value": 6.282,
-          "ref": 1.5,
-          "op": ">=",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.11
-    },
-    {
-      "id": "P1-HSG-04",
-      "name": "tiller_clamp",
-      "desc": "Abrazadera del tubo de caña sobre la placa Al (×2)",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 2,
-      "frame": "unit",
-      "load_case": "LC7 manipulación (par de fuerzas entre abrazaderas)",
-      "print_rot": [
-        90,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "De canto: la media caña y los pernos en el plano de capas.",
-      "file_stem": "P1-HSG-04_tiller_clamp",
-      "valid_solid": true,
-      "volume_mm3": 18671.075602617144,
-      "mass_g_each": 23.712266015323774,
-      "mass_g_total": 47.42453203064755,
-      "print_bbox_mm": [
-        22.0,
-        35.0,
-        46.0
-      ],
-      "print_zrot_deg": 0,
-      "print_hours_each": 1.317348111962432,
-      "files": [
-        "04_diseno/step/P1-HSG-04_tiller_clamp.step",
-        "04_diseno/stl/P1-HSG-04_tiller_clamp.stl"
-      ],
-      "checks": [
-        {
-          "name": "luz de apriete abrazadera–placa [mm]",
-          "value": 1.0,
-          "ref": 0.6,
-          "op": ">=",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            130.43323800683797
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            70.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            172.16838043479476
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            180.2801662938537
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            70.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            148.9243760390563
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.3
-    },
-    {
-      "id": "P1-HSG-05",
-      "name": "motor_hood",
-      "desc": "Capó ventilado del motor",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "Salpicaduras; temperatura del motor (≤ 60 °C en la pieza)",
-      "print_rot": [
-        0,
-        90,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "Cara trasera sobre la cama (techo y laterales verticales, sin puentes largos).",
-      "file_stem": "P1-HSG-05_motor_hood",
-      "valid_solid": true,
-      "volume_mm3": 52083.12000000015,
-      "mass_g_each": 66.14556240000019,
-      "mass_g_total": 66.14556240000019,
-      "print_bbox_mm": [
-        81.9,
-        71.8,
-        86.0
-      ],
-      "print_zrot_deg": 0,
-      "print_hours_each": 3.6747534666666772,
-      "files": [
-        "04_diseno/step/P1-HSG-05_motor_hood.step",
-        "04_diseno/stl/P1-HSG-05_motor_hood.stl"
-      ],
-      "checks": [
-        {
-          "name": "holgura capó–motor radial [mm]",
-          "value": 2.0,
-          "ref": 1.5,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "ancho del capó < luz entre mejillas",
-          "value": 71.8,
-          "ref": 76.0,
-          "op": "<=",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.31
-    },
-    {
-      "id": "P1-HSG-06",
-      "name": "tiller_tube",
-      "desc": "Tubo de caña Al 6061-T6 Ø30×3 × 550 mm",
-      "material": "Al 6061-T6",
+      "id": "P1-ELE-03",
+      "name": "cooling_outlet",
+      "desc": "Pasacasco 316 de salida del agua de refrigeración (testigo en el espejo)",
+      "material": "AISI 316",
       "process": "comprada",
       "qty": 1,
-      "frame": "unit",
-      "load_case": "LC7",
+      "frame": "boat",
+      "group": "ele",
+      "load_case": "—",
       "print_rot": [
         0,
         0,
@@ -1525,27 +1230,57 @@
       ],
       "solid_frac": 1.0,
       "orientation": "—",
-      "file_stem": "P1-HSG-06_tiller_tube",
+      "mass_g": 45.0,
+      "file_stem": "P1-ELE-03_cooling_outlet",
       "valid_solid": true,
-      "volume_mm3": 139957.95271742527,
-      "mass_g_each": 377.8864723370483,
-      "mass_g_total": 377.8864723370483,
+      "volume_mm3": 5947.913144800255,
+      "mass_g_each": 45.0,
+      "mass_g_total": 45.0,
       "bbox_mm": [
-        550.0,
-        30.0,
-        30.0
+        37.0,
+        28.0,
+        28.0
       ],
       "files": [
-        "04_diseno/step/P1-HSG-06_tiller_tube.step"
+        "04_diseno/step/P1-ELE-03_cooling_outlet.step"
       ],
-      "checks": [],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "presión del puerto a rpm de 5 kn ≥ 3 × Δp del circuito (Q 0.86 L/min, 2.6 m de manguera) [Pa]",
+          "value": 22843.644,
+          "ref": 10617.516,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "salida por encima del espejo inferior y debajo del borde (z) [mm]",
+          "value": 300.0,
+          "ref": 360.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "salida lejos de la placa de espejo de la bomba (|y| − radio de la placa) [mm]",
+          "value": 74.34,
+          "ref": 20.0,
+          "op": ">=",
+          "ok": true
+        }
+      ],
       "placements_running": [
         [
           [
-            0.9063077870366499,
+            1.0,
             0.0,
-            0.42261826174069944,
-            80.0
+            0.0,
+            0.0
           ],
           [
             0.0,
@@ -1554,9 +1289,83 @@
             0.0
           ],
           [
-            -0.42261826174069944,
             0.0,
-            0.9063077870366499,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 0.08
+    },
+    {
+      "id": "P1-ELE-04",
+      "name": "esc",
+      "desc": "Controlador VESC de la selección (FSESC 75350 con caja de agua)",
+      "material": "referencia",
+      "process": "comprada",
+      "qty": 1,
+      "frame": "boat",
+      "group": "ele",
+      "load_case": "—",
+      "print_rot": [
+        0,
+        0,
+        0
+      ],
+      "solid_frac": 1.0,
+      "orientation": "—",
+      "mass_g": 2000.0,
+      "allow": {
+        "P1-ELE-01": 2.0,
+        "P1-ELE-02": 2.0
+      },
+      "file_stem": "P1-ELE-04_esc",
+      "valid_solid": true,
+      "volume_mm3": 945999.9999999999,
+      "mass_g_each": 2000.0,
+      "mass_g_total": 2000.0,
+      "bbox_mm": [
+        200.0,
+        94.6,
+        50.0
+      ],
+      "files": [
+        "04_diseno/step/P1-ELE-04_esc.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            900.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            152.1
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
             135.0
           ],
           [
@@ -1570,14 +1379,408 @@
       "build_s": 0.02
     },
     {
-      "id": "P1-HSG-07",
-      "name": "tiller_plate",
-      "desc": "Placa de caña Al 6082-T6 10 mm (mecanizada)",
-      "material": "Al 5052/6082",
+      "id": "P1-INT-01",
+      "name": "conducto",
+      "desc": "Conducto de toma enrasada Al 5083 soldado: rampa C2, transición a Ø D_bore, brida bomba, buje del sello, chimenea de inspección",
+      "material": "Al 5083",
       "process": "torneada",
       "qty": 1,
-      "frame": "unit",
-      "load_case": "LC7 manipulación (torsión en la placa)",
+      "frame": "boat",
+      "group": "jet",
+      "load_case": "Presión interna −p_pump_max…+p_pump_max, golpe de fondo, 3 g agua; empuje NO pasa por acá",
+      "allow": {
+        "P1-INT-02": 30.0,
+        "P1-PMP-01": 30.0,
+        "P1-DRV-02": 30.0
+      },
+      "file_stem": "P1-INT-01_conducto",
+      "valid_solid": true,
+      "volume_mm3": 270384.1150158865,
+      "mass_g_each": 719.2217459422582,
+      "mass_g_total": 719.2217459422582,
+      "bbox_mm": [
+        59.0,
+        168.4,
+        43.11
+      ],
+      "files": [
+        "04_diseno/step/P1-INT-01_conducto.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "labio enrasado: z mín. del conducto [mm]",
+          "value": -0.0,
+          "ref": 0.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "rampa: ángulo máx. del techo [°]",
+          "value": 27.0,
+          "ref": 30.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "rampa: ángulo máx. del techo ≥ 25° (R10a §4)",
+          "value": 27.0,
+          "ref": 25.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "techo: radio de curvatura mín. ≥ 100 mm (sin quiebres)",
+          "value": 109.275,
+          "ref": 100.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "pared mínima del conducto [mm]",
+          "value": 5.0,
+          "ref": 4.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "labio: radio de nariz r_lip [mm]",
+          "value": 14.5,
+          "ref": 14.504,
+          "op": ">=",
+          "ok": false
+        },
+        {
+          "name": "abertura: largo L_open = x_tan − x_lip [mm]",
+          "value": 380.16,
+          "ref": 380.16,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "abertura entera a proa de la cara del impulsor: x_lip − x_if [mm]",
+          "value": 117.48,
+          "ref": 112.2,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "salida Ø = D_bore del labio de P1-PMP-01 (sin escalón) [mm]",
+          "value": 133.32,
+          "ref": 133.32,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "codo convergente (área monótona decreciente)",
+          "value": 0.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": false
+        },
+        {
+          "name": "área de garganta Ø D_throat alcanzada dentro del codo",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "brida bomba: Ø ext = pump_flange_od",
+          "value": 0.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": false
+        },
+        {
+          "name": "brida bomba: 8 agujeros en Ø pump_flange_bc",
+          "value": 8.0,
+          "ref": 8.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "tuercas M6 de la brida de la bomba libres del conducto: r cara ext. [mm]",
+          "value": 78.434,
+          "ref": 75.86,
+          "op": "<=",
+          "ok": false
+        },
+        {
+          "name": "buje del sello en S_seal: techo libra la caja Ø70 de TREN (S_seal ≥ S_min) [mm]",
+          "value": 260.133,
+          "ref": 241.709,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "buje del sello: pared al agujero M6 [mm]",
+          "value": 2.0,
+          "ref": 1.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "brida inferior libra las zapatas del soporte (|y| ≤ brg_bracket_y − 24,2 − 1) [mm]",
+          "value": 99.0,
+          "ref": 99.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "brida inferior: borde al agujero M6 [mm]",
+          "value": 1.8,
+          "ref": 1.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "cordón: ranura fuera del pasaje [mm]",
+          "value": 4.935,
+          "ref": 3.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "cordón: profundidad = cs·(1 − apriete) [mm]",
+          "value": 2.65,
+          "ref": 2.647,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "chimenea: brida ≥ 60 mm sobre la flotación estática [mm]",
+          "value": 61.989,
+          "ref": 60.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "chimenea libre de las tuercas M6 de la brida de la bomba [mm]",
+          "value": 15.943,
+          "ref": 2.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "chimenea a popa del tubo del eje [mm]",
+          "value": -7.536,
+          "ref": 0.0,
+          "op": ">=",
+          "ok": false
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 238.33
+    },
+    {
+      "id": "P1-INT-02",
+      "name": "placa_base",
+      "desc": "Placa base de la toma Al 5083 10 mm: cuerpo enrasado + ala abulonada al casco, cuña de la rampa, roscas del conducto y del soporte de rodamientos",
+      "material": "Al 5083",
+      "process": "torneada",
+      "qty": 1,
+      "frame": "boat",
+      "group": "jet",
+      "load_case": "Golpe de fondo, empuje del tren por el soporte de rodamientos, tracción de los bulones del conducto",
+      "allow": {
+        "P1-INT-01": 30.0,
+        "P1-REF-01": 30.0,
+        "P1-DRV-03": 30.0
+      },
+      "file_stem": "P1-INT-02_placa_base",
+      "valid_solid": false,
+      "volume_mm3": -130043.76008368451,
+      "mass_g_each": -345.9164018226008,
+      "mass_g_total": -345.9164018226008,
+      "bbox_mm": [
+        564.66,
+        350.0,
+        12.0
+      ],
+      "files": [
+        "04_diseno/step/P1-INT-02_placa_base.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 128.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": false
+        },
+        {
+          "name": "cara inferior enrasada con el fondo: z mín. [mm]",
+          "value": -1.0,
+          "ref": 0.0,
+          "op": "=",
+          "ok": false
+        },
+        {
+          "name": "cara superior = base_top_z [mm]",
+          "value": 11.0,
+          "ref": 10.0,
+          "op": "=",
+          "ok": false
+        },
+        {
+          "name": "ancho ≥ ±145 mm en la huella del soporte (pedido del principal) [mm]",
+          "value": 150.0,
+          "ref": 145.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "agujeros M8 del soporte dentro del cuerpo de 10 mm: |y| máx. + 9 ≤ semiancho [mm]",
+          "value": 133.2,
+          "ref": 150.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "agujeros M8 del soporte fuera de la abertura: |y| mín. − 4 − W/2 [mm]",
+          "value": 41.0,
+          "ref": 10.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "agujeros M8 dentro de la placa en x [mm]",
+          "value": 133.516,
+          "ref": 15.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "M8 ciegas: piel bajo la rosca [mm]",
+          "value": 1.5,
+          "ref": 1.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "M8 ciegas: rosca útil ≥ 0,9 d [mm]",
+          "value": 7.5,
+          "ref": 7.2,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "cuña de la rampa: espesor mín. en la unión con el conducto [mm]",
+          "value": 1.002,
+          "ref": 0.9,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "escalón techo placa → conducto (≤ 1 mm, hacia afuera del flujo) [mm]",
+          "value": 1.002,
+          "ref": 1.1,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "luz bloque del labio ↔ placa por lado [mm]",
+          "value": 0.5,
+          "ref": 0.5,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "ala sobre el casco: cama de sellador [mm]",
+          "value": 0.5,
+          "ref": 0.5,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "paso de bulones del ala ≤ toma_hull_pitch [mm]",
+          "value": 70.0,
+          "ref": 70.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "rejilla: el tirante delantero queda bajo el techo (techo − espesor) [mm]",
+          "value": 5.005,
+          "ref": 3.0,
+          "op": ">=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 978.86
+    },
+    {
+      "id": "P1-MOT-01",
+      "name": "motor",
+      "desc": "Motor de la selección (MTI120116: Ø120 × 116, refrigerado por agua)",
+      "material": "referencia",
+      "process": "comprada",
+      "qty": 1,
+      "frame": "jet",
+      "group": "motor",
+      "load_case": "Par de reacción T_max sobre P1-MOT-02; 3 g vertical",
       "print_rot": [
         0,
         0,
@@ -1585,47 +1788,80 @@
       ],
       "solid_frac": 1.0,
       "orientation": "—",
-      "file_stem": "P1-HSG-07_tiller_plate",
+      "mass_from": "motor",
+      "allow": {
+        "P1-DRV-08": 20.0,
+        "P1-MOT-02": 5.0
+      },
+      "file_stem": "P1-MOT-01_motor",
       "valid_solid": true,
-      "volume_mm3": 92347.23315579174,
-      "mass_g_each": 247.4905848575219,
-      "mass_g_total": 247.4905848575219,
+      "volume_mm3": 1319930.335928709,
+      "mass_g_each": 4400.0,
+      "mass_g_total": 4400.0,
       "bbox_mm": [
-        77.0,
-        124.0,
-        10.0
+        146.0,
+        120.0,
+        120.0
       ],
       "files": [
-        "04_diseno/step/P1-HSG-07_tiller_plate.step"
+        "04_diseno/step/P1-MOT-01_motor.step"
       ],
       "checks": [
         {
-          "name": "placa de caña: luz a la mejilla exterior [mm]",
-          "value": 2.0,
-          "ref": 2.0,
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "luz motor ↔ fondo interior del casco [mm]",
+          "value": 87.41,
+          "ref": 10.0,
           "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "motor por encima del piso (luz al piso) [mm]",
+          "value": 16.41,
+          "ref": 0.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "coaxialidad declarada motor ↔ eje (mismo marco JET, desalineación de montaje) [mm]",
+          "value": 0.0,
+          "ref": 0.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "datos del motor encontrados en la tabla de params_tren (si no: escalado ESTIMADO) [—]",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
           "ok": true
         }
       ],
       "placements_running": [
         [
           [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
           ],
           [
-            0.0,
-            1.0,
+            1.2246467991473532e-16,
+            -1.0,
             0.0,
             0.0
           ],
           [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
           ],
           [
             0,
@@ -1635,137 +1871,95 @@
           ]
         ]
       ],
-      "build_s": 0.19
+      "build_s": 0.1
     },
     {
-      "id": "P1-MNT-01",
-      "name": "clamp_bracket",
-      "desc": "Abrazadera de popa (C) + plato de dirección",
-      "material": "PETG",
-      "process": "impresa",
+      "id": "P1-MOT-02",
+      "name": "motor_mount",
+      "desc": "Soporte del motor Al: placa a la cara del motor + pies al piso (4×M8)",
+      "material": "Al 5052/6082",
+      "process": "torneada",
       "qty": 1,
       "frame": "boat",
-      "load_case": "LC5 impacto (reacción en pivote) / LC1 empuje / LC7 manipulación",
-      "print_rot": [
-        90,
-        0,
-        0
-      ],
-      "solid_frac": 0.85,
-      "orientation": "Perfil x-z sobre la cama (ancho y = Z de impresión): cargas en el plano XY de capas.",
-      "file_stem": "P1-MNT-01_clamp_bracket",
-      "valid_solid": true,
-      "volume_mm3": 1720127.8293410633,
-      "mass_g_each": 1856.8779917736779,
-      "mass_g_total": 1856.8779917736779,
-      "print_bbox_mm": [
-        186.85,
-        189.08,
-        150.0
-      ],
-      "print_zrot_deg": 75,
-      "print_hours_each": 103.159888431871,
-      "files": [
-        "04_diseno/step/P1-MNT-01_clamp_bracket.step",
-        "04_diseno/stl/P1-MNT-01_clamp_bracket.stl"
-      ],
-      "checks": [
-        {
-          "name": "luz interior abrazadera ≥ espejo máx + 4 mm",
-          "value": 71.0,
-          "ref": 69.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "buje de dirección Ø",
-          "value": 24.25,
-          "ref": 24.25,
-          "op": "≈",
-          "ok": true
-        },
-        {
-          "name": "altura de patas ≥ 120 mm",
-          "value": 130.0,
-          "ref": 120.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "ancho a lo largo del espejo",
-          "value": 150.0,
-          "ref": 150.0,
-          "op": "≈",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            1.0,
-            0.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            0.0,
-            1.0,
-            0.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.64
-    },
-    {
-      "id": "P1-MNT-02",
-      "name": "clamp_pad",
-      "desc": "Zapata giratoria del tornillo de apriete (aislante)",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 2,
-      "frame": "boat",
-      "load_case": "Apriete del tornillo (compresión)",
+      "group": "motor",
+      "load_case": "Par de reacción T_max del controlador + 3 g vertical del motor; sin empuje",
       "print_rot": [
         0,
         0,
         0
       ],
       "solid_frac": 1.0,
-      "orientation": "Plana, cara de apoyo sobre la cama; compresión a través de capas (admisible).",
-      "file_stem": "P1-MNT-02_clamp_pad",
+      "orientation": "—",
+      "allow": {
+        "P1-MOT-01": 5.0
+      },
+      "file_stem": "P1-MOT-02_motor_mount",
       "valid_solid": true,
-      "volume_mm3": 13861.170682481206,
-      "mass_g_each": 17.60368676675113,
-      "mass_g_total": 35.20737353350226,
-      "print_bbox_mm": [
-        40.0,
-        40.0,
-        12.0
+      "volume_mm3": 314327.77173633134,
+      "mass_g_each": 842.398428253368,
+      "mass_g_total": 842.398428253368,
+      "bbox_mm": [
+        76.06,
+        190.0,
+        145.91
       ],
-      "print_zrot_deg": 5,
-      "print_hours_each": 0.9779825981528406,
       "files": [
-        "04_diseno/step/P1-MNT-02_clamp_pad.step",
-        "04_diseno/stl/P1-MNT-02_clamp_pad.stl"
+        "04_diseno/step/P1-MOT-02_motor_mount.step"
       ],
       "checks": [
         {
-          "name": "espesor de zapata",
-          "value": 12.0,
-          "ref": 10.0,
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "agujero de la placa ≥ Ø acople + 2 × 3 (pasa el cubo) [mm]",
+          "value": 64.0,
+          "ref": 61.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "borde entre el agujero central y los agujeros del motor [mm]",
+          "value": 4.8,
+          "ref": 3.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "agujero central ≥ centrador del motor [mm]",
+          "value": 64.0,
+          "ref": 41.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "pies sobre el piso (z apoyo = floor_z) [mm]",
+          "value": 75.0,
+          "ref": 75.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "pies dentro de la manga del casco [mm]",
+          "value": 210.9,
+          "ref": 20.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "pie ↔ cuerpo del motor (luz vertical en |y| = fy0) [mm]",
+          "value": 26.495,
+          "ref": 3.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "placa fuera del soporte de rodamientos (|y| placa < mejilla) [mm]",
+          "value": 5.0,
+          "ref": 3.0,
           "op": ">=",
           "ok": true
         }
@@ -1773,48 +1967,22 @@
       "placements_running": [
         [
           [
-            2.220446049250313e-16,
-            -0.0,
-            -1.0,
-            -40.0
+            1.0,
+            0.0,
+            0.0,
+            0.0
           ],
           [
             0.0,
             1.0,
-            -0.0,
-            -45.0
-          ],
-          [
-            1.0,
             0.0,
-            2.220446049250313e-16,
-            -30.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            2.220446049250313e-16,
-            -0.0,
-            -1.0,
-            -40.0
+            0.0
           ],
           [
             0.0,
-            1.0,
-            -0.0,
-            45.0
-          ],
-          [
-            1.0,
             0.0,
-            2.220446049250313e-16,
-            -30.0
+            1.0,
+            0.0
           ],
           [
             0,
@@ -1824,165 +1992,148 @@
           ]
         ]
       ],
-      "build_s": 0.11
+      "build_s": 0.56
     },
     {
-      "id": "P1-MNT-03",
-      "name": "yoke_base",
-      "desc": "Base de horquilla / plato de dirección",
-      "material": "PETG",
-      "process": "impresa",
+      "id": "P1-PMP-01",
+      "name": "housing",
+      "desc": "Carcasa Al 6061-T6: brida de la toma, asiento del anillo y del estator, puerto de agua",
+      "material": "Al 6061-T6",
+      "process": "torneada",
       "qty": 1,
-      "frame": "yoke",
-      "load_case": "LC5 impacto / LC1 empuje (momento de vuelco sobre el perno)",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 0.9,
-      "orientation": "Plana: momentos de vuelco en el plano de capas.",
-      "file_stem": "P1-MNT-03_yoke_base",
+      "frame": "jet",
+      "group": "jet",
+      "load_case": "Presión interna 0,2 MPa; reacción del estator; momentos de boquilla/bucket en bridas",
+      "allow": {
+        "P1-PMP-02": 1500.0,
+        "P1-PMP-06": 1500.0,
+        "P1-PMP-08": 300.0
+      },
+      "file_stem": "P1-PMP-01_housing",
       "valid_solid": true,
-      "volume_mm3": 157654.38141486334,
-      "mass_g_each": 180.1989579571888,
-      "mass_g_total": 180.1989579571888,
-      "print_bbox_mm": [
-        75.0,
-        112.0,
-        20.0
+      "volume_mm3": 626346.801298328,
+      "mass_g_each": 1691.1363635054856,
+      "mass_g_total": 1691.1363635054856,
+      "bbox_mm": [
+        163.1,
+        193.32,
+        193.32
       ],
-      "print_zrot_deg": 0,
-      "print_hours_each": 10.011053219843824,
       "files": [
-        "04_diseno/step/P1-MNT-03_yoke_base.step",
-        "04_diseno/stl/P1-MNT-03_yoke_base.stl"
+        "04_diseno/step/P1-PMP-01_housing.step"
       ],
       "checks": [
         {
-          "name": "altura del tope de marcha sobre la base [mm] (largo libre del tornillo M8)",
-          "value": 11.785,
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "brida de la toma: Ø ext = pump_flange_od",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "brida de la toma: plano = X_duct_out [mm]",
+          "value": -16.6,
+          "ref": -16.6,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "brida de la toma: 8 agujeros Ø6,4 en Ø bc",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "labio Ø D_bore (sin escalón contra la toma)",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "asiento del anillo/estator Ø pmp_D_seat",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "pared mín. del cuerpo [mm]",
+          "value": 5.0,
+          "ref": 3.2,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "ligamento brida–O-ring [mm]",
+          "value": 3.07,
           "ref": 2.0,
           "op": ">=",
           "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            1.0,
-            -0.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0,
-            -0.0,
-            0.0
-          ],
-          [
-            0.0,
-            0.0,
-            1.0,
-            0.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.27
-    },
-    {
-      "id": "P1-MNT-04",
-      "name": "yoke_cheek",
-      "desc": "Mejilla de horquilla con perno de basculación y retén",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 2,
-      "frame": "yoke",
-      "load_case": "LC5 impacto (reacción en el pivote) / LC1–LC2 empuje",
-      "print_rot": [
-        90,
-        0,
-        0
-      ],
-      "solid_frac": 0.9,
-      "orientation": "Plana (espesor = Z): flexión de la mejilla en el plano de capas.",
-      "file_stem": "P1-MNT-04_yoke_cheek",
-      "valid_solid": true,
-      "volume_mm3": 93407.14743077292,
-      "mass_g_each": 106.76436951337345,
-      "mass_g_total": 213.5287390267469,
-      "print_bbox_mm": [
-        115.86,
-        120.91,
-        14.0
-      ],
-      "print_zrot_deg": 15,
-      "print_hours_each": 5.931353861854081,
-      "files": [
-        "04_diseno/step/P1-MNT-04_yoke_cheek.step",
-        "04_diseno/stl/P1-MNT-04_yoke_cheek.stl"
-      ],
-      "checks": [
+        },
         {
-          "name": "luz entre mejillas ≥ ancho de cuna + 2 mm",
-          "value": 78.0,
-          "ref": 78.0,
+          "name": "cabeza M6 (Ø10) libra el cuerpo [mm]",
+          "value": 1.0,
+          "ref": 0.5,
           "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "punto más bajo sobre el fondo interior (z BOTE) [mm]",
+          "value": 9.586,
+          "ref": 6.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "puerto G1/8: rosca entera en el saliente [mm]",
+          "value": 2.0,
+          "ref": 0.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "puerto aguas abajo de los álabes del estator (X)",
+          "value": 132.5,
+          "ref": 126.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "concentricidad declarada asiento ↔ brida (TIR) [mm]",
+          "value": 0.03,
+          "ref": 0.03,
+          "op": "<=",
           "ok": true
         }
       ],
       "placements_running": [
         [
           [
-            1.0,
-            -0.0,
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
             0.0,
             0.0
           ],
           [
-            0.0,
-            1.0,
-            -0.0,
-            0.0
-          ],
-          [
-            0.0,
-            0.0,
-            1.0,
-            0.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            1.0,
-            -0.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0,
-            -0.0,
-            -92.0
-          ],
-          [
-            0.0,
-            0.0,
-            1.0,
-            0.0
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
           ],
           [
             0,
@@ -1992,59 +2143,367 @@
           ]
         ]
       ],
-      "build_s": 0.43
+      "build_s": 1.18
     },
     {
-      "id": "P1-MNT-05",
-      "name": "cradle",
-      "desc": "Cuna basculante (pivote + abrazadera del tubo + base de placa motriz)",
-      "material": "PETG",
-      "process": "impresa",
+      "id": "P1-PMP-02",
+      "name": "wear_ring",
+      "desc": "Anillo de desgaste 316 torneado, prensado en la carcasa; holgura de punta tip_clr",
+      "material": "AISI 316",
+      "process": "torneada",
       "qty": 1,
-      "frame": "unit",
-      "load_case": "LC5 impacto (momento del tubo) / LC1 empuje / retén",
-      "print_rot": [
-        90,
-        0,
-        0
-      ],
-      "solid_frac": 0.9,
-      "orientation": "De canto (w = Z): flexión del tubo y empuje en el plano u–v = plano de capas.",
-      "file_stem": "P1-MNT-05_cradle",
+      "frame": "jet",
+      "group": "jet",
+      "load_case": "Presión de la bomba (apoyado en la carcasa); roce de piedras",
+      "allow": {
+        "P1-PMP-01": 1500.0,
+        "P1-PMP-06": 50.0
+      },
+      "file_stem": "P1-PMP-02_wear_ring",
       "valid_solid": true,
-      "volume_mm3": 1027447.7293416415,
-      "mass_g_each": 1174.3727546374962,
-      "mass_g_total": 1174.3727546374962,
-      "print_bbox_mm": [
-        165.0,
-        115.0,
-        76.0
+      "volume_mm3": 148966.95584648126,
+      "mass_g_each": 1191.73564677185,
+      "mass_g_total": 1191.73564677185,
+      "bbox_mm": [
+        68.6,
+        143.32,
+        143.32
       ],
-      "print_zrot_deg": 0,
-      "print_hours_each": 65.24293081319423,
       "files": [
-        "04_diseno/step/P1-MNT-05_cradle.step",
-        "04_diseno/stl/P1-MNT-05_cradle.stl"
+        "04_diseno/step/P1-PMP-02_wear_ring.step"
       ],
       "checks": [
         {
-          "name": "Ø alojamiento del tubo",
-          "value": 40.3,
-          "ref": 40.3,
-          "op": "≈",
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
           "ok": true
         },
         {
-          "name": "pared entre buje del pivote y tubo [mm]",
-          "value": 24.7,
-          "ref": 15.0,
+          "name": "Ø interior = D_bore",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "Ø exterior = asiento de la carcasa",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "largo = L_ring [mm]",
+          "value": 68.6,
+          "ref": 68.6,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "holgura de punta (D_bore − D)/2 [mm]",
+          "value": 0.66,
+          "ref": 0.66,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "cubre el impulsor: X_ring0 ≤ 0",
+          "value": -6.6,
+          "ref": 0.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "cubre el impulsor: fin ≥ L_imp",
+          "value": 62.0,
+          "ref": 55.4,
           "op": ">=",
           "ok": true
         },
         {
-          "name": "radio de recorte delantero ≥ 80 mm",
-          "value": 97.5,
-          "ref": 80.0,
+          "name": "pared ≥ 3,2 mm",
+          "value": 5.0,
+          "ref": 3.2,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "concentricidad declarada (TIR) [mm]",
+          "value": 0.05,
+          "ref": 0.05,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "centrado en el eje (bbox Y) [mm]",
+          "value": 0.0,
+          "ref": 0.01,
+          "op": "<=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 0.07
+    },
+    {
+      "id": "P1-PMP-03",
+      "name": "impeller",
+      "desc": "Impulsor axial de 5 álabes, cubo Ø66 con nariz, pasador de corte (sin chavetero)",
+      "material": "AISI 316",
+      "process": "torneada",
+      "qty": 1,
+      "frame": "jet",
+      "group": "jet",
+      "load_case": "Par máx. del controlador + empuje axial; corte del pasador (piedra)",
+      "allow": {
+        "P1-PMP-05": 60.0,
+        "P1-PMP-04": 30.0
+      },
+      "file_stem": "P1-PMP-03_impeller",
+      "valid_solid": true,
+      "volume_mm3": 165869.2044891925,
+      "mass_g_each": 1326.95363591354,
+      "mass_g_total": 1326.95363591354,
+      "bbox_mm": [
+        69.4,
+        132.0,
+        131.75
+      ],
+      "files": [
+        "04_diseno/step/P1-PMP-03_impeller.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "radio de punta = D/2 [mm]",
+          "value": 66.0,
+          "ref": 66.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "holgura de punta (D_bore/2 − r_punta) [mm] ≥ tip_clr − 0,05",
+          "value": 0.66,
+          "ref": 0.61,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "holgura de punta [mm] ≤ tip_clr + 0,05",
+          "value": 0.66,
+          "ref": 0.71,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "agujero del eje Ø shaft_d (H7)",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "agujero del pasador Ø d+0,05",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "cubo Ø D_hub",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "álabes dentro del cubo (BF ≤ asiento del anillo − 1) [mm]",
+          "value": 31.128,
+          "ref": 38.4,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "BA de los álabes ≥ cara del cubo [mm]",
+          "value": 1.653,
+          "ref": 0.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "espesor máx. de punta ≥ 2,0 mm",
+          "value": 2.903,
+          "ref": 2.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "solidez cubo ≥ 1,2 (R12 §2.4)",
+          "value": 1.3,
+          "ref": 1.2,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "solidez punta ≥ 0,6 (R12 §2.4)",
+          "value": 0.7,
+          "ref": 0.6,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "factor de difusión cubo ≤ 0,45 (Lieblein)",
+          "value": 0.404,
+          "ref": 0.45,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "de Haller w2/w1 cubo ≥ 0,70",
+          "value": 0.718,
+          "ref": 0.7,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "pared mín. cubo entre agujero y ranura [mm]",
+          "value": 5.0,
+          "ref": 3.2,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "concentricidad declarada (TIR agujero ↔ punta) [mm]",
+          "value": 0.03,
+          "ref": 0.03,
+          "op": "<=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 158.86
+    },
+    {
+      "id": "P1-PMP-04",
+      "name": "pin_band",
+      "desc": "Anillo retén 316 que tapa los extremos del pasador de corte",
+      "material": "AISI 316",
+      "process": "torneada",
+      "qty": 1,
+      "frame": "jet",
+      "group": "jet",
+      "load_case": "Centrífuga a n máx.; retención del pasador",
+      "allow": {
+        "P1-PMP-03": 30.0
+      },
+      "file_stem": "P1-PMP-04_pin_band",
+      "valid_solid": true,
+      "volume_mm3": 9445.626650838505,
+      "mass_g_each": 75.56501320670804,
+      "mass_g_total": 75.56501320670804,
+      "bbox_mm": [
+        16.0,
+        66.0,
+        66.0
+      ],
+      "files": [
+        "04_diseno/step/P1-PMP-04_pin_band.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "Ø exterior = D_hub (enrasado con el cubo)",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "cubre el pasador: X0 ≤ pin_X − d",
+          "value": 39.4,
+          "ref": 43.9,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "cubre el pasador: X1 ≥ pin_X + d",
+          "value": 55.4,
+          "ref": 50.9,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "pared ≥ 2,5 mm (M3 avellanado)",
+          "value": 3.0,
+          "ref": 2.5,
           "op": ">=",
           "ok": true
         }
@@ -2052,10 +2511,656 @@
       "placements_running": [
         [
           [
-            0.9063077870366499,
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
             0.0,
-            0.42261826174069944,
-            80.0
+            0.0
+          ],
+          [
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 0.16
+    },
+    {
+      "id": "P1-PMP-05",
+      "name": "shear_pin",
+      "desc": "Pasador de corte Al 6061-T6 (fusible de par del impulsor)",
+      "material": "Al 6061-T6",
+      "process": "torneada",
+      "qty": 1,
+      "frame": "jet",
+      "group": "jet",
+      "load_case": "Par del controlador (no corta); corta a T_cut (piedra)",
+      "allow": {
+        "P1-PMP-03": 60.0
+      },
+      "file_stem": "P1-PMP-05_shear_pin",
+      "valid_solid": true,
+      "volume_mm3": 567.6465225955059,
+      "mass_g_each": 1.532645611007866,
+      "mass_g_total": 1.532645611007866,
+      "bbox_mm": [
+        3.5,
+        59.0,
+        3.5
+      ],
+      "files": [
+        "04_diseno/step/P1-PMP-05_shear_pin.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "Ø pasador = sizing.mech.shear_pin.d_mm",
+          "value": 3.5,
+          "ref": 3.5,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "extremos bajo el anillo retén [mm]",
+          "value": 0.5,
+          "ref": 0.3,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "juego en el agujero [mm]",
+          "value": 0.05,
+          "ref": 0.05,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "T_corte / T_máx controlador ≥ 1,5 (R12 §7.6)",
+          "value": 1.803,
+          "ref": 1.5,
+          "op": ">=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 0.02
+    },
+    {
+      "id": "P1-PMP-06",
+      "name": "stator",
+      "desc": "Estator Al 6061-T6 de 7 álabes con camisa, cubo con buje de agua y cono de cola",
+      "material": "Al 6061-T6",
+      "process": "torneada",
+      "qty": 1,
+      "frame": "jet",
+      "group": "jet",
+      "load_case": "Reacción del par del rotor en los álabes; carga radial del buje; presión",
+      "allow": {
+        "P1-PMP-01": 1500.0,
+        "P1-PMP-02": 50.0,
+        "P1-PMP-07": 300.0,
+        "P1-PMP-08": 300.0
+      },
+      "file_stem": "P1-PMP-06_stator",
+      "valid_solid": true,
+      "volume_mm3": 569358.9456560102,
+      "mass_g_each": 1537.2691532712277,
+      "mass_g_total": 1537.2691532712277,
+      "bbox_mm": [
+        157.1,
+        143.32,
+        143.32
+      ],
+      "files": [
+        "04_diseno/step/P1-PMP-06_stator.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "álabes del estator coprimos con el rotor (mcd)",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "camisa Ø ext = asiento de la carcasa",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "camisa Ø int = D_bore",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "alojamiento del buje Ø = pmp_brg_od",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "entrada cubo = stator_inlet_deg sizing [°]",
+          "value": 51.023,
+          "ref": 51.023,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "entrada medio = stator_inlet_deg sizing [°]",
+          "value": 62.9,
+          "ref": 62.9,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "BA del estator ≥ X_st0 (luz rotor–estator) [mm]",
+          "value": 64.174,
+          "ref": 63.3,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "BF de los álabes ≤ fin de la camisa [mm]",
+          "value": 123.196,
+          "ref": 142.5,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "área de paso tobera+cono decreciente (máx. ΔA) [mm²]",
+          "value": 0.0,
+          "ref": 0.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "espesor mín. de álabe [mm]",
+          "value": 4.443,
+          "ref": 3.2,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "pared del cubo sobre el buje [mm]",
+          "value": 19.0,
+          "ref": 10.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "concentricidad declarada buje ↔ camisa (TIR) [mm]",
+          "value": 0.03,
+          "ref": 0.03,
+          "op": "<=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 5.09
+    },
+    {
+      "id": "P1-PMP-07",
+      "name": "water_bushing",
+      "desc": "Buje Ø20 lubricado por agua en el cubo del estator (2.º apoyo del eje)",
+      "material": "POM-C",
+      "process": "torneada",
+      "qty": 1,
+      "frame": "jet",
+      "group": "jet",
+      "load_case": "Carga radial del eje (desbalance + hidráulica)",
+      "allow": {
+        "P1-PMP-06": 300.0
+      },
+      "file_stem": "P1-PMP-07_water_bushing",
+      "valid_solid": true,
+      "volume_mm3": 8400.595786825405,
+      "mass_g_each": 11.844840059423818,
+      "mass_g_total": 11.844840059423818,
+      "bbox_mm": [
+        30.0,
+        28.0,
+        28.0
+      ],
+      "files": [
+        "04_diseno/step/P1-PMP-07_water_bushing.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "Ø ext = alojamiento del estator",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "juego diametral sobre el eje [mm]",
+          "value": 0.2,
+          "ref": 0.2,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "L/d ≥ 1,5",
+          "value": 1.5,
+          "ref": 1.5,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "pared ≥ 3,2 mm",
+          "value": 3.9,
+          "ref": 3.2,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "eje cubre todo el buje: X_aft ≥ X1",
+          "value": 108.3,
+          "ref": 105.3,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "velocidad periférica a n_máx [m/s] (info, confirmar material)",
+          "value": 5.165,
+          "ref": 8.0,
+          "op": "<=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 0.16
+    },
+    {
+      "id": "P1-PMP-08",
+      "name": "fixed_nozzle",
+      "desc": "Tobera fija Al: contracción a D_noz, rótula de la boquilla, sello de espejo y orejas de pivote",
+      "material": "Al 6061-T6",
+      "process": "torneada",
+      "qty": 1,
+      "frame": "jet",
+      "group": "jet",
+      "load_case": "Presión interna 0,2 MPa; F lateral de la boquilla y F del bucket en las orejas",
+      "allow": {
+        "P1-PMP-01": 300.0,
+        "P1-PMP-06": 300.0,
+        "P1-PMP-09": 50.0
+      },
+      "file_stem": "P1-PMP-08_fixed_nozzle",
+      "valid_solid": true,
+      "volume_mm3": 635403.1804598399,
+      "mass_g_each": 1715.5885872415677,
+      "mass_g_total": 1715.5885872415677,
+      "bbox_mm": [
+        165.2,
+        186.0,
+        186.0
+      ],
+      "files": [
+        "04_diseno/step/P1-PMP-08_fixed_nozzle.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "Ø de salida = D_noz [mm]",
+          "value": 81.835,
+          "ref": 81.84,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "área de salida = π/4·D_noz² [mm²]",
+          "value": 5259.826,
+          "ref": 5260.429,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "la salida termina en X_noz1 (r libre en X_noz1+1 > D_noz/2) [mm]",
+          "value": 0.593,
+          "ref": 0.1,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "semiángulo del cono [°] (R12 §3.3: 8–12, ≤ 14 aceptado)",
+          "value": 13.6,
+          "ref": 14.0,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "orejas: agujero Ø steer_pin_d + 0,2",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "orejas: cara interior en |Z| = Z_steer_lug [mm]",
+          "value": 58.92,
+          "ref": 58.92,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "orejas: eje del perno en X_steer_pivot [mm]",
+          "value": 295.7,
+          "ref": 295.7,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "rótula: R alojamiento − R bola máx. [mm]",
+          "value": 1.097,
+          "ref": 1.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "zona libre de orejas de la boquilla < Z_steer_lug + t (r) [mm]",
+          "value": 61.1,
+          "ref": 69.957,
+          "op": "<=",
+          "ok": true
+        },
+        {
+          "name": "la placa de espejo pasa sobre las orejas (bore − envolvente) [mm]",
+          "value": 5.143,
+          "ref": 2.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "resalte pasa por el agujero del espejo (radial) [mm]",
+          "value": 5.66,
+          "ref": 3.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "brida = brida trasera de la carcasa (bc) [mm]",
+          "value": 170.0,
+          "ref": 170.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "pared mín. del cono [mm]",
+          "value": 5.0,
+          "ref": 3.2,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "punto más bajo sobre el fondo interior (z BOTE) [mm]",
+          "value": 8.54,
+          "ref": 6.0,
+          "op": ">=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            -0.9961946980917455,
+            -1.2199866483456202e-16,
+            -0.08715574274765817,
+            268.2752321961071
+          ],
+          [
+            1.2246467991473532e-16,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.08715574274765817,
+            -1.0673500138322972e-17,
+            0.9961946980917455,
+            115.0
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "build_s": 1.63
+    },
+    {
+      "id": "P1-PMP-09",
+      "name": "transom_plate",
+      "desc": "Placa de espejo Al 5083 con cuello coaxial y sello radial sobre la tobera fija",
+      "material": "Al 5083",
+      "process": "torneada",
+      "qty": 1,
+      "frame": "boat",
+      "group": "jet",
+      "load_case": "Sello del casco; carga lateral si la tobera apoya (O-ring a tope)",
+      "allow": {
+        "P1-PMP-08": 50.0,
+        "P1-PMP-10": 5.0
+      },
+      "file_stem": "P1-PMP-09_transom_plate",
+      "valid_solid": true,
+      "volume_mm3": 170231.6069493748,
+      "mass_g_each": 452.81607448533697,
+      "mass_g_total": 452.81607448533697,
+      "bbox_mm": [
+        29.67,
+        211.32,
+        196.69
+      ],
+      "files": [
+        "04_diseno/step/P1-PMP-09_transom_plate.step"
+      ],
+      "checks": [
+        {
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "agujero = resalte de la tobera + 0,1 (H8/f7) [mm]",
+          "value": 0.1,
+          "ref": 0.1,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "pasa sobre las orejas de pivote [mm]",
+          "value": 5.143,
+          "ref": 2.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "cuello cubre el O-ring en todo el perímetro (X) [mm]",
+          "value": 0.71,
+          "ref": 0.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "cuello: fin ≥ O-ring + ancho [mm]",
+          "value": 2.135,
+          "ref": 1.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "ligamento agujero del espejo → bulones [mm]",
+          "value": 9.8,
+          "ref": 8.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "ligamento bulones → borde [mm]",
+          "value": 8.8,
+          "ref": 8.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "bulón más bajo sobre la quilla (z) [mm]",
+          "value": 16.581,
+          "ref": 12.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "no baja de la quilla (z mín.) [mm]",
+          "value": 0.5,
+          "ref": 0.0,
+          "op": ">=",
+          "ok": true
+        },
+        {
+          "name": "afuera del espejo (x máx.) [mm]",
+          "value": -2.0,
+          "ref": -2.0,
+          "op": "<=",
+          "ok": true
+        }
+      ],
+      "placements_running": [
+        [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
           ],
           [
             0.0,
@@ -2064,10 +3169,10 @@
             0.0
           ],
           [
-            -0.42261826174069944,
             0.0,
-            0.9063077870366499,
-            135.0
+            0.0,
+            1.0,
+            0.0
           ],
           [
             0,
@@ -2080,359 +3185,56 @@
       "build_s": 0.95
     },
     {
-      "id": "P1-MNT-06",
-      "name": "cradle_cap",
-      "desc": "Tapa inferior de la cuna (abrazadera del tubo)",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "LC5 impacto (flexión del tubo) / tope de marcha",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 0.9,
-      "orientation": "Cara inferior sobre la cama, media caña hacia arriba (sin soportes).",
-      "file_stem": "P1-MNT-06_cradle_cap",
-      "valid_solid": true,
-      "volume_mm3": 141576.01846457834,
-      "mass_g_each": 161.82138910501305,
-      "mass_g_total": 161.82138910501305,
-      "print_bbox_mm": [
-        90.0,
-        76.0,
-        29.75
-      ],
-      "print_zrot_deg": 0,
-      "print_hours_each": 8.990077172500726,
-      "files": [
-        "04_diseno/step/P1-MNT-06_cradle_cap.step",
-        "04_diseno/stl/P1-MNT-06_cradle_cap.stl"
-      ],
-      "checks": [
-        {
-          "name": "espesor bajo el tubo [mm]",
-          "value": 9.85,
-          "ref": 8.0,
-          "op": ">=",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.18
-    },
-    {
-      "id": "P1-MNT-07",
-      "name": "swivel_pin",
-      "desc": "Perno de dirección Ø16 × L (316 torneado, rosca M16 inferior)",
-      "material": "AISI 316",
-      "process": "torneada",
-      "qty": 1,
-      "frame": "yoke",
-      "load_case": "LC5/LC1 momento de vuelco",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-MNT-07_swivel_pin",
-      "valid_solid": true,
-      "volume_mm3": 28299.46662353685,
-      "mass_g_each": 226.3957329882948,
-      "mass_g_total": 226.3957329882948,
-      "bbox_mm": [
-        24.0,
-        24.0,
-        134.5
-      ],
-      "files": [
-        "04_diseno/step/P1-MNT-07_swivel_pin.step"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            1.0,
-            0.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            0.0,
-            1.0,
-            0.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.02
-    },
-    {
-      "id": "P1-MNT-08",
-      "name": "tilt_pin",
-      "desc": "Perno de basculación Ø12 (316 torneado, 2 ranuras DIN 471)",
-      "material": "AISI 316",
-      "process": "torneada",
-      "qty": 1,
-      "frame": "yoke",
-      "load_case": "LC5/LC1 corte doble",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-MNT-08_tilt_pin",
-      "valid_solid": true,
-      "volume_mm3": 12893.09625033251,
-      "mass_g_each": 103.14477000266008,
-      "mass_g_total": 103.14477000266008,
-      "bbox_mm": [
-        12.0,
-        114.0,
-        12.0
-      ],
-      "files": [
-        "04_diseno/step/P1-MNT-08_tilt_pin.step"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            1.0,
-            -0.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0,
-            -0.0,
-            0.0
-          ],
-          [
-            0.0,
-            0.0,
-            1.0,
-            0.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.01
-    },
-    {
-      "id": "P1-MNT-09",
-      "name": "swivel_bushing",
-      "desc": "Buje POM Ø16×Ø24 (dirección)",
-      "material": "POM-C",
-      "process": "torneada",
+      "id": "P1-PMP-10",
+      "name": "transom_gasket",
+      "desc": "Junta NBR 2 mm del espejo (bajo la placa P1-PMP-09)",
+      "material": "NBR",
+      "process": "comprada",
       "qty": 1,
       "frame": "boat",
-      "load_case": "Apoyo del perno de dirección",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-MNT-09_swivel_bushing",
+      "group": "jet",
+      "load_case": "Compresión de los 7 × M6",
+      "allow": {
+        "P1-PMP-09": 5.0
+      },
+      "file_stem": "P1-PMP-10_transom_gasket",
       "valid_solid": true,
-      "volume_mm3": 20194.094745422128,
-      "mass_g_each": 28.4736735910452,
-      "mass_g_total": 28.4736735910452,
+      "volume_mm3": 26646.34277252304,
+      "mass_g_each": 34.640245604279954,
+      "mass_g_total": 34.640245604279954,
       "bbox_mm": [
-        24.0,
-        24.0,
-        82.0
+        2.0,
+        211.32,
+        196.69
       ],
       "files": [
-        "04_diseno/step/P1-MNT-09_swivel_bushing.step"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            1.0,
-            0.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            0.0,
-            1.0,
-            0.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.02
-    },
-    {
-      "id": "P1-MNT-10",
-      "name": "pivot_bushing",
-      "desc": "Buje POM Ø12×Ø20 (basculación)",
-      "material": "POM-C",
-      "process": "torneada",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "Apoyo del perno de basculación",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-MNT-10_pivot_bushing",
-      "valid_solid": true,
-      "volume_mm3": 14918.834463275372,
-      "mass_g_each": 21.035556593218274,
-      "mass_g_total": 21.035556593218274,
-      "bbox_mm": [
-        20.0,
-        76.0,
-        20.0
-      ],
-      "files": [
-        "04_diseno/step/P1-MNT-10_pivot_bushing.step"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.02
-    },
-    {
-      "id": "P1-PRP-01",
-      "name": "guard_segment",
-      "desc": "Segmento de aro protector perfilado (×6)",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 6,
-      "frame": "unit",
-      "load_case": "Golpes en el aro (LC5 secundario), arrastre",
-      "print_rot": [
-        0,
-        -90,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "Eje del anillo = Z: impactos radiales y flexión del arco en el plano de capas.",
-      "file_stem": "P1-PRP-01_guard_segment",
-      "valid_solid": true,
-      "volume_mm3": 88860.97709993557,
-      "mass_g_each": 112.85344091691817,
-      "mass_g_total": 677.120645501509,
-      "print_bbox_mm": [
-        116.65,
-        116.65,
-        76.0
-      ],
-      "print_zrot_deg": 75,
-      "print_hours_each": 6.269635606495454,
-      "files": [
-        "04_diseno/step/P1-PRP-01_guard_segment.step",
-        "04_diseno/stl/P1-PRP-01_guard_segment.stl"
+        "04_diseno/step/P1-PMP-10_transom_gasket.step"
       ],
       "checks": [
         {
-          "name": "holgura radial punta–aro [mm]",
-          "value": 6.0,
-          "ref": 5.0,
-          "op": ">=",
+          "name": "un solo sólido",
+          "value": 1.0,
+          "ref": 1.0,
+          "op": "=",
           "ok": true
         },
         {
-          "name": "espesor máx. del perfil [mm]",
-          "value": 11.403,
+          "name": "espesor [mm]",
+          "value": 2.0,
+          "ref": 2.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "agujero = transom_hole_d",
+          "value": 161.32,
+          "ref": 161.32,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "ancho de junta bajo el agujero (z) [mm]",
+          "value": 10.369,
           "ref": 8.0,
           "op": ">=",
           "ok": true
@@ -2441,10 +3243,10 @@
       "placements_running": [
         [
           [
-            0.9063077870366499,
+            1.0,
             0.0,
-            0.42261826174069944,
-            1122.3144511593534
+            0.0,
+            0.0
           ],
           [
             0.0,
@@ -2453,140 +3255,10 @@
             0.0
           ],
           [
-            -0.42261826174069944,
             0.0,
-            0.9063077870366499,
-            -411.7249963241678
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            0.9063077870366499,
-            0.3659981507706668,
-            0.21130913087034978,
-            1122.3144511593534
-          ],
-          [
             0.0,
-            0.5000000000000001,
-            -0.8660254037844386,
+            1.0,
             0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.7848855672213958,
-            0.4531538935183251,
-            -411.7249963241678
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            0.9063077870366499,
-            0.3659981507706669,
-            -0.21130913087034964,
-            1122.3144511593534
-          ],
-          [
-            0.0,
-            -0.4999999999999998,
-            -0.8660254037844388,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.7848855672213959,
-            -0.45315389351832475,
-            -411.7249963241678
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            0.9063077870366499,
-            5.175581015019659e-17,
-            -0.42261826174069944,
-            1122.3144511593534
-          ],
-          [
-            0.0,
-            -1.0,
-            -1.2246467991473532e-16,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            1.1099069304367545e-16,
-            -0.9063077870366499,
-            -411.7249963241678
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            0.9063077870366499,
-            -0.3659981507706668,
-            -0.21130913087035,
-            1122.3144511593534
-          ],
-          [
-            0.0,
-            -0.5000000000000007,
-            0.8660254037844386,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            -0.7848855672213958,
-            -0.4531538935183256,
-            -411.7249963241678
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ],
-        [
-          [
-            0.9063077870366499,
-            -0.3659981507706668,
-            0.21130913087034978,
-            1122.3144511593534
-          ],
-          [
-            0.0,
-            0.5000000000000001,
-            0.8660254037844386,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            -0.7848855672213958,
-            0.4531538935183251,
-            -411.7249963241678
           ],
           [
             0,
@@ -2596,438 +3268,25 @@
           ]
         ]
       ],
-      "build_s": 0.32
-    },
-    {
-      "id": "P1-PRP-02",
-      "name": "skeg",
-      "desc": "Patín sacrificial bajo la hélice (cintura fusible)",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "LC5 varada/impacto (fusible mecánico)",
-      "print_rot": [
-        90,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "Plano u–v sobre la cama: flexión en el plano de capas, rotura predecible en la cintura.",
-      "file_stem": "P1-PRP-02_skeg",
-      "valid_solid": true,
-      "volume_mm3": 71994.2549976465,
-      "mass_g_each": 91.43270384701104,
-      "mass_g_total": 91.43270384701104,
-      "print_bbox_mm": [
-        125.8,
-        141.9,
-        26.6
-      ],
-      "print_zrot_deg": 0,
-      "print_hours_each": 5.07959465816728,
-      "files": [
-        "04_diseno/step/P1-PRP-02_skeg.step",
-        "04_diseno/stl/P1-PRP-02_skeg.stl"
-      ],
-      "checks": [
-        {
-          "name": "patín por debajo de la punta de hélice [mm]",
-          "value": 42.903,
-          "ref": 15.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "largo de la cintura fusible [mm]",
-          "value": 21.675,
-          "ref": 12.0,
-          "op": ">=",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.28
-    },
-    {
-      "id": "P1-PRP-03",
-      "name": "propeller",
-      "desc": "Hélice comprada (ver BOM) — volumen barrido",
-      "material": "Al / compuesto",
-      "process": "comprada",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "—",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-PRP-03_propeller",
-      "valid_solid": true,
-      "volume_mm3": 2590181.881828048,
-      "mass_g_each": 250.0,
-      "mass_g_total": 250.0,
-      "bbox_mm": [
-        70.0,
-        254.0,
-        254.0
-      ],
-      "files": [
-        "04_diseno/step/P1-PRP-03_propeller.step"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.03
-    },
-    {
-      "id": "P1-PRP-05",
-      "name": "antivent_plate",
-      "desc": "Placa antiventilación sobre la hélice",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "Presión hidrodinámica baja; golpes leves",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "Plana: flexión en el plano de capas.",
-      "file_stem": "P1-PRP-05_antivent_plate",
-      "valid_solid": true,
-      "volume_mm3": 59847.94691556626,
-      "mass_g_each": 76.00689258276915,
-      "mass_g_total": 76.00689258276915,
-      "print_bbox_mm": [
-        100.0,
-        120.0,
-        5.0
-      ],
-      "print_zrot_deg": 0,
-      "print_hours_each": 4.222605143487176,
-      "files": [
-        "04_diseno/step/P1-PRP-05_antivent_plate.step",
-        "04_diseno/stl/P1-PRP-05_antivent_plate.stl"
-      ],
-      "checks": [],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.06
-    },
-    {
-      "id": "P1-SAF-01",
-      "name": "killswitch_mount",
-      "desc": "Soporte de kill switch con cordón (en la caña)",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "Tirón del cordón (~100 N) al caer al agua",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "Eje del collar = Z; tirón del cordón en el plano de capas de la placa.",
-      "file_stem": "P1-SAF-01_killswitch_mount",
-      "valid_solid": true,
-      "volume_mm3": 30448.03172538821,
-      "mass_g_each": 38.66900029124302,
-      "mass_g_total": 38.66900029124302,
-      "print_bbox_mm": [
-        75.29,
-        75.29,
-        30.0
-      ],
-      "print_zrot_deg": 45,
-      "print_hours_each": 2.148277793957946,
-      "files": [
-        "04_diseno/step/P1-SAF-01_killswitch_mount.step",
-        "04_diseno/stl/P1-SAF-01_killswitch_mount.stl"
-      ],
-      "checks": [
-        {
-          "name": "agujero de panel Ø22 (+0.2)",
-          "value": 22.2,
-          "ref": 22.0,
-          "op": ">=",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.42261826174069966,
-            0.0,
-            -0.9063077870366498,
-            -93.42478539121456
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            70.0
-          ],
-          [
-            0.9063077870366498,
-            0.0,
-            0.42261826174069966,
-            276.5550910847475
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.24
-    },
-    {
-      "id": "P1-STR-01",
-      "name": "lower_housing",
-      "desc": "Carcasa inferior + aleta/brazo/montura del protector",
-      "material": "PETG",
-      "process": "impresa",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "LC5 impacto en patín/protector, LC6 vibración",
-      "print_rot": [
-        90,
-        0,
-        0
-      ],
-      "solid_frac": 0.95,
-      "orientation": "De canto (w = Z): fuerzas del patín y del protector en el plano de capas.",
-      "file_stem": "P1-STR-01_lower_housing",
-      "valid_solid": true,
-      "volume_mm3": 224745.91647678948,
-      "mass_g_each": 271.1559482292465,
-      "mass_g_total": 271.1559482292465,
-      "print_bbox_mm": [
-        194.45,
-        198.98,
-        56.0
-      ],
-      "print_zrot_deg": 35,
-      "print_hours_each": 15.064219346069251,
-      "files": [
-        "04_diseno/step/P1-STR-01_lower_housing.step",
-        "04_diseno/stl/P1-STR-01_lower_housing.stl"
-      ],
-      "checks": [
-        {
-          "name": "encastre del tubo [mm]",
-          "value": 45.0,
-          "ref": 40.0,
-          "op": ">=",
-          "ok": true
-        },
-        {
-          "name": "luz carcasa–cubo de hélice [mm]",
-          "value": 6.0,
-          "ref": 4.0,
-          "op": ">=",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.65
-    },
-    {
-      "id": "P1-STR-02",
-      "name": "tail_tube",
-      "desc": "Tubo de cola Al 6061-T6 Ø40×3",
-      "material": "Al 6061-T6",
-      "process": "comprada",
-      "qty": 1,
-      "frame": "unit",
-      "load_case": "LC5 impacto (flexión), LC6",
-      "print_rot": [
-        0,
-        0,
-        0
-      ],
-      "solid_frac": 1.0,
-      "orientation": "—",
-      "file_stem": "P1-STR-02_tail_tube",
-      "valid_solid": true,
-      "volume_mm3": 408247.50705590774,
-      "mass_g_each": 1102.268269050951,
-      "mass_g_total": 1102.268269050951,
-      "bbox_mm": [
-        1170.71,
-        40.0,
-        40.0
-      ],
-      "files": [
-        "04_diseno/step/P1-STR-02_tail_tube.step"
-      ],
-      "checks": [
-        {
-          "name": "largo del tubo",
-          "value": 1170.714,
-          "ref": 1170.714,
-          "op": "≈",
-          "ok": true
-        }
-      ],
-      "placements_running": [
-        [
-          [
-            0.9063077870366499,
-            0.0,
-            0.42261826174069944,
-            80.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            -0.42261826174069944,
-            0.0,
-            0.9063077870366499,
-            135.0
-          ],
-          [
-            0,
-            0,
-            0,
-            1
-          ]
-        ]
-      ],
-      "build_s": 0.02
+      "build_s": 0.79
     }
   ],
-  "inputs_version": "1.0",
+  "inputs_version": "2.0",
   "selection": {
-    "propeller": "MKP32",
-    "prop_model": "lineal calibrada a B-series, fuera del rango de la serie [ESTIMADO]",
-    "motor": "OR6374_190",
-    "esc": "VESC75100",
-    "battery": "LFP12_100x2",
-    "battery_desc": "2 × Power Queen 12V 100Ah en serie (BMS 100 A c/u)",
-    "z_motor": 20,
-    "z_shaft": 48,
-    "ratio": 2.4
+    "motor": "MTI120116_150",
+    "esc": "FSESC75350",
+    "battery": "LT36_60x2",
+    "D_imp_mm": 132,
+    "nozzle_ratio": 0.62,
+    "D_noz_mm": 81.84,
+    "f_pow": 0.5,
+    "P_design_W": 8820.0,
+    "motor_desc": "Maytech MTI120116 150 KV (inrunner refrigerado por agua, 10–16S)",
+    "esc_desc": "Flipsky FSESC 75350 con caja de agua (VESC, filtro de fase, IP65)",
+    "battery_desc": "2 × LiTime 36 V 60 Ah Golf Cart en paralelo (12S2P, BMS 2 × 120 A)",
+    "v_class": 48,
+    "hub_d_mm": 66.0,
+    "cost_core_eur": 1895.97
   },
   "params": {
     "clr": 0.25,
@@ -3039,146 +3298,765 @@
       210,
       260
     ],
-    "theta": 25.0,
-    "e": 55,
-    "pivot_x": 80,
-    "pivot_z": 135,
-    "steer_range": 35.0,
-    "tilt_range": 25.0,
-    "tr_t": 40,
-    "tr_t_min": 20,
-    "tr_t_max": 65,
-    "tr_H": 381,
-    "tr_W": 900,
-    "clamp_w": 150,
-    "clamp_screw_d": 12,
-    "leg_t": 34.0,
-    "bridge_t": 12.0,
-    "leg_depth": 130.0,
-    "pad_t": 12.0,
-    "pad_d": 40.0,
-    "clamp_gap": 71.0,
-    "screw_z": [
-      -30.0
+    "D": 132,
+    "D_hub": 66.0,
+    "D_noz": 81.84,
+    "tip_clr": 0.66,
+    "D_bore": 133.32,
+    "blades": 5,
+    "vanes": 7,
+    "pump_sections": {
+      "cubo": {
+        "r_mm": 33.0,
+        "u": 17.892749241492833,
+        "cm": 7.654843075747412,
+        "cu2": 6.193651497675827,
+        "beta1_deg": 23.16211861315985,
+        "beta2_deg": 33.197147027038945,
+        "turning_deg": 10.035028413879093,
+        "stator_inlet_deg": 51.02314466720862,
+        "de_haller": 0.7183902214109421
+      },
+      "medio": {
+        "r_mm": 52.177581392778265,
+        "u": 28.29092060268375,
+        "cm": 7.654843075747412,
+        "cu2": 3.9172091531937383,
+        "beta1_deg": 15.140328633558434,
+        "beta2_deg": 17.43549320577378,
+        "turning_deg": 2.295164572215347,
+        "stator_inlet_deg": 62.89983363659538,
+        "de_haller": 0.8716830303533941
+      },
+      "punta": {
+        "r_mm": 66.0,
+        "u": 35.785498482985666,
+        "cm": 7.654843075747412,
+        "cu2": 3.0968257488379134,
+        "beta1_deg": 12.074123353246739,
+        "beta2_deg": 13.179703131785113,
+        "turning_deg": 1.1055797785383739,
+        "stator_inlet_deg": 67.97382657148255,
+        "de_haller": 0.917418716331636
+      }
+    },
+    "alpha": 5.0,
+    "ramp": 27.0,
+    "h_axis": 115.0,
+    "L_imp": 55.4,
+    "gap_rs": 7.9,
+    "L_stat": 83.2,
+    "L_noz": 122.8,
+    "X_imp1": 55.4,
+    "X_st0": 63.3,
+    "X_st1": 146.5,
+    "X_noz1": 269.3,
+    "L_ring": 68.6,
+    "X_ring0": -6.6000000000000005,
+    "x_if": 268.2752321961071,
+    "z_if": 115.0,
+    "z_noz": 91.52895847805566,
+    "steer_max": 25.0,
+    "X_steer_pivot": 295.7,
+    "L_steer": 132.0,
+    "D_steer_in": 85.84,
+    "X_bucket_pivot": 341.9,
+    "Z_bucket_pivot": 81.84,
+    "D_throat": 146.5,
+    "x_lip": 385.7552321961071,
+    "x_tan": 765.9152321961071,
+    "W_open": 158.4,
+    "L_open": 380.16,
+    "r_lip": 14.5,
+    "grille_bars": 7,
+    "grille_bar_d": 4.0,
+    "bottom_t": 4.0,
+    "transom_t": 6.0,
+    "floor_z": 75.0,
+    "shaft_exit_x": 512.4752321961071,
+    "shaft_d": 20.0,
+    "motor_d": 120,
+    "motor_l": 116,
+    "L_bearing_housing": 80.0,
+    "L_coupling": 60.0,
+    "S_seal": 260.1328043280854,
+    "S_brg0": 270.1328043280854,
+    "S_brg1": 350.1328043280854,
+    "S_cpl1": 410.1328043280854,
+    "S_motor0": 415.1328043280854,
+    "S_motor1": 531.1328043280854,
+    "S_shaft_fwd": 405.1328043280854,
+    "X_shaft_aft": 67.4,
+    "motor_axis_z_mid": 156.2362409794967,
+    "motor_bottom_z": 96.46455909399197,
+    "motor_x_mid": 739.607623361025,
+    "X_duct_out": -16.6,
+    "pump_flange_od": 193.32,
+    "pump_flange_bc": 165.32,
+    "pump_flange_n": 8,
+    "pump_flange_bolt": 6,
+    "transom_hole_d": 161.32,
+    "steer_pin_d": 8.0,
+    "Z_steer_lug": 58.92,
+    "seal_boss_od": 64.0,
+    "seal_spigot_d": 42.0,
+    "seal_bc": 54.0,
+    "base_top_z": 10.0,
+    "brg_bracket_x0": 532.399126157942,
+    "brg_bracket_x1": 682.399126157942,
+    "brg_bracket_y": 124.2,
+    "brg_bracket_holes": [
+      [
+        547.399126157942,
+        -124.2
+      ],
+      [
+        547.399126157942,
+        124.2
+      ],
+      [
+        667.399126157942,
+        -124.2
+      ],
+      [
+        667.399126157942,
+        124.2
+      ]
     ],
-    "swivel_x": 42.0,
-    "swivel_pin_d": 16,
-    "swivel_bush_od": 24.0,
-    "shelf_top_z": 12.0,
-    "boss_bot_z": -70.0,
-    "boss_od": 46.0,
-    "disc_d": 90.0,
-    "disc_t": 20.0,
-    "washer_t": 1.5,
-    "disc_z0": 13.5,
-    "cradle_w": 76.0,
-    "cheek_t": 14.0,
-    "cheek_gap": 1.0,
-    "cheek_y": 46.0,
-    "tilt_pin_d": 12,
-    "pivot_boss_r": 24.0,
-    "tube_od": 40.0,
-    "tube_wall": 3.0,
-    "cradle_u0": -70,
-    "cradle_u1": 95.0,
-    "cradle_vtop": 30.0,
-    "cradle_vbot": -85.0,
-    "clamp_bolt_d": 6.0,
-    "plate_t": 6.0,
-    "plate_u_aft": -70,
-    "plate_u_fwd": -76.0,
-    "brg_d": 15,
-    "brg_D": 35,
-    "brg_B": 11,
-    "cart_od": 42.0,
-    "cart_fl_d": 56.0,
-    "cart_fl_t": 4.0,
-    "cart_bc_r": 24.5,
-    "stop_pad_d": 25.0,
-    "motor_d": 63.0,
-    "motor_l": 74.0,
-    "motor_shaft_d": 8.0,
-    "motor_bc": 30.0,
-    "motor_v": 70,
-    "center_dist": 125,
-    "tension_slot": 8.0,
-    "plate_w": 96.0,
-    "pulley_c": -88.5,
-    "pulley_w": 21.0,
-    "pd_motor": 31.830988618379067,
-    "pd_shaft": 76.39437268410977,
-    "belt_w": 15,
-    "bridge_u_aft": -102.0,
-    "bridge_u_fwd": -114.0,
-    "u_brgA": -60.5,
-    "u_brgB": -109.0,
-    "shaft_d": 16.0,
-    "shaft_jd": 15.0,
-    "u_shaft_top": -124.0,
-    "u_shaft_bot": 1232.713671223264,
-    "u_tube_top": -46.0,
-    "u_tube_bot": 1124.713671223264,
-    "bush_len": 40.0,
-    "u_bush": [
-      -24.0,
-      539.356835611632,
-      1102.713671223264
-    ],
-    "s_prop": 1175.713671223264,
-    "prop_D": 254.0,
-    "prop_hub_L": 70,
-    "prop_seat_d": 12.7,
-    "bush_od": 18.0,
-    "prop_hub_d": 45,
-    "u_lh_fwd": 1079.713671223264,
-    "u_lh_aft": 1134.713671223264,
-    "guard_clr": 6.0,
-    "guard_ri": 133.0,
-    "guard_L": 76.0,
-    "guard_tc": 0.15,
-    "guard_t": 11.4,
-    "guard_segments": 6,
-    "guard_lug": [
-      8.0,
-      16.0,
-      10.0
-    ],
-    "skeg_t": 12.0,
-    "skeg_below_guard": 12.0,
-    "skeg_fuse_force": 300.0,
-    "lh_bottom": 42.0,
-    "skeg_tongue": 14.0,
-    "skeg_neck_v": -101.0,
-    "skeg_neck_lever": 110.4,
-    "skeg_neck_len": 21.674575752308353,
-    "skeg_sig_break": 35.25,
-    "cover_wall": 2.4,
-    "tiller_tube_od": 30.0,
-    "tiller_len": 550.0,
-    "tiller_angle": 25.0,
+    "brg_bracket_bolt": 8,
     "esc_in": [
       160,
       110,
       45
     ],
-    "esc_size": [
-      103,
-      58,
-      24
-    ],
-    "asw_size": [
-      83.9,
-      45.0,
-      17.0
-    ],
     "oring_cs": 3.53,
     "oring_sq": 0.25,
-    "oring_fill": 0.78
+    "oring_fill": 0.78,
+    "pmp_mat": {
+      "Al 6061-T6": {
+        "Sy": 240.0,
+        "Su": 290.0,
+        "Se": 96.0
+      },
+      "AISI 316": {
+        "Sy": 205.0,
+        "Su": 515.0,
+        "Se": 180.0
+      },
+      "Al 5083": {
+        "Sy": 125.0,
+        "Su": 275.0,
+        "Se": 110.0
+      },
+      "A4-70": {
+        "Sy": 450.0
+      }
+    },
+    "pmp_p_design_Pa": 200000.0,
+    "pmp_ring_t": 5.0,
+    "pmp_D_seat": 143.32,
+    "pmp_ring_X1": 61.99999999999999,
+    "pmp_ring_fit": "H7/p6 + Loctite 648",
+    "pmp_ring_pin_d": 4.0,
+    "pmp_ring_pin_r": 69.16,
+    "pmp_ring_pin_ang": 90.0,
+    "pmp_ring_TIR": 0.05,
+    "pmp_h_wall": 5.0,
+    "pmp_D_barrel": 153.32,
+    "pmp_f1_t": 12.0,
+    "pmp_flange_ang0": 22.5,
+    "pmp_f2_od": 186.0,
+    "pmp_f2_bc": 170.0,
+    "pmp_f2_n": 8,
+    "pmp_f2_t": 12.0,
+    "pmp_f2_bolt": 6,
+    "pmp_gl_depth": 2.65,
+    "pmp_gl_width": 4.73,
+    "pmp_gl_r_in": 71.66,
+    "pmp_st_screw_X": 100.3,
+    "pmp_st_screw_d": 5,
+    "pmp_cool_thread": "G1/8",
+    "pmp_cool_tap_d": 8.8,
+    "pmp_cool_thread_L": 8.0,
+    "pmp_cool_bore_d": 5.0,
+    "pmp_cool_boss_d": 22.0,
+    "pmp_cool_boss_top": 86.66,
+    "pmp_cool_port": [
+      132.5,
+      0.0,
+      86.66
+    ],
+    "pmp_cool_dir": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "pmp_cool_tap_X": 132.5,
+    "pmp_omega_rad_s": 542.2045224694798,
+    "pmp_rpm_design": 5177.671795067901,
+    "pmp_free_vortex": true,
+    "pmp_rot_sense": "antihorario visto desde popa (+X, regla de la mano derecha)",
+    "pmp_inc_deg": 3.0,
+    "pmp_imp_sol": [
+      [
+        33.0,
+        1.3
+      ],
+      [
+        52.177581392778265,
+        0.95
+      ],
+      [
+        66.0,
+        0.7
+      ]
+    ],
+    "pmp_imp_tc": [
+      [
+        33.0,
+        0.08
+      ],
+      [
+        52.177581392778265,
+        0.06
+      ],
+      [
+        66.0,
+        0.05
+      ]
+    ],
+    "pmp_imp_le_X": 2.0,
+    "pmp_le_r_frac": 0.0,
+    "pmp_nose_L": 14.0,
+    "pmp_nose_r0": 16.0,
+    "pmp_imp_front_X": -14.0,
+    "pmp_band_t": 3.0,
+    "pmp_band_L": 16.0,
+    "pmp_land_r": 30.0,
+    "pmp_band_X0": 39.4,
+    "pmp_pin_d": 3.5,
+    "pmp_pin_hole": 3.55,
+    "pmp_pin_T_cut": 33.48152370563323,
+    "pmp_pin_X": 47.4,
+    "pmp_pin_axis": "Y",
+    "pmp_pin_len": 59.0,
+    "pmp_band_screw": 3,
+    "pmp_pocket": [
+      15.0,
+      26.0,
+      40.0
+    ],
+    "pmp_tip_r": 66.0,
+    "pmp_imp_table": {
+      "cubo": {
+        "r": 33.0,
+        "u": 17.892749241492833,
+        "cm": 7.654843075747412,
+        "cu2": 6.193651497675827,
+        "beta1": 23.16211861315985,
+        "beta2": 33.197147027038945,
+        "alpha3": 51.02314466720862,
+        "w1": 19.461425896713234,
+        "w2": 13.980898058912462,
+        "dh": 0.7183902214109421,
+        "s": 1.3,
+        "tc": 0.08,
+        "pitch": 41.46902302738527,
+        "chord": 53.90972993560085,
+        "tmax": 4.312778394848068,
+        "bb1": 26.16211861315985,
+        "bb2": 35.27526388357643,
+        "delta": 2.0781168565374837,
+        "Df": 0.40401466637040784,
+        "stagger": 30.71869124836814
+      },
+      "medio": {
+        "r": 52.177581392778265,
+        "u": 28.29092060268375,
+        "cm": 7.654843075747412,
+        "cu2": 3.917209153193738,
+        "beta1": 15.140328633558434,
+        "beta2": 17.43549320577378,
+        "alpha3": 62.89983363659538,
+        "w1": 29.308237938533154,
+        "w2": 25.54749366057889,
+        "dh": 0.8716830303533941,
+        "s": 0.95,
+        "tc": 0.06,
+        "pitch": 65.56828255425428,
+        "chord": 62.28986842654157,
+        "tmax": 3.7373921055924937,
+        "bb1": 18.140328633558433,
+        "bb2": 17.179074450199657,
+        "delta": -0.2564187555741229,
+        "Df": 0.1986620047974939,
+        "stagger": 17.659701541879045
+      },
+      "punta": {
+        "r": 66.0,
+        "u": 35.785498482985666,
+        "cm": 7.654843075747412,
+        "cu2": 3.0968257488379134,
+        "beta1": 12.074123353246739,
+        "beta2": 13.179703131785113,
+        "alpha3": 67.97382657148255,
+        "w1": 36.59506147269174,
+        "w2": 33.57299432035416,
+        "dh": 0.917418716331636,
+        "s": 0.7,
+        "tc": 0.05,
+        "pitch": 82.93804605477054,
+        "chord": 58.056632238339375,
+        "tmax": 2.902831611916969,
+        "bb1": 15.074123353246739,
+        "bb2": 12.325561636075044,
+        "delta": -0.8541414957100681,
+        "Df": 0.14302710075430475,
+        "stagger": 13.699842494660892
+      }
+    },
+    "pmp_imp_loft_r": [
+      30.5,
+      33.0,
+      42.58879069638913,
+      52.177581392778265,
+      59.08879069638913,
+      66.0,
+      68.0
+    ],
+    "pmp_st_shell_X0": 61.99999999999999,
+    "pmp_noz_spigot": 4.0,
+    "pmp_st_shell_X1": 142.5,
+    "pmp_st_le_X": 64.3,
+    "pmp_st_sol": [
+      [
+        33.0,
+        1.5
+      ],
+      [
+        52.177581392778265,
+        1.2
+      ],
+      [
+        66.66,
+        1.0
+      ]
+    ],
+    "pmp_st_tc": [
+      [
+        33.0,
+        0.1
+      ],
+      [
+        52.177581392778265,
+        0.09
+      ],
+      [
+        66.66,
+        0.08
+      ]
+    ],
+    "pmp_st_inc": 0.0,
+    "pmp_st_dev_max": 8.0,
+    "pmp_st_table": {
+      "cubo": {
+        "r": 33.0,
+        "alpha_in": 51.02314466720862,
+        "alpha_out": 98.0,
+        "dev": 8.0,
+        "s": 1.5,
+        "tc": 0.1,
+        "pitch": 29.62073073384662,
+        "chord": 44.431096100769935,
+        "tmax": 4.443109610076994,
+        "cu2": 6.193651497675827,
+        "cm": 7.654843075747412
+      },
+      "medio": {
+        "r": 52.177581392778265,
+        "alpha_in": 62.89983363659538,
+        "alpha_out": 98.0,
+        "dev": 8.0,
+        "s": 1.2,
+        "tc": 0.09,
+        "pitch": 46.83448753875306,
+        "chord": 56.20138504650367,
+        "tmax": 5.05812465418533,
+        "cu2": 3.917209153193738,
+        "cm": 7.654843075747412
+      },
+      "punta": {
+        "r": 66.66,
+        "alpha_in": 68.1713217598603,
+        "alpha_out": 97.66953559788692,
+        "dev": 7.66953559788692,
+        "s": 1.0,
+        "tc": 0.08,
+        "pitch": 59.833876082370175,
+        "chord": 59.833876082370175,
+        "tmax": 4.786710086589614,
+        "cu2": 3.0661641077603106,
+        "cm": 7.654843075747412
+      }
+    },
+    "pmp_st_loft_r": [
+      31.0,
+      33.0,
+      52.177581392778265,
+      66.66,
+      68.66
+    ],
+    "pmp_tail_L": 72.6,
+    "pmp_tail_tip_r": 5.0,
+    "pmp_tail_hole_d": 6.0,
+    "pmp_journal_d": 20.0,
+    "pmp_shaft_X_aft": 108.3,
+    "pmp_shaft_aft_X": 108.3,
+    "pmp_bush_L": 30.0,
+    "pmp_bush_X1": 105.3,
+    "pmp_bush_X0": 75.3,
+    "pmp_bush_X": 90.3,
+    "pmp_brg_id": 20.2,
+    "pmp_brg_od": 28.0,
+    "pmp_brg_L": 30.0,
+    "pmp_brg_X0": 75.3,
+    "pmp_brg_grooves": [
+      4,
+      2.5,
+      1.5
+    ],
+    "pmp_brg_material": "POM-C torneado (alt. Vesconite Hilube / iglidur para Ø20: buscar 'Vesconite Hilube bush 20 mm', 'iglidur H370 20x28')",
+    "pmp_st_cbore_d": 21.5,
+    "pmp_circlip": "DIN 471-20 A4 (ranura Ø19 × 1,3) + arandela 316 20×30×1,5",
+    "pmp_circlip_fwd_X": -16.1,
+    "pmp_circlip_aft_X": 57.5,
+    "pmp_st_cavity_d": 22.0,
+    "pmp_noz_wall": 5.0,
+    "pmp_noz_cyl": 16.4,
+    "pmp_noz_cone_X1": 252.9,
+    "pmp_noz_half_angle": 13.599557898013064,
+    "pmp_noz_f_t": 12.0,
+    "pmp_sock_R": 48.69708820863932,
+    "pmp_steer_ball_R_max": 47.6,
+    "pmp_steer_ear_w": 24.0,
+    "pmp_steer_ear_r": 13.0,
+    "pmp_sock_X1": 282.7,
+    "pmp_steer_free_r": 61.1,
+    "pmp_lug_t": 10.0,
+    "pmp_lug_w": 24.0,
+    "pmp_lug_hole": 8.2,
+    "pmp_lug_X1": 307.7,
+    "pmp_land_R": 75.0,
+    "pmp_land_X0": 264.0,
+    "pmp_land_X1": 294.0,
+    "pmp_or_X": 289.5,
+    "pmp_or_depth": 2.65,
+    "pmp_or_width": 4.73,
+    "pmp_gasket_t": 2.0,
+    "pmp_tp_t": 8.0,
+    "pmp_tp_R": 105.66,
+    "pmp_tp_bc_R": 93.66,
+    "pmp_tp_bolt": 6,
+    "pmp_tp_bolt_ang": [
+      90.0,
+      40.0,
+      140.0,
+      -10.0,
+      190.0,
+      -50.0,
+      230.0
+    ],
+    "pmp_tp_zmin": 0.5,
+    "pmp_collar_R": 81.0,
+    "pmp_collar_X1": 294.0,
+    "pmp_tp_bore_R": 75.1,
+    "toma_t": 5.0,
+    "toma_D_out": 133.32,
+    "toma_R_out": 66.66,
+    "toma_f_t": 12.0,
+    "toma_base_t": 10.0,
+    "toma_rim_z0": 4.5,
+    "toma_seal_gap": 0.5,
+    "toma_roof_L": [
+      143.3,
+      253.6,
+      90.0
+    ],
+    "toma_ramp_max": 27.0,
+    "toma_roof_Rmin": 109.27492240770242,
+    "toma_X_tan": -485.72341914239564,
+    "toma_x_cross": 437.4641025020737,
+    "toma_S_cross": 169.83514430467784,
+    "toma_seal_r_clear": 37.0,
+    "toma_S_seal_min": 241.7087182077048,
+    "toma_x_n": 371.2552321961071,
+    "toma_lip_top": 29.0,
+    "toma_X_nose": -93.82897786334833,
+    "toma_X_floor0": -95.09273613318936,
+    "toma_lb_len": 45.0,
+    "toma_x_lb_aft": 326.2552321961071,
+    "toma_r_top": 30.0,
+    "toma_r_bot": 20.0,
+    "toma_x_j": 684.4455847842542,
+    "toma_ffw": 25.0,
+    "toma_ff_t": 10.0,
+    "toma_bf_t": 8.0,
+    "toma_bf_y": 99.0,
+    "toma_bf_aft": 26.0,
+    "toma_bolt_y": 94.0,
+    "toma_groove_y": 86.5,
+    "toma_cord_d": 3.53,
+    "toma_gl_depth": 2.65,
+    "toma_gl_width": 4.73,
+    "toma_plate_x0": 286.2552321961071,
+    "toma_plate_x1": 800.9152321961071,
+    "toma_plate_y": 150.0,
+    "toma_rim_w": 25.0,
+    "toma_plate_r": 20.0,
+    "toma_hull_bolt": 6,
+    "toma_hull_pitch": 70.0,
+    "toma_bar_h": 18.0,
+    "toma_bar_clr": 2.0,
+    "toma_bar_gap": 16.3,
+    "toma_bar_y": [
+      -60.900000000000006,
+      -40.6,
+      -20.299999999999997,
+      0.0,
+      20.299999999999997,
+      40.60000000000001,
+      60.900000000000006
+    ],
+    "toma_x_bf": 687.9629441240891,
+    "toma_tie_w": 12.0,
+    "toma_strap_t": 3.0,
+    "toma_strap_x": [
+      339.2552321961071,
+      365.2552321961071
+    ],
+    "tom_seal_bolt_ang0": 45.0,
+    "toma_boss_L": 22.0,
+    "toma_tube_od": 44.0,
+    "toma_tube_id": 34.0,
+    "toma_cbore_L": 8.0,
+    "toma_draft": 273.01133737268736,
+    "toma_chim_top": 335.0,
+    "toma_chim_id": 100.0,
+    "toma_chim_x": 368.0,
+    "toma_chim_fl_od": 160.0,
+    "toma_chim_fl_t": 10.0,
+    "toma_chim_bc": 140.0,
+    "toma_cover_t": 10.0,
+    "toma_p_slam_Pa": 50000.0,
+    "toma_p_ram_Pa": 24621.52777777778,
+    "drv_bearing": {
+      "name": "SKF 7204 BEP",
+      "d": 20.0,
+      "D": 47.0,
+      "B": 14.0,
+      "C_n": 13300.0,
+      "C0_n": 7650.0,
+      "r_s": 1.0,
+      "da_min": 25.6,
+      "Da_max": 41.4,
+      "mass_g": 110.0,
+      "price_eur": 31.4
+    },
+    "drv_km": {
+      "thread": "M20×1",
+      "d": 20.0,
+      "od": 32.0,
+      "b": 7.0,
+      "mb_t": 1.0,
+      "mb_slot_w": 4.0,
+      "mb_slot_t": 2.5,
+      "mass_g": 25.0
+    },
+    "drv_seal": {
+      "name": "ST-MG1 Ø20 carbón/SiC/NBR (tipo MG1, EN 12756)",
+      "d": 20.0,
+      "head_od": 33.0,
+      "head_l": 25.0,
+      "seat_od": 35.0,
+      "seat_id": 22.0,
+      "seat_l": 7.5,
+      "p_max_bar": 12.0,
+      "v_max_ms": 10.0,
+      "mass_g": 60.0,
+      "price_eur": 29.0
+    },
+    "drv_circlip": {
+      "s": 1.2,
+      "m": 1.3,
+      "d2": 19.0,
+      "d3_free": 27.0,
+      "F_N_groove_n": 3800.0
+    },
+    "drv_coupling": {
+      "name": "KTR Rotex 24",
+      "D": 55.0,
+      "T_KN_Nm": 35.0,
+      "T_Kmax_Nm": 70.0,
+      "T_KN_98_Nm": 60.0,
+      "bore_max": 35.0,
+      "n_max_rpm": 12100.0,
+      "l_hub": 30.0,
+      "E": 18.0,
+      "s": 2.0,
+      "l_hub_shaft": 24.0,
+      "mass_g": 600.0,
+      "price_eur": 67.47
+    },
+    "drv_key": {
+      "b": 6.0,
+      "h": 6.0,
+      "t1": 3.5,
+      "t2": 2.8
+    },
+    "mot_key": "MTI120116_150",
+    "mot": {
+      "shaft_d": 15.0,
+      "shaft_l": 30.0,
+      "key_w": 5.0,
+      "pilot_d": 40.0,
+      "pilot_l": 2.5,
+      "mount_pcd": 80.0,
+      "mount_n": 4,
+      "mount_bolt": 6
+    },
+    "mot_known": true,
+    "drv_X_aft": 108.3,
+    "drv_journal_d": 20.0,
+    "drv_bush": [
+      75.3,
+      105.3
+    ],
+    "drv_imp_front_X": -14.0,
+    "drv_imp_m_kg": 1.35,
+    "drv_pin_X": 47.4,
+    "drv_pin_d": 3.5,
+    "drv_pin_hole": 3.53,
+    "drv_thread_d": 16.0,
+    "drv_imp_seat_X0": 0.0,
+    "drv_thrust_groove": [
+      -15.3,
+      -14.0
+    ],
+    "drv_aft_groove": [
+      55.699999999999996,
+      56.99999999999999
+    ],
+    "drv_spigot_l": 6.0,
+    "drv_flange_t": 8.0,
+    "drv_flange_od": 70.0,
+    "drv_S_head_back": 254.6328043280854,
+    "drv_S_seat_face": 279.6328043280854,
+    "drv_S_seat_back": 287.1328043280854,
+    "drv_seat_wall": 3.5,
+    "drv_lantern_l": 7.0,
+    "drv_S_hsg_front": 297.6328043280854,
+    "drv_chamber_d": 36.0,
+    "drv_lantern_d": 34.0,
+    "drv_drain_tap": 8.0,
+    "drv_gap_hsg_brg": 1.0,
+    "drv_brg_shoulder_t": 3.0,
+    "drv_S_brgA": 301.6328043280854,
+    "drv_S_brgB": 329.6328043280854,
+    "drv_collar_l": 3.5,
+    "drv_collar_d": 25.0,
+    "drv_hsg_od": 65.0,
+    "drv_cover_t": 7.0,
+    "drv_S_brg_front": 337.6328043280854,
+    "drv_cover_bolt": 5,
+    "drv_cover_bc": 56.0,
+    "drv_bracket_base_t": 12.0,
+    "drv_bracket_web_t": 12.0,
+    "drv_bracket_pad_w": 48.0,
+    "drv_cheek_y": [
+      100.0,
+      112.0
+    ],
+    "drv_pad_y": [
+      100.0,
+      148.0
+    ],
+    "drv_deck_t": 12.0,
+    "drv_bracket_hole": 9.0,
+    "mot_flange_gap": 3.5,
+    "drv_S_cpl_motor_face": 411.6328043280854,
+    "drv_cpl_L": 72.0,
+    "drv_S_cpl0": 339.6328043280854,
+    "drv_S_cpl_spider0": 363.6328043280854,
+    "drv_S_front": 362.1328043280854,
+    "drv_cpl_key_l": 22.0,
+    "drv_S_thread0": 330.6328043280854,
+    "drv_thread_l": 9.0,
+    "drv_shaft_L": 470.4328043280854,
+    "drv_bar_d": 25.0,
+    "mot_plate_t": 10.0,
+    "mot_hole_d": 64.0,
+    "mot_foot_z": 75.0,
+    "mot_foot_t": 10.0,
+    "mot_foot_y": [
+      45.0,
+      95.0
+    ],
+    "mot_foot_l": 60.0,
+    "mot_foot_bolt": 8,
+    "mot_clear_min": 10.0,
+    "mot_bottom_z_min": 91.4095260146278,
+    "mot_axis_z0": 151.18120790013253,
+    "mot_clear_bottom": 87.4095260146278,
+    "mot_floor_clash": false,
+    "mot_clear_floor": 16.4095260146278,
+    "mot_x0": 681.8283308717038,
+    "mot_x1": 797.3869158503462,
+    "ele_esc_size": [
+      200.0,
+      94.6,
+      50.0
+    ],
+    "ele_esc_water": true,
+    "ele_esc_mass_kg": 2.0,
+    "ele_wall": 3.2,
+    "ele_clr": 0.6,
+    "ele_pad_t": 3.0,
+    "ele_pad_comp": 0.25,
+    "ele_pad_p_mpa": 0.04,
+    "ele_pad_w": 10.0,
+    "ele_raise": 60.0,
+    "ele_tray_d": 8.0,
+    "ele_ear": 16.0,
+    "ele_hood_slot": [
+      60.0,
+      36.0
+    ],
+    "ele_out": [
+      207.6,
+      102.19999999999999
+    ],
+    "ele_x_req": 900.0,
+    "ele_pos": [
+      900.0,
+      152.1,
+      75.0
+    ],
+    "ele_hw_avail": 305.9,
+    "ele_y_outer": 219.2,
+    "cool_hose": [
+      6.0,
+      8.0
+    ],
+    "cool_out_yz": [
+      180.0,
+      300.0
+    ],
+    "cool_tap_X": 132.5
   },
   "totals": {
-    "printed_mass_g": 6011.113405160814,
-    "printed_hours": 333.95074473115636,
-    "unit_mass_kg_cad": 8.851509723594498,
-    "n_parts": 38
+    "printed_mass_g": 469.572476227336,
+    "printed_hours": 26.087359790407554,
+    "jet_unit_mass_kg": 12.567478106458013,
+    "n_parts": 26
   }
 }

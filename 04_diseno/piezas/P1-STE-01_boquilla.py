@@ -1,0 +1,171 @@
+"""P1-STE-01 — Boquilla direccional (Al 6061-T6 mecanizada).
+
+Tubo que recibe el chorro de la tobera fija (Ø D_noz) y lo orienta ±steer_max alrededor del eje Z_jet
+en X = X_steer_pivot. Geometría (marco JET, δ = 0):
+  - cara de entrada EN el plano del pivote; frente esférico R = STE_Rs centrado en el pivote, que entra
+    en el alojamiento esférico de la tobera fija (P1-PMP-08, R ≤ pmp_steer_ball_R_max) y no avanza al
+    girar; boca abocinada Ø 2·STE_rf que se cierra a Ø D_steer_in en STE_bell_L; paso recto a la salida;
+  - orejas de pivote ±Z POR DENTRO de las de la bomba (|Z| ≤ Z_steer_lug − STE_gz), radio STE_ear_rp
+    alrededor del perno (zona libre de la tobera fija), arandela de empuje POM (P1-STE-03) y tornillo
+    con hombro 316 (P1-STE-02 arriba, P1-STE-05 abajo) roscado M6 en la oreja; el hombro Ø8 gira en el
+    agujero Ø8,2 de la oreja de la bomba. Hueco = barrido ±(δmax+5°) de la oreja de la bomba inflada;
+  - torre del yugo (X' 15–40) detrás del extremo de la oreja de la bomba, con 2 × M6 para la brida
+    P1-STE-04 (que lleva el poste y el brazo del cable M66 por encima de la flotación);
+  - orejas del bucket (±Y 40–48) con Ø8,4 para el perno con hombro P1-REV-02 y, del lado +Y (estribor
+    del bote), rosca M16 del émbolo indexador P1-REV-04 (traba arriba/abajo).
+PETG descartado: FS < 3 en orejas del bucket y pernos (ver structural_direccion.py)."""
+import math
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
+from build123d import Polyline, make_face, revolve, Axis, Pos, Rot  # noqa: E402
+from cadlib import box, cyl_z, cyl_y, prism_xz  # noqa: E402
+from _dir_common import hull, circ, lug_sweep, pump_lug_proxy, inter_vol  # noqa: E402
+
+META = dict(
+    id="P1-STE-01", name="boquilla", desc="Boquilla direccional con orejas de pivote, torre del yugo y orejas del bucket",
+    material="Al 6061-T6", process="torneada", qty=1, frame="steer", group="jet",
+    load_case="Desvío del chorro F_steer (R12: 364 N) + reacciones del bucket (R12: 1,4 kN, impacto ×2)",
+    print_rot=(0, 0, 0), solid_frac=1.0,
+    orientation="Torneado del cuerpo (barra Ø100 × 150) + fresado 4 ejes de orejas y torre (bloque 6061-T6 100 × 165 × 165)",
+    allow={"P1-REV-04": 60.0, "P1-STE-02": 30.0, "P1-STE-05": 30.0},   # roscas (émbolo M16, tornillos M6)
+)
+
+
+def _revolved(prof):
+    face = make_face(Polyline(*[(x, 0, r) for x, r in prof], close=True))
+    return revolve(face, Axis.X, 360)
+
+
+def _bell(p):
+    Xp = p.X_steer_pivot
+    rf, rb, bl = p.STE_rf, p.STE_rb, p.STE_bell_L
+    rho = (bl ** 2 + (rf - rb) ** 2) / (2 * (rf - rb))
+    cx, cz = Xp + bl, rb + rho
+    a0 = math.degrees(math.atan2(rf - cz, Xp - cx))
+    return [(cx + rho * math.cos(math.radians(a)), cz + rho * math.sin(math.radians(a)))
+            for a in [a0 + (-90 - a0) * i / 12 for i in range(13)]]
+
+
+def body_profile(p):
+    Xp, L = p.X_steer_pivot, p.L_steer
+    Rs, ro = p.STE_Rs, p.STE_ro
+    xt = math.sqrt(max(Rs ** 2 - ro ** 2, 0.0))
+    ph1 = math.degrees(math.atan2(ro, xt))
+    outer = [(Xp + Rs * math.cos(math.radians(a)), Rs * math.sin(math.radians(a)))
+             for a in [90 - (90 - ph1) * i / 8 for i in range(9)]]
+    outer += [(Xp + L - 1.0, ro), (Xp + L, ro - 1.0)]
+    inner = [(Xp + L, p.STE_rb)] + list(reversed(_bell(p)))
+    return outer + inner
+
+
+def bore_cut(p):
+    Xp, L = p.X_steer_pivot, p.L_steer
+    prof = [(Xp - 40, 0.0), (Xp - 40, p.STE_rf), (Xp - 0.01, p.STE_rf)] + _bell(p)[1:] + \
+           [(Xp + L + 2, p.STE_rb), (Xp + L + 2, 0.0)]
+    return _revolved(prof)
+
+
+def lock_point(p):
+    a = math.radians(p.REV_lock_ang)
+    return (p.X_bucket_pivot + p.REV_lock_r * math.cos(a), p.Z_bucket_pivot + p.REV_lock_r * math.sin(a))
+
+
+def ear_outline(p, sign):
+    Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
+    pts = circ(Xb, Zb, p.STE_ear_r) + [(Xb - 18, -2.0), (Xb + 18, -2.0), (Xb - 16, 40.0), (Xb + 16, 40.0)]
+    if sign > 0:
+        lx, lz = lock_point(p)
+        pts += circ(lx, lz, 13.0) + [(lx + 14, -2.0), (lx + 14, 30.0)]
+    return hull(pts)
+
+
+def pivot_ear(p, sign):
+    """Oreja de pivote de la boquilla (por dentro de la de la bomba)."""
+    Xp = p.X_steer_pivot
+    r, zt = p.STE_ear_rp, p.STE_ear_top
+    e = cyl_z(r, 38.0, zt, x=Xp) + box(Xp, Xp + 30.0, -r, r, 38.0, zt)
+    if sign > 0:
+        x0, x1 = p.STE_riser_x
+        e = e + box(Xp + x0, Xp + x1, -p.STE_riser_y, p.STE_riser_y, 38.0, p.STE_riser_top)
+        return e
+    return Rot(180, 0, 0) * e        # espejo en Z (la oreja es simétrica en Y)
+
+
+def build(p):
+    Xp = p.X_steer_pivot
+    b = _revolved(body_profile(p))
+    b = b + pivot_ear(p, 1) + pivot_ear(p, -1)
+    for s in (1, -1):
+        y0, y1 = (p.STE_ear_y0, p.STE_ear_y1) if s > 0 else (-p.STE_ear_y1, -p.STE_ear_y0)
+        b = b + prism_xz(ear_outline(p, s), y0, y1)
+    b = b - lug_sweep(p, 1) - lug_sweep(p, -1)
+    # roscas M6 de los tornillos de pivote (Ø5,0 × STE_m6_depth)
+    zt, dpt = p.STE_ear_top, p.STE_m6_depth
+    b = b - cyl_z(2.5, zt - dpt, zt + 1, x=Xp) - cyl_z(2.5, -zt - 1, -zt + dpt, x=Xp)
+    # roscas M6 de la brida del yugo (Ø5,0 × 12) en la torre
+    x0, x1 = p.STE_riser_x
+    for xx in (x0 + 7.0, x1 - 6.0):
+        b = b - cyl_z(2.5, p.STE_riser_top - 12, p.STE_riser_top + 1, x=Xp + xx)
+    # orejas del bucket: Ø8,4 pasante (perno con hombro Ø10 apoya en la cara exterior; tuerca adentro)
+    Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
+    b = b - cyl_y(4.2, -p.STE_ear_y1 - 1, p.STE_ear_y1 + 1, x=Xb, z=Zb)
+    lx, lz = lock_point(p)
+    b = b - cyl_y(8.0, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=lx, z=lz)               # M16 del émbolo
+    b = b - bore_cut(p)
+    return b
+
+
+def placements(p, steer=0.0, bucket=0):
+    from params import loc_steer
+    return [loc_steer(p, steer)]
+
+
+def _other(stem):
+    import importlib.util
+    f = os.path.join(os.path.dirname(__file__), stem + ".py")
+    if not os.path.exists(f):
+        return None
+    spec = importlib.util.spec_from_file_location(stem.replace("-", "_"), f)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def free_angle(p, part, fixed):
+    """Mayor δ (paso 2,5°) con intersección nula contra 'fixed' (marco JET)."""
+    Xp = p.X_steer_pivot
+    free = 0.0
+    a = 2.5
+    while a <= p.STE_sweep + 1e-6:
+        v = sum(inter_vol(Pos(Xp, 0, 0) * Rot(0, 0, s) * Pos(-Xp, 0, 0) * part, fixed) for s in (a, -a))
+        if v > 0.5:
+            break
+        free = a
+        a += 2.5
+    return free
+
+
+def checks(p, part):
+    smax = p.steer_max
+    rj = p.STE_r_jet
+    lug = pump_lug_proxy(p, 1) + pump_lug_proxy(p, -1)
+    free_proxy = free_angle(p, part, lug)
+    m = _other("P1-PMP-08_fixed_nozzle")
+    free_real = free_angle(p, part, m.build(p)) if m is not None else free_proxy
+    ell = rj / math.cos(math.radians(smax))         # semieje de la huella del chorro en la boca con δmax
+    rr = math.hypot(p.STE_ear_top, p.STE_ear_rp)
+    return [
+        ("un solo sólido", len(part.solids()), 1, "="),
+        ("giro libre contra las orejas de la bomba (modelo) [°]", free_proxy, smax + 2.5, ">="),
+        ("giro libre contra la tobera fija P1-PMP-08 real [°]", free_real, smax + 2.5, ">="),
+        ("boca: R − r_chorro/cos δmax (huella del chorro) [mm]", p.STE_rf - ell, 0.3, ">="),
+        ("frente esférico ≤ R máx. de la rótula de la tobera fija [mm]", p.STE_Rs, p.raw.get("pmp_steer_ball_R_max", p.STE_Rs), "<="),
+        ("pared en el labio de entrada [mm]", p.STE_Rs - p.STE_rf, 1.8, ">="),
+        ("pared del cuerpo [mm]", p.STE_ro - p.STE_rb, 4.0, ">="),
+        ("oreja de pivote dentro de la zona libre de la tobera fija (r) [mm]", p.STE_free_r - rr, 1.0, ">="),
+        ("piso de la rosca M6 sobre la boca [mm]", (p.STE_ear_top - p.STE_m6_depth) - p.STE_rf, 2.5, ">="),
+        ("luz axial a la oreja de la bomba (con arandela) [mm]", p.STE_gz - p.STE_wash_t, 0.3, ">="),
+        ("oreja del bucket fuera del cuerpo: Y_oreja_ext − r_ext [mm]", p.STE_ear_y1 - p.STE_ro, 0.0, ">="),
+    ]

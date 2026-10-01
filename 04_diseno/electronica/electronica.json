@@ -1,15 +1,16 @@
 {
   "meta": {
-    "battery": "LFP12_100x2",
-    "battery_desc": "2 × Power Queen 12V 100Ah en serie (BMS 100 A c/u)",
-    "motor": "OR6374_190",
-    "motor_desc": "Flipsky 6374 Battle Hardened 190 KV (con sensores hall)",
-    "motor_kv": 190.0,
-    "esc": "VESC75100",
-    "cells_series": 8,
-    "v_nom": 25.6,
-    "v_max": 29.2,
-    "v_min_load": 24.0
+    "battery": "LT36_60x2",
+    "battery_desc": "2 × LiTime 36 V 60 Ah Golf Cart en paralelo (12S2P, BMS 2 × 120 A)",
+    "motor": "MTI120116_150",
+    "motor_desc": "Maytech MTI120116 150 KV (inrunner refrigerado por agua, 10–16S)",
+    "motor_kv": 150.0,
+    "esc": "FSESC75350",
+    "esc_desc": "Flipsky FSESC 75350 con caja de agua (VESC, filtro de fase, IP65)",
+    "cells_series": 12,
+    "v_nom": 38.4,
+    "v_max": 43.8,
+    "v_min_load": 36.0
   },
   "vesc": [
     {
@@ -24,56 +25,56 @@
     {
       "grupo": "Firmware",
       "parametro": "foc_phase_filter_enable",
-      "valor": "false",
+      "valor": "true (dejar)",
       "unidad": "—",
       "default": "true (false en target 75_100, FW ≥ 6.00)",
       "tag": "[VERIFICADO: research/R06_electrica.md §2.1 — Flipsky: con FW ≥ 5.3 apagar el filtro de fase o se daña el 75100]; default [VERIFICADO: mcconf_default.h MCCONF_FOC_PHASE_FILTER_ENABLE; hw_75_100.h false (research/R06_electrica.md §2.2)]",
-      "nota": "Solo Flipsky 75100/75200; un VESC con filtro de fase por hardware puede dejarlo"
+      "nota": "Solo Flipsky 75100/75200 sin filtro; el FSESC 75350 y el 110300 SÍ tienen filtro de fase (research/R11 §2)"
     },
     {
       "grupo": "Motor",
       "parametro": "si_motor_poles",
-      "valor": 14,
+      "valor": 4,
       "unidad": "—",
       "default": 14,
-      "tag": "[inputs.yaml motor.options.OR6374_190.pole_pairs = 7 (allí con su etiqueta)] · default FW 14 [VERIFICADO: mcconf_default.h MCCONF_SI_MOTOR_POLES]; CONTAR imanes del motor real",
+      "tag": "[inputs.yaml motor.options.MTI120116_150.pole_pairs = 2 (allí con su etiqueta)] · default FW 14 [VERIFICADO: mcconf_default.h MCCONF_SI_MOTOR_POLES]; CONTAR imanes del motor real",
       "nota": ""
     },
     {
       "grupo": "Motor",
       "parametro": "l_current_max",
-      "valor": 60.0,
+      "valor": 292.0,
       "unidad": "A",
       "default": 60.0,
-      "tag": "[SUPUESTO: inputs.yaml motor.current_limit_a]; default 60 A [VERIFICADO: mcconf_default.h]",
-      "nota": "En PPM Current acelera con servo × l_current_max en AMBOS sentidos [VERIFICADO: app_ppm.c]"
+      "tag": "[CALCULADO: sizing.json electrical.I_phase_limit_A = 292 A: par T_max 18,6 N·m < par de corte del pasador / 1,8] · default 60 A [VERIFICADO: mcconf_default.h]",
+      "nota": "Límite de FASE: fija el par máx. (el pasador de corte no corta en arranques). En PPM Current acelera con servo × l_current_max [VERIFICADO: app_ppm.c]"
     },
     {
       "grupo": "Motor",
       "parametro": "l_current_min",
-      "valor": -30.0,
+      "valor": -87.6,
       "unidad": "A",
       "default": -60.0,
-      "tag": "[CALCULADO: −reverse_current_frac × l_current_max]",
+      "tag": "[CALCULADO: −0,3 × l_current_max] · [SUPUESTO: corriente de frenado = 30 % de l_current_max (un jet casi no regenera; protege BMS)]",
       "nota": "Corriente de FRENADO (servo opuesto a las rpm) [VERIFICADO: app_ppm.c]"
     },
     {
       "grupo": "Motor",
-      "parametro": "límite de reversa (MCU)",
-      "valor": "0,5 × l_current_max = 30",
+      "parametro": "límite de potencia en REVERSA (bucket abajo, MCU)",
+      "valor": "P ≤ 0,5 × P → corriente ≤ 0,63 × l_current_max = 184",
       "unidad": "A",
       "default": "—",
-      "tag": "[CALCULADO: firmware escala el PPM negativo a −reverse_limit]",
-      "nota": "Coincide con bollard en reversa de sizing: I_m = 30 A"
+      "tag": "[CALCULADO: inputs.yaml waterjet.reverse.power_limit_frac 0,5; [CALCULADO: bomba con T ∝ n², P ∝ n³ → P ∝ T^1,5; límite de par = P_frac^(2/3)]]",
+      "nota": "El jet NO invierte el giro: la reversa es el bucket. El MCU lee el fin de carrera del bucket y topea el PPM (reverse_limit del firmware = este valor; adaptar p1_throttle a la entrada del bucket — pendiente)"
     },
     {
       "grupo": "Batería",
       "parametro": "l_in_current_max",
-      "valor": 50.0,
+      "valor": 192.0,
       "unidad": "A",
       "default": "99 (100 en target 75_100)",
-      "tag": "[CALCULADO: ⌈1,05 × I_bat pico 47,2 A⌉ a 5 A, ≤ 80 % × BMS 100 A]",
-      "nota": "No limita el pico de sizing (47,2 A) y deja 30 A de margen al 80 % del BMS"
+      "tag": "[CALCULADO: ⌈1,05 × I_bat pico 221 A⌉ a 5 A, ≤ 80 % × BMS 240 A]",
+      "nota": "LIMITA la V máx: I_bat pico de sizing > 80 % del BMS"
     },
     {
       "grupo": "Batería",
@@ -87,47 +88,56 @@
     {
       "grupo": "Batería",
       "parametro": "l_battery_cut_start",
-      "valor": 24.0,
+      "valor": 36.0,
       "unidad": "V",
       "default": 10.0,
-      "tag": "[CALCULADO: 8 celdas × 3 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 3,0 V/celda]",
+      "tag": "[CALCULADO: 12 celdas × 3 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 3,0 V/celda]",
       "nota": ""
     },
     {
       "grupo": "Batería",
       "parametro": "l_battery_cut_end",
-      "valor": 22.4,
+      "valor": 33.6,
       "unidad": "V",
       "default": 8.0,
-      "tag": "[CALCULADO: 8 × 2,8 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 2,8 V/celda]",
+      "tag": "[CALCULADO: 12 × 2,8 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 2,8 V/celda]",
       "nota": ""
     },
     {
       "grupo": "Batería",
       "parametro": "l_max_vin",
-      "valor": 35.0,
+      "valor": 53.0,
       "unidad": "V",
       "default": "57 (90 en target 75_100)",
-      "tag": "[CALCULADO: 1,2 × 29,2 V] · [SUPUESTO: l_max_vin = 1,2 × V carga plena → protege el DC-DC ante un BMS abierto regenerando]",
-      "nota": "< entrada máx. del DC-DC TSR 1-2450E 36 V"
+      "tag": "[CALCULADO: 1,2 × 43,8 V] · [SUPUESTO: l_max_vin = 1,2 × V carga plena → protege el DC-DC ante un BMS abierto regenerando]",
+      "nota": "OJO: ≥ entrada máx. del DC-DC → usar R-78HB (72 V)"
     },
     {
       "grupo": "Velocidad",
       "parametro": "l_max_erpm",
-      "valor": 30100,
+      "valor": 4100,
       "unidad": "ERPM",
       "default": 100000,
-      "tag": "[CALCULADO: tope legal 'modo costa' = rpm a 5 kn con carga liviana (sizing.legal_speed, D-30); techo técnico 33200 = 1,15 × 4125 rpm × 7 pares de polos]",
-      "nota": "Sin carga (hélice fuera del agua) el motor iría a 5548 rpm = 38836 ERPM [CALCULADO: KV 190 × 29,2 V]; el límite lo baja a 4300 rpm"
+      "tag": "[CALCULADO: tope legal 'modo costa' = rpm a 5 kn con carga liviana (sizing.legal_speed, D-30); techo técnico 11300 = 1,15 × 4932 rpm × 2 pares de polos]",
+      "nota": "Sin carga (hélice fuera del agua) el motor iría a 6570 rpm = 13140 ERPM [CALCULADO: KV 150 × 43,8 V]; el límite lo baja a 2050 rpm"
+    },
+    {
+      "grupo": "Velocidad",
+      "parametro": "l_max_erpm (perfil 2: fuera de la franja de 300 m)",
+      "valor": 11300.0,
+      "unidad": "ERPM",
+      "default": 100000,
+      "tag": "[CALCULADO: 1,15 × 4932 rpm (n máx. de sizing) × 2 pares de polos]",
+      "nota": "Segundo perfil del VESC (o mcconf alternativo cargado por UART); por defecto arranca SIEMPRE en el perfil legal de 5 kn (R13)"
     },
     {
       "grupo": "Velocidad",
       "parametro": "l_min_erpm",
-      "valor": -22900.0,
+      "valor": -1400.0,
       "unidad": "ERPM",
       "default": -100000,
-      "tag": "[CALCULADO: −1,5 × 2178 rpm (bollard reversa, sizing) × 7] · [SUPUESTO: 50 % sobre las rpm del bollard en reversa (arrancada hacia atrás)]",
-      "nota": ""
+      "tag": "[CALCULADO: −699 rpm × 2 pares de polos] · [SUPUESTO: giro inverso lento (≤ 25 % de las rpm de 5 kn) solo para soltar algas de la rejilla]",
+      "nota": "Solo giro inverso lento para limpiar la rejilla; la reversa de marcha es el bucket"
     },
     {
       "grupo": "Velocidad",
@@ -153,7 +163,7 @@
       "valor": "85 / 100",
       "unidad": "°C",
       "default": "85 / 100",
-      "tag": "[CALCULADO: start = mín(85 default, t_winding_max_c 85 °C de inputs.yaml); end = start + 15 como el default] · default 85/100 [VERIFICADO: mcconf_default.h]",
+      "tag": "[CALCULADO: start = mín(85 default, t_winding_max_c 120 °C de inputs.yaml); end = start + 15 como el default] · default 85/100 [VERIFICADO: mcconf_default.h]",
       "nota": "sizing toma t_winding_max_c como la temperatura donde el VESC EMPIEZA a limitar: no subir start sin rehacer el cálculo térmico. Requiere NTC 10 k en el bobinado (TEMP_SENSOR_NTC_10K_25C, R06 §1.2)"
     },
     {
@@ -266,15 +276,15 @@
     }
   ],
   "vesc_values": {
-    "l_current_max": 60.0,
-    "l_current_min": -30.0,
-    "l_in_current_max": 50.0,
+    "l_current_max": 292.0,
+    "l_current_min": -87.6,
+    "l_in_current_max": 192.0,
     "l_in_current_min": -10.0,
-    "l_battery_cut_start": 24.0,
-    "l_battery_cut_end": 22.4,
-    "l_max_vin": 35.0,
-    "l_max_erpm": 30100,
-    "l_min_erpm": -22900.0,
+    "l_battery_cut_start": 36.0,
+    "l_battery_cut_end": 33.6,
+    "l_max_vin": 53.0,
+    "l_max_erpm": 4100,
+    "l_min_erpm": -1400.0,
     "timeout_msec": 250.0,
     "ramp_time_pos": 1.0,
     "ramp_time_neg": 0.1,
@@ -284,19 +294,25 @@
       1500,
       2000
     ],
-    "motor_poles": 14,
-    "i_bat_peak": 47.24740169284434,
-    "i_bms": 100.0,
+    "motor_poles": 4,
+    "i_bat_peak": 220.6647805680856,
+    "i_bms": 240.0,
     "l_temp_motor_start": 85.0,
     "l_temp_motor_end": 100.0,
-    "t_winding_max_c": 85.0,
-    "i_in_limited": false,
-    "n_max_loaded_rpm": 4125.127800508194,
-    "n_noload_rpm": 5548.0,
-    "n_rev_bollard_rpm": 2177.901809084576,
-    "reverse_frac": 0.5,
+    "t_winding_max_c": 120.0,
+    "i_in_limited": true,
+    "n_max_loaded_rpm": 4931.864924047166,
+    "n_noload_rpm": 6570.0,
+    "n_rev_weed_rpm": 698.9117948267528,
+    "brake_frac": 0.3,
+    "reverse_power_frac": 0.5,
+    "reverse_current_frac": 0.6299605249474366,
+    "l_current_reverse": 184.0,
+    "erpm_legal": 4116.978412469773,
+    "erpm_tech": 11300.0,
+    "v_class": 48,
     "dcdc_vin_max": 36.0,
-    "dcdc_ok": true
+    "dcdc_ok": false
   },
   "precarga": {
     "R_ohm": 100.0,
@@ -304,94 +320,94 @@
     "tau_s": 0.2,
     "t_95_s": 0.6000000000000001,
     "t_5tau_s": 1.0,
-    "I_peak_A": 0.292,
-    "E_J": 0.85264,
-    "P_short_W": 8.5264,
-    "P_rating_W": 15.0,
-    "P_max_transfer_W": 2.1316,
-    "P_cruise_W": 878.6494555220452,
-    "transfer_frac_of_cruise": 0.002425995926593411,
+    "I_peak_A": 0.43799999999999994,
+    "E_J": 1.91844,
+    "P_short_W": 19.184399999999997,
+    "P_rating_W": 30.0,
+    "P_max_transfer_W": 4.796099999999999,
+    "P_cruise_W": 1650.8019111926965,
+    "transfer_frac_of_cruise": 0.0029053152697980826,
     "wait_s": 2.0,
-    "Iq_max_90pct_A": 0.025600000000000005,
-    "E_cierre_80pct_J": 0.026214400000000013
+    "Iq_max_90pct_A": 0.0384,
+    "E_cierre_80pct_J": 0.0589824
   },
   "bobina": {
-    "V_nom": 24.0,
+    "V_nom": 48.0,
     "R_coil_ohm": [
-      44.30769230769231,
-      82.28571428571429
+      177.23076923076923,
+      329.14285714285717
     ],
-    "I_max_A": 0.6590277777777778,
+    "I_max_A": 0.24713541666666666,
     "P_at_vnom_W": [
-      7.964444444444445,
-      14.791111111111114
+      4.4799999999999995,
+      8.32
     ],
     "E_2h_Wh": [
-      15.92888888888889,
-      29.582222222222228
+      3.3599999999999994,
+      6.24
     ],
-    "endurance_h": 2.0,
+    "endurance_h": 0.75,
     "frac_E_usable": [
-      0.006913580246913581,
-      0.012839506172839509
+      0.000810185185185185,
+      0.0015046296296296298
     ],
-    "F2_A": 2.0,
+    "F2_A": 1.0,
     "kill_switch_rating_A": 5.0,
-    "kill_switch_margin": 7.586933614330874,
+    "kill_switch_margin": 20.231822971549,
     "v_range_required": [
-      24.0,
-      29.2
+      36.0,
+      43.8
     ],
     "opciones": {
-      "24": {
-        "Us_V": 24.0,
+      "36": {
+        "Us_V": 36.0,
         "frac_Us_at_vmax": 1.2166666666666666,
         "P_at_vmax_W": [
           10.361944444444443,
-          19.24361111111111
-        ],
-        "pullin_max_V": 15.84,
-        "closes_at_v_rest_min": true,
-        "I_max_A": 0.6590277777777778,
-        "P_vmax_le_prolonged": false
-      },
-      "36": {
-        "Us_V": 36.0,
-        "frac_Us_at_vmax": 0.8111111111111111,
-        "P_at_vmax_W": [
-          4.605308641975308,
-          8.552716049382715
+          19.243611111111107
         ],
         "pullin_max_V": 23.76,
         "closes_at_v_rest_min": true,
-        "I_max_A": 0.29290123456790124,
+        "I_max_A": 0.4393518518518518,
+        "P_vmax_le_prolonged": false
+      },
+      "48": {
+        "Us_V": 48.0,
+        "frac_Us_at_vmax": 0.9125,
+        "P_at_vmax_W": [
+          5.828593749999999,
+          10.82453125
+        ],
+        "pullin_max_V": 31.68,
+        "closes_at_v_rest_min": true,
+        "I_max_A": 0.24713541666666666,
         "P_vmax_le_prolonged": true
       }
     },
-    "v_rest_min": 24.0,
-    "R_sup_ohm": 44.30769230769231,
-    "V_N2_negativo_V": -29.9
+    "v_rest_min": 36.0,
+    "R_sup_ohm": 177.23076923076923,
+    "V_N2_negativo_V": -44.5
   },
   "optos": {
-    "R_U2U3_ohm": 3900.0,
+    "R_U2U3_ohm": 6800.0,
     "I_U2U3_A": [
-      0.005538461538461539,
-      0.006871794871794872
+      0.004941176470588235,
+      0.006088235294117647
     ],
-    "P_R_U2U3_W": 0.18416410256410257,
-    "R_U1_ohm": 4700.0,
+    "P_R_U2U3_W": 0.25205294117647054,
+    "R_U1_ohm": 6800.0,
     "I_U1_A": [
-      0.004851063829787234,
-      0.005957446808510639
+      0.005117647058823529,
+      0.0062647058823529405
     ],
-    "P_R_U1_W": 0.16680851063829788,
-    "Ic_min_A": 0.0027692307692307695,
+    "P_R_U1_W": 0.2668764705882352,
+    "Ic_min_A": 0.0024705882352941176,
     "I_pullup_5V_A": 0.0005,
     "I_pullup_3V3_A": 0.00033,
-    "V_inversa_LED_V": 29.9,
+    "V_inversa_LED_V": 44.5,
     "V_R_max_V": 5.0,
     "necesita_diodo_antiparalelo": true,
-    "I_diodo_antiparalelo_A": 0.007307692307692308
+    "I_diodo_antiparalelo_A": 0.006338235294117647
   },
   "corte": {
     "requisito_s": 1.0,
@@ -430,13 +446,23 @@
     "peor_s": 0.25
   },
   "cables": {
-    "dc_mm2": 10,
-    "phase_mm2": 10,
-    "dc_drop_frac": 0.012402442944371641,
-    "phase_drop_frac": 0.021,
-    "fuse_a": 60,
-    "fuse_min_a": 59.059252116055426,
-    "ampacity_dc_a": 75
+    "dc_mm2": 70,
+    "phase_mm2": 70,
+    "dc_drop_frac": 0.0020687323178258028,
+    "phase_drop_frac": 0.0027343750000000003,
+    "fuse_a": 250,
+    "fuse_min_a": 218.86205737337423,
+    "ampacity_dc_a": 260,
+    "fuse_protects_cable": true
+  },
+  "clase": {
+    "v_class": 48,
+    "hv": false,
+    "imd": false,
+    "contactor": "Albright SW80",
+    "fuse": "IMAXX midiOTO/megaOTO 58 V + portafusible HMD4-MG1-H (base aislante HIB1 > 32 V)",
+    "imd_desc": "no requerido (≤ 50 V CC)",
+    "dcdc": "RECOM R-78HB5.0-0.5 9–72 V"
   },
   "tabla_resumen": [
     {

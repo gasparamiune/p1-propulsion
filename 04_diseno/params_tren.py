@@ -138,7 +138,7 @@ def extend(d):
     d["drv_journal_d"] = d.get("pmp_journal_d", d["shaft_d"])          # muñón del buje del estator (f7)
     d["drv_bush"] = ((d["pmp_brg_X0"], d["pmp_brg_X0"] + d["pmp_brg_L"]) if "pmp_brg_X0" in d else None)
     d["drv_imp_front_X"] = d.get("pmp_imp_front_X", 0.0)               # cara de proa del cubo del impulsor
-    d["drv_imp_m_kg"] = 1.0                                             # [ESTIMADO: impulsor 316 Ø132 ≈ 0,8–1,3 kg (R11 §6); el manifest de BOMBA lo reemplaza]
+    d["drv_imp_m_kg"] = 1.35                                            # [CALCULADO: CAD de BOMBA P1-PMP-03 = 1,33 kg (manifest) + anillo retén y pasador]
     d["drv_pin_X"] = d.get("pmp_pin_X", d["X_imp1"] / 2)                # agujero del pasador (BOMBA)
     d["drv_pin_d"] = sz["mech"].get("shear_pin", {}).get("d_mm", 3.5)   # [CALCULADO: sizing.json mech.shear_pin]
     d["drv_pin_hole"] = d["drv_pin_d"] + 0.03                           # [SUPUESTO: agujero H8 escariado (pasador h8 deslizante)]
@@ -194,7 +194,7 @@ def extend(d):
     d["drv_S_cpl0"] = d["drv_S_cpl_motor_face"] - d["drv_cpl_L"]          # cara de popa del cubo del lado del eje
     d["drv_S_cpl_spider0"] = d["drv_S_cpl0"] + COUPLING["l_hub_shaft"]
     d["drv_S_front"] = d["drv_S_cpl_spider0"] - COUPLING["s"] / 2 - 0.5  # punta de proa del eje (dentro del cubo)
-    d["drv_cpl_key_l"] = COUPLING["l_hub_shaft"] - 4.0                  # chavetero del acople
+    d["drv_cpl_key_l"] = COUPLING["l_hub_shaft"] - 2.0                  # chavetero del acople [SUPUESTO: todo el cubo menos 2 mm (aplastamiento FS ≥ 2)]
     d["drv_S_thread0"] = d["drv_S_brgB"] + KM["mb_t"]                    # rosca M20×1 desde la cara del rodamiento + MB4
     d["drv_thread_l"] = KM["b"] + 2.0
     d["drv_shaft_L"] = d["drv_X_aft"] + d["drv_S_front"]                # largo total del eje
@@ -233,7 +233,10 @@ def extend(d):
     d["ele_esc_mass_kg"] = eo.get("mass_kg", 1.0)
     d["ele_wall"] = 3.2                                                 # [SUPUESTO: = min_wall]
     d["ele_clr"] = 0.6                                                  # [SUPUESTO: holgura ESC ↔ cuna/capota (caja de Al anodizado, tolerancia ±0,3 [ESTIMADO])]
-    d["ele_pad_t"] = 1.0                                                # [SUPUESTO: almohadilla de EPDM 1 mm bajo la capota]
+    d["ele_pad_t"] = 3.0                                                # [SUPUESTO: 2 tiras de EPDM celular 3 × 10 mm sobre los bordes largos del ESC]
+    d["ele_pad_comp"] = 0.25                                            # [SUPUESTO: compresión 25 %]
+    d["ele_pad_p_mpa"] = 0.04                                           # [ESTIMADO: EPDM celular a 25 % ≈ 0,02–0,05 MPa (fichas típicas); buscar ficha del elegido]
+    d["ele_pad_w"] = 10.0
     d["ele_raise"] = 60.0                                               # [SUPUESTO: fondo del ESC 60 mm sobre el piso (sobre el agua de cubierta/sentina que pase el piso)]
     d["ele_tray_d"] = 8.0                                               # [SUPUESTO: profundidad de la cuna]
     d["ele_ear"] = 16.0                                                 # orejas de anclaje al piso (4 × M6)
@@ -255,3 +258,53 @@ def extend(d):
     d["cool_hose"] = (6.0, 8.0)                                         # [SUPUESTO: manguera Ø6 × Ø8 (pedido del grupo principal), PVC armada o silicona]
     d["cool_out_yz"] = (180.0, 300.0)                                   # [SUPUESTO: testigo en el espejo, a estribor de la tobera, visible desde el puesto]
     d["cool_tap_X"] = d.get("pmp_cool_tap_X", (d["X_st0"] + d["X_st1"]) / 2)   # puerto del grupo BOMBA (si no lo define: centro del estator)
+
+
+def cooling_runs(p):
+    """Tramos de manguera del circuito de refrigeración (marco BOTE) y su largo [CALCULADO: recta × 1,3
+    + 0,15 m de reserva, SUPUESTO]. Devuelve [(desde, hasta, (x,y,z)0, (x,y,z)1, largo_m)]."""
+    import params as P
+    from build123d import Pos
+    port = p.raw.get("pmp_cool_port", ((p.X_st0 + p.X_st1) / 2, 0.0, p.D_bore / 2 + 15.0))
+    a = P.jet_to_boat(p, *port)
+    x, y, z = p.ele_pos
+    L, W, H = p.ele_esc_size
+    ze = z + p.ele_raise + H / 2
+    esc_in, esc_out = (x - L / 2 - 10, y, ze), (x + L / 2 + 10, y, ze)
+    r = p.motor_d / 2 + 10
+    mot_in = P.jet_to_boat(p, -(p.S_motor1 - 15.0), 0.0, r)
+    mot_out = P.jet_to_boat(p, -(p.S_motor0 + 15.0), 0.0, r)
+    yo, zo = p.cool_out_yz
+    outlet = (p.transom_t + 30.0, yo, zo)
+    pts = [("puerto de la bomba (BOMBA)", a), ("entrada caja de agua ESC", esc_in), ("salida caja de agua ESC", esc_out),
+           ("entrada camisa del motor", mot_in), ("salida camisa del motor", mot_out), ("pasacasco testigo P1-ELE-03", outlet)]
+    runs = []
+    for (n0, p0), (n1, p1) in [(pts[0], pts[1]), (pts[2], pts[3]), (pts[4], pts[5])]:
+        dd = math.dist(p0, p1) / 1000
+        runs.append((n0, n1, p0, p1, round(1.3 * dd + 0.15, 2)))
+    return runs
+
+
+K_JACKETS = 15.0   # [ESTIMADO: pérdidas locales de 2 camisas + espigas + codos, ΣK ≈ 15 (sin datos del fabricante)]
+DT_WATER = 10.0    # [SUPUESTO: salto de temperatura del agua de refrigeración 10 K]
+
+
+def cooling_hydraulics(p):
+    """Caudal necesario y caída de presión del circuito vs presión disponible en el puerto [CALCULADO:
+    Darcy (laminar 64/Re, turbulento Blasius) + ΣK; presión del puerto ∝ n² desde p_pump_max a n_max]."""
+    th = p.sz["thermal"]
+    P_loss = th["P_loss_motor_W"] + th["P_loss_esc_W"]
+    rho = p.inp["water"]["density_kg_m3"]
+    nu = p.inp["water"]["kinematic_viscosity_m2_s"]
+    Q = P_loss / (4186.0 * DT_WATER) / rho                 # m³/s
+    Di = p.cool_hose[0] / 1000
+    A = math.pi * Di ** 2 / 4
+    v = Q / A
+    Re = v * Di / nu
+    f = 64 / Re if Re < 2300 else 0.316 * Re ** -0.25
+    Lh = sum(r[4] for r in cooling_runs(p))
+    dp = (f * Lh / Di + K_JACKETS) * rho * v ** 2 / 2
+    n_leg = p.sz["legal_speed"].get("n_legal_rpm", 2000.0)
+    p_avail = p.sz["loads"]["p_pump_max_Pa"] * (n_leg / p.sz["mech"]["n_max_rpm"]) ** 2
+    return {"P_loss_W": P_loss, "Q_l_min": Q * 6e4, "v_ms": v, "Re": Re, "L_hose_m": Lh, "dp_Pa": dp,
+            "p_avail_legal_Pa": p_avail, "n_legal_rpm": n_leg}

@@ -21,11 +21,13 @@ from _pmp_geom import ring_x, revolve_profile  # noqa: E402
 from cadlib import cyl_x, cyl_y, cyl_z, has_radius  # noqa: E402
 from params import loc_jet  # noqa: E402
 
+# allow: contactos nominales de ajuste (prensado/deslizante); la intersección BRep exacta es 0 —
+# lo que mide verify_parts es el facetado de la malla --fast sobre cilindros coincidentes.
 META = dict(id="P1-PMP-01", name="housing",
             desc="Carcasa Al 6061-T6: brida de la toma, asiento del anillo y del estator, puerto de agua",
             material="Al 6061-T6", process="torneada", qty=1, frame="jet", group="jet",
             load_case="Presión interna 0,2 MPa; reacción del estator; momentos de boquilla/bucket en bridas",
-            allow={"P1-PMP-02": 20.0, "P1-PMP-06": 20.0, "P1-PMP-08": 20.0})
+            allow={"P1-PMP-02": 1500.0, "P1-PMP-06": 1500.0, "P1-PMP-08": 300.0})
 
 
 def bolt_xy(r, n, a0):

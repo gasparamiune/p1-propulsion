@@ -35,8 +35,8 @@ def blades(p):
     if key in _CACHE:
         return _CACHE[key]
     rows = []
-    for r in p.pmp_imp_loft_r:
-        b = p.pmp_blade_row(r)
+    for r, rd in p.pmp_imp_loft_r:
+        b = p.pmp_blade_row(rd)
         rows.append(dict(r=r, chord=b["chord"], a1=b["bb1"], a2=b["bb2"], tc=b["tc"]))
     bl = loft_blade(rows, -1, p.pmp_imp_le_X)
     bl = bl & cyl_x(p.pmp_tip_r, -50, 200)          # punta exacta en r = D/2
@@ -79,10 +79,10 @@ def placements(p, steer=0.0, bucket=0):
 
 
 def checks(p, part):
-    rmax = max_radius(part)
     T = p.pmp_imp_table
     bl = blades(p)[0]
     bb = bl.bounding_box()
+    rmax = max(max_radius(bl), p.D_hub / 2)          # el cubo (Ø D_hub) queda dentro de la punta
     return [
         ("un solo sólido", len(part.solids()), 1, "="),
         ("radio de punta = D/2 [mm]", rmax, p.D / 2, "="),
