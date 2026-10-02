@@ -190,7 +190,7 @@ def build(p, ctx):
     res.append((dict(id="P1.1A", name="peine_agujeros",
                      desc=f"Agujeros Ø(d+c) de eje vertical para {', '.join(_dlabel(d) for d in dv)}; holguras "
                           f"{', '.join(fmt_mm(c) for c in holguras(p))} mm + las del CAD por Ø"
-                          + (f"; bolsillos hexagonales M{', M'.join(str(M) for M in hx)} e/c + "
+                          + (f"; bolsillos hexagonales M{', M'.join(str(M) for M in hx)}: e/c del CAD "
                              f"{', '.join(fmt_mm(x, 1) for x in HEX_DELTAS)}" if hx else ""),
                      test=TEST, profile="estructural", qty=1, solid_frac=1.0,
                      orientation="Plana: agujeros de eje vertical; bolsillos hexagonales abiertos a la cama "

@@ -8,13 +8,15 @@ Réplica REDUCIDA de la tapa de inspección (misma sección, distinto diámetro)
     perfil de INT-04 (familias.py).
   • P1.6A caja: hace de brida de la chimenea (en la pieza real es Al 5083 de P1-INT-01): brida de
     toma_chim_fl_t con los mismos radios relativos, 4 × M6 pasantes con tuerca abajo, vaso cerrado y un
-    agujero para válvula de neumático (presión y vacío).
+    agujero en el piso para una válvula de neumático de tuerca (presión con inflador, vacío sin el obús).
 Boca de la probeta BOCA_D [SUPUESTO] (la real es toma_chim_id): con la purga al centro, entra el hexágono.
 Presión de ensayo = presión de cierre de la bomba (sizing loads.p_pump_max_Pa = estructural.json
 structural_toma.p_max_Pa), que la tapa ve como succión en punto fijo y como contrapresión.
 """
 import importlib.util
 import math
+
+from build123d import Align, Cone, Pos
 
 from cadlib import *  # noqa: F401,F403
 from _probelib import label, cyl_faces
@@ -27,9 +29,11 @@ PIEZAS = ("P1-INT-04", "P1-INT-01")
 SRC = "P1-INT-04"
 BOCA_D = 60.0          # [SUPUESTO: boca reducida; la purga va al centro]
 POT_WALL = 6.0         # pared del vaso [SUPUESTO: ≥ 2 × min_wall; ve p_cierre]
-POT_H = 30.0           # profundidad del vaso [SUPUESTO: volumen chico de aire = poca energía en la prueba]
-POT_FLOOR = 6.0
-VALVE_D = 11.5         # válvula de neumático TR413 a presión (snap-in) [ESTIMADO: agujero de llanta 11,3–11,5]
+H_CYL = 10.0           # tramo cilíndrico de la cavidad (= espesor de brida) [SUPUESTO: volumen chico = poca energía]
+R_TOP = 8.0            # meseta del techo cónico donde va la válvula [SUPUESTO: > VALVE_D/2]
+POT_FLOOR = 6.0        # techo del vaso (piso en uso)
+VALVE_D = 11.5         # válvula de neumático de tuerca (clamp-in) en el piso [ESTIMADO: agujero de llanta 11,3–11,5; buscar
+                       # "clamp-in tire valve 11.5 mm" y confirmar el espesor de pared admitido ≥ POT_FLOOR]
 HOLD_MIN = 15          # [SUPUESTO: tiempo de retención]
 DROP_FRAC = 0.10       # [SUPUESTO: caída admisible de presión en HOLD_MIN (incluye temperatura del aire)]
 R05_DEPTH = (2.57, 2.72)  # [VERIFICADO: research/R05 B3 (Parker 4-3), cordón 3,53]
@@ -67,21 +71,25 @@ def build(p, ctx):
     for (x, y) in pts:
         lid = lid - cyl_z(hole, -1, t + 1, x=x, y=y)
     lid = lid + label("P1.6", 0, -(d["boss_d"] / 2 + d["rb"]) / 2 - 2, t, size=6.0)
-    # --- caja (vaso con brida, la cara de sello arriba)
-    zf = POT_H + POT_FLOOR
+    # --- caja: se imprime BOCA ABAJO (cara de la brida sobre la cama, lisa y plana como la de la tapa);
+    #     techo interior cónico a 45° (sin puentes) hasta una meseta Ø2·R_TOP con la válvula
     ro = d["rb"] + POT_WALL
-    pot = cyl_z(ro, 0, zf) + cyl_z(d["od"] / 2, zf - d["t_fl"], zf)
-    pot = pot - cyl_z(d["rb"], POT_FLOOR, zf + 1)
+    h_cone = d["rb"] - R_TOP                                       # 45°
+    ztop = H_CYL + h_cone + POT_FLOOR
+    pot = cyl_z(ro, 0, ztop) + cyl_z(d["od"] / 2, 0, d["t_fl"])
+    cav = cyl_z(d["rb"], -1, H_CYL) + (Pos(0, 0, H_CYL) * Cone(d["rb"], R_TOP, h_cone, align=(Align.CENTER,) * 2 + (Align.MIN,)))
+    cav = cav + cyl_z(R_TOP, H_CYL + h_cone - 0.5, H_CYL + h_cone)
+    pot = pot - cav
     for (x, y) in pts:
-        pot = pot - cyl_z(hole, zf - d["t_fl"] - 1, zf + 1, x=x, y=y)
-    pot = pot - cyl_x(VALVE_D / 2, 0, ro + 1, y=0.0, z=POT_FLOOR + (POT_H - d["t_fl"]) / 2)
+        pot = pot - cyl_z(hole, -1, d["t_fl"] + 1, x=x, y=y)
+    pot = pot - cyl_z(VALVE_D / 2, H_CYL + h_cone - 1, ztop + 1)
     fam = FAM.familia({"id": SRC})[0]
     rot = _int04(ctx).META["print_rot"]
     return [
-        (dict(id="P1.6A", name="caja_brida", desc=f"Vaso Ø{2 * ro:g} × {zf:g} con brida Ø{d['od']:g} × {d['t_fl']:g} "
-              f"(hace de chimenea), boca Ø{BOCA_D:g}, 4 × M6 en Ø{d['bc']:g}, válvula de neumático Ø{VALVE_D:g}",
+        (dict(id="P1.6A", name="caja_brida", desc=f"Vaso Ø{2 * ro:g} × {ztop:g} con brida Ø{d['od']:g} × {d['t_fl']:g} "
+              f"(hace de chimenea), boca Ø{BOCA_D:g}, 4 × M6 en Ø{d['bc']:g}, válvula de neumático Ø{VALVE_D:g} en el piso",
               test=TEST, profile=fam, qty=1, solid_frac=1.0,
-              orientation="Fondo sobre la cama, cara de la brida arriba (planchado + lijado: planitud ≤ 0,10)."),
+              orientation="Boca abajo: cara de sello de la brida sobre la cama (lisa y plana); techo cónico 45°, sin soportes."),
          pot),
         (dict(id="P1.6B", name="tapa_oring_purga", desc=f"Tapa Ø{d['od']:g} × {t:g} (= espesor de {SRC}), ranura "
               f"{dep:.2f} × {w:.2f} en r = {rm:.1f}, resalte de purga Ø{d['boss_d']:g} con tuerca M6 cautiva, 4 × M6",
@@ -120,7 +128,11 @@ def criterios(p, ctx):
     est = ctx.est.get("loads", {}).get("structural_toma", {})
     p_test = float(est.get("p_max_Pa", sz["p_pump_max_Pa"]))
     perim = 2 * math.pi * d["rm"]
+    h_c = d["rb"] - R_TOP
+    vol = math.pi * d["rb"] ** 2 * H_CYL + math.pi * h_c / 3 * (d["rb"] ** 2 + d["rb"] * R_TOP + R_TOP ** 2)   # mm³
+    energia = p_test * vol * 1e-9                                  # J (cota superior: p·V)
     return {
+        "vol_cavidad_cm3": round(vol / 1000, 0), "energia_J": round(energia, 1),
         "p_ensayo_Pa": round(p_test, 0), "p_ensayo_kPa": round(p_test / 1000, 1),
         "fuente_presion": "estructural.json loads.structural_toma.p_max_Pa = sizing loads.p_pump_max_Pa (cierre)",
         "p_ram_kPa": round(float(est.get("p_ram_Pa", 0)) / 1000, 1),
@@ -132,11 +144,14 @@ def criterios(p, ctx):
         "largo_cordon_INT04_mm": round(2 * math.pi * _int04(ctx).oring_r(p), 0),
         "planitud_max_mm": 0.10,
         "planitud_base": "[CALCULADO: ±0,15 mm de profundidad mantiene la compresión en 21–29 % (research/R05 B3)]",
-        "ensayo": "Medir ranura (profundidad y ancho) y planitud de las dos caras (regla + galgas). Cordón NBR70 con "
-                  "empalme a tope y grasa de silicona; 4 × M6 A4 con arandela ancha a mano (perillas, como INT-04); "
-                  "purga M6 × 12 con arandela de estanqueidad. Vaso lleno de agua al 90 %, válvula de neumático: "
-                  f"(1) +p con inflador con manómetro, {HOLD_MIN} min; (2) −p (vacío) con bomba de vacío manual "
-                  f"(válvula sin obús), {HOLD_MIN} min; (3) 20 ciclos abrir/cerrar tapa y purga, repetir (1).",
+        "ensayo": "Medir ranura (profundidad y ancho) y planitud de las dos caras de sello (regla + galgas). Cordón "
+                  "NBR70 con empalme a tope y grasa de silicona; 4 × M6 A4 con arandela ancha apretados a mano (perillas, "
+                  "como INT-04); purga M6 × 12 con arandela de estanqueidad. Conjunto con la tapa arriba (como en el "
+                  "bote), apoyado en dos listones (la válvula queda abajo); un dedo de agua adentro para mojar el O-ring. "
+                  f"(1) +p con inflador con manómetro, {HOLD_MIN} min, agua jabonosa por fuera; (2) −p con bomba de vacío "
+                  f"manual (válvula sin obús), {HOLD_MIN} min; (3) 20 ciclos abrir/cerrar tapa y purga, repetir (1). "
+                  f"Con aire la energía guardada es chica (cavidad {vol / 1000:.0f} cm³: p·V = {energia:.1f} J "
+                  "[CALCULADO]); igual, gafas.",
         "pasa_si": f"En (1), (2) y (3): caída ≤ {DROP_FRAC * 100:.0f} % de la presión de ensayo en {HOLD_MIN} min, "
                    "0 gotas en el O-ring y en la purga (papel tisú alrededor) y sin burbujas con agua jabonosa; sin "
                    "fisura ni blanqueo en el resalte de la purga. Si gotea: separar O-ring / purga / poros repitiendo "

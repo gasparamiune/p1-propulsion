@@ -5,14 +5,15 @@
 2. Límites: boquilla ≤ printer.hotend_max_c, cama ≤ printer.bed_max_c, boquilla = printer.nozzle_mm,
    forma de cama = zona útil printer.envelope_mm (X, Y) y alto máx. = envelope Z (inputs.yaml);
    estructural: perímetros ≥ 6; sellado: capa 0,12–0,15 y (100 % de relleno o ≥ 4 perímetros);
-   fusible: perímetros, relleno, patrón, ángulo y generador definidos.
+   cubiertas: perímetros ≥ 4 (paredes de 3,2 mm macizas); relleno base = familias.INFILL_BASE.
 3. Con `prusa-slicer` en el PATH:
    - claves conocidas por esa versión (config por defecto ∪ --help-fff);
    - genera completo/P1_<familia>_completo.ini (impresora + filamento + impresión, guardado por el propio
      PrusaSlicer: prueba de que los carga) para importar en la GUI;
-   - lamina cada probeta (04_diseno/probetas/probetas_manifest.json) y cada pieza impresa
-     (resultados/manifest.json) con su familia y ajustes por objeto (familias.py), sin y con soportes
-     automáticos; lee tiempo y gramos del G-code y verifica que el G-code repite los valores de los .ini.
+   - lamina cada probeta IMPRESA (04_diseno/probetas/probetas_manifest.json; los ensayos de taller no tienen
+     STL) y cada pieza impresa del jet (resultados/manifest.json, process = "impresa") con su familia y ajustes
+     por objeto (familias.py), sin y con soportes automáticos; lee tiempo y gramos del G-code y verifica que el
+     G-code repite los valores de los .ini.
    Resultado: prusaslicer/slice_report.json.  Sin PrusaSlicer: solo 1–2 y el informe dice [NO EJECUTADO].
 Uso: python prusaslicer/validar_perfiles.py [--sin-laminar] [--solo-probetas] [--sin-completo] [--informe RUTA]
 """
@@ -100,10 +101,8 @@ def check_limits(cfg, inp):
         errs.append("sellado: layer_height fuera de 0,12–0,15")
     if not (pct(sel["fill_density"]) >= 100 or int(sel["perimeters"]) >= 4):
         errs.append("sellado: ni 100 % de relleno ni ≥ 4 perímetros")
-    fus = cfg["fusible"]
-    for k in ("perimeters", "fill_density", "fill_pattern", "fill_angle", "perimeter_generator"):
-        if k not in fus:
-            errs.append(f"fusible: falta {k}")
+    if int(cfg["cubiertas"]["perimeters"]) < 4:
+        errs.append("cubiertas: perimeters < 4")
     for fam in FAM.PERFILES:
         if pct(cfg[fam]["fill_density"]) != FAM.INFILL_BASE[fam]:
             errs.append(f"{fam}: fill_density ≠ familias.INFILL_BASE")

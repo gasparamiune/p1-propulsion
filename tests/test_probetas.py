@@ -1,12 +1,12 @@
-"""Probetas P1.x (04_diseno/probetas/) y perfiles PrusaSlicer (prusaslicer/).
+"""Probetas y ensayos de taller del waterjet (04_diseno/probetas/) y perfiles PrusaSlicer (prusaslicer/).
 
-- Construye las probetas con build_probetas.py si sus salidas faltan o están desactualizadas respecto de
-  los módulos, params, cadlib, piezas, inputs.yaml o los JSON de resultados (o si P1_REBUILD_PROBETAS=1);
-  si no, usa las salidas existentes.
-- Verifica malla cerrada (trimesh), 1 cuerpo, apoyo en z = 0 y envolvente ≤ printer.envelope_mm de todas
-  las probetas; que estén los 8 ensayos de PENDIENTES_GASPAR §P1 y que sus cotas lean el diseño.
-- Verifica que los .ini existen, tienen formato clave = valor y las claves críticas: temperature ≤ 260,
-  bed_temperature ≤ 100, perimeters ≥ 6 en estructural, etc. (límites leídos de inputs.yaml).
+- Construye las probetas con build_probetas.py --sin-tablas si sus salidas faltan o están desactualizadas
+  respecto de los módulos, params, cadlib, piezas, inputs.yaml o los JSON de resultados (o si
+  P1_REBUILD_PROBETAS=1); si no, usa las salidas existentes.
+- Verifica malla cerrada (trimesh), 1 cuerpo, apoyo en z = 0 y envolvente ≤ printer.envelope_mm de las
+  probetas impresas; que estén los ensayos del set del waterjet (impresos y de taller) y ninguno de la cola
+  larga; que los criterios lean sizing.json / estructural.json / params.
+- Verifica que los .ini existen, tienen formato clave = valor y las claves críticas (límites de inputs.yaml).
 - Con PrusaSlicer en el PATH: carga y lamina un cubo con cada familia (si no, se saltea).
 """
 import json
@@ -24,10 +24,14 @@ ROOT = Path(__file__).resolve().parents[1]
 PRB = ROOT / "04_diseno" / "probetas"
 PS = ROOT / "prusaslicer"
 MAN = PRB / "probetas_manifest.json"
-TESTS = [f"P1.{i}" for i in range(1, 9)]
+IMPRESAS = ["P1.1", "P1.4", "P1.6", "P1.7"]
+TALLER = ["P1.9", "P1.10", "P1.11", "P1.12"]
+TESTS = IMPRESAS + TALLER
+COLA_LARGA = ["P1.2", "P1.3", "P1.5", "P1.8"]           # rodamiento en PETG, tuerca M6, flexión, patín
+FAMILIAS = ("estructural", "sellado", "cubiertas")
 INIS = {"impresora": "P1_impresora_Ender3S1.ini", "filamento": "P1_filamento_PETG.ini",
         "estructural": "P1_impresion_estructural_0.20.ini", "sellado": "P1_impresion_sellado_0.15.ini",
-        "fusible": "P1_impresion_fusible_0.20.ini", "cubiertas": "P1_impresion_cubiertas_0.20.ini"}
+        "cubiertas": "P1_impresion_cubiertas_0.20.ini"}
 
 
 def _deps():
@@ -51,7 +55,7 @@ def _stale():
 @pytest.fixture(scope="session")
 def pm():
     if os.environ.get("P1_REBUILD_PROBETAS") == "1" or _stale():
-        r = subprocess.run([sys.executable, str(PRB / "build_probetas.py")], cwd=ROOT, capture_output=True,
+        r = subprocess.run([sys.executable, str(PRB / "build_probetas.py"), "--sin-tablas"], cwd=ROOT, capture_output=True,
                            text=True, timeout=3600)
         assert r.returncode == 0, r.stdout[-4000:] + r.stderr[-4000:]
     return json.loads(MAN.read_text(encoding="utf-8"))
@@ -80,10 +84,24 @@ def ini():
 # ---------------------------------------------------------------------------
 def test_todos_los_ensayos_presentes(pm):
     assert set(TESTS) <= set(pm["tests"]), set(TESTS) - set(pm["tests"])
+    assert not set(COLA_LARGA) & set(pm["tests"]), set(COLA_LARGA) & set(pm["tests"])
     ids = {r["id"] for r in pm["probetas"]}
-    for must in ("P1.1A", "P1.1H", "P1.2", "P1.3", "P1.4", "P1.5A", "P1.5B", "P1.6A", "P1.6B", "P1.7A", "P1.8"):
+    for must in ("P1.1A", "P1.1H", "P1.4", "P1.6A", "P1.6B", "P1.7A", "P1.7B", "P1.7C"):
         assert must in ids, must
+    assert not [r["id"] for r in pm["probetas"] if r["test"] in COLA_LARGA]
+    for t in IMPRESAS:
+        assert pm["tests"][t]["tipo"] == "impresa"
+    for t in TALLER:                                              # ensayos de taller: sin CAD
+        assert pm["tests"][t]["tipo"] == "taller"
+        assert not [r for r in pm["probetas"] if r["test"] == t]
     assert not pm["fails"], pm["fails"]
+
+
+def test_sin_salidas_viejas(pm):
+    files = {f for r in pm["probetas"] for f in r["files"]}
+    for d in ("step", "stl"):
+        for f in (PRB / d).glob("*"):
+            assert str(f.relative_to(ROOT)) in files, f"salida de probeta que ya no existe: {f.name}"
 
 
 def test_manifold_envolvente_y_apoyo(pm, inp):
@@ -97,34 +115,60 @@ def test_manifold_envolvente_y_apoyo(pm, inp):
         ext = m.bounds[1] - m.bounds[0]
         assert ext[0] <= env[0] + 1e-6 and ext[1] <= env[1] + 1e-6 and ext[2] <= env[2] + 1e-6, (r["id"], ext)
         assert abs(m.bounds[0][2]) < 1e-3, (r["id"], "no apoya en z = 0")
-        assert r["profile"] in ("estructural", "sellado", "fusible", "cubiertas")
+        assert r["profile"] in FAMILIAS
 
 
 def test_cotas_de_cada_modulo_ok(pm):
     bad = [(t, c["name"]) for t, v in pm["tests"].items() for c in v["checks"] if not c["ok"]]
     assert not bad, bad
     for t in TESTS:
-        assert pm["tests"][t]["criterios"], t
+        c = pm["tests"][t]["criterios"]
+        assert c and c.get("pasa_si") and c.get("ensayo"), t
 
 
-def test_probetas_leen_el_diseno(pm):
+def test_probetas_impresas_con_perfil_de_su_pieza(pm, manifest):
+    sys.path.insert(0, str(PRB))
+    import familias as FAM
+    fam = {r["id"]: r["profile"] for r in pm["probetas"]}
+    assert fam["P1.4"] == FAM.familia({"id": "P1-ELE-01"})[0]
+    assert fam["P1.6A"] == fam["P1.6B"] == fam["P1.7A"] == FAM.familia({"id": "P1-INT-04"})[0]
+    printed = {r["id"] for r in manifest["parts"] if r["process"] == "impresa"}
+    assert set(pm["tests"]["P1.1"]["piezas"]) <= printed | {"P1-INT-01"}
+
+
+def test_criterios_leen_los_json(pm, sizing):
     import params as P
     p = P.load()
+    est = json.loads((ROOT / "resultados" / "estructural.json").read_text(encoding="utf-8"))
     T = pm["tests"]
-    c8 = T["P1.8"]["criterios"]
-    assert abs(c8["seccion_mm"][0] - round(p.skeg_neck_len, 2)) < 0.01 and c8["seccion_mm"][1] == p.skeg_t
-    assert abs(c8["brazo_ref_mm"] - round(p.skeg_neck_lever, 1)) < 0.05
-    assert c8["banda_N"] == [round(2 * p.skeg_fuse_force / 3), round(4 * p.skeg_fuse_force / 3)]
-    c2 = T["P1.2"]["criterios"]
-    assert c2["D_mm"] == p.brg_D and round(float(p.press), 3) in c2["asientos_presion_mm"]
-    c3 = T["P1.3"]["criterios"]
-    assert c3["h_mm"] == 18.0 and c3["umbral_N"] >= 3 * c3["F_perno_N"] - 1
-    d, w = T["P1.6"]["criterios"]["ranura_mm"]
+    sp = sizing["mech"]["shear_pin"]
+    c9 = T["P1.9"]["criterios"]
+    assert c9["d_pin_mm"] == sp["d_mm"] and abs(c9["T_cut_Nm"] - sp["T_cut_Nm"]) < 0.01
+    assert c9["banda"] == [0.8, 1.2]
+    assert abs(c9["T_min_Nm"] - round(0.8 * sp["T_cut_Nm"], 1)) < 0.06 and abs(c9["T_max_Nm"] - round(1.2 * sp["T_cut_Nm"], 1)) < 0.06
+    assert c9["T_min_Nm"] > c9["T_ctrl_Nm"]                         # no corta en marcha
+    c11 = T["P1.11"]["criterios"]
+    pd = est["loads"]["structural_bomba"]["loads_used"]["p_design_Pa"]
+    assert abs(c11["p_ensayo_MPa"] - round(1.5 * pd / 1e6, 3)) < 1e-6 and c11["p_ensayo_MPa"] >= 0.3   # R12 §7.2
+    c12 = T["P1.12"]["criterios"]
+    assert abs(c12["c_diseno_mm"] - round(sizing["pump"]["tip_clearance_mm"], 3)) < 1e-6
+    assert c12["c_min_mm"] == 0.30 and 0.39 <= c12["c_max_mm"] <= 0.40 + 1e-9 and c12["c_min_mm"] <= c12["c_diseno_mm"] <= c12["c_max_mm"]
+    c10 = {b["id"]: b for b in T["P1.10"]["criterios"]["bujes"]}
+    assert abs(c10["P1-PMP-07"]["d"] - p.shaft_d) < 1e-9 and abs(c10["P1-PMP-07"]["D"] - p.pmp_brg_id) < 1e-9
+    assert abs(c10["P1-PMP-11"]["d"] - p.steer_pin_d) < 1e-9
+    for b in c10.values():
+        assert b["d"] < b["D_min_mm"] <= b["D"]
+    c6 = T["P1.6"]["criterios"]
+    assert abs(c6["p_ensayo_Pa"] - round(sizing["loads"]["p_pump_max_Pa"], 0)) < 1.0
+    d, w = c6["ranura_mm"]
     assert 2.57 <= d <= 2.72 and 4.50 <= w <= 4.75                 # research/R05 B3 (Parker 4-3), cordón 3,53
+    c4 = T["P1.4"]["criterios"]
+    assert c4["F_inserto_N"] and abs(c4["umbral_N"] - round(c4["FS"] * c4["F_inserto_N"], 0)) < 1.0
     c1 = T["P1.1"]["criterios"]
-    for dn in (p.tilt_pin_d, p.shaft_d, p.tube_od):
-        assert float(dn) in c1["nominales_mm"]
+    assert float(p.CTL_kill_hole) in c1["nominales_mm"] and 6.0 in c1["nominales_mm"]
     assert float(p.clr) in c1["holguras_mm"]
+    for r in c1["ajustes_en_piezas"]:                               # cada Ø del CAD está en el peine
+        assert r["holgura_cad"] in c1["holguras_por_d_mm"][f"{r['d_nom']:g}"]
 
 
 # ---------------------------------------------------------------------------
@@ -154,12 +198,10 @@ def test_ini_existen_y_claves_criticas(ini, inp):
     sel = ini["sellado"]
     assert 0.12 <= float(sel["layer_height"]) <= 0.15
     assert float(sel["fill_density"].rstrip("%")) >= 100 or int(sel["perimeters"]) >= 4
-    fus = ini["fusible"]
-    for k in ("perimeters", "fill_density", "fill_pattern", "fill_angle", "perimeter_generator"):
-        assert k in fus, k
     cub = ini["cubiertas"]
-    assert int(cub["perimeters"]) >= 2
-    for name in ("estructural", "sellado", "fusible", "cubiertas"):                # caudal ≤ límite del filamento
+    assert int(cub["perimeters"]) >= 4
+    assert not (PS / "P1_impresion_fusible_0.20.ini").exists()      # ninguna pieza impresa del jet es fusible
+    for name in FAMILIAS:                                                          # caudal ≤ límite del filamento
         v = max(float(ini[name][k]) for k in ("perimeter_speed", "infill_speed", "solid_infill_speed"))
         assert v * float(ini[name]["infill_extrusion_width"]) * float(ini[name]["layer_height"]) \
             <= float(fil["filament_max_volumetric_speed"]), name
@@ -168,6 +210,7 @@ def test_ini_existen_y_claves_criticas(ini, inp):
 def test_familias_coinciden_con_ini(ini):
     sys.path.insert(0, str(PRB))
     import familias as FAM
+    assert tuple(FAM.PERFILES) == FAMILIAS
     for fam, fn in FAM.PERFILES.items():
         assert (PS / fn).exists(), fn
         assert float(ini[fam]["fill_density"].rstrip("%")) == FAM.INFILL_BASE[fam], fam
@@ -185,7 +228,7 @@ def test_validador_formato_y_limites(tmp_path):
 @pytest.mark.skipif(shutil.which("prusa-slicer") is None, reason="PrusaSlicer CLI no instalado")
 def test_prusaslicer_lamina_cada_familia(pm, tmp_path):
     cube = ROOT / [r for r in pm["probetas"] if r["id"] == "P1.7A"][0]["files"][1]
-    for fam in ("estructural", "sellado", "fusible", "cubiertas"):
+    for fam in FAMILIAS:
         out = tmp_path / f"{fam}.gcode"
         r = subprocess.run(["prusa-slicer", "--load", str(PS / INIS["impresora"]), "--load", str(PS / INIS["filamento"]),
                             "--load", str(PS / INIS[fam]), "--export-gcode", str(cube), "-o", str(out)],
@@ -198,7 +241,7 @@ def test_prusaslicer_lamina_cada_familia(pm, tmp_path):
         assert "; temperature = " + parse_ini(PS / INIS["filamento"])["temperature"] in tail
 
 
-def test_informe_de_laminado_si_existe():
+def test_informe_de_laminado_si_existe(manifest, pm):
     rep = PS / "slice_report.json"
     if not rep.exists():
         pytest.skip("sin slice_report.json")
@@ -208,6 +251,11 @@ def test_informe_de_laminado_si_existe():
     if lam:
         assert all(it.get("ok") for it in lam["items"]), [it["id"] for it in lam["items"] if not it.get("ok")]
         assert all(it.get("config_ok", True) for it in lam["items"])
+        printed = {r["id"] for r in manifest["parts"] if r["process"] == "impresa"}
+        piezas = {it["id"] for it in lam["items"] if it["tipo"] == "pieza"}
+        assert piezas == printed, piezas ^ printed                  # solo piezas del waterjet
+        probs = {it["id"] for it in lam["items"] if it["tipo"] == "probeta"}
+        assert probs == {r["id"] for r in pm["probetas"]}, probs ^ {r["id"] for r in pm["probetas"]}
 
 
 def test_tabla_fabricacion_regenera_bloques():
@@ -215,7 +263,12 @@ def test_tabla_fabricacion_regenera_bloques():
                        timeout=300)
     assert r.returncode == 0, r.stdout + r.stderr
     doc = (ROOT / "05_fabricacion.md").read_text(encoding="utf-8")
-    for b in ("perfiles", "orientacion", "probetas", "criterios", "ajustes", "roscas", "totales"):
+    for b in ("procesos", "perfiles", "orientacion", "roscas", "totales", "torno", "soldadura", "cnc", "anodizado",
+              "probetas", "ensayos", "ajustes"):
         m = re.search(rf"<!-- FAB:{b} -->(.*?)<!-- /FAB:{b} -->", doc, re.S)
         assert m and m.group(1).count("|") > 10, b
+    m = re.search(r"<!-- FAB:procedimientos -->(.*?)<!-- /FAB:procedimientos -->", doc, re.S)
+    assert m and all(f"**{t} " in m.group(1) for t in TESTS)
+    for viejo in ("P1-MNT-", "P1-HSG-", "P1-PRP-", "P1-STR-", "P1-SAF-"):    # nada de la cola larga
+        assert viejo not in doc, viejo
     assert "<!-- AUTO:" not in doc                                  # docgen exige bloques conocidos

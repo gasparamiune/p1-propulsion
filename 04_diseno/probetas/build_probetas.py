@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -41,7 +42,10 @@ PROFILES = tuple(FAM.PERFILES)
 
 def load_modules():
     mods = []
-    for f in sorted(HERE.glob("PRB-*.py")):
+    def key(f):                                          # orden natural: P1.1, P1.4, …, P1.9, P1.10
+        return [int(x) for x in re.findall(r"\d+", f.stem.split("_")[0])]
+
+    for f in sorted(HERE.glob("PRB-*.py"), key=key):
         spec = importlib.util.spec_from_file_location(f.stem.replace("-", "_").replace(".", "_"), f)
         m = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(m)
@@ -82,7 +86,7 @@ def main(argv=None):
     for m in load_modules():
         test = getattr(m, "TEST", m.__file_stem__)
         kind = getattr(m, "KIND", "impresa")
-        if a.only and not (a.only == test or a.only.startswith(test)):
+        if a.only and not (a.only == test or (a.only.startswith(test) and not a.only[len(test)].isdigit())):
             continue
         t0 = time.time()
         items = m.build(p, ctx)
