@@ -11,9 +11,10 @@ en X = X_steer_pivot. Geometría (marco JET, δ = 0):
     agujero Ø8,2 de la oreja de la bomba. Hueco = barrido ±(δmax+5°) de la oreja de la bomba inflada;
   - torre del yugo (X' 15–40) detrás del extremo de la oreja de la bomba, con 2 × M6 para la brida
     P1-STE-04 (que lleva el poste y el brazo del cable M66 por encima de la flotación);
-  - orejas del bucket (±Y STE_ear_y0–STE_ear_y1) con Ø12,4 para el tornillo M12 del pivote P1-REV-02 (su
-    espaciador apoya en la cara exterior) y rosca M20 de un émbolo indexador P1-REV-04 en cada una (traba
-    arriba/abajo en los dos brazos del bucket, +Y a REV_lock_ang y −Y a REV_lock_ang_m; auditoría ronda 3).
+  - orejas del bucket (±Y STE_ear_y0–STE_ear_y1, 12 mm) con Ø16 H7 escariado para el piloto del espaciador del
+    pivote P1-REV-02 (su brida apoya en la cara exterior; uno por oreja) y rosca M24×1,5 del émbolo propio
+    P1-REV-04 en cada una (traba arriba/abajo en los dos brazos del bucket, +Y a REV_lock_ang y −Y a
+    REV_lock_ang_m). Cada oreja lleva sola su pivote y su traba con M_h completo (auditoría ronda 4).
 PETG descartado: FS < 3 en orejas del bucket y pernos (ver structural_direccion.py)."""
 import math
 import os
@@ -31,7 +32,7 @@ META = dict(
     load_case="Desvío del chorro F_steer (R12: 364 N) + reacciones del bucket (R12: 1,4 kN, impacto ×2)",
     print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Torneado del cuerpo (barra Ø100 × 150) + fresado 4 ejes de orejas y torre (bloque 6061-T6 100 × 165 × 165)",
-    allow={"P1-REV-04": 5.0, "P1-STE-02": 5.0, "P1-STE-05": 5.0},   # roscas (émbolo M16, tornillos M6)
+    allow={"P1-REV-04": 5.0, "P1-STE-02": 5.0, "P1-STE-05": 5.0, "P1-REV-02": 5.0},   # roscas (émbolo M24, tornillos M6), piloto H7/h6
 )
 
 
@@ -80,12 +81,13 @@ def lock_point(p, side=1):
 def ear_outline(p, sign):
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     pts = circ(Xb, Zb, p.STE_ear_r) + [(Xb - 18, -2.0), (Xb + 18, -2.0), (Xb - 16, 40.0), (Xb + 16, 40.0)]
+    rl = p.STE_lock_lobe_r                            # lóbulo alrededor de la rosca M24 del émbolo (ligamento 8)
     if sign > 0:
         lx, lz = lock_point(p)
-        pts += circ(lx, lz, 15.0) + [(lx + 10, -2.0), (lx + 12, 30.0)]
+        pts += circ(lx, lz, rl) + [(lx + 10, -2.0), (lx + 12, 30.0)]
     elif p.REV_n_locks > 1:                           # traba −Y (otro ángulo) + apoyo de la pata del soporte del Bowden
         lx, lz = lock_point(p, -1)
-        pts += circ(lx, lz, 15.0) + circ(lx - 24.0, lz, 10.0)
+        pts += circ(lx, lz, rl) + circ(lx - 24.0, lz, 10.0)
     return hull(pts)
 
 
@@ -145,14 +147,18 @@ def build(p):
     # roscas M6 de la brida del yugo (Ø5,0 × 12) en la torre
     for (xx, yy) in p.STE_riser_bolts:                                      # M8 (Ø6,8 × 16)
         b = b - cyl_z(3.4, p.STE_riser_top - 16, p.STE_riser_top + 1, x=Xp + xx, y=yy)
-    # orejas del bucket: Ø(M12 + 0,4) pasante (el espaciador del pivote P1-REV-02 apoya en la cara exterior; tuerca adentro)
+    # orejas del bucket: Ø16 H7 escariado para el piloto del espaciador P1-REV-02 (su brida apoya en la cara exterior;
+    # tuerca adentro), UNA POR OREJA (no pasante de lado a lado: no toca la torre del yugo; auditoría ronda 4, F1)
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
-    b = b - cyl_y(p.REV_bolt_d / 2 + 0.2, -p.STE_ear_y1 - 1, p.STE_ear_y1 + 1, x=Xb, z=Zb)
+    rp = p.REV_sp_pilot_d / 2
+    b = b - cyl_y(rp, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=Xb, z=Zb)
+    b = b - cyl_y(rp, -p.STE_ear_y1 - 1, -p.STE_ear_y0 + 1, x=Xb, z=Zb)
+    rt = p.REV_lock_thread_d / 2
     lx, lz = lock_point(p)
-    b = b - cyl_y(10.0, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=lx, z=lz)              # M20 del émbolo (+Y)
+    b = b - cyl_y(rt, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=lx, z=lz)                # M24×1,5 del émbolo (+Y)
     if p.REV_n_locks > 1:
         lx2, lz2 = lock_point(p, -1)
-        b = b - cyl_y(10.0, -p.STE_ear_y1 - 1, -p.STE_ear_y0 + 1, x=lx2, z=lz2)      # M20 del 2.º émbolo (−Y)
+        b = b - cyl_y(rt, -p.STE_ear_y1 - 1, -p.STE_ear_y0 + 1, x=lx2, z=lz2)        # M24×1,5 del 2.º émbolo (−Y)
     b = b - bore_cut(p)
     return b
 

@@ -45,14 +45,17 @@ def draw(p, H):
                   (round(16.0 - xt, 2), round(2 * p.STE_ro_front, 2), "tramo en la rótula"),
                   (6.0, round(2 * ro, 2), "cono"), (round(p.L_steer - 22.0, 2), round(2 * ro, 2), "cuerpo")],
                  feats=[(0.0, "cara = eje de giro (X_steer_pivot)"), (p.STE_bell_L, f"fin abocinado → Ø{2*rb:.2f}"),
-                        (Xb, f"eje del bucket Z={p.Z_bucket_pivot:.2f}, Ø{p.REV_bolt_d + 0.4:g} pasante ±Y (M12 del pivote)"),
+                        (Xb, f"eje del bucket Z={p.Z_bucket_pivot:.2f}, Ø{p.REV_sp_pilot_d:g} H7 escariado en CADA oreja (piloto del espaciador P1-REV-02)"),
                         (p.STE_riser_x[0], f"torre del yugo X' {p.STE_riser_x[0]:g}–{p.STE_riser_x[1]:g}, 4×M8×16")],
                  notes=[f"Paso interior: boca Ø{2*rf:.1f} en la cara, arco tangente a Ø{2*rb:.2f} H11 en {p.STE_bell_L:g} mm; recto hasta la salida",
                         f"Exterior: SR{Rs:g}, Ø{2*p.STE_ro_front:g} hasta X' 16, cono a Ø{2*ro:g} en X' 22; mejilla superior Z {p.STE_cheek_z0:.2f}–{p.STE_riser_top:.2f} con Ø8 H7",
                         f"Orejas de pivote ±Z: cara a |Z| = {p.STE_ear_top:.2f} (−0,1/0), R{p.STE_ear_rp:g} alrededor del eje de giro; M6×{p.STE_m6_depth:g} en el eje",
-                        f"Orejas del bucket |Y| {p.STE_ear_y0:g}–{p.STE_ear_y1:g}; +Y: M20×1,5 del émbolo en X'={lx:.1f}, Z={lz:.1f}" + (
-                            f"; −Y: M20×1,5 del 2.º émbolo en X'={lx2:.1f}, Z={lz2:.1f}" if p.REV_n_locks > 1 else "") +
-                        f"; cara exterior plana Ra 1,6 en Ø{p.REV_pin_d + 4:g} alrededor del pivote (apoyo del espaciador P1-REV-02)",
+                        f"Orejas del bucket |Y| {p.STE_ear_y0:g}–{p.STE_ear_y1:g} ({p.STE_ear_t:g} mm), R{p.STE_ear_r:g} alrededor del pivote; "
+                        f"+Y: M{p.REV_lock_thread_d:g}×1,5-6H del émbolo en X'={lx:.1f}, Z={lz:.1f}" + (
+                            f"; −Y: M{p.REV_lock_thread_d:g}×1,5-6H del 2.º émbolo en X'={lx2:.1f}, Z={lz2:.1f}" if p.REV_n_locks > 1 else "") +
+                        f"; lóbulo R{p.STE_lock_lobe_r:g} alrededor de cada rosca",
+                        f"Ø{p.REV_sp_pilot_d:g} H7 y roscas M{p.REV_lock_thread_d:g}×1,5 con plantilla referida al pivote (posición ±0,1); cara exterior plana "
+                        f"Ra 1,6 en Ø{p.REV_sp_fl_d + 4:g} alrededor del pivote (apoyo de la brida del espaciador), ANODIZADA (no enmascarar: aísla del 316)",
                         f"Radio R{_mod('P1-STE-01_boquilla').EAR_LIP_R:g} donde el frente de cada oreja de pivote toca la cara del labio de entrada (|Y| = {p.STE_ear_rp:g}; F-03)",
                         f"Hueco de las orejas de la bomba (|Z| {p.Z_steer_lug:.2f}–{p.Z_steer_lug + p.STE_lug_t:.2f}): fresar el barrido ±{p.STE_sweep:g}° (STEP)",
                         "Cotas 3D completas en step/P1-STE-01_boquilla.step (marco JET, δ = 0)"]))
@@ -118,8 +121,8 @@ def draw(p, H):
         lk_up = rot_xz(lk, P0, p.bucket_down_deg)
         pts = circ(*P0, p.REV_boss_r) + cup_o + circ(*lk, rl) + circ(*lk_up, rl)
         holes = [(P0[0], P0[1], p.REV_bush_od, "buje POM (H7)"),
-                 (lk[0], lk[1], p.REV_lock_hole_d, f"traba ABAJO ({mb.RL.lock_ang(p, side):g}°, r {p.REV_lock_r:g}) — taladrar en conjunto"),
-                 (lk_up[0], lk_up[1], p.REV_lock_hole_d, "traba ARRIBA — taladrar en conjunto")]
+                 (lk[0], lk[1], p.REV_lock_hole_d, f"traba ABAJO ({mb.RL.lock_ang(p, side):g}°, r {p.REV_lock_r:g}) — con plantilla"),
+                 (lk_up[0], lk_up[1], p.REV_lock_hole_d, "traba ARRIBA — con plantilla")]
         if side > 0:
             pts += circ(*sd, 12.0)
             holes.append((sd[0], sd[1], 5.0, "M6 (con buje soldado Ø16 × 4)"))
@@ -129,19 +132,43 @@ def draw(p, H):
                              "traba, el de la traba ABAJO unido al labio superior de la cuchara (sin muesca: FEA ronda 3)",
                              f"Chapa {p.REV_t:g} mm; aro de refuerzo Ø{2 * p.REV_boss_r:g} × {p.REV_ring_t:g} soldado en la cara exterior del pivote "
                              f"(buje POM Ø{p.REV_bush_od:g} H7 × {p.REV_bush_L:g} pasante brazo + aro)",
-                             "Agujeros de traba Ø12,5 H8: TALADRAR Y ESCARIAR DESPUÉS DE SOLDAR, montado en la boquilla (05 §bucket): "
-                             f"desfase entre trabas ≤ {p.REV_lock_mismatch:g} mm medido en el agujero (06, prueba con comparador)"]))
+                             f"Agujeros de traba Ø{p.REV_lock_hole_d:g} (+0,1/0) DESPUÉS DE SOLDAR, con plantilla centrada en el agujero del buje "
+                             f"Ø{p.REV_bush_od:g} H7 (05 §bucket), posición ±0,2: cada traba sola lleva todo M_h, no hay reparto que ajustar"]))
     m2 = _mod('P1-REV-02_perno_bucket')
-    out.append(T("P1-REV-02", "espaciador_pivote_bucket", "AISI 316 (1.4401) barra Ø25",
-                 [(round(m2.shoulder_L(p), 2), p.REV_pin_d, f"Ø{p.REV_pin_d:g} h7, Ra 0,8 (gira el buje POM)")],
-                 feats=[(0.0, "cara de apoyo en la oreja: plana, a escuadra ≤ 0,02")],
+    out.append(T("P1-REV-02", "espaciador_pivote_bucket", "AISI 316 (1.4401) barra Ø40",
+                 [(round(m2.pilot_L(p), 2), p.REV_sp_pilot_d, f"piloto Ø{p.REV_sp_pilot_d:g} h6 (entra en la oreja)"),
+                  (p.REV_sp_fl_t, p.REV_sp_fl_d, f"brida Ø{p.REV_sp_fl_d:g}"),
+                  (round(m2.shoulder_L(p) - p.REV_sp_fl_t, 2), p.REV_pin_d, f"muñón Ø{p.REV_pin_d:g} h7, Ra 0,8 (gira el buje POM)")],
+                 feats=[(round(m2.pilot_L(p), 2), "cara de apoyo de la brida: plana, a escuadra ≤ 0,02 con el piloto")],
                  notes=[f"Agujero Ø12,5 pasante (tornillo ISO 4017 M12 × {m2.bolt_len_iso(p):g} A4-80); ×2",
-                        f"Montaje: arandela ISO 7089 M12 bajo la cabeza, espaciador, oreja, arandela y tuerca DIN 985 M12 A4 por dentro; "
-                        f"par ≈ {0.2 * p.REV_bolt_pre_N * p.REV_bolt_d / 1000:.0f} N·m (precarga {p.REV_bolt_pre_N / 1000:.0f} kN, K 0,2) con Tef-Gel",
+                        "Montaje: Tef-Gel en piloto, cara de la brida y rosca; arandela ISO 7089 M12 bajo la cabeza,",
+                        "  espaciador, oreja, arandela y tuerca DIN 985 M12 A4 por dentro",
+                        f"Par {p.REV_bolt_T_Nm:g} N·m → precarga {p.REV_bolt_pre_N / 1000:.0f}–{p.REV_bolt_pre_max_N / 1000:.0f} kN "
+                        f"(K {p.REV_bolt_K[0]:g}–{p.REV_bolt_K[1]:g} [ESTIMADO])",
+                        f"El piloto ({m2.pilot_L(p):.1f} mm) es 0,5 más corto que la oreja: aprieta la brida, no el piloto",
                         "Juego axial del bucket 0,3 mm contra la arandela de la cabeza (verificar a mano: gira libre)"]))
     out.append(T("P1-REV-03", "buje_bucket", "POM-C",
-                 [(p.REV_bush_fl_t, p.REV_bush_fl_d, "brida"), (p.REV_bush_L, p.REV_bush_od, f"Ø{p.REV_pin_d + 0.1:g} H9 interior")],
-                 notes=[f"Prensado en el brazo + aro (Ø{p.REV_bush_od:g} H7)", "×2"]))
+                 [(p.REV_bush_fl_t, p.REV_bush_fl_d, "brida"), (p.REV_bush_L, p.REV_bush_od, f"Ø{p.REV_pin_d + 0.1:g} interior, escariado tras prensar")],
+                 notes=[f"Exterior Ø{p.REV_bush_od:g} con 0,05–0,10 de interferencia en el agujero Ø{p.REV_bush_od:g} H7 del brazo + aro",
+                        f"Prensar y DESPUÉS escariar Ø{p.REV_pin_d + 0.1:g} (+0,05/0): el prensado cierra el juego (R4-08)", "×2"]))
+    # ---------------- émbolo de traba propio P1-REV-04 (cuerpo + tapa + perno; resorte comprado)
+    tip = RL.pin_tip_y(p) - (p.STE_ear_y1 - RL.PLG_GUIDE)                      # largo del Ø16
+    tail = RL.PLG_SPRING_L1 + RL.PLG_CAP_T + p.REV_plunger_stroke + RL.PLG_KNOB_L
+    out.append(T("P1-REV-04", "embolo_cuerpo", "AISI 316 (1.4401) barra Ø25",
+                 [(p.STE_ear_t, p.REV_lock_thread_d, f"M{p.REV_lock_thread_d:g}×1,5-6g (en la oreja; punta enrasada a la cara exterior)"),
+                  (round(RL.PLG_GUIDE + RL.PLG_SPRING_L1 - p.STE_ear_t, 2), RL.PLG_BODY_D, f"cuerpo Ø{RL.PLG_BODY_D:g} (M{p.REV_lock_thread_d:g}×1,5 hasta la contratuerca)"),
+                  (RL.PLG_CAP_T, RL.PLG_BODY_D, "tapa roscada M20×1 con Ø10,2 (cola del perno)")],
+                 feats=[(0.0, "punta: cara exterior de la oreja"), (RL.PLG_GUIDE, "fin de la guía / inicio de la cámara del resorte")],
+                 notes=[f"Interior Ø{p.REV_lock_pin_d:g} H8 pasante (guía del perno, Ra 0,8); rosca interior M20×1 × 6 atrás para la tapa; ×2",
+                        f"Contratuerca M{p.REV_lock_thread_d:g}×1,5 A4 fina ({RL.PLG_NUT_T:g} mm) contra la cara interior de la oreja; Tef-Gel en la rosca",
+                        "Resorte de compresión inox (B-SPRING): alambre 1,6, Ø ext 15, largo libre ≈ 40,",
+                        "  instalado 30 (≈ 20 N), con el perno afuera 18 (≈ 44 N) [ESTIMADO]"]))
+    out.append(T("P1-REV-04", "embolo_perno", "AISI 316 (1.4401) barra Ø18",
+                 [(round(tip, 2), p.REV_lock_pin_d, f"Ø{p.REV_lock_pin_d:g} h9, Ra 0,8; chaflán 1 × 45° en la punta"),
+                  (round(tail, 2), 10.0, "cola Ø10 (resorte); M6 × 10 en el extremo para el pomo")],
+                 feats=[(round(tip, 2), "escalón = asiento del resorte")],
+                 notes=[f"Largo del Ø{p.REV_lock_pin_d:g}: guía {RL.PLG_GUIDE:g} + luz oreja–brazo {p.REV_y_in - p.STE_ear_y1:g} + brazo {p.REV_t:g} + 1 de sobresalida",
+                        f"Carrera {p.REV_plunger_stroke:g} mm (liberar pide {RL.need(p):g}); pomo Ø25 × 10 (POM) con ojal para el terminal del Bowden; ×2"]))
     out.append(PL("P1-REV-05", "soporte_mach5", "Al 5083-H111", 95.0 - 25.0, 248.0 - 124.0, 6.0,
                   [(54.0, 14.0 + 6.0, 12.8, "grapa inferior (bloque soldado)"), (54.0, 110.0 + 6.0, 12.8, "grapa superior")],
                   notes=["Placa lateral; alma transversal 6 mm en X' 25–31 y base 27 × 28 con 4 × Ø9 (STEP)"]))

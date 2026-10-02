@@ -3,7 +3,7 @@
 Apoya sobre la torre de la boquilla (detrás del extremo de la oreja de la bomba) y lleva el par de
 dirección del poste (P1-STE-06) al cuerpo con 4 × M8 A4 (Tef-Gel). 20 mm: el momento del poste
 entra en la brida como torsión (ver structural_direccion). Cruza el plano de los brazos del bucket por delante del cuerno (X' 6–30, fuera de su barrido) y
-termina en el poste a (X', Y) = (STE_post_x, STE_post_y), fuera del barrido del bucket (|Y| > 63,8)."""
+termina en el poste a (X', Y) = (STE_post_x, STE_post_y), por fuera del aro de refuerzo del pivote del bucket."""
 import os
 import sys
 
@@ -69,5 +69,5 @@ def checks(p, part):
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("luz al espejo (−x_bote máx. en ±δmax) [mm]", -max(xs), 5.0, ">="),
             ("banda ↔ aro/cabeza del pivote del bucket (distancia en el plano X'–z) [mm]", d_band, 3.0, ">="),
-            ("extremo de la brida fuera del brazo del bucket (|Y|) [mm]",
-             abs(p.STE_post_y) - 22 - (p.REV_y_in + p.REV_t), 2.0, ">=")]
+            ("extremo de la brida fuera del aro de refuerzo del pivote del bucket (|Y|) [mm]",
+             abs(p.STE_post_y) - 22 - (p.REV_y_in + p.REV_t + p.REV_ring_t), 2.0, ">=")]

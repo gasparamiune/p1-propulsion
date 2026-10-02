@@ -30,8 +30,25 @@ def mirror_loc(p):
     return Pos(x2, 0, z2) * Rot(180, 0, 0) * Pos(-x1, 0, -z1)
 
 
+# Émbolo propio P1-REV-04 (ronda 4), medidas a lo largo de su eje desde la cara EXTERIOR de la oreja hacia adentro:
+# guía del perno Ø16 (18), cámara del resorte (largo instalado 30: alambre 1,6, Ø ext 15, ~8 espiras útiles, compacto
+# ≈ 16 → con la carrera de 12 queda en 18 > 16), tapa (4) y pomo (10) apoyado en la tapa en reposo [CALCULADO/ESTIMADO:
+# P1-REV-04]. El GN 617-10 de catálogo mide 80 mm (rosca 33 + cuerpo y pomo 47): el émbolo real NO es corto.
+PLG_GUIDE = 18.0
+PLG_SPRING_L1 = 30.0
+PLG_CAP_T = 4.0
+PLG_KNOB_L = 10.0
+PLG_BODY_D = 24.0
+PLG_NUT_T = 12.0              # contratuerca M24×1,5 fina [ESTIMADO: DIN 439 / ISO 8675 M24×1,5, m = 12]
+
+
+def body_end_y(p):
+    """Cara trasera de la tapa del cuerpo del émbolo (lado +Y; el −Y es el espejo)."""
+    return p.STE_ear_y1 - (PLG_GUIDE + PLG_SPRING_L1 + PLG_CAP_T)
+
+
 def knob_end_y(p):
-    return p.STE_ear_y0 - 24.0          # cara del pomo (P1-REV-04)
+    return body_end_y(p) - PLG_KNOB_L          # cara del pomo en reposo (perno adentro); al tirar se corre −carrera
 
 
 def plate_y(p):

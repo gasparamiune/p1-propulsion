@@ -13,9 +13,10 @@ Concepto (ver docstrings de cada pieza):
     86 mm a babor del eje → brazo superior con rótula a Z ≈ 257 (por ENCIMA de la flotación
     estática y del barrido del bucket). Cable Ultraflex M66 (R11 §7) con biela de 60 mm.
   - Bucket: cable Ultraflex Mach5 anclado EN la boquilla (bucle libre: sin acople con la dirección).
-  - Bucket de Al 5083 4 mm con traba por émbolo indexador en ARRIBA y en ABAJO (la carga del
-    chorro no pasa por el cable Mach5); el émbolo se libera con el gatillo de la palanca del bucket.
-"""
+  - Bucket de Al 5083 8 mm con DOS trabas (un émbolo propio por brazo, ARRIBA y ABAJO; la carga del
+    chorro no pasa por el cable Mach5). Cada traba sola lleva todo el momento del bucket con la reversa
+    R12 (auditoría ronda 4: con juego en los agujeros no hay reparto garantizado); los dos émbolos se
+    liberan con el gatillo de la palanca del bucket."""
 from __future__ import annotations
 
 import math
@@ -83,57 +84,82 @@ def extend(d):
     d["STE_m6_depth"] = 8.0
     # yugo de dirección
     d["STE_yoke_t"] = 20.0             # brida del yugo sobre la torre (Al 5083 20 mm) [CALCULADO: torsión del poste, structural_direccion]
-    # poste: Y_jet (babor del bote) fuera de la cabeza del perno del bucket; X' crece con |Y| para que el
-    # poste no avance hacia la placa de espejo con δ = −δmax [CALCULADO]
-    _yin = max(48.0, math.ceil(d["STE_ro"] + 0.5)) + 1.5
-    d["STE_post_y"] = -round(_yin + 2 * 4.0 + 0.3 + 6.0 + 22.0 + 0.5, 1)
-    d["STE_post_x"] = round(33.0 + (abs(d["STE_post_y"]) - 86.0) * math.tan(math.radians(smax)), 1)
     d["STE_post_d"] = 22.0             # [CALCULADO: ver structural_direccion]
     d["STE_post_z1"] = 245.0           # cara superior del brazo [CALCULADO: rótula a Z ≈ 257 → z_bote ≈ 345 > flotación 273]
     d["STE_arm_t"] = 10.0
-    d["STE_stud_x"] = d["STE_post_x"] + 33.0   # rótula del brazo superior [CALCULADO: luz de la barra al espejo]
     d["STE_stud_hole"] = 8.4           # rótula angular M8 (DIN 71802) [ESTIMADO: buscar "Winkelgelenk DIN 71802 M8 A4"]
     d["STE_ball_h"] = 12.0             # centro de bola sobre la cara del brazo [ESTIMADO: DIN 71802 M8]
     d["STE_link_L"] = 60.0             # biela cable M66 → brazo [CALCULADO: recorrido simétrico ±29,6 mm]
     d["STE_stop_deg"] = smax + 1.5     # topes mecánicos de dirección (P1-STE-08) [SUPUESTO: 1,5° sobre δmax]
     d["STE_stop_z"] = (222.0, 230.0)   # placa de topes, entre el bucket arriba y el brazo del yugo [CALCULADO]
-    d["REV_plunger_stroke"] = 10.0     # [ESTIMADO: carrera del émbolo GN 617-12; buscar ficha]
+    # Émbolo de la traba (P1-REV-04, auditoría ronda 4): PROPIO, torneado en 316. El de catálogo que se suponía
+    # ("GN 617-12 M20 A4") no existe: el GN 617 inox con rosca M20×1,5 trae perno Ø10 de AISI 303, carrera 10 mm y
+    # resorte 17–40 N [VERIFICADO: catálogo Elesa/Ganter GN 617, pág. 809, GN 617-10-AKN-NI] y con una traba sola
+    # (3 kN a R12) su perno no llega a FS 2. Perno Ø16 316 h9, cuerpo con rosca M24×1,5 en la oreja, resorte inox
+    # comprado (precarga ≈ 20 N, final ≈ 45 N, como el GN 617-10) [CALCULADO: structural_direccion, P1-REV-04].
+    d["REV_plunger_stroke"] = 12.0     # carrera del perno (diseño propio) [CALCULADO: ≥ REV_release_need + 2]
+    d["REV_lock_thread_d"] = 24.0      # rosca M24×1,5 del cuerpo del émbolo en la oreja [CALCULADO: pared del cuerpo sobre el perno Ø16]
     d["STE_e_frac"] = 0.5              # [ESTIMADO: research/R12 §7.4 — brazo del momento 0,3–0,5 L]
     d["STE_F_design"] = max(loads["F_steer_side_N"], 364.0)   # [CALCULADO: research/R12 §7.4 — 364 N (7,2 kW, δ 30°); se toma el mayor con sizing]
     # orejas del bucket sobre la boquilla
     d["STE_ear_y1"] = max(48.0, math.ceil(d["STE_ro"] + 0.5))   # oreja del bucket por fuera del cuerpo
-    d["STE_ear_y0"] = d["STE_ear_y1"] - 8.0
-    # radio de la oreja del bucket alrededor del pivote: el espaciador del pivote (P1-REV-02) le pasa la reacción y su
-    # momento en voladizo; con r 12 el FEA ponía el máximo en ese borde (ronda 3) [CALCULADO: FEA STE-01 casos c/c2]
-    d["STE_ear_r"] = 15.0
+    # Oreja del bucket (auditoría ronda 4): cada oreja lleva SOLA la reacción de su pivote y de su traba con M_h completo
+    # (3,3 + 3,0 kN a R12). 12 mm de espesor (hacia adentro: la cara exterior y el bucket no se mueven en Y por esto),
+    # radio 22 alrededor del pivote (piloto Ø16 H7 del espaciador + brida Ø36) y lóbulo r 20 alrededor de la rosca M24
+    # del émbolo (ligamento 8 mm) [CALCULADO: structural_direccion + FEA STE-01].
+    d["STE_ear_t"] = 12.0
+    d["STE_ear_y0"] = d["STE_ear_y1"] - d["STE_ear_t"]
+    d["STE_ear_r"] = 22.0
+    d["STE_lock_lobe_r"] = d["REV_lock_thread_d"] / 2 + 8.0
 
     # ------------------------------------------------------------------ bucket (REV)
     d["bucket_down_deg"] = 70.0        # [SUPUESTO: pedido del brief, default 70°] (lo lee params.loc_bucket)
-    # Auditoría ronda 3 (FEA, resultados_fea.json): con traba solo en el brazo +Y todo M_h pasaba por la cuchara
-    # abierta en torsión (FS 0,44). Variante V2 del FEA: traba en LOS DOS brazos + chapa de 6 mm → FS 2,34.
-    d["REV_t"] = 6.0                   # Al 5083 6 mm [CALCULADO: FEA V2 (resultados_fea.json), FS ≥ 2]
-    d["REV_n_locks"] = 2               # émbolos P1-REV-04, uno por brazo (±Y), liberados juntos por 2 Bowden
+    # Criterio de la traba (auditoría ronda 4): los agujeros de traba tienen juego y el desfase entre las dos trabas no
+    # se puede garantizar en el taller (rosca del cuerpo, juego del perno, espaciador): con la reversa de servicio una
+    # sola traba lleva todo M_h (FEA ronda 3: la segunda apoya recién con ≈ 1,4 kN en la primera). Por eso CADA traba
+    # sola lleva M_h completo con la reversa R12 (FS ≥ 2); la segunda es redundancia, no reparto. Chapa de 8 mm: la
+    # cuchara abierta a torsión con un solo brazo trabado (fila a mano) y el brazo trabado (FEA) lo piden.
+    d["REV_t"] = 8.0                   # Al 5083 8 mm [CALCULADO: structural_direccion (cuchara a torsión, 1 traba, R12) + FEA P1-REV-01]
+    d["REV_n_locks"] = 2               # émbolos P1-REV-04, uno por brazo (±Y): redundancia (cada uno solo lleva M_h)
     d["REV_release_need"] = d["REV_t"] + 1.5   # recorrido del pomo para liberar el brazo (perno +1 sobre la cara + 0,5 de luz) [CALCULADO]
-    d["REV_y_in"] = d["STE_ear_y1"] + 1.5   # cara interior de los brazos (luz 1,5 a la oreja; arandela POM 1 mm)
+    # Pivote: espaciador 316 con brida Ø36 × 3 apoyada en la cara exterior de la oreja y piloto Ø16 h6 ajustado en el
+    # agujero Ø16 H7 de la oreja (no desliza: ronda 4, R4-03); el brazo gira a 1,5 mm de la brida (arandela del buje 1 mm)
+    d["REV_sp_fl_d"] = 36.0
+    d["REV_sp_fl_t"] = 3.0
+    d["REV_sp_pilot_d"] = 16.0
+    d["REV_y_in"] = d["STE_ear_y1"] + d["REV_sp_fl_t"] + 1.5   # cara interior de los brazos
     d["REV_cup_dx"] = 12.0             # centro de la cuchara a 12 mm de la salida [SUPUESTO]
     d["REV_cup_ax"] = 50.0             # semiejes de la cuchara (abajo): X 50, Z 56 [SUPUESTO: cubre r_chorro + cono]
     rjc = r_jet + 62.0 * math.tan(math.radians(5.0))      # chorro con cono en el fondo de la cuchara
     d["REV_cup_az"] = round(max(54.0, rjc + 7.0, (d["STE_ro"] + 4.0) / math.sin(math.radians(75.0)) + 0.5), 1)   # [CALCULADO]
     d["REV_cup_t0"] = 85.0             # arco de la cuchara (ángulo paramétrico, °): labio superior
     d["REV_cup_t1"] = -105.0           # labio inferior: el agua sale hacia proa y abajo
-    # Pivote del bucket (auditoría ronda 3): la reacción de la traba (tangencial, M_h/r ≈ 2·F_b) se suma al chorro en
-    # el pivote del brazo trabado → ~1,6–2,3 kN por pivote con R12 (no F_b/2 = 0,7 kN). Pivote = buje-espaciador 316
-    # Ø18 (P1-REV-02) apretado contra la cara exterior de la oreja por un tornillo M12 A4-80 con tuerca autoblocante
-    # por dentro; el bucket gira sobre el espaciador con un buje POM-C (P1-REV-03) de brazo + aro de refuerzo.
-    d["REV_pin_d"] = 18.0              # Ø exterior del buje-espaciador 316 (h7) [CALCULADO: structural_direccion]
+    # Pivote del bucket: la reacción de la traba (tangencial, M_h/r) se suma al chorro en el pivote del brazo trabado:
+    # 3,3 kN con R12 y una traba sola (structural_direccion, jet_momentum). Pivote = espaciador 316 (P1-REV-02: muñón
+    # Ø20 h7, brida Ø36, piloto Ø16 h6) apretado contra la oreja por un tornillo M12 A4-80 con tuerca autoblocante por
+    # dentro; el bucket gira sobre el muñón con un buje POM-C (P1-REV-03) de brazo + aro de refuerzo (18 mm).
+    d["REV_pin_d"] = 20.0              # Ø del muñón del espaciador 316 (h7) [CALCULADO: structural_direccion]
     d["REV_bolt_d"] = 12.0             # tornillo ISO 4017 M12 A4-80 [CALCULADO: structural_direccion]
-    d["REV_bolt_pre_N"] = 10000.0      # precarga del M12 (par ≈ 0,2·F·d ≈ 24 N·m) [ESTIMADO: K = 0,2]
-    d["REV_ring_t"] = 8.0              # aro de refuerzo soldado en la cara exterior de cada brazo [CALCULADO: presión en el buje]
+    # par de apriete con Tef-Gel y su dispersión (método del par): F = T/(K·d) con K 0,12–0,22 [ESTIMADO: K típico de
+    # inox lubricado 0,12–0,22; VDI 2230 da la dispersión del método del par]. La mínima no deja abrir la unión con
+    # R12 (fila de structural_direccion); la máxima limita la presión en la oreja y la tensión del tornillo.
+    d["REV_bolt_T_Nm"] = 45.0
+    d["REV_bolt_K"] = (0.12, 0.22)
+    d["REV_bolt_pre_N"] = d["REV_bolt_T_Nm"] * 1000 / (d["REV_bolt_K"][1] * d["REV_bolt_d"])   # precarga MÍNIMA [CALCULADO]
+    d["REV_bolt_pre_max_N"] = d["REV_bolt_T_Nm"] * 1000 / (d["REV_bolt_K"][0] * d["REV_bolt_d"])
+    d["REV_ring_t"] = 10.0             # aro de refuerzo soldado en la cara exterior de cada brazo [CALCULADO: presión en el buje POM]
     d["REV_bush_od"] = d["REV_pin_d"] + 4.0
     d["REV_bush_fl_d"] = d["REV_bush_od"] + 6.0
     d["REV_bush_fl_t"] = 1.0
     d["REV_bush_L"] = d["REV_t"] + d["REV_ring_t"]   # brazo + aro de refuerzo
-    d["REV_boss_r"] = d["REV_bush_od"] / 2 + 6.0     # ligamento 6 mm alrededor del buje [SUPUESTO]
+    d["REV_boss_r"] = d["REV_bush_od"] / 2 + 8.0     # ligamento 8 mm alrededor del buje [SUPUESTO]
+    # poste del yugo: Y_jet (babor del bote) por fuera del aro de refuerzo del pivote del bucket (la brida del yugo
+    # termina en el poste a |Y| = |STE_post_y| − 22 y tiene que librar el aro: auditoría ronda 4, el aro creció con el
+    # buje de 18 mm); X' crece con |Y| para que el poste no avance hacia la placa de espejo con δ = −δmax [CALCULADO]
+    _yout = d["REV_y_in"] + d["REV_t"] + d["REV_ring_t"]
+    d["STE_post_y"] = -round(_yout + 2.0 + 22.0 + 0.5, 1)
+    d["STE_post_x"] = round(33.0 + (abs(d["STE_post_y"]) - 86.0) * math.tan(math.radians(smax)), 1)
+    d["STE_stud_x"] = d["STE_post_x"] + 33.0   # rótula del brazo superior [CALCULADO: luz de la barra al espejo]
     d["REV_head_d"] = 24.0             # arandela ISO 7089 M12 (Ø24 × 2,5) bajo la cabeza hexagonal (18 e/c × 7,5)
     d["REV_head_t"] = 10.0             # arandela 2,5 + cabeza 7,5
     # biela del Mach5: perno en el brazo +Y a REV_stud_r del pivote, a +35° (arriba) y −35° (abajo):
@@ -145,39 +171,24 @@ def extend(d):
     d["REV_eye_off"] = 4.0             # buje soldado (Ø16 × 4, M6) entre el brazo y la rótula (la vaina libra el brazo)
     d["REV_eye_w"] = 8.0               # ojo de la varilla (rótula hembra M6) [ESTIMADO: DIN ISO 12240-4 M6; buscar]
     d["REV_sleeve_z0"] = 130.0         # fin de la vaina rígida del Mach5 (sale la varilla) [CALCULADO]
-    d["REV_lock_r"] = 45.0             # émbolo indexador a 45 mm del pivote [CALCULADO: FS ≥ 2 del perno Ø12]
-    # lóbulo del brazo alrededor de cada agujero de traba: r 16 (ligamento 9,75 mm al agujero Ø12,5) y el lóbulo de la
+    d["REV_lock_r"] = 45.0             # émbolo a 45 mm del pivote [CALCULADO: FS ≥ 2 del perno Ø16 con M_h completo]
+    # lóbulo del brazo alrededor de cada agujero de traba: r 18 (ligamento 9,75 mm al agujero Ø16,5) y el lóbulo de la
     # traba ABAJO (la que toma el chorro en reversa) se une al labio superior de la cuchara (contorno convexo): con r 12 y
     # sin unir, la muesca entre el lóbulo y el borde del brazo concentraba la tensión (FEA ronda 3) [CALCULADO: FEA]
-    d["REV_lock_lobe_r"] = 16.0
+    d["REV_lock_lobe_r"] = 18.0
     d["REV_lock_ang"] = 10.0           # ° (marco de la boquilla) [CALCULADO: arriba-popa del pivote, libra la varilla del Mach5]
     # traba del brazo −Y en OTRO ángulo (mismo radio): los dos émbolos quedan enfrentados sobre la boquilla y,
     # coaxiales, sus pomos y Bowden no entran entre las orejas (32 mm); desfasados (check de P1-REV-04) pasan uno al lado
     # del otro (ronda 3) [CALCULADO: checks de P1-REV-04/09 y verify]
     d["REV_lock_ang_m"] = -25.0        # [CALCULADO: barrido 35…50° choca con la brida del yugo P1-STE-04 arriba; −20…−25° libre]
-    # Desfase entre las dos trabas: cuánto avanza el brazo, medido en el agujero (r = REV_lock_r), entre que apoya un
-    # perno y apoya el otro. Con agujeros perfectos cada traba toma M_h/2; con desfase δ una toma más hasta cerrarlo (la
-    # cuchara abierta gira: FEA ronda 3, casos b/c). Tolerancia de fabricación: agujeros del brazo −Y taladrados y
-    # escariados a través de la rosca M20 de su oreja con el bucket trabado y apoyado del lado +Y; se mide con
-    # comparador en el labio de la cuchara (06, prueba de desfase) [SUPUESTO: tolerancia; pasa/no pasa en 06]
-    d["REV_lock_mismatch"] = 0.10
-    # Fracción máxima de M_h en UNA traba con ese desfase: la usa el cálculo a mano del pivote (P1-REV-02/03) y la
-    # oreja (P1-STE-01); el FEA (04_diseno/fea, P1-REV-01 casos b/c) la recalcula en cada corrida y tests/test_fea.py
-    # exige que no la supere [CALCULADO: FEA ronda 3 con δ = 0,10 mm: 0,72–0,76 según la malla (la gruesa, más rígida,
-    # da más); cota 0,78]
-    d["REV_lock_share_max"] = 0.78
-    # prueba de desfase (06 T0.M6b): comparador en el labio inferior de la cuchara (bucket ABAJO); la lectura escala
-    # con r_labio / r_traba [CALCULADO]
-    t1 = math.radians(d["REV_cup_t1"])
-    lip = (d["STE_X_exit"] + d["REV_cup_dx"] + (d["REV_cup_ax"] + d["REV_t"]) * math.cos(t1), (d["REV_cup_az"] + d["REV_t"]) * math.sin(t1))
-    d["REV_test_r"] = round(math.hypot(lip[0] - d["X_bucket_pivot"], lip[1] - d["Z_bucket_pivot"]), 1)
-    d["REV_test_dial_mm"] = round(d["REV_lock_mismatch"] * d["REV_test_r"] / d["REV_lock_r"], 2)
-    d["REV_lock_pin_d"] = 12.0         # [ESTIMADO: émbolo indexador A4 M20×1,5 con perno Ø12; buscar "GN 617-12-M20 A4"]
-    d["REV_lock_hole_d"] = 12.5
+    # Desfase entre las dos trabas (ronda 4): ya no entra en la resistencia (cada traba sola lleva M_h). Solo importa que
+    # LOS DOS pernos entren con el bucket en su tope: agujeros del brazo taladrados con plantilla y escariados Ø16,5;
+    # holgura diametral 0,5 mm [CALCULADO: P1-REV-04 checks; prueba funcional en 06 T0.M6b].
+    d["REV_lock_pin_d"] = 16.0         # perno 316 h9 del émbolo propio [CALCULADO: structural_direccion, P1-REV-04]
+    d["REV_lock_hole_d"] = d["REV_lock_pin_d"] + 0.5
     d["REV_mach5_stroke"] = 76.0       # [ESTIMADO: cable 33C/Mach5 carrera 3" típica; buscar "Ultraflex Mach5 stroke"]
     d["REV_impact"] = 2.0              # [SUPUESTO: R10b H10 — bisagra para ≥ 2 × 760 N]
     d["REV_F_design"] = max(loads["F_bucket_N"], 1408.0)   # [CALCULADO: research/R12 §7.5 — 1408 N (7,2 kW, k_r = 1); se toma el mayor con sizing]
-    d["REV_M_hinge_R12"] = 85.0        # [CALCULADO: research/R12 §7.5 — 53–85 N·m con brazo de 60 mm]
 
     # ------------------------------------------------------------------ mandos (CTL), marco BOTE (mm)
     d["CTL_x_pilot"] = d["inp"]["masses"]["items"]["pilot"]["x_m"] * 1000

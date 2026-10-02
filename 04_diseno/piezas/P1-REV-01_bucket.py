@@ -1,4 +1,4 @@
-"""P1-REV-01 — Bucket (cuchara) de reversa, Al 5083 REV_t (6 mm) doblado y soldado TIG.
+"""P1-REV-01 — Bucket (cuchara) de reversa, Al 5083 REV_t (8 mm) curvado y soldado TIG.
 
 Pivota sobre las orejas de la boquilla (X_bucket_pivot, ±Y, Z_bucket_pivot) y sigue la dirección.
 Se diseña en la posición ABAJO (bucket_down_deg) y se lleva a ARRIBA (marco natural) girando −70°:
@@ -6,13 +6,13 @@ Se diseña en la posición ABAJO (bucket_down_deg) y se lleva a ARRIBA (marco na
     salida) entre los brazos; tapa el chorro (proyección ≥ 90 %, ver checks) y lo devuelve hacia
     proa y abajo por el labio inferior; nervio central de 4 mm en el lomo (zona de impacto, t 70°…−60°);
   - brazos laterales (±Y REV_y_in … REV_y_in + REV_t) con aro de refuerzo (REV_ring_t) en el pivote: buje
-    POM-C P1-REV-03 (brazo + aro) que gira sobre el espaciador del pivote P1-REV-02 (M12 A4-70);
+    POM-C P1-REV-03 (brazo + aro) que gira sobre el muñón del espaciador del pivote P1-REV-02 (M12 A4-80);
   - brazo +Y: perno de la varilla del Mach5 (P1-REV-06) en una cuerda VERTICAL a popa del pivote
     (+35° arriba / −35° abajo, r = REV_stud_r);
-  - LOS DOS brazos (±Y): dos agujeros de traba (arriba y abajo) para un émbolo P1-REV-04 en cada oreja
-    de la boquilla (REV_n_locks = 2): la carga del chorro en reversa NO pasa por el cable, y el momento M_h
-    entra por los dos brazos (auditoría ronda 3, FEA: con traba en un solo brazo la cuchara abierta de 4 mm
-    trabajaba a torsión, FS 0,44; con traba doble y chapa de 6 mm, FS 2,34 — variante V2).
+  - LOS DOS brazos (±Y): dos agujeros de traba Ø16,5 (arriba y abajo) para un émbolo P1-REV-04 en cada
+    oreja de la boquilla (REV_n_locks = 2): la carga del chorro en reversa NO pasa por el cable. Los agujeros
+    tienen juego y el desfase entre trabas no se controla, así que CADA brazo con su traba lleva todo M_h
+    (auditoría ronda 4): chapa de 8 mm por la torsión de la cuchara abierta con un solo brazo trabado.
 En ARRIBA no toca el cono del chorro (5°)."""
 import math
 import os
@@ -24,7 +24,7 @@ from _dir_common import hull, circ, rot_xz, bucket_rel_loc, jet_cone, inter_vol 
 import _release as RL  # noqa: E402
 
 META = dict(
-    id="P1-REV-01", name="bucket", desc="Bucket de reversa Al 5083 6 mm (cuchara + brazos + nervio), traba en los dos brazos",
+    id="P1-REV-01", name="bucket", desc="Bucket de reversa Al 5083 8 mm (cuchara + brazos + nervio), traba en cada brazo (cada una lleva todo M_h)",
     material="Al 5083", process="torneada", qty=1, frame="bucket", group="jet",
     load_case="Chorro desviado en reversa (R12: 1,4 kN) × impacto 2; presión dinámica en la chapa",
     print_rot=(0, 0, 0), solid_frac=1.0,

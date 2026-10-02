@@ -1,22 +1,25 @@
-"""P1-REV-02 — Pivote del bucket (×2): buje-espaciador AISI 316 torneado Ø REV_pin_d h7 (agujero Ø12,5) apretado
-contra la cara EXTERIOR de la oreja de la boquilla (Y = ±STE_ear_y1, agujero Ø12,4) por un tornillo ISO 4017 M12
-A4-80 con arandela ISO 7089 (Ø24) bajo la cabeza y, por dentro de la oreja, arandela + tuerca autoblocante
-DIN 985 M12 A4 (precarga REV_bolt_pre_N). El bucket gira sobre el espaciador con su buje POM-C (P1-REV-03) y
-queda con 0,3 mm de juego axial contra la arandela de la cabeza.
+"""P1-REV-02 — Pivote del bucket (×2): espaciador AISI 316 torneado + tornillo ISO 4017 M12 A4-80 + tuerca DIN 985.
 
-Auditoría ronda 3: la reacción de cada pivote incluye la de la traba (tangencial, M_h/r ≈ 2·F_b): con R12 y el
-desfase admitido entre trabas llega a ~2,3 kN (antes se calculaba con F_b/2 = 0,7 kN sobre un perno Ø10 con M8
-en voladizo). El momento en voladizo (reacción × (luz + L_buje/2)) lo toma la unión apretada; si se abriera, lo
-toma el M12 A4-80 solo (structural_direccion). Se modela como un solo sólido (espaciador + tornillo + tuerca)
-para el ensamblaje; marco local: eje +y desde la cara exterior de la oreja."""
+Espaciador (auditoría ronda 4): muñón Ø REV_pin_d h7 (el bucket gira sobre él con su buje POM-C P1-REV-03), brida
+Ø REV_sp_fl_d × REV_sp_fl_t apoyada en la cara EXTERIOR de la oreja de la boquilla (Y = ±STE_ear_y1) y piloto
+Ø REV_sp_pilot_d h6 ajustado en el agujero H7 escariado de la oreja (largo = oreja − 0,5: el apriete lo toma la brida,
+no el piloto). El piloto ubica el pivote: la unión no puede deslizar (ronda 3 lo dejaba flotar en un Ø12,4). Agujero
+Ø12,5 para el tornillo M12 A4-80; arandela ISO 7089 (Ø24) bajo la cabeza y, por dentro de la oreja, arandela + tuerca
+autoblocante DIN 985 M12 A4. Par REV_bolt_T_Nm con Tef-Gel (precarga mín./máx. por la dispersión de K): la mínima
+no deja abrir la unión con R12 y una traba sola (structural_direccion).
+
+La reacción de cada pivote incluye la de SU traba (tangencial, M_h/r): con R12 y una traba sola llega a ~3,3 kN
+(structural_direccion.bucket_reactions). Se modela como un solo sólido (espaciador + tornillo + tuerca) para el
+ensamblaje; marco local: eje +y desde la cara exterior de la oreja."""
 import math
 
-from cadlib import NUT_AF, NUT_M, cyl_y, hex_prism_y
+from cadlib import NUT_AF, cyl_y, hex_prism_y
 
 META = dict(
-    id="P1-REV-02", name="perno_bucket", desc="Pivote del bucket: espaciador 316 Ø18 h7 + tornillo M12 A4-80 + tuerca DIN 985",
+    id="P1-REV-02", name="perno_bucket",
+    desc="Pivote del bucket: espaciador 316 (muñón Ø20 h7, brida Ø36, piloto Ø16 h6) + tornillo M12 A4-80 + tuerca DIN 985",
     material="AISI 316", process="torneada", qty=2, frame="steer", group="jet",
-    load_case="Reacción del pivote = chorro/2 + traba (R12, reparto con desfase): flexión del espaciador en voladizo",
+    load_case="Reacción del pivote = chorro/2 + traba con M_h completo (R12, una traba sola): flexión del muñón y apertura de la unión",
     print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
 )
 WASHER_T = 2.5            # [VERIFICADO: ISO 7089 M12, Ø24 × 2,5]
@@ -25,12 +28,16 @@ HEAD_K = 7.5              # [VERIFICADO: ISO 4017 M12, k = 7,5]
 
 
 def shoulder_L(p):
-    """Largo del espaciador: luz oreja–brazo + buje (brazo + aro) + 0,3 de juego axial."""
+    """Largo de brida + muñón desde la cara de la oreja: brida + luz al brazo + buje (brazo + aro) + 0,3 de juego axial."""
     return (p.REV_y_in + p.REV_bush_L + 0.3) - p.STE_ear_y1
 
 
 def ear_t(p):
     return p.STE_ear_y1 - p.STE_ear_y0
+
+
+def pilot_L(p):
+    return ear_t(p) - 0.5
 
 
 def bolt_len(p):
@@ -46,11 +53,13 @@ def bolt_len_iso(p):
 def build(p):
     L = shoulder_L(p)
     d, db = p.REV_pin_d, p.REV_bolt_d
-    s = cyl_y(d / 2, 0.0, L)                                                       # espaciador
+    s = cyl_y(p.REV_sp_fl_d / 2, 0.0, p.REV_sp_fl_t)                             # brida
+    s = s + cyl_y(d / 2, p.REV_sp_fl_t - 0.01, L)                                  # muñón
+    s = s + cyl_y(p.REV_sp_pilot_d / 2 - 0.01, -pilot_L(p), 0.01)                  # piloto (ajustado en la oreja)
     s = s + cyl_y(p.REV_head_d / 2, L, L + WASHER_T)                               # arandela Ø24
     s = s + hex_prism_y(NUT_AF[12], L + WASHER_T, L + WASHER_T + HEAD_K)           # cabeza M12 (18 e/c)
     lb = bolt_len_iso(p)
-    s = s + cyl_y(db / 2 - 0.1, L + WASHER_T - lb, 0.01)                           # caña/rosca M12 (modelada Ø11,8)
+    s = s + cyl_y(db / 2 - 0.1, L + WASHER_T - lb, -pilot_L(p) + 0.01)             # caña/rosca M12 (modelada Ø11,8)
     yn = -ear_t(p)
     s = s + cyl_y(p.REV_head_d / 2, yn - WASHER_T, yn)                             # arandela interior
     s = s + hex_prism_y(NUT_AF[12], yn - WASHER_T - NUT_H, yn - WASHER_T)          # tuerca DIN 985 M12
@@ -68,9 +77,12 @@ def placements(p, steer=0.0, bucket=0):
 def checks(p, part):
     L = shoulder_L(p)
     rosca = (bolt_len_iso(p) - (WASHER_T + L + ear_t(p) + WASHER_T))               # rosca que pasa la arandela interior
-    a_clamp = math.pi / 4 * (p.REV_pin_d ** 2 - (p.REV_bolt_d + 0.4) ** 2)
+    a_cl = math.pi / 4 * (p.REV_sp_fl_d ** 2 - (p.REV_sp_pilot_d + 1.0) ** 2)
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("juego axial del bucket contra la arandela de la cabeza [mm]", L - (p.REV_y_in + p.REV_bush_L - p.STE_ear_y1), 0.2, ">="),
             ("rosca útil para la tuerca M12 (≥ tuerca + 2 hilos) [mm]", rosca, NUT_H + 2 * 1.75, ">="),
-            ("presión del espaciador sobre la oreja (precarga / anillo) ≤ 0,5·Rp0,2 6061-T6 [MPa]", p.REV_bolt_pre_N / a_clamp, 120.0, "<="),
-            ("pared del espaciador (Ø ext − Ø 12,5) / 2 [mm]", (p.REV_pin_d - 12.5) / 2, 2.5, ">=")]
+            ("presión de la brida sobre la oreja con la precarga MÁX. ≤ 0,5·Rp0,2 6061-T6 [MPa]", p.REV_bolt_pre_max_N / a_cl, 120.0, "<="),
+            ("pared del muñón (Ø − Ø 12,5) / 2 [mm]", (p.REV_pin_d - 12.5) / 2, 2.5, ">="),
+            ("pared del piloto (Ø − Ø 12,5) / 2 [mm]", (p.REV_sp_pilot_d - 12.5) / 2, 1.5, ">="),
+            ("piloto más corto que la oreja (aprieta la brida) [mm]", ear_t(p) - pilot_L(p), 0.3, ">="),
+            ("brida dentro de la oreja (r oreja − r brida) [mm]", p.STE_ear_r - p.REV_sp_fl_d / 2, 2.0, ">=")]
