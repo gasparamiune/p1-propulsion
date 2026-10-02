@@ -1,13 +1,15 @@
 """P1-REV-03 — Buje con brida de POM-C del pivote del bucket (×2), torneado.
 
-Ø10,1 × Ø14 × 8 (brazo 4 + aro de refuerzo 4) + brida Ø20 × 1 entre brazo y oreja (luz 1,5 → 0,5 mm).
-Prensado en el bucket; gira sobre el hombro Ø10 del perno P1-REV-02."""
+Ø(REV_pin_d + 0,1) H9 × REV_bush_od × REV_bush_L (brazo REV_t + aro de refuerzo REV_ring_t) + brida
+REV_bush_fl_d × 1 entre el brazo y la oreja (luz 1,5 → 0,5 mm). Prensado en el bucket; gira sobre el
+buje-espaciador 316 del pivote P1-REV-02. Dimensionado por presión con la reacción real del pivote
+(chorro/2 + traba, auditoría ronda 3): ver structural_direccion."""
 from cadlib import cyl_y
 
 META = dict(
-    id="P1-REV-03", name="buje_bucket", desc="Buje con brida POM-C Ø10,1/Ø14 × 8 + brida Ø20 × 1",
+    id="P1-REV-03", name="buje_bucket", desc="Buje con brida POM-C del pivote del bucket (Ø18,1/Ø22 × 14 + brida Ø28 × 1)",
     material="POM-C", process="torneada", qty=2, frame="bucket", group="jet",
-    load_case="Aplastamiento: reacción del bucket / 2", print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
+    load_case="Presión: reacción del pivote (chorro/2 + traba, R12 con desfase entre trabas)", print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
 )
 
 

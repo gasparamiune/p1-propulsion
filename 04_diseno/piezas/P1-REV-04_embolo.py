@@ -9,7 +9,12 @@ Mach5. Se libera tirando del pomo con un Bowden inox desde el gatillo de la pala
 DOS émbolos (qty 2), uno en cada oreja ±Y (REV_n_locks; auditoría ronda 3: con uno solo la cuchara se
 torcía); el gatillo tira de los dos Bowden a la vez (P1-REV-09/10 también ×2)."""
 import math
-from cadlib import cyl_y
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(__file__))
+from cadlib import cyl_y  # noqa: E402
+import _release as RL  # noqa: E402
 
 META = dict(
     id="P1-REV-04", name="embolo", desc="Émbolo indexador A4 M20 / perno Ø12 (comprado), uno por oreja ±Y",
@@ -29,9 +34,7 @@ def build(p):
     return s
 
 
-def lock_xz(p, side=1):
-    a = math.radians(p.REV_lock_ang if side > 0 else p.raw.get("REV_lock_ang_m", p.REV_lock_ang))
-    return (p.X_bucket_pivot + p.REV_lock_r * math.cos(a), p.Z_bucket_pivot + p.REV_lock_r * math.sin(a))
+lock_xz = RL.lock_xz          # posición de cada émbolo (fuente única: _release)
 
 
 def placements(p, steer=0.0, bucket=0):

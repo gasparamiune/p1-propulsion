@@ -26,7 +26,7 @@ Casilla sin marcar = **no se sale**. Una sola vez antes: T0–T2 aprobados y blo
 - [ ] **Purga de la chimenea:** aflojar el tornillo hasta que salga agua, cerrar. Tapa de inspección apretada.
 - [ ] Testigo del sello (ventanas de la linterna y manguera a la sentina) **seco**.
 - [ ] Filtro de refrigeración limpio; mangueras sin aplastar ni sueltas.
-- [ ] **Bucket arriba y trabado** (el émbolo entró); palanca del bucket adelante.
+- [ ] **Bucket arriba y trabado: los DOS émbolos entraron** (pomos adentro en las dos orejas); palanca del bucket adelante.
 - [ ] Volante tope a tope: la boquilla llega a los topes; biela y terminal del cable de dirección con contratuerca.
 - [ ] Marcas de pintura de bulones sin correr (bomba, pórtico, placa de espejo, motor, yugo).
 - [ ] Nadie en el agua cerca de la popa.
@@ -36,7 +36,7 @@ Casilla sin marcar = **no se sale**. Una sola vez antes: T0–T2 aprobados y blo
 - [ ] Poner el cordón: se oye el clic de K1.
 - [ ] Acelerador fuera de cero: NO arranca. Soltarlo: arma.
 - [ ] Telemetría o LED en **COSTA**.
-- [ ] Bucket abajo con el acelerador en 0: se marca bucket abajo. Subirlo: se borra y traba arriba.
+- [ ] Bucket abajo con el acelerador en 0: se marca bucket abajo y entran los dos émbolos. Subirlo: se borra y traban arriba los dos.
 - [ ] Acelerar al mínimo y **tirar del cordón**: para y clic. Repetir con la seta.
 - [ ] Amarrado, motor al 30 %: pinza CC en cada cable de rama de batería → **las dos** con corriente (un fusible de rama abierto no se ve por tensión). Si una rama no lleva corriente: no salir.
 - [ ] Al arrancar: chorro por la tobera en ≤ 3 s (si no: cortar y purgar).
@@ -52,6 +52,6 @@ Casilla sin marcar = **no se sale**. Una sola vez antes: T0–T2 aprobados y blo
 
 **6. Al volver**
 - [ ] **Cordón AFUERA y S1 OFF** (con el clip puesto la bobina de K1 consume 1,6 W aunque S1 esté abierto, y al próximo S1 ON K1 cerraría sin precarga).
-- [ ] Enjuagar con agua dulce casco, rejilla, boquilla, bucket, émbolo y conectores.
+- [ ] Enjuagar con agua dulce casco, rejilla, boquilla, bucket, los dos émbolos y conectores.
 - [ ] Revisar rejilla, impulsor (por la chimenea), testigo del sello y sentina.
 - [ ] Anotar en el registro: horas de motor, Wh, fallas del VESC, golpes. Cargar en tierra, sobre 5 °C. Invierno: sacar F5 y los fusibles de rama y guardar la batería a carga de almacenamiento (electrónica README §10).

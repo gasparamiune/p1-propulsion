@@ -16,6 +16,9 @@ import math
 
 import numpy as np
 
+# numpy ≥ 2.0 renombró trapz → trapezoid (y numpy 2.4 quitó trapz): compatible con las dos
+_trapz = getattr(np, "trapezoid", None) or getattr(np, "trapz")
+
 G = 9.81
 
 
@@ -65,8 +68,8 @@ def _half_width(z: float, h: dict) -> float:
 def section(h: dict, T: float, n: int = 120) -> dict:
     zs = np.linspace(0.0, T, n)
     hw = np.array([_half_width(z, h) for z in zs])
-    A = np.trapz(2 * hw, zs)
-    zc = np.trapz(2 * hw * zs, zs) / A if A > 0 else 0.0
+    A = _trapz(2 * hw, zs)
+    zc = _trapz(2 * hw * zs, zs) / A if A > 0 else 0.0
     return {"A": A, "zc": zc, "Bwl": 2 * hw[-1]}
 
 

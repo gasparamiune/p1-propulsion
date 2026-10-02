@@ -33,8 +33,10 @@
 | P1-PMP-09 | Bulones placa–espejo (6×M6): F del bucket 1408 N + momento | brazo 36 mm al espejo; F_bulón=413 N sobre A_s=20.1 mm² | 20.53 | metal | 450.0 | 21.92 | 2.0 | ✔ |
 | P1-PMP-09 | Cuello: F lateral de la boquilla con el O-ring a tope | voladizo del cuello M=F·L=6.0 N·m, W anillo=116736 mm³ | 0.05 | metal | 125.0 | 2444.39 | 2.0 | ✔ |
 | P1-STE-01 | Flexión del tubo por el desvío del chorro (fatiga, sizing) | M = F_s·e = 323 N × 66 mm; Z tubo Ø101.1/Ø91.1 | 0.62 | metal | 90.0 | 145.97 | 2.0 | ✔ |
-| P1-STE-01 | Oreja del bucket: flexión en su plano (bucket R12, corta) | F/2 = 704 N a 52 mm de la raíz; sección 8 × 36 | 21.12 | metal | 240.0 | 11.36 | 2.0 | ✔ |
-| P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga) | F/2 = 349 N a 52 mm; 8 × 36 | 10.47 | metal | 90.0 | 8.59 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: flexión en su plano (bucket R12, corta; pivote + traba, M_h completo en una traba) | M raíz = 90 N·m (pivote a 52 mm + traba a r 45); sección 8 × 36 | 52.37 | metal | 240.0 | 4.58 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga; reparto máx. entre trabas) | M raíz = 30.9 N·m; 8 × 36 | 17.97 | metal | 90.0 | 5.01 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: ligamento de la rosca M20 de la traba (M_h completo en una traba, R12) | F = M_h/r = 2817 N; desgarro por 2 ligamentos 5 × 8: σ = √3·F/(2·l·t) | 60.98 | metal | 240.0 | 3.94 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, reparto máx.) | M = R_pivote 2385 N × 8.5 mm en la cara; raíz 36 × 8 | 52.79 | metal | 240.0 | 4.55 | 2.0 | ✔ |
 | P1-STE-01 | Oreja de pivote (dentro de la de la bomba): flexión de la raíz | F = √((F_b/2)²+(F_s/2)²) = 727 N a 12 mm; 25 × 30 | 2.33 | metal | 240.0 | 103.14 | 2.0 | ✔ |
 | P1-STE-02 | Hombro Ø8 biempotrado: flexión + corte (bucket R12 + dirección, corta) | reacción superior 1490 N en luz 28.5 mm (M = F·L/8); 316 estirado | 111.17 | metal | 310.0 | 2.79 | 2.0 | ✔ |
 | P1-STE-02 | Hombro Ø8: flexión por maniobras (fatiga) | F_s/2 = 162 N, M = F·L/8 | 11.46 | metal | 180.0 | 15.7 | 2.0 | ✔ |
@@ -54,16 +56,23 @@
 | P1-REV-01 | Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta) | p = 98 kPa, luz 53.5 mm (nervio central), t = 6 | 3.89 | metal | 125.0 | 32.15 | 2.0 | ✔ |
 | P1-REV-01 | Chapa de la cuchara: franja (fatiga de soldadura, 1e5) | ídem | 3.89 | metal | 68.0 | 17.49 | 2.0 | ✔ |
 | P1-REV-01 | Cuchara como viga entre brazos (bucket R12, corta) | M = F·L/8, L = 107; I_arco = 388e3 mm⁴ | 2.30 | metal | 125.0 | 54.33 | 2.0 | ✔ |
-| P1-REV-01 | Brazo lateral: flexión (bucket R12, corta) | M = M_h/n = 127/2 N·m por brazo trabado; sección 6 × 60 | 17.61 | metal | 125.0 | 7.1 | 2.0 | ✔ |
-| P1-REV-01 | Brazo lateral: flexión (reversa sizing, fatiga de soldadura) | M = M_h,sizing/n = 63/2 N·m | 8.73 | metal | 68.0 | 7.79 | 2.0 | ✔ |
-| P1-REV-01 | Agujero de traba: aplastamiento del brazo (émbolo Ø12) | F = M_h/(n·r) = 127 N·m / (2 × 45 mm) = 1408 N | 19.56 | metal | 125.0 | 6.39 | 2.0 | ✔ |
-| P1-REV-01 | Pivote: aplastamiento del brazo + refuerzo (buje Ø14 × 12) | F/2 = 704 N | 4.19 | metal | 125.0 | 29.83 | 2.0 | ✔ |
-| P1-REV-02 | Perno con hombro Ø10: flexión + corte (bucket R12, corta) | F/2 = 704 N a 7.5 mm | 57.63 | metal | 205.0 | 3.56 | 2.0 | ✔ |
-| P1-REV-02 | Perno con hombro Ø10: flexión (fatiga) | F/2 = 349 N | 26.67 | metal | 180.0 | 6.75 | 2.0 | ✔ |
-| P1-REV-03 | Buje POM Ø10/Ø14 × 8: presión (bucket R12, corta) | 704 N / (10 × 12) | 5.87 | metal | 20.0 | 3.41 | 2.0 | ✔ |
-| P1-REV-03 | Buje POM: presión (reversa sizing, oscilación) | 349 N / (10 × 12) | 2.91 | metal | 10.0 | 3.44 | 2.0 | ✔ |
-| P1-REV-04 | Perno del émbolo Ø12: flexión + corte (M_h con bucket R12) | F = 1408 N a 4.5 mm; 316 | 47.15 | metal | 205.0 | 4.35 | 2.0 | ✔ |
-| P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga) | F = 698 N | 18.53 | metal | 180.0 | 9.72 | 2.0 | ✔ |
+| P1-REV-01 | Brazo trabado: flexión en su plano con M_h completo (bucket R12, corta) | M = M_h = 127 N·m en un brazo (hasta que apoya la otra traba); sección 6 × 60 | 35.21 | metal | 125.0 | 3.55 | 2.0 | ✔ |
+| P1-REV-01 | Brazo trabado: flexión en su plano con M_h completo (reversa sizing, fatiga de soldadura) | M = M_h,sizing = 63 N·m | 17.46 | metal | 68.0 | 3.89 | 2.0 | ✔ |
+| P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (FALLA: un émbolo no entró; reversa sizing) | T = M_h,sizing = 63 N·m en la unión con el brazo trabado; τ = T·t/J, J = s·t³/3 (s = 187) | 48.53 | metal | 125.0 | 2.58 | 2.0 | ✔ |
+| P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (FALLA DOBLE: + reversa R12 sin límite; sin fluencia) | T = M_h = 127 N·m; criterio FS ≥ 1 | 97.87 | metal | 125.0 | 1.28 | 1.0 | ✔ |
+| P1-REV-01 | Agujero de traba: aplastamiento del brazo con M_h completo (émbolo Ø12, R12) | F = M_h/r = 127 N·m / 45 mm = 2817 N | 39.12 | metal | 125.0 | 3.2 | 2.0 | ✔ |
+| P1-REV-01 | Pivote: aplastamiento del brazo + aro (buje Ø22 × 14), R12 con reparto máx. | R_pivote = 2385 N (chorro/2 + traba con 78% de M_h) | 7.74 | metal | 125.0 | 16.14 | 2.0 | ✔ |
+| P1-REV-02 | Espaciador Ø18/Ø12.5 en voladizo: flexión + corte (R12, reparto máx. entre trabas) | R = 2385 N a 8.5 mm de la oreja; τ = 2V/A (tubo) | 77.84 | metal | 205.0 | 2.63 | 2.0 | ✔ |
+| P1-REV-02 | Espaciador: flexión (reversa sizing, fatiga; reparto máx.) | R = 1183 N | 22.88 | metal | 180.0 | 7.87 | 2.0 | ✔ |
+| P1-REV-02 | Espaciador (FALLA: un émbolo no entró; reversa sizing) | R = 1479 N (M_h completo en un brazo) | 48.28 | metal | 205.0 | 4.25 | 2.0 | ✔ |
+| P1-REV-02 | Espaciador (FALLA DOBLE: + reversa R12 sin límite; sin fluencia) | R = 2983 N; criterio FS ≥ 1 | 97.36 | metal | 205.0 | 2.11 | 1.0 | ✔ |
+| P1-REV-02 | Tornillo M12 A4-80 si la unión se abre y desliza: flexión + corte (R12, reparto máx.) | R = 2385 N a 8.5 mm sobre el núcleo d3 9,85; A_s 84,3 mm² | 221.53 | metal | 600.0 | 2.71 | 2.0 | ✔ |
+| P1-REV-03 | Buje POM Ø18.1/Ø22 × 14: presión (R12, reparto máx. entre trabas) | 2385 N / (18 × 14) | 9.46 | metal | 20.0 | 2.11 | 2.0 | ✔ |
+| P1-REV-03 | Buje POM: presión (reversa sizing, oscilación; reparto máx.) | 1183 N / (18 × 14) | 4.69 | metal | 10.0 | 2.13 | 2.0 | ✔ |
+| P1-REV-03 | Buje POM (FALLA: un émbolo no entró; reversa sizing) | 1479 N / (18 × 14) | 5.87 | metal | 20.0 | 3.41 | 2.0 | ✔ |
+| P1-REV-03 | Buje POM (FALLA DOBLE: + reversa R12 sin límite; sin aplastamiento) | 2983 N; criterio FS ≥ 1 | 11.84 | metal | 20.0 | 1.69 | 1.0 | ✔ |
+| P1-REV-04 | Perno del émbolo Ø12: flexión + corte con M_h completo (R12) | F = M_h/r = 2817 N a 4.5 mm; 316 | 94.29 | metal | 205.0 | 2.17 | 2.0 | ✔ |
+| P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga; reparto máx.) | F = 1090 N | 28.90 | metal | 180.0 | 6.23 | 2.0 | ✔ |
 | P1-REV-06 | Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada) | F = 100 N × 125/46 = 272 N a 6 mm | 32.44 | metal | 205.0 | 6.32 | 2.0 | ✔ |
 | P1-REV-09 | Soporte del Bowden 4 mm: placa de tope en voladizo | tiro 60 N [ESTIMADO] a 34 mm; sección 16 × 4 | 47.81 | metal | 125.0 | 2.61 | 2.0 | ✔ |
 | P1-CTL-14 | Gatillo 6 mm: flexión por el apriete (100 N a 20 mm del pivote) | sección 10 × 6 | 20.00 | metal | 240.0 | 12.0 | 2.0 | ✔ |

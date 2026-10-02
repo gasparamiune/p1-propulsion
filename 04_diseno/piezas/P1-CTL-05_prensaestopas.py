@@ -1,4 +1,6 @@
-"""P1-CTL-05 — Prensaestopas M16 IP68 (COMPRADOS, ×2) para la vaina del Mach5 y el Bowden de liberación.
+"""P1-CTL-05 — Prensaestopas M16 IP68 (COMPRADOS, ×2) para la vaina del Mach5 y las 2 vainas de los Bowden de
+liberación de los émbolos (este con inserto de 2 agujeros 2 × 4,5 mm, B-GLINS, + Sikaflex: con el inserto
+multiagujero el grado IP baja; el paso está sobre la flotación).
 
 [VERIFICADO: research/R08a §8 — Biltema M16 4–8 mm]. Vaina estática (el cable no desliza en el
 prensaestopas). Modelo: cuerpo exterior Ø24 × 10, rosca Ø15,8 × 12, contratuerca Ø24 × 5."""

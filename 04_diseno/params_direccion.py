@@ -103,7 +103,9 @@ def extend(d):
     # orejas del bucket sobre la boquilla
     d["STE_ear_y1"] = max(48.0, math.ceil(d["STE_ro"] + 0.5))   # oreja del bucket por fuera del cuerpo
     d["STE_ear_y0"] = d["STE_ear_y1"] - 8.0
-    d["STE_ear_r"] = 12.0
+    # radio de la oreja del bucket alrededor del pivote: el espaciador del pivote (P1-REV-02) le pasa la reacción y su
+    # momento en voladizo; con r 12 el FEA ponía el máximo en ese borde (ronda 3) [CALCULADO: FEA STE-01 casos c/c2]
+    d["STE_ear_r"] = 15.0
 
     # ------------------------------------------------------------------ bucket (REV)
     d["bucket_down_deg"] = 70.0        # [SUPUESTO: pedido del brief, default 70°] (lo lee params.loc_bucket)
@@ -119,14 +121,21 @@ def extend(d):
     d["REV_cup_az"] = round(max(54.0, rjc + 7.0, (d["STE_ro"] + 4.0) / math.sin(math.radians(75.0)) + 0.5), 1)   # [CALCULADO]
     d["REV_cup_t0"] = 85.0             # arco de la cuchara (ángulo paramétrico, °): labio superior
     d["REV_cup_t1"] = -105.0           # labio inferior: el agua sale hacia proa y abajo
-    d["REV_boss_r"] = 12.0
-    d["REV_pin_d"] = 10.0              # perno con hombro Ø10 / M8 (316)
-    d["REV_bush_od"] = 14.0
-    d["REV_bush_fl_d"] = 20.0
+    # Pivote del bucket (auditoría ronda 3): la reacción de la traba (tangencial, M_h/r ≈ 2·F_b) se suma al chorro en
+    # el pivote del brazo trabado → ~1,6–2,3 kN por pivote con R12 (no F_b/2 = 0,7 kN). Pivote = buje-espaciador 316
+    # Ø18 (P1-REV-02) apretado contra la cara exterior de la oreja por un tornillo M12 A4-80 con tuerca autoblocante
+    # por dentro; el bucket gira sobre el espaciador con un buje POM-C (P1-REV-03) de brazo + aro de refuerzo.
+    d["REV_pin_d"] = 18.0              # Ø exterior del buje-espaciador 316 (h7) [CALCULADO: structural_direccion]
+    d["REV_bolt_d"] = 12.0             # tornillo ISO 4017 M12 A4-80 [CALCULADO: structural_direccion]
+    d["REV_bolt_pre_N"] = 10000.0      # precarga del M12 (par ≈ 0,2·F·d ≈ 24 N·m) [ESTIMADO: K = 0,2]
+    d["REV_ring_t"] = 8.0              # aro de refuerzo soldado en la cara exterior de cada brazo [CALCULADO: presión en el buje]
+    d["REV_bush_od"] = d["REV_pin_d"] + 4.0
+    d["REV_bush_fl_d"] = d["REV_bush_od"] + 6.0
     d["REV_bush_fl_t"] = 1.0
-    d["REV_bush_L"] = 2 * d["REV_t"]   # brazo + aro de refuerzo (los dos de REV_t)
-    d["REV_head_d"] = 16.0
-    d["REV_head_t"] = 6.0
+    d["REV_bush_L"] = d["REV_t"] + d["REV_ring_t"]   # brazo + aro de refuerzo
+    d["REV_boss_r"] = d["REV_bush_od"] / 2 + 6.0     # ligamento 6 mm alrededor del buje [SUPUESTO]
+    d["REV_head_d"] = 24.0             # arandela ISO 7089 M12 (Ø24 × 2,5) bajo la cabeza hexagonal (18 e/c × 7,5)
+    d["REV_head_t"] = 10.0             # arandela 2,5 + cabeza 7,5
     # biela del Mach5: perno en el brazo +Y a REV_stud_r del pivote, a +35° (arriba) y −35° (abajo):
     # cuerda VERTICAL a popa del pivote → la varilla del Mach5 trabaja vertical, anclada en la boquilla,
     # y nada del mando avanza hacia la tobera fija al girar (pmp_fixed_aft_env)
@@ -137,11 +146,32 @@ def extend(d):
     d["REV_eye_w"] = 8.0               # ojo de la varilla (rótula hembra M6) [ESTIMADO: DIN ISO 12240-4 M6; buscar]
     d["REV_sleeve_z0"] = 130.0         # fin de la vaina rígida del Mach5 (sale la varilla) [CALCULADO]
     d["REV_lock_r"] = 45.0             # émbolo indexador a 45 mm del pivote [CALCULADO: FS ≥ 2 del perno Ø12]
+    # lóbulo del brazo alrededor de cada agujero de traba: r 16 (ligamento 9,75 mm al agujero Ø12,5) y el lóbulo de la
+    # traba ABAJO (la que toma el chorro en reversa) se une al labio superior de la cuchara (contorno convexo): con r 12 y
+    # sin unir, la muesca entre el lóbulo y el borde del brazo concentraba la tensión (FEA ronda 3) [CALCULADO: FEA]
+    d["REV_lock_lobe_r"] = 16.0
     d["REV_lock_ang"] = 10.0           # ° (marco de la boquilla) [CALCULADO: arriba-popa del pivote, libra la varilla del Mach5]
     # traba del brazo −Y en OTRO ángulo (mismo radio): los dos émbolos quedan enfrentados sobre la boquilla y,
     # coaxiales, sus pomos y Bowden no entran entre las orejas (32 mm); desfasados (check de P1-REV-04) pasan uno al lado
     # del otro (ronda 3) [CALCULADO: checks de P1-REV-04/09 y verify]
     d["REV_lock_ang_m"] = -25.0        # [CALCULADO: barrido 35…50° choca con la brida del yugo P1-STE-04 arriba; −20…−25° libre]
+    # Desfase entre las dos trabas: cuánto avanza el brazo, medido en el agujero (r = REV_lock_r), entre que apoya un
+    # perno y apoya el otro. Con agujeros perfectos cada traba toma M_h/2; con desfase δ una toma más hasta cerrarlo (la
+    # cuchara abierta gira: FEA ronda 3, casos b/c). Tolerancia de fabricación: agujeros del brazo −Y taladrados y
+    # escariados a través de la rosca M20 de su oreja con el bucket trabado y apoyado del lado +Y; se mide con
+    # comparador en el labio de la cuchara (06, prueba de desfase) [SUPUESTO: tolerancia; pasa/no pasa en 06]
+    d["REV_lock_mismatch"] = 0.10
+    # Fracción máxima de M_h en UNA traba con ese desfase: la usa el cálculo a mano del pivote (P1-REV-02/03) y la
+    # oreja (P1-STE-01); el FEA (04_diseno/fea, P1-REV-01 casos b/c) la recalcula en cada corrida y tests/test_fea.py
+    # exige que no la supere [CALCULADO: FEA ronda 3 con δ = 0,10 mm: 0,72–0,76 según la malla (la gruesa, más rígida,
+    # da más); cota 0,78]
+    d["REV_lock_share_max"] = 0.78
+    # prueba de desfase (06 T0.M6b): comparador en el labio inferior de la cuchara (bucket ABAJO); la lectura escala
+    # con r_labio / r_traba [CALCULADO]
+    t1 = math.radians(d["REV_cup_t1"])
+    lip = (d["STE_X_exit"] + d["REV_cup_dx"] + (d["REV_cup_ax"] + d["REV_t"]) * math.cos(t1), (d["REV_cup_az"] + d["REV_t"]) * math.sin(t1))
+    d["REV_test_r"] = round(math.hypot(lip[0] - d["X_bucket_pivot"], lip[1] - d["Z_bucket_pivot"]), 1)
+    d["REV_test_dial_mm"] = round(d["REV_lock_mismatch"] * d["REV_test_r"] / d["REV_lock_r"], 2)
     d["REV_lock_pin_d"] = 12.0         # [ESTIMADO: émbolo indexador A4 M20×1,5 con perno Ø12; buscar "GN 617-12-M20 A4"]
     d["REV_lock_hole_d"] = 12.5
     d["REV_mach5_stroke"] = 76.0       # [ESTIMADO: cable 33C/Mach5 carrera 3" típica; buscar "Ultraflex Mach5 stroke"]

@@ -61,10 +61,13 @@ def checks(p, part):
     xs = []
     for s in (-p.steer_max, 0.0, p.steer_max):
         xs.append(part.moved(P.loc_steer(p, s)).bounding_box().max.X)
-    # borde del círculo de la brida del poste vs cabeza del perno del bucket (X', |Y|)
-    head_x0 = p.X_bucket_pivot - p.X_steer_pivot - p.REV_head_d / 2
+    # la banda (X' ≤ 30, z ≥ STE_zc_top) cruza el plano de los brazos del bucket: luz real en el plano (X', z) entre su
+    # esquina más cercana y el aro de refuerzo / cabeza del pivote (círculo de radio máx(REV_boss_r, cabeza) en el pivote)
+    xb = p.X_bucket_pivot - p.X_steer_pivot
+    r_piv = max(p.REV_boss_r, p.REV_head_d / 2)
+    d_band = math.hypot(max(xb - 30.0, 0.0), max(p.STE_zc_top - p.Z_bucket_pivot, 0.0)) - r_piv
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("luz al espejo (−x_bote máx. en ±δmax) [mm]", -max(xs), 5.0, ">="),
-            ("banda ↔ refuerzo del pivote del bucket (X') [mm]", (p.X_bucket_pivot - p.X_steer_pivot - p.REV_boss_r) - 30.0, 3.0, ">="),
+            ("banda ↔ aro/cabeza del pivote del bucket (distancia en el plano X'–z) [mm]", d_band, 3.0, ">="),
             ("extremo de la brida fuera del brazo del bucket (|Y|) [mm]",
              abs(p.STE_post_y) - 22 - (p.REV_y_in + p.REV_t), 2.0, ">=")]

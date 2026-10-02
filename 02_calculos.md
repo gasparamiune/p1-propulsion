@@ -394,7 +394,10 @@ bomba puede tomar más que la potencia continua en la joroba, y el controlador l
 Selección: entre las que cumplen las duras, las que además llegan a 30 km/h (si hay); de esas, las que
 cuestan ≤ 1,10 × la más barata; desempata la mayor V máx. y el margen en la joroba. **Si ninguna cumple las
 duras**, se descartan las que violan tensión o potencia (reglas del proyecto) y se elige la que cumple más
-restricciones; entre esas, la de mayor margen en la joroba (al punto porcentual) y después la de mayor V máx.
+restricciones; entre esas, las que quedan a ≤ <!--V:sizing.optimization.hump_tie_band:.0%-->1%<!--/V--> (puntos porcentuales) del mejor margen en la
+joroba, y de esas la de mayor V máx. (una banda y no un redondeo: con el redondeo al punto, +0,8 kg de masa del
+jet cambiaba el impulsor de Ø132 a Ø120 por 0,27 pp de margen, muy por debajo de la incertidumbre de la resistencia;
+auditoría ronda 3).
 
 **Resultado** [CALCULADO]: <!--V:sizing.optimization.n_evaluated:d-->780<!--/V--> combinaciones evaluadas,
 <!--V:sizing.optimization.n_hard_ok:d-->0<!--/V--> cumplen las duras, estado `<!--V:sizing.optimization.status:-->sin_solucion_dura<!--/V-->`
@@ -689,17 +692,10 @@ cíclicas) [SUPUESTO] y FS ≥ 3 en PETG impreso [VERIFICADO: requisito del usua
 R05 (agua, temperatura, proceso, fluencia, fatiga, eje Z). Casos que fallan sin justificación:
 <!--V:est.n_fail:d-->0<!--/V--> [CALCULADO].
 
-**Los FS más justos** (filas de `estructural.json`; si cambia el orden, la tabla se corre con él):
+**Los FS más justos** (las 10 filas de `estructural.json` con menor FS/objetivo; tabla generada):
 
-| Pieza | Caso | FS | Objetivo |
-|---|---|---|---|
-| <!--V:est.rows.7.part:-->P1-PMP-05<!--/V--> | <!--V:est.rows.7.load_case:-->Fatiga a par de crucero (Goodman en corte)<!--/V--> | <!--V:est.rows.7.FS:.2f-->1.60<!--/V--> | <!--V:est.rows.7.target:.0f-->2<!--/V--> |
-| <!--V:est.rows.6.part:-->P1-PMP-05<!--/V--> | <!--V:est.rows.6.load_case:-->Par máx. del controlador (margen contra corte intempestivo)<!--/V--> | <!--V:est.rows.6.FS:.2f-->1.80<!--/V--> | <!--V:est.rows.6.target:.0f-->2<!--/V--> |
-| <!--V:est.rows.82.part:-->P1-INT-01<!--/V--> | <!--V:est.rows.82.load_case:-->Bulones M6 A4 brida ↔ placa (14): precarga + p·A_abertura + 3 g<!--/V--> | <!--V:est.rows.82.FS:.2f-->3.97<!--/V--> | <!--V:est.rows.82.target:.0f-->2<!--/V--> |
-| <!--V:est.rows.53.part:-->P1-REV-01<!--/V--> | <!--V:est.rows.53.load_case:-->Brazo lateral: flexión (bucket R12, corta)<!--/V--> | <!--V:est.rows.53.FS:.2f-->3.34<!--/V--> | <!--V:est.rows.53.target:.0f-->2<!--/V--> |
-| <!--V:est.rows.104.part:-->P1-DRV-01<!--/V--> | <!--V:est.rows.104.load_case:-->Agujero del pasador: par de corte del pasador (traba con piedra)<!--/V--> | <!--V:est.rows.104.FS:.2f-->4.72<!--/V--> | <!--V:est.rows.104.target:.0f-->2<!--/V--> |
-| <!--V:est.rows.89.part:-->P1-INT-02<!--/V--> | <!--V:est.rows.89.load_case:-->Paño lateral entre bulones del conducto y del ala: golpe de fondo<!--/V--> | <!--V:est.rows.89.FS:.2f-->106.56<!--/V--> | <!--V:est.rows.89.target:.0f-->2<!--/V--> |
-| <!--V:est.rows.97.part:-->P1-INT-03<!--/V--> | <!--V:est.rows.97.load_case:-->Barra: golpe de objeto 200 N en el centro<!--/V--> | <!--V:est.rows.97.FS:.2f-->2.63<!--/V--> | <!--V:est.rows.97.target:.0f-->2<!--/V--> |
+<!-- AUTO:estructural_justos -->
+<!-- /AUTO:estructural_justos -->
 
 Comentario:
 - **Pasador de corte (P1-PMP-05):** bajo 2 a propósito. Es un fusible: el criterio es cortar entre 1,5 × el
@@ -710,7 +706,7 @@ Comentario:
   torques de 06 y no reemplazar A4-70 por tornillería de menor clase.
 - **Traba del bucket y chaveta del acople:** justos con el bucket de R12 (<!--V:est.loads.structural_direccion.F_bucket_N:.0f-->1408<!--/V--> N) y el par máx. del
   controlador. La chaveta 5×5 del eje del motor Ø15 en el cubo del acople queda **por debajo de 2**: FS
-  <!--V:est.rows.109.FS:.2f-->1.74<!--/V--> en <!--V:est.rows.109.part:-->P1-DRV-08<!--/V--> ("<!--V:est.rows.109.load_case:-->Chaveta 5×5 del eje del motor Ø15 en el cubo del acople: aplastamiento a T_max<!--/V-->"),
+  <!--V:est.min_by_part.P1-DRV-08.FS:.2f-->1.74<!--/V--> en P1-DRV-08 ("<!--V:est.min_by_part.P1-DRV-08.load_case:-->Chaveta 5×5 del eje del motor Ø15 en el cubo del acople: aplastamiento a T_max<!--/V-->"),
   aceptado con justificación (auditoría C13): el par máx. es el del límite de corriente (raro y corto), cubo de
   acero y Loctite 648 en la chaveta; medir el chavetero del motor al recibirlo. Si se sube la potencia (07), son los
   primeros en revisar.

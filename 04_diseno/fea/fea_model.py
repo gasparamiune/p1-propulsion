@@ -136,6 +136,7 @@ class Interface:
         self.axis = axis
         self.rigid, self.k_t, self.unilateral, self.zone = rigid, k_t, unilateral, zone
         self.active = np.ones(len(self.facets), bool)
+        self.enabled = True            # False: la interfaz no existe en este caso (p. ej. un émbolo que no entró)
         if len(self.facets) == 0:
             raise ValueError(f"interfaz '{name}' sin facetas: revisar la selección geométrica")
 
@@ -210,7 +211,8 @@ class Model:
         if extra_K is not None:
             K = K + extra_K
         for itf in self.interfaces:
-            K = K + self.interface_matrix(itf)
+            if itf.enabled:
+                K = K + self.interface_matrix(itf)
         return K
 
     def add_interface(self, itf: Interface):
@@ -275,7 +277,7 @@ class Model:
             changed = 0
             state, old = [], []
             for itf in self.interfaces:
-                if not itf.unilateral:
+                if not itf.unilateral or not itf.enabled:
                     continue
                 g = self.gaps(itf, u)
                 new = g > 0.0
@@ -286,7 +288,7 @@ class Model:
             hist.append(changed)
             if log:
                 log(f"      contacto it {it}: cambios {changed}, CG {info['cg_iters']} it")
-            n_uni = sum(len(i.facets) for i in self.interfaces if i.unilateral)
+            n_uni = sum(len(i.facets) for i in self.interfaces if i.unilateral and i.enabled)
             if changed <= max(2, change_tol * n_uni):
                 for itf, a in old:                                   # u es consistente con el conjunto previo
                     itf.active = a
@@ -314,6 +316,10 @@ class Model:
         out = {}
         S = self.S
         for itf in self.interfaces:
+            if not itf.enabled:
+                out[itf.name] = {"F_N": [0.0, 0.0, 0.0], "F_abs_N": 0.0, "active_frac": 0.0, "p_max_MPa": 0.0,
+                                 "centroid_mm": [None, None, None]}
+                continue
             Ki = self.interface_matrix(itf)
             fi = -(Ki @ u)
             F = fi[:S.ndof_fem].reshape(-1, 3)

@@ -18,7 +18,7 @@ RES = ROOT / "resultados"
 SRC = {"sizing": "sizing.json", "bom": "bom_resumen.json", "manifest": "manifest.json",
        "est": "estructural.json", "verify": "verify.json", "arch": "arquitectura.json",
        "cmp": "comparacion.json"}
-PAT = re.compile(r"<!--V:([\w.]+):([^>]*?)-->(.*?)<!--/V-->", re.S)
+PAT = re.compile(r"<!--V:([\w.\-]+):([^>]*?)-->(.*?)<!--/V-->", re.S)
 URL = re.compile(r"https?://[^\s)\]>\"'`|]+")
 
 

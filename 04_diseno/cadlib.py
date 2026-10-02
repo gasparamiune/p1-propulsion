@@ -77,6 +77,28 @@ def prism_xy(points, z0, z1) -> Part:
     return Pos(0, 0, z0) * sol
 
 
+def prism_arc(plane, start, segs, a0, a1) -> Part:
+    """Extruye entre a0 y a1 un perfil plano de RECTAS y ARCOS VERDADEROS (no poligonales: una sola cara curva
+    por arco, sin facetas que obliguen a la malla FEA a elementos diminutos). plane: 'xy' (extruye en Z),
+    'xz' (en Y) o 'yz' (en X); start = (u, v); cada elemento de segs es un punto (u, v) → recta, o
+    ((u_medio, v_medio), (u_fin, v_fin)) → arco por tres puntos. El perfil se cierra solo."""
+    from build123d import Line, ThreePointArc, Wire, Face, extrude as _ex
+    to3 = {"xy": lambda u, v: (u, v, 0.0), "xz": lambda u, v: (u, 0.0, v), "yz": lambda u, v: (0.0, u, v)}[plane]
+    d = {"xy": (0, 0, 1), "xz": (0, 1, 0), "yz": (1, 0, 0)}[plane]
+    edges, cur = [], tuple(start)
+    for sg in segs:
+        if isinstance(sg[0], (tuple, list)):
+            mid, end = tuple(sg[0]), tuple(sg[1])
+            edges.append(ThreePointArc(to3(*cur), to3(*mid), to3(*end)))
+            cur = end
+        else:
+            edges.append(Line(to3(*cur), to3(*sg)))
+            cur = tuple(sg)
+    edges.append(Line(to3(*cur), to3(*start)))
+    sol = _ex(Face(Wire(edges)), amount=a1 - a0, dir=d)
+    return Pos(*[a0 * k for k in d]) * sol
+
+
 def arc_pts(cx, cz, r, a0, a1, n=24):
     """Puntos de un arco (grados) en el plano XZ."""
     return [(cx + r * math.cos(math.radians(a0 + (a1 - a0) * i / n)),

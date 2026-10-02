@@ -2,9 +2,10 @@
 """fea_run.py — FEA lineal elástico de las piezas críticas del waterjet P1-J.
 
     P1-DRV-03  pórtico de rodamientos (Al 6082 soldado)   (a) Fa a proa + radial · (b) Fa a popa + radial
-    P1-REV-01  bucket de reversa (Al 5083 4 mm)            (a) chorro en reversa en la cuchara (traba + pivotes)
+    P1-REV-01  bucket de reversa (Al 5083 6 mm)            (a) reversa R12 con las dos trabas · (b/c) con desfase entre
+                                                            trabas · (d/e) falla: un émbolo no entró (reversa de sizing)
     P1-STE-01  boquilla direccional (Al 6061-T6)           (a) F_s en el paso · (b) F_s en la salida ·
-                                                            (c) reacciones del bucket · (d) c + a
+                                                            (c/c2) reversa R12 con el reparto máx. en la traba +Y/−Y · (d/d2) c + a
     P1-INT-02  placa base de la toma (Al 5083 10 mm)       (a) espárragos del pórtico · (b) golpe + presión de cierre
     P1-CTL-02  caja de palancas (PETG)                     (a)/(b) mano apoyada 150 N en dos posiciones
 
@@ -45,13 +46,16 @@ for _p in (str(HERE), str(HERE.parent), str(ROOT)):
 CFG = {
     "P1-DRV-03": {"h": (10.0, 5.0), "curv": (8, 14), "hmin": 1.5},
     "P1-REV-01": {"h": (6.0, 3.5), "curv": (8, 14), "hmin": 1.5,
-                  "variantes": {"V1": {"desc": "traba en ambos brazos (2.º émbolo en −Y), chapa 4 mm", "param": {"traba_doble": True}},
-                                "V2": {"desc": "traba en ambos brazos + brazos y cuchara de 6 mm", "param": {"traba_doble": True, "t": 6.0}}}},
-    "P1-STE-01": {"h": (8.0, 4.5), "curv": (8, 14), "hmin": 1.2},
+                  "variantes": {"V1": {"desc": "FALLA DOBLE: el émbolo −Y no entró + reversa R12 sin límite del controlador (criterio: sin fluencia, FS ≥ 1)",
+                                       "param": {"trabas": [1]}},
+                                "V2": {"desc": "FALLA DOBLE: el émbolo +Y no entró + reversa R12 (criterio: sin fluencia, FS ≥ 1)",
+                                       "param": {"trabas": [-1]}}}},
+    "P1-STE-01": {"h": (8.0, 4.5), "curv": (8, 14), "hmin": 1.2,
+                  "variantes": {"V1": {"desc": "FALLA DOBLE: M_h completo en una traba (un émbolo no entró) + reversa R12 sin límite (criterio: sin fluencia, FS ≥ 1)",
+                                       "param": {"reparto": "completo"}}}},
     "P1-INT-02": {"h": (14.0, 8.0), "curv": (6, 10), "hmin": 2.0},
     "P1-CTL-02": {"h": (6.0, 3.0), "curv": (8, 14), "hmin": 1.0,
-                  "variantes": {"V1": {"desc": "paredes de 5 mm (hoy 3,5)", "param": {"W": 5.0}},
-                                "V2": {"desc": "paredes de 5 mm + tapa de 8 mm", "param": {"W": 5.0, "WT": 8.0}}}},
+                  "variantes": {"V1": {"desc": "sensibilidad: paredes de 4 mm (hoy W_OUT = 5)", "param": {"W_OUT": 4.0}}}},
 }
 ORDER = ["P1-DRV-03", "P1-REV-01", "P1-STE-01", "P1-INT-02", "P1-CTL-02"]
 VIEWS = {"P1-DRV-03": ((25, -60), (25, 120)), "P1-REV-01": ((20, -130), (25, 50)),
@@ -282,7 +286,12 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
             ez = c.get("zones_extra", ())
             summ = M.summarize(F, r_ex, extra_zones=ez)
             regs = M.region_summary(F, r_ex, st.get("regions", {}), extra_zones=ez)
+            off = [itf for itf in M.interfaces if itf.name in c.get("disabled", ())]
+            for itf in off:                                   # interfaz ausente en este caso (émbolo que no entró)
+                itf.enabled = False
             reac = M.interface_forces(c["u"]) if M.interfaces else {}
+            for itf in off:
+                itf.enabled = True
             info = c.get("info", {})
             rec = out["casos"].setdefault(c["id"], {"nombre": c["name"], "tipo": c["kind"]})
             rec[level] = {"resumen": summ, "regiones": regs, "reacciones": reac, "extra": c.get("extra", {}),
@@ -479,32 +488,28 @@ def findings(res):
     return H
 
 
-PART_NOTES = {    # notas por pieza: dónde está el máximo, causa y, si no cumple, propuesta (la pieza NO se editó)
-    "P1-DRV-03": "Máximo en la unión del alma central con el alojamiento Ø65 y el tablero (esquina viva, mecanizada o "
-                 "soldada): el empuje excéntrico y el radial entran al tablero por el alma. Cumple; conviene un radio "
-                 "≥ 3 mm (o cordón de filete) en esa unión.",
-    "P1-REV-01": "Máximo en el brazo +Y junto al agujero de traba (flexión fuera del plano de la chapa de 4 mm) y "
-                 "≈ 120 MPa en el borde inferior de la cuchara junto al brazo (soldadura). Causa: la traba está en un solo "
-                 "brazo, así que todo M_h pasa por la cuchara (sección abierta) a torsión hasta el brazo +Y (giro de "
-                 "3,6 mm). **Propuesta al dueño de P1-REV-01/04**: (1) traba en los dos brazos (segundo émbolo en −Y "
-                 "o perno pasante) — V1 baja la cuchara a < 10 MPa y el giro a 0,2 mm, pero el lóbulo de traba de 4 mm "
-                 "queda en FS 1,3; (2) además brazos (o al menos los lóbulos de pivote y traba) de 6 mm, p. ej. con una "
-                 "arandela de refuerzo soldada — V2 da FS 2,3. Corregir structural_direccion: el brazo con la traba "
-                 "lleva todo M_h, no F_b/2.",
-    "P1-STE-01": "El pico global (≈ 200 MPa) está en la arista viva donde la oreja de pivote corta el labio de "
-                 "entrada (x = X_pivote, sin radio en el CAD, con astillas de malla) y no converge: se usa el "
-                 "promedio en volumen y el máx* convergido de cada región. Gobierna la oreja del bucket +Y sobre la "
-                 "rosca M20 de la traba (ligamento de ~5 mm hasta el contorno de la oreja), con la reversa. Cumple; "
-                 "un radio de 1–2 mm en la arista oreja/labio quitaría la singularidad.",
+PART_NOTES = {    # notas por pieza: dónde está el máximo y por qué (las cifras están en la tabla y en el JSON)
+    "P1-DRV-03": "Alma de ±0,35·Ø del alojamiento con empalmes r 3 alma–tablero y alma–alojamiento (auditoría ronda 3, "
+                 "F-03): el máximo queda sobre el empalme alma–tablero y converge (antes era una arista viva, en una cuña "
+                 "de ~30° entre el alojamiento y el tablero, que no convergía). Cumple con margen.",
+    "P1-REV-01": "Trabas en los dos brazos (ronda 3). Con agujeros perfectos (a) la cuchara casi no trabaja y cada brazo "
+                 "lleva su mitad en su plano. Con el desfase admitido entre trabas (b/c) una traba toma hasta el reparto "
+                 "máximo (`extra.reparto_max_M_h`, ≤ REV_lock_share_max) y la cuchara abierta gira hasta que apoya la "
+                 "otra: gobierna el brazo que apoya primero, en su cara exterior bajo el pivote. Falla con un solo émbolo "
+                 "y la reversa de sizing (d/e): cumple FS 2. Falla doble (V1/V2: un émbolo + reversa R12 sin límite): "
+                 "sin fluencia (criterio FS ≥ 1). Las reacciones de pivote del FEA quedan bajo la de la fila a mano.",
+    "P1-STE-01": "Radio de 2 mm donde la oreja de pivote toca el labio de entrada (F-03): ese pico ahora converge. En "
+                 "reversa gobierna la oreja del bucket alrededor del pivote (cara interior): recibe la reacción del pivote "
+                 "(chorro/2 + traba de ese brazo) y el momento del espaciador en voladizo (P1-REV-02); oreja de radio 15 "
+                 "alrededor del pivote. Casos c/c2 con el reparto máximo admitido; con M_h completo en una traba (V1, "
+                 "falla doble) no fluye.",
     "P1-INT-02": "Gobierna el golpe de fondo con la placa sola (b): máximo en la cara superior sobre el borde del "
                  "apoyo del ala (unión cuerpo–ala), convergido. Con el conducto como rigidizador (b2) baja a "
                  "≈ 18 MPa. Los avellanados M8 del pórtico: σvm promedio bajo el cono ≈ presión de la fila a mano.",
-    "P1-CTL-02": "Gobierna σZ (tracción entre capas, Z de impresión = z): la tapa cargada gira en sus bordes y "
-                 "flexiona las paredes de 3,5 mm, con la cara exterior a tracción vertical justo bajo la tapa. La "
-                 "fila a mano (franja de tapa) no lo ve; la tapa en sí da FS ≈ 3,3. **Propuesta al dueño de "
-                 "P1-CTL-02**: paredes de 5 mm (V1: FS 3,5) engrosadas hacia afuera para no mover el entrehierro del "
-                 "sensor hall; una tapa de 8 mm (V2) exige subir ZT para conservar la luz sobre el cubo. Además la "
-                 "pieza real es 5 perímetros + 30 % giroide (solid_frac 0,55): el FEA macizo es optimista.",
+    "P1-CTL-02": "Paredes de 5 mm engrosadas hacia afuera (ronda 3, F-02; el entrehierro del sensor hall no cambia): "
+                 "gobierna la tapa (von Mises) y la tracción entre capas de las paredes ya no manda; la variante V1 "
+                 "(paredes de 4 mm) muestra la sensibilidad. La pieza real es 5 perímetros + 30 % giroide (solid_frac "
+                 "0,55): el FEA macizo es optimista.",
 }
 
 # Explicaciones de las diferencias > 30 % (clave: (pieza, primeros 24 caracteres de la fila de structural_*.py)).
@@ -514,41 +519,47 @@ NOTES = {
         "máximo de la mejilla en su unión con el tablero: el tablero cargado por el alojamiento flexiona y arrastra el "
         "borde superior de la mejilla fuera de su plano (marco tablero + mejillas). Mecanismo que la fila no ve; nivel bajo.",
     ("P1-DRV-03", "Tablero: 3 g vertical de"):
-        "El máximo está en la unión del alma central (columna tablero–alojamiento) con el tablero: el momento de Fa "
-        "excéntrico y el radial entran al tablero por el alma, con concentración en la esquina viva de esa unión; la viga "
-        "biapoyada de la fila no la ve. Fila a mano no conservadora, pero el FS sigue sobre 2.",
+        "El máximo está en la unión del alma central con el tablero (ahora con empalme r 3): el momento de Fa excéntrico y "
+        "el radial entran al tablero por el alma; la viga biapoyada de la fila no ve esa concentración. FS sobre 2.",
     ("P1-DRV-03", "Alojamiento Ø47: Fa sobr"):
         "La fila es el corte medio del resalte (τ = Fa/(π·D·t)), un valor nominal; el FEA mide la flexión del resalte como "
         "placa anular (el aro apoya solo entre Da_max y D) y la del alojamiento en su unión con el alma. Ambos lejos del admisible.",
-    ("P1-REV-01", "Brazo lateral: flexión ("):
-        "Modelo a mano NO conservador. La fila reparte F_b/2 a cada brazo, pero la traba está solo en el brazo +Y: todo el "
-        "momento M_h de la cuchara tiene que llegar a ese brazo, y la cuchara (sección abierta de chapa de 4 mm) lo lleva "
-        "por torsión. El FEA muestra la cuchara girando (u máx. ≈ 3,6 mm) y el pico en el lóbulo de la traba (flexión fuera "
-        "del plano de la chapa junto al agujero, que no converge: crece al refinar). Ver variantes V1/V2.",
+    ("P1-REV-01", "Brazo trabado: flexión e"):
+        "La fila es la flexión del brazo EN SU PLANO con M_h completo (cota hasta que apoya la otra traba). El FEA (caso con "
+        "el desfase admitido) suma la flexión FUERA del plano que mete la cuchara al girar hasta que apoya la otra traba, "
+        "con el pico en la cara exterior del brazo bajo el pivote: mecanismo que la fila no ve; el FS de diseño es el del FEA.",
+    ("P1-REV-01", "Cuchara abierta a torsió"):
+        "La fila es torsión de Saint-Venant de la sección abierta con T = M_h en la unión con el brazo trabado (cota). En "
+        "el FEA (un solo émbolo, reversa de sizing) los brazos restringen el alabeo: la cuchara trabaja menos y parte del "
+        "momento entra al brazo como flexión fuera del plano. Fila conservadora para la cuchara.",
     ("P1-REV-01", "Cuchara como viga entre "):
-        "Misma causa: la fila trata la cuchara como viga entre brazos con los dos extremos apoyados; con la traba de un "
-        "solo lado la cuchara trabaja a torsión (sección abierta) y su borde inferior junto al brazo (soldadura) concentra.",
+        "La fila trata la cuchara como viga entre brazos; con las dos trabas la cuchara casi no trabaja (σ de pocos MPa en "
+        "los dos modelos): diferencia relativa grande sobre valores chicos.",
     ("P1-REV-01", "Chapa de la cuchara: fra"):
-        "La franja empotrada (p_dinámica) no incluye la torsión de la cuchara; el FEA (escalado a p_dinámica/q) mide la "
-        "tensión total de la chapa, dominada por esa torsión. Con traba en los dos brazos (V1) la cuchara baja a < 10 MPa.",
+        "La franja empotrada (p_dinámica) no incluye la flexión global de la cuchara; el FEA (escalado a p_dinámica/q) mide la "
+        "tensión total de la chapa. Ambos muy por debajo del admisible.",
     ("P1-REV-01", "Pivote: aplastamiento de"):
-        "La fila es la presión media F_b/2/(d·L). El FEA promedia σvm en un anillo de 3 mm alrededor de los pivotes, que "
-        "además de la presión del buje incluye la flexión del brazo, y las reacciones reales: con la traba tangencial los "
-        "pivotes toman ≈ 3,3 kN en total (no F_b/2 = 0,7 kN cada uno).",
+        "La fila es la presión media R/(d·L) con la reacción del pivote (chorro/2 + traba con el reparto máximo). El FEA "
+        "promedia σvm en un anillo de 3 mm alrededor de los pivotes, que además de la presión del buje incluye la flexión "
+        "del brazo: métricas distintas, las dos lejos del admisible.",
     ("P1-REV-01", "Agujero de traba: aplast"):
-        "La fila es la presión media de aplastamiento F/(d·t); el FEA promedia σvm en un anillo de 3 mm: por definición "
-        "menor que el pico. Coinciden en el orden de magnitud; el pico local (fuera de r_excl) es el que no cumple.",
+        "La fila es la presión media F/(d·t) con M_h completo en una traba; el FEA promedia σvm en un anillo de 3 mm con el "
+        "reparto real del caso: por definición menor. Mismo orden de magnitud.",
     ("P1-STE-01", "Flexión del tubo por el "):
         "La fila trata el tubo Ø101 como viga (σ nominal < 1 MPa). En el FEA el máximo de la región del tubo está donde se "
         "le unen la torre y la oreja de pivote superior (entra el par del yugo y la reacción de los pernos): concentración "
         "local que la viga no ve. Nivel bajo (FS > 10).",
     ("P1-STE-01", "Oreja del bucket: flexió"):
-        "La fila carga cada oreja con F_b/2 a 52 mm. Con la traba la oreja +Y recibe además la fuerza del émbolo (≈ 2,8 kN "
-        "en la rosca M20, a 45 mm del pivote) y el pivote +Y toma más que el −Y; el máximo está en el lóbulo de la traba.",
+        "Las filas usan una sección de raíz 36 × 8 (en su plano: pivote + traba; fuera del plano: momento del espaciador). "
+        "El FEA pone el máximo en el borde de la oreja alrededor del pivote, en la cara interior, donde la reacción del "
+        "pivote y el momento del espaciador concentran: mecanismo local que la viga no ve; el FS de diseño es el del FEA.",
+    ("P1-STE-01", "Oreja del bucket: ligame"):
+        "La fila es el desgarro del ligamento de la rosca M20 con M_h completo; el máximo de la región de la oreja en el FEA "
+        "está alrededor del pivote, no en el ligamento: se comparan mecanismos distintos.",
     ("P1-STE-01", "Oreja de pivote (dentro "):
         "La fila toma F/2 a 12 mm en 25 × 30. En el FEA los pernos de pivote reciben un par (reacciones opuestas en la "
-        "mejilla Ø8 y en la rosca M6) porque el bucket empuja muy por encima del eje, y el máximo está en la arista viva "
-        "donde la oreja cilíndrica corta el frente esférico (sin radio en el CAD; zona con astillas de malla).",
+        "mejilla Ø8 y en la rosca M6) porque el bucket empuja muy por encima del eje; el máximo está donde la oreja "
+        "cilíndrica se une al frente esférico.",
     ("P1-INT-02", "Paño lateral entre bulon"):
         "La fila apoya el paño en la línea de bulones del conducto (luz 68 mm a lo ancho). Placa sola (b): sin el conducto, "
         "la franja entre la abertura y el ala trabaja a lo largo y el máximo sale en la unión cuerpo–ala; es la cota "
@@ -561,8 +572,7 @@ NOTES = {
         "La fila divide la fuerza por la proyección del cono; el FEA promedia σvm en una capa de 1,5 mm bajo el cono.",
     ("P1-CTL-02", "Tapa PETG 6 mm: mano apo"):
         "La fila es una franja 50 × 6 apoyada con luz 50; la tapa real está casi toda ranurada (ranuras de las palancas), "
-        "y la palma carga el nervio de 6 mm entre las dos ranuras o la tapa angosta junto a la del bucket. Ver σZ: la "
-        "flexión de las paredes cruza capas.",
+        "y la palma carga el nervio de 6 mm entre las dos ranuras o la tapa angosta junto a la del bucket.",
 }
 
 

@@ -39,6 +39,6 @@ def holes(p):
     """(y, z, Ø, texto) en el espejo/placa."""
     (_, ym, zm), (_, yb, zb), (_, yw, zw) = p.CTL_m66_pt, p.CTL_mach5_pt, p.CTL_bowden_pt
     out = [(ym, zm, 20.5, "pasamuros M66 (P1-CTL-04)"), (yb, zb, 16.5, "prensaestopas M16 Mach5"),
-           (yw, zw, 16.5, "prensaestopas M16 Bowden")]
+           (yw, zw, 16.5, "prensaestopas M16 de los 2 Bowden (inserto 2 agujeros)")]
     out += [(y, z, 6.6, "M6 A4 pasante") for y, z in bolts(p)]
     return out

@@ -5,8 +5,8 @@ Se diseña en la posición ABAJO (bucket_down_deg) y se lleva a ARRIBA (marco na
   - cuchara: chapa curvada (arco elíptico semiejes REV_cup_ax × REV_cup_az, centro a REV_cup_dx de la
     salida) entre los brazos; tapa el chorro (proyección ≥ 90 %, ver checks) y lo devuelve hacia
     proa y abajo por el labio inferior; nervio central de 4 mm en el lomo (zona de impacto, t 70°…−60°);
-  - brazos laterales (±Y 49,5–53,5) con aro de refuerzo en el pivote (buje POM P1-REV-03, perno
-    con hombro P1-REV-02);
+  - brazos laterales (±Y REV_y_in … REV_y_in + REV_t) con aro de refuerzo (REV_ring_t) en el pivote: buje
+    POM-C P1-REV-03 (brazo + aro) que gira sobre el espaciador del pivote P1-REV-02 (M12 A4-70);
   - brazo +Y: perno de la varilla del Mach5 (P1-REV-06) en una cuerda VERTICAL a popa del pivote
     (+35° arriba / −35° abajo, r = REV_stud_r);
   - LOS DOS brazos (±Y): dos agujeros de traba (arriba y abajo) para un émbolo P1-REV-04 en cada oreja
@@ -21,6 +21,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from cadlib import cyl_y, prism_xz  # noqa: E402
 from _dir_common import hull, circ, rot_xz, bucket_rel_loc, jet_cone, inter_vol  # noqa: E402
+import _release as RL  # noqa: E402
 
 META = dict(
     id="P1-REV-01", name="bucket", desc="Bucket de reversa Al 5083 6 mm (cuchara + brazos + nervio), traba en los dos brazos",
@@ -37,9 +38,8 @@ def P_(p):
 
 
 def lock_pt(p, side=1):
-    """Traba ABAJO del brazo +Y (side = 1) o −Y (side = −1, ángulo REV_lock_ang_m)."""
-    a = math.radians(p.REV_lock_ang if side > 0 else p.raw.get("REV_lock_ang_m", p.REV_lock_ang))
-    return (p.X_bucket_pivot + p.REV_lock_r * math.cos(a), p.Z_bucket_pivot + p.REV_lock_r * math.sin(a))
+    """Traba ABAJO del brazo +Y (side = 1) o −Y (side = −1): posición del émbolo (fuente única: _release)."""
+    return RL.lock_xz(p, side)
 
 
 def stud_pt(p, down=False):
@@ -69,20 +69,27 @@ def build_down(p):
     lkm = lock_pt(p, -1)                              # brazo −Y (otro ángulo)
     lkm_up = rot_xz(lkm, P, p.bucket_down_deg)
     sd = stud_pt(p, down=True)
+    rl = p.REV_lock_lobe_r
     for sg in (1, -1):
         y0, y1 = (yi, yi + t) if sg > 0 else (-yi - t, -yi)
         a_main = hull(circ(*P, p.REV_boss_r) + outer)
         plate = prism_xz(a_main, y0, y1)
-        lobes = (sd, lk, lk_up) if sg > 0 else ((lkm, lkm_up) if p.REV_n_locks > 1 else ())
-        for q in lobes:                               # lóbulos: perno de la varilla (+Y) y 2 trabas por brazo
-            plate = plate + prism_xz(hull(circ(*P, p.REV_boss_r) + circ(*q, 12.0)), y0, y1)
-        ring_y = (y1, y1 + t) if sg > 0 else (y0 - t, y0)
+        if sg > 0:                                    # lóbulo del perno de la varilla del Mach5 (+Y)
+            plate = plate + prism_xz(hull(circ(*P, p.REV_boss_r) + circ(*sd, 12.0)), y0, y1)
+        locks = (lk, lk_up) if sg > 0 else ((lkm, lkm_up) if p.REV_n_locks > 1 else ())
+        for k, q in enumerate(locks):                 # lóbulos de traba (r REV_lock_lobe_r); el de ABAJO (k = 0, toma
+            pts = circ(*P, p.REV_boss_r) + circ(*q, rl)   # el chorro en reversa) se une al labio superior de la cuchara
+            if k == 0:
+                pts += [outer[0]]
+            plate = plate + prism_xz(hull(pts), y0, y1)
+        rt = p.REV_ring_t                             # aro de refuerzo del pivote (buje de brazo + aro)
+        ring_y = (y1, y1 + rt) if sg > 0 else (y0 - rt, y0)
         plate = plate + prism_xz(circ(*P, p.REV_boss_r, 32), *ring_y)
         if sg > 0:                                    # buje soldado del perno de la varilla (M6 roscado)
             plate = plate + prism_xz(circ(*sd, 8.0, 32), y1 - 0.01, y1 + p.REV_eye_off)
         s = s + plate
-    # agujeros: pivote (buje Ø14), traba (Ø10,5), perno de la varilla (M6 Ø6,4)
-    s = s - cyl_y(p.REV_bush_od / 2, -yi - 2 * t - 1, yi + 2 * t + 1, x=P[0], z=P[1])
+    # agujeros: pivote (buje REV_bush_od), traba (REV_lock_hole_d), perno de la varilla (M6 roscado)
+    s = s - cyl_y(p.REV_bush_od / 2, -yi - t - p.REV_ring_t - 1, yi + t + p.REV_ring_t + 1, x=P[0], z=P[1])
     for q in (lk, lk_up):
         s = s - cyl_y(p.REV_lock_hole_d / 2, yi - 1, yi + t + 1, x=q[0], z=q[1])
     if p.REV_n_locks > 1:

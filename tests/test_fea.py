@@ -138,18 +138,51 @@ def test_part_quick_mesh(ctl02_quick):
 
 
 def test_bucket_statics_matches_hand():
-    """La estática del bucket (traba solo tangencial) reproduce la fuerza de traba de structural_direccion."""
+    """La estática del bucket (cada traba solo tangencial) es la de structural_direccion: con M_h completo en una
+    traba da F_lock_pin_N; con cualquier reparto, equilibrio de fuerzas y suma de trabas = M_h/r (ronda 3)."""
     import fea_parts as fp
     p, _, est = fp.load_project()
-    st = fp.bucket_statics(p, p.REV_F_design)
-    F_lock = float(np.linalg.norm(st["F_traba_sobre_boquilla_N"]))
-    ref = est["loads"]["structural_direccion"]["F_lock_pin_N"]
-    assert abs(F_lock / ref - 1) < 0.03, (F_lock, ref)
-    # equilibrio de fuerzas sobre el bucket
-    ks = ("F_traba_sobre_boquilla_N", "F_traba_menos_y_sobre_boquilla_N", "F_pivote_mas_y_sobre_boquilla_N",
-          "F_pivote_menos_y_sobre_boquilla_N")                     # 2.ª traba (−Y) si REV_n_locks = 2 (ronda 3)
-    tot = np.array(st["F_N"]) + sum(-np.array(st[k]) for k in ks if k in st)
-    assert np.allclose(tot, 0, atol=1e-6)
+    sd = est["loads"]["structural_direccion"]
+    for share in ({1: 1.0}, {-1: 1.0}, {1: 0.5, -1: 0.5}, {1: p.REV_lock_share_max, -1: 1 - p.REV_lock_share_max}):
+        st = fp.bucket_statics(p, p.REV_F_design, share=share)
+        Fl = {s_: float(np.linalg.norm(st[k])) for s_, k in ((1, "F_traba_sobre_boquilla_N"), (-1, "F_traba_menos_y_sobre_boquilla_N"))}
+        assert abs((Fl[1] + Fl[-1]) / sd["F_lock_pin_N"] - 1) < 0.03, (share, Fl, sd["F_lock_pin_N"])
+        ks = ("F_traba_sobre_boquilla_N", "F_traba_menos_y_sobre_boquilla_N", "F_pivote_mas_y_sobre_boquilla_N",
+              "F_pivote_menos_y_sobre_boquilla_N")
+        tot = np.array(st["F_N"]) + sum(-np.array(st[k]) for k in ks)
+        assert np.allclose(tot, 0, atol=1e-6), share
+    # la reacción de pivote de diseño de la fila a mano es la mayor con el reparto máximo admitido
+    smax = p.REV_lock_share_max
+    Rmax = max(float(np.linalg.norm(fp.bucket_statics(p, p.REV_F_design, share=sh)[k]))
+               for sh in ({1: smax, -1: 1 - smax}, {1: 1 - smax, -1: smax})
+               for k in ("F_pivote_mas_y_sobre_boquilla_N", "F_pivote_menos_y_sobre_boquilla_N"))
+    assert abs(Rmax / sd["R_bucket_pivot_design_N"] - 1) < 0.01, (Rmax, sd["R_bucket_pivot_design_N"])
+    # y es mucho mayor que F_b/2 (lo que suponía el cálculo a mano antes de la ronda 3)
+    assert Rmax > 1.3 * p.REV_F_design / 2
+
+
+def test_bucket_fea_share_within_hand_bound():
+    """Auditoría ronda 3: el reparto entre las dos trabas con el desfase admitido (FEA, casos b/c, malla reportada)
+    no supera la cota REV_lock_share_max que usa el cálculo a mano del pivote y del buje; la reacción de pivote del
+    FEA tampoco supera la de la fila a mano; y el bucket cumple FS ≥ 2 en diseño y en falla (casos d/e)."""
+    import fea_parts as fp
+    p, _, est = fp.load_project()
+    res = json.loads((FEA / "resultados_fea.json").read_text(encoding="utf-8"))
+    r = res["piezas"]["P1-REV-01"]
+    lv = r["nivel_reportado"]
+    assert {"a", "b", "c", "d", "e"} <= set(r["casos"]), sorted(r["casos"])
+    R_hand = est["loads"]["structural_direccion"]["R_bucket_pivot_design_N"]
+    for cid in ("b", "c"):
+        ex = r["casos"][cid][lv]["extra"]
+        assert ex["reparto_max_M_h"] <= p.REV_lock_share_max + 1e-6, (cid, ex["reparto_max_M_h"])
+        assert max(ex["F_pivote_por_lado_N"].values()) <= R_hand * 1.02, (cid, ex["F_pivote_por_lado_N"], R_hand)
+    for cid in ("d", "e"):                                 # falla: un solo émbolo, reversa de sizing
+        ex = r["casos"][cid][lv]["extra"]
+        assert sorted(round(v) == 0 for v in ex["F_traba_por_lado_N"].values()) == [False, True], ex
+    assert r["cumple"] and r["FS_min"] >= r["FS_objetivo"], (r["FS_min"], r["caso_gobernante"])
+    for vn in ("V1", "V2"):                                # falla doble: sin fluencia
+        v = r["variantes"][vn]
+        assert min(c["FS"]["gobernante"] for c in v["casos"].values()) >= 1.0, vn
 
 
 def test_resultados_fea_json():
@@ -160,6 +193,7 @@ def test_resultados_fea_json():
     for pid in PIEZAS:
         r = res["piezas"][pid]
         assert r["FS_min"] is not None and r["FS_min"] > 0, pid
+        assert r["cumple"], (pid, r["FS_min"], r["FS_objetivo"], r["caso_gobernante"])   # FS ≥ 2 metal / ≥ 3 PETG
         assert {"gruesa", "fina"} <= set(r["mallas"]), pid
         for c in r["casos"].values():
             fs = c["FS"]["gobernante"]

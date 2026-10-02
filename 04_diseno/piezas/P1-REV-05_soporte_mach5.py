@@ -54,6 +54,7 @@ def placements(p, steer=0.0, bucket=0):
 
 
 def checks(p, part):
+    import math
     import params as P
     xs = [part.moved(P.loc_steer(p, s)).bounding_box().max.X for s in (-p.steer_max, 0.0, p.steer_max)]
     ry = M5.rod_y(p)
@@ -61,5 +62,7 @@ def checks(p, part):
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("luz al espejo (±δmax) [mm]", -max(xs), 5.0, ">="),
             ("grapa ↔ brazo +Y del bucket (Y) [mm]", (ry - 6.0) - (p.REV_y_in + p.REV_t), 1.5, ">="),
-            ("alma delante del refuerzo del pivote del bucket (X') [mm]", (p.X_bucket_pivot - p.X_steer_pivot - p.REV_boss_r) - X1, 2.0, ">="),
+            ("alma ↔ aro/cabeza del pivote del bucket (distancia en el plano X'–z) [mm]",
+             math.hypot(max((p.X_bucket_pivot - p.X_steer_pivot) - X1, 0.0), max(p.STE_zc_top + p.STE_yoke_t + 6.0 - p.Z_bucket_pivot, 0.0))
+             - max(p.REV_boss_r, p.REV_head_d / 2), 2.0, ">="),
             ("placa lateral bajo la cabeza del Mach5 [mm]", hub_top - Z_SIDE[1], 1.0, ">=")]

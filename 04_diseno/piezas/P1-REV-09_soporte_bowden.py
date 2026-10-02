@@ -43,11 +43,14 @@ def placements(p, steer=0.0, bucket=0):
 
 def checks(p, part):
     import math
-    lx, lz = RL.lock_xz(p)
+    out = [("un solo sólido", len(part.solids()), 1, "="),
+           ("recorrido libre pomo ↔ placa − recorrido de liberación [mm]", (RL.knob_end_y(p) - RL.plate_y(p)) - RL.need(p), 2.0, ">="),
+           ("recorrido de liberación ≤ carrera del émbolo − 1 [mm]", RL.need(p), p.REV_plunger_stroke - 1.0, "<="),
+           ("pata fuera del pomo (X) [mm]", (DX_LEG) - 12.5, 3.0, ">=")]
     y0 = RL.plate_y(p) - 4.0
-    zb = math.sqrt(max(p.STE_ro ** 2 - max(y0, 0.0) ** 2, 0.0))
-    return [("un solo sólido", len(part.solids()), 1, "="),
-            ("recorrido libre pomo ↔ placa − recorrido de liberación [mm]", (RL.knob_end_y(p) - RL.plate_y(p)) - RL.need(p), 2.0, ">="),
-            ("recorrido de liberación ≤ carrera del émbolo − 1 [mm]", RL.need(p), p.REV_plunger_stroke - 1.0, "<="),
-            ("pata fuera del pomo (X) [mm]", (DX_LEG) - 12.5, 3.0, ">="),
-            ("soporte sobre el cuerpo de la boquilla [mm]", (lz - 8.0) - zb, 3.0, ">=")]
+    zb = math.sqrt(max(p.STE_ro ** 2 - max(abs(y0), abs(y0 + 4.0)) ** 2, 0.0)) if abs(y0) < p.STE_ro else 0.0
+    zb = p.STE_ro if y0 < 0.0 < y0 + 4.0 else zb               # la placa cruza y = 0: cuerpo a r_ext
+    for s_ in RL.lock_sides(p):                                 # un soporte por traba (el −Y es el espejo del +Y)
+        lz = RL.lock_xz(p, s_)[1]
+        out.append((f"soporte {'+Y' if s_ > 0 else '−Y'} sobre el cuerpo de la boquilla [mm]", (lz - 8.0) - zb, 3.0, ">="))
+    return out

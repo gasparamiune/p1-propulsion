@@ -484,10 +484,18 @@ def optimize(inp):
         cand = [r for r in rows if "error" not in r]
         # la tensión (≤ 50 V) y la potencia (no speedbåd) son reglas del proyecto, no se negocian
         cand = [r for r in cand if r["ok_voltage"] and r["ok_speedboat"]] or cand
-        # sin solución dura: la que cumple más restricciones; entre esas, la de mayor margen en la joroba
-        # (al punto porcentual) y después la de mayor V máx.
-        best = max(cand, key=lambda r: (sum(1 for k in r if k.startswith("ok_") and r[k]),
-                                        round(r["hump_margin"], 2), r["vmax_cont_kmh"]))
+        # sin solución dura: la que cumple más restricciones; entre esas, las que quedan a ≤ hump_tie_band del mejor
+        # margen en la joroba, y de esas la de mayor V máx. La banda (no un redondeo) evita que la elección salte
+        # entre diámetros cuando el margen cruza un límite de redondeo: auditoría ronda 3 — con +0,8 kg de masa del
+        # jet el redondeo al punto porcentual cambiaba el impulsor Ø132 → Ø120 con 0,27 pp de diferencia de margen
+        # (muy por debajo de la incertidumbre del modelo de resistencia, 02 §3) y menos V máx.
+        def n_ok(r):
+            return sum(1 for k in r if k.startswith("ok_") and r[k])
+        nmax = max(n_ok(r) for r in cand)
+        top = [r for r in cand if n_ok(r) == nmax]
+        hmax = max(r["hump_margin"] for r in top)
+        band = [r for r in top if r["hump_margin"] >= hmax - j.get("hump_tie_band", 0.01)]
+        best = max(band, key=lambda r: (r["vmax_cont_kmh"], r["hump_margin"]))
         status = "sin_solucion_dura"
     return best, rows, status
 
@@ -752,7 +760,7 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False, inputs_path=Non
                        "n_parallel": n_par, "fuse_branch_a": fuse_branch},
         "mech": mechanical(inp, d), "loads": loads(inp, d),
         "sensitivity": sensitivity(inp, best, d["pump"]),
-        "optimization": {"status": status, "n_evaluated": len(rows),
+        "optimization": {"status": status, "n_evaluated": len(rows), "hump_tie_band": inp["waterjet"].get("hump_tie_band", 0.01),
                          "n_hard_ok": sum(1 for r in rows if r.get("hard_ok")), "rows": rows},
         "checks": {k: v for k, v in best.items() if k.startswith("ok_")},
     }

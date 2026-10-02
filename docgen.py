@@ -58,6 +58,11 @@ def blocks(sz, bom, man, est, ver):
         B["optimization"] = sizing_section("Optimizador (15 mejores)")
     if est:
         B["estructural"] = (RES / "estructural_tabla.md").read_text(encoding="utf-8").split("\n", 1)[1].strip()
+        tight = sorted((r for r in est["rows"] if r.get("FS") is not None and r.get("target")),
+                       key=lambda r: r["FS"] / r["target"])[:10]
+        B["estructural_justos"] = table(["Pieza", "Caso", "FS", "Objetivo", "OK"],
+                                        [[r["part"], r["load_case"], f"{r['FS']:.2f}", f"{r['target']:g}",
+                                          ("✔ (justif.)" if r.get("justification") else "✔") if r["ok"] else "✘"] for r in tight])
     if man:
         rows = []
         for r in man["parts"]:
@@ -188,7 +193,7 @@ def main():
     if (RES / "arquitectura_tabla.md").exists():
         B["arch"] = (RES / "arquitectura_tabla.md").read_text(encoding="utf-8").strip()
     pat_block = re.compile(r"(<!-- AUTO:(\w+) -->)(.*?)(<!-- /AUTO:\2 -->)", re.S)
-    pat_val = re.compile(r"(<!--V:([\w.]+):([^>]*?)-->)(.*?)(<!--/V-->)", re.S)
+    pat_val = re.compile(r"(<!--V:([\w.\-]+):([^>]*?)-->)(.*?)(<!--/V-->)", re.S)
     n_b = n_v = 0
     missing = []
     for md in sorted(list(ROOT.glob("*.md")) + list((ROOT / "04_diseno").rglob("*.md"))):

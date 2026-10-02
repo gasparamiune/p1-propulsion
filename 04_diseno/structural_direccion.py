@@ -22,6 +22,7 @@ SS316 = 205.0         # [ESTIMADO: inputs.yaml shaft.sy_mpa, 316 recocido]
 SS316_CD = 310.0      # [ESTIMADO: EN 10088-3 1.4401+C barra estirada ≤ Ø16 — pernos de pivote; pedir certificado]
 SS316_FAT = 180.0     # [ESTIMADO: inputs.yaml shaft.se_mpa]
 A4_70 = 450.0         # [VERIFICADO: ISO 3506-1, A4-70 Rp0,2 = 450 MPa]
+A4_80 = 600.0         # [VERIFICADO: ISO 3506-1, A4-80 Rp0,2 = 600 MPa] (tornillo del pivote del bucket)
 POM_STAT = 20.0       # [ESTIMADO: POM-C, presión admisible estática en buje ~20 MPa]
 POM_DYN = 10.0        # [ESTIMADO: POM-C, presión admisible con oscilación lenta]
 
@@ -55,6 +56,73 @@ def _cup_line(p, n=60):
     ax, az, t = p.REV_cup_ax + p.REV_t / 2, p.REV_cup_az + p.REV_t / 2, p.REV_t
     t0, t1 = math.radians(p.REV_cup_t0), math.radians(p.REV_cup_t1)
     return [(ax * math.cos(t0 + (t1 - t0) * i / n), az * math.sin(t0 + (t1 - t0) * i / n)) for i in range(n + 1)]
+
+
+def jet_footprint(p):
+    """Radio del chorro con cono (STE_cone_deg) a la altura del fondo de la cuchara."""
+    xback = p.STE_X_exit + p.REV_cup_dx + p.REV_cup_ax
+    return p.STE_r_jet + (xback - p.STE_X_exit) * math.tan(math.radians(p.STE_cone_deg))
+
+
+def cup_xcp(p, n=60):
+    """x del centro de presión del chorro sobre la cuchara (bucket ABAJO): promedio de la superficie elíptica
+    de la cuchara sobre la proyección del chorro (y² + z² ≤ R², |y| ≤ y_in)."""
+    R = jet_footprint(p)
+    xc0 = p.STE_X_exit + p.REV_cup_dx
+    acc, k = 0.0, 0
+    for i in range(n):
+        z = -R + 2 * R * i / (n - 1)
+        for j in range(n):
+            y = -R + 2 * R * j / (n - 1)
+            if y * y + z * z <= R * R and abs(y) <= p.REV_y_in and abs(z) < p.REV_cup_az:
+                acc += xc0 + p.REV_cup_ax * math.sqrt(1 - (z / p.REV_cup_az) ** 2)
+                k += 1
+    return acc / k
+
+
+def lock_angle(p, side):
+    """Ángulo (°) de la traba del brazo +Y (side > 0) o −Y (side < 0) — = piezas/_release.lock_ang."""
+    return p.REV_lock_ang if side > 0 else p.REV_lock_ang_m
+
+
+def bucket_reactions(p, Fb, share):
+    """Estática del bucket ABAJO (reversa), marco de la boquilla, plano xz. Chorro F = (F_b, F_z) en el eje
+    (z = 0) en x_cp, con F_z tal que M_h = 1,10·F_b·Z_pivote; cada traba toma SOLO la componente tangencial a su
+    círculo (el momento) y cada pivote la mitad del chorro más la reacción de la traba de su brazo:
+        L_s = (M_h·share_s / r)·t_s,  t_s = (sen a_s, −cos a_s);   R_s = −F/2 − L_s.
+    share = {+1: fracción de M_h en la traba +Y, −1: en la −Y} (suman 1; falta = 0). Fuerzas SOBRE EL BUCKET [N]."""
+    if abs(sum(share.values()) - 1.0) > 1e-9:
+        raise ValueError(f"bucket_reactions: el reparto entre trabas debe sumar 1 ({share})")
+    Zb = p.Z_bucket_pivot
+    dx = cup_xcp(p) - p.X_bucket_pivot
+    F = (Fb, 0.10 * Zb * Fb / dx)
+    Mh = 1.10 * Fb * Zb
+    L, R = {}, {}
+    for s_ in (1, -1):
+        a = math.radians(lock_angle(p, s_))
+        lam = Mh * share.get(s_, 0.0) / p.REV_lock_r
+        L[s_] = (lam * math.sin(a), -lam * math.cos(a))
+        R[s_] = (-F[0] / 2 - L[s_][0], -F[1] / 2 - L[s_][1])
+    return {"F": F, "Mh": Mh, "x_cp": dx + p.X_bucket_pivot, "L": L, "R": R}
+
+
+def pivot_load_max(p, Fb, shares):
+    """Mayor reacción de pivote (módulo) entre los repartos dados y los dos brazos."""
+    return max(math.hypot(*bucket_reactions(p, Fb, sh)["R"][s_]) for sh in shares for s_ in (1, -1))
+
+
+def ear_root_moment(p, Fb, share, side):
+    """Momento en el plano de la oreja del bucket (lado `side`) en su raíz (x = X_pivote, z = 30 mm): fuerzas
+    SOBRE LA OREJA = −(reacción del pivote) en el pivote y −(reacción de la traba) en el eje del émbolo."""
+    r = bucket_reactions(p, Fb, share)
+    Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
+    a = math.radians(lock_angle(p, side))
+    lx, lz = Xb + p.REV_lock_r * math.cos(a), Zb + p.REV_lock_r * math.sin(a)
+    M, Fz = 0.0, 0.0
+    for (x, z), (fx, fz) in (((Xb, Zb), (-r["R"][side][0], -r["R"][side][1])), ((lx, lz), (-r["L"][side][0], -r["L"][side][1]))):
+        M += (z - 30.0) * fx - (x - Xb) * fz
+        Fz += fz
+    return abs(M), Fz
 
 
 def cup_section(p, n=60):
@@ -92,14 +160,31 @@ def cases(p, A, row, rows, T3, T2):
     Zt = math.pi / 32 * ((2 * ro) ** 4 - (2 * rb) ** 4) / (2 * ro)
     row(rows, "P1-STE-01", "Flexión del tubo por el desvío del chorro (fatiga, sizing)",
         f"M = F_s·e = {Fs_n:.0f} N × {e:.0f} mm; Z tubo Ø{2*ro:.1f}/Ø{2*rb:.1f}", Ms_n / Zt, AL6061_FAT, A, T2)
-    Fe = Fb / 2
+    # Orejas del bucket (auditoría ronda 3): cada oreja recibe la reacción de su pivote (chorro/2 + traba) y la de su
+    # traba (M_h·reparto/r ≈ 2·F_b con M_h completo), no solo F_b/2. Raíz: sección 8 × 36 en z = 30 bajo el pivote
+    # (la oreja real es más ancha: lóbulo de la traba → fila conservadora). Diseño: M_h completo en la traba de esa
+    # oreja (cota hasta que apoya la otra); fatiga: reversa de sizing con el reparto máximo admitido.
+    ty = p.STE_ear_y1 - p.STE_ear_y0
+    Ze = ty * 36.0 ** 2 / 6
     lev = Zb - 30.0
-    Ze = p.STE_ear_y1 - p.STE_ear_y0
-    Ze = Ze * 36.0 ** 2 / 6
-    row(rows, "P1-STE-01", "Oreja del bucket: flexión en su plano (bucket R12, corta)",
-        f"F/2 = {Fe:.0f} N a {lev:.0f} mm de la raíz; sección 8 × 36", Fe * lev / Ze, AL6061, A, T2)
-    row(rows, "P1-STE-01", "Oreja del bucket: flexión (reversa sizing, fatiga)",
-        f"F/2 = {Fbn/2:.0f} N a {lev:.0f} mm; 8 × 36", (Fbn / 2) * lev / Ze, AL6061_FAT, A, T2)
+    full = ({1: 1.0}, {-1: 1.0})
+    sh_max = ({1: p.REV_lock_share_max, -1: 1 - p.REV_lock_share_max}, {1: 1 - p.REV_lock_share_max, -1: p.REV_lock_share_max})
+    Me, Fze = max((ear_root_moment(p, Fb, sh, s_) for sh in full for s_ in sh), key=lambda q: q[0])
+    Me_n, Fze_n = max((ear_root_moment(p, Fbn, sh, s_) for sh in sh_max for s_ in (1, -1)), key=lambda q: q[0])
+    row(rows, "P1-STE-01", "Oreja del bucket: flexión en su plano (bucket R12, corta; pivote + traba, M_h completo en una traba)",
+        f"M raíz = {Me/1000:.0f} N·m (pivote a {lev:.0f} mm + traba a r {p.REV_lock_r:g}); sección {ty:g} × 36",
+        Me / Ze + abs(Fze) / (ty * 36.0), AL6061, A, T2)
+    row(rows, "P1-STE-01", "Oreja del bucket: flexión (reversa sizing, fatiga; reparto máx. entre trabas)",
+        f"M raíz = {Me_n/1000:.1f} N·m; {ty:g} × 36", Me_n / Ze + abs(Fze_n) / (ty * 36.0), AL6061_FAT, A, T2)
+    F_lk = 1.10 * Fb * Zb / p.REV_lock_r
+    lig = 15.0 - 10.0                         # lóbulo r 15 alrededor de la rosca M20 (r 10): ligamento [P1-STE-01]
+    row(rows, "P1-STE-01", "Oreja del bucket: ligamento de la rosca M20 de la traba (M_h completo en una traba, R12)",
+        f"F = M_h/r = {F_lk:.0f} N; desgarro por 2 ligamentos {lig:g} × {ty:g}: σ = √3·F/(2·l·t)",
+        math.sqrt(3) * F_lk / (2 * lig * ty), AL6061, A, T2)
+    R_d = pivot_load_max(p, Fb, sh_max)
+    lev_b = (p.REV_y_in - p.STE_ear_y1) + p.REV_bush_L / 2
+    row(rows, "P1-STE-01", "Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, reparto máx.)",
+        f"M = R_pivote {R_d:.0f} N × {lev_b:.1f} mm en la cara; raíz 36 × {ty:g}", R_d * lev_b / (36.0 * ty ** 2 / 6), AL6061, A, T2)
     Fp = math.hypot(Fb / 2, Fs / 2)
     Zp = (2 * p.STE_ear_rp) * 30.0 ** 2 / 6
     row(rows, "P1-STE-01", "Oreja de pivote (dentro de la de la bomba): flexión de la raíz",
@@ -188,47 +273,75 @@ def cases(p, A, row, rows, T3, T2):
     Mc = Fb * (2 * p.REV_y_in) / 8
     row(rows, "P1-REV-01", "Cuchara como viga entre brazos (bucket R12, corta)",
         f"M = F·L/8, L = {2*p.REV_y_in:.0f}; I_arco = {I/1e3:.0f}e3 mm⁴", Mc * c / I, AL5083, A, T2)
-    # Brazos (auditoría ronda 3, FEA): el momento M_h de la cuchara alrededor del pivote entra a la boquilla
-    # SOLO por los brazos trabados. Con n trabas (una por brazo) cada brazo lleva M_h/n entre la cuchara y el
-    # agujero de traba (flexión fuera del plano de la chapa sobre la sección del brazo). Con una sola traba
-    # (n = 1) además la cuchara abierta lleva M_h/2 a torsión hasta el otro brazo: se agrega esa fila.
-    nl = p.REV_n_locks
+    # Brazos y trabas (auditoría ronda 3). Una traba por brazo (REV_n_locks = 2); cada traba toma solo la componente
+    # tangencial (el momento), así que la suma de las trabas es SIEMPRE M_h/r ≈ 2·F_b y cada pivote lleva el chorro/2
+    # más la reacción de la traba de su brazo. Reparto entre las dos trabas:
+    #   · el brazo trabado, su agujero, el perno del émbolo y la oreja se verifican con M_h COMPLETO en una traba
+    #     (hasta que apoya la otra, un solo brazo lleva todo M_h: cota superior);
+    #   · pivote y buje (diseño, R12): agujeros con el desfase admitido REV_lock_mismatch → hasta REV_lock_share_max
+    #     de M_h en una traba (FEA casos b/c, que lo recalculan en cada corrida);
+    #   · FALLA (un émbolo no entró): M_h completo en un brazo y la cuchara abierta a torsión, con la reversa de
+    #     sizing (límite del controlador): FS ≥ 2; FALLA DOBLE (además reversa a 7,2 kW sin límite, R12): sin
+    #     fluencia (FS ≥ 1). El FS de diseño de la chapa con el reparto real es el del FEA (04_diseno/fea).
     t = p.REV_t
     Zarm = t * 60.0 ** 2 / 6
-    row(rows, "P1-REV-01", "Brazo lateral: flexión (bucket R12, corta)",
-        f"M = M_h/n = {Mh/1000:.0f}/{nl} N·m por brazo trabado; sección {t:g} × 60", (Mh / nl) / Zarm, AL5083, A, T2)
-    row(rows, "P1-REV-01", "Brazo lateral: flexión (reversa sizing, fatiga de soldadura)",
-        f"M = M_h,sizing/n = {Mh_n/1000:.0f}/{nl} N·m", (Mh_n / nl) / Zarm, AL5083_WLCF, A, T2)
-    if nl < 2:
-        # sección abierta (Saint-Venant): τ = T·t/J, J = Σ s·t³/3
-        s_len = sum(math.hypot(a[0] - b[0], a[1] - b[1]) for a, b in zip(_cup_line(p), _cup_line(p)[1:]))
-        J = s_len * t ** 3 / 3
-        row(rows, "P1-REV-01", "Cuchara abierta a torsión (traba en un solo brazo)",
-            f"T = M_h/2, τ = T·t/J, J = s·t³/3 (s = {s_len:.0f})", math.sqrt(3) * (Mh / 2) * t / J, AL5083, A, T2)
-    Fl = Mh / (nl * p.REV_lock_r)
-    Fl_n = Mh_n / (nl * p.REV_lock_r)
-    row(rows, "P1-REV-01", "Agujero de traba: aplastamiento del brazo (émbolo Ø12)",
-        f"F = M_h/(n·r) = {Mh/1000:.0f} N·m / ({nl} × {p.REV_lock_r:.0f} mm) = {Fl:.0f} N", Fl / (p.REV_lock_pin_d * p.REV_t), AL5083, A, T2)
-    row(rows, "P1-REV-01", f"Pivote: aplastamiento del brazo + refuerzo (buje Ø14 × {p.REV_bush_L:g})",
-        f"F/2 = {Fb/2:.0f} N", (Fb / 2) / (p.REV_bush_od * p.REV_bush_L), AL5083, A, T2)
+    row(rows, "P1-REV-01", "Brazo trabado: flexión en su plano con M_h completo (bucket R12, corta)",
+        f"M = M_h = {Mh/1000:.0f} N·m en un brazo (hasta que apoya la otra traba); sección {t:g} × 60", Mh / Zarm, AL5083, A, T2)
+    row(rows, "P1-REV-01", "Brazo trabado: flexión en su plano con M_h completo (reversa sizing, fatiga de soldadura)",
+        f"M = M_h,sizing = {Mh_n/1000:.0f} N·m", Mh_n / Zarm, AL5083_WLCF, A, T2)
+    # sección abierta (Saint-Venant): τ = T·t/J, J = s·t³/3; con un solo brazo trabado el momento del otro lado llega
+    # al brazo trabado por torsión de la cuchara: en la unión con ese brazo T = M_h
+    s_len = sum(math.hypot(a[0] - b[0], a[1] - b[1]) for a, b in zip(_cup_line(p), _cup_line(p)[1:]))
+    J = s_len * t ** 3 / 3
+    row(rows, "P1-REV-01", "Cuchara abierta a torsión con un solo brazo trabado (FALLA: un émbolo no entró; reversa sizing)",
+        f"T = M_h,sizing = {Mh_n/1000:.0f} N·m en la unión con el brazo trabado; τ = T·t/J, J = s·t³/3 (s = {s_len:.0f})",
+        math.sqrt(3) * Mh_n * t / J, AL5083, A, T2)
+    row(rows, "P1-REV-01", "Cuchara abierta a torsión con un solo brazo trabado (FALLA DOBLE: + reversa R12 sin límite; sin fluencia)",
+        f"T = M_h = {Mh/1000:.0f} N·m; criterio FS ≥ 1", math.sqrt(3) * Mh * t / J, AL5083, A, 1.0)
+    Fl = Mh / p.REV_lock_r                      # M_h completo en una traba
+    sh_n = p.REV_lock_share_max
+    Fl_n = sh_n * Mh_n / p.REV_lock_r           # fatiga: reversa de sizing con el reparto máximo admitido
+    row(rows, "P1-REV-01", "Agujero de traba: aplastamiento del brazo con M_h completo (émbolo Ø12, R12)",
+        f"F = M_h/r = {Mh/1000:.0f} N·m / {p.REV_lock_r:.0f} mm = {Fl:.0f} N", Fl / (p.REV_lock_pin_d * p.REV_t), AL5083, A, T2)
+    R_dn = pivot_load_max(p, Fbn, sh_max)
+    R_f = pivot_load_max(p, Fb, full)
+    R_fn = pivot_load_max(p, Fbn, full)
+    row(rows, "P1-REV-01", f"Pivote: aplastamiento del brazo + aro (buje Ø{p.REV_bush_od:g} × {p.REV_bush_L:g}), R12 con reparto máx.",
+        f"R_pivote = {R_d:.0f} N (chorro/2 + traba con {p.REV_lock_share_max:.0%} de M_h)",
+        R_d / (p.REV_bush_od * p.REV_bush_L), AL5083, A, T2)
 
-    # ------------------------------------------------------------------ pernos, bujes, émbolo
-    lev_b = (p.REV_y_in - p.STE_ear_y1) + p.REV_bush_L / 2
-    Mb = (Fb / 2) * lev_b
-    row(rows, "P1-REV-02", "Perno con hombro Ø10: flexión + corte (bucket R12, corta)",
-        f"F/2 = {Fb/2:.0f} N a {lev_b:.1f} mm", vm(Mb / z_round(p.REV_pin_d), 4 / 3 * (Fb / 2) / (math.pi * p.REV_pin_d ** 2 / 4)),
-        SS316, A, T2)
-    row(rows, "P1-REV-02", "Perno con hombro Ø10: flexión (fatiga)",
-        f"F/2 = {Fbn/2:.0f} N", (Fbn / 2) * lev_b / z_round(p.REV_pin_d), SS316_FAT, A, T2)
-    row(rows, "P1-REV-03", "Buje POM Ø10/Ø14 × 8: presión (bucket R12, corta)",
-        f"{Fb/2:.0f} N / ({p.REV_pin_d:g} × {p.REV_bush_L:g})", (Fb / 2) / (p.REV_pin_d * p.REV_bush_L), POM_STAT, A, T2)
-    row(rows, "P1-REV-03", "Buje POM: presión (reversa sizing, oscilación)",
-        f"{Fbn/2:.0f} N / ({p.REV_pin_d:g} × {p.REV_bush_L:g})", (Fbn / 2) / (p.REV_pin_d * p.REV_bush_L), POM_DYN, A, T2)
+    # ------------------------------------------------------------------ pivote (espaciador + M12), buje, émbolo
+    d_o, d_i = p.REV_pin_d, 12.5
+    Zsl = math.pi * (d_o ** 4 - d_i ** 4) / (32 * d_o)
+    Asl = math.pi / 4 * (d_o ** 2 - d_i ** 2)
+
+    def sleeve(Rp):
+        return vm(Rp * lev_b / Zsl, 2 * Rp / Asl)
+    row(rows, "P1-REV-02", f"Espaciador Ø{d_o:g}/Ø{d_i:g} en voladizo: flexión + corte (R12, reparto máx. entre trabas)",
+        f"R = {R_d:.0f} N a {lev_b:.1f} mm de la oreja; τ = 2V/A (tubo)", sleeve(R_d), SS316, A, T2,
+        "unión apretada (precarga REV_bolt_pre_N): el momento lo toma la cara del espaciador; si se abre, fila del M12")
+    row(rows, "P1-REV-02", "Espaciador: flexión (reversa sizing, fatiga; reparto máx.)",
+        f"R = {R_dn:.0f} N", R_dn * lev_b / Zsl, SS316_FAT, A, T2)
+    row(rows, "P1-REV-02", "Espaciador (FALLA: un émbolo no entró; reversa sizing)",
+        f"R = {R_fn:.0f} N (M_h completo en un brazo)", sleeve(R_fn), SS316, A, T2)
+    row(rows, "P1-REV-02", "Espaciador (FALLA DOBLE: + reversa R12 sin límite; sin fluencia)",
+        f"R = {R_f:.0f} N; criterio FS ≥ 1", sleeve(R_f), SS316, A, 1.0)
+    Zm12 = math.pi * 9.85 ** 3 / 32          # [ESTIMADO: d3 M12 ≈ 9,85 mm (ISO 724)]
+    row(rows, "P1-REV-02", "Tornillo M12 A4-80 si la unión se abre y desliza: flexión + corte (R12, reparto máx.)",
+        f"R = {R_d:.0f} N a {lev_b:.1f} mm sobre el núcleo d3 9,85; A_s 84,3 mm²", vm(R_d * lev_b / Zm12, R_d / 84.3), A4_80, A, T2)
+    row(rows, "P1-REV-03", f"Buje POM Ø{d_o + 0.1:g}/Ø{p.REV_bush_od:g} × {p.REV_bush_L:g}: presión (R12, reparto máx. entre trabas)",
+        f"{R_d:.0f} N / ({d_o:g} × {p.REV_bush_L:g})", R_d / (d_o * p.REV_bush_L), POM_STAT, A, T2)
+    row(rows, "P1-REV-03", "Buje POM: presión (reversa sizing, oscilación; reparto máx.)",
+        f"{R_dn:.0f} N / ({d_o:g} × {p.REV_bush_L:g})", R_dn / (d_o * p.REV_bush_L), POM_DYN, A, T2)
+    row(rows, "P1-REV-03", "Buje POM (FALLA: un émbolo no entró; reversa sizing)",
+        f"{R_fn:.0f} N / ({d_o:g} × {p.REV_bush_L:g})", R_fn / (d_o * p.REV_bush_L), POM_STAT, A, T2)
+    row(rows, "P1-REV-03", "Buje POM (FALLA DOBLE: + reversa R12 sin límite; sin aplastamiento)",
+        f"{R_f:.0f} N; criterio FS ≥ 1", R_f / (d_o * p.REV_bush_L), POM_STAT, A, 1.0)
     dl = p.REV_lock_pin_d
     lev_l = (p.REV_y_in - p.STE_ear_y1) + p.REV_t / 2
-    row(rows, "P1-REV-04", "Perno del émbolo Ø12: flexión + corte (M_h con bucket R12)",
-        f"F = {Fl:.0f} N a {lev_l:.1f} mm; 316", vm(Fl * lev_l / z_round(dl), 4 / 3 * Fl / (math.pi * dl ** 2 / 4)), SS316, A, T2)
-    row(rows, "P1-REV-04", "Perno del émbolo: flexión (reversa sizing, fatiga)",
+    row(rows, "P1-REV-04", "Perno del émbolo Ø12: flexión + corte con M_h completo (R12)",
+        f"F = M_h/r = {Fl:.0f} N a {lev_l:.1f} mm; 316", vm(Fl * lev_l / z_round(dl), 4 / 3 * Fl / (math.pi * dl ** 2 / 4)), SS316, A, T2)
+    row(rows, "P1-REV-04", "Perno del émbolo: flexión (reversa sizing, fatiga; reparto máx.)",
         f"F = {Fl_n:.0f} N", Fl_n * lev_l / z_round(dl), SS316_FAT, A, T2)
     F_cab = p.CTL_hand_F * 125.0 / 46.0      # palanca forzada contra el tope: 100 N × 125 mm / manivela 46
     row(rows, "P1-REV-06", "Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada)",
@@ -278,7 +391,10 @@ def cases(p, A, row, rows, T3, T2):
         "F_steer_N": Fs, "F_steer_sizing_N": Fs_n, "e_mm": e, "M_steer_Nm": Ms / 1000,
         "F_link_M66_N": round(F_l, 1), "link_arm_min_mm": round(arm, 1),
         "F_bucket_N": Fb, "F_bucket_sizing_N": Fbn, "M_hinge_Nm": round(Mh / 1000, 1),
-        "F_lock_pin_N": round(Fl, 0), "n_locks": nl, "F_pivot_pin_top_N": round(F_top, 0), "F_pivot_pin_bot_N": round(F_bot, 0),
+        "F_lock_pin_N": round(Fl, 0), "n_locks": p.REV_n_locks, "lock_share_max": p.REV_lock_share_max,
+        "lock_mismatch_mm": p.REV_lock_mismatch, "R_bucket_pivot_design_N": round(R_d, 0),
+        "R_bucket_pivot_fault_sizing_N": round(R_fn, 0), "R_bucket_pivot_double_fault_N": round(R_f, 0),
+        "F_pivot_pin_top_N": round(F_top, 0), "F_pivot_pin_bot_N": round(F_bot, 0),
         "F_stop_N": round(F_st, 0),
         "PETG_boquilla": {"caso": "oreja del bucket 12 mm, reversa sizing, admisible lcf",
                           "sigma_MPa": round(s_petg, 2), "FS": round(petg_fs, 2),

@@ -33,7 +33,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from build123d import Location  # noqa: E402
-from cadlib import box, cyl_x, cyl_z, prism_xz  # noqa: E402
+from cadlib import box, cyl_x, cyl_z, prism_arc, prism_xz  # noqa: E402
 from _drv_geom import cyl_s, polar_yz, x_boat, z_axis  # noqa: E402
 from params import loc_jet  # noqa: E402
 
@@ -44,6 +44,44 @@ META = dict(id="P1-DRV-03", name="bearing_bracket", desc="Pórtico Al 6082 sobre
             allow={"P1-DRV-04": 5.0, "P1-DRV-06": 5.0})
 
 M5_TAP = 4.2          # [ESTIMADO: broca de roscar M5 (ISO 2306)]
+# Alma central y radios (auditoría ronda 3, FEA F-03): con el alma de ±Ø/4 el alojamiento entraba al tablero en una
+# cuña de ~30° (arista viva: pico del FEA en z = zd0, |y| ≈ 17). Alma de ±0,35·Ø y empalmes cóncavos de radio
+# FILLET_R alma–tablero (a lo largo de x) y alma–alojamiento (paralelo al eje: el plano |y| = cte corta al
+# cilindro en generatrices) [SUPUESTO: fresa con radio de punta 3 mm o cordón de filete equivalente si se suelda].
+WEB_HW_FRAC = 0.35
+FILLET_R = 3.0
+
+
+def web_fillets(p, g):
+    """Empalmes cóncavos del alma (sólidos a unir antes de taladrar el alojamiento)."""
+    w, r = WEB_HW_FRAC * p.drv_hsg_od, FILLET_R
+    ro = p.drv_hsg_od / 2
+    sa = math.sin(math.radians(p.alpha))
+    xd0, xd1 = g["xh0"] - ro * sa + 0.5, g["xh1"] - ro * sa - 1.0          # largo del alma (= web de build)
+    zd0 = g["zd0"]
+    c45 = math.cos(math.radians(45.0))
+    zc = math.sqrt((ro + r) ** 2 - (w + r) ** 2)            # alma ↔ alojamiento: centro (±(w + r), zc), sección ⟂ eje
+    tk = ro / (ro + r)
+    out = None
+    for sy in (1, -1):
+        # alma ↔ tablero (marco BOTE): esquina en (y = ±w, z = zd0); centro del arco (±(w + r), zd0 − r)
+        f = prism_arc("yz", (sy * (w - 1.0), zd0 + 0.5),
+                      [(sy * (w + r), zd0 + 0.5), (sy * (w + r), zd0),
+                       ((sy * (w + r - r * c45), zd0 - r + r * c45), (sy * w, zd0 - r)), (sy * (w - 1.0), zd0 - r)],
+                      xd0, xd1)
+        # alma ↔ alojamiento (marco JET): tangente a la recta Y = ±w (en (±w, zc)) y al círculo r_o (en tk·centro)
+        ang_t = math.atan2(-zc, -sy * (w + r))               # del centro al punto de tangencia con el alojamiento
+        ang_0 = math.pi if sy > 0 else 0.0                   # del centro al punto de tangencia con el alma
+        d_ang = (ang_t - ang_0 + math.pi) % (2 * math.pi) - math.pi
+        am = ang_0 + d_ang / 2
+        mid = (sy * (w + r) + r * math.cos(am), zc + r * math.sin(am))
+        tp = (sy * (w + r) * tk, zc * tk)
+        f2 = prism_arc("yz", (sy * (w - 1.0), zc), [(sy * w, zc), (mid, tp), (0.85 * tp[0], 0.85 * tp[1]),
+                                                    (sy * (w - 1.0), 0.85 * tp[1])],
+                       -g["S_h1"], -g["S_h0"]).moved(loc_jet(p))
+        f = f + f2
+        out = f if out is None else out + f
+    return out
 
 
 def geom(p):
@@ -75,8 +113,9 @@ def build(p):
     xd0, xd1 = g["xh0"] - p.drv_hsg_od / 2 * sa, g["xh1"] - p.drv_hsg_od / 2 * sa - 0.5
     deck = box(xd0, xd1, -cy1, cy1, g["zd0"], g["zd1"])
     # columna central tablero ↔ alojamiento (rellena entre la parte alta del alojamiento y el tablero)
-    web = box(xd0 + 0.5, xd1 - 0.5, -p.drv_hsg_od / 4, p.drv_hsg_od / 4, g["zd0"] - 14.0, g["zd0"] + 1.0)
-    part = hsg + deck + web
+    w = WEB_HW_FRAC * p.drv_hsg_od
+    web = box(xd0 + 0.5, xd1 - 0.5, -w, w, g["zd0"] - 14.0, g["zd0"] + 1.0)
+    part = hsg + deck + web + web_fillets(p, g)
     # mejillas (trapecio en xz) y zapatas
     for sy in (-1, 1):
         ya, yb = (cy0, cy1) if sy > 0 else (-cy1, -cy0)

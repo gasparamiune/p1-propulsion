@@ -11,9 +11,9 @@ en X = X_steer_pivot. Geometría (marco JET, δ = 0):
     agujero Ø8,2 de la oreja de la bomba. Hueco = barrido ±(δmax+5°) de la oreja de la bomba inflada;
   - torre del yugo (X' 15–40) detrás del extremo de la oreja de la bomba, con 2 × M6 para la brida
     P1-STE-04 (que lleva el poste y el brazo del cable M66 por encima de la flotación);
-  - orejas del bucket (±Y 40–48) con Ø8,4 para el perno con hombro P1-REV-02 y, del lado +Y (estribor
-    del bote) y del lado −Y, rosca M20 de un émbolo indexador P1-REV-04 en cada una (traba arriba/abajo en
-    los dos brazos del bucket; auditoría ronda 3).
+  - orejas del bucket (±Y STE_ear_y0–STE_ear_y1) con Ø12,4 para el tornillo M12 del pivote P1-REV-02 (su
+    espaciador apoya en la cara exterior) y rosca M20 de un émbolo indexador P1-REV-04 en cada una (traba
+    arriba/abajo en los dos brazos del bucket, +Y a REV_lock_ang y −Y a REV_lock_ang_m; auditoría ronda 3).
 PETG descartado: FS < 3 en orejas del bucket y pernos (ver structural_direccion.py)."""
 import math
 import os
@@ -21,8 +21,9 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 from build123d import Polyline, make_face, revolve, Axis, Pos, Rot  # noqa: E402
-from cadlib import box, cyl_z, cyl_y, prism_xz  # noqa: E402
+from cadlib import box, cyl_x, cyl_z, cyl_y, prism_arc, prism_xz  # noqa: E402
 from _dir_common import hull, circ, lug_sweep, pump_lug_proxy, inter_vol  # noqa: E402
+import _release as RL  # noqa: E402
 
 META = dict(
     id="P1-STE-01", name="boquilla", desc="Boquilla direccional con orejas de pivote, torre del yugo y orejas del bucket",
@@ -72,8 +73,8 @@ def bore_cut(p):
 
 
 def lock_point(p, side=1):
-    a = math.radians(p.REV_lock_ang if side > 0 else p.raw.get("REV_lock_ang_m", p.REV_lock_ang))
-    return (p.X_bucket_pivot + p.REV_lock_r * math.cos(a), p.Z_bucket_pivot + p.REV_lock_r * math.sin(a))
+    """Eje del émbolo de la traba en la oreja +Y (side = 1) o −Y (side = −1) (fuente única: _release)."""
+    return RL.lock_xz(p, side)
 
 
 def ear_outline(p, sign):
@@ -103,10 +104,36 @@ def pivot_ear(p, sign):
     return Rot(180, 0, 0) * e        # espejo en Z (la oreja es simétrica en Y)
 
 
+EAR_LIP_R = 2.0      # [SUPUESTO: radio de fresa 2 mm] empalme oreja de pivote ↔ cara del labio (auditoría ronda 3, FEA F-03)
+
+
+def ear_lip_fillets(p, r=EAR_LIP_R):
+    """Empalmes cóncavos de radio r donde el frente de cada oreja de pivote (cilindro r_e alrededor del eje de
+    giro, x < X_pivote) se apoya en la cara del labio de entrada (plano x = X_pivote, anillo rf–Rs) a |y| = r_e:
+    sin ellos esa esquina es una arista viva donde el FEA no converge (auditoría ronda 3, F-03). En el plano xy
+    el arco es tangente al plano del labio y al cilindro de la oreja; se extruye en z y se recorta al anillo."""
+    Xp, re = p.X_steer_pivot, p.STE_ear_rp
+    yc = math.sqrt((re + r) ** 2 - r ** 2)                   # centro del arco: (Xp − r, ±yc)
+    k = re / (re + r)
+    t_pt = (Xp - r * k, yc * k)                             # tangencia sobre el cilindro de la oreja
+    a_m = 0.5 * math.atan2(-yc, r)                          # ángulo medio del arco (desde el centro)
+    mid = (Xp - r + r * math.cos(a_m), yc + r * math.sin(a_m))
+    ring = cyl_x(p.STE_Rs, Xp - r - 1.0, Xp + 0.3)          # el labio llega hasta Rs (lo de r < rf lo quita el taladro)
+    out = None
+    for sz in (1, -1):
+        z0, z1 = (38.0, p.STE_Rs + 0.5) if sz > 0 else (-p.STE_Rs - 0.5, -38.0)
+        for sy in (1, -1):
+            f = prism_arc("xy", (Xp + 0.3, sy * (re - 1.0)),
+                          [(Xp + 0.3, sy * yc), (Xp, sy * yc), ((mid[0], sy * mid[1]), (t_pt[0], sy * t_pt[1])),
+                           (t_pt[0], sy * (re - 1.0))], z0, z1) & ring
+            out = f if out is None else out + f
+    return out
+
+
 def build(p):
     Xp = p.X_steer_pivot
     b = _revolved(body_profile(p))
-    b = b + pivot_ear(p, 1) + pivot_ear(p, -1)
+    b = b + pivot_ear(p, 1) + pivot_ear(p, -1) + ear_lip_fillets(p)
     for s in (1, -1):
         y0, y1 = (p.STE_ear_y0, p.STE_ear_y1) if s > 0 else (-p.STE_ear_y1, -p.STE_ear_y0)
         b = b + prism_xz(ear_outline(p, s), y0, y1)
@@ -118,9 +145,9 @@ def build(p):
     # roscas M6 de la brida del yugo (Ø5,0 × 12) en la torre
     for (xx, yy) in p.STE_riser_bolts:                                      # M8 (Ø6,8 × 16)
         b = b - cyl_z(3.4, p.STE_riser_top - 16, p.STE_riser_top + 1, x=Xp + xx, y=yy)
-    # orejas del bucket: Ø8,4 pasante (perno con hombro Ø10 apoya en la cara exterior; tuerca adentro)
+    # orejas del bucket: Ø(M12 + 0,4) pasante (el espaciador del pivote P1-REV-02 apoya en la cara exterior; tuerca adentro)
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
-    b = b - cyl_y(4.2, -p.STE_ear_y1 - 1, p.STE_ear_y1 + 1, x=Xb, z=Zb)
+    b = b - cyl_y(p.REV_bolt_d / 2 + 0.2, -p.STE_ear_y1 - 1, p.STE_ear_y1 + 1, x=Xb, z=Zb)
     lx, lz = lock_point(p)
     b = b - cyl_y(10.0, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=lx, z=lz)              # M20 del émbolo (+Y)
     if p.REV_n_locks > 1:

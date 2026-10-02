@@ -72,7 +72,17 @@ def main():
                  "ok": min(m["fs_shaft_static"], m["fs_shaft_fatigue"]) >= T2, "justification": "",
                  "note": "mín(estático, fatiga)"})
     fails = [r for r in rows if not r["ok"]]
-    out = {"allowables_MPa": A, "rows": rows, "n_fail": len(fails), "loads": loads}
+    # fila más justa (mínimo FS/objetivo) de cada pieza: referencia estable para los .md (est.min_by_part.<ID>.FS),
+    # que no se corre cuando se agregan o quitan filas de otras piezas
+    min_by_part = {}
+    for r in rows:
+        if r["FS"] is None or r["target"] in (None, 0):
+            continue
+        q = r["FS"] / r["target"]
+        if r["part"] not in min_by_part or q < min_by_part[r["part"]]["ratio"]:
+            min_by_part[r["part"]] = {"FS": r["FS"], "target": r["target"], "ratio": round(q, 3),
+                                      "load_case": r["load_case"], "ok": r["ok"]}
+    out = {"allowables_MPa": A, "rows": rows, "n_fail": len(fails), "loads": loads, "min_by_part": min_by_part}
     (ROOT / "resultados").mkdir(exist_ok=True)
     with open(ROOT / "resultados" / "estructural.json", "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2, ensure_ascii=False)
