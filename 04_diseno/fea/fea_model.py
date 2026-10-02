@@ -358,8 +358,9 @@ class Model:
         return out
 
     def region_summary(self, fields, r_ex, regions, extra_zones=()):
-        """Por región (nombre → máscara(X (N,3)) → bool): σvm máx. global, máx. fuera de zonas de
-        carga/apoyo (máx*), p99 de la región (ponderado por volumen) y ubicación del máx*."""
+        """Por región (nombre → máscara(X (N,3)) → bool): σ máx. global, máx. fuera de zonas de
+        carga/apoyo (máx*; None si la región entera cae dentro de r_excl), p99 y promedio de la región
+        (ponderados por volumen) y ubicación del máx*."""
         S = self.S
         w = S.node_volume()
         excl = self.zone_mask(r_ex, extra_zones)
@@ -374,8 +375,9 @@ class Model:
                 v = fields[key]
                 vv = v[ok] if ok.any() else v[sel]
                 iex = (np.flatnonzero(ok) if ok.any() else np.flatnonzero(sel))[np.argmax(vv)]
-                rec[key] = {"max": float(v[sel].max()), "max_excl": float(v[iex]),
+                rec[key] = {"max": float(v[sel].max()), "max_excl": float(v[iex]) if ok.any() else None,
                             "p99": fc.weighted_percentile(v[sel], w[sel], 99.0),
+                            "mean": float((v[sel] * w[sel]).sum() / w[sel].sum()),
                             "at_max_excl_mm": S.X[iex].round(1).tolist()}
             out[name] = rec
         return out

@@ -13,11 +13,11 @@
 | Punto de diseño de la bomba | 39.6 km/h, 5073 rpm, φ 0.260, ψ 0.073, Ω_s 5.59 | [CALCULADO] |
 | ¿Planea? / margen mínimo en la joroba (a qué V) | sí / 3 % (19.8 km/h) — NO cumple el mínimo de 10% | [CALCULADO] |
 | Puntos de planeo con Savitsky válido (L_K ≤ L_wl, λ ≤ 4, τ 2–15°) | 0 de 14 (el resto: limitado por eslora) | [CALCULADO; método ESTIMADO] |
-| Tiempo de 0 a planeo | 13.6 s | [CALCULADO] |
+| Tiempo de 0 a planeo | 13.5 s | [CALCULADO] |
 | V máx. sostenida (potencia continua, banda nominal) | 25.0 km/h (objetivo 30) | [CALCULADO] |
 | V máx. sostenida, banda baja – alta de R (sin validar hasta T4) | 18.2 – 28.8 km/h | [CALCULADO; R ESTIMADO] |
 | P de batería a V máx. / a 5 kn | 6723 W / 1680 W | [CALCULADO] |
-| Empuje a punto fijo / en reversa | 765 N / 217 N | [CALCULADO] |
+| Empuje a punto fijo / en reversa | 764 N / 217 N | [CALCULADO] |
 | Autonomía a V máx. / a 5 kn | 37 min (15.4 km) / 2.5 h | [CALCULADO] |
 | Energía de la misión requerida / nominal | 3361 / 4608 Wh | [CALCULADO] |
 | Cavitación S a V máx. (límite) | 3.20 (3.5) | [CALCULADO] |
@@ -26,20 +26,20 @@
 | I_q pico (FOC) / l_current_max / margen | 285 A / 292 A / 2 % | [CALCULADO; convención bus_foc SUPUESTO] |
 | Motor a V máx. sostenida (estacionario) | 49 °C (máx. 120) | [CALCULADO] |
 | Eje Ø / FS estático / FS fatiga | 20 mm / 4.0 / 9.3 | [CALCULADO] |
-| Rodamientos L10 a V máx. / vel. crítica / sello | 781878 h / 3.8× n máx. / 4.4 m/s | [CALCULADO] |
+| Rodamientos L10 a V máx. / vel. crítica / sello | 783783 h / 3.8× n máx. / 4.4 m/s | [CALCULADO] |
 
 ## Curva a fondo (potencia pico, banda de diseño, batería nominal)
 
 | V [km/h] | R diseño [N] | T pico [N] | rpm | P bat [W] | I bat [A] | S | Limita |
 |---|---|---|---|---|---|---|---|
-| 0 | 0 | 765 | 4048 | 7270 | 189 | 3.50 | cavitación (S) |
-| 4 | 25 | 701 | 4053 | 7289 | 190 | 3.50 | cavitación (S) |
+| 0 | 0 | 764 | 4048 | 7270 | 189 | 3.50 | cavitación (S) |
+| 4 | 25 | 701 | 4053 | 7288 | 190 | 3.50 | cavitación (S) |
 | 7 | 114 | 646 | 4068 | 7344 | 191 | 3.50 | cavitación (S) |
 | 11 | 279 | 593 | 4080 | 7373 | 192 | 3.48 | corriente de batería |
-| 14 | 439 | 543 | 4090 | 7373 | 192 | 3.46 | corriente de batería |
+| 14 | 438 | 543 | 4090 | 7373 | 192 | 3.46 | corriente de batería |
 | 18 | 456 | 495 | 4102 | 7373 | 192 | 3.42 | corriente de batería |
 | 22 | 444 | 450 | 4116 | 7373 | 192 | 3.38 | corriente de batería |
-| 25 | 420 | 406 | 4131 | 7373 | 192 | 3.34 | corriente de batería |
+| 25 | 419 | 406 | 4131 | 7373 | 192 | 3.34 | corriente de batería |
 | 29 | 409 | 363 | 4146 | 7373 | 192 | 3.29 | corriente de batería |
 | 32 | 409 | 321 | 4163 | 7373 | 192 | 3.23 | corriente de batería |
 | 36 | 420 | 279 | 4179 | 7373 | 192 | 3.16 | corriente de batería |
@@ -62,9 +62,9 @@
 | HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.9 | -39 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 13.8 | -40 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.8 | -40 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.7 | -40 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.8 | -40 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.7 | -40 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.6 | -41 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.6 | -40 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.6 | -40 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.6 | -40 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 120 | 0.70 | 13.6 | -40 % | 1322 | no |

@@ -126,7 +126,8 @@ def comparisons(est, part, specs):
             continue
         rec = dict(h)
         rec.update({"caso": s["caso"], "region": s["region"], "escala_carga": s.get("escala", 1.0),
-                    "k_mano_a_vm": s.get("k_mano", 1.0), "S_cmp_MPa": s.get("S", h["S_MPa"]), "nota": s.get("nota", "")})
+                    "k_mano_a_vm": s.get("k_mano", 1.0), "S_cmp_MPa": s.get("S", h["S_MPa"]), "nota": s.get("nota", ""),
+                    "metrica": s.get("metrica", "max_excl")})
         out.append(rec)
     return out
 
@@ -361,7 +362,9 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
         return [{"id": "a", "name": "Reversa: chorro F_b = máx(sizing %.0f N, R12 %.0f N) = %.0f N en la cuchara; M_h = %.0f N·m (traba + pivotes)"
                  % (Fbn, 1408.0, Fb, abs(M_tgt) / 1000), "kind": "short", "u": u, "info": info, "extra": extra, "active": M_active(M)}]
 
-    regions = {"brazos": lambda X: np.abs(X[:, 1]) >= yi - 0.05,
+    regions = {"traba": lambda X: (np.hypot(X[:, 0] - lk[0], X[:, 2] - lk[1]) <= p.REV_lock_hole_d / 2 + 3.0) & (X[:, 1] > 0),
+               "pivotes": lambda X: np.hypot(X[:, 0] - Xb, X[:, 2] - Zb) <= r_b + 3.0,
+               "brazos": lambda X: np.abs(X[:, 1]) >= yi - 0.05,
                "cuchara": lambda X: np.abs(X[:, 1]) < yi - 0.05}
     checks = {"F_b_N": Fb, "F_b_sizing_N": Fbn, "R_chorro_mm": R, "k_pivote_N_mm3": k_piv, "q_chorro_MPa": q,
               "p_dinamica_MPa": pdyn, "estatica": bucket_statics(p, Fb),
@@ -374,8 +377,10 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
         {"key": "Chapa de la cuchara: franja empotrada", "caso": "a", "region": "cuchara", "escala": pdyn / q,
          "nota": "FEA escalado a p_dinámica / q"},
         {"key": "Chapa de la cuchara: franja (fatiga", "caso": "a", "region": "cuchara", "escala": pdyn / q},
-        {"key": "Agujero de traba", "caso": "a", "region": "brazos",
-         "nota": "aplastamiento: la fila es presión media F/(d·t); el FEA da σvm fuera del radio de exclusión"},
+        {"key": "Pivote: aplastamiento", "caso": "a", "region": "pivotes", "metrica": "mean",
+         "nota": "aplastamiento: presión media F/(d·L); FEA: σvm promedio en el anillo de 3 mm alrededor de los pivotes"},
+        {"key": "Agujero de traba", "caso": "a", "region": "traba", "metrica": "mean",
+         "nota": "aplastamiento: la fila es presión media F/(d·t); FEA: σvm promedio en el anillo de 3 mm alrededor del agujero"},
     ])
     return {"model": M, "run": run, "meta": meta, "mesh": minfo, "checks": checks, "allow": A,
             "regions": regions, "comparacion": comp, "frame_label": "BOQUILLA (bucket abajo)"}
@@ -507,6 +512,9 @@ def setup_int02(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     hr = max(0.5 * h, hmin)
     ref = [(x, y, zt / 2, 18.0, hr) for (x, y) in p.brg_bracket_holes]
     S, M, minfo = _setup_model(part, pid, meta, tmpdir, h, curv, hmin, A, refine=ref)
+    xf0, xf1 = p.toma_x_lb_aft - p.toma_bf_aft, p.toma_x_j + p.toma_ffw
+    duct_ref = np.array([0.5 * (xf0 + xf1), 0.0, zt])
+    duct_dofs = M.add_rigid("conducto", duct_ref)
     M.assemble()
     # apoyos: ala sobre el casco (contacto unilateral) + bulones M6 del ala (tuerca + arandela: empotrados)
     k_h = E_AL / p.bottom_t
@@ -573,15 +581,30 @@ def setup_int02(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     f_duct *= F_duct / force_of(S, f_duct)[2]
     M.zones += [duct]
     f_b = f_slam + f_open + f_duct
+    # variante (b2): conducto P1-INT-01 como rigidizador rígido (cota de máxima rigidez: costados de 150 mm
+    # de alto abulonados a la placa). Cuerpo rígido unido a la huella de la brida y a las roscas M6; el tiro
+    # p·A_abertura se aplica al conducto. (b) sin conducto es la cota opuesta (placa sola).
+    W2b = W2
+    flange = sel_plane(S, (0, 0, 1), zt, region=lambda c: (np.abs(c[:, 1]) >= W2b - 0.1) & (np.abs(c[:, 1]) <= p.toma_bf_y + 0.1)
+                       & (c[:, 0] >= xf0) & (c[:, 0] <= xf1))
+    K_duct = S.rigid_coupling(flange, E_AL / CONTACT_LEN, duct_dofs, duct_ref, k_t=KT_FRAC * E_AL / CONTACT_LEN) + \
+        S.rigid_coupling(duct, E_AL / CONTACT_LEN, duct_dofs, duct_ref, k_t=E_AL / CONTACT_LEN,
+                         axis=None)
+    f_b2 = f_slam + f_open
+    f_b2[duct_dofs[2]] += F_duct
+    # sin la variante el cuerpo rígido queda suelto: resorte débil a tierra en sus 6 gdl
+    K_loose = sp.csr_matrix((np.full(6, 1e-3), (duct_dofs, duct_dofs)), shape=(S.ndof, S.ndof))
 
     def run(log=print, init=None):
         res = []
-        for cid, name, f in (
+        for cid, name, f, Kx in (
                 ("a", "Espárragos del pórtico: precarga %.0f N (%.0f N·m, K %.2f) ± vuelco Fa·h/Δx/2 = %.0f N (Φ = %.2f) + corte Fa/4"
-                 % (F_pre, p.drv_nut_torque_Nm, p.drv_nut_K, dF, Phi), f_a),
-                ("b", "Golpe de fondo %.0f kPa + presión de cierre %.0f kPa en la abertura + tiro de la brida del conducto %.0f N"
-                 % (p_slam * 1e3, p_des * 1e3, F_duct), f_b)):
-            u, info = M.solve(f, init_active=(init or {}).get(cid), log=None)
+                 % (F_pre, p.drv_nut_torque_Nm, p.drv_nut_K, dF, Phi), f_a, K_loose),
+                ("b", "Golpe de fondo %.0f kPa + presión de cierre %.0f kPa en la abertura + tiro de la brida del conducto %.0f N "
+                 "(placa sola, sin la rigidez del conducto: conservador)" % (p_slam * 1e3, p_des * 1e3, F_duct), f_b, K_loose),
+                ("b2", "Ídem (b) con el conducto P1-INT-01 como rigidizador rígido abulonado (cota rígida; = modelo de structural_toma)",
+                 f_b2, K_duct)):
+            u, info = M.solve(f, extra_K=Kx, init_active=(init or {}).get(cid), log=None)
             R_ = M.interface_forces(u)
             res.append({"id": cid, "name": name, "kind": "short", "u": u, "info": info, "active": M_active(M),
                         "extra": {"F_N": force_of(S, f).round(1).tolist(), "ala_casco_N": R_["ala_casco"]["F_N"],
@@ -592,7 +615,21 @@ def setup_int02(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
         d = np.min([np.hypot(X[:, 0] - x, X[:, 1] - y) for x, y in p.brg_bracket_holes], axis=0)
         return d <= 20.0
     yb = p.toma_plate_y + p.toma_rim_w / 2
-    regions = {"avellanados_M8": near_studs,
+    def cone_layer(X):                           # capa de 1,5 mm bajo la superficie del avellanado
+        out = np.zeros(len(X), bool)
+        for x, y in p.brg_bracket_holes:
+            r = np.hypot(X[:, 0] - x, X[:, 1] - y)
+            rc = m.CSK_D / 2 - X[:, 2]                # cono 90°: r = dk/2 − z
+            out |= (X[:, 2] <= zc + 0.01) & (r >= rc - 0.01) & (r <= rc + 1.5)
+        return out
+
+    def plug(X):                                  # cilindro Ø dk sobre el cono (tapón de arranque), ±1 mm
+        out = np.zeros(len(X), bool)
+        for x, y in p.brg_bracket_holes:
+            r = np.hypot(X[:, 0] - x, X[:, 1] - y)
+            out |= (X[:, 2] >= zc - 0.01) & (np.abs(r - m.CSK_D / 2) <= 1.0)
+        return out
+    regions = {"avellanados_M8": near_studs, "asiento_cono": cone_layer, "tapon_dk": plug,
                "pano_lateral": lambda X: (np.abs(X[:, 1]) > p.toma_bolt_y) & (np.abs(X[:, 1]) < yb) & ~near_studs(X),
                "cuna_y_abertura": lambda X: np.abs(X[:, 1]) <= W2 + 15.0}
     checks = {"F_pre_N": F_pre, "F_pre_structural_toma_N": 7000.0, "dF_vuelco_N": dF, "Phi": Phi, "esparragos": stud,
@@ -600,11 +637,14 @@ def setup_int02(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
               "nota": "Precarga con el par de montaje del pórtico (structural_tren: T/(K·d)); structural_toma usa 7000 N [ESTIMADO]."}
     sq3 = math.sqrt(3)
     comp = comparisons(est, pid, [
-        {"key": "Paño lateral", "caso": "b", "region": "pano_lateral"},
-        {"key": "Asiento cónico", "caso": "a", "region": "avellanados_M8",
-         "nota": "aplastamiento: la fila es presión F/A_proy (7000 N de precarga); el FEA usa la precarga de montaje"},
-        {"key": "Arranque de la cabeza M8", "caso": "a", "region": "avellanados_M8", "k_mano": sq3, "S": Sy,
-         "nota": "τ de la fila × √3 → von Mises"},
+        {"key": "Paño lateral", "caso": "b2", "region": "pano_lateral"},
+        {"key": "Paño lateral", "caso": "b", "region": "pano_lateral", "nota": "placa sola (sin conducto)"},
+        {"key": "Asiento cónico", "caso": "a", "region": "asiento_cono", "metrica": "mean",
+         "escala": (7000.0 + 0.25 * dF) / (F_pre + 0.25 * dF),
+         "nota": "aplastamiento: promedio de σvm en la capa de 1,5 mm bajo el cono, escalado a la precarga de la fila (7000 N)"},
+        {"key": "Arranque de la cabeza M8", "caso": "a", "region": "tapon_dk", "metrica": "mean", "k_mano": sq3, "S": Sy,
+         "escala": (7000.0 + 0.25 * dF) / (F_pre + 0.25 * dF),
+         "nota": "τ de la fila × √3 → von Mises; FEA: promedio en el cilindro Ø dk ± 1 mm sobre el cono"},
     ])
     return {"model": M, "run": run, "meta": meta, "mesh": minfo, "checks": checks, "allow": A,
             "regions": regions, "comparacion": comp, "frame_label": "BOTE"}

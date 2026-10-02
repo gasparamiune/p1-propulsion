@@ -122,7 +122,10 @@ def compare(out, level):
         reg = case[level]["regiones"].get(c["region"])
         if not reg:
             continue
-        s_fea = reg["vm"]["max_excl"] * c["escala_carga"]
+        met = c.get("metrica", "max_excl")
+        if reg["vm"].get(met) is None:
+            continue
+        s_fea = reg["vm"][met] * c["escala_carga"]
         s_p99 = reg["vm"]["p99"] * c["escala_carga"]
         S = c["S_cmp_MPa"]
         s_hand = None if c["sigma_MPa"] is None else c["sigma_MPa"] * c["k_mano_a_vm"]
@@ -211,8 +214,9 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
             for rn, rv in rec["fina"]["regiones"].items():
                 gv = rec["gruesa"]["regiones"].get(rn)
                 if gv:
-                    rc[rn] = {"gruesa": gv["vm"]["max_excl"], "fina": rv["vm"]["max_excl"],
-                              "dif_rel": (rv["vm"]["max_excl"] - gv["vm"]["max_excl"]) / max(rv["vm"]["max_excl"], 1e-9)}
+                    k = "max_excl" if (gv["vm"]["max_excl"] is not None and rv["vm"]["max_excl"] is not None) else "mean"
+                    rc[rn] = {"metrica": k, "gruesa": gv["vm"][k], "fina": rv["vm"][k],
+                              "dif_rel": (rv["vm"][k] - gv["vm"][k]) / max(rv["vm"][k], 1e-9)}
             conv["regiones_vm_max_excl"] = rc
             rec["convergencia"] = conv
         fsb = rec["FS"]["gobernante"]
@@ -326,7 +330,8 @@ def readme_block(res):
                 return f"{_f(v['gruesa'], n)} → {_f(v['fina'], n)} ({100 * v['dif_rel']:+.0f} %)"
             L.append(f"| {pid} | {cid} | {r['r_exclusion_mm']:.0f} | {cell('vm_p99')} | {cell('vm_max_excl')} | {cell('vm_max')} | {cell('u_max', 4)} |")
     L += ["", "### Comparación con el cálculo a mano (resultados/estructural.json)", "",
-          "σ FEA = σvm máx* de la región de la pieza que modela la fila, escalada a la carga de la fila (columna «×»). "
+          "σ FEA = σvm de la región de la pieza que modela la fila (máx* salvo que se indique promedio en volumen), "
+          "escalada a la carga de la fila (columna «×»). "
           "FS con el admisible de la fila. Dif = (FS_FEA − FS_mano)/FS_mano.", "",
           "| Pieza | Fila structural_*.py | Caso FEA · región | × | σ mano [MPa] | σ FEA [MPa] (p99) | FS mano | FS FEA | Dif |",
           "|---|---|---|---|---|---|---|---|---|"]
@@ -334,7 +339,8 @@ def readme_block(res):
         for c in r["comparacion_mano"]:
             flag = " ⚠" if c["dif_FS_rel"] is not None and abs(c["dif_FS_rel"]) > 0.30 else ""
             dif = "—" if c["dif_FS_rel"] is None else f"{100 * c['dif_FS_rel']:+.0f} %"
-            L.append(f"| {pid} | {c['load_case']} | {c['caso']} · {c['region']} | {c['escala_carga']:.2f} | "
+            met = {"max_excl": "máx*", "mean": "promedio", "p99": "p99"}[c.get("metrica", "max_excl")]
+            L.append(f"| {pid} | {c['load_case']} | {c['caso']} · {c['region']} ({met}) | {c['escala_carga']:.2f} | "
                      f"{_f(c['sigma_mano_vm_MPa'])} | {_f(c['sigma_FEA_MPa'])} ({_f(c['sigma_FEA_p99_MPa'])}) | "
                      f"{_f(c['FS_mano_cmp'])} | {_f(c['FS_FEA'])} | "
                      f"{dif}{flag} |")
@@ -344,8 +350,23 @@ def readme_block(res):
 
 def findings(res):
     """Hallazgos con las cifras vigentes (una viñeta por pieza)."""
-    import fea_notes
-    return fea_notes.findings(res)
+    H = []
+    for pid, r in res["piezas"].items():
+        lv = r["nivel_reportado"]
+        g = r["casos"][r["caso_gobernante"]]
+        s = g[lv]["resumen"]
+        tgt = r["FS_objetivo"]
+        H.append(f"- **{pid}: FS = {r['FS_min']:.2f}** (objetivo {tgt:.0f}, {'cumple' if r['cumple'] else 'NO CUMPLE'}); "
+                 f"caso {r['caso_gobernante']}, σvm máx* = {s['vm']['max_excl']:.1f} MPa en {tuple(s['vm']['at_max_excl_mm'])} mm, "
+                 f"p99 {s['vm']['p99']:.1f} MPa (FS p99 {g['FS']['vm_p99']:.2f}).")
+        for c in r["comparacion_mano"]:
+            if c["dif_FS_rel"] is not None and abs(c["dif_FS_rel"]) > 0.30:
+                H.append(f"  - ⚠ «{c['load_case']}»: FS mano {c['FS_mano_cmp']:.2f} vs FS FEA {c['FS_FEA']:.2f} "
+                         f"({100 * c['dif_FS_rel']:+.0f} %). {NOTES.get((pid, c['load_case'][:24]), '')}")
+    return H
+
+
+NOTES = {}      # explicaciones de diferencias > 30 % (clave: (pieza, primeros 24 caracteres de la fila))
 
 
 def main(argv=None):
