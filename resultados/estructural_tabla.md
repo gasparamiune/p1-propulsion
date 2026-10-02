@@ -51,19 +51,19 @@
 | P1-STE-06 | Poste contra el tope: flexión (timón forzado) | F = 607 N a 111 mm de la brida | 64.69 | metal | 240.0 | 3.71 | 2.0 | ✔ |
 | P1-STE-08 | 2 × M6 A4-70 del ala al espejo (tracción por el momento) | M = F × 40 mm / 30 mm entre bulón y borde | 40.27 | metal | 450.0 | 11.18 | 2.0 | ✔ |
 | P1-STE-07 | Brazo 10 mm: flexión por la altura de la rótula + tracción | F_biela 304 N; M = F × 12 mm en 24 × 10 | 10.37 | metal | 125.0 | 12.05 | 2.0 | ✔ |
-| P1-REV-01 | Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta) | p = 98 kPa, luz 53.5 mm (nervio central), t = 4 | 8.75 | metal | 125.0 | 14.29 | 2.0 | ✔ |
-| P1-REV-01 | Chapa de la cuchara: franja (fatiga de soldadura, 1e5) | ídem | 8.75 | metal | 68.0 | 7.77 | 2.0 | ✔ |
-| P1-REV-01 | Cuchara como viga entre brazos (bucket R12, corta) | M = F·L/8, L = 107; I_arco = 245e3 mm⁴ | 3.51 | metal | 125.0 | 35.61 | 2.0 | ✔ |
-| P1-REV-01 | Brazo lateral: flexión (bucket R12, corta) | F/2 = 704 N a 128 mm; sección 4 × 60 | 37.41 | metal | 125.0 | 3.34 | 2.0 | ✔ |
-| P1-REV-01 | Brazo lateral: flexión (reversa sizing, fatiga de soldadura) | F/2 = 349 N | 18.55 | metal | 68.0 | 3.67 | 2.0 | ✔ |
-| P1-REV-01 | Agujero de traba: aplastamiento del brazo (émbolo Ø12) | F = M_h/r = 127 N·m / 45 mm = 2817 N | 58.68 | metal | 125.0 | 2.13 | 2.0 | ✔ |
-| P1-REV-01 | Pivote: aplastamiento del brazo + refuerzo (buje Ø14 × 8) | F/2 = 704 N | 6.29 | metal | 125.0 | 19.89 | 2.0 | ✔ |
-| P1-REV-02 | Perno con hombro Ø10: flexión + corte (bucket R12, corta) | F/2 = 704 N a 5.5 mm | 44.54 | metal | 205.0 | 4.6 | 2.0 | ✔ |
-| P1-REV-02 | Perno con hombro Ø10: flexión (fatiga) | F/2 = 349 N | 19.56 | metal | 180.0 | 9.2 | 2.0 | ✔ |
-| P1-REV-03 | Buje POM Ø10/Ø14 × 8: presión (bucket R12, corta) | 704 N / (10 × 8) | 8.80 | metal | 20.0 | 2.27 | 2.0 | ✔ |
-| P1-REV-03 | Buje POM: presión (reversa sizing, oscilación) | 349 N / (10 × 8) | 4.36 | metal | 10.0 | 2.29 | 2.0 | ✔ |
-| P1-REV-04 | Perno del émbolo Ø12: flexión + corte (M_h con bucket R12) | F = 2817 N a 3.5 mm; 316 | 81.76 | metal | 205.0 | 2.51 | 2.0 | ✔ |
-| P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga) | F = 1397 N | 28.82 | metal | 180.0 | 6.25 | 2.0 | ✔ |
+| P1-REV-01 | Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta) | p = 98 kPa, luz 53.5 mm (nervio central), t = 6 | 3.89 | metal | 125.0 | 32.15 | 2.0 | ✔ |
+| P1-REV-01 | Chapa de la cuchara: franja (fatiga de soldadura, 1e5) | ídem | 3.89 | metal | 68.0 | 17.49 | 2.0 | ✔ |
+| P1-REV-01 | Cuchara como viga entre brazos (bucket R12, corta) | M = F·L/8, L = 107; I_arco = 388e3 mm⁴ | 2.30 | metal | 125.0 | 54.33 | 2.0 | ✔ |
+| P1-REV-01 | Brazo lateral: flexión (bucket R12, corta) | M = M_h/n = 127/2 N·m por brazo trabado; sección 6 × 60 | 17.61 | metal | 125.0 | 7.1 | 2.0 | ✔ |
+| P1-REV-01 | Brazo lateral: flexión (reversa sizing, fatiga de soldadura) | M = M_h,sizing/n = 63/2 N·m | 8.73 | metal | 68.0 | 7.79 | 2.0 | ✔ |
+| P1-REV-01 | Agujero de traba: aplastamiento del brazo (émbolo Ø12) | F = M_h/(n·r) = 127 N·m / (2 × 45 mm) = 1408 N | 19.56 | metal | 125.0 | 6.39 | 2.0 | ✔ |
+| P1-REV-01 | Pivote: aplastamiento del brazo + refuerzo (buje Ø14 × 12) | F/2 = 704 N | 4.19 | metal | 125.0 | 29.83 | 2.0 | ✔ |
+| P1-REV-02 | Perno con hombro Ø10: flexión + corte (bucket R12, corta) | F/2 = 704 N a 7.5 mm | 57.63 | metal | 205.0 | 3.56 | 2.0 | ✔ |
+| P1-REV-02 | Perno con hombro Ø10: flexión (fatiga) | F/2 = 349 N | 26.67 | metal | 180.0 | 6.75 | 2.0 | ✔ |
+| P1-REV-03 | Buje POM Ø10/Ø14 × 8: presión (bucket R12, corta) | 704 N / (10 × 12) | 5.87 | metal | 20.0 | 3.41 | 2.0 | ✔ |
+| P1-REV-03 | Buje POM: presión (reversa sizing, oscilación) | 349 N / (10 × 12) | 2.91 | metal | 10.0 | 3.44 | 2.0 | ✔ |
+| P1-REV-04 | Perno del émbolo Ø12: flexión + corte (M_h con bucket R12) | F = 1408 N a 4.5 mm; 316 | 47.15 | metal | 205.0 | 4.35 | 2.0 | ✔ |
+| P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga) | F = 698 N | 18.53 | metal | 180.0 | 9.72 | 2.0 | ✔ |
 | P1-REV-06 | Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada) | F = 100 N × 125/46 = 272 N a 6 mm | 32.44 | metal | 205.0 | 6.32 | 2.0 | ✔ |
 | P1-REV-09 | Soporte del Bowden 4 mm: placa de tope en voladizo | tiro 60 N [ESTIMADO] a 34 mm; sección 16 × 4 | 47.81 | metal | 125.0 | 2.61 | 2.0 | ✔ |
 | P1-CTL-14 | Gatillo 6 mm: flexión por el apriete (100 N a 20 mm del pivote) | sección 10 × 6 | 20.00 | metal | 240.0 | 12.0 | 2.0 | ✔ |

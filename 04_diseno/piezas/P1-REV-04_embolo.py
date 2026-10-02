@@ -5,13 +5,15 @@ buscar "GN 617-10-M16 A4" / "Arretierbolzen Edelstahl M16"]. Se enrosca en la or
 (contratuerca M20 por dentro) y su perno entra en el agujero del brazo del bucket que corresponde a cada
 posición: la carga del chorro en reversa (R12: 53–85 N·m en la bisagra) la toma el perno, no el cable
 Mach5. Se libera tirando del pomo con un Bowden inox desde el gatillo de la palanca del bucket
-(P1-CTL-10); al soltar el gatillo, el resorte lo vuelve a meter (traba automática al llegar)."""
+(P1-CTL-10); al soltar el gatillo, el resorte lo vuelve a meter (traba automática al llegar).
+DOS émbolos (qty 2), uno en cada oreja ±Y (REV_n_locks; auditoría ronda 3: con uno solo la cuchara se
+torcía); el gatillo tira de los dos Bowden a la vez (P1-REV-09/10 también ×2)."""
 import math
 from cadlib import cyl_y
 
 META = dict(
-    id="P1-REV-04", name="embolo", desc="Émbolo indexador A4 M20 / perno Ø12 (comprado)",
-    material="AISI 316", process="comprada", qty=1, frame="steer", group="jet",
+    id="P1-REV-04", name="embolo", desc="Émbolo indexador A4 M20 / perno Ø12 (comprado), uno por oreja ±Y",
+    material="AISI 316", process="comprada", qty=2, frame="steer", group="jet",
     load_case="Corte del perno Ø10: momento del bucket en reversa / REV_lock_r", print_rot=(0, 0, 0),
     solid_frac=1.0, orientation="—", mass_g=160.0,   # [ESTIMADO: catálogo de émbolos M20]
 )
@@ -35,8 +37,12 @@ def lock_xz(p):
 def placements(p, steer=0.0, bucket=0):
     from build123d import Pos
     from params import loc_steer
+    from build123d import Rot
     x, z = lock_xz(p)
-    return [loc_steer(p, steer) * Pos(x, 0, z)]
+    L = [loc_steer(p, steer) * Pos(x, 0, z)]
+    if p.REV_n_locks > 1:
+        L.append(loc_steer(p, steer) * Pos(x, 0, z) * Rot(180, 0, 0))   # gemelo en la oreja −Y
+    return L
 
 
 def checks(p, part):

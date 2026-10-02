@@ -12,7 +12,8 @@ en X = X_steer_pivot. Geometría (marco JET, δ = 0):
   - torre del yugo (X' 15–40) detrás del extremo de la oreja de la bomba, con 2 × M6 para la brida
     P1-STE-04 (que lleva el poste y el brazo del cable M66 por encima de la flotación);
   - orejas del bucket (±Y 40–48) con Ø8,4 para el perno con hombro P1-REV-02 y, del lado +Y (estribor
-    del bote), rosca M20 del émbolo indexador P1-REV-04 (traba arriba/abajo).
+    del bote) y del lado −Y, rosca M20 de un émbolo indexador P1-REV-04 en cada una (traba arriba/abajo en
+    los dos brazos del bucket; auditoría ronda 3).
 PETG descartado: FS < 3 en orejas del bucket y pernos (ver structural_direccion.py)."""
 import math
 import os
@@ -78,7 +79,7 @@ def lock_point(p):
 def ear_outline(p, sign):
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     pts = circ(Xb, Zb, p.STE_ear_r) + [(Xb - 18, -2.0), (Xb + 18, -2.0), (Xb - 16, 40.0), (Xb + 16, 40.0)]
-    if sign > 0:
+    if sign > 0 or p.REV_n_locks > 1:                 # traba en las dos orejas (auditoría ronda 3)
         lx, lz = lock_point(p)
         pts += circ(lx, lz, 15.0) + [(lx + 10, -2.0), (lx + 12, 30.0)]
     return hull(pts)
@@ -118,7 +119,9 @@ def build(p):
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     b = b - cyl_y(4.2, -p.STE_ear_y1 - 1, p.STE_ear_y1 + 1, x=Xb, z=Zb)
     lx, lz = lock_point(p)
-    b = b - cyl_y(10.0, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=lx, z=lz)              # M20 del émbolo
+    b = b - cyl_y(10.0, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=lx, z=lz)              # M20 del émbolo (+Y)
+    if p.REV_n_locks > 1:
+        b = b - cyl_y(10.0, -p.STE_ear_y1 - 1, -p.STE_ear_y0 + 1, x=lx, z=lz)        # M20 del 2.º émbolo (−Y)
     b = b - bore_cut(p)
     return b
 

@@ -282,12 +282,17 @@ def bucket_statics(p, Fb, n=60):
     r = p.REV_lock_r
     t = np.array([math.sin(a), 0.0, -math.cos(a)])                 # λ·t da M_y = λ·r
     lam = -MF / r
-    L = lam * t
+    L = lam * t                                                    # fuerza de traba TOTAL sobre el bucket
     yp = 0.5 * (p.STE_ear_y0 + p.STE_ear_y1)
-    Rp = -(F + L) / 2 - L / 2                                      # pivote +Y (mismo lado que la traba): ΔR = −L
-    Rm = -(F + L) / 2 + L / 2
+    nl = int(getattr(p, "REV_n_locks", 1))
+    if nl > 1:                                                     # una traba por brazo: simétrico (ronda 3)
+        Rp = Rm = -(F + L) / 2
+    else:
+        Rp = -(F + L) / 2 - L / 2                                  # pivote +Y (mismo lado que la traba): ΔR = −L
+        Rm = -(F + L) / 2 + L / 2
     return {"F_N": F.tolist(), "x_cp_mm": xcp, "M_h_Nm": -MF / 1000, "lock_point": [Xb + r * math.cos(a), Zb + r * math.sin(a)],
-            "F_traba_sobre_boquilla_N": (-L).tolist(), "F_pivote_mas_y_sobre_boquilla_N": (-Rp).tolist(),
+            "n_traba": nl,
+            "F_traba_sobre_boquilla_N": (-L / nl).tolist(), "F_pivote_mas_y_sobre_boquilla_N": (-Rp).tolist(),
             "F_pivote_menos_y_sobre_boquilla_N": (-Rm).tolist(), "y_orejas_mm": yp, "R_chorro_mm": R}
 
 
@@ -314,8 +319,8 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
     if variant.get("t"):
         p = _Override(p, REV_t=float(variant["t"]))
     part = m.build_down(p)
-    double = bool(variant.get("traba_doble"))
-    if double:
+    double = bool(variant.get("traba_doble")) or int(getattr(p, "REV_n_locks", 1)) > 1
+    if double and int(getattr(p, "REV_n_locks", 1)) < 2:      # variante sobre un CAD de una sola traba
         part = part + part.mirror(Plane.XZ)
     sd = struct_mod("structural_direccion")
     A = metal_allow(p.inp, "Al 5083-O/H111 (= ZAT)", sd.AL5083, "structural_direccion.AL5083 [ESTIMADO: EN 485-2]")
@@ -486,7 +491,7 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
         f = S.traction_load(fs_, cos_bearing(F / Fm))
         return f * (Fm / (force_of(S, f) @ (F / Fm)))
     f_b = pin_load(ear_p, st["F_pivote_mas_y_sobre_boquilla_N"]) + pin_load(ear_m, st["F_pivote_menos_y_sobre_boquilla_N"]) \
-        + pin_load(lock, st["F_traba_sobre_boquilla_N"])
+        + pin_load(lock, np.asarray(st["F_traba_sobre_boquilla_N"]) * st.get("n_traba", 1))   # lock: roscas M20 de las trabas
 
     def run(log=print, init=None):
         res = []

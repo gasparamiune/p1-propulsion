@@ -45,7 +45,7 @@ def draw(p, H):
                  notes=[f"Paso interior: boca Ø{2*rf:.1f} en la cara, arco tangente a Ø{2*rb:.2f} H11 en {p.STE_bell_L:g} mm; recto hasta la salida",
                         f"Exterior: SR{Rs:g}, Ø{2*p.STE_ro_front:g} hasta X' 16, cono a Ø{2*ro:g} en X' 22; mejilla superior Z {p.STE_cheek_z0:.2f}–{p.STE_riser_top:.2f} con Ø8 H7",
                         f"Orejas de pivote ±Z: cara a |Z| = {p.STE_ear_top:.2f} (−0,1/0), R{p.STE_ear_rp:g} alrededor del eje de giro; M6×{p.STE_m6_depth:g} en el eje",
-                        f"Orejas del bucket |Y| {p.STE_ear_y0:g}–{p.STE_ear_y1:g}; +Y: M20×1,5 del émbolo en X'={lx:.1f}, Z={lz:.1f}",
+                        f"Orejas del bucket |Y| {p.STE_ear_y0:g}–{p.STE_ear_y1:g}; " + ("±Y" if p.REV_n_locks > 1 else "+Y") + f": M20×1,5 del émbolo en X'={lx:.1f}, Z={lz:.1f}",
                         f"Hueco de las orejas de la bomba (|Z| {p.Z_steer_lug:.2f}–{p.Z_steer_lug + p.STE_lug_t:.2f}): fresar el barrido ±{p.STE_sweep:g}° (STEP)",
                         "Cotas 3D completas en step/P1-STE-01_boquilla.step (marco JET, δ = 0)"]))
     # ---------------- pernos de pivote
@@ -96,7 +96,7 @@ def draw(p, H):
     Ldev = sum(math.hypot(outer[i + 1][0] - outer[i][0], outer[i + 1][1] - outer[i][1]) for i in range(len(outer) - 1))
     out.append(PL("P1-REV-01", "bucket_cuchara", "Al 5083-H111", round(Ldev, 1), 2 * p.REV_y_in, p.REV_t, [],
                   notes=[f"Desarrollo de la cuchara: curvar en rodillo a elipse {p.REV_cup_ax:g} × {p.REV_cup_az:g} (fibra interior)",
-                         "Nervio central 4 mm (alto 12) soldado en el lomo; brazos soldados TIG 5183 en ambos bordes",
+                         f"Chapa Al 5083 {p.REV_t:g} mm; nervio central 4 mm (alto 12) soldado en el lomo; brazos soldados TIG 5183 en ambos bordes",
                          f"Bucket armado: plantilla de soldadura en posición ABAJO ({p.bucket_down_deg:g}°)"]))
     P0 = mb.P_(p)
     from _dir_common import hull, circ, rot_xz
@@ -108,8 +108,8 @@ def draw(p, H):
              (lk_up[0], lk_up[1], p.REV_lock_hole_d, "traba ARRIBA"), (sd[0], sd[1], 5.0, "M6 (con buje soldado Ø16 × 4)")]
     w, h, hh = _bbox_holes(poly, holes)
     out.append(PL("P1-REV-01", "bucket_brazo_estribor", "Al 5083-H111", w, h, p.REV_t, hh,
-                  notes=["Brazo +Y (estribor del bote); el −Y es igual sin trabas ni perno de varilla",
-                         "Contorno = envolvente (STEP, posición ABAJO); aro de refuerzo Ø24 × 4 soldado en el pivote"]))
+                  notes=[f"Brazo +Y (estribor del bote); el −Y es igual con sus 2 agujeros de traba y SIN perno de varilla (traba en los dos brazos, auditoría ronda 3)",
+                         f"Chapa {p.REV_t:g} mm; contorno = envolvente (STEP, posición ABAJO); aro de refuerzo Ø24 × {p.REV_t:g} soldado en el pivote"]))
     out.append(T("P1-REV-02", "perno_bucket", M316,
                  [(10.0, 8.0, "M8"), (8.0, 10.0, "M8 en oreja"), (round(_mod('P1-REV-02_perno_bucket').shoulder_L(p), 2), p.REV_pin_d, "hombro Ø10 f7"),
                   (p.REV_head_t, p.REV_head_d, "cabeza")],

@@ -97,7 +97,6 @@ def extend(d):
     d["STE_link_L"] = 60.0             # biela cable M66 → brazo [CALCULADO: recorrido simétrico ±29,6 mm]
     d["STE_stop_deg"] = smax + 1.5     # topes mecánicos de dirección (P1-STE-08) [SUPUESTO: 1,5° sobre δmax]
     d["STE_stop_z"] = (222.0, 230.0)   # placa de topes, entre el bucket arriba y el brazo del yugo [CALCULADO]
-    d["REV_release_need"] = 7.0        # recorrido del pomo del émbolo para liberar el brazo (+0,5 de luz) [CALCULADO en checks]
     d["REV_plunger_stroke"] = 10.0     # [ESTIMADO: carrera del émbolo GN 617-12; buscar ficha]
     d["STE_e_frac"] = 0.5              # [ESTIMADO: research/R12 §7.4 — brazo del momento 0,3–0,5 L]
     d["STE_F_design"] = max(loads["F_steer_side_N"], 364.0)   # [CALCULADO: research/R12 §7.4 — 364 N (7,2 kW, δ 30°); se toma el mayor con sizing]
@@ -108,7 +107,11 @@ def extend(d):
 
     # ------------------------------------------------------------------ bucket (REV)
     d["bucket_down_deg"] = 70.0        # [SUPUESTO: pedido del brief, default 70°] (lo lee params.loc_bucket)
-    d["REV_t"] = 4.0                   # Al 5083 4 mm [SUPUESTO: brief 3–4 mm]
+    # Auditoría ronda 3 (FEA, resultados_fea.json): con traba solo en el brazo +Y todo M_h pasaba por la cuchara
+    # abierta en torsión (FS 0,44). Variante V2 del FEA: traba en LOS DOS brazos + chapa de 6 mm → FS 2,34.
+    d["REV_t"] = 6.0                   # Al 5083 6 mm [CALCULADO: FEA V2 (resultados_fea.json), FS ≥ 2]
+    d["REV_n_locks"] = 2               # émbolos P1-REV-04, uno por brazo (±Y), liberados juntos por 2 Bowden
+    d["REV_release_need"] = d["REV_t"] + 1.5   # recorrido del pomo para liberar el brazo (perno +1 sobre la cara + 0,5 de luz) [CALCULADO]
     d["REV_y_in"] = d["STE_ear_y1"] + 1.5   # cara interior de los brazos (luz 1,5 a la oreja; arandela POM 1 mm)
     d["REV_cup_dx"] = 12.0             # centro de la cuchara a 12 mm de la salida [SUPUESTO]
     d["REV_cup_ax"] = 50.0             # semiejes de la cuchara (abajo): X 50, Z 56 [SUPUESTO: cubre r_chorro + cono]
@@ -121,7 +124,7 @@ def extend(d):
     d["REV_bush_od"] = 14.0
     d["REV_bush_fl_d"] = 20.0
     d["REV_bush_fl_t"] = 1.0
-    d["REV_bush_L"] = 8.0              # brazo 4 + refuerzo 4
+    d["REV_bush_L"] = 2 * d["REV_t"]   # brazo + aro de refuerzo (los dos de REV_t)
     d["REV_head_d"] = 16.0
     d["REV_head_t"] = 6.0
     # biela del Mach5: perno en el brazo +Y a REV_stud_r del pivote, a +35° (arriba) y −35° (abajo):

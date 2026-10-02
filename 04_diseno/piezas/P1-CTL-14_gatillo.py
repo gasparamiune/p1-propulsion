@@ -2,7 +2,11 @@
 
 Pivota en el mango superior de P1-CTL-10 (pasador Ø4 A4) con resorte de retorno; apretado contra el
 mango recorre ≥ el recorrido de liberación del émbolo + juego del Bowden. La vaina apoya en un tope del
-mango (no modelado). Se mueve con la palanca (estados del bucket)."""
+mango (no modelado). Se mueve con la palanca (estados del bucket).
+Con traba en los dos brazos del bucket (REV_n_locks = 2, auditoría ronda 3) el gatillo tira de DOS cables
+Bowden a la vez: los dos cables entran en un terminal doble (barril con 2 agujeros, Ø8) enganchado en el
+agujero WIRE; las dos vainas apoyan en el mismo tope y pasan el espejo por un prensaestopas M16 con inserto
+de 2 agujeros [ESTIMADO: buscar "Kabelverschraubung M16 Mehrfachdichteinsatz 2 × 6 mm"]. Tiro ≈ 2 × resorte."""
 import math
 import os
 import sys

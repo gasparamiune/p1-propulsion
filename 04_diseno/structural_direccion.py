@@ -50,6 +50,13 @@ def link_force(p, Ms):
     return Ms / min(arms), min(arms)
 
 
+def _cup_line(p, n=60):
+    """Línea media de la cuchara (x, z) para el largo desarrollado."""
+    ax, az, t = p.REV_cup_ax + p.REV_t / 2, p.REV_cup_az + p.REV_t / 2, p.REV_t
+    t0, t1 = math.radians(p.REV_cup_t0), math.radians(p.REV_cup_t1)
+    return [(ax * math.cos(t0 + (t1 - t0) * i / n), az * math.sin(t0 + (t1 - t0) * i / n)) for i in range(n + 1)]
+
+
 def cup_section(p, n=60):
     """I_z de la sección de la cuchara (arco + nervio) para flexión entre los brazos (carga en X)."""
     ax, az, t = p.REV_cup_ax, p.REV_cup_az, p.REV_t
@@ -169,7 +176,7 @@ def cases(p, A, row, rows, T3, T2):
     row(rows, "P1-STE-07", "Brazo 10 mm: flexión por la altura de la rótula + tracción",
         f"F_biela {F_l:.0f} N; M = F × 12 mm en 24 × 10", Ma / (24 * 10 ** 2 / 6) + F_l / (24 * 10), AL5083, A, T2)
 
-    # ------------------------------------------------------------------ bucket P1-REV-01 (Al 5083 4 mm)
+    # ------------------------------------------------------------------ bucket P1-REV-01 (Al 5083 REV_t; FS de diseño: FEA, 04_diseno/fea)
     pdyn = L["p_nozzle_dyn_Pa"] / 1e6
     span = p.REV_y_in                         # del nervio central al brazo
     s_strip = pdyn * span ** 2 / 12 * 6 / p.REV_t ** 2
@@ -181,18 +188,28 @@ def cases(p, A, row, rows, T3, T2):
     Mc = Fb * (2 * p.REV_y_in) / 8
     row(rows, "P1-REV-01", "Cuchara como viga entre brazos (bucket R12, corta)",
         f"M = F·L/8, L = {2*p.REV_y_in:.0f}; I_arco = {I/1e3:.0f}e3 mm⁴", Mc * c / I, AL5083, A, T2)
-    Xc = p.STE_X_exit + p.REV_cup_dx
-    la = math.hypot(Xc - p.X_bucket_pivot, Zb)
-    Zarm = p.REV_t * 60.0 ** 2 / 6
+    # Brazos (auditoría ronda 3, FEA): el momento M_h de la cuchara alrededor del pivote entra a la boquilla
+    # SOLO por los brazos trabados. Con n trabas (una por brazo) cada brazo lleva M_h/n entre la cuchara y el
+    # agujero de traba (flexión fuera del plano de la chapa sobre la sección del brazo). Con una sola traba
+    # (n = 1) además la cuchara abierta lleva M_h/2 a torsión hasta el otro brazo: se agrega esa fila.
+    nl = p.REV_n_locks
+    t = p.REV_t
+    Zarm = t * 60.0 ** 2 / 6
     row(rows, "P1-REV-01", "Brazo lateral: flexión (bucket R12, corta)",
-        f"F/2 = {Fb/2:.0f} N a {la:.0f} mm; sección 4 × 60", (Fb / 2) * la / Zarm, AL5083, A, T2)
+        f"M = M_h/n = {Mh/1000:.0f}/{nl} N·m por brazo trabado; sección {t:g} × 60", (Mh / nl) / Zarm, AL5083, A, T2)
     row(rows, "P1-REV-01", "Brazo lateral: flexión (reversa sizing, fatiga de soldadura)",
-        f"F/2 = {Fbn/2:.0f} N", (Fbn / 2) * la / Zarm, AL5083_WLCF, A, T2)
-    Fl = Mh / p.REV_lock_r
-    Fl_n = Mh_n / p.REV_lock_r
+        f"M = M_h,sizing/n = {Mh_n/1000:.0f}/{nl} N·m", (Mh_n / nl) / Zarm, AL5083_WLCF, A, T2)
+    if nl < 2:
+        # sección abierta (Saint-Venant): τ = T·t/J, J = Σ s·t³/3
+        s_len = sum(math.hypot(a[0] - b[0], a[1] - b[1]) for a, b in zip(_cup_line(p), _cup_line(p)[1:]))
+        J = s_len * t ** 3 / 3
+        row(rows, "P1-REV-01", "Cuchara abierta a torsión (traba en un solo brazo)",
+            f"T = M_h/2, τ = T·t/J, J = s·t³/3 (s = {s_len:.0f})", math.sqrt(3) * (Mh / 2) * t / J, AL5083, A, T2)
+    Fl = Mh / (nl * p.REV_lock_r)
+    Fl_n = Mh_n / (nl * p.REV_lock_r)
     row(rows, "P1-REV-01", "Agujero de traba: aplastamiento del brazo (émbolo Ø12)",
-        f"F = M_h/r = {Mh/1000:.0f} N·m / {p.REV_lock_r:.0f} mm = {Fl:.0f} N", Fl / (p.REV_lock_pin_d * p.REV_t), AL5083, A, T2)
-    row(rows, "P1-REV-01", "Pivote: aplastamiento del brazo + refuerzo (buje Ø14 × 8)",
+        f"F = M_h/(n·r) = {Mh/1000:.0f} N·m / ({nl} × {p.REV_lock_r:.0f} mm) = {Fl:.0f} N", Fl / (p.REV_lock_pin_d * p.REV_t), AL5083, A, T2)
+    row(rows, "P1-REV-01", f"Pivote: aplastamiento del brazo + refuerzo (buje Ø14 × {p.REV_bush_L:g})",
         f"F/2 = {Fb/2:.0f} N", (Fb / 2) / (p.REV_bush_od * p.REV_bush_L), AL5083, A, T2)
 
     # ------------------------------------------------------------------ pernos, bujes, émbolo
@@ -204,9 +221,9 @@ def cases(p, A, row, rows, T3, T2):
     row(rows, "P1-REV-02", "Perno con hombro Ø10: flexión (fatiga)",
         f"F/2 = {Fbn/2:.0f} N", (Fbn / 2) * lev_b / z_round(p.REV_pin_d), SS316_FAT, A, T2)
     row(rows, "P1-REV-03", "Buje POM Ø10/Ø14 × 8: presión (bucket R12, corta)",
-        f"{Fb/2:.0f} N / (10 × 8)", (Fb / 2) / (p.REV_pin_d * p.REV_bush_L), POM_STAT, A, T2)
+        f"{Fb/2:.0f} N / ({p.REV_pin_d:g} × {p.REV_bush_L:g})", (Fb / 2) / (p.REV_pin_d * p.REV_bush_L), POM_STAT, A, T2)
     row(rows, "P1-REV-03", "Buje POM: presión (reversa sizing, oscilación)",
-        f"{Fbn/2:.0f} N / (10 × 8)", (Fbn / 2) / (p.REV_pin_d * p.REV_bush_L), POM_DYN, A, T2)
+        f"{Fbn/2:.0f} N / ({p.REV_pin_d:g} × {p.REV_bush_L:g})", (Fbn / 2) / (p.REV_pin_d * p.REV_bush_L), POM_DYN, A, T2)
     dl = p.REV_lock_pin_d
     lev_l = (p.REV_y_in - p.STE_ear_y1) + p.REV_t / 2
     row(rows, "P1-REV-04", "Perno del émbolo Ø12: flexión + corte (M_h con bucket R12)",
@@ -261,7 +278,7 @@ def cases(p, A, row, rows, T3, T2):
         "F_steer_N": Fs, "F_steer_sizing_N": Fs_n, "e_mm": e, "M_steer_Nm": Ms / 1000,
         "F_link_M66_N": round(F_l, 1), "link_arm_min_mm": round(arm, 1),
         "F_bucket_N": Fb, "F_bucket_sizing_N": Fbn, "M_hinge_Nm": round(Mh / 1000, 1),
-        "F_lock_pin_N": round(Fl, 0), "F_pivot_pin_top_N": round(F_top, 0), "F_pivot_pin_bot_N": round(F_bot, 0),
+        "F_lock_pin_N": round(Fl, 0), "n_locks": nl, "F_pivot_pin_top_N": round(F_top, 0), "F_pivot_pin_bot_N": round(F_bot, 0),
         "F_stop_N": round(F_st, 0),
         "PETG_boquilla": {"caso": "oreja del bucket 12 mm, reversa sizing, admisible lcf",
                           "sigma_MPa": round(s_petg, 2), "FS": round(petg_fs, 2),

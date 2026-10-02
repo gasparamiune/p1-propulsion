@@ -23,7 +23,9 @@ META = dict(
 X0, X1 = -95.0, 62.0
 Y0, Y1 = -27.0, 27.5
 ZT = 40.0
-W = 3.5
+W = 3.5           # posición de las caras INTERIORES (entrehierro del hall, luces de la manivela): no cambia
+W_OUT = 5.0       # pared real: 5 mm, engrosada HACIA AFUERA (auditoría ronda 3, FEA V1: σZ entre capas FS 2,74 → 3,5)
+DW = W_OUT - W
 WT = 6.0          # tapa (mano apoyada 150 N, structural_direccion)
 SENSOR = (5.0, 4.5, 2.5)     # bolsillo del A1324 (x, z, y) [ESTIMADO: SIP-3 4,1 × 3 × 1,5 + epoxi]
 
@@ -38,18 +40,19 @@ def slot(p, ylo, yhi, th_min, th_max, half_w):
 
 def build_local(p):
     zb = U.top_local(p)
-    s = box(X0, X1, Y0, Y1, zb, ZT) - box(X0 + W, X1 - W, Y0 + W, Y1 - W, zb - 1, ZT - WT)
-    s = s + (box(X0 - 12, X1 + 12, Y0 - 12, Y1 + 12, zb, zb + 4) - box(X0 + W, X1 - W, Y0 + W, Y1 - W, zb - 1, zb + 5))
+    s = box(X0 - DW, X1 + DW, Y0 - DW, Y1 + DW, zb, ZT) - box(X0 + W, X1 - W, Y0 + W, Y1 - W, zb - 1, ZT - WT)
+    e = 12 + DW
+    s = s + (box(X0 - e, X1 + e, Y0 - e, Y1 + e, zb, zb + 4) - box(X0 + W, X1 - W, Y0 + W, Y1 - W, zb - 1, zb + 5))
     s = s - slot(p, U.Y_THR[0] - 2, U.Y_THR[1] + 2, -p.CTL_thr_rev, p.CTL_thr_fwd, 8.0)
     s = s - slot(p, U.Y_BKT[0] - 2, U.Y_BKT[1] + 2, -p.CTL_bkt_travel, 0.0, 8.0)
     # sensor hall: bolsillo desde afuera dejando 1 mm de piel
     sx, sz, sy = SENSOR
     yin = Y0 + W
-    s = s - box(-sx / 2, sx / 2, Y0 - 1, yin - 1.0, -sz / 2, sz / 2)
-    s = s - box(-1.5, 1.5, Y0 - 1, yin - 1.0, -14, 0)                       # canal de los terminales
-    s = s - cyl_y(8.25, Y0 - 1, Y0 + W + 1, x=-30.0, z=zb + 14)              # prensaestopas M16 del sensor
-    for xx in (X0 - 6, X1 + 6):
-        for yy in (Y0 - 6, Y1 + 6):
+    s = s - box(-sx / 2, sx / 2, Y0 - DW - 1, yin - 1.0, -sz / 2, sz / 2)
+    s = s - box(-1.5, 1.5, Y0 - DW - 1, yin - 1.0, -14, 0)                  # canal de los terminales
+    s = s - cyl_y(8.25, Y0 - DW - 1, Y0 + W + 1, x=-30.0, z=zb + 14)         # prensaestopas M16 del sensor
+    for xx in (X0 - 6 - DW, X1 + 6 + DW):
+        for yy in (Y0 - 6 - DW, Y1 + 6 + DW):
             s = s - cyl_z(2.75, zb - 1, zb + 5, x=xx, y=yy)
     return s
 
@@ -71,4 +74,6 @@ def checks(p, part):
             ("luz cabeza del eje ↔ pared [mm]", U.Y_HEAD[0] - (Y0 + W), 1.0, ">="),
             ("manivela dentro de la caja (x) [mm]", hub_clear, 2.0, ">="),
             ("cubo de palanca bajo la tapa (z) [mm]", (ZT - WT) - U.HUB_R, 3.0, ">="),
-            ("pared mínima [mm]", W, p.wall, ">=")]
+            ("pared mínima [mm]", W_OUT, p.wall, ">="),
+            ("pared ≥ 5 mm (FEA ronda 3: σZ entre capas) [mm]", W_OUT, 5.0, ">="),
+            ("arandela M5 Ø10 libra la pared (borde) [mm]", 6.0 - 5.0, 0.5, ">=")]

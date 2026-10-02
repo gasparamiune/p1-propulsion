@@ -1,4 +1,4 @@
-"""P1-REV-01 — Bucket (cuchara) de reversa, Al 5083 4 mm doblado y soldado TIG.
+"""P1-REV-01 — Bucket (cuchara) de reversa, Al 5083 REV_t (6 mm) doblado y soldado TIG.
 
 Pivota sobre las orejas de la boquilla (X_bucket_pivot, ±Y, Z_bucket_pivot) y sigue la dirección.
 Se diseña en la posición ABAJO (bucket_down_deg) y se lleva a ARRIBA (marco natural) girando −70°:
@@ -8,8 +8,11 @@ Se diseña en la posición ABAJO (bucket_down_deg) y se lleva a ARRIBA (marco na
   - brazos laterales (±Y 49,5–53,5) con aro de refuerzo en el pivote (buje POM P1-REV-03, perno
     con hombro P1-REV-02);
   - brazo +Y: perno de la varilla del Mach5 (P1-REV-06) en una cuerda VERTICAL a popa del pivote
-    (+35° arriba / −35° abajo, r = REV_stud_r) y dos agujeros de traba para el émbolo P1-REV-04
-    (arriba y abajo): la carga del chorro en reversa NO pasa por el cable.
+    (+35° arriba / −35° abajo, r = REV_stud_r);
+  - LOS DOS brazos (±Y): dos agujeros de traba (arriba y abajo) para un émbolo P1-REV-04 en cada oreja
+    de la boquilla (REV_n_locks = 2): la carga del chorro en reversa NO pasa por el cable, y el momento M_h
+    entra por los dos brazos (auditoría ronda 3, FEA: con traba en un solo brazo la cuchara abierta de 4 mm
+    trabajaba a torsión, FS 0,44; con traba doble y chapa de 6 mm, FS 2,34 — variante V2).
 En ARRIBA no toca el cono del chorro (5°)."""
 import math
 import os
@@ -20,7 +23,7 @@ from cadlib import cyl_y, prism_xz  # noqa: E402
 from _dir_common import hull, circ, rot_xz, bucket_rel_loc, jet_cone, inter_vol  # noqa: E402
 
 META = dict(
-    id="P1-REV-01", name="bucket", desc="Bucket de reversa Al 5083 4 mm (cuchara + brazos + nervio)",
+    id="P1-REV-01", name="bucket", desc="Bucket de reversa Al 5083 6 mm (cuchara + brazos + nervio), traba en los dos brazos",
     material="Al 5083", process="torneada", qty=1, frame="bucket", group="jet",
     load_case="Chorro desviado en reversa (R12: 1,4 kN) × impacto 2; presión dinámica en la chapa",
     print_rot=(0, 0, 0), solid_frac=1.0,
@@ -67,9 +70,9 @@ def build_down(p):
         y0, y1 = (yi, yi + t) if sg > 0 else (-yi - t, -yi)
         a_main = hull(circ(*P, p.REV_boss_r) + outer)
         plate = prism_xz(a_main, y0, y1)
-        if sg > 0:                                    # lóbulos: perno de la varilla y 2 trabas
-            for q in (sd, lk, lk_up):
-                plate = plate + prism_xz(hull(circ(*P, p.REV_boss_r) + circ(*q, 12.0)), y0, y1)
+        lobes = (sd, lk, lk_up) if sg > 0 else ((lk, lk_up) if p.REV_n_locks > 1 else ())
+        for q in lobes:                               # lóbulos: perno de la varilla (+Y) y 2 trabas por brazo
+            plate = plate + prism_xz(hull(circ(*P, p.REV_boss_r) + circ(*q, 12.0)), y0, y1)
         ring_y = (y1, y1 + t) if sg > 0 else (y0 - t, y0)
         plate = plate + prism_xz(circ(*P, p.REV_boss_r, 32), *ring_y)
         if sg > 0:                                    # buje soldado del perno de la varilla (M6 roscado)
@@ -79,6 +82,8 @@ def build_down(p):
     s = s - cyl_y(p.REV_bush_od / 2, -yi - 2 * t - 1, yi + 2 * t + 1, x=P[0], z=P[1])
     for q in (lk, lk_up):
         s = s - cyl_y(p.REV_lock_hole_d / 2, yi - 1, yi + t + 1, x=q[0], z=q[1])
+        if p.REV_n_locks > 1:
+            s = s - cyl_y(p.REV_lock_hole_d / 2, -yi - t - 1, -yi + 1, x=q[0], z=q[1])
     s = s - cyl_y(2.5, yi - 1, yi + t + p.REV_eye_off + 1, x=sd[0], z=sd[1])    # M6 (Ø5,0) roscado
     return s
 

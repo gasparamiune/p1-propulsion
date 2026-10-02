@@ -13,7 +13,7 @@ import _release as RL  # noqa: E402
 
 META = dict(
     id="P1-REV-09", name="soporte_bowden", desc="Soporte en L del Bowden de liberación (Al 5083 4 mm)",
-    material="Al 5083", process="torneada", qty=1, frame="steer", group="jet",
+    material="Al 5083", process="torneada", qty=2, frame="steer", group="jet",
     load_case="Tiro del Bowden (resorte del émbolo + fricción) 60 N [ESTIMADO]", print_rot=(0, 0, 0),
     solid_frac=1.0, orientation="Chapa doblada",
 )
@@ -34,7 +34,12 @@ def build(p):
 
 def placements(p, steer=0.0, bucket=0):
     from params import loc_steer
-    return [loc_steer(p, steer)]
+    from build123d import Pos, Rot
+    L = [loc_steer(p, steer)]
+    if p.REV_n_locks > 1:                       # gemelo del lado −Y (2.º émbolo; y → −y alrededor de la traba)
+        x, z = RL.lock_xz(p)
+        L.append(loc_steer(p, steer) * Pos(x, 0, z) * Rot(180, 0, 0) * Pos(-x, 0, -z))
+    return L
 
 
 def checks(p, part):
