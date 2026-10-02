@@ -153,6 +153,12 @@ def test_criterios_leen_los_json(pm, sizing):
     pd = est["loads"]["structural_bomba"]["loads_used"]["p_design_Pa"]
     assert abs(c11["p_ensayo_MPa"] - round(1.5 * pd / 1e6, 3)) < 1e-6 and c11["p_ensayo_MPa"] >= 0.3   # R12 §7.2
     assert c11["luz_bridas_mm"] == p.pmp_stack_gap and "radial" in c11["f2"] and c11["D_salida_mm"] == p.D_noz
+    import math
+    v = c11["varilla"]                                              # R2-D04: la varilla pasa por la cola del estator
+    assert v["M"] < p.pmp_tail_hole_d and v["agujero_cola_mm"] == p.pmp_tail_hole_d
+    F = 1.5 * pd * math.pi / 4 * (p.D_noz / 1000) ** 2
+    assert abs(c11["F_tapon_N"] - round(F, 0)) <= 1 and v["FS"] >= 2.0
+    assert f"M{v['M']} A4-70" in c11["ensayo"] and "M12" not in c11["ensayo"]
     c12 = T["P1.12"]["criterios"]
     assert abs(c12["c_diseno_mm"] - round(sizing["pump"]["tip_clearance_mm"], 3)) < 1e-6
     assert c12["c_min_mm"] == 0.30 and 0.39 <= c12["c_max_mm"] <= 0.40 + 1e-9 and c12["c_min_mm"] <= c12["c_diseno_mm"] <= c12["c_max_mm"]

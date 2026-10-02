@@ -9,7 +9,9 @@ P1-PMP-01 carcasa con P1-PMP-02 anillo, P1-PMP-06 estator y P1-PMP-08 tobera. Ju
     asiento Ø pmp_D_seat de la carcasa; pmp_f2_n × M{pmp_f2_bolt} del lado seco; entre bridas queda la luz
     pmp_stack_gap (la espiga aprieta la camisa del estator): una fuga de f2 aparece en esa luz;
   • salida de la tobera (Ø D_noz): tapón con O-ring radial retenido por una varilla roscada central hasta la
-    brida ciega de entrada (la tobera no tiene brida de salida).
+    brida ciega de entrada (la tobera no tiene brida de salida). La varilla pasa por el agujero de la punta del
+    cono de cola del estator (Ø pmp_tail_hole_d) y por el buje: se elige la mayor métrica A4-70 que entra en
+    ese agujero y se verifica a tracción con la carga del tapón (auditoría ronda 2, R2-D04).
 """
 import math
 
@@ -27,6 +29,18 @@ def build(p, ctx):
     return []
 
 
+AS_ISO = {3: 5.03, 4: 8.78, 5: 14.2, 6: 20.1, 8: 36.6, 10: 58.0, 12: 84.3}   # [VERIFICADO: ISO 898-1, A_s mm²]
+RP_A4_70 = 450.0         # [VERIFICADO: ISO 3506-1 A4-70 Rp0,2 ≥ 450 MPa; = admisible de bulones de estructural.json]
+FS_VARILLA = 2.0         # [SUPUESTO: = target metálico de estructural.json]
+
+
+def varilla(p, F):
+    """Mayor M A4-70 con Ø nominal < pmp_tail_hole_d; tensión y FS con la carga del tapón."""
+    M = max(m for m in AS_ISO if m < float(p.pmp_tail_hole_d))
+    sig = F / AS_ISO[M]
+    return dict(M=M, As=AS_ISO[M], sigma=sig, FS=RP_A4_70 / sig, hole=float(p.pmp_tail_hole_d))
+
+
 def _geo(p):
     return dict(D_noz=float(p.D_noz), D_seat=float(p.pmp_D_seat), spig=float(p.pmp_noz_spigot),
                 gap=float(p.pmp_stack_gap), n=int(p.pmp_f2_n), M=int(p.pmp_f2_bolt), cs=float(p.oring_cs),
@@ -42,7 +56,10 @@ def _p(p, ctx):
 def checks(p, ctx, parts):
     pd, pt, pmax = _p(p, ctx)
     g = _geo(p)
-    return [("p_ensayo ≥ 0,3 MPa (R12 §7.2) [MPa]", pt / 1e6, 0.3, ">="),
+    v = varilla(p, pt * math.pi / 4 * (g["D_noz"] / 1000) ** 2)
+    return [("varilla del tapón: Ø < agujero de la punta del cono del estator [mm]", v["M"], v["hole"] - 0.5, "<="),
+            (f"varilla M{v['M']} A4-70 a tracción con la carga del tapón: FS [—]", v["FS"], FS_VARILLA, ">="),
+            ("p_ensayo ≥ 0,3 MPa (R12 §7.2) [MPa]", pt / 1e6, 0.3, ">="),
             ("p_ensayo / p de cierre de la bomba [—]", pt / pmax, 2.0, ">="),
             ("junta f2 radial: espiga más larga que la ranura del O-ring [mm]", g["spig"], g["gl"][1] + 2 * 3.5, ">=")]
 
@@ -51,7 +68,10 @@ def criterios(p, ctx):
     pd, pt, pmax = _p(p, ctx)
     g = _geo(p)
     F_tapon = pt * math.pi / 4 * (g["D_noz"] / 1000) ** 2
+    v = varilla(p, F_tapon)
     return {
+        "varilla": {"M": v["M"], "As_mm2": v["As"], "sigma_MPa": round(v["sigma"], 0), "FS": round(v["FS"], 2),
+                    "agujero_cola_mm": v["hole"], "Rp_MPa": RP_A4_70},
         "D_salida_mm": g["D_noz"], "F_tapon_N": round(F_tapon, 0), "luz_bridas_mm": g["gap"],
         "f2": f"O-ring radial cs {g['cs']:g} en espiga de {g['spig']:g} mm, asiento Ø{g['D_seat']:.2f}, "
               f"{g['n']} × M{g['M']} del lado seco",
@@ -64,9 +84,12 @@ def criterios(p, ctx):
                   f"cruz; medir con galgas la luz entre bridas (diseño {g['gap']:.2f} mm, igual en los {g['n']} "
                   "tornillos: si es 0, la espiga no aprieta la camisa del estator). Entrada: brida ciega con rebaje "
                   f"H7 para el espigón Ø{g['f1']:g} y O-ring de cara. Salida Ø{g['D_noz']:.1f}: tapón con O-ring radial "
-                  f"y varilla roscada central M12 A4 hasta la brida ciega de entrada (carga {F_tapon:.0f} N a "
-                  "p_ensayo), pasando por el cubo del estator antes de prensar el buje P1-PMP-07 (o con un tubo "
-                  "guía). Medir el Ø del asiento del anillo antes. Llenar de agua purgando el aire por el puerto "
+                  f"y varilla roscada central M{v['M']} A4-70 hasta la brida ciega de entrada: pasa por el agujero "
+                  f"Ø{v['hole']:g} de la punta del cono de cola del estator y por el buje (sin impulsor); carga del tapón "
+                  f"{F_tapon:.0f} N a p_ensayo → σ = {v['sigma']:.0f} MPa sobre A_s {v['As']:g} mm², FS {v['FS']:.1f} "
+                  "contra Rp0,2 del A4-70. Tuercas con arandela de estanqueidad (bonded) en el tapón y en la brida "
+                  "ciega. Alternativa sin varilla: yugo exterior que apoya el tapón contra el resalte de la tobera. "
+                  "Medir el Ø del asiento del anillo antes. Llenar de agua purgando el aire por el puerto "
                   "G1/8 (arriba); bomba de prueba hidrostática manual (o bomba de engrase + manómetro 0–6 bar). "
                   f"Subir en 3 escalones, retener {HOLD_MIN} min a p_ensayo, bajar, desarmar y medir el asiento.",
         "pasa_si": f"A {pt / 1e6:.2f} MPa ({pt / 1e5:.1f} bar) durante {HOLD_MIN} min: caída ≤ {DROP_FRAC * 100:.0f} %, "
