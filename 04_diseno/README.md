@@ -60,7 +60,7 @@ Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de
 | P1-MOT-02_motor_mount | Soporte del motor Al: placa a la cara del motor + pies al piso (4×M8) | 76×190×146 | Al 5052/6082 | torneada | 1 | Par de reacción T_max del controlador + 3 g vertical del motor; sin empuje | — | 842 | — |
 | P1-PMP-01_housing | Carcasa Al 6061-T6: brida de la toma, asiento del anillo y del estator, puerto de agua | 166×193×193 | Al 6061-T6 | torneada | 1 | Presión interna 0,2 MPa; reacción del estator; momentos de boquilla/bucket en bridas | — | 1498 | — |
 | P1-PMP-02_wear_ring | Anillo de desgaste 316 torneado, prensado en la carcasa; holgura de punta tip_clr | 69×143×143 | AISI 316 | torneada | 1 | Presión de la bomba (apoyado en la carcasa); roce de piedras | — | 1187 | — |
-| P1-PMP-03_impeller | Impulsor axial de 5 álabes, cubo Ø66 con nariz, pasador de corte (sin chavetero) | 69×132×132 | AISI 316 | torneada | 1 | Par máx. del controlador + empuje axial; corte del pasador (piedra) | — | 1333 | — |
+| P1-PMP-03_impeller | Impulsor axial de 5 álabes, cubo Ø66 con nariz, 2 semipasadores de corte (sin chavetero) | 69×132×132 | AISI 316 | torneada | 1 | Par máx. del controlador + empuje axial; corte del pasador (piedra) | — | 1333 | — |
 | P1-PMP-04_pin_band | Anillo retén 316 que tapa los extremos del pasador de corte | 16×66×66 | AISI 316 | torneada | 1 | Centrífuga a n máx.; retención del pasador | — | 76 | — |
 | P1-PMP-05_shear_pin | 2 semipasadores de corte Al 6061-T6 (fusible de par del impulsor, cambiables en el eje) | 4×30×4 | Al 6061-T6 | torneada | 2 | Par del controlador (no corta); corta a T_cut (piedra) | — | 1 | — |
 | P1-PMP-06_stator | Estator Al 6061-T6 de 7 álabes con camisa, cubo con buje de agua y cono de cola | 169×143×143 | Al 6061-T6 | torneada | 1 | Reacción del par del rotor en los álabes; carga radial del buje; presión | — | 1523 | — |
@@ -100,11 +100,13 @@ Resultado: **OK** — 65 piezas, 13046 pares×estados de interferencia; boquilla
 
 | Unión | Ajuste CAD | Nota |
 |---|---|---|
-| Eje Ø20 ↔ 2 × 7204 BEP (en O) | muñón Ø20 k5 / alojamiento Ø47 H7 | Práctica de catálogo para aro interior rotante [SUPUESTO]; precarga con KM4 |
+| Eje Ø20 ↔ 2 × 7204 BECBP (en O, apareables universales) | muñón Ø20 k5 / alojamiento Ø47 H7 | Práctica de catálogo para aro interior rotante [SUPUESTO]; precarga ligera de fábrica, KM4 apretado contra el collar |
 | Eje ↔ sello MG1 y tramo mojado | Ø20 h8 | Tolerancia de catálogo del sello [SUPUESTO: confirmar con la hoja del MG1] |
 | Eje ↔ buje de agua POM-C del estator | muñón f7 / buje H7 | 2.º apoyo; el buje se cambia como consumible |
-| Impulsor ↔ eje | deslizante; par por pasador de corte Al 6061 en agujero H8 escariado | Sin chaveta: el pasador es el fusible de par (02 §8) |
+| Impulsor ↔ eje | deslizante; par por 2 semipasadores de corte Al 6061 en agujeros H8 escariados | Sin chaveta: los semipasadores son el fusible de par (02 §8) |
 | Anillo de desgaste ↔ carcasa | prensado ligero + retenedor anaeróbico [ESTIMADO] | Holgura de punta = `tip_clr` (inputs) |
 | Caja del sello ↔ buje de la toma | espigón f7 / H8 + 4 × M6 | Concentricidad del sello |
+| Carcasa ↔ conducto (brida de la bomba) | espigón Ø140 h6 en rebaje H7 + 8 × M6 | Centra la bomba con el sello y el pórtico (alinear el pórtico con mandril al buje del estator) |
+| Tobera ↔ carcasa | espiga de 12 mm con O-ring radial cs 3,53 + 8 × M5 | La tobera sale por el agujero del espejo para el servicio |
 | Pivotes de boquilla y bucket | pernos 316 con hombro en bujes POM-C | Holgura de buje según plano |
 | Piezas PETG (capota, base ESC, caja, tapa) | 0,25 mm diametral sobre metal | Peine de holguras de `probetas/`; roscas por tuerca A4 cautiva, nunca Loctite 243 sobre PETG |

@@ -30,9 +30,57 @@ verifica antes de corregirlo; se repiten rondas hasta que una ronda no encuentra
 | W-16 | **Holgura de la bomba sobre el fondo interior**: con el fondo [SUPUESTO] de 4 mm, la tobera fija queda a 4,5 mm del fondo interior (carcasa 5,6 mm). Un fondo de ≥ 6,5 mm (p. ej. PRFV, o una sobreplaca) no entra con el eje a 115 mm. Lo encontró la prueba de regeneración completa (+4 mm de fondo → `verify` falla) | Media | `verify_parts.py` lo detecta y detiene el pipeline (no pasa en silencio). Acción: medir el espesor real del fondo (PENDIENTES P0) y, si es > 6 mm, subir `waterjet.axis_height_m` lo mismo (cada mm resta sumersión: ver `sizing.priming`) |
 | W-15 | Objetivo 30 km/h no alcanzado sostenido (<!--V:sizing.performance.vmax_cont_kmh:.1f-->25.0<!--/V--> km/h) con < 50 V y la batería que entra | Media (requisito) | Reportado; alternativas en 07 (72 V con declaración, motor mayor) |
 
-## Ronda 1
+## Ronda 1 (3 auditores independientes: cálculo, CAD/estructural, BOM/eléctrico/legal)
 
-(En curso.)
+44 hallazgos verificados; corregidos por subsistema (commits `5d1be64`, `8c0bf1d`, `aca5edb` y siguientes).
+
+### Cálculo (A)
+
+| # | Hallazgo | Sev. | Resolución |
+|---|---|---|---|
+| A1 | **Savitsky fuera de validez**: largo mojado de quilla 1,77–2,10 m > fondo 1,75 m en todo el tramo que define la joroba y la V máx.; `valid` solo miraba τ | Alta | Validez L_K ≤ L_wl, λ ≤ 4 por punto en `sizing.json`; "Savitsky limitado por eslora" [ESTIMADO, D-21] con banda ensanchada. **Resultado: margen en la joroba <!--V:sizing.performance.hump_margin_min:.0%-->3%<!--/V--> < 10 % (banda alta) — no cumple**; V máx. sostenida <!--V:sizing.performance.vmax_cont_kmh:.1f-->25.0<!--/V--> km/h sin base validada hasta T4. Lo que recupera el 10 %: <!--V:sizing.hump_recovery.mass_text:s-->10 kg menos<!--/V--> o <!--V:sizing.hump_recovery.lwl_text:s-->L_wl ≥ 1,90 m<!--/V--> (02 §3.2) |
+| A2 | Sensibilidad de masa del casco sin efecto (dos fuentes del mismo dato) | Media | Una sola fuente; test: cada sensibilidad mueve alguna salida |
+| A3 | Sensibilidad informaba "planea" en vez de "cumple 10 %" | Media | `hump_ok` y `any_hump_fail` en la tabla de 02 §10 |
+| A4 | IVR con área anular (×1,33): "lejos de la separación" era falso | Media | IVR en la garganta: 0,61 a V máx. → **dentro de la zona de separación** (02 lo dice) |
+| A5 | t = w = 0 etiquetados "conservador": no lo son cerca de la joroba | Media | Sensibilidad t, w 0–0,10 (t = 0,10 → margen −7 %); D-22 |
+| A6 | Límite del VESC sobre I_q (FOC) no sobre I_m: margen real 2,4 % | Media | Convención en inputs [SUPUESTO], medir λ con VESC Tool (T0) |
+| A7 | `sizing.json` desactualizado respecto de inputs sin que nada lo detecte | Baja | Hash de inputs en `sizing.json` + test duro |
+| A8 | Tope de cavitación de 02 ≠ firmware | Baja | `sizing.cavitation_cap`; no se programa (lo cumple el límite de corriente a punto fijo; un tope fijo recortaría la V pico); verificar en T2 |
+| A9 | Perfil COSTA: P y autonomía "a 5 kn" calculadas a rpm que el perfil no permite | Baja | Tabla con V y P reales con el tope (piloto de diseño ~7,8 km/h) |
+| A10 | Masa del impulsor y ondulación de par distintas en dos cálculos | Baja | Una fuente (CAD) y una entrada |
+| A11 | NPSH con inmersión estática en planeo | Baja | h_sub(V): S = 3,20 a V máx. (cumple) |
+
+### CAD / estructural (C)
+
+| # | Hallazgo | Sev. | Resolución |
+|---|---|---|---|
+| C1 | **Pasador, impulsor y estator no se podían cambiar** sin desarmar todo el tren (bridas > agujero del espejo; pasador pasante que no entraba ni en el montaje inicial) | Alta | Brida de la tobera que pasa por el espejo, 2 semipasadores, `service_paths()` con 11 caminos de extracción verificados en `verify_parts` (V7) |
+| C2 | Pórtico de rodamientos imposible de montar en la secuencia documentada | Alta | Zapatas con ranura abierta, desliza axialmente; pasadores Ø6 toman el corte; secuencia en 06 M6/M7 |
+| C3 | Unión carcasa–tobera y M5 del estator sin sello, presurizados dentro del casco | Alta | O-ring radial en la espiga, M5 del lado seco con arandela bonded, espiga +0,25 mm |
+| C4 | Ranuras DIN 471 de TREN ≠ BOMBA | Media | Derivadas de una sola fuente + check |
+| C5 | Avellanado M8 en Al subestimado (FS 1,67) y precargas distintas | Media | Un par (10 N·m), área proyectada: FS 2,46 |
+| C6 | Arranque de rosca M6 en 5083 sin verificar (FS 1,6) | Media | Precarga 2,2 kN + Loctite: FS 2,33 |
+| C7 | Brida de la bomba sin centraje; eje hiperestático | Media | Espigón Ø140 h6/H7; alineación con mandril (06 M7) |
+| C8 | 7204 BEP no apareable: precarga indefinida; resalte que roza el aro interior | Media | 7204 BECBP; resalte Ø32,5 [datos SKF ESTIMADO] |
+| C9 | Sin plano del conducto soldado | Media | Plano P1-INT-01 (mecanizar después de soldar) |
+| C10 | Aplastamiento del pasador en el cubo con sección inexistente | Baja | Modelo corregido: FS 3,21 |
+| C11 | `verify_parts` devolvía 0 si fallaba la booleana; tolerancias laxas | Baja | Falla explícita; allow = máx(5, 2 × medido); barrido extra de dirección/bucket |
+| C12 | Rosca M5 del estator < 1 d | Baja | Rosca en la carcasa, 8 mm |
+| C13 | Chaveta del motor (Ø15, 5 × 5) sin caso de carga | Baja | Caso agregado: **FS 1,74 < 2 — abierto y justificado**: medir el chavetero del motor recibido, cubo de acero + Loctite 648 |
+| C14 | Rejilla con luz de 16 mm (pasa un dedo) y 316 tocando 5083 bajo el agua | Media | 9 pletinas, luz 12,2 mm; aislación PTFE + nylon (06 §4) |
+| W-16/17 | Regeneración: con fondo +4 mm la bomba tocaba el fondo; con eje +5 mm el tope de dirección chocaba con la placa del espejo | Media | La placa se ubica desde el tope; la bomba quedó a 9,4 mm del fondo interior; los checks dicen a cuánto subir el eje. Rango probado: eje +0…+9 mm, fondo 3–6 mm |
+
+### BOM / eléctrico / legal (E)
+
+| # | Hallazgo | Sev. | Resolución |
+|---|---|---|---|
+| E1 | **Pares de polos 2 en vez de 5** (Maytech 12N/10P): el perfil ABIERTO no dejaba planear | Alta | 5 [VERIFICADO]; ERPM generados por `calc_electronica.py` en el perfil del VESC |
+| E2 | Sin fusible por rama de batería | Alta | 2 × MRBF 125 A en los bornes |
+| E3 | Cordón de 12 V cortando una bobina a 43,8 V | Alta | Contactor EV200 con bobina a 12 V desde el DC-DC |
+| E4 | README de electrónica con restos de 8S / 24 V | Alta | Reescrito para 12S2P |
+| E5–E11 | Contactor/F1 no unificados; reparto entre baterías; costo de B mal prorrateado; B sin salvedad; motor sin hall (trae NTC); FW de fábrica 5.02; terminales de fase | Media | Corregidos (README de electrónica, `comparacion.py` con prorrateo y base CIF, B-MOT con hall, T0.0 flasheo FW ≥ 6.0, cables propios del motor/ESC) |
+| E12 | R13 escrito para otra potencia; < 19 kW depende de la configuración | Media | R13 §2 con la potencia configurada; XML y hojas a bordo |
+| E13–E19 | 4 kn de Als Sund no los hace cumplir el firmware; cantidad de baterías; etiquetas VERIFICADO con links de búsqueda; arancel; compilación AVR; riesgos residuales del firmware | Baja | Corregidos o documentados (D-18, README de electrónica §8) |
 
 ## Regeneración desde inputs.yaml
 
