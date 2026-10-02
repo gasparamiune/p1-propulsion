@@ -26,7 +26,9 @@ Casilla sin marcar = **no se sale**. Una sola vez antes: T0–T2 aprobados y blo
 - [ ] **Purga de la chimenea:** aflojar el tornillo hasta que salga agua, cerrar. Tapa de inspección apretada.
 - [ ] Testigo del sello (ventanas de la linterna y manguera a la sentina) **seco**.
 - [ ] Filtro de refrigeración limpio; mangueras sin aplastar ni sueltas.
-- [ ] **Bucket arriba y trabado: los DOS émbolos entraron** (pomos adentro en las dos orejas); palanca del bucket adelante.
+- [ ] Prueba funcional de las trabas de esta temporada (06 T0.M6b: los dos pernos entran solos ARRIBA y ABAJO y salen con el gatillo, 10/10) hecha el ____.
+- [ ] **Bucket arriba y trabado: los DOS émbolos entraron** (pomos adentro en las dos orejas, perno visible en la cara exterior de cada brazo); palanca del bucket adelante.
+- [ ] Bowden del desbloqueo sin cable tenso en reposo (pomo apoyado en su tapa) y vainas sin aplastar.
 - [ ] Volante tope a tope: la boquilla llega a los topes; biela y terminal del cable de dirección con contratuerca.
 - [ ] Marcas de pintura de bulones sin correr (bomba, pórtico, placa de espejo, motor, yugo).
 - [ ] Nadie en el agua cerca de la popa.
@@ -45,6 +47,7 @@ Casilla sin marcar = **no se sale**. Una sola vez antes: T0–T2 aprobados y blo
 **5. Navegando**
 - [ ] COSTA dentro de 300 m. ABIERTO solo afuera, pasando por COSTA con el acelerador en 0.
 - [ ] Bucket solo con el acelerador en 0.
+- [ ] **Antes de cada uso de la reversa:** bucket abajo y mirar por sobre el espejo que los DOS pomos estén adentro (las dos trabas entradas). Si uno no entró: subir y bajar el bucket otra vez; si sigue afuera, **no usar la reversa** salvo para evitar un choque (una traba sola está calculada para todo el esfuerzo, pero ya no hay redundancia) y volver despacio a revisar (06 F19b, T0.M6b).
 - [ ] Si las rpm se disparan (aire): soltar el acelerador hasta que vuelva el empuje.
 - [ ] Aguas bajas o arena: ralentí. Golpe en la bomba: parar y volver despacio.
 - [ ] Sin testigo de refrigeración, alarma de sentina, olor a quemado o agua en el testigo del sello: parar, S1 OFF, remar.
@@ -52,6 +55,6 @@ Casilla sin marcar = **no se sale**. Una sola vez antes: T0–T2 aprobados y blo
 
 **6. Al volver**
 - [ ] **Cordón AFUERA y S1 OFF** (con el clip puesto la bobina de K1 consume 1,6 W aunque S1 esté abierto, y al próximo S1 ON K1 cerraría sin precarga).
-- [ ] Enjuagar con agua dulce casco, rejilla, boquilla, bucket, los dos émbolos y conectores.
+- [ ] Enjuagar con agua dulce casco, rejilla, boquilla, bucket, los dos émbolos, el desbloqueo (balancines y reguladores) y conectores.
 - [ ] Revisar rejilla, impulsor (por la chimenea), testigo del sello y sentina.
 - [ ] Anotar en el registro: horas de motor, Wh, fallas del VESC, golpes. Cargar en tierra, sobre 5 °C. Invierno: sacar F5 y los fusibles de rama y guardar la batería a carga de almacenamiento (electrónica README §10).

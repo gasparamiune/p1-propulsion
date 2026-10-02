@@ -19,14 +19,16 @@ Leyenda: [x] hecho · [~] en curso · [ ] pendiente
 - [x] Planos acotados de piezas mecanizadas/soldadas (`04_diseno/planos/`)
 - [x] Electrónica: cables, fusibles, diagrama; firmware v2.0 (bucket, perfiles costa/abierto, limpieza de rejilla, kill) + 69 tests
 - [x] Visor 3D web para Jorge (ensamblado, explosión, dirección, bucket, chorro, demo, corte lateral)
-- [~] FEA de piezas críticas del jet (agente en curso)
-- [~] 05_fabricacion.md + probetas + PrusaSlicer (agente en curso)
-- [~] 06_ensamblaje_y_pruebas.md + FMEA + checklist_salida.md + PENDIENTES_GASPAR.md (agente en curso)
+- [x] FEA de piezas críticas del jet (`04_diseno/fea`: DRV-03, REV-01, STE-01, INT-02, CTL-02)
+- [x] 05_fabricacion.md + probetas + PrusaSlicer
+- [x] 06_ensamblaje_y_pruebas.md + FMEA + checklist_salida.md + PENDIENTES_GASPAR.md
 - [x] 01, 02, 03, 07, decisiones.md, README reescritos
 
 ## Pasada 3 — Auditoría adversarial
-- [ ] Ronda 1
-- [ ] Ronda 2 (hasta no encontrar problemas relevantes)
+- [x] Ronda 1 (44 hallazgos, corregidos)
+- [x] Ronda 2 (27 hallazgos, corregidos)
+- [x] Ronda 3 (FEA de piezas críticas; superada por la ronda 4: auditoria.md)
+- [~] Ronda 4 (rediseño de la traba del bucket, del pivote y del desbloqueo; FEA de REV-01/STE-01 rehecho): en curso, la cierra el agente principal tras la corrida fina y una re-auditoría
 - [x] Prueba de regeneración desde inputs.yaml (`tests/test_regeneration*.py`, auditoria.md §Regeneración)
 
 ## Definición de terminado (sección 9)
@@ -46,6 +48,8 @@ Leyenda: [x] hecho · [~] en curso · [ ] pendiente
 - 2026-10-01 22:30: núcleo de cálculo y optimizador. Resultado honesto: 30 km/h no se alcanzan sostenidos con < 50 V y la batería que entra (26 km/h; ~29 km/h en pico). Estabilidad: GM ≈ 0,01 m → riesgo n.º 1.
 - 2026-10-01 23:59: CAD completo (65 piezas) sin interferencias, FS OK, BOM 10,7 k€ (A) vs ~6,4–6,5 k€ (B, JT132). Matriz: gana B (89 % del Monte Carlo).
 - 2026-10-02: visor 3D nuevo, docs 01/02/03/07, README, tests adaptados; FEA, fabricación y docs 06/checklist/PENDIENTES en curso.
+- 2026-10-02: Pasada 3, ronda 3 — FEA de las piezas críticas: bucket con traba en un solo brazo FS 0,44 (F-01) → traba en los dos brazos, chapa 6 mm, pivote espaciador + M12; CTL-02 con paredes de 5 mm; radios en STE-01 y DRV-03; desempate estable del optimizador; R3-01…R3-11. No quedó cerrada: la corrida fina dio STE-01 FS 1,80 < 2 y el reparto entre trabas no se sostenía.
+- 2026-10-02: Pasada 3, ronda 4 — tres auditores (mecánico, FEA, documentación): el reparto entre trabas depende de la carga, el desfase no estaba controlado, M_h subestimado y F_z con el signo cambiado, el émbolo de catálogo supuesto no existe, el FEA de STE-01 aplicaba mal la reacción del pivote, desbloqueo imposible de montar. Rediseño (D-17c): criterio de traba única, cargas por cantidad de movimiento, bucket 8 mm, pivote con brida y piloto, émbolo propio Ø16 / M24×1,5, orejas de 12 mm, balancines + vainas modeladas + gatillo con barra igualadora; FEA de REV-01/STE-01 con casos de una traba sola, verificación de borde de agujeros y estática verificada; `structural.py` sin filas bajo objetivo. En curso: corrida fina del FEA, 05/06/BOM, abiertos de auditoria.md (ronda 4).
 
 ## Bitácora (versión anterior: cola larga, archivada)
 - 2026-10-01: inicio. V1/V2: títulos verificados vía YouTube oEmbed (canal "Clean Energy").
