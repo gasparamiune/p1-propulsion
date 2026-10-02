@@ -290,21 +290,44 @@ def bucket_statics(p, Fb, n=60):
             "F_pivote_menos_y_sobre_boquilla_N": (-Rm).tolist(), "y_orejas_mm": yp, "R_chorro_mm": R}
 
 
-def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
+class _Override:
+    """Vista de params con algunos valores reemplazados (solo para variantes de evaluación)."""
+
+    def __init__(self, base, **over):
+        self.__dict__["_b"], self.__dict__["_o"] = base, over
+
+    def __getattr__(self, k):
+        o = self.__dict__["_o"]
+        return o[k] if k in o else getattr(self.__dict__["_b"], k)
+
+
+def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None):
+    """variant (solo para evaluar la propuesta; NO modifica la pieza): dict(traba_doble=bool, t=espesor mm).
+    traba_doble: la geometría se completa con su espejo en y (lóbulos y agujeros de traba también en el
+    brazo −Y) y se agrega un segundo émbolo."""
+    from build123d import Plane
     pid = "P1-REV-01"
     meta = mods[pid].META
     m = mods[pid]
+    variant = variant or {}
+    if variant.get("t"):
+        p = _Override(p, REV_t=float(variant["t"]))
     part = m.build_down(p)
+    double = bool(variant.get("traba_doble"))
+    if double:
+        part = part + part.mirror(Plane.XZ)
     sd = struct_mod("structural_direccion")
     A = metal_allow(p.inp, "Al 5083-O/H111 (= ZAT)", sd.AL5083, "structural_direccion.AL5083 [ESTIMADO: EN 485-2]")
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     lk = m.lock_pt(p)
     yi, t = p.REV_y_in, p.REV_t
     hr = max(0.5 * h, hmin)
-    ref = [(Xb, s * (yi + t), Zb, 22.0, hr) for s in (1, -1)] + [(lk[0], yi + t / 2, lk[1], 18.0, hr)]
+    sides = (1, -1) if double else (1,)
+    ref = [(Xb, s * (yi + t), Zb, 22.0, hr) for s in (1, -1)] + [(lk[0], s * (yi + t / 2), lk[1], 18.0, hr) for s in sides]
     S, M, minfo = _setup_model(part, pid, meta, tmpdir, h, curv, hmin, A, refine=ref)
-    xref_l = np.array([lk[0], yi + t / 2, lk[1]])
-    emb = M.add_rigid("embolo", xref_l, fixed_local=(1, 3, 4, 5))
+    embs = {s: M.add_rigid("embolo" if s > 0 else "embolo_menos_y", np.array([lk[0], s * (yi + t / 2), lk[1]]),
+                           fixed_local=(1, 3, 4, 5)) for s in sides}
+    emb = embs[1]
     M.assemble()
     # pivotes: pernos con hombro Ø10 en bujes POM Ø10/Ø14 (articulación sin fricción)
     r_b = p.REV_bush_od / 2
@@ -317,9 +340,11 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
                    region=lambda c: np.hypot(c[:, 0] - lk[0], c[:, 2] - lk[1]) < p.REV_lock_hole_d)
     a = math.radians(p.REV_lock_ang)
     tvec = np.array([math.sin(a), 0.0, -math.cos(a)])
-    M.add_interface(Interface("traba", hole, E_AL / CONTACT_LEN, kind="rigid", rigid="embolo", k_t=0.0,
-                              axis=((lk[0], 0, lk[1]), (0, 1, 0))))
-    M.add_static(dir_stiffness(S.ndof, emb[[0, 1, 2]], tvec, 1e7))
+    for s_ in sides:
+        hs = hole[S.fcent[hole, 1] * s_ > 0]
+        M.add_interface(Interface("traba" if s_ > 0 else "traba_menos_y", hs, E_AL / CONTACT_LEN, kind="rigid",
+                                  rigid="embolo" if s_ > 0 else "embolo_menos_y", k_t=0.0, axis=((lk[0], 0, lk[1]), (0, 1, 0))))
+        M.add_static(dir_stiffness(S.ndof, embs[s_][[0, 1, 2]], tvec, 1e7))
     # carga: chorro sobre la cara interior de la cuchara, uniforme sobre la proyección del chorro
     R = jet_footprint(p)
     xc0 = p.STE_X_exit + p.REV_cup_dx
@@ -357,12 +382,13 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
         qv = u[emb]
         extra = {"F_b_N": Fb, "F_z_N": float(Fz), "M_pivote_Nm": float(moment_of(S, f, piv_pt)[1] / 1000),
                  "A_proyectada_mm2": A_proj, "q_media_MPa": q,
-                 "F_traba_N": float(np.linalg.norm(R_["traba"]["F_N"])), "F_pivotes_N": R_["pivotes"]["F_N"],
+                 "F_traba_N": float(sum(np.linalg.norm(R_[k]["F_N"]) for k in R_ if k.startswith("traba"))),
+                 "F_pivotes_N": R_["pivotes"]["F_N"],
                  "F_traba_mano_N": sd_loads.get("F_lock_pin_N"), "embolo_u_mm": qv[:3].round(4).tolist()}
         return [{"id": "a", "name": "Reversa: chorro F_b = máx(sizing %.0f N, R12 %.0f N) = %.0f N en la cuchara; M_h = %.0f N·m (traba + pivotes)"
                  % (Fbn, 1408.0, Fb, abs(M_tgt) / 1000), "kind": "short", "u": u, "info": info, "extra": extra, "active": M_active(M)}]
 
-    regions = {"traba": lambda X: (np.hypot(X[:, 0] - lk[0], X[:, 2] - lk[1]) <= p.REV_lock_hole_d / 2 + 3.0) & (X[:, 1] > 0),
+    regions = {"traba": lambda X: (np.hypot(X[:, 0] - lk[0], X[:, 2] - lk[1]) <= p.REV_lock_hole_d / 2 + 3.0) & (np.abs(X[:, 1]) > yi - 0.05),
                "pivotes": lambda X: np.hypot(X[:, 0] - Xb, X[:, 2] - Zb) <= r_b + 3.0,
                "brazos": lambda X: np.abs(X[:, 1]) >= yi - 0.05,
                "cuchara": lambda X: np.abs(X[:, 1]) < yi - 0.05}
@@ -423,8 +449,8 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     ro_w = 0.5 * float(getattr(p, "STE_wash_od", 2 * p.STE_ear_rp))
     w_top = sel_annulus(S, (0, 0, 1), zt, (Xp, 0, zt), 2.5, ro_w)
     w_bot = sel_annulus(S, (0, 0, -1), zt, (Xp, 0, -zt), 2.5, ro_w)
-    M.add_interface(Interface("arandela_sup", w_top, k_w))
-    M.add_interface(Interface("arandela_inf", w_bot, k_w))
+    M.add_interface(Interface("arandela_sup", w_top, k_w, unilateral=False))     # boquilla atrapada entre las dos orejas
+    M.add_interface(Interface("arandela_inf", w_bot, k_w, unilateral=False))     # de la bomba (luz axial 0,3 mm: se ignora)
     # yugo: brida rígida sobre la torre (4 roscas M8 + cara superior); reacciona solo el par de dirección
     rb_holes = [sel_cyl(S, (Xp + xx, yy, 0), (0, 0, 1), 3.4, region=lambda c: c[:, 2] > zr - 17) for xx, yy in p.STE_riser_bolts]
     rb = np.concatenate(rb_holes)

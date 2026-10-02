@@ -229,6 +229,23 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
     out["criterio_gobernante"] = out["casos"][gov]["FS"]["criterio"]
     out["nivel_reportado"] = level
     out["comparacion_mano"] = compare(out, level)
+    # variantes propuestas (solo evaluación: la pieza NO se modifica; geometría alterada dentro del modelo FEA)
+    out["variantes"] = {}
+    for vname, var in ({} if quick else cfg.get("variantes", {})).items():
+        tv = time.time()
+        lv_name, h, cn = levels[-1]
+        with tempfile.TemporaryDirectory() as tmp:
+            stv = fp.SETUPS[pid](p, mods, est, h, cn, tmp, log=log, hmin=cfg["hmin"], variant=var["param"])
+        Mv = stv["model"]
+        vc = {}
+        for c in stv["run"](log=None):
+            Fv = Mv.stress_fields(c["u"])
+            sv = Mv.summarize(Fv, r_ex)
+            rv = Mv.region_summary(Fv, r_ex, stv.get("regions", {}))
+            vc[c["id"]] = {"resumen": sv, "regiones": rv, "FS": fs_block(sv, c["kind"], stv["allow"]), "extra": c.get("extra", {})}
+        out["variantes"][vname] = {"descripcion": var["desc"], "param": var["param"], "n_tets": int(len(Mv.S.T)),
+                                   "casos": vc, "tiempo_s": round(time.time() - tv, 1)}
+        log(f"  variante {vname}: FS {min(v['FS']['gobernante'] for v in vc.values()):.2f}")
     imgs = []
     if not no_img and img_dir is not None:
         import fea_plot
@@ -344,6 +361,17 @@ def readme_block(res):
                      f"{_f(c['sigma_mano_vm_MPa'])} | {_f(c['sigma_FEA_MPa'])} ({_f(c['sigma_FEA_p99_MPa'])}) | "
                      f"{_f(c['FS_mano_cmp'])} | {_f(c['FS_FEA'])} | "
                      f"{dif}{flag} |")
+    var_rows = [(pid, vn, v) for pid, r in res["piezas"].items() for vn, v in r.get("variantes", {}).items()]
+    if var_rows:
+        L += ["", "### Variantes propuestas (evaluadas en el modelo FEA; la pieza NO se modificó)", "",
+              "| Pieza | Variante | Caso | σvm máx* | σvm p99 | u máx [mm] | FS (máx*) | FS (p99) | Veredicto |", "|---|---|---|---|---|---|---|---|---|"]
+        for pid, vn, v in var_rows:
+            tgt = res["piezas"][pid]["FS_objetivo"]
+            for cid, c in v["casos"].items():
+                s = c["resumen"]
+                L.append(f"| {pid} | {vn}: {v['descripcion']} | {cid} | {_f(s['vm']['max_excl'])} | {_f(s['vm']['p99'])} | "
+                         f"{_f(s['u_max_mm'], 3)} | **{_f(c['FS']['gobernante'])}** | {_f(c['FS']['vm_p99'])} | "
+                         f"{verdict(c['FS']['gobernante'], tgt)} |")
     L += ["", "⚠ diferencia > 30 %: explicada en «Hallazgos».", "", "### Hallazgos cuantitativos", ""] + res["hallazgos"] + ["", AUTO1]
     return "\n".join(L)
 
