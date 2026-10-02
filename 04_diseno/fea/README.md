@@ -238,7 +238,7 @@ pisar el entregable.
 
 <!-- FEA:AUTO:INICIO (generado por fea_run.py; no editar a mano) -->
 
-Corrida: 2026-10-02 · inputs v2.0 · 3156 s [CALCULADO]
+Corrida: 2026-10-02 · inputs v2.0 · 2081 s [CALCULADO]
 
 ### Materiales y admisibles
 
@@ -256,10 +256,10 @@ Corrida: 2026-10-02 · inputs v2.0 · 3156 s [CALCULADO]
 |---|---|---|---|---|---|---|---|
 | P1-DRV-03 | gruesa | 10 | 13612 | 74541 | 0.004 | 0.189 | 27 |
 | P1-DRV-03 | fina | 5 | 44732 | 235371 | 0.014 | 0.392 | 27 |
-| P1-REV-01 | gruesa | 6 | 34799 | 197334 | 0.000 | 0.348 | 75 |
-| P1-REV-01 | fina | 3.5 | 110120 | 577602 | 0.000 | 0.504 | 68 |
-| P1-STE-01 | gruesa | 8 | 24881 | 136005 | 0.000 | 0.017 | 383 |
-| P1-STE-01 | fina | 4.5 | 74578 | 389337 | 0.000 | 0.153 | 495 |
+| P1-REV-01 | gruesa | 6 | 46480 | 252975 | 0.003 | 0.408 | 56 |
+| P1-REV-01 | fina | 3.5 | 153447 | 773826 | 0.001 | 0.530 | 60 |
+| P1-STE-01 | gruesa | 8 | 29058 | 156501 | 0.000 | 0.018 | 402 |
+| P1-STE-01 | fina | 4.5 | 91752 | 468678 | 0.000 | 0.182 | 520 |
 | P1-INT-02 | gruesa | 14 | 47904 | 268719 | 0.000 | 0.228 | 112 |
 | P1-INT-02 | fina | 8 | 93218 | 507585 | 0.000 | 0.307 | 168 |
 | P1-CTL-02 | gruesa | 6 | 11240 | 65856 | 0.082 | 0.393 | 0 |
@@ -267,53 +267,106 @@ Corrida: 2026-10-02 · inputs v2.0 · 3156 s [CALCULADO]
 
 ### Resultados (malla fina) — tensiones en MPa; FS = admisible / σ de diseño
 
-σ de diseño = σvm máx* (máximo fuera de r_excl de cargas y apoyos) si cambia ≤ 20 % de la malla gruesa a la fina; si no converge (arista viva del CAD o astilla de malla), el máximo del promedio en una esfera de radio 3 mm («prom.»). En PETG el FS es el menor de σvm, σ1 y σZ (el criterio va entre paréntesis).
+σ de diseño = σvm máx* (máximo fuera de r_excl de cargas y apoyos) si cambia ≤ 20 % de la malla gruesa a la fina; si no converge (arista viva del CAD o astilla de malla), el máximo del promedio en una esfera de radio 3 mm («prom.»). En PETG el FS es el menor de σvm, σ1 y σZ (el criterio va entre paréntesis). El FS del caso es el menor entre el del cuerpo y el del borde de los agujeros cargados (tabla de bordes; criterio «borde»). Casos de fatiga (reversa de sizing) contra el admisible de fatiga del material; casos «informativo» fuera del FS mínimo.
 
 | Pieza | Caso | σvm máx | σvm p99 | σvm máx* | σvm prom. | σ diseño | u máx [mm] | **FS** | FS (p99) | Veredicto |
 |---|---|---|---|---|---|---|---|---|---|---|
-| P1-DRV-03 | a: Empuje Fa = 764 N hacia proa (tapa → 4 × M5) + radial 3 g + Fr = 143 N | 32.58 | 20.36 | 26.29 | 22.97 | 26.29 (máx*) | 0.286 | **4.37** | 5.65 | cumple |
-| P1-DRV-03 | b: Empuje Fa = 764 N hacia popa (resalte trasero, reversa) + radial 143 N | 39.41 | 20.91 | 29.59 | 25.96 | 29.59 (máx*) | 0.296 | **3.89** | 5.50 | cumple |
-| P1-REV-01 | a: Reversa: chorro F_b = 1408 N en la cuchara; M_h = 127 N·m; R12: las dos trabas apoyan a la vez (reparto nominal) | 49.74 | 14.08 | 27.37 | 19.49 | 27.37 (máx*) | 0.114 | **4.57** | 8.88 | cumple |
-| P1-REV-01 | b: Reversa: chorro F_b = 1408 N en la cuchara; M_h = 127 N·m; R12: la traba −Y apoya 0.1 mm después que la +Y (desfase de fabricación admitido) | 87.53 | 18.79 | 45.08 | 31.62 | 45.08 (máx*) | 0.521 | **2.77** | 6.65 | cumple |
-| P1-REV-01 | c: Reversa: chorro F_b = 1408 N en la cuchara; M_h = 127 N·m; R12: la traba +Y apoya 0.1 mm después que la −Y (desfase de fabricación admitido) | 81.84 | 18.74 | 49.83 | 34.01 | 49.83 (máx*) | 0.544 | **2.51** | 6.67 | cumple |
-| P1-REV-01 | d: Reversa: chorro F_b = 698 N en la cuchara; M_h = 63 N·m; FALLA, reversa de sizing: el émbolo −Y no entró (M_h por el brazo +Y) | 63.41 | 13.58 | 33.69 | 23.08 | 33.69 (máx*) | 0.504 | **3.71** | 9.20 | cumple |
-| P1-REV-01 | e: Reversa: chorro F_b = 698 N en la cuchara; M_h = 63 N·m; FALLA, reversa de sizing: el émbolo +Y no entró (M_h por el brazo −Y) | 76.66 | 14.46 | 36.30 | 25.36 | 36.30 (máx*) | 0.504 | **3.44** | 8.64 | cumple |
-| P1-STE-01 | a: Desvío del chorro F_s = máx(sizing 323, R12 364) = 364 N repartido en el paso (centro de presión e = 66 mm, = structural) | 20.53 | 6.31 | 15.25 | 8.18 | 15.25 (máx*) | 0.072 | **15.74** | 38.03 | cumple |
-| P1-STE-01 | b: F_s = 364 N en la boca de salida (últimos 20 mm; brazo ≈ L = 132 mm, conservador) | 37.90 | 11.67 | 37.50 | 15.09 | 37.50 (máx*) | 0.138 | **6.40** | 20.57 | cumple |
-| P1-STE-01 | c: Reversa R12 (F_b = 1408 N, M_h = 127 N·m) con M_h completo en la traba +Y: pivotes (+ par del espaciador) y rosca M20 | 172.05 | 64.08 | 124.61 | 94.32 | 124.61 (máx*) | 0.769 | **1.93** | 3.75 | **NO CUMPLE** |
-| P1-STE-01 | c2: Reversa R12 con M_h completo en la traba −Y: pivotes (+ par del espaciador) y rosca M20 de la oreja −Y | 179.66 | 80.92 | 133.07 | 101.84 | 133.07 (máx*) | 1.134 | **1.80** | 2.97 | **NO CUMPLE** |
-| P1-STE-01 | d: Combinado: reversa (c) + desvío F_s en el paso (a) (maniobra en reversa) | 172.02 | 63.98 | 124.59 | 94.35 | 124.59 (máx*) | 0.780 | **1.93** | 3.75 | **NO CUMPLE** |
-| P1-STE-01 | d2: Combinado: reversa (c2) + desvío F_s en el paso (a) | 179.67 | 80.94 | 133.07 | 102.15 | 133.07 (máx*) | 1.116 | **1.80** | 2.97 | **NO CUMPLE** |
+| P1-DRV-03 | a: Empuje Fa = 765 N hacia proa (tapa → 4 × M5) + radial 3 g + Fr = 143 N | 32.59 | 20.37 | 26.30 | 22.98 | 26.30 (máx*) | 0.286 | **4.37** | 5.65 | cumple |
+| P1-DRV-03 | b: Empuje Fa = 765 N hacia popa (resalte trasero, reversa) + radial 143 N | 39.42 | 20.92 | 29.59 | 25.96 | 29.59 (máx*) | 0.296 | **3.89** | 5.50 | cumple |
+| P1-REV-01 | a: Reversa: chorro F_b = 1408 N (J = 720 N, M_h = 135 N·m); R12: las dos trabas apoyan a la vez, sin desfase (informativo) | 32.75 | 10.88 | 26.05 | 17.77 | 26.05 (máx*) | 0.095 | **4.80** | 11.49 | informativo |
+| P1-REV-01 | b: Reversa: chorro F_b = 1408 N (J = 720 N, M_h = 135 N·m); R12: la traba −Y apoya 0.1 mm después que la +Y (desfase; informativo, sin requisito) | 65.59 | 17.42 | 55.13 | 36.96 | 55.13 (máx*) | 0.475 | **2.27** | 7.18 | informativo |
+| P1-REV-01 | d: Reversa: chorro F_b = 1408 N (J = 720 N, M_h = 135 N·m); R12 con SOLO la traba +Y (la −Y no está): M_h completo por el brazo +Y (DISEÑO) | 74.98 | 18.92 | 60.12 | 40.35 | 60.12 (máx*) | 0.548 | **2.08** | 6.61 | cumple |
+| P1-REV-01 | e: Reversa: chorro F_b = 1408 N (J = 720 N, M_h = 135 N·m); R12 con SOLO la traba −Y (la +Y no está): M_h completo por el brazo −Y (DISEÑO) | 84.13 | 19.74 | 55.34 | 33.73 | 55.34 (máx*) | 0.544 | **2.26** | 6.33 | cumple |
+| P1-REV-01 | f: Reversa: chorro F_b = 698 N (J = 357 N, M_h = 67 N·m); Reversa de sizing con SOLO la traba +Y (fatiga de soldadura) | 37.19 | 9.39 | 29.82 | 20.02 | 29.82 (máx*) | 0.272 | **2.28** | 7.24 | cumple |
+| P1-REV-01 | g: Reversa: chorro F_b = 698 N (J = 357 N, M_h = 67 N·m); Reversa de sizing con SOLO la traba −Y (fatiga de soldadura) | 41.73 | 9.79 | 27.45 | 16.73 | 27.45 (máx*) | 0.270 | **2.48** | 6.94 | cumple |
+| P1-STE-01 | a: Desvío del chorro F_s = máx(sizing 323, R12 364) = 364 N repartido en el paso (centro de presión e = 66 mm, = structural) | 16.00 | 6.02 | 16.00 | 7.98 | 7.98 (promedio en volumen) | 0.069 | **30.06** | 39.84 | cumple |
+| P1-STE-01 | b: F_s = 364 N en la boca de salida (últimos 20 mm; brazo ≈ L = 132 mm, conservador) | 35.04 | 11.33 | 35.04 | 14.71 | 35.04 (máx*) | 0.132 | **6.85** | 21.18 | cumple |
+| P1-STE-01 | c: Reversa R12 (F_b = 1408 N, M_h = 135 N·m) con M_h COMPLETO en la traba +Y: pivote +Y (chorro/2 + traba), pivote −Y (chorro/2) y rosca M24 +Y (DISEÑO) | 77.32 | 35.57 | 61.37 | 55.32 | borde rosca_mas_y: σθ 78.03 | 0.238 | **3.08** (borde rosca_mas_y) | 6.75 | cumple |
+| P1-STE-01 | c2: Reversa R12 con M_h COMPLETO en la traba −Y: pivote −Y (chorro/2 + traba), pivote +Y y rosca M24 −Y (DISEÑO) | 74.70 | 36.14 | 59.77 | 53.59 | borde rosca_menos_y: σθ 75.31 | 0.275 | **3.19** (borde rosca_menos_y) | 6.64 | cumple |
+| P1-STE-01 | d: Combinado: reversa (c) + desvío F_s en el paso (a) (maniobra en reversa) | 77.26 | 35.60 | 61.40 | 55.35 | borde rosca_mas_y: σθ 77.96 | 0.246 | **3.08** (borde rosca_mas_y) | 6.74 | cumple |
+| P1-STE-01 | d2: Combinado: reversa (c2) + desvío F_s en el paso (a) | 74.77 | 36.31 | 60.94 | 53.58 | borde rosca_menos_y: σθ 75.37 | 0.259 | **3.18** (borde rosca_menos_y) | 6.61 | cumple |
+| P1-STE-01 | f: Reversa de sizing (F_b = 698 N, M_h = 67.1 N·m) con M_h completo en la traba +Y (fatiga) | 38.35 | 17.65 | 30.44 | 27.44 | borde rosca_mas_y: σθ 38.71 | 0.118 | **2.33** (borde rosca_mas_y) | 5.10 | cumple |
+| P1-STE-01 | f2: Reversa de sizing con M_h completo en la traba −Y (fatiga) | 37.06 | 17.93 | 29.65 | 26.58 | borde rosca_menos_y: σθ 37.36 | 0.137 | **2.41** (borde rosca_menos_y) | 5.02 | cumple |
 | P1-INT-02 | a: Espárragos del pórtico: precarga 6944 N (10 N·m, K 0.18) ± vuelco Fa·h/Δx/2 = 422 N (Φ = 0.25) + corte Fa/4 | 63.39 | 14.67 | 9.55 | 9.55 | 9.55 (máx*) | 0.023 | **13.09** | 8.52 | cumple |
-| P1-INT-02 | b: Golpe de fondo 50 kPa + presión de cierre 67 kPa en la abertura + tiro de la brida del conducto 4047 N (placa sola, sin la rigidez del conducto: conservador) | 51.41 | 30.02 | 51.10 | 51.10 | 51.10 (máx*) | 0.216 | **2.45** | 4.16 | cumple |
-| P1-INT-02 | b2: Ídem (b) con el conducto P1-INT-01 como rigidizador rígido abulonado (cota rígida; = modelo de structural_toma) | 20.86 | 10.65 | 18.26 | 17.44 | 18.26 (máx*) | 0.048 | **6.85** | 11.73 | cumple |
+| P1-INT-02 | b: Golpe de fondo 50 kPa + presión de cierre 67 kPa en la abertura + tiro de la brida del conducto 4049 N (placa sola, sin la rigidez del conducto: conservador) | 51.42 | 30.02 | 51.11 | 51.11 | 51.11 (máx*) | 0.216 | **2.45** | 4.16 | cumple |
+| P1-INT-02 | b2: Ídem (b) con el conducto P1-INT-01 como rigidizador rígido abulonado (cota rígida; = modelo de structural_toma) | 20.86 | 10.66 | 18.26 | 17.44 | 18.26 (máx*) | 0.048 | **6.85** | 11.73 | cumple |
 | P1-CTL-02 | a: Mano apoyada 150 N, palma Ø50 en (x, y)_U = (-10, 0) mm (nervio entre ranuras); A cargada 847 mm² | 7.03 | 2.88 | 7.03 | 6.85 | 7.03 (máx*) | 0.813 | **3.41** | 8.34 | cumple |
 | P1-CTL-02 | b: Mano apoyada 150 N, palma Ø50 en (x, y)_U = (-62, -12) mm (tapa ancha junto a la ranura del bucket); A cargada 1472 mm² | 4.35 | 2.22 | 4.35 | 3.66 | σZ 2.63 (máx*) | 0.419 | **3.49** (Z) | 10.81 | cumple |
 
 \* máximo fuera de las zonas de aplicación de cargas/apoyos concentrados (r_excl en la tabla de convergencia); el máximo global incluye singularidades de aplicación y se reporta para transparencia.
 
+### Borde de los agujeros cargados por perno (sección neta, a ±90° de la carga)
+
+Nodos de la superficie del agujero con |cos θ| ≤ 0,5 respecto de la dirección de la carga (θ = 60…120°), zona que la exclusión r_excl del máx* no mira (auditoría ronda 4, F3). Se verifica la tensión circunferencial |σθ| (sección neta del «lug»): FS = admisible del caso / |σθ| máx. (malla fina). σvm de la ventana: informativo (en el arco de contacto incluye el aplastamiento y el borde del contacto, que verifican las filas de aplastamiento). Si |σθ| cambia > 10 % de la gruesa a la fina se extrapola (tipo Richardson, p = 2, tamaños locales).
+
+| Pieza | Caso | Agujero | σθ (valor abs.) gruesa → fina [MPa] | θ [°] | σvm ventana [MPa] (FS) | **FS** | Richardson σ_ext (FS) |
+|---|---|---|---|---|---|---|---|
+| P1-REV-01 | a | traba | 13.15 → 13.32 (+1 %) | 64 | 18.48 (6.77) | **9.39** | — |
+| P1-REV-01 | a | traba_menos_y | 17.52 → 17.20 (-2 %) | 65 | 21.47 (5.82) | **7.27** | — |
+| P1-REV-01 | a | pivote_mas_y | 23.85 → 24.56 (+3 %) | 87 | 25.93 (4.82) | **5.09** | — |
+| P1-REV-01 | a | pivote_menos_y | 18.15 → 18.32 (+1 %) | 100 | 20.92 (5.97) | **6.82** | — |
+| P1-REV-01 | b | traba | 25.65 → 27.66 (+7 %) | 98 | 65.59 (1.91) | **4.52** | — |
+| P1-REV-01 | b | traba_menos_y | 8.11 → 10.98 (+26 %) | 61 | 8.54 (14.65) | **11.39** | 12.46 (10.03) |
+| P1-REV-01 | b | pivote_mas_y | 33.26 → 34.38 (+3 %) | 94 | 37.04 (3.37) | **3.64** | — |
+| P1-REV-01 | b | pivote_menos_y | 12.16 → 12.34 (+1 %) | 117 | 15.28 (8.18) | **10.13** | — |
+| P1-REV-01 | d | traba | 28.25 → 30.77 (+8 %) | 98 | 74.98 (1.67) | **4.06** | — |
+| P1-REV-01 | d | pivote_mas_y | 34.65 → 35.90 (+3 %) | 95 | 38.82 (3.22) | **3.48** | — |
+| P1-REV-01 | d | pivote_menos_y | 11.05 → 11.42 (+3 %) | 113 | 17.10 (7.31) | **10.95** | — |
+| P1-REV-01 | e | traba_menos_y | 26.17 → 27.14 (+4 %) | 79 | 51.15 (2.44) | **4.61** | — |
+| P1-REV-01 | e | pivote_mas_y | 11.44 → 11.54 (+1 %) | 116 | 16.95 (7.37) | **10.83** | — |
+| P1-REV-01 | e | pivote_menos_y | 27.79 → 29.25 (+5 %) | 73 | 31.11 (4.02) | **4.27** | — |
+| P1-REV-01 | f | traba | 14.01 → 15.26 (+8 %) | 98 | 37.19 (1.83) | **4.45** | — |
+| P1-REV-01 | f | pivote_mas_y | 17.19 → 17.81 (+3 %) | 95 | 19.26 (3.53) | **3.82** | — |
+| P1-REV-01 | f | pivote_menos_y | 5.48 → 5.66 (+3 %) | 113 | 8.48 (8.02) | **12.01** | — |
+| P1-REV-01 | g | traba_menos_y | 12.98 → 13.46 (+4 %) | 79 | 25.37 (2.68) | **5.05** | — |
+| P1-REV-01 | g | pivote_mas_y | 5.67 → 5.73 (+1 %) | 116 | 8.41 (8.09) | **11.87** | — |
+| P1-REV-01 | g | pivote_menos_y | 13.78 → 14.51 (+5 %) | 73 | 15.43 (4.41) | **4.69** | — |
+| P1-STE-01 | c | pivote_mas_y | 63.75 → 64.93 (+2 %) | 73 | 67.48 (3.56) | **3.70** | — |
+| P1-STE-01 | c | rosca_mas_y | 71.56 → 78.03 (+8 %) | 111 | 77.32 (3.10) | **3.08** | — |
+| P1-STE-01 | c | pivote_menos_y | 13.16 → 11.98 (-10 %) | 71 | 12.77 (18.80) | **20.03** | — |
+| P1-STE-01 | c2 | pivote_mas_y | 11.80 → 11.20 (-5 %) | 71 | 12.21 (19.65) | **21.43** | — |
+| P1-STE-01 | c2 | pivote_menos_y | 58.97 → 55.20 (-7 %) | 71 | 57.31 (4.19) | **4.35** | — |
+| P1-STE-01 | c2 | rosca_menos_y | 68.83 → 75.31 (+9 %) | 107 | 74.70 (3.21) | **3.19** | — |
+| P1-STE-01 | d | pivote_mas_y | 63.72 → 64.89 (+2 %) | 73 | 67.44 (3.56) | **3.70** | — |
+| P1-STE-01 | d | rosca_mas_y | 71.49 → 77.96 (+8 %) | 111 | 77.26 (3.11) | **3.08** | — |
+| P1-STE-01 | d | pivote_menos_y | 13.15 → 11.98 (-10 %) | 71 | 12.73 (18.85) | **20.04** | — |
+| P1-STE-01 | d2 | pivote_mas_y | 11.85 → 11.24 (-5 %) | 71 | 12.30 (19.52) | **21.36** | — |
+| P1-STE-01 | d2 | pivote_menos_y | 59.00 → 55.23 (-7 %) | 71 | 57.33 (4.19) | **4.35** | — |
+| P1-STE-01 | d2 | rosca_menos_y | 68.89 → 75.37 (+9 %) | 107 | 74.77 (3.21) | **3.18** | — |
+| P1-STE-01 | f | pivote_mas_y | 31.62 → 32.21 (+2 %) | 73 | 33.47 (2.69) | **2.79** | — |
+| P1-STE-01 | f | rosca_mas_y | 35.49 → 38.71 (+8 %) | 111 | 38.35 (2.35) | **2.33** | — |
+| P1-STE-01 | f | pivote_menos_y | 6.53 → 5.94 (-10 %) | 71 | 6.33 (14.21) | **15.15** | — |
+| P1-STE-01 | f2 | pivote_mas_y | 5.85 → 5.56 (-5 %) | 71 | 6.06 (14.86) | **16.20** | — |
+| P1-STE-01 | f2 | pivote_menos_y | 29.25 → 27.38 (-7 %) | 71 | 28.43 (3.17) | **3.29** | — |
+| P1-STE-01 | f2 | rosca_menos_y | 34.14 → 37.36 (+9 %) | 107 | 37.06 (2.43) | **2.41** | — |
+
 ### Convergencia (gruesa → fina)
 
-| Pieza | Caso | r_excl [mm] | σvm p99 | σvm máx* | σvm máx global | u máx [mm] |
-|---|---|---|---|---|---|---|
-| P1-DRV-03 | a | 5 | 21.40 → 20.36 (-5 %) | 25.54 → 26.29 (+3 %) | 28.07 → 32.58 (+14 %) | 0.2824 → 0.2861 (+1 %) |
-| P1-DRV-03 | b | 5 | 21.98 → 20.91 (-5 %) | 29.60 → 29.59 (-0 %) | 33.02 → 39.41 (+16 %) | 0.2920 → 0.2962 (+1 %) |
-| P1-REV-01 | a | 4 | 14.40 → 14.08 (-2 %) | 22.93 → 27.37 (+16 %) | 48.78 → 49.74 (+2 %) | 0.1133 → 0.1137 (+0 %) |
-| P1-REV-01 | b | 4 | 20.16 → 18.79 (-7 %) | 40.35 → 45.08 (+10 %) | 77.84 → 87.53 (+11 %) | 0.5212 → 0.5215 (+0 %) |
-| P1-REV-01 | c | 4 | 20.48 → 18.74 (-9 %) | 40.67 → 49.83 (+18 %) | 81.09 → 81.84 (+1 %) | 0.5440 → 0.5445 (+0 %) |
-| P1-REV-01 | d | 4 | 14.45 → 13.58 (-6 %) | 29.11 → 33.69 (+14 %) | 54.91 → 63.41 (+13 %) | 0.5003 → 0.5045 (+1 %) |
-| P1-REV-01 | e | 4 | 15.63 → 14.46 (-8 %) | 29.95 → 36.30 (+17 %) | 73.75 → 76.66 (+4 %) | 0.5001 → 0.5043 (+1 %) |
-| P1-STE-01 | a | 4 | 6.68 → 6.31 (-6 %) | 12.39 → 15.25 (+19 %) | 13.91 → 20.53 (+32 %) | 0.0701 → 0.0720 (+3 %) |
-| P1-STE-01 | b | 4 | 12.58 → 11.67 (-8 %) | 31.06 → 37.50 (+17 %) | 31.06 → 37.90 (+18 %) | 0.1351 → 0.1381 (+2 %) |
-| P1-STE-01 | c | 4 | 57.77 → 64.08 (+10 %) | 114.83 → 124.61 (+8 %) | 151.83 → 172.05 (+12 %) | 0.4968 → 0.7688 (+35 %) |
-| P1-STE-01 | c2 | 4 | 60.22 → 80.92 (+26 %) | 117.81 → 133.07 (+11 %) | 150.75 → 179.66 (+16 %) | 0.5967 → 1.1344 (+47 %) |
-| P1-STE-01 | d | 4 | 57.73 → 63.98 (+10 %) | 114.81 → 124.59 (+8 %) | 151.79 → 172.02 (+12 %) | 0.5050 → 0.7795 (+35 %) |
-| P1-STE-01 | d2 | 4 | 60.03 → 80.94 (+26 %) | 117.81 → 133.07 (+11 %) | 150.76 → 179.67 (+16 %) | 0.5793 → 1.1164 (+48 %) |
-| P1-INT-02 | a | 8 | 14.07 → 14.67 (+4 %) | 9.00 → 9.55 (+6 %) | 63.94 → 63.39 (-1 %) | 0.0194 → 0.0226 (+14 %) |
-| P1-INT-02 | b | 8 | 27.79 → 30.02 (+7 %) | 47.52 → 51.10 (+7 %) | 47.80 → 51.41 (+7 %) | 0.2047 → 0.2162 (+5 %) |
-| P1-INT-02 | b2 | 8 | 10.29 → 10.65 (+3 %) | 17.57 → 18.26 (+4 %) | 17.71 → 20.86 (+15 %) | 0.0458 → 0.0485 (+5 %) |
-| P1-CTL-02 | a | 4 | 3.20 → 2.88 (-11 %) | 6.89 → 7.03 (+2 %) | 6.89 → 7.03 (+2 %) | 0.7892 → 0.8127 (+3 %) |
-| P1-CTL-02 | b | 4 | 2.26 → 2.22 (-2 %) | 4.05 → 4.35 (+7 %) | 4.05 → 4.35 (+7 %) | 0.4020 → 0.4195 (+4 %) |
+Columna «Richardson»: si el máx* cambia > 10 %, σ_ext = σ_f + (σ_f − σ_g)/(r^p − 1) con r = h_g/h_f locales (esferas de refinamiento) y p = 2 [SUPUESTO: tensión con P2 en campo suave]; informativo, entre paréntesis el FS con σ_ext.
+
+| Pieza | Caso | r_excl [mm] | σvm p99 | σvm máx* | σvm máx global | u máx [mm] | Richardson máx* |
+|---|---|---|---|---|---|---|---|
+| P1-DRV-03 | a | 5 | 21.41 → 20.37 (-5 %) | 25.55 → 26.30 (+3 %) | 28.08 → 32.59 (+14 %) | 0.2825 → 0.2862 (+1 %) | — |
+| P1-DRV-03 | b | 5 | 21.99 → 20.92 (-5 %) | 29.60 → 29.59 (-0 %) | 33.03 → 39.42 (+16 %) | 0.2921 → 0.2963 (+1 %) | — |
+| P1-REV-01 | a | 4 | 11.07 → 10.88 (-2 %) | 25.13 → 26.05 (+4 %) | 32.37 → 32.75 (+1 %) | 0.0949 → 0.0952 (+0 %) | — |
+| P1-REV-01 | b | 4 | 17.84 → 17.42 (-2 %) | 52.05 → 55.13 (+6 %) | 59.74 → 65.59 (+9 %) | 0.4749 → 0.4751 (+0 %) | — |
+| P1-REV-01 | d | 4 | 19.36 → 18.92 (-2 %) | 56.43 → 60.12 (+6 %) | 67.62 → 74.98 (+10 %) | 0.5444 → 0.5478 (+1 %) | — |
+| P1-REV-01 | e | 4 | 20.59 → 19.74 (-4 %) | 52.34 → 55.34 (+5 %) | 82.18 → 84.13 (+2 %) | 0.5406 → 0.5443 (+1 %) | — |
+| P1-REV-01 | f | 4 | 9.60 → 9.39 (-2 %) | 27.99 → 29.82 (+6 %) | 33.54 → 37.19 (+10 %) | 0.2701 → 0.2717 (+1 %) | — |
+| P1-REV-01 | g | 4 | 10.21 → 9.79 (-4 %) | 25.96 → 27.45 (+5 %) | 40.77 → 41.73 (+2 %) | 0.2682 → 0.2700 (+1 %) | — |
+| P1-STE-01 | a | 4 | 6.35 → 6.02 (-5 %) | 12.25 → 16.00 (+23 %) | 13.53 → 16.00 (+15 %) | 0.0669 → 0.0688 (+3 %) | 17.73 (13.53) |
+| P1-STE-01 | b | 4 | 11.78 → 11.33 (-4 %) | 30.61 → 35.04 (+13 %) | 30.61 → 35.04 (+13 %) | 0.1285 → 0.1316 (+2 %) | 37.09 (6.47) |
+| P1-STE-01 | c | 4 | 38.46 → 35.57 (-8 %) | 58.10 → 61.37 (+5 %) | 70.12 → 77.32 (+9 %) | 0.2385 → 0.2378 (-0 %) | — |
+| P1-STE-01 | c2 | 4 | 39.66 → 36.14 (-10 %) | 56.31 → 59.77 (+6 %) | 72.25 → 74.70 (+3 %) | 0.2706 → 0.2752 (+2 %) | — |
+| P1-STE-01 | d | 4 | 38.44 → 35.60 (-8 %) | 58.13 → 61.40 (+5 %) | 70.06 → 77.26 (+9 %) | 0.2472 → 0.2465 (-0 %) | — |
+| P1-STE-01 | d2 | 4 | 39.75 → 36.31 (-9 %) | 57.27 → 60.94 (+6 %) | 72.27 → 74.77 (+3 %) | 0.2543 → 0.2585 (+2 %) | — |
+| P1-STE-01 | f | 4 | 19.08 → 17.65 (-8 %) | 28.82 → 30.44 (+5 %) | 34.78 → 38.35 (+9 %) | 0.1183 → 0.1180 (-0 %) | — |
+| P1-STE-01 | f2 | 4 | 19.67 → 17.93 (-10 %) | 27.93 → 29.65 (+6 %) | 35.84 → 37.06 (+3 %) | 0.1342 → 0.1365 (+2 %) | — |
+| P1-INT-02 | a | 8 | 14.07 → 14.67 (+4 %) | 9.00 → 9.55 (+6 %) | 63.94 → 63.39 (-1 %) | 0.0194 → 0.0226 (+14 %) | — |
+| P1-INT-02 | b | 8 | 27.79 → 30.02 (+7 %) | 47.53 → 51.11 (+7 %) | 47.81 → 51.42 (+7 %) | 0.2047 → 0.2162 (+5 %) | — |
+| P1-INT-02 | b2 | 8 | 10.29 → 10.66 (+3 %) | 17.57 → 18.26 (+4 %) | 17.71 → 20.86 (+15 %) | 0.0458 → 0.0485 (+5 %) | — |
+| P1-CTL-02 | a | 4 | 3.20 → 2.88 (-11 %) | 6.89 → 7.03 (+2 %) | 6.89 → 7.03 (+2 %) | 0.7892 → 0.8127 (+3 %) | — |
+| P1-CTL-02 | b | 4 | 2.26 → 2.22 (-2 %) | 4.05 → 4.35 (+7 %) | 4.05 → 4.35 (+7 %) | 0.4020 → 0.4195 (+4 %) | — |
 
 ### Comparación con el cálculo a mano (resultados/estructural.json)
 
@@ -321,26 +374,28 @@ Corrida: 2026-10-02 · inputs v2.0 · 3156 s [CALCULADO]
 
 | Pieza | Fila structural_*.py | Caso FEA · región | × | σ mano [MPa] | σ FEA [MPa] (p99) | FS mano | FS FEA | Dif |
 |---|---|---|---|---|---|---|---|---|
-| P1-DRV-03 | Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa) | a · mejillas (prom. esfera) | 1.00 | 1.02 | 17.97 (7.79) | 112.30 | 6.40 | -94 % ⚠ |
-| P1-DRV-03 | Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico | a · tablero_y_alma (máx*) | 1.00 | 16.59 | 26.29 (22.80) | 6.93 | 4.37 | -37 % ⚠ |
-| P1-DRV-03 | Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo | b · alojamiento (prom. esfera) | 1.00 | 2.99 | 9.47 (9.47) | 80.29 | 25.34 | -68 % ⚠ |
-| P1-REV-01 | Brazo trabado: flexión en su plano con M_h completo (bucket R12, corta) | b · brazos (máx*) | 1.00 | 35.21 | 45.08 (21.94) | 3.55 | 2.77 | -22 % |
-| P1-REV-01 | Brazo trabado: flexión en su plano con M_h completo (reversa sizing, fatiga de soldadura) | b · brazos (máx*) | 0.50 | 17.46 | 22.36 (10.88) | 3.89 | 3.04 | -22 % |
-| P1-REV-01 | Cuchara como viga entre brazos (bucket R12, corta) | a · cuchara (máx*) | 1.00 | 2.30 | 4.90 (4.13) | 54.32 | 25.49 | -53 % ⚠ |
-| P1-REV-01 | Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta) | a · cuchara (máx*) | 0.52 | 3.89 | 2.57 (2.16) | 32.15 | 48.73 | +52 % ⚠ |
-| P1-REV-01 | Chapa de la cuchara: franja (fatiga de soldadura, 1e5) | a · cuchara (máx*) | 0.52 | 3.89 | 2.57 (2.16) | 17.49 | 26.51 | +52 % ⚠ |
-| P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (FALLA: un émbolo no entró; reversa sizing) | d · cuchara (máx*) | 1.00 | 48.53 | 22.87 (7.89) | 2.58 | 5.46 | +112 % ⚠ |
-| P1-REV-01 | Pivote: aplastamiento del brazo + aro (buje Ø22 × 14), R12 con reparto máx. | b · pivotes (promedio) | 1.00 | 7.74 | 10.02 (32.65) | 16.15 | 12.48 | -23 % |
-| P1-REV-01 | Agujero de traba: aplastamiento del brazo con M_h completo (émbolo Ø12, R12) | b · traba (promedio) | 1.00 | 39.12 | 12.64 (53.16) | 3.20 | 9.89 | +209 % ⚠ |
-| P1-STE-01 | Flexión del tubo por el desvío del chorro (fatiga, sizing) | a · tubo (máx*) | 0.89 | 0.62 | 6.68 (3.52) | 145.87 | 13.47 | -91 % ⚠ |
-| P1-STE-01 | Oreja del bucket: flexión en su plano (bucket R12, corta; pivote + traba, M_h completo en una traba) | c · orejas_bucket (máx*) | 1.00 | 52.37 | 124.61 (77.52) | 4.58 | 1.93 | -58 % ⚠ |
-| P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga; reparto máx. entre trabas) | c · orejas_bucket (máx*) | 0.50 | 17.97 | 61.80 (38.44) | 5.01 | 1.46 | -71 % ⚠ |
-| P1-STE-01 | Oreja del bucket: ligamento de la rosca M20 de la traba (M_h completo en una traba, R12) | c · orejas_bucket (máx*) | 1.00 | 60.98 | 124.61 (77.52) | 3.94 | 1.93 | -51 % ⚠ |
-| P1-STE-01 | Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, reparto máx.) | c · orejas_bucket (máx*) | 1.00 | 52.79 | 124.61 (77.52) | 4.55 | 1.93 | -58 % ⚠ |
-| P1-STE-01 | Oreja de pivote (dentro de la de la bomba): flexión de la raíz | d · orejas_pivote (prom. esfera) | 1.00 | 2.33 | 23.66 (19.53) | 103.14 | 10.15 | -90 % ⚠ |
+| P1-DRV-03 | Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa) | a · mejillas (prom. esfera) | 1.00 | 1.02 | 17.98 (7.79) | 112.30 | 6.40 | -94 % ⚠ |
+| P1-DRV-03 | Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico | a · tablero_y_alma (máx*) | 1.00 | 16.60 | 26.30 (22.81) | 6.93 | 4.37 | -37 % ⚠ |
+| P1-DRV-03 | Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo | b · alojamiento (prom. esfera) | 1.00 | 2.99 | 9.47 (9.48) | 80.27 | 25.34 | -68 % ⚠ |
+| P1-REV-01 | Brazo trabado: flexión en su plano con M_h completo (R12, corta) | d · brazos (máx*) | 1.00 | 28.18 | 60.12 (21.68) | 4.44 | 2.08 | -53 % ⚠ |
+| P1-REV-01 | Brazo trabado: flexión en su plano con M_h completo (reversa sizing, fatiga de soldadura) | f · brazos (máx*) | 1.00 | 13.98 | 29.82 (10.76) | 4.86 | 2.28 | -53 % ⚠ |
+| P1-REV-01 | Cuchara como viga entre brazos (bucket R12, corta) | a · cuchara (máx*) | 1.00 | 1.79 | 5.24 (4.20) | 69.79 | 23.87 | -66 % ⚠ |
+| P1-REV-01 | Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta) | a · cuchara (máx*) | 1.02 | 2.44 | 5.36 (4.29) | 51.25 | 23.34 | -54 % ⚠ |
+| P1-REV-01 | Chapa de la cuchara: franja (fatiga de soldadura, 1e5) | a · cuchara (máx*) | 1.02 | 2.44 | 5.36 (4.29) | 27.88 | 12.70 | -54 % ⚠ |
+| P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (R12, corta) | d · cuchara (prom. esfera) | 1.00 | 57.73 | 20.33 (10.78) | 2.17 | 6.15 | +184 % ⚠ |
+| P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (reversa sizing, fatiga de soldadura) | f · cuchara (prom. esfera) | 1.00 | 28.64 | 10.08 (5.35) | 2.37 | 6.74 | +184 % ⚠ |
+| P1-REV-01 | Pivote: aplastamiento del brazo + aro (buje Ø24 × 18), R12 | d · pivotes (promedio) | 1.00 | 7.64 | 9.16 (28.62) | 16.35 | 13.65 | -17 % |
+| P1-REV-01 | Agujero de traba: aplastamiento del brazo (perno Ø16, M_h completo, R12) | d · traba (promedio) | 1.00 | 23.49 | 16.20 (52.49) | 5.32 | 7.72 | +45 % ⚠ |
+| P1-STE-01 | Flexión del tubo por el desvío del chorro (fatiga, sizing) | a · tubo (máx*) | 0.89 | 0.62 | 6.56 (3.45) | 145.87 | 13.72 | -91 % ⚠ |
+| P1-STE-01 | Oreja del bucket: flexión en su plano (R12, corta; pivote + traba con M_h completo) | c · orejas_bucket (máx*) | 1.00 | 38.36 | 61.37 (41.55) | 6.26 | 3.91 | -38 % ⚠ |
+| P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga; M_h completo en su traba) | f · orejas_bucket (máx*) | 1.00 | 19.03 | 30.44 (20.61) | 4.73 | 2.96 | -38 % ⚠ |
+| P1-STE-01 | Oreja del bucket: ligamento de la rosca M24 del émbolo (R12, M_h completo) | c · lobulo_rosca (máx*) | 1.00 | 27.12 | 61.37 (55.29) | 8.85 | 3.91 | -56 % ⚠ |
+| P1-STE-01 | Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, M_h completo) | c · orejas_bucket (máx*) | 1.00 | 51.59 | 61.37 (41.55) | 4.65 | 3.91 | -16 % |
+| P1-STE-01 | Oreja del bucket: aplastamiento del piloto Ø16 del espaciador en el agujero H7 (R12, si la unión desliza) | c · anillo_piloto (promedio) | 1.00 | 17.20 | 16.16 (56.18) | 13.96 | 14.85 | +6 % |
+| P1-STE-01 | Oreja de pivote (dentro de la de la bomba): flexión de la raíz | d · orejas_pivote (máx*) | 1.00 | 2.33 | 37.66 (15.46) | 103.14 | 6.37 | -94 % ⚠ |
 | P1-INT-02 | Paño lateral entre bulones del conducto y del ala: golpe de fondo | b2 · pano_lateral (máx*) | 1.00 | 1.17 | 18.26 (12.28) | 106.56 | 6.85 | -94 % ⚠ |
-| P1-INT-02 | Paño lateral entre bulones del conducto y del ala: golpe de fondo | b · pano_lateral (máx*) | 1.00 | 1.17 | 51.10 (36.45) | 106.56 | 2.45 | -98 % ⚠ |
-| P1-INT-02 | Asiento cónico de la cabeza M8 en el 5083 (aplastamiento) | a · asiento_cono (promedio) | 1.01 | 50.82 | 47.52 (59.77) | 2.46 | 2.63 | +7 % |
+| P1-INT-02 | Paño lateral entre bulones del conducto y del ala: golpe de fondo | b · pano_lateral (máx*) | 1.00 | 1.17 | 51.11 (36.46) | 106.56 | 2.45 | -98 % ⚠ |
+| P1-INT-02 | Asiento cónico de la cabeza M8 en el 5083 (aplastamiento) | a · asiento_cono (promedio) | 1.01 | 50.83 | 47.52 (59.77) | 2.46 | 2.63 | +7 % |
 | P1-INT-02 | Arranque de la cabeza M8 a través de la placa (tapón de Ø dk sobre el cono) | a · tapon_dk (promedio) | 1.01 | 42.51 | 22.54 (29.53) | 2.94 | 5.54 | +89 % ⚠ |
 | P1-CTL-02 | Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta) | a · tapa (máx*) | 1.00 | 6.25 | 7.03 (5.14) | 3.84 | 3.41 | -11 % |
 | P1-CTL-02 | Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta) | b · tapa (máx*) | 1.00 | 6.25 | 4.35 (2.61) | 3.84 | 5.51 | +44 % ⚠ |
@@ -349,8 +404,6 @@ Corrida: 2026-10-02 · inputs v2.0 · 3156 s [CALCULADO]
 
 | Pieza | Variante | Caso | σvm máx* | σvm p99 | u máx [mm] | FS (máx*) | FS (p99) | Veredicto |
 |---|---|---|---|---|---|---|---|---|
-| P1-REV-01 | V1: FALLA DOBLE: el émbolo −Y no entró + reversa R12 sin límite del controlador (criterio: sin fluencia, FS ≥ 1) | a | 67.71 | 27.29 | 1.017 | **1.85** | 4.58 | **NO CUMPLE** |
-| P1-REV-01 | V2: FALLA DOBLE: el émbolo +Y no entró + reversa R12 (criterio: sin fluencia, FS ≥ 1) | a | 73.19 | 29.10 | 1.017 | **1.71** | 4.30 | **NO CUMPLE** |
 | P1-CTL-02 | V1: sensibilidad: paredes de 4 mm (hoy W_OUT = 5) | a | 7.09 | 3.21 | 0.873 | **3.27** | 7.47 | cumple |
 | P1-CTL-02 | V1: sensibilidad: paredes de 4 mm (hoy W_OUT = 5) | b | 6.06 | 2.72 | 0.515 | **2.89** | 8.80 | **NO CUMPLE** |
 
@@ -358,28 +411,30 @@ Corrida: 2026-10-02 · inputs v2.0 · 3156 s [CALCULADO]
 
 ### Hallazgos cuantitativos
 
-- **P1-DRV-03: FS = 3.89** (objetivo 2, cumple); caso b, criterio vm: σ de diseño 29.6 MPa (máx*, máx* gruesa→fina -0 %) en (590.7, -23.0, 169.5) mm; σvm p99 20.9 MPa (FS p99 5.50). Máximo en la unión del alma central con el alojamiento Ø65 y el tablero (esquina viva, mecanizada o soldada): el empuje excéntrico y el radial entran al tablero por el alma. Cumple; conviene un radio ≥ 3 mm (o cordón de filete) en esa unión.
+- **P1-DRV-03: FS = 3.89** (objetivo 2, cumple); caso b, criterio vm: σ de diseño 29.6 MPa (máx*, máx* gruesa→fina -0 %) en (590.7, -23.0, 169.5) mm; σvm p99 20.9 MPa (FS p99 5.50). Alma de ±0,35·Ø del alojamiento con empalmes r 3 alma–tablero y alma–alojamiento (auditoría ronda 3, F-03): el máximo queda sobre el empalme alma–tablero y converge (antes era una arista viva, en una cuña de ~30° entre el alojamiento y el tablero, que no convergía). Cumple con margen.
   - ⚠ «Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa)»: FS mano 112.30 vs FS FEA 6.40 (-94 %). La fila solo mira la flexión de la mejilla en su plano por Fa/2 (sección 12 × 150, muy rígida). El FEA pone el máximo de la mejilla en su unión con el tablero: el tablero cargado por el alojamiento flexiona y arrastra el borde superior de la mejilla fuera de su plano (marco tablero + mejillas). Mecanismo que la fila no ve; nivel bajo.
-  - ⚠ «Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico»: FS mano 6.93 vs FS FEA 4.37 (-37 %). El máximo está en la unión del alma central (columna tablero–alojamiento) con el tablero: el momento de Fa excéntrico y el radial entran al tablero por el alma, con concentración en la esquina viva de esa unión; la viga biapoyada de la fila no la ve. Fila a mano no conservadora, pero el FS sigue sobre 2.
-  - ⚠ «Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo»: FS mano 80.29 vs FS FEA 25.34 (-68 %). La fila es el corte medio del resalte (τ = Fa/(π·D·t)), un valor nominal; el FEA mide la flexión del resalte como placa anular (el aro apoya solo entre Da_max y D) y la del alojamiento en su unión con el alma. Ambos lejos del admisible.
-- **P1-REV-01: FS = 2.51** (objetivo 2, cumple); caso c, criterio vm: σ de diseño 49.8 MPa (máx*, máx* gruesa→fina +18 %) en (353.9, -59.5, 36.7) mm; σvm p99 18.7 MPa (FS p99 6.67). Máximo en el brazo +Y junto al agujero de traba (flexión fuera del plano de la chapa de 4 mm) y ≈ 120 MPa en el borde inferior de la cuchara junto al brazo (soldadura). Causa: la traba está en un solo brazo, así que todo M_h pasa por la cuchara (sección abierta) a torsión hasta el brazo +Y (giro de 3,6 mm). **Propuesta al dueño de P1-REV-01/04**: (1) traba en los dos brazos (segundo émbolo en −Y o perno pasante) — V1 baja la cuchara a < 10 MPa y el giro a 0,2 mm, pero el lóbulo de traba de 4 mm queda en FS 1,3; (2) además brazos (o al menos los lóbulos de pivote y traba) de 6 mm, p. ej. con una arandela de refuerzo soldada — V2 da FS 2,3. Corregir structural_direccion: el brazo con la traba lleva todo M_h, no F_b/2.
-  - ⚠ «Cuchara como viga entre brazos (bucket R12, corta)»: FS mano 54.32 vs FS FEA 25.49 (-53 %). Misma causa: la fila trata la cuchara como viga entre brazos con los dos extremos apoyados; con la traba de un solo lado la cuchara trabaja a torsión (sección abierta) y su borde inferior junto al brazo (soldadura) concentra.
-  - ⚠ «Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta)»: FS mano 32.15 vs FS FEA 48.73 (+52 %). La franja empotrada (p_dinámica) no incluye la torsión de la cuchara; el FEA (escalado a p_dinámica/q) mide la tensión total de la chapa, dominada por esa torsión. Con traba en los dos brazos (V1) la cuchara baja a < 10 MPa.
-  - ⚠ «Chapa de la cuchara: franja (fatiga de soldadura, 1e5)»: FS mano 17.49 vs FS FEA 26.51 (+52 %). La franja empotrada (p_dinámica) no incluye la torsión de la cuchara; el FEA (escalado a p_dinámica/q) mide la tensión total de la chapa, dominada por esa torsión. Con traba en los dos brazos (V1) la cuchara baja a < 10 MPa.
-  - ⚠ «Cuchara abierta a torsión con un solo brazo trabado (FALLA: un émbolo no entró; reversa sizing)»: FS mano 2.58 vs FS FEA 5.46 (+112 %). 
-  - ⚠ «Agujero de traba: aplastamiento del brazo con M_h completo (émbolo Ø12, R12)»: FS mano 3.20 vs FS FEA 9.89 (+209 %). La fila es la presión media de aplastamiento F/(d·t); el FEA promedia σvm en un anillo de 3 mm: por definición menor que el pico. Coinciden en el orden de magnitud; el pico local (fuera de r_excl) es el que no cumple.
-- **P1-STE-01: FS = 1.80** (objetivo 2, **NO CUMPLE**); caso d2, criterio vm: σ de diseño 133.1 MPa (máx*, máx* gruesa→fina +11 %) en (329.5, -44.0, 77.6) mm; σvm p99 80.9 MPa (FS p99 2.97). El pico global (≈ 200 MPa) está en la arista viva donde la oreja de pivote corta el labio de entrada (x = X_pivote, sin radio en el CAD, con astillas de malla) y no converge: se usa el promedio en volumen y el máx* convergido de cada región. Gobierna la oreja del bucket +Y sobre la rosca M20 de la traba (ligamento de ~5 mm hasta el contorno de la oreja), con la reversa. Cumple; un radio de 1–2 mm en la arista oreja/labio quitaría la singularidad.
-  - ⚠ «Flexión del tubo por el desvío del chorro (fatiga, sizing)»: FS mano 145.87 vs FS FEA 13.47 (-91 %). La fila trata el tubo Ø101 como viga (σ nominal < 1 MPa). En el FEA el máximo de la región del tubo está donde se le unen la torre y la oreja de pivote superior (entra el par del yugo y la reacción de los pernos): concentración local que la viga no ve. Nivel bajo (FS > 10).
-  - ⚠ «Oreja del bucket: flexión en su plano (bucket R12, corta; pivote + traba, M_h completo en una traba)»: FS mano 4.58 vs FS FEA 1.93 (-58 %). La fila carga cada oreja con F_b/2 a 52 mm. Con la traba la oreja +Y recibe además la fuerza del émbolo (≈ 2,8 kN en la rosca M20, a 45 mm del pivote) y el pivote +Y toma más que el −Y; el máximo está en el lóbulo de la traba.
-  - ⚠ «Oreja del bucket: flexión (reversa sizing, fatiga; reparto máx. entre trabas)»: FS mano 5.01 vs FS FEA 1.46 (-71 %). La fila carga cada oreja con F_b/2 a 52 mm. Con la traba la oreja +Y recibe además la fuerza del émbolo (≈ 2,8 kN en la rosca M20, a 45 mm del pivote) y el pivote +Y toma más que el −Y; el máximo está en el lóbulo de la traba.
-  - ⚠ «Oreja del bucket: ligamento de la rosca M20 de la traba (M_h completo en una traba, R12)»: FS mano 3.94 vs FS FEA 1.93 (-51 %). 
-  - ⚠ «Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, reparto máx.)»: FS mano 4.55 vs FS FEA 1.93 (-58 %). La fila carga cada oreja con F_b/2 a 52 mm. Con la traba la oreja +Y recibe además la fuerza del émbolo (≈ 2,8 kN en la rosca M20, a 45 mm del pivote) y el pivote +Y toma más que el −Y; el máximo está en el lóbulo de la traba.
-  - ⚠ «Oreja de pivote (dentro de la de la bomba): flexión de la raíz»: FS mano 103.14 vs FS FEA 10.15 (-90 %). La fila toma F/2 a 12 mm en 25 × 30. En el FEA los pernos de pivote reciben un par (reacciones opuestas en la mejilla Ø8 y en la rosca M6) porque el bucket empuja muy por encima del eje, y el máximo está en la arista viva donde la oreja cilíndrica corta el frente esférico (sin radio en el CAD; zona con astillas de malla).
+  - ⚠ «Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico»: FS mano 6.93 vs FS FEA 4.37 (-37 %). El máximo está en la unión del alma central con el tablero (ahora con empalme r 3): el momento de Fa excéntrico y el radial entran al tablero por el alma; la viga biapoyada de la fila no ve esa concentración. FS sobre 2.
+  - ⚠ «Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo»: FS mano 80.27 vs FS FEA 25.34 (-68 %). La fila es el corte medio del resalte (τ = Fa/(π·D·t)), un valor nominal; el FEA mide la flexión del resalte como placa anular (el aro apoya solo entre Da_max y D) y la del alojamiento en su unión con el alma. Ambos lejos del admisible.
+- **P1-REV-01: FS = 2.08** (objetivo 2, cumple); caso d, criterio vm: σ de diseño 60.1 MPa (máx*, máx* gruesa→fina +6 %) en (358.0, 64.5, 37.7) mm; σvm p99 18.9 MPa (FS p99 6.61). Criterio de traba única (ronda 4): con una traba sola (d/e a R12, f/g con la reversa de sizing contra el admisible de fatiga de soldadura) todo M_h pasa por un brazo y la cuchara abierta gira hasta él; el máximo queda en la cara exterior del brazo trabado, sobre su borde, bajo el pivote (el punto caliente de la ronda 3, ahora dentro de una esfera de refinamiento en las dos mallas). Con las dos trabas sin desfase (a, informativo) cada una toma la mitad de M_h. El borde de los agujeros de traba y de pivote (|σθ| de sección neta a ±90°) queda por debajo del cuerpo; el σvm de la ventana de la traba incluye el borde del contacto del perno rígido (aplastamiento). Carga = balance de cantidad de movimiento del chorro, con resultante y momento verificados contra bucket_reactions.
+  - ⚠ «Brazo trabado: flexión en su plano con M_h completo (R12, corta)»: FS mano 4.44 vs FS FEA 2.08 (-53 %). La fila es la flexión del brazo EN SU PLANO con M_h completo (sección t × 60). Con una traba sola (d, f) el FEA suma la flexión FUERA del plano y la torsión que mete la cuchara abierta al girar hasta el brazo trabado, con el pico en la cara exterior del brazo, sobre su borde bajo el pivote: mecanismo que la fila no ve; el FS de diseño es el del FEA.
+  - ⚠ «Brazo trabado: flexión en su plano con M_h completo (reversa sizing, fatiga de soldadura)»: FS mano 4.86 vs FS FEA 2.28 (-53 %). La fila es la flexión del brazo EN SU PLANO con M_h completo (sección t × 60). Con una traba sola (d, f) el FEA suma la flexión FUERA del plano y la torsión que mete la cuchara abierta al girar hasta el brazo trabado, con el pico en la cara exterior del brazo, sobre su borde bajo el pivote: mecanismo que la fila no ve; el FS de diseño es el del FEA.
+  - ⚠ «Cuchara como viga entre brazos (bucket R12, corta)»: FS mano 69.79 vs FS FEA 23.87 (-66 %). La fila trata la cuchara como viga entre brazos; con las dos trabas (a) la cuchara casi no trabaja (σ de pocos MPa en los dos modelos): diferencia relativa grande sobre valores chicos.
+  - ⚠ «Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta)»: FS mano 51.25 vs FS FEA 23.34 (-54 %). La franja empotrada (p_dinámica) no incluye la flexión global de la cuchara; el FEA (caso a escalado a p_dinámica/q_entrada) mide la tensión total de la chapa. Ambos muy por debajo del admisible.
+  - ⚠ «Chapa de la cuchara: franja (fatiga de soldadura, 1e5)»: FS mano 27.88 vs FS FEA 12.70 (-54 %). La franja empotrada (p_dinámica) no incluye la flexión global de la cuchara; el FEA (caso a escalado a p_dinámica/q_entrada) mide la tensión total de la chapa. Ambos muy por debajo del admisible.
+  - ⚠ «Cuchara abierta a torsión con un solo brazo trabado (R12, corta)»: FS mano 2.17 vs FS FEA 6.15 (+184 %). La fila es torsión de Saint-Venant de la sección abierta con T = M_h en la unión con el brazo trabado, sin restricción de alabeo (cota). En el FEA (una traba sola) los brazos y el aro restringen el alabeo y parte del momento entra al brazo como flexión fuera del plano: la cuchara trabaja menos. Fila conservadora para la cuchara.
+  - ⚠ «Cuchara abierta a torsión con un solo brazo trabado (reversa sizing, fatiga de soldadura)»: FS mano 2.37 vs FS FEA 6.74 (+184 %). La fila es torsión de Saint-Venant de la sección abierta con T = M_h en la unión con el brazo trabado, sin restricción de alabeo (cota). En el FEA (una traba sola) los brazos y el aro restringen el alabeo y parte del momento entra al brazo como flexión fuera del plano: la cuchara trabaja menos. Fila conservadora para la cuchara.
+  - ⚠ «Agujero de traba: aplastamiento del brazo (perno Ø16, M_h completo, R12)»: FS mano 5.32 vs FS FEA 7.72 (+45 %). La fila es la presión media F/(d·t) con M_h completo en una traba; el FEA promedia σvm en un anillo de 3 mm alrededor del agujero de la traba cargada (caso d): por definición menor que el pico. Mismo orden de magnitud.
+- **P1-STE-01: FS = 2.33** (objetivo 2, cumple); caso f, criterio borde: borde del agujero «rosca_mas_y» a ±90° de la carga: |σθ| 38.7 MPa, gruesa→fina +8 % en (398.0, 52.0, 87.4) mm (cuerpo: FS 2.96); σvm p99 17.6 MPa (FS p99 5.10). Cargas del bucket autoequilibradas por oreja (ronda 4, F1): fuerza en el piloto Ø16 y en la rosca M24 de la misma oreja, momentos del muñón y del perno en voladizo como pares de resultante nula (brida y contratuerca); resultante y momento verificados contra la estática. Con M_h completo en una traba gobierna la oreja de esa traba: el borde de la rosca M24 o del piloto a ±90° de la carga (|σθ| de sección neta, que la exclusión del máx* tapaba: F3) y el contorno del lóbulo de la rosca en la cara exterior. Los casos de fatiga (f/f2) tienen el menor FS: la reversa de sizing es la mitad de R12 pero el admisible de fatiga es bastante menos que la mitad de la fluencia. El pico donde la oreja de pivote toca el labio de entrada (radio de 2 mm, F-03) converge.
+  - ⚠ «Flexión del tubo por el desvío del chorro (fatiga, sizing)»: FS mano 145.87 vs FS FEA 13.72 (-91 %). La fila trata el tubo Ø101 como viga (σ nominal < 1 MPa). En el FEA el máximo de la región del tubo está donde se le unen la torre y la oreja de pivote superior (entra el par del yugo y la reacción de los pernos): concentración local que la viga no ve. Nivel bajo (FS > 10).
+  - ⚠ «Oreja del bucket: flexión en su plano (R12, corta; pivote + traba con M_h completo)»: FS mano 6.26 vs FS FEA 3.91 (-38 %). Las filas usan una sección de raíz STE_ear_t × 36 bajo el pivote (en su plano: pivote + traba con M_h completo; fuera del plano: momento del espaciador). El FEA pone el máximo de la oreja en el lóbulo de la rosca M24 y en el borde de los agujeros, donde la fuerza del perno, el par de la contratuerca y el del espaciador concentran: mecanismo local que la viga no ve; el FS de diseño es el del FEA.
+  - ⚠ «Oreja del bucket: flexión (reversa sizing, fatiga; M_h completo en su traba)»: FS mano 4.73 vs FS FEA 2.96 (-38 %). Las filas usan una sección de raíz STE_ear_t × 36 bajo el pivote (en su plano: pivote + traba con M_h completo; fuera del plano: momento del espaciador). El FEA pone el máximo de la oreja en el lóbulo de la rosca M24 y en el borde de los agujeros, donde la fuerza del perno, el par de la contratuerca y el del espaciador concentran: mecanismo local que la viga no ve; el FS de diseño es el del FEA.
+  - ⚠ «Oreja del bucket: ligamento de la rosca M24 del émbolo (R12, M_h completo)»: FS mano 8.85 vs FS FEA 3.91 (-56 %). La fila es el desgarro de los dos ligamentos de la rosca M24 (τ media). El FEA da el máx* del lóbulo de la rosca fuera de r_excl (flexión del lóbulo por la fuerza del perno y el par de la contratuerca) y el borde del agujero aparte (tabla de bordes): mecanismos distintos.
+  - ⚠ «Oreja de pivote (dentro de la de la bomba): flexión de la raíz»: FS mano 103.14 vs FS FEA 6.37 (-94 %). La fila toma F/2 a 12 mm en 25 × 30. En el FEA los pernos de pivote reciben un par (reacciones opuestas en la mejilla Ø8 y en la rosca M6) porque el bucket empuja muy por encima del eje; el máximo está donde la oreja cilíndrica se une al frente esférico.
 - **P1-INT-02: FS = 2.45** (objetivo 2, cumple); caso b, criterio vm: σ de diseño 51.1 MPa (máx*, máx* gruesa→fina +7 %) en (525.6, 149.4, 10.0) mm; σvm p99 30.0 MPa (FS p99 4.16). Gobierna el golpe de fondo con la placa sola (b): máximo en la cara superior sobre el borde del apoyo del ala (unión cuerpo–ala), convergido. Con el conducto como rigidizador (b2) baja a ≈ 18 MPa. Los avellanados M8 del pórtico: σvm promedio bajo el cono ≈ presión de la fila a mano.
   - ⚠ «Paño lateral entre bulones del conducto y del ala: golpe de fondo»: FS mano 106.56 vs FS FEA 6.85 (-94 %). La fila apoya el paño en la línea de bulones del conducto (luz 68 mm a lo ancho). Placa sola (b): sin el conducto, la franja entre la abertura y el ala trabaja a lo largo y el máximo sale en la unión cuerpo–ala; es la cota conservadora. Con el conducto rígido (b2) se recupera el modelo de la fila; la realidad está entre ambos.
   - ⚠ «Paño lateral entre bulones del conducto y del ala: golpe de fondo»: FS mano 106.56 vs FS FEA 2.45 (-98 %). La fila apoya el paño en la línea de bulones del conducto (luz 68 mm a lo ancho). Placa sola (b): sin el conducto, la franja entre la abertura y el ala trabaja a lo largo y el máximo sale en la unión cuerpo–ala; es la cota conservadora. Con el conducto rígido (b2) se recupera el modelo de la fila; la realidad está entre ambos.
   - ⚠ «Arranque de la cabeza M8 a través de la placa (tapón de Ø dk sobre el cono)»: FS mano 2.94 vs FS FEA 5.54 (+89 %). La fila usa τ media en el cilindro Ø dk × (t − h_cono) suponiendo que todo el tiro pasa por corte puro. En el FEA la compresión de la zapata sobre la cara superior equilibra la precarga en el mismo lugar y el cilindro no está en corte puro: el promedio de σvm en ese volumen es menor. Fila conservadora.
-- **P1-CTL-02: FS = 3.41** (objetivo 3, cumple); caso a, criterio vm: σ de diseño 7.0 MPa (máx*, máx* gruesa→fina +2 %) en (1820.6, -108.8, 674.0) mm; σvm p99 2.9 MPa (FS p99 8.34). Gobierna σZ (tracción entre capas, Z de impresión = z): la tapa cargada gira en sus bordes y flexiona las paredes de 3,5 mm, con la cara exterior a tracción vertical justo bajo la tapa. La fila a mano (franja de tapa) no lo ve; la tapa en sí da FS ≈ 3,3. **Propuesta al dueño de P1-CTL-02**: paredes de 5 mm (V1: FS 3,5) engrosadas hacia afuera para no mover el entrehierro del sensor hall; una tapa de 8 mm (V2) exige subir ZT para conservar la luz sobre el cubo. Además la pieza real es 5 perímetros + 30 % giroide (solid_frac 0,55): el FEA macizo es optimista.
-  - ⚠ «Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta)»: FS mano 3.84 vs FS FEA 5.51 (+44 %). La fila es una franja 50 × 6 apoyada con luz 50; la tapa real está casi toda ranurada (ranuras de las palancas), y la palma carga el nervio de 6 mm entre las dos ranuras o la tapa angosta junto a la del bucket. Ver σZ: la flexión de las paredes cruza capas.
+- **P1-CTL-02: FS = 3.41** (objetivo 3, cumple); caso a, criterio vm: σ de diseño 7.0 MPa (máx*, máx* gruesa→fina +2 %) en (1820.6, -108.8, 674.0) mm; σvm p99 2.9 MPa (FS p99 8.34). Paredes de 5 mm engrosadas hacia afuera (ronda 3, F-02; el entrehierro del sensor hall no cambia): gobierna la tapa (von Mises) y la tracción entre capas de las paredes ya no manda; la variante V1 (paredes de 4 mm) muestra la sensibilidad. La pieza real es 5 perímetros + 30 % giroide (solid_frac 0,55): el FEA macizo es optimista.
+  - ⚠ «Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta)»: FS mano 3.84 vs FS FEA 5.51 (+44 %). La fila es una franja 50 × 6 apoyada con luz 50; la tapa real está casi toda ranurada (ranuras de las palancas), y la palma carga el nervio de 6 mm entre las dos ranuras o la tapa angosta junto a la del bucket.
 
 <!-- FEA:AUTO:FIN -->
