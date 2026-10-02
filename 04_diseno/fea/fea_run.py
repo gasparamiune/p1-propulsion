@@ -715,7 +715,7 @@ PART_NOTES = {    # notas por pieza: dónde está el máximo y por qué (las cif
                  "(aplastamiento). Carga = balance de cantidad de movimiento del chorro, con resultante y momento verificados "
                  "contra bucket_reactions.",
     "P1-STE-01": "Cargas del bucket autoequilibradas por oreja (F1; ronda 5): el pivote apoya con el piloto h6 del "
-                 "espaciador en su H7 de la oreja y la traba con el cuerpo AJUSTADO del émbolo (Ø26 h6 en H7, sin rosca ni "
+                 "espaciador en su H7 de la oreja y la traba con el cuerpo AJUSTADO del émbolo (Ø24 h6 en H7, sin rosca ni "
                  "precarga) en el suyo, los dos con presión lineal a lo largo del agujero (par de aplastamiento; resultante "
                  "en la mitad del buje y en la mitad del brazo; sin par en la brida: MEC-02), así que cada uno apoya en la "
                  "pared cargada junto a la cara exterior y en la opuesta junto a la interior; resultante y vector momento "

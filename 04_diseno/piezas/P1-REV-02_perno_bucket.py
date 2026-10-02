@@ -1,4 +1,4 @@
-"""P1-REV-02 — Pivote del bucket (×2): espaciador de dúplex 1.4462 torneado + tornillo ISO 4017 M12 A4-80 + tuerca ISO 4032.
+"""P1-REV-02 — Pivote del bucket (×2): espaciador de dúplex 1.4462 torneado + tornillo ISO 4017 M12 A4-80 + tuerca baja ISO 4035.
 
 Espaciador (auditoría ronda 4): muñón Ø REV_pin_d h7 (el bucket gira sobre él con su buje POM-C P1-REV-03), brida
 Ø REV_sp_fl_d × REV_sp_fl_t apoyada en la cara EXTERIOR de la oreja de la boquilla (Y = ±STE_ear_y1) y piloto
@@ -6,7 +6,7 @@ Espaciador (auditoría ronda 4): muñón Ø REV_pin_d h7 (el bucket gira sobre �
 0,5: el apriete lo toma la brida, no el piloto). El piloto ubica el pivote y es el camino DISEÑADO del corte y del momento: con Tef-Gel la brida desliza
 con R12, así que el piloto apoya en la oreja como un perno en voladizo (re-auditoría ronda 5, MEC-02). Agujero Ø12,5
 para el tornillo M12 A4-80; arandela ISO 7089 (Ø24) bajo la cabeza y, por dentro de la oreja, arandela ancha ISO 7093
-(Ø37 × 3) + tuerca ISO 4032 M12 A4-80, con Loctite 243 en la rosca. Par REV_bolt_T_Nm BAJO: el tornillo solo retiene
+(Ø37 × 3) + tuerca baja ISO 4035 M12 A4-035, con Loctite 243 en la rosca. Par REV_bolt_T_Nm BAJO: el tornillo solo retiene
 (con precarga alta la brida y el muñón fluían: re-auditoría ronda 5, MEC-01). La precarga pasa por el muñón y la brida
 (placa anular en flexión) y se suma a la flexión del muñón: dúplex 1.4462 (Rp0,2 ≥ 450) (structural_direccion).
 
@@ -19,13 +19,13 @@ from cadlib import NUT_AF, cyl_y, hex_prism_y
 
 META = dict(
     id="P1-REV-02", name="perno_bucket",
-    desc="Pivote del bucket: espaciador dúplex 1.4462 (muñón Ø20 h7, brida Ø36 × 4, piloto Ø24 h6) + tornillo M12 A4-80 + tuerca ISO 4032 con Loctite",
+    desc="Pivote del bucket: espaciador dúplex 1.4462 (muñón Ø20 h7, brida Ø36 × 4, piloto Ø24 h6) + tornillo M12 A4-80 + tuerca baja ISO 4035 con Loctite",
     material="Dúplex 1.4462", process="torneada", qty=2, frame="steer", group="jet",
     load_case="Reacción del pivote = chorro/2 + traba con M_h completo (R12, una traba sola): flexión del muñón y apertura de la unión",
     print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
 )
 WASHER_T = 2.5            # [VERIFICADO: ISO 7089 M12, Ø24 × 2,5]
-NUT_H = 10.8              # [ESTIMADO: ISO 4032 M12, m máx. 10,8] (= REV_nut_h)
+NUT_H = 7.0               # [ESTIMADO: ISO 4035 M12, m máx. 7] (= REV_nut_h)
 HEAD_K = 7.5              # [VERIFICADO: ISO 4017 M12, k = 7,5]
 
 
@@ -77,7 +77,7 @@ def build(p):
     yn = -ear_t(p)
     dw, tw = p.REV_washer_in
     s = s + cyl_y(dw / 2, yn - tw, yn)                                             # arandela ancha ISO 7093 interior
-    s = s + hex_prism_y(NUT_AF[12], yn - tw - p.REV_nut_h, yn - tw)                # tuerca ISO 4032 M12
+    s = s + hex_prism_y(NUT_AF[12], yn - tw - p.REV_nut_h, yn - tw)                # tuerca baja ISO 4035 M12
     return s
 
 

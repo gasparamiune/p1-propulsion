@@ -93,7 +93,7 @@ desde el espejo; VCG = <!--V:sizing.masses.vcg_m:.3f-->0.338<!--/V--> m sobre la
 jet + controlador, para la capacidad de §2.3) = <!--V:sizing.masses.machinery_kg:.1f-->75.9<!--/V--> kg.
 
 - La masa del jet la toma `sizing.py` del CAD vigente (`manifest.json → totals.jet_unit_mass_kg`,
-  hoy <!--V:manifest.totals.jet_unit_mass_kg:.2f-->25.88<!--/V--> kg). Si el CAD cambia, hay que volver a correr
+  hoy <!--V:manifest.totals.jet_unit_mass_kg:.2f-->26.11<!--/V--> kg). Si el CAD cambia, hay que volver a correr
   `run_all.py`: la fila "Unidad de jet" de arriba es la que usó la última corrida de `sizing.py`.
 - Los 150 kg del plano de Jorge no cierran (R10b §4.2: 165–242 kg con 3 kWh LFP). El piloto pesa
   <!--V:sizing.masses.items.1.kg:.0f-->90<!--/V--> kg de los <!--V:sizing.masses.total_kg:.0f-->219<!--/V--> y es la entrada
@@ -718,12 +718,12 @@ R05 (agua, temperatura, proceso, fluencia, fatiga, eje Z). Casos que fallan sin 
 | P1-DRV-08 | Chaveta 5×5 del eje del motor Ø15 en el cubo del acople: aplastamiento a T_max | 1.74 | 2 | ✔ (justif.) |
 | P1-PMP-05 | Par máx. del controlador (margen contra corte intempestivo) | 1.80 | 2 | ✔ (justif.) |
 | P1-INT-01 | Bulones M6 de la brida de la bomba: precarga + momento del bucket | 2.07 | 2 | ✔ |
-| P1-REV-02 | Unión brida–oreja: no se abre con la precarga mínima (R12, una traba) [N·m] | 2.10 | 2 | ✔ |
-| P1-REV-04 | Cuerpo del émbolo apretado contra su collar: la unión no se abre (R12, M_h completo) [N·m] | 2.10 | 2 | ✔ |
 | P1-DRV-01 | Chaveta 6×6 del acople: aplastamiento a T_max | 2.15 | 2 | ✔ |
 | P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (R12, corta) | 2.17 | 2 | ✔ |
 | P1-REV-03 | Buje POM Ø20.1/Ø24 × 18: presión (R12, una traba) | 2.18 | 2 | ✔ |
 | P1-REV-03 | Buje POM: presión (reversa sizing, oscilación; una traba) | 2.20 | 2 | ✔ |
+| P1-INT-02 | Bulones M6 del ala al casco (26): precarga + golpe de fondo + presión en la abertura | 2.21 | 2 | ✔ |
+| P1-DRV-03 | Espárrago M8 A4-70: precarga (10 N·m, F_v 6944 N) + F_t | 2.22 | 2 | ✔ |
 <!-- /AUTO:estructural_justos -->
 
 Comentario:
@@ -742,53 +742,140 @@ Comentario:
   ronda 4, R4-01, R4-02 y R4-05). Cargas en la tabla de §8. Geometría [CALCULADO: params_direccion]: chapa del bucket
   <!--V:manifest.params.REV_t:g-->8<!--/V--> mm (Al 5083), aro de refuerzo del pivote <!--V:manifest.params.REV_ring_t:g-->10<!--/V--> mm,
   agujeros de traba Ø<!--V:manifest.params.REV_lock_hole_d:g-->16.5<!--/V--> a r <!--V:manifest.params.REV_lock_r:g-->45<!--/V--> mm; orejas de
-  la boquilla de <!--V:manifest.params.STE_ear_t:g-->12<!--/V--> mm.
-  - **Pivote (P1-REV-02):** espaciador 316 con muñón Ø<!--V:manifest.params.REV_pin_d:g-->20<!--/V-->, brida
-    Ø<!--V:manifest.params.REV_sp_fl_d:g-->36<!--/V--> × <!--V:manifest.params.REV_sp_fl_t:g-->3<!--/V--> contra la cara exterior de la oreja y
-    piloto Ø<!--V:manifest.params.REV_sp_pilot_d:g-->16<!--/V--> h6 ajustado en el agujero H7 escariado de la oreja (ya no flota en un
-    agujero pasante con juego); tornillo M12 A4-80 con tuerca DIN 985 apretado a
-    <!--V:est.loads.structural_direccion.bolt_torque_Nm:.0f-->45<!--/V--> N·m con Tef-Gel; con K 0,12–0,22 [ESTIMADO] la precarga queda
-    entre <!--V:est.loads.structural_direccion.bolt_pre_min_N:.0f-->17045<!--/V--> y <!--V:est.loads.structural_direccion.bolt_pre_max_N:.0f-->31250<!--/V--> N [CALCULADO].
-    Se verifican el muñón en voladizo (corta y fatiga), que la unión brida–oreja no se abra con la precarga mínima,
-    la presión de la brida y el tornillo al montar con la máxima (≤ 0,9 Rp0,2, VDI 2230: criterio de montaje con
-    objetivo 1). Fila más justa respecto de su objetivo: «<!--V:est.min_by_part.P1-REV-02.load_case:-->Unión brida–oreja: no se abre con la precarga mínima (R12, una traba) [N·m]<!--/V-->»,
-    FS <!--V:est.min_by_part.P1-REV-02.FS:.2f-->2.10<!--/V-->.
+  la boquilla de <!--V:manifest.params.STE_ear_t:g-->14<!--/V--> mm con **lóbulos engrosados** alrededor de cada agujero (R5-N5, cierre de la ronda 5):
+  el del pivote, de <!--V:manifest.params.STE_piv_t:g-->20<!--/V--> mm, solo hacia adentro, y el de la traba, de <!--V:manifest.params.STE_lock_t:g-->23.5<!--/V--> mm: 3 mm por fuera de la cara exterior de
+  la placa (cara exterior del lóbulo en |Y| = <!--V:manifest.params.STE_lock_y1:g-->55<!--/V--> mm, la de la placa en |Y| = <!--V:manifest.params.STE_ear_y1:g-->52<!--/V--> mm), dentro de la luz hasta el
+  brazo, la placa y 6,5 mm por dentro, donde el radio baja de <!--V:manifest.params.STE_lock_lobe_r:g-->20<!--/V--> a <!--V:manifest.params.STE_lock_in_r:g-->18<!--/V--> mm para librar el ojo del eslabón del otro
+  émbolo; más adentro llegaría al cubo del balancín [CALCULADO: `params_direccion.py`, checks de P1-REV-09]; el desbloqueo no cambia.
+  - **Pivote (P1-REV-02; re-auditoría ronda 5, MEC-01/02/05/06, D-17d):** espaciador de **dúplex 1.4462** (Rp0,2 ≥ 450
+    [ESTIMADO: EN 10088-3, barra +AT con certificado 3.1]) con muñón Ø<!--V:manifest.params.REV_pin_d:g-->20<!--/V--> h7, brida
+    Ø<!--V:manifest.params.REV_sp_fl_d:g-->36<!--/V--> × <!--V:manifest.params.REV_sp_fl_t:g-->4<!--/V--> contra la cara exterior de la oreja y
+    piloto Ø<!--V:manifest.params.REV_sp_pilot_d:g-->24<!--/V--> h6 ajustado en el agujero Ø<!--V:manifest.params.REV_sp_pilot_d:g-->24<!--/V--> H7 escariado
+    que atraviesa el lóbulo engrosado del pivote (<!--V:manifest.params.STE_piv_t:g-->20<!--/V--> mm, hacia adentro de la placa; el piloto es 0,5 mm más
+    corto, así que la tuerca aprieta la brida y no el piloto). El piloto es más grueso que el muñón desde el cierre de la ronda 5,
+    para bajar la presión de aplastamiento en la oreja (en la primera versión de la ronda 5 era Ø20, el del muñón, en la
+    oreja de 14 mm sin lóbulo engrosado); la oreja tiene además una extensión hacia proa a la altura del pivote, que da ligamento al
+    agujero del piloto. **El camino de carga diseñado es el piloto**: el corte y el momento del
+    pivote los toma el par de apoyo del piloto en el agujero de la oreja; la unión de la brida NO se cuenta (con la
+    precarga baja y Tef-Gel en la cara, la brida desliza a R12; en la ronda 4 se contaba con que no se abría y la
+    re-auditoría mostró que eso no se sostenía, MEC-02). Tornillo ISO 4017 M12 × 60 A4-80 (`P1-REV-02.bolt_len_iso`: el
+    normalizado que pasa arandela, espaciador, lóbulo del pivote, arandela ancha, tuerca y 2 hilos sin llegar a la torre
+    del yugo: con el lóbulo de <!--V:manifest.params.STE_piv_t:g-->20<!--/V--> mm sigue siendo × 60 gracias a la tuerca baja), arandela ISO 7089 bajo la cabeza y, por dentro, sobre la cara interior del lóbulo, arandela ancha ISO 7093 Ø<!--V:manifest.params.REV_washer_in.0:g-->37<!--/V--> × <!--V:manifest.params.REV_washer_in.1:g-->3<!--/V--> y tuerca
+    **baja ISO 4035 M12 A4-035** (m <!--V:manifest.params.REV_nut_h:g-->7<!--/V--> mm [ESTIMADO: ISO 4035]; con su propia fila de carga de prueba, 350 MPa [ESTIMADO: ISO 3506-2],
+    como pedía MEC-05 para la DIN 985; con la ISO 4032 de altura completa de la primera versión y el lóbulo de 20 mm el
+    tornillo pasaría a × 65 y su punta entraría en la torre del yugo [CALCULADO: `P1-REV-02.bolt_len_iso`]); **par bajo**
+    <!--V:est.loads.structural_direccion.bolt_torque_Nm:.0f-->12<!--/V--> N·m con **Loctite 243** en la rosca: con K <!--V:manifest.params.REV_bolt_K.0:g-->0.15<!--/V-->–<!--V:manifest.params.REV_bolt_K.1:g-->0.28<!--/V-->
+    [ESTIMADO: inox con fijador] la precarga queda entre <!--V:est.loads.structural_direccion.bolt_pre_min_N:.0f-->3571<!--/V--> y
+    <!--V:est.loads.structural_direccion.bolt_pre_max_N:.0f-->6667<!--/V--> N [CALCULADO]. El tornillo solo retiene: con la precarga
+    alta de la ronda 4 (45 N·m) la precarga pasaba por el muñón como compresión y, sumada a la flexión, el muñón de 316
+    fluía a R12 (MEC-01). Filas: muñón con la precarga máxima + flexión y corte (R12) y a fatiga (sizing; la precarga
+    es media de compresión), piloto a flexión + corte en la cara de la oreja, presión de la brida y de la arandela
+    ancha, tornillo al montar (≤ 0,9 Rp0,2, VDI 2230: criterio de montaje con objetivo 1), carga de prueba de la
+    tuerca y flexión de la brida (placa anular) por la precarga máxima. Fila más justa respecto de su objetivo:
+    «<!--V:est.min_by_part.P1-REV-02.load_case:-->Brida Ø36 × 4 (dúplex): flexión por la precarga máxima<!--/V-->», FS <!--V:est.min_by_part.P1-REV-02.FS:.2f-->3.97<!--/V-->.
   - **Buje (P1-REV-03):** POM-C Ø<!--V:manifest.params.REV_bush_od:g-->24<!--/V--> × <!--V:manifest.params.REV_bush_L:g-->18<!--/V--> con brida,
     prensado con interferencia y escariado después de prensar. «<!--V:est.min_by_part.P1-REV-03.load_case:-->Buje POM Ø20.1/Ø24 × 18: presión (R12, una traba)<!--/V-->»
     FS <!--V:est.min_by_part.P1-REV-03.FS:.2f-->2.18<!--/V--> (la fila de sizing, contra el admisible de oscilación, da un FS casi igual: tabla completa).
-  - **Émbolo propio (P1-REV-04):** perno 316 Ø<!--V:manifest.params.REV_lock_pin_d:g-->16<!--/V--> h9, cuerpo roscado
-    M<!--V:manifest.params.REV_lock_thread_d:g-->24<!--/V-->×1,5 en la oreja con **collar integral** Ø36 × 8 (dos planos
-    e/c 32 para la llave) [CALCULADO: `piezas/_release.PLG_COLLAR_D/PLG_COLLAR_T`] que apoya en la cara interior,
-    anodizada, de la oreja: el cuerpo se aprieta contra su collar a <!--V:manifest.params.REV_lock_T_Nm:g-->75<!--/V--> N·m con
-    Loctite 243 (sin Tef-Gel en esa rosca). Ya no hay contratuerca (auditoria.md, R4-12): el collar fija la punta
-    enrasada con la cara exterior y lleva a la oreja el momento del perno en voladizo. Carrera
-    <!--V:manifest.params.REV_plunger_stroke:g-->12<!--/V--> mm (liberar pide <!--V:manifest.params.REV_release_need:g-->9.5<!--/V--> mm), resorte
-    inox comprado [ESTIMADO: fuerzas como el GN 617-10]. No hay émbolo de catálogo que alcance: el GN 617 inox más
-    grande tiene perno Ø10 (D-17c). Filas: perno a flexión + corte (R12) y a fatiga (sizing); la unión cuerpo–collar
-    **no se abre** con la precarga mínima bajo el momento del perno (R12, M_h completo; K ≤ 0,22 [ESTIMADO], como el
-    M12 del pivote); el cuerpo al apretar con la precarga máxima (≤ 0,9 Rp0,2, VDI 2230: criterio de montaje con
-    objetivo 1); y, en P1-STE-01, la presión del collar sobre la oreja con la precarga máxima. Fila más justa respecto
-    de su objetivo: «<!--V:est.min_by_part.P1-REV-04.load_case:-->Cuerpo del émbolo apretado contra su collar: la unión no se abre (R12, M_h completo) [N·m]<!--/V-->»,
-    FS <!--V:est.min_by_part.P1-REV-04.FS:.2f-->2.10<!--/V-->.
+  - **Émbolo propio (P1-REV-04; cuerpo AJUSTADO desde el cierre de la ronda 5, R5-N1, D-17d):** perno 316
+    Ø<!--V:manifest.params.REV_lock_pin_d:g-->16<!--/V--> h9 y cuerpo 316 **ajustado Ø<!--V:manifest.params.REV_lock_bore_d:g-->24<!--/V--> h6 en un agujero liso
+    Ø<!--V:manifest.params.REV_lock_bore_d:g-->24<!--/V--> H7** de la oreja, con **Loctite 641** (retenedor: llena el juego del ajuste, evita el desgaste por
+    roce y aísla el 316 del agujero, que se enmascara en el anodizado). El cuerpo es de un solo Ø (el tramo ajustado es el
+    propio cuerpo, `_release.PLG_BODY_D`) y el agujero atraviesa el lóbulo engrosado de la traba (<!--V:manifest.params.STE_lock_t:g-->23.5<!--/V--> mm: el largo
+    de apoyo del cuerpo). **Collar exterior** Ø32 × 1,5 [CALCULADO:
+    `piezas/_release.PLG_COLLAR_D/PLG_COLLAR_T`] contra la cara exterior del lóbulo, con 1 mm de luz al brazo del bucket
+    [CALCULADO: check «collar exterior: luz al brazo del bucket» de P1-REV-04]: ubica la punta y toma el empuje del resorte y
+    el tiro del cable, que van hacia adentro; la carga del perno actúa a 6,5 mm de esa cara (luz + medio brazo)
+    [CALCULADO: `structural_direccion`]. Por dentro, arandela 316 Ø24,2 × Ø32 × 0,8 y anillo DIN 471-24 A4 contra la cara
+    interior del lóbulo (B-RING24); el cuerpo sigue 4 mm más allá para la ranura Ø22,9 × 1,3 [ESTIMADO: DIN 471;
+    `piezas/_release.PLG_FIT_EXT`]. **Sin rosca ni
+    precarga en la oreja:** el cuerpo lleva la fuerza y el momento del perno a la oreja por aplastamiento, como el piloto del
+    pivote. La primera versión de la ronda 5 (cuerpo roscado M24×1,5 apretado contra un collar interior Ø36 a 110 N·m con
+    Loctite 243 y K propio 0,15–0,28, MEC-04) se abandonó: la tensión tangencial de esa precarga abría el lóbulo de la oreja
+    y el FEA de P1-STE-01 daba FS 1,74 en el borde de la rosca (R5-N1) [CALCULADO en la ronda 5 con esa versión; ya no está
+    en el CAD], y no había margen para bajar el par: la fila «la unión no se abre» quedaba apenas sobre 2 (FS 2,13). Carrera
+    <!--V:manifest.params.REV_plunger_stroke:g-->12<!--/V--> mm (liberar pide <!--V:manifest.params.REV_release_need:g-->9.5<!--/V--> mm). Resorte inox
+    comprado (B-SPRING; re-auditoría ronda 5, DES-01: el de la ronda 4 no podía existir con esas medidas): alambre 1,4,
+    Ø ext 15, 6,5 espiras útiles, largo libre 40, compacto ≈ 11,9 mm; k ≈ 2,06 N/mm → <!--V:manifest.parts.55.checks.6.value:.1f-->20.6<!--/V--> N instalado y ≈ 45 N con
+    el perno afuera; τ con Wahl al largo mínimo <!--V:manifest.parts.55.checks.7.value:.0f-->656<!--/V--> MPa contra 0,5·Rm = <!--V:manifest.parts.55.checks.7.ref:.0f-->750<!--/V--> MPa [CALCULADO: `piezas/_release.SPRING_*`
+    con EN 13906-1; G y Rm ESTIMADOS; checks de P1-REV-09]; con el perno afuera el resorte queda en 18 mm contra
+    compacto + Sa de EN 13906-1 = 14,1 mm [CALCULADO: check «resorte con el perno afuera ≥ compacto + Sa» de P1-REV-04;
+    R5-N4]. **Pomo**
+    (R5-N4): AISI 316 de la misma barra que el cuerpo (ya no POM), Ø23 × 10 (`_release.PLG_KNOB_D`: menor que el agujero, así
+    el émbolo armado entra desde afuera) con rosca ciega M10×1 × 8 y fondo de 2 mm con
+    agujero Ø4,5 (pasa el vástago M4 del eslabón); se rosca a fondo, con Loctite 243, en la cola del perno, que lleva la rosca
+    exterior M10×1 en su extremo y la rosca interior M4 × 10 axial del eslabón; 2 planos e/c 22. Su posición fija la
+    sobresalida de la punta: 1 mm sobre la cara exterior del brazo [CALCULADO: plano P1-REV-04_embolo_perno,
+    `piezas/_release.pin_tip_y`]. No hay émbolo de catálogo que alcance: el GN 617 inox más
+    grande tiene perno Ø10 (D-17c). Filas: perno a flexión + corte (R12) y a fatiga (sizing); cuerpo
+    Ø<!--V:manifest.params.REV_lock_bore_d:g-->24<!--/V-->/Ø16,2 a flexión + corte en la cara exterior del lóbulo (R12, M_h completo); y, en P1-STE-01, el aplastamiento del
+    cuerpo en la oreja y el ligamento de su agujero (abajo). Ya no existen las filas de la unión roscada (la unión no se
+    abre, cuerpo al apretar según VDI 2230, arrancamiento y tensión tangencial de la rosca M24 de la oreja, presión del
+    collar). Fila más justa respecto de su objetivo: «<!--V:est.min_by_part.P1-REV-04.load_case:-->Perno del émbolo Ø16 (316): flexión + corte con M_h completo (R12)<!--/V-->»,
+    FS <!--V:est.min_by_part.P1-REV-04.FS:.2f-->3.44<!--/V--> (objetivo <!--V:est.min_by_part.P1-REV-04.target:g-->2<!--/V-->).
   - **Bucket (P1-REV-01):** brazo trabado a flexión, agujero de traba, aro del pivote y la cuchara abierta a torsión
     con un solo brazo trabado (Saint-Venant, cota). La más justa: «<!--V:est.min_by_part.P1-REV-01.load_case:-->Cuchara abierta a torsión con un solo brazo trabado (R12, corta)<!--/V-->»,
     FS <!--V:est.min_by_part.P1-REV-01.FS:.2f-->2.17<!--/V--> (objetivo <!--V:est.min_by_part.P1-REV-01.target:g-->2<!--/V-->).
-  - **Oreja de la boquilla (P1-STE-01):** flexión en su plano y fuera del plano (pivote en voladizo), ligamento y
-    aplastamiento de la rosca M24, aplastamiento del piloto y presión del collar del émbolo (la de la brida del
-    espaciador está en las filas de P1-REV-02). La más justa: «<!--V:est.min_by_part.P1-STE-01.load_case:-->Rosca M24×1,5 de la oreja (6061): arrancamiento con la precarga máxima del émbolo<!--/V-->»,
-    FS <!--V:est.min_by_part.P1-STE-01.FS:.2f-->3.63<!--/V-->.
+  - **Oreja de la boquilla (P1-STE-01):** placa de <!--V:manifest.params.STE_ear_t:g-->14<!--/V--> mm con lóbulos engrosados alrededor del pivote
+    (<!--V:manifest.params.STE_piv_t:g-->20<!--/V--> mm en total, hacia adentro; r <!--V:manifest.params.STE_ear_r:g-->22<!--/V-->) y de cada émbolo (<!--V:manifest.params.STE_lock_t:g-->23.5<!--/V--> mm; r <!--V:manifest.params.STE_lock_lobe_r:g-->20<!--/V-->, y
+    <!--V:manifest.params.STE_lock_in_r:g-->18<!--/V--> en la parte que entra más allá de la placa): R5-N5, cierre de la ronda 5. Con el cuerpo ajustado en la
+    oreja de 14 mm el pico de aplastamiento quedaba en el borde del agujero junto a la cara exterior, por el momento del
+    perno (el FEA grueso no llegaba a FS 2: auditoria.md R5-N5); ese pico baja con el largo de apoyo y al acercar la cara a
+    la carga (el lóbulo de la traba sale 3 mm hacia el brazo), y los lóbulos lo logran sin tocar el desbloqueo. Una versión
+    intermedia (cuerpo Ø26, lóbulos de 21 y 16 mm) quedaba con poco margen para refinar la malla [CALCULADO: FEA grueso de
+    esa versión, auditoria.md R5-N5], y por eso el cuerpo pasó a Ø24 y los lóbulos se alargaron. Filas: flexión en su
+    plano y fuera del plano (pivote en voladizo); ligamento del agujero Ø<!--V:manifest.params.REV_lock_bore_d:g-->24<!--/V--> H7 del cuerpo del émbolo (8 mm
+    en la parte de r 20 y 6 mm en la de r 18 [CALCULADO: r − Ø24/2; fila de desgarro con los dos tramos]; el lóbulo no se
+    agranda en el plano porque los balancines del desbloqueo están a popa de él, `params_direccion.py`);
+    **aplastamiento del cuerpo ajustado** con la fuerza y el momento del perno, p_máx = F/(d·L)·(1 + 6·a/L), con L el largo
+    del agujero y a desde la mitad del brazo del bucket (línea de acción del perno) hasta el plano medio del agujero:
+    <!--V:est.loads.structural_direccion.lock_body_bearing_MPa:.1f-->30.2<!--/V--> MPa con R12 [CALCULADO], y la misma fila con la reversa de sizing contra el admisible
+    de fatiga; aplastamiento del piloto Ø<!--V:manifest.params.REV_sp_pilot_d:g-->24<!--/V--> con el corte y el momento del pivote; presión de la arandela
+    ancha interior (la presión de la brida del espaciador está en las filas de P1-REV-02). La fila del piloto usa la misma
+    fórmula con el brazo hasta el plano medio del agujero (R5-N2, corregido al cerrar la ronda 5: la primera versión tomaba
+    el momento en la cara de la oreja y daba una presión de borde ≈ 40 % baja [CALCULADO: re-auditoría ronda 5]); la flexión
+    del piloto de P1-REV-02 se toma en la cara exterior de la oreja con el módulo resistente del propio piloto. La
+    más justa: «<!--V:est.min_by_part.P1-STE-01.load_case:-->Oreja: aplastamiento del piloto Ø24 con corte y momento del pivote (R12, unión deslizada)<!--/V-->»,
+    FS <!--V:est.min_by_part.P1-STE-01.FS:.2f-->4.02<!--/V--> (presión de borde <!--V:est.loads.structural_direccion.pivot_pilot_bearing_MPa:.1f-->59.7<!--/V--> MPa).
   - **FEA (04_diseno/fea):** el FS de diseño de la chapa del bucket y de la boquilla es el del FEA, con las mismas
-    cargas (`jet_momentum` y `bucket_reactions`; el setup verifica que la carga aplicada iguala la estática) y los
+    cargas (`jet_momentum` y `bucket_reactions`; el setup verifica fuerza y momento contra la estática) y los
     casos de diseño de una traba sola por lado, a R12 contra fluencia y con la reversa de sizing contra fatiga, más
-    el borde de los agujeros cargados por perno («lug», σθ a 60–120° de la carga). FS mínimo de diseño de la corrida
-    fina: P1-REV-01 <!--V:fea.piezas.P1-REV-01.FS_min:.2f-->2.08<!--/V--> (caso <!--V:fea.piezas.P1-REV-01.caso_gobernante:-->d<!--/V-->),
-    P1-STE-01 <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->2.33<!--/V--> (caso <!--V:fea.piezas.P1-STE-01.caso_gobernante:-->f<!--/V-->);
-    objetivo 2. El margen de REV-01 es justo: el punto caliente está en la cara exterior del brazo trabado, por
-    debajo del pivote. Detalle, convergencia y limitaciones en [04_diseno/fea/README.md](04_diseno/fea/README.md).
-  - **Momento del perno sobre la oreja (antes abierto, auditoria.md R4-12):** lo cubren las filas del collar de
-    arriba (la unión cuerpo–collar no se abre con la precarga mínima a <!--V:manifest.params.REV_lock_T_Nm:g-->75<!--/V--> N·m;
-    cuerpo al apretar con la máxima; presión del collar sobre la oreja) y el FEA de STE-01 lo aplica como par bajo
-    el collar. Ya no queda abierto.
+    el borde de los agujeros cargados por perno («lug», σθ a 60–120° de la carga). Desde la ronda 5 (FEA-R5-01) si la
+    malla no converge (cambio gruesa → fina > 20 %) la tensión de diseño es el mayor entre el máx.* de la fina y la
+    extrapolación de Richardson (nunca el promedio en volumen, salvo aristas vivas nombradas), y una extrapolación de
+    Richardson bajo el objetivo deja `cumple` en falso. En STE-01 el pivote carga el agujero Ø<!--V:manifest.params.REV_sp_pilot_d:g-->24<!--/V--> H7 con el
+    apoyo del piloto y la traba carga el agujero Ø<!--V:manifest.params.REV_lock_bore_d:g-->24<!--/V--> H7 con el apoyo del cuerpo ajustado del émbolo (los dos
+    agujeros atraviesan los lóbulos engrosados): presión
+    que varía a lo largo del agujero, con la resultante en la mitad del buje y en la mitad del brazo del bucket, sin el par
+    de la brida y sin precarga en la oreja; los casos de fatiga son ciclos 0 → máx., sin media de Goodman (la precarga del
+    cuerpo roscado que se superponía por FEA-R5-02 desapareció con el cuerpo ajustado). FS mínimo
+    de diseño de la corrida fina: P1-REV-01 <!--V:fea.piezas.P1-REV-01.FS_min:.2f-->2.08<!--/V--> (caso <!--V:fea.piezas.P1-REV-01.caso_gobernante:-->d<!--/V-->),
+    P1-STE-01 <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->1.74<!--/V--> (caso <!--V:fea.piezas.P1-STE-01.caso_gobernante:-->c2<!--/V-->, criterio
+    «<!--V:fea.piezas.P1-STE-01.criterio_gobernante:-->borde<!--/V-->»; cumple = <!--V:fea.piezas.P1-STE-01.cumple:-->False<!--/V-->); objetivo 2.
+    Con el cuerpo roscado de la primera versión de la ronda 5 el FEA de STE-01 daba FS 1,74 (caso c2, borde de la rosca
+    M24 en la cara interior: la tensión tangencial de la precarga, 2–3 veces la del cilindro grueso, se sumaba a la de la
+    carga de la traba; R5-N1) [CALCULADO: corrida fina de esa versión; ya no está en el CAD]. El margen de REV-01 es
+    justo: el punto caliente está en la cara exterior del brazo trabado, por debajo del pivote. Detalle, convergencia y
+    limitaciones en [04_diseno/fea/README.md](04_diseno/fea/README.md).
+  - **Momento del perno sobre la oreja (auditoria.md R4-12):** lo cubren las filas de aplastamiento del cuerpo ajustado
+    en la oreja (fuerza y momento del perno, R12 y sizing) y la del cuerpo a flexión + corte en la cara exterior del lóbulo; el FEA
+    de STE-01 lo aplica como apoyo lineal del cuerpo en su agujero, con la resultante en la mitad del brazo del bucket. En
+    la ronda 4 y en la primera versión de la ronda 5 lo llevaba la unión roscada, apretada contra el collar interior.
+  - **Desbloqueo (P1-REV-09, P1-REV-10, P1-CTL-10/14; re-auditoría ronda 5, DES-01/03/04/05):** cada pomo tira de un
+    **eslabón rígido** de 316 (ojo con ranura vertical en el perno de manivela + vástago M4 roscado en la cola del perno
+    del émbolo con Loctite 243), con ajuste roscado de ±2 mm por medias vueltas que cubre la cadena de tolerancias
+    pomo ↔ manivela (<!--V:manifest.parts.55.checks.10.value:g-->2<!--/V--> ≥ <!--V:manifest.parts.55.checks.10.ref:.2f-->0.95<!--/V--> mm, peor caso); la cinemática se revisa con el
+    desajuste residual ±<!--V:manifest.parts.55.checks.11.value:g-->0.75<!--/V--> mm (≥ <!--V:manifest.parts.55.checks.11.ref:.3f-->0.675<!--/V--> mm) [CALCULADO/SUPUESTO:
+    `piezas/_release.LINK_*`, checks de P1-REV-09]. Balancines 1:1 fresados de placa 5083 de 12 con cubos largos hacia
+    proa (eje 1.4401+C Ø8 prensado en el montante de 8 con muñón Ø7 en casquillo polimérico; perno de manivela
+    1.4401+C prensado H7/m6 con Loctite 638 y hombro Ø9): toman el par F·e del eslabón (DES-03). El rozamiento del eje
+    entra en el check de fuerza del gatillo con un rendimiento del balancín <!--V:manifest.parts.14.checks.6.value:.2f-->0.76<!--/V--> [CALCULADO con μ
+    ESTIMADO]: tiro por cable con 100 N de mano <!--V:manifest.parts.14.checks.5.value:.0f-->106<!--/V--> N contra
+    <!--V:manifest.parts.14.checks.5.ref:.0f-->99<!--/V--> N necesarios = resorte final / (η Bowden 0,6 · η balancín) [CALCULADO; resorte, η
+    ESTIMADOS]. **Margen ≈ 7 %:** un resorte de catálogo con ±10 % de fuerza (EN 15800 grado 2 [ESTIMADO]) lo consume;
+    por eso el resorte se mide al recibirlo (PENDIENTES P1.8) y la fuerza del gatillo en T0.M6b. Fila más justa:
+    «<!--V:est.min_by_part.P1-REV-09.load_case:-->Eje Ø8 prensado en el montante 8 mm 5083: presión de apoyo<!--/V-->» FS <!--V:est.min_by_part.P1-REV-09.FS:.2f-->2.27<!--/V-->.
+    Pestaña de tope de las vainas en P1-CTL-10 con borde ≥ 4 mm alrededor de cada M6 (y <!--V:manifest.parts.10.checks.8.value:.2f-->4.75<!--/V-->, z
+    <!--V:manifest.parts.10.checks.7.value:.2f-->4.61<!--/V--> mm; DES-05).
 - **Chaveta del acople:** justa con el par máx. del controlador. La chaveta 5×5 del eje del motor Ø15 en el cubo del
   acople queda **por debajo de 2**: FS <!--V:est.min_by_part.P1-DRV-08.FS:.2f-->1.74<!--/V--> en P1-DRV-08
   ("<!--V:est.min_by_part.P1-DRV-08.load_case:-->Chaveta 5×5 del eje del motor Ø15 en el cubo del acople: aplastamiento a T_max<!--/V-->"),
@@ -838,12 +925,12 @@ Tabla completa:
 | P1-PMP-09 | Bulones placa–espejo (6×M6): F del bucket 1408 N + momento | brazo 36 mm al espejo; F_bulón=413 N sobre A_s=20.1 mm² | 20.53 | metal | 450.0 | 21.92 | 2.0 | ✔ |
 | P1-PMP-09 | Cuello: F lateral de la boquilla con el O-ring a tope | voladizo del cuello M=F·L=6.0 N·m, W anillo=116736 mm³ | 0.05 | metal | 125.0 | 2444.39 | 2.0 | ✔ |
 | P1-STE-01 | Flexión del tubo por el desvío del chorro (fatiga, sizing) | M = F_s·e = 323 N × 66 mm; Z tubo Ø101.1/Ø91.1 | 0.62 | metal | 90.0 | 145.93 | 2.0 | ✔ |
-| P1-STE-01 | Oreja del bucket: flexión en su plano (R12, corta; pivote + traba con M_h completo) | M raíz = 99 N·m (pivote a 52 mm + traba a r 45); sección 12 × 36 | 38.36 | metal | 240.0 | 6.26 | 2.0 | ✔ |
-| P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga; M_h completo en su traba) | M raíz = 49.0 N·m; 12 × 36 | 19.03 | metal | 90.0 | 4.73 | 2.0 | ✔ |
-| P1-STE-01 | Oreja del bucket: ligamento de la rosca M24 del émbolo (R12, M_h completo) | F = M_h/r = 3006 N; desgarro por 2 ligamentos 8 × 12: σ = √3·F/(2·l·t) | 27.12 | metal | 240.0 | 8.85 | 2.0 | ✔ |
-| P1-STE-01 | Rosca M24×1,5 del émbolo en la oreja: aplastamiento lateral (R12) | F = 3006 N / (Ø24 × 12) | 10.44 | metal | 240.0 | 22.99 | 2.0 | ✔ |
-| P1-STE-01 | Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, M_h completo) | M = R_pivote 3302 N × 13.5 mm en la cara; raíz 36 × 12 | 51.59 | metal | 240.0 | 4.65 | 2.0 | ✔ |
-| P1-STE-01 | Oreja del bucket: aplastamiento del piloto Ø16 del espaciador en el agujero H7 (R12, si la unión desliza) | 3302 N / (Ø16 × 12) | 17.20 | metal | 240.0 | 13.96 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: flexión en su plano (R12, corta; pivote + traba con M_h completo) | M raíz = 99 N·m (pivote a 52 mm + traba a r 45); sección 14 × 36 | 32.88 | metal | 240.0 | 7.3 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga; M_h completo en su traba) | M raíz = 49.0 N·m; 14 × 36 | 16.31 | metal | 90.0 | 5.52 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: ligamento del agujero Ø24 del cuerpo del émbolo (R12, M_h completo) | F = M_h/r = 3006 N; desgarro por 2 ligamentos 8 × 17 + 6 × 6.5 (lóbulo engrosado): σ = √3·F/A | 14.88 | metal | 240.0 | 16.13 | 2.0 | ✔ |
+| P1-STE-01 | Oreja: aplastamiento del cuerpo ajustado Ø24 del émbolo con fuerza y momento del perno (R12) | p_máx = F/(d·L)·(1 + 6·a/L): F 3006 N, a = 18.25 mm (mitad del brazo → plano medio del agujero), L 23.5 | 30.17 | metal | 240.0 | 7.96 | 2.0 | ✔ |
+| P1-STE-01 | Oreja: aplastamiento del cuerpo Ø24 del émbolo (reversa sizing, fatiga) | ídem con F = 1491 N | 14.96 | metal | 90.0 | 6.01 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, M_h completo) | M = R_pivote 3302 N × 14.5 mm en la cara; raíz 36 × 14 | 40.71 | metal | 240.0 | 5.9 | 2.0 | ✔ |
 | P1-STE-01 | Oreja de pivote (dentro de la de la bomba): flexión de la raíz | F = √((F_b/2)²+(F_s/2)²) = 727 N a 12 mm; 25 × 30 | 2.33 | metal | 240.0 | 103.14 | 2.0 | ✔ |
 | P1-STE-02 | Hombro Ø8 biempotrado: flexión + corte (bucket R12 + dirección, corta) | reacción superior 1490 N en luz 28.5 mm (M = F·L/8); 316 estirado | 111.17 | metal | 310.0 | 2.79 | 2.0 | ✔ |
 | P1-STE-02 | Hombro Ø8: flexión por maniobras (fatiga) | F_s/2 = 162 N, M = F·L/8 | 11.47 | metal | 180.0 | 15.7 | 2.0 | ✔ |
@@ -851,44 +938,52 @@ Tabla completa:
 | P1-STE-05 | Hombro Ø8 en voladizo: flexión por maniobras (fatiga) | F_s/2 = 162 N a 14.3 mm | 45.87 | metal | 180.0 | 3.92 | 2.0 | ✔ |
 | P1-STE-02 | Presión en el buje POM de la oreja de la bomba (P1-PMP-11) | 1490 N / (Ø8 × 25.5) | 7.29 | metal | 20.0 | 2.74 | 2.0 | ✔ |
 | P1-STE-03 | Arandela POM: empuje axial (peso boquilla + bucket + componente vertical) | 60 N [ESTIMADO] / 199 mm² | 0.30 | metal | 10.0 | 33.18 | 2.0 | ✔ |
-| P1-STE-06 | Poste Ø22: flexión + torsión (biela M66, M_s con F_s R12) | F_biela = M_s/85 mm = 282 N a 138 mm de la brida | 38.08 | metal | 240.0 | 6.3 | 2.0 | ✔ |
-| P1-STE-06 | Poste Ø22: flexión (fatiga, sizing) | F_biela = 250 N | 33.10 | metal | 90.0 | 2.72 | 2.0 | ✔ |
-| P1-STE-06 | Brida del poste: 4 × M8 A4-70 en Ø32 (tracción) | F = 4M/(n·BC) = 1218 N; As 36,6 mm² | 33.28 | metal | 450.0 | 13.52 | 2.0 | ✔ |
-| P1-STE-04 | Banda de la brida: torsión (momento del poste) + flexión | T = 39.0 N·m en 24 × 20 (α = 0.217); F_biela × 85 mm | 34.70 | metal | 125.0 | 3.6 | 2.0 | ✔ |
-| P1-STE-04 | 4 × M8 A4-70 a la torre: tracción por el momento del poste | F = M/(19 mm)/2 = 1026 N por bulón | 28.03 | metal | 450.0 | 16.06 | 2.0 | ✔ |
-| P1-STE-08 | Placa de topes 8 mm: flexión en su plano (timón forzado) | F = 2·F_biela = 563 N a 90 mm del ala; sección 32 × 8 | 37.13 | metal | 125.0 | 3.37 | 2.0 | ✔ |
-| P1-STE-06 | Poste contra el tope: flexión (timón forzado) | F = 563 N a 111 mm de la brida | 60.03 | metal | 240.0 | 4.0 | 2.0 | ✔ |
-| P1-STE-08 | 2 × M6 A4-70 del ala al espejo (tracción por el momento) | M = F × 40 mm / 30 mm entre bulón y borde | 37.37 | metal | 450.0 | 12.04 | 2.0 | ✔ |
-| P1-STE-07 | Brazo 10 mm: flexión por la altura de la rótula + tracción | F_biela 282 N; M = F × 12 mm en 24 × 10 | 9.62 | metal | 125.0 | 12.99 | 2.0 | ✔ |
-| P1-REV-01 | Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta) | p = 98 kPa, luz 56.5 mm (nervio central), t = 8 | 2.44 | metal | 125.0 | 51.25 | 2.0 | ✔ |
-| P1-REV-01 | Chapa de la cuchara: franja (fatiga de soldadura, 1e5) | ídem | 2.44 | metal | 68.0 | 27.88 | 2.0 | ✔ |
-| P1-REV-01 | Cuchara como viga entre brazos (bucket R12, corta) | M = F·L/8, L = 113; I_arco = 547e3 mm⁴ | 1.79 | metal | 125.0 | 69.81 | 2.0 | ✔ |
+| P1-STE-06 | Poste Ø22: flexión + torsión (biela M66, M_s con F_s R12) | F_biela = M_s/86 mm = 279 N a 138 mm de la brida | 37.78 | metal | 240.0 | 6.35 | 2.0 | ✔ |
+| P1-STE-06 | Poste Ø22: flexión (fatiga, sizing) | F_biela = 248 N | 32.84 | metal | 90.0 | 2.74 | 2.0 | ✔ |
+| P1-STE-06 | Brida del poste: 4 × M8 A4-70 en Ø32 (tracción) | F = 4M/(n·BC) = 1209 N; As 36,6 mm² | 33.02 | metal | 450.0 | 13.63 | 2.0 | ✔ |
+| P1-STE-04 | Banda de la brida: torsión (momento del poste) + flexión | T = 38.7 N·m en 24 × 20 (α = 0.217); F_biela × 86 mm | 34.48 | metal | 125.0 | 3.63 | 2.0 | ✔ |
+| P1-STE-04 | 4 × M8 A4-70 a la torre: tracción por el momento del poste | F = M/(19 mm)/2 = 1018 N por bulón | 27.81 | metal | 450.0 | 16.18 | 2.0 | ✔ |
+| P1-STE-08 | Placa de topes 8 mm: flexión en su plano (timón forzado) | F = 2·F_biela = 559 N a 90 mm del ala; sección 32 × 8 | 36.84 | metal | 125.0 | 3.39 | 2.0 | ✔ |
+| P1-STE-06 | Poste contra el tope: flexión (timón forzado) | F = 559 N a 111 mm de la brida | 59.56 | metal | 240.0 | 4.03 | 2.0 | ✔ |
+| P1-STE-08 | 2 × M6 A4-70 del ala al espejo (tracción por el momento) | M = F × 40 mm / 30 mm entre bulón y borde | 37.07 | metal | 450.0 | 12.14 | 2.0 | ✔ |
+| P1-STE-07 | Brazo 10 mm: flexión por la altura de la rótula + tracción | F_biela 279 N; M = F × 12 mm en 24 × 10 | 9.55 | metal | 125.0 | 13.09 | 2.0 | ✔ |
+| P1-REV-01 | Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta) | p = 98 kPa, luz 57.5 mm (nervio central), t = 8 | 2.53 | metal | 125.0 | 49.48 | 2.0 | ✔ |
+| P1-REV-01 | Chapa de la cuchara: franja (fatiga de soldadura, 1e5) | ídem | 2.53 | metal | 68.0 | 26.92 | 2.0 | ✔ |
+| P1-REV-01 | Cuchara como viga entre brazos (bucket R12, corta) | M = F·L/8, L = 115; I_arco = 547e3 mm⁴ | 1.82 | metal | 125.0 | 68.59 | 2.0 | ✔ |
 | P1-REV-01 | Brazo trabado: flexión en su plano con M_h completo (R12, corta) | M = M_h = 135 N·m en un brazo; sección 8 × 60 | 28.18 | metal | 125.0 | 4.44 | 2.0 | ✔ |
 | P1-REV-01 | Brazo trabado: flexión en su plano con M_h completo (reversa sizing, fatiga de soldadura) | M = M_h,sizing = 67 N·m | 13.98 | metal | 68.0 | 4.86 | 2.0 | ✔ |
 | P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (R12, corta) | T = M_h = 135 N·m en la unión con el brazo trabado; τ = T·t/J, J = s·t³/3 (s = 190) | 57.73 | metal | 125.0 | 2.17 | 2.0 | ✔ |
 | P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (reversa sizing, fatiga de soldadura) | T = M_h,sizing = 67 N·m; τ en la soldadura brazo–cuchara | 28.64 | metal | 68.0 | 2.37 | 2.0 | ✔ |
 | P1-REV-01 | Agujero de traba: aplastamiento del brazo (perno Ø16, M_h completo, R12) | F = M_h/r = 135 N·m / 45 mm = 3006 N | 23.49 | metal | 125.0 | 5.32 | 2.0 | ✔ |
 | P1-REV-01 | Pivote: aplastamiento del brazo + aro (buje Ø24 × 18), R12 | R_pivote = 3302 N (chorro/2 + traba con M_h completo) | 7.64 | metal | 125.0 | 16.35 | 2.0 | ✔ |
-| P1-REV-02 | Muñón Ø20/Ø12.5 en voladizo desde la brida: flexión + corte (R12, una traba) | R = 3302 N a 10.5 mm de la brida; τ = 2V/A (tubo) | 79.27 | metal | 205.0 | 2.59 | 2.0 | ✔ |
-| P1-REV-02 | Muñón: flexión (reversa sizing, fatiga; una traba) | R = 1638 N | 25.84 | metal | 180.0 | 6.97 | 2.0 | ✔ |
-| P1-REV-02 | Unión brida–oreja: no se abre con la precarga mínima (R12, una traba) [N·m] | M = 3302 N × 13.5 mm = 44.6 N·m contra F_mín·k = 17.0 kN × 5.50 mm (par 45 N·m, K ≤ 0.22) | 44.58 | metal | 93.8 | 2.1 | 2.0 | ✔ |
-| P1-REV-02 | Brida sobre la oreja 6061: presión con la precarga máxima (K 0,12) | 31.2 kN / corona 791 mm² | 39.51 | metal | 240.0 | 6.07 | 2.0 | ✔ |
-| P1-REV-02 | Tornillo M12 A4-80 al montar con la precarga máxima: σ_red ≈ 1,15·F/A_s ≤ 0,9·Rp0,2 (VDI 2230) | 31.2 kN / 84,3 mm²; torsión de la rosca ≈ +15 % [ESTIMADO] | 426.31 | metal | 540.0 | 1.27 | 1.0 | ✔ |
+| P1-REV-02 | Muñón Ø20/Ø12.5 (dúplex): precarga máxima del M12 + flexión y corte (R12, una traba) | F_máx/A = 6.7 kN / 191 mm² + R = 3302 N a 10.5 mm de la brida; τ = 2V/A (tubo) | 105.47 | metal | 450.0 | 4.27 | 2.0 | ✔ |
+| P1-REV-02 | Muñón: flexión (reversa sizing, fatiga; una traba; la precarga es media de compresión) | R = 1638 N | 25.84 | metal | 180.0 | 6.97 | 2.0 | ✔ |
+| P1-STE-01 | Oreja: aplastamiento del piloto Ø24 con corte y momento del pivote (R12, unión deslizada) | p_máx = R/(d·L)·(1 + 6·a/L): R 3302 N, a = 24.2 mm (al plano medio del agujero), L 19.5 | 59.70 | metal | 240.0 | 4.02 | 2.0 | ✔ |
+| P1-REV-02 | Piloto Ø24/Ø12.5 (dúplex) en la cara de la oreja: flexión + corte (R12, unión deslizada) | M = 47.9 N·m; τ = 2V/A | 51.52 | metal | 450.0 | 8.74 | 2.0 | ✔ |
+| P1-REV-02 | Brida sobre la oreja 6061: presión con la precarga máxima | 6.7 kN / corona Ø36/Ø25 = 527 mm² | 12.65 | metal | 240.0 | 18.97 | 2.0 | ✔ |
+| P1-STE-01 | Arandela ISO 7093 Ø37 por dentro de la oreja: presión con la precarga máxima | 6.7 kN / corona Ø37/Ø25 = 584 mm² | 11.41 | metal | 240.0 | 21.04 | 2.0 | ✔ |
+| P1-REV-02 | Tornillo M12 A4-80 al montar con la precarga máxima: σ_red ≈ 1,15·F/A_s ≤ 0,9·Rp0,2 (VDI 2230) | 6.7 kN / 84,3 mm²; torsión de la rosca ≈ +15 % [ESTIMADO] | 90.94 | metal | 540.0 | 5.94 | 1.0 | ✔ |
+| P1-REV-02 | Tuerca baja ISO 4035 M12 A4-035: carga de prueba contra la precarga máxima | A_s 84,3 mm² × 350 MPa [ESTIMADO: ISO 3506-2, tuerca baja clase 035] contra 6.7 kN | 79.08 | metal | 350.0 | 4.43 | 2.0 | ✔ |
+| P1-REV-02 | Brida Ø36 × 4 (dúplex): flexión por la precarga máxima | M' = F·(r_c − a)/(2π·a) = 6.7 kN × 3.4 / (2π·12); σ = 6·M'/t² | 113.24 | metal | 450.0 | 3.97 | 2.0 | ✔ |
 | P1-REV-03 | Buje POM Ø20.1/Ø24 × 18: presión (R12, una traba) | 3302 N / (20 × 18) | 9.17 | metal | 20.0 | 2.18 | 2.0 | ✔ |
 | P1-REV-03 | Buje POM: presión (reversa sizing, oscilación; una traba) | 1638 N / (20 × 18) | 4.55 | metal | 10.0 | 2.2 | 2.0 | ✔ |
-| P1-REV-04 | Perno del émbolo Ø16 (316): flexión + corte con M_h completo (R12) | F = M_h/r = 3006 N a 8.5 mm | 72.32 | metal | 205.0 | 2.83 | 2.0 | ✔ |
-| P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga; M_h completo) | F = 1491 N | 31.52 | metal | 180.0 | 5.71 | 2.0 | ✔ |
-| P1-REV-04 | Cuerpo del émbolo apretado contra su collar: la unión no se abre (R12, M_h completo) [N·m] | M = 3006 N × 14.5 mm = 43.6 N·m contra F_mín·k = 14.2 kN × 6.46 mm (par 75 N·m, K ≤ 0.22, Loctite 243) | 43.59 | metal | 91.7 | 2.1 | 2.0 | ✔ |
-| P1-REV-04 | Cuerpo del émbolo (316) al apretar con la precarga máxima: σ_red ≈ 1,15·F/A ≤ 0,9·Rp0,2 (VDI 2230) | 26.0 kN / 195 mm² (A_s M24×1,5 − Ø16.2) | 153.76 | metal | 184.5 | 1.2 | 1.0 | ✔ |
-| P1-STE-01 | Rosca M24×1,5 de la oreja (6061): arrancamiento con la precarga máxima del émbolo | τ = 26.0 kN / (0,75·π·24·12 = 679 mm²) contra 0,58·Rp0,2 | 38.38 | metal | 139.2 | 3.63 | 2.0 | ✔ |
-| P1-STE-01 | Collar del émbolo sobre la oreja 6061: presión con la precarga máxima | 26.0 kN / corona Ø34/Ø24.5 | 59.66 | metal | 240.0 | 4.02 | 2.0 | ✔ |
+| P1-REV-04 | Perno del émbolo Ø16 (316): flexión + corte con M_h completo (R12) | F = M_h/r = 3006 N a 6.5 mm | 59.61 | metal | 205.0 | 3.44 | 2.0 | ✔ |
+| P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga; M_h completo) | F = 1491 N | 24.11 | metal | 180.0 | 7.47 | 2.0 | ✔ |
+| P1-REV-04 | Cuerpo del émbolo Ø24/Ø16.2 (316) en la cara de la oreja: flexión + corte (R12, M_h completo) | M = 3006 N × 6.5 mm; τ = 2V/A (tubo) | 46.03 | metal | 205.0 | 4.45 | 2.0 | ✔ |
 | P1-REV-06 | Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada) | F = 100 N × 125/46 = 272 N a 6 mm | 32.44 | metal | 205.0 | 6.32 | 2.0 | ✔ |
-| P1-REV-09 | Perno de manivela Ø6 316 estirado (voladizo hasta el eje del émbolo): flexión | tiro de diseño 92 N por cable [CALCULADO: mano 100 N [SUPUESTO] × 34/18,5 / 2 cables; ≥ resorte 45 N [ESTIMADO] / η 0,6 [ESTIMADO]] a 29,3 mm | 126.59 | metal | 310.0 | 2.45 | 2.0 | ✔ |
-| P1-REV-09 | Balancín 5 mm 5083: flexión del brazo junto al cubo del eje | 92 N a 8 mm; sección 9 × 5 | 10.87 | metal | 125.0 | 11.5 | 2.0 | ✔ |
-| P1-REV-09 | Tornillo M5 A4-70 de la base al pad de la boquilla: tracción (un cable tirando, eslabón a la altura del émbolo) | T = 92 N × 32,6 / 18 = 166 N / A_s 14,2 mm² | 11.69 | metal | 450.0 | 38.49 | 2.0 | ✔ |
-| P1-CTL-14 | Gatillo 6 mm: flexión de la hoja en el cubo (100 N a 34 mm del pivote) | M = 100 N × 27 mm; sección 12 × 6 | 18.75 | metal | 240.0 | 12.8 | 2.0 | ✔ |
-| P1-CTL-14 | Pasador Ø5 A4-70 del gatillo: flexión (mano + 2 cables; apoyo en la placa lateral del mango) | F = 283 N a 3,5 mm | 80.81 | metal | 450.0 | 5.57 | 2.0 | ✔ |
-| P1-CTL-14 | Barra igualadora 316 5 × 4: flexión (dos cables a ±8 del pasador) | M = 92 N × 8 mm; sección 5 × 4 | 44.00 | metal | 205.0 | 4.66 | 2.0 | ✔ |
+| P1-REV-09 | Perno de manivela Ø6 1.4401+C: flexión en la cara del cubo (eslabón sobre el eje del émbolo) | tiro de diseño 112 N por cable [CALCULADO: mano 100 N [SUPUESTO] × 35,4/15,9 / 2 cables, sin rozamiento; ≥ resorte 45,2 N [CALCULADO: k ESTIMADO] / (η Bowden 0,6 · η balancín 0,76) [ESTIMADOS]] a 22,3 mm del cubo | 117.27 | metal | 310.0 | 2.64 | 2.0 | ✔ |
+| P1-REV-09 | Perno de manivela prensado en el cubo del balancín (5083): presión de apoyo bajo F·e | perno rígido en agujero de 12 mm, F 112 N a 22,3 mm de la cara: p = F/(d·L)·(4 + 6a/L) | 23.47 | metal | 125.0 | 5.33 | 2.0 | ✔ |
+| P1-REV-09 | Balancín (alma 5 mm 5083): flexión del brazo junto al cubo del eje | 112 N a 7 mm; sección 8 × 5 | 14.65 | metal | 125.0 | 8.53 | 2.0 | ✔ |
+| P1-REV-09 | Eje del balancín: presión en el casquillo Ø7 × 14 bajo el par F·e (+ cable de salida) | F 112 N a 20,3 mm delante del cubo: p = F/(d·L)·(4 + 6a/L) ⊕ cable | 14.83 | metal | 60.0 | 4.04 | 2.0 | ✔ |
+| P1-REV-09 | Eje del balancín 1.4401+C: flexión del muñón Ø7 en la cara del montante | M = 112 N × 35,8 mm (eslabón) ⊕ cable = 4.02 N·m | 119.33 | metal | 310.0 | 2.6 | 2.0 | ✔ |
+| P1-REV-09 | Eje Ø8 prensado en el montante 8 mm 5083: presión de apoyo | perno rígido en agujero de 8 mm, F 112 N a 35,8 mm ⊕ cable | 55.14 | metal | 125.0 | 2.27 | 2.0 | ✔ |
+| P1-REV-09 | Montante 8 mm 5083: flexión fuera del plano por el par del eje (F·e) | M = 112 N × 35,8 mm en una franja de 16 × 8 (cubo r 8 del contorno) | 23.40 | metal | 125.0 | 5.34 | 2.0 | ✔ |
+| P1-REV-09 | Ojo del eslabón 316: flexión de la pared de 2 × 5 sobre la ranura | M = F·l/4 = 112 N × 9,7/4 (perno en el centro de la ranura) | 81.19 | metal | 205.0 | 2.52 | 2.0 | ✔ |
+| P1-REV-09 | Vástago M4 del eslabón (316): tracción | 112 N / A_s 8,78 mm² | 12.71 | metal | 205.0 | 16.13 | 2.0 | ✔ |
+| P1-REV-09 | Tornillo M5 A4-70 de la base al pad de la boquilla: tracción (un cable tirando, eslabón a la altura del émbolo) | T = 112 N × 32,6 / 18 = 202 N / A_s 14,2 mm² | 14.23 | metal | 450.0 | 31.62 | 2.0 | ✔ |
+| P1-CTL-14 | Gatillo 6 mm: flexión de la hoja en el cubo (100 N a 35,4 mm del pivote) | M = 100 N × 28,4 mm; sección 12 × 6 | 19.72 | metal | 240.0 | 12.17 | 2.0 | ✔ |
+| P1-CTL-14 | Pasador Ø5 A4-70 del gatillo: flexión (mano + 2 cables; apoyo en la placa lateral del mango) | F = 323 N a 3,5 mm | 92.18 | metal | 450.0 | 4.88 | 2.0 | ✔ |
+| P1-CTL-14 | Barra igualadora 316 5 × 4: flexión (dos cables a ±8 del pasador) | M = 112 N × 8 mm; sección 5 × 4 | 53.57 | metal | 205.0 | 3.83 | 2.0 | ✔ |
 | P1-REV-05 | Soporte del Mach5: placa lateral en voladizo (palanca forzada) | 272 N a 48 mm; 6 × 124 | 0.85 | metal | 125.0 | 147.35 | 2.0 | ✔ |
 | P1-CTL-09 | Palanca del acelerador: flexión en el cubo (100 N en el pomo) | M = 100 N × 120 mm; barra 16 × 8 | 35.16 | metal | 240.0 | 6.83 | 2.0 | ✔ |
 | P1-CTL-10 | Palanca del bucket: flexión en el escalón (100 N en el pomo) | M = 100 N × 125 mm; 16 × 8 | 36.62 | metal | 240.0 | 6.55 | 2.0 | ✔ |
@@ -900,8 +995,8 @@ Tabla completa:
 | P1-CTL-02 | Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta) | franja 50 × 6 apoyada, luz 50: M = F·L/4 | 6.25 | short | 24.0 | 3.84 | 3.0 | ✔ |
 | P1-CTL-03 | Cara PETG 10 mm: tirón del cordón 150 N [SUPUESTO] (corta, cruza capas) | franja 50 × 10 empotrada, luz 76: M = F·L/8; ÷ f_Z (cara inclinada 32°) | 4.28 | short | 24.0 | 5.61 | 3.0 | ✔ |
 | P1-CTL-03 | Cara PETG 10 mm: golpe sobre la seta 200 N [SUPUESTO] (corta, cruza capas) | ídem | 5.70 | short | 24.0 | 4.21 | 3.0 | ✔ |
-| P1-CTL-01 | Placa de refuerzo 6 mm: carga del pasamuros del M66 | placa circular empotrada R 60, carga 282 N en r 10 | 12.44 | metal | 125.0 | 10.05 | 2.0 | ✔ |
-| P1-CTL-04 | Pasamuros M66: cuerpo Ø20/Ø9,6 a tracción + flexión | 282 N; momento por 20 mm de voladizo | 8.74 | metal | 205.0 | 23.46 | 2.0 | ✔ |
+| P1-CTL-01 | Placa de refuerzo 6 mm: carga del pasamuros del M66 | placa circular empotrada R 60, carga 279 N en r 10 | 12.34 | metal | 125.0 | 10.13 | 2.0 | ✔ |
+| P1-CTL-04 | Pasamuros M66: cuerpo Ø20/Ø9,6 a tracción + flexión | 279 N; momento por 20 mm de voladizo | 8.67 | metal | 205.0 | 23.64 | 2.0 | ✔ |
 | P1-INT-01 | Techo plano entre costados, p = máx(p_cierre, p_golpe) | placa larga empotrada: σ = p·b²/(2t²), b = W_open = 158, t = 5.0 | 33.74 | metal | 125.0 | 3.71 | 2.0 | ✔ |
 | P1-INT-01 | Costado plano más alto (en el labio), p = máx(p_cierre, p_golpe) | placa empotrada brida–techo: σ = p·h²/(2t²), h = 156 | 32.68 | metal | 125.0 | 3.82 | 2.0 | ✔ |
 | P1-INT-01 | Fatiga de la soldadura del costado: Δp = p_ram + p_succión = 42 kPa, 1e+05 ciclos | Δσ = Δp·h²/(2t²) vs FAT 25 (IIW, m = 3) → 68 MPa | 20.43 | metal | 67.9 | 3.32 | 2.0 | ✔ |

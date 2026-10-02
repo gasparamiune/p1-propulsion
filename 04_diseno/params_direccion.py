@@ -102,7 +102,7 @@ def extend(d):
     # la luz oreja–brazo y anillo DIN 471 por dentro. El cuerpo lleva la fuerza y el momento del perno por aplastamiento
     # en la oreja (como el piloto del pivote); sin rosca ni precarga en la oreja: la precarga de 110 N·m de la rosca M24
     # abría la oreja (σθ) y el FEA de STE-01 daba FS 1,74 [CALCULADO: structural_direccion + FEA STE-01]
-    d["REV_lock_bore_d"] = 26.0
+    d["REV_lock_bore_d"] = 24.0        # Ø24 H7/h6 (= cuerpo Ø24): ligamento 8 en el lóbulo r 20 y anillo DIN 471-24 chico [R5-N5]
     d["STE_e_frac"] = 0.5              # [ESTIMADO: research/R12 §7.4 — brazo del momento 0,3–0,5 L]
     d["STE_F_design"] = max(loads["F_steer_side_N"], 364.0)   # [CALCULADO: research/R12 §7.4 — 364 N (7,2 kW, δ 30°); se toma el mayor con sizing]
     # orejas del bucket sobre la boquilla
@@ -120,15 +120,15 @@ def extend(d):
     # lóbulos ENGROSADOS alrededor de cada agujero (re-auditoría ronda 5, R5-N5): el perno de la traba y el buje del pivote
     # cargan afuera de la oreja, así que el aplastamiento con momento tiene su pico en la cara exterior:
     # p_máx = F/(d·L)·(4 + 6·a/L) (a = carga → cara) baja con el largo de apoyo L y con a. La placa de la oreja (STE_ear_t)
-    # no cambia. Lóbulo de la traba: 3 mm hacia AFUERA (en la luz hasta el brazo: collar del émbolo de 1,5 y 1 de luz) y 4
-    # hacia ADENTRO con radio 18 (más no entra: con r 20 el ojo del eslabón del OTRO émbolo, tirado, lo toca, y más
-    # adentro el anillo del émbolo +Y llega al cubo del balancín −Y de P1-REV-09). Lóbulo del pivote: solo hacia adentro
-    # (la brida del espaciador apoya en la cara exterior) y 16 para que el M12 × 60 normalizado no entre en la torre del
-    # yugo [CALCULADO: structural_direccion + FEA STE-01; P1-REV-02.bolt_len_iso; P1-REV-09]
+    # no cambia. Lóbulo de la traba: 3 mm hacia AFUERA (en la luz hasta el brazo: collar del émbolo de 1,5 y 1 de luz) y
+    # 6,5 hacia ADENTRO con radio 18 (con r 20 el ojo del eslabón del OTRO émbolo, tirado, lo toca; más adentro el lóbulo
+    # llega al cubo del balancín −Y de P1-REV-09). Lóbulo del pivote: solo hacia adentro (la brida del espaciador apoya en
+    # la cara exterior), 20 mm con tuerca baja ISO 4035 para que el M12 × 60 normalizado no entre en la torre del yugo
+    # [CALCULADO: structural_direccion + FEA STE-01; P1-REV-02.bolt_len_iso; P1-REV-09]
     d["STE_lock_y1"] = d["STE_ear_y1"] + 3.0   # cara exterior del lóbulo de la traba (apoyo del collar del émbolo)
-    d["STE_lock_t"] = 21.0             # espesor del lóbulo de la traba: Ø26 H7 del cuerpo del émbolo de 21 mm
+    d["STE_lock_t"] = 23.5             # espesor del lóbulo de la traba: Ø24 H7 del cuerpo del émbolo de 23,5 mm
     d["STE_lock_in_r"] = 18.0          # radio de la parte del lóbulo de la traba que entra más allá de la placa
-    d["STE_piv_t"] = 16.0              # espesor del lóbulo del pivote: piloto Ø24 h6 de 15,5 mm
+    d["STE_piv_t"] = 20.0              # espesor del lóbulo del pivote: piloto Ø24 h6 de 19,5 mm
 
     # ------------------------------------------------------------------ bucket (REV)
     d["bucket_down_deg"] = 70.0        # [SUPUESTO: pedido del brief, default 70°] (lo lee params.loc_bucket)
@@ -184,7 +184,9 @@ def extend(d):
     d["STE_stud_x"] = d["STE_post_x"] + 33.0   # rótula del brazo superior [CALCULADO: luz de la barra al espejo]
     d["REV_head_d"] = 24.0             # arandela ISO 7089 M12 (Ø24 × 2,5) bajo la cabeza hexagonal (18 e/c × 7,5)
     d["REV_washer_in"] = (37.0, 3.0)   # arandela ancha ISO 7093 M12 (Ø37 × 3) por dentro de la oreja [ESTIMADO: ISO 7093-1; ronda 5, MEC-06]
-    d["REV_nut_h"] = 10.8              # tuerca ISO 4032 M12 A4-80 + Loctite 243 [ESTIMADO: ISO 4032 M12, m máx. 10,8]; precarga baja
+    # tuerca BAJA ISO 4035 M12 A4-035 + Loctite 243 (con la precarga baja alcanza su carga de prueba con margen, fila de
+    # structural_direccion; deja entrar el lóbulo del pivote de 20 mm con el M12 × 60) [ESTIMADO: ISO 4035 M12, m máx. 7]
+    d["REV_nut_h"] = 7.0
     d["REV_head_t"] = 10.0             # arandela 2,5 + cabeza 7,5
     # biela del Mach5: perno en el brazo +Y a REV_stud_r del pivote, a +35° (arriba) y −35° (abajo):
     # cuerda VERTICAL a popa del pivote → la varilla del Mach5 trabaja vertical, anclada en la boquilla,

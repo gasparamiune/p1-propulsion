@@ -147,7 +147,7 @@ def draw(p, H):
                  feats=[(round(m2.pilot_L(p), 2), "cara de apoyo de la brida: plana, a escuadra ≤ 0,02 con el piloto")],
                  notes=[f"Agujero Ø12,5 pasante (tornillo ISO 4017 M12 × {m2.bolt_len_iso(p):g} A4-80); ×2",
                         "Montaje: Tef-Gel en el piloto y la cara de la brida (NO en la rosca); arandela ISO 7089 M12 bajo la cabeza,",
-                        f"  espaciador, oreja, arandela ancha ISO 7093 (Ø{p.REV_washer_in[0]:g} × {p.REV_washer_in[1]:g}) y tuerca ISO 4032 M12 A4-80 por dentro;",
+                        f"  espaciador, oreja, arandela ancha ISO 7093 (Ø{p.REV_washer_in[0]:g} × {p.REV_washer_in[1]:g}) y tuerca baja ISO 4035 M12 A4-035 por dentro;",
                         "  Loctite 243 en la rosca del M12 (par bajo: el tornillo solo retiene; corte y momento por el piloto)",
                         f"Par {p.REV_bolt_T_Nm:g} N·m → precarga {p.REV_bolt_pre_N / 1000:.0f}–{p.REV_bolt_pre_max_N / 1000:.0f} kN "
                         f"(K {p.REV_bolt_K[0]:g}–{p.REV_bolt_K[1]:g} [ESTIMADO])",
@@ -175,7 +175,7 @@ def draw(p, H):
                  notes=[f"Interior Ø{p.REV_lock_pin_d:g} H8 pasante (guía del perno, Ra 0,8); rosca interior M20×1 × 6 atrás para la tapa; ×2",
                         f"Ø{p.REV_lock_bore_d:g} h6 y cara del collar en una atada (a escuadra ≤ 0,02); SIN rosca en la oreja: el cuerpo lleva la fuerza",
                         "  y el momento del perno por aplastamiento (ronda 5, R5-N1/R5-N5). Montaje desde AFUERA con Loctite 641 en el ajuste",
-                        f"  (H7/h6), collar contra la cara exterior del lóbulo; por dentro arandela 316 Ø26 × Ø34 × 0,8 y anillo DIN 471-26 A4",
+                        f"  (H7/h6), collar contra la cara exterior del lóbulo; por dentro arandela 316 Ø24,2 × Ø32 × 0,8 y anillo DIN 471-24 A4",
                         f"Resorte de compresión inox (B-SPRING): alambre {RL.SPRING_WIRE_D:g}, Ø ext {RL.SPRING_OD:g}, {RL.SPRING_NA:g} espiras útiles, "
                         f"largo libre {RL.SPRING_L0:g}; instalado {RL.SPRING_L_INST:g} (≈ {RL.spring_F(RL.SPRING_L_INST):.0f} N), "
                         f"con el perno afuera {RL.SPRING_L_MIN:g} (≈ {RL.SPRING_F_MAX:.0f} N) [CALCULADO: G ESTIMADO]"]))
@@ -186,7 +186,7 @@ def draw(p, H):
                  notes=[f"Largo del Ø{p.REV_lock_pin_d:g}: guía {RL.PLG_GUIDE:g} + luz oreja–brazo {p.REV_y_in - p.STE_ear_y1:g} (lóbulo y collar "
                         f"del cuerpo) + brazo {p.REV_t:g} + 1 de sobresalida",
                         f"Carrera {p.REV_plunger_stroke:g} mm (liberar pide {RL.need(p):g}); ×2",
-                        "POMO (AISI 316, de la misma barra Ø35 del cuerpo): Ø25 × 10 con rosca ciega M10×1 × 8 y fondo de 2 mm con Ø4,5 (pasa el vástago",
+                        "POMO (AISI 316, de la misma barra Ø35 del cuerpo): Ø23 × 10 con rosca ciega M10×1 × 8 y fondo de 2 mm con Ø4,5 (pasa el vástago",
                         "  M4 del eslabón de P1-REV-09); 2 planos e/c 22. Se rosca A FONDO en la cola con Loctite 243 (posición fija: apoya en la",
                         "  tapa en reposo y define la sobresalida de 1 mm de la punta); se saca con llave para el mantenimiento (06 §5)"]))
     out.append(PL("P1-REV-05", "soporte_mach5", "Al 5083-H111", 95.0 - 25.0, 248.0 - 124.0, 6.0,

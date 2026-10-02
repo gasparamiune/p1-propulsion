@@ -36,7 +36,7 @@ META = dict(
     load_case="Desvío del chorro F_steer (R12: 364 N) + pivote y traba del bucket con M_h completo en una traba (R12)",
     print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Torneado del cuerpo (barra Ø100 × 150) + fresado 4 ejes de orejas y torre (bloque 6061-T6 100 × 165 × 165)",
-    allow={"P1-REV-04": 5.0, "P1-STE-02": 5.0, "P1-STE-05": 5.0, "P1-REV-02": 10.0},   # émbolo Ø26 H7/h6, tornillos M6, piloto H7/h6
+    allow={"P1-REV-04": 5.0, "P1-STE-02": 5.0, "P1-STE-05": 5.0, "P1-REV-02": 10.0},   # émbolo Ø24 H7/h6, tornillos M6, piloto H7/h6
 )
 
 
@@ -87,7 +87,7 @@ def ear_outline(p, sign):
     pts = circ(Xb, Zb, p.STE_ear_r) + [(Xb - 18, -2.0), (Xb + 18, -2.0), (Xb - 16, 40.0), (Xb + 16, 40.0)]
     # hacia proa a la altura del pivote: ligamento de sección neta del agujero del piloto (la carga es casi vertical)
     pts += [(Xb - p.REV_sp_pilot_d / 2 - 14.0, Zb), (Xb - p.REV_sp_pilot_d / 2 - 12.0, Zb - 12.0)]
-    rl = p.STE_lock_lobe_r                            # lóbulo alrededor del Ø26 H7 del cuerpo del émbolo (ligamento 7)
+    rl = p.STE_lock_lobe_r                            # lóbulo alrededor del Ø24 H7 del cuerpo del émbolo (ligamento 8)
     if sign > 0:
         lx, lz = lock_point(p)
         pts += circ(lx, lz, rl) + [(lx + 10, -2.0), (lx + 12, 30.0)]
@@ -204,10 +204,10 @@ def build(p):
     rt = p.REV_lock_bore_d / 2
     yl0, yl1 = lock_lobe_y(p)                                                         # caras del lóbulo de la traba
     lx, lz = lock_point(p)
-    b = b - cyl_y(rt, yl0 - 1, yl1 + 1, x=lx, z=lz)                                   # Ø26 H7 del cuerpo del émbolo (+Y)
+    b = b - cyl_y(rt, yl0 - 1, yl1 + 1, x=lx, z=lz)                                   # Ø24 H7 del cuerpo del émbolo (+Y)
     if p.REV_n_locks > 1:
         lx2, lz2 = lock_point(p, -1)
-        b = b - cyl_y(rt, -yl1 - 1, -yl0 + 1, x=lx2, z=lz2)                           # Ø26 H7 del cuerpo del 2.º émbolo (−Y)
+        b = b - cyl_y(rt, -yl1 - 1, -yl0 + 1, x=lx2, z=lz2)                           # Ø24 H7 del cuerpo del 2.º émbolo (−Y)
     # pad de fijación del soporte de reenvío del desbloqueo P1-REV-09 (cara plana sobre el cuerpo, a popa de los émbolos)
     # con 2 roscas M5 × 7,5 (taladro Ø4,2): auditoría ronda 4, R4-07 (geometría en piezas/_release)
     b = b + RL.pad_box(p) - RL.pad_holes(p)

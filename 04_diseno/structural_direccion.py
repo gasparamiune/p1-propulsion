@@ -209,14 +209,14 @@ def cases(p, A, row, rows, T3, T2):
     F_lk = Mh / p.REV_lock_r
     dbo = p.REV_lock_bore_d
     tl = p.STE_lock_t                         # lóbulo de la traba engrosado hacia adentro (R5-N5)
-    lig = p.STE_lock_lobe_r - dbo / 2         # lóbulo alrededor del Ø26 H7 del cuerpo del émbolo [P1-STE-01]
+    lig = p.STE_lock_lobe_r - dbo / 2         # lóbulo alrededor del Ø H7 del cuerpo del émbolo [P1-STE-01]
     t_in = p.STE_ear_y0 - (p.STE_lock_y1 - tl)                     # parte que entra más allá de la placa (r STE_lock_in_r)
     lig_in = p.STE_lock_in_r - dbo / 2
     A_lig = 2 * (lig * (tl - t_in) + lig_in * t_in)
     row(rows, "P1-STE-01", f"Oreja del bucket: ligamento del agujero Ø{dbo:g} del cuerpo del émbolo (R12, M_h completo)",
         f"F = M_h/r = {F_lk:.0f} N; desgarro por 2 ligamentos {lig:g} × {tl - t_in:g} + {lig_in:g} × {t_in:g} (lóbulo engrosado): "
         f"σ = √3·F/A", math.sqrt(3) * F_lk / A_lig, AL6061, A, T2)
-    # cuerpo del émbolo AJUSTADO (Ø26 H7/h6 + Loctite 641, sin precarga): el perno carga a mitad del brazo del bucket y el
+    # cuerpo del émbolo AJUSTADO (Ø H7/h6 + Loctite 641, sin precarga): el perno carga a mitad del brazo del bucket y el
     # cuerpo apoya en la oreja como un perno rígido en un agujero: presión lineal p(y) con fuerza y momento respecto del
     # plano medio del agujero → p_máx = F/(d·L)·(1 + 6·a/L) en la cara exterior [CALCULADO: Shigley/Roark, perno empotrado]
     a_lk = (p.REV_y_in - p.STE_lock_y1) + p.REV_t / 2 + tl / 2
@@ -390,9 +390,9 @@ def cases(p, A, row, rows, T3, T2):
     row(rows, "P1-REV-02", "Tornillo M12 A4-80 al montar con la precarga máxima: σ_red ≈ 1,15·F/A_s ≤ 0,9·Rp0,2 (VDI 2230)",
         f"{Fmax/1000:.1f} kN / 84,3 mm²; torsión de la rosca ≈ +15 % [ESTIMADO]", 1.15 * Fmax / 84.3, 0.9 * A4_80, A, 1.0,
         "criterio de montaje (no de servicio): VDI 2230 admite hasta el 90 % de Rp0,2 al apretar")
-    row(rows, "P1-REV-02", "Tuerca ISO 4032 M12 A4-80: carga de prueba contra la precarga máxima",
-        f"A_s 84,3 mm² × 800 MPa [ESTIMADO: ISO 3506-2, tensión de prueba de tuerca clase 80] contra {Fmax/1000:.1f} kN",
-        Fmax / 84.3, 800.0, A, T2)
+    row(rows, "P1-REV-02", "Tuerca baja ISO 4035 M12 A4-035: carga de prueba contra la precarga máxima",
+        f"A_s 84,3 mm² × 350 MPa [ESTIMADO: ISO 3506-2, tuerca baja clase 035] contra {Fmax/1000:.1f} kN",
+        Fmax / 84.3, 350.0, A, T2)
     # brida en flexión por la precarga: la fuerza baja por el muñón (r ≤ d_o/2, sobre el agujero del piloto) y la oreja la
     # devuelve en la corona; anillo en voladizo desde el muñón, momento por unidad de largo en r = d_o/2 [CALCULADO: cota
     # conservadora, sin la rigidez de anillo]
@@ -410,7 +410,7 @@ def cases(p, A, row, rows, T3, T2):
         f"F = M_h/r = {Fl:.0f} N a {lev_l:.1f} mm", vm(Fl * lev_l / z_round(dl), 4 / 3 * Fl / (math.pi * dl ** 2 / 4)), SS316, A, T2)
     row(rows, "P1-REV-04", "Perno del émbolo: flexión (reversa sizing, fatiga; M_h completo)",
         f"F = {Fl_n:.0f} N", Fl_n * lev_l / z_round(dl), SS316_FAT, A, T2)
-    # cuerpo del émbolo (316, tubo Ø26/Ø16,2 sobre el perno) en la cara exterior de la oreja: el perno le pasa F y F·brazo
+    # cuerpo del émbolo (316, tubo Ø REV_lock_bore_d/Ø16,2 sobre el perno) en la cara exterior de la oreja: el perno le pasa F y F·brazo
     # por su guía; el cuerpo los lleva a la oreja (aplastamiento: filas de P1-STE-01). Sin precarga (ronda 5, R5-N1)
     db_i = dl + 0.2
     Zbo = math.pi * (dbo ** 4 - db_i ** 4) / (32 * dbo)

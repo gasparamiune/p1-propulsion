@@ -29,7 +29,8 @@ Casilla sin marcar = **no se sale**. Una sola vez antes: T0–T2 aprobados y blo
 - [ ] Prueba funcional de las trabas de esta temporada (06 T0.M6b: los dos pernos entran solos ARRIBA y ABAJO y salen con el gatillo, 10/10) hecha el ____.
 - [ ] **Bucket arriba y trabado: los DOS émbolos entraron** (pomos adentro en las dos orejas, perno visible en la cara exterior de cada brazo); palanca del bucket adelante.
 - [ ] Bowden del desbloqueo sin cable tenso en reposo (pomo apoyado en su tapa) y vainas sin aplastar.
-- [ ] Marcas de pintura cuerpo–oreja de los dos émbolos alineadas: el cuerpo no giró en la oreja (apretado contra su collar con Loctite 243, 06 M13; si giró, no usar la reversa hasta reapretarlo).
+- [ ] Cuerpos de los dos émbolos firmes en sus orejas: collar exterior apoyado en la cara exterior del lóbulo de la oreja y sin movimiento al empujarlos con la mano (ajuste con Loctite 641 y anillo DIN 471 por dentro, 06 M13); si un cuerpo se mueve, no usar la reversa hasta volver a montarlo (06 §7).
+- [ ] Pivotes del bucket (P1-REV-02): marcas de pintura tuerca–tornillo–oreja alineadas y, moviendo el bucket con la mano arriba y abajo, sin golpeteo en el pivote (el piloto del espaciador lleva la carga: si hay juego, no usar la reversa y revisar el piloto, 06 §7).
 - [ ] Volante tope a tope: la boquilla llega a los topes; biela y terminal del cable de dirección con contratuerca.
 - [ ] Marcas de pintura de bulones sin correr (bomba, pórtico, placa de espejo, motor, yugo).
 - [ ] Nadie en el agua cerca de la popa.

@@ -11,14 +11,14 @@ Etiquetas: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO]
 | Magnitud | P1-J (modelo) | Etiqueta |
 |---|---|---|
 | Masa total con piloto de 90 kg | <!--V:sizing.masses.total_kg:.0f-->219<!--/V--> kg | [CALCULADO] |
-| Masa de la unidad de jet (CAD) | <!--V:manifest.totals.jet_unit_mass_kg:.1f-->25.9<!--/V--> kg (JT132: 12 kg [VERIFICADO: R11 §4]) | [CALCULADO] |
+| Masa de la unidad de jet (CAD) | <!--V:manifest.totals.jet_unit_mass_kg:.1f-->26.1<!--/V--> kg (JT132: 12 kg [VERIFICADO: R11 §4]) | [CALCULADO] |
 | GM | <!--V:sizing.hydrostatics.GM_m:.3f-->0.010<!--/V--> m | [CALCULADO, casco ESTIMADO] |
 | V máx. sostenida / por ratos | <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.1<!--/V--> / <!--V:sizing.performance.vmax_peak_kmh:.1f-->28.2<!--/V--> km/h (objetivo 30) | [CALCULADO] |
 | Margen mínimo en la joroba | <!--V:sizing.performance.hump_margin_min:.0%-->-7%<!--/V--> | [CALCULADO] |
 | P de batería a 5 kn / autonomía a 5 kn | <!--V:sizing.performance.legal.P_bat:.0f-->1708<!--/V--> W / <!--V:sizing.energy.t_legal_h:.1f-->2.4<!--/V--> h | [CALCULADO] |
 | Autonomía a V máx. | <!--V:sizing.energy.t_top_min:.0f-->37<!--/V--> min | [CALCULADO] |
 | Limitante a fondo | corriente de batería (<!--V:sizing.electrical.I_bat_limit_A:.0f-->192<!--/V--> A, 80 % del BMS) | [CALCULADO] |
-| Costo del sistema (BOM) | <!--V:bom.total_eur:.0f-->11824<!--/V--> € | [CALCULADO] |
+| Costo del sistema (BOM) | <!--V:bom.total_eur:.0f-->11833<!--/V--> € | [CALCULADO] |
 
 ## 1. Resumen priorizado
 
@@ -92,7 +92,7 @@ en la V máx. (02 §10).
 - **Disparador:** V máx. medida por debajo del criterio de éxito (<!--V:sizing.success.vmax_min_kmh:.1f-->20.5<!--/V--> km/h),
   o el bote no sale a planeo con la batería al 20 %.
 - **Meta:** acercarse a los 12 kg de la JT132 con toma, bomba, dirección y bucket (hoy la unidad de jet del
-  CAD pesa <!--V:manifest.totals.jet_unit_mass_kg:.1f-->25.9<!--/V--> kg con el tren; 03 §3 compara A y B).
+  CAD pesa <!--V:manifest.totals.jet_unit_mass_kg:.1f-->26.1<!--/V--> kg con el tren; 03 §3 compara A y B).
 - **Dónde está la masa** (CAD, `manifest.json`): el conducto y la placa base de la toma de Al 5083 son lo
   más pesado; después carcasa, estator, tobera y anillo de desgaste. Ideas: conducto de chapa de 4 mm donde
   el FS lo permita, placa base aligerada fuera de la zona de bulones, anillo de desgaste más corto, carcasa y

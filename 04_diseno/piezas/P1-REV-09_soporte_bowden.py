@@ -1,7 +1,7 @@
 """P1-REV-09 — Soporte de reenvío del desbloqueo (frame steer): placa base 6 + montante 8 Al 5083 soldados, con DOS
 balancines de reenvío 1:1 (Al 5083 fresados) y las pestañas de los reguladores M6 de las dos vainas del Bowden (P1-REV-10).
 
-Por qué un reenvío (auditoría ronda 4, R4-06): con el émbolo propio (cuerpo hasta Y = 0, pomo Ø25 que baja 12 mm
+Por qué un reenvío (auditoría ronda 4, R4-06): con el émbolo propio (cuerpo hasta Y = 0, pomo Ø23 que baja 12 mm
 hacia el plano medio) no cabe un tope de vaina coaxial con el pomo entre las orejas: desde el pomo tirado
 (|Y| ≈ 22) + el regulador, la vaina tendría que girar 90° con R ≥ _release.BOWDEN_R_MIN antes de la cara interior del
 brazo del bucket (|Y| 56,5) [CALCULADO: _release]. Cada pomo tira de un ESLABÓN RÍGIDO (re-auditoría ronda 5, DES-04):
@@ -23,7 +23,7 @@ del −Y ENCIMA.
 
 Fijación (R4-07): la placa base apoya de cara sobre un PAD fresado en la parte superior del cuerpo de la boquilla
 (P1-STE-01, a popa de los émbolos, X 399–426,5) y se atornilla con 2 × ISO 4762 M5 × 12 A4-70 en roscas M5 × 7,5 del
-pad (Tef-Gel; arandela de nylon bajo la cabeza). Lejos de los ligamentos del pivote y de los agujeros Ø26 de los émbolos en las orejas.
+pad (Tef-Gel; arandela de nylon bajo la cabeza). Lejos de los ligamentos del pivote y de los agujeros Ø24 de los émbolos en las orejas.
 Modelo: el conjunto (soporte soldado + ejes + balancines + pernos + eslabones + tramo de cable hasta el regulador +
 tornillos) es UN sólido en REPOSO (bucket trabado, cables flojos; el ojo del eslabón se modela macizo alrededor del
 perno); los checks verifican también la posición TIRADA y los dos extremos del ajuste del eslabón."""
@@ -182,7 +182,7 @@ def pulled_interference(p):
         loc = Pos(x, 0, z) if sd > 0 else Pos(x, 0, z) * Rot(180, 0, 0)
         obst.append(loc * (e - cyl_y(12.6, RL.knob_end_y(p) - 0.01, RL.body_end_y(p) - 0.01)))   # sin el pomo en reposo
         kz = RL.knob_end_y(p) - RL.lev_travel(p)
-        k = cyl_y(12.5, kz, kz + RL.PLG_KNOB_L)                                                  # pomo tirado
+        k = cyl_y(RL.PLG_KNOB_D / 2, kz, kz + RL.PLG_KNOB_L)                                     # pomo tirado
         obst.append(Pos(x, 0, z) * k if sd > 0 else Pos(x, 0, z) * Rot(180, 0, 0) * k)
     obst.append(_other("P1-STE-01_boquilla").build(p))
     v = 0.0
@@ -293,9 +293,9 @@ def _obstacles(p):
         out.append((f"lóbulo engrosado del pivote {tg}", rng(p.STE_ear_y1 - p.STE_piv_t, p.STE_ear_y0),
                     ("c", (p.X_bucket_pivot, p.Z_bucket_pivot), p.STE_ear_r), 0))
         k0 = RL.knob_end_y(p)
-        out.append((f"pomo {tg} (reposo)", rng(k0, k0 + RL.PLG_KNOB_L), ("c", (x, z), 12.5), sd))
+        out.append((f"pomo {tg} (reposo)", rng(k0, k0 + RL.PLG_KNOB_L), ("c", (x, z), RL.PLG_KNOB_D / 2), sd))
         k1 = k0 - RL.lev_travel(p)
-        out.append((f"pomo {tg} (tirado)", rng(k1, k1 + RL.PLG_KNOB_L), ("c", (x, z), 12.5), sd))
+        out.append((f"pomo {tg} (tirado)", rng(k1, k1 + RL.PLG_KNOB_L), ("c", (x, z), RL.PLG_KNOB_D / 2), sd))
         out.append((f"oreja {tg}", rng(p.STE_ear_y0, p.STE_ear_y1), ("p", m.ear_outline(p, sd)), 0))
     return out
 

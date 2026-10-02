@@ -39,16 +39,17 @@ PLG_GUIDE = 18.0
 PLG_SPRING_L1 = 30.0
 PLG_CAP_T = 4.0
 PLG_KNOB_L = 10.0
+PLG_KNOB_D = 23.0             # pomo Ø23 (< agujero Ø24 de la oreja: el émbolo armado entra desde afuera)
 PLG_BODY_D = 24.0
 # cuerpo AJUSTADO en el lóbulo de la oreja (ronda 5): collar EXTERIOR Ø32 × 1,5 en la luz lóbulo–brazo (ubica la punta y
-# toma el empuje del resorte y el tiro del cable, ≤ 150 N, hacia adentro) y, por dentro, anillo DIN 471 de Ø26 + arandela
+# toma el empuje del resorte y el tiro del cable, ≤ 150 N, hacia adentro) y, por dentro, anillo DIN 471 de Ø24 + arandela
 # de 0,8 contra la cara interior del lóbulo
 PLG_COLLAR_D = 32.0
 PLG_COLLAR_T = 1.5
-PLG_RING_D = 34.0             # anillo DIN 471-26 (Ø máx. con orejetas) [ESTIMADO: DIN 471, eje 26]
+PLG_RING_D = 32.0             # anillo DIN 471-24 (Ø máx. con orejetas) [ESTIMADO: DIN 471, eje 24]
 PLG_RING_T = 2.0              # anillo 1,2 + arandela 0,8
-PLG_RING_GROOVE_D = 24.9      # Ø de la ranura del anillo DIN 471-26 (m 1,3) [ESTIMADO: DIN 471, eje 26]
-PLG_FIT_EXT = 4.0             # Ø26 h6 más allá de la cara interior de la oreja: arandela 0,8 + ranura 1,3 + borde ≥ 1,8 [ESTIMADO: DIN 471 n]
+PLG_RING_GROOVE_D = 22.9      # Ø de la ranura del anillo DIN 471-24 (m 1,3) [ESTIMADO: DIN 471, eje 24]
+PLG_FIT_EXT = 4.0             # Ø24 h6 más allá de la cara interior del lóbulo: arandela 0,8 + ranura 1,3 + borde ≥ 1,8 [ESTIMADO: DIN 471 n]
 PLG_NUT_T = PLG_RING_T        # zona del retén interior a lo largo del eje (nombre histórico)
 
 
@@ -183,7 +184,7 @@ NIPPLE_R = 2.5          # terminal del cable (barril Ø5) en el brazo de salida 
 ADJ_EDGE = 3.0          # borde de la pestaña alrededor del regulador M6 [SUPUESTO]
 ADJ_HOLE_R = 3.25       # agujero roscado M6 de la pestaña (modelado Ø6,5)
 TAB_T = 5.0             # pestañas del soporte (tope de las vainas)
-NUT_R = PLG_RING_D / 2        # radio máximo del retén interior del cuerpo del émbolo (anillo DIN 471, P1-REV-04)
+NUT_R = PLG_RING_D / 2        # radio máximo del retén interior del cuerpo del émbolo (anillo DIN 471-24, P1-REV-04)
 BOWDEN_D = 5.0          # vaina con camisa de PTFE Ø5 [ESTIMADO: B-BOWDEN]
 BOWDEN_R_MIN = 30.0     # radio mínimo de curvatura de la vaina Ø5 con PTFE [ESTIMADO: ≈ 6 × Ø; ficha del fabricante a confirmar]
 BOWDEN_R = 40.0         # radio usado en el modelo (≥ BOWDEN_R_MIN) [SUPUESTO]
@@ -362,7 +363,7 @@ Z_SHEATH_END = 180.0        # fin del tramo modelado: sobre los émbolos y por d
 
 
 # Pad de fijación del soporte P1-REV-09 sobre el cuerpo de la boquilla (P1-STE-01), a popa de los émbolos (R4-07):
-# cara plana fresada, 2 roscas M5 × 7,5 (taladro Ø4,2 × 9), lejos de los ligamentos del pivote y de los Ø26 de los émbolos.
+# cara plana fresada, 2 roscas M5 × 7,5 (taladro Ø4,2 × 9), lejos de los ligamentos del pivote y de los Ø24 de los émbolos.
 PAD_W = 12.0            # semiancho del pad y de la base [CALCULADO: libra los balancines (|Y| ≥ 15) y los M5 a ±6 con borde 6]
 PAD_H = 6.5             # cara superior del pad a r_ext + 6,5 [SUPUESTO: la base libra el cuerpo; piel bajo los M5 ≥ 2]
 PAD_M5_THREAD = 7.5     # rosca M5 útil (1,5·d) [SUPUESTO]
@@ -370,10 +371,10 @@ PAD_M5_DRILL = 9.0      # profundidad del taladro Ø4,2
 
 
 def pad_x(p):
-    """(X0, X1) del pad: 3,8 mm a popa del pomo Ø25 del émbolo más bajo (el que pasa junto al cuerpo); hasta 1,2 mm
+    """(X0, X1) del pad: 4,8 mm a popa del pomo Ø23 del émbolo más bajo (el que pasa junto al cuerpo); hasta 1,2 mm
     antes de la salida (chaflán)."""
     lo = min(lock_sides(p), key=lambda s: lock_xz(p, s)[1])
-    x0 = lock_xz(p, lo)[0] + 12.5 + 3.8
+    x0 = lock_xz(p, lo)[0] + PLG_KNOB_D / 2 + 4.8
     return (round(x0, 1), round(p.STE_X_exit - 1.2, 1))
 
 
