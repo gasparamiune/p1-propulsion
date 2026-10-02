@@ -4,7 +4,8 @@
 Reemplaza en todos los .md del proyecto:
   • Bloques   <!-- AUTO:nombre --> ... <!-- /AUTO:nombre -->   por tablas generadas.
   • Valores   <!--V:fuente.ruta.al.valor:formato-->texto<!--/V-->  por el valor actual.
-    fuente ∈ {sizing, bom, manifest, est, verify, arch, cmp}; formato estilo Python (p. ej. .0f, .2f).
+    fuente ∈ {sizing, bom, manifest, est, verify, arch, cmp, fea}; formato estilo Python (p. ej. .0f, .2f).
+    (fea = 04_diseno/fea/resultados_fea.json; las rutas admiten IDs con guion, p. ej. fea.piezas.P1-REV-01.FS_min)
 Así ningún número de los documentos queda desincronizado de resultados/*.json.
 """
 from __future__ import annotations
@@ -188,7 +189,9 @@ def main():
     sz, bom, man, est, ver = load("sizing.json"), load("bom_resumen.json"), load("manifest.json"), load("estructural.json"), load("verify.json")
     arch = load("arquitectura.json")
     cmp_ = load("comparacion.json")
-    srcs = {"sizing": sz, "bom": bom, "manifest": man, "est": est, "verify": ver, "arch": arch, "cmp": cmp_}
+    _fp = ROOT / "04_diseno" / "fea" / "resultados_fea.json"
+    fea = json.loads(_fp.read_text(encoding="utf-8")) if _fp.exists() else {}
+    srcs = {"sizing": sz, "bom": bom, "manifest": man, "est": est, "verify": ver, "arch": arch, "cmp": cmp_, "fea": fea}
     B = blocks(sz, bom, man, est, ver)
     if (RES / "arquitectura_tabla.md").exists():
         B["arch"] = (RES / "arquitectura_tabla.md").read_text(encoding="utf-8").strip()

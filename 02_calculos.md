@@ -704,9 +704,21 @@ Comentario:
 - **Uniones abulonadas de la toma (brida de la bomba, ala al casco, brida ↔ placa):** quedan apenas sobre 2
   con precarga + golpe de fondo + momento del bucket. Dependen del torque de apriete: respetar la tabla de
   torques de 06 y no reemplazar A4-70 por tornillería de menor clase.
-- **Traba del bucket y chaveta del acople:** justos con el bucket de R12 (<!--V:est.loads.structural_direccion.F_bucket_N:.0f-->1408<!--/V--> N) y el par máx. del
-  controlador. La chaveta 5×5 del eje del motor Ø15 en el cubo del acople queda **por debajo de 2**: FS
-  <!--V:est.min_by_part.P1-DRV-08.FS:.2f-->1.74<!--/V--> en P1-DRV-08 ("<!--V:est.min_by_part.P1-DRV-08.load_case:-->Chaveta 5×5 del eje del motor Ø15 en el cubo del acople: aplastamiento a T_max<!--/V-->"),
+- **Bucket, trabas y pivote (auditoría ronda 3):** una traba por brazo. Brazo, agujero, perno del émbolo y oreja
+  se verifican con M_h COMPLETO en una traba (hasta que apoya la otra); pivote y buje con el reparto máximo que
+  admite el desfase entre agujeros (<!--V:est.loads.structural_direccion.lock_share_max:.0%-->78%<!--/V--> de M_h con
+  <!--V:est.loads.structural_direccion.lock_mismatch_mm:.2f-->0.10<!--/V--> mm; lo recalcula el FEA): la reacción de cada pivote
+  es <!--V:est.loads.structural_direccion.R_bucket_pivot_design_N:.0f-->2385<!--/V--> N con R12, no F_b/2. Las filas más
+  justas: P1-REV-03 «<!--V:est.min_by_part.P1-REV-03.load_case:-->Buje POM Ø18.1/Ø22 × 14: presión (R12, reparto máx. entre trabas)<!--/V-->»
+  FS <!--V:est.min_by_part.P1-REV-03.FS:.2f-->2.11<!--/V-->; P1-REV-04 «<!--V:est.min_by_part.P1-REV-04.load_case:-->Perno del émbolo Ø12: flexión + corte con M_h completo (R12)<!--/V-->»
+  FS <!--V:est.min_by_part.P1-REV-04.FS:.2f-->2.17<!--/V-->. Falla (un émbolo no entró) con la reversa de sizing: FS ≥ 2;
+  falla doble (además reversa a potencia plena sin el límite del firmware): solo se exige que no fluya (FS ≥ 1); la fila
+  más justa del bucket respecto de su objetivo es «<!--V:est.min_by_part.P1-REV-01.load_case:-->Cuchara abierta a torsión con un solo brazo trabado (FALLA DOBLE: + reversa R12 sin límite; sin fluencia)<!--/V-->»,
+  FS <!--V:est.min_by_part.P1-REV-01.FS:.2f-->1.28<!--/V--> (objetivo <!--V:est.min_by_part.P1-REV-01.target:g-->1.0<!--/V-->). El FS de diseño
+  de la chapa del bucket es el del FEA (04_diseno/fea).
+- **Chaveta del acople:** justa con el par máx. del controlador. La chaveta 5×5 del eje del motor Ø15 en el cubo del
+  acople queda **por debajo de 2**: FS <!--V:est.min_by_part.P1-DRV-08.FS:.2f-->1.74<!--/V--> en P1-DRV-08
+  ("<!--V:est.min_by_part.P1-DRV-08.load_case:-->Chaveta 5×5 del eje del motor Ø15 en el cubo del acople: aplastamiento a T_max<!--/V-->"),
   aceptado con justificación (auditoría C13): el par máx. es el del límite de corriente (raro y corto), cubo de
   acero y Loctite 648 en la chaveta; medir el chavetero del motor al recibirlo. Si se sube la potencia (07), son los
   primeros en revisar.

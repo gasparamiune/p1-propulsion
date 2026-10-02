@@ -3,7 +3,7 @@
 
 Uso: python3 tools_check_md.py ARCHIVO.md [...]
   - Comprueba que cada marcador <!--V:fuente.ruta:fmt-->valor<!--/V--> resuelve y muestra el
-    valor que pondría docgen (fuentes: sizing, bom, manifest, est, verify, arch).
+    valor que pondría docgen (fuentes: sizing, bom, manifest, est, verify, arch, cmp, fea).
   - Lista los links http(s) del archivo que NO aparecen en research/*.md, inputs.yaml ni en
     otros .md del repositorio (candidatos a "link no abierto en esta sesión").
   - Lista líneas con números sin etiqueta en tablas (heurística, solo aviso).
@@ -31,6 +31,9 @@ def getpath(src, path):
 
 def main(files):
     srcs = {k: json.loads((RES / v).read_text(encoding="utf-8")) for k, v in SRC.items() if (RES / v).exists()}
+    fea = ROOT / "04_diseno" / "fea" / "resultados_fea.json"
+    if fea.exists():
+        srcs["fea"] = json.loads(fea.read_text(encoding="utf-8"))
     known = ""
     for f in list((ROOT / "research").glob("*.md")) + [ROOT / "inputs.yaml"]:
         known += f.read_text(encoding="utf-8")
