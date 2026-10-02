@@ -140,18 +140,24 @@ def draw(p, H):
                              f"Agujeros de traba Ø{p.REV_lock_hole_d:g} (+0,1/0) DESPUÉS DE SOLDAR, con plantilla centrada en el agujero del buje "
                              f"Ø{p.REV_bush_od:g} H7 (05 §bucket), posición ±0,2: cada traba sola lleva todo M_h, no hay reparto que ajustar"]))
     m2 = _mod('P1-REV-02_perno_bucket')
-    out.append(T("P1-REV-02", "espaciador_pivote_bucket", "Dúplex 1.4462 (2205) +AT barra Ø40, certificado 3.1 (Rp0,2 ≥ 450)",
-                 [(round(m2.pilot_L(p), 2), p.REV_sp_pilot_d, f"piloto Ø{p.REV_sp_pilot_d:g} h6 (ajustado en la oreja: lleva corte y momento)"),
-                  (p.REV_sp_fl_t, p.REV_sp_fl_d, f"brida Ø{p.REV_sp_fl_d:g}"),
-                  (round(m2.shoulder_L(p) - p.REV_sp_fl_t, 2), p.REV_pin_d, f"muñón Ø{p.REV_pin_d:g} h7, Ra 0,8 (gira el buje POM)")],
-                 feats=[(round(m2.pilot_L(p), 2), "cara de apoyo de la brida: plana, a escuadra ≤ 0,02 con el piloto")],
-                 notes=[f"Agujero Ø12,5 pasante (tornillo ISO 4017 M12 × {m2.bolt_len_iso(p):g} A4-80); ×2",
-                        "Montaje: Tef-Gel en el piloto y la cara de la brida (NO en la rosca); arandela ISO 7089 M12 bajo la cabeza,",
-                        f"  espaciador, oreja, arandela ancha ISO 7093 (Ø{p.REV_washer_in[0]:g} × {p.REV_washer_in[1]:g}) y tuerca baja ISO 4035 M12 A4-035 por dentro;",
-                        "  Loctite 243 en la rosca del M12 (par bajo: el tornillo solo retiene; corte y momento por el piloto)",
-                        f"Par {p.REV_bolt_T_Nm:g} N·m → precarga {p.REV_bolt_pre_N / 1000:.0f}–{p.REV_bolt_pre_max_N / 1000:.0f} kN "
-                        f"(K {p.REV_bolt_K[0]:g}–{p.REV_bolt_K[1]:g} [ESTIMADO])",
-                        f"El piloto ({m2.pilot_L(p):.1f} mm) es 0,5 más corto que la oreja: aprieta la brida, no el piloto",
+    MDPX = "Dúplex 1.4462 (2205) +AT, certificado 3.1 (Rp0,2 ≥ 450)"
+    # pivote en DOS piezas (re-auditoría ronda 5, MECH-1): casquillo con brida (antes del bucket) + muñón (después)
+    out.append(T("P1-REV-02", "casquillo_pivote_bucket", MDPX + ", barra Ø40",
+                 [(round(m2.pilot_L(p), 2), p.REV_sp_pilot_d, f"piloto Ø{p.REV_sp_pilot_d:g} h6 (en el lóbulo: lleva corte y momento)"),
+                  (p.REV_sp_fl_t, p.REV_sp_fl_d, f"brida Ø{p.REV_sp_fl_d:g}")],
+                 feats=[(round(m2.pilot_L(p), 2), "cara de apoyo de la brida: plana, a escuadra ≤ 0,02 con el piloto"),
+                        (m2.SLEEVE_BOTTOM, f"fondo del agujero Ø{p.REV_pin_d:g} H7 (ciego)")],
+                 notes=[f"Agujero Ø{p.REV_pin_d:g} H7 ciego desde la brida, fondo de {m2.SLEEVE_BOTTOM:g} mm con Ø12,5 pasante; ×2",
+                        f"Piloto {m2.pilot_L(p):g} mm = lóbulo del pivote: el fondo queda ENRASADO con la cara interior (la arandela ISO 7093 apoya",
+                        "  en el fondo y en la cara, sin puente). Montaje ANTES del bucket, desde afuera, con Loctite 641 en el piloto (llena el",
+                        "  juego del H7/h6: apoyo lineal sin juego, FEA-4); Tef-Gel solo en la cara de la brida"]))
+    out.append(T("P1-REV-02", "munon_pivote_bucket", MDPX + ", barra Ø22",
+                 [(round(m2.pin_L(p), 2), p.REV_pin_d, f"muñón Ø{p.REV_pin_d:g} h7, Ra 0,8 (gira el buje POM); agujero Ø12,5 pasante")],
+                 notes=[f"Entra DESPUÉS del bucket, desde afuera, por el buje Ø{p.REV_pin_d + 0.1:g} hasta el fondo del casquillo, con Tef-Gel; ×2",
+                        f"Tornillo ISO 4017 M12 × {m2.bolt_len_iso(p):g} A4-80 con arandela ISO 7089 M12 bajo la cabeza sobre el extremo del muñón;",
+                        f"  por dentro arandela ancha ISO 7093 (Ø{p.REV_washer_in[0]:g} × {p.REV_washer_in[1]:g}) y tuerca baja ISO 4035 M12 A4-035, Loctite 243",
+                        f"  en la rosca del M12. Par {p.REV_bolt_T_Nm:g} N·m → precarga {p.REV_bolt_pre_N / 1000:.0f}–{p.REV_bolt_pre_max_N / 1000:.0f} kN "
+                        f"(K {p.REV_bolt_K[0]:g}–{p.REV_bolt_K[1]:g} [ESTIMADO]): solo retiene (cabeza → muñón → fondo del casquillo ← arandela)",
                         "Juego axial del bucket 0,3 mm contra la arandela de la cabeza (verificar a mano: gira libre)"]))
     out.append(T("P1-REV-03", "buje_bucket", "POM-C",
                  [(p.REV_bush_fl_t, p.REV_bush_fl_d, "brida"), (p.REV_bush_L, p.REV_bush_od, f"Ø{p.REV_pin_d + 0.1:g} interior, escariado tras prensar")],
@@ -159,7 +165,7 @@ def draw(p, H):
                         f"Prensar y DESPUÉS escariar Ø{p.REV_pin_d + 0.1:g} (+0,05/0): el prensado cierra el juego (R4-08)", "×2"]))
     # ---------------- émbolo de traba propio P1-REV-04 (cuerpo + tapa + perno; resorte comprado)
     tip = RL.pin_tip_y(p) - (p.STE_ear_y1 - RL.PLG_GUIDE)                      # largo del Ø16
-    tail = RL.PLG_SPRING_L1 + RL.PLG_CAP_T + RL.PLG_KNOB_L                       # cola: cámara + tapa + pomo (la carrera NO se suma)
+    tail = RL.PLG_TAIL_L                                                        # cola: cámara + tapa + rosca del pomo (MECH-2)
     m4 = _mod("P1-REV-04_embolo")
     L_fit = round(p.STE_lock_y1 - m4.fit_y0(p), 2)                              # tramo ajustado: lóbulo + ranura
     L_b24 = round(m4.fit_y0(p) - RL.body_end_y(p) - RL.PLG_CAP_T, 2)            # cuerpo Ø24 hasta la tapa
@@ -167,9 +173,10 @@ def draw(p, H):
     out.append(T("P1-REV-04", "embolo_cuerpo", "AISI 316 (1.4401) barra Ø35",
                  [(RL.PLG_COLLAR_T, RL.PLG_COLLAR_D, f"collar exterior Ø{RL.PLG_COLLAR_D:g}; cara de apoyo a escuadra ≤ 0,02"),
                   (L_fit, p.REV_lock_bore_d,
-                   f"Ø{p.REV_lock_bore_d:g} h6 (en el lóbulo; ranura DIN 471 Ø{RL.PLG_RING_GROOVE_D:g} × 1,3 a {p.STE_lock_t + 0.8:g} del collar)"),
+                   f"Ø{p.REV_lock_bore_d:g} h6 (en el lóbulo); ranura DIN 471 Ø{RL.PLG_RING_GROOVE_D:g} × 1,3 a {p.STE_lock_t + 1.1:g} (+0,1/0) de la "
+                   "cara de APOYO del collar (MECH-5)"),
                   (L_b24, RL.PLG_BODY_D, f"cuerpo Ø{RL.PLG_BODY_D:g}"),
-                  (RL.PLG_CAP_T, RL.PLG_BODY_D, "tapa roscada M20×1 con Ø10,2 (cola del perno)")],
+                  (RL.PLG_CAP_T, RL.PLG_BODY_D, "tapa roscada M20×1 con Ø10,2 (cola del perno), 2 × Ø3 para llave de gancho, Loctite 243")],
                  feats=[(RL.PLG_COLLAR_T, "cara de apoyo del collar = cara exterior del lóbulo de la traba"),
                         (round(y_sh, 2), "fin de la guía / inicio de la cámara del resorte")],
                  notes=[f"Interior Ø{p.REV_lock_pin_d:g} H8 pasante (guía del perno, Ra 0,8); rosca interior M20×1 × 6 atrás para la tapa; ×2",
@@ -181,14 +188,17 @@ def draw(p, H):
                         f"con el perno afuera {RL.SPRING_L_MIN:g} (≈ {RL.SPRING_F_MAX:.0f} N) [CALCULADO: G ESTIMADO]"]))
     out.append(T("P1-REV-04", "embolo_perno", "AISI 316 (1.4401) barra Ø18",
                  [(round(tip, 2), p.REV_lock_pin_d, f"Ø{p.REV_lock_pin_d:g} h9, Ra 0,8; chaflán 1 × 45° en la punta"),
-                  (round(tail, 2), 10.0, "cola Ø10 (resorte); M10×1 × 8 en el extremo (pomo) + M4 × 10 axial (eslabón)")],
+                  (round(tail, 2), 10.0, f"cola Ø10 (resorte); M10×1 × 8 en el extremo (pomo) + M4 × {RL.PLG_TAIL_M4_DEPTH:g} axial (eslabón)")],
                  feats=[(round(tip, 2), "escalón = asiento del resorte")],
                  notes=[f"Largo del Ø{p.REV_lock_pin_d:g}: guía {RL.PLG_GUIDE:g} + luz oreja–brazo {p.REV_y_in - p.STE_ear_y1:g} (lóbulo y collar "
                         f"del cuerpo) + brazo {p.REV_t:g} + 1 de sobresalida",
-                        f"Carrera {p.REV_plunger_stroke:g} mm (liberar pide {RL.need(p):g}); ×2",
+                        f"Carrera {p.REV_plunger_stroke:g} mm (liberar pide {RL.need(p):g}); ×2. Punta: hexágono interior 6 × 6 (se sostiene desde",
+                        f"  afuera por el agujero del brazo al roscar o sacar el pomo; MECH-7). Control en banco con el pomo apoyado en la tapa: la punta",
+                        f"  queda a {RL.pin_tip_y(p) - (p.STE_lock_y1 + RL.PLG_COLLAR_T):.1f} ± 0,2 de la cara exterior del collar (sobresale 1 mm del brazo)",
                         "POMO (AISI 316, de la misma barra Ø35 del cuerpo): Ø23 × 10 con rosca ciega M10×1 × 8 y fondo de 2 mm con Ø4,5 (pasa el vástago",
-                        "  M4 del eslabón de P1-REV-09); 2 planos e/c 22. Se rosca A FONDO en la cola con Loctite 243 (posición fija: apoya en la",
-                        "  tapa en reposo y define la sobresalida de 1 mm de la punta); se saca con llave para el mantenimiento (06 §5)"]))
+                        "  M4 del eslabón de P1-REV-09); 2 planos e/c 22. Se rosca A FONDO en la cola con Loctite 243 (el extremo de la cola",
+                        f"  apoya en el fondo: cola {RL.PLG_TAIL_L:g} = cámara + tapa + rosca del pomo); se saca con llave sosteniendo el perno",
+                        "  por el hexágono de la punta (06 §5)"]))
     out.append(PL("P1-REV-05", "soporte_mach5", "Al 5083-H111", 95.0 - 25.0, 248.0 - 124.0, 6.0,
                   [(54.0, 14.0 + 6.0, 12.8, "grapa inferior (bloque soldado)"), (54.0, 110.0 + 6.0, 12.8, "grapa superior")],
                   notes=["Placa lateral; alma transversal 6 mm en X' 25–31 y base 27 × 28 con 4 × Ø9 (STEP)"]))

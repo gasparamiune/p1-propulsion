@@ -36,7 +36,7 @@ META = dict(
     load_case="Desvío del chorro F_steer (R12: 364 N) + pivote y traba del bucket con M_h completo en una traba (R12)",
     print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Torneado del cuerpo (barra Ø100 × 150) + fresado 4 ejes de orejas y torre (bloque 6061-T6 100 × 165 × 165)",
-    allow={"P1-REV-04": 5.0, "P1-STE-02": 5.0, "P1-STE-05": 5.0, "P1-REV-02": 10.0},   # émbolo Ø24 H7/h6, tornillos M6, piloto H7/h6
+    allow={"P1-REV-04": 0.5, "P1-STE-02": 5.0, "P1-STE-05": 5.0, "P1-REV-02": 10.0},   # émbolo Ø24 H7/h6 (con la garganta: MECH-3), tornillos M6, piloto H7/h6
 )
 
 
@@ -122,20 +122,29 @@ def inner_boss_outline(p, s):
 def inner_boss(p, s):
     """Lóbulos engrosados alrededor del pivote (hacia adentro hasta STE_ear_y1 − STE_piv_t, r STE_ear_r) y de la traba
     (de STE_lock_y1 − STE_lock_t a STE_lock_y1: hacia adentro con r STE_lock_in_r y 3 mm hacia afuera con r
-    STE_lock_lobe_r) de la oreja del lado s
-    (re-auditoría ronda 5, R5-N5). Si el de la traba queda a menos de 6 mm del cuerpo, baja hasta él (sin una ranura fina
-    entre los dos, que no se puede fresar)."""
+    STE_lock_lobe_r) de la oreja del lado s (re-auditoría ronda 5, R5-N5). Se construyen con los MISMOS polígonos que el
+    contorno de la oreja y apoyados cara con cara (sin solapes): sin escalones de décimas ni caras astilla donde caen los
+    máximos (FEA-2). Si el de la traba queda a menos de 6 mm del cuerpo, baja hasta él (sin una ranura fina entre los
+    dos, que no se puede fresar). Los pies de los lóbulos llevan R1,5 en el plano (aristas vivas en el CAD: FEA-3)."""
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
-    ya, yb = boss_y(p, p.STE_ear_y1 - p.STE_piv_t, p.STE_ear_y0 + 0.01, s)
-    out = cyl_y(p.STE_ear_r, ya, yb, x=Xb, z=Zb)
+    ya, yb = boss_y(p, p.STE_ear_y1 - p.STE_piv_t, p.STE_ear_y0, s)
+    out = prism_xz(hull(circ(Xb, Zb, p.STE_ear_r)), ya, yb)
     if s > 0 or p.REV_n_locks > 1:
         yi, yo = lock_lobe_y(p)
         lx, lz = lock_point(p, s)
-        ya, yb = boss_y(p, yi, p.STE_ear_y0 + 0.01, s)
+        ya, yb = boss_y(p, yi, p.STE_ear_y0, s)
         out = out + prism_xz(hull(inner_boss_outline(p, s)), ya, yb)
-        ya, yb = boss_y(p, p.STE_ear_y1 - 0.01, yo, s)
-        out = out + cyl_y(p.STE_lock_lobe_r, ya, yb, x=lx, z=lz)
+        ya, yb = boss_y(p, p.STE_ear_y1, yo, s)
+        out = out + prism_xz(hull(circ(lx, lz, p.STE_lock_lobe_r)), ya, yb)
     return out
+
+
+def plunger_saddle(p):
+    """Garganta en el cuerpo de la boquilla bajo el émbolo más bajo (re-auditoría ronda 5, MECH-3): cilindro coaxial con
+    su eje, de radio RL.saddle(p)['r'], en el tramo de Y que recorren su cuerpo y su pomo (en reposo y tirado). Sin ella
+    el cuerpo Ø24 del émbolo −Y pasaba a 0,26 mm del tubo."""
+    sd = RL.saddle(p)
+    return cyl_y(sd["r"], sd["y0"], sd["y1"], x=sd["x"], z=sd["z"])
 
 
 def pivot_ear(p, sign):
@@ -211,6 +220,7 @@ def build(p):
     # pad de fijación del soporte de reenvío del desbloqueo P1-REV-09 (cara plana sobre el cuerpo, a popa de los émbolos)
     # con 2 roscas M5 × 7,5 (taladro Ø4,2): auditoría ronda 4, R4-07 (geometría en piezas/_release)
     b = b + RL.pad_box(p) - RL.pad_holes(p)
+    b = b - plunger_saddle(p)
     b = b - bore_cut(p)
     return b
 

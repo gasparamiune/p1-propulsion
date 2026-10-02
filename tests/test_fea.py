@@ -2,7 +2,9 @@
 scikit-fem, malla gruesa rápida de una pieza real (P1-CTL-02), estática del bucket, carga aplicada del
 bucket = estática (setup con malla muy gruesa), traba única con M_h completo, bordes de agujeros cargados
 y cumplimiento en resultados_fea.json para las piezas del waterjet (ronda 4). Ronda 5: regla de la σ de diseño sin
-convergencia (FEA-R5-01), pivote de STE-01 como apoyo lineal del piloto Ø20 y precarga de los émbolos (FEA-R5-02)."""
+convergencia (FEA-R5-01), pivote y traba de STE-01 como apoyos lineales en los lóbulos engrosados (piloto Ø24 del
+casquillo y cuerpo ajustado Ø24 del émbolo, sin precarga), aristas vivas declaradas en el pie de los lóbulos, mismo radio
+de exclusión en --quick y en la corrida completa, y sin caras astilla en las orejas (re-auditoría del cierre de la ronda 5)."""
 import json
 import math
 import sys
@@ -185,7 +187,7 @@ def test_applied_load_matches_statics_coarse(pid, h, tmp_path):
         assert set(recs) == {"R12_+Y", "R12_-Y", "sz_+Y", "sz_-Y"}, sorted(recs)
         assert ck["facetas_agujero_pivote_fuera_de_las_orejas"] == 0
         # ronda 5: piloto Ø REV_sp_pilot_d h6 del espaciador y cuerpo AJUSTADO Ø REV_lock_bore_d h6 del émbolo en sus H7
-        # de la oreja de STE_ear_t; los dos apoyan con presión lineal a lo largo del agujero (par de aplastamiento) cuya
+        # de los lóbulos engrosados; los dos apoyan con presión lineal a lo largo del agujero (par de aplastamiento) cuya
         # resultante pasa por la mitad del buje (pivote) y por la mitad del brazo del bucket (traba); sin precarga
         assert ck["d_agujero_piloto_mm"] == p.REV_sp_pilot_d, ck["d_agujero_piloto_mm"]
         assert ck["d_agujero_embolo_mm"] == p.REV_lock_bore_d, ck["d_agujero_embolo_mm"]
@@ -283,10 +285,12 @@ def test_bucket_single_lock_carries_full_moment():
 
 
 def test_lug_edges_checked():
-    """F3: en REV-01 y STE-01 cada caso de diseño evalúa el borde de sus agujeros cargados (traba/rosca y pivote) a ±90°
-    de la carga, con FS ≥ objetivo; el agujero de una traba deshabilitada no se evalúa como cargado."""
+    """F3: en REV-01 y STE-01 cada caso de diseño (también los de fatiga f/f2, que en STE-01 gobiernan) evalúa el borde
+    de sus agujeros cargados (traba y pivote) a ±90° de la carga, con FS ≥ objetivo; el agujero de una traba
+    deshabilitada no se evalúa como cargado."""
     for pid, need in (("P1-REV-01", {"d": {"traba", "pivote_mas_y"}, "e": {"traba_menos_y", "pivote_menos_y"}}),
-                      ("P1-STE-01", {"c": {"embolo_mas_y", "pivote_mas_y"}, "c2": {"embolo_menos_y", "pivote_menos_y"}})):
+                      ("P1-STE-01", {"c": {"embolo_mas_y", "pivote_mas_y"}, "c2": {"embolo_menos_y", "pivote_menos_y"},
+                                     "f": {"embolo_mas_y", "pivote_mas_y"}, "f2": {"embolo_menos_y", "pivote_menos_y"}})):
         r = _fea_part(pid)
         for cid, holes in need.items():
             fb = r["casos"][cid]["FS_bordes"]
@@ -334,10 +338,11 @@ def test_ste01_fitted_lock_and_pivot_model():
     p, _, _ = fp.load_project()
     assert r["verificacion_mano"]["d_agujero_piloto_mm"] == p.REV_sp_pilot_d
     assert r["verificacion_mano"]["d_agujero_embolo_mm"] == p.REV_lock_bore_d
-    for cid in ("c", "c2", "f", "f2"):          # |σθ| interior (≥ 2 mm de las caras): informativo, ≤ el de la ventana completa
-        for hn, b in r["casos"][cid]["FS_bordes"].items():
-            if b.get("sigma_theta_interior_MPa") is not None:
-                assert b["sigma_theta_interior_MPa"] <= b["sigma_theta_MPa"] + 1e-6, (cid, hn)
+    # aristas vivas declaradas (FEA-3): solo en el pie de los lóbulos engrosados, en las caras de la placa de la oreja
+    av = r.get("aristas_vivas") or {}
+    assert av and all(k.startswith(("pie_pivote_", "pie_traba_ext_", "pie_traba_int_")) for k in av), sorted(av)[:5]
+    for a in av.values():
+        assert abs(abs(a["c"][1]) - p.STE_ear_y1) < 1e-6 or abs(abs(a["c"][1]) - p.STE_ear_y0) < 1e-6, a
 
 
 def test_resultados_fea_json():
@@ -358,3 +363,25 @@ def test_resultados_fea_json():
         assert r["comparacion_mano"], pid
         for img in r["imagenes"]:
             assert (ROOT / img).exists(), img
+
+
+def test_quick_uses_fine_exclusion_radius():
+    """Re-auditoría del cierre de la ronda 5 (FEA-1): --quick (solo malla gruesa) excluye lo mismo que la corrida
+    completa: r_excl = máx(R_EX_MIN, h de la malla FINA de la configuración)."""
+    import fea_run as fr
+    src = Path(fr.__file__).read_text(encoding="utf-8")
+    assert 'h_ref = cfg["h"][1]' in src
+    for pid, cfg in fr.CFG.items():
+        assert max(fr.R_EX_MIN, cfg["h"][1]) <= cfg["h"][0], pid
+
+
+def test_ste01_no_sliver_faces_on_bucket_ears():
+    """Re-auditoría del cierre de la ronda 5 (FEA-2): los lóbulos engrosados se construyen con los mismos polígonos que
+    el contorno de la oreja y cara con cara: ninguna cara de menos de 2 mm² en la zona de las orejas del bucket."""
+    import fea_parts as fp
+    p, mods, _ = fp.load_project()
+    part = mods["P1-STE-01"].build(p)
+    y_min = min(p.STE_lock_y1 - p.STE_lock_t, p.STE_ear_y1 - p.STE_piv_t) - 1.0
+    small = [f for f in part.faces() if f.area < 2.0 and abs(f.center().Y) > y_min
+             and f.center().X > p.X_bucket_pivot - p.STE_ear_r - 20.0]
+    assert not small, [(round(f.area, 3), tuple(round(v, 1) for v in f.center())) for f in small[:5]]

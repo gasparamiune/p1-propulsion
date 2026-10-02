@@ -1,32 +1,38 @@
-"""P1-REV-02 — Pivote del bucket (×2): espaciador de dúplex 1.4462 torneado + tornillo ISO 4017 M12 A4-80 + tuerca baja ISO 4035.
+"""P1-REV-02 — Pivote del bucket (×2), EN DOS PIEZAS de dúplex 1.4462 + tornillo ISO 4017 M12 A4-80 + tuerca baja ISO 4035.
 
-Espaciador (auditoría ronda 4): muñón Ø REV_pin_d h7 (el bucket gira sobre él con su buje POM-C P1-REV-03), brida
-Ø REV_sp_fl_d × REV_sp_fl_t apoyada en la cara EXTERIOR de la oreja de la boquilla (Y = ±STE_ear_y1) y piloto
-Ø REV_sp_pilot_d h6 ajustado en el agujero H7 escariado del lóbulo engrosado de la oreja (STE_piv_t; largo = lóbulo −
-0,5: el apriete lo toma la brida, no el piloto). El piloto ubica el pivote y es el camino DISEÑADO del corte y del momento: con Tef-Gel la brida desliza
-con R12, así que el piloto apoya en la oreja como un perno en voladizo (re-auditoría ronda 5, MEC-02). Agujero Ø12,5
-para el tornillo M12 A4-80; arandela ISO 7089 (Ø24) bajo la cabeza y, por dentro de la oreja, arandela ancha ISO 7093
-(Ø37 × 3) + tuerca baja ISO 4035 M12 A4-035, con Loctite 243 en la rosca. Par REV_bolt_T_Nm BAJO: el tornillo solo retiene
-(con precarga alta la brida y el muñón fluían: re-auditoría ronda 5, MEC-01). La precarga pasa por el muñón y la brida
-(placa anular en flexión) y se suma a la flexión del muñón: dúplex 1.4462 (Rp0,2 ≥ 450) (structural_direccion).
-
-La reacción de cada pivote incluye la de SU traba (tangencial, M_h/r): con R12 y una traba sola llega a ~3,3 kN
-(structural_direccion.bucket_reactions). Se modela como un solo sólido (espaciador + tornillo + tuerca) para el
-ensamblaje; marco local: eje +y desde la cara exterior de la oreja."""
+Re-auditoría ronda 5, MECH-1: el espaciador de una pieza (piloto Ø24 hacia adentro, brida Ø36 en la luz, muñón Ø20 hacia
+afuera) NO se podía montar: desde afuera no pasa por el buje Ø20,1; desde adentro la brida no pasa por el agujero de la
+oreja; y con los espaciadores puestos antes, el bucket soldado no calza sobre los muñones. Ahora:
+  - CASQUILLO: brida Ø REV_sp_fl_d × REV_sp_fl_t apoyada en la cara EXTERIOR de la oreja (Y = ±STE_ear_y1) y piloto
+    Ø REV_sp_pilot_d h6 ajustado en el agujero H7 del lóbulo engrosado del pivote (STE_piv_t), ENRASADO con su cara
+    interior, con Loctite 641 en el ajuste (llena el juego: el apoyo lineal del cálculo y del FEA vale; re-auditoría
+    ronda 5, FEA-4). Agujero Ø REV_pin_d H7 ciego con fondo de SLEEVE_BOTTOM y Ø12,5 para el tornillo. Se monta desde
+    afuera ANTES del bucket: no pasa de la brida del buje POM (luz 0,5, check de P1-REV-03).
+  - MUÑÓN: tubo Ø REV_pin_d h7 / Ø12,5 (el bucket gira sobre él con su buje P1-REV-03), del fondo del casquillo hasta
+    afuera del buje; entra DESPUÉS del bucket, por el buje, con Tef-Gel (inox con inox).
+  - Tornillo M12 A4-80 con arandela ISO 7089 (Ø24) bajo la cabeza sobre el extremo del muñón; por dentro arandela ancha
+    ISO 7093 (Ø37 × 3) sobre el fondo del casquillo y la cara del lóbulo (sin puente: CALC-4) + tuerca baja ISO 4035 M12
+    A4-035 con Loctite 243. Par REV_bolt_T_Nm BAJO: la precarga va cabeza → muñón → fondo del casquillo ← arandela; solo
+    retiene (con precarga alta la brida y el muñón fluían: re-auditoría ronda 5, MEC-01).
+El corte y el momento del pivote van muñón → casquillo → oreja por el apoyo del piloto (camino DISEÑADO; con Tef-Gel la
+brida no lleva corte: MEC-02). La reacción de cada pivote incluye la de SU traba (tangencial, M_h/r): con R12 y una traba
+sola llega a ~3,3 kN (structural_direccion.bucket_reactions). Se modela como un solo sólido (casquillo + muñón + tornillo
++ tuerca: la envolvente es la misma) para el ensamblaje; marco local: eje +y desde la cara exterior de la oreja."""
 import math
 
 from cadlib import NUT_AF, cyl_y, hex_prism_y
 
 META = dict(
     id="P1-REV-02", name="perno_bucket",
-    desc="Pivote del bucket: espaciador dúplex 1.4462 (muñón Ø20 h7, brida Ø36 × 4, piloto Ø24 h6) + tornillo M12 A4-80 + tuerca baja ISO 4035 con Loctite",
+    desc="Pivote del bucket en dos piezas de dúplex 1.4462: casquillo (brida Ø36 × 4, piloto Ø24 h6, Ø20 H7 ciego) + muñón Ø20 h7; tornillo M12 A4-80 + tuerca baja ISO 4035 con Loctite",
     material="Dúplex 1.4462", process="torneada", qty=2, frame="steer", group="jet",
     load_case="Reacción del pivote = chorro/2 + traba con M_h completo (R12, una traba sola): flexión del muñón y apertura de la unión",
     print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
 )
 WASHER_T = 2.5            # [VERIFICADO: ISO 7089 M12, Ø24 × 2,5]
-NUT_H = 7.0               # [ESTIMADO: ISO 4035 M12, m máx. 7] (= REV_nut_h)
+NUT_H = 6.0               # [ESTIMADO: ISO 4035 M12, m máx. 6] (= REV_nut_h)
 HEAD_K = 7.5              # [VERIFICADO: ISO 4017 M12, k = 7,5]
+SLEEVE_BOTTOM = 4.0       # fondo del casquillo (entre el muñón y la arandela interior: compresión) [SUPUESTO]
 
 
 def shoulder_L(p):
@@ -41,7 +47,13 @@ def ear_t(p):
 
 
 def pilot_L(p):
-    return ear_t(p) - 0.5
+    """Piloto del casquillo ENRASADO con la cara interior del lóbulo (la arandela apoya en su fondo y en la cara)."""
+    return ear_t(p)
+
+
+def pin_L(p):
+    """Largo del muñón: del fondo del casquillo al extremo exterior (bajo la arandela de la cabeza)."""
+    return shoulder_L(p) + pilot_L(p) - SLEEVE_BOTTOM
 
 
 def bolt_len(p):
@@ -68,12 +80,12 @@ def build(p):
     L = shoulder_L(p)
     d, db = p.REV_pin_d, p.REV_bolt_d
     s = cyl_y(p.REV_sp_fl_d / 2, 0.0, p.REV_sp_fl_t)                             # brida
-    s = s + cyl_y(d / 2, p.REV_sp_fl_t - 0.01, L)                                  # muñón
-    s = s + cyl_y(p.REV_sp_pilot_d / 2 - 0.01, -pilot_L(p), 0.01)                  # piloto (ajustado en la oreja)
+    s = s + cyl_y(d / 2, p.REV_sp_fl_t - 0.01, L)                                  # muñón (pieza aparte)
+    s = s + cyl_y(p.REV_sp_pilot_d / 2 - 0.01, -pilot_L(p) + 0.01, 0.01)           # piloto del casquillo (enrasado)
     s = s + cyl_y(p.REV_head_d / 2, L, L + WASHER_T)                               # arandela Ø24
     s = s + hex_prism_y(NUT_AF[12], L + WASHER_T, L + WASHER_T + HEAD_K)           # cabeza M12 (18 e/c)
     lb = bolt_len_iso(p)
-    s = s + cyl_y(db / 2 - 0.1, L + WASHER_T - lb, -pilot_L(p) + 0.01)             # caña/rosca M12 (modelada Ø11,8)
+    s = s + cyl_y(db / 2 - 0.1, L + WASHER_T - lb, -pilot_L(p) + 0.02)             # caña/rosca M12 (modelada Ø11,8)
     yn = -ear_t(p)
     dw, tw = p.REV_washer_in
     s = s + cyl_y(dw / 2, yn - tw, yn)                                             # arandela ancha ISO 7093 interior
@@ -99,7 +111,9 @@ def checks(p, part):
             ("presión de la brida sobre la oreja con la precarga MÁX. ≤ 0,5·Rp0,2 6061-T6 [MPa]", p.REV_bolt_pre_max_N / a_cl, 120.0, "<="),
             ("punta del tornillo fuera de la torre del yugo (|Y| ≥ 14 + 1) [mm]", tip_y(p, bolt_len_iso(p)), TOWER_Y + 1.0, ">="),
             ("pared del muñón (Ø − Ø 12,5) / 2 [mm]", (p.REV_pin_d - 12.5) / 2, 2.5, ">="),
-            ("pared del piloto (Ø − Ø 12,5) / 2 [mm]", (p.REV_sp_pilot_d - 12.5) / 2, 1.5, ">="),
-            ("piloto más corto que la oreja (aprieta la brida) [mm]", ear_t(p) - pilot_L(p), 0.3, ">="),
+            ("fondo del casquillo dentro del lóbulo (fondo < largo del piloto) [mm]", pilot_L(p) - SLEEVE_BOTTOM, 10.0, ">="),
+            ("fondo del casquillo enrasado con la cara interior del lóbulo (arandela sin puente) [mm]", ear_t(p) - pilot_L(p), 0.0, "="),
+            ("el muñón entra DESPUÉS del bucket por el buje (Ø interior del buje − Ø muñón) [mm]", 0.1, 0.05, ">="),
+            ("pared del casquillo alrededor del muñón (Ø piloto − Ø muñón) / 2 [mm]", (p.REV_sp_pilot_d - p.REV_pin_d) / 2, 1.5, ">="),
             ("brida dentro de la oreja (r oreja − r brida) [mm]", p.STE_ear_r - p.REV_sp_fl_d / 2, 2.0, ">="),
             ("arandela ancha interior dentro de la oreja (r oreja − r arandela) [mm]", p.STE_ear_r - p.REV_washer_in[0] / 2, 1.0, ">=")]

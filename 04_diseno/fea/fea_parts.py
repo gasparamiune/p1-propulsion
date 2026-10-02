@@ -635,6 +635,63 @@ def linear_bearing(S, facets, F, center, side, ecc, length, tol=1e-5, maxit=20):
                "correccion_lateral_rel": [float(coef[1] / coef[0]), float(coef[2] / coef[0])]}
 
 
+def _point_in_poly(pt, poly):
+    """Punto dentro de un polígono (lista de (u, v)), por paridad de cruces."""
+    x, y = pt
+    inside = False
+    n = len(poly)
+    for i in range(n):
+        (x1, y1), (x2, y2) = poly[i], poly[(i + 1) % n]
+        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+            inside = not inside
+    return inside
+
+
+def lobe_foot_edges(boss_poly, plate_poly, y, name, step=4.0, r=4.0):
+    """Aristas vivas del CAD en el PIE de un lóbulo engrosado de P1-STE-01 (re-auditoría ronda 5, FEA-3): esferas de radio r
+    sobre el contorno XZ del lóbulo, en la cara Y = y de la placa de la oreja, solo donde la placa sigue más allá del
+    lóbulo (unión reentrante a 90°). El plano pide R1,5 en esos pies; el CAD los modela vivos y el FEA los evalúa con el
+    promedio en volumen (fea_run.design_sigma, FEA-R5-01). Devuelve {nombre: {c, r, motivo}}."""
+    out = {}
+    n = len(boss_poly)
+    area = sum(boss_poly[i][0] * boss_poly[(i + 1) % n][1] - boss_poly[(i + 1) % n][0] * boss_poly[i][1] for i in range(n))
+    sg = 1.0 if area > 0 else -1.0
+    k = 0
+    for i in range(n):
+        (x1, z1), (x2, z2) = boss_poly[i], boss_poly[(i + 1) % n]
+        L = math.hypot(x2 - x1, z2 - z1)
+        if L < 1e-9:
+            continue
+        nx, nz = sg * (z2 - z1) / L, -sg * (x2 - x1) / L          # normal hacia afuera del lóbulo
+        m = max(1, int(math.ceil(L / step)))
+        for j in range(m):
+            t = (j + 0.5) / m
+            px, pz = x1 + t * (x2 - x1), z1 + t * (z2 - z1)
+            if _point_in_poly((px + nx, pz + nz), plate_poly):
+                out[f"{name}_{k}"] = {"c": [px, y, pz], "r": r,
+                                      "motivo": "pie de lóbulo engrosado (unión reentrante con la placa de la oreja): R1,5 en "
+                                                "el plano, viva en el CAD (re-auditoría ronda 5, FEA-3)"}
+                k += 1
+    return out
+
+
+def ste01_sharp_edges(p, m):
+    """Aristas vivas declaradas de P1-STE-01: pies de los lóbulos de la traba (hacia afuera en la cara exterior de la
+    oreja y hacia adentro en la interior) y del lóbulo del pivote (cara interior), en las dos orejas."""
+    from _dir_common import hull, circ
+    out = {}
+    Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
+    for s_ in (1, -1):
+        tg = "mas_y" if s_ > 0 else "menos_y"
+        plate = m.ear_outline(p, s_)
+        out.update(lobe_foot_edges(hull(circ(Xb, Zb, p.STE_ear_r)), plate, s_ * p.STE_ear_y0, f"pie_pivote_{tg}"))
+        if s_ > 0 or p.REV_n_locks > 1:
+            lx, lz = m.lock_point(p, s_)
+            out.update(lobe_foot_edges(hull(circ(lx, lz, p.STE_lock_lobe_r)), plate, s_ * p.STE_ear_y1, f"pie_traba_ext_{tg}"))
+            out.update(lobe_foot_edges(hull(m.inner_boss_outline(p, s_)), plate, s_ * p.STE_ear_y0, f"pie_traba_int_{tg}"))
+    return out
+
+
 def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None):
     """Boquilla a δ = 0 (marco de la boquilla). Casos:
       a/b    desvío del chorro F_s en el paso / en la boca de salida;
@@ -725,7 +782,12 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
     in_piv = lambda c, s_: c[:, 1] * s_ >= yi_p - 0.5              # noqa: E731
     in_lock = lambda c, s_: c[:, 1] * s_ >= yi_l - 0.5             # noqa: E731
     pil, thr = {}, {}
-    n_out_ear = int(len(sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), rp_, region=lambda c: np.abs(c[:, 1]) < yi_p - 0.5)))
+    # facetas del agujero del piloto FUERA de las orejas (diagnóstico de F1: el agujero no es pasante de lado a lado): solo
+    # las que tienen TODOS sus nodos sobre el cilindro (la cara de popa de la torre del yugo queda a ≈ 12 mm del eje y, con
+    # malla muy gruesa, sus facetas planas pasaban el filtro de radio y normal)
+    _so = sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), rp_, region=lambda c: np.abs(c[:, 1]) < yi_p - 0.5)
+    _rv = np.hypot(S.X[S.ftri[_so]][..., 0] - Xb, S.X[S.ftri[_so]][..., 2] - Zb)
+    n_out_ear = int(np.sum(np.all(np.abs(_rv - rp_) < 0.15, axis=1)))
     for s_ in (1, -1):
         lxs, lzs = lpt[s_]
         pil[s_] = sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), rp_, region=lambda c, s_=s_: in_piv(c, s_))
@@ -855,13 +917,14 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
         {"key": "Oreja del bucket: ligamento del agujero", "caso": "c", "region": "lobulo_embolo"},
         {"key": "Oreja del bucket: flexión fuera del plano", "caso": "c", "region": "orejas_bucket"},
         {"key": "Oreja: aplastamiento del piloto", "caso": "c", "region": "anillo_piloto", "metrica": "mean",
-         "nota": "la fila: p = R/(d·L) + 6·M/(d·L²) (par de aplastamiento); FEA: σvm promedio en el anillo de 3 mm alrededor del piloto"},
+         "nota": "la fila: p_máx = R/(d·L)·(1 + 6·a/L) (par de aplastamiento, a al plano medio del agujero); FEA: σvm promedio en el anillo de 3 mm alrededor del piloto"},
         {"key": "Oreja: aplastamiento del cuerpo ajustado", "caso": "c", "region": "lobulo_embolo", "metrica": "mean",
          "nota": "la fila: p = F/(d·L)·(1 + 6·a/L); FEA: σvm promedio en el lóbulo de la traba"},
         {"key": "Oreja de pivote", "caso": "d", "region": "orejas_pivote"},
     ])
     return {"model": M, "run": run, "meta": meta, "mesh": minfo, "checks": checks, "allow": A, "holes": holes,
-            "regions": regions, "comparacion": comp, "frame_label": "BOQUILLA (δ = 0)"}
+            "regions": regions, "comparacion": comp, "frame_label": "BOQUILLA (δ = 0)",
+            "aristas_vivas": ste01_sharp_edges(p, m)}
 
 
 # ===========================================================================

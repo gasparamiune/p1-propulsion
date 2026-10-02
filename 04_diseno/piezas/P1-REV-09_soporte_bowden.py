@@ -371,8 +371,10 @@ def checks(p, part):
             ("eslabón: desajuste revisado en la cinemática ≥ residual (media vuelta/2 + re-montaje del soporte) [mm]",
              RL.LINK_TOL, RL.LINK_STACK_RES, ">="),
             ("eslabón: luz ojo ↔ cara del pomo con el ajuste en su mínimo (−LINK_ADJ) [mm]", RL.LINK_GAP - RL.LINK_ADJ, 0.5, ">="),
-            ("eslabón: rosca M4 enganchada en la cola con el ajuste en su máximo (+LINK_ADJ) ≥ 1,5·d [mm]",
-             RL.LINK_SHANK_L - (RL.LINK_GAP + RL.LINK_ADJ), 6.0, ">=")]
+            ("eslabón: rosca M4 enganchada en la cola con el ajuste en su máximo (+LINK_ADJ), descontado el fondo del pomo ≥ 1,5·d [mm]",
+             RL.LINK_SHANK_L - (RL.LINK_GAP + RL.PLG_KNOB_BOTTOM + RL.LINK_ADJ), 6.0, ">="),
+            ("eslabón: el vástago no toca el fondo de la rosca M4 de la cola con el ajuste en su mínimo (−LINK_ADJ) [mm]",
+             RL.PLG_TAIL_M4_DEPTH - (RL.LINK_SHANK_L - RL.LINK_GAP - RL.PLG_KNOB_BOTTOM + RL.LINK_ADJ), 0.5, ">=")]
     for sd in RL.lock_sides(p):
         L = RL.lever(p, sd)
         tag = "+Y" if sd > 0 else "−Y"

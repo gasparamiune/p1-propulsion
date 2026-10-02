@@ -14,7 +14,7 @@ la precarga de 110 N·m del cuerpo roscado M24 abría el lóbulo de la oreja y e
 Adentro del cuerpo: guía del perno (18 mm desde la cara exterior de la placa de la oreja, más el lóbulo y el collar) y cámara del resorte
 (largo instalado 30), cerrada por una tapa roscada de 4 mm con agujero Ø10,2 para la cola Ø10 del perno; pomo Ø23 × 10
 con agujero pasante Ø4,5, apoyado en la tapa en reposo; rosca M4 × 10 axial en el extremo de la cola Ø10 (vástago del
-eslabón rígido de P1-REV-09, Loctite 243; re-auditoría ronda 5, DES-04). Cola = cámara + tapa + pomo (44 mm: la carrera
+eslabón rígido de P1-REV-09, Loctite 243; re-auditoría ronda 5, DES-04). Cola = cámara + tapa + rosca del pomo (42 mm: termina contra el fondo del pomo, MECH-2; la carrera
 no se suma, DES-02/MEC-03). Perno Ø16 h9 (REV_lock_pin_d) que cruza la luz oreja–brazo y el brazo (REV_t) y sobresale
 1 mm de su cara exterior; el escalón Ø16 → Ø10 es el asiento del resorte. Carrera REV_plunger_stroke (≥ recorrido para
 liberar el brazo + 2). Resorte inox de compresión: alambre 1,4, Ø ext 15, 6,5 espiras útiles, largo libre 40,
@@ -73,6 +73,36 @@ def build(p):
 lock_xz = RL.lock_xz          # posición de cada émbolo (fuente única: _release)
 
 
+def tube_clearance(p, n=241):
+    """Luz mínima (mm) de cada émbolo (cuerpo Ø24, anillo DIN 471 y pomo en reposo y tirado) al cuerpo de la boquilla
+    (tubo de radio STE_ro a lo largo de X) contando la garganta de P1-STE-01 bajo el émbolo más bajo (re-auditoría
+    ronda 5, MECH-3). Devuelve (luz, descripción)."""
+    sd = RL.saddle(p)
+    k0 = RL.knob_end_y(p)
+    k1 = k0 - p.REV_plunger_stroke
+    yl0 = lobe_y0(p)
+    parts = [("cuerpo", RL.PLG_BODY_D / 2, RL.body_end_y(p), fit_y0(p)),
+             ("anillo DIN 471", RL.PLG_RING_D / 2, yl0 - RL.PLG_RING_T, yl0),
+             ("pomo en reposo", RL.PLG_KNOB_D / 2, k0, k0 + RL.PLG_KNOB_L),
+             ("pomo tirado", RL.PLG_KNOB_D / 2, k1, k1 + RL.PLG_KNOB_L)]
+    best = (1e9, "")
+    for s_ in RL.lock_sides(p):
+        x, z = lock_xz(p, s_)
+        for nm, r, a, b in parts:
+            for i in range(n):
+                yl = a + (b - a) * i / (n - 1)
+                yg = s_ * yl
+                if abs(yg) >= p.STE_ro:
+                    continue
+                zt = math.sqrt(p.STE_ro ** 2 - yg ** 2)
+                c = z - r - zt
+                if s_ == sd["side"] and sd["y0"] <= yg <= sd["y1"] and z - zt < sd["r"]:
+                    c = sd["r"] - r                       # la garganta saca el tubo dentro de su radio
+                if c < best[0]:
+                    best = (c, f"{nm} del émbolo {'+Y' if s_ > 0 else '−Y'} en Y {yg:.1f}")
+    return best
+
+
 def placements(p, steer=0.0, bucket=0):
     from build123d import Pos, Rot
     from params import loc_steer
@@ -85,16 +115,12 @@ def placements(p, steer=0.0, bucket=0):
 
 
 def checks(p, part):
-    x, z = lock_xz(p)
-    ybot = RL.knob_end_y(p) - p.REV_plunger_stroke                             # pomo con el perno afuera (tirado)
-    zbody = math.sqrt(max(p.STE_ro ** 2 - min(abs(ybot), p.STE_ro) ** 2, 0.0)) if abs(ybot) < p.STE_ro else 0.0
-    zring = math.sqrt(max(p.STE_ro ** 2 - (lobe_y0(p) - RL.PLG_RING_T) ** 2, 0.0))
     sp_comp = RL.PLG_SPRING_L1 - p.REV_plunger_stroke                           # largo del resorte con el perno afuera
     d12 = math.dist(lock_xz(p, 1), lock_xz(p, -1)) if p.REV_n_locks > 1 else 99.0
-    zlow = min(z, lock_xz(p, -1)[1])
+    tc = tube_clearance(p)
     return [("un solo sólido", len(part.solids()), 1, "="),
-            ("pomo (tirado) sobre el cuerpo de la boquilla [mm]", zlow - RL.PLG_KNOB_D / 2 - zbody, 2.0, ">="),
-            ("anillo DIN 471 del cuerpo sobre el cuerpo de la boquilla [mm]", (zlow - RL.PLG_RING_D / 2) - zring, 2.0, ">="),
+            (f"émbolos (cuerpo, anillo, pomo en reposo y tirado) sobre el cuerpo de la boquilla, con la garganta de P1-STE-01 "
+             f"(MECH-3): mínimo en {tc[1]} [mm]", tc[0], 1.5, ">="),
             ("collar exterior: luz al brazo del bucket [mm]", p.REV_y_in - (p.STE_lock_y1 + RL.PLG_COLLAR_T), 1.0, ">="),
             ("collar exterior libre de la brida del pivote [mm]", p.REV_lock_r - (RL.PLG_COLLAR_D + p.REV_sp_fl_d) / 2, 2.0, ">="),
             ("collar exterior: apoyo en la oreja (r collar − r agujero) [mm]", (RL.PLG_COLLAR_D - p.REV_lock_bore_d) / 2, 2.5, ">="),

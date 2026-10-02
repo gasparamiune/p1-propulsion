@@ -1,9 +1,10 @@
 """P1-REV-03 — Buje con brida de POM-C del pivote del bucket (×2), torneado.
 
 Ø(REV_pin_d + 0,1) × REV_bush_od × REV_bush_L (brazo REV_t + aro de refuerzo REV_ring_t) + brida REV_bush_fl_d × 1
-entre el brazo y la brida del espaciador P1-REV-02 (luz 1,5 → 0,5 mm). Exterior con 0,05–0,10 mm de interferencia en
+entre el brazo y la brida del casquillo P1-REV-02 (luz 1,5 → 0,5 mm). Exterior con 0,05–0,10 mm de interferencia en
 el agujero Ø REV_bush_od H7 del bucket; se prensa y DESPUÉS se escaria el interior a Ø(REV_pin_d + 0,1) (el prensado
-cierra el juego: auditoría ronda 4, R4-08). Gira sobre el muñón 316 del espaciador. Dimensionado por presión con la
+cierra el juego: auditoría ronda 4, R4-08). Gira sobre el muñón de dúplex del pivote P1-REV-02 (que entra por él después
+de presentar el bucket: re-auditoría ronda 5, MECH-1). Dimensionado por presión con la
 reacción de un pivote cuando su traba lleva SOLA todo M_h (R12 y reversa de sizing): ver structural_direccion."""
 from cadlib import cyl_y
 
@@ -30,4 +31,4 @@ def placements(p, steer=0.0, bucket=0):
 def checks(p, part):
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("pared del buje [mm]", (p.REV_bush_od - p.REV_pin_d - 0.1) / 2, 1.5, ">="),
-            ("luz brida del buje ↔ brida del espaciador [mm]", (p.REV_y_in - p.STE_ear_y1 - p.REV_sp_fl_t) - p.REV_bush_fl_t, 0.3, ">=")]
+            ("luz brida del buje ↔ brida del casquillo del pivote (el bucket pasa sobre los casquillos ya puestos) [mm]", (p.REV_y_in - p.STE_ear_y1 - p.REV_sp_fl_t) - p.REV_bush_fl_t, 0.3, ">=")]

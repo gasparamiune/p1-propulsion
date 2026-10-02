@@ -386,8 +386,8 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
     levels = [("gruesa", cfg["h"][0], cfg["curv"][0])]
     if not quick:
         levels.append(("fina", cfg["h"][1], cfg["curv"][1]))
-    h_ref = levels[-1][1]
-    r_ex = max(R_EX_MIN, h_ref)
+    h_ref = cfg["h"][1]                         # el de la malla FINA también en --quick: la prueba rápida excluye lo mismo
+    r_ex = max(R_EX_MIN, h_ref)                 # que la corrida completa (re-auditoría ronda 5, FEA-1)
     meta = mods[pid].META
     out = {"pid": pid, "descripcion": meta["desc"], "material": meta["material"], "print_rot": list(meta.get("print_rot", (0, 0, 0))),
            "dir_Z_impresion_marco_pieza": fp.print_z_dir(meta).round(4).tolist(), "frame": meta["frame"],

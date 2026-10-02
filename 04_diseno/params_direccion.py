@@ -95,26 +95,26 @@ def extend(d):
     # Émbolo de la traba (P1-REV-04, auditoría ronda 4): PROPIO, torneado en 316. El de catálogo que se suponía
     # ("GN 617-12 M20 A4") no existe: el GN 617 inox con rosca M20×1,5 trae perno Ø10 de AISI 303 que sobresale 10 mm (l2) y
     # resorte 17–40 N [VERIFICADO: catálogo Elesa/Ganter GN 617, pág. 809, GN 617-10-AKN-NI] y con una traba sola
-    # (3 kN a R12) su perno no llega a FS 2. Perno Ø16 316 h9, cuerpo con rosca M24×1,5 en la oreja, resorte inox
-    # comprado (precarga ≈ 20 N, final ≈ 45 N, como el GN 617-10) [CALCULADO: structural_direccion, P1-REV-04].
+    # (3 kN a R12) su perno no llega a FS 2. Perno Ø16 316 h9, cuerpo ajustado Ø24 h6 en el lóbulo de la oreja (abajo),
+    # resorte inox comprado (precarga ≈ 20 N, final ≈ 45 N, como el GN 617-10) [CALCULADO: structural_direccion, P1-REV-04].
     d["REV_plunger_stroke"] = 12.0     # carrera del perno (diseño propio) [CALCULADO: ≥ REV_release_need + 2]
-    # cuerpo del émbolo AJUSTADO en la oreja (ronda 5): Ø26 h6 en un agujero liso Ø26 H7 (Loctite 641), collar exterior en
-    # la luz oreja–brazo y anillo DIN 471 por dentro. El cuerpo lleva la fuerza y el momento del perno por aplastamiento
-    # en la oreja (como el piloto del pivote); sin rosca ni precarga en la oreja: la precarga de 110 N·m de la rosca M24
-    # abría la oreja (σθ) y el FEA de STE-01 daba FS 1,74 [CALCULADO: structural_direccion + FEA STE-01]
+    # cuerpo del émbolo AJUSTADO en la oreja (ronda 5): Ø24 h6 en un agujero liso Ø24 H7 (Loctite 641), collar exterior
+    # Ø32 × 1,5 en la luz lóbulo–brazo y anillo DIN 471-24 por dentro. El cuerpo lleva la fuerza y el momento del perno
+    # por aplastamiento en la oreja (como el piloto del pivote); sin rosca ni precarga: la precarga de 110 N·m de la versión
+    # con rosca M24 abría la oreja (σθ) y el FEA de STE-01 daba FS 1,74 [CALCULADO: structural_direccion + FEA STE-01]
     d["REV_lock_bore_d"] = 24.0        # Ø24 H7/h6 (= cuerpo Ø24): ligamento 8 en el lóbulo r 20 y anillo DIN 471-24 chico [R5-N5]
     d["STE_e_frac"] = 0.5              # [ESTIMADO: research/R12 §7.4 — brazo del momento 0,3–0,5 L]
     d["STE_F_design"] = max(loads["F_steer_side_N"], 364.0)   # [CALCULADO: research/R12 §7.4 — 364 N (7,2 kW, δ 30°); se toma el mayor con sizing]
     # orejas del bucket sobre la boquilla
     d["STE_ear_y1"] = max(48.0, math.ceil(d["STE_ro"] + 0.5))   # oreja del bucket por fuera del cuerpo
     # Oreja del bucket (auditoría ronda 4): cada oreja lleva SOLA la reacción de su pivote y de su traba con M_h completo
-    # (3,3 + 3,0 kN a R12). 12 mm de espesor (hacia adentro: la cara exterior y el bucket no se mueven en Y por esto),
-    # radio 22 alrededor del pivote (piloto Ø16 H7 del espaciador + brida Ø36) y lóbulo r 20 alrededor de la rosca M24
-    # del émbolo (ligamento 8 mm) [CALCULADO: structural_direccion + FEA STE-01].
-    d["STE_ear_t"] = 14.0              # ronda 5: el piloto Ø20 apoya en la oreja (par de aplastamiento) [CALCULADO: structural_direccion]
+    # (3,3 + 3,0 kN a R12). Placa de STE_ear_t (hacia adentro: la cara exterior y el bucket no se mueven en Y por esto),
+    # radio 22 alrededor del pivote (piloto Ø24 H7 del casquillo + brida Ø36) y lóbulo r 20 alrededor del Ø24 H7 del
+    # émbolo (ligamento 8 mm), más los lóbulos engrosados de abajo [CALCULADO: structural_direccion + FEA STE-01].
+    d["STE_ear_t"] = 14.0              # placa de la oreja (los agujeros apoyan en los lóbulos STE_piv_t / STE_lock_t) [CALCULADO]
     d["STE_ear_y0"] = d["STE_ear_y1"] - d["STE_ear_t"]
     d["STE_ear_r"] = 22.0
-    # lóbulo r 20 alrededor del agujero Ø26 del cuerpo del émbolo (ligamento 7): no se agranda porque los balancines del
+    # lóbulo r 20 alrededor del agujero Ø24 del cuerpo del émbolo (ligamento 8): no se agranda porque los balancines del
     # desbloqueo (P1-REV-09) se ubican a popa de él y el montante ya llega al final del pad [CALCULADO: P1-REV-09 checks]
     d["STE_lock_lobe_r"] = 20.0
     # lóbulos ENGROSADOS alrededor de cada agujero (re-auditoría ronda 5, R5-N5): el perno de la traba y el buje del pivote
@@ -122,13 +122,13 @@ def extend(d):
     # p_máx = F/(d·L)·(4 + 6·a/L) (a = carga → cara) baja con el largo de apoyo L y con a. La placa de la oreja (STE_ear_t)
     # no cambia. Lóbulo de la traba: 3 mm hacia AFUERA (en la luz hasta el brazo: collar del émbolo de 1,5 y 1 de luz) y
     # 6,5 hacia ADENTRO con radio 18 (con r 20 el ojo del eslabón del OTRO émbolo, tirado, lo toca; más adentro el lóbulo
-    # llega al cubo del balancín −Y de P1-REV-09). Lóbulo del pivote: solo hacia adentro (la brida del espaciador apoya en
+    # llega al cubo del balancín −Y de P1-REV-09). Lóbulo del pivote: solo hacia adentro (la brida del casquillo apoya en
     # la cara exterior), 20 mm con tuerca baja ISO 4035 para que el M12 × 60 normalizado no entre en la torre del yugo
     # [CALCULADO: structural_direccion + FEA STE-01; P1-REV-02.bolt_len_iso; P1-REV-09]
     d["STE_lock_y1"] = d["STE_ear_y1"] + 3.0   # cara exterior del lóbulo de la traba (apoyo del collar del émbolo)
     d["STE_lock_t"] = 23.5             # espesor del lóbulo de la traba: Ø24 H7 del cuerpo del émbolo de 23,5 mm
     d["STE_lock_in_r"] = 18.0          # radio de la parte del lóbulo de la traba que entra más allá de la placa
-    d["STE_piv_t"] = 20.0              # espesor del lóbulo del pivote: piloto Ø24 h6 de 19,5 mm
+    d["STE_piv_t"] = 20.0              # espesor del lóbulo del pivote: piloto Ø24 h6 del casquillo de 20 mm (enrasado)
 
     # ------------------------------------------------------------------ bucket (REV)
     d["bucket_down_deg"] = 70.0        # [SUPUESTO: pedido del brief, default 70°] (lo lee params.loc_bucket)
@@ -140,8 +140,8 @@ def extend(d):
     d["REV_t"] = 8.0                   # Al 5083 8 mm [CALCULADO: structural_direccion (cuchara a torsión, 1 traba, R12) + FEA P1-REV-01]
     d["REV_n_locks"] = 2               # émbolos P1-REV-04, uno por brazo (±Y): redundancia (cada uno solo lleva M_h)
     d["REV_release_need"] = d["REV_t"] + 1.5   # recorrido del pomo para liberar el brazo (perno +1 sobre la cara + 0,5 de luz) [CALCULADO]
-    # Pivote: espaciador de dúplex 1.4462 con brida Ø36 × 3 apoyada en la cara exterior de la oreja y piloto ajustado en el
-    # agujero H7 de la oreja (ubica el pivote: ronda 4, R4-03); el brazo gira a 1,5 mm de la brida (arandela del buje 1 mm)
+    # Pivote: casquillo de dúplex 1.4462 con brida Ø36 × 4 apoyada en la cara exterior de la oreja y piloto ajustado en el
+    # agujero H7 del lóbulo (ubica el pivote: ronda 4, R4-03); el brazo gira a 1,5 mm de la brida (brida del buje 1 mm)
     d["REV_sp_fl_d"] = 36.0
     d["REV_sp_fl_t"] = 4.0             # flexión de la brida por la precarga (placa anular) [CALCULADO: structural_direccion, ronda 5]
     d["REV_y_in"] = d["STE_ear_y1"] + d["REV_sp_fl_t"] + 1.5   # cara interior de los brazos
@@ -152,18 +152,17 @@ def extend(d):
     d["REV_cup_t0"] = 85.0             # arco de la cuchara (ángulo paramétrico, °): labio superior
     d["REV_cup_t1"] = -105.0           # labio inferior: el agua sale hacia proa y abajo
     # Pivote del bucket: la reacción de la traba (tangencial, M_h/r) se suma al chorro en el pivote del brazo trabado:
-    # 3,3 kN con R12 y una traba sola (structural_direccion, jet_momentum). Pivote = espaciador 316 (P1-REV-02: muñón
-    # Ø20 h7, brida Ø36, piloto Ø16 h6) apretado contra la oreja por un tornillo M12 A4-80 con tuerca autoblocante por
-    # dentro; el bucket gira sobre el muñón con un buje POM-C (P1-REV-03) de brazo + aro de refuerzo (18 mm).
-    d["REV_pin_d"] = 20.0              # Ø del muñón del espaciador (h7) [CALCULADO: structural_direccion]
-    # piloto = muñón (Ø20 h6 ajustado en el Ø20 H7 de la oreja): es el camino DISEÑADO del momento del pivote (par de
-    # aplastamiento en la oreja); con Tef-Gel la brida desliza con R12 y no se cuenta con la unión apretada (ronda 5, MEC-02)
+    # 3,3 kN con R12 y una traba sola (structural_direccion, jet_momentum). Pivote en DOS piezas de dúplex (P1-REV-02,
+    # re-auditoría ronda 5, MECH-1): casquillo (brida Ø36 × 4, piloto Ø24 h6 con Loctite 641, Ø20 H7 ciego) puesto antes
+    # del bucket y muñón Ø20 h7 que entra después por el buje; tornillo M12 A4-80 con tuerca baja ISO 4035 por dentro; el
+    # bucket gira sobre el muñón con un buje POM-C (P1-REV-03) de brazo + aro de refuerzo (18 mm).
+    d["REV_pin_d"] = 20.0              # Ø del muñón (h7) [CALCULADO: structural_direccion]
+    # el piloto del casquillo ajustado en el lóbulo es el camino DISEÑADO del corte y del momento del pivote (par de
+    # aplastamiento en la oreja); la brida no lleva corte (con Tef-Gel desliza con R12: ronda 5, MEC-02)
     d["REV_sp_pilot_d"] = 24.0         # piloto Ø24 h6 (> muñón): baja la presión de aplastamiento en la oreja [CALCULADO: FEA STE-01, ronda 5]
     d["REV_bolt_d"] = 12.0             # tornillo ISO 4017 M12 A4-80 [CALCULADO: structural_direccion]
-    # par de apriete con Tef-Gel y su dispersión (método del par): F = T/(K·d) con K 0,12–0,22 [ESTIMADO: K típico de
-    # inox lubricado 0,12–0,22; VDI 2230 da la dispersión del método del par]. La mínima no deja abrir la unión con
-    # R12 (fila de structural_direccion); la máxima limita la presión en la oreja y la tensión del tornillo.
-    # Ronda 5 (re-auditoría MEC-01/02): el corte y el momento del pivote los lleva el piloto ajustado en la oreja; el tornillo
+    # par de apriete con Loctite 243 y su dispersión (método del par): F = T/(K·d) con K 0,15–0,28 [ESTIMADO]. Ronda 5
+    # (re-auditoría MEC-01/02): el corte y el momento del pivote los lleva el piloto ajustado en el lóbulo; el tornillo
     # solo RETIENE (precarga baja): con precarga alta la brida y el muñón fluían. Rosca con Loctite 243 (no Tef-Gel).
     d["REV_bolt_T_Nm"] = 12.0
     d["REV_bolt_K"] = (0.15, 0.28)     # [ESTIMADO: inox con fijador de roscas, como el cuerpo del émbolo]
@@ -185,8 +184,9 @@ def extend(d):
     d["REV_head_d"] = 24.0             # arandela ISO 7089 M12 (Ø24 × 2,5) bajo la cabeza hexagonal (18 e/c × 7,5)
     d["REV_washer_in"] = (37.0, 3.0)   # arandela ancha ISO 7093 M12 (Ø37 × 3) por dentro de la oreja [ESTIMADO: ISO 7093-1; ronda 5, MEC-06]
     # tuerca BAJA ISO 4035 M12 A4-035 + Loctite 243 (con la precarga baja alcanza su carga de prueba con margen, fila de
-    # structural_direccion; deja entrar el lóbulo del pivote de 20 mm con el M12 × 60) [ESTIMADO: ISO 4035 M12, m máx. 7]
-    d["REV_nut_h"] = 7.0
+    # structural_direccion; deja entrar el lóbulo del pivote de 20 mm con el M12 × 60) [ESTIMADO: ISO 4035 M12, m máx. 6
+    # (7 es la DIN 439-B; re-auditoría ronda 5, MECH-9)]
+    d["REV_nut_h"] = 6.0
     d["REV_head_t"] = 10.0             # arandela 2,5 + cabeza 7,5
     # biela del Mach5: perno en el brazo +Y a REV_stud_r del pivote, a +35° (arriba) y −35° (abajo):
     # cuerda VERTICAL a popa del pivote → la varilla del Mach5 trabaja vertical, anclada en la boquilla,

@@ -40,6 +40,10 @@ PLG_SPRING_L1 = 30.0
 PLG_CAP_T = 4.0
 PLG_KNOB_L = 10.0
 PLG_KNOB_D = 23.0             # pomo Ø23 (< agujero Ø24 de la oreja: el émbolo armado entra desde afuera)
+PLG_KNOB_BOTTOM = 2.0         # fondo del pomo (rosca ciega M10×1 × 8 + fondo de 2 con Ø4,5 para el vástago M4)
+PLG_TAIL_L = PLG_SPRING_L1 + PLG_CAP_T + PLG_KNOB_L - PLG_KNOB_BOTTOM   # cola Ø10: termina contra el fondo del pomo
+#                               (re-auditoría ronda 5, MECH-2: con 44 la punta sobresalía 3 mm y se comía la carrera)
+PLG_TAIL_M4_DEPTH = 12.0      # rosca M4 axial en la cola (el vástago llega a 10,85 con el ajuste en su mínimo)
 PLG_BODY_D = 24.0
 # cuerpo AJUSTADO en el lóbulo de la oreja (ronda 5): collar EXTERIOR Ø32 × 1,5 en la luz lóbulo–brazo (ubica la punta y
 # toma el empuje del resorte y el tiro del cable, ≤ 150 N, hacia adentro) y, por dentro, anillo DIN 471 de Ø24 + arandela
@@ -51,6 +55,22 @@ PLG_RING_T = 2.0              # anillo 1,2 + arandela 0,8
 PLG_RING_GROOVE_D = 22.9      # Ø de la ranura del anillo DIN 471-24 (m 1,3) [ESTIMADO: DIN 471, eje 24]
 PLG_FIT_EXT = 4.0             # Ø24 h6 más allá de la cara interior del lóbulo: arandela 0,8 + ranura 1,3 + borde ≥ 1,8 [ESTIMADO: DIN 471 n]
 PLG_NUT_T = PLG_RING_T        # zona del retén interior a lo largo del eje (nombre histórico)
+
+
+SADDLE_CLR = 2.0             # luz radial del émbolo más bajo a la garganta del cuerpo de la boquilla (MECH-3) [SUPUESTO]
+
+
+def saddle(p):
+    """Garganta de P1-STE-01 bajo el émbolo más bajo (re-auditoría ronda 5, MECH-3): coaxial con su eje, radio = el
+    mayor de cuerpo y pomo + SADDLE_CLR, en el tramo de Y desde 2 mm afuera del extremo del tramo ajustado (lado del
+    émbolo) hasta el pomo TIRADO (del otro lado del plano medio). Devuelve dict(side, x, z, r, y0, y1)."""
+    lo = min(lock_sides(p), key=lambda s: lock_xz(p, s)[1])
+    x, z = lock_xz(p, lo)
+    r = max(PLG_BODY_D, PLG_KNOB_D) / 2 + SADDLE_CLR
+    y_in = p.STE_lock_y1 - p.STE_lock_t - PLG_FIT_EXT + 2.0          # extremo del lado del lóbulo (+Y del émbolo +Y)
+    y_kn = knob_end_y(p) - p.REV_plunger_stroke                      # pomo tirado, del otro lado (y < 0 para el +Y)
+    a, b = sorted((lo * y_in, lo * y_kn))
+    return dict(side=lo, x=x, z=z, r=r, y0=a, y1=b)
 
 
 def body_end_y(p):
@@ -124,7 +144,7 @@ SPRING_F_MAX = spring_F(SPRING_L_MIN)      # ≈ 45 N con el perno afuera [CALCU
 # ---------------------------------------------------------------------------------------------------------------
 # Desbloqueo (ronda 4, R4-06/R4-07): cada pomo se tira por un BALANCÍN de reenvío 1:1 (P1-REV-09) detrás de los émbolos
 # (popa, X > collares de los émbolos), porque entre las orejas no cabe un tope de vaina coaxial con el pomo: la vaina tendría que
-# girar 90° con R ≥ BOWDEN_R_MIN dentro de |Y| ≤ 53 (cara interior del brazo del bucket 56,5 − r de la vaina − 1)
+# girar 90° con R ≥ BOWDEN_R_MIN dentro de |Y| ≤ 53 (brida del buje POM sobre la cara interior del brazo, |Y| 56,5, − r de la vaina − 1)
 # partiendo de |Y| ≥ 26 (pomo tirado + regulador) → faltan ≥ 3 mm [CALCULADO]. El pomo tira de un ESLABÓN RÍGIDO
 # (re-auditoría ronda 5, DES-04: un lazo de cable crimpado de 10 mm no se puede fabricar): ojo de 316 con RANURA vertical
 # en el perno de manivela + vástago M4 roscado en la cola del perno del émbolo (rosca M4 axial en la cola, P1-REV-04),
@@ -145,7 +165,8 @@ LINK_GAP = 3.15         # vástago M4 a la vista entre el ojo y la cara del pomo
 LINK = LINK_EYE_HALF + LINK_GAP   # cara del pomo → eje del perno de manivela, en reposo [CALCULADO: ojo 5,1 + 3,15]
 LINK_ADJ = 2.0          # rango físico del ajuste roscado del eslabón (±, vástago M4) [SUPUESTO: ≥ LINK_STACK_FULL, check en P1-REV-09]
 LINK_TOL = 0.75         # desajuste residual del largo revisado en la cinemática (±) [SUPUESTO: ≥ LINK_STACK_RES, check en P1-REV-09]
-LINK_SHANK_L = 12.0     # vástago M4 del ojo (rosca enganchada en la cola: 12 − LINK_GAP − LINK_ADJ ≥ 1,5·d) [SUPUESTO]
+LINK_SHANK_L = 14.0     # vástago M4 del ojo (rosca enganchada en la cola: 14 − LINK_GAP − fondo del pomo − LINK_ADJ ≥ 1,5·d;
+#                         re-auditoría ronda 5, MECH-6) [SUPUESTO]
 LINK_HALF_TURN = 0.35   # media vuelta del M4 × 0,7 (la ranura del ojo queda vertical cada media vuelta) [CALCULADO: paso ISO 0,7]
 # Cadena de tolerancias pomo ↔ perno de manivela a lo largo de Y (peor caso, mm) [SUPUESTO: tolerancias de taller típicas
 # ISO 2768-m de piezas torneadas/fresadas chicas; holgura de los M5 en Ø5,5]:
