@@ -1,0 +1,1431 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FEA de las piezas críticas del waterjet — P1-DRV-03, P1-REV-01… — P1-J · Strålen</title>
+<meta name="description" content="FEA lineal elástico 3D de las piezas más cargadas del waterjet eléctrico inboard: el pórtico de rodamientos que baja el empuje del tren a la placa base (DRV-03), el bucket de…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="FEA de las piezas críticas del waterjet — P1-DRV-03, P1-REV-01… — P1-J · Strålen">
+<meta property="og:description" content="FEA lineal elástico 3D de las piezas más cargadas del waterjet eléctrico inboard: el pórtico de rodamientos que baja el empuje del tren a la placa base (DRV-03), el bucket de…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/04_diseno/fea/README.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bea58e98">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FEA de las piezas críticas del waterjet — P1-DRV-03, P1-REV-01… — P1-J · Strålen">
+<meta name="twitter:description" content="FEA lineal elástico 3D de las piezas más cargadas del waterjet eléctrico inboard: el pórtico de rodamientos que baja el empuje del tren a la placa base (DRV-03), el bucket de…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bea58e98">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/04_diseno/fea/README.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header" id="top">
+  <div class="bar wide">
+    <a class="brand" href="../../../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../../../index.html" class=nav-home>Inicio</a><a href="../../../visor/index.html">Visor 3D</a><a href="../../../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../../../planos.html">Planos</a><a href="../../../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
+  </div>
+</header>
+<div class="stale" role="alert"><b>Vista previa con datos desactualizados</b> — 16 fuente(s) no coinciden con los resultados actuales; no compartir este enlace.</div>
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../../../documentos.html">Documentos</a> / <span class="mono">04_diseno/fea/README.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/04_diseno/fea/README.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#archivos-y-uso">Archivos y uso</a></li>
+<li><a href="#método">Método</a></li>
+<li><a href="#materiales-y-admisibles">Materiales y admisibles</a></li>
+<li><a href="#condiciones-de-borde-y-cargas">Condiciones de borde y cargas</a><ul>
+<li><a href="#p1-drv-03-pórtico-de-rodamientos-marco-bote"><span class="pid">P1-DRV-03</span> — pórtico de rodamientos (marco BOTE)</a></li>
+<li><a href="#p1-rev-01-bucket-abajo-marco-boquilla"><span class="pid">P1-REV-01</span> — bucket abajo (marco BOQUILLA)</a></li>
+<li><a href="#p1-ste-01-boquilla-direccional-marco-boquilla-δ-0"><span class="pid">P1-STE-01</span> — boquilla direccional (marco BOQUILLA, δ = 0)</a></li>
+<li><a href="#p1-int-02-placa-base-de-la-toma-marco-bote"><span class="pid">P1-INT-02</span> — placa base de la toma (marco BOTE)</a></li>
+<li><a href="#p1-ctl-02-caja-de-palancas-petg-marco-bote"><span class="pid">P1-CTL-02</span> — caja de palancas PETG (marco BOTE)</a></li>
+</ul>
+</li>
+<li><a href="#limitaciones">Limitaciones</a><ul>
+<li><a href="#materiales-y-admisibles_1">Materiales y admisibles</a></li>
+<li><a href="#mallas">Mallas</a></li>
+<li><a href="#resultados-malla-fina-tensiones-en-mpa-fs-admisible-σ-de-diseño">Resultados (malla fina) — tensiones en MPa; FS = admisible / σ de diseño</a></li>
+<li><a href="#convergencia-gruesa-fina">Convergencia (gruesa → fina)</a></li>
+<li><a href="#comparación-con-el-cálculo-a-mano-resultadosestructuraljson">Comparación con el cálculo a mano (resultados/estructural.json)</a></li>
+<li><a href="#variantes-propuestas-evaluadas-en-el-modelo-fea-la-pieza-no-se-modificó">Variantes propuestas (evaluadas en el modelo FEA; la pieza NO se modificó)</a></li>
+<li><a href="#hallazgos-cuantitativos">Hallazgos cuantitativos</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#archivos-y-uso">Archivos y uso</a></li>
+<li><a href="#método">Método</a></li>
+<li><a href="#materiales-y-admisibles">Materiales y admisibles</a></li>
+<li><a href="#condiciones-de-borde-y-cargas">Condiciones de borde y cargas</a><ul>
+<li><a href="#p1-drv-03-pórtico-de-rodamientos-marco-bote"><span class="pid">P1-DRV-03</span> — pórtico de rodamientos (marco BOTE)</a></li>
+<li><a href="#p1-rev-01-bucket-abajo-marco-boquilla"><span class="pid">P1-REV-01</span> — bucket abajo (marco BOQUILLA)</a></li>
+<li><a href="#p1-ste-01-boquilla-direccional-marco-boquilla-δ-0"><span class="pid">P1-STE-01</span> — boquilla direccional (marco BOQUILLA, δ = 0)</a></li>
+<li><a href="#p1-int-02-placa-base-de-la-toma-marco-bote"><span class="pid">P1-INT-02</span> — placa base de la toma (marco BOTE)</a></li>
+<li><a href="#p1-ctl-02-caja-de-palancas-petg-marco-bote"><span class="pid">P1-CTL-02</span> — caja de palancas PETG (marco BOTE)</a></li>
+</ul>
+</li>
+<li><a href="#limitaciones">Limitaciones</a><ul>
+<li><a href="#materiales-y-admisibles_1">Materiales y admisibles</a></li>
+<li><a href="#mallas">Mallas</a></li>
+<li><a href="#resultados-malla-fina-tensiones-en-mpa-fs-admisible-σ-de-diseño">Resultados (malla fina) — tensiones en MPa; FS = admisible / σ de diseño</a></li>
+<li><a href="#convergencia-gruesa-fina">Convergencia (gruesa → fina)</a></li>
+<li><a href="#comparación-con-el-cálculo-a-mano-resultadosestructuraljson">Comparación con el cálculo a mano (resultados/estructural.json)</a></li>
+<li><a href="#variantes-propuestas-evaluadas-en-el-modelo-fea-la-pieza-no-se-modificó">Variantes propuestas (evaluadas en el modelo FEA; la pieza NO se modificó)</a></li>
+<li><a href="#hallazgos-cuantitativos">Hallazgos cuantitativos</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="fea-de-las-piezas-críticas-del-waterjet-p1-drv-03-p1-rev-01-p1-ste-01-p1-int-02-p1-ctl-02">FEA de las piezas críticas del waterjet — <span class="pid">P1-DRV-03</span>, <span class="pid">P1-REV-01</span>, <span class="pid">P1-STE-01</span>, <span class="pid">P1-INT-02</span>, <span class="pid">P1-CTL-02</span></h1>
+<p>FEA lineal elástico 3D de las piezas más cargadas del waterjet eléctrico inboard: el pórtico de
+rodamientos que baja el empuje del tren a la placa base (DRV-03), el bucket de reversa (REV-01), la
+boquilla direccional (STE-01), la placa base de la toma (INT-02) y una pieza impresa, la caja de
+palancas de la consola (CTL-02, PETG). La geometría, las cargas y los admisibles se leen del proyecto
+en cada corrida; todas las cifras de resultados están en el bloque AUTO del final, que regenera
+<code>fea_run.py</code> y no se edita a mano.</p>
+<h2 id="archivos-y-uso">Archivos y uso</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Archivo</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fea_run.py</code></td>
+<td>CLI. Corre las 5 piezas con malla gruesa y fina, evalúa las variantes propuestas, escribe <code>resultados_fea.json</code>, <code>img/*.png</code> y el bloque AUTO de este README</td>
+</tr>
+<tr>
+<td><code>fea_parts.py</code></td>
+<td>Modelo de cada pieza: geometría (build(p) + consultas al CAD), BCs, cargas, casos, regiones y filas del cálculo a mano que se comparan</td>
+</tr>
+<tr>
+<td><code>fea_model.py</code></td>
+<td>Interfaces de resortes (Winkler, cuerpo rígido, unilaterales), iteración de contacto, post-proceso (global y por región)</td>
+</tr>
+<tr>
+<td><code>fea_core.py</code></td>
+<td>Malla gmsh (con optimización Netgen), espacio P2, ensamble vectorizado, cargas de superficie y solver PCG de dos niveles</td>
+</tr>
+<tr>
+<td><code>fea_plot.py</code></td>
+<td>Mapas de tensión sobre la superficie (matplotlib)</td>
+</tr>
+<tr>
+<td><code>../../tests/test_fea.py</code></td>
+<td>Viga en voladizo contra la solución analítica, verificación cruzada con scikit-fem, cuerpo rígido + Winkler, malla gruesa de CTL-02, estática del bucket contra structural_direccion, carga aplicada = estática en REV-01/STE-01 (setup con malla muy gruesa), traba única con M_h completo (casos d/e/f/g), bordes de agujeros cargados y cumplimiento en el JSON</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-bash">python 04_diseno/fea/fea_run.py              # todo (gruesa + fina + variantes), 3 procesos: ~12 min
+python 04_diseno/fea/fea_run.py --quick      # solo malla gruesa, sin imágenes ni README (~2,5 min) → resultados_fea_quick.json
+python 04_diseno/fea/fea_run.py --only <span class="pid">P1-STE-01</span> --h <span class="pid">P1-STE-01</span>=10,6 --out /tmp/ste.json   # una pieza / otros tamaños
+python 04_diseno/fea/fea_run.py --only <span class="pid">P1-REV-01</span> <span class="pid">P1-STE-01</span> --merge   # rehace esas piezas dentro de resultados_fea.json + README
+python 04_diseno/fea/fea_run.py --readme-only   # rehace hallazgos y bloque AUTO desde resultados_fea.json
+python -m pytest -q tests/test_fea.py        # ~1 min [ESTIMADO] (incluye dos setups de malla muy gruesa)
+</code></pre>
+<p>Dependencias: <code>gmsh</code>, <code>scipy</code>, <code>numpy</code>, <code>matplotlib</code>, <code>build123d</code>; <code>scikit-fem</code> solo en el test.
+gmsh necesita <code>libglu1-mesa</code> del sistema. <code>--quick</code> escribe en <code>resultados_fea_quick.json</code> para no
+pisar el entregable.</p>
+<h2 id="método">Método</h2>
+<ol>
+<li>
+<p><strong>Geometría.</strong> <code>params.load()</code> y el <code>build(p)</code> de cada módulo de pieza en su marco natural (BOTE
+    para DRV-03, INT-02 y CTL-02; BOQUILLA a δ = 0 para STE-01). El bucket se modela <strong>abajo</strong> (reversa)
+    con <code>build_down(p)</code>, en el marco de la boquilla. STEP temporal → gmsh (OCC). Los ejes de las roscas M5
+    de la tapa del pórtico se leen del CAD (OCP); el resto de las posiciones sale de params y de funciones
+    del módulo (<code>lock_pt</code>, <code>hull_bolts</code>, <code>bolt_x</code>, …). No hay posiciones copiadas a mano.</p>
+</li>
+<li>
+<p><strong>Malla.</strong> Tetraedros de gmsh (Delaunay 3D + optimización Netgen, que reduce las astillas de las
+    paredes finas del CAD), tamaño global <code>h</code>, refinamiento por curvatura y esferas de refinamiento a h/2
+    en los apoyos críticos (pivotes y trabas del bucket y el punto caliente de la ronda 3 en la cara exterior
+    de cada brazo, a ~47 mm [CALCULADO: FEA ronda 3] bajo el pivote; pivotes, roscas M24 y orejas de pivote de
+    STE-01; espárragos de INT-02). Las esferas quedan en <code>mallas.&lt;nivel&gt;.refine</code> del JSON. Malla
+    gruesa ≈ 1,7–2·h de la fina. Quedan algunas decenas de elementos con γ &lt; 0,05 en aristas del CAD
+    (columna n(γ&lt;0,05) del bloque AUTO); el p99 no depende de ellos.</p>
+</li>
+<li>
+<p><strong>Elementos y solver.</strong> Tetraedros P2 de 10 nodos (ensamble propio verificado contra
+    <code>skfem.ElementTetP2</code>), PCG con precondicionador de dos niveles P2 → P1, tolerancia 10⁻⁷.</p>
+</li>
+<li>
+<p><strong>Apoyos y contacto.</strong> Resortes Winkler (normales + 1 % tangencial de estabilización), contacto
+    unilateral por conjunto activo (la malla fina arranca del estado de la gruesa), pernos sin fricción con
+    normal radial exacta y cuerpos rígidos de 6 gdl (émbolo de la traba, yugo de dirección, conducto).</p>
+</li>
+<li>
+<p><strong>Post-proceso.</strong> Tensión P2 evaluada en vértices y promediada por nodo (ponderada por volumen).
+    Para cada caso: <strong>máx. global</strong> (incluye singularidades de aplicación), <strong>p99</strong> (percentil 99 en
+    volumen) y <strong>máx*</strong> = máximo fuera de un radio de exclusión r_excl = máx(4 mm, h_fina) alrededor de
+    cargas y apoyos concentrados (pernos, roscas, avellanados, arandelas). <strong>FS = admisible / σvm máx*</strong>
+    (metales dúctiles: von Mises). En PETG también σ1 y σZ (normal a las capas) contra S_Z; el FS es el
+    menor de los tres. Además se resume cada <strong>región</strong> de la pieza (máx*, p99 y <strong>promedio en
+    volumen</strong>): las filas del cálculo a mano de aplastamiento/corte se comparan con el promedio en el
+    volumen que la fila representa (anillo alrededor del agujero, cilindro del tapón, capa bajo el cono).</p>
+<ul>
+<li>
+<p><strong>Borde de agujeros cargados por perno («lug», auditoría ronda 4, F3).</strong> La exclusión r_excl alrededor
+    de un agujero cargado tapa el pico de sección neta del borde a ±90° de la carga (y parte del ligamento
+    de la rosca M24 de STE-01). Se eligió reportarlo como <strong>verificación aparte</strong>: en cada caso, para cada
+    agujero cargado (trabas y pivotes de REV-01; pivotes Ø16 H7 y roscas M24 de STE-01) se toman los nodos
+    de la superficie del agujero con |cos θ| ≤ 0,5 [SUPUESTO: ventana θ = 60…120° desde la dirección de la
+    carga, proyectada ⟂ al eje] y se reporta el máximo de la tensión <strong>circunferencial |σθ|</strong> (la de sección
+    neta del «lug») y el σvm máx. de la ventana. La dirección de la carga es la reacción de la interfaz
+    (REV-01) o la fuerza aplicada (STE-01). <strong>FS = admisible del caso / |σθ| del borde</strong>, con el mismo objetivo
+    (≥ 2); el FS del caso es el menor entre el del cuerpo (máx*) y el de los bordes (criterio «borde»). El
+    σvm de la ventana es informativo: en el arco de contacto (p. ej. la mitad de apoyo de las trabas de REV-01,
+    que termina en θ = 90°, con el perno rígido que no acompaña el giro del brazo) incluye el aplastamiento y el
+    borde del contacto, que verifican las filas de aplastamiento. Se compara gruesa → fina; el agujero de una
+    traba deshabilitada no se evalúa como cargado y sale de las zonas excluidas (su entorno sí se evalúa).</p>
+</li>
+<li>
+<p><strong>Convergencia (F4).</strong> Si el máx* o el borde cambia &gt; 10 % de la malla gruesa a la fina se informa una
+    extrapolación tipo Richardson σ_ext = σ_f + (σ_f − σ_g)/(r^p − 1), con r = h_g/h_f locales (esfera de
+    refinamiento que contiene el punto) y p = 2 [SUPUESTO: tensión con P2 en campo suave]. Es informativa: el FS
+    de diseño sigue la regla de arriba, y la extrapolación figura en el bloque AUTO y en «Hallazgos».</p>
+</li>
+<li>
+<p><strong>Casos de diseño e informativos.</strong> El FS mínimo de la pieza se toma solo de los casos de diseño
+    (<code>casos_diseno</code> en el JSON); los informativos (p. ej. REV-01 a/b, con las dos trabas) se reportan igual.
+    Los casos de <strong>fatiga</strong> (reversa de sizing) se comparan con el admisible de fatiga del material
+    (<code>S_fat</code>) con el mismo objetivo.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Comparación con el cálculo a mano.</strong> Cada fila de <code>resultados/estructural.json</code> se compara con la
+    región que modela y el admisible de la propia fila. Las filas de fatiga de la reversa se comparan con los
+    casos de sizing <strong>corridos</strong> (no se escala un caso con contacto; auditoría ronda 4, F2). Solo se escala un
+    caso cuando el problema es homogéneo de grado 1 (contacto sin juego inicial: si u resuelve f, k·u resuelve
+    k·f), p. ej. la chapa de la cuchara a p_dinámica o el tubo de STE-01 a F_s de sizing; los casos con
+    desfase entre trabas nunca se escalan. Diferencias de FS &gt; 30 % se explican en «Hallazgos».</p>
+</li>
+</ol>
+<h2 id="materiales-y-admisibles">Materiales y admisibles</h2>
+<ul>
+<li>
+<p><strong>Aluminios.</strong> E = 70 GPa, ν = 0,33 [ESTIMADO: EN 1999-1-1]. Admisibles tomados de las constantes de
+    los <code>structural_&lt;grupo&gt;.py</code> (fuente única): DRV-03 <code>SY_6082_HAZ</code> = 115 MPa (zona soldada, en toda la
+    pieza); REV-01 <code>AL5083</code> = 125 MPa; STE-01 <code>AL6061</code> = 240 MPa; INT-02 <code>pmp_mat['Al 5083'].Sy</code> = 125 MPa.
+    Casos de fatiga (reversa de sizing): REV-01 <code>AL5083_WLCF</code> = 68 MPa [CALCULADO: detalle soldado FAT 25,
+    m = 3, 1e5 ciclos] en toda la pieza (conservador lejos de las soldaduras); STE-01 <code>AL6061_FAT</code> = 90 MPa
+    [ESTIMADO]. FS objetivo <code>fs_target_metal</code> = 2 en todos.</p>
+</li>
+<li>
+<p><strong>PETG (CTL-02).</strong> E = <code>materials.PETG.E_mpa</code>, ν = 0,38 [ESTIMADO]. <code>S_corta = σ_XY·f_agua·f_temp·f_proceso</code>;
+    <code>S_Z = mín(σ_Z, f_z·σ_XY)·f_agua·f_temp·f_proceso</code> (no se multiplica dos veces la debilidad entre
+    capas). La caja se imprime con <code>print_rot = (180, 0, 0)</code>: Z de impresión = z del bote, así que la
+    flexión de la tapa queda en el plano de las capas y la de las <strong>paredes</strong> cruza capas (σZ). FS objetivo
+    <code>fs_target_printed</code> = 3. Material macizo equivalente: la pieza real es 5 perímetros + 30 % giroide
+    (<code>solid_frac</code> 0,55), lo que en la tapa de 6 mm reduce la rigidez y la resistencia a flexión.</p>
+</li>
+</ul>
+<h2 id="condiciones-de-borde-y-cargas">Condiciones de borde y cargas</h2>
+<h3 id="p1-drv-03-pórtico-de-rodamientos-marco-bote"><span class="pid">P1-DRV-03</span> — pórtico de rodamientos (marco BOTE)</h3>
+<ul>
+<li>
+<p><strong>Geometría.</strong> Alma central de ±0,35·Ø del alojamiento con empalmes cóncavos r 3 alma–tablero y
+    alma–alojamiento (auditoría ronda 3, F-03: con el alma de ±Ø/4 el alojamiento entraba al tablero en una
+    cuña de ~30° y el pico no convergía).</p>
+</li>
+<li>
+<p><strong>Apoyos.</strong> Zapatas sobre la placa base: resortes <strong>bilaterales</strong> en toda la cara inferior de las
+    zapatas, normales k = E/t_placa y <strong>tangenciales k/2</strong> (unión precargada a T/(K·d) por espárrago ≫ el tiro
+    de servicio, que no se abre; el corte lo transmiten la fricción de la unión y los 2 pasadores Ø6 por
+    zapata que se escarian en montaje y no están en el CAD). Los agujeros Ø9 de los espárragos <strong>no</strong> son
+    apoyo en el modelo (las ranuras abiertas a popa no toman corte en x): solo son zona excluida (arandelas
+    y espárragos). Así está en <code>fea_parts.setup_drv03</code> (auditoría ronda 4, F6).</p>
+</li>
+<li>
+<p><strong>(a)</strong> Empuje <code>sizing.mech.Fa_max_N</code> hacia proa (eje del jet inclinado α): la tapa <span class="pid">P1-DRV-06</span> tira de
+    las 4 roscas M5 de la cara delantera (tracción uniforme en sus paredes). Radial 3 g × m_rotor + Fr
+    (de structural_tren) como apoyo cosenoidal en el Ø47, perpendicular al eje.</p>
+</li>
+<li>
+<p><strong>(b)</strong> El mismo Fa hacia popa sobre el resalte trasero, solo en el anillo de apoyo del aro exterior
+    (Da_max ≤ Ø ≤ D) + el mismo radial.</p>
+</li>
+</ul>
+<h3 id="p1-rev-01-bucket-abajo-marco-boquilla"><span class="pid">P1-REV-01</span> — bucket abajo (marco BOQUILLA)</h3>
+<ul>
+<li>
+<p><strong>Geometría.</strong> <code>build_down(p)</code>: chapa Al 5083 de <code>REV_t</code> = 8 mm, aro de refuerzo <code>REV_ring_t</code> = 10 mm en el
+    pivote (buje de brazo + aro), dos agujeros de traba Ø <code>REV_lock_hole_d</code> = 16,5 mm por brazo; en reversa
+    trabaja el de ABAJO de cada brazo (+Y a <code>REV_lock_ang</code>, −Y a <code>REV_lock_ang_m</code>, los dos a <code>REV_lock_r</code> del
+    pivote) [CALCULADO: params_direccion].</p>
+</li>
+<li>
+<p><strong>Carga (auditoría ronda 4).</strong> Balance de cantidad de movimiento del chorro, <code>structural_direccion.jet_momentum</code>
+    (la misma función que usa la fila a mano): entra J = F_b/(1 − t_x) por el eje en +x y sale por el labio
+    inferior con el mismo módulo en la dirección t_out (tangente de la elipse interior en <code>REV_cup_t1</code>). En el
+    FEA: <strong>entrada</strong> = tracción uniforme en +x por área proyectada del chorro (Ø del chorro + cono a la altura
+    del fondo de la cuchara) sobre la cara interior de la cuchara, con resultante J; <strong>salida</strong> = tracción
+    uniforme −J·t_out en una franja de 10 mm [SUPUESTO] medida sobre la cuchara junto al labio inferior, de ancho
+    |y| ≤ R_chorro. El setup <strong>verifica</strong> que la resultante y el momento alrededor del pivote coinciden con
+    <code>bucket_reactions</code> (± 2 %; si no, se detiene) y los guarda en <code>extra.resultante</code> y en
+    <code>verificacion_mano.resultante_R12</code>.</p>
+</li>
+<li>
+<p><strong>Apoyos.</strong> Pivotes: muñón del espaciador <span class="pid">P1-REV-02</span> en el buje POM <span class="pid">P1-REV-03</span> (Ø <code>REV_bush_od</code>,
+    k = E_POM/espesor del buje, unilaterales, sin fricción, resorte axial débil), con la reacción de cada lado.
+    <strong>Trabas: una por brazo.</strong> Cada émbolo (perno Ø <code>REV_lock_pin_d</code>) es un cuerpo rígido que <strong>solo
+    reacciona en la dirección tangencial</strong> al círculo alrededor del pivote (el momento), como el cálculo a mano,
+    y apoya solo en la <strong>mitad de su agujero</strong> que avanza hacia el perno (la otra mitad tiene la holgura).
+    Rigidez del émbolo 10⁶ N/mm [SUPUESTO] y resorte débil en las otras traslaciones.</p>
+</li>
+<li>
+<p><strong>Casos (criterio de traba única, ronda 4).</strong> (a) R12 con las dos trabas apoyando a la vez, sin desfase
+    (<strong>informativo</strong>). (b) R12 con la traba −Y apoyando 0,10 mm [SUPUESTO] después de la +Y (<strong>informativo</strong>, sin
+    requisito: el desfase no está controlado y ya no es criterio). (d)/(e) <strong>DISEÑO</strong>: R12 con <strong>solo</strong> la traba
+    +Y / <strong>solo</strong> la −Y (la interfaz de la otra no existe en el caso y su agujero sale de las zonas excluidas):
+    FS ≥ 2 contra fluencia. (f)/(g) <strong>DISEÑO, fatiga</strong>: lo mismo con la reversa de sizing, corrida (no
+    escalada), contra <code>AL5083_WLCF</code>. Ya no hay casos de «falla» ni variantes de falla doble: son estos casos.</p>
+</li>
+<li>
+<p><strong>Borde de los agujeros</strong> (trabas y pivotes): verificación de sección neta a ±90° de la reacción (Método, 5).</p>
+</li>
+</ul>
+<h3 id="p1-ste-01-boquilla-direccional-marco-boquilla-δ-0"><span class="pid">P1-STE-01</span> — boquilla direccional (marco BOQUILLA, δ = 0)</h3>
+<ul>
+<li>
+<p><strong>Apoyos.</strong> Pernos de pivote fijos (orejas de la bomba rígidas): contacto radial unilateral en el Ø8 H7
+    de la mejilla superior y en las roscas M6 de las orejas superior e inferior; arandelas POM de empuje
+    como resortes axiales (la boquilla queda atrapada entre las orejas de la bomba). El <strong>yugo</strong> (brida
+    <span class="pid">P1-STE-04</span> sobre la torre) es un cuerpo rígido unido a las 4 roscas M8 y a la cara superior de la torre,
+    con <strong>solo el giro alrededor del eje de pivote bloqueado</strong>: reacciona el par de dirección (la biela del
+    M66) sin fuerza neta.</p>
+</li>
+<li>
+<p><strong>(a)</strong> F_s = máx(<code>sizing.loads.F_steer_side_N</code>, 364 N de R12) lateral, como presión cosenoidal en el
+    paso Ø2·r_b, en una banda centrada en el centro de presión e = <code>STE_e_frac</code>·L (el modelo de la fila a
+    mano). <strong>(b)</strong> La misma F_s en los últimos 20 mm de la boca de salida (brazo ≈ L, conservador).</p>
+</li>
+<li>
+<p><strong>Reversa (auditoría ronda 4, F1).</strong> Fuerzas del bucket sobre cada oreja de <code>bucket_statics</code>
+    (= <code>structural_direccion.bucket_reactions</code>, cantidad de movimiento del chorro) con <strong>M_h completo en una
+    traba</strong>: esa oreja recibe su pivote (chorro/2 + traba) y su traba; la otra, solo chorro/2 en su pivote. Carga
+    <strong>autoequilibrada</strong> por oreja:</p>
+<ul>
+<li>
+<p>pivote: la <strong>fuerza</strong> la toma el piloto Ø16 h6 del espaciador <span class="pid">P1-REV-02</span> en el agujero Ø16 H7 de la oreja
+    (apoyo cosenoidal con la resultante exacta en el plano; la selección se limita a la oreja,
+    |y| ≥ <code>STE_ear_y0</code> − 0,5: el CAD ya no tiene el agujero pasante de lado a lado que mordía la torre del
+    yugo, y el JSON guarda <code>facetas_agujero_pivote_fuera_de_las_orejas</code>, que debe ser 0). El <strong>momento</strong> del
+    muñón en voladizo (fuerza en la mitad del buje, brazo <code>brazo_par_espaciador_mm</code> hasta el plano medio de la
+    oreja) lo toma la <strong>brida Ø36</strong> sobre la cara exterior como tracción normal lineal con <strong>resultante nula</strong>;</p>
+</li>
+<li>
+<p>traba: la <strong>fuerza</strong> del perno sobre la <strong>rosca M24×1,5 de la misma oreja</strong> (apoyo cosenoidal) y su
+    <strong>momento</strong> (perno en voladizo hasta la mitad del brazo, <code>brazo_par_perno_traba_mm</code>) como par lineal de
+    resultante nula <strong>bajo la contratuerca</strong> M24×1,5 en la cara interior (apoyo hasta Ø36 [ESTIMADO: 36 e/c]).
+El setup <strong>verifica</strong> que la resultante aplicada y su momento alrededor del eje del pivote coinciden con la
+estática (± 1 %; <code>verificacion_mano.resultante_bucket</code>). La precarga del M12 y de la contratuerca
+(autoequilibradas) no se modelan.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Casos.</strong> (c)/(c2) <strong>DISEÑO</strong>: reversa R12 con M_h completo en la traba +Y / −Y (FS ≥ 2 contra
+    fluencia). (d)/(d2) c/c2 + (a) (maniobra en reversa). (f)/(f2) <strong>DISEÑO, fatiga</strong>: reversa de sizing con
+    M_h completo en la traba +Y / −Y, corrida, contra <code>AL6061_FAT</code>. Se quitaron los casos con el reparto máximo
+    entre trabas y la variante «completo» (hoy son los casos de diseño).</p>
+</li>
+<li>
+<p><strong>Borde de los agujeros</strong> (pivotes Ø16 H7 y roscas M24): verificación de sección neta a ±90° de la carga
+    aplicada (Método, 5).</p>
+</li>
+</ul>
+<h3 id="p1-int-02-placa-base-de-la-toma-marco-bote"><span class="pid">P1-INT-02</span> — placa base de la toma (marco BOTE)</h3>
+<ul>
+<li>
+<p><strong>Apoyos.</strong> Ala sobre el casco: resortes k = E/t_casco, bilaterales (26 × M6 precargados; la junta no
+    se abre con estas cargas). Arandela + tuerca de cada M6 del ala: empotradas.</p>
+</li>
+<li>
+<p><strong>(a)</strong> Espárragos del pórtico: precarga T/(K·d) con el par de montaje de params (<code>drv_nut_torque_Nm</code>,
+    <code>drv_nut_K</code>) ± vuelco Fa·(h + t)/Δx/2 (popa a tracción) repartido con Φ = 0,25 (VDI 2230, como
+    structural_toma): tiro F_v + Φ·ΔF normal al cono del avellanado, compresión F_v − (1 − Φ)·ΔF + 3 g/4 de
+    la zapata en un anillo Ø24 (cono de compresión) y corte Fa/4 en ese anillo.</p>
+</li>
+<li>
+<p><strong>(b)</strong> Golpe de fondo <code>toma_p_slam_Pa</code> en la cara inferior, presión de cierre máx(p_cierre, p_golpe)
+    normal a todas las caras de la placa dentro de la abertura (cuña de la rampa y costados) y tiro de la
+    brida del conducto p·A_abertura en las roscas M6. <strong>Placa sola</strong>: sin la rigidez del conducto (cota
+    conservadora). <strong>(b2)</strong> Ídem con el conducto <span class="pid">P1-INT-01</span> como <strong>rigidizador rígido</strong> unido a la huella de
+    la brida y a las roscas M6, con el tiro aplicado al conducto (cota rígida; es la hipótesis del cálculo a
+    mano, que apoya el paño en la línea de bulones del conducto). La realidad está entre (b) y (b2).</p>
+</li>
+</ul>
+<h3 id="p1-ctl-02-caja-de-palancas-petg-marco-bote"><span class="pid">P1-CTL-02</span> — caja de palancas PETG (marco BOTE)</h3>
+<ul>
+<li>
+<p><strong>Geometría.</strong> Paredes de <code>W_OUT</code> = 5 mm engrosadas hacia afuera (auditoría ronda 3: con 3,5 mm la
+    tracción entre capas daba FS 2,74); las caras interiores, el entrehierro del sensor hall y las luces de la
+    manivela no cambian. Variante V1: sensibilidad con paredes de 4 mm.</p>
+</li>
+<li>
+<p><strong>Apoyos.</strong> Cara inferior del ala y de las paredes sobre la tapa de contrachapado de la consola
+    (Winkler unilateral, k = E_⟂/t_tapa, E_⟂ = 500 MPa [ESTIMADO]); 4 × M5 con arandela Ø10 empotrados, en
+    las posiciones del módulo de la pieza (<code>bolt_xy()</code>).</p>
+</li>
+<li>
+<p><strong>Carga.</strong> Mano apoyada 150 N [SUPUESTO de structural_direccion] como presión uniforme sobre el
+    material dentro de una palma Ø50 [SUPUESTO]: (a) sobre el nervio de 6 mm entre las dos ranuras de las
+    palancas, a mitad de su luz libre; (b) sobre el tramo de tapa más ancho, junto a la ranura del bucket.
+    Corta duración (S_corta, S_Z corta).</p>
+</li>
+</ul>
+<h2 id="limitaciones">Limitaciones</h2>
+<ul>
+<li>
+<p><strong>Lineal, desplazamientos pequeños, isotrópico.</strong> Sin plasticidad: picos locales por encima de la
+    fluencia en zonas de apoyo (agujeros, avellanados) indican fluencia local, no rotura; por eso el FS de
+    diseño usa el máx* fuera de r_excl y se reporta también el p99.</p>
+</li>
+<li>
+<p><strong>Soldaduras.</strong> No se modela la geometría del cordón ni la ZAT como material distinto; el admisible de
+    ZAT se aplica a toda la pieza soldada (DRV-03, REV-01). La fatiga de soldadura solo entra por las filas
+    a mano escaladas.</p>
+</li>
+<li>
+<p><strong>Sin contacto real entre piezas</strong> (resortes de penalización, sin fricción) y piezas vecinas rígidas
+    (orejas de la bomba, pernos, émbolo). En INT-02 el conducto se acota entre «ausente» y «rígido».</p>
+</li>
+<li>
+<p><strong>Cargas cuasi-estáticas</strong> (sizing / R12) sin dinámica; los impactos solo entran por los factores de
+    los casos a mano.</p>
+</li>
+<li>
+<p><strong>PETG</strong> macizo equivalente (ver arriba).</p>
+</li>
+<li>
+<p><strong>Trabas del bucket (REV-01).</strong> El perno es rígido y no gira: cuando el brazo trabado se tuerce (traba
+    sola) el contacto se concentra en el borde del agujero; ese pico es aplastamiento local (filas de
+    aplastamiento), no sección neta. La holgura del agujero (Ø16,5 / Ø16) no se modela (contacto sin juego
+    en la mitad de apoyo).</p>
+</li>
+<li>
+<p><strong>Momento del perno de la traba en STE-01.</strong> Se lleva a la cara interior de la oreja bajo la contratuerca
+    [SUPUESTO: contratuerca apretada]; si quedara floja, el cuerpo del émbolo se apoyaría en los extremos de la
+    rosca (pares de apoyo opuestos), que el modelo no representa.</p>
+</li>
+</ul>
+<!-- FEA:AUTO:INICIO (generado por fea_run.py; no editar a mano) -->
+
+<p>Corrida: 2026-10-02 · inputs v2.0 · 3156 s [CALCULADO]</p>
+<h3 id="materiales-y-admisibles_1">Materiales y admisibles</h3>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Pieza</th>
+<th>Material</th>
+<th>Admisible [MPa]</th>
+<th>Criterio</th>
+<th>FS objetivo</th>
+<th>Marco</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="pid">P1-DRV-03</span></td>
+<td>Al 5052/6082</td>
+<td>115 (Al 6082-T651 soldado (ZAT))</td>
+<td>von Mises</td>
+<td>2</td>
+<td>BOTE</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>Al 5083</td>
+<td>125 (Al 5083-O/H111 (= ZAT))</td>
+<td>von Mises</td>
+<td>2</td>
+<td>BOQUILLA (bucket abajo)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>Al 6061-T6</td>
+<td>240 (Al 6061-T6)</td>
+<td>von Mises</td>
+<td>2</td>
+<td>BOQUILLA (δ = 0)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>Al 5083</td>
+<td>125 (Al 5083-H111)</td>
+<td>von Mises</td>
+<td>2</td>
+<td>BOTE</td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>PETG</td>
+<td>S_corta 23.97 · S_Z corta 9.18</td>
+<td>σvm, σ1 y σZ (Z de impresión (0.0, 0.0, -1.0))</td>
+<td>3</td>
+<td>BOTE</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="mallas">Mallas</h3>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Pieza</th>
+<th>Malla</th>
+<th>h [mm]</th>
+<th>Tetraedros</th>
+<th>gdl (P2)</th>
+<th>γ mín</th>
+<th>γ p1</th>
+<th>n(γ&lt;0,05)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="pid">P1-DRV-03</span></td>
+<td>gruesa</td>
+<td>10</td>
+<td>13612</td>
+<td>74541</td>
+<td>0.004</td>
+<td>0.189</td>
+<td>27</td>
+</tr>
+<tr>
+<td><span class="pid">P1-DRV-03</span></td>
+<td>fina</td>
+<td>5</td>
+<td>44732</td>
+<td>235371</td>
+<td>0.014</td>
+<td>0.392</td>
+<td>27</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>gruesa</td>
+<td>6</td>
+<td>34799</td>
+<td>197334</td>
+<td>0.000</td>
+<td>0.348</td>
+<td>75</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>fina</td>
+<td>3.5</td>
+<td>110120</td>
+<td>577602</td>
+<td>0.000</td>
+<td>0.504</td>
+<td>68</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>gruesa</td>
+<td>8</td>
+<td>24881</td>
+<td>136005</td>
+<td>0.000</td>
+<td>0.017</td>
+<td>383</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>fina</td>
+<td>4.5</td>
+<td>74578</td>
+<td>389337</td>
+<td>0.000</td>
+<td>0.153</td>
+<td>495</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>gruesa</td>
+<td>14</td>
+<td>47904</td>
+<td>268719</td>
+<td>0.000</td>
+<td>0.228</td>
+<td>112</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>fina</td>
+<td>8</td>
+<td>93218</td>
+<td>507585</td>
+<td>0.000</td>
+<td>0.307</td>
+<td>168</td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>gruesa</td>
+<td>6</td>
+<td>11240</td>
+<td>65856</td>
+<td>0.082</td>
+<td>0.393</td>
+<td>0</td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>fina</td>
+<td>3</td>
+<td>46480</td>
+<td>259596</td>
+<td>0.208</td>
+<td>0.454</td>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="resultados-malla-fina-tensiones-en-mpa-fs-admisible-σ-de-diseño">Resultados (malla fina) — tensiones en MPa; FS = admisible / σ de diseño</h3>
+<p>σ de diseño = σvm máx* (máximo fuera de r_excl de cargas y apoyos) si cambia ≤ 20 % de la malla gruesa a la fina; si no converge (arista viva del CAD o astilla de malla), el máximo del promedio en una esfera de radio 3 mm («prom.»). En PETG el FS es el menor de σvm, σ1 y σZ (el criterio va entre paréntesis).</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Pieza</th>
+<th>Caso</th>
+<th>σvm máx</th>
+<th>σvm p99</th>
+<th>σvm máx*</th>
+<th>σvm prom.</th>
+<th>σ diseño</th>
+<th>u máx [mm]</th>
+<th><strong>FS</strong></th>
+<th>FS (p99)</th>
+<th>Veredicto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="pid">P1-DRV-03</span></td>
+<td>a: Empuje Fa = 764 N hacia proa (tapa → 4 × M5) + radial 3 g + Fr = 143 N</td>
+<td>32.58</td>
+<td>20.36</td>
+<td>26.29</td>
+<td>22.97</td>
+<td>26.29 (máx*)</td>
+<td>0.286</td>
+<td><strong>4.37</strong></td>
+<td>5.65</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-DRV-03</span></td>
+<td>b: Empuje Fa = 764 N hacia popa (resalte trasero, reversa) + radial 143 N</td>
+<td>39.41</td>
+<td>20.91</td>
+<td>29.59</td>
+<td>25.96</td>
+<td>29.59 (máx*)</td>
+<td>0.296</td>
+<td><strong>3.89</strong></td>
+<td>5.50</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>a: Reversa: chorro F_b = 1408 N en la cuchara; M_h = 127 N·m; R12: las dos trabas apoyan a la vez (reparto nominal)</td>
+<td>49.74</td>
+<td>14.08</td>
+<td>27.37</td>
+<td>19.49</td>
+<td>27.37 (máx*)</td>
+<td>0.114</td>
+<td><strong>4.57</strong></td>
+<td>8.88</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>b: Reversa: chorro F_b = 1408 N en la cuchara; M_h = 127 N·m; R12: la traba −Y apoya 0.1 mm después que la +Y (desfase de fabricación admitido)</td>
+<td>87.53</td>
+<td>18.79</td>
+<td>45.08</td>
+<td>31.62</td>
+<td>45.08 (máx*)</td>
+<td>0.521</td>
+<td><strong>2.77</strong></td>
+<td>6.65</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>c: Reversa: chorro F_b = 1408 N en la cuchara; M_h = 127 N·m; R12: la traba +Y apoya 0.1 mm después que la −Y (desfase de fabricación admitido)</td>
+<td>81.84</td>
+<td>18.74</td>
+<td>49.83</td>
+<td>34.01</td>
+<td>49.83 (máx*)</td>
+<td>0.544</td>
+<td><strong>2.51</strong></td>
+<td>6.67</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>d: Reversa: chorro F_b = 698 N en la cuchara; M_h = 63 N·m; FALLA, reversa de sizing: el émbolo −Y no entró (M_h por el brazo +Y)</td>
+<td>63.41</td>
+<td>13.58</td>
+<td>33.69</td>
+<td>23.08</td>
+<td>33.69 (máx*)</td>
+<td>0.504</td>
+<td><strong>3.71</strong></td>
+<td>9.20</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>e: Reversa: chorro F_b = 698 N en la cuchara; M_h = 63 N·m; FALLA, reversa de sizing: el émbolo +Y no entró (M_h por el brazo −Y)</td>
+<td>76.66</td>
+<td>14.46</td>
+<td>36.30</td>
+<td>25.36</td>
+<td>36.30 (máx*)</td>
+<td>0.504</td>
+<td><strong>3.44</strong></td>
+<td>8.64</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>a: Desvío del chorro F_s = máx(sizing 323, R12 364) = 364 N repartido en el paso (centro de presión e = 66 mm, = structural)</td>
+<td>20.53</td>
+<td>6.31</td>
+<td>15.25</td>
+<td>8.18</td>
+<td>15.25 (máx*)</td>
+<td>0.072</td>
+<td><strong>15.74</strong></td>
+<td>38.03</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>b: F_s = 364 N en la boca de salida (últimos 20 mm; brazo ≈ L = 132 mm, conservador)</td>
+<td>37.90</td>
+<td>11.67</td>
+<td>37.50</td>
+<td>15.09</td>
+<td>37.50 (máx*)</td>
+<td>0.138</td>
+<td><strong>6.40</strong></td>
+<td>20.57</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>c: Reversa R12 (F_b = 1408 N, M_h = 127 N·m) con M_h completo en la traba +Y: pivotes (+ par del espaciador) y rosca M20</td>
+<td>172.05</td>
+<td>64.08</td>
+<td>124.61</td>
+<td>94.32</td>
+<td>124.61 (máx*)</td>
+<td>0.769</td>
+<td><strong>1.93</strong></td>
+<td>3.75</td>
+<td><strong>NO CUMPLE</strong></td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>c2: Reversa R12 con M_h completo en la traba −Y: pivotes (+ par del espaciador) y rosca M20 de la oreja −Y</td>
+<td>179.66</td>
+<td>80.92</td>
+<td>133.07</td>
+<td>101.84</td>
+<td>133.07 (máx*)</td>
+<td>1.134</td>
+<td><strong>1.80</strong></td>
+<td>2.97</td>
+<td><strong>NO CUMPLE</strong></td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>d: Combinado: reversa (c) + desvío F_s en el paso (a) (maniobra en reversa)</td>
+<td>172.02</td>
+<td>63.98</td>
+<td>124.59</td>
+<td>94.35</td>
+<td>124.59 (máx*)</td>
+<td>0.780</td>
+<td><strong>1.93</strong></td>
+<td>3.75</td>
+<td><strong>NO CUMPLE</strong></td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>d2: Combinado: reversa (c2) + desvío F_s en el paso (a)</td>
+<td>179.67</td>
+<td>80.94</td>
+<td>133.07</td>
+<td>102.15</td>
+<td>133.07 (máx*)</td>
+<td>1.116</td>
+<td><strong>1.80</strong></td>
+<td>2.97</td>
+<td><strong>NO CUMPLE</strong></td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>a: Espárragos del pórtico: precarga 6944 N (10 N·m, K 0.18) ± vuelco Fa·h/Δx/2 = 422 N (Φ = 0.25) + corte Fa/4</td>
+<td>63.39</td>
+<td>14.67</td>
+<td>9.55</td>
+<td>9.55</td>
+<td>9.55 (máx*)</td>
+<td>0.023</td>
+<td><strong>13.09</strong></td>
+<td>8.52</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>b: Golpe de fondo 50 kPa + presión de cierre 67 kPa en la abertura + tiro de la brida del conducto 4047 N (placa sola, sin la rigidez del conducto: conservador)</td>
+<td>51.41</td>
+<td>30.02</td>
+<td>51.10</td>
+<td>51.10</td>
+<td>51.10 (máx*)</td>
+<td>0.216</td>
+<td><strong>2.45</strong></td>
+<td>4.16</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>b2: Ídem (b) con el conducto <span class="pid">P1-INT-01</span> como rigidizador rígido abulonado (cota rígida; = modelo de structural_toma)</td>
+<td>20.86</td>
+<td>10.65</td>
+<td>18.26</td>
+<td>17.44</td>
+<td>18.26 (máx*)</td>
+<td>0.048</td>
+<td><strong>6.85</strong></td>
+<td>11.73</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>a: Mano apoyada 150 N, palma Ø50 en (x, y)_U = (-10, 0) mm (nervio entre ranuras); A cargada 847 mm²</td>
+<td>7.03</td>
+<td>2.88</td>
+<td>7.03</td>
+<td>6.85</td>
+<td>7.03 (máx*)</td>
+<td>0.813</td>
+<td><strong>3.41</strong></td>
+<td>8.34</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>b: Mano apoyada 150 N, palma Ø50 en (x, y)_U = (-62, -12) mm (tapa ancha junto a la ranura del bucket); A cargada 1472 mm²</td>
+<td>4.35</td>
+<td>2.22</td>
+<td>4.35</td>
+<td>3.66</td>
+<td>σZ 2.63 (máx*)</td>
+<td>0.419</td>
+<td><strong>3.49</strong> (Z)</td>
+<td>10.81</td>
+<td>cumple</td>
+</tr>
+</tbody>
+</table></div>
+<p>* máximo fuera de las zonas de aplicación de cargas/apoyos concentrados (r_excl en la tabla de convergencia); el máximo global incluye singularidades de aplicación y se reporta para transparencia.</p>
+<h3 id="convergencia-gruesa-fina">Convergencia (gruesa → fina)</h3>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Pieza</th>
+<th>Caso</th>
+<th>r_excl [mm]</th>
+<th>σvm p99</th>
+<th>σvm máx*</th>
+<th>σvm máx global</th>
+<th>u máx [mm]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="pid">P1-DRV-03</span></td>
+<td>a</td>
+<td>5</td>
+<td>21.40 → 20.36 (-5 %)</td>
+<td>25.54 → 26.29 (+3 %)</td>
+<td>28.07 → 32.58 (+14 %)</td>
+<td>0.2824 → 0.2861 (+1 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-DRV-03</span></td>
+<td>b</td>
+<td>5</td>
+<td>21.98 → 20.91 (-5 %)</td>
+<td>29.60 → 29.59 (-0 %)</td>
+<td>33.02 → 39.41 (+16 %)</td>
+<td>0.2920 → 0.2962 (+1 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>a</td>
+<td>4</td>
+<td>14.40 → 14.08 (-2 %)</td>
+<td>22.93 → 27.37 (+16 %)</td>
+<td>48.78 → 49.74 (+2 %)</td>
+<td>0.1133 → 0.1137 (+0 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>b</td>
+<td>4</td>
+<td>20.16 → 18.79 (-7 %)</td>
+<td>40.35 → 45.08 (+10 %)</td>
+<td>77.84 → 87.53 (+11 %)</td>
+<td>0.5212 → 0.5215 (+0 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>c</td>
+<td>4</td>
+<td>20.48 → 18.74 (-9 %)</td>
+<td>40.67 → 49.83 (+18 %)</td>
+<td>81.09 → 81.84 (+1 %)</td>
+<td>0.5440 → 0.5445 (+0 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>d</td>
+<td>4</td>
+<td>14.45 → 13.58 (-6 %)</td>
+<td>29.11 → 33.69 (+14 %)</td>
+<td>54.91 → 63.41 (+13 %)</td>
+<td>0.5003 → 0.5045 (+1 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>e</td>
+<td>4</td>
+<td>15.63 → 14.46 (-8 %)</td>
+<td>29.95 → 36.30 (+17 %)</td>
+<td>73.75 → 76.66 (+4 %)</td>
+<td>0.5001 → 0.5043 (+1 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>a</td>
+<td>4</td>
+<td>6.68 → 6.31 (-6 %)</td>
+<td>12.39 → 15.25 (+19 %)</td>
+<td>13.91 → 20.53 (+32 %)</td>
+<td>0.0701 → 0.0720 (+3 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>b</td>
+<td>4</td>
+<td>12.58 → 11.67 (-8 %)</td>
+<td>31.06 → 37.50 (+17 %)</td>
+<td>31.06 → 37.90 (+18 %)</td>
+<td>0.1351 → 0.1381 (+2 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>c</td>
+<td>4</td>
+<td>57.77 → 64.08 (+10 %)</td>
+<td>114.83 → 124.61 (+8 %)</td>
+<td>151.83 → 172.05 (+12 %)</td>
+<td>0.4968 → 0.7688 (+35 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>c2</td>
+<td>4</td>
+<td>60.22 → 80.92 (+26 %)</td>
+<td>117.81 → 133.07 (+11 %)</td>
+<td>150.75 → 179.66 (+16 %)</td>
+<td>0.5967 → 1.1344 (+47 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>d</td>
+<td>4</td>
+<td>57.73 → 63.98 (+10 %)</td>
+<td>114.81 → 124.59 (+8 %)</td>
+<td>151.79 → 172.02 (+12 %)</td>
+<td>0.5050 → 0.7795 (+35 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>d2</td>
+<td>4</td>
+<td>60.03 → 80.94 (+26 %)</td>
+<td>117.81 → 133.07 (+11 %)</td>
+<td>150.76 → 179.67 (+16 %)</td>
+<td>0.5793 → 1.1164 (+48 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>a</td>
+<td>8</td>
+<td>14.07 → 14.67 (+4 %)</td>
+<td>9.00 → 9.55 (+6 %)</td>
+<td>63.94 → 63.39 (-1 %)</td>
+<td>0.0194 → 0.0226 (+14 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>b</td>
+<td>8</td>
+<td>27.79 → 30.02 (+7 %)</td>
+<td>47.52 → 51.10 (+7 %)</td>
+<td>47.80 → 51.41 (+7 %)</td>
+<td>0.2047 → 0.2162 (+5 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>b2</td>
+<td>8</td>
+<td>10.29 → 10.65 (+3 %)</td>
+<td>17.57 → 18.26 (+4 %)</td>
+<td>17.71 → 20.86 (+15 %)</td>
+<td>0.0458 → 0.0485 (+5 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>a</td>
+<td>4</td>
+<td>3.20 → 2.88 (-11 %)</td>
+<td>6.89 → 7.03 (+2 %)</td>
+<td>6.89 → 7.03 (+2 %)</td>
+<td>0.7892 → 0.8127 (+3 %)</td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>b</td>
+<td>4</td>
+<td>2.26 → 2.22 (-2 %)</td>
+<td>4.05 → 4.35 (+7 %)</td>
+<td>4.05 → 4.35 (+7 %)</td>
+<td>0.4020 → 0.4195 (+4 %)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="comparación-con-el-cálculo-a-mano-resultadosestructuraljson">Comparación con el cálculo a mano (resultados/estructural.json)</h3>
+<p>σ FEA = σvm de la región de la pieza que modela la fila (máx* salvo que se indique promedio en volumen), escalada a la carga de la fila (columna «×»). FS con el admisible de la fila. Dif = (FS_FEA − FS_mano)/FS_mano.</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Pieza</th>
+<th>Fila structural_*.py</th>
+<th>Caso FEA · región</th>
+<th>×</th>
+<th>σ mano [MPa]</th>
+<th>σ FEA [MPa] (p99)</th>
+<th>FS mano</th>
+<th>FS FEA</th>
+<th>Dif</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="pid">P1-DRV-03</span></td>
+<td>Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa)</td>
+<td>a · mejillas (prom. esfera)</td>
+<td>1.00</td>
+<td>1.02</td>
+<td>17.97 (7.79)</td>
+<td>112.30</td>
+<td>6.40</td>
+<td>-94 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-DRV-03</span></td>
+<td>Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico</td>
+<td>a · tablero_y_alma (máx*)</td>
+<td>1.00</td>
+<td>16.59</td>
+<td>26.29 (22.80)</td>
+<td>6.93</td>
+<td>4.37</td>
+<td>-37 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-DRV-03</span></td>
+<td>Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo</td>
+<td>b · alojamiento (prom. esfera)</td>
+<td>1.00</td>
+<td>2.99</td>
+<td>9.47 (9.47)</td>
+<td>80.29</td>
+<td>25.34</td>
+<td>-68 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>Brazo trabado: flexión en su plano con M_h completo (bucket R12, corta)</td>
+<td>b · brazos (máx*)</td>
+<td>1.00</td>
+<td>35.21</td>
+<td>45.08 (21.94)</td>
+<td>3.55</td>
+<td>2.77</td>
+<td>-22 %</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>Brazo trabado: flexión en su plano con M_h completo (reversa sizing, fatiga de soldadura)</td>
+<td>b · brazos (máx*)</td>
+<td>0.50</td>
+<td>17.46</td>
+<td>22.36 (10.88)</td>
+<td>3.89</td>
+<td>3.04</td>
+<td>-22 %</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>Cuchara como viga entre brazos (bucket R12, corta)</td>
+<td>a · cuchara (máx*)</td>
+<td>1.00</td>
+<td>2.30</td>
+<td>4.90 (4.13)</td>
+<td>54.32</td>
+<td>25.49</td>
+<td>-53 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta)</td>
+<td>a · cuchara (máx*)</td>
+<td>0.52</td>
+<td>3.89</td>
+<td>2.57 (2.16)</td>
+<td>32.15</td>
+<td>48.73</td>
+<td>+52 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>Chapa de la cuchara: franja (fatiga de soldadura, 1e5)</td>
+<td>a · cuchara (máx*)</td>
+<td>0.52</td>
+<td>3.89</td>
+<td>2.57 (2.16)</td>
+<td>17.49</td>
+<td>26.51</td>
+<td>+52 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>Cuchara abierta a torsión con un solo brazo trabado (FALLA: un émbolo no entró; reversa sizing)</td>
+<td>d · cuchara (máx*)</td>
+<td>1.00</td>
+<td>48.53</td>
+<td>22.87 (7.89)</td>
+<td>2.58</td>
+<td>5.46</td>
+<td>+112 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>Pivote: aplastamiento del brazo + aro (buje Ø22 × 14), R12 con reparto máx.</td>
+<td>b · pivotes (promedio)</td>
+<td>1.00</td>
+<td>7.74</td>
+<td>10.02 (32.65)</td>
+<td>16.15</td>
+<td>12.48</td>
+<td>-23 %</td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>Agujero de traba: aplastamiento del brazo con M_h completo (émbolo Ø12, R12)</td>
+<td>b · traba (promedio)</td>
+<td>1.00</td>
+<td>39.12</td>
+<td>12.64 (53.16)</td>
+<td>3.20</td>
+<td>9.89</td>
+<td>+209 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>Flexión del tubo por el desvío del chorro (fatiga, sizing)</td>
+<td>a · tubo (máx*)</td>
+<td>0.89</td>
+<td>0.62</td>
+<td>6.68 (3.52)</td>
+<td>145.87</td>
+<td>13.47</td>
+<td>-91 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>Oreja del bucket: flexión en su plano (bucket R12, corta; pivote + traba, M_h completo en una traba)</td>
+<td>c · orejas_bucket (máx*)</td>
+<td>1.00</td>
+<td>52.37</td>
+<td>124.61 (77.52)</td>
+<td>4.58</td>
+<td>1.93</td>
+<td>-58 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>Oreja del bucket: flexión (reversa sizing, fatiga; reparto máx. entre trabas)</td>
+<td>c · orejas_bucket (máx*)</td>
+<td>0.50</td>
+<td>17.97</td>
+<td>61.80 (38.44)</td>
+<td>5.01</td>
+<td>1.46</td>
+<td>-71 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>Oreja del bucket: ligamento de la rosca M20 de la traba (M_h completo en una traba, R12)</td>
+<td>c · orejas_bucket (máx*)</td>
+<td>1.00</td>
+<td>60.98</td>
+<td>124.61 (77.52)</td>
+<td>3.94</td>
+<td>1.93</td>
+<td>-51 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, reparto máx.)</td>
+<td>c · orejas_bucket (máx*)</td>
+<td>1.00</td>
+<td>52.79</td>
+<td>124.61 (77.52)</td>
+<td>4.55</td>
+<td>1.93</td>
+<td>-58 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-STE-01</span></td>
+<td>Oreja de pivote (dentro de la de la bomba): flexión de la raíz</td>
+<td>d · orejas_pivote (prom. esfera)</td>
+<td>1.00</td>
+<td>2.33</td>
+<td>23.66 (19.53)</td>
+<td>103.14</td>
+<td>10.15</td>
+<td>-90 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>Paño lateral entre bulones del conducto y del ala: golpe de fondo</td>
+<td>b2 · pano_lateral (máx*)</td>
+<td>1.00</td>
+<td>1.17</td>
+<td>18.26 (12.28)</td>
+<td>106.56</td>
+<td>6.85</td>
+<td>-94 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>Paño lateral entre bulones del conducto y del ala: golpe de fondo</td>
+<td>b · pano_lateral (máx*)</td>
+<td>1.00</td>
+<td>1.17</td>
+<td>51.10 (36.45)</td>
+<td>106.56</td>
+<td>2.45</td>
+<td>-98 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>Asiento cónico de la cabeza M8 en el 5083 (aplastamiento)</td>
+<td>a · asiento_cono (promedio)</td>
+<td>1.01</td>
+<td>50.82</td>
+<td>47.52 (59.77)</td>
+<td>2.46</td>
+<td>2.63</td>
+<td>+7 %</td>
+</tr>
+<tr>
+<td><span class="pid">P1-INT-02</span></td>
+<td>Arranque de la cabeza M8 a través de la placa (tapón de Ø dk sobre el cono)</td>
+<td>a · tapon_dk (promedio)</td>
+<td>1.01</td>
+<td>42.51</td>
+<td>22.54 (29.53)</td>
+<td>2.94</td>
+<td>5.54</td>
+<td>+89 % ⚠</td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta)</td>
+<td>a · tapa (máx*)</td>
+<td>1.00</td>
+<td>6.25</td>
+<td>7.03 (5.14)</td>
+<td>3.84</td>
+<td>3.41</td>
+<td>-11 %</td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta)</td>
+<td>b · tapa (máx*)</td>
+<td>1.00</td>
+<td>6.25</td>
+<td>4.35 (2.61)</td>
+<td>3.84</td>
+<td>5.51</td>
+<td>+44 % ⚠</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="variantes-propuestas-evaluadas-en-el-modelo-fea-la-pieza-no-se-modificó">Variantes propuestas (evaluadas en el modelo FEA; la pieza NO se modificó)</h3>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Pieza</th>
+<th>Variante</th>
+<th>Caso</th>
+<th>σvm máx*</th>
+<th>σvm p99</th>
+<th>u máx [mm]</th>
+<th>FS (máx*)</th>
+<th>FS (p99)</th>
+<th>Veredicto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>V1: FALLA DOBLE: el émbolo −Y no entró + reversa R12 sin límite del controlador (criterio: sin fluencia, FS ≥ 1)</td>
+<td>a</td>
+<td>67.71</td>
+<td>27.29</td>
+<td>1.017</td>
+<td><strong>1.85</strong></td>
+<td>4.58</td>
+<td><strong>NO CUMPLE</strong></td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-01</span></td>
+<td>V2: FALLA DOBLE: el émbolo +Y no entró + reversa R12 (criterio: sin fluencia, FS ≥ 1)</td>
+<td>a</td>
+<td>73.19</td>
+<td>29.10</td>
+<td>1.017</td>
+<td><strong>1.71</strong></td>
+<td>4.30</td>
+<td><strong>NO CUMPLE</strong></td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>V1: sensibilidad: paredes de 4 mm (hoy W_OUT = 5)</td>
+<td>a</td>
+<td>7.09</td>
+<td>3.21</td>
+<td>0.873</td>
+<td><strong>3.27</strong></td>
+<td>7.47</td>
+<td>cumple</td>
+</tr>
+<tr>
+<td><span class="pid">P1-CTL-02</span></td>
+<td>V1: sensibilidad: paredes de 4 mm (hoy W_OUT = 5)</td>
+<td>b</td>
+<td>6.06</td>
+<td>2.72</td>
+<td>0.515</td>
+<td><strong>2.89</strong></td>
+<td>8.80</td>
+<td><strong>NO CUMPLE</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>⚠ diferencia &gt; 30 %: explicada en «Hallazgos».</p>
+<h3 id="hallazgos-cuantitativos">Hallazgos cuantitativos</h3>
+<ul>
+<li><strong><span class="pid">P1-DRV-03</span>: FS = 3.89</strong> (objetivo 2, cumple); caso b, criterio vm: σ de diseño 29.6 MPa (máx<em>, máx</em> gruesa→fina -0 %) en (590.7, -23.0, 169.5) mm; σvm p99 20.9 MPa (FS p99 5.50). Máximo en la unión del alma central con el alojamiento Ø65 y el tablero (esquina viva, mecanizada o soldada): el empuje excéntrico y el radial entran al tablero por el alma. Cumple; conviene un radio ≥ 3 mm (o cordón de filete) en esa unión.<ul>
+<li>⚠ «Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa)»: FS mano 112.30 vs FS FEA 6.40 (-94 %). La fila solo mira la flexión de la mejilla en su plano por Fa/2 (sección 12 × 150, muy rígida). El FEA pone el máximo de la mejilla en su unión con el tablero: el tablero cargado por el alojamiento flexiona y arrastra el borde superior de la mejilla fuera de su plano (marco tablero + mejillas). Mecanismo que la fila no ve; nivel bajo.</li>
+<li>⚠ «Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico»: FS mano 6.93 vs FS FEA 4.37 (-37 %). El máximo está en la unión del alma central (columna tablero–alojamiento) con el tablero: el momento de Fa excéntrico y el radial entran al tablero por el alma, con concentración en la esquina viva de esa unión; la viga biapoyada de la fila no la ve. Fila a mano no conservadora, pero el FS sigue sobre 2.</li>
+<li>⚠ «Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo»: FS mano 80.29 vs FS FEA 25.34 (-68 %). La fila es el corte medio del resalte (τ = Fa/(π·D·t)), un valor nominal; el FEA mide la flexión del resalte como placa anular (el aro apoya solo entre Da_max y D) y la del alojamiento en su unión con el alma. Ambos lejos del admisible.</li>
+</ul>
+</li>
+<li><strong><span class="pid">P1-REV-01</span>: FS = 2.51</strong> (objetivo 2, cumple); caso c, criterio vm: σ de diseño 49.8 MPa (máx<em>, máx</em> gruesa→fina +18 %) en (353.9, -59.5, 36.7) mm; σvm p99 18.7 MPa (FS p99 6.67). Máximo en el brazo +Y junto al agujero de traba (flexión fuera del plano de la chapa de 4 mm) y ≈ 120 MPa en el borde inferior de la cuchara junto al brazo (soldadura). Causa: la traba está en un solo brazo, así que todo M_h pasa por la cuchara (sección abierta) a torsión hasta el brazo +Y (giro de 3,6 mm). <strong>Propuesta al dueño de <span class="pid">P1-REV-01</span>/04</strong>: (1) traba en los dos brazos (segundo émbolo en −Y o perno pasante) — V1 baja la cuchara a &lt; 10 MPa y el giro a 0,2 mm, pero el lóbulo de traba de 4 mm queda en FS 1,3; (2) además brazos (o al menos los lóbulos de pivote y traba) de 6 mm, p. ej. con una arandela de refuerzo soldada — V2 da FS 2,3. Corregir structural_direccion: el brazo con la traba lleva todo M_h, no F_b/2.<ul>
+<li>⚠ «Cuchara como viga entre brazos (bucket R12, corta)»: FS mano 54.32 vs FS FEA 25.49 (-53 %). Misma causa: la fila trata la cuchara como viga entre brazos con los dos extremos apoyados; con la traba de un solo lado la cuchara trabaja a torsión (sección abierta) y su borde inferior junto al brazo (soldadura) concentra.</li>
+<li>⚠ «Chapa de la cuchara: franja empotrada bajo la presión dinámica (corta)»: FS mano 32.15 vs FS FEA 48.73 (+52 %). La franja empotrada (p_dinámica) no incluye la torsión de la cuchara; el FEA (escalado a p_dinámica/q) mide la tensión total de la chapa, dominada por esa torsión. Con traba en los dos brazos (V1) la cuchara baja a &lt; 10 MPa.</li>
+<li>⚠ «Chapa de la cuchara: franja (fatiga de soldadura, 1e5)»: FS mano 17.49 vs FS FEA 26.51 (+52 %). La franja empotrada (p_dinámica) no incluye la torsión de la cuchara; el FEA (escalado a p_dinámica/q) mide la tensión total de la chapa, dominada por esa torsión. Con traba en los dos brazos (V1) la cuchara baja a &lt; 10 MPa.</li>
+<li>⚠ «Cuchara abierta a torsión con un solo brazo trabado (FALLA: un émbolo no entró; reversa sizing)»: FS mano 2.58 vs FS FEA 5.46 (+112 %). </li>
+<li>⚠ «Agujero de traba: aplastamiento del brazo con M_h completo (émbolo Ø12, R12)»: FS mano 3.20 vs FS FEA 9.89 (+209 %). La fila es la presión media de aplastamiento F/(d·t); el FEA promedia σvm en un anillo de 3 mm: por definición menor que el pico. Coinciden en el orden de magnitud; el pico local (fuera de r_excl) es el que no cumple.</li>
+</ul>
+</li>
+<li><strong><span class="pid">P1-STE-01</span>: FS = 1.80</strong> (objetivo 2, <strong>NO CUMPLE</strong>); caso d2, criterio vm: σ de diseño 133.1 MPa (máx<em>, máx</em> gruesa→fina +11 %) en (329.5, -44.0, 77.6) mm; σvm p99 80.9 MPa (FS p99 2.97). El pico global (≈ 200 MPa) está en la arista viva donde la oreja de pivote corta el labio de entrada (x = X_pivote, sin radio en el CAD, con astillas de malla) y no converge: se usa el promedio en volumen y el máx* convergido de cada región. Gobierna la oreja del bucket +Y sobre la rosca M20 de la traba (ligamento de ~5 mm hasta el contorno de la oreja), con la reversa. Cumple; un radio de 1–2 mm en la arista oreja/labio quitaría la singularidad.<ul>
+<li>⚠ «Flexión del tubo por el desvío del chorro (fatiga, sizing)»: FS mano 145.87 vs FS FEA 13.47 (-91 %). La fila trata el tubo Ø101 como viga (σ nominal &lt; 1 MPa). En el FEA el máximo de la región del tubo está donde se le unen la torre y la oreja de pivote superior (entra el par del yugo y la reacción de los pernos): concentración local que la viga no ve. Nivel bajo (FS &gt; 10).</li>
+<li>⚠ «Oreja del bucket: flexión en su plano (bucket R12, corta; pivote + traba, M_h completo en una traba)»: FS mano 4.58 vs FS FEA 1.93 (-58 %). La fila carga cada oreja con F_b/2 a 52 mm. Con la traba la oreja +Y recibe además la fuerza del émbolo (≈ 2,8 kN en la rosca M20, a 45 mm del pivote) y el pivote +Y toma más que el −Y; el máximo está en el lóbulo de la traba.</li>
+<li>⚠ «Oreja del bucket: flexión (reversa sizing, fatiga; reparto máx. entre trabas)»: FS mano 5.01 vs FS FEA 1.46 (-71 %). La fila carga cada oreja con F_b/2 a 52 mm. Con la traba la oreja +Y recibe además la fuerza del émbolo (≈ 2,8 kN en la rosca M20, a 45 mm del pivote) y el pivote +Y toma más que el −Y; el máximo está en el lóbulo de la traba.</li>
+<li>⚠ «Oreja del bucket: ligamento de la rosca M20 de la traba (M_h completo en una traba, R12)»: FS mano 3.94 vs FS FEA 1.93 (-51 %). </li>
+<li>⚠ «Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, reparto máx.)»: FS mano 4.55 vs FS FEA 1.93 (-58 %). La fila carga cada oreja con F_b/2 a 52 mm. Con la traba la oreja +Y recibe además la fuerza del émbolo (≈ 2,8 kN en la rosca M20, a 45 mm del pivote) y el pivote +Y toma más que el −Y; el máximo está en el lóbulo de la traba.</li>
+<li>⚠ «Oreja de pivote (dentro de la de la bomba): flexión de la raíz»: FS mano 103.14 vs FS FEA 10.15 (-90 %). La fila toma F/2 a 12 mm en 25 × 30. En el FEA los pernos de pivote reciben un par (reacciones opuestas en la mejilla Ø8 y en la rosca M6) porque el bucket empuja muy por encima del eje, y el máximo está en la arista viva donde la oreja cilíndrica corta el frente esférico (sin radio en el CAD; zona con astillas de malla).</li>
+</ul>
+</li>
+<li><strong><span class="pid">P1-INT-02</span>: FS = 2.45</strong> (objetivo 2, cumple); caso b, criterio vm: σ de diseño 51.1 MPa (máx<em>, máx</em> gruesa→fina +7 %) en (525.6, 149.4, 10.0) mm; σvm p99 30.0 MPa (FS p99 4.16). Gobierna el golpe de fondo con la placa sola (b): máximo en la cara superior sobre el borde del apoyo del ala (unión cuerpo–ala), convergido. Con el conducto como rigidizador (b2) baja a ≈ 18 MPa. Los avellanados M8 del pórtico: σvm promedio bajo el cono ≈ presión de la fila a mano.<ul>
+<li>⚠ «Paño lateral entre bulones del conducto y del ala: golpe de fondo»: FS mano 106.56 vs FS FEA 6.85 (-94 %). La fila apoya el paño en la línea de bulones del conducto (luz 68 mm a lo ancho). Placa sola (b): sin el conducto, la franja entre la abertura y el ala trabaja a lo largo y el máximo sale en la unión cuerpo–ala; es la cota conservadora. Con el conducto rígido (b2) se recupera el modelo de la fila; la realidad está entre ambos.</li>
+<li>⚠ «Paño lateral entre bulones del conducto y del ala: golpe de fondo»: FS mano 106.56 vs FS FEA 2.45 (-98 %). La fila apoya el paño en la línea de bulones del conducto (luz 68 mm a lo ancho). Placa sola (b): sin el conducto, la franja entre la abertura y el ala trabaja a lo largo y el máximo sale en la unión cuerpo–ala; es la cota conservadora. Con el conducto rígido (b2) se recupera el modelo de la fila; la realidad está entre ambos.</li>
+<li>⚠ «Arranque de la cabeza M8 a través de la placa (tapón de Ø dk sobre el cono)»: FS mano 2.94 vs FS FEA 5.54 (+89 %). La fila usa τ media en el cilindro Ø dk × (t − h_cono) suponiendo que todo el tiro pasa por corte puro. En el FEA la compresión de la zapata sobre la cara superior equilibra la precarga en el mismo lugar y el cilindro no está en corte puro: el promedio de σvm en ese volumen es menor. Fila conservadora.</li>
+</ul>
+</li>
+<li><strong><span class="pid">P1-CTL-02</span>: FS = 3.41</strong> (objetivo 3, cumple); caso a, criterio vm: σ de diseño 7.0 MPa (máx<em>, máx</em> gruesa→fina +2 %) en (1820.6, -108.8, 674.0) mm; σvm p99 2.9 MPa (FS p99 8.34). Gobierna σZ (tracción entre capas, Z de impresión = z): la tapa cargada gira en sus bordes y flexiona las paredes de 3,5 mm, con la cara exterior a tracción vertical justo bajo la tapa. La fila a mano (franja de tapa) no lo ve; la tapa en sí da FS ≈ 3,3. <strong>Propuesta al dueño de <span class="pid">P1-CTL-02</span></strong>: paredes de 5 mm (V1: FS 3,5) engrosadas hacia afuera para no mover el entrehierro del sensor hall; una tapa de 8 mm (V2) exige subir ZT para conservar la luz sobre el cubo. Además la pieza real es 5 perímetros + 30 % giroide (solid_frac 0,55): el FEA macizo es optimista.<ul>
+<li>⚠ «Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta)»: FS mano 3.84 vs FS FEA 5.51 (+44 %). La fila es una franja 50 × 6 apoyada con luz 50; la tapa real está casi toda ranurada (ranuras de las palancas), y la palma carga el nervio de 6 mm entre las dos ranuras o la tapa angosta junto a la del bucket. Ver σZ: la flexión de las paredes cruza capas.</li>
+</ul>
+</li>
+</ul>
+<!-- FEA:AUTO:FIN --></article>
+</div>
+</main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
+</body>
+</html>

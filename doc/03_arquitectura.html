@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 — Arquitectura — P1-J · Strålen</title>
+<meta name="description" content="Puntajes de 1 a 5 [SUPUESTO, justificados abajo]. Sensibilidad: cada peso ±50 % y Monte Carlo de 20 000 juegos de pesos (Dirichlet alrededor de los nominales) [CALCULADO:…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="03 — Arquitectura — P1-J · Strålen">
+<meta property="og:description" content="Puntajes de 1 a 5 [SUPUESTO, justificados abajo]. Sensibilidad: cada peso ±50 % y Monte Carlo de 20 000 juegos de pesos (Dirichlet alrededor de los nominales) [CALCULADO:…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/03_arquitectura.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bea58e98">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="03 — Arquitectura — P1-J · Strålen">
+<meta name="twitter:description" content="Puntajes de 1 a 5 [SUPUESTO, justificados abajo]. Sensibilidad: cada peso ±50 % y Monte Carlo de 20 000 juegos de pesos (Dirichlet alrededor de los nominales) [CALCULADO:…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bea58e98">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/03_arquitectura.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header" id="top">
+  <div class="bar wide">
+    <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../index.html" class=nav-home>Inicio</a><a href="../visor/index.html">Visor 3D</a><a href="../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../planos.html">Planos</a><a href="../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
+  </div>
+</header>
+<div class="stale" role="alert"><b>Vista previa con datos desactualizados</b> — 16 fuente(s) no coinciden con los resultados actuales; no compartir este enlace.</div>
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../documentos.html">Documentos</a> / <span class="mono">03_arquitectura.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/03_arquitectura.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#1-requisitos">1. Requisitos</a></li>
+<li><a href="#2-matriz-ponderada">2. Matriz ponderada</a><ul>
+<li><a href="#21-justificación-de-cada-puntaje">2.1 Justificación de cada puntaje</a></li>
+</ul>
+</li>
+<li><a href="#3-recomendación">3. Recomendación</a></li>
+<li><a href="#4-qué-se-imprime-qué-se-mecaniza-y-qué-se-compra-d-19">4. Qué se imprime, qué se mecaniza y qué se compra (D-19)</a></li>
+<li><a href="#5-los-cinco-riesgos-principales">5. Los cinco riesgos principales</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#1-requisitos">1. Requisitos</a></li>
+<li><a href="#2-matriz-ponderada">2. Matriz ponderada</a><ul>
+<li><a href="#21-justificación-de-cada-puntaje">2.1 Justificación de cada puntaje</a></li>
+</ul>
+</li>
+<li><a href="#3-recomendación">3. Recomendación</a></li>
+<li><a href="#4-qué-se-imprime-qué-se-mecaniza-y-qué-se-compra-d-19">4. Qué se imprime, qué se mecaniza y qué se compra (D-19)</a></li>
+<li><a href="#5-los-cinco-riesgos-principales">5. Los cinco riesgos principales</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="03-arquitectura-qué-propulsión-para-el-jet-boat-de-jorge">03 — Arquitectura: qué propulsión para el jet boat de Jorge</h1>
+<p>Matriz ponderada de seis arquitecturas, recomendación y plan de fabricación. Los puntajes viven en
+<a href="https://github.com/gasparamiune/p1-propulsion/blob/main/inputs.yaml"><code>inputs.yaml → architecture_matrix</code></a> y los procesa <a href="https://github.com/gasparamiune/p1-propulsion/blob/main/arquitectura.py"><code>arquitectura.py</code></a>; la
+comparación comprar / construir la hace <a href="https://github.com/gasparamiune/p1-propulsion/blob/main/comparacion.py"><code>comparacion.py</code></a>. Los números del modelo van entre
+marcadores <code>&lt;!--V:…--&gt;</code> (los actualiza <code>docgen.py</code>).</p>
+<p>Etiquetas: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO].</p>
+<h2 id="1-requisitos">1. Requisitos</h2>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>#</th>
+<th>Requisito</th>
+<th>Valor</th>
+<th>Origen</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1</td>
+<td>Casco</td>
+<td>2,30 × 0,80 m, puntal 0,52 m, espejo 0,42 m</td>
+<td>Plano de Jorge</td>
+<td>[VERIFICADO: plano; geometría fina ESTIMADA, R10b §4.3]</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Ocupantes</td>
+<td>1 piloto, sentado dentro del casco, con volante</td>
+<td>Plano de Jorge; R10b H6; R13 §1.4</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Propulsión</td>
+<td>Waterjet inboard, motor directo, toma enrasada, boquilla direccional, nada colgando del espejo</td>
+<td>Plano de Jorge (y foto de la JT132)</td>
+<td>[VERIFICADO: D-01]</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>Velocidad</td>
+<td>≥ 30 km/h a &gt; 300 m de la costa; 5 kn dentro de los 300 m (4 kn en Als Sund)</td>
+<td>Plano de Jorge; R07; R13 §3</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>R5</td>
+<td>Reversa y freno</td>
+<td>Bucket obligatorio</td>
+<td>R10b H10</td>
+<td>[VERIFICADO: "no jet thrust, no steering"]</td>
+</tr>
+<tr>
+<td>R6</td>
+<td>Cebado</td>
+<td>Eje del impulsor ≥ 20 mm bajo la flotación en reposo</td>
+<td>R10a §3.2, §8</td>
+<td>[VERIFICADO / SUPUESTO margen]</td>
+</tr>
+<tr>
+<td>R7</td>
+<td>Tensión</td>
+<td>≤ 50 V CC nominal (12S LFP)</td>
+<td>ISO 16315 3.1; R06; R13 §4</td>
+<td>[VERIFICADO; D-13]</td>
+</tr>
+<tr>
+<td>R8</td>
+<td>Speedbåd</td>
+<td>Potencia pico &lt; 19 kW</td>
+<td>BEK 749/2020; R13 §2</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>R9</td>
+<td>Corte de emergencia</td>
+<td>Cordón + seta, contactor, corte &lt; 1 s</td>
+<td>Requisito del usuario; R06 §3.5</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>R10</td>
+<td>Factores de seguridad</td>
+<td>≥ 3 en piezas impresas, ≥ 2 en metales</td>
+<td>Requisito del usuario / <code>inputs.yaml</code></td>
+<td>[VERIFICADO] / [SUPUESTO]</td>
+</tr>
+<tr>
+<td>R11</td>
+<td>Fabricación</td>
+<td>Torno manual, Ender-3 S1 (210 × 210 × 260 mm, PETG), servicios comprables</td>
+<td>Datos del usuario</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>R12</td>
+<td>Caída de tensión</td>
+<td>≤ 3 %</td>
+<td>Requisito del usuario</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>R13</td>
+<td>Estabilidad</td>
+<td>Pasar el ensayo de escora E1 antes de navegar</td>
+<td>R13 §5</td>
+<td>[SUPUESTO: criterio]</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="2-matriz-ponderada">2. Matriz ponderada</h2>
+<p>Puntajes de 1 a 5 [SUPUESTO, justificados abajo]. Sensibilidad: cada peso ±50 % y Monte Carlo de 20 000
+juegos de pesos (Dirichlet alrededor de los nominales) [CALCULADO: <code>arquitectura.py</code>].</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Opción</th>
+<th>seguridad (18 %)</th>
+<th>concepto (12 %)</th>
+<th>prestaciones (14 %)</th>
+<th>eficiencia_5kn (8 %)</th>
+<th>poca_prof (8 %)</th>
+<th>viabilidad (10 %)</th>
+<th>costo (10 %)</th>
+<th>tiempo (7 %)</th>
+<th>reparabilidad (6 %)</th>
+<th>riesgo (7 %)</th>
+<th><strong>Total</strong></th>
+<th>Gana en MC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>B</strong> Waterjet comercial AWT JT132 (Ø130) + el tren eléctrico de este diseño</td>
+<td>4</td>
+<td>5</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>3</td>
+<td>3</td>
+<td><strong>3,47</strong></td>
+<td>62 %</td>
+</tr>
+<tr>
+<td><strong>C</strong> Bomba de jet ski usada (Sea-Doo Spark 140) adaptada</td>
+<td>4</td>
+<td>5</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+<td>4</td>
+<td>3</td>
+<td>4</td>
+<td>3</td>
+<td><strong>3,36</strong></td>
+<td>8 %</td>
+</tr>
+<tr>
+<td><strong>E</strong> Cola larga / surface drive (diseño P1 anterior, adaptado)</td>
+<td>3</td>
+<td>1</td>
+<td>2</td>
+<td>4</td>
+<td>5</td>
+<td>4</td>
+<td>4</td>
+<td>3</td>
+<td>5</td>
+<td>3</td>
+<td><strong>3,18</strong></td>
+<td>17 %</td>
+</tr>
+<tr>
+<td><strong>D</strong> Fueraborda eléctrico de 3–6 kW con hélice</td>
+<td>2</td>
+<td>1</td>
+<td>4</td>
+<td>4</td>
+<td>2</td>
+<td>5</td>
+<td>2</td>
+<td>5</td>
+<td>2</td>
+<td>5</td>
+<td><strong>3,04</strong></td>
+<td>14 %</td>
+</tr>
+<tr>
+<td><strong>A</strong> Waterjet propio (impulsor CNC + bomba Al + toma soldada) — este diseño</td>
+<td>4</td>
+<td>5</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+<td><strong>2,96</strong></td>
+<td>0 %</td>
+</tr>
+<tr>
+<td><strong>F</strong> Hélice entubada en túnel bajo el casco (pump-jet / rim-drive)</td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td><strong>2,66</strong></td>
+<td>0 %</td>
+</tr>
+</tbody>
+</table></div>
+<p>Sensibilidad: variando cada peso ±50 % (renormalizado), el ganador <strong>no cambia</strong> en ninguno de los 20 casos.
+Monte Carlo (20000 juegos de pesos Dirichlet alrededor de los nominales): B 62 %, C 8 %, D 14 %, E 17 %.</p>
+<p><strong>Pesos.</strong> Seguridad primero (18 %): el piloto puede caer al agua junto a la
+propulsión y el agua está fría (R07 §3). Después prestaciones (14 %) y el concepto que
+pidió Jorge (12 %). Eficiencia a 5 kn pesa
+8 % aunque sea el uso más frecuente dentro de los 300 m: el pedido es un bote que planee.</p>
+<h3 id="21-justificación-de-cada-puntaje">2.1 Justificación de cada puntaje</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Criterio</th>
+<th>A — bomba propia</th>
+<th>B — JT132 + este tren</th>
+<th>C — bomba de Spark usada</th>
+<th>D — fueraborda eléctrico</th>
+<th>E — cola larga</th>
+<th>F — hélice entubada</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seguridad</td>
+<td>4: sin hélice expuesta; rejilla y bucket; pasador de corte</td>
+<td>4: igual que A</td>
+<td>4: igual que A</td>
+<td>2: hélice abierta junto a un piloto que cae al agua y a bañistas</td>
+<td>3: hélice en superficie, detrás del espejo, con protector</td>
+<td>4: hélice dentro de un túnel</td>
+</tr>
+<tr>
+<td>Concepto de Jorge</td>
+<td>5: jet inboard, nada colgando</td>
+<td>5: es la bomba de su foto</td>
+<td>5: jet inboard</td>
+<td>1: motor colgado del espejo</td>
+<td>1: cola larga colgada</td>
+<td>3: nada cuelga, pero no es jet y necesita timón</td>
+</tr>
+<tr>
+<td>Prestaciones</td>
+<td>2: planea solo con la resistencia nominal (margen 3 % &lt; 10 %); con la alta no llega a planeo pleno; 24,4 km/h sostenidos [CALCULADO]</td>
+<td>2: 26,8 km/h con la geometría de la JT132; con la resistencia alta margen -9 % [CALCULADO]</td>
+<td>2: bomba de 60–90 hp a 5 kW, fuera de su punto (R11 §4)</td>
+<td>4: una hélice rinde bien a 25–30 km/h</td>
+<td>2: diseñada para 6 km/h en desplazamiento</td>
+<td>2: buena a baja velocidad, pierde en planeo por el túnel</td>
+</tr>
+<tr>
+<td>Eficiencia a 5 kn</td>
+<td>2: η del chorro a 5 kn 0,34 [CALCULADO]</td>
+<td>2: igual (jet)</td>
+<td>2: igual (jet)</td>
+<td>4: hélice</td>
+<td>4: hélice grande y lenta</td>
+<td>3: hélice con pérdidas de túnel</td>
+</tr>
+<tr>
+<td>Poca profundidad</td>
+<td>3: nada bajo el casco, pero la toma succiona arena; ~30 cm de luz en desplazamiento (R03 S12)</td>
+<td>3: igual</td>
+<td>3: igual</td>
+<td>2: pata y hélice bajo el casco</td>
+<td>5: la cola se levanta</td>
+<td>2: túnel bajo el fondo, aspira lo que hay</td>
+</tr>
+<tr>
+<td>Viabilidad con torno + Ender-3</td>
+<td>2: impulsor y estator CNC 5 ejes, toma soldada, holgura 0,4 mm: depende de servicios</td>
+<td>4: se compra la bomba; queda adaptar la toma al fondo</td>
+<td>3: repuestos fuera de la UE; carcasa y toma a adaptar</td>
+<td>5: se compra entero</td>
+<td>4: diseño anterior existente, a adaptar</td>
+<td>2: túnel en el casco + motor sumergido o eje</td>
+</tr>
+<tr>
+<td>Costo</td>
+<td>3: los servicios de fabricación pesan (3 910 € en la BOM)</td>
+<td>4: JT132 puesta en DK 1 437–1 549 € [ESTIMADO]</td>
+<td>4: impulsor + anillo de Spark 537 € [VERIFICADO: R11 §4]</td>
+<td>2: fueraborda eléctrico comercial de esta potencia [ESTIMADO]</td>
+<td>4: reutiliza el diseño P1 anterior</td>
+<td>3: casco + propulsor a medida</td>
+</tr>
+<tr>
+<td>Tiempo al prototipo</td>
+<td>2: CNC, soldaduras y ajuste de holgura</td>
+<td>4: cotizar e importar</td>
+<td>3: conseguir y adaptar</td>
+<td>5: inmediato</td>
+<td>3: adaptar</td>
+<td>2: desarrollo</td>
+</tr>
+<tr>
+<td>Reparabilidad</td>
+<td>3: planos propios, pero impulsor y estator por servicio</td>
+<td>3: repuestos del fabricante chino</td>
+<td>4: repuestos de Spark abundantes</td>
+<td>2: producto cerrado</td>
+<td>5: todo torneable en casa</td>
+<td>2: motor sumergido / túnel</td>
+</tr>
+<tr>
+<td>Riesgo técnico</td>
+<td>2: bomba sin ensayo; η, curva y cavitación estimadas</td>
+<td>3: curva desconocida; toma y cebado a confirmar</td>
+<td>3: bomba fuera de su punto; toma a adaptar</td>
+<td>5: producto probado</td>
+<td>3: probado en otro casco y otro uso</td>
+<td>2: rozamiento y freno hidrodinámico en proyectos DIY (R03 §1, D3–D5)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Lectura.</strong> B gana (3,47) y lo sigue haciendo en el
+62 % de los juegos de pesos del Monte Carlo; A queda en
+2,96. La diferencia entre A y B está entera en viabilidad, costo, tiempo y riesgo: en
+seguridad, concepto y prestaciones son iguales. D y E ganan en eficiencia a 5 kn y en riesgo, pero no son lo
+que pidió Jorge.</p>
+<h2 id="3-recomendación">3. Recomendación</h2>
+<p><strong>Pedir ya la cotización de la AWT JT132 (opción B) con el tren eléctrico, la refrigeración, los mandos y el
+firmware de este paquete, y tener A (bomba propia) como plan completo y fabricable si B no cierra (D-05).</strong>
+Antes de cualquiera de las dos: resolver la estabilidad del casco (§5, riesgo 1).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Magnitud</th>
+<th>A — bomba propia</th>
+<th>B — JT132</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Masa de la unidad de jet</td>
+<td>20,8 kg (toma + bomba + dirección + bucket, CAD)</td>
+<td>12,0 kg</td>
+<td>[CALCULADO] / [VERIFICADO: R11 §4]</td>
+</tr>
+<tr>
+<td>Masa total</td>
+<td>218 kg</td>
+<td>206 kg</td>
+<td>[CALCULADO]</td>
+</tr>
+<tr>
+<td>V máx. sostenida</td>
+<td>24,4 km/h</td>
+<td>26,8 km/h</td>
+<td>[CALCULADO]</td>
+</tr>
+<tr>
+<td>Margen mínimo en la joroba</td>
+<td>-8 %</td>
+<td>-9 %</td>
+<td>[CALCULADO]</td>
+</tr>
+<tr>
+<td>S a V máx. (límite 3,5)</td>
+<td>3,19</td>
+<td>2,71</td>
+<td>[CALCULADO]</td>
+</tr>
+<tr>
+<td>P de batería a 5 kn</td>
+<td>1 702 W</td>
+<td>1 804 W</td>
+<td>[CALCULADO]</td>
+</tr>
+<tr>
+<td>Bomba</td>
+<td>Impulsor y estator CNC, carcasa y tobera de taller, toma soldada</td>
+<td>1 437–1 549 € puesta en DK (FOB + flete + arancel + IVA)</td>
+<td>[CALCULADO con precio ESTIMADO: R11 §4]</td>
+</tr>
+<tr>
+<td>Costo del sistema</td>
+<td>11 546 € (BOM completa)</td>
+<td>total de A − piezas del grupo jet + JT132 puesta en DK</td>
+<td>[CALCULADO: <code>bom.py</code>, <code>comparacion.py</code>]</td>
+</tr>
+<tr>
+<td>Núcleo común (motor + controlador + batería + cargador)</td>
+<td>1 952 €</td>
+<td>ídem</td>
+<td>[CALCULADO]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Las prestaciones de B usan el mismo modelo de <code>sizing.py</code> con la geometría verificada de la JT132 (Ø130,
+tobera Ø70) y el η de diseño del impulsor propio, porque AWT no publica su curva [ESTIMADO]. Con la JT132 el
+bote es más liviano, pero con el modelo de planeo corregido (Savitsky limitado por eslora, D-21) <strong>ninguna de las
+dos cumple el 10 % de margen en la joroba</strong> (A -8 %, B -9 %)
+ni llega a 30 km/h sostenidos con la potencia continua estimada del motor (02 §4.3). Lo que devuelve el margen no es
+la propulsión sino el bote: 21 kg menos de masa total o
+L_wl ≥ 1,96 m (02 §3.2). Lo que acerca a 30 km/h está en 07 §2.4–2.5.</p>
+<p>Referencia comercial del mismo tamaño en planta: Lampuga Air, 2,30 ×
+0,75 m, 10 kW,
+3,6 kWh, hasta 50 km/h
+[VERIFICADO: R12 §8], con un equipo de ~55 kg más el piloto: menos de la mitad de la masa de este bote.</p>
+<p><strong>Por qué B primero.</strong></p>
+<ul>
+<li>
+<p>Es la bomba que Jorge mostró. Resuelve en una pieza lo que el plano no tenía (R10b H3, H4, H10, H15):
+    conducto, sello, holgura metálica, estator, boquilla externa y reversa.</p>
+</li>
+<li>
+<p>Es la unidad de jet más liviana, y la masa es la segunda entrada más influyente (02 §10).</p>
+</li>
+<li>Evita las piezas de este paquete que más dependen de servicios caros y de una precisión que no se puede
+    verificar en casa (impulsor 5 ejes, holgura de 0,4 mm).</li>
+</ul>
+<p><strong>Condiciones para comprarla</strong> (si alguna falla, A): AWT confirma por escrito (1) el plano de la brida de
+toma y que entra en el fondo del casco; (2) la altura del eje sobre el fondo, para que quede ≥ 20 mm bajo
+la flotación en reposo (R10a); (3) la curva H-Q o el empuje con el impulsor estándar a ~4000 rpm y 6 kW; y
+(4) el costo puesto en DK no supera ~1500 € [SUPUESTO: D-05].</p>
+<p><strong>Qué se reutiliza de este paquete con B:</strong> motor, controlador, batería, caja de batería y cableado;
+refrigeración por agua; kill switch y firmware; mandos (T85, M66, Mach5, consola, palancas con
+enclavamiento); pórtico de rodamientos y acople si la JT132 se acopla con eje propio; flotación y achique.
+Se reemplazan los grupos de toma, bomba, dirección y reversa (P1-INT, P1-PMP, P1-STE, P1-REV).</p>
+<p><strong>Cuándo A.</strong> Si AWT no responde o no confirma las cuatro condiciones, o si el casco medido obliga a una toma
+que la JT132 no admite. A está completo: CAD, planos, BOM, casos estructurales y verificación de
+interferencias en <code>04_diseno/</code>.</p>
+<p><strong>Advertencia de uso (D-01).</strong> Si el uso real es mayormente dentro de los 300 m a 5 kn, el jet es la opción
+menos eficiente (η del chorro 0,34 a 5 kn): D o E rinden más.</p>
+<h2 id="4-qué-se-imprime-qué-se-mecaniza-y-qué-se-compra-d-19">4. Qué se imprime, qué se mecaniza y qué se compra (D-19)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Proceso</th>
+<th>Piezas</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Impreso en PETG</strong> (Ender-3 S1)</td>
+<td>Caja de palancas (<span class="pid">P1-CTL-02</span>), soporte del kill switch y la seta (<span class="pid">P1-CTL-03</span>), base y capota del controlador (<span class="pid">P1-ELE-01</span>/02), tapa de inspección de la toma (<span class="pid">P1-INT-04</span>)</td>
+<td>Piezas secas o de baja carga que cumplen FS ≥ 3 con los admisibles de R05. Total: 1 051 g, 58 h de impresión [CALCULADO]</td>
+</tr>
+<tr>
+<td><strong>Mecanizado por servicio</strong> (CNC 5 ejes, torno de taller)</td>
+<td>Impulsor 316L (CNC o SLM + torneado), estator Al 6061-T6, carcasa (<span class="pid">P1-PMP-01</span>), tobera fija (<span class="pid">P1-PMP-08</span>), placa de espejo (<span class="pid">P1-PMP-09</span>), boquilla direccional (<span class="pid">P1-STE-01</span>)</td>
+<td>Geometría de álabes en 5 ejes; diámetros mayores que el volteo del torno propio [SUPUESTO: 180 mm, medir]; holgura de punta de 0,4 mm</td>
+</tr>
+<tr>
+<td><strong>Soldado por servicio</strong> (TIG)</td>
+<td>Conducto de la toma sobre la placa base (Al 5083), pórtico de rodamientos y soporte del motor, bucket, rejilla 316</td>
+<td>Límite estanco del casco y piezas de chapa; mismo metal que el casco (5083) para no tener par galvánico</td>
+</tr>
+<tr>
+<td><strong>Torno propio</strong></td>
+<td>Eje, pernos y bujes (316, POM), pasador de corte, piezas chicas de mandos</td>
+<td>Diámetros chicos y tolerancias de torno manual</td>
+</tr>
+<tr>
+<td><strong>Comprado</strong></td>
+<td>Motor, controlador, batería, cargador, sello mecánico, rodamientos 7204 BECBP, acople Rotex 24, dirección T85 + M66, cable Mach5, eléctricos y seguridad (contactor, fusible, cordón, seta), achique, espuma</td>
+<td>Productos con datos verificados (R11)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Por qué no se imprime la bomba</strong> [CALCULADO: <code>04_diseno/structural_*.py</code>]:</p>
+<ul>
+<li>
+<p>Estator de PETG: FS sostenido 0,30 (hace falta 3) y
+    la holgura de punta no se mantiene en PETG (R10b H15) → metal (D-10).</p>
+</li>
+<li>
+<p>Conducto de la toma de PETG: haría falta una pared de
+    20,6 mm para FS 3 a fatiga por el ciclo de presión,
+    más dos juntas en el límite estanco → Al 5083 soldado (D-09).</p>
+</li>
+<li>
+<p>Boquilla de PETG: FS 0,51 en la oreja del bucket → Al
+    6061-T6.</p>
+</li>
+</ul>
+<p>Con B, todo el grupo de bomba, dirección y reversa se compra y la lista de servicios se reduce a la placa de
+adaptación de la toma, el pórtico y el soporte del motor.</p>
+<h2 id="5-los-cinco-riesgos-principales">5. Los cinco riesgos principales</h2>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>#</th>
+<th>Riesgo</th>
+<th>Por qué</th>
+<th>Mitigación</th>
+<th>Prueba que lo cierra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Estabilidad del casco</strong> (vuelco estando quieto, al subir o al reabordar)</td>
+<td>GM = 0,009 m; correr el piloto 0,1 m da 78° en el modelo lineal [CALCULADO]; capacidad 33 CFR 183.33 46 kg; agua &lt; 15 °C fuera del verano</td>
+<td>Medir el casco; manga en la flotación ≥ 0,9 m o flotadores laterales; asiento bajo; batería en el fondo; flotación fija y achique (D-04)</td>
+<td>Ensayos E1–E4 de R13 §5 (escora con carga desplazada, inundado, reabordaje) <strong>antes</strong> de instalar la electrónica</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>No llega a 30 km/h</strong></td>
+<td>V máx. sostenida 24,4 km/h; la potencia continua del motor no está publicada y es la entrada más influyente (02 §10)</td>
+<td>Pedir el dato a Maytech; JT132 (menos masa); subir potencia o corriente de batería dentro de ≤ 50 V (07 §2.4)</td>
+<td>V máx. con GPS ≥ 20,8 km/h y prueba térmica de 30 min (02 §11)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Cavitación, aire en la toma o piedras</strong></td>
+<td>S a V máx. 3,19 contra 3,5 de límite; fondo plano y ola corta del fiordo meten aire (R10a §7); una piedra traba el impulsor con ~490 J (R12 §7.6)</td>
+<td>Ley anti-cavitación (02 §4.6); toma en crujía sin nada delante; pasador de corte Ø3,5 mm y repuestos; ralentí en aguas bajas</td>
+<td>Rampa de punto fijo sin rpm que sube sin empuje; empuje ≥ 612 N; recorrido con ola corta (picos de rpm ≤ 10 %)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Estanqueidad del límite del casco</strong> (abertura de la toma de 380 mm de largo en el fondo, pasaje del eje, tapa de inspección)</td>
+<td>Una fisura o un sello que falla inunda el bote (R10a §0.3); el sello mecánico no debe girar en seco</td>
+<td>Conducto soldado en 5083 con prueba de estanqueidad; sello carbón/SiC con cámara de goteo y testigo; tapa sobre la flotación; achique con alarma; flotación ~100 L</td>
+<td>Prueba hidrostática de toma y bomba a 0,3 MPa (R12 §7.2); 24 h a flote amarrado sin agua en la sentina (R10a §8.5)</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Clasificación legal</strong> (vandscooter o speedbåd)</td>
+<td>Si fuera vandscooter: prohibido a &lt; 300 m salvo tránsito perpendicular, inutiliza Als Sund; bevis y seguro obligatorios (R13 §1.3)</td>
+<td>Cockpit "dentro" del casco con volante, palanca y respaldo (R13 §1.4); potencia pico &lt; 19 kW documentada</td>
+<td>Respuesta escrita de Søfartsstyrelsen y de Sønderborg Kommune (R13 §8, Q1–Q4) antes de construir</td>
+</tr>
+</tbody>
+</table></div>
+<p>El costo y el plazo de fabricar la bomba propia (impulsor CNC, holgura) son el sexto riesgo; se mitigan con
+B (§3).</p></article>
+</div>
+</main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
+</body>
+</html>

@@ -1,0 +1,1647 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R10b — Auditoría técnica del plano preliminar de waterjet de Jorge — P1-J · Strålen</title>
+<meta name="description" content="Alcance. Este informe revisa todo el plano menos la toma, que analiza otro agente. Sobre la toma, una sola línea: Jorge tiene razón. En la vista lateral, la rejilla queda a ~140…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="R10b — Auditoría técnica del plano preliminar de waterjet de Jorge — P1-J · Strålen">
+<meta property="og:description" content="Alcance. Este informe revisa todo el plano menos la toma, que analiza otro agente. Sobre la toma, una sola línea: Jorge tiene razón. En la vista lateral, la rejilla queda a ~140…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/research/R10b_auditoria_plano_jorge.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bea58e98">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="R10b — Auditoría técnica del plano preliminar de waterjet de Jorge — P1-J · Strålen">
+<meta name="twitter:description" content="Alcance. Este informe revisa todo el plano menos la toma, que analiza otro agente. Sobre la toma, una sola línea: Jorge tiene razón. En la vista lateral, la rejilla queda a ~140…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bea58e98">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/research/R10b_auditoria_plano_jorge.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header" id="top">
+  <div class="bar wide">
+    <a class="brand" href="../../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../../index.html" class=nav-home>Inicio</a><a href="../../visor/index.html">Visor 3D</a><a href="../../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../../planos.html">Planos</a><a href="../../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
+  </div>
+</header>
+<div class="stale" role="alert"><b>Vista previa con datos desactualizados</b> — 16 fuente(s) no coinciden con los resultados actuales; no compartir este enlace.</div>
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../../documentos.html">Documentos</a> / <span class="mono">research/R10b_auditoria_plano_jorge.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/research/R10b_auditoria_plano_jorge.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#1-resumen-ejecutivo">1. Resumen ejecutivo</a></li>
+<li><a href="#2-lectura-propia-del-plano-contra-el-resumen-recibido">2. Lectura propia del plano (contra el resumen recibido)</a></li>
+<li><a href="#3-tabla-de-hallazgos">3. Tabla de hallazgos</a></li>
+<li><a href="#4-cálculos">4. Cálculos</a><ul>
+<li><a href="#41-cotas-y-escalas-medidas-en-píxeles-del-png">4.1 Cotas y escalas (medidas en píxeles del PNG)</a></li>
+<li><a href="#42-presupuesto-de-masas-1-piloto">4.2 Presupuesto de masas (1 piloto)</a></li>
+<li><a href="#43-hidrostática-calado-francobordo-cebado-capacidad-y-gm">4.3 Hidrostática: calado, francobordo, cebado, capacidad y GM</a></li>
+<li><a href="#44-resistencia-joroba-y-planeo">4.4 Resistencia: joroba y planeo</a></li>
+<li><a href="#45-jet-empuje-rendimiento-equilibrio-y-autonomía">4.5 Jet: empuje, rendimiento, equilibrio y autonomía</a></li>
+<li><a href="#46-bomba-velocidad-específica-cavitación-y-holgura">4.6 Bomba: velocidad específica, cavitación y holgura</a></li>
+<li><a href="#47-eje-sello-cojinetes-y-empuje-axial">4.7 Eje, sello, cojinetes y empuje axial</a></li>
+<li><a href="#48-eléctrico-a-72-v">4.8 Eléctrico a 72 V</a></li>
+<li><a href="#49-legal-y-operación-en-als-fjord">4.9 Legal y operación en Als Fjord</a></li>
+<li><a href="#410-reversa-gobierno-poca-profundidad-y-bañistas">4.10 Reversa, gobierno, poca profundidad y bañistas</a></li>
+</ul>
+</li>
+<li><a href="#5-correcciones-mínimas-para-que-el-concepto-sea-viable-si-jorge-lo-quiere-seguir">5. Correcciones mínimas para que el concepto sea viable (si Jorge lo quiere seguir)</a></li>
+<li><a href="#6-no-verificado-o-pendiente">6. No verificado o pendiente</a></li>
+<li><a href="#7-fuentes">7. Fuentes</a></li>
+<li><a href="#8-script-ejecutado">8. Script ejecutado</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#1-resumen-ejecutivo">1. Resumen ejecutivo</a></li>
+<li><a href="#2-lectura-propia-del-plano-contra-el-resumen-recibido">2. Lectura propia del plano (contra el resumen recibido)</a></li>
+<li><a href="#3-tabla-de-hallazgos">3. Tabla de hallazgos</a></li>
+<li><a href="#4-cálculos">4. Cálculos</a><ul>
+<li><a href="#41-cotas-y-escalas-medidas-en-píxeles-del-png">4.1 Cotas y escalas (medidas en píxeles del PNG)</a></li>
+<li><a href="#42-presupuesto-de-masas-1-piloto">4.2 Presupuesto de masas (1 piloto)</a></li>
+<li><a href="#43-hidrostática-calado-francobordo-cebado-capacidad-y-gm">4.3 Hidrostática: calado, francobordo, cebado, capacidad y GM</a></li>
+<li><a href="#44-resistencia-joroba-y-planeo">4.4 Resistencia: joroba y planeo</a></li>
+<li><a href="#45-jet-empuje-rendimiento-equilibrio-y-autonomía">4.5 Jet: empuje, rendimiento, equilibrio y autonomía</a></li>
+<li><a href="#46-bomba-velocidad-específica-cavitación-y-holgura">4.6 Bomba: velocidad específica, cavitación y holgura</a></li>
+<li><a href="#47-eje-sello-cojinetes-y-empuje-axial">4.7 Eje, sello, cojinetes y empuje axial</a></li>
+<li><a href="#48-eléctrico-a-72-v">4.8 Eléctrico a 72 V</a></li>
+<li><a href="#49-legal-y-operación-en-als-fjord">4.9 Legal y operación en Als Fjord</a></li>
+<li><a href="#410-reversa-gobierno-poca-profundidad-y-bañistas">4.10 Reversa, gobierno, poca profundidad y bañistas</a></li>
+</ul>
+</li>
+<li><a href="#5-correcciones-mínimas-para-que-el-concepto-sea-viable-si-jorge-lo-quiere-seguir">5. Correcciones mínimas para que el concepto sea viable (si Jorge lo quiere seguir)</a></li>
+<li><a href="#6-no-verificado-o-pendiente">6. No verificado o pendiente</a></li>
+<li><a href="#7-fuentes">7. Fuentes</a></li>
+<li><a href="#8-script-ejecutado">8. Script ejecutado</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="r10b-auditoría-técnica-del-plano-preliminar-de-waterjet-de-jorge-26092026">R10b — Auditoría técnica del plano preliminar de waterjet de Jorge (26/09/2026)</h1>
+<p>Fecha: 2026-10-01. Objeto: <code>referencias/2026-09-26_plano_preliminar_waterjet_jorge.png</code> ("PLANO PRELIMINAR – WATERJET PARA JET BOAT 2.30 m", escala 1:10, mm, hoja 1/1, rotulado "NO USAR COMO PLANO FINAL DE MECANIZADO"). Comentario de Jorge, reenviado por Gaspar: <em>"La rejilla de succión que da a la altura del eje del motor en la imagen está muy atrás !"</em>.</p>
+<p><strong>Alcance.</strong> Este informe revisa todo el plano menos la toma, que analiza otro agente. Sobre la toma, una sola línea: <strong>Jorge tiene razón</strong>. En la vista lateral, la rejilla queda a ~140 mm del espejo [CALCULADO: §4.1], debajo de la tobera y a popa del impulsor. El corte A‑A no dibuja ningún ducto de admisión, y en la vista trasera la rejilla sobresale ~20 mm del fondo [CALCULADO: 5 px × 3,72 mm/px], aunque la nota dice "enrasada".</p>
+<p><strong>Etiquetas:</strong> [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO]. Los cálculos se hicieron con el script Python de la §8 (ejecutado; la salida está copiada en §4). Densidad del agua: 1013 kg/m³ [CALCULADO: <code>inputs.yaml</code> <code>water.density_kg_m3</code>].</p>
+<hr />
+<h2 id="1-resumen-ejecutivo">1. Resumen ejecutivo</h2>
+<ol>
+<li><strong>Seguridad: estabilidad.</strong> Con manga de 800 mm (0,71–0,77 m en la flotación, medida en la vista trasera) y el piloto sentado sobre un piso elevado por las baterías, el GM da <strong>−40 a +90 mm</strong> [CALCULADO: §4.3 y §9]. Aun en el mejor caso (+90 mm), correr el piloto 0,1 m hacia una banda escora el bote ~28° [CALCULADO, lineal, solo indicativo]. Puede volcar parado, al subir a bordo o al reabordar desde el agua. El agua está a &lt; 15 °C en ≥ 90 % de los días de octubre a mayo [VERIFICADO: R07 §3.1].</li>
+<li><strong>Seguridad: casco.</strong><ul>
+<li>El plano no tiene flotación.</li>
+<li>Las baterías van sobre el fondo.</li>
+<li>El sello mecánico figura en la lista (ítem 9), pero no está dibujado: su globo apunta a un rodamiento.</li>
+<li>Capacidad por 33 CFR 183.33: <strong>51–64 kg</strong>, menos que <strong>un</strong> adulto [CALCULADO con fórmula VERIFICADA]. La regla de personas para motor interior (33 CFR 183.39 [VERIFICADO]) da <strong>1 persona</strong> como máximo. No admite una segunda persona.</li>
+</ul>
+</li>
+<li><strong>Seguridad: eléctrica y control.</strong><ul>
+<li>72 V nominales son 80–84 V con la batería cargada, por encima de los 50 V CC [VERIFICADO: R06].</li>
+<li>No hay kill switch ni parada de emergencia.</li>
+<li>"No jet thrust, no steering" [VERIFICADO: CG Aux]. Con la reversa opcional, el bote no tiene freno.</li>
+</ul>
+</li>
+<li><strong>No funciona tal cual dibujado:</strong><ul>
+<li>con 150 kg el eje del jet queda <strong>45–120 mm sobre la flotación</strong> estática y la bomba no ceba; con 200 kg queda 0–75 mm sobre, en el límite [CALCULADO con dos modelos de sección, §4.3 y §9 + VERIFICADO: dmsonline];</li>
+<li>el corte A‑A no tiene ducto de admisión;</li>
+<li>la boquilla direccional está dentro de la carcasa fija;</li>
+<li>después de la tobera hay una expansión brusca que pierde ~50 % de la altura dinámica [CALCULADO: §4.1].</li>
+</ul>
+</li>
+<li><strong>Masa.</strong> "150 kg (embarcación + piloto + baterías)" es optimista. Lo realista son <strong>165–242 kg</strong> con 3 kWh LFP [ESTIMADO: §4.2].</li>
+<li><strong>Velocidad.</strong><ul>
+<li>Con <strong>5 kW</strong>, ≥ 30 km/h solo se alcanza con 150 kg y una bomba buena (26–32 km/h). Con 200 kg el bote no pasa de <strong>20–25 km/h</strong> o no planea [CALCULADO: Savitsky + cantidad de movimiento, §4.4–4.5].</li>
+<li>Con <strong>7,2 kW sostenidos</strong> (100 A) llega a 21–34 km/h con 200 kg; en 1 o 2 de los 6 cascos probados no pasa la transición. A esa potencia, 3 kWh útiles duran <strong>~25 min</strong> [CALCULADO].</li>
+</ul>
+</li>
+<li>
+<p><strong>La bomba es coherente en orden de magnitud.</strong> Un impulsor de Ø108 a 4500 rpm absorbe 5–7 kW [CALCULADO]:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Magnitud</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Velocidad periférica U</td>
+<td>25,4 m/s</td>
+</tr>
+<tr>
+<td>Ω_s</td>
+<td>4,1–4,8 (axial)</td>
+</tr>
+<tr>
+<td>ψ</td>
+<td>0,10–0,13</td>
+</tr>
+<tr>
+<td>Empuje a punto fijo</td>
+<td>550–760 N</td>
+</tr>
+<tr>
+<td>η batería → empuje a 30 km/h</td>
+<td>0,40–0,46</td>
+</tr>
+<tr>
+<td>σ en la punta</td>
+<td>0,28–0,35 (margen chico)</td>
+</tr>
+</tbody>
+</table></div>
+<p>El eje de Ø20 sobra: FS ≥ 5,5 [CALCULADO].</p>
+</li>
+<li>
+<p><strong>Holgura de punta.</strong> Los 0,5–0,8 mm (0,46–0,74 % de D) no se logran ni se mantienen en PETG. Una pala impresa tendría σ de raíz ≈ 7 MPa contra 2,7 MPa admisibles [CALCULADO con R05]. Hacen falta impulsor metálico y anillo de desgaste torneado.</p>
+</li>
+<li><strong>Legal y operación (Als Fjord).</strong><ul>
+<li>Los 30 km/h son <strong>ilegales a &lt; 300 m de la costa</strong> (máximo 5 kn = 9,26 km/h) [VERIFICADO: reglamento policial], que es justo donde opera el proyecto.</li>
+<li>A 5 kn el jet gasta <strong>0,65–3,9 kW</strong> [CALCULADO, con R/Δ ESTIMADO]. Como referencia, no comparable (otra velocidad, otro casco, otra carga): P1 usa 0,76–0,91 kW con 2 personas a 6 km/h.</li>
+<li>No requiere licencia (&lt; 19 kW) [VERIFICADO: R07].</li>
+<li>Queda pendiente confirmar que no se lo clasifique como "vandscooter" [VERIFICADO: BEK 809/2019 §1, §3].</li>
+</ul>
+</li>
+<li><strong>Veredicto.</strong> Es un croquis conceptual de <strong>otro producto</strong>: jet <em>inboard</em>, 1 piloto, ≥ 30 km/h, 72 V y casco propio de 2,30 × 0,80 m. Contradice los requisitos de P1: 2 personas, 6 km/h durante ≥ 2 h, ≤ 48 V, reversa obligatoria y arena (PROMPT §3–4). Las vistas tienen escalas que difieren 26 % entre sí, así que <strong>no es fabricable</strong>. Antes de seguir hay que confirmar con Jorge si ese casco es su bote y de dónde sale el plano (CAD, a mano o generado con una herramienta), porque varias incoherencias (globos que apuntan a otra pieza, corte A‑A imposible, "seatl") sugieren que no salió de un modelo CAD [ESTIMADO].</li>
+</ol>
+<hr />
+<h2 id="2-lectura-propia-del-plano-contra-el-resumen-recibido">2. Lectura propia del plano (contra el resumen recibido)</h2>
+<p>Abrí la imagen y la medí con zooms con grilla de píxeles (PNG de 1320 × 1023, ±2 px). Lo que leo distinto o agrego al resumen:</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>#</th>
+<th>Resumen recibido</th>
+<th>Lo que leo en la imagen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1</td>
+<td>"eje y rodamientos/sello fuera de la cámara húmeda"</td>
+<td>Dice literalmente <strong>"El eje y rodamientos/seatl van fuera de la cámara húmeda"</strong> (errata "seatl", probablemente <em>seal</em>)</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>Largo total del casco 2300</td>
+<td>En la vista lateral, la cota 2300 va de la proa al <strong>pivote de la boquilla</strong>, 166 mm a popa del espejo. En planta arranca <strong>~200 mm a popa de la proa</strong> y termina en el espejo [CALCULADO: §4.1]. Mide cosas distintas en cada vista</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>Cotas en popa 280 y 420</td>
+<td>En la vista lateral, 280 llega al <strong>pivote/borde superior de la boquilla</strong>. En la trasera llega al <strong>eje del jet</strong>. No es la misma cota</td>
+</tr>
+<tr>
+<td>L4</td>
+<td>Cadena 850 / 750 / 700</td>
+<td>Suma 2300, pero está dibujada de la proa <strong>hasta la rejilla</strong>, no hasta el espejo. A escala mide 2010 mm [CALCULADO]</td>
+</tr>
+<tr>
+<td>L5</td>
+<td>—</td>
+<td>La tabla "MATERIALES SUGERIDOS" está <strong>tapada por un ícono de "compartir"</strong> (es una captura de pantalla). Solo se lee: "Carcasa y difusor: Alum… 316", "Impulsor: In…", "Eje: In…", "Sellos: M…", "Tornillería: In…"</td>
+</tr>
+<tr>
+<td>L6</td>
+<td>—</td>
+<td>El globo <strong>9 (sello mecánico)</strong> apunta a un <strong>segundo rodamiento de bolas</strong>; no hay ningún sello dibujado. Los ítems 1 (toma) y 10 (eje) no tienen globo en el detalle</td>
+</tr>
+<tr>
+<td>L7</td>
+<td>"Ø inicial toma 120 (aprox.)", impulsor 108, tobera 72</td>
+<td>Las tres cotas están en el <strong>extremo de salida</strong> del detalle, junto a la boquilla direccional, no sobre el impulsor (ítem 2, junto a los cojinetes). El detalle "ampliado" no tiene escala propia: es ×2,37 la vista lateral [CALCULADO]</td>
+</tr>
+<tr>
+<td>L8</td>
+<td>Vista lateral "SECCIÓN A‑A"</td>
+<td>Las marcas A‑A de la planta están <strong>a popa del espejo, con flechas hacia popa</strong>. Eso define un corte transversal, no longitudinal</td>
+</tr>
+<tr>
+<td>L9</td>
+<td>Rejilla "enrasada con el fondo"</td>
+<td>En la vista trasera, la carcasa de la rejilla <strong>sobresale ~20 mm</strong> del fondo [CALCULADO]</td>
+</tr>
+<tr>
+<td>L10</td>
+<td>—</td>
+<td>El motor está dibujado como <strong>motor industrial con patas, aletas y ventilador</strong>, con baterías (3 cajas) bajo el piso del cockpit, a proa del motor</td>
+</tr>
+<tr>
+<td>L11</td>
+<td>—</td>
+<td>Los demás datos coinciden con el resumen: tabla de componentes 1–10, datos técnicos (7,2 / 5 kW, 72 V, 60 / 100 A, 4500 rpm, 150 kg, ≥ 30 km/h), 180 + 80 + 120 + 100 + 120 = 600, holgura 0,5–0,8 mm, rejilla de 120 × 90 mm</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="3-tabla-de-hallazgos">3. Tabla de hallazgos</h2>
+<p>Severidad: <strong>crítica</strong> (afecta la seguridad o no funciona), <strong>alta</strong>, <strong>media</strong>, <strong>baja</strong>. Ordenada con la seguridad primero.</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>N.º</th>
+<th>Qué dice el plano</th>
+<th>Problema</th>
+<th>Severidad</th>
+<th>Evidencia / cálculo</th>
+<th>Corrección propuesta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H1</td>
+<td>Ancho total 800; 1 piloto en asiento con volante sobre el piso del cockpit</td>
+<td><strong>Estabilidad inicial nula o negativa</strong>: puede volcar estando quieto</td>
+<td><strong>Crítica</strong> (seguridad)</td>
+<td>Manga en la flotación de 0,66–0,69 m; GM de −113 a +24 mm con el CG del piloto a 0,45–0,65 m del fondo [CALCULADO §4.3]. Agua &lt; 15 °C de oct a may [VERIFICADO: R07]</td>
+<td>Manga en la flotación ≥ 0,9 m (caja: GM +144 mm [CALCULADO]); en la práctica, manga total de 1,1–1,3 m como los jon boats de R04 [VERIFICADO: R04 A.4]. Asiento bajo y baterías en el fondo. Ensayo de escora con carga desplazada antes de navegar (buscar: ISO 12217-3 offset load test)</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>Eje del jet a 280 mm del fondo (vista trasera); eje recto horizontal</td>
+<td><strong>La bomba no ceba</strong>: el impulsor queda en el aire con el bote quieto</td>
+<td><strong>Crítica</strong> (no funciona)</td>
+<td>Calado de 151–233 mm con 150–200 kg → eje 37–119 mm y tope del impulsor 91–173 mm <strong>sobre</strong> la flotación [CALCULADO §4.3]. "Position the waterjet vertically so that the centerline of the jet lies on the vessel waterline when resting. This ensures the pump of the waterjet can always prime" [VERIFICADO: dmsonline]</td>
+<td>Bajar el eje del impulsor hasta ≤ el calado mínimo (≈ 150 mm sobre el fondo con 150 kg). Si no, prever cebado. Recalcular con el calado medido</td>
+</tr>
+<tr>
+<td>H3</td>
+<td>Detalle A‑A: 8‑9 cojinetes → 2 impulsor → 3 estator → 4 tobera → cámara → 5 boquilla direccional</td>
+<td><strong>El corte no es una bomba</strong>: no hay ducto de admisión; tras la tobera hay una cámara de ≈Ø130–140 con un cuerpo macizo en el eje; la boquilla direccional queda dentro de la carcasa fija y no puede girar</td>
+<td><strong>Crítica</strong> (no funciona)</td>
+<td>Expansión brusca Ø72 → Ø130–140: K = (1 − A₁/A₂)² = <strong>0,48–0,54</strong> de la altura dinámica del chorro [CALCULADO: Borda–Carnot]</td>
+<td>Disposición estándar: toma enrasada → ducto ascendente → impulsor → estator → tobera Ø72 → boquilla direccional <strong>por fuera del espejo</strong> → bucket</td>
+</tr>
+<tr>
+<td>H4</td>
+<td>Ítem 9 "sello mecánico externo a la cámara húmeda"; nota "eje y rodamientos/seatl fuera de la cámara húmeda"</td>
+<td>Falta el sello y el concepto es contradictorio: un sello mecánico trabaja con una cara mojada (separa lo húmedo de lo seco), y el eje no puede estar fuera de la cámara porque lleva el impulsor. Sin sello, el agua llega a los cojinetes y a la sentina</td>
+<td><strong>Crítica</strong> (inunda / no funciona)</td>
+<td>Globo 9 = rodamiento (L6). Velocidad periférica del eje Ø20 a 4500 rpm = <strong>4,7 m/s</strong> [CALCULADO]</td>
+<td>Sello mecánico de caras en la pared de la cámara (buscar: "mechanical seal 20 mm water pump SiC"), cojinetes del lado seco, cámara de drenaje con testigo entre sello y cojinete, y bomba de achique</td>
+</tr>
+<tr>
+<td>H5</td>
+<td>Baterías en 3 cajas sobre el fondo, bajo el piso; casco con dos pasantes (toma y eje); sin flotación</td>
+<td>El bote se hunde si se inunda; la batería queda en la sentina</td>
+<td><strong>Alta</strong> (seguridad)</td>
+<td>"Batteries shall be permanently installed in a dry, ventilated location above anticipated bilge water level" [VERIFICADO: R06 §5.1, ISO 13297 8.1]. LFP en agua salada: runaway posible días después [VERIFICADO: R06 §4.2]. Peso neto sumergido de máquinas + baterías + casco ≈ 60–65 kg [ESTIMADO]</td>
+<td>Caja estanca elevada; flotación fija ≥ ~100 L de espuma de celda cerrada [ESTIMADO: 1,5 × peso neto sumergido]; bomba de achique con alarma (buscar: 33 CFR 183 subpart F flotation small boats)</td>
+</tr>
+<tr>
+<td>H6</td>
+<td>Masa total 150 kg; 1 piloto</td>
+<td>Capacidad de carga menor que un adulto; <strong>no entra una segunda persona</strong></td>
+<td><strong>Alta</strong> (seguridad)</td>
+<td>Desplazamiento máximo a 420 mm = 424–481 kg; 33 CFR 183.33 → W = <strong>54–64 kg</strong> de personas + equipo [CALCULADO con fórmula VERIFICADA]. Regla de área de R04: 34–63 kg/m² × 1,84 m² = <strong>63–116 kg</strong> incluyendo motor [CALCULADO con R04 A.3]. Con 2 personas (280–330 kg): francobordo en el espejo de <strong>77–158 mm</strong> [CALCULADO]</td>
+<td>Rediseñar manga y puntal para la carga real. Placa: 1 persona. No llevar acompañante</td>
+</tr>
+<tr>
+<td>H7</td>
+<td>"No usar como plano final"; casco de 2,30 × 0,80 con cubierta y cockpit</td>
+<td><strong>No es el bote de diseño de P1</strong> (jon boat de 2,44 × 1,20 m, D‑01; manga de los cascos chicos 1,10–1,30 m [VERIFICADO: R04 A.4])</td>
+<td><strong>Alta</strong> (datos de entrada)</td>
+<td>Vistas superior y trasera</td>
+<td>Preguntar a Jorge si este casco es su bote o un concepto. Si es su bote, medirlo (PENDIENTES P0)</td>
+</tr>
+<tr>
+<td>H8</td>
+<td>72 V nominales, 60 A nominal, 100 A máximo</td>
+<td><strong>Supera la tensión de seguridad</strong>; los componentes de P1 no sirven a esta tensión</td>
+<td><strong>Alta</strong> (seguridad eléctrica)</td>
+<td>LFP 22S, LFP 23S y NMC 20S llegan a <strong>80,3–84,0 V</strong> cargadas [CALCULADO]. Supera los 50 V CC de ISO 16315:2016 3.1, con reducción sugerida en ambiente húmedo [VERIFICADO: R06]. MRBF ≤ 58 V; SW80 corta bajo carga solo hasta 48 V; VESC 75100 al límite de 84 V [VERIFICADO: R06 §4.3]</td>
+<td>LFP 13S (47,45 V máx. [VERIFICADO: R06 §4.3]) con 120–175 A. Si se mantienen 72 V: todo en clase 100 V (contactor SW80B de 96 V [VERIFICADO: R06]), fusible para ≥ 100 V CC (buscar: "class T fuse 125 VDC") y monitor de aislamiento</td>
+</tr>
+<tr>
+<td>H9</td>
+<td>Sin kill switch ni parada de emergencia en el plano ni en la lista</td>
+<td>El motor no se detiene si el piloto cae al agua</td>
+<td><strong>Alta</strong> (seguridad)</td>
+<td>PWC: el cordón (ECOS) es obligatorio en EE. UU.; "If the ECOS does not shut off the engine when the lanyard is pulled, do not operate" [VERIFICADO: CG Aux]</td>
+<td>Cordón NC en serie con la bobina de un contactor monoestable + seta (arquitectura de R06 §3.5)</td>
+</tr>
+<tr>
+<td>H10</td>
+<td>"La reversa (bucket) es opcional"</td>
+<td>El jet <strong>no frena ni gobierna sin empuje</strong>, y el proyecto exige marcha atrás (PROMPT §3)</td>
+<td><strong>Alta</strong> (seguridad)</td>
+<td>"There are no brakes on a PWC"; "No Jet thrust, no steering… you will proceed ahead without the ability to change course"; bucket "at any speed other than idle, damage to the plate and brackets can occur" [VERIFICADO: CG Aux]. El bucket recibe hasta ≈ 550–760 N (empuje a punto fijo) [CALCULADO]</td>
+<td>Bucket <strong>obligatorio</strong>, con traba en la posición de avance, límite de potencia en reversa y bisagra dimensionada para ≥ 2 × 760 N [SUPUESTO: FS 2]</td>
+</tr>
+<tr>
+<td>H11</td>
+<td>Toma en el fondo, jet de impulsor</td>
+<td>Choca con el requisito de <strong>aguas someras y arena</strong> (PROMPT §3)</td>
+<td><strong>Alta</strong></td>
+<td>"Never operate your PWC in water less than 24 inches" (610 mm) [VERIFICADO: CG Aux]. Hacen falta ~305 mm de luz bajo el jet en desplazamiento [VERIFICADO: R03 S12]. El desgaste de la holgura bajó un jet de 42 a 35 kn [VERIFICADO: R03 S8]</td>
+<td>No usar en bajos de arena. Inspeccionar la holgura en cada salida. Tapa de inspección del impulsor</td>
+</tr>
+<tr>
+<td>H12</td>
+<td>Objetivo ≥ 30 km/h</td>
+<td>Ilegal en la zona de operación: dentro de 300 m el máximo es 5 kn</td>
+<td><strong>Alta</strong> (legal)</td>
+<td>Reglamento local §4: "Indenfor en afstand af 300 meter fra kystlinjen … højst 5 knob" [VERIFICADO: politi.dk]. El proyecto opera a &lt; 300 m (PROMPT §3)</td>
+<td>Para ≥ 30 km/h hay que salir de los 300 m, fuera del alcance y de los criterios de agua fría de P1 (R07 §3.4). Si no, limitar la velocidad por firmware</td>
+</tr>
+<tr>
+<td>H13</td>
+<td>Masa total 150 kg</td>
+<td>Presupuesto de masas irreal</td>
+<td><strong>Alta</strong></td>
+<td>Sin batería: 142–219 kg; con 3 kWh LFP: <strong>165–242 kg</strong> [ESTIMADO §4.2]. Para cerrar 150 kg, casco + máquinas ≤ 47 kg [CALCULADO]</td>
+<td>Diseñar para 200–230 kg</td>
+</tr>
+<tr>
+<td>H14</td>
+<td>5 kW de diseño, 7,2 kW máx., ≥ 30 km/h</td>
+<td>Con 5 kW no llega con masa realista</td>
+<td><strong>Alta</strong> (no cumple objetivo)</td>
+<td>Savitsky (openplaning) + jet con pérdidas [CALCULADO §4.5]: con 150 kg y 5 kW, <strong>26–32 km/h</strong>; con 200 kg y 5 kW, T &lt; R en 20 km/h en 4 de 6 cascos y máximo 20–25 km/h en los demás; con 200 kg y 7,2 kW, <strong>21–34 km/h</strong>, y en 1–2 de 6 cascos no pasa los 20 km/h</td>
+<td>Dimensionar para 7,2 kW continuos (motor, ESC y cables), o bajar el objetivo a ~20 km/h</td>
+</tr>
+<tr>
+<td>H15</td>
+<td>Holgura de punta 0,5–0,8 mm (y el proyecto imprime en PETG)</td>
+<td><strong>No es imprimible ni mantenible</strong> en PETG</td>
+<td><strong>Alta</strong> (si se imprime)</td>
+<td>0,46–0,74 % de D [CALCULADO]. Tolerancia FDM ±0,15 mm por superficie [ESTIMADO: R05]. PRO‑JET tuvo que llevar la separación rotor–estator a 3 mm [VERIFICADO: R03 S4]. Pala de PETG de 40 × 5 mm: σ de raíz <strong>7,2 MPa</strong> contra 2,7 MPa sostenida (FS 3) y 0,5 MPa alterna [CALCULADO con R05 A7]</td>
+<td>Impulsor metálico (la tabla dice "Impulsor: In…": confirmar). <strong>Anillo de desgaste torneado</strong> con el torno disponible. Holgura medida con galgas</td>
+</tr>
+<tr>
+<td>H16</td>
+<td>Eje Ø20 "recto", motor abulonado a la caja de cojinetes, sin acople</td>
+<td>Camino del empuje axial no definido; el motor recibe empuje y desalineación</td>
+<td><strong>Media</strong></td>
+<td>Empuje axial de ≈ 257 N a 30 km/h y hasta <strong>≈ 760 N</strong> a punto fijo con 7,2 kW [CALCULADO]</td>
+<td>Acople flexible con juego axial. Rodamiento fijo (par de contacto angular) en la caja de la bomba. Caja abulonada al bloque de toma o al espejo. Motor en soporte propio</td>
+</tr>
+<tr>
+<td>H17</td>
+<td>Motor de 5 kW, 4500 rpm, 72 V, dibujado como motor industrial</td>
+<td>Tipo, refrigeración y control sin definir</td>
+<td><strong>Media</strong></td>
+<td>Referencia comercial: HPM5000B de 72 V, 11 kg, Ø206 × 126 mm, 91 %, 2000–6000 rpm configurable, "water resistent", 1306,48 € [VERIFICADO: Kelly]. Calor en el compartimiento ≈ 0,59 kW a 5 kW y ≈ 0,85 kW a 7,2 kW [CALCULADO: 9 % del motor + 3 % del ESC]. KV implícito de <strong>62,5–73,5 rpm/V</strong>. A 84 V la bomba pediría <strong>×1,59</strong> la potencia [CALCULADO]</td>
+<td>ESC de clase ≥ 100 V con límites de corriente y rpm. Ventilación forzada o versión refrigerada por agua (buscar: "Golden Motor 5kW liquid cooled 72V")</td>
+</tr>
+<tr>
+<td>H18</td>
+<td>Corriente nominal 60 A, máxima 100 A, potencia 5 / 7,2 kW</td>
+<td>No cierra</td>
+<td><strong>Baja</strong></td>
+<td>60 A × 72 V = 4,32 kW ≠ 5 kW. Pedir 7,2 kW con la batería vacía (61,6 V) son <strong>117 A</strong> &gt; 100 A [CALCULADO]</td>
+<td>Especificar la potencia a una tensión dada y limitar por corriente de batería</td>
+</tr>
+<tr>
+<td>H19</td>
+<td>Masas dibujadas: piloto, baterías y motor</td>
+<td>LCG muy a proa</td>
+<td><strong>Media</strong></td>
+<td>LCG ≈ 1,14 m del espejo = <strong>66 %</strong> del largo de fondo [CALCULADO §4.4]; λ = 3,0–3,7 (límite de Savitsky: 4)</td>
+<td>Mover las baterías hacia popa. LCG objetivo ≈ 35–45 % del largo desde el espejo [ESTIMADO: memoria técnica, no verificado]</td>
+</tr>
+<tr>
+<td>H20</td>
+<td>Impulsor Ø108 a 4500 rpm directo</td>
+<td>Margen de cavitación chico a punto fijo y en la joroba</td>
+<td><strong>Media</strong></td>
+<td>U = 25,4 m/s; σ en la punta 0,28–0,35; S = 3,0–3,3 [CALCULADO]. Umbral de referencia [ESTIMADO: memoria técnica, no verificado]</td>
+<td>Ensayo en tanque o muelle con rampa de acelerador; tope de corriente a baja velocidad</td>
+</tr>
+<tr>
+<td>H21</td>
+<td>"Carcasa y difusor: Alum… 316"</td>
+<td>Par galvánico Al–316 en agua salobre</td>
+<td><strong>Media</strong></td>
+<td>Diferencia ≈ 670 mV (límite práctico 200 mV) [VERIFICADO: R06 §0]</td>
+<td>Aislar (bujes y arandelas no conductoras, Tef‑Gel) y ánodo de aluminio (R06)</td>
+</tr>
+<tr>
+<td>H22</td>
+<td>Bote &lt; 4 m con bomba de chorro</td>
+<td><strong>Riesgo de clasificación como "vandscooter"</strong></td>
+<td><strong>Media</strong> (a confirmar)</td>
+<td>BEK 809/2019 §1: &lt; 4 m, bomba de chorro como propulsión principal, operado por personas que "sidder, står eller knæler på – snarere end i – skroget"; §3: prohibido a &lt; 300 m salvo tránsito directo, perpendicular y ≤ 5 kn [VERIFICADO]. Hoy hacen falta vandscooterbevis y seguro obligatorio [VERIFICADO: Søfartsstyrelsen]. El piloto del plano va <strong>dentro</strong> del casco, así que probablemente no lo es. Speedbådsbevis: no, porque son &lt; 19 kW [VERIFICADO: R07]</td>
+<td>Consultar a Søfartsstyrelsen antes de construir. Los metadatos de BEK 809/2019 dan EndDate 2026‑06‑23: buscar la versión vigente</td>
+</tr>
+<tr>
+<td>H23</td>
+<td>Escala 1:10; vistas lateral, superior, trasera y detalle</td>
+<td><strong>Cotas incoherentes</strong>; no es un plano a escala</td>
+<td><strong>Media</strong></td>
+<td>Escalas de 3,19 / 4,00 / 3,72 mm/px (dispersión del 26 %). En la lateral, 520 se dibuja más corto que 420. L/B dibujado 3,98 contra 2,88 rotulado. El "800" de la planta abarca 488 mm y el casco dibujado mide 628 mm. Tren motor‑bomba: 600 en el detalle contra 745–968 mm en lateral y planta [CALCULADO §4.1]</td>
+<td>Rehacer en CAD con una sola referencia (fondo y espejo) y cotas encadenadas al espejo</td>
+</tr>
+<tr>
+<td>H24</td>
+<td>Corte A‑A; diámetros en el detalle</td>
+<td>Marcas de corte y cotas mal ubicadas</td>
+<td><strong>Baja</strong></td>
+<td>L7, L8</td>
+<td>Marcas A‑A sobre crujía; cotar Ø108 sobre el impulsor y Ø72 en la salida de la tobera</td>
+</tr>
+<tr>
+<td>H25</td>
+<td>Tabla de materiales</td>
+<td>Ilegible (captura de pantalla)</td>
+<td><strong>Baja</strong></td>
+<td>L5</td>
+<td>Pedir a Jorge el archivo original (PDF o CAD)</td>
+</tr>
+<tr>
+<td>—</td>
+<td>Toma / rejilla</td>
+<td>(La analiza otro agente)</td>
+<td>—</td>
+<td>Una línea: coincide con Jorge (ver Alcance)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="4-cálculos">4. Cálculos</h2>
+<p>Todo sale del script de la §8, ejecutado con Python 3.11, numpy, scipy y openplaning 0.4.9. Copio la salida relevante.</p>
+<h3 id="41-cotas-y-escalas-medidas-en-píxeles-del-png">4.1 Cotas y escalas (medidas en píxeles del PNG)</h3>
+<pre><code>Lateral: 2300 mm = 722 px -&gt; 3.186 mm/px
+  proa→espejo dibujado = 2134 mm; la cota 2300 termina 166 mm a popa del espejo (pivote de la boquilla)
+  cadena 850/750/700: px [235, 216, 180] -&gt; a escala [749, 688, 573] mm; total 2010 mm (rotulado 2300)
+  la cadena termina en x=752 = rejilla (x (735, 760)); rejilla a 143 mm del espejo a escala
+  cota 520: 99 px -&gt; 5.25 mm/px (horizontal 3.19); a escala horizontal = 315 mm
+  cota 420: 108 px -&gt; 3.89 mm/px (horizontal 3.19); a escala horizontal = 344 mm
+  cota 280: 78 px -&gt; 3.59 mm/px (horizontal 3.19); a escala horizontal = 248 mm
+  eje motor-bomba a 67 px del fondo -&gt; 213 mm (esc. horiz.) / 241 (cal. con 280) / 352 mm (cal. con 520)
+  tren motor→boquilla: 914 mm; motor→fin carcasa: 745 mm (detalle: 600)
+Superior: 2300 = 575 px -&gt; 4.00 mm/px; la cota arranca 200 mm a popa de la proa
+  casco dibujado: largo 2500 mm, ancho 628 mm; cota 800 abarca 488 mm
+  L/B rotulado 2.88; L/B dibujado 3.98
+  tren motor→boquilla en planta: 968 mm (detalle: 600)
+Trasera: 800 = 215 px -&gt; 3.72 mm/px
+  cota 520: 110 px -&gt; a escala horizontal 409 mm
+  cota 280: 57 px -&gt; a escala horizontal 212 mm
+  cota 120: 38 px -&gt; a escala horizontal 141 mm
+  escalas de las 3 vistas: lateral 3.19, superior 4.00, trasera 3.72 mm/px -&gt; dispersión 26 %
+Detalle: 600 = 446 px -&gt; 1.345 mm/px; tramos [(180, 192), (80, 94), (120, 117), (100, 85), (120, 112)]
+  escala equivalente si la hoja es A3: lateral 1:9.1 / superior 1:11.5 / trasera 1:10.7 / detalle 1:3.9
+  detalle ampliado ×2.37 respecto de la vista lateral (sin escala propia rotulada)
+  Expansión brusca tras la tobera Ø72 a cámara ≈Ø140 (dibujo): K Borda–Carnot = (1−A1/A2)² = 0.54
+</code></pre>
+<ul>
+<li>"1:10" solo se cumple aproximadamente en la vista lateral, y solo si la hoja es A3 [SUPUESTO]. Las tres vistas no comparten escala.</li>
+<li>La altura del eje del jet sobre el fondo queda entre 213 y 352 mm según qué cota se tome como calibración [CALCULADO]. Uso <strong>270–280 mm</strong>, que es la cota rotulada en la vista trasera, donde 280 sí apunta al eje (57 px contra 110 px de 520 → 270 mm [CALCULADO]).</li>
+<li>Con Ø140, K da 0,54. Con Ø130 [ESTIMADO: lectura del detalle] da 0,48.</li>
+</ul>
+<h3 id="42-presupuesto-de-masas-1-piloto">4.2 Presupuesto de masas (1 piloto)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Partida</th>
+<th>kg</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Casco de 2,3 × 0,8 m con cubierta, consola y asiento</td>
+<td>30–45</td>
+<td>[ESTIMADO: R04 A.3 da 8,3–14,6 kg/m² × 1,84 m² = 15–27 kg para el casco <strong>abierto</strong>; +50–70 % por cubierta, tapa de motor y consola]</td>
+</tr>
+<tr>
+<td>Motor 5 kW, 72 V</td>
+<td>11–35</td>
+<td>11 kg el HPM5000B [VERIFICADO: Kelly]; 35 kg si fuera el motor industrial dibujado [ESTIMADO: memoria técnica, no verificado]</td>
+</tr>
+<tr>
+<td>Bomba (carcasa de Al, impulsor, estator, ducto, eje, cojinetes, boquilla)</td>
+<td>8–15</td>
+<td>[ESTIMADO]</td>
+</tr>
+<tr>
+<td>Controlador 72 V / 100 A, contactor, fusible, cables</td>
+<td>4–7</td>
+<td>[ESTIMADO]</td>
+</tr>
+<tr>
+<td>Dirección + bucket</td>
+<td>2–4</td>
+<td>[ESTIMADO]</td>
+</tr>
+<tr>
+<td>Agua retenida en la bomba sobre la flotación</td>
+<td>2–5</td>
+<td>[ESTIMADO: ~5 L de volumen interno]</td>
+</tr>
+<tr>
+<td>Equipo de seguridad</td>
+<td>5–8</td>
+<td>[ESTIMADO: R07 §1.4]</td>
+</tr>
+<tr>
+<td>Piloto</td>
+<td>80–100</td>
+<td>[SUPUESTO: <code>inputs.yaml</code> usa 100]</td>
+</tr>
+<tr>
+<td><strong>Subtotal sin batería</strong></td>
+<td><strong>142–219</strong></td>
+<td>[CALCULADO]</td>
+</tr>
+<tr>
+<td>Batería LFP de 2 / 3 / 4 / 6 kWh a 128 Wh/kg</td>
+<td>15,6 / 23,4 / 31,2 / 46,9</td>
+<td>[CALCULADO con R06 §4.1 VERIFICADO]</td>
+</tr>
+<tr>
+<td><strong>Total con 3 kWh LFP</strong></td>
+<td><strong>165–242</strong></td>
+<td>[CALCULADO]</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="43-hidrostática-calado-francobordo-cebado-capacidad-y-gm">4.3 Hidrostática: calado, francobordo, cebado, capacidad y GM</h3>
+<p><strong>Modelo de casco</strong> [ESTIMADO, leído del dibujo; no es a escala]:</p>
+<ul>
+<li><strong>Sección (vista trasera):</strong> fondo plano de 0,42 m que se abre hasta 0,69 m en el pantoque, a 0,25 m sobre el fondo, y llega a 0,80 m en la borda a 0,52 m. Variante con fondo de 0,60 m.</li>
+<li><strong>Largo de fondo:</strong> 1,73 m, que crece por la proa lanzada hasta 2,05 m a 0,42 m de altura.</li>
+<li><strong>Coeficientes de la flotación:</strong> C_wp = 0,85 y C_I = 0,065 [CALCULADO: 70 % de rectángulo + 30 % de proa triangular].</li>
+</ul>
+<pre><code>  Δ=150 kg (fondo 0,42): calado 186 mm; francobordo espejo (420) 234 mm; eje del jet SOBRE la flotación por 84 mm
+  Δ=150 kg (fondo 0,60): calado 151 mm; francobordo espejo (420) 269 mm; eje del jet SOBRE la flotación por 119 mm
+  Δ=200 kg (fondo 0,42): calado 233 mm; francobordo espejo (420) 187 mm; eje del jet SOBRE la flotación por 37 mm
+  Δ=200 kg (fondo 0,60): calado 196 mm; francobordo espejo (420) 224 mm; eje del jet SOBRE la flotación por 74 mm
+  Δ=230 kg (fondo 0,42): calado 260 mm; francobordo espejo (420) 160 mm; eje del jet SOBRE la flotación por 10 mm
+  Δ=280 kg (fondo 0,42): calado 302 mm; francobordo espejo (420) 118 mm; eje del jet BAJO la flotación por 32 mm
+  Δ=330 kg (fondo 0,42): calado 343 mm; francobordo espejo (420) 77 mm
+Desplazamiento máximo a 0,42 m (borde del espejo, a nivel): ∇ = 0.424 m³ -&gt; 424 kg (agua dulce)   (fondo 0,60: 481 kg)
+  USCG 183.33: Δmax 424, casco 30, máquinas+baterías 35: W1=51, W2=56 -&gt; W = 56 kg (personas+equipo)
+  USCG 183.33: Δmax 424, casco 45, máquinas+baterías 70: W1=20, W2=54 -&gt; W = 54 kg
+  USCG 183.33: Δmax 481, casco 30, máquinas+baterías 35: W1=62, W2=64 -&gt; W = 64 kg
+  USCG 183.33: Δmax 481, casco 45, máquinas+baterías 70: W1=31, W2=62 -&gt; W = 62 kg
+GM con 1 piloto sentado (alturas sobre el fondo):
+  zG piloto 0.45 m, Δ 185 kg: T 220 mm, Bwl 0.66, KB 0.120, BM 0.191, KG 0.327 -&gt; GM -16 mm | fondo 0,60: GM +5 mm
+  zG piloto 0.45 m, Δ 220 kg: T 251 mm, Bwl 0.69, KB 0.138, BM 0.189, KG 0.305 -&gt; GM +22 mm | fondo 0,60: GM +24 mm
+  zG piloto 0.55 m, Δ 185 kg: ... KG 0.376 -&gt; GM -65 mm | fondo 0,60: GM -43 mm
+  zG piloto 0.65 m, Δ 185 kg: ... KG 0.424 -&gt; GM -113 mm | fondo 0,60: GM -92 mm
+Manga en la flotación (casco tipo caja) para GM ≥ +100 mm, Δ 200 kg, KG 0,36 m:
+  B=0.7 m: GM=-65 mm | B=0.8 m: GM=+24 mm | B=0.9 m: GM=+144 mm | B=1.0 m: GM=+297 mm
+</code></pre>
+<p><strong>Calado y cebado.</strong> El eje del jet (270–280 mm) queda sobre la flotación estática en todo el rango de 150–230 kg [CALCULADO]. Para que el eje quede en la flotación haría falta Δ ≈ 240–280 kg; con 2 personas (280–330 kg) el francobordo en el espejo queda en 77–158 mm [CALCULADO].</p>
+<p><strong>Capacidad.</strong> La fórmula es de 33 CFR 183.33 (botes con motor interior): W = máx[Δmax/5 − casco/5 − 4·máquinas/5 ; (Δmax − casco)/7], donde "máquinas" incluye los motores y las baterías [VERIFICADO: law.cornell.edu]. La norma no es obligatoria en Dinamarca; se usa como referencia (como en R04). La regla de personas de 183.41 es para fueraborda [VERIFICADO], así que no la uso.</p>
+<p><strong>GM.</strong> Los parámetros del cálculo:</p>
+<ul>
+<li>CG del piloto 0,20–0,25 m sobre el asiento [ESTIMADO: antropometría, memoria técnica, no verificado], con el asiento a 0,25–0,42 m del fondo [CALCULADO: según la escala que se tome en la vista lateral];</li>
+<li>baterías a 0,12 m;</li>
+<li>motor y bomba a 0,26 m;</li>
+<li>casco a 0,22 m [ESTIMADO].</li>
+</ul>
+<p>El criterio de GM ≥ +100 mm es [SUPUESTO]. La verificación formal es un ensayo de escora (buscar: "ISO 12217-3 offset load test small boats").</p>
+<h3 id="44-resistencia-joroba-y-planeo">4.4 Resistencia: joroba y planeo</h3>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>v km/h</th>
+<th>SLR (L = 1,75 m)</th>
+<th>Fn∇ (200 kg)</th>
+<th>C_V (b = 0,5 m)</th>
+<th>Régimen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9,26</td>
+<td>2,09</td>
+<td>1,08</td>
+<td>1,16</td>
+<td>Semidesplazamiento (límite legal)</td>
+</tr>
+<tr>
+<td>12</td>
+<td>2,70</td>
+<td>1,39</td>
+<td>1,51</td>
+<td>Joroba</td>
+</tr>
+<tr>
+<td>15</td>
+<td>3,38</td>
+<td>1,74</td>
+<td>1,88</td>
+<td>Joroba / preplaneo</td>
+</tr>
+<tr>
+<td>20</td>
+<td>4,51</td>
+<td>2,32</td>
+<td>2,51</td>
+<td>Transición</td>
+</tr>
+<tr>
+<td>25</td>
+<td>5,63</td>
+<td>2,91</td>
+<td>3,14</td>
+<td>Planeo</td>
+</tr>
+<tr>
+<td>30</td>
+<td>6,76</td>
+<td>3,49</td>
+<td>3,76</td>
+<td>Planeo</td>
+</tr>
+</tbody>
+</table></div>
+<p>[CALCULADO]. Regímenes según Savitsky 2003: planeo con SLR &gt; 3 [VERIFICADO: R09 §1.6].</p>
+<p><strong>Joroba.</strong> La banda es R/Δ = 0,10–0,20 [ESTIMADO]. Sale de la curva "típica" de Savitsky 2003, ≈ 0,10 a SLR 3 [VERIFICADO: R09 §1.6], multiplicada por 1–2 porque R09 mostró que los cascos rechonchos dan ~2 veces la curva típica. Da R_joroba = 147–294 N (150 kg), 196–392 N (200 kg) y 226–451 N (230 kg).</p>
+<p><strong>Contraste.</strong> Un RIB de 2,75 m con 1 persona planea a 14,8–17,6 km/h con motores de nafta de 2,5 hp [VERIFICADO: R04 C.1 #10]. Eso equivale a R/Δ ≈ 0,13–0,15 con hélice de η ≈ 0,5 [ESTIMADO], dentro de la banda.</p>
+<p><strong>Planeo: Savitsky 1964 con openplaning 0.4.9.</strong> Las ecuaciones que R09 §1.6 daba como "de memoria" coinciden con el código de openplaning [VERIFICADO: openplaning.py, <code>get_hydrodynamic_force</code>, líneas 504–519]:</p>
+<ul>
+<li>C_L0 = τ^1,1(0,012·λ^½ + 0,0055·λ^2,5/C_V²)</li>
+<li>C_Lβ = C_L0 − 0,0065·β·C_L0^0,6</li>
+<li>l_p = λb(0,75 − 1/(5,21(C_V/λ)² + 2,39))</li>
+</ul>
+<p>Límites: 0,60 ≤ C_V ≤ 13, 2° ≤ τ ≤ 15° y λ ≤ 4. La fricción es ITTC‑57 con rugosidad de 150 µm.</p>
+<p>Entradas:</p>
+<ul>
+<li>VCG 0,33 m y r_g 0,5 m;</li>
+<li>línea de empuje horizontal a 0,26 m (ε = 0°);</li>
+<li>aire: área de 1,1 × 0,5 m² con C_D 0,9;</li>
+<li>ν = 1,3·10⁻⁶ m²/s.</li>
+</ul>
+<p>Todas son [ESTIMADO].</p>
+<p>R total (presión + fricción + aire), en N:</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Δ kg</th>
+<th>b m</th>
+<th>β °</th>
+<th>LCG m</th>
+<th>20 km/h</th>
+<th>25</th>
+<th>30</th>
+<th>35</th>
+<th>τ a 30 km/h</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>150</td>
+<td>0,50</td>
+<td>5</td>
+<td>0,75</td>
+<td>331</td>
+<td>294</td>
+<td>272</td>
+<td>268</td>
+<td>7,1°</td>
+</tr>
+<tr>
+<td>150</td>
+<td>0,60</td>
+<td>10</td>
+<td>1,16</td>
+<td>204</td>
+<td>232</td>
+<td>258</td>
+<td>291</td>
+<td>4,1°</td>
+</tr>
+<tr>
+<td>200</td>
+<td>0,50</td>
+<td>5</td>
+<td>0,75</td>
+<td>523</td>
+<td>451</td>
+<td>399</td>
+<td>369</td>
+<td>9,2°</td>
+</tr>
+<tr>
+<td>200</td>
+<td>0,60</td>
+<td>10</td>
+<td>1,00</td>
+<td>356</td>
+<td>349</td>
+<td>343</td>
+<td>350</td>
+<td>6,2°</td>
+</tr>
+<tr>
+<td>200</td>
+<td>0,60</td>
+<td>10</td>
+<td>1,16</td>
+<td>291</td>
+<td>316</td>
+<td>331</td>
+<td>352</td>
+<td>5,3°</td>
+</tr>
+<tr>
+<td>230</td>
+<td>0,50</td>
+<td>5</td>
+<td>0,75</td>
+<td>655</td>
+<td>561</td>
+<td>488</td>
+<td>442</td>
+<td>10,3°</td>
+</tr>
+<tr>
+<td>230</td>
+<td>0,60</td>
+<td>10</td>
+<td>1,16</td>
+<td>354</td>
+<td>376</td>
+<td>383</td>
+<td>396</td>
+<td>5,9°</td>
+</tr>
+</tbody>
+</table></div>
+<p>[CALCULADO: 18 casos en total. Rangos a 30 km/h: <strong>253–272 N</strong> con 150 kg, <strong>331–399 N</strong> con 200 kg y <strong>383–488 N</strong> con 230 kg.]</p>
+<ul>
+<li><strong>Desglose.</strong> En el caso de 200 kg, b 0,6, LCG 1,0 y 30 km/h: presión 211 N, fricción 113 N y aire 19 N [CALCULADO].</li>
+<li><strong>Validez a 20 km/h.</strong> Fn∇ = 2,3 es extrapolación: preplaneo, fuera de las hipótesis de Savitsky (R09 §1.6).</li>
+<li><strong>Por qué R/Δ ≈ 0,17–0,21 a 30 km/h.</strong> El fondo es angosto para el peso: ∇/b³ = 1,58 con b = 0,5 m y 200 kg [CALCULADO]. Eso fuerza trimados altos.</li>
+</ul>
+<p><strong>LCG del dibujo.</strong> Posiciones medidas desde el espejo [CALCULADO con posiciones de la vista lateral y masas ESTIMADAS]:</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Masa</th>
+<th>kg</th>
+<th>Distancia al espejo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Piloto</td>
+<td>90</td>
+<td>1,38 m</td>
+</tr>
+<tr>
+<td>Baterías</td>
+<td>30</td>
+<td>1,42 m</td>
+</tr>
+<tr>
+<td>Motor</td>
+<td>20</td>
+<td>0,63 m</td>
+</tr>
+<tr>
+<td>Bomba</td>
+<td>12</td>
+<td>0,25 m</td>
+</tr>
+<tr>
+<td>Casco</td>
+<td>38</td>
+<td>0,95 m</td>
+</tr>
+</tbody>
+</table></div>
+<p>Da <strong>LCG = 1,14 m = 66 %</strong> del largo de fondo.</p>
+<h3 id="45-jet-empuje-rendimiento-equilibrio-y-autonomía">4.5 Jet: empuje, rendimiento, equilibrio y autonomía</h3>
+<p><strong>Modelo</strong> (cantidad de movimiento con pérdidas; mismo marco que R03 §2.3):</p>
+<ul>
+<li>T = ρQ(V_j − V₀)</li>
+<li>P_h = ρQ[(1 + K_n)V_j²/2 − η_in·V₀²/2]</li>
+</ul>
+<p>Parámetros:</p>
+<ul>
+<li>K_n = 0,03 en la tobera [ESTIMADO];</li>
+<li>recuperación en la toma η_in = 0,70 ("~70 %" [VERIFICADO: R03 S9]);</li>
+<li>η de la bomba 0,75 [ESTIMADO: R03, impulsor chico] a 0,85 [ESTIMADO; dmsonline: "90 % or greater" para un buen diseño, VERIFICADO];</li>
+<li>η del motor 0,91 [VERIFICADO: Kelly HPM5000B];</li>
+<li>ESC 0,97 y mecánica 0,98 [ESTIMADO].</li>
+</ul>
+<p>Sin estela (w = 0, conservador).</p>
+<p>Geometría [CALCULADO]:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Magnitud</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A de la tobera</td>
+<td>40,7 cm²</td>
+</tr>
+<tr>
+<td>A anular del impulsor (cubo 0,4)</td>
+<td>77,0 cm²</td>
+</tr>
+<tr>
+<td>D_t/D_i</td>
+<td>0,667</td>
+</tr>
+<tr>
+<td>A_t/A_i</td>
+<td>0,444</td>
+</tr>
+<tr>
+<td>A_t/A_anular</td>
+<td>0,53</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>P_el</th>
+<th>η_bomba</th>
+<th>T a 0 km/h</th>
+<th>9,26 km/h</th>
+<th>15 km/h</th>
+<th>20 km/h</th>
+<th>30 km/h</th>
+<th>η_chorro a 30 km/h</th>
+<th>η bat→empuje a 30 km/h</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5,0 kW</td>
+<td>0,75</td>
+<td>547 N</td>
+<td>436 N</td>
+<td>376 N</td>
+<td>328 N</td>
+<td>241 N</td>
+<td>0,62</td>
+<td>0,40</td>
+</tr>
+<tr>
+<td>5,0 kW</td>
+<td>0,85</td>
+<td>595 N</td>
+<td>478 N</td>
+<td>415 N</td>
+<td>365 N</td>
+<td>273 N</td>
+<td>0,62</td>
+<td>0,46</td>
+</tr>
+<tr>
+<td>7,2 kW</td>
+<td>0,75</td>
+<td>697 N</td>
+<td>571 N</td>
+<td>502 N</td>
+<td>446 N</td>
+<td>344 N</td>
+<td>0,61</td>
+<td>0,40</td>
+</tr>
+<tr>
+<td>7,2 kW</td>
+<td>0,85</td>
+<td>758 N</td>
+<td>626 N</td>
+<td>553 N</td>
+<td>494 N</td>
+<td>387 N</td>
+<td>0,61</td>
+<td>0,45</td>
+</tr>
+</tbody>
+</table></div>
+<p>[CALCULADO]. Sin pérdidas, a 30 km/h y con T = 250–400 N: V_j/V₀ = 1,56–1,78 y η_ideal = <strong>0,72–0,78</strong> [CALCULADO]. El chorro está bien elegido para 30 km/h.</p>
+<p><strong>Velocidad máxima</strong> (primera velocidad donde T &lt; R entre 20 y 35 km/h) [CALCULADO]:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>5 kW, η_bomba 0,75</th>
+<th>5 kW, 0,85</th>
+<th>7,2 kW, 0,75</th>
+<th>7,2 kW, 0,85</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>150 kg (6 cascos)</td>
+<td>26,1–28,8 (1 caso T &lt; R a 20)</td>
+<td>30,1–31,8</td>
+<td>&gt; 35</td>
+<td>&gt; 35</td>
+</tr>
+<tr>
+<td>200 kg, b 0,6, LCG 1,16</td>
+<td>22,6</td>
+<td>25,2</td>
+<td>31,0</td>
+<td>34,0</td>
+</tr>
+<tr>
+<td>200 kg, b 0,6, LCG 1,0</td>
+<td>T &lt; R a 20 (−28 N)</td>
+<td>21,1</td>
+<td>30,1</td>
+<td>33,9</td>
+</tr>
+<tr>
+<td>200 kg, b 0,5, LCG 0,75</td>
+<td>T &lt; R a 20 (−195 N)</td>
+<td>T &lt; R a 20 (−158 N)</td>
+<td>T &lt; R a 20 (−77 N)</td>
+<td>T &lt; R a 20 (−29 N)</td>
+</tr>
+<tr>
+<td>230 kg, b 0,6, LCG 1,16</td>
+<td>T &lt; R a 20 (−26 N)</td>
+<td>20,8</td>
+<td>26,6</td>
+<td>30,4</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Joroba (12–18 km/h).</strong> El empuje es T(5 kW) = 347–448 N y T(7,2 kW) = 493–564 N [CALCULADO], contra R_joroba = 196–392 N (200 kg) y 226–451 N (230 kg). Con 5 kW y 230 kg el margen se anula en el borde alto de la banda.</p>
+<p><strong>Autonomía</strong> [CALCULADO]:</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Energía útil</th>
+<th>5 kW a 30 km/h</th>
+<th>7,2 kW a 30 km/h</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2 kWh</td>
+<td>24 min / 12 km</td>
+<td>17 min / 8 km</td>
+</tr>
+<tr>
+<td>3 kWh</td>
+<td>36 min / 18 km</td>
+<td>25 min / 12,5 km</td>
+</tr>
+<tr>
+<td>4 kWh</td>
+<td>48 min / 24 km</td>
+<td>33 min / 17 km</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>A 5 kn (zona legal de &lt; 300 m)</strong> [CALCULADO], con R/Δ de 0,06 a 0,16:</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Masa</th>
+<th>P_el</th>
+<th>η_total</th>
+<th>Duración con 3 kWh</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>150 kg</td>
+<td>0,65–2,2 kW</td>
+<td>0,27–0,35</td>
+<td>1,4–4,6 h</td>
+</tr>
+<tr>
+<td>200 kg</td>
+<td>0,92–3,2 kW</td>
+<td>0,25–0,33</td>
+<td>0,9–3,3 h</td>
+</tr>
+<tr>
+<td>230 kg</td>
+<td>1,1–3,9 kW</td>
+<td>0,24–0,32</td>
+<td>0,8–2,7 h</td>
+</tr>
+</tbody>
+</table></div>
+<p>Para comparar: P1 (cola larga) usa <strong>759–910 W de batería a 6 km/h con 2 personas</strong> [CALCULADO: README / <code>resultados/sizing.json</code>].</p>
+<h3 id="46-bomba-velocidad-específica-cavitación-y-holgura">4.6 Bomba: velocidad específica, cavitación y holgura</h3>
+<pre><code>  0 km/h, 5000 W: Q 48 L/s, H 7.3 m, φ 0.24, ψ 0.110, Ω_s 4.20 (N_s US 11491), par 9.2 N·m | NPSHa 10.0 m, S 3.32, σ_punta 0.28
+  12 km/h, 5000 W: Q 49 L/s, H 7.1 m, φ 0.25, ψ 0.108, Ω_s 4.30 (N_s US 11753), par 9.2 N·m | NPSHa 10.4 m, S 3.25, σ_punta 0.30
+  30 km/h, 5000 W: Q 53 L/s, H 6.5 m, φ 0.27, ψ 0.099, Ω_s 4.81 (N_s US 13140), par 9.2 N·m | NPSHa 12.4 m, S 2.96, σ_punta 0.35
+  30 km/h, 7200 W: Q 59 L/s, H 8.5 m, φ 0.30, ψ 0.129, Ω_s 4.14 (N_s US 11319), par 13.2 N·m | NPSHa 12.4 m, S 3.12, σ_punta 0.35
+</code></pre>
+<ul>
+<li><strong>Velocidad específica.</strong> U = π·D·n = <strong>25,4 m/s</strong> y Ω_s = ω√Q/(gH)^¾ = <strong>4,1–4,8</strong> [CALCULADO]. Eso corresponde a un impulsor axial con estator, coherente con el dibujo. El rango Ω_s ≳ 3–4 como "axial" es [ESTIMADO: memoria técnica, no verificado; buscar: "specific speed ranges axial mixed flow pump"].</li>
+<li><strong>Potencia absorbida.</strong> ψ ≈ 0,10–0,13 y φ ≈ 0,24–0,30 [CALCULADO] son valores razonables para que un Ø108 a 4500 rpm absorba 5–7 kW. <strong>La combinación motor + impulsor + tobera del plano es coherente.</strong></li>
+<li><strong>Cavitación.</strong> σ en la punta = (p_atm − p_v + 0,7·½ρV₀²)/(½ρW²) = 0,28–0,35 con p_v = 2,34 kPa [ESTIMADO: 20 °C]. S = 3,0–3,3, equivalente a ~8 000–9 000 en unidades de EE. UU. con el factor 2733 [ESTIMADO]. El umbral de cavitación para comparar es [ESTIMADO: memoria técnica, no verificado; buscar: "waterjet suction specific speed cavitation limit"].</li>
+<li>
+<p><strong>Holgura de punta.</strong> 0,5 / 0,8 mm = 0,46 / 0,74 % de D [CALCULADO]. Ladd usó 0,5 % de D en la tobera 19A [VERIFICADO: R03 S10]. Lo que la consume [ESTIMADO, con geometría de pala SUPUESTA de 40 × 5–8 mm]:</p>
+<ul>
+<li>tolerancia FDM de ±0,15 mm por superficie [ESTIMADO: R05], o sea ±0,3 mm en el diámetro más la ovalización;</li>
+<li>dilatación del PETG: 0,057 mm por lado con ΔT 15 K y α 70 µm/m·K [ESTIMADO: memoria];</li>
+<li>flecha tangencial de la pala: 0,10–0,42 mm;</li>
+<li>crecimiento centrífugo: 0,015 mm.</li>
+</ul>
+<p>Con esa pila la holgura <strong>no se garantiza</strong> en PETG.</p>
+</li>
+<li>
+<p><strong>Pala de PETG.</strong> F_t = 62 N por pala a 5 kW. σ de raíz: <strong>7,2 MPa</strong> con 5 mm y 2,8 MPa con 8 mm. Admisibles: 2,7 MPa sostenida (XY, FS 3) y 0,5 MPa alterna [VERIFICADO: R05 A7]. <strong>Un impulsor impreso no cierra.</strong></p>
+</li>
+</ul>
+<h3 id="47-eje-sello-cojinetes-y-empuje-axial">4.7 Eje, sello, cojinetes y empuje axial</h3>
+<pre><code>  diseño: par 9.4 N·m, τ nominal 6.0 MPa, con chavetero Kt 2,5 → 15 MPa; τ_y 316 ≈ 118 MPa [ESTIMADO] -&gt; FS 7.9
+  máx: par 13.5 N·m, τ nominal 8.6 MPa, con chavetero Kt 2,5 → 21 MPa -&gt; FS 5.5
+  pico motor 45 N·m [búsqueda, no verificado]: τ nominal 28.6 MPa, con chavetero → 72 MPa -&gt; FS 1.7
+  Velocidad periférica del eje Ø20 en el sello: 4.7 m/s
+  Empuje axial de referencia: bollard 7,2 kW ≈ 758 N; 30 km/h 5 kW ≈ 257 N
+</code></pre>
+<ul>
+<li><strong>Torsión.</strong> El eje Ø20 sobra a torsión [CALCULADO]. Si el impulsor se traba con una piedra, el pico de par del motor deja FS ≈ 1,7. Como en P1, conviene un límite de corriente en el ESC o un fusible mecánico. σ_y de 205 MPa para 316 es [ESTIMADO: memoria técnica, no verificado].</li>
+<li><strong>"Eje recto".</strong> Es consistente con motor y bomba coaxiales en horizontal. Pero en un jet real el eje atraviesa la pared del <strong>ducto de admisión</strong> hasta la cara del impulsor, y aquí no hay ducto (H3).</li>
+<li><strong>Cojinetes.</strong> "Cojinetes fuera de la cámara húmeda" es buena práctica.</li>
+<li><strong>Sello.</strong> "Sello externo a la cámara húmeda" no es posible: el sello es justamente el límite entre las dos zonas (H4). Un retén de labio NBR admite solo 0,03 MPa y pide un eje ≥ 45 HRC [VERIFICADO: R05 B6], así que no conviene en 316.</li>
+<li><strong>Empuje axial.</strong> Lo toma el impulsor y debe pasar por un rodamiento fijo a la carcasa de la bomba y de ahí al casco o al espejo, no al motor (H16).</li>
+</ul>
+<h3 id="48-eléctrico-a-72-v">4.8 Eléctrico a 72 V</h3>
+<pre><code>  LFP 22S: nominal 70.4 V, cargada 80.3 V, vacía 61.6 V | &gt;50 V: SÍ
+  LFP 23S: nominal 73.6 V, cargada 84.0 V, vacía 64.4 V | &gt;50 V: SÍ
+  NMC 20S: nominal 72.0 V, cargada 84.0 V, vacía 64.0 V | &gt;50 V: SÍ
+  I a 5 kW / 72 V = 69 A; 60 A × 72 V = 4320 W; 100 A × 72 V = 7200 W; 7,2 kW a 61,6 V = 117 A
+  KV si 4500 rpm = vacío a 72 V: 62.5 rpm/V; si 4500 = carga (85 % de vacío): 73.5 rpm/V; a 84 V: P_bomba ×1.59
+</code></pre>
+<ul>
+<li><strong>Regla del proyecto.</strong> El proyecto fija ≤ 48 V salvo justificación (PROMPT §4). El umbral de 50 V CC viene de ISO 16315:2016 3.1, con nota para bajarlo en ambiente húmedo [VERIFICADO: R06 §5.1]. Para 5–7 kW, a 48 V hacen falta ≈ 120–175 A con LFP 13S (41,6 V nominal) [CALCULADO]. Es factible, con cable de ≥ 13,3 mm² (AWG 6: 100–120 A [VERIFICADO: R06 §5.2]) o más; recomiendo 25–35 mm² [ESTIMADO]. <strong>72 V no está justificado por necesidad.</strong></li>
+<li><strong>ESC.</strong> Necesita clase ≥ 100 V, ≥ 100 A continuos y límites de corriente de batería y de rpm. La bomba a 84 V pediría ×1,59 la potencia [CALCULADO]. El VESC 75100 de P1 no sirve. Modelo: buscar "VESC 100V 250A marine" o "Kelly KLS 72V".</li>
+<li><strong>Kill switch.</strong> El de P1 (R06 §3.5) sirve si se cambia el contactor por uno de 96 V, el SW80B [VERIFICADO: R06].</li>
+</ul>
+<h3 id="49-legal-y-operación-en-als-fjord">4.9 Legal y operación en Als Fjord</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Resultado</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Velocidad a &lt; 300 m de la costa</td>
+<td>Máximo 5 kn (9,26 km/h) para toda motorbåd. Excepción: solo la velocidad mínima para maniobrar con corriente o viento</td>
+<td>[VERIFICADO: politi.dk, Sejladsreglement Syd- og Sønderjylland §4]</td>
+</tr>
+<tr>
+<td>¿Sirve ≥ 30 km/h?</td>
+<td>No dentro de 300 m, que es la zona de operación del proyecto. Afuera, el agua está a &lt; 15 °C el ≥ 90 % de los días de oct–may y la supervivencia es de 1–6 h a 10–16 °C</td>
+<td>[VERIFICADO: R07 §3]</td>
+</tr>
+<tr>
+<td>Licencia (speedbådsbevis)</td>
+<td>No hace falta: casco &lt; 4 m planeante con &lt; 19 kW (7,2 kW). El fondo plano en el tercio de popa es "planende" por definición</td>
+<td>[VERIFICADO: R07; BEK 554/2020 §1 stk. 4, abierto]</td>
+</tr>
+<tr>
+<td>¿Vandscooter?</td>
+<td>La definición pide operar "på – snarere end i – skroget"; el piloto del plano va dentro, así que <strong>probablemente no</strong>. Si lo fuera: prohibido a &lt; 300 m salvo tránsito directo y perpendicular a ≤ 5 kn, más vandscooterbevis y seguro obligatorio</td>
+<td>[VERIFICADO: BEK 809/2019 §1, §3; Søfartsstyrelsen]. <strong>Consultar</strong> a Søfartsstyrelsen</td>
+</tr>
+<tr>
+<td>Playas</td>
+<td>Prohibido salir o llegar a playas comunales con "vandscootere, jetski og lignende fartøjer"</td>
+<td>[VERIFICADO: reglamento §3]</td>
+</tr>
+<tr>
+<td>Chaleco</td>
+<td>Llevar uno por persona; usarlo puesto no es obligatorio por ley, pero el proyecto lo exige</td>
+<td>[VERIFICADO: R07 §1.2]</td>
+</tr>
+<tr>
+<td>Ropa en jet</td>
+<td>"Wet suit bottom or … equivalent protection. Severe internal injuries can occur if water is forced into body cavities … near the jet thrust nozzle"</td>
+<td>[VERIFICADO: CG Aux]</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="410-reversa-gobierno-poca-profundidad-y-bañistas">4.10 Reversa, gobierno, poca profundidad y bañistas</h3>
+<p><strong>Gobierno y freno.</strong></p>
+<ul>
+<li>Sin empuje no hay gobierno, y un PWC "no tiene frenos" [VERIFICADO: CG Aux].</li>
+<li>Con viento en el fiordo y a ralentí, el jet deriva sin gobierno [ESTIMADO].</li>
+<li>La reversa por bucket es la única forma de frenar o retroceder.</li>
+<li>No encontré fuente abierta sobre qué fracción del empuje de avance da en reversa (buscar: "jet boat reverse bucket thrust percentage").</li>
+<li>Invertir el giro de un impulsor axial con estator rinde muy poco [ESTIMADO: memoria técnica, no verificado].</li>
+</ul>
+<p><strong>Poca profundidad y arena.</strong></p>
+<ul>
+<li>Profundidad mínima de 610 mm [VERIFICADO: CG Aux] y 305 mm de luz bajo el jet [VERIFICADO: R03 S12].</li>
+<li>La arena aspirada desgasta la holgura de 0,5–0,8 mm y la del anillo.</li>
+<li>Es lo contrario de lo que pide P1 (basculación, protección y fusible mecánico en arena).</li>
+</ul>
+<p><strong>Bañistas.</strong></p>
+<ul>
+<li>No hay hélice expuesta. Es una ventaja real frente a una hélice abierta sin protector [ESTIMADO].</li>
+<li>La rejilla aspira pelo, ropa y correas de chaleco: "has resulted in drowning or other injury" [VERIFICADO: CG Aux].</li>
+<li>El chorro lesiona y despide arena y piedras a alta velocidad [VERIFICADO: CG Aux].</li>
+<li>La cola larga de P1 tiene protector perfilado, patín y pasador de corte. A 6 km/h y con el motor detenido por el cordón, su riesgo para bañistas es de otro orden, menor por energía [ESTIMADO].</li>
+</ul>
+<hr />
+<h2 id="5-correcciones-mínimas-para-que-el-concepto-sea-viable-si-jorge-lo-quiere-seguir">5. Correcciones mínimas para que el concepto sea viable (si Jorge lo quiere seguir)</h2>
+<ol>
+<li><strong>Casco:</strong><ul>
+<li>manga en la flotación ≥ 0,9–1,0 m (manga total ~1,1–1,3 m);</li>
+<li>asiento bajo;</li>
+<li>flotación fija de ~100 L;</li>
+<li>baterías elevadas y estancas;</li>
+<li>bomba de achique [CALCULADO / ESTIMADO, §4.3].</li>
+</ul>
+</li>
+<li><strong>Bomba:</strong><ul>
+<li>disposición estándar toma → ducto → impulsor → estator → tobera Ø72 → boquilla externa → bucket;</li>
+<li>eje del impulsor a ≤ ~150 mm del fondo, para que quede bajo la flotación con 150 kg;</li>
+<li>sello mecánico en la pared de la cámara;</li>
+<li>rodamiento axial fijo a la carcasa;</li>
+<li>acople flexible;</li>
+<li>impulsor metálico y anillo de desgaste torneado.</li>
+</ul>
+</li>
+<li><strong>Eléctrico:</strong><ul>
+<li>≤ 48 V (LFP 13S) o clase 100 V completa;</li>
+<li>contactor + cordón + seta;</li>
+<li>límites de corriente y rpm en el ESC;</li>
+<li>ventilación o refrigeración del motor.</li>
+</ul>
+</li>
+<li><strong>Masa y potencia:</strong> diseñar para 200–230 kg y 7,2 kW continuos, o bajar el objetivo a ~20 km/h.</li>
+<li><strong>Legal:</strong> consultar la clasificación con Søfartsstyrelsen; limitar la velocidad a 5 kn por firmware dentro de los 300 m.</li>
+<li><strong>Plano:</strong> rehacerlo en CAD a escala, con cotas referidas al espejo y al fondo, y escala propia en el detalle.</li>
+</ol>
+<hr />
+<h2 id="6-no-verificado-o-pendiente">6. No verificado o pendiente</h2>
+<ul>
+<li><strong>Geometría real del casco.</strong> Manga en la flotación, astilla muerta, altura del asiento y LCG salen de un dibujo que no está a escala [ESTIMADO]. <strong>Pedir a Jorge las medidas, o el archivo CAD o PDF original.</strong></li>
+<li><strong>Masas del casco y de la bomba</strong> [ESTIMADO]. HPM5000B: 11 kg [VERIFICADO]. Las 3700 rpm nominales, 13 N·m nominal, 45 N·m de pico, 85 A e IP65 salen <strong>solo del resumen del buscador</strong>, no de una página abierta.</li>
+<li><strong>η de la bomba 0,75–0,85, K_n, banda de joroba R/Δ 0,10–0,20 y umbrales de cavitación (σ, S)</strong> [ESTIMADO]. Savitsky está extrapolado en casco angosto y con LCG a proa.</li>
+<li><strong>CG de una persona sentada y criterio de GM</strong>: buscar "ISO 12217-3".</li>
+<li><strong>Flotación mínima</strong>: buscar "33 CFR 183.101 flotation".</li>
+<li><strong>Fracción de empuje en reversa con bucket</strong>: buscar "jet boat reverse bucket thrust percentage".</li>
+<li><strong>Versión vigente de la vandscooterbekendtgørelse.</strong> BEK 809/2019 figura con EndDate 2026‑06‑23 en sus metadatos: buscar "vandscooterbekendtgørelse 2026".</li>
+<li><strong>σ_y del 316 (205 MPa) y CTE del PETG (70 µm/m·K)</strong>: memoria técnica.</li>
+<li><strong>Fusible y ESC de 100 V CC</strong>: buscar "class T fuse 125 VDC" y "VESC 100V 250A".</li>
+</ul>
+<hr />
+<h2 id="7-fuentes">7. Fuentes</h2>
+<p><strong>Abiertas en esta sesión (2026-10-01):</strong></p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Id</th>
+<th>URL</th>
+<th>Qué se leyó</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>W1</td>
+<td>https://dmsonline.us/how-to-design-a-waterjet-key-elements-of-waterjets/</td>
+<td>"position the waterjet vertically so that the centerline of the jet lies on the vessel waterline when resting. This ensures the pump of the waterjet can always prime"; "pumps with efficiencies of 90% or greater"; "A bad nozzle may reduce waterjet efficiency to 30% or less"</td>
+</tr>
+<tr>
+<td>W2</td>
+<td>https://edept.cgaux.org/pdf/PWC%20Safety%20Seminar.pdf</td>
+<td>CG Auxiliary, "PWC Safety" (2023): "No Jet thrust, no steering"; "There are no brakes on a PWC"; bucket solo a ralentí; "Never operate your PWC in water less than 24 inches"; succión por la rejilla ("drowning"); "Wet suit bottom…"; ECOS</td>
+</tr>
+<tr>
+<td>W3</td>
+<td>https://www.law.cornell.edu/cfr/text/33/183.33</td>
+<td>Fórmula de capacidad para motor interior; definición de "boat weight" y "machinery weight" (incluye baterías)</td>
+</tr>
+<tr>
+<td>W4</td>
+<td>https://www.law.cornell.edu/cfr/text/33/183.41</td>
+<td>La regla de personas aplica a "boats designed to use one or more outboard motors"</td>
+</tr>
+<tr>
+<td>W5</td>
+<td>https://politi.dk/politikredse/syd-og-soenderjyllands-politi/sejladsreglement</td>
+<td>Texto completo §1–§8: 5 kn a &lt; 300 m (§4); playas (§3); speedbåde solo en tránsito perpendicular (§4 stk. 3)</td>
+</tr>
+<tr>
+<td>W6</td>
+<td>https://www.retsinformation.dk/eli/lta/2019/809/pdf (y <code>/xml</code> para los metadatos)</td>
+<td>BEK 809/2019 §1 (definición de vandscooter) y §3 (300 m); EndDate 2026‑06‑23 en los metadatos</td>
+</tr>
+<tr>
+<td>W7</td>
+<td>https://www.soefartsstyrelsen.dk/fritidssejlads/fritidsfartoejer/vandscooter-og-jetski</td>
+<td>Vandscooterbevis (16 años), seguro obligatorio y regla de 300 m vigentes</td>
+</tr>
+<tr>
+<td>W8</td>
+<td>https://www.retsinformation.dk/api/pdf/208169</td>
+<td>BEK 554/2020 §1 stk. 4 y 5 (definición de "planende"; Søfartsstyrelsen decide los casos dudosos)</td>
+</tr>
+<tr>
+<td>W9</td>
+<td>https://www.kellycontrollers.eu/hpm5000b-5kw-72v-leghuteses</td>
+<td>HPM5000B de 72 V: 5000 W, 2000–6000 rpm configurable, 12 mΩ, 154 µH, 91 %, 11 kg, Ø206 × 126 mm, 1306,48 €</td>
+</tr>
+<tr>
+<td>W10</td>
+<td>https://pypi.org/project/openplaning</td>
+<td>openplaning 0.4.9 (licencia MIT), instalado con pip; leí el código de <code>get_hydrodynamic_force</code> (Savitsky 1964) y <code>sum_forces</code></td>
+</tr>
+<tr>
+<td>W11</td>
+<td>https://lex.dk/vandscooter</td>
+<td>Definición enciclopédica (contexto; no es norma)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Del repositorio:</strong></p>
+<ul>
+<li>R03: §2.2–2.4, J2/S4, J6/S8, S9, S10, S12.</li>
+<li>R04: A.3, A.4, C.1.</li>
+<li>R05: A1, A6, A7, B6.</li>
+<li>R06: §0, §3.5, §4.1–4.3, §5.1–5.2.</li>
+<li>R07: §0, §1.2, §3.</li>
+<li>R09: §1.6.</li>
+<li>README / <code>resultados/sizing.json</code> para la referencia de P1.</li>
+</ul>
+<p><strong>No abiertos (buscar):</strong></p>
+<ul>
+<li>"ISO 12217-3 offset load test";</li>
+<li>"33 CFR 183.101 flotation";</li>
+<li>"specific speed ranges axial mixed flow pump";</li>
+<li>"waterjet suction specific speed cavitation limit";</li>
+<li>"jet boat reverse bucket thrust percentage";</li>
+<li>"Golden Motor 5kW liquid cooled 72V";</li>
+<li>"VESC 100V 250A";</li>
+<li>"class T fuse 125 VDC";</li>
+<li>"mechanical seal 20 mm water pump SiC";</li>
+<li>"vandscooterbekendtgørelse 2026".</li>
+</ul>
+<hr />
+<h2 id="8-script-ejecutado">8. Script ejecutado</h2>
+<p>Se ejecutó con <code>python calc_r10b.py</code> en un entorno virtual con <code>pip install openplaning numpy scipy</code>, fuera del repositorio. No se escribió nada en <code>resultados/</code>. Las posiciones en píxeles son mediciones propias sobre el PNG.</p>
+<details><summary>calc_r10b.py (327 líneas)</summary>
+
+
+<pre><code class="language-python">&quot;&quot;&quot;R10b — Auditoría técnica del plano preliminar de waterjet de Jorge (2026-09-26).
+Todos los cálculos que cita research/R10b_auditoria_plano_jorge.md.
+Ejecutar con el venv del scratchpad (openplaning 0.4.9 instalado allí):
+    ./venv/bin/python calc_r10b.py
+&quot;&quot;&quot;
+import math
+import numpy as np
+_trap = getattr(np, &quot;trapezoid&quot;, None) or np.trapz
+
+g = 9.81
+RHO = 1013.0      # agua salobre Als Fjord [CALCULADO: inputs.yaml water.density_kg_m3]
+RHO_F = 1000.0    # agua dulce (USCG 33 CFR 183.33 usa desplazamiento en calma; tomo agua dulce, conservador)
+P_ATM = 101325.0
+P_V = 2340.0      # presión de vapor a 20 °C [ESTIMADO: memoria técnica, no verificado]
+
+def hdr(t):
+    print(&quot;\n&quot; + &quot;=&quot; * 78 + &quot;\n&quot; + t + &quot;\n&quot; + &quot;=&quot; * 78)
+
+# ---------------------------------------------------------------------------
+hdr(&quot;A. COTAS: píxeles medidos en el PNG 1320x1023 (±2 px) y escalas implícitas&quot;)
+# Vista lateral
+lat = dict(L2300=(127, 849), transom_x=797, bow_x=127,
+           chain=(121, 356, 572, 752),          # 850 | 750 | 700
+           h520=(119, 218), h420=(110, 218), h280=(140, 218),
+           axis_y=151, bottom_y=218, grille_x=(735, 760),
+           motor_x=(563, 640), pump_x=(680, 797), nozzle_end_x=850)
+s_lat = 2300 / (lat['L2300'][1] - lat['L2300'][0])
+print(f&quot;Lateral: 2300 mm = {lat['L2300'][1]-lat['L2300'][0]} px -&gt; {s_lat:.3f} mm/px&quot;)
+hull_drawn = (lat['transom_x'] - lat['bow_x']) * s_lat
+print(f&quot;  proa→espejo dibujado = {hull_drawn:.0f} mm; la cota 2300 termina {(lat['L2300'][1]-lat['transom_x'])*s_lat:.0f} mm a popa del espejo (pivote de la boquilla)&quot;)
+c = lat['chain']
+segs = np.diff(c)
+print(f&quot;  cadena 850/750/700: px {segs.tolist()} -&gt; a escala {[round(s*s_lat) for s in segs]} mm; total {sum(segs)*s_lat:.0f} mm (rotulado 2300)&quot;)
+print(f&quot;  la cadena termina en x={c[-1]} = rejilla (x {lat['grille_x']}); rejilla a {(lat['transom_x']-c[-1])*s_lat:.0f} mm del espejo a escala&quot;)
+for k, lab in (('h520', 520), ('h420', 420), ('h280', 280)):
+    px = lat[k][1] - lat[k][0]
+    print(f&quot;  cota {lab}: {px} px -&gt; {lab/px:.2f} mm/px (horizontal {s_lat:.2f}); a escala horizontal = {px*s_lat:.0f} mm&quot;)
+ax_px = lat['bottom_y'] - lat['axis_y']
+print(f&quot;  eje motor-bomba a {ax_px} px del fondo -&gt; {ax_px*s_lat:.0f} mm (esc. horiz.) / {ax_px*280/78:.0f} (cal. con 280) / {ax_px*520/99:.0f} mm (cal. con 520)&quot;)
+print(f&quot;  tren motor→boquilla: {(lat['nozzle_end_x']-lat['motor_x'][0])*s_lat:.0f} mm; motor→fin carcasa: {(lat['pump_x'][1]-lat['motor_x'][0])*s_lat:.0f} mm (detalle: 600)&quot;)
+# Vista superior
+top = dict(L2300=(214, 789), bow_x=164, stern_x=789, w800=(330, 452), hull_w=(311, 468), motor_x=(543, 785))
+s_top = 2300 / (top['L2300'][1] - top['L2300'][0])
+print(f&quot;Superior: 2300 = {top['L2300'][1]-top['L2300'][0]} px -&gt; {s_top:.2f} mm/px; la cota arranca {(top['L2300'][0]-top['bow_x'])*s_top:.0f} mm a popa de la proa&quot;)
+print(f&quot;  casco dibujado: largo {(top['stern_x']-top['bow_x'])*s_top:.0f} mm, ancho {(top['hull_w'][1]-top['hull_w'][0])*s_top:.0f} mm; cota 800 abarca {(top['w800'][1]-top['w800'][0])*s_top:.0f} mm&quot;)
+print(f&quot;  L/B rotulado {2300/800:.2f}; L/B dibujado {(top['stern_x']-top['bow_x'])/(top['hull_w'][1]-top['hull_w'][0]):.2f}&quot;)
+print(f&quot;  tren motor→boquilla en planta: {(top['motor_x'][1]-top['motor_x'][0])*s_top:.0f} mm (detalle: 600)&quot;)
+# Vista trasera
+rear = dict(w800=(999, 1214), h520=(131, 241), h280=(189, 246), w120=(1088, 1126))
+s_rear = 800 / (rear['w800'][1] - rear['w800'][0])
+print(f&quot;Trasera: 800 = {rear['w800'][1]-rear['w800'][0]} px -&gt; {s_rear:.2f} mm/px&quot;)
+for k, lab in (('h520', 520), ('h280', 280), ('w120', 120)):
+    px = rear[k][1] - rear[k][0]
+    print(f&quot;  cota {lab}: {px} px -&gt; a escala horizontal {px*s_rear:.0f} mm&quot;)
+print(f&quot;  escalas de las 3 vistas: lateral {s_lat:.2f}, superior {s_top:.2f}, trasera {s_rear:.2f} mm/px -&gt; dispersión {(max(s_lat,s_top,s_rear)/min(s_lat,s_top,s_rear)-1)*100:.0f} %&quot;)
+# Detalle
+det = dict(L600=(87, 533), parts=(87, 230, 300, 387, 450, 533), d120=(568, 669), d108=(584, 647))
+s_det = 600 / (det['L600'][1] - det['L600'][0])
+p = np.diff(det['parts']); lab = [180, 80, 120, 100, 120]
+print(f&quot;Detalle: 600 = {det['L600'][1]-det['L600'][0]} px -&gt; {s_det:.3f} mm/px; tramos {list(zip(lab, [round(x*s_det) for x in p]))}&quot;)
+print(f&quot;  'Ø inicial toma 120' {det['d120'][1]-det['d120'][0]} px -&gt; {(det['d120'][1]-det['d120'][0])*s_det:.0f} mm; '108' {det['d108'][1]-det['d108'][0]} px -&gt; {(det['d108'][1]-det['d108'][0])*s_det:.0f} mm&quot;)
+px_per_mm_paper = 1205 / 420   # [SUPUESTO: hoja A3 apaisada, marco ≈ 1205 px]
+for nm, sc in ((&quot;lateral&quot;, s_lat), (&quot;superior&quot;, s_top), (&quot;trasera&quot;, s_rear), (&quot;detalle&quot;, s_det)):
+    print(f&quot;  escala equivalente si la hoja es A3: {nm} 1:{sc*px_per_mm_paper:.1f}&quot;)
+print(f&quot;  detalle ampliado ×{s_lat/s_det:.2f} respecto de la vista lateral (sin escala propia rotulada)&quot;)
+K_bc = (1 - (72/140)**2)**2
+print(f&quot;  Expansión brusca tras la tobera Ø72 a cámara ≈Ø140 (dibujo): K Borda–Carnot = (1−A1/A2)² = {K_bc:.2f} de la altura dinámica del chorro&quot;)
+print(f&quot;  ¿1:10 sobre A3 (420 mm)? marco ≈ 1205 px -&gt; 2300 mm lateral = {722/1205*420:.0f} mm de papel -&gt; escala 1:{2300/(722/1205*420):.1f} [solo si la hoja es A3: SUPUESTO]&quot;)
+
+# ---------------------------------------------------------------------------
+hdr(&quot;B. Presupuesto de masas (1 piloto) contra los 150 kg del plano&quot;)
+masses = {  # (min, max) kg
+    'casco 2,3x0,8 con cubierta, consola, asiento': (30, 45),   # ver abajo
+    'motor 5 kW 72 V': (11, 35),        # 11 kg HPM5000B [VERIFICADO Kelly]; motor industrial dibujado [ESTIMADO]
+    'bomba (carcasa Al, impulsor, estator, toma, eje, cojinetes, boquilla)': (8, 15),
+    'controlador 72 V 100 A + contactor + fusible + cables': (4, 7),
+    'dirección + bucket': (2, 4),
+    'agua atrapada en bomba/ducto sobre la flotación': (2, 5),
+    'equipo de seguridad (remo, ancla, achicador, chaleco puesto)': (5, 8),
+    'piloto': (80, 100),
+}
+area = 2.3 * 0.8
+print(f&quot;Casco: R04 A.3 8,3–14,6 kg/m² × {area:.2f} m² = {8.3*area:.0f}–{14.6*area:.0f} kg (jon boats abiertos, sin cubierta)&quot;)
+lo = sum(v[0] for v in masses.values()); hi = sum(v[1] for v in masses.values())
+for k, v in masses.items():
+    print(f&quot;  {k:70s} {v[0]:&gt;4}–{v[1]:&lt;4} kg&quot;)
+print(f&quot;  SUBTOTAL sin batería: {lo}–{hi} kg&quot;)
+for wh_kg, chem in ((128, 'LFP (R06: LiTime 128 Wh/kg)'), (160, 'NMC pack [ESTIMADO 150–180]')):
+    for E in (2.0, 3.0, 4.0, 6.0):
+        mb = E * 1000 / wh_kg
+        print(f&quot;  batería {chem} {E:.0f} kWh = {mb:.1f} kg -&gt; total {lo+mb:.0f}–{hi+mb:.0f} kg&quot;)
+print(f&quot;  Para cerrar 150 kg con piloto 80 kg y batería LFP 3 kWh ({3000/128:.0f} kg): casco+máquina ≤ {150-80-3000/128:.0f} kg&quot;)
+
+# ---------------------------------------------------------------------------
+hdr(&quot;C. Hidrostática: calado, francobordo, capacidad USCG, GM&quot;)
+# Sección según vista trasera: fondo plano 0,42 m; quiebre a z_k con 0,69 m; borda 0,80 m a 0,52 m
+def B_of_z(z, b0=0.42, bk=0.69, zk=0.25, bs=0.80, zs=0.52):
+    if z &lt;= zk:
+        return b0 + (bk - b0) * z / zk
+    return bk + (bs - bk) * (z - zk) / (zs - zk)
+def L_of_z(z):  # largo de flotación: fondo plano 1,73 m, crece por la proa lanzada (vista lateral)
+    return (542 + 0.2405 * z * 1000) * s_lat / 1000
+CWP = 0.85     # [ESTIMADO: rectángulo 70 % + proa triangular 30 % del largo]
+CI = 0.065     # I_T = CI·L·B³ con la misma planta [CALCULADO: 0,7/12 + 0,3/48]
+def vol(T, n=400, **kw):
+    zz = np.linspace(0, T, n)
+    a = np.array([CWP * L_of_z(z) * B_of_z(z, **kw) for z in zz])
+    V = _trap(a, zz); zb = _trap(a * zz, zz) / V if V &gt; 0 else 0
+    return V, zb
+def draft(m, rho=RHO, **kw):
+    lo_, hi_ = 1e-4, 0.52
+    for _ in range(60):
+        mid = 0.5 * (lo_ + hi_)
+        if vol(mid, **kw)[0] * rho &lt; m: lo_ = mid
+        else: hi_ = mid
+    return mid
+print(f&quot;L(z=0) = {L_of_z(0):.2f} m, L(0,2) = {L_of_z(0.2):.2f} m, L(0,42) = {L_of_z(0.42):.2f} m&quot;)
+for m in (150, 180, 200, 230, 280, 330):
+    for kw, nm in (({}, 'fondo 0,42'), ({'b0': 0.60, 'bk': 0.75}, 'fondo 0,60')):
+        T = draft(m, **kw)
+        print(f&quot;  Δ={m} kg ({nm}): calado {T*1000:.0f} mm; francobordo espejo (420) {420-T*1000:.0f} mm; eje del jet (260–280) {'BAJO' if T*1000&gt;=260 else 'SOBRE'} la flotación por {abs(270-T*1000):.0f} mm&quot;)
+Vmax, _ = vol(0.42)
+Dmax = Vmax * RHO_F
+print(f&quot;Desplazamiento máximo a 0,42 m (borde del espejo, a nivel): ∇ = {Vmax:.3f} m³ -&gt; {Dmax:.0f} kg (agua dulce)&quot;)
+Vmax2, _ = vol(0.42, b0=0.60, bk=0.75)
+print(f&quot;   (fondo 0,60: {Vmax2*RHO_F:.0f} kg)&quot;)
+for Dm in (Dmax, Vmax2 * RHO_F):
+    for BW, MW in ((30, 35), (45, 70)):
+        W1 = Dm / 5 - BW / 5 - 4 * MW / 5
+        W2 = (Dm - BW) / 7
+        W = max(W1, W2)
+        npers = round((W / 0.4536 + 32) / 141)
+        print(f&quot;  USCG 183.33: Δmax {Dm:.0f}, casco {BW}, máquinas+baterías {MW}: W1={W1:.0f}, W2={W2:.0f} -&gt; W = {W:.0f} kg (personas+equipo); personas ≈ {npers} (regla 183.41, 141 lb/p)&quot;)
+# GM
+def GM(m_tot, items, **kw):
+    T = draft(m_tot, **kw)
+    V, KB = vol(T, **kw)
+    Bwl = B_of_z(T, **kw); Lwl = L_of_z(T)
+    BM = CI * Lwl * Bwl ** 3 / V
+    KG = sum(mi * zi for mi, zi in items) / sum(mi for mi, zi in items)
+    return T, KB, BM, KG, KB + BM - KG, Bwl
+print(&quot;GM con 1 piloto sentado (alturas sobre el fondo):&quot;)
+for pil_z in (0.45, 0.55, 0.65):
+    for (mh, mm_, mb) in ((35, 30, 25), (45, 40, 40)):
+        items = [(90, pil_z), (mb, 0.12), (mm_, 0.26), (mh, 0.22), (5, 0.30)]
+        mt = sum(x[0] for x in items)
+        T, KB, BM, KG, gm, Bwl = GM(mt, items)
+        T2, KB2, BM2, KG2, gm2, Bwl2 = GM(mt, items, b0=0.60, bk=0.75)
+        print(f&quot;  zG piloto {pil_z:.2f} m, Δ {mt} kg: T {T*1000:.0f} mm, Bwl {Bwl:.2f}, KB {KB:.3f}, BM {BM:.3f}, KG {KG:.3f} -&gt; GM {gm*1000:+.0f} mm | fondo 0,60: GM {gm2*1000:+.0f} mm&quot;)
+# manga necesaria para GM &gt;= +100 mm (criterio SUPUESTO) con fondo plano ancho b y costado vertical
+print(&quot;Manga en la flotación (casco tipo caja, fondo plano = manga) para GM ≥ +100 mm [SUPUESTO criterio], Δ 200 kg, KG 0,36 m:&quot;)
+for B in (0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3):
+    L = 1.8; V = 200 / RHO; T = V / (CWP * L * B); KB = T / 2; BM = CI * L * B ** 3 / V
+    print(f&quot;  B={B:.1f} m: T={T*1000:.0f} mm, KB+BM={KB+BM:.3f}, GM={(KB+BM-0.36)*1000:+.0f} mm&quot;)
+
+# ---------------------------------------------------------------------------
+hdr(&quot;D. Resistencia: joroba (banda) y planeo (Savitsky 1964 vía openplaning 0.4.9)&quot;)
+L_ft = 1.75 / 0.3048
+for v in (9.26, 12, 15, 18, 20, 25, 30):
+    V = v / 3.6
+    print(f&quot;  {v:5.1f} km/h: SLR {V/0.5144/math.sqrt(L_ft):.2f}; Fn_L {V/math.sqrt(g*1.75):.2f}; Fn∇(200 kg) {V/math.sqrt(g*(200/RHO)**(1/3)):.2f}; C_V(b 0,5) {V/math.sqrt(g*0.5):.2f}&quot;)
+print(&quot;Banda de joroba R/Δ = 0,10–0,20 [ESTIMADO: Savitsky 2003 típica ≈0,10 a SLR 3 (R09 §1.6) ×1–2 por casco rechoncho (R09)]:&quot;)
+for m in (150, 200, 230):
+    print(f&quot;  Δ {m} kg: R_joroba {0.10*m*g:.0f}–{0.20*m*g:.0f} N&quot;)
+try:
+    from openplaning import PlaningBoat
+    import warnings; warnings.filterwarnings('ignore')
+    res = {}
+    for m in (150, 200, 230):
+        for b, beta, lcg in ((0.50, 5, 0.75), (0.50, 5, 1.00), (0.60, 10, 0.75), (0.60, 10, 1.00), (0.45, 4, 0.90), (0.60, 10, 1.16)):
+            row = []
+            for v in (20, 25, 30, 35):
+                V = v / 3.6
+                boat = PlaningBoat(V, m * g, b, lcg, 0.33, 0.5, beta, 0, 0.26, 0.0, rho=RHO, nu=1.3e-6,
+                                   l_air=0.9, h_air=1.1, b_air=0.5, C_shape=1, C_D=0.9)
+                try:
+                    boat.get_steady_trim()
+                    boat.get_forces()
+                    Rx = abs(boat.hydrodynamic_force[0] + boat.skin_friction[0] + boat.air_resistance[0] + boat.lift_change[0])
+                    row.append((v, Rx, boat.tau, boat.lambda_W))
+                except Exception as e:
+                    row.append((v, float('nan'), float('nan'), float('nan')))
+            res[(m, b, beta, lcg)] = row
+            print(f&quot;  Δ {m} kg, b {b}, β {beta}°, LCG {lcg} m: &quot; + &quot;; &quot;.join(f&quot;{v} km/h R={R:.0f} N τ={t:.1f}° λ={l:.2f}&quot; for v, R, t, l in row))
+except ImportError as e:
+    print(&quot;openplaning no disponible:&quot;, e)
+    res = {}
+
+# ---------------------------------------------------------------------------
+hdr(&quot;E. Jet: cantidad de movimiento con pérdidas (impulsor Ø108, tobera Ø72, 4500 rpm)&quot;)
+Dj, Di, hub = 0.072, 0.108, 0.40
+Aj = math.pi / 4 * Dj ** 2
+Aan = math.pi / 4 * (Di ** 2 - (hub * Di) ** 2)
+n = 4500; w = 2 * math.pi * n / 60; U = math.pi * Di * n / 60
+print(f&quot;A_tobera {Aj*1e4:.1f} cm²; A_anular impulsor (cubo {hub}) {Aan*1e4:.1f} cm²; Dt/Di {Dj/Di:.3f}; At/Ai {Dj**2/Di**2:.3f}; At/Aanular {Aj/Aan:.2f}&quot;)
+print(f&quot;Velocidad periférica {U:.1f} m/s; ω {w:.0f} rad/s&quot;)
+ETA_MOT, ETA_ESC, ETA_MEC = 0.91, 0.97, 0.98   # 0,91 [VERIFICADO Kelly HPM5000B]; resto [ESTIMADO]
+def jet_state(V0, Pel, eta_p, Kn=0.03, eta_in=0.70, h_j=0.0):
+    &quot;&quot;&quot;Resuelve V_j con P_h = ρQ[(1+Kn)Vj²/2 − η_in V0²/2 + g h_j]. Devuelve dict.&quot;&quot;&quot;
+    Ph = Pel * ETA_ESC * ETA_MOT * ETA_MEC * eta_p
+    f = lambda Vj: RHO * Aj * Vj * ((1 + Kn) * Vj ** 2 / 2 - eta_in * V0 ** 2 / 2 + g * h_j) - Ph
+    lo_, hi_ = max(V0, 0.1), 80
+    for _ in range(100):
+        mid = 0.5 * (lo_ + hi_)
+        if f(mid) &lt; 0: lo_ = mid
+        else: hi_ = mid
+    Vj = mid; Q = Aj * Vj
+    T = RHO * Q * (Vj - V0)
+    H = ((1 + Kn) * Vj ** 2 - eta_in * V0 ** 2) / (2 * g) + h_j
+    return dict(Vj=Vj, Q=Q, T=T, H=H, Ph=Ph, Pshaft=Pel * ETA_ESC * ETA_MOT * ETA_MEC,
+                eta_jet=T * V0 / Ph if Ph else 0, eta_tot=T * V0 / Pel)
+for Pel in (5000, 7200):
+    for eta_p in (0.75, 0.85):
+        print(f&quot;P_el {Pel} W, η_bomba {eta_p}:&quot;)
+        for v in (0, 5, 9.26, 12, 15, 20, 25, 30, 35):
+            s = jet_state(v / 3.6, Pel, eta_p)
+            print(f&quot;   {v:5.1f} km/h: Vj {s['Vj']:.1f} m/s, Q {s['Q']*1000:.0f} L/s, T {s['T']:.0f} N, H {s['H']:.1f} m, η_jet(chorro) {s['eta_jet']:.2f}, η_total(bat→empuje) {s['eta_tot']:.2f}&quot;)
+# Punto de diseño 30 km/h: empuje necesario vs disponible
+print(&quot;Equilibrio T(V) = R(V) (R de Savitsky/openplaning, 20–35 km/h):&quot;)
+def R_interp(row, v):
+    vs = [r[0] for r in row]; Rs = [r[1] for r in row]
+    return float(np.interp(v, vs, Rs))
+if res:
+    for key in sorted(res):
+        row = res[key]
+        out = []
+        for Pel in (5000, 7200):
+            for eta_p in (0.75, 0.85):
+                vv = np.linspace(20, 35, 301)
+                margin = np.array([jet_state(v / 3.6, Pel, eta_p)['T'] - R_interp(row, v) for v in vv])
+                if margin[0] &lt; 0:
+                    txt = f&quot;T&lt;R ya a 20 km/h (déficit {-margin[0]:.0f} N)&quot;
+                elif (margin &gt;= 0).all():
+                    txt = &quot;&gt;35&quot;
+                else:
+                    txt = f&quot;{vv[np.argmax(margin &lt; 0)]:.1f}&quot;
+                out.append(f&quot;{Pel/1000:.1f}kW/η{eta_p}: {txt}&quot;)
+        print(f&quot;   Δ{key[0]} b{key[1]} β{key[2]} LCG{key[3]}: &quot; + &quot; | &quot;.join(out))
+print(&quot;Joroba: empuje disponible vs banda R/Δ 0,10–0,20:&quot;)
+for m in (150, 200, 230):
+    for v in (12, 15, 18):
+        T5 = jet_state(v/3.6, 5000, 0.75)['T']; T5b = jet_state(v/3.6, 5000, 0.85)['T']; T7 = jet_state(v/3.6, 7200, 0.80)['T']
+        print(f&quot;   Δ{m} @ {v} km/h: R {0.10*m*g:.0f}–{0.20*m*g:.0f} N; T(5 kW) {T5:.0f}–{T5b:.0f} N; T(7,2 kW) {T7:.0f} N&quot;)
+# LCG del dibujo
+items = [('piloto', 90, 1.38), ('baterías', 30, 1.42), ('motor', 20, 0.63), ('bomba', 12, 0.25), ('casco', 38, 0.95), ('controlador+varios', 10, 1.0)]
+M = sum(i[1] for i in items); LCG = sum(i[1]*i[2] for i in items)/M
+print(f&quot;LCG desde el espejo (posiciones medidas en la vista lateral): {LCG:.2f} m = {LCG/1.73*100:.0f} % del largo de fondo (1,73 m); Δ {M} kg&quot;)
+# ideal sin pérdidas a 30 km/h y comparación con hélice
+V0 = 30 / 3.6
+for T_need in (250, 300, 350, 400):
+    Vj = (V0 + math.sqrt(V0 ** 2 + 4 * T_need / (RHO * Aj))) / 2
+    print(f&quot;  T requerido {T_need} N a 30 km/h -&gt; Vj {Vj:.1f} m/s, Vj/V0 {Vj/V0:.2f}, η_ideal chorro {2/(1+Vj/V0):.2f}, P_h ideal {RHO*Aj*Vj*(Vj**2-V0**2)/2:.0f} W&quot;)
+
+# ---------------------------------------------------------------------------
+hdr(&quot;F. Bomba: coeficientes, velocidad específica, cavitación&quot;)
+for v, Pel in ((0, 5000), (12, 5000), (30, 5000), (30, 7200)):
+    s = jet_state(v / 3.6, Pel, 0.80)
+    Q, H = s['Q'], s['H']
+    psi = g * H / U ** 2; phi = (Q / Aan) / U
+    Om_s = w * math.sqrt(Q) / (g * H) ** 0.75
+    Ns_us = n * math.sqrt(Q * 15850.3) / (H / 0.3048) ** 0.75
+    torque = s['Pshaft'] / w
+    # cavitación: NPSHa con impulsor h_i sobre la flotación (0,05–0,15 m) y recuperación 70 % de V0²/2g
+    for h_i in (0.0, 0.10):
+        NPSHa = (P_ATM - P_V) / (RHO * g) - h_i + 0.70 * (v / 3.6) ** 2 / (2 * g)
+        S = w * math.sqrt(Q) / (g * NPSHa) ** 0.75
+        Wtip = math.sqrt(U ** 2 + (Q / Aan) ** 2)
+        sig_tip = (P_ATM - P_V - RHO * g * h_i + 0.70 * 0.5 * RHO * (v / 3.6) ** 2) / (0.5 * RHO * Wtip ** 2)
+        print(f&quot;  {v} km/h, {Pel} W: Q {Q*1000:.0f} L/s, H {H:.1f} m, φ {phi:.2f}, ψ {psi:.3f}, Ω_s {Om_s:.2f} (N_s US {Ns_us:.0f}), par {torque:.1f} N·m | h_imp {h_i} m: NPSHa {NPSHa:.1f} m, S {S:.2f}, σ_punta {sig_tip:.2f}&quot;)
+
+# ---------------------------------------------------------------------------
+hdr(&quot;G. Eje Ø20, cojinetes, empuje axial&quot;)
+d = 0.020
+for Pel, lab in ((5000, 'diseño'), (7200, 'máx'), (None, 'pico motor 45 N·m [búsqueda, no verificado]')):
+    Tq = (Pel * ETA_ESC * ETA_MOT / w) if Pel else 45.0
+    tau = 16 * Tq / (math.pi * d ** 3) / 1e6
+    print(f&quot;  {lab}: par {Tq:.1f} N·m, τ nominal {tau:.1f} MPa, con chavetero Kt 2,5 → {2.5*tau:.0f} MPa; τ_y 316 ≈ 0,577·205 = {0.577*205:.0f} MPa [ESTIMADO] -&gt; FS {0.577*205/(2.5*tau):.1f}&quot;)
+print(f&quot;  Velocidad periférica del eje Ø20 en el sello: {math.pi*0.020*n/60:.1f} m/s&quot;)
+s0 = jet_state(0.01, 7200, 0.85); s30 = jet_state(30/3.6, 5000, 0.80)
+print(f&quot;  Empuje axial de referencia: bollard 7,2 kW ≈ {s0['T']:.0f} N; 30 km/h 5 kW ≈ {s30['T']:.0f} N (el impulsor tira hacia proa; debe ir a un rodamiento fijo y de ahí al casco)&quot;)
+
+# ---------------------------------------------------------------------------
+hdr(&quot;H. Eléctrico 72 V&quot;)
+for nm, ns, vn, vmax_c, vmin_c in ((&quot;LFP 22S&quot;, 22, 3.2, 3.65, 2.8), (&quot;LFP 23S&quot;, 23, 3.2, 3.65, 2.8), (&quot;NMC 20S&quot;, 20, 3.6, 4.2, 3.2)):
+    print(f&quot;  {nm}: nominal {ns*vn:.1f} V, cargada {ns*vmax_c:.1f} V, vacía {ns*vmin_c:.1f} V | &gt;50 V (ISO 16315:2016 3.1): {'SÍ' if ns*vmax_c&gt;50 else 'no'}&quot;)
+print(f&quot;  I a 5 kW / 72 V = {5000/72:.0f} A; 60 A × 72 V = {60*72} W; 60 A × 84 V = {60*84} W; 100 A × 72 V = {100*72} W; 7,2 kW a 61,6 V (LFP 22S vacía) = {7200/61.6:.0f} A&quot;)
+for nload_frac in (1.0, 0.85):
+    Kv = 4500 / (72 * nload_frac)
+    print(f&quot;  KV si 4500 rpm = {'vacío' if nload_frac==1 else 'carga (85 % de vacío)'} a 72 V: {Kv:.1f} rpm/V; a 84 V: n0 = {84*Kv:.0f} rpm -&gt; P_bomba ∝ n³: ×{(84*Kv*nload_frac/4500)**3:.2f}&quot;)
+
+# ---------------------------------------------------------------------------
+hdr(&quot;I. Autonomía y operación legal (5 kn = 9,26 km/h a &lt; 300 m)&quot;)
+for E in (2.0, 3.0, 4.0):
+    for Pel, v in ((5000, 30), (7200, 30)):
+        print(f&quot;  E útil {E} kWh @ {Pel} W: {E*1000/Pel*60:.0f} min, {E*1000/Pel*v:.1f} km a {v} km/h&quot;)
+# potencia para sostener 5 kn con el jet
+for m in (150, 200, 230):
+    for RD in (0.06, 0.10, 0.16):
+        R = RD * m * g; V0 = 9.26 / 3.6
+        # buscar P_el tal que T = R
+        lo_, hi_ = 10, 8000
+        for _ in range(60):
+            mid = 0.5 * (lo_ + hi_)
+            if jet_state(V0, mid, 0.75)['T'] &lt; R: lo_ = mid
+            else: hi_ = mid
+        print(f&quot;  Δ {m} kg, R/Δ {RD} -&gt; R {R:.0f} N a 5 kn: P_el jet ≈ {mid:.0f} W (η_total {R*V0/mid:.2f}); 3 kWh -&gt; {3000/mid:.1f} h, {3000/mid*9.26:.0f} km&quot;)
+print(&quot;  Referencia P1 cola larga: 759–910 W a 6 km/h con 2 personas (README / sizing)&quot;)
+
+# ---------------------------------------------------------------------------
+hdr(&quot;J. Holgura de punta y PETG&quot;)
+for c in (0.5, 0.8):
+    print(f&quot;  holgura {c} mm = {c/108*100:.2f} % de D (Ladd 19A: 0,5 % de D; R03)&quot;)
+Tq = 5000 * ETA_ESC * ETA_MOT / w
+Ft = Tq / 4 / (0.7 * Di / 2)
+span = (Di - hub * Di) / 2
+M = Ft * 0.6 * span
+for (ch, t) in ((0.040, 0.005), (0.040, 0.008)):
+    Z = ch * t ** 2 / 6; I = ch * t ** 3 / 12
+    sig = M / Z / 1e6
+    delta = Ft * span ** 3 / (8 * 1.5e9 * I) * 1000
+    print(f&quot;  pala PETG cuerda {ch*1000:.0f} × e {t*1000:.0f} mm: F_t {Ft:.0f} N/pala, M_raíz {M:.2f} N·m, σ {sig:.1f} MPa (adm. R05: 2,7 MPa sostenida XY FS3; 0,5 MPa alterna) ; flecha tangencial ≈ {delta:.2f} mm (E 1,5 GPa)&quot;)
+cte = 70e-6  # [ESTIMADO: memoria técnica, PETG 60–80 µm/m·K]
+print(f&quot;  dilatación radial PETG Ø108, ΔT 15 K, α 70 µm/m·K: {cte*54*15:.3f} mm por lado&quot;)
+rho_p = 1270
+sig_c = rho_p * w ** 2 * (Di / 2) ** 2 / 2
+print(f&quot;  crecimiento centrífugo de pala PETG a 4500 rpm: σ≈{sig_c/1e6:.2f} MPa -&gt; {sig_c/1.5e9*54:.3f} mm&quot;)
+print(&quot;  tolerancia FDM por superficie ±0,15 mm [ESTIMADO: R05] -&gt; Ø impreso ±0,3 mm + ovalización; apilado &gt; holgura&quot;)
+</code></pre>
+
+</details></article>
+</div>
+</main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
+</body>
+</html>

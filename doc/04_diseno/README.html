@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 — Diseño detallado — P1-J · Strålen</title>
+<meta name="description" content="Diseño CAD del waterjet P1-J: lista de piezas, verificación de interferencias y exportes STEP/STL.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="04 — Diseño detallado — P1-J · Strålen">
+<meta property="og:description" content="Diseño CAD del waterjet P1-J: lista de piezas, verificación de interferencias y exportes STEP/STL.">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/04_diseno/README.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bea58e98">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="04 — Diseño detallado — P1-J · Strålen">
+<meta name="twitter:description" content="Diseño CAD del waterjet P1-J: lista de piezas, verificación de interferencias y exportes STEP/STL.">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bea58e98">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/04_diseno/README.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header" id="top">
+  <div class="bar wide">
+    <a class="brand" href="../../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../../index.html" class=nav-home>Inicio</a><a href="../../visor/index.html">Visor 3D</a><a href="../../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../../planos.html">Planos</a><a href="../../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
+  </div>
+</header>
+<div class="stale" role="alert"><b>Vista previa con datos desactualizados</b> — 16 fuente(s) no coinciden con los resultados actuales; no compartir este enlace.</div>
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../../documentos.html">Documentos</a> / <span class="mono">04_diseno/README.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/04_diseno/README.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#lista-de-piezas">Lista de piezas</a></li>
+<li><a href="#verificación">Verificación</a></li>
+<li><a href="#ajustes-los-del-cad-confirmar-con-el-taller-y-en-petg-con-probetas">Ajustes (los del CAD; confirmar con el taller y, en PETG, con probetas)</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#lista-de-piezas">Lista de piezas</a></li>
+<li><a href="#verificación">Verificación</a></li>
+<li><a href="#ajustes-los-del-cad-confirmar-con-el-taller-y-en-petg-con-probetas">Ajustes (los del CAD; confirmar con el taller y, en PETG, con probetas)</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="04-diseño-detallado-waterjet-p1-j">04 — Diseño detallado (waterjet <span class="pid">P1-J</span>)</h1>
+<p>Todo se regenera con <code>python run_all.py</code> desde la raíz; cada script también corre solo.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Archivo</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>params.py</code></td>
+<td>Deriva la geometría de <code>inputs.yaml</code> + <code>resultados/sizing.json</code> (D impulsor, D tobera, eje, toma, alturas) y carga los módulos <code>params_toma/bomba/tren/direccion.py</code> (<code>extend(d)</code>), que agregan las interfaces de cada grupo. Define los marcos: <strong>BOTE</strong> (x hacia proa desde la cara exterior del espejo, z desde la quilla) y <strong>JET</strong> (origen en la cara de entrada del impulsor, X hacia popa por el eje); <code>loc_jet</code>, <code>loc_steer</code>, <code>loc_bucket</code>.</td>
+</tr>
+<tr>
+<td><code>piezas/P1-&lt;SUB&gt;-&lt;NN&gt;_&lt;nombre&gt;.py</code></td>
+<td>Un script por pieza: <code>META</code> (id, material, proceso impresa/torneada/comprada/referencia, cantidad, marco boat/jet/drive/steer/bucket, grupo, <code>allow</code>), <code>build()</code>, <code>placements()</code>, <code>checks()</code>. SUB: INT toma · PMP bomba · DRV tren · MOT motor · STE dirección · REV reversa · CTL mandos · ELE electrónica · BAT batería · REF casco de referencia.</td>
+</tr>
+<tr>
+<td><code>build_all.py</code></td>
+<td>Exporta STEP + STL (orientación de impresión), <code>step/P1-ASM_marcha.step.gz</code> y <code>resultados/manifest.json</code> (masas CAD por grupo).</td>
+</tr>
+<tr>
+<td><code>verify_parts.py</code></td>
+<td>Exit ≠ 0 si falla: sólido válido/manifold, envolvente de impresora, <code>checks()</code> de cada pieza, interferencias en todos los estados (boquilla −25/0/+25° × bucket arriba/abajo) contra bomba, toma, tren y casco.</td>
+</tr>
+<tr>
+<td><code>structural.py</code> + <code>structural_*.py</code></td>
+<td>FS por pieza y caso de carga (≥ 3 PETG, ≥ 2 metal) → 02 §9. FEA de las piezas críticas en <code>fea/</code>.</td>
+</tr>
+<tr>
+<td><code>planos.py</code> + <code>planos_*.py</code></td>
+<td>Planos SVG acotados de las piezas mecanizadas/soldadas → <code>planos/</code>.</td>
+</tr>
+<tr>
+<td><code>electronica/</code></td>
+<td>Cableado, cálculo de cables/fusibles, firmware del acelerador (perfil costa/abierto, bucket, kill).</td>
+</tr>
+<tr>
+<td><code>probetas/</code></td>
+<td>Probetas de PETG (holguras, roscas, O-ring) para calibrar antes de imprimir las piezas.</td>
+</tr>
+<tr>
+<td><code>visor/</code></td>
+<td><code>build_visor.py</code> → visor web 3D (ensamblado, explosión, dirección, bucket, demo) para Jorge.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="lista-de-piezas">Lista de piezas</h2>
+<p>Total impreso: <strong>1,05 kg</strong> de PETG, <strong>58 h</strong> de impresión (a 18,0 g/h); masa de la unidad de jet (CAD, sin motor): <strong>25,94 kg</strong>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Función</th>
+<th>Envolvente [mm]</th>
+<th>Material</th>
+<th>Proceso</th>
+<th>Cant.</th>
+<th>Caso de carga dominante</th>
+<th>Orientación de impresión</th>
+<th>g c/u</th>
+<th>h c/u</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1-BAT-01_bateria</td>
+<td>Batería LFP de la selección (modelo de referencia, una por rama)</td>
+<td>532×207×215</td>
+<td>referencia</td>
+<td>comprada</td>
+<td>2</td>
+<td>—</td>
+<td>—</td>
+<td>19800</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-01_placa_espejo</td>
+<td>Placa interior del espejo para M66 + 2 prensaestopas (Al 5083 6 mm)</td>
+<td>6×350×90</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>Reacción del M66 (momento de dirección / brazo) en el espejo</td>
+<td>—</td>
+<td>487</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-02_caja_acel</td>
+<td>Caja PETG de palancas con sensor hall</td>
+<td>184×82×68</td>
+<td>PETG</td>
+<td>impresa</td>
+<td>1</td>
+<td>Mano apoyada 150 N sobre la tapa [SUPUESTO: structural_direccion, FEA]; sin cargas de mando (van a <span class="pid">P1-CTL-08</span>)</td>
+<td>Tapa sobre la cama (ranuras planas, sin soportes); ala arriba. 0,2 mm, 5 perímetros, 30 % giroide</td>
+<td>134</td>
+<td>7,4</td>
+</tr>
+<tr>
+<td>P1-CTL-03_soporte_kill</td>
+<td>Soporte PETG del kill switch con cordón y de la seta</td>
+<td>100×130×55</td>
+<td>PETG</td>
+<td>impresa</td>
+<td>1</td>
+<td>Tirón del cordón 150 N [SUPUESTO] + golpe de mano sobre la seta 200 N [SUPUESTO]</td>
+<td>Base sobre la cama; la cara inclinada a 45° no necesita soportes. 0,2 mm, 5 perímetros</td>
+<td>120</td>
+<td>6,7</td>
+</tr>
+<tr>
+<td>P1-CTL-04_pasamuros_m66</td>
+<td>Pasamuros 316 del M66 (brida, M20, rosca 7/8" UNF)</td>
+<td>43×32×32</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Tiro/empuje del M66 contra la placa del espejo</td>
+<td>—</td>
+<td>128</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-05_prensaestopas</td>
+<td>Prensaestopas M16 IP68 (comprado)</td>
+<td>27×24×24</td>
+<td>referencia</td>
+<td>comprada</td>
+<td>2</td>
+<td>—</td>
+<td>—</td>
+<td>15</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-06_terminal_m66</td>
+<td>Tubo terminal del cable M66 (comprado)</td>
+<td>230×22×22</td>
+<td>Acero</td>
+<td>comprada</td>
+<td>1</td>
+<td>—</td>
+<td>—</td>
+<td>350</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-07_terminal_mach5_consola</td>
+<td>Terminal Mach5 en la consola — comprado</td>
+<td>22×22×140</td>
+<td>Acero</td>
+<td>comprada</td>
+<td>1</td>
+<td>—</td>
+<td>—</td>
+<td>120</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-08_placa_central</td>
+<td>Placa central de palancas Al 5083 6 mm (eje, enclavamiento, grapas Mach5)</td>
+<td>120×77×182</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>Fuerza de mano 100 N en el pomo (150 mm) contra el enclavamiento</td>
+<td>—</td>
+<td>219</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-09_palanca_acel</td>
+<td>Palanca del acelerador Al 6061 8 mm</td>
+<td>60×8×191</td>
+<td>Al 6061-T6</td>
+<td>torneada</td>
+<td>1</td>
+<td>100 N en el pomo (150 mm) [SUPUESTO]</td>
+<td>—</td>
+<td>102</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-10_palanca_bucket</td>
+<td>Palanca del bucket Al 6061 8 mm con manivela del Mach5</td>
+<td>79×45×165</td>
+<td>Al 6061-T6</td>
+<td>torneada</td>
+<td>1</td>
+<td>100 N en el pomo contra el enclavamiento / tope</td>
+<td>—</td>
+<td>134</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-11_eje_palancas</td>
+<td>Eje Ø12 con cabeza portaimán (316)</td>
+<td>18×38×18</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Flexión y torsión: 100 N en el pomo del acelerador</td>
+<td>—</td>
+<td>39</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-12_perno_enclav</td>
+<td>Perno de enclavamiento Ø6 × 13 (316)</td>
+<td>6×13×6</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>2</td>
+<td>Corte: 100 N en el pomo del bucket contra el enclavamiento</td>
+<td>—</td>
+<td>3</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-13_varilla_consola</td>
+<td>Varilla Ø6,4 + rótula M6 del Mach5 en la consola (comprada)</td>
+<td>18×8×130</td>
+<td>AISI 316</td>
+<td>comprada</td>
+<td>1</td>
+<td>—</td>
+<td>—</td>
+<td>40</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-14_gatillo</td>
+<td>Gatillo del desbloqueo (Al 6061 6 mm) con barra igualadora 316 de los dos Bowden</td>
+<td>46×10×57</td>
+<td>Al 6061-T6</td>
+<td>torneada</td>
+<td>1</td>
+<td>Apriete de la mano 100 N [SUPUESTO] en la hoja; tiro de los dos cables por la barra igualadora</td>
+<td>—</td>
+<td>14</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-20_consola_ref</td>
+<td>Consola (referencia, medir la real)</td>
+<td>250×360×532</td>
+<td>referencia</td>
+<td>referencia</td>
+<td>1</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-CTL-21_volante_ref</td>
+<td>Volante Ø320 + timonería T85 (referencia)</td>
+<td>242×320×320</td>
+<td>referencia</td>
+<td>referencia</td>
+<td>1</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-DRV-01_shaft</td>
+<td>Eje Ø20 AISI 316 torneado: impulsor (pasador de corte) → sello → 2×7204 → acople</td>
+<td>470×26×26</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Par T_max del controlador y par de corte del pasador; empuje Fa a punto fijo; velocidad crítica</td>
+<td>—</td>
+<td>1181</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-DRV-02_seal_housing</td>
+<td>Caja del sello mecánico 316: espigón Ø42, brida 4×M6, cámara mojada, linterna de goteo</td>
+<td>44×70×70</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Presión de diseño de la bomba 0,2 MPa + resorte del sello; bulones M6 al buje de la toma</td>
+<td>—</td>
+<td>311</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-DRV-03_bearing_bracket</td>
+<td>Pórtico Al 6082 sobre el conducto: alojamiento 2×7204 BECBP, 4×M8 a la placa base</td>
+<td>150×296×173</td>
+<td>Al 5052/6082</td>
+<td>torneada</td>
+<td>1</td>
+<td>Empuje Fa a punto fijo + reacción radial + 3 g vertical del tren; bulones M8 a la placa base de Al</td>
+<td>—</td>
+<td>1642</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-DRV-04_bearing_7204BEP</td>
+<td>Rodamiento SKF 7204 BECBP apareable universal (par en O), comprado</td>
+<td>14×47×47</td>
+<td>Acero</td>
+<td>comprada</td>
+<td>2</td>
+<td>Empuje Fa + reacción radial (L10 en sizing)</td>
+<td>—</td>
+<td>110</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-DRV-05_locknut_KM4</td>
+<td>Tuerca KM4 M20×1 + arandela MB4 (comprada)</td>
+<td>8×32×32</td>
+<td>Acero</td>
+<td>comprada</td>
+<td>1</td>
+<td>Empuje en reversa (≤ Fa) y precarga</td>
+<td>—</td>
+<td>25</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-DRV-06_bearing_cover</td>
+<td>Tapa delantera Al de rodamientos (4×M5), toma el empuje hacia proa</td>
+<td>7×65×65</td>
+<td>Al 5052/6082</td>
+<td>torneada</td>
+<td>1</td>
+<td>Empuje Fa a punto fijo hacia proa: flexión de la tapa entre el aro y los M5</td>
+<td>—</td>
+<td>44</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-DRV-07_mech_seal_MG1_20</td>
+<td>Sello mecánico MG1 Ø20 carbón/SiC (comprado)</td>
+<td>32×35×35</td>
+<td>referencia</td>
+<td>comprada</td>
+<td>1</td>
+<td>Presión del conducto, 5 m/s</td>
+<td>—</td>
+<td>60</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-DRV-08_coupling_rotex24</td>
+<td>Acople Rotex 24 Ø20 / Ø motor (comprado; cubo de eje refrentado)</td>
+<td>72×55×55</td>
+<td>referencia</td>
+<td>comprada</td>
+<td>1</td>
+<td>Par T_max del controlador; par de corte del pasador (pico)</td>
+<td>—</td>
+<td>600</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-ELE-01_esc_stand</td>
+<td>Base elevada PETG del controlador IP65 (4 × M6 al piso, 4 insertos M5 para la capota)</td>
+<td>208×138×60</td>
+<td>PETG</td>
+<td>impresa</td>
+<td>1</td>
+<td>Peso del ESC + capota a 3 g vertical y 1 g lateral; tirón de cables</td>
+<td>Base abierta sobre la cama; tablero arriba (puentes de 3,2 mm entre nervios, sin soportes).</td>
+<td>263</td>
+<td>14,6</td>
+</tr>
+<tr>
+<td>P1-ELE-02_esc_hood</td>
+<td>Capota antisalpicaduras PETG del controlador (4 × M5 a la base)</td>
+<td>208×126×55</td>
+<td>PETG</td>
+<td>impresa</td>
+<td>1</td>
+<td>Apriete de la almohadilla EPDM (4 × M5) y 3 g vertical del ESC hacia arriba (golpe de ola)</td>
+<td>Techo sobre la cama, paredes y nervios hacia arriba (sin soportes).</td>
+<td>207</td>
+<td>11,5</td>
+</tr>
+<tr>
+<td>P1-ELE-03_cooling_outlet</td>
+<td>Pasacasco 316 de salida del agua de refrigeración (testigo en el espejo)</td>
+<td>37×28×28</td>
+<td>AISI 316</td>
+<td>comprada</td>
+<td>1</td>
+<td>—</td>
+<td>—</td>
+<td>45</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-ELE-04_esc</td>
+<td>Controlador VESC de la selección (FSESC 75350 con caja de agua)</td>
+<td>200×95×50</td>
+<td>referencia</td>
+<td>comprada</td>
+<td>1</td>
+<td>—</td>
+<td>—</td>
+<td>2000</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-INT-01_conducto</td>
+<td>Conducto de toma enrasada Al 5083 soldado: rampa C2, transición a Ø D_bore, brida bomba, buje del sello, chimenea de inspección</td>
+<td>447×198×350</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>Presión interna −p_pump_max…+p_pump_max, golpe de fondo, 3 g agua; empuje NO pasa por acá</td>
+<td>—</td>
+<td>4699</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-INT-02_placa_base</td>
+<td>Placa base de la toma Al 5083 10 mm: cuerpo enrasado + ala abulonada al casco, cuña de la rampa, roscas del conducto y del soporte de rodamientos</td>
+<td>565×350×10</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>Golpe de fondo, empuje del tren por el soporte de rodamientos, tracción de los bulones del conducto</td>
+<td>—</td>
+<td>3042</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-INT-03_rejilla</td>
+<td>Rejilla 316: pletinas perfiladas 4 × 21 longitudinales (luz ≤ 12,5) enrasadas, pletina de popa y tirante de proa, 4 × M5 A4 aislados</td>
+<td>368×182×21</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Rejilla tapada a la presión de cierre de la bomba; golpe de objeto 200 N en el centro de una barra</td>
+<td>—</td>
+<td>2014</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-INT-04_tapa_inspeccion</td>
+<td>Tapa PETG Ø160 × 10 de la chimenea de inspección, O-ring de cara, 4 × M6</td>
+<td>160×160×19</td>
+<td>PETG</td>
+<td>impresa</td>
+<td>1</td>
+<td>Presión interna de la toma (succión de cierre / recuperación a 30 km/h) sobre Ø de la junta</td>
+<td>Cara de la ranura del O-ring y del hexágono de la tuerca sobre la cama (fondos lisos), resalte arriba, 100 % relleno</td>
+<td>327</td>
+<td>18,2</td>
+</tr>
+<tr>
+<td>P1-MOT-01_motor</td>
+<td>Motor de la selección (MTI120116: Ø120 × 116, refrigerado por agua)</td>
+<td>146×120×120</td>
+<td>referencia</td>
+<td>comprada</td>
+<td>1</td>
+<td>Par de reacción T_max sobre <span class="pid">P1-MOT-02</span>; 3 g vertical</td>
+<td>—</td>
+<td>4400</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-MOT-02_motor_mount</td>
+<td>Soporte del motor Al: placa a la cara del motor + pies al piso (4×M8)</td>
+<td>76×190×146</td>
+<td>Al 5052/6082</td>
+<td>torneada</td>
+<td>1</td>
+<td>Par de reacción T_max del controlador + 3 g vertical del motor; sin empuje</td>
+<td>—</td>
+<td>842</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-01_housing</td>
+<td>Carcasa Al 6061-T6: brida de la toma, asiento del anillo y del estator, puerto de agua</td>
+<td>166×193×193</td>
+<td>Al 6061-T6</td>
+<td>torneada</td>
+<td>1</td>
+<td>Presión interna 0,2 MPa; reacción del estator; momentos de boquilla/bucket en bridas</td>
+<td>—</td>
+<td>1492</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-02_wear_ring</td>
+<td>Anillo de desgaste 316 torneado, prensado en la carcasa; holgura de punta tip_clr</td>
+<td>69×143×143</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Presión de la bomba (apoyado en la carcasa); roce de piedras</td>
+<td>—</td>
+<td>1187</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-03_impeller</td>
+<td>Impulsor axial de 5 álabes, cubo Ø66 con nariz, 2 semipasadores de corte (sin chavetero)</td>
+<td>69×132×132</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Par máx. del controlador + empuje axial; corte del pasador (piedra)</td>
+<td>—</td>
+<td>1336</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-04_pin_band</td>
+<td>Anillo retén 316 que tapa los extremos del pasador de corte</td>
+<td>16×66×66</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Centrífuga a n máx.; retención del pasador</td>
+<td>—</td>
+<td>76</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-05_shear_pin</td>
+<td>2 semipasadores de corte Al 6061-T6 (fusible de par del impulsor, cambiables en el eje)</td>
+<td>4×30×4</td>
+<td>Al 6061-T6</td>
+<td>torneada</td>
+<td>2</td>
+<td>Par del controlador (no corta); corta a T_cut (piedra)</td>
+<td>—</td>
+<td>1</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-06_stator</td>
+<td>Estator Al 6061-T6 de 7 álabes con camisa, cubo con buje de agua y cono de cola</td>
+<td>169×143×143</td>
+<td>Al 6061-T6</td>
+<td>torneada</td>
+<td>1</td>
+<td>Reacción del par del rotor en los álabes; carga radial del buje; presión</td>
+<td>—</td>
+<td>1518</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-07_water_bushing</td>
+<td>Buje Ø20 lubricado por agua en el cubo del estator (2.º apoyo del eje)</td>
+<td>30×28×28</td>
+<td>POM-C</td>
+<td>torneada</td>
+<td>1</td>
+<td>Carga radial del eje (desbalance + hidráulica)</td>
+<td>—</td>
+<td>12</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-08_fixed_nozzle</td>
+<td>Tobera fija Al: contracción a D_noz, rótula de la boquilla y resalte del sello de espejo</td>
+<td>151×161×161</td>
+<td>Al 6061-T6</td>
+<td>torneada</td>
+<td>1</td>
+<td>Presión interna 0,2 MPa; reacción de la placa de espejo por el O-ring</td>
+<td>—</td>
+<td>1408</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-09_transom_plate</td>
+<td>Placa de espejo Al 5083 con cuello coaxial, sello radial sobre la tobera y orejas de pivote</td>
+<td>44×216×199</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>F lateral de la boquilla y F del bucket en las orejas; sello del casco</td>
+<td>—</td>
+<td>449</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-10_transom_gasket</td>
+<td>Junta NBR 2 mm del espejo (bajo la placa <span class="pid">P1-PMP-09</span>)</td>
+<td>2×216×199</td>
+<td>NBR</td>
+<td>comprada</td>
+<td>1</td>
+<td>Compresión de los 6 × M6</td>
+<td>—</td>
+<td>35</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-PMP-11_pivot_bushing</td>
+<td>Buje POM-C de pivote de la boquilla en las orejas de la placa de espejo (×2)</td>
+<td>12×12×26</td>
+<td>POM-C</td>
+<td>torneada</td>
+<td>2</td>
+<td>F lateral de la boquilla / F del bucket (aplastamiento)</td>
+<td>—</td>
+<td>2</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REF-01_casco</td>
+<td>Casco de referencia (popa 1,4 m): fondo con astilla muerta y paño plano, pantoque, costados, espejo; recorte de la toma y agujero del espejo</td>
+<td>1400×798×516</td>
+<td>referencia</td>
+<td>referencia</td>
+<td>1</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REV-01_bucket</td>
+<td>Bucket de reversa Al 5083 8 mm (cuchara + brazos + nervio), traba en cada brazo (cada una lleva todo M_h)</td>
+<td>203×149×170</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>Chorro desviado en reversa (R12: 1,4 kN) × impacto 2; presión dinámica en la chapa</td>
+<td>—</td>
+<td>1233</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REV-02_perno_bucket</td>
+<td>Pivote del bucket: espaciador 316 (muñón Ø20 h7, brida Ø36, piloto Ø16 h6) + tornillo M12 A4-80 + tuerca DIN 985</td>
+<td>36×68×36</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>2</td>
+<td>Reacción del pivote = chorro/2 + traba con M_h completo (R12, una traba sola): flexión del muñón y apertura de la unión</td>
+<td>—</td>
+<td>162</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REV-03_buje_bucket</td>
+<td>Buje con brida POM-C del pivote del bucket (Ø20,1/Ø24 × 18 + brida Ø30 × 1), escariado después de prensar</td>
+<td>30×19×30</td>
+<td>POM-C</td>
+<td>torneada</td>
+<td>2</td>
+<td>Presión: reacción del pivote (chorro/2 + traba con M_h completo, R12 y reversa de sizing)</td>
+<td>—</td>
+<td>4</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REV-04_embolo</td>
+<td>Émbolo de traba propio: cuerpo M24×1,5 y perno Ø16 h9 en AISI 316 + resorte inox, uno por oreja ±Y</td>
+<td>42×76×36</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>2</td>
+<td>Perno Ø16: flexión + corte con M_h completo en una traba (R12) / REV_lock_r</td>
+<td>—</td>
+<td>313</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REV-05_soporte_mach5</td>
+<td>Soporte de la vaina del Mach5 (Al 5083 6 mm)</td>
+<td>80×100×129</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>Reacción del cable al mover el bucket (sin carga del chorro: la toma el émbolo)</td>
+<td>—</td>
+<td>189</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REV-06_perno_varilla</td>
+<td>Tornillo con hombro Ø8 × 10 / M6 (316)</td>
+<td>13×26×13</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Fuerza de maniobra del Mach5 (bucket sin carga del chorro)</td>
+<td>—</td>
+<td>10</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REV-07_terminal_mach5</td>
+<td>Terminal Mach5 (vaina + cabeza) en la boquilla — comprado</td>
+<td>22×22×140</td>
+<td>Acero</td>
+<td>comprada</td>
+<td>1</td>
+<td>—</td>
+<td>—</td>
+<td>120</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REV-08_varilla_mach5</td>
+<td>Varilla Ø6,4 + rótula M6 del Mach5 (comprada)</td>
+<td>18×8×94</td>
+<td>AISI 316</td>
+<td>comprada</td>
+<td>1</td>
+<td>—</td>
+<td>—</td>
+<td>40</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REV-09_soporte_bowden</td>
+<td>Soporte de reenvío del desbloqueo: base + montante Al 5083 soldados, 2 balancines 1:1 y 2 pestañas de reguladores M6</td>
+<td>48×80×51</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>Tiro de diseño por cable (mano 100 N en el gatillo <span class="pid">P1-CTL-14</span> repartida por el igualador) [CALCULADO]</td>
+<td>—</td>
+<td>69</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-REV-10_bowden_embolo</td>
+<td>Bowden inox de liberación de cada émbolo (extremo de la boquilla, comprado; ×2)</td>
+<td>55×10×86</td>
+<td>AISI 316</td>
+<td>comprada</td>
+<td>2</td>
+<td>—</td>
+<td>—</td>
+<td>60</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-STE-01_boquilla</td>
+<td>Boquilla direccional con orejas de pivote, torre del yugo y orejas del bucket</td>
+<td>144×104×170</td>
+<td>Al 6061-T6</td>
+<td>torneada</td>
+<td>1</td>
+<td>Desvío del chorro F_steer (R12: 364 N) + reacciones del bucket (R12: 1,4 kN, impacto ×2)</td>
+<td>—</td>
+<td>1048</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-STE-02_perno_sup</td>
+<td>Tornillo con hombro Ø8 / M6 del pivote superior (316 estirado)</td>
+<td>14×14×49</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Flexión en doble apoyo + corte: reacción superior (bucket R12 + dirección)</td>
+<td>—</td>
+<td>20</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-STE-03_arandela_pom</td>
+<td>Arandela de empuje POM-C Ø8,4/Ø18 × 1</td>
+<td>18×18×1</td>
+<td>POM-C</td>
+<td>torneada</td>
+<td>3</td>
+<td>Empuje axial: peso de la boquilla + bucket y componente vertical del chorro</td>
+<td>—</td>
+<td>0</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-STE-04_brida_yugo</td>
+<td>Brida del yugo de dirección (Al 5083 20 mm)</td>
+<td>55×135×20</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>Par de dirección + flexión del poste (biela M66)</td>
+<td>—</td>
+<td>171</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-STE-05_perno_inf</td>
+<td>Espárrago con hombro Ø8 / M6 del pivote inferior (316)</td>
+<td>8×8×33</td>
+<td>AISI 316</td>
+<td>torneada</td>
+<td>1</td>
+<td>Flexión en voladizo + corte: F_s/2</td>
+<td>—</td>
+<td>11</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-STE-06_poste</td>
+<td>Poste del yugo Ø22 con brida Ø44 y M16 (6061-T6)</td>
+<td>44×44×140</td>
+<td>Al 6061-T6</td>
+<td>torneada</td>
+<td>1</td>
+<td>Flexión + torsión por la fuerza de la biela del M66</td>
+<td>—</td>
+<td>151</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-STE-07_brazo</td>
+<td>Brazo del yugo con rótula M8 (Al 5083 10 mm)</td>
+<td>61×32×10</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>Fuerza de la biela del M66 (momento de dirección / brazo)</td>
+<td>—</td>
+<td>34</td>
+<td>—</td>
+</tr>
+<tr>
+<td>P1-STE-08_tope_direccion</td>
+<td>Topes de dirección ±δmax+1,5° (Al 5083 8 mm)</td>
+<td>156×92×32</td>
+<td>Al 5083</td>
+<td>torneada</td>
+<td>1</td>
+<td>Timón forzado contra el tope: 2 × fuerza de la biela del M66 [SUPUESTO]</td>
+<td>—</td>
+<td>81</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="verificación">Verificación</h2>
+<p>Resultado: <strong>FALLAS</strong> — 65 piezas, 14160 pares×estados de interferencia; boquilla δ ∈ [-25,0, 0,0, 25,0]°, bucket {arriba, abajo}; masa de la unidad de jet (CAD) 25,94 kg.</p>
+<p>Fallas:</p>
+<ul>
+<li><span class="pid">P1-REV-04</span>: cota crítica 'contratuerca sobre el cuerpo de la boquilla [mm]' = -0,077 (ref &gt;= 2,0)</li>
+</ul>
+<h2 id="ajustes-los-del-cad-confirmar-con-el-taller-y-en-petg-con-probetas">Ajustes (los del CAD; confirmar con el taller y, en PETG, con probetas)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Unión</th>
+<th>Ajuste CAD</th>
+<th>Nota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Eje Ø20 ↔ 2 × 7204 BECBP (en O, apareables universales)</td>
+<td>muñón Ø20 k5 / alojamiento Ø47 H7</td>
+<td>Práctica de catálogo para aro interior rotante [SUPUESTO]; precarga ligera de fábrica, KM4 apretado contra el collar</td>
+</tr>
+<tr>
+<td>Eje ↔ sello MG1 y tramo mojado</td>
+<td>Ø20 h8</td>
+<td>Tolerancia de catálogo del sello [SUPUESTO: confirmar con la hoja del MG1]</td>
+</tr>
+<tr>
+<td>Eje ↔ buje de agua POM-C del estator</td>
+<td>muñón f7 / buje H7</td>
+<td>2.º apoyo; el buje se cambia como consumible</td>
+</tr>
+<tr>
+<td>Impulsor ↔ eje</td>
+<td>deslizante; par por 2 semipasadores de corte Al 6061 en agujeros H8 escariados</td>
+<td>Sin chaveta: los semipasadores son el fusible de par (02 §8)</td>
+</tr>
+<tr>
+<td>Anillo de desgaste ↔ carcasa</td>
+<td>prensado ligero + retenedor anaeróbico [ESTIMADO]</td>
+<td>Holgura de punta = <code>tip_clr</code> (inputs)</td>
+</tr>
+<tr>
+<td>Caja del sello ↔ buje de la toma</td>
+<td>espigón f7 / H8 + 4 × M6</td>
+<td>Concentricidad del sello</td>
+</tr>
+<tr>
+<td>Carcasa ↔ conducto (brida de la bomba)</td>
+<td>espigón Ø140 h6 en rebaje H7 + 8 × M6</td>
+<td>Centra la bomba con el sello y el pórtico (alinear el pórtico con mandril al buje del estator)</td>
+</tr>
+<tr>
+<td>Tobera ↔ carcasa</td>
+<td>espiga de 12 mm con O-ring radial cs 3,53 + 8 × M5</td>
+<td>La tobera sale por el agujero del espejo para el servicio</td>
+</tr>
+<tr>
+<td>Pivotes de boquilla y bucket</td>
+<td>pernos 316 con hombro en bujes POM-C</td>
+<td>Holgura de buje según plano</td>
+</tr>
+<tr>
+<td>Piezas PETG (capota, base ESC, caja, tapa)</td>
+<td>0,25 mm diametral sobre metal</td>
+<td>Peine de holguras de <code>probetas/</code>; roscas por tuerca A4 cautiva, nunca Loctite 243 sobre PETG</td>
+</tr>
+</tbody>
+</table></div></article>
+</div>
+</main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
+</body>
+</html>
