@@ -1030,7 +1030,7 @@ y R5-N5). Commits de la ronda:
 auditores [CALCULADO: re-auditoría ronda 5] salvo los marcadores, que salen de <code>resultados/*.json</code> y de
 <code>resultados_fea.json</code>. <strong>La ronda 5 está cerrada en software:</strong> R5-N1…R5-N5 están corregidos en el repositorio (cuerpo
 ajustado del émbolo, fila del piloto, BOM, pomo, lóbulos engrosados) y la re-auditoría del cierre (tabla al final de esta
-sección: MECH-1…10, CALC-1…4, FEA-1…5, TEST-1, DOC-1, REGEN-1) está corregida o documentada, con el pivote en dos piezas
+sección: MECH-1…10, CALC-1…4, FEA-1…5, TEST-1…2, DOC-1, REGEN-1) está corregida o documentada, con el pivote en dos piezas
 (MECH-1). Corrida completa final (<code>run_all.py</code>, no <code>--fast</code>) con exit 0: FEA fino de <span class="pid">P1-STE-01</span> FS
 2,52 (objetivo 2; caso f2),
 <span class="pid">P1-REV-01</span> FS 2,07. Quedan abiertos, declarados: R5-N6 (margen de la fuerza
@@ -1509,6 +1509,14 @@ carga de prueba de la tuerca baja, el criterio de fatiga mano ↔ FEA y la regla
 <td>Piso de las orejas en |Y| 52 (<code>params_direccion</code>: con la boquilla actual ya están ahí, no cambia nada); check del estator contra el triángulo realmente usado (<code>params_bomba.pmp_tri</code>)</td>
 <td>corregido</td>
 <td><code>tests/test_regeneration_full.py</code></td>
+</tr>
+<tr>
+<td>TEST-2</td>
+<td>Baja</td>
+<td>(aparecido en la corrida completa de pytest, después de la corrida final) Dos pruebas desactualizadas, no el diseño: <code>test_sensitivity_entries_change_outputs</code> exigía que cada fila de la sensibilidad moviera la V máx. más de 0,05 km/h (o la joroba más de 0,2 %), y la fila del corte de la transición Fn∇ 2,0–2,7 la mueve ≈ 0,03 km/h porque la V máx. cae en Fn∇ ≈ 2,7, en el borde de la transición (resultado válido: supuesto poco crítico en este diseño); la prueba de regeneración buscaba en el README el margen de la joroba con el marcador viejo <code>sizing.performance.hump_margin_min</code> y sin signo, y el README cita el margen nominal (<code>sizing.verdict.hump_margin_min_nominal</code>)</td>
+<td>La prueba de sensibilidad exige que cada entrada esté conectada al modelo (mueve alguna salida más allá del ruido numérico) y mantiene el umbral de 0,2 % para las filas de la resistencia de planeo (R2-C02); la de regeneración usa el marcador nominal con signo</td>
+<td>corregido</td>
+<td><code>tests/test_sizing.py</code>, <code>tests/test_regeneration_full.py</code></td>
 </tr>
 </tbody>
 </table></div>

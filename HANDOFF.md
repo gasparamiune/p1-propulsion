@@ -1,11 +1,10 @@
 # Handoff — estado actual (2026-10-02)
 
-Rama: `claude/amazing-wright-rq0874`. **Ronda 5 de la auditoría (re-auditoría del rediseño de la ronda 4) en curso**;
-correcciones en el repositorio (commits `2f7c670`, `81f99ec`, `9e0dc79`, `da279d2`, `e516cac` + los cambios sin commitear
-de la re-auditoría del cierre). **No está cerrada:** la re-auditoría del cierre (MECH-1…10, CALC-1…4, FEA-1…5,
-TEST-1, DOC-1; `auditoria.md`) está corregida o documentada en el repositorio (pivote en dos piezas, MECH-1); falta la
-corrida completa final (FEA fino de P1-STE-01 con el cuerpo del émbolo ajustado y los lóbulos engrosados: R5-N1, R5-N5)
-y una medición física (R5-N6).
+Rama: `main` (la rama de trabajo `claude/amazing-wright-rq0874` se integró con el PR #1). **Ronda 5 de la auditoría
+cerrada en software**: correcciones en el repositorio (commits `2f7c670`, `81f99ec`, `9e0dc79`, `da279d2`, `e516cac`,
+`3dd8551`, `50e7bac`, `52f2a45`, `6621415`); la re-auditoría del cierre (MECH-1…10, CALC-1…4, FEA-1…5, TEST-1…2, DOC-1,
+REGEN-1; `auditoria.md`) está corregida o documentada; corrida completa final (`run_all.py`, no `--fast`) con exit 0 y
+`pytest` completo en verde, incluida la regeneración completa. Queda una medición física (R5-N6).
 
 ## Hecho
 - Paquete completo del waterjet P1-J (inputs.yaml → sizing → CAD 65 piezas → verify → estructural → planos → BOM →
@@ -35,22 +34,24 @@ y una medición física (R5-N6).
   04_diseno/README y la parte escrita a mano del README del FEA describen el cuerpo ajustado, los lóbulos engrosados y el
   pivote en dos piezas, con la tabla de la re-auditoría del cierre en `auditoria.md`.
 
-## Falta para cerrar la ronda 5 (agente principal)
-- **R5-N1 y R5-N5 — verificar el diseño nuevo:** CAD, manifest, `bom.py` y `structural.py` ya regenerados con los lóbulos
-  engrosados, el cuerpo Ø24 y el pivote en dos piezas; falta la corrida fina del FEA de P1-STE-01
-  (`fea_run.py --only P1-STE-01 --merge`), `tabla_fabricacion.py` y `docgen.py` dentro del `run_all.py` completo. FEA de la
-  oreja: FS <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->2.52<!--/V--> (objetivo 2; el marcador muestra el valor de `resultados_fea.json`: con el cuerpo
-  roscado de la primera versión daba 1,74 en el borde de la rosca M24 por la precarga).
-- **R5-N2, R5-N3 y R5-N4:** corregidos en el repositorio (auditoria.md). **Re-auditoría del cierre:** MECH-1…10,
-  CALC-1…4, FEA-1…4, TEST-1 y DOC-1 corregidos o documentados; FEA-5 (ventana del borde de los agujeros) queda como
-  limitación del README del FEA.
+## Cierre de la ronda 5 (hecho)
+- **R5-N1 y R5-N5 — diseño nuevo verificado:** CAD, manifest, `bom.py`, `structural.py`, FEA fino, `tabla_fabricacion.py`
+  y `docgen.py` regenerados por el `run_all.py` completo. FEA fino de la oreja P1-STE-01: FS
+  <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->2.52<!--/V--> (objetivo 2; con el cuerpo roscado de la primera versión daba 1,74
+  en el borde de la rosca M24 por la precarga); bucket P1-REV-01 FS <!--V:fea.piezas.P1-REV-01.FS_min:.2f-->2.07<!--/V-->.
+- **R5-N2, R5-N3 y R5-N4** corregidos en el repositorio (auditoria.md). **Re-auditoría del cierre:** MECH-1…10,
+  CALC-1…4, FEA-1…4, TEST-1…2, DOC-1 y REGEN-1 corregidos; FEA-5 (ventana del borde de los agujeros) queda como
+  limitación declarada en el README del FEA.
+- Visor republicado en `claude.ai/artifact/NAPEHA9H3BQ8r3dipj34j4` (archivos de 04_diseno/visor); PR #1 integrado en
+  `main`; sitio en GitHub Pages (rama `gh-pages`, generado con `build_site.py`).
+
+## Pendientes (mundo físico y abiertos menores)
 - **R5-N6** (numerado R5-N5 hasta el cierre de la ronda): margen de la fuerza del gatillo ≈ 7 %: medir el resorte al
   recibirlo (PENDIENTES P1.8).
 - Abiertos que siguen de la ronda 4: R4-16 (medición de la fuerza en banco), R4-17 (vainas en la consola, plano de
   P1-CTL-10, B-GLINS), L6 (tabla generada de P1.10 sin P1-REV-03; comentario del perfil de PrusaSlicer), M3 (B-DIAL
   con base magnética para T0.M3/T0.M4).
-- `python run_all.py` completo + `pytest` completo; re-auditoría; cerrar `auditoria.md` y `PROGRESS.md`.
-- Re-publicar el visor en `claude.ai/artifact/NAPEHA9H3BQ8r3dipj34j4` (archivos de 04_diseno/visor) y actualizar el PR.
+- Orden de trabajo físico: `PENDIENTES_GASPAR.md` (P0 medir el casco y ensayo de escora E1 antes de comprar o cortar).
 
 ## Abiertos declarados (no se resuelven desde la propulsión)
 - Planeo: con resistencia alta no llega a planeo pleno; con la nominal el margen queda bajo el 10 % (README, 02 §3.2).
