@@ -1,6 +1,7 @@
 """Tests del FEA (04_diseno/fea): solver contra casos analíticos, verificación cruzada con
-scikit-fem, malla gruesa rápida de una pieza real (P1-CTL-02), estática del bucket y FS > 0 en
-resultados_fea.json para las piezas del waterjet."""
+scikit-fem, malla gruesa rápida de una pieza real (P1-CTL-02), estática del bucket, carga aplicada del
+bucket = estática (setup con malla muy gruesa), traba única con M_h completo, bordes de agujeros cargados
+y cumplimiento en resultados_fea.json para las piezas del waterjet (ronda 4)."""
 import json
 import math
 import sys
@@ -138,55 +139,108 @@ def test_part_quick_mesh(ctl02_quick):
 
 
 def test_bucket_statics_matches_hand():
-    """La estática del bucket (cada traba solo tangencial) es la de structural_direccion: con M_h completo en una
-    traba da F_lock_pin_N; con cualquier reparto, equilibrio de fuerzas y suma de trabas = M_h/r (ronda 3)."""
+    """La estática del bucket es la de structural_direccion (ronda 4: cantidad de movimiento del chorro, criterio de traba
+    única): con M_h completo en una traba, esa traba lleva M_h/r = F_lock_pin_N y la otra cero; equilibrio de fuerzas; la
+    mayor reacción de pivote es R_bucket_pivot_design_N; y el momento con signo coincide con |M_h| de la fila a mano."""
     import fea_parts as fp
     p, _, est = fp.load_project()
     sd = est["loads"]["structural_direccion"]
-    for share in ({1: 1.0}, {-1: 1.0}, {1: 0.5, -1: 0.5}, {1: p.REV_lock_share_max, -1: 1 - p.REV_lock_share_max}):
-        st = fp.bucket_statics(p, p.REV_F_design, share=share)
-        Fl = {s_: float(np.linalg.norm(st[k])) for s_, k in ((1, "F_traba_sobre_boquilla_N"), (-1, "F_traba_menos_y_sobre_boquilla_N"))}
-        assert abs((Fl[1] + Fl[-1]) / sd["F_lock_pin_N"] - 1) < 0.03, (share, Fl, sd["F_lock_pin_N"])
-        ks = ("F_traba_sobre_boquilla_N", "F_traba_menos_y_sobre_boquilla_N", "F_pivote_mas_y_sobre_boquilla_N",
-              "F_pivote_menos_y_sobre_boquilla_N")
+    ks = ("F_traba_sobre_boquilla_N", "F_traba_menos_y_sobre_boquilla_N", "F_pivote_mas_y_sobre_boquilla_N",
+          "F_pivote_menos_y_sobre_boquilla_N")
+    Rmax = 0.0
+    for side in (1, -1):
+        st = fp.bucket_statics(p, p.REV_F_design, share={side: 1.0})
+        Fl = {s_: float(np.linalg.norm(st[k])) for s_, k in ((1, ks[0]), (-1, ks[1]))}
+        assert abs(Fl[side] / sd["F_lock_pin_N"] - 1) < 0.01, (side, Fl, sd["F_lock_pin_N"])
+        assert Fl[-side] < 1e-9, (side, Fl)
         tot = np.array(st["F_N"]) + sum(-np.array(st[k]) for k in ks)
-        assert np.allclose(tot, 0, atol=1e-6), share
-    # la reacción de pivote de diseño de la fila a mano es la mayor con el reparto máximo admitido
-    smax = p.REV_lock_share_max
-    Rmax = max(float(np.linalg.norm(fp.bucket_statics(p, p.REV_F_design, share=sh)[k]))
-               for sh in ({1: smax, -1: 1 - smax}, {1: 1 - smax, -1: smax})
-               for k in ("F_pivote_mas_y_sobre_boquilla_N", "F_pivote_menos_y_sobre_boquilla_N"))
+        assert np.allclose(tot, 0, atol=1e-6), side
+        assert abs(abs(st["M_y_chorro_Nm"]) / sd["M_hinge_Nm"] - 1) < 0.01, (st["M_y_chorro_Nm"], sd["M_hinge_Nm"])
+        assert abs(st["F_N"][2] / sd["F_z_bucket_N"] - 1) < 0.01, (st["F_N"], sd["F_z_bucket_N"])
+        Rmax = max(Rmax, *(float(np.linalg.norm(st[k])) for k in ks[2:]))
     assert abs(Rmax / sd["R_bucket_pivot_design_N"] - 1) < 0.01, (Rmax, sd["R_bucket_pivot_design_N"])
-    # y es mucho mayor que F_b/2 (lo que suponía el cálculo a mano antes de la ronda 3)
-    assert Rmax > 1.3 * p.REV_F_design / 2
+    stn = fp.bucket_statics(p, p.sz["loads"]["F_bucket_N"], share={1: 1.0})
+    assert abs(float(np.linalg.norm(stn[ks[0]])) / sd["F_lock_pin_sizing_N"] - 1) < 0.01
 
 
-def test_bucket_fea_share_within_hand_bound():
-    """Auditoría ronda 3: el reparto entre las dos trabas con el desfase admitido (FEA, casos b/c, malla reportada)
-    no supera la cota REV_lock_share_max que usa el cálculo a mano del pivote y del buje; la reacción de pivote del
-    FEA tampoco supera la de la fila a mano; y el bucket cumple FS ≥ 2 en diseño y en falla (casos d/e)."""
+@pytest.mark.parametrize("pid,h", [("P1-REV-01", 10.0), ("P1-STE-01", 12.0)])
+def test_applied_load_matches_statics_coarse(pid, h, tmp_path):
+    """Setup con malla MUY gruesa (sin resolver): la carga del bucket que se aplica tiene la resultante y el momento de
+    la estática (REV-01: bucket_reactions, 2 %; STE-01: reacciones sobre las orejas, 1 %; auditoría ronda 4, F1/F5). El
+    setup ya lo verifica (RuntimeError si no); acá se controla lo que guarda en los checks. STE-01: el agujero del
+    pivote existe solo en las orejas (sin el festón de la torre del yugo)."""
+    import fea_parts as fp
+    p, mods, est = fp.load_project()
+    st = fp.SETUPS[pid](p, mods, est, h, 6, str(tmp_path), log=None, hmin=2.0)
+    ck = st["checks"]
+    if pid == "P1-REV-01":
+        recs = {"R12": ck["resultante_R12"]}
+        tol = fp.TOL_STATICS_REV
+        sd = est["loads"]["structural_direccion"]
+        assert abs(abs(ck["resultante_R12"]["M_y_estatica_Nm"]) / sd["M_hinge_Nm"] - 1) < 0.01
+    else:
+        recs = ck["resultante_bucket"]
+        tol = fp.TOL_STATICS_STE
+        assert set(recs) == {"R12_+Y", "R12_-Y", "sz_+Y", "sz_-Y"}, sorted(recs)
+        assert ck["facetas_agujero_pivote_fuera_de_las_orejas"] == 0
+    for k, r in recs.items():
+        assert r["err_F_rel"] <= tol and r["err_M_rel"] <= tol, (k, r)
+        F_a, F_s = np.array(r["F_aplicada_N"]), np.array(r["F_estatica_N"])
+        assert np.linalg.norm(F_a - F_s) <= tol * np.linalg.norm(F_s), (k, F_a, F_s)
+    assert st["holes"], "faltan los agujeros cargados de la verificación de borde (F3)"
+
+
+def _fea_part(pid):
+    p = FEA / "resultados_fea.json"
+    assert p.exists(), "correr: python 04_diseno/fea/fea_run.py"
+    return json.loads(p.read_text(encoding="utf-8"))["piezas"][pid]
+
+
+def test_bucket_single_lock_carries_full_moment():
+    """Ronda 4 (criterio de traba única, F5 no tautológico): en los casos de diseño d/e (R12) y f/g (sizing) del FEA del
+    bucket, la ÚNICA traba activa lleva M_h/r (± 3 %) con M_h de structural_direccion.jet_momentum, el momento que toma
+    equilibra el aplicado y la resultante aplicada es la de la estática (2 %)."""
     import fea_parts as fp
     p, _, est = fp.load_project()
-    res = json.loads((FEA / "resultados_fea.json").read_text(encoding="utf-8"))
-    r = res["piezas"]["P1-REV-01"]
+    sd = est["loads"]["structural_direccion"]
+    r = _fea_part("P1-REV-01")
     lv = r["nivel_reportado"]
-    assert {"a", "b", "c", "d", "e"} <= set(r["casos"]), sorted(r["casos"])
-    R_hand = est["loads"]["structural_direccion"]["R_bucket_pivot_design_N"]
-    for cid in ("b", "c"):
+    assert {"a", "d", "e", "f", "g"} <= set(r["casos"]), sorted(r["casos"])
+    assert {"d", "e", "f", "g"} <= set(r["casos_diseno"]) and "a" not in r["casos_diseno"]
+    want = {"d": ("traba", "F_lock_pin_N"), "e": ("traba_menos_y", "F_lock_pin_N"),
+            "f": ("traba", "F_lock_pin_sizing_N"), "g": ("traba_menos_y", "F_lock_pin_sizing_N")}
+    for cid, (lk, key) in want.items():
         ex = r["casos"][cid][lv]["extra"]
-        assert ex["reparto_max_M_h"] <= p.REV_lock_share_max + 1e-6, (cid, ex["reparto_max_M_h"])
-        assert max(ex["F_pivote_por_lado_N"].values()) <= R_hand * 1.02, (cid, ex["F_pivote_por_lado_N"], R_hand)
-    for cid in ("d", "e"):                                 # falla: un solo émbolo, reversa de sizing
-        ex = r["casos"][cid][lv]["extra"]
-        assert sorted(round(v) == 0 for v in ex["F_traba_por_lado_N"].values()) == [False, True], ex
-    assert r["cumple"] and r["FS_min"] >= r["FS_objetivo"], (r["FS_min"], r["caso_gobernante"])
-    for vn in ("V1", "V2"):                                # falla doble: sin fluencia
-        v = r["variantes"][vn]
-        assert min(c["FS"]["gobernante"] for c in v["casos"].values()) >= 1.0, vn
+        assert ex["trabas_activas"] == [lk], (cid, ex["trabas_activas"])
+        assert abs(ex["F_traba_M_h_sobre_r_N"] / sd[key] - 1) < 0.01, (cid, ex["F_traba_M_h_sobre_r_N"], sd[key])
+        Ft = ex["F_traba_tangencial_N"][lk]
+        assert abs(Ft / ex["F_traba_M_h_sobre_r_N"] - 1) < 0.03, (cid, Ft, ex["F_traba_M_h_sobre_r_N"])
+        assert abs(ex["M_traba_por_lado_Nm"][lk] + ex["M_pivote_Nm"]) < 0.02 * abs(ex["M_pivote_Nm"]), (cid, ex["M_traba_por_lado_Nm"])
+        res = ex["resultante"]
+        assert res["err_F_rel"] <= fp.TOL_STATICS_REV and res["err_M_rel"] <= fp.TOL_STATICS_REV, (cid, res)
+    # con las dos trabas sin desfase (a), entre las dos llevan M_h/r
+    ex = r["casos"]["a"][lv]["extra"]
+    assert abs(sum(ex["F_traba_tangencial_N"].values()) / ex["F_traba_M_h_sobre_r_N"] - 1) < 0.03, ex["F_traba_tangencial_N"]
+
+
+def test_lug_edges_checked():
+    """F3: en REV-01 y STE-01 cada caso de diseño evalúa el borde de sus agujeros cargados (traba/rosca y pivote) a ±90°
+    de la carga, con FS ≥ objetivo; el agujero de una traba deshabilitada no se evalúa como cargado."""
+    for pid, need in (("P1-REV-01", {"d": {"traba", "pivote_mas_y"}, "e": {"traba_menos_y", "pivote_menos_y"}}),
+                      ("P1-STE-01", {"c": {"rosca_mas_y", "pivote_mas_y"}, "c2": {"rosca_menos_y", "pivote_menos_y"}})):
+        r = _fea_part(pid)
+        for cid, holes in need.items():
+            fb = r["casos"][cid]["FS_bordes"]
+            assert holes <= set(fb), (pid, cid, sorted(fb))
+            for hn, b in fb.items():
+                assert b["FS"] >= r["FS_objetivo"], (pid, cid, hn, b["FS"])
+        if pid == "P1-REV-01":
+            assert "traba_menos_y" not in r["casos"]["d"]["FS_bordes"] and "traba" not in r["casos"]["e"]["FS_bordes"]
 
 
 def test_resultados_fea_json():
-    """Entregable: resultados_fea.json con FS > 0 para cada pieza, malla gruesa y fina, comparación e imágenes."""
+    """Entregable: resultados_fea.json con FS > 0 para cada pieza, malla gruesa y fina, comparación e imágenes; cada
+    pieza cumple su FS objetivo en los casos de diseño."""
     p = FEA / "resultados_fea.json"
     assert p.exists(), "correr: python 04_diseno/fea/fea_run.py"
     res = json.loads(p.read_text(encoding="utf-8"))

@@ -348,25 +348,30 @@ class Model:
         return {"S": Sn, "vm": fc.von_mises(Sn), "s1": fc.principal_max(Sn), "sZ": sZ,
                 "u": u[:S.ndof_fem].reshape(-1, 3)[:S.N]}
 
-    def zone_mask(self, r_ex, extra=()):
-        """Nodos (vértices) a distancia ≤ r_ex de las facetas de aplicación de carga/apoyo."""
+    def zone_mask(self, r_ex, extra=(), skip=()):
+        """Nodos (vértices) a distancia ≤ r_ex de las facetas de aplicación de carga/apoyo. `skip`: facetas que en
+        este caso NO son zona (p. ej. el agujero de una traba deshabilitada: su entorno se evalúa)."""
         S = self.S
         zl = list(self.zones) + [np.asarray(z) for z in extra]
         if not zl:
             return np.zeros(S.N, bool)
         zf = np.unique(np.concatenate(zl))
+        if len(skip):
+            zf = np.setdiff1d(zf, np.concatenate([np.asarray(z) for z in skip]))
+        if len(zf) == 0:
+            return np.zeros(S.N, bool)
         pts = np.vstack([S.X[S.ftri[zf]].reshape(-1, 3), S.fcent[zf]])
         d, _ = cKDTree(pts).query(S.X, k=1)
         return d <= r_ex
 
-    def summarize(self, fields, r_ex, body=0, extra_zones=()):
+    def summarize(self, fields, r_ex, body=0, extra_zones=(), skip_zones=()):
         S = self.S
         nb = np.zeros(S.N, int)
         if S.body is not None:
             nb[S.T.ravel()] = np.repeat(S.body, 4)
         sel = nb == body
         w = S.node_volume()
-        excl = self.zone_mask(r_ex, extra_zones)
+        excl = self.zone_mask(r_ex, extra_zones, skip_zones)
         out = {}
         for key in ("vm", "s1", "sZ"):
             v = fields[key]
@@ -385,13 +390,13 @@ class Model:
         out["excl_frac_vol"] = float(w[sel & excl].sum() / w[sel].sum())
         return out
 
-    def region_summary(self, fields, r_ex, regions, extra_zones=()):
+    def region_summary(self, fields, r_ex, regions, extra_zones=(), skip_zones=()):
         """Por región (nombre → máscara(X (N,3)) → bool): σ máx. global, máx. fuera de zonas de
         carga/apoyo (máx*; None si la región entera cae dentro de r_excl), p99 y promedio de la región
         (ponderados por volumen) y ubicación del máx*."""
         S = self.S
         w = S.node_volume()
-        excl = self.zone_mask(r_ex, extra_zones)
+        excl = self.zone_mask(r_ex, extra_zones, skip_zones)
         out = {}
         for name, fn in regions.items():
             sel = np.asarray(fn(S.X), bool)
@@ -411,6 +416,44 @@ class Model:
                             "at_max_excl_mm": S.X[iex].round(1).tolist()}
             out[name] = rec
         return out
+
+
+HOLE_WIN_COS = 0.5    # [SUPUESTO: ventana del borde del agujero a ±90° de la carga: |cos θ| ≤ 0,5 (θ = 60…120°)]
+
+
+def hole_edge(S, fields, hole, direction, win_cos=HOLE_WIN_COS):
+    """Verificación de «lug» (auditoría ronda 4, F3): tensión en el BORDE de un agujero cargado por perno a ±90° de la
+    carga (sección neta), donde la zona de exclusión del máx* no mira. hole = dict(c (3,), ax (3,), r, region(X) → bool).
+    Nodos de vértice sobre la superficie del agujero (|d_eje − r| ≤ 0,02·r + 0,05) con |cos θ| ≤ win_cos, θ medido
+    desde la dirección de la carga (proyectada ⟂ al eje). Devuelve |σθ| (circunferencial, la tensión de sección neta del
+    «lug»: es la que se verifica) máx. y dónde, y el σvm máx. de la ventana (informativo: en el arco de contacto incluye
+    el aplastamiento y el borde del contacto, que verifican las filas de aplastamiento)."""
+    d = np.asarray(direction, float)
+    ax = np.asarray(hole["ax"], float) / np.linalg.norm(hole["ax"])
+    d = d - (d @ ax) * ax
+    if np.linalg.norm(d) < 1e-9:
+        return None
+    d /= np.linalg.norm(d)
+    v = S.X - np.asarray(hole["c"], float)
+    v = v - np.outer(v @ ax, ax)
+    rr = np.linalg.norm(v, axis=1)
+    on = np.abs(rr - hole["r"]) <= 0.02 * hole["r"] + 0.05
+    if hole.get("region") is not None:
+        on &= np.asarray(hole["region"](S.X), bool)
+    er = v / np.maximum(rr, 1e-12)[:, None]
+    cth = er @ d
+    win = on & (np.abs(cth) <= win_cos)
+    if not win.any():
+        return None
+    et = np.cross(ax[None, :], er)
+    st = np.einsum("ni,nij,nj->n", et, fields["S"], et)
+    idx = np.flatnonzero(win)
+    iv, it = idx[np.argmax(fields["vm"][idx])], idx[np.argmax(np.abs(st[idx]))]
+    return {"s_theta_abs_max": float(abs(st[it])), "s_theta_signo": float(np.sign(st[it])), "at_s_theta_mm": S.X[it].round(1).tolist(),
+            "theta_s_theta_deg": float(np.degrees(np.arccos(np.clip(cth[it], -1, 1)))), "vm_en_s_theta": float(fields["vm"][it]),
+            "vm_max": float(fields["vm"][iv]), "at_vm_mm": S.X[iv].round(1).tolist(),
+            "theta_vm_deg": float(np.degrees(np.arccos(np.clip(cth[iv], -1, 1)))),
+            "n_nodos": int(win.sum()), "n_nodos_agujero": int(on.sum()), "dir_carga": d.round(4).tolist()}
 
 
 def mesh_quality(X, T):

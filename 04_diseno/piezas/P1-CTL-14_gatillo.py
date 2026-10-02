@@ -1,36 +1,81 @@
-"""P1-CTL-14 — Gatillo de la palanca del bucket (Al 6061-T6 6 mm), tira del Bowden de liberación del émbolo.
+"""P1-CTL-14 — Gatillo de liberación de las trabas (Al 6061-T6 6 mm) con BARRA IGUALADORA de los dos Bowden.
 
-Pivota en el mango superior de P1-CTL-10 (pasador Ø4 A4) con resorte de retorno; apretado contra el
-mango recorre ≥ el recorrido de liberación del émbolo + juego del Bowden. La vaina apoya en un tope del
-mango (no modelado). Se mueve con la palanca (estados del bucket).
-Con traba en los dos brazos del bucket (REV_n_locks = 2, auditoría ronda 3) el gatillo tira de DOS cables
-Bowden a la vez: los dos cables entran en un terminal doble (barril con 2 agujeros, Ø8) enganchado en el
-agujero WIRE; las dos vainas apoyan en el mismo tope y pasan el espejo por un prensaestopas M16 con inserto
-de 2 agujeros [ESTIMADO: buscar "Kabelverschraubung M16 Mehrfachdichteinsatz 2 × 6 mm"]. Tiro ≈ 2 × resorte."""
+Ronda 4 (R4-06): el gatillo gira en un pasador Ø5 A4 que atraviesa la placa lateral del mango (P1-CTL-10) y el mango;
+la hoja sube por delante del mango (los dedos la traen hacia el mango) y el brazo inferior lleva, en un pasador Ø4,
+la barra igualadora (316, 5 × 4 × 24): los dos cables (uno por émbolo P1-REV-04, vía los balancines 1:1 de P1-REV-09)
+se enganchan con su terminal en las ranuras de los extremos de la barra (a ±8 del pasador) y salen hacia popa a las
+dos vainas, que apoyan en la pestaña de tope de la placa lateral del mango. La barra gira libre: reparte la fuerza
+del gatillo por igual entre los dos cables aunque tengan distinto largo/juego (los reguladores M6 de P1-REV-09 quitan
+el juego al montar) y aunque un émbolo quede trabado (la barra gira hasta que el otro llega al final de su carrera:
+cada cable lleva como máximo la mitad del tiro del gatillo). Retorno: resorte de torsión del gatillo + resortes de los
+émbolos. Se mueve con la palanca (estados del bucket)."""
 import math
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 from cadlib import box, cyl_y, prism_xz  # noqa: E402
+from _dir_common import circ, hull  # noqa: E402
 import _ctl as U  # noqa: E402
 import _release as RL  # noqa: E402
 
 META = dict(
-    id="P1-CTL-14", name="gatillo", desc="Gatillo del Bowden de liberación (Al 6061 6 mm)",
+    id="P1-CTL-14", name="gatillo",
+    desc="Gatillo del desbloqueo (Al 6061 6 mm) con barra igualadora 316 de los dos Bowden",
     material="Al 6061-T6", process="torneada", qty=1, frame="bucket", group="ele",
-    load_case="Apriete de la mano 100 N [SUPUESTO]", print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
+    load_case="Apriete de la mano 100 N [SUPUESTO] en la hoja; tiro de los dos cables por la barra igualadora",
+    print_rot=(0, 0, 0), solid_frac=1.0, orientation="Corte láser 6 mm + barra 316 mecanizada",
 )
-Y0, Y1 = 33.5, 39.5          # al lado del mango superior (y 25–33)
-PIV = (12.0, 128.0)          # pivote (x, z) local
-WIRE = (12.0, 108.0)         # enganche del cable (a 20 mm del pivote)
-ANG = 32.0                   # recorrido angular del gatillo [SUPUESTO]
+Y0, Y1 = 37.5, 43.5          # gatillo, por fuera de la placa lateral del mango (P1-CTL-10, y 33–37)
+BAR_Y = (44.0, 48.0)         # barra igualadora (y); los cables van en y = 46
+PIV = (0.0, 106.0)           # pasador Ø5 en el mango (x, z local) [CALCULADO: borde ≥ 3,5 en el mango 16 × 35]
+PIV_D = 5.0
+R_W = 20.0                   # pasador de la barra a 20 mm del pivote
+ANG = 44.0                   # giro del gatillo (reposo → apretado) [CALCULADO: recorrido ≥ liberación + 3 + 2]
+R_F = 34.0                   # punto de apoyo de los dedos a 34 mm del pivote
+BETA0 = 52.0                 # hoja en reposo: 52° desde la vertical hacia proa (apretada: 8°)
+BAR_H = 8.0                  # cables a ±8 del pasador de la barra
+BAR_L = 24.0
+BAR_T = 5.0                  # espesor de la barra (x)
+
+
+def wire_pt(a):
+    """Pasador de la barra con el gatillo girado a (0 reposo … ANG apretado): el brazo cuelga a ±ANG/2 de la vertical
+    (la cuerda es horizontal: el cable sale recto a popa)."""
+    g = math.radians(-ANG / 2 + a)
+    return (PIV[0] + R_W * math.sin(g), PIV[1] - R_W * math.cos(g))
+
+
+def finger_pt(a):
+    b = math.radians(BETA0 - a)
+    return (PIV[0] + R_F * math.sin(b), PIV[1] + R_F * math.cos(b))
+
+
+def travel():
+    return 2 * R_W * math.sin(math.radians(ANG / 2))
+
+
+def outline():
+    """Contornos (x, z) del gatillo en reposo: hoja (pivote → apoyo de los dedos) y brazo de la barra."""
+    w = wire_pt(0.0)
+    f = finger_pt(0.0)
+    b = math.radians(BETA0)
+    blade = hull(circ(PIV[0], PIV[1], 7.0) + circ(f[0], f[1], 6.0) + [(f[0] + 8 * math.sin(b), f[1] + 8 * math.cos(b))])
+    arm = hull(circ(PIV[0], PIV[1], 7.0) + circ(w[0], w[1], 5.0))
+    return blade, arm
 
 
 def build_local(p):
-    poly = [(8.0, 132.0), (16.0, 132.0), (26.0, 104.0), (18.0, 100.0), (8.0, 112.0)]
-    s = prism_xz(poly, Y0, Y1)
-    s = s - cyl_y(2.1, Y0 - 1, Y1 + 1, x=PIV[0], z=PIV[1]) - cyl_y(1.6, Y0 - 1, Y1 + 1, x=WIRE[0], z=WIRE[1])
+    w = wire_pt(0.0)
+    blade, arm = outline()
+    s = prism_xz(blade, Y0, Y1) + prism_xz(arm, Y0, Y1)
+    s = s - cyl_y(PIV_D / 2 + 0.1, Y0 - 1, Y1 + 1, x=PIV[0], z=PIV[1])
+    # barra igualadora en su pasador Ø4 (giro libre; modelada en reposo, cables iguales)
+    s = s + cyl_y(2.0, Y0 + 0.5, BAR_Y[1], x=w[0], z=w[1])
+    s = s + box(w[0] - BAR_T / 2, w[0] + BAR_T / 2, BAR_Y[0], BAR_Y[1], w[1] - BAR_L / 2, w[1] + BAR_L / 2)
+    for dz in (-BAR_H, BAR_H):                                           # ranuras de los terminales de los cables
+        s = s - box(w[0] - BAR_T / 2 - 1, w[0] + BAR_T / 2 + 1, (BAR_Y[0] + BAR_Y[1]) / 2 - 0.9,
+                    (BAR_Y[0] + BAR_Y[1]) / 2 + 0.9, w[1] + dz - 0.9, w[1] + dz + 0.9)
     return s
 
 
@@ -45,9 +90,25 @@ def placements(p, steer=0.0, bucket=0):
     return [Pos(x, y, z) * Rot(0, th, 0) * Pos(-x, -y, -z)]
 
 
+def cable_pull_design(p):
+    """Tiro máximo por cable (N) con la mano de diseño: momento de la mano / brazo del cable en el extremo del
+    recorrido, repartido en 2 por la barra igualadora."""
+    arm = R_W * math.cos(math.radians(ANG / 2))
+    return p.CTL_hand_F * R_F / arm / max(len(RL.lock_sides(p)), 1)
+
+
 def checks(p, part):
-    r = math.hypot(WIRE[0] - PIV[0], WIRE[1] - PIV[1])
-    travel = 2 * r * math.sin(math.radians(ANG / 2))
+    need = RL.need(p)
+    tr = travel()
+    w0, w1 = wire_pt(0.0), wire_pt(ANG)
+    f_need = RL.SPRING_F_MAX / RL.BOWDEN_ETA
     return [("un solo sólido", len(part.solids()), 1, "="),
-            ("recorrido del cable con el gatillo apretado [mm]", travel, RL.need(p) + 3.0, ">="),
-            ("separación del mango superior (y) [mm]", Y0 - 33.0, 0.3, ">=")]
+            ("recorrido del cable con el gatillo apretado [mm]", tr, need + 3.0, ">="),
+            ("sobrecarrera más allá de liberación + 3 [mm]", tr - (need + 3.0), 2.0, ">="),
+            ("cable sale recto: desnivel del pasador de la barra entre reposo y apretado [mm]", abs(w1[1] - w0[1]), 0.1, "<="),
+            ("igualador: giro de la barra para compensar una carrera completa del émbolo [°]",
+             math.degrees(math.asin(min(p.REV_plunger_stroke / (2 * BAR_H), 1.0))), 60.0, "<="),
+            ("tiro por cable con la mano de diseño ≥ resorte final / rendimiento del Bowden [N]",
+             cable_pull_design(p), f_need, ">="),
+            ("recorrido de los dedos en la hoja [mm]", 2 * R_F * math.sin(math.radians(ANG / 2)), 30.0, "<="),
+            ("separación de la placa lateral del mango (y) [mm]", Y0 - 37.0, 0.3, ">=")]

@@ -74,8 +74,12 @@
 | P1-REV-04 | Perno del émbolo Ø16 (316): flexión + corte con M_h completo (R12) | F = M_h/r = 3006 N a 8.5 mm | 72.32 | metal | 205.0 | 2.83 | 2.0 | ✔ |
 | P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga; M_h completo) | F = 1491 N | 31.52 | metal | 180.0 | 5.71 | 2.0 | ✔ |
 | P1-REV-06 | Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada) | F = 100 N × 125/46 = 272 N a 6 mm | 32.44 | metal | 205.0 | 6.32 | 2.0 | ✔ |
-| P1-REV-09 | Soporte del Bowden 4 mm: placa de tope en voladizo | tiro 60 N [ESTIMADO] a 34 mm; sección 16 × 4 | 47.81 | metal | 125.0 | 2.61 | 2.0 | ✔ |
-| P1-CTL-14 | Gatillo 6 mm: flexión por el apriete (100 N a 20 mm del pivote) | sección 10 × 6 | 20.00 | metal | 240.0 | 12.0 | 2.0 | ✔ |
+| P1-REV-09 | Perno de manivela Ø6 316 estirado (voladizo hasta el eje del émbolo): flexión | tiro de diseño 92 N por cable [CALCULADO: mano 100 N [SUPUESTO] × 34/18,5 / 2 cables; ≥ resorte 45 N [ESTIMADO] / η 0,6 [ESTIMADO]] a 29,3 mm | 126.59 | metal | 310.0 | 2.45 | 2.0 | ✔ |
+| P1-REV-09 | Balancín 5 mm 5083: flexión del brazo junto al cubo del eje | 92 N a 8 mm; sección 9 × 5 | 10.87 | metal | 125.0 | 11.5 | 2.0 | ✔ |
+| P1-REV-09 | Tornillo M5 A4-70 de la base al pad de la boquilla: tracción (un cable tirando, eslabón a la altura del émbolo) | T = 92 N × 32,6 / 18 = 166 N / A_s 14,2 mm² | 11.69 | metal | 450.0 | 38.49 | 2.0 | ✔ |
+| P1-CTL-14 | Gatillo 6 mm: flexión de la hoja en el cubo (100 N a 34 mm del pivote) | M = 100 N × 27 mm; sección 12 × 6 | 18.75 | metal | 240.0 | 12.8 | 2.0 | ✔ |
+| P1-CTL-14 | Pasador Ø5 A4-70 del gatillo: flexión (mano + 2 cables; apoyo en la placa lateral del mango) | F = 283 N a 3,5 mm | 80.81 | metal | 450.0 | 5.57 | 2.0 | ✔ |
+| P1-CTL-14 | Barra igualadora 316 5 × 4: flexión (dos cables a ±8 del pasador) | M = 92 N × 8 mm; sección 5 × 4 | 44.00 | metal | 205.0 | 4.66 | 2.0 | ✔ |
 | P1-REV-05 | Soporte del Mach5: placa lateral en voladizo (palanca forzada) | 272 N a 48 mm; 6 × 124 | 0.85 | metal | 125.0 | 147.35 | 2.0 | ✔ |
 | P1-CTL-09 | Palanca del acelerador: flexión en el cubo (100 N en el pomo) | M = 100 N × 120 mm; barra 16 × 8 | 35.16 | metal | 240.0 | 6.83 | 2.0 | ✔ |
 | P1-CTL-10 | Palanca del bucket: flexión en el escalón (100 N en el pomo) | M = 100 N × 125 mm; 16 × 8 | 36.62 | metal | 240.0 | 6.55 | 2.0 | ✔ |

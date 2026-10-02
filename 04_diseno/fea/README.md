@@ -16,14 +16,15 @@ en cada corrida; todas las cifras de resultados están en el bloque AUTO del fin
 | `fea_model.py` | Interfaces de resortes (Winkler, cuerpo rígido, unilaterales), iteración de contacto, post-proceso (global y por región) |
 | `fea_core.py` | Malla gmsh (con optimización Netgen), espacio P2, ensamble vectorizado, cargas de superficie y solver PCG de dos niveles |
 | `fea_plot.py` | Mapas de tensión sobre la superficie (matplotlib) |
-| `../../tests/test_fea.py` | Viga en voladizo contra la solución analítica, verificación cruzada con scikit-fem, cuerpo rígido + Winkler, malla gruesa de CTL-02, estática del bucket contra structural_direccion y FS > 0 en el JSON |
+| `../../tests/test_fea.py` | Viga en voladizo contra la solución analítica, verificación cruzada con scikit-fem, cuerpo rígido + Winkler, malla gruesa de CTL-02, estática del bucket contra structural_direccion, carga aplicada = estática en REV-01/STE-01 (setup con malla muy gruesa), traba única con M_h completo (casos d/e/f/g), bordes de agujeros cargados y cumplimiento en el JSON |
 
 ```bash
 python 04_diseno/fea/fea_run.py              # todo (gruesa + fina + variantes), 3 procesos: ~12 min
 python 04_diseno/fea/fea_run.py --quick      # solo malla gruesa, sin imágenes ni README (~2,5 min) → resultados_fea_quick.json
 python 04_diseno/fea/fea_run.py --only P1-STE-01 --h P1-STE-01=10,6 --out /tmp/ste.json   # una pieza / otros tamaños
+python 04_diseno/fea/fea_run.py --only P1-REV-01 P1-STE-01 --merge   # rehace esas piezas dentro de resultados_fea.json + README
 python 04_diseno/fea/fea_run.py --readme-only   # rehace hallazgos y bloque AUTO desde resultados_fea.json
-python -m pytest -q tests/test_fea.py        # ~20 s
+python -m pytest -q tests/test_fea.py        # ~1 min [ESTIMADO] (incluye dos setups de malla muy gruesa)
 ```
 
 Dependencias: `gmsh`, `scipy`, `numpy`, `matplotlib`, `build123d`; `scikit-fem` solo en el test.
@@ -39,7 +40,9 @@ pisar el entregable.
    del módulo (`lock_pt`, `hull_bolts`, `bolt_x`, …). No hay posiciones copiadas a mano.
 2. **Malla.** Tetraedros de gmsh (Delaunay 3D + optimización Netgen, que reduce las astillas de las
    paredes finas del CAD), tamaño global `h`, refinamiento por curvatura y esferas de refinamiento a h/2
-   en los apoyos críticos (pivotes y traba del bucket; orejas de STE-01; espárragos de INT-02). Malla
+   en los apoyos críticos (pivotes y trabas del bucket y el punto caliente de la ronda 3 en la cara exterior
+   de cada brazo, a ~47 mm [CALCULADO: FEA ronda 3] bajo el pivote; pivotes, roscas M24 y orejas de pivote de
+   STE-01; espárragos de INT-02). Las esferas quedan en `mallas.<nivel>.refine` del JSON. Malla
    gruesa ≈ 1,7–2·h de la fina. Quedan algunas decenas de elementos con γ < 0,05 en aristas del CAD
    (columna n(γ<0,05) del bloque AUTO); el p99 no depende de ellos.
 3. **Elementos y solver.** Tetraedros P2 de 10 nodos (ensamble propio verificado contra
@@ -55,17 +58,42 @@ pisar el entregable.
    menor de los tres. Además se resume cada **región** de la pieza (máx\*, p99 y **promedio en
    volumen**): las filas del cálculo a mano de aplastamiento/corte se comparan con el promedio en el
    volumen que la fila representa (anillo alrededor del agujero, cilindro del tapón, capa bajo el cono).
+   - **Borde de agujeros cargados por perno («lug», auditoría ronda 4, F3).** La exclusión r_excl alrededor
+     de un agujero cargado tapa el pico de sección neta del borde a ±90° de la carga (y parte del ligamento
+     de la rosca M24 de STE-01). Se eligió reportarlo como **verificación aparte**: en cada caso, para cada
+     agujero cargado (trabas y pivotes de REV-01; pivotes Ø16 H7 y roscas M24 de STE-01) se toman los nodos
+     de la superficie del agujero con |cos θ| ≤ 0,5 [SUPUESTO: ventana θ = 60…120° desde la dirección de la
+     carga, proyectada ⟂ al eje] y se reporta el máximo de la tensión **circunferencial |σθ|** (la de sección
+     neta del «lug») y el σvm máx. de la ventana. La dirección de la carga es la reacción de la interfaz
+     (REV-01) o la fuerza aplicada (STE-01). **FS = admisible del caso / |σθ| del borde**, con el mismo objetivo
+     (≥ 2); el FS del caso es el menor entre el del cuerpo (máx\*) y el de los bordes (criterio «borde»). El
+     σvm de la ventana es informativo: en el arco de contacto (p. ej. la mitad de apoyo de las trabas de REV-01,
+     que termina en θ = 90°, con el perno rígido que no acompaña el giro del brazo) incluye el aplastamiento y el
+     borde del contacto, que verifican las filas de aplastamiento. Se compara gruesa → fina; el agujero de una
+     traba deshabilitada no se evalúa como cargado y sale de las zonas excluidas (su entorno sí se evalúa).
+   - **Convergencia (F4).** Si el máx\* o el borde cambia > 10 % de la malla gruesa a la fina se informa una
+     extrapolación tipo Richardson σ_ext = σ_f + (σ_f − σ_g)/(r^p − 1), con r = h_g/h_f locales (esfera de
+     refinamiento que contiene el punto) y p = 2 [SUPUESTO: tensión con P2 en campo suave]. Es informativa: el FS
+     de diseño sigue la regla de arriba, y la extrapolación figura en el bloque AUTO y en «Hallazgos».
+   - **Casos de diseño e informativos.** El FS mínimo de la pieza se toma solo de los casos de diseño
+     (`casos_diseno` en el JSON); los informativos (p. ej. REV-01 a/b, con las dos trabas) se reportan igual.
+     Los casos de **fatiga** (reversa de sizing) se comparan con el admisible de fatiga del material
+     (`S_fat`) con el mismo objetivo.
 6. **Comparación con el cálculo a mano.** Cada fila de `resultados/estructural.json` se compara con la
-   región que modela, con la σ del FEA escalada a la carga de la fila (p. ej. la fila de fatiga de la
-   reversa usa F_bucket de sizing: σ_FEA × 698/1408) y el admisible de la propia fila. Diferencias de FS
-   > 30 % se explican en «Hallazgos».
+   región que modela y el admisible de la propia fila. Las filas de fatiga de la reversa se comparan con los
+   casos de sizing **corridos** (no se escala un caso con contacto; auditoría ronda 4, F2). Solo se escala un
+   caso cuando el problema es homogéneo de grado 1 (contacto sin juego inicial: si u resuelve f, k·u resuelve
+   k·f), p. ej. la chapa de la cuchara a p_dinámica o el tubo de STE-01 a F_s de sizing; los casos con
+   desfase entre trabas nunca se escalan. Diferencias de FS > 30 % se explican en «Hallazgos».
 
 ## Materiales y admisibles
 
 - **Aluminios.** E = 70 GPa, ν = 0,33 [ESTIMADO: EN 1999-1-1]. Admisibles tomados de las constantes de
   los `structural_<grupo>.py` (fuente única): DRV-03 `SY_6082_HAZ` = 115 MPa (zona soldada, en toda la
   pieza); REV-01 `AL5083` = 125 MPa; STE-01 `AL6061` = 240 MPa; INT-02 `pmp_mat['Al 5083'].Sy` = 125 MPa.
-  FS objetivo `fs_target_metal` = 2.
+  Casos de fatiga (reversa de sizing): REV-01 `AL5083_WLCF` = 68 MPa [CALCULADO: detalle soldado FAT 25,
+  m = 3, 1e5 ciclos] en toda la pieza (conservador lejos de las soldaduras); STE-01 `AL6061_FAT` = 90 MPa
+  [ESTIMADO]. FS objetivo `fs_target_metal` = 2 en todos.
 - **PETG (CTL-02).** E = `materials.PETG.E_mpa`, ν = 0,38 [ESTIMADO]. `S_corta = σ_XY·f_agua·f_temp·f_proceso`;
   `S_Z = mín(σ_Z, f_z·σ_XY)·f_agua·f_temp·f_proceso` (no se multiplica dos veces la debilidad entre
   capas). La caja se imprime con `print_rot = (180, 0, 0)`: Z de impresión = z del bote, así que la
@@ -80,10 +108,12 @@ pisar el entregable.
 - **Geometría.** Alma central de ±0,35·Ø del alojamiento con empalmes cóncavos r 3 alma–tablero y
   alma–alojamiento (auditoría ronda 3, F-03: con el alma de ±Ø/4 el alojamiento entraba al tablero en una
   cuña de ~30° y el pico no convergía).
-- **Apoyos.** Zapatas sobre la placa base: resortes bilaterales k = E/t_placa (unión precargada a
-  T/(K·d) por espárrago ≫ el tiro de servicio; no se abre). El corte lo toman los 4 agujeros Ø9 de los
-  espárragos (contacto radial unilateral; representan también los pasadores Ø6 que se escarian en
-  montaje).
+- **Apoyos.** Zapatas sobre la placa base: resortes **bilaterales** en toda la cara inferior de las
+  zapatas, normales k = E/t_placa y **tangenciales k/2** (unión precargada a T/(K·d) por espárrago ≫ el tiro
+  de servicio, que no se abre; el corte lo transmiten la fricción de la unión y los 2 pasadores Ø6 por
+  zapata que se escarian en montaje y no están en el CAD). Los agujeros Ø9 de los espárragos **no** son
+  apoyo en el modelo (las ranuras abiertas a popa no toman corte en x): solo son zona excluida (arandelas
+  y espárragos). Así está en `fea_parts.setup_drv03` (auditoría ronda 4, F6).
 - **(a)** Empuje `sizing.mech.Fa_max_N` hacia proa (eje del jet inclinado α): la tapa P1-DRV-06 tira de
   las 4 roscas M5 de la cara delantera (tracción uniforme en sus paredes). Radial 3 g × m_rotor + Fr
   (de structural_tren) como apoyo cosenoidal en el Ø47, perpendicular al eje.
@@ -92,24 +122,32 @@ pisar el entregable.
 
 ### P1-REV-01 — bucket abajo (marco BOQUILLA)
 
-- **Carga.** F_b = máx(`sizing.loads.F_bucket_N`, 1408 N de R12 §7) = `REV_F_design`, como tracción
-  uniforme **por área proyectada** del chorro (Ø del chorro + cono 5° a la altura del fondo de la
-  cuchara) sobre la cara interior de la cuchara, en la dirección del chorro (+X), más la componente
-  vertical que da M_h = 1,10·F_b·Z_pivote, igual que structural_direccion (la estática es una sola
-  función: `structural_direccion.bucket_reactions`).
-- **Apoyos.** Pivotes (bujes POM P1-REV-03 de Ø `REV_bush_od`, k = E_POM/espesor del buje, unilaterales,
-  sin fricción, resorte axial débil), con la reacción de cada lado por separado. **Trabas: una por brazo**
-  (auditoría ronda 3). Cada émbolo Ø12 es un cuerpo rígido que **solo reacciona en la dirección
-  tangencial** al círculo alrededor del pivote (el momento), como el cálculo a mano, y apoya solo en la
-  **mitad de su agujero** que avanza hacia el perno bajo la carga (la otra mitad tiene la holgura del
-  Ø12,5). Rigidez del émbolo 10⁶ N/mm (~100 × la del brazo) y resorte débil en las otras traslaciones.
-- **Casos.** (a) R12, las dos trabas apoyan a la vez. (b)/(c) R12 con la traba −Y o +Y apoyando
-  `REV_lock_mismatch` mm después (el émbolo tardío se corre ese desfase en el sentido de avance del brazo):
-  da el **reparto máximo** entre trabas, que el cálculo a mano del pivote usa como `REV_lock_share_max` y
-  `tests/test_fea.py` controla. (d)/(e) FALLA: el émbolo −Y o +Y no entró (su contacto se quita del modelo),
-  con la reversa de sizing (límite del controlador): criterio FS ≥ 2.
-- **Variantes** (V1, V2): FALLA DOBLE, un émbolo no entró y además reversa R12 sin límite del controlador:
-  criterio de la fila a mano, sin fluencia (FS ≥ 1).
+- **Geometría.** `build_down(p)`: chapa Al 5083 de `REV_t` = 8 mm, aro de refuerzo `REV_ring_t` = 10 mm en el
+  pivote (buje de brazo + aro), dos agujeros de traba Ø `REV_lock_hole_d` = 16,5 mm por brazo; en reversa
+  trabaja el de ABAJO de cada brazo (+Y a `REV_lock_ang`, −Y a `REV_lock_ang_m`, los dos a `REV_lock_r` del
+  pivote) [CALCULADO: params_direccion].
+- **Carga (auditoría ronda 4).** Balance de cantidad de movimiento del chorro, `structural_direccion.jet_momentum`
+  (la misma función que usa la fila a mano): entra J = F_b/(1 − t_x) por el eje en +x y sale por el labio
+  inferior con el mismo módulo en la dirección t_out (tangente de la elipse interior en `REV_cup_t1`). En el
+  FEA: **entrada** = tracción uniforme en +x por área proyectada del chorro (Ø del chorro + cono a la altura
+  del fondo de la cuchara) sobre la cara interior de la cuchara, con resultante J; **salida** = tracción
+  uniforme −J·t_out en una franja de 10 mm [SUPUESTO] medida sobre la cuchara junto al labio inferior, de ancho
+  |y| ≤ R_chorro. El setup **verifica** que la resultante y el momento alrededor del pivote coinciden con
+  `bucket_reactions` (± 2 %; si no, se detiene) y los guarda en `extra.resultante` y en
+  `verificacion_mano.resultante_R12`.
+- **Apoyos.** Pivotes: muñón del espaciador P1-REV-02 en el buje POM P1-REV-03 (Ø `REV_bush_od`,
+  k = E_POM/espesor del buje, unilaterales, sin fricción, resorte axial débil), con la reacción de cada lado.
+  **Trabas: una por brazo.** Cada émbolo (perno Ø `REV_lock_pin_d`) es un cuerpo rígido que **solo
+  reacciona en la dirección tangencial** al círculo alrededor del pivote (el momento), como el cálculo a mano,
+  y apoya solo en la **mitad de su agujero** que avanza hacia el perno (la otra mitad tiene la holgura).
+  Rigidez del émbolo 10⁶ N/mm [SUPUESTO] y resorte débil en las otras traslaciones.
+- **Casos (criterio de traba única, ronda 4).** (a) R12 con las dos trabas apoyando a la vez, sin desfase
+  (**informativo**). (b) R12 con la traba −Y apoyando 0,10 mm [SUPUESTO] después de la +Y (**informativo**, sin
+  requisito: el desfase no está controlado y ya no es criterio). (d)/(e) **DISEÑO**: R12 con **solo** la traba
+  +Y / **solo** la −Y (la interfaz de la otra no existe en el caso y su agujero sale de las zonas excluidas):
+  FS ≥ 2 contra fluencia. (f)/(g) **DISEÑO, fatiga**: lo mismo con la reversa de sizing, corrida (no
+  escalada), contra `AL5083_WLCF`. Ya no hay casos de «falla» ni variantes de falla doble: son estos casos.
+- **Borde de los agujeros** (trabas y pivotes): verificación de sección neta a ±90° de la reacción (Método, 5).
 
 ### P1-STE-01 — boquilla direccional (marco BOQUILLA, δ = 0)
 
@@ -122,12 +160,28 @@ pisar el entregable.
 - **(a)** F_s = máx(`sizing.loads.F_steer_side_N`, 364 N de R12) lateral, como presión cosenoidal en el
   paso Ø2·r_b, en una banda centrada en el centro de presión e = `STE_e_frac`·L (el modelo de la fila a
   mano). **(b)** La misma F_s en los últimos 20 mm de la boca de salida (brazo ≈ L, conservador).
-  **(c)/(c2)** Reversa R12 con el **reparto máximo admitido entre trabas** (`REV_lock_share_max`, del FEA
-  del bucket con el desfase admitido) del lado de la traba +Y / −Y: reacción de cada pivote como apoyo
-  cosenoidal en el agujero Ø(M12 + 0,4) del tornillo del pivote **más el momento del espaciador en voladizo**
-  (P1-REV-02) como par lineal sobre su anillo de apoyo en la cara exterior de la oreja; fuerza de cada traba
-  en la rosca M20 de su oreja. **(d)/(d2)** c/c2 + a con contacto resuelto. **Variante V1:** M_h completo en
-  una traba (falla doble: un émbolo no entró y reversa sin límite del controlador), criterio sin fluencia.
+- **Reversa (auditoría ronda 4, F1).** Fuerzas del bucket sobre cada oreja de `bucket_statics`
+  (= `structural_direccion.bucket_reactions`, cantidad de movimiento del chorro) con **M_h completo en una
+  traba**: esa oreja recibe su pivote (chorro/2 + traba) y su traba; la otra, solo chorro/2 en su pivote. Carga
+  **autoequilibrada** por oreja:
+  - pivote: la **fuerza** la toma el piloto Ø16 h6 del espaciador P1-REV-02 en el agujero Ø16 H7 de la oreja
+    (apoyo cosenoidal con la resultante exacta en el plano; la selección se limita a la oreja,
+    |y| ≥ `STE_ear_y0` − 0,5: el CAD ya no tiene el agujero pasante de lado a lado que mordía la torre del
+    yugo, y el JSON guarda `facetas_agujero_pivote_fuera_de_las_orejas`, que debe ser 0). El **momento** del
+    muñón en voladizo (fuerza en la mitad del buje, brazo `brazo_par_espaciador_mm` hasta el plano medio de la
+    oreja) lo toma la **brida Ø36** sobre la cara exterior como tracción normal lineal con **resultante nula**;
+  - traba: la **fuerza** del perno sobre la **rosca M24×1,5 de la misma oreja** (apoyo cosenoidal) y su
+    **momento** (perno en voladizo hasta la mitad del brazo, `brazo_par_perno_traba_mm`) como par lineal de
+    resultante nula **bajo la contratuerca** M24×1,5 en la cara interior (apoyo hasta Ø36 [ESTIMADO: 36 e/c]).
+  El setup **verifica** que la resultante aplicada y su momento alrededor del eje del pivote coinciden con la
+  estática (± 1 %; `verificacion_mano.resultante_bucket`). La precarga del M12 y de la contratuerca
+  (autoequilibradas) no se modelan.
+- **Casos.** (c)/(c2) **DISEÑO**: reversa R12 con M_h completo en la traba +Y / −Y (FS ≥ 2 contra
+  fluencia). (d)/(d2) c/c2 + (a) (maniobra en reversa). (f)/(f2) **DISEÑO, fatiga**: reversa de sizing con
+  M_h completo en la traba +Y / −Y, corrida, contra `AL6061_FAT`. Se quitaron los casos con el reparto máximo
+  entre trabas y la variante «completo» (hoy son los casos de diseño).
+- **Borde de los agujeros** (pivotes Ø16 H7 y roscas M24): verificación de sección neta a ±90° de la carga
+  aplicada (Método, 5).
 
 ### P1-INT-02 — placa base de la toma (marco BOTE)
 
@@ -170,6 +224,13 @@ pisar el entregable.
 - **Cargas cuasi-estáticas** (sizing / R12) sin dinámica; los impactos solo entran por los factores de
   los casos a mano.
 - **PETG** macizo equivalente (ver arriba).
+- **Trabas del bucket (REV-01).** El perno es rígido y no gira: cuando el brazo trabado se tuerce (traba
+  sola) el contacto se concentra en el borde del agujero; ese pico es aplastamiento local (filas de
+  aplastamiento), no sección neta. La holgura del agujero (Ø16,5 / Ø16) no se modela (contacto sin juego
+  en la mitad de apoyo).
+- **Momento del perno de la traba en STE-01.** Se lleva a la cara interior de la oreja bajo la contratuerca
+  [SUPUESTO: contratuerca apretada]; si quedara floja, el cuerpo del émbolo se apoyaría en los extremos de la
+  rosca (pares de apoyo opuestos), que el modelo no representa.
 
 <!-- FEA:AUTO:INICIO (generado por fea_run.py; no editar a mano) -->
 

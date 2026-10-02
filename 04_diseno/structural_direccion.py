@@ -376,10 +376,43 @@ def cases(p, A, row, rows, T3, T2):
     F_cab = p.CTL_hand_F * 125.0 / 46.0      # palanca forzada contra el tope: 100 N × 125 mm / manivela 46
     row(rows, "P1-REV-06", "Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada)",
         f"F = 100 N × 125/46 = {F_cab:.0f} N a 6 mm", F_cab * 6.0 / z_round(p.REV_stud_d), SS316, A, T2)
-    row(rows, "P1-REV-09", "Soporte del Bowden 4 mm: placa de tope en voladizo",
-        "tiro 60 N [ESTIMADO] a 34 mm; sección 16 × 4", 60.0 * 34.0 / (16 * 4 ** 2 / 6), AL5083, A, T2)
-    row(rows, "P1-CTL-14", "Gatillo 6 mm: flexión por el apriete (100 N a 20 mm del pivote)",
-        "sección 10 × 6", 100.0 * 20.0 / (6 * 10 ** 2 / 6), AL6061, A, T2)
+    # desbloqueo (ronda 4, R4-06/R4-07): tiro de diseño por cable = mano de diseño en el gatillo repartida por la barra
+    # igualadora (cada cable lleva a lo sumo la mitad, aunque un émbolo quede trabado) ≥ resorte final / rendimiento
+    import importlib.util as _ilu
+    import sys as _sys
+    from pathlib import Path as _P
+    _pz = str(_P(__file__).resolve().parent / "piezas")
+    if _pz not in _sys.path:
+        _sys.path.insert(0, _pz)
+    import _release as RL
+    _sp = _ilu.spec_from_file_location("ctl14", _P(_pz) / "P1-CTL-14_gatillo.py")
+    G = _ilu.module_from_spec(_sp)
+    _sp.loader.exec_module(G)
+    F_rel = max(G.cable_pull_design(p), RL.SPRING_F_MAX / RL.BOWDEN_ETA)
+    _c = lambda v, f=".1f": format(v, f).replace(".", ",")              # noqa: E731
+    rel_txt = (f"tiro de diseño {F_rel:.0f} N por cable [CALCULADO: mano {p.CTL_hand_F:g} N [SUPUESTO] × {_c(G.R_F, 'g')}/"
+               f"{_c(G.R_W * math.cos(math.radians(G.ANG / 2)))} / 2 cables; ≥ resorte {_c(RL.SPRING_F_MAX, 'g')} N [ESTIMADO] / "
+               f"η {_c(RL.BOWDEN_ETA, 'g')} [ESTIMADO]]")
+    L_cr = RL.lever_x0(p) - min(RL.lock_xz(p, s_)[0] for s_ in RL.lock_sides(p))     # voladizo del perno más largo
+    row(rows, "P1-REV-09", f"Perno de manivela Ø{RL.CRANK_D:g} 316 estirado (voladizo hasta el eje del émbolo): flexión",
+        f"{rel_txt} a {_c(L_cr)} mm", F_rel * L_cr / z_round(RL.CRANK_D), SS316_CD, A, T2)
+    b_arm = 2 * RL.CRANK_BOSS_R
+    row(rows, "P1-REV-09", f"Balancín {RL.LEV_T:g} mm 5083: flexión del brazo junto al cubo del eje",
+        f"{F_rel:.0f} N a {RL.LEV_L - RL.PIV_BOSS_R:g} mm; sección {b_arm:g} × {RL.LEV_T:g}",
+        F_rel * (RL.LEV_L - RL.PIV_BOSS_R) / (RL.LEV_T * b_arm ** 2 / 6), AL5083, A, T2)
+    h_m5 = max(RL.lock_xz(p, s_)[1] for s_ in RL.lock_sides(p)) - RL.pad_z(p)
+    T_m5 = F_rel * h_m5 / (RL.PAD_W + abs(RL.pad_screws(p)[0][1]))
+    row(rows, "P1-REV-09", "Tornillo M5 A4-70 de la base al pad de la boquilla: tracción (un cable tirando, eslabón a la altura del émbolo)",
+        f"T = {F_rel:.0f} N × {_c(h_m5)} / {RL.PAD_W + abs(RL.pad_screws(p)[0][1]):g} = {T_m5:.0f} N / A_s 14,2 mm²",
+        T_m5 / 14.2, A4_70, A, T2)
+    row(rows, "P1-CTL-14", f"Gatillo 6 mm: flexión de la hoja en el cubo ({p.CTL_hand_F:g} N a {G.R_F:g} mm del pivote)",
+        f"M = {p.CTL_hand_F:g} N × {G.R_F - 7.0:g} mm; sección 12 × 6", p.CTL_hand_F * (G.R_F - 7.0) / (6 * 12 ** 2 / 6), AL6061, A, T2)
+    F_piv = p.CTL_hand_F + 2 * F_rel
+    arm_p = (G.Y0 + G.Y1) / 2 - 37.0
+    row(rows, "P1-CTL-14", f"Pasador Ø{G.PIV_D:g} A4-70 del gatillo: flexión (mano + 2 cables; apoyo en la placa lateral del mango)",
+        f"F = {F_piv:.0f} N a {_c(arm_p)} mm", F_piv * arm_p / z_round(G.PIV_D), A4_70, A, T2)
+    row(rows, "P1-CTL-14", f"Barra igualadora 316 {G.BAR_T:g} × 4: flexión (dos cables a ±{G.BAR_H:g} del pasador)",
+        f"M = {F_rel:.0f} N × {G.BAR_H:g} mm; sección {G.BAR_T:g} × 4", F_rel * G.BAR_H / (4 * G.BAR_T ** 2 / 6), SS316, A, T2)
     row(rows, "P1-REV-05", "Soporte del Mach5: placa lateral en voladizo (palanca forzada)",
         f"{F_cab:.0f} N a 48 mm; 6 × 124", F_cab * 48.0 / (6 * 124 ** 2 / 6), AL5083, A, T2)
 

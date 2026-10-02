@@ -17,7 +17,8 @@ SITE_URL = "https://gasparamiune.github.io/p1-propulsion/"
 @pytest.fixture(scope="module")
 def site(tmp_path_factory):
     out = tmp_path_factory.mktemp("site") / "docs"
-    r = subprocess.run([sys.executable, str(ROOT / "build_site.py"), "--out", str(out)], cwd=ROOT,
+    # --allow-stale: la frescura de las fuentes la controla test_sources_fresh; acá se prueba el sitio en sí
+    r = subprocess.run([sys.executable, str(ROOT / "build_site.py"), "--allow-stale", "--out", str(out)], cwd=ROOT,
                        capture_output=True, text=True)
     assert r.returncode == 0, r.stdout + r.stderr
     return out
@@ -62,8 +63,9 @@ def parse(p):
 
 
 def local(url):
+    """Enlace dentro del sitio (incluye «#fragmento» de la misma página y las URL absolutas del propio sitio)."""
     s = urlsplit(url)
-    return not (s.scheme or url.startswith(("#", "//")))
+    return (not (s.scheme or url.startswith("//")) and url != "#") or url.startswith(SITE_URL)
 
 
 def test_pages_exist(site):
@@ -78,6 +80,10 @@ def test_pages_exist(site):
         assert (site / build_site.doc_out(d)).is_file(), d
     svgs = sorted((ROOT / "04_diseno" / "planos").glob("*.svg"))
     assert svgs and all((site / "planos" / s.name).is_file() for s in svgs)
+    # cada plano tiene su página (cabecera, «← Planos», ampliar, descargar) y la galería enlaza a ella, no al SVG crudo
+    assert all((site / "planos" / (s.stem + ".html")).is_file() for s in svgs)
+    gal = (site / "planos.html").read_text(encoding="utf-8")
+    assert not re.search(r'<a href="planos/[^"]+\.svg"', gal)
     assert not list(site.rglob("*.step")) and not list(site.rglob("*.stl")) and not list(site.rglob("*.md"))
 
 
@@ -98,12 +104,15 @@ def test_local_links_resolve(site):
                 continue
             if not local(url):
                 continue
-            sp = urlsplit(url)
+            absolute = url.startswith(SITE_URL)      # 404.html, canonical, og:url: https://…/p1-propulsion/<ruta>
+            sp = urlsplit(url[len(SITE_URL):] if absolute else url)
             path, frag = unquote(sp.path), unquote(sp.fragment)
+            if absolute and path in ("", "/"):
+                path = "index.html"
             if path.endswith(".md"):
                 bad.append(f"{rp}: enlace a .md {url}")
             if path:
-                target = (p.parent / path).resolve()
+                target = ((site.resolve() if absolute else p.parent) / path).resolve()
                 if path.endswith("/"):
                     target = target / "index.html"
                 if not target.is_file() or site.resolve() not in target.parents:
@@ -135,6 +144,12 @@ def test_github_links_point_to_tracked_paths(site):
                        capture_output=True, text=True)
     ignored = [x for x in r.stdout.splitlines() if x.strip()]
     assert not ignored, f"enlaces a archivos ignorados por git: {ignored[:20]}"
+    # y que estén en git (un archivo nuevo sin «git add» da 404 en GitHub): archivo versionado o carpeta que tiene alguno
+    r = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, text=True)
+    tracked = set(r.stdout.split("\0")) - {""}
+    dirs = {"/".join(f.split("/")[:i]) for f in tracked for i in range(1, f.count("/") + 1)}
+    untracked = sorted(x for x in paths if x not in tracked and x not in dirs)
+    assert not untracked, f"enlaces a GitHub de archivos que git no versiona (falta git add): {untracked[:20]}"
 
 
 def test_open_graph_and_head(site):
@@ -145,8 +160,10 @@ def test_open_graph_and_head(site):
         assert h.title and h.title.strip(), rp
         for k in ("description", "og:title", "og:description", "og:type", "og:url", "og:image", "twitter:card", "viewport"):
             assert h.meta.get(k), f"{rp}: falta {k}"
-        assert h.meta["og:image"] == SITE_URL + "og.png", rp
-        assert h.meta["og:url"].startswith(SITE_URL), rp
+        assert re.fullmatch(re.escape(SITE_URL) + r"og\.png\?v=[0-9a-f]{8}", h.meta["og:image"]), rp
+        assert h.meta.get("twitter:image") == h.meta["og:image"] and h.meta.get("og:image:alt"), rp
+        assert h.meta["og:url"] == SITE_URL + ("" if rp.as_posix() == "index.html" else rp.as_posix()), rp
+        assert len(h.title) <= 110, f"{rp}: <title> demasiado largo ({len(h.title)})"
         assert h.meta["twitter:card"] == "summary_large_image", rp
         assert any(t == "link" and u.startswith("data:image/svg+xml") for t, a, u in h.links), f"{rp}: favicon"
 
@@ -177,7 +194,7 @@ def test_markers_hidden_and_tables_wrapped(site):
 
 def test_deterministic(site, tmp_path):
     out2 = tmp_path / "docs2"
-    r = subprocess.run([sys.executable, str(ROOT / "build_site.py"), "--out", str(out2)], cwd=ROOT,
+    r = subprocess.run([sys.executable, str(ROOT / "build_site.py"), "--allow-stale", "--out", str(out2)], cwd=ROOT,
                        capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
     a = sorted(p.relative_to(site).as_posix() for p in site.rglob("*") if p.is_file())
@@ -243,3 +260,84 @@ def test_committed_docs_up_to_date(site):
     assert a == b, sorted(set(a) ^ set(b))[:20]
     diff = [f for f in a if (site / f).read_bytes() != (docs / f).read_bytes()]
     assert not diff, f"docs/ desactualizado (correr python build_site.py): {diff[:10]}"
+
+
+def _check_status_claims(root):
+    import build_site
+    srcs = build_site.sources()
+    V = build_site.Values(srcs)
+    txt = (root / "index.html").read_text(encoding="utf-8")
+    n_open = build_site.open_points(V, srcs)
+    all_ok = build_site.all_checks_ok(srcs)
+    green = re.findall(r'<(?:span|a)[^>]*class="pill ok"[^>]*>([^<]*)<', txt)
+    if not all_ok or n_open:
+        assert not any("verificado" in g.lower() or "completo" in g.lower() for g in green), green
+        assert "Verificado en software. Nada probado" not in txt
+        assert "Diseño en revisión" in txt and build_site.open_points_phrase(n_open) in txt
+        # la pastilla cuenta lo mismo que la lista «Puntos abiertos declarados» (los ítems en rojo)
+        ol = txt.split('<ol class="open">', 1)[1].split("</ol>", 1)[0]
+        assert ol.count('<li class="bad">') == n_open
+        _, other, _ = build_site.verify_summary(srcs)
+        for kind, t in other:      # las fallas que no son choques (cotas críticas) también se nombran
+            assert t.split(" ")[0] in txt, t
+    if not all_ok:
+        # los documentos publicados no dicen «sin interferencias» / «todo está verificado» con fallas abiertas
+        ok_verify = bool((srcs["verify"] or {}).get("ok"))
+        for p in (root / "doc").rglob("*.html"):
+            art = p.read_text(encoding="utf-8")
+            assert "todo está verificado" not in art and "CAD paramétrico verificado" not in art, p
+            if not ok_verify:
+                assert "sin interferencias" not in art, p
+    desc = parse(root / "index.html").meta["og:description"]
+    assert len(desc) <= 200 and "sin construir" in desc[:60], desc
+    tgt, ok_t = build_site.inp("operation.top_speed_target_kmh"), V.raw("sizing.checks.ok_vmax_target")
+    if tgt is not None and not ok_t:
+        assert "no cumple" in desc, desc
+
+
+def test_status_claims_follow_data(site):
+    """La portada no dice «verificado / completo» (pastilla verde, título) si hay puntos abiertos, verify.json o el
+    FEA tienen fallas; los documentos tampoco dicen «sin interferencias» con choques abiertos."""
+    _check_status_claims(site)
+
+
+def test_committed_docs_publishable():
+    """docs/ (lo que sirve GitHub Pages) no es una vista previa con aviso rojo (--allow-stale) y no exagera el estado."""
+    docs = ROOT / "docs"
+    if not (docs / "index.html").exists():
+        pytest.skip("docs/ no generado")
+    stale = sorted(p.relative_to(docs).as_posix() for p in docs.rglob("*.html")
+                   if 'class="stale"' in p.read_text(encoding="utf-8"))
+    assert not stale, f"docs/ compilado con --allow-stale (fuentes desactualizadas): {stale[:5]}"
+    _check_status_claims(docs)
+
+
+def test_stale_sources_block_build(tmp_path, monkeypatch):
+    """Con fuentes desactualizadas build_site sale con código ≠ 0 y no toca la carpeta de salida (salvo --allow-stale)."""
+    import build_site
+    monkeypatch.setattr(build_site, "freshness", lambda srcs: ["prueba: fuente vieja"])
+    out = tmp_path / "out"
+    assert build_site.main(["--out", str(out)]) == 2
+    assert not out.exists()
+
+
+def test_404_absolute_links(site):
+    """404.html se sirve en cualquier ruta: enlaces absolutos al sitio (que test_local_links_resolve comprueba)."""
+    h = parse(site / "404.html")
+    rel = [u for t, a, u in h.links if not (u.startswith(("https://", "data:", "#")))]
+    assert not rel, rel
+    assert any(u == SITE_URL for _, _, u in h.links)
+    own = [u for _, _, u in h.links if u.startswith(SITE_URL)]
+    assert len(own) >= 5, own
+
+
+def test_mobile_css_guards(site):
+    """Reglas que evitan desbordes en teléfonos de 320 px y textos pegados en las tarjetas de la BOM."""
+    css = (site / "assets" / "site.css").read_text(encoding="utf-8")
+    assert re.search(r"\.doclist \.mono \{[^}]*overflow-wrap: anywhere", css)
+    assert re.search(r"\.doclist a \{[^}]*min-width: 0", css)
+    assert "table.bom td.prov > .muted" in css
+    fea = (site / "fea.html").read_text(encoding="utf-8")
+    # en table.stack (grid) ningún texto suelto: cada celda lleva un solo elemento
+    for td in re.findall(r'<td[^>]*data-label="FS mín\. / objetivo"[^>]*>(.*?)</td>', fea):
+        assert td.startswith("<span>") and td.endswith("</span>"), td

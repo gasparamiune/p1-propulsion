@@ -1,7 +1,7 @@
 """fea_parts.py — Modelos FEA de las piezas críticas del waterjet P1-J.
 
     P1-DRV-03  pórtico de rodamientos (Al 6082 soldado)   empuje Fa (avance / reversa) + radial 3 g
-    P1-REV-01  bucket de reversa (Al 5083 4 mm)            chorro en reversa repartido en la cuchara
+    P1-REV-01  bucket de reversa (Al 5083 8 mm)            chorro en reversa (cantidad de movimiento) con una traba sola
     P1-STE-01  boquilla direccional (Al 6061-T6)           desvío del chorro (F_s) y reacciones del bucket
     P1-INT-02  placa base de la toma (Al 5083 10 mm)       tiro de los espárragos del pórtico; presión de cierre
     P1-CTL-02  caja de palancas (PETG impresa)             mano apoyada 150 N sobre la tapa
@@ -31,7 +31,7 @@ for _p in (str(HERE), str(DISENO), str(DISENO / "piezas"), str(ROOT)):
 
 import fea_core as fc  # noqa: E402
 from fea_model import (Interface, Model, cad_cylinders, cos_bearing, find_cyl, force_of,  # noqa: E402
-                       moment_of, radial, sel_annulus, sel_cyl, sel_plane)
+                       moment_of, radial, sel_annulus, sel_cyl, sel_plane, uniform_traction)
 
 G = 9.81
 # ---------------------------------------------------------------------------
@@ -85,10 +85,14 @@ def allowables(inp):
             "sigma_z_base": sz_base, "E": m["E_mpa"], "nu": NU_PETG, "fs_target": inp["materials"]["fs_target_printed"]}
 
 
-def metal_allow(inp, name, S, fuente):
-    """Admisible de un metal dúctil: von Mises contra S (fluencia; ZAT si es soldado)."""
-    return {"tipo": "metal", "material": name, "S_short": S, "S_sust": S, "SZ_short": None, "SZ_sust": None,
-            "E": E_AL, "nu": NU_AL, "fuente": fuente, "fs_target": inp["materials"]["fs_target_metal"]}
+def metal_allow(inp, name, S, fuente, S_fat=None, fuente_fat=None):
+    """Admisible de un metal dúctil: von Mises contra S (fluencia; ZAT si es soldado). S_fat: admisible de los casos
+    de fatiga (kind = "fatiga", reversa de sizing), con el mismo FS objetivo."""
+    out = {"tipo": "metal", "material": name, "S_short": S, "S_sust": S, "SZ_short": None, "SZ_sust": None,
+           "E": E_AL, "nu": NU_AL, "fuente": fuente, "fs_target": inp["materials"]["fs_target_metal"]}
+    if S_fat is not None:
+        out.update({"S_fat": S_fat, "fuente_fat": fuente_fat})
+    return out
 
 
 def export_tmp(part, name, tmpdir):
@@ -260,21 +264,29 @@ def jet_footprint(p):
     return struct_mod("structural_direccion").jet_footprint(p)
 
 
-def bucket_statics(p, Fb, n=60, share=None):
-    """Estática del bucket abajo con el modelo de structural_direccion (fuente única: bucket_reactions): chorro F_b
-    en el eje sobre la cuchara + componente vertical tal que M_h = 1,10·F_b·Z_pivote; cada traba toma solo la
-    componente tangencial (momento) y cada pivote la mitad del chorro + la reacción de su traba. Devuelve fuerzas
-    SOBRE LA BOQUILLA. share = {lado: fracción de M_h} (lado +1 = brazo +Y, −1 = brazo −Y; suma 1); por defecto,
-    reparto igual entre las trabas del CAD. {1: 1.0} = toda la traba en +Y (la otra todavía no apoyó)."""
+def jet_moment_signed(p, Fb):
+    """Momento (y) del chorro alrededor del pivote del bucket CON SIGNO (convención de moment_of: M_y = Δz·F_x − Δx·F_z),
+    con la misma cuenta que structural_direccion.jet_momentum (que devuelve |M_h|). N·mm."""
+    jm = struct_mod("structural_direccion").jet_momentum(p, Fb)
+    J, (tx, tz), (lx, lz) = jm["J"], jm["t_out"], jm["lip"]
+    Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
+    return (0.0 - Zb) * J + ((lz - Zb) * (-J * tx) - (lx - Xb) * (-J * tz))
+
+
+def bucket_statics(p, Fb, share=None):
+    """Estática del bucket abajo (fuente única: structural_direccion.bucket_reactions, con F y M_h del balance de
+    cantidad de movimiento jet_momentum): cada traba toma solo la componente tangencial (momento) y cada pivote la mitad
+    del chorro + la reacción de su traba. Devuelve fuerzas SOBRE LA BOQUILLA. share = {lado: fracción de M_h} (lado +1 =
+    brazo +Y, −1 = brazo −Y; suma 1). Por defecto {+1: 1} (criterio de la ronda 4: cada traba sola lleva M_h)."""
     import _release as RL
     sd = struct_mod("structural_direccion")
-    sides = RL.lock_sides(p)
-    share = share or {s_: 1.0 / len(sides) for s_ in sides}
+    share = share or {1: 1.0}
     r = sd.bucket_reactions(p, Fb, share)
     v3 = lambda q: np.array([q[0], 0.0, q[1]])                 # noqa: E731  (x, z) → (x, 0, z)
     F, L, R = v3(r["F"]), {k: v3(q) for k, q in r["L"].items()}, {k: v3(q) for k, q in r["R"].items()}
     lp = {k: list(RL.lock_xz(p, k)) for k in (1, -1)}
-    return {"F_N": F.tolist(), "x_cp_mm": r["x_cp"], "M_h_Nm": r["Mh"] / 1000, "n_traba": len(sides),
+    return {"F_N": F.tolist(), "x_cp_mm": r["x_cp"], "M_h_Nm": r["Mh"] / 1000, "M_y_chorro_Nm": jet_moment_signed(p, Fb) / 1000,
+            "J_N": r["J"], "t_salida": list(r["t_out"]), "labio_mm": list(r["lip"]), "n_traba": len(RL.lock_sides(p)),
             "reparto_M_h": {("+Y" if k > 0 else "-Y"): v for k, v in share.items()},
             "lock_point": lp[1], "lock_point_menos_y": lp[-1],
             "F_traba_sobre_boquilla_N": (-L[1]).tolist(), "F_traba_menos_y_sobre_boquilla_N": (-L[-1]).tolist(),
@@ -296,122 +308,165 @@ class _Override:
 K_LOCK = 1e6            # [SUPUESTO: rigidez del émbolo en la dirección tangencial (cuerpo rígido fijado a la boquilla); ≈ 100 × la del
                         # brazo en el agujero: flecha < 0,003 mm con M_h completo, y el desfase no infla el residuo del CG]
 K_LOCK_WEAK = 1.0       # [SUPUESTO: resorte débil (N/mm) en las otras traslaciones del émbolo: evita gdl libres si la traba se abre]
+MISMATCH_INFO = 0.10    # [SUPUESTO: desfase entre trabas del caso informativo (b), mm; ya no es criterio de diseño (ronda 4)]
+STRIP_W = 10.0          # [SUPUESTO: ancho, medido sobre la cuchara, de la franja junto al labio inferior donde se aplica la
+                        # reacción de la salida −J·t_out; la lámina conserva el ancho del chorro (|y| ≤ R_chorro)]
+TOL_STATICS_REV = 0.02  # resultante y momento aplicados contra bucket_reactions (pedido de la auditoría ronda 4)
+TOL_STATICS_STE = 0.01  # resultante aplicada a la boquilla contra la estática (F1)
+# Punto caliente de REV-01 en la ronda 3 (cara exterior del brazo a ~47 mm del pivote, hacia abajo, junto al lóbulo de
+# la traba): (ΔX, ΔZ) desde el pivote [CALCULADO: FEA ronda 3, máx. en (353,9; −59,5; 36,7) con el pivote en (341,9; 81,8)]
+HOT_REV = (12.0, -45.0)
+
+
+def _lock_name(s_):
+    return "traba" if s_ > 0 else "traba_menos_y"
 
 
 def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None):
-    """Bucket ABAJO (reversa) con una traba por brazo (REV_n_locks = 2, auditoría ronda 3).
+    """Bucket ABAJO (reversa), marco de la boquilla, con una traba por brazo (REV_n_locks = 2) y el criterio de la
+    ronda 4: CADA traba sola lleva M_h completo (la segunda es redundancia, no reparto).
 
-    Cada émbolo es un cuerpo rígido que solo reacciona la componente TANGENCIAL al círculo de la traba
-    (momento alrededor del pivote, como structural_direccion) contra la MITAD DE APOYO de su agujero (la
-    que avanza hacia el perno bajo la carga; la otra mitad tiene la holgura del agujero Ø12,5). Casos:
-      a   R12: las dos trabas apoyan a la vez (agujeros perfectos: reparto nominal);
-      b/c R12: la traba −Y (b) o +Y (c) apoya REV_lock_mismatch mm DESPUÉS que la otra (desfase de fabricación
-          admitido): hasta cerrar ese juego todo M_h pasa por un solo brazo y la cuchara gira;
-      d/e FALLA, reversa de sizing (límite del controlador): el émbolo −Y (d) o +Y (e) no entró → M_h por un
-          solo brazo (el émbolo ausente se corre 50 mm: su contacto nunca cierra).
-    variant (solo evaluación; NO modifica la pieza): dict(t=espesor mm, trabas=(1,) | (-1,) | (1, -1),
-    carga="sizing" → F_b de sizing en vez de REV_F_design, desfase=mm en lugar de REV_lock_mismatch)."""
+    Carga del chorro = structural_direccion.jet_momentum (balance de cantidad de movimiento): entrada J uniforme en +x
+    por área proyectada del chorro (Ø del chorro + cono) sobre la cara interior de la cuchara, y reacción de la salida
+    −J·t_out como tracción uniforme en una franja de STRIP_W mm junto al labio inferior. El setup verifica que la
+    resultante y el momento alrededor del pivote coinciden con bucket_reactions (± TOL_STATICS_REV).
+    Pivotes: bujes POM (Winkler unilateral, normal radial exacta, sin fricción). Cada émbolo (perno Ø REV_lock_pin_d en
+    el agujero Ø REV_lock_hole_d) es un cuerpo rígido que solo reacciona la componente TANGENCIAL al círculo de la traba
+    (el momento), contra la MITAD DE APOYO de su agujero (la que avanza hacia el perno). Casos:
+      a    R12, las dos trabas apoyan a la vez, sin desfase (informativo);
+      b    R12, la traba −Y apoya MISMATCH_INFO mm después que la +Y (informativo, sin requisito);
+      d/e  R12 con SOLO la traba +Y (d) / SOLO la −Y (e): la interfaz de la otra no existe en el caso y su agujero
+           sale de las zonas excluidas (DISEÑO, FS ≥ 2 contra fluencia);
+      f/g  reversa de sizing con solo la traba +Y / −Y, corrida explícitamente (fatiga de soldadura AL5083_WLCF, FS ≥ 2).
+    variant (solo evaluación; NO modifica la pieza): dict(t=espesor de chapa mm, casos=[ids] para correr solo esos)."""
     import _release as RL
     pid = "P1-REV-01"
     meta = mods[pid].META
     m = mods[pid]
     variant = variant or {}
     if variant.get("t"):
-        p = _Override(p, REV_t=float(variant["t"]), REV_bush_L=2 * float(variant["t"]))
+        p = _Override(p, REV_t=float(variant["t"]), REV_bush_L=float(variant["t"]) + p.REV_ring_t)
     part = m.build_down(p)
-    sides = tuple(variant.get("trabas", RL.lock_sides(p)))
-    delta = float(variant.get("desfase", p.REV_lock_mismatch))
+    sides = tuple(RL.lock_sides(p))
     sd = struct_mod("structural_direccion")
-    A = metal_allow(p.inp, "Al 5083-O/H111 (= ZAT)", sd.AL5083, "structural_direccion.AL5083 [ESTIMADO: EN 485-2]")
+    A = metal_allow(p.inp, "Al 5083-O/H111 (= ZAT)", sd.AL5083, "structural_direccion.AL5083 [ESTIMADO: EN 485-2]",
+                    S_fat=sd.AL5083_WLCF, fuente_fat="structural_direccion.AL5083_WLCF [CALCULADO: detalle soldado FAT 25, "
+                    "m = 3, 1e5 ciclos] (en toda la pieza: conservador lejos de las soldaduras)")
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     lks = {s_: RL.lock_xz(p, s_) for s_ in sides}
     yi, t = p.REV_y_in, p.REV_t
+    rt = p.REV_ring_t
     hr = max(0.5 * h, hmin)
-    ref = [(Xb, s_ * (yi + t), Zb, 22.0, hr) for s_ in (1, -1)] + [(lks[s_][0], s_ * (yi + t / 2), lks[s_][1], 18.0, hr) for s_ in sides]
+    ref = [(Xb, s_ * (yi + (t + rt) / 2), Zb, 24.0, hr) for s_ in (1, -1)] \
+        + [(lks[s_][0], s_ * (yi + t / 2), lks[s_][1], 20.0, hr) for s_ in sides] \
+        + [(Xb + HOT_REV[0], s_ * (yi + t / 2), Zb + HOT_REV[1], 16.0, hr) for s_ in (1, -1)]
     S, M, minfo = _setup_model(part, pid, meta, tmpdir, h, curv, hmin, A, refine=ref)
-    names = {1: "embolo", -1: "embolo_menos_y"}
-    embs = {s_: M.add_rigid(names[s_], np.array([lks[s_][0], s_ * (yi + t / 2), lks[s_][1]]), fixed_local=(1, 3, 4, 5))
-            for s_ in sides}
+    embs = {s_: M.add_rigid("embolo" if s_ > 0 else "embolo_menos_y", np.array([lks[s_][0], s_ * (yi + t / 2), lks[s_][1]]),
+                            fixed_local=(1, 3, 4, 5)) for s_ in sides}
     M.assemble()
-    # pivotes: pernos con hombro Ø10 en bujes POM Ø10/Ø14 (articulación sin fricción)
+    # pivotes: muñón Ø REV_pin_d (espaciador P1-REV-02) en el buje POM P1-REV-03 (articulación sin fricción)
     r_b = p.REV_bush_od / 2
     piv = sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), r_b)
     k_piv = E_POM / ((p.REV_bush_od - p.REV_pin_d) / 2)
     for s_, nm in ((1, "pivote_mas_y"), (-1, "pivote_menos_y")):     # por lado: reacción de cada pivote (fila a mano)
         M.add_interface(Interface(nm, piv[S.fcent[piv, 1] * s_ > 0], k_piv, axis=((Xb, 0, Zb), (0, 1, 0))))
     M.add_static(S.spring_matrix(piv, 1e-3 * k_piv, mode="dir", direction=(0, 1, 0)))
-    # carga: chorro sobre la cara interior de la cuchara, uniforme sobre la proyección del chorro
+    # --- carga: cantidad de movimiento del chorro (structural_direccion.jet_momentum) ---
+    Fbn = p.sz["loads"]["F_bucket_N"]
+    Fb = p.REV_F_design
+    jm = sd.jet_momentum(p, Fb)
+    J, tout = jm["J"], np.array([jm["t_out"][0], 0.0, jm["t_out"][1]])
     R = jet_footprint(p)
     xc0 = p.STE_X_exit + p.REV_cup_dx
-    ell = ((S.fcent[:, 0] - xc0) / p.REV_cup_ax) ** 2 + (S.fcent[:, 2] / p.REV_cup_az) ** 2
-    cup = np.flatnonzero((np.abs(ell - 1) < 0.04) & (S.fnormal[:, 0] < -0.05) & (np.abs(S.fcent[:, 1]) < yi)
-                         & (S.fcent[:, 1] ** 2 + S.fcent[:, 2] ** 2 <= R ** 2) & (S.fcent[:, 0] > p.STE_X_exit))
-    if len(cup) < 20:
-        raise RuntimeError("REV-01: no se encontró la cara interior de la cuchara")
+    axc, azc = p.REV_cup_ax, p.REV_cup_az
+    ex, ez = (S.fcent[:, 0] - xc0) / axc, S.fcent[:, 2] / azc
+    ell = ex ** 2 + ez ** 2
+    n_in = -np.c_[ex / axc, np.zeros(len(ex)), ez / azc]
+    n_in /= np.linalg.norm(n_in, axis=1, keepdims=True)
+    inner = (np.abs(ell - 1) < 0.04) & (np.einsum("ij,ij->i", S.fnormal, n_in) > 0.9) & (np.abs(S.fcent[:, 1]) < yi)
+    cup = np.flatnonzero(inner & (S.fnormal[:, 0] < -0.05) & (S.fcent[:, 1] ** 2 + S.fcent[:, 2] ** 2 <= R ** 2)
+                         & (S.fcent[:, 0] > p.STE_X_exit))
+    t1 = math.radians(p.REV_cup_t1)
+    dth = STRIP_W / math.hypot(axc * math.sin(t1), azc * math.cos(t1))
+    th = np.arctan2(ez, ex)
+    strip = np.flatnonzero(inner & (th >= t1 - 1e-6) & (th <= t1 + dth) & (np.abs(S.fcent[:, 1]) <= R))
+    if len(cup) < 20 or len(strip) < 4:
+        raise RuntimeError(f"REV-01: selección de la cuchara vacía (entrada {len(cup)}, franja de salida {len(strip)} facetas)")
     A_proj = float((S.farea[cup] * np.abs(S.fnormal[cup, 0])).sum())
-
-    def proj(vec):
-        v = np.asarray(vec, float)
-
-        def tf(Xq, n):
-            return np.abs(n[:, 0])[:, None, None] * np.broadcast_to(v, Xq.shape)
-        return tf
-    fX = S.traction_load(cup, proj((1, 0, 0)))
-    fZ = S.traction_load(cup, proj((0, 0, 1)))
-    fX /= force_of(S, fX)[0]
-    fZ /= force_of(S, fZ)[2]
+    A_strip = float(S.farea[strip].sum())
+    f_in = S.traction_load(cup, lambda Xq, n: np.abs(n[:, 0])[:, None, None] * np.broadcast_to((1.0, 0.0, 0.0), Xq.shape))
+    f_in *= J / force_of(S, f_in)[0]
+    f_out = S.traction_load(strip, uniform_traction(-tout))
+    f_out *= J / float(np.linalg.norm(force_of(S, f_out)))
+    f = f_in + f_out
     piv_pt = (Xb, 0.0, Zb)
-    MX, MZ = moment_of(S, fX, piv_pt)[1], moment_of(S, fZ, piv_pt)[1]
-    sd_loads = est["loads"].get("structural_direccion", {})
-    Fbn = p.sz["loads"]["F_bucket_N"]
-    Fb = Fbn if variant.get("carga") == "sizing" else p.REV_F_design
-    M_tgt = 1.10 * Fb * Zb * np.sign(MX)
-    Fz = (M_tgt - Fb * MX) / MZ
-    f = Fb * fX + Fz * fZ
-    q = Fb / A_proj
+    F_app, M_app = force_of(S, f), float(moment_of(S, f, piv_pt)[1])
+    st1 = bucket_statics(p, Fb, {1: 1.0})
+    F_ref, M_ref = np.array(st1["F_N"]), st1["M_y_chorro_Nm"] * 1000
+    errF = float(np.linalg.norm(F_app - F_ref) / np.linalg.norm(F_ref))
+    errM = abs(M_app - M_ref) / abs(M_ref)
+    if errF > TOL_STATICS_REV or errM > TOL_STATICS_REV:
+        raise RuntimeError(f"REV-01: la carga aplicada no es la de bucket_reactions: F {F_app.round(1)} vs {F_ref.round(1)} "
+                           f"({errF:.1%}), M_y {M_app / 1000:.1f} vs {M_ref / 1000:.1f} N·m ({errM:.1%})")
+    resultante = {"F_aplicada_N": F_app.round(2).tolist(), "F_estatica_N": F_ref.round(2).tolist(), "err_F_rel": errF,
+                  "M_y_aplicado_Nm": M_app / 1000, "M_y_estatica_Nm": M_ref / 1000, "err_M_rel": errM,
+                  "tolerancia": TOL_STATICS_REV}
+    M.zones += [strip]                                         # franja de salida: tracción concentrada junto al labio
     pdyn = p.sz["loads"]["p_nozzle_dyn_Pa"] / 1e6
-    # trabas: émbolo Ø12 en el agujero Ø12,5; contacto solo en la mitad de apoyo (la que avanza hacia el perno)
-    dirs = {}
+    q = J / A_proj
+    # --- trabas: perno en el agujero Ø REV_lock_hole_d; contacto solo en la mitad de apoyo (la que avanza hacia el perno)
+    sgn = float(np.sign(M_app))                                # el brazo gira en el sentido del momento del chorro
+    dirs, itf_lock, holes = {}, {}, {}
     for s_ in sides:
         lq = lks[s_]
         hole = sel_cyl(S, (lq[0], 0, lq[1]), (0, 1, 0), p.REV_lock_hole_d / 2,
                        region=lambda c, lq=lq: np.hypot(c[:, 0] - lq[0], c[:, 2] - lq[1]) < p.REV_lock_hole_d)
         a = math.atan2(lq[1] - Zb, lq[0] - Xb)
         tvec = np.array([math.sin(a), 0.0, -math.cos(a)])          # giro +Y alrededor del pivote → el punto se mueve en +t
-        d = np.sign(M_tgt) * tvec                                  # sentido en que el brazo avanza contra el perno
+        d = sgn * tvec                                             # sentido en que el brazo avanza contra el perno
         rvec = np.array([math.cos(a), 0.0, math.sin(a)])
         hs = hole[S.fcent[hole, 1] * s_ > 0]
         rel = S.fcent[hs] - np.array([lq[0], 0.0, lq[1]])
         hs = hs[(rel @ d) < 0.0]                                   # mitad de apoyo: la pared detrás del perno
-        M.add_interface(Interface("traba" if s_ > 0 else "traba_menos_y", hs, E_AL / CONTACT_LEN, kind="rigid",
-                                  rigid=names[s_], k_t=0.0, axis=((lq[0], 0, lq[1]), (0, 1, 0))))
+        itf_lock[s_] = M.add_interface(Interface(_lock_name(s_), hs, E_AL / CONTACT_LEN, kind="rigid",
+                                                 rigid="embolo" if s_ > 0 else "embolo_menos_y", k_t=0.0,
+                                                 axis=((lq[0], 0, lq[1]), (0, 1, 0))))
         M.add_static(dir_stiffness(S.ndof, embs[s_][[0, 1, 2]], tvec, K_LOCK))
         M.add_static(dir_stiffness(S.ndof, embs[s_][[0, 1, 2]], rvec, K_LOCK_WEAK))
         dirs[s_] = d
+        holes[_lock_name(s_)] = {"c": [lq[0], 0.0, lq[1]], "ax": [0.0, 1.0, 0.0], "r": p.REV_lock_hole_d / 2,
+                                 "region": lambda X, s_=s_: (X[:, 1] * s_ >= yi - 0.05) & (X[:, 1] * s_ <= yi + t + 0.05)}
+    for s_, nm in ((1, "pivote_mas_y"), (-1, "pivote_menos_y")):
+        holes[nm] = {"c": [Xb, 0.0, Zb], "ax": [0.0, 1.0, 0.0], "r": r_b, "region": lambda X, s_=s_: X[:, 1] * s_ > 0}
 
     def late(s_, dl):
         """Carga extra que corre el émbolo `s_` dl mm en el sentido de avance del brazo: el agujero tiene que
-        cerrar ese juego antes de apoyar (desfase de fabricación entre las dos trabas)."""
+        cerrar ese juego antes de apoyar (desfase de fabricación entre las dos trabas; solo caso informativo)."""
         fe = np.zeros(S.ndof)
         fe[embs[s_][[0, 1, 2]]] = K_LOCK * dl * dirs[s_]
         return fe
 
-    k_n = Fbn / Fb                                            # reversa de sizing (límite del controlador) / carga del caso
-    itf_lock = {s_: next(i for i in M.interfaces if i.name == ("traba" if s_ > 0 else "traba_menos_y")) for s_ in sides}
+    sd_loads = est["loads"].get("structural_direccion", {})
+    kz = Fbn / Fb                                              # reversa de sizing / R12 (la carga es lineal en F_b)
     z0 = np.zeros(S.ndof)
-    cases = [("a", "R12: las dos trabas apoyan a la vez (reparto nominal)", z0, 1.0, None)]
-    if len(sides) == 2:
-        if delta > 0:
-            cases += [("b", f"R12: la traba −Y apoya {delta:g} mm después que la +Y (desfase de fabricación admitido)", late(-1, delta), 1.0, None),
-                      ("c", f"R12: la traba +Y apoya {delta:g} mm después que la −Y (desfase de fabricación admitido)", late(1, delta), 1.0, None)]
-        if variant.get("carga") != "sizing":
-            cases += [("d", "FALLA, reversa de sizing: el émbolo −Y no entró (M_h por el brazo +Y)", z0, k_n, -1),
-                      ("e", "FALLA, reversa de sizing: el émbolo +Y no entró (M_h por el brazo −Y)", z0, k_n, 1)]
+    two = len(sides) == 2
+    # (id, texto, factor de carga, carga extra, traba deshabilitada, tipo, caso de diseño)
+    cases = [("a", "R12: las dos trabas apoyan a la vez, sin desfase (informativo)" if two else "R12: traba +Y",
+              1.0, z0, None, "short", not two)]
+    if two:
+        cases += [("b", f"R12: la traba −Y apoya {MISMATCH_INFO:g} mm después que la +Y (desfase; informativo, sin requisito)",
+                   1.0, late(-1, MISMATCH_INFO), None, "short", False),
+                  ("d", "R12 con SOLO la traba +Y (la −Y no está): M_h completo por el brazo +Y (DISEÑO)", 1.0, z0, -1, "short", True),
+                  ("e", "R12 con SOLO la traba −Y (la +Y no está): M_h completo por el brazo −Y (DISEÑO)", 1.0, z0, 1, "short", True),
+                  ("f", "Reversa de sizing con SOLO la traba +Y (fatiga de soldadura)", kz, z0, -1, "fatiga", True),
+                  ("g", "Reversa de sizing con SOLO la traba −Y (fatiga de soldadura)", kz, z0, 1, "fatiga", True)]
+    if variant.get("casos"):                                   # solo evaluación: subconjunto de casos
+        cases = [c_ for c_ in cases if c_[0] in variant["casos"]]
 
     def run(log=print, init=None):
         out = []
-        for cid, txt, fe, kf, off in cases:
-            if off is not None:                               # émbolo que no entró: su contacto no existe en este caso
+        for cid, txt, kf, fe, off, kind, design in cases:
+            if off is not None:                               # émbolo ausente: su contacto no existe en este caso
                 itf_lock[off].enabled = False
             try:
                 u, info = M.solve(kf * f, extra_f=fe, init_active=(init or {}).get(cid), log=None)
@@ -420,53 +475,68 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
             finally:
                 if off is not None:
                     itf_lock[off].enabled = True
+            on = [s_ for s_ in sides if s_ != off]
+            Ftan, Mlk = {}, {}
+            for s_ in on:
+                Fv = np.array(R_[_lock_name(s_)]["F_N"])
+                Ftan[_lock_name(s_)] = float(Fv @ (-dirs[s_]))          # el perno empuja el brazo en −d
+                lq = lks[s_]
+                Mlk[_lock_name(s_)] = float(((lq[1] - Zb) * Fv[0] - (lq[0] - Xb) * Fv[2]) / 1000)
             Ft = {k: R_[k]["F_abs_N"] for k in R_ if k.startswith("traba")}
-            extra = {"F_b_N": Fb * kf, "F_z_N": float(Fz * kf), "M_pivote_Nm": float(kf * moment_of(S, f, piv_pt)[1] / 1000),
-                     "A_proyectada_mm2": A_proj, "q_media_MPa": q * kf, "desfase_mm": delta if cid in ("b", "c") else 0.0,
-                     "F_traba_N": float(sum(np.linalg.norm(R_[k]["F_N"]) for k in R_ if k.startswith("traba"))),
-                     "F_traba_por_lado_N": Ft,
-                     "reparto_max_M_h": float(max(Ft.values()) / max(sum(Ft.values()), 1e-9)) if Ft else None,
-                     "M_traba_por_lado_Nm": {k: float(np.linalg.norm(R_[k]["F_N"]) * p.REV_lock_r / 1000) for k in R_ if k.startswith("traba")},
+            dirh = {_lock_name(s_): (-dirs[s_]).tolist() for s_ in on}
+            dirh.update({k: R_[k]["F_N"] for k in ("pivote_mas_y", "pivote_menos_y")})
+            extra = {"F_b_N": Fb * kf, "J_N": J * kf, "F_z_N": float(F_app[2] * kf),
+                     "M_pivote_Nm": float(kf * M_app / 1000), "M_h_mano_Nm": float(kf * jm["Mh"] / 1000),
+                     "resultante": {"factor_carga_sobre_R12": kf, **resultante},
+                     "A_proyectada_mm2": A_proj, "q_entrada_MPa": q * kf, "desfase_mm": MISMATCH_INFO if cid == "b" else 0.0,
+                     "trabas_activas": [_lock_name(s_) for s_ in on],
+                     "F_traba_por_lado_N": Ft, "F_traba_tangencial_N": Ftan, "M_traba_por_lado_Nm": Mlk,
+                     "F_traba_M_h_sobre_r_N": float(kf * jm["Mh"] / p.REV_lock_r),
+                     "F_traba_mano_N": sd_loads.get("F_lock_pin_N" if kind == "short" else "F_lock_pin_sizing_N"),
                      "F_pivote_por_lado_N": {k: R_[k]["F_abs_N"] for k in R_ if k.startswith("pivote")},
                      "F_pivotes_N": (np.array(R_["pivote_mas_y"]["F_N"]) + np.array(R_["pivote_menos_y"]["F_N"])).round(2).tolist(),
-                     "F_traba_mano_N": sd_loads.get("F_lock_pin_N"),
-                     "R_pivote_mano_N": sd_loads.get("R_bucket_pivot_design_N" if kf == 1.0 else "R_bucket_pivot_fault_sizing_N"),
-                     "embolo_u_mm": {names[s_]: u[embs[s_]][:3].round(4).tolist() for s_ in sides}}
-            out.append({"id": cid, "name": "Reversa: chorro F_b = %.0f N en la cuchara; M_h = %.0f N·m; %s"
-                        % (Fb * kf, kf * abs(M_tgt) / 1000, txt),
-                        "kind": "short", "u": u, "info": info, "extra": extra, "active": act,
-                        "disabled": [] if off is None else [itf_lock[off].name]})
+                     "R_pivote_mano_N": sd_loads.get("R_bucket_pivot_design_N" if kind == "short" else "R_bucket_pivot_sizing_N"),
+                     "embolo_u_mm": {("embolo" if s_ > 0 else "embolo_menos_y"): u[embs[s_]][:3].round(4).tolist() for s_ in sides}}
+            out.append({"id": cid, "name": "Reversa: chorro F_b = %.0f N (J = %.0f N, M_h = %.0f N·m); %s"
+                        % (Fb * kf, J * kf, kf * jm["Mh"] / 1000, txt),
+                        "kind": kind, "diseno": design, "u": u, "info": info, "extra": extra, "active": act,
+                        "disabled": [] if off is None else [itf_lock[off].name], "dir_agujeros": dirh})
         return out
 
-    regions = {"traba": lambda X: np.any([(np.hypot(X[:, 0] - lks[s_][0], X[:, 2] - lks[s_][1]) <= p.REV_lock_hole_d / 2 + 3.0)
-                                          & (X[:, 1] * s_ > yi - 0.05) for s_ in sides], axis=0),
+    def ring_lock(X, s_):                                     # anillo de 3 mm alrededor del agujero de traba del brazo s_
+        return (np.hypot(X[:, 0] - lks[s_][0], X[:, 2] - lks[s_][1]) <= p.REV_lock_hole_d / 2 + 3.0) & (X[:, 1] * s_ > yi - 0.05)
+    regions = {"traba": lambda X: np.any([ring_lock(X, s_) for s_ in sides], axis=0),
+               **{_lock_name(s_): (lambda X, s_=s_: ring_lock(X, s_)) for s_ in sides},
                "pivotes": lambda X: np.hypot(X[:, 0] - Xb, X[:, 2] - Zb) <= r_b + 3.0,
                "brazos": lambda X: np.abs(X[:, 1]) >= yi - 0.05,
                "cuchara": lambda X: np.abs(X[:, 1]) < yi - 0.05}
-    checks = {"F_b_N": Fb, "F_b_sizing_N": Fbn, "R_chorro_mm": R, "k_pivote_N_mm3": k_piv, "q_chorro_MPa": q,
-              "p_dinamica_MPa": pdyn, "estatica": bucket_statics(p, Fb), "trabas": [int(s_) for s_ in sides],
-              "desfase_mm": delta,
-              "nota": "Cada traba toma solo la componente tangencial (momento alrededor del pivote), como structural_direccion; "
-                      "los pivotes toman el resto. Contacto solo en la mitad de apoyo de cada agujero; con desfase, el émbolo "
-                      "tardío se corre δ en el sentido de avance del brazo. q = F_b/A_proyectada > p_dinámica: el caso cubre la chapa."}
-    two = len(sides) == 2 and delta > 0
-    cb = "b" if two else "a"                                   # caso de diseño con el reparto máximo admitido
+    checks = {"F_b_N": Fb, "F_b_sizing_N": Fbn, "J_N": J, "t_salida": tout.tolist(), "labio_inferior_mm": list(jm["lip"]),
+              "M_h_Nm": jm["Mh"] / 1000, "R_chorro_mm": R, "k_pivote_N_mm3": k_piv, "q_entrada_MPa": q,
+              "p_dinamica_MPa": pdyn, "A_proyectada_mm2": A_proj, "franja_salida_mm": STRIP_W, "A_franja_mm2": A_strip,
+              "resultante_R12": resultante, "estatica_traba_mas_y": st1, "trabas": [int(s_) for s_ in sides],
+              "desfase_informativo_mm": MISMATCH_INFO, "refinamiento": [list(map(float, r_)) for r_ in ref],
+              "nota": "Carga = cantidad de movimiento del chorro (structural_direccion.jet_momentum): J en +x por área proyectada "
+                      "sobre la cuchara + −J·t_out en una franja junto al labio inferior; resultante y momento verificados contra "
+                      "bucket_reactions en el setup. Cada traba toma solo la componente tangencial (momento alrededor del pivote); "
+                      "los pivotes, el resto. Criterio de la ronda 4: cada traba sola (casos d/e a R12, f/g de sizing en fatiga)."}
     comp = comparisons(est, pid, [
-        {"key": "Brazo trabado: flexión en su plano con M_h completo (bucket R12", "caso": cb, "region": "brazos",
-         "nota": "la fila carga el brazo con M_h completo (cota); el FEA con el desfase admitido"},
-        {"key": "Brazo trabado: flexión en su plano con M_h completo (reversa sizing", "caso": cb, "region": "brazos", "escala": Fbn / Fb},
+        {"key": "Brazo trabado: flexión en su plano con M_h completo (R12", "caso": "d" if two else "a", "region": "brazos",
+         "nota": "la fila: flexión del brazo EN SU PLANO con M_h completo; el FEA (una traba sola) suma la flexión fuera del plano"},
+        {"key": "Brazo trabado: flexión en su plano con M_h completo (reversa sizing", "caso": "f" if two else "a", "region": "brazos",
+         "nota": "caso de sizing corrido explícitamente (sin escalar)"},
         {"key": "Cuchara como viga", "caso": "a", "region": "cuchara"},
         {"key": "Chapa de la cuchara: franja empotrada", "caso": "a", "region": "cuchara", "escala": pdyn / q,
-         "nota": "FEA escalado a p_dinámica / q"},
+         "nota": "FEA escalado a p_dinámica / q_entrada (caso sin juego inicial: homogéneo de grado 1, el escalado es exacto)"},
         {"key": "Chapa de la cuchara: franja (fatiga", "caso": "a", "region": "cuchara", "escala": pdyn / q},
-        {"key": "Cuchara abierta a torsión con un solo brazo trabado (FALLA: un émbolo no entró", "caso": "d" if len(sides) == 2 else "a",
-         "region": "cuchara", "nota": "falla: un solo brazo trabado con la reversa de sizing"},
-        {"key": "Pivote: aplastamiento", "caso": cb, "region": "pivotes", "metrica": "mean",
+        {"key": "Cuchara abierta a torsión con un solo brazo trabado (R12", "caso": "d" if two else "a", "region": "cuchara"},
+        {"key": "Cuchara abierta a torsión con un solo brazo trabado (reversa sizing", "caso": "f" if two else "a", "region": "cuchara",
+         "nota": "caso de sizing corrido explícitamente (sin escalar)"},
+        {"key": "Pivote: aplastamiento", "caso": "d" if two else "a", "region": "pivotes", "metrica": "mean",
          "nota": "aplastamiento: presión media R/(d·L); FEA: σvm promedio en el anillo de 3 mm alrededor de los pivotes"},
-        {"key": "Agujero de traba", "caso": cb, "region": "traba", "metrica": "mean",
+        {"key": "Agujero de traba", "caso": "d" if two else "a", "region": _lock_name(1), "metrica": "mean",
          "nota": "aplastamiento: la fila es presión media F/(d·t) con M_h completo; FEA: σvm promedio en el anillo de 3 mm"},
     ])
-    return {"model": M, "run": run, "meta": meta, "mesh": minfo, "checks": checks, "allow": A,
+    return {"model": M, "run": run, "meta": meta, "mesh": minfo, "checks": checks, "allow": A, "holes": holes,
             "regions": regions, "comparacion": comp, "frame_label": "BOQUILLA (bucket abajo)"}
 
 
@@ -474,23 +544,56 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
 # P1-STE-01 — boquilla direccional (marco de la boquilla, δ = 0)
 # ===========================================================================
 
+NUT_M24_R = 18.0        # [ESTIMADO: contratuerca M24×1,5 fina de 36 e/c (P1-REV-04) → apoyo en la cara interior de la oreja
+                        # hasta el círculo inscrito Ø36]
+
+
+def couple_load(S, facets, n_out, Mv):
+    """Par puro Mv sobre facetas planas de normal n_out: tracción normal lineal t = ((X − C)·a)·n_out con a = n_out × Mv y
+    C = centroide (en las mismas cuadraturas) de las facetas → resultante exactamente nula; escalada a Mv."""
+    Mv = np.asarray(Mv, float)
+    if np.linalg.norm(Mv) < 1e-9:
+        return np.zeros(S.ndof)
+    n_out = np.asarray(n_out, float)
+    Xq, W, _ = S.facet_quad(np.asarray(facets))
+    C = (Xq * W[..., None]).sum(axis=(0, 1)) / W.sum()
+    a = np.cross(n_out, Mv)
+    f = S.traction_load(facets, lambda Xq_, n: ((Xq_ - C) @ a)[..., None] * n_out)
+    Mn = moment_of(S, f, C)
+    return f * (Mv @ Mn) / (Mn @ Mn)
+
+
 def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None):
-    """variant (solo evaluación): dict(reparto="completo") → reversa con M_h COMPLETO en una traba (falla doble: un
-    émbolo no entró + R12 sin límite del controlador; criterio sin fluencia)."""
+    """Boquilla a δ = 0 (marco de la boquilla). Casos:
+      a/b    desvío del chorro F_s en el paso / en la boca de salida;
+      c/c2   reversa R12 con M_h COMPLETO en la traba +Y / −Y (criterio de traba única, ronda 4): esa oreja lleva su
+             pivote (chorro/2 + traba) y su traba; la otra, solo chorro/2 en su pivote. DISEÑO, FS ≥ 2 contra fluencia;
+      d/d2   c/c2 + desvío F_s en el paso (maniobra en reversa);
+      f/f2   reversa de sizing con M_h completo en la traba +Y / −Y: fatiga, AL6061_FAT, FS ≥ 2 (corridos, sin escalar).
+    Cargas del bucket SOBRE CADA OREJA (bucket_statics = structural_direccion.bucket_reactions), autoequilibradas (F1):
+      pivote: la FUERZA la toma el piloto Ø REV_sp_pilot_d h6 del espaciador P1-REV-02 en el agujero H7 de la oreja (apoyo
+              cosenoidal; selección restringida a la oreja, |y| ≥ STE_ear_y0 − 0,5) y el MOMENTO del muñón en voladizo
+              (fuerza en la mitad del buje) lo toma la brida Ø REV_sp_fl_d sobre la cara exterior como tracción normal
+              lineal de resultante nula;
+      traba:  la FUERZA del perno, sobre la rosca M24×1,5 de la MISMA oreja (apoyo cosenoidal), y su MOMENTO (perno en
+              voladizo hasta la mitad del brazo) como par lineal bajo la contratuerca, en la cara interior.
+    El setup verifica que la resultante aplicada y su momento alrededor del eje del pivote coinciden con la estática
+    (± TOL_STATICS_STE). La precarga del M12 y de la contratuerca (autoequilibradas) no se modelan."""
     pid = "P1-STE-01"
     meta = mods[pid].META
     m = mods[pid]
     part = m.build(p)
     sd = struct_mod("structural_direccion")
-    A = metal_allow(p.inp, "Al 6061-T6", sd.AL6061, "structural_direccion.AL6061 [ESTIMADO: EN 755-2]")
+    A = metal_allow(p.inp, "Al 6061-T6", sd.AL6061, "structural_direccion.AL6061 [ESTIMADO: EN 755-2]",
+                    S_fat=sd.AL6061_FAT, fuente_fat="structural_direccion.AL6061_FAT [ESTIMADO: 6061-T6 sin muesca, R = −1, ~1e7]")
     Xp, Lst = p.X_steer_pivot, p.L_steer
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
-    lx, lz = m.lock_point(p)
-    yp = 0.5 * (p.STE_ear_y0 + p.STE_ear_y1)
+    y0e, y1e = p.STE_ear_y0, p.STE_ear_y1
+    yp = 0.5 * (y0e + y1e)
+    lpt = {s_: m.lock_point(p, s_) for s_ in (1, -1)}
     zt = p.STE_ear_top
     hr = max(0.5 * h, hmin)
-    lx2, lz2 = m.lock_point(p, -1)
-    ref = [(Xb, s * yp, Zb, 24.0, hr) for s in (1, -1)] + [(lx, yp, lz, 22.0, hr), (lx2, -yp, lz2, 22.0, hr)] + \
+    ref = [(Xb, s * yp, Zb, 26.0, hr) for s in (1, -1)] + [(lpt[s][0], s * yp, lpt[s][1], 24.0, hr) for s in (1, -1)] + \
           [(Xp, 0.0, s * zt, 22.0, hr) for s in (1, -1)]
     S, M, minfo = _setup_model(part, pid, meta, tmpdir, h, curv, hmin, A, refine=ref)
     zr = p.STE_riser_top
@@ -519,7 +622,7 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
     top_r = sel_plane(S, (0, 0, 1), zr, region=lambda c: (c[:, 0] > Xp + x0r - 0.1) & (c[:, 0] < Xp + x1r + 0.1))
     M.add_interface(Interface("yugo_roscas_M8", rb, k_c, kind="rigid", rigid="yugo", k_t=0.1 * k_c, unilateral=False))
     M.add_interface(Interface("yugo_cara", top_r, k_c, kind="rigid", rigid="yugo", k_t=KT_FRAC * k_c, zone=False))
-    # cargas
+    # cargas: desvío del chorro
     Fs = p.STE_F_design
     Fsn = p.sz["loads"]["F_steer_side_N"]
     e = p.STE_e_frac * Lst
@@ -533,102 +636,144 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
         f = S.traction_load(fs_, cos_bearing(yv))
         return f / (force_of(S, f) @ yv)
     f_e, f_o = Fs * lat(band_e), Fs * lat(band_o)
-    # Reversa (auditoría ronda 3): una traba por oreja. Diseño (R12): el reparto máximo admitido entre trabas
-    # (REV_lock_share_max, FEA del bucket con el desfase admitido) del lado +Y (c) o −Y (c2). Variante "completo": M_h
-    # COMPLETO en una traba (falla doble). En cada pivote: la reacción como apoyo cosenoidal en el
-    # agujero Ø(M12 + 0,4) + el momento del espaciador en voladizo (P1-REV-02) como par lineal sobre su anillo de
-    # apoyo en la cara exterior de la oreja (la precarga del M12, autoequilibrada, no se modela).
-    Fb = p.REV_F_design
-    ears = sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), p.REV_bolt_d / 2 + 0.2)
-    ear_s = {1: ears[S.fcent[ears, 1] > 0], -1: ears[S.fcent[ears, 1] < 0]}
-    lock_s, faces = {}, {}
+    # --- reversa: selecciones de cada oreja (F1: solo la oreja, el CAD ya no tiene el agujero pasante) ---
+    rp_ = p.REV_sp_pilot_d / 2
+    rt_ = p.REV_lock_thread_d / 2
+    in_ear = lambda c, s_: c[:, 1] * s_ >= y0e - 0.5               # noqa: E731
+    pil, thr, fl, nut = {}, {}, {}, {}
+    n_out_ear = int(len(sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), rp_, region=lambda c: np.abs(c[:, 1]) < y0e - 0.5)))
     for s_ in (1, -1):
-        lxs, lzs = m.lock_point(p, s_)
-        lk_ = sel_cyl(S, (lxs, 0, lzs), (0, 1, 0), 10.0)
-        lock_s[s_] = lk_[S.fcent[lk_, 1] * s_ > 0]
-        faces[s_] = sel_annulus(S, (0, s_, 0), p.STE_ear_y1, (Xb, s_ * p.STE_ear_y1, Zb), p.REV_bolt_d / 2 + 0.2, p.REV_pin_d / 2)
-        if len(lock_s[s_]) == 0 or len(faces[s_]) == 0:
-            raise RuntimeError(f"STE-01: no se encontró la rosca de la traba o la cara del pivote del lado {s_:+d}")
-    M.zones += [band_o] + list(ear_s.values()) + list(lock_s.values()) + list(faces.values())
-    lev = (p.REV_y_in - p.STE_ear_y1) + p.REV_bush_L / 2 + 0.5 * (p.STE_ear_y1 - p.STE_ear_y0)
+        lxs, lzs = lpt[s_]
+        pil[s_] = sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), rp_, region=lambda c, s_=s_: in_ear(c, s_))
+        thr[s_] = sel_cyl(S, (lxs, 0, lzs), (0, 1, 0), rt_, region=lambda c, s_=s_: in_ear(c, s_))
+        fl[s_] = sel_annulus(S, (0, s_, 0), y1e, (Xb, s_ * y1e, Zb), rp_, p.REV_sp_fl_d / 2)
+        nut[s_] = sel_annulus(S, (0, -s_, 0), -y0e, (lxs, s_ * y0e, lzs), rt_, NUT_M24_R)
+        for nm_, sel_ in (("agujero del piloto", pil), ("rosca M24", thr), ("cara de la brida", fl), ("cara de la contratuerca", nut)):
+            if len(sel_[s_]) == 0:
+                raise RuntimeError(f"STE-01: selección vacía ({nm_}) en la oreja {s_:+d}")
+    M.zones += [band_o] + list(pil.values()) + list(thr.values()) + list(fl.values()) + list(nut.values())
+    lev_p = (p.REV_y_in + p.REV_bush_L / 2) - yp            # mitad del buje → plano medio de la oreja (piloto)
+    lev_l = (p.REV_y_in + p.REV_t / 2) - yp                 # mitad del brazo (perno) → plano medio de la oreja (rosca)
 
     def pin_load(fs_, F):
+        """Apoyo cosenoidal en el agujero con resultante EXACTA en el plano ⟂ al eje: f = α·f(d) + β·f(±e), e = ŷ × d
+        (corrige el residuo lateral de la malla gruesa, ~1 %; β ≪ α)."""
         F = np.asarray(F, float)
         Fm = np.linalg.norm(F)
         if Fm < 1e-9:
             return np.zeros(S.ndof)
-        f = S.traction_load(fs_, cos_bearing(F / Fm))
-        return f * (Fm / (force_of(S, f) @ (F / Fm)))
+        d = F / Fm
+        e_ = np.cross(yv, d)
+        fd = S.traction_load(fs_, cos_bearing(d))
+        best = None
+        for sg in (1.0, -1.0):
+            fe_ = S.traction_load(fs_, cos_bearing(sg * e_))
+            Am = np.array([[force_of(S, fd) @ d, force_of(S, fe_) @ d], [force_of(S, fd) @ e_, force_of(S, fe_) @ e_]])
+            al, be = np.linalg.solve(Am, [Fm, 0.0])
+            if be >= 0 and (best is None or be < best[1]):
+                best = (al, be, fe_)
+        al, be, fe_ = best
+        return al * fd + be * fe_
 
-    def face_couple(s_, R_ear):
-        """Par del espaciador en voladizo sobre la oreja s_: M = s_·lev·(ŷ × R) respecto del centro C de la cara,
-        como tracción normal lineal t = (a·ρ)·n con a = n × M / I (resultante nula, momento M)."""
-        R_ear = np.asarray(R_ear, float)
-        Mv = s_ * lev * np.cross(np.array([0.0, 1.0, 0.0]), R_ear)
-        if np.linalg.norm(Mv) < 1e-9:
-            return np.zeros(S.ndof)
-        C = np.array([Xb, s_ * p.STE_ear_y1, Zb])
-        n_out = np.array([0.0, float(s_), 0.0])
-        a = np.cross(n_out, Mv)
+    names = {(1, "p"): "pivote_mas_y", (-1, "p"): "pivote_menos_y", (1, "l"): "rosca_mas_y", (-1, "l"): "rosca_menos_y"}
 
-        def tf(Xq, n):
-            return ((Xq - C) @ a)[..., None] * n_out
-        f = S.traction_load(faces[s_], tf)
-        Mn = moment_of(S, f, C)
-        return f * (Mv @ Mn) / (Mn @ Mn)
-
-    def reverse_load(share):
-        st_ = bucket_statics(p, Fb, share=share)
+    def reverse_load(Fb_, side):
+        st_ = bucket_statics(p, Fb_, share={side: 1.0})
         f = np.zeros(S.ndof)
+        dirh = {}
+        M_ref = 0.0
         for s_, kp, kl in ((1, "F_pivote_mas_y_sobre_boquilla_N", "F_traba_sobre_boquilla_N"),
                            (-1, "F_pivote_menos_y_sobre_boquilla_N", "F_traba_menos_y_sobre_boquilla_N")):
-            f += pin_load(ear_s[s_], st_[kp]) + face_couple(s_, st_[kp]) + pin_load(lock_s[s_], st_[kl])
-        return f, st_
-    full = (variant or {}).get("reparto") == "completo"
-    sm = 1.0 if full else p.REV_lock_share_max
-    f_c, st = reverse_load({1: sm, -1: 1.0 - sm} if sm < 1.0 else {1: 1.0})
-    f_c2, st2 = reverse_load({-1: sm, 1: 1.0 - sm} if sm < 1.0 else {-1: 1.0})
-    txt_c = "M_h completo (falla doble)" if full else f"{sm:.0%} de M_h (reparto máx. con el desfase admitido)"
+            Fp, Fl = np.array(st_[kp]), np.array(st_[kl])
+            f += pin_load(pil[s_], Fp) + couple_load(S, fl[s_], (0.0, s_, 0.0), s_ * lev_p * np.cross(yv, Fp))
+            dirh[names[(s_, "p")]] = Fp.tolist()
+            if np.linalg.norm(Fl) > 1e-6:
+                lxs, lzs = lpt[s_]
+                f += pin_load(thr[s_], Fl) + couple_load(S, nut[s_], (0.0, -s_, 0.0), s_ * lev_l * np.cross(yv, Fl))
+                dirh[names[(s_, "l")]] = Fl.tolist()
+                M_ref += (lzs - Zb) * Fl[0] - (lxs - Xb) * Fl[2]
+        F_ref = np.array(st_["F_N"])
+        F_app = force_of(S, f)
+        M_app = float(moment_of(S, f, (Xb, 0.0, Zb))[1])
+        errF = float(np.linalg.norm(F_app - F_ref) / np.linalg.norm(F_ref))
+        errM = abs(M_app - M_ref) / max(abs(M_ref), 1e-9)
+        if errF > TOL_STATICS_STE or errM > TOL_STATICS_STE:
+            raise RuntimeError(f"STE-01: la carga del bucket aplicada no es la estática (lado {side:+d}, F_b {Fb_:.0f} N): "
+                               f"F {F_app.round(1)} vs {F_ref.round(1)} ({errF:.2%}), M_y {M_app / 1000:.2f} vs "
+                               f"{M_ref / 1000:.2f} N·m ({errM:.2%})")
+        res_ = {"F_aplicada_N": F_app.round(2).tolist(), "F_estatica_N": F_ref.round(2).tolist(), "err_F_rel": errF,
+                "M_y_pivote_aplicado_Nm": M_app / 1000, "M_y_pivote_estatica_Nm": M_ref / 1000, "err_M_rel": errM,
+                "tolerancia": TOL_STATICS_STE}
+        return f, st_, res_, dirh
+    Fb, Fbn = p.REV_F_design, p.sz["loads"]["F_bucket_N"]
+    rev = {(k, s_): reverse_load(F_, s_) for k, F_ in (("R12", Fb), ("sz", Fbn)) for s_ in (1, -1)}
+    Mh = rev[("R12", 1)][1]["M_h_Nm"]
+    Mhn = rev[("sz", 1)][1]["M_h_Nm"]
+    cases = [
+        ("a", "Desvío del chorro F_s = máx(sizing %.0f, R12 364) = %.0f N repartido en el paso (centro de presión e = %.0f mm, = structural)"
+         % (Fsn, Fs, e), f_e, None, "short"),
+        ("b", "F_s = %.0f N en la boca de salida (últimos 20 mm; brazo ≈ L = %.0f mm, conservador)" % (Fs, Lst), f_o, None, "short"),
+        ("c", "Reversa R12 (F_b = %.0f N, M_h = %.0f N·m) con M_h COMPLETO en la traba +Y: pivote +Y (chorro/2 + traba), "
+              "pivote −Y (chorro/2) y rosca M24 +Y (DISEÑO)" % (Fb, Mh), rev[("R12", 1)][0], ("R12", 1), "short"),
+        ("c2", "Reversa R12 con M_h COMPLETO en la traba −Y: pivote −Y (chorro/2 + traba), pivote +Y y rosca M24 −Y (DISEÑO)",
+         rev[("R12", -1)][0], ("R12", -1), "short"),
+        ("d", "Combinado: reversa (c) + desvío F_s en el paso (a) (maniobra en reversa)", rev[("R12", 1)][0] + f_e, ("R12", 1), "short"),
+        ("d2", "Combinado: reversa (c2) + desvío F_s en el paso (a)", rev[("R12", -1)][0] + f_e, ("R12", -1), "short"),
+        ("f", "Reversa de sizing (F_b = %.0f N, M_h = %.1f N·m) con M_h completo en la traba +Y (fatiga)" % (Fbn, Mhn),
+         rev[("sz", 1)][0], ("sz", 1), "fatiga"),
+        ("f2", "Reversa de sizing con M_h completo en la traba −Y (fatiga)", rev[("sz", -1)][0], ("sz", -1), "fatiga")]
 
     def run(log=print, init=None):
         res = []
-        for cid, name, f in (
-                ("a", "Desvío del chorro F_s = máx(sizing %.0f, R12 364) = %.0f N repartido en el paso (centro de presión e = %.0f mm, = structural)" % (Fsn, Fs, e), f_e),
-                ("b", "F_s = %.0f N en la boca de salida (últimos 20 mm; brazo ≈ L = %.0f mm, conservador)" % (Fs, Lst), f_o),
-                ("c", "Reversa R12 (F_b = %.0f N, M_h = %.0f N·m), %s en la traba +Y: pivotes (+ par del espaciador) y roscas M20" % (Fb, st["M_h_Nm"], txt_c), f_c),
-                ("c2", "Reversa R12, %s en la traba −Y: pivotes (+ par del espaciador) y roscas M20" % txt_c, f_c2),
-                ("d", "Combinado: reversa (c) + desvío F_s en el paso (a) (maniobra en reversa)", f_c + f_e),
-                ("d2", "Combinado: reversa (c2) + desvío F_s en el paso (a)", f_c2 + f_e)):
+        for cid, name, f, rk, kind in cases:
             u, info = M.solve(f, init_active=(init or {}).get(cid), log=None)
             R_ = M.interface_forces(u)
-            res.append({"id": cid, "name": name, "kind": "short", "u": u, "info": info, "active": M_active(M),
-                        "extra": {"F_N": force_of(S, f).round(1).tolist(),
-                                  "M_z_pivote_Nm": float(moment_of(S, f, (Xp, 0.0, 0.0))[2] / 1000),
-                                  "reacciones": {k: v["F_N"] for k, v in R_.items()}}})
+            ex = {"F_N": force_of(S, f).round(1).tolist(), "M_z_pivote_Nm": float(moment_of(S, f, (Xp, 0.0, 0.0))[2] / 1000),
+                  "reacciones": {k: v["F_N"] for k, v in R_.items()}}
+            if rk is not None:
+                ex["resultante_bucket"] = rev[rk][2]
+            res.append({"id": cid, "name": name, "kind": kind, "diseno": True, "u": u, "info": info, "active": M_active(M),
+                        "extra": ex, "dir_agujeros": rev[rk][3] if rk is not None else {}})
         return res
 
+    holes = {}
+    for s_ in (1, -1):
+        holes[names[(s_, "p")]] = {"c": [Xb, 0.0, Zb], "ax": [0.0, 1.0, 0.0], "r": rp_, "region": lambda X, s_=s_: in_ear(X, s_)}
+        holes[names[(s_, "l")]] = {"c": [lpt[s_][0], 0.0, lpt[s_][1]], "ax": [0.0, 1.0, 0.0], "r": rt_,
+                                   "region": lambda X, s_=s_: in_ear(X, s_)}
     ro = p.STE_ro
+    rlobe = p.STE_lock_lobe_r
     regions = {
         "tubo": lambda X: (np.hypot(X[:, 1], X[:, 2]) <= ro + 0.3) & (X[:, 0] > Xp + 20.0),
-        "orejas_bucket": lambda X: (np.abs(X[:, 1]) >= p.STE_ear_y0 - 0.1),
-        "orejas_pivote": lambda X: (np.abs(X[:, 2]) >= 38.0) & (np.abs(X[:, 1]) < p.STE_ear_y0 - 0.1),
+        "orejas_bucket": lambda X: (np.abs(X[:, 1]) >= y0e - 0.1),
+        "lobulo_rosca": lambda X: (np.abs(X[:, 1]) >= y0e - 0.1) & np.any(
+            [(X[:, 1] * s_ > 0) & (np.hypot(X[:, 0] - lpt[s_][0], X[:, 2] - lpt[s_][1]) <= rlobe + 0.5) for s_ in (1, -1)], axis=0),
+        "anillo_piloto": lambda X: (np.abs(X[:, 1]) >= y0e - 0.1) & (np.hypot(X[:, 0] - Xb, X[:, 2] - Zb) <= rp_ + 3.0),
+        "orejas_pivote": lambda X: (np.abs(X[:, 2]) >= 38.0) & (np.abs(X[:, 1]) < y0e - 0.1),
     }
     checks = {"F_s_N": Fs, "F_s_sizing_N": Fsn, "e_mm": e, "banda_e_mm": [Xp + e - half, Xp + e + half],
-              "k_contacto_N_mm3": k_c, "k_arandela_N_mm3": k_w, "estatica_bucket": st, "estatica_bucket_c2": st2,
-              "brazo_par_espaciador_mm": lev,
+              "k_contacto_N_mm3": k_c, "k_arandela_N_mm3": k_w,
+              "estatica_bucket_c": rev[("R12", 1)][1], "estatica_bucket_c2": rev[("R12", -1)][1],
+              "resultante_bucket": {f"{k}_{'+Y' if s_ > 0 else '-Y'}": v[2] for (k, s_), v in rev.items()},
+              "brazo_par_espaciador_mm": lev_p, "brazo_par_perno_traba_mm": lev_l, "r_contratuerca_mm": NUT_M24_R,
+              "facetas_agujero_pivote_fuera_de_las_orejas": n_out_ear,
               "nota": "El par de dirección lo reacciona el yugo (brida sobre la torre) como cuerpo rígido con solo el giro "
-                      "alrededor del eje de pivote bloqueado: par puro, sin fuerza neta."}
-    Fbn = p.sz["loads"]["F_bucket_N"]
+                      "alrededor del eje de pivote bloqueado: par puro, sin fuerza neta. Cargas del bucket autoequilibradas por "
+                      "oreja: fuerza en el piloto Ø16 / la rosca M24 y momento como par de resultante nula en la cara de la "
+                      "brida / de la contratuerca; resultante y M_y verificados contra la estática en el setup."}
     comp = comparisons(est, pid, [
-        {"key": "Flexión del tubo", "caso": "a", "region": "tubo", "escala": Fsn / Fs},
-        {"key": "Oreja del bucket: flexión en su plano", "caso": "c", "region": "orejas_bucket"},
-        {"key": "Oreja del bucket: flexión (reversa sizing", "caso": "c", "region": "orejas_bucket", "escala": Fbn / p.REV_F_design,
-         "nota": "FEA con M_h completo en una traba escalado a la reversa de sizing (la fila usa el reparto máx.: FEA conservador)"},
-        {"key": "Oreja del bucket: ligamento de la rosca M20", "caso": "c", "region": "orejas_bucket"},
+        {"key": "Flexión del tubo", "caso": "a", "region": "tubo", "escala": Fsn / Fs,
+         "nota": "caso sin juego inicial (homogéneo de grado 1): escalar a F_s de sizing es exacto"},
+        {"key": "Oreja del bucket: flexión en su plano (R12", "caso": "c", "region": "orejas_bucket"},
+        {"key": "Oreja del bucket: flexión (reversa sizing", "caso": "f", "region": "orejas_bucket",
+         "nota": "caso de sizing corrido explícitamente (sin escalar)"},
+        {"key": "Oreja del bucket: ligamento de la rosca", "caso": "c", "region": "lobulo_rosca"},
         {"key": "Oreja del bucket: flexión fuera del plano", "caso": "c", "region": "orejas_bucket"},
+        {"key": "Oreja del bucket: aplastamiento del piloto", "caso": "c", "region": "anillo_piloto", "metrica": "mean",
+         "nota": "aplastamiento: presión media R/(d·t); FEA: σvm promedio en el anillo de 3 mm alrededor del piloto"},
         {"key": "Oreja de pivote", "caso": "d", "region": "orejas_pivote"},
     ])
-    return {"model": M, "run": run, "meta": meta, "mesh": minfo, "checks": checks, "allow": A,
+    return {"model": M, "run": run, "meta": meta, "mesh": minfo, "checks": checks, "allow": A, "holes": holes,
             "regions": regions, "comparacion": comp, "frame_label": "BOQUILLA (δ = 0)"}
 
 

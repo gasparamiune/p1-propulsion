@@ -14,7 +14,9 @@ en X = X_steer_pivot. Geometría (marco JET, δ = 0):
   - orejas del bucket (±Y STE_ear_y0–STE_ear_y1, 12 mm) con Ø16 H7 escariado para el piloto del espaciador del
     pivote P1-REV-02 (su brida apoya en la cara exterior; uno por oreja) y rosca M24×1,5 del émbolo propio
     P1-REV-04 en cada una (traba arriba/abajo en los dos brazos del bucket, +Y a REV_lock_ang y −Y a
-    REV_lock_ang_m). Cada oreja lleva sola su pivote y su traba con M_h completo (auditoría ronda 4).
+    REV_lock_ang_m). Cada oreja lleva sola su pivote y su traba con M_h completo (auditoría ronda 4);
+  - pad plano sobre el cuerpo a popa de los émbolos con 2 roscas M5 × 7,5 para el soporte de reenvío del desbloqueo
+    P1-REV-09 (R4-07).
 PETG descartado: FS < 3 en orejas del bucket y pernos (ver structural_direccion.py)."""
 import math
 import os
@@ -159,6 +161,9 @@ def build(p):
     if p.REV_n_locks > 1:
         lx2, lz2 = lock_point(p, -1)
         b = b - cyl_y(rt, -p.STE_ear_y1 - 1, -p.STE_ear_y0 + 1, x=lx2, z=lz2)        # M24×1,5 del 2.º émbolo (−Y)
+    # pad de fijación del soporte de reenvío del desbloqueo P1-REV-09 (cara plana sobre el cuerpo, a popa de los émbolos)
+    # con 2 roscas M5 × 7,5 (taladro Ø4,2): auditoría ronda 4, R4-07 (geometría en piezas/_release)
+    b = b + RL.pad_box(p) - RL.pad_holes(p)
     b = b - bore_cut(p)
     return b
 

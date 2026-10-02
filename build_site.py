@@ -41,7 +41,10 @@ REPO_URL = "https://github.com/gasparamiune/p1-propulsion"
 BLOB = REPO_URL + "/blob/main/"
 TREE = REPO_URL + "/tree/main/"
 SITE_NAME = "P1-J · Strålen"
-SITE_TITLE = "P1-J · Strålen — waterjet eléctrico inboard para un jet boat de 2,30 m"
+SITE_TITLE_FMT = "P1-J · Strålen — waterjet eléctrico inboard para un jet boat de {loa} m"
+OG_VERSION = ""     # hash corto de og.png (lo fija build_og): WhatsApp guarda la vista previa por URL de imagen
+STALE_BANNER = ""   # aviso rojo en las páginas cuando se compila con --allow-stale y hay fuentes desactualizadas
+OG_ALT = "P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía"
 
 # Documentos que se publican como páginas (ruta en el repo). El resto de los .md se enlaza a GitHub.
 DOCS_MAIN = ["README.md", "01_investigacion.md", "02_calculos.md", "03_arquitectura.md", "04_diseno/README.md",
@@ -131,6 +134,8 @@ def fnum(v, fmt=".0f", es=True):
             if es:
                 s = s.replace(",", "\u202f").replace(".", ",")
             return s
+        if not fmt and es and isinstance(v, float):
+            return str(v).replace(".", ",")
         return format(v, fmt) if fmt else str(v)
     except (TypeError, ValueError):
         return str(v)
@@ -178,7 +183,9 @@ def resolve_markers(txt, srcs, es=False):
 
     def rb(m):
         name = m.group(2)
-        return f"{m.group(1)}\n{blocks[name]}\n{m.group(4)}" if name in blocks else m.group(0)
+        if name not in blocks:
+            return m.group(0)
+        return f"{m.group(1)}\n{es_decimals_md(blocks[name]) if es else blocks[name]}\n{m.group(4)}"
 
     def rv(m):
         path, fmt, old = m.group(1), m.group(2), m.group(3)
@@ -191,6 +198,14 @@ def resolve_markers(txt, srcs, es=False):
         except Exception:
             return old
     return strip_markers(PAT_V.sub(rv, PAT_AUTO.sub(rb, txt)))
+
+
+def es_decimals_md(t):
+    """Coma decimal en un bloque AUTO (Markdown) para que coincida con los valores V del mismo documento: «27.1» →
+    «27,1». No toca `código`, enlaces/rutas, secciones («§3.2»), versiones ni números de material EN («1.4404»)."""
+    parts = re.split(r"(`[^`]*`|\]\([^)]*\))", t)
+    rx = re.compile(r"(?<![\w.§/])(?!1\.4\d{3}\b)(\d+)\.(\d+)(?![\w./])")
+    return "".join(x if i % 2 else rx.sub(r"\1,\2", x) for i, x in enumerate(parts))
 
 
 def strip_markers(txt):
@@ -216,7 +231,28 @@ def plain(s):
     return re.sub(r"\s+", " ", s).strip()
 
 
-META_PARA = re.compile(r"^(Fecha|Consulta|Autor|Autora|Estado|Versión|Fuente|Fuentes)\b", re.I)
+META_PARA = re.compile(r"^(Fecha|Consulta|Autor|Autora|Estado|Versión|Fuente|Fuentes|Etiquetas|Convenciones|"
+                       r"Las tablas entre|Todo se regenera)\b|run_all\.py", re.I)
+# descripción (og:description y la ficha de documentos.html) escrita a mano cuando el primer párrafo no sirve
+DOC_DESCRIPTIONS = {
+    "04_diseno/README.md": "Diseño CAD del waterjet P1-J: lista de piezas, verificación de interferencias y "
+                           "exportes STEP/STL.",
+}
+
+
+def short_desc(d, n=180):
+    return d if len(d) <= n else d[: n - 1].rsplit(" ", 1)[0].rstrip(" ,;:—-") + "…"
+
+
+def short_title(t, n=70):
+    """Título para <title>/og:title: hasta el primer « (» o «: » (si queda algo con sentido), y ≤ n caracteres
+    cortando en un espacio. El H1 completo queda en el cuerpo de la página."""
+    for sep in (" (", ": "):
+        i = t.find(sep)
+        if i >= 12:
+            t = t[:i]
+    t = t.strip(" —-:")
+    return t if len(t) <= n else t[: n - 1].rsplit(" ", 1)[0].rstrip(" ,;:—-") + "…"
 
 
 def md_description(txt, n=180):
@@ -226,7 +262,9 @@ def md_description(txt, n=180):
 
     def flush():
         if para:
-            paras.append(plain(" ".join(para)))
+            raw = " ".join(para)
+            # párrafos sobre el propio archivo (marcadores <!-- … -->, convenciones del generador): no sirven de resumen
+            paras.append("" if "<!--" in raw else plain(raw))
             para.clear()
 
     for ln in txt.splitlines():
@@ -250,12 +288,18 @@ def md_description(txt, n=180):
 
 
 DIA = '<span class="dia">Ø</span>'
-PID = re.compile(r"\bP1-[A-Z]{2,4}-\d{2}\b")
+PID = re.compile(r"\bP1-(?:[A-Z]{2,4}-\d{2}|J)\b")
 
 
 def _text_nodes(h, fn):
-    """Aplica fn al texto (no a las etiquetas ni atributos) de un fragmento HTML."""
-    return re.sub(r"(^|>)([^<]+)", lambda t: t.group(1) + fn(t.group(2)), h)
+    """Aplica fn al texto (no a las etiquetas ni atributos, ni a <script>/<style>) de un fragmento HTML."""
+    parts = re.split(r"(<(script|style)\b.*?</\2>)", h, flags=re.S)
+    out = []
+    for i in range(0, len(parts), 3):
+        out.append(re.sub(r"(^|>)([^<]+)", lambda t: t.group(1) + fn(t.group(2)), parts[i]))
+        if i + 1 < len(parts):
+            out.append(parts[i + 1])
+    return "".join(out)
 
 
 def display_glyphs(h):
@@ -267,13 +311,25 @@ def display_glyphs(h):
 
 
 def nowrap_pids(h):
-    """Los códigos de pieza (P1-STE-01) no se cortan en el guion."""
+    """Los códigos de pieza (P1-STE-01) y del proyecto (P1-J) no se cortan en el guion (lo aplica page_html a
+    todo el cuerpo de cada página)."""
     return _text_nodes(h, lambda t: PID.sub(lambda m: f'<span class="pid">{m.group(0)}</span>', t))
 
 
+def _short_first_col(t, n=16):
+    """¿La primera columna de la tabla HTML `t` es corta (IDs, códigos)? Entonces no se corta en el teléfono."""
+    cells = [html.unescape(re.sub(r"<[^>]+>", "", c)).strip()
+             for c in re.findall(r"<tr[^>]*>\s*<t[dh][^>]*>(.*?)</t[dh]>", t, re.S)]
+    return bool(cells) and max(len(c) for c in cells) <= n
+
+
 def wrap_tables(h):
-    h = re.sub(r"<table(\s[^>]*)?>", lambda m: f'<div class="table-wrap"><table{m.group(1) or ""}>', h)
-    return h.replace("</table>", "</table></div>")
+    def one(m):
+        t, attrs = m.group(0), m.group(1) or ""
+        if _short_first_col(t) and "class=" not in attrs:
+            t = t.replace("<table" + attrs + ">", f'<table{attrs} class="idcol">', 1)
+        return f'<div class="table-wrap">{t}</div>'
+    return re.sub(r"<table(\s[^>]*)?>.*?</table>", one, h, flags=re.S)
 
 
 class Ctx:
@@ -315,8 +371,12 @@ class Ctx:
             elif target.rstrip("/") == "04_diseno/visor" or (
                     target.startswith("04_diseno/visor/") and posixpath.basename(target) in VISOR_FILES):
                 new = rel(page, "visor/" + (posixpath.basename(target) if target.endswith(tuple(VISOR_FILES)) else "index.html"))
-            elif attr == "src" and posixpath.splitext(target)[1].lower() in IMG_EXT and (ROOT / target).is_file():
-                site_path = "doc/" + target
+            elif posixpath.splitext(target)[1].lower() in IMG_EXT and (ROOT / target).is_file():
+                # la imagen (o el enlace a ella) va a la copia dentro del sitio, no a GitHub
+                if target.startswith("figuras/") or target.startswith("04_diseno/planos/"):
+                    site_path = ("figuras/" if target.startswith("figuras/") else "planos/") + posixpath.basename(target)
+                else:
+                    site_path = "doc/" + target
                 self.copy(target, site_path)
                 new = rel(page, site_path)
             elif (ROOT / target).is_dir() or path.endswith("/"):
@@ -403,14 +463,17 @@ def render_md(txt, toc=True):
 
 # ───────────────────────────── plantilla ─────────────────────────────
 
-NAV = [("index.html", "Inicio"), ("visor/index.html", "Visor 3D"), ("documentos.html", "Documentos"),
-       ("planos.html", "Planos"), ("bom.html", "Materiales"), ("fea.html", "FEA")]
+# (destino, etiqueta, etiqueta corta en el teléfono; None = no se muestra en el teléfono: la marca ya va a Inicio)
+NAV = [("index.html", "Inicio", None), ("visor/index.html", "Visor 3D", "Visor 3D"),
+       ("documentos.html", "Documentos", "Docs"), ("planos.html", "Planos", "Planos"), ("bom.html", "Materiales", "BOM"),
+       ("fea.html", "FEA", "FEA")]
 
 
 def head(page, title, description, extra=""):
     url = SITE_URL + ("" if page == "index.html" else page)
     css = rel(page, "assets/site.css")
     t, d = E(title), E(description)
+    og_img = SITE_URL + "og.png" + (f"?v={OG_VERSION}" if OG_VERSION else "")
     return f"""<!doctype html>
 <html lang="es">
 <head>
@@ -423,14 +486,15 @@ def head(page, title, description, extra=""):
 <meta property="og:title" content="{t}">
 <meta property="og:description" content="{d}">
 <meta property="og:url" content="{E(url)}">
-<meta property="og:image" content="{SITE_URL}og.png">
+<meta property="og:image" content="{og_img}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{E(OG_ALT)}">
 <meta property="og:locale" content="es_ES">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{t}">
 <meta name="twitter:description" content="{d}">
-<meta name="twitter:image" content="{SITE_URL}og.png">
+<meta name="twitter:image" content="{og_img}">
 <meta name="theme-color" content="#0f242b">
 <link rel="icon" href="{FAVICON}">
 <link rel="canonical" href="{E(url)}">
@@ -441,27 +505,44 @@ def head(page, title, description, extra=""):
 
 def page_html(page, title, description, body, active=None, wide=False):
     cur = ' aria-current="page"'
+    def lab(lbl, short):
+        if short is None or short == lbl:
+            return E(lbl)
+        return f'<span class="l-long">{E(lbl)}</span><span class="l-short" aria-hidden="true">{E(short)}</span>'
     nav = "".join(
-        f'<a href="{rel(page, href)}"{cur if href == active else ""}>{E(lbl)}</a>' for href, lbl in NAV)
-    nav += f'<a href="{REPO_URL}" class="ext">GitHub&nbsp;↗</a>'
+        f'<a href="{rel(page, href)}"{cur if href == active else ""}{" class=nav-home" if short is None else ""}>'
+        f'{lab(lbl, short)}</a>' for href, lbl, short in NAV)
+    nav += f'<a href="{REPO_URL}" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a>'
     return f"""{head(page, title, description)}
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
-<header class="site-header">
+<header class="site-header" id="top">
   <div class="bar{' wide' if wide else ''}">
     <a class="brand" href="{rel(page, 'index.html')}"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
     <nav class="site-nav" aria-label="Secciones">{nav}</nav>
   </div>
 </header>
+{STALE_BANNER}
 <main id="main" class="main{' wide' if wide else ''}">
-{display_glyphs(body)}
+{display_glyphs(nowrap_pids(body))}
 </main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
 <footer class="site-footer">
   <div class="bar{' wide' if wide else ''}">
     <span>{E(SITE_NAME)} · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
     <a href="{REPO_URL}">Repositorio en GitHub ↗</a>
   </div>
 </footer>
+<script>(function () {{
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() {{ n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }}
+  n.addEventListener("scroll", f, {{ passive: true }}); window.addEventListener("resize", f); f();
+}})();
+(function () {{
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() {{ b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }}
+  window.addEventListener("scroll", g, {{ passive: true }}); g();
+}})();</script>
 </body>
 </html>
 """
@@ -492,6 +573,224 @@ def readme_parts(srcs):
     return rec, steps
 
 
+COTA = re.compile(r"^(P1-[A-Z]+-\d+): cota crítica '(.+?)(?: \[([^\]]+)\])?' = (-?[\d.]+) \(ref ([<>]=?) (-?[\d.]+)\)")
+CLASH = re.compile(r"^interferencia (P1-[A-Z]+-\d+)(?:#\d+)? ↔ (P1-[A-Z]+-\d+)(?:#\d+)?")
+
+
+def verify_summary(srcs):
+    """verify.json → (pares de piezas que chocan [(a, b, n)], otras fallas [(tipo, texto)], n.º de fallas de choque).
+    Las fallas que no son choques (p. ej. una cota crítica fuera de tolerancia) se listan aparte."""
+    pairs, other, n_clash = {}, [], 0
+    for f in (srcs.get("verify") or {}).get("fails") or []:
+        f = str(f)
+        m = CLASH.match(f)
+        if m:
+            n_clash += 1
+            k = tuple(sorted((m.group(1), m.group(2))))
+            pairs[k] = pairs.get(k, 0) + 1
+            continue
+        m = COTA.match(f)
+        if m:
+            pid, what, unit, val, op, ref = m.groups()
+            u = f" {unit}" if unit else ""
+            op = {">=": "≥", "<=": "≤"}.get(op, op)
+            other.append(("cota", f"{pid} {what}: {fnum(float(val), '.1f')}{u}, se pide {op} {fnum(float(ref), 'g')}{u}"))
+        else:
+            other.append(("otra", f))
+    return [(a, b, n) for (a, b), n in pairs.items()], other, n_clash
+
+
+def verify_phrase(srcs, html_out=True):
+    """«24 choques entre piezas (P1-REV-04 ↔ P1-REV-09, …) y 1 cota crítica fuera de tolerancia (…)», desde los datos."""
+    pairs, other, n_clash = verify_summary(srcs)
+    parts = []
+    if n_clash:
+        pl = " y ".join(f"{a} ↔ {b}" for a, b, _ in pairs)
+        parts.append(f"choques entre {pl} ({n_clash} caso{'s' if n_clash != 1 else ''} entre posiciones de boquilla y "
+                     f"bucket)")
+    cotas = [t for k, t in other if k == "cota"]
+    otras = [t for k, t in other if k != "cota"]
+    if cotas:
+        parts.append(f"{len(cotas)} cota{'s' if len(cotas) != 1 else ''} crítica{'s' if len(cotas) != 1 else ''} "
+                     f"fuera de tolerancia ({'; '.join(cotas)})")
+    if otras:
+        parts.append(f"{len(otras)} falla{'s' if len(otras) != 1 else ''} más ({'; '.join(otras)})")
+    txt = " y ".join(parts) if len(parts) <= 2 else ", ".join(parts[:-1]) + " y " + parts[-1]
+    return E(txt) if html_out else txt
+
+
+def open_failures(srcs):
+    """Fallas abiertas del CAD y del FEA: pares que chocan + otras fallas de verify.json + piezas FEA que no cumplen."""
+    pairs, other, _ = verify_summary(srcs)
+    fea_bad = [pid for pid, p in ((srcs.get("fea") or {}).get("piezas") or {}).items()
+               if p.get("FS_min") is not None and not p.get("cumple")]
+    return len(pairs) + len(other) + len(fea_bad)
+
+
+def all_checks_ok(srcs):
+    """verify.json sin fallas y todas las piezas FEA cumplen (lo que un documento puede llamar «verificado»)."""
+    return bool((srcs.get("verify") or {}).get("ok")) and open_failures(srcs) == 0
+
+
+def mc_runs():
+    """N.º de juegos de pesos del Monte Carlo de la matriz de arquitectura (de resultados/arquitectura_tabla.md)."""
+    fp = docgen.RES / "arquitectura_tabla.md"
+    m = re.search(r"Monte Carlo \((\d+) juegos", fp.read_text(encoding="utf-8")) if fp.exists() else None
+    return int(m.group(1)) if m else None
+
+
+def fs_exception_note(est, pid):
+    """«(fusible intencional: …)» si la justificación de la pieza en estructural.json dice que es un fusible."""
+    for r in est.get("rows", []):
+        if r.get("part") == pid and str(r.get("justification") or "").lower().startswith("fusible"):
+            return " (fusible intencional: se rompe a propósito ante un golpe y se cambia cada temporada)"
+    return ""
+
+
+def status_items(V, srcs, page="index.html"):
+    """Puntos abiertos de la portada [(clase, título, texto HTML)]: estabilidad, planeo, verificación del CAD,
+    chaveta del motor y piezas FEA que no cumplen. Los que tienen clase «bad» son los «puntos abiertos» que se
+    cuentan en la pastilla de la portada y en og.png."""
+    fea, est = srcs["fea"], srcs["est"]
+    req = V.raw("sizing.verdict.plane_margin_required", 0.10)
+    margin_nom = V.raw("sizing.verdict.hump_margin_min_nominal")
+    hump_ok = V.raw("sizing.verdict.hump_ok")
+    verify_ok = V.raw("verify.ok")
+    vd = V.raw("sizing.verdict", {}) or {}
+    planes_nom, planes_high = vd.get("planes_nominal_band"), vd.get("planes_high_band")
+    beam = inp("boat.beam_m")
+    pilot_kg = next((it.get("kg") for it in (V.raw("sizing.masses.items") or []) if it.get("id") == "pilot"), None)
+    cap_kg = V.raw("sizing.capacity.persons_gear_kg")
+    v_pairs, v_other, _ = verify_summary(srcs)
+    fea_rows = [(pid, p) for pid, p in (fea.get("piezas") or {}).items() if p.get("FS_min") is not None]
+
+    items = []
+    tips = cap_kg is not None and pilot_kg is not None and cap_kg < pilot_kg
+    gm = V("sizing.hydrostatics.GM_m", ".3f")
+    if tips:
+        items.append(("bad", f"Estabilidad del casco: puede volcar (GM ≈ {gm} m)",
+                      f"Con {fnum(beam, '.2f')} m de manga y el piloto sentado alto, la estabilidad (altura metacéntrica, "
+                      f"GM) es casi nula. La capacidad de carga por la regla de EE. UU. 33 CFR 183.33 da "
+                      f"{E(fnum(cap_kg, '.0f'))} kg, y un piloto pesa ~{E(fnum(pilot_kg, '.0f'))} kg: <b>puede volcar</b>. "
+                      f"<b>Bloquea las pruebas en agua hasta resolverlo</b>: ensayo de escora con carga desplazada antes de "
+                      f"motorizar; probablemente haya que ensanchar el casco o bajar el asiento."))
+    else:
+        items.append(("ok", f"Estabilidad del casco: GM ≈ {gm} m",
+                      f"La capacidad de carga por la regla 33 CFR 183.33 da {E(fnum(cap_kg, '.0f'))} kg, más que el piloto "
+                      f"(~{E(fnum(pilot_kg, '.0f'))} kg). Igual se hace el ensayo de escora antes de motorizar."))
+    vmass, vlwl = V.raw("sizing.verdict.recovery_mass_text", "menos masa"), V.raw("sizing.verdict.recovery_lwl_text", "más eslora")
+    vlwl = str(vlwl).replace("L_wl", "eslora mojada (largo del casco en el agua)")
+    no_motor = (V.raw("sizing.verdict.optimizer_status") == "sin_solucion_dura")
+    target_kmh = inp("operation.top_speed_target_kmh")
+    ok_target = V.raw("sizing.checks.ok_vmax_target")
+    if planes_high and hump_ok:
+        p_title, p_cls = "Planeo: planea con las dos estimaciones de resistencia", "ok"
+    elif planes_nom:
+        p_title, p_cls = "Planeo: justo con la resistencia nominal, no llega con la alta", "bad"
+    else:
+        p_title, p_cls = "Planeo: no llega a planeo pleno ni con la resistencia nominal", "bad"
+    if target_kmh is not None and not ok_target:
+        p_title += f"; no llega a los {fnum(target_kmh, '.0f')} km/h que pide Jorge"
+    t_nom, t_max = vd.get("t_to_plane_nominal_s"), V.raw("sizing.success.t_plane_max_s")
+    t_nom = t_nom if isinstance(t_nom, (int, float)) and t_nom < 1e6 else None
+    v_full, full_cont = vd.get("V_full_planing_kmh"), vd.get("sustains_full_planing_cont_nominal")
+    if planes_nom:
+        nom_txt = ("Con la resistencia <b>nominal</b> (la de referencia), a fondo llega a planear"
+                   + (f", pero justo: le sobra {E(fnum(margin_nom, '.0%'))} de empuje contra el ≥ {E(fnum(req, '.0%'))} que "
+                      f"se pide" if not hump_ok else "")
+                   + (f"; tarda {E(fnum(t_nom, '.0f'))} s" if t_nom is not None else "")
+                   + (f" (se pide ≤ {E(fnum(t_max, 'g'))} s)" if t_nom is not None and t_max and t_nom > t_max else "")
+                   + ". "
+                   + (f"Con potencia continua no se sostiene en planeo pleno: "
+                      f"{E(V('sizing.verdict.vmax_cont_kmh.nominal', '.1f'))} km/h contra "
+                      f"{E(fnum(v_full, '.0f'))} km/h que hacen falta. " if full_cont is False and v_full else ""))
+    else:
+        nom_txt = "Con la resistencia <b>nominal</b> (la de referencia) no llega a planear. "
+    high_txt = ("" if planes_high else
+                f"Con la resistencia <b>alta</b> (pesimista; método sin validar para un casco tan corto) se queda en "
+                f"{E(V('sizing.verdict.V_eq_peak_high_kmh', '.0f'))} km/h a fondo y "
+                f"{E(V('sizing.verdict.vmax_cont_kmh.high', '.0f'))} km/h con potencia continua, sin planear. ")
+    fix_txt = ("" if (planes_high and hump_ok) else
+               ("Ninguna combinación de motor y batería &lt; 50 V cumple el objetivo: " if no_motor else "")
+               + f"lo arregla el casco — <b>{E(vmass)}</b> o <b>{E(vlwl)}</b>. ")
+    items.append((p_cls, p_title, nom_txt + high_txt + fix_txt
+                  + f"Lo decide la prueba en el agua {E(str(V.raw('sizing.verdict.validated_by', 'T4')))}."))
+    if not verify_ok:
+        n_cota = sum(1 for k, _ in v_other if k == "cota")
+        bits = ([f"{len(v_pairs)} par{'es' if len(v_pairs) != 1 else ''} de piezas que chocan"] if v_pairs else []) \
+            + ([f"{n_cota} cota{'s' if n_cota != 1 else ''} crítica{'s' if n_cota != 1 else ''} fuera de tolerancia"] if n_cota else []) \
+            + ([f"{len(v_other) - n_cota} falla{'s' if len(v_other) - n_cota != 1 else ''} más"] if len(v_other) > n_cota else [])
+        items.append(("bad", "Verificación del CAD: " + " y ".join(bits or ["con fallas"]),
+                      f"La verificación automática del modelo 3D (<code>verify_parts.py</code>) da {verify_phrase(srcs)}. "
+                      f"Hay que corregir esas piezas en el CAD y volver a verificar <b>antes de fabricar</b>. Detalle en "
+                      f'<a href="{rel(page, doc_out("04_diseno/README.md"))}">04_diseno — Verificación</a>.'))
+    for pid_k, row in sorted((est.get("min_by_part") or {}).items()):
+        if pid_k != "P1-DRV-08":
+            continue
+        just = next((r.get("justification") for r in est.get("rows", [])
+                     if r.get("part") == pid_k and r.get("load_case") == row.get("load_case")), "")
+        below = row["FS"] < row["target"]
+        items.append(("bad" if below else "ok",
+                      f"Chaveta del eje del motor: factor de seguridad (FS) {fnum(row['FS'], '.2f')} "
+                      f"{'&lt;' if below else '≥'} {fnum(row['target'], 'g')}",
+                      f"La chaveta (la pieza que traba el eje del motor con el acople de la bomba) puede deformarse con el "
+                      f"par máximo del motor. El largo lo fija el eje del motor y no se puede alargar. "
+                      f"Mitigación: <b>medir el chavetero del motor al recibirlo</b>, cubo del acople <b>de acero</b> "
+                      f"y <b>Loctite 648</b> en el asiento además de la chaveta."
+                      f'<details><summary>Detalle técnico (estructural.json)</summary><p>Caso de carga: {E(row["load_case"])}.'
+                      + (f" {E(just)}" if just else "") + "</p></details>"))
+    for pid, p in fea_rows:
+        if not p.get("cumple"):
+            items.append(("bad", f"FEA: {pid} con FS {fnum(p['FS_min'], '.2f')} &lt; {fnum(p.get('FS_objetivo'), 'g')}",
+                          f"{E(p.get('descripcion', ''))}. Caso de carga {E(str(p.get('caso_gobernante', '')))}"
+                          f" de la corrida FEA del {E(str((fea.get('meta') or {}).get('fecha', '')))}; "
+                          f'detalle en <a href="{rel(page, "fea.html")}#{E(pid)}">Resultados FEA</a>.'))
+    return items
+
+
+def open_points(V, srcs):
+    """N.º de puntos abiertos (clase «bad») de status_items: lo que cuenta la pastilla de la portada y og.png."""
+    return sum(1 for c, _, _ in status_items(V, srcs) if c == "bad")
+
+
+def open_points_phrase(n):
+    return f"{n} punto{'s' if n != 1 else ''} abierto{'s' if n != 1 else ''}"
+
+
+def speed_phrase(V):
+    """«24,4 km/h (modelo; objetivo 30, no cumple)» para og:description y og.png."""
+    tgt, ok = inp("operation.top_speed_target_kmh"), V.raw("sizing.checks.ok_vmax_target")
+    s = f"{V('sizing.verdict.vmax_cont_kmh.nominal', '.1f')} km/h (modelo"
+    if tgt is not None:
+        s += f"; objetivo {fnum(tgt, '.0f')}, {'cumple' if ok else 'no cumple'}"
+    return s + ")"
+
+
+def index_description(V, srcs, n_open=None):
+    """og:description de la portada (WhatsApp muestra ~2 líneas: la advertencia va primero; ≤ 200 caracteres)."""
+    n_open = open_points(V, srcs) if n_open is None else n_open
+    loa = fnum(inp("boat.loa_m"), ".2f")
+    head_ = (f"Diseño (aún sin construir ni probar) de un waterjet eléctrico inboard para un jet boat de {loa} m: "
+             f"Ø{V('sizing.selection.D_imp_mm', '.0f')} mm, {speed_phrase(V)}, {V('manifest.totals.n_parts', 'd')} piezas CAD"
+             + (f", {open_points_phrase(n_open)}" if n_open else "") + ".")
+    for tail in (" Visor 3D, planos, BOM y FEA.", " Visor 3D y planos.", ""):
+        if len(head_ + tail) <= 200:
+            return head_ + tail
+    return head_[:199].rsplit(" ", 1)[0] + "…"
+
+
+_SVG = '<svg viewBox="0 0 24 24" width="24" height="24" focusable="false">{}</svg>'
+ICONS = {   # íconos de los accesos de la portada (trazo con currentColor)
+    "cube": _SVG.format('<path d="M12 2.5 3.5 7v10l8.5 4.5 8.5-4.5V7z"/><path d="M3.5 7 12 11.5 20.5 7M12 11.5v10"/>'),
+    "doc": _SVG.format('<path d="M6 2.5h8.5l4.5 4.5v14.5H6z"/><path d="M14 2.5V7.5h5M9 12.5h7M9 16.5h7"/>'),
+    "plan": _SVG.format('<rect x="2.5" y="8" width="19" height="8" rx="1"/><path d="M6.5 8v3M10.5 8v4.5M14.5 8v3M18.5 8v4.5"/>'),
+    "list": _SVG.format('<path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.5M4 12h.5M4 18h.5" stroke-width="3"/>'),
+    "fea": _SVG.format('<path d="M3.5 18a8.5 8.5 0 1 1 17 0"/><path d="M12 18l4.5-6.5M6.5 13.5l1.2.7M12 8.5v1.4M17.5 13.5l-1.2.7"/>'),
+    "git": _SVG.format('<circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="7" r="2"/>'
+                       '<path d="M6 7v10M18 9c0 5-12 3-12 8"/>'),
+}
+
+
 def build_index(ctx, V, srcs):
     page = "index.html"
     fea, est = srcs["fea"], srcs["est"]
@@ -500,32 +799,59 @@ def build_index(ctx, V, srcs):
     hump_ok = V.raw("sizing.verdict.hump_ok")
     verify_ok = V.raw("verify.ok")
     vd = V.raw("sizing.verdict", {}) or {}
-    planes_nom, planes_high = vd.get("planes_nominal_band"), vd.get("planes_high_band")
+    planes_high = vd.get("planes_high_band")
     # datos de entrada (inputs.yaml), no literales
     loa, beam = inp("boat.loa_m"), inp("boat.beam_m")
     steer = inp("waterjet.steering.max_deflection_deg")
     target_kmh = inp("operation.top_speed_target_kmh")
     legal_kn = (inp("operation.legal_speed_limit_kmh") or 0) / 1.852 or None
     env = inp("printer.envelope_mm") or []
-    pilot_kg = next((it.get("kg") for it in (V.raw("sizing.masses.items") or []) if it.get("id") == "pilot"), None)
-    cap_kg = V.raw("sizing.capacity.persons_gear_kg")
     ok_target = V.raw("sizing.checks.ok_vmax_target")
     s_loa, s_beam, s_steer = fnum(loa, ".2f"), fnum(beam, ".2f"), fnum(steer, ".0f")
+    v_pairs, v_other, n_clash = verify_summary(srcs)
+    items = status_items(V, srcs, page)
+    n_open = sum(1 for c, _, _ in items if c == "bad")
+    all_ok = all_checks_ok(srcs) and n_open == 0
 
     # FEA
     fea_rows = [(pid, p) for pid, p in (fea.get("piezas") or {}).items() if p.get("FS_min") is not None]
     fea_min = min(fea_rows, key=lambda r: r[1]["FS_min"] / (r[1].get("FS_objetivo") or 1)) if fea_rows else None
     n_fea_ok = sum(1 for _, p in fea_rows if p.get("cumple"))
 
+    v_plane = vd.get("V_planing_start_kmh")
     if planes_high:
         high_note, high_cls = "también planea con la estimación pesimista", ""
+    elif vd.get("sustains_planing_cont_high") is False:
+        high_note, high_cls = (
+            "con potencia continua se cae del planeo"
+            + (f" (empieza a planear a {fnum(v_plane, '.0f')} km/h)" if v_plane else "")
+            + f"; a fondo llega a {V('sizing.verdict.V_eq_peak_high_kmh', '.0f')} km/h "
+            + ("sin planeo pleno" if vd.get("reaches_planing_high") else "sin planear"), "bad")
     elif vd.get("reaches_planing_high"):
         high_note, high_cls = "con esta estimación no llega a planeo pleno", "warn"
     else:
         high_note, high_cls = "con esta estimación no planea", "bad"
+    b_planes, b_margin = V.raw("cmp.B_planes"), V.raw("cmp.B_hump_margin")
+    b_plane_note = ("" if b_planes or b_planes is None else
+                    f"; con la resistencia alta tampoco planea (margen {fnum(b_margin, '.0%')}, "
+                    f"A: {fnum(V.raw('cmp.A_hump_margin'), '.0%')})").replace("-", "−")
     tgt_txt = ""
     if target_kmh is not None:
         tgt_txt = f"objetivo de Jorge ≥ {fnum(target_kmh, '.0f')} km/h — {'cumple' if ok_target else 'NO cumple'} · "
+    if verify_ok:
+        chk = ("Chequeos de choque entre piezas", V("verify.n_pair_checks", "d"), "combinaciones",
+               f"sin interferencias · pares de piezas × posiciones: boquilla −{s_steer}/0/+{s_steer}° × bucket arriba/abajo",
+               "[VERIFICADO en software]", "")
+    else:
+        n_cota = sum(1 for k, _ in v_other if k == "cota")
+        bits = ([f"{len(v_pairs)} par{'es' if len(v_pairs) != 1 else ''} de piezas que chocan ({n_clash} caso{'s' if n_clash != 1 else ''})"]
+                if v_pairs else []) \
+            + ([f"{n_cota} cota{'s' if n_cota != 1 else ''} crítica{'s' if n_cota != 1 else ''} fuera de tolerancia"] if n_cota else []) \
+            + ([f"{len(v_other) - n_cota} falla{'s' if len(v_other) - n_cota != 1 else ''} más"] if len(v_other) > n_cota else [])
+        chk = ("Verificación del CAD (choques entre piezas y cotas)", str(len(v_pairs) + len(v_other)), "fallas abiertas",
+               " y ".join(bits) + f", en {V('verify.n_pair_checks', 'd')} combinaciones revisadas"
+               f" (boquilla −{s_steer}/0/+{s_steer}° × bucket arriba/abajo) · detalle en «Estado honesto»",
+               "[CALCULADO: verify_parts.py; fallas abiertas]", "bad span2")
     cards = [
         ("Impulsor", f"Ø{V('sizing.selection.D_imp_mm', '.0f')}", "mm",
          f"{V('manifest.params.blades', 'd')} álabes, inox, directo al motor", "[CALCULADO]", ""),
@@ -551,84 +877,36 @@ def build_index(ctx, V, srcs):
          f"≈ {V('bom.total_dkk', '.0f')} DKK; {V('bom.verified_frac_of_subtotal', '.0%')} del subtotal con precio verificado, "
          f"servicios de taller {V('bom.services_eur', '.0f')} € sin cotizar", "[CALCULADO: bom.py; servicios ESTIMADO]", "span2"),
         ("Costo B — AWT JT132 + este tren", f"{V('cmp.B_total_eur_min', '.0f')}–{V('cmp.B_total_eur_max', '.0f')}", "€",
-         "la bomba comercial de la foto con el mismo motor, controlador y batería", "[CALCULADO; precio JT132 ESTIMADO]", "good span2"),
-        ("Chequeos de choque entre piezas", V("verify.n_pair_checks", "d"), "combinaciones",
-         ("sin interferencias" if verify_ok else "CON FALLAS")
-         + f" · pares de piezas × posiciones: boquilla −{s_steer}/0/+{s_steer}° × bucket arriba/abajo",
-         "[VERIFICADO en software]", "" if verify_ok else "bad"),
+         "la bomba comercial de la foto con el mismo tren eléctrico (motor, controlador y batería)" + b_plane_note,
+         "[CALCULADO; precio JT132 ESTIMADO]", "good span2"),
+        chk,
     ]
     if fea_min:
         pid, p = fea_min
-        cards.append(("FEA — factor de seguridad mínimo", fnum(p["FS_min"], ".2f"), "",
+        cards.append(("FEA (simulación de tensiones) — factor de seguridad mínimo", fnum(p["FS_min"], ".2f"), "",
                       f"{pid} (objetivo {fnum(p.get('FS_objetivo'), 'g')}; FS 2 = aguanta el doble de la carga); "
                       f"{n_fea_ok} de {len(fea_rows)} piezas cumplen",
                       "[CALCULADO: FEA 04_diseno/fea]", "" if p.get("cumple") else "bad"))
     cards_html = "".join(
         f'<article class="kcard {cls}"><h3>{E(lbl)}</h3><p class="kv"><span class="num">{E(v)}</span>'
-        f'{f" <small>{E(u)}</small>" if u else ""}</p><p class="kl">{nowrap_pids(E(note))}</p>{tag_chip(tag)}</article>'
+        f'{f" <small>{E(u)}</small>" if u else ""}</p><p class="kl">{E(note)}</p>{tag_chip(tag)}</article>'
         for lbl, v, u, note, tag, cls in cards)
 
     # Estado honesto: puntos abiertos declarados (el n.º 1 es la estabilidad: bloquea las pruebas en agua)
-    items = []
-    tips = cap_kg is not None and pilot_kg is not None and cap_kg < pilot_kg
-    gm = V("sizing.hydrostatics.GM_m", ".3f")
-    if tips:
-        items.append(("bad", f"Estabilidad del casco: puede volcar (GM ≈ {gm} m)",
-                      f"Con {s_beam} m de manga y el piloto sentado alto, la estabilidad (altura metacéntrica, GM) es casi "
-                      f"nula. La capacidad de carga por la regla de EE. UU. 33 CFR 183.33 da "
-                      f"{E(fnum(cap_kg, '.0f'))} kg, y un piloto pesa ~{E(fnum(pilot_kg, '.0f'))} kg: <b>puede volcar</b>. "
-                      f"<b>Bloquea las pruebas en agua hasta resolverlo</b>: ensayo de escora con carga desplazada antes de "
-                      f"motorizar; probablemente haya que ensanchar el casco o bajar el asiento."))
-    else:
-        items.append(("ok", f"Estabilidad del casco: GM ≈ {gm} m",
-                      f"La capacidad de carga por la regla 33 CFR 183.33 da {E(fnum(cap_kg, '.0f'))} kg, más que el piloto "
-                      f"(~{E(fnum(pilot_kg, '.0f'))} kg). Igual se hace el ensayo de escora antes de motorizar."))
-    vmass, vlwl = V.raw("sizing.verdict.recovery_mass_text", "menos masa"), V.raw("sizing.verdict.recovery_lwl_text", "más eslora")
-    vlwl = str(vlwl).replace("L_wl", "eslora mojada")
-    no_motor = (V.raw("sizing.verdict.optimizer_status") == "sin_solucion_dura")
-    if planes_high and hump_ok:
-        p_title, p_cls = "Planeo: planea con las dos estimaciones de resistencia", "ok"
-    elif planes_nom:
-        p_title, p_cls = "Planeo: con la resistencia alta no llega a planeo pleno", "bad"
-    else:
-        p_title, p_cls = "Planeo: no llega a planeo pleno ni con la resistencia nominal", "bad"
-    nom_txt = (f"Con la resistencia <b>nominal</b> {'planea' if planes_nom else 'no planea'}"
-               + (f", pero con margen {E(fnum(margin_nom, '.0%'))} contra el ≥ {E(fnum(req, '.0%'))} que se pide"
-                  if planes_nom and not hump_ok else "")
-               + (f" (tarda {E(V('sizing.verdict.t_to_plane_nominal_s', '.0f'))} s)" if planes_nom else "") + ". ")
-    high_txt = ("" if planes_high else
-                f"Con la resistencia <b>alta</b> (método sin validar para un casco tan corto) se queda en "
-                f"{E(V('sizing.verdict.V_eq_peak_high_kmh', '.0f'))} km/h a fondo y "
-                f"{E(V('sizing.verdict.vmax_cont_kmh.high', '.0f'))} km/h con potencia continua. ")
-    fix_txt = ("" if (planes_high and hump_ok) else
-               ("Ninguna combinación de motor y batería &lt; 50 V cumple el objetivo: " if no_motor else "")
-               + f"lo arregla el casco — <b>{E(vmass)}</b> o <b>{E(vlwl)}</b>. ")
-    items.append((p_cls, p_title, nom_txt + high_txt + fix_txt
-                  + f"Lo decide la prueba en el agua {E(str(V.raw('sizing.verdict.validated_by', 'T4')))}."))
-    for pid_k, row in sorted((est.get("min_by_part") or {}).items()):
-        if pid_k != "P1-DRV-08":
-            continue
-        just = next((r.get("justification") for r in est.get("rows", [])
-                     if r.get("part") == pid_k and r.get("load_case") == row.get("load_case")), "")
-        below = row["FS"] < row["target"]
-        items.append(("bad" if below else "ok",
-                      f"Chaveta del eje del motor: factor de seguridad (FS) {fnum(row['FS'], '.2f')} "
-                      f"{'&lt;' if below else '≥'} {fnum(row['target'], 'g')}",
-                      f"{E(row['load_case'])}. El encastre lo fija el eje del motor y no se puede alargar. "
-                      f"Mitigación: <b>medir el chavetero del motor al recibirlo</b>, cubo del acople <b>de acero</b> "
-                      f"y <b>Loctite 648</b> en el asiento además de la chaveta."
-                      + (f'<details><summary>Justificación completa (estructural.json)</summary><p>{E(just)}</p></details>' if just else "")))
-    for pid, p in fea_rows:
-        if not p.get("cumple"):
-            items.append(("bad", f"FEA: {pid} con FS {fnum(p['FS_min'], '.2f')} &lt; {fnum(p.get('FS_objetivo'), 'g')}",
-                          f"{E(p.get('descripcion', ''))}. Caso de carga {E(str(p.get('caso_gobernante', '')))}"
-                          f" de la corrida FEA del {E(str((fea.get('meta') or {}).get('fecha', '')))}; "
-                          f'detalle en <a href="fea.html#{E(pid)}">Resultados FEA</a>.'))
-    open_html = "".join(f'<li class="{c}"><h3>{nowrap_pids(t)}</h3><p>{nowrap_pids(d)}</p></li>' for c, t, d in items)
+    open_html = "".join(f'<li class="{c}"><h3>{t}</h3><p>{d}</p></li>' for c, t, d in items)
 
     rec, steps = readme_parts(srcs)
     rec_html = ""
     if rec:
+        # el README dice «el resto son servicios de taller a cotizar»: no es así (servicios ≈ 39 %, el resto ESTIMADO)
+        sv, sub = V.raw("bom.services_eur"), V.raw("bom.subtotal_eur")
+        if isinstance(sv, (int, float)) and isinstance(sub, (int, float)) and sub > 0:
+            rec = re.sub(r";\s*el resto son servicios de taller a cotizar",
+                         f"; servicios de taller {fnum(sv, '.0f')} € ({fnum(sv / sub, '.0%')}) y el resto con precio "
+                         f"ESTIMADO, todo a cotizar", rec)
+        n_mc = mc_runs()
+        rec = re.sub(r"\bdel Monte Carlo\b", f"de {fnum(n_mc, ',.0f') if n_mc else 'miles de'} sorteos con pesos al azar "
+                     f"(Monte Carlo)", rec)
         b, _, _ = render_md(rec, toc=False)
         rec_html = ctx.rewrite_links(b, "", page)
     steps_html = ""
@@ -637,11 +915,12 @@ def build_index(ctx, V, srcs):
         steps_html = ctx.rewrite_links(b, "", page)
 
     lead = ("Un motor eléctrico dentro del bote chupa agua por el fondo y la tira con fuerza por atrás: empuja sin "
-            "hélice a la vista. Esto es el diseño completo en computadora; todavía no se construyó nada.")
-    qe = (f"Para el jet boat de Jorge ({s_loa} × {s_beam} m, Als Fjord, Dinamarca): toma enrasada en el fondo "
+            "hélice a la vista. Esto es el diseño " + ("completo en computadora" if all_ok else "en computadora, en revisión")
+            + "; todavía no se construyó nada.")
+    qe = (f"Para el jet boat de Jorge ({s_loa} × {s_beam} m, Als Fjord, Dinamarca): toma enrasada (al ras del fondo) "
           f"<b>delante</b> del impulsor, impulsor inox de Ø{E(V('sizing.selection.D_imp_mm', '.0f'))} mm directo a un "
           f"motor refrigerado por agua, tobera de Ø{E(V('sizing.selection.D_noz_mm', '.0f'))} mm con boquilla orientable "
-          f"y bucket de reversa, batería por debajo de 50 V. Acá está todo el paquete de ingeniería — cálculo, CAD de "
+          f"y bucket de reversa, batería por debajo de 50 V. Acá está todo el paquete de ingeniería — cálculo, modelo 3D (CAD) de "
           f"{E(V('manifest.totals.n_parts', 'd'))} piezas, planos, materiales, FEA y plan de pruebas — regenerable desde "
           f"un solo archivo de entrada.")
 
@@ -652,22 +931,25 @@ def build_index(ctx, V, srcs):
                ("fea.html", "Resultados FEA", "factores de seguridad de las piezas críticas", "fea"),
                (REPO_URL, "Repositorio (GitHub)", "código, CAD STEP/STL y datos", "git")]
     btn_html = "".join(
-        f'<a class="bigbtn" href="{href}"><span class="ico ico-{ico}" aria-hidden="true"></span>'
+        f'<a class="bigbtn" href="{href}"><span class="ico ico-{ico}" aria-hidden="true">{ICONS[ico]}</span>'
         f'<span><b>{E(t)}</b><small>{E(s)}</small></span></a>' for href, t, s, ico in buttons)
 
     # criterio de FS a mano y sus excepciones declaradas (estructural.json), no un «FS ≥ 2» sin matices
     man = {p["id"]: p for p in (srcs["manifest"].get("parts") or [])}
     exc = [(pid, r) for pid, r in sorted((est.get("min_by_part") or {}).items()) if r.get("FS", 9) < r.get("target", 0)]
     exc_txt = "; ".join(
-        f'<span class="pid">{E(pid)}</span> {E((man.get(pid, {}).get("desc") or "").split(" (")[0])} '
-        f'FS {E(fnum(r["FS"], ".2f"))}' for pid, r in exc)
+        f'{E(pid)} {E((man.get(pid, {}).get("desc") or "").split(" (")[0])} '
+        f'FS {E(fnum(r["FS"], ".2f"))}{E(fs_exception_note(est, pid))}' for pid, r in exc)
     fs_txt = ("criterio de factor de seguridad (FS) ≥ 2 en metal y ≥ 3 en PETG por cálculo a mano: "
               + (f"lo cumplen todas las piezas salvo {len(exc)} excepciones declaradas ({exc_txt})" if exc
                  else "lo cumplen todas las piezas"))
-    verified = (f"CAD de {E(V('manifest.totals.n_parts', 'd'))} piezas "
-                + ("sin choques entre piezas" if verify_ok else "<b>con choques entre piezas sin resolver</b>")
-                + f" en {E(V('verify.n_pair_checks', 'd'))} combinaciones; {fs_txt}; FEA de las {len(fea_rows)} piezas críticas "
-                f"y tests automáticos.")
+    n_fea_bad = len(fea_rows) - n_fea_ok
+    verified = (f"Modelo 3D (CAD) de {E(V('manifest.totals.n_parts', 'd'))} piezas "
+                + ("sin choques entre piezas" if verify_ok else f"<b>con fallas de verificación sin resolver: {verify_phrase(srcs)}</b>")
+                + f" en {E(V('verify.n_pair_checks', 'd'))} combinaciones revisadas; {fs_txt}; FEA (simulación de tensiones por "
+                f"computadora) de las {len(fea_rows)} piezas críticas"
+                + (f", <b>{n_fea_bad} no cumple{'n' if n_fea_bad != 1 else ''}</b>" if n_fea_bad else "")
+                + "; y tests automáticos.")
     fea_list = "".join(
         f'<li><a class="mono" href="fea.html#{E(pid)}">{E(pid)}</a> FS {E(fnum(p["FS_min"], ".2f"))} / '
         f'{E(fnum(p.get("FS_objetivo"), "g"))} '
@@ -675,13 +957,23 @@ def build_index(ctx, V, srcs):
         for pid, p in fea_rows)
 
     date = (fea.get("meta") or {}).get("fecha")
+    b_mass_less = (V.raw("sizing.masses.total_kg") or 0) - (V.raw("cmp.B_mass_total_kg") or 0)
+    b_speed_note = (" (se supone la misma eficiencia de bomba que A: AWT no publica la curva de la JT132"
+                    + (f"; la diferencia sale de los {fnum(b_mass_less, '.0f')} kg menos" if b_mass_less >= 0.5 else "")
+                    + "; no es una ventaja demostrada)")
+    if all_ok:
+        status_pill = '<span class="pill ok">Diseño completo, revisado por computadora</span>'
+        estado_h2 = "Revisado por computadora, sin puntos abiertos. Nada probado en el agua."
+    else:
+        status_pill = f'<a class="pill warn" href="#estado">Diseño en revisión: {open_points_phrase(n_open)} ↓</a>'
+        estado_h2 = f"Revisado por computadora, con {open_points_phrase(n_open)}. Nada probado en el agua."
     body = f"""
 <section class="hero">
   <div class="hero-text">
     <p class="eyebrow">P1-J · «Strålen» = «el chorro» en danés</p>
     <h1>Waterjet eléctrico inboard para un jet boat de {s_loa}&nbsp;m</h1>
     <p class="lead">{lead}</p>
-    <p class="status-line"><span class="pill ok">Diseño completo, verificado en software</span>
+    <p class="status-line">{status_pill}
       <span class="pill bad">Nada probado físicamente todavía</span></p>
     <div class="cta"><a class="btn primary" href="visor/index.html">Abrir el visor 3D</a>
       <a class="btn" href="#estado">Estado honesto</a>
@@ -689,8 +981,8 @@ def build_index(ctx, V, srcs):
     <p class="more">{qe}</p>
   </div>
   <figure class="hero-fig">
-    <a href="visor/corte_lateral.png"><img src="visor/corte_lateral.png" alt="Corte longitudinal del CAD: casco, toma con rejilla, bomba, tren y motor, con la línea de flotación calculada" width="1600" height="560"></a>
-    <figcaption>Corte por crujía del CAD: toma con rejilla delante del impulsor, bomba, tren y motor. Tocá para ampliar.</figcaption>
+    <a href="figuras/corte_crujia.html"><img src="visor/corte_lateral.png" alt="Corte longitudinal del CAD: casco, toma con rejilla, bomba, tren y motor, con la línea de flotación calculada" width="1600" height="560"></a>
+    <figcaption>Corte por el centro del bote (crujía) en el CAD: toma con rejilla delante del impulsor, bomba, tren y motor. Tocá para ampliar.</figcaption>
   </figure>
 </section>
 
@@ -705,7 +997,7 @@ def build_index(ctx, V, srcs):
 
 <section id="estado" aria-labelledby="h-estado" class="honest">
   <p class="eyebrow">Estado honesto</p>
-  <h2 id="h-estado">Verificado en software. Nada probado en el agua.</h2>
+  <h2 id="h-estado">{estado_h2}</h2>
   <p>{verified} <b>Ninguna pieza se fabricó ni se probó todavía</b>: los modelos se calibran con las pruebas T0–T4
   (del banco de taller al agua, en <a href="{rel(page, doc_out('06_ensamblaje_y_pruebas.md'))}">06</a>).</p>
   <h3 class="h-open">Puntos abiertos declarados</h3>
@@ -722,7 +1014,8 @@ def build_index(ctx, V, srcs):
       <p>{E(V('cmp.A_vmax_kmh', '.1f'))} km/h sostenidos · piezas que reemplazaría la JT132: {E(V('cmp.A_jet_mass_kg', '.1f'))} kg · impulsor y estator CNC 5 ejes</p>
       <p>{tag_chip('[CALCULADO: bom.py]')}</p></div>
     <div class="opt good"><h3>B — AWT JT132 + este tren</h3><p class="kv"><span class="num">{E(V('cmp.B_total_eur_min', '.0f'))}–{E(V('cmp.B_total_eur_max', '.0f'))}</span> <small>€</small></p>
-      <p>{E(V('cmp.B_vmax_kmh', '.1f'))} km/h (≈ A ± la curva de AWT, no publicada) · JT132: {E(V('cmp.B_jet_mass_kg', '.0f'))} kg con dirección y reversa</p>
+      <p>{E(V('cmp.B_vmax_kmh', '.1f'))} km/h sostenidos{b_speed_note} · JT132: {E(V('cmp.B_jet_mass_kg', '.0f'))} kg con dirección y reversa</p>
+      {f'<p class="warn-txt">{E(b_plane_note[2:3].upper() + b_plane_note[3:])}: el problema de planeo es del casco, no de la bomba.</p>' if b_plane_note else ''}
       <p>{tag_chip('[CALCULADO; precio de la JT132 ESTIMADO]')} {tag_chip('[VERIFICADO: masa, R11 §4]')}</p></div>
   </div>
   <div class="prose">{rec_html}</div>
@@ -743,11 +1036,83 @@ def build_index(ctx, V, srcs):
   {f'<p class="sub">Datos de la última corrida FEA: {E(str(date))}.</p>' if date else ''}
 </section>
 """
-    desc = (f"Waterjet eléctrico inboard para un jet boat de {s_loa} m: impulsor "
-            f"Ø{V('sizing.selection.D_imp_mm', '.0f')} mm, {V('sizing.verdict.vmax_cont_kmh.nominal', '.1f')} km/h "
-            f"sostenidos (modelo), {V('manifest.totals.n_parts', 'd')} piezas de CAD verificadas en software. Cálculo, "
-            f"planos, BOM, FEA y visor 3D. Nada construido ni probado todavía.")
-    write(ctx, page, page_html(page, SITE_TITLE, desc, body, active="index.html"))
+    # WhatsApp muestra ~2 líneas: la advertencia va primero
+    desc = index_description(V, srcs, n_open)
+    write(ctx, page, page_html(page, SITE_TITLE_FMT.format(loa=s_loa), desc, body, active="index.html"))
+    if (ctx.out / "visor" / "corte_lateral.png").is_file():
+        image_page(ctx, "figuras/corte_crujia.html", "visor/corte_lateral.png", "Corte por el centro del bote (crujía)",
+                   "Corte longitudinal del CAD del waterjet P1-J: casco, toma con rejilla delante del impulsor, bomba, "
+                   "tren y motor, con la línea de flotación calculada.", "index.html", "Inicio",
+                   caption="Toma con rejilla delante del impulsor, bomba, tren (eje, sello, rodamientos y acople) y "
+                           "motor, con la línea de flotación calculada.",
+                   natural_w=natural_width(ctx.out / "visor" / "corte_lateral.png"))
+
+
+def fea_fail_phrase(srcs):
+    """«P1-STE-01 FS 1,80 < 2» por cada pieza FEA que no cumple (o "")."""
+    return "; ".join(f"{pid} FS {fnum(p['FS_min'], '.2f')} < {fnum(p.get('FS_objetivo'), 'g')}"
+                     for pid, p in ((srcs.get("fea") or {}).get("piezas") or {}).items()
+                     if p.get("FS_min") is not None and not p.get("cumple"))
+
+
+def site_rewrites(src, txt, srcs):
+    """Correcciones que el sitio aplica al texto ya resuelto de un .md (el .md del repo no se toca): frases escritas
+    a mano que dicen «verificado / sin interferencias» se ajustan a verify.json y al FEA cuando hay fallas abiertas
+    (lo que no se pueda ajustar lo detecta overclaims() y bloquea la publicación)."""
+    ok_verify = bool((srcs.get("verify") or {}).get("ok"))
+    ok_all = all_checks_ok(srcs)
+    n_fail = open_failures(srcs)
+    vph = verify_phrase(srcs, html_out=False)
+    fph = fea_fail_phrase(srcs)
+    estado = "[Estado honesto](../index.html#estado)" if src.count("/") == 0 else None
+    if src == "README.md":
+        if not ok_verify:
+            txt = txt.replace("CAD paramétrico verificado", "CAD paramétrico (verificación automática con fallas abiertas)")
+            txt = re.sub(r"^(\| Interferencias:[^\n]*\| )\[VERIFICADO en software\]",
+                         lambda m: m.group(1) + "[CALCULADO: verify_parts.py] **con fallas abiertas** (ver la portada, "
+                         "Estado honesto)", txt, flags=re.M)
+        if not ok_all:
+            def honest(m):
+                cad = (f"CAD de {m.group(1)} piezas " + ("sin interferencias" if ok_verify else f"con {vph}")
+                       + f" en {m.group(2)} pares×estados")
+                return (f"todo está revisado *en software*, **con {n_fail} falla{'s' if n_fail != 1 else ''} "
+                        f"abierta{'s' if n_fail != 1 else ''} de CAD/FEA** ({cad}"
+                        + (f"; FEA: {fph}" if fph else "")
+                        + f"; {m.group(3)} por cálculo a mano, salvo excepciones declaradas; tests"
+                        + (f"; detalle en {estado}" if estado else "") + ")")
+            txt = re.sub(r"todo está verificado \*en software\* \(CAD de ([^()]*?) piezas sin interferencias en "
+                         r"([^()]*?) pares×estados, (FS[^()]*?), tests\)", honest, txt)
+    if src == "06_ensamblaje_y_pruebas.md" and not ok_verify:
+        txt = re.sub(r"\[CALCULADO: `verify\.json` sin interferencias en ([^\]|]*)\]",
+                     lambda m: f"[CALCULADO: `verify.json` en {m.group(1)}: hoy **con {n_fail} falla"
+                     f"{'s' if n_fail != 1 else ''} abierta{'s' if n_fail != 1 else ''}** (ver Estado honesto "
+                     f"en la portada)]", txt)
+    if src == "research/R11_componentes_jet.md":
+        # sin nombres de personas en el sitio: el contacto de ventas está en las páginas de Maytech
+        txt = re.sub(r"\(\w+@maytech\.cn figura en sus páginas\)", "(el contacto de ventas figura en sus páginas)", txt)
+    return txt
+
+
+OVERCLAIM_VERIFY = re.compile(r"sin interferencias", re.I)
+OVERCLAIM_ALL = re.compile(r"todo está verificado|CAD paramétrico verificado", re.I)
+
+
+def overclaims(srcs):
+    """Frases de los documentos publicados que dicen «verificado / sin interferencias» mientras verify.json o el FEA
+    tienen fallas abiertas (después de site_rewrites). Un sitio así no se publica."""
+    ok_verify, ok_all = bool((srcs.get("verify") or {}).get("ok")), all_checks_ok(srcs)
+    if ok_all:
+        return []
+    out = []
+    for src in all_docs():
+        txt = site_rewrites(src, resolve_markers((ROOT / src).read_text(encoding="utf-8"), srcs, es=True), srcs)
+        pats = ([OVERCLAIM_VERIFY] if not ok_verify else []) + [OVERCLAIM_ALL]
+        for pat in pats:
+            for m in pat.finditer(txt):
+                ln = txt.count("\n", 0, m.start()) + 1
+                out.append(f"{src}:{ln} dice «{m.group(0)}» pero verify.json/FEA tienen fallas abiertas "
+                           f"(corregir el .md o agregar el caso a build_site.site_rewrites)")
+    return out
 
 
 def build_docs(ctx, srcs):
@@ -755,11 +1120,12 @@ def build_docs(ctx, srcs):
     for src in ctx.docs:
         page = doc_out(src)
         raw = (ROOT / src).read_text(encoding="utf-8")
-        txt = resolve_markers(raw, srcs)
+        txt = resolve_markers(raw, srcs, es=True)
         # el README apunta al visor «en la descripción del PR»: en el sitio, el visor está acá mismo
         txt = txt.replace("(link en la descripción del PR)", "([abrir el visor](04_diseno/visor/index.html))")
+        txt = site_rewrites(src, txt, srcs)
         title = md_title(txt, src)
-        desc = md_description(txt) or title
+        desc = DOC_DESCRIPTIONS.get(src) or md_description(txt) or title
         meta[src] = (title, desc)
         body, toc, tokens = render_md(txt)
         body = ctx.rewrite_links(body, posixpath.dirname(src), page)
@@ -777,7 +1143,7 @@ def build_docs(ctx, srcs):
   {toc_html}
   <article class="prose doc">{body}</article>
 </div>"""
-        write(ctx, page, page_html(page, f"{title} — {SITE_NAME}", desc, html_body, active="documentos.html", wide=True))
+        write(ctx, page, page_html(page, f"{short_title(title)} — {SITE_NAME}", desc, html_body, active="documentos.html", wide=True))
     return meta
 
 
@@ -800,7 +1166,10 @@ def build_documentos(ctx, meta):
         for f in figs:
             ctx.copy("figuras/" + f, "figuras/" + f)
             lbl = f[:-4].replace("_", " ").capitalize()
-            cards.append(f'<figure><a href="figuras/{f}"><img src="figuras/{f}" alt="{E(lbl)}" loading="lazy"></a>'
+            image_page(ctx, f"figuras/{f[:-4]}.html", f"figuras/{f}", f"Figura: {lbl}",
+                       f"Figura del cálculo del waterjet P1-J: {lbl}.", "documentos.html", "Documentos",
+                       natural_w=natural_width(ROOT / "figuras" / f), active="documentos.html")
+            cards.append(f'<figure><a href="figuras/{f[:-4]}.html"><img src="figuras/{f}" alt="{E(lbl)}" loading="lazy"></a>'
                          f'<figcaption>{E(lbl)}</figcaption></figure>')
         fig_html = (f'<section><h2>Figuras del cálculo</h2><p class="sub">Generadas por <code>sizing.py</code> y '
                     f'<code>bom.py</code>; explicadas en <a href="{rel(page, doc_out("02_calculos.md"))}">02 — cálculos</a>.</p>'
@@ -817,6 +1186,70 @@ def build_documentos(ctx, meta):
                                body, active="documentos.html"))
 
 
+def build_404(ctx):
+    """404.html: GitHub Pages la sirve en cualquier ruta inexistente (a cualquier profundidad), así que sus enlaces
+    son absolutos (https://…/p1-propulsion/…), no relativos."""
+    page = "404.html"
+    body = """
+<p class="eyebrow">Error 404</p>
+<h1>Esta página no existe</h1>
+<p class="sub">El enlace puede ser de una versión anterior del sitio o tener un error de tipeo. Todo el proyecto
+(visor 3D, documentos, planos, materiales y FEA) se recorre desde la portada.</p>
+<div class="cta"><a class="btn primary" href="index.html">Ir a la portada</a>
+  <a class="btn" href="visor/index.html">Visor 3D</a> <a class="btn" href="documentos.html">Documentos</a></div>
+"""
+    h = page_html(page, f"Página no encontrada — {SITE_NAME}",
+                  "La página no existe. Portada del proyecto P1-J Strålen: waterjet eléctrico inboard.", body)
+    h = re.sub(r'\b(href|src)="(?![a-z][a-z0-9+.\-]*:|#|//)([^"]*)"',
+               lambda m: f'{m.group(1)}="{SITE_URL}{"" if m.group(2) == "index.html" else m.group(2)}"', h)
+    write(ctx, page, h)
+
+
+def natural_width(src_path):
+    """Ancho natural (px) de un SVG (atributo width o viewBox) o de una imagen raster; None si no se sabe."""
+    src_path = Path(src_path)
+    try:
+        if src_path.suffix.lower() == ".svg":
+            head_ = src_path.read_text(encoding="utf-8", errors="ignore")[:2000]
+            m = re.search(r"<svg\b[^>]*?\swidth=\"([\d.]+)(?:px)?\"", head_) or \
+                re.search(r"<svg\b[^>]*?viewBox=\"[-\d.]+[ ,]+[-\d.]+[ ,]+([\d.]+)", head_)
+            return round(float(m.group(1))) if m else None
+        from PIL import Image
+        with Image.open(src_path) as im:
+            return im.width
+    except Exception:
+        return None
+
+
+def image_page(ctx, page, img, title, desc, back_href, back_label, caption="", natural_w=None, active=None):
+    """Página propia para una imagen grande (plano SVG, figura): en el teléfono el archivo crudo se abre diminuto, sin
+    navegación y más ancho que la pantalla. Acá va con cabecera, «← volver», botón Ampliar/Ajustar (la imagen a su
+    ancho natural, con desplazamiento dentro del recuadro) y enlace de descarga. `img` y `back_href` son rutas del
+    sitio."""
+    img_rel = rel(page, img)
+    ext = posixpath.splitext(img)[1].lstrip(".").upper()
+    zw = max(natural_w or 1600, 900)
+    body = f"""
+<nav class="crumbs" aria-label="Ruta"><a class="btn small" href="{rel(page, back_href)}">← {E(back_label)}</a></nav>
+<h1 class="img-title">{E(title)}</h1>
+{f'<p class="sub">{caption}</p>' if caption else ''}
+<div class="imgtools"><button type="button" class="btn small" id="zoom" aria-pressed="false" aria-controls="iv">Ampliar</button>
+  <a class="btn small" href="{img_rel}" download>Descargar {E(ext)}</a></div>
+<div class="imgview" id="iv" style="--zoom-w:{zw}px"><img src="{img_rel}" alt="{E(title)}"></div>
+<p class="sub">En el teléfono: tocá «Ampliar» y deslizá con el dedo dentro del recuadro, o pellizcá para hacer zoom.</p>
+<script>
+(function () {{
+  var b = document.getElementById("zoom"), v = document.getElementById("iv"); if (!b || !v) return;
+  b.addEventListener("click", function () {{
+    var on = v.classList.toggle("zoomed"); b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.textContent = on ? "Ajustar a la pantalla" : "Ampliar";
+  }});
+}})();
+</script>
+"""
+    write(ctx, page, page_html(page, f"{title} — {SITE_NAME}", desc, body, active=active, wide=True))
+
+
 def build_planos(ctx, srcs):
     page = "planos.html"
     man = {p["id"]: p for p in (srcs["manifest"].get("parts") or [])}
@@ -827,6 +1260,13 @@ def build_planos(ctx, srcs):
         pid, sub, name = (m.group(1), m.group(2), m.group(3)) if m else (f[:-4], "OTRO", f[:-4])
         groups.setdefault(sub, []).append((pid, name, f))
         ctx.copy("04_diseno/planos/" + f, "planos/" + f)
+        mp = man.get(pid, {})
+        image_page(ctx, "planos/" + f[:-4] + ".html", "planos/" + f, f"Plano {pid} {name.replace('_', ' ')}",
+                   short_desc(f"Plano acotado {pid} del waterjet P1-J: " + (mp.get("desc") or name.replace("_", " "))
+                              + (f" ({mp['material']})" if mp.get("material") else "") + "."),
+                   "planos.html", "Planos",
+                   caption=E(" · ".join(x for x in (mp.get("desc", ""), mp.get("material", "")) if x)),
+                   natural_w=natural_width(ROOT / "04_diseno" / "planos" / f), active="planos.html")
     order = list(SUBSYS) + sorted(k for k in groups if k not in SUBSYS)
     secs = []
     for sub in order:
@@ -838,7 +1278,7 @@ def build_planos(ctx, srcs):
             desc = p.get("desc", "")
             mat = p.get("material", "")
             cards.append(
-                f'<figure class="plano"><a href="planos/{f}" aria-label="Abrir el plano {E(pid)} {E(name)}">'
+                f'<figure class="plano"><a href="planos/{f[:-4]}.html" aria-label="Abrir el plano {E(pid)} {E(name)}">'
                 f'<img src="planos/{f}" alt="Plano {E(pid)} {E(name)}" loading="lazy"></a>'
                 f'<figcaption><b class="mono">{E(pid)}</b> {E(name.replace("_", " "))}'
                 f'{f"<small>{E(desc)}</small>" if desc else ""}{f"<small class=mono>{E(mat)}</small>" if mat else ""}'
@@ -849,7 +1289,7 @@ def build_planos(ctx, srcs):
 <p class="eyebrow">Planos</p>
 <h1>Planos acotados</h1>
 <p class="sub">{len(svgs)} planos SVG de las piezas mecanizadas, torneadas y soldadas, generados desde el CAD paramétrico
-(<code>04_diseno/planos*.py</code>). Tocá un plano para abrirlo a tamaño completo. Los STEP y STL están en el
+(<code>04_diseno/planos*.py</code>). Tocá un plano para abrirlo y ampliarlo. Los STEP y STL están en el
 <a href="{TREE}04_diseno">repositorio ↗</a>.</p>
 {''.join(secs)}
 """
@@ -910,8 +1350,8 @@ def build_bom(ctx, srcs, V):
         strong = d.upper().startswith(("TOTAL", "SUBTOTAL"))
         v = _flt(r.get("precio_total_EUR"))
         val = E(fnum(v, ".2f")) if isinstance(v, float) else "—"
-        tot_rows.append(f'<tr{" class=strong" if strong else ""}><td data-label="Concepto">{E(d)}</td>'
-                        f'<td class="num nowrap" data-label="Importe">{val} {cur}</td></tr>')
+        tot_rows.append(f'<tr{" class=strong" if strong else ""}><td data-label="Concepto"><span>{E(d)}</span></td>'
+                        f'<td class="num nowrap" data-label="Importe"><span>{val} {cur}</span></td></tr>')
     by_cat = sorted((b.get("by_category") or {}).items(), key=lambda kv: -kv[1])
     apart = ' <span class="pill warn">aparte, no entra en el total del sistema</span>'
     cat_rows = "".join(
@@ -997,6 +1437,19 @@ def _fea_image(ctx, src_rel, max_w=960):
     return dst_rel
 
 
+def es_decimals(h):
+    """Coma decimal en el texto de un fragmento HTML (no dentro de <code>/<pre>): «FS = 1.80» → «FS = 1,80».
+    Las coordenadas «(590.7, -23.0, 169.5)» pasan a «(590,7; −23,0; 169,5)»; no se tocan los números de material
+    EN («1.4404») ni versiones («v1.2»)."""
+    parts = re.split(r"(<(?:code|pre)\b.*?</(?:code|pre)>)", h, flags=re.S)
+    num = r"-?\d+(?:\.\d+)?"
+
+    def txt(t):
+        t = re.sub(rf"\(({num}), ({num}), ({num})\)", lambda m: f"({m.group(1)}; {m.group(2)}; {m.group(3)})", t)
+        return re.sub(r"(?<![\w.])(?!1\.4\d{3}\b)(\d+)\.(\d+)(?![\w.])", r"\1,\2", t)
+    return "".join(x if i % 2 else _text_nodes(x, txt) for i, x in enumerate(parts))
+
+
 FEA_CAPTIONS = {"vm": "Tensión de von Mises", "deformada": "Deformada (exagerada)",
                 "sZ": "Tracción entre capas de impresión (σZ)"}
 
@@ -1019,10 +1472,10 @@ def build_fea(ctx, srcs):
         ok = bool(p.get("cumple"))
         rows.append(
             f'<tr><td data-label="Pieza"><a href="#{E(pid)}" class="mono nowrap">{E(pid)}</a><small>{E(p.get("descripcion", ""))}</small></td>'
-            f'<td class="num nowrap" data-label="FS mín. / objetivo"><b>{E(fnum(p.get("FS_min"), ".2f"))}</b> / {E(fnum(p.get("FS_objetivo"), "g"))}</td>'
+            f'<td class="num nowrap" data-label="FS mín. / objetivo"><span><b>{E(fnum(p.get("FS_min"), ".2f"))}</b> / {E(fnum(p.get("FS_objetivo"), "g"))}</span></td>'
             f'<td data-label="Cumple"><span class="pill {"ok" if ok else "bad"}">{"sí" if ok else "no"}</span></td>'
-            f'<td data-label="Caso gobernante"><b>{E(caso)}</b> <small>{E(cname)}</small></td>'
-            f'<td data-label="Material">{E(mat)}</td></tr>')
+            f'<td data-label="Caso gobernante"><span><b>{E(caso)}</b> <small>{E(cname)}</small></span></td>'
+            f'<td data-label="Material"><span>{E(mat)}</span></td></tr>')
         imgs = ""
         ims = list(p.get("imagenes") or [])
         order = {"vm": 0, "deformada": 1}
@@ -1032,12 +1485,15 @@ def build_fea(ctx, srcs):
             if sp:
                 kind = Path(i).stem.split("_", 1)[-1]
                 cap = FEA_CAPTIONS.get(kind, kind)
-                imgs += (f'<figure><a href="{sp}"><img src="{sp}" alt="{E(pid)}: {E(cap)}" '
+                wp = sp[:-4] + ".html"
+                image_page(ctx, wp, sp, f"{pid}: {cap}", f"FEA de {pid} ({p.get('descripcion', '')}): {cap}.",
+                           f"fea.html#{pid}", f"FEA {pid}", natural_w=natural_width(ctx.out / sp), active="fea.html")
+                imgs += (f'<figure><a href="{wp}"><img src="{sp}" alt="{E(pid)}: {E(cap)}" '
                          f'loading="lazy"></a><figcaption>{E(cap)}</figcaption></figure>')
         nb = ""
         if notes.get(pid):
             b, _, _ = render_md("\n".join(notes[pid]), toc=False)
-            nb = ctx.rewrite_links(b, "04_diseno/fea", page)
+            nb = es_decimals(ctx.rewrite_links(b, "04_diseno/fea", page))
         secs.append(f'<section id="{E(pid)}" class="feapart"><h2><span class="mono">{E(pid)}</span> {E(p.get("descripcion", ""))}</h2>'
                     f'<p><span class="pill {"ok" if ok else "bad"}">FS {E(fnum(p.get("FS_min"), ".2f"))} '
                     f'(objetivo {E(fnum(p.get("FS_objetivo"), "g"))}) — {"cumple" if ok else "NO cumple"}</span> '
@@ -1072,12 +1528,29 @@ VISOR_CSS = """<style id="p1-site">
 @media (max-width: 600px) {
   .p1-out.toolbar, .p1-out.controls { position: static; margin: 0; }
   .p1-out.toolbar { padding: 0 0 2px; }
+  .hint:not([hidden]) { display: block; top: auto; bottom: 8px; left: 10px; right: auto; text-align: left; font-size: 11px;
+    line-height: 1.35; pointer-events: none; text-shadow: 0 0 4px var(--bg, #fff); }
+  /* el modelo 3D primero: título → visor → texto de presentación → el resto */
+  .wrap { gap: 14px; padding-block-start: 12px; }
+  .wrap > * { order: 3; }
+  .wrap > .p1-home, .wrap > .stale { order: 0; }
+  header.hero { display: contents; }
+  header.hero > .eyebrow, header.hero > h1 { order: 0; }
+  header.hero > h1 { font-size: clamp(1.6rem, 8vw, 2.2rem); }
+  .wrap > section[aria-label="Visor 3D"] { order: 1; }
+  header.hero > .lead, header.hero > .meta { order: 2; }
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) .tbtn.demo:not([aria-pressed="true"]) { background: #b8490b; border-color: #b8490b; color: #fff; }
 }
 :root[data-theme="light"] .tbtn.demo:not([aria-pressed="true"]) { background: #b8490b; border-color: #b8490b; color: #fff; }
 </style>"""
+def STALE_BANNER_VISOR():
+    return ("" if not STALE_BANNER else
+            STALE_BANNER.replace('<div class="stale"', '<div class="stale" style="background:#b0302a;color:#fff;'
+                                 'padding:10px 14px;border-radius:8px;font:600 14px/1.4 system-ui,sans-serif"'))
+
+
 VISOR_JS = """<script>
 /* agregado por build_site.py: en pantallas angostas la barra va arriba del lienzo y los controles abajo */
 (function () {
@@ -1118,7 +1591,37 @@ def _site_image(ctx, src_rel, dst_rel, max_w):
     ctx.copied.add(dst_rel)
 
 
-def build_visor(ctx):
+# El visor del repo le habla a Jorge («tu jet boat», «Hola Jorge!»); el sitio se comparte con cualquiera: en la copia
+# publicada el texto va en tercera persona. (La fuente 04_diseno/visor/index.html no se toca.)
+VISOR_NEUTRAL = [
+    ('<h1>Hola Jorge! Este es tu <span class="name">“Strålen”</span></h1>',
+     '<h1><span class="name">“Strålen”</span>: visor 3D del waterjet</h1>'),
+    ("waterjet eléctrico para tu jet boat de", "waterjet eléctrico para el jet boat de Jorge,"),
+    ("como el de tu plano", "como el del plano de Jorge"),
+    ("el bucket te dan dirección", "el bucket dan dirección"),
+    ("Tu comentario sobre la rejilla", "El comentario de Jorge sobre la rejilla"),
+    ("Tu casco (referencia, transparente)", "Casco de Jorge (referencia, transparente)"),
+    ("Medir tu casco", "Medir el casco"),
+    ("La bomba de tu foto", "La bomba de la foto de Jorge"),
+    ("(la de tu foto)", "(la de la foto de Jorge)"),
+    ("Tenías razón:", "Jorge tenía razón:"),
+    ('alt="Tu plano preliminar del waterjet"', 'alt="Plano preliminar del waterjet, dibujado por Jorge"'),
+    ("Tu plano preliminar del", "Plano preliminar de Jorge del"),
+]
+# números del visor con la misma regla que el resto del sitio (docgen/fnum): coma decimal y espacio fino de miles
+# también con 4 cifras («7 026», no «7026» ni «10.856»)
+VISOR_FMT = ('const fmt = (x, d = 0) => (x == null || Number.isNaN(x)) ? "—" : Number(x).toLocaleString("es-ES", '
+             '{ minimumFractionDigits: d, maximumFractionDigits: d });',
+             'const fmt = (x, d = 0) => { if (x == null || Number.isNaN(Number(x))) return "—"; '
+             'const s = Math.abs(Number(x)).toFixed(d).split("."); '
+             'const neg = Number(x) < 0 && Number(Number(x).toFixed(d)) !== 0; '
+             'return (neg ? "-" : "") + s[0].replace(/\\B(?=(\\d{3})+(?!\\d))/g, "\\u202f") + (s[1] ? "," + s[1] : ""); };')
+VISOR_CLAIM = ("que se verificó sin interferencias con la boquilla en ±25° y el bucket arriba y abajo",
+               "que se verifica automáticamente con la boquilla en ±25° y el bucket arriba y abajo (hoy con fallas "
+               "abiertas: ver «Estado honesto» en la portada)")
+
+
+def build_visor(ctx, srcs=None):
     vdir = ROOT / "04_diseno" / "visor"
     for f in VISOR_FILES:
         if (vdir / f).exists() and f != "index.html":
@@ -1127,8 +1630,18 @@ def build_visor(ctx):
             else:
                 ctx.copy(f"04_diseno/visor/{f}", f"visor/{f}")
     src = (vdir / "index.html").read_text(encoding="utf-8")
-    # el visor saluda a Jorge; el título de la pestaña y del enlace compartido es el del sitio
-    src = src.replace("<h1>Hola Jorge!", "<h1>¡Hola Jorge!")
+    for a, b in VISOR_NEUTRAL:
+        src = src.replace(a, b)
+    if VISOR_FMT[0] in src:
+        src = src.replace(*VISOR_FMT)
+    else:
+        print("build_site: aviso: no se encontró fmt() en el visor (formato de números sin unificar)")
+    if srcs is not None and not (srcs.get("verify") or {}).get("ok", True):
+        src = src.replace(*VISOR_CLAIM)
+    # el visor en el teléfono: la ayuda de gestos queda visible (abajo a la izquierda del lienzo); en vertical, el
+    # encuadre inicial se aleja un poco para que entre el conjunto
+    src = src.replace("const dist = rad / Math.sin(Math.min(vf, hf) / 2) * 0.85;",
+                      "const dist = rad / Math.sin(Math.min(vf, hf) / 2) * (camera.aspect < 1 ? 1.0 : 0.85);")
     page = "visor/index.html"
     if not src.lstrip().lower().startswith("<!doctype"):
         # El visor es un fragmento (sin <html>/<head>): se le antepone una cabecera con charset, viewport,
@@ -1140,10 +1653,10 @@ def build_visor(ctx):
         h = h.replace(FONTS + "\n", "")
         h = re.sub(r'<link rel="stylesheet" href="[^"]*site\.css">', "", h)
         src = h + "\n" + src
-    back = ('<a href="../index.html" class="p1-home" style="justify-self:start;margin-bottom:-14px;'
+    back = ('<a href="../index.html" class="p1-home" style="justify-self:start;margin:0 0 -14px;'
             'font:600 14px/1 var(--font-body,system-ui,sans-serif);background:var(--ink,#0f242b);color:var(--bg,#eef2f1);'
             'padding:10px 14px;border-radius:999px;text-decoration:none">← Inicio · P1-J</a>')
-    src, n = re.subn(r'(<div class="wrap">)', lambda m: back + "\n" + m.group(1), src, count=1)
+    src, n = re.subn(r'(<div class="wrap">)', lambda m: m.group(1) + "\n" + back + STALE_BANNER_VISOR(), src, count=1)
     if not n:
         src += "\n" + back
     src = src.replace("</style>", "</style>\n" + VISOR_CSS, 1) if "</style>" in src else VISOR_CSS + "\n" + src
@@ -1168,7 +1681,10 @@ def _font(size, bold=True):
         return ImageFont.load_default()
 
 
-def build_og(ctx, V):
+def build_og(ctx, V, srcs):
+    """og.png (vista previa de WhatsApp): textos desde los datos; siempre dice que no hay nada construido ni probado.
+    Devuelve el hash corto del PNG (va como ?v= en og:image para que WhatsApp no reutilice una vista previa vieja)."""
+    import hashlib
     from PIL import Image, ImageDraw
     W, H = 1200, 630
     ink, paper, accent, sea = (15, 36, 43), (238, 242, 241), (226, 96, 26), (79, 176, 194)
@@ -1180,8 +1696,8 @@ def build_og(ctx, V):
             c = c.convert("RGB")
             tw = W - 80
             th = round(c.height * tw / c.width)
-            if th > 330:
-                th, tw = 330, round(c.width * 330 / c.height)
+            if th > 300:
+                th, tw = 300, round(c.width * 300 / c.height)
             c = c.resize((tw, th), Image.LANCZOS)
             panel = Image.new("RGB", (W - 48, th + 24), (255, 255, 255))
             im.paste(panel, (24, H - th - 48))
@@ -1189,14 +1705,24 @@ def build_og(ctx, V):
     d.rectangle([0, 0, W, 10], fill=accent)
     d.text((48, 40), "P1-J · STRÅLEN", font=_font(30), fill=sea)
     d.text((48, 82), "Waterjet eléctrico inboard", font=_font(60), fill=paper)
-    d.text((48, 150), "para un jet boat de 2,30 m", font=_font(44, bold=False), fill=paper)
-    sub = (f"Ø{V('sizing.selection.D_imp_mm', '.0f')} mm · {V('sizing.verdict.vmax_cont_kmh.nominal', '.1f')} km/h (modelo) · "
-           f"{V('manifest.totals.n_parts', 'd')} piezas · verificado en software")
-    d.text((48, 206), sub, font=_font(26, bold=False), fill=(147, 167, 171))
+    loa = fnum(inp("boat.loa_m"), ".2f")
+    d.text((48, 150), f"para un jet boat de {loa} m", font=_font(44, bold=False), fill=paper)
+    n_open = open_points(V, srcs)
+    sub = (f"Ø{V('sizing.selection.D_imp_mm', '.0f')} mm · {speed_phrase(V)} · "
+           f"{V('manifest.totals.n_parts', 'd')} piezas CAD"
+           + ("" if n_open == 0 and all_checks_ok(srcs) else f" · en revisión: {open_points_phrase(n_open)}"))
+    for size in (26, 24, 22, 20):
+        f_sub = _font(size, bold=False)
+        if d.textlength(sub, font=f_sub) <= W - 96:
+            break
+    d.text((48, 206), sub, font=f_sub, fill=(147, 167, 171))
+    d.text((48, 242), "Diseño en computadora · nada construido ni probado todavía", font=_font(26), fill=accent)
     dst = ctx.out / "og.png"
     im.save(dst, "PNG", optimize=True)
     if dst.stat().st_size > 300_000:
         im.quantize(colors=128, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(dst, "PNG", optimize=True)
+    ctx.copied.add("og.png")
+    return hashlib.sha1(dst.read_bytes()).hexdigest()[:8]
 
 
 CSS = r"""/* P1-J · sitio — tokens del visor 3D (04_diseno/visor/index.html) */
@@ -1210,6 +1736,7 @@ CSS = r"""/* P1-J · sitio — tokens del visor 3D (04_diseno/visor/index.html) 
   --radius: 10px; --gutter: 16px;
   /* cabecera y bloques de código: oscuros en los dos temas (no se invierten con --ink) */
   --chrome: #0f242b; --chrome-ink: #eef2f1; --chrome-accent: #ff7a33;
+  --scroll-shadow: rgba(0, 0, 0, 0.28);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -1217,12 +1744,14 @@ CSS = r"""/* P1-J · sitio — tokens del visor 3D (04_diseno/visor/index.html) 
     --bg: #0b181d; --surface: #11232a; --ink: #e4eded; --muted: #9db0b4; --line: #22383f;
     --accent: #ff8a4c; --accent-bg: #ff7a33; --accent-ink: #1a0c04; --sea: #5fbccd; --ok: #67cc88; --warn: #e8b259; --bad: #f27a6b;
     --ok-bg: #12301f; --warn-bg: #33270f; --bad-bg: #3a1714; --sea-bg: #0f2c33; --chrome: #071216; color-scheme: dark;
+    --scroll-shadow: rgba(255, 255, 255, 0.22);
   }
 }
 :root[data-theme="dark"] {
   --bg: #0b181d; --surface: #11232a; --ink: #e4eded; --muted: #9db0b4; --line: #22383f;
   --accent: #ff8a4c; --accent-bg: #ff7a33; --accent-ink: #1a0c04; --sea: #5fbccd; --ok: #67cc88; --warn: #e8b259; --bad: #f27a6b;
   --ok-bg: #12301f; --warn-bg: #33270f; --bad-bg: #3a1714; --sea-bg: #0f2c33; --chrome: #071216; color-scheme: dark;
+  --scroll-shadow: rgba(255, 255, 255, 0.22);
 }
 @media (min-width: 720px) { :root { --gutter: 28px; } }
 * { box-sizing: border-box; }
@@ -1261,12 +1790,17 @@ h3 { font-size: 1.3rem; font-weight: 800; }
 .site-nav a { color: var(--chrome-ink); text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 6px 8px; border-radius: 6px; }
 .site-nav a:hover, .site-nav a[aria-current="page"] { background: color-mix(in srgb, var(--chrome-ink) 16%, transparent); color: var(--chrome-ink); }
 .site-nav a.ext { opacity: 0.85; }
+.l-short { display: none; }
 @media (max-width: 600px) {
+  .l-long, .site-nav a.nav-home { display: none; }
+  .l-short { display: inline; }
   .site-header { position: static; }
   .site-nav { margin-left: 0; width: calc(100% + 2 * var(--gutter)); margin-inline: calc(-1 * var(--gutter)); padding-inline: calc(var(--gutter) - 8px);
     flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
   .site-nav::-webkit-scrollbar { display: none; }
-  .site-nav a { flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 10px; font-size: 0.9rem; }
+  .site-nav.at-end { -webkit-mask-image: none; mask-image: none; }
+  .site-nav a { flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 9px; font-size: 0.9rem; }
+  .site-nav a.nav-home { display: none; }
   .site-header .bar { padding-block: 6px 2px; }
 }
 .main { max-width: 1120px; margin: 0 auto; padding: 24px var(--gutter) 56px; min-width: 0; }
@@ -1285,6 +1819,20 @@ h3 { font-size: 1.3rem; font-weight: 800; }
 .pill.ok { background: var(--ok-bg); color: var(--ok); }
 .pill.warn { background: var(--warn-bg); color: var(--warn); }
 .pill.bad { background: var(--bad-bg); color: var(--bad); }
+a.pill { text-decoration: none; }
+a.pill:hover { text-decoration: underline; }
+.warn-txt { color: var(--warn); font-weight: 600; font-size: 0.92rem; }
+.totop { position: fixed; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 30; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--chrome); color: var(--chrome-ink); border: 1.5px solid color-mix(in srgb, var(--chrome-ink) 30%, transparent); font-size: 1.35rem; font-weight: 800; text-decoration: none; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .2s, transform .2s; }
+.totop.show { opacity: 1; pointer-events: auto; transform: none; }
+.totop:hover { color: var(--chrome-ink); }
+@media print { .totop { display: none; } }
+.img-title { font-size: clamp(1.6rem, 6vw, 2.6rem); overflow-wrap: anywhere; }
+.imgtools { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+button.btn { background: var(--surface); font: inherit; font-weight: 700; cursor: pointer; }
+.imgview { overflow: auto; -webkit-overflow-scrolling: touch; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; max-height: 82vh; touch-action: pan-x pan-y pinch-zoom; }
+.imgview img { display: block; width: 100%; height: auto; }
+.imgview.zoomed img { width: var(--zoom-w, 1600px); max-width: none; }
+.stale { background: #b0302a; color: #fff; padding: 10px var(--gutter); text-align: center; font-weight: 600; }
 .tag { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.02em; padding: 2px 7px; border-radius: 5px; border: 1px solid currentColor; color: var(--sea); overflow-wrap: anywhere; }
 .tag.est, .tag.sup { color: var(--warn); }
 .tag.ver { color: var(--ok); }
@@ -1344,20 +1892,21 @@ summary { cursor: pointer; font-weight: 700; color: var(--sea); min-height: 32px
 .bigbtn:hover { border-color: var(--accent-bg); color: var(--ink); }
 .bigbtn b { display: block; font-family: var(--font-display); font-size: 1.45rem; font-weight: 800; line-height: 1.1; }
 .bigbtn small { color: var(--muted); font-size: 0.875rem; }
-.ico { flex: 0 0 42px; height: 42px; border-radius: 10px; background: var(--accent-bg); position: relative; }
-.ico::after { content: ""; position: absolute; inset: 11px; border: 3px solid var(--accent-ink); border-radius: 3px; }
-.ico-doc::after { inset: 10px 13px; border-radius: 2px; }
-.ico-plan { background: var(--sea); } .ico-plan::after { border-style: dashed; }
-.ico-list::after { border-left: 0; border-right: 0; }
-.ico-fea { background: var(--ok); } .ico-fea::after { border-radius: 50%; }
-.ico-git { background: var(--ink); } .ico-git::after { border-color: var(--bg); border-radius: 50%; }
+.ico { flex: 0 0 42px; height: 42px; border-radius: 10px; background: var(--accent-bg); color: var(--accent-ink); display: grid; place-items: center; }
+.ico svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ico-plan { background: var(--sea); color: #fff; }
+.ico-fea { background: var(--ok); color: #fff; }
+.ico-git { background: var(--ink); color: var(--bg); }
+:root[data-theme="dark"] .ico-plan, :root[data-theme="dark"] .ico-fea { color: #071216; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ico-plan, :root:not([data-theme="light"]) .ico-fea { color: #071216; } }
 
 /* documentos */
 .doclist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 10px; }
-.doclist a { display: grid; gap: 3px; height: 100%; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; color: var(--ink); }
+.doclist li { min-width: 0; }
+.doclist a { min-width: 0; display: grid; gap: 3px; height: 100%; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; color: var(--ink); }
 .doclist a:hover { border-color: var(--accent-bg); }
 .doclist b { font-size: 1.02rem; line-height: 1.3; }
-.doclist .mono { color: var(--sea); font-size: 0.78rem; }
+.doclist .mono { color: var(--sea); font-size: 0.78rem; overflow-wrap: anywhere; }
 .doclist small { color: var(--muted); font-size: 0.875rem; line-height: 1.45; }
 .figgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
 .figgrid figure { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; }
@@ -1397,7 +1946,14 @@ summary { cursor: pointer; font-weight: 700; color: var(--sea); min-height: 32px
 .prose hr { border: 0; border-top: 1px solid var(--line); margin: 2em 0; }
 
 /* tablas: el desplazamiento horizontal queda dentro del contenedor, nunca en la página */
-.table-wrap { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.table-wrap { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; border: 1px solid var(--line); border-radius: 8px;
+  /* sombra en el borde por el que hay más tabla (las capas «local» la tapan cuando no hay más para desplazar) */
+  background: linear-gradient(to right, var(--surface) 30%, transparent) left center / 40px 100% no-repeat local,
+    linear-gradient(to left, var(--surface) 30%, transparent) right center / 40px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--scroll-shadow), transparent) left center / 14px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, var(--scroll-shadow), transparent) right center / 14px 100% no-repeat scroll,
+    var(--surface); }
+.table-wrap table.idcol td:first-child { white-space: nowrap; }
 .table-wrap table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
 .table-wrap th, .table-wrap td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; min-width: 7ch; }
 .prose .table-wrap td, .prose .table-wrap th { min-width: 9ch; max-width: 46ch; }
@@ -1406,6 +1962,14 @@ summary { cursor: pointer; font-weight: 700; color: var(--sea); min-height: 32px
 .table-wrap tbody tr:last-child td { border-bottom: 0; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 td small { display: block; color: var(--muted); font-size: 0.8125rem; }
+/* teléfono: los documentos usan todo el ancho (sin el marco de la tarjeta) y las tablas anchas se desplazan como
+   columnas de verdad (no una palabra por renglón) */
+@media (max-width: 600px) {
+  .prose.doc { padding: 14px var(--gutter); border-inline: 0; border-radius: 0; margin-inline: calc(-1 * var(--gutter)); }
+  .prose.doc .table-wrap { width: calc(100% + 2 * var(--gutter)); max-width: none; margin-inline: calc(-1 * var(--gutter)); border-radius: 0; border-inline: 0; }
+  .prose .table-wrap td, .prose .table-wrap th { min-width: 14ch; max-width: 34ch; }
+  .prose .table-wrap td:first-child, .prose .table-wrap th:first-child { min-width: 7ch; }
+}
 
 /* BOM / FEA / planos */
 .filters { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; }
@@ -1429,6 +1993,7 @@ table.totals tr.strong td { font-weight: 800; }
   table.stack td { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 8px; padding: 3px 0; border: 0; min-width: 0; max-width: none; text-align: left; white-space: normal; }
   table.stack td::before { content: attr(data-label); font-size: 0.78rem; font-weight: 700; color: var(--muted); padding-top: 2px; }
   table.stack td > * { grid-column: 2; }
+  table.stack td > .pill { justify-self: start; }
   table.stack td.num { text-align: left; }
   /* BOM: tarjeta compacta — ID y precio arriba, descripción, cantidad + verificación, proveedor */
   table.bom tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: row dense; gap: 2px 12px; padding: 10px 12px; }
@@ -1437,14 +2002,14 @@ table.totals tr.strong td { font-weight: 800; }
   table.bom td::before { content: none; }
   table.bom td.idc { grid-column: 1; font-weight: 700; color: var(--sea); }
   table.bom td.tot { grid-column: 2; grid-row: 1; text-align: right; font-weight: 800; }
-  table.bom td.tot::after { content: " €"; }
+  table.bom td.tot::after { content: " € total"; font-weight: 600; font-size: 0.8em; color: var(--muted); }
   table.bom td.desc { grid-column: 1 / -1; }
   table.bom td.qty { grid-column: 1; text-align: left; color: var(--muted); font-size: 0.85rem; }
   table.bom td.tagcell { grid-column: 2; text-align: right; }
   table.bom td.tagcell small, table.bom td.fecha { display: none; }
   table.bom td.prov { grid-column: 1 / -1; font-size: 0.85rem; color: var(--muted); }
   table.bom td.prov br { display: none; }
-  table.bom td.prov a { margin-left: 6px; }
+  table.bom td.prov a, table.bom td.prov > .muted { margin-left: 6px; }
   table.bom td.desc details p { max-width: none; }
 }
 .feapart { border-top: 2px solid var(--ink); padding-top: 14px; }
@@ -1485,16 +2050,37 @@ def freshness(srcs):
     probs = []
     V = Values(srcs)
     dp = ROOT / "04_diseno" / "visor" / "datos.json"
+    # sizing.py (paso 1 de run_all) toma la masa del jet del manifest.json de la corrida ANTERIOR del CAD (paso 2):
+    # si el CAD cambió de masa, todas las velocidades y márgenes salen de una masa vieja
+    jet = next((it.get("kg") for it in (V.raw("sizing.masses.items") or []) if it.get("id") == "jet"), None)
+    cad = V.raw("manifest.totals.jet_unit_mass_kg")
+    if isinstance(jet, (int, float)) and isinstance(cad, (int, float)) and abs(jet - cad) > 0.05:
+        probs.append(f"sizing.json usa una masa de jet anterior al CAD ({jet:.2f} kg contra "
+                     f"manifest.totals.jet_unit_mass_kg = {cad:.2f} kg): correr sizing.py (o run_all.py) otra vez")
     if dp.exists():
-        res = (json.loads(dp.read_text(encoding="utf-8")).get("resumen") or {})
-        for key, path, tol in (("vmax_kmh", "sizing.performance.vmax_cont_kmh", 0.01),
-                               ("masa_total_kg", "sizing.masses.total_kg", 0.05),
-                               ("masa_jet_kg", "manifest.totals.jet_unit_mass_kg", 0.05),
-                               ("costo_eur", "bom.total_eur", 0.5),
-                               ("n_piezas", "manifest.totals.n_parts", 0)):
-            a, b = res.get(key), V.raw(path)
+        dat = json.loads(dp.read_text(encoding="utf-8"))
+        res, cmpv = dat.get("resumen") or {}, dat.get("comparacion") or {}
+        gm = V.raw("sizing.hydrostatics.GM_m")
+        checks = [("resumen", res, "vmax_kmh", "sizing.performance.vmax_cont_kmh", None, 0.01),
+                  ("resumen", res, "vmax_pico_kmh", "sizing.verdict.vmax_peak_kmh.nominal", None, 0.05),
+                  ("resumen", res, "t_planeo_s", "sizing.verdict.t_to_plane_nominal_s", None, 0.5),
+                  ("resumen", res, "bollard_n", "sizing.performance.bollard_N", None, 0.5),
+                  ("resumen", res, "t_fondo_min", "sizing.energy.t_top_min", None, 0.5),
+                  ("resumen", res, "t_legal_h", "sizing.energy.t_legal_h", None, 0.05),
+                  ("resumen", res, "gm_mm", "sizing.hydrostatics.GM_m×1000", gm * 1000 if isinstance(gm, (int, float)) else None, 0.5),
+                  ("resumen", res, "masa_total_kg", "sizing.masses.total_kg", None, 0.05),
+                  ("resumen", res, "masa_jet_kg", "manifest.totals.jet_unit_mass_kg", None, 0.05),
+                  ("resumen", res, "costo_eur", "bom.total_eur", None, 0.5),
+                  ("resumen", res, "n_piezas", "manifest.totals.n_parts", None, 0),
+                  ("comparacion", cmpv, "B_vmax_kmh", "cmp.B_vmax_kmh", None, 0.05),
+                  ("comparacion", cmpv, "B_total_eur_min", "cmp.B_total_eur_min", None, 0.5),
+                  ("comparacion", cmpv, "B_total_eur_max", "cmp.B_total_eur_max", None, 0.5),
+                  ("comparacion", cmpv, "A_total_eur", "bom.total_eur", None, 0.5)]
+        for sec, d, key, path, b, tol in checks:
+            a = d.get(key)
+            b = V.raw(path) if b is None else b
             if isinstance(a, (int, float)) and isinstance(b, (int, float)) and abs(a - b) > tol:
-                probs.append(f"visor/datos.json desactualizado: resumen.{key} = {a:g} y {path} = {b:g} "
+                probs.append(f"visor/datos.json desactualizado: {sec}.{key} = {a:g} y {path} = {b:g} "
                              f"(correr 04_diseno/visor/build_visor.py)")
     notes = _part_notes()
     heads = {}
@@ -1507,6 +2093,7 @@ def freshness(srcs):
         if note and pid in heads and note not in heads[pid]:
             probs.append(f"resultados_fea.json: los hallazgos de {pid} no tienen la nota actual de fea_run.py "
                          f"(PART_NOTES): corrida FEA anterior al último cambio del diseño")
+    probs += overclaims(srcs)
     return probs
 
 
@@ -1523,6 +2110,23 @@ def staleness_warnings(srcs):
         if old:
             out.append(f"{md.relative_to(ROOT)}: {len(old)} bloque(s) AUTO desactualizados en el .md ({', '.join(old)}); "
                        f"falta docgen.py (el sitio ya usa los valores actuales)")
+    # marcadores V: el texto guardado en el .md (lo que muestra GitHub, p. ej. el README de la raíz) contra el valor actual
+    for md in sorted(ROOT / d for d in all_docs()):
+        stale = []
+        for m in PAT_V.finditer(md.read_text(encoding="utf-8")):
+            path, fmt, old_txt = m.group(1), m.group(2), m.group(3)
+            src, _, rest = path.partition(".")
+            try:
+                val = docgen.getpath(srcs[src], rest)
+                new = format(val, fmt) if fmt else str(val)
+            except Exception:
+                continue
+            if new != old_txt:
+                stale.append(path)
+        if stale:
+            out.append(f"{md.relative_to(ROOT)}: {len(stale)} marcador(es) V desactualizados en el .md "
+                       f"({', '.join(sorted(set(stale))[:4])}{', …' if len(set(stale)) > 4 else ''}): falta docgen.py "
+                       f"(GitHub muestra el .md con los valores viejos; el sitio ya usa los actuales)")
     return out
 
 
@@ -1551,9 +2155,10 @@ def clean_out(out):
     return out
 
 
-def build(out):
-    out = clean_out(Path(out))
-    ctx = Ctx(out)
+def build(out, allow_stale=False):
+    """Compila el sitio en `out`. Si las fuentes que se copian tal cual están desactualizadas (freshness), no toca
+    `out` y devuelve None, salvo con allow_stale=True (vista previa): entonces las páginas llevan un aviso rojo."""
+    global OG_VERSION, STALE_BANNER
     srcs = sources()
     V = Values(srcs)
     for w in staleness_warnings(srcs):
@@ -1561,30 +2166,41 @@ def build(out):
     probs = freshness(srcs)
     for pr in probs:
         print("build_site: *** FUENTE DESACTUALIZADA ***", pr)
+    if probs and not allow_stale:
+        print(f"build_site: *** {len(probs)} problema(s) de frescura: NO se genera el sitio (no se tocó {out}). "
+              f"Correr run_all.py completo; para una vista previa: --allow-stale ***")
+        return None
+    STALE_BANNER = (f'<div class="stale" role="alert"><b>Vista previa con datos desactualizados</b> — '
+                    f'{len(probs)} fuente(s) no coinciden con los resultados actuales; no compartir este enlace.</div>'
+                    if probs else "")
+    out = clean_out(Path(out))
+    ctx = Ctx(out)
+    OG_VERSION = build_og(ctx, V, srcs)
     write(ctx, ".nojekyll", "")
     write(ctx, "assets/site.css", CSS)
-    build_visor(ctx)
+    build_visor(ctx, srcs)
     meta = build_docs(ctx, srcs)
     build_documentos(ctx, meta)
     build_index(ctx, V, srcs)
     build_planos(ctx, srcs)
     build_bom(ctx, srcs, V)
     build_fea(ctx, srcs)
-    build_og(ctx, V)
+    build_404(ctx)
     n_html = sum(1 for _ in out.rglob("*.html"))
     size = sum(p.stat().st_size for p in out.rglob("*") if p.is_file())
     print(f"build_site: {n_html} páginas HTML, {size / 1e6:.1f} MB en {out}")
     if probs:
-        print(f"build_site: *** {len(probs)} problema(s) de frescura: NO publicar este sitio; correr run_all.py completo ***")
+        print(f"build_site: *** {len(probs)} problema(s) de frescura: vista previa (--allow-stale), NO publicar ***")
     return out
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--out", default=str(ROOT / "docs"), help="carpeta de salida (se regenera desde cero)")
+    ap.add_argument("--allow-stale", action="store_true",
+                    help="compilar aunque las fuentes estén desactualizadas (vista previa con aviso rojo; no publicar)")
     a = ap.parse_args(argv)
-    build(a.out)
-    return 0
+    return 0 if build(a.out, allow_stale=a.allow_stale) is not None else 2
 
 
 if __name__ == "__main__":
