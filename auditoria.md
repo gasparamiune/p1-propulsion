@@ -82,6 +82,32 @@ verifica antes de corregirlo; se repiten rondas hasta que una ronda no encuentra
 | E12 | R13 escrito para otra potencia; < 19 kW depende de la configuración | Media | R13 §2 con la potencia configurada; XML y hojas a bordo |
 | E13–E19 | 4 kn de Als Sund no los hace cumplir el firmware; cantidad de baterías; etiquetas VERIFICADO con links de búsqueda; arancel; compilación AVR; riesgos residuales del firmware | Baja | Corregidos o documentados (D-18, README de electrónica §8) |
 
+## Ronda 2 (3 auditores nuevos sobre el paquete corregido)
+
+27 hallazgos verificados, ninguno de los de la ronda 1 reabierto; corregidos (commits `70dc3d9`, `4dbb05d`, `f0b8b13`, `8868d14`).
+
+| # | Hallazgo | Sev. | Resolución |
+|---|---|---|---|
+| R2-E1 | **Fuente de 12 V RSD-60G (9–36 V) con un pack de 36–43,8 V** (rango del modelo L copiado al G; cita circular a la BOM) | Crítica | RSD-60L-12 (18–72 V) [VERIFICADO: hoja Mean Well] |
+| R2-C01 | **Margen de joroba cortado en Fn∇ 2,3**: más allá el margen seguía bajando; con la resistencia alta no llega a planeo pleno y con potencia continua se cae del planeo | Alta | Margen de 0 a planeo pleno (<!--V:sizing.verdict.V_full_planing_kmh:.1f-->27.3<!--/V--> km/h); `sizing.verdict` con veredicto por banda: alta <!--V:sizing.verdict.hump_margin_min_high:.0%-->-7%<!--/V-->, nominal <!--V:sizing.verdict.hump_margin_min_nominal:.0%-->4%<!--/V-->; README, 02, 03, visor lo dicen |
+| R2-C02 | El veredicto lo fijan `planing_band.high` y `fn_planing`, fuera de la sensibilidad | Alta | Entradas nuevas de sensibilidad (incl. factor sobre las 3 bandas); ×1,12 etiquetado SUPUESTO en el régimen limitado por eslora |
+| R2-D01 | Pasadores del pórtico Ø6 × 30 atravesaban el fondo mojado y no se podían extraer | Media-Alta | ISO 8735 Ø6 × 16 con rosca M4, ciegos 6 mm (quedan 4 mm), acotados en planos |
+| R2-D02 | M5 × 25 de la tobera tocaban fondo antes de apretar | Media | M5 × 20 + check de largo contra agujero |
+| R2-D03 | Camino de extracción sin la inclinación del eje (luz real 1,17 mm < 1,5) | Media | R/cos α + t·tan α; agujero del espejo Ø166 +1/0, concentricidad ≤ 0,5 mm |
+| R2-D05 | Placa de espejo pegada con Sikaflex pero se desmonta en cada cambio de semipasadores | Media | NBR + butilo no adhesivo + arandelas bonded |
+| R2-E2 | Un riel de 12 V para bobina de K1 + achique: corte espurio al arrancar la bomba | Media | Retención 1N5822 + 22 mF (≥ 9 V por 0,28 s) + prueba T0.4b; F5 removible, invernada |
+| R2-E3 | Poder de corte del MRBF citado como 10 kA (a 58 V son 2 kA); cortocircuito presunto 1,8–8,8 kA [ESTIMADO] | Media | F1 y ramas Class T (20 kA, 160 V CC) [VERIFICADO: Blue Sea 5113] |
+| R2-E4–E6 | Fusible de rama con otro criterio que F1; fusible abierto no detectable por tensión; toma Anderson sin fusible | Media | 150 A con el criterio de F1; pinza CC por rama; F6 32 A |
+| R2-C03–C05, R2-D04, D06–D10, R2-E7–E10 | Punto de diseño de la bomba recortado por la grilla (ahora 43,6 km/h); tabla por batería con bandas mezcladas; varilla de la hidrostática que no pasaba (M5); ligamento M5; alineación con el propio eje; fuerzas de dirección unificadas; restos de textos (7204 BEP, 7 pletinas, B-NTC, 24 V, T0.0); checklist | Media/Baja | Corregidos |
+
+## Ronda 3 (FEA de las piezas críticas, 04_diseno/fea)
+
+| # | Hallazgo | Sev. | Estado |
+|---|---|---|---|
+| F-01 | **P1-REV-01 bucket: FS 0,44** en el brazo con la traba (reversa 1408 N): la traba solo en un brazo hace pasar todo el momento por la cuchara abierta a torsión; el cálculo a mano repartía F/2 por brazo (no conservador) | Crítica | En corrección: traba en ambos brazos + brazos de 6 mm (variante FEA: FS 2,34) |
+| F-02 | P1-CTL-02 (PETG): tracción entre capas en las paredes, FS 2,74 < 3 (modelo macizo: optimista) | Media | En corrección: paredes de 5 mm (variante FEA: FS 3,5) |
+| F-03 | Aristas vivas sin radio (STE-01 oreja/labio, DRV-03 alma/alojamiento): picos que no convergen | Baja | Radios en el CAD |
+
 ## Regeneración desde inputs.yaml
 
 `tests/test_regeneration.py` (rápido) cambia `boat.bottom_thickness_mm` y `waterjet.axis_height_m`
