@@ -346,6 +346,7 @@ def sensitivity(inp, best, pump):
             "any_hump_fail": [r["label"] for r in rows if not (r["lo"]["hump_ok"] and r["hi"]["hump_ok"])],
             "any_hump_fail_text": (", ".join(r["label"] for r in rows if not (r["lo"]["hump_ok"] and r["hi"]["hump_ok"]))
                                    or "ninguna"),
+            "by_key": {r["param"].replace(".", "_"): r for r in rows},
             "critical_r_hump": critical_r_hump(inp, best, pf)}
 
 
@@ -362,10 +363,10 @@ def critical_r_hump(inp, best, pf, lo=0.05, hi=0.40, it=12):
                         best["f_pow"], pump_fix=pf)["hump_margin"] - tgt
 
     if margin(lo) < 0:
-        return {"value": None, "text": f"no hay: aun con R/Δ = {lo:.2f} el margen queda < {tgt:.0%} (lo limita la "
+        return {"value": None, "text": f"no hay: aun con R/Δ = {lo:.2f}".replace(".", ",") + f" el margen queda < {tgt:.0%} (lo limita la "
                                        "transición joroba–planeo, no el pico de la joroba)"}
     if margin(hi) >= 0:
-        return {"value": hi, "text": f"> {hi:.2f} (cumple en todo el rango probado)"}
+        return {"value": hi, "text": f"> {hi:.2f}".replace(".", ",") + " (cumple en todo el rango probado)"}
     for _ in range(it):
         mid = 0.5 * (lo + hi)
         lo, hi = (mid, hi) if margin(mid) >= 0 else (lo, mid)

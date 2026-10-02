@@ -2,7 +2,7 @@
 
 Cada ítem tiene un **criterio de cierre**. No se pasa al bloque siguiente con uno abierto, salvo que se diga lo contrario. Después de cada medición: cargar el valor en `inputs.yaml` con la etiqueta `[VERIFICADO: medido AAAA-MM-DD]`, correr `python run_all.py` (incluye `verify_parts.py` y `docgen.py`) y mirar qué cambió en `resultados/sizing.json`. Bloqueos que esto destraba: 06 §8.
 
-Valores de referencia del diseño actual [CALCULADO con el casco leído del plano]: masa total <!--V:sizing.masses.total_kg:.0f-->217<!--/V--> kg, calado <!--V:sizing.hydrostatics.draft_m:.3f-->0.285<!--/V--> m, GM <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m, V máx. sostenida <!--V:sizing.performance.vmax_cont_kmh:.1f-->25.1<!--/V--> km/h, costo total <!--V:bom.total_eur:.0f-->10865<!--/V--> €.
+Valores de referencia del diseño actual [CALCULADO con el casco leído del plano]: masa total <!--V:sizing.masses.total_kg:.0f-->217<!--/V--> kg, calado <!--V:sizing.hydrostatics.draft_m:.3f-->0.285<!--/V--> m, GM <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m, V máx. sostenida <!--V:sizing.performance.vmax_cont_kmh:.1f-->25.0<!--/V--> km/h, costo total <!--V:bom.total_eur:.0f-->10865<!--/V--> €.
 
 ---
 
@@ -41,7 +41,7 @@ Valores de referencia del diseño actual [CALCULADO con el casco leído del plan
 
 | # | Acción | Criterio de cierre |
 |---|---|---|
-| P0.4.1 | Mandar las preguntas en danés de **R13 §8** (Q1–Q2 a Søfartsstyrelsen, Q4 a Sønderborg Kommune, Q5 a la policía, Q6 a Sønderborg Havn, Q7 a la aseguradora) con planos y fotos del cockpit. **Antes de mandarlas, actualizar las cifras:** Q1 dice "5 kW kontinuerligt / 7,2 kW maks."; el diseño actual da <!--V:sizing.performance.P_shaft_peak_kW:.1f-->6.6<!--/V--> kW al eje como máximo [CALCULADO]. Q3 pregunta por 72 V: el pack es 12S, <!--V:sizing.performance.vmax_by_battery.v_max.V_bat:.1f-->43.8<!--/V--> V a carga plena (D-13), así que Q3 se reformula o se omite | Respuestas escritas archivadas en `referencias/`; D-20 actualizado. Si la respuesta es "vandscooter": se pierde Als Sund (R13 §1.3) y se replantea el proyecto antes de comprar |
+| P0.4.1 | Mandar las preguntas en danés de **R13 §8** (Q1–Q2 a Søfartsstyrelsen, Q4 a Sønderborg Kommune, Q5 a la policía, Q6 a Sønderborg Havn, Q7 a la aseguradora) con planos y fotos del cockpit. **Antes de mandarlas, actualizar las cifras:** Q1 dice "5 kW kontinuerligt / 7,2 kW maks."; el diseño actual da <!--V:sizing.performance.P_shaft_peak_kW:.1f-->6.5<!--/V--> kW al eje como máximo [CALCULADO]. Q3 pregunta por 72 V: el pack es 12S, <!--V:sizing.performance.vmax_by_battery.v_max.V_bat:.1f-->43.8<!--/V--> V a carga plena (D-13), así que Q3 se reformula o se omite | Respuestas escritas archivadas en `referencias/`; D-20 actualizado. Si la respuesta es "vandscooter": se pierde Als Sund (R13 §1.3) y se replantea el proyecto antes de comprar |
 
 ---
 
@@ -67,6 +67,6 @@ Los procedimientos completos están en 05 §7; si algo de acá difiere, manda 05
 | P2.1 | **T1.1 (E1)** con todo instalado (se repite P0.2.1) | Mismo criterio que P0.2.1 |
 | P2.2 | **T0** banco en seco, acople desconectado: electrónica T0.1–T0.20 + mecánica T0.M1–T0.M8 | Todas pasan; kill por cordón y por seta < 1 s en 10/10 |
 | P2.3 | **T1** estanqueidad, calado e inundado (T1.2–T1.6) | 24 h sin agua en la sentina; eje ≥ 20 mm bajo la flotación; E2–E4 aprobados |
-| P2.4 | **T2** muelle, amarrado | Chorro en ≤ 3 s; testigo de refrigeración y sello correctos; empuje a punto fijo ≥ <!--V:sizing.success.bollard_min_N:.0f-->532<!--/V--> N; sin cavitación en la rampa |
-| P2.5 | **T3** agua calma, < 300 m, 5 kn | Perfil COSTA ≤ 9,0 km/h de media; P de batería a 5 kn ≤ <!--V:sizing.success.p_legal_max_W:.0f-->2241<!--/V--> W; reversa y kill en marcha |
-| P2.6 | **T4** fuera de 300 m (centro de Als Fjord) | Planeo en ≤ <!--V:sizing.success.t_plane_max_s:.0f-->15<!--/V--> s; V máx. GPS ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->21.3<!--/V--> km/h; 30 min de crucero sin recorte térmico |
+| P2.4 | **T2** muelle, amarrado | Chorro en ≤ 3 s; testigo de refrigeración y sello correctos; empuje a punto fijo ≥ <!--V:sizing.success.bollard_min_N:.0f-->612<!--/V--> N; sin cavitación en la rampa |
+| P2.5 | **T3** agua calma, < 300 m, 5 kn | Perfil COSTA ≤ 9,0 km/h de media; P de batería a 5 kn ≤ <!--V:sizing.success.p_legal_max_W:.0f-->2184<!--/V--> W; reversa y kill en marcha |
+| P2.6 | **T4** fuera de 300 m (centro de Als Fjord) | Planeo en ≤ <!--V:sizing.success.t_plane_max_s:.0f-->15<!--/V--> s; V máx. GPS ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->21.2<!--/V--> km/h; 30 min de crucero sin recorte térmico |

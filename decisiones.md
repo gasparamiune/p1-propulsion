@@ -39,9 +39,9 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 
 ## Bomba y toma
 
-**D-06 Impulsor axial Ø<!--V:sizing.selection.D_imp_mm:.0f-->132<!--/V-->, 5 álabes, cubo 0,50·D, tobera Ø<!--V:sizing.selection.D_noz_mm:.0f-->82<!--/V-->.**
+**D-06 Impulsor axial Ø<!--V:sizing.selection.D_imp_mm:.0f-->132<!--/V-->, 5 álabes, cubo 0,50·D, tobera Ø<!--V:sizing.selection.D_noz_mm:.0f-->87<!--/V-->.**
 - Alternativas: el Ø108 / 4 álabes / tobera Ø72 del plano; Ø100–120.
-- Justificación: el optimizador (02 §4) elige el diámetro y la tobera que planean con margen al menor costo. Con 217 kg el Ø108 no pasa la joroba con la potencia disponible. 5 álabes y cubo 0,50 por difusión (R12 §3: con cubo 0,40 el factor de difusión llega a 0,60).
+- Justificación: el optimizador (02 §4) elige el diámetro y la tobera de mayor margen en la joroba al menor costo. Con la resistencia corregida (D-21) **ninguna** combinación de 48 V llega al 10 % de margen con la banda alta (estado `<!--V:sizing.status:-->sin_solucion_dura<!--/V-->`); esta es la de mayor margen (<!--V:sizing.performance.hump_margin_min:.1%-->3.0%<!--/V-->) y, empatada, la de mayor V máx. Con 217 kg el Ø108 queda peor. 5 álabes y cubo 0,50 por difusión (R12 §3: con cubo 0,40 el factor de difusión llega a 0,60).
 - [CALCULADO: sizing.py; R12].
 - *Si difiere:* el impulsor se re-diseña solo (triángulos de velocidad en `sizing.json` → CAD → tabla de ángulos para el taller).
 
@@ -82,11 +82,11 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 - *Si difiere:* `electrical.allow_72v: true` habilita las opciones de 72 V en el optimizador.
 
 **D-14 Eje 316L Ø20 con dos apoyos: par 7204 BEP en seco (toma todo el empuje) y buje de agua de POM en el cubo del estator; sello mecánico SiC/carbón con cámara de goteo y testigo.**
-- Justificación: en voladizo la primera velocidad crítica caía debajo de la de servicio; con el buje queda en <!--V:sizing.mech.crit_ratio:.1f-->3.4<!--/V-->× las rpm máximas. El empuje va por un pórtico de Al sobre el conducto a la placa base, nunca al motor (acople Rotex 24 con juego axial).
+- Justificación: en voladizo la primera velocidad crítica caía debajo de la de servicio; con el buje queda en <!--V:sizing.mech.crit_ratio:.1f-->3.8<!--/V-->× las rpm máximas. El empuje va por un pórtico de Al sobre el conducto a la placa base, nunca al motor (acople Rotex 24 con juego axial).
 - [CALCULADO: structural_tren.py; sizing.py].
 
 **D-15 Refrigeración por agua desde la bomba: orificio Ø4 en la carcasa del estator → controlador → motor → testigo en el espejo.**
-- Justificación: como los jetboards; <!--V:sizing.cooling.Q_l_min_top:.1f-->5.2<!--/V--> L/min a V máx. alcanzan con un salto de <!--V:sizing.cooling.dT_water_K:.1f-->1.7<!--/V--> K.
+- Justificación: como los jetboards; <!--V:sizing.cooling.Q_l_min_top:.1f-->4.9<!--/V--> L/min a V máx. alcanzan con un salto de <!--V:sizing.cooling.dT_water_K:.1f-->1.9<!--/V--> K.
 - [CALCULADO].
 
 ## Dirección, reversa y control
@@ -112,8 +112,22 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 ## Legal
 
 **D-20 Diseño para NO ser "vandscooter" ni "speedbåd".**
-- Justificación: la definición de vandscooter pide operar "på – snarere end i – skroget" (BEK 809/2019); el piloto va sentado dentro con volante. Speedbåd desde 19 kW de potencia propulsiva (BEK 749/2020); el pico de este diseño es <!--V:sizing.performance.P_shaft_peak_kW:.1f-->6.6<!--/V--> kW. Los 30 km/h solo son legales a más de 300 m de la costa y nunca en Als Sund (4 kn) ni en Augustenborg Fjord.
+- Justificación: la definición de vandscooter pide operar "på – snarere end i – skroget" (BEK 809/2019); el piloto va sentado dentro con volante. Speedbåd desde 19 kW de potencia propulsiva (BEK 749/2020); el pico de este diseño es <!--V:sizing.performance.P_shaft_peak_kW:.1f-->6.5<!--/V--> kW. Los 30 km/h solo son legales a más de 300 m de la costa y nunca en Als Sund (4 kn) ni en Augustenborg Fjord.
 - [VERIFICADO: research/R13]. Confirmar por escrito con Søfartsstyrelsen (preguntas en danés en R13 §8).
+
+## Cálculo (auditoría Pass 3, ronda 1)
+
+**D-21 Savitsky solo donde es válido; con el casco corto, "Savitsky limitado por eslora" y banda ensanchada. El margen en la joroba deja de cumplir el 10 % y la V máx. queda sin base validada hasta T4.**
+- Hallazgo: el equilibrio libre de Savitsky daba eslora mojada en la quilla L_K mayor que el fondo (2,1 m a 20 km/h contra L_wl 1,75 m) en todo el rango de planeo; el margen de 19 % y la V máx. de 26,3 km/h salían de puntos fuera de validez.
+- Alternativas: (a) seguir con Savitsky libre (optimista: supone un fondo más largo); (b) Savitsky–Brown 1976 o Blount–Fox 1976 para el pre-planeo (no tengo fuente abierta, R12 §6.3); (c) Mercier–Savitsky (solo Fn∇ 1–2, ~17 km/h); (d) equilibrio vertical con L_K = L_wl.
+- Elegida (d) como nominal [ESTIMADO: método propio, no validado; el momento de cabeceo no cierra], (a) × 0,92 como banda baja y (d) × 1,12 como banda alta; la validez de cada punto (L_K, λ, τ, C_V) va en `sizing.json`.
+- Consecuencia [CALCULADO]: margen en la joroba <!--V:sizing.performance.hump_margin_min:.1%-->3.0%<!--/V--> (banda alta) y <!--V:sizing.vmax_band.nominal.hump_margin:.1%-->15.4%<!--/V--> (nominal); V máx. sostenida <!--V:sizing.vmax_band.high.vmax_cont_kmh:.1f-->18.2<!--/V-->–<!--V:sizing.vmax_band.low.vmax_cont_kmh:.1f-->28.8<!--/V--> km/h según la banda (02 §3, §3.2).
+- *Si difiere:* con el casco medido (P0.1) se vuelve a correr; con <!--V:sizing.hump_recovery.mass_text:-->10 kg menos<!--/V--> de masa total o <!--V:sizing.hump_recovery.lwl_text:-->L_wl ≥ 1,90 m<!--/V--> el margen vuelve al 10 %. T4.1 (tiempo a planeo con la batería al 20 %) decide.
+
+**D-22 Deducción de empuje t = 0 y fracción de estela w = 0 se mantienen, pero t = 0 se declara NO conservador y se lleva en la sensibilidad (0–0,10).**
+- Justificación: no hay fuente abierta con valores de t para jets chicos; poner un número sería inventarlo. w = 0 sí es conservador para el empuje (no recupera estela).
+- Consecuencia [CALCULADO]: con t = 0,10 el margen en la joroba cae a <!--V:sizing.sensitivity.by_key.waterjet_thrust_deduction.hi.hump:.1%-->-7.3%<!--/V--> (con t = 0: <!--V:sizing.sensitivity.by_key.waterjet_thrust_deduction.lo.hump:.1%-->3.0%<!--/V-->) (02 §10).
+- *Si difiere:* la prueba de punto fijo da el empuje sin casco en movimiento; el t real sale de comparar la curva P–V medida (T4) con el modelo.
 
 ## Historia
 
