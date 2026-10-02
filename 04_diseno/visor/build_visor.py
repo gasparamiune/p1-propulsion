@@ -17,6 +17,7 @@ from __future__ import annotations
 import base64
 import csv
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -70,6 +71,18 @@ REVISAR = {
     "P1-CTL-02": ["Palancas con enclavamiento: el bucket solo se mueve con el acelerador en cero."],
     "P1-CTL-03": ["Kill switch con cordón al chaleco: corta en < 1 s (ensayo de banco 10/10)."],
 }
+
+
+def json_safe(o):
+    """JSON estricto para el navegador: inf/NaN no existen en JSON y `response.json()` rechaza el archivo entero
+    (p. ej. `t_to_plane_high_s` = inf cuando la banda alta no planea). Van como null, que el visor ya trata con `??`."""
+    if isinstance(o, float):
+        return o if math.isfinite(o) else None
+    if isinstance(o, dict):
+        return {k: json_safe(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [json_safe(v) for v in o]
+    return o
 
 
 def mat_color(material: str, process: str) -> str:
@@ -323,7 +336,8 @@ def main():
         datos["resumen"]["costo_dkk"] = bomr["total_dkk"]
     except (FileNotFoundError, KeyError):
         pass
-    (HERE / "datos.json").write_text(json.dumps(datos, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    (HERE / "datos.json").write_text(json.dumps(json_safe(datos), ensure_ascii=False, separators=(",", ":"),
+                                               allow_nan=False), encoding="utf-8")
     print(f"visor: {len(parts)} piezas, {len(instances)} instancias, mallas {len(blob)/1e6:.2f} MB")
     return 0
 

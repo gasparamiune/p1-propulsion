@@ -59,6 +59,9 @@ Leyenda: [x] hecho · [~] en curso · [ ] pendiente
   regeneración encontró que con otras entradas el desbloqueo no entraba entre las orejas (REGEN-1: piso de las orejas en
   |Y| 52 y check del estator con el triángulo usado) y dos pruebas desactualizadas (TEST-2); `pytest` completo en verde.
   Visor republicado, PR #1 integrado en `main` y sitio publicado en GitHub Pages.
+- 2026-10-02: el visor publicado no cargaba el modelo («Unexpected token 'I'… is not valid JSON»): `datos.json` llevaba
+  `t_to_plane_high_s: Infinity` (la banda alta no planea) y el navegador rechaza el archivo entero. `build_visor.py` escribe
+  JSON estricto (inf/NaN → null, `allow_nan=False`) y `test_json_strict_for_browsers` lo controla en el sitio y en el visor.
 
 ## Bitácora (versión anterior: cola larga, archivada)
 - 2026-10-01: inicio. V1/V2: títulos verificados vía YouTube oEmbed (canal "Clean Energy").
