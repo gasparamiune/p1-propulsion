@@ -11,7 +11,7 @@ Fuentes: research/R05 (PETG, sellado, insertos), R06 §6 y R10b H21 (galvánica)
 ## 0. Resumen
 
 - **El jet es casi todo metal.** De <!--V:manifest.totals.n_parts:-->65<!--/V--> tipos de pieza, solo cinco son impresas en PETG (tapa de inspección P1-INT-04, base y capota del controlador P1-ELE-01/02, caja de palancas P1-CTL-02, soporte del kill switch P1-CTL-03): <!--V:manifest.totals.printed_mass_g:.0f-->1020<!--/V--> g y <!--V:manifest.totals.printed_hours:.0f-->57<!--/V--> h según el manifest (PrusaSlicer da más: §2.6). El resto es Al 5083 cortado a láser y soldado (toma, bucket, placas), Al 6061/6082 y AISI 316L torneado, y **CNC 5 ejes** para impulsor (316L) y estator (6061-T6).
-- **Servicios de fabricación** en la BOM: <!--V:bom.services_eur:.0f-->3910<!--/V--> € (CNC, torneado grande, láser, soldadura, anodizado); materia prima para el torno propio y el taller: <!--V:bom.raw_material_eur:.0f-->1243<!--/V--> €.
+- **Servicios de fabricación** en la BOM: <!--V:bom.services_eur:.0f-->3910<!--/V--> € (CNC, torneado grande, láser, soldadura, anodizado); materia prima para el torno propio y el taller: <!--V:bom.raw_material_eur:.0f-->1227<!--/V--> €.
 - **Torno propio** hasta el Ø que supone la BOM (`inputs.yaml bom.lathe_max_d_mm`, [SUPUESTO]: **medir**); carcasa y tobera fija lo superan y van a taller (§3).
 - **Ensayos:** 4 probetas impresas (P1.1 holguras, P1.4 inserto M5, P1.6 tapa con O-ring y purga a la presión de cierre, P1.7 absorción) y 4 ensayos de taller sin CAD (P1.9 pasador de corte, P1.10 bujes POM en agua, P1.11 hidrostática de la bomba, P1.12 holgura de punta), todos con criterio numérico tomado de los JSON (§7).
 - **Hallazgos para el diseño:** §10.

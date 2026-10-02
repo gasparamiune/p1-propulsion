@@ -146,7 +146,7 @@ encima de 50 V; el MTI120116 no declara sensor de temperatura (se agrega un NTC)
 AISI 420 se corroen en agua salada y van del lado seco; la JT132 exige confirmar su toma y la altura de su eje
 **antes** de comprarla.
 
-Costo total del paquete actual (BOM): <!--V:bom.total_eur:.0f-->10865<!--/V--> €, de los cuales
+Costo total del paquete actual (BOM): <!--V:bom.total_eur:.0f-->10856<!--/V--> €, de los cuales
 <!--V:bom.services_eur:.0f-->3910<!--/V--> € son servicios de fabricación (CNC, torneado de taller, soldadura) [CALCULADO:
 `bom.py`; ver 03 §3 y 05].
 
