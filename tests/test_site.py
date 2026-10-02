@@ -1,6 +1,7 @@
 """Sitio estático (build_site.py → docs/ para GitHub Pages): páginas, enlaces locales, Open Graph."""
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -310,6 +311,23 @@ def test_committed_docs_publishable():
                    if 'class="stale"' in p.read_text(encoding="utf-8"))
     assert not stale, f"docs/ compilado con --allow-stale (fuentes desactualizadas): {stale[:5]}"
     _check_status_claims(docs)
+
+
+def _strict_json(path):
+    def bad(const):
+        raise ValueError(f"{path}: {const} no es JSON válido")
+    json.loads(path.read_text(encoding="utf-8"), parse_constant=bad)
+
+
+def test_json_strict_for_browsers(site):
+    """Todo .json que baja el navegador es JSON estricto: un Infinity/NaN (Python los escribe por defecto) hace que
+    `response.json()` rechace el archivo entero y el visor muestra «No se pudo cargar el modelo» (pasó con
+    `t_to_plane_high_s` = inf cuando la banda alta no planea). Incluye el visor fuente, que se publica como artifact."""
+    files = (sorted(site.rglob("*.json")) + sorted((ROOT / "docs").rglob("*.json"))
+             + sorted((ROOT / "04_diseno" / "visor").glob("*.json")))
+    assert sum(f.name == "datos.json" for f in files) >= 2
+    for f in files:
+        _strict_json(f)
 
 
 def test_stale_sources_block_build(tmp_path, monkeypatch):
