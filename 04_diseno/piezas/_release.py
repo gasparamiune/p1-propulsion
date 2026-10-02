@@ -123,8 +123,11 @@ SPRING_F_MAX = spring_F(SPRING_L_MIN)      # ≈ 45 N con el perno afuera [CALCU
 # partiendo de |Y| ≥ 26 (pomo tirado + regulador) → faltan ≥ 3 mm [CALCULADO]. El pomo tira de un ESLABÓN RÍGIDO
 # (re-auditoría ronda 5, DES-04: un lazo de cable crimpado de 10 mm no se puede fabricar): ojo de 316 con RANURA vertical
 # en el perno de manivela + vástago M4 roscado en la cola del perno del émbolo (rosca M4 axial en la cola, P1-REV-04),
-# fijado con Loctite 243: el largo se ajusta ±LINK_TOL al montar (medias vueltas = 0,35 mm, la ranura queda vertical) y
+# fijado con Loctite 243: el largo se ajusta ±LINK_ADJ al montar (medias vueltas = 0,35 mm, la ranura queda vertical) y
 # la ranura absorbe el arco de la manivela (el eslabón queda coaxial con el émbolo: sin carga lateral sobre el perno).
+# Dos bandas distintas: LINK_ADJ es el rango FÍSICO del ajuste roscado (absorbe la cadena de tolerancias pomo ↔ manivela
+# al montar: LINK_STACK_FULL); LINK_TOL es el desajuste RESIDUAL con el que la cinemática se revisa en P1-REV-09 (lo que
+# queda después de regular: resolución de media vuelta + soporte desmontado y vuelto a montar sin regular: LINK_STACK_RES).
 # El balancín gira alrededor de un eje paralelo a X y su brazo de salida sube: el cable sale VERTICAL hacia el regulador
 # M6 de la pestaña del soporte, y la vaina sube y se curva hacia proa por delante del barrido del bucket.
 LINK_EYE_SLOT_W = 6.2   # ancho de la ranura del ojo (perno Ø6) [SUPUESTO]

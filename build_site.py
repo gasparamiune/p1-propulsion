@@ -389,9 +389,10 @@ LIST_ITEM = re.compile(r"^( *)([-*+]|\d+\.)\s+\S")
 def fix_lists(txt):
     """Listas al estilo GitHub → python-markdown: (1) una línea en blanco antes de una lista que viene pegada a
     un párrafo (si no, python-markdown la funde en el párrafo con los «- » a la vista); (2) sangría de las
-    sublistas a 4 espacios por nivel (GitHub acepta 2 o 3); (3) casillas «- [ ]» / «- [x]» → ☐ / ☑.
+    sublistas a 4 espacios por nivel (GitHub acepta 2 o 3); (3) casillas «- [ ]» / «- [x]» → ☐ / ☑; (4) línea en blanco
+    cuando una lista cambia de numerada a viñetas (o al revés) en el mismo nivel.
     No toca los bloques ``` ."""
-    out, stack, prev, prev_blank, fence = [], None, "", True, False
+    out, stack, prev, prev_blank, fence, kinds, prev_lvl = [], None, "", True, False, {}, None
     for ln in txt.splitlines():
         s = ln.lstrip(" ")
         k = len(ln) - len(s)
@@ -430,6 +431,15 @@ def fix_lists(txt):
                     stack[-1] = k
             if not prev_blank and not LIST_ITEM.match(prev):
                 out.append("")
+            # (4) cambio de tipo (numerada ↔ viñetas) en el mismo nivel: python-markdown lo funde en el ítem anterior;
+            # una línea en blanco abre una lista nueva
+            lvl_i, kind = len(stack) - 1, ("ol" if m.group(2)[0].isdigit() else "ul")
+            for j in [j for j in kinds if j > lvl_i]:
+                del kinds[j]
+            if not prev_blank and ((kinds.get(lvl_i) not in (None, kind)) or (prev_lvl is not None and lvl_i < prev_lvl)):
+                out.append("")          # también al volver de una sublista: si no, python-markdown la funde
+            kinds[lvl_i] = kind
+            prev_lvl = lvl_i
             s = re.sub(r"^([-*+])\s+\[ \]\s+", "\\1 ☐ ", s)
             s = re.sub(r"^([-*+])\s+\[[xX]\]\s+", "\\1 ☑ ", s)
             ln = " " * (4 * (len(stack) - 1)) + s
@@ -437,7 +447,7 @@ def fix_lists(txt):
             pass
         elif stack is not None:
             if k == 0 and (prev_blank or s.startswith(("#", "|", ">"))):
-                stack = None
+                stack, kinds, prev_lvl = None, {}, None
             elif k > 0:      # continuación: pertenece al ítem más profundo cuyo marcador está a la izquierda
                 lvl = max(i for i, mk in enumerate(stack) if mk < k) if k > stack[0] else 0
                 del stack[lvl + 1:]
