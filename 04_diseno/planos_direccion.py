@@ -154,7 +154,7 @@ def draw(p, H):
     # ---------------- émbolo de traba propio P1-REV-04 (cuerpo + tapa + perno; resorte comprado)
     tip = RL.pin_tip_y(p) - (p.STE_ear_y1 - RL.PLG_GUIDE)                      # largo del Ø16
     tail = RL.PLG_SPRING_L1 + RL.PLG_CAP_T + p.REV_plunger_stroke + RL.PLG_KNOB_L
-    out.append(T("P1-REV-04", "embolo_cuerpo", "AISI 316 (1.4401) barra Ø25",
+    out.append(T("P1-REV-04", "embolo_cuerpo", "AISI 316 (1.4401) barra Ø40 (collar Ø36)",
                  [(p.STE_ear_t, p.REV_lock_thread_d, f"M{p.REV_lock_thread_d:g}×1,5-6g (en la oreja; punta enrasada a la cara exterior)"),
                   (RL.PLG_COLLAR_T, RL.PLG_COLLAR_D, f"collar Ø{RL.PLG_COLLAR_D:g}, 2 planos e/c 32; cara de apoyo a escuadra ≤ 0,02"),
                   (round(RL.PLG_GUIDE + RL.PLG_SPRING_L1 - p.STE_ear_t - RL.PLG_COLLAR_T, 2), RL.PLG_BODY_D, f"cuerpo Ø{RL.PLG_BODY_D:g}"),

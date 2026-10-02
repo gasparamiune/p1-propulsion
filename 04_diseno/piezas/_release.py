@@ -67,7 +67,7 @@ def need(p):
 
 # ---------------------------------------------------------------------------------------------------------------
 # Desbloqueo (ronda 4, R4-06/R4-07): cada pomo se tira por un BALANCÍN de reenvío 1:1 (P1-REV-09) detrás de los émbolos
-# (popa, X > contratuercas), porque entre las orejas no cabe un tope de vaina coaxial con el pomo: la vaina tendría que
+# (popa, X > collares de los émbolos), porque entre las orejas no cabe un tope de vaina coaxial con el pomo: la vaina tendría que
 # girar 90° con R ≥ BOWDEN_R_MIN dentro de |Y| ≤ 53 (cara interior del brazo del bucket 56,5 − r de la vaina − 1)
 # partiendo de |Y| ≥ 26 (pomo tirado + regulador) → faltan ≥ 3 mm [CALCULADO]. El pomo tira de un eslabón corto de cable
 # (LINK) enganchado en un perno de manivela Ø CRANK_D que sale del balancín hacia proa hasta el eje del émbolo; el
@@ -113,8 +113,8 @@ def cable_x(p):
 def lever(p, side=1):
     """Geometría del balancín del émbolo `side` en el plano YZ (marco de la boquilla). El pomo del émbolo +Y tira hacia −Y
     y el del −Y hacia +Y (d = −side). La manivela trabaja a la altura del eje del émbolo: el balancín +Y tiene su eje
-    DEBAJO de la manivela (el perno pasa SOBRE la contratuerca del émbolo −Y; está a la altura del eje en los extremos
-    del recorrido y 1,35 más arriba en el medio) y el −Y ENCIMA (el perno pasa BAJO la contratuerca del +Y; a la altura
+    DEBAJO de la manivela (el perno pasa SOBRE el collar del émbolo −Y; está a la altura del eje en los extremos
+    del recorrido y 1,35 más arriba en el medio) y el −Y ENCIMA (el perno pasa BAJO el collar del +Y; a la altura
     del eje en los extremos y 1,35 más abajo en el medio). En los dos el brazo de salida apunta a +Y, a 90° de la
     manivela, y SUBE lo mismo que corre el pomo (1:1). pose(t), t = 0 reposo … 1 tirado (carrera del émbolo):
     ((y, z) manivela, (y, z) salida)."""

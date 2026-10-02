@@ -544,7 +544,7 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
 # P1-STE-01 — boquilla direccional (marco de la boquilla, δ = 0)
 # ===========================================================================
 
-NUT_M24_R = 18.0        # [ESTIMADO: contratuerca M24×1,5 fina de 36 e/c (P1-REV-04) → apoyo en la cara interior de la oreja
+NUT_M24_R = 18.0        # [CALCULADO: collar Ø36 del cuerpo del émbolo P1-REV-04 (_release.PLG_COLLAR_D) → apoyo en la cara interior de la oreja
                         # hasta el círculo inscrito Ø36]
 
 
@@ -576,9 +576,9 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
               (fuerza en la mitad del buje) lo toma la brida Ø REV_sp_fl_d sobre la cara exterior como tracción normal
               lineal de resultante nula;
       traba:  la FUERZA del perno, sobre la rosca M24×1,5 de la MISMA oreja (apoyo cosenoidal), y su MOMENTO (perno en
-              voladizo hasta la mitad del brazo) como par lineal bajo la contratuerca, en la cara interior.
+              voladizo hasta la mitad del brazo) como par lineal bajo el collar del cuerpo, en la cara interior.
     El setup verifica que la resultante aplicada y su momento alrededor del eje del pivote coinciden con la estática
-    (± TOL_STATICS_STE). La precarga del M12 y de la contratuerca (autoequilibradas) no se modelan."""
+    (± TOL_STATICS_STE). La precarga del M12 y del cuerpo del émbolo contra su collar (autoequilibradas) no se modelan."""
     pid = "P1-STE-01"
     meta = mods[pid].META
     m = mods[pid]
@@ -648,7 +648,7 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
         thr[s_] = sel_cyl(S, (lxs, 0, lzs), (0, 1, 0), rt_, region=lambda c, s_=s_: in_ear(c, s_))
         fl[s_] = sel_annulus(S, (0, s_, 0), y1e, (Xb, s_ * y1e, Zb), rp_, p.REV_sp_fl_d / 2)
         nut[s_] = sel_annulus(S, (0, -s_, 0), -y0e, (lxs, s_ * y0e, lzs), rt_, NUT_M24_R)
-        for nm_, sel_ in (("agujero del piloto", pil), ("rosca M24", thr), ("cara de la brida", fl), ("cara de la contratuerca", nut)):
+        for nm_, sel_ in (("agujero del piloto", pil), ("rosca M24", thr), ("cara de la brida", fl), ("cara del collar del émbolo", nut)):
             if len(sel_[s_]) == 0:
                 raise RuntimeError(f"STE-01: selección vacía ({nm_}) en la oreja {s_:+d}")
     M.zones += [band_o] + list(pil.values()) + list(thr.values()) + list(fl.values()) + list(nut.values())
@@ -760,7 +760,7 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
               "nota": "El par de dirección lo reacciona el yugo (brida sobre la torre) como cuerpo rígido con solo el giro "
                       "alrededor del eje de pivote bloqueado: par puro, sin fuerza neta. Cargas del bucket autoequilibradas por "
                       "oreja: fuerza en el piloto Ø16 / la rosca M24 y momento como par de resultante nula en la cara de la "
-                      "brida / de la contratuerca; resultante y M_y verificados contra la estática en el setup."}
+                      "brida / del collar del émbolo; resultante y M_y verificados contra la estática en el setup."}
     comp = comparisons(est, pid, [
         {"key": "Flexión del tubo", "caso": "a", "region": "tubo", "escala": Fsn / Fs,
          "nota": "caso sin juego inicial (homogéneo de grado 1): escalar a F_s de sizing es exacto"},

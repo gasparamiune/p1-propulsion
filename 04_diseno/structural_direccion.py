@@ -394,6 +394,11 @@ def cases(p, A, row, rows, T3, T2):
     row(rows, "P1-REV-04", "Cuerpo del émbolo (316) al apretar con la precarga máxima: σ_red ≈ 1,15·F/A ≤ 0,9·Rp0,2 (VDI 2230)",
         f"{Fc_max/1000:.1f} kN / {A_body:.0f} mm² (A_s M{dth:g}×1,5 − Ø{dl + 0.2:g})", 1.15 * Fc_max / A_body, 0.9 * SS316, A, 1.0,
         "criterio de montaje (no de servicio)")
+    # arrancamiento de la rosca interior M24×1,5 de la oreja (6061) con la precarga máxima: área de corte ≈ 0,75·π·d·L_e
+    # [ESTIMADO: fórmula simplificada de rosca interior, L_e = espesor de la oreja]; τ admisible 0,58·Rp0,2 (von Mises)
+    A_th = 0.75 * math.pi * dth * p.STE_ear_t
+    row(rows, "P1-STE-01", f"Rosca M{dth:g}×1,5 de la oreja (6061): arrancamiento con la precarga máxima del émbolo",
+        f"τ = {Fc_max/1000:.1f} kN / (0,75·π·{dth:g}·{p.STE_ear_t:g} = {A_th:.0f} mm²) contra 0,58·Rp0,2", Fc_max / A_th, 0.58 * AL6061, A, T2)
     row(rows, "P1-STE-01", "Collar del émbolo sobre la oreja 6061: presión con la precarga máxima",
         f"{Fc_max/1000:.1f} kN / corona Ø{Dc:g}/Ø{dc:g}", Fc_max / (math.pi / 4 * (Dc ** 2 - dc ** 2)), AL6061, A, T2)
     F_cab = p.CTL_hand_F * 125.0 / 46.0      # palanca forzada contra el tope: 100 N × 125 mm / manivela 46
