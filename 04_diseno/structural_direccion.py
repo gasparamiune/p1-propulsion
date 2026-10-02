@@ -25,7 +25,7 @@ SS316_CD = 310.0      # [ESTIMADO: EN 10088-3 1.4401+C barra estirada ≤ Ø16 �
 SS316_FAT = 180.0     # [ESTIMADO: inputs.yaml shaft.se_mpa]
 A4_70 = 450.0         # [VERIFICADO: ISO 3506-1, A4-70 Rp0,2 = 450 MPa]
 A4_80 = 600.0         # [VERIFICADO: ISO 3506-1, A4-80 Rp0,2 = 600 MPa] (tornillo del pivote del bucket)
-SS_DUPLEX = 450.0     # [ESTIMADO: EN 10088-3, 1.4462 +AT barra, Rp0,2 ≥ 450 MPa] (espaciador del pivote del bucket, ronda 5)
+SS_DUPLEX = 450.0     # [ESTIMADO: EN 10088-3, 1.4462 +AT barra, Rp0,2 ≥ 450 MPa] (casquillo y muñón del pivote del bucket, ronda 5)
 POM_STAT = 20.0       # [ESTIMADO: POM-C, presión admisible estática en buje ~20 MPa]
 POM_DYN = 10.0        # [ESTIMADO: POM-C, presión admisible con oscilación lenta]
 
@@ -376,7 +376,7 @@ def cases(p, A, row, rows, T3, T2):
     row(rows, "P1-REV-01", f"Pivote: aplastamiento del brazo + aro (buje Ø{p.REV_bush_od:g} × {p.REV_bush_L:g}), R12",
         f"R_pivote = {R_d:.0f} N (chorro/2 + traba con M_h completo)", R_d / (p.REV_bush_od * p.REV_bush_L), AL5083, A, T2)
 
-    # ------------------------------------------------------------------ pivote (espaciador + M12), buje, émbolo
+    # ------------------------------------------------------------------ pivote (casquillo + muñón + M12), buje, émbolo
     # Espaciador P1-REV-02 (dúplex 1.4462, ronda 5): muñón Ø REV_pin_d (el bucket gira en su buje) en voladizo desde la brida
     # Ø REV_sp_fl_d, que apoya en la cara exterior de la oreja; piloto Ø REV_sp_pilot_d ajustado (H7/h6) en la oreja.
     # Caminos de carga (re-auditoría, MEC-01/02): (1) la precarga del M12 pasa por el muñón (arandela de la cabeza →

@@ -13,12 +13,12 @@ Etiquetas: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO]
 | Masa total con piloto de 90 kg | <!--V:sizing.masses.total_kg:.0f-->219<!--/V--> kg | [CALCULADO] |
 | Masa de la unidad de jet (CAD) | <!--V:manifest.totals.jet_unit_mass_kg:.1f-->26.1<!--/V--> kg (JT132: 12 kg [VERIFICADO: R11 §4]) | [CALCULADO] |
 | GM | <!--V:sizing.hydrostatics.GM_m:.3f-->0.010<!--/V--> m | [CALCULADO, casco ESTIMADO] |
-| V máx. sostenida / por ratos | <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.1<!--/V--> / <!--V:sizing.performance.vmax_peak_kmh:.1f-->28.2<!--/V--> km/h (objetivo 30) | [CALCULADO] |
-| Margen mínimo en la joroba | <!--V:sizing.performance.hump_margin_min:.0%-->-7%<!--/V--> | [CALCULADO] |
-| P de batería a 5 kn / autonomía a 5 kn | <!--V:sizing.performance.legal.P_bat:.0f-->1708<!--/V--> W / <!--V:sizing.energy.t_legal_h:.1f-->2.4<!--/V--> h | [CALCULADO] |
+| V máx. sostenida / por ratos | <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.0<!--/V--> / <!--V:sizing.performance.vmax_peak_kmh:.1f-->28.1<!--/V--> km/h (objetivo 30) | [CALCULADO] |
+| Margen mínimo en la joroba | <!--V:sizing.performance.hump_margin_min:.0%-->-8%<!--/V--> | [CALCULADO] |
+| P de batería a 5 kn / autonomía a 5 kn | <!--V:sizing.performance.legal.P_bat:.0f-->1709<!--/V--> W / <!--V:sizing.energy.t_legal_h:.1f-->2.4<!--/V--> h | [CALCULADO] |
 | Autonomía a V máx. | <!--V:sizing.energy.t_top_min:.0f-->37<!--/V--> min | [CALCULADO] |
 | Limitante a fondo | corriente de batería (<!--V:sizing.electrical.I_bat_limit_A:.0f-->192<!--/V--> A, 80 % del BMS) | [CALCULADO] |
-| Costo del sistema (BOM) | <!--V:bom.total_eur:.0f-->11833<!--/V--> € | [CALCULADO] |
+| Costo del sistema (BOM) | <!--V:bom.total_eur:.0f-->11837<!--/V--> € | [CALCULADO] |
 
 ## 1. Resumen priorizado
 
@@ -28,7 +28,7 @@ Etiquetas: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO]
 | 2 | Calibrar el modelo con las pruebas | Siempre, al terminar 06 §7 | Saber de dónde sale la diferencia con 30 km/h | Bajo |
 | 3 | Telemetría y límite por velocidad (GPS) | Siempre en P2; antes si la prueba legal (02 §3.1) no pasa con el tope de ERPM | Perfil costa por velocidad real; ley anti-cavitación por V (02 §4.6) | Bajo |
 | 4 | Subir la potencia útil dentro de ≤ 50 V | Motor ≤ 80 °C de bobinado en 30 min a P continua **y** V máx. medida < 30 km/h | V máx. | Medio |
-| 5 | Reducir la masa del jet | V máx. medida < <!--V:sizing.success.vmax_min_kmh:.1f-->20.5<!--/V--> km/h, o margen de joroba insuficiente con la batería baja | V máx. y margen en la joroba | Medio |
+| 5 | Reducir la masa del jet | V máx. medida < <!--V:sizing.success.vmax_min_kmh:.1f-->20.4<!--/V--> km/h, o margen de joroba insuficiente con la batería baja | V máx. y margen en la joroba | Medio |
 | 6 | Impulsor optimizado (CFD) | Empuje a punto fijo < <!--V:sizing.success.bollard_min_N:.0f-->612<!--/V--> N, o síntomas de cavitación con S de modelo < 3,5 | η de bomba, margen de cavitación | Alto |
 | 7 | 72 V | Solo si 4 no alcanza **y** Søfartsstyrelsen confirma el criterio de potencia (R13 Q2) | Potencia útil por encima del límite de corriente de 12S | Alto (seguridad eléctrica) |
 | 8 | Pasar a la JT132 | La cotización de AWT cierra (brida, altura del eje, curva) y el impulsor propio cuesta o tarda más de lo previsto | Masa, tiempo, riesgo de fabricación (03 §3) | Medio |
@@ -89,7 +89,7 @@ en la V máx. (02 §10).
 
 ### 2.5 Reducir la masa del jet
 
-- **Disparador:** V máx. medida por debajo del criterio de éxito (<!--V:sizing.success.vmax_min_kmh:.1f-->20.5<!--/V--> km/h),
+- **Disparador:** V máx. medida por debajo del criterio de éxito (<!--V:sizing.success.vmax_min_kmh:.1f-->20.4<!--/V--> km/h),
   o el bote no sale a planeo con la batería al 20 %.
 - **Meta:** acercarse a los 12 kg de la JT132 con toma, bomba, dirección y bucket (hoy la unidad de jet del
   CAD pesa <!--V:manifest.totals.jet_unit_mass_kg:.1f-->26.1<!--/V--> kg con el tren; 03 §3 compara A y B).
@@ -152,8 +152,8 @@ en la V máx. (02 §10).
 | E1 escora (R13 §5) | Escora y francobordo con lastre desplazado | ≤ 15° a 0,2 m de crujía, sin entrada de agua | 2.1 (bloqueante) |
 | Punto fijo | Empuje, rpm, corriente | ≥ <!--V:sizing.success.bollard_min_N:.0f-->612<!--/V--> N | 3.1 |
 | Térmico (30 min de crucero) | NTC del motor | ≤ <!--V:sizing.thermal.t_winding_max_C:.0f-->120<!--/V--> °C sin recorte; ≤ 80 °C habilita 2.4 | 2.4 |
-| V máx. (GPS) | V media ida y vuelta | ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->20.5<!--/V--> km/h | 2.2 → 2.4 → 2.5 |
+| V máx. (GPS) | V media ida y vuelta | ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->20.4<!--/V--> km/h | 2.2 → 2.4 → 2.5 |
 | 0 a planeo | Tiempo | ≤ <!--V:sizing.success.t_plane_max_s:.0f-->15<!--/V--> s (también con batería al 20 %) | 2.5 |
-| 5 kn (GPS + VESC) | P de batería | ≤ <!--V:sizing.success.p_legal_max_W:.0f-->2220<!--/V--> W | 2.2 |
+| 5 kn (GPS + VESC) | P de batería | ≤ <!--V:sizing.success.p_legal_max_W:.0f-->2222<!--/V--> W | 2.2 |
 | Perfil costa | V media a fondo | ≤ 9,0 km/h | 2.3 |
 | Ola corta | rpm sin mover el acelerador | picos ≤ 10 % | 3.3 |

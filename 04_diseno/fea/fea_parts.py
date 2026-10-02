@@ -367,7 +367,7 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
     embs = {s_: M.add_rigid("embolo" if s_ > 0 else "embolo_menos_y", np.array([lks[s_][0], s_ * (yi + t / 2), lks[s_][1]]),
                             fixed_local=(1, 3, 4, 5)) for s_ in sides}
     M.assemble()
-    # pivotes: muñón Ø REV_pin_d (espaciador P1-REV-02) en el buje POM P1-REV-03 (articulación sin fricción)
+    # pivotes: muñón Ø REV_pin_d (P1-REV-02) en el buje POM P1-REV-03 (articulación sin fricción)
     r_b = p.REV_bush_od / 2
     piv = sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), r_b)
     k_piv = E_POM / ((p.REV_bush_od - p.REV_pin_d) / 2)
@@ -700,7 +700,7 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
       d/d2   c/c2 + desvío F_s en el paso (maniobra en reversa);
       f/f2   reversa de sizing con M_h completo en la traba +Y / −Y: fatiga, AL6061_FAT, FS ≥ 2 (corridos, sin escalar).
     Cargas del bucket SOBRE CADA OREJA (bucket_statics = structural_direccion.bucket_reactions), autoequilibradas (F1):
-      pivote (P1-REV-02 rediseñado, ronda 5): el piloto Ø REV_sp_pilot_d h6 del espaciador entra ajustado en el Ø H7
+      pivote (P1-REV-02 en dos piezas, ronda 5): el piloto Ø REV_sp_pilot_d h6 del casquillo entra ajustado (Loctite 641) en el Ø H7
               que atraviesa la oreja; el camino DISEÑADO del corte y del momento es el apoyo del piloto en el agujero (par
               de aplastamiento): presión cosenoidal con variación LINEAL a lo largo del agujero (linear_bearing) cuya
               resultante pasa por la mitad del buje, a (REV_y_in − STE_ear_y1) + REV_bush_L/2 de la cara exterior. NO hay

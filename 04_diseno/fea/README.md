@@ -16,11 +16,11 @@ en cada corrida; todas las cifras de resultados están en el bloque AUTO del fin
 | `fea_model.py` | Interfaces de resortes (Winkler, cuerpo rígido, unilaterales), iteración de contacto, post-proceso (global y por región) |
 | `fea_core.py` | Malla gmsh (con optimización Netgen), espacio P2, ensamble vectorizado, cargas de superficie y solver PCG de dos niveles |
 | `fea_plot.py` | Mapas de tensión sobre la superficie (matplotlib) |
-| `../../tests/test_fea.py` | Viga en voladizo contra la solución analítica, verificación cruzada con scikit-fem, cuerpo rígido + Winkler, malla gruesa de CTL-02, estática del bucket contra structural_direccion, carga aplicada = estática en REV-01/STE-01 (setup con malla muy gruesa: resultante, M_y y vector momento; piloto y cuerpo ajustado del émbolo como apoyos lineales en sus agujeros H7, sin precarga), regla de la σ de diseño sin convergencia (FEA-R5-01, unitario y sobre el JSON), traba única con M_h completo (casos d/e/f/g), STE-01 sin caso p ni media de Goodman (cuerpo ajustado, ronda 5), bordes de agujeros cargados y cumplimiento en el JSON |
+| `../../tests/test_fea.py` | Viga en voladizo contra la solución analítica, verificación cruzada con scikit-fem, cuerpo rígido + Winkler, malla gruesa de CTL-02, estática del bucket contra structural_direccion, carga aplicada = estática en REV-01/STE-01 (setup con malla muy gruesa: resultante, M_y y vector momento; piloto y cuerpo ajustado del émbolo como apoyos lineales en sus agujeros H7, sin precarga), regla de la σ de diseño sin convergencia (FEA-R5-01, unitario y sobre el JSON), traba única con M_h completo (casos d/e/f/g), STE-01 sin caso p ni media de Goodman (cuerpo ajustado, ronda 5), bordes de agujeros cargados (también f/f2 de STE-01), aristas vivas declaradas solo en los pies de los lóbulos de STE-01, mismo r_excl en `--quick` que en la corrida completa, sin caras astilla en las orejas del bucket (re-auditoría del cierre de la ronda 5: FEA-1/2/3, TEST-1) y cumplimiento en el JSON |
 
 ```bash
 python 04_diseno/fea/fea_run.py              # todo (gruesa + fina + variantes), 3 procesos: ~12 min
-python 04_diseno/fea/fea_run.py --quick      # solo malla gruesa, sin imágenes ni README (~2,5 min) → resultados_fea_quick.json
+python 04_diseno/fea/fea_run.py --quick      # solo malla gruesa (mismo r_excl que la corrida completa), sin imágenes ni README (~2,5 min) → resultados_fea_quick.json
 python 04_diseno/fea/fea_run.py --only P1-STE-01 --h P1-STE-01=10,6 --out /tmp/ste.json   # una pieza / otros tamaños
 python 04_diseno/fea/fea_run.py --only P1-REV-01 P1-STE-01 --merge   # rehace esas piezas dentro de resultados_fea.json + README
 python 04_diseno/fea/fea_run.py --readme-only   # rehace hallazgos y bloque AUTO desde resultados_fea.json
@@ -53,7 +53,10 @@ pisar el entregable.
 5. **Post-proceso.** Tensión P2 evaluada en vértices y promediada por nodo (ponderada por volumen).
    Para cada caso: **máx. global** (incluye singularidades de aplicación), **p99** (percentil 99 en
    volumen) y **máx\*** = máximo fuera de un radio de exclusión r_excl = máx(4 mm, h_fina) alrededor de
-   cargas y apoyos concentrados (pernos, roscas, avellanados, arandelas). **FS = admisible / σvm máx\***
+   cargas y apoyos concentrados (pernos, roscas, avellanados, arandelas); h_fina es el de la configuración también en
+   `--quick`, que no corre la malla fina (re-auditoría del cierre de la ronda 5, FEA-1: con el h de la gruesa la prueba
+   rápida excluía 8 mm en lugar de 4,5 y dejaba afuera los máximos junto a los agujeros [CALCULADO: re-auditoría]).
+   **FS = admisible / σvm máx\***
    (metales dúctiles: von Mises). En PETG también σ1 y σZ (normal a las capas) contra S_Z; el FS es el
    menor de los tres. Además se resume cada **región** de la pieza (máx\*, p99 y **promedio en
    volumen**): las filas del cálculo a mano de aplastamiento/corte se comparan con el promedio en el
@@ -76,8 +79,8 @@ pisar el entregable.
      r = h_g/h_f locales (esfera de refinamiento que contiene el punto) y p = 2 [SUPUESTO: tensión con P2 en campo
      suave]. **La falta de convergencia nunca baja la σ de diseño**: si el cambio pasa el 20 %, la σ de diseño es
      máx(σ fina, σ_ext) (`fea_run.design_sigma`, `edge_block`). El promedio en volumen en una esfera de 3 mm solo se
-     admite en una **arista viva del CAD nombrada** por el setup de la pieza (`aristas_vivas` en el JSON; hoy ninguna
-     pieza declara una). Entre 10 y 20 % la extrapolación es informativa, pero si su FS queda bajo el objetivo en un
+     admite en una **arista viva del CAD nombrada** por el setup de la pieza (`aristas_vivas` en el JSON; hoy solo
+     P1-STE-01, en los pies de los lóbulos engrosados: re-auditoría del cierre de la ronda 5, FEA-3). Entre 10 y 20 % la extrapolación es informativa, pero si su FS queda bajo el objetivo en un
      caso de diseño la pieza **no cumple** (`richardson_bajo_objetivo` en el JSON).
    - **Casos de diseño e informativos.** El FS mínimo de la pieza se toma solo de los casos de diseño
      (`casos_diseno` en el JSON); los informativos (p. ej. REV-01 a/b, con las dos trabas) se reportan igual.
@@ -147,7 +150,7 @@ pisar el entregable.
   |y| ≤ R_chorro. El setup **verifica** que la resultante y el momento alrededor del pivote coinciden con
   `bucket_reactions` (± 2 %; si no, se detiene) y los guarda en `extra.resultante` y en
   `verificacion_mano.resultante_R12`.
-- **Apoyos.** Pivotes: muñón del espaciador P1-REV-02 en el buje POM P1-REV-03 (Ø `REV_bush_od`,
+- **Apoyos.** Pivotes: muñón de P1-REV-02 en el buje POM P1-REV-03 (Ø `REV_bush_od`,
   k = E_POM/espesor del buje, unilaterales, sin fricción, resorte axial débil), con la reacción de cada lado.
   **Trabas: una por brazo.** Cada émbolo (perno Ø `REV_lock_pin_d`) es un cuerpo rígido que **solo
   reacciona en la dirección tangencial** al círculo alrededor del pivote (el momento), como el cálculo a mano,
@@ -181,9 +184,11 @@ pisar el entregable.
   apoyo del collar del émbolo) hacia adentro, con radio `STE_lock_in_r` = <!--V:manifest.params.STE_lock_in_r:g-->18<!--/V--> mm en la parte que entra más allá de la
   placa. Las selecciones de los agujeros, los planos medios de los apoyos lineales y los bordes usan el largo de cada lóbulo
   (`largo_agujero_piloto_malla_mm` y `largo_agujero_embolo_malla_mm` en el JSON):
-  - pivote (P1-REV-02, re-auditoría MEC-01/02/05/06): el piloto h6 del espaciador de dúplex (`REV_sp_pilot_d` =
-    <!--V:manifest.params.REV_sp_pilot_d:g-->24<!--/V--> mm, más grueso que el muñón desde el cierre de la ronda 5) entra ajustado en el **H7** que atraviesa el
-    lóbulo del pivote. El camino **diseñado** del corte y del momento es el **apoyo del piloto en el agujero** (par de
+  - pivote (P1-REV-02, re-auditoría MEC-01/02/05/06; en dos piezas desde la re-auditoría del cierre de la ronda 5,
+    MECH-1): el piloto h6 del **casquillo** de dúplex (`REV_sp_pilot_d` = <!--V:manifest.params.REV_sp_pilot_d:g-->24<!--/V--> mm, más grueso que el muñón desde el
+    cierre de la ronda 5) entra ajustado en el **H7** que atraviesa el lóbulo del pivote, con Loctite 641, que llena el juego
+    (FEA-4: con Tef-Gel quedaba un juego de hasta 34 µm que el apoyo sin juego no modela [CALCULADO: ISO 286]); el muñón,
+    que va dentro del casquillo, no se modela (solo la reacción sobre el agujero de la oreja). El camino **diseñado** del corte y del momento es el **apoyo del piloto en el agujero** (par de
     aplastamiento): presión cosenoidal con **variación lineal a lo largo del agujero**, ℓ(η) = 1 + κ·η, con ℓ⁺ en la pared
     que empuja la carga y ℓ⁻ en la opuesta (solo compresión; `fea_parts.linear_bearing`). κ se ajusta para que la
     resultante pase por la **mitad del buje**, a (`REV_y_in` − `STE_ear_y1`) + `REV_bush_L`/2 de la cara exterior
@@ -200,6 +205,14 @@ pisar el entregable.
     (Limitaciones).
   El setup **verifica** que la resultante aplicada, su momento alrededor del eje del pivote (M_y) y el **vector
   momento completo** alrededor del pivote coinciden con la estática (± 1 %; `verificacion_mano.resultante_bucket`).
+- **Geometría de las orejas (re-auditoría del cierre de la ronda 5).** Los lóbulos se construyen con los mismos polígonos
+  que el contorno de la oreja y apoyados cara con cara (FEA-2: con cilindros verdaderos solapados 0,01 mm sobre una placa
+  de 24 lados quedaban escalones de 0,17–0,19 mm y caras astilla justo donde caen los máximos [CALCULADO: re-auditoría];
+  `test_ste01_no_sliver_faces_on_bucket_ears`). Los pies de los lóbulos (uniones reentrantes con la placa, en sus dos
+  caras) son aristas vivas en el CAD (R1,5 en la pieza, 05 §3) y el setup las declara en `aristas_vivas` (FEA-3):
+  esferas de r 4 mm cada ≈ 4 mm a lo largo del contorno del lóbulo donde la placa sigue más allá
+  (`fea_parts.ste01_sharp_edges`); si el máx.* fino cae en una de ellas y no converge, vale el promedio en volumen
+  (Método, 5). El tubo lleva la garganta bajo el émbolo −Y (MECH-3; `_release.saddle`), que es parte de `build(p)`.
 - **Sin precarga en la oreja (cierre de la ronda 5).** Con el cuerpo del émbolo ajustado desaparecen la precarga
   superpuesta en c/c2/d/d2 (FEA-R5-02, obsoleto por diseño), la tensión media de Goodman en f/f2 y el caso informativo p.
   Con el cuerpo roscado M24×1,5 a 110 N·m de la primera versión de la ronda 5, la tensión tangencial de esa precarga se
@@ -261,13 +274,18 @@ pisar el entregable.
   aplastamiento), no sección neta. La holgura del agujero (Ø16,5 / Ø16) no se modela (contacto sin juego
   en la mitad de apoyo).
 - **Apoyos de la oreja de STE-01.** El piloto del pivote y el cuerpo ajustado del émbolo son presiones impuestas en sus
-  agujeros (rígidos, sin el juego H7/h6 ni el Loctite 641 del ajuste del cuerpo): con juego, el apoyo se concentra aún más
-  en los bordes del agujero. Las fuerzas axiales del resorte y del cable, que el collar exterior lleva a la cara exterior
+  agujeros (rígidos y sin juego: los dos van con Loctite 641, que llena el juego del H7/h6; re-auditoría del cierre de la
+  ronda 5, FEA-4): si el retenedor faltara, el apoyo se concentraría aún más en los bordes del agujero (×1,23–1,42 en la
+  presión de borde con el juego medio a máximo [CALCULADO: re-auditoría, modelo Winkler]). Las fuerzas axiales del resorte y del cable, que el collar exterior lleva a la cara exterior
   del lóbulo de la traba (hacia adentro; tiro por cable ≤ <!--V:manifest.parts.14.checks.5.value:.0f-->106<!--/V--> N contra
   <!--V:est.loads.structural_direccion.F_lock_pin_N:.0f-->3006<!--/V--> N del perno [CALCULADO: check de P1-CTL-14 y
   `structural_direccion`]), y la retención del anillo DIN 471 no se modelan. Hasta el cierre de la ronda 5 el cuerpo iba
   roscado y apretado contra un collar interior: su precarga se modelaba como cargas equivalentes (corona, tiro axial y
   presión radial de los flancos, FEA-R5-02); con el cuerpo ajustado ya no hay unión roscada en la oreja.
+- **Ventana del borde de los agujeros (re-auditoría del cierre de la ronda 5, FEA-5).** El |σθ| del borde se evalúa en
+  θ = 60–120° de la carga (Método, 5) y el resto del contorno queda dentro de r_excl: un pico a θ < 60° no lo evalúa
+  ningún criterio. En la corrida gruesa de la re-auditoría el máximo del agujero de la traba +Y cayó en θ = 61°, al límite
+  de la ventana [CALCULADO: re-auditoría del cierre]; queda como limitación documentada (sin cambio en el código).
 
 <!-- FEA:AUTO:INICIO (generado por fea_run.py; no editar a mano) -->
 

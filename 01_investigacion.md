@@ -25,8 +25,8 @@ investigación se citan con su informe.
    entre −113 y +90 mm según la posición del piloto [CALCULADO: R10b H1]; con el modelo de este proyecto,
    GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.010<!--/V--> m. La propulsión no lo resuelve (D-04).
 4. **La masa realista es 165–242 kg, no 150** [ESTIMADO: R10b §4.2]. Con más de ~200 kg, 5 kW continuos no alcanzan para 30 km/h
-   sostenidos [CALCULADO: R10b H13–H14]. Este diseño llega a <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.1<!--/V--> km/h
-   sostenidos y <!--V:sizing.performance.vmax_peak_kmh:.1f-->28.2<!--/V--> km/h por ratos (02 §5).
+   sostenidos [CALCULADO: R10b H13–H14]. Este diseño llega a <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.0<!--/V--> km/h
+   sostenidos y <!--V:sizing.performance.vmax_peak_kmh:.1f-->28.1<!--/V--> km/h por ratos (02 §5).
 5. **Motor y tensión.** El HPM5000 de catálogo gira muy lento para un impulsor chico (≈ 91 rpm/V a 48 V); el
    Maytech MTI120116 150 KV refrigerado por agua sí sirve en ≤ 50 V [VERIFICADO: R11 §0, §1]. No hay packs
    LFP 13S comerciales en la UE: la opción ≤ 50 V es 12S (2 × LiTime 36 V 60 Ah) [VERIFICADO: R11 §3].
@@ -146,7 +146,7 @@ encima de 50 V; el MTI120116 no declara sensor de temperatura (se agrega un NTC)
 AISI 420 se corroen en agua salada y van del lado seco; la JT132 exige confirmar su toma y la altura de su eje
 **antes** de comprarla.
 
-Costo total del paquete actual (BOM): <!--V:bom.total_eur:.0f-->11833<!--/V--> €, de los cuales
+Costo total del paquete actual (BOM): <!--V:bom.total_eur:.0f-->11837<!--/V--> €, de los cuales
 <!--V:bom.services_eur:.0f-->4015<!--/V--> € son servicios de fabricación (CNC, torneado de taller, soldadura) [CALCULADO:
 `bom.py`; ver 03 §3 y 05].
 

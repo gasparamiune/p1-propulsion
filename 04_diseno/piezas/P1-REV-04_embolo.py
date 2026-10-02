@@ -13,7 +13,7 @@ pasa la fuerza y el momento del perno a la oreja por aplastamiento, como el pilo
 la precarga de 110 N·m del cuerpo roscado M24 abría el lóbulo de la oreja y el FEA de P1-STE-01 daba FS 1,74).
 Adentro del cuerpo: guía del perno (18 mm desde la cara exterior de la placa de la oreja, más el lóbulo y el collar) y cámara del resorte
 (largo instalado 30), cerrada por una tapa roscada de 4 mm con agujero Ø10,2 para la cola Ø10 del perno; pomo Ø23 × 10
-con agujero pasante Ø4,5, apoyado en la tapa en reposo; rosca M4 × 10 axial en el extremo de la cola Ø10 (vástago del
+con agujero pasante Ø4,5, apoyado en la tapa en reposo; rosca M4 × 12 axial en el extremo de la cola Ø10 (vástago del
 eslabón rígido de P1-REV-09, Loctite 243; re-auditoría ronda 5, DES-04). Cola = cámara + tapa + rosca del pomo (42 mm: termina contra el fondo del pomo, MECH-2; la carrera
 no se suma, DES-02/MEC-03). Perno Ø16 h9 (REV_lock_pin_d) que cruza la luz oreja–brazo y el brazo (REV_t) y sobresale
 1 mm de su cara exterior; el escalón Ø16 → Ø10 es el asiento del resorte. Carrera REV_plunger_stroke (≥ recorrido para

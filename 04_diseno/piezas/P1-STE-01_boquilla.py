@@ -12,7 +12,7 @@ en X = X_steer_pivot. Geometría (marco JET, δ = 0):
   - torre del yugo (X' 15–40) detrás del extremo de la oreja de la bomba, con 2 × M6 para la brida
     P1-STE-04 (que lleva el poste y el brazo del cable M66 por encima de la flotación);
   - orejas del bucket (±Y STE_ear_y0–STE_ear_y1, STE_ear_t) con Ø REV_sp_pilot_d H7 escariado para el piloto del
-    espaciador del pivote P1-REV-02 (su brida apoya en la cara exterior; uno por oreja) y Ø REV_lock_bore_d H7 liso para el cuerpo ajustado del
+    casquillo del pivote P1-REV-02 (su brida apoya en la cara exterior; uno por oreja) y Ø REV_lock_bore_d H7 liso para el cuerpo ajustado del
     émbolo propio P1-REV-04 en cada una (traba arriba/abajo en los dos brazos del bucket, +Y a REV_lock_ang y −Y a
     REV_lock_ang_m). Cada oreja lleva sola su pivote y su traba con M_h completo (auditoría ronda 4); los lóbulos
     alrededor de los agujeros se engrosan (STE_piv_t hacia adentro; STE_lock_t, 3 mm hacia afuera y el resto hacia
@@ -203,7 +203,7 @@ def build(p):
     # roscas M6 de la brida del yugo (Ø5,0 × 12) en la torre
     for (xx, yy) in p.STE_riser_bolts:                                      # M8 (Ø6,8 × 16)
         b = b - cyl_z(3.4, p.STE_riser_top - 16, p.STE_riser_top + 1, x=Xp + xx, y=yy)
-    # orejas del bucket: Ø REV_sp_pilot_d H7 escariado para el piloto del espaciador P1-REV-02 (su brida apoya en la cara exterior;
+    # orejas del bucket: Ø REV_sp_pilot_d H7 escariado para el piloto del casquillo P1-REV-02 (su brida apoya en la cara exterior;
     # tuerca adentro), UNA POR OREJA (no pasante de lado a lado: no toca la torre del yugo; auditoría ronda 4, F1)
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     rp = p.REV_sp_pilot_d / 2

@@ -133,7 +133,7 @@ def extend(d):
     # ------------------------------------------------------------------ bucket (REV)
     d["bucket_down_deg"] = 70.0        # [SUPUESTO: pedido del brief, default 70°] (lo lee params.loc_bucket)
     # Criterio de la traba (auditoría ronda 4): los agujeros de traba tienen juego y el desfase entre las dos trabas no
-    # se puede garantizar en el taller (rosca del cuerpo, juego del perno, espaciador): con la reversa de servicio una
+    # se puede garantizar en el taller (juego del perno, del agujero del brazo y del pivote): con la reversa de servicio una
     # sola traba lleva todo M_h (FEA ronda 3: la segunda apoya recién con ≈ 1,4 kN en la primera). Por eso CADA traba
     # sola lleva M_h completo con la reversa R12 (FS ≥ 2); la segunda es redundancia, no reparto. Chapa de 8 mm: la
     # cuchara abierta a torsión con un solo brazo trabado (fila a mano) y el brazo trabado (FEA) lo piden.

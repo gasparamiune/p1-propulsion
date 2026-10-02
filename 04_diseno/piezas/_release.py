@@ -50,7 +50,7 @@ PLG_BODY_D = 24.0
 # de 0,8 contra la cara interior del lóbulo
 PLG_COLLAR_D = 32.0
 PLG_COLLAR_T = 1.5
-PLG_RING_D = 32.0             # anillo DIN 471-24 (Ø máx. con orejetas) [ESTIMADO: DIN 471, eje 24]
+PLG_RING_D = 33.2             # anillo DIN 471-24 (Ø máx. con orejetas, d4) [ESTIMADO: tabla DIN 471, eje 24; re-auditoría MECH-4]
 PLG_RING_T = 2.0              # anillo 1,2 + arandela 0,8
 PLG_RING_GROOVE_D = 22.9      # Ø de la ranura del anillo DIN 471-24 (m 1,3) [ESTIMADO: DIN 471, eje 24]
 PLG_FIT_EXT = 4.0             # Ø24 h6 más allá de la cara interior del lóbulo: arandela 0,8 + ranura 1,3 + borde ≥ 1,8 [ESTIMADO: DIN 471 n]

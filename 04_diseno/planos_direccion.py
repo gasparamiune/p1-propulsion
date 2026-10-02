@@ -45,7 +45,7 @@ def draw(p, H):
                   (round(16.0 - xt, 2), round(2 * p.STE_ro_front, 2), "tramo en la rótula"),
                   (6.0, round(2 * ro, 2), "cono"), (round(p.L_steer - 22.0, 2), round(2 * ro, 2), "cuerpo")],
                  feats=[(0.0, "cara = eje de giro (X_steer_pivot)"), (p.STE_bell_L, f"fin abocinado → Ø{2*rb:.2f}"),
-                        (Xb, f"eje del bucket Z={p.Z_bucket_pivot:.2f}, Ø{p.REV_sp_pilot_d:g} H7 escariado en CADA oreja (piloto del espaciador P1-REV-02)"),
+                        (Xb, f"eje del bucket Z={p.Z_bucket_pivot:.2f}, Ø{p.REV_sp_pilot_d:g} H7 escariado en CADA oreja (piloto del casquillo P1-REV-02)"),
                         (p.STE_riser_x[0], f"torre del yugo X' {p.STE_riser_x[0]:g}–{p.STE_riser_x[1]:g}, 4×M8×16")],
                  notes=[f"Paso interior: boca Ø{2*rf:.1f} en la cara, arco tangente a Ø{2*rb:.2f} H11 en {p.STE_bell_L:g} mm; recto hasta la salida",
                         f"Exterior: SR{Rs:g}, Ø{2*p.STE_ro_front:g} hasta X' 16, cono a Ø{2*ro:g} en X' 22; mejilla superior Z {p.STE_cheek_z0:.2f}–{p.STE_riser_top:.2f} con Ø8 H7",
@@ -56,10 +56,13 @@ def draw(p, H):
                         f"; lóbulo R{p.STE_lock_lobe_r:g} alrededor de cada agujero",
                         f"Lóbulos engrosados (R5-N5): pivote hasta |Y| {p.STE_ear_y1 - p.STE_piv_t:g} (R{p.STE_ear_r:g}, hacia adentro); traba de "
                         f"|Y| {p.STE_lock_y1 - p.STE_lock_t:g} a {p.STE_lock_y1:g} ({p.STE_lock_t:g} mm: R{p.STE_lock_lobe_r:g} hasta la placa y "
-                        f"{p.STE_lock_y1 - p.STE_ear_y1:g} mm hacia afuera; R{p.STE_lock_in_r:g} hacia adentro de la placa)",
+                        f"{p.STE_lock_y1 - p.STE_ear_y1:g} mm hacia afuera; R{p.STE_lock_in_r:g} hacia adentro de la placa); pie de cada lóbulo con R1,5 "
+                        "(unión con la placa: el CAD lo deja vivo, el FEA lo evalúa como arista viva; re-auditoría FEA-3)",
+                        f"Garganta en el tubo bajo el émbolo {'−Y' if RL.saddle(p)['side'] < 0 else '+Y'}: R{RL.saddle(p)['r']:g} coaxial con su eje, "
+                        f"|Y| {RL.saddle(p)['y0']:.1f}…{RL.saddle(p)['y1']:.1f} (luz de {RL.SADDLE_CLR:g} mm al cuerpo Ø{RL.PLG_BODY_D:g}; re-auditoría MECH-3)",
                         f"Ø{p.REV_sp_pilot_d:g} H7 y Ø{p.REV_lock_bore_d:g} H7 escariados con plantilla referida al pivote (posición ±0,1), "
-                        "ENMASCARADOS en el anodizado (06 §4: Tef-Gel en el piloto, Loctite 641 en el cuerpo del émbolo); cara exterior de la "
-                        f"oreja plana Ra 1,6 en Ø{p.REV_sp_fl_d + 4:g} alrededor del pivote (brida del espaciador) y cara exterior del lóbulo de "
+                        "ENMASCARADOS en el anodizado (06 §4: Loctite 641 en el piloto del casquillo y en el cuerpo del émbolo); cara exterior de "
+                        f"la oreja plana Ra 1,6 en Ø{p.REV_sp_fl_d + 4:g} alrededor del pivote (brida del casquillo) y cara exterior del lóbulo de "
                         f"la traba plana Ra 1,6 (collar Ø{RL.PLG_COLLAR_D:g} del cuerpo), ANODIZADAS (no enmascarar: aíslan del 316)",
                         f"Radio R{_mod('P1-STE-01_boquilla').EAR_LIP_R:g} donde el frente de cada oreja de pivote toca la cara del labio de entrada (|Y| = {p.STE_ear_rp:g}; F-03)",
                         f"Hueco de las orejas de la bomba (|Z| {p.Z_steer_lug:.2f}–{p.Z_steer_lug + p.STE_lug_t:.2f}): fresar el barrido ±{p.STE_sweep:g}° (STEP)",
@@ -138,7 +141,9 @@ def draw(p, H):
                              f"Chapa {p.REV_t:g} mm; aro de refuerzo Ø{2 * p.REV_boss_r:g} × {p.REV_ring_t:g} soldado en la cara exterior del pivote "
                              f"(buje POM Ø{p.REV_bush_od:g} H7 × {p.REV_bush_L:g} pasante brazo + aro)",
                              f"Agujeros de traba Ø{p.REV_lock_hole_d:g} (+0,1/0) DESPUÉS DE SOLDAR, con plantilla centrada en el agujero del buje "
-                             f"Ø{p.REV_bush_od:g} H7 (05 §bucket), posición ±0,2: cada traba sola lleva todo M_h, no hay reparto que ajustar"]))
+                             f"Ø{p.REV_bush_od:g} H7 (05 §bucket), posición ±0,2: cada traba sola lleva todo M_h, no hay reparto que ajustar",
+                             "Cara INTERIOR del brazo en la zona de las trabas plana y a escuadra con el eje del buje ≤ 0,3 después de soldar "
+                             "(refrentar si no): el collar del émbolo queda a 1,0 mm (re-auditoría MECH-8)"]))
     m2 = _mod('P1-REV-02_perno_bucket')
     MDPX = "Dúplex 1.4462 (2205) +AT, certificado 3.1 (Rp0,2 ≥ 450)"
     # pivote en DOS piezas (re-auditoría ronda 5, MECH-1): casquillo con brida (antes del bucket) + muñón (después)
