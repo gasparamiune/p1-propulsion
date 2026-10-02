@@ -1,5 +1,6 @@
 """Tests del FEA (04_diseno/fea): solver contra casos analíticos, verificación cruzada con
-scikit-fem, malla gruesa rápida de una pieza real y existencia de FS > 0 en resultados_fea.json."""
+scikit-fem, malla gruesa rápida de una pieza real (P1-CTL-02), estática del bucket y FS > 0 en
+resultados_fea.json para las piezas del waterjet."""
 import json
 import math
 import sys
@@ -111,40 +112,58 @@ def test_rigid_coupling_and_winkler(beam):
     assert abs(-u[rd[0]] / d_an - 1) < 0.03, (-u[rd[0]], d_an)
 
 
+PIEZAS = ("P1-DRV-03", "P1-REV-01", "P1-STE-01", "P1-INT-02", "P1-CTL-02")
+
+
 @pytest.fixture(scope="module")
-def mnt04_quick():
+def ctl02_quick():
     import fea_run
-    pid, res = fea_run.run_part("P1-MNT-04", quick=True, no_img=True)
+    pid, res = fea_run.run_part("P1-CTL-02", quick=True, no_img=True)
     return res
 
 
-def test_part_quick_mesh(mnt04_quick):
-    """Malla gruesa de P1-MNT-04 de punta a punta: FS finito y > 0 en todos los casos."""
-    r = mnt04_quick
+def test_part_quick_mesh(ctl02_quick):
+    """Malla gruesa de P1-CTL-02 (PETG) de punta a punta: FS finito y > 0, σZ evaluada, comparación a mano."""
+    r = ctl02_quick
     assert r["mallas"]["gruesa"]["n_tets"] > 1000
     assert 0 < r["FS_min"] < 999
     for cid, c in r["casos"].items():
-        s = c["gruesa"]["resumen"]["P1-MNT-04"]
+        s = c["gruesa"]["resumen"]
         assert s["vm"]["p99"] <= s["vm"]["max"] + 1e-9
         assert s["vm"]["max_excl"] <= s["vm"]["max"] + 1e-9
-        assert c["FS"]["P1-MNT-04"]["gobernante"] > 0
-    # equilibrio lineal: el caso combinado es la suma de sus partes
-    a, b, cm = (r["casos"][k]["gruesa"]["resumen"]["P1-MNT-04"]["u_max_mm"] for k in ("a-", "b", "c-"))
-    assert cm <= a + b + 1e-9
+        assert c["FS"]["gobernante"] > 0 and "Z" in c["FS"]
+        assert c["gruesa"]["regiones"]["tapa"]["vm"]["max_excl"] > 0
+    # equilibrio: la carga de la mano (150 N) la reacciona la consola + tornillos
+    assert r["comparacion_mano"] and all(c["FS_FEA"] > 0 for c in r["comparacion_mano"])
+
+
+def test_bucket_statics_matches_hand():
+    """La estática del bucket (traba solo tangencial) reproduce la fuerza de traba de structural_direccion."""
+    import fea_parts as fp
+    p, _, est = fp.load_project()
+    st = fp.bucket_statics(p, p.REV_F_design)
+    F_lock = float(np.linalg.norm(st["F_traba_sobre_boquilla_N"]))
+    ref = est["loads"]["structural_direccion"]["F_lock_pin_N"]
+    assert abs(F_lock / ref - 1) < 0.03, (F_lock, ref)
+    # equilibrio de fuerzas sobre el bucket
+    tot = np.array(st["F_N"]) + sum(-np.array(st[k]) for k in ("F_traba_sobre_boquilla_N", "F_pivote_mas_y_sobre_boquilla_N",
+                                                                "F_pivote_menos_y_sobre_boquilla_N"))
+    assert np.allclose(tot, 0, atol=1e-6)
 
 
 def test_resultados_fea_json():
-    """Entregable: resultados_fea.json con FS > 0 para cada pieza, malla gruesa y fina e imágenes."""
+    """Entregable: resultados_fea.json con FS > 0 para cada pieza, malla gruesa y fina, comparación e imágenes."""
     p = FEA / "resultados_fea.json"
     assert p.exists(), "correr: python 04_diseno/fea/fea_run.py"
     res = json.loads(p.read_text(encoding="utf-8"))
-    for pid in ("P1-MNT-01", "P1-MNT-05", "P1-MNT-04"):
+    for pid in PIEZAS:
         r = res["piezas"][pid]
         assert r["FS_min"] is not None and r["FS_min"] > 0, pid
         assert {"gruesa", "fina"} <= set(r["mallas"]), pid
         for c in r["casos"].values():
-            for b, fs in c["FS"].items():
-                assert fs["gobernante"] > 0 and math.isfinite(fs["gobernante"]), (pid, b)
+            fs = c["FS"]["gobernante"]
+            assert fs > 0 and math.isfinite(fs), pid
             assert "convergencia" in c
+        assert r["comparacion_mano"], pid
         for img in r["imagenes"]:
             assert (ROOT / img).exists(), img

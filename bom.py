@@ -118,32 +118,51 @@ def resolve(item, inp, sz, man):
     mo = inp["motor"]["options"][sel["motor"]]
     es = inp["esc"]["options"][sel["esc"]]
     s = spec
+    vat = inp["costs"]["import_vat_frac"]
     if s == "auto:motor":
+        extra = "; ".join(x for x in (f"{2 * mo['pole_pairs']:.0f} polos ({mo['pole_pairs']:.0f} pares)" if mo.get("pole_pairs") else "",
+                                      "CON hall" if mo.get("hall") else "", f"sensor {mo['temp_sensor']}" if mo.get("temp_sensor") else "",
+                                      f"cables {mo['leads']}" if mo.get("leads") else "") if x)
         spec = (f"{mo['desc']}: {mo['kv_rpm_v']:.0f} KV, {mo['cells_max']}S máx., {mo['i_max_a']:.0f} A máx., "
                 f"Ø{mo['size_mm'][0]:.0f} × {mo['size_mm'][1]:.0f}, eje Ø{mo['shaft_d_mm']:.0f} con chavetero 5 mm, "
-                f"refrigeración por {mo['cooling']}; n máx. de diseño {mech['n_max_rpm']:.0f} rpm; precio con 25 % IVA de importación")
+                f"refrigeración por {mo['cooling']}" + (f"; {extra}" if extra else "") +
+                f"; n máx. de diseño {mech['n_max_rpm']:.0f} rpm; precio con {_f(mo.get('duty_frac', 0) * 100, 1)} % de arancel "
+                f"y {vat * 100:.0f} % de IVA de importación")
         price = mo["price_eur"]
     elif s == "auto:esc":
+        fw = es.get("fw_factory")
         spec = (f"{es['desc']}: {es['v_max']:.0f} V máx. (≥ {_f(bat['v_max'])} V), {es['i_cont_a']:.0f} A continuos "
-                f"(≥ 1,2 × {el['I_phase_limit_A']:.0f} A de fase configurados), FW ≥ 5.03, entradas PPM + ADC2; "
-                f"caja de agua en el circuito de refrigeración; precio con 25 % IVA de importación")
+                f"(≥ 1,2 × {el['I_phase_limit_A']:.0f} A de fase configurados), FW ≥ 6.00 (LispBM"
+                + (f"; de fábrica {fw}: FLASHEAR en T0.0" if fw else "") + "), entradas PPM + ADC1 + ADC2"
+                + (f"; cables {es['leads']}" if es.get("leads") else "") +
+                f"; caja de agua en el circuito de refrigeración; precio con {_f(es.get('duty_frac', 0) * 100, 1)} % de arancel "
+                f"y {vat * 100:.0f} % de IVA de importación")
         price = es["price_eur"]
     elif s == "auto:battery":
+        npar = int(bat.get("parallel", 1))
+        qty = npar
         spec = (f"{bat['desc']} — {_f(bat['v_nom'])} V nom. / {_f(bat['v_max'])} V máx. (≤ 50 V CC), {bat['ah']:.0f} Ah "
                 f"({bat['v_nom'] * bat['ah'] / 1000:.2f} kWh), BMS {bat['i_cont_a']:.0f} A ≥ {el['I_bat_peak_A']:.0f} A pico, "
-                f"≈ {_f(bat['mass_kg'])} kg")
-        price = bat["price_eur"]
+                f"≈ {_f(bat['mass_kg'])} kg" + (f"; {npar} unidades × {_f(bat['price_eur'] / npar, 2)} €" if npar > 1 else ""))
+        price = bat["price_eur"] / npar
     elif s == "auto:charger":
         spec = f"{bat['charger']['desc']} — LiFePO4 {bat['cells']}S: {_f(bat['v_max'])} V CC/CV, corte automático"
         price = bat["charger"]["price_eur"]
     elif s == "auto:fuse":
         spec = (f"Blue Sea MRBF {el['fuse_a']} A, 58 V CC (≥ {_f(bat['v_max'])} V), corte 10 kA; "
                 f"≥ {_f(inp['electrical']['fuse_factor'], 2)} × {el['I_bat_top_A']:.0f} A a fondo y protege el cable de "
-                f"{el['cable_dc']['section_mm2']} mm² ({el['cable_dc']['ampacity_a']} A); a ≤ 178 mm del borne + (ABYC E-11, R06 §5.1)")
+                f"{el['cable_dc']['section_mm2']} mm² ({el['cable_dc']['ampacity_a']} A); sobre la barra + (los F_BR de rama "
+                f"van a ≤ 178 mm del borne de cada batería: ABYC E-11, R06 §5.1)")
+    elif s == "auto:fuse_branch":
+        npar = int(bat.get("parallel", 1))
+        spec = (f"Blue Sea MRBF {el.get('fuse_branch_a', el['fuse_a'])} A, 58 V CC, corte 10 kA: {npar} en uso (uno por batería, sobre el borne +) "
+                f"+ {int(qty) - npar} de repuesto; rama más cargada {_f(inp['electrical'].get('parallel_share_max', 0.6) * el['I_bat_peak_A'], 0)} A "
+                f"(reparto {_f(inp['electrical'].get('parallel_share_max', 0.6) * 100, 0)} % × {el['I_bat_peak_A']:.0f} A); protege el cable de rama de 35 mm²")
     elif s == "auto:contactor":
         spec = (f"NA monoestable (sin enclavamiento magnético), ≥ {el['fuse_a']} A continuos (I bat pico {el['I_bat_peak_A']:.0f} A), "
-                f"corte bajo carga ≥ {_f(bat['v_max'])} V CC, bobina 48 V continua que cierre con ≤ {_f(bat['v_min'])} V, "
-                f"supresor diodo+R/TVS, IP66 o en caja; el SW80 de R06 (100 A) NO alcanza")
+                f"corte bajo carga ≥ {_f(bat['v_max'])} V CC: EV200AAANA 500 A, 12–900 V CC; bobina 9–36 V con economizador "
+                f"(0,13 A @ 12 V, cierre 3,8 A ≤ 130 ms, apertura ≤ 12 ms) alimentada a 12 V desde B-12V; sin supresor externo "
+                f"(el economizador limita la fuerza contraelectromotriz a 0 V); hermético")
     elif s in ("auto:cable_dc", "auto:cable_ph"):
         c = el["cable_dc"] if s == "auto:cable_dc" else el["cable_phase"]
         n = 2 if s == "auto:cable_dc" else 3
@@ -208,21 +227,30 @@ def resolve(item, inp, sz, man):
 
 
 def check_rating(item, spec, sz, inp, flags):
+    """rating {a, v, role, bus}: role power → I de batería pico; branch → rama más cargada (reparto en paralelo);
+    control → solo tensión. bus = tensión del circuito si no es la batería (p. ej. mando de 12 V). a: auto = fusible de sizing."""
     r = item.get("rating")
     if not r:
         return spec
     bat = inp["battery"]["options"][sz["selection"]["battery"]]
-    I, V = sz["electrical"]["I_bat_peak_A"], bat["v_max"]
+    el = sz["electrical"]
+    I, V = el["I_bat_peak_A"], float(r.get("bus") or bat["v_max"])
+    vlab = "de batería cargada" if not r.get("bus") else "del circuito"
+    a = el["fuse_a"] if r.get("a") == "auto" else r.get("a")
+    if r.get("role") == "branch":
+        I = inp["electrical"].get("parallel_share_max", 1.0) * I
     bad = []
     if r.get("v") is not None and r["v"] < V:
-        bad.append(f"{r['v']:g} V < {_f(V)} V de batería cargada")
-    if r.get("role") == "power" and r.get("a") is not None and r["a"] < I:
-        bad.append(f"{r['a']:g} A < {I:.0f} A de batería pico")
+        bad.append(f"{r['v']:g} V < {_f(V)} V {vlab}")
+    if r.get("role") in ("power", "branch") and a is not None and a < I:
+        bad.append(f"{a:g} A < {I:.0f} A de {'rama' if r.get('role') == 'branch' else 'batería'} pico")
     if bad:
         flags.append({"ID": item["id"], "falla": "; ".join(bad), "qty": item["qty"]})
         return spec + " ⚠ NO CUMPLE: " + "; ".join(bad) + (" (por eso qty 0)" if item["qty"] == 0 else "")
-    return spec + (f" ✔ {r.get('a', '—')} A / {r.get('v', '—')} V vs {I:.0f} A / {_f(V)} V" if r.get("role") == "power"
-                   else f" ✔ {r.get('v')} V ≥ {_f(V)} V")
+    if r.get("role") in ("power", "branch"):
+        return spec + (f" ✔ {a:g} A / {r['v']:g} V ≥ {I:.0f} A {'de rama' if r.get('role') == 'branch' else ''} / {_f(V)} V"
+                       if a is not None else f" ✔ {r['v']:g} V ≥ {_f(V)} V").replace("  ", " ")
+    return spec + f" ✔ {r.get('v')} V ≥ {_f(V)} V {vlab}"
 
 
 # ------------------------------------------------------------------------------------------------
@@ -314,9 +342,13 @@ def stock_rows(inp, man, date):
         Lbuy = max(Ltot, st["bar_min_len_mm"] if Ds <= st.get("bar_min_len_d_max_mm", 40.0) else 0.0)
         kg = math.pi / 4 * (Ds / 1000) ** 2 * Lbuy / 1000 * m["rho_g_cm3"] * 1000
         vb = {float(k): float(v) for k, v in m.get("bars_eur_m", {}).items()}
+        link = m["link"].format(d=f"{Ds:g}", t="")
         if Ds in vb:
             Lbuy = max(Lbuy, m.get("bars_min_len_mm", 0))
             price, tag = vb[Ds] * Lbuy / 1000, m["bars_tag"]
+            link = {float(k): v for k, v in m.get("bars_link", {}).items()}.get(Ds, link)
+            if not link.startswith("http"):
+                tag = tag.replace("[VERIFICADO", "[ESTIMADO: precio de research, sin link de producto —", 1)
         else:
             price, tag = max(kg * m["eur_kg"], st["min_eur"]), est_tag(m)
         pieces = "; ".join(f"{r['id']} Ø{_f(c['D'])} × {_f(c['L'])} → {n} × {c['Ls']:.0f} mm" for r, n, c in lst)
@@ -324,7 +356,7 @@ def stock_rows(inp, man, date):
                 f"Sobremedida: Ø +{_f(st['allowance']['d_small_mm'])} (≤ 10) / +{st['allowance']['d_mm']:g} (≤ 50) / "
                 f"+{st['allowance']['d_frac'] * 100:g} % mm; largo +{st['allowance']['len_mm']:g} mm")
         rows.append(mk(f"MP-{MAT_CODE.get(mat, mat)}-D{Ds:g}", mat, f"Barra {MAT_CODE.get(mat, mat)} Ø{Ds:g} (torno propio salvo servicio)",
-                       spec, kg, price, tag, [r["id"] for r, _, _ in lst], m["link"].format(d=f"{Ds:g}", t="")))
+                       spec, kg, price, tag, [r["id"] for r, _, _ in lst], link))
     for (mat, t), lst in sorted(plates.items(), key=lambda kv: (kv[0][0], kv[0][1])):
         m = mats[mat]
         area = sum(a for *_, a in lst)
@@ -390,7 +422,12 @@ def main():
         spec = check_rating(it, spec, sz, inp, flags)
         for pid in it.get("covers", []):
             covered.setdefault(pid, []).append(it["id"])
-        rows.append({"ID": it["id"], "categoria": it["cat"], "descripcion": it["desc"],
+        duty = 0.0
+        if it.get("spec") == "auto:motor":
+            duty = inp["motor"]["options"][sz["selection"]["motor"]].get("duty_frac", 0.0)
+        elif it.get("spec") == "auto:esc":
+            duty = inp["esc"]["options"][sz["selection"]["esc"]].get("duty_frac", 0.0)
+        rows.append({"_duty": duty, "ID": it["id"], "categoria": it["cat"], "descripcion": it["desc"],
                      "especificacion_minima": spec, "cantidad": qty, "unidad": unit,
                      "proveedor_envio_DK": it["supplier"], "link_o_busqueda": link,
                      "precio_unit_EUR": round(price, 2), "precio_total_EUR": round(price * qty, 2),
@@ -462,7 +499,9 @@ def main():
         sub = sum(r["precio_total_EUR"] for r in rr)
         ship = sum(r["precio_total_EUR"] for r in rr if r["envio"] == "eu") * c["shipping_frac"]
         cn_sup = sorted({r["proveedor_envio_DK"] for r in rr if r["envio"] == "cn" and r["precio_total_EUR"] > 0})
-        imp = len(cn_sup) * c["cn_shipping_eur"] * (1 + c["import_vat_frac"])
+        # criterio único de importación (comparison.import_basis = CIF): el flete entra en la base del arancel y del IVA
+        duty_of = {s_: max(r.get("_duty", 0.0) for r in rr if r["proveedor_envio_DK"] == s_) for s_ in cn_sup}
+        imp = sum(c["cn_shipping_eur"] * (1 + duty_of[s_]) * (1 + c["import_vat_frac"]) for s_ in cn_sup)
         return rr, sub, ship, imp, cn_sup
 
     sys_rows, sub, ship, imp, cn_sup = block("sistema")
@@ -506,8 +545,8 @@ def main():
             w.writerow(r)
         for label, val in (("SUBTOTAL compras del sistema", sub),
                            (f"Envío UE ({c['shipping_frac'] * 100:.0f} % de ítems 'eu')", ship),
-                           (f"Importación China: envío {c['cn_shipping_eur']:.0f} € × {len(cn_sup)} proveedores + IVA "
-                            f"{c['import_vat_frac'] * 100:.0f} % del envío (el IVA de la mercadería ya está en el precio)", imp),
+                           (f"Importación China: envío {c['cn_shipping_eur']:.0f} € × {len(cn_sup)} proveedores + arancel e IVA "
+                            f"{c['import_vat_frac'] * 100:.0f} % del envío (base CIF; arancel e IVA de la mercadería ya están en el precio)", imp),
                            (f"Imprevistos ({c['contingency_frac'] * 100:.0f} %)", cont),
                            ("TOTAL SISTEMA EUR", total), ("TOTAL SISTEMA DKK", total * dkk),
                            ("Equipo de seguridad de operación (aparte, con envío)", total_op),

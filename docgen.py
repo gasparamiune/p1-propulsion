@@ -85,19 +85,34 @@ def blocks(sz, bom, man, est, ver):
     if sz:
         sn = sz.get("sensitivity", {})
         if sn:
+            pm = sz_inputs("operation.plane_margin_frac")
             B["sizing_sens"] = table(["Entrada incierta", "Rango", "V máx. sostenida [km/h] (bajo / alto)",
-                                      "Margen en la joroba (bajo / alto)", "¿Planea en ambos extremos?"],
+                                      "Margen en la joroba (bajo / alto)",
+                                      f"¿Margen ≥ {pm*100:.0f} % (restricción dura) en ambos extremos?"],
                                      [[r["label"], f"{_fmt(r['lo']['value'], '.3g')} – {_fmt(r['hi']['value'], '.3g')}",
                                        f"{r['lo']['vmax']:.1f} / {r['hi']['vmax']:.1f}",
                                        f"{r['lo']['hump']*100:.0f} % / {r['hi']['hump']*100:.0f} %",
-                                       "sí" if (r["lo"]["planes"] and r["hi"]["planes"]) else "**NO**"] for r in sn["rows"]])
+                                       "sí" if (r["lo"].get("hump_ok", r["lo"]["planes"]) and r["hi"].get("hump_ok", r["hi"]["planes"]))
+                                       else ("**NO**" + ("" if (r["lo"]["planes"] and r["hi"]["planes"]) else " (no cruza)"))]
+                                      for r in sn["rows"]])
         lg, pf = sz["legal_speed"], sz["performance"]
         B["legal_speed"] = table(["Magnitud", "Valor", "Etiqueta"], [
             ["Límite legal a < 300 m de la costa", f"{sz_inputs('operation.legal_speed_limit_kmh'):.2f} km/h (5 kn)", "[VERIFICADO: research/R07, R13]"],
-            ["Potencia de batería a 5 kn (banda de diseño)", f"{lg['P_bat_legal_W']:.0f} W", "[CALCULADO]"],
-            ["Autonomía a 5 kn", f"{lg['autonomy_legal_h']:.1f} h", "[CALCULADO]"],
             [f"Tope de rpm 'modo costa' (piloto liviano, {lg['mass_light_kg']:.0f} kg, banda baja, batería llena)",
              f"{lg['rpm_cap']:.0f} rpm / {lg['erpm_cap']:.0f} ERPM", "[CALCULADO] → VESC `l_max_erpm` en el perfil de costa"],
+        ] + ([
+            ["COSTA a fondo, piloto liviano (banda baja, batería llena)",
+             f"{lg['costa']['light_low']['V_kmh']:.1f} km/h, {lg['costa']['light_low']['P_bat_W']:.0f} W", "[CALCULADO] (el caso del tope)"],
+            ["COSTA a fondo, piloto de diseño (banda nominal / alta, batería nominal)",
+             f"{lg['costa']['design_nominal']['V_kmh']:.1f} / {lg['costa']['design_high']['V_kmh']:.1f} km/h, "
+             f"{lg['costa']['design_nominal']['P_bat_W']:.0f} / {lg['costa']['design_high']['P_bat_W']:.0f} W "
+             f"(autonomía {lg['costa']['design_high']['autonomy_h']:.1f} h)", "[CALCULADO]"],
+        ] if "costa" in lg else []) + [
+            ["P de batería para ir a 5 kn con el piloto de diseño (banda alta)",
+             f"{lg['P_bat_legal_W']:.0f} W a {lg['n_legal_rpm']:.0f} rpm"
+             + ("" if lg.get("legal_rpm_reachable_in_costa", True) else " — por encima del tope de COSTA: solo con el perfil ABIERTO"),
+             "[CALCULADO] (energía de la misión, conservador)"],
+            ["Autonomía a esa potencia", f"{lg['autonomy_legal_h']:.1f} h", "[CALCULADO]"],
         ])
         th, el, en, me, cl = sz["thermal"], sz["electrical"], sz["energy"], sz["mech"], sz.get("cooling", {})
         B["thermal"] = table(["Magnitud", "Valor", "Etiqueta"], [

@@ -11,9 +11,13 @@ Bomba (impulsor axial, diámetro D, cubo ν·D):
     η(φ) = η_d·[1 − c·(φ/φ_d − 1)²]                                       [ESTIMADO: R12]
     P_eje = ρ·g·Q·H/η ;  Ω_s = ω·√Q/(g·H)^¾
 Cavitación (entrada del impulsor):
-    NPSH_a = (p_atm − p_v)/(ρg) + h_sum + η_in·V_in²/2g − K_g·V_g²/2g
+    NPSH_a = (p_atm − p_v)/(ρg) + h_sum(V) + η_in·V_in²/2g − K_g·V_g²/2g
+    h_sum(V): inmersión del eje bajo la superficie; estática en reposo y la del calado de planeo en
+    marcha (h_sub_fn, la pone sizing.py desde Resistance.h_sub)
     S = ω·√Q/(g·NPSH_a)^¾  (velocidad específica de succión, adimensional) ≤ S_lim
     σ_punta = NPSH_a·2g/W_t² ,  W_t² = U² + c_m²
+IVR (ITTC) = V media en la garganta de la toma / V del bote, garganta Ø = throat_d_ratio·D (círculo
+completo) [VERIFICADO definición: R10a §4, ITTC]; IVR_bomba con el círculo Ø D (entrada del impulsor).
 El impulsor se diseña (ángulos de álabe) para el punto de diseño (V_d, P_d, n_d): ver pump_design().
 """
 from __future__ import annotations
@@ -41,6 +45,9 @@ class JetGeometry:
         self.A_g = j["grille_open_area_m2_per_Aimp"] * math.pi / 4 * D_imp_m ** 2
         self.h_j = j["nozzle_height_above_wl_m"]
         self.h_sub = h_sub_m                       # eje del impulsor bajo la flotación (estático)
+        self.h_sub_fn = None                       # h_sub(V) en marcha (None → estático en todo V)
+        self.A_throat = math.pi / 4 * (j["throat_d_ratio"] * D_imp_m) ** 2   # garganta de la toma (círculo)
+        self.A_eye = math.pi / 4 * D_imp_m ** 2                               # entrada del impulsor (círculo)
         self.w = j["wake_fraction"]
         self.t = j["thrust_deduction"]
         w = inp["water"]
@@ -58,10 +65,13 @@ class JetGeometry:
         Vj = Q / (self.Cc * self.A_n)
         return self.rho * Q * (Vj - V * (1 - self.w)) * (1 - self.t)
 
+    def h_sub_at(self, V):
+        return self.h_sub if self.h_sub_fn is None else self.h_sub_fn(V)
+
     def npsh_a(self, Q, V):
         Vin = V * (1 - self.w)
         Vg = Q / self.A_g
-        return ((self.p_atm - self.p_v) / (self.rho * G) + self.h_sub + self.eta_in * Vin ** 2 / (2 * G)
+        return ((self.p_atm - self.p_v) / (self.rho * G) + self.h_sub_at(V) + self.eta_in * Vin ** 2 / (2 * G)
                 - self.Kg * Vg ** 2 / (2 * G))
 
     def Q_for_hydraulic_power(self, P_h, V):
@@ -132,7 +142,8 @@ class Pump:
         P_thrust = T * V
         return {"n_rpm": n_rps * 60, "U_tip": U, "phi": ph, "psi": self.psi(ph), "eta_pump": eta,
                 "Q_m3s": Q, "H_m": H, "P_shaft": P, "torque": P / w, "Vj": Vj, "T": T,
-                "IVR": (Q / (g.A_an)) / max(V, 1e-6) if V > 0.1 else math.inf,
+                "IVR": (Q / g.A_throat) / max(V, 1e-6) if V > 0.1 else math.inf,
+                "IVR_pump": (Q / g.A_eye) / max(V, 1e-6) if V > 0.1 else math.inf, "h_sub": g.h_sub_at(V),
                 "Vj_over_V": Vj / max(V, 1e-6), "NPSHa": npsh, "S": S, "sigma_tip": sig_tip,
                 "eta_jet": P_thrust / P if P > 0 else 0.0, "V_in": Vin}
 
@@ -173,8 +184,10 @@ class JetDrive:
         return pp, op
 
     def feasible(self, op, i_lim=None, p_bat_lim=None):
+        """El límite de corriente del controlador (VESC l_current_max) es sobre I_q (FOC), no sobre la
+        corriente de CC equivalente: ver Motor.kt_foc."""
         i_lim = self.i_lim if i_lim is None else i_lim
-        ok = op["duty"] <= self.duty_max and op["I_m"] <= i_lim and op["I_bat"] <= self.i_bat_lim
+        ok = op["duty"] <= self.duty_max and op["I_q"] <= i_lim and op["I_bat"] <= self.i_bat_lim
         if p_bat_lim is not None:
             ok = ok and op["P_bat"] <= p_bat_lim
         return ok
@@ -195,8 +208,8 @@ class JetDrive:
         lim = []
         if op["duty"] > self.duty_max * 0.995:
             lim.append("tensión")
-        if op["I_m"] > (self.i_lim if i_lim is None else i_lim) * 0.995:
-            lim.append("corriente de motor")
+        if op["I_q"] > (self.i_lim if i_lim is None else i_lim) * 0.995:
+            lim.append("corriente de motor (I_q)")
         if op["I_bat"] > self.i_bat_lim * 0.995:
             lim.append("corriente de batería")
         if p_bat_lim is not None and op["P_bat"] > p_bat_lim * 0.995:

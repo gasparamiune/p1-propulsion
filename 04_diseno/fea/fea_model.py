@@ -153,6 +153,7 @@ class Model:
         self.pre = None
         self.static_K = None            # resortes bilaterales siempre presentes
         self.n_print_body = None        # dirección Z de impresión por cuerpo (si hay varios)
+        self.P = None
 
     # --- construcción ---
     def add_rigid(self, name, xref, fixed_local=()):
@@ -353,6 +354,29 @@ class Model:
         um = np.linalg.norm(fields["u"], axis=1)[sel]
         out["u_max_mm"] = float(um.max())
         out["excl_frac_vol"] = float(w[sel & excl].sum() / w[sel].sum())
+        return out
+
+    def region_summary(self, fields, r_ex, regions, extra_zones=()):
+        """Por región (nombre → máscara(X (N,3)) → bool): σvm máx. global, máx. fuera de zonas de
+        carga/apoyo (máx*), p99 de la región (ponderado por volumen) y ubicación del máx*."""
+        S = self.S
+        w = S.node_volume()
+        excl = self.zone_mask(r_ex, extra_zones)
+        out = {}
+        for name, fn in regions.items():
+            sel = np.asarray(fn(S.X), bool)
+            if not sel.any():
+                continue
+            ok = sel & ~excl
+            rec = {"n_nodos": int(sel.sum()), "frac_excluida": float(w[sel & excl].sum() / w[sel].sum())}
+            for key in ("vm", "s1", "sZ"):
+                v = fields[key]
+                vv = v[ok] if ok.any() else v[sel]
+                iex = (np.flatnonzero(ok) if ok.any() else np.flatnonzero(sel))[np.argmax(vv)]
+                rec[key] = {"max": float(v[sel].max()), "max_excl": float(v[iex]),
+                            "p99": fc.weighted_percentile(v[sel], w[sel], 99.0),
+                            "at_max_excl_mm": S.X[iex].round(1).tolist()}
+            out[name] = rec
         return out
 
 

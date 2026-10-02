@@ -21,8 +21,8 @@
 ; Que el ADC1 del Flipsky FSESC 75350 esté libre en el conector COMM con la app PPM:
 ;   [ESTIMADO: verificar en VESC Tool, Realtime Data -> ADC1 debe seguir a D12].
 
-(define erpm-costa 3700.0)    ; electronica.json vesc_values.l_max_erpm  [CALCULADO]
-(define erpm-abierto 9600.0)  ; electronica.json vesc_values.erpm_tech   [CALCULADO]
+(define erpm-costa 3700.0)    ; electronica.json vesc_values.l_max_erpm  [CALCULADO] (lo escribe calc_electronica.py)
+(define erpm-abierto 9600.0)  ; electronica.json vesc_values.erpm_tech   [CALCULADO] (lo escribe calc_electronica.py)
 (define v-umbral 1.65)        ; mitad de 3,3 V [SUPUESTO]
 (define n-req 4)              ; 4 muestras seguidas en ALTO (4 × 50 ms) para pasar a ABIERTO [SUPUESTO]
 

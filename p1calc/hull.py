@@ -28,6 +28,10 @@ def mass_items(inp: dict, sel: dict) -> list[dict]:
         m = it["kg"]
         if isinstance(m, str) and m.startswith("sel:"):
             m = sel[m[4:]]
+        elif isinstance(m, str) and m.startswith("inp:"):          # referencia a otra entrada (una sola fuente)
+            m = inp
+            for kk in it["kg"][4:].split("."):
+                m = m[kk]
         out.append({"id": k, "desc": it["desc"], "kg": float(m), "x_m": it["x_m"], "z_m": it["z_m"],
                     "machinery": bool(it.get("machinery", False)), "tag": it.get("tag", "")})
     return out

@@ -70,7 +70,7 @@ def cases(p, A, row, rows, T3, T2):
     Kf = 1.5                       # concentración en la raíz con radio de acuerdo R ≥ 2 mm [ESTIMADO]
     f_anod = 0.6                   # anodizado duro: baja la resistencia a fatiga del Al [ESTIMADO: 30–50 %]
     alt_blade = 0.30               # amplitud/medio de la carga de álabe (paso de álabes + toma) [ESTIMADO]
-    alt_torque = 0.15              # ondulación del par total (eje, pasador) [ESTIMADO]
+    alt_torque = p.inp["shaft"]["torque_ripple_frac"]   # ondulación del par total (eje, pasador) [ESTIMADO, inputs; la misma que sizing]
     used = {}
 
     rh, rt = p.D_hub / 2, p.D / 2

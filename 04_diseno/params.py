@@ -97,7 +97,7 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["Z_bucket_pivot"] = 0.62 * D
 
     # --- toma (marco BOTE) ---
-    d["D_throat"] = round(1.11 * D, 1)
+    d["D_throat"] = round(j["throat_d_ratio"] * D, 1)     # [CALCULADO: inputs waterjet.throat_d_ratio (R10a §5.2)]
     d["x_lip"] = d["x_if"] + 0.89 * D
     d["x_tan"] = d["x_if"] + 3.77 * D
     d["W_open"] = round(1.2 * D, 1)

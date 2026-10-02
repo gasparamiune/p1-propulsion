@@ -33,28 +33,35 @@ R06 = "research/R06_electrica.md"
 # Supuestos y datos propios de este módulo (todo lo demás sale de inputs.yaml / sizing.json)
 # ----------------------------------------------------------------------------------------------
 A = {
+    "n_vs_power_exp": (1 / 3, "—", "[CALCULADO: bomba P ∝ n³ → n ∝ P^(1/3); con batería llena el límite de corriente de batería deja P × V_máx/V_nom]"),
+    "lead_motor": ((13.30e-6, 0.30), "m², m", "[VERIFICADO: página Maytech MTI120116 — '6AWGx300mm'; 6 AWG = 13,30 mm² CALCULADO (fórmula AWG)]"),
+    "lead_esc": ((8.37e-6, 0.20), "m², m", "[VERIFICADO: página Flipsky FSESC 75350 — 'Motor wire: 8AWG' (8 AWG = 8,37 mm² CALCULADO)]; largo 0,20 m [ESTIMADO: no publicado, medir]"),
     "v_cell_max": (3.65, "V", f"[ESTIMADO: {R06} §4.3, LFP 3,65 V/celda máx.]"),
     "v_cell_nom": (3.2, "V", f"[ESTIMADO: {R06} §4.3, LFP 3,2 V/celda nominal]"),
     "v_cell_cut_start": (3.0, "V", f"[ESTIMADO: {R06} §2.4, corte LFP 3,0 V/celda]"),
     "v_cell_cut_end": (2.8, "V", f"[ESTIMADO: {R06} §2.4, corte LFP 2,8 V/celda]"),
     "c_bus_f": (2.0e-3, "F", f"[ESTIMADO: {R06} §3.4, C de bus del VESC 1–2 mF no publicado; se toma el mayor]"),
     "r_pre_ohm": (100.0, "Ω", f"[SUPUESTO: {R06} §3.4 (100 Ω → 5τ ≤ 1 s)]"),
-    "coil_p_w": ((7.0, 13.0), "W", f"[VERIFICADO: Albright SW80, bobina continua 7–13 W ({R06} §3.3)]"),
-    "coil_v_options": ((12.0, 24.0, 36.0, 48.0, 72.0, 96.0), "V", f"[VERIFICADO: Albright SW80/SW80B, bobinas de 6–240 V CC ({R06} §3.3)]; se elige la menor con V_máx/Us ≤ 1,10 y cierre ≤ V en reposo al corte"),
-    "coil_over_max": (1.10, "—", "[SUPUESTO: sobretensión continua de bobina ≤ 110 % Us sin confirmación del fabricante]"),
+    "k1_model": ("TE Connectivity KILOVAC EV200AAANA", "—",
+                 "[VERIFICADO: hoja EV200 Series (TE, 'KILOVAC EV200 Series Contactor', https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/5986/EV200_Series.pdf)]"),
+    "k1_i_cont_a": (500.0, "A", "[VERIFICADO: hoja EV200 — 500 A @ 85 °C (400 mcm); 12–900 V CC]"),
+    "k1_coil_range_v": ((9.0, 36.0), "V", "[VERIFICADO: hoja EV200 — bobina 'A' 9–36 V CC (opera), pickup máx. 9 V, dropout mín. 6 V]"),
+    "k1_coil_hold_a": (0.13, "A", "[VERIFICADO: hoja EV200 — holding current 0,13 A @ 12 V (economizador incorporado, 1,7 W)]"),
+    "k1_coil_inrush": ((3.8, 0.130), "A, s", "[VERIFICADO: hoja EV200 — inrush máx. 3,8 A, inrush time máx. 130 ms]"),
+    "k1_release_ms": (12.0, "ms", "[VERIFICADO: hoja EV200 — release (incluye arco) máx. 12 ms @ 2000 A; close típ. 15 ms]"),
+    "k1_back_emf_v": (0.0, "V", "[VERIFICADO: hoja EV200 — 'built-in coil economizer … limits back EMF to 0V']"),
+    "k1_price_eur": (149.0, "EUR sin IVA", "[VERIFICADO: https://eveurope.eu/en/product/hoofdstroomrelais-ev200-500-amp-2/ — 149,00 € ex. VAT, 54 en stock, 2026-10-02]"),
+    "v_ctl_nom": (12.0, "V", "[VERIFICADO: B-12V Mean Well RSD-60G-12 → 12 V regulados (BOM)]; mando de K1 a 12 V (auditoría H3)"),
+    "v_ctl_tol": (0.05, "—", "[ESTIMADO: ±5 % de salida del DC-DC regulado (ajuste + carga); verificar en la hoja del RSD-60G-12]"),
     "brake_frac": (0.3, "—", "[SUPUESTO: corriente de frenado = 30 % de l_current_max (un jet casi no regenera; protege BMS)]"),
     "weed_rev_frac": (0.25, "—", "[SUPUESTO: giro inverso lento (≤ 25 % de las rpm de 5 kn) solo para soltar algas de la rejilla]"),
     "pump_P_T_exp": (1.5, "—", "[CALCULADO: bomba con T ∝ n², P ∝ n³ → P ∝ T^1,5; límite de par = P_frac^(2/3)]"),
-    "coil_pullin_frac": (0.66, "—", f"[VERIFICADO: Albright SW80, cierre máx. 66 % Us, tipo continuo ({R06} §3.3)]"),
-    "coil_p_prolonged_w": ((13.0, 15.0), "W", f"[VERIFICADO: Albright SW80, bobina prolongada 13–15 W ({R06} §3.3)]"),
-    "coil_r_sup_factor": (1.0, "—", "[SUPUESTO: R del supresor diodo+R ≈ R de bobina (pico ≈ 2·V); el valor real lo fija T0.4]"),
     "opto_vr_max": (5.0, "V", "[ESTIMADO: V_R máx. del LED de optoacopladores de fototransistor típicos 5–6 V; verificar en la hoja del elegido]"),
     "diode_vf": (0.7, "V", "[ESTIMADO: diodo de silicio]"),
     "vih_frac": (0.6, "—", "[ESTIMADO: V_IH mín. ATmega328P = 0,6·Vcc (hoja de datos; no releída en esta sesión)]"),
     "vesc_iq_unknown": (None, "A", "[SUPUESTO: el consumo en reposo del VESC 75100 no está publicado; se mide en T0.3]"),
-    "contactor_open_ms": ((8.0, 20.0, 50.0), "ms", f"[VERIFICADO: SW80 apertura 8–20 ms con diodo+resistencia, 50 ms solo diodo ({R06} §3.3)]"),
     "kill_switch_rating_a": (5.0, "A", f"[VERIFICADO: Sea Dog SD-420487-1, 5 A máx. ({R06} §3.2)]"),
-    "f2_factor": (3.0, "—", "[SUPUESTO: fusible de mando ≥ 3 × I_bobina máx.]"),
+    "f2_factor": (1.25, "—", "[SUPUESTO: fusible de mando (lento) ≥ 1,25 × corriente de cierre de la bobina]"),
     "opto_vf": (1.2, "V", "[ESTIMADO: LED IR de optoacoplador típico 1,1–1,4 V]"),
     "opto_if_target": (5.0e-3, "A", "[SUPUESTO: 5 mA a tensión nominal]"),
     "opto_ctr_min": (0.5, "—", "[SUPUESTO: especificación mínima de compra CTR ≥ 50 %]"),
@@ -161,14 +168,23 @@ def compute(inp=None, sz=None):
     n_noload = mot["kv_rpm_v"] * v_max
     erpm_max = round(val("erpm_margin") * n_max * pp, -2)
     erpm_tech = erpm_max
+    # rpm a fondo con batería llena: el límite de corriente de batería deja P × V_máx/V_nom → n ∝ P^(1/3)
+    n_full = n_max * (v_max / v_nom) ** val("n_vs_power_exp")
+    erpm_tech_ok = erpm_tech / pp > n_full
     erpm_legal = sz.get('legal_speed', {}).get('erpm_cap')
     if erpm_legal:
         erpm_max = min(erpm_max, int(erpm_legal // 100 * 100))   # modo costa (D-30): 5 kn a < 300 m
     erpm_min = -round(n_rev * pp, -2)
     i_in_max = ceil_to(val("i_in_margin") * i_bat_pk, 5.0)
-    i_in_cap = val("bms_frac") * i_bms
+    n_par = int(bat.get("parallel", 1))
+    share = el.get("parallel_share_max", 1.0) if n_par > 1 else 1.0     # reparto peor entre ramas en paralelo
+    i_bms_branch = i_bms / n_par
+    i_in_cap_derate = val("bms_frac") * i_bms                          # 80 % del BMS total (reparto perfecto)
+    i_in_cap_share = i_bms_branch / share                              # 100 % del BMS de la rama más cargada
+    i_in_cap = min(i_in_cap_derate, i_in_cap_share)
     i_in_limited = i_in_max > i_in_cap
     i_in_max = min(i_in_max, i_in_cap)
+    i_branch_at_limit = share * i_in_max                               # rama más cargada con el VESC al límite
     cut_start = round(cells * val("v_cell_cut_start"), 1)
     cut_end = round(cells * val("v_cell_cut_end"), 1)
     max_vin = round(val("v_max_vin_factor") * v_max, 0)
@@ -178,8 +194,14 @@ def compute(inp=None, sz=None):
         rows.append({"grupo": group, "parametro": name, "valor": value, "unidad": unit,
                      "default": default, "tag": t, "nota": note})
 
-    add("Firmware", "versión de firmware", "≥ 5.03", "—", "—",
-        f"[VERIFICADO: {R06} §2.2 — KILL_SW_MODE aparece en 5.03; no existe en 5.02]")
+    esc_o = inp["esc"]["options"][sel["esc"]]
+    fw_fac = esc_o.get("fw_factory")
+    add("Firmware", "versión de firmware", "≥ 6.00", "—", fw_fac or "—",
+        f"[VERIFICADO: {R06} §2.2 — KILL_SW_MODE aparece en 5.03] · ≥ 6.00 por LispBM (vesc_perfil.lisp) "
+        f"[VERIFICADO: vedderb/bldc lispBM/README.md, FW 6.00+]"
+        + (f" · de fábrica {fw_fac} [inputs.yaml esc.options.{sel['esc']}.fw_factory, allí VERIFICADO]" if fw_fac else ""),
+        "FLASHEAR antes de configurar (T0.0): con el FW de fábrica no hay LispBM y el perfil COSTA/ABIERTO no funciona"
+        if fw_fac and float(fw_fac) < 6.0 else "")
     no_filter = any(k in sel["esc"].replace(" ", "") for k in ("75100", "FSESC75200", "75200W"))
     add("Firmware", "foc_phase_filter_enable", "false" if no_filter else "true (dejar)", "—", "true (false en target 75_100, FW ≥ 6.00)",
         f"[VERIFICADO: {R06} §2.1 — Flipsky: con FW ≥ 5.3 apagar el filtro de fase o se daña el 75100]; "
@@ -199,9 +221,15 @@ def compute(inp=None, sz=None):
         "El jet NO invierte el giro: la reversa es el bucket. El MCU lee el fin de carrera del bucket y topea el PPM "
         "(reverse_limit del firmware = este valor; fin de carrera en D5, README §5)")
     add("Batería", "l_in_current_max", i_in_max, "A", "99 (100 en target 75_100)",
-        f"[CALCULADO: ⌈{fa(val('i_in_margin'))} × I_bat pico {fa(round(i_bat_pk, 1))} A⌉ a 5 A, ≤ {fa(val('bms_frac') * 100)} % × BMS {fa(i_bms)} A]",
-        "LIMITA la V máx: I_bat pico de sizing > 80 % del BMS" if i_in_limited else
-        f"No limita el pico de sizing ({fa(round(i_bat_pk, 1))} A) y deja {fa(i_in_cap - i_in_max)} A de margen al 80 % del BMS")
+        f"[CALCULADO: ⌈{fa(val('i_in_margin'))} × I_bat pico {fa(round(i_bat_pk, 1))} A⌉ a 5 A, ≤ mín({fa(val('bms_frac') * 100)} % × BMS {fa(i_bms)} A = "
+        f"{fa(i_in_cap_derate)} A; BMS de rama {fa(i_bms_branch)} A / reparto {fa(share)} = {fa(round(i_in_cap_share, 1))} A)] · "
+        f"reparto [inputs.yaml electrical.parallel_share_max, allí SUPUESTO]",
+        ("LIMITA la V máx: I_bat pico de sizing > límite" if i_in_limited else
+         f"No limita el pico de sizing ({fa(round(i_bat_pk, 1))} A)")
+        + (f". Con {n_par} baterías en paralelo y reparto {fa(share * 100)}/{fa(100 - share * 100)} la rama más cargada lleva "
+           f"{fa(round(i_branch_at_limit, 1))} A = {fa(round(i_branch_at_limit / i_bms_branch * 100, 0))} % de su BMS ({fa(i_bms_branch)} A): "
+           f"no supera el BMS, pero el margen del 80 % solo vale con reparto parejo. Medir el reparto en T1 (pinza en cada rama)"
+           if n_par > 1 else ""))
     add("Batería", "l_in_current_min", val("i_in_min"), "A", "-60 (-100 en target 75_100)",
         f"{tag('i_in_min')} · defaults [VERIFICADO: mcconf_default.h; hw_75_100.h ({R06} §2.4)]")
     add("Batería", "l_battery_cut_start", cut_start, "V", 10.0,
@@ -220,11 +248,14 @@ def compute(inp=None, sz=None):
          if erpm_max < erpm_tech else
          f"[CALCULADO: {fa(val('erpm_margin'))} × {n_max:.0f} rpm (máx. con carga, sizing) × {pp:.0f} pares de polos]"),
         f"Sin carga (hélice fuera del agua) el motor iría a {n_noload:.0f} rpm = {n_noload * pp:.0f} ERPM "
-        f"[CALCULADO: KV {mot['kv_rpm_v']:.0f} × {fa(v_max)} V]; el límite lo baja a {erpm_max / pp:.0f} rpm")
+        f"[CALCULADO: KV {mot['kv_rpm_v']:.0f} × {fa(v_max)} V]; el límite lo baja a {erpm_max / pp:.0f} rpm. "
+        f"ERPM = rpm × {pp:.0f} pares de polos [inputs.yaml motor.options.{sel['motor']}.pole_pairs]")
     if erpm_max < erpm_tech:
         add("Velocidad", "l_max_erpm (perfil 2: fuera de la franja de 300 m)", erpm_tech, "ERPM", 100000,
             f"[CALCULADO: {fa(val('erpm_margin'))} × {n_max:.0f} rpm (n máx. de sizing) × {pp:.0f} pares de polos]",
-            "Segundo perfil del VESC (o mcconf alternativo cargado por UART); por defecto arranca SIEMPRE en el perfil legal de 5 kn (R13)")
+            f"Perfil ABIERTO (vesc_perfil.lisp, en RAM); por defecto arranca SIEMPRE en COSTA (5 kn, R13). "
+            f"{'✔' if erpm_tech_ok else '✘ NO ALCANZA:'} {erpm_tech / pp:.0f} rpm > {n_full:.0f} rpm a fondo con batería llena "
+            f"[CALCULADO: {n_max:.0f} × ({fa(v_max)}/{fa(v_nom)})^(1/3)] — el tope no recorta la V máx.")
     add("Velocidad", "l_min_erpm", erpm_min, "ERPM", -100000,
         f"[CALCULADO: −{n_rev:.0f} rpm × {pp:.0f} pares de polos] · {tag('weed_rev_frac')}",
         "Solo giro inverso lento para limpiar la rejilla; la reversa de marcha es el bucket")
@@ -272,7 +303,11 @@ def compute(inp=None, sz=None):
                         "n_rev_weed_rpm": n_rev, "brake_frac": rev, "reverse_power_frac": p_rev,
                         "reverse_current_frac": t_rev, "l_current_reverse": round(t_rev * i_mot, 0),
                         "erpm_legal": erpm_legal, "erpm_tech": erpm_tech, "v_class": v_class,
-                        "dcdc_vin_max": val("dcdc_vin_max"), "dcdc_ok": max_vin < val("dcdc_vin_max")}
+                        "dcdc_vin_max": val("dcdc_vin_max"), "dcdc_ok": max_vin < val("dcdc_vin_max"),
+                        "n_full_batt_rpm": n_full, "erpm_tech_ok": erpm_tech_ok, "n_parallel": n_par,
+                        "parallel_share_max": share, "i_bms_branch": i_bms_branch, "i_in_cap_derate": i_in_cap_derate,
+                        "i_in_cap_share": i_in_cap_share, "i_branch_at_limit": i_branch_at_limit,
+                        "fw_min": "6.00", "fw_factory": fw_fac}
 
     # ---------------- Precarga (resistencia en paralelo con el contactor)
     C, Rp = val("c_bus_f"), val("r_pre_ohm")
@@ -287,58 +322,46 @@ def compute(inp=None, sz=None):
         "wait_s": ceil_to(5 * tau * 2, 1.0),
     }
 
-    # ---------------- Bobina del contactor y circuito de mando
-    pmin, pmax = val("coil_p_w")
-    v_rest = cells * val("v_cell_cut_start")
-    vc = next((u for u in val("coil_v_options") if v_max / u <= val("coil_over_max") and val("coil_pullin_frac") * u <= v_rest),
-              val("coil_v_options")[-1])
-    r_coil = (vc ** 2 / pmax, vc ** 2 / pmin)
-    i_coil_max = v_max / r_coil[0]
-    p_coil_nom = (v_nom ** 2 / r_coil[1], v_nom ** 2 / r_coil[0])
+    # ---------------- Bobina del contactor y circuito de mando (12 V desde B-12V, auditoría H3)
+    vctl = val("v_ctl_nom")
+    vctl_lo, vctl_hi = vctl * (1 - val("v_ctl_tol")), vctl * (1 + val("v_ctl_tol"))
+    c_lo, c_hi = val("k1_coil_range_v")
+    i_hold = val("k1_coil_hold_a")
+    i_inr, t_inr = val("k1_coil_inrush")
+    p_hold = vctl * i_hold
     e_usable = sz["energy"]["E_usable_wh"]
     t_end = inp["operation"]["mission_fast_h"] + inp["operation"]["mission_legal_h"]
-    f2 = next(x for x in (0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0) if x >= val("f2_factor") * i_coil_max)
+    f2 = next(x for x in (0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 7.5, 10.0) if x >= val("f2_factor") * i_inr)
+    ks_v, ks_a = val("kill_switch_watski")
     R["bobina"] = {
-        "V_nom": vc, "R_coil_ohm": r_coil, "I_max_A": i_coil_max, "P_at_vnom_W": p_coil_nom,
-        "E_2h_Wh": (p_coil_nom[0] * t_end, p_coil_nom[1] * t_end), "endurance_h": t_end,
-        "frac_E_usable": (p_coil_nom[0] * t_end / e_usable, p_coil_nom[1] * t_end / e_usable),
+        "modelo": val("k1_model"), "V_nom": vctl, "V_ctl_range": (vctl_lo, vctl_hi), "V_coil_range": (c_lo, c_hi),
+        "coil_ok": c_lo <= vctl_lo and vctl_hi <= c_hi, "I_hold_A": i_hold, "I_inrush_A": i_inr, "t_inrush_s": t_inr,
+        "I_max_A": i_inr, "P_hold_W": p_hold,
+        "E_mision_Wh": p_hold * t_end, "endurance_h": t_end, "frac_E_usable": p_hold * t_end / e_usable,
         "F2_A": f2, "kill_switch_rating_A": val("kill_switch_rating_a"),
-        "kill_switch_margin": val("kill_switch_rating_a") / i_coil_max,
-        "v_range_required": (v_min_load, v_max),
+        "kill_switch_margin": val("kill_switch_rating_a") / i_inr,
+        "watski_V_A": (ks_v, ks_a), "watski_ok": vctl <= ks_v * (1 + val("v_ctl_tol")) + 1e-9 and i_inr <= ks_a,
+        "release_ms": val("k1_release_ms"), "back_emf_V": val("k1_back_emf_v"),
+        "k1_i_cont_A": val("k1_i_cont_a"), "precio_eur_sin_iva": val("k1_price_eur"),
     }
-    # Bobina a carga plena: 29,2 V sobre una bobina de 24 V = 122 % Us (sin tolerancia publicada, R06 §3.3 d)
-    v_rest_min = cells * val("v_cell_cut_start")      # pack en reposo al corte de descarga del VESC
-    coil_opts = {}
-    i_vc = val("coil_v_options").index(vc)
-    for us in sorted({vc, val("coil_v_options")[max(i_vc - 1, 0)]}):
-        r_lo, r_hi = us ** 2 / pmax, us ** 2 / pmin
-        coil_opts[f"{us:.0f}"] = {
-            "Us_V": us, "frac_Us_at_vmax": v_max / us, "P_at_vmax_W": (v_max ** 2 / r_hi, v_max ** 2 / r_lo),
-            "pullin_max_V": val("coil_pullin_frac") * us, "closes_at_v_rest_min": val("coil_pullin_frac") * us <= v_rest_min,
-            "I_max_A": v_max / r_lo,
-            "P_vmax_le_prolonged": v_max ** 2 / r_lo <= val("coil_p_prolonged_w")[1]}
-    R["bobina"]["opciones"] = coil_opts
-    R["bobina"]["v_rest_min"] = v_rest_min
-    # Supresor diodo + R: al abrir, la corriente de bobina recircula y el nodo N2 (y N1 si abre la seta) va a −(Vd + I·R_sup)
-    r_sup = val("coil_r_sup_factor") * r_coil[0]
-    v_n2_neg = -(val("diode_vf") + i_coil_max * r_sup)
-    R["bobina"]["R_sup_ohm"] = r_sup
+    # tensión en N1/N2 al abrir: el economizador limita la fuerza contraelectromotriz a 0 V (hoja EV200)
+    v_n2_neg = -val("k1_back_emf_v")
     R["bobina"]["V_N2_negativo_V"] = v_n2_neg
 
     # ---------------- Optoacopladores (sensado de N1/N2 hacia el MCU y habilitación de ADC2)
     vf, ift = val("opto_vf"), val("opto_if_target")
-    r2 = e_series((v_nom - 2 * vf) / ift)   # U2 + U3 en serie (nodo N2)
-    r1 = e_series((v_nom - vf) / ift)       # U1 (nodo N1)
-    i_lo = (v_min_load - 2 * vf) / r2
+    r2 = e_series((vctl - 2 * vf) / ift)   # U2 + U3 en serie (nodo N2, mando de 12 V)
+    r1 = e_series((vctl - vf) / ift)       # U1 (nodo N1)
+    i_lo = (vctl_lo - 2 * vf) / r2
     R["optos"] = {
-        "R_U2U3_ohm": r2, "I_U2U3_A": ((v_min_load - 2 * vf) / r2, (v_max - 2 * vf) / r2),
-        "P_R_U2U3_W": (v_max - 2 * vf) ** 2 / r2,
-        "R_U1_ohm": r1, "I_U1_A": ((v_min_load - vf) / r1, (v_max - vf) / r1), "P_R_U1_W": (v_max - vf) ** 2 / r1,
+        "R_U2U3_ohm": r2, "I_U2U3_A": ((vctl_lo - 2 * vf) / r2, (vctl_hi - 2 * vf) / r2),
+        "P_R_U2U3_W": (vctl_hi - 2 * vf) ** 2 / r2,
+        "R_U1_ohm": r1, "I_U1_A": ((vctl_lo - vf) / r1, (vctl_hi - vf) / r1), "P_R_U1_W": (vctl_hi - vf) ** 2 / r1,
         "Ic_min_A": val("opto_ctr_min") * i_lo, "I_pullup_5V_A": 5.0 / val("pullup_ohm"),
         "I_pullup_3V3_A": 3.3 / val("pullup_ohm"),
         "V_inversa_LED_V": -v_n2_neg, "V_R_max_V": val("opto_vr_max"),
         "necesita_diodo_antiparalelo": -v_n2_neg > val("opto_vr_max"),
-        "I_diodo_antiparalelo_A": (-v_n2_neg - 2 * val("diode_vf")) / r2,
+        "I_diodo_antiparalelo_A": max(0.0, (-v_n2_neg - 2 * val("diode_vf")) / r2),
     }
     # Precarga con el consumo en reposo del VESC (no publicado): corriente máx. para llegar al 90 % con K1 abierto
     R["precarga"]["Iq_max_90pct_A"] = 0.1 * v_nom / Rp
@@ -358,7 +381,7 @@ def compute(inp=None, sz=None):
         "Hardware: opto U3 apaga → kill por ADC2 (sin MCU)":
             (val("vesc_kill_poll_ms") / 1000 + 0.001, "sondeo 10 ms + conmutación del opto"),
         "Hardware: bobina sin corriente → contactor abre":
-            (val("contactor_open_ms")[2] / 1000, "peor caso SW80 con solo diodo (50 ms); 8–20 ms con diodo+resistencia"),
+            (val("k1_release_ms") / 1000, f"release máx. de {val('k1_model')} (economizador incorporado) {tag('k1_release_ms')}"),
         "MCU muerto: sin PPM → timeout del VESC":
             (val("vesc_ppm_timeout_ms") / 1000, "timeout_msec configurado"),
     }
@@ -371,16 +394,22 @@ def compute(inp=None, sz=None):
                   "peor_s": max(v[0] for v in paths.values())}
 
     # ---------------- Cables y protecciones (de sizing)
+    (a_m, l_m), (a_e, l_e) = val("lead_motor"), val("lead_esc")
+    r_leads = el["rho_cu_ohm_m"] * (l_m / a_m + l_e / a_e)
+    i_ph_lim = elc["I_phase_limit_A"]
     R["cables"] = {"dc_mm2": elc["cable_dc"]["section_mm2"], "phase_mm2": elc["cable_phase"]["section_mm2"],
+                   "fuse_branch_a": elc.get("fuse_branch_a", elc["fuse_a"]), "n_parallel": elc.get("n_parallel", 1),
+                   "R_phase_leads_ohm": r_leads, "I_phase_limit_A": i_ph_lim,
+                   "phase_drop_leads_frac": 2 * i_ph_lim * r_leads / v_nom,
                    "dc_drop_frac": elc["cable_dc"]["drop_frac"], "phase_drop_frac": elc["cable_phase"]["drop_frac"],
                    "fuse_a": elc["fuse_a"], "fuse_min_a": el["fuse_factor"] * elc["I_bat_top_A"],
                    "ampacity_dc_a": elc["cable_dc"]["ampacity_a"], "fuse_protects_cable": elc.get("fuse_protects_cable")}
     # clase de tensión → contactor, fusible, aislamiento (R10b H8, R11 §8)
     hv = v_class >= 72 or v_max > 60.0
     R["clase"] = {"v_class": v_class, "hv": hv, "imd": hv,
-                  "contactor": "Albright SW80B (96 V)" if hv else "Albright SW80",
+                  "contactor": val("k1_model").replace("TE Connectivity ", ""),
                   "fuse": "fusible ≥ 100 V CC (buscar: Littelfuse CNN 125 V / clase T 125 VDC)" if hv else
-                          "IMAXX midiOTO/megaOTO 58 V + portafusible HMD4-MG1-H (base aislante HIB1 > 32 V)",
+                          "Blue Sea MRBF 58 V (corte 10 kA) en portafusible MRBF de terminal",
                   "imd_desc": "Bender ISOMETER iso175C-1 (R11 §8, 709 €)" if hv else "no requerido (≤ 50 V CC)",
                   "dcdc": (f"TRACO TSR 1-2450E 7–{val('dcdc_vin_max'):.0f} V" if max_vin < val("dcdc_vin_max") else
                            f"RECOM R-78HB5.0-0.5 9–{val('dcdc_alt_vin_max'):.0f} V" if max_vin < val("dcdc_alt_vin_max") else
@@ -410,7 +439,8 @@ VARS = [  # (nombre, valores posibles, valor "sano/OK")
 def chain(cordon, seta, desconectador, F1, F2, K1, MCU_armado, timeout_VESC, falla_sensor, fin_carrera_bucket=1):
     """Evalúa el circuito. Devuelve dict con nodos intermedios, barreras y estado del motor."""
     upstream = bool(F1 and desconectador)            # tensión aguas abajo de F1 y S1
-    n1 = upstream and bool(F2 and seta)              # nodo entre seta y cordón (opto U1 → D3)
+    # mando de K1 a 12 V desde B-12V (conectado en la barra +, aguas ARRIBA de F1/S1): no depende de S1 ni de F1
+    n1 = bool(F2 and seta)                           # nodo entre seta y cordón (opto U1 → D3)
     n2 = n1 and bool(cordon)                         # nodo de la bobina (optos U2 → D2, U3 → ADC2)
     k1_closed = K1 == "soldado" or (K1 == "normal" and n2)
     bus = upstream and k1_closed                     # potencia completa en el bus del VESC
@@ -532,92 +562,114 @@ def blocks(R):
         ["Potencia máx. que pasa por R con K1 abierto", f"{fmt(p['P_max_transfer_W'], 1)} W = {fmt(p['transfer_frac_of_cruise'] * 100, 2)} % del crucero ({p['P_cruise_W']:.0f} W, sizing)",
          "[CALCULADO: V²/4R] → sin empuje con K1 abierto"],
         ["Espera con cordón AFUERA tras encender S1", f"≥ {p['wait_s']:.0f} s", "[CALCULADO: ≥ 2 × 5τ, redondeado]"],
-        ["Bobina K1", f"{b['V_nom']:.0f} V, R = {fmt(b['R_coil_ohm'][0])}–{fmt(b['R_coil_ohm'][1])} Ω, I máx {fmt(b['I_max_A'], 2)} A a {fmt(m['v_max'])} V",
-         f"[CALCULADO] desde {tag('coil_p_w')}; rango de bobina requerido {fmt(b['v_range_required'][0])}–{fmt(b['v_range_required'][1])} V"],
-        ["Bobina a carga plena (sobretensión)",
-         "; ".join(f"Us {o_['Us_V']:.0f} V: {fmt(o_['frac_Us_at_vmax'] * 100, 0)} % Us → {fmt(o_['P_at_vmax_W'][0])}–{fmt(o_['P_at_vmax_W'][1])} W, "
-                   f"cierra con ≤ {fmt(o_['pullin_max_V'])} V ({'✔' if o_['closes_at_v_rest_min'] else '✘'} vs {fmt(b['v_rest_min'])} V en reposo al corte, "
-                   f"margen {fmt(b['v_rest_min'] - o_['pullin_max_V'])} V)"
-                   for o_ in b["opciones"].values()),
-         f"[CALCULADO: V_máx²/R_bobina] · {tag('coil_p_prolonged_w')} · {tag('coil_pullin_frac')} · {tag('coil_v_options')} → "
-         f"bobina elegida {b['V_nom']:.0f} V ({tag('coil_over_max')})"],
-        ["Consumo de bobina en {:.0f} h".format(b["endurance_h"]), f"{fmt(b['E_2h_Wh'][0])}–{fmt(b['E_2h_Wh'][1])} Wh = {fmt(b['frac_E_usable'][0] * 100)}–{fmt(b['frac_E_usable'][1] * 100)} % de la energía usable (sizing)",
-         "[CALCULADO: V_nom²/R × t]"],
-        ["Fusible de mando F2", f"{fmt(b['F2_A'])} A", f"[CALCULADO: primer valor normalizado ≥ {val('f2_factor'):.0f} × I_bobina máx] · factor {tag('f2_factor')}"],
-        ["Margen del interruptor de cordón", f"{fmt(b['kill_switch_rating_A'])} A / {fmt(b['I_max_A'], 2)} A = {fmt(b['kill_switch_margin'])}× (peor caso: Sea Dog 5 A; Watski 15 A)",
-         f"{tag('kill_switch_rating_a')} · {tag('kill_switch_watski')}"],
+        ["Bobina K1", f"{b['modelo']}: bobina 9–36 V con economizador, alimentada a {fmt(b['V_nom'], 0)} V "
+                      f"({fmt(b['V_ctl_range'][0])}–{fmt(b['V_ctl_range'][1])} V) desde B-12V → "
+                      f"{'✔ dentro de' if b['coil_ok'] else '✘ FUERA de'} {fmt(b['V_coil_range'][0], 0)}–{fmt(b['V_coil_range'][1], 0)} V; "
+                      f"cierre {fmt(b['I_inrush_A'])} A ≤ {fmt(b['t_inrush_s'] * 1e3, 0)} ms, retención {fmt(b['I_hold_A'], 2)} A = {fmt(b['P_hold_W'], 2)} W",
+         f"{tag('k1_coil_range_v')} · {tag('k1_coil_hold_a')} · {tag('k1_coil_inrush')} · {tag('v_ctl_nom')} · {tag('v_ctl_tol')}"],
+        ["Apertura de K1 / fuerza contraelectromotriz", f"≤ {fmt(b['release_ms'], 0)} ms; N1/N2 no bajan de {fmt(b['back_emf_V'], 0)} V al abrir (sin supresor externo)",
+         f"{tag('k1_release_ms')} · {tag('k1_back_emf_v')}"],
+        ["Consumo de bobina en la misión ({} h)".format(fmt(b["endurance_h"], 2)), f"{fmt(b['E_mision_Wh'], 2)} Wh = {fmt(b['frac_E_usable'] * 100, 2)} % de la energía usable (sizing)",
+         "[CALCULADO: P_retención × t]; con el bote amarrado y el clip PUESTO la bobina sigue tomando esa potencia (B-12V está aguas arriba de S1): sacar el clip al dejar el bote"],
+        ["Fusible de mando F2 (salida de B-12V, lento)", f"{fmt(b['F2_A'], 0)} A", f"[CALCULADO: primer valor normalizado ≥ {fmt(val('f2_factor'), 2)} × I de cierre {fmt(b['I_inrush_A'])} A] · factor {tag('f2_factor')}"],
+        ["Interruptor de cordón (Watski 12 V – 15 A) en el mando de 12 V",
+         f"{'✔' if b['watski_ok'] else '✘'} {fmt(b['V_nom'], 0)} V ≤ {fmt(b['watski_V_A'][0], 0)} V nominal; cierre {fmt(b['I_inrush_A'])} A ≤ {fmt(b['watski_V_A'][1], 0)} A; "
+         f"abre {fmt(b['I_hold_A'], 2)} A sin sobretensión inductiva (economizador). Alternativa Sea Dog 5 A: margen {fmt(b['kill_switch_margin'])}× sobre el cierre",
+         f"{tag('kill_switch_watski')} · {tag('kill_switch_rating_a')}"],
         ["R serie de U2+U3 (nodo bobina)", f"{o['R_U2U3_ohm']:.0f} Ω, {fmt(o['I_U2U3_A'][0] * 1e3)}–{fmt(o['I_U2U3_A'][1] * 1e3)} mA, P {fmt(o['P_R_U2U3_W'], 2)} W → 0,5 W",
-         f"[CALCULADO: E12 ≤ (V_nom − 2·Vf)/I] {tag('opto_vf')}"],
+         f"[CALCULADO: E12 ≤ (12 V − 2·Vf)/I, mando de 12 V] {tag('opto_vf')}"],
         ["R serie de U1 (nodo seta)", f"{o['R_U1_ohm']:.0f} Ω, {fmt(o['I_U1_A'][0] * 1e3)}–{fmt(o['I_U1_A'][1] * 1e3)} mA, P {fmt(o['P_R_U1_W'], 2)} W → 0,5 W",
          "[CALCULADO]"],
         ["Tensión inversa en los LED de U1–U3 al abrir la bobina",
-         f"N2 → {fmt(b['V_N2_negativo_V'])} V (supresor diodo + R {fmt(b['R_sup_ohm'], 0)} Ω) vs V_R máx. {fmt(o['V_R_max_V'], 0)} V → "
+         f"N2 → {fmt(b['V_N2_negativo_V'], 0)} V (economizador de K1) vs V_R máx. {fmt(o['V_R_max_V'], 0)} V → "
          + ("**diodo 1N4148 en antiparalelo con cada LED** (conduce " + fmt(o['I_diodo_antiparalelo_A'] * 1e3) + " mA de pico por R2)"
-            if o["necesita_diodo_antiparalelo"] else "sin diodo"),
-         f"[CALCULADO: −(V_d + I_bobina·R_sup)] · {tag('coil_r_sup_factor')} · {tag('opto_vr_max')}"],
+            if o["necesita_diodo_antiparalelo"] else
+            "no hace falta diodo con el EV200; se deja el 1N4148 antiparalelo como protección si se reemplaza K1 por uno sin economizador"),
+         f"{tag('k1_back_emf_v')} · {tag('opto_vr_max')}"],
         ["Precarga con el consumo en reposo del VESC",
          f"I_q ≤ {fmt(p['Iq_max_90pct_A'] * 1e3)} mA para llegar al 90 % con K1 abierto; al 80 % la energía del cierre de K1 es {fmt(p['E_cierre_80pct_J'] * 1e3, 0)} mJ",
          f"[CALCULADO: 0,1·V_nom/R; ½·C·(0,2·V_nom)²] · {tag('vesc_iq_unknown')}"],
         ["Corriente de colector mínima (CTR 50 %) vs pull-up", f"{fmt(o['Ic_min_A'] * 1e3, 2)} mA ≫ {fmt(o['I_pullup_5V_A'] * 1e3, 2)} mA (5 V) / {fmt(o['I_pullup_3V3_A'] * 1e3, 2)} mA (3,3 V)",
          f"[CALCULADO] {tag('opto_ctr_min')}"],
-        ["Fusible principal F1 / cable DC / fases", f"{R['cables']['fuse_a']:.0f} A (mín. {fmt(R['cables']['fuse_min_a'])}) / {R['cables']['dc_mm2']} mm² / {R['cables']['phase_mm2']} mm²",
-         "[CALCULADO: resultados/sizing.json fuse, cables]"],
+        ["Fusibles F1 (barra +) / F_BR por rama / cable DC", f"{R['cables']['fuse_a']:.0f} A (mín. {fmt(R['cables']['fuse_min_a'])}) / "
+         f"{R['cables']['n_parallel']} × {R['cables']['fuse_branch_a']:.0f} A / {R['cables']['dc_mm2']} mm²",
+         "[CALCULADO: resultados/sizing.json fuse_a, fuse_branch_a (rama = reparto 60/40 × I pico), cable_dc]"],
+        ["Fases ESC → motor", f"cables propios: motor 6 AWG × 300 mm a ESC 8 AWG, unión con conectores bala 8 mm (sin el tramo de "
+         f"{R['cables']['phase_mm2']} mm² de sizing); caída ≈ {fmt(R['cables']['phase_drop_leads_frac'] * 100, 2)} % a {fmt(R['cables']['I_phase_limit_A'], 0)} A",
+         "[CALCULADO: ρ·L/A con 6 AWG 13,3 mm² × 0,30 m + 8 AWG 8,37 mm² × 0,20 m [ESTIMADO: largo del cable del ESC no publicado]] · "
+         "calibres [inputs.yaml motor/esc leads, allí VERIFICADO] · sección del tramo: §4 Cables"],
     ])
     B["componentes"] = md_table(["Ref.", "Componente", "Especificación mínima", "Elegido / referencia (BOM)", "Etiqueta"], [
         ["BAT", "Batería LiFePO4 de la selección", f"{m['cells_series']}S, BMS ≥ {vv['i_bms']:.0f} A cont. (total); bornes cubiertos; caja estanca elevada",
          f"{m['battery_desc']} (B-BAT)", "[CALCULADO: selección de sizing (inputs.yaml battery)]"],
-        ["F1", "Fusible principal", f"{cab['fuse_a']:.0f} A (≥ {fmt(cab['fuse_min_a'])} A), ≥ {fmt(m['v_max'] * 1.2, 0)} V CC, a ≤ 178 mm del borne +",
-         R["clase"]["fuse"] + " (B-FUSE)",
-         "[CALCULADO: sizing.json electrical.fuse_a] · 178 mm [VERIFICADO: R06 §5.1 ABYC E-11] · tensión [R08a §6 / R11 §8]"],
+        ["F_BR", "Fusible de rama (uno por batería)", f"{cab['n_parallel']} × {cab['fuse_branch_a']:.0f} A, ≥ {fmt(m['v_max'] * 1.2, 0)} V CC, sobre el borne + de CADA batería (≤ 178 mm)",
+         "Blue Sea MRBF 125 A + portafusible MRBF de terminal (B-FUSE-BR, B-FUSEH-BR)",
+         "[CALCULADO: sizing.json electrical.fuse_branch_a] · 178 mm [VERIFICADO: R06 §5.1 ABYC E-11] · MRBF 58 V [VERIFICADO: R08a §6]"],
+        ["F1", "Fusible principal (barra +)", f"{cab['fuse_a']:.0f} A (≥ {fmt(cab['fuse_min_a'])} A), ≥ {fmt(m['v_max'] * 1.2, 0)} V CC, sobre el espárrago de la barra + (protege el cable de {cab['dc_mm2']} mm²)",
+         R["clase"]["fuse"] + " (B-FUSE, B-FUSEH)",
+         "[CALCULADO: sizing.json electrical.fuse_a] · tensión [R08a §6 / R11 §8]"],
         ["S1", "Desconectador manual", f"≥ {cab['fuse_a']:.0f} A cont., ≥ {fmt(m['v_max'], 0)} V CC, llave removible",
          "Biltema Hovedafbryder AFD 275 A 12–48 V (B-SW)" if not R["clase"]["hv"] else "desconectador ≥ 100 V CC (buscar)",
          "[VERIFICADO: R08a §3]"],
         ["K1", "Contactor MONOestable (nunca biestable)",
-         f"NA, ≥ {cab['fuse_a']:.0f} A cont., corte bajo carga ≥ {fmt(m['v_max'])} V CC, bobina apta para {fmt(m['v_max'])} V CONTINUOS "
-         f"y que cierre con ≤ {fmt(b['v_rest_min'])} V → bobina de {b['V_nom']:.0f} V ({fmt(m['v_max'] / b['V_nom'] * 100, 0)} % Us a carga plena), supresor diodo+R/TVS",
-         f"{R['clase']['contactor']} bobina {b['V_nom']:.0f} V (B-CONT); NO relés sin corte CC publicado (p. ej. FRC3)",
-         "[VERIFICADO: R06 §3.3 SW80: 48 V con corte, 8–20 ms, cierre ≤ 66 % Us] · sobretensión de bobina [CALCULADO, §7]"],
+         f"NA, ≥ {cab['fuse_a']:.0f} A cont., corte bajo carga ≥ {fmt(m['v_max'])} V CC; bobina de {fmt(b['V_nom'], 0)} V del mando (B-12V), "
+         f"con economizador (sin sobretensión inductiva al abrir)",
+         f"{R['clase']['contactor']}: {fmt(b['k1_i_cont_A'], 0)} A, 12–900 V CC, bobina 9–36 V, retención {fmt(b['I_hold_A'], 2)} A (B-CONT)",
+         f"{tag('k1_model')} · {tag('k1_i_cont_a')} · {tag('k1_price_eur')}"],
         ["R_pre", "Resistencia de precarga ∥ K1", f"{p['R_ohm']:.0f} Ω, ≥ {p['P_rating_W']:.0f} W, carcasa de Al atornillada a la base del controlador (P1-ELE-01) con disipador propio",
-         "genérica (agregar a la BOM)", f"[CALCULADO] {tag('r_pre_ohm')}"],
-        ["ASW", "Antichispa MOSFET (OPCIONAL)", "solo arranque suave aguas abajo de K1; falla en corto → NO es seguridad",
-         "Flipsky Antispark Pro V3.0 (B-ASW)", "[VERIFICADO: R06 §3.1]"],
-        ["F2", "Fusible de mando (bobina)", f"{fmt(b['F2_A'], 0)} A, portafusible en línea estanco", "genérico (agregar a la BOM)", "[CALCULADO]"],
-        ["F3", "Fusible del DC-DC", "1 A, portafusible en línea", "genérico (agregar a la BOM)",
-         "[SUPUESTO: protege el cable de 0,5 mm²; consumo de entrada ≈ 15 mA [ESTIMADO: 0,3 W / 25,6 V / 0,8]]"],
-        ["CORDÓN", "Interruptor de hombre al agua", f"contacto CERRADO con clip (fail-safe), ≥ {fmt(b['I_max_A'] * 2, 1)} A a {fmt(m['v_max'])} V CC",
+         "100 Ω 50 W carcasa de Al (B-RPRE)", f"[CALCULADO] {tag('r_pre_ohm')}"],
+        ["ASW", "Antichispa MOSFET (NO se compra)", "solo arranque suave aguas abajo de K1; falla en corto → NO es seguridad; 100 A < I de batería",
+         "Flipsky Antispark Pro V3.0 (B-ASW, qty 0)", "[VERIFICADO: R06 §3.1]"],
+        ["12V", "Fuente del mando y de achique", f"DC-DC aislado → {fmt(b['V_nom'], 0)} V, entrada ≥ {fmt(m['v_max'], 1)} V y que arranque con ≤ {fmt(m['v_min_load'], 1)} V; "
+         "conectado a la barra + aguas ARRIBA de F1/S1 con su fusible F5",
+         "Mean Well RSD-60G-12 (B-12V)", f"{tag('v_ctl_nom')} · {tag('v_ctl_tol')}"],
+        ["F2", "Fusible de mando (bobina K1, salida 12 V)", f"{fmt(b['F2_A'], 0)} A lento, portafusible en línea estanco", "B-CFUSE",
+         f"[CALCULADO: ≥ {fmt(val('f2_factor'), 2)} × cierre {fmt(b['I_inrush_A'])} A]"],
+        ["F3", "Fusible del DC-DC 5 V (entrada, lado batería)", "1 A, ≥ 58 V CC, portafusible en línea", "B-CFUSE",
+         f"[SUPUESTO: protege el cable de 0,5 mm²; consumo de entrada ≈ 10 mA [ESTIMADO: 0,3 W / {fmt(m['v_nom'])} V / 0,8]]"],
+        ["F5", "Fusible de entrada de B-12V (lado batería)", "3 A, ≥ 58 V CC, portafusible en línea", "B-CFUSE",
+         f"[ESTIMADO: 60 W / {fmt(m['v_min_load'], 0)} V / 0,85 ≈ 2 A de entrada a plena carga → 3 A]"],
+        ["CORDÓN", "Interruptor de hombre al agua", f"contacto CERRADO con clip (fail-safe), ≥ {fmt(b['I_inrush_A'], 1)} A de cierre a {fmt(b['V_nom'], 0)} V CC",
          "Watski Dødmands kontakt universal, polos M (B-KILL); alt. Sea Dog SD-420487-1",
-         f"≥ [CALCULADO: 2 × I_bobina máx] · {tag('kill_switch_watski')} — nominal 12 V < {fmt(m['v_max'])} V → ensayo T0.19 (200 aperturas) · Sea Dog 5 A {tag('kill_switch_rating_a')}"],
-        ["SETA", "Seta de emergencia", "NC, enclavamiento (girar para rearmar), Ø22, IP65, ≥ 1 A", "B-ESTOP", "[ESTIMADO: especificación de BOM]"],
+         f"{tag('kill_switch_watski')} — {'✔ cumple en el mando de 12 V' if b['watski_ok'] else '✘ no cumple'} · Sea Dog 5 A {tag('kill_switch_rating_a')}"],
+        ["SETA", "Seta de emergencia", "NC, enclavamiento (girar para rearmar), Ø22, IP65, ≥ 5 A a 12 V CC", "B-ESTOP", "[ESTIMADO: especificación de BOM]"],
         ["J1", "Conector IP68 del hall (caña)", "4 polos apantallado: 5 V, GND, OUT, malla", "Lumberg 0332-04 + 0322-04 (B-SIGNAL)", "[VERIFICADO: R08a §8]"],
-        ["J2", "Conector IP68 del cordón (caña)", "2 polos, ≥ 1 A", "Cliffcon 68 FM686812 (B-KCONN)", "[VERIFICADO: R08a §8]"],
-        ["ESC", "VESC de la selección", f"FW ≥ 5.03, l_current_max {vv['l_current_max']:.0f} A, entradas PPM y ADC2 accesibles, sensor de motor; caja de agua en el circuito de refrigeración",
-         f"{m['esc_desc']} (B-ESC) — sobre base elevada P1-ELE-01 + capota P1-ELE-02", "[VERIFICADO: research/R11 §2]"],
-        ["M", "Motor", "sensor de temperatura del bobinado leído por el VESC (si no trae: NTC 10 k pegado al estator)", f"{m['motor_desc']} (B-MOT)",
-         "[VERIFICADO: R06 §1.2 soporte NTC] · R11 §10.4: el MTI120116 no declara sensor"],
+        ["J2", "Conector IP68 del cordón (caña)", f"2 polos, ≥ {fmt(b['F2_A'], 0)} A", "Cliffcon 68 FM686812 (B-KCONN)", "[VERIFICADO: R08a §8]"],
+        ["ESC", "VESC de la selección", f"FW ≥ {vv['fw_min']} (LispBM; de fábrica {vv['fw_factory'] or '—'} → flashear en T0.0), l_current_max {vv['l_current_max']:.0f} A, "
+         "entradas PPM, ADC1 y ADC2 accesibles; caja de agua en el circuito de refrigeración",
+         f"{m['esc_desc']} (B-ESC) — sobre base elevada P1-ELE-01 + capota P1-ELE-02",
+         "[VERIFICADO: research/R11 §2] · FW de fábrica [inputs.yaml esc.options, allí VERIFICADO]"],
+        ["M", "Motor", "sensor de temperatura del bobinado leído por el VESC; sensor hall",
+         f"{m['motor_desc']}, variante CON hall (B-MOT); NTC10K 3950 de fábrica (cable amarillo) → TEMP del VESC",
+         "[VERIFICADO: página Maytech MTI120116 — 'Yellow: Temp Sensor (NTC10K 3950k)'; R06 §1.2 soporte NTC 10 k en el VESC]"],
         ["IMD", "Monitor de aislamiento", "solo clase 72 V (sistema flotante > 50 V CC)", R["clase"]["imd_desc"], "[VERIFICADO: research/R11 §8; R10b H8]"],
-        ["DC-DC", "Regulador → 5 V", f"5 V ≥ 0,5 A; entrada máx. > l_max_vin = {vv['l_max_vin']:.0f} V; alimentado aguas ARRIBA de K1",
-         R["clase"]["dcdc"], f"{tag('dcdc_vin_max')} · {tag('dcdc_alt_vin_max')}"],
+        ["DC-DC", "Regulador → 5 V (MCU)", f"5 V ≥ 0,5 A; entrada máx. > l_max_vin = {vv['l_max_vin']:.0f} V; alimentado aguas abajo de S1 y aguas ARRIBA de K1",
+         R["clase"]["dcdc"] + " (B-DCDC)", f"{tag('dcdc_vin_max')} · {tag('dcdc_alt_vin_max')}"],
         ["MCU", "Arduino Nano (ATmega328P, 5 V, 16 MHz)", "bootloader NUEVO (Optiboot): el viejo entra en bucle tras un reset por WDT",
          "Arduino Nano V3 (B-MCU)", "[VERIFICADO: R08a §9] · bootloader [ESTIMADO: problema conocido; se prueba en T0.18]"],
         ["HALL", "Sensor hall lineal ratiométrico 5 V + imán", "salida analógica ratiométrica; imán NdFeB Ø10×3 diametral",
          "Allegro A1324 (B-HALL)", "[VERIFICADO: R08a §9 (sensor)]; imán [ESTIMADO]"],
         ["U1–U3", "Optoacoplador de fototransistor (×3)", f"CTR ≥ {fa(val('opto_ctr_min') * 100)} % a 5 mA, Vceo ≥ 30 V, aislación ≥ 2,5 kV",
-         "genérico 4 pines (agregar a la BOM)", tag("opto_ctr_min")],
+         "genérico 4 pines (B-PCB)", tag("opto_ctr_min")],
         ["D_U1–D_U3", "Diodo antiparalelo de cada LED de opto",
-         f"1N4148 o similar (≥ 75 V, ≥ 100 mA), cátodo al ánodo del LED: limita la tensión inversa a ≈ 0,7 V (sin él: {fmt(-b['V_N2_negativo_V'])} V)",
-         "genérico (agregar a la BOM)", "[CALCULADO, §7]"],
-        ["R1 / R2", "R serie de los LED de U1 / U2+U3",
-         f"{o['R_U1_ohm'] / 1000:.1f} kΩ / {o['R_U2U3_ohm'] / 1000:.1f} kΩ, 0,5 W".replace(".", ","), "genéricas", "[CALCULADO]"],
+         f"1N4148 o similar (≥ 75 V, ≥ 100 mA), cátodo al ánodo del LED (con el EV200 N2 no baja de {fmt(-b['V_N2_negativo_V'], 0)} V; "
+         "queda como protección ante un K1 de reemplazo sin economizador)",
+         "genérico (B-PCB)", "[CALCULADO, §7]"],
+        ["R1 / R2", "R serie de los LED de U1 / U2+U3 (mando de 12 V)",
+         f"{o['R_U1_ohm'] / 1000:.1f} kΩ / {o['R_U2U3_ohm'] / 1000:.1f} kΩ, 0,25 W".replace(".", ","), "genéricas (B-PCB)", "[CALCULADO]"],
         ["Q_EN", "Transistor de habilitación (ADC2 del VESC)", "NPN Vceo ≥ 30 V, Ic ≥ 50 mA; base 1 kΩ desde D4 y 10 kΩ a GND",
          "genérico", "[SUPUESTO]"],
         ["Pasivos", "Pull-ups y filtros", "D2/D3: 10 kΩ a 5 V + 100 nF; ADC2: 10 kΩ a 3,3 V; A0: 1 kΩ + 100 nF + 100 kΩ a GND; PPM: 10 kΩ a GND",
          "genéricos", f"{tag('pullup_ohm')} · {tag('rc_filter_s')}"],
         ["LED", "LED de estado de panel", "IP67, 5 V con resistencia", "genérico", "[SUPUESTO]"],
-        ["Cables", "Potencia / mando / señal",
-         f"DC {cab['dc_mm2']} mm², fases {cab['phase_mm2']} mm² (estañados); mando 0,75–1 mm² estañado; hall: 4 × 0,25 mm² apantallado redondo; cordón: 2 × 0,75 mm² redondo",
-         "Skyllermarks estañado (B-CAB-DC, B-CAB-PH)", "[CALCULADO: sizing.json cables] · mando/señal [SUPUESTO]"],
+        ["Cables", "Potencia / fases / mando / señal",
+         f"DC {cab['dc_mm2']} mm² (barras–F1–S1–K1–ESC) y 35 mm² de rama (estañados); fases: cables PROPIOS del motor (6 AWG × 300 mm) y del ESC (8 AWG) "
+         f"unidos con conectores bala 8 mm (sin tramo de {cab['phase_mm2']} mm²: el calibre lo fijan esos cables; caída {fmt(cab['phase_drop_leads_frac'] * 100, 2)} %); "
+         "mando 0,75–1 mm² estañado; hall: 4 × 0,25 mm² apantallado redondo; cordón: 2 × 0,75 mm² redondo",
+         "Skyllermarks estañado (B-CAB-DC, B-CAB-PAR); B-PHCON; B-LUG10 (cables 8 AWG del ESC a terminales M8)",
+         "[CALCULADO: sizing.json cables; §7 caída de fases] · mando/señal [SUPUESTO]"],
         ["Prensaestopas", "Pasamuros IP68", f"caja de batería: un cable REDONDO por prensaestopas, M32 para {cab['dc_mm2']} mm² [ESTIMADO: Ø ext ≈ 17 mm]; M16 4–8 mm (hall, cordón) en la consola",
-         "Biltema M32 / M16 (B-GLAND)", "[VERIFICADO: R08a §8] · regla de un cable [ESTIMADO: R05 §B8]"],
+         "M32 (B-GLAND32) / Biltema M16 (B-GLAND16)", "[VERIFICADO: R08a §8] · regla de un cable [ESTIMADO: R05 §B8]"],
     ])
     B["firmware"] = md_table(["Parámetro (`tl_config_t`)", "Valor por defecto", "Etiqueta"],
                              [[f"`{n_}`", v_, g_] for n_, v_, g_ in firmware_defaults()])
@@ -686,6 +738,19 @@ def update_readme(txt, B):
     return pat.sub(rb, txt)
 
 
+LISP = HERE / "firmware" / "vesc_perfil.lisp"
+
+
+def update_lisp(txt, R):
+    """Reescribe las constantes de ERPM de vesc_perfil.lisp desde electronica.json (no se editan a mano)."""
+    vv = R["vesc_values"]
+    for name, key in (("erpm-costa", "l_max_erpm"), ("erpm-abierto", "erpm_tech")):
+        txt, k = re.subn(rf"\(define {name} -?[\d.]+\)", f"(define {name} {float(vv[key]):.1f})", txt)
+        if k != 1:
+            raise ValueError(f"vesc_perfil.lisp: no encuentro (define {name} …)")
+    return txt
+
+
 def to_json(R):
     R2 = {k: v for k, v in R.items() if k != "tabla_verdad"}
     return json.dumps(R2, indent=2, ensure_ascii=False, default=float) + "\n"
@@ -697,6 +762,8 @@ def main(argv=None):
     R = compute()
     B = blocks(R)
     outs = {HERE / "electronica.json": to_json(R), HERE / "tabla_verdad.csv": write_csv(R)}
+    if LISP.exists():
+        outs[LISP] = update_lisp(LISP.read_text(encoding="utf-8"), R)
     readme = HERE / "README.md"
     if readme.exists():
         outs[readme] = update_readme(readme.read_text(encoding="utf-8"), B)

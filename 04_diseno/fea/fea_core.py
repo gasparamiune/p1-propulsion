@@ -26,9 +26,10 @@ import scipy.sparse.linalg as spla
 # ---------------------------------------------------------------------------
 
 
-def mesh_step(step_path, h, curv_n=10, hmin=1.0, stl_fallback=None, algo3d=1, refine=None):
+def mesh_step(step_path, h, curv_n=10, hmin=1.0, stl_fallback=None, algo3d=1, refine=None, netgen=False):
     """Importa un STEP (o, si falla, volumetriza un STL) y devuelve (X (N,3), T (Ne,4), info).
-    refine: lista de esferas (cx, cy, cz, radio, h_local) con tamaño de malla reducido."""
+    refine: lista de esferas (cx, cy, cz, radio, h_local) con tamaño de malla reducido.
+    netgen: optimización adicional de Netgen (reduce las astillas en paredes finas del CAD)."""
     import gmsh
     info = {"source": "step", "h_mm": h, "curv_n": curv_n}
     gmsh.initialize(interruptible=False)
@@ -60,6 +61,8 @@ def mesh_step(step_path, h, curv_n=10, hmin=1.0, stl_fallback=None, algo3d=1, re
         gmsh.option.setNumber("Mesh.Algorithm", 6)
         gmsh.option.setNumber("Mesh.Algorithm3D", algo3d)
         gmsh.option.setNumber("Mesh.Optimize", 1)
+        gmsh.option.setNumber("Mesh.OptimizeNetgen", 1 if netgen else 0)
+        info["netgen"] = bool(netgen)
         if refine:
             tags = []
             for (cx, cy, cz, rr, hl) in refine:
