@@ -175,16 +175,17 @@ def setup_drv03(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
         return np.array([x_boat(p, Sst), 0.0, z_axis(p, Sst)])
 
     zb0, zb1 = p.base_top_z, p.base_top_z + p.drv_bracket_base_t
-    # --- apoyos: zapatas sobre la placa base (unión precargada que no se abre) + espárragos/pasadores ---
+    # --- apoyos: zapatas sobre la placa base. Unión precargada (4 × M8 a T/(K·d)) que no se abre y transmite
+    # el corte por fricción + 2 pasadores Ø6 por zapata (escariados en montaje, no están en el CAD; las
+    # ranuras abiertas a popa no toman corte en x): resortes bilaterales normal k y tangencial k/2 en toda
+    # la cara inferior de las zapatas ---
     pads = sel_plane(S, (0, 0, -1), -zb0)
     k_pl = E_AL / p.base_top_z
-    M.add_interface(Interface("zapatas_placa", pads, k_pl, k_t=KT_FRAC * k_pl, unilateral=False, zone=False))
-    r_h = p.drv_bracket_hole / 2
-    holes = []
-    for (xh, yh) in p.brg_bracket_holes:
-        hf = sel_cyl(S, (xh, yh, 0), (0, 0, 1), r_h)
-        holes.append(hf)
-        M.add_interface(Interface(f"esparrago_{xh:.0f}_{yh:+.0f}", hf, E_A4 / CONTACT_LEN, axis=((xh, yh, 0), (0, 0, 1))))
+    M.add_interface(Interface("zapatas_placa", pads, k_pl, k_t=0.5 * k_pl, unilateral=False, zone=False))
+    slots = np.flatnonzero((np.abs(S.fnormal[:, 2]) < 0.2) & (S.fcent[:, 2] < zb1 + 0.1)
+                           & (np.min([np.hypot(S.fcent[:, 0] - xh, S.fcent[:, 1] - yh) for xh, yh in p.brg_bracket_holes], axis=0)
+                              < p.drv_bracket_hole / 2 + 0.6))
+    M.zones.append(slots)                        # arandelas/espárragos: zona de apoyo excluida
     # --- cargas: alojamiento Ø47 ---
     pA, pB = axis_pt(p.drv_S_brgA), axis_pt(g["S_h1"])
     bore = sel_cyl(S, pA, ef, brg["D"] / 2, region=lambda c: ((c - pA) @ ef > -0.2) & ((c - pB) @ ef < 0.2))
@@ -239,8 +240,8 @@ def setup_drv03(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     }
     h_ax = tr.get("h_axis_over_base_mm")
     checks = {"Fa_N": Fa, "Fr_N": Fr, "m_rotor_kg": m_rot, "F_vertical_N": Fv, "h_eje_sobre_base_mm": h_ax,
-              "k_zapata_N_mm3": k_pl, "nota": "Unión zapata/placa precargada (F_pre = T/(K·d) ≫ F_t): resortes bilaterales; "
-                                               "el corte lo toman los agujeros de los espárragos (pasadores Ø6 a escariar en montaje)."}
+              "k_zapata_N_mm3": k_pl, "nota": "Unión zapata/placa precargada (F_pre = T/(K·d) ≫ F_t): resortes bilaterales "
+                                               "normal k y tangencial k/2 (fricción + pasadores Ø6 escariados en montaje)."}
     comp = comparisons(est, pid, [
         {"key": "Mejillas", "caso": "a", "region": "mejillas"},
         {"key": "Tablero", "caso": "a", "region": "tablero_y_alma"},

@@ -598,7 +598,7 @@ cable de 105 °C [ESTIMADO: verificar ISO 13297/ABYC].
 | FS estático | 0,577·σ_y / τ(T_máx), σ_y = 205 MPa (316 recocido) | [ESTIMADO] |
 | FS a fatiga (Goodman en corte) | τ_a = <!--V:sizing.mech.torque_ripple_frac:.2f-->0.15<!--/V-->·τ(T_crucero) (ondulación por paso de álabes y toma, `shaft.torque_ripple_frac`, la misma del caso P1-PMP-05 de §9), S_e = 180 MPa | [ESTIMADO] |
 | Pasador de corte (corte doble) | T_corte = 2·(π/4)·d_p²·τ_u·D_eje/2 ≥ 1,8·T_máx; τ_u = 0,6·UTS = 174 MPa (6061-T6, cota baja: dimensiona); cota alta τ_u = 207 MPa (valor típico de tablas, para el FS del eje al corte) | [CALCULADO: R12 §7.6]; 207 MPa [ESTIMADO]; factor [SUPUESTO] |
-| Rodamientos (par 7204 BEP) | P = 0,35·F_r + 0,57·F_a; L10 = (C/P)³·10⁶/(60·n) | [ESTIMADO: catálogo, F_a/F_r > e] |
+| Rodamientos (par 7204 BECBP en O) | P = 0,35·F_r + 0,57·F_a; L10 = (C/P)³·10⁶/(60·n) | [ESTIMADO: catálogo, F_a/F_r > e] |
 | Velocidad crítica | eje simplemente apoyado entre el par de rodamientos (seco) y el buje de agua del cubo del estator; impulsor como masa puntual: k = 3EIL/(a²b²), n_c = √(k/m)/(2π) | [CALCULADO]; masa del impulsor del CAD (la misma que en F_r de los rodamientos) |
 | Sello | v = π·d·n_máx ≤ 10 m/s | [ESTIMADO: sellos MG1] |
 

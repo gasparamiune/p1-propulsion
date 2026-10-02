@@ -153,15 +153,18 @@ def resolve(item, inp, sz, man):
         spec = f"{bat['charger']['desc']} — LiFePO4 {bat['cells']}S: {_f(bat['v_max'])} V CC/CV, corte automático"
         price = bat["charger"]["price_eur"]
     elif s == "auto:fuse":
-        spec = (f"Blue Sea MRBF {el['fuse_a']} A, 58 V CC (≥ {_f(bat['v_max'])} V), corte 10 kA; "
+        spec = (f"Class T {el['fuse_a']} A (Blue Sea), 160 V CC (≥ {_f(bat['v_max'])} V), poder de corte 20 kA "
+                f"(el MRBF corta solo 2 kA a 58 V: README electrónica §7, cortocircuito presunto); "
                 f"≥ {_f(inp['electrical']['fuse_factor'], 2)} × {el['I_bat_top_A']:.0f} A a fondo y protege el cable de "
-                f"{el['cable_dc']['section_mm2']} mm² ({el['cable_dc']['ampacity_a']} A); sobre la barra + (los F_BR de rama "
+                f"{el['cable_dc']['section_mm2']} mm² ({el['cable_dc']['ampacity_a']} A); junto a la barra + (los F_BR de rama "
                 f"van a ≤ 178 mm del borne de cada batería: ABYC E-11, R06 §5.1)")
     elif s == "auto:fuse_branch":
         npar = int(bat.get("parallel", 1))
-        spec = (f"Blue Sea MRBF {el.get('fuse_branch_a', el['fuse_a'])} A, 58 V CC, corte 10 kA: {npar} en uso (uno por batería, sobre el borne +) "
-                f"+ {int(qty) - npar} de repuesto; rama más cargada {_f(inp['electrical'].get('parallel_share_max', 0.6) * el['I_bat_peak_A'], 0)} A "
-                f"(reparto {_f(inp['electrical'].get('parallel_share_max', 0.6) * 100, 0)} % × {el['I_bat_peak_A']:.0f} A); protege el cable de rama de 35 mm²")
+        sh = inp["electrical"].get("parallel_share_max", 0.6)
+        spec = (f"Class T {el.get('fuse_branch_a', el['fuse_a'])} A (Blue Sea), 160 V CC, 20 kA: {npar} en uso (uno por batería, "
+                f"a ≤ 178 mm del borne +); rama más cargada {_f(sh * el['I_bat_top_A'], 0)} A a fondo × "
+                f"{_f(inp['electrical']['fuse_factor'], 2)} y {_f(sh * el['I_bat_peak_A'], 0)} A de pico (reparto {_f(sh * 100, 0)} %, "
+                f"mismo criterio que F1); protege el cable de rama de 35 mm²")
     elif s == "auto:contactor":
         spec = (f"NA monoestable (sin enclavamiento magnético), ≥ {el['fuse_a']} A continuos (I bat pico {el['I_bat_peak_A']:.0f} A), "
                 f"corte bajo carga ≥ {_f(bat['v_max'])} V CC: EV200AAANA 500 A, 12–900 V CC; bobina 9–36 V con economizador "
@@ -240,7 +243,7 @@ def check_rating(item, spec, sz, inp, flags):
     el = sz["electrical"]
     I, V = el["I_bat_peak_A"], float(r.get("bus") or bat["v_max"])
     vlab = "de batería cargada" if not r.get("bus") else "del circuito"
-    a = el["fuse_a"] if r.get("a") == "auto" else r.get("a")
+    a = {"auto": el["fuse_a"], "auto_branch": el.get("fuse_branch_a", el["fuse_a"])}.get(r.get("a"), r.get("a"))
     if r.get("role") == "branch":
         I = inp["electrical"].get("parallel_share_max", 1.0) * I
     bad = []

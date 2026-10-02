@@ -35,13 +35,13 @@ Valores de referencia del diseño actual [CALCULADO con el casco leído del plan
 | P0.3.2 | **Maytech, MTI120116 150 KV** | Potencia continua con camisa de agua y el caudal de agua que necesita; curva de eficiencia o resistencia de fase; KV real; pares de polos; Ø y chavetero del eje y patrón de la brida; sensor de temperatura disponible; plazo | Potencia continua por escrito, cargada en `inputs.yaml → motor.options.MTI120116_150.p_cont_w` (hoy [ESTIMADO], D-12) y `run_all.py` corrido. Si da menos que lo estimado, revisar la V máx. (02 §10) antes de comprar |
 | P0.3.3 | **Taller CNC** (solo si sale A) | Impulsor 316L en 5 ejes (`04_diseno/step/P1-PMP-03_impeller.step` + plano de ángulos `P1-PMP-03_tabla_angulos_alabes.svg`) y estator de Al 6061-T6 (`P1-PMP-06_stator.step`): material certificado (1.4404 para el impulsor), Ø exterior con sobremedida para tornear contra el anillo, balanceo G6.3, plazo; alternativa SLM 316L + torneado. Torneados de carcasa, tobera y placa de espejo (S-TURN-*) y anodizado duro (S-ANOD) | 2 cotizaciones por escrito por ítem, comparadas con `bom.csv` (S-CNC-IMP, S-CNC-STAT, S-TURN-*, S-ANOD) |
 | P0.3.4 | **Soldadura de aluminio** | Conducto de la toma en 5083 sobre la placa base, con prueba de estanqueidad (aire 0,3 bar + jabón) (S-WELD-INT); pórtico, soporte del motor y bucket (S-WELD-AL); rejilla 316 (S-WELD-316); varengas al fondo del casco (H-WELD) | Cotización escrita que incluya la prueba de estanqueidad del conducto |
-| P0.3.5 | **Contactor K1** (B-CONT) | Contactor ≥ 250 A con la tensión de bobina que fije el README de electrónica §7: tensión mínima de cierre y tensión continua admisible por escrito | Hoja de datos o mail del fabricante archivado; modelo cargado en `inputs.yaml` |
+| P0.3.5 | **Contactor K1** (B-CONT) | TE KILOVAC **EV200AAANA** (500 A, 12–900 V CC, bobina 9–36 V con economizador; hoja EV200 VERIFICADA en el README de electrónica §4/§7), 149 € sin IVA en EV Europe (2026-10-02): confirmar stock y pedir | Pedido hecho; hoja de datos archivada en `referencias/` |
 
 ### P0.4 Consulta legal por escrito (antes de construir el cockpit)
 
 | # | Acción | Criterio de cierre |
 |---|---|---|
-| P0.4.1 | Mandar las preguntas en danés de **R13 §8** (Q1–Q2 a Søfartsstyrelsen, Q4 a Sønderborg Kommune, Q5 a la policía, Q6 a Sønderborg Havn, Q7 a la aseguradora) con planos y fotos del cockpit. **Antes de mandarlas, actualizar las cifras:** Q1 dice "5 kW kontinuerligt / 7,2 kW maks."; el diseño actual da <!--V:sizing.performance.P_shaft_peak_kW:.1f-->6.5<!--/V--> kW al eje como máximo [CALCULADO]. Q3 pregunta por 72 V: el pack es 12S, <!--V:sizing.performance.vmax_by_battery.v_max.V_bat:.1f-->43.8<!--/V--> V a carga plena (D-13), así que Q3 se reformula o se omite | Respuestas escritas archivadas en `referencias/`; D-20 actualizado. Si la respuesta es "vandscooter": se pierde Als Sund (R13 §1.3) y se replantea el proyecto antes de comprar |
+| P0.4.1 | Mandar las preguntas en danés de **R13 §8** (Q1–Q2 a Søfartsstyrelsen, Q4 a Sønderborg Kommune, Q5 a la policía, Q6 a Sønderborg Havn, Q7 a la aseguradora) con planos y fotos del cockpit. Q1 ya dice "katalog 18,8 kW maks., begrænset i controlleren til ca. 8,4 kW batterieffekt" (R13 §8, actualizado 2026-10-02); el diseño actual da <!--V:sizing.performance.P_shaft_peak_kW:.1f-->6.5<!--/V--> kW al eje como máximo [CALCULADO]. Q3 pregunta por 72 V: el pack es 12S, <!--V:sizing.performance.vmax_by_battery.v_max.V_bat:.1f-->43.8<!--/V--> V a carga plena (D-13), así que Q3 se reformula o se omite | Respuestas escritas archivadas en `referencias/`; D-20 actualizado. Si la respuesta es "vandscooter": se pierde Als Sund (R13 §1.3) y se replantea el proyecto antes de comprar |
 
 ---
 
@@ -65,7 +65,7 @@ Los procedimientos completos están en 05 §7; si algo de acá difiere, manda 05
 | # | Etapa | Criterio de cierre |
 |---|---|---|
 | P2.1 | **T1.1 (E1)** con todo instalado (se repite P0.2.1) | Mismo criterio que P0.2.1 |
-| P2.2 | **T0** banco en seco, acople desconectado: electrónica T0.1–T0.20 + mecánica T0.M1–T0.M8 | Todas pasan; kill por cordón y por seta < 1 s en 10/10 |
+| P2.2 | **T0** banco en seco, acople desconectado: electrónica T0.0–T0.20 (T0.0: FW ≥ 6.00 en el VESC, sin él no hay LispBM ni perfil COSTA/ABIERTO) + mecánica T0.M1–T0.M8 | Todas pasan; kill por cordón y por seta < 1 s en 10/10 |
 | P2.3 | **T1** estanqueidad, calado e inundado (T1.2–T1.6) | 24 h sin agua en la sentina; eje ≥ 20 mm bajo la flotación; E2–E4 aprobados |
 | P2.4 | **T2** muelle, amarrado | Chorro en ≤ 3 s; testigo de refrigeración y sello correctos; empuje a punto fijo ≥ <!--V:sizing.success.bollard_min_N:.0f-->612<!--/V--> N; sin cavitación en la rampa |
 | P2.5 | **T3** agua calma, < 300 m, 5 kn | Perfil COSTA ≤ 9,0 km/h de media; P de batería a 5 kn ≤ <!--V:sizing.success.p_legal_max_W:.0f-->2184<!--/V--> W; reversa y kill en marcha |

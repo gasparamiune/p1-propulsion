@@ -45,12 +45,12 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 - [CALCULADO: sizing.py; R12].
 - *Si difiere:* el impulsor se re-diseña solo (triángulos de velocidad en `sizing.json` → CAD → tabla de ángulos para el taller).
 
-**D-07 La bomba se diseña para absorber una potencia intermedia (P_cont + 50 %·(P_pico − P_cont)) a plena tensión.**
-- Justificación: con motor directo las rpm las fija la tensión; si la bomba se diseña para la potencia continua, la potencia pico no se puede usar en la joroba. El controlador limita a la potencia continua en crucero.
-- [CALCULADO: optimizador, variable design_power_frac].
+**D-07 La bomba se diseña para absorber P_d = P_cont + f·(P_pico − P_cont) a plena tensión; el optimizador elige f = <!--V:sizing.selection.f_pow:.1f-->1.0<!--/V--> (P_d = <!--V:sizing.selection.P_design_W:.0f-->11760<!--/V--> W al eje).**
+- Justificación: con motor directo las rpm las fija la tensión; si la bomba se diseña para la potencia continua, la potencia pico no se puede usar en la joroba. El controlador limita a la potencia continua en crucero. El punto de diseño es la V más alta en que el empuje con P_d iguala a R nominal: <!--V:sizing.pump.V_design_kmh:.1f-->43.6<!--/V--> km/h (resuelto sin tope de grilla; es un punto "virtual", 02 §4.4).
+- [CALCULADO: optimizador, variable design_power_frac ∈ {0; 0,5; 1}].
 
 **D-08 Toma enrasada entera a proa del impulsor (respuesta al comentario de Jorge "la rejilla está muy atrás").**
-- Justificación: en el plano la rejilla quedaba a popa de la cara del impulsor, sin conducto y sobre la flotación: la bomba no ceba ni recibe agua (R10a). Ahora el labio está a <!--V:manifest.params.x_lip:.0f-->386<!--/V--> mm y la tangencia de la rampa a <!--V:manifest.params.x_tan:.0f-->766<!--/V--> mm del espejo; la cara del impulsor a <!--V:manifest.params.x_if:.0f-->268<!--/V--> mm. Rampa de 27°, techo de curvatura continua, rejilla de 7 pletinas 316 con luz de 16 mm.
+- Justificación: en el plano la rejilla quedaba a popa de la cara del impulsor, sin conducto y sobre la flotación: la bomba no ceba ni recibe agua (R10a). Ahora el labio está a <!--V:manifest.params.x_lip:.0f-->386<!--/V--> mm y la tangencia de la rampa a <!--V:manifest.params.x_tan:.0f-->766<!--/V--> mm del espejo; la cara del impulsor a <!--V:manifest.params.x_if:.0f-->268<!--/V--> mm. Rampa de 27°, techo de curvatura continua, rejilla de <!--V:manifest.params.grille_bars:d-->9<!--/V--> pletinas 316 aisladas con PTFE, con luz de <!--V:manifest.params.toma_bar_gap:.1f-->12.2<!--/V--> mm (auditoría C14).
 - [CALCULADO: R10a §5, R12 §3.2; CAD P1-INT-*].
 - *Si difiere:* si el fondo no es plano en esa zona o tiene refuerzos, la placa base cambia (PENDIENTES P0.1).
 
@@ -63,10 +63,10 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 - Justificación: la holgura no se mantiene en PETG (R10b H15); un estator de PETG da FS 0,33 sostenido. 0,3–0,4 mm con anillo torneado (R12 §3).
 - [CALCULADO: structural_bomba.py; R12].
 
-**D-11 Impulsor de 316 mecanizado en 5 ejes (o impreso en 316L SLM con el Ø torneado), arrastrado por un pasador de corte de Al 6061 Ø<!--V:sizing.mech.shear_pin.d_mm:.1f-->3.5<!--/V--> mm.**
-- Justificación: una piedra libera ~490 J de energía del rotor; el límite de corriente no protege (R12 §7.6). El pasador corta a <!--V:sizing.mech.shear_pin.T_cut_Nm:.0f-->33<!--/V--> N·m, ~1,8 × el par máximo del controlador.
+**D-11 Impulsor de 316 mecanizado en 5 ejes (o impreso en 316L SLM con el Ø torneado), arrastrado por un juego de 2 semipasadores de corte de Al 6061 Ø<!--V:sizing.mech.shear_pin.d_mm:.1f-->3.5<!--/V--> mm (equivalen a un pasador en corte doble).**
+- Justificación: una piedra libera ~490 J de energía del rotor; el límite de corriente no protege (R12 §7.6). El juego corta a <!--V:sizing.mech.shear_pin.T_cut_Nm:.0f-->33<!--/V--> N·m con τ_u 174 MPa (~1,8 × el par máximo del controlador) y a <!--V:sizing.mech.shear_pin.T_cut_hi_Nm:.0f-->40<!--/V--> N·m con 207 MPa (FS del eje al corte <!--V:sizing.mech.shear_pin.fs_shaft_at_cut_hi:.2f-->1.87<!--/V-->).
 - [CALCULADO].
-- *Si difiere:* calibrar el corte real con el ensayo de probeta (05 §4) y llevar 5 de repuesto.
+- *Si difiere:* calibrar el corte real con el ensayo de probeta P1.9 (05) y llevar 3 juegos de repuesto (BOM).
 
 ## Tren
 
@@ -81,7 +81,7 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 - [VERIFICADO: R11, R13].
 - *Si difiere:* `electrical.allow_72v: true` habilita las opciones de 72 V en el optimizador.
 
-**D-14 Eje 316L Ø20 con dos apoyos: par 7204 BEP en seco (toma todo el empuje) y buje de agua de POM en el cubo del estator; sello mecánico SiC/carbón con cámara de goteo y testigo.**
+**D-14 Eje 316L Ø20 con dos apoyos: par 7204 BECBP en O, en seco (toma todo el empuje) y buje de agua de POM en el cubo del estator; sello mecánico SiC/carbón con cámara de goteo y testigo.**
 - Justificación: en voladizo la primera velocidad crítica caía debajo de la de servicio; con el buje queda en <!--V:sizing.mech.crit_ratio:.1f-->3.8<!--/V-->× las rpm máximas. El empuje va por un pórtico de Al sobre el conducto a la placa base, nunca al motor (acople Rotex 24 con juego axial).
 - [CALCULADO: structural_tren.py; sizing.py].
 

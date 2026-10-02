@@ -44,7 +44,9 @@ for _p in (str(HERE), str(HERE.parent), str(ROOT)):
 # Tamaños de malla (mm): (gruesa, fina); curvatura = elementos por 2π en agujeros/redondeos.
 CFG = {
     "P1-DRV-03": {"h": (10.0, 5.0), "curv": (8, 14), "hmin": 1.5},
-    "P1-REV-01": {"h": (6.0, 3.5), "curv": (8, 14), "hmin": 1.5},
+    "P1-REV-01": {"h": (6.0, 3.5), "curv": (8, 14), "hmin": 1.5,
+                  "variantes": {"V1": {"desc": "traba en ambos brazos (2.º émbolo en −Y), chapa 4 mm", "param": {"traba_doble": True}},
+                                "V2": {"desc": "traba en ambos brazos + brazos y cuchara de 6 mm", "param": {"traba_doble": True, "t": 6.0}}}},
     "P1-STE-01": {"h": (8.0, 4.5), "curv": (8, 14), "hmin": 1.2},
     "P1-INT-02": {"h": (14.0, 8.0), "curv": (6, 10), "hmin": 2.0},
     "P1-CTL-02": {"h": (6.0, 3.0), "curv": (8, 14), "hmin": 1.0},
@@ -394,7 +396,74 @@ def findings(res):
     return H
 
 
-NOTES = {}      # explicaciones de diferencias > 30 % (clave: (pieza, primeros 24 caracteres de la fila))
+# Explicaciones de las diferencias > 30 % (clave: (pieza, primeros 24 caracteres de la fila de structural_*.py)).
+NOTES = {
+    ("P1-DRV-03", "Mejillas: empuje Fa a pu"):
+        "La fila solo mira la flexión de la mejilla en su plano por Fa/2 (sección 12 × 150, muy rígida). El FEA pone el "
+        "máximo de la mejilla en su unión con el tablero: el tablero cargado por el alojamiento flexiona y arrastra el "
+        "borde superior de la mejilla fuera de su plano (marco tablero + mejillas). Mecanismo que la fila no ve; nivel bajo.",
+    ("P1-DRV-03", "Tablero: 3 g vertical de"):
+        "El máximo está en la unión del alma central (columna tablero–alojamiento) con el tablero: el momento de Fa "
+        "excéntrico y el radial entran al tablero por el alma, con concentración en la esquina viva de esa unión; la viga "
+        "biapoyada de la fila no la ve. Fila a mano no conservadora, pero el FS sigue sobre 2.",
+    ("P1-DRV-03", "Alojamiento Ø47: Fa sobr"):
+        "La fila es el corte medio del resalte (τ = Fa/(π·D·t)), un valor nominal; el FEA mide la flexión del resalte como "
+        "placa anular (el aro apoya solo entre Da_max y D) y la del alojamiento en su unión con el alma. Ambos lejos del admisible.",
+    ("P1-REV-01", "Brazo lateral: flexión ("):
+        "Modelo a mano NO conservador. La fila reparte F_b/2 a cada brazo, pero la traba está solo en el brazo +Y: todo el "
+        "momento M_h de la cuchara tiene que llegar a ese brazo, y la cuchara (sección abierta de chapa de 4 mm) lo lleva "
+        "por torsión. El FEA muestra la cuchara girando (u máx. ≈ 3,6 mm) y el pico en el lóbulo de la traba (flexión fuera "
+        "del plano de la chapa junto al agujero, que no converge: crece al refinar). Ver variantes V1/V2.",
+    ("P1-REV-01", "Cuchara como viga entre "):
+        "Misma causa: la fila trata la cuchara como viga entre brazos con los dos extremos apoyados; con la traba de un "
+        "solo lado la cuchara trabaja a torsión (sección abierta) y su borde inferior junto al brazo (soldadura) concentra.",
+    ("P1-REV-01", "Chapa de la cuchara: fra"):
+        "La franja empotrada (p_dinámica) no incluye la torsión de la cuchara; el FEA (escalado a p_dinámica/q) mide la "
+        "tensión total de la chapa, dominada por esa torsión. Con traba en los dos brazos (V1) la cuchara baja a < 10 MPa.",
+    ("P1-REV-01", "Pivote: aplastamiento de"):
+        "La fila es la presión media F_b/2/(d·L). El FEA promedia σvm en un anillo de 3 mm alrededor de los pivotes, que "
+        "además de la presión del buje incluye la flexión del brazo, y las reacciones reales: con la traba tangencial los "
+        "pivotes toman ≈ 3,3 kN en total (no F_b/2 = 0,7 kN cada uno).",
+    ("P1-REV-01", "Agujero de traba: aplast"):
+        "La fila es la presión media de aplastamiento F/(d·t); el FEA promedia σvm en un anillo de 3 mm: por definición "
+        "menor que el pico. Coinciden en el orden de magnitud; el pico local (fuera de r_excl) es el que no cumple.",
+    ("P1-STE-01", "Flexión del tubo por el "):
+        "La fila trata el tubo Ø101 como viga (σ nominal < 1 MPa). En el FEA el máximo de la región del tubo está donde se "
+        "le unen la torre y la oreja de pivote superior (entra el par del yugo y la reacción de los pernos): concentración "
+        "local que la viga no ve. Nivel bajo (FS > 10).",
+    ("P1-STE-01", "Oreja del bucket: flexió"):
+        "La fila carga cada oreja con F_b/2 a 52 mm. Con la traba la oreja +Y recibe además la fuerza del émbolo (≈ 2,8 kN "
+        "en la rosca M20, a 45 mm del pivote) y el pivote +Y toma más que el −Y; el máximo está en el lóbulo de la traba.",
+    ("P1-STE-01", "Oreja de pivote (dentro "):
+        "La fila toma F/2 a 12 mm en 25 × 30. En el FEA los pernos de pivote reciben un par (reacciones opuestas en la "
+        "mejilla Ø8 y en la rosca M6) porque el bucket empuja muy por encima del eje, y el máximo está en la arista viva "
+        "donde la oreja cilíndrica corta el frente esférico (sin radio en el CAD; zona con astillas de malla).",
+    ("P1-INT-02", "Paño lateral entre bulon"):
+        "La fila apoya el paño en la línea de bulones del conducto (luz 68 mm a lo ancho). Placa sola (b): sin el conducto, "
+        "la franja entre la abertura y el ala trabaja a lo largo y el máximo sale en la unión cuerpo–ala; es la cota "
+        "conservadora. Con el conducto rígido (b2) se recupera el modelo de la fila; la realidad está entre ambos.",
+    ("P1-INT-02", "Arranque de la cabeza M8"):
+        "La fila usa τ media en el cilindro Ø dk × (t − h_cono) suponiendo que todo el tiro pasa por corte puro. En el FEA "
+        "la compresión de la zapata sobre la cara superior equilibra la precarga en el mismo lugar y el cilindro no está "
+        "en corte puro: el promedio de σvm en ese volumen es menor. Fila conservadora.",
+    ("P1-INT-02", "Asiento cónico de la cab"):
+        "La fila divide la fuerza por la proyección del cono; el FEA promedia σvm en una capa de 1,5 mm bajo el cono.",
+    ("P1-CTL-02", "Tapa PETG 6 mm: mano apo"):
+        "La fila es una franja 50 × 6 apoyada con luz 50; la tapa real está casi toda ranurada (ranuras de las palancas), "
+        "y la palma carga el nervio de 6 mm entre las dos ranuras o la tapa angosta junto a la del bucket. Ver σZ: la "
+        "flexión de las paredes cruza capas.",
+}
+
+
+def write_readme(res):
+    rd = HERE / "README.md"
+    txt = rd.read_text(encoding="utf-8") if rd.exists() else "# FEA\n\n" + AUTO0 + "\n" + AUTO1 + "\n"
+    if AUTO0 in txt and AUTO1 in txt:
+        i0, i1 = txt.index(AUTO0), txt.index(AUTO1) + len(AUTO1)
+        txt = txt[:i0] + readme_block(res) + txt[i1:]
+    else:
+        txt += "\n" + readme_block(res) + "\n"
+    rd.write_text(txt, encoding="utf-8")
 
 
 def main(argv=None):
@@ -404,6 +473,9 @@ def main(argv=None):
     ap.add_argument("--serial", action="store_true")
     ap.add_argument("--no-img", action="store_true")
     ap.add_argument("--jobs", type=int, default=3)
+    ap.add_argument("--readme-only", action="store_true", help="regenera hallazgos y el bloque AUTO desde el JSON existente")
+    ap.add_argument("--merge", action="store_true",
+                    help="con --only: reemplaza esas piezas en el JSON existente y regenera hallazgos y README")
     ap.add_argument("--out", default=None)
     ap.add_argument("--h", nargs="*", default=[], metavar="ID=GRUESA,FINA",
                     help="sobrescribe tamaños de malla, p. ej. P1-STE-01=10,5")
@@ -413,6 +485,12 @@ def main(argv=None):
     for spec in a.h:
         k, v = spec.split("=")
         CFG[k]["h"] = tuple(float(x) for x in v.split(","))
+    if a.readme_only:
+        res = json.loads(Path(a.out).read_text(encoding="utf-8"))
+        res["hallazgos"] = findings(res)
+        Path(a.out).write_text(json.dumps(_j(res), indent=1, ensure_ascii=False), encoding="utf-8")
+        write_readme(res)
+        return 0
     t0 = time.time()
     pids = [x for x in ORDER if not a.only or x in a.only]
     img_dir = None if (a.no_img or a.quick) else HERE / "img"
@@ -429,6 +507,19 @@ def main(argv=None):
                 results[k] = v
     import fea_parts as fp
     p, _, _ = fp.load_project()
+    if a.merge and not a.quick and Path(a.out).exists():
+        res = json.loads(Path(a.out).read_text(encoding="utf-8"))
+        res["piezas"].update({pid: _j(results[pid]) for pid in pids})
+        res["piezas"] = {k: res["piezas"][k] for k in ORDER if k in res["piezas"]}
+        res["meta"]["fecha"] = datetime.date.today().isoformat()
+        res["meta"]["inputs_version"] = p.inp["meta"]["version"]
+        res["meta"]["tiempo_total_s"] = round(sum(r.get("tiempo_s", 0) for r in res["piezas"].values()), 1)
+        res["hallazgos"] = findings(res)
+        res = _j(res)
+        Path(a.out).write_text(json.dumps(res, indent=1, ensure_ascii=False), encoding="utf-8")
+        write_readme(res)
+        print(f"\nFEA: {', '.join(pids)} combinadas en {a.out}")
+        return 0
     res = {"meta": {"fecha": datetime.date.today().isoformat(), "inputs_version": p.inp["meta"]["version"],
                     "metodo": "gmsh (STEP/OCC, optimización Netgen) → tetraedros; elasticidad lineal P2 (10 nodos), "
                               "isotrópico; PCG + precondicionador P2→P1; contacto unilateral por conjunto activo",
@@ -438,14 +529,7 @@ def main(argv=None):
     res = _j(res)
     Path(a.out).write_text(json.dumps(res, indent=1, ensure_ascii=False), encoding="utf-8")
     if not a.quick and not a.only:
-        rd = HERE / "README.md"
-        txt = rd.read_text(encoding="utf-8") if rd.exists() else "# FEA\n\n" + AUTO0 + "\n" + AUTO1 + "\n"
-        if AUTO0 in txt and AUTO1 in txt:
-            i0, i1 = txt.index(AUTO0), txt.index(AUTO1) + len(AUTO1)
-            txt = txt[:i0] + readme_block(res) + txt[i1:]
-        else:
-            txt += "\n" + readme_block(res) + "\n"
-        rd.write_text(txt, encoding="utf-8")
+        write_readme(res)
     print(f"\nFEA: {len(pids)} piezas en {time.time() - t0:.0f} s → {a.out}")
     for pid in pids:
         r = res["piezas"][pid]

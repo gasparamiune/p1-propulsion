@@ -156,12 +156,64 @@ def test_hump_ok_reported(sizing, inp):
 
 
 def test_sensitivity_entries_change_outputs(sizing):
-    """Cada entrada de la sensibilidad tiene que mover al menos una salida (auditoría A2: la masa del
-    casco no movía nada porque la masa total leía otra entrada)."""
+    """Cada entrada de la sensibilidad tiene que mover al menos una salida (auditoría A2) y las de la
+    resistencia de planeo tienen que mover el margen 0–planeo pleno (auditoría R2-C02: la fila de planeo
+    movía solo la banda nominal y el margen se calcula con la alta)."""
     for r in sizing["sensitivity"]["rows"]:
         lo, hi = r["lo"], r["hi"]
-        moved = any(abs(lo[k] - hi[k]) > 1e-6 * max(1.0, abs(lo[k])) for k in ("vmax", "hump", "P_leg", "bollard"))
+        moved = (abs(lo["vmax"] - hi["vmax"]) > 0.05 or abs(lo["hump"] - hi["hump"]) > 0.002
+                 or abs(lo["P_leg"] - hi["P_leg"]) > 1.0 or abs(lo["bollard"] - hi["bollard"]) > 1.0)
         assert moved, r["label"]
+        if r["param"] in ("resistance.planing_factor", "resistance.planing_band.high", "resistance.fn_planing"):
+            assert abs(lo["hump"] - hi["hump"]) > 0.002, r["label"]
+
+
+def test_status_matches_hard_constraints(sizing):
+    op = sizing["optimization"]
+    assert (sizing["status"] == "sin_solucion_dura") == (op["n_hard_ok"] == 0)
+    assert op["n_hard_ok"] == sum(1 for r in op["rows"] if r.get("hard_ok"))
+
+
+def test_margin_window_reaches_full_planing(sizing, inp):
+    """El margen se busca de 0 hasta el planeo pleno (no se corta en el primer nodo de Savitsky, R2-C01) y
+    es el mínimo de (T − R)/R de la curva de pico en esa ventana."""
+    pf, rs = sizing["performance"], sizing["resistance"]
+    v_end = pf["V_window_end_kmh"]
+    vmax_grid = pf["peak_curve"][-1]["V"] * 3.6
+    assert v_end >= min(rs["v_full_planing_kmh"], vmax_grid) - 1e-6
+    assert v_end >= rs["v_planing_kmh"] - 1e-6
+    rel = [(r["T"] - r["R"]) / max(r["R"], 1e-6) for r in pf["peak_curve"] if 0.3 < r["V"] and r["V"] * 3.6 <= v_end + 1e-6]
+    assert abs(min(rel) - pf["hump_margin_min"]) < 1e-9
+    # si el bote "llega a planeo pleno", el equilibrio a fondo está más allá de la ventana
+    if pf["planes"]:
+        assert pf["V_eq_peak_design_band_kmh"] >= v_end - 1e-6
+
+
+def test_pump_design_speed_not_clipped(sizing):
+    """V_d = la V más alta con T(P_d) = R nominal, sin tope de grilla (R2-C03)."""
+    pm, rs = sizing["pump"], sizing["resistance"]
+    assert not pm["V_design_at_edge"]
+    assert pm["V_design_kmh"] < max(rs["V_kmh"][-1], rs["savitsky"][-1]["V_kmh"]) + 1e-6 or not pm["V_design_at_edge"]
+    assert abs(pm["V_design_kmh"] - 39.6) > 0.05                     # ya no el borde de la grilla vieja
+
+
+def test_vmax_by_battery_coherent(sizing):
+    """La V máx. por batería usa la misma banda para planear y para la V máx. (R2-C04)."""
+    v_pl = sizing["resistance"]["v_planing_kmh"]
+    for k, r in sizing["performance"]["vmax_by_battery"].items():
+        assert r["sustains_planing_cont_nominal"] == (r["vmax_cont_kmh"] >= v_pl - 1e-6), k
+        if not r["planes_nominal"]:
+            assert not r["sustains_planing_cont_nominal"], k
+
+
+def test_verdict_keys(sizing):
+    vd = sizing["verdict"]
+    for k in ("optimizer_status", "planes_high_band", "planes_nominal_band", "reaches_planing_high",
+              "hump_margin_min_high", "hump_ok", "sustains_planing_cont_high", "sustains_planing_cont_nominal",
+              "recovery_mass_text", "recovery_lwl_text", "V_full_planing_kmh"):
+        assert k in vd, k
+    assert vd["hump_ok"] == sizing["performance"]["hump_ok"]
+    assert vd["optimizer_status"] == sizing["status"]
 
 
 def test_sizing_json_matches_inputs(sizing, root):
@@ -180,9 +232,17 @@ def test_motor_iq_margin(sizing, inp):
     assert all(r["I_q"] <= mc["l_current_max_A"] * 1.001 for r in sizing["performance"]["peak_curve"])
 
 
-def test_cavitation_cap_exported(sizing):
-    """Tope de rpm por cavitación del perfil abierto (02 §4.6): lo consume la electrónica."""
+def test_cavitation_cap_exported(sizing, inp):
+    """Tope de rpm por cavitación del perfil abierto (02 §4.6): lo consume la electrónica. A punto fijo la curva
+    de pico está limitada por S justo en el tope, el ERPM usa los pares de polos de inputs, y el tope no
+    sube la V máx. por ratos."""
     cc = sizing["cavitation_cap"]
-    assert cc["rpm"] > 0 and cc["erpm"] == pytest.approx(cc["rpm"] * cc["pole_pairs"])
+    sel = sizing["selection"]
+    pp = inp["motor"]["options"][sel["motor"]]["pole_pairs"]
+    assert cc["pole_pairs"] == pp and cc["erpm"] == pytest.approx(cc["rpm"] * pp)
     b0 = sizing["performance"]["peak_curve"][0]
-    assert b0["n_rpm"] <= cc["rpm"] + 1.0 and b0["S"] <= cc["S_lim"] + 1e-6
+    if b0["limiter"].startswith("cavitación"):
+        assert abs(b0["n_rpm"] - cc["rpm"]) < 2.0 and abs(b0["S"] - cc["S_lim"]) < 0.01
+    else:                                   # otro límite manda antes: el tope no se alcanza a punto fijo
+        assert b0["n_rpm"] < cc["rpm"] and b0["S"] < cc["S_lim"]
+    assert cc["vmax_peak_capped_kmh"] <= sizing["performance"]["vmax_peak_kmh"] + 1e-6

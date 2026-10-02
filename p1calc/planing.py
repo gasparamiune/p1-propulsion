@@ -16,7 +16,10 @@ Tramos (Fn∇ = V/√(g·∇^⅓)):
   • Desplazamiento y joroba (Fn∇ ≤ fn_hump): R/Δ = r_hump·(Fn∇/fn_hump)^k  [ESTIMADO:
     banda de Savitsky 2003 ×1–2 para cascos rechonchos, R10b §4.4].
   • Transición (fn_hump < Fn∇ < fn_planing): interpolación monótona (PCHIP) entre la joroba
-    y el primer punto de planeo.
+    y el primer punto de planeo (el corte fn_planing es [ESTIMADO] y mueve el resultado: va en la
+    sensibilidad).
+  • Planeo pleno (v_full): primer nodo en que la limitación de eslora deja de pesar (Savitsky libre
+    válido, o limitado y libre a menos de full_planing_tol). Hasta ahí se exige el margen de empuje.
 La incertidumbre se lleva como bandas (low / nominal / high) sobre r_hump y sobre el planeo.
 """
 from __future__ import annotations
@@ -142,9 +145,11 @@ class Resistance:
         self.vref = math.sqrt(G * (mass_kg / self.rho) ** (1 / 3))     # V para Fn∇ = 1
         self.fn_h, self.fn_p, self.k = r["fn_hump"], r["fn_planing"], r["hump_exponent"]
         self.r_hump = r["r_hump"]                       # dict low/nominal/high
-        self.pl_band = r["planing_band"]                # dict low/nominal/high (factor)
+        f_cal = r["planing_factor"]                     # factor de calibración sobre todas las bandas (1 hasta T4)
+        self.pl_band = {k: v * f_cal for k, v in r["planing_band"].items()}   # low/nominal/high
         # puntos de planeo desde fn_planing hasta la velocidad máxima de interés
-        Vp = np.linspace(self.fn_p * self.vref, max(r["v_max_eval_ms"], self.fn_p * self.vref * 1.5), 14)
+        v0, v1 = self.fn_p * self.vref, max(r["v_max_eval_ms"], self.fn_p * self.vref * 1.5)
+        Vp = np.linspace(v0, v1, max(14, int(math.ceil((v1 - v0) / r["planing_node_step_ms"])) + 1))
         pts = [(float(v), planing_point(inp, mass_kg, lcg_m, vcg_m, float(v))) for v in Vp]
         pts = [(v, p) for v, p in pts if p is not None]
         if not pts:
@@ -162,6 +167,12 @@ class Resistance:
         self.n_valid = sum(1 for p in self.planing if p["free_valid"])
         vv = [v for v, p in zip(self.Vp, self.planing) if p["free_valid"]]
         self.v_first_valid = float(vv[0]) if vv else None
+        # planeo pleno: primer nodo donde la limitación de eslora ya no pesa (Savitsky libre válido, o el
+        # limitado difiere del libre en menos de full_planing_tol); si no hay, el último nodo
+        tol = r["full_planing_tol"]
+        vf = [v for v, p in zip(self.Vp, self.planing)
+              if p["free_valid"] or (p["R_free"] and abs(p["R"] - p["R_free"]) / p["R_free"] < tol)]
+        self.v_full = float(vf[0]) if vf else float(self.Vp[-1])
         self._interp = {}
 
     def _curve(self, band: str):

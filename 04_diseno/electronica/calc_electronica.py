@@ -51,8 +51,20 @@ A = {
     "k1_release_ms": (12.0, "ms", "[VERIFICADO: hoja EV200 — release (incluye arco) máx. 12 ms @ 2000 A; close típ. 15 ms]"),
     "k1_back_emf_v": (0.0, "V", "[VERIFICADO: hoja EV200 — 'built-in coil economizer … limits back EMF to 0V']"),
     "k1_price_eur": (149.0, "EUR sin IVA", "[VERIFICADO: https://eveurope.eu/en/product/hoofdstroomrelais-ev200-500-amp-2/ — 149,00 € ex. VAT, 54 en stock, 2026-10-02]"),
-    "v_ctl_nom": (12.0, "V", "[VERIFICADO: B-12V Mean Well RSD-60G-12 → 12 V regulados (BOM)]; mando de K1 a 12 V (auditoría H3)"),
-    "v_ctl_tol": (0.05, "—", "[ESTIMADO: ±5 % de salida del DC-DC regulado (ajuste + carga); verificar en la hoja del RSD-60G-12]"),
+    "v_ctl_nom": (12.0, "V", "[VERIFICADO: Mean Well RSD-60-SPEC (2026-07-09) — RSD-60L-12: 12 V, 5 A, entrada 18–72 V CC]; mando de K1 a 12 V (auditoría H3, R2-E1)"),
+    "v_ctl_tol": (0.02, "—", "[VERIFICADO: Mean Well RSD-60-SPEC (2026-07-09) — tolerancia de salida ±2,0 %]"),
+    "rsd_vin": ((18.0, 72.0), "V", "[VERIFICADO: Mean Well RSD-60-SPEC (2026-07-09) — 'VOLTAGE RANGE CONTINUOUS' L: 18 ~ 72 VDC (G: 9 ~ 36 VDC: NO sirve con 12S)]"),
+    "rsd_i_out_a": (5.0, "A", "[VERIFICADO: Mean Well RSD-60-SPEC (2026-07-09) — RSD-60L-12 5 A; sobrecarga 105–135 % con limitación de corriente constante]"),
+    "rsd_idle_w": ((0.5, 1.5), "W", "[ESTIMADO: consumo en vacío de un DC-DC aislado de 60 W; la ficha no lo publica — medir en T0.4]"),
+    "bilge_i_a": ((2.0, 8.0), "A", "[ESTIMADO: Attwood Sahara S500 ≈ 2 A en marcha y ~4× en el arranque (motor CC); la ficha no se abrió]"),
+    "k1_hold_min_v": (7.5, "V", "[VERIFICADO: hoja EV200 — Hold Voltage (Min.) 7,5 V CC (bobina 'A')]"),
+    "hold_target_v": (9.0, "V", "[SUPUESTO: no bajar de 9 V (pickup máx. de la hoja EV200) durante el hueco: margen de 1,5 V sobre la retención mínima]"),
+    "hold_t_s": (0.25, "s", "[SUPUESTO: hueco del riel de 12 V al arrancar la bomba de achique contra el límite de corriente del DC-DC (arranque < 0,1 s × 2,5); lo valida T0.4]"),
+    "schottky_vf": (0.5, "V", "[ESTIMADO: Schottky 3 A (1N5822) a 0,2 A]"),
+    "cap_std_mf": ((4.7, 6.8, 10.0, 15.0, 22.0, 33.0, 47.0), "mF", "[SUPUESTO: valores comerciales de electrolíticos ≥ 25 V]"),
+    "batt_r_int_ohm": ((0.010, 0.050), "Ω", "[ESTIMADO: LiTime no publica la R interna (página 2026-10-02); 0,050 Ω = Power Queen 24 V 50 Ah 'R int. ≤ 40 mΩ' (R08a, VERIFICADO) escalada a 12S 60 Ah; 0,010 Ω = 12 celdas prismáticas de 60 Ah de ≈ 0,5 mΩ + BMS y bornes]"),
+    "mrbf_aic_a": (2000.0, "A", "[VERIFICADO: research/R06_electrica.md §5.4 — MRBF 10 kA @ 14 V / 5 kA @ 32 V / 2 kA @ 58 V]"),
+    "classt_aic_a": (20000.0, "A", "[VERIFICADO: Blue Sea 5113 Class T — '20,000 Ampere Interrupt Capacity (AIC)', 160 V CC máx. (fisheriessupply.com, 2026-10-02)]"),
     "brake_frac": (0.3, "—", "[SUPUESTO: corriente de frenado = 30 % de l_current_max (un jet casi no regenera; protege BMS)]"),
     "weed_rev_frac": (0.25, "—", "[SUPUESTO: giro inverso lento (≤ 25 % de las rpm de 5 kn) solo para soltar algas de la rejilla]"),
     "pump_P_T_exp": (1.5, "—", "[CALCULADO: bomba con T ∝ n², P ∝ n³ → P ∝ T^1,5; límite de par = P_frac^(2/3)]"),
@@ -355,6 +367,23 @@ def compute(inp=None, sz=None):
     v_n2_neg = -val("k1_back_emf_v")
     R["bobina"]["V_N2_negativo_V"] = v_n2_neg
 
+    # ---------------- Retención de la bobina ante huecos del riel de 12 V (R2-E2): Schottky + C aguas arriba de seta/cordón
+    i_leds = 3 * 6e-3                                                       # 3 LED de opto ≈ 6 mA c/u (§7)
+    p_node = p_hold + vctl * i_leds
+    v0 = vctl_lo - val("schottky_vf")
+    vt = val("hold_target_v")
+    c_req = 2 * p_node * val("hold_t_s") / (v0 ** 2 - vt ** 2)
+    c_sel = next(x for x in val("cap_std_mf") if x / 1000 >= c_req)
+    t_hold_real = 0.5 * c_sel / 1000 * (v0 ** 2 - vt ** 2) / p_node
+    R["retencion"] = {"P_nodo_W": p_node, "V0_V": v0, "V_objetivo_V": vt, "V_hold_min_V": val("k1_hold_min_v"),
+                      "t_hueco_s": val("hold_t_s"), "C_req_F": c_req, "C_sel_mF": c_sel, "t_cubierto_s": t_hold_real,
+                      "I_rsd_A": val("rsd_i_out_a"), "I_bomba_A": val("bilge_i_a")}
+    # consumo en reposo (bote amarrado): B-12V está aguas arriba de S1
+    idle_lo, idle_hi = val("rsd_idle_w")
+    R["reposo"] = {"P_dcdc_W": (idle_lo, idle_hi), "P_bobina_clip_W": p_hold,
+                   "dias_sin_clip": (e_usable / idle_hi / 24, e_usable / idle_lo / 24),
+                   "dias_con_clip": (e_usable / (idle_hi + p_hold) / 24, e_usable / (idle_lo + p_hold) / 24)}
+
     # ---------------- Optoacopladores (sensado de N1/N2 hacia el MCU y habilitación de ADC2)
     vf, ift = val("opto_vf"), val("opto_if_target")
     r2 = e_series((vctl - 2 * vf) / ift)   # U2 + U3 en serie (nodo N2, mando de 12 V)
@@ -404,6 +433,13 @@ def compute(inp=None, sz=None):
     (a_m, l_m), (a_e, l_e) = val("lead_motor"), val("lead_esc")
     r_leads = el["rho_cu_ohm_m"] * (l_m / a_m + l_e / a_e)
     i_ph_lim = elc["I_phase_limit_A"]
+    r_lo, r_hi = val("batt_r_int_ohm")
+    isc_one = (v_max / r_hi, v_max / r_lo)                     # una batería (falla en su cable de rama)
+    n_p = int(bat.get("parallel", 1))
+    isc_all = (n_p * isc_one[0], n_p * isc_one[1])              # todas (falla aguas abajo de F1)
+    R["cortocircuito"] = {"R_int_ohm": (r_lo, r_hi), "I_sc_bateria_A": isc_one, "I_sc_total_A": isc_all,
+                          "MRBF_AIC_A": val("mrbf_aic_a"), "ClassT_AIC_A": val("classt_aic_a"),
+                          "MRBF_ok": isc_all[1] <= val("mrbf_aic_a"), "ClassT_ok": isc_all[1] <= val("classt_aic_a")}
     R["cables"] = {"dc_mm2": elc["cable_dc"]["section_mm2"], "phase_mm2": elc["cable_phase"]["section_mm2"],
                    "fuse_branch_a": elc.get("fuse_branch_a", elc["fuse_a"]), "n_parallel": elc.get("n_parallel", 1),
                    "R_phase_leads_ohm": r_leads, "I_phase_limit_A": i_ph_lim,
@@ -416,7 +452,7 @@ def compute(inp=None, sz=None):
     R["clase"] = {"v_class": v_class, "hv": hv, "imd": hv,
                   "contactor": val("k1_model").replace("TE Connectivity ", ""),
                   "fuse": "fusible ≥ 100 V CC (buscar: Littelfuse CNN 125 V / clase T 125 VDC)" if hv else
-                          "Blue Sea MRBF 58 V (corte 10 kA) en portafusible MRBF de terminal",
+                          "Class T Blue Sea (160 V CC, 20 kA) en portafusible Class T con tapa",
                   "imd_desc": "Bender ISOMETER iso175C-1 (R11 §8, 709 €)" if hv else "no requerido (≤ 50 V CC)",
                   "dcdc": (f"TRACO TSR 1-2450E 7–{val('dcdc_vin_max'):.0f} V" if max_vin < val("dcdc_vin_max") else
                            f"RECOM R-78HB5.0-0.5 9–{val('dcdc_alt_vin_max'):.0f} V" if max_vin < val("dcdc_alt_vin_max") else
@@ -559,6 +595,7 @@ def blocks(R):
     m = R["meta"]
     vv = R["vesc_values"]
     cab = R["cables"]
+    sc = R["cortocircuito"]
     B["calc"] = md_table(["Magnitud", "Valor", "Etiqueta / base"], [
         ["Pack", f"{m['battery_desc']} → {m['cells_series']}S LFP, {fmt(m['v_nom'])} V nom., {fmt(m['v_max'])} V carga plena",
          f"[CALCULADO: inputs.yaml battery] · V/celda {tag('v_cell_max')}"],
@@ -598,6 +635,21 @@ def blocks(R):
          f"[CALCULADO: 0,1·V_nom/R; ½·C·(0,2·V_nom)²] · {tag('vesc_iq_unknown')}"],
         ["Corriente de colector mínima (CTR 50 %) vs pull-up", f"{fmt(o['Ic_min_A'] * 1e3, 2)} mA ≫ {fmt(o['I_pullup_5V_A'] * 1e3, 2)} mA (5 V) / {fmt(o['I_pullup_3V3_A'] * 1e3, 2)} mA (3,3 V)",
          f"[CALCULADO] {tag('opto_ctr_min')}"],
+        ["Retención de la bobina (hueco del riel de 12 V al arrancar el achique)",
+         f"P del nodo {fmt(R['retencion']['P_nodo_W'], 2)} W (bobina + 3 LED), de {fmt(R['retencion']['V0_V'], 2)} V a {fmt(R['retencion']['V_objetivo_V'], 1)} V en "
+         f"{fmt(R['retencion']['t_hueco_s'], 2)} s → C ≥ {fmt(R['retencion']['C_req_F'] * 1e3, 1)} mF → **{fmt(R['retencion']['C_sel_mF'], 0)} mF** "
+         f"(cubre {fmt(R['retencion']['t_cubierto_s'], 2)} s); bomba {fmt(R['retencion']['I_bomba_A'][0], 0)}–{fmt(R['retencion']['I_bomba_A'][1], 0)} A vs DC-DC {fmt(R['retencion']['I_rsd_A'], 0)} A con límite de corriente",
+         f"[CALCULADO: C = 2·P·t / (V0² − V²)] · {tag('k1_hold_min_v')} · {tag('hold_target_v')} · {tag('hold_t_s')} · {tag('schottky_vf')} · {tag('bilge_i_a')} · {tag('rsd_i_out_a')}"],
+        ["Consumo en reposo (bote amarrado, S1 abierto)",
+         f"DC-DC {fmt(R['reposo']['P_dcdc_W'][0], 1)}–{fmt(R['reposo']['P_dcdc_W'][1], 1)} W → la energía usable dura {R['reposo']['dias_sin_clip'][0]:.0f}–{R['reposo']['dias_sin_clip'][1]:.0f} días; "
+         f"con el clip PUESTO (+{fmt(R['reposo']['P_bobina_clip_W'], 2)} W de bobina) {R['reposo']['dias_con_clip'][0]:.0f}–{R['reposo']['dias_con_clip'][1]:.0f} días. "
+         "Invierno: sacar F5 (y los F_BR) y guardar la batería a carga de almacenamiento",
+         f"[CALCULADO: E usable de sizing / P] · {tag('rsd_idle_w')}"],
+        ["Cortocircuito presunto (bornes de batería, sin cable)",
+         f"una batería {fmt(sc['I_sc_bateria_A'][0] / 1000, 1)}–{fmt(sc['I_sc_bateria_A'][1] / 1000, 1)} kA; las {cab['n_parallel']} en paralelo "
+         f"{fmt(sc['I_sc_total_A'][0] / 1000, 1)}–{fmt(sc['I_sc_total_A'][1] / 1000, 1)} kA vs MRBF {fmt(sc['MRBF_AIC_A'] / 1000, 0)} kA a 58 V "
+         f"({'✔' if sc['MRBF_ok'] else '✘ NO alcanza'}) y Class T {fmt(sc['ClassT_AIC_A'] / 1000, 0)} kA ({'✔' if sc['ClassT_ok'] else '✘'}) → F1 y F_BR Class T",
+         f"[CALCULADO: V_máx / R_int] · {tag('batt_r_int_ohm')} · {tag('mrbf_aic_a')} · {tag('classt_aic_a')}"],
         ["Fusibles F1 (barra +) / F_BR por rama / cable DC", f"{R['cables']['fuse_a']:.0f} A (mín. {fmt(R['cables']['fuse_min_a'])}) / "
          f"{R['cables']['n_parallel']} × {R['cables']['fuse_branch_a']:.0f} A / {R['cables']['dc_mm2']} mm²",
          "[CALCULADO: resultados/sizing.json fuse_a, fuse_branch_a (rama = reparto 60/40 × I pico), cable_dc]"],
@@ -609,12 +661,16 @@ def blocks(R):
     B["componentes"] = md_table(["Ref.", "Componente", "Especificación mínima", "Elegido / referencia (BOM)", "Etiqueta"], [
         ["BAT", "Batería LiFePO4 de la selección", f"{m['cells_series']}S, BMS ≥ {vv['i_bms']:.0f} A cont. (total); bornes cubiertos; caja estanca elevada",
          f"{m['battery_desc']} (B-BAT)", "[CALCULADO: selección de sizing (inputs.yaml battery)]"],
-        ["F_BR", "Fusible de rama (uno por batería)", f"{cab['n_parallel']} × {cab['fuse_branch_a']:.0f} A, ≥ {fmt(m['v_max'] * 1.2, 0)} V CC, sobre el borne + de CADA batería (≤ 178 mm)",
-         "Blue Sea MRBF 125 A + portafusible MRBF de terminal (B-FUSE-BR, B-FUSEH-BR)",
-         "[CALCULADO: sizing.json electrical.fuse_branch_a] · 178 mm [VERIFICADO: R06 §5.1 ABYC E-11] · MRBF 58 V [VERIFICADO: R08a §6]"],
-        ["F1", "Fusible principal (barra +)", f"{cab['fuse_a']:.0f} A (≥ {fmt(cab['fuse_min_a'])} A), ≥ {fmt(m['v_max'] * 1.2, 0)} V CC, sobre el espárrago de la barra + (protege el cable de {cab['dc_mm2']} mm²)",
+        ["F_BR", "Fusible de rama (uno por batería)", f"{cab['n_parallel']} × {cab['fuse_branch_a']:.0f} A, ≥ {fmt(m['v_max'] * 1.2, 0)} V CC, "
+         f"poder de corte ≥ {fmt(sc['I_sc_bateria_A'][1] / 1000, 1)} kA (§7), a ≤ 178 mm del borne + de CADA batería",
+         "Class T Blue Sea (160 V CC, 20 kA) en portafusible Blue Sea 5007100 (110–200 A) (B-FUSE-BR, B-FUSEH-BR)",
+         f"[CALCULADO: sizing.json electrical.fuse_branch_a] · 178 mm [VERIFICADO: R06 §5.1 ABYC E-11] · {tag('classt_aic_a')}"],
+        ["F1", "Fusible principal (barra +)", f"{cab['fuse_a']:.0f} A (≥ {fmt(cab['fuse_min_a'])} A), ≥ {fmt(m['v_max'] * 1.2, 0)} V CC, "
+         f"poder de corte ≥ {fmt(sc['I_sc_total_A'][1] / 1000, 1)} kA (§7), junto a la barra + (protege el cable de {cab['dc_mm2']} mm²)",
          R["clase"]["fuse"] + " (B-FUSE, B-FUSEH)",
-         "[CALCULADO: sizing.json electrical.fuse_a] · tensión [R08a §6 / R11 §8]"],
+         f"[CALCULADO: sizing.json electrical.fuse_a] · {tag('classt_aic_a')} · MRBF descartado: {tag('mrbf_aic_a')}"],
+        ["F6", "Fusible de la toma de carga (Anderson SB50)", "32 A gPV 10×38, ≥ 1000 V CC, poder de corte ≥ 10 kA CC, en la barra +; cable ≤ 16 mm²",
+         "gPV 10×38 32 A + portafusible estanco (B-CHGFUSE)", "[ESTIMADO: fusibles gPV 10×38 de 1000 V CC con poder de corte de decenas de kA (verificar en la ficha del elegido); cargador 15 A (R08a §5)]"],
         ["S1", "Desconectador manual", f"≥ {cab['fuse_a']:.0f} A cont., ≥ {fmt(m['v_max'], 0)} V CC, llave removible",
          "Biltema Hovedafbryder AFD 275 A 12–48 V (B-SW)" if not R["clase"]["hv"] else "desconectador ≥ 100 V CC (buscar)",
          "[VERIFICADO: R08a §3]"],
@@ -627,9 +683,12 @@ def blocks(R):
          "100 Ω 50 W carcasa de Al (B-RPRE)", f"[CALCULADO] {tag('r_pre_ohm')}"],
         ["ASW", "Antichispa MOSFET (NO se compra)", "solo arranque suave aguas abajo de K1; falla en corto → NO es seguridad; 100 A < I de batería",
          "Flipsky Antispark Pro V3.0 (B-ASW, qty 0)", "[VERIFICADO: R06 §3.1]"],
-        ["12V", "Fuente del mando y de achique", f"DC-DC aislado → {fmt(b['V_nom'], 0)} V, entrada ≥ {fmt(m['v_max'], 1)} V y que arranque con ≤ {fmt(m['v_min_load'], 1)} V; "
-         "conectado a la barra + aguas ARRIBA de F1/S1 con su fusible F5",
-         "Mean Well RSD-60G-12 (B-12V)", f"{tag('v_ctl_nom')} · {tag('v_ctl_tol')}"],
+        ["12V", "Fuente del mando y de achique", f"DC-DC aislado → {fmt(b['V_nom'], 0)} V, entrada ≥ {fmt(m['v_max'], 1)} V y que arranque con ≤ {fmt(m['v_min_load'], 1)} V "
+         f"(RSD-60L: {fmt(val('rsd_vin')[0], 0)}–{fmt(val('rsd_vin')[1], 0)} V); conectado a la barra + aguas ARRIBA de F1/S1 con su fusible F5 (removible: aislación de invierno)",
+         "Mean Well RSD-60L-12 (B-12V); NO la G (9–36 V)", f"{tag('rsd_vin')} · {tag('v_ctl_tol')}"],
+        ["HOLD", "Retención de la bobina de K1", f"Schottky 3 A (1N5822) en serie + {fmt(R['retencion']['C_sel_mF'], 0)} mF ≥ 25 V a 12 V−, entre F2 y la seta "
+         f"(aguas ARRIBA de seta/cordón: no demora el corte)",
+         "1N5822 + electrolítico (B-HOLD)", f"[CALCULADO, §7] · {tag('hold_t_s')}"],
         ["F2", "Fusible de mando (bobina K1, salida 12 V)", f"{fmt(b['F2_A'], 0)} A lento, portafusible en línea estanco", "B-CFUSE",
          f"[CALCULADO: ≥ {fmt(val('f2_factor'), 2)} × cierre {fmt(b['I_inrush_A'])} A]"],
         ["F3", "Fusible del DC-DC 5 V (entrada, lado batería)", "1 A, ≥ 58 V CC, portafusible en línea", "B-CFUSE",

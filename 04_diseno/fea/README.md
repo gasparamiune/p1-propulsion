@@ -1,241 +1,158 @@
-# FEA de las piezas impresas críticas — P1-MNT-01, P1-MNT-05, P1-MNT-04
+# FEA de las piezas críticas del waterjet — P1-DRV-03, P1-REV-01, P1-STE-01, P1-INT-02, P1-CTL-02
 
-FEA lineal elástico 3D de las tres piezas de PETG más cargadas del montaje: abrazadera de
-popa en C (MNT-01), cuna basculante (MNT-05, modelada con su tapa MNT-06 y el tubo de cola) y
-mejilla de horquilla (MNT-04). La geometría, las cargas y los admisibles se leen del proyecto en
-cada corrida. Por eso todas las cifras de resultados están en el bloque AUTO del final: lo
-regenera `fea_run.py` y no se edita a mano.
+FEA lineal elástico 3D de las piezas más cargadas del waterjet eléctrico inboard: el pórtico de
+rodamientos que baja el empuje del tren a la placa base (DRV-03), el bucket de reversa (REV-01), la
+boquilla direccional (STE-01), la placa base de la toma (INT-02) y una pieza impresa, la caja de
+palancas de la consola (CTL-02, PETG). La geometría, las cargas y los admisibles se leen del proyecto
+en cada corrida; todas las cifras de resultados están en el bloque AUTO del final, que regenera
+`fea_run.py` y no se edita a mano.
 
 ## Archivos y uso
 
 | Archivo | Qué hace |
 |---|---|
-| `fea_run.py` | CLI. Corre las 3 piezas con malla gruesa y fina, escribe `resultados_fea.json`, `img/*.png` y el bloque AUTO de este README |
-| `fea_parts.py` | Modelo de cada pieza: geometría (build(p) + consultas al CAD), BCs, cargas y casos |
-| `fea_model.py` | Interfaces de resortes (Winkler, cuerpo rígido, unilaterales), iteración de contacto, post-proceso |
-| `fea_core.py` | Malla gmsh, espacio P2, ensamble vectorizado, cargas de superficie y solver PCG de dos niveles |
+| `fea_run.py` | CLI. Corre las 5 piezas con malla gruesa y fina, evalúa las variantes propuestas, escribe `resultados_fea.json`, `img/*.png` y el bloque AUTO de este README |
+| `fea_parts.py` | Modelo de cada pieza: geometría (build(p) + consultas al CAD), BCs, cargas, casos, regiones y filas del cálculo a mano que se comparan |
+| `fea_model.py` | Interfaces de resortes (Winkler, cuerpo rígido, unilaterales), iteración de contacto, post-proceso (global y por región) |
+| `fea_core.py` | Malla gmsh (con optimización Netgen), espacio P2, ensamble vectorizado, cargas de superficie y solver PCG de dos niveles |
 | `fea_plot.py` | Mapas de tensión sobre la superficie (matplotlib) |
-| `../../tests/test_fea.py` | Viga en voladizo contra la solución analítica, verificación cruzada con scikit-fem, cuerpo rígido + Winkler, malla gruesa de MNT-04 y FS > 0 en el JSON |
+| `../../tests/test_fea.py` | Viga en voladizo contra la solución analítica, verificación cruzada con scikit-fem, cuerpo rígido + Winkler, malla gruesa de CTL-02, estática del bucket contra structural_direccion y FS > 0 en el JSON |
 
 ```bash
-python 04_diseno/fea/fea_run.py              # todo: ~2 min con 3 procesos (límite pedido: 6 min)
-python 04_diseno/fea/fea_run.py --serial     # un proceso (~3,5 min)
-python 04_diseno/fea/fea_run.py --quick --out /tmp/q.json   # solo malla gruesa, sin imágenes (~45 s)
-python 04_diseno/fea/fea_run.py --only P1-MNT-05 --h P1-MNT-05=10,6   # otra pieza / otros tamaños de malla
-pytest tests/test_fea.py                     # ~10 s
+python 04_diseno/fea/fea_run.py              # todo (gruesa + fina + variantes), 3 procesos: ~15 min
+python 04_diseno/fea/fea_run.py --quick      # solo malla gruesa, sin imágenes ni README (~4 min) → resultados_fea_quick.json
+python 04_diseno/fea/fea_run.py --only P1-STE-01 --h P1-STE-01=10,6 --out /tmp/ste.json   # una pieza / otros tamaños
+python 04_diseno/fea/fea_run.py --readme-only   # rehace hallazgos y bloque AUTO desde resultados_fea.json
+python -m pytest -q tests/test_fea.py        # ~1 min
 ```
 
-Dependencias: `gmsh`, `scipy`, `numpy`, `matplotlib`, `build123d`. `scikit-fem` solo se usa en el
-test. Las tres ya están en `requirements.txt` como opcionales de FEA. gmsh necesita
-`libglu1-mesa` del sistema.
+Dependencias: `gmsh`, `scipy`, `numpy`, `matplotlib`, `build123d`; `scikit-fem` solo en el test.
+gmsh necesita `libglu1-mesa` del sistema. `--quick` escribe en `resultados_fea_quick.json` para no
+pisar el entregable.
 
 ## Método
 
-1. **Geometría.** `params.load()` y luego el `build(p)` de cada módulo de pieza, en su marco
-   natural (BOTE, UNIDAD u HORQUILLA a ψ = 0). Se exporta un STEP temporal que gmsh importa por
-   OCC. Si esa importación falla, el script volumetriza `04_diseno/stl/asm/<ID>.stl`.
-2. **Valores que el módulo no expone.** Los ejes de los tornillos de apriete, del buje de
-   dirección, de los pernos de la tapa y del tornillo de trimado se leen de las caras cilíndricas
-   del CAD (OCP `BRepAdaptor_Surface`). La huella de la base de horquilla sale del CAD de MNT-03.
-   No hay posiciones copiadas a mano.
-3. **Malla.**
-   - Tetraedros de gmsh: Delaunay 3D con optimización.
-   - Tamaño global `h`, refinamiento por curvatura (n elementos por 2π en agujeros) y, en
-     MNT-05, esferas de refinamiento a h/2 en la pared pivote–tubo y en el apoyo del tope.
-   - Malla gruesa ≈ 2·h de la fina.
-4. **Elementos.**
-   - Tetraedros cuadráticos P2 de 10 nodos con aristas rectas, integrados con 4 puntos (exacto).
-   - El ensamble es vectorizado y propio. Coincide con `skfem.ElementTetP2` hasta 3·10⁻¹¹ en
-     la flecha de una viga ([CALCULADO], test).
-   - Por qué no se usó el ensamble de scikit-fem: tarda ~20 s en 2,6·10⁴ elementos. Con
-     SuperLU directo, factorizar 1,3·10⁵ gdl llevó 92 s con orden MMD, y 189 s y ~9 GB con
-     COLAMD ([CALCULADO]: medido en esta máquina).
-5. **Solver.**
-   - Gradiente conjugado precondicionado, tolerancia relativa 10⁻⁷.
-   - El precondicionador es de dos niveles. El nivel grueso es la interpolación P1 de la misma
-     malla (Galerkin, factorizado con LU dispersa); el suavizado es Chebyshev–Jacobi de grado 3.
-   - Converge en 15–80 iteraciones por solución.
-6. **Apoyos y contacto.**
-   - **Resortes de superficie Winkler:** k en N/mm³, normales y con rigidez tangencial
-     opcional.
-   - **Contacto unilateral:** solo compresión, resuelto por iteración de conjunto activo. La
-     malla fina arranca del estado de contacto convergido en la gruesa.
-   - **Cuerpos rígidos de 6 gdl** (el tubo) acoplados por resortes normales.
-   - **Perno sin fricción.** Se modela con resortes radiales exactos: la normal es radial en
-     cada punto de cuadratura. Con la normal de la faceta, un agujero facetado se comporta como
-     una llave Allen. En MNT-05 eso se llevaba ~1/3 del momento por el pivote y bajaba la fuerza
-     en el tope ([CALCULADO]: corrida de depuración).
-   - **Pernos:** resortes entre los desplazamientos promedio de dos parches.
-7. **Post-proceso.**
-   - **Campo de tensiones:** en P2 la tensión es lineal por elemento. Se evalúa exacta en los
-     vértices y se promedia por nodo, ponderada por volumen.
-   - **Criterios:** von Mises (σvm), principal máxima (σ1) y σZ = nᵀσn, donde
-     n = R(META['print_rot'])ᵀ·ẑ es la dirección Z de impresión en el marco de la pieza.
-   - Para cada criterio se reportan tres valores:
-     - **máx. global:** incluye las singularidades donde se aplican cargas y apoyos concentrados.
-     - **p99:** la tensión que se supera solo en el 1 % del volumen (percentil ponderado por
-       volumen nodal). Filtra los picos puntuales sin depender de un radio elegido.
-     - **máx\*:** el máximo fuera de las zonas de aplicación, es decir de los nodos a más de
-       r_excl = máx(4 mm, h_fina) de una carga o apoyo concentrado: tuercas, bujes, pernos,
-       tope y el empotramiento de MNT-04. Las interfaces distribuidas (espejo, asiento del tubo)
-       no se excluyen. Las cargas aplicadas sobre parches tienen bordes que crecen sin límite al
-       refinar. **Ese pico no es una tensión de diseño.**
-   - **FS** = admisible / máx\* para cada criterio. El FS gobernante es el menor de los tres. El
-     JSON también trae el FS con el máximo global y con el p99.
+1. **Geometría.** `params.load()` y el `build(p)` de cada módulo de pieza en su marco natural (BOTE
+   para DRV-03, INT-02 y CTL-02; BOQUILLA a δ = 0 para STE-01). El bucket se modela **abajo** (reversa)
+   con `build_down(p)`, en el marco de la boquilla. STEP temporal → gmsh (OCC). Los ejes de las roscas M5
+   de la tapa del pórtico se leen del CAD (OCP); el resto de las posiciones sale de params y de funciones
+   del módulo (`lock_pt`, `hull_bolts`, `bolt_x`, …). No hay posiciones copiadas a mano.
+2. **Malla.** Tetraedros de gmsh (Delaunay 3D + optimización Netgen, que reduce las astillas de las
+   paredes finas del CAD), tamaño global `h`, refinamiento por curvatura y esferas de refinamiento a h/2
+   en los apoyos críticos (pivotes y traba del bucket; orejas de STE-01; espárragos de INT-02). Malla
+   gruesa ≈ 1,7–2·h de la fina. Quedan algunas decenas de elementos con γ < 0,05 en aristas del CAD
+   (columna n(γ<0,05) del bloque AUTO); el p99 no depende de ellos.
+3. **Elementos y solver.** Tetraedros P2 de 10 nodos (ensamble propio verificado contra
+   `skfem.ElementTetP2`), PCG con precondicionador de dos niveles P2 → P1, tolerancia 10⁻⁷.
+4. **Apoyos y contacto.** Resortes Winkler (normales + 1 % tangencial de estabilización), contacto
+   unilateral por conjunto activo (la malla fina arranca del estado de la gruesa), pernos sin fricción con
+   normal radial exacta y cuerpos rígidos de 6 gdl (émbolo de la traba, yugo de dirección, conducto).
+5. **Post-proceso.** Tensión P2 evaluada en vértices y promediada por nodo (ponderada por volumen).
+   Para cada caso: **máx. global** (incluye singularidades de aplicación), **p99** (percentil 99 en
+   volumen) y **máx\*** = máximo fuera de un radio de exclusión r_excl = máx(4 mm, h_fina) alrededor de
+   cargas y apoyos concentrados (pernos, roscas, avellanados, arandelas). **FS = admisible / σvm máx\***
+   (metales dúctiles: von Mises). En PETG también σ1 y σZ (normal a las capas) contra S_Z; el FS es el
+   menor de los tres. Además se resume cada **región** de la pieza (máx\*, p99 y **promedio en
+   volumen**): las filas del cálculo a mano de aplastamiento/corte se comparan con el promedio en el
+   volumen que la fila representa (anillo alrededor del agujero, cilindro del tapón, capa bajo el cono).
+6. **Comparación con el cálculo a mano.** Cada fila de `resultados/estructural.json` se compara con la
+   región que modela, con la σ del FEA escalada a la carga de la fila (p. ej. la fila de fatiga de la
+   reversa usa F_bucket de sizing: σ_FEA × 698/1408) y el admisible de la propia fila. Diferencias de FS
+   > 30 % se explican en «Hallazgos».
 
-## Material, admisibles y anisotropía
+## Materiales y admisibles
 
-- **Elasticidad.** E = `materials.PETG.E_mpa`. ν = 0,38 [ESTIMADO: copoliésteres amorfos
-  0,37–0,40; no hay dato en inputs.yaml]. Material isotrópico equivalente y macizo.
-- **Admisibles.** Se leen de `inputs.yaml` en cada corrida; los valores vigentes están en el
-  bloque AUTO.
-  - En XY: `S_corta = σ_XY·f_agua·f_temp·f_proceso` y `S_sost = S_corta·f_creep`.
-  - En Z: `S_Z = mín(σ_Z, f_z·σ_XY)·f_agua·f_temp·f_proceso` (·f_creep si la carga es
-    sostenida).
-  - En Z se toma el **menor** de los dos datos y no `σ_Z·f_z`. Hoy `σ_Z ≈ f_z·σ_XY` por
-    construcción en inputs.yaml, y multiplicar ambos contaría dos veces la misma debilidad
-    entre capas.
-- **Duración de cada caso.** El apriete de MNT-01 es una carga sostenida. Los impactos y la
-  cola trabada son de corta duración. El caso de impacto incluye el apriete, pero se compara con
-  S_corta, igual que en structural.py; el apriete solo ya se verifica contra S_sost en el caso (a).
-- **Anisotropía.** σZ, la tensión normal a las capas, se compara con S_Z. Hay dos fuentes de
-  anisotropía que no se modelan, ambas desfavorables:
-  - la diferencia de rigidez entre XY y Z;
-  - la anisotropía entre cordones dentro de la capa (research/R05 §A3).
+- **Aluminios.** E = 70 GPa, ν = 0,33 [ESTIMADO: EN 1999-1-1]. Admisibles tomados de las constantes de
+  los `structural_<grupo>.py` (fuente única): DRV-03 `SY_6082_HAZ` = 115 MPa (zona soldada, en toda la
+  pieza); REV-01 `AL5083` = 125 MPa; STE-01 `AL6061` = 240 MPa; INT-02 `pmp_mat['Al 5083'].Sy` = 125 MPa.
+  FS objetivo `fs_target_metal` = 2.
+- **PETG (CTL-02).** E = `materials.PETG.E_mpa`, ν = 0,38 [ESTIMADO]. `S_corta = σ_XY·f_agua·f_temp·f_proceso`;
+  `S_Z = mín(σ_Z, f_z·σ_XY)·f_agua·f_temp·f_proceso` (no se multiplica dos veces la debilidad entre
+  capas). La caja se imprime con `print_rot = (180, 0, 0)`: Z de impresión = z del bote, así que la
+  flexión de la tapa queda en el plano de las capas y la de las **paredes** cruza capas (σZ). FS objetivo
+  `fs_target_printed` = 3. Material macizo equivalente: la pieza real es 5 perímetros + 30 % giroide
+  (`solid_frac` 0,55), lo que en la tapa de 6 mm reduce la rigidez y la resistencia a flexión.
 
 ## Condiciones de borde y cargas
 
-### P1-MNT-01 — abrazadera en C (marco BOTE)
+### P1-DRV-03 — pórtico de rodamientos (marco BOTE)
 
-- **Espejo.** Es una cimentación Winkler unilateral con k = E_espejo/t_espejo
-  (E_espejo = 500 MPa [ESTIMADO: madera o contrachapado ⟂ a la fibra, 300–800 MPa];
-  t = `boat.transom.thickness_mm`). Actúa sobre dos superficies:
-  - la cara x = 0 de la pata exterior;
-  - el borde superior del espejo, bajo el puente (z = 0, x ∈ [−t, 0]).
+- **Apoyos.** Zapatas sobre la placa base: resortes bilaterales k = E/t_placa (unión precargada a
+  T/(K·d) por espárrago ≫ el tiro de servicio; no se abre). El corte lo toman los 4 agujeros Ø9 de los
+  espárragos (contacto radial unilateral; representan también los pasadores Ø6 que se escarian en
+  montaje).
+- **(a)** Empuje `sizing.mech.Fa_max_N` hacia proa (eje del jet inclinado α): la tapa P1-DRV-06 tira de
+  las 4 roscas M5 de la cara delantera (tracción uniforme en sus paredes). Radial 3 g × m_rotor + Fr
+  (de structural_tren) como apoyo cosenoidal en el Ø47, perpendicular al eje.
+- **(b)** El mismo Fa hacia popa sobre el resalte trasero, solo en el anillo de apoyo del aro exterior
+  (Da_max ≤ Ø ≤ D) + el mismo radial.
 
-  Se añade un 1 % de rigidez tangencial solo para fijar los modos rígidos; su reacción resulta
-  despreciable. El momento en el puente de la C queda fijado por estática (el borde superior se
-  despega), así que el valor de E_espejo solo redistribuye la presión en la pata exterior.
-- **(a) Apriete sostenido.** F = T/(0,2·d) por tornillo, como en structural.py
-  (T = `mount.clamp_screw_torque_nm`). Se aplica como presión uniforme en −x sobre el fondo del
-  alojamiento hexagonal de cada tuerca cautiva. La tuerca empuja la pata interior hacia el
-  interior del bote y la C se abre.
-- **(b±) Impacto + apriete.** Se aplica H = 0,5·`loads.F_impact_peak_N` a la altura del pivote,
-  hacia popa (+x) y hacia proa (−x). Se transmite como lo hace la horquilla, con tres cargas
-  estáticamente equivalentes a H aplicada en z_pivote (el JSON trae `check_F`/`check_My`):
-  1. H como presión de apoyo cosenoidal sobre el agujero del buje de dirección, uniforme en
-     toda su altura.
-  2. El momento de vuelco restante como presión lineal de la base de horquilla sobre el plato,
-     en el lado comprimido de su huella.
-  3. La tracción igual del perno de dirección (tuerca M16) sobre el anillo inferior del buje,
-     bajo una arandela de Ø30 [ESTIMADO: ISO 7089].
+### P1-REV-01 — bucket abajo (marco BOQUILLA)
 
-  Los tornillos de apriete siguen precargados. Para el incremento se suma la rigidez axial de
-  la cadena tornillo A4 + zapata + espejo, con el desplazamiento del caso (a) como referencia.
-  El JSON reporta la fuerza resultante en cada tornillo.
+- **Carga.** F_b = máx(`sizing.loads.F_bucket_N`, 1408 N de R12 §7) = `REV_F_design`, como tracción
+  uniforme **por área proyectada** del chorro (Ø del chorro + cono 5° a la altura del fondo de la
+  cuchara) sobre la cara interior de la cuchara, en la dirección del chorro (+X), más la componente
+  vertical que da M_h = 1,10·F_b·Z_pivote, igual que structural_direccion.
+- **Apoyos.** Pivotes Ø14 (bujes POM P1-REV-03, k = E_POM/espesor del buje, unilaterales, sin
+  fricción, resorte axial débil). Traba: émbolo Ø12 en el agujero Ø12,5 del brazo +Y como cuerpo
+  rígido que **solo reacciona en la dirección tangencial** al círculo alrededor del pivote (el momento),
+  como en el cálculo a mano; los pivotes toman el resto. La fuerza de traba del FEA coincide con
+  `F_lock_pin_N` de estructural.json.
+- **Variantes propuestas** (V1, V2): misma carga; la geometría se completa con su espejo en y (lóbulos
+  y agujero de traba también en el brazo −Y, 2.º émbolo) y en V2 `REV_t` = 6 mm. Es solo una
+  evaluación dentro del modelo FEA: `P1-REV-01_bucket.py` no se modificó.
 
-### P1-MNT-05 — cuna basculante (marco UNIDAD), con tapa MNT-06 y tubo
+### P1-STE-01 — boquilla direccional (marco BOQUILLA, δ = 0)
 
-El tope de marcha apoya en la **tapa**, no en la cuna, y la cuna y la tapa abrazan el tubo. Por
-eso se modelan juntas: cuna + tapa (dos mallas) + tubo como cuerpo rígido.
+- **Apoyos.** Pernos de pivote fijos (orejas de la bomba rígidas): contacto radial unilateral en el Ø8 H7
+  de la mejilla superior y en las roscas M6 de las orejas superior e inferior; arandelas POM de empuje
+  como resortes axiales (la boquilla queda atrapada entre las orejas de la bomba). El **yugo** (brida
+  P1-STE-04 sobre la torre) es un cuerpo rígido unido a las 4 roscas M8 y a la cara superior de la torre,
+  con **solo el giro alrededor del eje de pivote bloqueado**: reacciona el par de dirección (la biela del
+  M66) sin fuerza neta.
+- **(a)** F_s = máx(`sizing.loads.F_steer_side_N`, 364 N de R12) lateral, como presión cosenoidal en el
+  paso Ø2·r_b, en una banda centrada en el centro de presión e = `STE_e_frac`·L (el modelo de la fila a
+  mano). **(b)** La misma F_s en los últimos 20 mm de la boca de salida (brazo ≈ L, conservador).
+  **(c)** Reversa: las reacciones del bucket (estática de `bucket_statics`, la misma hipótesis de traba
+  tangencial) en las orejas Ø8,4 y en la rosca M20 del émbolo. **(d)** c + a con contacto resuelto.
 
-- **Pivote.** Perno rígido fijo, unido por resortes radiales unilaterales:
-  k = E_POM/t_buje (E_POM = 2,8 GPa [ESTIMADO]). Es una articulación sin fricción, más un
-  resorte axial débil.
-- **Tubo ↔ asiento de la cuna y de la tapa.** Contacto unilateral con penalización
-  k = E_PETG/1 mm [SUPUESTO]. El tubo conserva los 4 gdl relevantes; se fijan su traslación
-  axial y su giro propio, que no tienen rigidez.
-- **4×M6 pasantes.** Resorte axial E·A_s/L (A_s = 20,1 mm² [ESTIMADO: ISO 898-1]) y resorte
-  de corte de 10 % [SUPUESTO]. Unen la arandela Ø24 sobre la cuna con el asiento de la cabeza
-  en el avellanado de la tapa. Se tratan como bilaterales (precargados).
-- **Tope de marcha.** Contacto unilateral en un disco de Ø `architecture.stop_pad_d_mm` sobre
-  la cara inferior de la tapa. Se centra donde el eje del tornillo de trimado (leído del CAD de
-  MNT-03) corta esa cara. Sin fricción, la normal es −v.
-- **Carga.** La cola trabada se representa con V = `loads.F_skeg_fuse_N` perpendicular al tubo,
-  aplicada en u = u_c + M/V, de modo que el momento en el centro de la cuna sea
-  `loads.M_tail_locked_Nm`, como en structural.py. Su sentido (−v) empuja la cola contra el
-  tope. El sentido opuesto (basculación) lo limita el retén, que suelta a M_release ≪ M_lock;
-  sin tope en ese sentido, no es un caso estructural de la cuna.
+### P1-INT-02 — placa base de la toma (marco BOTE)
 
-### P1-MNT-04 — mejilla de horquilla (marco HORQUILLA, mejilla de babor)
+- **Apoyos.** Ala sobre el casco: resortes k = E/t_casco, bilaterales (26 × M6 precargados; la junta no
+  se abre con estas cargas). Arandela + tuerca de cada M6 del ala: empotradas.
+- **(a)** Espárragos del pórtico: precarga T/(K·d) con el par de montaje de params (`drv_nut_torque_Nm`,
+  `drv_nut_K`) ± vuelco Fa·(h + t)/Δx/2 (popa a tracción) repartido con Φ = 0,25 (VDI 2230, como
+  structural_toma): tiro F_v + Φ·ΔF normal al cono del avellanado, compresión F_v − (1 − Φ)·ΔF + 3 g/4 de
+  la zapata en un anillo Ø24 (cono de compresión) y corte Fa/4 en ese anillo.
+- **(b)** Golpe de fondo `toma_p_slam_Pa` en la cara inferior, presión de cierre máx(p_cierre, p_golpe)
+  normal a todas las caras de la placa dentro de la abertura (cuña de la rampa y costados) y tiro de la
+  brida del conducto p·A_abertura en las roscas M6. **Placa sola**: sin la rigidez del conducto (cota
+  conservadora). **(b2)** Ídem con el conducto P1-INT-01 como **rigidizador rígido** unido a la huella de
+  la brida y a las roscas M6, con el tiro aplicado al conducto (cota rígida; es la hipótesis del cálculo a
+  mano, que apoya el paño en la línea de bulones del conducto). La realidad está entre (b) y (b2).
 
-- **Pie.** Empotrado: todos los gdl fijos en z = z₀, la cara de apoyo sobre MNT-03. El
-  empotramiento perfecto impide la expansión de Poisson y deja un borde singular, así que la
-  banda de r_excl sobre el pie se excluye del máx\*. El momento flector a esa altura es ≥ 96 %
-  del de la raíz.
-- **(a±)** 0,5·H por mejilla en ±x, como apoyo cosenoidal sobre el agujero del perno Ø12.
-- **(b)** Golpe lateral de 200 N completo en **una** mejilla (+y). Se aplica en el anillo
-  alrededor del perno, en la cara interior, donde apoya el extremo del buje POM Ø20 de la cuna.
-  Es la lectura literal y conservadora del caso.
-- **(b50)** 100 N, el reparto que usa structural.py: el perno atado con anillos reparte el
-  golpe entre las dos mejillas.
-- **(c±)** Combinado oblicuo a± + b, por superposición lineal.
+### P1-CTL-02 — caja de palancas PETG (marco BOTE)
 
-## Malla, calidad y convergencia
-
-- **Tamaños de malla.** Están en `CFG` (`fea_run.py`). El bloque AUTO lista para cada malla el
-  número de tetraedros, los gdl y la calidad γ = 3·r_in/r_circ.
-- **Elementos de mala calidad.** En MNT-05 quedan unos pocos elementos con γ < 0,1. Están en la
-  transición del asiento del tubo con el paso de eje y el rebaje del cartucho (u ≈ −53,
-  v ≈ −70). En MNT-04 la malla gruesa tiene 3 en el arco del buje del pivote. Ninguno cae en la
-  zona que gobierna.
-- **Qué converge.** En las tres piezas el p99 y el desplazamiento máximo cambian unos pocos %
-  entre la malla gruesa y la fina. El máx\* también converge donde no hay esquinas vivas
-  (MNT-01, MNT-05).
-- **Qué no converge.** En MNT-04 el máx\* está en la esquina viva de la ranura pasante de una
-  tuerca M6. Es una singularidad geométrica real (en la pieza impresa el radio de esquina es de
-  ~0,2 mm) y crece al refinar. Ahí el FS de diseño depende de la malla, y el JSON y la tabla
-  dan también el FS con el p99.
-
-## Comparación con structural.py y hallazgos
-
-El bloque AUTO compara cada caso con la fila correspondiente de `resultados/estructural.json` y
-da los hallazgos con las cifras vigentes. En resumen, el FEA encuentra tres diferencias de
-modelo en el cálculo a mano:
-
-1. **MNT-01.** La sección crítica de la C es el **puente** sobre el espejo (espesor =
-   `shelf_top_z`), no la pata. structural.py usa `Z = b·leg_t²/6`. Con la sección del puente,
-   la viga a mano coincide con el FEA dentro de ~5 % (p99 y máximo), y el FS sostenido queda muy por debajo de 3.
-2. **MNT-05/06.** El tornillo de trimado es vertical y apoya en una cara inclinada θ. Sin
-   fricción, el brazo de la reacción respecto del pivote es u_tope (≈ 30 mm), no
-   hypot(30, v_bot) ≈ 90 mm. Eso triplica las fuerzas del tope, tanto la de marcha (sostenida)
-   como la de cola trabada. La que no aguanta es la **tapa** MNT-06: queda en compresión entre
-   el tope y el tubo.
-3. **MNT-04.** Las ranuras pasantes de las tuercas M6, en la raíz, reducen la sección y
-   concentran tensión. La fórmula `Z = L·t²/6` no las ve.
-
-**Qué se recomienda al dueño del diseño** (este trabajo no modifica archivos fuera de
-`04_diseno/fea/`):
-
-- **MNT-01.** Engrosar el puente hasta el valor que da el bloque AUTO, o bajar el brazo
-  tornillo–puente o el apriete. Corregir `Z` en structural.py.
-- **MNT-05/06.**
-  - Mover el tope para que actúe con un brazo grande y normal a la cara, por ejemplo un tope
-    perpendicular a la tapa lejos del pivote.
-  - Poner una placa metálica de reparto en la tapa.
-  - Corregir `r_stop` en structural.py.
-- **MNT-04.** Redondear las esquinas de las ranuras o reemplazarlas por insertos o tuercas
-  cautivas más altas y fuera de la raíz.
+- **Apoyos.** Cara inferior del ala y de las paredes sobre la tapa de contrachapado de la consola
+  (Winkler unilateral, k = E_⟂/t_tapa, E_⟂ = 500 MPa [ESTIMADO]); 4 × M5 con arandela Ø10 empotrados.
+- **Carga.** Mano apoyada 150 N [SUPUESTO de structural_direccion] como presión uniforme sobre el
+  material dentro de una palma Ø50 [SUPUESTO]: (a) sobre el nervio de 6 mm entre las dos ranuras de las
+  palancas, a mitad de su luz libre; (b) sobre el tramo de tapa más ancho, junto a la ranura del bucket.
+  Corta duración (S_corta, S_Z corta).
 
 ## Limitaciones
 
-- **Lineal, con desplazamientos pequeños.** En MNT-01 la apertura calculada de la C es de
-  decenas de mm, fuera de ese supuesto. La conclusión (sección insuficiente) no cambia, pero la
-  cifra exacta no es fiable.
-- **Isotrópico equivalente y macizo.** No modela perímetros + relleno (`solid_frac` 0,85–0,9),
-  ni la anisotropía de rigidez, ni las uniones entre cordones. σZ es una verificación
-  aproximada.
-- **Sin contacto real entre piezas.** Se usan resortes Winkler y de penalización, sin fricción.
-  La precarga de los M6 de la tapa y del perno de dirección es desconocida; solo se precargan
-  los tornillos de apriete.
-- **Distribuciones de carga supuestas.** El apoyo cosenoidal en bujes, la presión lineal de la
-  base de horquilla y el apoyo uniforme a lo largo del buje son supuestos. Están documentados
-  arriba y en el código.
-- **Impacto cuasi-estático.** Se usa la fuerza pico de sizing.json, sin dinámica. La fluencia
-  lenta solo entra vía `f_creep`. No se evalúa fatiga: los admisibles `f_fatigue` están en
-  structural.py. La temperatura y el agua entran solo como factores.
-- **Solo tres piezas, y no la base de horquilla MNT-03.** MNT-06 entra únicamente como parte
-  del modelo de MNT-05.
+- **Lineal, desplazamientos pequeños, isotrópico.** Sin plasticidad: picos locales por encima de la
+  fluencia en zonas de apoyo (agujeros, avellanados) indican fluencia local, no rotura; por eso el FS de
+  diseño usa el máx\* fuera de r_excl y se reporta también el p99.
+- **Soldaduras.** No se modela la geometría del cordón ni la ZAT como material distinto; el admisible de
+  ZAT se aplica a toda la pieza soldada (DRV-03, REV-01). La fatiga de soldadura solo entra por las filas
+  a mano escaladas.
+- **Sin contacto real entre piezas** (resortes de penalización, sin fricción) y piezas vecinas rígidas
+  (orejas de la bomba, pernos, émbolo). En INT-02 el conducto se acota entre «ausente» y «rígido».
+- **Cargas cuasi-estáticas** (sizing / R12) sin dinámica; los impactos solo entran por los factores de
+  los casos a mano.
+- **PETG** macizo equivalente (ver arriba).
 
 <!-- FEA:AUTO:INICIO (generado por fea_run.py; no editar a mano) -->
 

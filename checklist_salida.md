@@ -16,12 +16,12 @@ Casilla sin marcar = **no se sale**. Una sola vez antes: T0–T2 aprobados y blo
 **2. Equipo a bordo**
 - [ ] Chaleco con cuello **puesto y cerrado**; cordón del kill switch atado al chaleco.
 - [ ] Cordón de repuesto · pagaya · ancla + cabo ≥ 20 m · achicador · manta térmica · teléfono en bolsa estanca.
-- [ ] 5 pasadores de corte, punzón Ø3, llaves Allen y de la tapa de inspección (el pasador se cambia en tierra).
+- [ ] 3 juegos de 2 semipasadores de corte Ø3,5 (R-PIN), punzón Ø3, llaves Allen y de la tapa de inspección (el pasador se cambia en tierra).
 
 **3. Bote en el agua, sistema desarmado (S1 OFF, cordón afuera)**
 - [ ] Sentina seca. Levantar el flotante: la alarma suena y el achique arranca.
 - [ ] Flotación en su lugar, compartimentos cerrados. Caja de baterías cerrada y seca por dentro.
-- [ ] Las dos baterías cargadas (cargador en verde) y con ≤ 0,2 V de diferencia entre sí.
+- [ ] Las dos baterías cargadas (cargador en verde). (La diferencia ≤ 0,2 V entre baterías solo se mide antes de unirlas en paralelo: T0.2.)
 - [ ] Rejilla limpia (desde afuera); nada enredado en el eje ni en el impulsor (mirar por la chimenea).
 - [ ] **Purga de la chimenea:** aflojar el tornillo hasta que salga agua, cerrar. Tapa de inspección apretada.
 - [ ] Testigo del sello (ventanas de la linterna y manguera a la sentina) **seco**.
@@ -38,6 +38,7 @@ Casilla sin marcar = **no se sale**. Una sola vez antes: T0–T2 aprobados y blo
 - [ ] Telemetría o LED en **COSTA**.
 - [ ] Bucket abajo con el acelerador en 0: se marca bucket abajo. Subirlo: se borra y traba arriba.
 - [ ] Acelerar al mínimo y **tirar del cordón**: para y clic. Repetir con la seta.
+- [ ] Amarrado, motor al 30 %: pinza CC en cada cable de rama de batería → **las dos** con corriente (un fusible de rama abierto no se ve por tensión). Si una rama no lleva corriente: no salir.
 - [ ] Al arrancar: chorro por la tobera en ≤ 3 s (si no: cortar y purgar).
 - [ ] **Agua por el testigo de refrigeración del espejo** en el primer minuto (si no: parar).
 
@@ -50,6 +51,7 @@ Casilla sin marcar = **no se sale**. Una sola vez antes: T0–T2 aprobados y blo
 - [ ] Para limpiar la rejilla: cordón afuera y S1 OFF. Nunca con el sistema armado.
 
 **6. Al volver**
+- [ ] **Cordón AFUERA y S1 OFF** (con el clip puesto la bobina de K1 consume 1,6 W aunque S1 esté abierto, y al próximo S1 ON K1 cerraría sin precarga).
 - [ ] Enjuagar con agua dulce casco, rejilla, boquilla, bucket, émbolo y conectores.
 - [ ] Revisar rejilla, impulsor (por la chimenea), testigo del sello y sentina.
-- [ ] Anotar en el registro: horas de motor, Wh, fallas del VESC, golpes. Cargar en tierra, sobre 5 °C.
+- [ ] Anotar en el registro: horas de motor, Wh, fallas del VESC, golpes. Cargar en tierra, sobre 5 °C. Invierno: sacar F5 y los fusibles de rama y guardar la batería a carga de almacenamiento (electrónica README §10).

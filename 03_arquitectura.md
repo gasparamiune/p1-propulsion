@@ -93,7 +93,8 @@ tobera Ø70) y el η de diseño del impulsor propio, porque AWT no publica su cu
 bote es más liviano, pero con el modelo de planeo corregido (Savitsky limitado por eslora, D-21) **ninguna de las
 dos cumple el 10 % de margen en la joroba** (A <!--V:sizing.performance.hump_margin_min:.0%-->3%<!--/V-->, B <!--V:cmp.B_hump_margin:.0%-->4%<!--/V-->)
 ni llega a 30 km/h sostenidos con la potencia continua estimada del motor (02 §4.3). Lo que devuelve el margen no es
-la propulsión sino el bote: ~10 kg menos o una flotación más larga (02 §3.2). Lo que acerca a 30 km/h está en 07 §2.4–2.5.
+la propulsión sino el bote: <!--V:sizing.verdict.recovery_mass_text:-->x<!--/V--> de masa total o
+<!--V:sizing.verdict.recovery_lwl_text:-->x<!--/V--> (02 §3.2). Lo que acerca a 30 km/h está en 07 §2.4–2.5.
 
 Referencia comercial del mismo tamaño en planta: Lampuga Air, <!--V:cmp.lampuga.loa_m:.2f-->2.30<!--/V--> ×
 <!--V:cmp.lampuga.beam_m:.2f-->0.75<!--/V--> m, <!--V:cmp.lampuga.power_kw:.0f-->10<!--/V--> kW,
@@ -132,7 +133,7 @@ menos eficiente (η del chorro <!--V:sizing.performance.legal.eta_jet:.2f-->0.35
 | **Mecanizado por servicio** (CNC 5 ejes, torno de taller) | Impulsor 316L (CNC o SLM + torneado), estator Al 6061-T6, carcasa (P1-PMP-01), tobera fija (P1-PMP-08), placa de espejo (P1-PMP-09), boquilla direccional (P1-STE-01) | Geometría de álabes en 5 ejes; diámetros mayores que el volteo del torno propio [SUPUESTO: 180 mm, medir]; holgura de punta de 0,4 mm |
 | **Soldado por servicio** (TIG) | Conducto de la toma sobre la placa base (Al 5083), pórtico de rodamientos y soporte del motor, bucket, rejilla 316 | Límite estanco del casco y piezas de chapa; mismo metal que el casco (5083) para no tener par galvánico |
 | **Torno propio** | Eje, pernos y bujes (316, POM), pasador de corte, piezas chicas de mandos | Diámetros chicos y tolerancias de torno manual |
-| **Comprado** | Motor, controlador, batería, cargador, sello mecánico, rodamientos 7204 BEP, acople Rotex 24, dirección T85 + M66, cable Mach5, eléctricos y seguridad (contactor, fusible, cordón, seta), achique, espuma | Productos con datos verificados (R11) |
+| **Comprado** | Motor, controlador, batería, cargador, sello mecánico, rodamientos 7204 BECBP, acople Rotex 24, dirección T85 + M66, cable Mach5, eléctricos y seguridad (contactor, fusible, cordón, seta), achique, espuma | Productos con datos verificados (R11) |
 
 **Por qué no se imprime la bomba** [CALCULADO: `04_diseno/structural_*.py`]:
 - Estator de PETG: FS sostenido <!--V:est.loads.structural_bomba.stator_PETG_FS_sust:.2f-->0.29<!--/V--> (hace falta 3) y
