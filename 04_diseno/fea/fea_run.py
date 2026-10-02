@@ -113,25 +113,43 @@ def design_sigma(summ, key, coarse=None):
     return f["max_vol"], "promedio en volumen", dif
 
 
-def fs_block(summ, kind, A, coarse=None):
-    """FS = admisible / σ de diseño. Metal dúctil: von Mises. PETG: σvm, σ1 y σZ (entre capas)."""
+def fs_block(summ, kind, A, coarse=None, regs=None):
+    """FS = admisible / σ de diseño. Metal dúctil: von Mises. PETG: σvm, σ1 y σZ (entre capas).
+    regs = (regiones gruesa, regiones fina): si el máx* global no convergió, la σ de diseño es la mayor entre
+    el promedio en volumen y los máx* de las regiones que sí convergieron."""
     S = A["S_short"] if kind == "short" else A["S_sust"]
 
     def fs(Sa, s):
         return float(Sa / s) if s is not None and s > 1e-9 else 999.0
-    sv, mv, dv = design_sigma(summ, "vm", coarse)
+
+    at = {}
+
+    def design(key):
+        sg, mg, dg = design_sigma(summ, key, coarse)
+        at[key] = summ[key]["at_max_excl_mm"] if mg == "máx*" else summ[key].get("at_max_vol_mm")
+        if mg != "máx*" and regs and regs[0] and regs[1]:
+            for rn, rf in regs[1].items():
+                rc = regs[0].get(rn)
+                if rc and rf[key]["max_excl"] is not None and rc[key]["max_excl"] is not None:
+                    sr, mr, _ = design_sigma(rf, key, rc)
+                    if mr == "máx*" and sr > sg:
+                        sg, mg = sr, f"máx* de la región «{rn}», convergido"
+                        at[key] = rf[key]["at_max_excl_mm"]
+        return sg, mg, dg
+    sv, mv, dv = design("vm")
     out = {"S_MPa": S, "vm": fs(S, sv), "sigma_vm_diseno_MPa": sv, "metodo_vm": mv, "dif_conv_vm": dv,
            "vm_max_excl": fs(S, summ["vm"]["max_excl"]), "vm_max_global": fs(S, summ["vm"]["max"]),
            "vm_p99": fs(S, summ["vm"]["p99"]), "vm_vol": fs(S, summ["vm"].get("max_vol"))}
     crits = ["vm"]
     if A["tipo"] == "PETG":
         SZ = A["SZ_short"] if kind == "short" else A["SZ_sust"]
-        s1, m1, d1 = design_sigma(summ, "s1", coarse)
-        sz, mz, dz = design_sigma(summ, "sZ", coarse)
+        s1, m1, d1 = design("s1")
+        sz, mz, dz = design("sZ")
         out.update({"S_Z_MPa": SZ, "s1": fs(S, s1), "Z": fs(SZ, sz), "sigma_s1_diseno_MPa": s1, "sigma_Z_diseno_MPa": sz,
                     "metodo_s1": m1, "metodo_Z": mz, "dif_conv_s1": d1, "dif_conv_Z": dz,
                     "s1_max_global": fs(S, summ["s1"]["max"]), "Z_max_global": fs(SZ, summ["sZ"]["max"])})
         crits += ["s1", "Z"]
+    out["ubicacion_mm"] = at
     crit = min(crits, key=lambda k: out[k])
     out["gobernante"] = out[crit]
     out["criterio"] = crit
@@ -171,6 +189,50 @@ def compare(out, level):
     return rows
 
 
+def postprocess(out, A, quick, est=None):
+    """FS por caso, convergencia, caso gobernante y comparación con el cálculo a mano. Con `est`
+    (estructural.json vigente) refresca antes las filas a mano de la comparación."""
+    level = out["nivel_reportado"]
+    if est is not None:
+        import fea_parts as fp
+        pid = out["pid"]
+        for c in out.get("comparacion", []):
+            h = next((r for r in est.get("rows", []) if r.get("part") == pid and r.get("load_case") == c["load_case"]), None) \
+                or fp.hand_row(est, pid, c["load_case"][:30])
+            if h:
+                c.update({"sigma_MPa": h.get("sigma_MPa"), "FS": h.get("FS"), "S_MPa": h.get("S_MPa"), "model": h.get("model")})
+                if c.get("S_cmp_MPa") is None:
+                    c["S_cmp_MPa"] = h.get("S_MPa")
+    fs_min, gov = 1e9, None
+    for cid, rec in out["casos"].items():
+        rec["FS"] = fs_block(rec[level]["resumen"], rec["tipo"], A, None if quick else rec["gruesa"]["resumen"],
+                             None if quick else (rec["gruesa"].get("regiones"), rec["fina"].get("regiones")))
+        if not quick:
+            g, f_ = rec["gruesa"]["resumen"], rec["fina"]["resumen"]
+            conv = {k: {"gruesa": g[a][s_], "fina": f_[a][s_], "dif_rel": (f_[a][s_] - g[a][s_]) / max(abs(f_[a][s_]), 1e-9)}
+                    for k, a, s_ in (("vm_p99", "vm", "p99"), ("vm_max_excl", "vm", "max_excl"), ("vm_max", "vm", "max"))}
+            conv["u_max"] = {"gruesa": g["u_max_mm"], "fina": f_["u_max_mm"],
+                             "dif_rel": (f_["u_max_mm"] - g["u_max_mm"]) / max(f_["u_max_mm"], 1e-12)}
+            rc = {}
+            for rn, rv in rec["fina"]["regiones"].items():
+                gv = rec["gruesa"]["regiones"].get(rn)
+                if gv:
+                    k = "max_excl" if (gv["vm"]["max_excl"] is not None and rv["vm"]["max_excl"] is not None) else "mean"
+                    rc[rn] = {"metrica": k, "gruesa": gv["vm"][k], "fina": rv["vm"][k],
+                              "dif_rel": (rv["vm"][k] - gv["vm"][k]) / max(rv["vm"][k], 1e-9)}
+            conv["regiones_vm_max_excl"] = rc
+            rec["convergencia"] = conv
+        fsb = rec["FS"]["gobernante"]
+        if fsb < fs_min:
+            fs_min, gov = fsb, cid
+    out["FS_min"] = fs_min
+    out["FS_objetivo"] = A["fs_target"]
+    out["cumple"] = bool(fs_min >= A["fs_target"])
+    out["caso_gobernante"] = gov
+    out["criterio_gobernante"] = out["casos"][gov]["FS"]["criterio"]
+    out["comparacion_mano"] = compare(out, level)
+
+
 def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=None):
     import fea_parts as fp
     from fea_model import mesh_quality
@@ -187,7 +249,7 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
     h_ref = levels[-1][1]
     r_ex = max(R_EX_MIN, h_ref)
     meta = mods[pid].META
-    out = {"descripcion": meta["desc"], "material": meta["material"], "print_rot": list(meta.get("print_rot", (0, 0, 0))),
+    out = {"pid": pid, "descripcion": meta["desc"], "material": meta["material"], "print_rot": list(meta.get("print_rot", (0, 0, 0))),
            "dir_Z_impresion_marco_pieza": fp.print_z_dir(meta).round(4).tolist(), "frame": meta["frame"],
            "mallas": {}, "casos": {}, "r_exclusion_mm": r_ex}
     prev_active, last = None, None
@@ -234,34 +296,8 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
         last = (level, M, fields_keep)
     level, M, fields_keep = last
     A = out["admisibles"]
-    fs_min, gov = 1e9, None
-    for cid, rec in out["casos"].items():
-        rec["FS"] = fs_block(rec[level]["resumen"], rec["tipo"], A, None if quick else rec["gruesa"]["resumen"])
-        if not quick:
-            g, f_ = rec["gruesa"]["resumen"], rec["fina"]["resumen"]
-            conv = {k: {"gruesa": g[a][s_], "fina": f_[a][s_], "dif_rel": (f_[a][s_] - g[a][s_]) / max(abs(f_[a][s_]), 1e-9)}
-                    for k, a, s_ in (("vm_p99", "vm", "p99"), ("vm_max_excl", "vm", "max_excl"), ("vm_max", "vm", "max"))}
-            conv["u_max"] = {"gruesa": g["u_max_mm"], "fina": f_["u_max_mm"],
-                             "dif_rel": (f_["u_max_mm"] - g["u_max_mm"]) / max(f_["u_max_mm"], 1e-12)}
-            rc = {}
-            for rn, rv in rec["fina"]["regiones"].items():
-                gv = rec["gruesa"]["regiones"].get(rn)
-                if gv:
-                    k = "max_excl" if (gv["vm"]["max_excl"] is not None and rv["vm"]["max_excl"] is not None) else "mean"
-                    rc[rn] = {"metrica": k, "gruesa": gv["vm"][k], "fina": rv["vm"][k],
-                              "dif_rel": (rv["vm"][k] - gv["vm"][k]) / max(rv["vm"][k], 1e-9)}
-            conv["regiones_vm_max_excl"] = rc
-            rec["convergencia"] = conv
-        fsb = rec["FS"]["gobernante"]
-        if fsb < fs_min:
-            fs_min, gov = fsb, cid
-    out["FS_min"] = fs_min
-    out["FS_objetivo"] = A["fs_target"]
-    out["cumple"] = bool(fs_min >= A["fs_target"])
-    out["caso_gobernante"] = gov
-    out["criterio_gobernante"] = out["casos"][gov]["FS"]["criterio"]
     out["nivel_reportado"] = level
-    out["comparacion_mano"] = compare(out, level)
+    postprocess(out, A, quick)
     # variantes propuestas (solo evaluación: la pieza NO se modifica; geometría alterada dentro del modelo FEA)
     out["variantes"] = {}
     for vname, var in ({} if quick else cfg.get("variantes", {})).items():
@@ -279,6 +315,7 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
         out["variantes"][vname] = {"descripcion": var["desc"], "param": var["param"], "n_tets": int(len(Mv.S.T)),
                                    "casos": vc, "tiempo_s": round(time.time() - tv, 1)}
         log(f"  variante {vname}: FS {min(v['FS']['gobernante'] for v in vc.values()):.2f}")
+    fs_min, gov = out["FS_min"], out["caso_gobernante"]
     imgs = []
     if not no_img and img_dir is not None:
         import fea_plot
@@ -430,7 +467,7 @@ def findings(res):
         fsg = g["FS"]
         k = {"vm": ("vm", "sigma_vm_diseno_MPa", "metodo_vm", "dif_conv_vm"), "s1": ("s1", "sigma_s1_diseno_MPa", "metodo_s1", "dif_conv_s1"),
              "Z": ("sZ", "sigma_Z_diseno_MPa", "metodo_Z", "dif_conv_Z")}[fsg["criterio"]]
-        at = s[k[0]]["at_max_excl_mm"] if fsg[k[2]] == "máx*" else s[k[0]]["at_max_vol_mm"]
+        at = fsg.get("ubicacion_mm", {}).get(k[0]) or s[k[0]]["at_max_excl_mm"]
         conv = "" if fsg.get(k[3]) is None else f", máx* gruesa→fina {100 * fsg[k[3]]:+.0f} %"
         H.append(f"- **{pid}: FS = {r['FS_min']:.2f}** (objetivo {tgt:.0f}, {'cumple' if r['cumple'] else '**NO CUMPLE**'}); "
                  f"caso {r['caso_gobernante']}, criterio {fsg['criterio']}: σ de diseño {fsg[k[1]]:.1f} MPa ({fsg[k[2]]}{conv}) en "
@@ -442,7 +479,33 @@ def findings(res):
     return H
 
 
-PART_NOTES = {}   # notas por pieza (ubicación, causa y propuesta), se completan abajo
+PART_NOTES = {    # notas por pieza: dónde está el máximo, causa y, si no cumple, propuesta (la pieza NO se editó)
+    "P1-DRV-03": "Máximo en la unión del alma central con el alojamiento Ø65 y el tablero (esquina viva, mecanizada o "
+                 "soldada): el empuje excéntrico y el radial entran al tablero por el alma. Cumple; conviene un radio "
+                 "≥ 3 mm (o cordón de filete) en esa unión.",
+    "P1-REV-01": "Máximo en el brazo +Y junto al agujero de traba (flexión fuera del plano de la chapa de 4 mm) y "
+                 "≈ 120 MPa en el borde inferior de la cuchara junto al brazo (soldadura). Causa: la traba está en un solo "
+                 "brazo, así que todo M_h pasa por la cuchara (sección abierta) a torsión hasta el brazo +Y (giro de "
+                 "3,6 mm). **Propuesta al dueño de P1-REV-01/04**: (1) traba en los dos brazos (segundo émbolo en −Y "
+                 "o perno pasante) — V1 baja la cuchara a < 10 MPa y el giro a 0,2 mm, pero el lóbulo de traba de 4 mm "
+                 "queda en FS 1,3; (2) además brazos (o al menos los lóbulos de pivote y traba) de 6 mm, p. ej. con una "
+                 "arandela de refuerzo soldada — V2 da FS 2,3. Corregir structural_direccion: el brazo con la traba "
+                 "lleva todo M_h, no F_b/2.",
+    "P1-STE-01": "El pico global (≈ 200 MPa) está en la arista viva donde la oreja de pivote corta el labio de "
+                 "entrada (x = X_pivote, sin radio en el CAD, con astillas de malla) y no converge: se usa el "
+                 "promedio en volumen y el máx* convergido de cada región. Gobierna la oreja del bucket +Y sobre la "
+                 "rosca M20 de la traba (ligamento de ~5 mm hasta el contorno de la oreja), con la reversa. Cumple; "
+                 "un radio de 1–2 mm en la arista oreja/labio quitaría la singularidad.",
+    "P1-INT-02": "Gobierna el golpe de fondo con la placa sola (b): máximo en la cara superior sobre el borde del "
+                 "apoyo del ala (unión cuerpo–ala), convergido. Con el conducto como rigidizador (b2) baja a "
+                 "≈ 18 MPa. Los avellanados M8 del pórtico: σvm promedio bajo el cono ≈ presión de la fila a mano.",
+    "P1-CTL-02": "Gobierna σZ (tracción entre capas, Z de impresión = z): la tapa cargada gira en sus bordes y "
+                 "flexiona las paredes de 3,5 mm, con la cara exterior a tracción vertical justo bajo la tapa. La "
+                 "fila a mano (franja de tapa) no lo ve; la tapa en sí da FS ≈ 3,3. **Propuesta al dueño de "
+                 "P1-CTL-02**: paredes de 5 mm (V1: FS 3,5) engrosadas hacia afuera para no mover el entrehierro del "
+                 "sensor hall; una tapa de 8 mm (V2) exige subir ZT para conservar la luz sobre el cubo. Además la "
+                 "pieza real es 5 perímetros + 30 % giroide (solid_frac 0,55): el FEA macizo es optimista.",
+}
 
 # Explicaciones de las diferencias > 30 % (clave: (pieza, primeros 24 caracteres de la fila de structural_*.py)).
 NOTES = {
@@ -534,7 +597,12 @@ def main(argv=None):
         k, v = spec.split("=")
         CFG[k]["h"] = tuple(float(x) for x in v.split(","))
     if a.readme_only:
+        import fea_parts as fp
         res = json.loads(Path(a.out).read_text(encoding="utf-8"))
+        _, _, est = fp.load_project()
+        for pid, r in res["piezas"].items():
+            r.setdefault("pid", pid)
+            postprocess(r, r["admisibles"], r["nivel_reportado"] == "gruesa", est)
         res["hallazgos"] = findings(res)
         Path(a.out).write_text(json.dumps(_j(res), indent=1, ensure_ascii=False), encoding="utf-8")
         write_readme(res)
