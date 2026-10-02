@@ -2,8 +2,10 @@
 
 Marco JET: X = 0 en la cara de entrada (cubo), X a popa. Cubo Ø D_hub, largo L_imp, nariz elíptica
 hacia proa (apoya en arandela + DIN 471-20 delantero, empuje), agujero Ø shaft_d H7 sin chavetero.
-El par entra por el PASADOR DE CORTE transversal (P1-PMP-05, eje Y, X = pmp_pin_X) que atraviesa
-cubo y eje; sus extremos los tapa el anillo retén P1-PMP-04 sobre el asiento Ø 2·pmp_land_r.
+El par entra por 2 SEMIPASADORES DE CORTE (P1-PMP-05, eje Y, X = pmp_pin_X, uno desde cada lado) en el
+agujero transversal de cubo y eje; sus extremos los tapa el anillo retén P1-PMP-04 sobre el asiento
+Ø 2·pmp_land_r. Se cambian con el impulsor en el eje (params_bomba.service_paths); si hay que sacar el
+impulsor, sale por popa por el anillo de desgaste (sacando antes el DIN 471 de popa).
 Álabes: Z = blades, secciones de arco circular + espesor NACA 00xx sobre cilindros, ángulos de pala
 de p.pmp_blade_row(r) (triángulos de sizing + incidencia 3° + desviación de Constant, R12 §2.5),
 borde de ataque apilado radial en X = pmp_imp_le_X; punta recortada exactamente a r = D/2.
@@ -21,7 +23,7 @@ from cadlib import cyl_y, cyl_z, has_radius  # noqa: E402
 from params import loc_jet  # noqa: E402
 
 META = dict(id="P1-PMP-03", name="impeller",
-            desc="Impulsor axial de 5 álabes, cubo Ø66 con nariz, pasador de corte (sin chavetero)",
+            desc="Impulsor axial de 5 álabes, cubo Ø66 con nariz, 2 semipasadores de corte (sin chavetero)",
             material="AISI 316", process="torneada", qty=1, frame="jet", group="jet",
             load_case="Par máx. del controlador + empuje axial; corte del pasador (piedra)",
             allow={"P1-PMP-05": 5.0, "P1-PMP-04": 8.0})

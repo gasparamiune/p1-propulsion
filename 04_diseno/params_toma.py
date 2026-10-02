@@ -70,24 +70,42 @@ def extend(d):
 
     # ------------------------------------------------------------------ techo (rampa)
     th_m = d["ramp"]                  # [ESTIMADO: research/R10a §4 — 27°]
-    L2 = 84.0                         # giro final rampa → eje [CALCULADO: el menor que deja R_mín ≥ 100 mm (R10a usa R120) y el techo libre de la caja del sello en S_seal]
+    L2_0 = 84.0                       # giro final rampa → eje [CALCULADO: el menor que deja R_mín ≥ 100 mm (R10a usa R120) y el techo libre de la caja del sello en S_seal]
     XE, ZE = d["toma_X_circ"], d["toma_R_out"]
     xE, zE = j2b(XE, ZE)              # lo alto de la sección de salida
     U = d["x_tan"] - xE
 
-    def zend(L1):
-        _, z, _ = _roof(th_m, L1, U - L1 - L2, L2, d["alpha"])
-        return z[-1]
-    lo, hi = 5.0, U - L2 - 1.0
-    if zend(lo) < zE:
-        raise ValueError("params_toma: con ramp = %.1f° el techo no llega a la brida; subir ramp" % th_m)
-    for _ in range(60):
-        mid = 0.5 * (lo + hi)
-        if zend(mid) > zE:
-            lo = mid
-        else:
-            hi = mid
-    L1 = 0.5 * (lo + hi)
+    def solve(L2):
+        def zend(L1):
+            _, z, _ = _roof(th_m, L1, U - L1 - L2, L2, d["alpha"])
+            return z[-1]
+        lo, hi = 5.0, U - L2 - 1.0
+        if zend(lo) < zE:
+            raise ValueError("params_toma: con ramp = %.1f° el techo no llega a la brida; subir ramp" % th_m)
+        for _ in range(60):
+            mid = 0.5 * (lo + hi)
+            if zend(mid) > zE:
+                lo = mid
+            else:
+                hi = mid
+        L1 = 0.5 * (lo + hi)
+        uu, zz, tt = _roof(th_m, L1, U - L1 - L2, L2, d["alpha"])
+        dd = np.gradient(np.radians(tt), uu)
+        return L1, float(1.0 / np.max(np.abs(dd) * np.cos(np.radians(tt)) + 1e-12))
+
+    # con otra altura de eje (regeneración) el R mín. puede bajar de 100: se prueba L2 cerca de L2_0 (±24 mm)
+    # y se toma el más cercano que lo recupere; si ninguno, el de mayor R mín. (el check de P1-INT-01 avisa)
+    L2, (L1, Rm) = L2_0, solve(L2_0)
+    if Rm < 100.0:
+        cands = sorted((L2_0 + k for k in range(-24, 25, 2) if k), key=lambda v: abs(v - L2_0))
+        best = (Rm, L2, L1)
+        for c in cands:
+            l1, rm = solve(c)
+            if rm >= 100.0:
+                best = (rm, c, l1)
+                break
+            best = max(best, (rm, c, l1))
+        Rm, L2, L1 = best
     Lp = U - L1 - L2
     u, z, th = _roof(th_m, L1, Lp, L2, d["alpha"])
     xr = d["x_tan"] - u

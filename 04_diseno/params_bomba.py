@@ -5,19 +5,23 @@ blades, vanes, pump_sections, X_*, interfaces) y de sizing.json; las decisiones 
 etiqueta. Prefijo de todas las claves: "pmp_".
 
 Arquitectura de la bomba (de proa a popa, marco JET, X hacia popa):
-  P1-PMP-01 carcasa Al 6061-T6 torneada: brida de la toma (X_duct_out) → brida trasera (X_st1).
+  P1-PMP-01 carcasa Al 6061-T6 torneada: brida de la toma (X_duct_out, espigón de centraje) → brida trasera
+            (X_st1 − pmp_stack_gap, 8 × M5 ciegos para la tobera).
             Aloja el anillo de desgaste (prensado contra un escalón) y la camisa del estator.
   P1-PMP-02 anillo de desgaste AISI 316 torneado, Ø int D_bore, X_ring0 … X_ring0+L_ring.
   P1-PMP-03 impulsor AISI 316 (CNC 5 ejes; alternativa SLM 316L + torneado, R11 §6), arrastrado
             por un PASADOR DE CORTE transversal (fusible mecánico, R12 §7.6), sin chavetero.
   P1-PMP-04 anillo retén del pasador (316), tapa los extremos del pasador.
-  P1-PMP-05 pasador de corte Al 6061-T6 Ø sz.mech.shear_pin.d_mm.
+  P1-PMP-05 2 semipasadores de corte Al 6061-T6 Ø sz.mech.shear_pin.d_mm (cambiables con el impulsor en el eje).
   P1-PMP-06 estator Al 6061-T6 (CNC 5 ejes) con camisa, 7 álabes, cubo con buje de agua y cono.
   P1-PMP-07 buje de agua Ø20 POM-C/Vesconite (2.º apoyo del eje, lubricado por agua).
-  P1-PMP-08 tobera fija Al 6061-T6: contracción a D_noz, salida en X_noz1, alojamiento esférico
+  P1-PMP-08 tobera fija Al 6061-T6 (brida < agujero del espejo, espiga con O-ring radial): contracción a
+            D_noz, salida en X_noz1, alojamiento esférico
             de la boquilla, resalte del O-ring del espejo y orejas de pivote (±Z_steer_lug).
   P1-PMP-09 placa de espejo Al 5083 con cuello coaxial (sello radial O-ring sobre la tobera).
   P1-PMP-10 junta de espejo NBR 2 mm.
+SERVICIO (auditoría Pass 3 H1): service_paths() — tobera, estator, impulsor y semipasadores salen por popa
+por el agujero del espejo sin tocar el tren; lo verifica verify_parts.py (V7).
 """
 from __future__ import annotations
 
