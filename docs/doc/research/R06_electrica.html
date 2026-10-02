@@ -1,0 +1,1649 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R06 — Eléctrica — P1-J · Strålen</title>
+<meta name="description" content="Proyecto P1: propulsión eléctrica, mini lancha de aluminio tipo jon boat (&lt; 2,5 m), Als Fjord (Sønderborg). Fecha de la investigación: 2026-10-01. Etiquetas: [VERIFICADO: url] =…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="R06 — Eléctrica — P1-J · Strålen">
+<meta property="og:description" content="Proyecto P1: propulsión eléctrica, mini lancha de aluminio tipo jon boat (&lt; 2,5 m), Als Fjord (Sønderborg). Fecha de la investigación: 2026-10-01. Etiquetas: [VERIFICADO: url] =…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/research/R06_electrica.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=a7f9186a">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="R06 — Eléctrica — P1-J · Strålen">
+<meta name="twitter:description" content="Proyecto P1: propulsión eléctrica, mini lancha de aluminio tipo jon boat (&lt; 2,5 m), Als Fjord (Sønderborg). Fecha de la investigación: 2026-10-01. Etiquetas: [VERIFICADO: url] =…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=a7f9186a">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/research/R06_electrica.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header" id="top">
+  <div class="bar wide">
+    <a class="brand" href="../../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../../index.html" class=nav-home>Inicio</a><a href="../../visor/index.html">Visor 3D</a><a href="../../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../../planos.html">Planos</a><a href="../../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
+  </div>
+</header>
+
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../../documentos.html">Documentos</a> / <span class="mono">research/R06_electrica.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/research/R06_electrica.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#0-resumen-ejecutivo-lo-que-hay-que-hacer">0. Resumen ejecutivo (lo que hay que hacer)</a></li>
+<li><a href="#1-motor-bldc-en-ambiente-marino">1. Motor BLDC en ambiente marino</a><ul>
+<li><a href="#11-comparación-de-configuraciones">1.1 Comparación de configuraciones</a></li>
+<li><a href="#12-recubrimientos-estatorimanes">1.2 Recubrimientos (estator/imanes)</a></li>
+<li><a href="#13-rodamientos">1.3 Rodamientos</a></li>
+</ul>
+</li>
+<li><a href="#2-vesc-control-con-marcha-atrás-y-funciones-de-seguridad-código-fuente-abierto">2. VESC: control con marcha atrás y funciones de seguridad (código fuente abierto)</a><ul>
+<li><a href="#21-hardware-candidato">2.1 Hardware candidato</a></li>
+<li><a href="#22-versión-de-firmware-importa-para-el-kill-switch">2.2 Versión de firmware (importa para el kill switch)</a></li>
+<li><a href="#23-modos-de-control-con-reversa-enumeraciones-reales-del-firmware">2.3 Modos de control con reversa (enumeraciones reales del firmware)</a></li>
+<li><a href="#24-parámetros-por-defecto-relevantes-firmware-master">2.4 Parámetros por defecto relevantes (firmware master)</a></li>
+<li><a href="#25-cómo-funcionan-las-protecciones-leído-en-el-código">2.5 Cómo funcionan las protecciones (leído en el código)</a></li>
+<li><a href="#26-riesgos-de-control-específicos-de-hélice">2.6 Riesgos de control específicos de hélice</a></li>
+</ul>
+</li>
+<li><a href="#3-corte-de-energía-antichispa-kill-switch-con-cordón-contactor-y-precarga">3. Corte de energía: antichispa, kill switch con cordón, contactor y precarga</a><ul>
+<li><a href="#31-interruptor-antichispa-flipsky">3.1 Interruptor antichispa (Flipsky)</a></li>
+<li><a href="#32-kill-switch-náutico-con-cordón-lanyard">3.2 Kill switch náutico con cordón (lanyard)</a></li>
+<li><a href="#33-contactor-ejemplo-con-datos-albright-sw80">3.3 Contactor (ejemplo con datos: Albright SW80)</a></li>
+<li><a href="#34-precarga">3.4 Precarga</a></li>
+<li><a href="#35-arquitectura-recomendada-sistema-aisladoflotante">3.5 Arquitectura recomendada (sistema aislado/flotante)</a></li>
+</ul>
+</li>
+<li><a href="#4-baterías">4. Baterías</a><ul>
+<li><a href="#41-comparación-de-químicas">4.1 Comparación de químicas</a></li>
+<li><a href="#42-inmersión-en-agua-saladasalobre">4.2 Inmersión en agua salada/salobre</a></li>
+<li><a href="#43-elección-de-cantidad-de-celdas-en-serie-límites-duros">4.3 Elección de cantidad de celdas en serie (límites duros)</a></li>
+<li><a href="#44-dimensionamiento-de-energía-para-cruzar-con-los-informes-de-cascohélice">4.4 Dimensionamiento de energía (para cruzar con los informes de casco/hélice)</a></li>
+<li><a href="#45-recomendación-para-bote-abierto">4.5 Recomendación para bote abierto</a></li>
+</ul>
+</li>
+<li><a href="#5-normas">5. Normas</a><ul>
+<li><a href="#51-tabla-de-alcance-solo-lo-verificado">5.1 Tabla de alcance (solo lo verificado)</a></li>
+<li><a href="#52-ampacidad-abyc-e-11-tabla-vi-a-conductores-simples-no-agrupados-extracto-2008">5.2 Ampacidad ABYC E-11 (Tabla VI-A, conductores simples no agrupados, extracto 2008)</a></li>
+<li><a href="#53-caída-de-tensión-calculada-cobre-ρ-00175-ωmm²m-idavuelta-estimado-cálculo-propio">5.3 Caída de tensión calculada (cobre ρ = 0,0175 Ω·mm²/m, ida+vuelta) [ESTIMADO: cálculo propio]</a></li>
+<li><a href="#54-fusible-principal">5.4 Fusible principal</a></li>
+</ul>
+</li>
+<li><a href="#6-corrosión-galvánica-casco-de-aluminio-agua-salobre">6. Corrosión galvánica (casco de aluminio, agua salobre)</a><ul>
+<li><a href="#61-serie-galvánica-en-agua-de-mar-referencia-agagcl">6.1 Serie galvánica en agua de mar (referencia Ag/AgCl)</a></li>
+<li><a href="#62-pares-críticos-de-este-diseño">6.2 Pares críticos de este diseño</a></li>
+<li><a href="#63-ánodos-de-sacrificio-en-agua-salobre">6.3 Ánodos de sacrificio en agua salobre</a></li>
+<li><a href="#64-corrientes-parásitas-más-rápidas-que-la-galvánica">6.4 Corrientes parásitas (más rápidas que la galvánica)</a></li>
+</ul>
+</li>
+<li><a href="#7-lista-eléctrica-con-precios-verificados-resto-buscar">7. Lista eléctrica con precios verificados (resto: buscar)</a></li>
+<li><a href="#hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</a></li>
+<li><a href="#fuentes-abiertas-con-éxito-en-esta-sesión">Fuentes abiertas con éxito en esta sesión</a></li>
+<li><a href="#verificación-adversarial">Verificación (adversarial)</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#0-resumen-ejecutivo-lo-que-hay-que-hacer">0. Resumen ejecutivo (lo que hay que hacer)</a></li>
+<li><a href="#1-motor-bldc-en-ambiente-marino">1. Motor BLDC en ambiente marino</a><ul>
+<li><a href="#11-comparación-de-configuraciones">1.1 Comparación de configuraciones</a></li>
+<li><a href="#12-recubrimientos-estatorimanes">1.2 Recubrimientos (estator/imanes)</a></li>
+<li><a href="#13-rodamientos">1.3 Rodamientos</a></li>
+</ul>
+</li>
+<li><a href="#2-vesc-control-con-marcha-atrás-y-funciones-de-seguridad-código-fuente-abierto">2. VESC: control con marcha atrás y funciones de seguridad (código fuente abierto)</a><ul>
+<li><a href="#21-hardware-candidato">2.1 Hardware candidato</a></li>
+<li><a href="#22-versión-de-firmware-importa-para-el-kill-switch">2.2 Versión de firmware (importa para el kill switch)</a></li>
+<li><a href="#23-modos-de-control-con-reversa-enumeraciones-reales-del-firmware">2.3 Modos de control con reversa (enumeraciones reales del firmware)</a></li>
+<li><a href="#24-parámetros-por-defecto-relevantes-firmware-master">2.4 Parámetros por defecto relevantes (firmware master)</a></li>
+<li><a href="#25-cómo-funcionan-las-protecciones-leído-en-el-código">2.5 Cómo funcionan las protecciones (leído en el código)</a></li>
+<li><a href="#26-riesgos-de-control-específicos-de-hélice">2.6 Riesgos de control específicos de hélice</a></li>
+</ul>
+</li>
+<li><a href="#3-corte-de-energía-antichispa-kill-switch-con-cordón-contactor-y-precarga">3. Corte de energía: antichispa, kill switch con cordón, contactor y precarga</a><ul>
+<li><a href="#31-interruptor-antichispa-flipsky">3.1 Interruptor antichispa (Flipsky)</a></li>
+<li><a href="#32-kill-switch-náutico-con-cordón-lanyard">3.2 Kill switch náutico con cordón (lanyard)</a></li>
+<li><a href="#33-contactor-ejemplo-con-datos-albright-sw80">3.3 Contactor (ejemplo con datos: Albright SW80)</a></li>
+<li><a href="#34-precarga">3.4 Precarga</a></li>
+<li><a href="#35-arquitectura-recomendada-sistema-aisladoflotante">3.5 Arquitectura recomendada (sistema aislado/flotante)</a></li>
+</ul>
+</li>
+<li><a href="#4-baterías">4. Baterías</a><ul>
+<li><a href="#41-comparación-de-químicas">4.1 Comparación de químicas</a></li>
+<li><a href="#42-inmersión-en-agua-saladasalobre">4.2 Inmersión en agua salada/salobre</a></li>
+<li><a href="#43-elección-de-cantidad-de-celdas-en-serie-límites-duros">4.3 Elección de cantidad de celdas en serie (límites duros)</a></li>
+<li><a href="#44-dimensionamiento-de-energía-para-cruzar-con-los-informes-de-cascohélice">4.4 Dimensionamiento de energía (para cruzar con los informes de casco/hélice)</a></li>
+<li><a href="#45-recomendación-para-bote-abierto">4.5 Recomendación para bote abierto</a></li>
+</ul>
+</li>
+<li><a href="#5-normas">5. Normas</a><ul>
+<li><a href="#51-tabla-de-alcance-solo-lo-verificado">5.1 Tabla de alcance (solo lo verificado)</a></li>
+<li><a href="#52-ampacidad-abyc-e-11-tabla-vi-a-conductores-simples-no-agrupados-extracto-2008">5.2 Ampacidad ABYC E-11 (Tabla VI-A, conductores simples no agrupados, extracto 2008)</a></li>
+<li><a href="#53-caída-de-tensión-calculada-cobre-ρ-00175-ωmm²m-idavuelta-estimado-cálculo-propio">5.3 Caída de tensión calculada (cobre ρ = 0,0175 Ω·mm²/m, ida+vuelta) [ESTIMADO: cálculo propio]</a></li>
+<li><a href="#54-fusible-principal">5.4 Fusible principal</a></li>
+</ul>
+</li>
+<li><a href="#6-corrosión-galvánica-casco-de-aluminio-agua-salobre">6. Corrosión galvánica (casco de aluminio, agua salobre)</a><ul>
+<li><a href="#61-serie-galvánica-en-agua-de-mar-referencia-agagcl">6.1 Serie galvánica en agua de mar (referencia Ag/AgCl)</a></li>
+<li><a href="#62-pares-críticos-de-este-diseño">6.2 Pares críticos de este diseño</a></li>
+<li><a href="#63-ánodos-de-sacrificio-en-agua-salobre">6.3 Ánodos de sacrificio en agua salobre</a></li>
+<li><a href="#64-corrientes-parásitas-más-rápidas-que-la-galvánica">6.4 Corrientes parásitas (más rápidas que la galvánica)</a></li>
+</ul>
+</li>
+<li><a href="#7-lista-eléctrica-con-precios-verificados-resto-buscar">7. Lista eléctrica con precios verificados (resto: buscar)</a></li>
+<li><a href="#hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</a></li>
+<li><a href="#fuentes-abiertas-con-éxito-en-esta-sesión">Fuentes abiertas con éxito en esta sesión</a></li>
+<li><a href="#verificación-adversarial">Verificación (adversarial)</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="r06-eléctrica-bldc-esc-vesc-kill-switch-baterías-normas-corrosión-galvánica">R06 — Eléctrica: BLDC / ESC (VESC) / kill switch / baterías / normas / corrosión galvánica</h1>
+<p>Proyecto P1: propulsión eléctrica, mini lancha de aluminio tipo jon boat (&lt; 2,5 m), Als Fjord (Sønderborg). Fecha de la investigación: 2026-10-01.
+Etiquetas: <strong>[VERIFICADO: url]</strong> = leído en esta sesión · <strong>[ESTIMADO: base]</strong> · <strong>[SUPUESTO]</strong>. Si algo no se pudo abrir: "buscar: …".</p>
+<hr />
+<h2 id="0-resumen-ejecutivo-lo-que-hay-que-hacer">0. Resumen ejecutivo (lo que hay que hacer)</h2>
+<ol>
+<li><strong>Motor SECO arriba del agua (cola larga) es la opción eléctricamente más sana</strong>: un outrunner inundado en agua salada exige desarmarlo y enjuagarlo después de <em>cada</em> uso según instrucciones publicadas en foil.zone para el Maytech 6579 (post del usuario PaulKirdy; el post <strong>no</strong> las atribuye explícitamente a Maytech — corregido en verificación). Con la cola larga el motor solo recibe salpicaduras → protector + rodamientos inox/híbridos + enjuague.</li>
+<li><strong>VESC (Flipsky/Makerbase 75100)</strong>: el firmware abierto tiene <em>safe start</em>, timeout, chequeo de rango ADC, kill switch por software y límites térmicos, <strong>pero los valores por defecto no sirven para un bote</strong> (corte de batería por defecto 10 V/8 V, rango ADC 0,0–3,5 V que en la práctica no detecta un cable cortado). Hay que configurarlos. (Los defaults genéricos de <code>mcconf_default.h</code> son sobrescritos por el archivo de hardware del 75_100: <code>l_max_voltage</code> = 90 V, <code>l_in_current_max</code> = 100 A, filtro de fase = false — ver §2.4.)</li>
+<li><strong>Peligro concreto del modo ADC "Current Reverse Center"</strong>: si se corta el cable del cursor del acelerador y la entrada cae a ~0 V, con <code>voltage_min = 0,0</code> (default) el VESC lo interpreta como <strong>reversa máxima</strong>. Poner <code>voltage_min</code> ≈ 0,3 V.</li>
+<li><strong>El antichispa MOSFET NO es un elemento de seguridad</strong>: sus MOSFET pueden fallar en cortocircuito (queda encendido; caso de foro con un antichispa Buildkit Boards). El kill switch debe abrir un <strong>contactor monoestable</strong> (bobina en serie con el cordón), no solo pedir "apagar" a la electrónica.</li>
+<li><strong>Batería: LiFePO4</strong>. En ensayo ARC la LFP no llegó a disparar runaway (Tmax 239 °C) mientras la NMC811 disparó a 147 °C y llegó a 463 °C. Penalidad: ~128 Wh/kg a nivel pack comercial.</li>
+<li><strong>Tensión: preferir 12S LFP (38,4 V nominal, 43,8 V máx.)</strong> en lugar de "48 V" (15–16S). 16S LFP cargado = 58,4 V: supera el fusible MRBF (58 V máx.), la "tensión de seguridad" de 50 V CC de ISO 16315, y la tensión máxima de interrupción del contactor SW80 estándar (48 V).</li>
+<li><strong>Normas</strong>: el bote (&lt; 2,5 m) queda <strong>fuera</strong> de la Directiva 2013/53/UE (2,5–24 m). Como guía voluntaria aplica <strong>ISO 16315:2026</strong> (propulsión eléctrica, 2ª ed., reemplaza a la de 2016) + ISO 13297:2020 (resto del sistema CC ≤ 50 V) + ABYC E-11 (fusible a ≤ 7"/175 mm del borne, valor que da ABYC; fusible ≤ ampacidad del cable).</li>
+<li><strong>Galvánica</strong>: eje inox 316 pasivo (−150 mV) vs aluminio 5083/6061 (−820 mV) = ~670 mV de diferencia (límite práctico 200 mV). Aislar eje/tubo del casco (las piezas de PETG y la correa ya lo hacen), ánodo de <strong>aluminio</strong> (no zinc ni magnesio) en agua salobre, nada de latón bajo el agua.</li>
+</ol>
+<hr />
+<h2 id="1-motor-bldc-en-ambiente-marino">1. Motor BLDC en ambiente marino</h2>
+<h3 id="11-comparación-de-configuraciones">1.1 Comparación de configuraciones</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Configuración</th>
+<th>Exposición</th>
+<th>Mantenimiento reportado</th>
+<th>Ventaja</th>
+<th>Riesgo principal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Outrunner seco arriba del agua (cola larga)</strong></td>
+<td>Salpicadura/niebla salina</td>
+<td>Enjuague con agua dulce + spray anticorrosivo [ESTIMADO: extrapolación de práctica eFoil, ver 1.2]</td>
+<td>Motor barato estándar (patinete/eBike), fácil de cambiar, sin sellos</td>
+<td>Corrosión de imanes/laminaciones por niebla salina si no se protege; refrigeración por aire limitada</td>
+</tr>
+<tr>
+<td>Outrunner <strong>inundado</strong> (pod sumergido, estilo eFoil)</td>
+<td>Inmersión continua en agua salobre</td>
+<td>Post de foil.zone "How to maintain Maytech 6579…" (usuario PaulKirdy; no dice explícitamente que el texto sea de Maytech): <em>"take apart the rotor and stator, clean stator and rotor with fresh water after every time use, must remove salt on the surface of magnets and lamination… apply anti-rust paint"</em> [VERIFICADO: https://foil.zone/t/how-to-maintain-maytech-6579-waterproof-outrunner-motor/24647]</td>
+<td>Refrigeración excelente por agua: <em>"water flows through it and therefore has excellent cooling properties"</em> [VERIFICADO: https://e-surfer.com/en/blog/build-your-own-e-foilboard-diy-e-foil-part-2/]</td>
+<td>Desarme después de cada salida = inaceptable para uso recreativo; usuario reporta un motor Flipsky <em>"seized with salt water"</em> [VERIFICADO: https://foil.zone/t/waterproof-6374-with-no-shaft-for-efoil/17043]</td>
+</tr>
+<tr>
+<td>Inrunner <strong>sellado</strong> IP68 (ej. Flipsky FS65161)</td>
+<td>Inmersión</td>
+<td>Fabricante: sello cerámico, vida ~10 000 h limitada por rodamiento, "anti-corrosion… works in the sea" [VERIFICADO: https://flipsky.net/blogs/vesc-tool/more-known-about-fs65161-motor] (afirmación del vendedor, no ensayo independiente)</td>
+<td>Sin mantenimiento declarado; e-surfer: inrunners <em>"maintenance-free"</em>, se recomienda llenarlos de aceite [VERIFICADO: https://e-surfer.com/en/blog/build-your-own-e-foilboard-diy-e-foil-part-2/]</td>
+<td>Motor de 6 kW/6–20S sobredimensionado para 0,3–0,5 kW; precio y peso altos; sello dinámico = punto único de falla</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="12-recubrimientos-estatorimanes">1.2 Recubrimientos (estator/imanes)</h3>
+<ul>
+<li>Práctica eFoil para outrunners en agua salada: <em>"seal the stator with thermal epoxy resin to prevent corrosion"</em> o baño periódico con aceite tipo Corrosion-X [VERIFICADO: https://e-surfer.com/en/blog/build-your-own-e-foilboard-diy-e-foil-part-2/].</li>
+<li>Para el motor SECO de la cola larga: barniz/epoxi sobre bobinado (la mayoría ya viene barnizado) [SUPUESTO], spray tipo Corrosion-X/ACF-50 sobre imanes y laminaciones expuestas cada ~10 salidas [ESTIMADO: práctica eFoil adaptada], <strong>cubierta impresa en PETG con drenaje inferior y ventilación hacia abajo</strong> (no hermética: una carcasa sellada atrapa condensación salina) [ESTIMADO: criterio de diseño].</li>
+<li>Sensor NTC de temperatura de motor conectado al VESC: el firmware lo soporta (<code>MCCONF_M_MOTOR_TEMP_SENS_TYPE = TEMP_SENSOR_NTC_10K_25C</code> por defecto) [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/motor/mcconf_default.h].</li>
+</ul>
+<h3 id="13-rodamientos">1.3 Rodamientos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Material</th>
+<th>Dato</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Acero cromo (estándar en motores RC)</td>
+<td>e-surfer: <em>"the simple steel bearings must be replaced with stainless steel or ceramic bearings"</em></td>
+<td>[VERIFICADO: https://e-surfer.com/en/blog/build-your-own-e-foilboard-diy-e-foil-part-2/]</td>
+</tr>
+<tr>
+<td>Inox AISI 440C</td>
+<td>Capacidad de carga ≈ <strong>20 % menor</strong> que acero cromo; <strong>ojo</strong>: SMB dice que el 440 <em>"will corrode in seawater environments"</em> (sí resiste agua dulce)</td>
+<td>[VERIFICADO: https://www.smbbearings.com/technical/bearing-material.html]</td>
+</tr>
+<tr>
+<td>Inox 316</td>
+<td><em>"Suitable for very low load and low speed only"</em>; no endurecible; pitting en agua de mar &gt; 30 °C y <strong>corrosión en grietas ya a 10–15 °C</strong>; poco apto sumergido permanentemente sin flujo</td>
+<td>[VERIFICADO: https://www.smbbearings.com/technical/bearing-material.html]</td>
+</tr>
+<tr>
+<td>Nitruro de silicio <strong>full cerámico</strong> (Si3N4, prefijo CCSI)</td>
+<td><em>"Very good corrosion resistance to water, salt water, acids and alkalis"</em>; acepta solo ~65–75 % de la carga y ~25 % de la velocidad límite de un rodamiento de acero; frágil a impactos</td>
+<td>[VERIFICADO: https://www.smbbearings.com/technical/bearing-material.html]</td>
+</tr>
+<tr>
+<td>Híbrido (aros de acero + bolas Si3N4)</td>
+<td>La resistencia a corrosión es la de los <strong>aros</strong> (si son 440C, corroen en agua de mar); ventaja: velocidad +30–40 %, mejor con poca lubricación</td>
+<td>[VERIFICADO: https://www.smbbearings.com/technical/bearing-material.html]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recomendación</strong> (corregida en verificación): motor seco con salpicadura salina → 440C sellado 2RS (o híbrido con aros 440C) <strong>asumiendo que corroe</strong> → enjuague con agua dulce + inhibidor y reemplazo como consumible [ESTIMADO: criterio, la fuente dice que el 440 corroe en agua de mar]; full cerámico Si3N4 solo si la carga/velocidad del motor cabe en el 65–75 % / 25 % indicado. Los bujes del eje en el agua son tema de otro informe (lubricados por agua).</p>
+<hr />
+<h2 id="2-vesc-control-con-marcha-atrás-y-funciones-de-seguridad-código-fuente-abierto">2. VESC: control con marcha atrás y funciones de seguridad (código fuente abierto)</h2>
+<h3 id="21-hardware-candidato">2.1 Hardware candidato</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ESC</th>
+<th>Tensión</th>
+<th>Corriente</th>
+<th>Precio</th>
+<th>Notas</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flipsky 75100 (single; "PCB aluminio" <strong>no figura</strong> en la página citada [NO VERIFICADO]; 85×50,7×33,8 mm)</td>
+<td>14–84 V (4–20S)</td>
+<td>100 A cont. / 120 A máx.</td>
+<td>79 USD (oferta; lista 99 USD)</td>
+<td>Specs: <em>"Phase filter: No"</em>. <strong>Advertencia del vendedor</strong>: <em>"Phase filering is not available for Flipsky ESC75100 and 75200! Please turn off the phase filter … when use firmware version on or above 5.3 … Without turning off the phase filter will result in esc damage. Please do not restore the default parameters when using the wizard interface."</em>; también <em>"It is recommended to keep firmware 5.2 from factory ship"</em></td>
+<td>[VERIFICADO: https://hobbygoat.com/products/flipsky-75100-75v-100a-single-esc]</td>
+</tr>
+<tr>
+<td>Makerbase VESC 75100 V2</td>
+<td>14–84 V (4–20S)</td>
+<td>100 A cont. / 120 A máx. ("depends on external heat dissipation")</td>
+<td>114,99 GBP</td>
+<td>MOSFET HYG015N10NS1TA, STM32F405, 103×58×18,5 mm, cables 12 AWG</td>
+<td>[VERIFICADO: https://escooter-parts.co.uk/products/makerbase-vesc-75100-v2-84v-100a-esc-with-alu-pcb-based-on-vesc]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Ninguno declara grado IP → caja estanca con la PCB de aluminio atornillada a una placa disipadora [ESTIMADO: criterio de diseño]. Potencia real del proyecto 0,3–1,5 kW [ESTIMADO: ver §4.4] → corriente batería ≤ 45 A: el 75100 sobra en corriente; elegirlo por precio/firmware, no por potencia.</p>
+<h3 id="22-versión-de-firmware-importa-para-el-kill-switch">2.2 Versión de firmware (importa para el kill switch)</h3>
+<ul>
+<li>FW <strong>5.02</strong> (<code>datatypes.h</code> del tag 5.02): <strong>no existe</strong> <code>KILL_SW_MODE</code> [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/5.02/datatypes.h].</li>
+<li>FW <strong>5.03</strong>: aparece <code>KILL_SW_MODE</code> con 4 modos (PPM_LOW/HIGH, ADC2_LOW/HIGH) [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/release_5_03/datatypes.h].</li>
+<li>master actual: 10 modos (agrega ADC3, SWDIO, SWCLK) [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/datatypes.h].</li>
+<li>Conflicto: Flipsky recomienda quedarse en 5.2 por el filtro de fase; pero 5.2 no tiene kill switch por software. <strong>Decisión: FW ≥ 5.03 con <code>foc_phase_filter_enable = false</code></strong> (Flipsky) o comprar un VESC con filtro de fase (buscar: "VESC 75100 phase filter hardware Makerbase V2").</li>
+<li><strong>Atenuante hallado en verificación</strong>: en el firmware oficial, el archivo de hardware del 75100 (<code>hwconf/flipsky/hw_75_100.h</code>, igual en <code>hw_75_100_V2.h</code>) define <code>MCCONF_FOC_PHASE_FILTER_ENABLE false</code> y tiene los pines <code>PHASE_FILTER_*</code> comentados, tanto en <code>release_6_00</code>, <code>release_6_02</code>, <code>release_6_05</code> como en master [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/hwconf/flipsky/hw_75_100.h], [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/release_6_00/hwconf/flipsky/hw_75_100.h]. Con FW ≥ 6.00 (target "75_100") el default ya es "filtro apagado"; igual <strong>verificar en VESC Tool tras el asistente</strong> (el vendedor pide no restaurar defaults desde el wizard). En <code>release_5_03</code> no existe ese archivo (404) → no pude verificar el default de 5.03 para este hardware.</li>
+</ul>
+<h3 id="23-modos-de-control-con-reversa-enumeraciones-reales-del-firmware">2.3 Modos de control con reversa (enumeraciones reales del firmware)</h3>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>App</th>
+<th>Modo (<code>datatypes.h</code>)</th>
+<th>Comportamiento (de <code>app_adc.c</code> / <code>app_ppm.c</code>)</th>
+<th>Uso en el bote</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ADC</td>
+<td><code>ADC_CTRL_TYPE_CURRENT_REV_CENTER</code> ("Current Reverse Center")</td>
+<td>Mapea <code>voltage_start</code>→<code>voltage_center</code>→<code>voltage_end</code> a −1…0…+1; corriente proporcional, reversa debajo del centro</td>
+<td><strong>Palanca única tipo náutica con retén central</strong> (avance/neutro/reversa). Recomendado</td>
+</tr>
+<tr>
+<td>ADC</td>
+<td><code>ADC_CTRL_TYPE_DUTY_REV_CENTER</code></td>
+<td>Igual pero manda ciclo de trabajo (≈ RPM ∝ palanca)</td>
+<td>Alternativa: sensación "de fueraborda", evita embalamiento si la hélice sale del agua [ESTIMADO: física del control en duty vs corriente]</td>
+</tr>
+<tr>
+<td>ADC</td>
+<td><code>ADC_CTRL_TYPE_CURRENT_REV_BUTTON</code></td>
+<td>Invierte el signo si el botón de reversa está presionado</td>
+<td>Acelerador de pulgar + interruptor FWD/REV</td>
+</tr>
+<tr>
+<td>PPM</td>
+<td><code>PPM_CTRL_TYPE_CURRENT</code></td>
+<td>Positivo acelera; negativo frena si gira hacia adelante y acelera en reversa cuando rpm ≤ 0</td>
+<td>Control remoto RC (inalámbrico)</td>
+</tr>
+<tr>
+<td>PPM</td>
+<td><code>PPM_CTRL_TYPE_CURRENT_BRAKE_REV_HYST</code></td>
+<td>Freno primero, reversa solo tras volver a neutro y con rpm &lt; <code>max_erpm_for_dir</code> (histéresis 20 %)</td>
+<td>Tipo "auto RC"</td>
+</tr>
+<tr>
+<td>PPM</td>
+<td><code>PPM_CTRL_TYPE_CURRENT_NOREV_BRAKE</code></td>
+<td>Sin reversa (negativo = freno)</td>
+<td>No sirve (reversa obligatoria)</td>
+</tr>
+<tr>
+<td>PPM</td>
+<td><code>PPM_CTRL_TYPE_CURRENT_SMART_REV</code></td>
+<td><strong>Corregido</strong>: sí tiene reversa, pero indirecta: si la palanca está &lt; −92 % con el motor casi detenido (duty &lt; 1,5·<code>l_min_duty</code>), pasa a control por ciclo de trabajo hacia atrás limitado por <code>smart_rev_max_duty</code> con rampa <code>smart_rev_ramp_time</code> (default 3,0 s)</td>
+<td>Posible pero poco intuitivo para maniobrar en un muelle; preferir <code>CURRENT</code> o <code>CURRENT_BRAKE_REV_HYST</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Fuentes: [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/applications/app_adc.c], [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/applications/app_ppm.c], [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/datatypes.h].</p>
+<h3 id="24-parámetros-por-defecto-relevantes-firmware-master">2.4 Parámetros por defecto relevantes (firmware master)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Parámetro</th>
+<th>Default</th>
+<th>Archivo</th>
+<th>Comentario para el bote</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>APPCONF_TIMEOUT_MSEC</code></td>
+<td>1000 ms</td>
+<td>appconf_default.h</td>
+<td>Sin comando válido (PPM/UART/CAN) durante 1 s → aplica corriente de freno</td>
+</tr>
+<tr>
+<td><code>APPCONF_TIMEOUT_BRAKE_CURRENT</code></td>
+<td>0,0 A</td>
+<td>appconf_default.h</td>
+<td>0 = rueda libre. Para hélice está bien (no hace falta frenar)</td>
+</tr>
+<tr>
+<td><code>APPCONF_KILL_SW_MODE</code></td>
+<td><code>KILL_SW_MODE_DISABLED</code></td>
+<td>appconf_default.h</td>
+<td><strong>Habilitar</strong> (ver §3)</td>
+</tr>
+<tr>
+<td><code>APPCONF_PPM_SAFE_START</code> / <code>APPCONF_ADC_SAFE_START</code></td>
+<td>true / true</td>
+<td>appconf_default.h</td>
+<td>Mantener</td>
+</tr>
+<tr>
+<td><code>APPCONF_PPM_HYST</code> / <code>APPCONF_ADC_HYST</code> (zona muerta)</td>
+<td>0,15 / 0,15</td>
+<td>appconf_default.h</td>
+<td>15 % de zona muerta: razonable para palanca con retén</td>
+</tr>
+<tr>
+<td><code>APPCONF_PPM_PULSE_START/CENTER/END</code></td>
+<td>1,0 / 1,5 / 2,0 ms</td>
+<td>appconf_default.h</td>
+<td>Calibrar con el emisor</td>
+</tr>
+<tr>
+<td><code>APPCONF_ADC_VOLTAGE_START/CENTER/END</code></td>
+<td>0,9 / 2,0 / 3,0 V</td>
+<td>appconf_default.h</td>
+<td>Calibrar con la palanca</td>
+</tr>
+<tr>
+<td><code>APPCONF_ADC_VOLTAGE_MIN / MAX</code> (chequeo de rango)</td>
+<td><strong>0,0 / 3,5 V</strong></td>
+<td>appconf_default.h</td>
+<td><strong>Con 0,0 V no detecta un cursor cortado → reversa máxima en REV_CENTER</strong>. Poner ~0,3 V / ~3,1 V</td>
+</tr>
+<tr>
+<td><code>APPCONF_ADC_RAMP_TIME_POS / NEG</code></td>
+<td>0,3 s / 0,1 s</td>
+<td>appconf_default.h</td>
+<td>Subir a ~1 s para no tirar a nadie al agua y cuidar la correa [ESTIMADO]</td>
+</tr>
+<tr>
+<td><code>APPCONF_PPM_RAMP_TIME_POS / NEG</code></td>
+<td>0,4 s / 0,2 s</td>
+<td>appconf_default.h</td>
+<td>idem</td>
+</tr>
+<tr>
+<td><code>APPCONF_PPM_MAX_ERPM_FOR_DIR</code></td>
+<td>4000</td>
+<td>appconf_default.h</td>
+<td>Umbral para permitir reversa en modo HYST</td>
+</tr>
+<tr>
+<td><code>APPCONF_ADC_UPDATE_RATE_HZ</code></td>
+<td>500 Hz</td>
+<td>appconf_default.h</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MCCONF_L_CURRENT_MAX / MIN</code> (motor)</td>
+<td>60 / −60 A</td>
+<td>mcconf_default.h</td>
+<td>Ajustar al motor elegido</td>
+</tr>
+<tr>
+<td><code>MCCONF_L_IN_CURRENT_MAX / MIN</code> (batería)</td>
+<td>99 / −60 A genérico; <strong>100 / −100 A en el target 75_100 y 75_100_V2</strong> (hwconf)</td>
+<td>mcconf_default.h / hw_75_100.h</td>
+<td><strong>Bajar a ≤ 80 % de la corriente continua del BMS</strong> (ej. 40 A para BMS de 50 A) para no disparar el BMS en el fiordo; y <code>l_in_current_min</code> (regeneración) a −5…−10 A si el BMS no admite carga alta [ESTIMADO: criterio]</td>
+</tr>
+<tr>
+<td><code>MCCONF_L_BATTERY_CUT_START / END</code></td>
+<td><strong>10,0 / 8,0 V</strong> (el hwconf 75_100 no lo sobrescribe)</td>
+<td>mcconf_default.h</td>
+<td><strong>Inútil para 12S</strong>: poner ~36,0 / 33,6 V (3,0 / 2,8 V por celda LFP) [ESTIMADO: rango LFP típico]</td>
+</tr>
+<tr>
+<td><code>MCCONF_L_MAX_VOLTAGE</code></td>
+<td>57,0 V genérico; <strong>90,0 V en el target 75_100 y 75_100_V2</strong> (<code>HW_LIM_VIN</code> 6–120 V)</td>
+<td>mcconf_default.h / hw_75_100.h</td>
+<td><strong>Corregido</strong>: con el firmware del 75100 el límite de 57 V <strong>no aplica</strong>; 16S LFP (58,4 V) no dispara sobretensión por software. El límite real es el hardware: 84 V (vendedor)</td>
+</tr>
+<tr>
+<td><code>MCCONF_L_MIN_VOLTAGE</code></td>
+<td>8,0 V (75_100) / 12,0 V (75_100_V2)</td>
+<td>hw_75_100*.h</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>MCCONF_L_LIM_TEMP_FET_START / END</code></td>
+<td>85 / 100 °C</td>
+<td>mcconf_default.h</td>
+<td>Limitación lineal de corriente entre ambos</td>
+</tr>
+<tr>
+<td><code>MCCONF_L_LIM_TEMP_MOTOR_START / END</code></td>
+<td>85 / 100 °C</td>
+<td>mcconf_default.h</td>
+<td>Requiere NTC en el motor</td>
+</tr>
+<tr>
+<td><code>MCCONF_L_MAX_DUTY</code></td>
+<td>0,95</td>
+<td>mcconf_default.h</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>Fuentes: [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/applications/appconf_default.h], [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/motor/mcconf_default.h], [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/hwconf/flipsky/hw_75_100.h], [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/hwconf/flipsky/hw_75_100_V2.h]. Nota: qué target de firmware usa el Makerbase 75100 V2 no lo verifiqué (buscar: "Makerbase 75100 V2 VESC Tool firmware target").</p>
+<h3 id="25-cómo-funcionan-las-protecciones-leído-en-el-código">2.5 Cómo funcionan las protecciones (leído en el código)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Función</th>
+<th>Implementación verificada</th>
+<th>Consecuencia práctica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Safe start ADC</strong></td>
+<td><code>MIN_MS_WITHOUT_POWER 500</code>: si la palanca no estuvo en cero ≥ 500 ms (tras encender o tras una falla, si <code>safe_start != SAFE_START_NO_FAULT</code>) se manda <code>mc_interface_set_brake_current(timeout_get_brake_current())</code></td>
+<td>Arrancar con la palanca adelantada NO mueve el motor hasta volver a neutro ½ s</td>
+</tr>
+<tr>
+<td><strong>Safe start PPM</strong></td>
+<td><code>MIN_PULSES_WITHOUT_POWER 50</code> pulsos en neutro</td>
+<td>ídem con radio (≈ 1 s a 50 Hz [ESTIMADO])</td>
+</tr>
+<tr>
+<td><strong>Timeout PPM</strong></td>
+<td><code>if (timeout_has_timeout() \|\| servodec_get_time_since_update() &gt; timeout_get_timeout_msec())</code> → corriente de freno de timeout y <code>pulses_without_power = 0</code></td>
+<td>Si se pierde la señal de radio: rueda libre a los 1000 ms y re-exige neutro (safe start)</td>
+</tr>
+<tr>
+<td><strong>Timeout ADC</strong></td>
+<td>(Precisado en verificación) El ADC llama <code>timeout_reset()</code> en cada ciclo <strong>en que pasa safe start y chequeo de rango</strong> (y no está "detached"); si <code>range_ok</code> falla, hace <code>continue</code> antes del reset → freno inmediato y, además, el timeout general vence a los 1000 ms. Pero una lectura <strong>dentro de rango</strong> nunca produce timeout: la única defensa contra cable cortado es que el cable cortado caiga <strong>fuera</strong> de <code>range_ok = read_voltage &gt;= voltage_min &amp;&amp; read_voltage &lt;= voltage_max</code>. Con REV_CENTER, 0 V se mapea a −1 (reversa máxima) tras <code>utils_truncate_number(&amp;pwr, 0.0, 1.0)</code> y <code>pwr*2−1</code></td>
+<td>Configurar <code>voltage_min/max</code> es obligatorio; agregar pull-down/pull-up en la entrada para que un cable cortado caiga a un riel conocido fuera de rango [ESTIMADO: criterio de diseño]</td>
+</tr>
+<tr>
+<td><strong>Timeout general (UART/CAN)</strong></td>
+<td><code>timeout.c</code>: si <code>timeout_msec != 0</code> y pasa ese tiempo sin <code>timeout_reset()</code> → freno con <code>timeout_brake_current</code> en ambos motores</td>
+<td>Útil si se controla por UART desde un microcontrolador</td>
+</tr>
+<tr>
+<td><strong>Kill switch por software</strong></td>
+<td><code>timeout.c</code>: <code>KILL_SW_MODE_PPM_HIGH</code> → <code>kill_sw = palReadPad(...)</code>; <code>ADC2_HIGH</code> → <code>ADC_VOLTS(ADC_IND_EXT2) &gt; 1.65</code>; si <code>kill_sw</code> → <code>mc_interface_set_brake_current(...)</code> + <code>mc_interface_ignore_input_both(20)</code></td>
+<td>Con pull-up a 3,3 V y cordón que cierra a GND con el clip puesto: clip afuera <strong>o cable cortado</strong> → nivel alto → motor cortado (fail-safe). Un cortocircuito a GND por agua salada sí falla al lado peligroso → por eso el kill por software es <strong>secundario</strong></td>
+</tr>
+<tr>
+<td>Rampas</td>
+<td><code>utils_step_towards</code> con <code>ramp_time_pos/neg</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>Fuentes: [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/applications/app_adc.c], [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/applications/app_ppm.c], [VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/timeout.c].
+No verificado: si el firmware activa pull-up interno en el pin de kill → usar <strong>resistencia externa 10 kΩ a 3,3 V</strong> [SUPUESTO: valor típico].</p>
+<h3 id="26-riesgos-de-control-específicos-de-hélice">2.6 Riesgos de control específicos de hélice</h3>
+<ul>
+<li><strong>Modo corriente + hélice fuera del agua</strong> (kick-up, ola, ventilación): el torque comandado se mantiene y el motor acelera hasta el límite de ERPM [ESTIMADO: comportamiento de un lazo de corriente sin carga]. Mitigar: <code>l_max_erpm</code> ajustado a RPM máx. de hélice × reducción × pares de polos, o usar <code>DUTY_REV_CENTER</code>.</li>
+<li>Reversa con correa HTD: la rampa negativa por defecto (0,1 s) implica inversión brusca de torque → subir a ~0,5–1 s [ESTIMADO].</li>
+</ul>
+<hr />
+<h2 id="3-corte-de-energía-antichispa-kill-switch-con-cordón-contactor-y-precarga">3. Corte de energía: antichispa, kill switch con cordón, contactor y precarga</h2>
+<h3 id="31-interruptor-antichispa-flipsky">3.1 Interruptor antichispa (Flipsky)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ítem</th>
+<th>Dato</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rango Pro (alu PCB)</td>
+<td>3S–14S (12–60 V); 100 A continuo con caja de aluminio V3.0, 60 A con disipador; 200 A máx.</td>
+<td>[VERIFICADO: https://flipsky.net/products/flipsky-antispark-switch-pro-with-aluminum-pcb-case-200a-for-electric-skateboard-ebike-scooter-robots]</td>
+</tr>
+<tr>
+<td>Precio</td>
+<td>33 USD (disipador) / 43 USD (alu PCB) / 48 USD (caja alu)</td>
+<td>ídem</td>
+</tr>
+<tr>
+<td>Advertencia</td>
+<td><em>"DO NOT power on switch without the LED button connected"</em>; <em>"Make sure the switch is off before applying power"</em></td>
+<td>ídem</td>
+</tr>
+<tr>
+<td>Tipo de botón</td>
+<td><strong>Pro: autoenclavante (mantenido)</strong>; <strong>Smart: pulsador momentáneo</strong>; ambos usan pulsador con contactos NA+NC</td>
+<td>[VERIFICADO: https://flipsky.net/blogs/vesc-tool/something-you-should-know-about-flipsky-anti-spark-switch]</td>
+</tr>
+<tr>
+<td>Qué pasa si se corta el cable de control</td>
+<td><strong>No documentado</strong> por Flipsky (buscar: "Flipsky antispark button disconnected while on behaviour")</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Modo de falla (antichispa MOSFET en general)</td>
+<td><strong>Corregido</strong>: el hilo trata de un antichispa de <strong>Buildkit Boards</strong> (no Flipsky); el autor lo describe <em>"stuck in the on position"</em> tras resoldarlo; usuario Gamer43: <em>"Yes, MOSFETs failed short-circuit."</em> (diagnóstico de foro, no análisis de falla); usuario Dareno: <em>"the most reliable way to control power to an ESC…is to use an XT90S loopkey"</em>. Extrapolar a Flipsky = [ESTIMADO: mismo principio, MOSFET en serie que falla en corto]</td>
+<td>[VERIFICADO: https://forum.esk8.news/t/right-as-i-finished-the-build-i-broke-the-anti-spark-switch/22247]</td>
+</tr>
+<tr>
+<td>Consumo en reposo (Smart V1)</td>
+<td>2,5 mA, con revisión de hardware anunciada a 300–400 µA</td>
+<td>[VERIFICADO: https://forum.esk8.news/t/flipsky-smart-antispark-issues-feedback-and-review/11908]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Conclusión: el antichispa sirve como <strong>arranque suave (precarga) + encendido diario</strong>, nunca como kill switch. 60 V máx. → incompatible con 16S LFP (58,4 V) sin margen.</p>
+<p><strong>XT90-S</strong>: conector con resistencia integrada: <em>"The connection first goes through an integrated resistor, allowing the capacitors on the controllers to be charged with controlled current"</em>; 45 A continuo / 90 A corto; 3,69 EUR el par [VERIFICADO: https://www.rotorama.com/product/xt90s-antispark-konektor-par]. Buena "llave" de aislamiento manual barata.</p>
+<h3 id="32-kill-switch-náutico-con-cordón-lanyard">3.2 Kill switch náutico con cordón (lanyard)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Con clip puesto</th>
+<th>Clip arrancado</th>
+<th>Cable cortado</th>
+<th>Uso típico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Normally open-circuit" (encendido por magneto)</td>
+<td>Contacto <strong>abierto</strong></td>
+<td>Contacto <strong>cierra</strong> → cortocircuita el encendido</td>
+<td>Motor <strong>sigue andando</strong> (no fail-safe)</td>
+<td>Fuerabordas de nafta: <em>"when the lanyard is in place the contacts of the kill switch are apart … when the lanyard is pulled out the contacts close the circuit"</em> [VERIFICADO: https://www.boatfittings.co.uk/how_to_fit_a_kill-switch]</td>
+</tr>
+<tr>
+<td><strong>Cerrado con clip</strong> (ej. Sea Dog SD-420487-1)</td>
+<td>Contacto <strong>cerrado</strong></td>
+<td>Contacto <strong>abre</strong></td>
+<td>Circuito abierto = <strong>parada</strong> (fail-safe)</td>
+<td><em>"normally closed (Complete) with the lanyard clip in place on switch. When lanyard is pulled and clip is removed from switch, the circuit is open"</em>; <em>"Maximum 5A draw"</em> (<strong>sin tensión especificada</strong>); bornes de latón; cordón ~48" estirado; <em>"should be tested for proper function before each use"</em>; 15,69 USD [VERIFICADO: https://shop.hamiltonmarine.com/products/sea-dog-switch-kill-gray-cap-with-lanyard-normall-closed-29836.html]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Regla de cableado fail-safe</strong>: usar el contacto "cerrado con clip" <strong>en serie con la bobina de un contactor monoestable</strong>: cordón tirado, cable cortado, conector suelto o bobina quemada → contactor abre. 5 A del interruptor ≫ corriente de bobina (~0,15–0,3 A a 48 V para 7–13 W) [ESTIMADO: P/V con datos SW80 abajo]. <strong>Ojo</strong> (verificación): el 5 A no tiene tensión declarada (producto pensado para encendido de 12 V); abrir 0,2–0,3 A de bobina inductiva a ~44 V CC puede arquear → supresión diodo+resistencia/TVS en la bobina es obligatoria también para proteger el interruptor [ESTIMADO: criterio]. Un segundo juego de contactos (o un relé auxiliar) puede alimentar la entrada de kill del VESC para cortar el torque <strong>antes</strong> de que abra el contactor.
+No usar un "remote battery switch" <strong>biestable/enclavado</strong>: conserva el estado sin energía de bobina → no es fail-safe. Respaldo: la hoja del SW80 lista la opción <em>"Magnetic Latching (Not fail safe)"</em> [VERIFICADO: https://www.albrightinternational.com/wpcms/wp-content/uploads/2020/08/SW80-Data-Sheet.pdf] → pedir el SW80 <strong>sin</strong> sufijo M.</p>
+<h3 id="33-contactor-ejemplo-con-datos-albright-sw80">3.3 Contactor (ejemplo con datos: Albright SW80)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dato</th>
+<th>Valor</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Corriente térmica</td>
+<td>100 A (interrumpido) / 125 A (no interrumpido)</td>
+<td>[VERIFICADO: https://www.albrightinternational.com/wpcms/wp-content/uploads/2020/08/SW80-Data-Sheet.pdf]</td>
+</tr>
+<tr>
+<td>Capacidad de corte en falla (UL583, τ 5 ms)</td>
+<td>SW80: 600 A @ 48 V; <strong>SW80B: 600 A @ 96 V</strong></td>
+<td>ídem</td>
+</tr>
+<tr>
+<td>Tensión máx. recomendada de contactos</td>
+<td><strong>SW80: 48 V CC con corte bajo carga</strong>, 60 V sin corte bajo carga; SW80B: 96 V</td>
+<td>ídem</td>
+</tr>
+<tr>
+<td>Bobina</td>
+<td>6–240 V CC; continua 7–13 W; prolongada 13–15 W</td>
+<td>ídem</td>
+</tr>
+<tr>
+<td>Tiempo de apertura</td>
+<td>5 ms sin supresión; <strong>50 ms con diodo</strong>; 8–20 ms con diodo+resistencia</td>
+<td>ídem</td>
+</tr>
+<tr>
+<td>Durabilidad mecánica</td>
+<td>&gt; 5×10⁶ ciclos; temp. −40 a +60 °C; caída 40 mV/polo a 100 A</td>
+<td>ídem</td>
+</tr>
+<tr>
+<td>Carga capacitiva</td>
+<td>Declarado apto para cargas <em>"Capacitive and Inductive"</em></td>
+<td>ídem</td>
+</tr>
+<tr>
+<td>Corte resistivo (UL508)</td>
+<td>SW80: 190 A @ 60 V CC; SW80B: 190 A @ 96 V CC</td>
+<td>ídem (agregado en verificación)</td>
+</tr>
+<tr>
+<td>Tensión de cierre / apertura de bobina</td>
+<td>Cierre máx. <strong>66 % Us</strong> (tipo continuo); caída 10–25 % Us; cierre típico 20 ms</td>
+<td>ídem (agregado en verificación)</td>
+</tr>
+<tr>
+<td>Opciones</td>
+<td><strong>SW80P = IP66</strong> (hoja aparte); <em>"Magnetic Latching (Not fail safe)"</em>; peso 350 g</td>
+<td>ídem (agregado en verificación)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Implicancias: (a) con un pack ≤ 48 V a plena carga (12S/13S LFP) alcanza el SW80 estándar; con 15–16S hace falta SW80B; (b) supresión <strong>diodo + resistencia o TVS</strong>, no solo diodo (50 ms); (c) consumo de bobina 7–13 W × 2 h = 14–26 Wh ≈ 1,4–2,6 % de 1 kWh [ESTIMADO: cálculo]; (d) <strong>tensión de bobina para 12S LFP (33,6–43,8 V)</strong> (agregado en verificación): bobina de <strong>48 V</strong> → cierra hasta 0,66×48 = 31,7 V (&lt; 33,6 V de corte) y a 43,8 V disipa ~(43,8/48)² = 0,83× la nominal; una bobina de 36 V a 43,8 V quedaría a 122 % Us (≈ 1,48× potencia) sin tolerancia de sobretensión publicada [ESTIMADO: cálculo con datos SW80] → <strong>pedir bobina 48 V continua</strong>; (e) en ambiente salino preferir <strong>SW80P (IP66)</strong> o meterlo en la caja estanca. Precio SW80: buscar: "Albright SW80 48V continuous price EU".</p>
+<h3 id="34-precarga">3.4 Precarga</h3>
+<ul>
+<li>Por qué: <em>"there will be a very large inrush current (thousands of Amps) … which will damage the devices and weld contacts together"</em>; método: cerrar primero a través de resistencia y cerrar el contactor principal cuando la tensión de bus esté cerca de la de batería; τ = R·C; la fuente dice "95 % within 4 TAU, 99 % within 5 TAU" (matemáticamente 1−e⁻³ = 95 %, 1−e⁻⁴ = 98 %, 1−e⁻⁵ = 99,3 %: la fuente es conservadora), ejemplo 470 Ω / 800 µF → τ 376 ms [VERIFICADO: https://docs.prohelion.com/Battery_Management_Systems/Prohelion_BMS_D1000_Gen1/Operation/Precharge.html].</li>
+<li>Cálculo para este bote: C_bus del VESC ≈ 1–2 mF [ESTIMADO: no publicado], V = 43,8 V, R = 100 Ω → τ = 0,1–0,2 s, 5τ ≤ 1 s, I_pico 0,44 A, energía en R = ½CV² ≈ 1–2 J → resistencia de 5–10 W alcanza [ESTIMADO: cálculo].</li>
+<li>Solución barata sin lógica: <strong>contactor (kill) aguas arriba + antichispa Flipsky aguas abajo</strong> → el antichispa hace la carga suave del bus; si sus MOSFET fallan en corto solo se pierde la precarga, el kill sigue funcionando.</li>
+<li><strong>Conflicto detectado en verificación</strong>: Flipsky advierte <em>"Make sure the switch is off before applying power"</em> [VERIFICADO: https://flipsky.net/products/flipsky-antispark-switch-pro-with-aluminum-pcb-case-200a-for-electric-skateboard-ebike-scooter-robots]. Con el Pro (botón <strong>autoenclavante</strong>) aguas abajo del contactor, cada vez que se repone el cordón el contactor le aplica tensión con el botón ya en ON → uso fuera de lo que el fabricante indica. Opciones: (1) procedimiento "antichispa OFF antes de reponer el cordón" (frágil); (2) reemplazar el antichispa por una <strong>resistencia de precarga en paralelo con los contactos del contactor</strong> (p. ej. 1 kΩ / 5 W → con kill abierto el bus queda alimentado a ≤ 44 mA, ~1,9 W disponibles: el motor no puede mover la hélice, pero el VESC queda vivo y los condensadores cargados, sin pico al cerrar) [ESTIMADO: cálculo; validar que el VESC no arranque en bucle a baja corriente]; (3) usar el Smart (pulsador momentáneo) cuyo comportamiento al aplicar tensión no está documentado (buscar: "Flipsky antispark smart power applied state").</li>
+</ul>
+<h3 id="35-arquitectura-recomendada-sistema-aisladoflotante">3.5 Arquitectura recomendada (sistema aislado/flotante)</h3>
+<pre><code> BAT+ (12S LFP con BMS) ─[MRBF/ANL ≤175 mm del borne]─[Interruptor manual de batería / XT90-S llave]─┐
+                                                                                                      │
+                ┌── bobina contactor monoestable ── cordón Sea Dog (cerrado con clip) ── seta E-stop NC ┤ (bobina tomada después del fusible)
+                │                                                                                     │
+                └──────────────── contactor SW80 (NA) ── antichispa Flipsky (arranque suave) ── VESC ── motor
+ BAT− ──────────────────────────────────────────────────────────────────────────────────── (negativo NO conectado al casco)
+ Entrada kill VESC (ADC2_HIGH): pull-up 10 kΩ a 3,3 V + segundo contacto del cordón a GND → redundancia por software
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Falla</th>
+<th>Resultado</th>
+<th>¿Seguro?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Piloto cae al agua (cordón tirado)</td>
+<td>Bobina sin corriente → contactor abre (5–20 ms) + VESC en kill</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Cable del cordón cortado</td>
+<td>Igual que arriba</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Contactor soldado</td>
+<td>Queda el kill por software del VESC</td>
+<td>Parcial → probar el contactor antes de cada salida</td>
+</tr>
+<tr>
+<td>MOSFET del antichispa en corto</td>
+<td>Pierde precarga; kill intacto</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Cursor del acelerador cortado</td>
+<td>Range check → freno (si <code>voltage_min</code> configurado)</td>
+<td>Sí solo si se configura</td>
+</tr>
+<tr>
+<td>Pérdida de señal RC (si PPM)</td>
+<td>Timeout 1 s → rueda libre + safe start</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Agua salada puentea el kill por software</td>
+<td>Kill por software inefectivo; contactor sigue</td>
+<td>Sí (por el contactor)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="4-baterías">4. Baterías</h2>
+<h3 id="41-comparación-de-químicas">4.1 Comparación de químicas</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Propiedad</th>
+<th>LiFePO4 (LFP)</th>
+<th>Li-ion NMC</th>
+<th>LiPo (pouch RC, LCO/NMC)</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tensión nominal por celda</td>
+<td>3,20–3,30 V</td>
+<td>3,60–3,70 V</td>
+<td>3,6–3,7 V [ESTIMADO]</td>
+<td>[VERIFICADO: https://batteryuniversity.com/article/bu-205-types-of-lithium-ion]</td>
+</tr>
+<tr>
+<td>Energía específica (celda)</td>
+<td>90–120 Wh/kg (valor BU, celdas modernas ~160 [ESTIMADO: memoria técnica, no verificado])</td>
+<td>150–220 Wh/kg</td>
+<td>150–200 Wh/kg (LCO)</td>
+<td>[VERIFICADO: https://batteryuniversity.com/article/bu-205-types-of-lithium-ion]</td>
+</tr>
+<tr>
+<td>Energía específica pack comercial</td>
+<td><strong>~128 Wh/kg</strong> (LiTime 36 V 50 Ah: 1920 Wh / 33,14 lb = 15,0 kg)</td>
+<td>—</td>
+<td>—</td>
+<td>[VERIFICADO: https://www.litime.com/products/litime-36v-55ah-tm-lifepo4-battery-low-temp-protection-for-trolling-motors] (cálculo propio)</td>
+</tr>
+<tr>
+<td>Ciclos</td>
+<td>≥ 2000 (BU); 4000+ al 100 % DoD (LiTime)</td>
+<td>1000–2000</td>
+<td>500–1000 (LCO)</td>
+<td>BU + LiTime</td>
+</tr>
+<tr>
+<td>Runaway (valor genérico BU)</td>
+<td>270 °C</td>
+<td>210 °C</td>
+<td>150 °C (LCO)</td>
+<td>[VERIFICADO: https://batteryuniversity.com/article/bu-205-types-of-lithium-ion]</td>
+</tr>
+<tr>
+<td>ARC 18650 al 100 % SOC (Toer / Ttr / Tmax)</td>
+<td>62,50 °C / <strong>no detectado</strong> / <strong>239,26 °C</strong></td>
+<td>NCM811: 62,49 °C / <strong>147,35 °C</strong> / <strong>462,52 °C</strong></td>
+<td>LCO: Ttr 180,16 °C, Tmax 545,11 °C</td>
+<td>[VERIFICADO: https://pmc.ncbi.nlm.nih.gov/articles/PMC10963544/]</td>
+</tr>
+<tr>
+<td>Ranking de peligro (mismo estudio)</td>
+<td><em>"LCO &gt; NCA &gt; NCM811 &gt;&gt; LFP"</em></td>
+<td></td>
+<td></td>
+<td>ídem</td>
+</tr>
+<tr>
+<td>Gas en runaway</td>
+<td>1,14 L/Ah (0,36 L/Wh)</td>
+<td>NMC 18650 MH1: 2,4 L/Ah (0,66 L/Wh); celda NMC puede superar 600 °C</td>
+<td>—</td>
+<td>[VERIFICADO: https://pmc.ncbi.nlm.nih.gov/articles/PMC11927001/]</td>
+</tr>
+<tr>
+<td>BMS</td>
+<td>Integrado en packs náuticos</td>
+<td>Requiere BMS</td>
+<td>RC: normalmente <strong>sin BMS</strong></td>
+<td>[ESTIMADO: mercado]</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="42-inmersión-en-agua-saladasalobre">4.2 Inmersión en agua salada/salobre</h3>
+<ul>
+<li>Mecanismo: <em>"When salt water causes a short circuit by linking the battery's positive and negative terminals, the resulting fire can last hours"</em>; al menos un vehículo <strong>reencendió</strong> tras extinguirse (huracán Ian) [VERIFICADO: https://www.eenews.net/articles/why-6-flooded-evs-burst-into-flames-after-hurricane-ian/].</li>
+<li><em>"Salt dissolved in water … rapidly bridges the electrodes and triggers severe internal short circuits"</em>; los cloruros corroen terminales e interconexiones de cobre y aluminio; <strong>el runaway puede ocurrir días o semanas después</strong> [VERIFICADO: https://contractlaboratory.com/understanding-the-dangers-of-lithium-ion-batteries-submerged-in-water/] (fuente comercial, no revisada por pares).</li>
+<li>Electrólisis externa en bornes a 36–58 V: H₂ en el negativo y <strong>Cl₂ en el positivo</strong> en agua con cloruros [ESTIMADO: electroquímica básica, proceso cloro-álcali; no hallé fuente abierta específica — buscar: "lithium battery seawater immersion chlorine gas evolution terminals"].</li>
+<li>Consecuencias de diseño: (1) batería en caja estanca <strong>sobre</strong> el nivel de agua de sentina (ISO 13297 8.1, ver §5); (2) bornes cubiertos; (3) <strong>protocolo</strong>: batería que estuvo sumergida en agua salada = no cargar, aislar en exterior y descartar.</li>
+<li>Ejemplo comercial LiTime 36 V 50 Ah: <strong>IP65</strong> (no inmersión), BMS 50 A continuo / 250 A 1 s, carga 43,2 ± 0,6 V, <strong>no carga bajo 0 °C</strong> (reanuda a 5 °C), 395,99 USD [VERIFICADO: https://www.litime.com/products/litime-36v-55ah-tm-lifepo4-battery-low-temp-protection-for-trolling-motors]. IP65 → igual necesita caja/ubicación protegida.</li>
+</ul>
+<h3 id="43-elección-de-cantidad-de-celdas-en-serie-límites-duros">4.3 Elección de cantidad de celdas en serie (límites duros)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Configuración</th>
+<th>V nominal</th>
+<th>V máx. (carga)</th>
+<th>≤ 50 V "tensión de seguridad" ISO 16315</th>
+<th>Fusible MRBF (≤ 58 V)</th>
+<th>SW80 corte bajo carga (≤ 48 V)</th>
+<th>Antichispa Pro (≤ 60 V)</th>
+<th>VESC 75100 (≤ 84 V)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LFP 12S</strong> ("36 V")</td>
+<td>38,4</td>
+<td>43,8</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>LFP 13S</td>
+<td>41,6</td>
+<td>47,45</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>LFP 14S</td>
+<td>44,8</td>
+<td>51,1</td>
+<td>✘ a plena carga</td>
+<td>✔</td>
+<td>✘ (SW80B)</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>LFP 15S ("48 V")</td>
+<td>48,0</td>
+<td>54,75</td>
+<td>✘</td>
+<td>✔</td>
+<td>✘</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>LFP 16S ("51,2 V")</td>
+<td>51,2</td>
+<td>58,4</td>
+<td>✘</td>
+<td><strong>✘ (58,4 &gt; 58)</strong></td>
+<td>✘</td>
+<td>✔ justo</td>
+<td>✔ (corregido: en el target 75_100 <code>l_max_voltage</code> default = 90 V; el 57 V es solo el genérico)</td>
+</tr>
+<tr>
+<td>NMC 12S</td>
+<td>43,2</td>
+<td>50,4</td>
+<td>✘ (marginal; la Nota 2 de la def. 3.1 pide no superar el límite <em>"either at full load or no load"</em>)</td>
+<td>✔</td>
+<td>✘</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>NMC 13S ("48 V")</td>
+<td>46,8</td>
+<td>54,6</td>
+<td>✘</td>
+<td>✔</td>
+<td>✘</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+</tbody>
+</table></div>
+<p>V/celda LFP 3,2 nominal / 3,65 máx.; NMC 3,6 / 4,2 [ESTIMADO: valores estándar; BU da 3,2–3,3 y 3,6–3,7 nominal]. Límites: ISO 16315 [VERIFICADO: https://cdn.standards.iteh.ai/samples/56158/48d458359e3d4eceab7ba7711b5b118e/ISO-16315-2016.pdf], MRBF [VERIFICADO: https://www.currentconnected.com/product/cooper-bussmann-mrbf-terminal-fuse-30a-250a/], SW80 [VERIFICADO: https://www.albrightinternational.com/wpcms/wp-content/uploads/2020/08/SW80-Data-Sheet.pdf], antichispa [VERIFICADO: https://flipsky.net/products/flipsky-antispark-switch-pro-with-aluminum-pcb-case-200a-for-electric-skateboard-ebike-scooter-robots], VESC [VERIFICADO: https://hobbygoat.com/products/flipsky-75100-75v-100a-single-esc].</p>
+<h3 id="44-dimensionamiento-de-energía-para-cruzar-con-los-informes-de-cascohélice">4.4 Dimensionamiento de energía (para cruzar con los informes de casco/hélice)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>P eléctrica crucero (6 km/h)</th>
+<th>Energía 2 h</th>
+<th>Nominal con 80 % DoD</th>
+<th>Masa pack LFP a 128 Wh/kg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>300 W</td>
+<td>600 Wh</td>
+<td>750 Wh</td>
+<td>5,9 kg</td>
+</tr>
+<tr>
+<td>400 W</td>
+<td>800 Wh</td>
+<td>1000 Wh</td>
+<td>7,8 kg</td>
+</tr>
+<tr>
+<td>500 W</td>
+<td>1000 Wh</td>
+<td>1250 Wh</td>
+<td>9,8 kg</td>
+</tr>
+</tbody>
+</table></div>
+<p>P crucero 300–500 W = [ESTIMADO: orden de magnitud para un casco plano de ~250 kg a 1,67 m/s con η global ~40–50 %; debe reemplazarse con el dato de R04/otros]. Un pack comercial 36 V 50 Ah (1920 Wh) cubre el caso de 500 W con ~50 % de reserva.</p>
+<h3 id="45-recomendación-para-bote-abierto">4.5 Recomendación para bote abierto</h3>
+<p><strong>LFP 12S (38,4 V) ~1–2 kWh con BMS ≥ 50 A, en caja estanca (IP67 o caja sellada con pasacables) elevada sobre el piso</strong>, VESC con <code>l_in_current_max</code> ≤ 40 A y corte 36/33,6 V. NMC solo si el peso es crítico (ahorra ~40 % de masa [ESTIMADO: 128 vs ~200 Wh/kg pack]) — no justifica el riesgo de runaway con inmersión posible. LiPo RC: <strong>descartado</strong> (sin BMS, pouch blanda, la química más inestable de la tabla).</p>
+<hr />
+<h2 id="5-normas">5. Normas</h2>
+<h3 id="51-tabla-de-alcance-solo-lo-verificado">5.1 Tabla de alcance (solo lo verificado)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Norma</th>
+<th>Edición vigente</th>
+<th>Alcance verificado</th>
+<th>Cláusulas útiles verificadas</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ISO 13297</strong></td>
+<td><strong>5ª ed., 2020-12</strong></td>
+<td>CC <strong>≤ 50 V</strong> y CA monofásica ≤ 250 V en embarcaciones ≤ 24 m. <strong>No cubre</strong> propulsión eléctrica &lt; 1500 V CC (→ ISO 16315)</td>
+<td>4.1 <em>"The hull of a metallic hull craft shall not be used as a circuit conductor."</em> · 5.1 bus negativo común, <strong>excepto</strong> <em>"propulsion systems that are clearly identified as part of the isolated system"</em> · 5.4 equipos funcionan de 75 % a 133 % de V nominal (48 V: 36–64 V) · 5.5 caída de tensión ≤ <strong>10 %</strong> · 5.6 Nota 2: <strong>3 %</strong> para equipos vitales · 8.1 <em>"Batteries shall be permanently installed in a dry, ventilated location above anticipated bilge water level."</em></td>
+<td>[VERIFICADO: https://cdn.standards.iteh.ai/samples/69551/4f5da7667b4642e2880fe10a27cd4c70/ISO-13297-2020.pdf]</td>
+</tr>
+<tr>
+<td><strong>ISO 16315</strong></td>
+<td><strong>2ª ed., 2026-02</strong> (reemplaza 1ª ed. 2016-03-15, corr. 2021-11)</td>
+<td>Sistemas eléctricos para propulsión eléctrica/híbrida: CC &lt; 1500 V, CA ≤ 1000 V, embarcaciones ≤ 24 m (aplica a 36–48 V)</td>
+<td>Cambios 2026: <em>"the overcurrent protection requirements have been clarified"</em>, <em>"the fault monitoring requirements for isolated DC systems have been revised"</em>. Índice incluye 5.1.2 <strong>Emergency stop</strong>, 6.3 monitoreo de falla a tierra en sistemas CC totalmente aislados y de tres hilos, 7.4 dispositivos de sobrecorriente en sistemas totalmente aislados (7.4.1 unipolar / 7.4.2 bipolar), 8.2 <em>"Isolation of batteries or battery banks"</em> (= <strong>seccionamiento/desconexión</strong> de baterías, no aislación eléctrica — corregido), 10.3 resistencia de aislación (10.3.2 sistemas de propulsión CC). <strong>Texto de esas cláusulas no accesible</strong> (buscar: "ISO 16315 emergency stop requirement text")</td>
+<td>[VERIFICADO: https://cdn.standards.iteh.ai/samples/iso/iso-16315-2026/8c4b6a11aaaf46b4a56c4555d9993156/iso-16315-2026.pdf], [VERIFICADO: https://www.intertekinform.com/preview/905621887232.pdf?sku=879610_saig_nsai_nsai_3090358]</td>
+</tr>
+<tr>
+<td>ISO 16315:2016 def. 3.1</td>
+<td>—</td>
+<td><em>"safety voltage … <DC> voltage which does not exceed 50 DC V"</em>; Nota 1: considerar reducir el límite de 50 V <em>"under certain conditions, such as wet surroundings or exposure to heavy seas"</em></td>
+<td>—</td>
+<td>[VERIFICADO: https://cdn.standards.iteh.ai/samples/56158/48d458359e3d4eceab7ba7711b5b118e/ISO-16315-2016.pdf]</td>
+</tr>
+<tr>
+<td><strong>ABYC E-11</strong></td>
+<td>Extracto 2008 (cumplimiento desde 31-jul-2009); edición actual no verificada (buscar: "ABYC E-11 2024 edition")</td>
+<td>Sistemas CA/CC en botes</td>
+<td>11.10.1.1.1 protección contra sobrecorriente a ≤ <strong>7 in (175 mm)</strong> del punto de conexión a la fuente; excepción 2: conductor directo a borne de batería y <strong>enfundado/en conducto</strong> en todo su recorrido → ≤ <strong>72 in (1,83 m)</strong>; excepción 3: fuente que no es batería, enfundado → ≤ <strong>40 in (1,02 m)</strong>; excepción 5: <em>pigtails</em> &lt; 7 in exentos · 11.14.2.6 caída ≤ <strong>3 %</strong> (alimentadores de tablero, electrónica, luces de navegación) y ≤ 10 % (no críticos) · conductores ≥ 600 V de aislación, ≥ 60 °C</td>
+<td>[VERIFICADO: https://www.paneltronics.com/images/technical/E11Excerpts.pdf]</td>
+</tr>
+<tr>
+<td><strong>Directiva 2013/53/UE</strong> (RCD)</td>
+<td>vigente</td>
+<td><em>"‘recreational craft’ means any watercraft … of hull length from 2,5 m to 24 m"</em>; <em>"‘propulsion engine’ means any spark or compression ignition, internal combustion engine"</em></td>
+<td><strong>Bote &lt; 2,5 m → fuera del alcance</strong>; motores eléctricos no son "propulsion engine" en la RCD</td>
+<td>[VERIFICADO: https://www.legislation.gov.uk/eudr/2013/53/adopted/data.html]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Nota: ISO 13297/16315 no son obligatorias para este bote (fuera de la RCD); se usan como buena práctica [ESTIMADO: consecuencia del alcance verificado].</p>
+<h3 id="52-ampacidad-abyc-e-11-tabla-vi-a-conductores-simples-no-agrupados-extracto-2008">5.2 Ampacidad ABYC E-11 (Tabla VI-A, conductores simples no agrupados, extracto 2008)</h3>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>AWG</th>
+<th>≈ mm² [ESTIMADO: conversión estándar]</th>
+<th>90 °C fuera de sala de máquinas</th>
+<th>105 °C fuera</th>
+<th>105 °C dentro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td>3,3</td>
+<td>40 A</td>
+<td>45 A</td>
+<td>38,3 A</td>
+</tr>
+<tr>
+<td>10</td>
+<td>5,3</td>
+<td>55 A</td>
+<td>60 A</td>
+<td>51,0 A</td>
+</tr>
+<tr>
+<td>8</td>
+<td>8,4</td>
+<td>70 A</td>
+<td>80 A</td>
+<td>68,0 A</td>
+</tr>
+<tr>
+<td>6</td>
+<td>13,3</td>
+<td>100 A</td>
+<td>120 A</td>
+<td>102,0 A</td>
+</tr>
+</tbody>
+</table></div>
+<p>[VERIFICADO: https://www.paneltronics.com/images/technical/E11Excerpts.pdf]. Fórmula ABYC de caída: CM = K·I·L/E, K = 10,75 (cobre), L = ida+vuelta en pies [VERIFICADO: ídem].</p>
+<p><strong>Agregado en verificación — Tabla VI-B (hasta 3 conductores agrupados, enfundados o en conducto)</strong>, que es la que aplica si se usa la excepción 2 de 11.10.1.1.1 (cable enfundado para alejar el fusible hasta 1,83 m) o si + y − van juntos en un forro:</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>AWG</th>
+<th>90 °C fuera</th>
+<th>105 °C fuera</th>
+<th>105 °C dentro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td>28,0 A</td>
+<td>31,5 A</td>
+<td>26,8 A</td>
+</tr>
+<tr>
+<td>10</td>
+<td>38,5 A</td>
+<td>42,0 A</td>
+<td>35,7 A</td>
+</tr>
+<tr>
+<td>8</td>
+<td>49,0 A</td>
+<td>56,0 A</td>
+<td>47,6 A</td>
+</tr>
+<tr>
+<td>6</td>
+<td>70,0 A</td>
+<td>84,0 A</td>
+<td>71,4 A</td>
+</tr>
+</tbody>
+</table></div>
+<p>[VERIFICADO: ídem]. Y <strong>11.10.2.3</strong>: <em>"The current rating of the overcurrent protection device shall not exceed the maximum current carrying capacity of the conductor being protected"</em> (excepción: si no hay valor estándar igual, el siguiente estándar hasta 150 %) [VERIFICADO: ídem].</p>
+<h3 id="53-caída-de-tensión-calculada-cobre-ρ-00175-ωmm²m-idavuelta-estimado-cálculo-propio">5.3 Caída de tensión calculada (cobre ρ = 0,0175 Ω·mm²/m, ida+vuelta) [ESTIMADO: cálculo propio]</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>6 mm², 1,5 m</th>
+<th>6 mm², 2,5 m</th>
+<th>10 mm², 2,5 m</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>38,4 V, 42 A pico (1,6 kW)</td>
+<td>0,37 V (1,0 %) · 15 W</td>
+<td>0,61 V (1,6 %) · 26 W</td>
+<td>0,37 V (1,0 %)</td>
+</tr>
+<tr>
+<td>38,4 V, 12 A crucero</td>
+<td>0,11 V (0,3 %)</td>
+<td>0,18 V (0,5 %)</td>
+<td>0,11 V (0,3 %)</td>
+</tr>
+<tr>
+<td>48 V, 32 A pico</td>
+<td>0,28 V (0,6 %)</td>
+<td>0,47 V (1,0 %)</td>
+<td>0,28 V (0,6 %)</td>
+</tr>
+</tbody>
+</table></div>
+<p>→ Con 6 mm² (≈ 10 AWG) se cumple el 3 % con holgura; manda la ampacidad (10 AWG = 60 A a 105 °C suelto, <strong>42 A agrupado/enfundado</strong>), no la caída.</p>
+<h3 id="54-fusible-principal">5.4 Fusible principal</h3>
+<p>Blue Sea <strong>MRBF</strong>: 30–250 A, <strong>máx. 58 V CC</strong>, interrupción 10 000 A @ 14 V / 5 000 A @ 32 V / <strong>2 000 A @ 58 V</strong>, IP66; valores 30/40/50/60/75/80/100… A; portafusible de borne Blue Sea 5191 (58 V) [VERIFICADO: https://www.currentconnected.com/product/cooper-bussmann-mrbf-terminal-fuse-30a-250a/]. Para 12S LFP: MRBF a ≤ 175 mm del borne (ABYC dice <em>"seven inches (175mm)"</em>). <strong>Corregido en verificación</strong> (ABYC 11.10.2.3, fusible ≤ ampacidad del cable): con <code>l_in_current_max</code> = 40 A → <strong>MRBF 50–60 A con cable ≥ 8 AWG / 10 mm²</strong> (8 AWG 105 °C: 80 A suelto, 56 A agrupado → 60 A admisible por la excepción del siguiente valor estándar); un MRBF 80 A exige 8 AWG suelto o 6 AWG agrupado; <strong>10 AWG/6 mm² solo admite ≤ 60 A suelto o ≤ 40–50 A agrupado</strong> [ESTIMADO: aplicación de la tabla VI-A/VI-B verificada]. Verificar que la corriente de cortocircuito del pack no supere la capacidad de interrupción del fusible a esa tensión [ESTIMADO: un pack de ~50 Ah puede dar del orden de 1–2 kA; el BMS normalmente corta antes].</p>
+<hr />
+<h2 id="6-corrosión-galvánica-casco-de-aluminio-agua-salobre">6. Corrosión galvánica (casco de aluminio, agua salobre)</h2>
+<h3 id="61-serie-galvánica-en-agua-de-mar-referencia-agagcl">6.1 Serie galvánica en agua de mar (referencia Ag/AgCl)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Material</th>
+<th>Gerr (mV)</th>
+<th>Tabla "Ref ABYC" (V)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Magnesio</td>
+<td>−1730 (puro) / −1580 a −1670 (aleaciones)</td>
+<td>−1,60 a −1,63</td>
+</tr>
+<tr>
+<td>Aluminio para ánodos</td>
+<td>—</td>
+<td>−1,10</td>
+</tr>
+<tr>
+<td>Zinc</td>
+<td>−1050</td>
+<td>−0,98 a −1,03</td>
+</tr>
+<tr>
+<td><strong>Aluminio marino 5086/5083/6061</strong></td>
+<td><strong>−820</strong></td>
+<td>−0,76 a −1,00 (aleaciones)</td>
+</tr>
+<tr>
+<td>Inox 316 <strong>activo</strong> (sin oxígeno, en grietas/tubos)</td>
+<td>−550</td>
+<td>−0,43 a −0,54</td>
+</tr>
+<tr>
+<td>Latón naval / amarillo</td>
+<td>−450</td>
+<td>−0,30 a −0,40</td>
+</tr>
+<tr>
+<td>Bronce al aluminio</td>
+<td>−150 (90/10)</td>
+<td>−0,31 a −0,42 (92/8)</td>
+</tr>
+<tr>
+<td><strong>Inox 316 pasivo</strong></td>
+<td><strong>−150</strong></td>
+<td>0,00 a −0,10</td>
+</tr>
+<tr>
+<td>Titanio</td>
+<td>—</td>
+<td>+0,06 a −0,05</td>
+</tr>
+<tr>
+<td>Grafito / fibra de carbono</td>
+<td>+250</td>
+<td>+0,20 a +0,30</td>
+</tr>
+</tbody>
+</table></div>
+<p>[VERIFICADO: https://www.gerrmarine.com/Articles/controllingcorrosionpt1.pdf] · [VERIFICADO: https://archive.nordhavn.com/tech/images/Galvanic_Series.pdf]. Regla práctica: metales a <strong>&lt; 200 mV</strong> se corroen poco entre sí; más de 200 mV → tomar medidas [VERIFICADO: Gerr].</p>
+<h3 id="62-pares-críticos-de-este-diseño">6.2 Pares críticos de este diseño</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Par</th>
+<th>ΔV aprox.</th>
+<th>Riesgo</th>
+<th>Mitigación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Eje inox 316 (pasivo) ↔ hélice de aluminio</td>
+<td>~670 mV [ESTIMADO: −820 vs −150]</td>
+<td>Alto en la hélice (ánodo)</td>
+<td>Ánodo de collar de <strong>aluminio</strong> en el eje junto a la hélice; buje de la hélice de goma/plástico si existe [ESTIMADO]</td>
+</tr>
+<tr>
+<td>Eje/tubo inox ↔ casco de aluminio (si hubiera contacto)</td>
+<td>~670 mV</td>
+<td>Alto en el casco alrededor de la fijación</td>
+<td><strong>No conectar</strong>: soporte de popa en PETG + correa HTD (no conductora) aíslan el tren de propulsión del casco [ESTIMADO: propiedades dieléctricas de PETG/caucho]</td>
+</tr>
+<tr>
+<td>Tornillería A4 (316) en abrazadera/espejo de aluminio</td>
+<td>~670 mV</td>
+<td>Moderado: cátodo chico/ánodo grande es el caso favorable; el caso grave es ánodo chico + cátodo grande (<em>"for the exposed anodic area the corrosion rate will be correspondingly high"</em>) [VERIFICADO: https://en.wikipedia.org/wiki/Galvanic_corrosion]</td>
+<td>Tef-Gel en roscas y asientos (<em>"ideal to isolate and separate dissimilar materials such as Aluminium and Stainless Steel"</em> [VERIFICADO: https://www.anzor.com.au/chemicals/lubricants-and-corrosion-inhibitors/tef-gel]) + arandelas de nylon/G10 bajo cabeza y tuerca</td>
+</tr>
+<tr>
+<td>Inox 316 dentro del tubo/bujes (sin oxígeno)</td>
+<td>pasa a "activo" −550 mV</td>
+<td>Picado bajo bujes y depósitos: <em>"enclosed in a stern tube—it can loose its protective oxide film… can suffer severely from pitting corrosion"</em> [VERIFICADO: https://www.gerrmarine.com/Articles/controllingcorrosionpt1.pdf]</td>
+<td>Agua circulante en los bujes; enjuague; inspección; considerar 2205 dúplex [ESTIMADO: alternativa no verificada aquí]</td>
+</tr>
+<tr>
+<td>Latón (pasador de corte, insertos roscados, conectores) bajo el agua</td>
+<td>—</td>
+<td><strong>Descincificación</strong>: <em>"the zinc in all brass is eaten away by the more noble copper"</em> (incluye el "manganese bronze") [VERIFICADO: Gerr]</td>
+<td>Pasador de corte de acero inox/aluminio según el fabricante de la hélice; insertos roscados de inox 316 (o nada de metal) en las piezas impresas sumergidas</td>
+</tr>
+<tr>
+<td>Fibra de carbono ↔ aluminio</td>
+<td>&gt; 1000 mV</td>
+<td>Muy alto</td>
+<td>No usar CF en contacto con el casco/ánodos [ESTIMADO]</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="63-ánodos-de-sacrificio-en-agua-salobre">6.3 Ánodos de sacrificio en agua salobre</h3>
+<ul>
+<li>Fisheries Supply: agua salobre → <em>"Aluminum anodes provide superior protection here"</em>; agua de mar → aluminio <em>"more active, protect better, and last longer than zinc"</em>; agua dulce → magnesio; cascos/fueraborda de aluminio: zinc <em>"barely above these aluminum parts… aluminum and magnesium anodes are better suited"</em>; <strong>no mezclar</strong> metales de ánodo; cambiar al ~50 % consumido o anualmente [VERIFICADO: https://www.fisheriessupply.com/understanding-sacrificial-anodes].</li>
+<li>Magnesio en agua salobre/salada sobre aluminio: riesgo de <strong>sobreprotección</strong>: <em>"Even on FRP, steel and aluminum hulls overprotection can cause gas bubbles, destroy paint, generate alkaline solutions that actually eat away aluminum"</em>; sobreprotección = &gt; 400 mV más negativo que el potencial natural [VERIFICADO: https://www.gerrmarine.com/Articles/controllingcorrosionpt1.pdf].</li>
+<li>Salinidad de la zona: Kerteminde Fjord (Fionia) varía <em>"between 14 and 22 ‰"</em>; en el Gran Belt la capa superior va de 10 ‰ (salida báltica) a 27 ‰ (entrada) [VERIFICADO: https://www.marbio.sdu.dk/index.php?page=surrounding-field-study-sites]. Als Fjord/Sønderborg ≈ 12–22 PSU [ESTIMADO: interpolación regional, no medido en Als] → rango donde el <strong>aluminio (Al-Zn-In)</strong> es la elección; zinc: Fisheries Supply dice <em>"While zinc works adequately in saltwater, it will not protect your boat in fresh or brackish water"</em> y que en agua dulce <em>"develop a hard, dense coating over time"</em> [VERIFICADO: https://www.fisheriessupply.com/understanding-sacrificial-anodes] (fuente comercial; "Al-Zn-In" como aleación específica [ESTIMADO: memoria técnica, no verificado]).</li>
+<li>Verificación barata con el multímetro disponible: electrodo Ag/AgCl; protegido = 200–400 mV más negativo que el valor de la tabla; &gt; 400 mV = sobreprotección [VERIFICADO: Gerr].</li>
+</ul>
+<h3 id="64-corrientes-parásitas-más-rápidas-que-la-galvánica">6.4 Corrientes parásitas (más rápidas que la galvánica)</h3>
+<ul>
+<li><strong>Sistema de propulsión flotante</strong>: negativo de batería sin conexión al casco (ISO 13297 4.1 y excepción de 5.1, §5.1). El VESC, el motor y la batería no tocan el aluminio; el tren eje/hélice queda aislado del motor por la correa y del casco por el soporte impreso.</li>
+<li>Revisar aislación con el multímetro: resistencia BAT− ↔ casco y BAT− ↔ eje &gt; 1 MΩ [ESTIMADO: criterio práctico; ISO 16315:2026 trata monitoreo de aislación en CC aislados (cl. 6.3/10.3, texto no accesible)].</li>
+</ul>
+<hr />
+<h2 id="7-lista-eléctrica-con-precios-verificados-resto-buscar">7. Lista eléctrica con precios verificados (resto: buscar)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ítem</th>
+<th>Opción</th>
+<th>Precio</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ESC</td>
+<td>Flipsky 75100</td>
+<td>79 USD</td>
+<td>[VERIFICADO: https://hobbygoat.com/products/flipsky-75100-75v-100a-single-esc]</td>
+</tr>
+<tr>
+<td>ESC alternativo</td>
+<td>Makerbase 75100 V2</td>
+<td>114,99 GBP</td>
+<td>[VERIFICADO: https://escooter-parts.co.uk/products/makerbase-vesc-75100-v2-84v-100a-esc-with-alu-pcb-based-on-vesc]</td>
+</tr>
+<tr>
+<td>Arranque suave</td>
+<td>Flipsky Antispark Pro</td>
+<td>33–48 USD</td>
+<td>[VERIFICADO: https://flipsky.net/products/flipsky-antispark-switch-pro-with-aluminum-pcb-case-200a-for-electric-skateboard-ebike-scooter-robots]</td>
+</tr>
+<tr>
+<td>Kill con cordón (cerrado con clip)</td>
+<td>Sea Dog SD-420487-1</td>
+<td>15,69 USD</td>
+<td>[VERIFICADO: https://shop.hamiltonmarine.com/products/sea-dog-switch-kill-gray-cap-with-lanyard-normall-closed-29836.html]</td>
+</tr>
+<tr>
+<td>Llave/aislador manual</td>
+<td>XT90-S (par)</td>
+<td>3,69 EUR</td>
+<td>[VERIFICADO: https://www.rotorama.com/product/xt90s-antispark-konektor-par]</td>
+</tr>
+<tr>
+<td>Contactor</td>
+<td>Albright SW80 bobina continua 36/48 V</td>
+<td>buscar: "SW80 contactor price"</td>
+<td>datos técnicos verificados (§3.3)</td>
+</tr>
+<tr>
+<td>Fusible</td>
+<td>Blue Sea MRBF 50–60 A + portafusible 5191 (corregido: ver §5.4, fusible ≤ ampacidad del cable)</td>
+<td>buscar: "MRBF 5191 price EU"</td>
+<td>ratings verificados (§5.4)</td>
+</tr>
+<tr>
+<td>Batería</td>
+<td>LiTime 36 V 50 Ah LFP (1920 Wh, IP65, BMS 50 A)</td>
+<td>395,99 USD</td>
+<td>[VERIFICADO: https://www.litime.com/products/litime-36v-55ah-tm-lifepo4-battery-low-temp-protection-for-trolling-motors]</td>
+</tr>
+<tr>
+<td>Anticorrosivo</td>
+<td>Tef-Gel</td>
+<td>buscar: "Tef-Gel 2 oz price"</td>
+<td>[VERIFICADO: https://www.anzor.com.au/chemicals/lubricants-and-corrosion-inhibitors/tef-gel]</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</h2>
+<ul>
+<li><strong>Bajar de "48 V" a 12S LFP (38,4 V nom., 43,8 V máx.)</strong>: 16S LFP (58,4 V) supera el MRBF (58 V), la tensión de corte bajo carga del SW80 (48 V) y la "tensión de seguridad" de 50 V CC de ISO 16315; 12S/13S cumplen todo. (Corregido en verificación: el <code>l_max_voltage</code> de 57 V <strong>no</strong> es límite para el 75100 — su hwconf lo pone en 90 V.) A 0,3–1,5 kW las corrientes siguen siendo bajas (12 A crucero / 42 A pico a 38,4 V) [ESTIMADO: cálculo].</li>
+<li><strong>El kill switch debe ser hardware</strong>: contactor monoestable con bobina en serie con un cordón "cerrado con clip" (Sea Dog SD-420487-1, 5 A, 15,69 USD) + seta de emergencia. El antichispa MOSFET queda solo como arranque suave porque puede fallar en cortocircuito (encendido permanente; caso documentado en foro con un antichispa Buildkit Boards). Kill por software del VESC (<code>KILL_SW_MODE_ADC2_HIGH</code>, FW ≥ 5.03) como redundancia. Agregado en verificación: contactor SW80 <strong>sin</strong> opción de enclavamiento magnético ("Not fail safe" según Albright), <strong>bobina 48 V continua</strong> (cierra hasta 31,7 V, cubre 12S LFP 33,6–43,8 V), supresión diodo+resistencia/TVS; y resolver el conflicto con Flipsky (<em>"Make sure the switch is off before applying power"</em>): el contactor no debe energizar un antichispa Pro ya enclavado en ON → resistencia de precarga en paralelo al contactor o procedimiento explícito.</li>
+<li><strong>Firmware: ≥ 5.03 con filtro de fase desactivado</strong> (Flipsky 75100) — 5.02 no tiene kill switch por software y ≥ 5.3 con filtro de fase activado daña el ESC según el vendedor. En el firmware oficial ≥ 6.00 el target 75_100 ya trae el filtro en <code>false</code> por defecto; verificarlo igual en VESC Tool tras el asistente.</li>
+<li><strong>Configuración obligatoria del VESC</strong> (los defaults no sirven): <code>adc voltage_min</code> ≈ 0,3 V (si no, un cursor cortado en "Current Reverse Center" = reversa máxima); <code>battery_cut_start/end</code> = 36,0/33,6 V para 12S (default 10/8 V); <code>l_in_current_max</code> ≤ 80 % del BMS (≤ 40 A con BMS de 50 A; default 100 A en el target 75_100, 99 A genérico); rampas ≥ 0,5–1 s (default 0,3/0,1 s); <code>l_max_erpm</code> limitado para el caso hélice fuera del agua.</li>
+<li><strong>Motor seco arriba del agua (cola larga) confirmado como mejor opción eléctrica</strong>: un outrunner inundado requiere desarme + enjuague después de cada uso (instrucciones para el Maytech 6579 en foil.zone, no atribuidas explícitamente al fabricante); el inrunner IP68 Flipsky FS65161 es de 6 kW (≈ 450 € según e-surfer; peso <strong>no verificado</strong> — el "3 kg" anterior no figura en las fuentes abiertas), sobredimensionado ~10× para 0,3–0,5 kW de crucero. Rodamientos del motor: 440C (−20 % de carga; <strong>corroe en agua de mar</strong> según SMB → consumible con enjuague) o full cerámico Si3N4 si la carga lo permite; protector impreso con drenaje.</li>
+<li><strong>Batería LiFePO4, ~1–2 kWh, en caja estanca elevada</strong>: LFP no disparó runaway en ARC (Tmax 239 °C) vs NCM811 147 °C → 463 °C; gas 1,14 vs 2,4 L/Ah. Pack comercial ≈ 128 Wh/kg → 1 kWh ≈ 8 kg. Packs náuticos típicos son IP65 (no inmersión) y no cargan bajo 0 °C (relevante en primavera/otoño danesa).</li>
+<li><strong>Fusible ≤ 175 mm (7") del borne</strong> (o ≤ 1,83 m si el cable va enfundado). <strong>Corregido en verificación</strong>: el fusible no puede superar la ampacidad del cable (ABYC 11.10.2.3) → <strong>MRBF 50–60 A + cable 8 AWG/10 mm²</strong> (56 A agrupado, 80 A suelto a 105 °C); 6 mm²/10 AWG da &lt; 1,6 % de caída a 42 A en 2,5 m pero solo admite 60 A suelto / 42 A agrupado-enfundado, incompatible con un MRBF 80 A.</li>
+<li><strong>Sistema de propulsión flotante y aislado del casco</strong>: el negativo no va al aluminio (ISO 13297 4.1); soporte PETG + correa HTD aíslan eje inox (−150 mV pasivo) del casco (−820 mV): evita una pila de ~670 mV.</li>
+<li><strong>Ánodo de aluminio (no zinc, no magnesio)</strong> en el eje junto a la hélice: salinidad local ~12–22 PSU [ESTIMADO]; el magnesio sobreprotege y ataca al aluminio en agua salobre/salada. Nada de latón bajo el agua (descincificación); tornillería A4 en aluminio con Tef-Gel + arandelas nylon/G10.</li>
+<li><strong>Marco legal</strong>: bote &lt; 2,5 m → fuera de la RCD 2013/53/UE; ISO 16315:2026 (2ª ed., feb-2026) es la referencia de buena práctica para la propulsión; su cláusula 5.1.2 "Emergency stop" existe pero el texto no es de acceso abierto.</li>
+</ul>
+<hr />
+<h2 id="fuentes-abiertas-con-éxito-en-esta-sesión">Fuentes abiertas con éxito en esta sesión</h2>
+<ul>
+<li>https://raw.githubusercontent.com/vedderb/bldc/master/applications/app_adc.c</li>
+<li>https://raw.githubusercontent.com/vedderb/bldc/master/applications/app_ppm.c</li>
+<li>https://raw.githubusercontent.com/vedderb/bldc/master/applications/appconf_default.h</li>
+<li>https://raw.githubusercontent.com/vedderb/bldc/master/motor/mcconf_default.h</li>
+<li>https://raw.githubusercontent.com/vedderb/bldc/master/timeout.c</li>
+<li>https://raw.githubusercontent.com/vedderb/bldc/master/datatypes.h</li>
+<li>https://raw.githubusercontent.com/vedderb/bldc/5.02/datatypes.h</li>
+<li>https://raw.githubusercontent.com/vedderb/bldc/release_5_03/datatypes.h</li>
+<li>https://raw.githubusercontent.com/vedderb/bldc/master/hwconf/flipsky/hw_75_100.h (agregado en verificación)</li>
+<li>https://raw.githubusercontent.com/vedderb/bldc/master/hwconf/flipsky/hw_75_100_V2.h (agregado en verificación)</li>
+<li>https://raw.githubusercontent.com/vedderb/bldc/release_6_00/hwconf/flipsky/hw_75_100.h (agregado en verificación; idem release_6_02 y release_6_05)</li>
+<li>https://hobbygoat.com/products/flipsky-75100-75v-100a-single-esc</li>
+<li>https://escooter-parts.co.uk/products/makerbase-vesc-75100-v2-84v-100a-esc-with-alu-pcb-based-on-vesc</li>
+<li>https://flipsky.net/blogs/vesc-tool/something-you-should-know-about-flipsky-anti-spark-switch</li>
+<li>https://flipsky.net/products/flipsky-antispark-switch-pro-with-aluminum-pcb-case-200a-for-electric-skateboard-ebike-scooter-robots</li>
+<li>https://flipsky.net/blogs/vesc-tool/more-known-about-fs65161-motor</li>
+<li>https://forum.esk8.news/t/right-as-i-finished-the-build-i-broke-the-anti-spark-switch/22247</li>
+<li>https://forum.esk8.news/t/flipsky-smart-antispark-issues-feedback-and-review/11908</li>
+<li>https://www.rotorama.com/product/xt90s-antispark-konektor-par</li>
+<li>https://www.boatfittings.co.uk/how_to_fit_a_kill-switch</li>
+<li>https://shop.hamiltonmarine.com/products/sea-dog-switch-kill-gray-cap-with-lanyard-normall-closed-29836.html</li>
+<li>https://www.albrightinternational.com/wpcms/wp-content/uploads/2020/08/SW80-Data-Sheet.pdf</li>
+<li>https://docs.prohelion.com/Battery_Management_Systems/Prohelion_BMS_D1000_Gen1/Operation/Precharge.html</li>
+<li>https://foil.zone/t/how-to-maintain-maytech-6579-waterproof-outrunner-motor/24647</li>
+<li>https://foil.zone/t/waterproof-6374-with-no-shaft-for-efoil/17043</li>
+<li>https://e-surfer.com/en/blog/build-your-own-e-foilboard-diy-e-foil-part-2/</li>
+<li>https://www.smbbearings.com/technical/bearing-material.html</li>
+<li>https://batteryuniversity.com/article/bu-205-types-of-lithium-ion</li>
+<li>https://pmc.ncbi.nlm.nih.gov/articles/PMC10963544/</li>
+<li>https://pmc.ncbi.nlm.nih.gov/articles/PMC11927001/</li>
+<li>https://www.eenews.net/articles/why-6-flooded-evs-burst-into-flames-after-hurricane-ian/</li>
+<li>https://contractlaboratory.com/understanding-the-dangers-of-lithium-ion-batteries-submerged-in-water/</li>
+<li>https://www.litime.com/products/litime-36v-55ah-tm-lifepo4-battery-low-temp-protection-for-trolling-motors</li>
+<li>https://cdn.standards.iteh.ai/samples/69551/4f5da7667b4642e2880fe10a27cd4c70/ISO-13297-2020.pdf</li>
+<li>https://cdn.standards.iteh.ai/samples/56158/48d458359e3d4eceab7ba7711b5b118e/ISO-16315-2016.pdf</li>
+<li>https://cdn.standards.iteh.ai/samples/iso/iso-16315-2026/8c4b6a11aaaf46b4a56c4555d9993156/iso-16315-2026.pdf</li>
+<li>https://www.intertekinform.com/preview/905621887232.pdf?sku=879610_saig_nsai_nsai_3090358</li>
+<li>https://www.paneltronics.com/images/technical/E11Excerpts.pdf</li>
+<li>https://www.currentconnected.com/product/cooper-bussmann-mrbf-terminal-fuse-30a-250a/</li>
+<li>https://www.legislation.gov.uk/eudr/2013/53/adopted/data.html</li>
+<li>https://www.gerrmarine.com/Articles/controllingcorrosionpt1.pdf</li>
+<li>https://archive.nordhavn.com/tech/images/Galvanic_Series.pdf</li>
+<li>https://www.fisheriessupply.com/understanding-sacrificial-anodes</li>
+<li>https://www.marbio.sdu.dk/index.php?page=surrounding-field-study-sites</li>
+<li>https://www.anzor.com.au/chemicals/lubricants-and-corrosion-inhibitors/tef-gel</li>
+<li>https://en.wikipedia.org/wiki/Galvanic_corrosion</li>
+</ul>
+<p>No accesibles (403/WAF) y por eso no citados: iso.org (ISO 13297/16315 páginas de catálogo), RSC Advances (Golubkov 2014), MDPI Batteries 9/5/237, Blue Sea Systems, ebikes.ca, eur-lex.europa.eu, Sensata whitepaper de precarga.</p>
+<hr />
+<h2 id="verificación-adversarial">Verificación (adversarial)</h2>
+<p>Fecha: 2026-10-01. Se reabrieron <strong>las 43 URLs citadas</strong> (curl; las que devolvieron captcha/JS — foil.zone, forum.esk8.news, PMC, Nordhavn — con WebFetch) y se descargó además el <code>hwconf</code> del Flipsky 75100 del repositorio oficial. Todas abrieron. Ninguna cita resultó inventada; hubo errores de <strong>atribución</strong>, <strong>alcance del default</strong> y <strong>reglas omitidas</strong> que cambian el diseño.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Afirmación / URL</th>
+<th>Estado</th>
+<th>Nota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Defaults <code>appconf_default.h</code> (timeout 1000 ms, freno 0 A, kill DISABLED, safe start, hyst 0,15, PPM 1,0/1,5/2,0 ms, ADC 0,9/2,0/3,0 V, min/max 0,0/3,5 V, rampas 0,3/0,1 y 0,4/0,2 s, max_erpm_for_dir 4000, 500 Hz)</td>
+<td>OK</td>
+<td>Todos coinciden con master</td>
+</tr>
+<tr>
+<td>Defaults <code>mcconf_default.h</code> (±60 A, 99/−60 A, corte 10/8 V, 57 V, temp. 85/100 °C, duty 0,95, NTC 10k)</td>
+<td>Corregido</td>
+<td>Valores bien transcritos, pero <strong>el target 75_100 los sobrescribe</strong>: <code>l_max_voltage</code> 90 V, <code>l_in_current</code> ±100 A, <code>l_min_voltage</code> 8 V (V2: 12 V), filtro de fase false (<code>hwconf/flipsky/hw_75_100.h</code>)</td>
+</tr>
+<tr>
+<td>"16S LFP supera el <code>l_max_voltage</code> default de 57 V del VESC" (§2.4, §4.3, Hallazgos)</td>
+<td>Corregido</td>
+<td>Falso para el 75100 (90 V). La conclusión "12S" se mantiene por MRBF/SW80/ISO 50 V</td>
+</tr>
+<tr>
+<td><code>KILL_SW_MODE</code> ausente en 5.02, 4 modos en 5.03, 10 en master</td>
+<td>OK</td>
+<td>Conteo verificado en los tres <code>datatypes.h</code></td>
+</tr>
+<tr>
+<td>Conflicto FW 5.2 vs filtro de fase</td>
+<td>Corregido (atenuado)</td>
+<td>En <code>release_6_00/6_02/6_05</code> y master el 75_100 trae <code>MCCONF_FOC_PHASE_FILTER_ENABLE false</code>; no se pudo verificar 5.03 (archivo 404)</td>
+</tr>
+<tr>
+<td><code>PPM_CTRL_TYPE_CURRENT_SMART_REV</code> = "sin reversa"</td>
+<td>Corregido</td>
+<td>El código tiene reversa por duty con palanca &lt; −92 % a baja velocidad (<code>smart_rev_max_duty</code>, rampa 3,0 s)</td>
+</tr>
+<tr>
+<td>ADC REV_CENTER: 0 V → reversa máxima con <code>voltage_min</code> 0,0</td>
+<td>OK</td>
+<td>Verificado en <code>app_adc.c</code> (mapeo, truncado, <code>pwr*2−1</code>, <code>range_ok</code>)</td>
+</tr>
+<tr>
+<td>"Un ADC nunca hace timeout"</td>
+<td>Corregido (precisión)</td>
+<td><code>timeout_reset()</code> solo se llama si pasa safe start y rango; lo que nunca hace timeout es una lectura dentro de rango</td>
+</tr>
+<tr>
+<td>Safe start 500 ms / 50 pulsos; timeout PPM; kill en <code>timeout.c</code> (umbral 1,65 V, <code>ignore_input_both(20)</code>)</td>
+<td>OK</td>
+<td>Verificado en código; ADC2 existe en el 75_100 (<code>ADC_IND_EXT2</code> 7)</td>
+</tr>
+<tr>
+<td>hobbygoat Flipsky 75100: 14–84 V, 100/120 A, 79/99 USD, advertencia filtro de fase</td>
+<td>OK</td>
+<td>Agregado: "Phase filter: No" y "do not restore the default parameters"; <strong>"PCB aluminio" no figura</strong> → [NO VERIFICADO]</td>
+</tr>
+<tr>
+<td>escooter-parts Makerbase 75100 V2: 14–84 V, 100/120 A, 114,99 GBP, HYG015N10NS1TA, 103×58×18,5 mm, 12 AWG</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>flipsky.net FS65161: IP68, sello cerámico, ~10 000 h, "works in the sea", 6000 W, 6–20S</td>
+<td>OK</td>
+<td>"<strong>3 kg</strong>" en Hallazgos <strong>no figura</strong> en ninguna fuente → eliminado/[NO VERIFICADO]; "150 g" de la página es la hélice</td>
+</tr>
+<tr>
+<td>foil.zone Maytech 6579 (desarme tras cada uso)</td>
+<td>Corregido</td>
+<td>Cita textual correcta, pero es un post del usuario PaulKirdy, <strong>no atribuido explícitamente a Maytech</strong></td>
+</tr>
+<tr>
+<td>foil.zone 17043 "seized with salt water"</td>
+<td>OK</td>
+<td>Usuario brycej, motor Flipsky</td>
+</tr>
+<tr>
+<td>e-surfer: refrigeración, epoxi, Corrosion-X, rodamientos inox/cerámicos, inrunners "maintenance-free", aceite</td>
+<td>OK</td>
+<td>Agregado: FS65161 ≈ 450 €</td>
+</tr>
+<tr>
+<td>SMB bearings: 440 −20 % carga; 316 baja carga, pitting &gt; 30 °C; Si3N4 resistente</td>
+<td>Corregido</td>
+<td>Faltaba: 440 <em>"will corrode in seawater"</em>, crevice 316 a 10–15 °C; la cita Si3N4 es de <strong>full cerámico</strong> (65–75 % carga, 25 % velocidad), no de híbridos</td>
+</tr>
+<tr>
+<td><code>mcconf</code> NTC motor</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Flipsky Antispark Pro: 3S–14S (12–60 V), 100/60/200 A, 33/43/48 USD, advertencias</td>
+<td>OK</td>
+<td>Agregado conflicto: "switch off before applying power" vs contactor aguas arriba</td>
+</tr>
+<tr>
+<td>Flipsky blog: Pro autoenclavante, Smart momentáneo, NO+NC</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>esk8 "MOSFETs failed short-circuit" + XT90S loopkey</td>
+<td>Corregido</td>
+<td>El antichispa era <strong>Buildkit Boards</strong>, no Flipsky; diagnóstico de foro</td>
+</tr>
+<tr>
+<td>esk8 Smart 2,5 mA</td>
+<td>Corregido</td>
+<td>Es Smart V1, con revisión a 300–400 µA</td>
+</tr>
+<tr>
+<td>rotorama XT90-S: resistencia integrada, 45/90 A, 3,69 EUR</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>boatfittings: kill "normally open-circuit"</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Hamilton Sea Dog SD-420487-1: NC con clip, 5 A, 15,69 USD</td>
+<td>OK</td>
+<td>5 A sin tensión declarada; bornes de latón → nota agregada</td>
+</tr>
+<tr>
+<td>Albright SW80 (100/125 A, 600 A@48 V, 48/60 V, bobina 6–240 V, 7–13 W, 5/50/8–20 ms, 5×10⁶, −40…+60 °C, 40 mV)</td>
+<td>OK</td>
+<td>Agregado: cierre 66 % Us, caída 10–25 % Us, SW80P IP66, "Magnetic Latching (Not fail safe)" → respalda la regla anti-biestable (antes [ESTIMADO])</td>
+</tr>
+<tr>
+<td>Prohelion precarga (miles de A, soldadura, 470 Ω/800 µF/376 ms)</td>
+<td>OK</td>
+<td>"95 % en 4τ" es lo que dice la fuente; matemáticamente 95 % = 3τ (nota agregada)</td>
+</tr>
+<tr>
+<td>Battery University (V nominal, Wh/kg, ciclos, runaway 270/210/150 °C)</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>PMC10963544 (Frontiers in Chemistry 2024) ARC LFP/NCM811/LCO y ranking</td>
+<td>OK</td>
+<td>Valores exactos coinciden</td>
+</tr>
+<tr>
+<td>PMC11927001 gas 1,14 L/Ah (0,36 L/Wh) LFP, 2,4 L/Ah (0,66 L/Wh) MH1, 600 °C</td>
+<td>OK</td>
+<td>LFP = celdas 26650 de un estudio previo citado en el paper</td>
+</tr>
+<tr>
+<td>eenews (agua salada → incendio de horas, reignición)</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>contractlaboratory (cloruros, runaway días/semanas)</td>
+<td>OK</td>
+<td>Fuente comercial; "días o semanas" atribuido a NFPA por el sitio</td>
+</tr>
+<tr>
+<td>LiTime 36 V 50 Ah: 1920 Wh, 33,14 lb, IP65, BMS 50 A / 250 A 1 s, 43,2 ± 0,6 V, carga 0–5 °C, 4000+ ciclos, 395,99 USD</td>
+<td>OK</td>
+<td>128 Wh/kg recalculado = 127,7</td>
+</tr>
+<tr>
+<td>iteh ISO 13297:2020 (5ª ed., ≤ 50 V, 4.1, 5.1, 5.4, 5.5, 5.6 nota 2, 8.1)</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>iteh ISO 16315:2016 def. 3.1 (50 V, Nota 1)</td>
+<td>OK</td>
+<td>Agregada Nota 2 ("ni a plena carga ni en vacío") → NMC 12S pasa a ✘</td>
+</tr>
+<tr>
+<td>iteh ISO 16315:2026 (2ª ed. 2026-02, cambios, índice)</td>
+<td>Corregido (menor)</td>
+<td>8.2 "Isolation of batteries" = seccionamiento, no aislación</td>
+</tr>
+<tr>
+<td>intertekinform EN ISO 16315:2016 corr. 2021-11</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>paneltronics ABYC E-11 (7 in/175 mm, 72 in, 40 in, pigtails, 3 %/10 %, 600 V, 60 °C, K = 10,75, Tabla VI-A)</td>
+<td>Corregido</td>
+<td>Tabla VI-A bien transcrita; <strong>faltaba Tabla VI-B y 11.10.2.3</strong> → MRBF 60–80 A sobre 10 AWG no cumple; "178 mm" → 175 mm (valor ABYC)</td>
+</tr>
+<tr>
+<td>currentconnected MRBF (30–250 A, 58 V, 10 000/5 000/2 000 A, IP66)</td>
+<td>OK</td>
+<td>Agregado: valores estándar y bloque 5191</td>
+</tr>
+<tr>
+<td>legislation.gov.uk RCD 2013/53/UE (2,5–24 m; "propulsion engine" = combustión)</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Gerr (serie galvánica, 200 mV, inox activo en tubo, descincificación, sobreprotección &gt; 400 mV)</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Nordhavn "Galvanic Series" (Ref ABYC)</td>
+<td>OK</td>
+<td>curl devolvió captcha; abierto vía WebFetch; valores coinciden</td>
+</tr>
+<tr>
+<td>Fisheries Supply (ánodos Al en salobre, no mezclar, 50 %/anual)</td>
+<td>OK</td>
+<td>Agregada cita sobre zinc en agua salobre (antes [ESTIMADO])</td>
+</tr>
+<tr>
+<td>SDU marbio (Kerteminde 14–22 ‰; Gran Belt 10–27 ‰)</td>
+<td>OK</td>
+<td>Als 12–22 PSU sigue [ESTIMADO] (sin presupuesto de búsqueda para verificar)</td>
+</tr>
+<tr>
+<td>anzor Tef-Gel; Wikipedia galvanic corrosion</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Cálculos propios (caída de tensión, masas de pack, τ precarga, consumo bobina, Wh/kg)</td>
+<td>OK</td>
+<td>Recalculados; coinciden</td>
+</tr>
+<tr>
+<td>Contenido de videos</td>
+<td>OK</td>
+<td>No se describe contenido de ningún video como visto (solo se menciona que el post de foil.zone enlaza uno)</td>
+</tr>
+<tr>
+<td>Precios</td>
+<td>OK</td>
+<td>Todos los precios citados están en páginas abiertas; los no hallados figuran como "buscar:"</td>
+</tr>
+<tr>
+<td>Números de pieza (SD-420487-1, HYG015N10NS1TA, 5191)</td>
+<td>OK</td>
+<td>Presentes en las páginas citadas</td>
+</tr>
+</tbody>
+</table></div></article>
+</div>
+</main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
+</body>
+</html>

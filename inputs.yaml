@@ -1,0 +1,728 @@
+# =============================================================================
+# inputs.yaml — ÚNICA FUENTE DE ENTRADAS del proyecto P1-J (waterjet de Jorge)
+# Todo el proyecto (cálculos, CAD, verificación, BOM, documentos) se regenera
+# desde este archivo con:  python run_all.py
+#
+# Etiquetas (en el comentario de cada valor numérico):
+#   [VERIFICADO: fuente]  dato leído en una fuente abierta en esta sesión
+#   [CALCULADO]           resultado de un cálculo documentado
+#   [ESTIMADO: base]      inferencia de ingeniería con base explícita
+#   [SUPUESTO]            decisión de diseño / supuesto conservador
+# Unidades SI salvo indicación; geometría en mm en las claves *_mm.
+# Las decisiones y "qué cambia si el dato real difiere" están en decisiones.md
+# El diseño anterior (cola larga para jon boat, 2 personas, 6 km/h) quedó en el
+# historial de git (commit 5dfada0) y en decisiones.md §Historia.
+# =============================================================================
+
+meta:
+  project: "P1-J — waterjet eléctrico inboard para el jet boat de Jorge (2,30 m)"
+  version: "2.0"
+  date: "2026-10-01"
+  currency: "EUR"
+  eur_to_dkk: 7.4755          # [VERIFICADO: BCE 2026-09-30, research/R08a §0]
+  usd_to_eur: 0.8807          # [VERIFICADO: BCE 2026-09-30 (1 EUR = 1,1355 USD), research/R08a §0]
+
+# -----------------------------------------------------------------------------
+# CASCO — jet boat de Jorge (plano preliminar 26/09/2026, referencias/). Las vistas
+# del plano no comparten escala (R10b §4.1): todo [ESTIMADO] hasta medir (PENDIENTES P0).
+# x = hacia proa desde la cara exterior del espejo; z = hacia arriba desde la quilla.
+# -----------------------------------------------------------------------------
+boat:
+  loa_m: 2.30                 # [VERIFICADO: plano de Jorge, cota "2300 largo total casco"]
+  beam_m: 0.80                # [VERIFICADO: plano de Jorge, cota "800 ancho total casco"]
+  lwl_m: 1.75                 # [ESTIMADO: research/R10b §4.3 — largo de fondo 1,73 m medido a escala]
+  bottom_beam_m: 0.42         # [ESTIMADO: research/R10b §4.3 — fondo leído en la vista trasera (variante 0,60)]
+  chine_beam_m: 0.69          # [ESTIMADO: research/R10b §4.3 — manga en el pantoque]
+  chine_height_m: 0.25        # [ESTIMADO: research/R10b §4.3]
+  gunwale_height_m: 0.52      # [VERIFICADO: plano de Jorge, cota 520 (vista trasera)]
+  transom_height_m: 0.42      # [VERIFICADO: plano de Jorge, cota 420 en el espejo]
+  deadrise_deg: 8.0           # [ESTIMADO: research/R10b §4.4 usó 5–10°; medir]
+  planing_beam_m: 0.60        # [ESTIMADO: research/R10b §4.4 — manga de planeo media (b de Savitsky)]
+  block_coeff: 0.80           # [ESTIMADO: coeficiente longitudinal ∇ = C·L·A_sección; R10b usó C_wp 0,85]
+  waterplane_inertia_coeff: 0.065   # [ESTIMADO: research/R10b §4.3 — forma de flotación supuesta (70 % rectángulo + 30 % proa triangular); el cálculo es exacto, la forma no está medida]
+  hull_mass_kg: 38.0          # [ESTIMADO: research/R10b §4.2 — 30–45 kg con cubierta, consola y asiento] — ÚNICA fuente: la usan masses.items.hull y la capacidad (33 CFR 183)
+  bottom_thickness_mm: 4.0    # [SUPUESTO: casco de aluminio 4 mm; medir (la placa de la toma se ajusta)]
+  transom_thickness_mm: 6.0   # [SUPUESTO: medir]
+  floor_height_m: 0.075       # [ESTIMADO: research/R10a §5.2 — piso dibujado a 71–79 mm del fondo]
+
+# -----------------------------------------------------------------------------
+# MASAS (1 piloto). kg "sel:<clave>" = lo pone el optimizador según la selección.
+# -----------------------------------------------------------------------------
+masses:
+  items:
+    hull:     {desc: "Casco con cubierta, consola y asiento", kg: "inp:boat.hull_mass_kg", x_m: 0.95, z_m: 0.22, tag: "[ESTIMADO: research/R10b §4.2, §4.4]"}
+    pilot:    {desc: "Piloto", kg: 90.0, x_m: 1.38, z_m: 0.55, tag: "[SUPUESTO: 80–100 kg; posición del asiento del plano (R10b §4.4)]"}
+    battery:  {desc: "Batería", kg: "sel:battery_kg", x_m: 1.28, z_m: 0.18, machinery: true, tag: "[CALCULADO: CAD P1-BAT-01 — 2 baterías lado a lado a proa del controlador, x 1,01–1,55 m]"}
+    motor:    {desc: "Motor eléctrico", kg: "sel:motor_kg", x_m: 0.74, z_m: 0.16, machinery: true, tag: "[CALCULADO: 04_diseno/params.py motor_x_mid / motor_axis_z_mid con Ø132]"}
+    jet:      {desc: "Unidad de waterjet (toma, bomba, tobera, dirección, bucket, tren)", kg: "sel:jet_kg", x_m: 0.25, z_m: 0.12, machinery: true, tag: "[CALCULADO: CAD (manifest) o ESTIMADO 12 kg antes del primer CAD]"}
+    esc:      {desc: "Controlador, contactor, fusible, cables", kg: 6.0, x_m: 0.90, z_m: 0.30, machinery: true, tag: "[ESTIMADO: research/R10b §4.2 4–7 kg]"}
+    water:    {desc: "Agua retenida en toma y bomba", kg: 4.0, x_m: 0.30, z_m: 0.10, tag: "[ESTIMADO: research/R10b §4.2 2–5 kg]"}
+    gear:     {desc: "Equipo de seguridad (chaleco, remo, cabo, achicador)", kg: 6.0, x_m: 1.60, z_m: 0.25, tag: "[ESTIMADO: research/R10b §4.2 5–8 kg]"}
+    foam:     {desc: "Flotación fija (espuma de celda cerrada) + bomba de achique", kg: 5.0, x_m: 1.20, z_m: 0.30, tag: "[ESTIMADO: ~100 L de espuma a 30 kg/m³ + bomba 1,5 kg (R10b H5)]"}
+  jet_mass_estimate_kg: 12.0  # [ESTIMADO: research/R10b §4.2 — bomba 8–15 kg; se reemplaza por la masa del CAD]
+  light_pilot_kg: 70.0        # [SUPUESTO: caso liviano para el tope legal de rpm]
+
+
+water:
+  salinity_psu: 18.0          # [VERIFICADO: research/R07 §2 — media mensual superficial 13,6–17,6 PSU (Copernicus BAL); 18 = conservador para densidad]
+  salinity_corrosion_psu: 20.5   # [VERIFICADO: research/R07 §2 — p90 superficial; diseño de corrosión/aislamiento galvánico]
+  density_kg_m3: 1013.0       # [CALCULADO: ~1000 + 0.75·S a 10 °C; research/R07 §2.5 EOS-80: 1010–1016]
+  kinematic_viscosity_m2_s: 1.35e-6   # [ESTIMADO: agua salobre ~10 °C (dulce 10 °C: 1.31e-6)]
+  temp_min_c: 2.0             # [VERIFICADO: research/R07 §3 — mínimo invernal; solo almacenamiento / frío del PETG]
+  temp_operating_min_c: 12.0  # [VERIFICADO: research/R07 §3.4 — temporada 15 jun–15 sep: agua ≥ 12 °C ~100 % de los días jul–sep]
+  temp_max_c: 24.0            # [VERIFICADO: research/R07 §3.1 — máx diario observado 23,3 °C (DMI Fynshav), instantáneo 26,4 °C]
+  vapor_pressure_pa: 2984.0   # [ESTIMADO: ecuación de Buck a 24 °C (research/R07); caso peor para cavitación]
+  p_atm_pa: 101325.0          # [VERIFICADO: atmósfera estándar]
+
+air:
+  density_kg_m3: 1.225        # [VERIFICADO: atmósfera estándar ISA]
+  pressure_pa: 101325.0       # [VERIFICADO: atmósfera estándar ISA]
+  temp_max_c: 30.0            # [SUPUESTO: día de verano con sol]
+
+materials:
+  PETG:
+    density_g_cm3: 1.27       # [ESTIMADO: TDS típicos PETG 1.27]
+    sigma_t_xy_mpa: 47.0      # [VERIFICADO: research/R05 S1 Prusament PETG TDS 47±2 MPa (PolyLite 50.8)]
+    sigma_t_z_mpa: 18.0       # [VERIFICADO: research/R05 S1 "interlayer adhesion" 18±4 MPa]
+    E_mpa: 1500.0             # [VERIFICADO: research/R05 S1 Prusament 1500 MPa (el menor de los TDS: conservador para deformación)]
+    tg_c: 69.0                # [VERIFICADO: research/R05 S3 Bambu 69 °C (PolyLite 81); HDT 68 °C a 1,8 MPa]
+    t_service_max_c: 50.0     # [ESTIMADO: research/R05 — HDT 65,7–68 °C menos ~15–18 K por creep y humedad]
+    hdt_min_purchase_c: 70.0  # [VERIFICADO: research/R05 — comprar PETG con HDT(1,8 MPa) ≥ 70 °C, p. ej. PolyLite 75 °C]
+    price_eur_per_kg: 22.0    # [ESTIMADO: PETG 1 kg EU 18–28 €]
+  ASA:
+    density_g_cm3: 1.07       # [ESTIMADO]
+    sigma_t_xy_mpa: 40.0      # [ESTIMADO]
+    sigma_t_z_mpa: 22.0       # [ESTIMADO]
+    E_mpa: 2000.0             # [ESTIMADO]
+    tg_c: 100.0               # [ESTIMADO]
+    t_service_max_c: 75.0     # [SUPUESTO]
+    price_eur_per_kg: 26.0    # [ESTIMADO]
+  design_factors:             # Factores de reducción FDM (multiplican la resistencia)
+    f_water: 0.75             # [VERIFICADO: research/R05 S13 — PETG −17 a −28 % de tracción a 30 días en agua de mar]
+    f_temp: 0.85              # [ESTIMADO: a 40 °C de servicio]
+    f_process: 0.80           # [ESTIMADO: variabilidad de impresión, poros, costura]
+    f_creep: 0.35             # [VERIFICADO: research/R05 S15 (fluencia de PETG impreso) — admisible sostenida ≈ 35 %]
+    f_fatigue: 0.06           # [CALCULADO: research/R05 S16 — 30 % UTS a ~1e5 ciclos, Basquin → ~6 % a 1e7–1e8 (paso de pala)]
+    f_fatigue_lcf: 0.15       # [CALCULADO: misma curva Basquin a ~1e6 ciclos (olas, maniobras, ~1e5–1e6 por temporada)]
+    f_z: 0.40                 # [VERIFICADO: research/R05 — Z/XY = 0,38 (Prusament) a 0,84 (PolyLite)]
+  fs_target_printed: 3.0      # [VERIFICADO: requisito del usuario FS ≥ 3]
+  fs_target_metal: 2.0        # [SUPUESTO: metales con propiedades certificadas]
+
+printer:
+  model: "Creality Ender-3 S1"    # [VERIFICADO: dato del usuario]
+  envelope_mm: [210, 210, 260]    # [VERIFICADO: dato del usuario (X, Y, Z)]
+  nozzle_mm: 0.4                  # [VERIFICADO: dato del usuario]
+  hotend_max_c: 260               # [VERIFICADO: dato del usuario]
+  bed_max_c: 100                  # [VERIFICADO: dato del usuario]
+  layer_mm: 0.20                  # [SUPUESTO: perfil estructural]
+  print_rate_g_h: 18.0            # [ESTIMADO: PETG 0.4 mm a ~60 mm/s con 6 perímetros]
+
+geometry:
+  clearance_mm: 0.25          # [SUPUESTO: holgura inicial 0.2–0.3, confirmar con probeta]
+  press_fit_mm: -0.05         # [SUPUESTO: interferencia para rodamientos en PETG (confirmar con probeta)]
+  min_wall_mm: 3.2            # [SUPUESTO: 8 perímetros de 0.4 mm]
+  bolt_clearance_mm: 0.4      # [SUPUESTO: agujero pasante = d + 0.4]
+  interference_tol_mm3: 1.0   # [SUPUESTO: volumen de intersección admisible (ruido numérico)]
+  tilt_check_step_deg: 5.0    # [SUPUESTO: paso de barrido de basculación en verify]
+  esc_box_inner_mm: [160, 110, 45]  # [CALCULADO: ESC 103×58×24 + antichispa 84×45×17 lado a lado + contratuercas M20 y curvas de cable (checks de ELE-01)]
+  oring_cs_mm: 3.53           # [VERIFICADO: research/R05 — con ±0,15 mm de tolerancia FDM la compresión queda en 21–29 % (con 2,5 mm: 17–33 %)]
+  oring_squeeze_frac: 0.25    # [VERIFICADO: research/R05 S24 Parker ORD 5700 — sello de cara estático 20–30 %]
+  oring_gland_fill_frac: 0.78 # [VERIFICADO: research/R05 S24 — llenado 60–85 % (ranura 2,57–2,72 × 4,50–4,75 mm)]
+
+costs:
+  shipping_frac: 0.10         # [ESTIMADO: envío ~10 % del material comprado; no se aplica a ítems con envío incluido (ship: incl) ni a importación CN (ship: cn)]
+  contingency_frac: 0.10      # [SUPUESTO: imprevistos]
+  selection_cost_band_frac: 0.10   # [SUPUESTO: opciones dentro de +10 % del mínimo se desempatan por V máx y autonomía]
+  hardware_fixed_eur: 0.0     # [CALCULADO: se suma desde la BOM]
+  import_vat_frac: 0.25       # [VERIFICADO: research/R08a §0 — IVA DK 25 %, siempre debido en compras fuera de la UE]
+  cn_shipping_eur: 45.0       # [ESTIMADO: research/R08a §0 — Flipsky no publica el envío DHL a DK; buscar en el checkout]
+
+# -----------------------------------------------------------------------------
+# OPERACIÓN Y REQUISITOS (plano de Jorge + reglas del proyecto)
+# -----------------------------------------------------------------------------
+operation:
+  n_persons: 1                # [VERIFICADO: plano de Jorge — 1 piloto; research/R10b H6 (capacidad < 2 personas)]
+  top_speed_target_kmh: 30.0  # [VERIFICADO: plano de Jorge "objetivo de velocidad ≥ 30 km/h"]
+  legal_speed_limit_kmh: 9.26 # [VERIFICADO: research/R07 — ≤ 5 kn dentro de 300 m de la costa]
+  mission_fast_h: 0.25        # [SUPUESTO: 15 min a fondo fuera de la franja de 300 m]
+  mission_legal_h: 0.50       # [SUPUESTO: 30 min a 5 kn entrando/saliendo y dentro de la franja]
+  reserve_frac: 0.20          # [SUPUESTO: 20 % de reserva]
+  plane_margin_frac: 0.10     # [SUPUESTO: empuje ≥ 1,10 × R en toda la joroba (banda de diseño, batería nominal)]
+  wave_added_frac: 0.10       # [ESTIMADO: ola corta del fiordo]
+  accel_target_s: 15.0        # [SUPUESTO: tiempo máximo de 0 a planeo]
+  success:                    # criterios pasa/no-pasa de las pruebas físicas (06 §T)
+    bollard_frac: 0.80        # [SUPUESTO: empuje a punto fijo medido ≥ 80 % del modelo]
+    vmax_frac: 0.85           # [SUPUESTO: V máx. medida (GPS) ≥ 85 % del modelo, banda nominal]
+    p_legal_frac: 1.30        # [SUPUESTO: P de batería a 5 kn ≤ 1,3 × modelo]
+
+# -----------------------------------------------------------------------------
+# RESISTENCIA (research/R10b §4.4; R09 §1.6; Savitsky 1964 vía openplaning)
+# -----------------------------------------------------------------------------
+resistance:
+  fn_hump: 1.5                # [ESTIMADO: research/R10b §4.4 — joroba a SLR ≈ 3 (Fn∇ ≈ 1,4–1,7)]
+  fn_planing: 2.3             # [ESTIMADO: research/R10b §4.4 — Savitsky extrapola por debajo de Fn∇ ≈ 2,3] — corte arbitrario de la transición: sensibilidad 2,0–2,7 en 02 §10
+  hump_exponent: 2.2          # [ESTIMADO: forma de R/Δ ∝ Fn∇^k por debajo de la joroba]
+  r_hump: {low: 0.10, nominal: 0.15, high: 0.20}   # [ESTIMADO: research/R10b §4.4 — banda R/Δ 0,10–0,20 en la joroba]
+  planing_band: {low: 0.92, nominal: 1.00, high: 1.12}   # [ESTIMADO: research/R10b §4.4 — dispersión de 6 cascos a 30 km/h (±8–12 %)]; en el régimen limitado por eslora (todo el planeo de este casco) la alta ×1,12 es [SUPUESTO]: sensibilidad 1,00–1,25 en 02 §10
+  planing_factor: 1.0         # [SUPUESTO: factor de calibración sobre las tres bandas de planeo; 1 hasta medir la curva P–V (T4); sensibilidad ±10 %]
+  full_planing_tol: 0.02      # [SUPUESTO: "planeo pleno" = primer nodo donde el Savitsky limitado por eslora y el libre difieren < 2 % (la eslora ya no limita); hasta ahí se exige el margen de empuje]
+  planing_node_step_ms: 0.4   # [SUPUESTO: paso de los nodos de Savitsky (≈ 1,4 km/h)]
+  design_band: "high"         # [SUPUESTO: se dimensiona con la banda alta]
+  radius_gyration_m: 0.50     # [ESTIMADO: research/R10b §4.4]
+  thrust_height_m: 0.11       # [CALCULADO: eje del jet ≈ 115 mm sobre la quilla (R10a §5.2)]
+  air_center_m: 0.80          # [ESTIMADO]
+  air_height_m: 1.10          # [ESTIMADO: research/R10b §4.4 — piloto sentado + consola]
+  air_width_m: 0.50           # [ESTIMADO: research/R10b §4.4]
+  air_cd: 0.90                # [ESTIMADO: research/R10b §4.4]
+  hull_roughness_m: 150.0e-6  # [ESTIMADO: research/R10b §4.4 (openplaning por defecto)]
+  v_max_eval_ms: 14.0         # [SUPUESTO: nodos de resistencia hasta 50 km/h (el punto de diseño de la bomba cae por encima de 40 km/h); las curvas de prestaciones se barren hasta 40 km/h]
+
+# -----------------------------------------------------------------------------
+# WATERJET — toma, bomba, tobera, dirección, reversa (research/R10a, R10b, R03, R12)
+# -----------------------------------------------------------------------------
+waterjet:
+  impeller_d_options_mm: [100, 108, 120, 132]   # [SUPUESTO: Ø108 del plano de Jorge ± tamaños comerciales (JT132)]
+  nozzle_ratio_options: [0.58, 0.62, 0.66, 0.70, 0.74]   # [SUPUESTO: D_tobera/D_impulsor; plano de Jorge 72/108 = 0,667]
+  hump_tie_band: 0.01         # [SUPUESTO] sin solución dura: candidatas a ≤ 1 pp del mejor margen de joroba empatan y decide la V máx. (02 §4; ronda 3)
+  design_power_frac_options: [0.0, 0.5, 1.0]   # [SUPUESTO: potencia de diseño de la bomba = P_cont + f·(P_máx − P_cont)]
+  hub_ratio: 0.50             # [CALCULADO: research/R12 §3 — con 0,40 el cubo da D_f 0,60; con 0,50, D_f 0,44 (Peerless 0,45, Oshima 0,483 VERIFICADO allí)]
+  blades: 5                   # [CALCULADO: research/R12 §3 — Z = 5 con solidez 1,3/0,95/0,7; el plano de Jorge dice 4 (cambio documentado en decisiones.md)]
+  stator_vanes: 7             # [CALCULADO: research/R12 §4 — 7 álabes, coprimo con 5]
+  tip_clearance_frac: 0.003   # [CALCULADO: research/R12 §3 — 0,3–0,4 mm con anillo de desgaste torneado en sitio (0,003·132 = 0,40); Ladd usó 0,5 % (R03 S10)]
+  nozzle_cc: 0.98             # [ESTIMADO: tobera cónica pulida]
+  nozzle_loss_k: 0.02         # [VERIFICADO: research/R12 §2 (Bulten ec. 2.56) φ_n = 0,02]
+  intake_eta: 0.70            # [ESTIMADO: research/R03 S9 — "~70 %" de recuperación es un valor general de tomas enrasadas, no de esta toma; sensibilidad 0,55–0,85 en 02 §10]
+  grille_k: 0.40              # [ESTIMADO: research/R10a §4 — Kirschmer 0,2 (perfilada) a 0,6 (rectangular)]
+  grille_open_area_m2_per_Aimp: 3.15   # [CALCULADO: research/R10a §5.2 — área efectiva con rejilla 3,15 × A_impulsor]
+  axis_height_m: 0.115        # [CALCULADO: research/R10a §5.2 — eje en la cara del impulsor 115 mm sobre la quilla]
+  throat_d_ratio: 1.11        # [CALCULADO: research/R10a §5.2 — garganta de la toma Ø1,11·D (Ø120 para D 108); la usan 04_diseno/params.py (D_throat) y el IVR de sizing]
+  shaft_incline_deg: 5.0      # [VERIFICADO: research/R10a §4 — bloque de toma estándar de 5° (Hamilton)]
+  ramp_angle_deg: 27.0        # [ESTIMADO: research/R10a §4 — entre 25° (S8) y < 30° (S7)]
+  nozzle_height_above_wl_m: 0.0   # [SUPUESTO: tobera en la flotación en marcha]
+  wake_fraction: 0.0          # [SUPUESTO: sin estela (R10b §4.5) — conservador para el empuje (no recupera estela); Bulten usa w = 0,12 en jets grandes (R10a S1); sensibilidad 0–0,10 en 02 §10]
+  thrust_deduction: 0.0       # [SUPUESTO: R10b §4.5 — NO conservador: con t > 0 el empuje útil baja (1 − t) y cerca de la joroba es donde más pesa; sin fuente abierta con valores para jets chicos → se deja 0 y se muestra la sensibilidad 0–0,10 (02 §10, D-22)]
+  pump:
+    eta_design: 0.72          # [ESTIMADO: research/R12 §2 — η máx. 0,756 por Bulten ec. 2.26 para este Q y Ω_s; rango 0,65–0,75]
+    shutoff_slope: 1.5        # [ESTIMADO: impulsor axial: ψ_cierre ≈ 2,5 × ψ_d → pendiente 1,5 (refinar con R12)]
+    eta_curvature: 2.5        # [ESTIMADO: pico de η angosto de bomba axial (refinar con R12)]
+    eta_min: 0.20             # [SUPUESTO: piso numérico]
+    suction_s_max: 3.5        # [VERIFICADO: research/R12 §5 (Bulten) — S 3,5 de diseño, ~4,0 comercial]
+    tip_speed_max_ms: 35.0    # [VERIFICADO: research/R10a §4 (S9) — límite práctico 35–45 m/s]
+    phi_range: [0.15, 0.40]   # [ESTIMADO: research/R10b §4.6 φ 0,24–0,30 para Ø108; rango de waterjets]
+    omega_s_range: [2.5, 6.0] # [ESTIMADO: axial/mixto (R10b §4.6)]
+  steering:
+    max_deflection_deg: 25.0  # [ESTIMADO: boquillas de jets chicos ±20–30°]
+  shear_pin:                  # fusible mecánico impulsor–eje (research/R12 §7.6: una piedra libera ~490 J; el límite de corriente no protege)
+    material: "Al 6061-T6"
+    tau_u_mpa: 174.0          # [CALCULADO: research/R12 §7.6 — τ_u = 0,6 × UTS 290 MPa] (cota baja: dimensiona el pasador)
+    tau_u_hi_mpa: 207.0       # [ESTIMADO: resistencia al corte típica de tablas para 6061-T6 (30 ksi), la que usaba research/R09 §5.3; no verificada en fuente abierta] (cota alta: FS del eje al corte)
+    fuse_factor_vs_tmax: 1.8  # [SUPUESTO: corta a 1,8 × el par máx. que deja pasar el controlador (no corta en arranques)]
+    d_options_mm: [3.0, 3.5, 4.0, 4.5, 5.0]   # [SUPUESTO: pasadores comerciales / torneados]
+  cooling:                    # refrigeración por agua del motor y del controlador desde la bomba (como jetboards)
+    orifice_d_mm: 4.0         # [SUPUESTO: restrictor en la toma de agua de la carcasa del estator]
+    cd: 0.6                   # [ESTIMADO: orificio de canto vivo]
+    dT_max_k: 15.0            # [SUPUESTO: salto de temperatura del agua de refrigeración]
+  reverse:
+    thrust_frac: 0.45         # [ESTIMADO: research/R12 §7 — Hamilton: reversa hasta 60 % (VERIFICADO allí); 0,45 conservador para el empuje útil]
+    power_limit_frac: 0.50    # [SUPUESTO: límite de corriente en reversa (R10b H10)]
+
+# -----------------------------------------------------------------------------
+# TREN: eje, rodamientos, sello, acople
+# -----------------------------------------------------------------------------
+drivetrain:
+  coupling: "Acople flexible de mordazas motor–eje (directo, sin reducción)"   # [VERIFICADO: plano de Jorge — motor directo 4500 rpm; acople: research/R10b H16]
+  eta_mech: 0.98              # [ESTIMADO: research/R10b §4.5 — rodamientos + sello + acople]
+
+shaft:
+  d_mm: 20.0                  # [VERIFICADO: plano de Jorge "eje Ø20 mm"]
+  material: "AISI 316"        # [SUPUESTO]
+  sy_mpa: 205.0               # [ESTIMADO: research/R10b §4.7 — 316 recocido σ_y ≈ 205 MPa]
+  su_mpa: 515.0               # [ESTIMADO: 316 recocido]
+  se_mpa: 180.0               # [ESTIMADO: fatiga corregida en agua salobre (≈ 0,35·σ_u)]
+  kt_keyway: 2.5              # [ESTIMADO: research/R10b §4.7]
+  e_gpa: 193.0                # [ESTIMADO]
+  density_kg_m3: 8000.0       # [ESTIMADO]
+  locked_rotor_factor: 1.0    # [SUPUESTO: el controlador limita el par al de corriente máx. de fase]
+  torque_ripple_frac: 0.15    # [ESTIMADO: ±15 % de ondulación del par por paso de álabes y toma; la misma la usan sizing (fatiga del eje) y 04_diseno/structural_bomba.py (pasador P1-PMP-05)]
+bearings:
+  type: "2 × SKF 7204 BECBP (contacto angular 40°, apareables universales, en O) en seco"   # [ESTIMADO: el mismo de bom.csv B-BRG (auditoría C8)]
+  C_dyn_n: 13300.0            # [ESTIMADO: SKF 7204 BECBP 13,3 kN, mismo dato que bom.csv B-BRG (catálogo SKF, citado en 04_diseno/params_tren.py)]
+  C0_n: 7650.0                # [ESTIMADO: SKF 7204 BECBP, el mismo dato que bom.csv B-BRG]
+  life_target_h: 2000.0       # [SUPUESTO: uso recreativo]
+seal:
+  type: "Sello mecánico de caras SiC/carbón para eje Ø20"   # [ESTIMADO: research/R10b H4; refinar con R11]
+  v_max_ms: 10.0              # [ESTIMADO: sellos de bomba de agua chicos]
+
+
+# -----------------------------------------------------------------------------
+# MOTOR / CONTROLADOR / BATERÍA (opciones; research/R11 — se actualizan al verificar)
+# -----------------------------------------------------------------------------
+motor:
+  chosen: "auto"
+  current_limit_frac: 1.0     # [SUPUESTO: límite de fase = i_max del motor (además del par para el pasador)]
+  kt_convention: "bus_foc"    # [SUPUESTO: KV de catálogo referido a la tensión de bus → en FOC K_t = (√3/2)/KV_rad e I_q = I_CC/0,866 (02 §4.2). "dc": K_t = 1/KV_rad. Medir λ con VESC Tool (K_t = 1,5·pp·λ) y cargarlo como flux_linkage_wb en la opción del motor]
+  options:
+    MTI120116_150:
+      desc: "Maytech MTI120116 150 KV (inrunner refrigerado por agua, 10–16S)"
+      kv_rpm_v: 150.0         # [VERIFICADO: research/R11 §1.2 — KV 100/150/200 nominal]
+      r_ohm: 0.006            # [ESTIMADO: inrunner de 18,8 kW; no publicado — medir con VESC Tool]
+      r_hot_factor: 1.24      # [ESTIMADO: cobre +60 K]
+      i0_a: 3.0               # [ESTIMADO]
+      i_max_a: 380.0          # [VERIFICADO: research/R11 §1.2 — 380 A máx.]
+      p_cont_w: 6000.0        # [ESTIMADO: continua no publicada (R11 advertencia); jetboards de esta clase 6–10 kW refrigerados por agua — pedir a Maytech]
+      p_max_w: 12000.0        # [ESTIMADO: máx. publicado 18,8 kW (R11); se usa 12 kW]
+      mass_kg: 4.4            # [VERIFICADO: research/R11 §1.2]
+      size_mm: [120, 116]     # [VERIFICADO: research/R11 §1.2 — Ø120 × 116]
+      shaft_d_mm: 15.0        # [VERIFICADO: research/R11 §1.2 — Ø15 × 30 con chavetero]
+      eta: 0.92               # [ESTIMADO: inrunner refrigerado por agua]
+      pole_pairs: 5           # [VERIFICADO: https://maytech.cn/products/copy-of-maytech-fully-waterproof-mti120116-18-8kw-powerful-brushless-inrunner-motor-for-electric-surfboard-rc-boat-jetski — "Construction: 12N/10P" → 10 polos = 5 pares; CONTAR al recibirlo]
+      hall: true              # [VERIFICADO: misma página — variante "With Hall Sensor" (573 USD); se compra con hall]
+      temp_sensor: "NTC10K 3950 (cable amarillo) → entrada TEMP del VESC"   # [VERIFICADO: misma página — "Yellow: Temp Sensor (NTC10K 3950k)"]
+      leads: "3 × 6 AWG × 300 mm"   # [VERIFICADO: misma página — "6AWGx300mm"]
+      v_class: 48
+      cells_max: 16           # [VERIFICADO: research/R11 §1.2 — 10–16S]
+      cooling: "agua"
+      price_usd: 573.0        # [VERIFICADO: misma página — 150KV "With Hall Sensor, Motor Only" 573,00 USD (sin hall 537,50)]
+      duty_frac: 0.027        # [VERIFICADO: https://www.tariffnumber.com/2025/85013200 — NC 8501 32 (motores CC 0,75–75 kW) 2,7 % erga omnes]
+      price_eur: 647.83       # [CALCULADO: 573 USD × 0,8807 = 504,64 € × (1 + 2,7 % arancel) × (1 + 25 % IVA) — criterio único de importación: comparison.import_basis]
+      rth_k_w: 0.04           # [ESTIMADO: camisa de agua]
+      tau_th_s: 600.0         # [ESTIMADO]
+      t_winding_max_c: 120.0  # [VERIFICADO: research/R11 §1.2 — "máx. 120 °C"]
+    HPM5000B_48:
+      desc: "Golden Motor HPM5000B 48 V (BLDC refrigerado por aire)"
+      kv_rpm_v: 91.5          # [VERIFICADO: research/R11 §1.2 — ensayo GM: 4389 rpm en vacío a 47,99 V]
+      r_ohm: 0.012            # [ESTIMADO: coherente con 5,27 kW a 3501 rpm y 132,7 A (83,8 %) del ensayo]
+      r_hot_factor: 1.24      # [ESTIMADO]
+      i0_a: 5.0               # [ESTIMADO]
+      i_max_a: 300.0          # [ESTIMADO: 40–45 N·m pico (R11) / K_t 0,104]
+      p_cont_w: 5000.0        # [VERIFICADO: research/R11 §1.2 — "3–7,5 kW rated"; ensayo 5,27 kW]
+      p_max_w: 7500.0         # [VERIFICADO: research/R11 §1.2 — "rated" hasta 7,5 kW]
+      mass_kg: 11.0           # [VERIFICADO: research/R11 §1.2]
+      size_mm: [206, 126]     # [VERIFICADO: research/R11 §1.2 — Ø206 × 126]
+      shaft_d_mm: 22.3        # [VERIFICADO: research/R11 §1.2 (Kelly: Ø22,3, chaveta 5 mm); Monster dice 7/8" → medir]
+      eta: 0.88               # [VERIFICADO: research/R11 §1.2 — 83,8 % a 5,27 kW; 0,88 a carga media]
+      pole_pairs: 4           # [VERIFICADO: research/R11 §1.2 nota (made-in-china)]
+      v_class: 48
+      cells_max: 14           # [ESTIMADO]
+      cooling: "aire (ventilador)"
+      price_usd: 490.0        # [VERIFICADO: research/R11 §1.2 — 490 USD GM]
+      duty_frac: 0.027        # [VERIFICADO: tariffnumber.com 85013200 — 2,7 %]
+      price_eur: 553.99       # [CALCULADO: 490 USD × 0,8807 × 1,027 × 1,25 (arancel + IVA, comparison.import_basis)]
+      rth_k_w: 0.07           # [ESTIMADO]
+      tau_th_s: 1200.0        # [ESTIMADO]
+      t_winding_max_c: 120.0  # [ESTIMADO: KTY84-130]
+    HPM5000L_72:
+      desc: "Golden Motor HPM5000L 72 V refrigerado por líquido, bobinado a pedido ~72 rpm/V"
+      kv_rpm_v: 72.0          # [SUPUESTO: research/R11 §1.3 — pedir bobinado de 70–75 rpm/V por escrito (catálogo: 58,9)]
+      r_ohm: 0.022            # [ESTIMADO]
+      r_hot_factor: 1.24      # [ESTIMADO]
+      i0_a: 3.0               # [ESTIMADO]
+      i_max_a: 200.0          # [ESTIMADO]
+      p_cont_w: 5000.0        # [VERIFICADO: research/R11 §1.2 — ensayo 4,71 kW (90,6 %) y 6,19 kW (88,1 %)]
+      p_max_w: 9000.0         # [ESTIMADO]
+      mass_kg: 11.35          # [VERIFICADO: research/R11 §1.2]
+      size_mm: [206, 126]     # [VERIFICADO: research/R11 §1.2]
+      shaft_d_mm: 22.3        # [VERIFICADO: research/R11 §1.2 → medir]
+      eta: 0.90               # [VERIFICADO: research/R11 §1.2 — 90,6 % a 4,71 kW]
+      pole_pairs: 4           # [VERIFICADO: research/R11 §1.2]
+      v_class: 72
+      cells_max: 24           # [ESTIMADO]
+      cooling: "líquido"
+      price_usd: 545.0        # [VERIFICADO: research/R11 §1.2 — 545 USD]
+      duty_frac: 0.027        # [VERIFICADO: tariffnumber.com 85013200 — 2,7 %]
+      price_eur: 616.18       # [CALCULADO: 545 USD × 0,8807 × 1,027 × 1,25 (arancel + IVA, comparison.import_basis)]
+      rth_k_w: 0.05           # [ESTIMADO]
+      tau_th_s: 900.0         # [ESTIMADO]
+      t_winding_max_c: 120.0  # [ESTIMADO: KTY84-130]
+esc:
+  chosen: "auto"
+  duty_max: 0.95              # [ESTIMADO: ciclo útil máximo práctico]
+  margin_min_frac: 0.20       # [SUPUESTO: ESC ≥ 1,2 × corriente de fase configurada]
+  options:
+    FSESC75350:
+      desc: "Flipsky FSESC 75350 con caja de agua (VESC, filtro de fase, IP65)"
+      v_max: 84.0             # [VERIFICADO: research/R11 §2.1 — 14–84 V (3–20S)]
+      i_cont_a: 350.0         # [VERIFICADO: research/R11 §2.1 — "50V/350A"]
+      eta: 0.97               # [ESTIMADO]
+      v_class: 48
+      price_usd: 210.0        # [VERIFICADO: research/R11 §2.1 — 210 USD con caja de agua (página releída 2026-10-02)]
+      duty_frac: 0.0          # [ESTIMADO: NC 8504 40 86 "inversores > 7,5 kVA" arancel 0 (https://www.tariffnumber.com/2025/85044086); clasificar un ESC como inversor es ESTIMADO]
+      fw_factory: "5.02"      # [VERIFICADO: página Flipsky del FSESC 75350 — "Firmware: 5.02 (firmware upgrade available)"; el diseño exige ≥ 6.00 (LispBM) → flashear en T0]
+      leads: "fase y batería 8 AWG"   # [VERIFICADO: misma página — "Motor wire: 8AWG", "Power cable: 8AWG"]
+      price_eur: 231.18       # [CALCULADO: 210 USD × 0,8807 × (1 + 0 %) × 1,25]
+      mass_kg: 2.0            # [VERIFICADO: research/R11 §2.1 — 2000 g con caja]
+      size_mm: [200.0, 94.6, 50.0]   # [VERIFICADO: research/R11 §2.1]
+      cooling: "agua"
+    FS75200PRO:
+      desc: "Flipsky 75200 Pro V2.0 (VESC, PCB de aluminio, aire)"
+      v_max: 84.0             # [VERIFICADO: research/R11 §2.1 — 14–84 V]
+      i_cont_a: 200.0         # [VERIFICADO: research/R11 §2.1 — "50v/200A"]
+      eta: 0.97               # [ESTIMADO]
+      v_class: 48
+      price_usd: 150.0        # [VERIFICADO: research/R11 §2.1]
+      duty_frac: 0.0          # [ESTIMADO: NC 8504 40 86, arancel 0]
+      price_eur: 165.13       # [CALCULADO: 150 USD × 0,8807 × 1,25]
+      mass_kg: 0.88           # [VERIFICADO: research/R11 §2.1 — 700–880 g]
+      size_mm: [130.0, 68.0, 41.0]   # [VERIFICADO: research/R11 §2.1]
+      cooling: "aire"
+    FSESC110300:
+      desc: "Flipsky FSESC 110300 (VESC 110 V / 300 A, PCB de aluminio)"
+      v_max: 110.0            # [VERIFICADO: research/R11 §2.2 — 14–110 V (4–26S)]
+      i_cont_a: 300.0         # [VERIFICADO: research/R11 §2.2 — "110V/300A"]
+      eta: 0.97               # [ESTIMADO]
+      v_class: 72
+      price_usd: 219.0        # [VERIFICADO: research/R11 §2.2]
+      duty_frac: 0.0          # [ESTIMADO: NC 8504 40 86, arancel 0]
+      price_eur: 241.09       # [CALCULADO: 219 USD × 0,8807 × 1,25]
+      mass_kg: 1.2            # [VERIFICADO: research/R11 §2.2]
+      size_mm: [183.8, 80.2, 43.8]   # [VERIFICADO: research/R11 §2.2]
+      cooling: "aire"
+battery:
+  chosen: "auto"
+  usable_dod: 0.90            # [ESTIMADO: BMS corta ~95 %, se reserva 5 % adicional]
+  bms_current_derate: 0.80    # [SUPUESTO: l_in_current_max del VESC = 80 % del BMS (04_diseno/electronica, R06)]
+  options:
+    LT36_60x2:
+      desc: "2 × LiTime 36 V 60 Ah Golf Cart en paralelo (12S2P, BMS 2 × 120 A)"
+      v_nom: 38.4             # [CALCULADO: 12 × 3,2 V]
+      v_max: 43.8             # [CALCULADO: 12 × 3,65 V]
+      v_min: 36.0             # [CALCULADO: 12 × 3,0 V bajo carga]
+      ah: 120.0               # [VERIFICADO: research/R11 §3.2 — 2 × 60 Ah]
+      i_cont_a: 240.0         # [VERIFICADO: research/R11 §3.2 — 2 × 120 A ("2C")]
+      mass_kg: 39.6           # [ESTIMADO: research/R11 §3.2 — 2 × 19,8 kg (buscador)]
+      price_eur: 939.98       # [VERIFICADO: research/R11 §3.2 — 2 × 469,99 € con IVA, envío UE gratis]
+      v_class: 48
+      cells: 12
+      parallel: 2             # [SUPUESTO: 2 baterías en paralelo → un fusible por rama]
+      unit_size_mm: [532, 207, 215]   # [ESTIMADO: research/R11 §3.2 — 20,94 × 8,15 × 8,46 in (buscador); medir]
+      charger: {desc: "LiTime 36 V 15 A IP66", price_eur: 132.99}   # [VERIFICADO: research/R08a §5]
+    LT36_60x1:
+      desc: "1 × LiTime 36 V 60 Ah Golf Cart (12S, BMS 120 A)"
+      v_nom: 38.4             # [CALCULADO]
+      v_max: 43.8             # [CALCULADO]
+      v_min: 36.0             # [CALCULADO]
+      ah: 60.0                # [VERIFICADO: research/R11 §3.2]
+      i_cont_a: 120.0         # [VERIFICADO: research/R11 §3.2]
+      parallel: 1
+      unit_size_mm: [532, 207, 215]   # [ESTIMADO: research/R11 §3.2]
+      mass_kg: 19.8           # [ESTIMADO: research/R11 §3.2]
+      price_eur: 469.99       # [VERIFICADO: research/R11 §3.2]
+      v_class: 48
+      cells: 12
+      charger: {desc: "LiTime 36 V 15 A IP66", price_eur: 132.99}   # [VERIFICADO: research/R08a §5]
+    LF50K_13S2P:
+      desc: "Pack propio 13S2P EVE LF50K + JK BMS 200 A (41,6 V, 4,16 kWh)"
+      v_nom: 41.6             # [CALCULADO]
+      v_max: 47.45            # [VERIFICADO: research/R11 §3.2]
+      v_min: 39.0             # [CALCULADO]
+      ah: 100.0               # [CALCULADO: 2 × 50 Ah]
+      i_cont_a: 200.0         # [VERIFICADO: research/R11 §3.2 — BMS 200 A; celda 3C]
+      mass_kg: 40.0           # [CALCULADO: 26 × 1,395 kg (R11) + caja y BMS ~3,7 kg ESTIMADO]
+      price_eur: 1082.0       # [VERIFICADO: research/R11 §3.2 — 26 × 35 € + BMS 172 €]
+      v_class: 48
+      cells: 13
+      charger: {desc: "Cargador LFP 47,45 V 7 A", price_eur: 124.31}   # [VERIFICADO: research/R11 §3.2]
+    LF50K_23S1P:
+      desc: "Pack propio 23S1P EVE LF50K + JK BMS 200 A (73,6 V, 3,68 kWh)"
+      v_nom: 73.6             # [CALCULADO]
+      v_max: 84.0             # [VERIFICADO: research/R11 §3.2]
+      v_min: 69.0             # [CALCULADO]
+      ah: 50.0                # [VERIFICADO: research/R11 §3.2]
+      i_cont_a: 150.0         # [VERIFICADO: research/R11 §3.2 — 3C ≈ 150 A]
+      mass_kg: 35.0           # [VERIFICADO: research/R11 §3.2 — ≈ 35 kg con caja]
+      price_eur: 977.0        # [VERIFICADO: research/R11 §3.2]
+      v_class: 72
+      cells: 23
+      charger: {desc: "Cargador LFP 84 V 10 A", price_eur: 84.0}   # [VERIFICADO: research/R11 §3.2]
+
+# -----------------------------------------------------------------------------
+# MATRIZ DE ARQUITECTURA (03_arquitectura.md) — propulsión para el jet boat de Jorge
+# Puntajes 1–5 [SUPUESTO con la justificación en 03 §2]
+# -----------------------------------------------------------------------------
+architecture_matrix:
+  criteria:
+    seguridad:     {w: 0.18, desc: "Seguridad: sin hélice expuesta para el piloto en el agua, golpes, parada"}
+    concepto:      {w: 0.12, desc: "Cumple el concepto de Jorge (jet inboard, sin nada colgando del espejo)"}
+    prestaciones:  {w: 0.14, desc: "Planeo y ~30 km/h con ~5 kW continuos (todos los jets con ~6 kW en este casco: 2 — con la resistencia alta no llegan a planeo pleno; con la nominal planean con margen < 10 %, 02 §3.2; C y F además fuera de su punto de diseño)"}
+    eficiencia_5kn: {w: 0.08, desc: "Consumo a 5 kn (uso real dentro de 300 m)"}
+    poca_prof:     {w: 0.08, desc: "Aguas someras, arena, algas"}
+    viabilidad:    {w: 0.10, desc: "Fabricable con torno manual + Ender-3 + servicios comprables"}
+    costo:         {w: 0.10, desc: "Costo total de la propulsión"}
+    tiempo:        {w: 0.07, desc: "Tiempo hasta un prototipo probado"}
+    reparabilidad: {w: 0.06, desc: "Repuestos y reparación local"}
+    riesgo:        {w: 0.07, desc: "Riesgo técnico (cosas sin validar que pueden no funcionar)"}
+  options:
+    A:  {name: "Waterjet propio (impulsor CNC + bomba Al + toma soldada) — este diseño", scores: {seguridad: 4, concepto: 5, prestaciones: 2, eficiencia_5kn: 2, poca_prof: 3, viabilidad: 2, costo: 3, tiempo: 2, reparabilidad: 3, riesgo: 2}}
+    B:  {name: "Waterjet comercial AWT JT132 (Ø130) + el tren eléctrico de este diseño", scores: {seguridad: 4, concepto: 5, prestaciones: 2, eficiencia_5kn: 2, poca_prof: 3, viabilidad: 4, costo: 4, tiempo: 4, reparabilidad: 3, riesgo: 3}}
+    C:  {name: "Bomba de jet ski usada (Sea-Doo Spark 140) adaptada", scores: {seguridad: 4, concepto: 5, prestaciones: 2, eficiencia_5kn: 2, poca_prof: 3, viabilidad: 3, costo: 4, tiempo: 3, reparabilidad: 4, riesgo: 3}}
+    D:  {name: "Fueraborda eléctrico de 3–6 kW con hélice", scores: {seguridad: 2, concepto: 1, prestaciones: 4, eficiencia_5kn: 4, poca_prof: 2, viabilidad: 5, costo: 2, tiempo: 5, reparabilidad: 2, riesgo: 5}}
+    E:  {name: "Cola larga / surface drive (diseño P1 anterior, adaptado)", scores: {seguridad: 3, concepto: 1, prestaciones: 2, eficiencia_5kn: 4, poca_prof: 5, viabilidad: 4, costo: 4, tiempo: 3, reparabilidad: 5, riesgo: 3}}
+    F:  {name: "Hélice entubada en túnel bajo el casco (pump-jet / rim-drive)", scores: {seguridad: 4, concepto: 3, prestaciones: 2, eficiencia_5kn: 3, poca_prof: 2, viabilidad: 2, costo: 3, tiempo: 2, reparabilidad: 2, riesgo: 2}}
+  weight_perturbation: 0.5   # [SUPUESTO: ±50 % por criterio en el análisis de sensibilidad]
+  monte_carlo_n: 20000       # [SUPUESTO: muestras de pesos aleatorios (Dirichlet α=1·w·20)]
+
+# -----------------------------------------------------------------------------
+# COMPRAR vs CONSTRUIR (comparacion.py → resultados/comparacion.json)
+# -----------------------------------------------------------------------------
+comparison:
+  jt132_usd: [1000.0, 1100.0]  # [ESTIMADO: research/R11 §4 — precio del buscador, la ficha no lo muestra; cotizar]
+  jt132_mass_kg: 12.0          # [VERIFICADO: research/R11 §4 (wuxiawt.com) — 12 kg neto]
+  jt132_freight_eur: 250.0     # [ESTIMADO: flete aéreo/marítimo de 20 kg brutos a DK; cotizar]
+  import_duty_frac: 0.017      # [ESTIMADO: arancel UE partes de propulsión marina ~1,7 %; verificar código TARIC 8412/8487]
+  import_basis: "CIF"          # [VERIFICADO: régimen aduanero UE — arancel sobre el valor CIF (precio + flete hasta la frontera UE) e IVA sobre CIF + arancel]; criterio ÚNICO para A (motor/ESC: inputs motor/esc duty_frac) y B (JT132)
+  jt132_adaptation_eur: [300.0, 700.0]   # [ESTIMADO: placa adaptadora 5083 a la brida de toma de la JT132 (corte + soldadura TIG al fondo; referencia: S-WELD-INT 480 € de la BOM para la toma propia) + cubo de acople a la entrada SWC65/ISO; pedir el plano de la brida a AWT (R11 §4)]
+  jt132_keeps_from_A: [P1-DRV-08]   # [SUPUESTO: la JT132 trae eje inox, rodamientos y sello (R11 §4: "eje e impulsor inox"); de la BOM de A solo queda el acople (adaptado)]
+  maytech_mtwj12kw_usd: 1015.90   # [VERIFICADO: research/R11 §4 — motor + bomba Ø95, 13,2 kW máx.]
+  spark_impeller_eur: 335.0    # [VERIFICADO: research/R11 §4 — Solas 140 Spark 539 CAD]
+  spark_wearring_eur: 202.0    # [VERIFICADO: research/R11 §4 — anillo inox 140 (325 CAD)]
+  spark_pump_used_eur: [400.0, 800.0]   # [ESTIMADO: bomba completa usada en DK (dba.dk); buscar]
+  lampuga_air: {loa_m: 2.30, beam_m: 0.75, power_kw: 10.0, battery_kwh: 3.6, v_max_kmh: 50.0}   # [VERIFICADO: research/R12 §8 — jet boat eléctrico comercial de 2,30 m]
+
+electrical:
+  max_nominal_voltage_v: 50.0 # [VERIFICADO: research/R10b §4.8 (ISO 16315:2016 3.1, R06) — ≤ 50 V CC; regla del proyecto ≤ 48 V salvo justificación]
+  allow_72v: false            # [SUPUESTO: 72 V (pedido de Jorge) solo si se habilita: exige clase 100 V, IMD y protección extra (R10b H8, R13 §4)]
+  extra_72v_eur: 709.0        # [VERIFICADO: research/R11 §8 — monitor de aislamiento Bender iso175C-1 (solo 72 V)]
+  speedboat_power_kw: 19.0    # [VERIFICADO: research/R13 §2 — BEK 749/2020: speedbåd desde 19 kW de "fremdrivningseffekt"]
+  parallel_share_max: 0.60    # [SUPUESTO: reparto peor 60/40 entre las 2 baterías en paralelo (= fusible de rama de sizing.py); calc_electronica limita l_in_current_max a BMS de rama / 0,60; medir en T1 con pinza]
+  len_battery_to_esc_m: 0.6   # [SUPUESTO: batería a 1,0 m, controlador a 0,9 m del espejo]
+  len_esc_to_motor_m: 0.6     # [SUPUESTO]
+  rho_cu_ohm_m: 2.1e-8        # [ESTIMADO: cobre a ~70 °C]
+  max_drop_frac: 0.03         # [VERIFICADO: requisito del usuario (< 3 %)]
+  cable_sections_mm2: [10, 16, 25, 35, 50, 70, 95]      # [SUPUESTO: secciones normalizadas]
+  ampacity_a: [75, 100, 135, 170, 210, 260, 310]        # [ESTIMADO: cable 105 °C, conservador; verificar ISO 13297/ABYC]
+  fuse_ratings_a: [100, 125, 150, 200, 250, 300]    # [SUPUESTO: valores normalizados]
+  fuse_factor: 1.25           # [ESTIMADO: fusible ≥ 1,25 × I continua]
+  kill_switch_response_s_max: 1.0   # [VERIFICADO: requisito del usuario (< 1 s)]
+
+# -----------------------------------------------------------------------------
+# LISTA DE MATERIALES (bom.py → bom.csv, resultados/bom_resumen.json, figuras/costo_autonomia.png)
+# Precios del 2026-10-01. [VERIFICADO: research/Rxx §n] solo si el precio está en research/;
+# el resto [ESTIMADO: base] con "buscar: …". DKK/USD se convierten con meta.
+# spec "auto:*" = lo arma bom.py desde sizing.json / manifest.json / inputs (ver resolve()).
+# ship: eu (+costs.shipping_frac) · incl (envío incluido) · local (retiro/taller local, sin envío)
+#       cn (precio YA con IVA de importación en inputs; se suma costs.cn_shipping_eur por proveedor + su IVA)
+# scope: sistema (total) · operacion (equipo de seguridad, aparte) · casco (lo hace Jorge, aparte)
+# covers: piezas del manifest que el ítem compra/fabrica (bom.py verifica que toda pieza
+#         "comprada" esté cubierta y que toda pieza que no sale del torno propio tenga servicio).
+# rating: {a, v, role}: role power → se compara con sizing electrical.I_bat_peak_A y battery v_max;
+#         control → solo tensión. Si no cumple, bom.py lo marca "⚠ NO CUMPLE" en la especificación.
+# -----------------------------------------------------------------------------
+bom:
+  date: "2026-10-01"
+  lathe_max_d_mm: 180.0       # [SUPUESTO: diámetro máximo que el torno manual del usuario tornea con seguridad; MEDIR el volteo y corregir]
+  filament:
+    margin_frac: 0.30         # [SUPUESTO: +30 % purga, soportes, reimpresiones (= 04_diseno/probetas/tabla_fabricacion.py)]
+    probetas_fallback_g: 400.0   # [ESTIMADO: probetas de holgura, inserto M5, ranura de O-ring y absorción para las piezas PETG del jet; el manifest de probetas es del diseño anterior]
+  cable_dkk_dm: {16: 8.0, 25: 11.0}   # [VERIFICADO: research/R08a §7 — Skyllermarks fortinnet, Watski, por dm]; otras secciones: extrapolación lineal [ESTIMADO]
+  stock:                      # materia prima de las piezas "torneada" (= mecanizadas) del manifest
+    allowance: {d_small_mm: 0.5, d_mm: 2.0, d_frac: 0.03, len_mm: 15.0, plate_mm: 10.0, block_mm: 5.0}   # [SUPUESTO: sobremedida de mecanizado; Ø ≤ 10: +0,5; Ø ≤ 50: +2; mayor: +3 %]
+    bar_min_len_mm: 100.0     # [SUPUESTO: corte mínimo que vende un distribuidor en barras finas]
+    bar_min_len_d_max_mm: 40.0   # [SUPUESTO: por encima de Ø40 se corta a medida (Zuschnitt)]
+    min_eur: 5.0              # [ESTIMADO: mínimo por corte/pedido]
+    nest_factor_plate: 1.25   # [SUPUESTO: aprovechamiento de chapa para piezas planas]
+    nest_factor_weld: 1.60    # [SUPUESTO: chapa para soldados (desarrollos, recortes, bridas)]
+    revolve_tol_frac: 0.02    # [SUPUESTO: dos lados del bbox iguales ±2 % → pieza de revolución → barra]
+    plate_max_t_mm: 25.0      # [SUPUESTO: menor lado ≤ 25 mm y no es de revolución → chapa]
+    bar_d_std_mm: [4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 22, 25, 28, 30, 32, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 90, 100, 110, 120, 130, 140, 150, 160, 180, 200, 220, 250]   # [SUPUESTO: diámetros comerciales]
+    plate_t_std_mm: [2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25]   # [SUPUESTO: espesores comerciales]
+    materials:
+      "AISI 316":
+        grade: "AISI 316L (1.4404) — NO 1.4301 (no apto sumergido, research/R08b §2); los pernos chicos que piden Rp0,2 ≥ 310 van en 1.4401+C estirado con certificado 3.1 (ver su plano)"
+        rho_g_cm3: 8.0
+        eur_kg: 20.0          # [ESTIMADO: research/R11 §5 — Hörr Ø20 32,87 €/m = 13,3 €/kg; Metallstore Ø25 86,55 €/m sin IVA = 28 €/kg con IVA; se toma 20 €/kg]
+        bars_eur_m: {20: 32.87, 25: 108.19}   # [VERIFICADO: research/R11 §5 — Hörr 1.4404 Ø20 h9 32,87 €/m IVA incl.; Metallstore Ø25 86,55 €/m sin IVA (+25 % IVA DK = 108,19)]
+        bars_min_len_mm: 500.0   # [VERIFICADO: research/R11 §5 — Hörr corta 0,5–1 m]
+        bars_tag: "[VERIFICADO: research/R11 §5 (Hörr Ø20 32,87 €/m; Metallstore Ø25 86,55 €/m + 25 % IVA)]"
+        bars_link: {20: "https://www.hoerr-edelstahl.de/Edelstahlrohre-und-Edelstahlprofile/Rundstahl-4-bis-60-mm-V2A-Vollmaterial/Rundstahl-20-mm-Rundstab-Vollmaterial-V4A-1-4404-Edelstahl-1-m-100-cm-1000-20-mm-matt-1-4404-V4A-1-m-100-cm-1000-mm.html", 25: "https://www.metallstore.de/edelstahl/stange-rund/1.4404-rund/"}   # [VERIFICADO: research/R11 §5]
+        supplier: "Hörr Edelstahl / Metallstore (DE) o metalgrossist DK"
+        link: "buscar: Rundstab 1.4404 {d} mm Zuschnitt / syrefast rundstål {d} mm"
+      "Dúplex 1.4462":
+        grade: "Inox dúplex 1.4462 (2205) +AT, barra con certificado 3.1 (Rp0,2 ≥ 450 MPa) — casquillos y muñones del pivote del bucket P1-REV-02"
+        rho_g_cm3: 7.8
+        eur_kg: 25.0          # [ESTIMADO: barra dúplex 2205 cortada a medida ≈ 1,2–1,5 × el 316 (memoria, no abierta)]
+        supplier: "Distribuidor de inox (Hörr / Metallstore DE o metalgrossist DK) — pedir 1.4462 con certificado"
+        link: "buscar: Rundstab 1.4462 Duplex {d} mm Zuschnitt"
+      "Al 6061-T6":
+        grade: "Al 6061-T6 (alt. 6082-T6)"
+        rho_g_cm3: 2.70
+        eur_kg: 14.0          # [ESTIMADO: barra/placa Al 6061/6082 cortada a medida en tiendas DE 10–18 €/kg (memoria, no abierta)]
+        supplier: "Distribuidor de aluminio UE (Dold, Gemmel, metalgrossist DK)"
+        link: "buscar: Aluminium Rundstange 6061 T6 {d} mm Zuschnitt"
+      "Al 5052/6082":
+        grade: "Al 6082-T651 (planos P1-DRV/P1-MOT)"
+        rho_g_cm3: 2.70
+        eur_kg: 14.0          # [ESTIMADO: ídem 6061]
+        supplier: "Distribuidor de aluminio UE (Dold, Gemmel, metalgrossist DK)"
+        link: "buscar: Aluminiumplatte 6082 T651 {t} mm Zuschnitt"
+      "Al 5083":
+        grade: "Al 5083-H111 (EN AW-5083)"
+        rho_g_cm3: 2.66
+        eur_kg: 18.4          # [ESTIMADO: research/R11 §7 — Dold 5083 8 mm: 62,51 €/m en 160 mm de ancho (buscador) → 391 €/m² → 18,4 €/kg]
+        supplier: "Dold Mechatronik (corte a medida, envía a DK: R08b §1) / Gemmel"
+        link: "https://www.dold-mechatronik.de/Aluminiumplatten-EN-AW-5083-Alu-Platte-unfoliert-Dicke-8mm-Breite-160mm-346kg-m-Zuschnitt-20-3000mm"
+      "POM-C":
+        grade: "POM-C (acetal copolímero) natural"
+        rho_g_cm3: 1.41
+        eur_kg: 15.0          # [ESTIMADO: research/R08b §2 — varilla POM-C Ø30–40 × 200 ≈ 5–15 € (no abierta)]
+        supplier: "Distribuidor de plásticos técnicos"
+        link: "buscar: POM-C Rundstab {d} mm Zuschnitt"
+    overrides:                # forma de compra distinta de la regla automática por bbox
+      P1-DRV-03: {form: weld, t_mm: 12, note: "pórtico de chapas 12 mm soldadas (o de bloque)"}
+      P1-REV-02: {form: bars, bars: [{d_mm: 36, l_mm: 24, note: "casquillo (brida Ø36 × 4 + piloto Ø24 × 20, Ø20 H7 ciego)"}, {d_mm: 20, l_mm: 40, note: "muñón Ø20 h7 × 39,8 (tubo Ø20/Ø12,5)"}]}   # el bbox incluye el tornillo M12
+      P1-REV-04: {form: bars, bars: [{d_mm: 32, l_mm: 75, note: "cuerpo ajustado Ø24 h6 con collar Ø32 (52,5) + tapa (4) + pomo Ø23 (10)"}, {d_mm: 16, l_mm: 77, note: "perno Ø16 h9 con cola Ø10 M10×1"}]}   # el bbox incluye el pomo
+      P1-MOT-02: {form: weld, t_mm: 10, note: "placa + pies + cartelas soldados"}
+      P1-INT-01: {form: weld, t_mm: 5, nest: 1.8, note: "conducto de chapa 5 mm rolada/plegada + brida 12 mm + chimenea 10 mm"}
+      P1-INT-03: {form: weld, t_mm: 4, nest: 1.3, note: "pletinas 4 × 20 perfiladas + fleje 3 mm, soldadas"}
+      P1-REV-01: {form: weld, t_mm: 8, note: "cuchara rolada + brazos + nervio en chapa 8 mm (REV_t, ronda 4); los aros de refuerzo del pivote de 10 mm van aparte (MP-5083-AROS)"}
+      P1-REV-05: {form: weld, t_mm: 6, note: "chapa cortada y soldada"}
+      P1-CTL-08: {form: weld, t_mm: 6, note: "chapa 6 mm con ala doblada y grapas soldadas"}
+      P1-CTL-10: {form: weld, t_mm: 8, nest: 1.4, note: "placa 8 mm + escalón soldado + placa lateral 4 mm y pestaña de tope 5 mm soldadas"}
+      P1-CTL-14: {form: weld, t_mm: 6, nest: 1.5, note: "hoja de 6 mm cortada a láser (sin soldar); la barra igualadora y los pasadores 316 van en B-RELKIT"}
+      P1-REV-09: {form: weld, t_mm: 6, nest: 1.5, note: "base 6 + montante 8 y pestañas 5 soldados (Ø8 H7 de los ejes escariados después de soldar); balancines fresados de placa 12, ejes y pernos de manivela de 1.4401+C y eslabones de 316 van en B-RELKIT"}
+      P1-PMP-01: {form: tube, id_mm: 125, note: "barra hueca (o redonda) Al 6061-T6"}
+      P1-PMP-02: {form: tube, id_mm: 125, note: "tubo grueso / barra hueca 316L"}
+      P1-PMP-08: {form: tube, id_mm: 80, note: "barra hueca (o redonda) Al 6061-T6"}
+      P1-PMP-03: {by_service: S-CNC-IMP}
+      P1-PMP-06: {by_service: S-CNC-STAT}
+    spares:                   # repuestos críticos que se fabrican de la misma materia prima
+      P1-PMP-05: {id: R-PIN, qty: 6, desc: "Semipasadores de corte de repuesto Al 6061-T6 Ø3,5 × 29,5: 3 juegos × 2 (fusible de par del impulsor; P1-PMP-05 lleva 2 montados)"}
+      P1-PMP-07: {id: R-BUSH, qty: 1, desc: "Buje de agua de repuesto (2.º apoyo del eje)"}
+  items:
+    # ---------------- motor y controlador
+    - {id: B-MOT, cat: "Motor y controlador", desc: "Motor inboard refrigerado por agua (selección de sizing), variante CON hall; trae NTC10K 3950 (cable amarillo) para la entrada TEMP del VESC", spec: "auto:motor", qty: 1, supplier: "Maytech (China, DHL)", link: "https://maytech.cn/products/copy-of-maytech-fully-waterproof-mti120116-18-8kw-powerful-brushless-inrunner-motor-for-electric-surfboard-rc-boat-jetski", price_eur: auto, ship: cn, covers: [P1-MOT-01], tag: "[VERIFICADO: página Maytech 2026-10-02 — 150KV With Hall Sensor 573,00 USD; 12N/10P; NTC10K 3950; +2,7 % arancel +25 % IVA CALCULADO en inputs.yaml motor]"}
+    - {id: B-ESC, cat: "Motor y controlador", desc: "Controlador VESC con caja refrigerada por agua (selección de sizing) — viene con FW 5.02: flashear ≥ 6.00 antes de configurar (T0.0)", spec: "auto:esc", qty: 1, supplier: "Flipsky (China, DHL)", link: "https://flipsky.net/products/flipsky-fsesc-75350-84v-high-current-350a-esc-base-on-vesc-with-aluminum-case-water-cooling-enclosure-for-e-foil-fighting-robot-surfboard-agv-robot", price_eur: auto, ship: cn, covers: [P1-ELE-04], rating: {a: 350, v: 84, role: power}, tag: "[VERIFICADO: página Flipsky 2026-10-02 — 210 USD con caja, FW 5.02 de fábrica; IVA CALCULADO en inputs.yaml esc]"}
+    # ---------------- batería
+    - {id: B-BAT, cat: "Batería", desc: "Batería LiFePO4 de la selección (12S, ≤ 50 V CC); una línea por batería en paralelo", spec: "auto:battery", qty: auto, supplier: "LiTime (almacén DE, envío UE gratis)", link: "https://www.litime.de/products/36v-60ah-golfwagen-kart-lithium-batterie", price_eur: auto, ship: incl, covers: [P1-BAT-01], tag: "[VERIFICADO: research/R11 §3.2 — 469,99 € c/u con IVA, envío UE gratis (R08a §0)]"}
+    - {id: B-CHG, cat: "Batería", desc: "Cargador LiFePO4 dedicado (cargar en tierra / sobre 5 °C)", spec: "auto:charger", qty: 1, supplier: "LiTime (DE)", link: "https://www.litime.de/products/litime-36v-15a-wasserdichtes-lithium-batterieladegerat", price_eur: auto, ship: incl, tag: "[VERIFICADO: research/R08a §5 — LiTime 36 V 15 A IP66 132,99 €]"}
+    - {id: B-BOX, cat: "Batería", desc: "Caja estanca de batería con tapa y junta para las 2 baterías en paralelo (en la sentina: R10a §0)", spec: "Interior ≥ 460 × 560 × 260 mm (2 × ≈ 215 × 207 × 532 mm [ESTIMADO: R11 §3.2]) — MEDIR la batería real; PP/PE con junta, 4 prensaestopas M32 (B-GLAND32), respiradero", qty: 1, supplier: "Biltema / Jem & Fix (caja de almacenaje estanca)", link: "buscar: vandtæt opbevaringsboks 80 L pakning", price_eur: 45.0, ship: local, tag: "[ESTIMADO: caja estanca de 60–80 L 30–60 €]"}
+    # ---------------- potencia (12S: 43,8 V máx., ~192 A pico de batería, cable 70 mm²)
+    - {id: B-FUSE, cat: "Eléctrico (potencia)", desc: "Fusible principal F1 Class T junto a la barra + (repuesto en R-FUSE)", spec: "auto:fuse", qty: 1, supplier: "Distribuidor Blue Sea UE / Watski DK (pedido)", link: "https://www.fisheriessupply.com/blue-sea-systems-class-t-fuses/5113", price_eur: 60.0, rating: {a: auto, v: 160, role: power}, tag: "[ESTIMADO: Class T Blue Sea 110–200 A listados a 72,44 USD y 225–400 A a 92,51 USD en fisheriessupply.com (2026-10-02, unidad/pack no claro); sin precio UE encontrado]"}
+    - {id: B-FUSEH, cat: "Eléctrico (potencia)", desc: "Portafusible Class T 225–400 A con tapa aislante (Blue Sea) para F1, junto a la barra +", spec: "Class T 225–400 A, 160 V CC, espárragos M10, tapa aislante", qty: 1, supplier: "Distribuidor Blue Sea UE", link: "buscar: Blue Sea Class T fuse block 225-400A insulating cover", price_eur: 100.0, rating: {a: 400, v: 160, role: power}, tag: "[ESTIMADO: portafusible Class T 110–200 A Blue Sea 5007100 a 59–90 USD en tiendas de EE. UU. (búsqueda 2026-10-02); el de 225–400 A algo más]"}
+    - {id: B-FUSE-BR, cat: "Eléctrico (potencia)", desc: "Fusibles de rama F_BR Class T, uno a ≤ 178 mm del borne + de CADA batería (repuesto en R-FUSE)", spec: "auto:fuse_branch", qty: 2, supplier: "Distribuidor Blue Sea UE / Watski DK (pedido)", link: "https://www.fisheriessupply.com/blue-sea-systems-class-t-fuses/5113", price_eur: 50.0, rating: {a: auto_branch, v: 160, role: branch}, tag: "[ESTIMADO: Class T Blue Sea 110–200 A listados a 72,44 USD y 225–400 A a 92,51 USD en fisheriessupply.com (2026-10-02, unidad/pack no claro); sin precio UE encontrado]"}
+    - {id: B-FUSEH-BR, cat: "Eléctrico (potencia)", desc: "Portafusible Class T Blue Sea 5007100 (110–200 A, con tapa aislante) para cada F_BR, a ≤ 178 mm del borne + (ABYC E-11, R06 §5.1)", spec: "Class T 110–200 A, 160 V CC, tapa aislante; cable de borne corto de 35 mm²", qty: 2, supplier: "Distribuidor Blue Sea UE", link: "https://www.fisheriessupply.com/blue-sea-systems-class-t-fuse-block-with-insulating-cover-110-to-200a/5007100", price_eur: 80.0, rating: {a: 200, v: 160, role: branch}, tag: "[ESTIMADO: Blue Sea 5007100 a 59–90 USD en tiendas de EE. UU. (búsqueda 2026-10-02); precio UE a confirmar]"}
+    - {id: B-SW, cat: "Eléctrico (potencia)", desc: "Desconectador S1 Biltema Hovedafbryder AFD (llave removible)", spec: "12–48 V CC, 275 A continuos (455 A 5 min), IP65, bornes M10 estañados", qty: 1, supplier: "Biltema DK", link: "https://www.biltema.dk/baad/eludstyr/elinstallationer-til-bade/stromafbrydere/hovedafbryder-afd-onoff-2000063980", price_dkk: 159.0, ship: local, rating: {a: 275, v: 48, role: power}, tag: "[VERIFICADO: research/R08a §3 — 159 kr]"}
+    - {id: B-BUS, cat: "Eléctrico (potencia)", desc: "Barras colectoras + y − (une las 2 baterías en paralelo antes de F1/S1) con tapa", spec: "≥ 250 A continuos, ≥ 48 V CC, 4 espárragos M8/M10, tapa aislante", qty: 2, supplier: "Watski DK / Biltema", link: "buscar: samleskinne 250A M8 watski", price_eur: 25.0, rating: {a: 250, v: 48, role: power}, tag: "[ESTIMADO: barras marinas 250 A 20–35 €]"}
+    - {id: B-CAB-DC, cat: "Eléctrico (potencia)", desc: "Cable marino estañado Skyllermarks rojo+negro (barras–F1–S1–K1–controlador)", spec: "auto:cable_dc", qty: auto, unit: m, supplier: "Watski DK (por dm)", link: "https://www.watski.dk/gummikabel-fortinnet-skyllermarks-11vPX", price_eur: auto, cable_mm2: auto_dc, tag: "auto"}
+    - {id: B-CAB-PAR, cat: "Eléctrico (potencia)", desc: "Cable estañado 35 mm² de rama: F_BR de cada batería → barras (4 tramos de 0,5 m, rojo+negro)", spec: "35 mm² cobre estañado 105 °C; la rama más cargada lleva ≤ 0,6 × I_bat pico ≤ 170 A de tabla; protegido por F_BR (sizing fuse_branch_a ≤ 170 A)", qty: 2.0, unit: m, supplier: "Watski DK (por dm)", link: "https://www.watski.dk/gummikabel-fortinnet-skyllermarks-11vPX", price_eur: auto, cable_mm2: 35, tag: "auto"}
+    - {id: B-TERM70, cat: "Eléctrico (potencia)", desc: "Terminales tubulares estañados 70 mm² Skyllermarks (10 DC: barras–F1–S1–K1–ESC; las fases no llevan: ver B-PHCON)", spec: "Cobre estañado 70 mm², ojal M8/M10 según borne; crimpar + termocontraíble con adhesivo", qty: 10, supplier: "Watski DK", link: "https://www.watski.dk/roerkabelsko-25-95-mm-117N7", price_dkk: 25.0, tag: "[ESTIMADO: research/R08a §7 — 25 mm² 10–11 kr/u VERIFICADO; 70 mm² ≈ ×2,5]"}
+    - {id: B-TERM35, cat: "Eléctrico (potencia)", desc: "Terminales tubulares estañados 35 mm² (paralelo de baterías)", spec: "Cobre estañado 35 mm², ojal M8", qty: 8, supplier: "Watski DK", link: "https://www.watski.dk/roerkabelsko-25-95-mm-117N7", price_dkk: 15.0, tag: "[ESTIMADO: research/R08a §7 — 25 mm² 10–11 kr/u VERIFICADO; 35 mm² ≈ ×1,4]"}
+    - {id: B-PHCON, cat: "Eléctrico (potencia)", desc: "Fases: conectores bala dorados 8 mm (3 pares) para unir los cables propios del motor (6 AWG × 300 mm) a los del ESC (8 AWG), sin tramo intermedio", spec: "Bala 8 mm, soldar (no crimpar) + termocontraíble con adhesivo; ESC al costado del motor (CAD: ESC a ≈ 0,15 m del extremo del motor) — si no alcanza: extensión de silicona 6 AWG ≤ 0,3 m", qty: 1, supplier: "Distribuidor RC / e-foil (UE)", link: "buscar: 8mm gold bullet connector pair 6 AWG", price_eur: 10.0, tag: "[ESTIMADO: juego de 3 pares 8–12 €]"}
+    - {id: B-LUG10, cat: "Eléctrico (potencia)", desc: "Terminales de ojal estañados 10 mm² M8 para los cables B+/B− del ESC (8 AWG) → terminal 70 mm², unión atornillada M8 A4 aislada (2 + 2 de repuesto)", spec: "Cobre estañado 10 mm², ojal M8; tornillo + tuerca M8 A4 + termocontraíble Ø24 sobre la unión", qty: 4, supplier: "Watski DK", link: "https://www.watski.dk/roerkabelsko-25-95-mm-117N7", price_dkk: 8.0, tag: "[ESTIMADO: research/R08a §7 — 25 mm² 10–11 kr/u VERIFICADO; 10 mm² algo menos]"}
+    - {id: B-SHRINK, cat: "Eléctrico (potencia)", desc: "Termocontraíble 3:1 con adhesivo, surtido 76 u. (cables de mando y señal)", spec: "3,2–15 mm", qty: 1, supplier: "Biltema DK", link: "https://www.biltema.dk/bil---mc/elsystem/krympeslanger/krympeflex-sat-med-lim-76-stk-2000041559", price_dkk: 145.0, ship: local, tag: "[VERIFICADO: research/R08a §7 — 145 kr]"}
+    - {id: B-SHRINK-L, cat: "Eléctrico (potencia)", desc: "Termocontraíble 3:1 con adhesivo Ø24–Ø32 para terminales de 70 mm² y uniones ESC (el surtido llega a 15 mm)", spec: "3:1 con adhesivo, Ø24 y Ø32, 1 m c/u, rojo y negro", qty: 1, supplier: "Distribuidor eléctrico", link: "buscar: krympeflex med lim 24 mm 3:1", price_eur: 14.0, tag: "[ESTIMADO]"}
+    - {id: B-ANDERSON, cat: "Eléctrico (potencia)", desc: "Toma de carga Anderson SB50 gris (par) en la barra +/− (aguas arriba de F1/S1), con su fusible F6 (B-CHGFUSE)", spec: "SB50 (PP51S), 120 A, cable ≤ 16 mm² — sirve para el cargador de 15 A; NO para la corriente de marcha", qty: 2, supplier: "Watski DK", link: "https://www.watski.dk/anderson-pp51s-graa-16mm2-1st-11GKJ", price_dkk: 90.0, tag: "[VERIFICADO: research/R08a §8 — 90 kr c/u]"}
+    - {id: B-CHGFUSE, cat: "Eléctrico (potencia)", desc: "Fusible F6 de la toma de carga: gPV 10×38 32 A en la barra + (el cable de ≤ 16 mm² no lo protegen los F_BR)", spec: "gPV 10×38 32 A, ≥ 1000 V CC, poder de corte ≥ 10 kA CC; portafusible estanco en línea", qty: 1, supplier: "Distribuidor eléctrico / solar (UE)", link: "buscar: gPV 10x38 32A 1000VDC fuse + inline holder", price_eur: 15.0, rating: {a: 32, v: 1000, role: control}, tag: "[ESTIMADO: fusible gPV + portafusible 10–20 €]"}
+    - {id: B-GLAND32, cat: "Eléctrico (potencia)", desc: "Prensaestopas IP68 M32 (un cable redondo de 70 mm² por prensaestopas) en la caja de batería", spec: "M32×1,5, IP68, rango 13–21 mm [ESTIMADO: Ø ext. del 70 mm² ≈ 17 mm]", qty: 4, supplier: "Distribuidor eléctrico", link: "buscar: kabelforskruning M32 IP68 13-21 mm", price_eur: 4.0, tag: "[ESTIMADO: research/R08a §8 M16/M20 a 12,45 kr/u VERIFICADO; M32 ≈ 4 €]"}
+    - {id: B-ASW, cat: "Eléctrico (potencia)", desc: "Antichispa Flipsky Antispark Pro V3.0 — NO se compra: 100 A < I de batería; la precarga la hace R_pre ∥ K1", spec: "3–14S, 100 A continuos (R08a §3)", qty: 0, supplier: "Flipsky (China, DHL)", link: "https://flipsky.net/products/flipsky-antispark-switch-pro-with-aluminum-pcb-case-200a-for-electric-skateboard-ebike-scooter-robots", price_usd: 48.0, ship: cn, rating: {a: 100, v: 60, role: power}, tag: "[VERIFICADO: research/R08a §3 — 48 USD; descartado por corriente]"}
+    - {id: B-RPRE, cat: "Eléctrico (potencia)", desc: "Resistencia de precarga R_pre ∥ K1 (README electrónica §7), carcasa de Al atornillada a P1-ELE-01", spec: "100 Ω, ≥ 30 W (50 W de catálogo), carcasa de aluminio, ≥ 60 V", qty: 1, supplier: "Reichelt DK", link: "buscar: 100 ohm 50W aluminium housed resistor reichelt", price_eur: 8.0, tag: "[ESTIMADO]"}
+    # ---------------- seguridad eléctrica
+    - {id: B-CONT, cat: "Seguridad eléctrica", desc: "Contactor monoestable K1 TE KILOVAC EV200AAANA (bobina 9–36 V con economizador) — bobina en el mando de 12 V en serie con seta + cordón", spec: "auto:contactor", qty: 1, supplier: "EV Europe (NL)", link: "https://eveurope.eu/en/product/hoofdstroomrelais-ev200-500-amp-2/", price_eur: 186.25, rating: {a: 500, v: 900, role: power}, tag: "[VERIFICADO: eveurope.eu 2026-10-02 — 149,00 € sin IVA (54 en stock) + 25 % IVA DK = 186,25 €]"}
+    - {id: B-KILL, cat: "Seguridad eléctrica", desc: "Interruptor de hombre al agua Watski 'Dødmands kontakt universal' + cordón espiral (polos M: cerrado con clip = fail-safe)", spec: "Contacto cerrado con clip, 12 V – 15 A nominal; en el mando de 12 V (B-12V): cierra 3,8 A ≤ 130 ms y abre 0,13 A sin sobretensión inductiva (economizador del EV200)", qty: 1, supplier: "Watski DK", link: "https://www.watski.dk/Ddmands-kontakt-universal-110CP", price_dkk: 74.0, rating: {v: 12, role: control, bus: 12}, tag: "[VERIFICADO: research/R08a §3 — 74 kr]"}
+    - {id: B-ESTOP, cat: "Seguridad eléctrica", desc: "Seta de emergencia NC con enclavamiento (consola, agujero Ø22), en el mando de 12 V", spec: "Contacto NC ≥ 5 A a ≥ 12 V CC, Ø22, IP65, girar para rearmar", qty: 1, supplier: "Distribuidor eléctrico DK", link: "buscar: nødstop 22 mm NC IP65", price_eur: 12.0, rating: {v: 24, role: control, bus: 12}, tag: "[ESTIMADO]"}
+    - {id: B-CFUSE, cat: "Seguridad eléctrica", desc: "Fusibles con portafusible en línea estanco: F2 (bobina K1, 5 A lento, salida 12 V), F3 (DC-DC 5 V, 1 A), F4 (achique 5 A, salida 12 V), F5 (entrada de B-12V, 3 A, portafusible removible = aislación de invierno)", spec: "Fusible ≥ 58 V CC en F3/F5 (5×20 cerámico 250 V o MINI 58 V); portafusible estanco", qty: 4, supplier: "Reichelt DK", link: "buscar: inline fuse holder waterproof 5x20 reichelt", price_eur: 5.0, rating: {v: 58, role: control}, tag: "[ESTIMADO]"}
+    - {id: B-KCONN, cat: "Seguridad eléctrica", desc: "Conector IP68 2 polos del cordón/seta (consola ↔ bobina), Cliffcon 68", spec: "IP68, 2 polos, ≥ 1 A", qty: 1, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/cliffcon_68_cable_connector_2_pin_ip68-230124", price_eur: 8.39, tag: "[VERIFICADO: research/R08a §8 — 8,39 €]"}
+    - {id: B-IMD, cat: "Seguridad eléctrica", desc: "Monitor de aislamiento Bender iso175C-1 (SOLO si la selección es 72 V)", spec: "auto:imd", qty: auto, supplier: "New Eagle (EE. UU.)", link: "https://store.neweagle.net/shop/electric-hybrid/hv-accessories/bender-isometer-iso175c-1-insulation-monitoring-device-imd/", price_eur: auto, tag: "[VERIFICADO: research/R11 §8 — 805 USD = 709 €]"}
+    # ---------------- electrónica de mando
+    - {id: B-MCU, cat: "Electrónica de mando", desc: "Arduino Nano V3 (firmware 04_diseno/electronica/firmware)", spec: "ATmega328P 5 V, bootloader Optiboot; alimentado por su DC-DC aguas arriba de K1", qty: 1, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/arduino_nano_v3_atmega_328_mini_usb-142943", price_eur: 20.69, tag: "[VERIFICADO: research/R08a §9 — 20,69 €]"}
+    - {id: B-DCDC, cat: "Electrónica de mando", desc: "DC-DC RECOM R-78HB5.0-0.5 9–72 V → 5 V (el TSR 1-2450E de 7–36 V NO sirve con 43,8 V)", spec: "Entrada 9–72 V ≥ l_max_vin del VESC (53 V), 5 V 0,5 A, SIP-3", qty: 1, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/dc_dc_converter_r78hb_9-72_vin_single_5_vout_500_ma_sip-3-159167", price_eur: 17.12, rating: {v: 72, role: control}, tag: "[VERIFICADO: research/R08a §9 — 17,12 €]"}
+    - {id: B-PCB, cat: "Electrónica de mando", desc: "Placa perforada: 3 optoacopladores + 3 × 1N4148, Q_EN, pasivos, LED de panel, bornes (README electrónica, componentes)", spec: "Opto CTR ≥ 50 % Vceo ≥ 60 V; R1/R2 1,8 kΩ 0,25 W (mando de 12 V); NPN Vceo ≥ 60 V", qty: 1, supplier: "Reichelt DK", link: "buscar: PC817 optocoupler, 1N4148, perfboard reichelt", price_eur: 25.0, tag: "[ESTIMADO, juego]"}
+    - {id: B-HALL, cat: "Electrónica de mando", desc: "Sensor hall lineal Allegro A1324 del acelerador (1 + 1 de repuesto)", spec: "Ratiométrico 5 V, −40…+150 °C, SIP-3", qty: 2, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/low_noise_linear_sensor_sip-3-189140", price_eur: 1.68, tag: "[VERIFICADO: research/R08a §9 — 1,68 €]"}
+    - {id: B-MAG, cat: "Electrónica de mando", desc: "Imanes NdFeB Ø10×3 diametrales (cabeza portaimán de P1-CTL-11)", spec: "N35+, magnetización diametral, pack", qty: 1, supplier: "Distribuidor de imanes UE", link: "buscar: neodymium magnet 10x3 diametrically magnetized", price_eur: 6.0, tag: "[ESTIMADO]"}
+    - {id: B-SIGNAL, cat: "Electrónica de mando", desc: "Conector IP68 4 polos apantallado del hall (consola ↔ electrónica): Lumberg 0332-04 + 0322-04", spec: "IP68, 4 polos, apantallado", qty: 1, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/plug_round_connector_ip_68_360_shielded_4-pin-116121", price_eur: 14.85, tag: "[VERIFICADO: research/R08a §8 — 7,34 + 7,51 €]"}
+    - {id: B-ENCL, cat: "Electrónica de mando", desc: "Caja IP67 BOX4U 177×126×56 para Nano, placa de optos, DC-DC y fusibles de mando", spec: "IP67, policarbonato/ABS, junto al controlador (zona seca elevada)", qty: 1, supplier: "Reichelt DK", link: "https://www.reichelt.com/dk/en/shop/product/industrial_housing_177_x_126_x_56_mm_ip67_light_gray-324319", price_eur: 14.65, tag: "[VERIFICADO: research/R08a §10 — 14,65 €]"}
+    - {id: B-WIRE, cat: "Electrónica de mando", desc: "Cable de mando 2 × 0,75 mm² estañado (10 m) + señal 4 × 0,25 mm² apantallado (5 m)", spec: "Cobre estañado, cubierta redonda (prensaestopas)", qty: 1, supplier: "Watski DK / Reichelt", link: "buscar: fortinnet kabel 2x0,75 rund watski", price_eur: 30.0, tag: "[ESTIMADO]"}
+    # ---------------- tren (eje, sello, rodamientos, acople)
+    - {id: B-SEAL, cat: "Tren", desc: "Sello mecánico tipo MG1 Ø20 (pedir carbón/SiC: tolera arranques cortos en seco)", spec: "auto:seal", qty: 1, supplier: "ST-Shop24 (DE)", link: "https://st-shop24.de/dichtungen/gleitringdichtungen/mechanical-seal-st-st1-sic-sic-nbr-gleitringdichtung-inkl-gegenring.html", price_eur: 29.0, covers: [P1-DRV-07], tag: "[VERIFICADO: research/R11 §5 — 'ab 29,00 €' (precio de Ø20 al elegir la medida)]"}
+    - {id: B-BRG, cat: "Tren", desc: "Rodamientos SKF 7204 BECBP (40°, apareables universales, juego normal; alt. BEGAP precarga ligera), par en O", spec: "auto:bearing", qty: 2, supplier: "1a-kugellager.de (DE)", link: "https://www.1a-kugellager.de/en/products/1x-skf-7204-becbp-schragkugellager-20x47x14-mm-kugellager", price_eur: 26.16, covers: [P1-DRV-04], tag: "[VERIFICADO: 1a-kugellager.de 2026-10-02 — 24,90 € c/u con IVA DE 19 % (5 en stock; envío gratis desde 49 €); 26,16 € = con IVA DK 25 % CALCULADO; la variante BEGAP no se cotizó]"}
+    - {id: B-KM4, cat: "Tren", desc: "Tuerca de fijación KM4 (M20×1) + arandela de seguridad MB4", spec: "DIN 981 KM4 + DIN 5406 MB4, acero (zona seca)", qty: 1, supplier: "Distribuidor de rodamientos UE", link: "buscar: Nutmutter KM4 M20x1 + Sicherungsblech MB4", price_eur: 9.0, covers: [P1-DRV-05], tag: "[ESTIMADO]"}
+    - {id: B-CPL, cat: "Tren", desc: "Acople KTR Rotex 24 (cubos largos sin agujerear + estrella T-PUR 92 ShA); se usa el cubo de Al del lado del eje Ø20; el del motor va de ACERO (B-CPL-ST)", spec: "auto:coupling", qty: 1, supplier: "Z24 (DE)", link: "https://www.z24.de/a/40157-kupplungen-rotex/660005", price_eur: 67.47, covers: [P1-DRV-08], tag: "[VERIFICADO: research/R11 §5 — 67,47 € IVA incl.]"}
+    - {id: B-CPL-ST, cat: "Tren", desc: "Cubo Rotex 24 de ACERO lado motor (eje Ø15 con chavetero 5: la chaveta en cubo de Al da FS 1,74 < 2, auditoría R2-D08 / C13), fijado con Loctite 648 + prisionero", spec: "Rotex 24 cubo largo de acero sin agujerear; agujerear Ø15 H7 + chavetero 5 JS9 en el torno", qty: 1, supplier: "Z24 (DE) / distribuidor KTR", link: "buscar: KTR Rotex 24 Nabe Stahl 1a ungebohrt", price_eur: 30.0, tag: "[ESTIMADO: cubo Rotex de acero 20–40 €; no cotizado]"}
+    - {id: B-KEY, cat: "Tren", desc: "Chaveta DIN 6885 A 6 × 6 × 22 A4 (cubo del acople en el eje Ø20)", spec: "DIN 6885 forma A, 6 × 6, A4 (1.4401)", qty: 1, supplier: "Distribuidor de elementos normalizados", link: "buscar: Passfeder DIN 6885 A 6x6 A4", price_eur: 3.5, tag: "[ESTIMADO: research/R11 §5 — 2–5 €]"}
+    - {id: B-CIRC, cat: "Tren", desc: "Anillos DIN 471-20 A4 (empuje del impulsor, respaldo del sello, popa) + 2 arandelas 316 20×30×1,5 (proa y popa)", spec: "DIN 471 Ø20 en inox A4 (ranura Ø19 × 1,3), 3 + 2 de repuesto; 2 arandelas 316 20 × 30 × 1,5 (proa y popa)", qty: 1, supplier: "Distribuidor de elementos normalizados", link: "buscar: Sicherungsring DIN 471 20 A4 edelstahl", price_eur: 10.0, tag: "[ESTIMADO]"}
+    - {id: B-NUT16, cat: "Tren", desc: "Tuerca M16 A4 autoblocante del impulsor + arandela 316 (y M16 del poste del yugo)", spec: "ISO 7040 M16 A4-70, 2 u. + arandelas", qty: 1, supplier: "Watski DK (Comstedt A4)", link: "buscar: møtrik nylon M16 A4 watski", price_eur: 6.0, tag: "[ESTIMADO]"}
+    - {id: B-LOCTITE, cat: "Tren", desc: "Retenedor anaeróbico Loctite 648 (anillo de desgaste H7/p6 y cubo de acero del acople en el eje del motor) + fijador 243 (prisioneros)", spec: "Loctite 648 5 ml + Loctite 243 5 ml", qty: 1, supplier: "Ferretería industrial", link: "buscar: Loctite 648 5ml", price_eur: 18.0, tag: "[ESTIMADO]"}
+    # ---------------- refrigeración (agua de la bomba → motor → controlador → pasacasco)
+    - {id: B-HOSE, cat: "Refrigeración", desc: "Manguera de refrigeración (puerto G1/8 de la carcasa → camisa del motor → caja del controlador → pasacasco)", spec: "auto:cooling_hose", qty: 2.6, unit: m, supplier: "Watski DK / Biltema", link: "buscar: PVC slange armeret 6 x 8 mm / silikoneslange 6 mm", price_eur: 3.0, tag: "[ESTIMADO: manguera Ø6 reforzada 2–4 €/m]"}
+    - {id: B-BARB, cat: "Refrigeración", desc: "Espigas G1/8 → manguera Ø6 en inox 316 (puerto de la carcasa P1-PMP-01 y adaptadores)", spec: "G1/8 (BSPP) macho × espiga 6 mm, AISI 316, con junta plana", qty: 4, supplier: "Distribuidor neumático / náutico", link: "buscar: slangestuds G1/8 6 mm rustfri 316", price_eur: 4.0, tag: "[ESTIMADO]"}
+    - {id: B-HCLAMP, cat: "Refrigeración", desc: "Abrazaderas mini A4 para manguera Ø8", spec: "Rango 7–11 mm, banda 9 mm, A4", qty: 8, supplier: "Watski DK", link: "buscar: slangebinder rustfri A4 8-12 mm watski", price_eur: 1.5, tag: "[ESTIMADO]"}
+    - {id: B-STRAIN, cat: "Refrigeración", desc: "Filtro de agua en línea Ø6 (protege la camisa del motor y la caja del controlador de arena/algas)", spec: "Filtro en línea con malla inox desmontable, espigas 6 mm", qty: 1, supplier: "Distribuidor náutico / RC", link: "buscar: inline water filter 6mm hose stainless mesh", price_eur: 8.0, tag: "[ESTIMADO]"}
+    - {id: B-COOL-THRU, cat: "Refrigeración", desc: "Pasacasco 316 de salida del agua de refrigeración (testigo visible en el espejo)", spec: "AISI 316, espiga Ø6–8, rosca 1/4\" con tuerca y arandela; sellar con Sikaflex (casco)", qty: 1, supplier: "Watski DK", link: "buscar: skroggennemføring rustfri 1/4 slangestuds watski", price_eur: 15.0, covers: [P1-ELE-03], tag: "[ESTIMADO]"}
+    # ---------------- mandos (dirección, bucket, acelerador)
+    - {id: B-HELM, cat: "Mandos", desc: "Caja de dirección mecánica Ultraflex T85", spec: "Hasta 150 HK / 40 kn; eje universal para volante", qty: 1, supplier: "Watski DK", link: "https://www.watski.dk/mekanisk-styring-11TiU", price_dkk: 757.0, ship: local, covers: [P1-CTL-21], tag: "[VERIFICADO: research/R11 §7 — 757 kr]"}
+    - {id: B-M66, cat: "Mandos", desc: "Cable de dirección Ultraflex M66 (consola → yugo de la boquilla) con su terminal (P1-CTL-06)", spec: "M66; largo medido consola → espejo + curvas (≈ 8–9 ft; el precio verificado es 'desde')", qty: 1, supplier: "Watski DK", link: "https://www.watski.dk/mekanisk-styring-11TiU", price_dkk: 735.0, ship: local, covers: [P1-CTL-06], tag: "[VERIFICADO: research/R11 §7 — 'desde 735 kr' (largo mínimo)]"}
+    - {id: B-WHEEL, cat: "Mandos", desc: "Volante Osculati de poliuretano Ø320, eje universal Ultraflex", spec: "Ø320, cubo universal (Ultraflex/Morse/Teleflex), rayos inox", qty: 1, supplier: "Watski DK", link: "https://www.watski.dk/bloedt-rat-i-polyuretan-graat-320-mm-1b3gX", price_dkk: 549.0, ship: local, covers: [P1-CTL-21], tag: "[VERIFICADO: watski.dk 2026-10-02 — 'Osculati Blødt rat i polyuretan, gråt, 320 mm … Universal konus til Ultraflex/Morse/Teleflex' 549 kr]"}
+    - {id: B-MACH5, cat: "Mandos", desc: "Cable push-pull Ultraflex Mach5 10 ft del bucket, con sus terminales de vaina y cabeza (consola P1-CTL-07, boquilla P1-REV-07)", spec: "Mach5, 10 ft (3,05 m); carrera 76 mm", qty: 1, supplier: "Watski DK", link: "https://www.watski.dk/kontrolkabel-mach-5-ultraflex-11Jgp", price_dkk: 553.0, ship: local, covers: [P1-CTL-07, P1-REV-07], tag: "[VERIFICADO: research/R11 §7 — 10 ft 553 kr]"}
+    - {id: B-ROD5, cat: "Mandos", desc: "Varilla Ø6,4 + rótula M6 A4 de los extremos del Mach5 (consola y bucket)", spec: "Kit de terminal Mach5 (varilla roscada + rótula DIN 71802 M6 A4)", qty: 2, supplier: "Watski DK / distribuidor Ultraflex", link: "buscar: Ultraflex Mach5 terminal kit / kugleled M6 rustfri DIN 71802", price_eur: 15.0, covers: [P1-CTL-13, P1-REV-08], tag: "[ESTIMADO]"}
+    - {id: B-ROT8, cat: "Mandos", desc: "Biela del yugo: rótula M8 A4 DIN 71802 + varilla M8 A4 (60 mm) + contratuercas", spec: "DIN 71802 M8 inox A4, 2 u. + varilla M8 A4 100 mm", qty: 1, supplier: "Distribuidor de elementos normalizados", link: "buscar: Winkelgelenk DIN 71802 M8 edelstahl", price_eur: 18.0, tag: "[ESTIMADO]"}
+    - {id: B-SPRING, cat: "Mandos", desc: "Resortes de compresión inox del émbolo propio P1-REV-04 (uno por émbolo): meten el perno Ø16 en el agujero del brazo (traba automática ARRIBA y ABAJO)", spec: "1.4401 (preferido en agua salobre) o 1.4310, alambre EN 10270-3: alambre 1,4, Ø ext 15 (≤ 15: cámara Ø16 H8 del cuerpo) → Ø int 12,2 (≥ 11: cola Ø10 del perno), 6,5 espiras útiles + 2 de apoyo (extremos cerrados y amolados), largo libre 40, largo compacto ≈ 11,9 (≤ 17; con la carrera queda en 18); k ≈ 2,06 N/mm → ≈ 20,6 N instalado (30 mm) y ≈ 45 N con el perno afuera (18 mm) [CALCULADO: EN 13906-1 con G ≈ 70 GPa ESTIMADO; con 1.4401 (≈ 65 GPa) k −7 %: 19/42 N; re-auditoría ronda 5 DES-01, _release.SPRING_*]; τ con Wahl ≈ 656 MPa a 45 N ≤ 0,5·Rm ≈ 750 MPa [ESTIMADO: Rm ≥ 1500 MPa del alambre 1.4401 Ø1,4, EN 10270-3], apto a bloque; elegir el de catálogo más cercano (Ø ext 15 × alambre 1,4 × L0 40, k 1,9–2,2 N/mm) y medir F a 30 y a 18 mm en la recepción (PENDIENTES P1.8)", qty: 2, supplier: "Gutekunst Federn (DE) / Lesjöfors (DK)", link: "buscar: Druckfeder Edelstahl 1.4401 1,4 x 15 x 40", price_eur: 5.0, tag: "[ESTIMADO: resortes de compresión inox de catálogo 2–8 €/u]"}
+    - {id: B-RING24, cat: "Mandos", desc: "Retén interior del cuerpo ajustado de los émbolos P1-REV-04 (ronda 5): anillo DIN 471-24 A4 + arandela 316 Ø24,2 × Ø32 × 0,8 contra la cara interior del lóbulo de la traba, uno por émbolo", spec: "DIN 471 Ø24 en inox A4 (ranura Ø22,9 × 1,3 [ESTIMADO: DIN 471]) 2 + 2 de repuesto; 2 arandelas 316 Ø24,2 × Ø32 × 0,8 (cortadas de chapa o torneadas)", qty: 1, supplier: "Distribuidor de elementos normalizados", link: "buscar: Sicherungsring DIN 471 24 A4 edelstahl", price_eur: 10.0, tag: "[ESTIMADO: anillos DIN 471 A4 1–3 €/u + arandelas]"}
+    - {id: B-LOCK243, cat: "Tornillería y sellado", desc: "Fijadores Loctite: 243 de resistencia media (rosca M12 de los pivotes P1-REV-02, pomos M10×1 y vástagos M4 de los eslabones de los émbolos P1-REV-04) y 641 de retención (ajustes Ø24 H7/h6 del cuerpo de los émbolos y del piloto de los casquillos del pivote en las orejas: llena el juego, evita el desgaste por roce y aísla el 316 del agujero sin anodizar)", spec: "Loctite 243 (o equivalente de resistencia media, desmontable con herramienta) 10 ml + Loctite 641 (retenedor de resistencia media, desmontable; o equivalente) 10 ml", qty: 1, supplier: "Ferretería / distribuidor industrial", link: "buscar: Loctite 243 10 ml + Loctite 641 10 ml", price_eur: 30.0, ship: local, tag: "[ESTIMADO: fijador de roscas 10 ml 10–18 € + retenedor 10 ml 12–20 €]"}
+    - {id: B-BOWDEN, cat: "Mandos", desc: "Bowden inox de liberación de los émbolos, UNO POR ÉMBOLO (barra igualadora del gatillo P1-CTL-14 → balancín 1:1 de P1-REV-09 → pomo de cada P1-REV-04)", spec: "Cable 316 Ø1,5 7×7 con barril Ø5 × 6 en el extremo de la boquilla (entra en el brazo de salida del balancín de P1-REV-09) y nipple en la barra igualadora de P1-CTL-14; vaina Ø5 con camisa de PTFE (radio mínimo ≥ 30 mm [ESTIMADO: ≈ 6 × Ø, confirmar con la ficha]; el modelo usa R40); 2 reguladores M6 con contratuerca por cable (pestaña de P1-REV-09 y pestaña de tope de P1-CTL-10); ≈ 3 m por émbolo (el pomo se une al balancín con el eslabón rígido de B-RELKIT); pasa el espejo por el inserto de 2 agujeros B-GLINS", qty: 2, supplier: "Distribuidor de cables de mando (bicicleta/industrial) UE", link: "buscar: Bowdenzug Edelstahl PTFE 1,5 mm Meterware + Stellschraube M6", price_eur: 25.0, covers: [P1-REV-10], tag: "[ESTIMADO: 04_diseno/piezas/P1-REV-10 — cable + vaina por metro y reguladores 15–35 €]"}
+    - {id: B-GLINS, cat: "Mandos", desc: "Inserto de sellado de 2 agujeros para el prensaestopas M16 del Bowden en la placa del espejo (P1-CTL-05): pasan las 2 vainas; sellar además con Sikaflex (paso sobre la flotación)", spec: "Inserto multiagujero M16, 2 × 4,5 mm (NBR); usar el que corresponda al Ø real de la vaina", qty: 1, supplier: "Schaltschrank-Xpress (DE)", link: "https://www.schaltschrank-xpress.de/m16-multi-sealing-insert-2x4-5-mm-as-multiple-cable-entry.html?language=en", price_eur: 1.95, ship: eu, tag: "[VERIFICADO: schaltschrank-xpress.de MDE16-2x45 — 0,39 € c/u, pedido mínimo 5 (2026-10-02)]"}
+    - {id: B-PIVM12, cat: "Mandos", desc: "Tornillería de los 2 pivotes del bucket (P1-REV-02): tornillo ISO 4017 M12 × 60 A4-80 + arandela ISO 7089 M12 A4 bajo la cabeza + arandela ancha ISO 7093 M12 A4 (Ø37 × 3) y tuerca BAJA ISO 4035 M12 A4-035 por dentro del lóbulo de la oreja, por pivote", spec: "ISO 4017 M12 × 60 A4-80 (2), ISO 4035 M12 A4-035 (2; tuerca baja: con la precarga baja alcanza su carga de prueba con margen, fila de P1-REV-02, y deja entrar el lóbulo del pivote de 20 mm), ISO 7089 12 A4 (2), ISO 7093 12 A4 (2); largo = P1-REV-02.bolt_len_iso (bajo cabeza mínimo ≈ 58,8 mm [CALCULADO]; tuerca ISO 4035 m 6); Loctite 243 en la rosca (B-LOCK243) y par BAJO 12 N·m (K 0,15–0,28 [ESTIMADO] → precarga 3,6–6,7 kN [CALCULADO]): el tornillo solo retiene, el corte y el momento van por el piloto (plano P1-REV-02; re-auditoría ronda 5, MEC-01/02)", qty: 1, supplier: "Watski DK (Comstedt A4) / distribuidor de normalizados", link: "buscar: sekskantskrue M12x60 A4-80 ISO 4017 + ISO 4035 M12 A4 + ISO 7093 M12 A4", price_eur: 20.0, ship: local, tag: "[ESTIMADO: research/R08b §7 — blísteres Comstedt A4 27–48 kr; A4-80 y arandela ancha algo más caros]"}
+    - {id: B-RELKIT, cat: "Mandos", desc: "Herrajes y material del desbloqueo (P1-REV-09 y P1-CTL-14; re-auditoría ronda 5 DES-03/DES-04/MEC-09): barra 1.4401+C para los ejes de los balancines y los pernos de manivela, barra 316 para los eslabones rígidos, placa 5083 de 12 para los balancines con cubos, casquillos, clips, fijación al pad, pasador del gatillo y resorte de retorno", spec: "Barra 1.4401+C estirada Ø10 × 250 con certificado 3.1 EN 10204 (Rp0,2 ≥ 310 MPa: las filas de P1-REV-09 usan ese valor; recocida NO sirve) para 2 ejes de balancín (Ø8 m6 + muñón Ø7 f7, 25 mm), 2 pernos de manivela (Ø6 m6 con hombro Ø9, 35,3 y 38,8 mm), pasador Ø4 y barra igualadora 5 × 4 × 24; barra 316 Ø16 × 80 (2 eslabones rígidos: ojo 10,2 × 13,7 × 5 con ranura 6,2 + vástago M4 × 14); recorte 5083 de 12 mm ≈ 80 × 40 (2 balancines fresados con cubos); 2 casquillos poliméricos autolubricados con collar Ø7 × Ø9 × 14, aptos para agua salada [ESTIMADO: tipo iglidur]; 2 arandelas PTFE Ø7 × Ø14 × 1; 5 × DIN 6799 A2/A4 (2 × tamaño 5 para los muñones Ø7, 2 × tamaño 4 para los pernos de manivela delante del ojo, 1 × 3,2 para el pasador Ø4 de la barra); 2 × ISO 4762 M5 × 12 A4-70 + 2 arandelas de nylon M5 (base al pad de P1-STE-01, Tef-Gel); 1 × ISO 2341-B Ø5 × 20 A4 + pasador de aletas (gatillo); 1 resorte de torsión inox de retorno del gatillo; Loctite 638 5 ml (prensados de ejes y pernos)", qty: 1, supplier: "Distribuidor de elementos normalizados y de inox con certificado", link: "buscar: Blankstahl 1.4401 h9 10 mm Zeugnis 3.1 + iglidur Bundlager 7 9", price_eur: 55.0, tag: "[ESTIMADO: barra 1.4401+C Ø10 con certificado ≈ 12 €, barra 316 Ø16 ≈ 5 €, recorte 5083 ≈ 5 €, casquillos 2 × 3 €, Loctite 638 ≈ 12 €, herrajes sueltos ≈ 15 €]"}
+    - {id: MP-5083-AROS, cat: "Materia prima (mecanizado)", desc: "Chapa 5083 10 mm para los 2 aros de refuerzo del pivote del bucket (P1-REV-01)", spec: "Al 5083-H111 10 mm (REV_ring_t), 2 recortes ≈ 50 × 50 para aros Ø40 (2 × REV_boss_r); el agujero Ø24 H7 se termina después de soldar (05 §4). Si S-LASER los corta del retazo de MP-5083-T10, no comprar", qty: 1, supplier: "Dold Mechatronik (corte a medida) / Gemmel", link: "buscar: Aluminiumplatte 5083 10 mm Zuschnitt", price_eur: 5.0, covers: [P1-REV-01], tag: "[ESTIMADO: 2 × 50 × 50 × 10 mm = 0,13 kg × 18,4 €/kg < mínimo por corte 5 € (bom.stock.min_eur)]"}
+    - {id: B-KNOB, cat: "Mandos", desc: "Pomos de las palancas de acelerador y bucket", spec: "Pomo esférico Ø35 M8, termoplástico", qty: 2, supplier: "Distribuidor de elementos normalizados", link: "buscar: Kugelknopf DIN 319 M8 35 mm", price_eur: 4.0, tag: "[ESTIMADO]"}
+    # ---------------- tornillería, sellado y corrosión
+    - {id: B-HW, cat: "Tornillería y sellado", desc: "Tornillería A4 Comstedt en blísteres: M6 (brida toma–carcasa 8, placa de espejo 6 (P1-PMP-09 pmp_tp_bolt_ang) con 12 arandelas de sellado bonded USIT M6 bajo cabeza y tuerca (B-BUTYL), sin Sikaflex, casco 26 (estructural.json, P1-INT-02)); brida carcasa–tobera 8 × ISO 4762 M5×20 A4-70 roscados en la carcasa (sin tuercas); anti-rotación del estator 2 × ISO 4762 M5×12 A4 + 2 arandelas de sellado bonded M5 (tipo USIT) + 2 + 2 de repuesto; rejilla 4 × M5 con 4 arandelas cónicas/casquillos aislantes de nylon; M8 (pórtico, motor), M5 (tapas), nyloc y arandelas + especiales", spec: "≈ 20 blísteres de 27–48 kr + bulones largos; lista por pieza en planos de 04_diseno/planos", qty: 1, supplier: "Watski DK", link: "https://www.watski.dk/hexagon-machine-screw-a4-11KtO", price_eur: 130.0, ship: local, tag: "[ESTIMADO: research/R08b §7 — blísteres VERIFICADOS 27–48 kr × ≈ 20 + varios]"}
+    - {id: B-STUD, cat: "Tornillería y sellado", desc: "Espárragos del pórtico de rodamientos P1-DRV-03: tornillo avellanado ISO 10642 M8 × 35 A4-70 desde afuera (cabeza enrasada en Sikaflex) + tuerca ISO 4032 A4 + arandela ancha ISO 7093 M8 (Ø24 × 2) A4, ×4; + 4 pasadores con rosca interior M4 ISO 8735 Ø6 m6 × 16 A4 (2 por pie, ciegos en la placa base de 10 mm; se extraen con un tornillo M4)", spec: "ISO 10642 M8 × 35 A4-70 (4), ISO 4032 M8 A4 (4), ISO 7093 8 (Ø24 × 2) A4 (4), ISO 8735 Ø6 m6 × 16 A4 rosca interior M4 (4); apriete según plano P1-DRV-03 con Tef-Gel", qty: 1, supplier: "Watski DK (Comstedt A4) / distribuidor de normalizados", link: "buscar: undersænket skrue M8x35 A4 ISO 10642 watski", price_eur: 18.0, ship: local, tag: "[ESTIMADO: research/R08b §7 — Comstedt M8 2P 34 kr y nyloc M8 10P 41 kr VERIFICADOS; avellanado M8, ISO 7093 y pasadores ISO 8735 no listados]"}
+    - {id: B-INS, cat: "Tornillería y sellado", desc: "Insertos térmicos ruthex M5 (solo zona seca: base/capota del controlador P1-ELE-01/02)", spec: "M5 × 9,5, pack 50, latón (no en piezas mojadas: R08b hallazgos)", qty: 1, supplier: "3DJake (DE)", link: "https://www.3djake.de/ruthex/gewindeeinsatz-m5-50-stueck", price_eur: 9.99, tag: "[VERIFICADO: research/R08b §7 — 9,99 €/pack]"}
+    - {id: B-ORING, cat: "Tornillería y sellado", desc: "Cordón de O-ring NBR70 Ø3,53 (brida toma–carcasa de cara, espiga de la tobera RADIAL, placa de espejo, toma, tapa de inspección) + cianoacrilato de empalme", spec: "auto:oring_cord", qty: auto, unit: m, supplier: "Distribuidor de juntas", link: "buscar: O-Ring Schnur 3,53 mm NBR70", price_eur: 2.5, tag: "[ESTIMADO: especificación VERIFICADO research/R05 (cs 3,53, compresión 20–30 %)]"}
+    - {id: B-GREASE, cat: "Tornillería y sellado", desc: "Grasa de silicona para O-rings (no mineral)", spec: "Grasa de silicona 50 g", qty: 1, supplier: "Watski DK", link: "buscar: silikonefedt O-ring watski", price_eur: 8.0, tag: "[ESTIMADO]"}
+    - {id: B-GASKET, cat: "Tornillería y sellado", desc: "Plancha NBR 2 mm para la junta del espejo P1-PMP-10 (cortar con el contorno de P1-PMP-09)", spec: "NBR 70 Shore A, 2 mm, ≥ 300 × 300 mm", qty: 1, supplier: "Distribuidor de juntas", link: "buscar: NBR Gummiplatte 2 mm 300x300", price_eur: 15.0, covers: [P1-PMP-10], tag: "[ESTIMADO]"}
+    - {id: B-BUTYL, cat: "Tornillería y sellado", desc: "Junta de la placa de espejo P1-PMP-09 sin adhesivo (desmontable por popa): sellador butílico no adhesivo sobre la junta NBR (B-GASKET) + 12 arandelas de sellado bonded USIT M6 (bajo cabeza y tuerca de los 6 bulones)", spec: "Cinta/masilla butílica marina no adhesiva, no endurecible, 2–3 mm; arandelas bonded M6 acero inox + NBR (12 + 4 de repuesto)", qty: 1, supplier: "Watski DK / distribuidor de juntas", link: "buscar: butyl tape non-hardening marine + bonded seal washer M6", price_eur: 28.0, tag: "[ESTIMADO: cinta butílica 8–12 € + 16 arandelas bonded ≈ 1 €/u]"}
+    - {id: B-GLAND16, cat: "Tornillería y sellado", desc: "Prensaestopas IP68 M16 (4–8 mm), pack de 2: Mach5 y las 2 vainas del Bowden (con el inserto B-GLINS) en la placa del espejo (P1-CTL-05) + hall/cordón en la consola", spec: "M16×1,5, IP68, −20…+80 °C", qty: 2, supplier: "Biltema DK", link: "https://www.biltema.dk/byggeri/elinstallationer/eldaser/kabelforskruning-m16-4-8-mm-2-stk-2000064967", price_dkk: 24.9, ship: local, covers: [P1-CTL-05], tag: "[VERIFICADO: research/R08a §8 — 24,90 kr el pack]"}
+    - {id: B-GLAND20, cat: "Tornillería y sellado", desc: "Prensaestopas IP68 M20 (6–12 mm), pack de 2: vaina Ø9,5 del lado M66 en la placa del espejo si el M16 4–8 no cierra", spec: "M20×1,5, IP68 (verificar con el agujero de P1-CTL-01)", qty: 1, supplier: "Biltema DK", link: "https://www.biltema.dk/byggeri/elinstallationer/eldaser/kabelforskruning-m20-6-12-mm-2-stk-2000064968", price_dkk: 24.9, ship: local, covers: [P1-CTL-05], tag: "[VERIFICADO: research/R08a §8 — 24,90 kr el pack]"}
+    - {id: B-TEFGEL, cat: "Corrosión", desc: "Antigalvánico Tikal Tef-Gel 60 g (todo A4/316 en contacto con Al: bridas, asientos, roscas)", spec: "PTFE, apto agua de mar", qty: 1, supplier: "AWN (DE)", link: "https://awn.de/products/tikal-tef-gel-antikorrosion-60g-weiss", price_eur: 41.89, tag: "[VERIFICADO: research/R08b §6 — 41,89 €]"}
+    - {id: B-ISOW, cat: "Corrosión", desc: "Arandelas aislantes de fibra/nylon M3–M12 (200 u.)", spec: "Biltema art. 191083", qty: 1, supplier: "Biltema DK", link: "https://www.biltema.dk/bil---mc/varkstedsudstyr/befastelser/skiver/fiber--og-nylonskiver-200-stk-2000064326", price_dkk: 84.9, ship: local, tag: "[VERIFICADO: research/R08b §6 — 84,90 kr]"}
+    - {id: B-PTFE, cat: "Corrosión", desc: "Aislación 316 ↔ 5083 de la rejilla P1-INT-03: cinta/funda de PTFE 0,2–0,4 mm entre pletinas y conducto (con las arandelas de nylon de B-HW)", spec: "Cinta PTFE adhesiva 0,2–0,4 mm × 25 mm × 1–3 m o funda termocontraíble de PTFE", qty: 1, supplier: "Distribuidor de plásticos técnicos", link: "buscar: PTFE tape 0,25 mm adhesive 25 mm", price_eur: 15.0, tag: "[ESTIMADO: cinta PTFE adhesiva 10–20 €]"}
+    - {id: B-ANODE, cat: "Corrosión", desc: "Ánodo de sacrificio de aluminio de placa atornillado a la carcasa/conducto (planos de la bomba: R06 §0, R10b H21)", spec: "Ánodo de Al (no Zn en agua salobre) ≈ 100 × 50 × 10, con espárragos; continuidad eléctrica con la carcasa", qty: 1, supplier: "Watski DK (Tecnoseal)", link: "buscar: Tecnoseal aluminium anode plate small watski", price_eur: 20.0, tag: "[ESTIMADO: research/R08b §6 — ánodo de eje Tecnoseal 96 kr VERIFICADO; de placa ≈ 15–25 €]"}
+    # ---------------- herramienta
+    - {id: B-CRIMP, cat: "Herramienta", desc: "Crimpadora de golpe para terminales 8–70 mm²", spec: "Biltema kabelskotang (llega a 70 mm²)", qty: 1, supplier: "Biltema DK", link: "https://www.biltema.dk/varktoj/handvarktoj/ovrigt-varktoj/kabelskotang-2000064951", price_dkk: 89.9, ship: local, tag: "[VERIFICADO: research/R08a §7 — 89,90 kr]"}
+    - {id: B-TAP, cat: "Herramienta", desc: "Macho G1/8 (BSPP) + broca 8,8 para el puerto de refrigeración", spec: "HSS-E, G1/8-28", qty: 1, supplier: "Ferretería industrial", link: "buscar: gevindtap G1/8", price_eur: 15.0, tag: "[ESTIMADO]"}
+    - {id: B-REAM16, cat: "Herramienta", desc: "Escariadores y plantilla de la traba y del pivote del bucket (05 §4): Ø24 H7 (piloto del casquillo del pivote y cuerpo ajustado del émbolo en cada oreja de P1-STE-01, y alojamiento del buje en brazo + aro de P1-REV-01, después de soldar), Ø16,5 (agujeros de traba del bucket) y Ø20,1 (interior del buje POM después de prensar)", spec: "Escariadores de máquina HSS: Ø24 H7 largo (DIN 208, pasa los dos brazos de una vez; sirve también para los 4 agujeros de las orejas), Ø16,5 (+0,1/0), Ø20,1 (o escariador ajustable 19–21); brocas HSS-Co 16,2 y 23,7; casquillos guía intercambiables (DIN 173 o torneados de acero), UNO POR HERRAMIENTA y F7 sobre el Ø medido de cada broca/escariador (taladrar y escariar por el mismo asiento de la plantilla: 05 §4, auditoría M2); placa de la plantilla con espigón Ø24 h6 (entra en el agujero del piloto o del buje) y los asientos de la traba a r 45 (05 §4)", qty: 1, supplier: "Ferretería industrial", link: "buscar: Maschinenreibahle HSS 24 H7 DIN 208 lang", price_eur: 95.0, tag: "[ESTIMADO: escariadores HSS de máquina 15–30 €/u × 3 + brocas 15 € + casquillos 10 €]"}
+    - {id: B-TAP24, cat: "Herramienta", desc: "Machos y terraja del émbolo propio P1-REV-04: M20×1 (rosca interior de la tapa del cuerpo) y M10×1 (pomo); el cuerpo ya no va roscado en la oreja (ajuste Ø24 H7/h6, ronda 5)", spec: "Machos HSS-E M20×1 (broca 19) y M10×1 (broca 9) + terraja M10×1 para la cola del perno (o tornearla); el id conserva el nombre histórico", qty: 1, supplier: "Ferretería industrial", link: "buscar: gevindtap M20x1 HSS-E + M10x1", price_eur: 55.0, tag: "[ESTIMADO: machos finos HSS-E 15–30 €/u + terraja + brocas]"}
+    - {id: B-DIAL, cat: "Herramienta", desc: "Comparador 0,01 mm con base magnética: juego axial y alineación del tren (06 T0.M3, T0.M4 y control de M9) y Ø de puntas del impulsor (05 P1.12); ya no hay ensayo de desfase de las trabas del bucket (ronda 4: criterio de traba única)", spec: "Carrera 10 mm, resolución 0,01 mm; base magnética con brazo articulado", qty: 1, supplier: "Ferretería industrial / Biltema", link: "buscar: måleur 0,01 mm magnetfod", price_eur: 30.0, tag: "[ESTIMADO: juego comparador + base 20–40 €]"}
+    # ---------------- seguridad del bote (instalada: entra en el total)
+    - {id: B-BILGE, cat: "Seguridad del bote", desc: "Bomba de achique automática Attwood Sahara S500 Mk2 12 V", spec: "Automática (sensor propio), salida Ø19", qty: 1, supplier: "Watski DK", link: "https://www.watski.dk/attwood-sahara-mk2-automatisk-laensepumpe-11wl0", price_dkk: 649.0, ship: local, tag: "[VERIFICADO: research/R11 §8 — 649 kr]"}
+    - {id: B-ALARM, cat: "Seguridad del bote", desc: "Alarma acústica de nivel alto de sentina KUS", spec: "Sensor de nivel + zumbador 12 V", qty: 1, supplier: "Watski DK", link: "https://www.watski.dk/kus-alarmboks-til-hoejt--lavt-niveau-11paJ", price_dkk: 283.0, ship: local, tag: "[VERIFICADO: watski.dk 2026-10-02 — 'KUS Alarmboks til Højt / Lavt Niveau' 283 kr (bestillingsvare)]"}
+    - {id: B-12V, cat: "Seguridad del bote", desc: "DC-DC aislado → 12 V para achique, alarma Y bobina de K1 (mando: F2 → retención B-HOLD → seta → cordón → K1), conectado a la barra + aguas ARRIBA de F1/S1 con F5 removible (funciona con el cordón tirado y S1 abierto)", spec: "Mean Well RSD-60L-12 (entrada 18–72 V CC; la G es de 9–36 V y NO sirve con 12S), 12 V ±2 %, 5 A con límite de corriente constante; F4/F2 en la salida, F5 en la entrada", qty: 1, supplier: "Reichelt / Farnell", link: "https://www.meanwell.com/Upload/PDF/RSD-60/RSD-60-SPEC.PDF", price_eur: 45.0, rating: {v: 72, role: control}, tag: "[ESTIMADO: precio (R11 §8 RSD-60H-12 ≈ 32,72 £ sin IVA, buscador); rango de entrada y salida VERIFICADOS en Mean Well RSD-60-SPEC 2026-07-09]"}
+    - {id: B-HOLD, cat: "Seguridad eléctrica", desc: "Retención de la bobina de K1 ante huecos del riel de 12 V (arranque del achique): Schottky 1N5822 en serie + 22 mF ≥ 25 V a 12 V−, entre F2 y la seta", spec: "1N5822 (3 A, 40 V) + electrolítico 22 000 µF 25 V (o 2 × 10 000 µF + 1 × 2 200 µF), 105 °C; README electrónica §7", qty: 1, supplier: "Reichelt DK", link: "buscar: 1N5822 + Elko 22000uF 25V reichelt", price_eur: 12.0, tag: "[ESTIMADO: diodo + electrolítico de catálogo]"}
+    - {id: B-BILGE-HOSE, cat: "Seguridad del bote", desc: "Manguera de achique Ø19 (1,5 m) + pasacasco inox sobre la flotación + abrazaderas", spec: "Manguera lisa interior Ø19, pasacasco 316 3/4\"", qty: 1, supplier: "Watski DK", link: "buscar: lænseslange 19 mm + skroggennemføring 3/4 rustfri", price_eur: 25.0, tag: "[ESTIMADO]"}
+    - {id: B-FOAM, cat: "Seguridad del bote", desc: "Espuma de flotación PU 2 componentes 2 lb/ft³ (~100 L, R10b H5) en compartimentos estancos", spec: "PU 32 kg/m³, 94 % celda cerrada; kit de 2 gal ≈ 227 L (sobra); alternativa local: XPS en placas", qty: 100.0, unit: L, supplier: "TotalBoat (EE. UU.) o XPS local", link: "https://www.totalboat.com/products/2-part-polyurethane-marine-flotation-foam", price_eur: 0.447, tag: "[VERIFICADO: research/R11 §8 — 447 €/m³ (114,99 USD / 8 ft³); envío UE e IVA no verificados]"}
+    # ---------------- filamento
+    - {id: B-PETG, cat: "Filamento", desc: "Filamento PETG 1,75 mm (HDT ≥ 70 °C en la ficha)", spec: "auto:filament", qty: auto, unit: kg, supplier: "3DJake (eSUN PETG+)", link: "https://www.3djake.de/esun/petg-yellow-12", price_eur: 15.99, tag: "[VERIFICADO: research/R08b §8 — 15,99 €/kg]"}
+    # ---------------- repuestos críticos (además de R-PIN y R-BUSH, que salen de la materia prima)
+    - {id: R-SEAL, cat: "Repuestos críticos", desc: "Sello mecánico MG1 Ø20 de repuesto (es el límite estanco del casco)", spec: "Igual a B-SEAL (carbón/SiC)", qty: 1, supplier: "ST-Shop24 (DE)", link: "https://st-shop24.de/dichtungen/gleitringdichtungen/mechanical-seal-st-st1-sic-sic-nbr-gleitringdichtung-inkl-gegenring.html", price_eur: 29.0, tag: "[VERIFICADO: research/R11 §5 — 'ab 29,00 €']"}
+    - {id: R-ORING, cat: "Repuestos críticos", desc: "Juego de O-rings de repuesto (mismo cordón NBR70 Ø3,53, un juego completo)", spec: "auto:oring_cord", qty: auto, unit: m, supplier: "Distribuidor de juntas", link: "buscar: O-Ring Schnur 3,53 mm NBR70", price_eur: 2.5, tag: "[ESTIMADO]"}
+    - {id: R-SPIDER, cat: "Repuestos críticos", desc: "Estrella Rotex 24 de repuesto (98 ShA: T_KN 60 N·m)", spec: "T-PUR 98 ShA roja, tamaño 24", qty: 1, supplier: "Z24 (DE)", link: "buscar: Rotex 24 Zahnkranz 98 Shore", price_eur: 12.0, tag: "[ESTIMADO: torques VERIFICADO research/R11 §5]"}
+    - {id: R-FUSE, cat: "Repuestos críticos", desc: "Fusibles Class T de repuesto: 1 × F1 y 1 × F_BR (los únicos repuestos de fusible de potencia)", spec: "Class T Blue Sea, mismos valores que F1 y F_BR (sizing fuse_a, fuse_branch_a)", qty: 2, supplier: "Distribuidor Blue Sea UE / Watski DK (pedido)", link: "https://www.fisheriessupply.com/blue-sea-systems-class-t-fuses/5113", price_eur: 55.0, tag: "[ESTIMADO: Class T Blue Sea 110–200 A listados a 72,44 USD y 225–400 A a 92,51 USD en fisheriessupply.com (2026-10-02, unidad/pack no claro); sin precio UE encontrado]"}
+    # ---------------- servicios de fabricación (lo que el torno manual + taladro del usuario no hacen)
+    - {id: S-CNC-IMP, cat: "Servicio de fabricación", desc: "Impulsor 316L CNC 5 ejes, 1 u., con material, torneado del Ø exterior contra el anillo de desgaste y balanceo", spec: "5 álabes, holgura de punta según plano; STEP 04_diseno/step/P1-PMP-03; alternativa SLM 316L + torneado 330–610 € (R11 §6/§9)", qty: 1, supplier: "Taller CNC UE / Xometry / JLCCNC (cotizar con el STEP)", link: "buscar: Xometry instant quote 5-axis impeller 316", price_eur: 1050.0, ship: incl, covers: [P1-PMP-03], tag: "[ESTIMADO: research/R11 §6 — CNC 5 ejes inox 600–1500 € (punto medio)]"}
+    - {id: S-CNC-STAT, cat: "Servicio de fabricación", desc: "Estator Al 6061-T6 CNC 5 ejes (7 álabes + camisa + cubo), 1 u., con material", spec: "7 álabes + camisa + cubo con alojamiento del buje de agua; STEP 04_diseno/step/P1-PMP-06", qty: 1, supplier: "Taller CNC UE (cotizar con el STEP)", link: "buscar: JLCCNC 5 axis quote aluminium 6061", price_eur: 630.0, ship: incl, covers: [P1-PMP-06], tag: "[ESTIMADO: research/R11 §6 — Al ≈ 40 % menos que inox: 360–900 € (punto medio)]"}
+    - {id: S-TURN-HSG, cat: "Servicio de fabricación", desc: "Torneado de taller de la carcasa P1-PMP-01 (Ø192,8 en la brida de la toma, brida de popa Ø161,8, largo 165,9 [manifest bbox]; > volteo del torno propio): asiento del anillo y de la espiga de la tobera, ranura de O-ring de cara, bridas taladradas y roscadas M5, puerto G1/8", spec: "Material: ver MP (barra hueca 6061-T6); tolerancias del plano P1-PMP-01", qty: 1, supplier: "Taller mecánico local (Sønderborg) / DE", link: "buscar: drejning CNC aluminium Sønderborg", price_eur: 220.0, ship: local, covers: [P1-PMP-01], tag: "[ESTIMADO: 3 h × 70 €/h + preparación]"}
+    - {id: S-TURN-NOZ, cat: "Servicio de fabricación", desc: "Torneado + fresado de taller de la tobera fija P1-PMP-08 (Ø161,8 × 151,2 [manifest bbox]: cono, espiga con ranura de O-ring radial, rótula esférica, resalte del sello de espejo)", spec: "Material: ver MP (barra hueca 6061-T6); plano P1-PMP-08", qty: 1, supplier: "Taller mecánico local / DE", link: "buscar: drejning fræsning aluminium Sønderborg", price_eur: 280.0, ship: local, covers: [P1-PMP-08], tag: "[ESTIMADO: 4 h × 70 €/h]"}
+    - {id: S-TURN-TP, cat: "Servicio de fabricación", desc: "Torneado del cuello y agujero H8 de la placa de espejo P1-PMP-09 (Ø > volteo del torno propio)", spec: "Material: ver MP (chapa 5083); plano P1-PMP-09", qty: 1, supplier: "Taller mecánico local", link: "buscar: drejning aluminium Sønderborg", price_eur: 90.0, ship: local, covers: [P1-PMP-09], tag: "[ESTIMADO: 1–1,5 h × 70 €/h]"}
+    - {id: S-MILL-STE, cat: "Servicio de fabricación", desc: "Boquilla direccional P1-STE-01: torneado del cuerpo + fresado 4 ejes de orejas y torre", spec: "Material: ver MP (bloque 6061-T6); plano P1-STE-01", qty: 1, supplier: "Taller CNC local / UE", link: "buscar: CNC fræsning 4-akse aluminium Danmark", price_eur: 260.0, ship: local, covers: [P1-STE-01], tag: "[ESTIMADO: 3,5 h × 70 €/h + programación]"}
+    - {id: S-LASER, cat: "Servicio de fabricación", desc: "Corte láser / chorro de agua de las piezas de chapa (DXF de 04_diseno/planos)", spec: "5083: placa base 10, placas de espejo/central/soporte 6, topes de dirección 8, bucket 8 (cuchara, brazos) y aros de refuerzo del pivote 10, soporte de reenvío del desbloqueo 6/8/5 (base, montante, 2 pestañas; los balancines se fresan de placa 12, B-RELKIT), brida yugo 20, brazo 10, conducto 5/12; 6061: palancas 8, gatillo 6, placa lateral del gatillo 4 y pestaña de tope 5 (P1-CTL-10); 6082: pórtico 12, soporte motor 10; 316: pletinas de rejilla 4", qty: 1, supplier: "Taller de corte láser/agua DK/DE", link: "buscar: laserskæring aluminium plade Sønderborg / vandskæring", price_eur: 290.0, ship: local, covers: [P1-INT-01, P1-INT-02, P1-INT-03, P1-CTL-01, P1-CTL-08, P1-CTL-09, P1-CTL-10, P1-CTL-14, P1-REV-01, P1-REV-05, P1-REV-09, P1-STE-04, P1-STE-07, P1-STE-08, P1-DRV-03, P1-MOT-02], tag: "[ESTIMADO: preparación 50 € + ≈ 12 €/pieza; ronda 4: + 6 piezas chicas del desbloqueo (base, montante y 2 pestañas de P1-REV-09; placa lateral y pestaña de P1-CTL-10) ≈ + 70 €]"}
+    - {id: S-WELD-INT, cat: "Servicio de fabricación", desc: "Soldadura TIG Al 5083 (aporte 5183) del conducto P1-INT-01 (rampa, transición, brida de bomba, chimenea) sobre la placa base P1-INT-02 + refrentado de la cara enrasada + prueba de estanqueidad", spec: "Soldador certificado en Al; plantilla de armado; prueba con agua/jabón y aire 0,3 bar", qty: 1, supplier: "Taller de soldadura de aluminio (náutico) DK", link: "buscar: aluminiumssvejsning båd Sønderborg", price_eur: 480.0, ship: local, covers: [P1-INT-01, P1-INT-02], tag: "[ESTIMADO: 6 h × 70 €/h + aporte y gas]"}
+    - {id: S-WELD-AL, cat: "Servicio de fabricación", desc: "Soldadura TIG de piezas chicas de Al: pórtico P1-DRV-03 y soporte del motor P1-MOT-02 (6082), bucket P1-REV-01 (chapa 8 mm, aros de refuerzo del pivote 10 mm; el alojamiento del buje Ø24 H7 y los agujeros de traba Ø16,5 se hacen DESPUÉS de soldar, 05 §4), soporte Mach5 P1-REV-05 y soporte de reenvío del desbloqueo P1-REV-09 (5083), grapas de P1-CTL-08, escalón, placa lateral y pestaña de tope de P1-CTL-10; rolado de la cuchara del bucket", spec: "Aporte 5183 (5083) / 4043 o 5356 (6082); planos de 04_diseno/planos", qty: 1, supplier: "Taller de soldadura de aluminio DK", link: "buscar: TIG svejsning aluminium Sønderborg", price_eur: 355.0, ship: local, covers: [P1-DRV-03, P1-MOT-02, P1-REV-01, P1-REV-05, P1-REV-09, P1-CTL-08, P1-CTL-10], tag: "[ESTIMADO: 4,5 h × 70 €/h + rolado (ronda 4: + 0,5 h por P1-REV-09 y las placas de P1-CTL-10)]"}
+    - {id: S-WELD-316, cat: "Servicio de fabricación", desc: "Soldadura TIG 316L de la rejilla P1-INT-03 (9 pletinas perfiladas + pletina de popa + tirantes)", spec: "Aporte 316LSi, plantilla para mantener el enrase; decapado/pasivado", qty: 1, supplier: "Taller de soldadura inox DK", link: "buscar: TIG svejsning rustfri Sønderborg", price_eur: 140.0, ship: local, covers: [P1-INT-03], tag: "[ESTIMADO: 1,5 h × 70 €/h + decapado]"}
+    - {id: S-ANOD, cat: "Servicio de fabricación", desc: "Anodizado duro tipo III ~50 µm (lote): carcasa P1-PMP-01, estator P1-PMP-06, tobera P1-PMP-08, boquilla P1-STE-01, poste P1-STE-06", spec: "MIL-A-8625 tipo III, sellado; enmascarar roscas, asientos H7 y ranuras de O-ring", qty: 1, supplier: "Anodizador DK/DE (lote chico)", link: "buscar: hård anodisering aluminium Danmark", price_eur: 220.0, ship: eu, covers: [P1-PMP-01, P1-PMP-06, P1-PMP-08, P1-STE-01, P1-STE-06], tag: "[ESTIMADO: mínimo de facturación de lote 150–300 €]"}
+    # ---------------- casco (lo hace Jorge; aparte del total del sistema)
+    - {id: H-CUT-BOT, cat: "Casco (lo hace Jorge)", desc: "Recorte del fondo para la toma enrasada (contorno de la placa base P1-INT-02)", spec: "auto:hull_cut", qty: 1, supplier: "Jorge (consumibles: discos de corte Al, hojas de sierra de calar, fresa de repaso)", link: "buscar: skæreskive aluminium 125 mm + stiksavklinge metal", price_eur: 25.0, ship: local, scope: casco, tag: "[ESTIMADO: consumibles; mano de obra de Jorge]"}
+    - {id: H-CUT-TR, cat: "Casco (lo hace Jorge)", desc: "Agujero del espejo para la tobera/placa de espejo", spec: "auto:hull_transom", qty: 1, supplier: "Jorge (sierra de copa bimetal o calar)", link: "buscar: hulsav bimetal 165 mm", price_eur: 35.0, ship: local, scope: casco, tag: "[ESTIMADO]"}
+    - {id: H-HOLES, cat: "Casco (lo hace Jorge)", desc: "Agujeros de pasacascos (refrigeración, achique, pasamuros M66 y Mach5) y de los ≈ 24 M6 del ala de la placa base", spec: "Broca escalonada 4–32 mm + brocas 6,5 HSS-Co", qty: 1, supplier: "Jorge", link: "buscar: trinbor 4-32 mm HSS", price_eur: 20.0, ship: local, scope: casco, tag: "[ESTIMADO]"}
+    - {id: H-FLOORS, cat: "Casco (lo hace Jorge)", desc: "Varengas/refuerzos Al 5083 6 mm a ambos lados del recorte de la toma y bajo el pórtico de rodamientos y el soporte del motor", spec: "2 varengas ≈ 420 × 150 × 6 + 2 angulares 40 × 40 × 4 × 600 (dimensionar con el casco real medido, PENDIENTES P0)", qty: 1, supplier: "Dold / metalgrossist", link: "buscar: aluminiumplade 5083 6 mm", price_eur: 45.0, scope: casco, tag: "[ESTIMADO: ≈ 2,5 kg × 18,4 €/kg (research/R11 §7)]"}
+    - {id: H-WELD, cat: "Casco (lo hace Jorge)", desc: "Soldadura TIG de las varengas al fondo y del refuerzo del borde del recorte (si Jorge no suelda Al: taller)", spec: "Aporte 5183; no calentar el fondo de 4 mm en exceso (cordones intermitentes)", qty: 1, supplier: "Jorge o taller náutico", link: "buscar: aluminiumssvejsning båd Sønderborg", price_eur: 180.0, ship: local, scope: casco, tag: "[ESTIMADO: 2,5 h × 70 €/h]"}
+    - {id: H-SIKA, cat: "Casco (lo hace Jorge)", desc: "Sikaflex-291i 300 ml (asiento del ala de la placa base 0,5–1 mm y pasacascos; la placa de espejo ya NO se pega: junta NBR + butílico, B-BUTYL)", spec: "Sikaflex-291i (R05 S36), apto agua de mar", qty: 3, supplier: "Watski DK", link: "buscar: Sikaflex 291i 300 ml watski", price_eur: 18.0, ship: local, scope: casco, tag: "[ESTIMADO: producto VERIFICADO research/R05 S36; precio no abierto]"}
+    - {id: H-PRIMER, cat: "Casco (lo hace Jorge)", desc: "Sika Aktivator-205 + Primer para Al (adhesión del Sikaflex)", spec: "Según ficha Sika para aluminio", qty: 1, supplier: "Watski DK", link: "buscar: Sika Aktivator 205 watski", price_eur: 25.0, ship: local, scope: casco, tag: "[ESTIMADO]"}
+    - {id: H-BATT, cat: "Casco (lo hace Jorge)", desc: "Bancada de la caja de batería (≈ 40 kg) con calzos y 2 correas con hebilla inox", spec: "Correas ≥ 4 × peso (ABYC), calzos de PE/madera tratada", qty: 1, supplier: "Watski DK / Biltema", link: "buscar: batterirem rustfri spænde", price_eur: 40.0, ship: local, scope: casco, tag: "[ESTIMADO]"}
+    - {id: H-FOAMBAY, cat: "Casco (lo hace Jorge)", desc: "Compartimentos de la espuma de flotación (mamparos o bolsas) bajo asiento/proa, fuera de la sentina", spec: "≈ 100 L útiles; espuma revisable (R11 §10.12)", qty: 1, supplier: "Jorge", link: "buscar: aluminiumplade 2 mm", price_eur: 30.0, ship: local, scope: casco, tag: "[ESTIMADO]"}
+    # ---------------- equipo de seguridad de operación (aparte del total)
+    - {id: B-PFD, cat: "Equipo de seguridad (operación)", desc: "Chaleco salvavidas CON CUELLO (redningsvest) CE / ratmærke, talla y rango de peso correctos, con silbato", spec: "auto:pfd", qty: auto, supplier: "Tienda náutica DK", link: "buscar: redningsvest 150N ISO 12402-3 voksen", price_eur: 60.0, scope: operacion, tag: "[ESTIMADO; requisito VERIFICADO research/R07 (BEK 765/2024 §5)]"}
+    - {id: B-CORD, cat: "Equipo de seguridad (operación)", desc: "Cordón de hombre al agua de repuesto (espiral 135 cm), al chaleco del piloto", spec: "Biltema Dødemandsgreb 135 cm (verificar que encaja en el clip del B-KILL)", qty: 1, supplier: "Biltema DK", link: "https://www.biltema.dk/baad/sikkerhedsudstyr/redningsliner/dodemandsgreb-135-cm-2000040861", price_dkk: 74.9, ship: local, scope: operacion, tag: "[VERIFICADO: research/R08a §3 — 74,90 kr]"}
+    - {id: B-PADDLE, cat: "Equipo de seguridad (operación)", desc: "Pagaya (falla de motor; viento de tierra)", spec: "Pagaya telescópica ≥ 1,8 m, flotante", qty: 1, supplier: "Tienda náutica DK", link: "buscar: pagaj teleskop jolle", price_eur: 35.0, scope: operacion, tag: "[ESTIMADO; necesidad research/R07 §4]"}
+    - {id: B-ANCHOR, cat: "Equipo de seguridad (operación)", desc: "Ancla plegable 3 kg + cabo ≥ 20 m", spec: "Rezón galvanizado + cabo 8 mm", qty: 1, supplier: "Tienda náutica DK", link: "buscar: dræg anker 3.2 kg jolle", price_eur: 40.0, scope: operacion, tag: "[ESTIMADO; necesidad research/R07 §1.4]"}
+    - {id: B-LIGHT, cat: "Equipo de seguridad (operación)", desc: "Luz blanca todo horizonte portátil a pilas (política: solo de día)", spec: "Regla 23(d) (< 7 m, ≤ 7 kn)", qty: 1, supplier: "Tienda náutica DK", link: "buscar: rundtlys hvid batteri jolle", price_eur: 30.0, scope: operacion, tag: "[ESTIMADO; requisito VERIFICADO research/R07 §1.2]"}
+    - {id: B-BAILER, cat: "Equipo de seguridad (operación)", desc: "Achicador manual + esponja + bolsa estanca para teléfono (112) + manta térmica", spec: "—", qty: 1, supplier: "Tienda náutica DK", link: "buscar: øsekar + vandtæt mobilpose", price_eur: 20.0, scope: operacion, tag: "[ESTIMADO; necesidad research/R07 §1.4]"}

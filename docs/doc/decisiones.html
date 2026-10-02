@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro de decisiones y supuestos — P1-J — P1-J · Strålen</title>
+<meta name="description" content="D-01 Cambio de arquitectura: de cola larga para un jon boat a waterjet eléctrico inboard para el jet boat de Jorge. Alternativas: seguir con la cola larga (2 personas, 6 km/h);…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="Registro de decisiones y supuestos — P1-J — P1-J · Strålen">
+<meta property="og:description" content="D-01 Cambio de arquitectura: de cola larga para un jon boat a waterjet eléctrico inboard para el jet boat de Jorge. Alternativas: seguir con la cola larga (2 personas, 6 km/h);…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/decisiones.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=a7f9186a">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Registro de decisiones y supuestos — P1-J — P1-J · Strålen">
+<meta name="twitter:description" content="D-01 Cambio de arquitectura: de cola larga para un jon boat a waterjet eléctrico inboard para el jet boat de Jorge. Alternativas: seguir con la cola larga (2 personas, 6 km/h);…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=a7f9186a">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/decisiones.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header" id="top">
+  <div class="bar wide">
+    <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../index.html" class=nav-home>Inicio</a><a href="../visor/index.html">Visor 3D</a><a href="../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../planos.html">Planos</a><a href="../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
+  </div>
+</header>
+
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../documentos.html">Documentos</a> / <span class="mono">decisiones.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/decisiones.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#requisitos-y-casco">Requisitos y casco</a></li>
+<li><a href="#arquitectura">Arquitectura</a></li>
+<li><a href="#bomba-y-toma">Bomba y toma</a></li>
+<li><a href="#tren">Tren</a></li>
+<li><a href="#dirección-reversa-y-control">Dirección, reversa y control</a></li>
+<li><a href="#fabricación">Fabricación</a></li>
+<li><a href="#legal">Legal</a></li>
+<li><a href="#cálculo-auditoría-pass-3-ronda-1">Cálculo (auditoría Pass 3, ronda 1)</a></li>
+<li><a href="#historia">Historia</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#requisitos-y-casco">Requisitos y casco</a></li>
+<li><a href="#arquitectura">Arquitectura</a></li>
+<li><a href="#bomba-y-toma">Bomba y toma</a></li>
+<li><a href="#tren">Tren</a></li>
+<li><a href="#dirección-reversa-y-control">Dirección, reversa y control</a></li>
+<li><a href="#fabricación">Fabricación</a></li>
+<li><a href="#legal">Legal</a></li>
+<li><a href="#cálculo-auditoría-pass-3-ronda-1">Cálculo (auditoría Pass 3, ronda 1)</a></li>
+<li><a href="#historia">Historia</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="registro-de-decisiones-y-supuestos-p1-j-waterjet-del-jet-boat-de-jorge">Registro de decisiones y supuestos — <span class="pid">P1-J</span> (waterjet del jet boat de Jorge)</h1>
+<p>Formato: <strong>Decisión</strong> · Alternativas · Justificación · Etiqueta · <em>Qué cambia si el dato real difiere</em>.
+Todos los valores numéricos viven en <a href="https://github.com/gasparamiune/p1-propulsion/blob/main/inputs.yaml"><code>inputs.yaml</code></a> o salen de <code>resultados/*.json</code>
+(marcadores <code>&lt;!--V:…--&gt;</code>, que <code>docgen.py</code> actualiza); acá se explica el porqué.</p>
+<h2 id="requisitos-y-casco">Requisitos y casco</h2>
+<p><strong>D-01 Cambio de arquitectura: de cola larga para un jon boat a waterjet eléctrico inboard para el jet boat de Jorge.</strong></p>
+<ul>
+<li>Alternativas: seguir con la cola larga (2 personas, 6 km/h); adaptar la cola larga al casco nuevo (opción E de la matriz).</li>
+<li>Justificación: Jorge mostró el tipo de motor que necesita (su plano "Waterjet para jet boat 2,30 m", su croquis de propulsor en chapa, su hoja de impulsor y una foto de la AWT JT132). Los requisitos pasan a ser los de su plano: 1 piloto, ≥ 30 km/h, motor directo de ~5 kW, toma enrasada, boquilla direccional y reversa.</li>
+<li>[VERIFICADO: referencias/2026-09-26_plano_preliminar_waterjet_jorge.png; pedido del usuario].</li>
+<li><em>Si difiere:</em> si el uso real es mayormente dentro de 300 m (5 kn), un jet es la opción menos eficiente (matriz 03 §2, criterio eficiencia_5kn); revisar.</li>
+</ul>
+<p><strong>D-02 Casco: el de Jorge (2,30 × 0,80 m, puntal 0,52 m, espejo 0,42 m) leído del plano.</strong></p>
+<ul>
+<li>Alternativas: ninguna; el plano no tiene escala única (R10b §4.1).</li>
+<li>Justificación: es el casco al que va la propulsión. Fondo, pantoque y astilla muerta se leyeron de la vista trasera.</li>
+<li>[ESTIMADO: research/R10b §4.3].</li>
+<li><em>Si difiere:</em> medir el casco (PENDIENTES P0.1) y actualizar <code>boat.*</code>; cambian calado, cebado, resistencia, estabilidad y la placa de la toma.</li>
+</ul>
+<p><strong>D-03 Masa de diseño con el CAD real: 219 kg (1 piloto de 90 kg, batería, unidad de jet del CAD).</strong></p>
+<ul>
+<li>Alternativas: los 150 kg del plano de Jorge.</li>
+<li>Justificación: 150 kg no cierra (R10b §4.2: 165–242 kg). La masa de la unidad de jet sale del CAD (manifest) y la toma <code>sizing.py</code>.</li>
+<li>[CALCULADO].</li>
+<li><em>Si difiere:</em> la masa es la 2.ª entrada más influyente en la V máx. (02 §10).</li>
+</ul>
+<p><strong>D-04 La estabilidad del casco es el RIESGO N.º 1 y bloquea la navegación hasta resolverla.</strong></p>
+<ul>
+<li>Justificación: con 0,80 m de manga y el piloto sentado alto, GM = 0,010 m [CALCULADO]: correr el piloto 0,1 m a una banda escora 76° en el modelo lineal (o sea: vuelca). La propulsión no lo resuelve; es un cambio de casco (manga en la flotación ≥ 0,9 m, R10b H1, o flotadores laterales, asiento más bajo).</li>
+<li>[CALCULADO con casco ESTIMADO].</li>
+<li><em>Si difiere:</em> ensayo de escora con carga desplazada (R13 §5) antes de cualquier prueba con motor.</li>
+</ul>
+<h2 id="arquitectura">Arquitectura</h2>
+<p><strong>D-05 Recomendación: pedir cotización de la AWT JT132 en paralelo (opción B) y usar este diseño (A) si no cierra.</strong></p>
+<ul>
+<li>Alternativas: A (bomba propia, este paquete), C (bomba de Sea-Doo Spark usada), D (fueraborda eléctrico), E (cola larga), F (hélice entubada).</li>
+<li>Justificación: la matriz ponderada da B primero (3,47 contra 2,96 de A) y gana en el 62 % del Monte Carlo de pesos: es la misma bomba de la foto de Jorge, más liviana (12 kg contra 22,0 kg de la toma + bomba + dirección propias) y sin impulsor a medida. El tren eléctrico, la toma de refrigeración, los mandos y el firmware de este paquete sirven para las dos.</li>
+<li>[CALCULADO: arquitectura.py; precio de la JT132 ESTIMADO, R11 §4].</li>
+<li><em>Si difiere:</em> si AWT no confirma la brida de toma, la altura del eje (cebado) y la curva de la bomba, o el costo puesto en DK supera ~1 500 €, A queda como camino completo y fabricable.</li>
+</ul>
+<h2 id="bomba-y-toma">Bomba y toma</h2>
+<p><strong>D-06 Impulsor axial Ø132, 5 álabes, cubo 0,50·D, tobera Ø87.</strong></p>
+<ul>
+<li>Alternativas: el Ø108 / 4 álabes / tobera Ø72 del plano; Ø100–120.</li>
+<li>Justificación: el optimizador (02 §4) elige el diámetro y la tobera de mayor margen en la joroba al menor costo. Con la resistencia corregida (D-21) <strong>ninguna</strong> combinación de 48 V llega al 10 % de margen con la banda alta (estado <code>sin_solucion_dura</code>); esta queda a ≤ 1 % (puntos porcentuales, <code>waterjet.hump_tie_band</code>) del mejor margen en la joroba (su margen: -7,5 %) y, dentro de esa banda, es la de mayor V máx. (banda y no redondeo para que la selección no salte con cambios chicos de masa; auditoría ronda 3, R3-04, y ronda 4, M1). Con 217 kg el Ø108 queda peor. 5 álabes y cubo 0,50 por difusión (R12 §3: con cubo 0,40 el factor de difusión llega a 0,60).</li>
+<li>[CALCULADO: sizing.py; R12].</li>
+<li><em>Si difiere:</em> el impulsor se re-diseña solo (triángulos de velocidad en <code>sizing.json</code> → CAD → tabla de ángulos para el taller).</li>
+</ul>
+<p><strong>D-07 La bomba se diseña para absorber P_d = P_cont + f·(P_pico − P_cont) a plena tensión; el optimizador elige f = 1,0 (P_d = 11 760 W al eje).</strong></p>
+<ul>
+<li>Justificación: con motor directo las rpm las fija la tensión; si la bomba se diseña para la potencia continua, la potencia pico no se puede usar en la joroba. El controlador limita a la potencia continua en crucero. El punto de diseño es la V más alta en que el empuje con P_d iguala a R nominal: 43,5 km/h (resuelto sin tope de grilla; es un punto "virtual", 02 §4.4).</li>
+<li>[CALCULADO: optimizador, variable design_power_frac ∈ {0; 0,5; 1}].</li>
+</ul>
+<p><strong>D-08 Toma enrasada entera a proa del impulsor (respuesta al comentario de Jorge "la rejilla está muy atrás").</strong></p>
+<ul>
+<li>Justificación: en el plano la rejilla quedaba a popa de la cara del impulsor, sin conducto y sobre la flotación: la bomba no ceba ni recibe agua (R10a). Ahora el labio está a 386 mm y la tangencia de la rampa a 766 mm del espejo; la cara del impulsor a 268 mm. Rampa de 27°, techo de curvatura continua, rejilla de 9 pletinas 316 aisladas con PTFE, con luz de 12,2 mm (auditoría C14).</li>
+<li>[CALCULADO: R10a §5, R12 §3.2; CAD P1-INT-*].</li>
+<li><em>Si difiere:</em> si el fondo no es plano en esa zona o tiene refuerzos, la placa base cambia (PENDIENTES P0.1).</li>
+</ul>
+<p><strong>D-09 Conducto de la toma en Al 5083 soldado y placa base enrasada con Sikaflex; NO en PETG.</strong></p>
+<ul>
+<li>Alternativas: conducto impreso en segmentos (lo que pedía el enfoque original del proyecto).</li>
+<li>Justificación: en PETG hacían falta ~20 mm de pared para FS 3 a fatiga por el ciclo de presión, más dos juntas en el límite estanco del casco; el 5083 es el metal del casco (sin par galvánico).</li>
+<li>[CALCULADO: 04_diseno/structural_toma.py].</li>
+</ul>
+<p><strong>D-10 Carcasa, estator y tobera de Al mecanizado; anillo de desgaste de 316 torneado en sitio; holgura de punta 0,4 mm.</strong></p>
+<ul>
+<li>Justificación: la holgura no se mantiene en PETG (R10b H15); un estator de PETG da FS 0,33 sostenido. 0,3–0,4 mm con anillo torneado (R12 §3).</li>
+<li>[CALCULADO: structural_bomba.py; R12].</li>
+</ul>
+<p><strong>D-11 Impulsor de 316 mecanizado en 5 ejes (o impreso en 316L SLM con el Ø torneado), arrastrado por un juego de 2 semipasadores de corte de Al 6061 Ø3,5 mm (equivalen a un pasador en corte doble).</strong></p>
+<ul>
+<li>Justificación: una piedra libera ~490 J de energía del rotor; el límite de corriente no protege (R12 §7.6). El juego corta a 33 N·m con τ_u 174 MPa (~1,8 × el par máximo del controlador) y a 40 N·m con 207 MPa (FS del eje al corte 1,87).</li>
+<li>[CALCULADO].</li>
+<li><em>Si difiere:</em> calibrar el corte real con el ensayo de probeta P1.9 (05) y llevar 3 juegos de repuesto (BOM).</li>
+</ul>
+<h2 id="tren">Tren</h2>
+<p><strong>D-12 Motor directo (sin reducción) Maytech MTI120116 150 KV refrigerado por agua, 12S.</strong></p>
+<ul>
+<li>Alternativas: Golden Motor HPM5000 (el del plano): 91,5 rpm/V a 48 V y 58,9 a 72 V de catálogo → no llega a las rpm del impulsor sin bobinado a pedido (R11 §1.3).</li>
+<li>Justificación: 4,4 kg, camisa de agua, eje Ø15 con chavetero; único de la clase con precio.</li>
+<li>[VERIFICADO: R11 §1.2; potencia continua no publicada → ESTIMADO 6 kW: pedir el dato a Maytech].</li>
+<li><em>Si difiere:</em> es la entrada más influyente en la V máx. (02 §10).</li>
+</ul>
+<p><strong>D-13 Tensión ≤ 50 V (LFP 12S, 2 × LiTime 36 V 60 Ah en paralelo) en lugar de los 72 V del plano.</strong></p>
+<ul>
+<li>Justificación: ISO 16315 fija 50 V CC como umbral de tensión segura (R06, R13 §4); a 72 V hacen falta componentes de clase 100 V y monitor de aislamiento (+709 €). No hay packs 13S comerciales en la UE y los "48 V" de catálogo son 16S (58,4 V) (R11 §3).</li>
+<li>[VERIFICADO: R11, R13].</li>
+<li><em>Si difiere:</em> <code>electrical.allow_72v: true</code> habilita las opciones de 72 V en el optimizador.</li>
+</ul>
+<p><strong>D-14 Eje 316L Ø20 con dos apoyos: par 7204 BECBP en O, en seco (toma todo el empuje) y buje de agua de POM en el cubo del estator; sello mecánico SiC/carbón con cámara de goteo y testigo.</strong></p>
+<ul>
+<li>Justificación: en voladizo la primera velocidad crítica caía debajo de la de servicio; con el buje queda en 3,8× las rpm máximas. El empuje va por un pórtico de Al sobre el conducto a la placa base, nunca al motor (acople Rotex 24 con juego axial).</li>
+<li>[CALCULADO: structural_tren.py; sizing.py].</li>
+</ul>
+<p><strong>D-15 Refrigeración por agua desde la bomba: orificio Ø4 en la carcasa del estator → controlador → motor → testigo en el espejo.</strong></p>
+<ul>
+<li>Justificación: como los jetboards; 4,9 L/min a V máx. alcanzan con un salto de 1,9 K.</li>
+<li>[CALCULADO].</li>
+</ul>
+<h2 id="dirección-reversa-y-control">Dirección, reversa y control</h2>
+<p><strong>D-16 Boquilla direccional de Al ±25° con cable Ultraflex M66 y timonería T85 al volante; topes mecánicos.</strong></p>
+<ul>
+<li>[VERIFICADO: R11 §7 (productos y precios)].</li>
+</ul>
+<p><strong>D-17 Bucket de reversa obligatorio (Al 5083 soldado) con émbolo de traba; reversa limitada al 50 % de la potencia; enclavamiento mecánico de palancas en la consola.</strong></p>
+<ul>
+<li>Justificación: sin chorro no hay dirección ni freno (R10b H10). El bucket solo se mueve con el acelerador en 0.</li>
+<li>[CALCULADO: structural_direccion.py; firmware].</li>
+</ul>
+<p><strong>D-17b [REEMPLAZADA por D-17c, auditoría ronda 4] Traba del bucket en LOS DOS brazos con reparto por desfase, chapa de 6 mm y pivote de espaciador + M12 (auditoría ronda 3, 2026-10-02).</strong></p>
+<ul>
+<li>Se conserva como historia; los valores de esta entrada son los de la ronda 3 [CALCULADO en la ronda 3, commit <code>ce8faed</code>] y ya no están en el CAD.</li>
+<li>Hallazgo de entonces: con la traba en un solo brazo el momento de la cuchara llegaba a ese brazo por torsión de la sección abierta (FEA de la ronda 3: FS 0,44). La reacción de la traba (tangencial, M_h/r) se suma al chorro en el pivote: ≈ 1,6–3,0 kN por pivote con R12 según el reparto, no F_b/2 = 0,7 kN como suponía el cálculo a mano.</li>
+<li>Decisión de entonces: un émbolo por brazo (+Y a 10°, −Y a −25°), chapa de 6 mm, lóbulo de traba r 16, aros de refuerzo de 8 mm; pivote = espaciador 316 Ø18 apretado por un M12 A4-80 en un agujero pasante Ø12,4; buje POM-C Ø18/Ø22 × 14; émbolo de catálogo «GN 617 M20 con perno Ø12». Pivote y buje se verificaban con un reparto máximo de 0,78 de M_h, admitiendo ≤ 0,10 mm de desfase entre agujeros medido con comparador (06 T0.M6b); casos de «falla» y «falla doble» con objetivos 2 y 1.</li>
+<li>Por qué se reemplazó (ronda 4): el reparto con desfase depende de la carga y el desfase no estaba controlado (la cota 0,78 era no conservadora en fatiga); el espaciador podía deslizar en el agujero con juego; M_h estaba subestimado y F_z con el signo cambiado; el émbolo «GN 617 M20 perno Ø12» no existe; y la frase «con una sola traba hacen falta ~10 mm de chapa para FS 2 (FEA)» no tenía un FEA que la respaldara (auditoría ronda 4, M8). Ver D-17c.</li>
+</ul>
+<p><strong>D-17c Criterio de traba única, émbolo propio Ø16 / M24×1,5 y pivote con brida y piloto (auditoría ronda 4, 2026-10-02). Reemplaza a D-17b. El pivote, el cuerpo del émbolo (ajustado, sin rosca, desde el cierre de la ronda 5), el resorte y el desbloqueo se rehicieron en la ronda 5: D-17d.</strong></p>
+<ul>
+<li>
+<p>Hallazgos (auditoría ronda 4, tres auditores independientes) [CALCULADO: auditoría ronda 4, auditoria.md R4-01…R4-05 y R4-10…R4-12]:</p>
+<ol>
+<li><strong>El reparto entre las dos trabas depende de la carga.</strong> Con un desfase fijo la segunda traba recién apoya cuando la primera ya lleva ≈ 1,4 kN; con la reversa de servicio (sizing) UNA traba lleva ≈ 100 % de M_h. Las filas de fatiga con reparto 0,78 eran no conservadoras (buje POM FS ≈ 1,70; oreja de STE-01 en fatiga ≈ 1,4 escalando el FEA).</li>
+<li><strong>El desfase no estaba controlado:</strong> el taladrado coincidente metía ≈ 0,25 mm; el espaciador del pivote flotaba en un agujero Ø12,4 (la unión desliza a R12) y la prueba con comparador no tenía dirección ni fuerza definidas.</li>
+<li><strong>Las cargas del chorro estaban mal:</strong> M_h subestimado (126,8 N·m en la ronda 3) y F_z con el signo cambiado (+81 N). Con el balance de cantidad de movimiento (salida por el labio inferior, 02 §8): M_h = 135,3 N·m y F_z = -210 N con R12; M_h = 67,1 N·m con la reversa de sizing [CALCULADO].</li>
+<li><strong>Además, el émbolo de catálogo supuesto no existe:</strong> el GN 617 inoxidable más grande (GN 617-10-…-NI) tiene perno Ø10 −0,02/−0,04 de AISI 303 niquelado, cuerpo M20×1,5 de AISI 303, l2 = 10 mm, resorte de 17 N inicial a 40 N final [VERIFICADO: catálogo Elesa/Ganter GN 617, pág. 809, https://www.elesa.com/siteassets/PDF/PDF_US/GN%20617.pdf, abierto el 2026-10-02]. Con el perno Ø10 y la carga de una traba sola el FS queda por debajo de 1 [CALCULADO: la fila del perno Ø16 escalada por (16/10)³ ≈ 4].</li>
+</ol>
+</li>
+<li>
+<p>Decisión:</p>
+<ul>
+<li><strong>Criterio de traba única:</strong> 2 trabas (una por brazo, +Y a 10°, −Y a -25°, a r 45 mm), pero «cada traba sola lleva M_h completo»: cada traba con su brazo, su pivote, su oreja y su émbolo verifica sola la reversa R12 (corta) y la de sizing (fatiga), las dos con FS ≥ 2. Perno de una traba 3 006 N (R12) / 1 491 N (sizing); pivote del brazo trabado 3 302 N / 1 638 N [CALCULADO]. La segunda traba es redundancia. Desaparecen el reparto admitido, el desfase admitido, los casos de «falla»/«falla doble» y la prueba con comparador (B-DIAL); queda una prueba FUNCIONAL: los dos pernos entran solos (resorte) ARRIBA y ABAJO, sobresalen ≥ 0,5 mm de la cara exterior del brazo y salen los dos con el gatillo.</li>
+<li><strong>Bucket <span class="pid">P1-REV-01</span>:</strong> chapa Al 5083 de 8 mm, aro de refuerzo del pivote de 10 mm, agujeros de traba Ø16,5, lóbulo de traba r 18.</li>
+<li><strong>Pivote <span class="pid">P1-REV-02</span> con brida y piloto (versión de la ronda 4; reemplazada por D-17d):</strong> espaciador 316 con muñón Ø20 h7, brida Ø36 × 3 contra la cara exterior de la oreja y piloto Ø16 h6 en el agujero Ø16 H7 escariado de cada oreja (ya no pasante de lado a lado: no desliza y no muerde la torre del yugo); M12 A4-80 con arandelas y tuerca DIN 985, 45 N·m con Tef-Gel (precarga 17,0–31,3 kN con K 0,12–0,22) [CALCULADO en la ronda 4, commit <code>c25d433</code>; ya no están en el CAD]. Buje POM-C Ø24 × 18 prensado y escariado después de prensar (sigue igual).</li>
+<li><strong>Émbolo propio <span class="pid">P1-REV-04</span>:</strong> torneado en 316 + resorte inox comprado: perno Ø16 h9, cuerpo M24×1,5 roscado en la oreja con <strong>collar integral Ø36</strong> (dos planos e/c 32) apretado contra la cara interior anodizada con Loctite 243 (75 N·m en la ronda 4; 110 N·m con K propio en la primera versión de la ronda 5) [CALCULADO en las rondas 4 y 5, commits <code>c25d433</code> y <code>2f7c670</code>; ya no están en el CAD: desde el cierre de la ronda 5 el cuerpo va <strong>ajustado Ø24 H7/h6, sin rosca ni precarga</strong>, D-17d] (en lugar de la contratuerca de la primera versión: su círculo de esquinas llegaba al cuerpo de la boquilla (−0,08 mm contra ≥ 2 mm [CALCULADO: check de <span class="pid">P1-REV-04</span> de esa versión]) y no tenía par calculado, R4-12; el collar fija la punta enrasada y lleva el momento del perno sin que la unión se abra), carrera 12 mm (liberar pide 9,5 mm), resorte ≈ 20 N de precarga a ≈ 45 N final (re-especificado en la ronda 5, D-17d).</li>
+<li><strong>Orejas de la boquilla <span class="pid">P1-STE-01</span>:</strong> 12 mm en la ronda 4 (14 mm desde la ronda 5, D-17d; crecen hacia adentro), radio 22 alrededor del pivote, lóbulo r 20 alrededor del agujero del émbolo (la rosca M24 en la ronda 4; desde el cierre de la ronda 5, el Ø24 H7 liso en un lóbulo engrosado: D-17d).</li>
+<li>Resultados a mano de la ronda 4 (02 §9) [CALCULADO en la ronda 4, commit <code>c25d433</code>]: <span class="pid">P1-REV-01</span> FS 2,17, <span class="pid">P1-REV-02</span> FS 2,10 (la unión brida–oreja «no se abre», que la re-auditoría refutó: MEC-02), <span class="pid">P1-REV-03</span> FS 2,18, <span class="pid">P1-REV-04</span> FS 2,10, <span class="pid">P1-STE-01</span> FS 3,63 (filas más justas de cada pieza). Los valores actuales están en D-17d. FEA de REV-01 y STE-01 con los casos de una traba sola: 04_diseno/fea/README.md.</li>
+</ul>
+</li>
+<li>
+<p>Por qué así y no la alternativa: (a) mantener el reparto con un desfase más chico exige controlar en fabricación una cota que depende de la carga y no se puede medir de forma útil; (b) una sola traba (en un solo brazo) carga lo mismo que cada traba de D-17c pero sin redundancia: si ese émbolo no entra, el bucket queda suelto en reversa; con dos trabas que verifican solas, el bote vuelve aunque un émbolo no entre. El émbolo propio es la única forma de tener perno Ø16 con carrera suficiente.</p>
+</li>
+<li>[CALCULADO: structural_direccion.py, params_direccion.py; FEA en 04_diseno/fea].</li>
+<li><em>Si el dato real difiere:</em> si la corrida fina del FEA de REV-01 da FS &lt; 2, se agrega sección al brazo trabado en su borde inferior-delantero, por debajo del pivote (nervio radial desde el aro de refuerzo) y se vuelve a correr; si la fuerza de liberación medida supera lo que da el gatillo (resorte y rendimiento del Bowden son [ESTIMADO]), se cambia el resorte; si la prueba funcional falla (un perno no entra solo), se repasa el agujero del brazo con la plantilla, nunca se agranda el juego.</li>
+</ul>
+<p><strong>D-17d Pivote del bucket con el piloto como camino de carga, de dúplex en dos piezas (casquillo + muñón) y precarga baja; cuerpo del émbolo ajustado (Ø24 H7/h6 con Loctite 641, sin rosca ni precarga) y orejas con lóbulos engrosados; resorte, eslabón rígido y balancines con cubos (re-auditoría adversarial de la ronda 5, 2026-10-02). Completa a D-17c (el criterio de traba única sigue). La primera versión de esta decisión dejaba el cuerpo del émbolo roscado M24×1,5 a 110 N·m con K propio: reemplazada al cerrar la ronda 5 (R5-N1). La re-auditoría del cierre de la ronda 5 pasó el pivote de un espaciador de una pieza a dos piezas (MECH-1) y corrigió montaje, filas a mano y FEA (MECH/CALC/FEA/TEST/DOC, auditoria.md).</strong></p>
+<ul>
+<li>
+<p>Hallazgos (re-auditoría ronda 5, auditoria.md) [CALCULADO: re-auditoría ronda 5]:</p>
+<ol>
+<li><strong>MEC-01 — el muñón del espaciador fluía con la precarga.</strong> Las filas de la ronda 4 ignoraban que la precarga del M12 (hasta 31 kN con 45 N·m y K 0,12) pasa por el muñón Ø20/Ø12,5 como compresión; sumada a la flexión de R12, el muñón de 316 llegaba a fluencia con la precarga máxima y quedaba bajo FS 2 aun con la mínima. Bajar el par solo no alcanzaba porque empeoraba MEC-02.</li>
+<li><strong>MEC-02 — la unión brida–oreja no lleva el corte.</strong> La fila «no se abre» (FS 2,10) tomaba el momento en la cara de la brida suponiendo que el rozamiento de la brida llevaba los 3,3 kN de corte; con Tef-Gel y el rango de K del propio código no lo lleva: la unión desliza sobre el piloto H7/h6 y el momento en la cara crece (FS ≈ 1,5).</li>
+<li><strong>MEC-04/05/06:</strong> el cuerpo del émbolo usaba el K del pivote con Tef-Gel (su rosca va con Loctite y el collar en seco); la tuerca DIN 985 baja no tenía fila de carga de prueba; la arandela interior ISO 7089 no tenía fila de presión sobre la oreja.</li>
+<li><strong>DES-01/03/04/05:</strong> el resorte especificado no podía existir (con alambre 1,6, Ø15 y 8 espiras k ≈ 3 N/mm, no 2); los pernos de manivela en voladizo cargaban los balancines de 5 mm con un par F·e sin filas (FS ≈ 1,1); el eslabón de cable crimpado de 10 mm no se podía fabricar ni ajustar; la pestaña de tope de las vainas dejaba 0,75 mm de borde alrededor de los M6.</li>
+<li><strong>R5-N1 (aparecido al corregir) — la precarga del cuerpo roscado abría la oreja.</strong> Con la primera versión de esta decisión (cuerpo M24×1,5 apretado contra un collar interior Ø36 a 110 N·m, K 0,15–0,28) y la precarga superpuesta en el FEA (FEA-R5-02), el FEA fino de <span class="pid">P1-STE-01</span> daba FS 1,74 en el borde de la rosca, cara interior: la tensión tangencial de la precarga (2–3 veces la del cilindro grueso de la fila a mano) se sumaba a la de la carga de la traba [CALCULADO: corrida fina de la ronda 5 con esa versión; ya no está en el CAD]. No había margen para bajar el par (la fila «la unión no se abre» quedaba en FS 2,13) y el lóbulo no se puede agrandar en el plano: los balancines del desbloqueo están a popa de él.</li>
+<li><strong>R5-N2/R5-N4 (aparecidos al corregir):</strong> la fila a mano del piloto tomaba el momento en la cara de la oreja (presión de borde ≈ 40 % baja); el pomo del émbolo no estaba definido (el plano decía «M6 para el pomo con ojal») y el check del resorte usaba un largo compacto viejo.</li>
+<li><strong>R5-N5 (aparecido al corregir) — la oreja de 14 mm no alcanzaba para el cuerpo ajustado.</strong> Con el cuerpo ajustado en la placa de 14 mm, el FEA grueso daba FS 1,66 estático y 1,25 en fatiga en el borde del agujero del émbolo y 1,98 en fatiga en el del piloto, por el pico de aplastamiento junto a la cara exterior (el perno y el buje cargan afuera de la oreja) [CALCULADO: FEA grueso de la ronda 5; no guardado en el repo]. Una versión intermedia con lóbulos (cuerpo Ø26, lóbulo de la traba de 21 mm, del pivote de 16 mm) daba en el FEA grueso 2,05 en fatiga en el borde del agujero del piloto y 2,25 en el del émbolo [CALCULADO: FEA grueso de la ronda 5; no guardado en el repo]: poco margen para lo que suele cambiar al refinar la malla, y de ahí el cuerpo Ø24 y los lóbulos más largos.</li>
+<li><strong>Re-auditoría del cierre de la ronda 5 (MECH-1…10, CALC-1…4, FEA-1…5, TEST-1, DOC-1; auditoria.md).</strong> El espaciador de una pieza <strong>no se podía montar</strong> (MECH-1, Alta): desde afuera ni el piloto Ø24 ni la brida Ø36 pasan por el buje Ø20,1, desde adentro la brida no pasa por el agujero de la oreja y, con los espaciadores puestos antes, el bucket soldado no calza sobre los muñones. Además: el émbolo −Y pasaba a 0,26 mm del tubo de la boquilla (MECH-3); la cola del perno era 2 mm larga y la punta sobresalía 3 mm (MECH-2); el anillo DIN 471 del émbolo −Y no llegaba a su ranura con el orden de montaje de entonces (MECH-4); la ranura del anillo no tenía tolerancia (MECH-5); no había de dónde sostener el perno ni la tapa (MECH-7); la tuerca ISO 4035 mide m 6, no 7 (MECH-9); las filas de ligamento repartían la carga pareja aunque el aplastamiento del mismo agujero usa presión lineal (CALC-1) y la fila de aplastamiento «en fatiga» no era un modo de fatiga (CALC-2); el <code>--quick</code> del FEA excluía otro radio que la corrida completa (FEA-1), los lóbulos tenían escalones de décimas y caras astilla (FEA-2), sus pies son aristas vivas reentrantes donde caía el máximo (FEA-3) y el piloto con Tef-Gel tenía un juego que el apoyo lineal no modela (FEA-4) [CALCULADO: re-auditoría del cierre de la ronda 5].</li>
+</ol>
+</li>
+<li>
+<p>Decisión:</p>
+<ul>
+<li><strong>El piloto es el camino diseñado del corte y del momento del pivote</strong> y la unión de la brida no se cuenta. Piloto Ø24 h6 (del casquillo, desde MECH-1) en un Ø24 H7 de la oreja, más grueso que el muñón Ø20 (en la primera versión era Ø20, el del muñón); la oreja crece a 14 mm, con una extensión hacia proa a la altura del pivote; filas «aplastamiento del piloto» y «ligamentos del agujero del piloto» (<span class="pid">P1-STE-01</span>, con el brazo hasta el plano medio del agujero: R5-N2; ligamentos con la misma presión lineal: CALC-1) y, en <span class="pid">P1-REV-02</span>, «muñón dentro del casquillo» a flexión + corte, «aplastamiento del muñón en el casquillo» y «fondo del casquillo» (reemplazan a la del piloto a flexión + corte del espaciador de una pieza).</li>
+<li><strong>Lóbulos engrosados de las orejas (R5-N5, cierre de la ronda 5):</strong> la placa de la oreja sigue de 14 mm. Alrededor del pivote, lóbulo de 20 mm, solo hacia adentro: la brida del casquillo sigue en la cara exterior de la placa, el piloto mide lo mismo que el lóbulo (su fondo queda enrasado con la cara interior y la arandela ancha apoya en el fondo y en la cara, sin puente: CALC-4; en la primera redacción medía 0,5 mm menos) y la tuerca va sobre la arandela; con ese espesor el tornillo sigue siendo M12 × 60 normalizado sin entrar en la torre del yugo gracias a la tuerca baja ISO 4035 (con la ISO 4032 de altura completa haría falta × 65 [CALCULADO: <code><span class="pid">P1-REV-02</span>.bolt_len_iso</code>]). Alrededor de cada émbolo, lóbulo de 23,5 mm (largo del agujero Ø24 H7 y de apoyo del cuerpo): sale 3 mm por fuera de la placa, hasta |Y| = 55 mm, dentro de la luz hasta el brazo (el collar del émbolo baja a × 1,5 y queda 1 mm de luz al brazo), y entra 6,5 mm por dentro con radio 18 (con r 20 el ojo del eslabón del otro émbolo, tirado, lo tocaba; más adentro llegaría al cubo del balancín) [CALCULADO: <code>params_direccion.py</code>, checks de <span class="pid">P1-REV-04</span> y <span class="pid">P1-REV-09</span>]. El pico de aplastamiento baja con el largo de apoyo y al acercar la cara a la carga del perno (6,5 mm de la cara del lóbulo [CALCULADO: <code>structural_direccion</code>]).</li>
+<li><strong>Precarga baja:</strong> el tornillo solo retiene. 12 N·m con Loctite 243 en la rosca (no Tef-Gel), K 0,15–0,28 [ESTIMADO] → precarga 3 571–6 667 N [CALCULADO]. Loctite 641 en el piloto (llena el juego, así que el apoyo lineal sin juego del cálculo y del FEA vale: FEA-4) y Tef-Gel solo en la cara de la brida y en el muñón.</li>
+<li><strong>Pivote de dúplex 1.4462 (2205) +AT</strong> con certificado 3.1 (Rp0,2 ≥ 450 [ESTIMADO: EN 10088-3]) en lugar de 316: el muñón lleva precarga + flexión con margen y la brida Ø36 × 4 (antes × 3) resiste la flexión de placa anular por la precarga máxima. <strong>En dos piezas desde la re-auditoría del cierre (MECH-1):</strong> <em>casquillo</em> (brida + piloto Ø24 h6 de 20 mm + agujero Ø20 H7 ciego con fondo de 4 mm [SUPUESTO: <code><span class="pid">P1-REV-02</span>.SLEEVE_BOTTOM</code>]; barra <code>MP-DPX-D40</code>), puesto desde afuera <strong>antes del bucket</strong>, y <em>muñón</em> Ø20 h7 × 39,8 [CALCULADO: plano P1-REV-02_munon_pivote_bucket] (barra <code>MP-DPX-D22</code>), que entra <strong>después</strong> por el buje; las bridas de los bujes del bucket libran las de los casquillos por 0,5 mm [CALCULADO: check de <span class="pid">P1-REV-03</span>]; la precarga va cabeza → muñón → fondo del casquillo ← arandela. Planos <code>P1-REV-02_casquillo_pivote_bucket</code> y <code>P1-REV-02_munon_pivote_bucket</code>; montaje en 06 M13.</li>
+<li><strong>Tornillería:</strong> ISO 4017 M12 × 60 A4-80 (<code><span class="pid">P1-REV-02</span>.bolt_len_iso</code>: el normalizado que alcanza para el lóbulo del pivote; la punta no llega a la torre del yugo), tuerca <strong>baja ISO 4035</strong> M12 A4-035 (m 6 mm [ESTIMADO: ISO 4035, m máx.]; el 7 de la primera redacción es la altura de la DIN 439-B: MECH-9; la ISO 4032 de altura completa de la primera versión ya no entra con el M12 × 60) con fila de carga de prueba (350 MPa [ESTIMADO: ISO 3506-2]; MEC-05), arandela ancha <strong>ISO 7093</strong> Ø37 × 3 por dentro, sobre el fondo del casquillo y la cara interior del lóbulo, con fila de presión.</li>
+<li><strong>Émbolo <span class="pid">P1-REV-04</span> — cuerpo AJUSTADO (cierre de la ronda 5, R5-N1):</strong> cuerpo de 316 Ø24 h6 en un agujero liso Ø24 H7 de la oreja con <strong>Loctite 641</strong> (retenedor: llena el juego del ajuste, evita el desgaste por roce y aísla el 316 del agujero, que se enmascara en el anodizado); <strong>collar exterior</strong> Ø32 × 1,5 sobre la cara exterior del lóbulo de la traba, que ubica la punta y toma el empuje del resorte y el tiro del cable (hacia adentro); por dentro, arandela 316 Ø24,2 × Ø32 × 0,8 y anillo DIN 471-24 A4 contra la cara interior del lóbulo (B-RING24). El cuerpo es de un solo Ø (el tramo ajustado es el propio cuerpo, Ø24 como el piloto: un solo escariador H7 para los cuatro agujeros de las orejas). <strong>Sin rosca ni precarga:</strong> el cuerpo lleva la fuerza y el momento del perno a la oreja por aplastamiento, como el piloto (fila p_máx = F/(d·L)·(1 + 6·a/L): 30,2 MPa con R12 [CALCULADO]; además los ligamentos del agujero con la misma presión lineal, con R12 y con la reversa de sizing: CALC-1/2). Se monta desde afuera de la oreja, con el émbolo armado, antes del bucket y del soporte <span class="pid">P1-REV-09</span> (06 M13), y se desarma (pomo, tapa, perno y resorte) sin sacar el cuerpo. <strong>Pomo</strong> de 316 Ø23 × 10 (menor que el agujero: el émbolo armado entra desde afuera) roscado a fondo en la cola del perno (M10×1, Loctite 243), con agujero Ø4,5 para el vástago M4 del eslabón: fija la sobresalida de la punta (R5-N4). Cola del perno corregida a 44 mm (DES-02/MEC-03) y, en la re-auditoría del cierre, a <strong>42 mm</strong> = cámara + tapa + rosca del pomo: el extremo apoya en el fondo del pomo (MECH-2: con 44 la punta sobresalía 3 mm; control en banco: punta a 10,0 ± 0,2 de la cara exterior del collar [CALCULADO: plano P1-REV-04_embolo_perno]); rosca M4 axial de 12 mm para el vástago M4 × 14 del eslabón (MECH-6); hexágono interior 6 × 6 en la punta del perno y tapa con 2 × Ø3 para llave de gancho y Loctite 243 (MECH-7); ranura del anillo a 24,6 (+0,1/0) de la cara de apoyo del collar (MECH-5) [CALCULADO: plano P1-REV-04_embolo_cuerpo]; el anillo del émbolo −Y se monta con el cuerpo ≈ 20 mm afuera y la pinza abierta mientras se empuja el cuerpo (MECH-4; 06 M13). <strong>Garganta</strong> en el tubo de la boquilla bajo el émbolo −Y, de radio 12 + 2 = 14 mm coaxial con su eje (MECH-3: su cuerpo pasaba a 0,26 mm del tubo; <code>_release.saddle</code>) [CALCULADO: check de <span class="pid">P1-REV-04</span>, 2,0 mm de luz]; caras interiores de los brazos soldados a escuadra ≤ 0,3 mm en la zona de las trabas y galga ≥ 0,5 mm en T0.M6 (MECH-8) [SUPUESTO: tolerancias de la re-auditoría]. Desaparecen la rosca M24×1,5, el par de 110 N·m, el K propio 0,15–0,28 [ESTIMADO] de MEC-04 y sus filas (la unión no se abre, cuerpo al apretar, arrancamiento y tensión tangencial de la rosca, presión del collar).</li>
+<li><strong>Desbloqueo:</strong> resorte de catálogo coherente (alambre 1,4, Ø ext 15, 6,5 espiras, largo libre 40; k ≈ 2,06 N/mm, ≈ 20,6 N instalado, ≈ 45 N al final [CALCULADO con G ESTIMADO]; con el perno afuera queda sobre el compacto + Sa de EN 13906-1); eslabón <strong>rígido</strong> de 316 (ojo con ranura + vástago M4 en la cola del perno, ±2 mm de ajuste); balancines fresados de placa de 12 con cubos de 2·Ø, ejes y pernos de manivela de 1.4401+C con certificado; pestaña de tope con borde ≥ 4 mm; se quitó el factor de impacto 2 que nunca se aplicaba (MEC-08).</li>
+<li>Resultados a mano (02 §9) [CALCULADO]: <span class="pid">P1-REV-02</span> FS 3,97 («Brida Ø36 × 4 (dúplex): flexión por la precarga máxima»), <span class="pid">P1-REV-04</span> FS 3,44 («Perno del émbolo Ø16 (316): flexión + corte con M_h completo (R12)», objetivo 2), <span class="pid">P1-STE-01</span> FS 3,04 («Oreja: ligamentos del agujero Ø24 del piloto (reversa sizing, fatiga)»), <span class="pid">P1-REV-09</span> FS 2,27, <span class="pid">P1-CTL-14</span> FS 3,83.</li>
+</ul>
+</li>
+<li>
+<p>Por qué así y no la alternativa: (a) subir la precarga para que la brida lleve el corte por rozamiento exige una precarga mínima alta con la dispersión de K de un apriete con llave, y la máxima correspondiente hace fluir muñón y brida (MEC-01); (b) agrandar el muñón (Ø24/Ø12,5) cambia el buje, el brazo y el aro del bucket; (c) un piloto ajustado H7/h6 es un apoyo de perno conocido, verificable a mano y en el FEA, y no depende del rozamiento; (d) en el émbolo, la unión roscada necesitaba una precarga alta para no abrirse bajo el momento del perno, y esa misma precarga abría el lóbulo de la oreja (R5-N1): un cuerpo ajustado H7/h6, como el piloto, lleva fuerza y momento por aplastamiento sin precarga y se verifica igual a mano y en el FEA; (e) los lóbulos engrosados alargan los apoyos y acercan la cara del lóbulo de la traba a la carga del perno sin tocar el desbloqueo, que ya estaba ajustado; agrandarlos en el plano no se puede (los balancines están a popa del lóbulo de la traba); (f) el pivote en dos piezas se monta en el orden casquillos → bucket → muñones sin cambiar el buje, el brazo ni el aro del bucket; la alternativa que daba la re-auditoría del cierre (muñón y buje de un solo Ø24 con una arandela-brida suelta) es la (b).</p>
+</li>
+<li><strong>Verificación (cierre de R5-N1 y R5-N5):</strong> con el cuerpo ajustado, el piloto Ø24 y los lóbulos engrosados, el FEA de la oreja <span class="pid">P1-STE-01</span> se rehace sin precarga en la oreja (c/c2/d/d2 a R12; f/f2 de fatiga 0 → máx., sin media de Goodman): FS 2,52 (objetivo 2; 04_diseno/fea/README.md). La fila a mano del piloto usa ahora el brazo al plano medio del agujero (R5-N2): presión de borde 57,4 MPa. Con el cuerpo roscado, el FEA daba FS 1,74 (hallazgo 5). Desde la re-auditoría del cierre (hallazgo 8), el <code>--quick</code> y la corrida completa excluyen el mismo radio (FEA-1), los lóbulos no tienen escalones ni caras astilla (FEA-2), los pies de los lóbulos se declaran como aristas vivas con el promedio en volumen de FEA-R5-01 (FEA-3) y el piloto va con Loctite 641, sin juego (FEA-4); la ventana del borde de los agujeros (θ 60–120°) queda como limitación documentada (FEA-5). A mano, la fila más justa de <span class="pid">P1-STE-01</span> es «Oreja: ligamentos del agujero Ø24 del piloto (reversa sizing, fatiga)», FS 3,04 (las filas de ligamentos usan la presión lineal desde CALC-1).</li>
+<li>[CALCULADO: structural_direccion.py, params_direccion.py, piezas/_release.py; FEA en 04_diseno/fea].</li>
+<li><em>Si el dato real difiere:</em> si el piloto queda con juego (fretting, §7 de 06) se repasa el agujero y se hace un casquillo sobremedida (con Loctite 641), nunca se sube el par para compensar; si el cuerpo de un émbolo se mueve en la oreja, se desmonta, se limpia el ajuste y se monta de nuevo con Loctite 641 (06 §7); si el resorte medido da más de 45 N al final (PENDIENTES P1.8) se cambia antes de montar.</li>
+</ul>
+<p><strong>D-18 Perfil "costa" (≤ 5 kn) por defecto al encender, perfil "abierto" a pedido del piloto; kill switch por cordón + contactor.</strong></p>
+<ul>
+<li>Justificación: dentro de 300 m el límite es 5 kn (R07, R13 §3). El tope de ERPM del perfil COSTA hace cumplir <strong>solo esos 5 kn</strong> (rpm a 5 kn con piloto liviano, banda baja de resistencia y batería llena; sizing <code>legal_speed</code>, 5 pares de polos del MTI120116). <strong>No</strong> hace cumplir los 4 kn de Sønderborg Havn (Als Sund) ni los 3 kn de las marinas (R13 §3): ahí la velocidad la controla el piloto con el acelerador (un tercer perfil de 3–4 kn exigiría un selector de 3 posiciones y otra línea al VESC: queda para P2).</li>
+<li>[VERIFICADO: R07, R13].</li>
+</ul>
+<h2 id="fabricación">Fabricación</h2>
+<p><strong>D-19 PETG impreso solo donde da FS ≥ 3: tapa de inspección de la toma, base y capota del controlador, caja de palancas y soporte del kill switch.</strong></p>
+<ul>
+<li>Alternativas: imprimir conducto, carcasa, estator y boquilla (no cierran a FS 3, D-09/D-10).</li>
+<li>Justificación: la bomba de un jet de 5–10 kW es una pieza de presión y de precisión; se imprime lo que no lo es.</li>
+<li>[CALCULADO].</li>
+</ul>
+<h2 id="legal">Legal</h2>
+<p><strong>D-20 Diseño para NO ser "vandscooter" ni "speedbåd".</strong></p>
+<ul>
+<li>Justificación: la definición de vandscooter pide operar "på – snarere end i – skroget" (BEK 809/2019); el piloto va sentado dentro con volante. Speedbåd desde 19 kW de potencia propulsiva (BEK 749/2020); el pico de este diseño es 6,5 kW. Los 30 km/h solo son legales a más de 300 m de la costa y nunca en Als Sund (4 kn) ni en Augustenborg Fjord.</li>
+<li>[VERIFICADO: research/R13]. Confirmar por escrito con Søfartsstyrelsen (preguntas en danés en R13 §8).</li>
+</ul>
+<h2 id="cálculo-auditoría-pass-3-ronda-1">Cálculo (auditoría Pass 3, ronda 1)</h2>
+<p><strong>D-21 Savitsky solo donde es válido; con el casco corto, "Savitsky limitado por eslora" y banda ensanchada; el margen de empuje se exige de 0 a planeo pleno. Con la banda alta el bote no llega a planeo pleno y con potencia continua se cae del planeo; la V máx. queda sin base validada hasta T4.</strong></p>
+<ul>
+<li>Hallazgo: el equilibrio libre de Savitsky daba eslora mojada en la quilla L_K mayor que el fondo (2,1 m a 20 km/h contra L_wl 1,75 m) en todo el rango de planeo; el margen de 19 % y la V máx. de 26,3 km/h salían de puntos fuera de validez.</li>
+<li>Alternativas: (a) seguir con Savitsky libre (optimista: supone un fondo más largo); (b) Savitsky–Brown 1976 o Blount–Fox 1976 para el pre-planeo (no tengo fuente abierta, R12 §6.3); (c) Mercier–Savitsky (solo Fn∇ 1–2, ~17 km/h); (d) equilibrio vertical con L_K = L_wl.</li>
+<li>Elegida (d) como nominal [ESTIMADO: método propio, no validado; el momento de cabeceo no cierra], (a) × 0,92 como banda baja y (d) × 1,12 como banda alta [SUPUESTO en este régimen: el ×1,12 viene de cascos con Savitsky válido; sensibilidad 1,00–1,25]; la validez de cada punto (L_K, λ, τ, C_V) va en <code>sizing.json</code>.</li>
+<li>Ventana del margen (ronda 2, R2-C01): de 0 hasta el planeo pleno (26,7 km/h, donde el limitado y el libre difieren &lt; 2 %), no hasta el primer nodo de Savitsky: cortada ahí daba 3 % y el margen seguía cayendo. Así el resultado tampoco depende del corte arbitrario fn_planing.</li>
+<li>Consecuencia [CALCULADO]: margen de 0 a planeo pleno -7,5 % (banda alta: a fondo se queda en 20,2 km/h, no llega a planeo pleno; con potencia continua cae a 17,6 km/h, debajo del inicio del planeo) y 3,6 % (nominal); V máx. sostenida 17,6–28,3 km/h según la banda (02 §0, §3, §3.2).</li>
+<li><em>Si difiere:</em> con el casco medido (P0.1) se vuelve a correr; con 21 kg menos de masa total o L_wl ≥ 1,98 m el margen vuelve al 10 % con la banda alta. T4.1 (tiempo a planeo con la batería al 20 %) decide.</li>
+</ul>
+<p><strong>D-22 Deducción de empuje t = 0 y fracción de estela w = 0 se mantienen, pero t = 0 se declara NO conservador y se lleva en la sensibilidad (0–0,10).</strong></p>
+<ul>
+<li>Justificación: no hay fuente abierta con valores de t para jets chicos; poner un número sería inventarlo. w = 0 sí es conservador para el empuje (no recupera estela).</li>
+<li>Consecuencia [CALCULADO]: con t = 0,10 el margen de 0 a planeo pleno cae a -15,9 % (con t = 0: -6,5 %) (02 §10).</li>
+<li><em>Si difiere:</em> la prueba de punto fijo da el empuje sin casco en movimiento; el t real sale de comparar la curva P–V medida (T4) con el modelo.</li>
+</ul>
+<h2 id="historia">Historia</h2>
+<p>El diseño anterior (cola larga eléctrica para un jon boat de 2 personas a 6 km/h, decisiones D-01 a D-43
+de esa versión) quedó en el historial de git: commit <code>5dfada0</code>
+(<code>git show 5dfada0:decisiones.md</code>). De esa versión se reutilizan: el kill switch por cordón + contactor,
+el firmware del acelerador (adaptado al bucket), la investigación de materiales PETG (R05), la normativa
+general (R07) y el marco de cálculo, CAD, verificación y documentación.</p></article>
+</div>
+</main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
+</body>
+</html>

@@ -1,0 +1,2262 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R05: materiales FDM en agua salobre y sellado — P1-J · Strålen</title>
+<meta name="description" content="Alcance. Parte A (materiales): PETG, ASA, PC y PC-blend, PA-CF y PETG-CF, y recubrimiento epoxi, impresos en una Ender-3 S1 (≤260 °C, sin cerramiento) para servicio en agua…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="R05: materiales FDM en agua salobre y sellado — P1-J · Strålen">
+<meta property="og:description" content="Alcance. Parte A (materiales): PETG, ASA, PC y PC-blend, PA-CF y PETG-CF, y recubrimiento epoxi, impresos en una Ender-3 S1 (≤260 °C, sin cerramiento) para servicio en agua…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/research/R05_materiales_sellado.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=a7f9186a">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="R05: materiales FDM en agua salobre y sellado — P1-J · Strålen">
+<meta name="twitter:description" content="Alcance. Parte A (materiales): PETG, ASA, PC y PC-blend, PA-CF y PETG-CF, y recubrimiento epoxi, impresos en una Ender-3 S1 (≤260 °C, sin cerramiento) para servicio en agua…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=a7f9186a">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/research/R05_materiales_sellado.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header" id="top">
+  <div class="bar wide">
+    <a class="brand" href="../../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../../index.html" class=nav-home>Inicio</a><a href="../../visor/index.html">Visor 3D</a><a href="../../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../../planos.html">Planos</a><a href="../../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
+  </div>
+</header>
+
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../../documentos.html">Documentos</a> / <span class="mono">research/R05_materiales_sellado.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/research/R05_materiales_sellado.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#0-método-etiquetas-y-fuentes">0. Método, etiquetas y fuentes</a></li>
+<li><a href="#1-resumen-ejecutivo">1. Resumen ejecutivo</a></li>
+<li><a href="#a1-propiedades-de-los-candidatos-tds-de-fabricante">A1. Propiedades de los candidatos (TDS de fabricante)</a></li>
+<li><a href="#a2-petg-en-agua-de-mar-o-salobre-estudios">A2. PETG en agua de mar o salobre: estudios</a></li>
+<li><a href="#a3-anisotropía-z-frente-a-xy">A3. Anisotropía (Z frente a XY)</a></li>
+<li><a href="#a4-temperatura-de-servicio">A4. Temperatura de servicio</a></li>
+<li><a href="#a5-fluencia-creep">A5. Fluencia (creep)</a></li>
+<li><a href="#a6-fatiga-a-10⁷10⁸-ciclos">A6. Fatiga a 10⁷–10⁸ ciclos</a></li>
+<li><a href="#a7-factores-de-reducción-propuestos-actualizar-inputsyaml">A7. Factores de reducción propuestos (actualizar inputs.yaml)</a></li>
+<li><a href="#a8-qué-material-para-qué-pieza-de-p1">A8. ¿Qué material para qué pieza de P1?</a></li>
+<li><a href="#a9-recubrimiento-epoxi">A9. Recubrimiento epoxi</a><ul>
+<li><a href="#a91-datos">A9.1 Datos</a></li>
+<li><a href="#a92-adhesión-y-estanqueidad">A9.2 Adhesión y estanqueidad</a></li>
+<li><a href="#a93-rugosidad-lograble-con-epoxi-y-lijado">A9.3 Rugosidad lograble con epoxi y lijado</a></li>
+<li><a href="#a94-probetas-propias-con-el-dinamómetro">A9.4 Probetas propias (con el dinamómetro)</a></li>
+</ul>
+</li>
+<li><a href="#a10-insertos-y-uniones-roscadas-en-petg">A10. Insertos y uniones roscadas en PETG</a><ul>
+<li><a href="#a101-datos-medidos">A10.1 Datos medidos</a></li>
+<li><a href="#a102-latón-contra-inoxidable-en-agua-salada">A10.2 Latón contra inoxidable en agua salada</a></li>
+<li><a href="#a103-recomendación-p1">A10.3 Recomendación P1</a></li>
+</ul>
+</li>
+<li><a href="#a11-compatibilidad-química-con-petg">A11. Compatibilidad química con PETG</a></li>
+<li><a href="#a12-metales-asociados-lo-que-toca-a-los-materiales-impresos">A12. Metales asociados (lo que toca a los materiales impresos)</a></li>
+<li><a href="#b1-qué-hay-que-sellar-en-la-cola-larga-de-p1">B1. Qué hay que sellar en la cola larga de P1</a></li>
+<li><a href="#b2-reglas-de-diseño-de-o-rings-fuentes-primarias">B2. Reglas de diseño de O-rings (fuentes primarias)</a></li>
+<li><a href="#b3-dimensiones-de-alojamiento-p1">B3. Dimensiones de alojamiento (P1)</a></li>
+<li><a href="#b4-rugosidad-fdm-contra-rugosidad-requerida-y-cómo-lograr-el-sello">B4. Rugosidad FDM contra rugosidad requerida, y cómo lograr el sello</a></li>
+<li><a href="#b5-material-del-o-ring-y-lubricante">B5. Material del O-ring y lubricante</a></li>
+<li><a href="#b6-sellos-de-eje">B6. Sellos de eje</a></li>
+<li><a href="#b7-motor-inundado-sellado-seco-acople-magnético-o-seco-arriba-p1">B7. Motor inundado, sellado seco, acople magnético o seco arriba (P1)</a></li>
+<li><a href="#b8-prensaestopas-de-cable-y-conectores-ip68">B8. Prensaestopas de cable y conectores IP68</a></li>
+<li><a href="#b9-plan-de-verificación-barato-con-las-herramientas-del-usuario">B9. Plan de verificación (barato, con las herramientas del usuario)</a></li>
+<li><a href="#hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</a></li>
+<li><a href="#verificación-adversarial">Verificación (adversarial)</a><ul>
+<li><a href="#correcciones-aplicadas-al-texto">Correcciones aplicadas al texto</a></li>
+<li><a href="#fuentes-reabiertas-43-de-43">Fuentes reabiertas (43 de 43)</a></li>
+<li><a href="#lo-que-no-pude-cerrar">Lo que no pude cerrar</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#0-método-etiquetas-y-fuentes">0. Método, etiquetas y fuentes</a></li>
+<li><a href="#1-resumen-ejecutivo">1. Resumen ejecutivo</a></li>
+<li><a href="#a1-propiedades-de-los-candidatos-tds-de-fabricante">A1. Propiedades de los candidatos (TDS de fabricante)</a></li>
+<li><a href="#a2-petg-en-agua-de-mar-o-salobre-estudios">A2. PETG en agua de mar o salobre: estudios</a></li>
+<li><a href="#a3-anisotropía-z-frente-a-xy">A3. Anisotropía (Z frente a XY)</a></li>
+<li><a href="#a4-temperatura-de-servicio">A4. Temperatura de servicio</a></li>
+<li><a href="#a5-fluencia-creep">A5. Fluencia (creep)</a></li>
+<li><a href="#a6-fatiga-a-10⁷10⁸-ciclos">A6. Fatiga a 10⁷–10⁸ ciclos</a></li>
+<li><a href="#a7-factores-de-reducción-propuestos-actualizar-inputsyaml">A7. Factores de reducción propuestos (actualizar inputs.yaml)</a></li>
+<li><a href="#a8-qué-material-para-qué-pieza-de-p1">A8. ¿Qué material para qué pieza de P1?</a></li>
+<li><a href="#a9-recubrimiento-epoxi">A9. Recubrimiento epoxi</a><ul>
+<li><a href="#a91-datos">A9.1 Datos</a></li>
+<li><a href="#a92-adhesión-y-estanqueidad">A9.2 Adhesión y estanqueidad</a></li>
+<li><a href="#a93-rugosidad-lograble-con-epoxi-y-lijado">A9.3 Rugosidad lograble con epoxi y lijado</a></li>
+<li><a href="#a94-probetas-propias-con-el-dinamómetro">A9.4 Probetas propias (con el dinamómetro)</a></li>
+</ul>
+</li>
+<li><a href="#a10-insertos-y-uniones-roscadas-en-petg">A10. Insertos y uniones roscadas en PETG</a><ul>
+<li><a href="#a101-datos-medidos">A10.1 Datos medidos</a></li>
+<li><a href="#a102-latón-contra-inoxidable-en-agua-salada">A10.2 Latón contra inoxidable en agua salada</a></li>
+<li><a href="#a103-recomendación-p1">A10.3 Recomendación P1</a></li>
+</ul>
+</li>
+<li><a href="#a11-compatibilidad-química-con-petg">A11. Compatibilidad química con PETG</a></li>
+<li><a href="#a12-metales-asociados-lo-que-toca-a-los-materiales-impresos">A12. Metales asociados (lo que toca a los materiales impresos)</a></li>
+<li><a href="#b1-qué-hay-que-sellar-en-la-cola-larga-de-p1">B1. Qué hay que sellar en la cola larga de P1</a></li>
+<li><a href="#b2-reglas-de-diseño-de-o-rings-fuentes-primarias">B2. Reglas de diseño de O-rings (fuentes primarias)</a></li>
+<li><a href="#b3-dimensiones-de-alojamiento-p1">B3. Dimensiones de alojamiento (P1)</a></li>
+<li><a href="#b4-rugosidad-fdm-contra-rugosidad-requerida-y-cómo-lograr-el-sello">B4. Rugosidad FDM contra rugosidad requerida, y cómo lograr el sello</a></li>
+<li><a href="#b5-material-del-o-ring-y-lubricante">B5. Material del O-ring y lubricante</a></li>
+<li><a href="#b6-sellos-de-eje">B6. Sellos de eje</a></li>
+<li><a href="#b7-motor-inundado-sellado-seco-acople-magnético-o-seco-arriba-p1">B7. Motor inundado, sellado seco, acople magnético o seco arriba (P1)</a></li>
+<li><a href="#b8-prensaestopas-de-cable-y-conectores-ip68">B8. Prensaestopas de cable y conectores IP68</a></li>
+<li><a href="#b9-plan-de-verificación-barato-con-las-herramientas-del-usuario">B9. Plan de verificación (barato, con las herramientas del usuario)</a></li>
+<li><a href="#hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</a></li>
+<li><a href="#verificación-adversarial">Verificación (adversarial)</a><ul>
+<li><a href="#correcciones-aplicadas-al-texto">Correcciones aplicadas al texto</a></li>
+<li><a href="#fuentes-reabiertas-43-de-43">Fuentes reabiertas (43 de 43)</a></li>
+<li><a href="#lo-que-no-pude-cerrar">Lo que no pude cerrar</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="r05-materiales-fdm-en-agua-salobre-y-sellado">R05: materiales FDM en agua salobre y sellado</h1>
+<p>Consulta: 2026-10-01. Autor: subagente de investigación P1.</p>
+<p><strong>Alcance.</strong></p>
+<ul>
+<li><strong>Parte A (materiales):</strong> PETG, ASA, PC y PC-blend, PA-CF y PETG-CF, y recubrimiento epoxi, impresos en una Ender-3 S1 (≤260 °C, sin cerramiento) para servicio en agua salobre (Als Fjord). Factores de reducción de diseño, insertos roscados y compatibilidad química.</li>
+<li><strong>Parte B (sellado):</strong> O-rings según Parker ORD 5700, ISO 3601-2 y Trelleborg; rugosidad FDM; sellos de eje; motor inundado, sellado o seco; prensaestopas y conectores IP68.</li>
+</ul>
+<p>Complementa a R01 (videos), R02 (fueraborda y long-tail) y R03 (jet, rim y eFoil). Donde esos archivos ya verificaron algo, remito a ellos.</p>
+<hr />
+<h2 id="0-método-etiquetas-y-fuentes">0. Método, etiquetas y fuentes</h2>
+<p><strong>Etiquetas.</strong></p>
+<ul>
+<li><code>[VERIFICADO: Sx]</code>: el dato está en la fuente Sx de la tabla de abajo. La abrí en esta sesión (PDF bajado con <code>curl</code> y leído con <code>pdftotext</code>, o página leída con WebFetch).</li>
+<li><code>[CALCULADO: …]</code>: cuenta mía con datos verificados o de <code>inputs.yaml</code> y <code>resultados/sizing_tablas.md</code>.</li>
+<li><code>[ESTIMADO: base]</code> y <code>[SUPUESTO]</code>: lo que dicen. <code>[ESTIMADO: memoria técnica, no verificado]</code> = lo recuerdo, pero no lo encontré en una fuente abierta.</li>
+</ul>
+<p><strong>Límites de lo leído.</strong></p>
+<ul>
+<li>ScienceDirect, MDPI (sitio), Springer y BSSA respondieron 403 o un desafío anti-bot.</li>
+<li>De tres papers leí <strong>solo el resumen</strong>: S12 (vía OUCI), S13 y S14 (vía la API de DOAJ).</li>
+<li>Los TDS de fabricantes son valores "típicos", medidos sobre probetas chicas con 100 % de relleno y casi siempre <strong>ventilador apagado</strong>. No son valores de diseño; lo dicen los propios TDS [VERIFICADO: S2, S5].</li>
+<li><strong>No vi ningún video.</strong> El ensayo de adhesivos de Cosel y el de Half-Baked-Research los cito solo por el resumen de Hackaday (S23, S35).</li>
+</ul>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Id</th>
+<th>Fuente (abierta en esta sesión)</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>Prusament PETG, TDS v1.1 (2022)</td>
+<td>https://www.prusa3d.com/file/2765253/prusament-petg-technical-data-sheet.pdf</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>Polymaker PolyLite PETG, TDS V6.0 (2026)</td>
+<td>https://polymaker.com/wp-content/uploads/TDS_Polymaker_PolyLite-PETG_V6.0_2026-06-09_EN.pdf</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>Bambu Lab PETG Basic, TDS V3.0</td>
+<td>https://store.bblcdn.com/s1/default/cb94589bf7994fdcbfa833badefae9cd/Bambu_PETG_Basic_Technical_Data_Sheet.pdf</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>Polymaker Fiberon PETG-rCF08, TDS V1.0</td>
+<td>https://fiberon.polymaker.com/wp-content/uploads/TDS_FIBERON-PETG-rCF08_V1.0_EN.pdf</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>Polymaker ASA, TDS (wiki)</td>
+<td>https://wiki.polymaker.com/polymaker-products/more-about-our-products/documents/technical-data-sheets/abs-asa/polymaker-tm-asa.md</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>Polymaker PolyLite PC, TDS (wiki)</td>
+<td>https://wiki.polymaker.com/polymaker-products/more-about-our-products/documents/technical-data-sheets/polycarbonate/polylite-tm-pc.md</td>
+</tr>
+<tr>
+<td>S7</td>
+<td>Polymaker PC-PBT, TDS (wiki)</td>
+<td>https://wiki.polymaker.com/polymaker-products/more-about-our-products/documents/technical-data-sheets/polycarbonate/polymaker-pc-pbt.md</td>
+</tr>
+<tr>
+<td>S8</td>
+<td>Polymaker Fiberon PA6-CF20, TDS V1.1</td>
+<td>https://cdn.shopify.com/s/files/1/0548/7299/7945/files/TDS_FIBERON_PA6-CF20_V1.1_EN.pdf?v=1733846088</td>
+</tr>
+<tr>
+<td>S9</td>
+<td>Polymaker Fiberon PA12-CF10, TDS V1.1</td>
+<td>https://cdn.shopify.com/s/files/1/0548/7299/7945/files/TDS_FIBERON_PA12-CF10_V1.1_EN.pdf?v=1740427088</td>
+</tr>
+<tr>
+<td>S10</td>
+<td>Polymaker wiki, PA6-CF20 (requisitos de impresión)</td>
+<td>https://wiki.polymaker.com/polymaker-products/polymaker-filaments/fiberon-tm/fiberon-tm-pa6-cf20.md</td>
+</tr>
+<tr>
+<td>S11</td>
+<td>Moreno Nieto et al., <em>Polymers</em> 2021, PLA/PETG en agua dulce, salada y azucarada</td>
+<td>https://pmc.ncbi.nlm.nih.gov/articles/PMC8036839/</td>
+</tr>
+<tr>
+<td>S12</td>
+<td>Gama et al., <em>J. Polym. Res.</em> 2026, PETG FFF con UV y agua (solo resumen)</td>
+<td>https://ouci.dntb.gov.ua/en/works/420Ggj6V/</td>
+</tr>
+<tr>
+<td>S13</td>
+<td>"Experimental investigation of degradation in the marine environment of FDM-based 3D printed specimens", <em>IJLMM</em> 2026, doi 10.1016/j.ijlmm.2025.08.002 (solo resumen, DOAJ)</td>
+<td>https://doaj.org/api/search/articles/title%3A%22degradation%20in%20the%20marine%20environment%20of%20FDM%22?pageSize=8</td>
+</tr>
+<tr>
+<td>S14</td>
+<td>Chaudhary, Li y Matos, <em>Results in Materials</em> 2023, doi 10.1016/j.rinma.2023.100381 (solo resumen, DOAJ)</td>
+<td>https://doaj.org/api/search/articles/title%3A%22thermoplastics%20in%20seawater%22</td>
+</tr>
+<tr>
+<td>S15</td>
+<td>Stankevics et al., <em>Polymers</em> 2025, fluencia viscoelástica de PETG impreso</td>
+<td>https://pmc.ncbi.nlm.nih.gov/articles/PMC12349189</td>
+</tr>
+<tr>
+<td>S16</td>
+<td>Martins et al., <em>Polymers</em> 2024, PLA y PETG: tracción y curvas S-N</td>
+<td>https://pmc.ncbi.nlm.nih.gov/articles/PMC11243948/</td>
+</tr>
+<tr>
+<td>S17</td>
+<td>Rodrigues et al., <em>Polymers</em> 2026, fatiga de ASA, PA12, PC y PC-ABS impresos</td>
+<td>https://pmc.ncbi.nlm.nih.gov/articles/PMC12845617/</td>
+</tr>
+<tr>
+<td>S18</td>
+<td>Albaşkara y Gerçekcioğlu, <em>Micromachines</em> 2026, rugosidad de PLA, PETG y ABS impresos</td>
+<td>https://pmc.ncbi.nlm.nih.gov/articles/PMC13028808/</td>
+</tr>
+<tr>
+<td>S19</td>
+<td>Abas et al., <em>Polymers</em> 2023, rugosidad por cara en nylon-CF impreso</td>
+<td>https://pmc.ncbi.nlm.nih.gov/articles/PMC10489770/</td>
+</tr>
+<tr>
+<td>S20</td>
+<td>Smooth-On XTC-3D, boletín técnico</td>
+<td>https://www.smooth-on.com/tb/files/XTC3D_TB.pdf</td>
+</tr>
+<tr>
+<td>S21</td>
+<td>West System 105/205-206-207, TDS</td>
+<td>https://www.westsystem.com/app/uploads/2022/09/105_205-207-Combined.pdf</td>
+</tr>
+<tr>
+<td>S22</td>
+<td>Prusa, "Watertight 3D printing part 2"</td>
+<td>https://blog.prusa3d.com/watertight-3d-printing-part-2_53638/</td>
+</tr>
+<tr>
+<td>S23</td>
+<td>Hackaday 2026-05-30, ensayos de impermeabilización (resumen de Half-Baked-Research)</td>
+<td>https://hackaday.com/2026/05/30/testing-various-ways-to-waterproof-fdm-printed-parts/</td>
+</tr>
+<tr>
+<td>S24</td>
+<td>Parker O-Ring Handbook ORD 5700 (copia en sealingdevices.com)</td>
+<td>https://sealingdevices.com/wp-content/uploads/ORD-5700-Parker_O-Ring_Handbook.pdf</td>
+</tr>
+<tr>
+<td>S25</td>
+<td>ISO 3601-2:2016, muestra pública (iTeh)</td>
+<td>https://cdn.standards.iteh.ai/samples/69880/b3ae61dbff9a4402a74175cde66389fc/ISO-3601-2-2016.pdf</td>
+</tr>
+<tr>
+<td>S26</td>
+<td>Trelleborg, catálogo "O-Rings and Back-up Rings" (junio 2024)</td>
+<td>https://www.trelleborg.com/-/media/tss-media-repository/tss_website/pdf-and-other-literature/catalogs/o_ring_gb_en.pdf</td>
+</tr>
+<tr>
+<td>S27</td>
+<td>CNC Kitchen, helicoils, insertos y tuercas embebidas en PETG</td>
+<td>https://www.cnckitchen.com/blog/helicoils-threaded-insets-and-embedded-nuts-in-3d-prints-strength-amp-strength-assessment</td>
+</tr>
+<tr>
+<td>S28</td>
+<td>CNC Kitchen, consejos para insertos térmicos</td>
+<td>https://www.cnckitchen.com/blog/tipps-amp-tricks-fr-gewindeeinstze-im-3d-druck-3awey</td>
+</tr>
+<tr>
+<td>S29</td>
+<td>PennEngineering, catálogo SI (insertos para plásticos)</td>
+<td>https://www.pemnet.com/wp-content/uploads/sites/9/2022/06/sidata.pdf</td>
+</tr>
+<tr>
+<td>S30</td>
+<td>Brassland, guía de corrosión del latón</td>
+<td>https://brassland.com/resources/corrosion/</td>
+</tr>
+<tr>
+<td>S31</td>
+<td>Henkel, LOCTITE 243, TDS (abril 2025)</td>
+<td>https://datasheets.tdx.henkel.com/LOCTITE-243-en_GL.pdf</td>
+</tr>
+<tr>
+<td>S32</td>
+<td>Henkel, LOCTITE 425, TDS</td>
+<td>https://datasheets.tdx.henkel.com/LOCTITE-425-en_GL.pdf</td>
+</tr>
+<tr>
+<td>S33</td>
+<td>Henkel, <em>Loctite Design Guide for Bonding Plastics</em>, vol. 6</td>
+<td>https://www.ellsworth.com/globalassets/literature-library/manufacturer/henkel-loctite/henkel-loctite-design-guide-plastic-bonding.pdf</td>
+</tr>
+<tr>
+<td>S34</td>
+<td>Eastman, guía de fabricación de Spectar (PETG en placa), TRS-236A</td>
+<td>https://www.professionalplastics.com/professionalplastics/Spectar-Fabricating.pdf</td>
+</tr>
+<tr>
+<td>S35</td>
+<td>Hackaday 2025-01-30, adhesivos para PETG (resumen del ensayo de Cosel)</td>
+<td>https://hackaday.com/2025/01/30/comparing-adhesives-for-gluing-petg-prints/</td>
+</tr>
+<tr>
+<td>S36</td>
+<td>Sika, Sikaflex-291i, PDS (DK, 04-2023)</td>
+<td>https://industry.sika.com/content/dam/dms/dk01/j/sikaflex_-291i.pdf</td>
+</tr>
+<tr>
+<td>S37</td>
+<td>SKF, retenes HMS5 y HMSA10</td>
+<td>https://www.skf.com/skf/campaign/newindustrialoffers/upload/products/Radial%20Shaft%20Seals%20for%20catalogue%20gearboxes/Maximizing%20bearing%20performance.pdf</td>
+</tr>
+<tr>
+<td>S38</td>
+<td>Boletín de Trey Bull, mantenimiento de prensaestopas</td>
+<td>https://sites.google.com/site/treybullemlnewsletter/taking-care-of-your-boat/servicing-your-stuffing-box</td>
+</tr>
+<tr>
+<td>S39</td>
+<td>Blue Robotics, propulsor T200 (motor inundado)</td>
+<td>https://bluerobotics.com/store/thrusters/t100-t200-thrusters/t200-thruster-r2-rp/</td>
+</tr>
+<tr>
+<td>S40</td>
+<td>LAPP SKINTOP ST-M, hoja de datos (2023)</td>
+<td>https://storage.tameson.com/asset/Products/Tameson/Electrical/Connectors,%20Cables/Wire%20And%20Cable%20Management/Cable%20And%20Mesh%20Grip/Cable%20Gland/Lapp/S-7DJU%20-%20EC000441/Image/e3tej_chr_en_2.pdf</td>
+</tr>
+<tr>
+<td>S41</td>
+<td>Bulgin, serie 900 Buccaneer</td>
+<td>https://www.bulgin.com/products/pub/media/import/attachments/900%20Series.pdf</td>
+</tr>
+<tr>
+<td>S42</td>
+<td>ASSDA, inoxidable en ambiente marino</td>
+<td>https://www.assda.asn.au/component/content/article?id=170...in-marine</td>
+</tr>
+<tr>
+<td>S43</td>
+<td>Polymers 2026, PETG y PETG+CF expuestos a aceite mineral (PMC12986719)</td>
+<td>https://pmc.ncbi.nlm.nih.gov/articles/PMC12986719/</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="1-resumen-ejecutivo">1. Resumen ejecutivo</h2>
+<ol>
+<li>
+<p><strong>PETG sigue siendo el material correcto para P1.</strong> Absorbe poca agua: ~0,3 % a saturación [VERIFICADO: S11] y &lt;1 % aun a 70 °C [VERIFICADO: S12]. Se imprime bien en la Ender-3 S1 y no requiere cerramiento.</p>
+<ul>
+<li><strong>Sí pierde resistencia en agua de mar: −17 a −28 % a 30 días</strong> [VERIFICADO: S13]. El <code>f_water = 0,85</code> de <code>inputs.yaml</code> es optimista: propongo <strong>0,75</strong>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Entre capas (Z) el PETG es débil y muy variable.</strong> Según la fuente, Z vale <strong>38 %</strong> [VERIFICADO: S1, "interlayer adhesion" 18 ± 4 MPa contra 47 MPa en XY], 69 % [VERIFICADO: S3] u 84 % [VERIFICADO: S2] de XY. Propongo <code>f_z = 0,40</code> (hoy 0,55).</p>
+</li>
+<li>
+<p><strong>Fatiga: es el hallazgo más fuerte.</strong></p>
+<ul>
+<li>PETG impreso a R = 0,2 rompe en 0,8–1,9·10⁵ ciclos al <strong>30 % de su UTS</strong> [VERIFICADO: S16]. Extrapolado (Basquin), queda en ~8 % de la UTS a 10⁷ ciclos y ~4 % a 10⁸ [CALCULADO].</li>
+<li>En P1, la frecuencia de paso de pala es de ~50 Hz: <strong>~5·10⁷ ciclos en 300 h</strong> [CALCULADO].</li>
+<li>El <code>f_fatigue = 0,30</code> de <code>inputs.yaml</code> es <strong>~5× no conservador</strong>. Propongo <strong>0,06</strong>: las piezas impresas no deben quedar en la ruta de carga alterna.</li>
+<li><em>Corrección (verificación adversarial):</em> con las rpm actuales de <code>resultados/sizing_tablas.md</code> (1491 rpm de hélice en crucero, no 991), el paso de pala es <strong>~75 Hz</strong> y suma <strong>~8·10⁷ ciclos en 300 h</strong> [CALCULADO]. A 8·10⁷ el ajuste da <strong>4,2 %</strong> de la UTS, así que 0,06 queda ~1,4× por encima de la propia extrapolación; ver §A6.</li>
+</ul>
+</li>
+<li>
+<p><strong>Temperatura.</strong> El PETG tiene HDT de <strong>68 °C</strong> (Prusament y Bambu) [VERIFICADO: S1, S3] o <strong>75 °C</strong> (PolyLite, a 1,8 MPa) [VERIFICADO: S2]. La epoxi de laminado común (West 105/205) tiene <strong>HDT de 48 °C</strong> [VERIFICADO: S21].</p>
+<ul>
+<li>Límite para PETG cargado: <strong>50 °C</strong>. Nada impreso debe tocar el motor ni el disipador del ESC.</li>
+</ul>
+</li>
+<li>
+<p><strong>Con la impresora de P1 solo se pueden imprimir PETG y PETG-CF.</strong></p>
+<ul>
+<li>PA6-CF y PA12-CF piden boquilla de 280–300 °C [VERIFICADO: S8, S9, S10].</li>
+<li>PC pide cámara de 70–100 °C [VERIFICADO: S6] y ASA pide cerramiento [VERIFICADO: S5].</li>
+<li>El PETG-CF no gana temperatura (HDT 65,7 °C) y es frágil en Z (1,9 % de elongación) [VERIFICADO: S4].</li>
+</ul>
+</li>
+<li>
+<p><strong>Uniones roscadas.</strong></p>
+<ul>
+<li>Los insertos de latón se descincifican en agua salada (Zn &gt; ~15 %) [VERIFICADO: S30].</li>
+<li>Una <strong>tuerca A4 cautiva en bolsillo de fondo</strong> resistió <strong>166 kg</strong>, más que el inserto térmico (<strong>119 kg</strong>) [VERIFICADO: S27]. Es más barata y de inoxidable.</li>
+<li>Loctite 243 <strong>no se recomienda sobre termoplásticos</strong> (stress cracking) [VERIFICADO: S31].</li>
+</ul>
+</li>
+<li>
+<p><strong>Sellado.</strong></p>
+<ul>
+<li>Una superficie impresa tiene Ra/Sa de ~2–24 µm [VERIFICADO: S18, S19]. Un sello estático pide Ra ≤ 0,8 µm (Parker) o ≤ 1,6 µm (Trelleborg) [VERIFICADO: S24, S26].</li>
+<li>Conclusión: <strong>sello axial (de cara) con O-ring de 3,53 mm</strong> en cara refrentada en el torno, o junta blanda. Evitar sellos radiales impresos: piden excentricidad ≤ 0,05 mm [VERIFICADO: S24].</li>
+</ul>
+</li>
+<li>
+<p><strong>La cola larga de P1 no necesita ningún sello dinámico sumergido.</strong> Bujes lubricados por agua + motor seco arriba. Solo quedan sellos estáticos de salpicadura (caja del ESC) y excluidores de arena. Es una ventaja fuerte frente al pod sumergido.</p>
+</li>
+</ol>
+<hr />
+<h1 id="parte-a-materiales">PARTE A — MATERIALES</h1>
+<h2 id="a1-propiedades-de-los-candidatos-tds-de-fabricante">A1. Propiedades de los candidatos (TDS de fabricante)</h2>
+<p>Probetas de los TDS: 100 % de relleno, 2 perímetros (Bambu no declara perímetros). En los de Polymaker PETG, ASA, PC, PA6-CF y PA12-CF, además, ventilador apagado [VERIFICADO: S2, S5, S6, S8, S9]. <em>Corregido:</em> en PETG-rCF08 las probetas se hicieron con ventilador al 0–50 % [VERIFICADO: S4], no apagado. ASA y PC se imprimieron con <strong>cámara a 90 °C</strong> [VERIFICADO: S5, S6]: esos valores <strong>no son alcanzables</strong> en una Ender-3 S1 abierta.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Material (fuente)</th>
+<th>Tg [°C]</th>
+<th>HDT 0,45 / 1,8 MPa [°C]</th>
+<th>Agua (condición)</th>
+<th>σt XY [MPa]</th>
+<th>σt Z [MPa]</th>
+<th>Z/XY</th>
+<th>E XY [MPa]</th>
+<th>Boquilla [°C]</th>
+<th>Cámara</th>
+<th>¿Ender-3 S1?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prusament PETG (S1)</td>
+<td>—</td>
+<td>68 / 68</td>
+<td>0,07 % 24 h; 0,10 % 7 d (24 °C, 22 % HR)</td>
+<td>47 ± 2 (horizontal)</td>
+<td><strong>18 ± 4</strong> ("interlayer adhesion")</td>
+<td><strong>0,38</strong></td>
+<td>1500</td>
+<td>250 ± 10</td>
+<td>no</td>
+<td><strong>Sí</strong></td>
+</tr>
+<tr>
+<td>PolyLite PETG (S2)</td>
+<td>81</td>
+<td>78 / 75</td>
+<td>0,54 % equil. (70 % HR, 23 °C)</td>
+<td>50,8 ± 0,9</td>
+<td>42,8 ± 2,8</td>
+<td>0,84</td>
+<td>2117</td>
+<td>230–260</td>
+<td>no</td>
+<td><strong>Sí</strong></td>
+</tr>
+<tr>
+<td>Bambu PETG Basic (S3)</td>
+<td>69</td>
+<td>71 / 68</td>
+<td>0,45 % sat. (25 °C, 55 % HR)</td>
+<td>51 ± 1</td>
+<td>35 ± 6</td>
+<td>0,69</td>
+<td>2780</td>
+<td>230–260</td>
+<td>recomienda 35–50 °C (impresoras Bambu cerradas)</td>
+<td><strong>Sí</strong></td>
+</tr>
+<tr>
+<td>Fiberon PETG-rCF08 (S4)</td>
+<td>69,7</td>
+<td>68,6 / 65,7</td>
+<td>0,55 % equil. (70 % HR)</td>
+<td>59,8 ± 0,3</td>
+<td>41,1 ± 4,1</td>
+<td>0,69</td>
+<td>3710</td>
+<td>240–270</td>
+<td>no</td>
+<td>Sí, con <strong>boquilla endurecida</strong></td>
+</tr>
+<tr>
+<td>Polymaker ASA (S5)</td>
+<td>98</td>
+<td>103 / 100</td>
+<td>(curva; sin número en texto)</td>
+<td>43,8 ± 0,8</td>
+<td>32 ± 1,8</td>
+<td>0,73</td>
+<td>2379</td>
+<td>230–260</td>
+<td><strong>sí</strong> ("Needed")</td>
+<td>Solo con cerramiento</td>
+</tr>
+<tr>
+<td>PolyLite PC (S6)</td>
+<td>113</td>
+<td>111 / 107</td>
+<td>(curva)</td>
+<td>69,1 ± 3,0</td>
+<td>52,8 ± 1,7</td>
+<td>0,76</td>
+<td>2497</td>
+<td>250–270</td>
+<td><strong>sí, 70–100 °C</strong></td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Polymaker PC-PBT (S7)</td>
+<td>140</td>
+<td>107 / 91</td>
+<td>(curva)</td>
+<td>50,4 ± 0,6</td>
+<td>37,9 ± 0,3</td>
+<td>0,75</td>
+<td>1940</td>
+<td>260–280</td>
+<td><strong>sí, 100–110 °C</strong></td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Fiberon PA6-CF20 seco (S8)</td>
+<td>74,2</td>
+<td>215 / 173</td>
+<td>3,3 % equil.</td>
+<td>109,3 ± 2,4</td>
+<td>54,0 ± 5,2</td>
+<td>0,49</td>
+<td>8637</td>
+<td><strong>280–300</strong></td>
+<td>no</td>
+<td><strong>No</strong> (hotend)</td>
+</tr>
+<tr>
+<td>PA6-CF20 <strong>húmedo</strong> (5,3 % agua) (S8)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><strong>54,7</strong> (−50 %)</td>
+<td><strong>25,5</strong> (−53 %)</td>
+<td>0,47</td>
+<td><strong>2508</strong> (−71 %)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Fiberon PA12-CF10 seco (S9)</td>
+<td>55</td>
+<td>131 / 105</td>
+<td>1,5 % equil.</td>
+<td>77,4 ± 1,1</td>
+<td>52,2 ± 0,8</td>
+<td>0,67</td>
+<td>3311</td>
+<td><strong>280–300</strong></td>
+<td>no</td>
+<td><strong>No</strong> (hotend)</td>
+</tr>
+<tr>
+<td>PA12-CF10 <strong>húmedo</strong> (2,92 % agua) (S9)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><strong>71,7</strong> (−7 %)</td>
+<td><strong>42,1</strong> (−19 %)</td>
+<td>0,59</td>
+<td>3132</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Epoxi West 105/205 (S21)</td>
+<td>54 onset / 61 último</td>
+<td>— / <strong>48</strong> (118 °F)</td>
+<td>—</td>
+<td>54,5 (7900 psi)</td>
+<td>—</td>
+<td>—</td>
+<td>2810 (4,08·10⁵ psi)</td>
+<td>—</td>
+<td>—</td>
+<td>recubrimiento</td>
+</tr>
+</tbody>
+</table></div>
+<p>Notas:</p>
+<ul>
+<li>Para PA6-CF20 y PA12-CF10 los TDS piden además <strong>recocido de 100 °C × 16 h</strong> y boquilla endurecida. Una boquilla de latón dura <strong>~9 h</strong> [VERIFICADO: S8, S9; S10 solo dice "hardened nozzle"].</li>
+<li>"Húmedo" = sumergido 48 h a 60 °C [VERIFICADO: S8, S9]. Los porcentajes son [CALCULADO] contra el valor seco.</li>
+<li>Que la Ender-3 S1 llegue a ≤260 °C es dato del usuario (<code>inputs.yaml</code>). Que su boquilla de serie sea de latón es [SUPUESTO: verificar].</li>
+<li>La HDT de PETG varía según la marca: entre 65,7 y 75 °C a 1,8 MPa [VERIFICADO: S1–S4]. <strong>Comprar PETG con HDT(1,8 MPa) ≥ 70 °C</strong> declarada; PolyLite cumple (75 °C) [VERIFICADO: S2].</li>
+</ul>
+<h2 id="a2-petg-en-agua-de-mar-o-salobre-estudios">A2. PETG en agua de mar o salobre: estudios</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Estudio</th>
+<th>Exposición</th>
+<th>Absorción</th>
+<th>Efecto mecánico</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Moreno Nieto 2021 (S11)</td>
+<td>Agua destilada, salmuera 28 % p/p, azúcar; 20 °C; semanal</td>
+<td><strong>~0,3 %</strong>; se estabiliza a las <strong>7–9 semanas</strong> (salada: semana 7)</td>
+<td>Sin ensayos mecánicos</td>
+<td>[VERIFICADO: S11]</td>
+</tr>
+<tr>
+<td>Gama 2026 (S12, resumen)</td>
+<td>Destilada y salina, <strong>70 °C, 10 semanas</strong>; UV hasta <strong>1000 h</strong></td>
+<td><strong>&lt;1 %</strong></td>
+<td>Baja el módulo de almacenamiento y "levemente" la Tg (plastificación <strong>reversible</strong>). La tracción sube un poco. Con UV, cambios moleculares menores.</td>
+<td>[VERIFICADO: S12]</td>
+</tr>
+<tr>
+<td>IJLMM 2026 (S13, resumen)</td>
+<td>Agua de mar artificial y natural, 30 días</td>
+<td>—</td>
+<td>Tracción <strong>PETG −17 a −28 %</strong>; Nylon −31 a −44 %; ABS −15 a −25 %; PLA −26 a −35 %</td>
+<td>[VERIFICADO: S13]</td>
+</tr>
+<tr>
+<td>Chaudhary 2023 (S14, resumen)</td>
+<td>Agua de mar a temperatura elevada (acelerado); Nylon, ABS, PLA, PCTG, PETG, ASA</td>
+<td>Las estructuras impresas tienen <strong>difusividad "extremadamente alta" frente al material macizo</strong></td>
+<td>Las propiedades bajan en todos; la rigidez cae en proporción a la masa absorbida</td>
+<td>[VERIFICADO: S14]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Lectura para P1:</p>
+<ul>
+<li>Una pieza impresa se satura en semanas, no en años (porosidad) [VERIFICADO: S11, S14]. Hay que <strong>diseñar con propiedades saturadas desde el día 1</strong>.</li>
+<li>
+<p>S12 y S13 discrepan en la pérdida de resistencia. Para diseño tomo la peor: <strong>−28 % → f_water = 0,72 ≈ 0,75</strong> [CALCULADO].</p>
+<ul>
+<li><em>Corrección (verificación):</em> redondear 0,72 a 0,75 <strong>no</strong> es tomar la peor; es ~4 % no conservador. El peor caso estricto de S13 es <strong>0,72</strong>. Si se mantiene 0,75, que sea una decisión explícita.</li>
+</ul>
+</li>
+<li>
+<p>Hay que validarlo con probetas propias (§A9.4).</p>
+</li>
+</ul>
+<p><strong>UV.</strong> PETG mantuvo la estructura con hasta 1000 h de UV de laboratorio [VERIFICADO: S12]. ASA se vende por su "improved weather resistance… UV resistance" [VERIFICADO: S5]. La equivalencia entre esas 1000 h y temporadas reales en Dinamarca no está establecida [SUPUESTO]. Para piezas al sol: <strong>colores claros</strong>, inspección anual.</p>
+<h2 id="a3-anisotropía-z-frente-a-xy">A3. Anisotropía (Z frente a XY)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fuente</th>
+<th>Z/XY</th>
+<th>Condición</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prusament (S1)</td>
+<td><strong>0,38</strong> (18/47)</td>
+<td>Ensayo propio de adhesión entre capas. Es el más pesimista.</td>
+</tr>
+<tr>
+<td>Bambu PETG Basic (S3)</td>
+<td>0,69 (35/51); flexión 0,75; impacto 0,31 (10,5/34,2)</td>
+<td>Probeta Z con 100 % de relleno</td>
+</tr>
+<tr>
+<td>Polymaker PETG (S2)</td>
+<td>0,84 (42,8/50,8); elongación Z 3,3 % contra 8,4 %</td>
+<td>Ventilador apagado, 2 perímetros</td>
+</tr>
+<tr>
+<td>Stankevics 2025 (S15)</td>
+<td><strong>0,45</strong> <strong>en el plano</strong>, entre cordones (22,48/50,44 MPa, dispersión ±4,61)</td>
+<td>Relleno unidireccional, 0,1 mm, 235 °C</td>
+</tr>
+<tr>
+<td>Polymaker PETG-rCF08 (S4)</td>
+<td>0,69; elongación Z <strong>1,9 %</strong></td>
+<td>La fibra empeora la ductilidad en Z</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>Propuesta: <code>f_z = 0,40</code></strong> [ESTIMADO: entre el mínimo de S1 (0,38) y el de S15 (0,45)]. La Ender-3 S1 imprime abierta y con ventilador, y las piezas de P1 son grandes (capas que se enfrían más que en una probeta).</li>
+<li>La anisotropía también existe <strong>dentro de la capa</strong> entre cordones [VERIFICADO: S15]. Por eso, en piezas cargadas: ≥ 6–8 perímetros siguiendo el contorno de carga y relleno ≥ 60 % [ESTIMADO].</li>
+</ul>
+<h2 id="a4-temperatura-de-servicio">A4. Temperatura de servicio</h2>
+<ul>
+<li>HDT a 1,8 MPa: Prusament 68 °C, Bambu 68 °C, PolyLite 75 °C, PETG-rCF08 65,7 °C [VERIFICADO: S1–S4]. El agua baja algo la Tg [VERIFICADO: S12].</li>
+<li><strong>Propuesta para <code>t_service_max_c</code>:</strong> 50 °C en piezas de PETG <strong>con carga</strong>; 60 °C en tapas sin carga [ESTIMADO: HDT mínima 65,7–68 °C menos ~15–18 K de margen por creep y humedad]. Hoy está en 60 °C; bajar a 50 °C.</li>
+<li>
+<p><strong>Cerca del motor y del ESC.</strong></p>
+<ul>
+<li>El estator y la campana de un outrunner pueden pasar de 60–80 °C con carga sostenida [ESTIMADO: memoria técnica, no verificado].</li>
+<li>Soporte de motor de <strong>aluminio</strong>, separadores y arandelas aislantes.</li>
+<li>Que <strong>ninguna pieza de PETG toque la campana, la brida del motor ni el disipador del ESC</strong>.</li>
+<li>Medir con el termopar del multímetro en la primera prueba de 2 h.</li>
+</ul>
+</li>
+<li>
+<p><strong>Al sol.</strong> Una superficie oscura puede pasar de 60 °C al sol de verano [ESTIMADO: memoria técnica, no verificado]. Usar PETG blanco, gris claro o natural en la abrazadera de espejo y los soportes.</p>
+</li>
+<li><strong>Epoxi como recubrimiento:</strong> la West 105/205 tiene HDT de 48 °C y Tg última de 61 °C [VERIFICADO: S21]. Sirve para sellar o alisar piezas frías; <strong>no</strong> para piezas calientes.</li>
+<li><strong>f_temp</strong> (resistencia relativa a 23 °C) [ESTIMADO: memoria técnica de copoliésteres amorfos, no verificado]:<ul>
+<li>0,85 hasta 40 °C (el valor de <code>inputs.yaml</code> es razonable);</li>
+<li>0,70 hasta 50 °C;</li>
+<li>no usar con carga por encima de 50 °C.</li>
+</ul>
+</li>
+</ul>
+<h2 id="a5-fluencia-creep">A5. Fluencia (creep)</h2>
+<p>Datos de S15 (PETG, 21 °C, 39 % HR) [VERIFICADO: S15]:</p>
+<ul>
+<li>Al <strong>50 % de la resistencia</strong> (25 MPa en X), el creep a 5 h es "roughly 5% of the sample elastic strain", y "In 20 h, this strain had doubled" (~10 %).</li>
+<li>Al <strong>70 %</strong> (35 MPa), llega al <strong>25 % a 5 h en X</strong> (7 % en Y) y sube a <strong>30 % (X) y 8 % (Y)</strong>: comportamiento no lineal. <em>Corregido:</em> la versión anterior atribuía la duplicación a 20 h al caso del 70 %; en S15 corresponde al caso del 50 %.</li>
+<li>Hay deformación plástica por encima de ~0,1 % de creep en X y ~0,05 % en Y.</li>
+</ul>
+<p>Extrapolar a cargas de meses, mojado y a 30–40 °C:</p>
+<ul>
+<li><strong><code>f_creep = 0,35</code></strong> para carga sostenida &gt;100 h [ESTIMADO: el umbral no lineal de S15 es ~50 % a 21 °C y en seco; le resto margen por agua (S12) y temperatura]. Hoy está en 0,50.</li>
+<li><strong>Precarga de tornillos sobre PETG.</strong> El plástico fluye y la precarga se pierde. En las uniones de la abrazadera de espejo y del cardán, usar <strong>casquillos limitadores de compresión metálicos</strong>: tubo de inox o aluminio atravesando el plástico, con el tornillo apretando metal contra metal [ESTIMADO: práctica estándar en plásticos].<ul>
+<li>Eastman recomienda arandelas para repartir la carga y no apretar de más [VERIFICADO: S34].</li>
+</ul>
+</li>
+</ul>
+<h2 id="a6-fatiga-a-10⁷10⁸-ciclos">A6. Fatiga a 10⁷–10⁸ ciclos</h2>
+<p><strong>Ciclos en P1</strong> [CALCULADO]:</p>
+<ul>
+<li>Hélice a 991 rpm en crucero × 3 palas = <strong>49,6 Hz</strong>.</li>
+<li>Son <strong>3,6·10⁵ ciclos por salida de 2 h</strong> y <strong>5,4·10⁷ en 300 h</strong> de vida.</li>
+<li>Motor a ~2970 rpm (49,6 Hz de desbalanceo, relación 3:1). Engrane de correa: ~790 Hz.</li>
+<li>Fuente: rpm de <code>resultados/sizing_tablas.md</code>.</li>
+<li><em>Corrección (verificación, contra <code>sizing_tablas.md</code> del 2026-10-01 14:07):</em> hoy la tabla da <strong>1491 rpm</strong> de hélice en crucero y correa <strong>20T:40T = 2,00</strong>. Recalculado [CALCULADO]:<ul>
+<li>paso de pala <strong>74,6 Hz</strong> (3 palas, <code>inputs.yaml</code> Z = 3 [ESTIMADO]);</li>
+<li><strong>5,4·10⁵ ciclos por salida de 2 h</strong> y <strong>8,1·10⁷ en 300 h</strong>;</li>
+<li>motor a ~2980 rpm (49,7 Hz de desbalanceo); engrane de correa con polea de 20 dientes: <strong>~990 Hz</strong>.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Datos:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fuente</th>
+<th>Material y condición</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Martins 2024 (S16)</td>
+<td>PETG FFF a 45°, R = 0,2, 7 Hz, boquilla <strong>215–220 °C</strong> (baja), UTS 32,9 MPa</td>
+<td>σmax 60 % → 1,2–1,5·10⁴ ciclos; 45 % → 1,7–4,1·10⁴; <strong>30 % (10,2 MPa) → 0,8–1,9·10⁵</strong> [VERIFICADO: S16]</td>
+</tr>
+<tr>
+<td>Rodrigues 2026 (S17)</td>
+<td>FFF en Stratasys, R = 0,05, 10 Hz, límite = <strong>runout a 10⁶</strong></td>
+<td>ASA <strong>25 %·σR (8 MPa)</strong>; PA12 17 % (7,4 MPa); PC-ABS 15 % (4,7 MPa); <strong>PC 7 % (3,6 MPa)</strong> [VERIFICADO: S17]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Ajuste de Basquin a S16</strong> [CALCULADO: medias geométricas de los tres niveles]:</p>
+<ul>
+<li>σmax = 367·N^−0,306 MPa. (<em>Corregido:</em> decía 362. El ajuste por mínimos cuadrados log-log sobre las medias geométricas 13 290 / 29 123 / 124 158 ciclos de la Tabla 2 de S16 da A = 367; la tabla de abajo ya usaba ese valor.)</li>
+<li>Nota: en S16 los niveles 20,4 / 15,3 / 10,2 MPa son el 60 / 45 / 30 % de ~34 MPa, no de la UTS de 32,9 MPa (que es de probetas a 0°; las de fatiga son a ±45°) [VERIFICADO: S16, Tablas 1 y 2]. Los "% de la UTS" de abajo pueden estar ~3 % altos.</li>
+</ul>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>N</th>
+<th>σmax PETG (S16, UTS 32,9)</th>
+<th>% de la UTS</th>
+<th>Escalado a UTS 45 MPa</th>
+<th>σa (R = 0,2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10⁶</td>
+<td>5,3 MPa</td>
+<td>16 %</td>
+<td>7,2 MPa</td>
+<td>2,9 MPa</td>
+</tr>
+<tr>
+<td>10⁷</td>
+<td>2,6 MPa</td>
+<td>8 %</td>
+<td>3,6 MPa</td>
+<td>1,4 MPa</td>
+</tr>
+<tr>
+<td>10⁸</td>
+<td>1,3 MPa</td>
+<td>4 %</td>
+<td>1,8 MPa</td>
+<td>0,7 MPa</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>El 16 % de la UTS a 10⁶ coincide con el rango de 7–25 % que S17 mide en otros termoplásticos impresos. Es un <strong>cruce de verificación razonable</strong> [CALCULADO].</li>
+<li>Extrapolar 2,7 décadas más allá del último dato es incierto. Un codo de fatiga podría dar algo mejor, pero no hay datos de PETG impreso a 10⁷–10⁸ [SUPUESTO].</li>
+<li>
+<p><strong>Propuesta: <code>f_fatigue = 0,06</code></strong> (σmax/UTS para 10⁸ ciclos, R entre 0 y 0,2) [ESTIMADO: entre el 4 % (10⁸) y el 8 % (10⁷) del ajuste]. Hoy está en 0,30.</p>
+<ul>
+<li><em>Corrección (verificación):</em> con 8,1·10⁷ ciclos (rpm actuales), el ajuste da σmax = 1,39 MPa = <strong>4,2 %</strong> de la UTS [CALCULADO]. Para ser coherente con la vida real, <code>f_fatigue</code> debería estar en <strong>~0,045</strong>; 0,06 es ~1,4× más alto que la propia extrapolación.</li>
+</ul>
+</li>
+<li>
+<p><strong>Regla de diseño:</strong> con agua y temperatura, <strong>σa ≤ 0,5 MPa en XY y ≤ 0,2 MPa a través de capas</strong> [CALCULADO: 45 × 0,06 × 0,75 × 0,85 = 1,7 MPa de σmax → σa ≈ 0,77 MPa → /1,5 = 0,52 MPa; × f_z 0,40 = 0,21 MPa].</p>
+<ul>
+<li>Aclaración: σa = 0,45·σmax supone <strong>R = 0,1</strong> (punto medio de 0–0,2). Con R = 0,2, σa = 0,4·σmax = 0,69 MPa → 0,46 MPa (XY) y 0,18 MPa (Z) [CALCULADO]. Con <code>f_fatigue</code> = 0,045, quedan ~0,35 MPa (XY) y ~0,14 MPa (Z) [CALCULADO].</li>
+</ul>
+</li>
+</ul>
+<p><strong>Consecuencia práctica.</strong> Ninguna pieza impresa puede ser la ruta de carga alterna:</p>
+<ul>
+<li>de la hélice al espejo (tubo, cardán, pivote);</li>
+<li>de la correa (tensión fluctuante en el soporte del motor);</li>
+<li>del desbalanceo del motor.</li>
+</ul>
+<p>Esas rutas van en <strong>aluminio o inox</strong>. Lo impreso queda para carenados, tapas, cajas y el protector de hélice. Y aun así el protector recibe pulsos de presión a ~75 Hz (antes decía ~50 Hz; ver corrección de rpm arriba) cerca de las puntas. R02 y R03 documentan una hélice de PETG, ~4 meses en agua de mar, a la que se le <strong>fisuró una pala al desmontarla</strong> para inspección. Por eso el protector se trata como <strong>consumible inspeccionable</strong>: paredes ≥ 4 mm, fijación con flejes metálicos e inspección mensual de fisuras [ESTIMADO].</p>
+<h2 id="a7-factores-de-reducción-propuestos-actualizar-inputsyaml">A7. Factores de reducción propuestos (actualizar <code>inputs.yaml</code>)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Factor</th>
+<th><code>inputs.yaml</code> hoy</th>
+<th><strong>Propuesto</strong></th>
+<th>Base</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>f_water</td>
+<td>0,85</td>
+<td><strong>0,75</strong> (peor caso estricto: 0,72)</td>
+<td>−17 a −28 % a 30 días en agua de mar [VERIFICADO: S13]; saturación en semanas [VERIFICADO: S11, S14]</td>
+</tr>
+<tr>
+<td>f_temp (≤40 °C)</td>
+<td>0,85</td>
+<td>0,85 (≤40 °C); <strong>0,70 (≤50 °C)</strong></td>
+<td>[ESTIMADO: memoria técnica, no verificado]; HDT 65,7–75 °C [VERIFICADO: S1–S4]</td>
+</tr>
+<tr>
+<td>f_process</td>
+<td>0,80</td>
+<td>0,80</td>
+<td>[ESTIMADO]; validar con probetas propias (§A9.4)</td>
+</tr>
+<tr>
+<td>f_creep (&gt;100 h)</td>
+<td>0,50</td>
+<td><strong>0,35</strong></td>
+<td>Creep no lineal desde ~50 % de la resistencia a 21 °C [VERIFICADO: S15] + agua y temperatura [ESTIMADO]</td>
+</tr>
+<tr>
+<td>f_fatigue (10⁷–10⁸)</td>
+<td>0,30</td>
+<td><strong>0,06</strong> (~0,045 con 8·10⁷ ciclos; ver §A6)</td>
+<td>Basquin sobre S16 [CALCULADO]; contraste con S17 [VERIFICADO]</td>
+</tr>
+<tr>
+<td>f_z</td>
+<td>0,55</td>
+<td><strong>0,40</strong></td>
+<td>Z/XY = 0,38 (S1), 0,45 en el plano (S15), 0,69 (S3), 0,84 (S2)</td>
+</tr>
+<tr>
+<td>t_service_max_c</td>
+<td>60</td>
+<td><strong>50</strong> (con carga)</td>
+<td>§A4</td>
+</tr>
+<tr>
+<td>sigma_t_xy_mpa</td>
+<td>45</td>
+<td>45, <strong>solo si la probeta propia da ≥ 40</strong></td>
+<td>TDS 47–51 [VERIFICADO: S1–S3]; impreso frío da 32,9 [VERIFICADO: S16]</td>
+</tr>
+<tr>
+<td>sigma_t_z_mpa</td>
+<td>25</td>
+<td><strong>18</strong></td>
+<td>18 ± 4 [VERIFICADO: S1]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Tensiones admisibles resultantes, PETG</strong> [CALCULADO: 45 MPa × f_water 0,75 × f_temp 0,85 × f_process 0,80 = 23,0 MPa característica, en XY]:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>XY sin FS</th>
+<th>XY con FS 3</th>
+<th>Z sin FS</th>
+<th>Z con FS 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pico de corto plazo (golpe de kick-up, maniobra)</td>
+<td>23,0</td>
+<td><strong>7,7</strong></td>
+<td>9,2</td>
+<td><strong>3,1</strong></td>
+</tr>
+<tr>
+<td>Sostenida &gt;100 h (precarga, peso)</td>
+<td>8,0</td>
+<td><strong>2,7</strong></td>
+<td>3,2</td>
+<td><strong>1,1</strong></td>
+</tr>
+<tr>
+<td>Alterna a 10⁸ ciclos (σa)</td>
+<td>0,77</td>
+<td><strong>0,5</strong> (FS 1,5)</td>
+<td>0,31</td>
+<td><strong>0,2</strong> (FS 1,5)</td>
+</tr>
+</tbody>
+</table></div>
+<p>En fatiga el FS 1,5 ya va sobre un límite inferior extrapolado. Aplicarle FS 3 es redundante [SUPUESTO: lo decide quien diseña]. Con los factores actuales, la sostenida con FS 3 en XY daba 4,3 MPa: los nuevos son <strong>~40 % más bajos</strong> [CALCULADO].</p>
+<h2 id="a8-qué-material-para-qué-pieza-de-p1">A8. ¿Qué material para qué pieza de P1?</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pieza</th>
+<th>Material</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Protector de hélice y patín</td>
+<td><strong>PETG</strong> claro, paredes ≥ 4 mm, 100 % de relleno en fijaciones; ASA si se hace un cerramiento</td>
+<td>Consumible. Fatiga a ~75 Hz (§A6, rpm corregidas). Fisuras documentadas en R02 y R03.</td>
+</tr>
+<tr>
+<td>Caja del ESC</td>
+<td>PETG + <strong>tapa o placa base de aluminio</strong> (disipador) + sello axial (§B3)</td>
+<td>El ESC calienta; el PETG no debe tocar el disipador (§A4)</td>
+</tr>
+<tr>
+<td>Tapa de correa y cubierta del motor</td>
+<td>PETG o ASA, <strong>sin sellar, con drenaje</strong></td>
+<td>Salpicadura; un sello atrapa agua (R02 §lecciones: "drenaje y no solo sellos")</td>
+</tr>
+<tr>
+<td>Soporte de motor, cardán, abrazadera de espejo, pivote de kick-up</td>
+<td><strong>Aluminio e inox</strong>. Lo impreso solo como carenado o separador <strong>a compresión</strong> con limitadores metálicos</td>
+<td>Fatiga (§A6) y creep (§A5)</td>
+</tr>
+<tr>
+<td>Bujes del tubo (en agua)</td>
+<td><strong>POM-C torneado</strong> (decisión ya tomada en <code>inputs.yaml</code>), no impreso</td>
+<td>Desgaste con arena; tolerancia de buje [ESTIMADO]</td>
+</tr>
+<tr>
+<td>Mango del timón</td>
+<td>PETG, 8 perímetros [SUPUESTO]</td>
+<td>Cargas humanas estáticas; verificar con FS 3</td>
+</tr>
+<tr>
+<td>Piezas rígidas no calientes (placas, nervios)</td>
+<td>PETG-CF (solo con boquilla endurecida)</td>
+<td>+75 % de módulo XY (3710 contra 2117 MPa) [VERIFICADO: S2, S4], sin ganancia térmica y frágil en Z</td>
+</tr>
+<tr>
+<td>Nylon-CF</td>
+<td><strong>Descartado</strong> con esta impresora</td>
+<td>Pide 280–300 °C [VERIFICADO: S8, S9]. El PA6-CF pierde 50–71 % mojado [VERIFICADO: S8]. El PA12-CF10 sería el mejor en agua (−7 % XY mojado [VERIFICADO: S9]) <strong>solo si se tercerizara</strong>.</td>
+</tr>
+<tr>
+<td>PC / PC-PBT</td>
+<td><strong>Descartados</strong></td>
+<td>Cámara de 70–110 °C [VERIFICADO: S6, S7]; PC con fatiga de solo 7 % de σR [VERIFICADO: S17]; Sikaflex prohíbe PC (stress cracking) [VERIFICADO: S36]</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="a9-recubrimiento-epoxi">A9. Recubrimiento epoxi</h2>
+<h3 id="a91-datos">A9.1 Datos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Producto</th>
+<th>Datos verificados</th>
+<th>Uso en P1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Smooth-On XTC-3D (S20)</td>
+<td>Mezcla 2A:1B en volumen; 350 cps; vida útil 10 min; curado 3,5 h en capa fina; <strong>Shore 80D</strong>; "works with PLA, ABS, <strong>PetG</strong>"; "does not melt plastic"; 28,3 g cubren 651 cm² a 0,4 mm [VERIFICADO: S20]</td>
+<td>Alisar caras de sello antes de lijar; capa &lt; 0,4 mm</td>
+</tr>
+<tr>
+<td>West System 105/205 (S21)</td>
+<td>54,5 MPa; elongación 3,4 %; <strong>HDT 48 °C</strong>; Tg onset 54 °C, última 61 °C; "superior moisture barrier" (afirmación del fabricante) [VERIFICADO: S21]</td>
+<td>Impregnación y barrera en piezas frías; <strong>no</strong> cerca del motor o del ESC</td>
+</tr>
+<tr>
+<td>3M Scotch-Weld DP-100</td>
+<td>Eastman lo recomienda para pegar Spectar (PETG) consigo mismo [VERIFICADO: S34]</td>
+<td>Pegado estructural PETG-PETG</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="a92-adhesión-y-estanqueidad">A9.2 Adhesión y estanqueidad</h3>
+<ul>
+<li>
+<p><strong>Prusa:</strong></p>
+<ul>
+<li>el PETG sin tratar "leaked really quickly through the seams and contact points between perimeters and solid infill";</li>
+<li>con epoxi lograron "perfect watertightness";</li>
+<li>aplicarla sobre <strong>≥ 4 perímetros y ≥ 60 % de relleno</strong>, porque con 1–2 perímetros la capa "will most likely crack";</li>
+<li>con O-rings, el método "the best, easiest, and most proven".</li>
+<li><em>Agregado en la verificación:</em> en el ensayo de Prusa, "the worst results came with untreated PETG and acetone smoothed ASA", mientras que PLA, PCCF y resina SLA "worked great without post-processing – even 20 meters". <strong>El PETG sin tratar fue de los peores en estanqueidad</strong>: en P1, toda caja de PETG que deba ser estanca necesita epoxi interior.</li>
+<li>[VERIFICADO: S22]</li>
+</ul>
+</li>
+<li>
+<p><strong>Half-Baked-Research</strong> (vía Hackaday), a 1 bar: las ganadoras fueron la epoxi y dos PU <strong>aplicadas por dentro</strong>; la epoxi "held up the best after repeated abuse" [VERIFICADO: S23].</p>
+</li>
+<li><strong>Eastman</strong> recomienda para PETG: CA, acrílicos 2K, <strong>PU 2K y epoxi 2K</strong> [VERIFICADO: S34].</li>
+<li><strong>No encontré un dato numérico verificado de adhesión epoxi–PETG impreso</strong> (lap shear). → buscar: "PETG epoxy lap shear 3D printed adhesion". Ensayarlo con el dinamómetro (§A9.4).</li>
+<li><strong>Absorción de agua de la epoxi:</strong> el TDS de West no la da en número [VERIFICADO: S21, no figura]. R02 cita a un constructor de pod: "many epoxies … absorb water, swell and turn to jelly" [VERIFICADO en R02: S17 de R02]. Usar epoxi de laminado o recubrimiento marino, no epoxi de ferretería de 5 min [ESTIMADO].</li>
+<li><strong>Preparación:</strong> lijar P120–P180 y limpiar con IPA:agua 50:50. Eastman pide lijar "with a 120-grit or finer paper" y limpiar con esa mezcla [VERIFICADO: S34]. <strong>Nunca MEK:</strong> MEK es <em>solvente</em> de PETG; Eastman lo usa para pulir y soldar por solvente [VERIFICADO: S34].<ul>
+<li><em>Corregido:</em> la acetona <strong>no</strong> figura en S34. Prusa dice que disolver PETG solo es posible "using dangerous chemicals (Dichloromethane)" [VERIFICADO: https://help.prusa3d.com/article/petg_2059]. Que la acetona ataque el PETG queda [NO VERIFICADO]. Evitarla igual como limpiador es una precaución razonable [ESTIMADO].</li>
+</ul>
+</li>
+</ul>
+<h3 id="a93-rugosidad-lograble-con-epoxi-y-lijado">A9.3 Rugosidad lograble con epoxi y lijado</h3>
+<p>No encontré dato medido. Estimo <strong>Ra ≤ 0,8 µm</strong> con epoxi + lijado al agua P600→P1200 [ESTIMADO: memoria técnica, no verificado]. Verificarlo por comparación visual y táctil contra una pieza torneada.</p>
+<ul>
+<li><em>Corregido:</em> ISO 3601-2 §5.3.3 admite "a visual inspection using master parts" solo cuando, por la <strong>longitud de medición corta</strong>, la rugosidad exacta no es medible [VERIFICADO: S25]. No es un permiso general para reemplazar el rugosímetro. La comparación visual y táctil de P1 es un [SUPUESTO: protocolo propio].</li>
+</ul>
+<h3 id="a94-probetas-propias-con-el-dinamómetro">A9.4 Probetas propias (con el dinamómetro)</h3>
+<p>Lo pido porque todos los factores de §A7 dependen de σt XY y Z reales:</p>
+<ul>
+<li>5 probetas de tracción en XY y 5 en Z, con el perfil real de la Ender-3 S1.</li>
+<li>La mitad, <strong>30 días en agua del fjord</strong>.</li>
+<li>Tirar con el dinamómetro usando mordazas impresas con insertos.</li>
+<li>Si σ_XY medido &lt; 40 MPa, reescalar §A7 [SUPUESTO: protocolo].</li>
+</ul>
+<h2 id="a10-insertos-y-uniones-roscadas-en-petg">A10. Insertos y uniones roscadas en PETG</h2>
+<h3 id="a101-datos-medidos">A10.1 Datos medidos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fuente</th>
+<th>Unión</th>
+<th>Arrancamiento</th>
+<th>Torque máx.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CNC Kitchen (S27), <strong>PETG</strong>, 4 perímetros, 100 % de relleno, <strong>M3</strong></td>
+<td>Rosca directa</td>
+<td>118 kg (~1160 N)</td>
+<td>1 N·m</td>
+</tr>
+<tr>
+<td>″</td>
+<td>Inserto térmico</td>
+<td>119 kg</td>
+<td><strong>3 N·m</strong></td>
+</tr>
+<tr>
+<td>″</td>
+<td>Helicoil</td>
+<td>120 kg</td>
+<td>1 N·m</td>
+</tr>
+<tr>
+<td>″</td>
+<td>Tuerca en bolsillo lateral</td>
+<td>86 kg</td>
+<td>2 N·m</td>
+</tr>
+<tr>
+<td>″</td>
+<td><strong>Tuerca en bolsillo de fondo</strong></td>
+<td><strong>166 kg</strong></td>
+<td>2 N·m</td>
+</tr>
+<tr>
+<td>PEM SI (S29), ABS y PC <strong>inyectados</strong>, IUA/IUB M4-1</td>
+<td>Inserto</td>
+<td>ABS 912 N; PC 1312 N</td>
+<td>ABS 2,0; PC 2,3 N·m</td>
+</tr>
+<tr>
+<td>″ M4-2 (largo)</td>
+<td>Inserto</td>
+<td>ABS 1646 N; PC 2869 N</td>
+<td>2,1 / 2,3 N·m</td>
+</tr>
+<tr>
+<td>″ IUT M4</td>
+<td>Inserto</td>
+<td>ABS 963 N; PC 1710 N</td>
+<td>4,1 / 5,9 N·m</td>
+</tr>
+<tr>
+<td>″ IUT M5</td>
+<td>Inserto</td>
+<td>ABS 1197 N; PC 1691 N</td>
+<td>5,4 / 7,7 N·m</td>
+</tr>
+<tr>
+<td>″ IUT M6</td>
+<td>Inserto</td>
+<td>ABS 2130 N; PC 2660 N</td>
+<td>11,7 / 14,9 N·m</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>CNC Kitchen: "1 Nm torque on an M3 bolt already results in more than 1500 N in pretension" [VERIFICADO: S27].</li>
+<li>Instalación: soldador a <strong>245 °C para PETG</strong> (10–20 °C sobre la temperatura de impresión). Hundir el 90 % con la punta y el último tramo con una herramienta plana. Agujero ~1 mm más profundo que el inserto. Los agujeros impresos salen más chicos que en el CAD [VERIFICADO: S28].</li>
+<li><em>Corregido (cita inexistente):</em> Eastman <strong>no</strong> dice "Avoid tapping a drilled hole…". Lo que dice es "Do not overly tighten screws or use self-tapping screws", "Use metal inserts if frequent assembly/reassembly is involved" e "Inserts are not recommended where thermal expansion and contraction may occur" [VERIFICADO: S34]. Que la rosca con macho en PETG sirva solo para montajes que no se desarman es [ESTIMADO], no de Eastman.</li>
+</ul>
+<h3 id="a102-latón-contra-inoxidable-en-agua-salada">A10.2 Latón contra inoxidable en agua salada</h3>
+<ul>
+<li>
+<p><strong>Descincificación:</strong> el latón con Zn &gt; ~15 % pierde zinc y queda cobre poroso, en capa o en "tapón" [VERIFICADO: S30]. Los latones DZR (CW602N, CW724R, C69300, ISO 6509-1) son la elección "for any installation that combines water contact, elevated temperature, and chloride exposure" [VERIFICADO: S30; cita completada, antes la elipsis omitía "elevated temperature"].</p>
+<ul>
+<li>Matiz: para <strong>agua de mar</strong> Brassland recomienda <strong>latón al aluminio C68700</strong>; los DZR, para agua dulce [VERIFICADO: S30]. Refuerza la regla de no usar latón mojado en P1.</li>
+</ul>
+</li>
+<li>
+<p>Los insertos térmicos comerciales son de latón de aleación no declarada. El "free-machining leaded brass" de PEM es el típico [VERIFICADO: S29]; no son DZR [ESTIMADO].</p>
+</li>
+<li>
+<p><strong>Galvánico:</strong></p>
+<ul>
+<li>el 316 pasivo es "slightly more noble — minor risk to brass" [VERIFICADO: S30];</li>
+<li>latón dentro de aluminio: "the aluminium corrodes rapidly"; aislar con buje de PTFE o sellador no conductivo [VERIFICADO: S30].</li>
+</ul>
+</li>
+<li>
+<p><strong>Hay insertos en inoxidable:</strong> PEM los fabrica en "300 series stainless steel… passivated" (código "C"), además de latón y aluminio [VERIFICADO: S29]. Precio y stock en Dinamarca: buscar "PEM SI stainless heat staking insert".</p>
+</li>
+</ul>
+<h3 id="a103-recomendación-p1">A10.3 Recomendación P1</h3>
+<ol>
+<li><strong>Por defecto: tuerca hexagonal A4 cautiva en bolsillo de fondo</strong>, con el tornillo entrando desde el lado opuesto. Es la unión más fuerte del ensayo de CNC Kitchen [VERIFICADO: S27], la más barata y del mismo metal que el tornillo, así que no hay par galvánico.</li>
+<li>Donde haga falta un inserto (acceso de un solo lado), <strong>inserto inox 300</strong>, instalado a ~250–260 °C [ESTIMADO: 245 °C de S28 + margen]. El inox conduce peor el calor que el latón y tarda más en calentar [ESTIMADO: memoria técnica, no verificado].</li>
+<li><strong>Latón solo en zona seca</strong> (dentro de la caja del ESC) y nunca en contacto con aluminio mojado.</li>
+<li>
+<p><strong>Torque de apriete</strong> sobre inserto o tuerca cautiva en PETG [ESTIMADO: ~50 % del torque de rotura de S27 y S29; validar con el dinamómetro y un brazo de palanca]:</p>
+<ul>
+<li>M3: 0,5 N·m;</li>
+<li>M4: 1,0 N·m;</li>
+<li>M5: 2,0 N·m.
+Sujeciones que deban conservar precarga: limitador de compresión metálico (§A5).</li>
+</ul>
+</li>
+<li>
+<p><strong>Fijador de roscas.</strong> Loctite 243 "is not normally recommended for use on plastics (particularly thermoplastic materials where stress cracking of the plastic could result)" [VERIFICADO: S31]. Usar:</p>
+<ul>
+<li>tuercas autoblocantes (nyloc) A4; o</li>
+<li><strong>Loctite 425</strong> (cianoacrilato de baja resistencia "for locking metal and plastics fasteners", −54 a +85 °C) [VERIFICADO: S32].</li>
+<li>El 243 solo en roscas metal-metal donde no pueda chorrear sobre el PETG.</li>
+</ul>
+</li>
+</ol>
+<h2 id="a11-compatibilidad-química-con-petg">A11. Compatibilidad química con PETG</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Sustancia</th>
+<th>Veredicto para PETG</th>
+<th>Evidencia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agua de mar</td>
+<td>OK, con pérdida de resistencia (§A2)</td>
+<td>[VERIFICADO: S11–S13]</td>
+</tr>
+<tr>
+<td>Aceites y grasas (en general)</td>
+<td>"Good" (PolyLite); "resistant to most kinds of oil and grease" (Bambu)</td>
+<td>[VERIFICADO: S2, S3]</td>
+</tr>
+<tr>
+<td>Aceite mineral de motor SAE 15W-40, 7 días a 25 °C</td>
+<td><strong>Tracción −16,9 %</strong> (PETG con 30 % de relleno); PETG+CF sin cambio significativo</td>
+<td>[VERIFICADO: S43]. → No sumergir PETG en aceite mineral; la grasa en film fino es otra cosa [ESTIMADO].</td>
+</tr>
+<tr>
+<td>Grasa de silicona</td>
+<td>Compatible con NBR, EPDM y FKM (rating 1). Con O-rings de <strong>silicona</strong>, "3" (dudoso).</td>
+<td>[VERIFICADO: S24, tabla de compatibilidad]. Sobre PETG: [ESTIMADO: compatible, "oils and grease good" en S2].</td>
+</tr>
+<tr>
+<td>Grasa PTFE en base mineral</td>
+<td><strong>Prohibida con EPDM</strong> (aceite de petróleo: EPDM "4", insatisfactorio); NBR y FKM "1"</td>
+<td>[VERIFICADO: S24]</td>
+</tr>
+<tr>
+<td>Fijador anaeróbico (Loctite 243 y similares)</td>
+<td><strong>Evitar sobre PETG</strong>: riesgo de stress cracking</td>
+<td>[VERIFICADO: S31]</td>
+</tr>
+<tr>
+<td>Cianoacrilato</td>
+<td>En PET, CA y acrílicos son "normally compatible" sin stress cracking; Eastman lo recomienda para PETG. <strong>Pero</strong> "some superglues seem to weaken PETG". El CA sin curar sí agrieta ABS, ASA y PC.</td>
+<td>[VERIFICADO: S33, S34, S35]. Ensayar la marca. Usar poco y quitar el exceso.</td>
+</tr>
+<tr>
+<td>Epoxi 2K</td>
+<td>Recomendada por Eastman (DP-100)</td>
+<td>[VERIFICADO: S34]</td>
+</tr>
+<tr>
+<td>PU 2K o 1K (Sikaflex-291i)</td>
+<td>Eastman recomienda PU 2K. El PU Bostik P580 fue el <strong>más fuerte</strong> en el ensayo de PETG (<em>matiz de la verificación:</em> el resumen de Hackaday dice "a construction polyurethane glue is the absolute winner", pero el cuerpo del texto dice que "MMA (Methyl Methacrylate) and similar score the highest". No vi el gráfico ni el video: el podio queda <strong>ambiguo</strong>. Con epoxi 2K y CA rompió el sustrato de PETG antes que la unión). Sikaflex-291i resiste agua de mar, pero <strong>"must not be used to seal plastics that are prone to stress cracking (e.g. PMMA, PC)"</strong>; servicio −50 a 90 °C.</td>
+<td>[VERIFICADO: S34, S35, S36]. PETG no figura en la lista negra de Sika: probar en un retazo con tensión.</td>
+</tr>
+<tr>
+<td>MS polímero / STP</td>
+<td>Sin dato verificado</td>
+<td>[ESTIMADO: sin solventes, bajo riesgo de ESC; probar]. buscar: "MS polymer sealant PETG compatibility"</td>
+</tr>
+<tr>
+<td>Silicona RTV (sellador)</td>
+<td>Sin dato verificado. La acética libera ácido acético (ácidos débiles: "Good" en S2). Adhiere mal sin imprimación.</td>
+<td>[ESTIMADO: preferir curado neutro; sirve como junta moldeada (S22), no como adhesivo]</td>
+</tr>
+<tr>
+<td>MEK, ciclohexanona, THF, cloruro de metileno</td>
+<td><strong>Disuelven el PETG.</strong> Eastman los usa para soldar o pulir por solvente.</td>
+<td>[VERIFICADO: S34]. Limpiar con IPA:agua 50:50 [VERIFICADO: S34].</td>
+</tr>
+<tr>
+<td>Acetona</td>
+<td><em>Corregido:</em> S34 <strong>no</strong> la menciona. Prusa: disolver PETG solo con "dangerous chemicals (Dichloromethane)".</td>
+<td>[NO VERIFICADO] que la ataque; https://help.prusa3d.com/article/petg_2059 sugiere que no la disuelve. No usarla igual como limpiador [ESTIMADO: precaución].</td>
+</tr>
+<tr>
+<td>Ácidos y álcalis fuertes</td>
+<td>"Poor"</td>
+<td>[VERIFICADO: S2]</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="a12-metales-asociados-lo-que-toca-a-los-materiales-impresos">A12. Metales asociados (lo que toca a los materiales impresos)</h2>
+<ul>
+<li>
+<p><strong>316 sumergido:</strong></p>
+<ul>
+<li>"crevice corrosion can be expected in grade 316 at temperatures above 10–15 °C in seawater";</li>
+<li>"propeller shafts made from 316 are usually galvanically protected";</li>
+<li>"Stagnant, aerated sea water is a very corrosive medium… design to self drain";</li>
+<li>"wash down with clean water".</li>
+<li>[VERIFICADO: S42]</li>
+</ul>
+</li>
+<li>
+<p>El agua salobre del fjord es menos salina que el mar abierto [ESTIMADO: memoria técnica, no verificado]. Aun así, conviene suponer riesgo de corrosión en rendija en verano.</p>
+</li>
+<li>
+<p><strong>En P1:</strong></p>
+<ul>
+<li>el eje de 316 dentro de bujes de POM y bajo O-rings forma <strong>rendijas</strong>;</li>
+<li>guardar la cola <strong>basculada fuera del agua</strong>, enjuagar con agua dulce y dejar escurrir;</li>
+<li>la hélice de aluminio sobre el eje de 316 actúa como ánodo y se come primero [ESTIMADO: deducido de S42];</li>
+<li>considerar un ánodo de zinc en el tubo.</li>
+</ul>
+</li>
+<li>
+<p>Los rodamientos inox "S6801Z" suelen ser 440C, que se oxida más que el 316 en agua salobre (ver R01). Mantenerlos en zona seca.</p>
+</li>
+</ul>
+<hr />
+<h1 id="parte-b-sellado">PARTE B — SELLADO</h1>
+<h2 id="b1-qué-hay-que-sellar-en-la-cola-larga-de-p1">B1. Qué hay que sellar en la cola larga de P1</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Zona</th>
+<th>Exposición</th>
+<th>Solución recomendada</th>
+<th>Sello dinámico sumergido</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Motor outrunner (arriba)</td>
+<td>Salpicadura y spray salino</td>
+<td>Cubierta con <strong>drenaje</strong>, sin sellar. Estator con barniz o epoxi y enjuague (R03 §motor).</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Correa HTD-5M y poleas</td>
+<td>Salpicadura</td>
+<td>Tapa con drenaje; no encerrar agua (R02)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Boca superior del tubo del eje</td>
+<td>Agua que sube por el tubo y spray</td>
+<td><strong>V-ring o retén "excluidor"</strong> sobre el eje + drenaje bajo la polea</td>
+<td>Sí, pero <strong>fuera del agua</strong> y a baja presión</td>
+</tr>
+<tr>
+<td>Bujes del tubo (dentro del agua)</td>
+<td>Inmersión y arena</td>
+<td><strong>Lubricados por agua; sin sello</strong>. Opcional: labio excluidor de arena en el buje inferior.</td>
+<td>Solo excluidor, no estanco</td>
+</tr>
+<tr>
+<td>Caja del ESC y de las conexiones</td>
+<td>Salpicadura e inmersión breve si se vuelca agua en la cubierta</td>
+<td><strong>Sello axial (de cara)</strong> O-ring 3,53 o junta blanda + prensaestopas IP68</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Batería con BMS</td>
+<td>En el bote</td>
+<td>Caja comercial; conectores IP67/68</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Kill switch</td>
+<td>Salpicadura</td>
+<td>Comercial marino</td>
+<td>No</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Ventaja de arquitectura:</strong> un pod sumergido exige sello dinámico de eje o motor inundado, y O-rings bajo presión hidrostática y bombeo térmico. R03 documenta agua pasando el sello en eFoils con aceite y succión por bombeo térmico. La cola larga <strong>elimina todo eso</strong>.</p>
+<h2 id="b2-reglas-de-diseño-de-o-rings-fuentes-primarias">B2. Reglas de diseño de O-rings (fuentes primarias)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Parámetro</th>
+<th>Parker ORD 5700 (S24)</th>
+<th>Trelleborg 2024 (S26)</th>
+<th>ISO 3601-2 (S25, muestra)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compresión estática</td>
+<td>Máx. "most elastomers is <strong>30 %</strong>"; en sello de cara "a 30 % squeeze is often beneficial"; <strong>mínima 0,2 mm</strong> (0,007"), sin importar la sección</td>
+<td><strong>Axial estático 13–36 %</strong>; radial estático 10–35 %</td>
+<td>Rango por sección en la Figura 8 (no incluida en la muestra)</td>
+</tr>
+<tr>
+<td>Compresión dinámica</td>
+<td>Máx. <strong>~16 %</strong> (hasta 25 % en secciones chicas)</td>
+<td>Radial dinámico 6–27 %</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Llenado de ranura</td>
+<td><strong>60–85 %</strong>, óptimo <strong>75 %</strong>, "at least a 10 % void"</td>
+<td>≤ 85 %</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Rugosidad de la cara de sello (estático)</td>
+<td>≤ <strong>32 µin RMS (~0,8 µm)</strong>; 16 RMS para gases y vacío; flancos de ranura 63 RMS (~1,6 µm)</td>
+<td>Superficie de contacto estática <strong>Ra ≤ 1,6, Rz ≤ 6,3, Rt ≤ 10 µm</strong>; flancos y fondo de ranura <strong>Rt ≤ 16 µm</strong></td>
+<td>Tabla 1 (no incluida en la muestra); <strong>Rmr 50–80 %</strong> en superficies de contacto</td>
+</tr>
+<tr>
+<td>Rugosidad (dinámico)</td>
+<td>10–20 µin (0,25–0,5 µm); &lt;5 µin no recomendado</td>
+<td>Contacto <strong>Ra ≤ 0,4</strong> (rectificado sin espiral)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Dirección de las marcas</td>
+<td>Las marcas de torno <strong>paralelas</strong> a la ranura sellan aun rugosas; las transversales (fresado) no</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Chaflán de entrada</td>
+<td>—</td>
+<td>Ra ≤ 0,8, Rz ≤ 6,3 µm</td>
+<td><strong>15–20°</strong>, bordes redondeados</td>
+</tr>
+<tr>
+<td>Concentricidad (radial)</td>
+<td>Excentricidad máx. 0,002" (0,05 mm) para 2,62 mm</td>
+<td>—</td>
+<td>Run-out Y = 0,025 (Ø ≤ 50) / 0,05 (Ø &gt; 50)</td>
+</tr>
+<tr>
+<td>Estiramiento instalado</td>
+<td>&gt;5 % no recomendado</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>Todo [VERIFICADO: S24 §3.6, §3.7, §4.1, Design Chart 4-2 y 4-3; S26 §B.2.4, Tablas 19–20; S25 §5.2–5.5].</p>
+<p><em>Agregado en la verificación:</em></p>
+<ul>
+<li><strong>Trelleborg contradice a Parker en las marcas de mecanizado:</strong> "Fundamentally grooves, scratches, pit marks, concentric or spiral machining scores, etc. are not permissible" [VERIFICADO: S26, apartado "Surfaces"]. Una cara refrentada en el torno debe quedar <strong>sin surcos visibles</strong> (avance fino y pasada final) y dentro de Ra ≤ 1,6 µm. No alcanza con que las marcas sean concéntricas.</li>
+<li>Trelleborg recomienda ajuste <strong>H8/f7</strong> para aplicaciones estáticas [VERIFICADO: S26].</li>
+<li>La excentricidad máxima de Parker (Design Chart 4-2) es 0,002" (0,05 mm) para 2,62 mm y <strong>0,003" (0,08 mm) para 3,53 mm</strong> [VERIFICADO: S24].</li>
+</ul>
+<h2 id="b3-dimensiones-de-alojamiento-p1">B3. Dimensiones de alojamiento (P1)</h2>
+<p><strong>Parker, sello de cara (Design Chart 4-3)</strong> [VERIFICADO: S24; conversión a mm CALCULADA]:</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Sección W</th>
+<th>Profundidad L</th>
+<th>Compresión</th>
+<th>Ancho G (líquidos)</th>
+<th>Radio de fondo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1,78 mm</td>
+<td>1,27–1,37 mm</td>
+<td>19–32 %</td>
+<td>2,57–2,72 mm</td>
+<td>0,13–0,38 mm</td>
+</tr>
+<tr>
+<td><strong>2,62 mm</strong></td>
+<td><strong>1,88–2,03 mm</strong></td>
+<td>20–30 %</td>
+<td><strong>3,45–3,61 mm</strong></td>
+<td>0,13–0,38 mm</td>
+</tr>
+<tr>
+<td><strong>3,53 mm</strong></td>
+<td><strong>2,57–2,72 mm</strong></td>
+<td>20–30 %</td>
+<td><strong>4,50–4,75 mm</strong></td>
+<td>0,25–0,64 mm</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Parker, sello radial estático (Design Chart 4-2):</strong></p>
+<ul>
+<li>2,62 mm: profundidad 2,06–2,11 mm, compresión 17–24 %, <strong>holgura diametral 0,05–0,13 mm</strong>, ancho 3,56–3,68 mm, <strong>excentricidad máx. 0,05 mm</strong>.</li>
+<li>3,53 mm: profundidad 2,82–2,87 mm, compresión 16–23 %, holgura 0,08–0,15 mm, ancho 4,75–4,88 mm.</li>
+<li>[VERIFICADO: S24]</li>
+</ul>
+<p><strong>Sensibilidad a la tolerancia FDM</strong> [CALCULADO: objetivo 25 % de compresión; la tolerancia de profundidad impresa es mía, ±0,15 mm, ESTIMADO]:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Sección</th>
+<th>Profundidad nominal</th>
+<th>Ancho al 75 % de llenado</th>
+<th>Compresión con ±0,10 mm</th>
+<th>±0,15 mm</th>
+<th>±0,20 mm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2,5 mm (hoy en <code>inputs.yaml</code>)</td>
+<td>1,88</td>
+<td>3,49</td>
+<td>21–29 %</td>
+<td>19–31 %</td>
+<td><strong>17–33 %</strong> (fuera de 20–30)</td>
+</tr>
+<tr>
+<td>2,62 mm</td>
+<td>1,97</td>
+<td>3,66</td>
+<td>21–29 %</td>
+<td>19–31 %</td>
+<td>17–33 %</td>
+</tr>
+<tr>
+<td><strong>3,53 mm</strong></td>
+<td>2,65</td>
+<td>4,93</td>
+<td>22–28 %</td>
+<td><strong>21–29 %</strong></td>
+<td>19–31 %</td>
+</tr>
+</tbody>
+</table></div>
+<p>Además, la sección del propio O-ring tiene tolerancia ±0,08 mm (2,62) o ±0,10 mm (3,53) [VERIFICADO: S24, ±.003"/±.004"].</p>
+<p><strong>Recomendación:</strong></p>
+<ol>
+<li>Pasar <code>oring_cs_mm</code> a <strong>3,53 mm</strong> (AS568 serie 2-2xx). Es la medida más tolerante a la imprecisión FDM y sigue siendo de stock.</li>
+<li>Usar <strong>sello de cara</strong> con <strong>bridas metal-metal o plástico-plástico a tope</strong>: la profundidad de la ranura fija la compresión, no el apriete. Así el creep de la brida de PETG (§A5) no afloja el O-ring.</li>
+<li><strong>No usar sellos radiales en alojamientos impresos.</strong> Piden holgura de 0,05–0,13 mm y excentricidad ≤0,05 mm para 2,62 mm (0,08–0,15 mm y ≤0,08 mm para 3,53 mm) [VERIFICADO: S24], fuera del alcance de una Ender-3 sin torno. Si hacen falta, tornear después las dos superficies.</li>
+</ol>
+<h2 id="b4-rugosidad-fdm-contra-rugosidad-requerida-y-cómo-lograr-el-sello">B4. Rugosidad FDM contra rugosidad requerida, y cómo lograr el sello</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Superficie</th>
+<th>Medido</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PETG, Sa por capa (0,12 / 0,15 / 0,18 / 0,21 mm)</td>
+<td>9,6–11,7 / 10,9–12,8 / 16,7–20,9 / <strong>19,9–24,4 µm</strong></td>
+<td>[VERIFICADO: S18]</td>
+</tr>
+<tr>
+<td>Nylon-CF, Ra cara superior / pared / cara de cama</td>
+<td>3,12–16,75 / 4,37–23,55 / <strong>2,12–4,02 µm</strong>; óptimo 2,82 / 3,95 / <strong>1,92 µm</strong> (capa 0,1 mm)</td>
+<td>[VERIFICADO: S19]</td>
+</tr>
+<tr>
+<td>Requerido, estático (Parker / Trelleborg)</td>
+<td>≤ 0,8 / ≤ 1,6 µm Ra</td>
+<td>[VERIFICADO: S24, S26]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Brecha</strong> [CALCULADO]:</p>
+<ul>
+<li>La pared impresa a 0,2 mm es <strong>10–30× más rugosa</strong> que lo admisible.</li>
+<li>La mejor cara FDM (la que apoya en la cama) queda en ~1,2–2,5× el límite de Trelleborg.</li>
+<li>Las líneas de capa de una pared vertical son <strong>paralelas</strong> a un O-ring radial. Parker considera favorables las marcas de torno paralelas a la ranura; extenderlo a las líneas de capa FDM es una extrapolación [ESTIMADO]. Trelleborg, además, no admite surcos concéntricos (§B2). La <strong>costura Z</strong> y los poros entre perímetros son caminos de fuga <strong>transversales</strong> [VERIFICADO: S22, PETG "leaked… through the seams"].</li>
+</ul>
+<p><strong>Métodos, de mejor a peor para P1:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Método</th>
+<th>Ra esperada</th>
+<th>Pros</th>
+<th>Contras</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Refrentar o tornear</strong> en el torno la cara de sello y la ranura</td>
+<td>~0,8–3,2 µm, con marcas <strong>circunferenciales</strong> (favorables según Parker)</td>
+<td>Herramienta disponible; geometría exacta (profundidad = compresión)</td>
+<td>Solo piezas de revolución o con cara plana que entre en el torno</td>
+<td>[ESTIMADO: Ra de torneado de plástico, memoria técnica]; dirección de marcas [VERIFICADO: S24]</td>
+</tr>
+<tr>
+<td><strong>Sellar contra metal o acrílico:</strong> la ranura impresa (pide Rt ≤ 16 µm) y la cara de sello en una tapa de aluminio</td>
+<td>La tapa comercial ya cumple</td>
+<td>La pieza impresa solo necesita el fondo de ranura razonable; el aluminio hace de disipador para la caja del ESC</td>
+<td>El fondo de ranura impreso puede seguir algo rugoso → imprimirlo <strong>boca abajo sobre la cama</strong> o refrentarlo</td>
+<td>[VERIFICADO: S26 Rt ≤ 16 µm; S19 cara de cama 1,9–4 µm]</td>
+</tr>
+<tr>
+<td><strong>Epoxi + lijado al agua</strong> (XTC-3D o West)</td>
+<td>≤ 0,8 µm</td>
+<td>Sella poros y costura</td>
+<td>Paso manual; HDT 48 °C (West)</td>
+<td>[VERIFICADO: S20–S22]; Ra [ESTIMADO]</td>
+</tr>
+<tr>
+<td><strong>Junta blanda</strong> (EPDM o neopreno celular cerrado, o silicona 20–40 Shore A, 2–3 mm, 25–40 % de compresión)</td>
+<td>Se adapta a 10–25 µm</td>
+<td>Lo más barato; tolera planitud FDM</td>
+<td>Pierde precarga por creep del PETG → usar limitadores. Junta <strong>impresa en TPU: falló</strong> (Prusa).</td>
+<td>[VERIFICADO: S22, gasket impreso falló]; resto [ESTIMADO]</td>
+</tr>
+<tr>
+<td><strong>Junta de silicona moldeada en molde impreso</strong></td>
+<td>Se adapta</td>
+<td>Forma libre; en la linterna roscada funcionó a 30 m</td>
+<td>Curado; adhesión. En la carcasa de cámara de Prusa "the silicone gasket … always leaked no matter how much it was squeezed"</td>
+<td>[VERIFICADO: S22]</td>
+</tr>
+<tr>
+<td><strong>No sellar: drenar</strong></td>
+<td>—</td>
+<td>Cubiertas de motor y correa</td>
+<td>Solo donde la inmersión no importa</td>
+<td>R02</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Configuración de impresión de zonas de sello</strong> [ESTIMADO, salvo lo indicado]:</p>
+<ul>
+<li>≥ 4 perímetros [VERIFICADO: S22] y 100 % de relleno en 5 mm alrededor de la ranura;</li>
+<li>capa de 0,12–0,15 mm (Sa 10–13 µm contra 20–24 µm a 0,21 mm) [VERIFICADO: S18];</li>
+<li>costura Z alineada lejos del cruce con el O-ring, y caras de sello hacia la cama cuando se pueda.</li>
+</ul>
+<h2 id="b5-material-del-o-ring-y-lubricante">B5. Material del O-ring y lubricante</h2>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Elastómero</th>
+<th>Agua de mar</th>
+<th>Grasa de silicona</th>
+<th>Aceite de petróleo</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NBR 70</strong></td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td><strong>Por defecto</strong> (lo que ya prevé <code>inputs.yaml</code>)</td>
+</tr>
+<tr>
+<td>EPDM</td>
+<td>1</td>
+<td>1</td>
+<td><strong>4</strong></td>
+<td>Bien en agua, pero <strong>nunca con grasa mineral</strong></td>
+</tr>
+<tr>
+<td>FKM</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>Si hace falta temperatura (caja junto al ESC)</td>
+</tr>
+<tr>
+<td>Neopreno CR</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>Juntas planas de salpicadura</td>
+</tr>
+<tr>
+<td>Silicona</td>
+<td>X (sin dato en "Brine (Seawater)"; "Water": 1)</td>
+<td><strong>3</strong></td>
+<td>2</td>
+<td>Evitar con grasa de silicona</td>
+</tr>
+<tr>
+<td>Poliuretano AU</td>
+<td>X (sin dato en "Brine (Seawater)"; <strong>"Water": 4</strong>)</td>
+<td>1</td>
+<td>2</td>
+<td><strong>No usar mojado</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>Escala: 1 satisfactorio, 2 aceptable (estático en general), 3 dudoso, 4 insatisfactorio, X sin dato [VERIFICADO: S24, tablas de compatibilidad, Sección VII; filas "Brine (Seawater)", "Water", "Silicone Greases" y "Petroleum Oil, Below 250°F"].</p>
+<ul>
+<li>
+<p><em>Corregido en la verificación:</em> la tabla anterior daba "1" para silicona y "2" para PU en agua de mar, y "—" para PU en aceite. En S24, la fila "Brine (Seawater)" tiene <strong>X</strong> para silicona y para AU, la fila "Water" tiene <strong>4</strong> para AU, y "Petroleum Oil" tiene <strong>2</strong> para AU. NBR, EPDM, FKM y CR coinciden con la versión anterior.</p>
+</li>
+<li>
+<p><strong>Lubricante:</strong> grasa de silicona en cada montaje; Prusa recomienda engrasar "before every use" [VERIFICADO: S22]. Parker Super-O-Lube es "a high-viscosity silicone oil" [VERIFICADO: S24].</p>
+</li>
+</ul>
+<h2 id="b6-sellos-de-eje">B6. Sellos de eje</h2>
+<p><strong>Velocidad periférica en P1</strong> [CALCULADO]: eje de Ø16 mm a 991 rpm = <strong>0,83 m/s</strong>; a 1211 rpm máx. = <strong>1,01 m/s (200 fpm)</strong>.</p>
+<ul>
+<li><em>Corregido (rpm actuales de <code>sizing_tablas.md</code>: 1491 en crucero, 1777 máx.):</em> <strong>1,25 m/s (246 fpm) en crucero y 1,49 m/s (293 fpm) a máxima</strong> [CALCULADO]. P1 <strong>supera</strong> el umbral de 200 fpm de Parker. Entre 200 y 400 fpm, Parker admite O-rings rotativos de sección ≤ 0,139" (3,53 mm), con su diseño de sello rotativo [VERIFICADO: S24, tabla "O-Ring Sections for Rotary Seals"].</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Opción</th>
+<th>Datos verificados</th>
+<th>Aplicable a P1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Retén radial (lip seal) NBR, tipo HMS5/HMSA10</strong></td>
+<td>Hasta 14 m/s; <strong>máx. 0,03 MPa</strong>; lubricado con aceite o grasa; −40 a +100 °C. Eje: <strong>Ra 0,2–0,8 µm (DIN 3760) o 0,2–0,5 (ISO 6194), ≥ 45 HRC, rectificado en plongée sin espiral</strong>; alojamiento H8, Ra 1,6–6,3 µm.</td>
+<td>Un <strong>eje de 316 no es templable</strong> (≪45 HRC) [ESTIMADO: memoria técnica]: el labio le hace surco, peor con arena. En el tubo <strong>no</strong>. En la boca superior, como excluidor engrasado: aceptable, con camisa endurecida o de cerámica si se gasta [ESTIMADO]. [VERIFICADO: S37]</td>
+</tr>
+<tr>
+<td><strong>O-ring como sello rotativo</strong></td>
+<td>Parker: por debajo de 200 fpm (1,02 m/s) la sección "usually not critical"; eje <strong>no mayor que el DI libre</strong> del O-ring (sin estiramiento, por el efecto Gow-Joule). Trelleborg: DI <strong>2–5 % mayor</strong> que el eje y "does not recommend the use of O-Rings as rotary seals".</td>
+<td><em>Corregido:</em> con las rpm actuales, P1 <strong>pasa</strong> los 200 fpm (246–293 fpm). Solo como excluidor de baja exigencia y con sección ≤ 3,53 mm. Parker además prefiere ejes templados (~55 HRC, "desirable, but not mandatory"). [VERIFICADO: S24 §5.27, S26 §B.2.4]</td>
+</tr>
+<tr>
+<td><strong>Prensaestopas</strong> (empaquetadura)</td>
+<td>Debe gotear <strong>2–3 gotas/min</strong> girando, porque el agua lubrica. Con más de <strong>8–10 gotas/min</strong>, servicio. Apretar de más hace surco en el eje.</td>
+<td>Solo si hubiera un <strong>paso de casco</strong> (pod o jet interior). La cola larga no atraviesa el casco. [VERIFICADO: S38]</td>
+</tr>
+<tr>
+<td><strong>V-ring / sello axial de labio</strong></td>
+<td>Sin hoja abierta en esta sesión (buscar: "V-ring seal VA VS data sheet speed")</td>
+<td>Mi candidato para la boca superior del tubo: sella contra una cara (arandela inox pulida), tolera desalineación [ESTIMADO]</td>
+</tr>
+<tr>
+<td><strong>Bujes lubricados por agua sin sello</strong></td>
+<td>—</td>
+<td><strong>Diseño base de P1</strong> (ver R01 y R02). Sin sello que falle.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="b7-motor-inundado-sellado-seco-acople-magnético-o-seco-arriba-p1">B7. Motor inundado, sellado seco, acople magnético o seco arriba (P1)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Opción</th>
+<th>Cómo funciona</th>
+<th>Pros</th>
+<th>Contras</th>
+<th>Evidencia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Seco arriba del agua (P1)</strong></td>
+<td>Outrunner en el aire; eje largo al agua</td>
+<td>Sin sellos dinámicos sumergidos; motor barato de RC o e-bike; refrigeración por aire; mantenimiento visible</td>
+<td>Spray salino en rodamientos e imanes → cubierta, barniz y enjuague; eje largo con velocidad crítica (calculada en <code>sizing_tablas.md</code>: hoy 5834 contra 1777 rpm; antes decía 5936 contra 1211)</td>
+<td>R02, R03; [CALCULADO]</td>
+</tr>
+<tr>
+<td><strong>Motor inundado</strong></td>
+<td>Bobinado y estator encapsulados, imanes y rotor recubiertos, bujes plásticos lubricados por agua</td>
+<td>"eliminates the need for shaft seals, magnetic couplings, and air- or oil-filled compartments"; refrigerado por agua</td>
+<td>Hay que encapsular un motor que no lo trae (epoxi de alta temperatura en 2 capas, ver R03) y recubrir los imanes; la arena entra al entrehierro; los rodamientos de bolas sumergidos se corroen</td>
+<td>[VERIFICADO: S39] T200: 390 W a 16 V, solo partes inox 316 expuestas</td>
+</tr>
+<tr>
+<td><strong>Sellado seco o con aceite</strong></td>
+<td>Carcasa estanca + sello de eje (labio o cerámico)</td>
+<td>Motor estándar</td>
+<td>Sello dinámico bajo presión; <strong>bombeo térmico</strong> (pod caliente que se enfría en agua fría succiona agua); aceite anual; agua pasando el sello</td>
+<td>R03 (Lift/FR, Flipsky 65161)</td>
+</tr>
+<tr>
+<td><strong>Acople magnético</strong></td>
+<td>El motor seco gira imanes a través de una pared estática; el rotor húmedo gira la hélice</td>
+<td>Sello <strong>100 % estático</strong> (O-ring de cara); desliza al trabarse, como protección de sobrecarga</td>
+<td>Par limitado por imanes y entrehierro; corrientes parásitas si la pared es metálica; volumen, costo e imanes de NdFeB en agua salada; los rodamientos del lado húmedo siguen en agua</td>
+<td>[ESTIMADO: memoria técnica, no verificado]; buscar: "magnetic coupling underwater thruster efficiency eddy loss"</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Veredicto:</strong> el <strong>seco arriba</strong> es el de menor riesgo de sellado y menor costo para P1. Las tres alternativas sumergidas trasladan el problema al sello o al encapsulado.</p>
+<h2 id="b8-prensaestopas-de-cable-y-conectores-ip68">B8. Prensaestopas de cable y conectores IP68</h2>
+<p><strong>LAPP SKINTOP ST-M</strong> (poliamida) [VERIFICADO: S40]:</p>
+<ul>
+<li><strong>IP66, IP68 (5 bar/30 min), IP69</strong>;</li>
+<li>junta de cierre de <strong>CR (resistente a ozono y UV)</strong>;</li>
+<li>−40 a +100 °C estático y −20 a +100 °C dinámico;</li>
+<li>M20×1,5 para cable de <strong>6–13 mm</strong> (o 4–10 mm con la junta reductora STR-M);</li>
+<li>cuerpo negro RAL 9005 resistente a UV.</li>
+</ul>
+<p>En P1:</p>
+<ul>
+<li><strong>un cable redondo por prensaestopas</strong>. Dos cables sueltos o un cable plano no sellan [ESTIMADO: el IP68 se certifica con cable redondo];</li>
+<li>la rosca M20 en PETG debe ser <strong>pasante con contratuerca</strong> y la junta debe apoyar sobre una <strong>cara plana refrentada o con epoxi</strong> (§B4); no confiar en una rosca impresa como sello;</li>
+<li>el agua viaja <strong>por dentro</strong> de un cable multifilar si su extremo queda mojado. Sellar las puntas con termocontraíble con adhesivo [ESTIMADO: memoria técnica].</li>
+</ul>
+<p><strong>Bulgin 900 Buccaneer</strong> [VERIFICADO: S41]:</p>
+<ul>
+<li>IP68 ensayado a <strong>1,054 kg/cm² (10 m) durante 2 semanas</strong>, e IP69K;</li>
+<li>niebla salina EN 60068-2-52 "Marine Severity";</li>
+<li><strong>32 A</strong> con 2–7 contactos (10 A con 10); 600 V CA/CC con 2–5 contactos;</li>
+<li>−40 a +85 °C; tapas para mantener IP68 desconectado.</li>
+</ul>
+<p>En P1 el motor está <strong>seco</strong> y fuera del agua: alcanza con conectores de fase de alta corriente (sin IP) dentro de la caja o la cubierta drenada. Un 32 A no cubre la corriente de fase pico del motor de P1 con margen; la de batería es de 62 A pico (<code>sizing_tablas.md</code> actual; antes decía 67 A). Un conector IP68 solo hace falta si se pasa a un pod.</p>
+<h2 id="b9-plan-de-verificación-barato-con-las-herramientas-del-usuario">B9. Plan de verificación (barato, con las herramientas del usuario)</h2>
+<ol>
+<li><strong>Probetas de tracción en XY y Z</strong>, secas y tras 30 días en agua del fjord, con el dinamómetro (§A9.4).</li>
+<li><strong>Probeta de tuerca A4 cautiva e inserto inox</strong>: arrancamiento con el dinamómetro y torque de rotura con llave y brazo de palanca.</li>
+<li>
+<p><strong>Prueba de estanqueidad de la caja del ESC</strong> [ESTIMADO: protocolo]:</p>
+<ul>
+<li>con papel absorbente adentro, sumergirla 30 min a 0,3 m;</li>
+<li>después, aire a +0,2 bar con agua jabonosa;</li>
+<li>repetir tras 20 ciclos de abrir y cerrar.</li>
+</ul>
+</li>
+<li>
+<p><strong>Termopar</strong> en la cara del soporte de motor y en la caja del ESC durante 2 h a crucero: confirmar &lt; 50 °C en todo lo impreso (§A4).</p>
+</li>
+<li><strong>Inspección mensual</strong> de fisuras del protector de hélice y de la zona de fijación (§A6).</li>
+</ol>
+<hr />
+<h2 id="hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</h2>
+<ul>
+<li>
+<p><strong><code>f_fatigue</code> de 0,30 a 0,06.</strong></p>
+<ul>
+<li>PETG impreso: 0,8–1,9·10⁵ ciclos al 30 % de la UTS [VERIFICADO: S16]; extrapolado, ~8 % a 10⁷ y ~4 % a 10⁸ [CALCULADO].</li>
+<li>P1 suma ~5·10⁷ ciclos de paso de pala en 300 h (49,6 Hz) [CALCULADO]. <em>Corregido con las rpm actuales (1491 rpm): </em><em>~8·10⁷ ciclos (74,6 Hz)</em><em>; a esa vida el ajuste da 4,2 % → <code>f_fatigue</code> ≈ </em><em>0,045</em><em> sería lo coherente</em> [CALCULADO].</li>
+<li>→ <strong>σa admisible ≈ 0,5 MPa (XY) y 0,2 MPa (Z)</strong> con R = 0,1 y f_fatigue 0,06; <strong>≈ 0,35 / 0,14 MPa</strong> con 0,045 [CALCULADO]. Ninguna pieza impresa en la ruta de carga alterna: hélice → tubo → cardán → espejo, correa → soporte de motor. Esa ruta va en aluminio o inox.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>f_water</code> de 0,85 a 0,75</strong> (−17 a −28 % a 30 días en agua de mar [VERIFICADO: S13]). El peor caso estricto es <strong>0,72</strong>; 0,75 es un redondeo ~4 % no conservador.</p>
+</li>
+<li><strong><code>f_z</code> de 0,55 a 0,40</strong>, y <code>sigma_t_z_mpa</code> de 25 a <strong>18</strong> (adhesión entre capas 18 ± 4 MPa [VERIFICADO: S1]).</li>
+<li><strong><code>f_creep</code> de 0,50 a 0,35.</strong> La admisible sostenida con FS 3 baja de 4,3 a <strong>2,7 MPa en XY</strong> y a <strong>1,1 MPa en Z</strong> [CALCULADO]. Uniones con precarga: <strong>limitadores de compresión metálicos</strong>.</li>
+<li><strong><code>t_service_max_c</code> de 60 a 50 °C</strong> para PETG cargado. Las HDT verificadas están entre 65,7 y 75 °C [VERIFICADO: S1–S4] y la epoxi West tiene HDT de 48 °C [VERIFICADO: S21]. Soporte de motor y base del ESC de <strong>aluminio</strong>; PETG de color claro al sol. Comprar PETG con <strong>HDT(1,8 MPa) ≥ 70 °C</strong> (PolyLite: 75 °C).</li>
+<li>
+<p><strong>Materiales descartados con la Ender-3 S1 (≤260 °C, abierta):</strong></p>
+<ul>
+<li>PA6-CF y PA12-CF piden 280–300 °C [VERIFICADO: S8, S9]; el PA6-CF además pierde <strong>−50 % de resistencia y −71 % de módulo</strong> mojado.</li>
+<li>PC y PC-PBT piden cámara de 70–110 °C [VERIFICADO: S6, S7]; ASA, cerramiento [VERIFICADO: S5].</li>
+<li>El PETG-CF solo sirve para rigidez (+75 % de E) con boquilla endurecida (la de latón dura ~9 h [VERIFICADO: S4]).</li>
+</ul>
+</li>
+<li>
+<p><strong>Uniones roscadas: tuerca A4 cautiva en bolsillo de fondo como estándar.</strong></p>
+<ul>
+<li>Resistió 166 kg contra 119 kg del inserto térmico en PETG [VERIFICADO: S27].</li>
+<li>Insertos inox 300 donde haga falta [VERIFICADO: S29]; latón solo en zona seca (descincificación con Zn &gt; 15 % [VERIFICADO: S30]).</li>
+<li><strong>Nada de Loctite 243 sobre PETG</strong> [VERIFICADO: S31]: usar nyloc A4 o Loctite 425 [VERIFICADO: S32].</li>
+<li>Torques de partida: M3 0,5, M4 1,0, M5 2,0 N·m [ESTIMADO, validar].</li>
+<li>Limpiar con IPA:agua 50:50 y nunca con MEK [VERIFICADO: S34]. Acetona: evitarla por precaución, pero que ataque el PETG es [NO VERIFICADO].</li>
+<li>Las cajas estancas de PETG necesitan <strong>epoxi interior</strong>: en el ensayo de Prusa, el PETG sin tratar estuvo entre los peores [VERIFICADO: S22].</li>
+</ul>
+</li>
+<li>
+<p><strong>O-ring: <code>oring_cs_mm</code> de 2,5 a 3,53 mm.</strong></p>
+<ul>
+<li>Con ±0,15 mm de tolerancia FDM, la compresión queda en 21–29 % (con 2,5 mm: 19–31 %, y 17–33 % con ±0,2) [CALCULADO].</li>
+<li>Ranura de cara de <strong>2,57–2,72 mm de profundidad × 4,50–4,75 mm de ancho</strong>, compresión 20–30 % [VERIFICADO: S24]; llenado 60–85 %, óptimo 75 % [VERIFICADO: S24]. <code>oring_squeeze_frac 0,25</code> y <code>gland_fill 0,75</code> quedan <strong>verificados</strong>.</li>
+<li><strong>Solo sellos de cara con bridas a tope</strong>; ningún sello radial en alojamiento impreso (excentricidad ≤ 0,05 mm [VERIFICADO: S24]).</li>
+</ul>
+</li>
+<li>
+<p><strong>Rugosidad: la superficie impresa (Sa 10–24 µm [VERIFICADO: S18]) no sella contra Ra ≤ 0,8–1,6 µm [VERIFICADO: S24, S26].</strong></p>
+<ul>
+<li>Refrentar en el torno la cara y la ranura (marcas circunferenciales, favorables según Parker [VERIFICADO: S24]), o sellar contra una tapa de aluminio, o epoxi y lijado. Trelleborg no admite surcos concéntricos visibles [VERIFICADO: S26]: hacer una pasada final fina.</li>
+<li>Zonas de sello: ≥ 4 perímetros [VERIFICADO: S22], 100 % de relleno y capa de 0,12–0,15 mm.</li>
+<li>No imprimir juntas en TPU (fallaron [VERIFICADO: S22]).</li>
+</ul>
+</li>
+<li>
+<p><strong>O-rings NBR 70 + grasa de silicona.</strong> Nunca grasa mineral con EPDM (rating 4 [VERIFICADO: S24]). Nada de O-rings de poliuretano mojados ("Water": 4 [VERIFICADO: S24]).</p>
+</li>
+<li>
+<p><strong>Cero sellos dinámicos sumergidos en la cola larga.</strong></p>
+<ul>
+<li>El eje de 316 (&lt;45 HRC) no sirve para un retén estándar (pide ≥ 45 HRC y Ra 0,2–0,8 [VERIFICADO: S37]).</li>
+<li>En la boca superior del tubo, V-ring o retén engrasado como <strong>excluidor</strong>, con drenaje. <em>Corregido:</em> con las rpm actuales, el eje de Ø16 gira a <strong>1,25–1,49 m/s (246–293 fpm)</strong>, por encima de los 200 fpm de Parker [CALCULADO]. Si se usa un O-ring, de sección ≤ 3,53 mm y DI ≥ eje [VERIFICADO: S24].</li>
+<li>Es una ventaja decisiva frente al pod: sello dinámico, bombeo térmico (R03) o encapsulado del motor (S39).</li>
+</ul>
+</li>
+<li>
+<p><strong>316 sumergido:</strong> corrosión en rendija por encima de 10–15 °C en agua de mar [VERIFICADO: S42]. Guardar la cola <strong>fuera del agua</strong> y escurrida, enjuagar con agua dulce y considerar un ánodo de zinc. La hélice de aluminio actúa de ánodo y se come primero.</p>
+<ul>
+<li><em>Agregado en la verificación:</em> ASSDA dice que eso hace al 316 "unsuitable for immersed applications where crevices exist", y que "propeller shafts made from 316 are usually galvanically protected" [VERIFICADO: S42]. El eje de 316 dentro de bujes de POM sumergidos es exactamente ese caso. El ánodo pasa de "considerar" a <strong>obligatorio</strong>, o se cambia a un inox de mayor PREN (dúplex 2205) [ESTIMADO: memoria técnica, no verificado].</li>
+</ul>
+</li>
+<li>
+<p><strong>Prensaestopas LAPP SKINTOP ST-M M20 (IP68 5 bar/30 min, junta CR anti-UV [VERIFICADO: S40]).</strong> Un cable redondo por prensaestopas, contratuerca y junta sobre cara refrentada. El motor seco no necesita conectores IP68.</p>
+</li>
+</ul>
+<hr />
+<h2 id="verificación-adversarial">Verificación (adversarial)</h2>
+<p>Fecha: 2026-10-01. Método: volví a bajar las <strong>43 URLs</strong> con <code>curl</code>. Los PDF los leí con <code>pdftotext</code>; HTML, JSON y Markdown, como texto plano. <strong>42 abrieron</strong> (HTTP 200). S11 devolvió un desafío reCAPTCHA y S12 un error 502 con curl; las dos se leyeron bien con WebFetch. Después contrasté cada número clave contra el texto de su fuente. Los valores [CALCULADO] los recalculé contra <code>resultados/sizing_tablas.md</code> tal como está hoy (generado el 2026-10-01 14:07). Agregué una fuente nueva, abierta en esta verificación: Prusa Knowledge Base, PETG (https://help.prusa3d.com/article/petg_2059).</p>
+<h3 id="correcciones-aplicadas-al-texto">Correcciones aplicadas al texto</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Afirmación (sección) / URL</th>
+<th>Estado</th>
+<th>Nota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Ventilador apagado" en todas las probetas Polymaker, incl. S4 (§A1)</td>
+<td><strong>corregido</strong></td>
+<td>S4 (PETG-rCF08): "Cooling fan 0-50%". En S2, S5–S9 sí dice OFF.</td>
+</tr>
+<tr>
+<td>Creep: "al 70 % … se duplica a 20 h" (§A5)</td>
+<td><strong>corregido</strong></td>
+<td>En S15 la duplicación a 20 h es del caso <strong>50 %</strong> (~5 % → ~10 %). Al 70 %: 25 % (X) y 7 % (Y) a 5 h, que suben a 30 % y 8 %.</td>
+</tr>
+<tr>
+<td>Basquin σmax = 362·N^−0,306 (§A6)</td>
+<td><strong>corregido</strong></td>
+<td>Recalculado desde la Tabla 2 de S16: <strong>A = 367</strong>, b = −0,306. Los valores de la tabla (5,3 / 2,6 / 1,3 MPa) ya correspondían a 367.</td>
+</tr>
+<tr>
+<td>Hélice a 991 rpm, 49,6 Hz, 5,4·10⁷ ciclos/300 h; relación 3:1; correa ~790 Hz (§1, §A6, §A8, Hallazgos)</td>
+<td><strong>corregido</strong></td>
+<td><code>sizing_tablas.md</code> actual: 1491 rpm y correa 2:1 → <strong>74,6 Hz, 8,1·10⁷ ciclos</strong>; motor ~2980 rpm; engrane ~990 Hz. Se mantuvo el texto viejo, marcado.</td>
+</tr>
+<tr>
+<td><code>f_fatigue</code> = 0,06 "entre 4 % y 8 %" (§A6, §A7)</td>
+<td><strong>corregido (bandera)</strong></td>
+<td>Con 8,1·10⁷ ciclos el propio ajuste da <strong>4,2 %</strong>. 0,06 es ~1,4× alto; lo coherente es ~0,045. <code>inputs.yaml</code> hoy usa 0,06.</td>
+</tr>
+<tr>
+<td>σa = 0,77 MPa a partir de σmax = 1,7 MPa (§A6, §A7)</td>
+<td><strong>aclarado</strong></td>
+<td>Supone R = 0,1 (σa = 0,45·σmax), sin decirlo. Con R = 0,2: 0,69 → 0,46 / 0,18 MPa.</td>
+</tr>
+<tr>
+<td>f_water "tomo la peor: 0,72 ≈ 0,75" (§A2, §A7)</td>
+<td><strong>corregido (bandera)</strong></td>
+<td>Redondear hacia arriba no es tomar el peor caso. Estricto: 0,72.</td>
+</tr>
+<tr>
+<td>Eastman: "Avoid tapping a drilled hole or using self-tapping screws" (§A10.1)</td>
+<td><strong>corregido: cita inexistente</strong></td>
+<td>S34 dice "Do not overly tighten screws or use self-tapping screws" y "Use metal inserts if frequent assembly/reassembly is involved". Lo de roscar con macho queda [ESTIMADO].</td>
+</tr>
+<tr>
+<td>Acetona "ataca o disuelve el PETG" [VERIFICADO: S34] (§A9.2, §A11, Hallazgos)</td>
+<td><strong>no verificado</strong></td>
+<td>S34 no menciona la acetona. Prusa KB: disolver PETG solo con diclorometano. MEK, ciclohexanona, THF y cloruro de metileno sí están en S34.</td>
+</tr>
+<tr>
+<td>Parker, compatibilidad en agua de mar: silicona "1", PU "2"; PU en aceite "—" (§B5)</td>
+<td><strong>corregido</strong></td>
+<td>Fila "Brine (Seawater)": silicona <strong>X</strong>, AU <strong>X</strong>. Fila "Water": AU <strong>4</strong>. "Petroleum Oil &lt;250°F": AU <strong>2</strong>. NBR, EPDM, FKM y CR OK.</td>
+</tr>
+<tr>
+<td>Eje Ø16 a 1,01 m/s "justo en el límite de 200 fpm" (§B6, Hallazgos)</td>
+<td><strong>corregido</strong></td>
+<td>Con 1491–1777 rpm: <strong>1,25–1,49 m/s (246–293 fpm)</strong>, por encima de 200. Parker admite W ≤ 0,139" entre 200 y 400 fpm (tabla de S24).</td>
+</tr>
+<tr>
+<td>Velocidad crítica 5936 / 1211 rpm; batería 67 A pico (§B7, §B8)</td>
+<td><strong>corregido</strong></td>
+<td><code>sizing_tablas.md</code> actual: <strong>5834 / 1777 rpm</strong> y <strong>62 A</strong>.</td>
+</tr>
+<tr>
+<td>ISO 3601-2 "admite inspección visual cuando la rugosidad no es medible" (§A9.3)</td>
+<td><strong>corregido (matiz)</strong></td>
+<td>§5.3.3 lo admite solo por longitud de medición corta. No reemplaza un rugosímetro.</td>
+</tr>
+<tr>
+<td>Brassland: DZR "for any installation that combines water contact… and chloride exposure" (§A10.2)</td>
+<td><strong>corregido (cita completada)</strong></td>
+<td>La elipsis omitía "elevated temperature". Para agua de mar Brassland recomienda latón al aluminio C68700.</td>
+</tr>
+<tr>
+<td>Hackaday S35: "Bostik P580 el más fuerte" (§A11)</td>
+<td><strong>corregido (matiz)</strong></td>
+<td>El resumen dice "absolute winner", pero el cuerpo dice que MMA y similares "score the highest". Gráfico y video <strong>no vistos</strong>.</td>
+</tr>
+<tr>
+<td>"Las líneas de capa… Parker considera favorable" (§B4)</td>
+<td><strong>corregido</strong></td>
+<td>Parker habla de marcas de torno, no de capas FDM: pasa a [ESTIMADO]. Trelleborg prohíbe "concentric or spiral machining scores" (S26), cosa que no se citaba.</td>
+</tr>
+<tr>
+<td>Excentricidad radial ≤ 0,05 mm (§B3)</td>
+<td><strong>completado</strong></td>
+<td>0,05 mm es para 2,62 mm. Para 3,53 mm: 0,003" = 0,08 mm (S24, Design Chart 4-2).</td>
+</tr>
+<tr>
+<td>Boquilla de latón ~9 h [VERIFICADO: S8, S9, S10] (§A1)</td>
+<td><strong>corregido</strong></td>
+<td>Está en S4, S8 y S9; S10 solo pide "hardened nozzle".</td>
+</tr>
+<tr>
+<td>Hélice PETG "se fisuró a los 4 meses" (§A6)</td>
+<td><strong>corregido (matiz)</strong></td>
+<td>Según R02 y R03, la pala se fisuró <strong>al desmontarla</strong> para inspección, tras ~4 meses.</td>
+</tr>
+<tr>
+<td>Prusa S22: PETG sin tratar (§A9.2, §B4)</td>
+<td><strong>agregado</strong></td>
+<td>"the worst results came with untreated PETG and acetone smoothed ASA". La junta de silicona moldeada falló en la carcasa de cámara y funcionó en la linterna.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="fuentes-reabiertas-43-de-43">Fuentes reabiertas (43 de 43)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Id / URL</th>
+<th>Estado</th>
+<th>Números chequeados</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1 prusa3d.com Prusament PETG TDS</td>
+<td>OK</td>
+<td>HDT 68/68; 47 ± 2; interlayer 18 ± 4; E 1,5 GPa; 0,07 / 0,10 % (24 °C, 22 % HR); 250 ± 10 °C; 2 perímetros. Ventilador de las probetas: 50 %.</td>
+</tr>
+<tr>
+<td>S2 polymaker.com PolyLite PETG V6.0</td>
+<td>OK</td>
+<td>Tg 81; HDT 78/75; 0,54 %; 50,8 / 42,8 MPa; E 2116,8; 230–260 °C; ventilador OFF; "should not be used for design". Aceite y grasa "Good"; ácidos y álcalis fuertes "Poor".</td>
+</tr>
+<tr>
+<td>S3 bblcdn Bambu PETG Basic V3.0</td>
+<td>OK</td>
+<td>Tg 69; HDT 71/68; 0,45 %; 51 / 35 MPa; E 2780; flexión 75/56; impacto 34,2/10,5; cámara 35–50 °C.</td>
+</tr>
+<tr>
+<td>S4 fiberon PETG-rCF08</td>
+<td>OK, salvo ventilador (corregido)</td>
+<td>69,7; 68,6/65,7; 0,55 %; 59,8 / 41,1; E 3710; elongación Z 1,9 %; latón ~9 h.</td>
+</tr>
+<tr>
+<td>S5 wiki Polymaker ASA</td>
+<td>OK</td>
+<td>98; 103/100; 43,8 / 32; E 2379; "Closure Chamber: Needed"; probetas a 90 °C.</td>
+</tr>
+<tr>
+<td>S6 wiki PolyLite PC</td>
+<td>OK</td>
+<td>113; 111/107; 69,1 / 52,8; E 2497; cámara 70–100 °C.</td>
+</tr>
+<tr>
+<td>S7 wiki PC-PBT</td>
+<td>OK</td>
+<td>140; 107/91; 50,4 / 37,9; E 1940; 260–280 °C; cámara 100–110 °C.</td>
+</tr>
+<tr>
+<td>S8 PA6-CF20 TDS V1.1</td>
+<td>OK</td>
+<td>74,2; 215/173; 3,3 %; seco 109,3 / 54,0 / E 8636,5; húmedo 54,7 / 25,5 / 2508,1 (5,30 %); 280–300 °C; 100 °C × 16 h.</td>
+</tr>
+<tr>
+<td>S9 PA12-CF10 TDS V1.1</td>
+<td>OK</td>
+<td>55; 131/105; 1,5 %; 77,4 / 52,2 / 3311; húmedo 71,7 / 42,1 / 3131,7 (2,92 %).</td>
+</tr>
+<tr>
+<td>S10 wiki PA6-CF20</td>
+<td>OK</td>
+<td>280–300 °C; hotend all-metal 280 °C+; recocido 100 °C × 16 h.</td>
+</tr>
+<tr>
+<td>S11 PMC8036839</td>
+<td>OK (por WebFetch; curl → reCAPTCHA)</td>
+<td>28,05 % p/p; 20 °C; ~0,3 %; estable en semana 7 (salada), 8 (destilada) y 9 (azúcar); sin ensayos mecánicos.</td>
+</tr>
+<tr>
+<td>S12 ouci.dntb.gov.ua</td>
+<td>OK (por WebFetch; curl → 502)</td>
+<td>70 °C, 10 semanas, &lt;1 %, UV 1000 h; tracción "modest increase".</td>
+</tr>
+<tr>
+<td>S13 DOAJ API (IJLMM 2026)</td>
+<td>OK</td>
+<td>30 días; PETG −17 a −28 %; Nylon −31 a −44; ABS −15 a −25; PLA −26 a −35.</td>
+</tr>
+<tr>
+<td>S14 DOAJ API (Results in Materials 2023)</td>
+<td>OK</td>
+<td>Nylon, ABS, PLA, PCTG, PETG y ASA; "extremely high diffusivity"; rigidez proporcional a la masa absorbida.</td>
+</tr>
+<tr>
+<td>S15 PMC12349189</td>
+<td>OK, salvo creep al 70 % (corregido)</td>
+<td>X 50,44 ± 0,09; Y 22,48 ± 4,61; 235 °C; 0,1 mm; 21,3 °C, 39 % HR; umbrales 0,1 % (X) y 0,05 % (Y).</td>
+</tr>
+<tr>
+<td>S16 PMC11243948</td>
+<td>OK</td>
+<td>R = 0,2; 7 Hz; 215–220 °C; UTS XY 32,9; ciclos 60 / 45 / 30 % = 1,2–1,5·10⁴ / 1,7–4,1·10⁴ / 0,8–1,9·10⁵.</td>
+</tr>
+<tr>
+<td>S17 PMC12845617</td>
+<td>OK</td>
+<td>R = 0,05; 10 Hz; runout 10⁶; ASA 25 % (8 MPa), PA12 17 % (7,4), PC-ABS 15 % (4,7), PC 7 % (3,6). Los límites figuran como Δσ (≈ 0,95·σmax con R = 0,05).</td>
+</tr>
+<tr>
+<td>S18 PMC13028808</td>
+<td>OK</td>
+<td>Sa (perfilómetro óptico): 9,6–11,7 / 10,9–12,8 / 16,7–20,9 / 19,9–24,4 µm.</td>
+</tr>
+<tr>
+<td>S19 PMC10489770</td>
+<td>OK</td>
+<td>Ra: pared 4,37–23,55, cara superior 3,12–16,75, cara inferior 2,12–4,02; óptimos 3,95 / 2,82 / 1,92 µm.</td>
+</tr>
+<tr>
+<td>S20 smooth-on XTC-3D</td>
+<td>OK</td>
+<td>2A:1B; 350 cps; 10 min; 3,5 h; 80D; "PetG"; 28,3 g → 651 cm² a 0,04 cm.</td>
+</tr>
+<tr>
+<td>S21 westsystem 105/205</td>
+<td>OK</td>
+<td>7900 psi (54,5 MPa); 3,4 %; 4,08·10⁵ psi; HDT 118 °F (48 °C); Tg 129 / 142 °F (54 / 61 °C).</td>
+</tr>
+<tr>
+<td>S22 blog.prusa3d.com</td>
+<td>OK + agregado</td>
+<td>Todas las citas textuales están; se agregó "worst results… untreated PETG".</td>
+</tr>
+<tr>
+<td>S23 hackaday 2026-05-30</td>
+<td>OK</td>
+<td>1 bar; epoxi y 2 PU interiores; "epoxy held up the best". Video <strong>no visto</strong> (declarado).</td>
+</tr>
+<tr>
+<td>S24 Parker ORD 5700</td>
+<td>OK, salvo filas de compatibilidad (corregido)</td>
+<td>30 % / 16 % / 25 %; 0,2 mm; 60–85 %, 75 %, 10 % de vacío; 32 / 16 / 63 RMS; 10–20 µin; Charts 4-2 y 4-3 (todas las cotas en mm coinciden); ±.003 / ±.004; 200 fpm; Super-O-Lube.</td>
+</tr>
+<tr>
+<td>S25 ISO 3601-2 (muestra iTeh)</td>
+<td>OK, salvo matiz §5.3.3</td>
+<td>Rmr 50–80 %; 15–20°; Y 0,025 / 0,05.</td>
+</tr>
+<tr>
+<td>S26 Trelleborg O-rings 2024</td>
+<td>OK + agregado</td>
+<td>13–36 / 10–35 / 6–27 %; ≤ 85 %; Tabla 19 (Ra 1,6, Rz 6,3, Rt 10; Rt 16; dinámico Ra 0,4); chaflán Ra 0,8 / Rz 6,3; DI 2–5 %; "does not recommend".</td>
+</tr>
+<tr>
+<td>S27 cnckitchen helicoils</td>
+<td>OK</td>
+<td>M3, PETG, 4 perímetros, 100 %; 118 / 119 / 120 / 86 / <strong>166 kg</strong>; 1 / 3 / 1 / 2 / 2 N·m; "&gt;1500 N".</td>
+</tr>
+<tr>
+<td>S28 cnckitchen insert tips</td>
+<td>OK</td>
+<td>PETG 245 °C; +10–20 °C; 90 %; ~1 mm más profundo; agujeros más chicos que en CAD.</td>
+</tr>
+<tr>
+<td>S29 pemnet SI</td>
+<td>OK</td>
+<td>Todas las cifras M4–M6 en ABS y PC coinciden; "B = Free-machining, leaded brass"; "C = 300 series stainless… Passivated".</td>
+</tr>
+<tr>
+<td>S30 brassland corrosion</td>
+<td>OK, salvo cita incompleta (corregido)</td>
+<td>Zn &gt; ~15 %; capa y tapón; 316 "slightly more noble"; Al "corrodes rapidly"; PTFE.</td>
+</tr>
+<tr>
+<td>S31 Loctite 243 TDS</td>
+<td>OK</td>
+<td>"not normally recommended for use on plastics… stress cracking".</td>
+</tr>
+<tr>
+<td>S32 Loctite 425 TDS</td>
+<td>OK</td>
+<td>Cianoacrilato de baja resistencia; "locking metal and plastics fasteners"; −54 a +85 °C.</td>
+</tr>
+<tr>
+<td>S33 Henkel Design Guide vol. 6</td>
+<td>OK</td>
+<td>PET "Normally Compatible" con CA y acrílicos; ABS, ASA y PC agrietados por CA sin curar.</td>
+</tr>
+<tr>
+<td>S34 Eastman Spectar TRS-236A</td>
+<td>OK, salvo cita inventada y acetona (corregido)</td>
+<td>DP-100; CA, acrílicos 2K, PU 2K, epoxi 2K; IPA:agua 50:50; 120 grit; MEK y cloruro de metileno; arandelas.</td>
+</tr>
+<tr>
+<td>S35 hackaday 2025-01-30</td>
+<td>OK, salvo podio ambiguo (corregido)</td>
+<td>"Some superglues seem to weaken PETG". Video de Cosel <strong>no visto</strong> (declarado).</td>
+</tr>
+<tr>
+<td>S36 Sika 291i PDS</td>
+<td>OK</td>
+<td>Agua de mar; "must not be used to seal plastics that are prone to stress cracking (e.g. PMMA, PC, etc.)"; −50 a 90 °C.</td>
+</tr>
+<tr>
+<td>S37 SKF HMS5 / HMSA10</td>
+<td>OK</td>
+<td>14 m/s; 0,03 MPa; −40 a +100 °C; Ra 0,2–0,8 (DIN) y 0,2–0,5 (ISO); ≥ 45 HRC; rectificado en plongée; H8.</td>
+</tr>
+<tr>
+<td>S38 Trey Bull, prensaestopas</td>
+<td>OK</td>
+<td>2–3 gotas/min; &gt; 8–10 → servicio; surco en el eje por sobreapriete.</td>
+</tr>
+<tr>
+<td>S39 bluerobotics T200</td>
+<td>OK</td>
+<td>Cita "eliminates the need for shaft seals…"; 390 W a 16 V; solo 316 expuesto.</td>
+</tr>
+<tr>
+<td>S40 LAPP SKINTOP ST-M</td>
+<td>OK</td>
+<td>IP66 / IP68 (5 bar / 30 min) / IP69; CR; −40 / −20 a +100 °C; M20: 6–13 mm (STR-M: 4–10); RAL 9005.</td>
+</tr>
+<tr>
+<td>S41 Bulgin 900</td>
+<td>OK</td>
+<td>1,054 kg/cm², 10 m, 2 semanas; IP69K; EN 60068-2-52; 32 A (2–7 contactos), 10 A (10); 600 V (2–5 contactos); −40 a +85 °C; tapas.</td>
+</tr>
+<tr>
+<td>S42 ASSDA marino</td>
+<td>OK + agregado</td>
+<td>10–15 °C; ejes "usually galvanically protected"; "self drain"; "wash down". Agregado: "unsuitable for immersed applications where crevices exist".</td>
+</tr>
+<tr>
+<td>S43 PMC12986719</td>
+<td>OK</td>
+<td>SAE 15W-40; 7 días; 25 ± 2 °C; hexagonal al 30 %; −16,9 %; PETG+CF sin cambio significativo.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="lo-que-no-pude-cerrar">Lo que no pude cerrar</h3>
+<ul>
+<li>Los ratings de compatibilidad de Parker los leí por posición de columna en el texto extraído del PDF. Revisé la alineación con dos encabezados, pero conviene confirmarlo en el PDF.</li>
+<li>La tabla 3 de S19 se extrajo desordenada: confirmé los extremos de los rangos, no cada fila.</li>
+<li>Gráfico de Cosel (S35) y video de Half-Baked-Research (S23): no vistos.</li>
+<li>Acetona contra PETG: sin una fuente que lo cuantifique. buscar: "Eastman copolyester chemical resistance acetone".</li>
+</ul></article>
+</div>
+</main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
+</body>
+</html>

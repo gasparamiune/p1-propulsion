@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 — Investigación — P1-J · Strålen</title>
+<meta name="description" content="Resumen de lo que se aprendió, con la fuente de cada dato. El detalle y los links están en research/: R10a (toma), R10b (auditoría del plano), R11 (componentes y precios), R12…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="01 — Investigación — P1-J · Strålen">
+<meta property="og:description" content="Resumen de lo que se aprendió, con la fuente de cada dato. El detalle y los links están en research/: R10a (toma), R10b (auditoría del plano), R11 (componentes y precios), R12…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/01_investigacion.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=a7f9186a">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="01 — Investigación — P1-J · Strålen">
+<meta name="twitter:description" content="Resumen de lo que se aprendió, con la fuente de cada dato. El detalle y los links están en research/: R10a (toma), R10b (auditoría del plano), R11 (componentes y precios), R12…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=a7f9186a">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/01_investigacion.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header" id="top">
+  <div class="bar wide">
+    <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../index.html" class=nav-home>Inicio</a><a href="../visor/index.html">Visor 3D</a><a href="../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../planos.html">Planos</a><a href="../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
+  </div>
+</header>
+
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../documentos.html">Documentos</a> / <span class="mono">01_investigacion.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/01_investigacion.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#0-resumen-ejecutivo">0. Resumen ejecutivo</a></li>
+<li><a href="#1-el-plano-de-jorge-y-sus-problemas-r10b">1. El plano de Jorge y sus problemas (R10b)</a></li>
+<li><a href="#2-la-toma-por-qué-la-rejilla-estaba-mal-y-la-regla-correcta-r10a">2. La toma: por qué la rejilla estaba mal y la regla correcta (R10a)</a></li>
+<li><a href="#3-métodos-de-bomba-planeo-y-cargas-r12">3. Métodos de bomba, planeo y cargas (R12)</a></li>
+<li><a href="#4-componentes-y-precios-r11">4. Componentes y precios (R11)</a></li>
+<li><a href="#5-jets-comerciales-y-jet-boats-eléctricos-de-referencia">5. Jets comerciales y jet boats eléctricos de referencia</a></li>
+<li><a href="#6-normativa-r13-r07">6. Normativa (R13, R07)</a></li>
+<li><a href="#7-materiales-y-sellado-r05">7. Materiales y sellado (R05)</a></li>
+<li><a href="#8-eléctrica-y-seguridad-r06">8. Eléctrica y seguridad (R06)</a></li>
+<li><a href="#9-agua-y-viento-en-als-r07">9. Agua y viento en Als (R07)</a></li>
+<li><a href="#10-qué-queda-abierto">10. Qué queda abierto</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#0-resumen-ejecutivo">0. Resumen ejecutivo</a></li>
+<li><a href="#1-el-plano-de-jorge-y-sus-problemas-r10b">1. El plano de Jorge y sus problemas (R10b)</a></li>
+<li><a href="#2-la-toma-por-qué-la-rejilla-estaba-mal-y-la-regla-correcta-r10a">2. La toma: por qué la rejilla estaba mal y la regla correcta (R10a)</a></li>
+<li><a href="#3-métodos-de-bomba-planeo-y-cargas-r12">3. Métodos de bomba, planeo y cargas (R12)</a></li>
+<li><a href="#4-componentes-y-precios-r11">4. Componentes y precios (R11)</a></li>
+<li><a href="#5-jets-comerciales-y-jet-boats-eléctricos-de-referencia">5. Jets comerciales y jet boats eléctricos de referencia</a></li>
+<li><a href="#6-normativa-r13-r07">6. Normativa (R13, R07)</a></li>
+<li><a href="#7-materiales-y-sellado-r05">7. Materiales y sellado (R05)</a></li>
+<li><a href="#8-eléctrica-y-seguridad-r06">8. Eléctrica y seguridad (R06)</a></li>
+<li><a href="#9-agua-y-viento-en-als-r07">9. Agua y viento en Als (R07)</a></li>
+<li><a href="#10-qué-queda-abierto">10. Qué queda abierto</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="01-investigación-waterjet-eléctrico-inboard-para-el-jet-boat-de-jorge">01 — Investigación: waterjet eléctrico inboard para el jet boat de Jorge</h1>
+<p>Resumen de lo que se aprendió, con la fuente de cada dato. El detalle y los links están en <code>research/</code>:
+<a href="research/R10a_toma_waterjet.html">R10a</a> (toma), <a href="research/R10b_auditoria_plano_jorge.html">R10b</a> (auditoría del
+plano), <a href="research/R11_componentes_jet.html">R11</a> (componentes y precios), <a href="research/R12_metodos_waterjet.html">R12</a>
+(métodos de bomba, planeo y cargas), <a href="research/R13_legal_jet.html">R13</a> (normativa), y de la etapa anterior
+<a href="research/R03_proyectos_jet_ducted_efoil.html">R03</a> (jets impresos), <a href="research/R05_materiales_sellado.html">R05</a>
+(PETG y sellado), <a href="research/R06_electrica.html">R06</a> (eléctrica y seguridad) y <a href="research/R07_dinamarca.html">R07</a>
+(Dinamarca, agua y viento).</p>
+<p>Etiquetas: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO]. Los números que salen del
+código de este proyecto van entre marcadores <code>&lt;!--V:…--&gt;</code> y los actualiza <code>docgen.py</code>; los de la
+investigación se citan con su informe.</p>
+<h2 id="0-resumen-ejecutivo">0. Resumen ejecutivo</h2>
+<ol>
+<li>
+<p><strong>El plano de Jorge es un croquis conceptual, no un plano fabricable.</strong> Las vistas no comparten escala
+    (dispersión del 26 %), la toma está detrás del impulsor, el corte no tiene conducto de admisión, falta el
+    sello y la boquilla queda dentro de la carcasa [CALCULADO: R10b §2, §4.1]. Se rehízo el diseño entero; del
+    plano quedan los requisitos (1 piloto, ≥ 30 km/h, motor directo, toma enrasada, boquilla y reversa).</p>
+</li>
+<li>
+<p><strong>Jorge tenía razón con la rejilla.</strong> El agua tiene que entrar a proa del impulsor y subir por una rampa
+    hasta su cara. En el plano la rejilla estaba 22–25 cm a popa de la cara del impulsor, del lado de descarga,
+    y el eje quedaba sobre la flotación: la bomba no cebaba [CALCULADO: R10a §1–§3].</p>
+</li>
+<li>
+<p><strong>La estabilidad del casco es el riesgo n.º 1.</strong> Con 0,80 m de manga y el piloto sentado alto, el GM sale
+    entre −113 y +90 mm según la posición del piloto [CALCULADO: R10b H1]; con el modelo de este proyecto,
+    GM = 0,010 m. La propulsión no lo resuelve (D-04).</p>
+</li>
+<li>
+<p><strong>La masa realista es 165–242 kg, no 150</strong> [ESTIMADO: R10b §4.2]. Con más de ~200 kg, 5 kW continuos no alcanzan para 30 km/h
+    sostenidos [CALCULADO: R10b H13–H14]. Este diseño llega a 24,0 km/h
+    sostenidos y 28,1 km/h por ratos (02 §5).</p>
+</li>
+<li>
+<p><strong>Motor y tensión.</strong> El HPM5000 de catálogo gira muy lento para un impulsor chico (≈ 91 rpm/V a 48 V); el
+    Maytech MTI120116 150 KV refrigerado por agua sí sirve en ≤ 50 V [VERIFICADO: R11 §0, §1]. No hay packs
+    LFP 13S comerciales en la UE: la opción ≤ 50 V es 12S (2 × LiTime 36 V 60 Ah) [VERIFICADO: R11 §3].</p>
+</li>
+<li>
+<p><strong>Comprar la bomba es una opción seria.</strong> La AWT JT132 (Ø130, 12 kg, dirección y reversa incluidas) cuesta
+    ≈ 1000–1100 USD FOB [ESTIMADO: buscador, R11 §4] y resuelve las piezas más difíciles de fabricar.</p>
+</li>
+<li>
+<p><strong>Legal.</strong> Probablemente no es "vandscooter" si el piloto va sentado <em>dentro</em> del casco; no es speedbåd
+    por debajo de 19 kW; los 30 km/h solo son legales a más de 300 m de la costa, en el centro de Als Fjord, y
+    nunca en Als Sund (4 kn) [VERIFICADO: R13 §0]. Confirmar por escrito (R13 §8).</p>
+</li>
+</ol>
+<h2 id="1-el-plano-de-jorge-y-sus-problemas-r10b">1. El plano de Jorge y sus problemas (R10b)</h2>
+<p>Objeto: <code>referencias/2026-09-26_plano_preliminar_waterjet_jorge.png</code>, "PLANO PRELIMINAR – WATERJET PARA JET
+BOAT 2.30 m", 1:10, rotulado "NO USAR COMO PLANO FINAL DE MECANIZADO". Datos del plano: casco 2,30 × 0,80 m,
+puntal 0,52 m, espejo 0,42 m; 1 piloto; 5 kW nominales / 7,2 kW máx.; 72 V, 60/100 A; 4500 rpm directo a un
+impulsor axial Ø108 de 4 álabes + estator; tobera Ø72; eje Ø20 inox; toma con rejilla de 120 × 90 mm; 150 kg
+totales; ≥ 30 km/h [VERIFICADO: lectura del plano, R10b §2].</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>N.º</th>
+<th>Hallazgo (R10b §3)</th>
+<th>Sev.</th>
+<th>Cómo lo resuelve este diseño</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H1</td>
+<td>Estabilidad inicial nula o negativa: puede volcar quieto</td>
+<td>Crítica</td>
+<td><strong>No resuelto por la propulsión.</strong> GM = 0,010 m [CALCULADO]. Bloquea la navegación hasta pasar el ensayo de escora E1 (R13 §5); casco más ancho o flotadores (03 §5, 07)</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>Eje del jet sobre la flotación: no ceba</td>
+<td>Crítica</td>
+<td>Eje en el impulsor a 115 mm de la quilla, 0,172 m bajo la flotación [CALCULADO]</td>
+</tr>
+<tr>
+<td>H3</td>
+<td>El corte A-A no es una bomba: sin conducto, expansión brusca tras la tobera, boquilla dentro de la carcasa</td>
+<td>Crítica</td>
+<td>Toma enrasada → conducto de Al 5083 → impulsor → estator → tobera → boquilla <strong>por fuera</strong> del espejo → bucket (P1-INT, P1-PMP, P1-STE, P1-REV)</td>
+</tr>
+<tr>
+<td>H4</td>
+<td>Falta el sello; "rodamientos fuera de la cámara húmeda" contradictorio</td>
+<td>Crítica</td>
+<td>Sello mecánico SiC/carbón tipo MG1 en el techo de la rampa, cámara de goteo con testigo, rodamientos en seco (<span class="pid">P1-DRV-02</span>, -07; D-14)</td>
+</tr>
+<tr>
+<td>H5</td>
+<td>Baterías en la sentina, sin flotación</td>
+<td>Alta</td>
+<td>Caja estanca de batería, ~100 L de espuma de flotación, bomba de achique con alarma (BOM B-BOX, B-FOAM, B-BILGE, B-ALARM)</td>
+</tr>
+<tr>
+<td>H6</td>
+<td>Capacidad menor que un adulto; 1 persona como máximo</td>
+<td>Alta</td>
+<td>Diseño para 1 piloto. La capacidad por 33 CFR 183.33 da 46 kg [CALCULADO]: queda como riesgo del casco (02 §2.3)</td>
+</tr>
+<tr>
+<td>H7</td>
+<td>No es el bote de diseño del P1 anterior</td>
+<td>Alta</td>
+<td>Resuelto: este proyecto es para el casco de Jorge (D-01, D-02); hay que medirlo (PENDIENTES P0.1)</td>
+</tr>
+<tr>
+<td>H8</td>
+<td>72 V supera la tensión de seguridad de 50 V CC</td>
+<td>Alta</td>
+<td>12S LFP, 43,8 V con la batería llena (D-13). 72 V solo con <code>allow_72v</code> y clase 100 V + monitor de aislamiento</td>
+</tr>
+<tr>
+<td>H9</td>
+<td>Sin kill switch ni parada de emergencia</td>
+<td>Alta</td>
+<td>Cordón NC en serie con la bobina de un contactor monoestable + seta (R06 §3.5; D-18)</td>
+</tr>
+<tr>
+<td>H10</td>
+<td>Reversa "opcional": el jet no frena ni gobierna sin chorro</td>
+<td>Alta</td>
+<td>Bucket obligatorio con émbolo de traba, reversa limitada al 50 %, enclavamiento de palancas (D-17)</td>
+</tr>
+<tr>
+<td>H11</td>
+<td>Toma en el fondo contra aguas someras y arena</td>
+<td>Alta</td>
+<td>Rejilla de barras longitudinales, anillo de desgaste 316 reemplazable, tapa de inspección sobre la flotación, pasador de corte; regla de operación: ralentí en &lt; 0,5 m de agua</td>
+</tr>
+<tr>
+<td>H12</td>
+<td>≥ 30 km/h es ilegal a &lt; 300 m de la costa</td>
+<td>Alta</td>
+<td>Perfil "costa" por defecto con tope de ERPM (02 §3.1); planeo solo a &gt; 300 m (D-18, R13 §3)</td>
+</tr>
+<tr>
+<td>H13</td>
+<td>Masa de 150 kg irreal</td>
+<td>Alta</td>
+<td>Masa de diseño 219 kg con la unidad de jet del CAD (02 §1; D-03)</td>
+</tr>
+<tr>
+<td>H14</td>
+<td>Con 5 kW no llega a 30 km/h con masa realista</td>
+<td>Alta</td>
+<td>Motor de 6 kW continuos estimados y bomba optimizada; aun así no llega (02 §4.3). Se informa la V real y qué la mejora (07)</td>
+</tr>
+<tr>
+<td>H15</td>
+<td>Holgura de punta de 0,5–0,8 mm no se logra en PETG</td>
+<td>Alta</td>
+<td>Impulsor de 316 mecanizado, anillo de desgaste de 316 torneado en sitio, holgura 0,40 mm (D-10, D-11)</td>
+</tr>
+<tr>
+<td>H16</td>
+<td>Camino del empuje axial sin definir; motor abulonado sin acople</td>
+<td>Media</td>
+<td>Par 7204 BEP en un pórtico sobre la placa base toma todo el empuje; acople Rotex 24 con juego axial (D-14)</td>
+</tr>
+<tr>
+<td>H17</td>
+<td>Motor sin tipo, refrigeración ni control definidos</td>
+<td>Media</td>
+<td>Maytech MTI120116 con camisa de agua + VESC Flipsky 75350 con caja de agua; refrigeración desde la bomba (D-12, D-15)</td>
+</tr>
+<tr>
+<td>H18</td>
+<td>60 A × 72 V ≠ 5 kW; corriente que no cierra</td>
+<td>Baja</td>
+<td>Potencia especificada a una tensión y limitada por corriente de batería (02 §4.2, §6)</td>
+</tr>
+<tr>
+<td>H19</td>
+<td>LCG muy a proa (66 % del largo de fondo)</td>
+<td>Media</td>
+<td>Batería más a popa (x = 1,0 m); LCG = 1,11 m del espejo [CALCULADO]. Sigue a proa del 35–45 % recomendado [ESTIMADO: R10b H19]</td>
+</tr>
+<tr>
+<td>H20</td>
+<td>Margen de cavitación chico a punto fijo y en la joroba</td>
+<td>Media</td>
+<td>Límite S ≤ 3,5 en el optimizador y ley de control a baja velocidad (02 §4.5–4.6)</td>
+</tr>
+<tr>
+<td>H21</td>
+<td>Par galvánico Al–316 (≈ 670 mV)</td>
+<td>Media</td>
+<td>Tef-Gel, arandelas aislantes, ánodo de aluminio (R06 §6; BOM B-TEFGEL, B-ISOW, B-ANODE)</td>
+</tr>
+<tr>
+<td>H22</td>
+<td>Riesgo de clasificación como "vandscooter"</td>
+<td>Media</td>
+<td>Cockpit "dentro" del casco con volante y palanca (R13 §1.4); pedir decisión escrita (D-20)</td>
+</tr>
+<tr>
+<td>H23</td>
+<td>Cotas incoherentes, no es un plano a escala</td>
+<td>Media</td>
+<td>Todo rehecho en CAD paramétrico con una sola referencia (espejo y quilla), <code>04_diseno/</code></td>
+</tr>
+<tr>
+<td>H24</td>
+<td>Marcas de corte y cotas mal ubicadas</td>
+<td>Baja</td>
+<td>Ídem H23; planos de taller en <code>04_diseno/planos/</code></td>
+</tr>
+<tr>
+<td>H25</td>
+<td>Tabla de materiales ilegible</td>
+<td>Baja</td>
+<td>Materiales definidos por pieza en el manifest y la BOM; pedir a Jorge el original para comparar</td>
+</tr>
+</tbody>
+</table></div>
+<p>Veredicto de R10b: el plano describe otro producto que el P1 anterior (jet inboard, 1 piloto, ≥ 30 km/h,
+72 V, casco propio) y no se puede fabricar tal cual. Este paquete lo toma como especificación de requisitos.</p>
+<h2 id="2-la-toma-por-qué-la-rejilla-estaba-mal-y-la-regla-correcta-r10a">2. La toma: por qué la rejilla estaba mal y la regla correcta (R10a)</h2>
+<p><strong>Mecanismo</strong> [VERIFICADO: R10a §3]:</p>
+<ul>
+<li>
+<p>La bomba aspira por la cara de proa del impulsor. Aguas abajo (estator, tobera) el agua ya está a presión.
+    Una abertura debajo de la tobera queda del lado de <strong>descarga</strong>: no puede aspirar.</p>
+</li>
+<li>
+<p>El plano no dibuja ningún conducto entre la rejilla y la bomba.</p>
+</li>
+<li>
+<p><strong>Cebado:</strong> HamiltonJet pide la flotación "at least up to the underside of the Mainshaft (at the Impeller)"
+    con el bote quieto [VERIFICADO: R10a S4 p.38]. En el plano el eje quedaba 65–85 mm sobre la flotación
+    nominal [CALCULADO: R10a §3.2].</p>
+</li>
+<li>
+<p><strong>Tamaño:</strong> un conducto de Ø120 que corta el fondo a 27° deja una huella de 264 mm; la abertura de 90 mm del
+    plano no lo admite. En la rejilla del plano el agua pasaba a 5,2 m/s a punto fijo [CALCULADO: R10a §3.3].</p>
+</li>
+<li>
+<p><strong>Rejilla no enrasada:</strong> HamiltonJet pide escalones ≤ 2 mm y nada que obstruya delante de la toma
+    [VERIFICADO: R10a S6 p.43].</p>
+</li>
+</ul>
+<p><strong>Regla de diseño</strong> [VERIFICADO / ESTIMADO: R10a §4]:</p>
+<ul>
+<li>
+<p>Abertura entera <strong>a proa</strong> del impulsor; techo ("rampa") tangente al fondo en proa y alineado con el eje en
+    la garganta; labio redondeado aguas abajo de la abertura (toma de referencia ITTC 23rd).</p>
+</li>
+<li>
+<p>Rampa de 25–30° (convencionales &lt; ~30°; caso típico 25°); eje inclinado 5° hacia proa (bloque estándar
+    de Hamilton).</p>
+</li>
+<li>
+<p>Abertura de ~2,5–2,9 D de largo × ~1,2 D de ancho; fondo liso y sin apéndices delante (≥ 5–10 D).</p>
+</li>
+<li>Eje del impulsor ≥ 20 mm bajo la flotación en reposo.</li>
+<li>Rejilla de barras longitudinales, perfiladas, enrasadas, que cubre toda la abertura.</li>
+<li>IVR: separación en el techo con IVR &lt; ~0,65 (alta velocidad); con IVR alto (baja velocidad, 5 kn) el
+    estancamiento pasa al lado casco del labio → labio generoso.</li>
+</ul>
+<p><strong>Aplicado en este diseño</strong> [CALCULADO: CAD, <code>manifest.json</code>]: cara del impulsor a
+268 mm del espejo; labio a 386 mm;
+tangencia de la rampa a 766 mm; abertura
+380 × 158 mm; rampa de
+27°; rejilla de 9 pletinas 316 con luz de
+12,2 mm. El conducto es de Al 5083 soldado, no de PETG (D-09).</p>
+<h2 id="3-métodos-de-bomba-planeo-y-cargas-r12">3. Métodos de bomba, planeo y cargas (R12)</h2>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Tema</th>
+<th>Lo que se aprendió</th>
+<th>Fuente</th>
+<th>Dónde se usa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tipo de bomba</td>
+<td>Con ~5 kW a ~4000–5000 rpm el punto de diseño es un axial de Ω_s alta (≈ 5); η máx. esperable ≈ 0,76 (correlación de Bulten), 0,65–0,75 con holgura y rugosidad reales</td>
+<td>[CALCULADO con VERIFICADO: R12 §0, T1 ec. 2.26]</td>
+<td><code>waterjet.pump.eta_design</code> = 0,72</td>
+</tr>
+<tr>
+<td>Relación de cubo</td>
+<td>Con ν = 0,40 y torbellino libre el cubo se sobrecarga (D_f 0,60, w₂/w₁ 0,62); con 0,50 cierra</td>
+<td>[CALCULADO: R12 §2.3]</td>
+<td>D-06</td>
+</tr>
+<tr>
+<td>Álabes</td>
+<td>5 álabes de impulsor y 7 de estator (coprimos)</td>
+<td>[CALCULADO: R12 §2.4, §3.1]</td>
+<td>CAD de <span class="pid">P1-PMP-03</span>/06</td>
+</tr>
+<tr>
+<td>Holgura de punta</td>
+<td>0,3–0,4 mm con anillo de desgaste torneado en sitio</td>
+<td>[CALCULADO / ESTIMADO: R12 §2.7]</td>
+<td>D-10</td>
+</tr>
+<tr>
+<td>Cavitación</td>
+<td>Límite de diseño S ≈ 3,5 (comercial ≈ 4,0); a punto fijo la potencia admisible baja; ley de control: limitar rpm o potencia a baja velocidad</td>
+<td>[VERIFICADO: R12 §5, Bulten T1]</td>
+<td>02 §4.5–4.6</td>
+</tr>
+<tr>
+<td>Rejilla</td>
+<td>Pérdida de Kirschmer chica (11–46 mm de columna); lo que importa es <strong>dónde</strong> va</td>
+<td>[CALCULADO: R12 §4.3–4.4]</td>
+<td><code>waterjet.grille_k</code></td>
+</tr>
+<tr>
+<td>Planeo</td>
+<td>Savitsky 1964 con <code>openplaning</code> (API verificada en el código instalado)</td>
+<td>[VERIFICADO: R12 §6.1]</td>
+<td><code>p1calc/planing.py</code></td>
+</tr>
+<tr>
+<td>Joroba y 5 kn</td>
+<td>Mercier–Savitsky 1973: R/Δ ≈ 0,12–0,17 en la joroba y 0,04–0,10 a 5 kn según el casco; coeficientes de una transcripción secundaria</td>
+<td>[VERIFICADO rangos: R12 §6.3]</td>
+<td>Banda de joroba de 02 §3 (no implementado como regresión, 02 §12)</td>
+</tr>
+<tr>
+<td>Cargas</td>
+<td>Empuje axial al rodamiento fijo; presión de diseño 0,2 MPa (≈ 1,3 × la de cierre); boquilla 2J·sin(δ/2); bucket J·(1 + k_r), reversa hasta 60 % del avance</td>
+<td>[CALCULADO / VERIFICADO: R12 §7]</td>
+<td>02 §8</td>
+</tr>
+<tr>
+<td>Piedras</td>
+<td>~490 J en el rotor; trabado en 10–90° da 300–2800 N·m: el límite de corriente no protege → fusible mecánico de ~25–45 N·m</td>
+<td>[CALCULADO: R12 §7.6]</td>
+<td>Pasador de corte, D-11</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="4-componentes-y-precios-r11">4. Componentes y precios (R11)</h2>
+<p>Precios al 2026-10-01. Las tiendas chinas no incluyen el 25 % de IVA de importación ni el envío.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Partida</th>
+<th>Elegido (≤ 50 V)</th>
+<th>Precio</th>
+<th>Masa</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Motor</td>
+<td>Maytech MTI120116 150 KV, refrigerado por agua, eje Ø15 con chavetero, 10–16S, 120 °C máx.</td>
+<td>537,50 USD = 473 € sin IVA</td>
+<td>4,4 kg</td>
+<td>[VERIFICADO: R11 §1.2]; potencia continua no publicada [ESTIMADO]</td>
+</tr>
+<tr>
+<td>Motor (descartado)</td>
+<td>Golden Motor HPM5000B 48 V: ≈ 91 rpm/V de ensayo → el Ø108 se queda en ≈ 3400–3850 rpm y absorbe 2,2–3,1 kW</td>
+<td>490 USD</td>
+<td>11 kg</td>
+<td>[VERIFICADO: R11 §1.2–1.3]</td>
+</tr>
+<tr>
+<td>Controlador</td>
+<td>Flipsky FSESC 75350 con caja de agua (VESC, filtro de fase, IP65), 350 A</td>
+<td>210 USD = 185 €</td>
+<td>2,0 kg</td>
+<td>[VERIFICADO: R11 §2.1]</td>
+</tr>
+<tr>
+<td>Batería</td>
+<td>2 × LiTime 36 V 60 Ah en paralelo (12S, 43,8 V máx., 4,6 kWh, BMS 2 × 120 A)</td>
+<td>939,98 € con IVA</td>
+<td>≈ 40 kg</td>
+<td>Precio [VERIFICADO: R11 §3.2]; masa [ESTIMADO]</td>
+</tr>
+<tr>
+<td>Bomba completa ("comprar")</td>
+<td>AWT JT132 (Ø130 / tobera Ø70, dirección y reversa incluidas)</td>
+<td>≈ 1000–1100 USD FOB</td>
+<td>12 kg</td>
+<td>Specs [VERIFICADO: R11 §4]; precio [ESTIMADO]</td>
+</tr>
+<tr>
+<td>Sello</td>
+<td>ST-MG1 Ø20 (pedir carbón/SiC), 10 m/s, 12 bar</td>
+<td>desde 29 €</td>
+<td>&lt; 0,1 kg</td>
+<td>[VERIFICADO: R11 §5]</td>
+</tr>
+<tr>
+<td>Rodamientos</td>
+<td>Par SKF 7204 BEP</td>
+<td>2 × 31,40 €</td>
+<td>—</td>
+<td>[VERIFICADO: R11 §5]</td>
+</tr>
+<tr>
+<td>Acople</td>
+<td>KTR Rotex 24 (estrella 92 ShA: 35 N·m; 98 ShA: 60 N·m)</td>
+<td>67,47 €</td>
+<td>≈ 0,6 kg</td>
+<td>[VERIFICADO: R11 §5]</td>
+</tr>
+<tr>
+<td>Eje</td>
+<td>1.4404 Ø20 h9</td>
+<td>32,87 €/m</td>
+<td>2,47 kg/m</td>
+<td>[VERIFICADO: R11 §5]</td>
+</tr>
+<tr>
+<td>Impulsor ("construir")</td>
+<td>SLM 316L + torneado, o CNC 5 ejes</td>
+<td>≈ 330–610 € (SLM)</td>
+<td>0,8–1,3 kg</td>
+<td>[ESTIMADO: R11 §6]</td>
+</tr>
+<tr>
+<td>Dirección y bucket</td>
+<td>Ultraflex T85 + M66 + volante Ø320; Mach5 10 ft</td>
+<td>273 € + 74 €</td>
+<td>≈ 4 kg</td>
+<td>[VERIFICADO: R11 §7]</td>
+</tr>
+<tr>
+<td>Achique + alarma / flotación</td>
+<td>Attwood Sahara S500 + KUS / PU 2 componentes 100 L</td>
+<td>125 € / ≈ 45 €</td>
+<td>—</td>
+<td>[VERIFICADO: R11 §8]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Advertencias de R11 §10 que cambian decisiones: los "48 V" LFP de catálogo son 15–16S (54,8–58,4 V), por
+encima de 50 V; el MTI120116 no declara sensor de temperatura (se agrega un NTC); los rodamientos "inox"
+AISI 420 se corroen en agua salada y van del lado seco; la JT132 exige confirmar su toma y la altura de su eje
+<strong>antes</strong> de comprarla.</p>
+<p>Costo total del paquete actual (BOM): 11 837 €, de los cuales
+4 015 € son servicios de fabricación (CNC, torneado de taller, soldadura) [CALCULADO:
+<code>bom.py</code>; ver 03 §3 y 05].</p>
+<h2 id="5-jets-comerciales-y-jet-boats-eléctricos-de-referencia">5. Jets comerciales y jet boats eléctricos de referencia</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Referencia</th>
+<th>Qué es</th>
+<th>Datos</th>
+<th>Qué aporta</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AWT JT132</strong></td>
+<td>Waterjet comercial chino</td>
+<td>Impulsor inox Ø130, tobera Ø70, 12 kg neto, 1,5–40 kW, 2000–6000 rpm, dirección + reversa (deflector de doble ducto), entrada por cardán SWC65 o acople ISO; "3 m / 0,5 t" por unidad</td>
+<td>Es la bomba de la foto de Jorge; opción B de la matriz (03)</td>
+<td>[VERIFICADO: R11 §4, https://www.wuxiawt.com/JT132-pd574514898.html]</td>
+</tr>
+<tr>
+<td><strong>Lampuga Air</strong></td>
+<td>Jetboard eléctrico</td>
+<td>2,30 × 0,75 m; motor refrigerado por agua "up to 10 kW"; 50,4 V; 3,6 kWh; hasta 50 km/h; ~55 kg de equipo</td>
+<td>Mismo tamaño en planta que el casco de Jorge, a ~74 W/kg y con un casco mucho más liviano</td>
+<td>[VERIFICADO: R12 §8 (T12)]</td>
+</tr>
+<tr>
+<td><strong>Maytech MTWJ12KW</strong></td>
+<td>Motor + bomba Ø95</td>
+<td>13,2 kW máx. a 80 V, 130 KV, 36–80 V; 1015,90 USD</td>
+<td>Unidad integrada de jetboard; Ø95 es chico para 200 kg</td>
+<td>[VERIFICADO: R11 §4]</td>
+</tr>
+<tr>
+<td><strong>Sea-Doo Spark</strong> (bomba de 140 mm)</td>
+<td>Repuestos de moto de agua</td>
+<td>Impulsor Solas 140 = 335 €; anillo inox 202 €; bomba OEM armada 999 USD (EE. UU.)</td>
+<td>Opción C: bomba usada adaptada</td>
+<td>[VERIFICADO: R11 §4]</td>
+</tr>
+<tr>
+<td>Mokai ES-Kape</td>
+<td>Kayak con jet a nafta</td>
+<td>3,4 m, 75 kg, 7 hp, 32 km/h</td>
+<td>30 km/h con ~32 W/kg, pero con casco mucho más esbelto</td>
+<td>[VERIFICADO: R12 §8 (T14)]</td>
+</tr>
+<tr>
+<td>Jets impresos (J1–J4, PRO-JET)</td>
+<td>Proyectos DIY de 80–85 mm</td>
+<td>4 kgf a 270 W; 11,5 km/h a 1,1 kW en SUP; el rotor impreso tocó el estator y hubo que llevar el gap a 3 mm</td>
+<td>Por qué la bomba de 5–10 kW no se imprime</td>
+<td>[VERIFICADO: R03 §1, §2.4]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Lectura [CALCULADO / ESTIMADO: R12 §8]: este bote tiene ~25–36 W/kg y L/∇^⅓ ≈ 3,5–4. Con eso, 30 km/h es
+"posible pero marginal"; Lampuga llega a 40–50 km/h con el doble de potencia por kilo.</p>
+<h2 id="6-normativa-r13-r07">6. Normativa (R13, R07)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Conclusión</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vandscooter (BEK 809/2019, vigente)</td>
+<td>Definición: &lt; 4 m, waterjet como propulsión principal, operado por personas que van "på – snarere end i – skroget". Con el piloto sentado <strong>dentro</strong> de un cockpit, con volante y respaldo, probablemente <strong>no</strong> lo es; la guía de la RCD dice que los "mini jet boats" &lt; 4 m no son PWC. Ser eléctrico no lo excluye</td>
+<td>[VERIFICADO: R13 §1]</td>
+</tr>
+<tr>
+<td>Si se lo clasificara como vandscooter</td>
+<td>Prohibido a &lt; 300 m de la costa salvo tránsito perpendicular a ≤ 5 kn (Als Sund queda inutilizable), prohibido en Natura 2000; vandscooterbevis, seguro obligatorio, 0,5 ‰</td>
+<td>[VERIFICADO: R13 §1.3]</td>
+</tr>
+<tr>
+<td>Diseño para no serlo</td>
+<td>Asiento bajo la borda con ≥ 250 mm de costado, pies en el piso del cockpit, volante y palanca, respaldo; pedir decisión escrita a Søfartsstyrelsen y a Sønderborg Kommune</td>
+<td>[SUPUESTO: R13 §1.4]</td>
+</tr>
+<tr>
+<td>Speedbåd (BEK 749/2020)</td>
+<td>&lt; 4 m planeante: bevis desde 19 kW de "fremdrivningseffekt"; la norma no dice cómo se mide en eléctricos → contar el pico que deja pasar el controlador</td>
+<td>[VERIFICADO + ESTIMADO: R13 §2]</td>
+</tr>
+<tr>
+<td>Velocidad, &lt; 300 m de la costa</td>
+<td>5 kn (9,26 km/h)</td>
+<td>[VERIFICADO: R07 §1.2]</td>
+</tr>
+<tr>
+<td>Velocidad, Als Sund (Sønderborg Havn)</td>
+<td>4 kn en todo el sund entre el sur del castillo y Alssundbroen; puente Christian X: velocidad mínima de maniobra a 250 m de cada lado; corriente de hasta 3 kn</td>
+<td>[VERIFICADO: R13 §3, Den Danske Havnelods]</td>
+</tr>
+<tr>
+<td>Velocidad, marinas</td>
+<td>Sønderborg Lystbådehavn, Augustenborg Yachthavn, Egernsund: 3 kn; Augustenborg Havn: 4 kn</td>
+<td>[VERIFICADO: R13 §3]</td>
+</tr>
+<tr>
+<td>Dónde se puede ir a 30 km/h</td>
+<td>Solo en la franja central de Als Fjord (&gt; 300 m de cada orilla) y en la parte danesa ancha de Flensborg Fjord / Sønderborg Bugt; nunca en Als Sund ni en Augustenborg Fjord</td>
+<td>[ESTIMADO: R13 §3]</td>
+</tr>
+<tr>
+<td>72 V</td>
+<td>Sin obligación legal a bordo de un bote propio &lt; 2,5 m; ISO 16315 (voluntaria) pide precauciones contra choque eléctrico por encima de 50 V → IP67, bus flotante con monitor de aislamiento, clase 100 V</td>
+<td>[VERIFICADO: R13 §4]</td>
+</tr>
+<tr>
+<td>Estabilidad y flotación</td>
+<td>Sin norma obligatoria (fuera de la RCD); referencia ISO 12217-3 y 33 CFR 183.105/.225/.230; ensayos E1–E4 antes de navegar</td>
+<td>[VERIFICADO: R13 §5]</td>
+</tr>
+<tr>
+<td>Kill switch</td>
+<td>No obligatorio para este bote; se instala igual, cortando la propulsión</td>
+<td>[VERIFICADO: R13 §6]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Las preguntas a las autoridades, ya redactadas en danés, están en R13 §8.</p>
+<h2 id="7-materiales-y-sellado-r05">7. Materiales y sellado (R05)</h2>
+<ul>
+<li>
+<p><strong>PETG</strong> absorbe poca agua (~0,3 %) pero pierde 17–28 % de tracción a 30 días en agua de mar; entre capas
+    vale 38–84 % de XY; a fatiga rompe en ~10⁵ ciclos al 30 % de la UTS (extrapolado: 4–8 % a 10⁷–10⁸)
+    [VERIFICADO: R05 §1, S13, S16]. HDT 68–75 °C: nada impreso cerca del motor ni del controlador.
+    Consecuencia: <strong>la bomba de un jet de 5–10 kW no se imprime</strong> (presión cíclica, holgura de punta, paso de
+    pala); el PETG queda para piezas secas o de baja carga (D-19).</p>
+</li>
+<li>
+<p><strong>Uniones:</strong> tuerca A4 cautiva mejor que inserto de latón (descincificación); nada de Loctite 243 sobre
+    termoplásticos [VERIFICADO: R05 §A10].</p>
+</li>
+<li>
+<p><strong>Sellos estáticos:</strong> O-ring de 3,53 mm en sello de cara, con 20–30 % de compresión y 60–85 % de llenado,
+    sobre cara refrentada (la superficie impresa tiene Ra 2–24 µm contra ≤ 0,8–1,6 µm pedido)
+    [VERIFICADO: R05 §B2–B4].</p>
+</li>
+<li>
+<p><strong>Sello de eje:</strong> el waterjet sí necesita un sello dinámico (a diferencia de la cola larga): sello
+    mecánico de caras, que tolera arranques cortos en seco si es carbón/SiC [VERIFICADO: R11 §5; R05 §B6].</p>
+</li>
+<li>
+<p><strong>Galvánica:</strong> 316 pasivo contra Al ≈ 670 mV (límite práctico 200 mV): aislar y ánodo de aluminio
+    [VERIFICADO: R06 §0, §6].</p>
+</li>
+</ul>
+<h2 id="8-eléctrica-y-seguridad-r06">8. Eléctrica y seguridad (R06)</h2>
+<ul>
+<li>
+<p>LFP por seguridad térmica; 12S (38,4 V nominal, 43,8 V llena) en vez de "48 V" de 16S, que supera 50 V,
+    el MRBF (58 V) y el contactor SW80 estándar [VERIFICADO: R06 §0, §4.3]. El contactor elegido es el TE KILOVAC
+    EV200AAANA con la bobina a 12 V desde el DC-DC (el cordón Watski de 12 V trabaja dentro de su valor nominal;
+    04_diseno/electronica/README §1).</p>
+</li>
+<li>
+<p>Kill switch: cordón en serie con la bobina de un contactor monoestable; el antichispa MOSFET no es un
+    elemento de seguridad [VERIFICADO: R06 §0, §3].</p>
+</li>
+<li>
+<p>VESC: los valores por defecto no sirven para un bote (corte de batería, rango ADC); configurar todo
+    [VERIFICADO: R06 §2].</p>
+</li>
+<li>
+<p>Batería en lugar seco y ventilado, sobre el nivel de la sentina (ISO 13297 8.1); la LFP inmersa en agua
+    salada puede entrar en runaway días después [VERIFICADO: R06 §4.2, §5.1].</p>
+</li>
+</ul>
+<h2 id="9-agua-y-viento-en-als-r07">9. Agua y viento en Als (R07)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Dato</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Salinidad</td>
+<td>13,6–17,5 PSU de media mensual; densidad de cálculo 1013 kg/m³</td>
+<td>[VERIFICADO: R07 §2]</td>
+</tr>
+<tr>
+<td>Temperatura del agua</td>
+<td>&lt; 15 °C en ≥ 90 % de los días de octubre a mayo; ≥ 12 °C casi siempre de junio a septiembre; máx. 23–26 °C</td>
+<td>[VERIFICADO: R07 §3.1]</td>
+</tr>
+<tr>
+<td>Agua fría</td>
+<td>Choque por frío bajo ~15 °C; incapacitación en 2–30 min cerca de 0 °C</td>
+<td>[VERIFICADO: R07 §3.3]</td>
+</tr>
+<tr>
+<td>Viento (may–sep, día)</td>
+<td>≤ 6 m/s el 57–79 % de las horas; el viento fuerte es del SW/W</td>
+<td>[VERIFICADO: R07 §4.1]</td>
+</tr>
+<tr>
+<td>Ola</td>
+<td>Als Fjord con 6 m/s: Hs 0,15–0,3 m, Tp 1,2–1,8 s → longitud de onda del orden de la eslora</td>
+<td>[ESTIMADO: R07 §4.2]</td>
+</tr>
+<tr>
+<td>Nivel</td>
+<td>±1,2 m por viento; bajos de arena ~0,5 m menos profundos el 1 % del tiempo</td>
+<td>[VERIFICADO: R07 §4.3, R13 §3]</td>
+</tr>
+<tr>
+<td>Criterios de salida</td>
+<td>Temporada 15 jun – 15 sep sin traje; viento ≤ 6 m/s, ráfaga ≤ 10; Hs ≤ 0,3 m; solo de día; chaleco con cuello y cordón siempre</td>
+<td>[SUPUESTO: R07 §3.4]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Para un bote de 2,30 m que planea, la ola corta del fiordo con período de ~1,5 s es del largo del casco:
+golpes y aire en la toma (fondo plano, R10a §7). El modelo de resistencia no la incluye (02 §12).</p>
+<h2 id="10-qué-queda-abierto">10. Qué queda abierto</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Por qué importa</th>
+<th>Cómo se cierra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Medidas reales del casco y masa</td>
+<td>Todo el cálculo usa el casco leído de un plano sin escala</td>
+<td>PENDIENTES P0.1; actualizar <code>boat.*</code> y correr <code>run_all.py</code></td>
+</tr>
+<tr>
+<td>Estabilidad</td>
+<td>Puede volcar quieto</td>
+<td>Ensayo E1 de R13 §5 antes de instalar la electrónica</td>
+</tr>
+<tr>
+<td>Potencia continua del MTI120116</td>
+<td>Es la entrada más influyente en la V máx. (02 §10)</td>
+<td>Pedírsela a Maytech; prueba térmica</td>
+</tr>
+<tr>
+<td>JT132: precio, brida de toma, altura del eje, curva</td>
+<td>Decide entre A y B (03 §3)</td>
+<td>Cotización a AWT (wuxiawt01@163.com, R11 §4)</td>
+</tr>
+<tr>
+<td>Clasificación legal</td>
+<td>Vandscooter o no; cómo se mide la potencia de speedbåd</td>
+<td>Preguntas Q1–Q5 de R13 §8</td>
+</tr>
+<tr>
+<td>η real de la bomba y de la toma</td>
+<td>El modelo usa valores de literatura</td>
+<td>Punto fijo, V máx. con GPS, vacuómetro en la garganta (R10a §8)</td>
+</tr>
+</tbody>
+</table></div></article>
+</div>
+</main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
+</body>
+</html>

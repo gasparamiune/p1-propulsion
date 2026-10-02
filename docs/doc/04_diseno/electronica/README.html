@@ -1,0 +1,1927 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04_diseno/electronica — Electrónica, cadena de seguridad y control… — P1-J · Strålen</title>
+<meta name="description" content="Regenerar: python 04_diseno/electronica/calc_electronica.py &amp;&amp; python 04_diseno/electronica/diagrama_cableado.py (no están en run_all.py: ver §11).">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="04_diseno/electronica — Electrónica, cadena de seguridad y control… — P1-J · Strålen">
+<meta property="og:description" content="Regenerar: python 04_diseno/electronica/calc_electronica.py &amp;&amp; python 04_diseno/electronica/diagrama_cableado.py (no están en run_all.py: ver §11).">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/04_diseno/electronica/README.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=a7f9186a">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="04_diseno/electronica — Electrónica, cadena de seguridad y control… — P1-J · Strålen">
+<meta name="twitter:description" content="Regenerar: python 04_diseno/electronica/calc_electronica.py &amp;&amp; python 04_diseno/electronica/diagrama_cableado.py (no están en run_all.py: ver §11).">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=a7f9186a">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/04_diseno/electronica/README.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header" id="top">
+  <div class="bar wide">
+    <a class="brand" href="../../../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../../../index.html" class=nav-home>Inicio</a><a href="../../../visor/index.html">Visor 3D</a><a href="../../../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../../../planos.html">Planos</a><a href="../../../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
+  </div>
+</header>
+
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../../../documentos.html">Documentos</a> / <span class="mono">04_diseno/electronica/README.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/04_diseno/electronica/README.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#1-diagrama-de-cableado">1. Diagrama de cableado</a></li>
+<li><a href="#2-arquitectura-de-seguridad-cadena-de-habilitación">2. Arquitectura de seguridad: cadena de habilitación</a></li>
+<li><a href="#3-tabla-de-verdad-del-kill-switch-y-de-la-cadena-de-habilitación">3. Tabla de verdad del kill switch y de la cadena de habilitación</a></li>
+<li><a href="#4-lista-de-componentes-especificación-mínima">4. Lista de componentes (especificación mínima)</a></li>
+<li><a href="#5-firmware">5. Firmware</a><ul>
+<li><a href="#51-estructura">5.1 Estructura</a></li>
+<li><a href="#52-máquina-de-estados-y-reglas">5.2 Máquina de estados y reglas</a></li>
+<li><a href="#53-parámetros-por-defecto-leídos-de-tl_default_config">5.3 Parámetros por defecto (leídos de tl_default_config())</a></li>
+<li><a href="#54-pines-del-nano">5.4 Pines del Nano</a></li>
+<li><a href="#55-compilación">5.5 Compilación</a></li>
+<li><a href="#56-calibración-una-vez-y-tras-cambiar-imánsensor">5.6 Calibración (una vez, y tras cambiar imán/sensor)</a></li>
+<li><a href="#57-led-y-telemetría">5.7 LED y telemetría</a></li>
+<li><a href="#58-tests-pytest-q-teststest_firmwarepy">5.8 Tests (pytest -q tests/test_firmware.py)</a></li>
+</ul>
+</li>
+<li><a href="#6-configuración-obligatoria-del-vesc">6. Configuración obligatoria del VESC</a></li>
+<li><a href="#7-cálculos-del-circuito">7. Cálculos del circuito</a></li>
+<li><a href="#8-modos-de-falla-del-propio-circuito">8. Modos de falla del propio circuito</a></li>
+<li><a href="#9-estanqueidad-conectores-prensaestopas-recubrimientos">9. Estanqueidad: conectores, prensaestopas, recubrimientos</a></li>
+<li><a href="#10-t0-banco-en-seco-pasa-no-pasa">10. T0 — banco en seco (pasa / no-pasa)</a></li>
+<li><a href="#11-hallazgos-que-afectan-a-otros-archivos">11. Hallazgos que afectan a otros archivos</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#1-diagrama-de-cableado">1. Diagrama de cableado</a></li>
+<li><a href="#2-arquitectura-de-seguridad-cadena-de-habilitación">2. Arquitectura de seguridad: cadena de habilitación</a></li>
+<li><a href="#3-tabla-de-verdad-del-kill-switch-y-de-la-cadena-de-habilitación">3. Tabla de verdad del kill switch y de la cadena de habilitación</a></li>
+<li><a href="#4-lista-de-componentes-especificación-mínima">4. Lista de componentes (especificación mínima)</a></li>
+<li><a href="#5-firmware">5. Firmware</a><ul>
+<li><a href="#51-estructura">5.1 Estructura</a></li>
+<li><a href="#52-máquina-de-estados-y-reglas">5.2 Máquina de estados y reglas</a></li>
+<li><a href="#53-parámetros-por-defecto-leídos-de-tl_default_config">5.3 Parámetros por defecto (leídos de tl_default_config())</a></li>
+<li><a href="#54-pines-del-nano">5.4 Pines del Nano</a></li>
+<li><a href="#55-compilación">5.5 Compilación</a></li>
+<li><a href="#56-calibración-una-vez-y-tras-cambiar-imánsensor">5.6 Calibración (una vez, y tras cambiar imán/sensor)</a></li>
+<li><a href="#57-led-y-telemetría">5.7 LED y telemetría</a></li>
+<li><a href="#58-tests-pytest-q-teststest_firmwarepy">5.8 Tests (pytest -q tests/test_firmware.py)</a></li>
+</ul>
+</li>
+<li><a href="#6-configuración-obligatoria-del-vesc">6. Configuración obligatoria del VESC</a></li>
+<li><a href="#7-cálculos-del-circuito">7. Cálculos del circuito</a></li>
+<li><a href="#8-modos-de-falla-del-propio-circuito">8. Modos de falla del propio circuito</a></li>
+<li><a href="#9-estanqueidad-conectores-prensaestopas-recubrimientos">9. Estanqueidad: conectores, prensaestopas, recubrimientos</a></li>
+<li><a href="#10-t0-banco-en-seco-pasa-no-pasa">10. T0 — banco en seco (pasa / no-pasa)</a></li>
+<li><a href="#11-hallazgos-que-afectan-a-otros-archivos">11. Hallazgos que afectan a otros archivos</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="04_disenoelectronica-electrónica-cadena-de-seguridad-y-control-de-p1">04_diseno/electronica — Electrónica, cadena de seguridad y control de P1</h1>
+<p><strong>Estado:</strong> diseño + firmware + tests de lógica. <strong>[NO EJECUTADO en hardware]</strong>: nada de esto se probó todavía con componentes reales. Lo verificado: la lógica v2.0 compila en C99 estricto con gcc (<code>-Wconversion -Werror</code>) y <code>pytest -q tests/test_firmware.py</code> pasa (§5.8). <strong>El sketch v2.0 NO se compiló para AVR</strong> (en esta máquina no hay <code>arduino-cli</code> ni <code>avr-gcc</code>; el test AVR se salta): la cifra de 11 270 B de flash que figuraba acá era de la v1 (arduino-cli 1.5.2, sesión anterior) y no aplica a v2.0 — compilar en T0.0 (§5.5). Los parámetros del VESC se leyeron en el código fuente del firmware (<code>vedderb/bldc</code>, rama master, 2026-10-01).</p>
+<p>Etiquetas: <strong>[VERIFICADO: fuente]</strong> · <strong>[CALCULADO]</strong> · <strong>[ESTIMADO: base]</strong> · <strong>[SUPUESTO]</strong>. Las tablas entre marcas <code>ELEC:</code> las genera <code>calc_electronica.py</code> desde <code>inputs.yaml</code> y <code>resultados/sizing.json</code>: no editarlas a mano.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Archivo</th>
+<th>Qué es</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="diagrama_cableado.svg"><code>diagrama_cableado.svg</code></a></td>
+<td>Diagrama de cableado: potencia, cadena de emergencia, control, sistema flotante</td>
+</tr>
+<tr>
+<td><code>diagrama_cableado.py</code></td>
+<td>Lo genera (svgwrite); rótulos leídos de <code>calc_electronica.compute()</code></td>
+</tr>
+<tr>
+<td><code>calc_electronica.py</code></td>
+<td>Configuración del VESC, precarga, bobina, optos, presupuesto de corte, tabla de verdad; escribe <code>electronica.json</code>, <code>tabla_verdad.csv</code> y los bloques <code>ELEC:</code> de este README (<code>--check</code> solo verifica)</td>
+</tr>
+<tr>
+<td><code>firmware/throttle_logic.h</code>, <code>.c</code></td>
+<td>Lógica pura C99 v2.0 del waterjet (armado, rampa, zona muerta, expo, bucket: límite y retención, limpieza de rejilla, perfil costa/abierto, dwell, fallas de sensor, watchdog lógico)</td>
+</tr>
+<tr>
+<td><code>firmware/p1_throttle/p1_throttle.ino</code></td>
+<td>Sketch Arduino Nano: E/S (hall, cordón/seta, fin de carrera del bucket D5, selector D7, pulsador de rejilla D8, perfil D12), PPM por Timer1, interrupciones del cordón/seta, WDT de hardware, LED, calibración</td>
+</tr>
+<tr>
+<td><code>firmware/vesc_perfil.lisp</code></td>
+<td>Script LispBM del VESC (FW ≥ 6.00): lee D12 por ADC1 y cambia <code>l_max_erpm</code> entre COSTA y ABIERTO (§5.4); sus dos topes de ERPM los <strong>reescribe</strong> <code>calc_electronica.py</code></td>
+</tr>
+<tr>
+<td><code>firmware/p1_throttle/src/</code></td>
+<td>Copia idéntica de la lógica (el IDE de Arduino solo compila dentro de la carpeta del sketch). Un test exige que sea idéntica</td>
+</tr>
+<tr>
+<td><code>../../tests/test_firmware.py</code></td>
+<td>69 tests (lógica ejecutada desde Python vía gcc + ctypes, coherencia con <code>calc_electronica</code>/<code>electronica.json</code> y vigencia de lo generado) + 1 de compilación AVR opcional</td>
+</tr>
+</tbody>
+</table></div>
+<p>Regenerar: <code>python 04_diseno/electronica/calc_electronica.py &amp;&amp; python 04_diseno/electronica/diagrama_cableado.py</code> (no están en <code>run_all.py</code>: ver §11).</p>
+<hr />
+<h2 id="1-diagrama-de-cableado">1. Diagrama de cableado</h2>
+<p><img alt="Diagrama de cableado de P1" src="diagrama_cableado.svg" /></p>
+<p><a href="diagrama_cableado.svg">Abrir <code>diagrama_cableado.svg</code></a></p>
+<p>Lectura rápida, de izquierda a derecha:</p>
+<ol>
+<li><strong>Potencia (rojo/negro grueso):</strong> dos baterías LiTime 36 V (12S, 36,0–43,8 V) <strong>en paralelo</strong> (12S2P). Cada batería: borne + → <strong>F_BR</strong> (Class T de rama en portafusible Blue Sea 5007100, a ≤ 178 mm del borne [VERIFICADO: R06 §5.1, ABYC E-11 7 in; el texto de ABYC lo escribe "175 mm" → montar a ≤ 175 mm]) → cable de rama de 35 mm² → <strong>barra +</strong>; borne − → 35 mm² → <strong>barra −</strong>. Barra + → <strong>F1</strong> (Class T junto a la barra, protege el cable de 70 mm²) → <strong>S1</strong> desconectador → <strong>K1</strong> contactor monoestable con <strong>R_pre</strong> en paralelo → VESC → 3 fases → motor. Barra − → VESC B−. El antichispa no se usa (100 A &lt; I de batería). Cables de rama de igual largo y sección (reparto de corriente, §6 <code>l_in_current_max</code>). <strong>Fusibles Class T y no MRBF:</strong> el cortocircuito presunto de las dos baterías llega a ≈ 8,8 kA y el MRBF corta solo 2 kA a 58 V (§7, auditoría R2-E3). <strong>Toma de carga</strong> Anderson SB50 (B-ANDERSON) en las barras +/−, aguas arriba de F1/S1, con su propio fusible <strong>F6</strong> (gPV 32 A, B-CHGFUSE) en la barra +: su cable de ≤ 16 mm² no lo protegen los F_BR.</li>
+<li><strong>Mando de 12 V (naranja):</strong> <strong>B-12V</strong> (Mean Well <strong>RSD-60L-12</strong>, entrada 18–72 V [VERIFICADO: Mean Well RSD-60-SPEC 2026-07-09; la RSD-60G es de 9–36 V y no sirve con 12S], conectado a la barra + aguas ARRIBA de F1/S1 con su fusible F5 removible) → <strong>F2</strong> → <strong>retención</strong> (Schottky 1N5822 + 22 mF, B-HOLD: sostiene la bobina ≥ 9 V durante el hueco del riel cuando arranca la bomba de achique contra el límite de corriente del DC-DC, §7) → <strong>SETA</strong> (NC) → nodo <strong>N1</strong> → J2 → <strong>CORDÓN</strong> (cerrado con el clip puesto) → J2 → nodo <strong>N2</strong> → <strong>bobina de K1</strong> (EV200AAANA, 9–36 V con economizador) → 12 V−. Cualquier apertura de esa serie (clip afuera, seta pulsada, cable cortado, conector suelto, F2 fundido, bobina abierta, B-12V sin salida) deja la bobina sin corriente y K1 abre: es el corte <strong>por hardware</strong> que pide R06 §3.2 y §3.5. El cordón y la seta conmutan 12 V (cierre 3,8 A ≤ 130 ms, retención 0,13 A) y al abrir no ven sobretensión inductiva (el economizador limita la fuerza contraelectromotriz a 0 V [VERIFICADO: hoja EV200]): así el interruptor Watski de 12 V – 15 A trabaja dentro de su valor nominal (auditoría H3). Como B-12V está aguas arriba de S1, con S1 abierto y el clip puesto K1 cierra igual (sin efecto: el bus está cortado por S1) y la bobina consume 1,6 W: <strong>sacar el clip al dejar el bote</strong>.</li>
+<li><strong>Sensado y redundancia (azul):</strong> el opto <strong>U1</strong> ve N1 (seta) → D3 del Nano; <strong>U2</strong> ve N2 (cordón + seta) → D2; <strong>U3</strong> también ve N2 y está <strong>en serie</strong> con el transistor <strong>Q_EN</strong> (comandado por D4 del Nano) entre la entrada <strong>ADC2</strong> del VESC y GND. ADC2 tiene pull-up de 10 kΩ a 3,3 V: si cualquiera de los dos deja de conducir, ADC2 &gt; 1,65 V → <strong>kill por software del VESC</strong> [VERIFICADO: <code>timeout.c</code>, <code>KILL_SW_MODE_ADC2_HIGH</code>].</li>
+<li><strong>Control:</strong> DC-DC 43,8→5 V (RECOM R-78HB, 9–72 V; alimentado <strong>aguas arriba de K1</strong>, después de S1 y F3) → Nano y sensor hall A1324 de la palanca del acelerador. PPM por D9 → VESC (pull-down de 10 kΩ en el lado del VESC: con el MCU en reset no hay pulsos). El 5 V del VESC <strong>no</strong> se une al 5 V del Nano. Consola: <strong>fin de carrera del bucket</strong> (NC, cerrado = arriba) → D5; <strong>selector de perfil</strong> COSTA/ABIERTO → D7; <strong>pulsador de limpieza de rejilla</strong> → D8; <strong>D12 → ADC1 del VESC</strong> (10 kΩ serie + 20 kΩ a GND ≈ 3,3 V) para el perfil, leído por <code>firmware/vesc_perfil.lisp</code>. La marcha atrás es el <strong>bucket</strong>: el motor gira siempre en avance (salvo la limpieza de rejilla, lenta y ≤ 3 s) y con el bucket abajo el MCU limita el comando a <code>reverse_limit</code> (§5.2).</li>
+<li><strong>Sistema flotante:</strong> BAT− <strong>no</strong> se conecta al casco de aluminio [VERIFICADO: R06 §5.1, ISO 13297 4.1 <em>"The hull of a metallic hull craft shall not be used as a circuit conductor"</em>; la excepción de 5.1 cubre sistemas de propulsión identificados como aislados]. Ver T0.1.</li>
+</ol>
+<p><strong>Por qué el MCU va con su propio DC-DC y no con el BEC del VESC</strong> (BOM B-DCDC): con K1 abierto el VESC solo recibe energía por R_pre (≤ V²/4R ≈ 4,8 W, §7), su BEC puede quedar en brown-out y el MCU se reiniciaría en ciclos; alimentado aguas arriba de K1, el MCU sigue vivo durante un kill, latchea el desarme, muestra el estado en el LED y vuelve a exigir 1 s en cero para re-armar.</p>
+<h2 id="2-arquitectura-de-seguridad-cadena-de-habilitación">2. Arquitectura de seguridad: cadena de habilitación</h2>
+<p>El motor solo puede producir torque si se cumplen <strong>todas</strong> a la vez:</p>
+<blockquote>
+<p><strong>Motor con torque ⇔ [F1 ∧ S1 ∧ K1 cerrado] ∧ [U3: F2 ∧ seta ∧ cordón] ∧ [Q_EN: MCU armado] ∧ [PPM válido] ∧ [comando ≠ 0]</strong></p>
+</blockquote>
+<p>Barreras independientes cuando se tira del cordón (o se pulsa la seta):</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>#</th>
+<th>Barrera</th>
+<th>Tipo</th>
+<th>Depende de</th>
+<th>Falla que la anula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>K1 abre (bus sin potencia; por R_pre pasan ≤ 4,8 W [CALCULADO, §7])</td>
+<td>Hardware</td>
+<td>bobina en serie con cordón/seta</td>
+<td>K1 soldado</td>
+</tr>
+<tr>
+<td>2</td>
+<td>U3 deja de conducir → ADC2 alto → VESC en kill</td>
+<td>Hardware + VESC</td>
+<td>nodo N2, firmware VESC ≥ 6.00 (≥ 5.03 para el kill; 6.00 por LispBM)</td>
+<td>U3 en corto, pull-up de ADC2 suelto, kill mal configurado</td>
+</tr>
+<tr>
+<td>3</td>
+<td>MCU ve D2/D3 en alto → desarma: PPM 1500 µs <strong>en el mismo tick</strong> + Q_EN abre</td>
+<td>Software (MCU)</td>
+<td>U1/U2, firmware P1</td>
+<td>U2 en corto, MCU defectuoso</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PPM ausente → timeout del VESC → corriente de freno 0 A (rueda libre)</td>
+<td>VESC</td>
+<td>cable PPM, MCU</td>
+<td>— (solo actúa si el MCU deja de mandar pulsos)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Tiempo de corte por camino (cada uno debe cumplir el requisito por sí solo):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Camino de corte (cada uno por separado)</th>
+<th>t [ms] [CALCULADO]</th>
+<th>Base</th>
+<th>&lt; 1,0 s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MCU → PPM neutro → VESC (rampa negativa)</td>
+<td>131</td>
+<td>filtro RC + 1 tick + 1 trama PPM + ramp_time_neg</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>MCU → Q_EN abre → kill por ADC2 del VESC</td>
+<td>21</td>
+<td>filtro RC + 1 tick + sondeo de 10 ms del VESC</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Hardware: opto U3 apaga → kill por ADC2 (sin MCU)</td>
+<td>11</td>
+<td>sondeo 10 ms + conmutación del opto</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Hardware: bobina sin corriente → contactor abre</td>
+<td>12</td>
+<td>release máx. de TE Connectivity KILOVAC EV200AAANA (economizador incorporado) [VERIFICADO: hoja EV200 — release (incluye arco) máx. 12 ms @ 2000 A; close típ. 15 ms]</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>MCU muerto: sin PPM → timeout del VESC</td>
+<td>250</td>
+<td>timeout_msec configurado</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>MCU colgado: WDT de hardware → reset → Q_EN abre → kill ADC2</td>
+<td>142</td>
+<td>WDTO_120MS del sketch × 1,1 [ESTIMADO: tolerancia del oscilador del WDT] + sondeo 10 ms</td>
+<td>✔</td>
+</tr>
+</tbody>
+</table></div>
+<p>Requisito 1,0 s [VERIFICADO: inputs.yaml electrical.kill_switch_response_s_max]; peor camino individual <strong>250 ms</strong> [CALCULADO]. El corte real es el del camino más rápido que siga sano; el requisito se exige a cada camino por separado.</p>
+<h2 id="3-tabla-de-verdad-del-kill-switch-y-de-la-cadena-de-habilitación">3. Tabla de verdad del kill switch y de la cadena de habilitación</h2>
+<p>Variables: cordón (1 = clip puesto), seta (1 = liberada), desconectador S1 (1 = ON), fusibles F1/F2 (1 = sano), K1 (normal / soldado / bobina abierta), MCU armado (1 = el MCU habilita; 1 con cordón afuera modela un <strong>MCU defectuoso</strong>), timeout del VESC (1 = PPM perdida), falla de sensor hall. "Barreras activas" cuenta cuántas de las 4 barreras de §2 están deteniendo el motor (mín–máx sobre las combinaciones agrupadas). Modelo lógico: <code>calc_electronica.chain()</code>; lo verifica <code>test_truth_table_only_all_ok_runs</code>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>Cordón</th>
+<th>Seta</th>
+<th>Descon.</th>
+<th>F1</th>
+<th>F2</th>
+<th>K1</th>
+<th>MCU armado</th>
+<th>Timeout VESC</th>
+<th>Falla sensor</th>
+<th>Fin de carrera bucket</th>
+<th>Motor</th>
+<th>Límite del comando</th>
+<th>Barreras activas (mín–máx)</th>
+<th>Comb.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Todo OK, MCU armado</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>normal</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td><strong>PUEDE GIRAR</strong></td>
+<td>100 % avance</td>
+<td>0–0: —</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Todo OK, bucket abajo (o fin de carrera cortado)</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>normal</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td><strong>PUEDE GIRAR</strong></td>
+<td>≤ reverse_limit, avance (bucket abajo)</td>
+<td>0–0: —</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Cordón tirado (MCU sano → desarma)</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>normal</td>
+<td>0</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>3–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Cordón tirado + MCU defectuoso que sigue armado</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>normal</td>
+<td>1</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>2–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Cordón tirado + K1 soldado (MCU sano)</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>soldado</td>
+<td>0</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>2–3: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Cordón tirado + K1 soldado + MCU defectuoso</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>soldado</td>
+<td>1</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>1–3: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Seta pulsada (cualquier cordón/MCU/K1)</td>
+<td>–</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)</td>
+<td>96</td>
+</tr>
+<tr>
+<td>Desconectador OFF (cualquier otro estado)</td>
+<td>–</td>
+<td>–</td>
+<td>0</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>4–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)</td>
+<td>768</td>
+</tr>
+<tr>
+<td>Fusible principal F1 fundido</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>0</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>4–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)</td>
+<td>768</td>
+</tr>
+<tr>
+<td>Fusible de mando F2 fundido</td>
+<td>–</td>
+<td>–</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)</td>
+<td>192</td>
+</tr>
+<tr>
+<td>K1 con bobina abierta (no cierra)</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>bobina_abierta</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)</td>
+<td>512</td>
+</tr>
+<tr>
+<td>K1 soldado, todo lo demás OK</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>soldado</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>–</td>
+<td><strong>PUEDE GIRAR</strong></td>
+<td>100 % avance / ≤ reverse_limit, avance (bucket abajo)</td>
+<td>0–0: —</td>
+<td>2</td>
+</tr>
+<tr>
+<td>MCU desarmado (arranque, re-armado pendiente)</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>0</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>2–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)</td>
+<td>768</td>
+</tr>
+<tr>
+<td>PPM perdida (timeout del VESC)</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>1</td>
+<td>–</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)</td>
+<td>768</td>
+</tr>
+<tr>
+<td>Falla de sensor hall</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>–</td>
+<td>1</td>
+<td>–</td>
+<td><strong>PARADO</strong></td>
+<td>0</td>
+<td>1–4: MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)</td>
+<td>768</td>
+</tr>
+</tbody>
+</table></div>
+<p>Enumeración completa: <strong>1536 combinaciones</strong> en <a href="https://github.com/gasparamiune/p1-propulsion/blob/main/04_diseno/electronica/tabla_verdad.csv"><code>tabla_verdad.csv</code></a> (1 = cerrado/sano/sí, 0 = abierto/fundido/no; "–" = cualquier valor). El motor puede girar en <strong>4</strong> de ellas: todas exigen cordón, seta, desconectador, F1, F2, MCU armado, PPM válido y sensor sano; las variables libres son K1 (normal o soldado: un K1 soldado no se nota en marcha → se prueba antes de cada salida) y el fin de carrera del bucket, que no detiene el motor: abierto (bucket abajo o cable cortado) limita el comando a reverse_limit, siempre en avance (§5).</p>
+<p>Lectura: (a) el cordón o la seta detienen el motor en <strong>todas</strong> las combinaciones, incluso con K1 soldado <strong>y</strong> un MCU defectuoso (queda U3 → kill del VESC); (b) con el MCU sano y K1 normal hay ≥ 3 barreras simultáneas; (c) la combinación peligrosa que la tabla <strong>no</strong> cubre es un <strong>cortocircuito entre los dos conductores del cordón</strong> (puentea el interruptor para K1 <em>y</em> para U2/U3): ver §8 y la prueba previa a cada salida.</p>
+<h2 id="4-lista-de-componentes-especificación-mínima">4. Lista de componentes (especificación mínima)</h2>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Ref.</th>
+<th>Componente</th>
+<th>Especificación mínima</th>
+<th>Elegido / referencia (BOM)</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BAT</td>
+<td>Batería LiFePO4 de la selección</td>
+<td>12S, BMS ≥ 240 A cont. (total); bornes cubiertos; caja estanca elevada</td>
+<td>2 × LiTime 36 V 60 Ah Golf Cart en paralelo (12S2P, BMS 2 × 120 A) (B-BAT)</td>
+<td>[CALCULADO: selección de sizing (inputs.yaml battery)]</td>
+</tr>
+<tr>
+<td>F_BR</td>
+<td>Fusible de rama (uno por batería)</td>
+<td>2 × 150 A, ≥ 53 V CC, poder de corte ≥ 4,4 kA (§7), a ≤ 178 mm del borne + de CADA batería</td>
+<td>Class T Blue Sea (160 V CC, 20 kA) en portafusible Blue Sea 5007100 (110–200 A) (B-FUSE-BR, B-FUSEH-BR)</td>
+<td>[CALCULADO: sizing.json electrical.fuse_branch_a] · 178 mm [VERIFICADO: R06 §5.1 ABYC E-11] · [VERIFICADO: Blue Sea 5113 Class T — '20,000 Ampere Interrupt Capacity (AIC)', 160 V CC máx. (fisheriessupply.com, 2026-10-02)]</td>
+</tr>
+<tr>
+<td>F1</td>
+<td>Fusible principal (barra +)</td>
+<td>250 A (≥ 218,9 A), ≥ 53 V CC, poder de corte ≥ 8,8 kA (§7), junto a la barra + (protege el cable de 70 mm²)</td>
+<td>Class T Blue Sea (160 V CC, 20 kA) en portafusible Class T con tapa (B-FUSE, B-FUSEH)</td>
+<td>[CALCULADO: sizing.json electrical.fuse_a] · [VERIFICADO: Blue Sea 5113 Class T — '20,000 Ampere Interrupt Capacity (AIC)', 160 V CC máx. (fisheriessupply.com, 2026-10-02)] · MRBF descartado: [VERIFICADO: research/R06_electrica.md §5.4 — MRBF 10 kA @ 14 V / 5 kA @ 32 V / 2 kA @ 58 V]</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>Fusible de la toma de carga (Anderson SB50)</td>
+<td>32 A gPV 10×38, ≥ 1000 V CC, poder de corte ≥ 10 kA CC, en la barra +; cable ≤ 16 mm²</td>
+<td>gPV 10×38 32 A + portafusible estanco (B-CHGFUSE)</td>
+<td>[ESTIMADO: fusibles gPV 10×38 de 1000 V CC con poder de corte de decenas de kA (verificar en la ficha del elegido); cargador 15 A (R08a §5)]</td>
+</tr>
+<tr>
+<td>S1</td>
+<td>Desconectador manual</td>
+<td>≥ 250 A cont., ≥ 44 V CC, llave removible</td>
+<td>Biltema Hovedafbryder AFD 275 A 12–48 V (B-SW)</td>
+<td>[VERIFICADO: R08a §3]</td>
+</tr>
+<tr>
+<td>K1</td>
+<td>Contactor MONOestable (nunca biestable)</td>
+<td>NA, ≥ 250 A cont., corte bajo carga ≥ 43,8 V CC; bobina de 12 V del mando (B-12V), con economizador (sin sobretensión inductiva al abrir)</td>
+<td>KILOVAC EV200AAANA: 500 A, 12–900 V CC, bobina 9–36 V, retención 0,13 A (B-CONT)</td>
+<td>[VERIFICADO: hoja EV200 Series (TE, 'KILOVAC EV200 Series Contactor', https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/5986/EV200_Series.pdf)] · [VERIFICADO: hoja EV200 — 500 A @ 85 °C (400 mcm); 12–900 V CC] · [VERIFICADO: https://eveurope.eu/en/product/hoofdstroomrelais-ev200-500-amp-2/ — 149,00 € ex. VAT, 54 en stock, 2026-10-02]</td>
+</tr>
+<tr>
+<td>R_pre</td>
+<td>Resistencia de precarga ∥ K1</td>
+<td>100 Ω, ≥ 30 W, carcasa de Al atornillada a la base del controlador (<span class="pid">P1-ELE-01</span>) con disipador propio</td>
+<td>100 Ω 50 W carcasa de Al (B-RPRE)</td>
+<td>[CALCULADO] [SUPUESTO: research/R06_electrica.md §3.4 (100 Ω → 5τ ≤ 1 s)]</td>
+</tr>
+<tr>
+<td>ASW</td>
+<td>Antichispa MOSFET (NO se compra)</td>
+<td>solo arranque suave aguas abajo de K1; falla en corto → NO es seguridad; 100 A &lt; I de batería</td>
+<td>Flipsky Antispark Pro V3.0 (B-ASW, qty 0)</td>
+<td>[VERIFICADO: R06 §3.1]</td>
+</tr>
+<tr>
+<td>12V</td>
+<td>Fuente del mando y de achique</td>
+<td>DC-DC aislado → 12 V, entrada ≥ 43,8 V y que arranque con ≤ 36,0 V (RSD-60L: 18–72 V); conectado a la barra + aguas ARRIBA de F1/S1 con su fusible F5 (removible: aislación de invierno)</td>
+<td>Mean Well RSD-60L-12 (B-12V); NO la G (9–36 V)</td>
+<td>[VERIFICADO: Mean Well RSD-60-SPEC (2026-07-09) — 'VOLTAGE RANGE CONTINUOUS' L: 18 ~ 72 VDC (G: 9 ~ 36 VDC: NO sirve con 12S)] · [VERIFICADO: Mean Well RSD-60-SPEC (2026-07-09) — tolerancia de salida ±2,0 %]</td>
+</tr>
+<tr>
+<td>HOLD</td>
+<td>Retención de la bobina de K1</td>
+<td>Schottky 3 A (1N5822) en serie + 22 mF ≥ 25 V a 12 V−, entre F2 y la seta (aguas ARRIBA de seta/cordón: no demora el corte)</td>
+<td>1N5822 + electrolítico (B-HOLD)</td>
+<td>[CALCULADO, §7] · [SUPUESTO: hueco del riel de 12 V al arrancar la bomba de achique contra el límite de corriente del DC-DC (arranque &lt; 0,1 s × 2,5); lo valida T0.4]</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>Fusible de mando (bobina K1, salida 12 V)</td>
+<td>5 A lento, portafusible en línea estanco</td>
+<td>B-CFUSE</td>
+<td>[CALCULADO: ≥ 1,25 × cierre 3,8 A]</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>Fusible del DC-DC 5 V (entrada, lado batería)</td>
+<td>1 A, ≥ 58 V CC, portafusible en línea</td>
+<td>B-CFUSE</td>
+<td>[SUPUESTO: protege el cable de 0,5 mm²; consumo de entrada ≈ 10 mA [ESTIMADO: 0,3 W / 38,4 V / 0,8]]</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>Fusible de entrada de B-12V (lado batería)</td>
+<td>3 A, ≥ 58 V CC, portafusible en línea</td>
+<td>B-CFUSE</td>
+<td>[ESTIMADO: 60 W / 36 V / 0,85 ≈ 2 A de entrada a plena carga → 3 A]</td>
+</tr>
+<tr>
+<td>CORDÓN</td>
+<td>Interruptor de hombre al agua</td>
+<td>contacto CERRADO con clip (fail-safe), ≥ 3,8 A de cierre a 12 V CC</td>
+<td>Watski Dødmands kontakt universal, polos M (B-KILL); alt. Sea Dog SD-420487-1</td>
+<td>[VERIFICADO: research/R08a §3 — Watski 'Dødmands kontakt universal' 12 V – 15 A] — ✔ cumple en el mando de 12 V · Sea Dog 5 A [VERIFICADO: Sea Dog SD-420487-1, 5 A máx. (research/R06_electrica.md §3.2)]</td>
+</tr>
+<tr>
+<td>SETA</td>
+<td>Seta de emergencia</td>
+<td>NC, enclavamiento (girar para rearmar), Ø22, IP65, ≥ 5 A a 12 V CC</td>
+<td>B-ESTOP</td>
+<td>[ESTIMADO: especificación de BOM]</td>
+</tr>
+<tr>
+<td>J1</td>
+<td>Conector IP68 del hall (caña)</td>
+<td>4 polos apantallado: 5 V, GND, OUT, malla</td>
+<td>Lumberg 0332-04 + 0322-04 (B-SIGNAL)</td>
+<td>[VERIFICADO: R08a §8]</td>
+</tr>
+<tr>
+<td>J2</td>
+<td>Conector IP68 del cordón (caña)</td>
+<td>2 polos, ≥ 5 A</td>
+<td>Cliffcon 68 FM686812 (B-KCONN)</td>
+<td>[VERIFICADO: R08a §8]</td>
+</tr>
+<tr>
+<td>ESC</td>
+<td>VESC de la selección</td>
+<td>FW ≥ 6.00 (LispBM; de fábrica 5.02 → flashear en T0.0), l_current_max 292 A, entradas PPM, ADC1 y ADC2 accesibles; caja de agua en el circuito de refrigeración</td>
+<td>Flipsky FSESC 75350 con caja de agua (VESC, filtro de fase, IP65) (B-ESC) — sobre base elevada <span class="pid">P1-ELE-01</span> + capota <span class="pid">P1-ELE-02</span></td>
+<td>[VERIFICADO: research/R11 §2] · FW de fábrica [inputs.yaml esc.options, allí VERIFICADO]</td>
+</tr>
+<tr>
+<td>M</td>
+<td>Motor</td>
+<td>sensor de temperatura del bobinado leído por el VESC; sensor hall</td>
+<td>Maytech MTI120116 150 KV (inrunner refrigerado por agua, 10–16S), variante CON hall (B-MOT); NTC10K 3950 de fábrica (cable amarillo) → TEMP del VESC</td>
+<td>[VERIFICADO: página Maytech MTI120116 — 'Yellow: Temp Sensor (NTC10K 3950k)'; R06 §1.2 soporte NTC 10 k en el VESC]</td>
+</tr>
+<tr>
+<td>IMD</td>
+<td>Monitor de aislamiento</td>
+<td>solo clase 72 V (sistema flotante &gt; 50 V CC)</td>
+<td>no requerido (≤ 50 V CC)</td>
+<td>[VERIFICADO: research/R11 §8; R10b H8]</td>
+</tr>
+<tr>
+<td>DC-DC</td>
+<td>Regulador → 5 V (MCU)</td>
+<td>5 V ≥ 0,5 A; entrada máx. &gt; l_max_vin = 53 V; alimentado aguas abajo de S1 y aguas ARRIBA de K1</td>
+<td>RECOM R-78HB5.0-0.5 9–72 V (B-DCDC)</td>
+<td>[VERIFICADO: research/R08a §9 — TRACO TSR 1-2450E, entrada 7–36 V → 5 V 1 A] · [VERIFICADO: research/R08a §9 — RECOM R-78HB5.0-0.5, entrada 9–72 V → 5 V 0,5 A]</td>
+</tr>
+<tr>
+<td>MCU</td>
+<td>Arduino Nano (ATmega328P, 5 V, 16 MHz)</td>
+<td>bootloader NUEVO (Optiboot): el viejo entra en bucle tras un reset por WDT</td>
+<td>Arduino Nano V3 (B-MCU)</td>
+<td>[VERIFICADO: R08a §9] · bootloader [ESTIMADO: problema conocido; se prueba en T0.18]</td>
+</tr>
+<tr>
+<td>HALL</td>
+<td>Sensor hall lineal ratiométrico 5 V + imán</td>
+<td>salida analógica ratiométrica; imán NdFeB Ø10×3 diametral</td>
+<td>Allegro A1324 (B-HALL)</td>
+<td>[VERIFICADO: R08a §9 (sensor)]; imán [ESTIMADO]</td>
+</tr>
+<tr>
+<td>U1–U3</td>
+<td>Optoacoplador de fototransistor (×3)</td>
+<td>CTR ≥ 50 % a 5 mA, Vceo ≥ 30 V, aislación ≥ 2,5 kV</td>
+<td>genérico 4 pines (B-PCB)</td>
+<td>[SUPUESTO: especificación mínima de compra CTR ≥ 50 %]</td>
+</tr>
+<tr>
+<td>D_U1–D_U3</td>
+<td>Diodo antiparalelo de cada LED de opto</td>
+<td>1N4148 o similar (≥ 75 V, ≥ 100 mA), cátodo al ánodo del LED (con el EV200 N2 no baja de 0 V; queda como protección ante un K1 de reemplazo sin economizador)</td>
+<td>genérico (B-PCB)</td>
+<td>[CALCULADO, §7]</td>
+</tr>
+<tr>
+<td>R1 / R2</td>
+<td>R serie de los LED de U1 / U2+U3 (mando de 12 V)</td>
+<td>1,8 kΩ / 1,8 kΩ, 0,25 W</td>
+<td>genéricas (B-PCB)</td>
+<td>[CALCULADO]</td>
+</tr>
+<tr>
+<td>Q_EN</td>
+<td>Transistor de habilitación (ADC2 del VESC)</td>
+<td>NPN Vceo ≥ 30 V, Ic ≥ 50 mA; base 1 kΩ desde D4 y 10 kΩ a GND</td>
+<td>genérico</td>
+<td>[SUPUESTO]</td>
+</tr>
+<tr>
+<td>Pasivos</td>
+<td>Pull-ups y filtros</td>
+<td>D2/D3: 10 kΩ a 5 V + 100 nF; ADC2: 10 kΩ a 3,3 V; A0: 1 kΩ + 100 nF + 100 kΩ a GND; PPM: 10 kΩ a GND</td>
+<td>genéricos</td>
+<td>[SUPUESTO: pull-up externo 10 kΩ (D2/D3 a 5 V; ADC2 a 3,3 V, R06 §2.5)] · [SUPUESTO: 10 kΩ × 100 nF en D2/D3 (inmunidad a ruido del motor)]</td>
+</tr>
+<tr>
+<td>LED</td>
+<td>LED de estado de panel</td>
+<td>IP67, 5 V con resistencia</td>
+<td>genérico</td>
+<td>[SUPUESTO]</td>
+</tr>
+<tr>
+<td>Cables</td>
+<td>Potencia / fases / mando / señal</td>
+<td>DC 70 mm² (barras–F1–S1–K1–ESC) y 35 mm² de rama (estañados); fases: cables PROPIOS del motor (6 AWG × 300 mm) y del ESC (8 AWG) unidos con conectores bala 8 mm (sin tramo de 95 mm²: el calibre lo fijan esos cables; caída 1,48 %); mando 0,75–1 mm² estañado; hall: 4 × 0,25 mm² apantallado redondo; cordón: 2 × 0,75 mm² redondo</td>
+<td>Skyllermarks estañado (B-CAB-DC, B-CAB-PAR); B-PHCON; B-LUG10 (cables 8 AWG del ESC a terminales M8)</td>
+<td>[CALCULADO: sizing.json cables; §7 caída de fases] · mando/señal [SUPUESTO]</td>
+</tr>
+<tr>
+<td>Prensaestopas</td>
+<td>Pasamuros IP68</td>
+<td>caja de batería: un cable REDONDO por prensaestopas, M32 para 70 mm² [ESTIMADO: Ø ext ≈ 17 mm]; M16 4–8 mm (hall, cordón) en la consola</td>
+<td>M32 (B-GLAND32) / Biltema M16 (B-GLAND16)</td>
+<td>[VERIFICADO: R08a §8] · regla de un cable [ESTIMADO: R05 §B8]</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="5-firmware">5. Firmware</h2>
+<p>Firmware v2.0 del waterjet. <strong>La marcha atrás es el BUCKET</strong> (palanca + cable Mach5, enclavamiento mecánico con el acelerador, <code>04_diseno/piezas/_ctl.py</code>): el motor gira <strong>siempre en avance</strong> y con el bucket abajo el comando se limita a <code>reverse_limit</code>. El único giro inverso es la <strong>limpieza de rejilla</strong> (pulsador dedicado, lento y por tiempo limitado). [NO EJECUTADO en hardware]; lógica verificada en PC (§5.8).</p>
+<h3 id="51-estructura">5.1 Estructura</h3>
+<ul>
+<li><code>throttle_logic.c/.h</code>: función de paso <code>tl_outputs_t tl_tick(tl_ctx_t *s, const tl_inputs_t *in, uint32_t dt_ms)</code>. Entradas: ADC 10 bits del hall A1324 de la palanca del acelerador (ratiométrico, Vref = AVCC = alimentación del sensor), <code>kill_cord_ok</code>, <code>estop_ok</code>, <code>vesc_ok</code> (opcional), <code>bucket_up</code> (fin de carrera), <code>sel_open</code> (selector de perfil), <code>weed_btn</code> (pulsador de rejilla), <code>dt_ms</code>. Salidas: <code>cmd</code> ∈ [−<code>weed_cmd</code>, 1], <code>ppm_us</code> ∈ [1000, 2000] (1500 = neutro), <code>state</code>, <code>flags</code> (32 bits), <code>enable</code>, <code>profile</code>. Sin dependencias de Arduino; solo tipos de ancho fijo y <code>float</code> (en AVR <code>double</code> = <code>float</code>). Auxiliares puros: <code>tl_position</code>, <code>tl_shape</code> (zona muerta + expo, con signo), <code>tl_thrust</code> (objetivo ≥ 0 según lado de la palanca y bucket), <code>tl_cmd_to_ppm</code>.</li>
+<li><code>p1_throttle.ino</code>: lee entradas cada 10 ms [SUPUESTO], llama <code>tl_tick</code>, aplica salidas; las ISR de INT0/INT1 (D2/D3) ponen neutro y abren Q_EN <strong>dentro de ~1 ms</strong> del flanco a kill [ESTIMADO: 0,92 τ hasta V_IH = 0,6·Vcc con τ = 10 kΩ × 100 nF = 1 ms], antes del próximo tick. El neutro del PPM entra en la <strong>próxima trama</strong> (OCR1A con doble buffer: ≤ 20 ms); Q_EN abre en el acto.</li>
+</ul>
+<h3 id="52-máquina-de-estados-y-reglas">5.2 Máquina de estados y reglas</h3>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Estado</th>
+<th>Salida</th>
+<th>Entra cuando</th>
+<th>Sale cuando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DISARMED</code></td>
+<td>neutro, <code>enable</code> = 0, perfil COSTA</td>
+<td>power-on; cordón/seta abiertos; watchdog lógico</td>
+<td>≥ <code>arm_hold_ms</code> continuos con cordón+seta OK, sensor y calibración válidos y acelerador en zona muerta → <code>ARMED</code></td>
+</tr>
+<tr>
+<td><code>FAULT</code></td>
+<td>neutro, <code>enable</code> = 0</td>
+<td>ADC &lt; <code>adc_fault_low</code> o &gt; <code>adc_fault_high</code>; salto imposible; VESC en falla (si se usa); calibración/config inválida</td>
+<td>igual que <code>DISARMED</code> (re-armado con 1 s en cero)</td>
+</tr>
+<tr>
+<td><code>ARMED</code></td>
+<td>0, <code>enable</code> = 1</td>
+<td>armado, acelerador en zona muerta, sin dwell pendiente</td>
+<td>comando ≠ 0</td>
+</tr>
+<tr>
+<td><code>RUN_FWD</code></td>
+<td>rampa hacia el objetivo, ≤ 100 %</td>
+<td>comando &gt; 0 con el bucket ARRIBA</td>
+<td>soltar → <code>DWELL_ZERO</code>; falla → <code>DISARMED</code>/<code>FAULT</code> en el <strong>mismo tick</strong></td>
+</tr>
+<tr>
+<td><code>RUN_REV</code></td>
+<td>rampa, <strong>en avance</strong>, ≤ <code>reverse_limit</code></td>
+<td>comando &gt; 0 con el bucket ABAJO (marcha atrás por el bucket)</td>
+<td>ídem</td>
+</tr>
+<tr>
+<td><code>WEED</code></td>
+<td>−<code>weed_cmd</code> (giro inverso)</td>
+<td>limpieza de rejilla (abajo)</td>
+<td>soltar el pulsador, mover el acelerador o <code>weed_max_ms</code> → 0 inmediato</td>
+</tr>
+<tr>
+<td><code>DWELL_ZERO</code></td>
+<td>0</td>
+<td>la salida llegó a 0 tras girar; o se pidió el sentido opuesto</td>
+<td><code>dwell_ms</code> cumplido; mismo sentido → sigue sin esperar</td>
+</tr>
+</tbody>
+</table></div>
+<p>Reglas:</p>
+<ol>
+<li><strong>Armado</strong>: solo con el acelerador en cero ≥ 1 s continuo y todo OK; cualquier kill/fault/watchdog <strong>latchea</strong> el desarme (aunque el cordón vuelva, no arranca hasta 1 s continuo en cero); un <code>dt_ms</code> &gt; <code>watchdog_ms</code> (lazo colgado, timeout de señal) corta y no cuenta como tiempo en cero. Kill, seta y contactor sin cambios respecto de v1.</li>
+<li><strong>Sensor</strong>: fuera de banda (abierto/corto) o salto imposible → neutro + <code>FAULT</code> en el mismo tick. Todo corte de seguridad es <strong>inmediato</strong> (sin rampa); la subida tiene rampa (0→100 % en ≥ <code>ramp_up_ms</code>) y la bajada es rápida (<code>ramp_down_ms</code>).</li>
+<li><strong>Bucket</strong> (fin de carrera NC en D5: cerrado = ARRIBA; abierto = ABAJO <strong>o cable cortado</strong>): con el bucket ABAJO el objetivo es <code>|forma(pos)| × reverse_limit</code>, siempre ≥ 0 (motor en avance), sea cual sea el lado de la palanca. Pasar a ABAJO es inmediato; pasar a ARRIBA exige <code>sw_debounce_ms</code> de contacto cerrado continuo (un rebote no habilita el 100 %). Si el bucket baja mientras la salida todavía baja por rampa, se recorta a <code>reverse_limit</code> en el acto.</li>
+<li><strong>Cambio de bucket con el acelerador fuera de cero</strong> (el enclavamiento mecánico lo impide: indica falla de cable/fin de carrera o el bucket llegando tarde): salida 0 <strong>en ese tick</strong> y retenida (<code>BKT_HOLD</code>, <code>enable</code> sigue en 1) hasta que el acelerador vuelve a la zona muerta. Esperar el clic del fin de carrera antes de acelerar tras subir el bucket.</li>
+<li><strong>Incoherencias palanca/fin de carrera</strong> (<code>BKT_MISM</code>): palanca del lado de reversa con el fin de carrera en ARRIBA → <strong>salida 0</strong> (si el enclavamiento se rompió el bucket está arriba y el bote iría hacia adelante); palanca de avance con el fin de carrera abierto → limitado a <code>reverse_limit</code> (caso típico: cable cortado → se vuelve a puerto con potencia reducida).</li>
+<li><strong>Nunca se invierte el giro</strong> salvo la <strong>limpieza de rejilla</strong>: pulsador D8 sostenido ≥ <code>weed_hold_ms</code> (un golpe o rebote no la inicia), soltado al menos una vez desde el armado (un pulsador en corto no hace nada), acelerador en cero y salida en 0 ≥ <code>dwell_ms</code> (impulsor frenado). Comando −<code>weed_cmd</code>; la <strong>velocidad</strong> inversa la topea el VESC con <code>l_min_erpm</code> (§6, ≈ 25 % de las rpm de 5 kn). Termina en el acto al soltar el pulsador, al mover el acelerador o a los <code>weed_max_ms</code> (≤ 3 s; <code>tl_config_check</code> rechaza más de 3000 ms o <code>weed_cmd</code> &gt; 0,25); para repetir hay que soltar y volver a apretar. Tras la limpieza el avance exige <code>dwell_ms</code> en cero.</li>
+<li><strong>Perfil</strong> (selector D7: a GND = ABIERTO; abierto/cortado = COSTA): arranca <strong>siempre en COSTA (5 kn)</strong> al encender y en cada armado, aunque el selector esté en ABIERTO; ABIERTO se toma solo si el selector pasó por COSTA después del armado <strong>y</strong> con la salida en 0 y el acelerador en cero (<code>PROF_WAIT</code> mientras tanto). Volver a COSTA es inmediato (tras el antirrebote), también en marcha. Desarmado = COSTA.</li>
+</ol>
+<p>Flags (<code>tl_outputs_t.flags</code>, bits en <code>throttle_logic.h</code>): <code>KILL_CORD</code>, <code>ESTOP</code>, <code>SENS_LOW</code>, <code>SENS_HIGH</code>, <code>SENS_JUMP</code>, <code>WATCHDOG</code>, <code>VESC</code> (latcheados hasta el próximo armado); <code>CAL</code>, <code>NOT_ZERO</code>, <code>RAMP</code>, <code>BKT_LIM</code>, <code>DWELL</code>, <code>ARMING</code>, <code>BKT_DOWN</code>, <code>BKT_HOLD</code>, <code>BKT_MISM</code>, <code>WEED</code>, <code>WEED_WAIT</code>, <code>PROF_OPEN</code>, <code>PROF_WAIT</code> (instantáneos).</p>
+<h3 id="53-parámetros-por-defecto-leídos-de-tl_default_config">5.3 Parámetros por defecto (leídos de <code>tl_default_config()</code>)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Parámetro (<code>tl_config_t</code>)</th>
+<th>Valor por defecto</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>deadband</code></td>
+<td>0,08</td>
+<td>[SUPUESTO: ±8 % de la semicarrera (pedido de diseño); ajustar en T0]</td>
+</tr>
+<tr>
+<td><code>expo</code></td>
+<td>0,0</td>
+<td>[SUPUESTO: lineal; la rampa ya suaviza. 0,3 si la palanca resulta "nerviosa"]</td>
+</tr>
+<tr>
+<td><code>reverse_limit</code></td>
+<td>0,63</td>
+<td>[CALCULADO: calc_electronica reverse_current_frac = waterjet.reverse.power_limit_frac 0,5^(2/3) (bomba P ∝ T^1,5)]</td>
+</tr>
+<tr>
+<td><code>jump_travel_per_s</code></td>
+<td>25,0</td>
+<td>[SUPUESTO: la palanca no recorre tope a tope en &lt; 40 ms; validar en T0.9]</td>
+</tr>
+<tr>
+<td><code>weed_cmd</code></td>
+<td>0,10</td>
+<td>[SUPUESTO: 10 % de l_current_max en giro inverso, solo para soltar algas; la velocidad la topea el VESC con l_min_erpm]</td>
+</tr>
+<tr>
+<td><code>adc_rev</code></td>
+<td>1,30 V → 266 cuentas</td>
+<td>[ESTIMADO: provisorio A1324 2,5 V en reposo con imán diametral; lo reemplaza la calibración (T0.5)]</td>
+</tr>
+<tr>
+<td><code>adc_center</code></td>
+<td>2,50 V → 512 cuentas</td>
+<td>[ESTIMADO: provisorio A1324 2,5 V en reposo con imán diametral; lo reemplaza la calibración (T0.5)]</td>
+</tr>
+<tr>
+<td><code>adc_fwd</code></td>
+<td>3,70 V → 757 cuentas</td>
+<td>[ESTIMADO: provisorio A1324 2,5 V en reposo con imán diametral; lo reemplaza la calibración (T0.5)]</td>
+</tr>
+<tr>
+<td><code>adc_fault_low</code></td>
+<td>0,30 V → 61 cuentas</td>
+<td>[SUPUESTO: ~0,3 V (pedido de diseño)]</td>
+</tr>
+<tr>
+<td><code>adc_fault_high</code></td>
+<td>4,70 V → 962 cuentas</td>
+<td>[SUPUESTO: ~4,7 V (pedido de diseño)]</td>
+</tr>
+<tr>
+<td><code>min_half_span</code></td>
+<td>0,50 V → 102 cuentas</td>
+<td>[SUPUESTO: semicarrera &gt;= 0,5 V -&gt; &gt;= 102 cuentas de resolución]</td>
+</tr>
+<tr>
+<td><code>jump_noise_counts</code></td>
+<td>12</td>
+<td>[ESTIMADO: ruido hall+ADC tras promediar 4 muestras ~±5 cuentas, ×2]</td>
+</tr>
+<tr>
+<td><code>arm_hold_ms</code></td>
+<td>1000</td>
+<td>[SUPUESTO: &gt;= 1 s en cero para armar (pedido de diseño)]</td>
+</tr>
+<tr>
+<td><code>ramp_up_ms</code></td>
+<td>1000</td>
+<td>[SUPUESTO: 0-&gt;100 % en &gt;= 1 s (pedido de diseño; R06 §2.6 sugiere ~1 s)]</td>
+</tr>
+<tr>
+<td><code>ramp_down_ms</code></td>
+<td>250</td>
+<td>[SUPUESTO: bajada rápida 100-&gt;0 % en 0,25 s; los cortes de seguridad son inmediatos]</td>
+</tr>
+<tr>
+<td><code>dwell_ms</code></td>
+<td>500</td>
+<td>[SUPUESTO: &gt;= 0,5 s en cero antes de girar al revés (el impulsor se frena en el agua)]</td>
+</tr>
+<tr>
+<td><code>watchdog_ms</code></td>
+<td>100</td>
+<td>[SUPUESTO: tick nominal 10 ms; &gt; 100 ms sin tick = lazo colgado]</td>
+</tr>
+<tr>
+<td><code>ppm_min_us</code></td>
+<td>1000</td>
+<td>[VERIFICADO: VESC appconf_default.h APPCONF_PPM_PULSE_START 1,0 ms]</td>
+</tr>
+<tr>
+<td><code>ppm_center_us</code></td>
+<td>1500</td>
+<td>[VERIFICADO: APPCONF_PPM_PULSE_CENTER 1,5 ms]</td>
+</tr>
+<tr>
+<td><code>ppm_max_us</code></td>
+<td>2000</td>
+<td>[VERIFICADO: APPCONF_PPM_PULSE_END 2,0 ms]</td>
+</tr>
+<tr>
+<td><code>weed_max_ms</code></td>
+<td>3000</td>
+<td>[SUPUESTO: limpieza de rejilla &lt;= 3 s por pulsación (pedido de diseño)]</td>
+</tr>
+<tr>
+<td><code>weed_hold_ms</code></td>
+<td>300</td>
+<td>[SUPUESTO: pulsación sostenida 0,3 s: un golpe o un rebote no la inicia]</td>
+</tr>
+<tr>
+<td><code>sw_debounce_ms</code></td>
+<td>50</td>
+<td>[SUPUESTO: antirrebote del fin de carrera (solo hacia ARRIBA) y del selector]</td>
+</tr>
+<tr>
+<td><code>cal_valid</code></td>
+<td>0</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>use_vesc_ok</code></td>
+<td>0</td>
+<td>[SUPUESTO: sin telemetría UART en P1; hook para P2]</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>reverse_limit</code> = 0,63 sale de <code>calc_electronica.py</code> (<code>vesc_values.reverse_current_frac</code> = <code>waterjet.reverse.power_limit_frac</code>^(2/3), bomba P ∝ T^1,5); <code>test_defaults_match_requirements</code> exige que coincidan. Detección de "salto imposible": entre dos muestras se admite <code>jump_noise_counts + |adc_fwd − adc_rev| × jump_travel_per_s × dt</code> [CALCULADO: ≈ 135 cuentas en 10 ms = 27 % de la carrera total]. Una palanca a mano (0→100 % en 150 ms) o el retorno por resortes en 30 ms no disparan; un salto centro→tope en un tick sí (tests).</p>
+<h3 id="54-pines-del-nano">5.4 Pines del Nano</h3>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Pin</th>
+<th>Función</th>
+<th>Hardware</th>
+<th>Falla → resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A0</td>
+<td>Hall A1324 de la palanca del acelerador (ADC, Vref AVCC 5 V)</td>
+<td>1 kΩ + 100 nF; 100 kΩ a GND</td>
+<td>señal o 5 V cortados → ≈ 0 V → <code>SENS_LOW</code></td>
+</tr>
+<tr>
+<td>D2 (INT0)</td>
+<td>Cordón (opto U2)</td>
+<td><code>INPUT_PULLUP</code> + 10 kΩ externo + 100 nF</td>
+<td>ALTO = kill (abierto/cortado/suelto)</td>
+</tr>
+<tr>
+<td>D3 (INT1)</td>
+<td>Seta (opto U1)</td>
+<td>ídem</td>
+<td>ALTO = e-stop</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>Fin de carrera del bucket, NC a GND</td>
+<td><code>INPUT_PULLUP</code> + 10 kΩ externo [SUPUESTO]</td>
+<td>cable cortado → ALTO = bucket ABAJO → comando ≤ <code>reverse_limit</code> (fail-safe)</td>
+</tr>
+<tr>
+<td>D7</td>
+<td>Selector de perfil a GND</td>
+<td><code>INPUT_PULLUP</code></td>
+<td>cable cortado → COSTA</td>
+</tr>
+<tr>
+<td>D8</td>
+<td>Pulsador de limpieza de rejilla NA a GND</td>
+<td><code>INPUT_PULLUP</code></td>
+<td>cortado → sin limpieza; en corto → ignorado (exige soltar)</td>
+</tr>
+<tr>
+<td>D9 (OC1A)</td>
+<td>PPM, Timer1 modo 14, prescaler 8, 50 Hz</td>
+<td>10 kΩ a GND en el VESC</td>
+<td>reset del MCU → sin pulsos → timeout del VESC</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>Q_EN (habilita ADC2 a GND)</td>
+<td>NPN, base 1 kΩ, 10 kΩ a GND</td>
+<td>reset → transistor abierto → kill del VESC</td>
+</tr>
+<tr>
+<td>D12</td>
+<td>Perfil al VESC: ALTO = ABIERTO</td>
+<td>10 kΩ a GND [SUPUESTO]</td>
+<td>reset/cortado → BAJO = COSTA</td>
+</tr>
+<tr>
+<td>D6 / D13</td>
+<td>LED de estado</td>
+<td>panel IP67</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>D10 queda libre a propósito (OC1B del Timer1 del PPM).</p>
+<p><strong>Perfil en el VESC (<code>firmware/vesc_perfil.lisp</code>, LispBM, FW ≥ 6.00).</strong> D12 → 10 kΩ → ADC1 del conector COMM del VESC, 20 kΩ de ADC1 a GND (5 V × 20/30 ≈ 3,3 V; las entradas ADC del VESC son de 3,3 V [ESTIMADO: verificar en la hoja del FSESC 75350]). El script lee <code>(get-adc 0)</code> cada 50 ms y hace <code>(conf-set 'l-max-erpm …)</code>: COSTA apenas la línea cae (una muestra), ABIERTO tras 4 muestras seguidas en ALTO; al arrancar fija COSTA. <code>conf-set</code> no escribe la flash, así que la configuración <strong>guardada</strong> del VESC queda en COSTA (§6) y si el script no corre, el cable se corta o el MCU se reinicia, el bote queda en 5 kn. Las API (<code>get-adc</code>, <code>conf-set</code>, <code>'l-max-erpm</code>, <code>loopwhile</code>, <code>sleep</code>) [VERIFICADO: vedderb/bldc master <code>lispBM/README.md</code>, leído 2026-10-01] y la sintaxis (<code>if</code> con else, <code>and</code>, <code>{ }</code> = <code>progn</code>) [VERIFICADO: svenssonjoel/lispBM <code>doc/lbmref.md</code>]. Los topes de ERPM son los de <code>electronica.json</code> (<code>vesc_values.l_max_erpm</code> / <code>erpm_tech</code>) y <strong>no se escriben a mano</strong>: <code>calc_electronica.py</code> reescribe las dos líneas <code>(define erpm-costa …)</code> / <code>(define erpm-abierto …)</code> del script (y <code>--check</code> falla si quedaron viejas); <code>test_vesc_profile_lisp_matches_electronica_json</code> lo vuelve a verificar. ERPM = rpm × pares de polos: con el MTI120116 son <strong>5 pares</strong> (12N/10P [VERIFICADO: página Maytech]), no 2 como se había supuesto; contar los imanes al recibir el motor (T0.6). El tope COSTA hace cumplir <strong>solo los 5 kn</strong> de la franja de 300 m (piloto liviano, banda baja, batería llena: sizing <code>legal_speed</code>); los 4 kn de Sønderborg Havn (Als Sund) y los 3 kn de las marinas (R13 §3) <strong>no</strong> los limita el firmware: los respeta el piloto con el acelerador.</p>
+<p>Carga con VESC Tool [ESTIMADO: verificar en VESC Tool — nombres de menú de VESC Tool 6.x no verificados en esta sesión]: conectar por USB → <em>VESC Dev Tools → LispBM</em> → abrir <code>vesc_perfil.lisp</code> → <em>Upload</em> (lo guarda en la flash del VESC y lo ejecuta en cada arranque) → en la consola/REPL de LispBM verificar con <code>(conf-get 'l-max-erpm)</code>: COSTA con D12 bajo, ABIERTO con D12 alto (T0.20). Antes, en <em>App Settings → General</em>, comprobar que ADC1 no lo use ninguna app (app PPM sola) y en <em>Realtime Data</em> que ADC1 siga a D12 [ESTIMADO: verificar en VESC Tool].</p>
+<p>Coherencia del cableado en serie: si D2 dice "cordón OK" pero D3 dice "seta abierta" (imposible con la serie seta→cordón), el sketch trata ambos como abiertos. WDT de hardware <code>WDTO_120MS</code>; <code>wdt_reset()</code> solo tras un tick completo; el registro de reset (MCUSR) se imprime al arrancar (bit 0x08 = reset por WDT; con Optiboot puede leer 0 [ESTIMADO]). <code>p1_early_init()</code> (en <code>.init3</code>: copia MCUSR y apaga el WDT antes de <code>setup()</code>) lleva <code>__attribute__((used))</code>: el core compila con <code>-flto</code> y sin <code>used</code> el enlazador la descarta (sin Optiboot, tras un reset por WDT el WDT seguiría activo a 16 ms → bucle de reset). Lo verifica <code>test_avr_build_if_toolchain_available</code> con <code>avr-objdump</code>.</p>
+<h3 id="55-compilación">5.5 Compilación</h3>
+<pre><code>arduino-cli core install arduino:avr
+arduino-cli compile --fqbn arduino:avr:nano 04_diseno/electronica/firmware/p1_throttle
+# para T0 (habilita el comando 'h' que cuelga el lazo para probar el WDT):
+arduino-cli compile --fqbn arduino:avr:nano --build-property &quot;compiler.cpp.extra_flags=-DP1_TEST_COMMANDS=1&quot; 04_diseno/electronica/firmware/p1_throttle
+arduino-cli upload  --fqbn arduino:avr:nano -p /dev/ttyUSB0 04_diseno/electronica/firmware/p1_throttle
+</code></pre>
+<p>v2.0 <strong>no se compiló para AVR</strong> (en esta máquina no hay <code>avr-gcc</code> ni <code>arduino-cli</code>; el test correspondiente se salta; compilarlo es el primer paso de T0.0): la lógica compila con gcc en C99 estricto con <code>-Wconversion -Werror</code>. Ojo AVR: los flags son <code>uint32_t</code> y los menores a 0x10000 son <code>unsigned int</code> de 16 bits → negarlos siempre como <code>~(uint32_t)TL_F_x</code>. Si se modifica la lógica: <code>cp firmware/throttle_logic.[ch] firmware/p1_throttle/src/</code> (el test lo exige). FQBN <code>arduino:avr:nano</code> = bootloader nuevo; con un clon de bootloader viejo, regrabar el bootloader o comprobar T0.18.</p>
+<h3 id="56-calibración-una-vez-y-tras-cambiar-imánsensor">5.6 Calibración (una vez, y tras cambiar imán/sensor)</h3>
+<p>Monitor serie 115200. Con <strong>el cordón afuera</strong> (K1 abierto; el sketch se niega a calibrar con el cordón puesto): <code>c</code> → soltar la palanca, <code>1</code> → tope avance, <code>2</code> → <strong>bajar el bucket</strong> (el enclavamiento solo deja ir al lado de reversa con el bucket abajo) y llevar a tope atrás, <code>3</code> → <code>s</code>. <code>tl_calibrate()</code> exige orden monótono, semicarrera ≥ 102 cuentas y los tres puntos dentro de la banda válida; se guarda en EEPROM con CRC-8. Sin calibración válida el estado es <code>FAULT</code> permanente (no arma). Se admite el imán invertido.</p>
+<h3 id="57-led-y-telemetría">5.7 LED y telemetría</h3>
+<p>LED: fijo = armado; parpadeo corto (2 de cada 3 × 100 ms) = limpieza de rejilla; 4 Hz = desarmado con acelerador fuera de cero; 2 Hz = contando 1 s en cero; destello cada 2 s = cordón/seta abiertos; 10 Hz = <code>FAULT</code>. Telemetría CSV cada 100 ms (<code>t</code> la activa/desactiva): <code>t_ms, estado, adc, cmd, ppm_us, flags, enable, perfil</code> (bucket abajo = bit 0x2000 de <code>flags</code>) — es el registro que usa T0.</p>
+<h3 id="58-tests-pytest-q-teststest_firmwarepy">5.8 Tests (<code>pytest -q tests/test_firmware.py</code>)</h3>
+<p>Compila <code>throttle_logic.c</code> con <code>gcc -std=c99 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wdouble-promotion -Werror</code> a una librería compartida y la ejecuta desde Python por ctypes, tick a tick (el tamaño de cada struct se verifica contra C; el tick se lee de <code>TICK_MS</code> del sketch; movimientos de palanca realistas). Escenarios: defaults vs requisitos, <code>inputs.yaml</code> y <code>calc_electronica</code> (<code>reverse_limit</code> = 0,63, <code>l_min_erpm</code>); config insegura rechazada (limpieza &gt; 3 s, <code>weed_cmd</code> &gt; 0,25…); sin calibración no arma; <strong>arranque con acelerador ≠ 0 no arma</strong> (incl. bucket abajo); armado tras 1 s continuo en cero; rampa de subida y bajada rápida; cordón/seta → neutro en el mismo tick + latch; <strong>bucket abajo limita</strong> a <code>reverse_limit</code> siempre en avance (y con el fin de carrera cortado desde el encendido); lado de reversa con bucket arriba → 0; <strong>nunca negativo sin el pulsador</strong>; bucket hacia abajo inmediato / hacia arriba con antirrebote; <strong>cambio de bucket con acelerador &gt; 0 → salida 0 hasta volver a cero</strong> (3 casos); cambio con acelerador en 0 sin retención; recorte al bajar el bucket durante la rampa; <strong>limpieza de rejilla</strong>: lenta, ≤ <code>weed_cmd</code>, ≤ 3 s aunque se sostenga, una por pulsación, corte al soltar o mover el acelerador, exige acelerador en 0 y motor parado ≥ dwell, ignora pulsaciones cortas/rebotes y un pulsador apretado al armar, no arranca con la palanca fuera de cero aunque la salida sea 0, la corta el kill; <strong>perfil COSTA por defecto</strong> al encender y en cada re-armado (aunque el selector esté en abierto), ABIERTO solo pasando por costa y con salida 0, vuelta a costa inmediata; <strong>sensor fuera de rango</strong> (6 valores, también durante limpieza y con bucket abajo) → neutro + <code>FAULT</code>; salto imposible vs mano real; <strong>watchdog/timeout</strong> (100 ms pasa, 101 ms corta); zona muerta y <code>tl_thrust</code>; expo; calibración; falla del VESC; tiempo de corte &lt; 1 s; <strong>fuzz</strong> de 30 000 ticks con invariantes (PPM en rango, neutro ante condición insegura, comando ≥ −<code>weed_cmd</code> y negativo solo en limpieza con pulsador sostenido ≥ <code>weed_hold_ms</code> y acelerador en 0, ≤ 3 s, bucket abierto ⇒ ≤ <code>reverse_limit</code>, rampa, dwell entre signos, perfil abierto solo armado y desde salida 0, cada armado en COSTA y tras ≥ 1 s en cero); <strong>tabla de verdad</strong> (1536 filas, ahora con el fin de carrera del bucket) y sus filas que giran contrastadas contra la lógica; copia del sketch idéntica, pines requeridos y sin repetir; <code>vesc_perfil.lisp</code> coherente con <code>electronica.json</code>; config VESC coherente con sizing; archivos generados vigentes. Una prueba de mutación (11 alteraciones de la lógica: sin retención por bucket, limpieza sin tope de tiempo / sin acelerador en 0 / sin dwell, reversa negativa, avance sin límite con bucket abajo, perfil sin pasar por costa / sin salida 0, sin antirrebote, sin recorte, pulsador sin soltar) fue detectada en los 11 casos. Resultado: <strong>69 passed, 1 skipped</strong> (la compilación AVR se salta sin <code>avr-gcc</code>/<code>arduino-cli</code>).</p>
+<h2 id="6-configuración-obligatoria-del-vesc">6. Configuración obligatoria del VESC</h2>
+<p>Los valores por defecto del firmware <strong>no sirven</strong> para el bote [VERIFICADO: R06 §2.4]. Cargar en VESC Tool (Motor Config y App Config), escribir, reiniciar, <strong>volver a leer</strong> y comparar con esta tabla (T0.6). Guardar el XML exportado junto a este README. Columna "Default FW": [VERIFICADO: <code>motor/mcconf_default.h</code> y <code>applications/appconf_default.h</code> de vedderb/bldc, rama master, leídos el 2026-10-01]; entre paréntesis, el valor que pone el firmware del <strong>target 75_100</strong> (<code>hwconf/flipsky/hw_75_100.h</code>) cuando difiere [VERIFICADO: R06 §2.2, §2.4] — es lo que se verá en VESC Tool con un Flipsky 75100; los nombres de parámetro, [VERIFICADO: <code>datatypes.h</code>].</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>Grupo</th>
+<th>Parámetro (VESC Tool)</th>
+<th>Valor P1</th>
+<th>Unidad</th>
+<th>Default FW</th>
+<th>Etiqueta</th>
+<th>Nota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Firmware</td>
+<td><code>versión de firmware</code></td>
+<td>≥ 6.00</td>
+<td>—</td>
+<td>5.02</td>
+<td>[VERIFICADO: research/R06_electrica.md §2.2 — KILL_SW_MODE aparece en 5.03] · ≥ 6.00 por LispBM (vesc_perfil.lisp) [VERIFICADO: vedderb/bldc lispBM/README.md, FW 6.00+] · de fábrica 5.02 [inputs.yaml esc.options.FSESC75350.fw_factory, allí VERIFICADO]</td>
+<td>FLASHEAR antes de configurar (T0.0): con el FW de fábrica no hay LispBM y el perfil COSTA/ABIERTO no funciona</td>
+</tr>
+<tr>
+<td>Firmware</td>
+<td><code>foc_phase_filter_enable</code></td>
+<td>true (dejar)</td>
+<td>—</td>
+<td>true (false en target 75_100, FW ≥ 6.00)</td>
+<td>[VERIFICADO: research/R06_electrica.md §2.1 — Flipsky: con FW ≥ 5.3 apagar el filtro de fase o se daña el 75100]; default [VERIFICADO: mcconf_default.h MCCONF_FOC_PHASE_FILTER_ENABLE; hw_75_100.h false (research/R06_electrica.md §2.2)]</td>
+<td>Solo Flipsky 75100/75200 sin filtro; el FSESC 75350 y el 110300 SÍ tienen filtro de fase (research/R11 §2)</td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>si_motor_poles</code></td>
+<td>10</td>
+<td>—</td>
+<td>14</td>
+<td>[inputs.yaml motor.options.MTI120116_150.pole_pairs = 5 (allí con su etiqueta)] · default FW 14 [VERIFICADO: mcconf_default.h MCCONF_SI_MOTOR_POLES]; CONTAR imanes del motor real</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>l_current_max</code></td>
+<td>292</td>
+<td>A</td>
+<td>60</td>
+<td>[CALCULADO: sizing.json electrical.I_phase_limit_A = 292 A: par T_max 18,6 N·m &lt; par de corte del pasador / 1,8] · default 60 A [VERIFICADO: mcconf_default.h]</td>
+<td>Límite de FASE: fija el par máx. (el pasador de corte no corta en arranques). En PPM Current acelera con servo × l_current_max [VERIFICADO: app_ppm.c]</td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>l_current_min</code></td>
+<td>-87,6</td>
+<td>A</td>
+<td>-60</td>
+<td>[CALCULADO: −0,3 × l_current_max] · [SUPUESTO: corriente de frenado = 30 % de l_current_max (un jet casi no regenera; protege BMS)]</td>
+<td>Corriente de FRENADO (servo opuesto a las rpm) [VERIFICADO: app_ppm.c]</td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>límite de potencia en REVERSA (bucket abajo, MCU)</code></td>
+<td>P ≤ 0,5 × P → corriente ≤ 0,63 × l_current_max = 184</td>
+<td>A</td>
+<td>—</td>
+<td>[CALCULADO: inputs.yaml waterjet.reverse.power_limit_frac 0,5; [CALCULADO: bomba con T ∝ n², P ∝ n³ → P ∝ T^1,5; límite de par = P_frac^(2/3)]]</td>
+<td>El jet NO invierte el giro: la reversa es el bucket. El MCU lee el fin de carrera del bucket y topea el PPM (reverse_limit del firmware = este valor; fin de carrera en D5, README §5)</td>
+</tr>
+<tr>
+<td>Batería</td>
+<td><code>l_in_current_max</code></td>
+<td>192</td>
+<td>A</td>
+<td>99 (100 en target 75_100)</td>
+<td>[CALCULADO: ⌈1,05 × I_bat pico 192 A⌉ a 5 A, ≤ mín(80 % × BMS 240 A = 192 A; BMS de rama 120 A / reparto 0,6 = 200 A)] · reparto [inputs.yaml electrical.parallel_share_max, allí SUPUESTO]</td>
+<td>LIMITA la V máx: I_bat pico de sizing &gt; límite. Con 2 baterías en paralelo y reparto 60/40 la rama más cargada lleva 115 A = 96 % de su BMS (120 A): no supera el BMS, pero el margen del 80 % solo vale con reparto parejo. Medir el reparto en T1 (pinza en cada rama)</td>
+</tr>
+<tr>
+<td>Batería</td>
+<td><code>l_in_current_min</code></td>
+<td>-10</td>
+<td>A</td>
+<td>-60 (-100 en target 75_100)</td>
+<td>[SUPUESTO: la hélice regenera poco; protege el BMS al frenar/invertir] · defaults [VERIFICADO: mcconf_default.h; hw_75_100.h (research/R06_electrica.md §2.4)]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Batería</td>
+<td><code>l_battery_cut_start</code></td>
+<td>36</td>
+<td>V</td>
+<td>10</td>
+<td>[CALCULADO: 12 celdas × 3 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 3,0 V/celda]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Batería</td>
+<td><code>l_battery_cut_end</code></td>
+<td>33,6</td>
+<td>V</td>
+<td>8</td>
+<td>[CALCULADO: 12 × 2,8 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 2,8 V/celda]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Batería</td>
+<td><code>l_max_vin</code></td>
+<td>53</td>
+<td>V</td>
+<td>57 (90 en target 75_100)</td>
+<td>[CALCULADO: 1,2 × 43,8 V] · [SUPUESTO: l_max_vin = 1,2 × V carga plena → protege el DC-DC ante un BMS abierto regenerando]</td>
+<td>OJO: ≥ entrada máx. del DC-DC → usar R-78HB (72 V)</td>
+</tr>
+<tr>
+<td>Velocidad</td>
+<td><code>l_max_erpm</code></td>
+<td>9200</td>
+<td>ERPM</td>
+<td>100000</td>
+<td>[CALCULADO: tope legal 'modo costa' = rpm a 5 kn con carga liviana (sizing.legal_speed, D-30); techo técnico 24000 = 1,15 × 4182 rpm × 5 pares de polos]</td>
+<td>Sin carga (hélice fuera del agua) el motor iría a 6570 rpm = 32850 ERPM [CALCULADO: KV 150 × 43,8 V]; el límite lo baja a 1840 rpm. ERPM = rpm × 5 pares de polos [inputs.yaml motor.options.MTI120116_150.pole_pairs]</td>
+</tr>
+<tr>
+<td>Velocidad</td>
+<td><code>l_max_erpm (perfil 2: fuera de la franja de 300 m)</code></td>
+<td>24000</td>
+<td>ERPM</td>
+<td>100000</td>
+<td>[CALCULADO: 1,15 × 4182 rpm (n máx. de sizing) × 5 pares de polos]</td>
+<td>Perfil ABIERTO (vesc_perfil.lisp, en RAM); por defecto arranca SIEMPRE en COSTA (5 kn, R13). ✔ 4800 rpm &gt; 4369 rpm a fondo con batería llena [CALCULADO: 4182 × (43,8/38,4)^(1/3)] — el tope no recorta la V máx.</td>
+</tr>
+<tr>
+<td>Velocidad</td>
+<td><code>tope de cavitación (NO se programa)</code></td>
+<td>20200</td>
+<td>ERPM</td>
+<td>—</td>
+<td>[CALCULADO: sizing.cavitation_cap — 4048 rpm con S ≤ 3.5 a punto fijo × 5 pares de polos]</td>
+<td>A punto fijo el límite de corriente ya deja el impulsor en S ≈ 3.5 (sizing); a velocidad la inmersión y la presión de toma suben y S baja. Un tope fijo de ERPM recortaría la V máx. por ratos a 26.0 km/h, por eso no se programa: verificar en T2 (sin ruido de cavitación a punto fijo)</td>
+</tr>
+<tr>
+<td>Velocidad</td>
+<td><code>l_min_erpm</code></td>
+<td>-3100</td>
+<td>ERPM</td>
+<td>-100000</td>
+<td>[CALCULADO: −626 rpm × 5 pares de polos] · [SUPUESTO: giro inverso lento (≤ 25 % de las rpm de 5 kn) solo para soltar algas de la rejilla]</td>
+<td>Solo giro inverso lento para limpiar la rejilla; la reversa de marcha es el bucket</td>
+</tr>
+<tr>
+<td>Velocidad</td>
+<td><code>l_max_duty</code></td>
+<td>0,95</td>
+<td>—</td>
+<td>0,95</td>
+<td>[VERIFICADO: mcconf_default.h MCCONF_L_MAX_DUTY 0,95; mantener]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Temperatura</td>
+<td><code>l_temp_fet_start / end</code></td>
+<td>85 / 100</td>
+<td>°C</td>
+<td>85 / 100</td>
+<td>[VERIFICADO: mcconf_default.h; mantener]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Temperatura</td>
+<td><code>l_temp_motor_start / end</code></td>
+<td>85 / 100</td>
+<td>°C</td>
+<td>85 / 100</td>
+<td>[CALCULADO: start = mín(85 default, t_winding_max_c 120 °C de inputs.yaml); end = start + 15 como el default] · default 85/100 [VERIFICADO: mcconf_default.h]</td>
+<td>sizing toma t_winding_max_c como la temperatura donde el VESC EMPIEZA a limitar: no subir start sin rehacer el cálculo térmico. Requiere NTC 10 k en el bobinado (TEMP_SENSOR_NTC_10K_25C, R06 §1.2)</td>
+</tr>
+<tr>
+<td>App</td>
+<td><code>app_to_use</code></td>
+<td>PPM</td>
+<td>—</td>
+<td>UART</td>
+<td>[VERIFICADO: appconf_default.h APPCONF_APP_TO_USE = APP_UART → cambiar]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>App PPM</td>
+<td><code>ctrl_type</code></td>
+<td>PPM_CTRL_TYPE_CURRENT</td>
+<td>—</td>
+<td>NONE</td>
+<td>[VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/applications/app_ppm.c — reversa directa con signo]</td>
+<td>Bucket, dwell y el único giro inverso (limpieza de rejilla) los gestiona el MCU (§5); alternativa DUTY si la bomba cavita (R06 §2.6)</td>
+</tr>
+<tr>
+<td>App PPM</td>
+<td><code>pulse_start / center / end</code></td>
+<td>1,0 / 1,5 / 2,0</td>
+<td>ms</td>
+<td>1,0 / 1,5 / 2,0</td>
+<td>[VERIFICADO: appconf_default.h] = salida del MCU (throttle_logic.c)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>App PPM</td>
+<td><code>hyst (zona muerta VESC)</code></td>
+<td>0,02</td>
+<td>—</td>
+<td>0,15</td>
+<td>[SUPUESTO: el MCU ya aplica la zona muerta; default 0,15 VERIFICADO se comería el 15 % inferior]</td>
+<td>app_ppm.c aplica utils_deadband(servo, hyst) [VERIFICADO: app_ppm.c]</td>
+</tr>
+<tr>
+<td>App PPM</td>
+<td><code>throttle_exp</code></td>
+<td>0</td>
+<td>—</td>
+<td>0</td>
+<td>[VERIFICADO: default lineal; la expo la hace el MCU]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>App PPM</td>
+<td><code>ramp_time_pos</code></td>
+<td>1</td>
+<td>s</td>
+<td>0,4</td>
+<td>[SUPUESTO: redundante con la rampa del MCU (research/R06_electrica.md §2.6 ~1 s); default 0,4 s VERIFICADO]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>App PPM</td>
+<td><code>ramp_time_neg</code></td>
+<td>0,1</td>
+<td>s</td>
+<td>0,2</td>
+<td>[SUPUESTO: bajada rápida en el VESC; default 0,2 s VERIFICADO appconf_default.h]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>App PPM</td>
+<td><code>safe_start</code></td>
+<td>true</td>
+<td>—</td>
+<td>true</td>
+<td>[VERIFICADO: app_ppm.c MIN_PULSES_WITHOUT_POWER 50 → ≈ 1 s de neutro a 50 Hz [CALCULADO]]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>General</td>
+<td><code>timeout_msec</code></td>
+<td>250</td>
+<td>ms</td>
+<td>1000</td>
+<td>[SUPUESTO: 12 tramas PPM perdidas; default 1000 ms VERIFICADO appconf_default.h]</td>
+<td>Sin PPM válido → corriente de freno de timeout [VERIFICADO: app_ppm.c]</td>
+</tr>
+<tr>
+<td>General</td>
+<td><code>timeout_brake_current</code></td>
+<td>0</td>
+<td>A</td>
+<td>0</td>
+<td>[VERIFICADO: appconf_default.h; 0 = rueda libre]</td>
+<td>—</td>
+</tr>
+<tr>
+<td>General</td>
+<td><code>kill_sw_mode</code></td>
+<td>KILL_SW_MODE_ADC2_HIGH</td>
+<td>—</td>
+<td>DISABLED</td>
+<td>[VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/timeout.c — kill si V(ADC_EXT2) &gt; 1,65 V, sondeo cada 10 ms]</td>
+<td>Pull-up 10 kΩ a 3,3 V en ADC2; Q_EN + opto U3 lo llevan a GND solo con cordón+seta+MCU armado</td>
+</tr>
+<tr>
+<td>General</td>
+<td><code>multi_esc</code></td>
+<td>false</td>
+<td>—</td>
+<td>true</td>
+<td>[VERIFICADO: appconf_default.h APPCONF_PPM_MULTI_ESC true; un solo ESC]</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>Notas: (1) <code>l_current_max</code> es el límite de corriente de FASE (par máximo, por debajo del corte del pasador) y en modo PPM <em>Current</em> se usa para acelerar <strong>en ambos sentidos</strong> [VERIFICADO: <code>app_ppm.c</code>, rama <code>PPM_CTRL_TYPE_CURRENT</code>]. El jet no usa el giro inverso para la marcha atrás: con el bucket abajo el MCU manda PPM en <strong>avance</strong> limitado a <code>reverse_limit</code> = 0,63 (PPM ≤ 1500 + 500 × 0,63 ≈ 1815 µs, P ≤ 50 %); el único PPM &lt; 1500 µs es la limpieza de rejilla (≥ 1500 − 500 × <code>weed_cmd</code> = 1450 µs, ≤ 3 s), y su velocidad la topea <code>l_min_erpm</code>. <code>l_current_min</code> acota el <strong>frenado</strong>. Perfil COSTA/ABIERTO: <code>l_max_erpm</code> guardado = COSTA; ABIERTO lo pone <code>vesc_perfil.lisp</code> en RAM (§5.4). (2) <code>hyst</code> chico porque <code>app_ppm.c</code> aplica <code>utils_deadband(servo, hyst)</code> además de la zona muerta del MCU [VERIFICADO: app_ppm.c]. (3) <code>safe_start</code> del VESC exige 50 pulsos en neutro [VERIFICADO: <code>MIN_PULSES_WITHOUT_POWER 50</code>]: el MCU manda neutro desde el arranque y durante el segundo de armado, así que se cumplen solos. (4) <code>l_max_erpm</code> depende del número de polos: <code>si_motor_poles</code> = 10 sale de la ficha del MTI120116 (12N/10P); <strong>contar los imanes</strong> del motor real (o comparar rpm medidas con un tacómetro óptico contra ERPM/5 en VESC Tool) y, si difiere, corregir <code>pole_pairs</code> en <code>inputs.yaml</code> y regenerar (también reescribe <code>vesc_perfil.lisp</code>). (5) Detección de motor (FOC) con el acople motor–eje <strong>desmontado</strong> (motor solo). (6) Con FW ≥ 5.3 en un Flipsky 75100, <code>foc_phase_filter_enable = false</code> o se daña el ESC [VERIFICADO: R06 §2.1].</p>
+<h2 id="7-cálculos-del-circuito">7. Cálculos del circuito</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Magnitud</th>
+<th>Valor</th>
+<th>Etiqueta / base</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pack</td>
+<td>2 × LiTime 36 V 60 Ah Golf Cart en paralelo (12S2P, BMS 2 × 120 A) → 12S LFP, 38,4 V nom., 43,8 V carga plena</td>
+<td>[CALCULADO: inputs.yaml battery] · V/celda [ESTIMADO: research/R06_electrica.md §4.3, LFP 3,65 V/celda máx.]</td>
+</tr>
+<tr>
+<td>R de precarga (en paralelo con K1)</td>
+<td>100 Ω, ≥ 30 W (carcasa de Al sobre la tapa-disipador)</td>
+<td>[SUPUESTO: research/R06_electrica.md §3.4 (100 Ω → 5τ ≤ 1 s)]; potencia [CALCULADO: 1,5 × V²/R en corto del bus]</td>
+</tr>
+<tr>
+<td>τ = R·C_bus / 5τ</td>
+<td>0,20 s / 1,00 s</td>
+<td>[CALCULADO] con C_bus 2 mF [ESTIMADO: research/R06_electrica.md §3.4, C de bus del VESC 1–2 mF no publicado; se toma el mayor]</td>
+</tr>
+<tr>
+<td>Pico de corriente / energía en R</td>
+<td>0,44 A / 1,92 J</td>
+<td>[CALCULADO: V_máx/R; ½·C·V²]</td>
+</tr>
+<tr>
+<td>Potencia máx. que pasa por R con K1 abierto</td>
+<td>4,8 W = 0,28 % del crucero (1709 W, sizing)</td>
+<td>[CALCULADO: V²/4R] → sin empuje con K1 abierto</td>
+</tr>
+<tr>
+<td>Espera con cordón AFUERA tras encender S1</td>
+<td>≥ 2 s</td>
+<td>[CALCULADO: ≥ 2 × 5τ, redondeado]</td>
+</tr>
+<tr>
+<td>Bobina K1</td>
+<td>TE Connectivity KILOVAC EV200AAANA: bobina 9–36 V con economizador, alimentada a 12 V (11,8–12,2 V) desde B-12V → ✔ dentro de 9–36 V; cierre 3,8 A ≤ 130 ms, retención 0,13 A = 1,56 W</td>
+<td>[VERIFICADO: hoja EV200 — bobina 'A' 9–36 V CC (opera), pickup máx. 9 V, dropout mín. 6 V] · [VERIFICADO: hoja EV200 — holding current 0,13 A @ 12 V (economizador incorporado, 1,7 W)] · [VERIFICADO: hoja EV200 — inrush máx. 3,8 A, inrush time máx. 130 ms] · [VERIFICADO: Mean Well RSD-60-SPEC (2026-07-09) — RSD-60L-12: 12 V, 5 A, entrada 18–72 V CC]; mando de K1 a 12 V (auditoría H3, R2-E1) · [VERIFICADO: Mean Well RSD-60-SPEC (2026-07-09) — tolerancia de salida ±2,0 %]</td>
+</tr>
+<tr>
+<td>Apertura de K1 / fuerza contraelectromotriz</td>
+<td>≤ 12 ms; N1/N2 no bajan de 0 V al abrir (sin supresor externo)</td>
+<td>[VERIFICADO: hoja EV200 — release (incluye arco) máx. 12 ms @ 2000 A; close típ. 15 ms] · [VERIFICADO: hoja EV200 — 'built-in coil economizer … limits back EMF to 0V']</td>
+</tr>
+<tr>
+<td>Consumo de bobina en la misión (0,75 h)</td>
+<td>1,17 Wh = 0,03 % de la energía usable (sizing)</td>
+<td>[CALCULADO: P_retención × t]; con el bote amarrado y el clip PUESTO la bobina sigue tomando esa potencia (B-12V está aguas arriba de S1): sacar el clip al dejar el bote</td>
+</tr>
+<tr>
+<td>Fusible de mando F2 (salida de B-12V, lento)</td>
+<td>5 A</td>
+<td>[CALCULADO: primer valor normalizado ≥ 1,25 × I de cierre 3,8 A] · factor [SUPUESTO: fusible de mando (lento) ≥ 1,25 × corriente de cierre de la bobina]</td>
+</tr>
+<tr>
+<td>Interruptor de cordón (Watski 12 V – 15 A) en el mando de 12 V</td>
+<td>✔ 12 V ≤ 12 V nominal; cierre 3,8 A ≤ 15 A; abre 0,13 A sin sobretensión inductiva (economizador). Alternativa Sea Dog 5 A: margen 1,3× sobre el cierre</td>
+<td>[VERIFICADO: research/R08a §3 — Watski 'Dødmands kontakt universal' 12 V – 15 A] · [VERIFICADO: Sea Dog SD-420487-1, 5 A máx. (research/R06_electrica.md §3.2)]</td>
+</tr>
+<tr>
+<td>R serie de U2+U3 (nodo bobina)</td>
+<td>1800 Ω, 5,2–5,5 mA, P 0,05 W → 0,25 W</td>
+<td>[CALCULADO: E12 ≤ (12 V − 2·Vf)/I, mando de 12 V] [ESTIMADO: LED IR de optoacoplador típico 1,1–1,4 V]</td>
+</tr>
+<tr>
+<td>R serie de U1 (nodo seta)</td>
+<td>1800 Ω, 5,9–6,1 mA, P 0,07 W → 0,25 W</td>
+<td>[CALCULADO]</td>
+</tr>
+<tr>
+<td>Tensión inversa en los LED de U1–U3 al abrir la bobina</td>
+<td>N2 → -0 V (economizador de K1) vs V_R máx. 5 V → no hace falta diodo con el EV200; se deja el 1N4148 antiparalelo como protección si se reemplaza K1 por uno sin economizador</td>
+<td>[VERIFICADO: hoja EV200 — 'built-in coil economizer … limits back EMF to 0V'] · [ESTIMADO: V_R máx. del LED de optoacopladores de fototransistor típicos 5–6 V; verificar en la hoja del elegido]</td>
+</tr>
+<tr>
+<td>Precarga con el consumo en reposo del VESC</td>
+<td>I_q ≤ 38,4 mA para llegar al 90 % con K1 abierto; al 80 % la energía del cierre de K1 es 59 mJ</td>
+<td>[CALCULADO: 0,1·V_nom/R; ½·C·(0,2·V_nom)²] · [SUPUESTO: el consumo en reposo del VESC 75100 no está publicado; se mide en T0.3]</td>
+</tr>
+<tr>
+<td>Corriente de colector mínima (CTR 50 %) vs pull-up</td>
+<td>2,60 mA ≫ 0,50 mA (5 V) / 0,33 mA (3,3 V)</td>
+<td>[CALCULADO] [SUPUESTO: especificación mínima de compra CTR ≥ 50 %]</td>
+</tr>
+<tr>
+<td>Retención de la bobina (hueco del riel de 12 V al arrancar el achique)</td>
+<td>P del nodo 1,78 W (bobina + 3 LED), de 11,26 V a 9,0 V en 0,25 s → C ≥ 19,4 mF → <strong>22 mF</strong> (cubre 0,28 s); bomba 2–8 A vs DC-DC 5 A con límite de corriente</td>
+<td>[CALCULADO: C = 2·P·t / (V0² − V²)] · [VERIFICADO: hoja EV200 — Hold Voltage (Min.) 7,5 V CC (bobina 'A')] · [SUPUESTO: no bajar de 9 V (pickup máx. de la hoja EV200) durante el hueco: margen de 1,5 V sobre la retención mínima] · [SUPUESTO: hueco del riel de 12 V al arrancar la bomba de achique contra el límite de corriente del DC-DC (arranque &lt; 0,1 s × 2,5); lo valida T0.4] · [ESTIMADO: Schottky 3 A (1N5822) a 0,2 A] · [ESTIMADO: Attwood Sahara S500 ≈ 2 A en marcha y ~4× en el arranque (motor CC); la ficha no se abrió] · [VERIFICADO: Mean Well RSD-60-SPEC (2026-07-09) — RSD-60L-12 5 A; sobrecarga 105–135 % con limitación de corriente constante]</td>
+</tr>
+<tr>
+<td>Consumo en reposo (bote amarrado, S1 abierto)</td>
+<td>DC-DC 0,5–1,5 W → la energía usable dura 115–346 días; con el clip PUESTO (+1,56 W de bobina) 56–84 días. Invierno: sacar F5 (y los F_BR) y guardar la batería a carga de almacenamiento</td>
+<td>[CALCULADO: E usable de sizing / P] · [ESTIMADO: consumo en vacío de un DC-DC aislado de 60 W; la ficha no lo publica — medir en T0.4]</td>
+</tr>
+<tr>
+<td>Cortocircuito presunto (bornes de batería, sin cable)</td>
+<td>una batería 0,9–4,4 kA; las 2 en paralelo 1,8–8,8 kA vs MRBF 2 kA a 58 V (✘ NO alcanza) y Class T 20 kA (✔) → F1 y F_BR Class T</td>
+<td>[CALCULADO: V_máx / R_int] · [ESTIMADO: LiTime no publica la R interna (página 2026-10-02); 0,050 Ω = Power Queen 24 V 50 Ah 'R int. ≤ 40 mΩ' (R08a, VERIFICADO) escalada a 12S 60 Ah; 0,010 Ω = 12 celdas prismáticas de 60 Ah de ≈ 0,5 mΩ + BMS y bornes] · [VERIFICADO: research/R06_electrica.md §5.4 — MRBF 10 kA @ 14 V / 5 kA @ 32 V / 2 kA @ 58 V] · [VERIFICADO: Blue Sea 5113 Class T — '20,000 Ampere Interrupt Capacity (AIC)', 160 V CC máx. (fisheriessupply.com, 2026-10-02)]</td>
+</tr>
+<tr>
+<td>Fusibles F1 (barra +) / F_BR por rama / cable DC</td>
+<td>250 A (mín. 218,9) / 2 × 150 A / 70 mm²</td>
+<td>[CALCULADO: resultados/sizing.json fuse_a, fuse_branch_a (rama = reparto 60/40 × I pico), cable_dc]</td>
+</tr>
+<tr>
+<td>Fases ESC → motor</td>
+<td>cables propios: motor 6 AWG × 300 mm a ESC 8 AWG, unión con conectores bala 8 mm (sin el tramo de 95 mm² de sizing); caída ≈ 1,48 % a 292 A</td>
+<td>[CALCULADO: ρ·L/A con 6 AWG 13,3 mm² × 0,30 m + 8 AWG 8,37 mm² × 0,20 m [ESTIMADO: largo del cable del ESC no publicado]] · calibres [inputs.yaml motor/esc leads, allí VERIFICADO] · sección del tramo: §4 Cables</td>
+</tr>
+</tbody>
+</table></div>
+<p>Procedimiento de encendido que se deriva: <strong>S1 ON con el cordón AFUERA</strong> → esperar el tiempo de la tabla (la R_pre carga el bus) → colocar el cordón (K1 cierra sobre un bus ya cargado) → soltar el acelerador 1 s → armado. Si se enciende con el cordón puesto, K1 cierra sobre el bus descargado: el pico lo limita solo la ESR [VERIFICADO: R06 §3.4, "thousands of Amps… weld contacts"]; el antichispa opcional aguas abajo evita ese caso.</p>
+<h2 id="8-modos-de-falla-del-propio-circuito">8. Modos de falla del propio circuito</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Falla</th>
+<th>Efecto</th>
+<th>Detección</th>
+<th>Resultado / mitigación</th>
+<th>¿Seguro?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>K1 soldado</strong></td>
+<td>El cordón ya no corta la potencia</td>
+<td>Sin "clic" al poner/sacar el cordón; con cordón afuera y S1 ON, tensión sobre los bornes de K1 ≈ 0 V en vez de la caída del VESC por R_pre [ESTIMADO: &gt; 1 V con el VESC encendido]</td>
+<td>Quedan U3→ADC2, MCU neutro y Q_EN (§3). T0.15 prueba esa situación. Probar el clic <strong>antes de cada salida</strong></td>
+<td>Sí (2 barreras)</td>
+</tr>
+<tr>
+<td>K1 con bobina abierta / no cierra</td>
+<td>Sin propulsión</td>
+<td>No arranca</td>
+<td>Remos; revisar bobina/F2</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>B-12V sin salida (F5 o F2 fundido, DC-DC dañado)</td>
+<td>Bobina sin corriente → K1 abre; también se pierden el achique y la alarma</td>
+<td>LED destello 2 s (U2/U3 apagados); achique sin luz</td>
+<td>Fail-safe para la propulsión; remos; revisar F5/F2 antes de salir (prueba previa)</td>
+<td>Sí (sin propulsión ni achique)</td>
+</tr>
+<tr>
+<td>Bobina de K1 con tensión fuera de rango</td>
+<td>El EV200 opera con 9–36 V [VERIFICADO: hoja EV200]; B-12V da 12 V ± 2 % [VERIFICADO: RSD-60-SPEC]</td>
+<td>T0.4 (V de bobina)</td>
+<td>Si B-12V se reemplaza, mantener 9–36 V</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td><strong>Hueco del riel de 12 V al arrancar la bomba de achique</strong> (mismo DC-DC de 5 A con límite de corriente)</td>
+<td>Sin retención, la bobina podría bajar de la retención mínima (7,5 V) y K1 abriría en marcha (pérdida de propulsión espuria)</td>
+<td>T0.4 b (osciloscopio en la bobina con el flotador levantado)</td>
+<td>Schottky + 22 mF (B-HOLD) aguas arriba de seta/cordón: cubre ≈ 0,28 s sobre 9 V (§7) sin demorar el corte por cordón/seta</td>
+<td>Sí si pasa T0.4 b</td>
+</tr>
+<tr>
+<td>LED de U1–U3 en inversa al abrir la bobina</td>
+<td>Con el EV200 (economizador) N1/N2 no bajan de 0 V (§7); con un contactor de reemplazo SIN economizador irían a −(Vd + I·R_supresor)</td>
+<td>T0.4 (V(N2))</td>
+<td>1N4148 antiparalelo en cada LED se deja igual (§4)</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td><strong>Fusible de rama F_BR fundido</strong> (o borne/cable de rama suelto)</td>
+<td>La otra batería sola lleva toda la corriente: a fondo 192 A &gt; 120 A de su BMS → el BMS corta (pérdida de propulsión) o la batería trabaja sobrecargada</td>
+<td><strong>No se ve por tensión</strong> (la barra alimenta el cable de rama desde el otro lado): pinza amperimétrica CC en cada cable de rama con el bote amarrado y el motor al 30 % (ambas ramas con corriente y reparto ≤ 60/40), o caída en mV sobre cada F_BR (≈ 0 mV = abierto)</td>
+<td>Prueba previa (§10, checklist §3): si una rama no lleva corriente, no salir</td>
+<td>Sí (pérdida de propulsión)</td>
+</tr>
+<tr>
+<td><strong>Hall de la palanca trabado DENTRO de la banda válida</strong> (imán corrido, sensor despegado pero con salida intermedia)</td>
+<td>El MCU no lo distingue de una palanca quieta: mantiene el último comando válido o queda en neutro</td>
+<td>Sin detección automática (solo <code>SENS_LOW/HIGH</code> fuera de banda y <code>SENS_JUMP</code>)</td>
+<td><strong>Riesgo residual</strong>: el cordón y la seta cortan por hardware; prueba previa de recorrido completo (0 → 100 % → 0 en la telemetría); P2: segundo hall redundante y comparación</td>
+<td>Parcial (lo cubren cordón/seta)</td>
+</tr>
+<tr>
+<td><strong>Bucket a medio camino / trabado</strong></td>
+<td>Solo hay fin de carrera de bucket ARRIBA (D5 NC): "abierto" = abajo, a medio camino o cable cortado, y el MCU limita a <code>reverse_limit</code> en avance; no hay fin de carrera de bucket ABAJO, así que un bucket trabado a mitad de carrera no se distingue de "abajo"</td>
+<td><code>BKT_DOWN</code> en la telemetría con la palanca del bucket arriba</td>
+<td><strong>Riesgo residual</strong>: empuje a <code>reverse_limit</code> con dirección incierta (parte del chorro desviado); mitigación: inspección visual del bucket en la prueba previa; P2: segundo fin de carrera (bucket ABAJO) y estado "ni arriba ni abajo" → salida 0</td>
+<td>Parcial</td>
+</tr>
+<tr>
+<td><strong>MOSFET del antichispa en corto</strong></td>
+<td>Se pierde el arranque suave</td>
+<td>Bus cargado sin presionar el botón</td>
+<td>K1 sigue aguas arriba [VERIFICADO: R06 §3.1, falla en corto]</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>R_pre en corto o puenteada</td>
+<td>Equivale a K1 soldado</td>
+<td>Mismo método que K1 soldado</td>
+<td>ídem</td>
+<td>Sí (2 barreras)</td>
+</tr>
+<tr>
+<td>R_pre abierta</td>
+<td>Sin precarga → K1 cierra sobre bus descargado → desgaste/soldadura de K1</td>
+<td>T0.3: el bus no sube con el cordón afuera</td>
+<td>Reemplazar; inspeccionar K1</td>
+<td>Sí (pierde vida K1)</td>
+</tr>
+<tr>
+<td><strong>Cable del cordón cortado / J2 suelto / F2 fundido</strong></td>
+<td>Bobina sin corriente → K1 abre; U2/U3 apagan</td>
+<td>LED destello 2 s</td>
+<td>Fail-safe por diseño (NC-con-clip en serie)</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td><strong>Corto entre los dos conductores del cordón</strong> (cable aplastado en la caña, agua salada en J2)</td>
+<td>Puentea el cordón para K1 <strong>y</strong> U2/U3: <strong>tirar del cordón no corta</strong></td>
+<td>Solo con la prueba de cordón <strong>antes de cada salida</strong> (latente)</td>
+<td>Seta sigue funcionando; cable redondo protegido dentro del tubo de la caña con alivio de tensión; grasa dieléctrica en J2; en P2 evaluar interruptor de 2 contactos (2 canales)</td>
+<td><strong>No</strong> (falla latente: única combinación peligrosa)</td>
+</tr>
+<tr>
+<td>Cable de la seta cortado</td>
+<td>K1 abre</td>
+<td>LED destello</td>
+<td>Fail-safe</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>U2 en corto (C–E)</td>
+<td>El MCU no ve el cordón</td>
+<td>Con el cordón afuera el LED NO destella</td>
+<td>K1 y U3 cortan igual; T0.12 detecta</td>
+<td>Sí (2 barreras)</td>
+</tr>
+<tr>
+<td>U3 en corto</td>
+<td>Se pierde el kill por hardware del VESC</td>
+<td>T0.14 b: con Q_EN puenteado y el cordón afuera, V(ADC2) queda baja</td>
+<td>K1, Q_EN y PPM neutro siguen</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Q_EN en corto</td>
+<td>El MCU no puede poner al VESC en kill</td>
+<td>T0.14 c: cordón puesto y MCU desarmado, V(ADC2) queda baja</td>
+<td>U3 y K1 siguen; PPM neutro</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Pull-up de ADC2 suelto</td>
+<td>ADC2 flotante: kill por software indeterminado</td>
+<td>T0.14 b/c: V(ADC2) no llega a 3,3 V</td>
+<td>K1 + PPM</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td><strong>MCU colgado</strong></td>
+<td>—</td>
+<td>WDT de hardware 120 ms → reset → pines en alta impedancia</td>
+<td>Q_EN abre (kill del VESC) y no hay PPM (pull-down → timeout); arranca <code>DISARMED</code>; T0.18</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>MCU sin alimentación (DC-DC o F3)</td>
+<td>Sin PPM, Q_EN abierto</td>
+<td>LED apagado</td>
+<td>Kill del VESC + timeout</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>MCU en bucle de reset (bootloader viejo + WDT)</td>
+<td>Sin propulsión</td>
+<td>LED/serie</td>
+<td>Regrabar bootloader (Optiboot)</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td><strong>Pérdida de señal PPM</strong> (cable cortado/suelto, en corto a 5 V o GND)</td>
+<td>Sin flancos válidos</td>
+<td>VESC Tool: timeout</td>
+<td>Timeout del VESC → freno 0 A (rueda libre) + safe start [VERIFICADO: <code>app_ppm.c</code>] en ≤ <code>timeout_msec</code> (§6)</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td><strong>Fin de carrera del bucket</strong>: cable cortado / contacto abierto</td>
+<td>El MCU ve "bucket ABAJO"</td>
+<td><code>BKT_DOWN</code> (+ <code>BKT_MISM</code> con la palanca en avance) en la telemetría</td>
+<td>Avance limitado a <code>reverse_limit</code> (fail-safe: se vuelve con potencia reducida); si ocurre acelerando: salida 0 hasta soltar (<code>BKT_HOLD</code>)</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Fin de carrera pegado cerrado (o en corto) con el bucket abajo</td>
+<td>El MCU ve "ARRIBA" con la palanca del lado de reversa</td>
+<td><code>BKT_MISM</code>; T0.5/T0.10</td>
+<td>Palanca de reversa → salida 0: se pierde la marcha atrás, nunca hay avance inesperado</td>
+<td>Sí (pierde la reversa)</td>
+</tr>
+<tr>
+<td>Enclavamiento mecánico roto (acelerador fuera de cero al mover el bucket)</td>
+<td>Cambio de bucket con empuje</td>
+<td><code>BKT_HOLD</code></td>
+<td>Salida 0 en el mismo tick hasta volver el acelerador a cero; reversa ≤ 0,63 siempre</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Selector de perfil: cable cortado</td>
+<td>Lee COSTA</td>
+<td>Telemetría <code>COSTA</code></td>
+<td>5 kn</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Pulsador de rejilla en corto o trabado</td>
+<td>Pulsador "apretado" permanente</td>
+<td><code>WEED_WAIT</code> / LED</td>
+<td>Exige soltarlo entre usos: un corto nunca inicia el giro inverso; si se traba durante una limpieza, corta a los 3 s</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Línea D12 → ADC1 cortada, script LispBM no cargado o VESC reiniciado</td>
+<td>El VESC queda en el <code>l_max_erpm</code> guardado</td>
+<td>T0.20</td>
+<td>Perfil COSTA (5 kn) aunque el selector diga ABIERTO</td>
+<td>Sí (pierde velocidad)</td>
+</tr>
+<tr>
+<td>Hall: señal o 5 V cortados</td>
+<td>ADC ≈ 0 V (pull-down 100 kΩ)</td>
+<td><code>SENS_LOW</code>, LED 10 Hz</td>
+<td>Neutro + <code>FAULT</code> en el mismo tick</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Hall: GND cortado</td>
+<td>Salida hacia 5 V o valor intermedio [ESTIMADO: no documentado para el A1324]</td>
+<td><code>SENS_HIGH</code> o <code>SENS_JUMP</code></td>
+<td>T0.16 prueba los 3 hilos por separado; si GND abierto da un valor "válido", bajar el pull-down a 10 kΩ</td>
+<td>A verificar en T0.16</td>
+</tr>
+<tr>
+<td>Imán despegado / sensor saturado</td>
+<td>Lectura fija ≈ centro o en un extremo</td>
+<td>No acelera / no arma</td>
+<td>Neutro (centro) o <code>NOT_ZERO</code>/<code>FAULT</code> (extremo)</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Ruido del motor en A0</td>
+<td>Falso <code>SENS_JUMP</code></td>
+<td><code>FAULT</code> espurio</td>
+<td>Promedio de 4 muestras + RC + cable apantallado (J1 con malla)</td>
+<td>Sí (disponibilidad)</td>
+</tr>
+<tr>
+<td>Configuración del VESC por defecto (kill deshabilitado, <code>hyst</code> 0,15, <code>battery_cut</code> 10/8 V, timeout 1 s)</td>
+<td>Barreras 2 y 4 degradadas</td>
+<td>T0.6: leer y comparar</td>
+<td>Tabla §6</td>
+<td>Sí con T0.6</td>
+</tr>
+<tr>
+<td>BMS abre bajo carga</td>
+<td>Pérdida de propulsión; pico de tensión al regenerar</td>
+<td>—</td>
+<td><code>l_max_vin</code> &lt; entrada máx. del DC-DC (§6); <code>l_in_current_min</code> limita la regeneración</td>
+<td>Sí (remos)</td>
+</tr>
+<tr>
+<td>BAT− a casco (aislación perdida)</td>
+<td>Corrientes parásitas/galvánicas</td>
+<td>T0.1 (&gt; 1 MΩ) antes de cada temporada</td>
+<td>Buscar el contacto</td>
+<td>Sí (no inmediato)</td>
+</tr>
+<tr>
+<td>Agua dentro de la caja ESC</td>
+<td>Puentes en ADC2/optos; VESC en falla</td>
+<td>T1, papel tisú</td>
+<td>IP68 + O-ring + respiradero (§9); K1 aguas arriba sigue</td>
+<td>Sí (pérdida de propulsión)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="9-estanqueidad-conectores-prensaestopas-recubrimientos">9. Estanqueidad: conectores, prensaestopas, recubrimientos</h2>
+<ul>
+<li><strong>Caja ESC (<span class="pid">P1-ELE-01</span>):</strong> sello axial con O-ring de NBR 70 y grasa de <strong>silicona</strong> (compatible con NBR/EPDM/FKM; nunca grasa mineral con EPDM ni grasa de silicona con O-rings de silicona) [VERIFICADO: R05 §B, tabla de compatibilidad S24]; cara de apoyo refrentada o con epoxi + lijado [ESTIMADO: R05 §B4]. Limpiar el PETG con IPA:agua 50:50; <strong>nunca MEK</strong> (disuelve el PETG) [VERIFICADO: R05 S34]; evitar también la acetona por precaución [ESTIMADO: R05 aclara que S34 no la menciona y que su efecto sobre el PETG no está verificado].</li>
+<li><strong>Prensaestopas:</strong> <strong>un cable redondo por prensaestopas</strong> (dos cables o un cable plano no sellan) [ESTIMADO: R05 §B8]; rosca en PETG <strong>pasante con contratuerca</strong> y junta sobre cara plana [R05 §B8]; caja de batería: <strong>M32</strong> (13–21 mm) para cada cable de 70 mm² (B-GLAND32; Ø ext. ≈ 17 mm [ESTIMADO: medir]); el ESC (IP65) no lleva prensaestopas de potencia: sus cables propios de 8 AWG salen por la ranura de la capota <span class="pid">P1-ELE-02</span> y se unen a los terminales de 70 mm² (B-LUG10) y a los del motor (balas de 8 mm, B-PHCON); M16 4–8 mm para el cable del hall y el del cordón (<strong>dos</strong> cables de señal → dos prensaestopas) [VERIFICADO: R08a §8 / BOM B-GLAND16]. Referencia de calidad: LAPP SKINTOP ST-M M20, IP68 5 bar/30 min, junta CR anti-UV, cable 6–13 mm [VERIFICADO: R05 S40]. Verificar el diámetro exterior real de cada cable contra el rango del prensaestopas antes de perforar [SUPUESTO: el OD del 70 mm² estañado no está medido].</li>
+<li><strong>Extremos de cable:</strong> termocontraíble <strong>con adhesivo</strong> en cada punta y terminal: el agua viaja por dentro de un cable multifilar mojado [ESTIMADO: R05 §B8]. Lazo de goteo antes de cada prensaestopas; prensaestopas en caras laterales o inferiores, nunca arriba [SUPUESTO].</li>
+<li><strong>Conectores de la caña:</strong> J1 Lumberg 0332-04/0322-04 (4 polos apantallado) y J2 Cliffcon 68 (2 polos), ambos IP68 [VERIFICADO: R08a §8]. Alternativa de mayor robustez: Bulgin 900 Buccaneer, IP68 10 m/2 semanas, niebla salina EN 60068-2-52 [VERIFICADO: R05 S41]. <strong>Grasa dieléctrica de silicona</strong> en juntas y contactos al armar; tapas puestas cuando están desconectados; enjuagar con agua dulce después de cada salida [ESTIMADO: práctica habitual].</li>
+<li><strong>PCB (Nano, placa de optos/Q_EN, DC-DC):</strong> barniz conformal (acrílico o silicona) en las dos caras, <strong>enmascarando</strong> conectores, USB y bornes [ESTIMADO: práctica habitual]; aplicarlo y curarlo <strong>antes</strong> de montar en la caja de PETG (sus solventes pueden atacar el PETG [ESTIMADO: R05 S34, solventes]).</li>
+<li><strong>Respiradero de membrana ePTFE M12</strong> en una cara lateral baja de la caja: iguala presión y evita que la caja "aspire" agua por los sellos al enfriarse (bombeo térmico) [ESTIMADO; necesidad: R03/R05, BOM B-VENT].</li>
+<li><strong>Sensor hall:</strong> encapsulado en epoxi dentro de <span class="pid">P1-ELE-04</span> (la West 105/205 tiene HDT 48 °C [VERIFICADO: R05 S21]: suficiente en la caña, lejos del motor); salida por prensaestopas M12 con cable redondo.</li>
+<li><strong>Motor y fases:</strong> el motor es SECO y está fuera del agua: conectores bala dentro del capó con drenaje, sin conector IP68 [VERIFICADO: R05 §B8, "Un conector IP68 solo hace falta si se pasa a un pod"].</li>
+<li><strong>Batería:</strong> caja estanca sobre el nivel de sentina [VERIFICADO: R06 §5.1, ISO 13297 8.1]; cubrebornes; batería que estuvo sumergida en agua salada = no cargar, aislar al aire libre y descartar [VERIFICADO: R06 §4.2].</li>
+</ul>
+<h2 id="10-t0-banco-en-seco-pasa-no-pasa">10. T0 — banco en seco (pasa / no-pasa)</h2>
+<p>Montaje: unidad en el banco o el bote en tierra; <strong>acople flexible motor–eje desmontado</strong> (motor solo: el sello mecánico de la bomba no debe girar en seco) [SUPUESTO: seguridad]; consola con las dos palancas, fin de carrera del bucket, selector y pulsador cableados; multímetro; PC con VESC Tool y monitor serie (115200, telemetría CSV); celular grabando a ≥ 120 fps para medir tiempos [SUPUESTO]; extintor ABC a mano. No avanzar a T1/T2 si algo no pasa.</p>
+<div class="table-wrap"><table class="idcol">
+<thead>
+<tr>
+<th>#</th>
+<th>Prueba</th>
+<th>Cómo</th>
+<th>Pasa si</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T0.0</td>
+<td>Firmware y respaldos</td>
+<td>a) Compilar el sketch (<code>arduino-cli compile</code>, §5.5) y anotar flash/RAM; b) el FSESC 75350 llega con FW 5.02 [VERIFICADO: página Flipsky]: flashear FW ≥ 6.00 con VESC Tool (<em>Firmware</em>) y verificar la versión leída; c) tras T0.6, exportar la configuración (mcconf/appconf XML) y el script LispBM</td>
+<td>a) compila sin errores; b) VESC Tool muestra ≥ 6.00 y aparece <em>LispBM</em>; c) XML + <code>vesc_perfil.lisp</code> + hojas de datos del motor (18,8 kW máx.) y del ESC impresos en una funda estanca <strong>a bordo</strong> (R13 §2: la potencia configurada es la que cuenta)</td>
+</tr>
+<tr>
+<td>T0.1</td>
+<td>Aislación (sistema flotante)</td>
+<td>S1 OFF, multímetro en Ω: BAT− ↔ casco, BAT− ↔ eje/tubo de cola, B+ ↔ casco</td>
+<td>&gt; 1 MΩ en los tres [ESTIMADO: R06 §6.4]</td>
+</tr>
+<tr>
+<td>T0.2</td>
+<td>Tensiones y ramas</td>
+<td>Cada batería en reposo <strong>antes de unirlas en paralelo</strong> (F_BR retirados); después, con el motor al 30 % (bote amarrado o banco con carga), corriente de cada rama con pinza amperimétrica CC (o mV sobre cada F_BR)</td>
+<td>Cada batería 36,0–43,8 V (12S LFP, inputs.yaml battery); diferencia entre baterías ≤ 0,2 V <strong>antes</strong> de cerrar el paralelo [SUPUESTO: si no, cargarlas por separado hasta igualar] (después ya no se puede medir: quedan unidas); bajo carga, ambas ramas con corriente y la mayor ≤ 60 % del total (<code>electrical.parallel_share_max</code>)</td>
+</tr>
+<tr>
+<td>T0.3</td>
+<td>Precarga</td>
+<td>Cordón AFUERA, S1 ON; medir V entre B+ y B− del VESC y la caída sobre R_pre</td>
+<td>≥ 90 % de V_pack en ≤ 2 s (§7); K1 sin clic. El consumo en reposo del VESC no está publicado: el 90 % exige I_q ≤ la de §7 [CALCULADO]; si queda entre 80 y 90 %, anotar I_q = V(R_pre)/R y consultar antes de seguir (al 80 % el cierre de K1 disipa la energía de §7)</td>
+</tr>
+<tr>
+<td>T0.4</td>
+<td>Contactor y bobina</td>
+<td>Poner el cordón; medir I de bobina y V sobre los bornes de K1; con el pack a carga plena dejar la bobina 1 h energizada en la caja cerrada y medir la temperatura de la carcasa de la bobina y de la pared de PETG más cercana; con un osciloscopio (o multímetro con captura de mínimo) medir V(N2) al sacar el cordón</td>
+<td>Clic; tensión de bobina 9–36 V y corriente de retención ≈ 0,13 A (§7; pico de cierre ≤ 3,8 A); V sobre K1 ≤ 0,05 V [ESTIMADO: 0,2 mΩ típ. a 200 A, hoja EV200 → 0,04 V a 192 A]; pared de PETG ≤ 60 °C [ESTIMADO: R05 propone 60 °C para tapas de PETG sin carga (50 °C con carga)]; V(N2) mínima ≈ la de §7 y los LED de U1–U3 con su diodo antiparalelo. <strong>b)</strong> K1 cerrado y motor al 30 %: levantar el flotador de la bomba de achique (arranca contra el límite de corriente de B-12V) y medir con osciloscopio la tensión de la bobina: mínimo &gt; 9 V y K1 no abre, 5/5 [CALCULADO: §7 retención]. <strong>c)</strong> Con S1 abierto y el clip afuera, medir la corriente de entrada de B-12V (consumo en reposo, §7)</td>
+</tr>
+<tr>
+<td>T0.5</td>
+<td>Calibración y fin de carrera</td>
+<td>§5.6 (tope atrás con el bucket ABAJO); luego mover la palanca del bucket con el acelerador en 0</td>
+<td><code>CAL: guardada</code>; en telemetría con el bucket arriba: centro → <code>cmd</code> 0, tope avance → 1, <code>flags</code> sin 0x2000; bucket abajo → bit 0x2000 en el mismo tick y, al subirlo, se borra ≥ 50 ms después del clic; acelerador a tope atrás → <code>cmd</code> +0,63</td>
+</tr>
+<tr>
+<td>T0.6</td>
+<td>Configuración del VESC</td>
+<td>Leer y comparar con §6; contar los imanes del motor (o tacómetro óptico vs ERPM/5); exportar XML (T0.0 c)</td>
+<td>100 % de coincidencia (incluidos <code>si_motor_poles</code> = 10, <code>l_in_current_max</code>, <code>kill_sw_mode</code> y <code>timeout_msec</code>); la potencia de batería configurada (<code>l_in_current_max</code> × 43,8 V) &lt; 19 kW (R13 §2)</td>
+</tr>
+<tr>
+<td>T0.7</td>
+<td>Arranque con acelerador abierto</td>
+<td>Palanca a fondo, S1 ON + cordón, esperar 10 s; luego soltar</td>
+<td>Motor quieto 10 s, LED 4 Hz, PPM 1500; al soltar arma en 1,0–1,1 s (telemetría)</td>
+</tr>
+<tr>
+<td>T0.8</td>
+<td>Rampa y zona muerta</td>
+<td>Palanca a fondo de golpe; luego ±5 % alrededor del centro</td>
+<td><code>cmd</code> 0→1 en ≥ 1,0 s; dentro de ±8 % <code>cmd</code> = 0 y PPM 1500</td>
+</tr>
+<tr>
+<td>T0.9</td>
+<td>Retorno por resortes</td>
+<td>Llevar a tope y soltar, 10 veces</td>
+<td>Nunca <code>SENS_JUMP</code>; si aparece, subir <code>jump_travel_per_s</code> (§5.3)</td>
+</tr>
+<tr>
+<td>T0.10</td>
+<td>Marcha atrás (bucket)</td>
+<td>Bucket abajo, palanca del acelerador a fondo atrás; luego desconectar el fin de carrera (cable cortado) con el bucket arriba y acelerar a fondo</td>
+<td>Motor en <strong>avance</strong>: PPM 1815 ± 2 µs, <code>cmd</code> +0,63, estado <code>RUN_REV</code>, nunca PPM &lt; 1500; con el fin de carrera desconectado también ≤ 0,63 (<code>BKT_MISM</code>)</td>
+</tr>
+<tr>
+<td>T0.11</td>
+<td>Bucket con acelerador abierto, limpieza de rejilla y perfil</td>
+<td>a) Acelerador al 30 %, desconectar/reconectar el fin de carrera; b) acelerador en 0: pulsador 0,1 s, luego sostenido 10 s; mover el acelerador durante la limpieza; c) encender con el selector en ABIERTO; pasarlo por COSTA y volver a ABIERTO con el acelerador en 0 y en marcha</td>
+<td>a) <code>cmd</code> 0 en el mismo tick (<code>BKT_HOLD</code>) hasta soltar el acelerador; b) 0,1 s: nada; sostenido: PPM 1450 tras ≥ 0,3 s, vuelve a 1500 a los 3,0 s aunque se siga apretando; mover el acelerador la corta en el acto y el avance espera ≥ 500 ms; c) telemetría <code>COSTA</code> al encender, <code>ABIERTO</code> solo tras pasar por costa y con <code>cmd</code> 0; 10/10</td>
+</tr>
+<tr>
+<td>T0.12</td>
+<td>Kill por cordón</td>
+<td>Motor al 30 %, tirar del cordón; 10 veces</td>
+<td>Motor sin torque en &lt; 1 s (video), clic de K1, LED destello 2 s; al volver a poner el cordón con la palanca abierta NO arranca; 10/10</td>
+</tr>
+<tr>
+<td>T0.13</td>
+<td>Seta</td>
+<td>Ídem con la seta</td>
+<td>10/10</td>
+</tr>
+<tr>
+<td>T0.14</td>
+<td>Barrera hardware sola + optos</td>
+<td>a) Puentear D2 y D3 a GND en el Nano (MCU "ciego") <strong>y</strong> ADC2 a GND (kill por software anulado); motor al 30 %; tirar del cordón. b) Sin motor: puentear C–E de Q_EN y medir V(ADC2) con el cordón afuera / puesto. c) Cordón puesto, acelerador fuera de cero (MCU desarmado): medir V(ADC2)</td>
+<td>a) para por K1 en &lt; 1 s, 5/5; b) &gt; 3,0 V afuera y &lt; 0,5 V puesto; c) &gt; 3,0 V [ESTIMADO: pull-up a 3,3 V; umbral del VESC 1,65 V VERIFICADO]. Retirar los puentes</td>
+</tr>
+<tr>
+<td>T0.15</td>
+<td>Barrera software sola</td>
+<td>Cordón AFUERA, S1 ON y esperar la precarga (§7); <strong>recién entonces</strong> puentear los bornes de K1 con cable de la sección DC (K1 "soldado"; bus ya cargado → sin chispa de cierre; si se pone el puente con S1 OFF, S1 cierra sobre el bus descargado y el pico solo lo limita la ESR); poner el cordón, armar, motor al 30 %; tirar del cordón</td>
+<td>Para por U3/ADC2 + MCU en &lt; 1 s; VESC Tool muestra kill; 5/5. S1 OFF y retirar el puente</td>
+</tr>
+<tr>
+<td>T0.16</td>
+<td>Falla de sensor</td>
+<td>Motor al 30 %: desconectar J1; luego cortar por separado OUT, 5 V y GND (cable de prueba con interruptores)</td>
+<td>Neutro inmediato y LED 10 Hz en los 4 casos; al reconectar no arranca hasta 1 s en cero</td>
+</tr>
+<tr>
+<td>T0.17</td>
+<td>Pérdida de PPM</td>
+<td>Motor al 30 %, desconectar el cable PPM</td>
+<td>Para en ≤ <code>timeout_msec</code> (§6); al reconectar exige neutro</td>
+</tr>
+<tr>
+<td>T0.18</td>
+<td>Watchdog</td>
+<td>Firmware T0 (<code>P1_TEST_COMMANDS=1</code>), motor al 30 %, enviar <code>h</code></td>
+<td>Motor para; la serie muestra de nuevo el encabezado de arranque (reinicio por WDT en ~120 ms [VERIFICADO: <code>WDTO_120MS</code> del sketch]) y el estado <code>DISARMED</code>; <code>MCUSR</code> puede leer 0 porque Optiboot borra el registro [ESTIMADO]; si el Nano no vuelve a arrancar → bootloader viejo: regrabar. Luego cargar el firmware de agua</td>
+</tr>
+<tr>
+<td>T0.19</td>
+<td>Vida del interruptor de cordón</td>
+<td>200 aperturas con la bobina real (EV200 a 12 V)</td>
+<td>Clic de K1 200/200; resistencia de contacto del interruptor &lt; 0,1 Ω antes y después [SUPUESTO] (el Watski es de 12 V – 15 A y trabaja a 12 V: dentro de su valor nominal)</td>
+</tr>
+<tr>
+<td>T0.20</td>
+<td>Perfil en el VESC (<code>vesc_perfil.lisp</code>)</td>
+<td>Script cargado (§5.4); motor solo, sin carga; selector COSTA → ABIERTO con el acelerador en 0; acelerar a fondo; volver a COSTA en marcha; repetir con D12 desconectado y tras reiniciar el VESC</td>
+<td>Con COSTA el motor no pasa de <code>l_max_erpm</code> legal (§6, VESC Tool → Realtime Data); con ABIERTO llega al techo técnico; al volver a COSTA o desconectar D12 baja al tope legal en &lt; 0,5 s; tras reiniciar el VESC arranca en COSTA</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Prueba previa a cada salida</strong> (en el muelle, 1 min): S1 ON con el cordón afuera → LED destella cada 2 s; poner el cordón → clic; acelerador fuera de cero → no arranca; soltar → arma; telemetría/LED en COSTA; bajar el bucket con el acelerador en 0 → bit de bucket abajo; subirlo → se borra; acelerar al mínimo y <strong>tirar del cordón</strong> → para + clic; repetir con la seta; con el bote amarrado y el motor al 30 %, pinza CC en cada cable de rama: las dos con corriente (un F_BR abierto no se ve por tensión). Si algo falla: no salir (remos a bordo siempre). <strong>Al volver:</strong> cordón AFUERA y S1 OFF (con el clip puesto la bobina toma 1,6 W aunque S1 esté abierto, y al próximo S1 ON K1 ya estaría cerrado: sin precarga). <strong>Invierno:</strong> sacar F5 y los F_BR (B-12V y el achique quedan sin tensión; consumo en reposo §7) y guardar la batería a carga de almacenamiento.</p>
+<h2 id="11-hallazgos-que-afectan-a-otros-archivos">11. Hallazgos que afectan a otros archivos</h2>
+<p>Estado tras la auditoría (ronda 1, Pass 3): los puntos 1–9 de la versión anterior (DC-DC, R_pre/F2/F3/optos en la BOM, contactor y bobina, interruptor de cordón a 12 V nominal, tablas desactualizadas) quedaron resueltos en la BOM (<code>inputs.yaml</code> bom.items: B-DCDC R-78HB, B-RPRE, B-CFUSE, B-PCB, B-CONT EV200AAANA, B-12V como fuente del mando) y en este README. Quedan:</p>
+<ol>
+<li><strong><span class="pid">P1-ELE-01</span> (CAD)</strong>: agujeros de prensaestopas (dos M16 de señal: hall + cordón; la potencia del ESC sale por la ranura de la capota con sus cables de 8 AWG; los M32 de 70 mm² van en la caja de batería), lugar para la seta (Ø22) y el respiradero M12; ahora las fases no llevan cable de 95 mm² (B-PHCON: cables propios del motor y del ESC unidos con balas de 8 mm) → la ranura de cables de la capota se puede achicar.</li>
+<li><strong><code>run_all.py</code></strong>: agregar <code>04_diseno/electronica/calc_electronica.py</code> y <code>diagrama_cableado.py</code> después de <code>sizing.py</code> para que estas tablas, el SVG y los topes de <code>vesc_perfil.lisp</code> se regeneren solos.</li>
+<li><strong>Reparto entre baterías</strong> (<code>l_in_current_max</code>, §6): el límite queda en 80 % del BMS total (192 A) porque con un reparto 60/40 la rama más cargada lleva 115 A ≤ 120 A de su BMS. Bajarlo a 160 A (80 % del BMS de rama con 60/40) recortaría la V máx. y el margen de joroba, que ya no cumple el 10 % con 192 A (02 §3.2) [CALCULADO: <code>sizing.evaluate</code> con <code>bms_current_derate</code> 0,667, modelo previo: 26,3 → 23,6 km/h]. El fusible de rama de <code>sizing.py</code> lee <code>electrical.parallel_share_max</code>.</li>
+<li>Corto entre conductores del cordón = única falla latente peligrosa (§8): en P2 evaluar interruptor de doble contacto (dos canales independientes, uno a la bobina y otro directo a D2).</li>
+<li>Riesgos residuales del firmware (§8): sin fin de carrera de bucket ABAJO y sin detección de un hall trabado dentro de la banda válida.</li>
+<li>Cada vez que cambie <code>sizing.json</code> (o <code>pole_pairs</code>) correr <code>calc_electronica.py</code> y <code>diagrama_cableado.py</code>; <code>test_generated_files_are_current</code> lo detecta.</li>
+</ol></article>
+</div>
+</main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
+</body>
+</html>

@@ -1,0 +1,803 @@
+{
+  "meta": {
+    "battery": "LT36_60x2",
+    "battery_desc": "2 × LiTime 36 V 60 Ah Golf Cart en paralelo (12S2P, BMS 2 × 120 A)",
+    "motor": "MTI120116_150",
+    "motor_desc": "Maytech MTI120116 150 KV (inrunner refrigerado por agua, 10–16S)",
+    "motor_kv": 150.0,
+    "esc": "FSESC75350",
+    "esc_desc": "Flipsky FSESC 75350 con caja de agua (VESC, filtro de fase, IP65)",
+    "cells_series": 12,
+    "v_nom": 38.4,
+    "v_max": 43.8,
+    "v_min_load": 36.0
+  },
+  "vesc": [
+    {
+      "grupo": "Firmware",
+      "parametro": "versión de firmware",
+      "valor": "≥ 6.00",
+      "unidad": "—",
+      "default": "5.02",
+      "tag": "[VERIFICADO: research/R06_electrica.md §2.2 — KILL_SW_MODE aparece en 5.03] · ≥ 6.00 por LispBM (vesc_perfil.lisp) [VERIFICADO: vedderb/bldc lispBM/README.md, FW 6.00+] · de fábrica 5.02 [inputs.yaml esc.options.FSESC75350.fw_factory, allí VERIFICADO]",
+      "nota": "FLASHEAR antes de configurar (T0.0): con el FW de fábrica no hay LispBM y el perfil COSTA/ABIERTO no funciona"
+    },
+    {
+      "grupo": "Firmware",
+      "parametro": "foc_phase_filter_enable",
+      "valor": "true (dejar)",
+      "unidad": "—",
+      "default": "true (false en target 75_100, FW ≥ 6.00)",
+      "tag": "[VERIFICADO: research/R06_electrica.md §2.1 — Flipsky: con FW ≥ 5.3 apagar el filtro de fase o se daña el 75100]; default [VERIFICADO: mcconf_default.h MCCONF_FOC_PHASE_FILTER_ENABLE; hw_75_100.h false (research/R06_electrica.md §2.2)]",
+      "nota": "Solo Flipsky 75100/75200 sin filtro; el FSESC 75350 y el 110300 SÍ tienen filtro de fase (research/R11 §2)"
+    },
+    {
+      "grupo": "Motor",
+      "parametro": "si_motor_poles",
+      "valor": 10,
+      "unidad": "—",
+      "default": 14,
+      "tag": "[inputs.yaml motor.options.MTI120116_150.pole_pairs = 5 (allí con su etiqueta)] · default FW 14 [VERIFICADO: mcconf_default.h MCCONF_SI_MOTOR_POLES]; CONTAR imanes del motor real",
+      "nota": ""
+    },
+    {
+      "grupo": "Motor",
+      "parametro": "l_current_max",
+      "valor": 292.0,
+      "unidad": "A",
+      "default": 60.0,
+      "tag": "[CALCULADO: sizing.json electrical.I_phase_limit_A = 292 A: par T_max 18,6 N·m < par de corte del pasador / 1,8] · default 60 A [VERIFICADO: mcconf_default.h]",
+      "nota": "Límite de FASE: fija el par máx. (el pasador de corte no corta en arranques). En PPM Current acelera con servo × l_current_max [VERIFICADO: app_ppm.c]"
+    },
+    {
+      "grupo": "Motor",
+      "parametro": "l_current_min",
+      "valor": -87.6,
+      "unidad": "A",
+      "default": -60.0,
+      "tag": "[CALCULADO: −0,3 × l_current_max] · [SUPUESTO: corriente de frenado = 30 % de l_current_max (un jet casi no regenera; protege BMS)]",
+      "nota": "Corriente de FRENADO (servo opuesto a las rpm) [VERIFICADO: app_ppm.c]"
+    },
+    {
+      "grupo": "Motor",
+      "parametro": "límite de potencia en REVERSA (bucket abajo, MCU)",
+      "valor": "P ≤ 0,5 × P → corriente ≤ 0,63 × l_current_max = 184",
+      "unidad": "A",
+      "default": "—",
+      "tag": "[CALCULADO: inputs.yaml waterjet.reverse.power_limit_frac 0,5; [CALCULADO: bomba con T ∝ n², P ∝ n³ → P ∝ T^1,5; límite de par = P_frac^(2/3)]]",
+      "nota": "El jet NO invierte el giro: la reversa es el bucket. El MCU lee el fin de carrera del bucket y topea el PPM (reverse_limit del firmware = este valor; fin de carrera en D5, README §5)"
+    },
+    {
+      "grupo": "Batería",
+      "parametro": "l_in_current_max",
+      "valor": 192.0,
+      "unidad": "A",
+      "default": "99 (100 en target 75_100)",
+      "tag": "[CALCULADO: ⌈1,05 × I_bat pico 192 A⌉ a 5 A, ≤ mín(80 % × BMS 240 A = 192 A; BMS de rama 120 A / reparto 0,6 = 200 A)] · reparto [inputs.yaml electrical.parallel_share_max, allí SUPUESTO]",
+      "nota": "LIMITA la V máx: I_bat pico de sizing > límite. Con 2 baterías en paralelo y reparto 60/40 la rama más cargada lleva 115 A = 96 % de su BMS (120 A): no supera el BMS, pero el margen del 80 % solo vale con reparto parejo. Medir el reparto en T1 (pinza en cada rama)"
+    },
+    {
+      "grupo": "Batería",
+      "parametro": "l_in_current_min",
+      "valor": -10.0,
+      "unidad": "A",
+      "default": "-60 (-100 en target 75_100)",
+      "tag": "[SUPUESTO: la hélice regenera poco; protege el BMS al frenar/invertir] · defaults [VERIFICADO: mcconf_default.h; hw_75_100.h (research/R06_electrica.md §2.4)]",
+      "nota": ""
+    },
+    {
+      "grupo": "Batería",
+      "parametro": "l_battery_cut_start",
+      "valor": 36.0,
+      "unidad": "V",
+      "default": 10.0,
+      "tag": "[CALCULADO: 12 celdas × 3 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 3,0 V/celda]",
+      "nota": ""
+    },
+    {
+      "grupo": "Batería",
+      "parametro": "l_battery_cut_end",
+      "valor": 33.6,
+      "unidad": "V",
+      "default": 8.0,
+      "tag": "[CALCULADO: 12 × 2,8 V] · [ESTIMADO: research/R06_electrica.md §2.4, corte LFP 2,8 V/celda]",
+      "nota": ""
+    },
+    {
+      "grupo": "Batería",
+      "parametro": "l_max_vin",
+      "valor": 53.0,
+      "unidad": "V",
+      "default": "57 (90 en target 75_100)",
+      "tag": "[CALCULADO: 1,2 × 43,8 V] · [SUPUESTO: l_max_vin = 1,2 × V carga plena → protege el DC-DC ante un BMS abierto regenerando]",
+      "nota": "OJO: ≥ entrada máx. del DC-DC → usar R-78HB (72 V)"
+    },
+    {
+      "grupo": "Velocidad",
+      "parametro": "l_max_erpm",
+      "valor": 9200,
+      "unidad": "ERPM",
+      "default": 100000,
+      "tag": "[CALCULADO: tope legal 'modo costa' = rpm a 5 kn con carga liviana (sizing.legal_speed, D-30); techo técnico 24000 = 1,15 × 4182 rpm × 5 pares de polos]",
+      "nota": "Sin carga (hélice fuera del agua) el motor iría a 6570 rpm = 32850 ERPM [CALCULADO: KV 150 × 43,8 V]; el límite lo baja a 1840 rpm. ERPM = rpm × 5 pares de polos [inputs.yaml motor.options.MTI120116_150.pole_pairs]"
+    },
+    {
+      "grupo": "Velocidad",
+      "parametro": "l_max_erpm (perfil 2: fuera de la franja de 300 m)",
+      "valor": 24000.0,
+      "unidad": "ERPM",
+      "default": 100000,
+      "tag": "[CALCULADO: 1,15 × 4182 rpm (n máx. de sizing) × 5 pares de polos]",
+      "nota": "Perfil ABIERTO (vesc_perfil.lisp, en RAM); por defecto arranca SIEMPRE en COSTA (5 kn, R13). ✔ 4800 rpm > 4369 rpm a fondo con batería llena [CALCULADO: 4182 × (43,8/38,4)^(1/3)] — el tope no recorta la V máx."
+    },
+    {
+      "grupo": "Velocidad",
+      "parametro": "tope de cavitación (NO se programa)",
+      "valor": 20200.0,
+      "unidad": "ERPM",
+      "default": "—",
+      "tag": "[CALCULADO: sizing.cavitation_cap — 4048 rpm con S ≤ 3.5 a punto fijo × 5 pares de polos]",
+      "nota": "A punto fijo el límite de corriente ya deja el impulsor en S ≈ 3.5 (sizing); a velocidad la inmersión y la presión de toma suben y S baja. Un tope fijo de ERPM recortaría la V máx. por ratos a 26.0 km/h, por eso no se programa: verificar en T2 (sin ruido de cavitación a punto fijo)"
+    },
+    {
+      "grupo": "Velocidad",
+      "parametro": "l_min_erpm",
+      "valor": -3100.0,
+      "unidad": "ERPM",
+      "default": -100000,
+      "tag": "[CALCULADO: −626 rpm × 5 pares de polos] · [SUPUESTO: giro inverso lento (≤ 25 % de las rpm de 5 kn) solo para soltar algas de la rejilla]",
+      "nota": "Solo giro inverso lento para limpiar la rejilla; la reversa de marcha es el bucket"
+    },
+    {
+      "grupo": "Velocidad",
+      "parametro": "l_max_duty",
+      "valor": 0.95,
+      "unidad": "—",
+      "default": 0.95,
+      "tag": "[VERIFICADO: mcconf_default.h MCCONF_L_MAX_DUTY 0,95; mantener]",
+      "nota": ""
+    },
+    {
+      "grupo": "Temperatura",
+      "parametro": "l_temp_fet_start / end",
+      "valor": "85 / 100",
+      "unidad": "°C",
+      "default": "85 / 100",
+      "tag": "[VERIFICADO: mcconf_default.h; mantener]",
+      "nota": ""
+    },
+    {
+      "grupo": "Temperatura",
+      "parametro": "l_temp_motor_start / end",
+      "valor": "85 / 100",
+      "unidad": "°C",
+      "default": "85 / 100",
+      "tag": "[CALCULADO: start = mín(85 default, t_winding_max_c 120 °C de inputs.yaml); end = start + 15 como el default] · default 85/100 [VERIFICADO: mcconf_default.h]",
+      "nota": "sizing toma t_winding_max_c como la temperatura donde el VESC EMPIEZA a limitar: no subir start sin rehacer el cálculo térmico. Requiere NTC 10 k en el bobinado (TEMP_SENSOR_NTC_10K_25C, R06 §1.2)"
+    },
+    {
+      "grupo": "App",
+      "parametro": "app_to_use",
+      "valor": "PPM",
+      "unidad": "—",
+      "default": "UART",
+      "tag": "[VERIFICADO: appconf_default.h APPCONF_APP_TO_USE = APP_UART → cambiar]",
+      "nota": ""
+    },
+    {
+      "grupo": "App PPM",
+      "parametro": "ctrl_type",
+      "valor": "PPM_CTRL_TYPE_CURRENT",
+      "unidad": "—",
+      "default": "NONE",
+      "tag": "[VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/applications/app_ppm.c — reversa directa con signo]",
+      "nota": "Bucket, dwell y el único giro inverso (limpieza de rejilla) los gestiona el MCU (§5); alternativa DUTY si la bomba cavita (R06 §2.6)"
+    },
+    {
+      "grupo": "App PPM",
+      "parametro": "pulse_start / center / end",
+      "valor": "1,0 / 1,5 / 2,0",
+      "unidad": "ms",
+      "default": "1,0 / 1,5 / 2,0",
+      "tag": "[VERIFICADO: appconf_default.h] = salida del MCU (throttle_logic.c)",
+      "nota": ""
+    },
+    {
+      "grupo": "App PPM",
+      "parametro": "hyst (zona muerta VESC)",
+      "valor": 0.02,
+      "unidad": "—",
+      "default": 0.15,
+      "tag": "[SUPUESTO: el MCU ya aplica la zona muerta; default 0,15 VERIFICADO se comería el 15 % inferior]",
+      "nota": "app_ppm.c aplica utils_deadband(servo, hyst) [VERIFICADO: app_ppm.c]"
+    },
+    {
+      "grupo": "App PPM",
+      "parametro": "throttle_exp",
+      "valor": 0.0,
+      "unidad": "—",
+      "default": 0.0,
+      "tag": "[VERIFICADO: default lineal; la expo la hace el MCU]",
+      "nota": ""
+    },
+    {
+      "grupo": "App PPM",
+      "parametro": "ramp_time_pos",
+      "valor": 1.0,
+      "unidad": "s",
+      "default": 0.4,
+      "tag": "[SUPUESTO: redundante con la rampa del MCU (research/R06_electrica.md §2.6 ~1 s); default 0,4 s VERIFICADO]",
+      "nota": ""
+    },
+    {
+      "grupo": "App PPM",
+      "parametro": "ramp_time_neg",
+      "valor": 0.1,
+      "unidad": "s",
+      "default": 0.2,
+      "tag": "[SUPUESTO: bajada rápida en el VESC; default 0,2 s VERIFICADO appconf_default.h]",
+      "nota": ""
+    },
+    {
+      "grupo": "App PPM",
+      "parametro": "safe_start",
+      "valor": "true",
+      "unidad": "—",
+      "default": "true",
+      "tag": "[VERIFICADO: app_ppm.c MIN_PULSES_WITHOUT_POWER 50 → ≈ 1 s de neutro a 50 Hz [CALCULADO]]",
+      "nota": ""
+    },
+    {
+      "grupo": "General",
+      "parametro": "timeout_msec",
+      "valor": 250.0,
+      "unidad": "ms",
+      "default": 1000,
+      "tag": "[SUPUESTO: 12 tramas PPM perdidas; default 1000 ms VERIFICADO appconf_default.h]",
+      "nota": "Sin PPM válido → corriente de freno de timeout [VERIFICADO: app_ppm.c]"
+    },
+    {
+      "grupo": "General",
+      "parametro": "timeout_brake_current",
+      "valor": 0.0,
+      "unidad": "A",
+      "default": 0.0,
+      "tag": "[VERIFICADO: appconf_default.h; 0 = rueda libre]",
+      "nota": ""
+    },
+    {
+      "grupo": "General",
+      "parametro": "kill_sw_mode",
+      "valor": "KILL_SW_MODE_ADC2_HIGH",
+      "unidad": "—",
+      "default": "DISABLED",
+      "tag": "[VERIFICADO: https://raw.githubusercontent.com/vedderb/bldc/master/timeout.c — kill si V(ADC_EXT2) > 1,65 V, sondeo cada 10 ms]",
+      "nota": "Pull-up 10 kΩ a 3,3 V en ADC2; Q_EN + opto U3 lo llevan a GND solo con cordón+seta+MCU armado"
+    },
+    {
+      "grupo": "General",
+      "parametro": "multi_esc",
+      "valor": "false",
+      "unidad": "—",
+      "default": "true",
+      "tag": "[VERIFICADO: appconf_default.h APPCONF_PPM_MULTI_ESC true; un solo ESC]",
+      "nota": ""
+    }
+  ],
+  "vesc_values": {
+    "l_current_max": 292.0,
+    "l_current_min": -87.6,
+    "l_in_current_max": 192.0,
+    "l_in_current_min": -10.0,
+    "l_battery_cut_start": 36.0,
+    "l_battery_cut_end": 33.6,
+    "l_max_vin": 53.0,
+    "l_max_erpm": 9200,
+    "l_min_erpm": -3100.0,
+    "timeout_msec": 250.0,
+    "ramp_time_pos": 1.0,
+    "ramp_time_neg": 0.1,
+    "ppm_hyst": 0.02,
+    "pulse_us": [
+      1000,
+      1500,
+      2000
+    ],
+    "motor_poles": 10,
+    "i_bat_peak": 192.0,
+    "i_bms": 240.0,
+    "l_temp_motor_start": 85.0,
+    "l_temp_motor_end": 100.0,
+    "t_winding_max_c": 120.0,
+    "i_in_limited": true,
+    "n_max_loaded_rpm": 4181.709670162436,
+    "n_noload_rpm": 6570.0,
+    "n_rev_weed_rpm": 626.2431139580298,
+    "brake_frac": 0.3,
+    "reverse_power_frac": 0.5,
+    "reverse_current_frac": 0.6299605249474366,
+    "l_current_reverse": 184.0,
+    "erpm_legal": 9258.697202266545,
+    "erpm_tech": 24000.0,
+    "v_class": 48,
+    "dcdc_vin_max": 36.0,
+    "dcdc_ok": false,
+    "n_full_batt_rpm": 4369.195783099075,
+    "erpm_tech_ok": true,
+    "n_parallel": 2,
+    "parallel_share_max": 0.6,
+    "i_bms_branch": 120.0,
+    "i_in_cap_derate": 192.0,
+    "i_in_cap_share": 200.0,
+    "i_branch_at_limit": 115.19999999999999,
+    "fw_min": "6.00",
+    "fw_factory": "5.02"
+  },
+  "precarga": {
+    "R_ohm": 100.0,
+    "C_F": 0.002,
+    "tau_s": 0.2,
+    "t_95_s": 0.6000000000000001,
+    "t_5tau_s": 1.0,
+    "I_peak_A": 0.43799999999999994,
+    "E_J": 1.91844,
+    "P_short_W": 19.184399999999997,
+    "P_rating_W": 30.0,
+    "P_max_transfer_W": 4.796099999999999,
+    "P_cruise_W": 1709.3648895059036,
+    "transfer_frac_of_cruise": 0.0028057789354655133,
+    "wait_s": 2.0,
+    "Iq_max_90pct_A": 0.0384,
+    "E_cierre_80pct_J": 0.0589824
+  },
+  "bobina": {
+    "modelo": "TE Connectivity KILOVAC EV200AAANA",
+    "V_nom": 12.0,
+    "V_ctl_range": [
+      11.76,
+      12.24
+    ],
+    "V_coil_range": [
+      9.0,
+      36.0
+    ],
+    "coil_ok": true,
+    "I_hold_A": 0.13,
+    "I_inrush_A": 3.8,
+    "t_inrush_s": 0.13,
+    "I_max_A": 3.8,
+    "P_hold_W": 1.56,
+    "E_mision_Wh": 1.17,
+    "endurance_h": 0.75,
+    "frac_E_usable": 0.00028211805555555553,
+    "F2_A": 5.0,
+    "kill_switch_rating_A": 5.0,
+    "kill_switch_margin": 1.3157894736842106,
+    "watski_V_A": [
+      12.0,
+      15.0
+    ],
+    "watski_ok": true,
+    "release_ms": 12.0,
+    "back_emf_V": 0.0,
+    "k1_i_cont_A": 500.0,
+    "precio_eur_sin_iva": 149.0,
+    "V_N2_negativo_V": -0.0
+  },
+  "retencion": {
+    "P_nodo_W": 1.776,
+    "V0_V": 11.26,
+    "V_objetivo_V": 9.0,
+    "V_hold_min_V": 7.5,
+    "t_hueco_s": 0.25,
+    "C_req_F": 0.01939389703762591,
+    "C_sel_mF": 22.0,
+    "t_cubierto_s": 0.2835943693693694,
+    "I_rsd_A": 5.0,
+    "I_bomba_A": [
+      2.0,
+      8.0
+    ]
+  },
+  "reposo": {
+    "P_dcdc_W": [
+      0.5,
+      1.5
+    ],
+    "P_bobina_clip_W": 1.56,
+    "dias_sin_clip": [
+      115.19999999999999,
+      345.59999999999997
+    ],
+    "dias_con_clip": [
+      56.470588235294116,
+      83.88349514563106
+    ]
+  },
+  "optos": {
+    "R_U2U3_ohm": 1800.0,
+    "I_U2U3_A": [
+      0.0052,
+      0.0054666666666666665
+    ],
+    "P_R_U2U3_W": 0.053792,
+    "R_U1_ohm": 1800.0,
+    "I_U1_A": [
+      0.005866666666666667,
+      0.0061333333333333335
+    ],
+    "P_R_U1_W": 0.06771200000000001,
+    "Ic_min_A": 0.0026,
+    "I_pullup_5V_A": 0.0005,
+    "I_pullup_3V3_A": 0.00033,
+    "V_inversa_LED_V": 0.0,
+    "V_R_max_V": 5.0,
+    "necesita_diodo_antiparalelo": false,
+    "I_diodo_antiparalelo_A": 0.0
+  },
+  "corte": {
+    "requisito_s": 1.0,
+    "caminos": {
+      "MCU → PPM neutro → VESC (rampa negativa)": {
+        "t_s": 0.13091629073187416,
+        "base": "filtro RC + 1 tick + 1 trama PPM + ramp_time_neg",
+        "ok": true
+      },
+      "MCU → Q_EN abre → kill por ADC2 del VESC": {
+        "t_s": 0.020916290731874156,
+        "base": "filtro RC + 1 tick + sondeo de 10 ms del VESC",
+        "ok": true
+      },
+      "Hardware: opto U3 apaga → kill por ADC2 (sin MCU)": {
+        "t_s": 0.011,
+        "base": "sondeo 10 ms + conmutación del opto",
+        "ok": true
+      },
+      "Hardware: bobina sin corriente → contactor abre": {
+        "t_s": 0.012,
+        "base": "release máx. de TE Connectivity KILOVAC EV200AAANA (economizador incorporado) [VERIFICADO: hoja EV200 — release (incluye arco) máx. 12 ms @ 2000 A; close típ. 15 ms]",
+        "ok": true
+      },
+      "MCU muerto: sin PPM → timeout del VESC": {
+        "t_s": 0.25,
+        "base": "timeout_msec configurado",
+        "ok": true
+      },
+      "MCU colgado: WDT de hardware → reset → Q_EN abre → kill ADC2": {
+        "t_s": 0.14200000000000002,
+        "base": "WDTO_120MS del sketch × 1,1 [ESTIMADO: tolerancia del oscilador del WDT] + sondeo 10 ms",
+        "ok": true
+      }
+    },
+    "peor_s": 0.25
+  },
+  "cortocircuito": {
+    "R_int_ohm": [
+      0.01,
+      0.05
+    ],
+    "I_sc_bateria_A": [
+      875.9999999999999,
+      4380.0
+    ],
+    "I_sc_total_A": [
+      1751.9999999999998,
+      8760.0
+    ],
+    "MRBF_AIC_A": 2000.0,
+    "ClassT_AIC_A": 20000.0,
+    "MRBF_ok": false,
+    "ClassT_ok": true
+  },
+  "cables": {
+    "dc_mm2": 70,
+    "phase_mm2": 95,
+    "fuse_branch_a": 150,
+    "n_parallel": 2,
+    "R_phase_leads_ohm": 0.0009754763252216563,
+    "I_phase_limit_A": 291.6666666666667,
+    "phase_drop_leads_frac": 0.014818433759877592,
+    "dc_drop_frac": 0.0018000000000000002,
+    "phase_drop_frac": 0.0020148026315789476,
+    "fuse_a": 250,
+    "fuse_min_a": 218.86205737337298,
+    "ampacity_dc_a": 260,
+    "fuse_protects_cable": true
+  },
+  "clase": {
+    "v_class": 48,
+    "hv": false,
+    "imd": false,
+    "contactor": "KILOVAC EV200AAANA",
+    "fuse": "Class T Blue Sea (160 V CC, 20 kA) en portafusible Class T con tapa",
+    "imd_desc": "no requerido (≤ 50 V CC)",
+    "dcdc": "RECOM R-78HB5.0-0.5 9–72 V"
+  },
+  "tabla_resumen": [
+    {
+      "caso": "Todo OK, MCU armado",
+      "cordon": 1,
+      "seta": 1,
+      "desconectador": 1,
+      "F1": 1,
+      "F2": 1,
+      "K1": "normal",
+      "MCU_armado": 1,
+      "timeout_VESC": 0,
+      "falla_sensor": 0,
+      "fin_carrera_bucket": 1,
+      "n_combinaciones": 1,
+      "motor": "PUEDE GIRAR",
+      "limite_cmd": "100 % avance",
+      "barreras_min": 0,
+      "barreras_max": 0,
+      "barreras": "—"
+    },
+    {
+      "caso": "Todo OK, bucket abajo (o fin de carrera cortado)",
+      "cordon": 1,
+      "seta": 1,
+      "desconectador": 1,
+      "F1": 1,
+      "F2": 1,
+      "K1": "normal",
+      "MCU_armado": 1,
+      "timeout_VESC": 0,
+      "falla_sensor": 0,
+      "fin_carrera_bucket": 0,
+      "n_combinaciones": 1,
+      "motor": "PUEDE GIRAR",
+      "limite_cmd": "≤ reverse_limit, avance (bucket abajo)",
+      "barreras_min": 0,
+      "barreras_max": 0,
+      "barreras": "—"
+    },
+    {
+      "caso": "Cordón tirado (MCU sano → desarma)",
+      "cordon": 0,
+      "seta": 1,
+      "desconectador": 1,
+      "F1": 1,
+      "F2": 1,
+      "K1": "normal",
+      "MCU_armado": 0,
+      "timeout_VESC": "–",
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 8,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 3,
+      "barreras_max": 4,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)"
+    },
+    {
+      "caso": "Cordón tirado + MCU defectuoso que sigue armado",
+      "cordon": 0,
+      "seta": 1,
+      "desconectador": 1,
+      "F1": 1,
+      "F2": 1,
+      "K1": "normal",
+      "MCU_armado": 1,
+      "timeout_VESC": "–",
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 8,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 2,
+      "barreras_max": 4,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)"
+    },
+    {
+      "caso": "Cordón tirado + K1 soldado (MCU sano)",
+      "cordon": 0,
+      "seta": 1,
+      "desconectador": 1,
+      "F1": 1,
+      "F2": 1,
+      "K1": "soldado",
+      "MCU_armado": 0,
+      "timeout_VESC": "–",
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 8,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 2,
+      "barreras_max": 3,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM"
+    },
+    {
+      "caso": "Cordón tirado + K1 soldado + MCU defectuoso",
+      "cordon": 0,
+      "seta": 1,
+      "desconectador": 1,
+      "F1": 1,
+      "F2": 1,
+      "K1": "soldado",
+      "MCU_armado": 1,
+      "timeout_VESC": "–",
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 8,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 1,
+      "barreras_max": 3,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM"
+    },
+    {
+      "caso": "Seta pulsada (cualquier cordón/MCU/K1)",
+      "cordon": "–",
+      "seta": 0,
+      "desconectador": 1,
+      "F1": 1,
+      "F2": 1,
+      "K1": "–",
+      "MCU_armado": "–",
+      "timeout_VESC": "–",
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 96,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 1,
+      "barreras_max": 4,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)"
+    },
+    {
+      "caso": "Desconectador OFF (cualquier otro estado)",
+      "cordon": "–",
+      "seta": "–",
+      "desconectador": 0,
+      "F1": "–",
+      "F2": "–",
+      "K1": "–",
+      "MCU_armado": "–",
+      "timeout_VESC": "–",
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 768,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 4,
+      "barreras_max": 4,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)"
+    },
+    {
+      "caso": "Fusible principal F1 fundido",
+      "cordon": "–",
+      "seta": "–",
+      "desconectador": "–",
+      "F1": 0,
+      "F2": "–",
+      "K1": "–",
+      "MCU_armado": "–",
+      "timeout_VESC": "–",
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 768,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 4,
+      "barreras_max": 4,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)"
+    },
+    {
+      "caso": "Fusible de mando F2 fundido",
+      "cordon": "–",
+      "seta": "–",
+      "desconectador": 1,
+      "F1": 1,
+      "F2": 0,
+      "K1": "–",
+      "MCU_armado": "–",
+      "timeout_VESC": "–",
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 192,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 1,
+      "barreras_max": 4,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)"
+    },
+    {
+      "caso": "K1 con bobina abierta (no cierra)",
+      "cordon": "–",
+      "seta": "–",
+      "desconectador": "–",
+      "F1": "–",
+      "F2": "–",
+      "K1": "bobina_abierta",
+      "MCU_armado": "–",
+      "timeout_VESC": "–",
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 512,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 1,
+      "barreras_max": 4,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)"
+    },
+    {
+      "caso": "K1 soldado, todo lo demás OK",
+      "cordon": 1,
+      "seta": 1,
+      "desconectador": 1,
+      "F1": 1,
+      "F2": 1,
+      "K1": "soldado",
+      "MCU_armado": 1,
+      "timeout_VESC": 0,
+      "falla_sensor": 0,
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 2,
+      "motor": "PUEDE GIRAR",
+      "limite_cmd": "100 % avance / ≤ reverse_limit, avance (bucket abajo)",
+      "barreras_min": 0,
+      "barreras_max": 0,
+      "barreras": "—"
+    },
+    {
+      "caso": "MCU desarmado (arranque, re-armado pendiente)",
+      "cordon": "–",
+      "seta": "–",
+      "desconectador": "–",
+      "F1": "–",
+      "F2": "–",
+      "K1": "–",
+      "MCU_armado": 0,
+      "timeout_VESC": "–",
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 768,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 2,
+      "barreras_max": 4,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)"
+    },
+    {
+      "caso": "PPM perdida (timeout del VESC)",
+      "cordon": "–",
+      "seta": "–",
+      "desconectador": "–",
+      "F1": "–",
+      "F2": "–",
+      "K1": "–",
+      "MCU_armado": "–",
+      "timeout_VESC": 1,
+      "falla_sensor": "–",
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 768,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 1,
+      "barreras_max": 4,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)"
+    },
+    {
+      "caso": "Falla de sensor hall",
+      "cordon": "–",
+      "seta": "–",
+      "desconectador": "–",
+      "F1": "–",
+      "F2": "–",
+      "K1": "–",
+      "MCU_armado": "–",
+      "timeout_VESC": "–",
+      "falla_sensor": 1,
+      "fin_carrera_bucket": "–",
+      "n_combinaciones": 768,
+      "motor": "PARADO",
+      "limite_cmd": "0",
+      "barreras_min": 1,
+      "barreras_max": 4,
+      "barreras": "MCU manda neutro; VESC en kill (ADC2); VESC en timeout PPM; bus sin potencia (K1/F1/S1)"
+    }
+  ]
+}
