@@ -17,7 +17,7 @@ from params import loc_jet  # noqa: E402
 META = dict(id="P1-PMP-11", name="pivot_bushing",
             desc="Buje POM-C de pivote de la boquilla en las orejas de la placa de espejo (×2)",
             material="POM-C", process="torneada", qty=2, frame="jet", group="jet",
-            load_case="F lateral de la boquilla / F del bucket (aplastamiento)", allow={"P1-PMP-09": 60.0})
+            load_case="F lateral de la boquilla / F del bucket (aplastamiento)", allow={"P1-PMP-09": 5.0})
 
 
 def build(p):

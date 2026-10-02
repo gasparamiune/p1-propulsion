@@ -15,7 +15,7 @@ META = dict(
     id="P1-CTL-04", name="pasamuros_m66", desc="Pasamuros 316 del M66 (brida, M20, rosca 7/8\" UNF)",
     material="AISI 316", process="torneada", qty=1, frame="boat", group="ele",
     load_case="Tiro/empuje del M66 contra la placa del espejo", print_rot=(0, 0, 0), solid_frac=1.0,
-    orientation="—", allow={"P1-REF-01": 2000.0, "P1-CTL-06": 300.0},
+    orientation="—", allow={"P1-REF-01": 2000.0, "P1-CTL-06": 5.0},
 )
 
 

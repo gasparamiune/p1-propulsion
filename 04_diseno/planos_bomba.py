@@ -141,20 +141,27 @@ def draw(p, H):
                          f"Prensado {p.pmp_ring_fit}; apoya contra el escalón de la carcasa en X_ring0 = {_f(p.X_ring0, 1)} (marco JET).",
                          "Reemplazar si la holgura de punta medida con galgas supera 0,8 mm (R12 §2.7)."]))
     # ---------------- carcasa
-    Lb = p.X_st1 - p.pmp_f2_t - (p.X_duct_out + p.pmp_f1_t)
+    X1h = p.X_st1 - p.pmp_stack_gap
+    Lb = X1h - p.pmp_f2_t - (p.X_duct_out + p.pmp_f1_t)
     made.append(T("P1-PMP-01", "housing", "Al 6061-T6, anodizado duro",
-                  [(p.pmp_f1_t, p.pump_flange_od, "brida de la toma"),
+                  [(p.pmp_f1_spigot_h, p.pmp_f1_spigot_d, f"espigón de centraje Ø{_f(p.pmp_f1_spigot_d, 0)} h6"),
+                   (p.pmp_f1_t, p.pump_flange_od, "brida de la toma"),
                    (Lb, p.pmp_D_barrel, "cuerpo"),
                    (p.pmp_f2_t, p.pmp_f2_od, "brida a la tobera")],
-                  feats=[(0.0, f"cara: ranura O-ring Ø{_f(2*p.pmp_gl_r_in, 1)}–Ø{_f(2*(p.pmp_gl_r_in+p.pmp_gl_width), 1)} × {_f(p.pmp_gl_depth)} prof."),
-                         (p.X_ring0 - p.X_duct_out, "escalón: pasador Ø4 × 6 (r 69,2, arriba)"),
-                         (p.pmp_st_screw_X - p.X_duct_out, "2 × Ø5,4 radiales ±Y (M5 A4 estator)"),
-                         (p.pmp_cool_port[0] - p.X_duct_out, f"puerto {p.pmp_cool_thread} arriba (saliente Ø22)")],
-                  notes=[f"Bore: Ø{_f(p.D_bore)} H8 de X {_f(p.X_duct_out, 1)} a {_f(p.X_ring0, 1)}; Ø{_f(p.pmp_D_seat)} H7 de {_f(p.X_ring0, 1)} a {_f(p.X_st1, 1)} (marco JET).",
-                         f"Brida toma: 8 × Ø6,4 en Ø{_f(p.pump_flange_bc)} a {p.pmp_flange_ang0:g}° + k·45° desde +Y (coordinar con TOMA). "
-                         f"Brida tobera: 8 × Ø6,4 en Ø{_f(p.pmp_f2_bc, 1)}, misma fase.",
+                  feats=[(p.pmp_f1_spigot_h, f"cara: ranura O-ring Ø{_f(2*p.pmp_gl_r_in, 1)}–Ø{_f(2*(p.pmp_gl_r_in+p.pmp_gl_width), 1)} × {_f(p.pmp_gl_depth)} prof."),
+                         (p.pmp_f1_spigot_h + p.X_ring0 - p.X_duct_out, "escalón: pasador Ø4 × 6 (r 69,2, arriba)"),
+                         (p.pmp_f1_spigot_h + p.pmp_st_screw_X - p.X_duct_out,
+                          f"2 × M5 radiales ±Y ROSCADOS (pared + saliente Ø{p.pmp_st_boss_d:g} × {p.pmp_st_boss_h:g}) — anti-giro del estator"),
+                         (p.pmp_f1_spigot_h + p.pmp_cool_port[0] - p.X_duct_out, f"puerto {p.pmp_cool_thread} arriba (saliente Ø22)"),
+                         (p.pmp_f1_spigot_h + X1h - p.X_duct_out, f"cara trasera: 8 × M5 × {p.pmp_f2_thread_L:g} (broca Ø4,2 × {p.pmp_f2_thread_L + 2:g})")],
+                  notes=[f"Bore: Ø{_f(p.D_bore)} H8 de X {_f(p.X_duct_out - p.pmp_f1_spigot_h, 1)} a {_f(p.X_ring0, 1)}; Ø{_f(p.pmp_D_seat)} H7 de {_f(p.X_ring0, 1)} a {_f(X1h, 2)} (marco JET); "
+                         "chaflán 15° × 2 a la entrada de popa (O-ring radial de la tobera).",
+                         f"CENTRAJE con el conducto: espigón Ø{_f(p.pmp_f1_spigot_d, 0)} h6 × {_f(p.pmp_f1_spigot_h, 1)} en el rebaje H7 × {_f(p.pmp_f1_recess_h, 1)} de P1-INT-01 "
+                         f"(las caras de brida apoyan). Brida toma: 8 × Ø6,4 en Ø{_f(p.pump_flange_bc)} a {p.pmp_flange_ang0:g}° + k·45° desde +Y.",
+                         f"Brida trasera Ø{_f(p.pmp_f2_od, 1)}: 8 × M5 ciegos en Ø{_f(p.pmp_f2_bc, 2)}, misma fase; la cara queda a {_f(p.pmp_stack_gap)} de la brida de la tobera "
+                         "(la espiga aprieta la camisa del estator). M5 radiales con arandela bonded (USIT) bajo la cabeza.",
                          "Galvánica Al–316: anodizado duro, Tef-Gel en roscas y asientos, ánodo de Al (R06 §0, R10b H21).",
-                         "Concentricidad asiento ↔ cara/centraje de brida ≤ 0,03 TIR (mecanizar en una atada)."]))
+                         "Concentricidad asiento ↔ espigón de centraje ≤ 0,03 TIR (mecanizar en una atada)."]))
     # ---------------- impulsor (cubo)
     made.append(T("P1-PMP-03", "impeller_hub", "AISI 316 (CNC 5 ejes; alt. SLM 316L + torneado)",
                   [(p.pmp_nose_L, p.D_hub, f"nariz elíptica Ø{_f(2*p.pmp_nose_r0, 0)}→Ø{_f(p.D_hub, 0)}"),
@@ -173,9 +180,11 @@ def draw(p, H):
                   feats=[(p.pmp_band_L / 2, "2 × Ø3,4 avellanado 90° (M3 ISO 10642), ±Z")],
                   notes=["Deslizante H7/g6 + Loctite 641 sobre el cubo; enrasado con el cubo; tapa los extremos del pasador."]))
     made.append(T("P1-PMP-05", "shear_pin", "Al 6061-T6 barra Ø3,5 h8",
-                  [(p.pmp_pin_len, p.pmp_pin_d, f"Ø{_f(p.pmp_pin_d)} h8")],
-                  notes=[f"Fusible: corta a ≈ {_f(p.pmp_pin_T_cut, 1)} N·m (corte doble, sizing.mech.shear_pin). Llevar 3 de repuesto.",
-                         "Reemplazar cada temporada / 50 h y tras cualquier golpe [ESTIMADO]; no sustituir por acero."]))
+                  [(p.pmp_pin_half_len, p.pmp_pin_d, f"Ø{_f(p.pmp_pin_d)} h8 — SEMIPASADOR (2 por juego)")],
+                  notes=[f"Fusible: 2 semipasadores (uno desde +Y y otro desde −Y, se tocan en el centro del eje); 2 secciones de corte a r_eje → "
+                         f"corta a ≈ {_f(p.pmp_pin_T_cut, 1)} N·m (sizing.mech.shear_pin). Llevar {p.pmp_pin_spares_sets} juegos de repuesto ({2 * p.pmp_pin_spares_sets} piezas).",
+                         "Extremos con chaflán 0,3 × 45°; reemplazar cada temporada / 50 h y tras cualquier golpe [ESTIMADO]; no sustituir por acero.",
+                         "Se cambian con el impulsor en el eje: sacar tobera y estator por popa, deslizar el anillo retén, botador corto Ø3 (≤ 33 mm)."]))
     made.append(T("P1-PMP-07", "water_bushing", "POM-C torneado (alt. Vesconite Hilube)",
                   [(p.pmp_bush_L, p.pmp_brg_od, f"Ø ext {_f(p.pmp_brg_od, 0)} s6 · Ø int {_f(p.pmp_brg_id)} +0,05/0")],
                   feats=[(0.0, f"{p.pmp_brg_grooves[0]} ranuras axiales {p.pmp_brg_grooves[1]:g} × {p.pmp_brg_grooves[2]:g}")],
@@ -188,23 +197,26 @@ def draw(p, H):
                    (p.X_st1 - p.pmp_st_shell_X1, p.D_hub, "cubo"),
                    (p.pmp_tail_L, 2 * p.pmp_tail_tip_r + 0.01, f"cono de cola Ø{_f(p.D_hub, 0)}→Ø{_f(2*p.pmp_tail_tip_r, 0)}")],
                   feats=[(p.X_st0 - p.pmp_st_shell_X0, f"alojamiento buje Ø{_f(p.pmp_brg_od, 0)} H7 hasta X {_f(p.pmp_bush_X1, 1)}"),
-                         (p.pmp_st_screw_X - p.pmp_st_shell_X0, "2 × M5 ciegos 3 mm (±Y)"),
+                         (p.pmp_st_screw_X - p.pmp_st_shell_X0, f"2 × Ø{_f(p.pmp_st_tip_hole[0], 1)} LISOS × {_f(p.pmp_st_tip_hole[1], 1)} prof. (±Y, punta de los M5 de la carcasa)"),
                          (p.pmp_cool_port[0] - p.pmp_st_shell_X0, f"Ø{_f(p.pmp_cool_bore_d, 0)} arriba (puerto de agua)")],
                   notes=[f"Camisa Ø{_f(p.pmp_D_seat)} g6 × Ø{_f(p.D_bore)}; cubo Ø{_f(p.D_hub, 0)}; agujero de salida de agua Ø{_f(p.pmp_tail_hole_d, 0)} en la punta.",
                          "Ángulos de álabe: ver P1-PMP-03_tabla_angulos_alabes. Concentricidad buje ↔ camisa ≤ 0,03 TIR."]))
     Rn = p.D_noz / 2
-    made.append(T("P1-PMP-08", "fixed_nozzle", "Al 6061-T6 torneado + fresado (orejas), anodizado duro",
-                  [(p.pmp_noz_spigot, p.pmp_D_seat, "espiga g6"),
-                   (p.pmp_noz_f_t, p.pmp_f2_od, "brida"),
+    made.append(T("P1-PMP-08", "fixed_nozzle", "Al 6061-T6 torneado, anodizado duro",
+                  [(p.pmp_noz_spigot, p.pmp_D_seat, f"espiga g6 (+{_f(p.pmp_stack_gap)} sobre el asiento) + O-ring radial"),
+                   (p.pmp_noz_f_t, p.pmp_f2_od, f"brida Ø{_f(p.pmp_f2_od, 1)} (pasa por el agujero del espejo)"),
                    (p.pmp_land_X0 - p.X_st1 - p.pmp_noz_f_t, round(p.D_bore / 2 + p.D_noz / 2 + 2 * p.pmp_noz_wall, 1), "cono exterior (Ø medio; pared 5)"),
                    (p.pmp_land_X1 - p.pmp_land_X0, 2 * p.pmp_land_R, f"resalte Ø{_f(2*p.pmp_land_R, 0)} f7 + O-ring")],
-                  feats=[(p.pmp_noz_spigot + p.pmp_noz_cone_X1 - p.X_st1, f"fin del cono: Ø{_f(p.D_noz)} cilíndrico {_f(p.pmp_noz_cyl, 1)}"),
+                  feats=[(p.pmp_noz_spigot / 2, f"ranura O-ring radial {_f(p.pmp_gl_width)} × {_f(p.pmp_gl_depth)} prof. (cs {_f(p.oring_cs)})"),
+                         (p.pmp_noz_spigot + p.pmp_noz_cone_X1 - p.X_st1, f"fin del cono: Ø{_f(p.D_noz)} cilíndrico {_f(p.pmp_noz_cyl, 1)}"),
                          (p.pmp_noz_spigot + p.X_noz1 - p.X_st1, f"SALIDA Ø{_f(p.D_noz)} en X_noz1 = plano del espejo"),
                          (p.pmp_noz_spigot + p.pmp_or_X - p.X_st1, f"ranura O-ring {_f(p.pmp_or_width)} × {_f(p.pmp_or_depth)} prof.")],
                   notes=[f"Interior: Ø{_f(p.D_bore)} → Ø{_f(p.D_noz)} cono (semiángulo {_f(p.pmp_noz_half_angle, 1)}°) de X {_f(p.X_st1, 1)} a {_f(p.pmp_noz_cone_X1, 1)}; "
                          f"alojamiento esférico R{_f(p.pmp_sock_R)} centrado en el pivote (X {_f(p.X_steer_pivot, 1)}) hasta X {_f(p.pmp_sock_X1, 1)}; luego Ø{_f(2*p.pmp_steer_free_r, 1)}.",
-                         "Sin orejas: las orejas de pivote de la boquilla están en la placa de espejo P1-PMP-09.",
-                         f"Brida: 8 × Ø6,4 en Ø{_f(p.pmp_f2_bc, 0)} a {p.pmp_flange_ang0:g}° + k·45°. Área de salida π/4·{_f(p.D_noz)}² = {_f(math.pi/4*p.D_noz**2, 0)} mm²."]))
+                         f"Brida: 8 × Ø{_f(p.pmp_f2_bolt_hole, 1)} en Ø{_f(p.pmp_f2_bc, 2)} a {p.pmp_flange_ang0:g}° + k·45° — ISO 4762 M5 A4-70 + Tef-Gel, roscados en la carcasa. "
+                         f"Espiga {_f(p.pmp_noz_spigot)} +0,05/0 desde la cara de la brida: luz entre bridas {_f(p.pmp_stack_gap)} ± 0,05 medida con galgas.",
+                         f"SERVICIO: brida Ø{_f(p.pmp_f2_od, 1)} < agujero del espejo Ø{_f(p.transom_hole_d, 1)} → sale por popa con el estator detrás (sin tocar el tren). "
+                         f"Área de salida π/4·{_f(p.D_noz)}² = {_f(math.pi/4*p.D_noz**2, 0)} mm²."]))
     # ---------------- placa de espejo (contorno en el plano del espejo)
     R = p.pmp_tp_R
     h = p.z_noz + R - p.pmp_tp_zmin

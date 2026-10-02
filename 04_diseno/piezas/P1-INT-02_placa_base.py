@@ -35,7 +35,7 @@ META = dict(id="P1-INT-02", name="placa_base",
             desc="Placa base de la toma Al 5083 10 mm: cuerpo enrasado + ala abulonada al casco, cuña de la rampa, roscas del conducto y del soporte de rodamientos",
             material="Al 5083", process="torneada", qty=1, frame="boat", group="jet",
             load_case="Golpe de fondo, empuje del tren por el soporte de rodamientos, tracción de los bulones del conducto",
-            allow={"P1-INT-01": 30.0, "P1-REF-01": 30.0, "P1-DRV-03": 30.0})
+            allow={"P1-INT-01": 5.0, "P1-REF-01": 5.0, "P1-DRV-03": 5.0})
 
 M6_TAP, M8_TAP, M5_TAP = 5.0, 6.8, 4.2   # brocas de roscar ISO [VERIFICADO: tabla ISO 261/DIN 336]
 CSK_D = 16.4                               # avellanado 90° para ISO 10642 M8 (dk máx. 16) [ESTIMADO: tabla ISO 10642]

@@ -16,7 +16,7 @@ META = dict(id="P1-DRV-07", name="mech_seal_MG1_20", desc="Sello mecánico MG1 �
             material="referencia", process="comprada", qty=1, frame="jet", group="drive",
             load_case="Presión del conducto, 5 m/s", print_rot=(0, 0, 0), solid_frac=1.0,
             orientation="—", mass_g=60.0,   # [ESTIMADO: params_tren.SEAL]
-            allow={"P1-DRV-01": 20.0, "P1-DRV-02": 30.0})
+            allow={"P1-DRV-01": 5.0, "P1-DRV-02": 5.0})
 
 
 def build(p):

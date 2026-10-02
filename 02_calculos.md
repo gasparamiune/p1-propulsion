@@ -87,7 +87,7 @@ desde el espejo; VCG = <!--V:sizing.masses.vcg_m:.3f-->0.340<!--/V--> m sobre la
 jet + controlador, para la capacidad de §2.3) = <!--V:sizing.masses.machinery_kg:.1f-->74.2<!--/V--> kg.
 
 - La masa del jet la toma `sizing.py` del CAD vigente (`manifest.json → totals.jet_unit_mass_kg`,
-  hoy <!--V:manifest.totals.jet_unit_mass_kg:.2f-->24.25<!--/V--> kg). Si el CAD cambia, hay que volver a correr
+  hoy <!--V:manifest.totals.jet_unit_mass_kg:.2f-->24.16<!--/V--> kg). Si el CAD cambia, hay que volver a correr
   `run_all.py`: la fila "Unidad de jet" de arriba es la que usó la última corrida de `sizing.py`.
 - Los 150 kg del plano de Jorge no cierran (R10b §4.2: 165–242 kg con 3 kWh LFP). El piloto pesa
   <!--V:sizing.masses.items.1.kg:.0f-->90<!--/V--> kg de los <!--V:sizing.masses.total_kg:.0f-->217<!--/V--> y es la entrada

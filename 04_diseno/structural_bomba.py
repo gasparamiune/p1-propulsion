@@ -23,7 +23,7 @@ JUSTIFIED = {
         "FS ≥ 2 no aplica a un fusible.",
     ("P1-PMP-05", "Fatiga a par de crucero (Goodman en corte)"):
         "Fusible intencional: el pasador de Al se reemplaza por mantenimiento (cada temporada o 50 h, y "
-        "siempre tras un golpe) [ESTIMADO]; llevar 3 de repuesto.",
+        "siempre tras un golpe) [ESTIMADO]; llevar 3 juegos de repuesto (2 semipasadores c/u).",
 }
 
 
@@ -107,19 +107,29 @@ def cases(p, A, row, rows, T3, T2):
     used["imp_tip_rock_sigma_MPa"] = F_tip * span / Wb
     used["imp_blade_sigma_MPa"] = dict(diseno=s_d, ctrl=s_m, corte=s_c)
 
-    # cubo del impulsor: aplastamiento del pasador sobre el cubo al par de corte
+    # cubo del impulsor: aplastamiento del semipasador al par de corte (auditoría Pass 3 H10). En X = pin_X la
+    # ranura anular aligerante (r pocket[0]…pocket[1], prof. pocket[2] desde popa) corta el cubo: el contacto
+    # es r_eje…pocket[0] y pocket[1]…r_asiento por lado. Conservador: toda la fuerza del plano de corte
+    # F = T/(2·r_eje) sobre el tramo interior solamente (el exterior solo si el pasador flexa).
     r_in, r_out = p.shaft_d / 2, p.pmp_land_r
-    F_b = p.pmp_pin_T_cut / (2 * (r_in + r_out) / 2 / 1000)
-    sb = F_b / (p.pmp_pin_d * (r_out - r_in))
-    row(rows, "P1-PMP-03", "Cubo: aplastamiento del pasador al par de corte",
-        f"F={F_b:.0f} N por lado sobre {p.pmp_pin_d}×{r_out - r_in:.0f} mm (r medio)", sb, 1.5 * SS["Sy"], A, T2)
+    ri_p, ro_p, dep = p.pmp_pocket
+    cut_by_pocket = p.L_imp - dep <= p.pmp_pin_X <= p.L_imp
+    l_in = (ri_p - r_in) if cut_by_pocket else (r_out - r_in)
+    l_out = (r_out - ro_p) if cut_by_pocket else 0.0
+    F_b = p.pmp_pin_T_cut * 1000 / (2 * r_in)
+    sb = F_b / (p.pmp_pin_d * l_in)
+    row(rows, "P1-PMP-03", "Cubo: aplastamiento del semipasador al par de corte",
+        f"F = T_corte/(2·r_eje) = {F_b:.0f} N por lado sobre el tramo interior {p.pmp_pin_d}×{l_in:.1f} mm "
+        f"(la ranura aligerante deja {l_in:.1f} + {l_out:.1f} mm de contacto; conservador: solo el interior)",
+        sb, 1.5 * SS["Sy"], A, T2)
+    used["imp_pin_bearing_contact_mm"] = (l_in, l_out)
 
     # pasador de corte (fusible)
     Ap = math.pi / 4 * p.pmp_pin_d ** 2
     tau_u = 0.6 * Al["Su"]
     tau_ctrl = M["T_max_Nm"] * 1000 / (p.shaft_d * Ap)
     row(rows, "P1-PMP-05", "Par máx. del controlador (margen contra corte intempestivo)",
-        f"corte doble τ=T/(d_eje·A)={tau_ctrl:.1f} MPa; τ_u=0,6·S_u={tau_u:.0f} MPa; T_corte/T_máx="
+        f"2 semipasadores, 2 secciones de corte a r_eje: τ=T/(d_eje·A)={tau_ctrl:.1f} MPa; τ_u=0,6·S_u={tau_u:.0f} MPa; T_corte/T_máx="
         f"{p.pmp_pin_T_cut / M['T_max_Nm']:.2f} (criterio R12 ≥ 1,5)", tau_ctrl, tau_u, A, T2)
     tau_m = M["T_top_Nm"] * 1000 / (p.shaft_d * Ap)
     tau_a = alt_torque * tau_m
@@ -163,26 +173,43 @@ def cases(p, A, row, rows, T3, T2):
         pd * r_n / p.pmp_noz_wall, Al["Sy"], A, T2)
 
     # bulones de bridas (reacción: presión sobre la contracción + bucket + momentos de boquilla/bucket + peso)
-    F_p = p.pmp_p_design_Pa * math.pi / 4 * (p.D_bore ** 2 - p.D_noz ** 2) / 1e6
+    # f1 (toma, 8 × M6 con tuerca): la presión actúa hasta el O-ring de cara; f2 (tobera, 8 × M5 roscados en la
+    # carcasa): hasta el O-ring RADIAL de la espiga (Ø pmp_D_seat)
     Fb, Fs = L["F_bucket_N"], L["F_steer_side_N"]
     W_pump = 9.0 * 9.81                      # [ESTIMADO: bomba ≈ 9 kg (manifest PMP)]
-    As_M6 = 20.1                             # área resistente M6 [ESTIMADO: ISO 898 tabla]
+    AS_ = {5: 14.2, 6: 20.1}                 # áreas resistentes [ESTIMADO: ISO 898 tabla]
+    As_M6 = AS_[6]
     A4 = mat["A4-70"]["Sy"]
-    for pid, lab, X0, bc in (("P1-PMP-01", "Bulones brida toma (8×M6)", p.X_duct_out, p.pump_flange_bc),
-                             ("P1-PMP-08", "Bulones brida carcasa–tobera (8×M6)", p.X_st1, p.pmp_f2_bc)):
+    for pid, lab, X0, bc, n, dbolt, Dseal in (
+            ("P1-PMP-01", "Bulones brida toma (8×M6)", p.X_duct_out, p.pump_flange_bc, p.pump_flange_n, p.pump_flange_bolt,
+             2 * (p.pmp_gl_r_in + p.pmp_gl_width)),
+            ("P1-PMP-08", "Bulones brida carcasa–tobera (8×M5 roscados)", p.X_st1, p.pmp_f2_bc, p.pmp_f2_n, p.pmp_f2_bolt,
+             p.pmp_D_seat)):
+        F_p = p.pmp_p_design_Pa * math.pi / 4 * (Dseal ** 2 - p.D_noz ** 2) / 1e6
         Mm = Fs * (p.X_steer_pivot - X0) / 1000 + Fb * p.Z_bucket_pivot / 1000 + W_pump * 0.15
-        n = p.pmp_f2_n
         Fbolt = (F_p + Fb) / n + Mm * 1000 * 2 / (n * bc / 2)
         row(rows, pid, f"{lab}: presión + bucket + momentos",
-            f"F_ax={F_p + Fb:.0f} N, M={Mm:.1f} N·m (boquilla {Fs:.0f} N, bucket {Fb:.0f} N, peso) → "
-            f"F_bulón={Fbolt:.0f} N sobre A_s={As_M6} mm² (sin precarga)", Fbolt / As_M6, A4, A, T2)
+            f"F_ax={F_p + Fb:.0f} N (p hasta el sello Ø{Dseal:.1f}), M={Mm:.1f} N·m (boquilla {Fs:.0f} N, bucket {Fb:.0f} N, peso) → "
+            f"F_bulón={Fbolt:.0f} N sobre A_s={AS_[dbolt]} mm² (sin precarga)", Fbolt / AS_[dbolt], A4, A, T2)
         used[f"{pid}_bolt_N"] = Fbolt
+        if pid == "P1-PMP-08":
+            # rosca M5 en la brida de la carcasa (Al 6061-T6): barrido del filete hembra con la precarga de
+            # apriete a mano + la carga de servicio
+            F_v5 = 3000.0                    # [ESTIMADO: M5 A4-70 a ~3 N·m con Tef-Gel (K 0,18–0,2)]
+            tau_t = (F_v5 + Fbolt) / (math.pi * p.pmp_f2_bolt * p.pmp_f2_thread_L * 0.6)
+            row(rows, "P1-PMP-01", "Rosca M5 de la brida trasera en Al 6061-T6: precarga + servicio",
+                f"barrido τ = F/(π·d·L·0,6), L = {p.pmp_f2_thread_L:g} mm, F_v = {F_v5:.0f} N [ESTIMADO] + {Fbolt:.0f} N",
+                tau_t, 0.577 * Al["Sy"], A, T2)
 
-    # anti-rotación del estator: 2 × M5 al corte con el par máx.
+    # anti-rotación del estator: 2 × M5 al corte con el par máx. (la punta roscada en el agujero liso de la camisa)
     Fsc = M["T_max_Nm"] / (2 * p.pmp_D_seat / 2 / 1000)
     row(rows, "P1-PMP-01", "Tornillos anti-rotación del estator (2×M5) al corte",
-        f"F={Fsc:.0f} N por tornillo (T_max {M['T_max_Nm']:.1f} N·m, r={p.pmp_D_seat/2:.1f})", Fsc / 14.2,
+        f"F={Fsc:.0f} N por tornillo (T_max {M['T_max_Nm']:.1f} N·m, r={p.pmp_D_seat/2:.1f}), corte en A_s", Fsc / 14.2,
         0.577 * A4, A, T2)
+    ht = p.pmp_st_tip_hole[1]
+    row(rows, "P1-PMP-06", "Camisa: aplastamiento de la punta del M5 anti-giro al par máx.",
+        f"σ_b = F/(d·h), h = {ht:g} mm (agujero liso Ø{p.pmp_st_tip_hole[0]:g})", Fsc / (p.pmp_st_screw_d * ht),
+        1.5 * Al["Sy"], A, T2)
 
     # orejas de pivote (en la placa de espejo, Al 5083): un solo lado toma toda la carga (conservador)
     d, t, w = p.pmp_lug_hole, p.pmp_lug_t, p.pmp_lug_w

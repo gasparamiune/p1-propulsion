@@ -29,7 +29,7 @@ META = dict(
     load_case="Desvío del chorro F_steer (R12: 364 N) + reacciones del bucket (R12: 1,4 kN, impacto ×2)",
     print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Torneado del cuerpo (barra Ø100 × 150) + fresado 4 ejes de orejas y torre (bloque 6061-T6 100 × 165 × 165)",
-    allow={"P1-REV-04": 60.0, "P1-STE-02": 30.0, "P1-STE-05": 30.0},   # roscas (émbolo M16, tornillos M6)
+    allow={"P1-REV-04": 5.0, "P1-STE-02": 5.0, "P1-STE-05": 5.0},   # roscas (émbolo M16, tornillos M6)
 )
 
 

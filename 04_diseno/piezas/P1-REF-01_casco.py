@@ -25,7 +25,7 @@ from cadlib import box, cyl_x, cyl_z  # noqa: E402
 META = dict(id="P1-REF-01", name="casco",
             desc="Casco de referencia (popa 1,4 m): fondo con astilla muerta y paño plano, pantoque, costados, espejo; recorte de la toma y agujero del espejo",
             material="referencia", process="referencia", qty=1, frame="boat", group="ref",
-            load_case="—", allow={"P1-INT-02": 30.0})
+            load_case="—", allow={"P1-INT-02": 5.0})
 
 REF_L = 1400.0      # [SUPUESTO: largo modelado desde el espejo; cubre el motor (x ≤ ~800) y el controlador]
 PAD_Y = 185.0       # [SUPUESTO: paño plano en crujía ±185 mm (placa base ±175 + 10); MEDIR el fondo real]

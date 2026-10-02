@@ -32,7 +32,7 @@ META = dict(id="P1-INT-04", name="tapa_inspeccion",
             load_case="Presión interna de la toma (succión de cierre / recuperación a 30 km/h) sobre Ø de la junta",
             print_rot=(0, 0, 0), solid_frac=1.0,
             orientation="Cara de la ranura del O-ring y del hexágono de la tuerca sobre la cama (fondos lisos), resalte arriba, 100 % relleno",
-            allow={"P1-INT-01": 1.0})
+            allow={"P1-INT-01": 5.0})
 
 
 def oring_r(p):

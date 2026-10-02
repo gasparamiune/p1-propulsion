@@ -28,7 +28,7 @@ META = dict(id="P1-PMP-06", name="stator",
             desc="Estator Al 6061-T6 de 7 álabes con camisa, cubo con buje de agua y cono de cola",
             material="Al 6061-T6", process="torneada", qty=1, frame="jet", group="jet",
             load_case="Reacción del par del rotor en los álabes; carga radial del buje; presión",
-            allow={"P1-PMP-01": 1500.0, "P1-PMP-02": 50.0, "P1-PMP-07": 300.0, "P1-PMP-08": 300.0})
+            allow={"P1-PMP-01": 368.0, "P1-PMP-02": 5.0, "P1-PMP-07": 5.0, "P1-PMP-08": 5.0})
 
 _CACHE = {}
 

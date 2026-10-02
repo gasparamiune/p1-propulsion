@@ -41,8 +41,9 @@ def draw(p, H):
         "Tolerancias: asiento impulsor Ø20 g6; muñón rodamientos Ø20 k5 (Ra 0,8); sello Ø20 h8 (Ra 0,4, sin rayas axiales);"
         " muñón buje estator Ø20 f7; asiento acople Ø20 h6. Concentricidad de todos los Ø ≤ 0,02 mm respecto de A–B (muñones).",
         f"Pasador de corte Al 6061-T6 Ø{p.drv_pin_d:g} (corta a {p.sz['mech']['shear_pin']['T_cut_Nm']:.0f} N·m): "
-        "llevar 5 pasadores de REPUESTO + 2 anillos DIN 471-20 en la caja de herramientas; revisar cada salida.",
-        "Anillos DIN 471-20 A4: empuje (con arandela Ø20,5/Ø32 × 2 contra la nariz del impulsor), respaldo de la cabeza del sello, retención a popa (opcional).",
+        f"llevar {p.pmp_pin_spares_sets} juegos de 2 semipasadores de REPUESTO (P1-PMP-05) + 2 anillos DIN 471-20 en la caja de herramientas; revisar cada salida.",
+        f"Anillos DIN 471-20 A4: empuje (ranura centrada en X = {p.pmp_circlip_fwd_X:.2f}; arandela 316 20×30×1,5 contra la nariz del impulsor), "
+        f"respaldo de la cabeza del sello, retención a popa (X = {p.pmp_circlip_aft_X:.2f}, con arandela). Ranuras = las de P1-PMP-03 (params_bomba).",
         "Montaje (A-08): caja del sello y cabeza entran por la PUNTA DE POPA; rodamientos/KM4/tapa/acople por PROA (ver params_tren.py).",
     ]
     out.append(turned("P1-DRV-01", "shaft", "AISI 316L (1.4404)", tsegs, feats=feats, notes=notes))
@@ -74,15 +75,16 @@ def draw(p, H):
     y_lo = -p.drv_pad_y[1]
     w = x1 - x0
     h = 2 * p.drv_pad_y[1]
-    holes = [(xh - x0, yh - y_lo, p.drv_bracket_hole, "Ø9 pasante sobre espárrago M8 (ISO 10642 desde la toma)") for xh, yh in p.brg_bracket_holes]
+    holes = [(xh - x0, yh - y_lo, p.drv_bracket_hole, "espárrago M8 en RANURA de 9 abierta a popa (fondo R4,5 en el de proa)") for xh, yh in p.brg_bracket_holes]
     out.append(plate("P1-DRV-03", "bearing_bracket", "Al 6082-T651 (soldado TIG o de bloque)", w, h, p.drv_bracket_base_t, holes, notes=[
         f"Vista en planta de las zapatas (BOTE): x desde {x0:.1f} (marco BOTE), y desde {y_lo:.1f}. Mejillas 12 mm en |y| = {p.drv_cheek_y[0]:g}–{p.drv_cheek_y[1]:g}.",
-        f"Alojamiento Ø{p.drv_bearing['D']:g} H7 × {2 * p.drv_bearing['B']:g} + resalte {p.drv_brg_shoulder_t:g} (paso Ø{p.drv_collar_d + 3:g}); eje a 5° (sube a proa), "
+        f"Alojamiento Ø{p.drv_bearing['D']:g} H7 × {2 * p.drv_bearing['B']:g} para 2 × {p.drv_bearing['name']} + resalte {p.drv_brg_shoulder_t:g} (paso Ø{p.drv_brg_shoulder_hole:g}: > d1 del aro interior, < D1 del exterior); eje a 5° (sube a proa), "
         f"centro en S = {(p.drv_S_brgA + p.drv_S_brgB) / 2:.1f} mm (z = {p.z_if + (p.drv_S_brgA + p.drv_S_brgB) / 2 * math.sin(math.radians(p.alpha)):.1f}).",
         f"Tablero 12 mm a z = {g['zd0']:.1f}–{g['zd1']:.1f}; 4 × M5 roscados en la cara delantera en BC{p.drv_cover_bc:g}.",
         "Mecanizar el Ø47 DESPUÉS de soldar, en una sola atada con la cara delantera (perpendicularidad ≤ 0,02).",
-        f"Fijación: {p.drv_stud}; el soporte baja vertical sobre los espárragos; {p.drv_nut_torque_Nm:g} N·m con Tef-Gel.",
-        "Montaje: alinear con casquillo de centrado en la caja del sello, apretar las tuercas, escariar 2 pasadores Ø6 por zapata."]))
+        f"Zapatas: una ranura de {p.drv_bracket_hole:g} mm por lado, ABIERTA HACIA POPA desde x = {x0:.1f} hasta el espárrago de proa (toma los 2 espárragos).",
+        f"Fijación: {p.drv_stud}; {p.drv_nut_torque_Nm:g} N·m con Tef-Gel (K {p.drv_nut_K:g} → F_v {p.drv_nut_Fpre_N:.0f} N, structural).",
+        f"Montaje: tuercas sacadas, apoyar el pórtico {p.drv_brg_travel:.0f} mm más a proa (a lo largo del eje) y deslizarlo a popa sobre el eje; mandril de centrado al buje del estator; apretar; escariar 2 pasadores Ø6 por zapata."]))
 
     # ---------------- soporte del motor (placa)
     m2 = _mod("P1-MOT-02_motor_mount")

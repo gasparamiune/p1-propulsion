@@ -14,7 +14,7 @@ META = dict(id="P1-ELE-04", name="esc", desc="Controlador VESC de la selección 
             material="referencia", process="comprada", qty=1, frame="boat", group="ele",
             load_case="—", print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
             mass_g=2000.0,   # [VERIFICADO: research/R11 §2.1 — 2000 g con caja]; se reemplaza por inputs en build()
-            allow={"P1-ELE-01": 2.0, "P1-ELE-02": 2.0})
+            allow={"P1-ELE-01": 5.0, "P1-ELE-02": 5.0})
 
 
 def build(p):

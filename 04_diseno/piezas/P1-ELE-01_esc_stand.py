@@ -22,7 +22,7 @@ META = dict(id="P1-ELE-01", name="esc_stand", desc="Base elevada PETG del contro
             load_case="Peso del ESC + capota a 3 g vertical y 1 g lateral; tirón de cables",
             print_rot=(0, 0, 0), solid_frac=0.6,
             orientation="Base abierta sobre la cama; tablero arriba (puentes de 3,2 mm entre nervios, sin soportes).",
-            allow={"P1-ELE-04": 2.0, "P1-ELE-02": 2.0})
+            allow={"P1-ELE-04": 5.0, "P1-ELE-02": 5.0})
 
 RIB_X = 20.0      # centro de los nervios de abulonado desde el extremo
 RIB_W = 20.0      # largo (x) del nervio

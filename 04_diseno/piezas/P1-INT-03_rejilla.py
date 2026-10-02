@@ -35,7 +35,7 @@ META = dict(id="P1-INT-03", name="rejilla",
             desc="Rejilla 316: pletinas perfiladas 4 × 21 longitudinales (luz ≤ 12,5) enrasadas, pletina de popa y tirante de proa, 4 × M5 A4 aislados",
             material="AISI 316", process="torneada", qty=1, frame="boat", group="jet",
             load_case="Rejilla tapada a la presión de cierre de la bomba; golpe de objeto 200 N en el centro de una barra",
-            allow={"P1-INT-01": 5.0, "P1-INT-02": 40.0})
+            allow={"P1-INT-01": 5.0, "P1-INT-02": 5.0})
 
 
 def bar_x_range(p):

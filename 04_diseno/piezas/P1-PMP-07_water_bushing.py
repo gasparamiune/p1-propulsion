@@ -23,7 +23,7 @@ from params import loc_jet  # noqa: E402
 META = dict(id="P1-PMP-07", name="water_bushing",
             desc="Buje Ø20 lubricado por agua en el cubo del estator (2.º apoyo del eje)",
             material="POM-C", process="torneada", qty=1, frame="jet", group="jet",
-            load_case="Carga radial del eje (desbalance + hidráulica)", allow={"P1-PMP-06": 300.0})
+            load_case="Carga radial del eje (desbalance + hidráulica)", allow={"P1-PMP-06": 5.0})
 
 
 def build(p):

@@ -40,7 +40,7 @@ META = dict(id="P1-INT-01", name="conducto",
             desc="Conducto de toma enrasada Al 5083 soldado: rampa C2, transición a Ø D_bore, brida bomba, buje del sello, chimenea de inspección",
             material="Al 5083", process="torneada", qty=1, frame="boat", group="jet",
             load_case="Presión interna −p_pump_max…+p_pump_max, golpe de fondo, 3 g agua; empuje NO pasa por acá",
-            allow={"P1-INT-02": 30.0, "P1-PMP-01": 30.0, "P1-DRV-02": 30.0})
+            allow={"P1-INT-02": 5.0, "P1-PMP-01": 5.0, "P1-DRV-02": 5.0})
 
 
 def _ring_jet(r_out, r_in, X0, X1):

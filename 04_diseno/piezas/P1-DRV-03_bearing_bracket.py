@@ -37,7 +37,7 @@ META = dict(id="P1-DRV-03", name="bearing_bracket", desc="Pórtico Al 6082 sobre
             material="Al 5052/6082", process="torneada", qty=1, frame="boat", group="drive",
             load_case="Empuje Fa a punto fijo + reacción radial + 3 g vertical del tren; bulones M8 a la placa base de Al",
             print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
-            allow={"P1-DRV-04": 30.0, "P1-DRV-06": 2.0})
+            allow={"P1-DRV-04": 5.0, "P1-DRV-06": 5.0})
 
 M5_TAP = 4.2          # [ESTIMADO: broca de roscar M5 (ISO 2306)]
 

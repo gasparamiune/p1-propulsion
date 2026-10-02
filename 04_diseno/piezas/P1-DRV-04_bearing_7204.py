@@ -19,7 +19,7 @@ META = dict(id="P1-DRV-04", name="bearing_7204BEP", desc="Rodamiento SKF 7204 BE
             material="Acero", process="comprada", qty=2, frame="jet", group="drive",
             load_case="Empuje Fa + reacción radial (L10 en sizing)", print_rot=(0, 0, 0), solid_frac=1.0,
             orientation="—", mass_g=110.0,   # [ESTIMADO: params_tren.BEARING mass_g]
-            allow={"P1-DRV-03": 30.0, "P1-DRV-01": 20.0, "P1-DRV-04": 1.0})
+            allow={"P1-DRV-03": 5.0, "P1-DRV-01": 10.0, "P1-DRV-04": 1.0})
 
 
 def build(p):

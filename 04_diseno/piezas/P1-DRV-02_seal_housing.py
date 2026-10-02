@@ -24,7 +24,7 @@ META = dict(id="P1-DRV-02", name="seal_housing", desc="Caja del sello mecánico 
             material="AISI 316", process="torneada", qty=1, frame="jet", group="drive",
             load_case="Presión de diseño de la bomba 0,2 MPa + resorte del sello; bulones M6 al buje de la toma",
             print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
-            allow={"P1-DRV-07": 30.0})
+            allow={"P1-DRV-07": 5.0})
 
 BODY_OD = 42.5          # [SUPUESTO: deja 0,75 mm a las cabezas M6 Ø10 (DIN 912) sobre la brida]
 SEAT_WALL_HOLE = 24.0   # [SUPUESTO: paso del eje Ø20 por la pared del asiento]

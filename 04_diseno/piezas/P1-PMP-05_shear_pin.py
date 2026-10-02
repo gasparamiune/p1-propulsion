@@ -25,7 +25,7 @@ META = dict(id="P1-PMP-05", name="shear_pin",
             desc="2 semipasadores de corte Al 6061-T6 (fusible de par del impulsor, cambiables en el eje)",
             material="Al 6061-T6", process="torneada", qty=2, frame="jet", group="jet",
             load_case="Par del controlador (no corta); corta a T_cut (piedra)",
-            allow={"P1-PMP-03": 60.0})
+            allow={"P1-PMP-03": 5.0})
 
 
 def build(p):

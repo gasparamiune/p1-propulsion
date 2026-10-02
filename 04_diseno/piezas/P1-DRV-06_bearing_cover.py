@@ -16,7 +16,7 @@ META = dict(id="P1-DRV-06", name="bearing_cover", desc="Tapa delantera Al de rod
             material="Al 5052/6082", process="torneada", qty=1, frame="jet", group="drive",
             load_case="Empuje Fa a punto fijo hacia proa: flexión de la tapa entre el aro y los M5",
             print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
-            allow={"P1-DRV-03": 2.0, "P1-DRV-04": 1.0})
+            allow={"P1-DRV-03": 5.0, "P1-DRV-04": 5.0})
 
 HOLE = 34.0     # [SUPUESTO: KM4 Ø32 + 2]
 

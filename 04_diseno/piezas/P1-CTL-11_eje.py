@@ -14,7 +14,7 @@ META = dict(
     id="P1-CTL-11", name="eje_palancas", desc="Eje Ø12 con cabeza portaimán (316)",
     material="AISI 316", process="torneada", qty=1, frame="boat", group="ele",
     load_case="Flexión y torsión: 100 N en el pomo del acelerador", print_rot=(0, 0, 0), solid_frac=1.0,
-    orientation="—", allow={"P1-CTL-09": 20.0},
+    orientation="—", allow={"P1-CTL-09": 5.0},
 )
 
 

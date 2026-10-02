@@ -24,7 +24,7 @@ META = dict(id="P1-PMP-03", name="impeller",
             desc="Impulsor axial de 5 álabes, cubo Ø66 con nariz, pasador de corte (sin chavetero)",
             material="AISI 316", process="torneada", qty=1, frame="jet", group="jet",
             load_case="Par máx. del controlador + empuje axial; corte del pasador (piedra)",
-            allow={"P1-PMP-05": 60.0, "P1-PMP-04": 30.0})
+            allow={"P1-PMP-05": 5.0, "P1-PMP-04": 8.0})
 
 
 _CACHE = {}

@@ -28,7 +28,32 @@ P_KEY_ADM = 100.0   # [ESTIMADO: presión admisible en chaveta con cubo de acero
 T_RIPPLE = 0.10     # [ESTIMADO: ±10 % de rizado de par por paso de pala (como sizing.mechanical)]
 SPRING_SEAL_N = 150.0  # [ESTIMADO: fuerza de resorte de un MG1 Ø20 + pretensado de la copa]
 
-JUSTIFIED = {}
+DK_M8 = 16.0        # [ESTIMADO: ISO 10642 M8, Ø de cabeza real máx. 16,0 (teórico 17,9)]
+
+JUSTIFIED = {
+    ("P1-DRV-08", "Chaveta 5×5 del eje del motor Ø15 en el cubo del acople: aplastamiento a T_max"):
+        "Hallazgo abierto (auditoría Pass 3 H13): FS < 2 contra p_adm = 100 MPa (DIN 6892, choques leves, el valor "
+        "conservador de este archivo). El encastre lo fija el eje del motor (Ø15 × 30, R11) y la luz al centrador; "
+        "no se puede alargar. Mitigación: cubo Rotex del lado del motor en ACERO (no Al-D), ajuste sin juego + "
+        "Loctite 648 en el asiento además de la chaveta, y medir el chavetero del motor recibido; con cubo y eje de "
+        "acero (R_e ≥ 300 [SUPUESTO]) el aplastamiento plástico queda ≥ 2,5 × la presión calculada.",
+}
+
+
+def stud_loads(p):
+    """Carga de servicio de cada espárrago M8 del pórtico (F_t tracción, F_s corte) — la usa también
+    structural_toma (placa base): vuelco por Fa a la altura del eje + 3 g vertical del tren."""
+    import importlib.util
+    m, L = p.sz["mech"], p.sz["loads"]
+    from _drv_geom import z_axis
+    S_mid = (p.drv_S_brgA + p.drv_S_brgB) / 2
+    h_ax = z_axis(p, S_mid) - (p.base_top_z + p.drv_bracket_base_t)
+    m_rot = p.drv_imp_m_kg + p.drv_shaft_L * 1e-3 * 2.47 + p.drv_coupling["mass_g"] / 2e3 + 0.3
+    Fv = 3 * G * m_rot + m["Fr_N"]
+    dx = abs(p.brg_bracket_holes[2][0] - p.brg_bracket_holes[0][0])
+    Ft = m["Fa_max_N"] * (h_ax + p.drv_bracket_base_t) / dx / 2 + Fv / 4
+    Fs = math.hypot(m["Fa_max_N"], m["Fr_N"]) / 4
+    return Ft, Fs
 
 
 def cases(p, A, row, rows, T3, T2):
@@ -76,6 +101,19 @@ def cases(p, A, row, rows, T3, T2):
     row(rows, "P1-DRV-01", "Chaveta 6×6 del acople: aplastamiento a T_max",
         f"p = 2T/(d·(h − t1)·(l − b)), l = {p.drv_cpl_key_l:g} mm, cubo de acero",
         pk, P_KEY_ADM, A, T2)
+    # chaveta del lado del MOTOR (auditoría Pass 3 H13): eje del motor Ø mot.shaft_d con chaveta mot_keyd, encastre
+    # = solape del eje del motor con el cubo del Rotex (mot.shaft_l − luz a la cara del motor, ≤ l_hub)
+    mk, ms = p.mot_keyd, p.mot
+    l_eng = min(ms["shaft_l"] - p.mot_flange_gap, p.drv_coupling["l_hub"])
+    l_effm = l_eng - mk["b"]
+    pkm = 2 * T_max / (ms["shaft_d"] * (mk["h"] - mk["t1"]) * l_effm)
+    row(rows, "P1-DRV-08", f"Chaveta {mk['b']:g}×{mk['h']:g} del eje del motor Ø{ms['shaft_d']:g} en el cubo del acople: aplastamiento a T_max",
+        f"p = 2T/(d·(h − t1)·(l − b)), encastre l = {l_eng:.1f} mm, T_max {T_max/1e3:.1f} N·m (sizing), cubo de acero",
+        pkm, P_KEY_ADM, A, T2)
+    tau_km = 16 * T_max / (math.pi * (ms["shaft_d"] - mk["t1"]) ** 3)
+    row(rows, "P1-DRV-08", f"Eje del motor Ø{ms['shaft_d']:g} con chavetero: torsión a T_max",
+        f"τ = 16T/(π·(d − t1)³) (sección neta conservadora), acero del motor [SUPUESTO: S_y ≥ 300 MPa, no publicado]",
+        math.sqrt(3) * tau_km, 300.0, A, T2)
     # rosca M20×1 bajo la KM4 (empuje en reversa ≤ Fa)
     A_m20 = math.pi / 4 * (d - 1.083) ** 2               # [ESTIMADO: d3 ≈ d − 1,083·P]
     row(rows, "P1-DRV-01", "Rosca M20×1 (KM4): Fa en reversa + par T_max",
@@ -124,21 +162,32 @@ def cases(p, A, row, rows, T3, T2):
         f"σ = P·L/4/(b t²/6) + Fa·e/(t·b²/6)/2, L = {span:.0f}, b = {Ld:.0f}, e = {e_d:.0f} mm, ZAT",
         sig_d, SY_6082_HAZ, A, T2)
     dx = abs(p.brg_bracket_holes[2][0] - p.brg_bracket_holes[0][0])
-    Ft = Fa * (h_ax + p.drv_bracket_base_t) / dx / 2 + Fv / 4
-    Fs = math.hypot(Fa, Fr) / 4
+    Ft, Fs = stud_loads(p)
     sb = math.sqrt((Ft / AS[8]) ** 2 + 3 * (Fs / AS[8]) ** 2)
     row(rows, "P1-DRV-03", "Espárragos 4 × ISO 10642 M8 A4-70: vuelco por Fa + corte (servicio)",
         f"F_t = Fa·h/Δx/2 + 3g/4, F_s = Fa/4; von Mises sobre A_s (carga de servicio; Δx = {dx:.0f})",
         sb, SY_A4, A, T2)
-    F_pre = p.drv_nut_torque_Nm * 1e3 / (p.drv_nut_K * 8)
+    F_pre = p.drv_nut_Fpre_N
     F_nut = F_pre + Ft
+    row(rows, "P1-DRV-03", f"Espárrago M8 A4-70: precarga ({p.drv_nut_torque_Nm:g} N·m, F_v {F_pre:.0f} N) + F_t",
+        "σ = (F_v + F_t)/A_s (conservador: Φ = 1) vs R_p0,2 A4-70",
+        F_nut / AS[8], SY_A4, A, T2)
     row(rows, "P1-DRV-03", f"Tuerca ISO 4032 A4 sobre espárrago A4: precarga ({p.drv_nut_torque_Nm:g} N·m) + F_t",
         f"barrido de filetes τ = F/(π·d·m·0,6), m = {p.drv_nut_m:g}, F = T/(K·d) + F_t (K {p.drv_nut_K:g}) vs 0,58·R_p0,2 A4-70",
         F_nut / (math.pi * 8 * p.drv_nut_m * 0.6), 0.58 * SY_A4, A, T2)
-    A_cs = (math.pi / 4 * (16.0 ** 2 - 8.4 ** 2)) / math.sin(math.radians(45))   # [ESTIMADO: cabeza ISO 10642 M8 Ø16, avellanado 90°]
-    row(rows, "P1-DRV-03", "Avellanado de 90° en la placa base de Al (TOMA): precarga + F_t",
-        "aplastamiento p = F/A_cono (Ø16→Ø8,4, 90°) vs R_p0,2 5083-H111 125 MPa [ESTIMADO]",
-        F_nut / A_cs, 125.0, A, T2)
+    # arandela ancha ISO 7093 sobre la zapata RANURADA (6082 soldado): área del anillo menos la ranura
+    import numpy as _np
+    ro_w, ri_w, hw_s = p.drv_washer_od / 2, 4.2, p.drv_bracket_hole / 2
+    yy = _np.linspace(-ro_w, ro_w, 4001)
+    chord = 2 * _np.sqrt(_np.clip(ro_w ** 2 - yy ** 2, 0, None)) - 2 * _np.sqrt(_np.clip(ri_w ** 2 - yy ** 2, 0, None))
+    A_w = float(getattr(_np, "trapezoid", getattr(_np, "trapz", None))(_np.where(_np.abs(yy) > hw_s, chord, 0.0), yy))
+    row(rows, "P1-DRV-03", "Zapata ranurada: aplastamiento bajo la arandela ISO 7093 (precarga + F_t)",
+        f"σ = F/A, A = anillo Ø{p.drv_washer_od:g}/Ø8,4 fuera de la ranura de {p.drv_bracket_hole:g} mm = {A_w:.0f} mm², ZAT",
+        F_nut / A_w, SY_6082_HAZ, A, T2)
+    # pasadores Ø6 escariados: toman el corte en x (la ranura abierta no lo toma)
+    A_dw = math.pi / 4 * p.drv_dowel_d ** 2
+    row(rows, "P1-DRV-03", "Pasadores Ø6 A4 (2 por zapata): corte por Fa (sin contar fricción)",
+        "τ = Fa/(4·A), σ_eq = √3·τ vs R_p0,2 A4-70", math.sqrt(3) * Fa / (4 * A_dw), SY_A4, A, T2)
     row(rows, "P1-DRV-03", "Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo",
         "corte del resalte τ = Fa/(π·D·t_resalte), σ_eq = √3·τ", math.sqrt(3) * Fa / (math.pi * p.drv_bearing["D"] * p.drv_brg_shoulder_t),
         SY_6082, A, T2)

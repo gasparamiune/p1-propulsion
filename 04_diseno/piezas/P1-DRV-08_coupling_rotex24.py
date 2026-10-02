@@ -16,7 +16,7 @@ META = dict(id="P1-DRV-08", name="coupling_rotex24", desc="Acople Rotex 24 Ø20 
             material="referencia", process="comprada", qty=1, frame="jet", group="drive",
             load_case="Par T_max del controlador; par de corte del pasador (pico)", print_rot=(0, 0, 0),
             solid_frac=1.0, orientation="—", mass_g=600.0,   # [ESTIMADO: research/R11 §9]
-            allow={"P1-DRV-01": 20.0, "P1-MOT-01": 20.0})
+            allow={"P1-DRV-01": 5.0, "P1-MOT-01": 5.0})
 
 
 def build(p):

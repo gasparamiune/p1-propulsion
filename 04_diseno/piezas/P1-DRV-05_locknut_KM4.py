@@ -14,7 +14,7 @@ META = dict(id="P1-DRV-05", name="locknut_KM4", desc="Tuerca KM4 M20×1 + arande
             material="Acero", process="comprada", qty=1, frame="jet", group="drive",
             load_case="Empuje en reversa (≤ Fa) y precarga", print_rot=(0, 0, 0), solid_frac=1.0,
             orientation="—", mass_g=25.0,   # [ESTIMADO: params_tren.KM]
-            allow={"P1-DRV-01": 5.0, "P1-DRV-04": 1.0})
+            allow={"P1-DRV-01": 5.0, "P1-DRV-04": 5.0})
 
 
 def build(p):

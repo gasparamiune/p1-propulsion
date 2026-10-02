@@ -25,7 +25,7 @@ META = dict(
     load_case="Chorro desviado en reversa (R12: 1,4 kN) × impacto 2; presión dinámica en la chapa",
     print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Chapa cortada a láser, cuchara curvada en rodillo, brazos y nervio soldados (TIG 5183)",
-    allow={"P1-REV-03": 40.0, "P1-REV-06": 20.0},
+    allow={"P1-REV-03": 5.0, "P1-REV-06": 5.0},
 )
 
 

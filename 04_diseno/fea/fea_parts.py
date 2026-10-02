@@ -412,6 +412,7 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     m6b = sel_cyl(S, (Xp, 0, 0), (0, 0, 1), 2.5, region=lambda c: c[:, 2] < 0)
     for nm, fs_ in (("perno_sup_mejilla", top8), ("perno_sup_rosca", m6t), ("perno_inf_rosca", m6b)):
         M.add_interface(Interface(nm, fs_, k_c, axis=axp))
+    M.add_static(S.spring_matrix(np.concatenate([top8, m6t, m6b]), 1e-4 * k_c, mode="dir", direction=(0, 0, 1)))   # estabilización axial
     # arandelas de empuje POM (eje z) en las caras de las orejas de pivote
     k_w = E_POM / p.STE_wash_t
     ro_w = 0.5 * float(getattr(p, "STE_wash_od", 2 * p.STE_ear_rp))

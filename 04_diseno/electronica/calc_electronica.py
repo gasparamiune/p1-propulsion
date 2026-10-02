@@ -256,6 +256,13 @@ def compute(inp=None, sz=None):
             f"Perfil ABIERTO (vesc_perfil.lisp, en RAM); por defecto arranca SIEMPRE en COSTA (5 kn, R13). "
             f"{'✔' if erpm_tech_ok else '✘ NO ALCANZA:'} {erpm_tech / pp:.0f} rpm > {n_full:.0f} rpm a fondo con batería llena "
             f"[CALCULADO: {n_max:.0f} × ({fa(v_max)}/{fa(v_nom)})^(1/3)] — el tope no recorta la V máx.")
+    cav = sz.get("cavitation_cap")
+    if cav:
+        add("Velocidad", "tope de cavitación (NO se programa)", round(cav["erpm"], -2), "ERPM", "—",
+            f"[CALCULADO: sizing.cavitation_cap — {cav['rpm']:.0f} rpm con S ≤ {cav['S_lim']:.1f} a punto fijo × {cav['pole_pairs']:.0f} pares de polos]",
+            f"A punto fijo el límite de corriente ya deja el impulsor en S ≈ {cav['S_lim']:.1f} (sizing); a velocidad la inmersión "
+            f"y la presión de toma suben y S baja. Un tope fijo de ERPM recortaría la V máx. por ratos a "
+            f"{cav['vmax_peak_capped_kmh']:.1f} km/h, por eso no se programa: verificar en T2 (sin ruido de cavitación a punto fijo)")
     add("Velocidad", "l_min_erpm", erpm_min, "ERPM", -100000,
         f"[CALCULADO: −{n_rev:.0f} rpm × {pp:.0f} pares de polos] · {tag('weed_rev_frac')}",
         "Solo giro inverso lento para limpiar la rejilla; la reversa de marcha es el bucket")

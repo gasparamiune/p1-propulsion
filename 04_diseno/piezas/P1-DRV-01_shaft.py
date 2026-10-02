@@ -26,8 +26,8 @@ META = dict(id="P1-DRV-01", name="shaft", desc="Eje Ø20 AISI 316 torneado: impu
             material="AISI 316", process="torneada", qty=1, frame="jet", group="drive",
             load_case="Par T_max del controlador y par de corte del pasador; empuje Fa a punto fijo; velocidad crítica",
             print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
-            allow={"P1-DRV-04": 20.0, "P1-DRV-05": 5.0, "P1-DRV-07": 20.0, "P1-DRV-08": 20.0,
-                   "P1-PMP-03": 50.0, "P1-PMP-04": 5.0, "P1-PMP-05": 50.0, "P1-PMP-07": 30.0})
+            allow={"P1-DRV-04": 10.0, "P1-DRV-05": 5.0, "P1-DRV-07": 5.0, "P1-DRV-08": 5.0,
+                   "P1-PMP-03": 5.0, "P1-PMP-04": 5.0, "P1-PMP-05": 5.0, "P1-PMP-07": 5.0})
 
 
 def segments(p):

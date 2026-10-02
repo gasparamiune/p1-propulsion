@@ -33,7 +33,7 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 
 **D-05 Recomendación: pedir cotización de la AWT JT132 en paralelo (opción B) y usar este diseño (A) si no cierra.**
 - Alternativas: A (bomba propia, este paquete), C (bomba de Sea-Doo Spark usada), D (fueraborda eléctrico), E (cola larga), F (hélice entubada).
-- Justificación: la matriz ponderada da B primero (<!--V:arch.totals.B:.2f-->3.75<!--/V--> contra <!--V:arch.totals.A:.2f-->3.24<!--/V--> de A) y gana en el <!--V:arch.mc_win_frac.B:.0%-->89%<!--/V--> del Monte Carlo de pesos: es la misma bomba de la foto de Jorge, más liviana (12 kg contra <!--V:cmp.A_jet_mass_kg:.1f-->20.1<!--/V--> kg de la toma + bomba + dirección propias) y sin impulsor a medida. El tren eléctrico, la toma de refrigeración, los mandos y el firmware de este paquete sirven para las dos.
+- Justificación: la matriz ponderada da B primero (<!--V:arch.totals.B:.2f-->3.61<!--/V--> contra <!--V:arch.totals.A:.2f-->3.10<!--/V--> de A) y gana en el <!--V:arch.mc_win_frac.B:.0%-->73%<!--/V--> del Monte Carlo de pesos: es la misma bomba de la foto de Jorge, más liviana (12 kg contra <!--V:cmp.A_jet_mass_kg:.1f-->20.1<!--/V--> kg de la toma + bomba + dirección propias) y sin impulsor a medida. El tren eléctrico, la toma de refrigeración, los mandos y el firmware de este paquete sirven para las dos.
 - [CALCULADO: arquitectura.py; precio de la JT132 ESTIMADO, R11 §4].
 - *Si difiere:* si AWT no confirma la brida de toma, la altura del eje (cebado) y la curva de la bomba, o el costo puesto en DK supera ~1 500 €, A queda como camino completo y fabricable.
 

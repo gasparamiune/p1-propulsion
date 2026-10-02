@@ -104,8 +104,8 @@ Veredicto de R10b: el plano describe otro producto que el P1 anterior (jet inboa
 <!--V:manifest.params.x_if:.0f-->268<!--/V--> mm del espejo; labio a <!--V:manifest.params.x_lip:.0f-->386<!--/V--> mm;
 tangencia de la rampa a <!--V:manifest.params.x_tan:.0f-->766<!--/V--> mm; abertura
 <!--V:manifest.params.L_open:.0f-->380<!--/V--> × <!--V:manifest.params.W_open:.0f-->158<!--/V--> mm; rampa de
-<!--V:manifest.params.ramp:.0f-->27<!--/V-->°; rejilla de <!--V:manifest.params.grille_bars:d-->7<!--/V--> pletinas 316 con luz de
-<!--V:manifest.params.toma_bar_gap:.1f-->16.3<!--/V--> mm. El conducto es de Al 5083 soldado, no de PETG (D-09).
+<!--V:manifest.params.ramp:.0f-->27<!--/V-->°; rejilla de <!--V:manifest.params.grille_bars:d-->9<!--/V--> pletinas 316 con luz de
+<!--V:manifest.params.toma_bar_gap:.1f-->12.2<!--/V--> mm. El conducto es de Al 5083 soldado, no de PETG (D-09).
 
 ## 3. Métodos de bomba, planeo y cargas (R12)
 

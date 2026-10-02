@@ -14,6 +14,9 @@ Metales: FS ≥ 2 contra fluencia (estático) o contra la curva S-N de la unión
 from __future__ import annotations
 
 import math
+from pathlib import Path
+
+CSK_D_M8 = 16.4     # avellanado 90° de la placa base (= P1-INT-02 CSK_D)
 
 
 def _sec_props(poly):
@@ -75,7 +78,6 @@ def cases(p, A, row, rows, T3, T2):
         f"Δσ = Δp·h²/(2t²) vs FAT {FAT_al:.0f} (IIW, m = 3) → {S_fat_al:.0f} MPa", s, S_fat_al, A, T2)
     # brida inferior: tracción de bulones por la presión sobre la proyección de la abertura + 3 g
     import importlib.util
-    from pathlib import Path
     here = Path(__file__).resolve().parent / "piezas"
     spec = importlib.util.spec_from_file_location("_int01", str(here / "P1-INT-01_conducto.py"))
     m1 = importlib.util.module_from_spec(spec)
@@ -86,11 +88,24 @@ def cases(p, A, row, rows, T3, T2):
     m_d = 4.7                            # [CALCULADO: manifest P1-INT-01 ≈ 4,7 kg]
     F_up = p_des * A_open + 3 * g * (rho * V_w + m_d)
     As6 = 20.1
-    F_v = 4000.0                         # [ESTIMADO: precarga M6 A4-70 en rosca de Al, ~6 Nm]
+    F_v = 4000.0                         # [ESTIMADO: precarga M6 A4-70 con tuerca A4 (acero-acero), ~6 N·m]
+    F_v6 = p.toma_m6_Fpre_N              # M6 en rosca CIEGA de la placa de 5083 (precarga limitada, params_toma)
     Phi = 0.25                           # [ESTIMADO: factor de carga de la unión (VDI 2230), bulón de acero en bridas de Al, valor típico 0,1–0,3]
-    s = (F_v + Phi * F_up / nb) / As6
+    s = (F_v6 + Phi * F_up / nb) / As6
     row(rows, pid, f"Bulones M6 A4 brida ↔ placa ({nb}): precarga + p·A_abertura + 3 g",
-        f"σ = (F_v + Φ·F/n)/A_s, F = {F_up:.0f} N, Φ = 0,25", s, Sy_a4, A, T2)
+        f"σ = (F_v + Φ·F/n)/A_s, F_v = {F_v6:.0f} N ({p.toma_m6_torque_Nm:g} N·m), F = {F_up:.0f} N, Φ = 0,25", s, Sy_a4, A, T2)
+    # rosca ciega M6 en 5083-H111 (auditoría Pass 3 H6): barrido del filete hembra
+    Lth = p.toma_m6_thread_L
+    tau6 = (F_v6 + Phi * F_up / nb) / (math.pi * 6.0 * Lth * 0.6)
+    row(rows, "P1-INT-02", f"Rosca ciega M6 × {p.toma_m6_depth:g} de la brida del conducto en 5083: barrido del filete",
+        f"τ = (F_v + Φ·F/n)/(π·d·L·0,6), L útil = {Lth:g} mm, F_v = {F_v6:.0f} N vs τ_y = R_p0,2/√3", tau6, Sy_al / math.sqrt(3), A, T2)
+    # la precarga reducida tiene que mantener el cordón NBR comprimido y la junta cerrada
+    xa_g, xb_g = p.toma_x_lb_aft - 11.0, p.toma_x_j + p.toma_ffw / 2
+    L_cord = 2 * (xb_g - xa_g) + 4 * p.toma_groove_y
+    F_need = (p.toma_cord_N_per_mm * L_cord + (1 - Phi) * F_up) / nb
+    row(rows, "P1-INT-02", f"Junta brida del conducto ↔ placa: precarga M6 vs cordón NBR ({L_cord:.0f} mm) + apertura",
+        f"FS = F_v/((q_cordón·L + (1−Φ)·F)/n), q = {p.toma_cord_N_per_mm:g} N/mm [ESTIMADO]; σ y S en N",
+        F_need, F_v6, A, T2)
     # brida de la bomba: momento del bucket si la placa de espejo no lo tomara (conservador)
     lever = (p.X_bucket_pivot - p.X_duct_out)
     M = L["F_bucket_N"] * lever
@@ -122,20 +137,23 @@ def cases(p, A, row, rows, T3, T2):
     s = p_slam * b ** 2 / (2 * tb ** 2)
     row(rows, pid, "Paño lateral entre bulones del conducto y del ala: golpe de fondo",
         f"σ = p·b²/(2t²), b = {b:.0f}", s, Sy_al, A, T2)
-    # M8 del soporte de rodamientos: ISO 10642 desde abajo (cabeza avellanada en la placa) + tuerca A4 arriba
-    F_v8 = 7000.0                        # [ESTIMADO: M8 A4-70 a ~15 Nm con Tef-Gel (K ≈ 0,25)]
-    z_ax = p.z_if + (0.5 * (p.brg_bracket_x0 + p.brg_bracket_x1) - p.x_if) * math.tan(math.radians(p.alpha))
-    Mth = L["T_bollard_N"] * (z_ax - tb)
-    dx = p.brg_bracket_holes[2][0] - p.brg_bracket_holes[0][0]
-    F_t = Mth / dx / 2 + 3 * g * 3.0 / 4            # [ESTIMADO: soporte + rodamientos + eje ≈ 3 kg a 3 g]
+    # M8 del soporte de rodamientos: ISO 10642 desde abajo (cabeza avellanada en la placa) + tuerca A4 arriba.
+    # Precarga y carga de servicio = las de structural_tren (UN solo par/K: params_tren drv_nut_*; H5)
+    import importlib.util as _iu
+    _sp = _iu.spec_from_file_location("_st_tren", str(Path(__file__).resolve().parent / "structural_tren.py"))
+    _st = _iu.module_from_spec(_sp)
+    _sp.loader.exec_module(_st)
+    F_v8 = p.drv_nut_Fpre_N
+    F_t, _Fs = _st.stud_loads(p)
     As8 = 36.6
     row(rows, pid, "Tornillos M8 A4-70 del soporte (ISO 10642 desde abajo + tuerca): precarga + vuelco del empuje",
-        f"σ = (F_v + Φ·F_t)/A_s, F_v = {F_v8:.0f} N, F_t = {F_t:.0f} N, Φ = 0,25", (F_v8 + 0.25 * F_t) / As8, Sy_a4, A, T2)
-    dk, d8 = 16.4, 8.4
-    hc = (dk - d8) / 2
+        f"σ = (F_v + Φ·F_t)/A_s, F_v = {F_v8:.0f} N ({p.drv_nut_torque_Nm:g} N·m, K {p.drv_nut_K:g}), F_t = {F_t:.0f} N, Φ = 0,25",
+        (F_v8 + 0.25 * F_t) / As8, Sy_a4, A, T2)
+    dk, d8 = _st.DK_M8, 8.4
+    hc = (CSK_D_M8 - d8) / 2
     sb = (F_v8 + F_t) / (math.pi / 4 * (dk ** 2 - d8 ** 2))
     row(rows, pid, "Asiento cónico de la cabeza M8 en el 5083 (aplastamiento)",
-        "σ_b = F/(π/4·(dk² − d²)) (proyección del cono)", sb, Sy_al, A, T2)
+        f"σ_b = F/(π/4·(dk² − d²)), área PROYECTADA, dk = {dk:g}, F = F_v + F_t (auditoría Pass 3 H5)", sb, Sy_al, A, T2)
     tau = (F_v8 + F_t) / (math.pi * dk * (tb - hc))
     row(rows, pid, "Arranque de la cabeza M8 a través de la placa (tapón de Ø dk sobre el cono)",
         f"τ = F/(π·dk·(t − h_cono)), t − h = {tb - hc:.1f}", tau, Sy_al / math.sqrt(3), A, T2)

@@ -257,7 +257,7 @@ code { font-family: var(--font-mono); font-size: 0.85em; }
     $("n-piezas").textContent = fmt(R.n_piezas);
     const figs = [
       [fmt(R.vmax_kmh, 1), "km/h", `velocidad máx. sostenida (objetivo ${fmt(R.objetivo_kmh)}; ~${fmt(R.vmax_pico_kmh)} km/h por ratos)`],
-      [R.planea ? "sí" : "no", "", `planea; margen en la joroba ${fmt(R.margen_joroba * 100)} %, ${fmt(R.t_planeo_s, 0)} s de 0 a planeo`],
+      [!R.planea ? "no" : (R.margen_joroba < 0.10 ? "justo" : "sí"), "", `planea; margen en la joroba ${fmt(R.margen_joroba * 100)} % (se piden 10 %: ${R.margen_joroba < 0.10 ? "no cumple, lo arregla bajar ~10 kg o alargar la flotación" : "cumple"}), ${fmt(R.t_planeo_s, 0)} s de 0 a planeo`],
       [fmt(R.bollard_n), "N", "empuje a punto fijo"],
       [fmt(R.t_fondo_min), "min", `a fondo; ${fmt(R.t_legal_h, 1)} h a 5 nudos (${fmt(R.p_legal_w)} W)`],
       [fmt(R.e_usable_wh / 1000, 1), "kWh", esc(R.bateria)],

@@ -17,7 +17,7 @@ META = dict(
     material="Al 5083", process="torneada", qty=1, frame="boat", group="ele",
     load_case="Fuerza de mano 100 N en el pomo (150 mm) contra el enclavamiento", print_rot=(0, 0, 0),
     solid_frac=1.0, orientation="Corte láser, doblado del ala, grapas soldadas",
-    allow={"P1-CTL-11": 20.0},
+    allow={"P1-CTL-11": 5.0},
 )
 CLAMPS = ((-60.0, -48.0), (-146.0, -134.0))
 

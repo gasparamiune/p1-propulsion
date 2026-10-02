@@ -32,7 +32,7 @@ META = dict(id="P1-PMP-08", name="fixed_nozzle",
             desc="Tobera fija Al: contracción a D_noz, rótula de la boquilla y resalte del sello de espejo",
             material="Al 6061-T6", process="torneada", qty=1, frame="jet", group="jet",
             load_case="Presión interna 0,2 MPa; reacción de la placa de espejo por el O-ring",
-            allow={"P1-PMP-01": 300.0, "P1-PMP-06": 300.0, "P1-PMP-09": 50.0})
+            allow={"P1-PMP-01": 22.0, "P1-PMP-06": 5.0, "P1-PMP-09": 5.0})
 
 
 def rn(p, X):

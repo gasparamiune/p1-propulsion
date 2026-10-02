@@ -33,7 +33,7 @@ META = dict(id="P1-PMP-09", name="transom_plate",
             desc="Placa de espejo Al 5083 con cuello coaxial, sello radial sobre la tobera y orejas de pivote",
             material="Al 5083", process="torneada", qty=1, frame="boat", group="jet",
             load_case="F lateral de la boquilla y F del bucket en las orejas; sello del casco",
-            allow={"P1-PMP-08": 50.0, "P1-PMP-10": 5.0, "P1-PMP-11": 60.0})
+            allow={"P1-PMP-08": 5.0, "P1-PMP-10": 5.0, "P1-PMP-11": 5.0})
 
 
 def outline(p, R, n=96):

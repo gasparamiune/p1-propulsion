@@ -16,7 +16,7 @@ META = dict(id="P1-MOT-01", name="motor", desc="Motor de la selección (MTI12011
             material="referencia", process="comprada", qty=1, frame="jet", group="motor",
             load_case="Par de reacción T_max sobre P1-MOT-02; 3 g vertical", print_rot=(0, 0, 0),
             solid_frac=1.0, orientation="—", mass_from="motor",
-            allow={"P1-DRV-08": 20.0, "P1-MOT-02": 5.0})
+            allow={"P1-DRV-08": 5.0, "P1-MOT-02": 5.0})
 
 
 def build(p):

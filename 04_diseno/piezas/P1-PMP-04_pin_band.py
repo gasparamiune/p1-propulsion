@@ -19,7 +19,7 @@ from params import loc_jet  # noqa: E402
 META = dict(id="P1-PMP-04", name="pin_band",
             desc="Anillo retén 316 que tapa los extremos del pasador de corte",
             material="AISI 316", process="torneada", qty=1, frame="jet", group="jet",
-            load_case="Centrífuga a n máx.; retención del pasador", allow={"P1-PMP-03": 30.0})
+            load_case="Centrífuga a n máx.; retención del pasador", allow={"P1-PMP-03": 8.0})
 
 
 def build(p):

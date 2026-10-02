@@ -23,7 +23,7 @@ META = dict(id="P1-PMP-02", name="wear_ring",
             desc="Anillo de desgaste 316 torneado, prensado en la carcasa; holgura de punta tip_clr",
             material="AISI 316", process="torneada", qty=1, frame="jet", group="jet",
             load_case="Presión de la bomba (apoyado en la carcasa); roce de piedras",
-            allow={"P1-PMP-01": 1500.0, "P1-PMP-06": 50.0})
+            allow={"P1-PMP-01": 1439.0, "P1-PMP-06": 5.0})
 
 
 def build(p):

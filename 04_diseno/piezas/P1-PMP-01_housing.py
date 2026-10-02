@@ -32,7 +32,7 @@ META = dict(id="P1-PMP-01", name="housing",
             desc="Carcasa Al 6061-T6: brida de la toma, asiento del anillo y del estator, puerto de agua",
             material="Al 6061-T6", process="torneada", qty=1, frame="jet", group="jet",
             load_case="Presión interna 0,2 MPa; reacción del estator; momentos de boquilla/bucket en bridas",
-            allow={"P1-PMP-02": 1500.0, "P1-PMP-06": 1500.0, "P1-PMP-08": 300.0, "P1-INT-01": 30.0})
+            allow={"P1-PMP-02": 1439.0, "P1-PMP-06": 368.0, "P1-PMP-08": 22.0, "P1-INT-01": 5.0})
 
 
 def bolt_xy(r, n, a0):

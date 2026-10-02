@@ -22,7 +22,7 @@ META = dict(id="P1-ELE-02", name="esc_hood", desc="Capota antisalpicaduras PETG 
             load_case="Apriete de la almohadilla EPDM (4 × M5) y 3 g vertical del ESC hacia arriba (golpe de ola)",
             print_rot=(180, 0, 0), solid_frac=0.8,
             orientation="Techo sobre la cama, paredes y nervios hacia arriba (sin soportes).",
-            allow={"P1-ELE-04": 2.0, "P1-ELE-01": 2.0})
+            allow={"P1-ELE-04": 5.0, "P1-ELE-01": 5.0})
 
 TOP_T = 3.2
 
