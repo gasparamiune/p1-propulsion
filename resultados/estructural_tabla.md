@@ -9,9 +9,9 @@
 | P1-PMP-03 | Cubo: aplastamiento del semipasador al par de corte | F = T_corte/(2·r_eje) = 1674 N por lado sobre el tramo interior 3.5×5.0 mm (la ranura aligerante deja 5.0 + 4.0 mm de contacto; conservador: solo el interior) | 95.66 | metal | 307.5 | 3.21 | 2.0 | ✔ |
 | P1-PMP-05 | Par máx. del controlador (margen contra corte intempestivo) | 2 semipasadores, 2 secciones de corte a r_eje: τ=T/(d_eje·A)=96.5 MPa; τ_u=0,6·S_u=174 MPa; T_corte/T_máx=1.80 (criterio R12 ≥ 1,5) | 96.50 | metal | 174.0 | 1.8 | 2.0 | ✔ (justif.) |
 | P1-PMP-05 | Fatiga a par de crucero (Goodman en corte) | τ_m=73.7, τ_a=11.1 MPa (T_top 14.2 N·m, ±15%); S_e,τ=0,577·S_e; índice Goodman 0.62 | 0.62 | metal | 1.0 | 1.6 | 2.0 | ✔ (justif.) |
-| P1-PMP-06 | Álabe del estator en la raíz: par de diseño 15.3 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=44 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 25.78 | metal | 240.0 | 9.31 | 2.0 | ✔ |
-| P1-PMP-06 | Álabe del estator, fatiga: par de diseño | σ_a=0.30·σ_m (estelas de 5 álabes); S_e Al anodizado = 0.6·S_e; K_f 1.5 | 7.73 | metal | 38.4 | 4.97 | 2.0 | ✔ |
-| P1-PMP-06 | Álabe del estator en la raíz: par máx. del controlador 18.6 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=54 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 27.58 | metal | 240.0 | 8.7 | 2.0 | ✔ |
+| P1-PMP-06 | Álabe del estator en la raíz: par de diseño 15.3 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=44 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 25.79 | metal | 240.0 | 9.31 | 2.0 | ✔ |
+| P1-PMP-06 | Álabe del estator, fatiga: par de diseño | σ_a=0.30·σ_m (estelas de 5 álabes); S_e Al anodizado = 0.6·S_e; K_f 1.5 | 7.74 | metal | 38.4 | 4.96 | 2.0 | ✔ |
+| P1-PMP-06 | Álabe del estator en la raíz: par máx. del controlador 18.6 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=54 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 27.59 | metal | 240.0 | 8.7 | 2.0 | ✔ |
 | P1-PMP-06 | Álabe del estator, fatiga: par máx. del controlador | σ_a=0.30·σ_m (estelas de 5 álabes); S_e Al anodizado = 0.6·S_e; K_f 1.5 | 8.28 | metal | 38.4 | 4.64 | 2.0 | ✔ |
 | P1-PMP-01 | Presión interna 0.20 MPa (R12 §7.2) | aro delgado σ=p·r/t, r=73.9, t=5.0 | 2.96 | metal | 240.0 | 81.2 | 2.0 | ✔ |
 | P1-PMP-08 | Presión interna 0.20 MPa (R12 §7.2) | aro delgado σ=p·r/t, r=68.9, t=5.0 | 2.76 | metal | 240.0 | 87.09 | 2.0 | ✔ |

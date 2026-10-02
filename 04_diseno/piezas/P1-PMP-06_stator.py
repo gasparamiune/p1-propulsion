@@ -110,7 +110,12 @@ def checks(p, part):
         ("camisa Ø ext = asiento de la carcasa", 1.0 if has_radius(part, p.pmp_D_seat / 2) else 0.0, 1.0, "="),
         ("camisa Ø int = D_bore", 1.0 if has_radius(part, p.D_bore / 2) else 0.0, 1.0, "="),
         ("alojamiento del buje Ø = pmp_brg_od", 1.0 if has_radius(part, p.pmp_brg_od / 2) else 0.0, 1.0, "="),
-        ("entrada cubo = stator_inlet_deg sizing [°]", T["cubo"]["alpha_in"], p.pump_sections["cubo"]["stator_inlet_deg"], "="),
+        # con torbellino libre, el ángulo de sizing; si el cubo no cumple de Haller (torbellino limitado, params_bomba), el
+        # α3 del triángulo limitado que usan el impulsor y el estator del CAD (regeneración con otras entradas)
+        (("entrada cubo = stator_inlet_deg sizing [°]" if p.pmp_free_vortex else
+          "entrada cubo = α3 del torbellino limitado en el cubo (de Haller) [°]"), T["cubo"]["alpha_in"],
+         (p.pump_sections["cubo"]["stator_inlet_deg"] if p.pmp_free_vortex
+          else p.pmp_tri(p.pump_sections["cubo"]["r_mm"])["alpha3"] + p.pmp_st_inc), "="),
         ("entrada medio = stator_inlet_deg sizing [°]", T["medio"]["alpha_in"], p.pump_sections["medio"]["stator_inlet_deg"], "="),
         ("BA del estator ≥ X_st0 (luz rotor–estator) [mm]", bb.min.X, p.X_st0, ">="),
         ("BF de los álabes ≤ fin de la camisa [mm]", bb.max.X, p.pmp_st_shell_X1, "<="),

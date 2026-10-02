@@ -180,6 +180,7 @@ def extend(d):
     d["pmp_omega_rad_s"] = omega
     d["pmp_rpm_design"] = omega * 60 / (2 * math.pi)
     d["pmp_free_vortex"] = free_ok
+    d["pmp_tri"] = tri                                   # triángulos usados (torbellino libre o limitado en el cubo)
     d["pmp_rot_sense"] = "antihorario visto desde popa (+X, regla de la mano derecha)"  # [SUPUESTO: coordinar sentido con TREN/ESC]
     d["pmp_inc_deg"] = 3.0                               # incidencia [R12 §2.5: 2–4°]
     d["pmp_imp_sol"] = [(rh, 1.30), (rm, 0.95), (rt, 0.70)]   # [R12 §2.4: 1,2–1,4 / 0,9–1,0 / 0,6–0,8]

@@ -106,7 +106,11 @@ def extend(d):
     d["STE_e_frac"] = 0.5              # [ESTIMADO: research/R12 §7.4 — brazo del momento 0,3–0,5 L]
     d["STE_F_design"] = max(loads["F_steer_side_N"], 364.0)   # [CALCULADO: research/R12 §7.4 — 364 N (7,2 kW, δ 30°); se toma el mayor con sizing]
     # orejas del bucket sobre la boquilla
-    d["STE_ear_y1"] = max(48.0, math.ceil(d["STE_ro"] + 0.5))   # oreja del bucket por fuera del cuerpo
+    # oreja del bucket por fuera del cuerpo y NUNCA más adentro que |Y| 52: los émbolos (52 mm desde la cara exterior hasta
+    # la tapa), sus pomos, eslabones y balancines (P1-REV-09) necesitan ese ancho entre las orejas; con una boquilla más
+    # chica (regeneración con otras entradas) las orejas bajaban a 48 y el desbloqueo no entraba [CALCULADO: checks de
+    # P1-REV-09 en tests/test_regeneration_full.py; re-auditoría del cierre de la ronda 5]
+    d["STE_ear_y1"] = max(52.0, math.ceil(d["STE_ro"] + 0.5))
     # Oreja del bucket (auditoría ronda 4): cada oreja lleva SOLA la reacción de su pivote y de su traba con M_h completo
     # (3,3 + 3,0 kN a R12). Placa de STE_ear_t (hacia adentro: la cara exterior y el bucket no se mueven en Y por esto),
     # radio 22 alrededor del pivote (piloto Ø24 H7 del casquillo + brida Ø36) y lóbulo r 20 alrededor del Ø24 H7 del

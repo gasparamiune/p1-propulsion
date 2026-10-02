@@ -62,10 +62,10 @@ Una fila por pieza del manifest; la ruta se deduce de los servicios `S-*` que la
 | P1-MOT-02 | motor_mount | Al 5052/6082 | 1 | torneada | corte láser/agua → soldadura TIG (taller) | S-LASER, S-WELD-AL | MP-6082-T10 | 842 | `P1-MOT-02_motor_mount.svg` |
 | P1-PMP-01 | housing | Al 6061-T6 | 1 | torneada | torno de taller → anodizado duro | S-TURN-HSG, S-ANOD | MP-6061-TUBO-P1-PMP-01 | 1 492 | `P1-PMP-01_housing.svg` |
 | P1-PMP-02 | wear_ring | AISI 316 | 1 | torneada | torno propio | — | MP-316-TUBO-P1-PMP-02 | 1 187 | `P1-PMP-02_wear_ring.svg` |
-| P1-PMP-03 | impeller | AISI 316 | 1 | torneada | CNC 5 ejes (taller) | S-CNC-IMP | — | 1 338 | `P1-PMP-03_impeller_hub.svg`, `P1-PMP-03_tabla_angulos_alabes.svg` |
+| P1-PMP-03 | impeller | AISI 316 | 1 | torneada | CNC 5 ejes (taller) | S-CNC-IMP | — | 1 335 | `P1-PMP-03_impeller_hub.svg`, `P1-PMP-03_tabla_angulos_alabes.svg` |
 | P1-PMP-04 | pin_band | AISI 316 | 1 | torneada | torno propio | — | MP-316-D70 | 76 | `P1-PMP-04_pin_band.svg` |
 | P1-PMP-05 | shear_pin | Al 6061-T6 | 2 | torneada | torno propio | — | MP-6061-D4 | 1 | `P1-PMP-05_shear_pin.svg` |
-| P1-PMP-06 | stator | Al 6061-T6 | 1 | torneada | CNC 5 ejes (taller) → anodizado duro | S-CNC-STAT, S-ANOD | — | 1 532 | `P1-PMP-06_stator.svg` |
+| P1-PMP-06 | stator | Al 6061-T6 | 1 | torneada | CNC 5 ejes (taller) → anodizado duro | S-CNC-STAT, S-ANOD | — | 1 524 | `P1-PMP-06_stator.svg` |
 | P1-PMP-07 | water_bushing | POM-C | 1 | torneada | torno propio | — | MP-POM-D30 | 12 | `P1-PMP-07_water_bushing.svg` |
 | P1-PMP-08 | fixed_nozzle | Al 6061-T6 | 1 | torneada | torno de taller → anodizado duro | S-TURN-NOZ, S-ANOD | MP-6061-TUBO-P1-PMP-08 | 1 408 | `P1-PMP-08_fixed_nozzle.svg` |
 | P1-PMP-09 | transom_plate | Al 5083 | 1 | torneada | torno de taller | S-TURN-TP | MP-5083-BLQ-P1-PMP-09 | 449 | `P1-PMP-09_transom_plate.svg` |
@@ -238,7 +238,7 @@ La BOM supone que todo lo de revolución con barra de Ø ≤ `bom.lathe_max_d_mm
 | P1-PMP-11 | pivot_bushing | POM-C | 2 | 12×12×26 | MP-POM-D14 | Ø14 × 41 | sí | **torno propio** | `P1-PMP-11_pivot_bushing.svg` |
 | P1-REV-02 | perno_bucket | Dúplex 1.4462 | 2 | 37×68×37 | MP-DPX-D40 | Ø40 × 39 | sí | **torno propio** | `P1-REV-02_casquillo_pivote_bucket.svg`, `P1-REV-02_munon_pivote_bucket.svg` |
 | P1-REV-03 | buje_bucket | POM-C | 2 | Ø30,0 × 19,0 | MP-POM-D32 | Ø32 × 34 | sí | **torno propio** | `P1-REV-03_buje_bucket.svg` |
-| P1-REV-04 | embolo | AISI 316 | 2 | 32×76×32 | MP-316-D35 | Ø35 × 90 | sí | **torno propio** | `P1-REV-04_embolo_cuerpo.svg`, `P1-REV-04_embolo_perno.svg` |
+| P1-REV-04 | embolo | AISI 316 | 2 | 33×76×33 | MP-316-D35 | Ø35 × 90 | sí | **torno propio** | `P1-REV-04_embolo_cuerpo.svg`, `P1-REV-04_embolo_perno.svg` |
 | P1-REV-06 | perno_varilla | AISI 316 | 1 | 13×26×13 | MP-316-D16 | Ø16 × 40 | sí | **torno propio** | `P1-REV-06_perno_varilla.svg` |
 | P1-STE-02 | perno_sup | AISI 316 | 1 | 14×14×49 | MP-316-D16 | Ø16 × 64 | sí | **torno propio** | `P1-STE-02_perno_sup.svg` |
 | P1-STE-03 | arandela_pom | POM-C | 3 | Ø18,0 × 1,0 | MP-POM-D20 | Ø20 × 16 | sí | **torno propio** | `P1-STE-03_arandela_pom.svg` |
@@ -298,8 +298,8 @@ Límite supuesto del torno propio: **Ø 180 mm** (inputs.yaml `bom.lathe_max_d_m
 <!-- FAB:cnc -->
 | Pieza | Qué es | Qué mandar | Cotas críticas | Balanceo |
 |---|---|---|---|---|
-| Impulsor P1-PMP-03 | AISI 316; 5 álabes; Ø132,0 punta, cubo Ø66,0; masa CAD 1 338 g | `04_diseno/step/P1-PMP-03_impeller.step` + `P1-PMP-03_impeller_hub.svg`, `P1-PMP-03_tabla_angulos_alabes.svg` | Ø de puntas torneado a medida del anillo: holgura radial 0,40 mm (Ø anillo 132,79); agujero del eje y agujero del pasador según plano del cubo | G6.3 a 4 182 rpm: e_per = 14,4 µm → U_per = 19,2 g·mm (dos planos: la mitad por plano) |
-| Estator P1-PMP-06 | Al 6061-T6; 7 álabes + camisa + cubo; masa CAD 1 532 g | `04_diseno/step/P1-PMP-06_stator.step` + `P1-PMP-06_stator.svg` | alojamiento del buje P1-PMP-07 (H7) y bridas según plano; anodizado duro después (S-ANOD) | no gira: sin balanceo |
+| Impulsor P1-PMP-03 | AISI 316; 5 álabes; Ø132,0 punta, cubo Ø66,0; masa CAD 1 335 g | `04_diseno/step/P1-PMP-03_impeller.step` + `P1-PMP-03_impeller_hub.svg`, `P1-PMP-03_tabla_angulos_alabes.svg` | Ø de puntas torneado a medida del anillo: holgura radial 0,40 mm (Ø anillo 132,79); agujero del eje y agujero del pasador según plano del cubo | G6.3 a 4 182 rpm: e_per = 14,4 µm → U_per = 19,2 g·mm (dos planos: la mitad por plano) |
+| Estator P1-PMP-06 | Al 6061-T6; 7 álabes + camisa + cubo; masa CAD 1 524 g | `04_diseno/step/P1-PMP-06_stator.step` + `P1-PMP-06_stator.svg` | alojamiento del buje P1-PMP-07 (H7) y bridas según plano; anodizado duro después (S-ANOD) | no gira: sin balanceo |
 
 | Sección | r [mm] | U [m/s] | β1 flujo [°] | β2 flujo [°] | Entrada al estator [°] | de Haller |
 |---|---|---|---|---|---|---|

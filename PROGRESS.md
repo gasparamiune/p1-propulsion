@@ -29,20 +29,20 @@ Leyenda: [x] hecho · [~] en curso · [ ] pendiente
 - [x] Ronda 2 (27 hallazgos, corregidos)
 - [x] Ronda 3 (FEA de piezas críticas; superada por la ronda 4: auditoria.md)
 - [x] Ronda 4 (rediseño de la traba del bucket, del pivote y del desbloqueo; FEA de REV-01/STE-01 rehecho; corrida fina en `c25d433`): superada por la re-auditoría de la ronda 5
-- [~] Ronda 5 (re-auditoría adversarial del rediseño de la ronda 4: MEC-01…09, DES-01…08, FEA-R5-01…04): correcciones en el repositorio; R5-N1 y R5-N5 resueltos en el diseño con el cuerpo del émbolo ajustado (Ø24 H7/h6 con Loctite 641, sin rosca ni precarga), el piloto Ø24 y los lóbulos engrosados de las orejas, y R5-N2…R5-N4 corregidos; re-auditoría del cierre (MECH-1…10, CALC-1…4, FEA-1…5, TEST-1, DOC-1) corregida o documentada, con el pivote en dos piezas (MECH-1); **abierta**: falta la corrida completa final con el FEA fino de P1-STE-01 (FEA de la oreja: FS <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->1.74<!--/V-->, objetivo 2) y la medición de R5-N6
+- [x] Ronda 5 (re-auditoría adversarial del rediseño de la ronda 4: MEC-01…09, DES-01…08, FEA-R5-01…04; cerrada en software con la corrida completa final): correcciones en el repositorio; R5-N1 y R5-N5 resueltos en el diseño con el cuerpo del émbolo ajustado (Ø24 H7/h6 con Loctite 641, sin rosca ni precarga), el piloto Ø24 y los lóbulos engrosados de las orejas, y R5-N2…R5-N4 corregidos; re-auditoría del cierre (MECH-1…10, CALC-1…4, FEA-1…5, TEST-1, DOC-1) corregida o documentada, con el pivote en dos piezas (MECH-1); **cerrada en software**: corrida completa final con exit 0 (FEA de la oreja: FS <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->2.52<!--/V-->, objetivo 2); abiertos declarados: R5-N6 (medición física) y FEA-5 (limitación del método)
 - [x] Prueba de regeneración desde inputs.yaml (`tests/test_regeneration*.py`, auditoria.md §Regeneración)
 
 ## Definición de terminado (sección 9)
-- [ ] `pip install -r requirements.txt && python run_all.py` exit 0 (corrido completo, no `--fast`)
-- [ ] `pytest` pasa
+- [x] `pip install -r requirements.txt && python run_all.py` exit 0 (corrido completo, no `--fast`, con el FEA; 2026-10-02)
+- [x] `pytest` pasa (incluida la regeneración completa `tests/test_regeneration_full.py`)
 - [x] Toda pieza impresa: STEP + STL, manifold, ≤ 210×210×260, sin interferencias en todos los estados
 - [x] Cambio en inputs.yaml regenera todo (probado y documentado)
-- [x] FS por caso de carga ≥ 3 PETG / ≥ 2 metal (los que no llegaban se rediseñaron: auditoria.md)
+- [x] FS por caso de carga ≥ 3 PETG / ≥ 2 metal (los que no llegaban se rediseñaron: auditoria.md); FEA fino de las 5 piezas críticas sobre el objetivo
 - [x] Números etiquetados; links abiertos en esta sesión (research/R10b–R13)
-- [ ] Coherencia .md ↔ código (`tools_check_md.py` con 0 problemas)
-- [ ] auditoria.md sin críticos abiertos *de la propulsión* (la estabilidad del casco queda como bloqueante físico declarado)
+- [x] Coherencia .md ↔ código (`tools_check_md.py` con 0 problemas)
+- [x] auditoria.md sin críticos abiertos *de la propulsión* (la estabilidad del casco queda como bloqueante físico declarado; R5-N6 y FEA-5 abiertos y declarados)
 - [x] README completo
-- [ ] Todo commiteado y pusheado
+- [x] Todo commiteado y pusheado; rama integrada en `main` y sitio publicado en GitHub Pages
 
 ## Bitácora (waterjet)
 - 2026-10-01 21:00: pedido de rediseño a waterjet con 4 imágenes de Jorge (foto JT132, plano 2,30 m, chapa, impulsor Ø70). Auditoría del plano: rejilla detrás del impulsor → toma rediseñada entera a proa.

@@ -58,7 +58,7 @@ GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.010<!--/V--> m (§2). Eso bloquea la
 | I_q pico (FOC) / l_current_max / margen | 287 A / 292 A / 2 % | [CALCULADO; convención bus_foc SUPUESTO] |
 | Motor a V máx. sostenida (estacionario) | 49 °C (máx. 120) | [CALCULADO] |
 | Eje Ø / FS estático / FS fatiga | 20 mm / 4.0 / 9.2 | [CALCULADO] |
-| Rodamientos L10 a V máx. / vel. crítica / sello | 734435 h / 3.8× n máx. / 4.4 m/s | [CALCULADO] |
+| Rodamientos L10 a V máx. / vel. crítica / sello | 734057 h / 3.8× n máx. / 4.4 m/s | [CALCULADO] |
 <!-- /AUTO:sizing_main -->
 
 Cadena de cálculo: masas (§1) → hidrostática y cebado (§2) → R(V) (§3) → bomba diseñada para el
@@ -93,7 +93,7 @@ desde el espejo; VCG = <!--V:sizing.masses.vcg_m:.3f-->0.338<!--/V--> m sobre la
 jet + controlador, para la capacidad de §2.3) = <!--V:sizing.masses.machinery_kg:.1f-->76.1<!--/V--> kg.
 
 - La masa del jet la toma `sizing.py` del CAD vigente (`manifest.json → totals.jet_unit_mass_kg`,
-  hoy <!--V:manifest.totals.jet_unit_mass_kg:.2f-->26.12<!--/V--> kg). Si el CAD cambia, hay que volver a correr
+  hoy <!--V:manifest.totals.jet_unit_mass_kg:.2f-->26.11<!--/V--> kg). Si el CAD cambia, hay que volver a correr
   `run_all.py`: la fila "Unidad de jet" de arriba es la que usó la última corrida de `sizing.py`.
 - Los 150 kg del plano de Jorge no cierran (R10b §4.2: 165–242 kg con 3 kWh LFP). El piloto pesa
   <!--V:sizing.masses.items.1.kg:.0f-->90<!--/V--> kg de los <!--V:sizing.masses.total_kg:.0f-->219<!--/V--> y es la entrada
@@ -203,7 +203,7 @@ desde <!--V:sizing.resistance.v_planing_kmh:.1f-->20.1<!--/V--> km/h (Fn∇ = 2,
 | <!--V:sizing.resistance.savitsky.0.V_kmh:.1f-->20.1<!--/V--> | <!--V:sizing.resistance.savitsky.0.R:.0f-->414<!--/V--> | <!--V:sizing.resistance.savitsky.0.tau_deg:.1f-->9.5<!--/V--> | <!--V:sizing.resistance.savitsky.0.R_pressure:.0f-->350<!--/V--> | <!--V:sizing.resistance.savitsky.0.R_friction:.0f-->56<!--/V--> | <!--V:sizing.resistance.savitsky.0.R_air:.0f-->8<!--/V-->  | <!--V:sizing.resistance.savitsky.0.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.0.L_K_free:.2f-->2.07<!--/V-->) | <!--V:sizing.resistance.savitsky.0.lambda:.2f-->2.78<!--/V--> | <!--V:sizing.resistance.savitsky.0.method:-->Savitsky limitado por eslora<!--/V--> |
 | <!--V:sizing.resistance.savitsky.4.V_kmh:.1f-->25.6<!--/V--> | <!--V:sizing.resistance.savitsky.4.R:.0f-->377<!--/V--> | <!--V:sizing.resistance.savitsky.4.tau_deg:.1f-->7.4<!--/V--> | <!--V:sizing.resistance.savitsky.4.R_pressure:.0f-->274<!--/V--> | <!--V:sizing.resistance.savitsky.4.R_friction:.0f-->89<!--/V--> | <!--V:sizing.resistance.savitsky.4.R_air:.0f-->14<!--/V-->  | <!--V:sizing.resistance.savitsky.4.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.4.L_K_free:.2f-->1.86<!--/V-->) | <!--V:sizing.resistance.savitsky.4.lambda:.2f-->2.74<!--/V--> | <!--V:sizing.resistance.savitsky.4.method:-->Savitsky limitado por eslora<!--/V--> |
 | <!--V:sizing.resistance.savitsky.7.V_kmh:.1f-->29.7<!--/V--> | <!--V:sizing.resistance.savitsky.7.R:.0f-->368<!--/V--> | <!--V:sizing.resistance.savitsky.7.tau_deg:.1f-->6.2<!--/V--> | <!--V:sizing.resistance.savitsky.7.R_pressure:.0f-->231<!--/V--> | <!--V:sizing.resistance.savitsky.7.R_friction:.0f-->118<!--/V--> | <!--V:sizing.resistance.savitsky.7.R_air:.0f-->19<!--/V-->  | <!--V:sizing.resistance.savitsky.7.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.7.L_K_free:.2f-->1.79<!--/V-->) | <!--V:sizing.resistance.savitsky.7.lambda:.2f-->2.71<!--/V--> | <!--V:sizing.resistance.savitsky.7.method:-->Savitsky limitado por eslora<!--/V--> |
-| <!--V:sizing.resistance.savitsky.13.V_kmh:.1f-->38.0<!--/V--> | <!--V:sizing.resistance.savitsky.13.R:.0f-->386<!--/V--> | <!--V:sizing.resistance.savitsky.13.tau_deg:.1f-->4.5<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_pressure:.0f-->169<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_friction:.0f-->186<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_air:.0f-->31<!--/V-->  | <!--V:sizing.resistance.savitsky.13.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.13.L_K_free:.2f-->1.76<!--/V-->) | <!--V:sizing.resistance.savitsky.13.lambda:.2f-->2.63<!--/V--> | <!--V:sizing.resistance.savitsky.13.method:-->Savitsky limitado por eslora<!--/V--> |
+| <!--V:sizing.resistance.savitsky.13.V_kmh:.1f-->38.0<!--/V--> | <!--V:sizing.resistance.savitsky.13.R:.0f-->386<!--/V--> | <!--V:sizing.resistance.savitsky.13.tau_deg:.1f-->4.5<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_pressure:.0f-->169<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_friction:.0f-->186<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_air:.0f-->31<!--/V-->  | <!--V:sizing.resistance.savitsky.13.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.13.L_K_free:.2f-->1.75<!--/V-->) | <!--V:sizing.resistance.savitsky.13.lambda:.2f-->2.63<!--/V--> | <!--V:sizing.resistance.savitsky.13.method:-->Savitsky limitado por eslora<!--/V--> |
 
 - La curva R(V) es casi plana entre 20 y 35 km/h: el fondo es angosto para el peso (∇/b³ alto, trimados
   de 6–8°, R10b §4.4). Por eso la V máx. depende tanto de la potencia: unos pocos newtons de empuje de
@@ -643,8 +643,8 @@ cable de 105 °C [ESTIMADO: verificar ISO 13297/ABYC].
 | Eje Ø20 316: FS estático / fatiga | 4.0 / 9.2 | [CALCULADO] |
 | Pasador de corte | Ø3.5 Al 6061-T6: corta a 33.5 N·m (FS del eje al corte 2.2); con τ_u 207 MPa corta a 39.8 N·m (FS del eje 1.9) | [CALCULADO: research/R12 §7.6; τ_u alto ESTIMADO] |
 | Empuje axial máx. al par de rodamientos | 765 N | [CALCULADO] |
-| Vida L10 a V máx. | 734435 h | [CALCULADO] |
-| Velocidad crítica / rpm máx. | 15972 / 4182 rpm (3.8×) | [CALCULADO] |
+| Vida L10 a V máx. | 734057 h | [CALCULADO] |
+| Velocidad crítica / rpm máx. | 15946 / 4182 rpm (3.8×) | [CALCULADO] |
 | Velocidad periférica en el sello | 4.4 m/s | [CALCULADO] |
 <!-- /AUTO:mech -->
 
@@ -656,7 +656,7 @@ cable de 105 °C [ESTIMADO: verificar ISO 13297/ABYC].
   libera ~490 J de energía del rotor y el límite de corriente no protege (R12 §7.6): por eso el fusible.
   El corte real se calibra con probeta (05).
 - Velocidad crítica: luz entre apoyos <!--V:sizing.mech.L_span_m:.3f-->0.403<!--/V--> m, impulsor
-  <!--V:sizing.mech.m_impeller_kg:.2f-->1.33<!--/V--> kg (<!--V:sizing.mech.m_impeller_src:-->CAD (manifest P1-PMP-03)<!--/V-->;
+  <!--V:sizing.mech.m_impeller_kg:.2f-->1.34<!--/V--> kg (<!--V:sizing.mech.m_impeller_src:-->CAD (manifest P1-PMP-03)<!--/V-->;
   la estimación de cubo macizo daba <!--V:sizing.mech.m_impeller_est_kg:.2f-->1.97<!--/V--> kg). La misma masa entra en la carga
   radial de los rodamientos. En voladizo (sin el buje de agua) caía por debajo de la de servicio (D-14).
 - Empuje axial al par de rodamientos: todo el empuje (punto fijo) va por el pórtico a la placa base, nunca
@@ -904,9 +904,9 @@ Comentario:
     astilla (FEA-2); los pies de los lóbulos, aristas vivas reentrantes en el CAD, se declaran como `aristas_vivas` y se
     evalúan con el promedio en volumen de la regla FEA-R5-01 (FEA-3); la ventana del borde de los agujeros (θ 60–120°)
     queda como limitación documentada (FEA-5). FS mínimo
-    de diseño de la corrida fina: P1-REV-01 <!--V:fea.piezas.P1-REV-01.FS_min:.2f-->2.08<!--/V--> (caso <!--V:fea.piezas.P1-REV-01.caso_gobernante:-->d<!--/V-->),
-    P1-STE-01 <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->1.74<!--/V--> (caso <!--V:fea.piezas.P1-STE-01.caso_gobernante:-->c2<!--/V-->, criterio
-    «<!--V:fea.piezas.P1-STE-01.criterio_gobernante:-->borde<!--/V-->»; cumple = <!--V:fea.piezas.P1-STE-01.cumple:-->False<!--/V-->); objetivo 2.
+    de diseño de la corrida fina: P1-REV-01 <!--V:fea.piezas.P1-REV-01.FS_min:.2f-->2.07<!--/V--> (caso <!--V:fea.piezas.P1-REV-01.caso_gobernante:-->d<!--/V-->),
+    P1-STE-01 <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->2.52<!--/V--> (caso <!--V:fea.piezas.P1-STE-01.caso_gobernante:-->f2<!--/V-->, criterio
+    «<!--V:fea.piezas.P1-STE-01.criterio_gobernante:-->borde<!--/V-->»; cumple = <!--V:fea.piezas.P1-STE-01.cumple:-->True<!--/V-->); objetivo 2.
     Con el cuerpo roscado de la primera versión de la ronda 5 el FEA de STE-01 daba FS 1,74 (caso c2, borde de la rosca
     M24 en la cara interior: la tensión tangencial de la precarga, 2–3 veces la del cilindro grueso, se sumaba a la de la
     carga de la traba; R5-N1) [CALCULADO: corrida fina de esa versión; ya no está en el CAD]. El margen de REV-01 es
@@ -958,9 +958,9 @@ Tabla completa:
 | P1-PMP-03 | Cubo: aplastamiento del semipasador al par de corte | F = T_corte/(2·r_eje) = 1674 N por lado sobre el tramo interior 3.5×5.0 mm (la ranura aligerante deja 5.0 + 4.0 mm de contacto; conservador: solo el interior) | 95.66 | metal | 307.5 | 3.21 | 2.0 | ✔ |
 | P1-PMP-05 | Par máx. del controlador (margen contra corte intempestivo) | 2 semipasadores, 2 secciones de corte a r_eje: τ=T/(d_eje·A)=96.5 MPa; τ_u=0,6·S_u=174 MPa; T_corte/T_máx=1.80 (criterio R12 ≥ 1,5) | 96.50 | metal | 174.0 | 1.8 | 2.0 | ✔ (justif.) |
 | P1-PMP-05 | Fatiga a par de crucero (Goodman en corte) | τ_m=73.7, τ_a=11.1 MPa (T_top 14.2 N·m, ±15%); S_e,τ=0,577·S_e; índice Goodman 0.62 | 0.62 | metal | 1.0 | 1.6 | 2.0 | ✔ (justif.) |
-| P1-PMP-06 | Álabe del estator en la raíz: par de diseño 15.3 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=44 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 25.78 | metal | 240.0 | 9.31 | 2.0 | ✔ |
-| P1-PMP-06 | Álabe del estator, fatiga: par de diseño | σ_a=0.30·σ_m (estelas de 5 álabes); S_e Al anodizado = 0.6·S_e; K_f 1.5 | 7.73 | metal | 38.4 | 4.97 | 2.0 | ✔ |
-| P1-PMP-06 | Álabe del estator en la raíz: par máx. del controlador 18.6 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=54 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 27.58 | metal | 240.0 | 8.7 | 2.0 | ✔ |
+| P1-PMP-06 | Álabe del estator en la raíz: par de diseño 15.3 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=44 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 25.79 | metal | 240.0 | 9.31 | 2.0 | ✔ |
+| P1-PMP-06 | Álabe del estator, fatiga: par de diseño | σ_a=0.30·σ_m (estelas de 5 álabes); S_e Al anodizado = 0.6·S_e; K_f 1.5 | 7.74 | metal | 38.4 | 4.96 | 2.0 | ✔ |
+| P1-PMP-06 | Álabe del estator en la raíz: par máx. del controlador 18.6 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=54 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 27.59 | metal | 240.0 | 8.7 | 2.0 | ✔ |
 | P1-PMP-06 | Álabe del estator, fatiga: par máx. del controlador | σ_a=0.30·σ_m (estelas de 5 álabes); S_e Al anodizado = 0.6·S_e; K_f 1.5 | 8.28 | metal | 38.4 | 4.64 | 2.0 | ✔ |
 | P1-PMP-01 | Presión interna 0.20 MPa (R12 §7.2) | aro delgado σ=p·r/t, r=73.9, t=5.0 | 2.96 | metal | 240.0 | 81.2 | 2.0 | ✔ |
 | P1-PMP-08 | Presión interna 0.20 MPa (R12 §7.2) | aro delgado σ=p·r/t, r=68.9, t=5.0 | 2.76 | metal | 240.0 | 87.09 | 2.0 | ✔ |
@@ -1128,19 +1128,19 @@ oscilación de V máx./5 + oscilación del margen en la joroba.
 | Entrada incierta | Rango | V máx. sostenida [km/h] (bajo / alto) | Margen en la joroba (bajo / alto) | ¿Margen ≥ 10 % (restricción dura) en ambos extremos? |
 |---|---|---|---|---|
 | Masa del piloto 70–110 kg | 70 – 110 | 28.8 / 18.1 | 9 % / -19 % | **NO** (no cruza) |
-| Potencia continua del motor ±25 % | 4.5e+03 – 7.5e+03 | 16.0 / 28.1 | -6 % / -6 % | **NO** (no cruza) |
+| Potencia continua del motor ±25 % | 4.5e+03 – 7.5e+03 | 16.0 / 28.1 | -7 % / -7 % | **NO** (no cruza) |
 | Resistencia de planeo, las tres bandas ±10 % | 0.9 – 1.1 | 28.7 / 18.6 | 4 % / -15 % | **NO** (no cruza) |
 | Rendimiento de bomba 0,65–0,78 | 0.65 – 0.78 | 18.8 / 27.6 | -15 % / 1 % | **NO** (no cruza) |
 | Masa del casco ±30 % | 26.6 – 49.4 | 27.2 / 19.1 | -2 % / -11 % | **NO** (no cruza) |
 | Astilla muerta 4–14° | 4 – 14 | 26.3 / 19.2 | 1 % / -18 % | **NO** (no cruza) |
 | Recuperación en la toma 0,55–0,85 | 0.55 – 0.85 | 20.7 / 27.4 | -12 % / -1 % | **NO** (no cruza) |
 | Manga de planeo ±10 % | 0.54 – 0.66 | 19.6 / 26.0 | -12 % / -1 % | **NO** (no cruza) |
-| Deducción de empuje t 0–0,10 | 0 – 0.1 | 24.0 / 18.3 | -6 % / -16 % | **NO** (no cruza) |
-| Fracción de estela w 0–0,10 | 0 – 0.1 | 24.0 / 28.4 | -6 % / 1 % | **NO** (no cruza) |
+| Deducción de empuje t 0–0,10 | 0 – 0.1 | 24.0 / 18.3 | -7 % / -16 % | **NO** (no cruza) |
+| Fracción de estela w 0–0,10 | 0 – 0.1 | 24.0 / 28.4 | -7 % / 1 % | **NO** (no cruza) |
 | Posición del piloto (LCG) 1,20–1,55 m | 1.2 – 1.55 | 23.3 / 24.0 | -0 % / -17 % | **NO** (no cruza) |
 | Banda alta de planeo ×1,00–1,25 | 1 – 1.25 | 24.0 / 24.0 | 5 % / -16 % | **NO** (no cruza) |
-| Corte de la transición Fn∇ 2,0–2,7 | 2 – 2.7 | 24.0 / 23.9 | -6 % / -6 % | **NO** (no cruza) |
-| R/Δ en la joroba ±25 % | 0.15 – 0.25 | 24.0 / 24.0 | -6 % / -6 % | **NO** (no cruza) |
+| Corte de la transición Fn∇ 2,0–2,7 | 2 – 2.7 | 24.0 / 23.9 | -7 % / -6 % | **NO** (no cruza) |
+| R/Δ en la joroba ±25 % | 0.15 – 0.25 | 24.0 / 24.0 | -7 % / -7 % | **NO** (no cruza) |
 <!-- /AUTO:sizing_sens -->
 
 **Las tres entradas más influyentes** [CALCULADO]:

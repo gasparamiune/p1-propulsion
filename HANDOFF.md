@@ -39,7 +39,7 @@ y una medición física (R5-N6).
 - **R5-N1 y R5-N5 — verificar el diseño nuevo:** CAD, manifest, `bom.py` y `structural.py` ya regenerados con los lóbulos
   engrosados, el cuerpo Ø24 y el pivote en dos piezas; falta la corrida fina del FEA de P1-STE-01
   (`fea_run.py --only P1-STE-01 --merge`), `tabla_fabricacion.py` y `docgen.py` dentro del `run_all.py` completo. FEA de la
-  oreja: FS <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->1.74<!--/V--> (objetivo 2; el marcador muestra el valor de `resultados_fea.json`: con el cuerpo
+  oreja: FS <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->2.52<!--/V--> (objetivo 2; el marcador muestra el valor de `resultados_fea.json`: con el cuerpo
   roscado de la primera versión daba 1,74 en el borde de la rosca M24 por la precarga).
 - **R5-N2, R5-N3 y R5-N4:** corregidos en el repositorio (auditoria.md). **Re-auditoría del cierre:** MECH-1…10,
   CALC-1…4, FEA-1…4, TEST-1 y DOC-1 corregidos o documentados; FEA-5 (ventana del borde de los agujeros) queda como
