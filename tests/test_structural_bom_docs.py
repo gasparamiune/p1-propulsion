@@ -6,25 +6,27 @@ import subprocess
 import sys
 
 
-def test_structural_all_ok(root):
+def test_structural_all_ok(root, manifest):
     r = subprocess.run([sys.executable, str(root / "04_diseno" / "structural.py")], cwd=root, capture_output=True, text=True)
     assert r.returncode == 0, r.stdout + r.stderr
     est = json.load(open(root / "resultados" / "estructural.json", encoding="utf-8"))
     assert est["n_fail"] == 0
-    parts = {row["part"].split(" ")[0] for row in est["rows"]}
-    # toda pieza impresa estructural tiene al menos un FS calculado
-    for pid in ("P1-MNT-01", "P1-MNT-03", "P1-MNT-04", "P1-MNT-05", "P1-MNT-06", "P1-HSG-01", "P1-HSG-02",
-                "P1-HSG-04", "P1-STR-01", "P1-PRP-01", "P1-PRP-02"):
-        assert any(pp.startswith(pid) for pp in parts), pid
+    text = " ".join(row["part"] for row in est["rows"])
+    # toda pieza impresa o mecanizada que lleva carga tiene al menos un FS calculado
+    for pid in ("P1-INT-01", "P1-INT-02", "P1-INT-03", "P1-INT-04", "P1-PMP-01", "P1-PMP-03", "P1-PMP-06",
+                "P1-PMP-08", "P1-PMP-09", "P1-DRV-01", "P1-DRV-03", "P1-MOT-02", "P1-STE-01", "P1-REV-01",
+                "P1-CTL-02", "P1-CTL-03", "P1-ELE-01"):
+        assert pid in text, pid
 
 
 def test_load_cases_covered(root):
-    est = json.load(open(root / "resultados" / "estructural.json", encoding="utf-8"))
-    lcs = " ".join(r["load_case"] for r in est["rows"])
-    for lc in ("LC1", "LC3", "LC4", "LC5", "LC6", "LC7"):
-        assert lc in lcs, lc
     sz = json.load(open(root / "resultados" / "sizing.json", encoding="utf-8"))
-    assert "LC2_marcha_atras" in sz["loadcases"]
+    for k in ("T_bollard_N", "T_top_N", "p_pump_max_Pa", "F_steer_side_N", "F_bucket_N", "torque_max_Nm"):
+        assert sz["loads"][k] > 0, k
+    est = json.load(open(root / "resultados" / "estructural.json", encoding="utf-8"))
+    lcs = " ".join(r["load_case"].lower() for r in est["rows"])
+    for kw in ("empuje", "presión", "bucket", "par", "fatiga"):
+        assert kw in lcs, kw
 
 
 def test_bom(root):
@@ -60,7 +62,8 @@ def test_docs_in_sync(root):
     # tras docgen, cada valor marcado coincide con su fuente
     from docgen import getpath, load
     srcs = {"sizing": load("sizing.json"), "bom": load("bom_resumen.json"), "manifest": load("manifest.json"),
-            "est": load("estructural.json"), "verify": load("verify.json"), "arch": load("arquitectura.json")}
+            "est": load("estructural.json"), "verify": load("verify.json"), "arch": load("arquitectura.json"),
+            "cmp": load("comparacion.json")}
     pat = re.compile(r"<!--V:([\w.]+):([^>]*?)-->(.*?)<!--/V-->", re.S)
     n = 0
     for md in list(root.glob("*.md")):

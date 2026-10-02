@@ -1,72 +1,81 @@
-# P1 — Propulsión eléctrica "cola larga" con piezas impresas para jon boat de aluminio
+# P1-J — Waterjet eléctrico inboard para el jet boat de Jorge (2,30 m)
 
-> Paquete de ingeniería del prototipo P1 (Sønderborg, Als Fjord). Todo se regenera desde
-> [`inputs.yaml`](inputs.yaml) con `python run_all.py`. Los números de este README se
-> actualizan automáticamente desde `resultados/*.json` (marcadores `<!--V:…-->`).
+> Paquete de ingeniería del prototipo: cálculo, CAD paramétrico verificado, planos, BOM, firmware y
+> pruebas. Todo se regenera desde [`inputs.yaml`](inputs.yaml) con `python run_all.py`. Los números de
+> este README se actualizan solos desde `resultados/*.json` (marcadores `<!--V:…-->`).
+> **Visor 3D para Jorge** (ensamblado, explotado, pieza por pieza y demo): `04_diseno/visor/` — publicado
+> como página web (link en la descripción del PR).
 
 ## Resumen ejecutivo
 
-1. **Arquitectura:** cola larga (*long-tail*, tipo *mud motor*) eléctrica: motor BLDC **seco arriba del agua**, correa HTD-5M, eje inox 316 inclinado 25° dentro de un tubo de aluminio con bujes igus aptos bajo agua, hélice comprada de ~10" (trolling Minn Kota MKP-32; se mide antes de tornear) con pasador de corte, protector y patín fusible impresos, cardán (dirección + basculación con retén) sobre una abrazadera de popa impresa.
-2. **Por qué:** cero sellos dinámicos y cero electrónica bajo el agua (agua salobre), basculación natural para arena y poca profundidad, todo reparable con herramienta común. Gana la matriz ponderada (03) con <!--V:arch.totals.A3:.2f-->4.25<!--/V--> / 5 frente a <!--V:arch.totals.F:.2f-->2.80<!--/V--> del motor comercial.
-3. **Prestaciones calculadas (sin validar en agua):** crucero 6 km/h con <!--V:sizing.cruise.nominal.P_bat:.0f-->736<!--/V--> W de batería (banda nominal; <!--V:sizing.cruise.design.P_bat:.0f-->879<!--/V--> W en la banda alta de diseño) → **autonomía <!--V:sizing.cruise.autonomy_nominal_h:.1f-->3.1<!--/V--> h nominal / <!--V:sizing.cruise.autonomy_design_h:.1f-->2.6<!--/V--> h diseño** (requisito ≥ 2 h + 20 %).
-4. **Velocidad máxima:** <!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.1<!--/V--> km/h con 2 personas (nominal); <!--V:sizing.legal_speed.vmax_full_load_with_cap_kmh:.1f-->7.1<!--/V--> km/h con el tope legal de rpm puesto. **Dentro de 300 m de la costa el límite legal es 5 kn = 9,26 km/h** (research/R07), así que 12 km/h no tiene uso legal; además no es alcanzable con 2 personas y ~1,5 kW (joroba de resistencia). Con 1 persona el bote sí pasaría 5 kn → el VESC lleva un tope de ERPM "modo costa" por defecto.
-5. **Empuje a punto fijo:** <!--V:sizing.bollard_fwd.T_horiz:.0f-->253<!--/V--> N (≈ Torqeedo 1103 / ePropulsion 1.0 medidos: 290–310 N).
-6. **Batería:** <!--V:sizing.selection.battery_desc:-->2 × LiTime 36 V 60 Ah Golf Cart en paralelo (12S2P, BMS 2 × 120 A)<!--/V--> — 24 V, <!--V:sizing.battery.E_usable_wh:.0f-->2304<!--/V--> Wh usables.
-7. **Costo total del sistema:** **<!--V:bom.total_eur:.0f-->10674<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->79793<!--/V--> DKK** con batería + cargador, IVA de importación, envíos e imprevistos 10 %; <!--V:bom.verified_frac_of_subtotal:.0%-->31%<!--/V--> del subtotal con precio verificado (2026-10-01, research/R08a). Equipo de seguridad para salir (chalecos, remos, ancla, luz): +<!--V:bom.operation_gear_eur:.0f-->215<!--/V--> € aparte.
-8. **Riesgo n.º 1 (no es la propulsión):** la **capacidad del bote**. Un jon boat de ≤ 2,5 m carga ~100–185 kg según normas USCG/CE; 2 adultos + equipo + propulsión ≈ <!--V:sizing.masses.payload_kg:.0f-->248<!--/V--> kg = <!--V:sizing.masses.capacity_ratio:.0%-->155%<!--/V--> de la capacidad estimada. **Leer la placa / medir el bote antes de salir con 2 personas.**
-9. **Honestidad:** todo está verificado *en software* (scripts, CAD sin interferencias, FS ≥ 3 calculados, tests). **Nada está probado físicamente**: faltan medidas del bote real, probetas, estanqueidad y pruebas en agua (ver [PENDIENTES_GASPAR.md](PENDIENTES_GASPAR.md)).
+1. **Qué es:** el waterjet que pidió Jorge, rediseñado para que funcione: toma enrasada **entera a proa del impulsor** (su comentario: la rejilla del plano estaba detrás), rampa de 27°, impulsor inox Ø<!--V:sizing.selection.D_imp_mm:.0f-->132<!--/V--> de 5 álabes directo a un motor refrigerado por agua, estator con buje de agua, tobera Ø<!--V:sizing.selection.D_noz_mm:.0f-->87<!--/V-->, boquilla ±25° y bucket de reversa obligatorio. 12S / 38,4 V (< 50 V CC).
+2. **Prestaciones (modelo, sin validar en agua):** planea con <!--V:sizing.performance.hump_margin_min:.0%-->19%<!--/V--> de margen en la joroba, en <!--V:sizing.performance.t_to_plane_s:.0f-->7<!--/V--> s; **V máx. sostenida <!--V:sizing.performance.vmax_cont_kmh:.1f-->26.3<!--/V--> km/h** (objetivo 30; ~<!--V:sizing.performance.vmax_peak_kmh:.0f-->29<!--/V--> km/h por ratos); <!--V:sizing.energy.t_top_min:.0f-->37<!--/V--> min a fondo o <!--V:sizing.energy.t_legal_h:.1f-->2.5<!--/V--> h a 5 kn; empuje a punto fijo <!--V:sizing.performance.bollard_N:.0f-->765<!--/V--> N.
+3. **Recomendación:** pedir cotización de la **AWT JT132** (la bomba de la foto de Jorge) con este mismo tren eléctrico: gana la matriz de arquitectura en el <!--V:arch.mc_win_frac.B:.0%-->89%<!--/V--> del Monte Carlo, da <!--V:cmp.B_vmax_kmh:.1f-->27.5<!--/V--> km/h y baja el costo a ~<!--V:cmp.B_total_eur_min:.0f-->6400<!--/V-->–<!--V:cmp.B_total_eur_max:.0f-->6512<!--/V--> € contra <!--V:bom.total_eur:.0f-->10674<!--/V--> € de construir la bomba propia (<!--V:bom.verified_frac_of_subtotal:.0%-->31%<!--/V--> del subtotal con precio verificado; el resto son servicios de taller a cotizar).
+4. **Riesgo n.º 1 — el casco, no la propulsión:** con 0,80 m de manga y el piloto sentado alto, GM ≈ <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m y capacidad (33 CFR 183.33) de <!--V:sizing.capacity.persons_gear_kg:.0f-->46<!--/V--> kg: **puede volcar**. Ensayo de escora antes de motorizar; probablemente haya que ensanchar el casco o bajar el asiento.
+5. **Legal (Dinamarca):** ≤ 5 kn a < 300 m de la costa (perfil "costa" por defecto en el firmware), 4 kn en Als Sund; no es speedbåd (< 19 kW) y probablemente no es "vandscooter" (piloto dentro del casco): confirmar por escrito (research/R13 §8).
+6. **Honestidad:** todo está verificado *en software* (CAD de <!--V:manifest.totals.n_parts:d-->65<!--/V--> piezas sin interferencias en <!--V:verify.n_pair_checks:d-->10566<!--/V--> pares×estados, FS ≥ 2 metal / ≥ 3 PETG, tests). **Nada está probado físicamente**; los primeros pasos están en [PENDIENTES_GASPAR.md](PENDIENTES_GASPAR.md).
 
-## Comparación honesta con comprar un motor
+![Corte por crujía del CAD](04_diseno/visor/corte_lateral.png)
 
-| Opción | Costo (con batería y cargador) | Energía | V máx con 2 p. | Basculación con protección | Marcha atrás | Comentario |
-|---|---|---|---|---|---|---|
-| **P1 cola larga (este proyecto)** | <!--V:bom.total_eur:.0f-->10674<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->79793<!--/V--> kr [CALCULADO: bom.py] | <!--V:sizing.battery.E_nom_wh:.0f-->2560<!--/V--> Wh | <!--V:sizing.vmax.design_vmin.V_kmh:.1f-->6.4<!--/V-->–<!--V:sizing.vmax.nominal_vnom.V_kmh:.1f-->7.1<!--/V--> km/h [CALCULADO] | Sí (retén + patín fusible + pasador de corte) | Sí | Motor seco, eje 316 sin ánodo (D-36); reparable, apto arena; ~<!--V:manifest.totals.printed_hours:.0f-->57<!--/V--> h de impresión + torno |
-| Trolling de agua salada 55 lb + LiFePO4 12 V 100 Ah, tal cual | <!--V:cmp.F_eur:.0f-->1186<!--/V--> € ≈ <!--V:cmp.F_dkk:.0f-->8866<!--/V--> kr [CALCULADO: precios de research/R04 S42 y R08a] | 1 280 Wh | <!--V:cmp.trolling_vmax_kmh_min:.1f-->5.7<!--/V-->–<!--V:cmp.trolling_vmax_kmh_max:.1f-->6.2<!--/V--> km/h [CALCULADO: 620 W × η 0,30–0,40 ESTIMADO] | No (pata larga, sin protección ante golpes) | Sí | **La opción más barata** si basta ~6 km/h en agua profunda (plan B de 03 §4.2: <!--V:cmp.planB_eur_min:.0f-->1274<!--/V-->–<!--V:cmp.planB_eur_max:.0f-->1351<!--/V--> € con soporte basculante impreso) |
-| Fueraborda eléctrico 1 kW (ePropulsion Spirit 1.0 Evo, completo) | <!--V:cmp.outboard_dk_dkk:.0f-->21886<!--/V--> kr ≈ <!--V:cmp.outboard_dk_eur:.0f-->2928<!--/V--> € en DK [VERIFICADO: research/R04 S32]; <!--V:cmp.outboard_de_eur:.0f-->2549<!--/V--> € en DE [VERIFICADO: research/R04 S33] | 1 276 Wh | <!--V:cmp.outboard_vmax_kmh_min:.1f-->7.6<!--/V-->–<!--V:cmp.outboard_vmax_kmh_max:.1f-->8.0<!--/V--> km/h [VERIFICADO: research/R04 §B.4, medido] | Sí | Sí | Producto terminado, IP67 y garantía; con la energía de P1 (2.ª batería) cuesta <!--V:cmp.outboard_2bat_eur:.0f-->4184<!--/V--> € |
+## Comprar vs construir
 
-**Veredicto honesto:** P1 cuesta **<!--V:cmp.ratio_p1_F:.1f-->1.9<!--/V-->× el trolling tal cual** y **<!--V:cmp.p1_below_outboard_dk_frac:.0%-->22%<!--/V--> menos que el fueraborda de 1 kW comprado en DK** (<!--V:cmp.p1_below_outboard_de_frac:.0%-->11%<!--/V--> menos que comprado en DE), sin contar la mano de obra [CALCULADO: resultados/comparacion.json]. Si el objetivo fuera solo "6 km/h al menor costo", **comprar el trolling (o el plan B) es más sensato**. El fueraborda es además más rápido. P1 se justifica por: <!--V:cmp.energy_ratio_p1_outboard:.1f-->2.0<!--/V-->× la energía del fueraborda por menos plata, basculación protegida en arena y aguas someras, marcha atrás, reparabilidad total con repuestos de skate eléctrico y el aprendizaje.
+| Opción | Costo total del sistema | V máx. sostenida | Unidad de jet | Comentario |
+|---|---|---|---|---|
+| **A — bomba propia (este paquete)** | <!--V:bom.total_eur:.0f-->10674<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->79793<!--/V--> DKK [CALCULADO: bom.py] | <!--V:cmp.A_vmax_kmh:.1f-->26.3<!--/V--> km/h | <!--V:cmp.A_jet_mass_kg:.1f-->20.1<!--/V--> kg | Impulsor y estator CNC 5 ejes + soldaduras: el 42 % del costo es taller sin cotizar |
+| **B — AWT JT132 + este tren** | <!--V:cmp.B_total_eur_min:.0f-->6400<!--/V-->–<!--V:cmp.B_total_eur_max:.0f-->6512<!--/V--> € [CALCULADO; precio de la JT132 ESTIMADO] | <!--V:cmp.B_vmax_kmh:.1f-->27.5<!--/V--> km/h | 12 kg [VERIFICADO: R11 §4] | Trae toma, dirección y reversa; pedir brida, altura del eje y curva de la bomba |
+| Lampuga Air (jet boat eléctrico comercial de 2,30 m) | no verificado | ≤ 50 km/h [VERIFICADO: R12] | — | Referencia: 10 kW, 3,6 kWh |
+
+Detalle y matriz ponderada: [03_arquitectura.md](03_arquitectura.md).
 
 ## Estado (verificado / no verificado)
 
 | Ítem | Estado |
 |---|---|
-| Pipeline `run_all.py` (sizing → CAD → FS → planos → verify → BOM → docs → renders) | Ejecuta con exit 0 (ver bitácora en PROGRESS.md) |
-| CAD: <!--V:manifest.totals.n_parts:d-->65<!--/V--> piezas, STEP + STL, manifold, envolvente ≤ 210×210×260 | [VERIFICADO en software] `verify_parts.py` |
-| Interferencias, incluida basculación 0–25° × dirección ±35° | [VERIFICADO en software] <!--V:verify.n_pair_checks:d-->10566<!--/V--> pares×estados |
-| FS ≥ 3 (impresas) / ≥ 2 (metal) por caso de carga | [CALCULADO] `structural.py` ([02_calculos.md](02_calculos.md) §9) — **depende de probetas** |
-| R(v), potencia, autonomía | [CALCULADO + contrastado con datos medidos de botes análogos]; **calibrar con remolque** |
-| Precios y links | Electrónica, batería, cargador y protecciones verificados (research/R08a, 2026-10-01); mecánica y equipo de seguridad [ESTIMADO] (ver `bom.csv`, columna etiqueta) |
-| Normativa DK (velocidad, chalecos, luces, licencia) | [VERIFICADO: research/R07] — sin licencia ni matrícula (< 19 kW, < 2,5 m); 5 kn a < 300 m |
-| Estanqueidad, probetas, pruebas en agua | **[NO EJECUTADO] — pendiente físico** |
+| Pipeline `run_all.py` (sizing → CAD → FS → planos → verify → BOM → arquitectura → comparación → electrónica → visor → docs) | Ejecuta con exit 0 (bitácora en PROGRESS.md) |
+| Dimensionamiento: masas, estabilidad, Savitsky + joroba, waterjet con curva de bomba, cavitación, energía, térmico, eje, pasador | [CALCULADO] `sizing.py`; [02_calculos.md](02_calculos.md) — **calibrar con pruebas T2–T4** |
+| CAD: <!--V:manifest.totals.n_parts:d-->65<!--/V--> piezas, STEP + STL, sólidos válidos, impresas ≤ 210×210×260 | [VERIFICADO en software] `verify_parts.py` |
+| Interferencias: boquilla −25/0/+25° × bucket arriba/abajo, contra bomba, toma, tren y casco de referencia | [VERIFICADO en software] |
+| FS ≥ 3 (impresas) / ≥ 2 (metal) por caso de carga | [CALCULADO] `structural.py` (02 §9); FEA de las piezas críticas en `04_diseno/fea/` |
+| Firmware del acelerador (bucket, perfiles costa/abierto, limpieza de rejilla, kill switch) | [VERIFICADO en software] 69 tests; **sin compilar para AVR** (sin toolchain aquí) |
+| Precios | <!--V:bom.verified_frac_of_subtotal:.0%-->31%<!--/V--> del subtotal verificado (research/R11, R08a/b); servicios de taller [ESTIMADO] |
+| Casco de Jorge | **Leído de un plano sin escala única: medir todo** (PENDIENTES P0) |
+| Estabilidad, estanqueidad, pruebas en agua | **[NO EJECUTADO] — pendiente físico** |
 
 ## Cómo correr
 
 ```bash
-pip install -r requirements.txt          # núcleo (build123d, numpy, trimesh, …)
-# opcional FEA: sudo apt-get install libglu1-mesa   (gmsh lo necesita)
-# opcional renders Blender: pip install -r requirements-render.txt
-python run_all.py                        # todo; --fast = mallas gruesas; --skip-render
-pytest -q                                # tests
+pip install -r requirements.txt          # núcleo (build123d, numpy, trimesh, openplaning, …)
+python run_all.py                        # todo (~5 min); --fast = mallas gruesas; --skip-render
+pytest -q                                # tests (P1_SKIP_SLOW=1 salta la regeneración completa)
 ```
-Cambiar cualquier dato en `inputs.yaml` (p. ej. `boat.transom.thickness_range_mm`) y volver a correr regenera cálculos, geometría, planos, BOM y documentos (probado: [auditoria.md](auditoria.md) §Regeneración).
+Cambiar cualquier dato en `inputs.yaml` (p. ej. `boat.bottom_thickness_mm`, `waterjet.axis_height_m`,
+una batería o un motor nuevo) y volver a correr regenera cálculos, selección, geometría, planos, BOM,
+visor y documentos (probado: `tests/test_regeneration*.py`, ver [auditoria.md](auditoria.md) §Regeneración).
 
 ## Mapa del repositorio
 
 | Archivo | Contenido |
 |---|---|
-| [01_investigacion.md](01_investigacion.md) | Videos, proyectos comparables, botes, materiales, sellado, BLDC, normativa DK (detalle en `research/`) |
-| [02_calculos.md](02_calculos.md) + `sizing.py` | Resistencia, hélice, motor, batería, cables, térmico, mecánico, sensibilidad, criterios de éxito |
-| [03_arquitectura.md](03_arquitectura.md) | Matriz ponderada + sensibilidad de pesos, plan B, imprimir/comprar/tornear, 5 riesgos |
-| [04_diseno/](04_diseno/README.md) | `params.py`, `piezas/`, `build_all.py`, `verify_parts.py`, `structural.py`, STEP/STL, planos, electrónica |
-| [05_fabricacion.md](05_fabricacion.md) + `prusaslicer/` | Probetas, perfiles, orientación, post-proceso |
-| [06_ensamblaje_y_pruebas.md](06_ensamblaje_y_pruebas.md) + [checklist_salida.md](checklist_salida.md) | Montaje, sellado, aislamiento galvánico, pruebas T0–T4, FMEA |
-| [07_roadmap_P2.md](07_roadmap_P2.md) | Próxima iteración |
+| [01_investigacion.md](01_investigacion.md) + `research/` | Plano de Jorge auditado, toma, métodos de bomba y planeo, componentes y precios, normativa DK |
+| [02_calculos.md](02_calculos.md) + `sizing.py`, `p1calc/` | Memoria de cálculo completa |
+| [03_arquitectura.md](03_arquitectura.md) | Requisitos, matriz ponderada, comprar vs construir, qué se imprime/mecaniza/compra, riesgos |
+| [04_diseno/](04_diseno/README.md) | `params*.py`, `piezas/`, `build_all.py`, `verify_parts.py`, `structural*.py`, planos, electrónica, visor |
+| [05_fabricacion.md](05_fabricacion.md) + `prusaslicer/` | Impresión, mecanizado, soldadura, CNC, anodizado, probetas |
+| [06_ensamblaje_y_pruebas.md](06_ensamblaje_y_pruebas.md) + [checklist_salida.md](checklist_salida.md) | Montaje, cambios de casco, pruebas T0–T4, FMEA, mantenimiento |
+| [07_roadmap_P2.md](07_roadmap_P2.md) | Próxima iteración con disparadores medibles |
 | [decisiones.md](decisiones.md) · [auditoria.md](auditoria.md) · [PENDIENTES_GASPAR.md](PENDIENTES_GASPAR.md) | Decisiones, auditoría adversarial, acciones físicas |
+| `bom.csv` | Lista de materiales con links, fechas y etiqueta de verificación |
 
 ## Próximos pasos físicos (los 5 primeros)
 
-1. **Medir el bote real** (eslora, flotación, manga, fondo, puntal, espejo alto/espesor/material, peso, placa de capacidad) → actualizar `inputs.yaml` → `python run_all.py`.
-2. **Ensayo de remolque con dinamómetro** a 3–4 velocidades con la carga real → calibrar `resistance.wave_cw` antes de comprar la batería.
-3. **Imprimir y ensayar probetas** (holguras, tuercas cautivas, caja con O-ring 24 h, absorción 7 días) → confirmar factores de material.
-4. Comprar motor/ESC y armar el **banco en seco T0** (kill switch, rampas, marcha atrás, corte < 1 s).
-5. **T1–T2**: estanqueidad y tanque/muelle (bollard pull con el dinamómetro, temperaturas) antes de cualquier salida.
+1. **Medir el casco de Jorge** (fondo de 0,25 a 0,85 m del espejo, espejo, astilla muerta, calado en popa con piloto y baterías) → `inputs.yaml` → `python run_all.py`.
+2. **Ensayo de escora / estabilidad** con carga desplazada, antes de motorizar.
+3. **Pedir cotizaciones**: AWT JT132 (brida de toma, altura del eje, curva), Maytech (potencia continua del motor), taller CNC (impulsor y estator con los STEP).
+4. **Consulta legal por escrito** a Søfartsstyrelsen (clasificación y potencia; preguntas en danés en research/R13 §8).
+5. **Banco en seco T0** con el controlador, el firmware y el kill switch (acople desconectado: el sello no gira en seco).
+
+## Historia
+
+La versión anterior del proyecto (cola larga eléctrica para un jon boat de 2 personas a 6 km/h) quedó en
+el historial de git, commit `5dfada0`. Este paquete la reemplaza a pedido del usuario: el motor que necesita
+Jorge es un waterjet inboard.

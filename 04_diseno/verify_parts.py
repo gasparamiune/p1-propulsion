@@ -56,7 +56,7 @@ def intersect_volume(a: trimesh.Trimesh, b: trimesh.Trimesh) -> float:
         return 0.0
 
 
-def run(p=None, mods=None, manifest=None, steer_list=None, quiet=False):
+def run(p=None, mods=None, manifest=None, steer_list=None, quiet=False, extra_fixed=None):
     import params as P
     from build_all import load_parts
     p = p or P.load()
@@ -142,6 +142,7 @@ def run(p=None, mods=None, manifest=None, steer_list=None, quiet=False):
             fixed += placed(mod, 0.0, 0)
     for (na, a), (nb, b) in itertools.combinations(fixed, 2):
         check(na, a, nb, b, "fijo"); n_checks += 1
+    fixed += list(extra_fixed or [])          # obstáculos inyectados (tests): solo contra lo móvil
     for s in steers:
         for bk in buckets:
             mv = []

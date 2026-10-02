@@ -121,25 +121,11 @@ La orientación es la del CAD (`print_rot` de cada `META`; `build_all.py` export
 <!-- FAB:orientacion -->
 | ID | Pieza | Cant. | Perfil, relleno | Carga dominante (manifest) | Orientación de impresión: por qué (manifest) | Envolvente impresión [mm] | FS mín. (estructural.json) | Soporte auto / avisos PrusaSlicer | g c/u (CAD) | h c/u (18 g/h) | h c/u (PrusaSlicer) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| P1-DRV-02 | tube_bushing | 3 | **estructural** 100 % | Reacciones radiales del eje (p = F/(d·L) en el portabuje) | Eje vertical (de pie): alojamiento del buje redondo y preciso en XY. `print_rot=(0, 90, 0)` | 34×34×40 | — | no | 31 | 1,7 | 2,7 |
-| P1-ELE-01 | esc_box | 1 | **sellado** 100 % | Estanqueidad (IP67 objetivo), compresión del O-ring | Fondo sobre la cama; la cara del O-ring queda arriba, lisa (última capa + lijado). `print_rot=(0, 0, 0)` | 196×174×48 | 4,54 (Compresión del O-ring en insertos M4 (sostenido)) | no · print warning: Detected print stability issues: | 637 | 35,4 | 74,2 |
-| P1-ELE-03 | throttle_grip | 1 | **estructural** 100 %, brim 5 | Torsión de mano (~5 N·m), golpes | Eje vertical (Z): anillos de capa en la dirección del torque. `print_rot=(0, 0, 0)` | 48×48×110 | — | sí | 102 | 5,6 | 8,9 |
-| P1-ELE-04 | hall_housing | 1 | **estructural** 100 % | Reacción de resortes, golpes | Eje vertical (Z). `print_rot=(0, 0, 0)` | 56×56×34 | — | no | 71 | 4,0 | 5,2 |
-| P1-HSG-02 | bearing_bridge | 1 | **estructural** 100 % | LC3/LC4 tiro de correa (reacción R_B) | Plana (u = Z): reacción radial en el plano de capas; alojamiento vertical. `print_rot=(0, -90, 0)` | 154×154×12 | 14,77 (LC4 tirón de correa (corta)) | no | 67 | 3,7 | 4,7 |
-| P1-HSG-03 | belt_guard | 1 | **cubiertas** 25 % | Salpicaduras, manipulación leve | Cara cerrada sobre la cama, abierto arriba (sin puentes). `print_rot=(0, -90, 0)` | 207×93×54 | — | no | 151 | 8,4 | 9,6 |
-| P1-HSG-04 | tiller_clamp | 2 | **estructural** 100 %, brim 5 | LC7 manipulación (par de fuerzas entre abrazaderas) | De canto: la media caña y los pernos en el plano de capas. `print_rot=(90, 0, 0)` | 22×35×46 | 5,62 (LC7 tracción de la abrazadera (2 M6, sección 2×8×22) (corta)) | no · print warning: Detected print stability issues: | 24 | 1,3 | 2,2 |
-| P1-HSG-05 | motor_hood | 1 | **cubiertas** 25 % | Salpicaduras; temperatura del motor (≤ 60 °C en la pieza) | Cara trasera sobre la cama (techo y laterales verticales, sin puentes largos). `print_rot=(0, 90, 0)` | 82×72×86 | — | no | 66 | 3,7 | 4,8 |
-| P1-MNT-01 | clamp_bracket | 1 | **estructural** 85 % | LC5 impacto (reacción en pivote) / LC1 empuje / LC7 manipulación | Perfil x-z sobre la cama (ancho y = Z de impresión): cargas en el plano XY de capas. `print_rot=(90, 0, 0)` | 187×189×150 | 3,23 (Apriete (sostenido)) | sí · print warning: Detected print stability issues: | 1 857 | 103,2 | 166,6 |
-| P1-MNT-02 | clamp_pad | 2 | **estructural** 100 % | Apriete del tornillo (compresión) | Plana, cara de apoyo sobre la cama; compresión a través de capas (admisible). `print_rot=(0, 0, 0)` | 40×40×12 | 10,12 (Apriete (sostenido, compresión)) | no | 18 | 1,0 | 1,2 |
-| P1-MNT-03 | yoke_base | 1 | **estructural** 90 % | LC5 impacto / LC1 empuje (momento de vuelco sobre el perno) | Plana: momentos de vuelco en el plano de capas. `print_rot=(0, 0, 0)` | 75×112×20 | 5,28 (LC5 vuelco (corta)) | sí · print warning: Detected print stability issues: | 180 | 10,0 | 21,9 |
-| P1-MNT-04 | yoke_cheek | 2 | **estructural** 90 % | LC5 impacto (reacción en el pivote) / LC1–LC2 empuje | Plana (espesor = Z): flexión de la mejilla en el plano de capas. `print_rot=(90, 0, 0)` | 116×121×14 | 4,94 (Golpe lateral 200 N (corta)) | no | 107 | 5,9 | 12,9 |
-| P1-MNT-05 | cradle | 1 | **estructural** 90 % | LC5 impacto (momento del tubo) / LC1 empuje / retén | De canto (w = Z): flexión del tubo y empuje en el plano u–v = plano de capas. `print_rot=(90, 0, 0)` | 165×115×76 | 4,04 (LC6 paso de pala ±20 % T lateral (fatiga 1e7–1e8)) | sí · print warning: Detected print stability issues: | 1 174 | 65,2 | 148,3 |
-| P1-MNT-06 | cradle_cap | 1 | **estructural** 90 % | LC5 impacto (flexión del tubo) / tope de marcha | Cara inferior sobre la cama, media caña hacia arriba (sin soportes). `print_rot=(0, 0, 0)` | 90×76×30 | 5,03 (LC6 ola ±1 g (fatiga ~1e6 ciclos)) | sí | 162 | 9,0 | 19,6 |
-| P1-PRP-01 | guard_segment | 6 | **fusible** 100 % | Golpes en el aro (LC5 secundario), arrastre | Eje del anillo = Z: impactos radiales y flexión del arco en el plano de capas. `print_rot=(0, -90, 0)` | 117×117×76 | 14,57 (Golpe radial 150 N en el anillo (corta)) | sí · print warning: Detected print stability issues: | 113 | 6,3 | 8,6 |
-| P1-PRP-02 | skeg | 1 | **fusible** 100 % | LC5 varada/impacto (fusible mecánico) | Plano u–v sobre la cama: flexión en el plano de capas, rotura predecible en la cintura. `print_rot=(90, 0, 0)` | 126×142×27 | 1,00 (LC5 fusible) — fusible por diseño | sí · print warning: Detected print stability issues: | 91 | 5,1 | 6,3 |
-| P1-PRP-05 | antivent_plate | 1 | **estructural** 100 % | Presión hidrodinámica baja; golpes leves | Plana: flexión en el plano de capas. `print_rot=(0, 0, 0)` | 100×120×5 | — | no | 76 | 4,2 | 4,9 |
-| P1-SAF-01 | killswitch_mount | 1 | **estructural** 100 % | Tirón del cordón (~100 N) al caer al agua | Eje del collar = Z; tirón del cordón en el plano de capas de la placa. `print_rot=(0, 0, 0)` | 75×75×30 | 3,52 (Tirón del cordón 100 N (corta)) | no | 39 | 2,1 | 3,2 |
-| P1-STR-01 | lower_housing | 1 | **estructural** 95 % | LC5 impacto en patín/protector, LC6 vibración | De canto (w = Z): fuerzas del patín y del protector en el plano de capas. `print_rot=(90, 0, 0)` | 194×199×56 | 9,77 (LC5 fusible: apoyo del tubo (corta)) | sí · print warning: Detected print stability issues: | 271 | 15,1 | 32,9 |
+| P1-CTL-02 | caja_acel | 1 | **estructural** 85 % | Pisada/golpe 300 N sobre la tapa [SUPUESTO]; sin cargas de mando (van a P1-CTL-08) | Tapa sobre la cama (ranuras planas, sin soportes); ala arriba. 0,2 mm, 5 perímetros, 30 % giroide `print_rot=(180, 0, 0)` | 181×78×68 | 3,84 (Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta)) | [NO EJECUTADO] | 103 | 5,7 | — |
+| P1-CTL-03 | soporte_kill | 1 | **estructural** 85 % | Tirón del cordón 150 N [SUPUESTO] + golpe de mano sobre la seta 200 N [SUPUESTO] | Base sobre la cama; la cara inclinada a 45° no necesita soportes. 0,2 mm, 5 perímetros `print_rot=(0, 0, 0)` | 100×130×55 | 4,21 (Cara PETG 10 mm: golpe sobre la seta 200 N [SUPUESTO] (cor…) | [NO EJECUTADO] | 120 | 6,7 | — |
+| P1-ELE-01 | esc_stand | 1 | **sellado** 100 % | Peso del ESC + capota a 3 g vertical y 1 g lateral; tirón de cables | Base abierta sobre la cama; tablero arriba (puentes de 3,2 mm entre nervios, sin soportes). `print_rot=(0, 0, 0)` | 208×138×60 | 16,02 (Insertos M5 de la capota: apriete de las tiras de EPDM (so…) | no · print warning: Detected print stability issues: | 263 | 14,6 | 74,2 |
+| P1-ELE-02 | esc_hood | 1 | **estructural** 85 % | Apriete de la almohadilla EPDM (4 × M5) y 3 g vertical del ESC hacia arriba (golpe de ola) | Techo sobre la cama, paredes y nervios hacia arriba (sin soportes). `print_rot=(180, 0, 0)` | 208×126×55 | 6,39 (Techo de la capota: reacción de las tiras de EPDM (sosteni…) | [NO EJECUTADO] | 207 | 11,5 | — |
+| P1-INT-04 | tapa_inspeccion | 1 | **estructural** 100 % | Presión interna de la toma (succión de cierre / recuperación a 30 km/h) sobre Ø de la junta | Cara de la ranura del O-ring y del hexágono de la tuerca sobre la cama (fondos lisos), resalte arriba, 100 % relleno `print_rot=(0, 0, 0)` | 160×160×19 | 3,35 (Tapa: ciclo marcha ↔ punto fijo Δp = 42 kPa (olas/maniobras)) | [NO EJECUTADO] | 327 | 18,2 | — |
 <!-- /FAB:orientacion -->
 
 ### 3.1 Soportes y avisos de PrusaSlicer
@@ -256,13 +242,9 @@ La tuerca A4 en bolsillo es la unión más fuerte del ensayo de PETG de CNC Kitc
 <!-- FAB:roscas -->
 | Pieza | Tipo | Rosca | Comentario en el CAD |
 |---|---|---|---|
-| P1-ELE-01 | inserto térmico (agujero Ø 5,6 mm) | ver comentario | 8 insertos M4 en el reborde, por fuera de la ranura (compresión uniforme del O-ring) |
-| P1-MNT-03 | tuerca cautiva, bolsillo hexagonal | M8 A4 (ISO 4032: 13 e/c) | tornillo de trimado M8 (tuerca cautiva desde abajo) |
-| P1-MNT-04 | tuerca cautiva, bolsillo hexagonal | M12 A4 (ISO 4032: 18 e/c) | retén: émbolo de bola M12 + tuerca de bloqueo en cara exterior |
-| P1-MNT-04 | tuerca cautiva, bolsillo transversal/lateral | M6 A4 (ISO 4032: 10 e/c) | pernos M6 desde la base con TUERCA CAUTIVA transversal (arranque por corte de ~2·t·20 mm) |
-| P1-MNT-05 | tuerca cautiva, bolsillo transversal/lateral | M6 A4 (ISO 4032: 10 e/c) | 4×M6 placa motriz → tuercas cautivas abiertas a los lados |
-| P1-MNT-05 | inserto térmico (agujero Ø 9,2 mm) | ver comentario | ojal de cabo de seguridad: inserto M8 para cáncamo A4 (arriba, atrás) |
-| P1-STR-01 | tuerca cautiva, bolsillo hexagonal | M4 A4 (ISO 4032: 7 e/c) | --- aleta, brazo, montura y placa antiventilación --- |
+| P1-ELE-01 | inserto térmico (agujero Ø 6,4 mm) | ver comentario | nervios exteriores para la capota (insertos M5 arriba) |
+| P1-INT-04 | tuerca cautiva, bolsillo hexagonal | M6 A4 (ISO 4032: 10 e/c) | purga: resalte arriba, hexágono de tuerca M6 desde abajo, agujero Ø6,4 |
+| P1-INT-04 | tuerca cautiva, bolsillo transversal/lateral | M6 A4 (ISO 4032: 10 e/c) | purga: resalte arriba, hexágono de tuerca M6 desde abajo, agujero Ø6,4 |
 <!-- /FAB:roscas -->
 
 - Tuercas **ISO 4032 A4** (entrecaras de `cadlib.NUT_AF`). Bolsillos hexagonales: tirar la tuerca hacia adentro con un tornillo + arandela desde el lado opuesto (no a martillo). Bolsillos transversales: deslizarla y centrarla con el tornillo.
@@ -331,11 +313,11 @@ Latón 0,4 para todo P1 (PETG). **Boquilla endurecida solo si P2 usa fibra** (PE
 <!-- FAB:totales -->
 | Conjunto | Impresiones | g (CAD × solid_frac) | g (PrusaSlicer) | h (18 g/h, inputs.yaml) | h (PrusaSlicer) |
 |---|---|---|---|---|---|
-| Piezas P1 (19 tipos) | 29 | 6 011 | 5 946 | 334 | 603 |
+| Piezas P1 (19 tipos) | 5 | 1 020 | 5 946 | 57 | 603 |
 | Probetas P1.1–P1.8 | 33 | 1 690 | 1 712 | 94 | 161 |
-| **Total** |  | **7 701** | **7 658** | **428** | **764** |
+| **Total** |  | **2 710** | **7 658** | **151** | **764** |
 
-Bobinas de 1 kg a comprar: **11** [CALCULADO: máx(g) × 1.30 de purga, fallas y reimpresiones (= bom.py)]. Laminado: PrusaSlicer-2.7.2+UNKNOWN based on Slic3r (with GUI support), perfiles y ajustes por objeto de esta página, sin soportes (con soportes automáticos suma 26 g). El ritmo real de las piezas es **9,9 g/h**, no los 18 g/h de inputs.yaml (printer.print_rate_g_h): 6 perímetros y velocidades moderadas. Corregir ese valor en inputs.yaml para el plan de impresión.
+Bobinas de 1 kg a comprar: **10** [CALCULADO: máx(g) × 1.30 de purga, fallas y reimpresiones (= bom.py)]. Laminado: PrusaSlicer-2.7.2+UNKNOWN based on Slic3r (with GUI support), perfiles y ajustes por objeto de esta página, sin soportes (con soportes automáticos suma 26 g). El ritmo real de las piezas es **9,9 g/h**, no los 18 g/h de inputs.yaml (printer.print_rate_g_h): 6 perímetros y velocidades moderadas. Corregir ese valor en inputs.yaml para el plan de impresión.
 <!-- /FAB:totales -->
 
 Totales del CAD (manifest): <!--V:manifest.totals.printed_mass_g:.0f-->1020<!--/V--> g y <!--V:manifest.totals.printed_hours:.0f-->57<!--/V--> h a 18 g/h. Todas las piezas entran en la zona útil 210 × 210 × 260 (verificado en `build_all.py` y `build_probetas.py`).

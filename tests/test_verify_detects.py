@@ -21,7 +21,7 @@ def ctx(root):
 def test_real_design_passes(ctx):
     import verify_parts as V
     p, mods, man = ctx
-    res = V.run(p, mods, man, tilt_step=12.5, quiet=True)
+    res = V.run(p, mods, man, quiet=True)
     assert res["ok"], res["fails"]
 
 
@@ -30,9 +30,9 @@ def test_detects_oversize(ctx):
     p, mods, man = ctx
     m2 = copy.deepcopy(man)
     for r in m2["parts"]:
-        if r["id"] == "P1-MNT-05":
+        if r["id"] == "P1-INT-04":
             r["print_bbox_mm"] = [250.0, 120.0, 80.0]
-    res = V.run(p, mods, m2, tilt_step=25, steer_list=[0.0], quiet=True)
+    res = V.run(p, mods, m2, steer_list=[0.0], quiet=True)
     assert not res["ok"]
     assert any("envolvente" in f for f in res["fails"])
 
@@ -40,10 +40,11 @@ def test_detects_oversize(ctx):
 def test_detects_interference(ctx):
     import verify_parts as V
     p, mods, man = ctx
-    # bloque fijo que invade la trayectoria de la cola
-    blk = trimesh.creation.box(extents=(60, 60, 60))
-    blk.apply_translation((500, 0, -150))
-    res = V.run(p, mods, man, tilt_step=25, steer_list=[0.0], quiet=True, extra_fixed=[("OBSTACULO", blk)])
+    # bloque fijo en el barrido de la boquilla direccional (afuera del espejo)
+    import params as P
+    blk = trimesh.creation.box(extents=(40, 40, 40))
+    blk.apply_translation(P.jet_to_boat(p, p.X_steer_pivot + 0.5 * p.L_steer, p.D_noz / 2 + 3.0, 0))   # pared de la boquilla
+    res = V.run(p, mods, man, steer_list=[0.0], quiet=True, extra_fixed=[("OBSTACULO", blk)])
     assert not res["ok"]
     assert any("OBSTACULO" in f for f in res["fails"])
 
@@ -57,9 +58,9 @@ def test_detects_non_manifold(ctx, root, tmp_path):
     f = tmp_path / "roto.stl"
     broken.export(f)
     for r in m2["parts"]:
-        if r["id"] == "P1-PRP-02":
+        if r["id"] == "P1-CTL-02":
             r["files"] = [r["files"][0], str(f)]
-    res = V.run(p, mods, m2, tilt_step=25, steer_list=[0.0], quiet=True)
+    res = V.run(p, mods, m2, steer_list=[0.0], quiet=True)
     assert not res["ok"]
     assert any("manifold" in x for x in res["fails"])
 
@@ -69,5 +70,5 @@ def test_detects_failed_critical_dim(ctx):
     p, mods, man = ctx
     m2 = copy.deepcopy(man)
     m2["parts"][0]["checks"].append({"name": "cota inyectada", "value": 1, "ref": 2, "op": ">=", "ok": False})
-    res = V.run(p, mods, m2, tilt_step=25, steer_list=[0.0], quiet=True)
+    res = V.run(p, mods, m2, steer_list=[0.0], quiet=True)
     assert not res["ok"]

@@ -61,12 +61,7 @@ def main():
     step("6g/8 Visor 3D web (datos)", ["04_diseno/visor/build_visor.py"])
     step("7/8 Documentos (bloques AUTO)", ["docgen.py"])
     if not a.skip_render:
-        have_bpy = importlib.util.find_spec("bpy") is not None
-        if have_bpy:
-            step("8/8 Renders Blender", ["blender/render_all.py"], required=False)
-        else:
-            print("bpy no instalado: renders Blender [NO EJECUTADO]; se generan vistas matplotlib.")
-        step("8/8 Vistas matplotlib", ["blender/preview_views.py"], required=False)
+        step("8/8 Vistas del ensamblaje (matplotlib)", ["blender/preview_views.py"], required=False)
     print("\nPIPELINE COMPLETO: exit 0")
     return 0
 
