@@ -87,9 +87,9 @@ def ear_outline(p, sign):
     if sign > 0:
         lx, lz = lock_point(p)
         pts += circ(lx, lz, rl) + [(lx + 10, -2.0), (lx + 12, 30.0)]
-    elif p.REV_n_locks > 1:                           # traba −Y (otro ángulo) + apoyo de la pata del soporte del Bowden
+    elif p.REV_n_locks > 1:                           # traba −Y (otro ángulo)
         lx, lz = lock_point(p, -1)
-        pts += circ(lx, lz, rl) + circ(lx - 24.0, lz, 10.0)
+        pts += circ(lx, lz, rl)
     return hull(pts)
 
 

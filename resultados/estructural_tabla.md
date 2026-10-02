@@ -73,6 +73,9 @@
 | P1-REV-03 | Buje POM: presión (reversa sizing, oscilación; una traba) | 1638 N / (20 × 18) | 4.55 | metal | 10.0 | 2.2 | 2.0 | ✔ |
 | P1-REV-04 | Perno del émbolo Ø16 (316): flexión + corte con M_h completo (R12) | F = M_h/r = 3006 N a 8.5 mm | 72.32 | metal | 205.0 | 2.83 | 2.0 | ✔ |
 | P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga; M_h completo) | F = 1491 N | 31.52 | metal | 180.0 | 5.71 | 2.0 | ✔ |
+| P1-REV-04 | Cuerpo del émbolo apretado contra su collar: la unión no se abre (R12, M_h completo) [N·m] | M = 3006 N × 14.5 mm = 43.6 N·m contra F_mín·k = 14.2 kN × 6.46 mm (par 75 N·m, K ≤ 0.22, Loctite 243) | 43.59 | metal | 91.7 | 2.1 | 2.0 | ✔ |
+| P1-REV-04 | Cuerpo del émbolo (316) al apretar con la precarga máxima: σ_red ≈ 1,15·F/A ≤ 0,9·Rp0,2 (VDI 2230) | 26.0 kN / 195 mm² (A_s M24×1,5 − Ø16.2) | 153.76 | metal | 184.5 | 1.2 | 1.0 | ✔ |
+| P1-STE-01 | Collar del émbolo sobre la oreja 6061: presión con la precarga máxima | 26.0 kN / corona Ø34/Ø24.5 | 59.66 | metal | 240.0 | 4.02 | 2.0 | ✔ |
 | P1-REV-06 | Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada) | F = 100 N × 125/46 = 272 N a 6 mm | 32.44 | metal | 205.0 | 6.32 | 2.0 | ✔ |
 | P1-REV-09 | Perno de manivela Ø6 316 estirado (voladizo hasta el eje del émbolo): flexión | tiro de diseño 92 N por cable [CALCULADO: mano 100 N [SUPUESTO] × 34/18,5 / 2 cables; ≥ resorte 45 N [ESTIMADO] / η 0,6 [ESTIMADO]] a 29,3 mm | 126.59 | metal | 310.0 | 2.45 | 2.0 | ✔ |
 | P1-REV-09 | Balancín 5 mm 5083: flexión del brazo junto al cubo del eje | 92 N a 8 mm; sección 9 × 5 | 10.87 | metal | 125.0 | 11.5 | 2.0 | ✔ |

@@ -93,12 +93,15 @@ def extend(d):
     d["STE_stop_deg"] = smax + 1.5     # topes mecánicos de dirección (P1-STE-08) [SUPUESTO: 1,5° sobre δmax]
     d["STE_stop_z"] = (222.0, 230.0)   # placa de topes, entre el bucket arriba y el brazo del yugo [CALCULADO]
     # Émbolo de la traba (P1-REV-04, auditoría ronda 4): PROPIO, torneado en 316. El de catálogo que se suponía
-    # ("GN 617-12 M20 A4") no existe: el GN 617 inox con rosca M20×1,5 trae perno Ø10 de AISI 303, carrera 10 mm y
+    # ("GN 617-12 M20 A4") no existe: el GN 617 inox con rosca M20×1,5 trae perno Ø10 de AISI 303 que sobresale 10 mm (l2) y
     # resorte 17–40 N [VERIFICADO: catálogo Elesa/Ganter GN 617, pág. 809, GN 617-10-AKN-NI] y con una traba sola
     # (3 kN a R12) su perno no llega a FS 2. Perno Ø16 316 h9, cuerpo con rosca M24×1,5 en la oreja, resorte inox
     # comprado (precarga ≈ 20 N, final ≈ 45 N, como el GN 617-10) [CALCULADO: structural_direccion, P1-REV-04].
     d["REV_plunger_stroke"] = 12.0     # carrera del perno (diseño propio) [CALCULADO: ≥ REV_release_need + 2]
     d["REV_lock_thread_d"] = 24.0      # rosca M24×1,5 del cuerpo del émbolo en la oreja [CALCULADO: pared del cuerpo sobre el perno Ø16]
+    # par de apriete del cuerpo del émbolo contra su collar (Loctite 243; K 0,12–0,22 como el pivote) [CALCULADO: la unión
+    # no se abre con el momento del perno a R12 (FS ≥ 2 con la precarga mínima) y el cuerpo no pasa 0,9·Rp0,2 con la máxima]
+    d["REV_lock_T_Nm"] = 75.0
     d["STE_e_frac"] = 0.5              # [ESTIMADO: research/R12 §7.4 — brazo del momento 0,3–0,5 L]
     d["STE_F_design"] = max(loads["F_steer_side_N"], 364.0)   # [CALCULADO: research/R12 §7.4 — 364 N (7,2 kW, δ 30°); se toma el mayor con sizing]
     # orejas del bucket sobre la boquilla

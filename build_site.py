@@ -84,12 +84,7 @@ E = html.escape
 
 def sources():
     """Las mismas fuentes que docgen.main() expone a los marcadores V (cargadas con docgen.load)."""
-    fp = ROOT / "04_diseno" / "fea" / "resultados_fea.json"
-    srcs = {"sizing": docgen.load("sizing.json"), "bom": docgen.load("bom_resumen.json"),
-            "manifest": docgen.load("manifest.json"), "est": docgen.load("estructural.json"),
-            "verify": docgen.load("verify.json"), "arch": docgen.load("arquitectura.json"),
-            "cmp": docgen.load("comparacion.json"),
-            "fea": json.loads(fp.read_text(encoding="utf-8")) if fp.exists() else {}}
+    srcs = docgen.sources()
     srcs["_auto"] = auto_blocks(srcs)
     return srcs
 

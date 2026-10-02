@@ -156,11 +156,13 @@ def draw(p, H):
     tail = RL.PLG_SPRING_L1 + RL.PLG_CAP_T + p.REV_plunger_stroke + RL.PLG_KNOB_L
     out.append(T("P1-REV-04", "embolo_cuerpo", "AISI 316 (1.4401) barra Ø25",
                  [(p.STE_ear_t, p.REV_lock_thread_d, f"M{p.REV_lock_thread_d:g}×1,5-6g (en la oreja; punta enrasada a la cara exterior)"),
-                  (round(RL.PLG_GUIDE + RL.PLG_SPRING_L1 - p.STE_ear_t, 2), RL.PLG_BODY_D, f"cuerpo Ø{RL.PLG_BODY_D:g} (M{p.REV_lock_thread_d:g}×1,5 hasta la contratuerca)"),
+                  (RL.PLG_COLLAR_T, RL.PLG_COLLAR_D, f"collar Ø{RL.PLG_COLLAR_D:g}, 2 planos e/c 32; cara de apoyo a escuadra ≤ 0,02"),
+                  (round(RL.PLG_GUIDE + RL.PLG_SPRING_L1 - p.STE_ear_t - RL.PLG_COLLAR_T, 2), RL.PLG_BODY_D, f"cuerpo Ø{RL.PLG_BODY_D:g}"),
                   (RL.PLG_CAP_T, RL.PLG_BODY_D, "tapa roscada M20×1 con Ø10,2 (cola del perno)")],
                  feats=[(0.0, "punta: cara exterior de la oreja"), (RL.PLG_GUIDE, "fin de la guía / inicio de la cámara del resorte")],
                  notes=[f"Interior Ø{p.REV_lock_pin_d:g} H8 pasante (guía del perno, Ra 0,8); rosca interior M20×1 × 6 atrás para la tapa; ×2",
-                        f"Contratuerca M{p.REV_lock_thread_d:g}×1,5 A4 fina ({RL.PLG_NUT_T:g} mm) contra la cara interior de la oreja; Tef-Gel en la rosca",
+                        f"El collar apoya en la cara interior de la oreja: apretar el cuerpo a {p.REV_lock_T_Nm:g} N·m con Loctite 243 (rosca de la oreja",
+                        "  sin Tef-Gel; la cara del collar sobre el anodizado); la punta queda enrasada a la cara exterior",
                         "Resorte de compresión inox (B-SPRING): alambre 1,6, Ø ext 15, largo libre ≈ 40,",
                         "  instalado 30 (≈ 20 N), con el perno afuera 18 (≈ 44 N) [ESTIMADO]"]))
     out.append(T("P1-REV-04", "embolo_perno", "AISI 316 (1.4401) barra Ø18",
@@ -259,7 +261,8 @@ def draw(p, H):
     out.append(PL("P1-CTL-10", "palanca_bucket", "Al 6061-T6", 80.0, 30.0 + 112.0, 8.0,
                   [(40.0, 30.0, 12.2, "eje (buje POM)"), (40.0 - 39.8, 30.0 + 23.0, 8.0, "perno de manivela Ø8 prensado")],
                   notes=["Muescas Ø6,4 × 3 en r 22, φ 90° y 210° (cara interior)", "Escalón 20 mm a babor y mango hasta z 135 (soldado)",
-                         "Gatillo del Bowden de liberación del émbolo (no modelado)"]))
+                         "Placa lateral 4 mm (≈ 28 × 65, x −20…8, z 70–135) soldada al mango: lleva el pasador Ø5 del gatillo P1-CTL-14",
+                         "  y la pestaña de tope de las 2 vainas (5 mm, 2 × M6); contorno exacto en el STEP"]))
     out.append(T("P1-CTL-11", "eje_palancas", "AISI 316",
                  [(6.0, 18.0, "cabeza portaimán Ø10,2 × 3"), (32.0, 12.0, "Ø12 h7"), (3.0, 12.0, "ranura anillo E")],
                  feats=[(9.0, "pasador Ø4 (palanca del acelerador)")], notes=["Imán NdFeB Ø10×3 diametral pegado (epoxi)"]))

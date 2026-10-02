@@ -185,13 +185,18 @@ def getpath(src, path):
     return cur
 
 
-def main():
-    sz, bom, man, est, ver = load("sizing.json"), load("bom_resumen.json"), load("manifest.json"), load("estructural.json"), load("verify.json")
-    arch = load("arquitectura.json")
-    cmp_ = load("comparacion.json")
+def sources():
+    """Fuentes de los marcadores V (src.path): fuente única para docgen, tools_check_md, build_site y los tests."""
     _fp = ROOT / "04_diseno" / "fea" / "resultados_fea.json"
-    fea = json.loads(_fp.read_text(encoding="utf-8")) if _fp.exists() else {}
-    srcs = {"sizing": sz, "bom": bom, "manifest": man, "est": est, "verify": ver, "arch": arch, "cmp": cmp_, "fea": fea}
+    return {"sizing": load("sizing.json"), "bom": load("bom_resumen.json"), "manifest": load("manifest.json"),
+            "est": load("estructural.json"), "verify": load("verify.json"), "arch": load("arquitectura.json"),
+            "cmp": load("comparacion.json"),
+            "fea": json.loads(_fp.read_text(encoding="utf-8")) if _fp.exists() else {}}
+
+
+def main():
+    srcs = sources()
+    sz, bom, man, est, ver = srcs["sizing"], srcs["bom"], srcs["manifest"], srcs["est"], srcs["verify"]
     B = blocks(sz, bom, man, est, ver)
     if (RES / "arquitectura_tabla.md").exists():
         B["arch"] = (RES / "arquitectura_tabla.md").read_text(encoding="utf-8").strip()

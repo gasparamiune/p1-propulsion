@@ -373,6 +373,29 @@ def cases(p, A, row, rows, T3, T2):
         f"F = M_h/r = {Fl:.0f} N a {lev_l:.1f} mm", vm(Fl * lev_l / z_round(dl), 4 / 3 * Fl / (math.pi * dl ** 2 / 4)), SS316, A, T2)
     row(rows, "P1-REV-04", "Perno del émbolo: flexión (reversa sizing, fatiga; M_h completo)",
         f"F = {Fl_n:.0f} N", Fl_n * lev_l / z_round(dl), SS316_FAT, A, T2)
+    # cuerpo del émbolo apretado contra su collar (Ø36 con 2 planos e/c 32 → corona equivalente Ø34/Ø24,5) en la cara
+    # interior de la oreja: el momento del perno en el plano medio de la oreja (F·(luz + t/2 + oreja/2)) no abre la unión
+    # con la precarga mínima; con la máxima el cuerpo (316, A_s M24×1,5 − agujero Ø16,2) no pasa 0,9·Rp0,2
+    import sys as _sys
+    from pathlib import Path as _P
+    _sys.path.insert(0, str(_P(__file__).resolve().parent / "piezas"))
+    import _release as _RL
+    Kmin, Kmax = p.REV_bolt_K
+    dth = p.REV_lock_thread_d
+    Fc_min = p.REV_lock_T_Nm * 1000 / (Kmax * dth)
+    Fc_max = p.REV_lock_T_Nm * 1000 / (Kmin * dth)
+    Dc, dc = _RL.PLG_COLLAR_D - 2.0, dth + 0.5
+    kern_c = (Dc ** 2 + dc ** 2) / (8 * Dc)
+    M_lk = Fl * (lev_l + p.STE_ear_t / 2)
+    row(rows, "P1-REV-04", "Cuerpo del émbolo apretado contra su collar: la unión no se abre (R12, M_h completo) [N·m]",
+        f"M = {Fl:.0f} N × {lev_l + p.STE_ear_t / 2:.1f} mm = {M_lk/1000:.1f} N·m contra F_mín·k = {Fc_min/1000:.1f} kN × {kern_c:.2f} mm "
+        f"(par {p.REV_lock_T_Nm:g} N·m, K ≤ {Kmax:g}, Loctite 243)", M_lk / 1000, Fc_min * kern_c / 1000, A, T2)
+    A_body = math.pi / 4 * ((dth - 0.9382 * 1.5) ** 2 - (dl + 0.2) ** 2)     # A_s ≈ (d − 0,9382·P)² (ISO 898) − agujero
+    row(rows, "P1-REV-04", "Cuerpo del émbolo (316) al apretar con la precarga máxima: σ_red ≈ 1,15·F/A ≤ 0,9·Rp0,2 (VDI 2230)",
+        f"{Fc_max/1000:.1f} kN / {A_body:.0f} mm² (A_s M{dth:g}×1,5 − Ø{dl + 0.2:g})", 1.15 * Fc_max / A_body, 0.9 * SS316, A, 1.0,
+        "criterio de montaje (no de servicio)")
+    row(rows, "P1-STE-01", "Collar del émbolo sobre la oreja 6061: presión con la precarga máxima",
+        f"{Fc_max/1000:.1f} kN / corona Ø{Dc:g}/Ø{dc:g}", Fc_max / (math.pi / 4 * (Dc ** 2 - dc ** 2)), AL6061, A, T2)
     F_cab = p.CTL_hand_F * 125.0 / 46.0      # palanca forzada contra el tope: 100 N × 125 mm / manivela 46
     row(rows, "P1-REV-06", "Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada)",
         f"F = 100 N × 125/46 = {F_cab:.0f} N a 6 mm", F_cab * 6.0 / z_round(p.REV_stud_d), SS316, A, T2)
@@ -459,7 +482,7 @@ def cases(p, A, row, rows, T3, T2):
         "F_lock_pin_N": round(Fl, 0), "F_lock_pin_sizing_N": round(Fl_n, 0), "n_locks": p.REV_n_locks,
         "lock_criterion": "cada traba sola lleva M_h completo",
         "R_bucket_pivot_design_N": round(R_d, 0), "R_bucket_pivot_sizing_N": round(R_dn, 0),
-        "bolt_torque_Nm": p.REV_bolt_T_Nm, "bolt_pre_min_N": round(Fmin, 0), "bolt_pre_max_N": round(Fmax, 0),
+        "bolt_torque_Nm": p.REV_bolt_T_Nm, "lock_body_torque_Nm": p.REV_lock_T_Nm, "bolt_pre_min_N": round(Fmin, 0), "bolt_pre_max_N": round(Fmax, 0),
         "F_pivot_pin_top_N": round(F_top, 0), "F_pivot_pin_bot_N": round(F_bot, 0),
         "F_stop_N": round(F_st, 0),
         "PETG_boquilla": {"caso": "oreja del bucket 12 mm, reversa sizing, admisible lcf",

@@ -60,11 +60,9 @@ def test_docs_in_sync(root):
     r = subprocess.run([sys.executable, str(root / "docgen.py")], cwd=root, capture_output=True, text=True)
     assert r.returncode == 0, r.stdout
     # tras docgen, cada valor marcado coincide con su fuente
-    from docgen import getpath, load
-    srcs = {"sizing": load("sizing.json"), "bom": load("bom_resumen.json"), "manifest": load("manifest.json"),
-            "est": load("estructural.json"), "verify": load("verify.json"), "arch": load("arquitectura.json"),
-            "cmp": load("comparacion.json")}
-    pat = re.compile(r"<!--V:([\w.]+):([^>]*?)-->(.*?)<!--/V-->", re.S)
+    from docgen import getpath, sources
+    srcs = sources()
+    pat = re.compile(r"<!--V:([\w.\-]+):([^>]*?)-->(.*?)<!--/V-->", re.S)
     n = 0
     for md in list(root.glob("*.md")):
         for m in pat.finditer(md.read_text(encoding="utf-8")):

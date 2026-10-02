@@ -277,6 +277,15 @@ def classify(part, st):
     bb = [float(x) for x in part["bbox_mm"]]
     if "by_service" in ov:
         return {"form": "service", "service": ov["by_service"]}
+    if ov.get("form") == "bars":            # varias barras por pieza (el bbox incluye tornillería u otras piezas)
+        al_ = st["allowance"]
+        out = []
+        for b in ov["bars"]:
+            D, L = float(b["d_mm"]), float(b["l_mm"])
+            add = al_["d_small_mm"] if D <= 10 else (al_["d_mm"] if D <= 50 else max(al_["d_mm"], al_["d_frac"] * D))
+            out.append({"form": "bar", "D": D, "L": L, "Ds": _std(D + add, st["bar_d_std_mm"]), "Ls": L + al_["len_mm"],
+                        "n": int(b.get("n", 1)), "note": b.get("note", "")})
+        return {"form": "bars", "bars": out}
     if ov.get("form") == "weld":
         return {"form": "weld", "t": float(ov["t_mm"]), "nest": ov.get("nest", st["nest_factor_weld"]),
                 "note": ov.get("note", "")}
@@ -322,6 +331,9 @@ def stock_rows(inp, man, date):
         n = r["qty"] + spares.get(r["id"], {}).get("qty", 0)
         if c["form"] == "bar":
             bars.setdefault((r["material"], c["Ds"]), []).append((r, n, c))
+        elif c["form"] == "bars":
+            for cb in c["bars"]:
+                bars.setdefault((r["material"], cb["Ds"]), []).append((r, n * cb["n"], cb))
         elif c["form"] in ("plate", "weld"):
             if c["form"] == "plate":
                 area = c["w"] * c["h"] * st["nest_factor_plate"] / 1e6
@@ -358,12 +370,13 @@ def stock_rows(inp, man, date):
                 tag = tag.replace("[VERIFICADO", "[ESTIMADO: precio de research, sin link de producto —", 1)
         else:
             price, tag = max(kg * m["eur_kg"], st["min_eur"]), est_tag(m)
-        pieces = "; ".join(f"{r['id']} Ø{_f(c['D'])} × {_f(c['L'])} → {n} × {c['Ls']:.0f} mm" for r, n, c in lst)
+        pieces = "; ".join(f"{r['id']}{' ' + c['note'] if c.get('note') else ''} Ø{_f(c['D'])} × {_f(c['L'])} → {n} × {c['Ls']:.0f} mm"
+                           for r, n, c in lst)
         spec = (f"Barra redonda {m['grade']} Ø{Ds:g} × {Lbuy:.0f} mm ({_f(kg, 2)} kg) — {pieces}. "
                 f"Sobremedida: Ø +{_f(st['allowance']['d_small_mm'])} (≤ 10) / +{st['allowance']['d_mm']:g} (≤ 50) / "
                 f"+{st['allowance']['d_frac'] * 100:g} % mm; largo +{st['allowance']['len_mm']:g} mm")
         rows.append(mk(f"MP-{MAT_CODE.get(mat, mat)}-D{Ds:g}", mat, f"Barra {MAT_CODE.get(mat, mat)} Ø{Ds:g} (torno propio salvo servicio)",
-                       spec, kg, price, tag, [r["id"] for r, _, _ in lst], link))
+                       spec, kg, price, tag, sorted({r["id"] for r, _, _ in lst}), link))
     for (mat, t), lst in sorted(plates.items(), key=lambda kv: (kv[0][0], kv[0][1])):
         m = mats[mat]
         area = sum(a for *_, a in lst)

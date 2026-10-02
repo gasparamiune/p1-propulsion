@@ -39,7 +39,12 @@ PLG_SPRING_L1 = 30.0
 PLG_CAP_T = 4.0
 PLG_KNOB_L = 10.0
 PLG_BODY_D = 24.0
-PLG_NUT_T = 12.0              # contratuerca M24×1,5 fina [ESTIMADO: DIN 439 / ISO 8675 M24×1,5, m = 12]
+# collar del cuerpo (en vez de contratuerca, ronda 4): Ø36 con 2 planos e/c 32 para la llave, apoya en la cara interior
+# de la oreja; el cuerpo se aprieta contra él (REV_lock_T_Nm, Loctite 243): ubica la punta enrasada a la cara exterior y
+# toma el momento del perno sin que la unión se abra (structural_direccion, P1-REV-04)
+PLG_COLLAR_D = 36.0
+PLG_COLLAR_T = 8.0
+PLG_NUT_T = PLG_COLLAR_T      # (nombre histórico: zona del collar a lo largo del eje)
 
 
 def body_end_y(p):
@@ -80,7 +85,7 @@ NIPPLE_R = 2.5          # terminal del cable (barril Ø5) en el brazo de salida 
 ADJ_EDGE = 3.0          # borde de la pestaña alrededor del regulador M6 [SUPUESTO]
 ADJ_HOLE_R = 3.25       # agujero roscado M6 de la pestaña (modelado Ø6,5)
 TAB_T = 5.0             # pestañas del soporte (tope de las vainas)
-NUT_R = 36.0 / math.sqrt(3)   # radio circunscrito de la contratuerca M24×1,5 (36 e/c, P1-REV-04)
+NUT_R = PLG_COLLAR_D / 2      # radio máximo del collar del cuerpo del émbolo (P1-REV-04)
 BOWDEN_D = 5.0          # vaina con camisa de PTFE Ø5 [ESTIMADO: B-BOWDEN]
 BOWDEN_R_MIN = 30.0     # radio mínimo de curvatura de la vaina Ø5 con PTFE [ESTIMADO: ≈ 6 × Ø; ficha del fabricante a confirmar]
 BOWDEN_R = 40.0         # radio usado en el modelo (≥ BOWDEN_R_MIN) [SUPUESTO]
