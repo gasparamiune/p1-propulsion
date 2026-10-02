@@ -287,6 +287,7 @@ def main():
             "masa_jet_kg": man["totals"]["jet_unit_mass_kg"], "impreso_kg": man["totals"]["printed_mass_g"] / 1000,
             "horas_impresion": man["totals"]["printed_hours"], "n_piezas": man["totals"]["n_parts"],
             "x_lip": p.x_lip, "x_tan": p.x_tan, "x_if": p.x_if,
+            "veredicto": sz.get("verdict", {}),
         },
         "comparacion": {k: cmp_.get(k) for k in ("B_vmax_kmh", "B_hump_margin", "B_jt132_landed_eur_min",
                                                  "B_jt132_landed_eur_max", "B_total_eur_min", "B_total_eur_max",

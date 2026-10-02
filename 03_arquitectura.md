@@ -33,15 +33,15 @@ juegos de pesos (Dirichlet alrededor de los nominales) [CALCULADO: `arquitectura
 <!-- AUTO:arch -->
 | Opción | seguridad (18 %) | concepto (12 %) | prestaciones (14 %) | eficiencia_5kn (8 %) | poca_prof (8 %) | viabilidad (10 %) | costo (10 %) | tiempo (7 %) | reparabilidad (6 %) | riesgo (7 %) | **Total** | Gana en MC |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **B** Waterjet comercial AWT JT132 (Ø130) + el tren eléctrico de este diseño | 4 | 5 | 3 | 2 | 3 | 4 | 4 | 4 | 3 | 3 | **3.61** | 73 % |
-| **C** Bomba de jet ski usada (Sea-Doo Spark 140) adaptada | 4 | 5 | 3 | 2 | 3 | 3 | 4 | 3 | 4 | 3 | **3.50** | 10 % |
-| **E** Cola larga / surface drive (diseño P1 anterior, adaptado) | 3 | 1 | 2 | 4 | 5 | 4 | 4 | 3 | 5 | 3 | **3.18** | 10 % |
-| **A** Waterjet propio (impulsor CNC + bomba Al + toma soldada) — este diseño | 4 | 5 | 3 | 2 | 3 | 2 | 3 | 2 | 3 | 2 | **3.10** | 0 % |
-| **D** Fueraborda eléctrico de 3–6 kW con hélice | 2 | 1 | 4 | 4 | 2 | 5 | 2 | 5 | 2 | 5 | **3.04** | 7 % |
-| **F** Hélice entubada en túnel bajo el casco (pump-jet / rim-drive) | 4 | 3 | 3 | 3 | 2 | 2 | 3 | 2 | 2 | 2 | **2.80** | 0 % |
+| **B** Waterjet comercial AWT JT132 (Ø130) + el tren eléctrico de este diseño | 4 | 5 | 2 | 2 | 3 | 4 | 4 | 4 | 3 | 3 | **3.47** | 62 % |
+| **C** Bomba de jet ski usada (Sea-Doo Spark 140) adaptada | 4 | 5 | 2 | 2 | 3 | 3 | 4 | 3 | 4 | 3 | **3.36** | 8 % |
+| **E** Cola larga / surface drive (diseño P1 anterior, adaptado) | 3 | 1 | 2 | 4 | 5 | 4 | 4 | 3 | 5 | 3 | **3.18** | 17 % |
+| **D** Fueraborda eléctrico de 3–6 kW con hélice | 2 | 1 | 4 | 4 | 2 | 5 | 2 | 5 | 2 | 5 | **3.04** | 14 % |
+| **A** Waterjet propio (impulsor CNC + bomba Al + toma soldada) — este diseño | 4 | 5 | 2 | 2 | 3 | 2 | 3 | 2 | 3 | 2 | **2.96** | 0 % |
+| **F** Hélice entubada en túnel bajo el casco (pump-jet / rim-drive) | 4 | 3 | 2 | 3 | 2 | 2 | 3 | 2 | 2 | 2 | **2.66** | 0 % |
 
 Sensibilidad: variando cada peso ±50 % (renormalizado), el ganador **no cambia** en ninguno de los 20 casos.
-Monte Carlo (20000 juegos de pesos Dirichlet alrededor de los nominales): B 73 %, C 10 %, D 7 %, E 10 %.
+Monte Carlo (20000 juegos de pesos Dirichlet alrededor de los nominales): B 62 %, C 8 %, D 14 %, E 17 %.
 <!-- /AUTO:arch -->
 
 **Pesos.** Seguridad primero (<!--V:arch.weights.0:.0%-->18%<!--/V-->): el piloto puede caer al agua junto a la
@@ -55,7 +55,7 @@ pidió Jorge (<!--V:arch.weights.1:.0%-->12%<!--/V-->). Eficiencia a 5 kn pesa
 |---|---|---|---|---|---|---|
 | Seguridad | <!--V:arch.scores.0.0:.0f-->4<!--/V-->: sin hélice expuesta; rejilla y bucket; pasador de corte | <!--V:arch.scores.1.0:.0f-->4<!--/V-->: igual que A | <!--V:arch.scores.2.0:.0f-->4<!--/V-->: igual que A | <!--V:arch.scores.3.0:.0f-->2<!--/V-->: hélice abierta junto a un piloto que cae al agua y a bañistas | <!--V:arch.scores.4.0:.0f-->3<!--/V-->: hélice en superficie, detrás del espejo, con protector | <!--V:arch.scores.5.0:.0f-->4<!--/V-->: hélice dentro de un túnel |
 | Concepto de Jorge | <!--V:arch.scores.0.1:.0f-->5<!--/V-->: jet inboard, nada colgando | <!--V:arch.scores.1.1:.0f-->5<!--/V-->: es la bomba de su foto | <!--V:arch.scores.2.1:.0f-->5<!--/V-->: jet inboard | <!--V:arch.scores.3.1:.0f-->1<!--/V-->: motor colgado del espejo | <!--V:arch.scores.4.1:.0f-->1<!--/V-->: cola larga colgada | <!--V:arch.scores.5.1:.0f-->3<!--/V-->: nada cuelga, pero no es jet y necesita timón |
-| Prestaciones | <!--V:arch.scores.0.2:.0f-->3<!--/V-->: cruza la joroba con <!--V:sizing.performance.hump_margin_min:.0%-->-7%<!--/V--> de margen (< 10 % exigido); <!--V:cmp.A_vmax_kmh:.1f-->24.7<!--/V--> km/h sostenidos [CALCULADO] | <!--V:arch.scores.1.2:.0f-->3<!--/V-->: <!--V:cmp.B_vmax_kmh:.1f-->26.8<!--/V--> km/h con la geometría de la JT132, margen en la joroba <!--V:cmp.B_hump_margin:.0%-->-9%<!--/V--> [CALCULADO] | <!--V:arch.scores.2.2:.0f-->3<!--/V-->: bomba de 60–90 hp a 5 kW, fuera de su punto (R11 §4) | <!--V:arch.scores.3.2:.0f-->4<!--/V-->: una hélice rinde bien a 25–30 km/h | <!--V:arch.scores.4.2:.0f-->2<!--/V-->: diseñada para 6 km/h en desplazamiento | <!--V:arch.scores.5.2:.0f-->3<!--/V-->: buena a baja velocidad, pierde en planeo por el túnel |
+| Prestaciones | <!--V:arch.scores.0.2:.0f-->2<!--/V-->: planea solo con la resistencia nominal (margen <!--V:sizing.verdict.hump_margin_min_nominal:.0%-->4%<!--/V--> < 10 %); con la alta no llega a planeo pleno; <!--V:cmp.A_vmax_kmh:.1f-->24.7<!--/V--> km/h sostenidos [CALCULADO] | <!--V:arch.scores.1.2:.0f-->2<!--/V-->: <!--V:cmp.B_vmax_kmh:.1f-->26.8<!--/V--> km/h con la geometría de la JT132; con la resistencia alta margen <!--V:cmp.B_hump_margin:.0%-->-9%<!--/V--> [CALCULADO] | <!--V:arch.scores.2.2:.0f-->2<!--/V-->: bomba de 60–90 hp a 5 kW, fuera de su punto (R11 §4) | <!--V:arch.scores.3.2:.0f-->4<!--/V-->: una hélice rinde bien a 25–30 km/h | <!--V:arch.scores.4.2:.0f-->2<!--/V-->: diseñada para 6 km/h en desplazamiento | <!--V:arch.scores.5.2:.0f-->2<!--/V-->: buena a baja velocidad, pierde en planeo por el túnel |
 | Eficiencia a 5 kn | <!--V:arch.scores.0.3:.0f-->2<!--/V-->: η del chorro a 5 kn <!--V:sizing.performance.legal.eta_jet:.2f-->0.34<!--/V--> [CALCULADO] | <!--V:arch.scores.1.3:.0f-->2<!--/V-->: igual (jet) | <!--V:arch.scores.2.3:.0f-->2<!--/V-->: igual (jet) | <!--V:arch.scores.3.3:.0f-->4<!--/V-->: hélice | <!--V:arch.scores.4.3:.0f-->4<!--/V-->: hélice grande y lenta | <!--V:arch.scores.5.3:.0f-->3<!--/V-->: hélice con pérdidas de túnel |
 | Poca profundidad | <!--V:arch.scores.0.4:.0f-->3<!--/V-->: nada bajo el casco, pero la toma succiona arena; ~30 cm de luz en desplazamiento (R03 S12) | <!--V:arch.scores.1.4:.0f-->3<!--/V-->: igual | <!--V:arch.scores.2.4:.0f-->3<!--/V-->: igual | <!--V:arch.scores.3.4:.0f-->2<!--/V-->: pata y hélice bajo el casco | <!--V:arch.scores.4.4:.0f-->5<!--/V-->: la cola se levanta | <!--V:arch.scores.5.4:.0f-->2<!--/V-->: túnel bajo el fondo, aspira lo que hay |
 | Viabilidad con torno + Ender-3 | <!--V:arch.scores.0.5:.0f-->2<!--/V-->: impulsor y estator CNC 5 ejes, toma soldada, holgura 0,4 mm: depende de servicios | <!--V:arch.scores.1.5:.0f-->4<!--/V-->: se compra la bomba; queda adaptar la toma al fondo | <!--V:arch.scores.2.5:.0f-->3<!--/V-->: repuestos fuera de la UE; carcasa y toma a adaptar | <!--V:arch.scores.3.5:.0f-->5<!--/V-->: se compra entero | <!--V:arch.scores.4.5:.0f-->4<!--/V-->: diseño anterior existente, a adaptar | <!--V:arch.scores.5.5:.0f-->2<!--/V-->: túnel en el casco + motor sumergido o eje |
@@ -64,9 +64,9 @@ pidió Jorge (<!--V:arch.weights.1:.0%-->12%<!--/V-->). Eficiencia a 5 kn pesa
 | Reparabilidad | <!--V:arch.scores.0.8:.0f-->3<!--/V-->: planos propios, pero impulsor y estator por servicio | <!--V:arch.scores.1.8:.0f-->3<!--/V-->: repuestos del fabricante chino | <!--V:arch.scores.2.8:.0f-->4<!--/V-->: repuestos de Spark abundantes | <!--V:arch.scores.3.8:.0f-->2<!--/V-->: producto cerrado | <!--V:arch.scores.4.8:.0f-->5<!--/V-->: todo torneable en casa | <!--V:arch.scores.5.8:.0f-->2<!--/V-->: motor sumergido / túnel |
 | Riesgo técnico | <!--V:arch.scores.0.9:.0f-->2<!--/V-->: bomba sin ensayo; η, curva y cavitación estimadas | <!--V:arch.scores.1.9:.0f-->3<!--/V-->: curva desconocida; toma y cebado a confirmar | <!--V:arch.scores.2.9:.0f-->3<!--/V-->: bomba fuera de su punto; toma a adaptar | <!--V:arch.scores.3.9:.0f-->5<!--/V-->: producto probado | <!--V:arch.scores.4.9:.0f-->3<!--/V-->: probado en otro casco y otro uso | <!--V:arch.scores.5.9:.0f-->2<!--/V-->: rozamiento y freno hidrodinámico en proyectos DIY (R03 §1, D3–D5) |
 
-**Lectura.** B gana (<!--V:arch.totals.B:.2f-->3.61<!--/V-->) y lo sigue haciendo en el
-<!--V:arch.mc_win_frac.B:.0%-->73%<!--/V--> de los juegos de pesos del Monte Carlo; A queda en
-<!--V:arch.totals.A:.2f-->3.10<!--/V-->. La diferencia entre A y B está entera en viabilidad, costo, tiempo y riesgo: en
+**Lectura.** B gana (<!--V:arch.totals.B:.2f-->3.47<!--/V-->) y lo sigue haciendo en el
+<!--V:arch.mc_win_frac.B:.0%-->62%<!--/V--> de los juegos de pesos del Monte Carlo; A queda en
+<!--V:arch.totals.A:.2f-->2.96<!--/V-->. La diferencia entre A y B está entera en viabilidad, costo, tiempo y riesgo: en
 seguridad, concepto y prestaciones son iguales. D y E ganan en eficiencia a 5 kn y en riesgo, pero no son lo
 que pidió Jorge.
 
