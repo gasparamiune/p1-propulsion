@@ -37,8 +37,7 @@ def placements(p, steer=0.0, bucket=0):
     from build123d import Pos, Rot
     L = [loc_steer(p, steer)]
     if p.REV_n_locks > 1:                       # gemelo del lado −Y (2.º émbolo; y → −y alrededor de la traba)
-        x, z = RL.lock_xz(p)
-        L.append(loc_steer(p, steer) * Pos(x, 0, z) * Rot(180, 0, 0) * Pos(-x, 0, -z))
+        L.append(loc_steer(p, steer) * RL.mirror_loc(p))
     return L
 
 

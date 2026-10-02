@@ -278,22 +278,30 @@ def bucket_statics(p, Fb, n=60):
     Fz = 0.10 * Zb * Fb / dx                                       # componente vertical (hacia arriba)
     F = np.array([Fb, 0.0, Fz])
     MF = dz * F[0] - dx * F[2]                                     # M_y alrededor del pivote
-    a = math.radians(p.REV_lock_ang)
     r = p.REV_lock_r
-    t = np.array([math.sin(a), 0.0, -math.cos(a)])                 # λ·t da M_y = λ·r
-    lam = -MF / r
-    L = lam * t                                                    # fuerza de traba TOTAL sobre el bucket
-    yp = 0.5 * (p.STE_ear_y0 + p.STE_ear_y1)
     nl = int(getattr(p, "REV_n_locks", 1))
-    if nl > 1:                                                     # una traba por brazo: simétrico (ronda 3)
-        Rp = Rm = -(F + L) / 2
-    else:
-        Rp = -(F + L) / 2 - L / 2                                  # pivote +Y (mismo lado que la traba): ΔR = −L
-        Rm = -(F + L) / 2 + L / 2
-    return {"F_N": F.tolist(), "x_cp_mm": xcp, "M_h_Nm": -MF / 1000, "lock_point": [Xb + r * math.cos(a), Zb + r * math.sin(a)],
-            "n_traba": nl,
-            "F_traba_sobre_boquilla_N": (-L / nl).tolist(), "F_pivote_mas_y_sobre_boquilla_N": (-Rp).tolist(),
-            "F_pivote_menos_y_sobre_boquilla_N": (-Rm).tolist(), "y_orejas_mm": yp, "R_chorro_mm": R}
+    angs = [p.REV_lock_ang] + ([p.raw.get("REV_lock_ang_m", p.REV_lock_ang)] if nl > 1 and hasattr(p, "raw") else
+                               [p.REV_lock_ang] * (nl - 1))
+    Ls = []
+    for ang in angs:                                               # cada traba toma M_h/n (una por brazo)
+        a = math.radians(ang)
+        t = np.array([math.sin(a), 0.0, -math.cos(a)])             # λ·t da M_y = λ·r
+        Ls.append((-MF / nl / r) * t)
+    L1 = Ls[0]
+    L2 = Ls[1] if nl > 1 else np.zeros(3)
+    yp = 0.5 * (p.STE_ear_y0 + p.STE_ear_y1)
+    Rp = -F / 2 - L1                                               # pivote +Y: mitad del chorro + reacción de su traba
+    Rm = -F / 2 - L2
+    a1 = math.radians(angs[0])
+    out = {"F_N": F.tolist(), "x_cp_mm": xcp, "M_h_Nm": -MF / 1000, "lock_point": [Xb + r * math.cos(a1), Zb + r * math.sin(a1)],
+           "n_traba": nl,
+           "F_traba_sobre_boquilla_N": (-L1).tolist(), "F_pivote_mas_y_sobre_boquilla_N": (-Rp).tolist(),
+           "F_pivote_menos_y_sobre_boquilla_N": (-Rm).tolist(), "y_orejas_mm": yp, "R_chorro_mm": R}
+    if nl > 1:
+        a2 = math.radians(angs[1])
+        out["F_traba_menos_y_sobre_boquilla_N"] = (-L2).tolist()
+        out["lock_point_menos_y"] = [Xb + r * math.cos(a2), Zb + r * math.sin(a2)]
+    return out
 
 
 class _Override:
@@ -325,13 +333,19 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
     sd = struct_mod("structural_direccion")
     A = metal_allow(p.inp, "Al 5083-O/H111 (= ZAT)", sd.AL5083, "structural_direccion.AL5083 [ESTIMADO: EN 485-2]")
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
-    lk = m.lock_pt(p)
+    lks = {1: m.lock_pt(p)}
+    if double:
+        try:
+            lks[-1] = m.lock_pt(p, -1)
+        except TypeError:                                       # módulo viejo (una sola traba): espejo
+            lks[-1] = lks[1]
+    lk = lks[1]
     yi, t = p.REV_y_in, p.REV_t
     hr = max(0.5 * h, hmin)
     sides = (1, -1) if double else (1,)
-    ref = [(Xb, s * (yi + t), Zb, 22.0, hr) for s in (1, -1)] + [(lk[0], s * (yi + t / 2), lk[1], 18.0, hr) for s in sides]
+    ref = [(Xb, s * (yi + t), Zb, 22.0, hr) for s in (1, -1)] + [(lks[s][0], s * (yi + t / 2), lks[s][1], 18.0, hr) for s in sides]
     S, M, minfo = _setup_model(part, pid, meta, tmpdir, h, curv, hmin, A, refine=ref)
-    embs = {s: M.add_rigid("embolo" if s > 0 else "embolo_menos_y", np.array([lk[0], s * (yi + t / 2), lk[1]]),
+    embs = {s: M.add_rigid("embolo" if s > 0 else "embolo_menos_y", np.array([lks[s][0], s * (yi + t / 2), lks[s][1]]),
                            fixed_local=(1, 3, 4, 5)) for s in sides}
     emb = embs[1]
     M.assemble()
@@ -341,15 +355,16 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
     k_piv = E_POM / ((p.REV_bush_od - p.REV_pin_d) / 2)
     M.add_interface(Interface("pivotes", piv, k_piv, axis=((Xb, 0, Zb), (0, 1, 0))))
     M.add_static(S.spring_matrix(piv, 1e-3 * k_piv, mode="dir", direction=(0, 1, 0)))
-    # traba: émbolo Ø12 en el agujero Ø12,5 del brazo +Y; solo reacción tangencial (= structural_direccion)
-    hole = sel_cyl(S, (lk[0], 0, lk[1]), (0, 1, 0), p.REV_lock_hole_d / 2,
-                   region=lambda c: np.hypot(c[:, 0] - lk[0], c[:, 2] - lk[1]) < p.REV_lock_hole_d)
-    a = math.radians(p.REV_lock_ang)
-    tvec = np.array([math.sin(a), 0.0, -math.cos(a)])
+    # trabas: émbolo Ø12 en el agujero Ø12,5 de cada brazo trabado; solo reacción tangencial (= structural_direccion)
     for s_ in sides:
+        lq = lks[s_]
+        hole = sel_cyl(S, (lq[0], 0, lq[1]), (0, 1, 0), p.REV_lock_hole_d / 2,
+                       region=lambda c, lq=lq: np.hypot(c[:, 0] - lq[0], c[:, 2] - lq[1]) < p.REV_lock_hole_d)
+        a = math.atan2(lq[1] - Zb, lq[0] - Xb)
+        tvec = np.array([math.sin(a), 0.0, -math.cos(a)])
         hs = hole[S.fcent[hole, 1] * s_ > 0]
         M.add_interface(Interface("traba" if s_ > 0 else "traba_menos_y", hs, E_AL / CONTACT_LEN, kind="rigid",
-                                  rigid="embolo" if s_ > 0 else "embolo_menos_y", k_t=0.0, axis=((lk[0], 0, lk[1]), (0, 1, 0))))
+                                  rigid="embolo" if s_ > 0 else "embolo_menos_y", k_t=0.0, axis=((lq[0], 0, lq[1]), (0, 1, 0))))
         M.add_static(dir_stiffness(S.ndof, embs[s_][[0, 1, 2]], tvec, 1e7))
     # carga: chorro sobre la cara interior de la cuchara, uniforme sobre la proyección del chorro
     R = jet_footprint(p)
@@ -394,7 +409,8 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
         return [{"id": "a", "name": "Reversa: chorro F_b = máx(sizing %.0f N, R12 %.0f N) = %.0f N en la cuchara; M_h = %.0f N·m (traba + pivotes)"
                  % (Fbn, 1408.0, Fb, abs(M_tgt) / 1000), "kind": "short", "u": u, "info": info, "extra": extra, "active": M_active(M)}]
 
-    regions = {"traba": lambda X: (np.hypot(X[:, 0] - lk[0], X[:, 2] - lk[1]) <= p.REV_lock_hole_d / 2 + 3.0) & (np.abs(X[:, 1]) > yi - 0.05),
+    regions = {"traba": lambda X: np.any([(np.hypot(X[:, 0] - lks[s_][0], X[:, 2] - lks[s_][1]) <= p.REV_lock_hole_d / 2 + 3.0)
+                                          & (X[:, 1] * s_ > yi - 0.05) for s_ in sides], axis=0),
                "pivotes": lambda X: np.hypot(X[:, 0] - Xb, X[:, 2] - Zb) <= r_b + 3.0,
                "brazos": lambda X: np.abs(X[:, 1]) >= yi - 0.05,
                "cuchara": lambda X: np.abs(X[:, 1]) < yi - 0.05}
@@ -483,7 +499,14 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     ear_p = ears[S.fcent[ears, 1] > 0]
     ear_m = ears[S.fcent[ears, 1] < 0]
     lock = sel_cyl(S, (lx, 0, lz), (0, 1, 0), 10.0)
-    M.zones += [band_o, ear_p, ear_m, lock]
+    lock = lock[S.fcent[lock, 1] > 0]
+    locks = [(lock, st["F_traba_sobre_boquilla_N"])]
+    if "F_traba_menos_y_sobre_boquilla_N" in st:                 # 2.ª traba (oreja −Y, otro ángulo)
+        lx2, lz2 = m.lock_point(p, -1)
+        lock_m = sel_cyl(S, (lx2, 0, lz2), (0, 1, 0), 10.0)
+        lock_m = lock_m[S.fcent[lock_m, 1] < 0]
+        locks.append((lock_m, st["F_traba_menos_y_sobre_boquilla_N"]))
+    M.zones += [band_o, ear_p, ear_m] + [lk_ for lk_, _ in locks]
 
     def pin_load(fs_, F):
         F = np.asarray(F, float)
@@ -491,7 +514,7 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
         f = S.traction_load(fs_, cos_bearing(F / Fm))
         return f * (Fm / (force_of(S, f) @ (F / Fm)))
     f_b = pin_load(ear_p, st["F_pivote_mas_y_sobre_boquilla_N"]) + pin_load(ear_m, st["F_pivote_menos_y_sobre_boquilla_N"]) \
-        + pin_load(lock, np.asarray(st["F_traba_sobre_boquilla_N"]) * st.get("n_traba", 1))   # lock: roscas M20 de las trabas
+        + sum(pin_load(lk_, F_) for lk_, F_ in locks)              # roscas M20 de las trabas
 
     def run(log=print, init=None):
         res = []

@@ -71,17 +71,20 @@ def bore_cut(p):
     return _revolved(prof)
 
 
-def lock_point(p):
-    a = math.radians(p.REV_lock_ang)
+def lock_point(p, side=1):
+    a = math.radians(p.REV_lock_ang if side > 0 else p.raw.get("REV_lock_ang_m", p.REV_lock_ang))
     return (p.X_bucket_pivot + p.REV_lock_r * math.cos(a), p.Z_bucket_pivot + p.REV_lock_r * math.sin(a))
 
 
 def ear_outline(p, sign):
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     pts = circ(Xb, Zb, p.STE_ear_r) + [(Xb - 18, -2.0), (Xb + 18, -2.0), (Xb - 16, 40.0), (Xb + 16, 40.0)]
-    if sign > 0 or p.REV_n_locks > 1:                 # traba en las dos orejas (auditoría ronda 3)
+    if sign > 0:
         lx, lz = lock_point(p)
         pts += circ(lx, lz, 15.0) + [(lx + 10, -2.0), (lx + 12, 30.0)]
+    elif p.REV_n_locks > 1:                           # traba −Y (otro ángulo) + apoyo de la pata del soporte del Bowden
+        lx, lz = lock_point(p, -1)
+        pts += circ(lx, lz, 15.0) + circ(lx - 24.0, lz, 10.0)
     return hull(pts)
 
 
@@ -121,7 +124,8 @@ def build(p):
     lx, lz = lock_point(p)
     b = b - cyl_y(10.0, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=lx, z=lz)              # M20 del émbolo (+Y)
     if p.REV_n_locks > 1:
-        b = b - cyl_y(10.0, -p.STE_ear_y1 - 1, -p.STE_ear_y0 + 1, x=lx, z=lz)        # M20 del 2.º émbolo (−Y)
+        lx2, lz2 = lock_point(p, -1)
+        b = b - cyl_y(10.0, -p.STE_ear_y1 - 1, -p.STE_ear_y0 + 1, x=lx2, z=lz2)      # M20 del 2.º émbolo (−Y)
     b = b - bore_cut(p)
     return b
 

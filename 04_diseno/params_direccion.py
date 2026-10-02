@@ -138,6 +138,10 @@ def extend(d):
     d["REV_sleeve_z0"] = 130.0         # fin de la vaina rígida del Mach5 (sale la varilla) [CALCULADO]
     d["REV_lock_r"] = 45.0             # émbolo indexador a 45 mm del pivote [CALCULADO: FS ≥ 2 del perno Ø12]
     d["REV_lock_ang"] = 10.0           # ° (marco de la boquilla) [CALCULADO: arriba-popa del pivote, libra la varilla del Mach5]
+    # traba del brazo −Y en OTRO ángulo (mismo radio): los dos émbolos quedan enfrentados sobre la boquilla y,
+    # coaxiales, sus pomos y Bowden no entran entre las orejas (32 mm); desfasados (check de P1-REV-04) pasan uno al lado
+    # del otro (ronda 3) [CALCULADO: checks de P1-REV-04/09 y verify]
+    d["REV_lock_ang_m"] = -25.0        # [CALCULADO: barrido 35…50° choca con la brida del yugo P1-STE-04 arriba; −20…−25° libre]
     d["REV_lock_pin_d"] = 12.0         # [ESTIMADO: émbolo indexador A4 M20×1,5 con perno Ø12; buscar "GN 617-12-M20 A4"]
     d["REV_lock_hole_d"] = 12.5
     d["REV_mach5_stroke"] = 76.0       # [ESTIMADO: cable 33C/Mach5 carrera 3" típica; buscar "Ultraflex Mach5 stroke"]

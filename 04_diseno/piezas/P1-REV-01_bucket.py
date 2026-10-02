@@ -36,8 +36,9 @@ def P_(p):
     return (p.X_bucket_pivot, p.Z_bucket_pivot)
 
 
-def lock_pt(p):
-    a = math.radians(p.REV_lock_ang)
+def lock_pt(p, side=1):
+    """Traba ABAJO del brazo +Y (side = 1) o −Y (side = −1, ángulo REV_lock_ang_m)."""
+    a = math.radians(p.REV_lock_ang if side > 0 else p.raw.get("REV_lock_ang_m", p.REV_lock_ang))
     return (p.X_bucket_pivot + p.REV_lock_r * math.cos(a), p.Z_bucket_pivot + p.REV_lock_r * math.sin(a))
 
 
@@ -65,12 +66,14 @@ def build_down(p):
     s = cup + rib
     lk = lock_pt(p)                                   # traba ABAJO: el agujero está en el émbolo
     lk_up = rot_xz(lk, P, p.bucket_down_deg)          # traba ARRIBA (el mismo punto del brazo, bajado)
+    lkm = lock_pt(p, -1)                              # brazo −Y (otro ángulo)
+    lkm_up = rot_xz(lkm, P, p.bucket_down_deg)
     sd = stud_pt(p, down=True)
     for sg in (1, -1):
         y0, y1 = (yi, yi + t) if sg > 0 else (-yi - t, -yi)
         a_main = hull(circ(*P, p.REV_boss_r) + outer)
         plate = prism_xz(a_main, y0, y1)
-        lobes = (sd, lk, lk_up) if sg > 0 else ((lk, lk_up) if p.REV_n_locks > 1 else ())
+        lobes = (sd, lk, lk_up) if sg > 0 else ((lkm, lkm_up) if p.REV_n_locks > 1 else ())
         for q in lobes:                               # lóbulos: perno de la varilla (+Y) y 2 trabas por brazo
             plate = plate + prism_xz(hull(circ(*P, p.REV_boss_r) + circ(*q, 12.0)), y0, y1)
         ring_y = (y1, y1 + t) if sg > 0 else (y0 - t, y0)
@@ -82,7 +85,8 @@ def build_down(p):
     s = s - cyl_y(p.REV_bush_od / 2, -yi - 2 * t - 1, yi + 2 * t + 1, x=P[0], z=P[1])
     for q in (lk, lk_up):
         s = s - cyl_y(p.REV_lock_hole_d / 2, yi - 1, yi + t + 1, x=q[0], z=q[1])
-        if p.REV_n_locks > 1:
+    if p.REV_n_locks > 1:
+        for q in (lkm, lkm_up):
             s = s - cyl_y(p.REV_lock_hole_d / 2, -yi - t - 1, -yi + 1, x=q[0], z=q[1])
     s = s - cyl_y(2.5, yi - 1, yi + t + p.REV_eye_off + 1, x=sd[0], z=sd[1])    # M6 (Ø5,0) roscado
     return s

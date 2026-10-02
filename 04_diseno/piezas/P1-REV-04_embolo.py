@@ -29,8 +29,8 @@ def build(p):
     return s
 
 
-def lock_xz(p):
-    a = math.radians(p.REV_lock_ang)
+def lock_xz(p, side=1):
+    a = math.radians(p.REV_lock_ang if side > 0 else p.raw.get("REV_lock_ang_m", p.REV_lock_ang))
     return (p.X_bucket_pivot + p.REV_lock_r * math.cos(a), p.Z_bucket_pivot + p.REV_lock_r * math.sin(a))
 
 
@@ -41,7 +41,8 @@ def placements(p, steer=0.0, bucket=0):
     x, z = lock_xz(p)
     L = [loc_steer(p, steer) * Pos(x, 0, z)]
     if p.REV_n_locks > 1:
-        L.append(loc_steer(p, steer) * Pos(x, 0, z) * Rot(180, 0, 0))   # gemelo en la oreja −Y
+        x2, z2 = lock_xz(p, -1)
+        L.append(loc_steer(p, steer) * Pos(x2, 0, z2) * Rot(180, 0, 0))   # gemelo en la oreja −Y (ángulo REV_lock_ang_m)
     return L
 
 
@@ -54,4 +55,7 @@ def checks(p, part):
             ("pomo sobre el cuerpo de la boquilla [mm]", (z - 12.5) - zbody, 2.0, ">="),
             ("contratuerca sobre el cuerpo de la boquilla [mm]", (z - 15.0) - znut, 2.0, ">="),
             ("perno sobresale de la cara exterior del brazo [mm]", 1.0, 0.5, ">="),
-            ("holgura diametral perno ↔ agujero del brazo [mm]", p.REV_lock_hole_d - p.REV_lock_pin_d, 0.3, ">=")]
+            ("holgura diametral perno ↔ agujero del brazo [mm]", p.REV_lock_hole_d - p.REV_lock_pin_d, 0.3, ">="),
+            ("dos trabas: ejes de los émbolos desfasados ≥ pomo + tuerca del Bowden + 3 (pasan uno al lado del otro) [mm]",
+             math.dist(lock_xz(p, 1), lock_xz(p, -1)) if p.REV_n_locks > 1 else 99.0, 12.5 + 5.0 + 3.0, ">="),
+            ("pomo −Y sobre el cuerpo de la boquilla [mm]", (lock_xz(p, -1)[1] - 12.5) - zbody, 2.0, ">=")]

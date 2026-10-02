@@ -146,8 +146,9 @@ def test_bucket_statics_matches_hand():
     ref = est["loads"]["structural_direccion"]["F_lock_pin_N"]
     assert abs(F_lock / ref - 1) < 0.03, (F_lock, ref)
     # equilibrio de fuerzas sobre el bucket
-    tot = np.array(st["F_N"]) + sum(-np.array(st[k]) for k in ("F_traba_sobre_boquilla_N", "F_pivote_mas_y_sobre_boquilla_N",
-                                                                "F_pivote_menos_y_sobre_boquilla_N"))
+    ks = ("F_traba_sobre_boquilla_N", "F_traba_menos_y_sobre_boquilla_N", "F_pivote_mas_y_sobre_boquilla_N",
+          "F_pivote_menos_y_sobre_boquilla_N")                     # 2.ª traba (−Y) si REV_n_locks = 2 (ronda 3)
+    tot = np.array(st["F_N"]) + sum(-np.array(st[k]) for k in ks if k in st)
     assert np.allclose(tot, 0, atol=1e-6)
 
 
