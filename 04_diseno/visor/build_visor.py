@@ -93,6 +93,29 @@ def docfirst(mod) -> str:
     return re.sub(r"^P1-[A-Z]{3}-\d{2}\s*[—-]\s*", "", d)
 
 
+VIEW_MAX_TRI = 3000            # presupuesto: las piezas con más triángulos se re-teselan para el visor (se abre en un celular)
+VIEW_TOL = (0.2, 0.3)          # tolerancia lineal / angular del visor (= build_all --fast): independiente del modo de la corrida
+
+
+def view_stl(pid: str, stl: Path) -> Path:
+    """Malla para el visor: la del ensamblaje (la que usa verify, tolerancia fina) salvo que pase VIEW_MAX_TRI
+    triángulos (impulsor y estator: álabes); esas se re-teselan desde su STEP con tolerancia gruesa."""
+    n = trimesh.load_mesh(stl, process=False).faces.shape[0]
+    if n <= VIEW_MAX_TRI:
+        return stl
+    step = next(iter(sorted((D / "step").glob(f"{pid}_*.step"))), None)
+    if step is None:
+        return stl
+    from build123d import export_stl, import_step
+    out = D / "visor" / "_tmp_mallas"
+    out.mkdir(exist_ok=True)
+    dst = out / f"{pid}.stl"
+    export_stl(import_step(str(step)), str(dst), tolerance=VIEW_TOL[0], angular_tolerance=VIEW_TOL[1])
+    if n > 50000:
+        print(f"  visor: {pid} re-teselado ({n} → {trimesh.load_mesh(dst, process=False).faces.shape[0]} triángulos)")
+    return dst
+
+
 def mesh_arrays(stl: Path):
     m = trimesh.load_mesh(stl, process=True)
     m.merge_vertices()
@@ -200,7 +223,7 @@ def main():
     parts, instances = [], []
     for pid, mod in sorted(mods.items()):
         r = man_by[pid]
-        pos, nor, idx, mraw = mesh_arrays(D / "stl" / "asm" / f"{pid}.stl")
+        pos, nor, idx, mraw = mesh_arrays(view_stl(pid, D / "stl" / "asm" / f"{pid}.stl"))
         off = len(blob)
         for arr in (pos, nor, idx):
             blob += arr.tobytes()
