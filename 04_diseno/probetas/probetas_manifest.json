@@ -582,7 +582,7 @@
         "ensayo": "Medir cada agujero con pernos patrón (vástagos de broca) o calibre; probar la pieza real: tornillo M5/M6 A4, cuerpo del prensaestopas M16, cuerpo del interruptor de cordón y de la seta (Ø22), tuerca ISO 4032 M6 A4 en los hexágonos (empujada con el pulgar desde la cara de cama).",
         "pasa_si": "El agujero rotulado con la holgura del CAD mide d + c_CAD ± 0.10 mm y la pieza real entra a mano; la tuerca M6 entra en la fila del CAD y no cae al dar vuelta la probeta. Si no: la holgura a usar es la menor fila que acepta la pieza → corregir el CAD (inputs.yaml geometry.clearance_mm / bolt_clearance_mm) antes de imprimir las piezas."
       },
-      "build_s": 12.5
+      "build_s": 13.0
     },
     "P1.4": {
       "modulo": "PRB-P1.4_inserto_M5",
@@ -629,7 +629,7 @@
         "ensayo": "Tornillo M5 A4 con cáncamo en el inserto; pasador M8 en el agujero inferior a una horquilla fija; tirar con dinamómetro a ~10 N/s. 3 probetas. Además: torque de giro del inserto con llave dinamométrica (o brazo + dinamómetro).",
         "pasa_si": "Las 3 resisten ≥ 120 N (= FS 3 × 40 N por inserto, estructural.json) sin arrancar y el inserto no gira con ≥ 4 N·m (2 × apriete M5 sobre PETG) [SUPUESTO: criterio de giro]. A ras ±0,2 mm, sin fisura alrededor (lupa 10×)."
       },
-      "build_s": 0.2
+      "build_s": 0.3
     },
     "P1.6": {
       "modulo": "PRB-P1.6_tapa_oring",
@@ -779,13 +779,13 @@
     "P1.9": {
       "modulo": "PRB-P1.9_pasador_corte",
       "tipo": "taller",
-      "titulo": "Pasador de corte en dispositivo de corte doble",
+      "titulo": "Semipasadores de corte (juego de 2) en dispositivo de corte doble",
       "piezas": [
         "P1-PMP-05",
         "P1-PMP-03",
         "P1-DRV-01"
       ],
-      "doc": "PRB-P1.9 — Pasador de corte Al 6061-T6 (P1-PMP-05) en un dispositivo de corte doble (ensayo de taller, sin CAD).",
+      "doc": "PRB-P1.9 — Juego de 2 semipasadores de corte Al 6061-T6 (P1-PMP-05) en un dispositivo de corte doble",
       "checks": [
         {
           "name": "ventana: 0,8·T_cut > T máx. del controlador (no corta en marcha) [N·m]",
@@ -806,6 +806,20 @@
           "value": 3.5,
           "ref": 3.5,
           "op": "=",
+          "ok": true
+        },
+        {
+          "name": "semipasadores por juego = 2 (2 secciones de corte, igual que sizing) [—]",
+          "value": 2.0,
+          "ref": 2.0,
+          "op": "=",
+          "ok": true
+        },
+        {
+          "name": "semipasador cruza la superficie del eje (largo − r_eje ≥ d) [mm]",
+          "value": 19.5,
+          "ref": 3.5,
+          "op": ">=",
           "ok": true
         }
       ],
@@ -828,10 +842,14 @@
         "F_brazo_max_N": 80.0,
         "F_prensa_min_N": 2679.0,
         "F_prensa_max_N": 4018.0,
-        "n_probetas": 3,
+        "n_juegos": 3,
+        "semipasadores_por_juego": 2,
+        "largo_semipasador_mm": 29.5,
+        "D_manguito_mm": 60.0,
+        "juegos_repuesto": 3,
         "fuente": "resultados/sizing.json mech.shear_pin (T_cut = 2·(π/4)d²·τ_u·d_eje/2) y estructural.json loads.structural_bomba.loads_used.T_ctrl",
-        "ensayo": "Tornear 3 pasadores Ø3.5 de la misma barra que los de repuesto (medir Ø con micrómetro). Muñón Ø20 en la morsa, manguito con agujero Ø20 H7 y ambos agujeros transversales Ø3.55 (taladro + escariador, alineados juntos). Tirar del brazo de 500 mm con el dinamómetro, despacio (~10 s hasta el corte); anotar F máx.",
-        "pasa_si": "Los 3 cortan entre 26.8 y 40.2 N·m (0.8–1.2 × T_cut) = 54–80 N en el brazo, en corte doble limpio (dos secciones). Si cortan abajo: barra más blanda (no T6) → cambiar de barra; si cortan arriba: no subir el Ø, revisar material y agujeros (filo vivo)."
+        "ensayo": "Tornear 3 juegos de 2 semipasadores Ø3.5 × 29.5 de la misma barra que los 3 juegos de repuesto (medir Ø con micrómetro y largo con calibre). Muñón Ø20 en la morsa; manguito Ø60 exterior con agujero Ø20 H7; agujero transversal Ø3.55 pasante en muñón y manguito (taladro + escariador, alineados juntos). Meter un semipasador desde cada lado hasta que se toquen en el centro (enrasados con el Ø exterior del manguito). Tirar del brazo de 500 mm con el dinamómetro, despacio (~10 s hasta el corte); anotar F máx. Después: sacar los restos con un botador corto desde un lado (es el procedimiento de cambio en el eje real).",
+        "pasa_si": "Los 3 juegos cortan entre 26.8 y 40.2 N·m (0.8–1.2 × T_cut) = 54–80 N en el brazo, con las 2 secciones cortadas en la cara muñón ↔ manguito (una por semipasador) y los restos salen con el botador. Si cortan abajo: barra más blanda (no T6) → cambiar de barra; si cortan arriba: no subir el Ø, revisar material y agujeros (filo vivo); si un solo semipasador corta: agujeros desalineados."
       },
       "build_s": 0.0
     },
@@ -913,9 +931,20 @@
           "ref": 2.0,
           "op": ">=",
           "ok": true
+        },
+        {
+          "name": "junta f2 radial: espiga más larga que la ranura del O-ring [mm]",
+          "value": 12.0,
+          "ref": 11.73,
+          "op": ">=",
+          "ok": true
         }
       ],
       "criterios": {
+        "D_salida_mm": 87.12,
+        "F_tapon_N": 1788.0,
+        "luz_bridas_mm": 0.25,
+        "f2": "O-ring radial cs 3.53 en espiga de 12 mm, asiento Ø142.79, 8 × M5 del lado seco",
         "p_diseno_MPa": 0.2,
         "p_ensayo_MPa": 0.3,
         "p_ensayo_bar": 3.0,
@@ -924,8 +953,8 @@
         "caida_max_frac": 0.02,
         "deformacion_max_mm": 0.02,
         "fuente": "estructural.json loads.structural_bomba.loads_used.p_design_Pa × 1,5 (research/R12 §7.2)",
-        "ensayo": "Armar carcasa + anillo + estator + tobera con sus O-rings y bulones al torque de montaje; bridas ciegas (placa de Al o contrachapado 18 mm + goma) en la entrada y la salida. Medir el Ø del asiento del anillo antes. Llenar de agua purgando el aire por el puerto G1/8 (arriba); bomba de prueba hidrostática manual (o bomba de engrase + manómetro 0–6 bar). Subir en 3 escalones, retener 15 min a p_ensayo, bajar, desarmar y medir el asiento.",
-        "pasa_si": "A 0.30 MPa (3.0 bar) durante 15 min: caída ≤ 2 %, 0 gotas en bridas, puerto y soldaduras (papel tisú), y deformación permanente del Ø del asiento ≤ 0.02 mm. Sin aire en la prueba (seguridad: una prueba con aire guarda energía)."
+        "ensayo": "Armar carcasa + anillo + estator; O-ring radial engrasado (silicona) en la espiga de la tobera, meterla en el asiento sin pellizcarlo (chaflán de entrada) y apretar los 8 × M5 en cruz; medir con galgas la luz entre bridas (diseño 0.25 mm, igual en los 8 tornillos: si es 0, la espiga no aprieta la camisa del estator). Entrada: brida ciega con rebaje H7 para el espigón Ø140 y O-ring de cara. Salida Ø87.1: tapón con O-ring radial y varilla roscada central M12 A4 hasta la brida ciega de entrada (carga 1788 N a p_ensayo), pasando por el cubo del estator antes de prensar el buje P1-PMP-07 (o con un tubo guía). Medir el Ø del asiento del anillo antes. Llenar de agua purgando el aire por el puerto G1/8 (arriba); bomba de prueba hidrostática manual (o bomba de engrase + manómetro 0–6 bar). Subir en 3 escalones, retener 15 min a p_ensayo, bajar, desarmar y medir el asiento.",
+        "pasa_si": "A 0.30 MPa (3.0 bar) durante 15 min: caída ≤ 2 %, 0 gotas en la brida de entrada, en la luz entre bridas carcasa ↔ tobera (O-ring radial), en el puerto y en los tornillos anti-rotación del estator (papel tisú), y deformación permanente del Ø del asiento ≤ 0.02 mm. Sin aire en la prueba (seguridad: una prueba con aire guarda energía)."
       },
       "build_s": 0.0
     },

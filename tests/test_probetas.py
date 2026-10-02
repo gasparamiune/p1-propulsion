@@ -147,9 +147,12 @@ def test_criterios_leen_los_json(pm, sizing):
     assert c9["banda"] == [0.8, 1.2]
     assert abs(c9["T_min_Nm"] - round(0.8 * sp["T_cut_Nm"], 1)) < 0.06 and abs(c9["T_max_Nm"] - round(1.2 * sp["T_cut_Nm"], 1)) < 0.06
     assert c9["T_min_Nm"] > c9["T_ctrl_Nm"]                         # no corta en marcha
+    assert c9["semipasadores_por_juego"] == p.pmp_pin_n == 2 and c9["largo_semipasador_mm"] == p.pmp_pin_half_len
+    assert c9["D_manguito_mm"] == 2 * p.pmp_land_r
     c11 = T["P1.11"]["criterios"]
     pd = est["loads"]["structural_bomba"]["loads_used"]["p_design_Pa"]
     assert abs(c11["p_ensayo_MPa"] - round(1.5 * pd / 1e6, 3)) < 1e-6 and c11["p_ensayo_MPa"] >= 0.3   # R12 §7.2
+    assert c11["luz_bridas_mm"] == p.pmp_stack_gap and "radial" in c11["f2"] and c11["D_salida_mm"] == p.D_noz
     c12 = T["P1.12"]["criterios"]
     assert abs(c12["c_diseno_mm"] - round(sizing["pump"]["tip_clearance_mm"], 3)) < 1e-6
     assert c12["c_min_mm"] == 0.30 and 0.39 <= c12["c_max_mm"] <= 0.40 + 1e-9 and c12["c_min_mm"] <= c12["c_diseno_mm"] <= c12["c_max_mm"]
