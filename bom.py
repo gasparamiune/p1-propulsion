@@ -35,7 +35,7 @@ FIELDS = ["ID", "categoria", "descripcion", "especificacion_minima", "cantidad",
           "alcance", "etiqueta", "verificado", "cubre", "fecha"]
 CAT_SERVICE = "Servicio de fabricación"
 CAT_MP = "Materia prima (mecanizado)"
-MAT_CODE = {"AISI 316": "316", "Al 6061-T6": "6061", "Al 5052/6082": "6082", "Al 5083": "5083", "POM-C": "POM"}
+MAT_CODE = {"AISI 316": "316", "Dúplex 1.4462": "DPX", "Al 6061-T6": "6061", "Al 5052/6082": "6082", "Al 5083": "5083", "POM-C": "POM"}
 WARN: list[str] = []
 
 

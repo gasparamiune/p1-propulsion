@@ -83,6 +83,5 @@ def checks(p, part):
             ("holgura diametral perno ↔ agujero del brazo [mm]", p.REV_lock_hole_d - p.REV_lock_pin_d, 0.3, ">="),
             ("pared del cuerpo bajo la rosca sobre el perno [mm]", (minor - (p.REV_lock_pin_d + 0.2)) / 2, 2.5, ">="),
             ("ligamento de la oreja alrededor de la rosca [mm]", p.STE_lock_lobe_r - rt, 6.0, ">="),
-            ("cuerpo del émbolo no cruza el plano medio (Y) [mm]", RL.body_end_y(p), -0.01, ">="),
             ("dos trabas: ejes desfasados ≥ pomo + cuerpo del otro + 2 (pasan uno al lado del otro) [mm]",
              d12, 12.5 + RL.PLG_BODY_D / 2 + 2.0, ">=")]

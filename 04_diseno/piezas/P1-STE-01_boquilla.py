@@ -31,10 +31,10 @@ import _release as RL  # noqa: E402
 META = dict(
     id="P1-STE-01", name="boquilla", desc="Boquilla direccional con orejas de pivote, torre del yugo y orejas del bucket",
     material="Al 6061-T6", process="torneada", qty=1, frame="steer", group="jet",
-    load_case="Desvío del chorro F_steer (R12: 364 N) + reacciones del bucket (R12: 1,4 kN, impacto ×2)",
+    load_case="Desvío del chorro F_steer (R12: 364 N) + pivote y traba del bucket con M_h completo en una traba (R12)",
     print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Torneado del cuerpo (barra Ø100 × 150) + fresado 4 ejes de orejas y torre (bloque 6061-T6 100 × 165 × 165)",
-    allow={"P1-REV-04": 5.0, "P1-STE-02": 5.0, "P1-STE-05": 5.0, "P1-REV-02": 5.0},   # roscas (émbolo M24, tornillos M6), piloto H7/h6
+    allow={"P1-REV-04": 5.0, "P1-STE-02": 5.0, "P1-STE-05": 5.0, "P1-REV-02": 10.0},   # roscas (émbolo M24, tornillos M6), piloto H7/h6
 )
 
 

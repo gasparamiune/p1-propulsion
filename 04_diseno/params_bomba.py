@@ -46,6 +46,11 @@ def free_vortex_model(d):
     omega = S["punta"]["u"] / (rt / 1000.0)            # rad/s
     K = S["cubo"]["cu2"] * rh                          # r·c_u2 (m/s·mm)
     free_ok = bool(d["sz"]["pump"].get("hub_free_vortex_ok", True))
+    # sizing solo marca si u > c_u2 en el cubo; además el torbellino libre tiene que cumplir de Haller (w2/w1 ≥ 0,70)
+    # en el cubo, si no se usa el torbellino limitado (regeneración con otras entradas: ronda 5) [CALCULADO]
+    u_h = omega * rh / 1000.0
+    if math.hypot(cm, u_h - K / rh) < 0.70 * math.hypot(cm, u_h):
+        free_ok = False
 
     def cu2_of(r):
         cu = K / r

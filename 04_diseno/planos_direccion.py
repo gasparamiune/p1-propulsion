@@ -135,14 +135,14 @@ def draw(p, H):
                              f"Agujeros de traba Ø{p.REV_lock_hole_d:g} (+0,1/0) DESPUÉS DE SOLDAR, con plantilla centrada en el agujero del buje "
                              f"Ø{p.REV_bush_od:g} H7 (05 §bucket), posición ±0,2: cada traba sola lleva todo M_h, no hay reparto que ajustar"]))
     m2 = _mod('P1-REV-02_perno_bucket')
-    out.append(T("P1-REV-02", "espaciador_pivote_bucket", "AISI 316 (1.4401) barra Ø40",
-                 [(round(m2.pilot_L(p), 2), p.REV_sp_pilot_d, f"piloto Ø{p.REV_sp_pilot_d:g} h6 (entra en la oreja)"),
+    out.append(T("P1-REV-02", "espaciador_pivote_bucket", "Dúplex 1.4462 (2205) +AT barra Ø40, certificado 3.1 (Rp0,2 ≥ 450)",
+                 [(round(m2.pilot_L(p), 2), p.REV_sp_pilot_d, f"piloto Ø{p.REV_sp_pilot_d:g} h6 (ajustado en la oreja: lleva corte y momento)"),
                   (p.REV_sp_fl_t, p.REV_sp_fl_d, f"brida Ø{p.REV_sp_fl_d:g}"),
                   (round(m2.shoulder_L(p) - p.REV_sp_fl_t, 2), p.REV_pin_d, f"muñón Ø{p.REV_pin_d:g} h7, Ra 0,8 (gira el buje POM)")],
                  feats=[(round(m2.pilot_L(p), 2), "cara de apoyo de la brida: plana, a escuadra ≤ 0,02 con el piloto")],
                  notes=[f"Agujero Ø12,5 pasante (tornillo ISO 4017 M12 × {m2.bolt_len_iso(p):g} A4-80); ×2",
                         "Montaje: Tef-Gel en piloto, cara de la brida y rosca; arandela ISO 7089 M12 bajo la cabeza,",
-                        "  espaciador, oreja, arandela y tuerca DIN 985 M12 A4 por dentro",
+                        f"  espaciador, oreja, arandela ancha ISO 7093 (Ø{p.REV_washer_in[0]:g} × {p.REV_washer_in[1]:g}) y tuerca ISO 7040 M12 A4-80 por dentro",
                         f"Par {p.REV_bolt_T_Nm:g} N·m → precarga {p.REV_bolt_pre_N / 1000:.0f}–{p.REV_bolt_pre_max_N / 1000:.0f} kN "
                         f"(K {p.REV_bolt_K[0]:g}–{p.REV_bolt_K[1]:g} [ESTIMADO])",
                         f"El piloto ({m2.pilot_L(p):.1f} mm) es 0,5 más corto que la oreja: aprieta la brida, no el piloto",
@@ -153,7 +153,7 @@ def draw(p, H):
                         f"Prensar y DESPUÉS escariar Ø{p.REV_pin_d + 0.1:g} (+0,05/0): el prensado cierra el juego (R4-08)", "×2"]))
     # ---------------- émbolo de traba propio P1-REV-04 (cuerpo + tapa + perno; resorte comprado)
     tip = RL.pin_tip_y(p) - (p.STE_ear_y1 - RL.PLG_GUIDE)                      # largo del Ø16
-    tail = RL.PLG_SPRING_L1 + RL.PLG_CAP_T + p.REV_plunger_stroke + RL.PLG_KNOB_L
+    tail = RL.PLG_SPRING_L1 + RL.PLG_CAP_T + RL.PLG_KNOB_L                       # cola: cámara + tapa + pomo (la carrera NO se suma)
     out.append(T("P1-REV-04", "embolo_cuerpo", "AISI 316 (1.4401) barra Ø40 (collar Ø36)",
                  [(p.STE_ear_t, p.REV_lock_thread_d, f"M{p.REV_lock_thread_d:g}×1,5-6g (en la oreja; punta enrasada a la cara exterior)"),
                   (RL.PLG_COLLAR_T, RL.PLG_COLLAR_D, f"collar Ø{RL.PLG_COLLAR_D:g}, 2 planos e/c 32; cara de apoyo a escuadra ≤ 0,02"),
@@ -161,7 +161,7 @@ def draw(p, H):
                   (RL.PLG_CAP_T, RL.PLG_BODY_D, "tapa roscada M20×1 con Ø10,2 (cola del perno)")],
                  feats=[(0.0, "punta: cara exterior de la oreja"), (RL.PLG_GUIDE, "fin de la guía / inicio de la cámara del resorte")],
                  notes=[f"Interior Ø{p.REV_lock_pin_d:g} H8 pasante (guía del perno, Ra 0,8); rosca interior M20×1 × 6 atrás para la tapa; ×2",
-                        f"El collar apoya en la cara interior de la oreja: apretar el cuerpo a {p.REV_lock_T_Nm:g} N·m con Loctite 243 (rosca de la oreja",
+                        f"El collar apoya en la cara interior de la oreja: apretar el cuerpo a {p.REV_lock_T_Nm:g} N·m (K {p.REV_lock_K[0]:g}–{p.REV_lock_K[1]:g}) con Loctite 243 (rosca de la oreja",
                         "  sin Tef-Gel; la cara del collar sobre el anodizado); la punta queda enrasada a la cara exterior",
                         "Resorte de compresión inox (B-SPRING): alambre 1,6, Ø ext 15, largo libre ≈ 40,",
                         "  instalado 30 (≈ 20 N), con el perno afuera 18 (≈ 44 N) [ESTIMADO]"]))

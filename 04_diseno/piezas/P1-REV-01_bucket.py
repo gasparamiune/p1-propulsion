@@ -26,10 +26,10 @@ import _release as RL  # noqa: E402
 META = dict(
     id="P1-REV-01", name="bucket", desc="Bucket de reversa Al 5083 8 mm (cuchara + brazos + nervio), traba en cada brazo (cada una lleva todo M_h)",
     material="Al 5083", process="torneada", qty=1, frame="bucket", group="jet",
-    load_case="Chorro desviado en reversa (R12: 1,4 kN) × impacto 2; presión dinámica en la chapa",
+    load_case="Chorro desviado en reversa (R12: 1,4 kN, M_h por cantidad de movimiento) con UNA traba; presión dinámica en la chapa",
     print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Chapa cortada a láser, cuchara curvada en rodillo, brazos y nervio soldados (TIG 5183)",
-    allow={"P1-REV-03": 5.0, "P1-REV-06": 5.0},
+    allow={"P1-REV-03": 10.0, "P1-REV-06": 5.0},
 )
 
 

@@ -28,7 +28,7 @@ from build123d import Compound, export_step, export_stl  # noqa: E402
 import params as P  # noqa: E402
 from cadlib import to_print  # noqa: E402
 
-DENSITY = {"PETG": 1.27, "ASA": 1.07, "POM-C": 1.41, "AISI 316": 8.0, "AISI 440C": 7.7, "Acero": 7.85,
+DENSITY = {"PETG": 1.27, "ASA": 1.07, "POM-C": 1.41, "AISI 316": 8.0, "Dúplex 1.4462": 7.8, "AISI 440C": 7.7, "Acero": 7.85,
            "Al 6061-T6": 2.70, "Al": 2.70, "Al 5052/6082": 2.68, "Al 5083": 2.66, "CuAl10Ni": 7.6,
            "Bronce": 8.8, "NBR": 1.3, "referencia": 0.0}   # g/cm³ [ESTIMADO: valores típicos]
 # META["mass_from"] = "motor" → masa del catálogo (inputs) en lugar de volumen × densidad
