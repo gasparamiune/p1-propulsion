@@ -3,10 +3,10 @@
 Marco JET (X a popa; estación S = −X). De popa a proa:
   muñón del buje de agua del estator Ø pmp_journal_d f7 (BOMBA, si existe) · ranura DIN 471 de retención
   a popa del impulsor (opcional) · asiento del impulsor Ø20 g6 con agujero transversal del PASADOR DE
-  CORTE (eje Y, X = pmp_pin_X, Ø H8) · ranura DIN 471-20 del anillo de EMPUJE (+ arandela) contra la nariz
+  CORTE (2 semipasadores, eje Y, X = pmp_pin_X, Ø H8) · ranura DIN 471-20 del anillo de EMPUJE (+ arandela) contra la nariz
   del impulsor (X = pmp_imp_front_X) · tramo mojado Ø20 h8 (conducto, buje de la toma) · ranura DIN 471
   de respaldo de la cabeza del sello · Ø20 h8 bajo el sello y la linterna · collar Ø26 (≥ da_min) (apoyo de los aros
-  interiores) · muñón Ø20 k5 (2 × 7204 BEP en O) · rosca M20×1 (KM4) con ranura para la MB4 · asiento del
+  interiores) · muñón Ø20 k5 (2 × 7204 BECBP en O) · rosca M20×1 (KM4) con ranura para la MB4 · asiento del
   cubo Rotex 24 Ø20 h6 con chavetero 6 × 3,5 (DIN 6885 A).
 Sin bomba con buje (params_bomba ausente): extremo de popa en X_shaft_aft con rosca M16 (tuerca).
 Montaje: ver params_tren.py (docstring). Los checks verifican que cada pieza pase por los Ø que debe.
@@ -114,7 +114,9 @@ def checks(p, part):
          max(fwd_of_journal), brg["d"], "<="),
         ("collar ≥ da_min del 7204 (apoyo del aro interior) [mm]", p.drv_collar_d, brg["da_min"], ">="),
         ("collar ≤ Ø barra (se tornea) [mm]", p.drv_collar_d, p.drv_bar_d, "<="),
-        ("laberinto collar ↔ resalte del soporte (holgura radial) [mm]", ((p.drv_collar_d + 3.0) - p.drv_collar_d) / 2, 1.0, ">="),
+        ("laberinto collar ↔ resalte del soporte (holgura radial) [mm]", (p.drv_brg_shoulder_hole - p.drv_collar_d) / 2, 1.0, ">="),
+        ("ranuras DIN 471 = las de BOMBA (centro de la delantera) [mm]", sum(p.drv_thrust_groove) / 2, p.raw.get("pmp_circlip_fwd_X", sum(p.drv_thrust_groove) / 2), "="),
+        ("ranuras DIN 471 = las de BOMBA (centro de la de popa) [mm]", sum(p.drv_aft_groove) / 2, p.raw.get("pmp_circlip_aft_X", sum(p.drv_aft_groove) / 2), "="),
         ("collar libre de la caja del sello (S_collar0 − S_frente_caja) [mm]",
          p.drv_S_brgA - p.drv_collar_l - p.drv_S_hsg_front, 0.5, ">="),
         ("eje dentro del cubo del acople (encastre) [mm]", tooth_ok, 0.8 * cpl["l_hub_shaft"], ">="),

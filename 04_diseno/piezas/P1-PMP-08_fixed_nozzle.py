@@ -1,14 +1,18 @@
-"""P1-PMP-08 — Tobera fija con orejas de pivote (Al 6061-T6 torneada + fresada, anodizado duro). Marco JET.
+"""P1-PMP-08 — Tobera fija (Al 6061-T6 torneada, anodizado duro). Marco JET.
 
-Brida delantera en X_st1 (Ø pmp_f2_od, 8 × M6 con la carcasa) con espiga Ø pmp_D_seat × 4 que aprieta
-la camisa del estator. Contracción cónica Ø D_bore → Ø D_noz entre X_st1 y X_noz1 − pmp_noz_cyl y
-tramo cilíndrico hasta la SALIDA en X_noz1 (plano del espejo, R12 §3.3). Aguas abajo de la salida:
-alojamiento esférico R = pmp_sock_R centrado en el pivote de la boquilla (la boquilla direccional
-termina adelante en una rótula R ≤ pmp_steer_ball_R_max, ver informe) y zona libre r ≤ pmp_steer_free_r
-desde pmp_sock_X1 para las orejas de la boquilla. Resalte Ø 2·pmp_land_R con ranura de O-ring radial
-(sella contra el cuello de la placa de espejo P1-PMP-09). Las orejas de pivote de la boquilla están en
-la placa de espejo (se monta desde popa después de la bomba): el resalte no depende de D_noz y pasa por
-el agujero del espejo para todo el rango del optimizador (D_noz 0,58–0,74·D).
+Brida delantera en X_st1 (Ø pmp_f2_od, MÁS CHICA que el agujero del espejo) con 8 × Ø5,5 en Ø pmp_f2_bc
+para ISO 4762 M5 A4-70 roscados en la carcasa, y espiga Ø pmp_D_seat × (pmp_noz_spigot) con O-ring RADIAL
+(cs oring_cs) que sella contra el asiento de la carcasa y aprieta la camisa del estator (la espiga es
+pmp_stack_gap más larga que el asiento: queda esa luz entre las caras de las bridas, lado seco).
+Contracción cónica Ø D_bore → Ø D_noz entre X_st1 y X_noz1 − pmp_noz_cyl y tramo cilíndrico hasta la
+SALIDA en X_noz1 (plano del espejo, R12 §3.3). Aguas abajo de la salida: alojamiento esférico
+R = pmp_sock_R centrado en el pivote de la boquilla y zona libre r ≤ pmp_steer_free_r desde pmp_sock_X1
+para las orejas de la boquilla. Resalte Ø 2·pmp_land_R con ranura de O-ring radial (sella contra el cuello
+de la placa de espejo P1-PMP-09). Las orejas de pivote están en la placa de espejo.
+SERVICIO (camino de extracción, params_bomba.service_paths, checks abajo): con boquilla, bucket y placa de
+espejo afuera y los 8 × M5 sacados desde adentro, la tobera sale POR POPA por el agujero del espejo; detrás
+salen el estator (con buje y cono) y, si hace falta, el impulsor. Los semipasadores P1-PMP-05 se cambian con
+el impulsor en el eje. El tren no se toca.
 """
 import math
 import sys
@@ -57,8 +61,11 @@ def build(p):
     # ranura del O-ring radial del espejo
     n = n - ring_x(p.pmp_land_R + 1, p.pmp_land_R - p.pmp_or_depth,
                    p.pmp_or_X - p.pmp_or_width / 2, p.pmp_or_X + p.pmp_or_width / 2)
-    # brida: 8 × M6
-    dh = (p.pmp_f2_bolt + p.bolt_clr) / 2
+    # ranura del O-ring radial de la espiga (sello carcasa ↔ tobera)
+    Rs = p.pmp_D_seat / 2
+    n = n - ring_x(Rs + 1, Rs - p.pmp_gl_depth, p.pmp_f2or_X - p.pmp_gl_width / 2, p.pmp_f2or_X + p.pmp_gl_width / 2)
+    # brida: 8 × Ø5,5 (M5 roscados en la carcasa)
+    dh = p.pmp_f2_bolt_hole / 2
     for k in range(p.pmp_f2_n):
         a = math.radians(p.pmp_flange_ang0 + 360.0 * k / p.pmp_f2_n)
         n = n - cyl_x(dh, p.X_st1 - 1, Xf + 1, y=p.pmp_f2_bc / 2 * math.cos(a), z=p.pmp_f2_bc / 2 * math.sin(a))
@@ -88,6 +95,12 @@ def checks(p, part):
         ("pared del resalte sobre el alojamiento esférico [mm]", p.pmp_land_R - p.pmp_or_depth - p.pmp_sock_R, 3.2, ">="),
         ("resalte pasa por el agujero del espejo (radial) [mm]", p.transom_hole_d / 2 - p.pmp_land_R, 3.0, ">="),
         ("brida = brida trasera de la carcasa (bc) [mm]", p.pmp_f2_bc, p.pmp_f2_bc, "="),
+        ("brida pasa por el agujero del espejo (radial, servicio por popa) [mm]", p.transom_hole_d / 2 - p.pmp_f2_od / 2, 1.5, ">="),
         ("pared mín. del cono [mm]", p.pmp_noz_wall, 3.2, ">="),
-        ("punto más bajo sobre el fondo interior (z BOTE) [mm]", zmin, p.bottom_t + 2.0, ">="),
-    ]
+        (f"punto más bajo sobre el fondo interior (z BOTE) [mm] — si falla: subir waterjet.axis_height_m a ≥ {p.pmp_axis_h_min_m:.3f} m",
+         zmin, p.bottom_t + 2.0, ">="),
+        ("espiga: pared bajo la ranura del O-ring radial [mm]", (p.pmp_D_seat - p.D_bore) / 2 - p.pmp_gl_depth, 2.0, ">="),
+        ("espiga: apoyos a ambos lados de la ranura del O-ring [mm]", (p.pmp_noz_spigot - p.pmp_gl_width) / 2, 3.0, ">="),
+        ("brida: cabeza M5 libra el cono exterior (radial) [mm]", p.pmp_f2_bc / 2 - p.pmp_f2_head_d / 2 - (rn(p, p.X_st1 + p.pmp_noz_f_t) + p.pmp_noz_wall), 1.0, ">="),
+        ("brida: borde sobre la cabeza M5 (radial) [mm]", p.pmp_f2_od / 2 - p.pmp_f2_bc / 2 - p.pmp_f2_head_d / 2, 0.3, ">="),
+    ] + [(f"camino de extracción: {r['item']}", r["need"], r["avail"], r["op"]) for r in p.pmp_service]

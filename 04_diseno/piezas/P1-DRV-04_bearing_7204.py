@@ -1,6 +1,10 @@
-"""P1-DRV-04 — Rodamiento de bolas de contacto angular SKF 7204 BEP (40°), 2 unidades montadas en O
-(espalda con espalda) en P1-DRV-03: fijan el eje axialmente en ambos sentidos y toman todo el empuje del
-impulsor. Comprado (research/R11 §5: 31,40 € c/u). Modelo simplificado: anillo 20 × 47 × 14."""
+"""P1-DRV-04 — Rodamiento de bolas de contacto angular SKF 7204 BECBP (40°, APAREABLE UNIVERSAL, juego
+axial normal CB; alternativa 7204 BEGAP con precarga ligera GA), 2 unidades montadas en O (espalda con
+espalda) en P1-DRV-03: fijan el eje axialmente en ambos sentidos y toman todo el empuje del impulsor.
+Auditoría Pass 3 H8: el 7204 BEP NO es apareable universal; con aros interiores (KM4 contra el collar) y
+exteriores (resalte + tapa) apretados, el juego/precarga del par solo queda definido con caras rectificadas
+para apareo universal (sufijo CB/GA). Comprado (precio de referencia del BEP: research/R11 §5, 31,40 € c/u;
+el BECBP es otro ítem — cotizar). Modelo simplificado: anillo 20 × 47 × 14."""
 import sys
 from pathlib import Path
 
@@ -11,7 +15,7 @@ from build123d import Pos  # noqa: E402
 from _drv_geom import tube_s  # noqa: E402
 from params import loc_jet  # noqa: E402
 
-META = dict(id="P1-DRV-04", name="bearing_7204BEP", desc="Rodamiento SKF 7204 BEP (par en O), comprado",
+META = dict(id="P1-DRV-04", name="bearing_7204BEP", desc="Rodamiento SKF 7204 BECBP apareable universal (par en O), comprado",
             material="Acero", process="comprada", qty=2, frame="jet", group="drive",
             load_case="Empuje Fa + reacción radial (L10 en sizing)", print_rot=(0, 0, 0), solid_frac=1.0,
             orientation="—", mass_g=110.0,   # [ESTIMADO: params_tren.BEARING mass_g]

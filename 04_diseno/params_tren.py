@@ -4,11 +4,12 @@ Convención de estaciones: S = distancia a lo largo del eje hacia PROA desde la 
 impulsor (marco JET: X = −S). Todas las piezas coaxiales se construyen en el marco JET.
 
 Pila axial (de popa a proa), ver extend():
-  rosca M16 de la tuerca del impulsor (X_imp1 → X_aft) · asiento del impulsor Ø20 g6 con agujero del
-  pasador de corte (X = pmp_pin_X) · anillo DIN 471-20 de empuje delante del impulsor (X ≈ 0) · tramo
+  muñón del buje de agua del estator (X_imp1 → X_aft) · ranura DIN 471 de retención a popa · asiento del
+  impulsor Ø20 g6 con agujero de los semipasadores de corte (X = pmp_pin_X) · arandela + anillo DIN 471-20
+  de empuje delante del impulsor (X = pmp_circlip_fwd_X) · tramo
   mojado Ø20 por el conducto · anillo DIN 471-20 de respaldo de la cabeza del sello · cabeza rotante
   del sello mecánico (en la cámara mojada de P1-DRV-02) · asiento fijo · linterna de goteo/testigo ·
-  collar Ø26 (apoyo de los aros interiores) · 2 × 7204 BEP en O · tuerca KM4 + MB4 · asiento del cubo
+  collar Ø26 (apoyo de los aros interiores) · 2 × 7204 BECBP en O · tuerca KM4 + MB4 · asiento del cubo
   del acople Ø20 con chaveta 6×6 · acople Rotex 24 · eje del motor · motor (cara de brida en S_motor0).
 
 Secuencia de montaje (A-08: cada pieza pasa por los Ø de lo ya montado) — la verifican los checks de
@@ -19,14 +20,22 @@ P1-DRV-01:
   2. Bote: el subconjunto entra desde PROA, punta de popa primero, por el buje del sello de la toma
      (Ø seal_spigot_d), el conducto y el cubo del impulsor (ya puesto en el anillo de desgaste).
      Se centra el espigón de la caja en el buje y se aprietan los 4 × M6.
-  3. Soporte de rodamientos P1-DRV-03: baja VERTICAL sobre los 4 espárragos (tornillos ISO 10642 M8 × 35
-     A4-70 colocados desde afuera en la placa base de la toma, cabeza enrasada en Sikaflex) pasando el
-     agujero Ø47 por la punta de proa del eje (≤ Ø20); arandela + tuerca ISO 4032 A4 a mano. Rodamientos (2 × 7204 BEP en O) prensados a la vez
-     en el alojamiento y en el muñón desde proa (pasan por el asiento del acople y la rosca M20×1,
-     ambos ≤ Ø20) contra el collar. MB4 + KM4 (precarga), tapa P1-DRV-06, recién ahí se aprietan las
-     tuercas M8 (drv_nut_torque_Nm, Tef-Gel) con el alojamiento alineado al buje por un casquillo de
-     centrado en la caja del sello (holgura Ø9 sobre M8: ±0,3 mm).
-  4. Popa: anillo DIN 471 de empuje, impulsor + pasador de corte, tuerca M16 (grupo BOMBA).
+  3. Soporte de rodamientos P1-DRV-03 (auditoría Pass 3 H2: el alojamiento es cerrado y no puede bajar
+     vertical sobre el eje): con las tuercas de los 4 espárragos SACADAS (tornillos ISO 10642 M8 × 35 A4-70
+     colocados desde afuera en la placa base de la toma, cabeza enrasada en Sikaflex), el pórtico se apoya
+     más a proa con el alojamiento delante de la punta de proa del eje (recorrido drv_brg_travel), con los
+     espárragos de proa ya dentro de las RANURAS de las zapatas (abiertas hacia popa), y DESLIZA hacia popa
+     a lo largo del eje (resalte Ø drv_brg_shoulder_hole sobre Ø20) hasta el fondo de las ranuras. Arandela
+     ancha ISO 7093 + tuerca ISO 4032 A4 a mano. Rodamientos (2 × 7204 BECBP en O) prensados a la vez en el
+     alojamiento y en el muñón desde proa (pasan por el asiento del acople y la rosca M20×1, ambos ≤ Ø20)
+     contra el collar; aros interiores apretados por MB4 + KM4 contra el collar y aros exteriores entre el
+     resalte y la tapa P1-DRV-06: con un par apareable universal (CB) el juego/precarga lo fija el
+     rectificado del fabricante. Recién ahí se aprietan las tuercas M8 (drv_nut_torque_Nm, Tef-Gel) con el
+     alojamiento alineado al buje del estator con un MANDRIL de centrado (eje patrón Ø20 que entra en el buje
+     del estator y en el alojamiento, o casquillo en la caja del sello) y se escarian 2 pasadores Ø6 por
+     zapata (toman el corte en x; la ranura no).
+  4. Popa (grupo BOMBA): arandela + DIN 471 de empuje (ya en el eje desde el paso 1), impulsor, 2 semipasadores
+     de corte, anillo retén P1-PMP-04 (2 × M3), arandela + DIN 471 de popa; estator; tobera (8 × M5).
   5. Cubo del acople en el eje (chaveta + prisionero), motor con su cubo y soporte P1-MOT-02.
 """
 from __future__ import annotations
@@ -36,14 +45,15 @@ import math
 # ---------------------------------------------------------------------------------------------
 # Datos de componentes comprados (research/R11_componentes_jet.md; lo no publicado → [ESTIMADO])
 # ---------------------------------------------------------------------------------------------
-BEARING = {  # SKF 7204 BEP, montaje en O (inputs.yaml bearings.type)
-    "name": "SKF 7204 BEP",
+BEARING = {  # SKF 7204 BECBP (apareable universal, juego axial normal CB), par en O (auditoría Pass 3 H8)
+    "name": "SKF 7204 BECBP",
+    "d1": 30.85, "D1": 37.0,                # [ESTIMADO: fichas de distribuidor de 7204 BECBP vistas en búsqueda web 2026-10-02 (d1 ≈ 30,85, D1 ≈ 37); skf.com no abrió — verificar]
     "d": 20.0, "D": 47.0, "B": 14.0,        # [VERIFICADO: research/R11 §5 (Klium) — 20 × 47 × 14 mm]
     "C_n": 13300.0, "C0_n": 7650.0,         # [VERIFICADO: research/R11 §5 — C = 13,3 kN, C0 = 7,65 kN]
     "r_s": 1.0,                             # [ESTIMADO: chaflán r_s mín. 1,0 mm de la serie 7204 (catálogo SKF, no abierto)]
-    "da_min": 25.6,                         # [ESTIMADO: diámetro de apoyo mín. del aro interior 7204 (catálogo SKF, no abierto)]
-    "Da_max": 41.4,                         # [ESTIMADO: diámetro de apoyo máx. del aro exterior 7204 (catálogo SKF, no abierto)]
-    "mass_g": 110.0,                        # [ESTIMADO: 7204 BEP ≈ 0,11 kg; buscar ficha SKF]
+    "da_min": 25.6,                         # [ESTIMADO: 7204 BECBP da mín. 25,6 (fichas de distribuidor, búsqueda web); verificar en skf.com]
+    "Da_max": 41.4,                         # [ESTIMADO: 7204 BECBP Da máx. 41,4 (ídem); verificar en skf.com]
+    "mass_g": 110.0,                        # [ESTIMADO: 7204 ≈ 0,11 kg; buscar ficha SKF]
     "price_eur": 31.40,                     # [VERIFICADO: research/R11 §5 — 31,40 € c/u]
 }
 KM = {  # tuerca de fijación KM4 + arandela MB4 (DIN 981 / DIN 5406)
@@ -79,6 +89,7 @@ COUPLING = {  # KTR Rotex 24 (estrella T-PUR 92/98 ShA)
     "price_eur": 67.47,                     # [VERIFICADO: research/R11 §5]
 }
 KEY_6x6 = {"b": 6.0, "h": 6.0, "t1": 3.5, "t2": 2.8}   # [ESTIMADO: DIN 6885 A 6 × 6 para Ø17–22 (t1 eje 3,5, t2 cubo 2,8)]
+KEY_5x5 = {"b": 5.0, "h": 5.0, "t1": 3.0, "t2": 2.3}   # [ESTIMADO: DIN 6885 A 5 × 5 para Ø12–17 (t1 eje 3,0, t2 cubo 2,3); chaveta del eje del motor — medir al recibirlo]
 MOTORS = {  # por clave de inputs.yaml motor.options (cuerpo Ø × largo sale de inputs: size_mm)
     "HPM5000B": {
         "shaft_d": 22.2,                    # [VERIFICADO: research/R11 §1.2 — Kelly 22,3 mm / Monster 7/8" (22,2); MEDIR]
@@ -130,6 +141,7 @@ def extend(d):
     sd = d["shaft_d"]
     d["drv_bearing"], d["drv_km"], d["drv_seal"] = BEARING, KM, SEAL
     d["drv_circlip"], d["drv_coupling"], d["drv_key"] = CIRCLIP20, COUPLING, KEY_6x6
+    d["mot_keyd"] = KEY_5x5
     mkey, mot, known = _motor_data(d)
     d["mot_key"], d["mot"], d["mot_known"] = mkey, mot, known
 
@@ -146,8 +158,12 @@ def extend(d):
     d["drv_pin_hole"] = d["drv_pin_d"] + 0.03                           # [SUPUESTO: agujero H8 escariado (pasador h8 deslizante)]
     d["drv_thread_d"] = 16.0                                            # [SUPUESTO: tuerca del impulsor M16 (brief del grupo)]
     d["drv_imp_seat_X0"] = 0.0                                          # asiento del impulsor X ∈ [0, X_imp1]
-    d["drv_thrust_groove"] = (d["drv_imp_front_X"] - CIRCLIP20["m"], d["drv_imp_front_X"])   # ranura del anillo de empuje (X0, X1)
-    d["drv_aft_groove"] = (d["X_imp1"] + 0.3, d["X_imp1"] + 0.3 + CIRCLIP20["m"])   # anillo de retención a popa (opcional, en la luz rotor–estator)
+    # ranuras DIN 471 centradas donde las pide BOMBA (arandela 316 20×30×1,5 entre cubo y anillo; auditoría Pass 3 H4)
+    m_ = CIRCLIP20["m"]
+    cf = d.get("pmp_circlip_fwd_X", d["drv_imp_front_X"] - 1.5 - 0.6)
+    cb = d.get("pmp_circlip_aft_X", d["X_imp1"] + 1.5 + 0.6)
+    d["drv_thrust_groove"] = (round(cf - m_ / 2, 3), round(cf + m_ / 2, 3))   # ranura del anillo de empuje (X0, X1)
+    d["drv_aft_groove"] = (round(cb - m_ / 2, 3), round(cb + m_ / 2, 3))      # anillo de retención a popa (en la luz rotor–estator)
 
     # ---------------- sello (estación S_seal = cara del buje de la toma) ----------------
     S0 = d["S_seal"]
@@ -167,6 +183,7 @@ def extend(d):
     # ---------------- rodamientos y soporte ----------------
     d["drv_gap_hsg_brg"] = 1.0                                          # [SUPUESTO: luz caja del sello ↔ soporte]
     d["drv_brg_shoulder_t"] = 3.0                                       # [SUPUESTO: resalto del alojamiento (apoyo del aro exterior trasero)]
+    d["drv_brg_shoulder_hole"] = 32.5                                   # [CALCULADO: > d1 ≈ 30,85 (no roza el aro interior) y < D1 ≈ 37 (apoya el aro exterior); BEARING (ESTIMADO)]
     d["drv_S_brgA"] = d["drv_S_hsg_front"] + d["drv_gap_hsg_brg"] + d["drv_brg_shoulder_t"]   # cara trasera del rodamiento de popa
     d["drv_S_brgB"] = d["drv_S_brgA"] + 2 * BEARING["B"]                # cara delantera del rodamiento de proa
     d["drv_collar_l"] = d["drv_gap_hsg_brg"] + d["drv_brg_shoulder_t"] - 0.5   # collar: de 0,5 mm delante de la caja del sello al aro
@@ -187,15 +204,20 @@ def extend(d):
     d["drv_cheek_y"] = (by - 24.2, by - 12.2)                           # [SUPUESTO: cara interior a 12 mm del eje del bulón → llave Allen por arriba]
     d["drv_pad_y"] = (by - 24.2, by + 23.8)
     d["drv_deck_t"] = 12.0                                              # [SUPUESTO: tablero 12 mm]
-    d["drv_bracket_hole"] = d["brg_bracket_bolt"] + 1.0                 # [SUPUESTO: Ø9 sobre espárrago M8: ±0,5 mm de ajuste para alinear con el buje del sello; luego 2 pasadores Ø6 escariados en montaje]
+    d["drv_bracket_hole"] = d["brg_bracket_bolt"] + 1.0                 # [SUPUESTO: ranura de 9 mm de ancho sobre espárrago M8 (±0,5 en y); 2 pasadores Ø6 escariados en montaje toman el corte en x]
+    d["drv_dowel_d"] = 6.0                                              # [SUPUESTO: ISO 2338 Ø6 m6 A4, 2 por zapata]
     # fijación a la placa base (definida por TOMA en P1-INT-02): espárrago = tornillo avellanado desde afuera
-    d["drv_stud"] = "ISO 10642 M8 × 35 A4-70 (desde afuera, cabeza enrasada en Sikaflex) + arandela ISO 7089 + tuerca ISO 4032 A4"
+    d["drv_stud"] = "ISO 10642 M8 × 35 A4-70 (desde afuera, cabeza enrasada en Sikaflex) + arandela ancha ISO 7093 (Ø24 × 2) + tuerca ISO 4032 A4"
     d["drv_stud_L"] = 35.0                                              # [VERIFICADO: interfaz de TOMA (mensaje del grupo principal)]
     d["drv_nut_m"] = 6.8                                                # [ESTIMADO: ISO 4032 M8, m = 6,8]
-    d["drv_washer_t"] = 1.6                                             # [ESTIMADO: ISO 7089 M8, 1,6 mm]
+    d["drv_washer_t"] = 2.0                                             # [ESTIMADO: ISO 7093 M8, Ø24 × 2 (puentea la ranura de 9 mm)]
+    d["drv_washer_od"] = 24.0                                           # [ESTIMADO: ISO 7093 M8]
     d["drv_nut_socket_d"] = 18.0                                        # [ESTIMADO: vaso de 13 mm, Ø ext ≈ 18]
-    d["drv_nut_torque_Nm"] = 15.0                                       # [VERIFICADO: interfaz de TOMA — ~15 N·m con Tef-Gel]
+    # ÚNICO par/K de los M8 del pórtico (auditoría Pass 3 H5): lo usan structural_toma (avellanado en la placa
+    # base) y structural_tren (espárrago, tuerca). 10 N·m → F_v ≈ 6,9 kN: FS ≥ 2 del avellanado en 5083.
+    d["drv_nut_torque_Nm"] = 10.0                                       # [CALCULADO: structural_toma/tren, FS ≥ 2 en el asiento cónico]
     d["drv_nut_K"] = 0.18                                               # [ESTIMADO: coeficiente de par A4 con Tef-Gel 0,15–0,20]
+    d["drv_nut_Fpre_N"] = d["drv_nut_torque_Nm"] * 1e3 / (d["drv_nut_K"] * d["brg_bracket_bolt"])   # [CALCULADO: F = T/(K·d)]
 
     # ---------------- acople y motor ----------------
     d["mot_flange_gap"] = 3.5                                           # [SUPUESTO: cara del cubo del motor a 3,5 mm de la cara del motor (1 mm del centrador)]
@@ -208,6 +230,8 @@ def extend(d):
     d["drv_S_thread0"] = d["drv_S_brgB"] + KM["mb_t"]                    # rosca M20×1 desde la cara del rodamiento + MB4
     d["drv_thread_l"] = KM["b"] + 2.0
     d["drv_shaft_L"] = d["drv_X_aft"] + d["drv_S_front"]                # largo total del eje
+    # recorrido axial del pórtico al montarlo (H2): desde con el alojamiento delante de la punta de proa del eje
+    d["drv_brg_travel"] = round(d["drv_S_front"] + 3.0 - (d["drv_S_brgA"] - d["drv_brg_shoulder_t"]), 1)
     d["drv_bar_d"] = 28.0                                               # [SUPUESTO: barra 1.4404 Ø28 (la compra la BOM); R11 §5 verificó Ø20/Ø25 — buscar precio Ø28]
 
     # ---------------- soporte del motor ----------------

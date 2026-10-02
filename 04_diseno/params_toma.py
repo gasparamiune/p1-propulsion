@@ -179,9 +179,26 @@ def extend(d):
     d["toma_plate_r"] = 20.0          # radio de esquinas en planta [SUPUESTO: fresa Ø40]
     d["toma_hull_bolt"] = 6           # M6 ISO 10642 A4-70 (avellanado por fuera) + tuerca autofrenante A4 por dentro
     d["toma_hull_pitch"] = 70.0       # paso máx. entre bulones del ala [ESTIMADO: ≤ 12–15 t de la placa para estanqueidad con sellador]
+    # M6 brida del conducto ↔ placa base: rosca CIEGA de 8 mm en 5083-H111 (auditoría Pass 3 H6). Precarga
+    # limitada para FS ≥ 2 al barrido de la rosca de Al (structural_toma) + Loctite 243 contra el aflojamiento.
+    d["toma_m6_depth"] = 8.0          # [CALCULADO: placa de 10 mm, deja 2 mm al fondo mojado]
+    d["toma_m6_thread_L"] = 6.5       # [ESTIMADO: rosca útil = prof. − 1,5 P (macho de fondo)]
+    d["toma_m6_K"] = 0.18             # [ESTIMADO: igual que drv_nut_K, A4 con Tef-Gel]
+    d["toma_m6_Fpre_N"] = 2200.0      # [CALCULADO: structural_toma, FS ≥ 2 al barrido de la rosca en Al y a la apertura de la junta]
+    d["toma_m6_torque_Nm"] = round(d["toma_m6_K"] * d["toma_m6_Fpre_N"] * 6 / 1000, 1)   # [CALCULADO: T = K·F·d]
+    d["toma_cord_N_per_mm"] = 4.0     # [ESTIMADO: fuerza de compresión de cordón NBR70 Ø3,53 al 25 % ≈ 2–5 N/mm (curvas típicas de fabricantes, no abiertas) — verificar]
 
     # ------------------------------------------------------------------ rejilla
-    d["grille_bars"] = 7              # [CALCULADO: R12 §4.3 — luz 15–20 mm; con 7 × 4 mm en W_open = 158,4 → 16,3 mm (con 8 daba 14,0)]
+    # Luz de rejilla (auditoría Pass 3, bloqueo H-11): R10a §8.6 pide que una varilla Ø13 no pase (dedos) y
+    # R12 §4.3 recomienda 15–20 mm por pérdidas/basura. Manda la seguridad: n mínimo con luz ≤ toma_gap_max.
+    # Pérdida: pletinas perfiladas 4/12 → K ≈ 1,83/2,42 × 0,56 ≈ 0,42 (R12 §4.3, Kirschmer) ≈ grille_k 0,40 de
+    # inputs; Δh ≈ 0,1–0,5 % del NPSH_A (R12 §4.3): no limita. El área efectiva sigue ≥ 3,15·A_imp (check
+    # de P1-INT-03). Costo: se tapa antes con algas → limpiar más seguido (§7 de 06).
+    d["toma_gap_max"] = 12.5          # [SUPUESTO: R10a §8.6 — varilla Ø13 no pasa, con 0,5 mm de margen]
+    W, b0 = d["W_open"], d["grille_bar_d"]
+    d["grille_bars"] = int(math.ceil((W - d["toma_gap_max"]) / (b0 + d["toma_gap_max"])))   # [CALCULADO]
+    d["toma_iso_gap"] = 0.5           # [SUPUESTO: luz para camisa/cinta de PTFE 0,2–0,4 mm entre la rejilla 316 y el 5083 (aislación galvánica)]
+    d["toma_bar_iso_t"] = 0.2         # [SUPUESTO: cinta de PTFE adhesiva 0,2 mm sobre el canto de la barra donde apoya en la cuña de 5083]
     d["toma_bar_h"] = 21.0            # alto de la pletina 316 [CALCULADO: structural_toma, rejilla tapada a la presión de cierre]
     d["toma_bar_clr"] = 2.0           # luz barra ↔ techo
     n, b = d["grille_bars"], d["grille_bar_d"]

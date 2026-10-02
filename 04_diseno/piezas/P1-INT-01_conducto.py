@@ -10,12 +10,15 @@ Partes del conjunto soldado:
     cordón NBR Ø3,53 vulcanizado en anillo, y bulones M6 A4 a la placa (roscas en la placa);
   • bloque macizo del labio (nariz r_lip enrasada con el fondo, entra en la placa con 0,5 mm de luz);
     tiene las ranuras de las barras de la rejilla y el alojamiento de la pletina de popa (2 × M5);
-  • brida de la bomba Ø pump_flange_od × 12;
+  • brida de la bomba Ø pump_flange_od × 12 con REBAJE DE CENTRAJE Ø pmp_f1_spigot_d H7 × pmp_f1_recess_h
+    (lo llena el espigón h6 de P1-PMP-01; auditoría Pass 3 H7);
   • tubo mojado del eje desde el cruce del techo hasta el buje del sello (cara en S_seal, ⟂ al eje,
     centrador Ø seal_spigot_d H8, 4 × M6 en seal_bc a tom_seal_bolt_ang0) con alma de refuerzo;
   • chimenea de inspección Ø toma_chim_id hasta toma_chim_top (sobre la flotación, R10a §0.3) con
     brida para la tapa P1-INT-04.
-Se eligió Al soldado y no PETG: ver structural_toma.py (PETG en 2–3 segmentos necesitaba ~13 mm de
+MECANIZAR DESPUÉS DE SOLDAR, en una sola atada: cara y rebaje de la brida de la bomba, 8 agujeros, buje del
+sello (Ø seal_spigot_d H8, cara ⟂ al eje, 4 × M6) y cara de la chimenea; coaxialidad rebaje ↔ buje ≤ 0,05
+(plano P1-INT-01). Se eligió Al soldado y no PETG: ver structural_toma.py (PETG en 2–3 segmentos necesitaba ~13 mm de
 pared + nervios para FS ≥ 3 a fatiga por presión, ~3 kg y ~190 h de impresión, y sumaba 2 juntas
 más en el límite estanco del casco; 5083 es el mismo metal que el casco: sin par galvánico).
 """
@@ -119,7 +122,8 @@ def build(p):
     for k in range(4):
         a = math.radians(p.tom_seal_bolt_ang0 + 90 * k)
         cut = cut + cyl_x(2.5, -(S0 + 1.0), -(S0 - 14.0), y=p.seal_bc / 2 * math.cos(a), z=p.seal_bc / 2 * math.sin(a))
-    # brida de la bomba: 8 × Ø6,4 pasantes
+    # brida de la bomba: rebaje de centraje H7 para el espigón de la carcasa + 8 × Ø6,4 pasantes
+    cut = cut + cyl_x(p.pmp_f1_spigot_d / 2, X0 - p.pmp_f1_recess_h, X0 + 1)
     a0 = p.raw.get("pmp_flange_ang0", 22.5)
     for k in range(p.pump_flange_n):
         a = math.radians(a0 + 360.0 * k / p.pump_flange_n)
@@ -139,7 +143,7 @@ def build(p):
             A = A - cyl_z((6 + p.bolt_clr) / 2, ztop - 1, ztop + p.toma_ff_t + 1, x=x, y=s * p.toma_bolt_y)
     A = A - groove(p, ztop - 0.01, p.toma_gl_depth)
     # rejilla: ranuras de las barras en el labio (abiertas abajo), alojamiento de la pletina, 2 × M5
-    gc = 0.3
+    gc = p.toma_iso_gap               # luz para la camisa de PTFE (aislación 316 ↔ 5083)
     for yb in p.toma_bar_y:
         A = A - box(p.toma_strap_x[0] - 1, p.x_lip + 1, yb - p.grille_bar_d / 2 - gc, yb + p.grille_bar_d / 2 + gc,
                     -1, p.toma_bar_h + gc)
@@ -221,6 +225,8 @@ def checks(p, part):
         ("área de garganta Ø D_throat alcanzada dentro del codo", float(areas.max() >= A_th and A_out <= A_th), 1.0, "="),
         ("brida bomba: Ø ext = pump_flange_od", 1.0 if has_radius(part, p.pump_flange_od / 2, 0.05) else 0.0, 1.0, "="),
         ("brida bomba: 8 agujeros en Ø pump_flange_bc", p.pump_flange_n, 8, "="),
+        ("brida bomba: rebaje de centraje Ø pmp_f1_spigot_d H7", 1.0 if has_radius(part, p.pmp_f1_spigot_d / 2, 0.05) else 0.0, 1.0, "="),
+        ("brida bomba: rebaje más profundo que el espigón (las caras apoyan) [mm]", p.pmp_f1_recess_h - p.pmp_f1_spigot_h, 0.1, ">="),
         ("tuercas M6 de la brida de la bomba libres del conducto: r cara ext. [mm]", worst, r_nut, "<="),
         ("buje del sello en S_seal: techo libra la caja Ø70 de TREN (S_seal ≥ S_min) [mm]", p.S_seal, S_min, ">="),
         ("buje del sello: pared al agujero M6 [mm]", p.seal_boss_od / 2 - p.seal_bc / 2 - 3.0, 1.5, ">="),

@@ -24,7 +24,7 @@ META = dict(
 
 def build(p):
     x0 = p.transom_t
-    s = box(x0, x0 + T.PLATE_T, *T.plate_y(p), *T.PLATE_Z)
+    s = box(x0, x0 + T.PLATE_T, *T.plate_y(p), *T.plate_z(p))
     for y, z, d, _ in T.holes(p):
         s = s - cyl_x(d / 2, x0 - 1, x0 + T.PLATE_T + 1, y=y, z=z)
     return s
@@ -35,14 +35,23 @@ def placements(p, steer=0.0, bucket=0):
     return [Location()]
 
 
+def min_hole_gap(p):
+    import math
+    hs = T.holes(p)
+    return min(math.hypot(a[0] - b[0], a[1] - b[1]) - (a[2] + b[2]) / 2 for i, a in enumerate(hs) for b in hs[i + 1:])
+
+
 def checks(p, part):
     wl = p.sz["hydrostatics"]["draft_m"] * 1000
     zt = p.inp["boat"]["transom_height_m"] * 1000
     PY = T.plate_y(p)
-    edge = min(min(abs(y - PY[0]), abs(PY[1] - y), abs(z - T.PLATE_Z[0]), abs(T.PLATE_Z[1] - z)) - d / 2
+    PZ = T.plate_z(p)
+    edge = min(min(abs(y - PY[0]), abs(PY[1] - y), abs(z - PZ[0]), abs(PZ[1] - z)) - d / 2
                for y, z, d, _ in T.holes(p))
     return [("un solo sólido", len(part.solids()), 1, "="),
             ("pasos sobre la flotación estática (z mín. − Ø/2 − calado) [mm]",
              min(z - d / 2 for _, z, d, _t in T.holes(p)[:3]) - wl, 30.0, ">="),
-            ("placa bajo el borde del espejo [mm]", zt - T.PLATE_Z[1], 5.0, ">="),
+            ("placa bajo el borde del espejo [mm]", zt - PZ[1], 5.0, ">="),
+            ("placa sobre el ala del tope de dirección P1-STE-08 (z) [mm]", PZ[0] - T.stop_wing_top(p), T.PLATE_CLR, ">="),
+            ("pasos y bulones no se superponen (luz mín. entre bordes) [mm]", min_hole_gap(p), 3.0, ">="),
             ("borde mínimo agujero ↔ canto [mm]", edge, 6.0, ">=")]

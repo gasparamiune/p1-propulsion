@@ -178,17 +178,12 @@ def analyse_curve(rows, margin, v_planing):
         i = idx[0] + 1
         v_eq = float(V[i - 1] + (V[i] - V[i - 1]) * ex[i - 1] / (ex[i - 1] - ex[i]))
     R = np.array([r["R"] for r in rows])
-    # la joroba llega hasta el inicio del planeo o, si R sigue subiendo después, hasta su máximo local
-    i_end = int(np.searchsorted(V, v_planing, side="right")) - 1
-    while 0 <= i_end < len(V) - 1 and R[i_end + 1] >= R[i_end]:
-        i_end += 1
-    v_end = float(V[max(i_end, 0)])
-    hump = (V > 0.3) & (V <= max(v_planing, v_end))
+    hump = (V > 0.3) & (V <= v_planing)
     rel = ex[hump] / np.maximum(R[hump], 1e-6)
     m = float(np.min(rel)) if hump.any() else math.inf
     v_m = float(V[hump][int(np.argmin(rel))]) if hump.any() else math.nan
     return {"V_eq": v_eq, "planes": v_eq >= v_planing, "hump_margin_min": m, "V_hump_margin_min": v_m,
-            "V_hump_end": max(v_planing, v_end), "hump_ok": m >= margin and v_eq >= v_planing}
+            "hump_ok": m >= margin and v_eq >= v_planing}
 
 
 def sustained_vmax(cont, planes, v_pl):
@@ -349,6 +344,8 @@ def sensitivity(inp, best, pump):
             "any_no_plane": [r["label"] for r in rows if not (r["lo"]["planes"] and r["hi"]["planes"])],
             # restricción dura (margen ≥ plane_margin_frac en la joroba) que falla en algún extremo
             "any_hump_fail": [r["label"] for r in rows if not (r["lo"]["hump_ok"] and r["hi"]["hump_ok"])],
+            "any_hump_fail_text": (", ".join(r["label"] for r in rows if not (r["lo"]["hump_ok"] and r["hi"]["hump_ok"]))
+                                   or "ninguna"),
             "critical_r_hump": critical_r_hump(inp, best, pf)}
 
 
@@ -365,13 +362,53 @@ def critical_r_hump(inp, best, pf, lo=0.05, hi=0.40, it=12):
                         best["f_pow"], pump_fix=pf)["hump_margin"] - tgt
 
     if margin(lo) < 0:
-        return {"value": None, "note": f"con R/Δ = {lo} el margen ya es < {tgt:.0%}: lo limita la transición, no la joroba"}
+        return {"value": None, "text": f"no hay: aun con R/Δ = {lo:.2f} el margen queda < {tgt:.0%} (lo limita la "
+                                       "transición joroba–planeo, no el pico de la joroba)"}
     if margin(hi) >= 0:
-        return {"value": hi, "note": f"cumple hasta R/Δ = {hi}"}
+        return {"value": hi, "text": f"> {hi:.2f} (cumple en todo el rango probado)"}
     for _ in range(it):
         mid = 0.5 * (lo + hi)
         lo, hi = (mid, hi) if margin(mid) >= 0 else (lo, mid)
-    return {"value": 0.5 * (lo + hi), "note": "bisección con la bomba fija"}
+    v = 0.5 * (lo + hi)
+    return {"value": v, "text": f"≈ {v:.2f}".replace(".", ",")}
+
+
+def hump_recovery(inp, best):
+    """Qué cambio mínimo devuelve el margen en la joroba al mínimo pedido con la combinación elegida (la bomba
+    se rediseña con cada cambio, como lo haría el optimizador). Bisección en una entrada por vez."""
+    tgt = inp["operation"]["plane_margin_frac"]
+    args = (best["motor"], best["esc"], best["battery"], best["D_imp_mm"], best["nozzle_ratio"], best["f_pow"])
+
+    def ev(path, val):
+        ii = copy.deepcopy(inp)
+        _set(ii, path, val)
+        return evaluate(ii, *args)
+
+    def solve(path, v0, v1, it=10):
+        """Primer valor entre v0 (actual) y v1 que da margen ≥ tgt; None si ni v1 alcanza."""
+        if ev(path, v1)["hump_margin"] < tgt:
+            return None
+        lo, hi = v0, v1
+        for _ in range(it):
+            mid = 0.5 * (lo + hi)
+            lo, hi = (mid, hi) if ev(path, mid)["hump_margin"] < tgt else (lo, mid)
+        return hi
+
+    m_hull, m_pil = inp["boat"]["hull_mass_kg"], inp["masses"]["items"]["pilot"]["kg"]
+    L0, der0 = inp["boat"]["lwl_m"], inp["battery"]["bms_current_derate"]
+    m_h = solve("boat.hull_mass_kg", m_hull, max(m_hull - 40.0, 1.0))
+    L_n = solve("boat.lwl_m", L0, L0 + 0.30)
+    dm = (m_hull - m_h) if m_h is not None else None
+    rows = {"target": tgt,
+            "mass_reduction_kg": dm, "lwl_min_m": L_n,
+            "mass_text": (f"{dm:.0f} kg menos" if dm and dm > 0.5 else ("ya cumple" if dm is not None else "más de 40 kg menos")),
+            "lwl_text": (f"L_wl ≥ {L_n:.2f} m".replace(".", ",") if L_n is not None else f"ni con L_wl = {L0 + 0.30:.2f} m".replace(".", ",")),
+            "light_pilot": {"pilot_kg": inp["masses"]["light_pilot_kg"],
+                            "hump_margin": ev("masses.items.pilot.kg", inp["masses"]["light_pilot_kg"])["hump_margin"]},
+            "bms_derate_1": {"derate_from": der0, "hump_margin": ev("battery.bms_current_derate", 1.0)["hump_margin"]},
+            "nominal_band": {"hump_margin": ev("resistance.design_band", "nominal")["hump_margin"]},
+            "pilot_kg_now": m_pil}
+    return rows
 
 
 def _eval_safe(inp, job):
@@ -413,7 +450,12 @@ def optimize(inp):
         status = "ok" if fast else "sin_vmax_objetivo"
     else:
         cand = [r for r in rows if "error" not in r]
-        best = max(cand, key=lambda r: (sum(1 for k in r if k.startswith("ok_") and r[k]), r["vmax_cont_kmh"]))
+        # la tensión (≤ 50 V) y la potencia (no speedbåd) son reglas del proyecto, no se negocian
+        cand = [r for r in cand if r["ok_voltage"] and r["ok_speedboat"]] or cand
+        # sin solución dura: la que cumple más restricciones; entre esas, la de mayor margen en la joroba
+        # (al punto porcentual) y después la de mayor V máx.
+        best = max(cand, key=lambda r: (sum(1 for k in r if k.startswith("ok_") and r[k]),
+                                        round(r["hump_margin"], 2), r["vmax_cont_kmh"]))
         status = "sin_solucion_dura"
     return best, rows, status
 
@@ -604,9 +646,9 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False, inputs_path=Non
     need = max(I_top * e["fuse_factor"], I_pk)
     fuse_a = next((r for r in e["fuse_ratings_a"] if r >= need), e["fuse_ratings_a"][-1])
     cab_dc = power.cable(inp, I_pk, e["len_battery_to_esc_m"], ba["v_nom"], I_ampacity=fuse_a)
-    # baterías en paralelo: un fusible por rama, cerca del borne (corriente pico / n, con reparto 60/40)
+    # baterías en paralelo: un fusible por rama, cerca del borne (corriente pico × reparto peor, electrical.parallel_share_max)
     n_par = ba.get("parallel", 1)
-    need_b = 0.6 * I_pk if n_par > 1 else need
+    need_b = e["parallel_share_max"] * I_pk if n_par > 1 else need
     fuse_branch = next((r for r in e["fuse_ratings_a"] if r >= need_b), e["fuse_ratings_a"][-1]) if n_par > 1 else fuse_a
     cab_ph = power.cable(inp, i_ph, e["len_esc_to_motor_m"], ba["v_nom"])
     out = {
@@ -623,6 +665,8 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False, inputs_path=Non
                        "v_planing_kmh": d["v_pl"] * 3.6, "v_hump_kmh": R.fn_h * R.vref * 3.6,
                        "savitsky": [{"V_kmh": float(v * 3.6), **p} for v, p in zip(R.Vp, R.planing)],
                        "lwl_m": inp["boat"]["lwl_m"], "n_points": len(R.planing), "n_valid_free": R.n_valid,
+                       "C_delta": ms["total_kg"] / (inp["water"]["density_kg_m3"] * inp["boat"]["planing_beam_m"] ** 3),
+                       "lcg_over_lwl": ms["lcg_m"] / inp["boat"]["lwl_m"],
                        "v_first_valid_kmh": R.v_first_valid * 3.6 if R.v_first_valid else None},
         "pump": {**d["rep"], "D_mm": best["D_imp_mm"], "hub_ratio": inp["waterjet"]["hub_ratio"],
                  "eta_design": inp["waterjet"]["pump"]["eta_design"], "V_design_kmh": best["V_design_kmh"],
@@ -634,7 +678,7 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False, inputs_path=Non
                         "vmax_cont_kmh": best["vmax_cont_kmh"], "planes": d["a_peak"]["planes"],
                         "hump_margin_min": d["a_peak"]["hump_margin_min"], "t_to_plane_s": t_plane,
                         "V_hump_margin_min_kmh": d["a_peak"]["V_hump_margin_min"] * 3.6,
-                        "V_hump_end_kmh": d["a_peak"]["V_hump_end"] * 3.6, "hump_ok": d["a_peak"]["hump_ok"],
+                        "hump_ok": d["a_peak"]["hump_ok"],
                         "bollard_N": d["peak"][0]["T"],
                         "reverse_N": d["peak"][0]["T"] * inp["waterjet"]["reverse"]["thrust_frac"]
                         * inp["waterjet"]["reverse"]["power_limit_frac"] ** (2 / 3),
@@ -648,6 +692,7 @@ def run(inp: dict, make_plots: bool = True, quiet: bool = False, inputs_path=Non
                     "t_plane_max_s": inp["operation"]["accel_target_s"]},
         "legal_speed": legal, "energy": energy, "thermal": thermal,
         "cavitation_cap": cav_cap, "motor_current": motor_current, "vmax_band": vband,
+        "hump_recovery": hump_recovery(inp, best),
         "electrical": {"I_bat_peak_A": I_pk, "I_bat_top_A": I_top, "I_phase_limit_A": i_ph, "I_bat_limit_A": i_bat,
                        "P_bat_cont_W": P_cont, "P_bat_peak_W": P_peak, "cable_dc": cab_dc, "cable_phase": cab_ph,
                        "fuse_a": fuse_a, "fuse_protects_cable": fuse_a <= cab_dc["ampacity_a"],

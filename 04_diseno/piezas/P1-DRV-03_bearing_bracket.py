@@ -1,19 +1,25 @@
 """P1-DRV-03 — Soporte de rodamientos (pórtico), Al 6082-T651 mecanizado y soldado (TIG, alivio no
 requerido: tensiones muy bajas) o mecanizado de bloque.
 
-Toma TODO el empuje axial (Fa a punto fijo) del par 7204 BEP en O y lo baja a la placa base de la toma
+Toma TODO el empuje axial (Fa a punto fijo) del par 7204 BECBP en O y lo baja a la placa base de la toma
 por los 4 × M8 de la interfaz (brg_bracket_holes, z = base_top_z). Es un PUENTE sobre el conducto:
-  • alojamiento Ø47 H7 (marco JET, coaxial) con resalte trasero (apoyo del aro exterior de popa; el
-    agujero Ø collar + 3 hace laberinto con el collar Ø26 del eje) y 4 × M5 en la cara delantera para la tapa
-    P1-DRV-06, que toma el empuje hacia proa;
+  • alojamiento Ø47 H7 (marco JET, coaxial) con resalte trasero (apoyo del aro exterior de popa) con paso
+    Ø drv_brg_shoulder_hole: mayor que d1 del aro interior (no roza) y menor que D1 del exterior (lo apoya);
+    4 × M5 en la cara delantera para la tapa P1-DRV-06, que toma el empuje hacia proa;
   • tablero horizontal POR ENCIMA del eje, del que cuelga el alojamiento;
   • dos mejillas longitudinales (planos xz, a |y| ≥ drv_cheek_y) que bajan a dos zapatas sobre la placa
     base, a ambos lados de la abertura de la toma — nada del soporte baja entre las mejillas.
 Fijación (definida por TOMA en P1-INT-02): 4 espárragos = tornillos avellanados ISO 10642 M8 × 35 A4-70
-colocados desde afuera (cabeza enrasada con el fondo, en Sikaflex). El soporte BAJA VERTICAL sobre ellos
-(agujeros Ø9 de las zapatas, ±0,5 mm para alinear el alojamiento con el buje del sello con un casquillo de
-centrado) y se aprieta con arandela ISO 7089 + tuerca ISO 4032 A4 a drv_nut_torque_Nm con Tef-Gel; después
-se escarian 2 pasadores Ø6 por zapata en montaje.
+colocados desde afuera (cabeza enrasada con el fondo, en Sikaflex).
+SECUENCIA DE MONTAJE (auditoría Pass 3 H2): el alojamiento es cerrado alrededor del eje, así que el pórtico
+NO puede bajar vertical sobre los espárragos. Cada zapata tiene UNA RANURA de 9 mm abierta hacia POPA que
+toma sus dos espárragos: (1) tuercas de los espárragos sacadas; (2) apoyar el pórtico drv_brg_travel más a
+proa (alojamiento delante de la punta de proa del eje; los espárragos de proa ya quedan dentro de las
+ranuras, los de popa detrás de las zapatas); (3) deslizarlo hacia popa a lo largo del eje (el resalte pasa
+sobre el Ø20) hasta que los espárragos de proa toquen el fondo de las ranuras; (4) arandela ancha ISO 7093 +
+tuerca a mano; (5) rodamientos, KM4/MB4, tapa; (6) alinear el alojamiento con un mandril (eje patrón Ø20
+del buje del estator al alojamiento), apretar las tuercas a drv_nut_torque_Nm con Tef-Gel y escariar 2
+pasadores Ø6 por zapata (toman el corte en x que la ranura no toma). Ver 06 §3 M6–M7.
 """
 import math
 import sys
@@ -27,7 +33,7 @@ from cadlib import box, cyl_x, cyl_z, prism_xz  # noqa: E402
 from _drv_geom import cyl_s, polar_yz, x_boat, z_axis  # noqa: E402
 from params import loc_jet  # noqa: E402
 
-META = dict(id="P1-DRV-03", name="bearing_bracket", desc="Pórtico Al 6082 sobre el conducto: alojamiento 2×7204 BEP, 4×M8 a la placa base",
+META = dict(id="P1-DRV-03", name="bearing_bracket", desc="Pórtico Al 6082 sobre el conducto: alojamiento 2×7204 BECBP, 4×M8 a la placa base",
             material="Al 5052/6082", process="torneada", qty=1, frame="boat", group="drive",
             load_case="Empuje Fa a punto fijo + reacción radial + 3 g vertical del tren; bulones M8 a la placa base de Al",
             print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
@@ -76,17 +82,28 @@ def build(p):
         part = part + box(x0, x1, pa, pb, zb0, zb1)
     # alojamiento: agujero Ø47 H7, resalte con paso Ø collar + 3 (laberinto con el collar)
     bore = cyl_s(brg["D"] / 2, p.drv_S_brgA, g["S_h1"] + 1.0)
-    bore = bore + cyl_s((p.drv_collar_d + 3.0) / 2, g["S_h0"] - 1.0, p.drv_S_brgA + 0.01)
+    bore = bore + cyl_s(p.drv_brg_shoulder_hole / 2, g["S_h0"] - 1.0, p.drv_S_brgA + 0.01)
     holes = None
     for k in range(4):
         y, z = polar_yz(p.drv_cover_bc / 2, 45 + 90 * k)
         h = cyl_x(M5_TAP / 2, -g["S_h1"] - 1.0, -g["S_h1"] + 12.0, y=y, z=z)
         holes = h if holes is None else holes + h
     part = part - (bore + holes).moved(loc_jet(p))
-    # agujeros de las zapatas
-    for (xh, yh) in p.brg_bracket_holes:
-        part = part - cyl_z(p.drv_bracket_hole / 2, zb0 - 1, zb1 + 1, x=xh, y=yh)
+    # ranuras de las zapatas: una por lado, abierta hacia popa, fondo en el espárrago de proa
+    for xh, yh in slot_ends(p):
+        r = p.drv_bracket_hole / 2
+        part = part - box(x0 - 1.0, xh, yh - r, yh + r, zb0 - 1, zb1 + 1)
+        part = part - cyl_z(r, zb0 - 1, zb1 + 1, x=xh, y=yh)
     return part
+
+
+def slot_ends(p):
+    """(x, y) del fondo de cada ranura = espárrago de proa de cada lado."""
+    out = []
+    for sy in (-1, 1):
+        hs = [h for h in p.brg_bracket_holes if h[1] * sy > 0]
+        out.append(max(hs, key=lambda h: h[0]))
+    return out
 
 
 def placements(p, steer=0.0, bucket=0):
@@ -109,7 +126,14 @@ def checks(p, part):
         ("luz vaso de la tuerca M8 (Ø18) ↔ mejilla [mm]", hy - p.drv_nut_socket_d / 2 - cy1, 2.0, ">="),
         ("precarga a par de apriete ≤ 0,7·Rp0,2·A_s del espárrago A4-70 [N]", F_pre, 0.7 * 450.0 * As8, "<="),
         ("largo del alojamiento = resalte + 2 × B [mm]", g["S_h1"] - g["S_h0"], p.drv_brg_shoulder_t + 2 * brg["B"], "="),
-        ("resalte ≤ Da máx. del aro exterior: Ø paso < Da_max [mm]", p.drv_collar_d + 3.0, brg["Da_max"], "<="),
+        ("resalte ≤ Da máx. del aro exterior: Ø paso < Da_max [mm]", p.drv_brg_shoulder_hole, brg["Da_max"], "<="),
+        ("resalte no roza el aro interior: Ø paso − d1 [mm]", p.drv_brg_shoulder_hole - brg["d1"], 1.0, ">="),
+        ("resalte apoya el aro exterior: D1 − Ø paso [mm]", brg["D1"] - p.drv_brg_shoulder_hole, 2.0, ">="),
+        ("montaje por deslizamiento: resalte pasa sobre el eje a proa del collar (holgura radial) [mm]",
+         (p.drv_brg_shoulder_hole - p.shaft_d) / 2, 2.0, ">="),
+        ("montaje por deslizamiento: ranura abierta a popa toma los 2 espárragos (largo − Δx entre ellos) [mm]",
+         min(xh for xh, _ in slot_ends(p)) - p.brg_bracket_x0 - (max(h[0] for h in p.brg_bracket_holes) - min(h[0] for h in p.brg_bracket_holes)), 0.0, ">="),
+        ("arandela ancha puentea la ranura (Ø − ancho ≥ 2 × 6) [mm]", p.drv_washer_od - p.drv_bracket_hole, 12.0, ">="),
         ("pared del alojamiento [mm]", (p.drv_hsg_od - brg["D"]) / 2, 6.0, ">="),
         ("tablero por encima del agujero Ø47 [mm]", g["zd0"] - (max(z_axis(p, g["S_h0"]), z_axis(p, g["S_h1"])) + brg["D"] / 2), 3.0, ">="),
         ("mejillas fuera de la abertura de la toma: |y| interior − W_open/2 [mm]", cy0 - p.W_open / 2, 15.0, ">="),

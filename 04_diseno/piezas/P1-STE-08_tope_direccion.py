@@ -12,6 +12,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from build123d import Polyline, make_face, extrude, Pos  # noqa: E402
 from cadlib import box, cyl_x  # noqa: E402
+import _transom as _tr  # noqa: E402
 
 META = dict(
     id="P1-STE-08", name="tope_direccion", desc="Topes de dirección ±δmax+1,5° (Al 5083 8 mm)",
@@ -76,4 +77,5 @@ def checks(p, part):
             ("tope antes del giro libre contra la bomba (STE_sweep − 2,5) [°]", p.STE_stop_deg, p.STE_sweep - 2.5, "<="),
             ("luz poste ↔ tope con δmax (arco) [mm]", math.radians(p.STE_stop_deg - p.steer_max) * Rp, 2.0, ">="),
             ("placa bajo el brazo del yugo (Z) [mm]", (p.STE_post_z1 - p.STE_arm_t) - p.STE_stop_z[1], 3.0, ">="),
-            ("ala bajo la placa interior P1-CTL-01 (z_bote) [mm]", 322.0 - zf, 0.0, ">=")]
+            ("ala bajo la placa interior P1-CTL-01 (z_bote) [mm]", _tr.plate_z(p)[0] - zf, 0.0, ">="),
+            ("borde del ala = el que usa P1-CTL-01 (_transom.stop_wing_top) [mm]", zf, _tr.stop_wing_top(p), "<=")]

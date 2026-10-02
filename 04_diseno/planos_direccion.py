@@ -132,8 +132,8 @@ def draw(p, H):
     # ---------------- mandos
     import _transom as TR
     PY = TR.plate_y(p)
-    holes = [(y - PY[0], z - TR.PLATE_Z[0], d, t) for (y, z, d, t) in TR.holes(p)]
-    out.append(PL("P1-CTL-01", "placa_espejo", "Al 5083-H111", PY[1] - PY[0], TR.PLATE_Z[1] - TR.PLATE_Z[0],
+    holes = [(y - PY[0], z - TR.plate_z(p)[0], d, t) for (y, z, d, t) in TR.holes(p)]
+    out.append(PL("P1-CTL-01", "placa_espejo", "Al 5083-H111", PY[1] - PY[0], TR.plate_z(p)[1] - TR.plate_z(p)[0],
                   TR.PLATE_T, holes, notes=["Por dentro del espejo; origen = esquina inferior de estribor (y mín., z mín.) en el BOTE",
                                             "Taladrar el espejo con la placa como plantilla; Sikaflex 291i en todos los pasos"]))
     out.append(T("P1-CTL-04", "pasamuros_m66", "AISI 316",

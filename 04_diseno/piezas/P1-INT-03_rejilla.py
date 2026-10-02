@@ -12,6 +12,12 @@ desde el espejo entre barras, R10a §4), con la cara inferior enrasada con el fo
     pasaje mismo hace de rejilla.
 Desmontable DESDE AFUERA con 4 tornillos M5 A4 (bote en el trailer o buceando, con el sistema
 desarmado — R10a §0).
+Luz entre barras ≤ toma_gap_max (una varilla Ø13 no pasa, R10a §8.6; auditoría Pass 3 / bloqueo H-11):
+n = grille_bars sale de params_toma; K de Kirschmer con barra perfilada ≈ grille_k de inputs (check).
+AISLACIÓN GALVÁNICA (316 bajo el agua contra 5083): camisa/cinta de PTFE en las ranuras del labio y los
+bolsillos (luz toma_iso_gap), cinta de PTFE toma_bar_iso_t en el canto que apoya en la cuña de la placa,
+casquillos aislantes de nylon en los 4 × M5 (arandela cónica de nylon bajo la cabeza avellanada) + Tef-Gel;
+continuidad 316 ↔ 5083 > 1 kΩ al montar (06 §4).
 """
 import math
 import sys
@@ -26,7 +32,7 @@ from build123d import Location  # noqa: E402
 from cadlib import box, cyl_z, prism_xz, prism_yz  # noqa: E402
 
 META = dict(id="P1-INT-03", name="rejilla",
-            desc="Rejilla 316: 7 pletinas perfiladas 4 × 20 longitudinales enrasadas, pletina de popa y tirante de proa, 4 × M5 A4",
+            desc="Rejilla 316: pletinas perfiladas 4 × 21 longitudinales (luz ≤ 12,5) enrasadas, pletina de popa y tirante de proa, 4 × M5 A4 aislados",
             material="AISI 316", process="torneada", qty=1, frame="boat", group="jet",
             load_case="Rejilla tapada a la presión de cierre de la bomba; golpe de objeto 200 N en el centro de una barra",
             allow={"P1-INT-01": 5.0, "P1-INT-02": 40.0})
@@ -41,7 +47,7 @@ def bar_top(p, x):
     placa base (x ≥ toma_x_j) la barra APOYA contra el techo de Al: ahí descarga la succión."""
     if x <= p.x_lip + 1.0:
         return p.toma_bar_h
-    c = p.toma_bar_clr * min(1.0, max(0.0, (p.toma_x_j - x) / 15.0))
+    c = max(p.toma_bar_clr * min(1.0, max(0.0, (p.toma_x_j - x) / 15.0)), p.toma_bar_iso_t)
     return float(min(p.toma_bar_h, p.toma_roof_z(x) - c))
 
 
@@ -103,8 +109,10 @@ def checks(p, part):
     return [
         ("un solo sólido", len(part.solids()), 1, "="),
         ("área efectiva / A_impulsor ≥ grille_open_area_m2_per_Aimp", open_area(p) / A_imp, req, ">="),
-        ("luz entre barras ≥ 15 mm (R12 §4.3) [mm]", gap, 15.0, ">="),
-        ("luz entre barras ≤ 20 mm (R12 §4.3) [mm]", gap, 20.0, "<="),
+        ("luz entre barras ≤ toma_gap_max: varilla Ø13 no pasa (R10a §8.6) [mm]", gap, p.toma_gap_max, "<="),
+        ("luz entre barras ≥ 10 mm (basura/limpieza; R12 §4.3 recomienda 15–20) [mm]", gap, 10.0, ">="),
+        ("K Kirschmer barra perfilada 1,83·(t/e)^(4/3) ≤ grille_k + 0,05 (inputs) [—]",
+         1.83 * (p.grille_bar_d / gap) ** (4 / 3), p.inp["waterjet"]["grille_k"] + 0.05, "<="),
         ("luz < paso entre álabes en el cubo [mm]", gap, pitch_hub, "<="),
         ("enrase: z mín. de la rejilla = fondo [mm]", bb.min.Z, 0.0, "="),
         ("barras libres del techo del conducto [mm]", clr, p.toma_bar_clr - 0.01, ">="),

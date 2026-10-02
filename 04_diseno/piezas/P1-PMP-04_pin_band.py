@@ -1,9 +1,10 @@
 """P1-PMP-04 — Anillo retén del pasador de corte (AISI 316 torneado). Marco JET.
 
 Manguito Ø D_hub × pared pmp_band_t, deslizante (H7/g6 + Loctite 641) sobre el asiento Ø 2·pmp_land_r
-de la popa del cubo del impulsor; tapa los dos extremos del pasador de corte (P1-PMP-05). Lo traban
-2 tornillos M3 A4 avellanados (ISO 10642) en ±Z. Para cambiar el pasador: sacar tobera y estator,
-quitar los M3, deslizar el anillo hacia popa y botar el pasador con un punzón Ø3.
+de la popa del cubo del impulsor; tapa los extremos de los 2 semipasadores de corte (P1-PMP-05). Lo traban
+2 tornillos M3 A4 avellanados (ISO 10642) en ±Z. Para cambiar los semipasadores: sacar tobera y estator por
+popa (P1-PMP-08), quitar los M3, deslizar el anillo hacia popa (pasa sobre el DIN 471 de popa y su arandela)
+y botar cada semipasador con un botador Ø3 corto desde el lado opuesto; el impulsor queda en el eje.
 """
 import sys
 from pathlib import Path

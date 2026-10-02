@@ -8,7 +8,8 @@ Marco BOTE. Reemplaza un paño del fondo del casco alrededor de la toma:
   • abertura de la toma: costados verticales en ±W_open/2 (continúan el conducto); a proa, la CUÑA
     del techo (rampa) mecanizada en 3D desde la tangencia hasta donde el techo llega a 9 mm; a popa,
     el alojamiento del bloque del labio de P1-INT-01;
-  • roscas ciegas M6 para la brida del conducto (P1-INT-01); para el soporte de rodamientos del grupo
+  • roscas ciegas M6 × toma_m6_depth para la brida del conducto (P1-INT-01), apretadas a toma_m6_torque_Nm
+    (precarga toma_m6_Fpre_N, FS ≥ 2 al barrido del filete de Al, structural_toma) con Loctite 243; para el soporte de rodamientos del grupo
     TREN (brg_bracket_holes, cara superior plana a base_top_z): 4 × M8 PASANTES con avellanado 90° por
     abajo para tornillos ISO 10642 M8 A4-70 colocados desde afuera (cabeza enrasada con el fondo, asentada
     en Sikaflex-291i) que hacen de espárragos: el soporte baja sobre ellos y se aprieta con tuerca
@@ -78,7 +79,7 @@ def build(p):
     spec.loader.exec_module(m)
     for x in m.bolt_x(p):
         for s in (1, -1):
-            P = P - cyl_z(M6_TAP / 2, zt - 8.0, zt + 1, x=x, y=s * p.toma_bolt_y)
+            P = P - cyl_z(M6_TAP / 2, zt - p.toma_m6_depth, zt + 1, x=x, y=s * p.toma_bolt_y)
     # 4 × M8 pasantes + avellanado 90° por abajo (ISO 10642, dk = 16) del soporte de rodamientos (TREN)
     from build123d import Cone, Pos
     from cadlib import CEN, MIN
@@ -89,7 +90,7 @@ def build(p):
     for (x, y) in hull_bolts(p):
         P = P - cyl_z((p.toma_hull_bolt + p.bolt_clr) / 2, p.toma_rim_z0 - 1, zt + 1, x=x, y=y)
     # tirante delantero de la rejilla: bolsillos laterales (abajo) + M5 ciegas
-    gc = 0.3
+    gc = p.toma_iso_gap               # luz para la camisa de PTFE (aislación 316 ↔ 5083)
     xb, tw = p.toma_x_bf, p.toma_tie_w
     for s in (1, -1):
         ya, yb = (W2 - 1.0, W2 + 12.0 + gc) if s > 0 else (-(W2 + 12.0 + gc), -(W2 - 1.0))
@@ -122,6 +123,7 @@ def checks(p, part):
         ("agujeros M8 dentro de la placa en x [mm]", min(min(xs) - p.toma_plate_x0, p.toma_plate_x1 - max(xs)), 15.0, ">="),
         ("M8 del soporte: espesor de Al sobre la cabeza avellanada [mm]", zt - CSK_H, 5.0, ">="),
         ("M8 del soporte: rosca en tuerca A4 ISO 4032 (m = 6,8, acero-acero) ≥ 0,8 d [mm]", 6.8, 0.8 * 8, ">="),
+        ("M6 ciegas del conducto: fondo de Al bajo el agujero (cara mojada) [mm]", zt - p.toma_m6_depth, 1.5, ">="),
         ("cuña de la rampa: espesor mín. en la unión con el conducto [mm]", cuna_min, 0.9, ">="),
         ("escalón techo placa → conducto (≤ 1 mm, hacia afuera del flujo) [mm]", zt - float(p.toma_roof_z(p.toma_x_j)), 1.1, "<="),
         ("luz bloque del labio ↔ placa por lado [mm]", p.toma_seal_gap, 0.5, "="),

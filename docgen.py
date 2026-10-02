@@ -115,6 +115,8 @@ def blocks(sz, bom, man, est, ver):
             ["Autonomía a esa potencia", f"{lg['autonomy_legal_h']:.1f} h", "[CALCULADO]"],
         ])
         th, el, en, me, cl = sz["thermal"], sz["electrical"], sz["energy"], sz["mech"], sz.get("cooling", {})
+        _px = ROOT / "04_diseno" / "electronica" / "electronica.json"
+        elx = json.loads(_px.read_text(encoding="utf-8")) if _px.exists() else {}
         B["thermal"] = table(["Magnitud", "Valor", "Etiqueta"], [
             ["Pérdida del motor a V máx. sostenida", f"{th['P_loss_motor_W']:.0f} W", "[CALCULADO]"],
             ["T del motor estacionaria (aire 30 °C, refrigeración por agua)", f"{th['T_motor_steady_C']:.0f} °C (máx. {th['t_winding_max_C']:.0f})", "[CALCULADO, R_th ESTIMADO]"],
@@ -129,8 +131,11 @@ def blocks(sz, bom, man, est, ver):
             ["Corriente de batería pico / a V máx. sostenida", f"{el['I_bat_peak_A']:.0f} / {el['I_bat_top_A']:.0f} A", "[CALCULADO]"],
             ["Límite de corriente de fase (controlador)", f"{el['I_phase_limit_A']:.0f} A", "[CALCULADO]"],
             ["Fusible principal", f"{el['fuse_a']} A", "[CALCULADO]"],
-            ["Cable DC / fases", f"{el['cable_dc']['section_mm2']} mm² ({el['cable_dc']['drop_frac']*100:.1f} %) / "
-             f"{el['cable_phase']['section_mm2']} mm² ({el['cable_phase']['drop_frac']*100:.1f} %)", "[CALCULADO]"],
+            ["Cable DC (batería → controlador)", f"{el['cable_dc']['section_mm2']} mm² ({el['cable_dc']['drop_frac']*100:.1f} %)", "[CALCULADO]"],
+            ["Fases controlador → motor", "cables propios del motor (6 AWG) y del controlador (8 AWG) con conectores bala de 8 mm, sin tramo agregado"
+             + (f"; caída ≈ {elx['cables']['phase_drop_leads_frac']*100:.2f} % a {elx['cables']['I_phase_limit_A']:.0f} A"
+                if elx.get("cables", {}).get("phase_drop_leads_frac") is not None else ""),
+             "[CALCULADO: 04_diseno/electronica/calc_electronica.py; calibres VERIFICADOS en inputs.yaml]"],
             ["Energía usable / requerida por la misión", f"{en['E_usable_wh']:.0f} / {en['E_req_wh']:.0f} Wh", "[CALCULADO]"],
         ])
         sp = me.get("shear_pin", {})
@@ -138,7 +143,9 @@ def blocks(sz, bom, man, est, ver):
             ["Par máx. del controlador / a V máx.", f"{me['T_max_Nm']:.1f} / {me['T_top_Nm']:.1f} N·m", "[CALCULADO]"],
             ["Eje Ø20 316: FS estático / fatiga", f"{me['fs_shaft_static']:.1f} / {me['fs_shaft_fatigue']:.1f}", "[CALCULADO]"],
             ["Pasador de corte", f"Ø{sp.get('d_mm', 0)} {sp.get('material', '')}: corta a {sp.get('T_cut_Nm', 0):.1f} N·m "
-             f"(FS del eje al corte {sp.get('fs_shaft_at_cut', 0):.1f})", "[CALCULADO: research/R12 §7.6]"],
+             f"(FS del eje al corte {sp.get('fs_shaft_at_cut', 0):.1f})"
+             + (f"; con τ_u {sp['tau_u_hi_mpa']:.0f} MPa corta a {sp['T_cut_hi_Nm']:.1f} N·m (FS del eje {sp['fs_shaft_at_cut_hi']:.1f})"
+                if "T_cut_hi_Nm" in sp else ""), "[CALCULADO: research/R12 §7.6; τ_u alto ESTIMADO]"],
             ["Empuje axial máx. al par de rodamientos", f"{me['Fa_max_N']:.0f} N", "[CALCULADO]"],
             ["Vida L10 a V máx.", f"{_fmt(me['L10_top_h'])} h", "[CALCULADO]"],
             ["Velocidad crítica / rpm máx.", f"{me['n_crit_rpm']:.0f} / {me['n_max_rpm']:.0f} rpm ({me['crit_ratio']:.1f}×)", "[CALCULADO]"],

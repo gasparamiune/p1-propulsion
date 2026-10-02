@@ -1,7 +1,8 @@
 """P1-PMP-06 — Estator / difusor (Al 6061-T6, CNC 5 ejes, anodizado duro). Marco JET.
 
 Camisa Ø pmp_D_seat × Ø D_bore (desliza en la carcasa, apoya adelante contra el anillo de desgaste y
-atrás la aprieta la espiga de la tobera; 2 × M5 radiales ±Y la traban al giro), vanes álabes
+atrás la aprieta la espiga de la tobera; 2 × M5 radiales ±Y, roscados en la carcasa, entran con la punta en 2
+agujeros LISOS Ø5,5 × 3,5 de la camisa y la traban al giro), vanes álabes
 (coprimo con blades) con ángulo de entrada = stator_inlet_deg de sizing en cada radio (torbellino
 libre) y salida axial con sobregiro δ ≤ 8° (regla de Constant, R12 §3.2), cubo Ø D_hub con el buje de
 agua P1-PMP-07 (2.º apoyo del eje, entra desde proa) y cono de cola dentro de la tobera, con agujero
@@ -66,13 +67,14 @@ def build(p):
     part = hub + shell
     for v in vanes(p):
         part = part + v
-    # agujero de refrigeración (arriba) y 2 × M5 ciegos (±Y) en la camisa
+    # agujero de refrigeración (arriba) y 2 agujeros lisos ciegos (±Y) para la punta de los M5 anti-giro
     Xc = p.pmp_cool_port[0]
     part = part - cyl_z(p.pmp_cool_bore_d / 2, p.D_bore / 2 - 1, p.pmp_D_seat / 2 + 1, x=Xc)
     Rs = p.pmp_D_seat / 2
     for s in (1, -1):
-        y0, y1 = (Rs - 2.5, Rs + 1) if s > 0 else (-Rs - 1, -Rs + 2.5)
-        part = part - cyl_y(4.2 / 2, y0, y1, x=p.pmp_st_screw_X)
+        dt, ht = p.pmp_st_tip_hole
+        y0, y1 = (Rs - ht, Rs + 1) if s > 0 else (-Rs - 1, -Rs + ht)
+        part = part - cyl_y(dt / 2, y0, y1, x=p.pmp_st_screw_X)
     if len(part.solids()) == 1:
         part = part.solids()[0]
     return part
@@ -116,4 +118,6 @@ def checks(p, part):
         ("espesor mín. de álabe [mm]", min(v["tmax"] for v in T.values()), 3.2, ">="),
         ("pared del cubo sobre el buje [mm]", p.D_hub / 2 - p.pmp_brg_od / 2, 10.0, ">="),
         ("concentricidad declarada buje ↔ camisa (TIR) [mm]", 0.03, 0.03, "<="),
+        ("agujero de la punta del M5 deja pared en la camisa [mm]", (p.pmp_D_seat - p.D_bore) / 2 - p.pmp_st_tip_hole[1], 1.0, ">="),
+        ("BF de los álabes a ≥ 5 mm del fin de la camisa (espiga de la tobera) [mm]", p.pmp_st_shell_X1 - bb.max.X, 5.0, ">="),
     ]

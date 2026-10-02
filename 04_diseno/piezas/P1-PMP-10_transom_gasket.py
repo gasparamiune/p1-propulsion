@@ -1,6 +1,7 @@
 """P1-PMP-10 — Junta de espejo NBR 2 mm (cortada de plancha) entre el espejo y la placa P1-PMP-09.
-Marco BOTE, x ∈ [−pmp_gasket_t, 0]. Agujero = transom_hole_d; 7 agujeros de bulón. Montar con sellador
-de poliuretano (p. ej. Sikaflex 291 [ESTIMADO: buscar ficha]) además de la junta.
+Marco BOTE, x ∈ [−pmp_gasket_t, 0]. Agujero = transom_hole_d. Montar con sellador
+de poliuretano (p. ej. Sikaflex 291 [ESTIMADO: buscar ficha]) además de la junta. 6 agujeros de bulón
+(los de P1-PMP-09, pmp_tp_bolt_ang).
 """
 import math
 import sys
@@ -20,7 +21,7 @@ _s.loader.exec_module(_tp)
 META = dict(id="P1-PMP-10", name="transom_gasket",
             desc="Junta NBR 2 mm del espejo (bajo la placa P1-PMP-09)",
             material="NBR", process="comprada", qty=1, frame="boat", group="jet",
-            load_case="Compresión de los 7 × M6", allow={"P1-PMP-09": 5.0})
+            load_case="Compresión de los 6 × M6", allow={"P1-PMP-09": 5.0})
 
 
 def build(p):
@@ -41,5 +42,8 @@ def checks(p, part):
         ("un solo sólido", len(part.solids()), 1, "="),
         ("espesor [mm]", bb.max.X - bb.min.X, p.pmp_gasket_t, "="),
         ("agujero = transom_hole_d", p.transom_hole_d, p.raw["transom_hole_d"], "="),
-        ("ancho de junta bajo el agujero (z) [mm]", p.z_noz - p.transom_hole_d / 2 - p.pmp_tp_zmin, 8.0, ">="),
+        (f"ancho de junta bajo el agujero (z) [mm] — si falla: subir waterjet.axis_height_m a ≥ "
+         f"{p.h_axis / 1000 + max(0.0, 8.0 - (p.z_noz - p.transom_hole_d / 2 - p.pmp_tp_zmin)) / 1000:.3f} m",
+         p.z_noz - p.transom_hole_d / 2 - p.pmp_tp_zmin, 8.0, ">="),
+        ("agujeros de bulón = los de la placa P1-PMP-09", len(_tp.bolt_yz(p)), len(p.pmp_tp_bolt_ang), "="),
     ]

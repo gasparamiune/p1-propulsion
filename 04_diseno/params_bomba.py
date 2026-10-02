@@ -114,19 +114,42 @@ def extend(d):
     d["pmp_D_barrel"] = d["pmp_D_seat"] + 2 * d["pmp_h_wall"]
     d["pmp_f1_t"] = 12.0                                 # brida de la toma (espesor) [ESTIMADO: M6, rigidez]
     d["pmp_flange_ang0"] = 22.5                          # fase de los 8 agujeros (desde +Y hacia +Z): ninguno en ±Y/±Z [SUPUESTO: coordinar con TOMA]
-    d["pmp_f2_od"] = 186.0                               # brida carcasa ↔ tobera [ESTIMADO: libra el fondo ≥ 5 mm]
-    d["pmp_f2_bc"] = 170.0
-    d["pmp_f2_n"] = 8
-    d["pmp_f2_t"] = 12.0
-    d["pmp_f2_bolt"] = 6                                 # M6 A4-70 pasantes con tuerca
+    # CENTRAJE carcasa ↔ conducto (auditoría Pass 3 H7): espigón Ø140 h6 de la carcasa en un rebaje H7 de la
+    # brida del conducto (mecanizado después de soldar, en la misma atada que el buje del sello Ø42 H8). Queda
+    # por dentro del O-ring de cara y su Ø interior es D_bore (sin escalón para el agua).
+    d["pmp_f1_spigot_d"] = 140.0                         # [CALCULADO: ≥ D_bore + 2 × 3,5 (pared) y ≤ 2·pmp_gl_r_in − 2]
+    d["pmp_f1_spigot_h"] = 3.0                           # [SUPUESTO: 3 mm; rebaje del conducto 3,2]
+    d["pmp_f1_recess_h"] = 3.2
     # O-ring de cara en la brida de la toma (cs de inputs.geometry)
     cs, sq, fill = d["oring_cs"], d["oring_sq"], d["oring_fill"]
-    d["pmp_gl_depth"] = round(cs * (1 - sq), 2)
+    d["pmp_gl_depth"] = round(cs * (1 - sq), 2)          # [CALCULADO: regla de inputs geometry (apriete 25 %, llenado 78 %); contrastar con ISO 3601-2 / Parker ORD 5700 — no abiertos]
     d["pmp_gl_width"] = round(math.pi * cs ** 2 / 4 / (fill * d["pmp_gl_depth"]), 2)
     d["pmp_gl_r_in"] = R_bore + 5.0
-    # tornillos anti-rotación del estator: 2 × M5 A4 radiales (±Y) a través de la carcasa
+    # JUNTA CARCASA ↔ TOBERA (f2) — auditoría Pass 3 H1/H3. La brida de la tobera es MÁS CHICA que el agujero
+    # del espejo: tobera, estator, impulsor y semipasadores salen por popa sin sacar el tren. Sello: O-ring
+    # RADIAL en la espiga de la tobera dentro del asiento de la carcasa (no depende del apriete axial); los
+    # 8 × M5 quedan del lado seco. La espiga es pmp_stack_gap más larga que la profundidad del asiento: aprieta
+    # la camisa del estator contra el anillo de desgaste y deja esa luz entre las caras de las bridas.
+    d["pmp_noz_spigot"] = 12.0                           # [CALCULADO: ranura del O-ring + 2 apoyos ≥ 3,5; BF de los álabes del estator a ≥ 5 mm del fin de la camisa]
+    d["pmp_stack_gap"] = 0.25                            # [SUPUESTO: 0,2–0,3 mm de sobremedida axial; medir con galgas al montar]
+    d["pmp_f2_bolt"] = 5                                 # 8 × ISO 4762 M5 A4-70 desde popa, roscados en la brida de la carcasa
+    d["pmp_f2_bolt_hole"] = 5.5                          # [ESTIMADO: paso medio ISO 273 M5]
+    d["pmp_f2_head_d"] = 8.5                             # [ESTIMADO: cabeza ISO 4762 M5 dk = 8,5]
+    d["pmp_f2_tap_d"] = 4.2                              # [VERIFICADO: broca de roscar M5 (tabla ISO 261/DIN 336, ver P1-INT-02)]
+    d["pmp_f2_thread_L"] = 9.0                           # rosca útil en Al 6061-T6 ≥ 1,5 d [ESTIMADO: regla de diseño para Al]
+    d["pmp_f2_bc"] = round(2 * (d["pmp_D_seat"] / 2 + 1.5 + d["pmp_f2_bolt_hole"] / 2), 2)   # ligamento 1,5 al asiento
+    d["pmp_f2_od"] = round(d["transom_hole_d"] - 2 * 2.0, 2)   # pasa por el agujero del espejo con 2 mm por lado
+    d["pmp_f2_n"] = 8
+    d["pmp_f2_t"] = 12.0
+    d["pmp_f2or_X"] = round(d["X_st1"] - d["pmp_noz_spigot"] / 2, 2)   # centro de la ranura del O-ring radial (espiga)
+    # tornillos anti-rotación del estator: 2 × ISO 4762 M5 A4 radiales (±Y) ROSCADOS en la carcasa (pared +
+    # saliente, ≥ 1,5 d) con arandela de sellado bonded (tipo USIT) bajo la cabeza: la punta entra en un
+    # agujero liso Ø5,5 de la camisa del estator (auditoría Pass 3 H3/H12)
     d["pmp_st_screw_X"] = d["X_st0"] + 37.0
     d["pmp_st_screw_d"] = 5
+    d["pmp_st_boss_d"] = 14.0                            # saliente de la carcasa en ±Y [SUPUESTO]
+    d["pmp_st_boss_h"] = 3.0                             # → rosca M5 en 5 + 3 = 8 mm
+    d["pmp_st_tip_hole"] = (5.5, 3.5)                    # agujero liso de la camisa (Ø, prof.)
     # PUERTO DE AGUA DE REFRIGERACIÓN (lado de alta presión, aguas abajo del estator, arriba)
     # [pedido del agente principal: para ESC y motor refrigerados por agua (grupo TREN)]
     d["pmp_cool_thread"] = "G1/8"                        # espiga de manguera Ø6–8 G1/8 A4 [ESTIMADO: buscar "Schlauchtülle G1/8 8 mm 1.4404"]
@@ -135,7 +158,7 @@ def extend(d):
     d["pmp_cool_bore_d"] = 5.0                           # paso al flujo
     d["pmp_cool_boss_d"] = 22.0
     d["pmp_cool_boss_top"] = d["pmp_D_barrel"] / 2 + 10.0
-    d["pmp_cool_port"] = (round(d["X_st1"] - 14.0, 2), 0.0, round(d["pmp_cool_boss_top"], 2))  # (X, Y, Z) JET, cara del saliente
+    d["pmp_cool_port"] = (round(d["X_st1"] - d["pmp_noz_spigot"] - 6.0, 2), 0.0, round(d["pmp_cool_boss_top"], 2))  # (X, Y, Z) JET, cara del saliente (sobre la camisa, a popa de los álabes)
     d["pmp_cool_dir"] = (0.0, 0.0, 1.0)                  # eje del puerto (radial, hacia arriba)
     d["pmp_cool_tap_X"] = d["pmp_cool_port"][0]          # alias que lee params_tren.py
 
@@ -163,7 +186,14 @@ def extend(d):
     d["pmp_pin_T_cut"] = sp["T_cut_Nm"]
     d["pmp_pin_X"] = round(d["L_imp"] - d["pmp_band_L"] / 2, 2)   # ← TREN: agujero Ø pmp_pin_hole en el eje, eje Y
     d["pmp_pin_axis"] = "Y"
-    d["pmp_pin_len"] = round(2 * d["pmp_land_r"] - 1.0, 1)       # extremos 0,5 mm bajo el asiento del anillo
+    # 2 SEMIPASADORES (uno por lado, se tocan en el centro del eje): cada uno cruza una vez la superficie del
+    # eje → 2 secciones de corte a r = d_eje/2, el mismo par de corte que el pasador pasante de sizing. Un
+    # pasador pasante de 2·r_asiento no entra en el anillo libre entre el cubo y el anillo de desgaste
+    # (~36 mm): con semipasadores se cambian SIN sacar el impulsor ni el tren (auditoría Pass 3 H1).
+    d["pmp_pin_n"] = 2
+    d["pmp_pin_half_len"] = round(d["pmp_land_r"] - 0.5, 1)     # extremo 0,5 mm bajo el asiento del anillo retén
+    d["pmp_pin_len"] = d["pmp_pin_half_len"]                    # largo de CADA pieza
+    d["pmp_pin_spares_sets"] = 3                                # juegos de repuesto (2 semipasadores c/u) [SUPUESTO]
     d["pmp_band_screw"] = 3                              # 2 × M3 A4 avellanados (±Z) traban el anillo retén
     d["pmp_pocket"] = (15.0, d["pmp_land_r"] - 4.0, 40.0)  # ranura anular aligerante desde popa (r_in, r_out, prof.)
     d["pmp_tip_r"] = d["D"] / 2
@@ -190,8 +220,7 @@ def extend(d):
 
     # ------------------------------------------------------------------ estator
     d["pmp_st_shell_X0"] = d["pmp_ring_X1"]              # la camisa apoya contra el anillo de desgaste
-    d["pmp_noz_spigot"] = 4.0
-    d["pmp_st_shell_X1"] = d["X_st1"] - d["pmp_noz_spigot"]
+    d["pmp_st_shell_X1"] = d["X_st1"] - d["pmp_noz_spigot"]  # la aprieta la espiga de la tobera
     d["pmp_st_le_X"] = d["X_st0"] + 1.0
     d["pmp_st_sol"] = [(rh, 1.5), (rm, 1.2), (R_bore, 1.0)]    # [R12 §3.2: 1,0–1,5]
     d["pmp_st_tc"] = [(rh, 0.10), (rm, 0.09), (R_bore, 0.08)]  # Al: robustez a golpes [ESTIMADO]
@@ -231,8 +260,10 @@ def extend(d):
     d["pmp_st_cbore_d"] = d["shaft_d"] + 1.5             # entrada del cubo del estator: libra el eje Ø20 y el anillo DIN 471
     # fijación axial del impulsor: 2 anillos DIN 471-20 en el eje (adelante: empuje; atrás: retén)
     d["pmp_circlip"] = "DIN 471-20 A4 (ranura Ø19 × 1,3) + arandela 316 20×30×1,5"   # [ESTIMADO: norma DIN 471]
-    d["pmp_circlip_fwd_X"] = d["pmp_imp_front_X"] - 1.5 - 0.6    # ← TREN: centro de la ranura delantera
-    d["pmp_circlip_aft_X"] = d["L_imp"] + 1.5 + 0.6              # ← TREN: centro de la ranura trasera
+    d["pmp_washer_t"] = 1.5                                      # arandela 316 20×30×1,5 entre cubo y anillo (B-CIRC)
+    d["pmp_circlip_m"] = 1.3                                     # ancho de ranura DIN 471-20 [ESTIMADO: norma DIN 471]
+    d["pmp_circlip_fwd_X"] = d["pmp_imp_front_X"] - d["pmp_washer_t"] - 0.6    # ← TREN (drv_thrust_groove): centro de la ranura delantera
+    d["pmp_circlip_aft_X"] = d["L_imp"] + d["pmp_washer_t"] + 0.6              # ← TREN (drv_aft_groove): centro de la ranura trasera
     d["pmp_st_cavity_d"] = d["shaft_d"] + 2.0
 
     # ------------------------------------------------------------------ tobera fija
@@ -299,4 +330,61 @@ def extend(d):
     #   (resalte + cuello hasta X1 con radio R; placa de espejo de radio plate_R alrededor del eje en el espejo)
     d["pmp_fixed_aft_env"] = dict(X1=d["pmp_land_X1"], R=d["pmp_collar_R"], plate_R=d["pmp_tp_R"],
                                   free_r=d["pmp_steer_free_r"], sock_R=d["pmp_sock_R"])
+    low_points(d)
+    d["pmp_service"] = service_paths(d)
     return d
+
+
+def low_points(d):
+    """Punto más bajo de la bomba sobre el fondo interior (auditoría W-16) y altura de eje mínima.
+    Anillos (X0, X1, R) del marco JET; el punto más bajo de cada uno es (X1, −R): z = z_if − X1·sen α − R·cos α
+    [CALCULADO]. La altura mínima del eje deja bottom_t + 2 mm de luz."""
+    sa, ca = math.sin(math.radians(d["alpha"])), math.cos(math.radians(d["alpha"]))
+    X1h = d["X_st1"] - d["pmp_stack_gap"]
+    rings = {"brida de la toma (P1-PMP-01)": (d["X_duct_out"] + d["pmp_f1_t"], d["pump_flange_od"] / 2),
+             "brida trasera de la carcasa (P1-PMP-01)": (X1h, d["pmp_f2_od"] / 2),
+             "brida de la tobera (P1-PMP-08)": (d["X_st1"] + d["pmp_noz_f_t"], d["pmp_f2_od"] / 2),
+             "resalte de la tobera (P1-PMP-08)": (d["pmp_land_X1"], d["pmp_land_R"])}
+    rel = {k: -X * sa - R * ca for k, (X, R) in rings.items()}
+    k_low = min(rel, key=rel.get)
+    d["pmp_low_part"] = k_low
+    d["pmp_low_z"] = d["z_if"] + rel[k_low]
+    d["pmp_axis_h_min_m"] = round((d["bottom_t"] + 2.0 - rel[k_low]) / 1000.0, 4)
+
+
+def service_paths(d):
+    """CAMINO DE EXTRACCIÓN de los ítems de servicio de la bomba (auditoría Pass 3 H1), con el bote en tierra:
+    se sacan boquilla + bucket (pernos de pivote) y la placa de espejo (6 × M6); desde adentro, los 8 × M5 de
+    la tobera y los 2 × M5 del estator. Todo lo demás sale POR POPA por el agujero del espejo: el tren (eje,
+    sello, rodamientos, acople, motor) y la carcasa no se tocan. Cada fila: (ítem, necesario, disponible,
+    op) — verify_parts.py (V7) y los checks de P1-PMP-08 fallan si alguna no se cumple. [CALCULADO]"""
+    sa, ca = math.sin(math.radians(d["alpha"])), math.cos(math.radians(d["alpha"]))
+    hole_r = d["transom_hole_d"] / 2
+    R2 = d["pmp_f2_od"] / 2
+    # brida de la tobera llegando al espejo: punto bajo (X, Z = −R2) cuando su cara de popa toca la cara interior
+    X_t = (d["x_if"] + R2 * sa - d["transom_t"]) / ca
+    z_fl = d["z_if"] - X_t * sa - R2 * ca
+    circ_od = 27.0                                     # [ESTIMADO: DIN 471-20 Ø exterior libre ≈ 27 (ver params_tren CIRCLIP20)]
+    rows = [
+        ("tobera P1-PMP-08: brida (Ø pmp_f2_od) + 1,5 por lado ≤ agujero del espejo (radio) [mm]", R2 + 1.5, hole_r, "<="),
+        ("tobera P1-PMP-08: resalte + 3 ≤ agujero del espejo (radio) [mm]", d["pmp_land_R"] + 3.0, hole_r, "<="),
+        ("tobera P1-PMP-08: brida sobre el fondo interior al llegar al espejo (z) [mm]", d["bottom_t"] + 1.0, z_fl, "<="),
+        ("estator P1-PMP-06 (+ buje + cono): Ø camisa ≤ asiento de la carcasa, sale por popa (radio) [mm]",
+         d["pmp_D_seat"] / 2, d["pmp_D_seat"] / 2, "<="),
+        ("estator P1-PMP-06: Ø camisa + 1 por lado ≤ agujero del espejo (radio) [mm]", d["pmp_D_seat"] / 2 + 1.0, hole_r, "<="),
+        ("estator P1-PMP-06: el buje libra la punta del eje al salir (sin tope axial) [mm]",
+         d["pmp_shaft_X_aft"], d["X_st1"] + d["pmp_noz_f_t"], "<="),
+        ("anillo retén P1-PMP-04: desliza a popa sobre DIN 471 + arandela (Ø int ≥ Ø30) [mm]", 30.0 / 2, d["pmp_land_r"], "<="),
+        ("semipasador P1-PMP-05: largo + 3 (pinza) ≤ anillo libre cubo ↔ anillo de desgaste [mm]",
+         d["pmp_pin_half_len"] + 3.0, d["D_bore"] / 2 - d["pmp_land_r"], "<="),
+        ("pasador: profundidad desde la cara de popa de la carcasa (mano + pinza) [mm]",
+         d["X_st1"] - d["pmp_pin_X"], 150.0, "<="),
+        ("impulsor P1-PMP-03 (si hay que cambiarlo): punta ≤ Ø anillo de desgaste, sale por popa (radio) [mm]",
+         d["D"] / 2, d["D_bore"] / 2, "<="),
+        ("DIN 471 de popa: Ø libre < anillo del cubo (se saca con pinza larga) [mm]", circ_od / 2, d["pmp_land_r"], "<="),
+    ]
+    out = []
+    for name, need, avail, op in rows:
+        ok = need <= avail + 1e-9 if op == "<=" else need >= avail - 1e-9
+        out.append(dict(item=name, need=round(float(need), 3), avail=round(float(avail), 3), op=op, ok=bool(ok)))
+    return out

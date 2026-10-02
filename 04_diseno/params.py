@@ -115,7 +115,7 @@ def load(inputs_path=None, sizing_path=None) -> P:
     # --- tren (marco BOTE, a lo largo del eje) ---
     d["shaft_d"] = inp["shaft"]["d_mm"]
     d["motor_d"], d["motor_l"] = mo["size_mm"]
-    d["L_bearing_housing"] = 80.0                         # [SUPUESTO: par 7204 BEP + sello + tapa]
+    d["L_bearing_housing"] = 80.0                         # [SUPUESTO: par 7204 BECBP + sello + tapa]
     d["L_coupling"] = 60.0                                # [ESTIMADO: acople de mordazas L-090/Rotex 24]
     d["S_seal"] = (d["shaft_exit_x"] - d["x_if"]) / ca + 15.0   # distancia a lo largo del eje desde la cara del impulsor, hacia proa
     d["S_brg0"] = d["S_seal"] + 10.0
@@ -137,7 +137,10 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["pump_flange_n"] = 8
     d["pump_flange_bolt"] = 6                             # M6 A4
     # bomba ↔ espejo: agujero en el espejo y placa de espejo (la hace el grupo bomba)
-    d["transom_hole_d"] = d["D_bore"] + 2 * 14.0
+    # [CALCULADO: deja pasar hacia popa la brida de la tobera (pmp_f2_od = agujero − 4) para el servicio del
+    #  pasador/estator sin sacar el tren (auditoría Pass 3 H1); el borde inferior queda ≥ 8 mm sobre el
+    #  recorte de la placa (check de P1-PMP-10)]
+    d["transom_hole_d"] = d["D_bore"] + 2 * 16.5
     # bomba ↔ dirección: orejas de pivote de la boquilla (en la tobera fija, grupo bomba)
     d["steer_pin_d"] = 8.0                                # pernos 316 Ø8
     d["Z_steer_lug"] = d["D_noz"] / 2 + 18.0              # ± sobre el eje (marco JET), en X = X_steer_pivot

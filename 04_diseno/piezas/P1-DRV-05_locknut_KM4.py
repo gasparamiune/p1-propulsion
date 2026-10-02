@@ -1,5 +1,5 @@
 """P1-DRV-05 — Tuerca de fijación KM4 (M20×1) + arandela MB4: aprieta los aros interiores del par
-7204 BEP contra el collar Ø26 del eje (precarga de fábrica del par apareado) y toma el empuje hacia popa
+7204 BECBP contra el collar Ø26 del eje (juego/precarga del par apareable universal CB) y toma el empuje hacia popa
 (reversa). Comprada. Modelo simplificado: MB4 1 mm + KM4 Ø32 × 7."""
 import sys
 from pathlib import Path

@@ -114,6 +114,7 @@ def checks(p, part):
         ("ligamento agujero del espejo → bulones [mm]", p.pmp_tp_bc_R - (p.pmp_tp_bolt + p.bolt_clr) / 2 - p.transom_hole_d / 2, 8.0, ">="),
         ("ligamento bulones → borde [mm]", p.pmp_tp_R - p.pmp_tp_bc_R - (p.pmp_tp_bolt + p.bolt_clr) / 2, 8.0, ">="),
         ("bulón más bajo sobre la quilla (z) [mm]", zb - (p.pmp_tp_bolt + p.bolt_clr) / 2, p.bottom_t + 8.0, ">="),
-        ("no baja de la quilla (z mín.) [mm]", bb.min.Z, 0.0, ">="),
+        (f"no baja de la quilla (z mín.) [mm] — si falla: subir waterjet.axis_height_m a ≥ {p.h_axis / 1000 - min(bb.min.Z, 0.0) / 1000:.3f} m",
+         bb.min.Z, 0.0, ">="),
         ("afuera del espejo (x máx.) [mm]", bb.max.X, -p.pmp_gasket_t, "<="),
     ]
