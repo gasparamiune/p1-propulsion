@@ -175,7 +175,7 @@ def cases(p, A, row, rows, T3, T2):
     # bulones de bridas (reacción: presión sobre la contracción + bucket + momentos de boquilla/bucket + peso)
     # f1 (toma, 8 × M6 con tuerca): la presión actúa hasta el O-ring de cara; f2 (tobera, 8 × M5 roscados en la
     # carcasa): hasta el O-ring RADIAL de la espiga (Ø pmp_D_seat)
-    Fb, Fs = L["F_bucket_N"], L["F_steer_side_N"]
+    Fb, Fs = p.REV_F_design, p.STE_F_design   # misma fuente que structural_direccion (auditoría R2-D09)
     W_pump = 9.0 * 9.81                      # [ESTIMADO: bomba ≈ 9 kg (manifest PMP)]
     AS_ = {5: 14.2, 6: 20.1}                 # áreas resistentes [ESTIMADO: ISO 898 tabla]
     As_M6 = AS_[6]
@@ -196,9 +196,10 @@ def cases(p, A, row, rows, T3, T2):
             # rosca M5 en la brida de la carcasa (Al 6061-T6): barrido del filete hembra con la precarga de
             # apriete a mano + la carga de servicio
             F_v5 = 3000.0                    # [ESTIMADO: M5 A4-70 a ~3 N·m con Tef-Gel (K 0,18–0,2)]
-            tau_t = (F_v5 + Fbolt) / (math.pi * p.pmp_f2_bolt * p.pmp_f2_thread_L * 0.6)
+            L_eng = p.pmp_f2_screw_L - p.pmp_noz_f_t - p.pmp_stack_gap     # rosca engranada del M5 × L (R2-D02)
+            tau_t = (F_v5 + Fbolt) / (math.pi * p.pmp_f2_bolt * L_eng * 0.6)
             row(rows, "P1-PMP-01", "Rosca M5 de la brida trasera en Al 6061-T6: precarga + servicio",
-                f"barrido τ = F/(π·d·L·0,6), L = {p.pmp_f2_thread_L:g} mm, F_v = {F_v5:.0f} N [ESTIMADO] + {Fbolt:.0f} N",
+                f"barrido τ = F/(π·d·L·0,6), L engranada = {L_eng:g} mm (M5 × {p.pmp_f2_screw_L:g}), F_v = {F_v5:.0f} N [ESTIMADO] + {Fbolt:.0f} N",
                 tau_t, 0.577 * Al["Sy"], A, T2)
 
     # anti-rotación del estator: 2 × M5 al corte con el par máx. (la punta roscada en el agujero liso de la camisa)

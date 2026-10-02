@@ -137,10 +137,11 @@ def load(inputs_path=None, sizing_path=None) -> P:
     d["pump_flange_n"] = 8
     d["pump_flange_bolt"] = 6                             # M6 A4
     # bomba ↔ espejo: agujero en el espejo y placa de espejo (la hace el grupo bomba)
-    # [CALCULADO: deja pasar hacia popa la brida de la tobera (pmp_f2_od = agujero − 4) para el servicio del
-    #  pasador/estator sin sacar el tren (auditoría Pass 3 H1); el borde inferior queda ≥ 8 mm sobre el
-    #  recorte de la placa (check de P1-PMP-10)]
-    d["transom_hole_d"] = d["D_bore"] + 2 * 16.5
+    # [CALCULADO: deja pasar hacia popa, por el agujero horizontal y con el eje inclinado α, la brida de la tobera
+    #  (R/cos α + t·tan α + 1,5, params_bomba.service_paths; auditoría Pass 3 H1 y R2-D03) para el servicio del
+    #  pasador/estator sin sacar el tren; el borde inferior queda ≥ 8 mm sobre el recorte de la placa (P1-PMP-10).
+    #  Cortar Ø +1/0, concéntrico al eje del jet ≤ 0,5 mm (06 C3)]
+    d["transom_hole_d"] = d["D_bore"] + 2 * 16.6
     # bomba ↔ dirección: orejas de pivote de la boquilla (en la tobera fija, grupo bomba)
     d["steer_pin_d"] = 8.0                                # pernos 316 Ø8
     d["Z_steer_lug"] = d["D_noz"] / 2 + 18.0              # ± sobre el eje (marco JET), en X = X_steer_pivot

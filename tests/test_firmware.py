@@ -1106,6 +1106,12 @@ def test_circuit_findings_are_reflected():
     assert b["watski_ok"], "el interruptor de cordón trabaja fuera de su valor nominal (auditoría H3)"
     assert b["F2_A"] >= b["I_inrush_A"]                                 # F2 no se funde al cerrar K1
     assert R["corte"]["caminos"]["Hardware: bobina sin corriente → contactor abre"]["t_s"] <= 0.012 + 1e-9
+    # R2-E1/E2/E3: B-12V con rango de entrada que cubre el pack; retención de la bobina; fusibles con poder de corte
+    vin = ce.val("rsd_vin")
+    assert vin[0] <= R["meta"]["v_min_load"] and R["meta"]["v_max"] * 1.2 <= vin[1]
+    h = R["retencion"]
+    assert h["t_cubierto_s"] >= h["t_hueco_s"] and h["V_objetivo_V"] > h["V_hold_min_V"]
+    assert R["cortocircuito"]["ClassT_ok"] and "Class T" in comp
     sk = ce.sketch_consts()
     assert sk["tick_ms"] == DT and sk["ppm_frame_ms"] == 20.0
 

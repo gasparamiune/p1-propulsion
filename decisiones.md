@@ -46,7 +46,7 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 - *Si difiere:* el impulsor se re-diseña solo (triángulos de velocidad en `sizing.json` → CAD → tabla de ángulos para el taller).
 
 **D-07 La bomba se diseña para absorber P_d = P_cont + f·(P_pico − P_cont) a plena tensión; el optimizador elige f = <!--V:sizing.selection.f_pow:.1f-->1.0<!--/V--> (P_d = <!--V:sizing.selection.P_design_W:.0f-->11760<!--/V--> W al eje).**
-- Justificación: con motor directo las rpm las fija la tensión; si la bomba se diseña para la potencia continua, la potencia pico no se puede usar en la joroba. El controlador limita a la potencia continua en crucero. El punto de diseño es la V más alta en que el empuje con P_d iguala a R nominal: <!--V:sizing.pump.V_design_kmh:.1f-->43.6<!--/V--> km/h (resuelto sin tope de grilla; es un punto "virtual", 02 §4.4).
+- Justificación: con motor directo las rpm las fija la tensión; si la bomba se diseña para la potencia continua, la potencia pico no se puede usar en la joroba. El controlador limita a la potencia continua en crucero. El punto de diseño es la V más alta en que el empuje con P_d iguala a R nominal: <!--V:sizing.pump.V_design_kmh:.1f-->39.6<!--/V--> km/h (resuelto sin tope de grilla; es un punto "virtual", 02 §4.4).
 - [CALCULADO: optimizador, variable design_power_frac ∈ {0; 0,5; 1}].
 
 **D-08 Toma enrasada entera a proa del impulsor (respuesta al comentario de Jorge "la rejilla está muy atrás").**

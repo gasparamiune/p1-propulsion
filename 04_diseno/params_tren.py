@@ -31,9 +31,10 @@ P1-DRV-01:
      contra el collar; aros interiores apretados por MB4 + KM4 contra el collar y aros exteriores entre el
      resalte y la tapa P1-DRV-06: con un par apareable universal (CB) el juego/precarga lo fija el
      rectificado del fabricante. Recién ahí se aprietan las tuercas M8 (drv_nut_torque_Nm, Tef-Gel) con el
-     alojamiento alineado al buje del estator con un MANDRIL de centrado (eje patrón Ø20 que entra en el buje
-     del estator y en el alojamiento, o casquillo en la caja del sello) y se escarian 2 pasadores Ø6 por
-     zapata (toman el corte en x; la ranura no).
+     alojamiento alineado usando EL PROPIO EJE como mandril (auditoría R2-D07): estator presentado en la
+     carcasa con el buje de agua, el eje libre en el buje (girarlo a mano), medir con galgas la luz eje ↔ buje
+     arriba/abajo/±Y y mover el pórtico (±0,5 en las ranuras) hasta igualarlas; apretar, taladrar y escariar
+     los 2 pasadores ISO 8735 Ø6 por zapata (toman el corte en x; la ranura no) y sacar el estator.
   4. Popa (grupo BOMBA): arandela + DIN 471 de empuje (ya en el eje desde el paso 1), impulsor, 2 semipasadores
      de corte, anillo retén P1-PMP-04 (2 × M3), arandela + DIN 471 de popa; estator; tobera (8 × M5).
   5. Cubo del acople en el eje (chaveta + prisionero), motor con su cubo y soporte P1-MOT-02.
@@ -205,7 +206,17 @@ def extend(d):
     d["drv_pad_y"] = (by - 24.2, by + 23.8)
     d["drv_deck_t"] = 12.0                                              # [SUPUESTO: tablero 12 mm]
     d["drv_bracket_hole"] = d["brg_bracket_bolt"] + 1.0                 # [SUPUESTO: ranura de 9 mm de ancho sobre espárrago M8 (±0,5 en y); 2 pasadores Ø6 escariados en montaje toman el corte en x]
-    d["drv_dowel_d"] = 6.0                                              # [SUPUESTO: ISO 2338 Ø6 m6 A4, 2 por zapata]
+    # pasadores de posición (auditoría R2-D01): ISO 8735 Ø6 × 16 A4 (ROSCA INTERIOR M4 → se extraen para deslizar el
+    # pórtico en servicio), CIEGOS 6 mm en la placa base P1-INT-02 (fondo mojado: quedan 4 mm) + 10 en la zapata;
+    # taladrar y escariar en montaje con tope de profundidad. En el ala exterior de cada zapata (fuera de la ranura
+    # y de la arandela Ø24), entre los dos espárragos.
+    d["drv_dowel_d"] = 6.0                                              # [SUPUESTO: ISO 8735 Ø6 m6 × 16 A4, 2 por zapata]
+    d["drv_dowel_L"] = 16.0
+    d["drv_dowel_plate_depth"] = 6.0                                    # [CALCULADO: placa 10 mm − 4 mm de fondo]
+    by_ = d.get("brg_bracket_y", 45.0)
+    xs_ = sorted({h[0] for h in d["brg_bracket_holes"]})
+    d["drv_dowel_y"] = round(by_ + 16.0, 2)                             # [SUPUESTO: ala exterior, a 16 mm del eje de los espárragos]
+    d["drv_dowels"] = [(round(x, 2), s_ * d["drv_dowel_y"]) for x in (xs_[0] + 40.0, xs_[-1] - 40.0) for s_ in (-1, 1)]
     # fijación a la placa base (definida por TOMA en P1-INT-02): espárrago = tornillo avellanado desde afuera
     d["drv_stud"] = "ISO 10642 M8 × 35 A4-70 (desde afuera, cabeza enrasada en Sikaflex) + arandela ancha ISO 7093 (Ø24 × 2) + tuerca ISO 4032 A4"
     d["drv_stud_L"] = 35.0                                              # [VERIFICADO: interfaz de TOMA (mensaje del grupo principal)]

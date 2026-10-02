@@ -141,8 +141,12 @@ def extend(d):
     d["pmp_f2_head_d"] = 8.5                             # [ESTIMADO: cabeza ISO 4762 M5 dk = 8,5]
     d["pmp_f2_tap_d"] = 4.2                              # [VERIFICADO: broca de roscar M5 (tabla ISO 261/DIN 336, ver P1-INT-02)]
     d["pmp_f2_thread_L"] = 9.0                           # rosca útil en Al 6061-T6 ≥ 1,5 d [ESTIMADO: regla de diseño para Al]
-    d["pmp_f2_bc"] = round(2 * (d["pmp_D_seat"] / 2 + 1.5 + d["pmp_f2_bolt_hole"] / 2), 2)   # ligamento 1,5 al asiento
-    d["pmp_f2_od"] = round(d["transom_hole_d"] - 2 * 2.0, 2)   # pasa por el agujero del espejo con 2 mm por lado
+    # círculo de bulones: ligamento ≥ 2,0 mm de la CRESTA de la rosca M5 (Ø5) al asiento (auditoría R2-D06)
+    d["pmp_f2_bc"] = round(2 * (d["pmp_D_seat"] / 2 + 2.0 + d["pmp_f2_bolt"] / 2), 2)
+    # brida de la tobera: borde de 0,4 mm sobre la cabeza M5; con α el paso por el agujero horizontal del espejo
+    # pide R/cos α + t_espejo·tan α + 1,5 ≤ R_agujero (service_paths, auditoría R2-D03)
+    d["pmp_f2_od"] = round(2 * (d["pmp_f2_bc"] / 2 + d["pmp_f2_head_d"] / 2 + 0.4), 2)
+    d["pmp_f2_screw_L"] = 20.0                           # ISO 4762 M5 × 20: agarre brida 12 + luz 0,25 → rosca 7,75 (≥ 1,5 d, < rosca 9) (R2-D02)
     d["pmp_f2_n"] = 8
     d["pmp_f2_t"] = 12.0
     d["pmp_f2or_X"] = round(d["X_st1"] - d["pmp_noz_spigot"] / 2, 2)   # centro de la ranura del O-ring radial (espiga)
@@ -370,12 +374,15 @@ def service_paths(d):
     z_fl = d["z_if"] - X_t * sa - R2 * ca
     circ_od = 27.0                                     # [ESTIMADO: DIN 471-20 Ø exterior libre ≈ 27 (ver params_tren CIRCLIP20)]
     rows = [
-        ("tobera P1-PMP-08: brida (Ø pmp_f2_od) + 1,5 por lado ≤ agujero del espejo (radio) [mm]", R2 + 1.5, hole_r, "<="),
-        ("tobera P1-PMP-08: resalte + 3 ≤ agujero del espejo (radio) [mm]", d["pmp_land_R"] + 3.0, hole_r, "<="),
+        ("tobera P1-PMP-08: brida inclinada α al cruzar el agujero horizontal: R/cos α + t·tan α + 1,5 ≤ R agujero [mm]",
+         R2 / ca + d["transom_t"] * sa / ca + 1.5, hole_r, "<="),
+        ("tobera P1-PMP-08: resalte inclinado + 3 ≤ agujero del espejo (radio) [mm]",
+         d["pmp_land_R"] / ca + d["transom_t"] * sa / ca + 3.0, hole_r, "<="),
         ("tobera P1-PMP-08: brida sobre el fondo interior al llegar al espejo (z) [mm]", d["bottom_t"] + 1.0, z_fl, "<="),
         ("estator P1-PMP-06 (+ buje + cono): Ø camisa ≤ asiento de la carcasa, sale por popa (radio) [mm]",
          d["pmp_D_seat"] / 2, d["pmp_D_seat"] / 2, "<="),
-        ("estator P1-PMP-06: Ø camisa + 1 por lado ≤ agujero del espejo (radio) [mm]", d["pmp_D_seat"] / 2 + 1.0, hole_r, "<="),
+        ("estator P1-PMP-06: camisa inclinada + 1 ≤ agujero del espejo (radio) [mm]",
+         d["pmp_D_seat"] / 2 / ca + d["transom_t"] * sa / ca + 1.0, hole_r, "<="),
         ("estator P1-PMP-06: el buje libra la punta del eje al salir (sin tope axial) [mm]",
          d["pmp_shaft_X_aft"], d["X_st1"] + d["pmp_noz_f_t"], "<="),
         ("anillo retén P1-PMP-04: desliza a popa sobre DIN 471 + arandela (Ø int ≥ Ø30) [mm]", 30.0 / 2, d["pmp_land_r"], "<="),

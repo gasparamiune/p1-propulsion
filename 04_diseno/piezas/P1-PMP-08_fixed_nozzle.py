@@ -102,5 +102,6 @@ def checks(p, part):
         ("espiga: pared bajo la ranura del O-ring radial [mm]", (p.pmp_D_seat - p.D_bore) / 2 - p.pmp_gl_depth, 2.0, ">="),
         ("espiga: apoyos a ambos lados de la ranura del O-ring [mm]", (p.pmp_noz_spigot - p.pmp_gl_width) / 2, 3.0, ">="),
         ("brida: cabeza M5 libra el cono exterior (radial) [mm]", p.pmp_f2_bc / 2 - p.pmp_f2_head_d / 2 - (rn(p, p.X_st1 + p.pmp_noz_f_t) + p.pmp_noz_wall), 1.0, ">="),
+        ("M5 × L: largo − (brida + luz) = rosca engranada ≥ 1,5 d [mm]", p.pmp_f2_screw_L - p.pmp_noz_f_t - p.pmp_stack_gap, 1.5 * p.pmp_f2_bolt, ">="),
         ("brida: borde sobre la cabeza M5 (radial) [mm]", p.pmp_f2_od / 2 - p.pmp_f2_bc / 2 - p.pmp_f2_head_d / 2, 0.3, ">="),
     ] + [(f"camino de extracción: {r['item']}", r["need"], r["avail"], r["op"]) for r in p.pmp_service]
