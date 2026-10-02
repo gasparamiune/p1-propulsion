@@ -242,12 +242,13 @@ class Model:
         cg_total = 0
         for it in range(maxit):
             K = self.base_matrix(extra_K)
-            rebuild = self.pre is None or getattr(self, "_last_cg", 0) > 60
+            rebuild = self.pre is None or getattr(self, "_last_cg", 0) > getattr(self, "cg_rebuild", 60)
             u, info, pre = fc.solve_spd(K, rhs, self.fixed, self.P, x0=u, rtol=rtol,
                                         pre=None if rebuild else self.pre, maxiter=600)
             self._last_cg = info["cg_iters"]
-            if info["cg_flag"] != 0 or info["cg_iters"] > 150:
-                u, info, pre = fc.solve_spd(K, rhs, self.fixed, self.P, x0=u, rtol=rtol, pre=None, maxiter=3000)
+            if info["cg_flag"] != 0:                                 # no convergió: continuar desde u con un precondicionador nuevo
+                u, info, pre = fc.solve_spd(K, rhs, self.fixed, self.P, x0=u, rtol=rtol,
+                                            pre=None if not rebuild else pre, maxiter=3000)
             self.pre = pre
             cg_total += info["cg_iters"]
             changed = 0

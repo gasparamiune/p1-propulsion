@@ -69,7 +69,11 @@ def oring_cord(man):
     w = p.get("pmp_gl_width", 4.73)
     parts = []
     if "pmp_gl_r_in" in p:
-        parts.append(("2 bridas de la bomba", 2 * 2 * math.pi * (p["pmp_gl_r_in"] + w / 2)))
+        parts.append(("brida toma–carcasa (cara)", 2 * math.pi * (p["pmp_gl_r_in"] + w / 2)))
+    if "pmp_D_seat" in p:   # brida carcasa–tobera: O-ring RADIAL en la espiga de la tobera (auditoría Pass 3 H1/H3)
+        parts.append(("espiga de la tobera (radial)", math.pi * (p["pmp_D_seat"] - p.get("pmp_gl_depth", 2.65))))
+    elif "pmp_gl_r_in" in p:
+        parts.append(("brida carcasa–tobera (cara)", 2 * math.pi * (p["pmp_gl_r_in"] + w / 2)))
     if "pmp_land_R" in p:
         parts.append(("placa de espejo (radial)", 2 * math.pi * p["pmp_land_R"]))
     if "toma_plate_x0" in p and "toma_groove_y" in p:

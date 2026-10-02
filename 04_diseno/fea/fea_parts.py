@@ -511,7 +511,7 @@ def setup_int02(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
     # apoyos: ala sobre el casco (contacto unilateral) + bulones M6 del ala (tuerca + arandela: empotrados)
     k_h = E_AL / p.bottom_t
     rim = sel_plane(S, (0, 0, -1), -p.toma_rim_z0)
-    M.add_interface(Interface("ala_casco", rim, k_h, k_t=KT_FRAC * k_h, zone=False))
+    M.add_interface(Interface("ala_casco", rim, k_h, k_t=KT_FRAC * k_h, zone=False, unilateral=False))   # ala apretada por 26 × M6
     hb = m.hull_bolts(p)
     r6 = (p.toma_hull_bolt + p.bolt_clr) / 2
     wash = np.concatenate([sel_annulus(S, (0, 0, 1), zt, (x, y, zt), r6, R_WASHER_M6) for x, y in hb])
