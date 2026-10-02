@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
-"""build_probetas.py — Construye las probetas P1.x (PENDIENTES_GASPAR §P1) y exporta:
+"""build_probetas.py — Probetas y ensayos de taller del waterjet P1 (05_fabricacion.md §7).
 
+Probetas IMPRESAS (las piezas PETG del jet: P1-INT-04, P1-ELE-01/02, P1-CTL-02/03) → exporta
     04_diseno/probetas/step/<ID>_<nombre>.step   (orientación de impresión, apoyada en z = 0)
     04_diseno/probetas/stl/<ID>_<nombre>.stl     (ídem, mm)
-    04_diseno/probetas/probetas_manifest.json    (envolvente, masa, horas, manifold, cotas, criterios)
+Ensayos de TALLER sin CAD (pasador de corte, bujes POM, hidrostática, holgura de punta): solo criterios.
+Todo va a 04_diseno/probetas/probetas_manifest.json (envolvente, masa, horas, manifold, cotas, criterios).
 
-Cada módulo PRB-P1.x_*.py expone build(p, ctx) → [(meta, Part)], checks(p, ctx, parts) y
-criterios(p, ctx). Las probetas leen geometría y cargas de params.py, de los módulos de
-04_diseno/piezas/ y de resultados/estructural.json (nada copiado a mano).
+Cada módulo PRB-P1.x_*.py expone TEST, KIND ("impresa" | "taller"), build(p, ctx) → [(meta, Part)]
+(vacía en los de taller), checks(p, ctx, parts) y criterios(p, ctx). Leen geometría y cargas de params.py,
+de los módulos de 04_diseno/piezas/, de resultados/sizing.json y de resultados/estructural.json (nada a mano).
 Verifica: sólido válido, malla cerrada (trimesh: estanca, bobinado consistente, 1 cuerpo, V > 0),
 envolvente ≤ printer.envelope_mm, apoyo en z = 0 y las cotas de cada módulo. Exit ≠ 0 si algo falla.
-Uso:  python 04_diseno/probetas/build_probetas.py [--only P1.3] [--fast]
+En la corrida completa borra los STEP/STL de probetas que ya no existen y regenera las tablas FAB de
+05_fabricacion.md (tabla_fabricacion.py; --sin-tablas para no tocar el documento).
+Uso:  python 04_diseno/probetas/build_probetas.py [--only P1.6] [--fast] [--sin-tablas]
 """
 from __future__ import annotations
 
@@ -30,7 +34,9 @@ from build123d import Rot, export_step, export_stl  # noqa: E402
 import build_all  # noqa: E402
 from cadlib import to_print  # noqa: E402
 
-PROFILES = ("estructural", "sellado", "fusible", "cubiertas")
+import familias as FAM  # noqa: E402
+
+PROFILES = tuple(FAM.PERFILES)
 
 
 def load_modules():
@@ -57,6 +63,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", default=None, help="ID de probeta o de ensayo (p. ej. P1.3 o P1.1A)")
     ap.add_argument("--fast", action="store_true", help="malla gruesa")
+    ap.add_argument("--sin-tablas", action="store_true", help="no regenerar las tablas FAB de 05_fabricacion.md")
     a = ap.parse_args(argv)
     t_all = time.time()
     ctx = L.load_ctx()
@@ -71,8 +78,10 @@ def main(argv=None):
     out = {"inputs_version": p.inp["meta"]["version"], "envelope_mm": list(env), "probetas": [], "tests": {},
            "notes": []}
     fails = []
+    written = set()
     for m in load_modules():
         test = getattr(m, "TEST", m.__file_stem__)
+        kind = getattr(m, "KIND", "impresa")
         if a.only and not (a.only == test or a.only.startswith(test)):
             continue
         t0 = time.time()
@@ -95,6 +104,7 @@ def main(argv=None):
             f_stl = HERE / "stl" / f"{stem}.stl"
             export_step(pp, str(f_step))
             export_stl(pp, str(f_stl), tolerance=tol, angular_tolerance=atol)
+            written |= {f_step.name, f_stl.name}
             mc = mesh_check(f_stl)
             vol = float(pp.volume)
             mass = vol / 1000 * rho * float(meta.get("solid_frac", 1.0))
@@ -114,12 +124,16 @@ def main(argv=None):
             out["probetas"].append(rec)
             print(f"  {stem:38s} {meta['profile']:11s} ×{meta['qty']}  bbox={rec['print_bbox_mm']}  "
                   f"m={mass:6.1f} g  estanca={mc['watertight']} cuerpos={mc['bodies']}")
-        if not parts:
+        if not parts and kind == "impresa":
             continue
         chk = [build_all.eval_check(c) for c in m.checks(p, ctx, parts)] if hasattr(m, "checks") else []
         crit = m.criterios(p, ctx) if hasattr(m, "criterios") else {}
-        out["tests"][test] = {"modulo": m.__file_stem__, "doc": (m.__doc__ or "").strip().split("\n")[0],
+        out["tests"][test] = {"modulo": m.__file_stem__, "tipo": kind, "titulo": getattr(m, "TITULO", test),
+                              "piezas": list(getattr(m, "PIEZAS", ())),
+                              "doc": (m.__doc__ or "").strip().split("\n")[0],
                               "checks": chk, "criterios": crit, "build_s": round(time.time() - t0, 1)}
+        if kind == "taller":
+            print(f"  {test:6s} ensayo de taller (sin CAD): {getattr(m, 'TITULO', '')}")
         for c in chk:
             print(f"      [{'OK ' if c['ok'] else 'MAL'}] {c['name']}: {c['value']} {c['op']} {c['ref']}")
             if not c["ok"]:
@@ -133,6 +147,15 @@ def main(argv=None):
                                     for k in PROFILES}}
     out["notes"] = ctx.notes
     out["fails"] = fails
+    if not a.only:                                      # borrar salidas de probetas que ya no existen
+        for d in ("step", "stl"):
+            for f_ in (HERE / d).glob("*"):
+                if f_.is_file() and f_.name not in written:
+                    f_.unlink()
+                    print(f"  borrado (probeta que ya no existe): {d}/{f_.name}")
+        part_ = HERE / "probetas_manifest_partial.json"
+        if part_.exists():
+            part_.unlink()
     name = "probetas_manifest.json" if not a.only else "probetas_manifest_partial.json"
     with open(HERE / name, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2, ensure_ascii=False, default=float)
@@ -145,6 +168,12 @@ def main(argv=None):
         for f_ in fails:
             print("  -", f_)
         return 1
+    if not a.only and not a.sin_tablas:
+        import tabla_fabricacion
+        rc = tabla_fabricacion.main()
+        if rc:
+            print("tabla_fabricacion: faltan bloques FAB en 05_fabricacion.md")
+            return rc
     return 0
 
 

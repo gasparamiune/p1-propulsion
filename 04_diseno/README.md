@@ -1,11 +1,18 @@
-# 04 — Diseño detallado
+# 04 — Diseño detallado (waterjet P1-J)
 
-- `params.py` deriva toda la geometría de `inputs.yaml` + `resultados/sizing.json`.
-- `piezas/P1-<SUB>-<NN>_<nombre>.py`: un script por pieza (`META`, `build()`, `placements()`, `checks()`).
-- `build_all.py` exporta STEP + STL (orientación de impresión) y `resultados/manifest.json`.
-- `verify_parts.py` (exit ≠ 0 si falla): envolvente, manifold, cotas críticas, interferencias (barrido de dirección × basculación).
-- `structural.py`: FS por pieza y caso de carga (tabla en 02 §9).
-- `planos.py`: planos SVG acotados de piezas torneadas/mecanizadas → `planos/`.
+Todo se regenera con `python run_all.py` desde la raíz; cada script también corre solo.
+
+| Archivo | Qué hace |
+|---|---|
+| `params.py` | Deriva la geometría de `inputs.yaml` + `resultados/sizing.json` (D impulsor, D tobera, eje, toma, alturas) y carga los módulos `params_toma/bomba/tren/direccion.py` (`extend(d)`), que agregan las interfaces de cada grupo. Define los marcos: **BOTE** (x hacia proa desde la cara exterior del espejo, z desde la quilla) y **JET** (origen en la cara de entrada del impulsor, X hacia popa por el eje); `loc_jet`, `loc_steer`, `loc_bucket`. |
+| `piezas/P1-<SUB>-<NN>_<nombre>.py` | Un script por pieza: `META` (id, material, proceso impresa/torneada/comprada/referencia, cantidad, marco boat/jet/drive/steer/bucket, grupo, `allow`), `build()`, `placements()`, `checks()`. SUB: INT toma · PMP bomba · DRV tren · MOT motor · STE dirección · REV reversa · CTL mandos · ELE electrónica · BAT batería · REF casco de referencia. |
+| `build_all.py` | Exporta STEP + STL (orientación de impresión), `step/P1-ASM_marcha.step.gz` y `resultados/manifest.json` (masas CAD por grupo). |
+| `verify_parts.py` | Exit ≠ 0 si falla: sólido válido/manifold, envolvente de impresora, `checks()` de cada pieza, interferencias en todos los estados (boquilla −25/0/+25° × bucket arriba/abajo) contra bomba, toma, tren y casco. |
+| `structural.py` + `structural_*.py` | FS por pieza y caso de carga (≥ 3 PETG, ≥ 2 metal) → 02 §9. FEA de las piezas críticas en `fea/`. |
+| `planos.py` + `planos_*.py` | Planos SVG acotados de las piezas mecanizadas/soldadas → `planos/`. |
+| `electronica/` | Cableado, cálculo de cables/fusibles, firmware del acelerador (perfil costa/abierto, bucket, kill). |
+| `probetas/` | Probetas de PETG (holguras, roscas, O-ring) para calibrar antes de imprimir las piezas. |
+| `visor/` | `build_visor.py` → visor web 3D (ensamblado, explosión, dirección, bucket, demo) para Jorge. |
 
 ## Lista de piezas
 
@@ -89,15 +96,15 @@ Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de
 Resultado: **OK** — 65 piezas, 10566 pares×estados de interferencia; boquilla δ ∈ [-25.0, 0.0, 25.0]°, bucket {arriba, abajo}; masa de la unidad de jet (CAD) 24.25 kg.
 <!-- /AUTO:verify -->
 
-## Ajustes (iniciales, a confirmar con probetas P1.1–P1.2)
+## Ajustes (los del CAD; confirmar con el taller y, en PETG, con probetas)
 
-| Ajuste | Valor CAD | Nota |
+| Unión | Ajuste CAD | Nota |
 |---|---|---|
-| Holgura general pieza impresa / pieza metálica | 0,25 mm diametral | Peine de holguras P1.1 |
-| Rodamiento A 6202 en cartucho de Al / rodamiento B en puente impreso | Ø35 M7 (prensado) / Ø35 + 0,10 (flotante) | A localiza; B flota con 1 mm de juego axial |
-| Buje igus H370 en portabuje impreso | Ø18 − 0,05 | P1.2 |
-| Perno Ø12 en mejillas / buje POM del pivote | +0,10 / +0,25 | Perno fijo en mejillas, gira en el buje |
-| Tubo Ø40 en cuna / carcasa inferior | +0,30 | Apriete por tapa / perno pasante |
-| Eje Ø16 en bujes igus H370 | ajuste de igus (Ø16 h9 en buje prensado) | Apto bajo agua (igus) |
-| Ranura de O-ring (caja ESC) | ver ELE-01 | Pasada 2: cordón 3,53 mm (research/R05) |
-| Roscas | tuerca A4 cautiva (estándar); insertos de latón solo M4 de la tapa de la caja ESC (zona seca) | Nunca Loctite 243 sobre PETG |
+| Eje Ø20 ↔ 2 × 7204 BEP (en O) | muñón Ø20 k5 / alojamiento Ø47 H7 | Práctica de catálogo para aro interior rotante [SUPUESTO]; precarga con KM4 |
+| Eje ↔ sello MG1 y tramo mojado | Ø20 h8 | Tolerancia de catálogo del sello [SUPUESTO: confirmar con la hoja del MG1] |
+| Eje ↔ buje de agua POM-C del estator | muñón f7 / buje H7 | 2.º apoyo; el buje se cambia como consumible |
+| Impulsor ↔ eje | deslizante; par por pasador de corte Al 6061 en agujero H8 escariado | Sin chaveta: el pasador es el fusible de par (02 §8) |
+| Anillo de desgaste ↔ carcasa | prensado ligero + retenedor anaeróbico [ESTIMADO] | Holgura de punta = `tip_clr` (inputs) |
+| Caja del sello ↔ buje de la toma | espigón f7 / H8 + 4 × M6 | Concentricidad del sello |
+| Pivotes de boquilla y bucket | pernos 316 con hombro en bujes POM-C | Holgura de buje según plano |
+| Piezas PETG (capota, base ESC, caja, tapa) | 0,25 mm diametral sobre metal | Peine de holguras de `probetas/`; roscas por tuerca A4 cautiva, nunca Loctite 243 sobre PETG |

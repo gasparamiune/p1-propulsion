@@ -1,8 +1,48 @@
-# Auditoría adversarial (Pasada 3)
+# Auditoría adversarial — P1-J waterjet (Pasada 3)
 
-(Pendiente — se completa en la Pasada 3.)
+Método: auditores independientes por área (cálculo/física, CAD/estructural, BOM/eléctrico/legal,
+documentos) que intentan refutar el paquete leyendo código y recalculando a mano; cada hallazgo se
+verifica antes de corregirlo; se repiten rondas hasta que una ronda no encuentra nada relevante.
 
-## Hallazgos detectados durante las Pasadas 1–2 (ya corregidos)
+## Hallazgos detectados durante el diseño del waterjet (Pasadas 1–2, ya corregidos)
+
+| # | Hallazgo | Severidad | Resolución |
+|---|---|---|---|
+| W-01 | **Plano de Jorge: la rejilla/toma estaba detrás del impulsor** → la bomba no se ceba ni recibe flujo ordenado | Crítica | Toma enrasada entera a proa del impulsor, rampa 27°, labio con radio (D-06; research/R10b) |
+| W-02 | Bomba dimensionada a la potencia continua: no podía usar la potencia pico del tren directo limitado por tensión | Alta | Variable `design_power_frac` en el optimizador (02 §5) |
+| W-03 | `params.py`: la posición del sello usaba una x del marco BOTE como distancia sobre el eje | Alta | Distancia sobre el eje / cos α; test de interfaz |
+| W-04 | Caja del sello dentro del conducto (la salida del eje cortaba la curva del techo) | Alta | Salida del eje a 1,85·D (techo de curvatura continua) |
+| W-05 | Pie del soporte de rodamientos sobre la abertura de la toma | Alta | Pórtico con apoyos a \|y\| = W_open/2 + 45 mm, espárragos M8 |
+| W-06 | Roscas M8 en Al del soporte con FS 1,97 < 2 | Media | Espárragos avellanados A4 + tuerca |
+| W-07 | Pernos de pivote de la boquilla FS 1,48 en voladizo | Alta | Biempotrado (STE-02) y espárrago con hombro (STE-05) |
+| W-08 | Bucket bajado a 3,7 mm de la quilla | Media | 12,6 mm (REV-01) |
+| W-09 | Resalte del eje Ø25 < d_a mín 25,6 mm del 7204 BEP (el aro interior no apoya) | Media | Resalte Ø26 |
+| W-10 | Cambio de tobera Ø82 → Ø87 rompía dirección y placa de espejo | Alta | Geometría robusta para D_tobera 76,6–97,7 mm (orejas en PMP-09, bujes POM) + verify en todo el rango del optimizador |
+| W-11 | `comparacion.py`: costo de B nulo (columnas de la BOM mal leídas) | Media | Lee `cubre` y `precio_total_EUR`; valores en README |
+| W-12 | Batería ubicada contra un largo de casco de referencia (1,4 m) en vez del casco real | Baja | Chequeo contra 0,75·LOA |
+| W-13 | Ensamblaje STEP de 69 MB (límite de GitHub) | Baja | `.step.gz` versionado |
+
+## Abiertos declarados (no se resuelven desde la propulsión)
+
+| # | Hallazgo | Severidad | Estado |
+|---|---|---|---|
+| W-14 | **Estabilidad del casco**: GM ≈ <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m, capacidad 33 CFR 183.33 = <!--V:sizing.capacity.persons_gear_kg:.0f-->46<!--/V--> kg con casco ESTIMADO | Crítica (seguridad) | Bloquea las pruebas en agua: ensayo de escora (PENDIENTES P0) y probablemente ensanchar el casco o bajar el asiento. Declarado en README, D-04, 06 y checklist |
+| W-15 | Objetivo 30 km/h no alcanzado sostenido (<!--V:sizing.performance.vmax_cont_kmh:.1f-->26.3<!--/V--> km/h) con < 50 V y la batería que entra | Media (requisito) | Reportado; alternativas en 07 (72 V con declaración, motor mayor) |
+
+## Ronda 1
+
+(En curso.)
+
+## Regeneración desde inputs.yaml
+
+`tests/test_regeneration.py` (rápido) cambia `boat.bottom_thickness_mm` y `waterjet.axis_height_m`
+y comprueba que cambian el casco de referencia, la placa de la toma y la cota de la tobera.
+`tests/test_regeneration_full.py` (lento, `P1_SKIP_SLOW=1` lo salta) copia el proyecto a un
+directorio temporal, cambia **el espesor del fondo (+4 mm)** y **la masa del piloto (−15 kg)**, corre
+`run_all.py --fast --skip-render` completo y verifica: masa total menor, margen de joroba ≥ al
+anterior, volumen de la placa base de la toma distinto, BOM regenerada y el README con el margen nuevo.
+
+## Historial (versión anterior: cola larga, archivada)
 
 | # | Hallazgo | Severidad | Resolución |
 |---|---|---|---|
