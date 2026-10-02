@@ -611,8 +611,9 @@ cable de 105 °C [ESTIMADO: verificar ISO 13297/ABYC].
 
 - El cable lo dimensiona la ampacidad contra el fusible, no la caída: la caída mínima pedía
   <!--V:sizing.electrical.cable_dc.A_min_drop_mm2:.1f-->4.2<!--/V--> mm².
-- Clase de tensión: la batería llena da 43,8 V [CALCULADO: 12 × 3,65 V], dentro de los 58 V del MRBF y
-  de los 50 V de ISO 16315 (R06, R13 §4).
+- Clase de tensión: la batería llena da 43,8 V [CALCULADO: 12 × 3,65 V], dentro de los 160 V CC de los fusibles Class T
+  (Blue Sea 5113, corte 20 kA ≥ 1,8–8,8 kA de cortocircuito presunto de las dos baterías [ESTIMADO]; el MRBF solo
+  corta 2 kA a 58 V, por eso no se usa) y de los 50 V de ISO 16315 (R06, R13 §4).
 - **Speedbåd (19 kW):** P_bat pico configurada <!--V:sizing.electrical.P_bat_peak_W:.0f-->13447<!--/V--> W, y la P al eje
   máxima que se alcanza a fondo es <!--V:sizing.performance.peak_top.P_shaft:.0f-->6494<!--/V--> W [CALCULADO]: ambas muy por
   debajo. Llevar a bordo las hojas de datos (R13 §2).
