@@ -396,8 +396,8 @@ cuestan ≤ 1,10 × la más barata; desempata la mayor V máx. y el margen en la
 duras**, se descartan las que violan tensión o potencia (reglas del proyecto) y se elige la que cumple más
 restricciones; entre esas, las que quedan a ≤ <!--V:sizing.optimization.hump_tie_band:.0%-->1%<!--/V--> (puntos porcentuales) del mejor margen en la
 joroba, y de esas la de mayor V máx. (una banda y no un redondeo: con el redondeo al punto, +0,8 kg de masa del
-jet cambiaba el impulsor de Ø132 a Ø120 por 0,27 pp de margen, muy por debajo de la incertidumbre de la resistencia;
-auditoría ronda 3).
+jet cambiaba el impulsor de Ø132 a Ø120 por 0,27 pp de margen [CALCULADO: corridas de `sizing.py` de la auditoría
+ronda 3, R3-04], muy por debajo de la incertidumbre de la resistencia).
 
 **Resultado** [CALCULADO]: <!--V:sizing.optimization.n_evaluated:d-->780<!--/V--> combinaciones evaluadas,
 <!--V:sizing.optimization.n_hard_ok:d-->0<!--/V--> cumplen las duras, estado `<!--V:sizing.optimization.status:-->sin_solucion_dura<!--/V-->`
@@ -684,6 +684,23 @@ boquilla <!--V:est.loads.structural_direccion.F_steer_N:.0f-->364<!--/V--> N, bu
 <!--V:est.loads.structural_direccion.F_bucket_N:.0f-->1408<!--/V--> N (corta duración) y presión de diseño de carcasa y
 tobera <!--V:est.loads.structural_bomba.loads_used.p_design_Pa:.0f-->200000<!--/V--> Pa (≈ 1,3 × la de cierre, R12 §7.2).
 
+**Chorro sobre el bucket por cantidad de movimiento** (`structural_direccion.jet_momentum`, auditoría ronda 4,
+R4-04) [CALCULADO]: con el bucket abajo el chorro entra por el eje con J = ṁ·V hacia popa y sale por el labio
+INFERIOR de la cuchara (tangente de la elipse interior en `REV_cup_t1`, hacia proa y hacia arriba) con el mismo
+módulo de velocidad (k_r = 1 [SUPUESTO: cota sin pérdidas]). F_x = F_b fija J; la fuerza sobre el bucket tiene
+además una componente vertical y el momento alrededor del pivote M_h sale del balance completo (entrada y
+salida), no de F_b por un brazo supuesto. Salir por el labio superior da aproximadamente la mitad de M_h
+(verificado al escribir la función): el inferior es la cota que se usa.
+
+| Carga (bucket abajo) | R12 (corta) | Reversa de sizing (fatiga) | Etiqueta |
+|---|---|---|---|
+| F_b (en x) | <!--V:est.loads.structural_direccion.F_bucket_N:.0f-->1408<!--/V--> N | <!--V:est.loads.structural_direccion.F_bucket_sizing_N:.0f-->698<!--/V--> N | [CALCULADO] |
+| J = ṁ·V del chorro | <!--V:est.loads.structural_direccion.J_jet_N:.0f-->720<!--/V--> N | — | [CALCULADO] |
+| F_z sobre el bucket (+ arriba) | <!--V:est.loads.structural_direccion.F_z_bucket_N:.0f-->-210<!--/V--> N | — | [CALCULADO] (la ronda 3 la tenía con el signo cambiado) |
+| M_h alrededor del pivote | <!--V:est.loads.structural_direccion.M_hinge_Nm:.1f-->135.3<!--/V--> N·m | <!--V:est.loads.structural_direccion.M_hinge_sizing_Nm:.1f-->67.1<!--/V--> N·m | [CALCULADO] |
+| Perno de UNA traba (M_h / r, r = <!--V:manifest.params.REV_lock_r:g-->45<!--/V--> mm) | <!--V:est.loads.structural_direccion.F_lock_pin_N:.0f-->3006<!--/V--> N | <!--V:est.loads.structural_direccion.F_lock_pin_sizing_N:.0f-->1491<!--/V--> N | [CALCULADO] |
+| Pivote del brazo trabado (chorro/2 + reacción de la traba) | <!--V:est.loads.structural_direccion.R_bucket_pivot_design_N:.0f-->3302<!--/V--> N | <!--V:est.loads.structural_direccion.R_bucket_pivot_sizing_N:.0f-->1638<!--/V--> N | [CALCULADO] |
+
 ## 9. Estructural
 
 Método (`04_diseno/structural.py` y los cuatro módulos por grupo): cálculo a mano por pieza y caso de
@@ -704,18 +721,51 @@ Comentario:
 - **Uniones abulonadas de la toma (brida de la bomba, ala al casco, brida ↔ placa):** quedan apenas sobre 2
   con precarga + golpe de fondo + momento del bucket. Dependen del torque de apriete: respetar la tabla de
   torques de 06 y no reemplazar A4-70 por tornillería de menor clase.
-- **Bucket, trabas y pivote (auditoría ronda 3):** una traba por brazo. Brazo, agujero, perno del émbolo y oreja
-  se verifican con M_h COMPLETO en una traba (hasta que apoya la otra); pivote y buje con el reparto máximo que
-  admite el desfase entre agujeros (<!--V:est.loads.structural_direccion.lock_share_max:.0%-->78%<!--/V--> de M_h con
-  <!--V:est.loads.structural_direccion.lock_mismatch_mm:.2f-->0.10<!--/V--> mm; lo recalcula el FEA): la reacción de cada pivote
-  es <!--V:est.loads.structural_direccion.R_bucket_pivot_design_N:.0f-->2385<!--/V--> N con R12, no F_b/2. Las filas más
-  justas: P1-REV-03 «<!--V:est.min_by_part.P1-REV-03.load_case:-->Buje POM Ø18.1/Ø22 × 14: presión (R12, reparto máx. entre trabas)<!--/V-->»
-  FS <!--V:est.min_by_part.P1-REV-03.FS:.2f-->2.11<!--/V-->; P1-REV-04 «<!--V:est.min_by_part.P1-REV-04.load_case:-->Perno del émbolo Ø12: flexión + corte con M_h completo (R12)<!--/V-->»
-  FS <!--V:est.min_by_part.P1-REV-04.FS:.2f-->2.17<!--/V-->. Falla (un émbolo no entró) con la reversa de sizing: FS ≥ 2;
-  falla doble (además reversa a potencia plena sin el límite del firmware): solo se exige que no fluya (FS ≥ 1); la fila
-  más justa del bucket respecto de su objetivo es «<!--V:est.min_by_part.P1-REV-01.load_case:-->Cuchara abierta a torsión con un solo brazo trabado (FALLA DOBLE: + reversa R12 sin límite; sin fluencia)<!--/V-->»,
-  FS <!--V:est.min_by_part.P1-REV-01.FS:.2f-->1.28<!--/V--> (objetivo <!--V:est.min_by_part.P1-REV-01.target:g-->1.0<!--/V-->). El FS de diseño
-  de la chapa del bucket es el del FEA (04_diseno/fea).
+- **Bucket, trabas y pivote (auditoría ronda 4, D-17c): criterio de traba única.** Hay
+  <!--V:est.loads.structural_direccion.n_locks:d-->2<!--/V--> trabas (una por brazo), pero el criterio es «<!--V:est.loads.structural_direccion.lock_criterion:-->cada traba sola lleva M_h completo<!--/V-->»:
+  cada traba con su brazo, su pivote, su oreja y su émbolo verifica sola, con M_h completo, la reversa R12 (corta) y la
+  de sizing (fatiga), las dos con FS ≥ 2. La segunda traba es redundancia, no reparto: con agujeros con juego el
+  reparto depende de la carga (con la reversa de servicio una sola traba lleva prácticamente todo M_h) y el desfase
+  entre trabas no se controla en fabricación, así que ya no se usa ningún reparto ni prueba de desfase (auditoría
+  ronda 4, R4-01/R4-02). Cargas en la tabla de §8. Geometría [CALCULADO: params_direccion]: chapa del bucket
+  <!--V:manifest.params.REV_t:g-->8<!--/V--> mm (Al 5083), aro de refuerzo del pivote <!--V:manifest.params.REV_ring_t:g-->10<!--/V--> mm,
+  agujeros de traba Ø<!--V:manifest.params.REV_lock_hole_d:g-->16.5<!--/V--> a r <!--V:manifest.params.REV_lock_r:g-->45<!--/V--> mm; orejas de
+  la boquilla de <!--V:manifest.params.STE_ear_t:g-->12<!--/V--> mm.
+  - **Pivote (P1-REV-02):** espaciador 316 con muñón Ø<!--V:manifest.params.REV_pin_d:g-->20<!--/V-->, brida
+    Ø<!--V:manifest.params.REV_sp_fl_d:g-->36<!--/V--> × <!--V:manifest.params.REV_sp_fl_t:g-->3<!--/V--> contra la cara exterior de la oreja y
+    piloto Ø<!--V:manifest.params.REV_sp_pilot_d:g-->16<!--/V--> h6 ajustado en el agujero H7 escariado de la oreja (ya no flota en un
+    agujero pasante con juego); tornillo M12 A4-80 con tuerca DIN 985 apretado a
+    <!--V:est.loads.structural_direccion.bolt_torque_Nm:.0f-->45<!--/V--> N·m con Tef-Gel; con K 0,12–0,22 [ESTIMADO] la precarga queda
+    entre <!--V:est.loads.structural_direccion.bolt_pre_min_N:.0f-->17045<!--/V--> y <!--V:est.loads.structural_direccion.bolt_pre_max_N:.0f-->31250<!--/V--> N [CALCULADO].
+    Se verifican el muñón en voladizo (corta y fatiga), que la unión brida–oreja no se abra con la precarga mínima,
+    la presión de la brida y el tornillo al montar con la máxima (≤ 0,9 Rp0,2, VDI 2230: criterio de montaje con
+    objetivo 1). Fila más justa respecto de su objetivo: «<!--V:est.min_by_part.P1-REV-02.load_case:-->Unión brida–oreja: no se abre con la precarga mínima (R12, una traba) [N·m]<!--/V-->»,
+    FS <!--V:est.min_by_part.P1-REV-02.FS:.2f-->2.10<!--/V-->.
+  - **Buje (P1-REV-03):** POM-C Ø<!--V:manifest.params.REV_bush_od:g-->24<!--/V--> × <!--V:manifest.params.REV_bush_L:g-->18<!--/V--> con brida,
+    prensado con interferencia y escariado después de prensar. «<!--V:est.min_by_part.P1-REV-03.load_case:-->Buje POM Ø20.1/Ø24 × 18: presión (R12, una traba)<!--/V-->»
+    FS <!--V:est.min_by_part.P1-REV-03.FS:.2f-->2.18<!--/V--> (la fila de sizing, contra el admisible de oscilación, da un FS casi igual: tabla completa).
+  - **Émbolo propio (P1-REV-04):** perno 316 Ø<!--V:manifest.params.REV_lock_pin_d:g-->16<!--/V--> h9, cuerpo roscado
+    M<!--V:manifest.params.REV_lock_thread_d:g-->24<!--/V-->×1,5 en la oreja con contratuerca, carrera
+    <!--V:manifest.params.REV_plunger_stroke:g-->12<!--/V--> mm (liberar pide <!--V:manifest.params.REV_release_need:g-->9.5<!--/V--> mm), resorte
+    inox comprado [ESTIMADO: fuerzas como el GN 617-10]. No hay émbolo de catálogo que alcance: el GN 617 inox más
+    grande tiene perno Ø10 (D-17c). «<!--V:est.min_by_part.P1-REV-04.load_case:-->Perno del émbolo Ø16 (316): flexión + corte con M_h completo (R12)<!--/V-->»
+    FS <!--V:est.min_by_part.P1-REV-04.FS:.2f-->2.83<!--/V-->.
+  - **Bucket (P1-REV-01):** brazo trabado a flexión, agujero de traba, aro del pivote y la cuchara abierta a torsión
+    con un solo brazo trabado (Saint-Venant, cota). La más justa: «<!--V:est.min_by_part.P1-REV-01.load_case:-->Cuchara abierta a torsión con un solo brazo trabado (R12, corta)<!--/V-->»,
+    FS <!--V:est.min_by_part.P1-REV-01.FS:.2f-->2.17<!--/V--> (objetivo <!--V:est.min_by_part.P1-REV-01.target:g-->2<!--/V-->).
+  - **Oreja de la boquilla (P1-STE-01):** flexión en su plano y fuera del plano (pivote en voladizo), ligamento y
+    aplastamiento de la rosca M24, aplastamiento del piloto. La más justa: «<!--V:est.min_by_part.P1-STE-01.load_case:-->Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, M_h completo)<!--/V-->»,
+    FS <!--V:est.min_by_part.P1-STE-01.FS:.2f-->4.65<!--/V-->.
+  - **FEA (04_diseno/fea):** el FS de diseño de la chapa del bucket y de la boquilla es el del FEA, con las mismas
+    cargas (`jet_momentum` y `bucket_reactions`; el setup verifica que la carga aplicada iguala la estática) y los
+    casos de diseño de una traba sola por lado, a R12 contra fluencia y con la reversa de sizing contra fatiga, más
+    el borde de los agujeros cargados por perno («lug», σθ a 60–120° de la carga). FS mínimo de diseño de la corrida
+    fina: P1-REV-01 <!--V:fea.piezas.P1-REV-01.FS_min:.2f-->2.51<!--/V--> (caso <!--V:fea.piezas.P1-REV-01.caso_gobernante:-->c<!--/V-->),
+    P1-STE-01 <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->1.80<!--/V--> (caso <!--V:fea.piezas.P1-STE-01.caso_gobernante:-->d2<!--/V-->);
+    objetivo 2. El margen de REV-01 es justo: el punto caliente está en la cara exterior del brazo trabado, por
+    debajo del pivote. Detalle, convergencia y limitaciones en [04_diseno/fea/README.md](04_diseno/fea/README.md).
+  - **Abierto:** el momento del perno en voladizo sobre la oreja supone la contratuerca M24 apretada y no tiene
+    par de apriete especificado ni fila a mano (auditoria.md, ronda 4).
 - **Chaveta del acople:** justa con el par máx. del controlador. La chaveta 5×5 del eje del motor Ø15 en el cubo del
   acople queda **por debajo de 2**: FS <!--V:est.min_by_part.P1-DRV-08.FS:.2f-->1.74<!--/V--> en P1-DRV-08
   ("<!--V:est.min_by_part.P1-DRV-08.load_case:-->Chaveta 5×5 del eje del motor Ø15 en el cubo del acople: aplastamiento a T_max<!--/V-->"),
@@ -960,3 +1010,4 @@ El procedimiento de cada prueba está en 06 §7.
 | Velocidad crítica | Masa puntual, sin masa del eje ni rigidez del buje | Martillo + celular sobre el eje montado |
 | Ola, viento, corriente | No están en la curva de R(V) (corriente de hasta 3 kn en Als Sund, R13 §3) | Pruebas con viento ≤ 6 m/s (R07 §3.4) |
 | Estructural | A mano, sin FEA para la mayoría de las piezas; propiedades del Al soldado [ESTIMADO] | Prueba hidrostática de la toma y la bomba (0,3 MPa, R12 §7.2) |
+| Bucket y trabas | Carga del chorro por cantidad de movimiento con k_r = 1 y salida por el labio inferior (cota, sin CFD); resorte del émbolo y rendimiento del Bowden [ESTIMADO]; FEA de REV-01 con margen justo | Prueba funcional de las trabas (06) con la fuerza de liberación medida; inspección del brazo trabado tras las pruebas de reversa |

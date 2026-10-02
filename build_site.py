@@ -560,7 +560,7 @@ def tag_chip(tag):
 
 def readme_parts(srcs):
     """Del README: el ítem «Recomendación» del resumen y la lista de próximos pasos físicos."""
-    txt = resolve_markers((ROOT / "README.md").read_text(encoding="utf-8"), srcs, es=True)
+    txt = site_rewrites("README.md", resolve_markers((ROOT / "README.md").read_text(encoding="utf-8"), srcs, es=True), srcs)
     rec = None
     m = re.search(r"^\d+\.\s+\*\*Recomendación:\*\*\s*(.+)$", txt, re.M)
     if m:
@@ -848,7 +848,9 @@ def build_index(ctx, V, srcs):
                 if v_pairs else []) \
             + ([f"{n_cota} cota{'s' if n_cota != 1 else ''} crítica{'s' if n_cota != 1 else ''} fuera de tolerancia"] if n_cota else []) \
             + ([f"{len(v_other) - n_cota} falla{'s' if len(v_other) - n_cota != 1 else ''} más"] if len(v_other) > n_cota else [])
-        chk = ("Verificación del CAD (choques entre piezas y cotas)", str(len(v_pairs) + len(v_other)), "fallas abiertas",
+        n_vf = len(v_pairs) + len(v_other)
+        chk = ("Verificación del CAD (choques entre piezas y cotas)", str(n_vf),
+               "falla abierta" if n_vf == 1 else "fallas abiertas",
                " y ".join(bits) + f", en {V('verify.n_pair_checks', 'd')} combinaciones revisadas"
                f" (boquilla −{s_steer}/0/+{s_steer}° × bucket arriba/abajo) · detalle en «Estado honesto»",
                "[CALCULADO: verify_parts.py; fallas abiertas]", "bad span2")
@@ -886,7 +888,7 @@ def build_index(ctx, V, srcs):
         cards.append(("FEA (simulación de tensiones) — factor de seguridad mínimo", fnum(p["FS_min"], ".2f"), "",
                       f"{pid} (objetivo {fnum(p.get('FS_objetivo'), 'g')}; FS 2 = aguanta el doble de la carga); "
                       f"{n_fea_ok} de {len(fea_rows)} piezas cumplen",
-                      "[CALCULADO: FEA 04_diseno/fea]", "" if p.get("cumple") else "bad"))
+                      "[CALCULADO: FEA 04_diseno/fea]", "" if p.get("cumple") else "bad span2"))
     cards_html = "".join(
         f'<article class="kcard {cls}"><h3>{E(lbl)}</h3><p class="kv"><span class="num">{E(v)}</span>'
         f'{f" <small>{E(u)}</small>" if u else ""}</p><p class="kl">{E(note)}</p>{tag_chip(tag)}</article>'
@@ -905,7 +907,7 @@ def build_index(ctx, V, srcs):
                          f"; servicios de taller {fnum(sv, '.0f')} € ({fnum(sv / sub, '.0%')}) y el resto con precio "
                          f"ESTIMADO, todo a cotizar", rec)
         n_mc = mc_runs()
-        rec = re.sub(r"\bdel Monte Carlo\b", f"de {fnum(n_mc, ',.0f') if n_mc else 'miles de'} sorteos con pesos al azar "
+        rec = re.sub(r"\bdel Monte Carlo\b", f"de {fnum(n_mc, '.0f') if n_mc else 'miles de'} sorteos con pesos al azar "
                      f"(Monte Carlo)", rec)
         b, _, _ = render_md(rec, toc=False)
         rec_html = ctx.rewrite_links(b, "", page)
@@ -1082,6 +1084,11 @@ def site_rewrites(src, txt, srcs):
                         + (f"; detalle en {estado}" if estado else "") + ")")
             txt = re.sub(r"todo está verificado \*en software\* \(CAD de ([^()]*?) piezas sin interferencias en "
                          r"([^()]*?) pares×estados, (FS[^()]*?), tests\)", honest, txt)
+    if src == "README.md":
+        # «26,8 km/h (≈ A ± la curva de AWT…)» se leía como «igual a A» con 2,4 km/h de diferencia
+        txt = re.sub(r"km/h \(≈ A ± la curva de AWT, que no está publicada: no es una ventaja demostrada\)",
+                     "km/h sostenidos (parecido a A: se supone la misma eficiencia de bomba porque AWT no publica la "
+                     "curva de la JT132; la diferencia sale de su menor masa y no es una ventaja demostrada)", txt)
     if src == "06_ensamblaje_y_pruebas.md" and not ok_verify:
         txt = re.sub(r"\[CALCULADO: `verify\.json` sin interferencias en ([^\]|]*)\]",
                      lambda m: f"[CALCULADO: `verify.json` en {m.group(1)}: hoy **con {n_fail} falla"
@@ -1799,7 +1806,7 @@ h3 { font-size: 1.3rem; font-weight: 800; }
     flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
   .site-nav::-webkit-scrollbar { display: none; }
   .site-nav.at-end { -webkit-mask-image: none; mask-image: none; }
-  .site-nav a { flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 9px; font-size: 0.9rem; }
+  .site-nav a { flex: none; min-height: 44px; min-width: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; font-size: 0.9rem; }
   .site-nav a.nav-home { display: none; }
   .site-header .bar { padding-block: 6px 2px; }
 }
