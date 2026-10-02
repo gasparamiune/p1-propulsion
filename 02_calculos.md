@@ -8,27 +8,27 @@ Las entradas de `inputs.yaml` se citan con su etiqueta.
 
 Etiquetas: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO].
 
-**Lectura honesta.** Con <!--V:sizing.masses.total_kg:.0f-->218<!--/V--> kg, el casco leído del plano y la
+**Lectura honesta.** Con <!--V:sizing.masses.total_kg:.0f-->219<!--/V--> kg, el casco leído del plano y la
 batería que cumple ≤ 50 V, **el modelo no asegura que el bote planee**. El margen de empuje se exige de 0 hasta el
-planeo pleno (<!--V:sizing.resistance.v_full_planing_kmh:.1f-->27.1<!--/V--> km/h, donde la eslora deja de limitar, §3), y da
-<!--V:sizing.verdict.hump_margin_min_high:.0%-->-8%<!--/V--> con la banda alta (se piden ≥ 10 %) y
-<!--V:sizing.verdict.hump_margin_min_nominal:.0%-->3%<!--/V--> con la nominal (estado del optimizador:
+planeo pleno (<!--V:sizing.resistance.v_full_planing_kmh:.1f-->26.8<!--/V--> km/h, donde la eslora deja de limitar, §3), y da
+<!--V:sizing.verdict.hump_margin_min_high:.0%-->-7%<!--/V--> con la banda alta (se piden ≥ 10 %) y
+<!--V:sizing.verdict.hump_margin_min_nominal:.0%-->4%<!--/V--> con la nominal (estado del optimizador:
 `<!--V:sizing.status:-->sin_solucion_dura<!--/V-->`, ninguna combinación de 48 V cumple). Con la banda alta, a fondo, el bote
-pasa la joroba pero se queda en <!--V:sizing.verdict.V_eq_peak_high_kmh:.1f-->21.8<!--/V--> km/h, en la transición, sin llegar
+pasa la joroba pero se queda en <!--V:sizing.verdict.V_eq_peak_high_kmh:.1f-->20.3<!--/V--> km/h, en la transición, sin llegar
 a planeo pleno (¿llega?: <!--V:sizing.verdict.text.planes_high:-->NO<!--/V-->); y con potencia continua cae a
-<!--V:sizing.verdict.vmax_cont_kmh.high:.1f-->17.8<!--/V--> km/h, por debajo del inicio del planeo
+<!--V:sizing.verdict.vmax_cont_kmh.high:.1f-->17.6<!--/V--> km/h, por debajo del inicio del planeo
 (<!--V:sizing.resistance.v_planing_kmh:.1f-->20.1<!--/V--> km/h): **se cae del planeo** (¿se sostiene?:
 <!--V:sizing.verdict.text.sustains_cont_high:-->NO<!--/V-->). Con la banda nominal llega a planeo pleno a fondo y se sostiene
-en planeo con potencia continua a <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.4<!--/V--> km/h (por ratos
-<!--V:sizing.performance.vmax_peak_kmh:.1f-->28.3<!--/V--> km/h), contra el objetivo de 30 km/h. El motivo es el casco: es corto
+en planeo con potencia continua a <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.1<!--/V--> km/h (por ratos
+<!--V:sizing.performance.vmax_peak_kmh:.1f-->28.2<!--/V--> km/h), contra el objetivo de 30 km/h. El motivo es el casco: es corto
 para su peso y Savitsky da una eslora mojada mayor que el fondo en todo el rango de planeo (§3), así que la resistencia
 entre 20 y 35 km/h es [ESTIMADO] con un método propio. **Nada de esto tiene base validada hasta la prueba T4** (06): la
-V máx. sostenida va de <!--V:sizing.verdict.vmax_cont_kmh.high:.1f-->17.8<!--/V--> a
-<!--V:sizing.verdict.vmax_cont_kmh.low:.1f-->28.6<!--/V--> km/h según la banda. El cambio más chico que devuelve el margen al
+V máx. sostenida va de <!--V:sizing.verdict.vmax_cont_kmh.high:.1f-->17.6<!--/V--> a
+<!--V:sizing.verdict.vmax_cont_kmh.low:.1f-->28.4<!--/V--> km/h según la banda. El cambio más chico que devuelve el margen al
 10 % con la banda alta es bajar la masa total (<!--V:sizing.verdict.recovery_mass_text:-->21 kg menos<!--/V-->) o un fondo más
-largo que el leído (<!--V:sizing.verdict.recovery_lwl_text:-->L_wl ≥ 1,96 m<!--/V-->): ninguno es un cambio de la propulsión;
+largo que el leído (<!--V:sizing.verdict.recovery_lwl_text:-->L_wl ≥ 1,98 m<!--/V-->): ninguno es un cambio de la propulsión;
 son mediciones pendientes (PENDIENTES P0.1) o peso (§3.2). Y antes que la velocidad está la estabilidad:
-GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.009<!--/V--> m (§2). Eso bloquea la navegación (D-04).
+GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.010<!--/V--> m (§2). Eso bloquea la navegación (D-04).
 
 ## 0. Resumen
 
@@ -37,28 +37,28 @@ GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.009<!--/V--> m (§2). Eso bloquea la
 |---|---|---|
 | Estado del optimizador | sin_solucion_dura | [CALCULADO] |
 | Motor / controlador / batería | Maytech MTI120116 150 KV (inrunner refrigerado por agua, 10–16S) / Flipsky FSESC 75350 con caja de agua (VESC, filtro de fase, IP65) / 2 × LiTime 36 V 60 Ah Golf Cart en paralelo (12S2P, BMS 2 × 120 A) | [CALCULADO: optimizador] |
-| Masa total / LCG desde el espejo | 218 kg / 1.11 m | [CALCULADO] |
-| Calado / GM / escora con el piloto 0,1 m a un lado | 286 mm / 9 mm / 78° | [CALCULADO] |
-| Eje del impulsor bajo la flotación (cebado) | 171 mm (ceba) | [CALCULADO] |
+| Masa total / LCG desde el espejo | 219 kg / 1.11 m | [CALCULADO] |
+| Calado / GM / escora con el piloto 0,1 m a un lado | 287 mm / 10 mm / 76° | [CALCULADO] |
+| Eje del impulsor bajo la flotación (cebado) | 172 mm (ceba) | [CALCULADO] |
 | Impulsor / cubo / tobera | Ø132 / Ø66 / Ø87 mm | [CALCULADO] |
-| Punto de diseño de la bomba | 43.6 km/h, 5073 rpm, φ 0.267, ψ 0.071, Ω_s 5.77 | [CALCULADO] |
-| ¿Llega a planeo pleno (27.1 km/h) con la banda high? / margen mínimo 0–planeo pleno (a qué V) | NO / -8 % (27.0 km/h) — NO cumple el mínimo de 10% | [CALCULADO] |
+| Punto de diseño de la bomba | 43.5 km/h, 5073 rpm, φ 0.266, ψ 0.071, Ω_s 5.76 | [CALCULADO] |
+| ¿Llega a planeo pleno (26.8 km/h) con la banda high? / margen mínimo 0–planeo pleno (a qué V) | NO / -7 % (26.6 km/h) — NO cumple el mínimo de 10% | [CALCULADO] |
 | Puntos de planeo con Savitsky válido (L_K ≤ L_wl, λ ≤ 4, τ 2–15°) | 0 de 23 (el resto: limitado por eslora) | [CALCULADO; método ESTIMADO] |
-| Tiempo de 0 a planeo pleno (banda nominal / alta) | 22.8 s / no llega | [CALCULADO] |
+| Tiempo de 0 a planeo pleno (banda nominal / alta) | 22.1 s / no llega | [CALCULADO] |
 | ¿Se sostiene en planeo con potencia continua? (banda baja / nominal / alta) | sí / sí / NO | [CALCULADO; R ESTIMADO] |
-| V máx. sostenida (potencia continua, banda nominal) | 24.4 km/h (objetivo 30) | [CALCULADO] |
-| V máx. sostenida, banda baja – alta de R (sin validar hasta T4) | 17.8 – 28.6 km/h | [CALCULADO; R ESTIMADO] |
-| P de batería a V máx. / a 5 kn | 6723 W / 1702 W | [CALCULADO] |
+| V máx. sostenida (potencia continua, banda nominal) | 24.1 km/h (objetivo 30) | [CALCULADO] |
+| V máx. sostenida, banda baja – alta de R (sin validar hasta T4) | 17.6 – 28.4 km/h | [CALCULADO; R ESTIMADO] |
+| P de batería a V máx. / a 5 kn | 6723 W / 1708 W | [CALCULADO] |
 | Empuje a punto fijo / en reversa | 765 N / 217 N | [CALCULADO] |
-| Autonomía a V máx. / a 5 kn | 37 min (15.1 km) / 2.4 h | [CALCULADO] |
-| Energía de la misión requerida / nominal | 3376 / 4608 Wh | [CALCULADO] |
-| Cavitación S a V máx. (límite) | 3.19 (3.5) | [CALCULADO] |
+| Autonomía a V máx. / a 5 kn | 37 min (14.9 km) / 2.4 h | [CALCULADO] |
+| Energía de la misión requerida / nominal | 3380 / 4608 Wh | [CALCULADO] |
+| Cavitación S a V máx. (límite) | 3.20 (3.5) | [CALCULADO] |
 | Velocidad periférica máx. | 28.9 m/s | [CALCULADO] |
 | Corriente pico de batería / límite de fase | 192 A / 292 A | [CALCULADO] |
 | I_q pico (FOC) / l_current_max / margen | 287 A / 292 A / 2 % | [CALCULADO; convención bus_foc SUPUESTO] |
 | Motor a V máx. sostenida (estacionario) | 49 °C (máx. 120) | [CALCULADO] |
 | Eje Ø / FS estático / FS fatiga | 20 mm / 4.0 / 9.2 | [CALCULADO] |
-| Rodamientos L10 a V máx. / vel. crítica / sello | 762186 h / 3.8× n máx. / 4.4 m/s | [CALCULADO] |
+| Rodamientos L10 a V máx. / vel. crítica / sello | 739994 h / 3.8× n máx. / 4.4 m/s | [CALCULADO] |
 <!-- /AUTO:sizing_main -->
 
 Cadena de cálculo: masas (§1) → hidrostática y cebado (§2) → R(V) (§3) → bomba diseñada para el
@@ -82,21 +82,21 @@ espejo, z hacia arriba desde la quilla.
 | Piloto | <!--V:sizing.masses.items.1.kg:.1f-->90.0<!--/V--> | <!--V:sizing.masses.items.1.x_m:.2f-->1.38<!--/V--> | <!--V:sizing.masses.items.1.z_m:.2f-->0.55<!--/V--> | [SUPUESTO: 80–100 kg; asiento del plano, R10b §4.4] |
 | Batería (selección) | <!--V:sizing.masses.items.2.kg:.1f-->39.6<!--/V--> | <!--V:sizing.masses.items.2.x_m:.2f-->1.28<!--/V--> | <!--V:sizing.masses.items.2.z_m:.2f-->0.18<!--/V--> | masa [ESTIMADO: R11 §3.2]; posición [SUPUESTO: más a popa que en el plano] |
 | Motor (selección) | <!--V:sizing.masses.items.3.kg:.1f-->4.4<!--/V--> | <!--V:sizing.masses.items.3.x_m:.2f-->0.74<!--/V--> | <!--V:sizing.masses.items.3.z_m:.2f-->0.16<!--/V--> | masa [VERIFICADO: R11 §1.2]; posición [CALCULADO: CAD] |
-| Unidad de jet (toma, bomba, tobera, dirección, bucket, tren) | <!--V:sizing.masses.items.4.kg:.1f-->24.9<!--/V--> | <!--V:sizing.masses.items.4.x_m:.2f-->0.25<!--/V--> | <!--V:sizing.masses.items.4.z_m:.2f-->0.12<!--/V--> | [CALCULADO: masa del CAD, `manifest.json`] |
+| Unidad de jet (toma, bomba, tobera, dirección, bucket, tren) | <!--V:sizing.masses.items.4.kg:.1f-->25.9<!--/V--> | <!--V:sizing.masses.items.4.x_m:.2f-->0.25<!--/V--> | <!--V:sizing.masses.items.4.z_m:.2f-->0.12<!--/V--> | [CALCULADO: masa del CAD, `manifest.json`] |
 | Controlador, contactor, fusible, cables | <!--V:sizing.masses.items.5.kg:.1f-->6.0<!--/V--> | <!--V:sizing.masses.items.5.x_m:.2f-->0.90<!--/V--> | <!--V:sizing.masses.items.5.z_m:.2f-->0.30<!--/V--> | [ESTIMADO: R10b §4.2] |
 | Agua retenida en toma y bomba | <!--V:sizing.masses.items.6.kg:.1f-->4.0<!--/V--> | <!--V:sizing.masses.items.6.x_m:.2f-->0.30<!--/V--> | <!--V:sizing.masses.items.6.z_m:.2f-->0.10<!--/V--> | [ESTIMADO: R10b §4.2] |
 | Equipo de seguridad | <!--V:sizing.masses.items.7.kg:.1f-->6.0<!--/V--> | <!--V:sizing.masses.items.7.x_m:.2f-->1.60<!--/V--> | <!--V:sizing.masses.items.7.z_m:.2f-->0.25<!--/V--> | [ESTIMADO: R10b §4.2] |
 | Flotación fija + achique | <!--V:sizing.masses.items.8.kg:.1f-->5.0<!--/V--> | <!--V:sizing.masses.items.8.x_m:.2f-->1.20<!--/V--> | <!--V:sizing.masses.items.8.z_m:.2f-->0.30<!--/V--> | [ESTIMADO: ~100 L de espuma, R10b H5] |
 
-**Resultado** [CALCULADO]: m = <!--V:sizing.masses.total_kg:.1f-->217.9<!--/V--> kg; LCG = <!--V:sizing.masses.lcg_m:.3f-->1.114<!--/V--> m
-desde el espejo; VCG = <!--V:sizing.masses.vcg_m:.3f-->0.339<!--/V--> m sobre la quilla; máquinas (motor + batería +
-jet + controlador, para la capacidad de §2.3) = <!--V:sizing.masses.machinery_kg:.1f-->74.9<!--/V--> kg.
+**Resultado** [CALCULADO]: m = <!--V:sizing.masses.total_kg:.1f-->218.9<!--/V--> kg; LCG = <!--V:sizing.masses.lcg_m:.3f-->1.110<!--/V--> m
+desde el espejo; VCG = <!--V:sizing.masses.vcg_m:.3f-->0.338<!--/V--> m sobre la quilla; máquinas (motor + batería +
+jet + controlador, para la capacidad de §2.3) = <!--V:sizing.masses.machinery_kg:.1f-->75.9<!--/V--> kg.
 
 - La masa del jet la toma `sizing.py` del CAD vigente (`manifest.json → totals.jet_unit_mass_kg`,
-  hoy <!--V:manifest.totals.jet_unit_mass_kg:.2f-->25.94<!--/V--> kg). Si el CAD cambia, hay que volver a correr
+  hoy <!--V:manifest.totals.jet_unit_mass_kg:.2f-->25.88<!--/V--> kg). Si el CAD cambia, hay que volver a correr
   `run_all.py`: la fila "Unidad de jet" de arriba es la que usó la última corrida de `sizing.py`.
 - Los 150 kg del plano de Jorge no cierran (R10b §4.2: 165–242 kg con 3 kWh LFP). El piloto pesa
-  <!--V:sizing.masses.items.1.kg:.0f-->90<!--/V--> kg de los <!--V:sizing.masses.total_kg:.0f-->218<!--/V--> y es la entrada
+  <!--V:sizing.masses.items.1.kg:.0f-->90<!--/V--> kg de los <!--V:sizing.masses.total_kg:.0f-->219<!--/V--> y es la entrada
   más incierta después de la potencia del motor (§10).
 
 ## 2. Hidrostática, estabilidad, capacidad y cebado
@@ -119,20 +119,20 @@ la borda (z_g). Longitudinalmente, un coeficiente de bloque C_b:
 | C_b / C_I | 0,80 / 0,065 | [ESTIMADO] / [ESTIMADO: R10b §4.3, forma de flotación supuesta] |
 | ρ | 1013 kg/m³ | [CALCULADO: R07 §2.5, 18 PSU] |
 
-**Resultado** [CALCULADO]: ∇ = <!--V:sizing.hydrostatics.volume_m3:.3f-->0.215<!--/V--> m³; T = <!--V:sizing.hydrostatics.draft_m:.3f-->0.286<!--/V--> m;
-B_wl = <!--V:sizing.hydrostatics.bwl_m:.3f-->0.705<!--/V--> m; francobordo en el espejo = <!--V:sizing.hydrostatics.freeboard_transom_m:.3f-->0.134<!--/V--> m;
+**Resultado** [CALCULADO]: ∇ = <!--V:sizing.hydrostatics.volume_m3:.3f-->0.216<!--/V--> m³; T = <!--V:sizing.hydrostatics.draft_m:.3f-->0.287<!--/V--> m;
+B_wl = <!--V:sizing.hydrostatics.bwl_m:.3f-->0.705<!--/V--> m; francobordo en el espejo = <!--V:sizing.hydrostatics.freeboard_transom_m:.3f-->0.133<!--/V--> m;
 desplazamiento con el agua al borde del espejo = <!--V:sizing.hydrostatics.disp_max_kg:.0f-->357<!--/V--> kg.
 
 ### 2.2 Estabilidad inicial
 
-KB = <!--V:sizing.hydrostatics.KB_m:.3f-->0.163<!--/V--> m, BM = <!--V:sizing.hydrostatics.BM_m:.3f-->0.185<!--/V--> m,
-KG = <!--V:sizing.hydrostatics.KG_m:.3f-->0.339<!--/V--> m → **GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.009<!--/V--> m** [CALCULADO].
+KB = <!--V:sizing.hydrostatics.KB_m:.3f-->0.164<!--/V--> m, BM = <!--V:sizing.hydrostatics.BM_m:.3f-->0.185<!--/V--> m,
+KG = <!--V:sizing.hydrostatics.KG_m:.3f-->0.338<!--/V--> m → **GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.010<!--/V--> m** [CALCULADO].
 
 Escora por correr al piloto una distancia d (lineal, ángulo chico; `hull.heel_for_offset`):
 
   φ = atan( m_piloto · d / (Δ · GM) )
 
-Con d = 0,1 m: φ = <!--V:sizing.heel_pilot_0p1m_deg:.0f-->78<!--/V-->° [CALCULADO]. El modelo lineal no vale a ese ángulo;
+Con d = 0,1 m: φ = <!--V:sizing.heel_pilot_0p1m_deg:.0f-->76<!--/V-->° [CALCULADO]. El modelo lineal no vale a ese ángulo;
 lo que dice es que **el bote no tiene estabilidad inicial útil**: vuelca al subir, al reabordar desde el
 agua o con un movimiento brusco del piloto. Con R10b H1 (GM de −113 a +90 mm según dónde va sentado el
 piloto) la conclusión es la misma. La propulsión no lo arregla; hace falta más manga en la flotación
@@ -146,7 +146,7 @@ Fórmula para botes con motor interior [VERIFICADO: R10b §4.3, law.cornell.edu]
 
   W = máx[ Δ_max/5 − m_casco/5 − 4·m_máquinas/5 ; (Δ_max − m_casco)/7 ]
 
-W₁ = <!--V:sizing.capacity.W1_kg:.0f-->4<!--/V--> kg, W₂ = <!--V:sizing.capacity.W2_kg:.0f-->46<!--/V--> kg → **personas + equipo ≤
+W₁ = <!--V:sizing.capacity.W1_kg:.0f-->3<!--/V--> kg, W₂ = <!--V:sizing.capacity.W2_kg:.0f-->46<!--/V--> kg → **personas + equipo ≤
 <!--V:sizing.capacity.persons_gear_kg:.0f-->46<!--/V--> kg** [CALCULADO], menos que un piloto de
 <!--V:sizing.masses.items.1.kg:.0f-->90<!--/V--> kg. Por esta regla el casco, tal como se leyó del plano, no tiene capacidad
 para su propio piloto. Confirma H1/H6 de R10b: el casco es chico para la carga.
@@ -155,8 +155,8 @@ para su propio piloto. Confirma H1/H6 de R10b: el casco es chico para la carga.
 
 Regla: el eje del impulsor tiene que quedar bajo la flotación en reposo [VERIFICADO: R10a §3.2, HamiltonJet];
 el proyecto pide ≥ 20 mm de margen (R10a §8). Eje del impulsor a <!--V:sizing.priming.axis_height_m:.3f-->0.115<!--/V--> m de la
-quilla [CALCULADO: R10a §5.2, CAD], calado <!--V:sizing.priming.draft_m:.3f-->0.286<!--/V--> m → eje
-<!--V:sizing.priming.axis_below_wl_m:.3f-->0.171<!--/V--> m bajo la flotación: **ceba** [CALCULADO]. El margen es grande porque
+quilla [CALCULADO: R10a §5.2, CAD], calado <!--V:sizing.priming.draft_m:.3f-->0.287<!--/V--> m → eje
+<!--V:sizing.priming.axis_below_wl_m:.3f-->0.172<!--/V--> m bajo la flotación: **ceba** [CALCULADO]. El margen es grande porque
 el casco es chico para la masa; con el casco medido (PENDIENTES P0.1) puede cambiar.
 
 ## 3. Resistencia al avance
@@ -179,10 +179,10 @@ además la eslora mojada en la quilla L_K no puede superar el largo del fondo L_
 (<!--V:sizing.resistance.lwl_m:.2f-->1.75<!--/V--> m [ESTIMADO]): Savitsky supone un prisma más largo que la zona
 mojada. Con este casco el equilibrio libre da L_K > L_wl en **todo** el rango de planeo
 (<!--V:sizing.resistance.n_valid_free:d-->0<!--/V--> de <!--V:sizing.resistance.n_points:d-->23<!--/V--> puntos válidos):
-L_K = <!--V:sizing.resistance.savitsky.0.L_K_free:.2f-->2.08<!--/V--> m a <!--V:sizing.resistance.savitsky.0.V_kmh:.1f-->20.1<!--/V--> km/h,
-<!--V:sizing.resistance.savitsky.4.L_K_free:.2f-->1.87<!--/V--> m a <!--V:sizing.resistance.savitsky.4.V_kmh:.1f-->25.6<!--/V--> km/h y
+L_K = <!--V:sizing.resistance.savitsky.0.L_K_free:.2f-->2.07<!--/V--> m a <!--V:sizing.resistance.savitsky.0.V_kmh:.1f-->20.1<!--/V--> km/h,
+<!--V:sizing.resistance.savitsky.4.L_K_free:.2f-->1.86<!--/V--> m a <!--V:sizing.resistance.savitsky.4.V_kmh:.1f-->25.6<!--/V--> km/h y
 <!--V:sizing.resistance.savitsky.10.L_K_free:.2f-->1.77<!--/V--> m a <!--V:sizing.resistance.savitsky.10.V_kmh:.1f-->33.9<!--/V--> km/h, con
-C_Δ = <!--V:sizing.resistance.C_delta:.2f-->1.00<!--/V--> y el LCG al <!--V:sizing.resistance.lcg_over_lwl:.0%-->64%<!--/V--> del fondo [CALCULADO]. Es decir: para sostener 217 kg con ese trimado el bote
+C_Δ = <!--V:sizing.resistance.C_delta:.2f-->1.00<!--/V--> y el LCG al <!--V:sizing.resistance.lcg_over_lwl:.0%-->63%<!--/V--> del fondo [CALCULADO]. Es decir: para sostener 217 kg con ese trimado el bote
 necesitaría un fondo más largo del que tiene; en la realidad se hunde más de proa o trima más, y eso Savitsky no
 lo describe. No encontré un método abierto para ese régimen (Savitsky–Brown 1976 y Blount–Fox 1976 no están
 abiertos, R12 §6.3; Mercier–Savitsky cubre solo Fn∇ 1–2, o sea hasta ~17 km/h). Por eso:
@@ -200,17 +200,17 @@ desde <!--V:sizing.resistance.v_planing_kmh:.1f-->20.1<!--/V--> km/h (Fn∇ = 2,
 
 | V [km/h] | R [N] | τ [°] | Presión [N] | Fricción [N] | Aire [N] | L_K [m] (libre) | λ | Método |
 |---|---|---|---|---|---|---|---|---|
-| <!--V:sizing.resistance.savitsky.0.V_kmh:.1f-->20.1<!--/V--> | <!--V:sizing.resistance.savitsky.0.R:.0f-->411<!--/V--> | <!--V:sizing.resistance.savitsky.0.tau_deg:.1f-->9.5<!--/V--> | <!--V:sizing.resistance.savitsky.0.R_pressure:.0f-->347<!--/V--> | <!--V:sizing.resistance.savitsky.0.R_friction:.0f-->56<!--/V--> | <!--V:sizing.resistance.savitsky.0.R_air:.0f-->8<!--/V-->  | <!--V:sizing.resistance.savitsky.0.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.0.L_K_free:.2f-->2.08<!--/V-->) | <!--V:sizing.resistance.savitsky.0.lambda:.2f-->2.78<!--/V--> | <!--V:sizing.resistance.savitsky.0.method:-->Savitsky limitado por eslora<!--/V--> |
-| <!--V:sizing.resistance.savitsky.4.V_kmh:.1f-->25.6<!--/V--> | <!--V:sizing.resistance.savitsky.4.R:.0f-->375<!--/V--> | <!--V:sizing.resistance.savitsky.4.tau_deg:.1f-->7.4<!--/V--> | <!--V:sizing.resistance.savitsky.4.R_pressure:.0f-->272<!--/V--> | <!--V:sizing.resistance.savitsky.4.R_friction:.0f-->89<!--/V--> | <!--V:sizing.resistance.savitsky.4.R_air:.0f-->13<!--/V-->  | <!--V:sizing.resistance.savitsky.4.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.4.L_K_free:.2f-->1.87<!--/V-->) | <!--V:sizing.resistance.savitsky.4.lambda:.2f-->2.74<!--/V--> | <!--V:sizing.resistance.savitsky.4.method:-->Savitsky limitado por eslora<!--/V--> |
-| <!--V:sizing.resistance.savitsky.7.V_kmh:.1f-->29.7<!--/V--> | <!--V:sizing.resistance.savitsky.7.R:.0f-->366<!--/V--> | <!--V:sizing.resistance.savitsky.7.tau_deg:.1f-->6.2<!--/V--> | <!--V:sizing.resistance.savitsky.7.R_pressure:.0f-->229<!--/V--> | <!--V:sizing.resistance.savitsky.7.R_friction:.0f-->118<!--/V--> | <!--V:sizing.resistance.savitsky.7.R_air:.0f-->19<!--/V-->  | <!--V:sizing.resistance.savitsky.7.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.7.L_K_free:.2f-->1.80<!--/V-->) | <!--V:sizing.resistance.savitsky.7.lambda:.2f-->2.71<!--/V--> | <!--V:sizing.resistance.savitsky.7.method:-->Savitsky limitado por eslora<!--/V--> |
-| <!--V:sizing.resistance.savitsky.13.V_kmh:.1f-->38.0<!--/V--> | <!--V:sizing.resistance.savitsky.13.R:.0f-->385<!--/V--> | <!--V:sizing.resistance.savitsky.13.tau_deg:.1f-->4.5<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_pressure:.0f-->167<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_friction:.0f-->186<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_air:.0f-->31<!--/V-->  | <!--V:sizing.resistance.savitsky.13.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.13.L_K_free:.2f-->1.76<!--/V-->) | <!--V:sizing.resistance.savitsky.13.lambda:.2f-->2.63<!--/V--> | <!--V:sizing.resistance.savitsky.13.method:-->Savitsky limitado por eslora<!--/V--> |
+| <!--V:sizing.resistance.savitsky.0.V_kmh:.1f-->20.1<!--/V--> | <!--V:sizing.resistance.savitsky.0.R:.0f-->414<!--/V--> | <!--V:sizing.resistance.savitsky.0.tau_deg:.1f-->9.5<!--/V--> | <!--V:sizing.resistance.savitsky.0.R_pressure:.0f-->349<!--/V--> | <!--V:sizing.resistance.savitsky.0.R_friction:.0f-->56<!--/V--> | <!--V:sizing.resistance.savitsky.0.R_air:.0f-->8<!--/V-->  | <!--V:sizing.resistance.savitsky.0.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.0.L_K_free:.2f-->2.07<!--/V-->) | <!--V:sizing.resistance.savitsky.0.lambda:.2f-->2.78<!--/V--> | <!--V:sizing.resistance.savitsky.0.method:-->Savitsky limitado por eslora<!--/V--> |
+| <!--V:sizing.resistance.savitsky.4.V_kmh:.1f-->25.6<!--/V--> | <!--V:sizing.resistance.savitsky.4.R:.0f-->377<!--/V--> | <!--V:sizing.resistance.savitsky.4.tau_deg:.1f-->7.4<!--/V--> | <!--V:sizing.resistance.savitsky.4.R_pressure:.0f-->274<!--/V--> | <!--V:sizing.resistance.savitsky.4.R_friction:.0f-->89<!--/V--> | <!--V:sizing.resistance.savitsky.4.R_air:.0f-->13<!--/V-->  | <!--V:sizing.resistance.savitsky.4.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.4.L_K_free:.2f-->1.86<!--/V-->) | <!--V:sizing.resistance.savitsky.4.lambda:.2f-->2.74<!--/V--> | <!--V:sizing.resistance.savitsky.4.method:-->Savitsky limitado por eslora<!--/V--> |
+| <!--V:sizing.resistance.savitsky.7.V_kmh:.1f-->29.7<!--/V--> | <!--V:sizing.resistance.savitsky.7.R:.0f-->367<!--/V--> | <!--V:sizing.resistance.savitsky.7.tau_deg:.1f-->6.2<!--/V--> | <!--V:sizing.resistance.savitsky.7.R_pressure:.0f-->230<!--/V--> | <!--V:sizing.resistance.savitsky.7.R_friction:.0f-->118<!--/V--> | <!--V:sizing.resistance.savitsky.7.R_air:.0f-->19<!--/V-->  | <!--V:sizing.resistance.savitsky.7.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.7.L_K_free:.2f-->1.79<!--/V-->) | <!--V:sizing.resistance.savitsky.7.lambda:.2f-->2.71<!--/V--> | <!--V:sizing.resistance.savitsky.7.method:-->Savitsky limitado por eslora<!--/V--> |
+| <!--V:sizing.resistance.savitsky.13.V_kmh:.1f-->38.0<!--/V--> | <!--V:sizing.resistance.savitsky.13.R:.0f-->386<!--/V--> | <!--V:sizing.resistance.savitsky.13.tau_deg:.1f-->4.5<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_pressure:.0f-->168<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_friction:.0f-->186<!--/V--> | <!--V:sizing.resistance.savitsky.13.R_air:.0f-->31<!--/V-->  | <!--V:sizing.resistance.savitsky.13.L_K:.2f-->1.75<!--/V--> (<!--V:sizing.resistance.savitsky.13.L_K_free:.2f-->1.76<!--/V-->) | <!--V:sizing.resistance.savitsky.13.lambda:.2f-->2.63<!--/V--> | <!--V:sizing.resistance.savitsky.13.method:-->Savitsky limitado por eslora<!--/V--> |
 
 - La curva R(V) es casi plana entre 20 y 35 km/h: el fondo es angosto para el peso (∇/b³ alto, trimados
   de 6–8°, R10b §4.4). Por eso la V máx. depende tanto de la potencia: unos pocos newtons de empuje de
   más o de menos mueven el cruce T = R varios km/h (§10).
 - **Planeo pleno y ventana del margen.** "Planeo pleno" es la V desde la que la limitación de eslora deja de pesar:
   el Savitsky limitado y el libre difieren menos de 2 % [SUPUESTO: `resistance.full_planing_tol`], interpolado entre
-  nodos: <!--V:sizing.resistance.v_full_planing_kmh:.1f-->27.1<!--/V--> km/h. El margen de empuje se exige **de 0 hasta ahí**
+  nodos: <!--V:sizing.resistance.v_full_planing_kmh:.1f-->26.8<!--/V--> km/h. El margen de empuje se exige **de 0 hasta ahí**
   (joroba + transición), no solo hasta el primer nodo de Savitsky (Fn∇ = 2,3): antes la ventana se cortaba en
   <!--V:sizing.resistance.v_planing_kmh:.1f-->20.1<!--/V--> km/h y el margen seguía cayendo después (auditoría R2-C01). Con la
   ventana larga el resultado ya no depende del corte arbitrario fn_planing (sensibilidad 2,0–2,7 en §10). "Llega a
@@ -221,10 +221,10 @@ desde <!--V:sizing.resistance.v_planing_kmh:.1f-->20.1<!--/V--> km/h (Fn∇ = 2,
   casco) el ×1,12 de la banda alta es [SUPUESTO]: viene de la dispersión de cascos a 30 km/h con Savitsky válido, no
   de este régimen; la sensibilidad la lleva de 1,00 a 1,25 (§10). La V máx. se informa con la banda
   nominal y, porque el tramo de planeo no está validado, también con las bandas baja y alta
-  (`sizing.json → vmax_band`): sostenida <!--V:sizing.vmax_band.high.vmax_cont_kmh:.1f-->17.8<!--/V--> /
-  <!--V:sizing.vmax_band.nominal.vmax_cont_kmh:.1f-->24.4<!--/V--> / <!--V:sizing.vmax_band.low.vmax_cont_kmh:.1f-->28.6<!--/V--> km/h
-  y por ratos <!--V:sizing.vmax_band.high.vmax_peak_kmh:.1f-->21.8<!--/V--> / <!--V:sizing.vmax_band.nominal.vmax_peak_kmh:.1f-->28.3<!--/V-->
-  / <!--V:sizing.vmax_band.low.vmax_peak_kmh:.1f-->31.1<!--/V--> km/h (bandas alta / nominal / baja) [CALCULADO; R ESTIMADO].
+  (`sizing.json → vmax_band`): sostenida <!--V:sizing.vmax_band.high.vmax_cont_kmh:.1f-->17.6<!--/V--> /
+  <!--V:sizing.vmax_band.nominal.vmax_cont_kmh:.1f-->24.1<!--/V--> / <!--V:sizing.vmax_band.low.vmax_cont_kmh:.1f-->28.4<!--/V--> km/h
+  y por ratos <!--V:sizing.vmax_band.high.vmax_peak_kmh:.1f-->20.3<!--/V--> / <!--V:sizing.vmax_band.nominal.vmax_peak_kmh:.1f-->28.2<!--/V-->
+  / <!--V:sizing.vmax_band.low.vmax_peak_kmh:.1f-->31.0<!--/V--> km/h (bandas alta / nominal / baja) [CALCULADO; R ESTIMADO].
   **La V máx. no tiene base validada hasta la prueba T4 (06).**
 
 Curva a fondo (potencia pico, banda alta, batería nominal) y figura
@@ -234,17 +234,17 @@ Curva a fondo (potencia pico, banda alta, batería nominal) y figura
 | V [km/h] | R diseño [N] | T pico [N] | rpm | P bat [W] | I bat [A] | S | Limita |
 |---|---|---|---|---|---|---|---|
 | 0 | 0 | 765 | 4045 | 7373 | 192 | 3.50 | corriente de batería |
-| 4 | 25 | 700 | 4046 | 7373 | 192 | 3.49 | corriente de batería |
-| 7 | 115 | 642 | 4051 | 7373 | 192 | 3.48 | corriente de batería |
-| 11 | 280 | 588 | 4059 | 7373 | 192 | 3.46 | corriente de batería |
-| 14 | 440 | 538 | 4069 | 7373 | 192 | 3.43 | corriente de batería |
-| 18 | 458 | 491 | 4082 | 7373 | 192 | 3.40 | corriente de batería |
-| 22 | 446 | 446 | 4097 | 7373 | 192 | 3.36 | corriente de batería |
-| 25 | 421 | 404 | 4113 | 7373 | 192 | 3.32 | corriente de batería |
-| 29 | 410 | 362 | 4129 | 7373 | 192 | 3.27 | corriente de batería |
-| 32 | 411 | 321 | 4147 | 7373 | 192 | 3.22 | corriente de batería |
-| 36 | 421 | 279 | 4164 | 7373 | 192 | 3.15 | corriente de batería |
-| 40 | 440 | 238 | 4181 | 7373 | 192 | 3.09 | corriente de batería |
+| 4 | 25 | 700 | 4047 | 7373 | 192 | 3.49 | corriente de batería |
+| 7 | 115 | 642 | 4052 | 7373 | 192 | 3.48 | corriente de batería |
+| 11 | 281 | 588 | 4059 | 7373 | 192 | 3.46 | corriente de batería |
+| 14 | 442 | 538 | 4070 | 7373 | 192 | 3.43 | corriente de batería |
+| 18 | 461 | 491 | 4082 | 7373 | 192 | 3.40 | corriente de batería |
+| 22 | 449 | 446 | 4097 | 7373 | 192 | 3.36 | corriente de batería |
+| 25 | 424 | 404 | 4113 | 7373 | 192 | 3.32 | corriente de batería |
+| 29 | 412 | 362 | 4130 | 7373 | 192 | 3.27 | corriente de batería |
+| 32 | 413 | 321 | 4147 | 7373 | 192 | 3.22 | corriente de batería |
+| 36 | 423 | 279 | 4164 | 7373 | 192 | 3.15 | corriente de batería |
+| 40 | 442 | 238 | 4182 | 7373 | 192 | 3.09 | corriente de batería |
 <!-- /AUTO:sizing_curve -->
 
 ![Empuje vs resistencia](figuras/empuje_resistencia.png)
@@ -258,19 +258,19 @@ Dentro de 300 m de la costa el límite es 5 kn [VERIFICADO: R07, R13 §3]. Dos c
    están por encima del tope de COSTA** (el tope se calcula con el piloto liviano): con el perfil COSTA el piloto
    de diseño no llega a 5 kn; lo que da de verdad está en las filas "COSTA a fondo" de la tabla.
 2. **Tope de rpm del perfil "costa"** (D-18): el caso que más rápido va con una rpm dada es el piloto
-   liviano (<!--V:sizing.legal_speed.mass_light_kg:.0f-->198<!--/V--> kg en total con 70 kg [SUPUESTO]), banda baja y batería llena.
+   liviano (<!--V:sizing.legal_speed.mass_light_kg:.0f-->199<!--/V--> kg en total con 70 kg [SUPUESTO]), banda baja y batería llena.
    Se busca la rpm que da T = R_baja(5 kn) y se pasa a ERPM con los pares de polos del motor. Comprobación
    [CALCULADO]: con esa rpm, T < R_liviano,baja(V) para toda V > 5 kn (exceso máximo
-   <!--V:sizing.legal_speed.excess_above_limit_max_N:.1f-->-5.1<!--/V--> N).
+   <!--V:sizing.legal_speed.excess_above_limit_max_N:.1f-->-5.2<!--/V--> N).
 
 <!-- AUTO:legal_speed -->
 | Magnitud | Valor | Etiqueta |
 |---|---|---|
 | Límite legal a < 300 m de la costa | 9.26 km/h (5 kn) | [VERIFICADO: research/R07, R13] |
-| Tope de rpm 'modo costa' (piloto liviano, 198 kg, banda baja, batería llena) | 1849 rpm / 9245 ERPM | [CALCULADO] → VESC `l_max_erpm` en el perfil de costa |
-| COSTA a fondo, piloto liviano (banda baja, batería llena) | 9.3 km/h, 689 W | [CALCULADO] (el caso del tope) |
-| COSTA a fondo, piloto de diseño (banda nominal / alta, batería nominal) | 7.8 / 7.0 km/h, 695 / 698 W (autonomía 5.9 h) | [CALCULADO] |
-| P de batería para ir a 5 kn con el piloto de diseño (banda alta) | 1702 W a 2501 rpm — por encima del tope de COSTA: solo con el perfil ABIERTO | [CALCULADO] (energía de la misión, conservador) |
+| Tope de rpm 'modo costa' (piloto liviano, 199 kg, banda baja, batería llena) | 1851 rpm / 9256 ERPM | [CALCULADO] → VESC `l_max_erpm` en el perfil de costa |
+| COSTA a fondo, piloto liviano (banda baja, batería llena) | 9.3 km/h, 691 W | [CALCULADO] (el caso del tope) |
+| COSTA a fondo, piloto de diseño (banda nominal / alta, batería nominal) | 7.8 / 7.0 km/h, 697 / 700 W (autonomía 5.9 h) | [CALCULADO] |
+| P de batería para ir a 5 kn con el piloto de diseño (banda alta) | 1708 W a 2504 rpm — por encima del tope de COSTA: solo con el perfil ABIERTO | [CALCULADO] (energía de la misión, conservador) |
 | Autonomía a esa potencia | 2.4 h | [CALCULADO] |
 <!-- /AUTO:legal_speed -->
 
@@ -285,17 +285,17 @@ Dentro de 300 m de la costa el límite es 5 kn [VERIFICADO: R07, R13 §3]. Dos c
 ### 3.2 Margen de 0 a planeo pleno: qué lo devuelve al 10 %
 
 Con la combinación elegida, el margen mínimo de 0 a planeo pleno (banda alta, batería nominal) es
-<!--V:sizing.performance.hump_margin_min:.1%-->-7.7%<!--/V--> a <!--V:sizing.performance.V_hump_margin_min_kmh:.1f-->27.0<!--/V--> km/h:
-el empuje a fondo iguala a la resistencia a <!--V:sizing.performance.V_eq_peak_design_band_kmh:.1f-->21.8<!--/V--> km/h, en plena
+<!--V:sizing.performance.hump_margin_min:.1%-->-7.4%<!--/V--> a <!--V:sizing.performance.V_hump_margin_min_kmh:.1f-->26.6<!--/V--> km/h:
+el empuje a fondo iguala a la resistencia a <!--V:sizing.performance.V_eq_peak_design_band_kmh:.1f-->20.3<!--/V--> km/h, en plena
 transición limitada por eslora, y no alcanza el planeo pleno. No es el pico de la joroba (R/Δ) sino la transición:
 la R/Δ crítica de la joroba es <!--V:sizing.sensitivity.critical_r_hump.text:-->no hay: aun con R/Δ = 0,05 el margen queda < 10% (lo limita la transición joroba–planeo, no el pico de la joroba)<!--/V-->, y ninguna combinación de
 impulsor, tobera ni punto de diseño llega al 10 % (§4.3). Con potencia continua y la banda alta el bote **se cae del
-planeo** (equilibrio <!--V:sizing.verdict.vmax_cont_kmh.high:.1f-->17.8<!--/V--> km/h, por debajo de
+planeo** (equilibrio <!--V:sizing.verdict.vmax_cont_kmh.high:.1f-->17.6<!--/V--> km/h, por debajo de
 <!--V:sizing.resistance.v_planing_kmh:.1f-->20.1<!--/V--> km/h). Con la banda nominal el margen es
-<!--V:sizing.verdict.hump_margin_min_nominal:.1%-->3.4%<!--/V-->: llega a planeo pleno a fondo
-(<!--V:sizing.verdict.text.planes_nominal:-->sí<!--/V-->) pero tarda <!--V:sizing.performance.t_to_plane_s:.0f-->23<!--/V--> s
+<!--V:sizing.verdict.hump_margin_min_nominal:.1%-->3.7%<!--/V-->: llega a planeo pleno a fondo
+(<!--V:sizing.verdict.text.planes_nominal:-->sí<!--/V-->) pero tarda <!--V:sizing.performance.t_to_plane_s:.0f-->22<!--/V--> s
 (criterio de §11: ≤ <!--V:sizing.success.t_plane_max_s:.0f-->15<!--/V--> s), y con potencia continua se sostiene en planeo
-(<!--V:sizing.verdict.text.sustains_cont_nominal:-->sí<!--/V-->) a <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.4<!--/V--> km/h, todavía en
+(<!--V:sizing.verdict.text.sustains_cont_nominal:-->sí<!--/V-->) a <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.1<!--/V--> km/h, todavía en
 la transición (¿planeo pleno?: <!--V:sizing.verdict.text.sustains_full_cont_nominal:-->NO<!--/V-->).
 
 Qué lo devuelve al 10 % con la banda alta (`sizing.hump_recovery`, la bomba se rediseña en cada caso) [CALCULADO]:
@@ -303,13 +303,13 @@ Qué lo devuelve al 10 % con la banda alta (`sizing.hump_recovery`, la bomba se 
 | Cambio | Margen 0–planeo pleno (banda alta) | Comentario |
 |---|---|---|
 | Masa total | ≥ 10 % con <!--V:sizing.hump_recovery.mass_text:-->21 kg menos<!--/V--> | Casco, batería o piloto; pesar el casco (P0.1) |
-| Largo del fondo | ≥ 10 % con <!--V:sizing.hump_recovery.lwl_text:-->L_wl ≥ 1,96 m<!--/V--> | El 1,75 m es [ESTIMADO] leído del plano; medir (P0.1) |
-| Piloto de <!--V:sizing.hump_recovery.light_pilot.pilot_kg:.0f-->70<!--/V--> kg | <!--V:sizing.hump_recovery.light_pilot.hump_margin:.1%-->8.1%<!--/V--> | El piloto real decide |
-| Corriente de batería al 100 % del BMS | <!--V:sizing.hump_recovery.bms_derate_1.hump_margin:.1%-->-3.2%<!--/V--> | Pasan a limitar la corriente de fase (I_q) y la cavitación; y deja el BMS sin margen |
-| Banda nominal en vez de la alta | <!--V:sizing.hump_recovery.nominal_band.hump_margin:.1%-->3.4%<!--/V--> | Es aceptar menos margen, no un cambio |
+| Largo del fondo | ≥ 10 % con <!--V:sizing.hump_recovery.lwl_text:-->L_wl ≥ 1,98 m<!--/V--> | El 1,75 m es [ESTIMADO] leído del plano; medir (P0.1) |
+| Piloto de <!--V:sizing.hump_recovery.light_pilot.pilot_kg:.0f-->70<!--/V--> kg | <!--V:sizing.hump_recovery.light_pilot.hump_margin:.1%-->9.4%<!--/V--> | El piloto real decide |
+| Corriente de batería al 100 % del BMS | <!--V:sizing.hump_recovery.bms_derate_1.hump_margin:.1%-->-2.0%<!--/V--> | Pasan a limitar la corriente de fase (I_q) y la cavitación; y deja el BMS sin margen |
+| Banda nominal en vez de la alta | <!--V:sizing.hump_recovery.nominal_band.hump_margin:.1%-->4.9%<!--/V--> | Es aceptar menos margen, no un cambio |
 
-Con la batería descargada el margen es <!--V:sizing.performance.vmax_by_battery.v_min.hump_margin:.1%-->-13.1%<!--/V--> (alta) y
-<!--V:sizing.performance.vmax_by_battery.v_min.hump_margin_nominal:.1%-->-2.6%<!--/V--> (nominal). La prueba que lo decide es T4.1
+Con la batería descargada el margen es <!--V:sizing.performance.vmax_by_battery.v_min.hump_margin:.1%-->-12.8%<!--/V--> (alta) y
+<!--V:sizing.performance.vmax_by_battery.v_min.hump_margin_nominal:.1%-->-2.3%<!--/V--> (nominal). La prueba que lo decide es T4.1
 (06): tiempo de 0 a planeo con el piloto real y la batería al 20 %.
 
 ## 4. Waterjet
@@ -413,18 +413,18 @@ alta, §3.2; y ninguna llega a 30 km/h sostenidos). Elegida: <!--V:sizing.select
 |---|---|---|---|---|---|---|---|
 | HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 14.0 | -48 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 13.9 | -48 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.9 | -47 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 13.8 | -48 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.7 | -47 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.7 | -47 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.7 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.8 | -48 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 13.7 | -49 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.7 | -48 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.7 | -48 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.6 | -47 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.6 | -48 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.6 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.5 | -48 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.5 | -47 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 120 | 0.70 | 13.5 | -47 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.62 | 13.5 | -47 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.5 | -48 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.4 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.62 | 13.4 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.4 | -48 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.4 | -48 % | 1322 | no |
 | HPM5000B_48 | LT36_60x1 | 120 | 0.70 | 13.4 | -47 % | 1322 | no |
 <!-- /AUTO:optimization -->
 
@@ -434,10 +434,10 @@ lento que el MTI120116 y la bomba absorbe menos potencia, así que da menos V m�
 ### 4.4 Punto de diseño y triángulos de velocidad
 
 Punto de diseño [CALCULADO]: f = <!--V:sizing.selection.f_pow:.1f-->1.0<!--/V-->, P_d = <!--V:sizing.selection.P_design_W:.0f-->11760<!--/V--> W a
-<!--V:sizing.pump.V_design_kmh:.1f-->43.6<!--/V--> km/h y <!--V:sizing.pump.n_d_rpm:.0f-->5073<!--/V--> rpm; Q_d =
-<!--V:sizing.pump.Q_d:.4f-->0.0959<!--/V--> m³/s, H_d = <!--V:sizing.pump.H_d:.2f-->8.88<!--/V--> m, φ_d =
-<!--V:sizing.pump.phi_d:.3f-->0.267<!--/V-->, ψ_d = <!--V:sizing.pump.psi_d:.3f-->0.071<!--/V-->, Ω_s =
-<!--V:sizing.pump.omega_s:.2f-->5.77<!--/V--> (axial de Ω_s alta, como anticipó R12 §0), U_punta =
+<!--V:sizing.pump.V_design_kmh:.1f-->43.5<!--/V--> km/h y <!--V:sizing.pump.n_d_rpm:.0f-->5073<!--/V--> rpm; Q_d =
+<!--V:sizing.pump.Q_d:.4f-->0.0959<!--/V--> m³/s, H_d = <!--V:sizing.pump.H_d:.2f-->8.89<!--/V--> m, φ_d =
+<!--V:sizing.pump.phi_d:.3f-->0.266<!--/V-->, ψ_d = <!--V:sizing.pump.psi_d:.3f-->0.071<!--/V-->, Ω_s =
+<!--V:sizing.pump.omega_s:.2f-->5.76<!--/V--> (axial de Ω_s alta, como anticipó R12 §0), U_punta =
 <!--V:sizing.pump.U_tip_d:.1f-->35.1<!--/V--> m/s.
 
 - **El punto de diseño es "virtual".** Es lo que la bomba absorbería a plena tensión sin límite de
@@ -458,7 +458,7 @@ Punto de diseño [CALCULADO]: f = <!--V:sizing.selection.f_pow:.1f-->1.0<!--/V--
 <!-- AUTO:sizing_pump -->
 | Sección | r [mm] | u [m/s] | c_m [m/s] | β1 [°] | β2 [°] | desvío [°] | entrada estator [°] | de Haller |
 |---|---|---|---|---|---|---|---|---|
-| cubo | 33.0 | 17.5 | 9.3 | 28.1 | 41.3 | 13.3 | 53.5 | 0.71 |
+| cubo | 33.0 | 17.5 | 9.3 | 28.0 | 41.3 | 13.3 | 53.5 | 0.71 |
 | medio | 52.2 | 27.7 | 9.3 | 18.6 | 21.8 | 3.2 | 64.9 | 0.86 |
 | punta | 66.0 | 35.1 | 9.3 | 14.9 | 16.5 | 1.5 | 69.7 | 0.91 |
 <!-- /AUTO:sizing_pump -->
@@ -476,21 +476,21 @@ p_v = 2984 Pa (agua a 24 °C, peor caso) [ESTIMADO: R07]; S_lím = 3,5 de diseñ
 [VERIFICADO: R12 §5.1]. h_sum(V) = inmersión del eje bajo la superficie (`Resistance.h_sub`) [ESTIMADO]: la
 estática (§2.4) hasta la joroba; en planeo, calado del espejo de Savitsky (L_K·sen τ) menos la subida de la quilla
 hasta la cara del impulsor (x_if·tan τ) menos la altura del eje; lineal entre ambos. A V máx. sostenida
-h_sum = <!--V:sizing.performance.top.h_sub:.3f-->0.086<!--/V--> m (en reposo <!--V:sizing.priming.axis_below_wl_m:.3f-->0.171<!--/V--> m):
+h_sum = <!--V:sizing.performance.top.h_sub:.3f-->0.090<!--/V--> m (en reposo <!--V:sizing.priming.axis_below_wl_m:.3f-->0.172<!--/V--> m):
 pesa ~1 % en el NPSH, casi nada en S.
 
 | Punto | V [m/s] | rpm | S | σ_punta | IVR (garganta) | Etiqueta |
 |---|---|---|---|---|---|---|
 | Punto fijo (a fondo) | <!--V:sizing.performance.peak_curve.0.V:.2f-->0.00<!--/V--> | <!--V:sizing.performance.peak_curve.0.n_rpm:.0f-->4045<!--/V--> | <!--V:sizing.performance.peak_curve.0.S:.2f-->3.50<!--/V--> | <!--V:sizing.performance.peak_curve.0.sigma_tip:.3f-->0.239<!--/V--> | — | [CALCULADO] |
-| 5 kn (crucero legal) | <!--V:sizing.performance.legal.V:.2f-->2.57<!--/V--> | <!--V:sizing.performance.legal.n_rpm:.0f-->2501<!--/V--> | <!--V:sizing.performance.legal.S:.2f-->1.69<!--/V--> | <!--V:sizing.performance.legal.sigma_tip:.3f-->0.639<!--/V--> | <!--V:sizing.performance.legal.IVR:.2f-->0.97<!--/V--> | [CALCULADO] |
-| V máx. sostenida | <!--V:sizing.performance.top.V:.2f-->6.79<!--/V--> | <!--V:sizing.performance.top.n_rpm:.0f-->3989<!--/V--> | <!--V:sizing.performance.top.S:.2f-->3.19<!--/V--> | <!--V:sizing.performance.top.sigma_tip:.3f-->0.281<!--/V--> | <!--V:sizing.performance.top.IVR:.2f-->0.62<!--/V--> | [CALCULADO] |
-| V máx. por ratos (pico) | <!--V:sizing.performance.peak_top.V:.2f-->7.87<!--/V--> | <!--V:sizing.performance.peak_top.n_rpm:.0f-->4127<!--/V--> | <!--V:sizing.performance.peak_top.S:.2f-->3.28<!--/V--> | <!--V:sizing.performance.peak_top.sigma_tip:.3f-->0.274<!--/V--> | <!--V:sizing.performance.peak_top.IVR:.2f-->0.56<!--/V--> | [CALCULADO] |
+| 5 kn (crucero legal) | <!--V:sizing.performance.legal.V:.2f-->2.57<!--/V--> | <!--V:sizing.performance.legal.n_rpm:.0f-->2504<!--/V--> | <!--V:sizing.performance.legal.S:.2f-->1.69<!--/V--> | <!--V:sizing.performance.legal.sigma_tip:.3f-->0.637<!--/V--> | <!--V:sizing.performance.legal.IVR:.2f-->0.98<!--/V--> | [CALCULADO] |
+| V máx. sostenida | <!--V:sizing.performance.top.V:.2f-->6.69<!--/V--> | <!--V:sizing.performance.top.n_rpm:.0f-->3988<!--/V--> | <!--V:sizing.performance.top.S:.2f-->3.20<!--/V--> | <!--V:sizing.performance.top.sigma_tip:.3f-->0.280<!--/V--> | <!--V:sizing.performance.top.IVR:.2f-->0.63<!--/V--> | [CALCULADO] |
+| V máx. por ratos (pico) | <!--V:sizing.performance.peak_top.V:.2f-->7.82<!--/V--> | <!--V:sizing.performance.peak_top.n_rpm:.0f-->4127<!--/V--> | <!--V:sizing.performance.peak_top.S:.2f-->3.28<!--/V--> | <!--V:sizing.performance.peak_top.sigma_tip:.3f-->0.274<!--/V--> | <!--V:sizing.performance.peak_top.IVR:.2f-->0.56<!--/V--> | [CALCULADO] |
 
 - El margen es chico en todo el rango alto, como anticipaba R10b H20 (σ_punta 0,28–0,35).
 - IVR (ITTC) = V media en la garganta de la toma (círculo Ø 1,11·D) / V del bote [VERIFICADO definición: R10a §4].
   A 5 kn queda > 1 → punto de estancamiento del lado casco del labio; por eso el labio es redondeado y generoso
-  (R10a §4). En V máx. sostenida da <!--V:sizing.performance.top.IVR:.2f-->0.62<!--/V--> (en la entrada del impulsor,
-  círculo Ø D: <!--V:sizing.performance.top.IVR_pump:.2f-->0.76<!--/V-->) y por ratos
+  (R10a §4). En V máx. sostenida da <!--V:sizing.performance.top.IVR:.2f-->0.63<!--/V--> (en la entrada del impulsor,
+  círculo Ø D: <!--V:sizing.performance.top.IVR_pump:.2f-->0.77<!--/V-->) y por ratos
   <!--V:sizing.performance.peak_top.IVR:.2f-->0.56<!--/V-->: **por debajo de ~0,65, en la zona de separación del techo de la
   rampa** [VERIFICADO el umbral: R10a §4, ITTC], como ya anticipaba R10a §6 (0,54–0,59 a 30 km/h). La versión
   anterior de este cálculo usaba el área anular del impulsor y daba ≈ 1 (sobrestimaba ×1,33). Mitigación: rampa
@@ -513,12 +513,12 @@ cada V la rpm se limita a la mayor que da S ≤ 3,5:
 
 **Implementación propuesta** (el VESC no conoce la velocidad del bote):
 1. **Perfil abierto:** tope de rpm = rpm máx. con S ≤ 3,5 a punto fijo, exportado como
-   `sizing.json → cavitation_cap` (<!--V:sizing.cavitation_cap.rpm:.0f-->4047<!--/V--> rpm =
-   <!--V:sizing.cavitation_cap.erpm:.0f-->20237<!--/V--> ERPM con <!--V:sizing.cavitation_cap.pole_pairs:d-->5<!--/V--> pares de polos)
+   `sizing.json → cavitation_cap` (<!--V:sizing.cavitation_cap.rpm:.0f-->4048<!--/V--> rpm =
+   <!--V:sizing.cavitation_cap.erpm:.0f-->20238<!--/V--> ERPM con <!--V:sizing.cavitation_cap.pole_pairs:d-->5<!--/V--> pares de polos)
    [CALCULADO]; es la entrada para `l_max_erpm` del perfil abierto (`04_diseno/electronica/`). Las rpm a
    fondo en planeo son <!--V:sizing.performance.peak_top.n_rpm:.0f-->4127<!--/V--> rpm: con el tope la V máx. por ratos
-   (banda nominal) baja de <!--V:sizing.performance.vmax_peak_kmh:.1f-->28.3<!--/V--> a
-   <!--V:sizing.cavitation_cap.vmax_peak_capped_kmh:.1f-->26.3<!--/V--> km/h; la sostenida no cambia (gira por debajo del tope).
+   (banda nominal) baja de <!--V:sizing.performance.vmax_peak_kmh:.1f-->28.2<!--/V--> a
+   <!--V:sizing.cavitation_cap.vmax_peak_capped_kmh:.1f-->26.0<!--/V--> km/h; la sostenida no cambia (gira por debajo del tope).
    Es el precio de garantizar S ≤ 3,5 en la arrancada.
 2. **Detección de descarga** (cavitación o aire en la toma): rpm que sube con la corriente que cae, sin
    mover el acelerador → bajar el duty [VERIFICADO como síntoma: R10a S4 p.29; umbral SUPUESTO].
@@ -533,17 +533,17 @@ ajuste y se prueba en la rampa de punto fijo (T2.5).
 
 | Punto | V [m/s] | rpm | P_eje [W] | P_bat [W] | I_bat [A] | η_bomba | η_chorro | Limita |
 |---|---|---|---|---|---|---|---|---|
-| V máx. sostenida (P continua, banda nominal) | <!--V:sizing.performance.top.V:.2f-->6.79<!--/V--> | <!--V:sizing.performance.top.n_rpm:.0f-->3989<!--/V--> | <!--V:sizing.performance.top.P_shaft:.0f-->5926<!--/V--> | <!--V:sizing.performance.top.P_bat:.0f-->6723<!--/V--> | <!--V:sizing.performance.top.I_bat:.0f-->175<!--/V--> | <!--V:sizing.performance.top.eta_pump:.2f-->0.71<!--/V--> | <!--V:sizing.performance.top.eta_jet:.2f-->0.44<!--/V--> | <!--V:sizing.performance.top.limiter:-->potencia<!--/V--> |
-| V máx. por ratos (P pico, banda nominal) | <!--V:sizing.performance.peak_top.V:.2f-->7.87<!--/V--> | <!--V:sizing.performance.peak_top.n_rpm:.0f-->4127<!--/V--> | <!--V:sizing.performance.peak_top.P_shaft:.0f-->6494<!--/V--> | <!--V:sizing.performance.peak_top.P_bat:.0f-->7373<!--/V--> | <!--V:sizing.performance.peak_top.I_bat:.0f-->192<!--/V--> | <!--V:sizing.performance.peak_top.eta_pump:.2f-->0.72<!--/V--> | <!--V:sizing.performance.peak_top.eta_jet:.2f-->0.44<!--/V--> | <!--V:sizing.performance.peak_top.limiter:-->corriente de batería<!--/V--> |
-| 5 kn (banda alta) | <!--V:sizing.performance.legal.V:.2f-->2.57<!--/V--> | <!--V:sizing.performance.legal.n_rpm:.0f-->2501<!--/V--> | <!--V:sizing.performance.legal.P_shaft:.0f-->1503<!--/V--> | <!--V:sizing.performance.legal.P_bat:.0f-->1702<!--/V--> | <!--V:sizing.performance.legal.I_bat:.0f-->44<!--/V--> | <!--V:sizing.performance.legal.eta_pump:.2f-->0.70<!--/V--> | <!--V:sizing.performance.legal.eta_jet:.2f-->0.34<!--/V--> | — |
+| V máx. sostenida (P continua, banda nominal) | <!--V:sizing.performance.top.V:.2f-->6.69<!--/V--> | <!--V:sizing.performance.top.n_rpm:.0f-->3988<!--/V--> | <!--V:sizing.performance.top.P_shaft:.0f-->5926<!--/V--> | <!--V:sizing.performance.top.P_bat:.0f-->6723<!--/V--> | <!--V:sizing.performance.top.I_bat:.0f-->175<!--/V--> | <!--V:sizing.performance.top.eta_pump:.2f-->0.71<!--/V--> | <!--V:sizing.performance.top.eta_jet:.2f-->0.43<!--/V--> | <!--V:sizing.performance.top.limiter:-->potencia<!--/V--> |
+| V máx. por ratos (P pico, banda nominal) | <!--V:sizing.performance.peak_top.V:.2f-->7.82<!--/V--> | <!--V:sizing.performance.peak_top.n_rpm:.0f-->4127<!--/V--> | <!--V:sizing.performance.peak_top.P_shaft:.0f-->6494<!--/V--> | <!--V:sizing.performance.peak_top.P_bat:.0f-->7373<!--/V--> | <!--V:sizing.performance.peak_top.I_bat:.0f-->192<!--/V--> | <!--V:sizing.performance.peak_top.eta_pump:.2f-->0.72<!--/V--> | <!--V:sizing.performance.peak_top.eta_jet:.2f-->0.44<!--/V--> | <!--V:sizing.performance.peak_top.limiter:-->corriente de batería<!--/V--> |
+| 5 kn (banda alta) | <!--V:sizing.performance.legal.V:.2f-->2.57<!--/V--> | <!--V:sizing.performance.legal.n_rpm:.0f-->2504<!--/V--> | <!--V:sizing.performance.legal.P_shaft:.0f-->1508<!--/V--> | <!--V:sizing.performance.legal.P_bat:.0f-->1708<!--/V--> | <!--V:sizing.performance.legal.I_bat:.0f-->44<!--/V--> | <!--V:sizing.performance.legal.eta_pump:.2f-->0.70<!--/V--> | <!--V:sizing.performance.legal.eta_jet:.2f-->0.34<!--/V--> | — |
 
 η_chorro = T·V/P_eje. A 5 kn el jet rinde poco: es la debilidad de la arquitectura (03 §2,
 criterio eficiencia_5kn).
 
 **Arranque y planeo** [CALCULADO]: empuje a punto fijo <!--V:sizing.performance.bollard_N:.0f-->765<!--/V--> N; margen mínimo
-de 0 a planeo pleno <!--V:sizing.performance.hump_margin_min:.1%-->-7.7%<!--/V--> (banda alta) y
-<!--V:sizing.verdict.hump_margin_min_nominal:.1%-->3.4%<!--/V--> (nominal); tiempo de 0 a planeo pleno con la banda nominal
-<!--V:sizing.performance.t_to_plane_s:.1f-->22.8<!--/V--> s (con la alta no llega) (integrando (T − R)/(1,10·m), masa agregada
+de 0 a planeo pleno <!--V:sizing.performance.hump_margin_min:.1%-->-7.4%<!--/V--> (banda alta) y
+<!--V:sizing.verdict.hump_margin_min_nominal:.1%-->3.7%<!--/V--> (nominal); tiempo de 0 a planeo pleno con la banda nominal
+<!--V:sizing.performance.t_to_plane_s:.1f-->22.1<!--/V--> s (con la alta no llega) (integrando (T − R)/(1,10·m), masa agregada
 10 % [ESTIMADO]).
 
 **Tensión de batería.** Cada columna usa una sola banda: el margen y "¿llega a planeo pleno?" con la alta y con la
@@ -552,9 +552,9 @@ planeo). La V máx. casi no cambia porque limita la potencia; lo que cambia es e
 
 | Batería | V_bat [V] | Margen / ¿planeo pleno? (alta) | Margen / ¿planeo pleno? (nominal) | V máx. sostenida, nominal [km/h] |
 |---|---|---|---|---|
-| Descargada | <!--V:sizing.performance.vmax_by_battery.v_min.V_bat:.1f-->36.0<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_min.hump_margin:.1%-->-13.1%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_min.planes_text:-->NO<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_min.hump_margin_nominal:.1%-->-2.6%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_min.planes_nominal_text:-->NO<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_min.vmax_text:-->24,4<!--/V--> |
-| Nominal | <!--V:sizing.performance.vmax_by_battery.v_nom.V_bat:.1f-->38.4<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_nom.hump_margin:.1%-->-7.7%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_nom.planes_text:-->NO<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_nom.hump_margin_nominal:.1%-->3.4%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_nom.planes_nominal_text:-->sí<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_nom.vmax_text:-->24,4<!--/V--> |
-| Llena | <!--V:sizing.performance.vmax_by_battery.v_max.V_bat:.1f-->43.8<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_max.hump_margin:.1%-->-3.2%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_max.planes_text:-->NO<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_max.hump_margin_nominal:.1%-->8.4%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_max.planes_nominal_text:-->sí<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_max.vmax_text:-->24,4<!--/V--> |
+| Descargada | <!--V:sizing.performance.vmax_by_battery.v_min.V_bat:.1f-->36.0<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_min.hump_margin:.1%-->-12.8%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_min.planes_text:-->NO<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_min.hump_margin_nominal:.1%-->-2.3%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_min.planes_nominal_text:-->NO<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_min.vmax_text:-->24,1<!--/V--> |
+| Nominal | <!--V:sizing.performance.vmax_by_battery.v_nom.V_bat:.1f-->38.4<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_nom.hump_margin:.1%-->-7.4%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_nom.planes_text:-->NO<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_nom.hump_margin_nominal:.1%-->3.7%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_nom.planes_nominal_text:-->sí<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_nom.vmax_text:-->24,1<!--/V--> |
+| Llena | <!--V:sizing.performance.vmax_by_battery.v_max.V_bat:.1f-->43.8<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_max.hump_margin:.1%-->-3.0%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_max.planes_text:-->NO<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_max.hump_margin_nominal:.1%-->8.7%<!--/V--> / <!--V:sizing.performance.vmax_by_battery.v_max.planes_nominal_text:-->sí<!--/V--> | <!--V:sizing.performance.vmax_by_battery.v_max.vmax_text:-->24,1<!--/V--> |
 
 Con la banda alta el margen es negativo con cualquier tensión de batería; con la nominal, negativo con la batería
 descargada: con la batería casi vacía el bote puede no salir a planeo (§3.2). Prueba: planeo con la batería al 20 %
@@ -567,8 +567,8 @@ descargada: con la batería casi vacía el bote puede no salir a planeo (§3.2).
 con t_rápido = 0,25 h, t_5kn = 0,50 h, reserva 20 % [SUPUESTO: `operation.*`], DoD 0,90 [ESTIMADO].
 
 E nominal <!--V:sizing.energy.E_nom_wh:.0f-->4608<!--/V--> Wh; usable <!--V:sizing.energy.E_usable_wh:.0f-->4147<!--/V--> Wh; requerida
-<!--V:sizing.energy.E_req_wh:.0f-->3376<!--/V--> Wh [CALCULADO]. Autonomía a V máx. sostenida
-<!--V:sizing.energy.t_top_min:.0f-->37<!--/V--> min (<!--V:sizing.energy.range_top_km:.1f-->15.1<!--/V--> km); a 5 kn
+<!--V:sizing.energy.E_req_wh:.0f-->3380<!--/V--> Wh [CALCULADO]. Autonomía a V máx. sostenida
+<!--V:sizing.energy.t_top_min:.0f-->37<!--/V--> min (<!--V:sizing.energy.range_top_km:.1f-->14.9<!--/V--> km); a 5 kn
 <!--V:sizing.energy.t_legal_h:.1f-->2.4<!--/V--> h [CALCULADO].
 
 ### 5.3 Térmico y refrigeración por agua
@@ -586,10 +586,10 @@ Motor (1 nodo): T_∞ = T_aire + R_th·P_pérdida, R_th = 0,04 K/W con camisa de
 | Pérdida del controlador a V máx. sostenida | 202 W | [CALCULADO] |
 | Agua de refrigeración (orificio, a V máx. / a 5 kn) | 4.9 / 3.2 L/min | [CALCULADO] |
 | Salto de temperatura del agua | 1.9 K | [CALCULADO] |
-| V máx. por ratos (potencia pico) | 28.3 km/h, sin límite térmico del motor | [CALCULADO] |
+| V máx. por ratos (potencia pico) | 28.2 km/h, sin límite térmico del motor | [CALCULADO] |
 <!-- /AUTO:thermal -->
 
-Calor total a V máx. (motor + controlador): <!--V:sizing.cooling.P_heat_W:.0f-->676<!--/V--> W. El R_th de la camisa no está
+Calor total a V máx. (motor + controlador): <!--V:sizing.cooling.P_heat_W:.0f-->677<!--/V--> W. El R_th de la camisa no está
 publicado: la prueba de crucero térmico (06) mide la temperatura real con el NTC10K 3950 que trae el motor
 (variante con hall, `inputs.yaml`) en la entrada TEMP del VESC.
 
@@ -609,7 +609,7 @@ cable de 105 °C [ESTIMADO: verificar ISO 13297/ABYC].
 | Fusible principal | 250 A | [CALCULADO] |
 | Cable DC (batería → controlador) | 70 mm² (0.2 %) | [CALCULADO] |
 | Fases controlador → motor | cables propios del motor (6 AWG) y del controlador (8 AWG) con conectores bala de 8 mm, sin tramo agregado; caída ≈ 1.48 % a 292 A | [CALCULADO: 04_diseno/electronica/calc_electronica.py; calibres VERIFICADOS en inputs.yaml] |
-| Energía usable / requerida por la misión | 4147 / 3376 Wh | [CALCULADO] |
+| Energía usable / requerida por la misión | 4147 / 3380 Wh | [CALCULADO] |
 <!-- /AUTO:electrical -->
 
 - El cable lo dimensiona la ampacidad contra el fusible, no la caída: la caída mínima pedía
@@ -643,8 +643,8 @@ cable de 105 °C [ESTIMADO: verificar ISO 13297/ABYC].
 | Eje Ø20 316: FS estático / fatiga | 4.0 / 9.2 | [CALCULADO] |
 | Pasador de corte | Ø3.5 Al 6061-T6: corta a 33.5 N·m (FS del eje al corte 2.2); con τ_u 207 MPa corta a 39.8 N·m (FS del eje 1.9) | [CALCULADO: research/R12 §7.6; τ_u alto ESTIMADO] |
 | Empuje axial máx. al par de rodamientos | 765 N | [CALCULADO] |
-| Vida L10 a V máx. | 762186 h | [CALCULADO] |
-| Velocidad crítica / rpm máx. | 15959 / 4181 rpm (3.8×) | [CALCULADO] |
+| Vida L10 a V máx. | 739994 h | [CALCULADO] |
+| Velocidad crítica / rpm máx. | 15957 / 4182 rpm (3.8×) | [CALCULADO] |
 | Velocidad periférica en el sello | 4.4 m/s | [CALCULADO] |
 <!-- /AUTO:mech -->
 
@@ -669,10 +669,10 @@ cable de 105 °C [ESTIMADO: verificar ISO 13297/ABYC].
 | Carga | Fórmula | Valor | Etiqueta |
 |---|---|---|---|
 | Empuje a punto fijo | T(V = 0) a fondo | <!--V:sizing.loads.T_bollard_N:.0f-->765<!--/V--> N | [CALCULADO] |
-| Empuje a V máx. | — | <!--V:sizing.loads.T_top_N:.0f-->380<!--/V--> N | [CALCULADO] |
-| Altura máx. de la bomba | máx H | <!--V:sizing.loads.H_max_m:.2f-->6.76<!--/V--> m | [CALCULADO] |
-| Presión de la bomba | ρ·g·H_máx | <!--V:sizing.loads.p_pump_max_Pa:.0f-->67222<!--/V--> Pa | [CALCULADO] |
-| Presión dinámica del chorro | ½·ρ·V_j,máx² | <!--V:sizing.loads.p_nozzle_dyn_Pa:.0f-->97800<!--/V--> Pa | [CALCULADO] |
+| Empuje a V máx. | — | <!--V:sizing.loads.T_top_N:.0f-->384<!--/V--> N | [CALCULADO] |
+| Altura máx. de la bomba | máx H | <!--V:sizing.loads.H_max_m:.2f-->6.77<!--/V--> m | [CALCULADO] |
+| Presión de la bomba | ρ·g·H_máx | <!--V:sizing.loads.p_pump_max_Pa:.0f-->67232<!--/V--> Pa | [CALCULADO] |
+| Presión dinámica del chorro | ½·ρ·V_j,máx² | <!--V:sizing.loads.p_nozzle_dyn_Pa:.0f-->97799<!--/V--> Pa | [CALCULADO] |
 | V del chorro máx. | — | <!--V:sizing.loads.Vj_max_ms:.1f-->13.9<!--/V--> m/s | [CALCULADO] |
 | Fuerza lateral en la boquilla | T_pf·sin δ_máx (δ = 25°) | <!--V:sizing.loads.F_steer_side_N:.0f-->323<!--/V--> N | [CALCULADO] |
 | Fuerza en el bucket | T_pf·(1 + k_r)·f_P^⅔ (k_r 0,45, f_P 0,50) | <!--V:sizing.loads.F_bucket_N:.0f-->698<!--/V--> N | [CALCULADO]; k_r [ESTIMADO: R12 §7.5]; f_P [SUPUESTO] |
@@ -719,11 +719,11 @@ R05 (agua, temperatura, proceso, fluencia, fatiga, eje Z). Casos que fallan sin 
 | P1-PMP-05 | Par máx. del controlador (margen contra corte intempestivo) | 1.80 | 2 | ✔ (justif.) |
 | P1-INT-01 | Bulones M6 de la brida de la bomba: precarga + momento del bucket | 2.07 | 2 | ✔ |
 | P1-REV-02 | Unión brida–oreja: no se abre con la precarga mínima (R12, una traba) [N·m] | 2.10 | 2 | ✔ |
+| P1-REV-04 | Cuerpo del émbolo apretado contra su collar: la unión no se abre (R12, M_h completo) [N·m] | 2.10 | 2 | ✔ |
 | P1-DRV-01 | Chaveta 6×6 del acople: aplastamiento a T_max | 2.15 | 2 | ✔ |
 | P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (R12, corta) | 2.17 | 2 | ✔ |
 | P1-REV-03 | Buje POM Ø20.1/Ø24 × 18: presión (R12, una traba) | 2.18 | 2 | ✔ |
 | P1-REV-03 | Buje POM: presión (reversa sizing, oscilación; una traba) | 2.20 | 2 | ✔ |
-| P1-INT-02 | Bulones M6 del ala al casco (26): precarga + golpe de fondo + presión en la abertura | 2.21 | 2 | ✔ |
 <!-- /AUTO:estructural_justos -->
 
 Comentario:
@@ -781,8 +781,8 @@ Comentario:
     cargas (`jet_momentum` y `bucket_reactions`; el setup verifica que la carga aplicada iguala la estática) y los
     casos de diseño de una traba sola por lado, a R12 contra fluencia y con la reversa de sizing contra fatiga, más
     el borde de los agujeros cargados por perno («lug», σθ a 60–120° de la carga). FS mínimo de diseño de la corrida
-    fina: P1-REV-01 <!--V:fea.piezas.P1-REV-01.FS_min:.2f-->2.51<!--/V--> (caso <!--V:fea.piezas.P1-REV-01.caso_gobernante:-->c<!--/V-->),
-    P1-STE-01 <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->1.80<!--/V--> (caso <!--V:fea.piezas.P1-STE-01.caso_gobernante:-->d2<!--/V-->);
+    fina: P1-REV-01 <!--V:fea.piezas.P1-REV-01.FS_min:.2f-->2.08<!--/V--> (caso <!--V:fea.piezas.P1-REV-01.caso_gobernante:-->d<!--/V-->),
+    P1-STE-01 <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->2.33<!--/V--> (caso <!--V:fea.piezas.P1-STE-01.caso_gobernante:-->f<!--/V-->);
     objetivo 2. El margen de REV-01 es justo: el punto caliente está en la cara exterior del brazo trabado, por
     debajo del pivote. Detalle, convergencia y limitaciones en [04_diseno/fea/README.md](04_diseno/fea/README.md).
   - **Momento del perno sobre la oreja (antes abierto, auditoria.md R4-12):** lo cubren las filas del collar de
@@ -814,10 +814,10 @@ Tabla completa:
 | P1-PMP-03 | Cubo: aplastamiento del semipasador al par de corte | F = T_corte/(2·r_eje) = 1674 N por lado sobre el tramo interior 3.5×5.0 mm (la ranura aligerante deja 5.0 + 4.0 mm de contacto; conservador: solo el interior) | 95.66 | metal | 307.5 | 3.21 | 2.0 | ✔ |
 | P1-PMP-05 | Par máx. del controlador (margen contra corte intempestivo) | 2 semipasadores, 2 secciones de corte a r_eje: τ=T/(d_eje·A)=96.5 MPa; τ_u=0,6·S_u=174 MPa; T_corte/T_máx=1.80 (criterio R12 ≥ 1,5) | 96.50 | metal | 174.0 | 1.8 | 2.0 | ✔ (justif.) |
 | P1-PMP-05 | Fatiga a par de crucero (Goodman en corte) | τ_m=73.7, τ_a=11.1 MPa (T_top 14.2 N·m, ±15%); S_e,τ=0,577·S_e; índice Goodman 0.62 | 0.62 | metal | 1.0 | 1.6 | 2.0 | ✔ (justif.) |
-| P1-PMP-06 | Álabe del estator en la raíz: par de diseño 15.3 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=44 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 25.81 | metal | 240.0 | 9.3 | 2.0 | ✔ |
+| P1-PMP-06 | Álabe del estator en la raíz: par de diseño 15.3 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=44 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 25.79 | metal | 240.0 | 9.31 | 2.0 | ✔ |
 | P1-PMP-06 | Álabe del estator, fatiga: par de diseño | σ_a=0.30·σ_m (estelas de 5 álabes); S_e Al anodizado = 0.6·S_e; K_f 1.5 | 7.74 | metal | 38.4 | 4.96 | 2.0 | ✔ |
-| P1-PMP-06 | Álabe del estator en la raíz: par máx. del controlador 18.6 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=54 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 27.62 | metal | 240.0 | 8.69 | 2.0 | ✔ |
-| P1-PMP-06 | Álabe del estator, fatiga: par máx. del controlador | σ_a=0.30·σ_m (estelas de 5 álabes); S_e Al anodizado = 0.6·S_e; K_f 1.5 | 8.29 | metal | 38.4 | 4.63 | 2.0 | ✔ |
+| P1-PMP-06 | Álabe del estator en la raíz: par máx. del controlador 18.6 N·m | voladizo (conservador, en realidad empotrado en camisa y cubo): F_t=54 N, F_a=36 N, F_r buje=26 N; W_mín=70 mm³ (c=44.4, t=4.44) | 27.60 | metal | 240.0 | 8.7 | 2.0 | ✔ |
+| P1-PMP-06 | Álabe del estator, fatiga: par máx. del controlador | σ_a=0.30·σ_m (estelas de 5 álabes); S_e Al anodizado = 0.6·S_e; K_f 1.5 | 8.28 | metal | 38.4 | 4.64 | 2.0 | ✔ |
 | P1-PMP-01 | Presión interna 0.20 MPa (R12 §7.2) | aro delgado σ=p·r/t, r=73.9, t=5.0 | 2.96 | metal | 240.0 | 81.2 | 2.0 | ✔ |
 | P1-PMP-08 | Presión interna 0.20 MPa (R12 §7.2) | aro delgado σ=p·r/t, r=68.9, t=5.0 | 2.76 | metal | 240.0 | 87.09 | 2.0 | ✔ |
 | P1-PMP-01 | Bulones brida toma (8×M6): presión + bucket + momentos | F_ax=3857 N (p hasta el sello Ø152.3), M=242.2 N·m (boquilla 364 N, bucket 1408 N, peso) → F_bulón=1217 N sobre A_s=20.1 mm² (sin precarga) | 60.54 | metal | 450.0 | 7.43 | 2.0 | ✔ |
@@ -837,18 +837,18 @@ Tabla completa:
 | P1-PMP-11 | Buje de pivote POM: presión — F del bucket 1408 N | p=F/(d·L), d=8.0, L=25.5 (un solo buje) | 6.89 | metal | 25.0 | 3.63 | 2.0 | ✔ |
 | P1-PMP-09 | Bulones placa–espejo (6×M6): F del bucket 1408 N + momento | brazo 36 mm al espejo; F_bulón=413 N sobre A_s=20.1 mm² | 20.53 | metal | 450.0 | 21.92 | 2.0 | ✔ |
 | P1-PMP-09 | Cuello: F lateral de la boquilla con el O-ring a tope | voladizo del cuello M=F·L=6.0 N·m, W anillo=116736 mm³ | 0.05 | metal | 125.0 | 2444.39 | 2.0 | ✔ |
-| P1-STE-01 | Flexión del tubo por el desvío del chorro (fatiga, sizing) | M = F_s·e = 323 N × 66 mm; Z tubo Ø101.1/Ø91.1 | 0.62 | metal | 90.0 | 145.95 | 2.0 | ✔ |
+| P1-STE-01 | Flexión del tubo por el desvío del chorro (fatiga, sizing) | M = F_s·e = 323 N × 66 mm; Z tubo Ø101.1/Ø91.1 | 0.62 | metal | 90.0 | 145.93 | 2.0 | ✔ |
 | P1-STE-01 | Oreja del bucket: flexión en su plano (R12, corta; pivote + traba con M_h completo) | M raíz = 99 N·m (pivote a 52 mm + traba a r 45); sección 12 × 36 | 38.36 | metal | 240.0 | 6.26 | 2.0 | ✔ |
-| P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga; M_h completo en su traba) | M raíz = 49.0 N·m; 12 × 36 | 19.02 | metal | 90.0 | 4.73 | 2.0 | ✔ |
+| P1-STE-01 | Oreja del bucket: flexión (reversa sizing, fatiga; M_h completo en su traba) | M raíz = 49.0 N·m; 12 × 36 | 19.03 | metal | 90.0 | 4.73 | 2.0 | ✔ |
 | P1-STE-01 | Oreja del bucket: ligamento de la rosca M24 del émbolo (R12, M_h completo) | F = M_h/r = 3006 N; desgarro por 2 ligamentos 8 × 12: σ = √3·F/(2·l·t) | 27.12 | metal | 240.0 | 8.85 | 2.0 | ✔ |
 | P1-STE-01 | Rosca M24×1,5 del émbolo en la oreja: aplastamiento lateral (R12) | F = 3006 N / (Ø24 × 12) | 10.44 | metal | 240.0 | 22.99 | 2.0 | ✔ |
 | P1-STE-01 | Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, M_h completo) | M = R_pivote 3302 N × 13.5 mm en la cara; raíz 36 × 12 | 51.59 | metal | 240.0 | 4.65 | 2.0 | ✔ |
 | P1-STE-01 | Oreja del bucket: aplastamiento del piloto Ø16 del espaciador en el agujero H7 (R12, si la unión desliza) | 3302 N / (Ø16 × 12) | 17.20 | metal | 240.0 | 13.96 | 2.0 | ✔ |
 | P1-STE-01 | Oreja de pivote (dentro de la de la bomba): flexión de la raíz | F = √((F_b/2)²+(F_s/2)²) = 727 N a 12 mm; 25 × 30 | 2.33 | metal | 240.0 | 103.14 | 2.0 | ✔ |
 | P1-STE-02 | Hombro Ø8 biempotrado: flexión + corte (bucket R12 + dirección, corta) | reacción superior 1490 N en luz 28.5 mm (M = F·L/8); 316 estirado | 111.17 | metal | 310.0 | 2.79 | 2.0 | ✔ |
-| P1-STE-02 | Hombro Ø8: flexión por maniobras (fatiga) | F_s/2 = 162 N, M = F·L/8 | 11.46 | metal | 180.0 | 15.7 | 2.0 | ✔ |
+| P1-STE-02 | Hombro Ø8: flexión por maniobras (fatiga) | F_s/2 = 162 N, M = F·L/8 | 11.47 | metal | 180.0 | 15.7 | 2.0 | ✔ |
 | P1-STE-05 | Hombro Ø8 en voladizo: flexión + corte (corta) | reacción inferior 195 N a 14.3 mm | 56.20 | metal | 310.0 | 5.52 | 2.0 | ✔ |
-| P1-STE-05 | Hombro Ø8 en voladizo: flexión por maniobras (fatiga) | F_s/2 = 162 N a 14.3 mm | 45.86 | metal | 180.0 | 3.92 | 2.0 | ✔ |
+| P1-STE-05 | Hombro Ø8 en voladizo: flexión por maniobras (fatiga) | F_s/2 = 162 N a 14.3 mm | 45.87 | metal | 180.0 | 3.92 | 2.0 | ✔ |
 | P1-STE-02 | Presión en el buje POM de la oreja de la bomba (P1-PMP-11) | 1490 N / (Ø8 × 25.5) | 7.29 | metal | 20.0 | 2.74 | 2.0 | ✔ |
 | P1-STE-03 | Arandela POM: empuje axial (peso boquilla + bucket + componente vertical) | 60 N [ESTIMADO] / 199 mm² | 0.30 | metal | 10.0 | 33.18 | 2.0 | ✔ |
 | P1-STE-06 | Poste Ø22: flexión + torsión (biela M66, M_s con F_s R12) | F_biela = M_s/85 mm = 282 N a 138 mm de la brida | 38.08 | metal | 240.0 | 6.3 | 2.0 | ✔ |
@@ -866,7 +866,7 @@ Tabla completa:
 | P1-REV-01 | Brazo trabado: flexión en su plano con M_h completo (R12, corta) | M = M_h = 135 N·m en un brazo; sección 8 × 60 | 28.18 | metal | 125.0 | 4.44 | 2.0 | ✔ |
 | P1-REV-01 | Brazo trabado: flexión en su plano con M_h completo (reversa sizing, fatiga de soldadura) | M = M_h,sizing = 67 N·m | 13.98 | metal | 68.0 | 4.86 | 2.0 | ✔ |
 | P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (R12, corta) | T = M_h = 135 N·m en la unión con el brazo trabado; τ = T·t/J, J = s·t³/3 (s = 190) | 57.73 | metal | 125.0 | 2.17 | 2.0 | ✔ |
-| P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (reversa sizing, fatiga de soldadura) | T = M_h,sizing = 67 N·m; τ en la soldadura brazo–cuchara | 28.63 | metal | 68.0 | 2.37 | 2.0 | ✔ |
+| P1-REV-01 | Cuchara abierta a torsión con un solo brazo trabado (reversa sizing, fatiga de soldadura) | T = M_h,sizing = 67 N·m; τ en la soldadura brazo–cuchara | 28.64 | metal | 68.0 | 2.37 | 2.0 | ✔ |
 | P1-REV-01 | Agujero de traba: aplastamiento del brazo (perno Ø16, M_h completo, R12) | F = M_h/r = 135 N·m / 45 mm = 3006 N | 23.49 | metal | 125.0 | 5.32 | 2.0 | ✔ |
 | P1-REV-01 | Pivote: aplastamiento del brazo + aro (buje Ø24 × 18), R12 | R_pivote = 3302 N (chorro/2 + traba con M_h completo) | 7.64 | metal | 125.0 | 16.35 | 2.0 | ✔ |
 | P1-REV-02 | Muñón Ø20/Ø12.5 en voladizo desde la brida: flexión + corte (R12, una traba) | R = 3302 N a 10.5 mm de la brida; τ = 2V/A (tubo) | 79.27 | metal | 205.0 | 2.59 | 2.0 | ✔ |
@@ -878,6 +878,9 @@ Tabla completa:
 | P1-REV-03 | Buje POM: presión (reversa sizing, oscilación; una traba) | 1638 N / (20 × 18) | 4.55 | metal | 10.0 | 2.2 | 2.0 | ✔ |
 | P1-REV-04 | Perno del émbolo Ø16 (316): flexión + corte con M_h completo (R12) | F = M_h/r = 3006 N a 8.5 mm | 72.32 | metal | 205.0 | 2.83 | 2.0 | ✔ |
 | P1-REV-04 | Perno del émbolo: flexión (reversa sizing, fatiga; M_h completo) | F = 1491 N | 31.52 | metal | 180.0 | 5.71 | 2.0 | ✔ |
+| P1-REV-04 | Cuerpo del émbolo apretado contra su collar: la unión no se abre (R12, M_h completo) [N·m] | M = 3006 N × 14.5 mm = 43.6 N·m contra F_mín·k = 14.2 kN × 6.46 mm (par 75 N·m, K ≤ 0.22, Loctite 243) | 43.59 | metal | 91.7 | 2.1 | 2.0 | ✔ |
+| P1-REV-04 | Cuerpo del émbolo (316) al apretar con la precarga máxima: σ_red ≈ 1,15·F/A ≤ 0,9·Rp0,2 (VDI 2230) | 26.0 kN / 195 mm² (A_s M24×1,5 − Ø16.2) | 153.76 | metal | 184.5 | 1.2 | 1.0 | ✔ |
+| P1-STE-01 | Collar del émbolo sobre la oreja 6061: presión con la precarga máxima | 26.0 kN / corona Ø34/Ø24.5 | 59.66 | metal | 240.0 | 4.02 | 2.0 | ✔ |
 | P1-REV-06 | Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada) | F = 100 N × 125/46 = 272 N a 6 mm | 32.44 | metal | 205.0 | 6.32 | 2.0 | ✔ |
 | P1-REV-09 | Perno de manivela Ø6 316 estirado (voladizo hasta el eje del émbolo): flexión | tiro de diseño 92 N por cable [CALCULADO: mano 100 N [SUPUESTO] × 34/18,5 / 2 cables; ≥ resorte 45 N [ESTIMADO] / η 0,6 [ESTIMADO]] a 29,3 mm | 126.59 | metal | 310.0 | 2.45 | 2.0 | ✔ |
 | P1-REV-09 | Balancín 5 mm 5083: flexión del brazo junto al cubo del eje | 92 N a 8 mm; sección 9 × 5 | 10.87 | metal | 125.0 | 11.5 | 2.0 | ✔ |
@@ -898,24 +901,24 @@ Tabla completa:
 | P1-CTL-03 | Cara PETG 10 mm: golpe sobre la seta 200 N [SUPUESTO] (corta, cruza capas) | ídem | 5.70 | short | 24.0 | 4.21 | 3.0 | ✔ |
 | P1-CTL-01 | Placa de refuerzo 6 mm: carga del pasamuros del M66 | placa circular empotrada R 60, carga 282 N en r 10 | 12.44 | metal | 125.0 | 10.05 | 2.0 | ✔ |
 | P1-CTL-04 | Pasamuros M66: cuerpo Ø20/Ø9,6 a tracción + flexión | 282 N; momento por 20 mm de voladizo | 8.74 | metal | 205.0 | 23.46 | 2.0 | ✔ |
-| P1-INT-01 | Techo plano entre costados, p = máx(p_cierre, p_golpe) | placa larga empotrada: σ = p·b²/(2t²), b = W_open = 158, t = 5.0 | 33.73 | metal | 125.0 | 3.71 | 2.0 | ✔ |
-| P1-INT-01 | Costado plano más alto (en el labio), p = máx(p_cierre, p_golpe) | placa empotrada brida–techo: σ = p·h²/(2t²), h = 156 | 32.68 | metal | 125.0 | 3.83 | 2.0 | ✔ |
+| P1-INT-01 | Techo plano entre costados, p = máx(p_cierre, p_golpe) | placa larga empotrada: σ = p·b²/(2t²), b = W_open = 158, t = 5.0 | 33.74 | metal | 125.0 | 3.71 | 2.0 | ✔ |
+| P1-INT-01 | Costado plano más alto (en el labio), p = máx(p_cierre, p_golpe) | placa empotrada brida–techo: σ = p·h²/(2t²), h = 156 | 32.68 | metal | 125.0 | 3.82 | 2.0 | ✔ |
 | P1-INT-01 | Fatiga de la soldadura del costado: Δp = p_ram + p_succión = 42 kPa, 1e+05 ciclos | Δσ = Δp·h²/(2t²) vs FAT 25 (IIW, m = 3) → 68 MPa | 20.43 | metal | 67.9 | 3.32 | 2.0 | ✔ |
 | P1-INT-01 | Bulones M6 A4 brida ↔ placa (14): precarga + p·A_abertura + 3 g | σ = (F_v + Φ·F/n)/A_s, F_v = 2200 N (2.4 N·m), F = 4456 N, Φ = 0,25 | 113.41 | metal | 450.0 | 3.97 | 2.0 | ✔ |
 | P1-INT-02 | Rosca ciega M6 × 8 de la brida del conducto en 5083: barrido del filete | τ = (F_v + Φ·F/n)/(π·d·L·0,6), L útil = 6.5 mm, F_v = 2200 N vs τ_y = R_p0,2/√3 | 31.01 | metal | 72.2 | 2.33 | 2.0 | ✔ |
-| P1-INT-02 | Junta brida del conducto ↔ placa: precarga M6 vs cordón NBR (1137 mm) + apertura | FS = F_v/((q_cordón·L + (1−Φ)·F)/n), q = 4 N/mm [ESTIMADO]; σ y S en N | 563.59 | metal | 2200.0 | 3.9 | 2.0 | ✔ |
-| P1-INT-01 | Tubo junto a la brida de la bomba: momento del bucket (sin placa de espejo) | σ = M/(π r² t), M = F_bucket·358 | 3.13 | metal | 125.0 | 39.98 | 2.0 | ✔ |
+| P1-INT-02 | Junta brida del conducto ↔ placa: precarga M6 vs cordón NBR (1137 mm) + apertura | FS = F_v/((q_cordón·L + (1−Φ)·F)/n), q = 4 N/mm [ESTIMADO]; σ y S en N | 563.62 | metal | 2200.0 | 3.9 | 2.0 | ✔ |
+| P1-INT-01 | Tubo junto a la brida de la bomba: momento del bucket (sin placa de espejo) | σ = M/(π r² t), M = F_bucket·358 | 3.13 | metal | 125.0 | 39.97 | 2.0 | ✔ |
 | P1-INT-01 | Bulones M6 de la brida de la bomba: precarga + momento del bucket | σ = (F_v + Φ·4M/(n·r_bc))/A_s, Φ = 0,25 (VDI 2230) | 217.90 | metal | 450.0 | 2.07 | 2.0 | ✔ |
 | P1-INT-01 | Tubo del eje en voladizo (sin contar el alma): caja del sello | σ = F·L/W, L = 74 | 2.34 | metal | 125.0 | 53.35 | 2.0 | ✔ |
-| P1-INT-01 | Chimenea de inspección: presión de cierre (aro) | σ = p·r/t | 0.74 | metal | 125.0 | 169.05 | 2.0 | ✔ |
+| P1-INT-01 | Chimenea de inspección: presión de cierre (aro) | σ = p·r/t | 0.74 | metal | 125.0 | 169.02 | 2.0 | ✔ |
 | P1-INT-02 | Paño lateral entre bulones del conducto y del ala: golpe de fondo | σ = p·b²/(2t²), b = 68 | 1.17 | metal | 125.0 | 106.56 | 2.0 | ✔ |
 | P1-INT-02 | Tornillos M8 A4-70 del soporte (ISO 10642 desde abajo + tuerca): precarga + vuelco del empuje | σ = (F_v + Φ·F_t)/A_s, F_v = 6944 N (10 N·m, K 0.18), F_t = 458 N, Φ = 0,25 | 192.87 | metal | 450.0 | 2.33 | 2.0 | ✔ |
-| P1-INT-02 | Asiento cónico de la cabeza M8 en el 5083 (aplastamiento) | σ_b = F/(π/4·(dk² − d²)), área PROYECTADA, dk = 16, F = F_v + F_t (auditoría Pass 3 H5) | 50.82 | metal | 125.0 | 2.46 | 2.0 | ✔ |
+| P1-INT-02 | Asiento cónico de la cabeza M8 en el 5083 (aplastamiento) | σ_b = F/(π/4·(dk² − d²)), área PROYECTADA, dk = 16, F = F_v + F_t (auditoría Pass 3 H5) | 50.83 | metal | 125.0 | 2.46 | 2.0 | ✔ |
 | P1-INT-02 | Arranque de la cabeza M8 a través de la placa (tapón de Ø dk sobre el cono) | τ = F/(π·dk·(t − h_cono)), t − h = 6.0 | 24.54 | metal | 72.2 | 2.94 | 2.0 | ✔ |
-| P1-INT-02 | Bulones M6 del ala al casco (26): precarga + golpe de fondo + presión en la abertura | σ = (F_v + Φ·F/n)/A_s, F = 8757 N, Φ = 0,25 | 203.19 | metal | 450.0 | 2.21 | 2.0 | ✔ |
-| P1-INT-02 | Aplastamiento del casco (Al 4 mm) por el empuje en los bulones del ala | σ_b = (T/n)/(d·t) | 1.23 | metal | 125.0 | 102.03 | 2.0 | ✔ |
+| P1-INT-02 | Bulones M6 del ala al casco (26): precarga + golpe de fondo + presión en la abertura | σ = (F_v + Φ·F/n)/A_s, F = 8758 N, Φ = 0,25 | 203.19 | metal | 450.0 | 2.21 | 2.0 | ✔ |
+| P1-INT-02 | Aplastamiento del casco (Al 4 mm) por el empuje en los bulones del ala | σ_b = (T/n)/(d·t) | 1.23 | metal | 125.0 | 102.01 | 2.0 | ✔ |
 | P1-INT-02 | Arranque de la cabeza avellanada M6 en el casco de 4 mm (corte del labio de 1,2 mm) | τ = (F/n)/(π·d_m·t_labio), d_m = 9 | 9.93 | metal | 72.2 | 7.27 | 2.0 | ✔ |
-| P1-INT-03 | Barra con la rejilla tapada (bolsa) a la presión de cierre | viga simplemente apoyada L = 330, w = p·paso, W = 212 mm³ (sección perfilada) | 70.14 | metal | 205.0 | 2.92 | 2.0 | ✔ |
+| P1-INT-03 | Barra con la rejilla tapada (bolsa) a la presión de cierre | viga simplemente apoyada L = 330, w = p·paso, W = 212 mm³ (sección perfilada) | 70.16 | metal | 205.0 | 2.92 | 2.0 | ✔ |
 | P1-INT-03 | Barra: golpe de objeto 200 N en el centro | M = P·L/4 | 77.88 | metal | 205.0 | 2.63 | 2.0 | ✔ |
 | P1-INT-03 | Apoyo de la barra contra la cuña de la placa (aplastamiento del Al) | σ_b = R/(b·9 mm) | 5.00 | metal | 125.0 | 24.98 | 2.0 | ✔ |
 | P1-INT-04 | Tapa: succión/contrapresión de cierre (corta) | σ = 3(3+ν)p a²/(8t²), a = 58, t = 13.0 | 1.72 | short | 24.0 | 13.94 | 3.0 | ✔ |
@@ -924,9 +927,9 @@ Tabla completa:
 | P1-INT-04 | Tapa en la purga (r = 32, espesor neto 13.6): ciclo Δp (olas/maniobras) | σ_r = 3(3+ν)p(a² − r²)/(8t²) | 0.69 | lcf | 3.6 | 5.23 | 3.0 | ✔ |
 | P1-INT-04 | Tapa: aplastamiento bajo arandela M6 Ø18 (sostenido) | σ = F/(π/4(18² − 6,4²)) | 0.30 | sust | 8.4 | 28.28 | 3.0 | ✔ |
 | P1-DRV-01 | Agujero del pasador: par de corte del pasador (traba con piedra) | τ = T_corte/(πd³/16 − d_h·d²/6), T_corte 33.5 N·m, sección neta, K_t = 1 (dúctil, estático) | 25.07 | metal | 118.3 | 4.72 | 2.0 | ✔ |
-| P1-DRV-01 | Agujero del pasador: fatiga en V máx. (T_top ± 15%) | Goodman τ_a/τ_e + τ_m/τ_u, K_ts 2.0 (Peterson), S_e corrosión 180 MPa; σ_eq = τ_a·τ_u/τ_e + τ_m | 30.36 | metal | 297.1 | 9.79 | 2.0 | ✔ |
+| P1-DRV-01 | Agujero del pasador: fatiga en V máx. (T_top ± 15%) | Goodman τ_a/τ_e + τ_m/τ_u, K_ts 2.0 (Peterson), S_e corrosión 180 MPa; σ_eq = τ_a·τ_u/τ_e + τ_m | 30.37 | metal | 297.1 | 9.78 | 2.0 | ✔ |
 | P1-DRV-01 | Ranura DIN 471 de empuje: par de corte del pasador + Fa | von Mises √(σ² + 3τ²), τ = T_corte/(π·19³/16), σ = Fa/A_fondo, K_t = 1 (dúctil, estático) | 43.14 | metal | 205.0 | 4.75 | 2.0 | ✔ |
-| P1-DRV-01 | Ranura DIN 471 de empuje: fatiga en V máx. | Goodman von Mises σ_a/S_e + σ_m/S_u; K_ts 3.0, K_t ax 4.0; empuje en V máx. ∝ T_top | 78.48 | metal | 515.0 | 6.56 | 2.0 | ✔ |
+| P1-DRV-01 | Ranura DIN 471 de empuje: fatiga en V máx. | Goodman von Mises σ_a/S_e + σ_m/S_u; K_ts 3.0, K_t ax 4.0; empuje en V máx. ∝ T_top | 78.51 | metal | 515.0 | 6.56 | 2.0 | ✔ |
 | P1-DRV-01 | Chaveta 6×6 del acople: aplastamiento a T_max | p = 2T/(d·(h − t1)·(l − b)), l = 22 mm, cubo de acero | 46.42 | metal | 100.0 | 2.15 | 2.0 | ✔ |
 | P1-DRV-08 | Chaveta 5×5 del eje del motor Ø15 en el cubo del acople: aplastamiento a T_max | p = 2T/(d·(h − t1)·(l − b)), encastre l = 26.5 mm, T_max 18.6 N·m (sizing), cubo de acero | 57.58 | metal | 100.0 | 1.74 | 2.0 | ✔ (justif.) |
 | P1-DRV-08 | Eje del motor Ø15 con chavetero: torsión a T_max | τ = 16T/(π·(d − t1)³) (sección neta conservadora), acero del motor [SUPUESTO: S_y ≥ 300 MPa, no publicado] | 94.79 | metal | 300.0 | 3.16 | 2.0 | ✔ |
@@ -934,7 +937,7 @@ Tabla completa:
 | P1-DRV-02 | Presión de diseño 0.20 MPa en la cámara mojada (espigón) | anillo de pared delgada σ = p·r/t (espigón, la sección más delgada) | 1.20 | metal | 205.0 | 170.83 | 2.0 | ✔ |
 | P1-DRV-02 | Bulones 4 × M6 A4-70 al buje de la toma: presión + resorte del sello | σ = F/(4·A_s), F = p·π/4·Ø42² + 150 N (sin precarga) | 5.31 | metal | 450.0 | 84.71 | 2.0 | ✔ |
 | P1-DRV-02 | Brida de 8 mm: flexión entre espigón y bulones | placa anular como viga por unidad de perímetro: σ = 6·F·e/(π·BC·t²) | 1.42 | metal | 205.0 | 144.76 | 2.0 | ✔ |
-| P1-DRV-03 | Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa) | flexión en su plano σ = M/(t·L²/6), M = Fa/2 · 121 mm, L = 150 mm, ZAT soldada | 1.02 | metal | 115.0 | 112.34 | 2.0 | ✔ |
+| P1-DRV-03 | Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa) | flexión en su plano σ = M/(t·L²/6), M = Fa/2 · 121 mm, L = 150 mm, ZAT soldada | 1.02 | metal | 115.0 | 112.33 | 2.0 | ✔ |
 | P1-DRV-03 | Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico | σ = P·L/4/(b t²/6) + Fa·e/(t·b²/6)/2, L = 200, b = 31, e = 35 mm, ZAT | 16.60 | metal | 115.0 | 6.93 | 2.0 | ✔ |
 | P1-DRV-03 | Espárragos 4 × ISO 10642 M8 A4-70: vuelco por Fa + corte (servicio) | F_t = Fa·h/Δx/2 + 3g/4, F_s = Fa/4; von Mises sobre A_s (carga de servicio; Δx = 120) | 15.45 | metal | 450.0 | 29.13 | 2.0 | ✔ |
 | P1-DRV-03 | Espárrago M8 A4-70: precarga (10 N·m, F_v 6944 N) + F_t | σ = (F_v + F_t)/A_s (conservador: Φ = 1) vs R_p0,2 A4-70 | 202.25 | metal | 450.0 | 2.22 | 2.0 | ✔ |
@@ -942,8 +945,8 @@ Tabla completa:
 | P1-DRV-03 | Zapata ranurada: aplastamiento bajo la arandela ISO 7093 (precarga + F_t) | σ = F/A, A = anillo Ø24/Ø8,4 fuera de la ranura de 9 mm = 241 mm², ZAT | 30.66 | metal | 115.0 | 3.75 | 2.0 | ✔ |
 | P1-DRV-03 | Pasadores ISO 8735 Ø6 A4 (2 por zapata): corte por Fa (sin contar fricción) | τ = Fa/(4·A), σ_eq = √3·τ vs R_p0,2 A4-70 | 11.71 | metal | 450.0 | 38.43 | 2.0 | ✔ |
 | P1-INT-02 | Agujero ciego de los pasadores Ø6 (6 mm) en el 5083: aplastamiento por Fa | σ_b = (Fa/4)/(d·h) vs R_p0,2 5083-H111 125 MPa [ESTIMADO] | 5.31 | metal | 125.0 | 23.54 | 2.0 | ✔ |
-| P1-DRV-03 | Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo | corte del resalte τ = Fa/(π·D·t_resalte), σ_eq = √3·τ | 2.99 | metal | 240.0 | 80.29 | 2.0 | ✔ |
-| P1-DRV-06 | Tapa: empuje Fa hacia proa entre el aro exterior y los M5 | placa anular por unidad de perímetro σ = 6·Fa·e/(2π r_m t²) | 3.51 | metal | 240.0 | 68.39 | 2.0 | ✔ |
+| P1-DRV-03 | Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo | corte del resalte τ = Fa/(π·D·t_resalte), σ_eq = √3·τ | 2.99 | metal | 240.0 | 80.27 | 2.0 | ✔ |
+| P1-DRV-06 | Tapa: empuje Fa hacia proa entre el aro exterior y los M5 | placa anular por unidad de perímetro σ = 6·Fa·e/(2π r_m t²) | 3.51 | metal | 240.0 | 68.38 | 2.0 | ✔ |
 | P1-DRV-06 | Bulones 4 × M5 A4-70 de la tapa: Fa | σ = Fa/(4·A_s) (sin precarga) | 13.46 | metal | 450.0 | 33.43 | 2.0 | ✔ |
 | P1-MOT-02 | Placa: 3 g vertical del motor en voladizo (sin cartelas) | σ = W·e/(b t²/6), W = 3 g × 4.4 kg, e = 63 mm, b = 2·95 − Ø64 | 3.88 | metal | 115.0 | 29.6 | 2.0 | ✔ |
 | P1-MOT-02 | Placa: par de reacción T_max (en su plano) + 3 g | corte en la sección por el agujero τ = (T/ (2·y_pie) + W/2)/(b·t) , σ_eq = √3·τ | 0.27 | metal | 115.0 | 423.85 | 2.0 | ✔ |
@@ -965,25 +968,25 @@ oscilación de V máx./5 + oscilación del margen en la joroba.
 <!-- AUTO:sizing_sens -->
 | Entrada incierta | Rango | V máx. sostenida [km/h] (bajo / alto) | Margen en la joroba (bajo / alto) | ¿Margen ≥ 10 % (restricción dura) en ambos extremos? |
 |---|---|---|---|---|
-| Potencia continua del motor ±25 % | 4.5e+03 – 7.5e+03 | 16.1 / 28.3 | -8 % / -8 % | **NO** (no cruza) |
-| Masa del piloto 70–110 kg | 70 – 110 | 29.0 / 18.2 | 8 % / -19 % | **NO** (no cruza) |
-| Resistencia de planeo, las tres bandas ±10 % | 0.9 – 1.1 | 28.9 / 18.8 | 3 % / -16 % | **NO** (no cruza) |
-| Rendimiento de bomba 0,65–0,78 | 0.65 – 0.78 | 18.9 / 27.9 | -16 % / -1 % | **NO** (no cruza) |
-| Masa del casco ±30 % | 26.6 – 49.4 | 27.5 / 19.3 | -1 % / -12 % | **NO** (no cruza) |
-| Astilla muerta 4–14° | 4 – 14 | 26.6 / 19.4 | 0 % / -19 % | **NO** (no cruza) |
-| Manga de planeo ±10 % | 0.54 – 0.66 | 19.8 / 26.2 | -13 % / -2 % | **NO** (no cruza) |
-| Recuperación en la toma 0,55–0,85 | 0.55 – 0.85 | 21.6 / 27.7 | -13 % / -2 % | **NO** (no cruza) |
-| Deducción de empuje t 0–0,10 | 0 – 0.1 | 24.4 / 18.4 | -8 % / -17 % | **NO** (no cruza) |
-| Fracción de estela w 0–0,10 | 0 – 0.1 | 24.4 / 28.6 | -8 % / 1 % | **NO** (no cruza) |
-| Posición del piloto (LCG) 1,20–1,55 m | 1.2 – 1.55 | 23.8 / 24.4 | 0 % / -17 % | **NO** (no cruza) |
-| Banda alta de planeo ×1,00–1,25 | 1 – 1.25 | 24.4 / 24.4 | 3 % / -17 % | **NO** (no cruza) |
-| Corte de la transición Fn∇ 2,0–2,7 | 2 – 2.7 | 24.4 / 24.3 | -8 % / -8 % | **NO** (no cruza) |
-| R/Δ en la joroba ±25 % | 0.15 – 0.25 | 24.4 / 24.4 | -8 % / -8 % | **NO** (no cruza) |
+| Masa del piloto 70–110 kg | 70 – 110 | 28.8 / 18.1 | 10 % / -19 % | **NO** (no cruza) |
+| Potencia continua del motor ±25 % | 4.5e+03 – 7.5e+03 | 16.0 / 28.1 | -6 % / -6 % | **NO** (no cruza) |
+| Resistencia de planeo, las tres bandas ±10 % | 0.9 – 1.1 | 28.7 / 18.7 | 4 % / -15 % | **NO** (no cruza) |
+| Rendimiento de bomba 0,65–0,78 | 0.65 – 0.78 | 18.8 / 27.7 | -15 % / 1 % | **NO** (no cruza) |
+| Masa del casco ±30 % | 26.6 – 49.4 | 27.3 / 19.2 | -2 % / -11 % | **NO** (no cruza) |
+| Astilla muerta 4–14° | 4 – 14 | 26.4 / 19.2 | 1 % / -18 % | **NO** (no cruza) |
+| Recuperación en la toma 0,55–0,85 | 0.55 – 0.85 | 20.9 / 27.5 | -12 % / -1 % | **NO** (no cruza) |
+| Manga de planeo ±10 % | 0.54 – 0.66 | 19.6 / 26.0 | -12 % / -3 % | **NO** (no cruza) |
+| Deducción de empuje t 0–0,10 | 0 – 0.1 | 24.1 / 18.3 | -6 % / -16 % | **NO** (no cruza) |
+| Fracción de estela w 0–0,10 | 0 – 0.1 | 24.1 / 28.4 | -6 % / 2 % | **NO** (no cruza) |
+| Posición del piloto (LCG) 1,20–1,55 m | 1.2 – 1.55 | 23.4 / 24.1 | -0 % / -17 % | **NO** (no cruza) |
+| Banda alta de planeo ×1,00–1,25 | 1 – 1.25 | 24.1 / 24.1 | 5 % / -16 % | **NO** (no cruza) |
+| Corte de la transición Fn∇ 2,0–2,7 | 2 – 2.7 | 24.1 / 24.0 | -6 % / -6 % | **NO** (no cruza) |
+| R/Δ en la joroba ±25 % | 0.15 – 0.25 | 24.1 / 24.1 | -6 % / -6 % | **NO** (no cruza) |
 <!-- /AUTO:sizing_sens -->
 
 **Las tres entradas más influyentes** [CALCULADO]:
-1. <!--V:sizing.sensitivity.top3.0:-->Potencia continua del motor ±25 %<!--/V-->
-2. <!--V:sizing.sensitivity.top3.1:-->Masa del piloto 70–110 kg<!--/V-->
+1. <!--V:sizing.sensitivity.top3.0:-->Masa del piloto 70–110 kg<!--/V-->
+2. <!--V:sizing.sensitivity.top3.1:-->Potencia continua del motor ±25 %<!--/V-->
 3. <!--V:sizing.sensitivity.top3.2:-->Resistencia de planeo, las tres bandas ±10 %<!--/V-->
 
 Cómo se reduce cada incertidumbre: la potencia continua del motor no está publicada (pedirla a Maytech y
@@ -992,20 +995,20 @@ en la toma y la resistencia de planeo se calibran con el punto fijo y la curva P
 
 La última columna marca con **NO** cualquier entrada que, en uno de sus extremos, deja el margen de 0 a planeo pleno
 por debajo del 10 % de la restricción dura (y "no cruza" si además el bote no llega a planeo pleno). Entradas que la
-incumplen [CALCULADO]: <!--V:sizing.sensitivity.any_hump_fail_text:-->Potencia continua del motor ±25 %, Masa del piloto 70–110 kg, Resistencia de planeo, las tres bandas ±10 %, Rendimiento de bomba 0,65–0,78, Masa del casco ±30 %, Astilla muerta 4–14°, Manga de planeo ±10 %, Recuperación en la toma 0,55–0,85, Deducción de empuje t 0–0,10, Fracción de estela w 0–0,10, Posición del piloto (LCG) 1,20–1,55 m, Banda alta de planeo ×1,00–1,25, Corte de la transición Fn∇ 2,0–2,7, R/Δ en la joroba ±25 %<!--/V-->. Con la banda alta el caso base ya está por
+incumplen [CALCULADO]: <!--V:sizing.sensitivity.any_hump_fail_text:-->Masa del piloto 70–110 kg, Potencia continua del motor ±25 %, Resistencia de planeo, las tres bandas ±10 %, Rendimiento de bomba 0,65–0,78, Masa del casco ±30 %, Astilla muerta 4–14°, Recuperación en la toma 0,55–0,85, Manga de planeo ±10 %, Deducción de empuje t 0–0,10, Fracción de estela w 0–0,10, Posición del piloto (LCG) 1,20–1,55 m, Banda alta de planeo ×1,00–1,25, Corte de la transición Fn∇ 2,0–2,7, R/Δ en la joroba ±25 %<!--/V-->. Con la banda alta el caso base ya está por
 debajo del 10 % (§3.2), así que todas las filas lo marcan; lo que distingue a cada entrada es cuánto mueve el margen.
 
 - **El veredicto lo fija la resistencia de planeo** (auditoría R2-C02): la fila "las tres bandas ±10 %" escala las
   tres bandas (`resistance.planing_factor`), así que mueve el margen, no solo la V máx. nominal como antes; la fila
-  "banda alta ×1,00–1,25" mueve el margen de <!--V:sizing.sensitivity.by_key.resistance_planing_band_high.lo.hump:.0%-->3%<!--/V-->
-  a <!--V:sizing.sensitivity.by_key.resistance_planing_band_high.hi.hump:.0%-->-17%<!--/V-->. Ese ×1,12 es [SUPUESTO] en el
+  "banda alta ×1,00–1,25" mueve el margen de <!--V:sizing.sensitivity.by_key.resistance_planing_band_high.lo.hump:.0%-->5%<!--/V-->
+  a <!--V:sizing.sensitivity.by_key.resistance_planing_band_high.hi.hump:.0%-->-16%<!--/V-->. Ese ×1,12 es [SUPUESTO] en el
   régimen limitado por eslora (§3).
-- **Corte de la transición fn_planing 2,0–2,7:** margen <!--V:sizing.sensitivity.by_key.resistance_fn_planing.lo.hump:.1%-->-7.7%<!--/V-->
-  / <!--V:sizing.sensitivity.by_key.resistance_fn_planing.hi.hump:.1%-->-7.7%<!--/V-->: con la ventana hasta el planeo pleno el
+- **Corte de la transición fn_planing 2,0–2,7:** margen <!--V:sizing.sensitivity.by_key.resistance_fn_planing.lo.hump:.1%-->-6.4%<!--/V-->
+  / <!--V:sizing.sensitivity.by_key.resistance_fn_planing.hi.hump:.1%-->-6.4%<!--/V-->: con la ventana hasta el planeo pleno el
   resultado casi no depende de ese corte (con la ventana vieja, cortada en el primer nodo, sí dependía).
 - **R/Δ crítica de la joroba** (la que deja el margen justo en 10 %, bomba fija):
   <!--V:sizing.sensitivity.critical_r_hump.text:-->no hay: aun con R/Δ = 0,05 el margen queda < 10% (lo limita la transición joroba–planeo, no el pico de la joroba)<!--/V-->.
-- La deducción de empuje t (0–0,10) baja el margen a <!--V:sizing.sensitivity.by_key.waterjet_thrust_deduction.hi.hump:.0%-->-17%<!--/V-->:
+- La deducción de empuje t (0–0,10) baja el margen a <!--V:sizing.sensitivity.by_key.waterjet_thrust_deduction.hi.hump:.0%-->-16%<!--/V-->:
   t = 0 en `inputs.yaml` no es conservador (D-22).
 - Las que mueven el margen (masas, resistencia de planeo, η de bomba, toma, t, manga y astilla muerta) son las que
   hay que mirar si el bote no planea en la prueba; las que mueven la V máx. (potencia continua, resistencia de
@@ -1021,8 +1024,8 @@ Umbrales pasa / no pasa, derivados del modelo con los factores de `operation.suc
 | Estabilidad (bloqueante) | Ensayo E1 de R13 §5: sin entrada de agua, escora ≤ 15° con el piloto a 0,2 m de crujía | [SUPUESTO: R13 §5] | Muelle, lastre desplazado, inclinómetro del celular |
 | Cebado | Chorro continuo en ≤ 3 s al arrancar a rpm bajas | [SUPUESTO: R10a §8] | Amarrado al muelle |
 | Empuje a punto fijo | ≥ <!--V:sizing.success.bollard_min_N:.0f-->612<!--/V--> N (0,80 × modelo) | [CALCULADO] | Dinamómetro en el cabo de amarre |
-| V máx. sostenida | ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->20.8<!--/V--> km/h (0,85 × modelo, banda nominal) | [CALCULADO] | GPS, ida y vuelta, > 300 m de la costa |
-| Potencia a 5 kn | ≤ <!--V:sizing.success.p_legal_max_W:.0f-->2213<!--/V--> W de batería (1,30 × modelo) | [CALCULADO] | VESC Tool + GPS |
+| V máx. sostenida | ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->20.5<!--/V--> km/h (0,85 × modelo, banda nominal) | [CALCULADO] | GPS, ida y vuelta, > 300 m de la costa |
+| Potencia a 5 kn | ≤ <!--V:sizing.success.p_legal_max_W:.0f-->2220<!--/V--> W de batería (1,30 × modelo) | [CALCULADO] | VESC Tool + GPS |
 | Tiempo de 0 a planeo | ≤ <!--V:sizing.success.t_plane_max_s:.0f-->15<!--/V--> s | [SUPUESTO] | Video + GPS |
 | Límite legal (perfil costa) | Media ≤ 9,0 km/h a fondo | [SUPUESTO: §3.1] | GPS, 2 pasadas opuestas |
 | Cavitación | Sin rpm que sube sin empuje en la rampa de punto fijo | [VERIFICADO como síntoma: R10a S4] | Registro del VESC |

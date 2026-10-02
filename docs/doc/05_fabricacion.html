@@ -3,21 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>05 — Fabricación del waterjet P1-J: qué se hace cómo, impresión, mecanizado, soldadura, CNC, anodizado y ensayos — P1-J · Strålen</title>
-<meta name="description" content="Las tablas entre &lt;!-- FAB:… --&gt; las genera 04_diseno/probetas/tabla_fabricacion.py (lo llama build_probetas.py, paso 6e de run_all.py) desde resultados/manifest.json, bom.csv,…">
+<title>05 — Fabricación del waterjet P1-J — P1-J · Strålen</title>
+<meta name="description" content="El jet es casi todo metal. De 65 tipos de pieza, solo cinco son impresas en PETG (tapa de inspección P1-INT-04, base y capota del controlador P1-ELE-01/02, caja de palancas…">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="P1-J · Strålen">
-<meta property="og:title" content="05 — Fabricación del waterjet P1-J: qué se hace cómo, impresión, mecanizado, soldadura, CNC, anodizado y ensayos — P1-J · Strålen">
-<meta property="og:description" content="Las tablas entre &lt;!-- FAB:… --&gt; las genera 04_diseno/probetas/tabla_fabricacion.py (lo llama build_probetas.py, paso 6e de run_all.py) desde resultados/manifest.json, bom.csv,…">
+<meta property="og:title" content="05 — Fabricación del waterjet P1-J — P1-J · Strålen">
+<meta property="og:description" content="El jet es casi todo metal. De 65 tipos de pieza, solo cinco son impresas en PETG (tapa de inspección P1-INT-04, base y capota del controlador P1-ELE-01/02, caja de palancas…">
 <meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/05_fabricacion.html">
-<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bb891a19">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
 <meta property="og:locale" content="es_ES">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="05 — Fabricación del waterjet P1-J: qué se hace cómo, impresión, mecanizado, soldadura, CNC, anodizado y ensayos — P1-J · Strålen">
-<meta name="twitter:description" content="Las tablas entre &lt;!-- FAB:… --&gt; las genera 04_diseno/probetas/tabla_fabricacion.py (lo llama build_probetas.py, paso 6e de run_all.py) desde resultados/manifest.json, bom.csv,…">
-<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta name="twitter:title" content="05 — Fabricación del waterjet P1-J — P1-J · Strålen">
+<meta name="twitter:description" content="El jet es casi todo metal. De 65 tipos de pieza, solo cinco son impresas en PETG (tapa de inspección P1-INT-04, base y capota del controlador P1-ELE-01/02, caja de palancas…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bb891a19">
 <meta name="theme-color" content="#0f242b">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
 <link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/05_fabricacion.html">
@@ -28,12 +29,13 @@
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
-<header class="site-header">
+<header class="site-header" id="top">
   <div class="bar wide">
     <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
-    <nav class="site-nav" aria-label="Secciones"><a href="../index.html">Inicio</a><a href="../visor/index.html">Visor 3D</a><a href="../documentos.html" aria-current="page">Documentos</a><a href="../planos.html">Planos</a><a href="../bom.html">Materiales</a><a href="../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub&nbsp;↗</a></nav>
+    <nav class="site-nav" aria-label="Secciones"><a href="../index.html" class=nav-home>Inicio</a><a href="../visor/index.html">Visor 3D</a><a href="../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../planos.html">Planos</a><a href="../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
   </div>
 </header>
+
 <main id="main" class="main wide">
 
 <div class="doc-layout has-toc">
@@ -47,7 +49,7 @@
 <li><a href="#22-perfiles-prusaslicer-prusaslicer">2.2 Perfiles PrusaSlicer (prusaslicer/)</a></li>
 <li><a href="#23-orientación-por-pieza">2.3 Orientación por pieza</a></li>
 <li><a href="#24-tuercas-cautivas-e-insertos-inox-en-zona-húmeda">2.4 Tuercas cautivas e insertos (inox en zona húmeda)</a></li>
-<li><a href="#25-post-proceso-y-cara-de-sello-de-p1-int-04">2.5 Post-proceso y cara de sello de P1-INT-04</a></li>
+<li><a href="#25-post-proceso-y-cara-de-sello-de-p1-int-04">2.5 Post-proceso y cara de sello de <span class="pid">P1-INT-04</span></a></li>
 <li><a href="#26-tiempos-y-gramos">2.6 Tiempos y gramos</a></li>
 </ul>
 </li>
@@ -76,7 +78,7 @@
 <li><a href="#22-perfiles-prusaslicer-prusaslicer">2.2 Perfiles PrusaSlicer (prusaslicer/)</a></li>
 <li><a href="#23-orientación-por-pieza">2.3 Orientación por pieza</a></li>
 <li><a href="#24-tuercas-cautivas-e-insertos-inox-en-zona-húmeda">2.4 Tuercas cautivas e insertos (inox en zona húmeda)</a></li>
-<li><a href="#25-post-proceso-y-cara-de-sello-de-p1-int-04">2.5 Post-proceso y cara de sello de P1-INT-04</a></li>
+<li><a href="#25-post-proceso-y-cara-de-sello-de-p1-int-04">2.5 Post-proceso y cara de sello de <span class="pid">P1-INT-04</span></a></li>
 <li><a href="#26-tiempos-y-gramos">2.6 Tiempos y gramos</a></li>
 </ul>
 </li>
@@ -97,15 +99,15 @@
 </ul>
 </div>
 </aside>
-  <article class="prose doc"><h1 id="05-fabricación-del-waterjet-p1-j-qué-se-hace-cómo-impresión-mecanizado-soldadura-cnc-anodizado-y-ensayos">05 — Fabricación del waterjet P1-J: qué se hace cómo, impresión, mecanizado, soldadura, CNC, anodizado y ensayos</h1>
+  <article class="prose doc"><h1 id="05-fabricación-del-waterjet-p1-j-qué-se-hace-cómo-impresión-mecanizado-soldadura-cnc-anodizado-y-ensayos">05 — Fabricación del waterjet <span class="pid">P1-J</span>: qué se hace cómo, impresión, mecanizado, soldadura, CNC, anodizado y ensayos</h1>
 <p><strong>Estado:</strong> verificado <em>en software</em> — rutas de fabricación cruzadas entre <code>resultados/manifest.json</code> y <code>bom.csv</code>, CAD de probetas cerrado y dentro de la envolvente (<code>build_probetas.py</code>), perfiles cargados y laminados con PrusaSlicer 2.7.2 CLI (<code>validar_perfiles.py</code> → <code>prusaslicer/slice_report.json</code>), criterios de ensayo leídos de <code>sizing.json</code> / <code>estructural.json</code>, <code>tests/test_probetas.py</code>. <strong>Nada está impreso, torneado, soldado ni ensayado: todo lo físico es [NO EJECUTADO] — pendiente de taller.</strong></p>
 <p>Las tablas entre <code>&lt;!-- FAB:… --&gt;</code> las genera <code>04_diseno/probetas/tabla_fabricacion.py</code> (lo llama <code>build_probetas.py</code>, paso 6e de <code>run_all.py</code>) desde <code>resultados/manifest.json</code>, <code>bom.csv</code>, <code>resultados/sizing.json</code>, <code>resultados/estructural.json</code>, <code>inputs.yaml</code>, <code>04_diseno/probetas/probetas_manifest.json</code>, <code>prusaslicer/slice_report.json</code> y el código de <code>04_diseno/piezas/</code>: <strong>no editarlas a mano</strong>. Los números sueltos del texto van con marcadores <code>&lt;!--V:…--&gt;</code> (los refresca <code>docgen.py</code>).</p>
 <p>Fuentes: research/R05 (PETG, sellado, insertos), R06 §6 y R10b H21 (galvánica), R08b §6 (Tef-Gel, arandelas aislantes), R11 §6 (CNC 5 ejes y SLM 316L), R12 §3 (holgura de punta), §7.2 (presiones) y §7.6 (pasador de corte).</p>
 <hr />
 <h2 id="0-resumen">0. Resumen</h2>
 <ul>
-<li><strong>El jet es casi todo metal.</strong> De 65 tipos de pieza, solo cinco son impresas en PETG (tapa de inspección P1-INT-04, base y capota del controlador P1-ELE-01/02, caja de palancas P1-CTL-02, soporte del kill switch P1-CTL-03): 1051 g y 58 h según el manifest (PrusaSlicer da más: §2.6). El resto es Al 5083 cortado a láser y soldado (toma, bucket, placas), Al 6061/6082 y AISI 316L torneado, y <strong>CNC 5 ejes</strong> para impulsor (316L) y estator (6061-T6).</li>
-<li><strong>Servicios de fabricación</strong> en la BOM: 3910 € (CNC, torneado grande, láser, soldadura, anodizado); materia prima para el torno propio y el taller: 1245 €.</li>
+<li><strong>El jet es casi todo metal.</strong> De 65 tipos de pieza, solo cinco son impresas en PETG (tapa de inspección <span class="pid">P1-INT-04</span>, base y capota del controlador <span class="pid">P1-ELE-01</span>/02, caja de palancas <span class="pid">P1-CTL-02</span>, soporte del kill switch <span class="pid">P1-CTL-03</span>): 1 051 g y 58 h según el manifest (PrusaSlicer da más: §2.6). El resto es Al 5083 cortado a láser y soldado (toma, bucket, placas), Al 6061/6082 y AISI 316L torneado, y <strong>CNC 5 ejes</strong> para impulsor (316L) y estator (6061-T6).</li>
+<li><strong>Servicios de fabricación</strong> en la BOM: 4 040 € (CNC, torneado grande, láser, soldadura, anodizado); materia prima para el torno propio y el taller: 1 315 €.</li>
 <li><strong>Torno propio</strong> hasta el Ø que supone la BOM (<code>inputs.yaml bom.lathe_max_d_mm</code>, [SUPUESTO]: <strong>medir</strong>); carcasa y tobera fija lo superan y van a taller (§3).</li>
 <li><strong>Ensayos:</strong> 4 probetas impresas (P1.1 holguras, P1.4 inserto M5, P1.6 tapa con O-ring y purga a la presión de cierre, P1.7 absorción) y 4 ensayos de taller sin CAD (P1.9 juego de semipasadores de corte, P1.10 bujes POM en agua, P1.11 hidrostática de la bomba, P1.12 holgura de punta), todos con criterio numérico tomado de los JSON (§7).</li>
 <li><strong>Hallazgos para el diseño:</strong> §10.</li>
@@ -113,7 +115,7 @@
 <hr />
 <h2 id="1-qué-se-fabrica-cómo">1. Qué se fabrica cómo</h2>
 <p>Una fila por pieza del manifest; la ruta se deduce de los servicios <code>S-*</code> que la cubren en <code>bom.csv</code> (columna <code>cubre</code>) y de la materia prima <code>MP-*</code> que la nombra. Es un bloque <strong>nuevo</strong>, <code>FAB:procesos</code>, y no <code>AUTO:parts_list</code> de <code>docgen.py</code>: ese bloque solo trae el proceso del manifest, donde «torneada» agrupa torno, fresa, láser y soldadura.</p>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>ID</th>
@@ -130,7 +132,7 @@
 </thead>
 <tbody>
 <tr>
-<td>P1-BAT-01</td>
+<td><span class="pid">P1-BAT-01</span></td>
 <td>bateria</td>
 <td>referencia</td>
 <td>2</td>
@@ -142,7 +144,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-CTL-01</td>
+<td><span class="pid">P1-CTL-01</span></td>
 <td>placa_espejo</td>
 <td>Al 5083</td>
 <td>1</td>
@@ -150,11 +152,11 @@
 <td>corte láser/agua → taladrado/plegado propio</td>
 <td>S-LASER</td>
 <td>MP-5083-T6</td>
-<td>476</td>
+<td>487</td>
 <td><code>P1-CTL-01_placa_espejo.svg</code></td>
 </tr>
 <tr>
-<td>P1-CTL-02</td>
+<td><span class="pid">P1-CTL-02</span></td>
 <td>caja_acel</td>
 <td>PETG</td>
 <td>1</td>
@@ -166,7 +168,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-CTL-03</td>
+<td><span class="pid">P1-CTL-03</span></td>
 <td>soporte_kill</td>
 <td>PETG</td>
 <td>1</td>
@@ -178,7 +180,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-CTL-04</td>
+<td><span class="pid">P1-CTL-04</span></td>
 <td>pasamuros_m66</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -190,7 +192,7 @@
 <td><code>P1-CTL-04_pasamuros_m66.svg</code></td>
 </tr>
 <tr>
-<td>P1-CTL-05</td>
+<td><span class="pid">P1-CTL-05</span></td>
 <td>prensaestopas</td>
 <td>referencia</td>
 <td>2</td>
@@ -202,7 +204,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-CTL-06</td>
+<td><span class="pid">P1-CTL-06</span></td>
 <td>terminal_m66</td>
 <td>Acero</td>
 <td>1</td>
@@ -214,7 +216,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-CTL-07</td>
+<td><span class="pid">P1-CTL-07</span></td>
 <td>terminal_mach5_consola</td>
 <td>Acero</td>
 <td>1</td>
@@ -226,7 +228,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-CTL-08</td>
+<td><span class="pid">P1-CTL-08</span></td>
 <td>placa_central</td>
 <td>Al 5083</td>
 <td>1</td>
@@ -238,7 +240,7 @@
 <td><code>P1-CTL-08_placa_central.svg</code></td>
 </tr>
 <tr>
-<td>P1-CTL-09</td>
+<td><span class="pid">P1-CTL-09</span></td>
 <td>palanca_acel</td>
 <td>Al 6061-T6</td>
 <td>1</td>
@@ -250,7 +252,7 @@
 <td><code>P1-CTL-09_palanca_acel.svg</code></td>
 </tr>
 <tr>
-<td>P1-CTL-10</td>
+<td><span class="pid">P1-CTL-10</span></td>
 <td>palanca_bucket</td>
 <td>Al 6061-T6</td>
 <td>1</td>
@@ -258,11 +260,11 @@
 <td>corte láser/agua → soldadura TIG (taller)</td>
 <td>S-LASER, S-WELD-AL</td>
 <td>MP-6061-T8</td>
-<td>116</td>
+<td>134</td>
 <td><code>P1-CTL-10_palanca_bucket.svg</code></td>
 </tr>
 <tr>
-<td>P1-CTL-11</td>
+<td><span class="pid">P1-CTL-11</span></td>
 <td>eje_palancas</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -274,7 +276,7 @@
 <td><code>P1-CTL-11_eje_palancas.svg</code></td>
 </tr>
 <tr>
-<td>P1-CTL-12</td>
+<td><span class="pid">P1-CTL-12</span></td>
 <td>perno_enclav</td>
 <td>AISI 316</td>
 <td>2</td>
@@ -286,7 +288,7 @@
 <td><code>P1-CTL-12_perno_enclav.svg</code></td>
 </tr>
 <tr>
-<td>P1-CTL-13</td>
+<td><span class="pid">P1-CTL-13</span></td>
 <td>varilla_consola</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -298,7 +300,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-CTL-14</td>
+<td><span class="pid">P1-CTL-14</span></td>
 <td>gatillo</td>
 <td>Al 6061-T6</td>
 <td>1</td>
@@ -306,11 +308,11 @@
 <td>corte láser/agua → taladrado/plegado propio</td>
 <td>S-LASER</td>
 <td>MP-6061-T6</td>
-<td>6</td>
+<td>14</td>
 <td><code>P1-CTL-14_gatillo.svg</code></td>
 </tr>
 <tr>
-<td>P1-CTL-20</td>
+<td><span class="pid">P1-CTL-20</span></td>
 <td>consola_ref</td>
 <td>referencia</td>
 <td>1</td>
@@ -322,7 +324,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-CTL-21</td>
+<td><span class="pid">P1-CTL-21</span></td>
 <td>volante_ref</td>
 <td>referencia</td>
 <td>1</td>
@@ -334,7 +336,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-DRV-01</td>
+<td><span class="pid">P1-DRV-01</span></td>
 <td>shaft</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -346,7 +348,7 @@
 <td><code>P1-DRV-01_shaft.svg</code></td>
 </tr>
 <tr>
-<td>P1-DRV-02</td>
+<td><span class="pid">P1-DRV-02</span></td>
 <td>seal_housing</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -358,7 +360,7 @@
 <td><code>P1-DRV-02_seal_housing.svg</code></td>
 </tr>
 <tr>
-<td>P1-DRV-03</td>
+<td><span class="pid">P1-DRV-03</span></td>
 <td>bearing_bracket</td>
 <td>Al 5052/6082</td>
 <td>1</td>
@@ -370,7 +372,7 @@
 <td><code>P1-DRV-03_bearing_bracket.svg</code></td>
 </tr>
 <tr>
-<td>P1-DRV-04</td>
+<td><span class="pid">P1-DRV-04</span></td>
 <td>bearing_7204BEP</td>
 <td>Acero</td>
 <td>2</td>
@@ -382,7 +384,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-DRV-05</td>
+<td><span class="pid">P1-DRV-05</span></td>
 <td>locknut_KM4</td>
 <td>Acero</td>
 <td>1</td>
@@ -394,7 +396,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-DRV-06</td>
+<td><span class="pid">P1-DRV-06</span></td>
 <td>bearing_cover</td>
 <td>Al 5052/6082</td>
 <td>1</td>
@@ -406,7 +408,7 @@
 <td><code>P1-DRV-06_bearing_cover.svg</code></td>
 </tr>
 <tr>
-<td>P1-DRV-07</td>
+<td><span class="pid">P1-DRV-07</span></td>
 <td>mech_seal_MG1_20</td>
 <td>referencia</td>
 <td>1</td>
@@ -418,7 +420,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-DRV-08</td>
+<td><span class="pid">P1-DRV-08</span></td>
 <td>coupling_rotex24</td>
 <td>referencia</td>
 <td>1</td>
@@ -430,7 +432,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-ELE-01</td>
+<td><span class="pid">P1-ELE-01</span></td>
 <td>esc_stand</td>
 <td>PETG</td>
 <td>1</td>
@@ -442,7 +444,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-ELE-02</td>
+<td><span class="pid">P1-ELE-02</span></td>
 <td>esc_hood</td>
 <td>PETG</td>
 <td>1</td>
@@ -454,7 +456,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-ELE-03</td>
+<td><span class="pid">P1-ELE-03</span></td>
 <td>cooling_outlet</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -466,7 +468,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-ELE-04</td>
+<td><span class="pid">P1-ELE-04</span></td>
 <td>esc</td>
 <td>referencia</td>
 <td>1</td>
@@ -478,7 +480,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-INT-01</td>
+<td><span class="pid">P1-INT-01</span></td>
 <td>conducto</td>
 <td>Al 5083</td>
 <td>1</td>
@@ -490,7 +492,7 @@
 <td><code>P1-INT-01_conducto.svg</code></td>
 </tr>
 <tr>
-<td>P1-INT-02</td>
+<td><span class="pid">P1-INT-02</span></td>
 <td>placa_base</td>
 <td>Al 5083</td>
 <td>1</td>
@@ -502,7 +504,7 @@
 <td><code>P1-INT-02_placa_base.svg</code></td>
 </tr>
 <tr>
-<td>P1-INT-03</td>
+<td><span class="pid">P1-INT-03</span></td>
 <td>rejilla</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -514,7 +516,7 @@
 <td><code>P1-INT-03_rejilla.svg</code></td>
 </tr>
 <tr>
-<td>P1-INT-04</td>
+<td><span class="pid">P1-INT-04</span></td>
 <td>tapa_inspeccion</td>
 <td>PETG</td>
 <td>1</td>
@@ -526,7 +528,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-MOT-01</td>
+<td><span class="pid">P1-MOT-01</span></td>
 <td>motor</td>
 <td>referencia</td>
 <td>1</td>
@@ -538,7 +540,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-MOT-02</td>
+<td><span class="pid">P1-MOT-02</span></td>
 <td>motor_mount</td>
 <td>Al 5052/6082</td>
 <td>1</td>
@@ -550,31 +552,31 @@
 <td><code>P1-MOT-02_motor_mount.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-01</td>
+<td><span class="pid">P1-PMP-01</span></td>
 <td>housing</td>
 <td>Al 6061-T6</td>
 <td>1</td>
 <td>torneada</td>
 <td>torno de taller → anodizado duro</td>
 <td>S-TURN-HSG, S-ANOD</td>
-<td>MP-6061-TUBO-P1-PMP-01</td>
+<td>MP-6061-TUBO-<span class="pid">P1-PMP-01</span></td>
 <td>1 492</td>
 <td><code>P1-PMP-01_housing.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-02</td>
+<td><span class="pid">P1-PMP-02</span></td>
 <td>wear_ring</td>
 <td>AISI 316</td>
 <td>1</td>
 <td>torneada</td>
 <td>torno propio</td>
 <td>—</td>
-<td>MP-316-TUBO-P1-PMP-02</td>
+<td>MP-316-TUBO-<span class="pid">P1-PMP-02</span></td>
 <td>1 187</td>
 <td><code>P1-PMP-02_wear_ring.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-03</td>
+<td><span class="pid">P1-PMP-03</span></td>
 <td>impeller</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -582,11 +584,11 @@
 <td>CNC 5 ejes (taller)</td>
 <td>S-CNC-IMP</td>
 <td>—</td>
-<td>1 336</td>
+<td>1 334</td>
 <td><code>P1-PMP-03_impeller_hub.svg</code>, <code>P1-PMP-03_tabla_angulos_alabes.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-04</td>
+<td><span class="pid">P1-PMP-04</span></td>
 <td>pin_band</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -598,7 +600,7 @@
 <td><code>P1-PMP-04_pin_band.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-05</td>
+<td><span class="pid">P1-PMP-05</span></td>
 <td>shear_pin</td>
 <td>Al 6061-T6</td>
 <td>2</td>
@@ -610,7 +612,7 @@
 <td><code>P1-PMP-05_shear_pin.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-06</td>
+<td><span class="pid">P1-PMP-06</span></td>
 <td>stator</td>
 <td>Al 6061-T6</td>
 <td>1</td>
@@ -618,11 +620,11 @@
 <td>CNC 5 ejes (taller) → anodizado duro</td>
 <td>S-CNC-STAT, S-ANOD</td>
 <td>—</td>
-<td>1 518</td>
+<td>1 522</td>
 <td><code>P1-PMP-06_stator.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-07</td>
+<td><span class="pid">P1-PMP-07</span></td>
 <td>water_bushing</td>
 <td>POM-C</td>
 <td>1</td>
@@ -634,31 +636,31 @@
 <td><code>P1-PMP-07_water_bushing.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-08</td>
+<td><span class="pid">P1-PMP-08</span></td>
 <td>fixed_nozzle</td>
 <td>Al 6061-T6</td>
 <td>1</td>
 <td>torneada</td>
 <td>torno de taller → anodizado duro</td>
 <td>S-TURN-NOZ, S-ANOD</td>
-<td>MP-6061-TUBO-P1-PMP-08</td>
+<td>MP-6061-TUBO-<span class="pid">P1-PMP-08</span></td>
 <td>1 408</td>
 <td><code>P1-PMP-08_fixed_nozzle.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-09</td>
+<td><span class="pid">P1-PMP-09</span></td>
 <td>transom_plate</td>
 <td>Al 5083</td>
 <td>1</td>
 <td>torneada</td>
 <td>torno de taller</td>
 <td>S-TURN-TP</td>
-<td>MP-5083-BLQ-P1-PMP-09</td>
+<td>MP-5083-BLQ-<span class="pid">P1-PMP-09</span></td>
 <td>449</td>
 <td><code>P1-PMP-09_transom_plate.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-10</td>
+<td><span class="pid">P1-PMP-10</span></td>
 <td>transom_gasket</td>
 <td>NBR</td>
 <td>1</td>
@@ -670,7 +672,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-PMP-11</td>
+<td><span class="pid">P1-PMP-11</span></td>
 <td>pivot_bushing</td>
 <td>POM-C</td>
 <td>2</td>
@@ -682,7 +684,7 @@
 <td><code>P1-PMP-11_pivot_bushing.svg</code></td>
 </tr>
 <tr>
-<td>P1-REF-01</td>
+<td><span class="pid">P1-REF-01</span></td>
 <td>casco</td>
 <td>referencia</td>
 <td>1</td>
@@ -694,55 +696,55 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-REV-01</td>
+<td><span class="pid">P1-REV-01</span></td>
 <td>bucket</td>
 <td>Al 5083</td>
 <td>1</td>
 <td>torneada</td>
 <td>corte láser/agua → soldadura TIG (taller)</td>
 <td>S-LASER, S-WELD-AL</td>
-<td>MP-5083-T6</td>
-<td>866</td>
+<td>MP-5083-AROS, MP-5083-T8</td>
+<td>1 233</td>
 <td><code>P1-REV-01_bucket_brazo_babor.svg</code>, <code>P1-REV-01_bucket_brazo_estribor.svg</code>, <code>P1-REV-01_bucket_cuchara.svg</code></td>
 </tr>
 <tr>
-<td>P1-REV-02</td>
+<td><span class="pid">P1-REV-02</span></td>
 <td>perno_bucket</td>
 <td>AISI 316</td>
 <td>2</td>
 <td>torneada</td>
 <td>torno propio</td>
 <td>—</td>
-<td>MP-316-D28</td>
-<td>105</td>
+<td>MP-316-D40</td>
+<td>162</td>
 <td><code>P1-REV-02_espaciador_pivote_bucket.svg</code></td>
 </tr>
 <tr>
-<td>P1-REV-03</td>
+<td><span class="pid">P1-REV-03</span></td>
 <td>buje_bucket</td>
 <td>POM-C</td>
 <td>2</td>
 <td>torneada</td>
 <td>torno propio</td>
 <td>—</td>
-<td>MP-POM-D30</td>
-<td>3</td>
+<td>MP-POM-D32</td>
+<td>4</td>
 <td><code>P1-REV-03_buje_bucket.svg</code></td>
 </tr>
 <tr>
-<td>P1-REV-04</td>
+<td><span class="pid">P1-REV-04</span></td>
 <td>embolo</td>
 <td>AISI 316</td>
 <td>2</td>
-<td>comprada</td>
-<td>Comprada (B-INDEX)</td>
+<td>torneada</td>
+<td>torno propio</td>
 <td>—</td>
-<td>—</td>
-<td>160</td>
-<td>—</td>
+<td>MP-316-D18, MP-316-D40</td>
+<td>285</td>
+<td><code>P1-REV-04_embolo_cuerpo.svg</code>, <code>P1-REV-04_embolo_perno.svg</code></td>
 </tr>
 <tr>
-<td>P1-REV-05</td>
+<td><span class="pid">P1-REV-05</span></td>
 <td>soporte_mach5</td>
 <td>Al 5083</td>
 <td>1</td>
@@ -750,11 +752,11 @@
 <td>corte láser/agua → soldadura TIG (taller)</td>
 <td>S-LASER, S-WELD-AL</td>
 <td>MP-5083-T6</td>
-<td>188</td>
+<td>189</td>
 <td><code>P1-REV-05_soporte_mach5.svg</code></td>
 </tr>
 <tr>
-<td>P1-REV-06</td>
+<td><span class="pid">P1-REV-06</span></td>
 <td>perno_varilla</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -766,7 +768,7 @@
 <td><code>P1-REV-06_perno_varilla.svg</code></td>
 </tr>
 <tr>
-<td>P1-REV-07</td>
+<td><span class="pid">P1-REV-07</span></td>
 <td>terminal_mach5</td>
 <td>Acero</td>
 <td>1</td>
@@ -778,7 +780,7 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-REV-08</td>
+<td><span class="pid">P1-REV-08</span></td>
 <td>varilla_mach5</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -790,19 +792,19 @@
 <td>—</td>
 </tr>
 <tr>
-<td>P1-REV-09</td>
+<td><span class="pid">P1-REV-09</span></td>
 <td>soporte_bowden</td>
 <td>Al 5083</td>
-<td>2</td>
+<td>1</td>
 <td>torneada</td>
-<td>corte láser/agua → taladrado/plegado propio</td>
-<td>S-LASER</td>
-<td>MP-5083-T4</td>
-<td>13</td>
-<td><code>P1-REV-09_soporte_bowden.svg</code></td>
+<td>corte láser/agua → soldadura TIG (taller)</td>
+<td>S-LASER, S-WELD-AL</td>
+<td>MP-5083-T6</td>
+<td>69</td>
+<td><code>P1-REV-09_balancin.svg</code>, <code>P1-REV-09_soporte_bowden.svg</code></td>
 </tr>
 <tr>
-<td>P1-REV-10</td>
+<td><span class="pid">P1-REV-10</span></td>
 <td>bowden_embolo</td>
 <td>AISI 316</td>
 <td>2</td>
@@ -811,22 +813,22 @@
 <td>—</td>
 <td>—</td>
 <td>60</td>
-<td>—</td>
+<td><code>P1-REV-10_recorrido_vaina.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-01</td>
+<td><span class="pid">P1-STE-01</span></td>
 <td>boquilla</td>
 <td>Al 6061-T6</td>
 <td>1</td>
 <td>torneada</td>
 <td>torno + fresado 4 ejes (taller) → anodizado duro</td>
 <td>S-MILL-STE, S-ANOD</td>
-<td>MP-6061-BLQ-P1-STE-01</td>
-<td>890</td>
+<td>MP-6061-BLQ-<span class="pid">P1-STE-01</span></td>
+<td>1 048</td>
 <td><code>P1-STE-01_boquilla.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-02</td>
+<td><span class="pid">P1-STE-02</span></td>
 <td>perno_sup</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -838,7 +840,7 @@
 <td><code>P1-STE-02_perno_sup.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-03</td>
+<td><span class="pid">P1-STE-03</span></td>
 <td>arandela_pom</td>
 <td>POM-C</td>
 <td>3</td>
@@ -850,7 +852,7 @@
 <td><code>P1-STE-03_arandela_pom.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-04</td>
+<td><span class="pid">P1-STE-04</span></td>
 <td>brida_yugo</td>
 <td>Al 5083</td>
 <td>1</td>
@@ -858,11 +860,11 @@
 <td>corte láser/agua → taladrado/plegado propio</td>
 <td>S-LASER</td>
 <td>MP-5083-T20</td>
-<td>159</td>
+<td>171</td>
 <td><code>P1-STE-04_brida_yugo.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-05</td>
+<td><span class="pid">P1-STE-05</span></td>
 <td>perno_inf</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -874,7 +876,7 @@
 <td><code>P1-STE-05_perno_inf.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-06</td>
+<td><span class="pid">P1-STE-06</span></td>
 <td>poste</td>
 <td>Al 6061-T6</td>
 <td>1</td>
@@ -886,7 +888,7 @@
 <td><code>P1-STE-06_poste.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-07</td>
+<td><span class="pid">P1-STE-07</span></td>
 <td>brazo</td>
 <td>Al 5083</td>
 <td>1</td>
@@ -898,20 +900,20 @@
 <td><code>P1-STE-07_brazo.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-08</td>
+<td><span class="pid">P1-STE-08</span></td>
 <td>tope_direccion</td>
 <td>Al 5083</td>
 <td>1</td>
 <td>torneada</td>
 <td>corte láser/agua → taladrado/plegado propio</td>
 <td>S-LASER</td>
-<td>MP-5083-BLQ-P1-STE-08</td>
-<td>79</td>
+<td>MP-5083-BLQ-<span class="pid">P1-STE-08</span></td>
+<td>81</td>
 <td><code>P1-STE-08_tope_direccion.svg</code></td>
 </tr>
 </tbody>
 </table></div>
-<p>Piezas por proceso del manifest: comprada <strong>17</strong>, impresa <strong>5</strong>, referencia <strong>3</strong>, torneada <strong>40</strong> (65 tipos). «torneada» en el manifest = toda pieza mecanizada (torno, fresa, láser, soldada).</p>
+<p>Piezas por proceso del manifest: comprada <strong>16</strong>, impresa <strong>5</strong>, referencia <strong>3</strong>, torneada <strong>41</strong> (65 tipos). «torneada» en el manifest = toda pieza mecanizada (torno, fresa, láser, soldada).</p>
 <hr />
 <h2 id="2-impresión-3d-petg">2. Impresión 3D (PETG)</h2>
 <h3 id="21-material-secado-y-almacenamiento">2.1 Material, secado y almacenamiento</h3>
@@ -946,7 +948,7 @@
 </tr>
 <tr>
 <td>Almacenamiento</td>
-<td>Caja estanca con desecante, <strong>HR &lt; 20 %</strong>; la tapa P1-INT-04 (la impresión más larga) se imprime <strong>desde la caja seca</strong></td>
+<td>Caja estanca con desecante, <strong>HR &lt; 20 %</strong>; la tapa <span class="pid">P1-INT-04</span> (la impresión más larga) se imprime <strong>desde la caja seca</strong></td>
 <td>[VERIFICADO: S3]</td>
 </tr>
 <tr>
@@ -970,9 +972,9 @@
 <tbody>
 <tr>
 <td><strong>piezas</strong></td>
-<td>P1-CTL-03</td>
-<td>P1-INT-04</td>
-<td>P1-CTL-02, P1-ELE-01, P1-ELE-02</td>
+<td><span class="pid">P1-CTL-03</span></td>
+<td><span class="pid">P1-INT-04</span></td>
+<td><span class="pid">P1-CTL-02</span>, <span class="pid">P1-ELE-01</span>, <span class="pid">P1-ELE-02</span></td>
 </tr>
 <tr>
 <td>capa [mm]</td>
@@ -1183,15 +1185,15 @@
 </table></div>
 <p><strong>Por qué.</strong></p>
 <ul>
-<li><strong>sellado</strong> (P1-INT-04): es la única pieza impresa <strong>mojada y a presión</strong> (presión de cierre de la bomba 67222 Pa como succión o contrapresión; recuperación a 30 km/h 24622 Pa). El PETG pierde agua "through the seams and contact points between perimeters and solid infill" [VERIFICADO: research/R05 S22] → 100 % de relleno con 30 % de solape, 5 perímetros, capa 0,15 (Sa 10–13 µm contra 20–24 µm a 0,21 mm [VERIFICADO: S18]). La <strong>cara del O-ring va sobre la cama</strong> (la más lisa y plana); planchado solo en la cara de arriba (apoyo de arandelas y de la arandela de estanqueidad de la purga).</li>
-<li><strong>cubiertas</strong> (P1-ELE-01/02, P1-CTL-02): piezas <strong>secas</strong> y fuera de la ruta de carga de mando; 5 perímetros (2,25 mm por lado: las paredes de 3,2–3,5 mm quedan macizas) y 30 % gyroid, como pide la orientación del manifest para CTL-02. FS mínimos de <code>estructural.json</code> en la tabla §2.3.</li>
-<li><strong>estructural</strong> (P1-CTL-03 y peines P1.1): el soporte del kill switch es un <strong>elemento de seguridad</strong> (el tirón del cordón tiene que sacar el clip, no romper el soporte, y el golpe a la seta cruza capas): 6 perímetros, 85 % gyroid, velocidades moderadas.</li>
+<li><strong>sellado</strong> (<span class="pid">P1-INT-04</span>): es la única pieza impresa <strong>mojada y a presión</strong> (presión de cierre de la bomba 67 232 Pa como succión o contrapresión; recuperación a 30 km/h 24 622 Pa). El PETG pierde agua "through the seams and contact points between perimeters and solid infill" [VERIFICADO: research/R05 S22] → 100 % de relleno con 30 % de solape, 5 perímetros, capa 0,15 (Sa 10–13 µm contra 20–24 µm a 0,21 mm [VERIFICADO: S18]). La <strong>cara del O-ring va sobre la cama</strong> (la más lisa y plana); planchado solo en la cara de arriba (apoyo de arandelas y de la arandela de estanqueidad de la purga).</li>
+<li><strong>cubiertas</strong> (<span class="pid">P1-ELE-01</span>/02, <span class="pid">P1-CTL-02</span>): piezas <strong>secas</strong> y fuera de la ruta de carga de mando; 5 perímetros y 30 % gyroid, como pide la orientación del manifest para CTL-02. Con 0,45 mm de ancho de extrusión, 5 perímetros son 2,25 mm por lado y 4,5 mm entre las dos caras [CALCULADO]: una pared de hasta 4,5 mm queda maciza, pero las paredes de <strong>5 mm de <span class="pid">P1-CTL-02</span></strong> (auditoría ronda 3, FEA: σZ entre capas) dejan en el medio una franja de ≈ 0,5 mm [CALCULADO] que llena el relleno de huecos (<em>gap fill</em>) de PrusaSlicer. Verificar en la vista previa del laminado que esa franja no quede vacía; si queda, usar 6 perímetros en la caja. FS mínimos de <code>estructural.json</code> en la tabla §2.3.</li>
+<li><strong>estructural</strong> (<span class="pid">P1-CTL-03</span> y peines P1.1): el soporte del kill switch es un <strong>elemento de seguridad</strong> (el tirón del cordón tiene que sacar el clip, no romper el soporte, y el golpe a la seta cruza capas): 6 perímetros, 85 % gyroid, velocidades moderadas.</li>
 <li><strong>Filamento y máquina:</strong> boquilla 245 °C (techo 260 °C), cama 80/75 °C (techo 100 °C), cama PC con pegamento en barra, ventilador 15–35 %, retracción 1 mm [VERIFICADO: research/R05, S1–S3; ver comentarios de los <code>.ini</code>].</li>
 </ul>
 <p><strong>Validación ejecutada</strong> (<code>python prusaslicer/validar_perfiles.py</code>, PrusaSlicer 2.7.2 instalado): formato «clave = valor» sin duplicados; todas las claves existen en 2.7.2; límites de <code>inputs.yaml</code> (boquilla, cama, zona útil); PrusaSlicer carga y guarda las 3 familias; lamina las 8 probetas impresas y las 5 piezas del jet y el G-code repite temperatura, cama, perímetros, relleno, capa, costura, forma de cama y alto máximo. <code>slice_report.json</code> solo contiene piezas del waterjet.</p>
 <h3 id="23-orientación-por-pieza">2.3 Orientación por pieza</h3>
 <p>La orientación es la del CAD (<code>print_rot</code> de cada <code>META</code>; <code>build_all.py</code> exporta los STL ya orientados). El FS mínimo sale de <code>estructural.json</code>; soporte y avisos, del laminado real.</p>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>ID</th>
@@ -1211,11 +1213,11 @@
 </thead>
 <tbody>
 <tr>
-<td>P1-CTL-02</td>
+<td><span class="pid">P1-CTL-02</span></td>
 <td>caja_acel</td>
 <td>1</td>
 <td><strong>cubiertas</strong> 30 %</td>
-<td>tapa de la unidad de palancas: sin cargas de mando (van a P1-CTL-08); 5 perímetros, 30 % (orientación del manifest)</td>
+<td>tapa de la unidad de palancas: sin cargas de mando (van a <span class="pid">P1-CTL-08</span>); 5 perímetros, 30 % (orientación del manifest)</td>
 <td>Tapa sobre la cama (ranuras planas, sin soportes); ala arriba. 0,2 mm, 5 perímetros, 30 % giroide <code>print_rot=(180, 0, 0)</code></td>
 <td>184×82×68</td>
 <td>3,84 (Tapa PETG 6 mm: mano apoyada 150 N [SUPUESTO] (corta))</td>
@@ -1226,7 +1228,7 @@
 <td>11,8</td>
 </tr>
 <tr>
-<td>P1-CTL-03</td>
+<td><span class="pid">P1-CTL-03</span></td>
 <td>soporte_kill</td>
 <td>1</td>
 <td><strong>estructural</strong> 85 %</td>
@@ -1241,7 +1243,7 @@
 <td>18,2</td>
 </tr>
 <tr>
-<td>P1-ELE-01</td>
+<td><span class="pid">P1-ELE-01</span></td>
 <td>esc_stand</td>
 <td>1</td>
 <td><strong>cubiertas</strong> 30 %</td>
@@ -1256,7 +1258,7 @@
 <td>29,1</td>
 </tr>
 <tr>
-<td>P1-ELE-02</td>
+<td><span class="pid">P1-ELE-02</span></td>
 <td>esc_hood</td>
 <td>1</td>
 <td><strong>cubiertas</strong> 30 %</td>
@@ -1271,7 +1273,7 @@
 <td>18,0</td>
 </tr>
 <tr>
-<td>P1-INT-04</td>
+<td><span class="pid">P1-INT-04</span></td>
 <td>tapa_inspeccion</td>
 <td>1</td>
 <td><strong>sellado</strong> 100 %</td>
@@ -1288,11 +1290,11 @@
 </tbody>
 </table></div>
 <ul>
-<li><strong>Soportes:</strong> imprimir <strong>sin soportes</strong>; los avisos son puentes cortos. P1-INT-04: el techo del hexágono de la tuerca de purga y el de la ranura del O-ring son puentes; revisar en la vista previa que el del hexágono quede plano (si cuelga, la tuerca no asienta → repasar con lima). P1-CTL-03: "Collapsing overhang" en los rebajes de los pulsadores por dentro de la cara inclinada: el panel apoya en la cara exterior, no importa. P1-ELE-01: puentes del tablero entre nervios (previstos en el CAD).</li>
+<li><strong>Soportes:</strong> imprimir <strong>sin soportes</strong>; los avisos son puentes cortos. <span class="pid">P1-INT-04</span>: el techo del hexágono de la tuerca de purga y el de la ranura del O-ring son puentes; revisar en la vista previa que el del hexágono quede plano (si cuelga, la tuerca no asienta → repasar con lima). <span class="pid">P1-CTL-03</span>: "Collapsing overhang" en los rebajes de los pulsadores por dentro de la cara inclinada: el panel apoya en la cara exterior, no importa. <span class="pid">P1-ELE-01</span>: puentes del tablero entre nervios (previstos en el CAD).</li>
 <li><strong>Borde (brim):</strong> solo si alto/huella &gt; 2 (<code>familias.brim</code>); hoy solo la probeta P1.4.</li>
 </ul>
 <h3 id="24-tuercas-cautivas-e-insertos-inox-en-zona-húmeda">2.4 Tuercas cautivas e insertos (inox en zona húmeda)</h3>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>Pieza</th>
@@ -1303,13 +1305,13 @@
 </thead>
 <tbody>
 <tr>
-<td>P1-ELE-01</td>
+<td><span class="pid">P1-ELE-01</span></td>
 <td>inserto térmico M5 (agujero Ø 6,4 × 10,5 mm)</td>
 <td>M5</td>
 <td>nervios exteriores para la capota (insertos M5 arriba)</td>
 </tr>
 <tr>
-<td>P1-INT-04</td>
+<td><span class="pid">P1-INT-04</span></td>
 <td>tuerca cautiva, bolsillo hexagonal</td>
 <td>M6 A4 (ISO 4032: 10 e/c)</td>
 <td>purga: resalte arriba, hexágono de tuerca M6 desde abajo, agujero Ø6,4</td>
@@ -1317,18 +1319,18 @@
 </tbody>
 </table></div>
 <ul>
-<li><strong>Zona húmeda (P1-INT-04): solo inox.</strong> La purga usa una <strong>tuerca ISO 4032 M6 A4 cautiva</strong> en hexágono abierto a la cara interior (la presión la aprieta contra su asiento) y tornillo M6 × 12 A4 con arandela de estanqueidad; nada de latón: descincificación en agua con Zn &gt; ~15 % [VERIFICADO: research/R05 A10.2, S30]. Si en el futuro se agrega un inserto en una pieza mojada: <strong>inserto de inox 300</strong> [VERIFICADO: existen, R05 S29], soldador a ~250–260 °C [ESTIMADO: R05 A10.3].</li>
-<li><strong>Zona seca (P1-ELE-01):</strong> 4 insertos M5 para la capota (<code>B-INS</code> de la BOM) — se valida el proceso con <strong>P1.4</strong> antes de tocar la pieza. Agujero 1 mm más profundo que el inserto (el CAD lo trae), hundir el 90 % con la punta y el resto con herramienta plana fría [VERIFICADO: R05 S28]; a ras ±0,2 mm, perpendicular, sin fisura (lupa 10×) [SUPUESTO].</li>
+<li><strong>Zona húmeda (<span class="pid">P1-INT-04</span>): solo inox.</strong> La purga usa una <strong>tuerca ISO 4032 M6 A4 cautiva</strong> en hexágono abierto a la cara interior (la presión la aprieta contra su asiento) y tornillo M6 × 12 A4 con arandela de estanqueidad; nada de latón: descincificación en agua con Zn &gt; ~15 % [VERIFICADO: research/R05 A10.2, S30]. Si en el futuro se agrega un inserto en una pieza mojada: <strong>inserto de inox 300</strong> [VERIFICADO: existen, R05 S29], soldador a ~250–260 °C [ESTIMADO: R05 A10.3].</li>
+<li><strong>Zona seca (<span class="pid">P1-ELE-01</span>):</strong> 4 insertos M5 para la capota (<code>B-INS</code> de la BOM) — se valida el proceso con <strong>P1.4</strong> antes de tocar la pieza. Agujero 1 mm más profundo que el inserto (el CAD lo trae), hundir el 90 % con la punta y el resto con herramienta plana fría [VERIFICADO: R05 S28]; a ras ±0,2 mm, perpendicular, sin fisura (lupa 10×) [SUPUESTO].</li>
 <li><strong>Torques de partida sobre PETG:</strong> M4 1,0 · M5 2,0 N·m [ESTIMADO: research/R05 A10.3]; los M6 de la tapa de inspección van <strong>a mano con perillas</strong> y arandela ancha (aplastamiento verificado en <code>estructural.json</code>).</li>
 <li><strong>Fijación de roscas:</strong> nada de Loctite 243 ni anaeróbicos sobre PETG (agrietamiento por tensión [VERIFICADO: R05 S31]); Loctite 425 o tuerca nyloc A4 [VERIFICADO: S32].</li>
 </ul>
-<h3 id="25-post-proceso-y-cara-de-sello-de-p1-int-04">2.5 Post-proceso y cara de sello de P1-INT-04</h3>
+<h3 id="25-post-proceso-y-cara-de-sello-de-p1-int-04">2.5 Post-proceso y cara de sello de <span class="pid">P1-INT-04</span></h3>
 <ul>
 <li>Sacar de la cama <strong>fría</strong>; repasar pata de elefante (compensada 0,2 mm en el perfil; afecta el ancho de la ranura del O-ring en la 1.ª capa: medir con calibre).</li>
-<li><strong>Planitud de la cara de sello ≤ 0,10 mm</strong> con regla y galgas (±0,15 mm de profundidad ya lleva la compresión a 21–29 % [CALCULADO: research/R05 B3]); si no cumple, lapear sobre vidrio con lija al agua P240 → P600 en "ochos" y corregir el <strong>fondo</strong> de la ranura, no la cara. Ranura <strong>2,57–2,72 × 4,50–4,75 mm</strong> para cordón 3,53 [VERIFICADO: R05 B3]. La contracara es la brida de Al de la chimenea (P1-INT-01): refrentada en el taller de soldadura (§4).</li>
+<li><strong>Planitud de la cara de sello ≤ 0,10 mm</strong> con regla y galgas (±0,15 mm de profundidad ya lleva la compresión a 21–29 % [CALCULADO: research/R05 B3]); si no cumple, lapear sobre vidrio con lija al agua P240 → P600 en "ochos" y corregir el <strong>fondo</strong> de la ranura, no la cara. Ranura <strong>2,57–2,72 × 4,50–4,75 mm</strong> para cordón 3,53 [VERIFICADO: R05 B3]. La contracara es la brida de Al de la chimenea (<span class="pid">P1-INT-01</span>): refrentada en el taller de soldadura (§4).</li>
 <li><strong>O-ring:</strong> cordón NBR70 Ø3,53 con empalme a tope (cianoacrilato) y <strong>grasa de silicona</strong>; nunca grasa mineral [VERIFICADO: R05 S24].</li>
 <li><strong>Química:</strong> limpieza IPA:agua 50:50; acetona, MEK, THF prohibidos (disuelven PETG) [VERIFICADO: R05 S34]; epoxi solo en piezas frías (West 105/205 HDT 48 °C [VERIFICADO: S21]).</li>
-<li><strong>Inspección:</strong> antes de cada salida, tapa P1-INT-04 (fisura o blanqueo en el resalte de la purga = cambiarla) y soporte del kill switch P1-CTL-03.</li>
+<li><strong>Inspección:</strong> antes de cada salida, tapa <span class="pid">P1-INT-04</span> (fisura o blanqueo en el resalte de la purga = cambiarla) y soporte del kill switch <span class="pid">P1-CTL-03</span>.</li>
 </ul>
 <h3 id="26-tiempos-y-gramos">2.6 Tiempos y gramos</h3>
 <div class="table-wrap"><table>
@@ -1373,7 +1375,7 @@
 <hr />
 <h2 id="3-mecanizado-torno-propio-vs-taller">3. Mecanizado: torno propio vs. taller</h2>
 <p>La BOM supone que todo lo de revolución con barra de Ø ≤ <code>bom.lathe_max_d_mm</code> sale del <strong>torno manual del usuario</strong> y que lo mayor (y lo de 4–5 ejes) va a un servicio <code>S-*</code>. <strong>Ese límite es un [SUPUESTO] de la BOM: medir el volteo real</strong> (sobre la bancada y sobre el carro transversal) y la <strong>distancia entre puntos</strong>, y corregir <code>inputs.yaml</code> antes de pedir material.</p>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>ID</th>
@@ -1390,7 +1392,7 @@
 </thead>
 <tbody>
 <tr>
-<td>P1-CTL-04</td>
+<td><span class="pid">P1-CTL-04</span></td>
 <td>pasamuros_m66</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -1402,7 +1404,7 @@
 <td><code>P1-CTL-04_pasamuros_m66.svg</code></td>
 </tr>
 <tr>
-<td>P1-CTL-11</td>
+<td><span class="pid">P1-CTL-11</span></td>
 <td>eje_palancas</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -1414,7 +1416,7 @@
 <td><code>P1-CTL-11_eje_palancas.svg</code></td>
 </tr>
 <tr>
-<td>P1-CTL-12</td>
+<td><span class="pid">P1-CTL-12</span></td>
 <td>perno_enclav</td>
 <td>AISI 316</td>
 <td>2</td>
@@ -1426,7 +1428,7 @@
 <td><code>P1-CTL-12_perno_enclav.svg</code></td>
 </tr>
 <tr>
-<td>P1-DRV-01</td>
+<td><span class="pid">P1-DRV-01</span></td>
 <td>shaft</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -1438,7 +1440,7 @@
 <td><code>P1-DRV-01_shaft.svg</code></td>
 </tr>
 <tr>
-<td>P1-DRV-02</td>
+<td><span class="pid">P1-DRV-02</span></td>
 <td>seal_housing</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -1450,7 +1452,7 @@
 <td><code>P1-DRV-02_seal_housing.svg</code></td>
 </tr>
 <tr>
-<td>P1-DRV-06</td>
+<td><span class="pid">P1-DRV-06</span></td>
 <td>bearing_cover</td>
 <td>Al 5052/6082</td>
 <td>1</td>
@@ -1462,19 +1464,19 @@
 <td><code>P1-DRV-06_bearing_cover.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-02</td>
+<td><span class="pid">P1-PMP-02</span></td>
 <td>wear_ring</td>
 <td>AISI 316</td>
 <td>1</td>
 <td>Ø142,8 × 68,6</td>
-<td>MP-316-TUBO-P1-PMP-02</td>
+<td>MP-316-TUBO-<span class="pid">P1-PMP-02</span></td>
 <td>Ø150 × 84</td>
 <td>sí</td>
 <td><strong>torno propio</strong></td>
 <td><code>P1-PMP-02_wear_ring.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-04</td>
+<td><span class="pid">P1-PMP-04</span></td>
 <td>pin_band</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -1486,7 +1488,7 @@
 <td><code>P1-PMP-04_pin_band.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-05</td>
+<td><span class="pid">P1-PMP-05</span></td>
 <td>shear_pin</td>
 <td>Al 6061-T6</td>
 <td>2</td>
@@ -1498,7 +1500,7 @@
 <td><code>P1-PMP-05_shear_pin.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-07</td>
+<td><span class="pid">P1-PMP-07</span></td>
 <td>water_bushing</td>
 <td>POM-C</td>
 <td>1</td>
@@ -1510,7 +1512,7 @@
 <td><code>P1-PMP-07_water_bushing.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-11</td>
+<td><span class="pid">P1-PMP-11</span></td>
 <td>pivot_bushing</td>
 <td>POM-C</td>
 <td>2</td>
@@ -1522,43 +1524,55 @@
 <td><code>P1-PMP-11_pivot_bushing.svg</code></td>
 </tr>
 <tr>
-<td>P1-REV-02</td>
+<td><span class="pid">P1-REV-02</span></td>
 <td>perno_bucket</td>
 <td>AISI 316</td>
 <td>2</td>
-<td>24×52×24</td>
-<td>MP-316-D28</td>
-<td>Ø28 × 68</td>
+<td>36×68×36</td>
+<td>MP-316-D40</td>
+<td>Ø40 × 50</td>
 <td>sí</td>
 <td><strong>torno propio</strong></td>
 <td><code>P1-REV-02_espaciador_pivote_bucket.svg</code></td>
 </tr>
 <tr>
-<td>P1-REV-03</td>
+<td><span class="pid">P1-REV-03</span></td>
 <td>buje_bucket</td>
 <td>POM-C</td>
 <td>2</td>
-<td>Ø28,0 × 15,0</td>
-<td>MP-POM-D30</td>
-<td>Ø30 × 30</td>
+<td>Ø30,0 × 19,0</td>
+<td>MP-POM-D32</td>
+<td>Ø32 × 34</td>
 <td>sí</td>
 <td><strong>torno propio</strong></td>
 <td><code>P1-REV-03_buje_bucket.svg</code></td>
 </tr>
 <tr>
-<td>P1-REV-06</td>
+<td><span class="pid">P1-REV-04</span></td>
+<td>embolo</td>
+<td>AISI 316</td>
+<td>2</td>
+<td>36×76×36</td>
+<td>MP-316-D40</td>
+<td>Ø40 × 75</td>
+<td>sí</td>
+<td><strong>torno propio</strong></td>
+<td><code>P1-REV-04_embolo_cuerpo.svg</code>, <code>P1-REV-04_embolo_perno.svg</code></td>
+</tr>
+<tr>
+<td><span class="pid">P1-REV-06</span></td>
 <td>perno_varilla</td>
 <td>AISI 316</td>
 <td>1</td>
-<td>13×24×13</td>
+<td>13×26×13</td>
 <td>MP-316-D16</td>
-<td>Ø16 × 38</td>
+<td>Ø16 × 40</td>
 <td>sí</td>
 <td><strong>torno propio</strong></td>
 <td><code>P1-REV-06_perno_varilla.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-02</td>
+<td><span class="pid">P1-STE-02</span></td>
 <td>perno_sup</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -1570,7 +1584,7 @@
 <td><code>P1-STE-02_perno_sup.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-03</td>
+<td><span class="pid">P1-STE-03</span></td>
 <td>arandela_pom</td>
 <td>POM-C</td>
 <td>3</td>
@@ -1582,7 +1596,7 @@
 <td><code>P1-STE-03_arandela_pom.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-05</td>
+<td><span class="pid">P1-STE-05</span></td>
 <td>perno_inf</td>
 <td>AISI 316</td>
 <td>1</td>
@@ -1594,7 +1608,7 @@
 <td><code>P1-STE-05_perno_inf.svg</code></td>
 </tr>
 <tr>
-<td>P1-STE-06</td>
+<td><span class="pid">P1-STE-06</span></td>
 <td>poste</td>
 <td>Al 6061-T6</td>
 <td>1</td>
@@ -1606,24 +1620,24 @@
 <td><code>P1-STE-06_poste.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-01</td>
+<td><span class="pid">P1-PMP-01</span></td>
 <td>housing</td>
 <td>Al 6061-T6</td>
 <td>1</td>
 <td>Ø192,8 × 165,8</td>
-<td>MP-6061-TUBO-P1-PMP-01</td>
+<td>MP-6061-TUBO-<span class="pid">P1-PMP-01</span></td>
 <td>Ø200 × 181</td>
 <td><strong>NO</strong></td>
 <td>taller (S-TURN-HSG)</td>
 <td><code>P1-PMP-01_housing.svg</code></td>
 </tr>
 <tr>
-<td>P1-PMP-08</td>
+<td><span class="pid">P1-PMP-08</span></td>
 <td>fixed_nozzle</td>
 <td>Al 6061-T6</td>
 <td>1</td>
 <td>Ø161,1 × 151,2</td>
-<td>MP-6061-TUBO-P1-PMP-08</td>
+<td>MP-6061-TUBO-<span class="pid">P1-PMP-08</span></td>
 <td>Ø180 × 166</td>
 <td>sí</td>
 <td>taller (S-TURN-NOZ)</td>
@@ -1633,15 +1647,22 @@
 </table></div>
 <p>Límite supuesto del torno propio: <strong>Ø 180 mm</strong> (inputs.yaml <code>bom.lathe_max_d_mm</code>, [SUPUESTO] — <strong>medir</strong> volteo sobre la bancada y sobre el carro, y distancia entre puntos).</p>
 <ul>
-<li><strong>Casos al borde:</strong> el <strong>anillo de desgaste P1-PMP-02</strong> (316L, barra hueca) entra en el límite supuesto pero lleva la cota más fina del jet (Ø interior = Ø de puntas + 2 × holgura = 132.79 mm, H7); en un torno manual liviano con 316L conviene mandarlo con la carcasa (S-TURN-HSG) o tornearlo <strong>montado en la carcasa</strong> para que quede concéntrico. El <strong>eje P1-DRV-01</strong> necesita distancia entre puntos mayor que su barra (tabla) y luneta: si no hay, a taller.</li>
-<li><strong>316L:</strong> herramienta de metal duro positiva, avance constante, sin "frotar" (se endurece por deformación); refrigerante [ESTIMADO: práctica]. <strong>POM-C</strong> (bujes P1-PMP-07/11, P1-REV-03, P1-STE-03): herramienta afilada de HSS, sin refrigerante, dejar el Ø interior para el final y medir después del prensado (P1.10). <strong>Semipasadores de corte P1-PMP-05</strong> (2 por juego, Ø3.5 × 29.5 mm): de la <strong>misma barra</strong> 6061-T6 que los 3 juegos de repuesto (R-PIN) y que los juegos de la probeta P1.9; extremos planos con chaflán chico (se tocan en el centro del eje).</li>
-<li><strong>Interfaces de la bomba (auditoría Pass 3, planos P1-PMP-01/05/06/08 y P1-INT-01):</strong> carcasa con <strong>espigón de centraje Ø140 h6</strong> concéntrico al asiento del anillo (una atada, TIR ≤ 0,03) y <strong>8 × M5 ciegos</strong> en la cara trasera (rosca 9 mm, enmascarar en el anodizado); 2 × M5 radiales roscados en pared + saliente. Tobera con <strong>brida Ø161.1</strong> (más chica que el agujero del espejo), espiga 12 mm con ranura de O-ring <strong>radial</strong> y largo controlado (+0/+0,05: deja 0.25 mm entre bridas). Estator: 2 agujeros <strong>lisos</strong> Ø5,5 × 3,5 (ya no roscados). Semipasadores P1-PMP-05: <strong>2 por juego</strong>, largo 29.5 mm.</li>
-<li><strong>Pórtico P1-DRV-03:</strong> zapatas con <strong>ranura de 9 mm abierta hacia popa</strong> (no agujeros) y paso del resalte Ø32.5 (no roza el aro interior del 7204 BECBP); mecanizar el Ø47 H7 después de soldar.</li>
-<li><strong>Chapa:</strong> lo plano sale de <strong>corte láser/agua</strong> (S-LASER) con los planos de <code>04_diseno/planos/</code>; el taladrado, avellanado y plegado chico (P1-CTL-01/09/14, P1-STE-04/07/08, P1-REV-09) es propio. Tolerancias generales ISO 2768-m y Ra 1,6 en asientos (rótulo de los planos).</li>
+<li><strong>Casos al borde:</strong> el <strong>anillo de desgaste <span class="pid">P1-PMP-02</span></strong> (316L, barra hueca) entra en el límite supuesto pero lleva la cota más fina del jet (Ø interior = Ø de puntas + 2 × holgura = 132,79 mm, H7); en un torno manual liviano con 316L conviene mandarlo con la carcasa (S-TURN-HSG) o tornearlo <strong>montado en la carcasa</strong> para que quede concéntrico. El <strong>eje <span class="pid">P1-DRV-01</span></strong> necesita distancia entre puntos mayor que su barra (tabla) y luneta: si no hay, a taller.</li>
+<li><strong>316L:</strong> herramienta de metal duro positiva, avance constante, sin "frotar" (se endurece por deformación); refrigerante [ESTIMADO: práctica]. <strong>POM-C</strong> (bujes <span class="pid">P1-PMP-07</span>/11, <span class="pid">P1-REV-03</span>, <span class="pid">P1-STE-03</span>): herramienta afilada de HSS, sin refrigerante, dejar el Ø interior para el final y medir después del prensado (P1.10). <strong>Semipasadores de corte <span class="pid">P1-PMP-05</span></strong> (2 por juego, Ø3,5 × 29,5 mm): de la <strong>misma barra</strong> 6061-T6 que los 3 juegos de repuesto (R-PIN) y que los juegos de la probeta P1.9; extremos planos con chaflán chico (se tocan en el centro del eje).</li>
+<li><strong>Interfaces de la bomba (auditoría Pass 3, planos <span class="pid">P1-PMP-01</span>/05/06/08 y <span class="pid">P1-INT-01</span>):</strong> carcasa con <strong>espigón de centraje Ø140 h6</strong> concéntrico al asiento del anillo (una atada, TIR ≤ 0,03) y <strong>8 × M5 ciegos</strong> en la cara trasera (rosca 9 mm, enmascarar en el anodizado); 2 × M5 radiales roscados en pared + saliente. Tobera con <strong>brida Ø161,1</strong> (más chica que el agujero del espejo), espiga 12 mm con ranura de O-ring <strong>radial</strong> y largo controlado (+0/+0,05: deja 0,25 mm entre bridas). Estator: 2 agujeros <strong>lisos</strong> Ø5,5 × 3,5 (ya no roscados). Semipasadores <span class="pid">P1-PMP-05</span>: <strong>2 por juego</strong>, largo 29,5 mm.</li>
+<li><strong>Pórtico <span class="pid">P1-DRV-03</span>:</strong> zapatas con <strong>ranura de 9 mm abierta hacia popa</strong> (no agujeros) y paso del resalte Ø32,5 (no roza el aro interior del 7204 BECBP); mecanizar el Ø47 H7 después de soldar.</li>
+<li><strong>Traba y pivote del bucket (ronda 4, torno propio; planos <span class="pid">P1-REV-02</span>, <span class="pid">P1-REV-03</span> y P1-REV-04_embolo_*).</strong> La caja envolvente del CAD (columna de la tabla de arriba) incluye el tornillo en <span class="pid">P1-REV-02</span> y el pomo en <span class="pid">P1-REV-04</span>; la barra la compra la BOM con los overrides <code>form: bars</code> de <code>inputs.yaml bom.stock.overrides</code> (hallazgo 8 de §10, resuelto): <strong><code>MP-316-D40</code></strong> para el espaciador y para el cuerpo con collar + tapa del émbolo, <strong><code>MP-316-D18</code></strong> para el perno (largos y cantidad en la especificación de cada fila de <code>bom.csv</code>). La tabla de arriba muestra la barra más gruesa de cada pieza.<ul>
+<li><strong>Espaciador del pivote <span class="pid">P1-REV-02</span> (×2)</strong>, AISI 316 de barra Ø40 [CALCULADO: brida Ø36 + 2 de sobremedida → Ø38, comercial Ø40]: piloto Ø16 <strong>h6</strong> (entra en el Ø16 H7 de la oreja; 0,5 mm más corto que la oreja [CALCULADO: <span class="pid">P1-REV-02</span>.pilot_L]: aprieta la brida, no el piloto), brida Ø36 × 3 con la cara de apoyo plana y a escuadra con el piloto ≤ 0,02 [SUPUESTO: plano <span class="pid">P1-REV-02</span>], muñón Ø20 <strong>h7</strong> Ra 0,8 (gira el buje POM) y agujero Ø12,5 pasante. Tornear piloto, cara de la brida y muñón en una atada.</li>
+<li><strong>Émbolo <span class="pid">P1-REV-04</span> (×2)</strong>, AISI 316, propio porque el GN 617 de catálogo no llega (research/R08b, nota 2026-10-02). <em>Cuerpo con collar</em> de barra Ø40 (la compra la BOM: <code>MP-316-D40</code>, la misma barra que el espaciador; override <code>form: bars</code> de <span class="pid">P1-REV-04</span> en <code>inputs.yaml</code>): rosca exterior M24×1,5-6g desde la punta, de largo igual al espesor de la oreja (12 mm: la punta queda enrasada con la cara exterior cuando el collar apoya en la interior), <strong>collar integral Ø36 × 8 con dos planos e/c 32</strong> para la llave [CALCULADO: <code>piezas/_release.PLG_COLLAR_D/PLG_COLLAR_T</code>], cara de apoyo plana y a escuadra con la rosca ≤ 0,02 (plano P1-REV-04_embolo_cuerpo), cuerpo Ø24 hacia adentro, interior <strong>Ø16 H8</strong> pasante Ra 0,8 (guía del perno y, a continuación, cámara del resorte) y rosca interior M20×1 × 6 atrás para la tapa; tornear rosca, cara del collar e interior en una atada; <em>tapa</em> M20×1 de 4 mm con agujero Ø10,2 para la cola. Ya no lleva contratuerca: el collar se aprieta contra la cara interior de la oreja a 75 N·m con Loctite 243 (06 M13; auditoria.md R4-12). <em>Perno</em> de barra Ø18 (<code>MP-316-D18</code>): Ø16 <strong>h9</strong> Ra 0,8 con chaflán 1 × 45° en la punta, escalón (asiento del resorte) y cola Ø10 con M6 × 10 en el extremo; ajuste H8/h9: juego 0–0,07 mm [CALCULADO: ISO 286, Ø16]. <em>Pomo</em> Ø25 × 10 de POM (sobrante de la varilla de <span class="pid">P1-REV-03</span>) con rosca M6 y agujero transversal para el eslabón de cable Ø1,5 del balancín (<span class="pid">P1-REV-09</span>). Medidas en el plano y en <code>piezas/_release.PLG_*</code>; carrera 12 mm (liberar pide 9,5). Resorte comprado (B-SPRING) y fijador de roscas Loctite 243 (B-LOCK243); machos en B-TAP24.</li>
+<li><strong>Buje <span class="pid">P1-REV-03</span> (×2)</strong>, POM-C de varilla Ø32 [CALCULADO: brida Ø30 + 2]: exterior Ø24 con <strong>0,05–0,10 mm de interferencia</strong> [SUPUESTO: plano <span class="pid">P1-REV-03</span>] <strong>contra el agujero real</strong> del brazo (medirlo después de escariarlo, §4), largo 18; el interior se deja chico (Ø19,5 [SUPUESTO]) y se escaria a <strong>Ø20,1 (+0,05/0)</strong> DESPUÉS de prensar (el prensado cierra el agujero: R4-08). Entra en P1.10 (hinchamiento en agua) con <span class="pid">P1-PMP-07</span>/11.</li>
+</ul>
+</li>
+<li><strong>Orejas del bucket en la boquilla <span class="pid">P1-STE-01</span> (taller S-MILL-STE, plano <span class="pid">P1-STE-01</span>).</strong> Orejas de 12 mm; en cada una, agujero del pivote <strong>Ø16 H7 escariado</strong> (uno por oreja: ya no pasante de lado a lado) y rosca <strong>M24×1,5-6H</strong> del émbolo a 45 mm del pivote, a 10° (+Y) y -25° (−Y) del eje X, con ligamento hasta el borde del lóbulo r 20. Posición de la rosca ±0,1 respecto del pivote [SUPUESTO: plano <span class="pid">P1-STE-01</span>]: si no salen de la misma atada del CNC, con una <strong>guía de roscado</strong> referida al pivote (placa con espigón Ø16 h6 en el agujero H7, casquillo para la broca 22,5 y otro para el macho M24×1,5, a r 45 y al ángulo de esa oreja, orientada contra la cara mecanizada de la oreja). Cara exterior plana Ra 1,6 en Ø40 alrededor del pivote (apoyo de la brida del espaciador): <strong>se anodiza</strong> con el resto (no enmascarar: aísla el 316 del 6061; 06 §4). La cara <strong>interior</strong> alrededor de cada M24 es el apoyo del collar Ø36 del émbolo <span class="pid">P1-REV-04</span>: plana y a escuadra con la rosca [SUPUESTO: plano <span class="pid">P1-STE-01</span>] y <strong>también anodizada</strong> (no enmascarar). Las roscas M24 sí se enmascaran y se repasan con el macho (B-TAP24) después del anodizado.</li>
+<li><strong>Chapa:</strong> lo plano sale de <strong>corte láser/agua</strong> (S-LASER) con los planos de <code>04_diseno/planos/</code>; el taladrado, avellanado y plegado chico (<span class="pid">P1-CTL-01</span>/09/14, <span class="pid">P1-STE-04</span>/07/08, <span class="pid">P1-REV-09</span>) es propio. Tolerancias generales ISO 2768-m y Ra 1,6 en asientos (rótulo de los planos).</li>
 </ul>
 <hr />
 <h2 id="4-soldadura-al-5083-6082-y-316l">4. Soldadura (Al 5083, 6082 y 316L)</h2>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>Servicio</th>
@@ -1655,52 +1676,60 @@
 <tbody>
 <tr>
 <td>S-WELD-INT</td>
-<td>Soldadura TIG Al 5083 (aporte 5183) del conducto P1-INT-01 (rampa, transición, brida de bomba, chimenea) sobre la placa base P1-INT-02 + refrentado de la cara enrasada + prueba de estanqueidad</td>
+<td>Soldadura TIG Al 5083 (aporte 5183) del conducto <span class="pid">P1-INT-01</span> (rampa, transición, brida de bomba, chimenea) sobre la placa base <span class="pid">P1-INT-02</span> + refrentado de la cara enrasada + prueba de estanqueidad</td>
 <td>Soldador certificado en Al; plantilla de armado; prueba con agua/jabón y aire 0,3 bar</td>
-<td>P1-INT-01 P1-INT-02</td>
+<td><span class="pid">P1-INT-01</span> <span class="pid">P1-INT-02</span></td>
 <td>480</td>
 <td>[ESTIMADO: 6 h × 70 €/h + aporte y gas]</td>
 </tr>
 <tr>
 <td>S-WELD-AL</td>
-<td>Soldadura TIG de piezas chicas de Al: pórtico P1-DRV-03 y soporte del motor P1-MOT-02 (6082), bucket P1-REV-01 (chapa 6 mm, aros de refuerzo del pivote 8 mm; agujeros de traba se taladran DESPUÉS de soldar, montado) y soporte Mach5 P1-REV-05 (5083), grapas de P1-CTL-08, escalón de P1-CTL-10; rolado de la cuchara del bucket</td>
+<td>Soldadura TIG de piezas chicas de Al: pórtico <span class="pid">P1-DRV-03</span> y soporte del motor <span class="pid">P1-MOT-02</span> (6082), bucket <span class="pid">P1-REV-01</span> (chapa 8 mm, aros de refuerzo del pivote 10 mm; el alojamiento del buje Ø24 H7 y los agujeros de traba Ø16,5 se hacen DESPUÉS de soldar, 05 §4), soporte Mach5 <span class="pid">P1-REV-05</span> y soporte de reenvío del desbloqueo <span class="pid">P1-REV-09</span> (5083), grapas de <span class="pid">P1-CTL-08</span>, escalón, placa lateral y pestaña de tope de <span class="pid">P1-CTL-10</span>; rolado de la cuchara del bucket</td>
 <td>Aporte 5183 (5083) / 4043 o 5356 (6082); planos de 04_diseno/planos</td>
-<td>P1-DRV-03 P1-MOT-02 P1-REV-01 P1-REV-05 P1-CTL-08 P1-CTL-10</td>
-<td>320</td>
-<td>[ESTIMADO: 4 h × 70 €/h + rolado]</td>
+<td><span class="pid">P1-DRV-03</span> <span class="pid">P1-MOT-02</span> <span class="pid">P1-REV-01</span> <span class="pid">P1-REV-05</span> <span class="pid">P1-REV-09</span> <span class="pid">P1-CTL-08</span> <span class="pid">P1-CTL-10</span></td>
+<td>355</td>
+<td>[ESTIMADO: 4,5 h × 70 €/h + rolado (ronda 4: + 0,5 h por <span class="pid">P1-REV-09</span> y las placas de <span class="pid">P1-CTL-10</span>)]</td>
 </tr>
 <tr>
 <td>S-WELD-316</td>
-<td>Soldadura TIG 316L de la rejilla P1-INT-03 (9 pletinas perfiladas + pletina de popa + tirantes)</td>
+<td>Soldadura TIG 316L de la rejilla <span class="pid">P1-INT-03</span> (9 pletinas perfiladas + pletina de popa + tirantes)</td>
 <td>Aporte 316LSi, plantilla para mantener el enrase; decapado/pasivado</td>
-<td>P1-INT-03</td>
+<td><span class="pid">P1-INT-03</span></td>
 <td>140</td>
 <td>[ESTIMADO: 1,5 h × 70 €/h + decapado]</td>
 </tr>
 <tr>
 <td>S-LASER</td>
 <td>Corte láser / chorro de agua de las piezas de chapa (DXF de 04_diseno/planos)</td>
-<td>5083: placa base 10, placas de espejo/central/soporte 6, topes de dirección 8, bucket 6 (cuchara, brazos) y aros de refuerzo del pivote 8, soportes del Bowden 4 (plegado, ×2), brida yugo 20, brazo 10, conducto 5/12; 6061: palancas 8, gatillo 6; 6082: pórtico 12, soporte motor 10; 316: pletinas de rejilla 4</td>
-<td>P1-INT-01 P1-INT-02 P1-INT-03 P1-CTL-01 P1-CTL-08 P1-CTL-09 P1-CTL-10 P1-CTL-14 P1-REV-01 P1-REV-05 P1-REV-09 P1-STE-04 P1-STE-07 P1-STE-08 P1-DRV-03 P1-MOT-02</td>
-<td>220</td>
-<td>[ESTIMADO: preparación 50 € + ≈ 12 €/pieza]</td>
+<td>5083: placa base 10, placas de espejo/central/soporte 6, topes de dirección 8, bucket 8 (cuchara, brazos) y aros de refuerzo del pivote 10, soporte de reenvío del desbloqueo 6/5 (base, montante, 2 pestañas) + 2 balancines 5, brida yugo 20, brazo 10, conducto 5/12; 6061: palancas 8, gatillo 6, placa lateral del gatillo 4 y pestaña de tope 5 (<span class="pid">P1-CTL-10</span>); 6082: pórtico 12, soporte motor 10; 316: pletinas de rejilla 4</td>
+<td><span class="pid">P1-INT-01</span> <span class="pid">P1-INT-02</span> <span class="pid">P1-INT-03</span> <span class="pid">P1-CTL-01</span> <span class="pid">P1-CTL-08</span> <span class="pid">P1-CTL-09</span> <span class="pid">P1-CTL-10</span> <span class="pid">P1-CTL-14</span> <span class="pid">P1-REV-01</span> <span class="pid">P1-REV-05</span> <span class="pid">P1-REV-09</span> <span class="pid">P1-STE-04</span> <span class="pid">P1-STE-07</span> <span class="pid">P1-STE-08</span> <span class="pid">P1-DRV-03</span> <span class="pid">P1-MOT-02</span></td>
+<td>315</td>
+<td>[ESTIMADO: preparación 50 € + ≈ 12 €/pieza; ronda 4: + 8 piezas chicas del desbloqueo (base, montante, 2 pestañas y 2 balancines de <span class="pid">P1-REV-09</span>; placa lateral y pestaña de <span class="pid">P1-CTL-10</span>) ≈ + 95 €]</td>
 </tr>
 </tbody>
 </table></div>
-<p><strong>Procedimiento para el taller</strong> (conducto P1-INT-01 sobre placa base P1-INT-02, bucket P1-REV-01, soporte P1-REV-05, grapas de P1-CTL-08):</p>
+<p><strong>Procedimiento para el taller</strong> (conducto <span class="pid">P1-INT-01</span> sobre placa base <span class="pid">P1-INT-02</span>, bucket <span class="pid">P1-REV-01</span>, soporte <span class="pid">P1-REV-05</span>, grapas de <span class="pid">P1-CTL-08</span>):</p>
 <ul>
-<li><strong>Proceso:</strong> TIG en <strong>corriente alterna</strong> (limpia el óxido) con aporte <strong>ER5183</strong> para 5083 (la BOM lo fija); MIG pulsado con 5183 es aceptable para las costuras largas del conducto si el taller lo domina [ESTIMADO: práctica de soldadura de aluminio naval; confirmar con el soldador]. 6082 (pórtico P1-DRV-03, soporte del motor P1-MOT-02): 5356 o 4043 (BOM). Rejilla 316L: TIG con 316LSi, decapado y pasivado (S-WELD-316); el diseño actual tiene <strong>9 pletinas</strong> con luz de 12.24 mm y <strong>no se suelda a la toma</strong>: va aislada del 5083 con camisa/cinta de PTFE en las ranuras (06 §4), sin contacto metálico 316 ↔ 5083.</li>
+<li><strong>Proceso:</strong> TIG en <strong>corriente alterna</strong> (limpia el óxido) con aporte <strong>ER5183</strong> para 5083 (la BOM lo fija); MIG pulsado con 5183 es aceptable para las costuras largas del conducto si el taller lo domina [ESTIMADO: práctica de soldadura de aluminio naval; confirmar con el soldador]. 6082 (pórtico <span class="pid">P1-DRV-03</span>, soporte del motor <span class="pid">P1-MOT-02</span>): 5356 o 4043 (BOM). Rejilla 316L: TIG con 316LSi, decapado y pasivado (S-WELD-316); el diseño actual tiene <strong>9 pletinas</strong> con luz de 12,24 mm y <strong>no se suelda a la toma</strong>: va aislada del 5083 con camisa/cinta de PTFE en las ranuras (06 §4), sin contacto metálico 316 ↔ 5083.</li>
 <li><strong>Preparación:</strong> desengrasar, cepillo de <strong>inox dedicado</strong> al aluminio justo antes de soldar, punteado en <strong>plantilla</strong> (el enrase de la placa base con el casco y la concentricidad de la brida de la bomba importan más que la estética); chapas de 5 mm sin precalentar [ESTIMADO].</li>
-<li><strong>Secuencia del conducto:</strong> puntear todo → costuras cortas alternadas para no torcer la brida → <strong>refrentar la brida de la bomba, la brida de la chimenea y la cara enrasada después de soldar</strong> (la BOM incluye el refrentado en S-WELD-INT). <strong>Mecanizar después de soldar, en una atada:</strong> cara y <strong>rebaje de centraje Ø140 H7</strong> de la brida de la bomba, 8 agujeros, buje del sello Ø42 H8 con sus 4 × M6 y cara de la chimenea; coaxialidad rebaje ↔ buje ≤ 0,05 (plano <code>P1-INT-01_conducto.svg</code>). Las ranuras de la rejilla llevan 0.5 mm por lado para la camisa de PTFE.</li>
+<li><strong>Secuencia del conducto:</strong> puntear todo → costuras cortas alternadas para no torcer la brida → <strong>refrentar la brida de la bomba, la brida de la chimenea y la cara enrasada después de soldar</strong> (la BOM incluye el refrentado en S-WELD-INT). <strong>Mecanizar después de soldar, en una atada:</strong> cara y <strong>rebaje de centraje Ø140 H7</strong> de la brida de la bomba, 8 agujeros, buje del sello Ø42 H8 con sus 4 × M6 y cara de la chimenea; coaxialidad rebaje ↔ buje ≤ 0,05 (plano <code>P1-INT-01_conducto.svg</code>). Las ranuras de la rejilla llevan 0,5 mm por lado para la camisa de PTFE.</li>
 <li><strong>Alivio de tensiones: no se hace en 5083</strong> [ESTIMADO: 5083 es una aleación no tratable térmicamente (H111, endurecida por deformación); un tratamiento de alivio o un mantenimiento prolongado a 65–200 °C puede <strong>sensibilizar</strong> las aleaciones 5xxx con &gt; 3 % Mg a corrosión intergranular — <strong>verificar</strong> con el soldador / ficha del material]. La resistencia en la zona afectada por el calor (ZAT) ya está considerada: <code>structural_toma.py</code> y <code>structural_direccion.py</code> usan el Rp0,2 del 5083-O/H111 (= ZAT) y FAT 25 en las costuras; <code>structural_tren.py</code> usa el admisible de ZAT del 6082-T6 en el pórtico y el soporte del motor.</li>
-<li><strong>Bucket P1-REV-01 (traba en los dos brazos, auditoría ronda 3):</strong> chapa de 8 mm; aro de refuerzo Ø20 mm de radio × 10 mm soldado en la cara exterior de cada brazo; el alojamiento del buje Ø24 H7 (brazo + aro) se mecaniza <strong>después de soldar</strong>, coaxial en los dos brazos, en una atada. Los <strong>4 agujeros de traba Ø16.5 H8 se taladran después de soldar y con el bucket MONTADO en la boquilla</strong> (pivotes P1-REV-02 apretados), porque el reparto entre las dos trabas depende de que sus agujeros coincidan (FEA ronda 3: con 0.10 mm de desfase una traba ya toma ~78% de M_h):<ol>
-<li>Bucket ABAJO en su plantilla de ángulo; casquillo guía de taladrado M20 × 1,5 / Ø12,2 (B-REAM12, torneado) roscado y apretado en la oreja <strong>+Y</strong> en lugar del émbolo; broca Ø12,2 y escariador Ø12,5 H8 a través del casquillo. Repetir con el bucket ARRIBA.</li>
-<li>Montar el émbolo +Y (trabado ABAJO) y empujar el bucket a mano en el sentido en que lo carga el chorro (hacia ARRIBA) hasta que el perno apoye en su agujero.</li>
-<li>Así apoyado, casquillo guía en la oreja <strong>−Y</strong>: taladrar y escariar el agujero ABAJO del brazo −Y. Repetir ARRIBA (sin carga del chorro en esa posición).</li>
-<li>Montar el émbolo −Y y hacer la <strong>prueba de desfase</strong> (06, T0.M6b): pasa si la diferencia de lecturas del comparador en el labio inferior de la cuchara (a 165 mm del pivote) es ≤ 0.37 mm (= 0.10 mm en el agujero). Si no pasa: escariar el agujero ABAJO del brazo −Y a Ø16 H7, montar un <strong>casquillo excéntrico</strong> de Al 5083 (Ø16 × Ø12,5, excentricidad 0,3 mm, torneado), girarlo hasta anular el desfase, fijarlo con Loctite 648 + 2 puntos de soldadura TIG y repetir la prueba.</li>
+<li>
+<p><strong>Bucket <span class="pid">P1-REV-01</span> (ronda 4: criterio de traba única).</strong> Cada traba sola lleva todo M_h (135,3 N·m con la reversa R12 [CALCULADO]; 3 006 N en el perno): la resistencia ya no depende de que los agujeros de los dos brazos coincidan, así que se eliminó el taladrado coincidente con el bucket montado y la prueba con comparador. Secuencia:</p>
+<ol>
+<li><strong>Corte (S-LASER):</strong> cuchara (desarrollo) y brazos en chapa 5083 de 8 mm; 2 aros de refuerzo de 10 mm (MP-5083-AROS) de radio 20 mm (Ø40 [CALCULADO: 2 × REV_boss_r]). El agujero del buje sale del láser <strong>chico</strong> (Ø22 [SUPUESTO]) en brazos y aros; los agujeros de traba <strong>no</strong> se cortan (o solo un piloto ≤ Ø12 [SUPUESTO] que la broca se come).</li>
+<li><strong>Soldadura (S-WELD-AL):</strong> cuchara rolada y brazos en la plantilla de armado en posición ABAJO (plano P1-REV-01_bucket_cuchara); cada aro en la cara exterior de su brazo, centrado con un perno en los agujeros chicos. TIG con ER5183.</li>
+<li><strong>Alojamiento del buje Ø24 H7, DESPUÉS de soldar:</strong> broca 23,7 y escariador largo Ø24 H7 (B-REAM16) <strong>de una pasada por los dos brazos</strong> (brazo + aro), el segundo guiado por el primero, o los dos en una atada en la fresadora. Control: un perno patrón Ø24 h6 pasa por los dos a la vez.</li>
+<li>
+<p><strong>Agujeros de traba Ø16,5, con plantilla referida al agujero del buje</strong> (los 4: ARRIBA y ABAJO en los dos brazos). Plantilla (B-REAM16, de recortes): una placa de acero o Al de ≈ 10 mm por brazo, con espigón <strong>Ø24 h6</strong> que entra en el alojamiento recién escariado y <strong>2 puestos de casquillo</strong> (casquillo portador fijo + casquillos guía recambiables tipo DIN 173: uno con el agujero de la broca 16,2 y otro con el del escariador, cada uno F7 sobre el Ø <strong>medido</strong> de su herramienta; un escariador para Ø16,5 +0,1/0 no pasa por un casquillo de Ø16,5 nominal: auditoría ronda 4, M2) a 45 mm del centro: uno en el ángulo de la traba ABAJO de ese brazo (10° en el +Y, -25° en el −Y, marco de la boquilla con el bucket ABAJO) y otro girado 70° alrededor del centro (traba ARRIBA): coordenadas de los planos P1-REV-01_bucket_brazo_estribor / _babor. Las dos placas van fijas a un mandril Ø24 h6 que pasa por los dos brazos (pasador o chaveta entre placa y mandril), así quedan <strong>en fase</strong> entre sí; la orientación del conjunto se toma del contorno del brazo con una escuadra (el ángulo absoluto solo cambia la posición del bucket trabado, no la resistencia). Broca 16,2 por su casquillo; cambiar el casquillo sin mover la plantilla y escariador Ø16,5 (+0,1/0) por el suyo.
+    <strong>Tolerancia de posición ±0,2 mm</strong> respecto del centro del buje [SUPUESTO: plano <span class="pid">P1-REV-01</span>]: alcanza porque el juego perno ↔ agujero es 16,5 − 16 = 0,5 mm en el diámetro [CALCULADO], el bucket gira libre en su pivote hasta que entra el primer perno y el chaflán 1 × 45° del perno centra el resto, y porque la resistencia ya no depende del reparto entre trabas. Lo que sí tiene que cumplirse —que <strong>entren los dos pernos</strong> ARRIBA y ABAJO— lo comprueba la prueba funcional de 06 (T0.M6b).</p>
+</li>
+<li>
+<p><strong>Buje <span class="pid">P1-REV-03</span>:</strong> medir el Ø24 real; tornear el exterior del buje con 0,05–0,10 mm de interferencia (§3), prensar con prensa de husillo (sin golpes) y <strong>escariar el interior a Ø20,1 (+0,05/0) con el buje ya prensado</strong>, los dos brazos de una pasada. El espaciador <span class="pid">P1-REV-02</span> (muñón Ø20 h7) tiene que girar a mano en los dos bujes. Después, P1.10.
+- <strong>Prueba de estanqueidad del conducto (antes de instalarlo):</strong> tapar la brida de la bomba y la boca de la toma con placas + goma; la BOM pide <strong>aire a 0,3 bar con agua jabonosa</strong> (S-WELD-INT) → 0 burbujas en las costuras en 10 min [SUPUESTO: tiempo]. <strong>Ojo:</strong> 0,3 bar es menos que la presión de cierre 67 232 Pa y que el golpe de fondo 50 000 Pa que ve el conducto: sirve para encontrar poros, no como prueba de resistencia. Recomendado además: <strong>prueba hidrostática con agua</strong> a 1,5 × la presión de cierre, 15 min, sin gotas [SUPUESTO: mismo criterio que P1.11; ver §10].</p>
+</li>
 </ol>
 </li>
-<li><strong>Prueba de estanqueidad del conducto (antes de instalarlo):</strong> tapar la brida de la bomba y la boca de la toma con placas + goma; la BOM pide <strong>aire a 0,3 bar con agua jabonosa</strong> (S-WELD-INT) → 0 burbujas en las costuras en 10 min [SUPUESTO: tiempo]. <strong>Ojo:</strong> 0,3 bar es menos que la presión de cierre 67222 Pa y que el golpe de fondo 50000 Pa que ve el conducto: sirve para encontrar poros, no como prueba de resistencia. Recomendado además: <strong>prueba hidrostática con agua</strong> a 1,5 × la presión de cierre, 15 min, sin gotas [SUPUESTO: mismo criterio que P1.11; ver §10].</li>
 </ul>
 <hr />
 <h2 id="5-cnc-5-ejes-impulsor-y-estator">5. CNC 5 ejes: impulsor y estator</h2>
@@ -1716,22 +1745,22 @@
 </thead>
 <tbody>
 <tr>
-<td>Impulsor P1-PMP-03</td>
-<td>AISI 316; 5 álabes; Ø132,0 punta, cubo Ø66,0; masa CAD 1 336 g</td>
+<td>Impulsor <span class="pid">P1-PMP-03</span></td>
+<td>AISI 316; 5 álabes; Ø132,0 punta, cubo Ø66,0; masa CAD 1 334 g</td>
 <td><code>04_diseno/step/P1-PMP-03_impeller.step</code> + <code>P1-PMP-03_impeller_hub.svg</code>, <code>P1-PMP-03_tabla_angulos_alabes.svg</code></td>
 <td>Ø de puntas torneado a medida del anillo: holgura radial 0,40 mm (Ø anillo 132,79); agujero del eje y agujero del pasador según plano del cubo</td>
-<td>G6.3 a 4 181 rpm: e_per = 14,4 µm → U_per = 19,2 g·mm (dos planos: la mitad por plano)</td>
+<td>G6.3 a 4 182 rpm: e_per = 14,4 µm → U_per = 19,2 g·mm (dos planos: la mitad por plano)</td>
 </tr>
 <tr>
-<td>Estator P1-PMP-06</td>
-<td>Al 6061-T6; 7 álabes + camisa + cubo; masa CAD 1 518 g</td>
+<td>Estator <span class="pid">P1-PMP-06</span></td>
+<td>Al 6061-T6; 7 álabes + camisa + cubo; masa CAD 1 522 g</td>
 <td><code>04_diseno/step/P1-PMP-06_stator.step</code> + <code>P1-PMP-06_stator.svg</code></td>
-<td>alojamiento del buje P1-PMP-07 (H7) y bridas según plano; anodizado duro después (S-ANOD)</td>
+<td>alojamiento del buje <span class="pid">P1-PMP-07</span> (H7) y bridas según plano; anodizado duro después (S-ANOD)</td>
 <td>no gira: sin balanceo</td>
 </tr>
 </tbody>
 </table></div>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>Sección</th>
@@ -1748,7 +1777,7 @@
 <td>cubo</td>
 <td>33,0</td>
 <td>17,5</td>
-<td>28,1</td>
+<td>28,0</td>
 <td>41,3</td>
 <td>53,5</td>
 <td>0,71</td>
@@ -1774,7 +1803,7 @@
 </tbody>
 </table></div>
 <p>Ángulos de flujo de <code>resultados/sizing.json</code> (pump.sections, desde la tangencial); los de <strong>pala</strong> (con incidencia y desviación) están en <code>P1-PMP-03_tabla_angulos_alabes.svg</code>, que es lo que se manda.</p>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>Servicio</th>
@@ -1800,16 +1829,16 @@
 </table></div>
 <p><strong>Qué mandar al taller</strong> (S-CNC-IMP / S-CNC-STAT; cotizar con Xometry, Protolabs, JLCCNC o un taller UE [ESTIMADO: research/R11 §6]):</p>
 <ol>
-<li><strong>STEP</strong> de <code>04_diseno/step/</code> (P1-PMP-03 impulsor y P1-PMP-06 estator): es la geometría que manda.</li>
+<li><strong>STEP</strong> de <code>04_diseno/step/</code> (<span class="pid">P1-PMP-03</span> impulsor y <span class="pid">P1-PMP-06</span> estator): es la geometría que manda.</li>
 <li><strong>Tabla de ángulos de los álabes</strong> <code>04_diseno/planos/P1-PMP-03_tabla_angulos_alabes.svg</code> (β de pala en cubo/medio/punta, cuerda, espesor, apilado) para que el programador controle la superficie, y los planos del cubo y del estator (<code>P1-PMP-03_impeller_hub.svg</code>, <code>P1-PMP-06_stator.svg</code>) con los asientos.</li>
 <li><strong>Material:</strong> impulsor <strong>AISI 316L</strong> (no 1.4301: no apto sumergido, research/R08b §2); estator <strong>Al 6061-T6</strong>, después <strong>anodizado duro</strong> (§6).</li>
-<li><strong>Tolerancias:</strong> generales ISO 2768-m; superficies de álabe ±0,2 mm de perfil y Ra ≤ 3,2 µm [ESTIMADO: práctica de impulsores chicos; acordar con el taller]; agujero del eje H7 y agujero transversal del pasador escariado a Ø3.5 + 0,05 (plano del cubo); <strong>Ø de puntas con sobremedida</strong>, a tornear al final contra el anillo de desgaste ya montado para dejar la holgura radial de 0.40 mm (P1.12).</li>
-<li><strong>Balanceo dinámico G6.3</strong> en dos planos a la velocidad máxima 4181 rpm (ISO 21940-11, grado usual de impulsores de bomba [ESTIMADO: verificar con el taller]); la tabla da la excentricidad y el desbalance residual admisibles con la masa del CAD. Corregir quitando material en el cubo, no en los álabes.</li>
+<li><strong>Tolerancias:</strong> generales ISO 2768-m; superficies de álabe ±0,2 mm de perfil y Ra ≤ 3,2 µm [ESTIMADO: práctica de impulsores chicos; acordar con el taller]; agujero del eje H7 y agujero transversal del pasador escariado a Ø3,5 + 0,05 (plano del cubo); <strong>Ø de puntas con sobremedida</strong>, a tornear al final contra el anillo de desgaste ya montado para dejar la holgura radial de 0,40 mm (P1.12).</li>
+<li><strong>Balanceo dinámico G6.3</strong> en dos planos a la velocidad máxima 4 182 rpm (ISO 21940-11, grado usual de impulsores de bomba [ESTIMADO: verificar con el taller]); la tabla da la excentricidad y el desbalance residual admisibles con la masa del CAD. Corregir quitando material en el cubo, no en los álabes.</li>
 </ol>
 <p><strong>Alternativa SLM 316L + torneado</strong> (research/R11 §6): JLC3DP imprime 316L en 390 × 390 × 290 mm con ±0,3 mm o 0,4 %, Ra 3,2–12 µm, en ~72 h [VERIFICADO: R11 §6]; ≈ 330–610 € con el torneado del Ø exterior, del agujero y el balanceo [ESTIMADO: R11 §9]. Exige sobremedida en Ø de puntas, cubo y agujero para tornear después [SUPUESTO: 0,5 mm], granallado/pulido de los álabes (la rugosidad de SLM suma pérdidas) y los mismos controles: P1.12 y balanceo.</p>
 <hr />
 <h2 id="6-anodizado-duro-y-aislamiento-galvánico">6. Anodizado duro y aislamiento galvánico</h2>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>Ítem (bom.csv)</th>
@@ -1847,9 +1876,9 @@
 </tr>
 <tr>
 <td>S-ANOD</td>
-<td>Anodizado duro tipo III ~50 µm (lote): carcasa P1-PMP-01, estator P1-PMP-06, tobera P1-PMP-08, boquilla P1-STE-01, poste P1-STE-06</td>
-<td>MIL-A-8625 tipo III, sellado; enmascarar roscas, asientos H7 y ranuras de O-ring. Material incluido en el servicio [CALCULADO del bbox]: P1-PMP-06 168,8 × 142,8 × 142,8 → barra Al 6061-T6 (alt. 6082-T6) Ø150 × 184 mm</td>
-<td>P1-PMP-01 (Al 6061-T6), P1-PMP-06 (Al 6061-T6), P1-PMP-08 (Al 6061-T6), P1-STE-01 (Al 6061-T6), P1-STE-06 (Al 6061-T6)</td>
+<td>Anodizado duro tipo III ~50 µm (lote): carcasa <span class="pid">P1-PMP-01</span>, estator <span class="pid">P1-PMP-06</span>, tobera <span class="pid">P1-PMP-08</span>, boquilla <span class="pid">P1-STE-01</span>, poste <span class="pid">P1-STE-06</span></td>
+<td>MIL-A-8625 tipo III, sellado; enmascarar roscas, asientos H7 y ranuras de O-ring. Material incluido en el servicio [CALCULADO del bbox]: <span class="pid">P1-PMP-06</span> 168,8 × 142,8 × 142,8 → barra Al 6061-T6 (alt. 6082-T6) Ø150 × 184 mm</td>
+<td><span class="pid">P1-PMP-01</span> (Al 6061-T6), <span class="pid">P1-PMP-06</span> (Al 6061-T6), <span class="pid">P1-PMP-08</span> (Al 6061-T6), <span class="pid">P1-STE-01</span> (Al 6061-T6), <span class="pid">P1-STE-06</span> (Al 6061-T6)</td>
 <td>220</td>
 <td>[ESTIMADO: mínimo de facturación de lote 150–300 €]</td>
 </tr>
@@ -1858,8 +1887,8 @@
 <ul>
 <li><strong>Par galvánico:</strong> 316 pasivo vs. aluminio en agua salobre ≈ 670 mV de diferencia, contra ~200 mV de límite práctico [VERIFICADO: research/R06 §0/§6; R10b H21 lo marca como riesgo medio]. El ánodo es el aluminio (carcasa, estator, tobera, conducto) y el cátodo es el impulsor + anillo de 316.</li>
 <li><strong>Anodizado duro tipo III</strong> (~50 µm, sellado) de carcasa, estator, tobera, boquilla y poste (S-ANOD): aísla y resiste la erosión. <strong>Enmascarar</strong> roscas, asientos H7 y ranuras de O-ring; la capa crece en parte hacia afuera [ESTIMADO: pedir al anodizador el crecimiento por cara] → los asientos que no se enmascaran se mecanizan con esa compensación. Anodizar <strong>después</strong> de todo mecanizado y <strong>antes</strong> del montaje y de la prueba hidrostática P1.11.</li>
-<li><strong>Tef-Gel</strong> en <strong>toda</strong> rosca, asiento y cara de contacto 316/A4 ↔ Al (bridas de la bomba, anillo de desgaste en la carcasa, espárragos del pórtico, pernos de la boquilla) [VERIFICADO: R06 §6 "ideal to isolate and separate dissimilar materials such as Aluminium and Stainless Steel"].</li>
-<li><strong>Arandelas aislantes</strong> (fibra/nylon, B-ISOW) bajo cabezas y tuercas A4 sobre Al; <strong>bujes POM</strong> entre pernos 316 y orejas de Al (P1-PMP-11, P1-REV-03, P1-STE-03).</li>
+<li><strong>Tef-Gel</strong> en <strong>toda</strong> rosca, asiento y cara de contacto 316/A4 ↔ Al (bridas de la bomba, anillo de desgaste en la carcasa, espárragos del pórtico, pernos de la boquilla) [VERIFICADO: R06 §6 "ideal to isolate and separate dissimilar materials such as Aluminium and Stainless Steel"]. <strong>Excepción:</strong> la rosca M24×1,5 del cuerpo de los émbolos <span class="pid">P1-REV-04</span> en las orejas va con Loctite 243 y sin Tef-Gel: el par de apriete se calculó para esa rosca con fijador (fila «la unión no se abre» de <span class="pid">P1-REV-04</span>, <code>estructural.json</code>) y el collar apoya en la cara anodizada (06 §4).</li>
+<li><strong>Arandelas aislantes</strong> (fibra/nylon, B-ISOW) bajo cabezas y tuercas A4 sobre Al; <strong>bujes POM</strong> entre pernos 316 y orejas de Al (<span class="pid">P1-PMP-11</span>, <span class="pid">P1-REV-03</span>, <span class="pid">P1-STE-03</span>).</li>
 <li><strong>Ánodo de aluminio</strong> (no zinc, no magnesio en agua salobre [VERIFICADO: R06 §6]) atornillado a la carcasa/conducto con <strong>continuidad eléctrica</strong> medida con multímetro (&lt; 1 Ω [SUPUESTO]); cambiar al 50 % consumido o cada año [VERIFICADO: R06 §6, Fisheries Supply].</li>
 <li>Las piezas de 5083 sin anodizar (conducto, placa base, placas) son aleación marina: se dejan desnudas o con imprimación epoxi marina; nunca antifouling con cobre sobre aluminio [ESTIMADO].</li>
 </ul>
@@ -1867,7 +1896,7 @@
 <h2 id="7-probetas-y-ensayos-de-taller-04_disenoprobetas">7. Probetas y ensayos de taller (<code>04_diseno/probetas/</code>)</h2>
 <p><code>python 04_diseno/probetas/build_probetas.py</code> construye las probetas impresas (STEP + STL en orientación de impresión en <code>step/</code> y <code>stl/</code>), registra los ensayos de taller, escribe <code>probetas_manifest.json</code> (envolvente, masa, malla cerrada, cotas verificadas y criterios con números) y regenera estas tablas. Cada módulo <code>PRB-P1.x_*.py</code> lee la geometría de <code>04_diseno/piezas/</code> y las cargas de <code>sizing.json</code> / <code>estructural.json</code>: si cambia el diseño, cambian las probetas y sus criterios. Se eliminaron las probetas de la cola larga (rodamiento en PETG, tuerca M6 de la horquilla, barras de flexión, cuello del patín).</p>
 <h3 id="71-probetas-impresas">7.1 Probetas impresas</h3>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>Ensayo</th>
@@ -1913,7 +1942,7 @@
 <td>6,6</td>
 <td>0,9</td>
 <td>sí</td>
-<td>Recorte del nervio de P1-ELE-01 (20 × 12 mm + pared 3.2) con el agujero de inserto Ø6.4 × 10.5; pasador de tiro Ø8.4</td>
+<td>Recorte del nervio de <span class="pid">P1-ELE-01</span> (20 × 12 mm + pared 3.2) con el agujero de inserto Ø6.4 × 10.5; pasador de tiro Ø8.4</td>
 </tr>
 <tr>
 <td>P1.6</td>
@@ -1935,7 +1964,7 @@
 <td>183,6</td>
 <td>19,8</td>
 <td>sí</td>
-<td>Tapa Ø120 × 13 (= espesor de P1-INT-04), ranura 2.65 × 4.73 en r = 38.4, resalte de purga Ø26 con tuerca M6 cautiva, 4 × M6</td>
+<td>Tapa Ø120 × 13 (= espesor de <span class="pid">P1-INT-04</span>), ranura 2.65 × 4.73 en r = 38.4, resalte de purga Ø26 con tuerca M6 cautiva, 4 × M6</td>
 </tr>
 <tr>
 <td>P1.7</td>
@@ -1973,7 +2002,7 @@
 </tbody>
 </table></div>
 <h3 id="72-criterios-pasa-no-pasa-generado">7.2 Criterios pasa / no-pasa (generado)</h3>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>Ensayo</th>
@@ -1989,31 +2018,31 @@
 <td>P1.1</td>
 <td>impresa (CAD)</td>
 <td>Peine de holguras (Ø reales de las piezas impresas)</td>
-<td>P1-INT-04, P1-ELE-01, P1-ELE-02, P1-CTL-02, P1-CTL-03</td>
+<td><span class="pid">P1-INT-04</span>, <span class="pid">P1-ELE-01</span>, <span class="pid">P1-ELE-02</span>, <span class="pid">P1-CTL-02</span>, <span class="pid">P1-CTL-03</span></td>
 <td>El agujero rotulado con la holgura del CAD mide d + c_CAD ± 0,10 mm y la pieza real entra a mano; la tuerca M6 entra en la fila del CAD y no cae al dar vuelta la probeta. Si no: la holgura a usar es la menor fila que acepta la pieza → corregir el CAD (inputs.yaml geometry.clearance_mm / bolt_clearance_mm) antes de imprimir las piezas.</td>
 <td>9/9 OK</td>
 </tr>
 <tr>
 <td>P1.4</td>
 <td>impresa (CAD)</td>
-<td>Inserto térmico M5 inox en el nervio de P1-ELE-01</td>
-<td>P1-ELE-01, P1-ELE-02</td>
+<td>Inserto térmico M5 inox en el nervio de <span class="pid">P1-ELE-01</span></td>
+<td><span class="pid">P1-ELE-01</span>, <span class="pid">P1-ELE-02</span></td>
 <td>Las 3 resisten ≥ 120 N (= FS 3 × 40 N por inserto, estructural.json) sin arrancar y el inserto no gira con ≥ 4 N·m (2 × apriete M5 sobre PETG) [SUPUESTO: criterio de giro]. A ras ±0,2 mm, sin fisura alrededor (lupa 10×).</td>
 <td>3/3 OK</td>
 </tr>
 <tr>
 <td>P1.6</td>
 <td>impresa (CAD)</td>
-<td>Tapa con O-ring de cara y purga (réplica de P1-INT-04) a la presión de la chimenea</td>
-<td>P1-INT-04, P1-INT-01</td>
+<td>Tapa con O-ring de cara y purga (réplica de <span class="pid">P1-INT-04</span>) a la presión de la chimenea</td>
+<td><span class="pid">P1-INT-04</span>, <span class="pid">P1-INT-01</span></td>
 <td>En (1), (2) y (3): caída ≤ 10 % de la presión de ensayo en 15 min, 0 gotas en el O-ring y en la purga (papel tisú alrededor) y sin burbujas con agua jabonosa; sin fisura ni blanqueo en el resalte de la purga. Si gotea: separar O-ring / purga / poros repitiendo con la purga sellada con teflón.</td>
 <td>10/10 OK</td>
 </tr>
 <tr>
 <td>P1.7</td>
 <td>impresa (CAD)</td>
-<td>Absorción de agua (perfil de P1-INT-04)</td>
-<td>P1-INT-04</td>
+<td>Absorción de agua (perfil de <span class="pid">P1-INT-04</span>)</td>
+<td><span class="pid">P1-INT-04</span></td>
 <td>Ganancia (m7 − m0)/m0 ≤ 1 % en los 3 cubos. Referencia: PETG macizo ~0,3 % a saturación [VERIFICADO: research/R05 S11]; impreso absorbe más por porosidad [VERIFICADO: R05 S14].</td>
 <td>1/1 OK</td>
 </tr>
@@ -2021,7 +2050,7 @@
 <td>P1.9</td>
 <td>taller (sin CAD)</td>
 <td>Semipasadores de corte (juego de 2) en dispositivo de corte doble</td>
-<td>P1-PMP-05, P1-PMP-03, P1-DRV-01</td>
+<td><span class="pid">P1-PMP-05</span>, <span class="pid">P1-PMP-03</span>, <span class="pid">P1-DRV-01</span></td>
 <td>Los 3 juegos cortan entre 26,8 y 40,2 N·m (0,8–1,2 × T_cut) = 54–80 N en el brazo, con las 2 secciones cortadas en la cara muñón ↔ manguito (una por semipasador) y los restos salen con el botador. Si cortan abajo: barra más blanda (no T6) → cambiar de barra; si cortan arriba: no subir el Ø, revisar material y agujeros (filo vivo); si un solo semipasador corta: agujeros desalineados.</td>
 <td>5/5 OK</td>
 </tr>
@@ -2029,15 +2058,15 @@
 <td>P1.10</td>
 <td>taller (sin CAD)</td>
 <td>Hinchamiento de los bujes POM-C a 48 h en agua</td>
-<td>P1-PMP-07, P1-PMP-11</td>
-<td>P1-PMP-07: Ø int a 48 h ≥ Ø eje P1-DRV-01 medido + 0,10 mm (≥ 20,10 con Ø nominal 20; CAD 20,2); P1-PMP-11: Ø int a 48 h ≥ Ø perno con hombro de dirección medido + 0,05 mm (≥ 8,05 con Ø nominal 8; CAD 8,1). Si no: repasar el Ø int con escariador al Ø del CAD y repetir.</td>
+<td><span class="pid">P1-PMP-07</span>, <span class="pid">P1-PMP-11</span></td>
+<td><span class="pid">P1-PMP-07</span>: Ø int a 48 h ≥ Ø eje <span class="pid">P1-DRV-01</span> medido + 0,10 mm (≥ 20,10 con Ø nominal 20; CAD 20,2); <span class="pid">P1-PMP-11</span>: Ø int a 48 h ≥ Ø perno con hombro de dirección medido + 0,05 mm (≥ 8,05 con Ø nominal 8; CAD 8,1). Si no: repasar el Ø int con escariador al Ø del CAD y repetir.</td>
 <td>2/2 OK</td>
 </tr>
 <tr>
 <td>P1.11</td>
 <td>taller (sin CAD)</td>
 <td>Prueba hidrostática de carcasa + estator + tobera</td>
-<td>P1-PMP-01, P1-PMP-02, P1-PMP-06, P1-PMP-08</td>
+<td><span class="pid">P1-PMP-01</span>, <span class="pid">P1-PMP-02</span>, <span class="pid">P1-PMP-06</span>, <span class="pid">P1-PMP-08</span></td>
 <td>A 0,30 MPa (3,0 bar) durante 15 min: caída ≤ 2 %, 0 gotas en la brida de entrada, en la luz entre bridas carcasa ↔ tobera (O-ring radial), en el puerto y en los tornillos anti-rotación del estator (papel tisú), y deformación permanente del Ø del asiento ≤ 0,02 mm. Sin aire en la prueba (seguridad: una prueba con aire guarda energía).</td>
 <td>5/5 OK</td>
 </tr>
@@ -2045,19 +2074,19 @@
 <td>P1.12</td>
 <td>taller (sin CAD)</td>
 <td>Holgura de punta impulsor ↔ anillo de desgaste</td>
-<td>P1-PMP-02, P1-PMP-03</td>
+<td><span class="pid">P1-PMP-02</span>, <span class="pid">P1-PMP-03</span></td>
 <td>Todas las lecturas entre 0,30 y 0,40 mm y diferencia máx. − mín. ≤ 0,05 mm; el impulsor gira sin roce. Menor: repasar el anillo (no el impulsor); mayor: anillo nuevo (el anillo es la pieza de desgaste).</td>
 <td>2/2 OK</td>
 </tr>
 </tbody>
 </table></div>
-<p>Datos de partida de los criterios: 2 semipasadores por juego (cada uno cruza una vez la superficie del eje: 2 secciones de corte, como el pasador pasante de sizing), Ø3.5 mm de Al 6061-T6, corte de diseño 33.5 N·m contra 18.6 N·m máximos del controlador; presión de diseño de la bomba 200000 Pa (prueba × 1,5, research/R12 §7.2); presión de la chimenea 67222 Pa; holgura de punta 0.396 mm sobre Ø132 mm.</p>
+<p>Datos de partida de los criterios: 2 semipasadores por juego (cada uno cruza una vez la superficie del eje: 2 secciones de corte, como el pasador pasante de sizing), Ø3,5 mm de Al 6061-T6, corte de diseño 33,5 N·m contra 18,6 N·m máximos del controlador; presión de diseño de la bomba 200 000 Pa (prueba × 1,5, research/R12 §7.2); presión de la chimenea 67 232 Pa; holgura de punta 0,396 mm sobre Ø132 mm.</p>
 <h3 id="73-procedimientos">7.3 Procedimientos</h3>
 <ul>
 <li><strong>P1.1 — Peine de holguras (Ø reales de las piezas impresas)</strong> (impresa). Medir cada agujero con pernos patrón (vástagos de broca) o calibre; probar la pieza real: tornillo M5/M6 A4, cuerpo del prensaestopas M16, cuerpo del interruptor de cordón y de la seta (Ø22), tuerca ISO 4032 M6 A4 en los hexágonos (empujada con el pulgar desde la cara de cama).</li>
-<li><strong>P1.4 — Inserto térmico M5 inox en el nervio de P1-ELE-01</strong> (impresa). Tornillo M5 A4 con cáncamo en el inserto; pasador M8 en el agujero inferior a una horquilla fija; tirar con dinamómetro a ~10 N/s. 3 probetas. Además: torque de giro del inserto con llave dinamométrica (o brazo + dinamómetro). <em>Instalación:</em> Inserto M5 de inox 300 (en zona húmeda solo inox: latón se descinfica, research/R05 A10.2) [VERIFICADO: research/R05 S29 existen]; soldador a ~250–260 °C [ESTIMADO: research/R05 A10.3]; hundir el 90 % con la punta y el resto con herramienta plana [VERIFICADO: R05 S28].</li>
-<li><strong>P1.6 — Tapa con O-ring de cara y purga (réplica de P1-INT-04) a la presión de la chimenea</strong> (impresa). Medir ranura (profundidad y ancho) y planitud de las dos caras de sello (regla + galgas). Cordón NBR70 con empalme a tope y grasa de silicona; 4 × M6 A4 con arandela ancha apretados a mano (perillas, como INT-04); purga M6 × 12 con arandela de estanqueidad. Conjunto con la tapa arriba (como en el bote), apoyado en dos listones (la válvula queda abajo); un dedo de agua adentro para mojar el O-ring. (1) +p con inflador con manómetro, 15 min, agua jabonosa por fuera; (2) −p con bomba de vacío manual (válvula sin obús), 15 min; (3) 20 ciclos abrir/cerrar tapa y purga, repetir (1). Con aire la energía guardada es chica (cavidad 56 cm³: p·V = 3,8 J [CALCULADO]); igual, gafas.</li>
-<li><strong>P1.7 — Absorción de agua (perfil de P1-INT-04)</strong> (impresa). Acondicionar 48 h con desecante (no secar a 65 °C: Tg ~69 °C); pesar m0 (balanza 0,01 g). Sumergir 7 días en agua con 25 g/L de sal a temperatura ambiente; secar la superficie con papel y pesar m7 en &lt; 1 min. Opcional: seguir a 30 días (saturación en semanas, research/R05 A2). <em>Si no pasa:</em> Revisar secado del filamento y solape relleno–perímetro del perfil sellado; la tapa es reemplazable (el CAD está) — inspeccionarla cada temporada.</li>
+<li><strong>P1.4 — Inserto térmico M5 inox en el nervio de <span class="pid">P1-ELE-01</span></strong> (impresa). Tornillo M5 A4 con cáncamo en el inserto; pasador M8 en el agujero inferior a una horquilla fija; tirar con dinamómetro a ~10 N/s. 3 probetas. Además: torque de giro del inserto con llave dinamométrica (o brazo + dinamómetro). <em>Instalación:</em> Inserto M5 de inox 300 (en zona húmeda solo inox: latón se descinfica, research/R05 A10.2) [VERIFICADO: research/R05 S29 existen]; soldador a ~250–260 °C [ESTIMADO: research/R05 A10.3]; hundir el 90 % con la punta y el resto con herramienta plana [VERIFICADO: R05 S28].</li>
+<li><strong>P1.6 — Tapa con O-ring de cara y purga (réplica de <span class="pid">P1-INT-04</span>) a la presión de la chimenea</strong> (impresa). Medir ranura (profundidad y ancho) y planitud de las dos caras de sello (regla + galgas). Cordón NBR70 con empalme a tope y grasa de silicona; 4 × M6 A4 con arandela ancha apretados a mano (perillas, como INT-04); purga M6 × 12 con arandela de estanqueidad. Conjunto con la tapa arriba (como en el bote), apoyado en dos listones (la válvula queda abajo); un dedo de agua adentro para mojar el O-ring. (1) +p con inflador con manómetro, 15 min, agua jabonosa por fuera; (2) −p con bomba de vacío manual (válvula sin obús), 15 min; (3) 20 ciclos abrir/cerrar tapa y purga, repetir (1). Con aire la energía guardada es chica (cavidad 56 cm³: p·V = 3,8 J [CALCULADO]); igual, gafas.</li>
+<li><strong>P1.7 — Absorción de agua (perfil de <span class="pid">P1-INT-04</span>)</strong> (impresa). Acondicionar 48 h con desecante (no secar a 65 °C: Tg ~69 °C); pesar m0 (balanza 0,01 g). Sumergir 7 días en agua con 25 g/L de sal a temperatura ambiente; secar la superficie con papel y pesar m7 en &lt; 1 min. Opcional: seguir a 30 días (saturación en semanas, research/R05 A2). <em>Si no pasa:</em> Revisar secado del filamento y solape relleno–perímetro del perfil sellado; la tapa es reemplazable (el CAD está) — inspeccionarla cada temporada.</li>
 <li><strong>P1.9 — Semipasadores de corte (juego de 2) en dispositivo de corte doble</strong> (taller). Tornear 3 juegos de 2 semipasadores Ø3,5 × 29,5 de la misma barra que los 3 juegos de repuesto (medir Ø con micrómetro y largo con calibre). Muñón Ø20 en la morsa; manguito Ø60 exterior con agujero Ø20 H7; agujero transversal Ø3,55 pasante en muñón y manguito (taladro + escariador, alineados juntos). Meter un semipasador desde cada lado hasta que se toquen en el centro (enrasados con el Ø exterior del manguito). Tirar del brazo de 500 mm con el dinamómetro, despacio (~10 s hasta el corte); anotar F máx. Después: sacar los restos con un botador corto desde un lado (es el procedimiento de cambio en el eje real).</li>
 <li><strong>P1.10 — Hinchamiento de los bujes POM-C a 48 h en agua</strong> (taller). Tornear los bujes, prensarlos en su alojamiento definitivo (estator / orejas de la placa de espejo, ya anodizados). Medir Ø int en 3 alturas × 2 direcciones con pernos patrón o alesómetro, y el Ø real del eje/perno con micrómetro. Sumergir el conjunto 48 h en agua del lugar a temperatura ambiente; secar y medir dentro de 10 min. El eje/perno real tiene que girar a mano sin puntos duros.</li>
 <li><strong>P1.11 — Prueba hidrostática de carcasa + estator + tobera</strong> (taller). Armar carcasa + anillo + estator; O-ring radial engrasado (silicona) en la espiga de la tobera, meterla en el asiento sin pellizcarlo (chaflán de entrada) y apretar los 8 × M5 en cruz; medir con galgas la luz entre bridas (diseño 0,25 mm, igual en los 8 tornillos: si es 0, la espiga no aprieta la camisa del estator). Entrada: brida ciega con rebaje H7 para el espigón Ø140 y O-ring de cara. Salida Ø87,1: tapón con O-ring radial y varilla roscada central M5 A4-70 hasta la brida ciega de entrada: pasa por el agujero Ø6 de la punta del cono de cola del estator y por el buje (sin impulsor); carga del tapón 1788 N a p_ensayo → σ = 126 MPa sobre A_s 14,2 mm², FS 3,6 contra Rp0,2 del A4-70. Tuercas con arandela de estanqueidad (bonded) en el tapón y en la brida ciega. Alternativa sin varilla: yugo exterior que apoya el tapón contra el resalte de la tobera. Medir el Ø del asiento del anillo antes. Llenar de agua purgando el aire por el puerto G1/8 (arriba); bomba de prueba hidrostática manual (o bomba de engrase + manómetro 0–6 bar). Subir en 3 escalones, retener 15 min a p_ensayo, bajar, desarmar y medir el asiento.</li>
@@ -2065,7 +2094,7 @@
 </ul>
 <p><strong>Banco común:</strong> dinamómetro con palanca de madera dura (F_probeta = relación de brazos × F_dinamómetro − tara) para P1.4; brazo sobre el manguito (con un juego de semipasadores, uno desde cada lado) para P1.9; inflador con manómetro y bomba de vacío manual de purgar frenos para P1.6; bomba de prueba hidrostática manual (o bomba de engrase + manómetro 0–6 bar) para P1.11; galgas de espesores, alesómetro y micrómetro para P1.10/P1.12. Anotar cada resultado con fecha, lote de filamento/barra y foto.</p>
 <h3 id="74-ajustes-que-usa-el-cad-escaneo-de-las-piezas-impresas-en-orientación-de-impresión">7.4 Ajustes que usa el CAD (escaneo de las piezas impresas en orientación de impresión)</h3>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>Pieza</th>
@@ -2078,7 +2107,7 @@
 </thead>
 <tbody>
 <tr>
-<td>P1-CTL-02</td>
+<td><span class="pid">P1-CTL-02</span></td>
 <td>Ø5</td>
 <td>5,50</td>
 <td>+0,50</td>
@@ -2086,7 +2115,7 @@
 <td>P1.1A</td>
 </tr>
 <tr>
-<td>P1-CTL-03</td>
+<td><span class="pid">P1-CTL-03</span></td>
 <td>Ø5</td>
 <td>5,50</td>
 <td>+0,50</td>
@@ -2094,7 +2123,7 @@
 <td>P1.1A</td>
 </tr>
 <tr>
-<td>P1-ELE-02</td>
+<td><span class="pid">P1-ELE-02</span></td>
 <td>Ø5</td>
 <td>5,50</td>
 <td>+0,50</td>
@@ -2102,7 +2131,7 @@
 <td>P1.1A</td>
 </tr>
 <tr>
-<td>P1-ELE-01</td>
+<td><span class="pid">P1-ELE-01</span></td>
 <td>Ø6</td>
 <td>6,40</td>
 <td>+0,40</td>
@@ -2110,7 +2139,7 @@
 <td>P1.1A</td>
 </tr>
 <tr>
-<td>P1-INT-04</td>
+<td><span class="pid">P1-INT-04</span></td>
 <td>Ø6</td>
 <td>6,40</td>
 <td>+0,40</td>
@@ -2118,7 +2147,7 @@
 <td>P1.1A</td>
 </tr>
 <tr>
-<td>P1-CTL-02</td>
+<td><span class="pid">P1-CTL-02</span></td>
 <td>Ø16</td>
 <td>16,50</td>
 <td>+0,50</td>
@@ -2126,7 +2155,7 @@
 <td>P1.1H (horizontal)</td>
 </tr>
 <tr>
-<td>P1-CTL-03</td>
+<td><span class="pid">P1-CTL-03</span></td>
 <td>Ø22</td>
 <td>22,00</td>
 <td>+0,00</td>
@@ -2134,7 +2163,7 @@
 <td>P1.1A</td>
 </tr>
 <tr>
-<td>P1-INT-04</td>
+<td><span class="pid">P1-INT-04</span></td>
 <td>tuerca M6 (e/c)</td>
 <td>10,30</td>
 <td>+0,30</td>
@@ -2145,7 +2174,7 @@
 </table></div>
 <hr />
 <h2 id="8-secuencia-de-fabricación-y-plazos-estimados">8. Secuencia de fabricación y plazos estimados</h2>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="idcol">
 <thead>
 <tr>
 <th>#</th>
@@ -2199,7 +2228,7 @@
 </tr>
 <tr>
 <td>5</td>
-<td>Torno propio: eje, pasadores (+ P1.9), bujes POM, pernos, pin band, caja del sello, tapa de rodamiento</td>
+<td>Torno propio: eje, pasadores (+ P1.9), bujes POM, pernos, pin band, caja del sello, tapa de rodamiento; espaciadores del pivote <span class="pid">P1-REV-02</span> y émbolos <span class="pid">P1-REV-04</span> (cuerpo, tapa, perno y pomo, §3)</td>
 <td>1</td>
 <td>Gaspar</td>
 <td>2–3 semanas de taller propio</td>
@@ -2215,9 +2244,9 @@
 </tr>
 <tr>
 <td>7</td>
-<td>Soldadura: conducto + placa base (refrentado, prueba de estanqueidad §4), bucket, pórtico, soporte del motor, rejilla</td>
+<td>Soldadura: conducto + placa base (refrentado, prueba de estanqueidad §4), bucket (después: Ø24 H7, agujeros de traba con plantilla y buje <span class="pid">P1-REV-03</span>, §4), soporte de reenvío <span class="pid">P1-REV-09</span>, pórtico, soporte del motor, rejilla</td>
 <td>4</td>
-<td>taller</td>
+<td>taller + Gaspar</td>
 <td>1–2 semanas</td>
 <td>[ESTIMADO]</td>
 </tr>
@@ -2231,7 +2260,7 @@
 </tr>
 <tr>
 <td>9</td>
-<td>Prensar bujes y <strong>P1.10</strong>; anillo de desgaste en la carcasa; tornear Ø de puntas del impulsor y <strong>P1.12</strong>; balanceo</td>
+<td>Prensar bujes (<span class="pid">P1-REV-03</span>: escariar Ø20,1 después) y <strong>P1.10</strong>; anillo de desgaste en la carcasa; tornear Ø de puntas del impulsor y <strong>P1.12</strong>; balanceo</td>
 <td>2, 5, 8</td>
 <td>Gaspar / taller</td>
 <td>1 semana</td>
@@ -2247,7 +2276,7 @@
 </tr>
 <tr>
 <td>11</td>
-<td>Imprimir piezas del jet (tapa P1-INT-04 tras pasar P1.6; controlador y consola tras P1.1/P1.4)</td>
+<td>Imprimir piezas del jet (tapa <span class="pid">P1-INT-04</span> tras pasar P1.6; controlador y consola tras P1.1/P1.4)</td>
 <td>3</td>
 <td>Gaspar</td>
 <td>~1 semana de impresora</td>
@@ -2275,21 +2304,35 @@ python -m pytest tests/test_probetas.py -q           # manifold, envolvente, cri
 <hr />
 <h2 id="10-hallazgos-para-el-diseño-de-esta-pasada-de-fabricación">10. Hallazgos para el diseño (de esta pasada de fabricación)</h2>
 <ol>
-<li><strong>Masa y tiempo de impresión reales mayores que el manifest:</strong> PrusaSlicer da más gramos y casi el doble de horas (tabla §2.6): el <code>solid_frac</code> de P1-CTL-02/03 y P1-ELE-01 no cuenta que 5–6 perímetros llenan paredes de 3–6 mm, y <code>inputs.yaml printer.print_rate_g_h</code> es optimista. Afecta plan y BOM de filamento, no la resistencia.</li>
+<li><strong>Masa y tiempo de impresión reales mayores que el manifest:</strong> PrusaSlicer da más gramos y casi el doble de horas (tabla §2.6): el <code>solid_frac</code> de <span class="pid">P1-CTL-02</span>/03 y <span class="pid">P1-ELE-01</span> no cuenta que 5–6 perímetros llenan paredes de 3–6 mm, y <code>inputs.yaml printer.print_rate_g_h</code> es optimista. Afecta plan y BOM de filamento, no la resistencia.</li>
 <li><strong>Prueba de estanqueidad del conducto (S-WELD-INT): 0,3 bar de aire</strong> es menos que la presión de cierre y el golpe de fondo (§4). Conviene sumar una hidrostática con agua a 1,5 × la presión de cierre (o justificar los 0,3 bar): decisión del grupo de la toma/BOM.</li>
-<li><strong>P1-CTL-10 (palanca del bucket, 6061-T6 con escalón soldado):</strong> <code>estructural.json</code> verifica la flexión <strong>en el escalón</strong> con el admisible del 6061-T6 sin soldar; con el de ZAT (como hace <code>structural_tren.py</code> para el 6082) el FS queda en aproximadamente la mitad. Sigue ≥ 2, pero el modelo no es coherente con la soldadura: avisar a DIRECCIÓN.</li>
+<li><strong><span class="pid">P1-CTL-10</span> (palanca del bucket, 6061-T6 con escalón soldado):</strong> <code>estructural.json</code> verifica la flexión <strong>en el escalón</strong> con el admisible del 6061-T6 sin soldar; con el de ZAT (como hace <code>structural_tren.py</code> para el 6082) el FS queda en aproximadamente la mitad. Sigue ≥ 2, pero el modelo no es coherente con la soldadura: avisar a DIRECCIÓN.</li>
 <li><strong>Límite del torno y entre puntos:</strong> el anillo de desgaste y el eje dependen de medidas del torno que todavía nadie tomó (§3).</li>
-<li><strong>P1-CTL-03:</strong> los agujeros de panel de los pulsadores están inclinados respecto de la vertical (cara a ~32°) y en Ø nominal sin holgura; P1.1A los calibra en vertical. Si el interruptor real no entra, sumar la holgura que dé P1.1 en el CAD.</li>
+<li><strong><span class="pid">P1-CTL-03</span>:</strong> los agujeros de panel de los pulsadores están inclinados respecto de la vertical (cara a ~32°) y en Ø nominal sin holgura; P1.1A los calibra en vertical. Si el interruptor real no entra, sumar la holgura que dé P1.1 en el CAD.</li>
 <li><strong>Bujes POM:</strong> la holgura mínima tras 48 h (P1.10) es un [SUPUESTO] (50 % de la del CAD) a confirmar con el fabricante del buje (Vesconite/igus) si se compra en vez de tornear.</li>
 <li><strong>Auditoría Pass 3 (semipasadores y O-ring radial) — resuelto en las probetas:</strong> P1.9 ensaya ahora <strong>juegos de 2 semipasadores</strong> (uno desde cada lado) en el mismo dispositivo de corte doble, con manguito del Ø del asiento del anillo retén para que queden enrasados como en el cubo; P1.11 arma la tobera con su <strong>O-ring radial</strong> en la espiga y los 8 × M5, mide con galgas la luz entre bridas antes de presurizar y tapa la salida con un tapón de O-ring radial y una varilla central dimensionada desde params (la mayor métrica A4-70 que pasa por el agujero de la punta del cono de cola del estator, Ø6 mm; tensión y FS con la carga del tapón en la tabla §7.3; ronda 2, R2-D04) — la tobera no tiene brida de salida. La rejilla (9 pletinas, aislada con PTFE) ya figura así en S-WELD-316 de <code>bom.csv</code>.</li>
+<li><strong>Materia prima de <span class="pid">P1-REV-02</span> y <span class="pid">P1-REV-04</span> (ronda 4) — resuelto:</strong> <code>bom.py</code> dimensionaba la barra con la caja envolvente del sólido del manifest, que en <span class="pid">P1-REV-02</span> incluye el tornillo M12 y en <span class="pid">P1-REV-04</span> el pomo (antes, además, la contratuerca y un bloque en lugar de barras). <code>bom.py</code> acepta ahora overrides <code>form: bars</code> (varias barras por pieza) en <code>inputs.yaml bom.stock.overrides</code>: el espaciador y el cuerpo con collar + tapa salen de <code>MP-316-D40</code> y el perno de <code>MP-316-D18</code> (§3).</li>
+<li><strong>Ensayo P1.10:</strong> la tabla generada (<code>04_diseno/probetas</code>) ensaya <span class="pid">P1-PMP-07</span> y <span class="pid">P1-PMP-11</span>; falta sumar los bujes <span class="pid">P1-REV-03</span> del bucket (Ø20,1 sobre el muñón Ø20 h7 del espaciador), con el mismo criterio que <span class="pid">P1-PMP-11</span> (≥ Ø del muñón medido + 0,05 a las 48 h [SUPUESTO: igual que <span class="pid">P1-PMP-11</span>]). PENDIENTES P1.7.</li>
+<li><strong>Comentario del perfil <code>prusaslicer/P1_impresion_cubiertas_0.20.ini</code>:</strong> dice que 5 perímetros dejan macizas «las paredes de 3,2–3,5 mm»; la caja <span class="pid">P1-CTL-02</span> tiene ahora paredes de 5 mm (§2.2).</li>
 </ol></article>
 </div>
 </main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
 <footer class="site-footer">
   <div class="bar wide">
     <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
     <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
   </div>
 </footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
 </body>
 </html>

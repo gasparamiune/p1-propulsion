@@ -18,7 +18,7 @@ mallas gruesas y no corre el FEA); cada script también corre solo.
 ## Lista de piezas
 
 <!-- AUTO:parts_totals -->
-Total impreso: **1.05 kg** de PETG, **58 h** de impresión (a 18.0 g/h); masa de la unidad de jet (CAD, sin motor): **25.94 kg**.
+Total impreso: **1.05 kg** de PETG, **58 h** de impresión (a 18.0 g/h); masa de la unidad de jet (CAD, sin motor): **25.88 kg**.
 <!-- /AUTO:parts_totals -->
 
 <!-- AUTO:parts_list -->
@@ -61,10 +61,10 @@ Total impreso: **1.05 kg** de PETG, **58 h** de impresión (a 18.0 g/h); masa de
 | P1-MOT-02_motor_mount | Soporte del motor Al: placa a la cara del motor + pies al piso (4×M8) | 76×190×146 | Al 5052/6082 | torneada | 1 | Par de reacción T_max del controlador + 3 g vertical del motor; sin empuje | — | 842 | — |
 | P1-PMP-01_housing | Carcasa Al 6061-T6: brida de la toma, asiento del anillo y del estator, puerto de agua | 166×193×193 | Al 6061-T6 | torneada | 1 | Presión interna 0,2 MPa; reacción del estator; momentos de boquilla/bucket en bridas | — | 1492 | — |
 | P1-PMP-02_wear_ring | Anillo de desgaste 316 torneado, prensado en la carcasa; holgura de punta tip_clr | 69×143×143 | AISI 316 | torneada | 1 | Presión de la bomba (apoyado en la carcasa); roce de piedras | — | 1187 | — |
-| P1-PMP-03_impeller | Impulsor axial de 5 álabes, cubo Ø66 con nariz, 2 semipasadores de corte (sin chavetero) | 69×132×132 | AISI 316 | torneada | 1 | Par máx. del controlador + empuje axial; corte del pasador (piedra) | — | 1336 | — |
+| P1-PMP-03_impeller | Impulsor axial de 5 álabes, cubo Ø66 con nariz, 2 semipasadores de corte (sin chavetero) | 69×132×132 | AISI 316 | torneada | 1 | Par máx. del controlador + empuje axial; corte del pasador (piedra) | — | 1334 | — |
 | P1-PMP-04_pin_band | Anillo retén 316 que tapa los extremos del pasador de corte | 16×66×66 | AISI 316 | torneada | 1 | Centrífuga a n máx.; retención del pasador | — | 76 | — |
 | P1-PMP-05_shear_pin | 2 semipasadores de corte Al 6061-T6 (fusible de par del impulsor, cambiables en el eje) | 4×30×4 | Al 6061-T6 | torneada | 2 | Par del controlador (no corta); corta a T_cut (piedra) | — | 1 | — |
-| P1-PMP-06_stator | Estator Al 6061-T6 de 7 álabes con camisa, cubo con buje de agua y cono de cola | 169×143×143 | Al 6061-T6 | torneada | 1 | Reacción del par del rotor en los álabes; carga radial del buje; presión | — | 1518 | — |
+| P1-PMP-06_stator | Estator Al 6061-T6 de 7 álabes con camisa, cubo con buje de agua y cono de cola | 169×143×143 | Al 6061-T6 | torneada | 1 | Reacción del par del rotor en los álabes; carga radial del buje; presión | — | 1522 | — |
 | P1-PMP-07_water_bushing | Buje Ø20 lubricado por agua en el cubo del estator (2.º apoyo del eje) | 30×28×28 | POM-C | torneada | 1 | Carga radial del eje (desbalance + hidráulica) | — | 12 | — |
 | P1-PMP-08_fixed_nozzle | Tobera fija Al: contracción a D_noz, rótula de la boquilla y resalte del sello de espejo | 151×161×161 | Al 6061-T6 | torneada | 1 | Presión interna 0,2 MPa; reacción de la placa de espejo por el O-ring | — | 1408 | — |
 | P1-PMP-09_transom_plate | Placa de espejo Al 5083 con cuello coaxial, sello radial sobre la tobera y orejas de pivote | 44×216×199 | Al 5083 | torneada | 1 | F lateral de la boquilla y F del bucket en las orejas; sello del casco | — | 449 | — |
@@ -74,7 +74,7 @@ Total impreso: **1.05 kg** de PETG, **58 h** de impresión (a 18.0 g/h); masa de
 | P1-REV-01_bucket | Bucket de reversa Al 5083 8 mm (cuchara + brazos + nervio), traba en cada brazo (cada una lleva todo M_h) | 203×149×170 | Al 5083 | torneada | 1 | Chorro desviado en reversa (R12: 1,4 kN) × impacto 2; presión dinámica en la chapa | — | 1233 | — |
 | P1-REV-02_perno_bucket | Pivote del bucket: espaciador 316 (muñón Ø20 h7, brida Ø36, piloto Ø16 h6) + tornillo M12 A4-80 + tuerca DIN 985 | 36×68×36 | AISI 316 | torneada | 2 | Reacción del pivote = chorro/2 + traba con M_h completo (R12, una traba sola): flexión del muñón y apertura de la unión | — | 162 | — |
 | P1-REV-03_buje_bucket | Buje con brida POM-C del pivote del bucket (Ø20,1/Ø24 × 18 + brida Ø30 × 1), escariado después de prensar | 30×19×30 | POM-C | torneada | 2 | Presión: reacción del pivote (chorro/2 + traba con M_h completo, R12 y reversa de sizing) | — | 4 | — |
-| P1-REV-04_embolo | Émbolo de traba propio: cuerpo M24×1,5 y perno Ø16 h9 en AISI 316 + resorte inox, uno por oreja ±Y | 42×76×36 | AISI 316 | torneada | 2 | Perno Ø16: flexión + corte con M_h completo en una traba (R12) / REV_lock_r | — | 313 | — |
+| P1-REV-04_embolo | Émbolo de traba propio: cuerpo M24×1,5 y perno Ø16 h9 en AISI 316 + resorte inox, uno por oreja ±Y | 36×76×36 | AISI 316 | torneada | 2 | Perno Ø16: flexión + corte con M_h completo en una traba (R12) / REV_lock_r | — | 285 | — |
 | P1-REV-05_soporte_mach5 | Soporte de la vaina del Mach5 (Al 5083 6 mm) | 80×100×129 | Al 5083 | torneada | 1 | Reacción del cable al mover el bucket (sin carga del chorro: la toma el émbolo) | — | 189 | — |
 | P1-REV-06_perno_varilla | Tornillo con hombro Ø8 × 10 / M6 (316) | 13×26×13 | AISI 316 | torneada | 1 | Fuerza de maniobra del Mach5 (bucket sin carga del chorro) | — | 10 | — |
 | P1-REV-07_terminal_mach5 | Terminal Mach5 (vaina + cabeza) en la boquilla — comprado | 22×22×140 | Acero | comprada | 1 | — | — | 120 | — |
@@ -94,10 +94,7 @@ Total impreso: **1.05 kg** de PETG, **58 h** de impresión (a 18.0 g/h); masa de
 ## Verificación
 
 <!-- AUTO:verify -->
-Resultado: **FALLAS** — 65 piezas, 14160 pares×estados de interferencia; boquilla δ ∈ [-25.0, 0.0, 25.0]°, bucket {arriba, abajo}; masa de la unidad de jet (CAD) 25.94 kg.
-
-Fallas:
-- P1-REV-04: cota crítica 'contratuerca sobre el cuerpo de la boquilla [mm]' = -0.077 (ref >= 2.0)
+Resultado: **OK** — 65 piezas, 14160 pares×estados de interferencia; boquilla δ ∈ [-25.0, 0.0, 25.0]°, bucket {arriba, abajo}; masa de la unidad de jet (CAD) 25.88 kg.
 <!-- /AUTO:verify -->
 
 ## Ajustes (los del CAD; confirmar con el taller y, en PETG, con probetas)

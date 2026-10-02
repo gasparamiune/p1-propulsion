@@ -23,10 +23,10 @@ investigación se citan con su informe.
    y el eje quedaba sobre la flotación: la bomba no cebaba [CALCULADO: R10a §1–§3].
 3. **La estabilidad del casco es el riesgo n.º 1.** Con 0,80 m de manga y el piloto sentado alto, el GM sale
    entre −113 y +90 mm según la posición del piloto [CALCULADO: R10b H1]; con el modelo de este proyecto,
-   GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.009<!--/V--> m. La propulsión no lo resuelve (D-04).
+   GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.010<!--/V--> m. La propulsión no lo resuelve (D-04).
 4. **La masa realista es 165–242 kg, no 150** [ESTIMADO: R10b §4.2]. Con más de ~200 kg, 5 kW continuos no alcanzan para 30 km/h
-   sostenidos [CALCULADO: R10b H13–H14]. Este diseño llega a <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.4<!--/V--> km/h
-   sostenidos y <!--V:sizing.performance.vmax_peak_kmh:.1f-->28.3<!--/V--> km/h por ratos (02 §5).
+   sostenidos [CALCULADO: R10b H13–H14]. Este diseño llega a <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.1<!--/V--> km/h
+   sostenidos y <!--V:sizing.performance.vmax_peak_kmh:.1f-->28.2<!--/V--> km/h por ratos (02 §5).
 5. **Motor y tensión.** El HPM5000 de catálogo gira muy lento para un impulsor chico (≈ 91 rpm/V a 48 V); el
    Maytech MTI120116 150 KV refrigerado por agua sí sirve en ≤ 50 V [VERIFICADO: R11 §0, §1]. No hay packs
    LFP 13S comerciales en la UE: la opción ≤ 50 V es 12S (2 × LiTime 36 V 60 Ah) [VERIFICADO: R11 §3].
@@ -46,8 +46,8 @@ totales; ≥ 30 km/h [VERIFICADO: lectura del plano, R10b §2].
 
 | N.º | Hallazgo (R10b §3) | Sev. | Cómo lo resuelve este diseño |
 |---|---|---|---|
-| H1 | Estabilidad inicial nula o negativa: puede volcar quieto | Crítica | **No resuelto por la propulsión.** GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.009<!--/V--> m [CALCULADO]. Bloquea la navegación hasta pasar el ensayo de escora E1 (R13 §5); casco más ancho o flotadores (03 §5, 07) |
-| H2 | Eje del jet sobre la flotación: no ceba | Crítica | Eje en el impulsor a <!--V:manifest.params.h_axis:.0f-->115<!--/V--> mm de la quilla, <!--V:sizing.priming.axis_below_wl_m:.3f-->0.171<!--/V--> m bajo la flotación [CALCULADO] |
+| H1 | Estabilidad inicial nula o negativa: puede volcar quieto | Crítica | **No resuelto por la propulsión.** GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.010<!--/V--> m [CALCULADO]. Bloquea la navegación hasta pasar el ensayo de escora E1 (R13 §5); casco más ancho o flotadores (03 §5, 07) |
+| H2 | Eje del jet sobre la flotación: no ceba | Crítica | Eje en el impulsor a <!--V:manifest.params.h_axis:.0f-->115<!--/V--> mm de la quilla, <!--V:sizing.priming.axis_below_wl_m:.3f-->0.172<!--/V--> m bajo la flotación [CALCULADO] |
 | H3 | El corte A-A no es una bomba: sin conducto, expansión brusca tras la tobera, boquilla dentro de la carcasa | Crítica | Toma enrasada → conducto de Al 5083 → impulsor → estator → tobera → boquilla **por fuera** del espejo → bucket (P1-INT, P1-PMP, P1-STE, P1-REV) |
 | H4 | Falta el sello; "rodamientos fuera de la cámara húmeda" contradictorio | Crítica | Sello mecánico SiC/carbón tipo MG1 en el techo de la rampa, cámara de goteo con testigo, rodamientos en seco (P1-DRV-02, -07; D-14) |
 | H5 | Baterías en la sentina, sin flotación | Alta | Caja estanca de batería, ~100 L de espuma de flotación, bomba de achique con alarma (BOM B-BOX, B-FOAM, B-BILGE, B-ALARM) |
@@ -58,7 +58,7 @@ totales; ≥ 30 km/h [VERIFICADO: lectura del plano, R10b §2].
 | H10 | Reversa "opcional": el jet no frena ni gobierna sin chorro | Alta | Bucket obligatorio con émbolo de traba, reversa limitada al 50 %, enclavamiento de palancas (D-17) |
 | H11 | Toma en el fondo contra aguas someras y arena | Alta | Rejilla de barras longitudinales, anillo de desgaste 316 reemplazable, tapa de inspección sobre la flotación, pasador de corte; regla de operación: ralentí en < 0,5 m de agua |
 | H12 | ≥ 30 km/h es ilegal a < 300 m de la costa | Alta | Perfil "costa" por defecto con tope de ERPM (02 §3.1); planeo solo a > 300 m (D-18, R13 §3) |
-| H13 | Masa de 150 kg irreal | Alta | Masa de diseño <!--V:sizing.masses.total_kg:.0f-->218<!--/V--> kg con la unidad de jet del CAD (02 §1; D-03) |
+| H13 | Masa de 150 kg irreal | Alta | Masa de diseño <!--V:sizing.masses.total_kg:.0f-->219<!--/V--> kg con la unidad de jet del CAD (02 §1; D-03) |
 | H14 | Con 5 kW no llega a 30 km/h con masa realista | Alta | Motor de 6 kW continuos estimados y bomba optimizada; aun así no llega (02 §4.3). Se informa la V real y qué la mejora (07) |
 | H15 | Holgura de punta de 0,5–0,8 mm no se logra en PETG | Alta | Impulsor de 316 mecanizado, anillo de desgaste de 316 torneado en sitio, holgura <!--V:sizing.pump.tip_clearance_mm:.2f-->0.40<!--/V--> mm (D-10, D-11) |
 | H16 | Camino del empuje axial sin definir; motor abulonado sin acople | Media | Par 7204 BEP en un pórtico sobre la placa base toma todo el empuje; acople Rotex 24 con juego axial (D-14) |
@@ -146,7 +146,7 @@ encima de 50 V; el MTI120116 no declara sensor de temperatura (se agrega un NTC)
 AISI 420 se corroen en agua salada y van del lado seco; la JT132 exige confirmar su toma y la altura de su eje
 **antes** de comprarla.
 
-Costo total del paquete actual (BOM): <!--V:bom.total_eur:.0f-->11847<!--/V--> €, de los cuales
+Costo total del paquete actual (BOM): <!--V:bom.total_eur:.0f-->11824<!--/V--> €, de los cuales
 <!--V:bom.services_eur:.0f-->4040<!--/V--> € son servicios de fabricación (CNC, torneado de taller, soldadura) [CALCULADO:
 `bom.py`; ver 03 §3 y 05].
 

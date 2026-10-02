@@ -3,21 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>04 — Diseño detallado (waterjet P1-J) — P1-J · Strålen</title>
-<meta name="description" content="Todo se regenera con python run_all.py desde la raíz; cada script también corre solo.">
+<title>04 — Diseño detallado — P1-J · Strålen</title>
+<meta name="description" content="Diseño CAD del waterjet P1-J: lista de piezas, verificación de interferencias y exportes STEP/STL.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="P1-J · Strålen">
-<meta property="og:title" content="04 — Diseño detallado (waterjet P1-J) — P1-J · Strålen">
-<meta property="og:description" content="Todo se regenera con python run_all.py desde la raíz; cada script también corre solo.">
+<meta property="og:title" content="04 — Diseño detallado — P1-J · Strålen">
+<meta property="og:description" content="Diseño CAD del waterjet P1-J: lista de piezas, verificación de interferencias y exportes STEP/STL.">
 <meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/04_diseno/README.html">
-<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bb891a19">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="P1-J Strålen: waterjet eléctrico inboard, diseño en computadora, nada construido ni probado todavía">
 <meta property="og:locale" content="es_ES">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="04 — Diseño detallado (waterjet P1-J) — P1-J · Strålen">
-<meta name="twitter:description" content="Todo se regenera con python run_all.py desde la raíz; cada script también corre solo.">
-<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta name="twitter:title" content="04 — Diseño detallado — P1-J · Strålen">
+<meta name="twitter:description" content="Diseño CAD del waterjet P1-J: lista de piezas, verificación de interferencias y exportes STEP/STL.">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png?v=bb891a19">
 <meta name="theme-color" content="#0f242b">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
 <link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/04_diseno/README.html">
@@ -28,12 +29,13 @@
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
-<header class="site-header">
+<header class="site-header" id="top">
   <div class="bar wide">
     <a class="brand" href="../../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
-    <nav class="site-nav" aria-label="Secciones"><a href="../../index.html">Inicio</a><a href="../../visor/index.html">Visor 3D</a><a href="../../documentos.html" aria-current="page">Documentos</a><a href="../../planos.html">Planos</a><a href="../../bom.html">Materiales</a><a href="../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub&nbsp;↗</a></nav>
+    <nav class="site-nav" aria-label="Secciones"><a href="../../index.html" class=nav-home>Inicio</a><a href="../../visor/index.html">Visor 3D</a><a href="../../documentos.html" aria-current="page"><span class="l-long">Documentos</span><span class="l-short" aria-hidden="true">Docs</span></a><a href="../../planos.html">Planos</a><a href="../../bom.html"><span class="l-long">Materiales</span><span class="l-short" aria-hidden="true">BOM</span></a><a href="../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub<span class="l-long">&nbsp;↗</span></a></nav>
   </div>
 </header>
+
 <main id="main" class="main wide">
 
 <div class="doc-layout has-toc">
@@ -53,8 +55,9 @@
 </ul>
 </div>
 </aside>
-  <article class="prose doc"><h1 id="04-diseño-detallado-waterjet-p1-j">04 — Diseño detallado (waterjet P1-J)</h1>
-<p>Todo se regenera con <code>python run_all.py</code> desde la raíz; cada script también corre solo.</p>
+  <article class="prose doc"><h1 id="04-diseño-detallado-waterjet-p1-j">04 — Diseño detallado (waterjet <span class="pid">P1-J</span>)</h1>
+<p>Todo se regenera con <code>python run_all.py</code> desde la raíz (corrido completo con FEA fino: más de una hora; <code>--fast</code> usa
+mallas gruesas y no corre el FEA); cada script también corre solo.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -102,7 +105,7 @@
 </tbody>
 </table></div>
 <h2 id="lista-de-piezas">Lista de piezas</h2>
-<p>Total impreso: <strong>1.05 kg</strong> de PETG, <strong>58 h</strong> de impresión (a 18.0 g/h); masa de la unidad de jet (CAD, sin motor): <strong>25.67 kg</strong>.</p>
+<p>Total impreso: <strong>1,05 kg</strong> de PETG, <strong>58 h</strong> de impresión (a 18,0 g/h); masa de la unidad de jet (CAD, sin motor): <strong>25,88 kg</strong>.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -150,10 +153,10 @@
 <td>PETG</td>
 <td>impresa</td>
 <td>1</td>
-<td>Mano apoyada 150 N sobre la tapa [SUPUESTO: structural_direccion, FEA]; sin cargas de mando (van a P1-CTL-08)</td>
+<td>Mano apoyada 150 N sobre la tapa [SUPUESTO: structural_direccion, FEA]; sin cargas de mando (van a <span class="pid">P1-CTL-08</span>)</td>
 <td>Tapa sobre la cama (ranuras planas, sin soportes); ala arriba. 0,2 mm, 5 perímetros, 30 % giroide</td>
 <td>134</td>
-<td>7.4</td>
+<td>7,4</td>
 </tr>
 <tr>
 <td>P1-CTL-03_soporte_kill</td>
@@ -165,7 +168,7 @@
 <td>Tirón del cordón 150 N [SUPUESTO] + golpe de mano sobre la seta 200 N [SUPUESTO]</td>
 <td>Base sobre la cama; la cara inclinada a 45° no necesita soportes. 0,2 mm, 5 perímetros</td>
 <td>120</td>
-<td>6.7</td>
+<td>6,7</td>
 </tr>
 <tr>
 <td>P1-CTL-04_pasamuros_m66</td>
@@ -242,13 +245,13 @@
 <tr>
 <td>P1-CTL-10_palanca_bucket</td>
 <td>Palanca del bucket Al 6061 8 mm con manivela del Mach5</td>
-<td>79×28×165</td>
+<td>79×45×165</td>
 <td>Al 6061-T6</td>
 <td>torneada</td>
 <td>1</td>
 <td>100 N en el pomo contra el enclavamiento / tope</td>
 <td>—</td>
-<td>116</td>
+<td>134</td>
 <td>—</td>
 </tr>
 <tr>
@@ -289,14 +292,14 @@
 </tr>
 <tr>
 <td>P1-CTL-14_gatillo</td>
-<td>Gatillo del Bowden de liberación (Al 6061 6 mm)</td>
-<td>18×6×32</td>
+<td>Gatillo del desbloqueo (Al 6061 6 mm) con barra igualadora 316 de los dos Bowden</td>
+<td>46×10×57</td>
 <td>Al 6061-T6</td>
 <td>torneada</td>
 <td>1</td>
-<td>Apriete de la mano 100 N [SUPUESTO]</td>
+<td>Apriete de la mano 100 N [SUPUESTO] en la hoja; tiro de los dos cables por la barra igualadora</td>
 <td>—</td>
-<td>6</td>
+<td>14</td>
 <td>—</td>
 </tr>
 <tr>
@@ -429,7 +432,7 @@
 <td>Peso del ESC + capota a 3 g vertical y 1 g lateral; tirón de cables</td>
 <td>Base abierta sobre la cama; tablero arriba (puentes de 3,2 mm entre nervios, sin soportes).</td>
 <td>263</td>
-<td>14.6</td>
+<td>14,6</td>
 </tr>
 <tr>
 <td>P1-ELE-02_esc_hood</td>
@@ -441,7 +444,7 @@
 <td>Apriete de la almohadilla EPDM (4 × M5) y 3 g vertical del ESC hacia arriba (golpe de ola)</td>
 <td>Techo sobre la cama, paredes y nervios hacia arriba (sin soportes).</td>
 <td>207</td>
-<td>11.5</td>
+<td>11,5</td>
 </tr>
 <tr>
 <td>P1-ELE-03_cooling_outlet</td>
@@ -513,7 +516,7 @@
 <td>Presión interna de la toma (succión de cierre / recuperación a 30 km/h) sobre Ø de la junta</td>
 <td>Cara de la ranura del O-ring y del hexágono de la tuerca sobre la cama (fondos lisos), resalte arriba, 100 % relleno</td>
 <td>327</td>
-<td>18.2</td>
+<td>18,2</td>
 </tr>
 <tr>
 <td>P1-MOT-01_motor</td>
@@ -522,7 +525,7 @@
 <td>referencia</td>
 <td>comprada</td>
 <td>1</td>
-<td>Par de reacción T_max sobre P1-MOT-02; 3 g vertical</td>
+<td>Par de reacción T_max sobre <span class="pid">P1-MOT-02</span>; 3 g vertical</td>
 <td>—</td>
 <td>4400</td>
 <td>—</td>
@@ -572,7 +575,7 @@
 <td>1</td>
 <td>Par máx. del controlador + empuje axial; corte del pasador (piedra)</td>
 <td>—</td>
-<td>1336</td>
+<td>1334</td>
 <td>—</td>
 </tr>
 <tr>
@@ -608,7 +611,7 @@
 <td>1</td>
 <td>Reacción del par del rotor en los álabes; carga radial del buje; presión</td>
 <td>—</td>
-<td>1518</td>
+<td>1522</td>
 <td>—</td>
 </tr>
 <tr>
@@ -649,7 +652,7 @@
 </tr>
 <tr>
 <td>P1-PMP-10_transom_gasket</td>
-<td>Junta NBR 2 mm del espejo (bajo la placa P1-PMP-09)</td>
+<td>Junta NBR 2 mm del espejo (bajo la placa <span class="pid">P1-PMP-09</span>)</td>
 <td>2×216×199</td>
 <td>NBR</td>
 <td>comprada</td>
@@ -722,13 +725,13 @@
 <tr>
 <td>P1-REV-04_embolo</td>
 <td>Émbolo de traba propio: cuerpo M24×1,5 y perno Ø16 h9 en AISI 316 + resorte inox, uno por oreja ±Y</td>
-<td>36×50×36</td>
+<td>36×76×36</td>
 <td>AISI 316</td>
 <td>torneada</td>
 <td>2</td>
 <td>Perno Ø16: flexión + corte con M_h completo en una traba (R12) / REV_lock_r</td>
 <td>—</td>
-<td>207</td>
+<td>285</td>
 <td>—</td>
 </tr>
 <tr>
@@ -781,20 +784,20 @@
 </tr>
 <tr>
 <td>P1-REV-09_soporte_bowden</td>
-<td>Soporte en L del Bowden de liberación (Al 5083 4 mm)</td>
-<td>38×44×16</td>
+<td>Soporte de reenvío del desbloqueo: base + montante Al 5083 soldados, 2 balancines 1:1 y 2 pestañas de reguladores M6</td>
+<td>48×80×51</td>
 <td>Al 5083</td>
 <td>torneada</td>
-<td>2</td>
-<td>Tiro del Bowden (resorte del émbolo + fricción) 60 N [ESTIMADO]</td>
+<td>1</td>
+<td>Tiro de diseño por cable (mano 100 N en el gatillo <span class="pid">P1-CTL-14</span> repartida por el igualador) [CALCULADO]</td>
 <td>—</td>
-<td>13</td>
+<td>69</td>
 <td>—</td>
 </tr>
 <tr>
 <td>P1-REV-10_bowden_embolo</td>
-<td>Bowden inox de liberación de cada émbolo (extremo, comprado; ×2)</td>
-<td>10×56×10</td>
+<td>Bowden inox de liberación de cada émbolo (extremo de la boquilla, comprado; ×2)</td>
+<td>55×10×86</td>
 <td>AISI 316</td>
 <td>comprada</td>
 <td>2</td>
@@ -812,7 +815,7 @@
 <td>1</td>
 <td>Desvío del chorro F_steer (R12: 364 N) + reacciones del bucket (R12: 1,4 kN, impacto ×2)</td>
 <td>—</td>
-<td>1036</td>
+<td>1048</td>
 <td>—</td>
 </tr>
 <tr>
@@ -902,35 +905,7 @@
 </tbody>
 </table></div>
 <h2 id="verificación">Verificación</h2>
-<p>Resultado: <strong>FALLAS</strong> — 65 piezas, 14720 pares×estados de interferencia; boquilla δ ∈ [-25.0, 0.0, 25.0]°, bucket {arriba, abajo}; masa de la unidad de jet (CAD) 25.67 kg.</p>
-<p>Fallas:</p>
-<ul>
-<li>P1-CTL-14: cota crítica 'recorrido del cable con el gatillo apretado [mm]' = 11.025 (ref &gt;= 12.5)</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-09#0 en δ=-25°, bucket arriba: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-10#0 en δ=-25°, bucket arriba: 749.9 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-09#1 en δ=-25°, bucket arriba: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-10#1 en δ=-25°, bucket arriba: 749.9 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-09#0 en δ=-25°, bucket abajo: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-10#0 en δ=-25°, bucket abajo: 749.9 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-09#1 en δ=-25°, bucket abajo: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-10#1 en δ=-25°, bucket abajo: 749.9 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-09#0 en δ=+0°, bucket arriba: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-10#0 en δ=+0°, bucket arriba: 749.9 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-09#1 en δ=+0°, bucket arriba: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-10#1 en δ=+0°, bucket arriba: 749.9 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-09#0 en δ=+0°, bucket abajo: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-10#0 en δ=+0°, bucket abajo: 749.9 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-09#1 en δ=+0°, bucket abajo: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-10#1 en δ=+0°, bucket abajo: 749.9 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-09#0 en δ=+25°, bucket arriba: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-10#0 en δ=+25°, bucket arriba: 749.9 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-09#1 en δ=+25°, bucket arriba: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-10#1 en δ=+25°, bucket arriba: 749.9 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-09#0 en δ=+25°, bucket abajo: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#0 ↔ P1-REV-10#0 en δ=+25°, bucket abajo: 749.9 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-09#1 en δ=+25°, bucket abajo: 1332.8 mm³</li>
-<li>interferencia P1-REV-04#1 ↔ P1-REV-10#1 en δ=+25°, bucket abajo: 749.9 mm³</li>
-</ul>
+<p>Resultado: <strong>OK</strong> — 65 piezas, 14160 pares×estados de interferencia; boquilla δ ∈ [-25,0, 0,0, 25,0]°, bucket {arriba, abajo}; masa de la unidad de jet (CAD) 25,88 kg.</p>
 <h2 id="ajustes-los-del-cad-confirmar-con-el-taller-y-en-petg-con-probetas">Ajustes (los del CAD; confirmar con el taller y, en PETG, con probetas)</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -982,9 +957,19 @@
 <td>La tobera sale por el agujero del espejo para el servicio</td>
 </tr>
 <tr>
-<td>Pivotes de boquilla y bucket</td>
-<td>pernos 316 con hombro en bujes POM-C</td>
+<td>Pivotes de la boquilla</td>
+<td>pernos 316 con hombro (<span class="pid">P1-STE-02</span>/05) en bujes POM-C</td>
 <td>Holgura de buje según plano</td>
+</tr>
+<tr>
+<td>Pivote del bucket (<span class="pid">P1-REV-02</span>/03) ↔ oreja de la boquilla</td>
+<td>espaciador 316: piloto Ø16 h6 en Ø16 H7 escariado de la oreja, brida Ø36 × 3 contra la cara exterior, M12 A4-80 a 45 N·m con Tef-Gel; muñón Ø20 h7 en buje POM-C Ø24 × 18 (prensado con 0,05–0,10 de interferencia en Ø24 H7 y escariado después de prensar)</td>
+<td>La unión no desliza: la reacción del pivote pasa por el piloto, no por el tornillo (D-17c)</td>
+</tr>
+<tr>
+<td>Trabas del bucket (<span class="pid">P1-REV-04</span> ↔ <span class="pid">P1-REV-01</span> / <span class="pid">P1-STE-01</span>)</td>
+<td>perno Ø16 h9 en agujero Ø16,5 del brazo (con juego, a propósito); cuerpo M24×1,5 roscado en la oreja y apretado contra su collar Ø36 (cara interior anodizada de la oreja) a 75 N·m con Loctite 243, sin contratuerca</td>
+<td>Criterio de traba única: cada traba sola lleva todo M_h, así que el desfase entre las dos no importa para la resistencia; prueba funcional (los dos pernos entran solos arriba y abajo)</td>
 </tr>
 <tr>
 <td>Piezas PETG (capota, base ESC, caja, tapa)</td>
@@ -995,11 +980,22 @@
 </table></div></article>
 </div>
 </main>
+<a class="totop" href="#top" aria-label="Volver arriba" title="Volver arriba">↑</a>
 <footer class="site-footer">
   <div class="bar wide">
     <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
     <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
   </div>
 </footer>
+<script>(function () {
+  var n = document.querySelector(".site-nav"); if (!n) return;
+  function f() { n.classList.toggle("at-end", n.scrollLeft + n.clientWidth >= n.scrollWidth - 4); }
+  n.addEventListener("scroll", f, { passive: true }); window.addEventListener("resize", f); f();
+})();
+(function () {
+  var b = document.querySelector(".totop"); if (!b) return;
+  function g() { b.classList.toggle("show", window.scrollY > 2 * window.innerHeight); }
+  window.addEventListener("scroll", g, { passive: true }); g();
+})();</script>
 </body>
 </html>
