@@ -185,6 +185,20 @@ def side_section(p, mods, man_by, out_png: Path, sz):
     fig.tight_layout(); fig.savefig(out_png, dpi=120); plt.close(fig)
 
 
+def hull_data(p, sz, ref):
+    """Datos del casco completo (2,30 m) para la portada: misma sección que P1-REF-01 + consola,
+    volante y piloto. El casco de la portada es ilustrativo (proa dibujada, no medida)."""
+    b = p.inp["boat"]
+    half = [pt for pt in ref.section_pts(p) if pt[0] >= 0]
+    pil = p.inp["masses"]["items"].get("pilot", {})
+    return {"loa": b["loa_m"] * 1000, "lwl": b["lwl_m"] * 1000, "half": [list(map(float, pt)) for pt in half],
+            "zt": b["transom_height_m"] * 1000, "floor_z": p.floor_z, "t": p.bottom_t,
+            "wheel": {"x": p.CTL_wheel_x, "z": p.CTL_wheel_z, "d": p.CTL_wheel_d},
+            "console": {"x0": p.CTL_console_x0, "top": p.CTL_console_top},
+            "pilot": {"x": pil.get("x_m", 1.38) * 1000, "z": pil.get("z_m", 0.55) * 1000, "kg": pil.get("kg")},
+            "draft": sz["hydrostatics"]["draft_m"] * 1000}
+
+
 def main():
     p = P.load()
     man = json.loads((ROOT / "resultados" / "manifest.json").read_text(encoding="utf-8"))
@@ -275,6 +289,7 @@ def main():
                 "bucket_down": p.raw.get("bucket_down_deg", 70.0), "steer_max": p.steer_max, "Xnoz": p.X_noz1,
                 "Dnoz": p.D_noz},
         "agua": {"path": water_path(p), "draft": sz["hydrostatics"]["draft_m"] * 1000},
+        "casco": hull_data(p, sz, mods["P1-REF-01"]),
         "resumen": {
             "vmax_kmh": pf["vmax_cont_kmh"], "vmax_pico_kmh": pf.get("vmax_peak_kmh"),
             "objetivo_kmh": inp["operation"]["top_speed_target_kmh"], "planea": pf["planes"],

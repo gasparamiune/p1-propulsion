@@ -1,337 +1,262 @@
-# 06 — Ensamblaje y pruebas
+# 06 — Ensamblaje y pruebas del waterjet
 
-**Estado:** procedimiento de montaje, uniones, sellado, aislamiento galvánico, ensayos T0–T4, FMEA y mantenimiento. **[NO EJECUTADO]**: ninguna pieza existe todavía; nada se montó ni se probó. Prevalecen el código y `resultados/*.json`; los números de diseño van con marcadores que regenera `docgen.py`.
-Etiquetas: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO]. IDs de pieza: `04_diseno/README.md`. Ítems de compra: columna ID de `bom.csv` (p. ej. B-IGUS). Ensayos eléctricos T0.1–T0.19: `04_diseno/electronica/README.md` §10. Uniones U-nn: §4. Bloqueos abiertos H-nn: §10.
+**Estado:** procedimiento de compras por etapa, cambios en el casco, montaje, aislamiento galvánico, pruebas T0–T4, FMEA, mantenimiento y bloqueos. **[NO EJECUTADO]**: no hay ninguna pieza fabricada; nada se montó ni se probó. Mandan el código y `resultados/*.json`; los números de diseño van entre marcadores `<!--V:…-->` y los regenera `docgen.py`.
 
-**Puertas de entrada (no empezar sin esto):**
-1. PENDIENTES P0 completo: bote medido, placa de capacidad leída (P0.2), hélice MKP-32 comprada y **medida** (P0.7) y `run_all.py` en verde con esos datos (re-dimensiona eje, pasador, protector y patín).
-2. Probetas P1.1–P1.9 aprobadas, en especial P1.2 (bujes), P1.3 (tuerca cautiva), P1.6 (caja con O-ring), P1.8 (patín) y P1.9 (pasador).
-3. Bloqueos de §10 marcados "antes de tornear" o "antes de montar" resueltos por el dueño del diseño.
+Etiquetas: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO]. IDs de pieza: `04_diseno/README.md` y `resultados/manifest.json`. Ítems de compra: columna `ID` de [`bom.csv`](bom.csv). Ensayos eléctricos T0.1–T0.20: [`04_diseno/electronica/README.md`](04_diseno/electronica/README.md) §10. Bloqueos H-n: §8 (no confundir con los hallazgos H1–H25 de R10b).
 
 **Reglas que valen para todo el documento**
-- R1. Nunca Loctite 243 ni otro anaeróbico sobre PETG o donde pueda chorrear sobre PETG (D-18). Rosca A4 en tuerca cautiva de PETG: tuerca nyloc o cianoacrilato de baja resistencia tipo Loctite 425 [VERIFICADO: research/R05 §A10.3].
-- R2. Tef-Gel en todo tornillo, separador o arandela A4/316 que toque aluminio, más arandela o vaina de nylon (D-36; B-ISO, B-ISOW).
-- R3. PETG se limpia solo con IPA:agua 50:50; nunca acetona ni MEK [VERIFICADO: research/R05 §A11].
-- R4. Tuerca A4 cautiva como unión estándar en PETG; insertos de latón solo en la caja ESC (D-18, research/R05 §A10.3).
-- R5. Toda unión apretada lleva una marca de pintura que cruza cabeza y pieza: marca corrida = unión floja.
-- R6. Sistema eléctrico flotante: nada del circuito toca el casco (README electrónica §1, ítem 5).
-- R7. Hasta aprobar T0 el motor gira **sin correa** (o sin hélice) y con el cordón en la mano.
+- R1. **La estabilidad va primero.** El ensayo de escora T1.1 (R13 §5, E1) se hace con el casco SIN cortar y lastre equivalente, antes de comprar servicios o cortar el fondo. Si no pasa, no se sigue (D-04).
+- R2. **El sello mecánico nunca gira en seco.** Con el bote fuera del agua el eje se gira solo a mano y despacio. El motor gira solo con la estrella del acople sacada (T0) [ESTIMADO: R10a §0.2, §8.3].
+- R3. **Tef-Gel en todo A4/316 que toque aluminio**, más arandela aislante de nylon (B-TEFGEL, B-ISOW) (§4).
+- R4. **Marca de pintura** cruzando cabeza y pieza en toda unión apretada: si la marca está corrida, la unión está floja.
+- R5. **Sistema eléctrico flotante:** BAT− no toca el casco; aislación > 1 MΩ (T0.1) [VERIFICADO: R06 §5.1, ISO 13297 4.1].
+- R6. **Nunca trabajar en la rejilla, la chimenea o la popa con el sistema armado:** cordón afuera y S1 en OFF [VERIFICADO: R10a §0.1].
+- R7. **Pares de apriete.** El único calculado en el repositorio es el de las tuercas M8 del pórtico: <!--V:manifest.params.drv_nut_torque_Nm:.0f-->15<!--/V--> N·m con Tef-Gel (P1-DRV-03, estructural.json). Para el resto (M3–M8 A4-70, KM4, prisioneros) usar la tabla del proveedor de la tornillería y la del fabricante del rodamiento; **no están calculados** (bloqueo H-6).
 
-## 1. Herramientas y consumibles
+---
 
-| Herramienta / consumible | Uso | Origen |
-|---|---|---|
-| Torno | DRV-01, -03, -08, -09, -10; MNT-07…-10; re-mandrinado de DRV-06; pasadores PRP-04 | Gaspar |
-| Taladro + machos M3–M8 | Placas Al (HSG-01, HSG-07, ELE-02), tubo STR-02, M3 ciegos de ELE-02, rosca M6 del puente en HSG-01 (H-5) | Gaspar |
-| Soldador + multímetro | Insertos M4 de ELE-01 (≈ 245 °C para PETG [VERIFICADO: research/R05 §A10.1]); conectores bala y placa de optos; aislación, continuidad, tensiones, mV en uniones | Gaspar |
-| Dinamómetro | Torques con palanca, bollard pull, retén, correa, probetas P1 | Gaspar |
-| Palanca de torque | Llave fija o de tubo + brazo de 0,20 m tirado a 90° con el dinamómetro: T = F · 0,20 m (2,5 N·m = 12,5 N) [CALCULADO] | armar |
-| Crimpadora 8–70 mm², termocontraíble con adhesivo | Terminales 16 mm² y toda punta de cable | B-CRIMP, B-SHRINK |
-| Tef-Gel; arandelas y vainas de nylon | A4 sobre Al | B-ISO, B-ISOW |
-| Cordón O-ring 3,53 + cianoacrilato + grasa de silicona; epoxi 2K | Caja ESC, sensor hall, buje MNT-09 | B-ORING, B-EPOXY |
-| Calibre 0,02 mm, calibre de profundidad, micrómetro 0–25 mm | k5/H7/M7, pila del eje | buscar: micrómetro exterior 0-25 mm |
-| Termómetro IR; PC con VESC Tool + USB; celular con GPS y cámara ≥ 120 fps; extintor ABC | T0–T4 | buscar: termómetro infrarrojo |
-| Grasa dieléctrica de silicona; grasa de PTFE | J1/J2; perno MNT-08 (plano) | buscar: dielectric silicone grease / PTFE grease |
-| Loctite 425; fijador de retención cilíndrico; Loctite 243 (solo metal-metal) | R1; agujero de DRV-06; prisioneros | buscar: Loctite 425 / retaining compound cylindrical |
-| Arandelas A4 DIN 9021 M6 (Ø18) y DIN 125 M4/M6; 2 anillos DIN 471 Ø12 inox; tuerca M12×1,25 A4 autoblocante; tuerca M16×1,5 A4 autoblocante + arandela elástica | §4 | buscar: skive A4 M6 DIN 9021 / DIN 471 12 A4 |
-| IPA, lijas al agua 400–1200, papel tisú, gel de sílice | Limpieza, cara de sello, T1 | — |
+## 1. Compras y fabricación por etapa
 
-## 2. Preparación
+La lista completa, con proveedor, precio, etiqueta y especificación mínima, está en [`bom.csv`](bom.csv). Total del sistema <!--V:bom.total_eur:.0f-->10674<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->79793<!--/V--> DKK; con los cambios de casco y el equipo de operación, <!--V:bom.total_with_hull_and_gear_eur:.0f-->11392<!--/V--> € [CALCULADO: `bom.py`]. Regla: **no se compra nada caro antes de cerrar P0** (PENDIENTES_GASPAR).
 
-### 2.1 Piezas torneadas y mecanizadas (planos en `04_diseno/planos/`)
-
-| Pieza | Material (BOM) | Plano | Operaciones | Control |
+| Etapa | Condición para empezar | IDs de `bom.csv` | Monto | Nota |
 |---|---|---|---|---|
-| P1-DRV-01 eje | 316/316L Ø16 h9 (B-BAR16); **nunca 1.4301** (D-07) | `P1-DRV-01_shaft.svg` | Largo <!--V:sizing.layout.shaft_length_mm:.0f-->1357<!--/V--> mm. Arriba: tramo Ø15 k5 + rosca M12×1,25; 2 planos de 1 mm a 90° para los prisioneros. Abajo: asiento = bore **medido** de la hélice (Ø12,7 [ESTIMADO]) + agujero Ø2,1 pasante + retención según la hélice. r 1 mm en escalones; Ra 0,8 en la zona del buje inferior. Barra larga: pasar por el husillo con luneta y tornear un extremo por vez [SUPUESTO] | **Antes de tornear: H-4** (largo del tramo Ø15 = pila real medida − 0,5 mm). k5 = 15,001–15,009 mm [ESTIMADO: ISO 286, confirmar en tabla]; salto en el tramo Ø15 ≤ 0,05 mm y rectitud ≤ 0,3 mm rodando sobre mesa plana [SUPUESTO] |
-| DRV-09 / DRV-10 | 316 Ø20 (B-BAR-PIN) | `P1-DRV-09_spacer_b.svg`, `P1-DRV-10_spacer_a.svg` | Ø19 × Ø15,1 × 4,5 / 12,0 mm | Caras paralelas ±0,02 (plano); apoyan solo en el aro interior |
-| DRV-03 ×2 | 316 (sobrante de Ø16 o Ø20) | `P1-DRV-03_bridge_spacer.svg` | Ø12 × Ø6,5 × 26 | Caras paralelas ±0,05; ambos iguales |
-| DRV-06 polea del eje | Dold 40 T (B-PUL-S) | `P1-DRV-06_pulley_shaft_rebore.svg` | Re-mandrinar a Ø15 H7 centrando sobre los dientes con mordazas blandas; 2 prisioneros M5 A4 a 90° | H7 = 15,000–15,018 [ESTIMADO: ISO 286]; salto ≤ 0,05 (plano) |
-| DRV-08 cartucho | Al 6082-T6 (B-CARTBAR; **Ø55 no alcanza la brida Ø56**, H-14) | sin SVG: STEP `04_diseno/step/P1-DRV-08_bearing_cartridge.step` | Cuerpo Ø42, brida Ø56 × 4, asiento Ø35 M7 × 12, labio con paso Ø21, 3 × Ø4,4 en Ø49 a 120° | M7 = 34,975–35,000 [ESTIMADO: ISO 286]: el rodamiento no entra a mano en frío |
-| MNT-07 perno de dirección | 316 (cabeza Ø24: **no sale de Ø20**, H-14) | `P1-MNT-07_swivel_pin.svg` | Cabeza Ø24 × 5, cuerpo Ø16 f7, rosca M16×1,5 | Gira en MNT-09 sin juego perceptible |
-| MNT-08 perno de basculación | 316 Ø20 | `P1-MNT-08_tilt_pin.svg` | Ø12 h8 × 114, 2 ranuras DIN 471 | Los anillos entran y retienen |
-| MNT-09 / MNT-10 | POM-C Ø25 (B-POM) | `P1-MNT-09_swivel_bushing.svg`, `P1-MNT-10_pivot_bushing.svg` | Ø24 × Ø16,2 H8 × 82 / Ø20 × Ø12,25 × 76 | Los pernos entran a mano |
-| PRP-04 pasador ×6 | 316 Ø<!--V:sizing.mech.shear_pin.d_std_mm:.1f-->2.0<!--/V--> (B-PIN) | `P1-PRP-04_shear_pin.svg` | Cortar a 18,7 mm, aristas matadas | P1.9 con 3 del lote: corte entre 0,8 y 1,2 × <!--V:sizing.mech.shear_pin.Q_shear_Nm:.1f-->12.4<!--/V--> N·m, idealmente en el cubo real de la MKP-32 |
-| HSG-01 placa motriz | Al 6082-T6 6 mm (B-PLATE6) | sin SVG: plantilla 1:1 desde el STEP | 208 × 74 mm: Ø42,2 del cartucho, 3 × Ø4,4, coliso central r 12,5 y 4 colisos M4 (±8 mm), 4 × Ø6,5 a la cuna, 2 × M6 **roscados** para el puente (H-5) | Plantilla presentada sobre la cuna y el motor reales antes de taladrar |
-| HSG-07 placa de caña | Al 6082-T6 10 mm (B-PLATE10) | `P1-HSG-07_tiller_plate.svg` | 77 × 124 mm, 9 agujeros (4 tapa, 1 cáncamo, 4 abrazaderas), r 3; anodizar o pintar | Coordenadas ±0,2 mm |
-| ELE-02 tapa-disipador | Al 4 mm (B-ALPLATE) | `P1-ELE-02_esc_lid_heatsink.svg` | 196 × 146 mm, 8 × Ø4,4; M3 **ciegos** para ESC y antichispa; 4 × M4 del disipador con arandela Dowty | Cara interior plana ≤ 0,1 mm (regla + galga) [SUPUESTO]; ningún M3 pasante |
-| STR-02 tubo de cola | Al 6061-T6 Ø40×3 (B-TUBE) | docstring de STR-02 | Cortar a <!--V:sizing.layout.tube_length_mm:.0f-->1171<!--/V--> mm; 2 × Ø6,4 del perno de la carcasa inferior; 2 × Ø6 de drenaje; radiales de los M5 de los portabujes (H-12) | Sin rebabas (lima y avellanador) |
-| HSG-06 caña | Al 6061-T6 Ø30×3 (B-TILLER) | — | Cortar a 550 mm | — |
+| E0 — Medir y decidir | Ninguna | Nada (cinta, nivel, balanza, lastre) | — | PENDIENTES P0: medidas, estabilidad, cotizaciones, consulta legal |
+| E1 — Casco y seguridad del bote (Jorge) | T1.1 (E1) aprobado con el casco tal cual o ya modificado; casco medido | H-CUT-BOT, H-CUT-TR, H-HOLES, H-FLOORS, H-WELD, H-SIKA, H-PRIMER, H-BATT, H-FOAMBAY; B-FOAM, B-BILGE, B-ALARM, B-BILGE-HOSE, B-12V | Casco: <!--V:bom.hull_changes_eur:.0f-->504<!--/V--> € | Los cortes se replantean sobre el casco medido (§2) |
+| E2 — Equipo de operación | Antes de la primera prueba en el agua (T1) | B-PFD, B-CORD, B-PADDLE, B-ANCHOR, B-LIGHT, B-BAILER | <!--V:bom.operation_gear_eur:.0f-->215<!--/V--> € | Va también con la JT132 (opción B) |
+| E3 — Núcleo eléctrico | Respuesta de Maytech (potencia continua, pares de polos) y `run_all.py` en verde | B-MOT, B-ESC, B-BAT, B-CHG, B-NTC | Núcleo: <!--V:bom.core_eur:.0f-->1896<!--/V--> € | Sirve para A y para B (D-05). Medir las baterías recibidas antes de comprar B-BOX |
+| E4 — Potencia, seguridad eléctrica y mando | E3 recibido | B-BOX, B-FUSE, B-FUSEH, B-SW, B-BUS, B-CAB-*, B-TERM*, B-SHRINK*, B-ANDERSON, B-GLAND32, B-RPRE, B-CONT, B-KILL, B-ESTOP, B-CFUSE, B-KCONN, B-MCU, B-DCDC, B-PCB, B-HALL, B-MAG, B-SIGNAL, B-ENCL, B-WIRE, B-CRIMP | — | B-CONT: tensión de bobina y de cierre confirmadas por escrito (README de electrónica §7; bloqueo H-9) |
+| E5 — Servicios de fabricación (solo opción A) | AWT no confirma las 4 condiciones de 03 §3, o la JT132 no entra en el casco | S-CNC-IMP, S-CNC-STAT, S-TURN-HSG, S-TURN-NOZ, S-TURN-TP, S-MILL-STE, S-LASER, S-WELD-INT, S-WELD-AL, S-WELD-316, S-ANOD; materia prima MP-* | Servicios <!--V:bom.services_eur:.0f-->3910<!--/V--> € + materia prima <!--V:bom.raw_material_eur:.0f-->1243<!--/V--> € | Con la JT132 queda solo la placa de adaptación de la toma, el pórtico y el soporte del motor (03 §4) |
+| E6 — Tren, sellado y corrosión | E5 encargado (o JT132 comprada) | B-SEAL, B-BRG, B-KM4, B-CPL, B-KEY, B-CIRC, B-NUT16, B-LOCTITE, B-HW, B-STUD, B-INS, B-ORING, B-GREASE, B-GASKET, B-GLAND16, B-GLAND20, B-TEFGEL, B-ISOW, B-ANODE, B-TAP | — | Comprar con el eje: el sello y los rodamientos se prueban en el eje terminado |
+| E7 — Refrigeración y mandos | Consola de Jorge medida | B-HOSE, B-BARB, B-HCLAMP, B-STRAIN, B-COOL-THRU; B-HELM, B-M66, B-WHEEL, B-MACH5, B-ROD5, B-ROT8, B-INDEX, B-BOWDEN, B-KNOB | — | Largo del M66, del Mach5 y del Bowden medidos en el bote |
+| E8 — Impresión en PETG | Perfiles y probetas de 05 aprobados | B-PETG → P1-CTL-02, P1-CTL-03, P1-ELE-01, P1-ELE-02, P1-INT-04 | <!--V:manifest.totals.printed_mass_g:.0f-->1020<!--/V--> g, <!--V:manifest.totals.printed_hours:.0f-->57<!--/V--> h | Piezas secas o de baja carga (D-19) |
+| E9 — Repuestos | Con E6 | R-SEAL, R-ORING, R-SPIDER, R-FUSE, R-PIN, R-BUSH | — | R-PIN: 5 pasadores de corte (ver bloqueo H-12 sobre la cantidad) |
 
-### 2.2 Piezas impresas
+---
 
-Perfiles, orientación (`resultados/manifest.json`), secado, probetas y post-proceso: **`05_fabricacion.md`**. PETG con HDT ≥ 70 °C (D-29). Recepción de cada pieza antes de montar:
-- masa dentro de ±10 % de "g c/u" de `04_diseno/README.md` [SUPUESTO]; sin delaminación, costuras abiertas ni hilos en los agujeros; holguras con la pieza metálica real (peine P1.1);
-- ELE-01: insertos M4 a ≈ 245 °C quedando **0,3 mm por debajo** de la cara del reborde, para que el latón no toque la tapa de Al [SUPUESTO]; ranura del O-ring 2,57–2,72 × 4,50–4,75 mm [VERIFICADO: research/R05 §B3]; cara de sello lijada al agua o con epoxi + lijado (research/R05 §B4);
-- DRV-02 ×3: 2 bujes H370 prensados por portabuje con el ajuste aprobado en P1.2;
-- tuercas A4 cautivas colocadas en sus bolsillos antes de cerrar cada unión (MNT-01, -03, -04, -05; STR-01).
+## 2. Cambios en el casco que hace Jorge
+
+Todas las cotas salen del CAD (`resultados/manifest.json → params`) con el casco **leído del plano** (D-02, [ESTIMADO]). Antes de cortar: casco medido (PENDIENTES P0.1), `inputs.yaml → boat.*` actualizado, `python run_all.py` en verde y **replanteo sobre el casco real** con plantilla de cartón o MDF. Origen: cara exterior del espejo, crujía, quilla (x hacia proa, z hacia arriba).
+
+| # | Cambio | Cotas (CAD) | Verificar antes de seguir |
+|---|---|---|---|
+| C1 | **Recorte del fondo para la placa base P1-INT-02** (H-CUT-BOT) | La placa va de x = <!--V:manifest.params.toma_plate_x0:.0f-->286<!--/V--> a <!--V:manifest.params.toma_plate_x1:.0f-->801<!--/V--> mm, semiancho <!--V:manifest.params.toma_plate_y:.0f-->150<!--/V--> mm, en crujía; el recorte es la placa menos el ala de <!--V:manifest.params.toma_rim_w:.0f-->25<!--/V--> mm por lado, con <!--V:manifest.params.toma_seal_gap:.1f-->0.5<!--/V--> mm de luz para el Sikaflex. Abertura hidráulica <!--V:manifest.params.L_open:.0f-->380<!--/V--> × <!--V:manifest.params.W_open:.0f-->158<!--/V--> mm entre el labio (x = <!--V:manifest.params.x_lip:.0f-->386<!--/V-->) y la tangencia de la rampa (x = <!--V:manifest.params.x_tan:.0f-->766<!--/V-->). Fondo de <!--V:manifest.params.bottom_t:.0f-->4<!--/V--> mm [SUPUESTO: medir] | Zona plana, sin quilla, tracas ni remaches en la abertura y ≥ 0,5 m limpio a proa de la tangencia [VERIFICADO: R10a §7, §8.2]. Escalón placa ↔ fondo ≤ 1 mm (P1-INT-02). **Espesor real del fondo** (con cualquier sobreplaca): con el supuesto la tobera fija y la carcasa quedan a pocos milímetros del fondo interior; si supera 6 mm, subir `waterjet.axis_height_m` lo mismo, correr `run_all.py` (`verify_parts.py` falla si no) y revisar que el eje siga bajo la flotación (`sizing.priming.axis_below_wl_m`) [auditoria.md W-16] |
+| C2 | **Agujeros del ala** (H-HOLES) | M<!--V:manifest.params.toma_hull_bolt:.0f-->6<!--/V--> ISO 10642 A4-70 avellanados desde afuera, paso <!--V:manifest.params.toma_hull_pitch:.0f-->70<!--/V--> mm, tuerca autofrenante A4 adentro. Taladrar con la placa presentada como plantilla | Avellanado: cabeza enrasada con el fondo |
+| C3 | **Agujero del espejo** (H-CUT-TR) | Ø<!--V:manifest.params.transom_hole_d:.1f-->160.8<!--/V--> mm, centro en crujía a z = <!--V:manifest.params.z_noz:.0f-->92<!--/V--> mm sobre la quilla (eje de la tobera). Espejo de <!--V:manifest.params.transom_t:.0f-->6<!--/V--> mm [SUPUESTO: medir]. Más los 6 × M6 de la placa de espejo P1-PMP-09 (taladrar con la placa como plantilla) | El agujero queda concéntrico con el eje del conducto: verificar con el conducto presentado y un hilo tenso por el eje antes de cortar |
+| C4 | **Pasos del espejo, sobre la flotación** (H-HOLES) | Pasacasco del testigo de refrigeración P1-ELE-03 (Ø17); salida de achique (B-BILGE-HOSE); pasamuros M66 P1-CTL-04 (M20 × 1,5) y 2 prensaestopas M16 (Mach5 y Bowden) en la placa interior P1-CTL-01 (6 × M6); 2 × M6 del tope de dirección P1-STE-08 | Todo por encima de la flotación medida (T1.2): la flotación de cálculo está a <!--V:sizing.hydrostatics.draft_m:.3f-->0.285<!--/V--> m de la quilla [CALCULADO] |
+| C5 | **Varengas y refuerzos** (H-FLOORS, H-WELD) | Al 5083 6 mm a ambos lados del recorte y bajo el pórtico (x ≈ <!--V:manifest.params.brg_bracket_x0:.0f-->532<!--/V-->–<!--V:manifest.params.brg_bracket_x1:.0f-->682<!--/V-->) y el soporte del motor (x ≈ <!--V:manifest.params.mot_x0:.0f-->682<!--/V-->–<!--V:manifest.params.mot_x1:.0f-->797<!--/V-->); refuerzo del borde del recorte. Los pies del motor P1-MOT-02 van con 4 × M<!--V:manifest.params.mot_foot_bolt:.0f-->8<!--/V--> a las varengas a través del piso | El empuje a punto fijo, hasta <!--V:sizing.mech.Fa_max_N:.0f-->765<!--/V--> N [CALCULADO], va del pórtico a la placa base y de los bulones del ala al casco: las varengas le dan rigidez al borde del recorte. Soldadura con cordones intermitentes, sin recalentar el fondo (H-WELD). Dimensionarlas con el casco medido |
+| C6 | **Piso en la zona del motor** | Piso a z = <!--V:manifest.params.floor_z:.0f-->75<!--/V--> mm sobre la quilla en el CAD; luz motor ↔ piso <!--V:manifest.params.mot_clear_floor:.0f-->16<!--/V--> mm [CALCULADO] | Si el piso real está más alto, cambia el soporte del motor: medir antes de pedir P1-MOT-02 |
+| C7 | **Flotación fija ~100 L** (B-FOAM, H-FOAMBAY) | Espuma de celda cerrada en compartimentos bajo el asiento y en proa, repartida a ambas bandas, **fuera de la sentina** [ESTIMADO: R10b H5, 1,5 × peso neto sumergido] | E2/E3 (T1.4–T1.5): flota inundado con escora ≤ 10° [VERIFICADO: 33 CFR 183.225]. La espuma PU pierde flotación con inmersión continua: revisable [VERIFICADO: R11 §10.12] |
+| C8 | **Achique** (B-BILGE, B-ALARM, B-12V, B-BILGE-HOSE) | Bomba automática en el punto más bajo de la sentina (a proa de la toma), alarma de nivel alto, 12 V desde un DC-DC aislado **aguas arriba de S1/K1** con fusible F4 | Funciona con el kill tirado y S1 en OFF (T0.M8) |
+| C9 | **Bancada de baterías** (H-BATT) | Caja estanca B-BOX con las 2 baterías (≈ 40 kg) sobre calzos, por encima del nivel de sentina, 2 correas ≥ 4 × peso | ISO 13297 8.1: batería en lugar seco sobre el agua de sentina [VERIFICADO: R06 §5.1] |
+| C10 | **Cockpit** (si E1 lo exige y para la clasificación legal) | Asiento bajo la borda, brazola ≥ 250 mm, volante, palancas y respaldo; nada de montura ni manillar [ESTIMADO: R13 §1.4, §9] | Es lo que sostiene que no es "vandscooter" (D-20). Si E1 falla: manga en la flotación ≥ 0,9 m o flotadores laterales (D-04) |
+
+La chimenea de inspección termina a z = <!--V:manifest.params.toma_chim_top:.0f-->350<!--/V--> mm: su tapa tiene que quedar ≥ 60 mm sobre la flotación medida [visor REVISAR P1-INT-04; R10a §0.3]. Si con el casco medido no queda, alargar la chimenea antes de soldar.
+
+---
 
 ## 3. Secuencia de montaje
 
-Orden: M1 cardán → M2 cola → M3 cuna y cabezal → M4 eje y pila → M5 correa y cubiertas → M6 hélice y protector → M7 unión cola–cardán → M8 caña y mandos → M9 eléctrica → M10 instalación en el bote. Banco: tablón de 40 mm atornillado al banco como espejo de prueba [SUPUESTO]. Masa de la unidad basculante: <!--V:verify.unit_mass.cad_kg:.2f-->8.85<!--/V--> kg (CAD): montar y levantar entre dos.
+Prerrequisitos: T1.1 aprobado (R1); cambios de casco C1–C10 hechos; piezas recibidas e inspeccionadas contra sus planos (`04_diseno/planos/`); ensayos de taller de 05 §7 aprobados, en particular la **prueba de estanqueidad del conducto soldado** (aire 0,3 bar + jabón, S-WELD-INT) y la **prueba hidrostática de la toma y la bomba a 0,3 MPa** [ESTIMADO: R12 §7.2; presión de diseño <!--V:est.loads.structural_bomba.loads_used.p_design_Pa:.0f-->200000<!--/V--> Pa]. Las piezas tienen el orden de montaje verificado en el CAD (checks de P1-DRV-01: cada pieza pasa por los Ø de lo ya montado; `params_tren.py`).
 
-| Paso | Piezas | Acción | Control | Unión |
+**Importante:** la bomba **no pasa por el agujero del espejo**: la brida de la toma (Ø<!--V:manifest.params.pump_flange_od:.0f-->193<!--/V-->) y la de la tobera (Ø<!--V:manifest.params.pmp_f2_od:.0f-->186<!--/V-->) son mayores que el agujero (Ø<!--V:manifest.params.transom_hole_d:.1f-->160.8<!--/V-->). Carcasa, estator y tobera se montan desde adentro del casco; por el espejo asoma solo el resalte de la tobera, y la placa de espejo se pone desde afuera.
+
+| Paso | Qué | Cómo (uniones y pares) | Verificar antes del paso siguiente |
+|---|---|---|---|
+| M1 | **Toma: placa base + conducto** (P1-INT-01/02, subconjunto soldado por el taller) | Presentar en seco desde adentro: el ala apoya sobre el casco y el cuerpo llena el recorte. Limpiar, Sika Aktivator + Primer (H-PRIMER), cama de Sikaflex-291i de 0,5–1 mm en el ala y en la luz (H-SIKA). Bulones M6 del ala (C2) con Tef-Gel. En el mismo paso, los 4 tornillos ISO 10642 M8 × 35 A4-70 del pórtico (B-STUD) desde afuera, cabeza en Sikaflex, tuerca provisoria. Curado según la ficha de Sika (R05 S36) antes de cargar | Escalón ≤ 1 mm en todo el perímetro; cordón de Sikaflex continuo afuera y adentro; los 4 espárragos perpendiculares a la placa (escuadra) |
+| M2 | **Rejilla y tapa de inspección** (P1-INT-03, P1-INT-04) | Rejilla desde afuera, 4 × M5 A4 con Tef-Gel. Tapa con O-ring y grasa de silicona (B-GREASE), 4 × M6 con arandela ancha; tornillo de purga con arandela de estanqueidad | Barras enrasadas, escalón ≤ 2 mm y sin rebabas [VERIFICADO: R10a §8.6]; luz entre barras <!--V:manifest.params.toma_bar_gap:.1f-->16.3<!--/V--> mm (ver H-11 sobre dedos) |
+| M3 | **Bomba hacia el espejo: carcasa con impulsor** (P1-PMP-01 con P1-PMP-02 prensado y torneado por el taller; P1-PMP-03) | Impulsor adentro del anillo de desgaste (queda suelto hasta que llegue el eje). O-ring de cara en la carcasa (grasa de silicona). Carcasa contra la brida del conducto con <!--V:manifest.params.pump_flange_n:.0f-->8<!--/V--> × M<!--V:manifest.params.pump_flange_bolt:.0f-->6<!--/V--> A4, Tef-Gel, tuercas A4 del lado del conducto, apriete en cruz | Puerto de refrigeración <!--V:manifest.params.pmp_cool_thread:-->G1/8<!--/V--> arriba; la carcasa no toca el espejo; la tobera (paso M8) va a quedar centrada en el agujero del espejo |
+| M4 | **Eje con sello, en banco** (P1-DRV-01, P1-DRV-02, P1-DRV-07) | Asiento fijo del sello prensado en la caja (copa de NBR mojada con agua, sin grasa en las caras). Desde la **punta de popa** del eje: caja del sello hasta el collar y cabeza rotante hasta su anillo DIN 471 de respaldo. Después, anillo DIN 471 de empuje + arandela 316 en la ranura delantera del impulsor (B-CIRC) | Nada pasa por el collar Ø26; caras del sello limpias (alcohol isopropílico, sin tocarlas con los dedos); fuelle sin torcer |
+| M5 | **Eje con sello, desde proa** | El subconjunto entra por proa, punta de popa primero, por el buje del sello de la toma (Ø<!--V:manifest.params.seal_spigot_d:.0f-->42<!--/V--> H8), el tubo del conducto y el agujero del impulsor. Espigón de la caja en el buje con Tef-Gel; 4 × M6 A4 de la caja con Tef-Gel y arandela aislante | El impulsor apoya contra la arandela y el DIN 471 de empuje; la linterna del sello queda con las ventanas a la vista y la salida G1/8 abajo |
+| M6 | **Pórtico sobre los espárragos** (P1-DRV-03) | Sacar las tuercas provisorias. El pórtico baja vertical sobre los 4 espárragos M<!--V:manifest.params.brg_bracket_bolt:.0f-->8<!--/V-->, pasando el alojamiento Ø47 por la punta de proa del eje. Arandela ISO 7089 + tuerca ISO 4032 A4 **a mano** | Zapatas apoyadas planas sobre la placa base (galga 0,05 mm no entra) |
+| M7 | **Rodamientos, KM4 y tapa** (P1-DRV-04/05/06) | Par 7204 BEP **en O**, prensados a la vez en el alojamiento y en el muñón **desde proa** contra el collar (tubo de montaje sobre los dos aros). MB4 + KM4 con llave de gancho y doblar un diente de la MB4 en la ranura. Tapa P1-DRV-06 con 4 × M<!--V:manifest.params.drv_cover_bolt:.0f-->5<!--/V--> A4 y Tef-Gel; grasa + anillo V del lado del acople. Con el casquillo de centrado en la caja del sello, apretar las tuercas M8 a <!--V:manifest.params.drv_nut_torque_Nm:.0f-->15<!--/V--> N·m con Tef-Gel. Escariar 2 pasadores Ø6 por zapata | **T0.M1** giro libre a mano y **T0.M3** juego axial. Marca de pintura en las 4 tuercas |
+| M8 | **Pasador de corte, retén, estator y tobera** (P1-PMP-04 a 08), desde adentro, por popa de la carcasa | Pasador Al 6061 Ø<!--V:sizing.mech.shear_pin.d_mm:.1f-->3.5<!--/V--> por el cubo y el eje; anillo retén P1-PMP-04 deslizado (Loctite 641) y 2 × M3 avellanados; DIN 471 de retención de popa (opcional). Estator con el buje de agua ya prensado (H7/s6, desde proa, en banco) deslizado en la carcasa sobre el muñón; 2 × M5 radiales anti-giro; agujero de refrigeración alineado con el puerto. Tobera fija con <!--V:manifest.params.pump_flange_n:.0f-->8<!--/V--> × M6 A4 y Tef-Gel: su espiga aprieta la camisa del estator | **T0.M2** holgura de punta con galgas (el eje ya está en sus dos apoyos) y **T0.M1** otra vez |
+| M9 | **Placa de espejo desde popa** (P1-PMP-09, P1-PMP-10, P1-PMP-11) | Junta NBR + Sikaflex en el espejo. O-ring radial con grasa de silicona en el resalte de la tobera; la placa desliza el cuello sobre el resalte. 6 × M6 A4 a través del espejo con Tef-Gel, arandelas aislantes y arandelas grandes o contraplaca adentro. Bujes POM de pivote prensados | La bomba sigue apoyada solo en la brida de la toma: aflojar y volver a apretar la placa no mueve el eje (comparador en el cubo del acople, sin cambio) |
+| M10 | **Acople** (P1-DRV-08) | Cubo del lado del eje refrentado a su largo de montaje, chaveta 6 × 6 A4 (B-KEY) y prisionero con Loctite 243 (lejos de todo PETG). Cubo del lado del motor en el eje Ø15 del motor con su chaveta. Estrella T-PUR 92 ShA | Chavetas sin juego lateral; prisioneros con marca |
+| M11 | **Motor** (P1-MOT-01 sobre P1-MOT-02) | Soporte a la cara del motor con <!--V:manifest.params.mot.mount_n:.0f-->4<!--/V--> × M<!--V:manifest.params.mot.mount_bolt:.0f-->6<!--/V--> (medir el motor recibido). Pies a las varengas con 4 × M8 a través del piso, con Tef-Gel. Separación entre cubos = <!--V:manifest.params.drv_coupling.s:.1f-->2.0<!--/V--> mm (juego axial: el motor no recibe empuje) | **T0.M4** alineación del acople; T0.M1 con el motor acoplado |
+| M12 | **Refrigeración** (B-BARB, B-STRAIN, B-HOSE, B-HCLAMP, P1-ELE-03) | Espiga 316 en el puerto de la carcasa → filtro en línea → manguera Ø6 × 8 → caja de agua del controlador → camisa del motor → pasacasco testigo del espejo (sobre la flotación, a la vista). Abrazaderas A4 en cada espiga. Manguera de la linterna del sello (G1/8 abajo) a la sentina, visible | **T0.M7** con agua de red: sin fugas y sale por el testigo |
+| M13 | **Boquilla, bucket y cables** (P1-STE-*, P1-REV-*, P1-CTL-01/04/05) | Boquilla entre las orejas de la placa de espejo con 3 arandelas POM; perno superior P1-STE-02 y espárrago inferior P1-STE-05 roscados M6 con Loctite 243. Brida del yugo 4 × M8 A4 con Tef-Gel, poste, brazo, biela M8 con contratuercas. Tope de dirección P1-STE-08 al espejo (2 × M6). Bucket con bujes POM, pernos P1-REV-02 y tuerca autoblocante A4; émbolo P1-REV-04 con contratuerca; soporte Mach5 P1-REV-05, varilla y perno P1-REV-06 (Loctite 243); soporte del Bowden P1-REV-09. Pasamuros M66 y prensaestopas en la placa P1-CTL-01 (Sikaflex afuera). Mach5 y Bowden con un bucle libre hasta la boquilla | **T0.M6**: la dirección para en el tope (±<!--V:manifest.params.STE_stop_deg:.1f-->26.5<!--/V-->°) antes de que la boquilla toque la tobera; el bucket arriba no toca el chorro; la traba entra arriba y abajo [CALCULADO: `verify.json` sin interferencias en δ ±<!--V:manifest.params.steer_max:.0f-->25<!--/V-->° y bucket arriba/abajo] |
+| M14 | **Electrónica** (B-BOX y lista de E4; README de electrónica §1–§9) | Caja de baterías en su bancada; las 2 baterías en paralelo con **un fusible por rama** de <!--V:sizing.electrical.fuse_branch_a:.0f-->125<!--/V--> A a barras; F1 de <!--V:sizing.electrical.fuse_a:.0f-->250<!--/V--> A a ≤ 175 mm del borne + [VERIFICADO: R06 §5.1]; S1, K1 con R_pre, controlador sobre P1-ELE-01 con la capota P1-ELE-02; cable DC <!--V:sizing.electrical.cable_dc.section_mm2:.0f-->70<!--/V--> mm² y fases <!--V:sizing.electrical.cable_phase.section_mm2:.0f-->95<!--/V--> mm², terminales crimpados con termocontraíble con adhesivo; NTC pegado al estator del motor; caja IP67 de mando. **BAT− no va al casco** | **T0.1** aislación y **T0.2** tensiones antes de unir las baterías en paralelo |
+| M15 | **Mandos** (consola de Jorge, P1-CTL-02/03/08–14) | Caja T85 + volante, cable M66 a la biela del yugo; unidad de palancas sobre la placa central P1-CTL-08 (2 × M6 por debajo de la tapa de la consola); Mach5 de la consola; gatillo y Bowden; hall con imán (entrehierro del plano); soporte del kill switch y seta | T0.5 calibración, T0.M6 enclavamiento, T0.10–T0.11 bucket con el firmware |
+
+---
+
+## 4. Aislamiento galvánico
+
+Casco, placa base, conducto, placa de espejo y bucket son Al 5083: el mismo metal, sin par entre ellos (D-09). El riesgo está en el 316 en contacto con aluminio bajo el agua: ~670 mV de diferencia contra un límite práctico de 200 mV [VERIFICADO: R06 §6, Gerr].
+
+| Par | Dónde | Medida | Control |
+|---|---|---|---|
+| Tornillería A4 ↔ Al | Ala de la placa base, bridas de la bomba, placa de espejo, brida del yugo, tope, pórtico | Tef-Gel en roscas y asientos + arandela de nylon bajo cabeza y tuerca (B-TEFGEL, B-ISOW) [VERIFICADO: R06 §6] | Visual al desarmar: sin polvo blanco alrededor de las cabezas |
+| Anillo de desgaste 316 ↔ carcasa 6061 | Asiento prensado (sin anodizado: S-ANOD enmascara los asientos H7) | Loctite 648 en el prensado; ánodo | Inspección por la tobera al cambiar el pasador |
+| Caja del sello 316 ↔ buje del conducto 5083 | Espigón y brida de 4 × M6 | Tef-Gel en el espigón y la cara; arandelas aislantes | Al desmontar el sello |
+| Rejilla 316 ↔ bloque del labio y placa base 5083 | Ranuras y bolsillos, bajo el agua | Tef-Gel en ranuras y tornillos M5; ánodo. Ver bloqueo H-11 | Inspección mensual desde afuera |
+| Pasador Al 6061 ↔ eje e impulsor 316 | Cubo del impulsor | Pasador consumible (§7); el Al es el ánodo: se corroe él, no el eje | Se cambia por mantenimiento |
+| Pernos 316 ↔ boquilla 6061 y bucket 5083 | Pivotes | Bujes y arandelas de POM (P1-PMP-11, P1-STE-03, P1-REV-03): sin contacto metal-metal | Juego de los bujes (§7) |
+| Émbolo A4 ↔ oreja de la boquilla | Rosca M20 | Tef-Gel en la rosca | Al lubricar el émbolo |
+| Pasamuros M66 316 ↔ espejo 5083 | Sobre la flotación | Sikaflex + Tef-Gel + arandela aislante | — |
+| Sistema eléctrico ↔ casco | BAT− y todo el circuito de potencia | Flotante: nada del circuito toca el casco [VERIFICADO: R06 §5.1, ISO 13297 4.1] | **T0.1** > 1 MΩ BAT− ↔ casco, BAT− ↔ eje, B+ ↔ casco, antes de cada temporada |
+| Protección catódica | Carcasa / conducto | Ánodo de **aluminio** (no zinc en agua salobre) con continuidad eléctrica a la carcasa y al conducto (B-ANODE) [VERIFICADO: R06 §6, Fisheries Supply] | Continuidad ánodo ↔ conducto ↔ carcasa < 1 Ω con multímetro [SUPUESTO]; cambiar al 50 % consumido o una vez por año [VERIFICADO: R06 §6] |
+
+Nada de latón ni de fibra de carbono bajo el agua [VERIFICADO: R06 §0, §6]. Los insertos de latón (B-INS) van solo en la base y la capota del controlador, que son piezas secas.
+
+---
+
+## 5. Pruebas por etapas
+
+No se pasa de etapa si una prueba no pasa. Cada prueba deja un registro: fecha, quién, valores medidos, fotos o video, log del VESC exportado. Criterios numéricos desde `sizing.json → success.*` (factores en `inputs.yaml → operation.success` [SUPUESTO]) y 02 §11.
+
+### T0 — Banco en seco (bote en tierra o en el trailer)
+
+**Condición:** acople desconectado (estrella sacada; correr el motor hacia proa sobre sus pies): el sello no gira en seco (R2). Extintor ABC a mano.
+
+| # | Prueba | Cómo | Pasa si | Si no pasa |
 |---|---|---|---|---|
-| M1.1 | MNT-01, MNT-09 | Buje POM en el buje vertical, con gota de epoxi o pasador (plano MNT-09) | MNT-07 entra y gira a mano sin juego radial perceptible | — |
-| M1.2 | MNT-01, 2 tuercas M12 + placas de reparto A4 40×40×4, B-CLAMP, MNT-02 ×2 | Tuercas y placas en sus bolsillos; tornillos en T; zapatas en la punta | Cada tornillo recorre a mano toda la luz (espejo <!--V:manifest.params.tr_t_min:d-->20<!--/V-->–<!--V:manifest.params.tr_t_max:d-->65<!--/V--> mm); la zapata gira libre | U-01 |
-| M1.3 | MNT-03, MNT-04 ×2, 4 tuercas M6 + 2 tuercas M12 cautivas | Tuercas en las mejillas; mejillas a la base con 4 × M6 desde abajo | Luz entre mejillas 78 ± 0,3 mm [CALCULADO: 2·(46 − 7)]; mejillas a escuadra ±0,5 mm en 100 mm [SUPUESTO] | U-03 (H-3) |
-| M1.4 | MNT-01, B-WASH, MNT-03, MNT-07, tuerca M16 | Arandela UHMW sobre el plato, base encima, perno desde arriba, tuerca abajo | Dirección ±35° libre; juego vertical ≤ 0,5 mm [SUPUESTO] | U-02 |
-| M1.5 | MNT-03, M8 A4 + B-STOP + contratuerca | Tornillo de trimado/tope desde abajo, altura inicial del CAD | — | U-18 (H-2, H-3) |
-| M1.6 | MNT-04 ×2, B-SPRING ×2 | Émbolos de bola hasta enrasar la bola con la cara interior; se calibran en M7.2 | — | U-19 |
-| M2.1 | STR-02 | Preparado según §2.1 | Largo ±1 mm | — |
-| M2.2 | STR-02, DRV-02 ×3, M5 ×3 | Deslizar los portabujes con una varilla marcada: centros a 22 / 585 / 1149 mm de la boca superior [CALCULADO: layout.u_bush − layout.u_tube_top]; M5 radial con vaina + Tef-Gel | Una varilla Ø16 h9 de 1,4 m (o el eje) pasa por los tres sin forzar | U-13 (H-12) |
-| M2.3 | STR-01, STR-02 | Encastrar la carcasa inferior 45 mm; perno transversal M6 (traba también el portabuje inferior) | Aleta en el plano de simetría de la cola ±1° | U-14 |
-| M3.1 | MNT-05, MNT-10, 4 tuercas M6 | Buje POM del pivote en la cuna; tuercas cautivas de la placa motriz | MNT-08 entra a mano y gira sin juego visible | — |
-| M3.2 | DRV-07 (A), DRV-08 | Calentar el cartucho a ≈ 100 °C (horno) y dejar caer el rodamiento hasta el labio [SUPUESTO]; nunca empujar por el aro interior | Rodamiento a tope contra el labio; gira suave | — |
-| M3.3 | DRV-08, HSG-01 | Cartucho desde la cara de popa (brida contra la placa), 3 × M4 | Brida apoyada: galga 0,05 no entra | U-07 |
-| M3.4 | HSG-01, DRV-04 (Flipsky 6374 190 KV) | Motor en los colisos, a media carrera; largo de tornillo = placa + arandela + rosca útil del motor − 1 mm (MEDIR el motor) | La punta no toca el bobinado; la campana gira libre; cabezas vs polea: H-6 | U-08 |
-| M3.5 | HSG-01, MNT-05 | Placa a la cara delantera de la cuna; el cartucho entra en su rebaje | Cartucho asentado en el fondo del rebaje, sin luz | U-04 |
-| M4.1 | DRV-01, conjunto M2 | Eje desde abajo (el extremo Ø12 primero) por STR-01 y los 3 portabujes hasta que asome ≈ 78 mm por la boca, como en la posición final [CALCULADO: layout.u_tube_top − layout.u_shaft_top]; V-ring entre el hombro y la boca si cabe (H-11) | Gira a mano en los bujes con ≤ 0,3 N·m (≤ 10 N con el dinamómetro a 30 mm) [SUPUESTO] | — |
-| M4.2 | Cola + cuna, MNT-06, HSG-07 | Cuna boca abajo; apoyar el tubo en la media caña desplazado ≥ 80 mm hacia la hélice (el paso Ø22 de la cuna es cerrado) y deslizar todo hacia la cuna: el eje entra por el paso Ø22 en el rodamiento A (k5: empuje a mano; si pide más de ≈ 200 N, retirar y pulir al lado bajo de k5 [SUPUESTO], nunca a golpes por las bolas); tubo a tope contra el escalón; tapa y placa de caña con los 4 pernos pasantes | Tubo a tope; aleta de STR-01 en el plano de simetría de la cuna ±1° | U-05 (H-2) |
-| M4.3 | DRV-10, DRV-06, DRV-09, DRV-07 (B), tuerca M12×1,25 | Desde arriba: separador A, polea (fijador de retención en el agujero; prisioneros sobre los planos), separador B, rodamiento B empujado por su aro interior, tuerca | **Antes de apretar:** el aro interior de B sobresale ≥ 0,3 mm del escalón Ø12/Ø15 (calibre de profundidad); con la geometría actual queda 2 mm por debajo (H-4). Después: juego axial del eje no perceptible (≤ 0,05 mm) [SUPUESTO] | U-10, U-11 |
-| M4.4 | HSG-02, DRV-03 ×2, 2 × M6 | Puente deslizado sobre el rodamiento B (flotante); separadores entre puente y placa | Rodamiento B entra sin forzar; el eje sigue girando con ≤ 0,3 N·m; ninguna punta de M6 asoma por la cara de popa (H-5) | U-09 |
-| M5.1 | B-BELT, DRV-05, DRV-06 | Polea del motor alineada con la del eje (regla sobre las caras); correa de <!--V:sizing.mech.belt.length_std_mm:.0f-->425<!--/V--> mm; tensar corriendo el motor en los colisos | Flecha ≈ 3 mm con 10 N en el centro del ramal (P5.3); desalineación ≤ 0,5 mm [SUPUESTO]; centros ≈ <!--V:sizing.mech.belt.center_actual_mm:.1f-->125.5<!--/V--> mm | U-08, U-12 |
-| M5.2 | HSG-05, HSG-03 | Capó a la cara de popa de la placa; cubrecorrea (fijación: H-13) | Girar a mano: sin roce; capó y cubrecorrea abiertos abajo (drenan) | — |
-| M6.1 | PRP-03, PRP-04 | Hélice en el asiento, pasador del lote ensayado (P1.9), tuerca de la hélice | Pasador sobresale igual a ambos lados; sin juego angular hélice–eje perceptible | — |
-| M6.2 | PRP-01 ×6, PRP-02, STR-01 | Segmentos unidos por las orejas (M4 tangenciales); montura superior al brazo de STR-01; patín con su lengüeta en la ranura | Holgura punta de pala–aro ≥ 5 mm a 0/90/180/270° (checks de PRP-01); patín ≥ 15 mm bajo la punta de pala (checks de PRP-02) | U-15, U-16 |
-| M6.3 | PRP-05 | Placa antiventilación al brazo de STR-01 | — | U-17 |
-| M7.1 | Cuna + cardán, MNT-08, 2 × DIN 471 | Cuna entre mejillas, perno con grasa de PTFE, anillos | Juego axial ≤ 0,5 mm [SUPUESTO]; basculación 0→25° libre; el retén enclava en marcha y basculada | U-20 |
-| M7.2 | Émbolos | Calibrar la precarga (P5.1) y bloquear | 60–130 N horizontales en el patín para bascular (modelo <!--V:sizing.mech.kickup.F_release_at_skeg_fwd_N:.0f-->90<!--/V--> N) | U-19 |
-| M7.3 | Tope/trimado | Ajustar con nivel digital sobre el tubo | Eje a 25 ± 1° respecto de la vertical del espejo real medido en P0.1 (D-04) [SUPUESTO: tolerancia] | U-18 |
-| M8.1 | HSG-06, HSG-04 ×2, HSG-07 | Tubo de caña en las abrazaderas (0,6 mm de apriete) | 200 N en el puño (LC7): la caña no gira ni desliza | U-06 |
-| M8.2 | ELE-04, ELE-03, imán, resortes | Collar del hall fijo (M5 de apriete); imán pegado con epoxi en el cubo del puño; resortes | Retorno al centro desde ±30° 10/10 | — |
-| M8.3 | SAF-01, B-KILL | Soporte junto al puño; interruptor Watski en el Ø22 | El clip entra y sale sin esfuerzo con el cordón a la muñeca | — |
-| M8.4 | Cables del hall y del cordón | Por dentro del tubo de caña, alivio de tensión en ambas puntas, J1/J2 IP68 con grasa dieléctrica | Ningún cable apoyado en aristas; bucle de servicio (M9.5) | — |
-| M9.1 | B-BAT (2 × Power Queen 12 V 100 Ah, D-19), B-BOX ×2 | Baterías en sus cajas, amarradas, sobre la sentina y centradas (trimado, 02 §6); puente serie de 16 mm² | Diferencia de tensión entre baterías ≤ 0,2 V (T0.2) | U-26 |
-| M9.2 | F1 (MIDI 58 V, <!--V:sizing.fuse.rating_a:d-->80<!--/V--> A), S1, K1 (contactor monoestable), R_pre, antichispa Flipsky, ESC | Según diagrama y §4 de `04_diseno/electronica/README.md`; F1 a ≤ 178 mm del borne + (medir el cable); bobina de K1 en serie con seta y cordón Watski (D-22) | Polaridad; tracción de 200 N por terminal sin deslizar [SUPUESTO] | U-26, U-27 |
-| M9.3 | ELE-01 (interior 160×110×45, D-20), ELE-02 | ESC y antichispa con pad térmico a la tapa; disipador con pasta; un cable redondo por prensaestopas (H-10); O-ring con grasa de silicona; tapa en cruz en 2 pasadas | T1 antes de navegar | U-21…U-24 |
-| M9.4 | Fases 3 × 10 mm² | Conectores bala soldados dentro del capó; fijar los cables a la cuna junto al pivote | — | U-28 |
-| M9.5 | Todos los cables a la unidad | Bucle de servicio ≥ 150 mm [ESTIMADO: arco de ±35° a ≈ 110 mm del eje de dirección + 25° a ≈ 80 mm del pivote] | Barrido T0.M4 sin tensar cables | — |
-| M9.6 | ESC Flipsky 75100 V2.0 | Configuración de README electrónica §6 (FW ≥ 5.03, filtro de fase apagado), con `l_max_erpm` = <!--V:sizing.legal_speed.erpm_cap:.0f-->3702<!--/V--> (D-30; H-8) | T0.6 | — |
-| M10.1 | Cardán + unidad | Sobre el espejo (2 personas); apretar U-01 | C apoyada en el borde y en la cara exterior, sin luz | U-01 (H-1) |
-| M10.2 | B-LANYARD | Cabo de seguridad: cáncamo de la unidad → punto fuerte del bote con lazo textil; el mosquetón no apoya en el aluminio [SUPUESTO] | Largo libre ≤ 1 m [SUPUESTO]: si la abrazadera se suelta, la unidad queda colgando junto al espejo y no se va al fondo | U-29 (H-9) |
-| M10.3 | ELE-01 | Caja alta y a la sombra, sobre tabla de HDPE o madera amarrada al banco (sin agujeros en el casco) [SUPUESTO] | — | U-25 |
+| T0.1–T0.20 | Electrónica, kill switch y firmware | README de electrónica §10 (aislación, tensiones, precarga, contactor, calibración, configuración del VESC, arranque con acelerador abierto, rampa, bucket, kill por cordón y seta 10/10, barreras independientes, falla de sensor, pérdida de PPM, watchdog, vida del interruptor, perfil COSTA/ABIERTO) | Los criterios de esa tabla; en particular corte < 1 s en 10/10 (T0.12–T0.13) | Corregir y repetir la prueba entera. Sin T0.12–T0.15 aprobadas no hay T2 |
+| T0.M1 | Giro libre | A mano en el cubo del acople, 3 vueltas lentas, después de M7, M8 y M11 | Sin roce, sin punto duro, sin ruido de contacto del impulsor con el anillo | Desarmar: buscar el contacto (marca brillante en el anillo o en las puntas) |
+| T0.M2 | Holgura de punta | Galgas en 4 posiciones del anillo × 4 posiciones angulares del impulsor (girando a mano) | 0,3–0,4 mm radial en las 16 lecturas [ESTIMADO: R12 §2.7]; diseño <!--V:manifest.params.tip_clr:.2f-->0.40<!--/V--> mm, concentricidad del anillo ≤ <!--V:manifest.params.pmp_ring_TIR:.2f-->0.05<!--/V--> mm | Diferencia > 0,1 mm entre lecturas: excentricidad del eje (revisar el centrado del pórtico, paso M7). Holgura < 0,3: el taller repasa el anillo; > 0,4: anillo nuevo |
+| T0.M3 | Juego axial y vibración | Comparador 0,01 mm en la cara del cubo del acople, empujar y tirar a mano del eje; golpe de martillo de goma en el eje montado con el celular apoyado (app de espectro) | Juego axial no perceptible (< 0,01 mm) [SUPUESTO: par 7204 apareado y precargado]; primera frecuencia propia > rpm máx. (<!--V:sizing.mech.n_max_rpm:.0f-->4195<!--/V--> rpm) / 60 con margen; el cálculo da <!--V:sizing.mech.crit_ratio:.1f-->3.1<!--/V--> × [CALCULADO; método de 02 §12] | Juego: KM4 floja o rodamientos no apareados. Frecuencia baja: revisar el buje de agua (2.º apoyo) |
+| T0.M4 | Alineación del acople | Comparador sobre el cubo del lado del motor, girando a mano; galgas entre cubos en 4 posiciones | Separación entre cubos <!--V:manifest.params.drv_coupling.s:.1f-->2.0<!--/V--> mm en las 4 posiciones; desalineación radial y angular dentro de la tabla de KTR para Rotex 24 (pedirla con el acople: no está en el repositorio) | Calzar los pies del motor; repetir |
+| T0.M5 | Motor solo | VESC Tool: detección del motor (FOC), sentido de giro, pares de polos, lectura del NTC | Gira en el sentido de la bomba: <!--V:manifest.params.pmp_rot_sense:-->antihorario visto desde popa (+X, regla de la mano derecha)<!--/V-->; pares de polos anotados en `inputs.yaml` y `run_all.py` corrido (cambia el tope de ERPM de COSTA, hoy <!--V:sizing.legal_speed.erpm_cap:.0f-->3702<!--/V--> ERPM [CALCULADO con los pares de polos de `inputs.yaml`]); NTC a temperatura ambiente ±3 °C [SUPUESTO] | Sentido: invertir dos fases o el parámetro del VESC. Pares de polos distintos: volver a cargar `l_max_erpm` (T0.6, T0.20) |
+| T0.M6 | Mandos mecánicos | Volante tope a tope; palanca del bucket con el acelerador en 0 y fuera de 0; gatillo | Boquilla ±<!--V:manifest.params.steer_max:.0f-->25<!--/V-->° y para en el tope mecánico; el bucket baja y sube completo y la traba entra sola en las dos posiciones; con el acelerador fuera de 0 la palanca del bucket no se mueve (enclavamiento) | Ajustar terminales del M66/Mach5 y el Bowden; nunca sacar el tope |
+| T0.M7 | Circuito de refrigeración | Agua de red a baja presión en la espiga de la carcasa, 5 min | Sale chorro continuo por el testigo del espejo; ninguna gota en espigas, filtro, caja de agua ni camisa | Rehacer la unión; abrazaderas nuevas |
+| T0.M8 | Achique y alarma | Agua en la sentina hasta el flotante, con S1 en OFF y el cordón afuera | Bomba arranca sola y desagota por el pasacasco; alarma suena con el nivel alto | Revisar el DC-DC de 12 V y F4: tienen que estar aguas arriba de S1/K1 |
 
-## 4. Torques y uniones
+### T1 — Estanqueidad, flotación y escora
 
-**Reglas:** R1–R2 de la cabecera. Torque → precarga con F = T / (K·d), K = 0,2 [SUPUESTO: el mismo de `inputs.yaml` mount.clamp_screw_torque_nm].
-- **Sobre PETG** (cabeza, arandela o tuerca cautiva apoyando en plástico): T ≤ K·d·A_apoyo·S_corta/3, con S_corta = <!--V:est.allowables_MPa.short:.1f-->24.0<!--/V--> MPa [CALCULADO]. Esa precarga supera la admisible sostenida (S_sost = <!--V:est.allowables_MPa.sust:.1f-->8.4<!--/V--> MPa): **se relaja por fluencia** y ningún cálculo de 02 §9 la usa. Por eso: bloqueo por nyloc o Loctite 425 (nunca por precarga), marca de pintura y re-apriete al mismo valor a las 24 h y al inicio de temporada. No hay limitadores de compresión metálicos (research/R05 §A5): H-3.
-- **Metal–metal A4-70 con Tef-Gel:** T = 0,8 · 0,2 · d · (0,6 · R_p0,2 · A_s), R_p0,2 = 450 MPa [ESTIMADO: ISO 3506-1 clase 70, de memoria técnica; el 0,8 descuenta la lubricación del Tef-Gel].
+**T1.1 bloquea todo lo demás** (R13 §5; D-04). Se hace primero con el casco sin cortar y lastre equivalente (antes de comprar), y se repite con el equipo instalado.
 
-| U | Unión | Elementos | Torque [N·m] | Base | Bloqueo / aislamiento |
-|---|---|---|---|---|---|
-| U-01 | Abrazadera de popa | 2 × M12 A4 en T, tuerca cautiva + placa de reparto, zapata MNT-02 | **≤ 2,5** (12,5 N a 0,20 m) | [CALCULADO: inputs.yaml mount.clamp_screw_torque_nm]. El FEA da FS 0,32 en el puente de la C con ese apriete: **H-1** | Re-apretar antes de cada salida (D-13); Tef-Gel en la rosca (anti-agarrotamiento A4/A4); la zapata aísla del casco |
-| U-02 | Perno de dirección MNT-07 | Tuerca M16×1,5 autoblocante + arandela elástica | Por fricción: 10–30 N en el puño para girar la caña | [SUPUESTO: ergonomía; ajustar en T3] | Nyloc |
-| U-03 | Mejillas → base | 4 × M6 cabeza cilíndrica en contrapunzonado Ø11,2 + tuerca cautiva en la mejilla | 0,4 | [CALCULADO: cabeza Ø10 sobre PETG] | Loctite 425; H-3 |
-| U-04 | Placa motriz → cuna | 4 × M6, cabeza sobre Al; tuerca cautiva AF 10 en la cuna | 0,5 | [CALCULADO: cara de la tuerca 54 mm²] | Loctite 425; Tef-Gel + arandela de nylon bajo la cabeza |
-| U-05 | Tapa + cuna + placa de caña | 4 × M6 pasantes ≈ 130 mm [CALCULADO: 109 mm de PETG desde el contrapunzonado + 10 de Al + arandela + nyloc], cabeza abajo en contrapunzonado Ø11,2; arandela Ø24 + nyloc sobre el Al | 0,4 | [CALCULADO: cabeza Ø10 sobre PETG]. Bajo LC5 la cabeza no cumple: **H-2** | Tef-Gel + arandela de nylon sobre el Al |
-| U-06 | Abrazaderas de caña | 2 × M6 c/u, cabeza con DIN 9021 sobre PETG, nyloc bajo la placa Al | 1,5 | [CALCULADO: ≤ 2,1 por apoyo; sección 2 × 8 × 22 a S_corta/3] | Tef-Gel + arandela de nylon en el Al |
-| U-07 | Cartucho → placa | 3 × M4 + nyloc (Al/Al) | 1,5 | [CALCULADO: A4-70] | Tef-Gel + arandelas de nylon |
-| U-08 | Motor → placa | 4 × M4 en la rosca del motor | 1,5 | [CALCULADO: A4-70] | Tef-Gel; altura de cabeza: H-6 |
-| U-09 | Puente → separadores → placa | 2 × M6, cabeza con DIN 9021 sobre el puente; **rosca M6 en la placa** | 2,0 | [CALCULADO: ≤ 2,1 por apoyo bajo DIN 9021] | Tef-Gel en rosca y caras del separador; H-5 |
-| U-10 | Pila del eje | Tuerca M12×1,25 A4 autoblocante | 15 | [ESTIMADO: precarga ≈ 6 kN ≫ empuje <!--V:est.loads.T_bollard_N:.0f-->317<!--/V--> N; limitado por la rosca corta y el agarrotamiento A4/A4] | Tef-Gel en la rosca; **H-4** |
-| U-11 | Polea del eje | 2 prisioneros M5 A4 sobre los planos + fijador de retención en el agujero | 2,0 | [ESTIMADO: prisionero inox en cubo de Al; sin ficha] | Loctite 243 en los prisioneros (metal-metal, R1) |
-| U-12 | Polea del motor | Prisioneros de fábrica sobre el plano del eje Ø8 | Según Dold; si no figura, 2,0 | [ESTIMADO] buscar: Dold Zahnriemenrad Gewindestift Anzugsmoment | Loctite 243 |
-| U-13 | Portabujes DRV-02 | M5 A4 radial: vaina en el tubo, rosca formada en el PETG | 0,25 | [CALCULADO: equivalente a tuerca M5 sobre PETG] | Tef-Gel; H-12 |
-| U-14 | Carcasa inferior ↔ tubo | M6 transversal + nyloc, DIN 9021 a ambos lados | 1,5 | [CALCULADO: ≤ 2,1] | Tef-Gel en el tramo que cruza el tubo; H-12 |
-| U-15 | Patín → carcasa inferior | 2 × M6 + nyloc + DIN 9021 | 1,5 | [CALCULADO: ≤ 2,1] | El patín debe romper en la cintura (<!--V:est.loads.F_skeg_fuse_N:.0f-->300<!--/V--> N), no en los pernos |
-| U-16 | Aro protector | 6 uniones tangenciales M4 + nyloc, DIN 125 | 0,3 | [CALCULADO: arandela Ø9 sobre PETG] | Nyloc |
-| U-17 | Placa antiventilación | 2 × M4 a tuerca cautiva | 0,2 | [CALCULADO: cara de tuerca M4] | Loctite 425 |
-| U-18 | Tope / trimado | M8 en tuerca cautiva de MNT-03 + contratuerca | 1,0 | [CALCULADO: cara de tuerca M8 91 mm² ≤ 1,2] | Contratuerca; H-3 |
-| U-19 | Retén | 2 émbolos M12 en tuerca cautiva de la mejilla + contratuerca | 2,0 la contratuerca | [CALCULADO: tuerca M12 ≤ 3,1] | Precarga por P5.1 |
-| U-20 | Perno de basculación | MNT-08 + 2 × DIN 471 | — | — | Grasa de PTFE |
-| U-21 | Tapa ELE-02 → caja ELE-01 | 8 × M4 en insertos de latón | 0,25 (en cruz, 2 pasadas) | [CALCULADO: 8 × 312 N = 2,5 kN ≥ 1764 N de compresión del O-ring (02 §9, fila ELE-01); 312 N por inserto = 1/3 del arranque de 1 kN ESTIMADO] | Arandela de nylon bajo la cabeza; insertos hundidos 0,3 mm |
-| U-22 | Disipador → tapa | 4 × M4 desde adentro, arandela Dowty, rosca ciega ≥ 5 mm en el disipador | 1,5 | [CALCULADO: A4-70] | Pasta térmica; Tef-Gel en la rosca |
-| U-23 | ESC y antichispa → tapa | M3 ciegos, pad térmico | 0,6 | [CALCULADO: A4-70 M3]; usar el valor del fabricante si es menor | — |
-| U-24 | Prensaestopas M20/M16 | Contratuerca por dentro; cúpula | A mano + ¼ de vuelta hasta que el cable no gire | [ESTIMADO: sin ficha de torque] | Junta sobre cara plana (research/R05 §B8) |
-| U-25 | Caja ESC → tabla | 4 orejas M5 | 1,0 | [CALCULADO: DIN 9021 Ø15 sobre PETG ≤ 1,2] | Si va al aluminio: Tef-Gel + arandelas de nylon |
-| U-26 | Bornes: batería, portafusible HMD4 (M8), desconectador AFD (M10), contactor | Terminales tubulares estañados | Valor del fabricante; si falta: M8 8, M10 12 | [ESTIMADO: rango habitual de bornes de cobre; buscar: Power Queen 12V 100Ah terminal torque] | Contacto limpio metal-metal; protector solo por fuera después de apretar; cubrebornes |
-| U-27 | Terminales 16 mm² | Crimpado B-CRIMP + termocontraíble con adhesivo | — | — | Tracción 200 N sin deslizar [SUPUESTO] |
-| U-28 | Fases ↔ motor | Conectores bala 5,5 mm soldados + funda | — | — | Dentro del capó (motor seco, research/R05 §B8) |
-| U-29 | Cáncamo del cabo | M8 A4 por HSG-07 | Pendiente de H-9 | — | Tef-Gel + arandela de nylon |
+| # | Prueba | Cómo | Pasa si | Si no pasa |
+|---|---|---|---|---|
+| T1.1 | **E1 — escora con carga desplazada** | En el muelle, agua calma. Masa de diseño <!--V:sizing.masses.total_kg:.0f-->217<!--/V--> kg con lastre; piloto de 100 kg o lastre equivalente con su CG ≥ 100 mm sobre el asiento, desplazado 0,1 m, 0,2 m y hasta la borda. Inclinómetro del celular, francobordo con regla | Sin entrada de agua; francobordo residual ≥ 100 mm; escora ≤ 15° con el piloto a 0,2 m de crujía [SUPUESTO: umbrales de R13 §5; método: ISO 12217-3 ESTIMADO y 33 CFR 183.230 VERIFICADO] | El cálculo da GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m y <!--V:sizing.heel_pilot_0p1m_deg:.0f-->79<!--/V-->° con 0,1 m [CALCULADO, casco ESTIMADO]: lo esperable es que falle. Cambio de casco (manga en la flotación ≥ 0,9 m, flotadores laterales, asiento más bajo) y repetir. **No se sigue** |
+| T1.2 | Calado y cebado geométrico | Todo instalado, piloto a bordo, agua del fiordo: medir el calado en el espejo, en crujía, y la altura de la tapa de la chimenea sobre el agua | Eje del impulsor (a <!--V:sizing.priming.axis_height_m:.3f-->0.115<!--/V--> m de la quilla) ≥ 20 mm bajo la flotación [VERIFICADO: R10a §3.2, §8.1]; cálculo: <!--V:sizing.priming.axis_below_wl_m:.3f-->0.170<!--/V--> m bajo; tapa ≥ 60 mm sobre el agua; todos los pasos del espejo sobre el agua | Eje alto: no ceba → bajar el eje (`h_axis`) y rehacer la toma. Tapa baja: alargar la chimenea |
+| T1.3 | Estanqueidad a flote | 24 h amarrado, sistema sin girar, sentina seca y fotografiada al empezar | Sentina seca a las 24 h; testigo del sello seco; sin agua alrededor de la placa base, la placa de espejo ni los pasacascos [VERIFICADO: R10a §8.5] | Localizar con papel tisú; sacar el bote antes de que la batería toque agua. Rehacer el Sikaflex o el sello |
+| T1.4 | E2 — inundado | **Sin baterías, motor ni controlador**: lastre inerte de igual peso sumergido; llenar de agua; más 2/15 del peso del piloto sumergido; 18 h | Flota; idealmente nivelado, escora ≤ 10° [VERIFICADO: 33 CFR 183.105 / 183.225] | Más flotación (C7) y repartirla mejor; repetir |
+| T1.5 | E3 — inundado con carga desplazada | Como T1.4 con medio peso de persona en una banda | Escora ≤ 30° [VERIFICADO: 33 CFR 183.230] | Ídem |
+| T1.6 | E4 — reabordaje | Persona con chaleco, desde el agua, sin ayuda ni escalera auxiliar | Sube sin volcar el bote [VERIFICADO: RCD 2.3, vía R13 §5] | Escalón o asa de reabordaje en el espejo, lejos de la boquilla; repetir |
 
-## 5. Mapa de sellado
+### T2 — Muelle, amarrado
 
-Principio: cero sellos dinámicos sumergidos; la cola drena y solo la caja ESC es estanca (D-03, research/R05 §B1).
+Bote amarrado de proa a un punto fijo con el dinamómetro en el cabo, en ≥ 1 m de agua libre bajo la toma, sin bañistas. Piloto a bordo con chaleco y cordón. VESC Tool registrando (corriente, rpm, temperaturas, fallas).
 
-| # | Penetración / junta | Método | Prueba y criterio |
+| # | Prueba | Cómo | Pasa si | Si no pasa |
+|---|---|---|---|---|
+| T2.1 | Purga y cebado | Purgar la chimenea (sale agua por el tornillo, cerrar); arrancar a rpm bajas | Chorro continuo por la tobera en ≤ 3 s [SUPUESTO: R10a §8.4] | Cortar; volver a purgar; revisar el O-ring de la tapa (si entra aire la bomba se desceba) |
+| T2.2 | Refrigeración | Testigo del espejo al arrancar; caudal con jarra graduada y cronómetro a <!--V:sizing.legal_speed.n_legal_rpm:.0f-->2503<!--/V--> rpm (las de 5 kn) | Sale agua por el testigo en el primer minuto; caudal ≥ <!--V:sizing.cooling.Q_l_min_legal:.1f-->3.2<!--/V--> L/min [CALCULADO a 5 kn; a punto fijo la altura de la bomba es mayor con las mismas rpm] | Parar. Filtro tapado, manguera aplastada u orificio obstruido |
+| T2.3 | Testigo del sello | Ventanas de la linterna y manguera testigo durante T2.1–T2.6 | Seco: ≤ 1 gota por minuto [SUPUESTO] | Parar; cambiar el sello (R-SEAL); revisar que no haya girado en seco |
+| T2.4 | Dirección y bucket con chorro | Ralentí; volante tope a tope; bucket abajo **con el acelerador en 0**, reversa al límite del firmware, dinamómetro en el cabo de popa | Boquilla sin vibración ni golpe en los topes; reversa ≥ 0,8 × <!--V:sizing.performance.reverse_N:.0f-->217<!--/V--> N del modelo [SUPUESTO: mismo factor que el punto fijo]; la traba sostiene el bucket abajo | Reversa débil: revisar el recorrido del bucket (<!--V:manifest.params.bucket_down_deg:.0f-->70<!--/V-->° en el CAD) |
+| T2.5 | **Rampa de punto fijo** | Escalones de 25 % de acelerador hasta fondo, 10 s cada uno; dinamómetro, rpm y corriente de batería | Empuje a fondo ≥ <!--V:sizing.success.bollard_min_N:.0f-->612<!--/V--> N (modelo <!--V:sizing.performance.bollard_N:.0f-->765<!--/V--> N) [CALCULADO]; corriente de batería ≤ <!--V:sizing.electrical.I_bat_limit_A:.0f-->192<!--/V--> A; rpm a fondo cerca del tope de punto fijo (<!--V:sizing.performance.peak_curve.0.n_rpm:.0f-->4048<!--/V--> rpm) | **No pasa** si las rpm suben con el empuje plano o hay ruido de grava (cavitación o aire) [VERIFICADO como síntoma: R10a §8.7]: rejilla, purga, tope de ERPM del perfil abierto (02 §4.6). Empuje bajo sin cavitación: holgura de punta, η de la bomba (bloqueo H-3) |
+| T2.6 | Temperaturas | 3 min a fondo amarrado, después 5 min a ralentí; NTC del motor, temperatura del controlador (VESC) y del agua del testigo | Motor ≤ <!--V:sizing.thermal.T_motor_steady_C:.0f-->49<!--/V--> °C + 20 K [CALCULADO estacionario a V máx. + margen SUPUESTO] y siempre < <!--V:sizing.thermal.t_winding_max_C:.0f-->120<!--/V--> °C; sin recorte térmico en el log; agua del testigo tibia, ΔT ≤ 15 K [SUPUESTO: `inputs.yaml` cooling.dT_max_k; cálculo <!--V:sizing.cooling.dT_water_K:.1f-->1.9<!--/V--> K] | Revisar caudal (T2.2); pedir a Maytech el caudal de la camisa |
+| T2.7 | Kill en el agua | Motor al 30 %: tirar del cordón; 5 veces; luego la seta | Sin empuje en < 1 s (video); al reponer el cordón con el acelerador abierto no arranca; 5/5 | Volver a T0.12–T0.15 |
+| T2.8 | Limpieza de rejilla | Acelerador en 0, pulsador sostenido | Reversa lenta que dura ≤ 3 s y suelta lo atrapado (T0.11 b) | Revisar el firmware (README §5.2) |
+
+### T3 — Agua calma, a menos de 300 m de la costa, a 5 kn
+
+Als Fjord en calma (viento ≤ 6 m/s, Hs ≤ 0,3 m [SUPUESTO: R07 §3.4]), de día, con acompañante en otro bote, agua de ≥ 1 m bajo la toma. Perfil COSTA.
+
+| # | Prueba | Cómo | Pasa si | Si no pasa |
+|---|---|---|---|---|
+| T3.1 | Límite legal (perfil COSTA) | Piloto liviano, batería llena, a fondo; GPS, 2 pasadas en sentidos opuestos | Media ≤ 9,0 km/h [SUPUESTO: 02 §3.1; límite 9,26 km/h = 5 kn] | `l_max_erpm` nuevo = actual × 9,0 / v medida (02 §3.1); repetir |
+| T3.2 | Potencia a 5 kn | 5 kn estables por GPS, 2 min por sentido; P de batería del VESC | P_bat ≤ <!--V:sizing.success.p_legal_max_W:.0f-->2184<!--/V--> W (modelo <!--V:sizing.performance.legal.P_bat:.0f-->1680<!--/V--> W) [CALCULADO] | Resistencia mayor que el modelo: cargar el punto en `inputs.yaml`, `run_all.py`; revisar rejilla y holgura |
+| T3.3 | Dirección | A 5 kn, volante a tope a cada banda hasta completar 360° | Gira en ambos sentidos sin pérdida de chorro ni golpes; diámetro de giro (GPS) ≤ 4 esloras [SUPUESTO] | Topes, recorrido del M66, boquilla |
+| T3.4 | Reversa y freno | Desde 5 kn: acelerador a 0, bucket abajo, reversa al límite | Se detiene en ≤ 3 esloras [SUPUESTO]; marcha atrás controlable con la dirección; la traba sostiene el bucket | Recorrido y traba del bucket; límite de reversa |
+| T3.5 | Hombre al agua | A 5 kn, tirar del cordón | Sin empuje en < 1 s; el bote se detiene y deriva | No navegar hasta resolver |
+| T3.6 | Crucero de 30 min a 5 kn | Registro continuo | Testigo de refrigeración y del sello correctos todo el tiempo; sentina seca; energía consumida coherente con <!--V:sizing.legal_speed.autonomy_legal_h:.1f-->2.5<!--/V--> h de autonomía ±30 % [SUPUESTO: tolerancia] | Cargar el consumo medido en `inputs.yaml`; revisar fugas |
+
+### T4 — Fuera de los 300 m: planeo y velocidad máxima
+
+Solo en la franja central de Als Fjord a > 300 m de cualquier costa; **nunca en Als Sund (4 kn) ni en Augustenborg Fjord** [VERIFICADO: R13 §3]. Mismas condiciones de tiempo que T3, acompañante, perfil ABIERTO solo ahí.
+
+| # | Prueba | Cómo | Pasa si | Si no pasa |
+|---|---|---|---|---|
+| T4.1 | Tiempo de 0 a planeo | A fondo desde parado; video + GPS; 3 veces | t ≤ <!--V:sizing.success.t_plane_max_s:.0f-->15<!--/V--> s (modelo <!--V:sizing.performance.t_to_plane_s:.1f-->6.7<!--/V--> s; margen en la joroba <!--V:sizing.performance.hump_margin_min:.0%-->19%<!--/V-->) [CALCULADO] | No planea: corriente de batería al límite (log), BMS cortando (FMEA F13), LCG (mover lastre a popa), masa real |
+| T4.2 | V máx. sostenida | GPS, ida y vuelta, 1 min estable por sentido, batería > 50 % | Media ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->22.3<!--/V--> km/h (modelo <!--V:sizing.performance.vmax_cont_kmh:.1f-->26.3<!--/V--> km/h; **el diseño no llega a los 30 km/h** del plano: D-12, 03 §3) [CALCULADO] | Cargar el punto; potencia continua real del motor (bloqueo H-3) |
+| T4.3 | Térmico de crucero | 30 min de crucero rápido (perfil ABIERTO, sin llegar a fondo continuo: la autonomía a fondo es <!--V:sizing.energy.t_top_min:.0f-->37<!--/V--> min) | Motor ≤ <!--V:sizing.thermal.t_winding_max_C:.0f-->120<!--/V--> °C de bobinado (NTC) sin recorte en 30 min [VERIFICADO: R11 §1.2; criterio 02 §11] | Bajar la potencia continua del VESC; caudal de refrigeración |
+| T4.4 | Aire con ola corta | Recorrido con ola corta de través y de proa, registrando rpm | Sin picos de rpm > 10 % sin mover el acelerador [SUPUESTO: R10a §8.10] | Bajar el tope de ERPM; limitar la ola de salida |
+
+### Después de cada salida
+
+Enjuagar con agua dulce casco, rejilla, boquilla, bucket, émbolo y conectores; mirar la rejilla y el impulsor por la chimenea (sistema desarmado); testigo del sello; sentina; anotar horas de motor, Wh, fallas del VESC y golpes en el registro. Cargar en tierra.
+
+---
+
+## 6. FMEA
+
+Escalas 1–10 [SUPUESTO: juicio de este documento, no salen de ningún JSON]: **S** severidad (10 = muerte o pérdida del bote), **O** ocurrencia (10 = casi segura), **D** detección (10 = no se detecta antes de que pase). RPN = S × O × D. Prioridad: S ≥ 9 o RPN ≥ 120.
+
+| # | Modo de falla | Efecto | S | O | D | RPN | Mitigación | Prueba que lo cubre |
+|---|---|---|---|---|---|---|---|---|
+| F1 | Piedra u objeto traba el impulsor | Corta el pasador: sin chorro no hay dirección ni freno. Sin pasador, ~490 J del rotor dañan eje, álabes o acople [CALCULADO: R12 §7.6] | 7 | 5 | 3 | 105 | Pasador Ø<!--V:sizing.mech.shear_pin.d_mm:.1f-->3.5<!--/V--> que corta a <!--V:sizing.mech.shear_pin.T_cut_Nm:.1f-->33.5<!--/V--> N·m; rejilla; ralentí en aguas bajas; pagaya y ancla a bordo; repuestos | Probeta del pasador (05 §7); T0.M1; checklist |
+| F2 | El pasador corta solo, por arranque brusco o fatiga | Pérdida de propulsión sin aviso | 6 | 3 | 5 | 90 | Corta a ~1,8 × el par máximo del controlador (<!--V:sizing.mech.T_max_Nm:.1f-->18.6<!--/V--> N·m) [CALCULADO]; rampa ≥ 1 s del firmware; cambio por mantenimiento (§7) | T0.8; T2.5; §7 |
+| F3 | Aire en la toma al arrancar (chimenea sin purgar) | La bomba no ceba o se desceba: sin chorro ni gobierno | 5 | 6 | 3 | 90 | Tornillo de purga; tapa con O-ring que sella en ambos sentidos; eje <!--V:sizing.priming.axis_below_wl_m:.3f-->0.170<!--/V--> m bajo la flotación [CALCULADO] | T2.1; checklist |
+| F4 | Aire en marcha (ola corta, cabeceo, fondo plano) | Las rpm se disparan, pérdida de control momentánea [VERIFICADO: R10a §0.4] | 6 | 5 | 4 | 120 | Toma en crujía y a proa del impulsor, nada delante; tope de ERPM; soltar el acelerador; Hs ≤ 0,3 m | T4.4 |
+| F5 | Algas o una bolsa tapan la rejilla | Pierde empuje, cavita, calienta | 5 | 6 | 4 | 120 | Rejilla de barras longitudinales perfiladas; pulsador de limpieza (reversa ≤ 3 s); chimenea de inspección; parar el motor suelta lo atrapado [VERIFICADO: R10a §7] | T0.11; T2.8; checklist |
+| F6 | Cavitación sostenida | Erosión del impulsor y del anillo, ruido, menos empuje | 5 | 4 | 6 | 120 | S a V máx. <!--V:sizing.performance.top.S:.2f-->3.17<!--/V--> < 3,5; tope de ERPM del perfil abierto = rpm de punto fijo (02 §4.6); rampa | T2.5; inspección del impulsor (§7) |
+| F7 | El sello gira en seco (bote en tierra, prueba con el acople puesto) | Caras dañadas → fuga | 7 | 4 | 5 | 140 | R2; T0 con la estrella sacada; caras carbón/SiC (toleran arranques cortos en seco) [VERIFICADO: R11 §5] | Procedimiento de T0; T2.3 |
+| F8 | Fuga del sello mecánico en marcha | Agua a la sentina y, si pasa la linterna, a los rodamientos | 8 | 4 | 3 | 96 | Linterna con ventanas y manguera testigo; rodamientos del lado seco; achique + alarma; repuesto R-SEAL | T1.3; T2.3; checklist |
+| F9 | Refrigeración cortada (filtro tapado, manguera aplastada, orificio obstruido) | Sobretemperatura de controlador y motor | 6 | 5 | 3 | 90 | Testigo visible desde el puesto; filtro en línea; NTC y límites térmicos del VESC | T0.M7; T2.2; checklist |
+| F10 | Fuga del circuito de refrigeración adentro (manguera suelta: agua a presión de la bomba) | Agua sobre el controlador y en la sentina | 7 | 3 | 4 | 84 | Abrazaderas A4 en cada espiga; manguera ≥ 2 bar; recorrido lejos de la electrónica; capota P1-ELE-02; achique | T0.M7; T2.2 |
+| F11 | Sobretemperatura del motor (potencia continua real < la estimada) | Recorte de potencia o bobinado dañado | 6 | 4 | 3 | 72 | NTC (B-NTC) al VESC con recorte por temperatura; caudal de <!--V:sizing.cooling.Q_l_min_top:.1f-->4.9<!--/V--> L/min a V máx. [CALCULADO]; dato de Maytech (H-3) | T2.6; T4.3 |
+| F12 | Sobretemperatura del controlador | Recorte de potencia en mal momento (joroba, giro) | 5 | 3 | 3 | 45 | Caja de agua del controlador en el mismo circuito; base elevada | T2.6; T4.3 |
+| F13 | Corte por BMS de una batería en la joroba (rama desbalanceada > 120 A) | La otra rama toma todo y también corta: pérdida total de potencia de golpe | 6 | 4 | 5 | 120 | Límite de corriente de batería del VESC <!--V:sizing.electrical.I_bat_limit_A:.0f-->192<!--/V--> A < BMS 2 × 120 A [VERIFICADO: R11 §3.2]; cables de paralelo de igual largo y sección (B-CAB-PAR); baterías a ≤ 0,2 V entre sí antes de unirlas | T0.2; T2.5 y T4.1 (log de corriente) |
+| F14 | Fusible de rama abierto (queda una batería sola) | La que queda se sobrecarga y su BMS corta en la primera aceleración | 5 | 3 | 6 | 90 | Fusible por rama de <!--V:sizing.electrical.fuse_branch_a:.0f-->125<!--/V--> A; medir la tensión de cada batería antes de salir | T0.2; checklist |
+| F15 | Cable de fase cortado, flojo o en corto | Falla del controlador, arco, pérdida de propulsión | 7 | 3 | 4 | 84 | <!--V:sizing.electrical.cable_phase.section_mm2:.0f-->95<!--/V--> mm² con terminales crimpados y termocontraíble con adhesivo; prensaestopas; sujeción sin roce con bordes; protección por sobrecorriente del VESC | Inspección de tirón en M14; log de fallas del VESC en T2 |
+| F16 | Pérdida de aislación (BAT− o B+ toca el casco) | Corrientes parásitas, corrosión rápida; corto si fallan los dos polos | 8 | 2 | 4 | 64 | Sistema flotante; F1 a ≤ 175 mm del borne; cubrebornes | T0.1 cada temporada |
+| F17 | El kill switch no corta (K1 soldado, cableado) | El motor sigue con el piloto en el agua | 10 | 2 | 3 | 60 | 4 barreras independientes (README de electrónica §2); prueba del clic antes de cada salida | T0.12–T0.15; T2.7; checklist |
+| F18 | El piloto cae con el cordón sin enganchar | Bote sin piloto en marcha | 10 | 3 | 7 | 210 | Cordón espiral al chaleco como primer ítem del checklist; sin cordón no arma (contacto cerrado con clip) | Checklist (no hay prueba técnica que lo detecte) |
+| F19 | El bucket baja a velocidad (traba suelta, gatillo apretado) | Frenada violenta, piloto proyectado, daño en orejas y bulones | 8 | 2 | 4 | 64 | Émbolo indexador que traba arriba; enclavamiento mecánico de palancas; el firmware corta el avance al bajar el bucket (BKT_HOLD); bucket calculado para <!--V:est.loads.structural_direccion.F_bucket_N:.0f-->1408<!--/V--> N | T0.M6; T0.10–T0.11; T3.4 |
+| F20 | El bucket no baja o no sube (Mach5 o émbolo agarrotados por sal) | Sin freno ni reversa, o reversa permanente limitada | 6 | 3 | 3 | 54 | Enjuague con agua dulce y lubricación; prueba en el checklist | Checklist; T3.4 |
+| F21 | Falla del cable de dirección M66 o se suelta la biela | Boquilla libre: sin gobierno | 8 | 2 | 4 | 64 | Topes mecánicos a ±<!--V:manifest.params.STE_stop_deg:.1f-->26.5<!--/V-->°; rótula con contratuerca y marca; kill + bucket para frenar; pagaya | T0.M6; checklist |
+| F22 | Vuelco por falta de estabilidad (al subir, reabordar o moverse) | Piloto al agua fría, bote volcado | 10 | 7 | 2 | 140 | Cambio de casco si E1 falla; asiento bajo; batería en el fondo; flotación | T1.1; T1.4–T1.6 |
+| F23 | Inundación por la toma o la placa base (Sikaflex despegado, fisura en la soldadura, bulones flojos) | El bote se llena por un agujero de <!--V:manifest.params.L_open:.0f-->380<!--/V--> mm en el fondo | 9 | 3 | 4 | 108 | 5083 soldado y probado a presión; Sikaflex + bulones; flotación ~100 L; achique con alarma | Prueba de estanqueidad de taller (05 §7); T1.3; T1.4 |
+| F24 | Agua por la chimenea (tapa mal cerrada, purga abierta) | Entra agua en marcha; la bomba aspira aire | 7 | 3 | 3 | 63 | Tapa ≥ 60 mm sobre la flotación; perillas; purga cerrada en el checklist | T1.2; checklist |
+| F25 | Corrosión galvánica (pasador, rejilla 316 en 5083, tornillería A4) | Pasador debilitado, rejilla o bulones flojos, picaduras en el casco | 6 | 5 | 5 | 150 | §4: Tef-Gel, aislantes, ánodo de aluminio, sistema flotante | T0.1; §7 (ánodo, pasador) |
+| F26 | Agua en la caja de baterías | LFP en agua salada: fuga térmica posible días después [VERIFICADO: R06 §4.2] | 9 | 2 | 4 | 72 | Caja estanca elevada sobre la sentina, prensaestopas un cable por paso; si se mojó: aislar al aire libre y descartar | T1.3; checklist |
+| F27 | Holgura de punta crece (arena) | Menos empuje, más cavitación | 4 | 5 | 4 | 80 | Anillo de desgaste reemplazable; ralentí en arena | T0.M2 periódico (§7); T2.5 comparado |
+| F28 | Desalineación del acople o estrella fatigada | Vibración, carga en rodamientos y motor | 5 | 3 | 4 | 60 | Alineación con comparador; estrella de repuesto R-SPIDER | T0.M4; §7 |
+| F29 | Exceso de velocidad dentro de 300 m (perfil ABIERTO olvidado) | Multa; riesgo para bañistas | 7 | 4 | 5 | 140 | COSTA por defecto al encender; ABIERTO solo pasando por COSTA con el acelerador en 0; tope de <!--V:sizing.legal_speed.erpm_cap:.0f-->3702<!--/V--> ERPM en COSTA [CALCULADO] | T0.11 c; T0.20; T3.1 |
+| F30 | Atrapamiento en la toma (persona en el agua junto a la popa, pelo, correas) | Lesión grave o ahogamiento [VERIFICADO: R10a §0.1] | 10 | 2 | 6 | 120 | Sistema desarmado con gente cerca de la popa; kill; luz de rejilla (H-11) | Checklist |
+| F31 | Sensor del acelerador o PPM fallan | Avance inesperado o parada | 8 | 2 | 2 | 32 | Firmware: neutro ante falla de sensor, timeout de PPM, watchdog | T0.16–T0.18 |
+
+---
+
+## 7. Mantenimiento
+
+| Ítem | Cada | Criterio | Acción |
 |---|---|---|---|
-| S1 | Tapa ELE-02 ↔ caja ELE-01 | O-ring NBR70 Ø3,53 en ranura axial (25 % de aplastamiento, 78 % de llenado, D-23), empalme con cianoacrilato, grasa de silicona; cara lijada o con epoxi; U-21 | P1.6 y T1.1–T1.3: 0 g de agua |
-| S2 | 5 × prensaestopas M20 (2 DC + 3 fases) | Un cable redondo por prensaestopas, OD medido dentro de 6–12 mm; contratuerca por dentro sobre la pared rebajada de 5 mm (D-20); lazo de goteo | T1.1 |
-| S3 | Prensaestopas M16 (hall) y demás cables de señal y mando | Igual que S2. El CAD tiene 1 × M16 y hacen falta al menos 2 (hall + cordón/seta) más la alimentación del DC-DC: **H-10** | T1.1 |
-| S4 | Respiradero ePTFE M12 (B-VENT) | Pared lateral +y, a 22 mm del fondo (CAD); evita el bombeo térmico | T1.2 (ciclo térmico) |
-| S5 | 4 × M4 del disipador a través de la tapa | Arandela Dowty bajo la cabeza, por dentro; U-22 | T1.1 |
-| S6 | M3 de ESC y antichispa en la tapa | **Ciegos** (≤ 3 mm en 4 mm): no son penetración si no se pasan | Inspección antes de T1 |
-| S7 | Insertos M4 del reborde | Fuera de la ranura: no son camino de fuga | — |
-| S8 | Conectores J1 (Lumberg 4 polos) y J2 (Cliffcon 2 polos), IP68 | Grasa dieléctrica de silicona en junta y contactos; tapas puestas al desconectar; enjuague | T1.4: > 20 MΩ entre pines y a masa de agua [SUPUESTO] |
-| S9 | Sensor hall en ELE-04 | Encapsulado en epoxi; salida por prensaestopas M12 (no está en la BOM: H-14) | T1.5 |
-| S10 | Puntas de cable y terminales | Termocontraíble con adhesivo (el agua viaja dentro del multifilar, research/R05 §B8) | Inspección |
-| S11 | Boca superior del eje | V-ring excluidor (B-VRING) + drenaje Ø6 de la cuna hacia abajo; alojamiento sin definir: **H-11** | T1.6 |
-| S12 | Drenajes de la cola | Tubo 2 × Ø6, labio de STR-01, cuna Ø6; capó y cubrecorrea abiertos abajo; ranuras de lavado de DRV-02 | T1.6: escurre en < 5 min con la cola basculada [SUPUESTO] |
-| S13 | Motor y fases | **No se sellan**: motor seco bajo capó con drenaje; conectores bala dentro del capó (research/R05 §B8) | Enjuague post-uso |
-| S14 | Baterías | Cajas Biltema sobre la sentina; cubrebornes; Anderson SB50 en zona seca. Batería que estuvo en agua salada: no cargar, aislar al aire libre y descartar (README electrónica §9) | Inspección |
-| S15 | Interruptor de cordón y seta | Comerciales (seta IP65); entradas de cable con termocontraíble con adhesivo | T3.1 |
+| Pasador de corte (P1-PMP-05) | Cada temporada o 50 h de motor, y **siempre después de un golpe** [ESTIMADO: justificación de la fila de fatiga de P1-PMP-05 en `resultados/estructural.json`] | — | Cambiar (R-PIN). Hay que sacar tobera y estator desde adentro (§3, M8) |
+| Ánodo de aluminio (B-ANODE) | Mirar cada mes; continuidad cada temporada | Cambiar al 50 % consumido o una vez por año [VERIFICADO: R06 §6] | Reemplazar; Tef-Gel en sus espárragos |
+| Holgura de punta | Cada temporada y después de navegar sobre arena | 0,3–0,4 mm; anillo nuevo si pasa de 0,8 mm [ESTIMADO: R12 §2.7] | T0.M2 |
+| Sello mecánico | Testigo en cada salida | > 1 gota por minuto en marcha [SUPUESTO] | Cambiar (R-SEAL); revisar el eje bajo el fuelle |
+| Rodamientos 7204 BEP | Cada temporada | Sin juego axial (T0.M3), sin ruido al girar a mano, grasa limpia; vida L10 calculada muy por encima del uso [CALCULADO: 02 §7] | Regrasar el lado del acople; cambiar si hay óxido (agua pasó la linterna) |
+| Buje de agua del estator (P1-PMP-07) | Cada temporada | Juego radial del eje en el buje: anotar el valor nuevo y cambiar al doble [SUPUESTO] | Cambiar (R-BUSH) |
+| Estrella del Rotex | Cada temporada | Sin grietas ni deformación permanente | R-SPIDER |
+| Bujes y arandelas de POM (pivotes) | Cada temporada | Juego visible en la boquilla o el bucket | Tornear nuevos |
+| O-rings | Cada vez que se abre una brida o la tapa | Siempre | Juego nuevo (R-ORING), grasa de silicona |
+| Filtro de refrigeración y rejilla | Cada salida | Limpios | Limpiar |
+| Aislación del sistema eléctrico | Cada temporada | > 1 MΩ (T0.1) | Buscar el contacto |
+| Tornillería | Cada salida (marcas de pintura); reapretar el pórtico a <!--V:manifest.params.drv_nut_torque_Nm:.0f-->15<!--/V--> N·m después de las primeras 2 h [SUPUESTO] | Marca corrida = floja | Reapretar al par y volver a marcar |
+| Flotación y achique | Cada temporada (espuma); cada salida (achique y alarma) | Espuma seca y entera | Reemplazar la espuma mojada |
+| Baterías | Invierno | Guardar secas, cargadas a nivel de almacenamiento según LiTime; cargar solo sobre 5 °C (B-CHG) | — |
 
-## 6. Mapa galvánico
+---
 
-Serie en agua de mar respecto de Ag/AgCl: Al marino −820 mV; 316 pasivo −150 mV; 316 activo (rendija, sin O₂) −550 mV; latón −450 mV; más de 200 mV de diferencia exige medidas [VERIFICADO: research/R06 §6.1]. **Decisión D-36: sin ánodo en P1**; todo par metálico mojado se separa. Sistema eléctrico flotante: BAT− sin conexión al casco (ISO 13297 4.1, README electrónica §1); se verifica con T0.1 y T0.M8 (> 1 MΩ).
-
-| # | Par | Zona | ΔV aprox. | Aislamiento aplicado | Decisión |
-|---|---|---|---|---|---|
-| G1 | Eje 316 ↔ pasador 316 ↔ tuerca A4 | Sumergido | ≈ 0 (mismo metal); hasta 400 mV entre 316 pasivo y activo en rendija | Ranuras de lavado en DRV-02; enjuague; cola guardada basculada y seca (research/R05 §A12) | Sin ánodo; picaduras = inspección por temporada |
-| G2 | Eje 316 ↔ hélice MKP-32 | Sumergido | 0 si es de compuesto [ESTIMADO: D-36, confirmar al recibirla]; ≈ 670 mV si fuera de Al | — | Si es de Al: ánodo obligatorio (buje Ø16→Ø25 + ánodo de Al Ø25, D-36) |
-| G3 | Eje 316 ↔ tubo Al 6061 | Sumergido | ≈ 670 mV | Sin contacto: bujes igus H370 en portabujes de PETG | T0.M8: eje ↔ tubo > 1 MΩ |
-| G4 | M5 A4 de portabujes y M6 A4 de la carcasa inferior ↔ tubo Al | Sumergido | ≈ 670 mV (cátodo chico, ánodo grande: el caso menos grave, research/R06 §6.2) | Tef-Gel + vaina de nylon (la del M6 no cabe en Ø6,4: H-12) | Inspección por temporada |
-| G5 | Tornillería A4 ↔ placas Al 6082 (HSG-01, HSG-07, DRV-08, ELE-02) | Salpicadura | ≈ 670 mV | Tef-Gel + arandelas de nylon bajo cabeza y tuerca | — |
-| G6 | Separadores 316 DRV-03 ↔ placa HSG-01 | Salpicadura | ≈ 670 mV | Tef-Gel en las caras | — |
-| G7 | Polea Al (DRV-06) ↔ eje y separadores 316 | Salpicadura (bajo cubrecorrea) | ≈ 670 mV | Fijador de retención llena el agujero; Tef-Gel en las caras de los separadores; enjuague | — |
-| G8 | Rodamientos 52100 ↔ cartucho Al / eje 316 | Seca con salpicadura | Acero entre 316 y Al [ESTIMADO: no tabulado en R06] | Sello 2RS; grasa repelente al agua en los asientos [SUPUESTO]; cambio por temporada (D-37) | — |
-| G9 | Motor (Al y acero) ↔ placa Al; M4 A4 en el motor | Salpicadura | Al/Al ≈ 0; A4/Al ≈ 670 mV | Tef-Gel en los M4 | — |
-| G10 | Pernos 316 MNT-07/08 ↔ bujes POM ↔ PETG | Salpicadura | — | No hay par metálico | — |
-| G11 | M12 A4 de la abrazadera ↔ casco Al | Salpicadura | ≈ 670 mV | Zapata MNT-02 de PETG entre tornillo y espejo; placa de reparto dentro de la C | T0.M8: tornillo ↔ casco > 1 MΩ |
-| G12 | Cáncamo M8 A4 ↔ placa de caña Al (+ inserto de latón previsto en la cuna) | Salpicadura | A4/Al ≈ 670 mV; latón/Al ≈ 370 mV | Tef-Gel + arandela de nylon; el latón no debe tocar el Al: **H-9** | — |
-| G13 | Mosquetón inox del cabo ↔ casco Al | Salpicadura | ≈ 670 mV | Lazo textil al punto fuerte; el inox no apoya en el casco [SUPUESTO] | — |
-| G14 | Insertos de latón ↔ M4 A4 ↔ tapa Al (caja ESC) | Seca/salpicadura (fuera del O-ring) | latón/Al ≈ 370 mV | Insertos hundidos 0,3 mm; arandela de nylon bajo la cabeza; Tef-Gel | Latón solo aquí (R4) |
-| G15 | Caja ESC ↔ banco Al del bote | Salpicadura | — | Tabla de HDPE o madera; si se atornilla al Al: Tef-Gel + nylon | — |
-| G16 | Terminales de cobre estañado ↔ bornes (batería, fusible, desconectador, contactor) | Seca (cajas) | Cobre/latón/estaño: misma familia [ESTIMADO] | Cubrebornes; enjuague nunca dentro de las cajas | — |
-| G17 | Tubos Al 6061 ↔ placas Al 6082 | Salpicadura | Aleaciones de Al: diferencia chica [ESTIMADO] | — | Sin acción |
-| G18 | Imán NdFeB niquelado en el puño | Salpicadura | — | Pegado y cubierto con epoxi | — |
-
-## 7. Pruebas escalonadas
-
-No se pasa a la etapa siguiente si una prueba no pasa. Cada etapa se registra (fecha, temperatura del aire y del agua, carga a bordo, firmware y XML del VESC, resultados).
-
-### T0 — banco en seco
-Condiciones: unidad completa sobre el tablón de 40 mm (o en el bote en tierra); motor sin correa en T0.1–T0.19, T0.M1 y T0.M2; con correa y **sin hélice** en T0.M3 y T0.M9; extintor a mano. Primero las pruebas eléctricas **T0.1–T0.19** (README electrónica §10: aislación, precarga, contactor, calibración, configuración, arranque con acelerador abierto, rampas, inversión, cordón y seta 10/10 en < <!--V:sizing.success.kill_time_max_s:.1f-->1.0<!--/V--> s, barreras por separado, falla de sensor, PPM, watchdog, 200 aperturas del cordón). Luego:
-
-| # | Procedimiento | Pasa si | Si no pasa |
-|---|---|---|---|
-| T0.M1 | Girar el eje a mano sin correa, 10 vueltas | ≤ 0,3 N·m (≤ 10 N tangente a la polea, r 32 mm), sin puntos duros [SUPUESTO] | Alinear portabujes; revisar rectitud del eje y el prensado de los H370 |
-| T0.M2 | Juego axial del eje con la pila apretada | No perceptible (≤ 0,05 mm) [SUPUESTO] | H-4 |
-| T0.M3 | Correa: tensión y marcha 10 min al 30 % sin hélice | Flecha ≈ 3 mm con 10 N; la correa no migra > 2 mm sobre la polea [SUPUESTO] | Re-alinear poleas (U-11/U-12) |
-| T0.M4 | Barrido de dirección −35/0/+35° × basculación 0–25° (estados de `verify_parts.py`) | Sin roces de piezas, sin cables tensos ni pellizcados | Rehacer el bucle de servicio (M9.5) |
-| T0.M5 | Fuerza horizontal en el patín para bascular, motor parado | 60–130 N (P5.1; modelo <!--V:sizing.mech.kickup.F_release_at_skeg_fwd_N:.0f-->90<!--/V--> N); vuelve a enclavar en marcha | Regular los émbolos (U-19) |
-| T0.M6 | Abrazadera en el tablón con U-01: medir la apertura de la C al pie de la pata a 0 y 24 h; luego 200 N verticales en el puño | Δ apertura ≤ 0,5 mm en 24 h; con 200 N la unidad no se mueve > 2 mm y vuelve [SUPUESTO] | **H-1** (el FEA anticipa que no pasa) |
-| T0.M7 | Hélice montada: salto de la punta de pala y holgura al aro en un giro | Salto ≤ 2 mm; holgura ≥ 5 mm en todo el giro [SUPUESTO] | Revisar asiento y aro |
-| T0.M8 | Aislación con multímetro (S1 OFF): eje ↔ tubo; tornillos M12 ↔ casco; tubo ↔ casco; tapa ELE-02 ↔ BAT− | > 1 MΩ [ESTIMADO: criterio de research/R06 §6.4] | Buscar el contacto antes de mojar nada |
-| T0.M9 | Con correa y **sin hélice**, a fondo 10 s | rpm de motor ≤ <!--V:sizing.legal_speed.rpm_cap_motor:.0f-->4309<!--/V--> (tope `l_max_erpm` <!--V:sizing.legal_speed.erpm_cap:.0f-->3702<!--/V--> ERPM con 7 pares de polos; contar los imanes); sin vibración ni ruido de rodamiento | Corregir `si_motor_poles` / `l_max_erpm` (H-8) |
-
-### T1 — estanqueidad
-Condiciones: tanque o balde de ≥ 0,6 m, agua dulce; papel tisú y gel de sílice dentro de la caja; cables reales cortos con las puntas selladas.
-
-| # | Procedimiento | Pasa si | Si no pasa |
-|---|---|---|---|
-| T1.1 | Caja ELE-01 completa (prensaestopas, respiradero, tapa con U-21), 30 min a 0,5 m | Papel seco: <!--V:sizing.success.watertight_after_immersion-->0 g de agua en caja ESC tras 30 min a 0,5 m (T1)<!--/V--> | Ubicar la fuga con aire a +0,2 bar y agua jabonosa por el puerto del respiradero (research/R05 §B9); re-lijar o epoxi en la cara, O-ring nuevo, prensaestopas; plan B: caja comercial IP67 BOX4U (D-20) |
-| T1.2 | Ciclo térmico: caja a ≈ 45 °C (sol o agua tibia) y 15 min sumergida en agua fría | Seca | Respiradero (S4), O-ring |
-| T1.3 | Repetir T1.1 tras 20 aperturas y cierres | Seca | Cambiar O-ring; revisar creep del reborde |
-| T1.4 | J1 y J2 acoplados, 30 min a 0,3 m | > 20 MΩ entre pines y pin-agua [SUPUESTO: tope del multímetro]; sin agua al desacoplar | Grasa dieléctrica; cambiar conector |
-| T1.5 | ELE-04 sumergido 30 min con el Nano leyendo | Lectura estable ±5 cuentas (ruido de README electrónica §5.3), sin `FAULT` | Re-encapsular |
-| T1.6 | Manguera 1 min sobre el cabezal (en marcha y basculado) y cola sumergida hasta la flotación 10 min | Rebaje del cartucho y rodamiento A secos (papel); escurre en < 5 min [SUPUESTO] | H-11; destapar drenajes |
-
-### T2 — muelle o tanque: bollard pull y térmico
-Condiciones: bote amarrado de proa con el dinamómetro en el cabo horizontal; ≥ 1,5 m de agua bajo la hélice (como P0.3); viento ≤ 4 m/s [SUPUESTO]; chaleco, cordón a la muñeca, extintor; cabo de seguridad de la unidad puesto; temperatura del aire registrada. Con H-1 abierto, T2 solo con la unidad atada y nadie en el agua.
-
-| # | Procedimiento | Pasa si | Si no pasa |
-|---|---|---|---|
-| T2.1 | Escalones de 25/50/75/100 % × 30 s | Empuje crece en cada escalón; sin ruidos ni salto de correa | Tensión de correa (P5.3) |
-| T2.2 | Bollard: 100 % durante 3 min (el modelo llega al límite térmico en <!--V:sizing.thermal.bollard.t_to_limit_min:.1f-->9.2<!--/V--> min) | Empuje ≥ <!--V:sizing.success.bollard_pull_min_N:.0f-->215<!--/V--> N (predicho <!--V:sizing.success.bollard_pull_pred_N:.0f-->253<!--/V--> N); I_bat ≤ 75 A (PENDIENTES P3; modelo <!--V:sizing.bollard_fwd.I_bat:.0f-->47<!--/V--> A); sin salto de dientes | Ventilación (burbujas), inmersión, paso real de la hélice; ajustar `propeller.efficiency_factor` (D-40) y correr `run_all.py` |
-| T2.3 | Temperaturas al terminar T2.2 (IR) | Carcasa del motor ≤ <!--V:sizing.success.T_motor_case_max_C:.0f-->80<!--/V--> °C; piezas impresas ≤ <!--V:sizing.success.T_printed_parts_max_C:.0f-->50<!--/V--> °C (cuna junto a la placa, capó, puente) | H-7: más ventilación, menos corriente |
-| T2.4 | Marcha atrás al 50 % durante 30 s | La cola no se levanta (FS de retención del modelo <!--V:sizing.mech.kickup.fs_reverse_hold:.1f-->7.4<!--/V-->); registrar el empuje (modelo <!--V:sizing.bollard_rev.T_horiz:.0f-->80<!--/V--> N) | Subir la precarga del retén (P5.1) |
-| T2.5 | Crucero térmico: 30 min a corriente de motor ≈ <!--V:sizing.cruise.design.I_m:.0f-->41<!--/V--> A (crucero de diseño) | NTC del motor ≤ 85 °C sin recorte del VESC; tapa ELE-02 ≤ 50 °C (P2.3); R_th = (T_NTC,∞ − T_aire) / <!--V:sizing.thermal.cruise_design.P_loss_motor_W:.0f-->111<!--/V--> W ≤ 0,45 K/W [ESTIMADO: inputs.yaml motor rth_k_w], con T_NTC,∞ extrapolada de la curva (τ ≈ 10 min [ESTIMADO: inputs.yaml]) | **H-7** (el modelo da <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->80<!--/V--> °C estacionario con aire a 30 °C) |
-| T2.6 | Uniones de potencia al terminar T2.2 | Cada borne ≤ temperatura del cable + 10 K (IR); ≤ 10 mV por unión a ≈ 50 A [SUPUESTO] | Limpiar y re-apretar (U-26) |
-| T2.7 | Inspección | Marcas de pintura intactas; apertura de la C como en T0.M6; caja ESC seca | Re-apretar; repetir T2 |
-
-### T3 — agua calma y poco profunda
-Condiciones: 0,6–1,2 m de agua (se hace pie), fondo de arena, sin olas, viento ≤ 4 m/s [SUPUESTO], agua ≥ 12 °C [VERIFICADO: research/R07 §3.4, inputs.yaml water.temp_operating_min_c], acompañante con cabo desde la orilla, remos, chaleco puesto, cordón atado. Primero 1 persona. **Requiere H-1, H-2, H-3 y H-8 resueltos.**
-
-| # | Procedimiento | Pasa si | Si no pasa |
-|---|---|---|---|
-| T3.1 | Avance, atrás, giros ±35°; a 50 % tirar del cordón, luego la seta | Para en < 1 s; con el puño abierto no rearranca; 5/5 | Volver a T0.12–T0.15 |
-| T3.2 | Varada controlada en arena a ≈ 2 km/h | Bascula; el patín toca primero y no rompe; vuelve a marcha | Si rompe: revisar P1.8; si no bascula: bajar la precarga (P5.1) |
-| T3.3 | Límite legal: 1 persona, batería llena, a fondo, 2 pasadas opuestas ≥ 200 m con GPS | Media ≤ 9,0 km/h (PENDIENTES P4; límite <!--V:sizing.legal_speed.limit_kmh:.2f-->9.26<!--/V--> km/h, D-30) | `l_max_erpm` nuevo = actual × 9,0 / v medida; repetir |
-| T3.4 | Crucero con la carga real (2 personas solo si pasó P0.2): 6,0 km/h media de ida y vuelta | P_bat (VESC Tool) ≤ <!--V:sizing.success.cruise_P_bat_max_W:.0f-->879<!--/V--> W | Re-calibrar R(v) (P0.3–P0.4); crucero a 5,5 km/h |
-| T3.5 | V máx con 2 personas, tope puesto | ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->22.3<!--/V--> km/h | Ídem T3.4; revisar ventilación |
-| T3.6 | Giros cerrados y aceleraciones a fondo | Sin ventilación sostenida (rpm sube > 20 % sin ganar velocidad) [SUPUESTO] | Trimado (M7.3), placa PRP-05 |
-
-### T4 — Als Fjord en calma, a < 300 m de la costa
-Condiciones: viento ≤ 6 m/s [VERIFICADO: research/R07 §4.1], sin ola, de día, < 300 m de la costa y ≤ 5 kn (tope puesto), agua ≥ 12 °C registrada; chaleco puesto, cordón, remos, ancla, teléfono en bolsa estanca; acompañante informado (en tierra o en otro bote); P0.2 aprobado (francobordo de popa ≥ 150 mm); batería al 100 %; `checklist_salida.md`.
-
-| # | Procedimiento | Pasa si | Si no pasa |
-|---|---|---|---|
-| T4.1 | 2 h a 6 km/h en circuito paralelo a la costa; registrar Wh (VESC Tool) y GPS | Consumo ≤ 960 Wh por hora [CALCULADO: <!--V:sizing.battery.E_usable_wh:.0f-->2304<!--/V--> Wh usables / (2 h × 1,2)] → ≥ <!--V:sizing.success.endurance_min_h:.0f-->2<!--/V--> h con 20 % de reserva | Re-calibrar (P0.3–P0.4); crucero 5,5 km/h; batería mayor (D-19) |
-| T4.2 | Registro del VESC durante T4.1 | Sin recorte térmico; caja ESC ≤ 50 °C | H-7 |
-| T4.3 | Simulacro: cordón a 6 km/h y remar 50 m | Motor parado < 1 s; remos en uso en < 30 s [SUPUESTO] | Reorganizar a bordo |
-| T4.4 | Al volver: caja ESC, aislación T0.1, marcas | Seca; > 1 MΩ; marcas intactas | No volver a salir hasta corregir |
-
-### Post-uso (cada salida)
-
-| # | Control | Pasa si | Si no pasa |
-|---|---|---|---|
-| PU.1 | Enjuague con agua dulce de toda la unidad, girando el eje a mano | Sin arena en bujes ni en el aro | Repetir |
-| PU.2 | Cola basculada fuera del agua, escurrida | Drenajes sin agua a los 5 min | Destapar |
-| PU.3 | PETG: cuna, tapa, abrazadera, mejillas, patín, aro | Sin fisuras, blanqueamiento ni deformación | Reemplazar antes de salir |
-| PU.4 | Pasador: con la polea sujeta, girar la hélice a mano | Sin juego angular | Cambiar el pasador |
-| PU.5 | Batería y mando | S1 OFF, cordón guardado, carga en interior a ≥ 5 °C (BMS) | — |
-| PU.6 | Registro | Horas de motor, Wh, eventos, golpes | — |
-
-## 8. FMEA
-
-Escalas 1–10 [ESTIMADO: criterio del autor]: S severidad, O ocurrencia, D detección (10 = no se detecta). RPN = S·O·D. Orden por RPN; **en negrita los modos con S ≥ 9**.
-
-| # | Función | Modo de falla | Efecto | S | Causa | O | Control actual | D | RPN | Acción | Responsable / prueba |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| F1 | **Sostener la unidad** | **Fluencia o fatiga de PETG en cuna, tapa o abrazadera** | Caída o pérdida de la unidad con la hélice girando | **9** | FEA: FS 0,32 (MNT-01), 0,74 (MNT-06), 0,86 (MNT-04) | 4 | Cabo de seguridad, inspección PU.3 | 4 | 144 | Resolver H-1…H-3 antes de T3 | Dueño del diseño / FEA, T0.M6 |
-| F2 | **Flotar con margen** | **Sobrecarga del bote / inundación** | Embarque de agua, vuelco, hipotermia | **10** | Carga útil <!--V:sizing.masses.payload_kg:.0f-->248<!--/V--> kg vs capacidad estimada <!--V:sizing.masses.capacity_kg:.0f-->160<!--/V--> kg (D-16) | 4 | P0.2, francobordo ≥ 150 mm, solo en calma, chalecos | 3 | 120 | 1 adulto o batería chica si P0.2 no pasa | Gaspar / P0.2, checklist |
-| F3 | **Fijar al espejo** | **La abrazadera se suelta** | Unidad colgando del cabo; golpe a personas o casco | **9** | Apriete ≤ 2,5 N·m que se relaja; C flexible (H-1) | 3 | Re-apriete antes de cada salida, cabo | 4 | 108 | H-1; T0.M6 a 24 h | Gaspar / checklist |
-| F4 | Durabilidad | Corrosión: 316 en rendija bajo bujes; A4 en Al | Pérdida de sección del eje, tornillos flojos | 6 | Agua estancada, falta de enjuague (G1, G4, G5) | 4 | Tef-Gel, nylon, enjuague | 4 | 96 | Inspección por temporada (§9) | Gaspar / §9 |
-| F5 | Potencia continua | Sobrecalentamiento del motor | Recorte del VESC; PETG cercano > 50 °C | 5 | <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->80<!--/V--> °C estacionario en crucero de diseño (H-7) | 6 | NTC + límite 85 °C del VESC | 3 | 90 | T2.5; ventilación o menos corriente | Gaspar / T2.5 |
-| F6 | Proteger electrónica | Agua en la caja ESC | VESC en falla, pérdida de propulsión (K1 sigue cortando) | 7 | Porosidad del PETG, prensaestopas, bombeo térmico | 4 | O-ring + IP68 + respiradero | 3 | 84 | T1.1–T1.3; H-10 | Gaspar / T1 |
-| F7 | **Parada de emergencia** | **El cordón no corta: corto entre sus 2 conductores o agua en J2** | Motor sigue con una persona en el agua | **10** | Cable aplastado en la caña, J2 sin grasa (README electrónica §8) | 2 | Seta; prueba previa a cada salida | 4 | 80 | Prueba de cordón en el muelle siempre; P2: interruptor de 2 canales | Gaspar / prueba previa |
-| F8 | Fusible mecánico | Pasador corta prematuro | Pérdida de propulsión: remos | 5 | Fatiga: FS Goodman <!--V:sizing.mech.shear_pin.fatigue_cruise.fs_goodman:.2f-->1.46<!--/V--> en crucero | 5 | Cambio cada 10 h; 5 repuestos | 3 | 75 | §9 | Gaspar / PU.4 |
-| F9 | **Conducir potencia** | **Unión de potencia floja → calentamiento / incendio** | Fuego en la caja de batería o la consola | **9** | Torque bajo, terminal mal crimpado | 2 | F1 a ≤ 178 mm; U-26/U-27 | 4 | 72 | T2.6 por temporada | Gaspar / T2.6 |
-| F10 | Fusible mecánico | Pasador no corta | Golpe pasa a correa, eje y placa; tirón a la abrazadera | 8 | Pasador más grueso o de otro acero; τ real mayor | 2 | P1.9; plano PRP-04 | 4 | 64 | Solo pasadores del lote ensayado | Gaspar / P1.9 |
-| F11 | Parada de emergencia | Contactor K1 soldado | Se pierde la barrera de hardware; quedan 2–3 | 7 | Cierre sin precarga | 3 | R_pre; clic en la prueba previa; T0.15 | 3 | 63 | Encender siempre con el cordón afuera (README electrónica §7) | Gaspar / prueba previa |
-| F12 | Llevar energía a la unidad | Roce o corte de cables al bascular o girar | Corto de fases (F1), `FAULT`, o parada por cordón | 7 | Bucle de servicio corto | 3 | Bucle ≥ 150 mm | 3 | 63 | T0.M4; inspección | Gaspar / T0.M4 |
-| F13 | Volver a puerto | Pérdida de propulsión con viento de tierra | Deriva mar adentro (W/SW dominante, research/R07) | 7 | Batería, pasador, falla eléctrica | 3 | < 300 m, remos, ancla | 3 | 63 | Simulacro T4.3 | Gaspar / T4.3 |
-| F14 | Aguas someras | Golpe de hélice en arena o piedra | Patín roto, pasador cortado, aro dañado | 6 | Fondo < calado de la punta de pala | 5 | Patín fusible <!--V:est.loads.F_skeg_fuse_N:.0f-->300<!--/V--> N, kick-up, pasador | 2 | 60 | Patín y segmentos de repuesto | Gaspar / T3.2 |
-| F15 | **Almacenar energía** | **Cortocircuito de batería** | Arco, quemaduras, fuego | **9** | Herramienta sobre bornes, agua salada en la caja | 2 | Cubrebornes, F1, caja | 3 | 54 | S1 OFF y Anderson desconectado para trabajar | Gaspar / M9 |
-| F16 | Transmisión | Salto o rotura de correa | Pérdida de propulsión | 5 | Tensión baja, desalineación | 3 | P5.3; FS de correa <!--V:sizing.mech.belt.fs_belt:.2f-->2.11<!--/V--> | 3 | 45 | Correa de repuesto | Gaspar / T2.2 |
-| F17 | Control | Sobrecalentamiento del ESC | Recorte, pérdida de potencia | 5 | Disipador peor que <!--V:sizing.thermal_esc.heatsink.R_hs_required_K_W:.2f-->0.44<!--/V--> K/W o caja al sol | 3 | Tapa Al + disipador | 3 | 45 | T2.5; caja a la sombra | Gaspar / T2.5 |
-| F18 | Cumplir la norma | Velocidad > 5 kn a < 300 m | Infracción; riesgo para bañistas | 5 | `l_max_erpm` mal cargado (H-8) | 3 | Tope de ERPM | 3 | 45 | T3.3 | Gaspar / T3.3 |
-| F19 | Retener en reversa | La cola bascula en marcha atrás | Ventilación, sin frenada | 6 | Retén flojo | 2 | FS <!--V:sizing.mech.kickup.fs_reverse_hold:.1f-->7.4<!--/V-->; reversa 50 % | 3 | 36 | T2.4 | Gaspar / T2.4 |
-| F20 | **Mando** | **Falla del sensor del acelerador / arranque inesperado** | Hélice arranca con alguien cerca | **9** | Hall o imán suelto, ruido | 2 | `FAULT` en el mismo tick; armado solo con 1 s en cero | 2 | 36 | T0.7, T0.16 | Gaspar / T0 |
-| F21 | Almacenar energía | Descarga profunda o carga en frío | Batería dañada, sin propulsión | 4 | Corte del VESC mal puesto; carga < 5 °C | 3 | `l_battery_cut`; BMS | 3 | 36 | Cargar en interior | Gaspar / PU.5 |
-| F22 | Proteger personas | Atrapamiento en correa o hélice en el muelle | Lesión en la mano | 8 | Manipular con S1 ON | 2 | Cubrecorrea, aro, cordón afuera | 2 | 32 | Regla R7; S1 OFF para tocar la cola | Gaspar |
-| F23 | Retener la unidad | Pérdida de la unidad por la borda | Pérdida económica; tirón de cables | 6 | Abrazadera suelta sin cabo | 2 | Cabo de seguridad | 2 | 24 | M10.2 (H-9) | Gaspar / checklist |
-
-## 9. Mantenimiento e inspección
-
-| Cuándo | Tarea | Criterio |
-|---|---|---|
-| Antes de cada salida | `checklist_salida.md`; re-apretar U-01; cabo de seguridad; prueba de cordón y seta (README electrónica §10, prueba previa); batería ≥ 80 % | Todo pasa o no se sale |
-| Después de cada salida | PU.1–PU.6 | §7 |
-| Cada 10 h de motor | Cambiar el pasador (02 §7: FS Goodman <!--V:sizing.mech.shear_pin.fatigue_cruise.fs_goodman:.2f-->1.46<!--/V-->); flecha de correa; juego radial del eje en la hélice | Pasador nuevo del lote ensayado; flecha ≈ 3 mm con 10 N |
-| Mensual o cada 20 h | Abrir la caja ESC: O-ring, grasa de silicona, gel de sílice; aislación T0.1; repaso de U-01…U-29 por las marcas | Sin humedad; > 1 MΩ; marcas sin correr |
-| Inicio de temporada | Rodamientos 6202 nuevos (D-37); O-ring nuevo; bujes H370 (juego radial ≤ 0,5 mm en la hélice [SUPUESTO]); V-ring; desmontar el eje e inspeccionar picaduras bajo los bujes; sacar un A4 de cada placa Al y mirar la rosca; T0 y T1 completos; balancear cada batería a 14,6 V por separado (D-19) | Sin picaduras ni polvo blanco de corrosión en el Al; T0/T1 pasan |
-| PETG (cada salida y por temporada) | Lupa en cuna, tapa, abrazadera, mejillas, base, patín y aro; medir la luz de la C y la apertura de la cuna | Reemplazar ante fisura, blanqueamiento o deformación permanente > 1 mm [SUPUESTO] |
-| Fin de temporada | Unidad desmontada, lavada con agua dulce y seca; Tef-Gel renovado; impresas a la sombra; batería en interior > 5 °C | — |
-| Kit a bordo | 5 pasadores, botador Ø2, llave en T M12, llaves 8/10/13, allen, correa, patín, 1 segmento de aro, cinta autovulcanizante | Completo |
-
-## 10. Bloqueos abiertos (detectados al 2026-10-01)
+## 8. Bloqueos abiertos (al 2026-10-02)
 
 | H | Problema | Bloquea | Fuente |
 |---|---|---|---|
-| H-1 | MNT-01: con 2,5 N·m el puente de la C queda en FS 0,32 a fluencia (la C se abre) | T3, T4 (T2 solo atada) | `04_diseno/fea/README.md` |
-| H-2 | MNT-06: el tope de marcha comprime la tapa (FS 0,74 con la cola trabada) y los pernos pasantes apoyan solo con la cabeza Ø10 en el contrapunzonado Ø11,2 (structural.py supone arandela Ø24, que no cabe) | T3, T4 | FEA + este documento |
-| H-3 | MNT-03/04: ranuras de tuercas M6 (FS 0,86; 2,20 con p99); cabezas M6 sin arandela y tuerca M8 del tope sin verificar al aplastamiento; sin limitadores de compresión (research/R05 §A5) | T3, T4 | FEA + este documento |
-| H-4 | Pila del eje 2 mm más corta que el tramo Ø15: la tuerca asienta en el escalón; rosca de 7,5 mm, corta para una autoblocante | Tornear DRV-01 | Este documento |
-| H-5 | Pernos del puente HSG-02 a 28,9 mm del eje del motor: tuerca o punta en la cara de popa contra la campana (r 31,5 mm) | M4.4 | Este documento |
-| H-6 | Cabezas M4 del motor en 2 mm de luz contra la polea del motor | M3.4 | Este documento |
-| H-7 | Motor a <!--V:sizing.thermal.cruise_design.T_motor_steady_C:.0f-->80<!--/V--> °C estacionario en crucero de diseño (> 85 °C, ≈ <!--V:sizing.thermal.cruise_design.t_to_limit_min:.0f-->inf<!--/V--> min); no está entre las restricciones duras | T4.1 si T2.5 no pasa | Este documento |
-| H-8 | README electrónica §6 pone `l_max_erpm` 30000 > tope legal <!--V:sizing.legal_speed.erpm_cap:.0f-->3702<!--/V--> | T3 | Este documento |
-| H-9 | Cáncamo M8 del cabo sobre inserto de latón en zona de salpicadura, tocando la placa Al | M10.2 | Este documento |
-| H-10 | Caja ESC: faltan pasos (2.º M16, mando, DC-DC) para "un cable por prensaestopas" | M9.3, T1 | README electrónica §11 + este documento |
-| H-11 | V-ring sin alojamiento ni secuencia de montaje en el CAD | T1.6 | Este documento |
-| H-12 | Perno M6 de STR-01 "con vaina" en agujero Ø6,4; M5 de portabujes con rosca formada en PETG; agujeros radiales no listados en STR-02 | M2 | Este documento |
-| H-13 | Agujeros M4 del cubrecorrea HSG-03 sin pieza donde roscar | M5.2 | Este documento |
-| H-14 | BOM: barra Ø55 < brida Ø56 (DRV-08); Ø20 no da la cabeza Ø24 (MNT-07); faltan inserto M8, prensaestopas M12, DIN 9021, DIN 471, tuercas M12×1,25 y M16×1,5, fijadores y grasas de §1 | Compras | Este documento |
-| H-15 | Textos desactualizados: PENDIENTES P3 dice 247 N (sizing: <!--V:sizing.success.bollard_pull_min_N:.0f-->215<!--/V--> N); D-21 dice fusible de 100 A (sizing: <!--V:sizing.fuse.rating_a:d-->80<!--/V--> A); docstring de MNT-06 dice "a insertos"; D-34 vs DC-DC del README electrónica | Documentación | Este documento |
+| H-1 | **Estabilidad:** GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m con el casco leído del plano; E1 probablemente falla | Todo: compras de E1 en adelante, cortes en el casco, T2–T4 | D-04; R13 §5; 02 §2.2 |
+| H-2 | Casco sin medir: fondo, espejo, calado, piso y consola son [ESTIMADO] o [SUPUESTO]. Con un fondo > 6 mm la bomba no entra con el eje a la altura actual (auditoría W-16) | Cortes C1–C6, pedido de placa base, conducto, soporte del motor y cables | D-02; PENDIENTES P0.1 |
+| H-3 | Potencia continua del MTI120116 no publicada ([ESTIMADO] en `inputs.yaml`); η y curva de la bomba sin ensayo | Interpretar T2.5, T4.2 y T4.3; la V máx. sostenida no llega a 30 km/h (estado del optimizador: <!--V:sizing.status:-->sin_vmax_objetivo<!--/V-->) | D-12; 02 §12 |
+| H-4 | Pares de polos del motor: el tope de ERPM de COSTA y del perfil abierto es rpm × pares de polos. El dato de `inputs.yaml` se está corrigiendo (el MTI120116 es 12N10P); confirmarlo con la detección del VESC y regenerar | T3 (perfil COSTA) | 02 §3.1; T0.M5 |
+| H-5 | Clasificación legal sin respuesta escrita (vandscooter / speedbåd / playas) | Construir el cockpit definitivo; T3 en Als Sund; T4 | D-20; R13 §8 |
+| H-6 | Pares de apriete no calculados salvo las M8 del pórtico (bridas M6, placa de espejo, M5, M3, KM4, prisioneros) | Cierre de los pasos M3–M13 | Este documento (R7) |
+| H-7 | Ley anti-cavitación y detección de descarga no implementadas en el firmware (solo el tope de ERPM) | T2.5 a fondo, T4 | 02 §4.6 |
+| H-8 | Decisión A (bomba propia) o B (JT132) sin cerrar | Encargos de E5 (servicios) y E6 | D-05; 03 §3 |
+| H-9 | Contactor K1 de ≥ 250 A: modelo, tensión de bobina y tensión de cierre sin confirmar por escrito (la alimentación de la bobina se está redefiniendo en el README de electrónica) | T0.4 | README de electrónica §7, §11; BOM B-CONT |
+| H-10 | Corriente de hasta 3 kn en Als Sund, contra 0,5 m/s de `inputs.yaml` | Operación en Als Sund (a 4 kn de límite, con 3 kn en contra casi no se avanza) | R13 §3 |
+| H-11 | Luz de rejilla <!--V:manifest.params.toma_bar_gap:.1f-->16.3<!--/V--> mm: R10a §8.6 pedía que una varilla de Ø13 no pase (dedos), y la rejilla de 316 queda en contacto con el 5083 bajo el agua | T2 con gente cerca; aprobación de P1-INT-03 | R10a §0.1, §8.6; §4 |
+| H-12 | Repuestos de pasadores: 3 según el plano P1-PMP-05 y estructural.json; 5 según el plano P1-DRV-01, el visor y R-PIN | Checklist (se llevan 5) | Planos, `bom.csv` |
+| H-13 | Placa de espejo: 6 × M6 según P1-PMP-09 y el CAD; 7 agujeros según P1-PMP-10 y B-HW | Corte de la junta y taladrado del espejo (C3) | Docstrings P1-PMP-09/10; `bom.csv` |
+| H-14 | Cambiar el pasador obliga a sacar tobera y estator desde adentro del casco (las bridas no pasan por el agujero del espejo): no se puede hacer en el agua | Operación lejos de la rampa: llevar pagaya y ancla | §3 |
+| H-15 | La calibración real del corte del pasador sale de la probeta (05 §7) | T2.5 a fondo | D-11 |

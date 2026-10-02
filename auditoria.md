@@ -27,6 +27,7 @@ verifica antes de corregirlo; se repiten rondas hasta que una ronda no encuentra
 | # | Hallazgo | Severidad | Estado |
 |---|---|---|---|
 | W-14 | **Estabilidad del casco**: GM ≈ <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m, capacidad 33 CFR 183.33 = <!--V:sizing.capacity.persons_gear_kg:.0f-->46<!--/V--> kg con casco ESTIMADO | Crítica (seguridad) | Bloquea las pruebas en agua: ensayo de escora (PENDIENTES P0) y probablemente ensanchar el casco o bajar el asiento. Declarado en README, D-04, 06 y checklist |
+| W-16 | **Holgura de la bomba sobre el fondo interior**: con el fondo [SUPUESTO] de 4 mm, la tobera fija queda a 4,5 mm del fondo interior (carcasa 5,6 mm). Un fondo de ≥ 6,5 mm (p. ej. PRFV, o una sobreplaca) no entra con el eje a 115 mm. Lo encontró la prueba de regeneración completa (+4 mm de fondo → `verify` falla) | Media | `verify_parts.py` lo detecta y detiene el pipeline (no pasa en silencio). Acción: medir el espesor real del fondo (PENDIENTES P0) y, si es > 6 mm, subir `waterjet.axis_height_m` lo mismo (cada mm resta sumersión: ver `sizing.priming`) |
 | W-15 | Objetivo 30 km/h no alcanzado sostenido (<!--V:sizing.performance.vmax_cont_kmh:.1f-->26.3<!--/V--> km/h) con < 50 V y la batería que entra | Media (requisito) | Reportado; alternativas en 07 (72 V con declaración, motor mayor) |
 
 ## Ronda 1
@@ -38,9 +39,11 @@ verifica antes de corregirlo; se repiten rondas hasta que una ronda no encuentra
 `tests/test_regeneration.py` (rápido) cambia `boat.bottom_thickness_mm` y `waterjet.axis_height_m`
 y comprueba que cambian el casco de referencia, la placa de la toma y la cota de la tobera.
 `tests/test_regeneration_full.py` (lento, `P1_SKIP_SLOW=1` lo salta) copia el proyecto a un
-directorio temporal, cambia **el espesor del fondo (+4 mm)** y **la masa del piloto (−15 kg)**, corre
-`run_all.py --fast --skip-render` completo y verifica: masa total menor, margen de joroba ≥ al
-anterior, volumen de la placa base de la toma distinto, BOM regenerada y el README con el margen nuevo.
+directorio temporal, cambia **el espesor del fondo (+2 mm)**, **la altura del eje (+5 mm)** y **la masa del
+piloto (−15 kg)**, corre `run_all.py --fast --skip-render` completo y verifica: masa total menor, margen de
+joroba ≥ al anterior, menos sumersión del impulsor, volumen de la placa base de la toma distinto, BOM
+regenerada y el README con el margen nuevo. La primera versión (+4 mm de fondo sin tocar el eje) hizo
+fallar `verify` con la tobera a 0,5 mm del fondo interior: así se encontró W-16.
 
 ## Historial (versión anterior: cola larga, archivada)
 

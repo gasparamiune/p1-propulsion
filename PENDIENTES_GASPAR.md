@@ -1,58 +1,72 @@
-# PENDIENTES_GASPAR — acciones físicas, en orden
+# PENDIENTES_GASPAR — lo que hay que hacer en el mundo físico, en orden
 
-Cada paso tiene **criterio pasa / no-pasa**. No avanzar al siguiente si el anterior no pasa.
-Después de cada medición: actualizar `inputs.yaml` y correr `python run_all.py`.
+Cada ítem tiene un **criterio de cierre**. No se pasa al bloque siguiente con uno abierto, salvo que se diga lo contrario. Después de cada medición: cargar el valor en `inputs.yaml` con la etiqueta `[VERIFICADO: medido AAAA-MM-DD]`, correr `python run_all.py` (incluye `verify_parts.py` y `docgen.py`) y mirar qué cambió en `resultados/sizing.json`. Bloqueos que esto destraba: 06 §8.
 
-## P0 — Antes de comprar nada
+Valores de referencia del diseño actual [CALCULADO con el casco leído del plano]: masa total <!--V:sizing.masses.total_kg:.0f-->217<!--/V--> kg, calado <!--V:sizing.hydrostatics.draft_m:.3f-->0.285<!--/V--> m, GM <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m, V máx. sostenida <!--V:sizing.performance.vmax_cont_kmh:.1f-->26.3<!--/V--> km/h, costo total <!--V:bom.total_eur:.0f-->10674<!--/V--> €.
 
-| # | Acción | Cómo | Pasa si | Si no pasa |
+---
+
+## P0 — Antes de comprar o cortar nada
+
+### P0.1 Medir el casco y lo que lo rodea (con Jorge)
+
+| # | Qué | Cómo | Se carga en | Criterio de cierre |
 |---|---|---|---|---|
-| P0.1 | **Medir el bote** | Cinta y nivel: LOA, LWL (marcar la flotación con 2 personas sentadas), manga, ancho de fondo, puntal, altura del espejo (fondo → borde), espesor del espejo (chapa + taco), material del taco, ancho útil del borde, peso del casco (balanza de baño ×2), fotos | Datos cargados en `inputs.yaml → boat.*` y `run_all.py` en verde | Revisar abrazadera (rango 20–65 mm) y largo de cola |
-| P0.2 | **Placa de capacidad** | Leer la placa (personas / kg / hp). Si no hay: prueba de francobordo con la carga real en agua calma | Carga útil (personas + equipo + batería + propulsión) ≤ placa, **y** francobordo en popa ≥ 150 mm con 2 personas | **No salir con 2 adultos**; usar batería chica (LFP24_50), 1 adulto, o bote más grande |
-| P0.3 | **Ensayo de remolque (calibración de R(v))** | Dinamómetro entre el bote cargado y otro bote/kayak que remolca (o desde un muelle caminando); GPS en el celular; 3–4 velocidades estables (3, 4,5, 6, 7 km/h), 3 pasadas por velocidad en ambos sentidos (cancela corriente/viento); **agua ≥ 1,5 m de profundidad** (efecto de aguas someras) y velocidades de 2 a 8 km/h; se mide la R(v) **total** (con espejo mojado el método de Prohaska no vale, research/R09 §1.3) | Dispersión entre pasadas ≤ 15 % | Repetir en día más calmo |
-| P0.4 | Cargar los puntos (v, R) en `inputs.yaml` y ajustar `resistance.wave_cw` hasta que el modelo nominal pase por los puntos | `python sizing.py` y comparar con `figuras/R_v.png` | Error ≤ 10 % en los 3–4 puntos | Si R medida > banda alta: la batería elegida no da 2 h → elegir la siguiente o bajar crucero a 5,5 km/h |
-| P0.5 | **Recién entonces comprar la batería** (la elección depende de P0.3–P0.4: con R medida ≤ nominal alcanza la LiTime 36 V 50 Ah, más liviana y barata; ver decisiones D-19/D-28). Medir las baterías elegidas contra la caja Biltema 340×200×245 antes de comprar las cajas | `run_all.py` con los puntos medidos | `resultados/sizing.json → requirements_met = true` | — |
-| P0.7 | **Comprar la hélice ANTES de tornear nada** (elegida: Minn Kota MKP-32, Watski; decisiones D-06) y medir: diámetro, paso (marcado en el cubo), bore, Ø y largo del pin/ranura, retención (tuerca/rosca), largo y Ø del cubo | Calibre y cinta; cargar en `inputs.yaml → propeller.options.MKP32` | `run_all.py` en verde con los valores medidos (re-dimensiona eje, pasador, protector, patín) | Si el bore < 12 mm el asiento del eje no llega a FS 2: elegir otra hélice |
-| P0.6 | Comprar motor/ESC/antichispa a Flipsky **declarando el valor real** (IVA 25 % + envío ≈ 105 €) | Checkout de flipsky.net: anotar el envío real en `costs.cn_shipping_eur` | — | Ruta AliExpress UE (decisiones D-32) |
+| P0.1.1 | **Casco**: eslora total, manga en la borda, manga y altura del pantoque, ancho del fondo, largo del fondo, puntal, astilla muerta en 3 estaciones (espejo, 0,5 m y 1,0 m), material y espesor de chapa, peso del casco | Cinta, nivel, escuadra, transportador o inclinómetro del celular; peso con 2 balanzas de baño (proa y popa); fotos con cinta en cuadro | `boat.loa_m`, `beam_m`, `lwl_m`, `bottom_beam_m`, `chine_beam_m`, `chine_height_m`, `gunwale_height_m`, `deadrise_deg`, `hull_mass_kg` | Todos los campos con etiqueta VERIFICADO y `run_all.py` en verde |
+| P0.1.2 | **Fondo en la zona de la toma**, de 0 a 1,0 m del espejo: planitud, quilla, tracas, refuerzos o varengas existentes, remaches; **espesor real del fondo, con cualquier sobreplaca** | Regla de 1 m y galgas; calibre en un borde o medidor de espesor por ultrasonido | `boat.bottom_thickness_mm` | Zona plana y libre desde x = <!--V:manifest.params.toma_plate_x0:.0f-->286<!--/V--> hasta 0,5 m a proa de la tangencia (x = <!--V:manifest.params.x_tan:.0f-->766<!--/V--> mm) [VERIFICADO: R10a §8.2]. **Si el fondo mide más de 6 mm:** con el supuesto actual de <!--V:manifest.params.bottom_t:.0f-->4<!--/V--> mm la tobera fija y la carcasa quedan a pocos milímetros del fondo interior; subir `waterjet.axis_height_m` lo mismo que el exceso, correr `run_all.py` (`verify_parts.py` falla si no se sube) y confirmar que el eje siga bajo la flotación (`sizing.priming.axis_below_wl_m`, hoy <!--V:sizing.priming.axis_below_wl_m:.3f-->0.170<!--/V--> m) [auditoria.md W-16] |
+| P0.1.3 | **Espejo**: alto, espesor, material, ángulo con la vertical; qué hay por dentro alrededor del centro del agujero | Cinta, calibre, inclinómetro; marcar en el espejo el centro previsto (crujía, z = <!--V:manifest.params.z_noz:.0f-->92<!--/V--> mm sobre la quilla) | `boat.transom_height_m`, `transom_thickness_mm` | Agujero de Ø<!--V:manifest.params.transom_hole_d:.1f-->160.8<!--/V--> mm y placa de espejo de radio <!--V:manifest.params.pmp_tp_R:.0f-->105<!--/V--> mm sin refuerzos ni soldaduras en el medio; `run_all.py` en verde |
+| P0.1.4 | **Calado en popa con la masa de diseño** | En el muelle, agua calma; piloto + lastre hasta la masa total de diseño; calado en el espejo (crujía) y en proa; marcar la flotación con cinta | Comparar con `sizing.hydrostatics.draft_m`; ajustar `boat.block_coeff` hasta que coincida | Calado medido cargado. El eje del impulsor (a <!--V:sizing.priming.axis_height_m:.3f-->0.115<!--/V--> m de la quilla) queda ≥ 20 mm bajo la flotación medida [VERIFICADO: R10a §3.2, §8.1] |
+| P0.1.5 | **Piso, consola y asiento** | Altura del piso sobre la quilla entre x = <!--V:manifest.params.mot_x0:.0f-->682<!--/V--> y <!--V:manifest.params.mot_x1:.0f-->797<!--/V--> mm (motor); posición, ancho y alto de la consola; altura del asiento y del CG del piloto sentado | `boat.floor_height_m`; `masses.items.pilot` (x, z); cotas de consola de `params_direccion.py` (CTL_*) | El motor no toca el piso (`verify_parts.py` en verde); la unidad de palancas y el T85 entran en la consola real |
+| P0.1.6 | **Motor recibido** (después de P0.3) | Ø y largo del eje, chavetero, brida (diámetro de agujeros, cantidad y rosca), largo total; pares de polos con la detección de VESC Tool (motor solo, sin bomba) | `motor.options.MTI120116_150.shaft_d_mm`, `pole_pairs` y la tabla de motores de `params_tren.py` | `run_all.py` en verde: agujero del cubo del Rotex, soporte P1-MOT-02 y tope de ERPM de COSTA recalculados |
+| P0.1.7 | **Baterías recibidas** | Medidas y peso de cada una | `masses.items.battery`; BOM B-BOX | La caja estanca elegida las contiene con sus cables; `run_all.py` en verde |
 
-## P1 — Probetas (imprimir con el perfil estructural, ver 05_fabricacion.md)
+### P0.2 Estabilidad — bloquea todo lo demás
 
-| # | Probeta (CAD en `04_diseno/probetas/`) | Ensayo | Pasa si |
+| # | Acción | Criterio de cierre |
+|---|---|---|
+| P0.2.1 | **Ensayo E1 de escora con carga desplazada** con el casco tal cual (sin cortar) y lastre hasta la masa de diseño (R13 §5; procedimiento en 06 T1.1): piloto de 100 kg o lastre equivalente con el CG ≥ 100 mm sobre el asiento, corrido 0,1 m, 0,2 m y hasta la borda | Sin entrada de agua, francobordo residual ≥ 100 mm y escora ≤ 15° con el piloto a 0,2 m de crujía [SUPUESTO: umbrales de R13 §5]. Video y fotos del inclinómetro archivados |
+| P0.2.2 | Si E1 no pasa (lo esperable: el cálculo da <!--V:sizing.heel_pilot_0p1m_deg:.0f-->79<!--/V-->° con 0,1 m): decidir con Jorge el cambio de casco: manga en la flotación ≥ 0,9 m, flotadores laterales o asiento más bajo (D-04; R10b H1) | Cambio hecho o diseñado, cargado en `inputs.yaml`, GM recalculado positivo con margen y E1 repetido y aprobado |
+
+### P0.3 Cotizaciones por escrito
+
+| # | A quién | Qué preguntar | Criterio de cierre |
 |---|---|---|---|
-| P1.1 | Peine de holguras (agujeros/ejes Ø12, 16, 20, 25, 30, 40; holgura 0,15/0,20/0,25/0,30) | Calibre + pernos reales | Encuentra la holgura que da ajuste deslizante sin juego visible; actualizar `geometry.clearance_mm` |
-| P1.2 | Alojamiento de buje igus H370 Ø18 en PETG (Ø18 −0,05/−0,10/−0,15) | Prensar a mano / prensa de banco | Entra con prensa sin fisurar y no gira con la mano; actualizar `press_fit_mm` |
-| P1.3 | Tuerca cautiva M6 (bolsillo transversal, h = 18 mm) | Tracción con el dinamómetro + palanca, 3 probetas | Arranque ≥ 3 × la carga por tuerca de 05_fabricacion.md §4.1 (generado desde structural.py) |
-| P1.4 | Inserto M4 inox en PETG (caja ESC) | Tracción, 3 probetas | Arranque ≥ 0,6 kN |
-| P1.5 | Barra de flexión impresa en XY 10×10×100 seca vs 7 días en agua salada (25 g/L) | Flexión 3 puntos con dinamómetro | Pérdida ≤ 25 % (si es mayor, bajar `f_water`) |
-| P1.6 | Caja con O-ring (ELE-01 reducida) + tapa Al | 24 h sumergida a 0,5 m con papel tisú adentro | Papel seco; 0 gotas |
-| P1.7 | Absorción en agua salada 7 días (cubos 20 mm) | Pesar seco/mojado (balanza 0,01 g) | Ganancia ≤ 1 % |
-| P1.8 | Cintura del patín (probeta del cuello) | Fuerza horizontal en la punta con dinamómetro hasta rotura | Rompe entre 200 y 400 N (diseño 300 N) |
-| P1.9 | Pasador de corte 316 (3 pasadores del lote comprado) en un eje de prueba Ø = asiento de hélice | Palanca de 0,5 m + dinamómetro hasta el corte (torque = F × 0,5) | Corta entre 0,8 y 1,2 × el valor de 02_calculos §7; si no, cambiar el Ø y `propeller.shear_pin.tau_ult_mpa` |
+| P0.3.1 | **AWT, JT132** (wuxiawt01@163.com, R11 §4) | (1) Plano de la brida de toma y si entra en un fondo plano de las medidas de P0.1.2; (2) altura del eje sobre el fondo, para que quede ≥ 20 mm bajo la flotación en reposo; (3) curva H-Q o empuje del impulsor estándar a ~4000 rpm y 6 kW, y pasos de impulsor disponibles; (4) entrada del eje (cardán SWC 65 o acople ISO) y largo; (5) precio, flete a DK, arancel, plazo y repuestos (anillo de desgaste, impulsor) | Respuesta escrita con (1)–(4) y costo puesto en DK. Decisión A/B tomada y anotada en D-05: B si se cumplen las 4 condiciones de 03 §3 y el costo puesto no supera ~1500 € [SUPUESTO: D-05]; la estimación actual es <!--V:cmp.B_jt132_landed_eur_min:.0f-->1370<!--/V-->–<!--V:cmp.B_jt132_landed_eur_max:.0f-->1482<!--/V--> € [ESTIMADO] |
+| P0.3.2 | **Maytech, MTI120116 150 KV** | Potencia continua con camisa de agua y el caudal de agua que necesita; curva de eficiencia o resistencia de fase; KV real; pares de polos; Ø y chavetero del eje y patrón de la brida; sensor de temperatura disponible; plazo | Potencia continua por escrito, cargada en `inputs.yaml → motor.options.MTI120116_150.p_cont_w` (hoy [ESTIMADO], D-12) y `run_all.py` corrido. Si da menos que lo estimado, revisar la V máx. (02 §10) antes de comprar |
+| P0.3.3 | **Taller CNC** (solo si sale A) | Impulsor 316L en 5 ejes (`04_diseno/step/P1-PMP-03_impeller.step` + plano de ángulos `P1-PMP-03_tabla_angulos_alabes.svg`) y estator de Al 6061-T6 (`P1-PMP-06_stator.step`): material certificado (1.4404 para el impulsor), Ø exterior con sobremedida para tornear contra el anillo, balanceo G6.3, plazo; alternativa SLM 316L + torneado. Torneados de carcasa, tobera y placa de espejo (S-TURN-*) y anodizado duro (S-ANOD) | 2 cotizaciones por escrito por ítem, comparadas con `bom.csv` (S-CNC-IMP, S-CNC-STAT, S-TURN-*, S-ANOD) |
+| P0.3.4 | **Soldadura de aluminio** | Conducto de la toma en 5083 sobre la placa base, con prueba de estanqueidad (aire 0,3 bar + jabón) (S-WELD-INT); pórtico, soporte del motor y bucket (S-WELD-AL); rejilla 316 (S-WELD-316); varengas al fondo del casco (H-WELD) | Cotización escrita que incluya la prueba de estanqueidad del conducto |
+| P0.3.5 | **Contactor K1** (B-CONT) | Contactor ≥ 250 A con la tensión de bobina que fije el README de electrónica §7: tensión mínima de cierre y tensión continua admisible por escrito | Hoja de datos o mail del fabricante archivado; modelo cargado en `inputs.yaml` |
 
-## P2 — Banco en seco (T0) y estanqueidad (T1)
+### P0.4 Consulta legal por escrito (antes de construir el cockpit)
 
-Ver 06_ensamblaje_y_pruebas.md §T0–T1. Criterios clave: kill switch corta en < 1 s en 10/10 intentos; sin arranque con acelerador fuera de cero; rampa de inversión ≥ 0,5 s; caja ESC seca tras 30 min a 0,5 m.
-
-| # | Acción | Pasa si |
+| # | Acción | Criterio de cierre |
 |---|---|---|
-| P2.1 | **Interruptor de cordón Watski (12 V–15 A) a 24 V**: 200 aperturas sacando el clip con la bobina real del contactor y su supresor (diodo + R o TVS) | Contactor abre las 200 veces; contactos sin marcas de arco ni soldadura (lupa); resistencia de contacto < 0,1 Ω con el multímetro. Si falla: relé auxiliar 24 V entre cordón y bobina (decisiones D-33) |
-| P2.2 | **VESC Tool**: filtro de fase APAGADO (FW ≥ 5.03, advertencia Flipsky); `l_in_current_max` ≤ 80 % del BMS; corriente de motor 70 A; reversa 50 %; **tope de ERPM** = valor de 02_calculos §3.1 | Parámetros guardados en `04_diseno/electronica/` (captura o XML exportado) |
-| P2.3 | **Disipador del ESC**: comprar uno con R_th ≤ valor de 02_calculos §5.2 (dato del fabricante); en T2, 30 min a la potencia de crucero | Tapa de Al ≤ 50 °C (IR) con aire ≤ 30 °C a la sombra |
+| P0.4.1 | Mandar las preguntas en danés de **R13 §8** (Q1–Q2 a Søfartsstyrelsen, Q4 a Sønderborg Kommune, Q5 a la policía, Q6 a Sønderborg Havn, Q7 a la aseguradora) con planos y fotos del cockpit. **Antes de mandarlas, actualizar las cifras:** Q1 dice "5 kW kontinuerligt / 7,2 kW maks."; el diseño actual da <!--V:sizing.performance.P_shaft_peak_kW:.1f-->6.5<!--/V--> kW al eje como máximo [CALCULADO]. Q3 pregunta por 72 V: el pack es 12S, <!--V:sizing.performance.vmax_by_battery.v_max.V_bat:.1f-->43.8<!--/V--> V a carga plena (D-13), así que Q3 se reformula o se omite | Respuestas escritas archivadas en `referencias/`; D-20 actualizado. Si la respuesta es "vandscooter": se pierde Als Sund (R13 §1.3) y se replantea el proyecto antes de comprar |
 
-## P3 — Tanque / muelle (T2)
+---
 
-Bollard pull con el dinamómetro (bote amarrado al muelle con el dinamómetro en el cabo): **pasa si ≥ 0,85 × predicho** (≥ 247 N; predicho <!--V:sizing.bollard_fwd.T_horiz:.0f-->253<!--/V--> N), corriente de batería ≤ 75 A, motor ≤ 80 °C de carcasa tras 3 min, piezas impresas cerca del motor ≤ 50 °C (termómetro IR).
+## P1 — Probetas y ensayos de taller (05 §7)
 
-## P4 — Agua (T3, T4)
+Los procedimientos completos están en 05 §7; si algo de acá difiere, manda 05. Mínimo que tiene que estar aprobado antes del montaje (06 §3):
 
-Ver 06 §T3–T4: primero agua calma, poco profunda, con remos y acompañante; luego Als Fjord en calma a < 300 m de la costa, chaleco puesto, kill cord atado, temperatura del agua registrada.
-
-**T3 adicional — límite legal:** con 1 persona y batería llena, a fondo en agua calma, ida y vuelta con GPS: **pasa si la media ≤ 9,0 km/h** (5 kn = 9,26 km/h con margen). Si no, bajar el tope de ERPM en proporción.
-
-## P5 — Ajustes finos
-
-| # | Acción | Pasa si |
+| # | Ensayo | Criterio de cierre |
 |---|---|---|
-| P5.1 | Precarga del retén de basculación | Fuerza horizontal en el patín para que bascule (motor parado) = 60–130 N; en marcha atrás al 50 % la cola no se levanta |
-| P5.2 | Tornillo de trimado | Hélice sin ventilar a máxima potencia; bote nivelado |
-| P5.3 | Tensado de correa | Flecha ~3 mm con 10 N en el centro del ramal (HTD-5M 15 mm); sin salto de dientes en bollard |
+| P1.1 | **Pasador de corte**: 3 pasadores del lote en un eje y un cubo de prueba de Ø20, palanca + dinamómetro hasta el corte | Corta entre 0,8 y 1,2 × <!--V:sizing.mech.shear_pin.T_cut_Nm:.1f-->33.5<!--/V--> N·m [SUPUESTO: tolerancia] y nunca por debajo de 1,5 × el par máximo del controlador (<!--V:sizing.mech.T_max_Nm:.1f-->18.6<!--/V--> N·m) [VERIFICADO como criterio: R12 §7.6]. Si no, cambiar el Ø en `inputs.yaml` (`shear_pin.d_options_mm`) |
+| P1.2 | **Estanqueidad del conducto soldado** (taller, S-WELD-INT) | Aire 0,3 bar + agua jabonosa en todos los cordones: ninguna burbuja |
+| P1.3 | **Prueba hidrostática de toma y bomba** armadas, con tapas ciegas | 0,3 MPa sin pérdidas ni deformación [ESTIMADO: R12 §7.2; presión de diseño <!--V:est.loads.structural_bomba.loads_used.p_design_Pa:.0f-->200000<!--/V--> Pa] |
+| P1.4 | **Anillo de desgaste** prensado y torneado en la carcasa (taller) | Concentricidad ≤ <!--V:manifest.params.pmp_ring_TIR:.2f-->0.05<!--/V--> mm; con el impulsor, holgura de punta 0,3–0,4 mm con galgas [ESTIMADO: R12 §2.7] |
+| P1.5 | **Impulsor** recibido | Balanceo G6.3 certificado por el taller; Ø de punta medido, coherente con P1.4 |
+| P1.6 | **Piezas de PETG** (tapa de inspección, base y capota del controlador, caja de palancas, soporte del kill switch): probetas de 05 §7 | Criterios de 05 §7 |
+
+---
+
+## P2 — Banco y pruebas (06 §5)
+
+| # | Etapa | Criterio de cierre |
+|---|---|---|
+| P2.1 | **T1.1 (E1)** con todo instalado (se repite P0.2.1) | Mismo criterio que P0.2.1 |
+| P2.2 | **T0** banco en seco, acople desconectado: electrónica T0.1–T0.20 + mecánica T0.M1–T0.M8 | Todas pasan; kill por cordón y por seta < 1 s en 10/10 |
+| P2.3 | **T1** estanqueidad, calado e inundado (T1.2–T1.6) | 24 h sin agua en la sentina; eje ≥ 20 mm bajo la flotación; E2–E4 aprobados |
+| P2.4 | **T2** muelle, amarrado | Chorro en ≤ 3 s; testigo de refrigeración y sello correctos; empuje a punto fijo ≥ <!--V:sizing.success.bollard_min_N:.0f-->612<!--/V--> N; sin cavitación en la rampa |
+| P2.5 | **T3** agua calma, < 300 m, 5 kn | Perfil COSTA ≤ 9,0 km/h de media; P de batería a 5 kn ≤ <!--V:sizing.success.p_legal_max_W:.0f-->2184<!--/V--> W; reversa y kill en marcha |
+| P2.6 | **T4** fuera de 300 m (centro de Als Fjord) | Planeo en ≤ <!--V:sizing.success.t_plane_max_s:.0f-->15<!--/V--> s; V máx. GPS ≥ <!--V:sizing.success.vmax_min_kmh:.1f-->22.3<!--/V--> km/h; 30 min de crucero sin recorte térmico |
