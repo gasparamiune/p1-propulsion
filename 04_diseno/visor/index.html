@@ -136,56 +136,17 @@ aside.panel { background: var(--surface); border: 1px solid var(--line); border-
 footer { font-size: var(--step--1); color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 6px; }
 code { font-family: var(--font-mono); font-size: 0.85em; }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
-
-/* portada: escena 3D a todo ancho (mar, bote, Jorge) con el título encima */
-body { margin: 0; }
-.cover { position: relative; height: min(86vh, 860px); min-height: 520px; overflow: hidden;
-  background: linear-gradient(180deg, #7fc0e4 0%, #b9def0 46%, #e3f2f8 62%, #e3f2f8 100%); color: #0b2530; }
-.cover canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; }
-.cover-top { position: absolute; left: 0; right: 0; top: 0; padding: clamp(16px, 4vw, 44px) clamp(16px, 4vw, 48px); display: flex; gap: 18px; align-items: center; pointer-events: none; }
-.cover-top .avatar { width: clamp(76px, 11vw, 132px); aspect-ratio: 1; border-radius: 50%; object-fit: cover; border: 4px solid #ffffff; box-shadow: 0 6px 22px rgba(11, 37, 48, 0.28); flex: none; background: #d9e8ee; }
-.cover-top .eyebrow { color: #0b4f63; }
-.cover h1 { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; line-height: 0.95; margin: 4px 0 0; font-size: clamp(2.2rem, 5.6vw, 5rem); max-width: 10ch; letter-spacing: -0.005em; color: #0b2530; text-shadow: 0 2px 0 rgba(255, 255, 255, 0.45); }
-.cover h1 .name { color: #d6531a; }
-.cover-bottom { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px clamp(16px, 4vw, 48px) clamp(16px, 3vw, 28px); display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: flex-end; justify-content: space-between; background: linear-gradient(180deg, rgba(8, 40, 55, 0) 0%, rgba(8, 40, 55, 0.55) 100%); }
-.cover-bottom .cta { display: flex; flex-wrap: wrap; gap: 8px; }
-.cover-bottom .cta button { font: 700 0.95rem var(--font-body); border-radius: 999px; padding: 11px 18px; cursor: pointer; border: 2px solid #ffffff; background: #ffffff; color: #0b2530; }
-.cover-bottom .cta button.ghost { background: transparent; color: #ffffff; }
-.cover-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 600 0.78rem var(--font-body); color: #ffffff; max-width: 560px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
-.cover-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.cover-legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; border: 1px solid rgba(255, 255, 255, 0.8); }
-.bubble { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); background: #ffffff; color: #0b2530; font: 800 1.15rem var(--font-body); padding: 8px 14px; border-radius: 16px; box-shadow: 0 6px 18px rgba(11, 37, 48, 0.25); pointer-events: none; white-space: nowrap; }
-.bubble::after { content: ""; position: absolute; left: 50%; bottom: -9px; margin-left: -8px; border: 9px solid transparent; border-bottom: 0; border-top-color: #ffffff; }
-.cover .cover-loading { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-mono); color: #0b4f63; }
-@media (max-width: 600px) { .cover { height: 78vh; min-height: 480px; } .cover-legend { display: none; } .bubble { font-size: 1rem; } }
 </style>
-
-<section class="cover" id="cover" aria-label="Portada: tu bote con el Strålen adentro">
-  <div class="cover-loading" id="cover-loading">Preparando el mar…</div>
-  <div class="cover-top">
-    <img class="avatar" src="jorge.jpg" alt="Jorge" onerror="this.remove()">
-    <div>
-      <div class="eyebrow">P1-J · waterjet eléctrico para tu jet boat de 2,30 m · Als Fjord</div>
-      <h1>Hola Jorge! Este es tu <span class="name">“Strålen”</span></h1>
-    </div>
-  </div>
-  <div class="bubble" id="bubble" hidden>¡Hola! 👋</div>
-  <div class="cover-bottom">
-    <div class="cta">
-      <button type="button" id="b-go">Ver el motor por dentro ↓</button>
-      <button type="button" class="ghost" id="b-go-demo">▶ Ver la demo</button>
-    </div>
-    <div class="cover-legend" id="cover-legend"></div>
-  </div>
-</section>
 
 <div class="wrap">
   <header class="hero">
+    <div class="eyebrow">P1-J · waterjet eléctrico para tu jet boat de 2,30 m · Als Fjord</div>
+    <h1>Hola Jorge! Este es tu <span class="name">“Strålen”</span></h1>
     <p class="lead">“Strålen” es “el chorro” en danés: un waterjet eléctrico como el de tu plano. La toma va enrasada en el fondo, delante del impulsor; un motor refrigerado por agua mueve directo un impulsor inox de 5 álabes, y la boquilla y el bucket te dan dirección y marcha atrás. Nada cuelga del espejo más que la boquilla.</p>
     <div class="meta" id="meta"></div>
   </header>
 
-  <section aria-label="Visor 3D" id="visor">
+  <section aria-label="Visor 3D">
     <div class="viewer-grid">
       <div class="stage" id="stage">
         <div class="loading" id="loading">Cargando el modelo 3D…</div>
@@ -269,7 +230,7 @@ body { margin: 0; }
   const PROC = { impresa: "Se imprime", torneada: "Se mecaniza / tornea / suelda", comprada: "Se compra", referencia: "Referencia (no se fabrica)" };
   const ORDER = ["INT", "PMP", "DRV", "MOT", "STE", "REV", "ELE", "BAT", "CTL", "REF"];
 
-  let D = null, scene, camera, renderer, controls, root, ctx = null, water = null, jetPts = null, geoms = null;
+  let D = null, scene, camera, renderer, controls, root, ctx = null, water = null, jetPts = null;
   const insts = [];
   const byPart = {};
   const state = { explode: 0, steer: 0, bucket: 0, spin: false, spinAngle: 0, selected: null, iso: false, demo: null, flow: 0 };
@@ -412,7 +373,7 @@ body { margin: 0; }
     const buf = u8.buffer;
     renderStatic();
     if (!initScene()) return;
-    geoms = {};
+    const geoms = {};
     D.parts.forEach((p) => {
       const m = p.mesh, o = m.off, g = new THREE.BufferGeometry();
       g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(buf, o, m.nv * 3), 3));
@@ -438,7 +399,6 @@ body { margin: 0; }
     applyPose(); frameAll(false);
     $("loading").hidden = true;
     bindUI(); animate();
-    try { initCover(); } catch (err) { $("cover-loading").textContent = ""; console.warn(err); }
     if (location.hash === "#demo") startDemo();
   }
 
@@ -451,32 +411,33 @@ body { margin: 0; }
     const K = D.kin, r = Math.PI / 180, ang = b * K.bucket_down;
     return steerM(d).multiply(T(K.Xb, 0, K.Zb)).multiply(new THREE.Matrix4().makeRotationY(ang * r)).multiply(T(-K.Xb, 0, -K.Zb));
   }
-  function poseMatrix(r, st) {
-    if (!J) { J = Jm(); Jinv = J.clone().invert(); }
-    const s = st.explode;
-    let F = r.frame === "steer" ? steerM(st.steer) : r.frame === "bucket" ? bucketM(st.steer, st.bucket) : new THREE.Matrix4();
-    if (r.frame === "table") {      // mecanismo: interpola entre poses tabuladas (dirección × bucket)
-      const S = r.steers, n = S.length;
-      let j = 0; while (j < n - 2 && st.steer > S[j + 1]) j++;
-      const u = Math.min(1, Math.max(0, (st.steer - S[j]) / (S[j + 1] - S[j])));
-      const blend = (A, B, w) => { const pa = new THREE.Vector3(), qa = new THREE.Quaternion(), sa = new THREE.Vector3(), pb = new THREE.Vector3(), qb = new THREE.Quaternion(), sb = new THREE.Vector3();
-        A.decompose(pa, qa, sa); B.decompose(pb, qb, sb); return new THREE.Matrix4().compose(pa.lerp(pb, w), qa.slerp(qb, w), sa); };
-      const m = (b, k) => r.tab[b][k];
-      const up = blend(m(0, j), m(0, j + 1), u), dn = blend(m(1, j), m(1, j + 1), u);
-      F = blend(up, dn, st.bucket);
-    }
-    if (r.frame === "own") {        // pivote propio (palanca del bucket): rota alrededor de su eje
-      const q = new THREE.Quaternion().setFromAxisAngle(r.axis, r.angle * st.bucket);
-      F = T(r.pivot.x, r.pivot.y, r.pivot.z).multiply(new THREE.Matrix4().makeRotationFromQuaternion(q)).multiply(T(-r.pivot.x, -r.pivot.y, -r.pivot.z));
-    }
-    const E = T(r.explode.x * s, r.explode.y * s, r.explode.z * s);
-    // explosión en el marco del padre, giro alrededor del eje del jet
-    const M = new THREE.Matrix4().multiplyMatrices(F, E);
-    if (r.spin) M.multiply(J.clone().multiply(new THREE.Matrix4().makeRotationX(st.spinAngle)).multiply(Jinv));
-    return M.multiply(r.local);
-  }
   function applyPose() {
-    insts.forEach((r) => { r.mesh.matrix.copy(poseMatrix(r, state)); r.mesh.matrixWorldNeedsUpdate = true; });
+    if (!J) { J = Jm(); Jinv = J.clone().invert(); }
+    const Fs = steerM(state.steer), Fb = bucketM(state.steer, state.bucket), s = state.explode;
+    const spinM = J.clone().multiply(new THREE.Matrix4().makeRotationX(state.spinAngle)).multiply(Jinv);
+    insts.forEach((r) => {
+      let F = r.frame === "steer" ? Fs : r.frame === "bucket" ? Fb : new THREE.Matrix4();
+      if (r.frame === "table") {      // mecanismo: interpola entre poses tabuladas (dirección × bucket)
+        const S = r.steers, n = S.length;
+        let j = 0; while (j < n - 2 && state.steer > S[j + 1]) j++;
+        const u = Math.min(1, Math.max(0, (state.steer - S[j]) / (S[j + 1] - S[j])));
+        const blend = (A, B, w) => { const pa = new THREE.Vector3(), qa = new THREE.Quaternion(), sa = new THREE.Vector3(), pb = new THREE.Vector3(), qb = new THREE.Quaternion(), sb = new THREE.Vector3();
+          A.decompose(pa, qa, sa); B.decompose(pb, qb, sb); return new THREE.Matrix4().compose(pa.lerp(pb, w), qa.slerp(qb, w), sa); };
+        const m = (b, k) => r.tab[b][k];
+        const up = blend(m(0, j), m(0, j + 1), u), dn = blend(m(1, j), m(1, j + 1), u);
+        F = blend(up, dn, state.bucket);
+      }
+      if (r.frame === "own") {        // pivote propio (palanca del bucket): rota alrededor de su eje
+        const q = new THREE.Quaternion().setFromAxisAngle(r.axis, r.angle * state.bucket);
+        F = T(r.pivot.x, r.pivot.y, r.pivot.z).multiply(new THREE.Matrix4().makeRotationFromQuaternion(q)).multiply(T(-r.pivot.x, -r.pivot.y, -r.pivot.z));
+      }
+      const E = T(r.explode.x * s, r.explode.y * s, r.explode.z * s);
+      // explosión en el marco del padre, giro alrededor del eje del jet
+      const M = new THREE.Matrix4().multiplyMatrices(F, E);
+      if (r.spin) M.multiply(spinM);
+      M.multiply(r.local);
+      r.mesh.matrix.copy(M); r.mesh.matrixWorldNeedsUpdate = true;
+    });
   }
 
   // recorrido del agua: polilínea fija + chorro en el marco de la boquilla
@@ -596,279 +557,6 @@ body { margin: 0; }
     if (reduceMotion) { state.explode = to; syncSliders(); return; }
     tween = { from: state.explode, to, start: performance.now(), ms: 900 };
     frameAll(true, to);
-  }
-
-  // ---------- portada: mar, bote blanco translúcido con el jet adentro y Jorge al volante ----------
-  const SOFT = { INT: 0xf2c4a2, PMP: 0x9fd2e6, DRV: 0xc2c6ee, MOT: 0xa8e0bf, STE: 0xf5b3a0, REV: 0xf5b3a0, ELE: 0xf3e19c, BAT: 0xd8c0ea, CTL: 0xdfe5ea };
-  const SOFT_LABEL = [["INT", "Toma"], ["PMP", "Bomba"], ["DRV", "Eje y rodamientos"], ["MOT", "Motor"], ["BAT", "Baterías"], ["ELE", "Controlador"], ["STE", "Dirección y reversa"]];
-  function initCover() {
-    const box = $("cover"), H = D.casco;
-    let rr;
-    try { rr = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { $("cover-loading").textContent = ""; return; }
-    rr.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    box.insertBefore(rr.domElement, box.firstChild);
-    const sc = new THREE.Scene();
-    sc.fog = new THREE.Fog(0xdcedf4, 7000, 24000);
-    const cam = new THREE.PerspectiveCamera(30, 1, 50, 60000);
-    sc.add(new THREE.HemisphereLight(0xeaf6ff, 0x2c6f86, 0.95));
-    const sun = new THREE.DirectionalLight(0xfff6e8, 0.9); sun.position.set(-3000, 6000, 4000); sc.add(sun);
-    const fill = new THREE.DirectionalLight(0xffffff, 0.3); fill.position.set(4000, 2000, -3000); sc.add(fill);
-    $("cover-legend").innerHTML = SOFT_LABEL.map(([k, l]) => `<span><i style="background:#${SOFT[k].toString(16).padStart(6, "0")}"></i>${l}</span>`).join("");
-
-    // --- mar ---
-    const SEG = window.innerWidth < 700 ? 90 : 140, SIZE = 44000;
-    const seaG = new THREE.PlaneGeometry(SIZE, SIZE, SEG, SEG); seaG.rotateX(-Math.PI / 2);
-    const sea = new THREE.Mesh(seaG, new THREE.MeshStandardMaterial({ color: 0x0d6888, roughness: 0.18, metalness: 0.08, transparent: true, opacity: 0.9, depthWrite: true }));
-    sea.renderOrder = 1; sc.add(sea);   // primero entre los transparentes y escribe profundidad: tapa lo que está bajo el agua
-    const base = Float32Array.from(seaG.attributes.position.array);
-    const WAVES = [[3600, 38, 0.95, 0.2], [1900, 22, 0.7, -0.6], [950, 10, 0.9, 0.9], [520, 5, 0.5, -1.2]];   // λ mm, A mm, dir x, dir z
-    const V = 2600;   // velocidad aparente del agua hacia popa [mm/s] (visual)
-    function seaH(x, z, t) {
-      let y = 0;
-      for (const [L, A, dx, dz] of WAVES) { const k = 2 * Math.PI / L, n = Math.hypot(dx, dz); y += A * Math.sin(k * ((x + V * t) * dx + z * dz) / n + t * Math.sqrt(9810 * k) * 0.35); }
-      return y;
-    }
-    function updateSea(t) {
-      const a = seaG.attributes.position.array;
-      for (let i = 0; i < a.length; i += 3) a[i + 1] = seaH(base[i], base[i + 2], t);
-      seaG.attributes.position.needsUpdate = true; seaG.computeVertexNormals();
-    }
-
-    // --- bote: pivote (trim y cabeceo) → marco CAD (Z arriba) ---
-    const pivot = new THREE.Group(); sc.add(pivot);
-    const cad = new THREE.Group(); cad.rotation.x = -Math.PI / 2; pivot.add(cad);
-    const WL = 140, TRIM = 3.5 * Math.PI / 180;     // flotación en el espejo planeando y trim (ilustrativos)
-
-    // casco completo procedural: sección de P1-REF-01 a popa, proa dibujada
-    const L = H.loa, half = H.half, zg0 = half[3][1];
-    const NS = 46, stations = [];
-    for (let i = 0; i <= NS; i++) {
-      const x = L * Math.pow(i / NS, 0.92);
-      const u = Math.max(0, (x - 1150) / (L - 1150));
-      const kz = 360 * Math.pow(u, 2.1);                       // quilla que sube a proa
-      const wb = Math.pow(Math.max(0, 1 - Math.pow(u, 1.7)), 0.75), wg = Math.pow(Math.max(0, 1 - Math.pow(u, 2.4)), 0.55);
-      const zsheer = zg0 + 70 * Math.pow(u, 2);
-      const pts = [[half[0][0] * wb, kz], [half[1][0] * wb, kz + half[1][1] + 30 * u], [half[2][0] * wb, Math.max(half[2][1] + kz * 0.75, kz + 40)], [half[3][0] * Math.max(wg, 0.02), zsheer]];
-      stations.push({ x, pts });
-    }
-    const ring = (st) => { const h = st.pts; return [[-h[3][0], h[3][1]], [-h[2][0], h[2][1]], [-h[1][0], h[1][1]], [-h[0][0], h[0][1]], [h[0][0], h[0][1]], [h[1][0], h[1][1]], [h[2][0], h[2][1]], [h[3][0], h[3][1]]]; };
-    const pos = [], idx = [];
-    stations.forEach((st) => ring(st).forEach(([y, z]) => pos.push(st.x, y, z)));
-    const R = 8;
-    for (let i = 0; i < NS; i++) for (let j = 0; j < R - 1; j++) {
-      const a = i * R + j, b = a + 1, c = a + R, d = c + 1; idx.push(a, c, b, b, c, d);
-    }
-    // espejo (hasta su altura, más bajo que la borda)
-    const zt = H.zt, r0 = ring(stations[0]);
-    const yAt = (p1, p2) => p1[0] + (zt - p1[1]) / (p2[1] - p1[1]) * (p2[0] - p1[0]);
-    const tr = [[yAt(r0[1], r0[0]), zt], r0[1], r0[2], r0[3], r0[4], r0[5], r0[6], [yAt(r0[6], r0[7]), zt]];
-    const t0 = pos.length / 3; tr.forEach(([y, z]) => pos.push(0, y, z)); pos.push(0, 0, zt * 0.45);
-    for (let k = 0; k < tr.length - 1; k++) idx.push(t0 + tr.length, t0 + k, t0 + k + 1);
-    idx.push(t0 + tr.length, t0 + tr.length - 1, t0);
-    const hg = new THREE.BufferGeometry(); hg.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); hg.setIndex(idx); hg.computeVertexNormals();
-    // casco blanco tipo "rayos X": opaco en los bordes (silueta), transparente de frente → se ve el jet adentro
-    const hullMat = new THREE.ShaderMaterial({
-      transparent: true, depthWrite: false, side: THREE.DoubleSide,
-      uniforms: { uColor: { value: new THREE.Color(0xffffff) }, uBase: { value: 0.16 } },
-      vertexShader: "varying vec3 vN; varying vec3 vP; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vP = mv.xyz; vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * mv; }",
-      fragmentShader: "uniform vec3 uColor; uniform float uBase; varying vec3 vN; varying vec3 vP; void main(){ vec3 n = normalize(vN); vec3 v = normalize(-vP); float f = pow(1.0 - abs(dot(n, v)), 2.0); float l = 0.78 + 0.22 * abs(dot(n, normalize(vec3(0.3, 0.8, 0.5)))); gl_FragColor = vec4(uColor * l, uBase + (0.92 - uBase) * f); }",
-    });
-    const hull = new THREE.Mesh(hg, hullMat); hull.renderOrder = 5; cad.add(hull);
-    // líneas del casco (quilla, pantoque, borda) y borda opaca
-    const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
-    for (let j = 0; j < R; j++) {
-      const g = new THREE.BufferGeometry().setFromPoints(stations.map((st) => { const q = ring(st)[j]; return new THREE.Vector3(st.x, q[0], q[1]); }));
-      cad.add(new THREE.Line(g, lineMat));
-    }
-    const gun = (sgn) => new THREE.CatmullRomCurve3(stations.map((st) => new THREE.Vector3(st.x, sgn * st.pts[3][0], st.pts[3][1])));
-    const railMat = new THREE.MeshStandardMaterial({ color: 0xf7fafb, roughness: 0.4 });
-    [-1, 1].forEach((sg) => cad.add(new THREE.Mesh(new THREE.TubeGeometry(gun(sg), 80, 16, 8, false), railMat)));
-    // franja y nombre en los costados
-    const stripeMat = new THREE.MeshStandardMaterial({ color: 0x1d7486, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false });
-    [-1, 1].forEach((sg) => {
-      const pts = [], ix = [];
-      stations.forEach((st, i) => { if (i > NS - 3) return; const h = st.pts; const f = (z) => [h[2][0] + (z - h[2][1]) / (h[3][1] - h[2][1]) * (h[3][0] - h[2][0]), z];
-        const za = h[3][1] - 70, zb = h[3][1] - 45; const A = f(za), B = f(zb); pts.push(st.x, sg * (A[0] + 1.5), A[1], st.x, sg * (B[0] + 1.5), B[1]); });
-      for (let i = 0; i < pts.length / 6 - 1; i++) { const a = 2 * i; ix.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
-      const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3)); g.setIndex(ix); g.computeVertexNormals();
-      const m = new THREE.Mesh(g, stripeMat); m.renderOrder = 6; cad.add(m);
-    });
-    const cv = document.createElement("canvas"); cv.width = 1024; cv.height = 192;
-    const c2 = cv.getContext("2d"); c2.fillStyle = "#0f4f60"; c2.font = "900 150px 'Big Shoulders Display', 'Arial Narrow', Arial, sans-serif"; c2.textBaseline = "middle"; c2.fillText("STRÅLEN", 10, 100);
-    const nameTex = new THREE.CanvasTexture(cv); nameTex.encoding = THREE.sRGBEncoding;
-    [-1, 1].forEach((sg) => {
-      const st = stations.find((q) => q.x > 1350), h = st.pts, zc = (h[2][1] + h[3][1]) / 2 + 30, yc = (h[2][0] + h[3][0]) / 2 + 4;
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(520, 97), new THREE.MeshBasicMaterial({ map: nameTex, transparent: true, depthWrite: false, side: THREE.FrontSide }));
-      const lean = Math.atan2(h[3][0] - h[2][0], h[3][1] - h[2][1]);
-      const X = new THREE.Vector3(-sg, 0, 0), Yv = new THREE.Vector3(0, sg * Math.sin(lean), Math.cos(lean)), Z = X.clone().cross(Yv);
-      m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Yv, Z));
-      m.position.set(st.x, sg * yc, zc).addScaledVector(Z, 3);
-      m.renderOrder = 7; cad.add(m);
-    });
-    // asiento y respaldo
-    const seatMat = new THREE.MeshStandardMaterial({ color: 0xf4f7f8, roughness: 0.6, transparent: true, opacity: 0.45, depthWrite: false });
-    const bx = (x0, x1, y, z0, z1, mat) => { const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, 2 * y, z1 - z0), mat); m.position.set((x0 + x1) / 2, 0, (z0 + z1) / 2); cad.add(m); return m; };
-    const hipX = H.pilot.x - 150, seatTop = H.floor_z + 250;
-    bx(hipX - 140, hipX + 150, 210, seatTop - 40, seatTop, seatMat);   // cojín sobre las baterías (se ven debajo)
-    bx(hipX - 180, hipX - 130, 200, seatTop, seatTop + 260, seatMat).rotation.y = 0.18;
-
-    // piezas del jet en colores suaves (mismas mallas y posiciones que el visor)
-    const coverInsts = [];
-    insts.forEach((r) => {
-      const sub = r.part.split("-")[1];
-      if (sub === "REF") return;
-      let mat;
-      if (r.part === "P1-CTL-20") mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4, transparent: true, opacity: 0.55, depthWrite: false, side: THREE.DoubleSide });
-      else if (r.part === "P1-CTL-21") mat = new THREE.MeshStandardMaterial({ color: 0x3d4a54, roughness: 0.5 });
-      else { const c = new THREE.Color(SOFT[sub] || 0xe5e9ec); mat = new THREE.MeshStandardMaterial({ color: c, roughness: 0.55, metalness: 0.05, emissive: c, emissiveIntensity: 0.22 }); }
-      const m = new THREE.Mesh(geoms[r.part], mat); m.matrixAutoUpdate = false; if (mat.transparent) m.renderOrder = 6;
-      cad.add(m); coverInsts.push({ r, m });
-    });
-
-    // --- Jorge ---
-    const SKIN = 0xe6b08c, SHIRT = 0x5d636c, PANTS = 0x2c323a, HAIR = 0xc9ccce, VEST = 0xff7a1a;
-    const mats = {}; const M = (c, o) => mats[c] || (mats[c] = new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.75 }, o || {})));
-    const up = new THREE.Vector3(0, 1, 0);
-    function limb(parent, a, b, r, c) {
-      const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A);
-      const m = new THREE.Mesh(new THREE.CapsuleGeometry(r, Math.max(1, d.length()), 6, 14), M(c));
-      m.position.copy(A).addScaledVector(d, 0.5); m.quaternion.setFromUnitVectors(up, d.normalize()); parent.add(m); return m;
-    }
-    function ball(parent, p, r, c, s) { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 18), M(c)); m.position.set(...p); if (s) m.scale.set(...s); parent.add(m); return m; }
-    const pil = new THREE.Group(); cad.add(pil);
-    const hx = hipX, hz = seatTop + 45, sx = hx + 10, sz0 = hz + 420, Y = 165;
-    // piernas
-    [-1, 1].forEach((sg) => {
-      limb(pil, [hx + 20, sg * 105, hz], [hx + 300, sg * 125, hz + 70], 78, PANTS);
-      limb(pil, [hx + 300, sg * 125, hz + 70], [hx + 400, sg * 125, H.floor_z + 70], 62, PANTS);
-      ball(pil, [hx + 450, sg * 125, H.floor_z + 40], 52, 0x1f2328, [1.9, 0.9, 0.7]);
-    });
-    // torso, chaleco y cuello
-    limb(pil, [hx, 0, hz + 40], [sx, 0, sz0 - 30], 160, SHIRT).scale.set(1.12, 1, 1);
-    const vest = limb(pil, [hx + 5, 0, hz + 170], [sx + 2, 0, sz0 - 60], 172, VEST); vest.scale.set(1.12, 1, 1);
-    vest.material = M(VEST, { roughness: 0.6 });
-    limb(pil, [sx, 0, sz0 - 20], [sx + 8, 0, sz0 + 70], 52, SKIN);
-    // cabeza (mirando a proa = +x)
-    const head = new THREE.Group(); head.position.set(sx + 15, 0, sz0 + 170); pil.add(head);
-    ball(head, [0, 0, 0], 100, SKIN, [1.0, 0.86, 1.12]);
-    const hair = new THREE.Mesh(new THREE.SphereGeometry(104, 28, 18, Math.PI + 0.95, 2 * Math.PI - 1.9, 0.05, 1.75), M(HAIR, { side: THREE.DoubleSide }));
-    hair.rotation.x = Math.PI / 2; hair.scale.set(1.0, 1.12, 0.87); head.add(hair);
-    [-1, 1].forEach((sg) => {
-      ball(head, [84, sg * 30, 22], 9, 0x2a2420);              // ojos
-      const brow = new THREE.Mesh(new THREE.BoxGeometry(6, 30, 6), M(0x8e9295)); brow.position.set(93, sg * 32, 44); brow.rotation.x = -sg * 0.16; head.add(brow);
-      ball(head, [0, sg * 88, 5], 22, SKIN, [0.6, 0.5, 1]);     // orejas
-    });
-    ball(head, [100, 0, 2], 17, 0xdc9f7d, [1, 0.9, 1.1]);         // nariz
-    // sonrisa: curva sobre la superficie de la cara (elipsoide 100 × 86 × 112)
-    const onFace = (y, z) => new THREE.Vector3(100 * Math.sqrt(Math.max(0, 1 - (y / 86) ** 2 - (z / 112) ** 2)) + 2, y, z);
-    const smileC = new THREE.CatmullRomCurve3(Array.from({ length: 9 }, (_, k) => { const y = -36 + 9 * k; return onFace(y, -46 + 0.011 * y * y); }));
-    head.add(new THREE.Mesh(new THREE.TubeGeometry(smileC, 24, 5.5, 8, false), M(0x7a2a20)));
-    const teeth = new THREE.CatmullRomCurve3(Array.from({ length: 7 }, (_, k) => { const y = -24 + 8 * k; return onFace(y, -40 + 0.008 * y * y).add(new THREE.Vector3(-1, 0, 0)); }));
-    head.add(new THREE.Mesh(new THREE.TubeGeometry(teeth, 18, 5, 8, false), M(0xffffff)));
-    [-1, 1].forEach((sg) => ball(head, [80, sg * 52, -18], 18, 0xef9f86, [0.5, 1, 0.8]));   // cachetes
-    ball(head, [70, 0, -78], 40, 0xb9bcbe, [0.5, 1.2, 0.45]).material = M(0xb6a69a, { transparent: true, opacity: 0.35 });   // barba corta
-    // brazo izquierdo al volante
-    const wx = H.wheel.x - 20, wz = H.wheel.z + 40;
-    limb(pil, [sx, Y, sz0 - 25], [sx + 230, Y + 20, sz0 - 170], 52, SHIRT);
-    limb(pil, [sx + 230, Y + 20, sz0 - 170], [wx - 30, 95, wz + 20], 43, SKIN);
-    ball(pil, [wx - 10, 85, wz + 25], 44, SKIN);
-    // brazo derecho saludando (el antebrazo oscila alrededor del codo)
-    const sh = [sx, -Y, sz0 - 25], el = [sx + 70, -Y - 250, sz0 + 50];
-    limb(pil, sh, el, 52, SHIRT);
-    const fore = new THREE.Group(); fore.position.set(...el); pil.add(fore);
-    limb(fore, [0, 0, 0], [20, -30, 250], 43, SKIN);
-    const hand = ball(fore, [26, -36, 300], 50, SKIN, [0.55, 1.0, 1.15]);
-    [-2, -1, 0, 1].forEach((k) => limb(fore, [26, -36 + k * 17, 330], [26, -38 + k * 22, 395], 9.5, SKIN));
-    limb(fore, [26, 4, 300], [30, 45, 340], 11, SKIN);   // pulgar
-    // cordón de hombre al agua: del chaleco a la consola
-    const cord = new THREE.CatmullRomCurve3([new THREE.Vector3(sx + 160, 60, sz0 - 160), new THREE.Vector3(sx + 330, 120, sz0 - 260), new THREE.Vector3(H.console.x0 + 20, 140, H.console.top - 60)]);
-    pil.add(new THREE.Mesh(new THREE.TubeGeometry(cord, 24, 4, 6, false), M(0xd62d20)));
-
-    // --- chorro (rooster tail) y estela: partículas suaves ---
-    const dot = document.createElement("canvas"); dot.width = dot.height = 64;
-    const g2 = dot.getContext("2d"), grd = g2.createRadialGradient(32, 32, 0, 32, 32, 32);
-    grd.addColorStop(0, "rgba(255,255,255,1)"); grd.addColorStop(0.5, "rgba(255,255,255,0.55)"); grd.addColorStop(1, "rgba(255,255,255,0)");
-    g2.fillStyle = grd; g2.fillRect(0, 0, 64, 64);
-    const dotTex = new THREE.CanvasTexture(dot);
-    function particles(n, size, color, op) {
-      const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(n * 3), 3));
-      const pts = new THREE.Points(g, new THREE.PointsMaterial({ map: dotTex, size, color, transparent: true, opacity: op, depthWrite: false, sizeAttenuation: true }));
-      pts.renderOrder = 12; pts.frustumCulled = false; sc.add(pts);
-      pts.userData.P = Array.from({ length: n }, (_, k) => ({ age: (k / n) * 1.0, life: 1, p: new THREE.Vector3(), v: new THREE.Vector3() })); return pts;
-    }
-    const jetP = particles(reduceMotion ? 0 : 520, 80, 0xffffff, 0.9), wakeP = particles(reduceMotion ? 0 : 700, 190, 0xffffff, 0.6);
-    const nozLocal = new THREE.Vector3(D.kin.Xnoz + 40, 0, 0).applyMatrix4(Jm());     // salida de la tobera, marco CAD
-    const nozDir = new THREE.Vector3(1, 0, 0).applyMatrix4(new THREE.Matrix4().extractRotation(Jm()));
-
-    // --- cámara y controles ---
-    const target = new THREE.Vector3(1150, 330, 0);
-    const ctl = new THREE.OrbitControls(cam, rr.domElement);
-    ctl.target.copy(target); ctl.enablePan = false; ctl.enableZoom = false; ctl.enableDamping = true; ctl.dampingFactor = 0.08;
-    ctl.minPolarAngle = 0.55; ctl.maxPolarAngle = 1.45;
-    let userMoved = false; ctl.addEventListener("start", () => { userMoved = true; });
-    let az0 = 0.95;
-    function placeCam(az) { const R0 = cam.aspect < 0.8 ? 10500 : 4700, el = 0.19; cam.position.set(target.x + R0 * Math.cos(el) * Math.cos(az), target.y + R0 * Math.sin(el), target.z + R0 * Math.cos(el) * Math.sin(az)); cam.lookAt(target); ctl.update(); }
-    function size() {
-      const r = box.getBoundingClientRect(); rr.setSize(r.width, r.height, false); cam.aspect = r.width / Math.max(r.height, 1);
-      // corre el bote a la derecha y abajo para dejar lugar al título
-      const wide = cam.aspect > 1.15;
-      cam.setViewOffset(r.width, r.height, wide ? -0.17 * r.width : 0, (wide ? -0.17 : -0.2) * r.height, r.width, r.height);
-      cam.updateProjectionMatrix();
-    }
-    window.addEventListener("resize", size); size(); placeCam(az0);
-
-    let visible = true;
-    if ("IntersectionObserver" in window) new IntersectionObserver((es) => { visible = es[0].isIntersecting; }).observe(box);
-    const bubble = $("bubble"), tmpV = new THREE.Vector3();
-    const t0w = performance.now(); let lastT = 0, steerC = 0;
-    $("b-go").onclick = () => $("visor").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-    $("b-go-demo").onclick = () => { $("visor").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" }); setTimeout(() => { if (!state.demo) startDemo(); }, reduceMotion ? 0 : 600); };
-
-    function emit(pts, dt, spawn) {
-      const P = pts.userData.P, a = pts.geometry.attributes.position;
-      for (let k = 0; k < P.length; k++) {
-        const q = P[k]; q.age += dt;
-        if (q.age >= q.life) spawn(q); else { q.v.y -= 9810 * 0.55 * dt * (q.grav || 0); q.p.addScaledVector(q.v, dt); }
-        a.setXYZ(k, q.p.x, q.p.y, q.p.z);
-      }
-      a.needsUpdate = true;
-    }
-    function frame(now) {
-      requestAnimationFrame(frame);
-      if (!visible) return;
-      const t = reduceMotion ? 0 : (now - t0w) / 1000, dt = Math.min(0.05, Math.max(0, t - lastT)); lastT = t;
-      updateSea(t);
-      // bote: flotación + cabeceo y rolido suaves
-      pivot.position.set(0, -WL + 12 * Math.sin(t * 1.7), 0);
-      pivot.rotation.set(0.018 * Math.sin(t * 1.1), 0, TRIM + 0.012 * Math.sin(t * 1.7 + 0.6));
-      steerC = 6 * Math.sin(t * 0.35);
-      const st = { steer: steerC, bucket: 0, explode: 0, spinAngle: t * 2 * Math.PI * 2.2 };
-      coverInsts.forEach(({ r, m }) => { m.matrix.copy(poseMatrix(r, st)); m.matrixWorldNeedsUpdate = true; });
-      // saludo
-      fore.rotation.x = reduceMotion ? 0.25 : 0.42 * Math.sin(t * 7.0);
-      // Jorge mira a la cámara (giro de cabeza limitado) mientras saluda
-      const cl = cad.worldToLocal(cam.position.clone()).sub(head.position);
-      head.rotation.z = Math.max(-1.0, Math.min(1.0, Math.atan2(cl.y, cl.x))) * 0.85 + 0.05 * Math.sin(t * 1.3);
-      // chorro desde la tobera (con la dirección actual) y estela en la superficie
-      pivot.updateMatrixWorld(true);
-      const Wm = cad.matrixWorld, nz = nozLocal.clone().applyMatrix4(steerM(steerC).multiply(Jinv)).applyMatrix4(Wm);
-      const nd = nozDir.clone().applyMatrix4(new THREE.Matrix4().extractRotation(steerM(steerC).multiply(Jinv))).transformDirection(Wm);
-      emit(jetP, dt, (q) => { q.age = 0; q.life = 0.35 + Math.random() * 0.4; q.grav = 1; q.p.copy(nz).add(new THREE.Vector3((Math.random() - 0.5) * 30, (Math.random() - 0.5) * 30, (Math.random() - 0.5) * 30));
-        q.v.copy(nd).multiplyScalar(5200 + Math.random() * 1500).add(new THREE.Vector3(-V, 1200 + Math.random() * 1300, (Math.random() - 0.5) * 500)); });
-      emit(wakeP, dt, (q) => { q.age = 0; q.life = 1.6 + Math.random() * 1.6; q.grav = 0; const side = Math.random() < 0.5 ? -1 : 1, x0 = Math.random() * 300;
-        q.p.set(x0 - 60, 8, side * (180 + Math.random() * 160)); q.v.set(-V - Math.random() * 400, 0, side * (150 + Math.random() * 300)); });
-      wakeP.geometry.attributes.position.array.forEach((_, i, arr) => { if (i % 3 === 1) arr[i] = seaH(arr[i - 1], arr[i + 1], t) + 10; });
-      // cámara: vaivén suave hasta que el usuario la mueva
-      if (!userMoved && !reduceMotion) placeCam(az0 + 0.28 * Math.sin(t * 0.12));
-      ctl.update();
-      rr.render(sc, cam);
-      // globito "¡Hola!" sobre la mano
-      hand.getWorldPosition(tmpV); tmpV.y += 230; tmpV.project(cam);
-      const r = box.getBoundingClientRect();
-      if (tmpV.z < 1) { bubble.hidden = false; bubble.style.left = `${(tmpV.x * 0.5 + 0.5) * r.width}px`; bubble.style.top = `${(-tmpV.y * 0.5 + 0.5) * r.height}px`; }
-    }
-    $("cover-loading").hidden = true;
-    requestAnimationFrame(frame);
   }
 
   // ---------- demo ----------
