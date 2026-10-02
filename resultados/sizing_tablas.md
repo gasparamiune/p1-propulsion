@@ -27,7 +27,7 @@
 | I_q pico (FOC) / l_current_max / margen | 287 A / 292 A / 2 % | [CALCULADO; convención bus_foc SUPUESTO] |
 | Motor a V máx. sostenida (estacionario) | 49 °C (máx. 120) | [CALCULADO] |
 | Eje Ø / FS estático / FS fatiga | 20 mm / 4.0 / 9.2 | [CALCULADO] |
-| Rodamientos L10 a V máx. / vel. crítica / sello | 779653 h / 3.8× n máx. / 4.4 m/s | [CALCULADO] |
+| Rodamientos L10 a V máx. / vel. crítica / sello | 779929 h / 3.8× n máx. / 4.4 m/s | [CALCULADO] |
 
 ## Curva a fondo (potencia pico, banda de diseño, batería nominal)
 

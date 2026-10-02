@@ -85,7 +85,7 @@ Antes de cualquiera de las dos: resolver la estabilidad del casco (§5, riesgo 1
 | S a V máx. (límite 3,5) | <!--V:sizing.performance.top.S:.2f-->3.19<!--/V--> | <!--V:cmp.B_S_top:.2f-->2.71<!--/V--> | [CALCULADO] |
 | P de batería a 5 kn | <!--V:sizing.performance.legal.P_bat:.0f-->1698<!--/V--> W | <!--V:cmp.B_P_bat_legal_W:.0f-->1804<!--/V--> W | [CALCULADO] |
 | Bomba | Impulsor y estator CNC, carcasa y tobera de taller, toma soldada | <!--V:cmp.B_jt132_landed_eur_min:.0f-->1437<!--/V-->–<!--V:cmp.B_jt132_landed_eur_max:.0f-->1549<!--/V--> € puesta en DK (FOB + flete + arancel + IVA) | [CALCULADO con precio ESTIMADO: R11 §4] |
-| Costo del sistema | <!--V:bom.total_eur:.0f-->10856<!--/V--> € (BOM completa) | total de A − piezas del grupo jet + JT132 puesta en DK | [CALCULADO: `bom.py`, `comparacion.py`] |
+| Costo del sistema | <!--V:bom.total_eur:.0f-->11252<!--/V--> € (BOM completa) | total de A − piezas del grupo jet + JT132 puesta en DK | [CALCULADO: `bom.py`, `comparacion.py`] |
 | Núcleo común (motor + controlador + batería + cargador) | <!--V:sizing.selection.cost_core_eur:.0f-->1952<!--/V--> € | ídem | [CALCULADO] |
 
 Las prestaciones de B usan el mismo modelo de `sizing.py` con la geometría verificada de la JT132 (Ø130,

@@ -18,7 +18,7 @@ Etiquetas: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO]
 | P de batería a 5 kn / autonomía a 5 kn | <!--V:sizing.performance.legal.P_bat:.0f-->1698<!--/V--> W / <!--V:sizing.energy.t_legal_h:.1f-->2.4<!--/V--> h | [CALCULADO] |
 | Autonomía a V máx. | <!--V:sizing.energy.t_top_min:.0f-->37<!--/V--> min | [CALCULADO] |
 | Limitante a fondo | corriente de batería (<!--V:sizing.electrical.I_bat_limit_A:.0f-->192<!--/V--> A, 80 % del BMS) | [CALCULADO] |
-| Costo del sistema (BOM) | <!--V:bom.total_eur:.0f-->10856<!--/V--> € | [CALCULADO] |
+| Costo del sistema (BOM) | <!--V:bom.total_eur:.0f-->11252<!--/V--> € | [CALCULADO] |
 
 ## 1. Resumen priorizado
 

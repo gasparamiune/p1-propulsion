@@ -58,7 +58,7 @@ GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m (§2). Eso bloquea la
 | I_q pico (FOC) / l_current_max / margen | 287 A / 292 A / 2 % | [CALCULADO; convención bus_foc SUPUESTO] |
 | Motor a V máx. sostenida (estacionario) | 49 °C (máx. 120) | [CALCULADO] |
 | Eje Ø / FS estático / FS fatiga | 20 mm / 4.0 / 9.2 | [CALCULADO] |
-| Rodamientos L10 a V máx. / vel. crítica / sello | 779653 h / 3.8× n máx. / 4.4 m/s | [CALCULADO] |
+| Rodamientos L10 a V máx. / vel. crítica / sello | 779929 h / 3.8× n máx. / 4.4 m/s | [CALCULADO] |
 <!-- /AUTO:sizing_main -->
 
 Cadena de cálculo: masas (§1) → hidrostática y cebado (§2) → R(V) (§3) → bomba diseñada para el
@@ -480,8 +480,8 @@ pesa ~1 % en el NPSH, casi nada en S.
 |---|---|---|---|---|---|---|
 | Punto fijo (a fondo) | <!--V:sizing.performance.peak_curve.0.V:.2f-->0.00<!--/V--> | <!--V:sizing.performance.peak_curve.0.n_rpm:.0f-->4044<!--/V--> | <!--V:sizing.performance.peak_curve.0.S:.2f-->3.50<!--/V--> | <!--V:sizing.performance.peak_curve.0.sigma_tip:.3f-->0.239<!--/V--> | — | [CALCULADO] |
 | 5 kn (crucero legal) | <!--V:sizing.performance.legal.V:.2f-->2.57<!--/V--> | <!--V:sizing.performance.legal.n_rpm:.0f-->2499<!--/V--> | <!--V:sizing.performance.legal.S:.2f-->1.69<!--/V--> | <!--V:sizing.performance.legal.sigma_tip:.3f-->0.640<!--/V--> | <!--V:sizing.performance.legal.IVR:.2f-->0.97<!--/V--> | [CALCULADO] |
-| V máx. sostenida | <!--V:sizing.performance.top.V:.2f-->6.86<!--/V--> | <!--V:sizing.performance.top.n_rpm:.0f-->3990<!--/V--> | <!--V:sizing.performance.top.S:.2f-->3.19<!--/V--> | <!--V:sizing.performance.top.sigma_tip:.3f-->0.282<!--/V--> | <!--V:sizing.performance.top.IVR:.2f-->0.61<!--/V--> | [CALCULADO] |
-| V máx. por ratos (pico) | <!--V:sizing.performance.peak_top.V:.2f-->7.91<!--/V--> | <!--V:sizing.performance.peak_top.n_rpm:.0f-->4128<!--/V--> | <!--V:sizing.performance.peak_top.S:.2f-->3.28<!--/V--> | <!--V:sizing.performance.peak_top.sigma_tip:.3f-->0.274<!--/V--> | <!--V:sizing.performance.peak_top.IVR:.2f-->0.56<!--/V--> | [CALCULADO] |
+| V máx. sostenida | <!--V:sizing.performance.top.V:.2f-->6.86<!--/V--> | <!--V:sizing.performance.top.n_rpm:.0f-->3991<!--/V--> | <!--V:sizing.performance.top.S:.2f-->3.19<!--/V--> | <!--V:sizing.performance.top.sigma_tip:.3f-->0.282<!--/V--> | <!--V:sizing.performance.top.IVR:.2f-->0.61<!--/V--> | [CALCULADO] |
+| V máx. por ratos (pico) | <!--V:sizing.performance.peak_top.V:.2f-->7.92<!--/V--> | <!--V:sizing.performance.peak_top.n_rpm:.0f-->4128<!--/V--> | <!--V:sizing.performance.peak_top.S:.2f-->3.28<!--/V--> | <!--V:sizing.performance.peak_top.sigma_tip:.3f-->0.274<!--/V--> | <!--V:sizing.performance.peak_top.IVR:.2f-->0.56<!--/V--> | [CALCULADO] |
 
 - El margen es chico en todo el rango alto, como anticipaba R10b H20 (σ_punta 0,28–0,35).
 - IVR (ITTC) = V media en la garganta de la toma (círculo Ø 1,11·D) / V del bote [VERIFICADO definición: R10a §4].
@@ -530,8 +530,8 @@ ajuste y se prueba en la rampa de punto fijo (T2.5).
 
 | Punto | V [m/s] | rpm | P_eje [W] | P_bat [W] | I_bat [A] | η_bomba | η_chorro | Limita |
 |---|---|---|---|---|---|---|---|---|
-| V máx. sostenida (P continua, banda nominal) | <!--V:sizing.performance.top.V:.2f-->6.86<!--/V--> | <!--V:sizing.performance.top.n_rpm:.0f-->3990<!--/V--> | <!--V:sizing.performance.top.P_shaft:.0f-->5926<!--/V--> | <!--V:sizing.performance.top.P_bat:.0f-->6723<!--/V--> | <!--V:sizing.performance.top.I_bat:.0f-->175<!--/V--> | <!--V:sizing.performance.top.eta_pump:.2f-->0.71<!--/V--> | <!--V:sizing.performance.top.eta_jet:.2f-->0.44<!--/V--> | <!--V:sizing.performance.top.limiter:-->potencia<!--/V--> |
-| V máx. por ratos (P pico, banda nominal) | <!--V:sizing.performance.peak_top.V:.2f-->7.91<!--/V--> | <!--V:sizing.performance.peak_top.n_rpm:.0f-->4128<!--/V--> | <!--V:sizing.performance.peak_top.P_shaft:.0f-->6494<!--/V--> | <!--V:sizing.performance.peak_top.P_bat:.0f-->7373<!--/V--> | <!--V:sizing.performance.peak_top.I_bat:.0f-->192<!--/V--> | <!--V:sizing.performance.peak_top.eta_pump:.2f-->0.72<!--/V--> | <!--V:sizing.performance.peak_top.eta_jet:.2f-->0.45<!--/V--> | <!--V:sizing.performance.peak_top.limiter:-->corriente de batería<!--/V--> |
+| V máx. sostenida (P continua, banda nominal) | <!--V:sizing.performance.top.V:.2f-->6.86<!--/V--> | <!--V:sizing.performance.top.n_rpm:.0f-->3991<!--/V--> | <!--V:sizing.performance.top.P_shaft:.0f-->5926<!--/V--> | <!--V:sizing.performance.top.P_bat:.0f-->6723<!--/V--> | <!--V:sizing.performance.top.I_bat:.0f-->175<!--/V--> | <!--V:sizing.performance.top.eta_pump:.2f-->0.71<!--/V--> | <!--V:sizing.performance.top.eta_jet:.2f-->0.44<!--/V--> | <!--V:sizing.performance.top.limiter:-->potencia<!--/V--> |
+| V máx. por ratos (P pico, banda nominal) | <!--V:sizing.performance.peak_top.V:.2f-->7.92<!--/V--> | <!--V:sizing.performance.peak_top.n_rpm:.0f-->4128<!--/V--> | <!--V:sizing.performance.peak_top.P_shaft:.0f-->6494<!--/V--> | <!--V:sizing.performance.peak_top.P_bat:.0f-->7373<!--/V--> | <!--V:sizing.performance.peak_top.I_bat:.0f-->192<!--/V--> | <!--V:sizing.performance.peak_top.eta_pump:.2f-->0.72<!--/V--> | <!--V:sizing.performance.peak_top.eta_jet:.2f-->0.45<!--/V--> | <!--V:sizing.performance.peak_top.limiter:-->corriente de batería<!--/V--> |
 | 5 kn (banda alta) | <!--V:sizing.performance.legal.V:.2f-->2.57<!--/V--> | <!--V:sizing.performance.legal.n_rpm:.0f-->2499<!--/V--> | <!--V:sizing.performance.legal.P_shaft:.0f-->1499<!--/V--> | <!--V:sizing.performance.legal.P_bat:.0f-->1698<!--/V--> | <!--V:sizing.performance.legal.I_bat:.0f-->44<!--/V--> | <!--V:sizing.performance.legal.eta_pump:.2f-->0.70<!--/V--> | <!--V:sizing.performance.legal.eta_jet:.2f-->0.34<!--/V--> | — |
 
 η_chorro = T·V/P_eje. A 5 kn el jet rinde poco: es la debilidad de la arquitectura (03 §2,
@@ -639,8 +639,8 @@ cable de 105 °C [ESTIMADO: verificar ISO 13297/ABYC].
 | Eje Ø20 316: FS estático / fatiga | 4.0 / 9.2 | [CALCULADO] |
 | Pasador de corte | Ø3.5 Al 6061-T6: corta a 33.5 N·m (FS del eje al corte 2.2); con τ_u 207 MPa corta a 39.8 N·m (FS del eje 1.9) | [CALCULADO: research/R12 §7.6; τ_u alto ESTIMADO] |
 | Empuje axial máx. al par de rodamientos | 764 N | [CALCULADO] |
-| Vida L10 a V máx. | 779653 h | [CALCULADO] |
-| Velocidad crítica / rpm máx. | 15974 / 4181 rpm (3.8×) | [CALCULADO] |
+| Vida L10 a V máx. | 779929 h | [CALCULADO] |
+| Velocidad crítica / rpm máx. | 15984 / 4181 rpm (3.8×) | [CALCULADO] |
 | Velocidad periférica en el sello | 4.4 m/s | [CALCULADO] |
 <!-- /AUTO:mech -->
 
@@ -840,7 +840,7 @@ Tabla completa:
 | P1-DRV-02 | Bulones 4 × M6 A4-70 al buje de la toma: presión + resorte del sello | σ = F/(4·A_s), F = p·π/4·Ø42² + 150 N (sin precarga) | 5.31 | metal | 450.0 | 84.71 | 2.0 | ✔ |
 | P1-DRV-02 | Brida de 8 mm: flexión entre espigón y bulones | placa anular como viga por unidad de perímetro: σ = 6·F·e/(π·BC·t²) | 1.42 | metal | 205.0 | 144.76 | 2.0 | ✔ |
 | P1-DRV-03 | Mejillas: empuje Fa a punto fijo en la base (cada una ½ Fa) | flexión en su plano σ = M/(t·L²/6), M = Fa/2 · 121 mm, L = 150 mm, ZAT soldada | 1.02 | metal | 115.0 | 112.35 | 2.0 | ✔ |
-| P1-DRV-03 | Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico | σ = P·L/4/(b t²/6) + Fa·e/(t·b²/6)/2, L = 200, b = 31, e = 35 mm, ZAT | 16.60 | metal | 115.0 | 6.93 | 2.0 | ✔ |
+| P1-DRV-03 | Tablero: 3 g vertical del tren + Fr (biapoyado entre mejillas) + Fa excéntrico | σ = P·L/4/(b t²/6) + Fa·e/(t·b²/6)/2, L = 200, b = 31, e = 35 mm, ZAT | 16.59 | metal | 115.0 | 6.93 | 2.0 | ✔ |
 | P1-DRV-03 | Espárragos 4 × ISO 10642 M8 A4-70: vuelco por Fa + corte (servicio) | F_t = Fa·h/Δx/2 + 3g/4, F_s = Fa/4; von Mises sobre A_s (carga de servicio; Δx = 120) | 15.45 | metal | 450.0 | 29.13 | 2.0 | ✔ |
 | P1-DRV-03 | Espárrago M8 A4-70: precarga (10 N·m, F_v 6944 N) + F_t | σ = (F_v + F_t)/A_s (conservador: Φ = 1) vs R_p0,2 A4-70 | 202.25 | metal | 450.0 | 2.23 | 2.0 | ✔ |
 | P1-DRV-03 | Tuerca ISO 4032 A4 sobre espárrago A4: precarga (10 N·m) + F_t | barrido de filetes τ = F/(π·d·m·0,6), m = 6.8, F = T/(K·d) + F_t (K 0.18) vs 0,58·R_p0,2 A4-70 | 72.19 | metal | 261.0 | 3.62 | 2.0 | ✔ |
@@ -878,7 +878,7 @@ oscilación de V máx./5 + oscilación del margen en la joroba.
 | Astilla muerta 4–14° | 4 – 14 | 26.8 / 19.5 | 1 % / -19 % | **NO** (no cruza) |
 | Manga de planeo ±10 % | 0.54 – 0.66 | 20.0 / 26.4 | -13 % / -2 % | **NO** (no cruza) |
 | Deducción de empuje t 0–0,10 | 0 – 0.1 | 24.7 / 18.5 | -7 % / -17 % | **NO** (no cruza) |
-| Recuperación en la toma 0,55–0,85 | 0.55 – 0.85 | 22.0 / 27.9 | -13 % / -1 % | **NO** (no cruza) |
+| Recuperación en la toma 0,55–0,85 | 0.55 – 0.85 | 22.0 / 28.0 | -13 % / -1 % | **NO** (no cruza) |
 | Fracción de estela w 0–0,10 | 0 – 0.1 | 24.7 / 28.8 | -7 % / 1 % | **NO** (no cruza) |
 | Posición del piloto (LCG) 1,20–1,55 m | 1.2 – 1.55 | 24.2 / 24.7 | 1 % / -16 % | **NO** (no cruza) |
 | Banda alta de planeo ×1,00–1,25 | 1 – 1.25 | 24.7 / 24.7 | 4 % / -17 % | **NO** (no cruza) |

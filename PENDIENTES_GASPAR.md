@@ -2,7 +2,7 @@
 
 Cada ítem tiene un **criterio de cierre**. No se pasa al bloque siguiente con uno abierto, salvo que se diga lo contrario. Después de cada medición: cargar el valor en `inputs.yaml` con la etiqueta `[VERIFICADO: medido AAAA-MM-DD]`, correr `python run_all.py` (incluye `verify_parts.py` y `docgen.py`) y mirar qué cambió en `resultados/sizing.json`. Bloqueos que esto destraba: 06 §8.
 
-Valores de referencia del diseño actual [CALCULADO con el casco leído del plano]: masa total <!--V:sizing.masses.total_kg:.0f-->217<!--/V--> kg, calado <!--V:sizing.hydrostatics.draft_m:.3f-->0.285<!--/V--> m, GM <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m, V máx. sostenida <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.7<!--/V--> km/h, costo total <!--V:bom.total_eur:.0f-->10856<!--/V--> €.
+Valores de referencia del diseño actual [CALCULADO con el casco leído del plano]: masa total <!--V:sizing.masses.total_kg:.0f-->217<!--/V--> kg, calado <!--V:sizing.hydrostatics.draft_m:.3f-->0.285<!--/V--> m, GM <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m, V máx. sostenida <!--V:sizing.performance.vmax_cont_kmh:.1f-->24.7<!--/V--> km/h, costo total <!--V:bom.total_eur:.0f-->11252<!--/V--> €.
 
 ---
 

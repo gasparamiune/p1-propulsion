@@ -17,7 +17,7 @@ Etiquetas: [VERIFICADO: fuente] · [CALCULADO] · [ESTIMADO: base] · [SUPUESTO]
 
 ## 1. Compras y fabricación por etapa
 
-La lista completa, con proveedor, precio, etiqueta y especificación mínima, está en [`bom.csv`](bom.csv). Total del sistema <!--V:bom.total_eur:.0f-->10856<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->81151<!--/V--> DKK; con los cambios de casco y el equipo de operación, <!--V:bom.total_with_hull_and_gear_eur:.0f-->11574<!--/V--> € [CALCULADO: `bom.py`]. Regla: **no se compra nada caro antes de cerrar P0** (PENDIENTES_GASPAR).
+La lista completa, con proveedor, precio, etiqueta y especificación mínima, está en [`bom.csv`](bom.csv). Total del sistema <!--V:bom.total_eur:.0f-->11252<!--/V--> € ≈ <!--V:bom.total_dkk:.0f-->84113<!--/V--> DKK; con los cambios de casco y el equipo de operación, <!--V:bom.total_with_hull_and_gear_eur:.0f-->11970<!--/V--> € [CALCULADO: `bom.py`]. Regla: **no se compra nada caro antes de cerrar P0** (PENDIENTES_GASPAR).
 
 | Etapa | Condición para empezar | IDs de `bom.csv` | Monto | Nota |
 |---|---|---|---|---|
