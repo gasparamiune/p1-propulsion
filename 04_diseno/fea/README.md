@@ -172,10 +172,11 @@ pisar el entregable.
     oreja) lo toma la **brida Ø36** sobre la cara exterior como tracción normal lineal con **resultante nula**;
   - traba: la **fuerza** del perno sobre la **rosca M24×1,5 de la misma oreja** (apoyo cosenoidal) y su
     **momento** (perno en voladizo hasta la mitad del brazo, `brazo_par_perno_traba_mm`) como par lineal de
-    resultante nula **bajo la contratuerca** M24×1,5 en la cara interior (apoyo hasta Ø36 [ESTIMADO: 36 e/c]).
+    resultante nula **bajo el collar del cuerpo** del émbolo en la cara interior (apoyo hasta Ø36: collar integral de
+    P1-REV-04, `piezas/_release.PLG_COLLAR_D`; la contratuerca de la primera versión ya no existe).
   El setup **verifica** que la resultante aplicada y su momento alrededor del eje del pivote coinciden con la
-  estática (± 1 %; `verificacion_mano.resultante_bucket`). La precarga del M12 y de la contratuerca
-  (autoequilibradas) no se modelan.
+  estática (± 1 %; `verificacion_mano.resultante_bucket`). La precarga del M12 y la del cuerpo del émbolo
+  contra su collar (autoequilibradas) no se modelan.
 - **Casos.** (c)/(c2) **DISEÑO**: reversa R12 con M_h completo en la traba +Y / −Y (FS ≥ 2 contra
   fluencia). (d)/(d2) c/c2 + (a) (maniobra en reversa). (f)/(f2) **DISEÑO, fatiga**: reversa de sizing con
   M_h completo en la traba +Y / −Y, corrida, contra `AL6061_FAT`. Se quitaron los casos con el reparto máximo
@@ -228,8 +229,11 @@ pisar el entregable.
   sola) el contacto se concentra en el borde del agujero; ese pico es aplastamiento local (filas de
   aplastamiento), no sección neta. La holgura del agujero (Ø16,5 / Ø16) no se modela (contacto sin juego
   en la mitad de apoyo).
-- **Momento del perno de la traba en STE-01.** Se lleva a la cara interior de la oreja bajo la contratuerca
-  [SUPUESTO: contratuerca apretada]; si quedara floja, el cuerpo del émbolo se apoyaría en los extremos de la
+- **Momento del perno de la traba en STE-01.** Se lleva a la cara interior de la oreja bajo el collar del cuerpo
+  del émbolo: el cuerpo se aprieta contra el collar a `REV_lock_T_Nm` con Loctite 243 y las filas a mano de
+  P1-REV-04 («Cuerpo del émbolo apretado contra su collar: la unión no se abre…») y de P1-STE-01 («Collar del
+  émbolo sobre la oreja 6061: presión…») verifican que la unión no se abre con la precarga mínima y la presión
+  con la máxima (`resultados/estructural.json`). Si el cuerpo quedara flojo, se apoyaría en los extremos de la
   rosca (pares de apoyo opuestos), que el modelo no representa.
 
 <!-- FEA:AUTO:INICIO (generado por fea_run.py; no editar a mano) -->
