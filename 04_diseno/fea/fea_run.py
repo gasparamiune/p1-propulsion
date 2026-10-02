@@ -7,13 +7,15 @@
                                                             (diseño) · (f/g) ídem con la reversa de sizing (fatiga)
     P1-STE-01  boquilla direccional (Al 6061-T6)           (a) F_s en el paso · (b) F_s en la salida · (c/c2) reversa R12
                                                             con M_h completo en la traba +Y/−Y · (d/d2) c + a ·
-                                                            (f/f2) reversa de sizing con M_h completo (fatiga)
+                                                            (f/f2) reversa de sizing con M_h completo (fatiga; precarga de
+                                                            los émbolos como media, Goodman) · (p) precarga sola (informativo)
     P1-INT-02  placa base de la toma (Al 5083 10 mm)       (a) espárragos del pórtico · (b) golpe + presión de cierre
     P1-CTL-02  caja de palancas (PETG)                     (a)/(b) mano apoyada 150 N en dos posiciones
 
 Geometría: build(p) de cada módulo de pieza → STEP temporal → gmsh (tetraedros) → P2 (fea_core).
 Cargas: sizing.json + structural_<grupo>.py + resultados/estructural.json. Malla gruesa y fina
-(estudio de convergencia; extrapolación tipo Richardson si el máx* cambia > 10 %) y verificación del borde de los
+(estudio de convergencia; extrapolación tipo Richardson si el máx* cambia > 10 %, que entra en la σ de diseño si
+cambia > 20 %: la falta de convergencia nunca baja la σ) y verificación del borde de los
 agujeros cargados por perno a ±90° de la carga (sección neta, «lug»). Salidas: 04_diseno/fea/resultados_fea.json, img/*.png y el bloque AUTO
 de 04_diseno/fea/README.md.
 
@@ -134,18 +136,48 @@ def rich_block(sc, sf, pt, mallas, S):
             "sigma_ext_MPa": ext, "FS_ext": (S / ext) if ext and ext > 1e-9 else None}
 
 
-def design_sigma(summ, key, coarse=None):
-    """σ de diseño de un criterio: máx* si convergió (o si no hay malla gruesa con qué comparar); si no
-    (pico en arista viva del CAD o astilla de malla que crece al refinar), el máximo del promedio en volumen
-    en una esfera de radio fea_model.RHO_AVG. Devuelve (σ, método, cambio gruesa→fina del máx*)."""
+def sharp_edge_at(pt, aristas):
+    """Nombre de la arista viva del CAD (declarada por el setup de la pieza: dict nombre → {c, r, motivo}) que contiene
+    el punto, o None."""
+    if pt is None:
+        return None
+    for nm, a in (aristas or {}).items():
+        if np.linalg.norm(np.asarray(pt, float) - np.asarray(a["c"], float)) <= a["r"]:
+            return nm
+    return None
+
+
+def design_sigma(summ, key, coarse=None, mallas=None, aristas=None):
+    """σ de diseño de un criterio (re-auditoría FEA-R5-01: la falta de convergencia NUNCA baja la σ de diseño).
+      - sin malla gruesa con qué comparar, o |cambio gruesa → fina del máx*| ≤ CONV_TOL: máx* de la malla fina;
+      - si no convergió: máx(máx* fino, extrapolación tipo Richardson con los h locales) (sin `mallas` para calcular
+        los h locales, el máx* fino);
+      - única excepción: el máx* fino está en una ARISTA VIVA del CAD nombrada por el setup de la pieza (`aristas`,
+        guardada en el JSON como `aristas_vivas`): ahí el máximo del promedio en volumen en una esfera de radio
+        fea_model.RHO_AVG (el pico de una arista viva no tiene límite al refinar).
+    Devuelve (σ, método, cambio gruesa→fina del máx*)."""
     f = summ[key]
+    sf = f["max_excl"]
     if coarse is None:
-        return f["max_excl"], "máx*", None
-    c = coarse[key]["max_excl"]
-    dif = (f["max_excl"] - c) / max(abs(f["max_excl"]), 1e-9)
-    if abs(dif) <= CONV_TOL or f.get("max_vol") is None:
-        return f["max_excl"], "máx*", dif
-    return f["max_vol"], "promedio en volumen", dif
+        return sf, "máx*", None
+    sc = coarse[key]["max_excl"]
+    dif = (sf - sc) / max(abs(sf), 1e-9)
+    if abs(dif) <= CONV_TOL:
+        return sf, "máx*", dif
+    at = f.get("at_max_excl_mm")
+    edge = sharp_edge_at(at, aristas)
+    if edge is not None and f.get("max_vol") is not None:
+        return f["max_vol"], f"promedio en volumen (arista viva «{edge}»)", dif
+    ext = None
+    if mallas and "gruesa" in mallas and "fina" in mallas:
+        ext = richardson(sc, sf, h_local(mallas["gruesa"], at), h_local(mallas["fina"], at))
+    if ext is not None and ext > sf:
+        return ext, "Richardson (máx* no convergido)", dif
+    return sf, "máx* (no convergido; Richardson ≤ fina)", dif
+
+
+def is_vol_method(m):
+    return m.startswith("promedio en volumen")
 
 
 def allow_of(A, kind):
@@ -157,11 +189,12 @@ def allow_of(A, kind):
     return A["S_sust"]
 
 
-def fs_block(summ, kind, A, coarse=None, regs=None, mallas=None):
-    """FS = admisible / σ de diseño. Metal dúctil: von Mises. PETG: σvm, σ1 y σZ (entre capas).
-    regs = (regiones gruesa, regiones fina): si el máx* global no convergió, la σ de diseño es la mayor entre
-    el promedio en volumen y los máx* de las regiones que sí convergieron. Con mallas (gruesa y fina) y un cambio del
-    máx* > RICH_TRIGGER se agrega la extrapolación tipo Richardson (informativa)."""
+def fs_block(summ, kind, A, coarse=None, regs=None, mallas=None, aristas=None):
+    """FS = admisible / σ de diseño (design_sigma). Metal dúctil: von Mises. PETG: σvm, σ1 y σZ (entre capas).
+    regs = (regiones gruesa, regiones fina): solo si el máx* cae en una arista viva nombrada (promedio en volumen),
+    la σ de diseño es la mayor entre ese promedio y los máx* de diseño de las regiones. Con mallas (gruesa y fina) y un
+    cambio del máx* > RICH_TRIGGER se agrega la extrapolación tipo Richardson (richardson_vm): entra en la σ de diseño
+    si el cambio pasa CONV_TOL, y postprocess pone «cumple» en falso si su FS queda bajo el objetivo."""
     S = allow_of(A, kind)
 
     def fs(Sa, s):
@@ -170,15 +203,15 @@ def fs_block(summ, kind, A, coarse=None, regs=None, mallas=None):
     at = {}
 
     def design(key):
-        sg, mg, dg = design_sigma(summ, key, coarse)
-        at[key] = summ[key]["at_max_excl_mm"] if mg == "máx*" else summ[key].get("at_max_vol_mm")
-        if mg != "máx*" and regs and regs[0] and regs[1]:
-            for rn, rf in regs[1].items():
+        sg, mg, dg = design_sigma(summ, key, coarse, mallas, aristas)
+        at[key] = summ[key].get("at_max_vol_mm") if is_vol_method(mg) else summ[key]["at_max_excl_mm"]
+        if is_vol_method(mg) and regs and regs[0] and regs[1]:      # arista viva nombrada: el resto de la pieza manda
+            for rn, rf in regs[1].items():                           # si su máx* (convergido o extrapolado) es mayor
                 rc = regs[0].get(rn)
                 if rc and rf[key]["max_excl"] is not None and rc[key]["max_excl"] is not None:
-                    sr, mr, _ = design_sigma(rf, key, rc)
-                    if mr == "máx*" and sr > sg:
-                        sg, mg = sr, f"máx* de la región «{rn}», convergido"
+                    sr, mr, _ = design_sigma(rf, key, rc, mallas, aristas)
+                    if not is_vol_method(mr) and sr > sg:
+                        sg, mg = sr, f"{mr} de la región «{rn}»"
                         at[key] = rf[key]["at_max_excl_mm"]
         return sg, mg, dg
     sv, mv, dv = design("vm")
@@ -222,9 +255,11 @@ def compare(out, level):
         if met == "max_excl" and "gruesa" in case and level != "gruesa":
             rg = case["gruesa"]["regiones"].get(c["region"])
             if rg and rg["vm"]["max_excl"] is not None:
-                val, met_used, _ = design_sigma(reg, "vm", rg)
-                if met_used != "máx*":
+                val, met_used, _ = design_sigma(reg, "vm", rg, out.get("mallas"), out.get("aristas_vivas"))
+                if is_vol_method(met_used):
                     met = "max_vol"
+                elif met_used.startswith("Richardson"):
+                    met = "richardson"
         s_fea = val * c["escala_carga"]
         s_p99 = reg["vm"]["p99"] * c["escala_carga"]
         S = c["S_cmp_MPa"]
@@ -240,16 +275,22 @@ def compare(out, level):
 
 def edge_block(rec, level, A, quick, mallas):
     """Borde de los agujeros cargados por perno a ±90° de la carga (auditoría ronda 4, F3): FS = admisible del caso /
-    |σθ| máx. del borde (tensión circunferencial de sección neta del «lug») en la malla reportada; convergencia gruesa →
-    fina y extrapolación tipo Richardson si > 10 %. El σvm de la ventana se reporta (incluye el aplastamiento)."""
+    |σθ| de diseño del borde (tensión circunferencial de sección neta del «lug»). |σθ| de diseño = el de la malla
+    reportada si cambia ≤ CONV_TOL de la gruesa a la fina; si no, máx(fina, extrapolación tipo Richardson) (FEA-R5-01:
+    la falta de convergencia no baja la σ). La extrapolación se informa si el cambio pasa RICH_TRIGGER. En los casos
+    de fatiga con tensión media, |σθ| es el equivalente de Goodman (fea_model.hole_edge). El σvm de la ventana se
+    reporta (incluye el aplastamiento)."""
     S = allow_of(A, rec["tipo"])
     out = {}
     for hn, bf in (rec[level].get("bordes") or {}).items():
         sf = bf["s_theta_abs_max"]
         d = {"sigma_theta_MPa": sf, "signo_sigma_theta": bf.get("s_theta_signo"), "sigma_vm_en_el_punto_MPa": bf.get("vm_en_s_theta"),
              "sigma_vm_ventana_MPa": bf["vm_max"], "at_vm_ventana_mm": bf["at_vm_mm"], "theta_vm_ventana_deg": bf.get("theta_vm_deg"),
-             "S_MPa": S, "FS": S / sf if sf > 1e-9 else 999.0, "FS_vm_ventana": S / bf["vm_max"] if bf["vm_max"] > 1e-9 else 999.0,
+             "S_MPa": S, "FS_vm_ventana": S / bf["vm_max"] if bf["vm_max"] > 1e-9 else 999.0,
              "at_mm": bf["at_s_theta_mm"], "theta_deg": bf.get("theta_s_theta_deg"), "n_nodos": bf.get("n_nodos")}
+        if bf.get("goodman"):
+            d.update({"goodman": True, "sigma_theta_ciclico_MPa": bf.get("s_theta_ciclico"), "sigma_theta_media_MPa": bf.get("s_theta_media")})
+        s_des, met = sf, "fina"
         if not quick and "gruesa" in rec and level != "gruesa":
             bc = (rec["gruesa"].get("bordes") or {}).get(hn)
             if bc:
@@ -259,6 +300,9 @@ def edge_block(rec, level, A, quick, mallas):
                 rb = rich_block(bc["s_theta_abs_max"], sf, bf["at_s_theta_mm"], mallas, S)
                 if rb:
                     d["richardson"] = rb
+                    if not d["convergido"] and rb.get("sigma_ext_MPa") is not None and rb["sigma_ext_MPa"] > sf:
+                        s_des, met = rb["sigma_ext_MPa"], "Richardson (no convergido)"
+        d.update({"sigma_theta_diseno_MPa": s_des, "metodo": met, "FS": S / s_des if s_des > 1e-9 else 999.0})
         out[hn] = d
     return out
 
@@ -280,9 +324,11 @@ def postprocess(out, A, quick, est=None):
     fs_min, gov = 1e9, None
     mallas = out.get("mallas")
     design = [cid for cid, rec in out["casos"].items() if rec.get("diseno", True)] or list(out["casos"])
+    aristas = out.get("aristas_vivas") or {}
+    low_ext = []
     for cid, rec in out["casos"].items():
         rec["FS"] = fs_block(rec[level]["resumen"], rec["tipo"], A, None if quick else rec["gruesa"]["resumen"],
-                             None if quick else (rec["gruesa"].get("regiones"), rec["fina"].get("regiones")), mallas)
+                             None if quick else (rec["gruesa"].get("regiones"), rec["fina"].get("regiones")), mallas, aristas)
         rec["FS"]["gobernante_cuerpo"], rec["FS"]["criterio_cuerpo"] = rec["FS"]["gobernante"], rec["FS"]["criterio"]
         eb = edge_block(rec, level, A, quick, mallas)
         rec["FS_bordes"] = eb
@@ -308,10 +354,16 @@ def postprocess(out, A, quick, est=None):
         fsb = rec["FS"]["gobernante"]
         if cid in design and fsb < fs_min:
             fs_min, gov = fsb, cid
+        if cid in design:          # FEA-R5-01: extrapolación tipo Richardson (cambio > 10 %) bajo el objetivo → no cumple
+            rbs = [("cuerpo", rec["FS"].get("richardson_vm"))] + [(f"borde {hn}", b.get("richardson")) for hn, b in eb.items()]
+            for where, rb in rbs:
+                if rb and rb.get("FS_ext") is not None and rb["FS_ext"] < A["fs_target"]:
+                    low_ext.append({"caso": cid, "donde": where, "FS_ext": rb["FS_ext"], "sigma_ext_MPa": rb["sigma_ext_MPa"]})
     out["casos_diseno"] = design
     out["FS_min"] = fs_min
     out["FS_objetivo"] = A["fs_target"]
-    out["cumple"] = bool(fs_min >= A["fs_target"])
+    out["richardson_bajo_objetivo"] = low_ext
+    out["cumple"] = bool(fs_min >= A["fs_target"] and not low_ext)
     out["caso_gobernante"] = gov
     out["criterio_gobernante"] = out["casos"][gov]["FS"]["criterio"]
     out["comparacion_mano"] = compare(out, level)
@@ -319,7 +371,7 @@ def postprocess(out, A, quick, est=None):
 
 def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=None):
     import fea_parts as fp
-    from fea_model import hole_edge, mesh_quality
+    from fea_model import goodman_fields, hole_edge, mesh_quality
     t0 = time.time()
     pre = log_prefix or pid
 
@@ -364,6 +416,9 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
                     if itf.name in c["active"]:
                         itf.active = c["active"][itf.name][1]
             F = M.stress_fields(c["u"])
+            goodman = c.get("u_media") is not None and c["kind"] == "fatiga" and A.get("S_u")
+            if goodman:                                       # tensión media (precarga) en un caso de fatiga: Goodman
+                F = goodman_fields(F, M.stress_fields(c["u_media"]), A["S_u"])
             ez = c.get("zones_extra", ())
             off = [itf for itf in M.interfaces if itf.name in c.get("disabled", ())]
             sk = [itf.facets for itf in off]                  # interfaz ausente: su agujero se evalúa (no es zona)
@@ -383,12 +438,17 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
                 itf.enabled = True
             info = c.get("info", {})
             rec = out["casos"].setdefault(c["id"], {"nombre": c["name"], "tipo": c["kind"], "diseno": bool(c.get("diseno", True))})
+            if goodman:
+                rec["media_goodman"] = {"S_u_MPa": A["S_u"], "fuente": A.get("fuente_u"),
+                                        "sigma_media_max_MPa": float(np.max(F["sigma_media"])),
+                                        "regla": "σ_eq = σ_cíclico/(1 − σ_m⁺/S_u) contra S_fat (fea_model.goodman_fields)"}
             rec[level] = {"resumen": summ, "regiones": regs, "reacciones": reac, "extra": c.get("extra", {}), "bordes": bordes,
                           "solver": {k: info.get(k) for k in ("contact_iters", "contact_changes", "cg_total", "case_s",
                                                               "converged_contact", "residual_changes_accepted", "rel_res")
                                      if k in info}}
-            fields_keep[c["id"]] = {"vm": F["vm"], "sZ": F["sZ"], "u": F["u"]}
+            fields_keep[c["id"]] = {"vm": F["vm"], "sZ": F["sZ"], "u": F["u"], "goodman": bool(goodman)}
         out["verificacion_mano"] = st["checks"]
+        out["aristas_vivas"] = st.get("aristas_vivas", {})     # únicas zonas donde vale el promedio en volumen (FEA-R5-01)
         out["agujeros"] = {hn: {k: hs[k] for k in ("c", "ax", "r")} for hn, hs in st.get("holes", {}).items()}
         out["comparacion"] = st.get("comparacion", [])
         log(f"  {level} listo en {time.time() - tl:.1f} s")
@@ -427,10 +487,11 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
         views = VIEWS.get(pid, ((22, -58), (22, 122)))
         path = img_dir / f"{pid}_vm.png"
         top = out["casos"][gov]["FS"]["sigma_vm_diseno_MPa"] * 1.25
-        fea_plot.stress_figure(S, fk["vm"], f"{pid} — von Mises, caso {gov}: {nm[:95]}\nmáx. fuera de zonas de carga "
+        lbl = "σ equivalente de Goodman (von Mises cíclico)" if fk.get("goodman") else "von Mises"
+        fea_plot.stress_figure(S, fk["vm"], f"{pid} — {lbl}, caso {gov}: {nm[:95]}\nmáx. fuera de zonas de carga "
                                f"{summ['vm']['max_excl']:.1f} MPa · p99 {summ['vm']['p99']:.1f} MPa · máx. global "
                                f"{summ['vm']['max']:.1f} MPa · admisible {out['casos'][gov]['FS']['S_MPa']:.0f} MPa",
-                               path, views=views, label="σ von Mises [MPa]", vmax=top,
+                               path, views=views, label=f"σ {lbl} [MPa]", vmax=top,
                                mark=summ["vm"]["at_max_excl_mm"])
         imgs.append(str(path.relative_to(ROOT)))
         if A["tipo"] == "PETG":
@@ -494,10 +555,14 @@ def readme_block(res):
                      f"{m['calidad_gamma_p01']:.3f} | {m['n_gamma_menor_0_05']} |")
     L += ["", "### Resultados (malla fina) — tensiones en MPa; FS = admisible / σ de diseño", "",
           "σ de diseño = σvm máx* (máximo fuera de r_excl de cargas y apoyos) si cambia ≤ 20 % de la malla gruesa a la fina; "
-          "si no converge (arista viva del CAD o astilla de malla), el máximo del promedio en una esfera de radio 3 mm "
-          "(«prom.»). En PETG el FS es el menor de σvm, σ1 y σZ (el criterio va entre paréntesis). El FS del caso es el "
-          "menor entre el del cuerpo y el del borde de los agujeros cargados (tabla de bordes; criterio «borde»). Casos de "
-          "fatiga (reversa de sizing) contra el admisible de fatiga del material; casos «informativo» fuera del FS mínimo.", "",
+          "si no converge, máx(máx* fino, extrapolación tipo Richardson) (la falta de convergencia nunca baja la σ: "
+          "re-auditoría FEA-R5-01); el promedio en una esfera de radio 3 mm («prom.») solo vale en una arista viva del CAD "
+          "nombrada en `aristas_vivas` del JSON. Lo mismo para el |σθ| de los bordes. En PETG el FS es el menor de σvm, σ1 "
+          "y σZ (el criterio va entre paréntesis). El FS del caso es el menor entre el del cuerpo y el del borde de los "
+          "agujeros cargados (tabla de bordes; criterio «borde»). Casos de fatiga (reversa de sizing) contra el admisible "
+          "de fatiga del material; si el caso lleva una tensión media (precarga de los émbolos en STE-01 f/f2), la σ es la "
+          "equivalente de Goodman σ_cíclica/(1 − σ_m⁺/S_u). Casos «informativo» fuera del FS mínimo. «Cumple» exige además "
+          "que ninguna extrapolación tipo Richardson de un caso de diseño quede bajo el objetivo.", "",
           "| Pieza | Caso | σvm máx | σvm p99 | σvm máx* | σvm prom. | σ diseño | u máx [mm] | **FS** | FS (p99) | Veredicto |",
           "|---|---|---|---|---|---|---|---|---|---|---|"]
     for pid, r in res["piezas"].items():
@@ -532,7 +597,9 @@ def readme_block(res):
               "que la exclusión r_excl del máx* no mira (auditoría ronda 4, F3). Se verifica la tensión circunferencial |σθ| "
               "(sección neta del «lug»): FS = admisible del caso / |σθ| máx. (malla fina). σvm de la ventana: informativo (en el "
               "arco de contacto incluye el aplastamiento y el borde del contacto, que verifican las filas de aplastamiento). Si "
-              "|σθ| cambia > 10 % de la gruesa a la fina se extrapola (tipo Richardson, p = 2, tamaños locales).", "",
+              "|σθ| cambia > 10 % de la gruesa a la fina se extrapola (tipo Richardson, p = 2, tamaños locales); si cambia > 20 % "
+              "el FS usa máx(fina, extrapolada). En los casos de fatiga con precarga, |σθ| es el equivalente de Goodman "
+              "|σθ_cíclico|/(1 − σθ_media⁺/S_u).", "",
               "| Pieza | Caso | Agujero | σθ (valor abs.) gruesa → fina [MPa] | θ [°] | σvm ventana [MPa] (FS) | **FS** | Richardson σ_ext (FS) |",
               "|---|---|---|---|---|---|---|---|"]
         for pid, cid, hn, b in brows:
@@ -545,7 +612,8 @@ def readme_block(res):
         L += [""]
     L += ["### Convergencia (gruesa → fina)", "",
           "Columna «Richardson»: si el máx* cambia > 10 %, σ_ext = σ_f + (σ_f − σ_g)/(r^p − 1) con r = h_g/h_f locales (esferas "
-          "de refinamiento) y p = 2 [SUPUESTO: tensión con P2 en campo suave]; informativo, entre paréntesis el FS con σ_ext.", "",
+          "de refinamiento) y p = 2 [SUPUESTO: tensión con P2 en campo suave]; entre paréntesis el FS con σ_ext. Entre 10 y "
+          "20 % es informativo (pero «cumple» es falso si ese FS queda bajo el objetivo); > 20 % entra en la σ de diseño.", "",
           "| Pieza | Caso | r_excl [mm] | σvm p99 | σvm máx* | σvm máx global | u máx [mm] | Richardson máx* |",
           "|---|---|---|---|---|---|---|---|"]
     for pid, r in res["piezas"].items():
@@ -571,7 +639,8 @@ def readme_block(res):
         for c in r["comparacion_mano"]:
             flag = " ⚠" if c["dif_FS_rel"] is not None and abs(c["dif_FS_rel"]) > 0.30 else ""
             dif = "—" if c["dif_FS_rel"] is None else f"{100 * c['dif_FS_rel']:+.0f} %"
-            met = {"max_excl": "máx*", "mean": "promedio", "p99": "p99", "max_vol": "prom. esfera"}[c.get("metrica", "max_excl")]
+            met = {"max_excl": "máx*", "mean": "promedio", "p99": "p99", "max_vol": "prom. esfera",
+                   "richardson": "Richardson"}[c.get("metrica", "max_excl")]
             L.append(f"| {pid} | {c['load_case']} | {c['caso']} · {c['region']} ({met}) | {c['escala_carga']:.2f} | "
                      f"{_f(c['sigma_mano_vm_MPa'])} | {_f(c['sigma_FEA_MPa'])} ({_f(c['sigma_FEA_p99_MPa'])}) | "
                      f"{_f(c['FS_mano_cmp'])} | {_f(c['FS_FEA'])} | "
@@ -616,6 +685,19 @@ def findings(res):
         H.append(f"- **{pid}: FS = {r['FS_min']:.2f}** (objetivo {tgt:.0f}, {'cumple' if r['cumple'] else '**NO CUMPLE**'}); "
                  f"caso {r['caso_gobernante']}, criterio {fsg['criterio']}: {desc}; σvm p99 {s['vm']['p99']:.1f} MPa "
                  f"(FS p99 {fsg['vm_p99']:.2f}).{rtxt} {PART_NOTES.get(pid, '')}")
+        for x in r.get("richardson_bajo_objetivo") or []:
+            H.append(f"  - ⚠ Extrapolación tipo Richardson bajo el objetivo (caso {x['caso']}, {x['donde']}): σ_ext "
+                     f"{x['sigma_ext_MPa']:.1f} MPa, FS {x['FS_ext']:.2f} → no cumple hasta un 3.er nivel de malla o un rediseño.")
+        pc = r["casos"].get("p")
+        if pid == "P1-STE-01" and pc:
+            th = [b["sigma_theta_MPa"] for hn, b in (pc.get("FS_bordes") or {}).items() if hn.startswith("rosca")]
+            hand = (pc[lv]["extra"] or {}).get("fila_mano_tension_tangencial") or {}
+            pre = (pc[lv]["extra"] or {}).get("precarga_embolo") or {}
+            if th:
+                htxt = "" if hand.get("sigma_MPa") is None else f" (fila a mano de cilindro grueso: {hand['sigma_MPa']:.1f} MPa)"
+                H.append(f"  - Precarga máxima de los cuerpos de émbolo sola (caso p, informativo; F = {pre.get('F_N', 0) / 1000:.1f} kN, "
+                         f"p radial {pre.get('p_radial_MPa', 0):.1f} MPa): |σθ| en el borde de la rosca M24 a ±90° de la carga del perno "
+                         f"{max(th):.1f} MPa{htxt}. Se superpone en c/c2/d/d2 y es la tensión media (Goodman) de f/f2.")
         for c in r["comparacion_mano"]:
             if c["dif_FS_rel"] is not None and abs(c["dif_FS_rel"]) > 0.30:
                 H.append(f"  - ⚠ «{c['load_case']}»: FS mano {c['FS_mano_cmp']:.2f} vs FS FEA {c['FS_FEA']:.2f} "
@@ -692,16 +774,18 @@ NOTES = {
         "local que la viga no ve. Nivel bajo (FS > 10).",
     ("P1-STE-01", "Oreja del bucket: flexió"):
         "Las filas usan una sección de raíz STE_ear_t × 36 bajo el pivote (en su plano: pivote + traba con M_h completo; "
-        "fuera del plano: momento del espaciador). El FEA pone el máximo de la oreja en el lóbulo de la rosca M24 y en el "
-        "borde de los agujeros, donde la fuerza del perno, el par de la contratuerca y el del espaciador concentran: "
-        "mecanismo local que la viga no ve; el FS de diseño es el del FEA.",
+        "fuera del plano: momento del pivote en voladizo). El FEA pone el máximo de la oreja en el lóbulo de la rosca M24 y "
+        "en el borde de los agujeros, donde la fuerza del perno, el par bajo el collar del émbolo, el par de aplastamiento "
+        "del piloto Ø20 y la precarga del cuerpo del émbolo concentran: mecanismo local que la viga no ve; el FS de diseño "
+        "es el del FEA.",
     ("P1-STE-01", "Oreja del bucket: ligame"):
         "La fila es el desgarro de los dos ligamentos de la rosca M24 (τ media). El FEA da el máx* del lóbulo de la rosca "
-        "fuera de r_excl (flexión del lóbulo por la fuerza del perno y el par de la contratuerca) y el borde del agujero "
-        "aparte (tabla de bordes): mecanismos distintos.",
-    ("P1-STE-01", "Oreja del bucket: aplast"):
-        "La fila es la presión media del piloto Ø16 si la unión desliza; el FEA promedia σvm en el anillo de 3 mm alrededor "
-        "del piloto (apoyo cosenoidal + par de la brida): métricas distintas, las dos lejos del admisible.",
+        "fuera de r_excl (flexión del lóbulo por la fuerza del perno, el par bajo el collar y la precarga del cuerpo del "
+        "émbolo) y el borde del agujero aparte (tabla de bordes): mecanismos distintos.",
+    ("P1-STE-01", "Oreja: aplastamiento del"):
+        "La fila es el par de aplastamiento del piloto Ø20 en la oreja (p = R/(d·L) + 6·M/(d·L²): presión de borde de una "
+        "distribución lineal). El FEA aplica esa distribución lineal (apoyo cosenoidal) y promedia σvm en el anillo de 3 mm "
+        "alrededor del piloto, que además incluye la flexión de la oreja y la precarga del émbolo vecino: métricas distintas.",
     ("P1-STE-01", "Oreja de pivote (dentro "):
         "La fila toma F/2 a 12 mm en 25 × 30. En el FEA los pernos de pivote reciben un par (reacciones opuestas en la "
         "mejilla Ø8 y en la rosca M6) porque el bucket empuja muy por encima del eje; el máximo está donde la oreja "

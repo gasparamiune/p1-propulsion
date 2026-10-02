@@ -1,7 +1,8 @@
 """Tests del FEA (04_diseno/fea): solver contra casos analíticos, verificación cruzada con
 scikit-fem, malla gruesa rápida de una pieza real (P1-CTL-02), estática del bucket, carga aplicada del
 bucket = estática (setup con malla muy gruesa), traba única con M_h completo, bordes de agujeros cargados
-y cumplimiento en resultados_fea.json para las piezas del waterjet (ronda 4)."""
+y cumplimiento en resultados_fea.json para las piezas del waterjet (ronda 4). Ronda 5: regla de la σ de diseño sin
+convergencia (FEA-R5-01), pivote de STE-01 como apoyo lineal del piloto Ø20 y precarga de los émbolos (FEA-R5-02)."""
 import json
 import math
 import sys
@@ -183,11 +184,67 @@ def test_applied_load_matches_statics_coarse(pid, h, tmp_path):
         tol = fp.TOL_STATICS_STE
         assert set(recs) == {"R12_+Y", "R12_-Y", "sz_+Y", "sz_-Y"}, sorted(recs)
         assert ck["facetas_agujero_pivote_fuera_de_las_orejas"] == 0
+        # ronda 5 (P1-REV-02 rediseñado): piloto = muñón Ø20 h6 en el Ø20 H7 de la oreja de STE_ear_t; el pivote apoya con
+        # presión lineal a lo largo del agujero (par de aplastamiento) cuya resultante pasa por la mitad del buje
+        assert ck["d_agujero_piloto_mm"] == p.REV_sp_pilot_d == p.REV_pin_d == 20.0, ck["d_agujero_piloto_mm"]
+        for s_, L_ in ck["largo_agujero_piloto_malla_mm"].items():
+            assert abs(L_ - p.STE_ear_t) < 0.05, (s_, L_, p.STE_ear_t)
+        lev = (p.REV_y_in - p.STE_ear_y1) + p.REV_bush_L / 2
+        assert abs(ck["brazo_pivote_desde_cara_exterior_mm"] - lev) < 1e-9
+        assert abs(ck["excentricidad_pivote_desde_plano_medio_mm"] - (lev + p.STE_ear_t / 2)) < 1e-9
+        for k, r in recs.items():
+            assert r["err_M3_rel"] <= tol, (k, r["M_pivote_aplicado_Nm"], r["M_pivote_estatica_Nm"])
+            for hn, lb in r["apoyo_lineal_piloto"].items():
+                assert abs(lb["excentricidad_aplicada_mm"] / lb["excentricidad_mm"] - 1) < 0.005, (k, hn, lb)
+                assert lb["ell_extremos"][0] < 0 < lb["ell_extremos"][1], (k, hn, lb)   # el piloto apoya en las dos paredes
+        # precarga máxima del cuerpo del émbolo (FEA-R5-02) = la de structural_direccion
+        pre = ck["precarga_embolo"]
+        F_max = p.REV_lock_T_Nm * 1000 / (min(p.REV_lock_K) * p.REV_lock_thread_d)
+        assert abs(pre["F_max_N"] / F_max - 1) < 1e-9
+        assert abs(pre["p_radial_MPa"] - math.tan(math.radians(30)) * F_max / (math.pi * p.REV_lock_thread_d * p.STE_ear_t)) < 1e-9
+        assert {"c", "c2", "f", "f2"} <= set(pre["casos"])
     for k, r in recs.items():
         assert r["err_F_rel"] <= tol and r["err_M_rel"] <= tol, (k, r)
         F_a, F_s = np.array(r["F_aplicada_N"]), np.array(r["F_estatica_N"])
         assert np.linalg.norm(F_a - F_s) <= tol * np.linalg.norm(F_s), (k, F_a, F_s)
     assert st["holes"], "faltan los agujeros cargados de la verificación de borde (F3)"
+
+
+def _summ(mx, p99=None, mvol=None, at=(0.0, 0.0, 0.0)):
+    return {"vm": {"max_excl": mx, "max": mx * 1.5, "p99": p99 or mx / 2, "max_vol": mvol, "at_max_excl_mm": list(at),
+                   "at_max_vol_mm": list(at)}, "u_max_mm": 0.1}
+
+
+def test_design_sigma_never_lowered_when_not_converged():
+    """FEA-R5-01: si el máx* no converge (|cambio gruesa → fina| > CONV_TOL) la σ de diseño es máx(máx* fino,
+    Richardson), nunca el promedio en volumen (salvo una arista viva nombrada); y «cumple» es falso si la extrapolación
+    de un caso de diseño queda bajo el objetivo aunque el FS de la malla fina cumpla."""
+    import fea_run as fr
+    mallas = {"gruesa": {"h_mm": 8.0, "refine": []}, "fina": {"h_mm": 4.5, "refine": []}}
+    fine, coarse = _summ(100.0, mvol=60.0), _summ(70.0)
+    s_, m_, d_ = fr.design_sigma(fine, "vm", coarse)                          # sin mallas: el máx* fino
+    assert abs(d_) > fr.CONV_TOL and s_ >= 100.0 and not fr.is_vol_method(m_), (s_, m_)
+    s_, m_, _ = fr.design_sigma(fine, "vm", coarse, mallas)                   # con mallas: Richardson (> fina)
+    ext = fr.richardson(70.0, 100.0, 8.0, 4.5)
+    assert ext > 100.0 and abs(s_ - ext) < 1e-9 and m_.startswith("Richardson"), (s_, ext, m_)
+    s_, m_, _ = fr.design_sigma(fine, "vm", coarse, mallas, {"canto": {"c": [0, 0, 0], "r": 2.0}})
+    assert abs(s_ - 60.0) < 1e-9 and "arista viva «canto»" in m_, (s_, m_)   # solo en la arista viva nombrada
+    s_, m_, _ = fr.design_sigma(fine, "vm", coarse, mallas, {"otra": {"c": [50, 0, 0], "r": 2.0}})
+    assert s_ >= 100.0, (s_, m_)
+    s_, m_, _ = fr.design_sigma(fine, "vm", _summ(95.0), mallas)               # convergido: máx*
+    assert s_ == 100.0 and m_ == "máx*"
+    # fs_block: σ de diseño ≥ máx* fino con cambio > 20 %
+    A = {"tipo": "metal", "S_short": 240.0, "S_sust": 240.0, "fs_target": 2.0}
+    fb = fr.fs_block(fine, "short", A, coarse, ({}, {}), mallas)
+    assert fb["sigma_vm_diseno_MPa"] >= fine["vm"]["max_excl"] and fb["richardson_vm"]["sigma_ext_MPa"] > 100.0
+    # postprocess: FS fino 240/115 = 2,09 cumple, pero la extrapolación (cambio 13 %) da FS < 2 → no cumple
+    out = {"pid": "X", "nivel_reportado": "fina", "mallas": mallas, "comparacion": [],
+           "casos": {"a": {"tipo": "short", "diseno": True,
+                           "gruesa": {"resumen": _summ(100.0), "regiones": {}, "bordes": {}},
+                           "fina": {"resumen": _summ(115.0), "regiones": {}, "bordes": {}}}}}
+    fr.postprocess(out, A, False)
+    assert out["FS_min"] >= 2.0 and out["casos"]["a"]["FS"]["metodo_vm"] == "máx*"
+    assert out["richardson_bajo_objetivo"] and not out["cumple"], out["richardson_bajo_objetivo"]
 
 
 def _fea_part(pid):
@@ -236,6 +293,45 @@ def test_lug_edges_checked():
                 assert b["FS"] >= r["FS_objetivo"], (pid, cid, hn, b["FS"])
         if pid == "P1-REV-01":
             assert "traba_menos_y" not in r["casos"]["d"]["FS_bordes"] and "traba" not in r["casos"]["e"]["FS_bordes"]
+
+
+def test_fea_json_design_sigma_rule():
+    """FEA-R5-01 sobre el entregable: ningún caso de diseño con |cambio gruesa → fina| > CONV_TOL tiene una σ de diseño
+    menor que el máx* de la malla fina (cuerpo y bordes), salvo una arista viva nombrada en `aristas_vivas`."""
+    import fea_run as fr
+    for pid in PIEZAS:
+        r = _fea_part(pid)
+        lv = r["nivel_reportado"]
+        for cid in r["casos_diseno"]:
+            c = r["casos"][cid]
+            fs = c["FS"]
+            if fs.get("dif_conv_vm") is not None and abs(fs["dif_conv_vm"]) > fr.CONV_TOL:
+                ok_edge = "arista viva" in fs["metodo_vm"] and any(f"«{a}»" in fs["metodo_vm"] for a in r.get("aristas_vivas", {}))
+                assert ok_edge or fs["sigma_vm_diseno_MPa"] >= c[lv]["resumen"]["vm"]["max_excl"] - 1e-6, (pid, cid, fs["metodo_vm"])
+            for hn, b in (c.get("FS_bordes") or {}).items():
+                if b.get("dif_conv") is not None and abs(b["dif_conv"]) > fr.CONV_TOL:
+                    assert b["sigma_theta_diseno_MPa"] >= b["sigma_theta_MPa"] - 1e-6, (pid, cid, hn)
+        if r.get("richardson_bajo_objetivo"):
+            assert not r["cumple"], pid
+
+
+def test_ste01_preload_and_pivot_model():
+    """Ronda 5 en el entregable de STE-01: casos de reversa con la precarga de los émbolos superpuesta (FEA-R5-02), caso
+    p (precarga sola) informativo, fatiga f/f2 con la precarga como media (Goodman) y la carga del pivote como apoyo
+    lineal del piloto Ø20 (resultante y vector momento = estática, 1 %)."""
+    import fea_parts as fp
+    r = _fea_part("P1-STE-01")
+    lv = r["nivel_reportado"]
+    assert "p" in r["casos"] and "p" not in r["casos_diseno"] and not r["casos"]["p"]["diseno"]
+    for cid in ("c", "c2", "d", "d2", "f", "f2"):
+        ex = r["casos"][cid][lv]["extra"]
+        assert ex["precarga_embolo"]["F_N"] > 0, cid
+        res = ex["resultante_bucket"]
+        assert max(res["err_F_rel"], res["err_M_rel"], res["err_M3_rel"]) <= fp.TOL_STATICS_STE, (cid, res)
+    for cid in ("f", "f2"):
+        assert r["casos"][cid].get("media_goodman"), cid
+        assert all(b.get("goodman") for b in r["casos"][cid]["FS_bordes"].values()), cid
+    assert r["verificacion_mano"]["d_agujero_piloto_mm"] == 20.0
 
 
 def test_resultados_fea_json():

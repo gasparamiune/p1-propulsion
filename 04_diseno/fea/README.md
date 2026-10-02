@@ -16,7 +16,7 @@ en cada corrida; todas las cifras de resultados están en el bloque AUTO del fin
 | `fea_model.py` | Interfaces de resortes (Winkler, cuerpo rígido, unilaterales), iteración de contacto, post-proceso (global y por región) |
 | `fea_core.py` | Malla gmsh (con optimización Netgen), espacio P2, ensamble vectorizado, cargas de superficie y solver PCG de dos niveles |
 | `fea_plot.py` | Mapas de tensión sobre la superficie (matplotlib) |
-| `../../tests/test_fea.py` | Viga en voladizo contra la solución analítica, verificación cruzada con scikit-fem, cuerpo rígido + Winkler, malla gruesa de CTL-02, estática del bucket contra structural_direccion, carga aplicada = estática en REV-01/STE-01 (setup con malla muy gruesa), traba única con M_h completo (casos d/e/f/g), bordes de agujeros cargados y cumplimiento en el JSON |
+| `../../tests/test_fea.py` | Viga en voladizo contra la solución analítica, verificación cruzada con scikit-fem, cuerpo rígido + Winkler, malla gruesa de CTL-02, estática del bucket contra structural_direccion, carga aplicada = estática en REV-01/STE-01 (setup con malla muy gruesa: resultante, M_y y vector momento; piloto Ø20 y precarga de los émbolos), regla de la σ de diseño sin convergencia (FEA-R5-01, unitario y sobre el JSON), traba única con M_h completo (casos d/e/f/g), precarga y Goodman en STE-01, bordes de agujeros cargados y cumplimiento en el JSON |
 
 ```bash
 python 04_diseno/fea/fea_run.py              # todo (gruesa + fina + variantes), 3 procesos: ~12 min
@@ -61,7 +61,7 @@ pisar el entregable.
    - **Borde de agujeros cargados por perno («lug», auditoría ronda 4, F3).** La exclusión r_excl alrededor
      de un agujero cargado tapa el pico de sección neta del borde a ±90° de la carga (y parte del ligamento
      de la rosca M24 de STE-01). Se eligió reportarlo como **verificación aparte**: en cada caso, para cada
-     agujero cargado (trabas y pivotes de REV-01; pivotes Ø16 H7 y roscas M24 de STE-01) se toman los nodos
+     agujero cargado (trabas y pivotes de REV-01; pivotes Ø20 H7 y roscas M24 de STE-01) se toman los nodos
      de la superficie del agujero con |cos θ| ≤ 0,5 [SUPUESTO: ventana θ = 60…120° desde la dirección de la
      carga, proyectada ⟂ al eje] y se reporta el máximo de la tensión **circunferencial |σθ|** (la de sección
      neta del «lug») y el σvm máx. de la ventana. La dirección de la carga es la reacción de la interfaz
@@ -71,14 +71,25 @@ pisar el entregable.
      que termina en θ = 90°, con el perno rígido que no acompaña el giro del brazo) incluye el aplastamiento y el
      borde del contacto, que verifican las filas de aplastamiento. Se compara gruesa → fina; el agujero de una
      traba deshabilitada no se evalúa como cargado y sale de las zonas excluidas (su entorno sí se evalúa).
-   - **Convergencia (F4).** Si el máx\* o el borde cambia > 10 % de la malla gruesa a la fina se informa una
-     extrapolación tipo Richardson σ_ext = σ_f + (σ_f − σ_g)/(r^p − 1), con r = h_g/h_f locales (esfera de
-     refinamiento que contiene el punto) y p = 2 [SUPUESTO: tensión con P2 en campo suave]. Es informativa: el FS
-     de diseño sigue la regla de arriba, y la extrapolación figura en el bloque AUTO y en «Hallazgos».
+   - **Convergencia (F4 y re-auditoría FEA-R5-01).** Si el máx\* o el |σθ| de un borde cambia > 10 % de la malla
+     gruesa a la fina se calcula una extrapolación tipo Richardson σ_ext = σ_f + (σ_f − σ_g)/(r^p − 1), con
+     r = h_g/h_f locales (esfera de refinamiento que contiene el punto) y p = 2 [SUPUESTO: tensión con P2 en campo
+     suave]. **La falta de convergencia nunca baja la σ de diseño**: si el cambio pasa el 20 %, la σ de diseño es
+     máx(σ fina, σ_ext) (`fea_run.design_sigma`, `edge_block`). El promedio en volumen en una esfera de 3 mm solo se
+     admite en una **arista viva del CAD nombrada** por el setup de la pieza (`aristas_vivas` en el JSON; hoy ninguna
+     pieza declara una). Entre 10 y 20 % la extrapolación es informativa, pero si su FS queda bajo el objetivo en un
+     caso de diseño la pieza **no cumple** (`richardson_bajo_objetivo` en el JSON).
    - **Casos de diseño e informativos.** El FS mínimo de la pieza se toma solo de los casos de diseño
      (`casos_diseno` en el JSON); los informativos (p. ej. REV-01 a/b, con las dos trabas) se reportan igual.
      Los casos de **fatiga** (reversa de sizing) se comparan con el admisible de fatiga del material
-     (`S_fat`) con el mismo objetivo.
+     (`S_fat`) con el mismo objetivo: el pico del ciclo 0 → máx. contra el límite R = −1 (convención conservadora del
+     proyecto). Si el caso lleva además una **tensión media constante** (la precarga de los cuerpos de émbolo en
+     STE-01 f/f2), el caso guarda la precarga sola resuelta con el mismo conjunto activo (`u_media`; el sistema es
+     lineal, así que la parte cíclica total − media es exacta) y se usa la corrección de **Goodman** sobre ese admisible:
+     σ_eq = σ_cíclica/(1 − σ_m⁺/S_u) contra `S_fat`, o sea FS = S_fat·(1 − σ_m⁺/S_u)/σ_cíclica (FS sobre la carga de
+     servicio con la precarga fija). σ_m⁺ es, nodo a nodo, máx(0, σ1, σvm con el signo de la traza) de la precarga
+     (una media de compresión no se aprovecha); en los bordes, máx(σθ de la precarga, 0) con |σθ| cíclica
+     (`fea_model.goodman_fields`, `hole_edge`). S_u de 6061-T6 = 260 MPa [ESTIMADO: EN 755-2, Rm mín.].
 6. **Comparación con el cálculo a mano.** Cada fila de `resultados/estructural.json` se compara con la
    región que modela y el admisible de la propia fila. Las filas de fatiga de la reversa se comparan con los
    casos de sizing **corridos** (no se escala un caso con contacto; auditoría ronda 4, F2). Solo se escala un
@@ -160,28 +171,43 @@ pisar el entregable.
 - **(a)** F_s = máx(`sizing.loads.F_steer_side_N`, 364 N de R12) lateral, como presión cosenoidal en el
   paso Ø2·r_b, en una banda centrada en el centro de presión e = `STE_e_frac`·L (el modelo de la fila a
   mano). **(b)** La misma F_s en los últimos 20 mm de la boca de salida (brazo ≈ L, conservador).
-- **Reversa (auditoría ronda 4, F1).** Fuerzas del bucket sobre cada oreja de `bucket_statics`
-  (= `structural_direccion.bucket_reactions`, cantidad de movimiento del chorro) con **M_h completo en una
-  traba**: esa oreja recibe su pivote (chorro/2 + traba) y su traba; la otra, solo chorro/2 en su pivote. Carga
+- **Reversa (auditoría ronda 4, F1; pivote rediseñado en la ronda 5).** Fuerzas del bucket sobre cada oreja de
+  `bucket_statics` (= `structural_direccion.bucket_reactions`, cantidad de movimiento del chorro) con **M_h completo
+  en una traba**: esa oreja recibe su pivote (chorro/2 + traba) y su traba; la otra, solo chorro/2 en su pivote. Carga
   **autoequilibrada** por oreja:
-  - pivote: la **fuerza** la toma el piloto Ø16 h6 del espaciador P1-REV-02 en el agujero Ø16 H7 de la oreja
-    (apoyo cosenoidal con la resultante exacta en el plano; la selección se limita a la oreja,
-    |y| ≥ `STE_ear_y0` − 0,5: el CAD ya no tiene el agujero pasante de lado a lado que mordía la torre del
-    yugo, y el JSON guarda `facetas_agujero_pivote_fuera_de_las_orejas`, que debe ser 0). El **momento** del
-    muñón en voladizo (fuerza en la mitad del buje, brazo `brazo_par_espaciador_mm` hasta el plano medio de la
-    oreja) lo toma la **brida Ø36** sobre la cara exterior como tracción normal lineal con **resultante nula**;
-  - traba: la **fuerza** del perno sobre la **rosca M24×1,5 de la misma oreja** (apoyo cosenoidal) y su
-    **momento** (perno en voladizo hasta la mitad del brazo, `brazo_par_perno_traba_mm`) como par lineal de
-    resultante nula **bajo el collar del cuerpo** del émbolo en la cara interior (apoyo hasta Ø36: collar integral de
-    P1-REV-04, `piezas/_release.PLG_COLLAR_D`; la contratuerca de la primera versión ya no existe).
-  El setup **verifica** que la resultante aplicada y su momento alrededor del eje del pivote coinciden con la
-  estática (± 1 %; `verificacion_mano.resultante_bucket`). La precarga del M12 y la del cuerpo del émbolo
-  contra su collar (autoequilibradas) no se modelan.
-- **Casos.** (c)/(c2) **DISEÑO**: reversa R12 con M_h completo en la traba +Y / −Y (FS ≥ 2 contra
+  - pivote (P1-REV-02, re-auditoría MEC-01/02/05/06): el muñón Ø20 h6 del espaciador de dúplex es también el piloto,
+    ajustado en el **Ø20 H7** (`REV_sp_pilot_d`) que atraviesa la oreja de `STE_ear_t` = 14 mm. El camino **diseñado**
+    del corte y del momento es el **apoyo del piloto en el agujero** (par de aplastamiento): presión cosenoidal con
+    **variación lineal a lo largo del agujero**, ℓ(η) = 1 + κ·η, con ℓ⁺ en la pared que empuja la carga y ℓ⁻ en la
+    opuesta (solo compresión; `fea_parts.linear_bearing`). κ se ajusta para que la resultante pase por la **mitad del
+    buje**, a (`REV_y_in` − `STE_ear_y1`) + `REV_bush_L`/2 de la cara exterior (`brazo_pivote_desde_cara_exterior_mm`),
+    o sea M = R × ese brazo en la cara exterior; ℓ cambia de signo dentro del agujero (`apoyo_lineal_piloto` en el JSON:
+    el piloto apoya en la pared cargada junto a la cara exterior y en la opuesta junto a la interior). **No hay par en
+    la cara de la brida**: con Tef-Gel la unión apretada desliza y no se cuenta con ella (la precarga del M12 es baja,
+    12 N·m, y solo retiene). La selección se limita a la oreja (|y| ≥ `STE_ear_y0` − 0,5; el JSON guarda
+    `facetas_agujero_pivote_fuera_de_las_orejas`, que debe ser 0);
+  - traba: la **fuerza** del perno sobre la **rosca M24×1,5 de la misma oreja** (apoyo cosenoidal con la resultante en
+    el plano medio de la oreja) y su **momento** (perno en voladizo hasta la mitad del brazo, `brazo_par_perno_traba_mm`)
+    como par lineal de resultante nula **bajo el collar integral del cuerpo del émbolo** P1-REV-04 en la cara interior
+    (corona equivalente Ø34/Ø24,5 de la fila a mano: collar Ø36 con 2 planos e/c 32; `r_collar_mm`).
+  El setup **verifica** que la resultante aplicada, su momento alrededor del eje del pivote (M_y) y el **vector
+  momento completo** alrededor del pivote coinciden con la estática (± 1 %; `verificacion_mano.resultante_bucket`).
+- **Precarga de los cuerpos de émbolo (re-auditoría FEA-R5-02).** Cada cuerpo se aprieta contra su collar a
+  `REV_lock_T_Nm` con Loctite 243 (K `REV_lock_K`): con la precarga **máxima** F = T/(K_mín·d) se aplica, en **las dos
+  orejas** (los dos émbolos están siempre apretados), compresión uniforme en la corona del collar sobre la cara
+  interior, el tiro axial igual y opuesto en las facetas de la rosca M24 y la presión radial de los flancos
+  p = tan 30°·F/(π·d·L_e) (L_e = espesor de la oreja) sobre esas facetas. Es autoequilibrada pero genera la tensión
+  tangencial del lóbulo de la rosca que suma al σθ del borde. Se superpone en los casos de reversa (c/c2/d/d2) y es la
+  **tensión media** de los de fatiga (f/f2, Goodman, ver Método). El caso **p** (informativo) es la precarga sola: su
+  |σθ| en el borde de la rosca se compara en «Hallazgos» con la fila a mano «Rosca M24 de la oreja: tensión
+  tangencial por la precarga…» (cilindro grueso). Los casos a/b (solo dirección) no la llevan: no cargan las orejas.
+  La precarga del M12 del pivote (3,6–6,7 kN, compresión de la oreja ≈ 10 MPa entre brida y arandela ancha) no se
+  modela; la cubren las filas a mano de presión de la brida y de la arandela.
+- **Casos.** (c)/(c2) **DISEÑO**: reversa R12 con M_h completo en la traba +Y / −Y + precarga (FS ≥ 2 contra
   fluencia). (d)/(d2) c/c2 + (a) (maniobra en reversa). (f)/(f2) **DISEÑO, fatiga**: reversa de sizing con
-  M_h completo en la traba +Y / −Y, corrida, contra `AL6061_FAT`. Se quitaron los casos con el reparto máximo
-  entre trabas y la variante «completo» (hoy son los casos de diseño).
-- **Borde de los agujeros** (pivotes Ø16 H7 y roscas M24): verificación de sección neta a ±90° de la carga
+  M_h completo en la traba +Y / −Y, corrida, con la precarga como media, contra `AL6061_FAT`. (p) precarga sola,
+  informativo.
+- **Borde de los agujeros** (pivotes Ø20 H7 y roscas M24): verificación de sección neta a ±90° de la carga
   aplicada (Método, 5).
 
 ### P1-INT-02 — placa base de la toma (marco BOTE)
@@ -218,8 +244,9 @@ pisar el entregable.
   fluencia en zonas de apoyo (agujeros, avellanados) indican fluencia local, no rotura; por eso el FS de
   diseño usa el máx\* fuera de r_excl y se reporta también el p99.
 - **Soldaduras.** No se modela la geometría del cordón ni la ZAT como material distinto; el admisible de
-  ZAT se aplica a toda la pieza soldada (DRV-03, REV-01). La fatiga de soldadura solo entra por las filas
-  a mano escaladas.
+  ZAT se aplica a toda la pieza soldada (DRV-03, REV-01). La fatiga de soldadura de REV-01 se verifica con los casos
+  f/g del FEA (reversa de sizing corrida, una traba sola) contra `AL5083_WLCF` (detalle soldado FAT 25) en toda la
+  pieza: conservador lejos de los cordones, pero sin el factor de entalla real del pie del cordón.
 - **Sin contacto real entre piezas** (resortes de penalización, sin fricción) y piezas vecinas rígidas
   (orejas de la bomba, pernos, émbolo). En INT-02 el conducto se acota entre «ausente» y «rígido».
 - **Cargas cuasi-estáticas** (sizing / R12) sin dinámica; los impactos solo entran por los factores de
@@ -229,12 +256,14 @@ pisar el entregable.
   sola) el contacto se concentra en el borde del agujero; ese pico es aplastamiento local (filas de
   aplastamiento), no sección neta. La holgura del agujero (Ø16,5 / Ø16) no se modela (contacto sin juego
   en la mitad de apoyo).
-- **Momento del perno de la traba en STE-01.** Se lleva a la cara interior de la oreja bajo el collar del cuerpo
-  del émbolo: el cuerpo se aprieta contra el collar a `REV_lock_T_Nm` con Loctite 243 y las filas a mano de
-  P1-REV-04 («Cuerpo del émbolo apretado contra su collar: la unión no se abre…») y de P1-STE-01 («Collar del
-  émbolo sobre la oreja 6061: presión…») verifican que la unión no se abre con la precarga mínima y la presión
-  con la máxima (`resultados/estructural.json`). Si el cuerpo quedara flojo, se apoyaría en los extremos de la
-  rosca (pares de apoyo opuestos), que el modelo no representa.
+- **Uniones de la oreja de STE-01.** El momento del perno de la traba se lleva a la cara interior de la oreja
+  bajo el collar integral del cuerpo del émbolo (unión que no se abre: fila a mano de P1-REV-04 «Cuerpo del émbolo
+  apretado contra su collar: la unión no se abre…» con la precarga mínima; presión del collar con la máxima en
+  P1-STE-01). Si el cuerpo quedara flojo, se apoyaría en los extremos de la rosca (pares de apoyo opuestos), que el
+  modelo no representa. La precarga del cuerpo se modela como cargas equivalentes (corona, tiro axial y presión
+  radial uniforme de los flancos), no como contacto de rosca: los picos en el fondo de los filetes no se resuelven
+  (zona excluida; el arrancamiento de la rosca es fila a mano). El piloto del pivote es una presión impuesta (rígido,
+  sin juego H7/h6): con juego, el apoyo se concentra aún más en los bordes del agujero.
 
 <!-- FEA:AUTO:INICIO (generado por fea_run.py; no editar a mano) -->
 

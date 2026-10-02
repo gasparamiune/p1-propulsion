@@ -31,9 +31,10 @@ def mirror_loc(p):
 
 
 # Émbolo propio P1-REV-04 (ronda 4), medidas a lo largo de su eje desde la cara EXTERIOR de la oreja hacia adentro:
-# guía del perno Ø16 (18), cámara del resorte (largo instalado 30: alambre 1,6, Ø ext 15, ~8 espiras útiles, compacto
-# ≈ 16 → con la carrera de 12 queda en 18 > 16), tapa (4) y pomo (10) apoyado en la tapa en reposo [CALCULADO/ESTIMADO:
-# P1-REV-04]. El GN 617-10 de catálogo mide 80 mm (rosca 33 + cuerpo y pomo 47): el émbolo real NO es corto.
+# guía del perno Ø16 (18), cámara del resorte (largo instalado 30; resorte SPRING_* más abajo: alambre 1,4, Ø ext 15,
+# 6,5 espiras útiles, compacto ≈ 11,9 → con la carrera de 12 queda en 18 > compacto + holgura EN 13906-1), tapa (4) y
+# pomo (10) apoyado en la tapa en reposo [CALCULADO/ESTIMADO: P1-REV-04]. El GN 617-10 de catálogo mide 80 mm (rosca 33
+# + cuerpo y pomo 47): el émbolo real NO es corto.
 PLG_GUIDE = 18.0
 PLG_SPRING_L1 = 30.0
 PLG_CAP_T = 4.0
@@ -66,21 +67,91 @@ def need(p):
 
 
 # ---------------------------------------------------------------------------------------------------------------
+# Resorte del émbolo P1-REV-04 (B-SPRING; re-auditoría ronda 5, DES-01): resorte de compresión inox de catálogo que
+# ENTRA en la cámara (Ø ext ≤ 15 en el Ø16 H8, Ø int ≥ 11 sobre la cola Ø10) y no llega a compacto con la carrera.
+# k = G·d⁴/(8·D³·n) (EN 13906-1); τ = 8·F·D/(π·d³) × k_Wahl.
+SPRING_WIRE_D = 1.4     # alambre [SUPUESTO: elegido; EN 10270-3]
+SPRING_OD = 15.0        # Ø exterior (Ø int 12,2) [SUPUESTO: elegido]
+SPRING_NA = 6.5         # espiras útiles [SUPUESTO: elegido]
+SPRING_N_END = 2.0      # espiras de apoyo (extremos cerrados y amolados) [SUPUESTO]
+SPRING_L0 = 40.0        # largo libre [SUPUESTO: elegido]
+SPRING_G = 70000.0      # módulo de corte [ESTIMADO: EN 13906-1/EN 10270-3: 1.4310 ≈ 70 GPa, 1.4401 ≈ 65–68 GPa (k −5 %)]
+SPRING_RM = 1500.0      # Rm del alambre Ø1,4 [ESTIMADO: EN 10270-3, 1.4401 ≈ 1500–1800 MPa, 1.4310 ≈ 1850–2100 MPa]
+SPRING_TAU_ZUL = 0.5 * SPRING_RM    # τ admisible estático [ESTIMADO: EN 13906-1, 0,5·Rm para inox de resorte]
+SPRING_L_INST = PLG_SPRING_L1       # largo instalado (perno adentro, pomo apoyado en la tapa)
+SPRING_L_MIN = PLG_SPRING_L1 - 12.0  # largo con el perno afuera (carrera REV_plunger_stroke = 12; check en P1-REV-09)
+
+
+def spring_dm():
+    return SPRING_OD - SPRING_WIRE_D
+
+
+def spring_k():
+    """Rigidez (N/mm) [CALCULADO: EN 13906-1 con SPRING_G ESTIMADO]."""
+    return SPRING_G * SPRING_WIRE_D ** 4 / (8 * spring_dm() ** 3 * SPRING_NA)
+
+
+def spring_F(L):
+    return spring_k() * (SPRING_L0 - L)
+
+
+def spring_L_solid():
+    return (SPRING_NA + SPRING_N_END) * SPRING_WIRE_D
+
+
+def spring_Sa():
+    """Suma mínima de luces entre espiras al largo mínimo de trabajo [EN 13906-1: (0,0015·D²/d + 0,1·d)·n]."""
+    return (0.0015 * spring_dm() ** 2 / SPRING_WIRE_D + 0.1 * SPRING_WIRE_D) * SPRING_NA
+
+
+def spring_wahl():
+    c = spring_dm() / SPRING_WIRE_D
+    return (4 * c - 1) / (4 * c - 4) + 0.615 / c
+
+
+def spring_tau(F, wahl=True):
+    t = 8 * F * spring_dm() / (math.pi * SPRING_WIRE_D ** 3)
+    return t * spring_wahl() if wahl else t
+
+
+SPRING_F_MAX = spring_F(SPRING_L_MIN)      # ≈ 45 N con el perno afuera [CALCULADO: k ESTIMADO (G)]
+
+# ---------------------------------------------------------------------------------------------------------------
 # Desbloqueo (ronda 4, R4-06/R4-07): cada pomo se tira por un BALANCÍN de reenvío 1:1 (P1-REV-09) detrás de los émbolos
 # (popa, X > collares de los émbolos), porque entre las orejas no cabe un tope de vaina coaxial con el pomo: la vaina tendría que
 # girar 90° con R ≥ BOWDEN_R_MIN dentro de |Y| ≤ 53 (cara interior del brazo del bucket 56,5 − r de la vaina − 1)
-# partiendo de |Y| ≥ 26 (pomo tirado + regulador) → faltan ≥ 3 mm [CALCULADO]. El pomo tira de un eslabón corto de cable
-# (LINK) enganchado en un perno de manivela Ø CRANK_D que sale del balancín hacia proa hasta el eje del émbolo; el
-# balancín gira alrededor de un eje paralelo a X y su brazo de salida sube: el cable sale VERTICAL hacia el regulador M6
-# de la pestaña del soporte, y la vaina sube y se curva hacia proa por delante del barrido del bucket.
-LINK = 10.0             # cara del pomo → eje del perno de manivela, en reposo [SUPUESTO: terminal 4 + lazo de cable]
+# partiendo de |Y| ≥ 26 (pomo tirado + regulador) → faltan ≥ 3 mm [CALCULADO]. El pomo tira de un ESLABÓN RÍGIDO
+# (re-auditoría ronda 5, DES-04: un lazo de cable crimpado de 10 mm no se puede fabricar): ojo de 316 con RANURA vertical
+# en el perno de manivela + vástago M4 roscado en la cola del perno del émbolo (rosca M4 axial en la cola, P1-REV-04),
+# fijado con Loctite 243: el largo se ajusta ±LINK_TOL al montar (medias vueltas = 0,35 mm, la ranura queda vertical) y
+# la ranura absorbe el arco de la manivela (el eslabón queda coaxial con el émbolo: sin carga lateral sobre el perno).
+# El balancín gira alrededor de un eje paralelo a X y su brazo de salida sube: el cable sale VERTICAL hacia el regulador
+# M6 de la pestaña del soporte, y la vaina sube y se curva hacia proa por delante del barrido del bucket.
+LINK_EYE_SLOT_W = 6.2   # ancho de la ranura del ojo (perno Ø6) [SUPUESTO]
+LINK_EYE_WALL = 2.0     # pared del ojo alrededor de la ranura (316, flexión: check en P1-REV-09) [SUPUESTO]
+LINK_EYE_T = 4.0        # espesor del ojo (X) [SUPUESTO]
+LINK_SLOT = 1.75        # medio largo extra de la ranura (Z): absorbe el arco de la manivela [SUPUESTO]
+LINK_EYE_HALF = LINK_EYE_SLOT_W / 2 + LINK_EYE_WALL       # eje del perno → extremo del ojo (5,1)
+LINK_GAP = 3.15         # vástago M4 a la vista entre el ojo y la cara del pomo (ajuste ±LINK_TOL) [CALCULADO: manivela
+#                         −Y tirada a ≥ 1,5 de la oreja +Y y manivelas a ≥ 1 de la base del soporte con el ajuste ±LINK_TOL]
+LINK = LINK_EYE_HALF + LINK_GAP   # cara del pomo → eje del perno de manivela, en reposo [CALCULADO: ojo 5,1 + 3,15]
+LINK_TOL = 0.75         # rango del ajuste del largo del eslabón (± 2 medias vueltas M4) [SUPUESTO: tolerancias de montaje]
+LINK_SHANK_L = 12.0     # vástago M4 del ojo (rosca enganchada en la cola: 12 − LINK_GAP ∓ LINK_TOL ≥ 1,5·d) [SUPUESTO]
 LEV_L = 14.0            # brazos del balancín (manivela = salida: 1:1) [CALCULADO: oreja +Y / brazo del bucket]
-LEV_T = 5.0             # balancín Al 5083 5 mm [SUPUESTO]
-CRANK_D = 6.0           # perno de manivela AISI 316 Ø6 [CALCULADO: structural_direccion, fila P1-REV-09]
-PIV_D = 6.0             # tornillo con hombro ISO 7379 Ø6 × M5 (eje del balancín) [SUPUESTO]
-CRANK_BOSS_R = 4.5      # cubo del balancín alrededor del perno de manivela (pared 1,5) [SUPUESTO]
-OUT_BOSS_R = 5.0        # cubo del brazo de salida (terminal Ø5) [SUPUESTO]
-PIV_BOSS_R = 6.0        # cubo del eje del balancín [SUPUESTO]
+LEV_T = 5.0             # alma del balancín (Al 5083 fresado de placa de 12: alma 5 + cubos hacia proa) [SUPUESTO]
+CRANK_D = 6.0           # perno de manivela 1.4401+C Ø6 m6 [CALCULADO: structural_direccion, filas P1-REV-09]
+CRANK_SHOULDER = (9.0, 1.5)   # hombro del perno de manivela (Ø, largo) contra la cara del cubo [SUPUESTO]
+CRANK_HUB_R = 4.5       # cubo de la manivela Ø9 (pared 1,5) [SUPUESTO]
+CRANK_HUB_H = 7.0       # largo del cubo de la manivela hacia proa (perno prensado en LEV_T + 7 = 12 = 2·Ø) [CALCULADO: libra la oreja]
+PIV_D = 7.0             # muñón del eje del balancín (perno fijo 1.4401+C: Ø8 m6 prensado en el montante, Ø7 f7 adelante)
+PIV_STUD_D = 8.0        # parte del eje prensada en el montante [CALCULADO: structural_direccion, filas P1-REV-09]
+PIV_BUSH_OD = 9.0       # casquillo polimérico autolubricado Ø7/Ø9 prensado en el cubo del eje [ESTIMADO: tipo iglidur, apto agua salada]
+PIV_HUB_H = 9.0         # largo del cubo del eje hacia proa (apoyo LEV_T + 9 = 14 = 2·Ø) [CALCULADO: libra los collares]
+LEV_GAP = 1.5           # alma del balancín ↔ montante (anillo DIN 6799 del perno de manivela + arandela PTFE 1 del eje)
+UP_T = 8.0              # montante del soporte (Al 5083 8 mm: el eje Ø8 se prensa en él) [SUPUESTO]
+CRANK_BOSS_R = 4.0      # alma alrededor del perno de manivela (el cable de salida pasa a ≥ 1) [SUPUESTO]
+OUT_BOSS_R = 5.0        # alma del brazo de salida (terminal Ø5) [SUPUESTO]
+PIV_BOSS_R = 7.0        # alma y cubo del eje del balancín (Ø14 sobre el casquillo Ø9) [SUPUESTO]
 NIPPLE_R = 2.5          # terminal del cable (barril Ø5) en el brazo de salida [ESTIMADO: barril de Bowden Ø5 × 6]
 ADJ_EDGE = 3.0          # borde de la pestaña alrededor del regulador M6 [SUPUESTO]
 ADJ_HOLE_R = 3.25       # agujero roscado M6 de la pestaña (modelado Ø6,5)
@@ -89,8 +160,11 @@ NUT_R = PLG_COLLAR_D / 2      # radio máximo del collar del cuerpo del émbolo 
 BOWDEN_D = 5.0          # vaina con camisa de PTFE Ø5 [ESTIMADO: B-BOWDEN]
 BOWDEN_R_MIN = 30.0     # radio mínimo de curvatura de la vaina Ø5 con PTFE [ESTIMADO: ≈ 6 × Ø; ficha del fabricante a confirmar]
 BOWDEN_R = 40.0         # radio usado en el modelo (≥ BOWDEN_R_MIN) [SUPUESTO]
-SPRING_F_MAX = 45.0     # resorte del émbolo con el perno afuera [ESTIMADO: P1-REV-04, como el GN 617-10]
 BOWDEN_ETA = 0.6        # rendimiento del Bowden (≈ 300–360° de curvas, μ ≈ 0,08 cable/PTFE) [ESTIMADO: e^(−μθ)]
+# Rendimiento del balancín (DES-03): el eslabón tira sobre el eje del émbolo, delante del alma del balancín, y el momento
+# F·e fuera del plano lo toma el cubo del eje como un par de presiones → rozamiento del eje mucho mayor que el de F sola
+LEV_MU_PIV = 0.10       # casquillo polimérico / muñón 316, mojado [ESTIMADO: 0,08–0,15]
+LEV_MU_PIN = 0.15       # ojo del eslabón / perno y barril / brazo, 316 engrasado [ESTIMADO]
 
 
 def lev_travel(p):
@@ -99,8 +173,8 @@ def lev_travel(p):
 
 
 def lever_x0(p):
-    """Cara de proa de los balancines: la pestaña del regulador del lado +Y queda ≥ 2 mm a popa del lóbulo de la oreja
-    +Y (la vaina del émbolo −Y sube junto a esa oreja) y el cable sale por el plano medio del balancín."""
+    """Cara de proa del alma de los balancines: la pestaña del regulador del lado +Y queda ≥ 2 mm a popa del lóbulo de
+    la oreja +Y (la vaina del émbolo −Y sube junto a esa oreja) y el cable sale por el plano medio del alma."""
     x_ear = max(lock_xz(p, s)[0] for s in lock_sides(p)) + p.STE_lock_lobe_r
     x_cable = x_ear + 2.0 + ADJ_EDGE + ADJ_HOLE_R
     return x_cable - LEV_T / 2
@@ -110,13 +184,18 @@ def cable_x(p):
     return lever_x0(p) + LEV_T / 2
 
 
+def up_x(p):
+    """Cara de proa del montante del soporte."""
+    return lever_x0(p) + LEV_T + LEV_GAP
+
+
 def lever(p, side=1):
     """Geometría del balancín del émbolo `side` en el plano YZ (marco de la boquilla). El pomo del émbolo +Y tira hacia −Y
     y el del −Y hacia +Y (d = −side). La manivela trabaja a la altura del eje del émbolo: el balancín +Y tiene su eje
-    DEBAJO de la manivela (el perno pasa SOBRE el collar del émbolo −Y; está a la altura del eje en los extremos
-    del recorrido y 1,35 más arriba en el medio) y el −Y ENCIMA (el perno pasa BAJO el collar del +Y; a la altura
-    del eje en los extremos y 1,35 más abajo en el medio). En los dos el brazo de salida apunta a +Y, a 90° de la
-    manivela, y SUBE lo mismo que corre el pomo (1:1). pose(t), t = 0 reposo … 1 tirado (carrera del émbolo):
+    DEBAJO de la manivela y el −Y ENCIMA (la manivela a la altura del eje del émbolo en los extremos del recorrido y
+    1,35 más arriba/abajo en el medio: lo absorbe la ranura del ojo del eslabón). En los dos el brazo de salida apunta
+    a +Y, a 90° de la manivela, y SUBE lo mismo que corre el pomo (1:1). El eje se ubica con el eslabón NOMINAL (LINK).
+    pose(t, link) con t = 0 reposo … 1 tirado (carrera del émbolo) y link = largo real del eslabón (por defecto LINK):
     ((y, z) manivela, (y, z) salida)."""
     lx, lz = lock_xz(p, side)
     T = lev_travel(p)
@@ -128,13 +207,82 @@ def lever(p, side=1):
     sgn = 1 if below else -1                           # manivela arriba (+1) o abajo (−1) del eje
     piv = (cm, lz - sgn * h)
 
-    def pose(t):
-        dy = c0 + d * T * t - cm
+    def pose(t, link=LINK):
+        dy = c0 + d * (link - LINK) + d * T * t - cm
         ang = math.atan2(sgn * math.sqrt(LEV_L ** 2 - dy ** 2), dy)
         a_out = ang - sgn * math.pi / 2
         return ((piv[0] + LEV_L * math.cos(ang), piv[1] + LEV_L * math.sin(ang)),
                 (piv[0] + LEV_L * math.cos(a_out), piv[1] + LEV_L * math.sin(a_out)))
-    return dict(side=side, lock=(lx, lz), d=d, piv=piv, sgn=sgn, pose=pose, T=T)
+    return dict(side=side, lock=(lx, lz), d=d, piv=piv, sgn=sgn, pose=pose, T=T, c0=c0, cm=cm)
+
+
+def link_lengths():
+    """Largos del eslabón a revisar: extremos del ajuste y nominal."""
+    return (LINK - LINK_TOL, LINK, LINK + LINK_TOL)
+
+
+def lever_rise(p, side, knob_travel, link=LINK):
+    """Subida de la salida del balancín (= cable que hay que tirar) para correr el pomo `knob_travel` mm."""
+    L = lever(p, side)
+    T = L["T"]
+    return L["pose"](knob_travel / T, link)[1][1] - L["pose"](0.0, link)[1][1]
+
+
+def cable_need(p):
+    """Cable a tirar para liberar el brazo (RL.need), peor balancín y peor largo del eslabón [CALCULADO]."""
+    return max(lever_rise(p, s, need(p), lk) for s in lock_sides(p) for lk in link_lengths())
+
+
+def _socket(F, a, L, d):
+    """Perno rígido en un agujero de largo L cargado por F a la distancia a FUERA de la cara (a < 0: dentro): presión
+    proyectada lineal p(x) = p0 + p1·x [Shigley/Roark, perno empotrado]. Devuelve (p máx [MPa], Σ|N| [N])."""
+    p0 = F / (d * L) * (4 + 6 * a / L)
+    p1 = -F / (d * L * L) * (6 + 12 * a / L)
+    n = 200
+    s = sum(abs(p0 + p1 * (i + 0.5) * L / n) for i in range(n)) * d * L / n
+    return max(abs(p0), abs(p0 + p1 * L)), s
+
+
+def piv_hub(p):
+    """(x proa, x popa, largo) del apoyo del balancín en su eje: cubo hacia proa + alma."""
+    x0 = lever_x0(p)
+    return x0 - PIV_HUB_H, x0 + LEV_T, PIV_HUB_H + LEV_T
+
+
+def crank_hub(p):
+    """(x proa, x popa, largo) del apoyo del perno de manivela en el balancín (prensado): cubo hacia proa + alma."""
+    x0 = lever_x0(p)
+    return x0 - CRANK_HUB_H, x0 + LEV_T, CRANK_HUB_H + LEV_T
+
+
+def lever_bearing(p, side, F=1.0):
+    """Cargas del eje del balancín `side` para un tiro F del eslabón (sobre el eje del émbolo, a lo largo de Y) y F del
+    cable de salida (vertical, en el plano medio del alma; 1:1): presiones en el casquillo del cubo (p máx combinada) y
+    Σ|N| para el rozamiento. Devuelve dict(a_link, p_max, N_sum)."""
+    xf, xb, L = piv_hub(p)
+    lx = lock_xz(p, side)[0]
+    a_y = xf - lx                                         # eslabón: fuera del cubo, delante de su cara de proa
+    a_z = xf - cable_x(p)                                 # cable de salida: dentro del cubo (a < 0)
+    py, ny = _socket(F, a_y, L, PIV_D)
+    pz, nz = _socket(F, a_z, L, PIV_D)
+    return dict(a_link=a_y, p_max=math.hypot(py, pz), N_sum=ny + nz, L=L)
+
+
+def lever_eta(p, side=None):
+    """Rendimiento del balancín (peor de los dos si side es None) [CALCULADO con μ ESTIMADOS]: 1 − (rozamiento del eje con
+    el par F·e + ojo del eslabón en el perno + barril en el brazo de salida) / (F·LEV_L)."""
+    sides = lock_sides(p) if side is None else (side,)
+    out = []
+    for s in sides:
+        b = lever_bearing(p, s, 1.0)
+        tf = LEV_MU_PIV * PIV_D / 2 * b["N_sum"] + LEV_MU_PIN * (CRANK_D / 2 + NIPPLE_R)
+        out.append(1.0 - tf / LEV_L)
+    return min(out)
+
+
+def cable_force_need(p):
+    """Tiro por cable en el gatillo para sacar el perno con el resorte al final de la carrera [CALCULADO]."""
+    return SPRING_F_MAX / (BOWDEN_ETA * lever_eta(p))
 
 
 def cable_y(p, side=1):
@@ -143,19 +291,22 @@ def cable_y(p, side=1):
 
 
 def lever_top(p, side):
-    """Z más alta del balancín `side` en todo su recorrido (cubos de la manivela, del eje y de la salida)."""
+    """Z más alta del balancín `side` en todo su recorrido (cubos de la manivela, del eje y de la salida) y en todo el
+    ajuste del eslabón."""
     L = lever(p, side)
     zs = [L["piv"][1] + PIV_BOSS_R]
-    for t in (0.0, 0.25, 0.5, 0.75, 1.0):
-        (_, cz), (_, oz) = L["pose"](t)
-        zs += [cz + CRANK_BOSS_R, oz + OUT_BOSS_R]
+    for lk in link_lengths():
+        for t in (0.0, 0.25, 0.5, 0.75, 1.0):
+            (_, cz), (_, oz) = L["pose"](t, lk)
+            zs += [cz + max(CRANK_BOSS_R, CRANK_HUB_R, CRANK_SHOULDER[0] / 2), oz + OUT_BOSS_R]
     return max(zs)
 
 
 def stop_z(p):
     """Cara inferior de las pestañas del soporte (regulador M6), la misma para las dos vainas: sobre la salida más
     alta tirada + terminal + 4 y 2 mm sobre lo más alto de los balancines (la pestaña cruza su plano)."""
-    return max(max(lever(p, s)["pose"](1.0)[1][1] + NIPPLE_R + 4.0, lever_top(p, s) + 2.0) for s in lock_sides(p))
+    return max(max(max(lever(p, s)["pose"](1.0, lk)[1][1] for lk in link_lengths()) + NIPPLE_R + 4.0,
+                   lever_top(p, s) + 2.0) for s in lock_sides(p))
 
 
 ADJ_BELOW = 2.0         # rosca del regulador que asoma bajo la pestaña

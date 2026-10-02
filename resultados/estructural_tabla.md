@@ -82,12 +82,19 @@
 | P1-STE-01 | Rosca M24 de la oreja: tensión tangencial por la precarga máxima del émbolo (cilindro grueso) | p = tan30°·30.6 kN/(π·24·14) = 16.7 MPa; r 12/20 | 35.51 | metal | 240.0 | 6.76 | 2.0 | ✔ |
 | P1-STE-01 | Collar del émbolo sobre la oreja 6061: presión con la precarga máxima | 30.6 kN / corona Ø34/Ø24.5 | 70.00 | metal | 240.0 | 3.43 | 2.0 | ✔ |
 | P1-REV-06 | Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada) | F = 100 N × 125/46 = 272 N a 6 mm | 32.44 | metal | 205.0 | 6.32 | 2.0 | ✔ |
-| P1-REV-09 | Perno de manivela Ø6 316 estirado (voladizo hasta el eje del émbolo): flexión | tiro de diseño 92 N por cable [CALCULADO: mano 100 N [SUPUESTO] × 34/18,5 / 2 cables; ≥ resorte 45 N [ESTIMADO] / η 0,6 [ESTIMADO]] a 29,3 mm | 126.59 | metal | 310.0 | 2.45 | 2.0 | ✔ |
-| P1-REV-09 | Balancín 5 mm 5083: flexión del brazo junto al cubo del eje | 92 N a 8 mm; sección 9 × 5 | 10.87 | metal | 125.0 | 11.5 | 2.0 | ✔ |
-| P1-REV-09 | Tornillo M5 A4-70 de la base al pad de la boquilla: tracción (un cable tirando, eslabón a la altura del émbolo) | T = 92 N × 32,6 / 18 = 166 N / A_s 14,2 mm² | 11.69 | metal | 450.0 | 38.49 | 2.0 | ✔ |
-| P1-CTL-14 | Gatillo 6 mm: flexión de la hoja en el cubo (100 N a 34 mm del pivote) | M = 100 N × 27 mm; sección 12 × 6 | 18.75 | metal | 240.0 | 12.8 | 2.0 | ✔ |
-| P1-CTL-14 | Pasador Ø5 A4-70 del gatillo: flexión (mano + 2 cables; apoyo en la placa lateral del mango) | F = 283 N a 3,5 mm | 80.81 | metal | 450.0 | 5.57 | 2.0 | ✔ |
-| P1-CTL-14 | Barra igualadora 316 5 × 4: flexión (dos cables a ±8 del pasador) | M = 92 N × 8 mm; sección 5 × 4 | 44.00 | metal | 205.0 | 4.66 | 2.0 | ✔ |
+| P1-REV-09 | Perno de manivela Ø6 1.4401+C: flexión en la cara del cubo (eslabón sobre el eje del émbolo) | tiro de diseño 112 N por cable [CALCULADO: mano 100 N [SUPUESTO] × 35,4/15,9 / 2 cables, sin rozamiento; ≥ resorte 45,2 N [CALCULADO: k ESTIMADO] / (η Bowden 0,6 · η balancín 0,76) [ESTIMADOS]] a 22,3 mm del cubo | 117.27 | metal | 310.0 | 2.64 | 2.0 | ✔ |
+| P1-REV-09 | Perno de manivela prensado en el cubo del balancín (5083): presión de apoyo bajo F·e | perno rígido en agujero de 12 mm, F 112 N a 22,3 mm de la cara: p = F/(d·L)·(4 + 6a/L) | 23.47 | metal | 125.0 | 5.33 | 2.0 | ✔ |
+| P1-REV-09 | Balancín (alma 5 mm 5083): flexión del brazo junto al cubo del eje | 112 N a 7 mm; sección 8 × 5 | 14.65 | metal | 125.0 | 8.53 | 2.0 | ✔ |
+| P1-REV-09 | Eje del balancín: presión en el casquillo Ø7 × 14 bajo el par F·e (+ cable de salida) | F 112 N a 20,3 mm delante del cubo: p = F/(d·L)·(4 + 6a/L) ⊕ cable | 14.83 | metal | 60.0 | 4.04 | 2.0 | ✔ |
+| P1-REV-09 | Eje del balancín 1.4401+C: flexión del muñón Ø7 en la cara del montante | M = 112 N × 35,8 mm (eslabón) ⊕ cable = 4.02 N·m | 119.33 | metal | 310.0 | 2.6 | 2.0 | ✔ |
+| P1-REV-09 | Eje Ø8 prensado en el montante 8 mm 5083: presión de apoyo | perno rígido en agujero de 8 mm, F 112 N a 35,8 mm ⊕ cable | 55.14 | metal | 125.0 | 2.27 | 2.0 | ✔ |
+| P1-REV-09 | Montante 8 mm 5083: flexión fuera del plano por el par del eje (F·e) | M = 112 N × 35,8 mm en una franja de 16 × 8 (cubo r 8 del contorno) | 23.40 | metal | 125.0 | 5.34 | 2.0 | ✔ |
+| P1-REV-09 | Ojo del eslabón 316: flexión de la pared de 2 × 4 sobre la ranura | M = F·l/4 = 112 N × 9,7/4 (perno en el centro de la ranura) | 101.48 | metal | 205.0 | 2.02 | 2.0 | ✔ |
+| P1-REV-09 | Vástago M4 del eslabón (316): tracción | 112 N / A_s 8,78 mm² | 12.71 | metal | 205.0 | 16.13 | 2.0 | ✔ |
+| P1-REV-09 | Tornillo M5 A4-70 de la base al pad de la boquilla: tracción (un cable tirando, eslabón a la altura del émbolo) | T = 112 N × 32,6 / 18 = 202 N / A_s 14,2 mm² | 14.23 | metal | 450.0 | 31.62 | 2.0 | ✔ |
+| P1-CTL-14 | Gatillo 6 mm: flexión de la hoja en el cubo (100 N a 35.4 mm del pivote) | M = 100 N × 28.4 mm; sección 12 × 6 | 19.72 | metal | 240.0 | 12.17 | 2.0 | ✔ |
+| P1-CTL-14 | Pasador Ø5 A4-70 del gatillo: flexión (mano + 2 cables; apoyo en la placa lateral del mango) | F = 323 N a 3,5 mm | 92.18 | metal | 450.0 | 4.88 | 2.0 | ✔ |
+| P1-CTL-14 | Barra igualadora 316 5 × 4: flexión (dos cables a ±8 del pasador) | M = 112 N × 8 mm; sección 5 × 4 | 53.57 | metal | 205.0 | 3.83 | 2.0 | ✔ |
 | P1-REV-05 | Soporte del Mach5: placa lateral en voladizo (palanca forzada) | 272 N a 48 mm; 6 × 124 | 0.85 | metal | 125.0 | 147.35 | 2.0 | ✔ |
 | P1-CTL-09 | Palanca del acelerador: flexión en el cubo (100 N en el pomo) | M = 100 N × 120 mm; barra 16 × 8 | 35.16 | metal | 240.0 | 6.83 | 2.0 | ✔ |
 | P1-CTL-10 | Palanca del bucket: flexión en el escalón (100 N en el pomo) | M = 100 N × 125 mm; 16 × 8 | 36.62 | metal | 240.0 | 6.55 | 2.0 | ✔ |

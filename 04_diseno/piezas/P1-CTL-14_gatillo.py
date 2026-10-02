@@ -8,7 +8,12 @@ dos vainas, que apoyan en la pestaña de tope de la placa lateral del mango. La 
 del gatillo por igual entre los dos cables aunque tengan distinto largo/juego (los reguladores M6 de P1-REV-09 quitan
 el juego al montar) y aunque un émbolo quede trabado (la barra gira hasta que el otro llega al final de su carrera:
 cada cable lleva como máximo la mitad del tiro del gatillo). Retorno: resorte de torsión del gatillo + resortes de los
-émbolos. Se mueve con la palanca (estados del bucket)."""
+émbolos. Se mueve con la palanca (estados del bucket).
+
+Cadena de fuerzas (re-auditoría ronda 5, DES-01/DES-03): el tiro por cable que da la mano de diseño (con el rendimiento
+del gatillo TRIG_ETA) tiene que llegar al resorte del émbolo al final de su carrera (_release.SPRING_F_MAX) a través del
+Bowden (BOWDEN_ETA) y del balancín de P1-REV-09, cuyo eje toma el par F·e del eslabón (_release.lever_eta). Para eso el
+brazo del cable es más corto (R_W 17,5) y el giro mayor (50°): la relación mano → cable sube sin pasar 30 mm de dedos."""
 import math
 import os
 import sys
@@ -30,10 +35,11 @@ Y0, Y1 = 37.5, 43.5          # gatillo, por fuera de la placa lateral del mango 
 BAR_Y = (44.0, 48.0)         # barra igualadora (y); los cables van en y = 46
 PIV = (0.0, 106.0)           # pasador Ø5 en el mango (x, z local) [CALCULADO: borde ≥ 3,5 en el mango 16 × 35]
 PIV_D = 5.0
-R_W = 20.0                   # pasador de la barra a 20 mm del pivote
-ANG = 44.0                   # giro del gatillo (reposo → apretado) [CALCULADO: recorrido ≥ liberación + 3 + 2]
-R_F = 34.0                   # punto de apoyo de los dedos a 34 mm del pivote
-BETA0 = 52.0                 # hoja en reposo: 52° desde la vertical hacia proa (apretada: 8°)
+R_W = 17.5                   # pasador de la barra a 17,5 mm del pivote [CALCULADO: recorrido ≥ liberación + 3 + 2]
+ANG = 50.0                   # giro del gatillo (reposo → apretado) [CALCULADO: relación mano → cable con ≤ 30 mm de dedos]
+R_F = 35.4                   # punto de apoyo de los dedos a 35,4 mm del pivote (recorrido de los dedos ≤ 30)
+BETA0 = 52.0                 # hoja en reposo: 52° desde la vertical hacia proa (apretada: 2°)
+TRIG_ETA = 0.95              # rendimiento del gatillo (pasador Ø5 + pasador de la barra, engrasados) [ESTIMADO]
 BAR_H = 8.0                  # cables a ±8 del pasador de la barra
 BAR_L = 24.0
 BAR_T = 5.0                  # espesor de la barra (x)
@@ -90,25 +96,32 @@ def placements(p, steer=0.0, bucket=0):
     return [Pos(x, y, z) * Rot(0, th, 0) * Pos(-x, -y, -z)]
 
 
-def cable_pull_design(p):
-    """Tiro máximo por cable (N) con la mano de diseño: momento de la mano / brazo del cable en el extremo del
-    recorrido, repartido en 2 por la barra igualadora."""
+def cable_pull_max(p):
+    """Tiro máximo por cable (N) con la mano de diseño SIN rozamiento (carga de diseño de las piezas): momento de la mano /
+    brazo del cable en el extremo del recorrido, repartido en 2 por la barra igualadora."""
     arm = R_W * math.cos(math.radians(ANG / 2))
     return p.CTL_hand_F * R_F / arm / max(len(RL.lock_sides(p)), 1)
 
 
+def cable_pull_design(p):
+    """Tiro por cable (N) que da la mano de diseño descontando el rozamiento del gatillo (TRIG_ETA [ESTIMADO])."""
+    return cable_pull_max(p) * TRIG_ETA
+
+
 def checks(p, part):
-    need = RL.need(p)
+    need = RL.cable_need(p)                  # cable que hay que tirar para liberar (balancín 1:1, peor ajuste del eslabón)
     tr = travel()
     w0, w1 = wire_pt(0.0), wire_pt(ANG)
-    f_need = RL.SPRING_F_MAX / RL.BOWDEN_ETA
+    f_need = RL.cable_force_need(p)          # resorte final / (η Bowden · η balancín)
     return [("un solo sólido", len(part.solids()), 1, "="),
-            ("recorrido del cable con el gatillo apretado [mm]", tr, need + 3.0, ">="),
+            ("recorrido del cable con el gatillo apretado ≥ liberación + 3 de juego (pomo apoyado en la tapa) [mm]", tr, need + 3.0, ">="),
             ("sobrecarrera más allá de liberación + 3 [mm]", tr - (need + 3.0), 2.0, ">="),
             ("cable sale recto: desnivel del pasador de la barra entre reposo y apretado [mm]", abs(w1[1] - w0[1]), 0.1, "<="),
             ("igualador: giro de la barra para compensar una carrera completa del émbolo [°]",
              math.degrees(math.asin(min(p.REV_plunger_stroke / (2 * BAR_H), 1.0))), 60.0, "<="),
-            ("tiro por cable con la mano de diseño ≥ resorte final / rendimiento del Bowden [N]",
+            ("tiro por cable con la mano de diseño × η gatillo ≥ resorte final / (η Bowden · η balancín) [N]",
              cable_pull_design(p), f_need, ">="),
+            ("rendimiento del balancín de P1-REV-09 (par F·e en el eje; μ ESTIMADOS) [-]", RL.lever_eta(p), 0.7, ">="),
             ("recorrido de los dedos en la hoja [mm]", 2 * R_F * math.sin(math.radians(ANG / 2)), 30.0, "<="),
+            ("hoja apretada sin pasar la vertical (no toca el mango) [°]", BETA0 - ANG, 0.0, ">="),
             ("separación de la placa lateral del mango (y) [mm]", Y0 - 37.0, 0.3, ">=")]

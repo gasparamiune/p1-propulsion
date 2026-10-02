@@ -174,9 +174,12 @@ def draw(p, H):
     out.append(PL("P1-REV-05", "soporte_mach5", "Al 5083-H111", 95.0 - 25.0, 248.0 - 124.0, 6.0,
                   [(54.0, 14.0 + 6.0, 12.8, "grapa inferior (bloque soldado)"), (54.0, 110.0 + 6.0, 12.8, "grapa superior")],
                   notes=["Placa lateral; alma transversal 6 mm en X' 25–31 y base 27 × 28 con 4 × Ø9 (STEP)"]))
-    # ---------------- desbloqueo de las trabas (ronda 4, R4-06/R4-07): soporte de reenvío, balancines, vainas, gatillo
+    # ---------------- desbloqueo de las trabas (ronda 4, R4-06/R4-07; ronda 5: DES-01/03/04/05/07): soporte de reenvío,
+    # balancines con cubos, ejes, pernos de manivela, eslabones rígidos, vainas y gatillo
     m9 = _mod("P1-REV-09_soporte_bowden")
     _c = lambda v, f=".1f": format(v, f).replace(".", ",")             # noqa: E731
+    _g = lambda v: format(v, "g").replace(".", ",")                     # noqa: E731
+    M316C = "1.4401+C (AISI 316 estirado, Rp0,2 ≥ 310, certificado 3.1)"
     up = m9.upright_outline(p)
     uy0, uz0 = min(q[0] for q in up), min(q[1] for q in up)
     uw, uh = max(q[0] for q in up) - uy0, max(q[1] for q in up) - uz0
@@ -184,30 +187,64 @@ def draw(p, H):
     for sd in RL.lock_sides(p):
         L = RL.lever(p, sd)
         tg = "+Y" if sd > 0 else "−Y"
-        hl.append((L["piv"][0] - uy0, L["piv"][1] - uz0, 5.5, f"eje del balancín del émbolo {tg} (ISO 7379 Ø6 × M5, tuerca atrás)"))
+        hl.append((L["piv"][0] - uy0, L["piv"][1] - uz0, RL.PIV_STUD_D,
+                   f"eje del balancín {tg}: Ø{_g(RL.PIV_STUD_D)} H7 escariado DESPUÉS de soldar (eje prensado)"))
     px = RL.pad_x(p)
     zs = RL.stop_z(p)
     tab_l = m9.up_x(p) - (RL.cable_x(p) - RL.ADJ_HOLE_R - RL.ADJ_EDGE)
     out.append(PL("P1-REV-09", "soporte_bowden", "Al 5083-H111", round(uw, 1), round(uh, 1), m9.UP_T, hl,
-                  notes=[f"MONTANTE {m9.UP_T:g} mm (plano YZ; origen = esquina inferior de estribor del contorno). Conjunto soldado ×1:",
+                  notes=[f"MONTANTE {_g(m9.UP_T)} mm (plano YZ; origen = esquina inferior de estribor del contorno). Conjunto soldado ×1:",
                          f"BASE {m9.BASE_T:g} mm: {_c(px[1] - px[0] - 0.5)} × {2 * m9.BASE_W:g} con 2 × Ø5,5 a {_c(RL.pad_screws(p)[0][0] - px[0] - 0.5)} del borde de proa, ±{abs(RL.pad_screws(p)[0][1]):g} "
                          f"(ISO 4762 M5 × 12 A4-70 + Tef-Gel a las roscas M5 × 7,5 del pad de P1-STE-01)",
                          f"PESTAÑAS {RL.TAB_T:g} mm ×2: {_c(tab_l)} × {2 * m9.TAB_HW:g}, M6 en Y {_c(RL.cable_y(p, 1))} y {_c(RL.cable_y(p, -1))}, "
                          f"cara inferior a Z {_c(zs)} (marco de la boquilla); reguladores M6 del Bowden (P1-REV-10)",
                          f"Montante a X {_c(m9.up_x(p))}–{_c(m9.up_x(p) + m9.UP_T)}; la base apoya de cara en el pad plano (Z {_c(RL.pad_z(p))})",
-                         "Soldar base + montante + pestañas con plantilla; balancines: hoja P1-REV-09_balancin"]))
+                         "Soldar base + montante + pestañas con plantilla; escariar los Ø8 H7 de los ejes después de soldar, a escuadra con la base",
+                         "Ejes (hoja P1-REV-09_eje_balancin): prensar desde proa hasta el escalón, Loctite 638; balancines: hoja P1-REV-09_balancin"]))
     lo = m9.lever_outline(p)
     lu0, lv0 = min(q[0] for q in lo), min(q[1] for q in lo)
     lw, lh = max(q[0] for q in lo) - lu0, max(q[1] for q in lo) - lv0
     Lc = [m9.crank_pin_len(p, sd) for sd in RL.lock_sides(p)]
+    xph, _, Lph = RL.piv_hub(p)
+    xch, _, Lch = RL.crank_hub(p)
     out.append(PL("P1-REV-09", "balancin", "Al 5083-H111", round(lw, 1), round(lh, 1), RL.LEV_T,
-                  [(-lu0, -lv0, RL.PIV_D + 0.05, "eje: Ø6 H8 (hombro ISO 7379)"),
-                   (-lu0, RL.LEV_L - lv0, RL.CRANK_D, f"perno de manivela Ø{RL.CRANK_D:g} m6 prensado"),
+                  [(-lu0, -lv0, RL.PIV_BUSH_OD, f"eje: Ø{_g(RL.PIV_BUSH_OD)} H7 en el cubo Ø{_g(2 * RL.PIV_BOSS_R)} × {_g(Lph)} "
+                    f"(casquillo polimérico con collar Ø{_g(RL.PIV_D)}/Ø{_g(RL.PIV_BUSH_OD)} prensado)"),
+                   (-lu0, RL.LEV_L - lv0, RL.CRANK_D, f"perno de manivela: Ø{_g(RL.CRANK_D)} H7 en el cubo Ø{_g(2 * RL.CRANK_HUB_R)} × {_g(Lch)}"),
                    (RL.LEV_L - lu0, -lv0, 2 * RL.NIPPLE_R + 0.2, "terminal (barril Ø5) del cable + ranura 1,8 hacia arriba")],
-                  notes=[f"×2 iguales (el del émbolo −Y va dado vuelta). Brazos {RL.LEV_L:g} a 90° (1:1): la salida sube lo que corre el pomo",
-                         f"Pernos de manivela AISI 316 estirado Ø{RL.CRANK_D:g}: largo {_c(Lc[0])} (émbolo +Y)"
-                         + (f" y {_c(Lc[1])} (émbolo −Y)" if len(Lc) > 1 else "") + "; ranura de anillo E a 2 mm del extremo",
-                         f"Eslabón al pomo: cable inox Ø1,5 con terminal en el ojal del pomo y lazo en el perno ({RL.LINK:g} mm cara del pomo → perno)"]))
+                  notes=[f"×2 (el del émbolo −Y va dado vuelta). Fresado de placa 5083 de 12: alma {_g(RL.LEV_T)} mm (contorno) + cubos "
+                         f"hacia PROA: eje Ø{_g(2 * RL.PIV_BOSS_R)} × {_g(RL.PIV_HUB_H)} y manivela Ø{_g(2 * RL.CRANK_HUB_R)} × {_g(RL.CRANK_HUB_H)} "
+                         f"(apoyos {_g(Lph)} y {_g(Lch)} = 2·Ø: toman el par F·e del eslabón, DES-03)",
+                         f"Brazos {RL.LEV_L:g} a 90° (1:1): la salida sube lo que corre el pomo",
+                         f"Perno de manivela (hoja P1-REV-09_perno_manivela): prensado desde proa hasta el hombro, Loctite 638; "
+                         f"anillos DIN 6799 atrás y adelante (ojo del eslabón)",
+                         f"Rendimiento estimado del balancín {_c(RL.lever_eta(p), '.2f')} (μ del eje {_g(RL.LEV_MU_PIV)} [ESTIMADO]): engrasar el casquillo"]))
+    # eje del balancín (prensado en el montante) y perno de manivela (prensado en el cubo): torneados de 1.4401+C
+    l_j = Lph + m9.GAP + m9.CLIP
+    out.append(T("P1-REV-09", "eje_balancin", M316C,
+                 [(m9.CLIP, RL.PIV_D - 1.0, "ranura DIN 6799 (anillo del balancín)"),
+                  (round(l_j - m9.CLIP, 2), RL.PIV_D, f"muñón Ø{_g(RL.PIV_D)} f7 (casquillo del balancín + arandela PTFE 1)"),
+                  (m9.UP_T, RL.PIV_STUD_D, f"Ø{_g(RL.PIV_STUD_D)} m6 prensado en el montante (a ras atrás)")],
+                 notes=[f"×2. Largo total {_c(m9.pivot_len(p))}; escalón Ø{_g(RL.PIV_STUD_D)}/Ø{_g(RL.PIV_D)} a escuadra: apoya en la cara del montante",
+                        "Prensar con Loctite 638; flexión del muñón y presión en el montante: structural_direccion (P1-REV-09)"]))
+    lfree = [round(Lc[i] - Lch - RL.CRANK_SHOULDER[1] - 1.0, 2) for i in range(len(Lc))]
+    out.append(T("P1-REV-09", "perno_manivela", M316C,
+                 [(lfree[-1], RL.CRANK_D, f"Ø{_g(RL.CRANK_D)} h9 libre: ojo del eslabón + ranura DIN 6799 a 2 del extremo"),
+                  (RL.CRANK_SHOULDER[1], RL.CRANK_SHOULDER[0], f"hombro Ø{_g(RL.CRANK_SHOULDER[0])} (apoya en la cara del cubo)"),
+                  (Lch, RL.CRANK_D, f"Ø{_g(RL.CRANK_D)} m6 prensado en el cubo"), (1.0, RL.CRANK_D - 1.0, "ranura DIN 6799 (atrás)")],
+                 notes=[f"×2: largo {_c(Lc[0])} (émbolo +Y, tramo libre {_c(lfree[0])})"
+                        + (f" y {_c(Lc[1])} (émbolo −Y, tramo libre {_c(lfree[1])})" if len(Lc) > 1 else "") + "; dibujado el más largo",
+                        "Prensar desde proa hasta el hombro con Loctite 638"]))
+    hz = RL.LINK_EYE_SLOT_W / 2 + RL.LINK_SLOT + RL.LINK_EYE_WALL
+    out.append(PL("P1-REV-09", "eslabon", "1.4401 (AISI 316)", round(2 * RL.LINK_EYE_HALF + RL.LINK_SHANK_L, 1), round(2 * hz, 1),
+                  RL.LINK_EYE_T,
+                  [(RL.LINK_EYE_HALF, hz, RL.LINK_EYE_SLOT_W, f"ranura {_g(RL.LINK_EYE_SLOT_W)} × {_g(RL.LINK_EYE_SLOT_W + 2 * RL.LINK_SLOT)} VERTICAL (perno de manivela)")],
+                  notes=[f"×2. ESLABÓN RÍGIDO (DES-04): ojo {_g(2 * RL.LINK_EYE_HALF)} × {_c(2 * hz)} × {_g(RL.LINK_EYE_T)} con la ranura + vástago M4 × "
+                         f"{_g(RL.LINK_SHANK_L)} en el eje (torneado y fresado de barra Ø16)",
+                         f"El vástago se rosca en la rosca M4 axial de la cola del perno del émbolo (P1-REV-04) con Loctite 243",
+                         f"Largo cara del pomo → eje del perno {_c(RL.LINK, '.2f')} (luz ojo ↔ pomo {_c(RL.LINK_GAP, '.2f')}); ajuste ±{_g(RL.LINK_TOL)} "
+                         f"por medias vueltas (0,35): la ranura queda vertical",
+                         "Montaje: bucket trabado, pomo apoyado en la tapa: ajustar hasta que el perno de manivela quede a la altura del eje del émbolo"]))
     g = RL.sheath_path(p)
     xs = [g[k][0] for k in ("p0", "pb", "pe", "pf")]
     zz = [g[k][1] for k in ("p0", "pb", "pe", "pf")]
@@ -223,7 +260,8 @@ def draw(p, H):
                   notes=[f"Línea media en el plano XZ (marco de la boquilla), Y = {_c(RL.cable_y(p, 1))} (émbolo +Y) y {_c(RL.cable_y(p, -1))} (émbolo −Y)",
                          f"Curva R{RL.BOWDEN_R:g} (≥ R{RL.BOWDEN_R_MIN:g} mínimo de la vaina [ESTIMADO]) de {_c(l_arc)} mm + recta a 45° de {_c(l_str)} mm",
                          "Atar las dos vainas al montante con brida inox; bucle libre ≈ 0,5 m (R ≥ 150) hasta el prensaestopas P1-CTL-05",
-                         "Regulador M6 + contratuerca en cada pestaña de P1-REV-09: quitar el juego con el bucket trabado (cable apenas tenso)"]))
+                         "Regulador M6 + contratuerca en cada pestaña de P1-REV-09: con el bucket trabado, cable apenas flojo "
+                         "(pomo apoyado en la tapa); si el cable queda tenso, el perno no entra"]))
     m14 = _mod("P1-CTL-14_gatillo")
     gpts = [q for poly in m14.outline() for q in poly]
     gx0, gz0 = min(q[0] for q in gpts), min(q[1] for q in gpts)
@@ -231,11 +269,12 @@ def draw(p, H):
     w0 = m14.wire_pt(0.0)
     out.append(PL("P1-CTL-14", "gatillo", "Al 6061-T6", round(gw, 1), round(gh, 1), 6.0,
                   [(m14.PIV[0] - gx0, m14.PIV[1] - gz0, m14.PIV_D + 0.1, f"pivote: pasador Ø{m14.PIV_D:g} A4 (mango + placa lateral de P1-CTL-10)"),
-                   (w0[0] - gx0, w0[1] - gz0, 4.0, "pasador Ø4 de la barra igualadora")],
-                  notes=[f"Giro {m14.ANG:g}° → {_c(m14.travel())} mm de cable (liberar pide {_c(RL.need(p))} + 3 de juego); dedos {_c(2 * m14.R_F * math.sin(math.radians(m14.ANG / 2)))} mm",
+                   (w0[0] - gx0, w0[1] - gz0, 4.0, f"pasador Ø4 de la barra igualadora (a {_g(m14.R_W)} del pivote)")],
+                  notes=[f"Giro {_g(m14.ANG)}° → {_c(m14.travel())} mm de cable (liberar pide {_c(RL.cable_need(p))} + 3 de juego); dedos {_c(2 * m14.R_F * math.sin(math.radians(m14.ANG / 2)))} mm a {_g(m14.R_F)} del pivote",
                          f"Barra igualadora AISI 316 {m14.BAR_T:g} × 4 × {m14.BAR_L:g}: pasador Ø4 al centro, ranuras de los terminales a ±{m14.BAR_H:g}; gira libre",
-                         f"Tiro de diseño por cable {m14.cable_pull_design(p):.0f} N con {p.CTL_hand_F:g} N de mano [CALCULADO]; resorte de torsión de retorno",
-                         "Tope de las vainas: pestaña 5 mm (2 × M6) de la placa lateral soldada al mango de P1-CTL-10"]))
+                         f"Tiro por cable con {p.CTL_hand_F:g} N de mano: {m14.cable_pull_design(p):.0f} N (η gatillo {_g(m14.TRIG_ETA)}) ≥ "
+                         f"{RL.cable_force_need(p):.0f} N = resorte {_c(RL.SPRING_F_MAX)} N / (η Bowden {_g(RL.BOWDEN_ETA)} · η balancín {_c(RL.lever_eta(p), '.2f')}) [CALCULADO/ESTIMADO]",
+                         "Tope de las vainas: pestaña 5 mm (2 × M6 con contratuerca) de la placa lateral soldada al mango de P1-CTL-10; resorte de torsión de retorno"]))
     out.append(T("P1-REV-06", "perno_varilla", "AISI 316",
                  [(p.REV_t + p.REV_eye_off - 0.5, 6.0, "M6"), (p.REV_eye_w + 2.0, p.REV_stud_d, "hombro Ø8 f7"), (4.0, 13.0, "cabeza")],
                  notes=["Rótula hembra M6 del Mach5 en el hombro"]))
@@ -258,11 +297,15 @@ def draw(p, H):
     out.append(PL("P1-CTL-09", "palanca_acel", "Al 6061-T6", 60.0, 30.0 + p.CTL_lever_L + 11.0, 8.0,
                   [(30.0, 30.0, 12.0, "eje (pasador Ø4 transversal)"), (30.0, 30.0 + p.CTL_lever_L, 8.5, "pomo M8")],
                   notes=["Ranuras del enclavamiento en la cara interior: r 22, ancho 6,4, prof. 3, φ 60–90° y 270–310° (chaflán 1×45°)"]))
+    m10 = _mod("P1-CTL-10_palanca_bucket")
     out.append(PL("P1-CTL-10", "palanca_bucket", "Al 6061-T6", 80.0, 30.0 + 112.0, 8.0,
                   [(40.0, 30.0, 12.2, "eje (buje POM)"), (40.0 - 39.8, 30.0 + 23.0, 8.0, "perno de manivela Ø8 prensado")],
                   notes=["Muescas Ø6,4 × 3 en r 22, φ 90° y 210° (cara interior)", "Escalón 20 mm a babor y mango hasta z 135 (soldado)",
                          "Placa lateral 4 mm (≈ 28 × 65, x −20…8, z 70–135) soldada al mango: lleva el pasador Ø5 del gatillo P1-CTL-14",
-                         "  y la pestaña de tope de las 2 vainas (5 mm, 2 × M6); contorno exacto en el STEP"]))
+                         f"  y la pestaña de tope de las 2 vainas (5 mm, x {_g(m10.STOP_X[0])}…{_g(m10.STOP_X[1])}, y {_g(m10.PERCH_Y[0])}–{_g(m10.STOP_Y1)}, "
+                         f"z {_g(m10.PERCH[4][1])}–{_g(m10.PERCH[5][1])}): 2 × M6 en y {_g((m14.BAR_Y[0] + m14.BAR_Y[1]) / 2)}, "
+                         f"z {_c(m14.wire_pt(0.0)[1] - m14.BAR_H)} y {_c(m14.wire_pt(0.0)[1] + m14.BAR_H)} (borde ≥ {_g(m10.ADJ_EDGE_MIN)})",
+                         "  Reguladores M6 del Bowden con su contratuerca apoyada en la pestaña; contorno exacto en el STEP"]))
     out.append(T("P1-CTL-11", "eje_palancas", "AISI 316",
                  [(6.0, 18.0, "cabeza portaimán Ø10,2 × 3"), (32.0, 12.0, "Ø12 h7"), (3.0, 12.0, "ranura anillo E")],
                  feats=[(9.0, "pasador Ø4 (palanca del acelerador)")], notes=["Imán NdFeB Ø10×3 diametral pegado (epoxi)"]))

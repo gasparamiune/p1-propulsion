@@ -1,28 +1,36 @@
-"""P1-REV-09 — Soporte de reenvío del desbloqueo (frame steer): placa base + montante Al 5083 6/5 mm soldados, con DOS
-balancines de reenvío 1:1 (Al 5083 5 mm) y las pestañas de los reguladores M6 de las dos vainas del Bowden (P1-REV-10).
+"""P1-REV-09 — Soporte de reenvío del desbloqueo (frame steer): placa base 6 + montante 8 Al 5083 soldados, con DOS
+balancines de reenvío 1:1 (Al 5083 fresados) y las pestañas de los reguladores M6 de las dos vainas del Bowden (P1-REV-10).
 
 Por qué un reenvío (auditoría ronda 4, R4-06): con el émbolo propio (cuerpo hasta Y = 0, pomo Ø25 que baja 12 mm
 hacia el plano medio) no cabe un tope de vaina coaxial con el pomo entre las orejas: desde el pomo tirado
 (|Y| ≈ 22) + el regulador, la vaina tendría que girar 90° con R ≥ _release.BOWDEN_R_MIN antes de la cara interior del
-brazo del bucket (|Y| 56,5) [CALCULADO: _release]. Cada pomo tira de un eslabón corto de cable (terminal en el ojal
-del pomo, lazo en el perno de manivela Ø6 de su balancín); el balancín gira en un tornillo con hombro ISO 7379 Ø6 × M5
-del montante y su brazo de salida SUBE lo mismo que corre el pomo; el cable del Bowden sale vertical desde el
-terminal (barril Ø5) hasta el regulador M6 de la pestaña y la vaina sigue hacia arriba y a proa (P1-REV-10).
-Los balancines están a popa de los collares de los émbolos (la oreja +Y queda a ≥ 2 mm de la pestaña del lado +Y);
-el del émbolo +Y tiene el eje DEBAJO de la manivela (el perno pasa sobre el collar del émbolo −Y) y el del −Y
-ENCIMA (el perno pasa bajo el collar del +Y).
+brazo del bucket (|Y| 56,5) [CALCULADO: _release]. Cada pomo tira de un ESLABÓN RÍGIDO (re-auditoría ronda 5, DES-04):
+ojo de 316 con ranura vertical en el perno de manivela Ø6 de su balancín + vástago M4 roscado en la cola del perno del
+émbolo (Loctite 243), largo ajustable ±_release.LINK_TOL al montar. El balancín gira en un eje fijo 1.4401+C (Ø8 prensado
+en el montante, muñón Ø7 con casquillo polimérico en el cubo del balancín) y su brazo de salida SUBE lo mismo que corre
+el pomo; el cable del Bowden sale vertical desde el terminal (barril Ø5) hasta el regulador M6 de la pestaña y la vaina
+sigue hacia arriba y a proa (P1-REV-10).
+
+Momento fuera del plano (re-auditoría ronda 5, DES-03): el eslabón tira sobre el eje del émbolo, 17–20 mm delante del
+cubo del balancín → par F·e. Lo toman CUBOS largos hacia proa (fresados con el balancín de placa de 12: eje con apoyo de
+14 = 2·Ø, perno de manivela prensado en 12 con hombro Ø9 adelante y anillo DIN 6799 atrás) y el eje Ø8 prensado en el
+montante de 8; las presiones y el rozamiento del eje (rendimiento del balancín, _release.lever_eta) están en
+structural_direccion (filas P1-REV-09) y en el check de fuerza del gatillo P1-CTL-14.
+Los balancines están a popa de los collares de los émbolos; el del émbolo +Y tiene el eje DEBAJO de la manivela y el
+del −Y ENCIMA.
 
 Fijación (R4-07): la placa base apoya de cara sobre un PAD fresado en la parte superior del cuerpo de la boquilla
 (P1-STE-01, a popa de los émbolos, X 399–426,5) y se atornilla con 2 × ISO 4762 M5 × 12 A4-70 en roscas M5 × 7,5 del
 pad (Tef-Gel; arandela de nylon bajo la cabeza). Lejos de los ligamentos del pivote y de las roscas M24 de las orejas.
-Modelo: el conjunto (soporte soldado + balancines + pernos + eslabones + tramo de cable hasta el regulador +
-tornillos) es UN sólido en REPOSO (bucket trabado, cables flojos); los checks verifican también la posición TIRADA."""
+Modelo: el conjunto (soporte soldado + ejes + balancines + pernos + eslabones + tramo de cable hasta el regulador +
+tornillos) es UN sólido en REPOSO (bucket trabado, cables flojos; el ojo del eslabón se modela macizo alrededor del
+perno); los checks verifican también la posición TIRADA y los dos extremos del ajuste del eslabón."""
 import math
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from cadlib import box, cyl_x, cyl_y, cyl_z, hex_prism_x, prism_yz  # noqa: E402
+from cadlib import box, cyl_x, cyl_y, cyl_z, prism_yz  # noqa: E402
 from _dir_common import circ, hull  # noqa: E402
 import _release as RL  # noqa: E402
 
@@ -31,37 +39,52 @@ META = dict(
     desc="Soporte de reenvío del desbloqueo: base + montante Al 5083 soldados, 2 balancines 1:1 y 2 pestañas de reguladores M6",
     material="Al 5083", process="torneada", qty=1, frame="steer", group="jet",
     load_case="Tiro de diseño por cable (mano 100 N en el gatillo P1-CTL-14 repartida por el igualador) [CALCULADO]",
-    print_rot=(0, 0, 0), solid_frac=1.0, orientation="Chapa cortada y soldada (base 6 + montante 5 + pestañas 5)",
+    print_rot=(0, 0, 0), solid_frac=1.0,
+    orientation="Chapa cortada y soldada (base 6 + montante 8 + pestañas 5); balancines fresados de placa de 12",
 )
 BASE_T = 6.0          # placa base [SUPUESTO]
-UP_T = 5.0            # montante [SUPUESTO]
+UP_T = RL.UP_T        # montante (el eje del balancín Ø8 se prensa en él)
 BASE_W = RL.PAD_W      # semiancho de la base (= pad de la boquilla)
 M5_DRILL = RL.PAD_M5_DRILL
 SCREW_L = 12.0        # ISO 4762 M5 × 12: 6 mm de rosca en el pad (rosca de 7,5, taladro de 9: no toca fondo)
 pad_z = RL.pad_z
-GAP = 0.5             # luz balancín ↔ montante
+GAP = RL.LEV_GAP      # luz alma del balancín ↔ montante
+CLIP = 1.5            # muñón / perno que asoma por delante del cubo para el anillo DIN 6799
+CLIP_R = 6.0          # radio exterior del anillo DIN 6799 del muñón Ø7 (modelo de holgura) [ESTIMADO]
 
 
 def up_x(p):
-    return RL.lever_x0(p) + RL.LEV_T + GAP
+    return RL.up_x(p)
 
 
-def lever_solid(p, side, t=0.0):
-    """Balancín + perno de manivela + eslabón (en la pose t) + terminal y tramo de cable de salida."""
+def link_solid(p, side, t=0.0, link=RL.LINK):
+    """Eslabón rígido (modelo): ojo macizo (ranura no modelada) alrededor del perno de manivela + vástago M4 hasta la cara
+    del pomo (pose t, largo `link`)."""
+    lx, lz = RL.lock_xz(p, side)
+    sg = 1 if side > 0 else -1
+    kf = sg * (RL.knob_end_y(p) - t * RL.lev_travel(p))                 # cara del pomo
+    cy = kf - sg * link                                                  # eje del perno de manivela (Y)
+    hz = RL.LINK_EYE_SLOT_W / 2 + RL.LINK_SLOT + RL.LINK_EYE_WALL
+    e = box(lx - RL.LINK_EYE_T / 2, lx + RL.LINK_EYE_T / 2, cy - RL.LINK_EYE_HALF, cy + RL.LINK_EYE_HALF, lz - hz, lz + hz)
+    ya, yb = cy + sg * (RL.LINK_EYE_HALF - 0.01), kf - sg * 0.01
+    e = e + cyl_y(2.0, min(ya, yb), max(ya, yb), x=lx, z=lz)               # vástago M4
+    return e
+
+
+def lever_solid(p, side, t=0.0, link=RL.LINK):
+    """Balancín (alma + cubos) + perno de manivela + eslabón (en la pose t) + terminal y tramo de cable de salida."""
     L = RL.lever(p, side)
-    (cy, cz), (oy, oz) = L["pose"](t)
+    (cy, cz), (oy, oz) = L["pose"](t, link)
     py, pz = L["piv"]
     x0, x1 = RL.lever_x0(p), RL.lever_x0(p) + RL.LEV_T
     lx, lz = L["lock"]
     s = prism_yz(hull(circ(cy, cz, RL.CRANK_BOSS_R) + circ(py, pz, RL.PIV_BOSS_R) + circ(oy, oz, RL.OUT_BOSS_R)), x0, x1)
-    s = s + cyl_x(RL.CRANK_D / 2, lx - 4.0, x0 + 0.01, y=cy, z=cz)                      # perno de manivela Ø6
-    # eslabón: terminal en el ojal del pomo + cable Ø1,5 hasta el perno (coaxial con el émbolo en reposo)
-    kf = RL.knob_end_y(p) - t * RL.lev_travel(p)                                          # cara del pomo (lado +Y)
-    sg = 1 if side > 0 else -1
-    ka, kb = sg * (kf - 0.3), sg * (kf - 4.3)
-    s = s + cyl_y(3.0, min(ka, kb), max(ka, kb), x=lx, z=lz)
-    y_t, y_c = kb, cy
-    s = s + cyl_y(0.75, min(y_t, y_c), max(y_t, y_c), x=lx, z=lz)
+    s = s + cyl_x(RL.PIV_BOSS_R, RL.piv_hub(p)[0], x0 + 0.01, y=py, z=pz)               # cubo del eje (hacia proa)
+    xc = RL.crank_hub(p)[0]
+    s = s + cyl_x(RL.CRANK_HUB_R, xc, x0 + 0.01, y=cy, z=cz)                            # cubo de la manivela
+    s = s + cyl_x(RL.CRANK_SHOULDER[0] / 2, xc - RL.CRANK_SHOULDER[1], xc + 0.01, y=cy, z=cz)   # hombro del perno
+    s = s + cyl_x(RL.CRANK_D / 2, lx - 4.0, x1 + 1.0, y=cy, z=cz)                       # perno de manivela Ø6
+    s = s + link_solid(p, side, t, link)
     # terminal (barril Ø5 a lo largo de X) y cable vertical hasta 0,3 mm bajo el regulador (sigue por dentro: P1-REV-10)
     s = s + cyl_x(RL.NIPPLE_R, x0 - 0.5, x1 + 0.5, y=oy, z=oz)
     s = s + cyl_z(0.75, oz, RL.stop_z(p) - RL.ADJ_BELOW - 0.3, x=RL.cable_x(p), y=oy)
@@ -85,18 +108,23 @@ def upright_outline(p):
 
 
 def lever_outline(p):
-    """Contorno del balancín en su propio marco (eje en el origen, manivela en +v, salida en +u): los dos son iguales
-    (el del émbolo −Y es el mismo dado vuelta)."""
+    """Contorno del alma del balancín en su propio marco (eje en el origen, manivela en +v, salida en +u): los dos son
+    iguales (el del émbolo −Y es el mismo dado vuelta)."""
     return hull(circ(0.0, RL.LEV_L, RL.CRANK_BOSS_R) + circ(0.0, 0.0, RL.PIV_BOSS_R) + circ(RL.LEV_L, 0.0, RL.OUT_BOSS_R))
 
 
 def crank_pin_len(p, side):
-    """Largo del perno de manivela: prensado en el balancín + voladizo hasta 4 mm más allá del eje del émbolo."""
-    return RL.lever_x0(p) + RL.LEV_T - (RL.lock_xz(p, side)[0] - 4.0)
+    """Largo del perno de manivela: 4 mm delante del eje del émbolo (ojo + anillo) … 1 mm detrás del alma (anillo)."""
+    return RL.lever_x0(p) + RL.LEV_T + 1.0 - (RL.lock_xz(p, side)[0] - 4.0)
+
+
+def pivot_len(p):
+    """Largo del eje del balancín: CLIP delante del cubo … cara de popa del montante (prensado a ras)."""
+    return up_x(p) + UP_T - (RL.piv_hub(p)[0] - CLIP)
 
 
 def bracket(p):
-    """Soporte soldado (base + montante + pestañas) con los tornillos del balancín y los M5 de la base."""
+    """Soporte soldado (base + montante + pestañas) con los ejes de los balancines y los M5 de la base."""
     zp = pad_z(p)
     zb = zp + BASE_T
     ux = up_x(p)
@@ -111,9 +139,8 @@ def bracket(p):
         tab = box(xc - RL.ADJ_HOLE_R - RL.ADJ_EDGE, ux + 0.01, yc - TAB_HW, yc + TAB_HW, zs, zs + RL.TAB_T)
         s = s + tab - cyl_z(RL.ADJ_HOLE_R, zs - 1, zs + RL.TAB_T + 1, x=xc, y=yc)        # pestaña + M6 del regulador
         py, pz = RL.lever(p, sd)["piv"]
-        s = s + cyl_x(RL.PIV_D / 2, RL.lever_x0(p) - 0.01, ux + UP_T + 0.01, y=py, z=pz)  # hombro Ø6
-        s = s + cyl_x(5.0, RL.lever_x0(p) - 4.0, RL.lever_x0(p), y=py, z=pz)              # cabeza ISO 7379
-        s = s + hex_prism_x(8.0, ux + UP_T, ux + UP_T + 4.0, y=py, z=pz)                  # tuerca M5
+        s = s + cyl_x(RL.PIV_STUD_D / 2, ux - 0.01, ux + UP_T, y=py, z=pz)                # eje Ø8 prensado en el montante
+        s = s + cyl_x(RL.PIV_D / 2, RL.piv_hub(p)[0] - CLIP, ux + 0.01, y=py, z=pz)       # muñón Ø7
     for (x, y) in RL.pad_screws(p):                                                       # 2 × ISO 4762 M5 × 12
         s = s + cyl_z(2.0, zb - SCREW_L, zb, x=x, y=y) + cyl_z(4.25, zb, zb + 5.0, x=x, y=y)
     return s
@@ -141,8 +168,8 @@ def _other(stem):
 
 
 def pulled_interference(p):
-    """Volumen (mm³) de los balancines/eslabones TIRADOS (carrera completa del émbolo) contra los émbolos (cuerpo,
-    collar; pomo tirado) y la boquilla."""
+    """Volumen (mm³) de los balancines/eslabones TIRADOS (carrera completa del émbolo, eslabón en su largo MÁXIMO del
+    ajuste: manivelas más cerca de las orejas) contra los émbolos (cuerpo, collar; pomo tirado) y la boquilla."""
     from build123d import Pos, Rot
     m4 = _other("P1-REV-04_embolo")
     e = m4.build(p)
@@ -157,7 +184,7 @@ def pulled_interference(p):
     obst.append(_other("P1-STE-01_boquilla").build(p))
     v = 0.0
     for sd in RL.lock_sides(p):
-        lv = lever_solid(p, sd, 1.0)
+        lv = lever_solid(p, sd, 1.0, RL.LINK + RL.LINK_TOL)
         for o in obst:
             try:
                 v += (lv & o).volume
@@ -166,43 +193,211 @@ def pulled_interference(p):
     return v
 
 
+# ------------------------------------------------------------------ holguras (geometría analítica, plano XZ por franja de Y)
+def _seg_dist(a, b, c, d):
+    """Distancia entre los segmentos 2D ab y cd."""
+    def pt_seg(p_, a_, b_):
+        ax, az = a_
+        bx, bz = b_
+        dx, dz = bx - ax, bz - az
+        L2 = dx * dx + dz * dz
+        u = 0.0 if L2 == 0 else max(0.0, min(1.0, ((p_[0] - ax) * dx + (p_[1] - az) * dz) / L2))
+        return math.hypot(p_[0] - ax - u * dx, p_[1] - az - u * dz)
+
+    def cross(o, p_, q):
+        return (p_[0] - o[0]) * (q[1] - o[1]) - (p_[1] - o[1]) * (q[0] - o[0])
+    d1, d2 = cross(a, b, c), cross(a, b, d)
+    d3, d4 = cross(c, d, a), cross(c, d, b)
+    if d1 * d2 < 0 and d3 * d4 < 0:
+        return 0.0
+    return min(pt_seg(a, c, d), pt_seg(b, c, d), pt_seg(c, a, b), pt_seg(d, a, b))
+
+
+def _inside(pt, poly):
+    x, z = pt
+    c = False
+    n = len(poly)
+    for i in range(n):
+        (x1, z1), (x2, z2) = poly[i], poly[(i + 1) % n]
+        if (z1 > z) != (z2 > z) and x < x1 + (z - z1) * (x2 - x1) / (z2 - z1):
+            c = not c
+    return c
+
+
+def _rect_poly_clear(rect, poly):
+    """Holgura entre un rectángulo (x0, x1, z0, z1) y un polígono convexo (lista (x, z)); < 0 si se tocan."""
+    x0, x1, z0, z1 = rect
+    rp = [(x0, z0), (x1, z0), (x1, z1), (x0, z1)]
+    if any(_inside(q, poly) for q in rp) or any(x0 <= q[0] <= x1 and z0 <= q[1] <= z1 for q in poly):
+        return -1.0
+    return min(_seg_dist(rp[i], rp[(i + 1) % 4], poly[j], poly[(j + 1) % len(poly)])
+               for i in range(4) for j in range(len(poly)))
+
+
+def _rect_circle_clear(rect, c, R):
+    x0, x1, z0, z1 = rect
+    dx = max(x0 - c[0], 0.0, c[0] - x1)
+    dz = max(z0 - c[1], 0.0, c[1] - z1)
+    return math.hypot(dx, dz) - R
+
+
+def _xcyl_rect(yc, zc, r, x0, x1, yr):
+    """Sección XZ (rectángulo) de un cilindro de eje X (y = yc, z = zc, radio r, x0…x1) dentro de la franja Y yr = (ya, yb):
+    None si no la toca."""
+    ya, yb = yr
+    if yc + r <= ya or yc - r >= yb:
+        return None
+    yn = min(max(yc, ya), yb)
+    w = math.sqrt(max(r * r - (yn - yc) ** 2, 0.0))
+    return (x0, x1, zc - w, zc + w)
+
+
+def _moving_rects(p, side, t, link):
+    """Lo que se mueve con el balancín `side` en la pose (t, link): [(nombre, (yc, zc, r, x0, x1))] de cilindros de eje X
+    y, al final, ("ojo del eslabón", (y0, y1, rectángulo XZ))."""
+    L = RL.lever(p, side)
+    (cy, cz), _ = L["pose"](t, link)
+    lx, lz = L["lock"]
+    xc = RL.crank_hub(p)[0]
+    hz = RL.LINK_EYE_SLOT_W / 2 + RL.LINK_SLOT + RL.LINK_EYE_WALL
+    return [("cubo de la manivela", (cy, cz, RL.CRANK_HUB_R, xc, RL.lever_x0(p))),
+            ("hombro del perno", (cy, cz, RL.CRANK_SHOULDER[0] / 2, xc - RL.CRANK_SHOULDER[1], xc)),
+            ("perno de manivela", (cy, cz, RL.CRANK_D / 2, lx - 4.0, xc)),
+            ("ojo del eslabón", (cy - RL.LINK_EYE_HALF, cy + RL.LINK_EYE_HALF,
+                                 (lx - RL.LINK_EYE_T / 2, lx + RL.LINK_EYE_T / 2, lz - hz, lz + hz)))]
+
+
+def _obstacles(p):
+    """Obstáculos fijos o de los émbolos: (nombre, (y0, y1), ('c', centro xz, R) | ('p', polígono xz), lado del pomo).
+    Pomos en reposo y tirados (el del OTRO émbolo puede estar en cualquiera de los dos; el propio va con su eslabón y
+    su luz es el check de LINK_GAP)."""
+    import importlib.util
+    f = os.path.join(os.path.dirname(__file__), "P1-STE-01_boquilla.py")
+    spec = importlib.util.spec_from_file_location("ste01_clear", f)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    out = []
+    for sd in RL.lock_sides(p):
+        x, z = RL.lock_xz(p, sd)
+        tg = "+Y" if sd > 0 else "−Y"
+        rng = lambda a, b: (min(sd * a, sd * b), max(sd * a, sd * b))   # noqa: E731
+        out.append((f"cuerpo del émbolo {tg}", rng(RL.body_end_y(p), p.STE_ear_y0), ("c", (x, z), RL.PLG_BODY_D / 2), 0))
+        out.append((f"collar del émbolo {tg}", rng(p.STE_ear_y0 - RL.PLG_COLLAR_T, p.STE_ear_y0), ("c", (x, z), RL.NUT_R), 0))
+        k0 = RL.knob_end_y(p)
+        out.append((f"pomo {tg} (reposo)", rng(k0, k0 + RL.PLG_KNOB_L), ("c", (x, z), 12.5), sd))
+        k1 = k0 - RL.lev_travel(p)
+        out.append((f"pomo {tg} (tirado)", rng(k1, k1 + RL.PLG_KNOB_L), ("c", (x, z), 12.5), sd))
+        out.append((f"oreja {tg}", rng(p.STE_ear_y0, p.STE_ear_y1), ("p", m.ear_outline(p, sd)), 0))
+    return out
+
+
+def clearances(p):
+    """Holgura mínima (mm) de cubos, pernos y ojos de los balancines contra émbolos y orejas, en reposo y tirado, en los
+    dos extremos del ajuste del eslabón; y de los cubos de los ejes (fijos). Devuelve (holgura, descripción)."""
+    obst = _obstacles(p)
+    best = (99.0, "—")
+
+    def test(name, item, pose_txt, own=0):
+        nonlocal best
+        if len(item) == 3:
+            y0, y1, rect0 = item
+            yr_item = (y0, y1)
+        for oname, (ya, yb), geo, knob_side in obst:
+            if own and knob_side == own:
+                continue
+            if len(item) == 5:
+                rect = _xcyl_rect(item[0], item[1], item[2], item[3], item[4], (ya, yb))
+                if rect is None:
+                    continue
+            else:
+                if yr_item[1] <= ya or yr_item[0] >= yb:
+                    continue
+                rect = rect0
+            c = _rect_circle_clear(rect, geo[1], geo[2]) if geo[0] == "c" else _rect_poly_clear(rect, geo[1])
+            if c < best[0]:
+                best = (c, f"{name} ↔ {oname} ({pose_txt})")
+    for sd in RL.lock_sides(p):
+        tg = "+Y" if sd > 0 else "−Y"
+        py, pz = RL.lever(p, sd)["piv"]
+        xf, xb, _ = RL.piv_hub(p)
+        test(f"cubo del eje {tg}", (py, pz, RL.PIV_BOSS_R, xf, xb), "fijo")
+        test(f"anillo del eje {tg}", (py, pz, CLIP_R, xf - CLIP, xf), "fijo")
+        for lk in RL.link_lengths():
+            for t in (0.0, 0.5, 1.0):
+                for name, item in _moving_rects(p, sd, t, lk)[:3]:
+                    test(f"{name} {tg}", item, f"t {t:g}, eslabón {lk:g}", sd)
+                name, item = _moving_rects(p, sd, t, lk)[3]
+                test(f"{name} {tg}", item, f"t {t:g}, eslabón {lk:g}", sd)
+    return best
+
+
+def _tol():
+    return format(RL.LINK_TOL, "g").replace(".", ",")
+
+
 def checks(p, part):
     out = [("un solo sólido", len(part.solids()), 1, "=")]
     T = RL.lev_travel(p)
     need = RL.need(p)
     zs = RL.stop_z(p)
     out.append(("recorrido de la manivela del balancín (= carrera del émbolo) ≥ liberación + 2 [mm]", T, need + 2.0, ">="))
+    # resorte del émbolo (B-SPRING, DES-01): cabe en la cámara y en la cola, no llega a compacto y τ (Wahl) ≤ τ_zul
+    out += [("resorte: largo con el perno afuera = cámara − carrera del émbolo [mm]", RL.SPRING_L_MIN,
+             RL.PLG_SPRING_L1 - p.REV_plunger_stroke, "="),
+            ("resorte: Ø exterior ≤ cámara Ø16 H8 − 1 [mm]", RL.SPRING_OD, p.REV_lock_pin_d - 1.0, "<="),
+            ("resorte: Ø interior ≥ cola Ø10 + 1 [mm]", RL.SPRING_OD - 2 * RL.SPRING_WIRE_D, 11.0, ">="),
+            ("resorte: largo mínimo de trabajo ≥ compacto + Σ luces mínimas (EN 13906-1) [mm]", RL.SPRING_L_MIN,
+             RL.spring_L_solid() + RL.spring_Sa(), ">="),
+            ("resorte: precarga instalada (perno adentro) [N]", RL.spring_F(RL.SPRING_L_INST), 15.0, ">="),
+            ("resorte: τ con Wahl al largo mínimo ≤ τ_zul = 0,5·Rm (EN 13906-1) [MPa]",
+             RL.spring_tau(RL.SPRING_F_MAX), RL.SPRING_TAU_ZUL, "<="),
+            ("resorte: τ sin corregir a bloque ≤ τ_zul (resorte apto a bloque) [MPa]",
+             RL.spring_tau(RL.spring_F(RL.spring_L_solid()), wahl=False), RL.SPRING_TAU_ZUL, "<=")]
+    # eslabón rígido ajustable (DES-04)
+    out += [("eslabón: luz ojo ↔ cara del pomo con el ajuste mínimo [mm]", RL.LINK_GAP - RL.LINK_TOL, 0.5, ">="),
+            ("eslabón: rosca M4 enganchada en la cola con el ajuste máximo ≥ 1,5·d [mm]",
+             RL.LINK_SHANK_L - (RL.LINK_GAP + RL.LINK_TOL), 6.0, ">=")]
     for sd in RL.lock_sides(p):
         L = RL.lever(p, sd)
         tag = "+Y" if sd > 0 else "−Y"
         (c0, o0), (c1, o1) = L["pose"](0.0), L["pose"](1.0)
         out.append((f"balancín {tag}: subida de la salida = recorrido del pomo (1:1) [mm]", o1[1] - o0[1], T, "="))
-        out.append((f"balancín {tag}: terminal tirado bajo el regulador [mm]",
-                    (zs - RL.ADJ_BELOW) - (o1[1] + RL.NIPPLE_R), 2.0, ">="))
-        zc = [L["pose"](t)[0][1] for t in (0.0, 0.25, 0.5, 0.75, 1.0)]
-        out.append((f"balancín {tag}: desalineación del eslabón (manivela ↔ eje del émbolo) [°]",
-                    math.degrees(math.atan2(max(abs(z - L['lock'][1]) for z in zc), RL.LINK)), 10.0, "<="))
+        lk_all = RL.link_lengths()
+        out.append((f"balancín {tag}: terminal tirado bajo el regulador (ajuste del eslabón ±{RL.LINK_TOL:g}) [mm]",
+                    min((zs - RL.ADJ_BELOW) - (L["pose"](1.0, lk)[1][1] + RL.NIPPLE_R) for lk in lk_all), 2.0, ">="))
+        dz = max(abs(L["pose"](t, lk)[0][1] - L["lock"][1]) for lk in lk_all for t in (0.0, 0.25, 0.5, 0.75, 1.0))
+        out.append((f"balancín {tag}: arco de la manivela ↔ eje del émbolo dentro de la ranura del ojo (±{_tol()}) [mm]",
+                    dz, RL.LINK_SLOT, "<="))
+        dmax = max(abs(L["pose"](t, lk)[0][0] - L["piv"][0]) for lk in lk_all for t in (0.0, 1.0))
+        out.append((f"balancín {tag}: ángulo de la manivela desde la vertical del eje (±{_tol()}) [°]",
+                    math.degrees(math.asin(dmax / RL.LEV_L)), 60.0, "<="))
+        out.append((f"balancín {tag}: cable para liberar el brazo, peor ajuste del eslabón [mm]",
+                    max(RL.lever_rise(p, sd, need, lk) for lk in lk_all), need + 0.5, "<="))
     if len(RL.lock_sides(p)) > 1:
-        zp, zm = RL.lock_xz(p, 1)[1], RL.lock_xz(p, -1)[1]
-        La, Lb = RL.lever(p, 1), RL.lever(p, -1)
-        za = min(La["pose"](t)[0][1] for t in (0.0, 0.5, 1.0))
-        zb_ = max(Lb["pose"](t)[0][1] for t in (0.0, 0.5, 1.0))
-        out.append(("perno de manivela +Y sobre el collar del émbolo −Y (Ø del collar) [mm]",
-                    (za - RL.CRANK_D / 2) - (zm + RL.NUT_R), 2.0, ">="))
-        out.append(("perno de manivela −Y bajo el collar del émbolo +Y (Ø del collar) [mm]",
-                    (zp - RL.NUT_R) - (zb_ + RL.CRANK_D / 2), 2.0, ">="))
-        out.append(("perno de manivela −Y tirado ↔ cara interior de la oreja +Y [mm]",
-                    p.STE_ear_y0 - (Lb["pose"](1.0)[0][0] + RL.CRANK_D / 2), 2.0, ">="))
+        Lb = RL.lever(p, -1)
+        La = RL.lever(p, 1)
+        lk = RL.LINK + RL.LINK_TOL
+        out.append(("ojo del eslabón −Y tirado (ajuste máx.) ↔ cara interior de la oreja +Y [mm]",
+                    p.STE_ear_y0 - (Lb["pose"](1.0, lk)[0][0] + RL.LINK_EYE_HALF), 1.5, ">="))
+        out.append(("ojo del eslabón +Y tirado (ajuste máx.) ↔ cara interior de la oreja −Y [mm]",
+                    p.STE_ear_y0 + (La["pose"](1.0, lk)[0][0] - RL.LINK_EYE_HALF), 1.5, ">="))
+    cl, what = clearances(p)
+    out.append((f"cubos/pernos/ojos ↔ émbolos y orejas: holgura mínima ({what}) [mm]", cl, 1.5, ">="))
+    # cubos (DES-03): apoyos de ≥ 2·Ø
+    out.append(("cubo del eje del balancín: apoyo ≥ 2·Ø del muñón [mm]", RL.piv_hub(p)[2], 2 * RL.PIV_D, ">="))
+    out.append(("cubo de la manivela: perno prensado en ≥ 2·Ø [mm]", RL.crank_hub(p)[2], 2 * RL.CRANK_D, ">="))
+    out.append(("anillo DIN 6799 del perno de manivela (atrás) ↔ montante [mm]", GAP - 1.0, 0.5, ">="))
     x_ear = max(RL.lock_xz(p, s)[0] for s in RL.lock_sides(p)) + p.STE_lock_lobe_r
     out.append(("pestaña del regulador a popa del lóbulo de la oreja [mm]",
                 (RL.cable_x(p) - RL.ADJ_HOLE_R - RL.ADJ_EDGE) - x_ear, 2.0, ">="))
-    out.append(("balancines a popa de los collares de los émbolos (Ø del collar) [mm]",
+    out.append(("alma de los balancines a popa de los collares de los émbolos (Ø del collar) [mm]",
                 RL.lever_x0(p) - max(RL.lock_xz(p, s)[0] + RL.NUT_R for s in RL.lock_sides(p)), 2.0, ">="))
+    out.append(("montante dentro del pad (X, popa) [mm]", RL.pad_x(p)[1] - (up_x(p) + UP_T), 0.0, ">="))
     out.append(("salida del balancín ↔ brazo del bucket (Y) [mm]",
                 p.REV_y_in - max(abs(RL.lever(p, s)["pose"](0.5)[1][0]) + RL.OUT_BOSS_R for s in RL.lock_sides(p)), 5.0, ">="))
-    out.append(("cable de salida ↔ cubo de la manivela del mismo balancín (Y, peor pose) [mm]",
-                min(abs(RL.cable_y(p, s) - RL.lever(p, s)["pose"](t)[0][0]) - RL.CRANK_BOSS_R - 0.75
-                    for s in RL.lock_sides(p) for t in (0.0, 0.5, 1.0)), 1.0, ">="))
+    out.append(("cable de salida ↔ alma de la manivela del mismo balancín (Y, peor pose y ajuste) [mm]",
+                min(abs(RL.cable_y(p, s) - RL.lever(p, s)["pose"](t, lk)[0][0]) - RL.CRANK_BOSS_R - 0.75
+                    for s in RL.lock_sides(p) for t in (0.0, 0.5, 1.0) for lk in RL.link_lengths()), 1.0, ">="))
     out.append(("pestañas de los reguladores sobre los balancines (Z) [mm]",
                 RL.stop_z(p) - max(RL.lever_top(p, s) for s in RL.lock_sides(p)), 2.0, ">="))
     # fijación (R4-07): tornillos dentro del pad con borde ≥ 6 y fondo del taladro sobre el paso del chorro
@@ -213,12 +408,14 @@ def checks(p, part):
     out.append(("M5 de la base: piel bajo el taladro (sobre el paso del chorro) [mm]", floor, 2.0, ">="))
     out.append(("M5 de la base: rosca enganchada en el pad ≥ 1,2·d [mm]", SCREW_L - BASE_T, 6.0, ">="))
     out.append(("M5 de la base: la punta no toca el fondo de la rosca [mm]", RL.PAD_M5_THREAD - (SCREW_L - BASE_T), 1.0, ">="))
-    zb = pad_z(p) + BASE_T + 5.0                                     # base + cabezas de los M5
-    low = [(z - r) for s in RL.lock_sides(p) for t in (0.0, 0.5, 1.0)
-           for (y, z), r in zip(RL.lever(p, s)["pose"](t), (RL.CRANK_BOSS_R, RL.OUT_BOSS_R)) if abs(y) - r < BASE_W]
+    zb = pad_z(p) + BASE_T                                           # cara superior de la base
+    # lo que pasa sobre la base (dentro de su ancho + 1) va ≥ 2 por encima; lo demás pasa al costado con ≥ 1 en Y
+    low = [(z - r) for s in RL.lock_sides(p) for t in (0.0, 0.5, 1.0) for lk in RL.link_lengths()
+           for (y, z), r in zip(RL.lever(p, s)["pose"](t, lk), (max(RL.CRANK_HUB_R, RL.CRANK_SHOULDER[0] / 2), RL.OUT_BOSS_R))
+           if abs(y) - r < BASE_W + 1.0 - 1e-6]
     low += [RL.lever(p, s)["piv"][1] - RL.PIV_BOSS_R for s in RL.lock_sides(p)
-            if abs(RL.lever(p, s)["piv"][0]) - RL.PIV_BOSS_R < BASE_W]
-    out.append(("balancines sobre la base y las cabezas de los M5 (Z) [mm]", (min(low) if low else 99.0) - (zb - 5.0), 2.0, ">="))
-    out.append(("balancines, pernos y eslabones TIRADOS ↔ émbolos y boquilla: interferencia [mm³]",
+            if abs(RL.lever(p, s)["piv"][0]) - RL.PIV_BOSS_R < BASE_W + 1.0 - 1e-6]
+    out.append(("balancines sobre la base (Z; lo que no pasa al costado con ≥ 1 en Y) [mm]", (min(low) if low else 99.0) - zb, 2.0, ">="))
+    out.append(("balancines, pernos y eslabones TIRADOS (eslabón máx.) ↔ émbolos y boquilla: interferencia [mm³]",
                 pulled_interference(p), 0.5, "<="))
     return out

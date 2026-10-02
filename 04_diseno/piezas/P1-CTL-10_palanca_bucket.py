@@ -3,8 +3,10 @@
 Mango desplazado 20 mm hacia babor (no choca con el del acelerador) con el gatillo P1-CTL-14, que tira de los dos
 Bowden de liberación de los émbolos P1-REV-04 en la boquilla: apretar → libera las trabas; soltar → trabas en la
 otra posición. Placa lateral soldada en la cara +y del mango (Al 6061 4 mm, ronda 4): lleva el pasador Ø5 del gatillo
-(doble apoyo con el mango) y la pestaña de tope de las dos vainas (2 roscas M6 de los reguladores) a popa de la barra
-igualadora del gatillo; queda fuera de la caja P1-CTL-02 en todo el recorrido (y ≥ 33). La manivela hacia popa (r = 46, φ 150° → 210°) mete 46 mm la varilla del Mach5 de la
+(doble apoyo con el mango) y la pestaña de tope de las dos vainas (2 roscas M6 de los reguladores, cada uno con su
+contratuerca apoyada en la pestaña) a popa de la barra igualadora del gatillo; queda fuera de la caja P1-CTL-02 en todo
+el recorrido (y ≥ 33). Re-auditoría ronda 5 (DES-05): la pestaña llega a y = STOP_Y1 para dejar ≥ 4 mm de borde
+alrededor de cada M6 (y y z) y apoyo completo de la contratuerca. La manivela hacia popa (r = 46, φ 150° → 210°) mete 46 mm la varilla del Mach5 de la
 consola en su vaina (= carrera en la boquilla): en la boquilla la varilla sale y baja el bucket.
 Muescas del enclavamiento en la cara interior (2: ARRIBA, 3: ABAJO). Gira en el eje con buje POM."""
 import math
@@ -24,9 +26,11 @@ META = dict(
 )
 STEP_Z = (100.0, 112.0)
 PERCH_Y = (33.0, 37.0)        # placa lateral del gatillo (soldada en la cara +y del mango)
-PERCH = [(-8.0, 135.0), (8.0, 135.0), (8.0, 96.0), (-6.0, 70.0), (-20.0, 70.0), (-20.0, 103.0), (-8.0, 109.0)]
-STOP_X = (-20.0, -15.0)       # pestaña de tope de las vainas (plano yz), y 33–50, z 70–103
-STOP_Y1 = 50.0
+PERCH = [(-8.0, 135.0), (8.0, 135.0), (8.0, 96.0), (-6.0, 70.0), (-20.0, 70.0), (-20.0, 106.0), (-8.0, 110.0)]
+STOP_X = (-20.0, -15.0)       # pestaña de tope de las vainas (plano yz), y 33–STOP_Y1, z 70–106
+STOP_Y1 = 54.0                # [CALCULADO: cable en y 46 + M6 (r 3,25) + borde 4 + 0,75]
+ADJ_EDGE_MIN = 4.0            # borde mínimo alrededor de las roscas M6 de la pestaña [SUPUESTO: ≥ 0,65·d]
+ADJ_NUT_R = 10.0 / math.sqrt(3)   # contratuerca M6 (e/c 10): radio de las esquinas
 TOP_Y = (25.0, 33.0)
 TOP_Z = 135.0
 
@@ -83,7 +87,10 @@ def checks(p, part):
             ("separación de los pomos (y) [mm]", (TOP_Y[0] + TOP_Y[1]) / 2 - (U.Y_THR[0] + U.Y_THR[1]) / 2, 35.0, ">="),
             ("placa lateral y tope de vainas por fuera de la caja P1-CTL-02 (y) [mm]", PERCH_Y[0] - _box_y_out(), 2.0, ">="),
             ("tope de las vainas a popa de la barra igualadora en reposo (x) [mm]", _bar_x0() - STOP_X[1], 3.0, ">="),
-            ("pestaña de tope: borde alrededor de las roscas M6 (z) [mm]", _stop_edge(), 2.5, ">=")]
+            ("pestaña de tope: borde alrededor de las roscas M6 (z) [mm]", _stop_edge(), ADJ_EDGE_MIN, ">="),
+            ("pestaña de tope: borde alrededor de las roscas M6 (y) [mm]", _stop_edge_y(), ADJ_EDGE_MIN, ">="),
+            ("pestaña de tope: la contratuerca M6 de cada regulador apoya entera en la pestaña [mm]", _nut_seat(), 0.5, ">="),
+            ("pestaña de tope ↔ dedos en la hoja del gatillo apretada (x, dedo Ø20) [mm]", _finger_x(), 5.0, ">=")]
 
 
 def _g():
@@ -111,3 +118,24 @@ def _stop_edge():
     G = _g()
     zc = G.wire_pt(0.0)[1]
     return min((zc - G.BAR_H - 3.25) - PERCH[4][1], PERCH[5][1] - (zc + G.BAR_H + 3.25))
+
+
+def _stop_edge_y():
+    G = _g()
+    yc = (G.BAR_Y[0] + G.BAR_Y[1]) / 2
+    return min((yc - 3.25) - PERCH_Y[0], STOP_Y1 - (yc + 3.25))
+
+
+def _nut_seat():
+    """Margen de la contratuerca M6 (esquinas) dentro de la pestaña y entre las dos contratuercas."""
+    G = _g()
+    yc = (G.BAR_Y[0] + G.BAR_Y[1]) / 2
+    zc = G.wire_pt(0.0)[1]
+    return min(STOP_Y1 - (yc + ADJ_NUT_R), (yc - ADJ_NUT_R) - PERCH_Y[0],
+               PERCH[5][1] - (zc + G.BAR_H + ADJ_NUT_R), (zc - G.BAR_H - ADJ_NUT_R) - PERCH[4][1],
+               2 * G.BAR_H - 2 * ADJ_NUT_R)
+
+
+def _finger_x():
+    G = _g()
+    return min(G.finger_pt(a)[0] for a in (0.0, G.ANG / 2, G.ANG)) - 10.0 - STOP_X[1]

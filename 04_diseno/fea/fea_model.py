@@ -418,6 +418,28 @@ class Model:
         return out
 
 
+GOODMAN_MIN = 0.05    # [SUPUESTO: tope numérico de 1 − σ_m/S_u (σ_m → S_u daría σ equivalente infinita)]
+
+
+def goodman_fields(F_tot, F_mean, S_u):
+    """Campos de un caso de FATIGA con una tensión MEDIA constante (precarga) superpuesta (re-auditoría FEA-R5-02).
+    F_tot: campos del caso con la precarga; F_mean: los de la precarga sola con el mismo conjunto activo (sistema lineal,
+    así que S_cíclico = S_tot − S_media es exacto). Convención del proyecto para la parte cíclica (sin cambios): el pico
+    del ciclo 0 → máx. de la reversa de sizing se compara con el admisible de fatiga R = −1 (S_fat); la media de la
+    precarga entra con Goodman sobre ese admisible: FS = S_fat·(1 − σ_m⁺/S_u)/σ_cíclico, o sea σ equivalente
+    = σ_cíclico/(1 − σ_m⁺/S_u) contra S_fat (FS sobre la carga de servicio con la precarga fija). σ_m⁺ (cuerpo) =
+    máx(0, σ1, σvm con el signo de la traza) de la precarga en el mismo nodo (compresión media: sin beneficio).
+    Los bordes de agujeros (hole_edge) hacen lo mismo con σθ: |σθ_cíclico|/(1 − máx(σθ_media, 0)/S_u)."""
+    Sc = F_tot["S"] - F_mean["S"]
+    Sm = F_mean["S"]
+    tr = np.trace(Sm, axis1=1, axis2=2)
+    sm = np.maximum.reduce([np.zeros(len(tr)), fc.principal_max(Sm), np.sign(tr) * fc.von_mises(Sm)])
+    k = 1.0 / np.maximum(1.0 - sm / S_u, GOODMAN_MIN)
+    vm_c = fc.von_mises(Sc)
+    return {"S": Sc, "S_media": Sm, "S_u": S_u, "vm": vm_c * k, "s1": fc.principal_max(Sc) * k,
+            "sZ": F_tot["sZ"] - F_mean["sZ"], "u": F_tot["u"], "vm_ciclico": vm_c, "sigma_media": sm}
+
+
 HOLE_WIN_COS = 0.5    # [SUPUESTO: ventana del borde del agujero a ±90° de la carga: |cos θ| ≤ 0,5 (θ = 60…120°)]
 
 
@@ -447,13 +469,21 @@ def hole_edge(S, fields, hole, direction, win_cos=HOLE_WIN_COS):
         return None
     et = np.cross(ax[None, :], er)
     st = np.einsum("ni,nij,nj->n", et, fields["S"], et)
+    sabs = np.abs(st)
+    gm = "S_media" in fields                       # caso de fatiga con tensión media (goodman_fields): σθ equivalente
+    if gm:
+        sm = np.einsum("ni,nij,nj->n", et, fields["S_media"], et)
+        sabs = sabs / np.maximum(1.0 - np.maximum(sm, 0.0) / fields["S_u"], GOODMAN_MIN)
     idx = np.flatnonzero(win)
-    iv, it = idx[np.argmax(fields["vm"][idx])], idx[np.argmax(np.abs(st[idx]))]
-    return {"s_theta_abs_max": float(abs(st[it])), "s_theta_signo": float(np.sign(st[it])), "at_s_theta_mm": S.X[it].round(1).tolist(),
-            "theta_s_theta_deg": float(np.degrees(np.arccos(np.clip(cth[it], -1, 1)))), "vm_en_s_theta": float(fields["vm"][it]),
-            "vm_max": float(fields["vm"][iv]), "at_vm_mm": S.X[iv].round(1).tolist(),
-            "theta_vm_deg": float(np.degrees(np.arccos(np.clip(cth[iv], -1, 1)))),
-            "n_nodos": int(win.sum()), "n_nodos_agujero": int(on.sum()), "dir_carga": d.round(4).tolist()}
+    iv, it = idx[np.argmax(fields["vm"][idx])], idx[np.argmax(sabs[idx])]
+    out = {"s_theta_abs_max": float(sabs[it]), "s_theta_signo": float(np.sign(st[it])), "at_s_theta_mm": S.X[it].round(1).tolist(),
+           "theta_s_theta_deg": float(np.degrees(np.arccos(np.clip(cth[it], -1, 1)))), "vm_en_s_theta": float(fields["vm"][it]),
+           "vm_max": float(fields["vm"][iv]), "at_vm_mm": S.X[iv].round(1).tolist(),
+           "theta_vm_deg": float(np.degrees(np.arccos(np.clip(cth[iv], -1, 1)))),
+           "n_nodos": int(win.sum()), "n_nodos_agujero": int(on.sum()), "dir_carga": d.round(4).tolist()}
+    if gm:
+        out.update({"goodman": True, "s_theta_ciclico": float(st[it]), "s_theta_media": float(sm[it])})
+    return out
 
 
 def mesh_quality(X, T):
