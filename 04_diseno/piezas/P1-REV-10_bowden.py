@@ -10,7 +10,12 @@ orejas; gira con la dirección (marco steer) y verify la revisa contra todo en �
 prensaestopas M16 del Bowden en el espejo (P1-CTL-05, inserto de 2 agujeros B-GLINS) y siguen a la consola, donde
 apoyan en el tope del mango de la palanca del bucket (P1-CTL-10) y los dos cables entran en la barra igualadora del
 gatillo P1-CTL-14. Instancia 0: émbolo +Y (vaina en Y = cable_y(+1)); instancia 1: émbolo −Y (la misma pieza
-trasladada en Y: los dos reguladores están a la misma altura)."""
+trasladada en Y: los dos reguladores están a la misma altura).
+
+Regulación (re-auditoría ronda 5, DES-07; igual que 06 M13): con el bucket trabado y el eslabón rígido ya ajustado
+(P1-REV-09), cada regulador M6 se deja con el cable APENAS FLOJO (pomo apoyado en la tapa del émbolo): si el cable
+queda tenso, tira contra la precarga del resorte y el perno puede no entrar del todo (se pierde la traba redundante
+sin aviso). El juego que queda lo cubre la sobrecarrera del gatillo P1-CTL-14 (check «liberación + 3 de juego»)."""
 import math
 import os
 import sys

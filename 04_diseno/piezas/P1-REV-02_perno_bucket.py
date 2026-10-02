@@ -2,8 +2,8 @@
 
 Espaciador (auditoría ronda 4): muñón Ø REV_pin_d h7 (el bucket gira sobre él con su buje POM-C P1-REV-03), brida
 Ø REV_sp_fl_d × REV_sp_fl_t apoyada en la cara EXTERIOR de la oreja de la boquilla (Y = ±STE_ear_y1) y piloto
-Ø REV_sp_pilot_d h6 ajustado en el agujero H7 escariado de la oreja (largo = oreja − 0,5: el apriete lo toma la brida,
-no el piloto). El piloto ubica el pivote y es el camino DISEÑADO del corte y del momento: con Tef-Gel la brida desliza
+Ø REV_sp_pilot_d h6 ajustado en el agujero H7 escariado del lóbulo engrosado de la oreja (STE_piv_t; largo = lóbulo −
+0,5: el apriete lo toma la brida, no el piloto). El piloto ubica el pivote y es el camino DISEÑADO del corte y del momento: con Tef-Gel la brida desliza
 con R12, así que el piloto apoya en la oreja como un perno en voladizo (re-auditoría ronda 5, MEC-02). Agujero Ø12,5
 para el tornillo M12 A4-80; arandela ISO 7089 (Ø24) bajo la cabeza y, por dentro de la oreja, arandela ancha ISO 7093
 (Ø37 × 3) + tuerca ISO 4032 M12 A4-80, con Loctite 243 en la rosca. Par REV_bolt_T_Nm BAJO: el tornillo solo retiene
@@ -19,7 +19,7 @@ from cadlib import NUT_AF, cyl_y, hex_prism_y
 
 META = dict(
     id="P1-REV-02", name="perno_bucket",
-    desc="Pivote del bucket: espaciador dúplex 1.4462 (muñón Ø20 h7, brida Ø36 × 4, piloto Ø20 h6) + tornillo M12 A4-80 + tuerca ISO 4032 con Loctite",
+    desc="Pivote del bucket: espaciador dúplex 1.4462 (muñón Ø20 h7, brida Ø36 × 4, piloto Ø24 h6) + tornillo M12 A4-80 + tuerca ISO 4032 con Loctite",
     material="Dúplex 1.4462", process="torneada", qty=2, frame="steer", group="jet",
     load_case="Reacción del pivote = chorro/2 + traba con M_h completo (R12, una traba sola): flexión del muñón y apertura de la unión",
     print_rot=(0, 0, 0), solid_frac=1.0, orientation="—",
@@ -35,7 +35,9 @@ def shoulder_L(p):
 
 
 def ear_t(p):
-    return p.STE_ear_y1 - p.STE_ear_y0
+    """Espesor del lóbulo engrosado del pivote (cara exterior → cara interior del refuerzo; R5-N5): largo del agujero
+    H7 del piloto y apoyo de la arandela ancha y la tuerca."""
+    return p.STE_piv_t
 
 
 def pilot_L(p):

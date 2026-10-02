@@ -7,8 +7,7 @@
                                                             (diseño) · (f/g) ídem con la reversa de sizing (fatiga)
     P1-STE-01  boquilla direccional (Al 6061-T6)           (a) F_s en el paso · (b) F_s en la salida · (c/c2) reversa R12
                                                             con M_h completo en la traba +Y/−Y · (d/d2) c + a ·
-                                                            (f/f2) reversa de sizing con M_h completo (fatiga; precarga de
-                                                            los émbolos como media, Goodman) · (p) precarga sola (informativo)
+                                                            (f/f2) reversa de sizing con M_h completo (fatiga, 0 → máx.)
     P1-INT-02  placa base de la toma (Al 5083 10 mm)       (a) espárragos del pórtico · (b) golpe + presión de cierre
     P1-CTL-02  caja de palancas (PETG)                     (a)/(b) mano apoyada 150 N en dos posiciones
 
@@ -288,6 +287,9 @@ def edge_block(rec, level, A, quick, mallas):
              "sigma_vm_ventana_MPa": bf["vm_max"], "at_vm_ventana_mm": bf["at_vm_mm"], "theta_vm_ventana_deg": bf.get("theta_vm_deg"),
              "S_MPa": S, "FS_vm_ventana": S / bf["vm_max"] if bf["vm_max"] > 1e-9 else 999.0,
              "at_mm": bf["at_s_theta_mm"], "theta_deg": bf.get("theta_s_theta_deg"), "n_nodos": bf.get("n_nodos")}
+        if bf.get("s_theta_abs_max_interior") is not None:          # informativo (no entra en el FS)
+            d.update({"sigma_theta_interior_MPa": bf["s_theta_abs_max_interior"], "at_interior_mm": bf.get("at_s_theta_interior_mm"),
+                      "FS_interior_informativo": S / bf["s_theta_abs_max_interior"] if bf["s_theta_abs_max_interior"] > 1e-9 else 999.0})
         if bf.get("goodman"):
             d.update({"goodman": True, "sigma_theta_ciclico_MPa": bf.get("s_theta_ciclico"), "sigma_theta_media_MPa": bf.get("s_theta_media")})
         s_des, met = sf, "fina"
@@ -295,6 +297,8 @@ def edge_block(rec, level, A, quick, mallas):
             bc = (rec["gruesa"].get("bordes") or {}).get(hn)
             if bc:
                 d["sigma_theta_gruesa_MPa"] = bc["s_theta_abs_max"]
+                if bc.get("s_theta_abs_max_interior") is not None:
+                    d["sigma_theta_interior_gruesa_MPa"] = bc["s_theta_abs_max_interior"]
                 d["dif_conv"] = (sf - bc["s_theta_abs_max"]) / max(abs(sf), 1e-9)
                 d["convergido"] = abs(d["dif_conv"]) <= CONV_TOL
                 rb = rich_block(bc["s_theta_abs_max"], sf, bf["at_s_theta_mm"], mallas, S)
@@ -560,8 +564,8 @@ def readme_block(res):
           "nombrada en `aristas_vivas` del JSON. Lo mismo para el |σθ| de los bordes. En PETG el FS es el menor de σvm, σ1 "
           "y σZ (el criterio va entre paréntesis). El FS del caso es el menor entre el del cuerpo y el del borde de los "
           "agujeros cargados (tabla de bordes; criterio «borde»). Casos de fatiga (reversa de sizing) contra el admisible "
-          "de fatiga del material; si el caso lleva una tensión media (precarga de los émbolos en STE-01 f/f2), la σ es la "
-          "equivalente de Goodman σ_cíclica/(1 − σ_m⁺/S_u). Casos «informativo» fuera del FS mínimo. «Cumple» exige además "
+          "de fatiga del material; si un caso lleva una tensión media (precarga), la σ es la equivalente de Goodman "
+          "σ_cíclica/(1 − σ_m⁺/S_u) (hoy ningún caso la lleva: el cuerpo del émbolo de STE-01 va ajustado, sin precarga). Casos «informativo» fuera del FS mínimo. «Cumple» exige además "
           "que ninguna extrapolación tipo Richardson de un caso de diseño quede bajo el objetivo.", "",
           "| Pieza | Caso | σvm máx | σvm p99 | σvm máx* | σvm prom. | σ diseño | u máx [mm] | **FS** | FS (p99) | Veredicto |",
           "|---|---|---|---|---|---|---|---|---|---|---|"]
@@ -577,7 +581,9 @@ def readme_block(res):
             if fs["criterio"] == "borde":
                 b = c["FS_bordes"][fs["borde"]]
                 extra = f" (borde {fs['borde']})"
-                sd_txt = f"borde {fs['borde']}: σθ {_f(b['sigma_theta_MPa'])}"
+                sdb = b.get("sigma_theta_diseno_MPa", b["sigma_theta_MPa"])
+                mtx = "" if b.get("metodo", "fina") == "fina" else f" ({b['metodo']})"
+                sd_txt = f"borde {fs['borde']}: σθ {_f(sdb)}{mtx}"
             elif fs["criterio"] == "Z":
                 sd_txt = f"σZ {_f(fs['sigma_Z_diseno_MPa'])} ({fs['metodo_Z']})"
             elif fs["criterio"] == "s1":
@@ -598,7 +604,7 @@ def readme_block(res):
               "(sección neta del «lug»): FS = admisible del caso / |σθ| máx. (malla fina). σvm de la ventana: informativo (en el "
               "arco de contacto incluye el aplastamiento y el borde del contacto, que verifican las filas de aplastamiento). Si "
               "|σθ| cambia > 10 % de la gruesa a la fina se extrapola (tipo Richardson, p = 2, tamaños locales); si cambia > 20 % "
-              "el FS usa máx(fina, extrapolada). En los casos de fatiga con precarga, |σθ| es el equivalente de Goodman "
+              "el FS usa máx(fina, extrapolada). En un caso de fatiga con precarga, |σθ| sería el equivalente de Goodman "
               "|σθ_cíclico|/(1 − σθ_media⁺/S_u).", "",
               "| Pieza | Caso | Agujero | σθ (valor abs.) gruesa → fina [MPa] | θ [°] | σvm ventana [MPa] (FS) | **FS** | Richardson σ_ext (FS) |",
               "|---|---|---|---|---|---|---|---|"]
@@ -608,7 +614,7 @@ def readme_block(res):
             rb = b.get("richardson")
             rtxt = "—" if not rb or rb.get("sigma_ext_MPa") is None else f"{_f(rb['sigma_ext_MPa'])} ({_f(rb['FS_ext'])})"
             L.append(f"| {pid} | {cid} | {hn} | {conv} | {_f(b.get('theta_deg'), 0)} | {_f(b['sigma_vm_ventana_MPa'])} "
-                     f"({_f(b['FS_vm_ventana'])}) | **{_f(b['FS'])}** | {rtxt} |")
+                     f"({_f(b['FS_vm_ventana'])}) | **{_f(b['FS'])}**{'' if b.get('metodo', 'fina') == 'fina' else ' (' + b['metodo'] + ')'} | {rtxt} |")
         L += [""]
     L += ["### Convergencia (gruesa → fina)", "",
           "Columna «Richardson»: si el máx* cambia > 10 %, σ_ext = σ_f + (σ_f − σ_g)/(r^p − 1) con r = h_g/h_f locales (esferas "
@@ -672,7 +678,8 @@ def findings(res):
         if fsg["criterio"] == "borde":
             b = g["FS_bordes"][fsg["borde"]]
             conv = "" if b.get("dif_conv") is None else f", gruesa→fina {100 * b['dif_conv']:+.0f} %"
-            desc = (f"borde del agujero «{fsg['borde']}» a ±90° de la carga: |σθ| {b['sigma_theta_MPa']:.1f} MPa{conv} en "
+            mtx = "" if b.get("metodo", "fina") == "fina" else f" ({b['metodo']})"
+            desc = (f"borde del agujero «{fsg['borde']}» a ±90° de la carga: |σθ| {b.get('sigma_theta_diseno_MPa', b['sigma_theta_MPa']):.1f} MPa{mtx}{conv} en "
                     f"{tuple(b['at_mm'])} mm (cuerpo: FS {fsg['gobernante_cuerpo']:.2f})")
         else:
             k = {"vm": ("vm", "sigma_vm_diseno_MPa", "metodo_vm", "dif_conv_vm"), "s1": ("s1", "sigma_s1_diseno_MPa", "metodo_s1", "dif_conv_s1"),
@@ -688,16 +695,6 @@ def findings(res):
         for x in r.get("richardson_bajo_objetivo") or []:
             H.append(f"  - ⚠ Extrapolación tipo Richardson bajo el objetivo (caso {x['caso']}, {x['donde']}): σ_ext "
                      f"{x['sigma_ext_MPa']:.1f} MPa, FS {x['FS_ext']:.2f} → no cumple hasta un 3.er nivel de malla o un rediseño.")
-        pc = r["casos"].get("p")
-        if pid == "P1-STE-01" and pc:
-            th = [b["sigma_theta_MPa"] for hn, b in (pc.get("FS_bordes") or {}).items() if hn.startswith("rosca")]
-            hand = (pc[lv]["extra"] or {}).get("fila_mano_tension_tangencial") or {}
-            pre = (pc[lv]["extra"] or {}).get("precarga_embolo") or {}
-            if th:
-                htxt = "" if hand.get("sigma_MPa") is None else f" (fila a mano de cilindro grueso: {hand['sigma_MPa']:.1f} MPa)"
-                H.append(f"  - Precarga máxima de los cuerpos de émbolo sola (caso p, informativo; F = {pre.get('F_N', 0) / 1000:.1f} kN, "
-                         f"p radial {pre.get('p_radial_MPa', 0):.1f} MPa): |σθ| en el borde de la rosca M24 a ±90° de la carga del perno "
-                         f"{max(th):.1f} MPa{htxt}. Se superpone en c/c2/d/d2 y es la tensión media (Goodman) de f/f2.")
         for c in r["comparacion_mano"]:
             if c["dif_FS_rel"] is not None and abs(c["dif_FS_rel"]) > 0.30:
                 H.append(f"  - ⚠ «{c['load_case']}»: FS mano {c['FS_mano_cmp']:.2f} vs FS FEA {c['FS_FEA']:.2f} "
@@ -717,14 +714,14 @@ PART_NOTES = {    # notas por pieza: dónde está el máximo y por qué (las cif
                  "queda por debajo del cuerpo; el σvm de la ventana de la traba incluye el borde del contacto del perno rígido "
                  "(aplastamiento). Carga = balance de cantidad de movimiento del chorro, con resultante y momento verificados "
                  "contra bucket_reactions.",
-    "P1-STE-01": "Cargas del bucket autoequilibradas por oreja (ronda 4, F1): fuerza en el piloto Ø16 y en la rosca M24 de "
-                 "la misma oreja, momentos del muñón y del perno en voladizo como pares de resultante nula (brida y "
-                 "contratuerca); resultante y momento verificados contra la estática. Con M_h completo en una traba gobierna "
-                 "la oreja de esa traba: el borde de la rosca M24 o del piloto a ±90° de la carga (|σθ| de sección neta, que "
-                 "la exclusión del máx* tapaba: F3) y el contorno del lóbulo de la rosca en la cara exterior. Los casos de "
-                 "fatiga (f/f2) tienen el menor FS: la reversa de sizing es la mitad de R12 pero el admisible de fatiga es "
-                 "bastante menos que la mitad de la fluencia. El pico donde la oreja de pivote toca el labio de entrada "
-                 "(radio de 2 mm, F-03) converge.",
+    "P1-STE-01": "Cargas del bucket autoequilibradas por oreja (F1; ronda 5): el pivote apoya con el piloto h6 del "
+                 "espaciador en su H7 de la oreja y la traba con el cuerpo AJUSTADO del émbolo (Ø26 h6 en H7, sin rosca ni "
+                 "precarga) en el suyo, los dos con presión lineal a lo largo del agujero (par de aplastamiento; resultante "
+                 "en la mitad del buje y en la mitad del brazo; sin par en la brida: MEC-02), así que cada uno apoya en la "
+                 "pared cargada junto a la cara exterior y en la opuesta junto a la interior; resultante y vector momento "
+                 "verificados contra la estática. Con M_h completo en una traba gobierna la oreja de esa traba (ver caso y "
+                 "ubicación en la tabla). La versión anterior (cuerpo roscado M24 apretado a 110 N·m) daba FS 1,74 en el "
+                 "borde de la rosca por la tensión tangencial de la precarga: R5-N1.",
     "P1-INT-02": "Gobierna el golpe de fondo con la placa sola (b): máximo en la cara superior sobre el borde del "
                  "apoyo del ala (unión cuerpo–ala), convergido. Con el conducto como rigidizador (b2) baja a "
                  "≈ 18 MPa. Los avellanados M8 del pórtico: σvm promedio bajo el cono ≈ presión de la fila a mano.",
@@ -774,18 +771,17 @@ NOTES = {
         "local que la viga no ve. Nivel bajo (FS > 10).",
     ("P1-STE-01", "Oreja del bucket: flexió"):
         "Las filas usan una sección de raíz STE_ear_t × 36 bajo el pivote (en su plano: pivote + traba con M_h completo; "
-        "fuera del plano: momento del pivote en voladizo). El FEA pone el máximo de la oreja en el lóbulo de la rosca M24 y "
-        "en el borde de los agujeros, donde la fuerza del perno, el par bajo el collar del émbolo, el par de aplastamiento "
-        "del piloto Ø20 y la precarga del cuerpo del émbolo concentran: mecanismo local que la viga no ve; el FS de diseño "
-        "es el del FEA.",
+        "fuera del plano: momento del pivote en voladizo). El FEA pone el máximo de la oreja en los lóbulos y en el borde "
+        "de los agujeros, donde los pares de aplastamiento del piloto y del cuerpo del émbolo concentran: mecanismo local "
+        "que la viga no ve; el FS de diseño es el del FEA.",
     ("P1-STE-01", "Oreja del bucket: ligame"):
-        "La fila es el desgarro de los dos ligamentos de la rosca M24 (τ media). El FEA da el máx* del lóbulo de la rosca "
-        "fuera de r_excl (flexión del lóbulo por la fuerza del perno, el par bajo el collar y la precarga del cuerpo del "
-        "émbolo) y el borde del agujero aparte (tabla de bordes): mecanismos distintos.",
+        "La fila es el desgarro de los dos ligamentos del agujero del cuerpo del émbolo (τ media). El FEA da el máx* del "
+        "lóbulo fuera de r_excl (flexión del lóbulo por el par de aplastamiento del cuerpo) y el borde del agujero aparte "
+        "(tabla de bordes): mecanismos distintos.",
     ("P1-STE-01", "Oreja: aplastamiento del"):
-        "La fila es el par de aplastamiento del piloto Ø20 en la oreja (p = R/(d·L) + 6·M/(d·L²): presión de borde de una "
-        "distribución lineal). El FEA aplica esa distribución lineal (apoyo cosenoidal) y promedia σvm en el anillo de 3 mm "
-        "alrededor del piloto, que además incluye la flexión de la oreja y la precarga del émbolo vecino: métricas distintas.",
+        "La fila es el par de aplastamiento (p = F/(d·L)·(1 + 6·a/L): presión de borde de una distribución lineal). El FEA "
+        "aplica esa distribución lineal (apoyo cosenoidal) y promedia σvm en el anillo o el lóbulo alrededor del agujero, "
+        "que además incluye la flexión de la oreja: métricas distintas.",
     ("P1-STE-01", "Oreja de pivote (dentro "):
         "La fila toma F/2 a 12 mm en 25 × 30. En el FEA los pernos de pivote reciben un par (reacciones opuestas en la "
         "mejilla Ø8 y en la rosca M6) porque el bucket empuja muy por encima del eje; el máximo está donde la oreja "

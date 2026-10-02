@@ -207,13 +207,26 @@ def cases(p, A, row, rows, T3, T2):
     row(rows, "P1-STE-01", "Oreja del bucket: flexión (reversa sizing, fatiga; M_h completo en su traba)",
         f"M raíz = {Me_n/1000:.1f} N·m; {ty:g} × 36", Me_n / Ze + abs(Fze_n) / (ty * 36.0), AL6061_FAT, A, T2)
     F_lk = Mh / p.REV_lock_r
-    dth = p.REV_lock_thread_d
-    lig = p.STE_lock_lobe_r - dth / 2         # lóbulo alrededor de la rosca M24 del émbolo [P1-STE-01]
-    row(rows, "P1-STE-01", f"Oreja del bucket: ligamento de la rosca M{dth:g} del émbolo (R12, M_h completo)",
-        f"F = M_h/r = {F_lk:.0f} N; desgarro por 2 ligamentos {lig:g} × {ty:g}: σ = √3·F/(2·l·t)",
-        math.sqrt(3) * F_lk / (2 * lig * ty), AL6061, A, T2)
-    row(rows, "P1-STE-01", f"Rosca M{dth:g}×1,5 del émbolo en la oreja: aplastamiento lateral (R12)",
-        f"F = {F_lk:.0f} N / (Ø{dth:g} × {ty:g})", F_lk / (dth * ty), AL6061, A, T2)
+    dbo = p.REV_lock_bore_d
+    tl = p.STE_lock_t                         # lóbulo de la traba engrosado hacia adentro (R5-N5)
+    lig = p.STE_lock_lobe_r - dbo / 2         # lóbulo alrededor del Ø26 H7 del cuerpo del émbolo [P1-STE-01]
+    t_in = p.STE_ear_y0 - (p.STE_lock_y1 - tl)                     # parte que entra más allá de la placa (r STE_lock_in_r)
+    lig_in = p.STE_lock_in_r - dbo / 2
+    A_lig = 2 * (lig * (tl - t_in) + lig_in * t_in)
+    row(rows, "P1-STE-01", f"Oreja del bucket: ligamento del agujero Ø{dbo:g} del cuerpo del émbolo (R12, M_h completo)",
+        f"F = M_h/r = {F_lk:.0f} N; desgarro por 2 ligamentos {lig:g} × {tl - t_in:g} + {lig_in:g} × {t_in:g} (lóbulo engrosado): "
+        f"σ = √3·F/A", math.sqrt(3) * F_lk / A_lig, AL6061, A, T2)
+    # cuerpo del émbolo AJUSTADO (Ø26 H7/h6 + Loctite 641, sin precarga): el perno carga a mitad del brazo del bucket y el
+    # cuerpo apoya en la oreja como un perno rígido en un agujero: presión lineal p(y) con fuerza y momento respecto del
+    # plano medio del agujero → p_máx = F/(d·L)·(1 + 6·a/L) en la cara exterior [CALCULADO: Shigley/Roark, perno empotrado]
+    a_lk = (p.REV_y_in - p.STE_lock_y1) + p.REV_t / 2 + tl / 2
+    p_lk = F_lk / (dbo * tl) * (1 + 6 * a_lk / tl)
+    row(rows, "P1-STE-01", f"Oreja: aplastamiento del cuerpo ajustado Ø{dbo:g} del émbolo con fuerza y momento del perno (R12)",
+        f"p_máx = F/(d·L)·(1 + 6·a/L): F {F_lk:.0f} N, a = {a_lk:.2f} mm (mitad del brazo → plano medio del agujero), L {tl:g}",
+        p_lk, AL6061, A, T2)
+    p_lk_n = (Mh_n / p.REV_lock_r) / (dbo * tl) * (1 + 6 * a_lk / tl)
+    row(rows, "P1-STE-01", f"Oreja: aplastamiento del cuerpo Ø{dbo:g} del émbolo (reversa sizing, fatiga)",
+        f"ídem con F = {Mh_n / p.REV_lock_r:.0f} N", p_lk_n, AL6061_FAT, A, T2)
     R_d = pivot_load_max(p, Fb, full)
     R_dn = pivot_load_max(p, Fbn, full)
     lev_b = (p.REV_y_in - p.STE_ear_y1) + p.REV_bush_L / 2          # cara de la oreja → mitad del buje
@@ -356,15 +369,16 @@ def cases(p, A, row, rows, T3, T2):
         sleeve(R_d, Fmax), sp_allow, A, T2)
     row(rows, "P1-REV-02", "Muñón: flexión (reversa sizing, fatiga; una traba; la precarga es media de compresión)",
         f"R = {R_dn:.0f} N", R_dn * lev_j / Zsl, SS316_FAT, A, T2)
-    pil_L = p.STE_ear_t - 0.5
+    pil_L = p.STE_piv_t - 0.5                                               # lóbulo del pivote engrosado (R5-N5)
     lev_b = (p.REV_y_in - p.STE_ear_y1) + p.REV_bush_L / 2                  # cara de la oreja → mitad del buje
-    M_e = R_d * lev_b
-    p_pil = R_d / (p.REV_sp_pilot_d * pil_L) + 6 * M_e / (p.REV_sp_pilot_d * pil_L ** 2)
+    M_e = R_d * lev_b                                                       # momento en la cara de la oreja
+    a_mid = lev_b + pil_L / 2                                               # brazo respecto del plano medio del agujero
+    p_pil = R_d / (p.REV_sp_pilot_d * pil_L) * (1 + 6 * a_mid / pil_L)      # presión lineal a lo largo del agujero (máx. en la cara)
     row(rows, "P1-STE-01", f"Oreja: aplastamiento del piloto Ø{p.REV_sp_pilot_d:g} con corte y momento del pivote (R12, unión deslizada)",
-        f"p = R/(d·L) + 6·M/(d·L²): R {R_d:.0f} N, M = R × {lev_b:.1f} = {M_e/1000:.1f} N·m, L {pil_L:g}", p_pil, AL6061, A, T2)
-    Zp = Zsl                                                               # piloto = muñón (mismo tubo, sin precarga)
+        f"p_máx = R/(d·L)·(1 + 6·a/L): R {R_d:.0f} N, a = {a_mid:.1f} mm (al plano medio del agujero), L {pil_L:g}", p_pil, AL6061, A, T2)
+    Zp = math.pi * (p.REV_sp_pilot_d ** 4 - d_i ** 4) / (32 * p.REV_sp_pilot_d)   # piloto (tubo, sin precarga)
     row(rows, "P1-REV-02", f"Piloto Ø{p.REV_sp_pilot_d:g}/Ø{d_i:g} (dúplex) en la cara de la oreja: flexión + corte (R12, unión deslizada)",
-        f"M = {M_e/1000:.1f} N·m; τ = 2V/A", vm(M_e / Zp, 2 * R_d / Asl), sp_allow, A, T2)
+        f"M = {M_e/1000:.1f} N·m; τ = 2V/A", vm(M_e / Zp, 2 * R_d / (math.pi / 4 * (p.REV_sp_pilot_d ** 2 - d_i ** 2))), sp_allow, A, T2)
     Dk, dk = p.REV_sp_fl_d, p.REV_sp_pilot_d + 1.0
     A_cl = math.pi / 4 * (Dk ** 2 - dk ** 2)
     row(rows, "P1-REV-02", "Brida sobre la oreja 6061: presión con la precarga máxima",
@@ -382,7 +396,7 @@ def cases(p, A, row, rows, T3, T2):
     # brida en flexión por la precarga: la fuerza baja por el muñón (r ≤ d_o/2, sobre el agujero del piloto) y la oreja la
     # devuelve en la corona; anillo en voladizo desde el muñón, momento por unidad de largo en r = d_o/2 [CALCULADO: cota
     # conservadora, sin la rigidez de anillo]
-    a_f, r0, b_f = d_o / 2, (p.REV_sp_pilot_d + 1.0) / 2, p.REV_sp_fl_d / 2
+    a_f, r0, b_f = max(d_o, p.REV_sp_pilot_d) / 2, (p.REV_sp_pilot_d + 1.0) / 2, p.REV_sp_fl_d / 2
     r_c = (2 / 3) * (b_f ** 3 - r0 ** 3) / (b_f ** 2 - r0 ** 2)
     m_f = Fmax * (r_c - a_f) / (2 * math.pi * a_f)
     row(rows, "P1-REV-02", f"Brida Ø{p.REV_sp_fl_d:g} × {p.REV_sp_fl_t:g} (dúplex): flexión por la precarga máxima",
@@ -391,48 +405,18 @@ def cases(p, A, row, rows, T3, T2):
         f"{R_d:.0f} N / ({d_o:g} × {p.REV_bush_L:g})", R_d / (d_o * p.REV_bush_L), POM_STAT, A, T2)
     row(rows, "P1-REV-03", "Buje POM: presión (reversa sizing, oscilación; una traba)",
         f"{R_dn:.0f} N / ({d_o:g} × {p.REV_bush_L:g})", R_dn / (d_o * p.REV_bush_L), POM_DYN, A, T2)
-    lev_l = (p.REV_y_in - p.STE_ear_y1) + p.REV_t / 2           # cara de la oreja (punta del cuerpo) → mitad del brazo
+    lev_l = (p.REV_y_in - p.STE_lock_y1) + p.REV_t / 2          # cara exterior del lóbulo de la traba → mitad del brazo
     row(rows, "P1-REV-04", f"Perno del émbolo Ø{dl:g} (316): flexión + corte con M_h completo (R12)",
         f"F = M_h/r = {Fl:.0f} N a {lev_l:.1f} mm", vm(Fl * lev_l / z_round(dl), 4 / 3 * Fl / (math.pi * dl ** 2 / 4)), SS316, A, T2)
     row(rows, "P1-REV-04", "Perno del émbolo: flexión (reversa sizing, fatiga; M_h completo)",
         f"F = {Fl_n:.0f} N", Fl_n * lev_l / z_round(dl), SS316_FAT, A, T2)
-    # cuerpo del émbolo apretado contra su collar (Ø36 con 2 planos e/c 32 → corona equivalente Ø34/Ø24,5) en la cara
-    # interior de la oreja: el momento del perno en el plano medio de la oreja (F·(luz + t/2 + oreja/2)) no abre la unión
-    # con la precarga mínima; con la máxima el cuerpo (316, A_s M24×1,5 − agujero Ø16,2) no pasa 0,9·Rp0,2
-    import sys as _sys
-    from pathlib import Path as _P
-    _sys.path.insert(0, str(_P(__file__).resolve().parent / "piezas"))
-    import _release as _RL
-    Kmin, Kmax = p.REV_lock_K
-    dth = p.REV_lock_thread_d
-    Fc_min = p.REV_lock_T_Nm * 1000 / (Kmax * dth)
-    Fc_max = p.REV_lock_T_Nm * 1000 / (Kmin * dth)
-    Dc, dc = _RL.PLG_COLLAR_D - 2.0, dth + 0.5
-    kern_c = (Dc ** 2 + dc ** 2) / (8 * Dc)
-    M_lk = Fl * (lev_l + p.STE_ear_t / 2)
-    row(rows, "P1-REV-04", "Cuerpo del émbolo apretado contra su collar: la unión no se abre (R12, M_h completo) [N·m]",
-        f"M = {Fl:.0f} N × {lev_l + p.STE_ear_t / 2:.1f} mm = {M_lk/1000:.1f} N·m contra F_mín·k = {Fc_min/1000:.1f} kN × {kern_c:.2f} mm "
-        f"(par {p.REV_lock_T_Nm:g} N·m, K ≤ {Kmax:g}: Loctite 243 + collar en seco)", M_lk / 1000, Fc_min * kern_c / 1000, A, T2)
-    A_body = math.pi / 4 * ((dth - 0.9382 * 1.5) ** 2 - (dl + 0.2) ** 2)     # A_s ≈ (d − 0,9382·P)² (ISO 898) − agujero
-    row(rows, "P1-REV-04", "Cuerpo del émbolo (316) al apretar con la precarga máxima: σ_red ≈ 1,15·F/A ≤ 0,9·Rp0,2 (VDI 2230)",
-        f"{Fc_max/1000:.1f} kN / {A_body:.0f} mm² (A_s M{dth:g}×1,5 − Ø{dl + 0.2:g})", 1.15 * Fc_max / A_body, 0.9 * SS316, A, 1.0,
-        "criterio de montaje (no de servicio)")
-    # arrancamiento de la rosca interior M24×1,5 de la oreja (6061) con la precarga máxima: área de corte ≈ 0,75·π·d·L_e
-    # [ESTIMADO: fórmula simplificada de rosca interior, L_e = espesor de la oreja]; τ admisible 0,58·Rp0,2 (von Mises)
-    A_th = 0.75 * math.pi * dth * p.STE_ear_t
-    row(rows, "P1-STE-01", f"Rosca M{dth:g}×1,5 de la oreja (6061): arrancamiento con la precarga máxima del émbolo",
-        f"τ = {Fc_max/1000:.1f} kN / (0,75·π·{dth:g}·{p.STE_ear_t:g} = {A_th:.0f} mm²) contra 0,58·Rp0,2", Fc_max / A_th, 0.58 * AL6061, A, T2)
-    # presión radial de los flancos (60°: componente radial = tan 30° × axial) de la rosca M24 con la precarga máxima del
-    # cuerpo → tensión tangencial en el anillo de la oreja alrededor de la rosca (cilindro grueso r_i 12 / r_e lóbulo); se
-    # suma al σθ de borde del FEA (que no modela la precarga): ver 04_diseno/fea (re-auditoría FEA-R5-02)
-    ri, re_ = dth / 2, p.STE_lock_lobe_r
-    p_rad = math.tan(math.radians(30)) * Fc_max / (math.pi * dth * p.STE_ear_t)
-    s_hoop = p_rad * (re_ ** 2 + ri ** 2) / (re_ ** 2 - ri ** 2)
-    row(rows, "P1-STE-01", f"Rosca M{dth:g} de la oreja: tensión tangencial por la precarga máxima del émbolo (cilindro grueso)",
-        f"p = tan30°·{Fc_max/1000:.1f} kN/(π·{dth:g}·{p.STE_ear_t:g}) = {p_rad:.1f} MPa; r {ri:g}/{re_:g}", s_hoop, AL6061, A, T2,
-        "sumar al σθ del borde de la rosca del FEA (P1-STE-01, casos c/c2) para el caso combinado")
-    row(rows, "P1-STE-01", "Collar del émbolo sobre la oreja 6061: presión con la precarga máxima",
-        f"{Fc_max/1000:.1f} kN / corona Ø{Dc:g}/Ø{dc:g}", Fc_max / (math.pi / 4 * (Dc ** 2 - dc ** 2)), AL6061, A, T2)
+    # cuerpo del émbolo (316, tubo Ø26/Ø16,2 sobre el perno) en la cara exterior de la oreja: el perno le pasa F y F·brazo
+    # por su guía; el cuerpo los lleva a la oreja (aplastamiento: filas de P1-STE-01). Sin precarga (ronda 5, R5-N1)
+    db_i = dl + 0.2
+    Zbo = math.pi * (dbo ** 4 - db_i ** 4) / (32 * dbo)
+    Abo = math.pi / 4 * (dbo ** 2 - db_i ** 2)
+    row(rows, "P1-REV-04", f"Cuerpo del émbolo Ø{dbo:g}/Ø{db_i:g} (316) en la cara de la oreja: flexión + corte (R12, M_h completo)",
+        f"M = {Fl:.0f} N × {lev_l:.1f} mm; τ = 2V/A (tubo)", vm(Fl * lev_l / Zbo, 2 * Fl / Abo), SS316, A, T2)
     F_cab = p.CTL_hand_F * 125.0 / 46.0      # palanca forzada contra el tope: 100 N × 125 mm / manivela 46
     row(rows, "P1-REV-06", "Tornillo con hombro Ø8 de la varilla: flexión (palanca forzada)",
         f"F = 100 N × 125/46 = {F_cab:.0f} N a 6 mm", F_cab * 6.0 / z_round(p.REV_stud_d), SS316, A, T2)
@@ -552,8 +536,8 @@ def cases(p, A, row, rows, T3, T2):
         "F_lock_pin_N": round(Fl, 0), "F_lock_pin_sizing_N": round(Fl_n, 0), "n_locks": p.REV_n_locks,
         "lock_criterion": "cada traba sola lleva M_h completo",
         "R_bucket_pivot_design_N": round(R_d, 0), "R_bucket_pivot_sizing_N": round(R_dn, 0),
-        "bolt_torque_Nm": p.REV_bolt_T_Nm, "lock_body_torque_Nm": p.REV_lock_T_Nm, "lock_body_pre_max_N": round(Fc_max, 0),
-        "lock_thread_hoop_MPa": round(s_hoop, 1), "pivot_pilot_bearing_MPa": round(p_pil, 1), "bolt_pre_min_N": round(Fmin, 0), "bolt_pre_max_N": round(Fmax, 0),
+        "bolt_torque_Nm": p.REV_bolt_T_Nm, "lock_body_bearing_MPa": round(p_lk, 1), "lock_body_bore_d_mm": dbo,
+        "pivot_pilot_bearing_MPa": round(p_pil, 1), "bolt_pre_min_N": round(Fmin, 0), "bolt_pre_max_N": round(Fmax, 0),
         "F_pivot_pin_top_N": round(F_top, 0), "F_pivot_pin_bot_N": round(F_bot, 0),
         "F_stop_N": round(F_st, 0),
         "PETG_boquilla": {"caso": "oreja del bucket 12 mm, reversa sizing, admisible lcf",

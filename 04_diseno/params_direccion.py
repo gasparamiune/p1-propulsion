@@ -98,13 +98,11 @@ def extend(d):
     # (3 kN a R12) su perno no llega a FS 2. Perno Ø16 316 h9, cuerpo con rosca M24×1,5 en la oreja, resorte inox
     # comprado (precarga ≈ 20 N, final ≈ 45 N, como el GN 617-10) [CALCULADO: structural_direccion, P1-REV-04].
     d["REV_plunger_stroke"] = 12.0     # carrera del perno (diseño propio) [CALCULADO: ≥ REV_release_need + 2]
-    d["REV_lock_thread_d"] = 24.0      # rosca M24×1,5 del cuerpo del émbolo en la oreja [CALCULADO: pared del cuerpo sobre el perno Ø16]
-    # par de apriete del cuerpo del émbolo contra su collar (Loctite 243; K 0,12–0,22 como el pivote) [CALCULADO: la unión
-    # no se abre con el momento del perno a R12 (FS ≥ 2 con la precarga mínima) y el cuerpo no pasa 0,9·Rp0,2 con la máxima]
-    d["REV_lock_T_Nm"] = 110.0
-    # K propio del cuerpo del émbolo: rosca con Loctite 243 y collar en seco sobre el anodizado (no Tef-Gel como el pivote)
-    # [ESTIMADO: K 0,15–0,28 para inox con fijador / en seco; ronda 5, MEC-04]
-    d["REV_lock_K"] = (0.15, 0.28)
+    # cuerpo del émbolo AJUSTADO en la oreja (ronda 5): Ø26 h6 en un agujero liso Ø26 H7 (Loctite 641), collar exterior en
+    # la luz oreja–brazo y anillo DIN 471 por dentro. El cuerpo lleva la fuerza y el momento del perno por aplastamiento
+    # en la oreja (como el piloto del pivote); sin rosca ni precarga en la oreja: la precarga de 110 N·m de la rosca M24
+    # abría la oreja (σθ) y el FEA de STE-01 daba FS 1,74 [CALCULADO: structural_direccion + FEA STE-01]
+    d["REV_lock_bore_d"] = 26.0
     d["STE_e_frac"] = 0.5              # [ESTIMADO: research/R12 §7.4 — brazo del momento 0,3–0,5 L]
     d["STE_F_design"] = max(loads["F_steer_side_N"], 364.0)   # [CALCULADO: research/R12 §7.4 — 364 N (7,2 kW, δ 30°); se toma el mayor con sizing]
     # orejas del bucket sobre la boquilla
@@ -116,7 +114,21 @@ def extend(d):
     d["STE_ear_t"] = 14.0              # ronda 5: el piloto Ø20 apoya en la oreja (par de aplastamiento) [CALCULADO: structural_direccion]
     d["STE_ear_y0"] = d["STE_ear_y1"] - d["STE_ear_t"]
     d["STE_ear_r"] = 22.0
-    d["STE_lock_lobe_r"] = d["REV_lock_thread_d"] / 2 + 8.0
+    # lóbulo r 20 alrededor del agujero Ø26 del cuerpo del émbolo (ligamento 7): no se agranda porque los balancines del
+    # desbloqueo (P1-REV-09) se ubican a popa de él y el montante ya llega al final del pad [CALCULADO: P1-REV-09 checks]
+    d["STE_lock_lobe_r"] = 20.0
+    # lóbulos ENGROSADOS alrededor de cada agujero (re-auditoría ronda 5, R5-N5): el perno de la traba y el buje del pivote
+    # cargan afuera de la oreja, así que el aplastamiento con momento tiene su pico en la cara exterior:
+    # p_máx = F/(d·L)·(4 + 6·a/L) (a = carga → cara) baja con el largo de apoyo L y con a. La placa de la oreja (STE_ear_t)
+    # no cambia. Lóbulo de la traba: 3 mm hacia AFUERA (en la luz hasta el brazo: collar del émbolo de 1,5 y 1 de luz) y 4
+    # hacia ADENTRO con radio 18 (más no entra: con r 20 el ojo del eslabón del OTRO émbolo, tirado, lo toca, y más
+    # adentro el anillo del émbolo +Y llega al cubo del balancín −Y de P1-REV-09). Lóbulo del pivote: solo hacia adentro
+    # (la brida del espaciador apoya en la cara exterior) y 16 para que el M12 × 60 normalizado no entre en la torre del
+    # yugo [CALCULADO: structural_direccion + FEA STE-01; P1-REV-02.bolt_len_iso; P1-REV-09]
+    d["STE_lock_y1"] = d["STE_ear_y1"] + 3.0   # cara exterior del lóbulo de la traba (apoyo del collar del émbolo)
+    d["STE_lock_t"] = 21.0             # espesor del lóbulo de la traba: Ø26 H7 del cuerpo del émbolo de 21 mm
+    d["STE_lock_in_r"] = 18.0          # radio de la parte del lóbulo de la traba que entra más allá de la placa
+    d["STE_piv_t"] = 16.0              # espesor del lóbulo del pivote: piloto Ø24 h6 de 15,5 mm
 
     # ------------------------------------------------------------------ bucket (REV)
     d["bucket_down_deg"] = 70.0        # [SUPUESTO: pedido del brief, default 70°] (lo lee params.loc_bucket)
@@ -146,7 +158,7 @@ def extend(d):
     d["REV_pin_d"] = 20.0              # Ø del muñón del espaciador (h7) [CALCULADO: structural_direccion]
     # piloto = muñón (Ø20 h6 ajustado en el Ø20 H7 de la oreja): es el camino DISEÑADO del momento del pivote (par de
     # aplastamiento en la oreja); con Tef-Gel la brida desliza con R12 y no se cuenta con la unión apretada (ronda 5, MEC-02)
-    d["REV_sp_pilot_d"] = d["REV_pin_d"]
+    d["REV_sp_pilot_d"] = 24.0         # piloto Ø24 h6 (> muñón): baja la presión de aplastamiento en la oreja [CALCULADO: FEA STE-01, ronda 5]
     d["REV_bolt_d"] = 12.0             # tornillo ISO 4017 M12 A4-80 [CALCULADO: structural_direccion]
     # par de apriete con Tef-Gel y su dispersión (método del par): F = T/(K·d) con K 0,12–0,22 [ESTIMADO: K típico de
     # inox lubricado 0,12–0,22; VDI 2230 da la dispersión del método del par]. La mínima no deja abrir la unión con

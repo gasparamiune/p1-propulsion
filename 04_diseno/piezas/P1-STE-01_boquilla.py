@@ -11,10 +11,12 @@ en X = X_steer_pivot. Geometría (marco JET, δ = 0):
     agujero Ø8,2 de la oreja de la bomba. Hueco = barrido ±(δmax+5°) de la oreja de la bomba inflada;
   - torre del yugo (X' 15–40) detrás del extremo de la oreja de la bomba, con 2 × M6 para la brida
     P1-STE-04 (que lleva el poste y el brazo del cable M66 por encima de la flotación);
-  - orejas del bucket (±Y STE_ear_y0–STE_ear_y1, 12 mm) con Ø16 H7 escariado para el piloto del espaciador del
-    pivote P1-REV-02 (su brida apoya en la cara exterior; uno por oreja) y rosca M24×1,5 del émbolo propio
-    P1-REV-04 en cada una (traba arriba/abajo en los dos brazos del bucket, +Y a REV_lock_ang y −Y a
-    REV_lock_ang_m). Cada oreja lleva sola su pivote y su traba con M_h completo (auditoría ronda 4);
+  - orejas del bucket (±Y STE_ear_y0–STE_ear_y1, STE_ear_t) con Ø REV_sp_pilot_d H7 escariado para el piloto del
+    espaciador del pivote P1-REV-02 (su brida apoya en la cara exterior; uno por oreja) y Ø REV_lock_bore_d H7 liso para el cuerpo ajustado del
+    émbolo propio P1-REV-04 en cada una (traba arriba/abajo en los dos brazos del bucket, +Y a REV_lock_ang y −Y a
+    REV_lock_ang_m). Cada oreja lleva sola su pivote y su traba con M_h completo (auditoría ronda 4); los lóbulos
+    alrededor de los agujeros se engrosan (STE_piv_t hacia adentro; STE_lock_t, 3 mm hacia afuera y el resto hacia
+    adentro; ronda 5, R5-N5) para alargar el apoyo;
   - pad plano sobre el cuerpo a popa de los émbolos con 2 roscas M5 × 7,5 para el soporte de reenvío del desbloqueo
     P1-REV-09 (R4-07).
 PETG descartado: FS < 3 en orejas del bucket y pernos (ver structural_direccion.py)."""
@@ -34,7 +36,7 @@ META = dict(
     load_case="Desvío del chorro F_steer (R12: 364 N) + pivote y traba del bucket con M_h completo en una traba (R12)",
     print_rot=(0, 0, 0), solid_frac=1.0,
     orientation="Torneado del cuerpo (barra Ø100 × 150) + fresado 4 ejes de orejas y torre (bloque 6061-T6 100 × 165 × 165)",
-    allow={"P1-REV-04": 5.0, "P1-STE-02": 5.0, "P1-STE-05": 5.0, "P1-REV-02": 10.0},   # roscas (émbolo M24, tornillos M6), piloto H7/h6
+    allow={"P1-REV-04": 5.0, "P1-STE-02": 5.0, "P1-STE-05": 5.0, "P1-REV-02": 10.0},   # émbolo Ø26 H7/h6, tornillos M6, piloto H7/h6
 )
 
 
@@ -83,7 +85,9 @@ def lock_point(p, side=1):
 def ear_outline(p, sign):
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     pts = circ(Xb, Zb, p.STE_ear_r) + [(Xb - 18, -2.0), (Xb + 18, -2.0), (Xb - 16, 40.0), (Xb + 16, 40.0)]
-    rl = p.STE_lock_lobe_r                            # lóbulo alrededor de la rosca M24 del émbolo (ligamento 8)
+    # hacia proa a la altura del pivote: ligamento de sección neta del agujero del piloto (la carga es casi vertical)
+    pts += [(Xb - p.REV_sp_pilot_d / 2 - 14.0, Zb), (Xb - p.REV_sp_pilot_d / 2 - 12.0, Zb - 12.0)]
+    rl = p.STE_lock_lobe_r                            # lóbulo alrededor del Ø26 H7 del cuerpo del émbolo (ligamento 7)
     if sign > 0:
         lx, lz = lock_point(p)
         pts += circ(lx, lz, rl) + [(lx + 10, -2.0), (lx + 12, 30.0)]
@@ -91,6 +95,47 @@ def ear_outline(p, sign):
         lx, lz = lock_point(p, -1)
         pts += circ(lx, lz, rl)
     return hull(pts)
+
+
+def boss_y(p, y_in, y_out, s):
+    """Tramo en Y [y_in, y_out] (lado +Y) del lado s."""
+    return (y_in, y_out) if s > 0 else (-y_out, -y_in)
+
+
+def lock_lobe_y(p):
+    """(cara interior, cara exterior) del lóbulo engrosado de la traba (lado +Y; R5-N5)."""
+    return p.STE_lock_y1 - p.STE_lock_t, p.STE_lock_y1
+
+
+def inner_boss_outline(p, s):
+    """Contorno XZ de la parte del lóbulo de la traba que entra más allá de la placa de la oreja (r STE_lock_in_r) del
+    lado s (el mismo que construye inner_boss)."""
+    lx, lz = lock_point(p, s)
+    pts = circ(lx, lz, p.STE_lock_in_r)
+    yi = lock_lobe_y(p)[0]
+    z_tube = math.sqrt(max(p.STE_ro ** 2 - yi ** 2, 0.0))
+    if lz - p.STE_lock_in_r - z_tube < 6.0:
+        pts += [(lx - 14.0, 20.0), (lx + 14.0, 20.0)]
+    return pts
+
+
+def inner_boss(p, s):
+    """Lóbulos engrosados alrededor del pivote (hacia adentro hasta STE_ear_y1 − STE_piv_t, r STE_ear_r) y de la traba
+    (de STE_lock_y1 − STE_lock_t a STE_lock_y1: hacia adentro con r STE_lock_in_r y 3 mm hacia afuera con r
+    STE_lock_lobe_r) de la oreja del lado s
+    (re-auditoría ronda 5, R5-N5). Si el de la traba queda a menos de 6 mm del cuerpo, baja hasta él (sin una ranura fina
+    entre los dos, que no se puede fresar)."""
+    Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
+    ya, yb = boss_y(p, p.STE_ear_y1 - p.STE_piv_t, p.STE_ear_y0 + 0.01, s)
+    out = cyl_y(p.STE_ear_r, ya, yb, x=Xb, z=Zb)
+    if s > 0 or p.REV_n_locks > 1:
+        yi, yo = lock_lobe_y(p)
+        lx, lz = lock_point(p, s)
+        ya, yb = boss_y(p, yi, p.STE_ear_y0 + 0.01, s)
+        out = out + prism_xz(hull(inner_boss_outline(p, s)), ya, yb)
+        ya, yb = boss_y(p, p.STE_ear_y1 - 0.01, yo, s)
+        out = out + cyl_y(p.STE_lock_lobe_r, ya, yb, x=lx, z=lz)
+    return out
 
 
 def pivot_ear(p, sign):
@@ -140,7 +185,7 @@ def build(p):
     b = b + pivot_ear(p, 1) + pivot_ear(p, -1) + ear_lip_fillets(p)
     for s in (1, -1):
         y0, y1 = (p.STE_ear_y0, p.STE_ear_y1) if s > 0 else (-p.STE_ear_y1, -p.STE_ear_y0)
-        b = b + prism_xz(ear_outline(p, s), y0, y1)
+        b = b + prism_xz(ear_outline(p, s), y0, y1) + inner_boss(p, s)
     b = b - lug_sweep(p, 1) - lug_sweep(p, -1)
     # roscas M6 de los tornillos de pivote (Ø5,0 × STE_m6_depth)
     zt, dpt = p.STE_ear_top, p.STE_m6_depth
@@ -149,18 +194,20 @@ def build(p):
     # roscas M6 de la brida del yugo (Ø5,0 × 12) en la torre
     for (xx, yy) in p.STE_riser_bolts:                                      # M8 (Ø6,8 × 16)
         b = b - cyl_z(3.4, p.STE_riser_top - 16, p.STE_riser_top + 1, x=Xp + xx, y=yy)
-    # orejas del bucket: Ø16 H7 escariado para el piloto del espaciador P1-REV-02 (su brida apoya en la cara exterior;
+    # orejas del bucket: Ø REV_sp_pilot_d H7 escariado para el piloto del espaciador P1-REV-02 (su brida apoya en la cara exterior;
     # tuerca adentro), UNA POR OREJA (no pasante de lado a lado: no toca la torre del yugo; auditoría ronda 4, F1)
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     rp = p.REV_sp_pilot_d / 2
-    b = b - cyl_y(rp, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=Xb, z=Zb)
-    b = b - cyl_y(rp, -p.STE_ear_y1 - 1, -p.STE_ear_y0 + 1, x=Xb, z=Zb)
-    rt = p.REV_lock_thread_d / 2
+    yp0 = p.STE_ear_y1 - p.STE_piv_t                                                  # cara interior del lóbulo del pivote
+    b = b - cyl_y(rp, yp0 - 1, p.STE_ear_y1 + 1, x=Xb, z=Zb)
+    b = b - cyl_y(rp, -p.STE_ear_y1 - 1, -yp0 + 1, x=Xb, z=Zb)
+    rt = p.REV_lock_bore_d / 2
+    yl0, yl1 = lock_lobe_y(p)                                                         # caras del lóbulo de la traba
     lx, lz = lock_point(p)
-    b = b - cyl_y(rt, p.STE_ear_y0 - 1, p.STE_ear_y1 + 1, x=lx, z=lz)                # M24×1,5 del émbolo (+Y)
+    b = b - cyl_y(rt, yl0 - 1, yl1 + 1, x=lx, z=lz)                                   # Ø26 H7 del cuerpo del émbolo (+Y)
     if p.REV_n_locks > 1:
         lx2, lz2 = lock_point(p, -1)
-        b = b - cyl_y(rt, -p.STE_ear_y1 - 1, -p.STE_ear_y0 + 1, x=lx2, z=lz2)        # M24×1,5 del 2.º émbolo (−Y)
+        b = b - cyl_y(rt, -yl1 - 1, -yl0 + 1, x=lx2, z=lz2)                           # Ø26 H7 del cuerpo del 2.º émbolo (−Y)
     # pad de fijación del soporte de reenvío del desbloqueo P1-REV-09 (cara plana sobre el cuerpo, a popa de los émbolos)
     # con 2 roscas M5 × 7,5 (taladro Ø4,2): auditoría ronda 4, R4-07 (geometría en piezas/_release)
     b = b + RL.pad_box(p) - RL.pad_holes(p)
@@ -247,6 +294,8 @@ def checks(p, part):
         ("piso de la rosca M6 sobre la boca [mm]", (p.STE_ear_top - p.STE_m6_depth) - p.STE_rf, 2.5, ">="),
         ("luz axial a la oreja de la bomba (con arandela) [mm]", p.STE_gz - p.STE_wash_t, 0.3, ">="),
         ("oreja del bucket fuera del cuerpo: Y_oreja_ext − r_ext [mm]", p.STE_ear_y1 - p.STE_ro, 0.0, ">="),
+        ("lóbulos engrosados (≥ placa de la oreja) [mm]", min(p.STE_lock_t, p.STE_piv_t) - p.STE_ear_t, 0.0, ">="),
+        ("lóbulo de la traba: luz al brazo del bucket [mm]", p.REV_y_in - p.STE_lock_y1, 2.5, ">="),
         ("rosca M8 de la torre: piel bajo el agujero (sobre la boca) [mm]", (p.STE_riser_top - 16) - p.STE_rf, 10.0, ">="),
     ]
 

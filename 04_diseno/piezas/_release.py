@@ -40,12 +40,16 @@ PLG_SPRING_L1 = 30.0
 PLG_CAP_T = 4.0
 PLG_KNOB_L = 10.0
 PLG_BODY_D = 24.0
-# collar del cuerpo (en vez de contratuerca, ronda 4): Ø36 con 2 planos e/c 32 para la llave, apoya en la cara interior
-# de la oreja; el cuerpo se aprieta contra él (REV_lock_T_Nm, Loctite 243): ubica la punta enrasada a la cara exterior y
-# toma el momento del perno sin que la unión se abra (structural_direccion, P1-REV-04)
-PLG_COLLAR_D = 36.0
-PLG_COLLAR_T = 8.0
-PLG_NUT_T = PLG_COLLAR_T      # (nombre histórico: zona del collar a lo largo del eje)
+# cuerpo AJUSTADO en el lóbulo de la oreja (ronda 5): collar EXTERIOR Ø32 × 1,5 en la luz lóbulo–brazo (ubica la punta y
+# toma el empuje del resorte y el tiro del cable, ≤ 150 N, hacia adentro) y, por dentro, anillo DIN 471 de Ø26 + arandela
+# de 0,8 contra la cara interior del lóbulo
+PLG_COLLAR_D = 32.0
+PLG_COLLAR_T = 1.5
+PLG_RING_D = 34.0             # anillo DIN 471-26 (Ø máx. con orejetas) [ESTIMADO: DIN 471, eje 26]
+PLG_RING_T = 2.0              # anillo 1,2 + arandela 0,8
+PLG_RING_GROOVE_D = 24.9      # Ø de la ranura del anillo DIN 471-26 (m 1,3) [ESTIMADO: DIN 471, eje 26]
+PLG_FIT_EXT = 4.0             # Ø26 h6 más allá de la cara interior de la oreja: arandela 0,8 + ranura 1,3 + borde ≥ 1,8 [ESTIMADO: DIN 471 n]
+PLG_NUT_T = PLG_RING_T        # zona del retén interior a lo largo del eje (nombre histórico)
 
 
 def body_end_y(p):
@@ -132,17 +136,37 @@ SPRING_F_MAX = spring_F(SPRING_L_MIN)      # ≈ 45 N con el perno afuera [CALCU
 # M6 de la pestaña del soporte, y la vaina sube y se curva hacia proa por delante del barrido del bucket.
 LINK_EYE_SLOT_W = 6.2   # ancho de la ranura del ojo (perno Ø6) [SUPUESTO]
 LINK_EYE_WALL = 2.0     # pared del ojo alrededor de la ranura (316, flexión: check en P1-REV-09) [SUPUESTO]
-LINK_EYE_T = 4.0        # espesor del ojo (X) [SUPUESTO]
+LINK_EYE_T = 5.0        # espesor del ojo (X; flexión de la pared: structural_direccion) [SUPUESTO]
 LINK_SLOT = 1.75        # medio largo extra de la ranura (Z): absorbe el arco de la manivela [SUPUESTO]
 LINK_EYE_HALF = LINK_EYE_SLOT_W / 2 + LINK_EYE_WALL       # eje del perno → extremo del ojo (5,1)
-LINK_GAP = 3.15         # vástago M4 a la vista entre el ojo y la cara del pomo (ajuste ±LINK_TOL) [CALCULADO: manivela
-#                         −Y tirada a ≥ 1,5 de la oreja +Y y manivelas a ≥ 1 de la base del soporte con el ajuste ±LINK_TOL]
+LINK_GAP = 3.15         # vástago M4 a la vista entre el ojo y la cara del pomo (nominal) [CALCULADO: manivela
+#                         −Y tirada a ≥ 1,5 de la oreja +Y y manivelas a ≥ 1 de la base del soporte con el desajuste ±LINK_TOL]
 LINK = LINK_EYE_HALF + LINK_GAP   # cara del pomo → eje del perno de manivela, en reposo [CALCULADO: ojo 5,1 + 3,15]
-LINK_TOL = 0.75         # rango del ajuste del largo del eslabón (± 2 medias vueltas M4) [SUPUESTO: tolerancias de montaje]
-LINK_SHANK_L = 12.0     # vástago M4 del ojo (rosca enganchada en la cola: 12 − LINK_GAP ∓ LINK_TOL ≥ 1,5·d) [SUPUESTO]
+LINK_ADJ = 2.0          # rango físico del ajuste roscado del eslabón (±, vástago M4) [SUPUESTO: ≥ LINK_STACK_FULL, check en P1-REV-09]
+LINK_TOL = 0.75         # desajuste residual del largo revisado en la cinemática (±) [SUPUESTO: ≥ LINK_STACK_RES, check en P1-REV-09]
+LINK_SHANK_L = 12.0     # vástago M4 del ojo (rosca enganchada en la cola: 12 − LINK_GAP − LINK_ADJ ≥ 1,5·d) [SUPUESTO]
+LINK_HALF_TURN = 0.35   # media vuelta del M4 × 0,7 (la ranura del ojo queda vertical cada media vuelta) [CALCULADO: paso ISO 0,7]
+# Cadena de tolerancias pomo ↔ perno de manivela a lo largo de Y (peor caso, mm) [SUPUESTO: tolerancias de taller típicas
+# ISO 2768-m de piezas torneadas/fresadas chicas; holgura de los M5 en Ø5,5]:
+LINK_STACK_PARTS = {
+    "cara exterior de la oreja (P1-STE-01, fresada; apoyo del collar)": 0.1,
+    "cuerpo del émbolo: cara del collar exterior → extremo de la tapa (P1-REV-04)": 0.15,
+    "tapa roscada: asiento del pomo (P1-REV-04)": 0.1,
+    "pomo + cola: largo hasta la cara del pomo (P1-REV-04)": 0.1,
+    "pad de la boquilla en Y (P1-STE-01)": 0.1,
+    "soporte: M5 en Ø5,5 (holgura radial)": 0.25,
+    "soporte: agujero del eje escariado después de soldar (plantilla)": 0.1,
+    "balancín: distancia eje ↔ manivela LEV_L (fresado)": 0.05,
+}
+LINK_STACK_FULL = sum(LINK_STACK_PARTS.values())          # lo que absorbe el ajuste al montar [CALCULADO]
+# residual: media resolución + el soporte re-montado sin regular puede caer en el otro extremo de la holgura de los M5
+# (2 × holgura radial) [CALCULADO]
+LINK_STACK_RES = LINK_HALF_TURN / 2 + 2 * LINK_STACK_PARTS["soporte: M5 en Ø5,5 (holgura radial)"]
 LEV_L = 14.0            # brazos del balancín (manivela = salida: 1:1) [CALCULADO: oreja +Y / brazo del bucket]
 LEV_T = 5.0             # alma del balancín (Al 5083 fresado de placa de 12: alma 5 + cubos hacia proa) [SUPUESTO]
 CRANK_D = 6.0           # perno de manivela 1.4401+C Ø6 m6 [CALCULADO: structural_direccion, filas P1-REV-09]
+CRANK_FRONT = LINK_EYE_T / 2 + 0.2 + 0.74 + 1.06   # perno delante del eje del émbolo: medio ojo + luz 0,2 + ranura DIN 6799-4
+#                         (m 0,74) + borde ≥ 1 al extremo [SUPUESTO: DIN 6799 tamaño 4 para eje Ø5–7]
 CRANK_SHOULDER = (9.0, 1.5)   # hombro del perno de manivela (Ø, largo) contra la cara del cubo [SUPUESTO]
 CRANK_HUB_R = 4.5       # cubo de la manivela Ø9 (pared 1,5) [SUPUESTO]
 CRANK_HUB_H = 7.0       # largo del cubo de la manivela hacia proa (perno prensado en LEV_T + 7 = 12 = 2·Ø) [CALCULADO: libra la oreja]
@@ -150,7 +174,7 @@ PIV_D = 7.0             # muñón del eje del balancín (perno fijo 1.4401+C: Ø
 PIV_STUD_D = 8.0        # parte del eje prensada en el montante [CALCULADO: structural_direccion, filas P1-REV-09]
 PIV_BUSH_OD = 9.0       # casquillo polimérico autolubricado Ø7/Ø9 prensado en el cubo del eje [ESTIMADO: tipo iglidur, apto agua salada]
 PIV_HUB_H = 9.0         # largo del cubo del eje hacia proa (apoyo LEV_T + 9 = 14 = 2·Ø) [CALCULADO: libra los collares]
-LEV_GAP = 1.5           # alma del balancín ↔ montante (anillo DIN 6799 del perno de manivela + arandela PTFE 1 del eje)
+LEV_GAP = 1.5           # alma del balancín ↔ montante (arandela PTFE 1 del eje + 0,5) [SUPUESTO]
 UP_T = 8.0              # montante del soporte (Al 5083 8 mm: el eje Ø8 se prensa en él) [SUPUESTO]
 CRANK_BOSS_R = 4.0      # alma alrededor del perno de manivela (el cable de salida pasa a ≥ 1) [SUPUESTO]
 OUT_BOSS_R = 5.0        # alma del brazo de salida (terminal Ø5) [SUPUESTO]
@@ -159,7 +183,7 @@ NIPPLE_R = 2.5          # terminal del cable (barril Ø5) en el brazo de salida 
 ADJ_EDGE = 3.0          # borde de la pestaña alrededor del regulador M6 [SUPUESTO]
 ADJ_HOLE_R = 3.25       # agujero roscado M6 de la pestaña (modelado Ø6,5)
 TAB_T = 5.0             # pestañas del soporte (tope de las vainas)
-NUT_R = PLG_COLLAR_D / 2      # radio máximo del collar del cuerpo del émbolo (P1-REV-04)
+NUT_R = PLG_RING_D / 2        # radio máximo del retén interior del cuerpo del émbolo (anillo DIN 471, P1-REV-04)
 BOWDEN_D = 5.0          # vaina con camisa de PTFE Ø5 [ESTIMADO: B-BOWDEN]
 BOWDEN_R_MIN = 30.0     # radio mínimo de curvatura de la vaina Ø5 con PTFE [ESTIMADO: ≈ 6 × Ø; ficha del fabricante a confirmar]
 BOWDEN_R = 40.0         # radio usado en el modelo (≥ BOWDEN_R_MIN) [SUPUESTO]
@@ -338,7 +362,7 @@ Z_SHEATH_END = 180.0        # fin del tramo modelado: sobre los émbolos y por d
 
 
 # Pad de fijación del soporte P1-REV-09 sobre el cuerpo de la boquilla (P1-STE-01), a popa de los émbolos (R4-07):
-# cara plana fresada, 2 roscas M5 × 7,5 (taladro Ø4,2 × 9), lejos de los ligamentos del pivote y de las roscas M24.
+# cara plana fresada, 2 roscas M5 × 7,5 (taladro Ø4,2 × 9), lejos de los ligamentos del pivote y de los Ø26 de los émbolos.
 PAD_W = 12.0            # semiancho del pad y de la base [CALCULADO: libra los balancines (|Y| ≥ 15) y los M5 a ±6 con borde 6]
 PAD_H = 6.5             # cara superior del pad a r_ext + 6,5 [SUPUESTO: la base libra el cuerpo; piel bajo los M5 ≥ 2]
 PAD_M5_THREAD = 7.5     # rosca M5 útil (1,5·d) [SUPUESTO]

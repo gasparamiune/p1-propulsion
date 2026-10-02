@@ -441,6 +441,8 @@ def goodman_fields(F_tot, F_mean, S_u):
 
 
 HOLE_WIN_COS = 0.5    # [SUPUESTO: ventana del borde del agujero a ±90° de la carga: |cos θ| ≤ 0,5 (θ = 60…120°)]
+HOLE_FACE_OFF = 2.0   # [SUPUESTO: «interior» del agujero = nodos a ≥ 2 mm de sus dos extremos (informativo: separa el pico de
+                      # la esquina agujero–cara, donde llegan las cargas de borde y de la corona del collar, del de sección neta)]
 
 
 def hole_edge(S, fields, hole, direction, win_cos=HOLE_WIN_COS):
@@ -483,6 +485,14 @@ def hole_edge(S, fields, hole, direction, win_cos=HOLE_WIN_COS):
            "n_nodos": int(win.sum()), "n_nodos_agujero": int(on.sum()), "dir_carga": d.round(4).tolist()}
     if gm:
         out.update({"goodman": True, "s_theta_ciclico": float(st[it]), "s_theta_media": float(sm[it])})
+    ya = S.X[idx] @ ax                                   # informativo: lejos de las esquinas agujero–cara (HOLE_FACE_OFF)
+    ya_on = S.X[on] @ ax
+    inner = idx[(ya >= ya_on.min() + HOLE_FACE_OFF) & (ya <= ya_on.max() - HOLE_FACE_OFF)]
+    if len(inner):
+        ii = inner[np.argmax(sabs[inner])]
+        out.update({"s_theta_abs_max_interior": float(sabs[ii]), "s_theta_signo_interior": float(np.sign(st[ii])),
+                    "at_s_theta_interior_mm": S.X[ii].round(1).tolist(), "largo_agujero_mm": float(np.ptp(ya_on)),
+                    "dist_extremos_interior_mm": HOLE_FACE_OFF})
     return out
 
 

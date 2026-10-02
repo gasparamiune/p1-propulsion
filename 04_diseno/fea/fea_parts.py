@@ -548,23 +548,6 @@ def setup_rev01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
 # ===========================================================================
 
 RM_6061 = 260.0         # [ESTIMADO: EN 755-2, 6061-T6 Rm ≥ 260 MPa (misma norma que structural_direccion.AL6061)]: Goodman
-TAN_FLANK = math.tan(math.radians(30.0))   # rosca métrica de 60°: componente radial de los flancos = tan 30° × axial
-
-
-def collar_annulus(p):
-    """Corona de apoyo equivalente del collar integral del cuerpo del émbolo P1-REV-04 sobre la cara interior de la oreja
-    (la misma de la fila a mano de structural_direccion): collar Ø PLG_COLLAR_D con 2 planos e/c 32 → Ø exterior
-    equivalente PLG_COLLAR_D − 2; Ø interior = rosca + 0,5. Devuelve (r0, r1) en mm [CALCULADO]."""
-    import _release as RL
-    return 0.5 * (p.REV_lock_thread_d + 0.5), 0.5 * (RL.PLG_COLLAR_D - 2.0)
-
-
-def lock_preload(p):
-    """Precarga MÁXIMA del cuerpo del émbolo contra su collar (= structural_direccion): F = T/(K_mín·d) y presión radial
-    de los flancos de la rosca M24 sobre la oreja p = tan30°·F/(π·d·L_e), L_e = espesor de la oreja."""
-    d = p.REV_lock_thread_d
-    F = p.REV_lock_T_Nm * 1000.0 / (min(p.REV_lock_K) * d)
-    return F, TAN_FLANK * F / (math.pi * d * p.STE_ear_t)
 
 
 def couple_load(S, facets, n_out, Mv):
@@ -597,7 +580,7 @@ def linear_bearing(S, facets, F, center, side, ecc, length, tol=1e-5, maxit=20):
     de la oreja). Donde ℓ < 0 el perno apoya en la pared opuesta: ℓ⁺·cos(d) + ℓ⁻·cos(−d) (solo compresión, sin
     tracción en la pared). La fuerza por unidad de largo es ∝ ℓ, así que la resultante es la de un perno cargado en
     η = κ·L²/12: κ se ajusta (secante) para que la línea de acción quede a `ecc` mm del plano medio hacia afuera (la
-    mitad del buje; ecc = 0: en el plano medio, p. ej. la rosca M24), y una corrección lateral chica β·(±e) deja la
+    mitad del buje o del brazo; ecc = 0: en el plano medio), y una corrección lateral chica β·(±e) deja la
     resultante EXACTA en el plano ⟂ al eje. Normal radial exacta (sin la componente axial de las facetas planas).
     Devuelve (f, info)."""
     yv = np.array([0.0, 1.0, 0.0])
@@ -658,26 +641,23 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
       c/c2   reversa R12 con M_h COMPLETO en la traba +Y / −Y (criterio de traba única, ronda 4): esa oreja lleva su
              pivote (chorro/2 + traba) y su traba; la otra, solo chorro/2 en su pivote. DISEÑO, FS ≥ 2 contra fluencia;
       d/d2   c/c2 + desvío F_s en el paso (maniobra en reversa);
-      f/f2   reversa de sizing con M_h completo en la traba +Y / −Y: fatiga, AL6061_FAT, FS ≥ 2 (corridos, sin escalar);
-      p      precarga máxima de los dos cuerpos de émbolo SOLA (informativo; es la tensión media de f/f2).
+      f/f2   reversa de sizing con M_h completo en la traba +Y / −Y: fatiga, AL6061_FAT, FS ≥ 2 (corridos, sin escalar).
     Cargas del bucket SOBRE CADA OREJA (bucket_statics = structural_direccion.bucket_reactions), autoequilibradas (F1):
-      pivote (P1-REV-02 rediseñado, ronda 5): el muñón Ø REV_pin_d (= piloto Ø REV_sp_pilot_d h6) entra ajustado en el
-              Ø20 H7 que atraviesa la oreja; el camino DISEÑADO del corte y del momento es el apoyo del piloto en el
-              agujero (par de aplastamiento): presión cosenoidal con variación LINEAL a lo largo del agujero
-              (linear_bearing) cuya resultante pasa por la mitad del buje, a (REV_y_in − STE_ear_y1) + REV_bush_L/2 de la
-              cara exterior. NO hay par en la cara de la brida (la unión apretada no se cuenta: MEC-02); selección
-              restringida a la oreja (|y| ≥ STE_ear_y0 − 0,5);
-      traba:  la FUERZA del perno, sobre la rosca M24×1,5 de la MISMA oreja (apoyo cosenoidal), y su MOMENTO (perno en
-              voladizo hasta la mitad del brazo) como par lineal bajo el collar del cuerpo, en la cara interior.
-    Precarga del cuerpo del émbolo contra su collar (re-auditoría FEA-R5-02; se superpone en c/c2/d/d2/f/f2 en LAS DOS
-    orejas, porque los dos émbolos están siempre apretados): con la precarga MÁXIMA (lock_preload, K mín.) compresión
-    uniforme en la corona del collar (collar_annulus) sobre la cara interior, tiro axial igual y opuesto en las facetas
-    de la rosca M24 y presión radial p = tan30°·F/(π·d·L_e) en esas facetas (autoequilibrada; tensión tangencial en el
-    lóbulo de la rosca). En los casos de fatiga es tensión MEDIA: el caso guarda u_media (la precarga sola con el mismo
-    conjunto activo) y fea_run evalúa la amplitud = total − media con la corrección de Goodman (fea_model.goodman_fields).
+      pivote (P1-REV-02 rediseñado, ronda 5): el piloto Ø REV_sp_pilot_d h6 del espaciador entra ajustado en el Ø H7
+              que atraviesa la oreja; el camino DISEÑADO del corte y del momento es el apoyo del piloto en el agujero (par
+              de aplastamiento): presión cosenoidal con variación LINEAL a lo largo del agujero (linear_bearing) cuya
+              resultante pasa por la mitad del buje, a (REV_y_in − STE_ear_y1) + REV_bush_L/2 de la cara exterior. NO hay
+              par en la cara de la brida (la unión apretada no se cuenta: MEC-02); selección restringida a la oreja
+              (|y| ≥ STE_ear_y0 − 0,5);
+      traba:  el cuerpo AJUSTADO del émbolo (Ø REV_lock_bore_d h6 en el H7 liso de la MISMA oreja, Loctite 641, sin
+              rosca ni precarga: ronda 5, R5-N1) apoya igual que el piloto: linear_bearing con la resultante en la mitad
+              del brazo del bucket (línea de acción del perno), a (REV_y_in − STE_ear_y1) + REV_t/2 de la cara exterior.
+    Los dos agujeros atraviesan los lóbulos ENGROSADOS hacia adentro (STE_piv_t, STE_lock_t; R5-N5): las selecciones,
+    los planos medios de los apoyos lineales y los bordes de agujero usan el largo de cada lóbulo.
     La precarga del M12 del pivote (baja: 12 N·m, 3,6–6,7 kN, compresión de la oreja ≈ 10 MPa entre brida y arandela)
-    no se modela: la cubren las filas a mano. El setup verifica que la resultante aplicada, su momento alrededor del
-    eje del pivote (M_y) y el vector momento completo coinciden con la estática (± TOL_STATICS_STE)."""
+    no se modela: la cubren las filas a mano. Los casos de fatiga son ciclos 0 → máx. sin media. El setup verifica que la
+    resultante aplicada, su momento alrededor del eje del pivote (M_y) y el vector momento completo coinciden con la
+    estática (± TOL_STATICS_STE)."""
     pid = "P1-STE-01"
     meta = mods[pid].META
     m = mods[pid]
@@ -689,11 +669,14 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
     Xp, Lst = p.X_steer_pivot, p.L_steer
     Xb, Zb = p.X_bucket_pivot, p.Z_bucket_pivot
     y0e, y1e = p.STE_ear_y0, p.STE_ear_y1
-    yp = 0.5 * (y0e + y1e)
+    # lóbulos engrosados hacia adentro (R5-N5): cara interior y plano medio de cada agujero
+    yi_p, yi_l = y1e - p.STE_piv_t, p.STE_lock_y1 - p.STE_lock_t
+    ypp, ypl = 0.5 * (yi_p + y1e), 0.5 * (yi_l + p.STE_lock_y1)
+    yi_min = min(yi_p, yi_l, y0e)
     lpt = {s_: m.lock_point(p, s_) for s_ in (1, -1)}
     zt = p.STE_ear_top
     hr = max(0.5 * h, hmin)
-    ref = [(Xb, s * yp, Zb, 26.0, hr) for s in (1, -1)] + [(lpt[s][0], s * yp, lpt[s][1], 24.0, hr) for s in (1, -1)] + \
+    ref = [(Xb, s * ypp, Zb, 26.0, hr) for s in (1, -1)] + [(lpt[s][0], s * ypl, lpt[s][1], 24.0, hr) for s in (1, -1)] + \
           [(Xp, 0.0, s * zt, 22.0, hr) for s in (1, -1)]
     S, M, minfo = _setup_model(part, pid, meta, tmpdir, h, curv, hmin, A, refine=ref)
     zr = p.STE_riser_top
@@ -738,44 +721,28 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
     f_e, f_o = Fs * lat(band_e), Fs * lat(band_o)
     # --- reversa: selecciones de cada oreja (F1: solo la oreja, el CAD no tiene agujero pasante de lado a lado) ---
     rp_ = p.REV_sp_pilot_d / 2
-    rt_ = p.REV_lock_thread_d / 2
-    rc0, rc1 = collar_annulus(p)
-    in_ear = lambda c, s_: c[:, 1] * s_ >= y0e - 0.5               # noqa: E731
-    pil, thr, col = {}, {}, {}
-    n_out_ear = int(len(sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), rp_, region=lambda c: np.abs(c[:, 1]) < y0e - 0.5)))
+    rt_ = p.REV_lock_bore_d / 2
+    in_piv = lambda c, s_: c[:, 1] * s_ >= yi_p - 0.5              # noqa: E731
+    in_lock = lambda c, s_: c[:, 1] * s_ >= yi_l - 0.5             # noqa: E731
+    pil, thr = {}, {}
+    n_out_ear = int(len(sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), rp_, region=lambda c: np.abs(c[:, 1]) < yi_p - 0.5)))
     for s_ in (1, -1):
         lxs, lzs = lpt[s_]
-        pil[s_] = sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), rp_, region=lambda c, s_=s_: in_ear(c, s_))
-        thr[s_] = sel_cyl(S, (lxs, 0, lzs), (0, 1, 0), rt_, region=lambda c, s_=s_: in_ear(c, s_))
-        col[s_] = sel_annulus(S, (0, -s_, 0), -y0e, (lxs, s_ * y0e, lzs), rc0, rc1)
-        for nm_, sel_ in (("agujero del piloto", pil), ("rosca M24", thr), ("corona del collar del émbolo", col)):
+        pil[s_] = sel_cyl(S, (Xb, 0, Zb), (0, 1, 0), rp_, region=lambda c, s_=s_: in_piv(c, s_))
+        thr[s_] = sel_cyl(S, (lxs, 0, lzs), (0, 1, 0), rt_, region=lambda c, s_=s_: in_lock(c, s_))
+        for nm_, sel_ in (("agujero del piloto", pil), ("agujero del cuerpo del émbolo", thr)):
             if len(sel_[s_]) == 0:
                 raise RuntimeError(f"STE-01: selección vacía ({nm_}) en la oreja {s_:+d}")
-    M.zones += [band_o] + list(pil.values()) + list(thr.values()) + list(col.values())
+    M.zones += [band_o] + list(pil.values()) + list(thr.values())
     y_bush = p.REV_y_in + p.REV_bush_L / 2                  # |y| de la mitad del buje (línea de acción del pivote)
     y_arm = p.REV_y_in + p.REV_t / 2                        # |y| de la mitad del brazo (línea de acción del perno)
     lev_face = (p.REV_y_in - y1e) + p.REV_bush_L / 2        # cara exterior de la oreja → mitad del buje
-    ecc_p = y_bush - yp                                     # plano medio de la oreja → mitad del buje
-    lev_l = y_arm - yp                                      # mitad del brazo (perno) → plano medio de la oreja (rosca)
+    ecc_p = y_bush - ypp                                    # plano medio del agujero del piloto → mitad del buje
+    lev_l = y_arm - ypl                                     # mitad del brazo (perno) → plano medio del agujero del cuerpo
     L_pil = {s_: float(np.ptp(S.X[S.ftri[pil[s_]].ravel(), 1])) for s_ in (1, -1)}   # largo del agujero en la malla
     L_thr = {s_: float(np.ptp(S.X[S.ftri[thr[s_]].ravel(), 1])) for s_ in (1, -1)}
 
-    # --- precarga máxima de los cuerpos de émbolo contra su collar (FEA-R5-02) ---
-    F_pre, p_rad = lock_preload(p)
-    f_pre = np.zeros(S.ndof)
-    pre_info = {}
-    for s_ in (1, -1):
-        fc_ = S.traction_load(col[s_], uniform_traction((0.0, s_, 0.0)))          # collar → cara interior (hacia afuera)
-        fc_ *= F_pre / (s_ * force_of(S, fc_)[1])
-        fa_ = S.traction_load(thr[s_], uniform_traction((0.0, -s_, 0.0)))         # rosca: tira de la oreja hacia el collar
-        fa_ *= F_pre / (-s_ * force_of(S, fa_)[1])
-        fr_ = S.traction_load(thr[s_], lambda Xq, n: -p_rad * np.broadcast_to(n[:, None, :], Xq.shape))   # flancos: radial
-        f_pre += fc_ + fa_ + fr_
-        A_thr = float(S.farea[thr[s_]].sum())
-        pre_info["+Y" if s_ > 0 else "-Y"] = {"A_rosca_malla_mm2": A_thr, "A_rosca_formula_mm2": math.pi * p.REV_lock_thread_d * p.STE_ear_t,
-                                              "A_collar_mm2": float(S.farea[col[s_]].sum()),
-                                              "residuo_radial_N": force_of(S, fr_).round(2).tolist()}
-    names = {(1, "p"): "pivote_mas_y", (-1, "p"): "pivote_menos_y", (1, "l"): "rosca_mas_y", (-1, "l"): "rosca_menos_y"}
+    names = {(1, "p"): "pivote_mas_y", (-1, "p"): "pivote_menos_y", (1, "l"): "embolo_mas_y", (-1, "l"): "embolo_menos_y"}
 
     def reverse_load(Fb_, side):
         st_ = bucket_statics(p, Fb_, share={side: 1.0})
@@ -787,14 +754,14 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
         for s_, kp, kl in ((1, "F_pivote_mas_y_sobre_boquilla_N", "F_traba_sobre_boquilla_N"),
                            (-1, "F_pivote_menos_y_sobre_boquilla_N", "F_traba_menos_y_sobre_boquilla_N")):
             Fp, Fl = np.array(st_[kp]), np.array(st_[kl])
-            fp_, lb[names[(s_, "p")]] = linear_bearing(S, pil[s_], Fp, (Xb, s_ * yp, Zb), s_, ecc_p, L_pil[s_])
+            fp_, lb[names[(s_, "p")]] = linear_bearing(S, pil[s_], Fp, (Xb, s_ * ypp, Zb), s_, ecc_p, L_pil[s_])
             f += fp_
             M3_ref += np.cross(np.array([Xb, s_ * y_bush, Zb]) - o, Fp)
             dirh[names[(s_, "p")]] = Fp.tolist()
             if np.linalg.norm(Fl) > 1e-6:
                 lxs, lzs = lpt[s_]
-                fl_, _ = linear_bearing(S, thr[s_], Fl, (lxs, s_ * yp, lzs), s_, 0.0, L_thr[s_])   # fuerza en el plano medio
-                f += fl_ + couple_load(S, col[s_], (0.0, -s_, 0.0), s_ * lev_l * np.cross(yv, Fl))
+                fl_, lb[names[(s_, "l")]] = linear_bearing(S, thr[s_], Fl, (lxs, s_ * ypl, lzs), s_, lev_l, L_thr[s_])
+                f += fl_                                     # cuerpo ajustado: resultante en la mitad del brazo
                 dirh[names[(s_, "l")]] = Fl.tolist()
                 M_ref += (lzs - Zb) * Fl[0] - (lxs - Xb) * Fl[2]
                 M3_ref += np.cross(np.array([lxs, s_ * y_arm, lzs]) - o, Fl)
@@ -813,77 +780,56 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
         res_ = {"F_aplicada_N": F_app.round(2).tolist(), "F_estatica_N": F_ref.round(2).tolist(), "err_F_rel": errF,
                 "M_y_pivote_aplicado_Nm": M_app / 1000, "M_y_pivote_estatica_Nm": M_ref / 1000, "err_M_rel": errM,
                 "M_pivote_aplicado_Nm": (M3_app / 1000).round(3).tolist(), "M_pivote_estatica_Nm": (M3_ref / 1000).round(3).tolist(),
-                "err_M3_rel": errM3, "apoyo_lineal_piloto": lb, "tolerancia": TOL_STATICS_STE}
+                "err_M3_rel": errM3, "apoyo_lineal": lb, "tolerancia": TOL_STATICS_STE}
         return f, st_, res_, dirh
     Fb, Fbn = p.REV_F_design, p.sz["loads"]["F_bucket_N"]
     rev = {(k, s_): reverse_load(F_, s_) for k, F_ in (("R12", Fb), ("sz", Fbn)) for s_ in (1, -1)}
     Mh = rev[("R12", 1)][1]["M_h_Nm"]
     Mhn = rev[("sz", 1)][1]["M_h_Nm"]
-    pre_txt = " + precarga de los émbolos"
     cases = [
         ("a", "Desvío del chorro F_s = máx(sizing %.0f, R12 364) = %.0f N repartido en el paso (centro de presión e = %.0f mm, = structural)"
          % (Fsn, Fs, e), f_e, None, "short"),
         ("b", "F_s = %.0f N en la boca de salida (últimos 20 mm; brazo ≈ L = %.0f mm, conservador)" % (Fs, Lst), f_o, None, "short"),
         ("c", "Reversa R12 (F_b = %.0f N, M_h = %.0f N·m) con M_h COMPLETO en la traba +Y: pivote +Y (chorro/2 + traba), "
-              "pivote −Y (chorro/2) y rosca M24 +Y%s (DISEÑO)" % (Fb, Mh, pre_txt), rev[("R12", 1)][0], ("R12", 1), "short"),
-        ("c2", "Reversa R12 con M_h COMPLETO en la traba −Y: pivote −Y (chorro/2 + traba), pivote +Y y rosca M24 −Y%s (DISEÑO)" % pre_txt,
+              "pivote −Y (chorro/2) y cuerpo del émbolo +Y (DISEÑO)" % (Fb, Mh), rev[("R12", 1)][0], ("R12", 1), "short"),
+        ("c2", "Reversa R12 con M_h COMPLETO en la traba −Y: pivote −Y (chorro/2 + traba), pivote +Y y cuerpo del émbolo −Y (DISEÑO)",
          rev[("R12", -1)][0], ("R12", -1), "short"),
-        ("d", "Combinado: reversa (c) + desvío F_s en el paso (a) (maniobra en reversa)" + pre_txt, rev[("R12", 1)][0] + f_e, ("R12", 1), "short"),
-        ("d2", "Combinado: reversa (c2) + desvío F_s en el paso (a)" + pre_txt, rev[("R12", -1)][0] + f_e, ("R12", -1), "short"),
-        ("f", "Reversa de sizing (F_b = %.0f N, M_h = %.1f N·m) con M_h completo en la traba +Y (fatiga; precarga = media, Goodman)"
+        ("d", "Combinado: reversa (c) + desvío F_s en el paso (a) (maniobra en reversa)", rev[("R12", 1)][0] + f_e, ("R12", 1), "short"),
+        ("d2", "Combinado: reversa (c2) + desvío F_s en el paso (a)", rev[("R12", -1)][0] + f_e, ("R12", -1), "short"),
+        ("f", "Reversa de sizing (F_b = %.0f N, M_h = %.1f N·m) con M_h completo en la traba +Y (fatiga, 0 → máx.)"
          % (Fbn, Mhn), rev[("sz", 1)][0], ("sz", 1), "fatiga"),
-        ("f2", "Reversa de sizing con M_h completo en la traba −Y (fatiga; precarga = media, Goodman)",
+        ("f2", "Reversa de sizing con M_h completo en la traba −Y (fatiga, 0 → máx.)",
          rev[("sz", -1)][0], ("sz", -1), "fatiga")]
-    hoop_hand = hand_row(est, pid, "Rosca M24 de la oreja: tensión tangencial")
 
     def run(log=print, init=None):
-        res, pre_only = [], None
+        res = []
         for cid, name, f, rk, kind in cases:
-            ft = f + f_pre if rk is not None else f
-            u, info = M.solve(ft, init_active=(init or {}).get(cid), log=None)
+            u, info = M.solve(f, init_active=(init or {}).get(cid), log=None)
             R_ = M.interface_forces(u)
             act = M_active(M)
-            ex = {"F_N": force_of(S, ft).round(1).tolist(), "M_z_pivote_Nm": float(moment_of(S, ft, (Xp, 0.0, 0.0))[2] / 1000),
+            ex = {"F_N": force_of(S, f).round(1).tolist(), "M_z_pivote_Nm": float(moment_of(S, f, (Xp, 0.0, 0.0))[2] / 1000),
                   "reacciones": {k: v["F_N"] for k, v in R_.items()}}
             rec = {"id": cid, "name": name, "kind": kind, "diseno": True, "u": u, "info": info, "active": act,
                    "extra": ex, "dir_agujeros": rev[rk][3] if rk is not None else {}}
             if rk is not None:
                 ex["resultante_bucket"] = rev[rk][2]
-                ex["precarga_embolo"] = {"F_N": F_pre, "p_radial_MPa": p_rad}
-                if kind == "fatiga" or pre_only is None:
-                    # precarga sola con el MISMO conjunto activo (sistema lineal): u_total − u_media = parte cíclica exacta
-                    u_m, info_m, _ = fc.solve_spd(M.base_matrix(), f_pre, M.fixed, M.P, rtol=1e-7, pre=M.pre, maxiter=3000)
-                    if kind == "fatiga":
-                        rec["u_media"] = u_m
-                        ex["media"] = "precarga máxima de los cuerpos de émbolo (Goodman con S_u; fea_model.goodman_fields)"
-                    if pre_only is None:
-                        pre_only = (cid, u_m, info_m, act)
             res.append(rec)
-        if pre_only is not None:
-            cid0, u_m, info_m, act = pre_only
-            dirp = {names[(s_, "l")]: rev[("R12", s_)][3][names[(s_, "l")]] for s_ in (1, -1)}
-            res.append({"id": "p", "name": "Precarga máxima de los dos cuerpos de émbolo sola (F = %.1f kN por oreja, p radial "
-                        "%.1f MPa; informativo: es la tensión media de f/f2)" % (F_pre / 1000, p_rad),
-                        "kind": "short", "diseno": False, "u": u_m, "info": info_m, "active": act,
-                        "extra": {"F_N": force_of(S, f_pre).round(3).tolist(), "precarga_embolo": {"F_N": F_pre, "p_radial_MPa": p_rad},
-                                  "conjunto_activo_de": cid0, "fila_mano_tension_tangencial": hoop_hand},
-                        "dir_agujeros": dirp})
         return res
 
     holes = {}
     for s_ in (1, -1):
-        holes[names[(s_, "p")]] = {"c": [Xb, 0.0, Zb], "ax": [0.0, 1.0, 0.0], "r": rp_, "region": lambda X, s_=s_: in_ear(X, s_)}
+        holes[names[(s_, "p")]] = {"c": [Xb, 0.0, Zb], "ax": [0.0, 1.0, 0.0], "r": rp_, "region": lambda X, s_=s_: in_piv(X, s_)}
         holes[names[(s_, "l")]] = {"c": [lpt[s_][0], 0.0, lpt[s_][1]], "ax": [0.0, 1.0, 0.0], "r": rt_,
-                                   "region": lambda X, s_=s_: in_ear(X, s_)}
+                                   "region": lambda X, s_=s_: in_lock(X, s_)}
     ro = p.STE_ro
     rlobe = p.STE_lock_lobe_r
     regions = {
         "tubo": lambda X: (np.hypot(X[:, 1], X[:, 2]) <= ro + 0.3) & (X[:, 0] > Xp + 20.0),
-        "orejas_bucket": lambda X: (np.abs(X[:, 1]) >= y0e - 0.1),
-        "lobulo_rosca": lambda X: (np.abs(X[:, 1]) >= y0e - 0.1) & np.any(
+        "orejas_bucket": lambda X: (np.abs(X[:, 1]) >= yi_min - 0.1),
+        "lobulo_embolo": lambda X: (np.abs(X[:, 1]) >= yi_l - 0.1) & np.any(
             [(X[:, 1] * s_ > 0) & (np.hypot(X[:, 0] - lpt[s_][0], X[:, 2] - lpt[s_][1]) <= rlobe + 0.5) for s_ in (1, -1)], axis=0),
-        "anillo_piloto": lambda X: (np.abs(X[:, 1]) >= y0e - 0.1) & (np.hypot(X[:, 0] - Xb, X[:, 2] - Zb) <= rp_ + 3.0),
-        "orejas_pivote": lambda X: (np.abs(X[:, 2]) >= 38.0) & (np.abs(X[:, 1]) < y0e - 0.1),
+        "anillo_piloto": lambda X: (np.abs(X[:, 1]) >= yi_p - 0.1) & (np.hypot(X[:, 0] - Xb, X[:, 2] - Zb) <= rp_ + 3.0),
+        "orejas_pivote": lambda X: (np.abs(X[:, 2]) >= 38.0) & (np.abs(X[:, 1]) < yi_min - 0.1),
     }
     checks = {"F_s_N": Fs, "F_s_sizing_N": Fsn, "e_mm": e, "banda_e_mm": [Xp + e - half, Xp + e + half],
               "k_contacto_N_mm3": k_c, "k_arandela_N_mm3": k_w,
@@ -891,28 +837,27 @@ def setup_ste01(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None
               "resultante_bucket": {f"{k}_{'+Y' if s_ > 0 else '-Y'}": v[2] for (k, s_), v in rev.items()},
               "d_agujero_piloto_mm": 2 * rp_, "largo_agujero_piloto_malla_mm": L_pil,
               "brazo_pivote_desde_cara_exterior_mm": lev_face, "excentricidad_pivote_desde_plano_medio_mm": ecc_p,
-              "brazo_par_perno_traba_mm": lev_l, "r_collar_mm": [rc0, rc1],
-              "precarga_embolo": {"T_Nm": p.REV_lock_T_Nm, "K_min": min(p.REV_lock_K), "F_max_N": F_pre, "p_radial_MPa": p_rad,
-                                  "L_e_mm": p.STE_ear_t, "por_oreja": pre_info, "fila_mano_tension_tangencial": hoop_hand,
-                                  "casos": ["c", "c2", "d", "d2", "f", "f2", "p"]},
+              "d_agujero_embolo_mm": 2 * rt_, "largo_agujero_embolo_malla_mm": L_thr,
+              "excentricidad_traba_desde_plano_medio_mm": lev_l,
               "facetas_agujero_pivote_fuera_de_las_orejas": n_out_ear,
               "nota": "El par de dirección lo reacciona el yugo (brida sobre la torre) como cuerpo rígido con solo el giro "
                       "alrededor del eje de pivote bloqueado: par puro, sin fuerza neta. Cargas del bucket autoequilibradas por "
-                      "oreja: pivote = apoyo del piloto Ø20 en el agujero H7 con presión lineal a lo largo del agujero (par de "
-                      "aplastamiento; resultante en la mitad del buje, sin par en la brida); traba = fuerza en la rosca M24 + "
-                      "par de resultante nula bajo el collar del émbolo; resultante, M_y y el vector momento verificados contra "
-                      "la estática en el setup. Precarga máxima de los cuerpos de émbolo superpuesta en los casos de reversa "
-                      "(tensión media con Goodman en los de fatiga)."}
+                      "oreja: pivote = apoyo del piloto en su agujero H7 con presión lineal a lo largo del agujero (par de "
+                      "aplastamiento; resultante en la mitad del buje, sin par en la brida); traba = apoyo del cuerpo ajustado "
+                      "del émbolo en su agujero H7, igual (resultante en la mitad del brazo); resultante, M_y y el vector "
+                      "momento verificados contra la estática en el setup. Sin precarga en la oreja (cuerpo ajustado)."}
     comp = comparisons(est, pid, [
         {"key": "Flexión del tubo", "caso": "a", "region": "tubo", "escala": Fsn / Fs,
          "nota": "caso sin juego inicial (homogéneo de grado 1): escalar a F_s de sizing es exacto"},
         {"key": "Oreja del bucket: flexión en su plano (R12", "caso": "c", "region": "orejas_bucket"},
         {"key": "Oreja del bucket: flexión (reversa sizing", "caso": "f", "region": "orejas_bucket",
-         "nota": "caso de sizing corrido explícitamente (sin escalar); FEA: σ equivalente de Goodman con la precarga como media"},
-        {"key": "Oreja del bucket: ligamento de la rosca", "caso": "c", "region": "lobulo_rosca"},
+         "nota": "caso de sizing corrido explícitamente (sin escalar)"},
+        {"key": "Oreja del bucket: ligamento del agujero", "caso": "c", "region": "lobulo_embolo"},
         {"key": "Oreja del bucket: flexión fuera del plano", "caso": "c", "region": "orejas_bucket"},
         {"key": "Oreja: aplastamiento del piloto", "caso": "c", "region": "anillo_piloto", "metrica": "mean",
          "nota": "la fila: p = R/(d·L) + 6·M/(d·L²) (par de aplastamiento); FEA: σvm promedio en el anillo de 3 mm alrededor del piloto"},
+        {"key": "Oreja: aplastamiento del cuerpo ajustado", "caso": "c", "region": "lobulo_embolo", "metrica": "mean",
+         "nota": "la fila: p = F/(d·L)·(1 + 6·a/L); FEA: σvm promedio en el lóbulo de la traba"},
         {"key": "Oreja de pivote", "caso": "d", "region": "orejas_pivote"},
     ])
     return {"model": M, "run": run, "meta": meta, "mesh": minfo, "checks": checks, "allow": A, "holes": holes,

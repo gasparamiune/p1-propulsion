@@ -184,25 +184,27 @@ def test_applied_load_matches_statics_coarse(pid, h, tmp_path):
         tol = fp.TOL_STATICS_STE
         assert set(recs) == {"R12_+Y", "R12_-Y", "sz_+Y", "sz_-Y"}, sorted(recs)
         assert ck["facetas_agujero_pivote_fuera_de_las_orejas"] == 0
-        # ronda 5 (P1-REV-02 rediseñado): piloto = muñón Ø20 h6 en el Ø20 H7 de la oreja de STE_ear_t; el pivote apoya con
-        # presión lineal a lo largo del agujero (par de aplastamiento) cuya resultante pasa por la mitad del buje
-        assert ck["d_agujero_piloto_mm"] == p.REV_sp_pilot_d == p.REV_pin_d == 20.0, ck["d_agujero_piloto_mm"]
-        for s_, L_ in ck["largo_agujero_piloto_malla_mm"].items():
-            assert abs(L_ - p.STE_ear_t) < 0.05, (s_, L_, p.STE_ear_t)
+        # ronda 5: piloto Ø REV_sp_pilot_d h6 del espaciador y cuerpo AJUSTADO Ø REV_lock_bore_d h6 del émbolo en sus H7
+        # de la oreja de STE_ear_t; los dos apoyan con presión lineal a lo largo del agujero (par de aplastamiento) cuya
+        # resultante pasa por la mitad del buje (pivote) y por la mitad del brazo del bucket (traba); sin precarga
+        assert ck["d_agujero_piloto_mm"] == p.REV_sp_pilot_d, ck["d_agujero_piloto_mm"]
+        assert ck["d_agujero_embolo_mm"] == p.REV_lock_bore_d, ck["d_agujero_embolo_mm"]
+        # los agujeros atraviesan los lóbulos engrosados hacia adentro (R5-N5)
+        for key, t_ in (("largo_agujero_piloto_malla_mm", p.STE_piv_t), ("largo_agujero_embolo_malla_mm", p.STE_lock_t)):
+            for s_, L_ in ck[key].items():
+                assert abs(L_ - t_) < 0.05, (key, s_, L_, t_)
         lev = (p.REV_y_in - p.STE_ear_y1) + p.REV_bush_L / 2
         assert abs(ck["brazo_pivote_desde_cara_exterior_mm"] - lev) < 1e-9
-        assert abs(ck["excentricidad_pivote_desde_plano_medio_mm"] - (lev + p.STE_ear_t / 2)) < 1e-9
+        assert abs(ck["excentricidad_pivote_desde_plano_medio_mm"] - (lev + p.STE_piv_t / 2)) < 1e-9
+        lev_l = (p.REV_y_in - p.STE_lock_y1) + p.REV_t / 2 + p.STE_lock_t / 2
+        assert abs(ck["excentricidad_traba_desde_plano_medio_mm"] - lev_l) < 1e-9
+        assert "precarga_embolo" not in ck
         for k, r in recs.items():
             assert r["err_M3_rel"] <= tol, (k, r["M_pivote_aplicado_Nm"], r["M_pivote_estatica_Nm"])
-            for hn, lb in r["apoyo_lineal_piloto"].items():
+            assert any(hn.startswith("embolo") for hn in r["apoyo_lineal"]), (k, sorted(r["apoyo_lineal"]))
+            for hn, lb in r["apoyo_lineal"].items():
                 assert abs(lb["excentricidad_aplicada_mm"] / lb["excentricidad_mm"] - 1) < 0.005, (k, hn, lb)
-                assert lb["ell_extremos"][0] < 0 < lb["ell_extremos"][1], (k, hn, lb)   # el piloto apoya en las dos paredes
-        # precarga máxima del cuerpo del émbolo (FEA-R5-02) = la de structural_direccion
-        pre = ck["precarga_embolo"]
-        F_max = p.REV_lock_T_Nm * 1000 / (min(p.REV_lock_K) * p.REV_lock_thread_d)
-        assert abs(pre["F_max_N"] / F_max - 1) < 1e-9
-        assert abs(pre["p_radial_MPa"] - math.tan(math.radians(30)) * F_max / (math.pi * p.REV_lock_thread_d * p.STE_ear_t)) < 1e-9
-        assert {"c", "c2", "f", "f2"} <= set(pre["casos"])
+                assert lb["ell_extremos"][0] < 0 < lb["ell_extremos"][1], (k, hn, lb)   # apoya en las dos paredes
     for k, r in recs.items():
         assert r["err_F_rel"] <= tol and r["err_M_rel"] <= tol, (k, r)
         F_a, F_s = np.array(r["F_aplicada_N"]), np.array(r["F_estatica_N"])
@@ -284,7 +286,7 @@ def test_lug_edges_checked():
     """F3: en REV-01 y STE-01 cada caso de diseño evalúa el borde de sus agujeros cargados (traba/rosca y pivote) a ±90°
     de la carga, con FS ≥ objetivo; el agujero de una traba deshabilitada no se evalúa como cargado."""
     for pid, need in (("P1-REV-01", {"d": {"traba", "pivote_mas_y"}, "e": {"traba_menos_y", "pivote_menos_y"}}),
-                      ("P1-STE-01", {"c": {"rosca_mas_y", "pivote_mas_y"}, "c2": {"rosca_menos_y", "pivote_menos_y"}})):
+                      ("P1-STE-01", {"c": {"embolo_mas_y", "pivote_mas_y"}, "c2": {"embolo_menos_y", "pivote_menos_y"}})):
         r = _fea_part(pid)
         for cid, holes in need.items():
             fb = r["casos"][cid]["FS_bordes"]
@@ -315,23 +317,27 @@ def test_fea_json_design_sigma_rule():
             assert not r["cumple"], pid
 
 
-def test_ste01_preload_and_pivot_model():
-    """Ronda 5 en el entregable de STE-01: casos de reversa con la precarga de los émbolos superpuesta (FEA-R5-02), caso
-    p (precarga sola) informativo, fatiga f/f2 con la precarga como media (Goodman) y la carga del pivote como apoyo
-    lineal del piloto Ø20 (resultante y vector momento = estática, 1 %)."""
+def test_ste01_fitted_lock_and_pivot_model():
+    """Ronda 5 en el entregable de STE-01: cuerpo del émbolo ajustado (sin precarga: sin caso p ni media de Goodman),
+    pivote y traba como apoyos lineales en sus agujeros H7 (resultante y vector momento = estática, 1 %)."""
     import fea_parts as fp
     r = _fea_part("P1-STE-01")
     lv = r["nivel_reportado"]
-    assert "p" in r["casos"] and "p" not in r["casos_diseno"] and not r["casos"]["p"]["diseno"]
+    assert "p" not in r["casos"]
     for cid in ("c", "c2", "d", "d2", "f", "f2"):
         ex = r["casos"][cid][lv]["extra"]
-        assert ex["precarga_embolo"]["F_N"] > 0, cid
+        assert "precarga_embolo" not in ex, cid
         res = ex["resultante_bucket"]
         assert max(res["err_F_rel"], res["err_M_rel"], res["err_M3_rel"]) <= fp.TOL_STATICS_STE, (cid, res)
     for cid in ("f", "f2"):
-        assert r["casos"][cid].get("media_goodman"), cid
-        assert all(b.get("goodman") for b in r["casos"][cid]["FS_bordes"].values()), cid
-    assert r["verificacion_mano"]["d_agujero_piloto_mm"] == 20.0
+        assert not r["casos"][cid].get("media_goodman"), cid
+    p, _, _ = fp.load_project()
+    assert r["verificacion_mano"]["d_agujero_piloto_mm"] == p.REV_sp_pilot_d
+    assert r["verificacion_mano"]["d_agujero_embolo_mm"] == p.REV_lock_bore_d
+    for cid in ("c", "c2", "f", "f2"):          # |σθ| interior (≥ 2 mm de las caras): informativo, ≤ el de la ventana completa
+        for hn, b in r["casos"][cid]["FS_bordes"].items():
+            if b.get("sigma_theta_interior_MPa") is not None:
+                assert b["sigma_theta_interior_MPa"] <= b["sigma_theta_MPa"] + 1e-6, (cid, hn)
 
 
 def test_resultados_fea_json():
