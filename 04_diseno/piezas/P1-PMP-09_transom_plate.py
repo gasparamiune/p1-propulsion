@@ -9,7 +9,8 @@ encima de ellas: así el resalte no depende de D_noz (optimizador 0,58–0,74·D
 y del bucket van directo al espejo por los 6 × M6.
 
 Va por FUERA del espejo (x ∈ [−gasket_t − tp_t, −gasket_t]) sobre la junta P1-PMP-10, abulonada a
-través del espejo con 6 × M6 A4 (Tef-Gel, arandelas aislantes; contraplaca/arandelas grandes por dentro),
+través del espejo con 6 × M6 A4 (Tef-Gel, arandelas bonded de sellado + aislantes; contraplaca/arandelas
+grandes por dentro; junta NBR + masilla butílica NO adhesiva: se desmonta en cada servicio de la bomba),
 ninguno abajo (el borde inferior queda a pmp_tp_zmin sobre la quilla). El cuello es coaxial con el
 eje del jet (α = 5°) y su agujero Ø 2·pmp_tp_bore_R desliza sobre el resalte de la tobera fija con el
 O-ring radial: sella el casco sin hiperestatismo (la bomba se apoya solo en la brida de la toma) y se

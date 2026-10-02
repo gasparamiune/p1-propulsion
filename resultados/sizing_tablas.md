@@ -11,9 +11,9 @@
 | Eje del impulsor bajo la flotación (cebado) | 170 mm (ceba) | [CALCULADO] |
 | Impulsor / cubo / tobera | Ø132 / Ø66 / Ø87 mm | [CALCULADO] |
 | Punto de diseño de la bomba | 43.6 km/h, 5073 rpm, φ 0.267, ψ 0.071, Ω_s 5.77 | [CALCULADO] |
-| ¿Llega a planeo pleno (28.3 km/h) con la banda high? / margen mínimo 0–planeo pleno (a qué V) | NO / -10 % (28.1 km/h) — NO cumple el mínimo de 10% | [CALCULADO] |
+| ¿Llega a planeo pleno (27.3 km/h) con la banda high? / margen mínimo 0–planeo pleno (a qué V) | NO / -7 % (27.0 km/h) — NO cumple el mínimo de 10% | [CALCULADO] |
 | Puntos de planeo con Savitsky válido (L_K ≤ L_wl, λ ≤ 4, τ 2–15°) | 0 de 23 (el resto: limitado por eslora) | [CALCULADO; método ESTIMADO] |
-| Tiempo de 0 a planeo pleno (banda nominal / alta) | 38.3 s / no llega | [CALCULADO] |
+| Tiempo de 0 a planeo pleno (banda nominal / alta) | 21.5 s / no llega | [CALCULADO] |
 | ¿Se sostiene en planeo con potencia continua? (banda baja / nominal / alta) | sí / sí / NO | [CALCULADO; R ESTIMADO] |
 | V máx. sostenida (potencia continua, banda nominal) | 24.7 km/h (objetivo 30) | [CALCULADO] |
 | V máx. sostenida, banda baja – alta de R (sin validar hasta T4) | 18.0 – 28.7 km/h | [CALCULADO; R ESTIMADO] |
@@ -58,18 +58,18 @@
 
 | Motor | Batería | Ø imp | D_t/D | V máx [km/h] | Margen joroba | Costo [€] | Duras OK |
 |---|---|---|---|---|---|---|---|
-| HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 14.1 | -50 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 13.9 | -50 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.9 | -49 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 13.8 | -50 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.8 | -49 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.8 | -49 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.7 | -48 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.6 | -49 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.6 | -49 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.6 | -48 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 120 | 0.70 | 13.6 | -48 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.62 | 13.5 | -48 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.5 | -49 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.5 | -49 % | 1322 | no |
-| HPM5000B_48 | LT36_60x1 | 120 | 0.70 | 13.4 | -48 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 14.1 | -48 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 13.9 | -48 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.9 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.74 | 13.8 | -48 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.8 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.8 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.7 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.70 | 13.6 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.6 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.6 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 120 | 0.70 | 13.6 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.62 | 13.5 | -46 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 120 | 0.74 | 13.5 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 132 | 0.66 | 13.5 | -47 % | 1322 | no |
+| HPM5000B_48 | LT36_60x1 | 120 | 0.70 | 13.4 | -47 % | 1322 | no |

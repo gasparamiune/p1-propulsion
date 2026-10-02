@@ -25,7 +25,7 @@ KTS_HOLE = 2.0      # [ESTIMADO: Peterson — eje con agujero transversal en tor
 KTS_GROOVE = 3.0    # [ESTIMADO: Peterson — ranura de anillo de retención en torsión ≈ 2,5–3,0]
 KT_GROOVE_AX = 4.0  # [ESTIMADO: ranura de anillo, tracción/flexión ≈ 3–5]
 P_KEY_ADM = 100.0   # [ESTIMADO: presión admisible en chaveta con cubo de acero (DIN 6892, carga con choques leves)]
-T_RIPPLE = 0.10     # [ESTIMADO: ±10 % de rizado de par por paso de pala (como sizing.mechanical)]
+# rizado de par: inputs shaft.torque_ripple_frac (el mismo que sizing.mechanical y structural_bomba)
 SPRING_SEAL_N = 150.0  # [ESTIMADO: fuerza de resorte de un MG1 Ø20 + pretensado de la copa]
 
 DK_M8 = 16.0        # [ESTIMADO: ISO 10642 M8, Ø de cabeza real máx. 16,0 (teórico 17,9)]
@@ -75,9 +75,10 @@ def cases(p, A, row, rows, T3, T2):
         f"τ = T_corte/(πd³/16 − d_h·d²/6), T_corte {T_cut/1e3:.1f} N·m, sección neta, K_t = 1 (dúctil, estático)",
         tau, tau_y, A, T2)
     tn = T_top / Zp_net
+    T_RIPPLE = sh["torque_ripple_frac"]
     tm, ta = KTS_HOLE * tn, KTS_HOLE * T_RIPPLE * tn
     s_eq = ta * tau_u / tau_e + tm                         # Goodman en corte expresado contra τ_u
-    row(rows, "P1-DRV-01", "Agujero del pasador: fatiga en V máx. (T_top ± 10 %)",
+    row(rows, "P1-DRV-01", f"Agujero del pasador: fatiga en V máx. (T_top ± {T_RIPPLE:.0%})",
         f"Goodman τ_a/τ_e + τ_m/τ_u, K_ts {KTS_HOLE} (Peterson), S_e corrosión {Se:.0f} MPa; σ_eq = τ_a·τ_u/τ_e + τ_m",
         s_eq, tau_u, A, T2)
     d2 = p.drv_circlip["d2"]
@@ -186,8 +187,11 @@ def cases(p, A, row, rows, T3, T2):
         F_nut / A_w, SY_6082_HAZ, A, T2)
     # pasadores Ø6 escariados: toman el corte en x (la ranura abierta no lo toma)
     A_dw = math.pi / 4 * p.drv_dowel_d ** 2
-    row(rows, "P1-DRV-03", "Pasadores Ø6 A4 (2 por zapata): corte por Fa (sin contar fricción)",
+    row(rows, "P1-DRV-03", "Pasadores ISO 8735 Ø6 A4 (2 por zapata): corte por Fa (sin contar fricción)",
         "τ = Fa/(4·A), σ_eq = √3·τ vs R_p0,2 A4-70", math.sqrt(3) * Fa / (4 * A_dw), SY_A4, A, T2)
+    row(rows, "P1-INT-02", f"Agujero ciego de los pasadores Ø6 ({p.drv_dowel_plate_depth:g} mm) en el 5083: aplastamiento por Fa",
+        "σ_b = (Fa/4)/(d·h) vs R_p0,2 5083-H111 125 MPa [ESTIMADO]",
+        Fa / 4 / (p.drv_dowel_d * p.drv_dowel_plate_depth), 125.0, A, T2)
     row(rows, "P1-DRV-03", "Alojamiento Ø47: Fa sobre el resalte trasero (reversa) / anillo",
         "corte del resalte τ = Fa/(π·D·t_resalte), σ_eq = √3·τ", math.sqrt(3) * Fa / (math.pi * p.drv_bearing["D"] * p.drv_brg_shoulder_t),
         SY_6082, A, T2)

@@ -17,7 +17,7 @@ Todo se regenera con `python run_all.py` desde la raíz; cada script también co
 ## Lista de piezas
 
 <!-- AUTO:parts_totals -->
-Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de la unidad de jet (CAD, sin motor): **24.16 kg**.
+Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de la unidad de jet (CAD, sin motor): **24.15 kg**.
 <!-- /AUTO:parts_totals -->
 
 <!-- AUTO:parts_list -->
@@ -42,7 +42,7 @@ Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de
 | P1-CTL-21_volante_ref | Volante Ø320 + timonería T85 (referencia) | 242×320×320 | referencia | referencia | 1 | — | — | 0 | — |
 | P1-DRV-01_shaft | Eje Ø20 AISI 316 torneado: impulsor (pasador de corte) → sello → 2×7204 → acople | 470×26×26 | AISI 316 | torneada | 1 | Par T_max del controlador y par de corte del pasador; empuje Fa a punto fijo; velocidad crítica | — | 1181 | — |
 | P1-DRV-02_seal_housing | Caja del sello mecánico 316: espigón Ø42, brida 4×M6, cámara mojada, linterna de goteo | 44×70×70 | AISI 316 | torneada | 1 | Presión de diseño de la bomba 0,2 MPa + resorte del sello; bulones M6 al buje de la toma | — | 311 | — |
-| P1-DRV-03_bearing_bracket | Pórtico Al 6082 sobre el conducto: alojamiento 2×7204 BECBP, 4×M8 a la placa base | 150×296×173 | Al 5052/6082 | torneada | 1 | Empuje Fa a punto fijo + reacción radial + 3 g vertical del tren; bulones M8 a la placa base de Al | — | 1642 | — |
+| P1-DRV-03_bearing_bracket | Pórtico Al 6082 sobre el conducto: alojamiento 2×7204 BECBP, 4×M8 a la placa base | 150×296×173 | Al 5052/6082 | torneada | 1 | Empuje Fa a punto fijo + reacción radial + 3 g vertical del tren; bulones M8 a la placa base de Al | — | 1638 | — |
 | P1-DRV-04_bearing_7204BEP | Rodamiento SKF 7204 BECBP apareable universal (par en O), comprado | 14×47×47 | Acero | comprada | 2 | Empuje Fa + reacción radial (L10 en sizing) | — | 110 | — |
 | P1-DRV-05_locknut_KM4 | Tuerca KM4 M20×1 + arandela MB4 (comprada) | 8×32×32 | Acero | comprada | 1 | Empuje en reversa (≤ Fa) y precarga | — | 25 | — |
 | P1-DRV-06_bearing_cover | Tapa delantera Al de rodamientos (4×M5), toma el empuje hacia proa | 7×65×65 | Al 5052/6082 | torneada | 1 | Empuje Fa a punto fijo hacia proa: flexión de la tapa entre el aro y los M5 | — | 44 | — |
@@ -53,20 +53,20 @@ Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de
 | P1-ELE-03_cooling_outlet | Pasacasco 316 de salida del agua de refrigeración (testigo en el espejo) | 37×28×28 | AISI 316 | comprada | 1 | — | — | 45 | — |
 | P1-ELE-04_esc | Controlador VESC de la selección (FSESC 75350 con caja de agua) | 200×95×50 | referencia | comprada | 1 | — | — | 2000 | — |
 | P1-INT-01_conducto | Conducto de toma enrasada Al 5083 soldado: rampa C2, transición a Ø D_bore, brida bomba, buje del sello, chimenea de inspección | 447×198×350 | Al 5083 | torneada | 1 | Presión interna −p_pump_max…+p_pump_max, golpe de fondo, 3 g agua; empuje NO pasa por acá | — | 4697 | — |
-| P1-INT-02_placa_base | Placa base de la toma Al 5083 10 mm: cuerpo enrasado + ala abulonada al casco, cuña de la rampa, roscas del conducto y del soporte de rodamientos | 565×350×10 | Al 5083 | torneada | 1 | Golpe de fondo, empuje del tren por el soporte de rodamientos, tracción de los bulones del conducto | — | 3044 | — |
+| P1-INT-02_placa_base | Placa base de la toma Al 5083 10 mm: cuerpo enrasado + ala abulonada al casco, cuña de la rampa, roscas del conducto y del soporte de rodamientos | 565×350×10 | Al 5083 | torneada | 1 | Golpe de fondo, empuje del tren por el soporte de rodamientos, tracción de los bulones del conducto | — | 3042 | — |
 | P1-INT-03_rejilla | Rejilla 316: pletinas perfiladas 4 × 21 longitudinales (luz ≤ 12,5) enrasadas, pletina de popa y tirante de proa, 4 × M5 A4 aislados | 368×182×21 | AISI 316 | torneada | 1 | Rejilla tapada a la presión de cierre de la bomba; golpe de objeto 200 N en el centro de una barra | — | 2014 | — |
 | P1-INT-04_tapa_inspeccion | Tapa PETG Ø160 × 10 de la chimenea de inspección, O-ring de cara, 4 × M6 | 160×160×19 | PETG | impresa | 1 | Presión interna de la toma (succión de cierre / recuperación a 30 km/h) sobre Ø de la junta | Cara de la ranura del O-ring y del hexágono de la tuerca sobre la cama (fondos lisos), resalte arriba, 100 % relleno | 327 | 18.2 |
 | P1-MOT-01_motor | Motor de la selección (MTI120116: Ø120 × 116, refrigerado por agua) | 146×120×120 | referencia | comprada | 1 | Par de reacción T_max sobre P1-MOT-02; 3 g vertical | — | 4400 | — |
 | P1-MOT-02_motor_mount | Soporte del motor Al: placa a la cara del motor + pies al piso (4×M8) | 76×190×146 | Al 5052/6082 | torneada | 1 | Par de reacción T_max del controlador + 3 g vertical del motor; sin empuje | — | 842 | — |
-| P1-PMP-01_housing | Carcasa Al 6061-T6: brida de la toma, asiento del anillo y del estator, puerto de agua | 166×193×193 | Al 6061-T6 | torneada | 1 | Presión interna 0,2 MPa; reacción del estator; momentos de boquilla/bucket en bridas | — | 1498 | — |
+| P1-PMP-01_housing | Carcasa Al 6061-T6: brida de la toma, asiento del anillo y del estator, puerto de agua | 166×193×193 | Al 6061-T6 | torneada | 1 | Presión interna 0,2 MPa; reacción del estator; momentos de boquilla/bucket en bridas | — | 1492 | — |
 | P1-PMP-02_wear_ring | Anillo de desgaste 316 torneado, prensado en la carcasa; holgura de punta tip_clr | 69×143×143 | AISI 316 | torneada | 1 | Presión de la bomba (apoyado en la carcasa); roce de piedras | — | 1187 | — |
-| P1-PMP-03_impeller | Impulsor axial de 5 álabes, cubo Ø66 con nariz, 2 semipasadores de corte (sin chavetero) | 69×132×132 | AISI 316 | torneada | 1 | Par máx. del controlador + empuje axial; corte del pasador (piedra) | — | 1333 | — |
+| P1-PMP-03_impeller | Impulsor axial de 5 álabes, cubo Ø66 con nariz, 2 semipasadores de corte (sin chavetero) | 69×132×132 | AISI 316 | torneada | 1 | Par máx. del controlador + empuje axial; corte del pasador (piedra) | — | 1332 | — |
 | P1-PMP-04_pin_band | Anillo retén 316 que tapa los extremos del pasador de corte | 16×66×66 | AISI 316 | torneada | 1 | Centrífuga a n máx.; retención del pasador | — | 76 | — |
 | P1-PMP-05_shear_pin | 2 semipasadores de corte Al 6061-T6 (fusible de par del impulsor, cambiables en el eje) | 4×30×4 | Al 6061-T6 | torneada | 2 | Par del controlador (no corta); corta a T_cut (piedra) | — | 1 | — |
-| P1-PMP-06_stator | Estator Al 6061-T6 de 7 álabes con camisa, cubo con buje de agua y cono de cola | 169×143×143 | Al 6061-T6 | torneada | 1 | Reacción del par del rotor en los álabes; carga radial del buje; presión | — | 1523 | — |
+| P1-PMP-06_stator | Estator Al 6061-T6 de 7 álabes con camisa, cubo con buje de agua y cono de cola | 169×143×143 | Al 6061-T6 | torneada | 1 | Reacción del par del rotor en los álabes; carga radial del buje; presión | — | 1530 | — |
 | P1-PMP-07_water_bushing | Buje Ø20 lubricado por agua en el cubo del estator (2.º apoyo del eje) | 30×28×28 | POM-C | torneada | 1 | Carga radial del eje (desbalance + hidráulica) | — | 12 | — |
-| P1-PMP-08_fixed_nozzle | Tobera fija Al: contracción a D_noz, rótula de la boquilla y resalte del sello de espejo | 151×162×162 | Al 6061-T6 | torneada | 1 | Presión interna 0,2 MPa; reacción de la placa de espejo por el O-ring | — | 1414 | — |
-| P1-PMP-09_transom_plate | Placa de espejo Al 5083 con cuello coaxial, sello radial sobre la tobera y orejas de pivote | 44×216×199 | Al 5083 | torneada | 1 | F lateral de la boquilla y F del bucket en las orejas; sello del casco | — | 448 | — |
+| P1-PMP-08_fixed_nozzle | Tobera fija Al: contracción a D_noz, rótula de la boquilla y resalte del sello de espejo | 151×161×161 | Al 6061-T6 | torneada | 1 | Presión interna 0,2 MPa; reacción de la placa de espejo por el O-ring | — | 1408 | — |
+| P1-PMP-09_transom_plate | Placa de espejo Al 5083 con cuello coaxial, sello radial sobre la tobera y orejas de pivote | 44×216×199 | Al 5083 | torneada | 1 | F lateral de la boquilla y F del bucket en las orejas; sello del casco | — | 449 | — |
 | P1-PMP-10_transom_gasket | Junta NBR 2 mm del espejo (bajo la placa P1-PMP-09) | 2×216×199 | NBR | comprada | 1 | Compresión de los 6 × M6 | — | 35 | — |
 | P1-PMP-11_pivot_bushing | Buje POM-C de pivote de la boquilla en las orejas de la placa de espejo (×2) | 12×12×26 | POM-C | torneada | 2 | F lateral de la boquilla / F del bucket (aplastamiento) | — | 2 | — |
 | P1-REF-01_casco | Casco de referencia (popa 1,4 m): fondo con astilla muerta y paño plano, pantoque, costados, espejo; recorte de la toma y agujero del espejo | 1400×798×516 | referencia | referencia | 1 | — | — | 0 | — |
@@ -93,7 +93,7 @@ Total impreso: **1.02 kg** de PETG, **57 h** de impresión (a 18.0 g/h); masa de
 ## Verificación
 
 <!-- AUTO:verify -->
-Resultado: **OK** — 65 piezas, 13046 pares×estados de interferencia; boquilla δ ∈ [-25.0, 0.0, 25.0]°, bucket {arriba, abajo}; masa de la unidad de jet (CAD) 24.16 kg.
+Resultado: **OK** — 65 piezas, 13046 pares×estados de interferencia; boquilla δ ∈ [-25.0, 0.0, 25.0]°, bucket {arriba, abajo}; masa de la unidad de jet (CAD) 24.15 kg.
 <!-- /AUTO:verify -->
 
 ## Ajustes (los del CAD; confirmar con el taller y, en PETG, con probetas)

@@ -112,6 +112,8 @@ def draw(p, H):
         holes.append((x - X0, y - Y0, 8.4, "Ø8,4 pasante + avellanado 90° Ø16,4 ABAJO — ISO 10642 M8 A4 (soporte de rodamientos)"))
     for (x, y) in m2.tie_screws(p):
         holes.append((x - X0, y - Y0, 4.2, "M5 ciega desde ABAJO prof. 5 — tirante de la rejilla"))
+    for (x, y) in p.drv_dowels:
+        holes.append((x - X0, y - Y0, p.drv_dowel_d, f"Ø6 H7 CIEGO prof. {p.drv_dowel_plate_depth:g} (tope) — pasador ISO 8735 del pórtico, escariar en montaje con la zapata"))
     W2 = p.W_open / 2
     notes = [
         f"Al 5083-H111 chapa 10 mm. Cuerpo enrasado {p.toma_plate_x1 - p.toma_plate_x0:.1f} × {2*p.toma_plate_y:.0f} (R{p.toma_plate_r:.0f}); "

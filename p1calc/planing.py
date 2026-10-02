@@ -170,9 +170,17 @@ class Resistance:
         # planeo pleno: primer nodo donde la limitación de eslora ya no pesa (Savitsky libre válido, o el
         # limitado difiere del libre en menos de full_planing_tol); si no hay, el último nodo
         tol = r["full_planing_tol"]
-        vf = [v for v, p in zip(self.Vp, self.planing)
-              if p["free_valid"] or (p["R_free"] and abs(p["R"] - p["R_free"]) / p["R_free"] < tol)]
-        self.v_full = float(vf[0]) if vf else float(self.Vp[-1])
+        dev = [0.0 if p["free_valid"] else (abs(p["R"] - p["R_free"]) / p["R_free"] if p["R_free"] else math.inf)
+               for p in self.planing]
+        self.v_full = float(self.Vp[-1])
+        for i, dv in enumerate(dev):
+            if dv < tol:                       # interpolado entre nodos para no depender del paso de la grilla
+                if i == 0 or not math.isfinite(dev[i - 1]):
+                    self.v_full = float(self.Vp[i])
+                else:
+                    f = (dev[i - 1] - tol) / (dev[i - 1] - dv)
+                    self.v_full = float(self.Vp[i - 1] + f * (self.Vp[i] - self.Vp[i - 1]))
+                break
         self._interp = {}
 
     def _curve(self, band: str):

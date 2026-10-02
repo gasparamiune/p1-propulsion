@@ -213,7 +213,7 @@ def draw(p, H):
                          (p.pmp_noz_spigot + p.pmp_or_X - p.X_st1, f"ranura O-ring {_f(p.pmp_or_width)} × {_f(p.pmp_or_depth)} prof.")],
                   notes=[f"Interior: Ø{_f(p.D_bore)} → Ø{_f(p.D_noz)} cono (semiángulo {_f(p.pmp_noz_half_angle, 1)}°) de X {_f(p.X_st1, 1)} a {_f(p.pmp_noz_cone_X1, 1)}; "
                          f"alojamiento esférico R{_f(p.pmp_sock_R)} centrado en el pivote (X {_f(p.X_steer_pivot, 1)}) hasta X {_f(p.pmp_sock_X1, 1)}; luego Ø{_f(2*p.pmp_steer_free_r, 1)}.",
-                         f"Brida: 8 × Ø{_f(p.pmp_f2_bolt_hole, 1)} en Ø{_f(p.pmp_f2_bc, 2)} a {p.pmp_flange_ang0:g}° + k·45° — ISO 4762 M5 A4-70 + Tef-Gel, roscados en la carcasa. "
+                         f"Brida: 8 × Ø{_f(p.pmp_f2_bolt_hole, 1)} en Ø{_f(p.pmp_f2_bc, 2)} a {p.pmp_flange_ang0:g}° + k·45° — ISO 4762 M5 × {p.pmp_f2_screw_L:g} A4-70 + Tef-Gel, roscados en la carcasa (rosca engranada {_f(p.pmp_f2_screw_L - p.pmp_noz_f_t - p.pmp_stack_gap)}). "
                          f"Espiga {_f(p.pmp_noz_spigot)} +0,05/0 desde la cara de la brida: luz entre bridas {_f(p.pmp_stack_gap)} ± 0,05 medida con galgas.",
                          f"SERVICIO: brida Ø{_f(p.pmp_f2_od, 1)} < agujero del espejo Ø{_f(p.transom_hole_d, 1)} → sale por popa con el estator detrás (sin tocar el tren). "
                          f"Área de salida π/4·{_f(p.D_noz)}² = {_f(math.pi/4*p.D_noz**2, 0)} mm²."]))
@@ -235,5 +235,6 @@ def draw(p, H):
                           f"Cuello soldado/mecanizado coaxial con el jet: Ø ext {_f(2*p.pmp_collar_R, 0)}, hasta X {_f(p.pmp_collar_X1, 1)} (marco JET).",
                           f"Orejas ±Z_jet: |Z| {_f(p.pmp_lug_z0)}–{_f(p.pmp_lug_z1)}, ancho {p.pmp_lug_w:g}, extremo R{p.pmp_lug_w/2:g} en X {_f(p.X_steer_pivot, 1)}; "
                           f"alojamiento Ø{_f(p.pmp_lug_hole, 0)} H7 para el buje P1-PMP-11 (eje Z_jet, ⟂ al eje del jet).",
-                          f"Va por fuera del espejo sobre la junta NBR 2 mm P1-PMP-10 + sellador; {len(p.pmp_tp_bolt_ang)} × M6 A4 con arandelas aislantes y contraplaca."]))
+                          f"Va por fuera del espejo sobre la junta NBR 2 mm P1-PMP-10 + masilla butílica NO adhesiva (se desmonta en cada servicio); "
+                          f"{len(p.pmp_tp_bolt_ang)} × M6 A4 con arandelas bonded de sellado + aislantes y contraplaca."]))
     return made

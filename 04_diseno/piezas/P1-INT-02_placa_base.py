@@ -86,6 +86,9 @@ def build(p):
     for (x, y) in p.brg_bracket_holes:
         P = P - cyl_z((8 + p.bolt_clr) / 2, -1, zt + 1, x=x, y=y)
         P = P - Pos(x, y, -0.01) * Cone(CSK_D / 2, (8 + p.bolt_clr) / 2, CSK_H + 0.01, align=(CEN, CEN, MIN))
+    # pasadores ISO 8735 Ø6 del pórtico: CIEGOS drv_dowel_plate_depth (escariados en montaje con tope; R2-D01)
+    for (x, y) in p.raw.get("drv_dowels", []):
+        P = P - cyl_z(p.drv_dowel_d / 2, zt - p.drv_dowel_plate_depth, zt + 1, x=x, y=y)
     # bulones del ala al casco (M6 pasantes)
     for (x, y) in hull_bolts(p):
         P = P - cyl_z((p.toma_hull_bolt + p.bolt_clr) / 2, p.toma_rim_z0 - 1, zt + 1, x=x, y=y)
@@ -124,6 +127,9 @@ def checks(p, part):
         ("M8 del soporte: espesor de Al sobre la cabeza avellanada [mm]", zt - CSK_H, 5.0, ">="),
         ("M8 del soporte: rosca en tuerca A4 ISO 4032 (m = 6,8, acero-acero) ≥ 0,8 d [mm]", 6.8, 0.8 * 8, ">="),
         ("M6 ciegas del conducto: fondo de Al bajo el agujero (cara mojada) [mm]", zt - p.toma_m6_depth, 1.5, ">="),
+        ("pasadores Ø6 del pórtico: ciegos, fondo de Al ≥ 4 mm (cara mojada) [mm]", zt - p.drv_dowel_plate_depth, 4.0, ">="),
+        ("pasadores Ø6 del pórtico dentro del cuerpo de 10 mm (|y| + r ≤ semiancho − 3) [mm]",
+         max(abs(y) for _, y in p.drv_dowels) + p.drv_dowel_d / 2, p.toma_plate_y - 3.0, "<="),
         ("cuña de la rampa: espesor mín. en la unión con el conducto [mm]", cuna_min, 0.9, ">="),
         ("escalón techo placa → conducto (≤ 1 mm, hacia afuera del flujo) [mm]", zt - float(p.toma_roof_z(p.toma_x_j)), 1.1, "<="),
         ("luz bloque del labio ↔ placa por lado [mm]", p.toma_seal_gap, 0.5, "="),

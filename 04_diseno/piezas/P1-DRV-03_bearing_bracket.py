@@ -17,9 +17,13 @@ toma sus dos espárragos: (1) tuercas de los espárragos sacadas; (2) apoyar el 
 proa (alojamiento delante de la punta de proa del eje; los espárragos de proa ya quedan dentro de las
 ranuras, los de popa detrás de las zapatas); (3) deslizarlo hacia popa a lo largo del eje (el resalte pasa
 sobre el Ø20) hasta que los espárragos de proa toquen el fondo de las ranuras; (4) arandela ancha ISO 7093 +
-tuerca a mano; (5) rodamientos, KM4/MB4, tapa; (6) alinear el alojamiento con un mandril (eje patrón Ø20
-del buje del estator al alojamiento), apretar las tuercas a drv_nut_torque_Nm con Tef-Gel y escariar 2
-pasadores Ø6 por zapata (toman el corte en x que la ranura no toma). Ver 06 §3 M6–M7.
+tuerca a mano; (5) rodamientos, KM4/MB4, tapa; (6) alinear el alojamiento usando EL PROPIO EJE como mandril
+(estator presentado con su buje; el eje gira libre en el buje: galgas arriba/abajo/±Y hasta igualar la luz,
+moviendo el pórtico ±0,5 en las ranuras), apretar las tuercas a drv_nut_torque_Nm con Tef-Gel, taladrar y
+escariar con tope 2 pasadores ISO 8735 Ø6 × 16 A4 (rosca interior M4, extraíbles) por zapata en drv_dowels
+(pasantes en la zapata, CIEGOS drv_dowel_plate_depth en la placa base: quedan 4 mm de fondo mojado) y sacar
+el estator. Los pasadores toman el corte en x que la ranura no toma; para deslizar el pórtico en servicio se
+extraen con un tornillo M4. Ver 06 §3 M6–M7 (auditoría R2-D01/D07).
 """
 import math
 import sys
@@ -89,6 +93,9 @@ def build(p):
         h = cyl_x(M5_TAP / 2, -g["S_h1"] - 1.0, -g["S_h1"] + 12.0, y=y, z=z)
         holes = h if holes is None else holes + h
     part = part - (bore + holes).moved(loc_jet(p))
+    # pasadores ISO 8735 Ø6 (pasantes en la zapata, H7 escariado en montaje)
+    for (xd, yd) in p.drv_dowels:
+        part = part - cyl_z(p.drv_dowel_d / 2, zb0 - 1, zb1 + 1, x=xd, y=yd)
     # ranuras de las zapatas: una por lado, abierta hacia popa, fondo en el espárrago de proa
     for xh, yh in slot_ends(p):
         r = p.drv_bracket_hole / 2
@@ -134,6 +141,16 @@ def checks(p, part):
         ("montaje por deslizamiento: ranura abierta a popa toma los 2 espárragos (largo − Δx entre ellos) [mm]",
          min(xh for xh, _ in slot_ends(p)) - p.brg_bracket_x0 - (max(h[0] for h in p.brg_bracket_holes) - min(h[0] for h in p.brg_bracket_holes)), 0.0, ">="),
         ("arandela ancha puentea la ranura (Ø − ancho ≥ 2 × 6) [mm]", p.drv_washer_od - p.drv_bracket_hole, 12.0, ">="),
+        ("pasadores Ø6: fuera de la ranura (borde) [mm]",
+         min(abs(abs(yd) - hy) for _, yd in p.drv_dowels) - p.drv_dowel_d / 2 - p.drv_bracket_hole / 2, 2.0, ">="),
+        ("pasadores Ø6: fuera de la arandela Ø24 de los espárragos [mm]",
+         min(math.hypot(xd - xh, yd - yh) for xd, yd in p.drv_dowels for xh, yh in p.brg_bracket_holes)
+         - p.drv_washer_od / 2 - p.drv_dowel_d / 2, 1.0, ">="),
+        ("pasadores Ø6: borde de la zapata [mm]",
+         min(p.drv_pad_y[1] - (abs(yd) + p.drv_dowel_d / 2) for _, yd in p.drv_dowels), 3.0, ">="),
+        ("pasadores ISO 8735: largo = zapata + ciego en la placa [mm]", p.drv_dowel_L,
+         p.drv_bracket_base_t + p.drv_dowel_plate_depth, "<="),
+        ("pasadores: fondo de la placa base bajo el agujero ciego (mojado) [mm]", p.base_top_z - p.drv_dowel_plate_depth, 4.0, ">="),
         ("pared del alojamiento [mm]", (p.drv_hsg_od - brg["D"]) / 2, 6.0, ">="),
         ("tablero por encima del agujero Ø47 [mm]", g["zd0"] - (max(z_axis(p, g["S_h0"]), z_axis(p, g["S_h1"])) + brg["D"] / 2), 3.0, ">="),
         ("mejillas fuera de la abertura de la toma: |y| interior − W_open/2 [mm]", cy0 - p.W_open / 2, 15.0, ">="),

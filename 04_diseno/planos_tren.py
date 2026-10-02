@@ -76,6 +76,8 @@ def draw(p, H):
     w = x1 - x0
     h = 2 * p.drv_pad_y[1]
     holes = [(xh - x0, yh - y_lo, p.drv_bracket_hole, "espárrago M8 en RANURA de 9 abierta a popa (fondo R4,5 en el de proa)") for xh, yh in p.brg_bracket_holes]
+    holes += [(xd - x0, yd - y_lo, p.drv_dowel_d, f"Ø6 H7 pasante, escariar EN MONTAJE junto con la placa base (ISO 8735 Ø6 × {p.drv_dowel_L:g} A4)")
+              for xd, yd in p.drv_dowels]
     out.append(plate("P1-DRV-03", "bearing_bracket", "Al 6082-T651 (soldado TIG o de bloque)", w, h, p.drv_bracket_base_t, holes, notes=[
         f"Vista en planta de las zapatas (BOTE): x desde {x0:.1f} (marco BOTE), y desde {y_lo:.1f}. Mejillas 12 mm en |y| = {p.drv_cheek_y[0]:g}–{p.drv_cheek_y[1]:g}.",
         f"Alojamiento Ø{p.drv_bearing['D']:g} H7 × {2 * p.drv_bearing['B']:g} para 2 × {p.drv_bearing['name']} + resalte {p.drv_brg_shoulder_t:g} (paso Ø{p.drv_brg_shoulder_hole:g}: > d1 del aro interior, < D1 del exterior); eje a 5° (sube a proa), "
@@ -84,7 +86,9 @@ def draw(p, H):
         "Mecanizar el Ø47 DESPUÉS de soldar, en una sola atada con la cara delantera (perpendicularidad ≤ 0,02).",
         f"Zapatas: una ranura de {p.drv_bracket_hole:g} mm por lado, ABIERTA HACIA POPA desde x = {x0:.1f} hasta el espárrago de proa (toma los 2 espárragos).",
         f"Fijación: {p.drv_stud}; {p.drv_nut_torque_Nm:g} N·m con Tef-Gel (K {p.drv_nut_K:g} → F_v {p.drv_nut_Fpre_N:.0f} N, structural).",
-        f"Montaje: tuercas sacadas, apoyar el pórtico {p.drv_brg_travel:.0f} mm más a proa (a lo largo del eje) y deslizarlo a popa sobre el eje; mandril de centrado al buje del estator; apretar; escariar 2 pasadores Ø6 por zapata."]))
+        f"Montaje: tuercas sacadas, apoyar el pórtico {p.drv_brg_travel:.0f} mm más a proa (a lo largo del eje) y deslizarlo a popa sobre el eje; alinear con el PROPIO EJE libre en el buje del estator (galgas); apretar.",
+        f"Pasadores: 2 × ISO 8735 Ø6 × {p.drv_dowel_L:g} A4 (rosca interior M4, extraíbles) por zapata en |y| = {p.drv_dowel_y:g}, x = " + ", ".join(f"{x:.1f}" for x in sorted({d[0] for d in p.drv_dowels}))
+        + f" (BOTE): pasantes en la zapata y CIEGOS {p.drv_dowel_plate_depth:g} mm en la placa base (taladro con TOPE: quedan {p.base_top_z - p.drv_dowel_plate_depth:g} mm de fondo mojado)."]))
 
     # ---------------- soporte del motor (placa)
     m2 = _mod("P1-MOT-02_motor_mount")

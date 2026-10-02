@@ -142,7 +142,7 @@ def extend(d):
     d["pmp_f2_tap_d"] = 4.2                              # [VERIFICADO: broca de roscar M5 (tabla ISO 261/DIN 336, ver P1-INT-02)]
     d["pmp_f2_thread_L"] = 9.0                           # rosca útil en Al 6061-T6 ≥ 1,5 d [ESTIMADO: regla de diseño para Al]
     # círculo de bulones: ligamento ≥ 2,0 mm de la CRESTA de la rosca M5 (Ø5) al asiento (auditoría R2-D06)
-    d["pmp_f2_bc"] = round(2 * (d["pmp_D_seat"] / 2 + 2.0 + d["pmp_f2_bolt"] / 2), 2)
+    d["pmp_f2_bc"] = 2 * (d["pmp_D_seat"] / 2 + 2.0 + d["pmp_f2_bolt"] / 2)
     # brida de la tobera: borde de 0,4 mm sobre la cabeza M5; con α el paso por el agujero horizontal del espejo
     # pide R/cos α + t_espejo·tan α + 1,5 ≤ R_agujero (service_paths, auditoría R2-D03)
     d["pmp_f2_od"] = round(2 * (d["pmp_f2_bc"] / 2 + d["pmp_f2_head_d"] / 2 + 0.4), 2)

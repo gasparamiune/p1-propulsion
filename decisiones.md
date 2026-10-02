@@ -41,12 +41,12 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 
 **D-06 Impulsor axial Ø<!--V:sizing.selection.D_imp_mm:.0f-->132<!--/V-->, 5 álabes, cubo 0,50·D, tobera Ø<!--V:sizing.selection.D_noz_mm:.0f-->87<!--/V-->.**
 - Alternativas: el Ø108 / 4 álabes / tobera Ø72 del plano; Ø100–120.
-- Justificación: el optimizador (02 §4) elige el diámetro y la tobera de mayor margen en la joroba al menor costo. Con la resistencia corregida (D-21) **ninguna** combinación de 48 V llega al 10 % de margen con la banda alta (estado `<!--V:sizing.status:-->sin_solucion_dura<!--/V-->`); esta es la de mayor margen (<!--V:sizing.performance.hump_margin_min:.1%-->3.0%<!--/V-->) y, empatada, la de mayor V máx. Con 217 kg el Ø108 queda peor. 5 álabes y cubo 0,50 por difusión (R12 §3: con cubo 0,40 el factor de difusión llega a 0,60).
+- Justificación: el optimizador (02 §4) elige el diámetro y la tobera de mayor margen en la joroba al menor costo. Con la resistencia corregida (D-21) **ninguna** combinación de 48 V llega al 10 % de margen con la banda alta (estado `<!--V:sizing.status:-->sin_solucion_dura<!--/V-->`); esta es la de mayor margen (<!--V:sizing.performance.hump_margin_min:.1%-->-7.3%<!--/V-->) y, empatada, la de mayor V máx. Con 217 kg el Ø108 queda peor. 5 álabes y cubo 0,50 por difusión (R12 §3: con cubo 0,40 el factor de difusión llega a 0,60).
 - [CALCULADO: sizing.py; R12].
 - *Si difiere:* el impulsor se re-diseña solo (triángulos de velocidad en `sizing.json` → CAD → tabla de ángulos para el taller).
 
 **D-07 La bomba se diseña para absorber P_d = P_cont + f·(P_pico − P_cont) a plena tensión; el optimizador elige f = <!--V:sizing.selection.f_pow:.1f-->1.0<!--/V--> (P_d = <!--V:sizing.selection.P_design_W:.0f-->11760<!--/V--> W al eje).**
-- Justificación: con motor directo las rpm las fija la tensión; si la bomba se diseña para la potencia continua, la potencia pico no se puede usar en la joroba. El controlador limita a la potencia continua en crucero. El punto de diseño es la V más alta en que el empuje con P_d iguala a R nominal: <!--V:sizing.pump.V_design_kmh:.1f-->39.6<!--/V--> km/h (resuelto sin tope de grilla; es un punto "virtual", 02 §4.4).
+- Justificación: con motor directo las rpm las fija la tensión; si la bomba se diseña para la potencia continua, la potencia pico no se puede usar en la joroba. El controlador limita a la potencia continua en crucero. El punto de diseño es la V más alta en que el empuje con P_d iguala a R nominal: <!--V:sizing.pump.V_design_kmh:.1f-->43.6<!--/V--> km/h (resuelto sin tope de grilla; es un punto "virtual", 02 §4.4).
 - [CALCULADO: optimizador, variable design_power_frac ∈ {0; 0,5; 1}].
 
 **D-08 Toma enrasada entera a proa del impulsor (respuesta al comentario de Jorge "la rejilla está muy atrás").**
@@ -117,16 +117,17 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 
 ## Cálculo (auditoría Pass 3, ronda 1)
 
-**D-21 Savitsky solo donde es válido; con el casco corto, "Savitsky limitado por eslora" y banda ensanchada. El margen en la joroba deja de cumplir el 10 % y la V máx. queda sin base validada hasta T4.**
+**D-21 Savitsky solo donde es válido; con el casco corto, "Savitsky limitado por eslora" y banda ensanchada; el margen de empuje se exige de 0 a planeo pleno. Con la banda alta el bote no llega a planeo pleno y con potencia continua se cae del planeo; la V máx. queda sin base validada hasta T4.**
 - Hallazgo: el equilibrio libre de Savitsky daba eslora mojada en la quilla L_K mayor que el fondo (2,1 m a 20 km/h contra L_wl 1,75 m) en todo el rango de planeo; el margen de 19 % y la V máx. de 26,3 km/h salían de puntos fuera de validez.
 - Alternativas: (a) seguir con Savitsky libre (optimista: supone un fondo más largo); (b) Savitsky–Brown 1976 o Blount–Fox 1976 para el pre-planeo (no tengo fuente abierta, R12 §6.3); (c) Mercier–Savitsky (solo Fn∇ 1–2, ~17 km/h); (d) equilibrio vertical con L_K = L_wl.
-- Elegida (d) como nominal [ESTIMADO: método propio, no validado; el momento de cabeceo no cierra], (a) × 0,92 como banda baja y (d) × 1,12 como banda alta; la validez de cada punto (L_K, λ, τ, C_V) va en `sizing.json`.
-- Consecuencia [CALCULADO]: margen en la joroba <!--V:sizing.performance.hump_margin_min:.1%-->3.0%<!--/V--> (banda alta) y <!--V:sizing.vmax_band.nominal.hump_margin:.1%-->15.4%<!--/V--> (nominal); V máx. sostenida <!--V:sizing.vmax_band.high.vmax_cont_kmh:.1f-->18.2<!--/V-->–<!--V:sizing.vmax_band.low.vmax_cont_kmh:.1f-->28.8<!--/V--> km/h según la banda (02 §3, §3.2).
-- *Si difiere:* con el casco medido (P0.1) se vuelve a correr; con <!--V:sizing.hump_recovery.mass_text:-->10 kg menos<!--/V--> de masa total o <!--V:sizing.hump_recovery.lwl_text:-->L_wl ≥ 1,90 m<!--/V--> el margen vuelve al 10 %. T4.1 (tiempo a planeo con la batería al 20 %) decide.
+- Elegida (d) como nominal [ESTIMADO: método propio, no validado; el momento de cabeceo no cierra], (a) × 0,92 como banda baja y (d) × 1,12 como banda alta [SUPUESTO en este régimen: el ×1,12 viene de cascos con Savitsky válido; sensibilidad 1,00–1,25]; la validez de cada punto (L_K, λ, τ, C_V) va en `sizing.json`.
+- Ventana del margen (ronda 2, R2-C01): de 0 hasta el planeo pleno (<!--V:sizing.resistance.v_full_planing_kmh:.1f-->27.3<!--/V--> km/h, donde el limitado y el libre difieren < 2 %), no hasta el primer nodo de Savitsky: cortada ahí daba 3 % y el margen seguía cayendo. Así el resultado tampoco depende del corte arbitrario fn_planing.
+- Consecuencia [CALCULADO]: margen de 0 a planeo pleno <!--V:sizing.verdict.hump_margin_min_high:.1%-->-7.3%<!--/V--> (banda alta: a fondo se queda en <!--V:sizing.verdict.V_eq_peak_high_kmh:.1f-->22.3<!--/V--> km/h, no llega a planeo pleno; con potencia continua cae a <!--V:sizing.verdict.vmax_cont_kmh.high:.1f-->18.0<!--/V--> km/h, debajo del inicio del planeo) y <!--V:sizing.verdict.hump_margin_min_nominal:.1%-->3.9%<!--/V--> (nominal); V máx. sostenida <!--V:sizing.verdict.vmax_cont_kmh.high:.1f-->18.0<!--/V-->–<!--V:sizing.verdict.vmax_cont_kmh.low:.1f-->28.7<!--/V--> km/h según la banda (02 §0, §3, §3.2).
+- *Si difiere:* con el casco medido (P0.1) se vuelve a correr; con <!--V:sizing.verdict.recovery_mass_text:-->22 kg menos<!--/V--> de masa total o <!--V:sizing.verdict.recovery_lwl_text:-->L_wl ≥ 1,96 m<!--/V--> el margen vuelve al 10 % con la banda alta. T4.1 (tiempo a planeo con la batería al 20 %) decide.
 
 **D-22 Deducción de empuje t = 0 y fracción de estela w = 0 se mantienen, pero t = 0 se declara NO conservador y se lleva en la sensibilidad (0–0,10).**
 - Justificación: no hay fuente abierta con valores de t para jets chicos; poner un número sería inventarlo. w = 0 sí es conservador para el empuje (no recupera estela).
-- Consecuencia [CALCULADO]: con t = 0,10 el margen en la joroba cae a <!--V:sizing.sensitivity.by_key.waterjet_thrust_deduction.hi.hump:.1%-->-7.3%<!--/V--> (con t = 0: <!--V:sizing.sensitivity.by_key.waterjet_thrust_deduction.lo.hump:.1%-->3.0%<!--/V-->) (02 §10).
+- Consecuencia [CALCULADO]: con t = 0,10 el margen de 0 a planeo pleno cae a <!--V:sizing.sensitivity.by_key.waterjet_thrust_deduction.hi.hump:.1%-->-16.5%<!--/V--> (con t = 0: <!--V:sizing.sensitivity.by_key.waterjet_thrust_deduction.lo.hump:.1%-->-7.3%<!--/V-->) (02 §10).
 - *Si difiere:* la prueba de punto fijo da el empuje sin casco en movimiento; el t real sale de comparar la curva P–V medida (T4) con el modelo.
 
 ## Historia

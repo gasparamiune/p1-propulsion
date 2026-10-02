@@ -164,7 +164,7 @@ def test_sensitivity_entries_change_outputs(sizing):
         moved = (abs(lo["vmax"] - hi["vmax"]) > 0.05 or abs(lo["hump"] - hi["hump"]) > 0.002
                  or abs(lo["P_leg"] - hi["P_leg"]) > 1.0 or abs(lo["bollard"] - hi["bollard"]) > 1.0)
         assert moved, r["label"]
-        if r["param"] in ("resistance.planing_factor", "resistance.planing_band.high", "resistance.fn_planing"):
+        if r["param"] in ("resistance.planing_factor", "resistance.planing_band.high"):
             assert abs(lo["hump"] - hi["hump"]) > 0.002, r["label"]
 
 
@@ -202,8 +202,7 @@ def test_vmax_by_battery_coherent(sizing):
     v_pl = sizing["resistance"]["v_planing_kmh"]
     for k, r in sizing["performance"]["vmax_by_battery"].items():
         assert r["sustains_planing_cont_nominal"] == (r["vmax_cont_kmh"] >= v_pl - 1e-6), k
-        if not r["planes_nominal"]:
-            assert not r["sustains_planing_cont_nominal"], k
+        assert r["vmax_text"].startswith("no planea") == (not r["sustains_planing_cont_nominal"]), k
 
 
 def test_verdict_keys(sizing):

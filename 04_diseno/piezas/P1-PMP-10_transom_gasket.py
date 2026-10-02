@@ -1,7 +1,9 @@
 """P1-PMP-10 — Junta de espejo NBR 2 mm (cortada de plancha) entre el espejo y la placa P1-PMP-09.
-Marco BOTE, x ∈ [−pmp_gasket_t, 0]. Agujero = transom_hole_d. Montar con sellador
-de poliuretano (p. ej. Sikaflex 291 [ESTIMADO: buscar ficha]) además de la junta. 6 agujeros de bulón
-(los de P1-PMP-09, pmp_tp_bolt_ang).
+Marco BOTE, x ∈ [−pmp_gasket_t, 0]. Agujero = transom_hole_d. 6 agujeros de bulón (los de P1-PMP-09,
+pmp_tp_bolt_ang). La placa se DESMONTA en cada cambio de semipasadores (06 §7): NO va pegada. Junta NBR 2 mm +
+masilla BUTÍLICA no adhesiva (no cura; se despega a mano) en ambas caras [ESTIMADO: práctica de herrajes
+desmontables; buscar ficha de cinta/masilla butílica marina], y arandelas de sellado bonded (tipo USIT M6)
+bajo cabeza y tuerca de los 6 × M6 (auditoría R2-D05). Nada de poliuretano (Sikaflex) en esta unión.
 """
 import math
 import sys
