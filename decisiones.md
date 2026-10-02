@@ -39,7 +39,7 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 
 ## Bomba y toma
 
-**D-06 Impulsor axial Ø<!--V:sizing.selection.D_imp_mm:.0f-->132<!--/V-->, 5 álabes, cubo 0,50·D, tobera Ø<!--V:sizing.selection.D_noz_mm:.0f-->87<!--/V-->.**
+**D-06 Impulsor axial Ø<!--V:sizing.selection.D_imp_mm:.0f-->132<!--/V-->, 5 álabes, cubo 0,50·D, tobera Ø<!--V:sizing.selection.D_noz_mm:.0f-->82<!--/V-->.**
 - Alternativas: el Ø108 / 4 álabes / tobera Ø72 del plano; Ø100–120.
 - Justificación: el optimizador (02 §4) elige el diámetro y la tobera que planean con margen al menor costo. Con 217 kg el Ø108 no pasa la joroba con la potencia disponible. 5 álabes y cubo 0,50 por difusión (R12 §3: con cubo 0,40 el factor de difusión llega a 0,60).
 - [CALCULADO: sizing.py; R12].
@@ -82,11 +82,11 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 - *Si difiere:* `electrical.allow_72v: true` habilita las opciones de 72 V en el optimizador.
 
 **D-14 Eje 316L Ø20 con dos apoyos: par 7204 BEP en seco (toma todo el empuje) y buje de agua de POM en el cubo del estator; sello mecánico SiC/carbón con cámara de goteo y testigo.**
-- Justificación: en voladizo la primera velocidad crítica caía debajo de la de servicio; con el buje queda en <!--V:sizing.mech.crit_ratio:.1f-->3.1<!--/V-->× las rpm máximas. El empuje va por un pórtico de Al sobre el conducto a la placa base, nunca al motor (acople Rotex 24 con juego axial).
+- Justificación: en voladizo la primera velocidad crítica caía debajo de la de servicio; con el buje queda en <!--V:sizing.mech.crit_ratio:.1f-->3.4<!--/V-->× las rpm máximas. El empuje va por un pórtico de Al sobre el conducto a la placa base, nunca al motor (acople Rotex 24 con juego axial).
 - [CALCULADO: structural_tren.py; sizing.py].
 
 **D-15 Refrigeración por agua desde la bomba: orificio Ø4 en la carcasa del estator → controlador → motor → testigo en el espejo.**
-- Justificación: como los jetboards; <!--V:sizing.cooling.Q_l_min_top:.1f-->4.9<!--/V--> L/min a V máx. alcanzan con un salto de <!--V:sizing.cooling.dT_water_K:.1f-->1.9<!--/V--> K.
+- Justificación: como los jetboards; <!--V:sizing.cooling.Q_l_min_top:.1f-->5.2<!--/V--> L/min a V máx. alcanzan con un salto de <!--V:sizing.cooling.dT_water_K:.1f-->1.7<!--/V--> K.
 - [CALCULADO].
 
 ## Dirección, reversa y control
@@ -99,7 +99,7 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 - [CALCULADO: structural_direccion.py; firmware].
 
 **D-18 Perfil "costa" (≤ 5 kn) por defecto al encender, perfil "abierto" a pedido del piloto; kill switch por cordón + contactor.**
-- Justificación: dentro de 300 m el límite es 5 kn y en Als Sund 4 kn (R13 §3); el tope de ERPM lo hace cumplir.
+- Justificación: dentro de 300 m el límite es 5 kn (R07, R13 §3). El tope de ERPM del perfil COSTA hace cumplir **solo esos 5 kn** (rpm a 5 kn con piloto liviano, banda baja de resistencia y batería llena; sizing `legal_speed`, 5 pares de polos del MTI120116). **No** hace cumplir los 4 kn de Sønderborg Havn (Als Sund) ni los 3 kn de las marinas (R13 §3): ahí la velocidad la controla el piloto con el acelerador (un tercer perfil de 3–4 kn exigiría un selector de 3 posiciones y otra línea al VESC: queda para P2).
 - [VERIFICADO: R07, R13].
 
 ## Fabricación
@@ -112,7 +112,7 @@ Todos los valores numéricos viven en [`inputs.yaml`](inputs.yaml) o salen de `r
 ## Legal
 
 **D-20 Diseño para NO ser "vandscooter" ni "speedbåd".**
-- Justificación: la definición de vandscooter pide operar "på – snarere end i – skroget" (BEK 809/2019); el piloto va sentado dentro con volante. Speedbåd desde 19 kW de potencia propulsiva (BEK 749/2020); el pico de este diseño es <!--V:sizing.performance.P_shaft_peak_kW:.1f-->6.5<!--/V--> kW. Los 30 km/h solo son legales a más de 300 m de la costa y nunca en Als Sund (4 kn) ni en Augustenborg Fjord.
+- Justificación: la definición de vandscooter pide operar "på – snarere end i – skroget" (BEK 809/2019); el piloto va sentado dentro con volante. Speedbåd desde 19 kW de potencia propulsiva (BEK 749/2020); el pico de este diseño es <!--V:sizing.performance.P_shaft_peak_kW:.1f-->6.6<!--/V--> kW. Los 30 km/h solo son legales a más de 300 m de la costa y nunca en Als Sund (4 kn) ni en Augustenborg Fjord.
 - [VERIFICADO: research/R13]. Confirmar por escrito con Søfartsstyrelsen (preguntas en danés en R13 §8).
 
 ## Historia

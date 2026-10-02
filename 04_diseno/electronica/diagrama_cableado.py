@@ -150,17 +150,26 @@ def build(out_path: Path) -> Path:
     s.region(55, 975, 315, 160, "Consola: acelerador (hall encapsulado)")
     s.region(1575, 120, 300, 330, "Motor P1-MOT-01 (camisa de agua)")
 
-    # ------------------------------------------------------------ baterías en serie
-    s.box(60, 120, 150, 270, f"BAT {m['cells_series']}S LFP", f"{n(m['v_nom'])} V nom.\n{n(m['v_max'])} V cargada\n"
-          f"BMS {int(R['vesc_values']['i_bms'])} A\n\n" + "\n".join(m['battery_desc'][i:i + 20] for i in range(0, min(len(m['battery_desc']), 100), 20)),
-          fill="#fdf2f0")
-    s.line([(210, 150), (210, yp)], C_POS, 4)
-    s.text(218, 150, "+", size=16, weight="bold", color=C_POS)
-    s.text(218, 380, "−", size=18, weight="bold", color=C_NEG)
+    # ------------------------------------------------------------ baterías en paralelo (12S2P), fusible por rama
+    npar = int(cab.get("n_parallel", 1))
+    bat_y = [112 + 140 * i for i in range(max(npar, 1))]
+    for i, by in enumerate(bat_y):
+        s.box(48, by, 100, 112, f"BAT{i + 1} {m['cells_series']}S", f"LFP {n(m['v_nom'])} V\n{n(m['v_max'])} V llena\n"
+              f"BMS {int(R['vesc_values']['i_bms_branch'])} A", fill="#fdf2f0", tsize=12)
+        s.line([(148, by + 16), (156, by + 16)], C_POS, 3)
+        s.fuse(160, by + 16, f"F_BR {cab['fuse_branch_a']:.0f} A", C_POS, w=34)
+        s.line([(194, by + 16), (215, by + 16)], C_POS, 3)
+        s.line([(148, by + 96), (232, by + 96)], C_NEG, 3)
+        s.text(152, by + 12, "+", size=13, weight="bold", color=C_POS)
+        s.text(152, by + 92, "−", size=14, weight="bold", color=C_NEG)
+    s.line([(215, bat_y[0] + 16), (215, bat_y[-1] + 16)], C_POS, 6)
+    s.text(222, bat_y[0] + 50, "barra +", size=9, color=C_POS)
+    s.text(238, bat_y[0] + 112, "barra −", size=9, color=C_NEG)
+    s.text(48, 388, f"F_BR sobre cada borne +: ≤ 178 mm (ABYC E-11, 7 in)\n{npar} × 35 mm² de rama, mismo largo", size=9, color="#5d6d7e")
     # positivo
-    s.line([(210, yp), (264, yp)], C_POS, 4)
+    s.line([(215, yp), (264, yp)], C_POS, 4)
     s.fuse(270, yp, f"F1 {cab['fuse_a']:.0f} A", C_POS)
-    s.text(295, yp + 26, "≤ 178 mm del borne +\n(7 in; ABYC E-11\nescribe 175 mm)", size=10, anchor="middle", color="#5d6d7e")
+    s.text(295, yp + 26, "sobre la barra +\n(protege el\n" + f"{cab['dc_mm2']} mm²)", size=10, anchor="middle", color="#5d6d7e")
     s.line([(320, yp), (405, yp)], C_POS, 4)
     s.sw_no(405, yp, "S1 desconectador", C_POS)
     s.text(435, yp + 36, f"≥ {cab['fuse_a']:.0f} A, ≥ {m['v_max']:.0f} V CC", size=10, anchor="middle", color="#5d6d7e")
@@ -183,7 +192,7 @@ def build(out_path: Path) -> Path:
         s.line([(830, yp), (830, 250)], C_POS, 1.5)
         s.line([(860, 330), (860, yn)], C_NEG, 1.5)
     # VESC
-    s.box(1180, 120, 240, 300, f"ESC {m['esc']}", f"FW ≥ 5.03, app PPM (Current)\nl_current_max {n(vv['l_current_max'], 0)} A\n"
+    s.box(1180, 120, 240, 300, f"ESC {m['esc']}", f"FW ≥ {vv['fw_min']}, app PPM (Current)\nl_current_max {n(vv['l_current_max'], 0)} A\n"
           f"l_current_min {n(vv['l_current_min'], 0)} A\nl_in_current_max {n(vv['l_in_current_max'], 0)} A\n"
           f"battery_cut {n(vv['l_battery_cut_start'])}/{n(vv['l_battery_cut_end'])} V\nl_max_erpm {vv['l_max_erpm']:.0f}\n"
           f"timeout PPM {vv['timeout_msec']:.0f} ms\nkill: ADC2_HIGH", fill="#eef5fb", tsize=14)
@@ -194,16 +203,16 @@ def build(out_path: Path) -> Path:
         s.line([(1420, yy), (1630, yy)], C_PH, 3.5)
         s.d.add(s.d.rect((1500, yy - 7), (18, 14), fill="#fff", stroke=C_PH, stroke_width=1.5))
         s.text(1424, yy - 4, "ABC"[i], size=10, color=C_PH)
-    s.text(1430, 304, f"3 × {cab['phase_mm2']} mm² (tramo corto: ESC al costado del motor)", size=10)
+    s.text(1430, 304, "fases: cables propios ESC 8 AWG ↔\nmotor 6 AWG × 300 mm, balas de 8 mm", size=10)
     s.d.add(s.d.circle((1700, 250), 62, fill="#f5eef8", stroke=C_PH, stroke_width=2.5))
     s.text(1700, 245, "M", size=26, anchor="middle", weight="bold", color=C_PH)
     s.text(1700, 268, f"{m['motor']}\n{m['motor_kv']:.0f} KV", size=11, anchor="middle")
     s.line([(1420, 380), (1700, 380), (1700, 312)], C_SIG, 1.5, dash="5,4")
-    s.text(1430, 374, "sensor de temperatura del bobinado → TEMP del VESC", size=10, color=C_SIG)
+    s.text(1430, 374, "NTC10K del motor (cable amarillo) y hall → VESC", size=10, color=C_SIG)
     s.text(1590, 345, "agua: bomba → ESC → motor\n→ testigo en el espejo", size=10, color="#5d6d7e")
 
     # ------------------------------------------------------------ negativo (flotante)
-    s.line([(210, 380), (230, 380), (230, yn), (1180, yn), (1180, 420)], C_NEG, 4)
+    s.line([(232, bat_y[0] + 96), (232, yn), (1180, yn), (1180, 420)], C_NEG, 4)
     s.text(600, yn - 8, f"BAT− {cab['dc_mm2']} mm² (sin conexión al casco)", size=11, color=C_NEG)
     s.text(250, yn + 40, "CASCO Al", size=12, weight="bold", color="#7f8c8d", anchor="end")
     s.line([(270, yn), (270, yn + 22)], "#7f8c8d", 1.5, dash="3,3")
@@ -211,8 +220,14 @@ def build(out_path: Path) -> Path:
     s.line([(260, yn + 20), (280, yn + 8)], C_POS, 2.5)
     s.text(40, yn + 60, "NO conectar (ISO 13297 4.1).\nPrueba: BAT−↔casco y BAT−↔eje > 1 MΩ", size=10, color="#5d6d7e")
 
-    # ------------------------------------------------------------ circuito de mando (24 V)
-    s.line([(520, yp), (520, yc), (548, yc)], C_CTL, 2.2)
+    # ------------------------------------------------------------ circuito de mando (12 V desde B-12V, aguas arriba de F1/S1)
+    s.line([(215, bat_y[-1] + 16), (215, 300)], C_POS, 1.8)
+    s.fuse_v(215, 300, "F5 3 A", C_POS, h=36)
+    s.line([(215, 336), (215, 548), (250, 548)], C_POS, 1.8)
+    s.line([(232, yn), (232, 575), (250, 575)], C_NEG, 1.8)
+    s.box(250, 528, 150, 60, "B-12V (aislado)", f"RSD-60G-12 → {n(b['V_nom'], 0)} V\nachique/alarma: F4", fill="#fef5e7", tsize=11)
+    s.line([(400, 548), (520, 548), (520, yc), (548, yc)], C_CTL, 2.2)
+    s.text(404, 542, f"+{n(b['V_nom'], 0)} V", size=10, weight="bold", color=C_CTL)
     s.fuse(554, yc, f"F2 {n(b['F2_A'], 0)} A", C_CTL, w=42)
     s.line([(596, yc), (640, yc)], C_CTL, 2.2)
     s.sw_nc(640, yc, "SETA E-stop (NC)", C_CTL, w=60, note="22 mm, IP65+")
@@ -227,27 +242,27 @@ def build(out_path: Path) -> Path:
     s.line([(952, yc), (1060, yc)], C_CTL, 2.2)
     s.dot(1010, yc, C_CTL)
     s.text(1014, yc - 8, "N2", size=11, weight="bold", color=C_CTL)
-    s.box(1060, yc - 22, 90, 44, "Bobina K1", f"{b['V_nom']:.0f} V", fill="#fef5e7", tsize=11)
+    s.box(1060, yc - 22, 90, 44, "Bobina K1", f"9–36 V a {b['V_nom']:.0f} V", fill="#fef5e7", tsize=11)
     s.line([(1150, yc), (1180, yc)], C_CTL, 2.2)
-    s.gnd(1180, yc)
-    s.text(1062, yc + 40, "en paralelo: diodo + R (o TVS)\n(apertura 8–20 ms)", size=10, color="#5d6d7e")
+    s.gnd(1180, yc, color=C_CTL, label="12 V−")
+    s.text(1062, yc + 40, f"economizador interno: sin supresor\n(apertura ≤ {b['release_ms']:.0f} ms; retención {n(b['I_hold_A'], 2)} A)", size=10, color="#5d6d7e")
     s.line([(1105, yc - 22), (1105, 536), (685, 536), (685, 224)], C_MECH, 1.2, dash="4,4")
     s.text(700, 530, "acción mecánica: bobina → contactos de K1", size=10, color=C_MECH)
 
     # optos
     s.line([(740, yc), (740, 690)], C_CTL, 1.8)
-    s.res_v(740, 690, f"R1 {o['R_U1_ohm'] / 1000:.1f} k 0,5 W".replace(".", ","), C_CTL, h=40)
+    s.res_v(740, 690, f"R1 {o['R_U1_ohm'] / 1000:.1f} k 0,25 W".replace(".", ","), C_CTL, h=40)
     s.line([(740, 730), (740, 740)], C_CTL, 1.8)
     cU1, eU1 = s.opto(720, 740, "U1 (seta)", C_CTL, C_SIG)
     s.gnd(740, 796, label="")
     s.line([(1010, yc), (1010, 690)], C_CTL, 1.8)
-    s.res_v(1010, 690, f"R2 {o['R_U2U3_ohm'] / 1000:.1f} k 0,5 W".replace(".", ","), C_CTL, h=40)
+    s.res_v(1010, 690, f"R2 {o['R_U2U3_ohm'] / 1000:.1f} k 0,25 W".replace(".", ","), C_CTL, h=40)
     s.line([(1010, 730), (1010, 740)], C_CTL, 1.8)
     cU2, eU2 = s.opto(990, 740, "U2 (cordón)", C_CTL, C_SIG)
     s.line([(1010, 796), (1010, 820)], C_CTL, 1.8)
     cU3, eU3 = s.opto(990, 820, "U3 (kill HW)", C_CTL, C_SIG)
     s.gnd(1010, 876, label="")
-    s.text(725, 688, f"1N4148 antiparalelo\nen cada LED U1–U3\n(N1/N2 → {n(R['bobina']['V_N2_negativo_V'])} V\nal abrir la bobina)",
+    s.text(725, 688, f"1N4148 antiparalelo\nen cada LED U1–U3\n(con el EV200 N1/N2\nno bajan de {n(-R['bobina']['V_N2_negativo_V'], 0)} V)",
            size=10, anchor="end", color=C_CTL)
     s.line([cU1, (840, cU1[1])], C_SIG, 1.6)
     s.text(844, cU1[1] + 4, "→ D3", size=11, color=C_SIG, weight="bold")
@@ -289,10 +304,10 @@ def build(out_path: Path) -> Path:
     s.gnd(1205, 1070, color=C_SIG, label="")
 
     # ------------------------------------------------------------ MCU, DC-DC, hall
-    s.line([(520, 560), (470, 560), (470, 600)], C_CTL, 1.8)
-    s.dot(520, 560, C_CTL)
-    s.fuse_v(470, 600, "F3 1 A", C_CTL, h=46)
-    s.line([(470, 646), (470, 905)], C_CTL, 1.8)
+    s.line([(480, yp), (480, 600)], C_POS, 1.8)
+    s.dot(480, yp, C_POS)
+    s.fuse_v(480, 600, "F3 1 A", C_POS, h=46)
+    s.line([(480, 646), (480, 905)], C_POS, 1.8)
     s.box(405, 905, 160, 66, "DC-DC → 5 V", f"{cl['dcdc'][:26]}\n5 V (aguas arriba de K1)", fill="#eafaf1")
     s.gnd(450, 971, label="")
     s.box(660, 900, 240, 222, "Arduino Nano (ATmega328P)", "p1_throttle.ino + throttle_logic.c v2\nWDT 120 ms · tick 10 ms\n"
@@ -341,7 +356,7 @@ def build(out_path: Path) -> Path:
     lx, ly = 1580, 520
     s.box(lx, ly, 300, 250, "Leyenda", fill="#fdfefe")
     items = [(C_POS, 4, "Potencia + (" + f"{cab['dc_mm2']} mm²)"), (C_NEG, 4, "Potencia − / BAT− flotante"),
-             (C_PH, 3.5, f"Fases ({cab['phase_mm2']} mm²)"), (C_CTL, 2.2, f"Mando (bobina {b['V_nom']:.0f} V, optos)"),
+             (C_PH, 3.5, "Fases (cables del motor/ESC)"), (C_CTL, 2.2, f"Mando {b['V_nom']:.0f} V (B-12V: bobina, optos)"),
              (C_5V, 2, "5 V lógica"), (C_SIG, 1.8, "Señales (PPM, ADC1/2, hall, D2–D12)"),
              (C_MECH, 1.2, "Acción mecánica")]
     for i, (c, w_, lab) in enumerate(items):
@@ -351,14 +366,14 @@ def build(out_path: Path) -> Path:
     s.text(lx + 14, ly + 228, "─ ─  región física (caja / caña / consola)", size=10, color="#5d6d7e")
     rx, ry = 1580, 790
     s.box(rx, ry, 300, 340, "Reglas de cableado", fill="#fdfefe")
-    rules = ("1. El kill es HARDWARE: cordón + seta en serie\n   con la bobina de K1 (monoestable).\n"
+    rules = ("1. El kill es HARDWARE: cordón + seta en serie\n   con la bobina de K1 (monoestable, 12 V).\n"
              "2. Cable cortado, conector suelto o F2\n   fundido = bobina sin corriente = K1 abre.\n"
              "3. Redundancia: U3 (hardware) y Q_EN (MCU)\n   en serie mantienen ADC2 a GND; si no,\n   VESC en kill (≤ 10 ms de sondeo).\n"
              "4. Sin PPM → timeout del VESC → rueda libre.\n"
              "5. Encender S1 con el cordón AFUERA y\n   esperar ≥ " + f"{p['wait_s']:.0f} s (precarga por R_pre).\n"
              "6. BAT− NO va al casco: sistema flotante.\n"
              "7. Un cable redondo por prensaestopas;\n   grasa dieléctrica en J1/J2; PCB con\n   barniz conformal (no en conectores).\n"
-             "8. 5 V del VESC: NO unir al 5 V del MCU.\n"
+             "8. 5 V del VESC: NO unir al 5 V del MCU.\n   Sacar el clip al dejar el bote.\n"
              f"9. ERPM: perfil legal {vv['l_max_erpm']:.0f} (5 kn) por defecto;\n   abierto {vv['erpm_tech']:.0f} solo vía D12 + LispBM.")
     s.text(rx + 12, ry + 40, rules, size=11)
     s.text(30, H - 16, "Generado por 04_diseno/electronica/diagrama_cableado.py desde inputs.yaml + resultados/sizing.json "

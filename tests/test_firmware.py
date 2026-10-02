@@ -1074,6 +1074,11 @@ def test_vesc_config_consistent_with_sizing(inp, sizing):
     assert vv["l_current_min"] == pytest.approx(-vv["brake_frac"] * vv["l_current_max"])
     assert vv["l_current_reverse"] == pytest.approx(round(vv["reverse_current_frac"] * vv["l_current_max"]))
     assert vv["l_in_current_max"] <= 0.8 * vv["i_bms"] + 1e-9
+    # baterías en paralelo: la rama más cargada (reparto de inputs.yaml) no supera su BMS (auditoría H6)
+    share = inp["electrical"].get("parallel_share_max", 1.0) if vv["n_parallel"] > 1 else 1.0
+    assert share * vv["l_in_current_max"] <= vv["i_bms_branch"] + 1e-9
+    # perfil ABIERTO por encima de las rpm a fondo con batería llena (no recorta la V máx.; auditoría H1)
+    assert vv["erpm_tech_ok"] and vv["erpm_tech"] / (vv["motor_poles"] / 2) > vv["n_full_batt_rpm"]
     assert vv["i_in_limited"] or vv["l_in_current_max"] >= sizing["electrical"]["I_bat_peak_A"]
     assert vv["l_battery_cut_start"] > vv["l_battery_cut_end"]
     pp = vv["motor_poles"] / 2
@@ -1096,9 +1101,11 @@ def test_circuit_findings_are_reflected():
     comp = ce.blocks(R)["componentes"]
     if R["optos"]["necesita_diodo_antiparalelo"]:
         assert "D_U1–D_U3" in comp and "1N4148" in comp
-    o24 = R["bobina"]["opciones"][f"{R['bobina']['V_nom']:.0f}"]
-    if not o24["P_vmax_le_prolonged"]:
-        assert "CONTINUOS" in comp                                     # K1: bobina apta para V_máx continua
+    b = R["bobina"]
+    assert b["coil_ok"], "la tensión del mando cae fuera del rango de la bobina de K1"
+    assert b["watski_ok"], "el interruptor de cordón trabaja fuera de su valor nominal (auditoría H3)"
+    assert b["F2_A"] >= b["I_inrush_A"]                                 # F2 no se funde al cerrar K1
+    assert R["corte"]["caminos"]["Hardware: bobina sin corriente → contactor abre"]["t_s"] <= 0.012 + 1e-9
     sk = ce.sketch_consts()
     assert sk["tick_ms"] == DT and sk["ppm_frame_ms"] == 20.0
 

@@ -576,9 +576,9 @@ def blocks(R):
          f"{'✔' if b['watski_ok'] else '✘'} {fmt(b['V_nom'], 0)} V ≤ {fmt(b['watski_V_A'][0], 0)} V nominal; cierre {fmt(b['I_inrush_A'])} A ≤ {fmt(b['watski_V_A'][1], 0)} A; "
          f"abre {fmt(b['I_hold_A'], 2)} A sin sobretensión inductiva (economizador). Alternativa Sea Dog 5 A: margen {fmt(b['kill_switch_margin'])}× sobre el cierre",
          f"{tag('kill_switch_watski')} · {tag('kill_switch_rating_a')}"],
-        ["R serie de U2+U3 (nodo bobina)", f"{o['R_U2U3_ohm']:.0f} Ω, {fmt(o['I_U2U3_A'][0] * 1e3)}–{fmt(o['I_U2U3_A'][1] * 1e3)} mA, P {fmt(o['P_R_U2U3_W'], 2)} W → 0,5 W",
+        ["R serie de U2+U3 (nodo bobina)", f"{o['R_U2U3_ohm']:.0f} Ω, {fmt(o['I_U2U3_A'][0] * 1e3)}–{fmt(o['I_U2U3_A'][1] * 1e3)} mA, P {fmt(o['P_R_U2U3_W'], 2)} W → 0,25 W",
          f"[CALCULADO: E12 ≤ (12 V − 2·Vf)/I, mando de 12 V] {tag('opto_vf')}"],
-        ["R serie de U1 (nodo seta)", f"{o['R_U1_ohm']:.0f} Ω, {fmt(o['I_U1_A'][0] * 1e3)}–{fmt(o['I_U1_A'][1] * 1e3)} mA, P {fmt(o['P_R_U1_W'], 2)} W → 0,5 W",
+        ["R serie de U1 (nodo seta)", f"{o['R_U1_ohm']:.0f} Ω, {fmt(o['I_U1_A'][0] * 1e3)}–{fmt(o['I_U1_A'][1] * 1e3)} mA, P {fmt(o['P_R_U1_W'], 2)} W → 0,25 W",
          "[CALCULADO]"],
         ["Tensión inversa en los LED de U1–U3 al abrir la bobina",
          f"N2 → {fmt(b['V_N2_negativo_V'], 0)} V (economizador de K1) vs V_R máx. {fmt(o['V_R_max_V'], 0)} V → "
