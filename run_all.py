@@ -60,6 +60,7 @@ def main():
         print("FEA [NO EJECUTADO en este corrido]: requiere gmsh (y no corre con --fast); resultados previos en 04_diseno/fea/")
     step("6g/8 Visor 3D web (datos)", ["04_diseno/visor/build_visor.py"])
     step("7/8 Documentos (bloques AUTO)", ["docgen.py"])
+    step("7b/8 Sitio web (docs/ para GitHub Pages)", ["build_site.py"])
     if not a.skip_render:
         step("8/8 Vistas del ensamblaje (matplotlib)", ["blender/preview_views.py"], required=False)
     print("\nPIPELINE COMPLETO: exit 0")

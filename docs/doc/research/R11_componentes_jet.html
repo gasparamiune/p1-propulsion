@@ -1,0 +1,1599 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R11 — Componentes comprables para el waterjet inboard de Jorge (motor, ESC, batería, bomba, tren, auxiliares) — P1-J · Strålen</title>
+<meta name="description" content="Etiquetas: [VERIFICADO: url] = página abierta con WebFetch en esta sesión; el número está copiado de ahí. [ESTIMADO: base] = memoria, deducción o dato que solo aparece en el…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="R11 — Componentes comprables para el waterjet inboard de Jorge (motor, ESC, batería, bomba, tren, auxiliares) — P1-J · Strålen">
+<meta property="og:description" content="Etiquetas: [VERIFICADO: url] = página abierta con WebFetch en esta sesión; el número está copiado de ahí. [ESTIMADO: base] = memoria, deducción o dato que solo aparece en el…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/research/R11_componentes_jet.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="R11 — Componentes comprables para el waterjet inboard de Jorge (motor, ESC, batería, bomba, tren, auxiliares) — P1-J · Strålen">
+<meta name="twitter:description" content="Etiquetas: [VERIFICADO: url] = página abierta con WebFetch en esta sesión; el número está copiado de ahí. [ESTIMADO: base] = memoria, deducción o dato que solo aparece en el…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/research/R11_componentes_jet.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header">
+  <div class="bar wide">
+    <a class="brand" href="../../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../../index.html">Inicio</a><a href="../../visor/index.html">Visor 3D</a><a href="../../documentos.html" aria-current="page">Documentos</a><a href="../../planos.html">Planos</a><a href="../../bom.html">Materiales</a><a href="../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub&nbsp;↗</a></nav>
+  </div>
+</header>
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../../documentos.html">Documentos</a> / <span class="mono">research/R11_componentes_jet.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/research/R11_componentes_jet.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#0-resumen-ejecutivo">0. Resumen ejecutivo</a></li>
+<li><a href="#1-motor-5-kw-continuos-7-kw-pico-40005000-rpm-bajo-carga">1. Motor (5 kW continuos, ≥ 7 kW pico, ~4000–5000 rpm bajo carga)</a><ul>
+<li><a href="#11-requisito-de-rpmv-lo-que-falta-en-el-plano">1.1 Requisito de rpm/V (lo que falta en el plano)</a></li>
+<li><a href="#12-candidatos">1.2 Candidatos</a></li>
+<li><a href="#13-punto-de-funcionamiento-con-el-ø108-del-plano">1.3 Punto de funcionamiento con el Ø108 del plano</a></li>
+</ul>
+</li>
+<li><a href="#2-controlador-esc">2. Controlador (ESC)</a><ul>
+<li><a href="#21-clase-50-v-13s-4745-v-máx-hacen-falta-150200-a-de-batería">2.1 Clase ≤ 50 V (13S: 47,45 V máx.; hacen falta 150–200 A de batería)</a></li>
+<li><a href="#22-clase-72-v-2223s-803840-v-cargada-100-a">2.2 Clase 72 V (22–23S: 80,3–84,0 V cargada; ≥ 100 A)</a></li>
+</ul>
+</li>
+<li><a href="#3-batería-3-kwh-útiles">3. Batería (~3 kWh útiles)</a><ul>
+<li><a href="#31-restricciones-nuevas-las-de-tensión-y-fusibles-están-en-r06-43">3.1 Restricciones (nuevas; las de tensión y fusibles están en R06 §4.3)</a></li>
+<li><a href="#32-candidatos">3.2 Candidatos</a></li>
+</ul>
+</li>
+<li><a href="#4-waterjets-comerciales-comprar-vs-construir">4. Waterjets comerciales (comprar vs construir)</a></li>
+<li><a href="#5-tren-de-la-bomba-si-se-construye">5. Tren de la bomba (si se construye)</a></li>
+<li><a href="#6-impulsor-y-anillo-de-desgaste">6. Impulsor y anillo de desgaste</a></li>
+<li><a href="#7-rejilla-placa-de-rodadura-dirección-y-bucket">7. Rejilla, placa de rodadura, dirección y bucket</a></li>
+<li><a href="#8-seguridad-auxiliar">8. Seguridad auxiliar</a></li>
+<li><a href="#9-tabla-resumen-recomendado-por-partida">9. Tabla resumen: recomendado por partida</a></li>
+<li><a href="#10-advertencias">10. Advertencias</a></li>
+<li><a href="#11-fuentes-abiertas-en-esta-sesión-webfetch-20261001">11. Fuentes abiertas en esta sesión (WebFetch, 2026‑10‑01)</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#0-resumen-ejecutivo">0. Resumen ejecutivo</a></li>
+<li><a href="#1-motor-5-kw-continuos-7-kw-pico-40005000-rpm-bajo-carga">1. Motor (5 kW continuos, ≥ 7 kW pico, ~4000–5000 rpm bajo carga)</a><ul>
+<li><a href="#11-requisito-de-rpmv-lo-que-falta-en-el-plano">1.1 Requisito de rpm/V (lo que falta en el plano)</a></li>
+<li><a href="#12-candidatos">1.2 Candidatos</a></li>
+<li><a href="#13-punto-de-funcionamiento-con-el-ø108-del-plano">1.3 Punto de funcionamiento con el Ø108 del plano</a></li>
+</ul>
+</li>
+<li><a href="#2-controlador-esc">2. Controlador (ESC)</a><ul>
+<li><a href="#21-clase-50-v-13s-4745-v-máx-hacen-falta-150200-a-de-batería">2.1 Clase ≤ 50 V (13S: 47,45 V máx.; hacen falta 150–200 A de batería)</a></li>
+<li><a href="#22-clase-72-v-2223s-803840-v-cargada-100-a">2.2 Clase 72 V (22–23S: 80,3–84,0 V cargada; ≥ 100 A)</a></li>
+</ul>
+</li>
+<li><a href="#3-batería-3-kwh-útiles">3. Batería (~3 kWh útiles)</a><ul>
+<li><a href="#31-restricciones-nuevas-las-de-tensión-y-fusibles-están-en-r06-43">3.1 Restricciones (nuevas; las de tensión y fusibles están en R06 §4.3)</a></li>
+<li><a href="#32-candidatos">3.2 Candidatos</a></li>
+</ul>
+</li>
+<li><a href="#4-waterjets-comerciales-comprar-vs-construir">4. Waterjets comerciales (comprar vs construir)</a></li>
+<li><a href="#5-tren-de-la-bomba-si-se-construye">5. Tren de la bomba (si se construye)</a></li>
+<li><a href="#6-impulsor-y-anillo-de-desgaste">6. Impulsor y anillo de desgaste</a></li>
+<li><a href="#7-rejilla-placa-de-rodadura-dirección-y-bucket">7. Rejilla, placa de rodadura, dirección y bucket</a></li>
+<li><a href="#8-seguridad-auxiliar">8. Seguridad auxiliar</a></li>
+<li><a href="#9-tabla-resumen-recomendado-por-partida">9. Tabla resumen: recomendado por partida</a></li>
+<li><a href="#10-advertencias">10. Advertencias</a></li>
+<li><a href="#11-fuentes-abiertas-en-esta-sesión-webfetch-20261001">11. Fuentes abiertas en esta sesión (WebFetch, 2026‑10‑01)</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="r11-componentes-comprables-para-el-waterjet-inboard-de-jorge-motor-esc-batería-bomba-tren-auxiliares">R11 — Componentes comprables para el waterjet inboard de Jorge (motor, ESC, batería, bomba, tren, auxiliares)</h1>
+<p><strong>Fecha de consulta y de todos los precios:</strong> 2026-10-01.
+<strong>Objeto:</strong> el plano de Jorge (5 kW continuos / 7,2 kW máx., 72 V, 4500 rpm directo a impulsor axial Ø108 de 4 álabes + estator, tobera Ø72, eje Ø20 inox, toma enrasada con rejilla, boquilla y bucket), con la toma corregida de R10a y las correcciones de R10b.</p>
+<p><strong>Etiquetas:</strong></p>
+<ul>
+<li>[VERIFICADO: url] = página abierta con WebFetch en esta sesión; el número está copiado de ahí.</li>
+<li>[ESTIMADO: base] = memoria, deducción o dato que solo aparece en el resumen del buscador (página no abierta).</li>
+<li>[CALCULADO] = cuenta propia con datos verificados.</li>
+<li>[SUPUESTO] = decisión de diseño.</li>
+</ul>
+<p><strong>Monedas (tipos del proyecto, R08a §0):</strong> 1 EUR = 7,4755 DKK; 1 USD = 0,8807 EUR; 1 GBP = 1,1701 EUR (0,85463 GBP/EUR). Para CAD no hay tipo del proyecto: uso el BCE del 2026-10-01, 1 EUR = 1,6095 CAD → 1 CAD = 0,6213 EUR [VERIFICADO: https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml].</p>
+<p><strong>IVA y envío (no repito lo de R08a §0 y R08b §1):</strong></p>
+<ul>
+<li>Tiendas chinas (Flipsky, Maytech, Spintend, Golden Motor, AWT): precio <strong>sin</strong> IVA de importación (25 %), sin arancel y sin envío. Para DK sumar ≈ +25 % de IVA + envío DHL + arancel [VERIFICADO en R08a §0].</li>
+<li>Tiendas DE/NL/BE: precio con el IVA del país de la tienda (19–21 %). A un particular en DK deberían facturarle con el 25 % danés [ESTIMADO: R08b, reglas OSS].</li>
+<li>Watski: DKK con 25 % de moms.</li>
+</ul>
+<hr />
+<h2 id="0-resumen-ejecutivo">0. Resumen ejecutivo</h2>
+<ol>
+<li>
+<p><strong>El dato que más cambia el diseño es el rpm/V real del motor.</strong> Golden Motor publica el ensayo dinámico del HPM5000 [VERIFICADO: PDF de goldenmotor.com, §1.2]:</p>
+<ul>
+<li>versión 48 V: <strong>≈ 91 rpm/V</strong>;</li>
+<li>versión 72 V: <strong>≈ 59 rpm/V</strong>.</li>
+</ul>
+<p>Para que el Ø108 gire a 4500 rpm <strong>bajo carga</strong> hacen falta <strong>≈ 120–127 rpm/V en 13S</strong> o <strong>≈ 71–75 rpm/V en 22–23S</strong> [CALCULADO, R10b §4.8]. Con el HPM5000 de catálogo, el Ø108 se queda en ≈ 3400–3850 rpm y absorbe solo <strong>≈ 2,2–3,1 kW</strong> [CALCULADO §1.3]. Hay dos salidas: pedir <strong>bobinado a medida</strong> (Golden Motor dice "2000–6000 rpm customizable") o usar un motor de KV más alto.</p>
+</li>
+<li>
+<p><strong>Motor recomendado.</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Clase de tensión</th>
+<th>Motor</th>
+<th>Masa</th>
+<th>Precio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>≤ 50 V</td>
+<td><strong>Maytech MTI120116 150 KV</strong>, refrigerado por agua, eje Ø15 con chavetero</td>
+<td>4,4 kg</td>
+<td>537,50–573 USD = 473–505 € sin IVA</td>
+</tr>
+<tr>
+<td>72 V</td>
+<td><strong>Golden Motor HPM5000L (refrigerado por líquido) con bobinado de ≈ 72 rpm/V a pedido</strong></td>
+<td>11,35 kg</td>
+<td>545 USD = 480 € sin IVA</td>
+</tr>
+<tr>
+<td>72 V, alternativa de catálogo</td>
+<td><strong>Motenergy ME1304</strong> (≈ 80 rpm/V [ESTIMADO])</td>
+<td>16 kg</td>
+<td>961,20 € sin IVA, sin stock</td>
+</tr>
+</tbody>
+</table></div>
+<p>El MTI120116 se alimenta de 10–16S (37–67 V), así que <strong>no sirve para 72 V</strong>.</p>
+</li>
+<li>
+<p><strong>ESC (ambos VESC, compatibles con el firmware y los límites de rpm de P1).</strong></p>
+<ul>
+<li>≤ 50 V: <strong>Flipsky FSESC 75350 con caja refrigerada por agua</strong>. 350 A a 50 V, IP65 con la caja, 210 USD = 185 € [VERIFICADO].</li>
+<li>72 V: <strong>Flipsky FSESC 110300</strong>. 14–110 V (4–26S), 300 A, FW 6.06, filtro de fase, 1,2 kg, 219 USD = 193 € [VERIFICADO].</li>
+<li>Los de 85 V (Spintend Ubox 85/250) quedan <strong>sin margen</strong> con 22–23S, que llegan a 80,3–84,0 V cargadas.</li>
+</ul>
+</li>
+<li><strong>Batería.</strong> La regla dura es la <strong>tasa C</strong>, no la tensión. 7,2 kW sacados de 3 kWh son <strong>2,4 C</strong>, y eso no depende de la tensión [CALCULADO].<ul>
+<li><strong>≤ 50 V:</strong><ul>
+<li>No encontré ningún pack LFP <strong>13S</strong> comercial en la UE. Todos los "48 V" son 15S/16S (54,8/58,4 V máx.).</li>
+<li>La opción comercial que cumple ≤ 50 V es <strong>2 × LiTime 36 V 60 Ah Golf Cart en paralelo</strong>: 12S, 43,8 V máx., 4,6 kWh, BMS 2 × 120 A, 939,98 € con IVA, ≈ 40 kg [precio VERIFICADO, masa ESTIMADA].</li>
+<li>Con 12S el motor gira 8 % menos que con 13S. Elegir el KV para 38,4 V.</li>
+</ul>
+</li>
+<li><strong>72 V:</strong><ul>
+<li>Ninguna marca náutica (LiTime, Power Queen) vende 72 V. Sus baterías de 24 V admiten como máximo 2S [VERIFICADO].</li>
+<li>La vía realista es <strong>DIY 23S1P con celdas EVE LF50K</strong> (3C en el ensayo de régimen, 5C de pulso, 1395 g): 3,68 kWh, ≈ 32 kg de celdas, 805 € en celdas, más un JK BMS de 200 A.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Comprar vs construir.</strong><ul>
+<li><strong>JT132 (Wuxi AWT):</strong> impulsor inox <strong>Ø130</strong>, tobera Ø70, 12 kg, 1,5–40 kW, 2000–6000 rpm, dirección y reversa mecánicas incluidas (deflector de doble ducto), entrada por cardán SWC65 o acople ISO [VERIFICADO: wuxiawt.com]. Precio ≈ 1000–1100 USD FOB [ESTIMADO: buscador], más flete, IVA y arancel.</li>
+<li>Por la ley de afinidad, el Ø130 absorbe 5 kW a <strong>≈ 3300 rpm</strong> [CALCULADO]. <strong>Encaja con el HPM5000 de catálogo sin rebobinar.</strong></li>
+<li>Es la opción "comprar" más coherente: reemplaza impulsor, estator, tobera, boquilla y bucket, que son las piezas más difíciles de fabricar.</li>
+</ul>
+</li>
+<li><strong>Tren de la bomba (precios VERIFICADOS en tiendas DE/BE):</strong><ul>
+<li>sello mecánico tipo MG1 SiC/SiC/NBR, desde 29 €, 10 m/s, 12 bar;</li>
+<li>rodamiento de doble hilera 3204‑2RS, 6,20 € (Dold); en inox AISI 420, 12,64 € + IVA;</li>
+<li>par 7204 BEP SKF, 2 × 31,40 €;</li>
+<li><strong>Rotex 24</strong> con estrella de 92 ShA (T_KN 35 N·m; 60 N·m con 98 ShA), 67,47 €. La L‑090 de NBR (16,3 N·m) <strong>no alcanza</strong>;</li>
+<li>eje 1.4404 Ø20 h9: 32,87 €/m.</li>
+</ul>
+</li>
+<li><strong>Fabricar el impulsor.</strong><ul>
+<li>Ningún servicio (Xometry, Protolabs, PCBWay, JLCCNC) da precio sin subir el CAD.</li>
+<li>SLM en 316L (JLC3DP): build de 390 × 390 × 290 mm y ±0,3 mm o 0,4 % [VERIFICADO]. Con ≈ 0,4 USD/g [VERIFICADO: unionfab, ejemplo], un Ø110 de 0,8–1,3 kg costaría <strong>≈ 300–520 €</strong> más el torneado del diámetro exterior [ESTIMADO].</li>
+<li>Referencia de producto terminado: impulsor Solas de 140 mm para Spark, 539 CAD = 335 € [VERIFICADO].</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h2 id="1-motor-5-kw-continuos-7-kw-pico-40005000-rpm-bajo-carga">1. Motor (5 kW continuos, ≥ 7 kW pico, ~4000–5000 rpm bajo carga)</h2>
+<h3 id="11-requisito-de-rpmv-lo-que-falta-en-el-plano">1.1 Requisito de rpm/V (lo que falta en el plano)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pack</th>
+<th>V nominal</th>
+<th>V máx. (cargada)</th>
+<th>rpm/V para 4500 rpm bajo carga (85–90 % del vacío)</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LFP 12S</td>
+<td>38,4</td>
+<td>43,8</td>
+<td>130–138</td>
+<td>[CALCULADO]</td>
+</tr>
+<tr>
+<td>LFP 13S</td>
+<td>41,6</td>
+<td>47,45</td>
+<td>120–127</td>
+<td>[CALCULADO]</td>
+</tr>
+<tr>
+<td>LFP 22S</td>
+<td>70,4</td>
+<td>80,3</td>
+<td>71–75</td>
+<td>[CALCULADO]; R10b da 62,5–73,5</td>
+</tr>
+<tr>
+<td>LFP 23S</td>
+<td>73,6</td>
+<td>84,0</td>
+<td>68–72</td>
+<td>[CALCULADO]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Par en el eje: 5 kW a 4500 rpm = 10,6 N·m; 7,2 kW a 4500 = 15,3 N·m; 7,2 kW a 3500 = 19,6 N·m [CALCULADO].</p>
+<p><strong>Con KV "de sobra" no hay problema:</strong> el VESC limita las rpm (<code>l_max_erpm</code>) y la corriente de batería. <strong>Con KV corto no se llega:</strong> solo queda debilitamiento de campo, con pérdidas y calor.</p>
+<h3 id="12-candidatos">1.2 Candidatos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Motor</th>
+<th>rpm/V (fuente)</th>
+<th>P cont. / pico</th>
+<th>Par</th>
+<th>I</th>
+<th>Masa</th>
+<th>Medidas</th>
+<th>Eje</th>
+<th>Refrigeración / IP</th>
+<th>Sensores</th>
+<th>Precio 2026‑10‑01</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Golden Motor HPM5000B 48 V</strong> (aire, ventilador)</td>
+<td><strong>91,5</strong> (vacío 4389 rpm a 47,99 V)</td>
+<td>3–7,5 kW "rated"; ensayo: 5,27 kW a 3501 rpm, 83,8 %</td>
+<td>13 N·m nom. / 45 N·m pico (made‑in‑china); 40 N·m pico (GM)</td>
+<td>"rated I 120 A"; 132,7 A a 5,27 kW</td>
+<td>11 kg</td>
+<td>Ø206 × 126</td>
+<td>Chavetero "5 mm (W) × 43 mm (L) × 19 mm (D: 22,3 mm)" (Kelly); "7/8"", chaveta 5/16"" (Monster) → <strong>medir</strong></td>
+<td>"Water resistent", ventilador. Sin IP</td>
+<td>KTY84‑130 (GM); hall no declarado en las páginas</td>
+<td><strong>490 USD</strong> (GM, = 432 €) · <strong>994,33 €</strong> + 28,19 € de envío, "Out of stock" (Kelly EU) · 446 USD (made‑in‑china, 1–9 u.)</td>
+<td>[VERIFICADO: https://www.goldenmotor.com/frame-bldcmotor.htm] [VERIFICADO: https://www.goldenmotor.com/eCar/HPM48-5000.pdf] [VERIFICADO: https://www.kellycontrollers.eu/hpm5000b-5kw-48v-leghuteses] [VERIFICADO: https://goldenmotorcz.en.made-in-china.com/product/CwmnvfujhxVi/China-HPM5000B-48V-4000RPM-Brushless-DC-Motor-with-CE-Certificate.html] [VERIFICADO: https://monsterscooterparts.com/products/48v-5000w-brushless-aircooled-motor-golden]</td>
+</tr>
+<tr>
+<td><strong>Golden Motor HPM5000B / L 72 V</strong> (L = líquido)</td>
+<td><strong>58,9</strong> (vacío 4259 rpm a 72,25 V)</td>
+<td>ensayo: 4,71 kW a 3730 rpm, 90,6 %; 6,19 kW a 3611 rpm, 88,1 %</td>
+<td>40 N·m pico (GM)</td>
+<td>"rated I 80 A"; 98 A a 6,19 kW</td>
+<td>11 kg (B) / 11,35 kg (L)</td>
+<td>Ø206 × 126</td>
+<td>ídem</td>
+<td>B: aire. <strong>L: líquido</strong></td>
+<td>KTY84‑130</td>
+<td><strong>490 USD (B) / 545 USD (L)</strong> en GM (432 / 480 €) · B: <strong>1306,48 €</strong> + 28,19 €, "Out of stock" (Kelly EU) · L 72 V: "Request quotation"</td>
+<td>[VERIFICADO: https://www.goldenmotor.com/eCar/HPM72-5000.pdf] [VERIFICADO: https://www.kellycontrollers.eu/hpm5000b-5kw-72v-leghuteses] [VERIFICADO: frame-bldcmotor.htm]</td>
+</tr>
+<tr>
+<td><strong>Maytech MTI120116</strong> (inrunner refrigerado por agua)</td>
+<td>KV 100 / 150 / 200 (nominal)</td>
+<td><strong>máx. 18,8 kW</strong>; continua no publicada</td>
+<td>20,6 N·m máx.</td>
+<td>380 A máx.</td>
+<td><strong>4,4 kg</strong></td>
+<td>Ø120 × 116</td>
+<td><strong>Ø15 × 30 mm con chavetero</strong></td>
+<td><strong>Watercooled</strong></td>
+<td>Hall opcional; máx. 120 °C; <strong>sensor de temperatura NTC10K 3950 de fábrica</strong> ("Yellow: Temp Sensor (NTC10K 3950k)"); construcción <strong>12N/10P</strong> (10 polos = 5 pares); cables 6 AWG × 300 mm</td>
+<td><strong>537,50 USD</strong> sin hall 150 KV (= 473 €) · <strong>573 USD con hall</strong> (= 505 €, la que se compra); "limited stock", 30–50 días si se fabrica</td>
+<td>[VERIFICADO: https://maytech.cn/products/copy-of-maytech-fully-waterproof-mti120116-18-8kw-powerful-brushless-inrunner-motor-for-electric-surfboard-rc-boat-jetski; NTC, 12N/10P y cables releídos 2026-10-02 (la versión anterior de esta tabla decía "NTC no declarado": era falso)]. Tensión: <strong>10–16S</strong></td>
+</tr>
+<tr>
+<td>Maytech MTI85165‑HA‑WP</td>
+<td>150 / 130 KV</td>
+<td>10,5 kW máx.</td>
+<td>—</td>
+<td>300 A</td>
+<td>no publicada</td>
+<td>85 × 165 [ESTIMADO: nombre]</td>
+<td>Chavetero (Ø no publicado)</td>
+<td>IP68, sellado (sin camisa de agua)</td>
+<td>Hall sí</td>
+<td>528,50 USD (= 465 €), "not stock item", 40–60 días</td>
+<td>[VERIFICADO: https://maytech.cn/products/maytech-85165-150kv-brushless-sensored-motor-10kw-for-electric-car-motorcycle]. 6–16S</td>
+</tr>
+<tr>
+<td>Flipsky FS65161 (eFoil)</td>
+<td>100 / 120</td>
+<td><strong>3 kW nom.</strong> / 6 kW máx.</td>
+<td>6,3 N·m nom. / 9 N·m</td>
+<td>60 A nom. / 200 A</td>
+<td>3 kg</td>
+<td>Ø65 × 161</td>
+<td>Ø12 estriado o roscado</td>
+<td>IP68, sello cerámico; se enfría por inmersión</td>
+<td>NTC opcional (+3 USD)</td>
+<td>298–301 USD (= 262–265 €)</td>
+<td>[VERIFICADO: https://flipsky.net/products/brushless-motor-sensorless-amphibious-fully-waterproof-motor-65161-120kv-100kv-6000w-for-efoil-ejet-boards-ebike-electric-surfboard]. <strong>Descartado</strong>: 3 kW continuos</td>
+</tr>
+<tr>
+<td>Maytech MTI65162</td>
+<td>100 / 120</td>
+<td>9 kW máx.</td>
+<td>—</td>
+<td>300 A</td>
+<td>—</td>
+<td>Ø65 × 162</td>
+<td>Roscado</td>
+<td>IP68</td>
+<td>Sin hall</td>
+<td>329 USD, "Sold out"</td>
+<td>[VERIFICADO: https://maytech.cn/products/maytech-fully-waterproof-brushless-motor-65162-for-electric-surfboard-efoil]. Misma clase que el 65161</td>
+</tr>
+<tr>
+<td><strong>Motenergy ME1304</strong> (PMSM, doble estator)</td>
+<td><strong>≈ 80</strong> [ESTIMADO: 9,55 / K_t con K_t = 0,12 N·m/A]</td>
+<td><strong>14,5 kW</strong> / 22 kW</td>
+<td>50 N·m máx.</td>
+<td>180 A cont. / 420 A 30 s</td>
+<td><strong>16 kg</strong></td>
+<td>—</td>
+<td><strong>7/8"</strong></td>
+<td><strong>Líquido</strong> (glicol 50 %, 10 L/min, ≤ 1,5 bar), "fully enclosed"</td>
+<td><strong>KTY84‑130 + encoder sin/cos</strong></td>
+<td><strong>961,20 € sin IVA</strong>, "out of stock", 3–6 semanas</td>
+<td>[VERIFICADO: https://www.evea-solutions.com/en/synchronous-motors/674-me1304-pmsm-brushless-motor.html]. 24–96 V</td>
+</tr>
+<tr>
+<td>QS Motor QS138 70H V3</td>
+<td>—</td>
+<td>5,5 kW cont. (72 V)</td>
+<td>—</td>
+<td>—</td>
+<td>27 lb (12,2 kg)</td>
+<td>Ø150 × 234</td>
+<td><strong>Estriado, con reducción interna 1:2,35</strong></td>
+<td>IP54 (página QS 4000 W)</td>
+<td>—</td>
+<td>699,99 USD, "Sold Out"</td>
+<td>[VERIFICADO: https://gritshift.com/products/qs138-70h-v3-motor] [VERIFICADO: https://www.qsmotor.com/product/4000w-mid-drive-motor/]. <strong>Descartado</strong>: con la reducción el eje sale a ~1700 rpm</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Notas:</strong></p>
+<ul>
+<li><strong>Flux linkage del HPM48‑5000 medido con VESC:</strong> 15,02–15,94 mWb [VERIFICADO: https://vesc-project.com/node/3376]. Con 4 pares de polos [VERIFICADO: made‑in‑china] da ≈ 87 rpm/V [ESTIMADO: fórmula 60/(2π·√3·λ·pp), de memoria]. Coincide con los 91,5 rpm/V del ensayo.</li>
+<li><strong>El VESC lee KTY84‑130</strong> como sensor de motor [ESTIMADO: memoria del firmware; R06 solo verificó el NTC 10 k por defecto]. Confirmarlo en VESC Tool antes de comprar.</li>
+</ul>
+<h3 id="13-punto-de-funcionamiento-con-el-ø108-del-plano">1.3 Punto de funcionamiento con el <span class="dia">Ø</span>108 del plano</h3>
+<p><strong>Método</strong> [CALCULADO]:</p>
+<ul>
+<li>La curva del motor es lineal entre el vacío y el punto de 5 kW del ensayo de Golden Motor, escalada a la tensión del pack.</li>
+<li>La bomba sigue T = 10,6 N·m·(n/4500)², con 5 kW a 4500 rpm (R10b §4.6).</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Combinación</th>
+<th>rpm de equilibrio</th>
+<th>P en el eje</th>
+<th>Lectura</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HPM5000 48 V + 13S (41,6 V) + Ø108</td>
+<td>≈ 3420</td>
+<td><strong>≈ 2,2 kW</strong></td>
+<td>No sirve para ≥ 30 km/h (R10b pide 5–7,2 kW)</td>
+</tr>
+<tr>
+<td>HPM5000 72 V + 22S (70,4 V) + Ø108</td>
+<td>≈ 3850</td>
+<td><strong>≈ 3,1 kW</strong></td>
+<td>Corto</td>
+</tr>
+<tr>
+<td>HPM5000 72 V + 23S <strong>cargada</strong> (84 V) + Ø108</td>
+<td>≈ 4520</td>
+<td>≈ 5,1 kW</td>
+<td>La potencia cambia ×1,6 entre lleno y vacío (R10b: ×1,59)</td>
+</tr>
+<tr>
+<td>HPM5000 48 V + 13S + <strong>JT132 Ø130</strong> (P ∝ D⁵: ×2,53)</td>
+<td>≈ 3040</td>
+<td><strong>≈ 3,9 kW</strong>, ≈ 115 A</td>
+<td>Se acerca a 5 kW sin rebobinar; con 12–13S cargada sube</td>
+</tr>
+<tr>
+<td>MTI120116 150 KV + 13S + Ø108</td>
+<td>4500 (limitado por el VESC)</td>
+<td>5 kW, ≈ 130 A de batería</td>
+<td>OK</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recomendación motor:</strong></p>
+<ul>
+<li><strong>≤ 50 V:</strong> <strong>Maytech MTI120116 150 KV</strong> [SUPUESTO]. Es el único refrigerado por agua de la clase y pesa 4,4 kg.<ul>
+<li>Riesgo: la potencia continua no está publicada. Pedirla a Maytech (eileen@maytech.cn figura en sus páginas) junto con el caudal de refrigeración.</li>
+</ul>
+</li>
+<li><strong>72 V:</strong> <strong>HPM5000L</strong> pidiendo por escrito un bobinado de <strong>≈ 70–75 rpm/V</strong> (vacío ≈ 5000–5200 rpm a 70,4 V) [SUPUESTO]. Si Golden Motor no lo confirma: <strong>ME1304</strong> (16 kg, sin stock).</li>
+</ul>
+<hr />
+<h2 id="2-controlador-esc">2. Controlador (ESC)</h2>
+<p>Base de configuración, seguridad y firmware: ver R06 §2. Acá van solo los modelos con la potencia del jet.</p>
+<h3 id="21-clase-50-v-13s-4745-v-máx-hacen-falta-150200-a-de-batería">2.1 Clase ≤ 50 V (13S: 47,45 V máx.; hacen falta 150–200 A de batería)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ESC</th>
+<th>V</th>
+<th>I continua</th>
+<th>Pico</th>
+<th>Refrigeración / IP</th>
+<th>Filtro de fase</th>
+<th>Masa / medidas</th>
+<th>Precio</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Flipsky FSESC 75350</strong></td>
+<td>14–84 V (3–20S)</td>
+<td>"50V/350A, 75V/250A"</td>
+<td>800 A</td>
+<td><strong>Caja de agua opcional; IP65 con la caja</strong></td>
+<td>Sí</td>
+<td>2000 g con caja / 1230 g sin caja; 200 × 94,6 × 50</td>
+<td><strong>210 USD con caja</strong> (= 185 €) / 197 USD sin caja</td>
+<td>[VERIFICADO: https://flipsky.net/products/flipsky-fsesc-75350-84v-high-current-350a-esc-base-on-vesc-with-aluminum-case-water-cooling-enclosure-for-e-foil-fighting-robot-surfboard-agv-robot]. FW 5.02 de fábrica → el diseño exige ≥ 6.00 (LispBM): flashear en T0.0. Cables de fase y batería 8 AWG</td>
+</tr>
+<tr>
+<td>Flipsky 75200 Pro V2.0</td>
+<td>14–84 V (4–20S)</td>
+<td>"50v/200A: 75V/150A"</td>
+<td>300 A</td>
+<td>PCB de aluminio (aire)</td>
+<td>Sí</td>
+<td>700–880 g; 130 × 68 × 41</td>
+<td>150 USD (= 132 €)</td>
+<td>[VERIFICADO: https://flipsky.net/products/flipsky-75200-pro-v2-0-with-aluminum-pcb-based-on-vesc-for-electric-skateboard-electric-scooter-ebike-speed-controller]. FW 6.02</td>
+</tr>
+<tr>
+<td>Flipsky FSESC 75200 (caja de agua)</td>
+<td><strong>14–75 V (3–16S)</strong></td>
+<td>200 A</td>
+<td>400 A</td>
+<td>Caja de agua, IP65</td>
+<td><strong>No</strong> ("Phase filering is not available… 75200")</td>
+<td>600 g; 110 × 73 × 52</td>
+<td>271 USD (= 239 €)</td>
+<td>[VERIFICADO: https://flipsky.net/products/flipsky-fsesc-75200-75v-high-current-200a-esc-base-on-vesc-with-aluminum-case-water-cooling-enclosure-for-e-foil-fighting-robot-surfboard-agv-robot]</td>
+</tr>
+<tr>
+<td>Spintend Ubox Aluminum 85/250 V2</td>
+<td>85 V máx.</td>
+<td>"250A max" de batería (según disipación)</td>
+<td>—</td>
+<td>Caja de aluminio + puerto de ventilador de 12 V</td>
+<td>—</td>
+<td>139 × 76 × 21,7</td>
+<td>279–313 USD (= 246–276 €)</td>
+<td>[VERIFICADO: https://spintend.com/products/single-ubox-aluminum-controller-85v-250a-v2-based-on-vesc]. FW propio 6.2; "open-source firmware voids warranty"</td>
+</tr>
+<tr>
+<td>Trampa VESC 100/250 (MkIII)</td>
+<td>hasta 100 V (22S)</td>
+<td>250 A</td>
+<td>400 A</td>
+<td>—</td>
+<td>—</td>
+<td>141 × 82 × 14 [ESTIMADO: buscador]</td>
+<td><strong>No se obtuvo</strong> (página sin precio). Buscar: "Trampa VESC 100/250 MKIII price"</td>
+<td>[VERIFICADO: https://trampa.co.uk/vesc-product-overview-page/] (solo 100 V y 250 / 400 A)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recomendación ≤ 50 V:</strong> <strong>FSESC 75350 con caja de agua</strong> [SUPUESTO].</p>
+<ul>
+<li>Tiene 350 A a 50 V y aguanta 7 kW sin forzarlo.</li>
+<li>La caja de agua usa el mismo circuito que el motor (§1).</li>
+<li>Tiene filtro de fase.</li>
+</ul>
+<p>Alternativa más barata en seco: 75200 Pro V2.0, si el compartimento tiene ventilación forzada.</p>
+<h3 id="22-clase-72-v-2223s-803840-v-cargada-100-a">2.2 Clase 72 V (22–23S: 80,3–84,0 V cargada; ≥ 100 A)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ESC</th>
+<th>V</th>
+<th>I continua batería / fase</th>
+<th>Refrigeración / IP</th>
+<th>Protocolo</th>
+<th>Precio</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Flipsky FSESC 110300</strong></td>
+<td><strong>14–110 V (4–26S)</strong></td>
+<td>"110V/300A" (según montaje); pico 800 A</td>
+<td>PCB de aluminio, sin caja de agua; IP no declarado</td>
+<td><strong>VESC, FW 6.06</strong>, filtro de fase sí, BEC 5 V @ 3 A</td>
+<td><strong>219 USD</strong> (= 193 €); 1200 g; 183,8 × 80,2 × 43,8</td>
+<td>[VERIFICADO: https://flipsky.net/products/flipsky-fsesc-110300-high-voltage-110v-300a-with-aluminum-pcb-based-on-vesc-for-fighting-robot-surfboard-agv-robot]</td>
+</tr>
+<tr>
+<td>Trampa VESC 100/250</td>
+<td>100 V</td>
+<td>250 A / 400 A</td>
+<td>—</td>
+<td>VESC</td>
+<td>Buscar</td>
+<td>[VERIFICADO: trampa.co.uk, sin precio]</td>
+</tr>
+<tr>
+<td>Spintend Ubox 100/100 Lite</td>
+<td>"up to 22s", picos ≤ 93 V</td>
+<td><strong>100 A máx.</strong> ("less than 1 minute", según la búsqueda)</td>
+<td>Aire, puerto de ventilador</td>
+<td>VESC (fw UBOX_SINGLE_100)</td>
+<td>125 USD, <strong>"Sold Out"</strong></td>
+<td>[VERIFICADO: https://spintend.com/products/single-ubox-100v-100a-motor-controller-based-on-vesc]. <strong>Descartado</strong>: 100 A no son continuos</td>
+</tr>
+<tr>
+<td>Spintend Ubox 85/240</td>
+<td>85 V máx. ("Don't try more than 85v")</td>
+<td>240 A máx.</td>
+<td>Aire</td>
+<td>VESC</td>
+<td>269–312 USD</td>
+<td>[VERIFICADO: https://spintend.com/products/single-ubox-aluminum-controller-85v-240a-controller-based-on-vesc]. <strong>Sin margen</strong> con 23S (84 V) y regenerando</td>
+</tr>
+<tr>
+<td>Kelly KLS7230H</td>
+<td>18–90 V</td>
+<td>100 A cont. / 300 A 10 s</td>
+<td><strong>IP66</strong></td>
+<td>No es VESC (sinusoidal, FOC). KTY84 configurable. CAN +45,89 €</td>
+<td><strong>583,63 €</strong> + 11,95 €, "Out of stock"</td>
+<td>[VERIFICADO: https://www.kellycontrollers.eu/kls7230h]</td>
+</tr>
+<tr>
+<td>Fardriver ND72450</td>
+<td>48–72 V (máx. 90 V)</td>
+<td>200 A batería / 450 A fase</td>
+<td>— (179 × 120 × 55, 2,0 kg)</td>
+<td>No es VESC (Bluetooth; reversa y "3‑Speed" de fábrica)</td>
+<td>Sin precio en QS. 179–240 USD según el buscador [ESTIMADO]</td>
+<td>[VERIFICADO: https://www.qsmotor.com/product/fardriver-controller-nd72450/]</td>
+</tr>
+<tr>
+<td>Votol EM‑150</td>
+<td>48–72 V (máx. 90 V)</td>
+<td>150 A pico de batería / 470 A pico de fase</td>
+<td>— (245 × 129 × 69)</td>
+<td>No es VESC (hall)</td>
+<td>Sin precio. Buscar: "Votol EM150-2SP price"</td>
+<td>[VERIFICADO: https://www.qsmotor.com/product/votol-controller-em-150/]</td>
+</tr>
+<tr>
+<td>Flipsky FT110BS</td>
+<td>14–110 V</td>
+<td>100 A / 250 A</td>
+<td>Aluminio</td>
+<td><strong>No es firmware VESC oficial</strong> ("Flipsky ESC Tool", FW V1.6)</td>
+<td>95 USD</td>
+<td>[VERIFICADO: https://flipsky.net/products/flipsky-ft110bs-high-voltage-110v-with-aluminum-pcb-based-on-vesc-for-fighting-robot-surfboard-agv-robot]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recomendación 72 V:</strong> <strong>Flipsky FSESC 110300</strong> [SUPUESTO].</p>
+<ul>
+<li>Es el único VESC de 100 V+ con precio y stock visibles.</li>
+<li>Tiene 26 V de margen sobre 23S.</li>
+<li>Va en caja estanca con placa disipadora, o con una placa fría propia, porque no trae caja de agua.</li>
+</ul>
+<hr />
+<h2 id="3-batería-3-kwh-útiles">3. Batería (~3 kWh útiles)</h2>
+<h3 id="31-restricciones-nuevas-las-de-tensión-y-fusibles-están-en-r06-43">3.1 Restricciones (nuevas; las de tensión y fusibles están en R06 §4.3)</h3>
+<ul>
+<li><strong>Tasa C:</strong> 7,2 kW sobre 3 kWh útiles (3,75 kWh nominales con 80 % de DoD) = <strong>1,9–2,4 C</strong> [CALCULADO].<ul>
+<li>Las celdas prismáticas de 1 C, como la EVE LF105 (105 A máx. continuos [VERIFICADO: https://thebatteryshop.eu/EVE-LF105-LiFePO4-battery-cell]), obligan a ≥ 7 kWh para dar 7 kW.</li>
+</ul>
+</li>
+<li><strong>"48 V" de catálogo es 16S</strong> (51,2 V nominal, 58,4 V cargada) y supera los 50 V. Ejemplos verificados:<ul>
+<li>LiTime 51,2 V 100 Ah, BMS 100 A, 899,99 € (0 % DE 756,29 €), "No disponible" [VERIFICADO: https://www.litime.de/products/litime-51-2v-100ah-lifepo4-lithium-batterie.js];</li>
+<li>"LiTime 48V 100Ah" y "48V 30Ah GC2" (no disponibles) [VERIFICADO: https://www.litime.de/search/suggest.json?q=golf&amp;resources[type]=product&amp;resources[limit]=10].</li>
+</ul>
+</li>
+<li>
+<p><strong>"2 × 24 V en serie" = 16S = 58,4 V cargada</strong> → <strong>no cumple ≤ 50 V</strong>. Además, las de 24 V solo admiten 2S:</p>
+<ul>
+<li>LiTime 24 V 100 Ah: "4P2S" [VERIFICADO: https://www.litime.de/products/litime-24v-100ah-lithium-lifepo4-batterie.js];</li>
+<li>Power Queen 24 V 100 Ah: "bis zu 4P2S" [VERIFICADO: https://www.ipowerqueen.de/products/power-queen-lifepo4-24v-100ah-deep-cycle-solarbatterie.js].</li>
+</ul>
+<p>O sea que <strong>tampoco se puede llegar a 72 V con ellas</strong>.</p>
+</li>
+</ul>
+<h3 id="32-candidatos">3.2 Candidatos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Opción</th>
+<th>Config.</th>
+<th>V nom. / máx.</th>
+<th>Energía</th>
+<th>BMS / C</th>
+<th>Masa</th>
+<th>Medidas / IP</th>
+<th>Precio</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>2 × LiTime 36 V 60 Ah Golf Cart (paralelo)</strong></td>
+<td>12S2P</td>
+<td>38,4 / 43,8</td>
+<td><strong>4,6 kWh</strong> (2 × 2304 Wh)</td>
+<td>2 × "Integriertes 120A BMS", "2C" → 240 A, 9,2 kW</td>
+<td>≈ 2 × 19,8 kg [ESTIMADO: 43,6 lb, buscador]</td>
+<td>8,46 × 8,15 × 20,94" [ESTIMADO: buscador]; IP no publicado</td>
+<td><strong>2 × 469,99 € = 939,98 €</strong> con IVA, envío UE gratis</td>
+<td>[VERIFICADO: https://www.litime.de/products/36v-60ah-golfwagen-kart-lithium-batterie.js] ("bis zu 4P"). Envío: R08a §0</td>
+</tr>
+<tr>
+<td>1 × LiTime 36 V 60 Ah</td>
+<td>12S</td>
+<td>38,4 / 43,8</td>
+<td>2,3 kWh</td>
+<td>120 A → <strong>4,6 kW</strong></td>
+<td>≈ 19,8 kg [ESTIMADO]</td>
+<td>—</td>
+<td>469,99 €</td>
+<td>ídem. <strong>No da 7 kW</strong></td>
+</tr>
+<tr>
+<td><strong>DIY 13S2P EVE LF50K + JK BMS</strong></td>
+<td>13S2P</td>
+<td>41,6 / 47,45</td>
+<td>4,16 kWh</td>
+<td>Celda: 3C en el ensayo de régimen y "5C/5C" de pulso [VERIFICADO: hoja EVE]; BMS 200 A</td>
+<td>36,3 kg de celdas (26 × 1395 g) + caja y BMS</td>
+<td>Celda 135,3 × 185,3 mm; IP = la caja que se haga</td>
+<td>Celdas 26 × 35,00 € = <strong>910 €</strong> (con IVA, NL) + BMS ≈ 141–172 €</td>
+<td>[VERIFICADO: https://www.voltacell.nl/products/eve-lf50k-lifepo4-battery-cell-3-2v-50ah-a-grade-m4-thread] ("Only 6 products left": <strong>falta stock para 26</strong>) [VERIFICADO: https://www.battery-germany.de/wp-content/uploads/2021/02/LF50K3.2V-50Ah-Product-SpecificationVersion-D.pdf]</td>
+</tr>
+<tr>
+<td><strong>DIY 23S1P EVE LF50K</strong> (72 V)</td>
+<td>23S</td>
+<td>73,6 / 84,0</td>
+<td><strong>3,68 kWh</strong></td>
+<td>3C ≈ 150 A → 11 kW; BMS 200 A</td>
+<td>32,1 kg de celdas</td>
+<td>ídem</td>
+<td>23 × 35 € = <strong>805 €</strong> + BMS</td>
+<td>ídem [CALCULADO]</td>
+</tr>
+<tr>
+<td>DIY 24S1P EVE LF50K (72 V)</td>
+<td>24S</td>
+<td>76,8 / 87,6</td>
+<td>3,84 kWh</td>
+<td>ídem</td>
+<td>33,5 kg</td>
+<td>—</td>
+<td>840 € + BMS</td>
+<td>Con 87,6 V <strong>supera</strong> los 85 V de Spintend; el 110300 lo admite</td>
+</tr>
+<tr>
+<td>akkushop‑24 "72V LiFePO4 50Ah"</td>
+<td><strong>24S16P</strong></td>
+<td>76,8 / 87,6</td>
+<td>"4.380Wh" (sic)</td>
+<td><strong>100A</strong></td>
+<td><strong>40,4 kg</strong></td>
+<td>460 × 350 × 190</td>
+<td>No visible por variante (desde 329 € la de 12 Ah); con cargador</td>
+<td>[VERIFICADO: https://www.akkushop-24.de/72V-Lithium-Ionen-Akku-72V-LiFePO4-Lithiumeisenphosphat-Varianten-fuer-Industrie-Scooter-Boot-E-Bike-Camping-Golf]. Las demás variantes LFP tienen BMS de 20–60 A</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>JK BMS B2A24S20P</strong> (8–24S, 200 A, balanceo activo de 2 A):</p>
+<ul>
+<li>147,00 £ = <strong>172 €</strong>, con stock en el Reino Unido; impuestos de importación UE aparte [VERIFICADO: https://offgridpower.solutions/shop/jkbms-b2a24s20p-lifepo4-battery-bms].</li>
+<li>Almacén UE (Polonia): B2A24S15P / B2A24S20P <strong>"Sold out"</strong> [VERIFICADO: https://hakadibattery.com/products/eu-stock-jk-bms-active-balance-bms-4s-8s-12s-16s-20s-24s-smart-bluetooth-bms-60a-80a-100a-150a-200a-for-lifepo4-li-ion-lto-battery].</li>
+<li>Directo de JK: 159,98–194,96 USD [ESTIMADO: buscador].</li>
+</ul>
+<p><strong>Cargadores:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pack</th>
+<th>Cargador</th>
+<th>Precio</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12S</td>
+<td>LiTime 36 V 15 A, IP66</td>
+<td>132,99 €</td>
+<td>[VERIFICADO en R08a §5]</td>
+</tr>
+<tr>
+<td>13S</td>
+<td>"LFP battery charger 47.45V 7A", XT60</td>
+<td><strong>124,31 €</strong> (AliExpress)</td>
+<td>[VERIFICADO: https://www.aliexpress.com/w/wholesale-47.45v-charger.html]</td>
+</tr>
+<tr>
+<td>24S</td>
+<td>87,6 V 10 A</td>
+<td>61,50 € (34 vendidos) / 80,25 € (55 vendidos)</td>
+<td>[VERIFICADO: https://www.aliexpress.com/w/wholesale-87.6v-lifepo4-charger.html]</td>
+</tr>
+<tr>
+<td>23S</td>
+<td>"84V‑87.6V 10A/20A/15A adjustable"</td>
+<td>84,00 € (8 vendidos)</td>
+<td>ídem</td>
+</tr>
+</tbody>
+</table></div>
+<p>Para 23S hace falta 84,0 V (23 × 3,65). Ninguno de estos cargadores es marino ni tiene IP declarado → cargar en tierra.</p>
+<p><strong>No verificados:</strong> Victron (Lithium Smart 12,8/25,6 V, BMS externo) y Epoch (EE. UU.). No abrí sus páginas. Buscar: "Victron LiFePO4 Smart series connection max" y "Epoch 36V 100Ah EU". Ninguno vende 13S ni 72 V por lo que se sabe [ESTIMADO].</p>
+<p><strong>Recomendación batería:</strong></p>
+<ul>
+<li><strong>≤ 50 V:</strong> <strong>2 × LiTime 36 V 60 Ah en paralelo</strong> (939,98 €, 4,6 kWh, BMS 240 A, sin armar celdas) [SUPUESTO].<ul>
+<li>En 12S el ESC y el KV se dimensionan para 38,4 V.</li>
+<li>Ventaja: el MRBF de 58 V y el antichispa de 60 V de R06/R08a valen en tensión. (Nota 2026-10-02: el SW80 es de 100 A y no alcanza la corriente de la selección; el diseño usa el TE KILOVAC EV200AAANA, 500 A, bobina 9–36 V alimentada a 12 V: 04_diseno/electronica §4.)</li>
+</ul>
+</li>
+<li><strong>72 V:</strong> <strong>DIY 23S1P EVE LF50K + JK B2A24S20P</strong> (≈ 977 €, 3,68 kWh, ≈ 35 kg con caja) [SUPUESTO]. Exige armar el pack, una caja estanca y un cargador de 84 V.</li>
+</ul>
+<hr />
+<h2 id="4-waterjets-comerciales-comprar-vs-construir">4. Waterjets comerciales (comprar vs construir)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Unidad</th>
+<th>Ø impulsor / tobera</th>
+<th>Potencia / rpm de diseño</th>
+<th>Masa</th>
+<th>Materiales</th>
+<th>Dirección / reversa</th>
+<th>Precio</th>
+<th>Envío a DK</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AWT JT132</strong> (Wuxi AWT, China)</td>
+<td><strong>130 / 70 mm</strong></td>
+<td><strong>1,5–40 kW; 2000–6000 rpm</strong></td>
+<td><strong>12 kg</strong> neto (20 kg bruto); 786 × 298 × 185</td>
+<td>Cuerpo de aluminio, <strong>eje e impulsor inox</strong></td>
+<td><strong>Mecánicas: dirección + reversa</strong> con "twin duct reverse deflector"</td>
+<td>≈ <strong>1000–1100 USD</strong> por set, MOQ 1 (= 881–969 €) [ESTIMADO: buscador; la ficha no muestra precio]</td>
+<td>Flete marítimo o aéreo + 25 % IVA + arancel: <strong>cotizar</strong> (wuxiawt01@163.com, +86‑13912473311)</td>
+<td>[VERIFICADO: https://www.wuxiawt.com/JT132-pd574514898.html]. Límite: "3 m/10 ft and 0.5 ton" por unidad; entrada "ISO cardan shaft SWC 65 or ISO standard coupling"</td>
+</tr>
+<tr>
+<td>AXAMARINE Jet PUMP 100 (Croacia, <strong>UE</strong>)</td>
+<td>100 mm</td>
+<td>"5‑25 HP (4‑23 kw)", hasta 7200 rpm</td>
+<td>—</td>
+<td>Aluminio o inox</td>
+<td>Tobera de dirección (con salida de agua para refrigerar); reversa no mencionada</td>
+<td><strong>No publicado</strong>; pedir cotización</td>
+<td>Intra‑UE (sin aduana)</td>
+<td>[VERIFICADO: https://www.jet-drive.com/] [VERIFICADO: https://www.axamarine.com/otherproducts] (Karlovac, info@aquanami.eu)</td>
+</tr>
+<tr>
+<td>Maytech MTWJ12KW (motor + bomba)</td>
+<td><strong>95 mm</strong>; tobera no publicada</td>
+<td>13,2 kW máx. a 80 V; <strong>130 KV</strong>; 36–80 V</td>
+<td>No publicada</td>
+<td>Impulsor de aluminio o inox ("ship randomly")</td>
+<td>No declarado</td>
+<td><strong>1015,90 USD</strong> (= 895 €); con ESC, 1376,90 USD</td>
+<td>DHL desde China</td>
+<td>[VERIFICADO: https://maytech.cn/products/maytech-water-jet-pump-max-87kg-thrust]. Motor con sensor de temperatura</td>
+</tr>
+<tr>
+<td>Maytech MTWJ10KW</td>
+<td>—</td>
+<td>10 kW nom. / 13,2 kW a 84 V; 10 920 rpm máx.</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>833,50 USD (= 734 €), "Not in stock"</td>
+<td>ídem</td>
+<td>[VERIFICADO: https://maytech.cn/products/maytech-mtwj10kw-water-jet-pump-10k-powerful-motor]. Empuje máx. 81 kg a 84 V</td>
+</tr>
+<tr>
+<td>Flipsky E‑Jet Pump Thruster 3000</td>
+<td>No publicado</td>
+<td><strong>3 kW nom.</strong> / 6 kW máx.; 6–20S</td>
+<td>5 kg (solo el thruster)</td>
+<td>Aluminio; IP68</td>
+<td>No</td>
+<td>422 USD sin soporte (= 372 €)</td>
+<td>ídem</td>
+<td>[VERIFICADO: https://flipsky.net/products/flipsky-jet-pump-thruster-3000-6000w-underwater-thruster-for-marine-underwater-propulsion-kayaks-inflatable-boats-small-watercraft]. <strong>Corto en continua</strong></td>
+</tr>
+<tr>
+<td>MA‑3D JetX‑100v2</td>
+<td>Tobera de 100 mm; impulsor de carbono</td>
+<td>Referencia 1 kW, 8,5 kg/kW de empuje estático</td>
+<td>—</td>
+<td>Impulsor de fibra de carbono, rejilla 316L</td>
+<td>Tobera ±25°</td>
+<td>No visible</td>
+<td>—</td>
+<td>[VERIFICADO: https://ma-3d.com/100mm-water-jet-thruster-jetx-100v2/]. Escala RC/kayak, chico para 5 kW</td>
+</tr>
+<tr>
+<td>Sea‑Doo Spark (bomba de 140 mm, repuestos)</td>
+<td>140 mm</td>
+<td>Bomba de PWC de 60–90 hp a ~7000–8000 rpm [ESTIMADO: memoria] → 5 kW a ≈ 3000–3400 rpm [CALCULADO: P ∝ n³]</td>
+<td>—</td>
+<td>—</td>
+<td>El casco de la moto lleva la reversa (iBR) [ESTIMADO]</td>
+<td>Impulsor <strong>Solas 140 Spark 539 CAD = 335 €</strong>; anillo de desgaste plástico 140 <strong>100 CAD = 62 €</strong>, inox <strong>325 CAD = 202 €</strong>; kit de toma Spark 2900 CAD (Minijet). Anillo OEM 267000925: <strong>87,98 £ = 103 €</strong> (Reino Unido). "OEM Jet Pump Fully Built" <strong>999 USD</strong> (EE. UU.)</td>
+<td>Minijet (Canadá) y PWC Muscle (EE. UU.): aduana. JetSeaHub (Reino Unido): aduana post‑Brexit</td>
+<td>[VERIFICADO: https://minijet.ca/product-category/pump/] [VERIFICADO: https://minijet.ca/shop/sea-doo-spark-plastic-wear-ring-140mm/] [VERIFICADO: https://www.jetseahub.com/product-page/seadoo-spark-wear-ring] [VERIFICADO: https://pwcmuscle.com/en/oem-jet-pump-fully-built-for-seadoo-spark.html]. Usado en DK: buscar "dba.dk sea doo spark jetpumpe"</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Repuestos de jetboards de marca:</strong> sin catálogo público.</p>
+<ul>
+<li>Radinn quebró en 2023 [ESTIMADO: buscador].</li>
+<li>topjetsurfing.com no lista piezas de bomba [VERIFICADO: https://topjetsurfing.com/accessories].</li>
+<li>Buscar: "Awake jet pump spare part e-surfer".</li>
+</ul>
+<p><strong>Lectura comprar vs construir</strong> [CALCULADO/ESTIMADO]:</p>
+<ul>
+<li><strong>El JT132 resuelve en una pieza lo que el plano no tiene definido</strong> (H3, H4, H10, H15 de R10b): ducto, sello, holgura metálica, estator, boquilla externa y reversa.</li>
+<li>Lo que cuesta: 12 kg y su toma propia, que obliga a adaptar el fondo a su brida. El Ø130 a ≈ 3000–3300 rpm encaja con el HPM5000 de catálogo.</li>
+<li>Pedirle a AWT:<ul>
+<li>el plano de la brida de toma;</li>
+<li>la altura del eje sobre el fondo, para revisar el cebado de R10a: el eje tiene que quedar ≥ 20 mm bajo la flotación estática;</li>
+<li>la curva H‑Q o el empuje del impulsor estándar;</li>
+<li>el paso disponible para ~5 kW.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="5-tren-de-la-bomba-si-se-construye">5. Tren de la bomba (si se construye)</h2>
+<p><strong>Cargas de diseño</strong> (de R10b §4.7, no las recalculo):</p>
+<ul>
+<li>par de 9,4 N·m nominal y 13,5 N·m máximo con 7,2 kW a 4500 rpm; con el HPM a 3500 rpm, 19,6 N·m [CALCULADO];</li>
+<li>pico del motor 40–45 N·m;</li>
+<li>empuje axial de 257 N (30 km/h) a 760 N (punto fijo);</li>
+<li>4,7 m/s en el sello con eje Ø20.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Partida</th>
+<th>Producto</th>
+<th>Especificación clave</th>
+<th>Precio</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sello mecánico Ø20</strong></td>
+<td><strong>ST "Mechanical Seal ST‑MG1" SiC/SiC/NBR, con contraaro</strong> (tipo MG1, fuelle elastomérico)</td>
+<td>Ejes de 8–100 mm; <strong>12 bar; 10 m/s</strong> (&gt; 4,7 m/s); "Sofort lieferbar"</td>
+<td><strong>"ab 29,00 €"</strong> (19 % de IVA incluido; el precio de Ø20 aparece al elegir la medida)</td>
+<td>[VERIFICADO: https://st-shop24.de/dichtungen/gleitringdichtungen/mechanical-seal-st-st1-sic-sic-nbr-gleitringdichtung-inkl-gegenring.html]</td>
+</tr>
+<tr>
+<td>Sello (alt.)</td>
+<td>ST‑MG1 SiC/SiC/Viton</td>
+<td>ídem</td>
+<td>desde 29,00 €</td>
+<td>[VERIFICADO: https://st-shop24.de/dichtungen/gleitringdichtungen.html]</td>
+</tr>
+<tr>
+<td>Sello (alt. barata)</td>
+<td>Tipo 560 / BIA, carbón o SiC, Ø20 (bomba de agua)</td>
+<td>—</td>
+<td>≈ 12 USD [ESTIMADO: buscador, Amazon US]</td>
+<td>Buscar: "560 mechanical seal 20mm carbon SiC"</td>
+</tr>
+<tr>
+<td><strong>Rodamiento fijo</strong> (axial en ambos sentidos)</td>
+<td><strong>3204/5204‑2RS</strong>, doble hilera de contacto angular, 20 × 47 × 20,6</td>
+<td>Sellado</td>
+<td><strong>6,20 €</strong> IVA incl. (Dold, envía a Europa: R08b §1) · 9,52 € IVA incl. (Z24, "EU‑weite Lieferung ab 5,99 €")</td>
+<td>[VERIFICADO: https://www.dold-mechatronik.de/Double-row-angular-contact-ball-bearings-3204-5204-2RS-20x47x206mm] [VERIFICADO: https://www.z24.de/a/41939-schraegkugellager-zweireihig-2rs/651077]</td>
+</tr>
+<tr>
+<td>Rodamiento fijo inox</td>
+<td>3204 2RS "ROSTFREI", <strong>AISI 420</strong></td>
+<td>3 en stock</td>
+<td><strong>12,64 € + IVA</strong></td>
+<td>[VERIFICADO: https://kugellagershop-duesseldorf.de/3204-2RS-ROSTFREI-Edelstahl]. El 420 se corroe en agua de mar (R06 §1.3): va del lado seco</td>
+</tr>
+<tr>
+<td>Par de contacto angular</td>
+<td><strong>SKF 7204 BEP</strong> (40°), montar 2 en O</td>
+<td>C = 13,3 kN, C0 = 7,65 kN (≫ 760 N)</td>
+<td>31,40 € IVA incl. c/u → <strong>62,80 € el par</strong> (Klium, BE)</td>
+<td>[VERIFICADO: https://www.klium.com/en/skf-7204-bep-single-row-angular-contact-ball-bearing-20-x-47-x-14-mm-with-contact-angle-40-27794]</td>
+</tr>
+<tr>
+<td>Soporte / caja</td>
+<td>Dold <strong>SS‑UCFL204</strong> (flanco inox, eje 20)</td>
+<td>Unidad con inserto de bolas y prisioneros: <strong>soporte flotante, no fijo</strong></td>
+<td><strong>38,29 €</strong></td>
+<td>[VERIFICADO: https://www.dold-mechatronik.de/Stainless-steel-miniature-flanged-SS-204-UCFL-shaft-20-mm]</td>
+</tr>
+<tr>
+<td><strong>Acople flexible</strong></td>
+<td><strong>KTR Rotex 24</strong> (Ø55): cubos largos + estrella <strong>T‑PUR naranja (92 ShA)</strong></td>
+<td><strong>T_KN 35 N·m (92 ShA) / 60 N·m (98 ShA)</strong>; T_Kmax 70 / 120; agujero 0–35; n máx. 12 100–13 800 rpm</td>
+<td><strong>67,47 €</strong> IVA incl. (56,70 sin IVA), sin agujerear o pre‑agujereado</td>
+<td>[VERIFICADO: https://www.z24.de/a/40157-kupplungen-rotex/660005] · torques [VERIFICADO: https://www.ach.nu/wp-content/uploads/2017/07/rotex_en.pdf]</td>
+</tr>
+<tr>
+<td>Acople (comparación)</td>
+<td>Lovejoy L‑090 / L‑095</td>
+<td>NBR: <strong>16,3 / 21,9 N·m</strong>; uretano: 24,4 / 32,9; Hytrel: 45,3 / 63,4. Agujero máx. 25 / 28 mm</td>
+<td>—</td>
+<td>[VERIFICADO: https://www.lovejoy-inc.com/wp-content/uploads/2017/11/JawCouplingLLineInstallGuide2012.pdf]. <strong>L‑090 de NBR descartado</strong> (&lt; 19,6 N·m)</td>
+</tr>
+<tr>
+<td>Acople (descartado)</td>
+<td>Rotex 19</td>
+<td>10 / 17 N·m</td>
+<td>—</td>
+<td>ídem (KTR)</td>
+</tr>
+<tr>
+<td><strong>Eje</strong></td>
+<td>Hörr <strong>1.4404 (316L) Ø20</strong>, 1 m</td>
+<td>Tolerancia "+0,000 / −0,052" (= h9), 2,47 kg/m, corte a medida (0,5–1 m)</td>
+<td><strong>32,87 €/m</strong> IVA incl.</td>
+<td>[VERIFICADO: https://www.hoerr-edelstahl.de/Edelstahlrohre-und-Edelstahlprofile/Rundstahl-4-bis-60-mm-V2A-Vollmaterial/Rundstahl-20-mm-Rundstab-Vollmaterial-V4A-1-4404-Edelstahl-1-m-100-cm-1000-20-mm-matt-1-4404-V4A-1-m-100-cm-1000-mm.html]. Envío gratis solo en DE (≥ 300 €)</td>
+</tr>
+<tr>
+<td>Eje (alt.)</td>
+<td>Metallstore 1.4404 Ø20 / Ø25</td>
+<td>—</td>
+<td>55,46 / 86,55 €/m <strong>sin IVA</strong></td>
+<td>[VERIFICADO: https://www.metallstore.de/edelstahl/stange-rund/1.4404-rund/]</td>
+</tr>
+<tr>
+<td>Eje 17‑4PH</td>
+<td>Evek 1.4542+AT Ø20 / Ø25,4, 1 m</td>
+<td><strong>+AT = recocido de solución</strong>: hay que envejecerlo (H1150 en uso marino [ESTIMADO: memoria])</td>
+<td>190,40 / 285,84 € (bruto)</td>
+<td>[VERIFICADO: https://evek.top/edelstahl/2598-edelstahl-stange-8mm-300mm-14542at-uns-s17400-rundstab-rundstahl-aisi-630.html]. No hace falta: el 316 da FS ≥ 5,5 (R10b)</td>
+</tr>
+<tr>
+<td>Chaveta</td>
+<td>DIN 6885 A 6 × 6 en A4 (Ø20)</td>
+<td>—</td>
+<td>≈ 2–5 € [ESTIMADO]</td>
+<td>Buscar: "Passfeder DIN 6885 A 6x6 A4"</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Disposición recomendada</strong> [SUPUESTO; consistente con R10a §5.2 y R10b H16]:</p>
+<ul>
+<li>sello en el techo del ducto, con la cara mojada abajo;</li>
+<li>cámara de drenaje con testigo;</li>
+<li><strong>3204‑2RS fijo</strong> en una caja torneada abulonada al bloque de toma (toma el empuje en ambos sentidos);</li>
+<li>6204 o UCFL204 flotante cerca del acople;</li>
+<li>Rotex 24 con 98 ShA y 2–3 mm de juego axial entre cubos (la distancia "s" de KTR);</li>
+<li>motor en soporte propio.</li>
+</ul>
+<p><strong>Advertencia de sello:</strong> el sello trabaja en seco si la bomba no ceba (R10a §0.2). SiC/SiC es la pareja peor en seco; carbón/SiC tolera arranques cortos en seco [ESTIMADO: memoria técnica]. Pedir <strong>carbón/SiC</strong> (tipo MG1 "Car/SiC") o garantizar el cebado antes de girar.</p>
+<hr />
+<h2 id="6-impulsor-y-anillo-de-desgaste">6. Impulsor y anillo de desgaste</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Vía</th>
+<th>Dato abierto</th>
+<th>Estimación para el Ø108–110 (1 unidad)</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SLM 316L</strong> (JLC3DP)</td>
+<td>"Starting price $8.00"; build de <strong>390 × 390 × 290 mm</strong>; tolerancia <strong>±0,3 mm o 0,4 %</strong>; Ra 3,2–12 µm; pared mínima de 2,0 mm (1,5); 600 MPa de tracción; 72 h</td>
+<td>Masa ≈ 0,8–1,3 kg [ESTIMADO: cubo Ø40 × 50 + 4 palas de 4–6 mm] × ≈ 0,4 USD/g → <strong>≈ 280–460 €</strong>, más el torneado del diámetro exterior y del agujero y el balanceo, ≈ 50–150 € en taller [ESTIMADO]</td>
+<td>[VERIFICADO: https://jlc3dp.com/help/article/316l-stainless-steel] · precio por gramo de ejemplo [VERIFICADO: https://www.unionfab.com/blog/2025/01/metal-3d-printing-cost] ("$0.4 per gram"; 74,62 cm³ de 316L SLM cotizados a 45,49 USD)</td>
+</tr>
+<tr>
+<td><strong>CNC 5 ejes</strong> (Xometry, Protolabs, PCBWay, JLCCNC)</td>
+<td>Piden el CAD para cotizar; no se obtuvo precio</td>
+<td>Inox, 1 unidad: <strong>≈ 600–1500 €</strong> [ESTIMADO: memoria + "$200‑400 per piece, MOQ 10" de un fabricante, solo buscador]. Aluminio 6082/7075 anodizado: ≈ 40 % menos [ESTIMADO]</td>
+<td>Buscar: "Xometry instant quote 5-axis impeller 316", "JLCCNC 5 axis quote"</td>
+</tr>
+<tr>
+<td><strong>Fundición de bronce al aluminio o inox con modelo impreso</strong> (cera o PLA perdido)</td>
+<td>—</td>
+<td>400–1000 € con mecanizado posterior [ESTIMADO: memoria]</td>
+<td>Buscar: "støberi bronze Sønderjylland" / "Feinguss Einzelteil Edelstahl Laufrad"</td>
+</tr>
+<tr>
+<td><strong>Impulsor existente</strong></td>
+<td>Solas 140 mm Spark 539 CAD = <strong>335 €</strong>; Solas 140 Kawasaki 489 CAD = 304 €</td>
+<td>Exige la carcasa de 140 y el anillo de la misma moto: deja de ser el Ø108 del plano</td>
+<td>[VERIFICADO: https://minijet.ca/product-category/pump/]</td>
+</tr>
+<tr>
+<td>Impulsor de jetboard Ø95–120</td>
+<td>Maytech MTWJ12KW Ø95 (solo con la unidad); MA‑3D de carbono 120 mm ≈ 149 £ [ESTIMADO: buscador, eBay UK 403]</td>
+<td>—</td>
+<td>[VERIFICADO: maytech MTWJ12KW]</td>
+</tr>
+<tr>
+<td><strong>Anillo de desgaste</strong></td>
+<td>De Spark: plástico 100 CAD, inox 325 CAD</td>
+<td>Para el Ø108 propio: <strong>tornear</strong> un tubo 316 o un buje de bronce/UHMW con el torno disponible (R10b H15), material ≈ 20–40 € [ESTIMADO]</td>
+<td>[VERIFICADO: minijet.ca]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recomendación:</strong></p>
+<ul>
+<li>Si se construye: <strong>SLM 316L + torneado del diámetro exterior a medida contra un anillo de desgaste torneado</strong> (holgura 0,5–0,8 mm medida con galgas).</li>
+<li>El PETG queda descartado para el impulsor (R10b H15).</li>
+<li>Antes de pagar: pedir a JLC3DP y a un taller CNC europeo la cotización con el mismo STEP.</li>
+</ul>
+<hr />
+<h2 id="7-rejilla-placa-de-rodadura-dirección-y-bucket">7. Rejilla, placa de rodadura, dirección y bucket</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Partida</th>
+<th>Producto</th>
+<th>Dato</th>
+<th>Precio</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Barras de rejilla</td>
+<td>1.4404 macizo Ø5–6 o pletina de 4 mm (7 barras de 4 mm, luz de 12 mm según R10a)</td>
+<td>—</td>
+<td>≈ 10–20 € [ESTIMADO: ~15 €/m para Ø6 por escala de precio con el Ø20 de Hörr]</td>
+<td>Buscar: "hoerr-edelstahl Rundstahl 6 mm 1.4404"</td>
+</tr>
+<tr>
+<td>Placa de rodadura</td>
+<td>Al <strong>EN AW‑5083</strong>, 8 mm, corte a medida (Dold)</td>
+<td>80 mm de ancho: desde 1,63 €; 160 mm: desde 3,25 €. El buscador da <strong>31,26 €/m (80 mm) y 62,51 €/m (160 mm)</strong> → <strong>≈ 391 €/m²</strong> + 1–2 € de corte</td>
+<td>Placa de 300 × 250 ≈ 30 € [CALCULADO/ESTIMADO]</td>
+<td>[VERIFICADO: https://www.dold-mechatronik.de/Aluminiumplatten-EN-AW-5083-Alu-Platte-unfoliert-Dicke-8mm-Breite-160mm-346kg-m-Zuschnitt-20-3000mm] (solo el "ab"); €/m [ESTIMADO: buscador]. Gemmel tiene 6 mm (16,5 kg/m²) y 8 mm (22,0 kg/m²) en 1020 × 2020 / 1520 × 3020, con el precio recién en el carrito [VERIFICADO: https://www.gemmel-metalle.de/alu-platten-und-bleche/platten/5083/1.html]</td>
+</tr>
+<tr>
+<td>Cable de bucket o dirección (push‑pull)</td>
+<td><strong>Ultraflex Mach5</strong> (cable de control)</td>
+<td>5 ft <strong>445 kr</strong>; 10 ft 553 kr; 20 ft 763 kr; con stock</td>
+<td>59,5–102 €</td>
+<td>[VERIFICADO: https://www.watski.dk/kontrolkabel-mach-5-ultraflex-11Jgp]</td>
+</tr>
+<tr>
+<td>Caja de dirección (helm)</td>
+<td><strong>Ultraflex T85</strong></td>
+<td>"op til 150 HK / 40 knob"</td>
+<td><strong>757 kr</strong> = 101 €</td>
+<td>[VERIFICADO: https://www.watski.dk/mekanisk-styring-11TiU]</td>
+</tr>
+<tr>
+<td>Cable de dirección</td>
+<td><strong>Ultraflex M66</strong></td>
+<td>"større påhængsmotorer samt gear og rorstyring"</td>
+<td>desde <strong>735 kr</strong> = 98 €</td>
+<td>ídem</td>
+</tr>
+<tr>
+<td>Volante</td>
+<td>Osculati "Blødt rat i polyuretan", <strong>Ø320</strong>, eje universal Ultraflex/Morse/Teleflex</td>
+<td>Bajo pedido</td>
+<td><strong>549 kr</strong> = 73 €</td>
+<td>[VERIFICADO: https://www.watski.dk/search/?query=r%C3%A5t%20rat]</td>
+</tr>
+<tr>
+<td>Palanca del bucket</td>
+<td>Palanca de un cable 33C, con traba en la posición de avance (R10b H10)</td>
+<td>—</td>
+<td>≈ 40–100 € [ESTIMADO]</td>
+<td>Buscar: "Ultraflex single lever control B89 watski"</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recomendación:</strong></p>
+<ul>
+<li>Dirección: T85 + M66 + volante de 320 mm ≈ 2041 kr = <strong>273 €</strong>.</li>
+<li>Bucket: Mach5 de 8–10 ft (511–553 kr) + palanca con traba.</li>
+<li>Un manillar de PWC con un solo Mach5 también sirve y es más barato.</li>
+<li>La bisagra del bucket se dimensiona para 2 × 760 N (R10b H10).</li>
+</ul>
+<hr />
+<h2 id="8-seguridad-auxiliar">8. Seguridad auxiliar</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Partida</th>
+<th>Producto</th>
+<th>Dato</th>
+<th>Precio</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bomba de achique automática</strong></td>
+<td><strong>Attwood Sahara S500 Mk2 12 V</strong></td>
+<td>Automática, rodete X‑Air; 14 en stock</td>
+<td><strong>649 kr</strong> (antes 761) = 87 €</td>
+<td>[VERIFICADO: https://www.watski.dk/attwood-sahara-mk2-automatisk-laensepumpe-11wl0]</td>
+</tr>
+<tr>
+<td>Bomba (alt.)</td>
+<td>Rule 360 12 V, sensor integrado</td>
+<td>—</td>
+<td>791 kr = 106 €</td>
+<td>[VERIFICADO: https://www.watski.dk/search/?query=niveauvagt]</td>
+</tr>
+<tr>
+<td>Bomba (alt.)</td>
+<td>Whale Supersub 650, sensor electrónico</td>
+<td>—</td>
+<td>719 kr (−10 %)</td>
+<td>ídem</td>
+</tr>
+<tr>
+<td><strong>Alarma de nivel</strong></td>
+<td><strong>KUS alarmboks</strong> de nivel alto o bajo (acústica)</td>
+<td>Tensión no publicada</td>
+<td><strong>283 kr</strong> = 38 €</td>
+<td>[VERIFICADO: https://www.watski.dk/search/?query=h%C3%B8jvandsalarm]</td>
+</tr>
+<tr>
+<td>12 V para achique y alarma</td>
+<td>Opción A: <strong>batería LFP de 12 V separada</strong>, p. ej. LiTime 12 V 50 Ah, 113,44 €. Así funciona aunque el cordón o el contactor corten el pack principal</td>
+<td>—</td>
+<td>113,44 €</td>
+<td>[VERIFICADO: https://www.litime.de/search/suggest.json?q=51.2V&amp;resources[type]=product&amp;resources[limit]=10]</td>
+</tr>
+<tr>
+<td></td>
+<td>Opción B: DC‑DC Mean Well <strong>RSD‑60H‑12</strong> (40–160 V de entrada; sirve para 13S <strong>y</strong> 22–24S)</td>
+<td>—</td>
+<td>≈ 32,72 £ sin IVA (Farnell UK) [ESTIMADO: buscador]</td>
+<td>Buscar: "RSD-60H-12 reichelt"</td>
+</tr>
+<tr>
+<td><strong>Espuma de flotación (~100 L, R10b H5)</strong></td>
+<td><strong>TotalBoat PU 2 componentes, 2 lb/ft³</strong>, "94% closed cell"</td>
+<td>Kit de 2 gal → ~8 ft³ (0,227 m³). "Continuous water submersion can eventually lead to loss of buoyancy over a period of years"</td>
+<td>114,99 USD → <strong>≈ 447 €/m³</strong> (EE. UU., envío UE no publicado); 100 L ≈ 45 €</td>
+<td>[VERIFICADO: https://www.totalboat.com/products/2-part-polyurethane-marine-flotation-foam]</td>
+</tr>
+<tr>
+<td>Espuma en placa</td>
+<td><strong>Divinycell H80</strong> (PVC, 80 kg/m³), plancha de 1220 × 610</td>
+<td>25 mm: 97,51 € = <strong>131,77 €/m²</strong> → <strong>≈ 5271 €/m³</strong>; 20 mm: 108,69 €/m²</td>
+<td>100 L ≈ 527 €</td>
+<td>[VERIFICADO: https://www.r-g.de/en/art/5800H80]</td>
+</tr>
+<tr>
+<td>Espuma barata</td>
+<td>XPS de construcción (celda cerrada; sin combustible a bordo no hay problema de disolvente)</td>
+<td>—</td>
+<td>≈ 1500–3000 DKK/m³ [ESTIMADO: no se abrió ninguna ficha con precio]</td>
+<td>Buscar: "XPS isolering 50 mm pris jemogfix / bygma"</td>
+</tr>
+<tr>
+<td><strong>Monitor de aislamiento (solo 72 V)</strong></td>
+<td>Bender ISOMETER iso175C‑1 (IMD de vehículo eléctrico)</td>
+<td>Mide 0–1000 V CC</td>
+<td><strong>805 USD</strong> = 709 € (EE. UU.)</td>
+<td>[VERIFICADO: https://store.neweagle.net/shop/electric-hybrid/hv-accessories/bender-isometer-iso175c-1-insulation-monitoring-device-imd/]. IR155 ≈ 400–500 € [ESTIMADO: foro, buscador]</td>
+</tr>
+</tbody>
+</table></div>
+<p>Lo demás (kill switch con cordón, contactor SW80/SW80B, fusibles, cable, prensaestopas) ya está en R06 §3 y R08a §3–§8. Solo cambia esto para 72 V:</p>
+<ul>
+<li>contactor <strong>SW80B</strong> (96 V) [VERIFICADO en R06];</li>
+<li><strong>fusible ≥ 100 V CC</strong>, porque MRBF, midiOTO y megaOTO (58–70 V, R08a §6) <strong>no sirven</strong> con 22–23S. Buscar: "Littelfuse CNN 125V" o "Class T fuse 125 VDC".</li>
+</ul>
+<hr />
+<h2 id="9-tabla-resumen-recomendado-por-partida">9. Tabla resumen: recomendado por partida</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Partida</th>
+<th>Recomendado (≤ 50 V)</th>
+<th>Recomendado (72 V)</th>
+<th>Precio 2026‑10‑01</th>
+<th>Masa</th>
+<th>Link</th>
+<th>Etiqueta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Motor</td>
+<td><strong>Maytech MTI120116 150 KV con hall</strong>, refrigerado por agua, Ø15 con chavetero, NTC10K de fábrica</td>
+<td>—</td>
+<td>573 USD = <strong>505 €</strong> sin IVA (+2,7 % arancel NC 8501 32 + 25 % IVA DK + envío)</td>
+<td><strong>4,4 kg</strong></td>
+<td>https://maytech.cn/products/copy-of-maytech-fully-waterproof-mti120116-18-8kw-powerful-brushless-inrunner-motor-for-electric-surfboard-rc-boat-jetski</td>
+<td>[VERIFICADO]; continua [ESTIMADO]</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Motor</td>
+<td>—</td>
+<td><strong>Golden Motor HPM5000L</strong> con bobinado de ≈ 72 rpm/V a pedido</td>
+<td>545 USD = <strong>480 €</strong> sin IVA</td>
+<td><strong>11,35 kg</strong></td>
+<td>https://www.goldenmotor.com/frame-bldcmotor.htm</td>
+<td>[VERIFICADO]; bobinado [SUPUESTO]</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Motor (alt. 72 V)</td>
+<td>—</td>
+<td>Motenergy ME1304</td>
+<td><strong>961,20 €</strong> sin IVA, sin stock</td>
+<td>16 kg</td>
+<td>https://www.evea-solutions.com/en/synchronous-motors/674-me1304-pmsm-brushless-motor.html</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ESC</td>
+<td><strong>Flipsky FSESC 75350 + caja de agua</strong></td>
+<td>—</td>
+<td>210 USD = <strong>185 €</strong></td>
+<td>2,0 kg</td>
+<td>https://flipsky.net/products/flipsky-fsesc-75350-84v-high-current-350a-esc-base-on-vesc-with-aluminum-case-water-cooling-enclosure-for-e-foil-fighting-robot-surfboard-agv-robot</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ESC</td>
+<td>—</td>
+<td><strong>Flipsky FSESC 110300</strong></td>
+<td>219 USD = <strong>193 €</strong></td>
+<td>1,2 kg</td>
+<td>https://flipsky.net/products/flipsky-fsesc-110300-high-voltage-110v-300a-with-aluminum-pcb-based-on-vesc-for-fighting-robot-surfboard-agv-robot</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Batería</td>
+<td><strong>2 × LiTime 36 V 60 Ah</strong> en paralelo (12S, 4,6 kWh, 240 A)</td>
+<td>—</td>
+<td><strong>939,98 €</strong> con IVA, envío gratis</td>
+<td>≈ 40 kg</td>
+<td>https://www.litime.de/products/36v-60ah-golfwagen-kart-lithium-batterie</td>
+<td>Precio [VERIFICADO]; masa [ESTIMADO]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Batería</td>
+<td>—</td>
+<td><strong>DIY 23S EVE LF50K + JK B2A24S20P</strong> (3,68 kWh)</td>
+<td>805 + 172 = <strong>977 €</strong> + caja</td>
+<td>≈ 35 kg</td>
+<td>https://www.voltacell.nl/products/eve-lf50k-lifepo4-battery-cell-3-2v-50ah-a-grade-m4-thread · https://offgridpower.solutions/shop/jkbms-b2a24s20p-lifepo4-battery-bms</td>
+<td>[VERIFICADO]; stock insuficiente</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Cargador</td>
+<td>LiTime 36 V 15 A IP66 (R08a)</td>
+<td>84 V regulable 10–20 A (AliExpress)</td>
+<td>132,99 € / 84,00 €</td>
+<td>—</td>
+<td>R08a §5 · https://www.aliexpress.com/w/wholesale-87.6v-lifepo4-charger.html</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Bomba completa ("comprar")</td>
+<td><strong>AWT JT132</strong> (Ø130, dirección y reversa incluidas)</td>
+<td>ídem</td>
+<td>≈ 1000–1100 USD = <strong>881–969 €</strong> FOB</td>
+<td><strong>12 kg</strong></td>
+<td>https://www.wuxiawt.com/JT132-pd574514898.html</td>
+<td>Specs [VERIFICADO]; precio [ESTIMADO]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Sello</td>
+<td>ST‑MG1 Ø20 (pedir carbón/SiC)</td>
+<td>ídem</td>
+<td>desde <strong>29 €</strong></td>
+<td>&lt; 0,1 kg</td>
+<td>https://st-shop24.de/dichtungen/gleitringdichtungen/mechanical-seal-st-st1-sic-sic-nbr-gleitringdichtung-inkl-gegenring.html</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Rodamiento fijo</td>
+<td>3204‑2RS (Dold)</td>
+<td>ídem</td>
+<td><strong>6,20 €</strong></td>
+<td>0,15 kg [ESTIMADO]</td>
+<td>https://www.dold-mechatronik.de/Double-row-angular-contact-ball-bearings-3204-5204-2RS-20x47x206mm</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Acople</td>
+<td><strong>Rotex 24</strong> (estrella de 98 ShA para 60 N·m)</td>
+<td>ídem</td>
+<td><strong>67,47 €</strong> + agujereado</td>
+<td>≈ 0,6 kg [ESTIMADO]</td>
+<td>https://www.z24.de/a/40157-kupplungen-rotex/660005</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Eje</td>
+<td>1.4404 Ø20 h9, 1 m</td>
+<td>ídem</td>
+<td><strong>32,87 €</strong></td>
+<td>2,47 kg/m</td>
+<td>https://www.hoerr-edelstahl.de/Edelstahlrohre-und-Edelstahlprofile/Rundstahl-4-bis-60-mm-V2A-Vollmaterial/Rundstahl-20-mm-Rundstab-Vollmaterial-V4A-1-4404-Edelstahl-1-m-100-cm-1000-20-mm-matt-1-4404-V4A-1-m-100-cm-1000-mm.html</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Impulsor ("construir")</td>
+<td>SLM 316L + torneado</td>
+<td>ídem</td>
+<td><strong>≈ 330–610 €</strong></td>
+<td>0,8–1,3 kg</td>
+<td>https://jlc3dp.com/help/article/316l-stainless-steel</td>
+<td>[ESTIMADO]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Dirección</td>
+<td>Ultraflex T85 + M66 + volante Osculati Ø320</td>
+<td>ídem</td>
+<td>757 + 735 + 549 kr = <strong>273 €</strong></td>
+<td>≈ 4 kg [ESTIMADO]</td>
+<td>https://www.watski.dk/mekanisk-styring-11TiU</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Bucket</td>
+<td>Ultraflex Mach5 de 10 ft + palanca</td>
+<td>ídem</td>
+<td>553 kr = <strong>74 €</strong> + palanca [ESTIMADO]</td>
+<td>—</td>
+<td>https://www.watski.dk/kontrolkabel-mach-5-ultraflex-11Jgp</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Achique + alarma</td>
+<td>Attwood Sahara S500 + KUS</td>
+<td>ídem</td>
+<td>649 + 283 kr = <strong>125 €</strong></td>
+<td>≈ 0,6 kg [ESTIMADO]</td>
+<td>https://www.watski.dk/attwood-sahara-mk2-automatisk-laensepumpe-11wl0</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Flotación 100 L</td>
+<td>PU de 2 componentes, 2 lb</td>
+<td>ídem</td>
+<td><strong>≈ 45 €</strong> (EE. UU.)</td>
+<td>≈ 3,2 kg [CALCULADO: 32 kg/m³]</td>
+<td>https://www.totalboat.com/products/2-part-polyurethane-marine-flotation-foam</td>
+<td>[VERIFICADO]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>IMD</td>
+<td>No hace falta [ESTIMADO]</td>
+<td>Bender iso175C‑1</td>
+<td><strong>709 €</strong></td>
+<td>—</td>
+<td>https://store.neweagle.net/shop/electric-hybrid/hv-accessories/bender-isometer-iso175c-1-insulation-monitoring-device-imd/</td>
+<td>[VERIFICADO]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Subtotal orientativo</strong> (motor + ESC + batería + cargador, sin IVA de importación ni envíos CN) [CALCULADO]:</p>
+<ul>
+<li>≤ 50 V: 473 + 185 + 940 + 133 ≈ <strong>1730 €</strong>; con IVA DK sobre lo chino ≈ <strong>1900 €</strong>.</li>
+<li>72 V: 480 + 193 + 977 + 84 + 709 (IMD) ≈ <strong>2440 €</strong>.</li>
+</ul>
+<p><strong>72 V suma ≈ +700 €</strong>, sobre todo por el IMD, sin ganar nada en la batería.</p>
+<hr />
+<h2 id="10-advertencias">10. Advertencias</h2>
+<ol>
+<li><strong>Tensiones de catálogo engañosas.</strong><ul>
+<li>"48 V" en LFP es 15S (54,8 V) o 16S (51,2 nominal / 58,4 V cargada). Ambas superan los 50 V de R06.</li>
+<li>"2 × 24 V" = 16S, igual problema.</li>
+<li>"72 V" LFP es 22S (80,3 V), 23S (84,0 V) o 24S (87,6 V): los ESC de 85 V (Spintend) no admiten 23–24S.</li>
+<li>akkushop‑24 vende "72V" como 23S <strong>y</strong> 24S según la variante.</li>
+</ul>
+</li>
+<li><strong>El rpm/V de los HPM5000 de catálogo no da 4500 rpm con el Ø108.</strong> Con 13S o 22S el conjunto entrega 2,2–3,1 kW (§1.3).<ul>
+<li>"2000–6000 rpm customizable" obliga a especificar el bobinado al pedir.</li>
+<li>Sin eso, conviene un impulsor más grande o de más paso, como el Ø130 del JT132.</li>
+</ul>
+</li>
+<li><strong>Sin stock:</strong><ul>
+<li>HPM5000B 48 y 72 V y HPM5000L en Kelly EU ("Out of stock, inquire!");</li>
+<li>ME1304 (EVEA, 3–6 semanas);</li>
+<li>KLS7230H;</li>
+<li>Spintend 100/100 ("Sold Out");</li>
+<li>Maytech 65162 ("Sold out") y MTWJ10KW;</li>
+<li>LiTime 51,2 V 100 Ah;</li>
+<li>JK BMS en el almacén UE;</li>
+<li>EVE LF50K en Voltacell ("Only 6 products left"; hacen falta 23–26);</li>
+<li>Monster Scooter Parts ("backordered", solo envía dentro de EE. UU.).</li>
+</ul>
+</li>
+<li><strong>Motores sin NTC o con sensor no estándar.</strong><ul>
+<li>FS65161 sin sensor en la versión base (+3 USD con sensor).</li>
+<li>Maytech 85165 sin sensor de temperatura declarado. (El MTI120116 <strong>sí</strong> trae NTC10K 3950: corregido 2026-10-02.)</li>
+<li>HPM5000 y ME1304 traen <strong>KTY84‑130</strong>, no NTC 10 k: configurarlo en el VESC (o en Kelly) y verificar que el firmware lo lee.</li>
+<li>ME1304 usa <strong>encoder sin/cos</strong>, no hall.</li>
+</ul>
+</li>
+<li><strong>El eje del HPM5000 no está bien publicado.</strong> Kelly da 22,3 mm y chavetero de 5 mm; Monster da 7/8" (22,2 mm) y chavetero de 5/16" (7,9 mm). <strong>Medirlo</strong> antes de agujerear el cubo del Rotex.</li>
+<li><strong>El Flipsky FSESC 75200 no tiene filtro de fase.</strong> Hay que desactivarlo en FW ≥ 5.3 o el ESC se daña (R06 §2.1). El 75350 y el 110300 sí lo tienen.</li>
+<li><strong>Firmware no VESC.</strong><ul>
+<li>Kelly, Fardriver y Votol no corren el firmware ni los límites de R06.</li>
+<li><strong>Flipsky FT110BS</strong> se vende "based on VESC" pero usa "Flipsky ESC Tool", FW V1.6.</li>
+<li>Spintend 85/xxx anula la garantía si se carga el firmware VESC sin límites.</li>
+</ul>
+</li>
+<li><strong>Fusibles y contactores de R08a no sirven a 72 V:</strong> MRBF 58 V, midiOTO 58 V, megaOTO 70 V. Hace falta un fusible ≥ 100 V CC y el SW80B.</li>
+<li><strong>QS138 V3 tiene reducción interna de 1:2,35:</strong> no sirve para el acople directo a 4500 rpm.</li>
+<li><strong>JT132:</strong><ul>
+<li>precio solo del buscador;</li>
+<li>el comprador paga flete, IVA y arancel;</li>
+<li>"max 3 m / 0,5 t" por unidad: el casco de Jorge (2,3 m, 0,2 t) entra;</li>
+<li>su toma y la altura de su eje deciden el cebado (R10a). Pedir el plano <strong>antes</strong> de comprar.</li>
+</ul>
+</li>
+<li><strong>Repuestos de Sea‑Doo, Solas y Minijet desde Canadá, EE. UU. o Reino Unido:</strong> aduana, IVA del 25 % y tiempos de envío. No hay tienda UE verificada (BRP Shop, Riva y eBay dieron 403).</li>
+<li><strong>Espuma PU:</strong> "loss of buoyancy over a period of years" con inmersión continua (TotalBoat). Revisarla y no dejarla en la sentina.</li>
+<li><strong>Rodamientos "inox" AISI 420:</strong> se corroen en agua salada (R06 §1.3). Van del lado seco y se tratan como consumibles.</li>
+</ol>
+<hr />
+<h2 id="11-fuentes-abiertas-en-esta-sesión-webfetch-20261001">11. Fuentes abiertas en esta sesión (WebFetch, 2026‑10‑01)</h2>
+<p><strong>Motores:</strong></p>
+<ul>
+<li>goldenmotor.com/frame-bldcmotor.htm</li>
+<li>goldenmotor.com/eCar/HPM48-5000.pdf · HPM72-5000.pdf (ensayos dinámicos, leídos con pdftotext)</li>
+<li>kellycontrollers.eu: hpm5000b-5kw-72v-leghuteses · hpm5000b-5kw-48v-leghuteses · hpm5000l-5kw-48v-vizhuteses · kls7230h · kls7230s</li>
+<li>monsterscooterparts.com (HPM 48 V)</li>
+<li>goldenmotorcz.en.made-in-china.com (HPM5000B 48 V 4000 rpm)</li>
+<li>vesc-project.com/node/3376</li>
+<li>evea-solutions.com (ME1304)</li>
+<li>gritshift.com (QS138 V3) · qsmotor.com (4000 W, ND72450, EM‑150)</li>
+</ul>
+<p><strong>Flipsky:</strong></p>
+<ul>
+<li>suggest.json para 65161, 75200, 75350, 65220 y 100V</li>
+<li>productos: 65161 · E‑Jet 3000 · FSESC 75200 con agua · 75200 Pro V2.0 · 75350 · 110300 · FT110BS · kit W7</li>
+</ul>
+<p><strong>Maytech:</strong></p>
+<ul>
+<li>suggest.json para 65161, water cooled, 85165 y jet pump</li>
+<li>productos: MTI65162 · MTI120116 · MTI85165 · MTWJ10KW · MTWJ12KW</li>
+</ul>
+<p><strong>Otros ESC:</strong></p>
+<ul>
+<li>Spintend: colección, 100/100, 85/250 V2, 85/240</li>
+<li>makerx-tech.com (G300, sin datos útiles)</li>
+<li>trampaboards.com (sin precio) · trampa.co.uk (overview)</li>
+</ul>
+<p><strong>Baterías:</strong></p>
+<ul>
+<li>litime.de: suggest 36V, 48V, 51.2V y golf; .js de 36V 60Ah, 24V 100Ah y 51,2V 100Ah</li>
+<li>ipowerqueen.de: suggest 36V y 48V; .js de 24V 100Ah</li>
+<li>voltacell.nl (LF50K) · thebatteryshop.eu (LF105) · battery-germany.de (hoja LF50K)</li>
+<li>akkushop-24.de · offgridpower.solutions · hakadibattery.com</li>
+<li>AliExpress: 87.6v y 47.45v</li>
+</ul>
+<p><strong>Waterjets:</strong></p>
+<ul>
+<li>wuxiawt.com (JT132) · wxaoweite.en.made-in-china.com (sin datos)</li>
+<li>minijet.ca (categoría pump y anillo de Spark) · jetseahub.com · pwcmuscle.com (2 páginas)</li>
+<li>ma-3d.com · jet-drive.com · axamarine.com/otherproducts · topjetsurfing.com/accessories · marinespares.com (impulsor ES 120 de EVAC, de bomba de vacío: no aplica)</li>
+</ul>
+<p><strong>Tren de la bomba:</strong></p>
+<ul>
+<li>st-shop24.de (2 páginas)</li>
+<li>dold-mechatronik.de (3204, SS‑UCFL204, 5083 de 8 mm en 80 y 160 de ancho, categoría de acoples)</li>
+<li>z24.de (3204, Rotex 24)</li>
+<li>kugellagershop-duesseldorf.de · klium.com</li>
+<li>KTR Rotex (ach.nu, PDF) · Lovejoy (PDF)</li>
+<li>hoerr-edelstahl.de · metallstore.de · evek.top · gemmel-metalle.de · tefa24.de (datos inconsistentes, no usados)</li>
+</ul>
+<p><strong>Impulsor:</strong> jlc3dp.com (316L) · unionfab.com</p>
+<p><strong>Auxiliares:</strong></p>
+<ul>
+<li>Watski: Mach5, mekanisk styring, volantes, Sahara (búsqueda y producto), højvandsalarm, niveauvagt, skum</li>
+<li>r-g.de (Divinycell) · totalboat.com · bauhaus.dk (XPS de 7 mm, no aplica) · jemogfix.dk (sin precio)</li>
+<li>store.neweagle.net (Bender)</li>
+</ul>
+<p><strong>Tipo de cambio:</strong> ecb.europa.eu (eurofxref-daily)</p>
+<p><strong>No accesibles (403/404/503/captcha):</strong></p>
+<ul>
+<li>kit-elec-shop.com · goldenmotor.bike · fastride.fr · tradewheel.com · okchem.com</li>
+<li>sea-doo-shop.brp.com · rivaracing.com · ebay.co.uk</li>
+<li>nkon.nl · Biltema (API typeahead y producto) · hfmarine.dk (Anubis) · meanwell-web.com</li>
+<li>alibaba.com (página vacía) · jet-drive.com/shop (404)</li>
+</ul>
+<p><strong>Solo del buscador (marcados [ESTIMADO]):</strong></p>
+<ul>
+<li>precio del JT132;</li>
+<li>masa y medidas de LiTime 36 V 60 Ah;</li>
+<li>precio de Fardriver y de JK directo;</li>
+<li>€/m de Dold 5083;</li>
+<li>precio del RSD‑60H‑12;</li>
+<li>MA‑3D 120 mm;</li>
+<li>quiebra de Radinn;</li>
+<li>precio de CNC 5 ejes.</li>
+</ul></article>
+</div>
+</main>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,1676 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R03: proyectos comparables (waterjets impresos, toberas y protectores, rim-driven, eFoil DIY y papers de hélices FDM) — P1-J · Strålen</title>
+<meta name="description" content="Alcance: proyectos reales y papers que sirven para decidir entre tres opciones: la cola larga de P1 (motor seco arriba, correa HTD-5M, eje 316 inclinado, hélice comercial de…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="R03: proyectos comparables (waterjets impresos, toberas y protectores, rim-driven, eFoil DIY y papers de hélices FDM) — P1-J · Strålen">
+<meta property="og:description" content="Alcance: proyectos reales y papers que sirven para decidir entre tres opciones: la cola larga de P1 (motor seco arriba, correa HTD-5M, eje 316 inclinado, hélice comercial de…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/research/R03_proyectos_jet_ducted_efoil.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="R03: proyectos comparables (waterjets impresos, toberas y protectores, rim-driven, eFoil DIY y papers de hélices FDM) — P1-J · Strålen">
+<meta name="twitter:description" content="Alcance: proyectos reales y papers que sirven para decidir entre tres opciones: la cola larga de P1 (motor seco arriba, correa HTD-5M, eje 316 inclinado, hélice comercial de…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/research/R03_proyectos_jet_ducted_efoil.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header">
+  <div class="bar wide">
+    <a class="brand" href="../../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../../index.html">Inicio</a><a href="../../visor/index.html">Visor 3D</a><a href="../../documentos.html" aria-current="page">Documentos</a><a href="../../planos.html">Planos</a><a href="../../bom.html">Materiales</a><a href="../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub&nbsp;↗</a></nav>
+  </div>
+</header>
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../../documentos.html">Documentos</a> / <span class="mono">research/R03_proyectos_jet_ducted_efoil.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/research/R03_proyectos_jet_ducted_efoil.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#0-método-y-convenciones">0. Método y convenciones</a></li>
+<li><a href="#1-tabla-resumen-proyectos-y-papers">1. Tabla resumen (proyectos y papers)</a></li>
+<li><a href="#2-waterjet-frente-a-hélice-abierta-a-612-kmh">2. Waterjet frente a hélice abierta a 6–12 km/h</a><ul>
+<li><a href="#21-datos-medidos-o-declarados">2.1 Datos medidos o declarados</a></li>
+<li><a href="#22-teoría-y-fuentes-técnicas">2.2 Teoría y fuentes técnicas</a></li>
+<li><a href="#23-cálculo-para-p1-a-6-kmh-t-203-n-v0-1667-ms-ρ-1010-kgm³">2.3 Cálculo para P1 a 6 km/h (T = 203 N, V0 = 1,667 m/s, ρ = 1010 kg/m³)</a></li>
+<li><a href="#24-qué-funcionó-y-qué-falló-en-los-jets-impresos">2.4 Qué funcionó y qué falló en los jets impresos</a></li>
+</ul>
+</li>
+<li><a href="#3-toberas-kort-y-protectores-ganancia-o-pérdida-de-empuje">3. Toberas Kort y protectores: ganancia o pérdida de empuje</a></li>
+<li><a href="#4-rim-driven-estado-y-por-qué-no-sirve-para-p1">4. Rim-driven: estado y por qué no sirve para P1</a></li>
+<li><a href="#5-efoil-diy-motores-inundados-o-estancos-en-agua-salada">5. eFoil DIY: motores inundados o "estancos" en agua salada</a></li>
+<li><a href="#6-hélices-y-piezas-fdm-en-agua-lo-que-dicen-los-papers">6. Hélices y piezas FDM en agua: lo que dicen los papers</a></li>
+<li><a href="#7-qué-aplica-a-p1-por-arquitectura">7. Qué aplica a P1, por arquitectura</a></li>
+<li><a href="#8-fuentes-abiertas-en-esta-sesión">8. Fuentes abiertas en esta sesión</a></li>
+<li><a href="#hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</a></li>
+<li><a href="#verificación-adversarial">Verificación (adversarial)</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#0-método-y-convenciones">0. Método y convenciones</a></li>
+<li><a href="#1-tabla-resumen-proyectos-y-papers">1. Tabla resumen (proyectos y papers)</a></li>
+<li><a href="#2-waterjet-frente-a-hélice-abierta-a-612-kmh">2. Waterjet frente a hélice abierta a 6–12 km/h</a><ul>
+<li><a href="#21-datos-medidos-o-declarados">2.1 Datos medidos o declarados</a></li>
+<li><a href="#22-teoría-y-fuentes-técnicas">2.2 Teoría y fuentes técnicas</a></li>
+<li><a href="#23-cálculo-para-p1-a-6-kmh-t-203-n-v0-1667-ms-ρ-1010-kgm³">2.3 Cálculo para P1 a 6 km/h (T = 203 N, V0 = 1,667 m/s, ρ = 1010 kg/m³)</a></li>
+<li><a href="#24-qué-funcionó-y-qué-falló-en-los-jets-impresos">2.4 Qué funcionó y qué falló en los jets impresos</a></li>
+</ul>
+</li>
+<li><a href="#3-toberas-kort-y-protectores-ganancia-o-pérdida-de-empuje">3. Toberas Kort y protectores: ganancia o pérdida de empuje</a></li>
+<li><a href="#4-rim-driven-estado-y-por-qué-no-sirve-para-p1">4. Rim-driven: estado y por qué no sirve para P1</a></li>
+<li><a href="#5-efoil-diy-motores-inundados-o-estancos-en-agua-salada">5. eFoil DIY: motores inundados o "estancos" en agua salada</a></li>
+<li><a href="#6-hélices-y-piezas-fdm-en-agua-lo-que-dicen-los-papers">6. Hélices y piezas FDM en agua: lo que dicen los papers</a></li>
+<li><a href="#7-qué-aplica-a-p1-por-arquitectura">7. Qué aplica a P1, por arquitectura</a></li>
+<li><a href="#8-fuentes-abiertas-en-esta-sesión">8. Fuentes abiertas en esta sesión</a></li>
+<li><a href="#hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</a></li>
+<li><a href="#verificación-adversarial">Verificación (adversarial)</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="r03-proyectos-comparables-waterjets-impresos-toberas-y-protectores-rim-driven-efoil-diy-y-papers-de-hélices-fdm">R03: proyectos comparables (waterjets impresos, toberas y protectores, rim-driven, eFoil DIY y papers de hélices FDM)</h1>
+<p>Consulta: 2026-10-01. Autor: subagente de investigación P1.</p>
+<p>Alcance: proyectos reales y papers que sirven para decidir entre tres opciones:</p>
+<ul>
+<li>la cola larga de P1 (motor seco arriba, correa HTD-5M, eje 316 inclinado, hélice comercial de ~7,8" a 10");</li>
+<li>un waterjet o una hélice entubada o rim-driven;</li>
+<li>el diseño del protector de hélice y la protección contra la corrosión.</li>
+</ul>
+<p>Complementa a R02, que ya cubre fueraborda impresos, trolling, long-tail y la hélice PETG de Arcada.</p>
+<h2 id="0-método-y-convenciones">0. Método y convenciones</h2>
+<p><strong>Etiquetas.</strong></p>
+<ul>
+<li><code>[VERIFICADO: Sx]</code>: el dato está en la fuente Sx. Abrí la página en esta sesión y la URL completa está en §8.</li>
+<li><code>[CALCULADO: …]</code>: cuenta mía con datos verificados o con entradas de <code>inputs.yaml</code> y <code>resultados/sizing_tablas.md</code>.</li>
+<li><code>[ESTIMADO: base]</code> y <code>[SUPUESTO]</code>: lo que dicen.</li>
+</ul>
+<p><strong>Cómo se leyó cada fuente.</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fuente</th>
+<th>Cómo la leí</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>foil.zone (Discourse)</td>
+<td>WebFetch, o la API <code>/t/&lt;id&gt;.json</code> (con límite de pedidos).</td>
+</tr>
+<tr>
+<td>Endless Sphere</td>
+<td><code>curl</code> (WebFetch bloqueado).</td>
+</tr>
+<tr>
+<td>MakerWorld</td>
+<td>API <code>makerworld.com/api/v1/design-service/design/&lt;id&gt;</code>.</td>
+</tr>
+<tr>
+<td>Thingiverse</td>
+<td>Solo la <code>og:description</code> del HTML.</td>
+</tr>
+<tr>
+<td>GitHub</td>
+<td><code>raw.githubusercontent.com</code>.</td>
+</tr>
+<tr>
+<td>ScienceDirect, ResearchGate, MDPI</td>
+<td>Responden 403. De dos papers de Elsevier en acceso abierto leí <strong>solo el resumen</strong> vía la API de DOAJ.</td>
+</tr>
+<tr>
+<td>Tesis de Ladd (OSU, 1976)</td>
+<td>PDF escaneado; extraje el texto con <code>pdftotext</code>.</td>
+</tr>
+<tr>
+<td>YouTube</td>
+<td>Solo verifiqué <strong>títulos</strong> vía oEmbed. <strong>No vi el contenido de ningún video.</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Calidad de los datos.</strong></p>
+<ul>
+<li>Las cifras de foros son lo que declara cada autor.</li>
+<li>Las cifras de fabricantes (FluxJet, Minn Kota, Fliteboard, Torqeedo) son marketing o ficha técnica; no son ensayos independientes.</li>
+<li>Unidades: 1 lb = 0,4536 kg; 1 mph = 1,609 km/h; 1 kn = 1,852 km/h; 1" = 25,4 mm.</li>
+</ul>
+<p><strong>Referencia de P1</strong> (de <code>resultados/sizing_tablas.md</code>):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Magnitud</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R a 6 km/h (nominal / diseño)</td>
+<td>130 / 169 N</td>
+</tr>
+<tr>
+<td>Empuje en el eje a crucero</td>
+<td>203 N</td>
+</tr>
+<tr>
+<td>Hélice: J / η0</td>
+<td>≈ 0,35 / 0,45</td>
+</tr>
+<tr>
+<td>Potencia al eje</td>
+<td>664 W</td>
+</tr>
+<tr>
+<td>Potencia de batería (nominal / diseño)</td>
+<td>578 / 819 W</td>
+</tr>
+<tr>
+<td>Bollard (avante / reversa)</td>
+<td>297 N / 94 N</td>
+</tr>
+<tr>
+<td>Protector modelado como</td>
+<td>aro no perfilado, holgura radial 10 mm, <code>thrust_loss_frac</code> = 0,06</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Nota de verificación (2026-10-01).</strong> Esta tabla es una foto del sizing <strong>anterior</strong>. El <code>resultados/sizing_tablas.md</code> vigente dice: R a 6 km/h 135 / 156 N; empuje en el eje 195 N; J / η0 = 0,23 / 0,40; potencia al eje 726 W; batería 770 / 920 W; autonomía 2,99 / 2,51 h; bollard 280 N avante / <strong>89 N reversa</strong>; correa <strong>2:1</strong> (20T:40T); hélice elegida MKP32 de <strong>254 mm</strong> (diámetro [ESTIMADO] en <code>inputs.yaml</code>). El protector de <code>inputs.yaml</code> ya se actualizó con este informe: <code>thrust_loss_frac</code> = 0,10 y holgura de 6 mm. Las conclusiones cualitativas siguen valiendo. Los números recalculados con el sizing vigente están en §2.3 y §3.</p>
+</blockquote>
+<hr />
+<h2 id="1-tabla-resumen-proyectos-y-papers">1. Tabla resumen (proyectos y papers)</h2>
+<p>Relevancia para P1: <strong>A</strong> = alta, <strong>M</strong> = media, <strong>B</strong> = baja.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Proyecto o paper</th>
+<th>Tipo</th>
+<th>Escala</th>
+<th>Potencia y tensión</th>
+<th>Resultado medido</th>
+<th>Qué falló</th>
+<th>Rel.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>J1</td>
+<td>MaXi100000: jet de flujo mixto de 80 mm (Thingiverse 5247333) [S2][S3]</td>
+<td>Waterjet impreso</td>
+<td>Kayak, 1 p.</td>
+<td>6S (22 V), motor de 420 kV, ~2,5 kW</td>
+<td>Estático: <strong>4 kg a 270 W</strong>. Kayak: <strong>~12 km/h a ~2,5 kW</strong>, sin llegar a planear</td>
+<td>Tobera 2/3 sumergida; el autor duda de sus propias cifras</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>J2</td>
+<td>PRO-JET 80 (MakerWorld 3122772) [S4]</td>
+<td>Waterjet impreso de 80 mm</td>
+<td>SUP de "12-inch" (literal en la fuente; se interpreta 12 ft), 90 kg en total</td>
+<td>26 V / 40 A / <strong>1100 W</strong></td>
+<td><strong>11,5 km/h</strong>; 40 A a 10 km/h</td>
+<td>Rotor contra estator a alta rpm (tuvo que llevar el gap a 3 mm); rozamiento rotor-carcasa</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>J3</td>
+<td>Endless Sphere: jet impreso de 80 mm + TP100 de 350 kV [S5]</td>
+<td>Jetboard</td>
+<td>Tabla</td>
+<td>8S, 180 A, ESC Maytech de 300 A [NO VERIFICADO en el re-chequeo]</td>
+<td><strong>78–80 lb (35–36 kgf) estáticos a 10 000 rpm</strong> [NO VERIFICADO en el re-chequeo: Endless Sphere bloquea con Anubis]</td>
+<td>—</td>
+<td>M</td>
+</tr>
+<tr>
+<td>J4</td>
+<td>Endless Sphere: jet impreso de 85 mm + outrunner rebobinado [S6]</td>
+<td>Jetboard o foilboard</td>
+<td>Tabla</td>
+<td>14S; Flipsky 75350 con VESC [VERIFICADO: S6, meta-descripción]; 250 A de motor [NO VERIFICADO en el re-chequeo]</td>
+<td><strong>49,8 kgf</strong> estáticos [NO VERIFICADO en el re-chequeo]</td>
+<td>Corte del VESC por límite de duty (~89 %) a <strong>~9600 rpm</strong> (falla 18) [VERIFICADO: S6, título del hilo]</td>
+<td>M</td>
+</tr>
+<tr>
+<td>J5</td>
+<td>Ivan Miranda, Hackaday [S1]</td>
+<td>Jet impreso en PLA</td>
+<td>"Racing paddle boat"</td>
+<td>BLDC</td>
+<td>Sin medición de empuje</td>
+<td>Rodamientos sumergidos que requieren mantenimiento (lo dicen <strong>comentarios de lectores</strong>, no el artículo)</td>
+<td>B</td>
+</tr>
+<tr>
+<td>J6</td>
+<td>boatdesign: "is a DIY jet drive feasible?" [S8]</td>
+<td>Discusión técnica + impulsor ABS</td>
+<td>Jet a escala 1:4</td>
+<td>—</td>
+<td>Jet militar: de 42 a 35 kn en meses. Jet ABS 1:4 (relleno 100 % + epoxi): <strong>50 N</strong> de bollard máximo a 400–5400 rpm</td>
+<td><strong>Palas de ABS que "most probably" deflectaron</strong>; el ducto impreso al 100 % filtraba agua; desgaste del huelgo pala-carcasa; cavitación en toma, rotor y estator</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>J7</td>
+<td>RCLifeOn: bote jet impreso de 5 kW [S45]</td>
+<td>Jet RC</td>
+<td>&lt;2 kg</td>
+<td>5 kW, 12S</td>
+<td>—</td>
+<td>Los jets DIY fallaron y usó una turbina comercial; <strong>el acople impreso falló</strong></td>
+<td>B</td>
+</tr>
+<tr>
+<td>J8</td>
+<td>FluxJet: kayak con "jet" de motor anular [S13][S14]</td>
+<td>Rim-jet comercial</td>
+<td>Kayak de 40 kg</td>
+<td>12 V / 24 V, 1 kW</td>
+<td>12 V: 5,6–6,1 km/h a ~150 W. 24 V: 7,9–8,0 km/h a ~700 W. Su hélice de comparación (fueraborda eléctrico genérico de 24 V): <strong>6,9 km/h</strong> (4,3 mph) a 500–600 W</td>
+<td>(marketing propio)</td>
+<td>M</td>
+</tr>
+<tr>
+<td>D1</td>
+<td>Puzzler300, tobera Kort impresa [S17]</td>
+<td>Tobera impresa</td>
+<td>Hélice de ROV de 40×57 mm</td>
+<td>Outrunner de 700 kV</td>
+<td>Avante: <strong>3,60 → 6,00 lb (+67 %)</strong>. Reversa: <strong>2,03 → 2,00 lb (−1,5 %)</strong>. Medido con balanza de equipaje</td>
+<td>Tobera "Rice" acortada con gap grande: "very ineffective"</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>D2</td>
+<td>Ladd 1976, tesis OSU [S10]</td>
+<td>Protector "weed guard" vs tobera 19A corta</td>
+<td>Bote planeador de 16 ft, hélice de <strong>8,75"</strong> [VERIFICADO: S10]</td>
+<td>Fueraborda</td>
+<td>Weed guard: <strong>K_T −25 %</strong> a J = 0,75. Tobera 19A: drag excelente, pero <strong>K_Q +11,7 %</strong>. Con álabes: <strong>K_Q +23 %</strong></td>
+<td>El weed guard no perfilado, con holgura del 4,5 % de D, es "dismal"</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>D3</td>
+<td>superlefax, foil.zone: anillo solidario a la hélice, impreso [S19][S20]</td>
+<td>Rim-prop impreso (anillo que gira)</td>
+<td>eFoil</td>
+<td>12S, 44–46 V [S22]</td>
+<td><strong>38 A → 100 A a 20 km/h (×2,6)</strong></td>
+<td>Rozamiento del anillo que gira</td>
+<td><strong>A</strong> (descarte)</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>Flo, foil.zone: ducto protector impreso para 6384 [S20]</td>
+<td>Protector impreso</td>
+<td>eFoil</td>
+<td>—</td>
+<td>"only good for protection … an effective brake"; pesa 550 g</td>
+<td>Freno hidrodinámico</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>D5</td>
+<td>tunnelvision y pacificmeister, foil.zone [S21][S22]</td>
+<td>Hélice con ducto</td>
+<td>eFoil, rider de 105 kg + 22 kg de equipo</td>
+<td>530 kV, reducción 6,67:1</td>
+<td>Con ducto: 32–35 A a 26 mph (dato dudoso: 3500 rpm × 200 mm de paso = 42 km/h = 26 mph, es decir <strong>resbalamiento cero</strong>, como objetó otro usuario en el hilo). "Big drop in efficiency above 12 mph" (pacificmeister). El ducto suma ~10 A (lectura de erwan sobre la tabla de superlefax, S22)</td>
+<td>—</td>
+<td>M</td>
+</tr>
+<tr>
+<td>R1</td>
+<td>Wikipedia: rim-driven thruster [S23]</td>
+<td>Referencia</td>
+<td>500 kW – 3 MW comerciales (a 2017)</td>
+<td>—</td>
+<td>—</td>
+<td>Rozamiento en el gap rotor-estator; motor sumergido con bujes lubricados por agua</td>
+<td>M</td>
+</tr>
+<tr>
+<td>E1</td>
+<td>NextLevel, foil.zone: eFoil barato en el mar [S24]</td>
+<td>Motor sumergido "estanco"</td>
+<td>eFoil</td>
+<td>—</td>
+<td>—</td>
+<td><strong>18 meses, 1–3 usos por semana en el mar, enjuagado tras cada uso</strong>: eje agarrotado, óxido interno, fuga a masa del bobinado, ESC muerto</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>E2</td>
+<td>Hilo de mantenimiento del Flipsky 65161 [S25]</td>
+<td>Inrunner [S32] con aceite y sello cerámico</td>
+<td>eFoil</td>
+<td>— (los "6 kW" de la versión anterior no están en S25: eliminado)</td>
+<td>2–3 temporadas: rodamientos ruidosos o trabados; mantenimiento anual</td>
+<td>Tornillos inox trabados en aluminio por sal; agua entre sello y rodamiento</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>E3</td>
+<td>Sello del motor Lift/FR [S26]</td>
+<td>Motor con aceite</td>
+<td>eFoil</td>
+<td>—</td>
+<td>Probado a 9 psi en fábrica; rellenar aceite una vez por año</td>
+<td><strong>Bombeo térmico</strong>: motor frío + exterior caliente → succiona agua</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>E4</td>
+<td>Flipsky 7070 "waterproof" [S27]</td>
+<td>Outrunner inundado</td>
+<td>Foil-assist</td>
+<td>—</td>
+<td>Imanes sin recubrir tras <strong>10 sesiones en el mar</strong> con enjuague; la respuesta ("hardly be saved", "magnets have started to go crumbly") indica corrosión ya visible</td>
+<td>Corrosión de imanes</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>E5</td>
+<td>Impermeabilizar un outrunner [S28]</td>
+<td>Outrunner inundado</td>
+<td>eFoil</td>
+<td>6384 de 170 kV</td>
+<td>Epoxi caliente (~60 °C), 2 capas</td>
+<td>—</td>
+<td>M</td>
+</tr>
+<tr>
+<td>E6</td>
+<td>derekhearst/efoil-v2 (GitHub) [S33][S34]</td>
+<td>eFoil DIY completo (tipo de agua no declarado: el "agua dulce" de la versión anterior está [NO VERIFICADO])</td>
+<td>30 kg de equipo (29,94 kg medidos)</td>
+<td>14S, 65161</td>
+<td>Despegue <strong>4169 W</strong> medido; FET a 47,4 °C como máximo</td>
+<td>Historial de fugas de V1 que motivó el sellado de V2</td>
+<td>M</td>
+</tr>
+<tr>
+<td>P1p</td>
+<td>OpenThruster (HardwareX 2025) [S35]</td>
+<td>Propulsor <em>open-source</em> impreso en FDM (motor A2212 de 1000 kV)</td>
+<td>Propulsor chico de ROV/USV</td>
+<td>12 V, 310 W</td>
+<td><strong>18 N a 310 W</strong>. Hélice SLA <strong>+35 %</strong> de empuje vs PLA FDM y <strong>+18 % vs la de metal</strong> (SLM AlSi10Mg)</td>
+<td>Durabilidad "intentionally given lower priority"</td>
+<td>M</td>
+</tr>
+<tr>
+<td>P2p</td>
+<td>Kiss-Nagy et al. 2024 [S36]</td>
+<td>Hélices PLA entubadas de &lt;100 mm (FSI)</td>
+<td>&lt;100 mm</td>
+<td>—</td>
+<td>Deformación no significativa salvo palas finas o skew/rake &gt; 10°</td>
+<td>—</td>
+<td>M</td>
+</tr>
+<tr>
+<td>P3p</td>
+<td>Rochester ME205 2024 [S37]</td>
+<td>Réplica impresa en PLA de una hélice Solar Splash</td>
+<td>Bote solar</td>
+<td>—</td>
+<td><strong>−61 % de empuje a 300 rpm</strong> (réplica). Flecha en FEA de <strong>otra</strong> hélice (la toroidal del equipo): <strong>6,1 mm en plástico (ABS según el apéndice G) vs 0,16 mm en Al 6061</strong></td>
+<td>Deflexión de pala y acabado</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>P4p</td>
+<td>Neşer et al. 2024, <em>Polymers</em> [S38]</td>
+<td>Hélice FFF de HDPE + 15 % de fibra larga de carbono</td>
+<td>Modelo de 257 mm, 5 palas</td>
+<td>16 rps</td>
+<td>Flecha de punta: <strong>89 mm</strong> sin recubrir (J = 0,3) → 20 mm con prepreg</td>
+<td>Flexibilidad excesiva</td>
+<td>M</td>
+</tr>
+<tr>
+<td>P5p</td>
+<td>Singaravel et al. (IJLMM; volumen 2026 según DOAJ, doi de 2025) [S39]</td>
+<td>Probetas FDM en agua de mar, 30 días</td>
+<td>Probeta</td>
+<td>—</td>
+<td>Tracción <strong>PETG −17–28 %</strong>, PLA −26–35 %, ABS −15–25 %, Nylon −31–44 %</td>
+<td>Hidrólisis</td>
+<td><strong>A</strong></td>
+</tr>
+<tr>
+<td>P6p</td>
+<td>Chaudhary, Li, Matos 2023, <em>Results in Materials</em> [S40]</td>
+<td>Termoplásticos FDM en agua de mar a alta temperatura</td>
+<td>Probeta</td>
+<td>—</td>
+<td>Las piezas impresas difunden agua "extremely high" vs el material macizo; el módulo baja en todos</td>
+<td>—</td>
+<td>M</td>
+</tr>
+<tr>
+<td>P7p</td>
+<td>Arcada UAS 2025 [S41] (también en R02)</td>
+<td>Hélice PETG de bow thruster, 6 palas</td>
+<td>Bote, agua de mar</td>
+<td>—</td>
+<td><strong>+25 % de empuje</strong> frente a la hélice vieja (otro diseño: no es un efecto del material), sin cavitación, <strong>4 meses</strong></td>
+<td><strong>Pala fisurada al desmontarla para inspección</strong>; los autores lo atribuyen a degradación por agua salada, sin ensayo; percebes</td>
+<td><strong>A</strong></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="2-waterjet-frente-a-hélice-abierta-a-612-kmh">2. Waterjet frente a hélice abierta a 6–12 km/h</h2>
+<h3 id="21-datos-medidos-o-declarados">2.1 Datos medidos o declarados</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>Condición</th>
+<th>Empuje o velocidad</th>
+<th>Potencia</th>
+<th>g/W estático</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>J1 jet 80 mm</td>
+<td>Estático</td>
+<td>4 kgf</td>
+<td>270 W</td>
+<td><strong>14,8</strong> [CALCULADO]</td>
+<td>[VERIFICADO: S2]</td>
+</tr>
+<tr>
+<td>J1 jet 80 mm</td>
+<td>Kayak, 1 p.</td>
+<td>~12 km/h</td>
+<td>~2,5 kW ("questionable")</td>
+<td>—</td>
+<td>[VERIFICADO: S2]</td>
+</tr>
+<tr>
+<td>J2 PRO-JET 80</td>
+<td>SUP, 90 kg en total</td>
+<td>11,5 km/h</td>
+<td>1100 W (26 V × 40 A)</td>
+<td>—</td>
+<td>[VERIFICADO: S4]</td>
+</tr>
+<tr>
+<td>J2 PRO-JET 80</td>
+<td>SUP</td>
+<td>10 km/h</td>
+<td>40 A a 26 V ≈ 1,04 kW [CALCULADO]</td>
+<td>—</td>
+<td>[VERIFICADO: S4]</td>
+</tr>
+<tr>
+<td>J3 jet 80 mm impreso</td>
+<td>Estático</td>
+<td>35,4–36,3 kgf</td>
+<td>8S × 180 A ≈ 5,3 kW [CALCULADO con SUPUESTO: los 180 A son de batería y 3,7 V por celda]</td>
+<td><strong>≈ 6,6–6,8</strong></td>
+<td>[NO VERIFICADO: S5 no abrió en el re-chequeo (Anubis)]</td>
+</tr>
+<tr>
+<td>J4 jet 85 mm impreso</td>
+<td>Estático</td>
+<td>49,8 kgf</td>
+<td>14S; 250 A de motor (potencia no declarada)</td>
+<td>—</td>
+<td>14S: [VERIFICADO: S6]. 49,8 kgf y 250 A: [NO VERIFICADO en el re-chequeo]</td>
+</tr>
+<tr>
+<td>OpenThruster (propulsor chico de alta rpm, A2212 de 1000 kV)</td>
+<td>Bollard</td>
+<td>18 N</td>
+<td>310 W</td>
+<td><strong>≈ 5,9</strong> [CALCULADO]</td>
+<td>[VERIFICADO: S35]</td>
+</tr>
+<tr>
+<td>Minn Kota Endura C2 30 (hélice grande y lenta)</td>
+<td>Bollard (ficha)</td>
+<td>30 lb = 13,6 kgf</td>
+<td>12 V × 30 A = 360 W</td>
+<td><strong>≈ 37,8</strong> [CALCULADO; ficha del fabricante]</td>
+<td>[VERIFICADO: S43]</td>
+</tr>
+<tr>
+<td>FluxJet 12 V</td>
+<td>Kayak de 40 kg</td>
+<td>5,6–6,1 km/h</td>
+<td>~150 W</td>
+<td>—</td>
+<td>[VERIFICADO: S13][S14] (fabricante)</td>
+</tr>
+<tr>
+<td>FluxJet 24 V</td>
+<td>Kayak</td>
+<td>7,9–8,0 km/h</td>
+<td>~700 W</td>
+<td>—</td>
+<td>[VERIFICADO: S13] (fabricante)</td>
+</tr>
+<tr>
+<td>Su "prop motor" de 24 V (fueraborda eléctrico genérico)</td>
+<td>Kayak</td>
+<td><strong>6,9 km/h</strong> (4,3 mph)</td>
+<td>500–600 W</td>
+<td>—</td>
+<td>[VERIFICADO: S13] (fabricante)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Lectura.</strong> El empuje estático por vatio lo dicta la carga de disco. Un jet de 80 mm o un propulsor chico de alta rpm (OpenThruster, con un motor A2212 de 1000 kV) dan <strong>6–15 g/W</strong>. Un trolling de 30 lb (hélice grande y lenta) da <strong>~38 g/W</strong> según la ficha [CALCULADO]. Esto es coherente con la elección de P1: hélice grande y lenta con reducción por correa.</p>
+<h3 id="22-teoría-y-fuentes-técnicas">2.2 Teoría y fuentes técnicas</h3>
+<ul>
+<li>Propeller vs waterjet: "The propulsive coefficient of a typical underwater propeller at 16 knots is about 65 percent while that of a waterjet at the same 16 knots would be only about 40 percent." [VERIFICADO: S9]<ul>
+<li>Según la misma fuente, el jet está "severely outclassed … up to about 25 knot", con una recuperación de presión en la toma de ~70 % [VERIFICADO: S9].</li>
+</ul>
+</li>
+<li>Ladd (1976):<ul>
+<li>con un coeficiente de pérdidas del ducto K = 0,6–1,0, el rendimiento ideal del jet queda limitado a <strong>0,5–0,6</strong>;</li>
+<li>"Open marine propellers can have real efficiencies approaching 0.80" [VERIFICADO: S10];</li>
+<li>instalar un jet en un bote convencional "is a major undertaking" [VERIFICADO: S10].</li>
+</ul>
+</li>
+<li>Fueraborda con pata jet (comercial):<ul>
+<li>"Approximately a 30% HP loss – multiply your motor HP by .7" [VERIFICADO: S11];</li>
+<li>planeo "in the mid 20 MPH range and up";</li>
+<li>casco mínimo de <strong>14 ft × 48"</strong> de fondo [VERIFICADO: S12];</li>
+<li><strong>en desplazamiento</strong> hacen falta "about 12 inches of clearance between the bottom of the jet and river bed to maneuver" [VERIFICADO: S12], es decir ~305 mm de luz <strong>debajo del fondo del jet</strong>. La profundidad total es mayor: esos 305 mm más el calado del jet.</li>
+</ul>
+</li>
+<li>eFoil: Fliteboard admite que "Flite Jet 2 consumes more power than propeller systems" [VERIFICADO: S15]. Los "jets" de Lift y JetWave son en realidad hélices entubadas con huelgo de punta muy chico ("It's a ducted fan!") [VERIFICADO: S25].</li>
+</ul>
+<h3 id="23-cálculo-para-p1-a-6-kmh-t-203-n-v0-1667-ms-ρ-1010-kgm³">2.3 Cálculo para P1 a 6 km/h (T = 203 N, V0 = 1,667 m/s, ρ = 1010 kg/m³)</h3>
+<p>Modelo de cantidad de movimiento:</p>
+<ul>
+<li>jet: T = ρ·A_j·V_j·(V_j − V0), con potencia hidráulica = ρQ·[(1+K)V_j² − V0²]/2;</li>
+<li>hélice: disco actuador, η_i = 2/(1 + √(1 + C_T)).</li>
+</ul>
+<p>Todo [CALCULADO: momentum ideal; K de [S10]; η de bomba 0,75 = ESTIMADO: impulsor chico impreso].</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Propulsor</th>
+<th>V_j [m/s]</th>
+<th>η ideal (K = 0)</th>
+<th>η con K = 0,6–1,0</th>
+<th>P al eje con η_bomba = 0,75</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hélice abierta D = 198 mm (7,8")</td>
+<td>—</td>
+<td>0,59</td>
+<td>—</td>
+<td>(sizing real: 664 W con η0 = 0,45)</td>
+</tr>
+<tr>
+<td>Hélice abierta D = 254 mm (10")</td>
+<td>—</td>
+<td>0,68</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Jet, tobera de 40 mm</td>
+<td>13,5</td>
+<td>0,22</td>
+<td>0,11–0,14</td>
+<td>2,1–4,1 kW</td>
+</tr>
+<tr>
+<td>Jet, tobera de 55 mm (PRO-JET)</td>
+<td>10,1</td>
+<td>0,28</td>
+<td>0,14–0,18</td>
+<td>1,6–3,2 kW</td>
+</tr>
+<tr>
+<td>Jet, tobera de 70 mm</td>
+<td>8,1</td>
+<td>0,34</td>
+<td>0,17–0,21</td>
+<td>1,3–2,7 kW</td>
+</tr>
+<tr>
+<td>Jet, tobera de 100 mm (Q = 47 L/s)</td>
+<td>6,0</td>
+<td>0,44</td>
+<td>0,21–0,27</td>
+<td>1,0–2,2 kW</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Conclusión.</strong> A 6 km/h con 2 personas, un jet impreso necesita <strong>1,5–6,2 veces</strong> la potencia al eje de la cola larga [CALCULADO: 1,03–4,14 kW / 664 W]. Con la batería de P1 (2304 Wh útiles), la autonomía de crucero caería de ~2,8–4,0 h a <strong>~0,45–1,1 h con K = 0,6–1,0</strong>, y a ~1,8 h en el caso ideal (K = 0, tobera de 100 mm) [CALCULADO: 2304 Wh × (664/819) / P_eje].</p>
+<blockquote>
+<p><strong>Corrección del verificador.</strong> La versión anterior decía "1,6–6 veces" y "&lt;1 h". El "&lt;1 h" no vale para todo el rango: con la tobera de 100 mm da 1,1 h (K = 0,6) y 1,8 h (K = 0). Con el sizing vigente (T = 195 N, 726 W al eje, batería 920 W) el jet necesita <strong>1,35–5,4×</strong> la potencia al eje (979–3911 W), y la autonomía queda en <strong>0,46–1,1 h</strong> con K = 0,6–1,0 [CALCULADO: mismo modelo, η_bomba = 0,75]. Los datos empíricos lo confirman en orden de magnitud: un kayak de 1 persona necesitó ~2,5 kW para 12 km/h (J1) y una SUP ~1,1 kW para 11,5 km/h (J2), con cascos de mucha menos resistencia que un jon boat cargado.</p>
+</blockquote>
+<h3 id="24-qué-funcionó-y-qué-falló-en-los-jets-impresos">2.4 Qué funcionó y qué falló en los jets impresos</h3>
+<p><strong>Funcionó:</strong></p>
+<ul>
+<li>impulsor de flujo mixto impreso "hot" para la adhesión entre capas, pared de 1,8 mm, rodamientos 608-2RS inox [VERIFICADO: S2];</li>
+<li>rodamientos inox híbridos cerámicos (S6000-2RS y S608-2RS) y eje inox de 8 mm [VERIFICADO: S4];</li>
+<li>motor 6374/6384 con epoxi en rotor y estator [VERIFICADO: S4].</li>
+</ul>
+<p><strong>Falló o costó:</strong></p>
+<ul>
+<li>holgura dinámica: "3D-printed dynamic blades may hit the static blades at high speeds", así que tuvo que llevar la separación a 3 mm [VERIFICADO: S4];</li>
+<li>impulsor de ABS que "most probably" deflectó bajo carga en bollard (modelo 1:4, 50 N máximo; el ducto impreso al 100 % de relleno filtraba y hubo que recubrir todo con epoxi) [VERIFICADO: S8];</li>
+<li>desgaste del huelgo, que baja la velocidad máxima de 42 a 35 kn [VERIFICADO: S8];</li>
+<li>acople impreso roto [VERIFICADO: S45];</li>
+<li>ESC de jetboard "blowed up due to water and low quality components" [VERIFICADO: S16];</li>
+<li>límite de duty del VESC a ~89 % con outrunner a alta rpm [VERIFICADO: S6].</li>
+</ul>
+<p><strong>Arena, algas y fondo bajo.</strong> La toma succiona del fondo [ESTIMADO: inferencia, S12 no lo dice así]. En desplazamiento necesita ~30 cm de luz entre el fondo del jet y el lecho, además del calado del propio jet [VERIFICADO: S12]. La ventaja "sin pata" solo aparece planeando. <strong>No aplica a P1</strong>, que es un jon boat de &lt;2,5 m en desplazamiento.</p>
+<hr />
+<h2 id="3-toberas-kort-y-protectores-ganancia-o-pérdida-de-empuje">3. Toberas Kort y protectores: ganancia o pérdida de empuje</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fuente</th>
+<th>Configuración</th>
+<th>Resultado</th>
+<th>Lectura para P1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wikipedia [S18]</td>
+<td>Tobera 19A/37 (MARIN)</td>
+<td>"Bollard pull can increase up to 30%". Pierden la ventaja a "about ten knots (18.5 km/h)". Hielo "or any other floating object" se traba, y la hélice enredada es "much more difficult to clear" (la página no dice "algas"). Desventaja listada: "course stability when sailing astern". La misma página lista como <strong>ventajas</strong> "less vulnerability to debris" y menos succión del fondo en aguas poco profundas</td>
+<td>P1 a 6–12 km/h está en la zona donde la tobera ayuda [CALCULADO: 12 &lt; 18,5 km/h]</td>
+</tr>
+<tr>
+<td>Puzzler300 [S17]</td>
+<td>Tobera impresa "arbitrary" (con curvatura)</td>
+<td>Avante 3,60→6,00 lb (+67 %); reversa 2,03→2,00 lb (−1,5 %) [CALCULADO: % sobre lb de S17; balanza de equipaje]</td>
+<td>La ganancia es casi toda en avante; P1 necesita reversa</td>
+</tr>
+<tr>
+<td>Puzzler300 [S17]</td>
+<td>Tobera "Rice" de 6,4 cm</td>
+<td>Avante 3,60→5,00 lb (+39 %); reversa 2,03→2,6 lb (+28 %) [CALCULADO]</td>
+<td>Un perfil bidireccional es posible</td>
+</tr>
+<tr>
+<td>Puzzler300 [S17]</td>
+<td>Rice acortada a 3,1 cm, con gap grande</td>
+<td>Avante 4,08 lb (+13 %); reversa 2,34 lb (+15 %) [CALCULADO]: "very ineffective"</td>
+<td><strong>La holgura de punta manda</strong></td>
+</tr>
+<tr>
+<td>Ladd 1976 [S10]</td>
+<td>Weed guard de fundición, no perfilado, holgura 0,4" = <strong>4,5 % de D</strong></td>
+<td><strong>K_T −25 %</strong> a J = 0,75; K_Q +2 %</td>
+<td>El protector actual de P1 (aro no perfilado, 10 mm = <strong>5 % de D</strong> con 198 mm) es de esta familia</td>
+</tr>
+<tr>
+<td>Ladd 1976 [S10]</td>
+<td>Tobera 19A, L/D = 0,275, holgura <strong>0,5 % de D</strong></td>
+<td>Drag "excellent"; <strong>K_Q +11,7 %</strong></td>
+<td>Un aro perfilado y corto casi no penaliza, pero carga más al motor</td>
+</tr>
+<tr>
+<td>Ladd 1976 [S10]</td>
+<td>19A + álabes de pre-rotación</td>
+<td><strong>K_Q +23 %</strong></td>
+<td>No poner rejas ni álabes delante</td>
+</tr>
+<tr>
+<td>Ladd 1976 [S10]</td>
+<td>Modelo de planeador de 11 500 lb y 265 hp</td>
+<td>34,6 kn abierto. Weed guard: 25,5 kn (<strong>−26 %</strong>). Tobera: 32,3 kn (<strong>−7 %</strong>). Tobera + álabes: 27,4 kn (−21 %). Canasta: drag <strong>+50 %</strong>, velocidad −1/3</td>
+<td>Ordena las opciones: perfilado ≫ aro romo ≫ jaula</td>
+</tr>
+<tr>
+<td>Flo, foil.zone [S20]</td>
+<td>Ducto protector impreso para eFoil</td>
+<td>"It works as an effective brake"</td>
+<td>Mismo mensaje que Ladd con el aro romo</td>
+</tr>
+<tr>
+<td>superlefax, foil.zone [S22]</td>
+<td>Ducto fijo en eFoil</td>
+<td>~+10 A en todo el rango de 20–30 km/h ("raise 10 amp more in general", lectura de otro usuario sobre la tabla de superlefax)</td>
+<td>Pérdida a velocidades más altas que las de P1</td>
+</tr>
+<tr>
+<td>tunnelvision, foil.zone [S21]</td>
+<td>Hélice impresa en PC-Max con ducto (Kort o perfil puro)</td>
+<td>"Both don't seem to generate a lot of drag". 32–35 A de crucero a 26 mph (≈ 42 km/h). El dato implica resbalamiento cero (3500 rpm × 200 mm = 42 km/h), así que es poco creíble; en el mismo hilo se objetó</td>
+<td>Un ducto bien perfilado podría ser viable; dato débil</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Régimen de P1.</strong></p>
+<ul>
+<li>A crucero la hélice está muy cargada (J ≈ 0,35; C_T ≈ 2,9–4,7 [CALCULADO]).</li>
+<li>
+<p>La tabla 3.1 de Ladd da la ganancia de rendimiento <strong>ideal</strong> de una tobera aceleradora, sin contar su drag [VERIFICADO: S10]:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>C_T</th>
+<th>Ganancia ideal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>+2,0 %</td>
+</tr>
+<tr>
+<td>2</td>
+<td>+4,4 %</td>
+</tr>
+<tr>
+<td>4</td>
+<td>+7,8 %</td>
+</tr>
+<tr>
+<td>10</td>
+<td>+13,8 %</td>
+</tr>
+</tbody>
+</table></div>
+<p>Según Ladd, los remolcadores operan con C_T ≈ 10, los superpetroleros con ~4 y los planeadores con &lt;1 [VERIFICADO: S10].</p>
+</li>
+<li>
+<p>Para P1 la ganancia ideal sería de <strong>+6 % a +8,5 % a crucero</strong> [CALCULADO: interpolación lineal]. Con el sizing vigente (D = 254 mm, T = 195 N) da C_T ≈ 2,7 y una ganancia ideal de <strong>≈ +5,7 %</strong> [CALCULADO: tabla 3.1 de S10]. Restado el drag de la tobera, el neto queda en ~0 a +5 % [ESTIMADO]. La ganancia grande (hasta +30 % [S18]) está solo en bollard, donde C_T → ∞.</p>
+</li>
+<li>Las condiciones para que la tobera sume son: perfil hidrodinámico, holgura chica (Ladd: 0,5 % de D) y sin rejas.</li>
+<li>Con hélice comercial de tolerancia desconocida, cola basculante y PETG que flexa y pierde 17–28 % de resistencia en agua de mar, una holgura ≤1 % de D (≤2 mm) no es realista. Es más razonable apuntar a <strong>4–6 mm</strong> (2–3 % de D) [ESTIMADO].</li>
+</ul>
+<hr />
+<h2 id="4-rim-driven-estado-y-por-qué-no-sirve-para-p1">4. Rim-driven: estado y por qué no sirve para P1</h2>
+<ul>
+<li><strong>Teoría:</strong> "friction losses in the gap between the rotor and its surrounding stator"; la desventaja es "manufacturing high-output submerged motors with water-lubricated bearings" [VERIFICADO: S23]. A 2017, los comerciales estaban entre 500 kW y 3 MW [VERIFICADO: S23].</li>
+<li><strong>DIY impreso:</strong> la hélice con anillo solidario (equivalente hidráulico al rotor de un rim-drive) pasó de <strong>38 A a 100 A a 20 km/h</strong> [VERIFICADO: S19][S20]. Antes, un anillo protector pegado a las palas "did not work, it was too inefficient" [VERIFICADO: S20].</li>
+<li><strong>Comercial chico:</strong> FluxJet usa un "ring-type electromagnetic motor surrounding the impeller". Las palas unidas a un anillo eliminan el gap donde se aloja la arena, y el kayak cuesta US$2999 [VERIFICADO: S14]. No hay ensayos independientes.</li>
+<li><strong>Hydromea DiskDrive 80:</strong> no pude abrir la ficha técnica (403); <code>buscar: Hydromea DiskDrive 80 datasheet thrust current</code>. El concepto impreso en Printables 681590 advierte que la arena atasca el rim (ver R02, C5) [NO VERIFICADO en este re-chequeo: Printables devolvió 403].</li>
+<li><strong>Para P1:</strong> imanes y bobinado en agua salobre + arena de playa en el gap + rozamiento del anillo + bobinar un motor anular. <strong>Se descarta.</strong></li>
+</ul>
+<hr />
+<h2 id="5-efoil-diy-motores-inundados-o-estancos-en-agua-salada">5. eFoil DIY: motores inundados o "estancos" en agua salada</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>Medio y uso</th>
+<th>Vida observada</th>
+<th>Modo de falla</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>eFoil chino Tame Billow</td>
+<td>Mar, 1–3 por semana, enjuague con agua dulce tras cada uso, guardado seco</td>
+<td>~18 meses</td>
+<td>Eje agarrotado, pintura ampollada sobre aluminio corroído, óxido interno, fuga a masa del bobinado; ESC muerto (US$365 + 185 de envío). <strong>El usuario recibió una descarga eléctrica al tocar la carcasa del ESC</strong> parado en el agua de mar: la carcasa del motor tenía tensión respecto de tierra</td>
+<td>[VERIFICADO: S24]</td>
+</tr>
+<tr>
+<td>Flipsky 65161 (aceite + sello cerámico)</td>
+<td>Mar, ~3 años</td>
+<td>Corrosión en el rodamiento superior; mantenimiento anual</td>
+<td>Agua por el eje; "few drops of water past the seal". Rodamiento NSK 6001DDU (28×12×8 mm). Tornillos trabados por sal</td>
+<td>[VERIFICADO: S25]</td>
+</tr>
+<tr>
+<td>Flipsky 65161 (otro usuario)</td>
+<td>2 veranos</td>
+<td>Rodamientos ruidosos y luego eje trabado tras una semana parado</td>
+<td>Agua por el eje "just enough to kill the bearings"</td>
+<td>[VERIFICADO: S25]</td>
+</tr>
+<tr>
+<td>Lift/FR</td>
+<td>Mar</td>
+<td>Rellenar aceite una vez por año</td>
+<td>Sello de un labio que se abre con el uso. O-ring de tapa gastado. <strong>Bombeo térmico</strong> (pod caliente al sol + agua fría → succiona agua). Juego axial &gt;2 mm: no usar</td>
+<td>[VERIFICADO: S26]</td>
+</tr>
+<tr>
+<td>Flipsky 7070 "waterproof" (outrunner)</td>
+<td>Mar, enjuague abundante</td>
+<td><strong>10 sesiones</strong></td>
+<td>Imanes sin recubrir oxidados. Otro usuario perdió varios motores por corrosión de imanes, pero usándolos en <strong>e-bike de invierno con sal de ruta</strong> (Suecia), no en el mar</td>
+<td>[VERIFICADO: S27]</td>
+</tr>
+<tr>
+<td>6384 de 120 kV, 10S, rider de 105 kg</td>
+<td>Lago (Noruega)</td>
+<td><strong>~10–11 sesiones</strong> (1.ª temporada)</td>
+<td>Motor tratado con epoxi; los rodamientos originales "have ceased a bit" y el autor planea pasar a inox</td>
+<td>[VERIFICADO: S29]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Prácticas que funcionan:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Práctica</th>
+<th>Detalle</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recubrir el estator</td>
+<td>Tapar los rodamientos, calentar a ~60 °C, 2 capas de epoxi de alta temperatura con curado parcial de 4–6 h entre capas</td>
+<td>[VERIFICADO: S28]</td>
+</tr>
+<tr>
+<td>Variante simple</td>
+<td>"A thin coat of normal epoxy works well" (otro usuario, mismo hilo)</td>
+<td>[VERIFICADO: S28]</td>
+</tr>
+<tr>
+<td>Alternativa a la epoxi</td>
+<td>Epoxi térmica en el estator, o baño periódico en Corrosion-X</td>
+<td>[VERIFICADO: S31]</td>
+</tr>
+<tr>
+<td>Rodamientos</td>
+<td>Inox o cerámicos</td>
+<td>[VERIFICADO: S31]</td>
+</tr>
+<tr>
+<td>Tras cada salida</td>
+<td>Sacar el rotor, enjuagar rotor y estator, secar y lanolina</td>
+<td>[VERIFICADO: S27]</td>
+</tr>
+<tr>
+<td>Tornillos inox en aluminio</td>
+<td>Pasta de zinc o Duralac. "Aluminium and stainless steel in salt water is a bad combination…"</td>
+<td>[VERIFICADO: S25]</td>
+</tr>
+<tr>
+<td>Lo que <strong>no</strong> hacer en esos tornillos</td>
+<td>Loctite solo; el que lo usó terminó perforando tornillos</td>
+<td>[VERIFICADO: S25]</td>
+</tr>
+<tr>
+<td>Diagnóstico temprano</td>
+<td>Medir resistencia entre las fases y la carcasa: debe ser circuito abierto</td>
+<td>[VERIFICADO: S24]</td>
+</tr>
+<tr>
+<td>VESC</td>
+<td>Conformal coating (MG 422B) en ambas caras del PCB. "Salt air and humidity will corrode your VESC within weeks"; recubrir de nuevo cada año</td>
+<td>[VERIFICADO: S32]</td>
+</tr>
+<tr>
+<td>Ajustes de VESC</td>
+<td>Regeneración de batería entre −10 y −20 A (−8 a −10 A en packs chicos). Reducción por temperatura desde 80 °C, corte a 100 °C</td>
+<td>[VERIFICADO: S32]</td>
+</tr>
+<tr>
+<td>Caja estanca</td>
+<td>Respiradero de membrana (GORE PolyVent 316L, IP69K, niebla salina) en lugar de un "IP68" genérico</td>
+<td>[VERIFICADO: S33]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Refrigeración.</strong> Un outrunner inundado admite "&gt;100A" contra su hoja de datos, gracias al agua [VERIFICADO: S31]. Es la única ventaja real frente al motor seco de P1. A la potencia de crucero de P1 (~0,7–0,8 kW) no hace falta: R02 ya registra motores secos con ventilación forzada.</p>
+<p><strong>Comparación de energía (solo referencia).</strong> Los mejores eFoil DIY gastan <strong>41–52 Wh/km a 20–23 km/h</strong> con ~95–105 kg [VERIFICADO: S30]. P1 de diseño gasta 136 Wh/km a 6 km/h [CALCULADO: sizing anterior]; con el sizing vigente son <strong>153 Wh/km</strong> [CALCULADO: <code>resultados/sizing_tablas.md</code>]. Son regímenes distintos (hidroala vs casco en la velocidad de casco); no es un argumento para P1.</p>
+<hr />
+<h2 id="6-hélices-y-piezas-fdm-en-agua-lo-que-dicen-los-papers">6. Hélices y piezas FDM en agua: lo que dicen los papers</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Hallazgo</th>
+<th>Número</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FDM (PLA) vs SLA vs metal (SLM AlSi10Mg) en un propulsor chico</td>
+<td>SLA <strong>+35 % vs PLA</strong> y <strong>+18 % vs metal</strong>, así que metal ≈ +14 % vs PLA [CALCULADO: 1,35/1,18]. El metal rinde peor que el SLA, según los autores por ser más pesado. Los motores varían ±11 % sin significancia estadística (ANOVA, p = 0,94)</td>
+<td>[VERIFICADO: S35] (corregido: antes decía "SLM +18 % vs PLA")</td>
+</tr>
+<tr>
+<td>Réplica de hélice en PLA vs original</td>
+<td><strong>−61 % de empuje a 300 rpm</strong> ("representative of a middle RPM value"); ~15 h por impresión. La flecha de FEA de 6,1 mm (plástico; ABS según el apéndice G) vs 0,16 mm (Al 6061) es de la hélice <strong>toroidal</strong> del equipo, no de la réplica</td>
+<td>[VERIFICADO: S37]</td>
+</tr>
+<tr>
+<td>Hélices PLA entubadas de &lt;100 mm</td>
+<td>La deformación no afecta K_T ni K_Q "except for extreme geometries (e.g., thin blades, skew, or rake more than 10°)"; la anisotropía de impresión cuenta</td>
+<td>[VERIFICADO: S36]</td>
+</tr>
+<tr>
+<td>Hélice FFF de HDPE + 15 % (en peso) de fibra de carbono larga, 257,1 mm, 5 palas, 16 rps, túnel de cavitación Emerson (Newcastle)</td>
+<td>Flecha de punta de 88,97 mm (J = 0,3) sin recubrir → 20,09 mm con prepreg; E de 3125 → 14 258 MPa</td>
+<td>[VERIFICADO: S38]</td>
+</tr>
+<tr>
+<td>PETG en agua de mar, 30 días</td>
+<td>Tracción <strong>−17 a −28 %</strong> (artificial y natural)</td>
+<td>[VERIFICADO: S39]</td>
+</tr>
+<tr>
+<td>Termoplásticos impresos en agua de mar</td>
+<td>Difusividad "extremely high" frente al material macizo; el módulo baja en todos, en proporción a la masa absorbida</td>
+<td>[VERIFICADO: S40]</td>
+</tr>
+<tr>
+<td>Hélice PETG en servicio real en el mar</td>
+<td>+25 % de empuje frente a la hélice vieja (otro diseño) y sin cavitación. A los 4 meses, percebes, y <strong>una pala se fisuró al desmontarla para inspección</strong>; los autores lo atribuyen "most certainly" a la degradación por agua salada, sin ensayo. La pintura plástica no alcanzó</td>
+<td>[VERIFICADO: S41]</td>
+</tr>
+<tr>
+<td>Hélice PETG de eFoil impresa (tipo de agua no declarado)</td>
+<td>160 mm × 1,1 de paso, 3 palas; plan del constructor: capa de 0,12 mm, <strong>100 % de relleno</strong>, lijado + epoxi + balanceo, 4–5 repuestos. <strong>En V1 se saltó el epoxi</strong> y la usó cruda ("bare PETG slowly takes on water"). El perfil de MakerWorld usa 0,16 mm, 8 paredes y 30 % de relleno. <strong>Pasador de arrastre que actúa como fusible</strong></td>
+<td>[VERIFICADO: S33][S34] (corregido: antes decía "epoxi + lijado + balanceo" como hecho)</td>
+</tr>
+<tr>
+<td>Toberas de chorro de agua en PLA (lavado, riego; no marino)</td>
+<td>Rompen por encima de <strong>3 bar</strong>, así que hubo que engrosar la pared localmente</td>
+<td>[VERIFICADO: S42]</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Implicación.</strong></p>
+<ul>
+<li>Una hélice impresa <strong>no</strong> sirve como hélice principal de P1. Rinde menos (rigidez y acabado), se fisura en agua salada y P1 ya usa una hélice comercial de metal o compuesto.</li>
+<li>Las piezas impresas sumergidas (protector, patín, carenado del tubo) deben dimensionarse con una pérdida de resistencia por agua de mar del orden del 30 % [ESTIMADO: límite superior de [S39] redondeado].</li>
+</ul>
+<hr />
+<h2 id="7-qué-aplica-a-p1-por-arquitectura">7. Qué aplica a P1, por arquitectura</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Arquitectura</th>
+<th>Veredicto</th>
+<th>Motivo principal (con números)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cola larga, motor seco (candidata)</td>
+<td><strong>Se mantiene</strong></td>
+<td>La hélice grande y lenta da ~38 g/W contra 6–15 g/W de jets o hélices chicas rápidas [CALCULADO: §2.1]. Sin imanes en agua salada</td>
+</tr>
+<tr>
+<td>Waterjet impreso</td>
+<td><strong>Descartar</strong></td>
+<td>1,5–6,2× la potencia a 6 km/h (1,35–5,4× con el sizing vigente) [CALCULADO: §2.3]. En desplazamiento necesita ~30 cm de luz bajo el jet, más su calado [S12]. Pierde ~30 % aun planeando [S11]. Casco mínimo de 14 ft [S12]</td>
+</tr>
+<tr>
+<td>Rim-driven impreso</td>
+<td><strong>Descartar</strong></td>
+<td>×2,6 de corriente con anillo impreso [S19]. Rozamiento del gap [S23]. Arena e imanes</td>
+</tr>
+<tr>
+<td>Hélice entubada (Kort 19A)</td>
+<td><strong>Experimento para P2</strong></td>
+<td>Ganaría bollard (≤30 % [S18]; +39–67 % en estático chico [S17]), pero la reversa no mejora con todas las toberas [S17] y lo que se traba entre hélice y tobera es difícil de quitar [S18]</td>
+</tr>
+<tr>
+<td>Pod sumergido inundado o con aceite</td>
+<td>Penalizar</td>
+<td>Vida de 10 sesiones a 3 años en el mar, siempre con mantenimiento anual [S24–S27]</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="8-fuentes-abiertas-en-esta-sesión">8. Fuentes abiertas en esta sesión</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Id</th>
+<th>URL</th>
+<th>Qué se leyó</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>https://hackaday.com/2019/04/30/3d-printing-a-water-jet-drive/</td>
+<td>Artículo</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>https://www.thingiverse.com/thing:5247333</td>
+<td>og:description</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=GCxNEKDq0gM&amp;format=json</td>
+<td>Solo el título: "Electric Jet Kayak Project - with 3d printed jet pump" (rcandfun). También el título de <code>lBnK8atXRMY</code>: "15 HP Electric Jet Kayak - 3d printed (Update)". <strong>Contenido no visto</strong></td>
+</tr>
+<tr>
+<td>S4</td>
+<td>https://makerworld.com/en/models/3122772 (vía https://makerworld.com/api/v1/design-service/design/3122772)</td>
+<td>Descripción y bitácora</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>https://endless-sphere.com/sphere/threads/electric-surf-board.41960/page-30</td>
+<td>Posts. <strong>En el re-chequeo no abrió</strong> (desafío anti-bot Anubis, también vía WebFetch); sus datos quedan [NO VERIFICADO]</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>https://endless-sphere.com/sphere/threads/diy-3d-printed-electric-waterjet-hitting-duty-cycle-limit-at-89-9-600-rpm-foc-cutout-fault-18-anyone-dealt-with-this.130965/</td>
+<td>Posts. <strong>En el re-chequeo solo se leyeron el título y la meta-descripción</strong> (Anubis): 85 mm, outrunner rebobinado, 14S, Flipsky 75350 con VESC, 89 %, ~9600 rpm, falla 18</td>
+</tr>
+<tr>
+<td>S8</td>
+<td>https://www.boatdesign.net/threads/is-a-diy-jet-drive-feasible.55677/</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S9</td>
+<td>https://www.globalsecurity.org/military/systems/ship/systems/waterjet.htm</td>
+<td>Artículo</td>
+</tr>
+<tr>
+<td>S10</td>
+<td>https://ir.library.oregonstate.edu/downloads/cn69m652n</td>
+<td>Ladd, D. M., <em>Power performance of planing boats with the effect of propeller selection and propeller guard design</em>, MSc OSU, junio de 1976 (texto con pdftotext)</td>
+</tr>
+<tr>
+<td>S11</td>
+<td>https://www.outboardjets.com/faqs/will-i-lose-horsepower-if-i-convert-my-prop-to-a-jet/</td>
+<td>FAQ</td>
+</tr>
+<tr>
+<td>S12</td>
+<td>https://www.outboardjets.com/boat-selection/</td>
+<td>Guía</td>
+</tr>
+<tr>
+<td>S13</td>
+<td>https://fluxjetkayaks.com/blogs/the-current/fluxjet-speed-trials-12v-vs-24v-real-world-performance</td>
+<td>Blog del fabricante</td>
+</tr>
+<tr>
+<td>S14</td>
+<td>https://newatlas.com/boats-watersports/fluxjet-jet-drive-kayak/</td>
+<td>Nota</td>
+</tr>
+<tr>
+<td>S15</td>
+<td>https://fliteboard.com/blogs/news/jet-vs-propeller</td>
+<td>Blog del fabricante</td>
+</tr>
+<tr>
+<td>S16</td>
+<td>https://forum.e-surfer.com/t/5-years-of-work-building-my-own-electric-jetboard/3816</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S17</td>
+<td>https://www.homebuiltrovs.com/rovforum/viewtopic.php?f=3&amp;start=10&amp;t=1464</td>
+<td>Posts de Puzzler300, dic. de 2014. Nota: el autor convirtió 5,00 lb como 2,10 kg; correcto: 2,27 kg</td>
+</tr>
+<tr>
+<td>S18</td>
+<td>https://en.wikipedia.org/wiki/Ducted_propeller</td>
+<td>Artículo</td>
+</tr>
+<tr>
+<td>S19</td>
+<td>https://foil.zone/t/propeller-with-the-duct-integrated-vs-propeller-a-duct/3137</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S20</td>
+<td>https://foil.zone/t/any-prop-guard-duct-options-for-a-6384-motor/17461</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S21</td>
+<td>https://foil.zone/t/propellers-and-ducts/38</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S22</td>
+<td>https://foil.zone/t/superlefax-real-world-propeller-comparison/4093</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S23</td>
+<td>https://en.wikipedia.org/wiki/Rim-driven_thruster</td>
+<td>Artículo</td>
+</tr>
+<tr>
+<td>S24</td>
+<td>https://foil.zone/t/early-check-for-corrosion-water-leak/22446</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S25</td>
+<td>https://foil.zone/t/65161-maintenance/19330</td>
+<td>Posts 1–75</td>
+</tr>
+<tr>
+<td>S26</td>
+<td>https://foil.zone/t/lift-fr-motor-water-tightness/13103</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S27</td>
+<td>https://foil.zone/t/flipsky-7070-waterproof-motor-no-coating-on-magnets-issue/20192</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S28</td>
+<td>https://foil.zone/t/fastest-way-to-waterproof-outrunner/18515</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S29</td>
+<td>https://foil.zone/t/completed-efoil-build-with-6384-motor-on-10s-with-100-kg-rider/17237</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S30</td>
+<td>https://foil.zone/t/efoil-efficiency/9072</td>
+<td>Posts</td>
+</tr>
+<tr>
+<td>S31</td>
+<td>https://e-surfer.com/en/blog/build-your-own-e-foilboard-diy-e-foil-part-2/</td>
+<td>Guía</td>
+</tr>
+<tr>
+<td>S32</td>
+<td>https://pacificmeister.github.io/blog-efoil-vesc-guide.html</td>
+<td>Guía</td>
+</tr>
+<tr>
+<td>S33</td>
+<td>https://github.com/derekhearst/efoil-v2 (README y <code>docs/v1/efoil-3-propulsion.md</code> vía raw.githubusercontent.com)</td>
+<td>Documentación</td>
+</tr>
+<tr>
+<td>S34</td>
+<td>https://makerworld.com/en/models/433274 (vía API)</td>
+<td>Descripción</td>
+</tr>
+<tr>
+<td>S35</td>
+<td>https://pmc.ncbi.nlm.nih.gov/articles/PMC12337201/</td>
+<td>Fernandes, Sahoo, Kothari, <em>OpenThruster</em>, HardwareX 2025</td>
+</tr>
+<tr>
+<td>S36</td>
+<td>https://pp.bme.hu/me/article/view/23795</td>
+<td>Kiss-Nagy, Simongáti, Ficzere, <em>Periodica Polytechnica Mech. Eng.</em> 2024, doi 10.3311/ppme.23795</td>
+</tr>
+<tr>
+<td>S37</td>
+<td>https://www.hajim.rochester.edu/senior-design-day/wp-content/uploads/2024/05/GateD_FDR_Propeller_ME205.pdf</td>
+<td>Informe ME205 (U. Rochester, 2024)</td>
+</tr>
+<tr>
+<td>S38</td>
+<td>https://pmc.ncbi.nlm.nih.gov/articles/PMC11085731/</td>
+<td>Neşer et al., <em>Polymers</em> 2024</td>
+</tr>
+<tr>
+<td>S39</td>
+<td>https://doaj.org/api/articles/85a038b9c02e46399264ee8d54463e03</td>
+<td>Solo el resumen. Singaravel et al., <em>Int. J. Lightweight Mater. Manuf.</em> (DOAJ: año 2026), doi 10.1016/j.ijlmm.2025.08.002</td>
+</tr>
+<tr>
+<td>S40</td>
+<td>https://doaj.org/api/articles/82cbb5ab0261477890163082f94ad69a</td>
+<td>Solo el resumen. Chaudhary, Li, Matos, <em>Results in Materials</em> 2023, doi 10.1016/j.rinma.2023.100381</td>
+</tr>
+<tr>
+<td>S41</td>
+<td>https://www.arcada.fi/en/article/blog/2025-12-18/designing-and-3d-printing-bow-thruster-propeller</td>
+<td>Blog académico</td>
+</tr>
+<tr>
+<td>S42</td>
+<td>https://pmc.ncbi.nlm.nih.gov/articles/PMC12471428/</td>
+<td>Madejski, Buksa, Bryk, <em>Materials</em> 2025</td>
+</tr>
+<tr>
+<td>S43</td>
+<td>https://www.campingworld.com/minn-kota-endura-c2-30-trolling-motor-w-battery-meter---12v---30lb---30-365929.html</td>
+<td>Ficha</td>
+</tr>
+<tr>
+<td>S45</td>
+<td>https://hackaday.com/2019/11/14/5-kilowatts-in-a-3d-printed-jet-boat/</td>
+<td>Artículo</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>No abiertos</strong> (quedan como búsqueda):</p>
+<ul>
+<li><code>buscar: Hydromea DiskDrive 80 datasheet</code></li>
+<li><code>buscar: "Analysis Design Results of Kort Nozzle on Yamaha 15 HP Outboard"</code> (academia.edu devolvió 403)</li>
+<li><code>buscar: "Long-term mechanical performance of 3D printed thermoplastics in seawater" texto completo</code>: el dato de "&lt;1 % de absorción para PETG" que circula <strong>no</strong> lo verifiqué.</li>
+</ul>
+<hr />
+<h2 id="hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</h2>
+<ul>
+<li><strong>Waterjet y rim-drive salen de la matriz como opciones viables.</strong><ul>
+<li>A 6 km/h con T = 203 N, un jet de tobera de 40–100 mm tiene η ideal de 0,22–0,44, y de 0,11–0,27 con pérdidas de ducto K = 0,6–1,0. Una hélice abierta de 198–254 mm tiene 0,59–0,68 [CALCULADO: §2.3].</li>
+<li>Eso son <strong>1,0–4,1 kW al eje vs 664 W</strong> (1,5–6,2×). Con el sizing vigente son 0,98–3,9 kW vs 726 W (1,35–5,4×). La autonomía baja de ~2,5–3,0 h a <strong>~0,45–1,1 h</strong> con pérdidas de ducto realistas (K = 0,6–1,0) [CALCULADO: §2.3].</li>
+<li>En desplazamiento el jet necesita ~305 mm de luz entre su fondo y el lecho para maniobrar, <strong>más</strong> su propio calado [S12]; la ventaja en aguas poco profundas no existe para P1.</li>
+<li>El rim impreso multiplicó la corriente ×2,6 (38 → 100 A) [S19].</li>
+<li>→ En <code>03_arquitectura.md</code>, puntuar jet y rim con la menor nota en autonomía y en arena.</li>
+</ul>
+</li>
+<li><strong>El protector de <code>inputs.yaml</code> estaba subestimado.</strong> (Estado al 2026-10-01: ya se integró, con <code>thrust_loss_frac</code> = 0,10, holgura de 6 mm = 2,4 % de D con 254 mm y L ≈ 76 mm.)<ul>
+<li><code>guard.type: ring</code> con <code>radial_clearance_mm: 10</code> (5 % de D con hélice de 198 mm) es geométricamente el "weed guard" de Ladd (holgura 4,5 % de D con hélice de 8,75", no perfilado), que perdió <strong>25 % de K_T</strong> a J = 0,75 con la hélice PR20 [S10]. El <code>thrust_loss_frac: 0.06</code> es optimista.</li>
+<li>Opción A (recomendada): rediseñar como <strong>aro perfilado tipo 19A / NACA 4415</strong>:<ul>
+<li>L/D ≈ 0,3;</li>
+<li>holgura radial de 4–6 mm (2–3 % de D);</li>
+<li>2–3 brazos perfilados finos y <strong>ninguna barra o reja delante del disco</strong>: con álabes, Ladd midió K_Q +23 % y la canasta da +50 % de drag.</li>
+<li>Presupuestar <strong>K_Q +12 %</strong> sobre el motor [S10].</li>
+</ul>
+</li>
+<li>Opción B: mantener el aro romo pero cargar <code>thrust_loss_frac</code> = 0,20–0,25.</li>
+<li>En ambos casos, ampliar el barrido de sensibilidad de "pérdida por protector" a <strong>0–25 %</strong> (hoy es ±50 % sobre 0,06).</li>
+</ul>
+</li>
+<li><strong>Ensayo obligatorio con el dinamómetro (bollard).</strong> Medir empuje avante y reversa y la corriente de batería en tres configuraciones: sin protector, con aro perfilado y con aro romo, a 3 niveles de acelerador.<ul>
+<li>Puzzler300 mostró que la reversa puede quedar igual (−1,5 %) mientras el avante sube 67 % [S17], con balanza de equipaje. P1 tiene una reversa de diseño de solo 89 N (sizing vigente; antes 94 N), así que esto hay que verificarlo, no suponerlo.</li>
+<li>Criterio: aceptar el protector si la pérdida de empuje en avante a corriente igual es ≤10 % y la reversa con protector es <strong>≥90 % de la medida sin protector</strong> [SUPUESTO].</li>
+<li><strong>Corrección del verificador:</strong> el criterio anterior ("reversa ≥90 N") es inalcanzable, porque el sizing vigente predice 89 N <strong>sin</strong> protector.</li>
+</ul>
+</li>
+<li><strong>Tobera Kort como mejora, no como base.</strong><ul>
+<li>A crucero (C_T ≈ 2,9–4,7) la ganancia ideal es de solo <strong>+6–8,5 %</strong> antes de restar el drag [S10, tabla 3.1; CALCULADO]. Con el sizing vigente (D = 254 mm, C_T ≈ 2,7) es <strong>≈ +5,7 %</strong>. El neto estimado es de 0 a +5 % de autonomía [ESTIMADO].</li>
+<li>La ganancia grande (hasta +30 %) es en bollard [S18]. Los 6–12 km/h de P1 están debajo del límite de ~18,5 km/h [S18].</li>
+<li>Pero:</li>
+<li>exige una holgura de ~0,5 % de D (≈1 mm) [S10], incompatible con PETG que flexa, kick-up y una hélice comercial;</li>
+<li>lo que se traba entre hélice y tobera ("ice or any other floating object") es "much more difficult to clear" [S18].</li>
+<li>→ Pasarla a <code>07_roadmap_P2.md</code> como experimento con banco de ensayo.</li>
+</ul>
+</li>
+<li><strong>Corrosión: aunque el motor de P1 esté arriba, tratarlo como en niebla salina.</strong> Un motor "waterproof" perdió los imanes en 10 sesiones [S27]; uno de aceite y sello mató rodamientos en 2–3 temporadas [S25]; un eFoil enjuagado tras cada uso quedó agarrotado a los 18 meses [S24]. Para P1:<ol>
+<li>Recubrir <strong>estator e imanes</strong> con 2 capas finas de epoxi (método de [S28]).</li>
+<li>Rodamientos del motor y de los soportes en inox o híbridos cerámicos (tipo S608/S6000-2RS, como en [S4]) <strong>o</strong> reemplazo anual en el checklist.</li>
+<li>Todo tornillo inox en aluminio con pasta de zinc, Duralac o Tef-Gel, nunca solo Loctite [S25].</li>
+<li>Agregar al checklist mensual la <strong>prueba de aislamiento fase-carcasa con el multímetro</strong>: debe dar circuito abierto [S24]. Es también un ítem de <strong>seguridad personal</strong>: en S24 la falla de aislamiento dejó la carcasa con tensión y el usuario recibió una descarga parado en agua de mar. Para P1: medir fases y + / − contra el soporte metálico y el casco de aluminio antes de cada temporada y tras cualquier inmersión del motor.</li>
+<li>VESC con conformal coating MG 422B en ambas caras y recubrimiento anual [S32].</li>
+<li>Cajas de ESC y batería con <strong>respiradero de membrana 316L</strong> contra el bombeo térmico [S26][S33].</li>
+<li>Regeneración de batería ≤ −10 A y reducción por temperatura desde 80 °C [S32]. Coincide con lo que R02 dice del BMS.</li>
+</ol>
+</li>
+<li><strong>Agregar un factor por agua de mar a las piezas impresas sumergidas.</strong> PETG pierde <strong>17–28 % de tracción en 30 días</strong> de agua de mar [S39]. En servicio, una pala PETG apareció fisurada al desmontarla a los 4 meses; la causa atribuida (agua salada) no está ensayada [S41].<ul>
+<li>Sumar a <code>materials.design_factors</code> un factor de <strong>0,70</strong> (o menor) para protector, patín, carenado y aleta.</li>
+<li>Inspeccionar fisuras cada 5 salidas [SUPUESTO] y reponer las piezas sumergidas cada temporada [ESTIMADO].</li>
+</ul>
+</li>
+<li><strong>No imprimir la hélice principal; la impresa queda solo como repuesto de emergencia.</strong><ul>
+<li>Una réplica en PLA dio <strong>−61 %</strong> de empuje [S37]; el PLA FDM rinde 26 % menos que el SLA [S35, CALCULADO: 1 − 1/1,35].</li>
+<li>Si se imprime un repuesto: PETG al 100 % de relleno con capa de 0,12 mm (plan de [S33]; ese constructor finalmente usó la hélice sin epoxi en V1), epoxi + balanceo [SUPUESTO: buena práctica, no validada en las fuentes], palas gruesas, skew y rake ≤10° [S36: simulación de hélices &lt;100 mm, extrapolada] y el mismo pasador de corte.</li>
+</ul>
+</li>
+<li><strong>La reducción por correa queda validada frente a la tracción directa de alta rpm.</strong> El empuje estático por vatio de las soluciones chicas y rápidas (6–15 g/W: jets de 80 mm y el propulsor chico OpenThruster) es 2,5–6,4 veces peor que el de una hélice grande y lenta (~38 g/W según ficha, sin ensayo independiente) [CALCULADO: §2.1]. Mantener la reducción por correa y la hélice grande del sizing (vigente: <strong>2:1</strong> y 254 mm; la versión anterior decía "3:1 y ≥198 mm", que ya no coincide con <code>resultados/sizing_tablas.md</code>). No bajar el diámetro para facilitar el protector.</li>
+</ul>
+<hr />
+<h2 id="verificación-adversarial">Verificación (adversarial)</h2>
+<p>Re-chequeo del 2026-10-01. Se volvieron a abrir <strong>todas</strong> las fuentes de §8: 43 ids y 46 URLs, contando los dos oEmbed de S3, los dos archivos raw de S33 y el intento sobre Printables 681590. Cómo se abrieron:</p>
+<ul>
+<li><code>curl</code>: HTML, PDF y la API JSON de foil.zone, MakerWorld y DOAJ;</li>
+<li><code>pdftotext</code>: S10 y S37;</li>
+<li>WebFetch: las tres páginas de PMC (S35, S38, S42), que con <code>curl</code> devuelven reCAPTCHA.</li>
+</ul>
+<p>No abrieron:</p>
+<ul>
+<li>S5: Endless Sphere bloquea con Anubis, también vía WebFetch;</li>
+<li>S6: mismo bloqueo; solo se pudo leer la meta-descripción;</li>
+<li>Printables 681590: 403 de Cloudflare.</li>
+</ul>
+<p>Además se cotejó la "Referencia de P1" contra <code>resultados/sizing_tablas.md</code> e <code>inputs.yaml</code> vigentes.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Afirmación / URL</th>
+<th>Estado</th>
+<th>Nota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>S35 OpenThruster: "SLA +35 % y <strong>SLM +18 %</strong> vs PLA"</td>
+<td><strong>corregido</strong></td>
+<td>La fuente dice que el SLA rinde +35 % vs PLA y <strong>+18 % vs el metal</strong>. Metal vs PLA ≈ +14 % [CALCULADO]. El de metal es peor que el SLA</td>
+</tr>
+<tr>
+<td>2</td>
+<td>S37 Rochester: "flecha FEA 6,1 mm (<strong>PLA</strong>) vs 0,16 mm" atribuida a la réplica</td>
+<td><strong>corregido</strong></td>
+<td>0,241 in y 0,00632 in = 6,1 y 0,16 mm (OK), pero son de la hélice <strong>toroidal</strong>, y el apéndice G dice <strong>ABS</strong> vs Al 6061. El −61 % a 300 rpm de la réplica sí está</td>
+</tr>
+<tr>
+<td>3</td>
+<td>S33 hélice PETG "epoxi + lijado + balanceo"</td>
+<td><strong>corregido</strong></td>
+<td>Era el plan. El doc dice "Epoxy coating on the printed prop was skipped for V1". Las cifras de 0,12 mm y 100 % son del constructor; el perfil de MakerWorld (S34) usa 0,16 mm, 8 paredes y 30 %</td>
+</tr>
+<tr>
+<td>4</td>
+<td>S33/E6 "agua dulce"</td>
+<td><strong>no verificado</strong></td>
+<td>Ni el README ni el doc de propulsión dicen el tipo de agua</td>
+</tr>
+<tr>
+<td>5</td>
+<td>E2 "65161 … <strong>6 kW</strong>"</td>
+<td><strong>eliminado</strong></td>
+<td>No figura en S25 ni en S32. "Inrunner" sí figura en S32</td>
+</tr>
+<tr>
+<td>6</td>
+<td>S13 FluxJet: hélice de comparación a "7,1 km/h"</td>
+<td><strong>corregido</strong></td>
+<td>La fuente dice 4,3 mph = <strong>6,9 km/h</strong>. Los demás valores (3,5–3,8 mph, 150 W, 4,9–5,0 mph, 700 W, 500–600 W) están OK</td>
+</tr>
+<tr>
+<td>7</td>
+<td>S29: "6384, agua dulce, <strong>varias temporadas</strong>, rodamientos corroídos"</td>
+<td><strong>corregido</strong></td>
+<td>Fueron ~10–11 sesiones en lago (Noruega), 1.ª temporada, con rodamientos "ceased a bit"</td>
+</tr>
+<tr>
+<td>8</td>
+<td>S27: "otro usuario perdió varios motores por corrosión de imanes"</td>
+<td><strong>corregido (matiz)</strong></td>
+<td>Fue en e-bike de invierno en Suecia (sal de ruta), no en el mar</td>
+</tr>
+<tr>
+<td>9</td>
+<td>S41 Arcada: "pala fisurada en servicio a los 4 meses"</td>
+<td><strong>corregido (matiz)</strong></td>
+<td>Se fisuró "when removing the propeller for inspection". La causa (agua salada) es una atribución de los autores sin ensayo. El +25 % es contra la hélice vieja (otro diseño)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>S18 Wikipedia: "algas … se traban", "peor gobierno en reversa"</td>
+<td><strong>corregido</strong></td>
+<td>Dice "ice or any other floating object". Lista "course stability when sailing astern" como desventaja, y "less vulnerability to debris" y menos succión del fondo como ventajas</td>
+</tr>
+<tr>
+<td>11</td>
+<td>S12: "necesita ~305 mm de <strong>agua</strong>"</td>
+<td><strong>corregido</strong></td>
+<td>Son 12 in de luz entre el fondo del jet y el lecho; el calado del jet se suma</td>
+</tr>
+<tr>
+<td>12</td>
+<td>§2.3: "1,6–6×" y "autonomía <strong>&lt;1 h</strong>"</td>
+<td><strong>corregido</strong></td>
+<td>Recalculado: 1,5–6,2×; 0,45–1,1 h con K = 0,6–1,0 (1,8 h con K = 0 y tobera de 100 mm). Con el sizing vigente: 1,35–5,4×</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Referencia de P1 (§0): R, T, J, η0, potencias, bollard, "3:1", "≥198 mm", "136 Wh/km", "reversa 94 N"</td>
+<td><strong>corregido (nota)</strong></td>
+<td><code>sizing_tablas.md</code> vigente: 195 N, 726 W, 770/920 W, bollard 280/89 N, correa 2:1, D = 254 mm, 153 Wh/km</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Hallazgo: criterio "reversa ≥90 N" con protector</td>
+<td><strong>corregido</strong></td>
+<td>Es inalcanzable: el sizing da 89 N sin protector. Pasa a ser ≥90 % de la reversa medida sin protector [SUPUESTO]</td>
+</tr>
+<tr>
+<td>15</td>
+<td>D2 Ladd: hélice "~8,8" [CALCULADO]"</td>
+<td><strong>corregido</strong></td>
+<td>S10 dice 8,75 in de forma explícita</td>
+</tr>
+<tr>
+<td>16</td>
+<td>S10 Ladd: K_T −25 % a J = 0,75 (PR20); K_Q +2 %; tobera 19A L/D = 0,275, holgura 0,04" = 0,5 % de D; K_Q +11,7 %; álabes +23 %; 34,6 / 25,5 / 32,3 / 27,4 kn; canasta +50 % de drag y −1/3 de velocidad; K = 0,6–1,0 → 0,5–0,6; hélices ~0,80; tabla 3.1</td>
+<td>OK</td>
+<td>Todo textual. Ladd también dice que el perfil óptimo para un protector sería "neutral" y no acelerador, y que la entrada de la hélice queda desprotegida</td>
+</tr>
+<tr>
+<td>17</td>
+<td>S17 Puzzler300: 3,60 / 6,00 / 5,00 / 4,08 lb avante; 2,03 / 2,00 / 2,6 / 2,34 lb reversa; 40×57 mm, 700 kV</td>
+<td>OK</td>
+<td>La reversa con tobera "arbitrary" da −1,5 % (el archivo decía −1 %). Medido con balanza de equipaje</td>
+</tr>
+<tr>
+<td>18</td>
+<td>S2 Thingiverse: 80 mm, 6S 22 V, 420 kV, ~2,5 kW "questionable", ~12 km/h, 4 kg a 270 W, pared de 1,8 mm, 608-2RS, impulsor impreso "hot"</td>
+<td>OK</td>
+<td>og:description y título</td>
+</tr>
+<tr>
+<td>19</td>
+<td>S3 títulos oEmbed</td>
+<td>OK</td>
+<td>Solo títulos; no se presenta contenido de video como visto</td>
+</tr>
+<tr>
+<td>20</td>
+<td>S4 PRO-JET 80: 26 V / 40 A / 1100 W, 11,5 km/h, 90 kg, 40 A a 10 km/h, shim de 3 mm, S6000 / S608-2RS híbridos, 6374/6384 con epoxi, estator de 55 mm</td>
+<td>OK</td>
+<td>La fuente dice "12-inch SUP" (errata evidente por 12 ft)</td>
+</tr>
+<tr>
+<td>21</td>
+<td>S5 jet 80 mm + TP100: 78–80 lb, 10 000 rpm, 8S, 180 A, Maytech 300 A</td>
+<td><strong>no verificado</strong></td>
+<td>Anubis</td>
+</tr>
+<tr>
+<td>22</td>
+<td>S6 jet 85 mm: 49,8 kgf, 250 A; "9100–9500 rpm"</td>
+<td><strong>no verificado / corregido</strong></td>
+<td>El título dice ~9600 rpm y 89 %. El cuerpo no abrió</td>
+</tr>
+<tr>
+<td>23</td>
+<td>S8 boatdesign: 42 → 35 kn, holgura 0,002", palas ABS deflectadas, cavitación en toma, rotor y estator</td>
+<td>OK (matiz)</td>
+<td>"most probably deflected". Jet ABS 1:4: 50 N de bollard máximo, y el ducto filtraba aun al 100 % de relleno</td>
+</tr>
+<tr>
+<td>24</td>
+<td>S9 globalsecurity: 65 % vs 40 % a 16 kn; "severely outclassed … up to about 25 knot"; recuperación en la toma ~70 %</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>25</td>
+<td>S11 "30 % HP loss, ×0,7"; S12 14 ft × 48", "mid 20 MPH"</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>26</td>
+<td>S14 New Atlas: motor anular, sin gap para arena, US$2999, 40 kg, 1000 W</td>
+<td>OK</td>
+<td>Precio de lanzamiento declarado en la nota (2025)</td>
+</tr>
+<tr>
+<td>27</td>
+<td>S15 Fliteboard: "Flite Jet 2 consumes more power than propeller systems"</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>28</td>
+<td>S16 e-surfer: ESC "blowed up due to water and low quality components"</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>29</td>
+<td>S19 / S20: 38 A → 100 A a 20 km/h; "did not work, it was too inefficient"; ducto de Flo "effective brake", ~550 g</td>
+<td>OK</td>
+<td>12S y 44–46 V vienen de S22 (agregado)</td>
+</tr>
+<tr>
+<td>30</td>
+<td>S21 tunnelvision: PC-Max, "Both don't seem to generate a lot of drag", 32–35 A a ~26 mph, 105 kg, 530 kV, 6,67:1; "big drop above 12 mph"</td>
+<td>OK (dato débil)</td>
+<td>Los 26 mph a 3500 rpm con 200 mm de paso implican resbalamiento cero; otro usuario lo objetó en el hilo</td>
+</tr>
+<tr>
+<td>31</td>
+<td>S22: +10 A con ducto</td>
+<td>OK</td>
+<td>Es la lectura de un usuario (erwan) sobre la tabla de superlefax</td>
+</tr>
+<tr>
+<td>32</td>
+<td>S23 Wikipedia rim-driven: 500 kW – 3 MW; rozamiento en el gap; bujes lubricados por agua</td>
+<td>OK</td>
+<td>El rango es "as of 2017" (agregado)</td>
+</tr>
+<tr>
+<td>33</td>
+<td>S24 Tame Billow: 18 meses, 1–3/semana, enjuague, eje agarrotado, fuga a masa, ESC muerto, US$365 + 185</td>
+<td>OK + <strong>agregado</strong></td>
+<td>No se había registrado que el usuario recibió una <strong>descarga eléctrica</strong> de la carcasa en el agua de mar</td>
+</tr>
+<tr>
+<td>34</td>
+<td>S25 65161: ~3 años en mar, NSK 6001DDU 28×12×8, "few drops of water past the seal", "just enough to kill the bearings", zinc / Duralac, "bad combination", Loctite → tornillos perforados; Lift jet = hélice entubada con tolerancia de punta muy chica</td>
+<td>OK</td>
+<td>Se leyeron los 73 posts (20 + 53 vía <code>/posts.json</code>)</td>
+</tr>
+<tr>
+<td>35</td>
+<td>S26 Lift/FR: 9 psi, aceite una vez por año, sello de un labio, O-ring, bombeo térmico, juego axial &gt;2 mm</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>36</td>
+<td>S28: 60 °C, 2 capas, 4–6 h, 6384 de 170 kV; "thin coat of normal epoxy"</td>
+<td>OK</td>
+<td>Se re-redactó el rótulo "Si no se recubre"</td>
+</tr>
+<tr>
+<td>37</td>
+<td>S30: 41–52 Wh/km a 20–23 km/h, 95–105 kg</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>38</td>
+<td>S31 e-surfer: &gt;100 A, epoxi térmica, Corrosion-X, rodamientos inox o cerámicos</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>39</td>
+<td>S32 VESC: MG 422B en ambas caras, "within weeks", re-coat anual, regeneración −10 a −20 A (−8 a −10 A en packs chicos), 80 / 100 °C</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>40</td>
+<td>S33: GORE PolyVent 316L, IP69K, niebla salina; 4169 W; 47,4 °C; 29,94 kg; 14S9P; pasador "drive/shear pin"</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>41</td>
+<td>S36: &lt;100 mm, PLA FFF, FSI, "except for extreme geometries (… skew, or rake more than 10°)"</td>
+<td>OK</td>
+<td>Es solo simulación; extrapolarlo a 254 mm es [SUPUESTO]</td>
+</tr>
+<tr>
+<td>42</td>
+<td>S38 Neşer: HDPE + 15 % de CF, 257,1 mm, 5 palas, 16 rps, 88,97 → 20,09 mm (J = 0,3), E de 3125 → 14 258 MPa</td>
+<td>OK</td>
+<td>—</td>
+</tr>
+<tr>
+<td>43</td>
+<td>S39 Singaravel: PETG −17–28 %, PLA −26–35 %, ABS −15–25 %, Nylon −31–44 %, 30 días</td>
+<td>OK</td>
+<td>El año del volumen en DOAJ es 2026</td>
+</tr>
+<tr>
+<td>44</td>
+<td>S40 Chaudhary: difusividad "extremely high", módulo en baja</td>
+<td>OK</td>
+<td>Solo el resumen; los ensayos son a temperatura elevada</td>
+</tr>
+<tr>
+<td>45</td>
+<td>S42 Madejski: PLA, &gt;3 bar, pared engrosada</td>
+<td>OK</td>
+<td>Son toberas de chorro (lavado, riego), no propulsión</td>
+</tr>
+<tr>
+<td>46</td>
+<td>S43 Minn Kota Endura C2 30: 12 V, 30 lb, "Max Amp Draw: 30"</td>
+<td>OK</td>
+<td>Ficha comercial; empuje nominal sin ensayo independiente</td>
+</tr>
+<tr>
+<td>47</td>
+<td>S1 / S45 Hackaday</td>
+<td>OK</td>
+<td>En S1 lo de los rodamientos sumergidos viene de comentarios. En S45 el acople impreso falló y usó una turbina comercial</td>
+</tr>
+<tr>
+<td>48</td>
+<td>Printables 681590 (vía R02)</td>
+<td><strong>no verificado</strong></td>
+<td>403 de Cloudflare</td>
+</tr>
+<tr>
+<td>49</td>
+<td>"NACA 4415" en el hallazgo del protector</td>
+<td>OK</td>
+<td>S18 lo menciona ("very good characteristics"); Puzzler300 también lo cita</td>
+</tr>
+<tr>
+<td>50</td>
+<td>Precios, números de pieza y propiedades de material</td>
+<td>OK</td>
+<td>No se hallaron precios inventados. Los números de pieza (S6000 / S608-2RS, NSK 6001DDU, MG 422B, GORE PolyVent) están todos en sus fuentes. Las propiedades de material citadas (E, % de tracción) están en S38 y S39</td>
+</tr>
+</tbody>
+</table></div></article>
+</div>
+</main>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auditoría adversarial — P1-J waterjet (Pasada 3) — P1-J · Strålen</title>
+<meta name="description" content="Método: auditores independientes por área (cálculo/física, CAD/estructural, BOM/eléctrico/legal, documentos) que intentan refutar el paquete leyendo código y recalculando a mano;…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="Auditoría adversarial — P1-J waterjet (Pasada 3) — P1-J · Strålen">
+<meta property="og:description" content="Método: auditores independientes por área (cálculo/física, CAD/estructural, BOM/eléctrico/legal, documentos) que intentan refutar el paquete leyendo código y recalculando a mano;…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/auditoria.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Auditoría adversarial — P1-J waterjet (Pasada 3) — P1-J · Strålen">
+<meta name="twitter:description" content="Método: auditores independientes por área (cálculo/física, CAD/estructural, BOM/eléctrico/legal, documentos) que intentan refutar el paquete leyendo código y recalculando a mano;…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/auditoria.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header">
+  <div class="bar wide">
+    <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../index.html">Inicio</a><a href="../visor/index.html">Visor 3D</a><a href="../documentos.html" aria-current="page">Documentos</a><a href="../planos.html">Planos</a><a href="../bom.html">Materiales</a><a href="../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub&nbsp;↗</a></nav>
+  </div>
+</header>
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../documentos.html">Documentos</a> / <span class="mono">auditoria.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/auditoria.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#hallazgos-detectados-durante-el-diseño-del-waterjet-pasadas-12-ya-corregidos">Hallazgos detectados durante el diseño del waterjet (Pasadas 1–2, ya corregidos)</a></li>
+<li><a href="#abiertos-declarados-no-se-resuelven-desde-la-propulsión">Abiertos declarados (no se resuelven desde la propulsión)</a></li>
+<li><a href="#ronda-1-3-auditores-independientes-cálculo-cadestructural-bomeléctricolegal">Ronda 1 (3 auditores independientes: cálculo, CAD/estructural, BOM/eléctrico/legal)</a><ul>
+<li><a href="#cálculo-a">Cálculo (A)</a></li>
+<li><a href="#cad-estructural-c">CAD / estructural (C)</a></li>
+<li><a href="#bom-eléctrico-legal-e">BOM / eléctrico / legal (E)</a></li>
+</ul>
+</li>
+<li><a href="#ronda-2-3-auditores-nuevos-sobre-el-paquete-corregido">Ronda 2 (3 auditores nuevos sobre el paquete corregido)</a></li>
+<li><a href="#ronda-3-fea-de-las-piezas-críticas-04_disenofea-cerrada">Ronda 3 (FEA de las piezas críticas, 04_diseno/fea) — cerrada</a></li>
+<li><a href="#regeneración-desde-inputsyaml">Regeneración desde inputs.yaml</a></li>
+<li><a href="#historial-versión-anterior-cola-larga-archivada">Historial (versión anterior: cola larga, archivada)</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#hallazgos-detectados-durante-el-diseño-del-waterjet-pasadas-12-ya-corregidos">Hallazgos detectados durante el diseño del waterjet (Pasadas 1–2, ya corregidos)</a></li>
+<li><a href="#abiertos-declarados-no-se-resuelven-desde-la-propulsión">Abiertos declarados (no se resuelven desde la propulsión)</a></li>
+<li><a href="#ronda-1-3-auditores-independientes-cálculo-cadestructural-bomeléctricolegal">Ronda 1 (3 auditores independientes: cálculo, CAD/estructural, BOM/eléctrico/legal)</a><ul>
+<li><a href="#cálculo-a">Cálculo (A)</a></li>
+<li><a href="#cad-estructural-c">CAD / estructural (C)</a></li>
+<li><a href="#bom-eléctrico-legal-e">BOM / eléctrico / legal (E)</a></li>
+</ul>
+</li>
+<li><a href="#ronda-2-3-auditores-nuevos-sobre-el-paquete-corregido">Ronda 2 (3 auditores nuevos sobre el paquete corregido)</a></li>
+<li><a href="#ronda-3-fea-de-las-piezas-críticas-04_disenofea-cerrada">Ronda 3 (FEA de las piezas críticas, 04_diseno/fea) — cerrada</a></li>
+<li><a href="#regeneración-desde-inputsyaml">Regeneración desde inputs.yaml</a></li>
+<li><a href="#historial-versión-anterior-cola-larga-archivada">Historial (versión anterior: cola larga, archivada)</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="auditoría-adversarial-p1-j-waterjet-pasada-3">Auditoría adversarial — P1-J waterjet (Pasada 3)</h1>
+<p>Método: auditores independientes por área (cálculo/física, CAD/estructural, BOM/eléctrico/legal,
+documentos) que intentan refutar el paquete leyendo código y recalculando a mano; cada hallazgo se
+verifica antes de corregirlo; se repiten rondas hasta que una ronda no encuentra nada relevante.</p>
+<h2 id="hallazgos-detectados-durante-el-diseño-del-waterjet-pasadas-12-ya-corregidos">Hallazgos detectados durante el diseño del waterjet (Pasadas 1–2, ya corregidos)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Hallazgo</th>
+<th>Severidad</th>
+<th>Resolución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>W-01</td>
+<td><strong>Plano de Jorge: la rejilla/toma estaba detrás del impulsor</strong> → la bomba no se ceba ni recibe flujo ordenado</td>
+<td>Crítica</td>
+<td>Toma enrasada entera a proa del impulsor, rampa 27°, labio con radio (D-06; research/R10b)</td>
+</tr>
+<tr>
+<td>W-02</td>
+<td>Bomba dimensionada a la potencia continua: no podía usar la potencia pico del tren directo limitado por tensión</td>
+<td>Alta</td>
+<td>Variable <code>design_power_frac</code> en el optimizador (02 §5)</td>
+</tr>
+<tr>
+<td>W-03</td>
+<td><code>params.py</code>: la posición del sello usaba una x del marco BOTE como distancia sobre el eje</td>
+<td>Alta</td>
+<td>Distancia sobre el eje / cos α; test de interfaz</td>
+</tr>
+<tr>
+<td>W-04</td>
+<td>Caja del sello dentro del conducto (la salida del eje cortaba la curva del techo)</td>
+<td>Alta</td>
+<td>Salida del eje a 1,85·D (techo de curvatura continua)</td>
+</tr>
+<tr>
+<td>W-05</td>
+<td>Pie del soporte de rodamientos sobre la abertura de la toma</td>
+<td>Alta</td>
+<td>Pórtico con apoyos a |y| = W_open/2 + 45 mm, espárragos M8</td>
+</tr>
+<tr>
+<td>W-06</td>
+<td>Roscas M8 en Al del soporte con FS 1,97 &lt; 2</td>
+<td>Media</td>
+<td>Espárragos avellanados A4 + tuerca</td>
+</tr>
+<tr>
+<td>W-07</td>
+<td>Pernos de pivote de la boquilla FS 1,48 en voladizo</td>
+<td>Alta</td>
+<td>Biempotrado (STE-02) y espárrago con hombro (STE-05)</td>
+</tr>
+<tr>
+<td>W-08</td>
+<td>Bucket bajado a 3,7 mm de la quilla</td>
+<td>Media</td>
+<td>12,6 mm (REV-01)</td>
+</tr>
+<tr>
+<td>W-09</td>
+<td>Resalte del eje Ø25 &lt; d_a mín 25,6 mm del 7204 BEP (el aro interior no apoya)</td>
+<td>Media</td>
+<td>Resalte Ø26</td>
+</tr>
+<tr>
+<td>W-10</td>
+<td>Cambio de tobera Ø82 → Ø87 rompía dirección y placa de espejo</td>
+<td>Alta</td>
+<td>Geometría robusta para D_tobera 76,6–97,7 mm (orejas en PMP-09, bujes POM) + verify en todo el rango del optimizador</td>
+</tr>
+<tr>
+<td>W-11</td>
+<td><code>comparacion.py</code>: costo de B nulo (columnas de la BOM mal leídas)</td>
+<td>Media</td>
+<td>Lee <code>cubre</code> y <code>precio_total_EUR</code>; valores en README</td>
+</tr>
+<tr>
+<td>W-12</td>
+<td>Batería ubicada contra un largo de casco de referencia (1,4 m) en vez del casco real</td>
+<td>Baja</td>
+<td>Chequeo contra 0,75·LOA</td>
+</tr>
+<tr>
+<td>W-13</td>
+<td>Ensamblaje STEP de 69 MB (límite de GitHub)</td>
+<td>Baja</td>
+<td><code>.step.gz</code> versionado</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="abiertos-declarados-no-se-resuelven-desde-la-propulsión">Abiertos declarados (no se resuelven desde la propulsión)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Hallazgo</th>
+<th>Severidad</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>W-14</td>
+<td><strong>Estabilidad del casco</strong>: GM ≈ 0.009 m, capacidad 33 CFR 183.33 = 46 kg con casco ESTIMADO</td>
+<td>Crítica (seguridad)</td>
+<td>Bloquea las pruebas en agua: ensayo de escora (PENDIENTES P0) y probablemente ensanchar el casco o bajar el asiento. Declarado en README, D-04, 06 y checklist</td>
+</tr>
+<tr>
+<td>W-16</td>
+<td><strong>Holgura de la bomba sobre el fondo interior</strong>: con el fondo [SUPUESTO] de 4 mm, la tobera fija queda a 4,5 mm del fondo interior (carcasa 5,6 mm). Un fondo de ≥ 6,5 mm (p. ej. PRFV, o una sobreplaca) no entra con el eje a 115 mm. Lo encontró la prueba de regeneración completa (+4 mm de fondo → <code>verify</code> falla)</td>
+<td>Media</td>
+<td><code>verify_parts.py</code> lo detecta y detiene el pipeline (no pasa en silencio). Acción: medir el espesor real del fondo (PENDIENTES P0) y, si es &gt; 6 mm, subir <code>waterjet.axis_height_m</code> lo mismo (cada mm resta sumersión: ver <code>sizing.priming</code>)</td>
+</tr>
+<tr>
+<td>W-15</td>
+<td>Objetivo 30 km/h no alcanzado sostenido (24.4 km/h) con &lt; 50 V y la batería que entra</td>
+<td>Media (requisito)</td>
+<td>Reportado; alternativas en 07 (72 V con declaración, motor mayor)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="ronda-1-3-auditores-independientes-cálculo-cadestructural-bomeléctricolegal">Ronda 1 (3 auditores independientes: cálculo, CAD/estructural, BOM/eléctrico/legal)</h2>
+<p>44 hallazgos verificados; corregidos por subsistema (commits <code>5d1be64</code>, <code>8c0bf1d</code>, <code>aca5edb</code> y siguientes).</p>
+<h3 id="cálculo-a">Cálculo (A)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Hallazgo</th>
+<th>Sev.</th>
+<th>Resolución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td><strong>Savitsky fuera de validez</strong>: largo mojado de quilla 1,77–2,10 m &gt; fondo 1,75 m en todo el tramo que define la joroba y la V máx.; <code>valid</code> solo miraba τ</td>
+<td>Alta</td>
+<td>Validez L_K ≤ L_wl, λ ≤ 4 por punto en <code>sizing.json</code>; "Savitsky limitado por eslora" [ESTIMADO, D-21] con banda ensanchada. <strong>Resultado: margen en la joroba -8% &lt; 10 % (banda alta) — no cumple</strong>; V máx. sostenida 24.4 km/h sin base validada hasta T4. Lo que recupera el 10 %: 21 kg menos o L_wl ≥ 1,96 m (02 §3.2)</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>Sensibilidad de masa del casco sin efecto (dos fuentes del mismo dato)</td>
+<td>Media</td>
+<td>Una sola fuente; test: cada sensibilidad mueve alguna salida</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>Sensibilidad informaba "planea" en vez de "cumple 10 %"</td>
+<td>Media</td>
+<td><code>hump_ok</code> y <code>any_hump_fail</code> en la tabla de 02 §10</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>IVR con área anular (×1,33): "lejos de la separación" era falso</td>
+<td>Media</td>
+<td>IVR en la garganta: 0,61 a V máx. → <strong>dentro de la zona de separación</strong> (02 lo dice)</td>
+</tr>
+<tr>
+<td>A5</td>
+<td>t = w = 0 etiquetados "conservador": no lo son cerca de la joroba</td>
+<td>Media</td>
+<td>Sensibilidad t, w 0–0,10 (t = 0,10 → margen −7 %); D-22</td>
+</tr>
+<tr>
+<td>A6</td>
+<td>Límite del VESC sobre I_q (FOC) no sobre I_m: margen real 2,4 %</td>
+<td>Media</td>
+<td>Convención en inputs [SUPUESTO], medir λ con VESC Tool (T0)</td>
+</tr>
+<tr>
+<td>A7</td>
+<td><code>sizing.json</code> desactualizado respecto de inputs sin que nada lo detecte</td>
+<td>Baja</td>
+<td>Hash de inputs en <code>sizing.json</code> + test duro</td>
+</tr>
+<tr>
+<td>A8</td>
+<td>Tope de cavitación de 02 ≠ firmware</td>
+<td>Baja</td>
+<td><code>sizing.cavitation_cap</code>; no se programa (lo cumple el límite de corriente a punto fijo; un tope fijo recortaría la V pico); verificar en T2</td>
+</tr>
+<tr>
+<td>A9</td>
+<td>Perfil COSTA: P y autonomía "a 5 kn" calculadas a rpm que el perfil no permite</td>
+<td>Baja</td>
+<td>Tabla con V y P reales con el tope (piloto de diseño ~7,8 km/h)</td>
+</tr>
+<tr>
+<td>A10</td>
+<td>Masa del impulsor y ondulación de par distintas en dos cálculos</td>
+<td>Baja</td>
+<td>Una fuente (CAD) y una entrada</td>
+</tr>
+<tr>
+<td>A11</td>
+<td>NPSH con inmersión estática en planeo</td>
+<td>Baja</td>
+<td>h_sub(V): S = 3,20 a V máx. (cumple)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="cad-estructural-c">CAD / estructural (C)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Hallazgo</th>
+<th>Sev.</th>
+<th>Resolución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td><strong>Pasador, impulsor y estator no se podían cambiar</strong> sin desarmar todo el tren (bridas &gt; agujero del espejo; pasador pasante que no entraba ni en el montaje inicial)</td>
+<td>Alta</td>
+<td>Brida de la tobera que pasa por el espejo, 2 semipasadores, <code>service_paths()</code> con 11 caminos de extracción verificados en <code>verify_parts</code> (V7)</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>Pórtico de rodamientos imposible de montar en la secuencia documentada</td>
+<td>Alta</td>
+<td>Zapatas con ranura abierta, desliza axialmente; pasadores Ø6 toman el corte; secuencia en 06 M6/M7</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>Unión carcasa–tobera y M5 del estator sin sello, presurizados dentro del casco</td>
+<td>Alta</td>
+<td>O-ring radial en la espiga, M5 del lado seco con arandela bonded, espiga +0,25 mm</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>Ranuras DIN 471 de TREN ≠ BOMBA</td>
+<td>Media</td>
+<td>Derivadas de una sola fuente + check</td>
+</tr>
+<tr>
+<td>C5</td>
+<td>Avellanado M8 en Al subestimado (FS 1,67) y precargas distintas</td>
+<td>Media</td>
+<td>Un par (10 N·m), área proyectada: FS 2,46</td>
+</tr>
+<tr>
+<td>C6</td>
+<td>Arranque de rosca M6 en 5083 sin verificar (FS 1,6)</td>
+<td>Media</td>
+<td>Precarga 2,2 kN + Loctite: FS 2,33</td>
+</tr>
+<tr>
+<td>C7</td>
+<td>Brida de la bomba sin centraje; eje hiperestático</td>
+<td>Media</td>
+<td>Espigón Ø140 h6/H7; alineación con mandril (06 M7)</td>
+</tr>
+<tr>
+<td>C8</td>
+<td>7204 BEP no apareable: precarga indefinida; resalte que roza el aro interior</td>
+<td>Media</td>
+<td>7204 BECBP; resalte Ø32,5 [datos SKF ESTIMADO]</td>
+</tr>
+<tr>
+<td>C9</td>
+<td>Sin plano del conducto soldado</td>
+<td>Media</td>
+<td>Plano P1-INT-01 (mecanizar después de soldar)</td>
+</tr>
+<tr>
+<td>C10</td>
+<td>Aplastamiento del pasador en el cubo con sección inexistente</td>
+<td>Baja</td>
+<td>Modelo corregido: FS 3,21</td>
+</tr>
+<tr>
+<td>C11</td>
+<td><code>verify_parts</code> devolvía 0 si fallaba la booleana; tolerancias laxas</td>
+<td>Baja</td>
+<td>Falla explícita; allow = máx(5, 2 × medido); barrido extra de dirección/bucket</td>
+</tr>
+<tr>
+<td>C12</td>
+<td>Rosca M5 del estator &lt; 1 d</td>
+<td>Baja</td>
+<td>Rosca en la carcasa, 8 mm</td>
+</tr>
+<tr>
+<td>C13</td>
+<td>Chaveta del motor (Ø15, 5 × 5) sin caso de carga</td>
+<td>Baja</td>
+<td>Caso agregado: <strong>FS 1,74 &lt; 2 — abierto y justificado</strong>: medir el chavetero del motor recibido, cubo de acero + Loctite 648</td>
+</tr>
+<tr>
+<td>C14</td>
+<td>Rejilla con luz de 16 mm (pasa un dedo) y 316 tocando 5083 bajo el agua</td>
+<td>Media</td>
+<td>9 pletinas, luz 12,2 mm; aislación PTFE + nylon (06 §4)</td>
+</tr>
+<tr>
+<td>W-16/17</td>
+<td>Regeneración: con fondo +4 mm la bomba tocaba el fondo; con eje +5 mm el tope de dirección chocaba con la placa del espejo</td>
+<td>Media</td>
+<td>La placa se ubica desde el tope; la bomba quedó a 9,4 mm del fondo interior; los checks dicen a cuánto subir el eje. Rango probado: eje +0…+9 mm, fondo 3–6 mm</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="bom-eléctrico-legal-e">BOM / eléctrico / legal (E)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Hallazgo</th>
+<th>Sev.</th>
+<th>Resolución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E1</td>
+<td><strong>Pares de polos 2 en vez de 5</strong> (Maytech 12N/10P): el perfil ABIERTO no dejaba planear</td>
+<td>Alta</td>
+<td>5 [VERIFICADO]; ERPM generados por <code>calc_electronica.py</code> en el perfil del VESC</td>
+</tr>
+<tr>
+<td>E2</td>
+<td>Sin fusible por rama de batería</td>
+<td>Alta</td>
+<td>2 × MRBF 125 A en los bornes</td>
+</tr>
+<tr>
+<td>E3</td>
+<td>Cordón de 12 V cortando una bobina a 43,8 V</td>
+<td>Alta</td>
+<td>Contactor EV200 con bobina a 12 V desde el DC-DC</td>
+</tr>
+<tr>
+<td>E4</td>
+<td>README de electrónica con restos de 8S / 24 V</td>
+<td>Alta</td>
+<td>Reescrito para 12S2P</td>
+</tr>
+<tr>
+<td>E5–E11</td>
+<td>Contactor/F1 no unificados; reparto entre baterías; costo de B mal prorrateado; B sin salvedad; motor sin hall (trae NTC); FW de fábrica 5.02; terminales de fase</td>
+<td>Media</td>
+<td>Corregidos (README de electrónica, <code>comparacion.py</code> con prorrateo y base CIF, B-MOT con hall, T0.0 flasheo FW ≥ 6.0, cables propios del motor/ESC)</td>
+</tr>
+<tr>
+<td>E12</td>
+<td>R13 escrito para otra potencia; &lt; 19 kW depende de la configuración</td>
+<td>Media</td>
+<td>R13 §2 con la potencia configurada; XML y hojas a bordo</td>
+</tr>
+<tr>
+<td>E13–E19</td>
+<td>4 kn de Als Sund no los hace cumplir el firmware; cantidad de baterías; etiquetas VERIFICADO con links de búsqueda; arancel; compilación AVR; riesgos residuales del firmware</td>
+<td>Baja</td>
+<td>Corregidos o documentados (D-18, README de electrónica §8)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="ronda-2-3-auditores-nuevos-sobre-el-paquete-corregido">Ronda 2 (3 auditores nuevos sobre el paquete corregido)</h2>
+<p>27 hallazgos verificados, ninguno de los de la ronda 1 reabierto; corregidos (commits <code>70dc3d9</code>, <code>4dbb05d</code>, <code>f0b8b13</code>, <code>8868d14</code>).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Hallazgo</th>
+<th>Sev.</th>
+<th>Resolución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R2-E1</td>
+<td><strong>Fuente de 12 V RSD-60G (9–36 V) con un pack de 36–43,8 V</strong> (rango del modelo L copiado al G; cita circular a la BOM)</td>
+<td>Crítica</td>
+<td>RSD-60L-12 (18–72 V) [VERIFICADO: hoja Mean Well]</td>
+</tr>
+<tr>
+<td>R2-C01</td>
+<td><strong>Margen de joroba cortado en Fn∇ 2,3</strong>: más allá el margen seguía bajando; con la resistencia alta no llega a planeo pleno y con potencia continua se cae del planeo</td>
+<td>Alta</td>
+<td>Margen de 0 a planeo pleno (27.1 km/h); <code>sizing.verdict</code> con veredicto por banda: alta -8%, nominal 3%; README, 02, 03, visor lo dicen</td>
+</tr>
+<tr>
+<td>R2-C02</td>
+<td>El veredicto lo fijan <code>planing_band.high</code> y <code>fn_planing</code>, fuera de la sensibilidad</td>
+<td>Alta</td>
+<td>Entradas nuevas de sensibilidad (incl. factor sobre las 3 bandas); ×1,12 etiquetado SUPUESTO en el régimen limitado por eslora</td>
+</tr>
+<tr>
+<td>R2-D01</td>
+<td>Pasadores del pórtico Ø6 × 30 atravesaban el fondo mojado y no se podían extraer</td>
+<td>Media-Alta</td>
+<td>ISO 8735 Ø6 × 16 con rosca M4, ciegos 6 mm (quedan 4 mm), acotados en planos</td>
+</tr>
+<tr>
+<td>R2-D02</td>
+<td>M5 × 25 de la tobera tocaban fondo antes de apretar</td>
+<td>Media</td>
+<td>M5 × 20 + check de largo contra agujero</td>
+</tr>
+<tr>
+<td>R2-D03</td>
+<td>Camino de extracción sin la inclinación del eje (luz real 1,17 mm &lt; 1,5)</td>
+<td>Media</td>
+<td>R/cos α + t·tan α; agujero del espejo Ø166 +1/0, concentricidad ≤ 0,5 mm</td>
+</tr>
+<tr>
+<td>R2-D05</td>
+<td>Placa de espejo pegada con Sikaflex pero se desmonta en cada cambio de semipasadores</td>
+<td>Media</td>
+<td>NBR + butilo no adhesivo + arandelas bonded</td>
+</tr>
+<tr>
+<td>R2-E2</td>
+<td>Un riel de 12 V para bobina de K1 + achique: corte espurio al arrancar la bomba</td>
+<td>Media</td>
+<td>Retención 1N5822 + 22 mF (≥ 9 V por 0,28 s) + prueba T0.4b; F5 removible, invernada</td>
+</tr>
+<tr>
+<td>R2-E3</td>
+<td>Poder de corte del MRBF citado como 10 kA (a 58 V son 2 kA); cortocircuito presunto 1,8–8,8 kA [ESTIMADO]</td>
+<td>Media</td>
+<td>F1 y ramas Class T (20 kA, 160 V CC) [VERIFICADO: Blue Sea 5113]</td>
+</tr>
+<tr>
+<td>R2-E4–E6</td>
+<td>Fusible de rama con otro criterio que F1; fusible abierto no detectable por tensión; toma Anderson sin fusible</td>
+<td>Media</td>
+<td>150 A con el criterio de F1; pinza CC por rama; F6 32 A</td>
+</tr>
+<tr>
+<td>R2-C03–C05, R2-D04, D06–D10, R2-E7–E10</td>
+<td>Punto de diseño de la bomba recortado por la grilla (ahora 43,6 km/h); tabla por batería con bandas mezcladas; varilla de la hidrostática que no pasaba (M5); ligamento M5; alineación con el propio eje; fuerzas de dirección unificadas; restos de textos (7204 BEP, 7 pletinas, B-NTC, 24 V, T0.0); checklist</td>
+<td>Media/Baja</td>
+<td>Corregidos</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="ronda-3-fea-de-las-piezas-críticas-04_disenofea-cerrada">Ronda 3 (FEA de las piezas críticas, 04_diseno/fea) — cerrada</h2>
+<p>El FEA de la ronda 3 encontró F-01…F-03; al corregirlos aparecieron R3-01…R3-11 (verificados con el código y,
+donde aplica, con el FEA). Commits de la ronda: <code>e3c0bd1</code>, <code>546e4bf</code>, <code>ce8faed</code> y siguientes.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Hallazgo</th>
+<th>Sev.</th>
+<th>Resolución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F-01</td>
+<td><strong>P1-REV-01 bucket: FS 0,44</strong> en el brazo con la traba (reversa 1408 N): con la traba en un solo brazo todo el momento de la cuchara llega a ese brazo por torsión de la sección abierta; el cálculo a mano repartía F/2 por brazo (no conservador)</td>
+<td>Crítica</td>
+<td>Traba en <strong>los dos brazos</strong> (émbolo +Y a 10°, −Y a -25°: pomos y Bowden pasan uno al lado del otro), chapa de 8 mm, los dos émbolos liberados por el mismo gatillo (2 Bowden). Cálculo a mano: brazo, agujero, perno del émbolo y oreja con <strong>M_h completo en una traba</strong>. FEA: FS 2.51 (caso c)</td>
+</tr>
+<tr>
+<td>F-02</td>
+<td>P1-CTL-02 (PETG): tracción entre capas en las paredes, FS 2,74 &lt; 3</td>
+<td>Media</td>
+<td>Paredes de 5 mm engrosadas <strong>hacia afuera</strong> (el entrehierro del hall no cambia; tornillos del ala derivados de la misma constante): FEA FS 3.41</td>
+</tr>
+<tr>
+<td>F-03</td>
+<td>Aristas vivas sin radio (STE-01 oreja de pivote/labio, DRV-03 alma/alojamiento): picos que no convergían</td>
+<td>Baja</td>
+<td>Empalmes de arco verdadero (<code>cadlib.prism_arc</code>): r 2 oreja–labio en STE-01; en DRV-03 alma de ±0,35·Ø con r 3 alma–tablero y alma–alojamiento (antes el alojamiento entraba al tablero en una cuña de ~30°). Los picos convergen; DRV-03 FS 3.89</td>
+</tr>
+<tr>
+<td>R3-01</td>
+<td><strong>Reacción del pivote del bucket subestimada</strong>: la traba solo reacciona tangencialmente (M_h/r ≈ 2·F_b) y esa fuerza se suma al chorro en el pivote de su brazo; el cálculo a mano usaba F_b/2 = 0,7 kN por pivote. Con la reacción real (≈ 1,6–3,0 kN) el perno Ø10 con M8 en voladizo y el buje POM Ø10 × 8 quedaban bajo FS 2 (el M8 por debajo de 1)</td>
+<td>Alta</td>
+<td>Pivote nuevo P1-REV-02: <strong>espaciador 316 Ø20 apretado contra la oreja por un M12 A4-80</strong> (tuerca DIN 985 por dentro, precarga 17045 N), buje POM-C Ø20/Ø24 × 18 (brazo + aro de 10 mm), oreja de la boquilla de radio 22 alrededor del pivote. Estática del bucket en UNA función (<code>structural_direccion.bucket_reactions</code>) que usan el cálculo a mano y el FEA; reacción de diseño 3302 N; filas nuevas del espaciador, del M12 (unión abierta) y del momento fuera del plano en la oreja</td>
+</tr>
+<tr>
+<td>R3-02</td>
+<td><strong>El reparto entre las dos trabas depende del desfase entre sus agujeros</strong>: la cuchara abierta es blanda a torsión, así que hasta que apoya el segundo perno un solo brazo lleva M_h. FEA: con 0,3 mm de desfase el diseño V2 volvía casi a una sola traba; además la muesca entre el lóbulo de traba (r 12) y el borde del brazo concentraba</td>
+<td>Alta</td>
+<td>Lóbulo de traba r 18 unido al labio superior de la cuchara (sin muesca). Agujeros taladrados en conjunto después de soldar (05 §4) y <strong>prueba de desfase con comparador</strong> (06 T0.M6b): ≤ 0.10 mm en el agujero; si no, casquillo excéntrico. FEA casos b/c con ese desfase: reparto máx. 0.75 ≤ cota 0.78 que usa el cálculo a mano (test). Falla (un émbolo no entró) con la reversa de sizing: casos d/e FS ≥ 2; falla doble (+ R12 sin límite): V1/V2 FS 1.71–1.85 (criterio sin fluencia). FMEA F19b y checklist (los dos pomos adentro)</td>
+</tr>
+<tr>
+<td>R3-03</td>
+<td>Modelo FEA de la traba: contacto en todo el agujero (holgura 0) — no podía representar un desfase ni un émbolo ausente; el primer intento (émbolo corrido 50 mm con k = 10⁷) metía 5·10⁸ N en el lado derecho y la tolerancia relativa del CG dejaba ~50 N de error: FS 0,06 espurio</td>
+<td>Media</td>
+<td>Contacto solo en la mitad de apoyo de cada agujero; émbolo tardío corrido el desfase con k = 10⁶ N/mm; émbolo ausente = interfaz desactivada (<code>Interface.enabled</code>), también al reportar reacciones; reacciones de pivote por lado</td>
+</tr>
+<tr>
+<td>R3-04</td>
+<td><strong>Selección del optimizador inestable</strong>: sin solución dura, el desempate redondeaba el margen de joroba al punto porcentual; +0,8 kg de masa CAD del jet cambiaba el impulsor de Ø132 a Ø120 (0,27 pp de diferencia de margen, menos V máx.) y el Ø120 podía volver a dar Ø132 en la corrida siguiente</td>
+<td>Media</td>
+<td>Banda de 1% alrededor del mejor margen y desempate por V máx. (<code>waterjet.hump_tie_band</code>, 02 §4): vuelve a Ø132</td>
+</tr>
+<tr>
+<td>R3-05</td>
+<td><code>np.trapz</code> no existe en numpy 2.4 (requirements sin versión fija): <code>sizing.py</code> fallaba en una instalación nueva</td>
+<td>Media</td>
+<td><code>trapezoid</code> con respaldo a <code>trapz</code> (<code>p1calc/hull.py</code>)</td>
+</tr>
+<tr>
+<td>R3-06</td>
+<td>02 citaba filas de <code>estructural.json</code> <strong>por índice</strong> (<code>est.rows.104…</code>): al agregar filas en dirección, la tabla de los FS más justos y la cita de la chaveta habrían mostrado filas equivocadas sin aviso</td>
+<td>Baja</td>
+<td>Tabla AUTO <code>estructural_justos</code> (10 filas con menor FS/objetivo) y <code>est.min_by_part.&lt;ID&gt;</code>; los marcadores aceptan IDs con guion</td>
+</tr>
+<tr>
+<td>R3-07</td>
+<td>Cotas de P1-STE-04 y P1-REV-05 contra el pivote del bucket solo en X' (ignoraban que la brida y el alma están 17–43 mm más arriba): con el aro más grande daban falla falsa</td>
+<td>Baja</td>
+<td>Distancia real en el plano (X', z) al aro/cabeza del pivote</td>
+</tr>
+<tr>
+<td>R3-08</td>
+<td>CTL-02: el FEA fijaba los tornillos en la posición vieja después de engrosar la pared y reportaba la pared interior (3,5); el META decía "pisada 300 N" y se calcula 150 N</td>
+<td>Baja</td>
+<td><code>bolt_xy()</code> y <code>W_OUT</code> como fuente única (FEA y CAD); META con el caso analizado</td>
+</tr>
+<tr>
+<td>R3-09</td>
+<td>Cuatro copias de la posición de la traba (REV-01, REV-04, STE-01, <code>_release</code>) y planos con fórmulas propias</td>
+<td>Baja</td>
+<td>Fuente única <code>piezas/_release.lock_xz</code>; planos de los dos brazos del bucket por separado (estribor y babor)</td>
+</tr>
+<tr>
+<td>R3-10</td>
+<td>Dos vainas de Bowden por un prensaestopas M16 de un solo agujero</td>
+<td>Baja</td>
+<td>Inserto M16 de 2 agujeros 2 × 4,5 mm [VERIFICADO: MDE16-2x45] + Sikaflex (paso sobre la flotación); vainas Ø4,5–5</td>
+</tr>
+<tr>
+<td>R3-11</td>
+<td>STE-01 en reversa con <strong>M_h completo en una traba a R12</strong>: FS 1,80 en la oreja alrededor del pivote (con el momento del espaciador en voladizo, que el modelo anterior no aplicaba)</td>
+<td>Media</td>
+<td>Ese caso es una falla doble (un émbolo fuera + sin límite de firmware): pasa a variante V1 (FS 1.80, criterio sin fluencia); los casos de diseño c/c2 usan el reparto máximo admitido; oreja de radio 15. FEA STE-01 FS 1.80</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="regeneración-desde-inputsyaml">Regeneración desde inputs.yaml</h2>
+<p><code>tests/test_regeneration.py</code> (rápido) cambia <code>boat.bottom_thickness_mm</code> y <code>waterjet.axis_height_m</code>
+y comprueba que cambian el casco de referencia, la placa de la toma y la cota de la tobera.
+<code>tests/test_regeneration_full.py</code> (lento, <code>P1_SKIP_SLOW=1</code> lo salta) copia el proyecto a un
+directorio temporal, cambia <strong>el espesor del fondo (+2 mm)</strong>, <strong>la altura del eje (+5 mm)</strong> y <strong>la masa del
+piloto (−15 kg)</strong>, corre <code>run_all.py --fast --skip-render</code> completo y verifica: masa total menor, margen de
+joroba ≥ al anterior, menos sumersión del impulsor, volumen de la placa base de la toma distinto, BOM
+regenerada y el README con el margen nuevo. La primera versión (+4 mm de fondo sin tocar el eje) hizo
+fallar <code>verify</code> con la tobera a 0,5 mm del fondo interior: así se encontró W-16.</p>
+<h2 id="historial-versión-anterior-cola-larga-archivada">Historial (versión anterior: cola larga, archivada)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Hallazgo</th>
+<th>Severidad</th>
+<th>Resolución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A-01</td>
+<td>Eje Ø12: FS fatiga 1,1 y torsión en el pasador 1,3</td>
+<td>Alta</td>
+<td>Eje Ø16 + polea entre rodamientos (D-07, D-08)</td>
+</tr>
+<tr>
+<td>A-02</td>
+<td>Tubo inox 25×1,5 cede con el momento dinámico de impacto</td>
+<td>Crítica</td>
+<td>Tubo Al 40×3 (D-09)</td>
+</tr>
+<tr>
+<td>A-03</td>
+<td>Caña colgando de la placa motriz de 7 mm (σ ≈ 200 MPa)</td>
+<td>Crítica</td>
+<td>Placa Al sobre la cuna (D-15)</td>
+</tr>
+<tr>
+<td>A-04</td>
+<td>Fusible 100 A sobre cable de 10 mm² (75 A): no lo protegía (detectado por pytest)</td>
+<td>Alta</td>
+<td>Cable DC 16 mm² (D-21)</td>
+</tr>
+<tr>
+<td>A-05</td>
+<td>Optimizador elegía 51,2 V (&gt; 48 V) y luego una batería que no cumplía autonomía</td>
+<td>Alta</td>
+<td>Restricciones duras vs blandas (02 §4.1)</td>
+</tr>
+<tr>
+<td>A-06</td>
+<td>Separadores del puente atravesaban la polea (plano de correa mal modelado)</td>
+<td>Alta</td>
+<td>Separadores fuera del lazo (verify lo detectó)</td>
+</tr>
+<tr>
+<td>A-07</td>
+<td>Capacidad del bote supuesta 250 kg</td>
+<td>Crítica (seguridad)</td>
+<td>160 kg estimado + advertencia + P0.2 (D-16)</td>
+</tr>
+<tr>
+<td>A-08</td>
+<td><strong>Eje imposible de montar</strong>: el muñón del rodamiento A (Ø15) estaba entre dos tramos Ø16 (verify no lo veía: no hay interferencia, es un problema de secuencia de montaje)</td>
+<td>Crítica</td>
+<td>Tramo Ø15 continuo + hombro Ø16, pila con separadores DRV-09/DRV-10 y tuerca; nueva cota automática "Ø máx. sobre el hombro ≤ Ø muñón" (D-07)</td>
+</tr>
+<tr>
+<td>A-09</td>
+<td>Límite de Burrill 0,3σ^0,6 no conservador para σ &gt; 0,6 (+15 % a +81 %)</td>
+<td>Media</td>
+<td>Curva de 5 % digitalizada por interpolación (research/R09 §3.2) + test</td>
+</tr>
+<tr>
+<td>A-10</td>
+<td>Pasador de corte de Al sobre eje 316 en agua salobre: par galvánico → el pasador pierde sección y corta antes de tiempo</td>
+<td>Alta</td>
+<td>Pasador 316 Ø2 calibrado + ensayo P1.9 + cambio cada 10 h (D-11)</td>
+</tr>
+<tr>
+<td>A-11</td>
+<td>Productos inexistentes en la selección: hélice 10×8 "objetivo", poleas de 44/60 T, correas sin stock, rodamientos 6002 inox, ánodo de collar Ø16 (research/R08b)</td>
+<td>Alta</td>
+<td>Optimizador restringido a productos/dientes/largos existentes (D-06, D-37, D-39); ánodo descartado con justificación (D-36)</td>
+</tr>
+<tr>
+<td>A-12</td>
+<td>Largo de agarre del tubo en la cuna tomado como 90 mm en vez de 138 mm (FS de fatiga lateral subestimado)</td>
+<td>Baja (conservador)</td>
+<td>Corregido en <code>structural.py</code></td>
+</tr>
+<tr>
+<td>A-13</td>
+<td>Prensaestopas M20 especificados en una pared de 18 mm (rosca ~10–15 mm) y caja ESC sin lugar para el antichispa</td>
+<td>Media</td>
+<td>Rebaje a pared de 5 mm, caja 160×110×45, 10 cotas nuevas (D-20)</td>
+</tr>
+<tr>
+<td>A-14</td>
+<td>Batería LiTime 24 V 50 Ah supuesta con BMS 100 A (real: 50 A)</td>
+<td>Media</td>
+<td>Catálogo con datos verificados (D-19)</td>
+</tr>
+<tr>
+<td>A-15</td>
+<td>Con 1 persona el bote superaría el límite legal de 5 kn a &lt; 300 m de la costa</td>
+<td>Media (legal)</td>
+<td>Tope de ERPM calculado (D-30) + ensayo T3</td>
+</tr>
+</tbody>
+</table></div></article>
+</div>
+</main>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+</body>
+</html>

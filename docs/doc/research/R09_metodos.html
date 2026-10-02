@@ -1,0 +1,1355 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R09 — Métodos de cálculo para sizing.py: resistencia de casco plano, hélice B-series, cavitación, toberas, ejes y térmico — P1-J · Strålen</title>
+<meta name="description" content="Etiquetas: [VERIFICADO: Sx] = leído en la fuente Sx de la tabla §8, abierta en esta sesión. [CALCULADO] = cuenta propia con fórmulas verificadas. [ESTIMADO: base]. [SUPUESTO].">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="R09 — Métodos de cálculo para sizing.py: resistencia de casco plano, hélice B-series, cavitación, toberas, ejes y térmico — P1-J · Strålen">
+<meta property="og:description" content="Etiquetas: [VERIFICADO: Sx] = leído en la fuente Sx de la tabla §8, abierta en esta sesión. [CALCULADO] = cuenta propia con fórmulas verificadas. [ESTIMADO: base]. [SUPUESTO].">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/research/R09_metodos.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="R09 — Métodos de cálculo para sizing.py: resistencia de casco plano, hélice B-series, cavitación, toberas, ejes y térmico — P1-J · Strålen">
+<meta name="twitter:description" content="Etiquetas: [VERIFICADO: Sx] = leído en la fuente Sx de la tabla §8, abierta en esta sesión. [CALCULADO] = cuenta propia con fórmulas verificadas. [ESTIMADO: base]. [SUPUESTO].">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/research/R09_metodos.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header">
+  <div class="bar wide">
+    <a class="brand" href="../../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../../index.html">Inicio</a><a href="../../visor/index.html">Visor 3D</a><a href="../../documentos.html" aria-current="page">Documentos</a><a href="../../planos.html">Planos</a><a href="../../bom.html">Materiales</a><a href="../../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub&nbsp;↗</a></nav>
+  </div>
+</header>
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../../documentos.html">Documentos</a> / <span class="mono">research/R09_metodos.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/research/R09_metodos.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#0-resumen-de-métodos">0. Resumen de métodos</a></li>
+<li><a href="#1-resistencia-de-casco-plano-chico">1. Resistencia de casco plano chico</a><ul>
+<li><a href="#11-números-adimensionales-del-bote-δ-290-kg-lwl-20-m-b_chine-095-m-calculado">1.1 Números adimensionales del bote (Δ = 290 kg, LWL = 2,0 m, b_chine = 0,95 m) [CALCULADO]</a></li>
+<li><a href="#12-fricción-ittc-1957-y-correcciones-de-la-ittc-78">1.2 Fricción: ITTC-1957 y correcciones de la ITTC-78</a></li>
+<li><a href="#13-factor-de-forma-1-k">1.3 Factor de forma (1 + k)</a></li>
+<li><a href="#14-espejo-sumergido-holtrop-mennen-1982-fórmula-verificada">1.4 Espejo sumergido (Holtrop &amp; Mennen 1982): fórmula verificada</a></li>
+<li><a href="#15-olas-y-joroba">1.5 Olas y joroba</a></li>
+<li><a href="#16-planeo-savitsky-1964-y-regímenes-savitsky-2003">1.6 Planeo (Savitsky 1964) y regímenes (Savitsky 2003)</a></li>
+<li><a href="#17-gerr-propeller-handbook-y-artículos-de-gerr-marine">1.7 Gerr (Propeller Handbook y artículos de Gerr Marine)</a></li>
+<li><a href="#18-agua-poco-profunda">1.8 Agua poco profunda</a></li>
+<li><a href="#19-datos-experimentales-de-botes-planos">1.9 Datos experimentales de botes planos</a></li>
+</ul>
+</li>
+<li><a href="#2-hélice-wageningen-b-series">2. Hélice: Wageningen B-series</a><ul>
+<li><a href="#21-fuente-pública-verificada-y-coeficientes">2.1 Fuente pública verificada y coeficientes</a></li>
+<li><a href="#22-escala-y-rugosidad-la-hélice-chica-opera-por-debajo-de-rn-210⁶">2.2 Escala y rugosidad: la hélice chica opera por debajo de Rn = 2·10⁶</a></li>
+<li><a href="#23-hélices-candidatas-en-crucero">2.3 Hélices candidatas en crucero</a></li>
+<li><a href="#24-disco-actuador-límite-ideal">2.4 Disco actuador (límite ideal)</a></li>
+</ul>
+</li>
+<li><a href="#3-cavitación">3. Cavitación</a><ul>
+<li><a href="#31-definiciones-verificadas-en-el-código-de-s17">3.1 Definiciones (verificadas en el código de S17)</a></li>
+<li><a href="#32-curva-de-burrill-digitalizada-5-y-10-de-cavitación-en-la-cara-de-succión">3.2 Curva de Burrill digitalizada (5 % y 10 % de cavitación en la cara de succión)</a></li>
+<li><a href="#33-keller">3.3 Keller</a></li>
+<li><a href="#34-resultados-para-la-eo10x8">3.4 Resultados para la EO10x8</a></li>
+</ul>
+</li>
+<li><a href="#4-toberas-kort-19a-y-aro-protector">4. Toberas (Kort 19A) y aro protector</a></li>
+<li><a href="#5-mecánica">5. Mecánica</a><ul>
+<li><a href="#51-velocidad-crítica-whirling">5.1 Velocidad crítica (whirling)</a></li>
+<li><a href="#52-fatiga">5.2 Fatiga</a></li>
+<li><a href="#53-pasador-de-corte">5.3 Pasador de corte</a></li>
+<li><a href="#54-eje-inclinado-cola-larga">5.4 Eje inclinado (cola larga)</a></li>
+</ul>
+</li>
+<li><a href="#6-térmico">6. Térmico</a><ul>
+<li><a href="#61-outrunner-refrigerado-por-aire">6.1 Outrunner refrigerado por aire</a></li>
+<li><a href="#62-pérdidas-del-esc-mosfet">6.2 Pérdidas del ESC (MOSFET)</a></li>
+</ul>
+</li>
+<li><a href="#7-no-encontrado-buscar">7. No encontrado (buscar)</a></li>
+<li><a href="#8-fuentes-abiertas-en-esta-sesión">8. Fuentes abiertas en esta sesión</a></li>
+<li><a href="#hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#0-resumen-de-métodos">0. Resumen de métodos</a></li>
+<li><a href="#1-resistencia-de-casco-plano-chico">1. Resistencia de casco plano chico</a><ul>
+<li><a href="#11-números-adimensionales-del-bote-δ-290-kg-lwl-20-m-b_chine-095-m-calculado">1.1 Números adimensionales del bote (Δ = 290 kg, LWL = 2,0 m, b_chine = 0,95 m) [CALCULADO]</a></li>
+<li><a href="#12-fricción-ittc-1957-y-correcciones-de-la-ittc-78">1.2 Fricción: ITTC-1957 y correcciones de la ITTC-78</a></li>
+<li><a href="#13-factor-de-forma-1-k">1.3 Factor de forma (1 + k)</a></li>
+<li><a href="#14-espejo-sumergido-holtrop-mennen-1982-fórmula-verificada">1.4 Espejo sumergido (Holtrop &amp; Mennen 1982): fórmula verificada</a></li>
+<li><a href="#15-olas-y-joroba">1.5 Olas y joroba</a></li>
+<li><a href="#16-planeo-savitsky-1964-y-regímenes-savitsky-2003">1.6 Planeo (Savitsky 1964) y regímenes (Savitsky 2003)</a></li>
+<li><a href="#17-gerr-propeller-handbook-y-artículos-de-gerr-marine">1.7 Gerr (Propeller Handbook y artículos de Gerr Marine)</a></li>
+<li><a href="#18-agua-poco-profunda">1.8 Agua poco profunda</a></li>
+<li><a href="#19-datos-experimentales-de-botes-planos">1.9 Datos experimentales de botes planos</a></li>
+</ul>
+</li>
+<li><a href="#2-hélice-wageningen-b-series">2. Hélice: Wageningen B-series</a><ul>
+<li><a href="#21-fuente-pública-verificada-y-coeficientes">2.1 Fuente pública verificada y coeficientes</a></li>
+<li><a href="#22-escala-y-rugosidad-la-hélice-chica-opera-por-debajo-de-rn-210⁶">2.2 Escala y rugosidad: la hélice chica opera por debajo de Rn = 2·10⁶</a></li>
+<li><a href="#23-hélices-candidatas-en-crucero">2.3 Hélices candidatas en crucero</a></li>
+<li><a href="#24-disco-actuador-límite-ideal">2.4 Disco actuador (límite ideal)</a></li>
+</ul>
+</li>
+<li><a href="#3-cavitación">3. Cavitación</a><ul>
+<li><a href="#31-definiciones-verificadas-en-el-código-de-s17">3.1 Definiciones (verificadas en el código de S17)</a></li>
+<li><a href="#32-curva-de-burrill-digitalizada-5-y-10-de-cavitación-en-la-cara-de-succión">3.2 Curva de Burrill digitalizada (5 % y 10 % de cavitación en la cara de succión)</a></li>
+<li><a href="#33-keller">3.3 Keller</a></li>
+<li><a href="#34-resultados-para-la-eo10x8">3.4 Resultados para la EO10x8</a></li>
+</ul>
+</li>
+<li><a href="#4-toberas-kort-19a-y-aro-protector">4. Toberas (Kort 19A) y aro protector</a></li>
+<li><a href="#5-mecánica">5. Mecánica</a><ul>
+<li><a href="#51-velocidad-crítica-whirling">5.1 Velocidad crítica (whirling)</a></li>
+<li><a href="#52-fatiga">5.2 Fatiga</a></li>
+<li><a href="#53-pasador-de-corte">5.3 Pasador de corte</a></li>
+<li><a href="#54-eje-inclinado-cola-larga">5.4 Eje inclinado (cola larga)</a></li>
+</ul>
+</li>
+<li><a href="#6-térmico">6. Térmico</a><ul>
+<li><a href="#61-outrunner-refrigerado-por-aire">6.1 Outrunner refrigerado por aire</a></li>
+<li><a href="#62-pérdidas-del-esc-mosfet">6.2 Pérdidas del ESC (MOSFET)</a></li>
+</ul>
+</li>
+<li><a href="#7-no-encontrado-buscar">7. No encontrado (buscar)</a></li>
+<li><a href="#8-fuentes-abiertas-en-esta-sesión">8. Fuentes abiertas en esta sesión</a></li>
+<li><a href="#hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="r09-métodos-de-cálculo-para-sizingpy-resistencia-de-casco-plano-hélice-b-series-cavitación-toberas-ejes-y-térmico">R09 — Métodos de cálculo para <code>sizing.py</code>: resistencia de casco plano, hélice B-series, cavitación, toberas, ejes y térmico</h1>
+<p>Fecha de consulta: 2026-10-01. Alcance: fórmulas exactas, rango de validez y fuente abierta de cada método que usa (o debería usar) <code>sizing.py</code> / <code>p1calc/</code>. Los números del proyecto (LWL 2,0 m, Δ ≈ 290 kg, hélice EO10x8, eje Ø16 AISI 316 a 25°) salen de <code>inputs.yaml</code> y <code>resultados/sizing.json</code>. Cada cálculo propio está hecho con las fórmulas citadas.</p>
+<p><strong>Etiquetas:</strong> [VERIFICADO: Sx] = leído en la fuente Sx de la tabla §8, abierta en esta sesión. [CALCULADO] = cuenta propia con fórmulas verificadas. [ESTIMADO: base]. [SUPUESTO].</p>
+<p><strong>Limitación:</strong> el cupo de WebSearch de la sesión estaba agotado desde el principio. Por eso todo se buscó con URLs directas: Wikipedia en texto crudo, el sitio de la ITTC, repositorios de GitHub y PDFs abiertos. Lo que no se pudo abrir figura como "buscar: …".</p>
+<hr />
+<h2 id="0-resumen-de-métodos">0. Resumen de métodos</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Método</th>
+<th>Ecuación (resumen)</th>
+<th>Validez</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Fricción ITTC-1957</td>
+<td>C_F = 0,075/(log₁₀Re − 2)²</td>
+<td>Línea de correlación modelo-buque</td>
+<td><strong>VERIFICADO</strong> S18</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Rugosidad ΔC_F y C_A de la ITTC-78</td>
+<td>ΔC_F = 0,044[(k_S/L)^⅓ − 10·Re^−⅓] + 0,000125; C_A = (5,68 − 0,6 log Re)·10⁻³</td>
+<td>Buques. <strong>Da ΔC_F &lt; 0 con L = 2 m</strong></td>
+<td><strong>VERIFICADO</strong> S20; no aplicable</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Factor de forma, Holtrop 1984</td>
+<td>1+k₁ = 0,93 + 0,487118·c₁₄·(B/L)^1,06806·… ; c₁₄ = 1 + 0,011·C_stern ("pram with gondola" = −25)</td>
+<td>Buques; da ≈1,47 extrapolado</td>
+<td>c₁₄ VERIFICADO S16; exponentes con OCR parcial</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Factor de forma en HSMV (ITTC)</td>
+<td>(1+k) = 1,0 en cascos con espejo</td>
+<td>Lancha rápida con espejo</td>
+<td><strong>VERIFICADO</strong> S19</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Prohaska</td>
+<td>C_TM/C_FM contra Fr⁴/C_FM, 0,1 &lt; Fr &lt; 0,2</td>
+<td><strong>No usar si el espejo va mojado</strong></td>
+<td><strong>VERIFICADO</strong> S18</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Espejo sumergido, Holtrop-Mennen 1982</td>
+<td>R_TR = ½ρV²A_T·c₆; c₆ = 0,2(1 − 0,2F_nT) si F_nT &lt; 5, si no 0; F_nT = V/√(2gA_T/(B + B·C_WP))</td>
+<td>Buques con espejo; datos "escasos" (Holtrop 1984)</td>
+<td><strong>VERIFICADO</strong> S15, S16. Coincide con <code>hydro.py</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Olas, Holtrop 1982/84</td>
+<td>R_W = c₁c₂c₅∇ρg·exp{m₁Fn^d + m₂cos(λFn⁻²)} para Fn ≤ 0,40; interpolación para 0,40–0,55; fórmula de alta velocidad para Fn &gt; 0,55</td>
+<td>Buques: Fn 0,15–0,45 y Cp 0,55–0,85 (fuente secundaria)</td>
+<td>Estructura VERIFICADA S16; rango VERIFICADO S31</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Planeo, Savitsky 1964</td>
+<td>C_L0 = τ^1,1(0,0120λ^½ + 0,0055λ^2,5/C_V²)</td>
+<td>0,60 ≤ C_V ≤ 13; 2° ≤ τ ≤ 15°; λ ≤ 4</td>
+<td>ESTIMADO (memoria)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Regímenes de Savitsky 2003</td>
+<td>Desplazamiento SLR &lt; 1,34; semidesplazamiento 1,34–3; planeo &gt; 3. Curva R/Δ típica</td>
+<td>Cualitativo</td>
+<td><strong>VERIFICADO</strong> S21</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Pre-planeo (Mercier-Savitsky 1973; Savitsky-Brown 1976)</td>
+<td>Regresión de R/Δ en Fn∇ 1,0–2,0</td>
+<td>L/∇^⅓ ≳ 4 (memoria)</td>
+<td><strong>No accesible</strong></td>
+</tr>
+<tr>
+<td>11</td>
+<td>Gerr, SLR máximo</td>
+<td>SLR_máx = 8,26/DL^0,311, nunca menor que 1,34</td>
+<td>Desplazamiento y semidesplazamiento</td>
+<td><strong>VERIFICADO</strong> S22</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Gerr, potencia</td>
+<td>SLR = 10,665/(LB/SHP)^⅓</td>
+<td>Ídem</td>
+<td>ESTIMADO (memoria)</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Wageningen B-series KT/KQ</td>
+<td>KT, KQ = ΣC·J^s(P/D)^t(AE/A0)^u Z^v; 39 + 47 términos</td>
+<td>2 ≤ Z ≤ 7; 0,30 ≤ AE/A0 ≤ 1,05; 0,5 ≤ P/D ≤ 1,4; Rn = 2·10⁶</td>
+<td><strong>VERIFICADO</strong> S13, S14 (85/86 idénticos al escaneo; 1 difiere en 4·10⁻⁵)</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Corrección de Reynolds de la B-series</td>
+<td>ΔKT, ΔKQ en función de (log Rn − 0,301)</td>
+<td>Solo Rn &gt; 2·10⁶</td>
+<td><strong>VERIFICADO</strong> S14, S17</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Escala y rugosidad de la hélice (ITTC-78 según Holtrop)</td>
+<td>KT_s = KT_B + ΔC_D·0,3(P/D)(cZ/D); KQ_s = KQ_B − ΔC_D·0,25(cZ/D)</td>
+<td>k_p = 30 µm</td>
+<td><strong>VERIFICADO</strong> S15</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Disco actuador</td>
+<td>P = √(T³/2ρA); η_i = 2/(1 + √(1 + C_T))</td>
+<td>Ideal</td>
+<td>P VERIFICADO S2; η_i derivado</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Rotor carenado ideal</td>
+<td>P_i = T^1,5/√(4σ_dρA)</td>
+<td>Ideal, punto fijo</td>
+<td><strong>VERIFICADO</strong> S24</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Burrill</td>
+<td>σ₀,₇R = (p₀ + ρgh − p_v)/(½ρV²₀,₇R); τ_c = T/(½ρV²₀,₇R·A_P); curvas de 5 % y 10 % digitalizadas</td>
+<td>Diseño en avance, no punto fijo</td>
+<td>Curvas VERIFICADAS (código S17); A_P ESTIMADO</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Keller</td>
+<td>AE/A0 = (1,3 + 0,3Z)T/((p₀ + ρgh − p_v)D²) + K; K = 0,2 (1 eje), 0–0,1 (2 ejes)</td>
+<td>Preliminar</td>
+<td><strong>VERIFICADO</strong> S15, S13, S30</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Velocidad crítica de eje</td>
+<td>Viga biapoyada ω₁ = (π/L)²√(EI/μ); voladizo 3,516/L²·√(EI/μ); Rayleigh y Dunkerley</td>
+<td>Euler-Bernoulli</td>
+<td>Forma general VERIFICADA S7, S1</td>
+</tr>
+<tr>
+<td>21</td>
+<td>Fatiga</td>
+<td>Goodman σ_a/σ_w + σ_m/σ_u = 1/n; Soderberg con σ_y; Gerber parabólica</td>
+<td>Vida infinita</td>
+<td><strong>VERIFICADO</strong> S3</td>
+</tr>
+<tr>
+<td>22</td>
+<td>Pasador de corte</td>
+<td>Q = τ_u·(πd_p²/4)·D_s (corte doble); τ_u ≈ 0,65·UTS (Al), 0,75·UTS (acero)</td>
+<td>Orientativo</td>
+<td>Relaciones VERIFICADAS S6, S8; ecuación derivada</td>
+</tr>
+<tr>
+<td>23</td>
+<td>Eje inclinado</td>
+<td>T_horiz = T·cos ψ; T_vert = T·sin ψ; flujo cruzado V·sin ψ</td>
+<td>Datos hasta 12°</td>
+<td><strong>VERIFICADO</strong> S23</td>
+</tr>
+<tr>
+<td>24</td>
+<td>Pérdidas en MOSFET</td>
+<td>P_cond = R_DS(on)·I_RMS²; P_sw = V_in·I_out·f_sw·Q_sw/I_g</td>
+<td>Medio puente</td>
+<td><strong>VERIFICADO</strong> S28</td>
+</tr>
+<tr>
+<td>25</td>
+<td>Cobre con la temperatura</td>
+<td>R(T) = R₂₀[1 + 0,00393(T − 20)] (cobre recocido)</td>
+<td>±50 K</td>
+<td><strong>VERIFICADO</strong> S9</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="1-resistencia-de-casco-plano-chico">1. Resistencia de casco plano chico</h2>
+<h3 id="11-números-adimensionales-del-bote-δ-290-kg-lwl-20-m-b_chine-095-m-calculado">1.1 Números adimensionales del bote (Δ = 290 kg, LWL = 2,0 m, b_chine = 0,95 m) [CALCULADO]</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>v (km/h)</th>
+<th>Fn_L</th>
+<th>SLR (kn/√ft)</th>
+<th>Fn∇ = V/√(g∇^⅓)</th>
+<th>C_V = V/√(gb)</th>
+<th>Re_L</th>
+<th>Frh, h = 1,0 m</th>
+<th>Frh, h = 0,6 m</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6</td>
+<td>0,376</td>
+<td>1,26</td>
+<td>0,655</td>
+<td>0,546</td>
+<td>2,5·10⁶</td>
+<td>0,53</td>
+<td>0,69</td>
+</tr>
+<tr>
+<td>8</td>
+<td>0,502</td>
+<td>1,69</td>
+<td>0,874</td>
+<td>0,728</td>
+<td>3,3·10⁶</td>
+<td>0,71</td>
+<td>0,92</td>
+</tr>
+<tr>
+<td>12</td>
+<td>0,753</td>
+<td>2,53</td>
+<td>1,311</td>
+<td>1,092</td>
+<td>4,9·10⁶</td>
+<td>1,06</td>
+<td>1,37</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>L/∇^⅓ = 3,02 y L/B_WL = 1,85. Están <strong>fuera de toda serie sistemática</strong> conocida, porque las series de lanchas arrancan cerca de L/∇^⅓ ≈ 4 [ESTIMADO: memoria técnica, no verificado].</li>
+<li>Con SLR = 1,26, la ola de proa mide ≈ 0,88·LWL, según la relación Lw/LWL = SLR²/1,80 (tabla: SLR 1,34 → 1,00; SLR 1,90 → 2,00) [VERIFICADO: S21].</li>
+<li>La carga útil del proyecto es 1,55 veces la placa de capacidad, con calado 0,196 m [CALCULADO: <code>resultados/sizing.json</code>]. Esa inmersión del espejo es la que agranda R_TR (§1.4).</li>
+</ul>
+<h3 id="12-fricción-ittc-1957-y-correcciones-de-la-ittc-78">1.2 Fricción: ITTC-1957 y correcciones de la ITTC-78</h3>
+<ul>
+<li>C_F = 0,075/(log₁₀Re − 2)². Equivale a (1 + 0,1194)·0,067/(log₁₀Re − 2)², es decir, a la línea de Hughes más ~12 % de factor de forma incorporado. La ITTC aclara que "the ITTC-1957 correlation line already contains a form factor correction" [VERIFICADO: S18].</li>
+<li>Rugosidad (ITTC-78, rev. 2017): ΔC_F = 0,044[(k_S/L_WL)^⅓ − 10·Re^−⅓] + 0,000125, con k_S = 150 µm si no hay dato medido. Correlación: C_A = (5,68 − 0,6·log Re)·10⁻³ [VERIFICADO: S20].</li>
+<li><strong>Con L = 2 m estas fórmulas no sirven</strong> [CALCULADO]:</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>v km/h</th>
+<th>Re</th>
+<th>C_F (ITTC-57)</th>
+<th>ΔC_F ITTC-78 (k_S = 150 µm)</th>
+<th>C_A ITTC-78</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>1,2·10⁶</td>
+<td>0,00448</td>
+<td><strong>−0,00212</strong></td>
+<td>0,00203</td>
+</tr>
+<tr>
+<td>6</td>
+<td>2,5·10⁶</td>
+<td>0,00389</td>
+<td><strong>−0,00127</strong></td>
+<td>0,00184</td>
+</tr>
+<tr>
+<td>12</td>
+<td>4,9·10⁶</td>
+<td>0,00340</td>
+<td><strong>−0,00060</strong></td>
+<td>0,00166</td>
+</tr>
+</tbody>
+</table></div>
+<p>ΔC_F da negativo y C_A vale ~47 % de C_F. Ambas son correlaciones de buques. → En <code>sizing.py</code> conviene dejar <code>delta_cf</code> (hoy 0,0004 [SUPUESTO]) como <strong>parámetro de calibración</strong> y no derivarlo de la ITTC-78.</p>
+<h3 id="13-factor-de-forma-1-k">1.3 Factor de forma (1 + k)</h3>
+<ul>
+<li><strong>Holtrop 1984:</strong> 1+k₁ = 0,93 + 0,487118·c₁₄·(B/L)^1,06806·(T/L)^0,46106·(L/L_R)^0,121563·(L³/∇)^0,36486·(1 − Cp)^−0,604247, con L_R = L(1 − Cp + 0,06·Cp·lcb/(4Cp − 1)) y <strong>c₁₄ = 1 + 0,011·C_stern</strong>. La tabla de C_stern incluye <strong>"Pram with gondola −25"</strong>, V −10, normal 0 y U con popa Hogner +10 [VERIFICADO: S16, que confirma c₁₄, la tabla de C_stern, 0,93, 0,487118 y L_R; el OCR de los demás exponentes está dañado, los tomé de ESTIMADO: memoria técnica].</li>
+<li>Con Cp = 0,72, lcb entre 0 y −4 % y C_stern = −25, sale <strong>1+k = 1,46–1,49</strong>. Con C_stern = 0 sale 1,66–1,70 [CALCULADO, extrapolado: L/B = 1,85 queda muy por debajo de los buques de la base].</li>
+<li><strong>ITTC, lanchas rápidas (HSMV):</strong> "for HSMVs with transom sterns continue to be assumed (1+k) = 1.0", porque a baja velocidad el flujo detrás del espejo es confuso y la superficie mojada cambia con la velocidad [VERIFICADO: S19].</li>
+<li><strong>Prohaska</strong> (C_TM/C_FM contra Fr⁴/C_FM con 0,1 &lt; Fr &lt; 0,2): "should not be used for any vessel with substantial transom sterns for which the transom runs wet at the speed range for the Prohaska test" [VERIFICADO: S18]. El jon boat tiene el espejo mojado a 1,6–3,2 km/h, así que <strong>Prohaska no vale para el ensayo de remolque del proyecto</strong>.</li>
+<li>→ <code>form_factor_k = 0,2</code> (1+k = 1,2) queda dentro de la banda 1,0 (ITTC) – 1,5 (Holtrop extrapolado). No se puede separar de R_TR ni de R_W con un ensayo en el mar. Hay que calibrar <strong>R(v) total</strong>.</li>
+</ul>
+<h3 id="14-espejo-sumergido-holtrop-mennen-1982-fórmula-verificada">1.4 Espejo sumergido (Holtrop &amp; Mennen 1982): fórmula verificada</h3>
+<p>Texto del paper (OCR, S15): "the additional pressure resistance due to the immersed transom … R_TR = 0.5ρV²A_T·c₆. The coefficient c₆ has been related to the Froude number based on the transom immersion: c₆ = 0.2(1 − 0.2F_nT) when F_nT &lt; 5, or c₆ = 0 when F_nT ≥ 5. F_nT = V/√(2gA_T/(B + B·C_WP)), C_WP waterplane area coefficient." A_T es "the immersed part of the transverse area of the transom at zero speed", incluyendo cuñas en el pantoque. El mismo A_T entra en c₅ = 1 − 0,8A_T/(B·T·C_M), que reduce R_W [VERIFICADO: S15].
+<strong><code>hydro.py</code> implementa la fórmula exacta.</strong> No usa c₅, lo cual es aceptable porque R_W se calibra.</p>
+<p>Holtrop 1984: "No attempts were made to derive new formulations for the transom pressure resistance … The available material to develop such formulae is rather scarce" [VERIFICADO: S16].</p>
+<p>Con A_T = 0,189 m², B_WL = 1,079 m y C_WP = 0,85 [CALCULADO]:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>v km/h</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>10</th>
+<th>12</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F_nT</td>
+<td>0,61</td>
+<td>0,82</td>
+<td>1,02</td>
+<td>1,22</td>
+<td>1,43</td>
+<td>1,63</td>
+<td>2,04</td>
+<td>2,45</td>
+</tr>
+<tr>
+<td>c₆</td>
+<td>0,176</td>
+<td>0,167</td>
+<td>0,159</td>
+<td>0,151</td>
+<td>0,143</td>
+<td>0,135</td>
+<td>0,118</td>
+<td>0,102</td>
+</tr>
+<tr>
+<td>R_TR (N)</td>
+<td>11,7</td>
+<td>19,8</td>
+<td>29,4</td>
+<td><strong>40,2</strong></td>
+<td>51,7</td>
+<td>63,7</td>
+<td>87,5</td>
+<td>108,7</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>F_nT recién llega a 5 a <strong>24,5 km/h</strong>. Según la fórmula, el espejo nunca se ventila en el rango del proyecto.</li>
+<li>A 6 km/h, R_TR es <strong>30 % de R nominal (134 N)</strong> y es el término con menos base empírica.</li>
+<li>R_TR ∝ A_T·c₆(A_T). Bajar el calado de popa es la palanca más barata: carga hacia proa y no sobrecargar el bote.</li>
+</ul>
+<h3 id="15-olas-y-joroba">1.5 Olas y joroba</h3>
+<ul>
+<li>Holtrop 1984 [VERIFICADO: S16]:<ul>
+<li>Para Fn ≤ 0,40 recomienda la fórmula de 1982 con m₂ = c₁₅·0,4·exp(−0,034Fn^−3,29) (el exponente −3,29 está borroso en el OCR [ESTIMADO]).</li>
+<li>Para Fn &gt; 0,55 da una fórmula de alta velocidad aparte: c₁₇, m₃ y m₄.</li>
+<li>Para 0,40 &lt; Fn &lt; 0,55: "use the more or less arbitrary interpolation formula" entre R_W(0,40) y R_W(0,55). La forma es R_W = R_W,A(0,40) + (10Fn − 4)(R_W,B(0,55) − R_W,A(0,40))/1,5 [ESTIMADO: OCR dañado + memoria].</li>
+<li>c₇ = 0,5 − 0,0625·L/B cuando B/L &gt; 0,25, que es el caso del bote (B/L = 0,54).</li>
+</ul>
+</li>
+<li>Rango de Holtrop, según la documentación de un repositorio (fuente secundaria): Fn 0,15–0,45, Cp 0,55–0,85, precisión ±5–10 % [VERIFICADO: S31]. El crucero (Fn 0,376) cae dentro, pero 8–12 km/h (Fn 0,50–0,75) quedan <strong>en la zona de interpolación arbitraria o fuera de rango</strong>. La geometría queda fuera en L/B y en L/∇^⅓.</li>
+<li>→ La forma semiempírica de <code>hydro.py</code> (R_W = W·c_w·Fr⁴/(1 + (Fr/Fr_h)⁴)) es razonable como modelo para calibrar. No hay un método publicado validado para este casco.</li>
+</ul>
+<h3 id="16-planeo-savitsky-1964-y-regímenes-savitsky-2003">1.6 Planeo (Savitsky 1964) y regímenes (Savitsky 2003)</h3>
+<ul>
+<li><strong>Savitsky 2003 (abierto)</strong> [VERIFICADO: S21]:<ul>
+<li>Desplazamiento hasta SLR ≈ 1,3, con "wall of resistance" a SLR 1,34. Semidesplazamiento 1,3–3,0. Planeo de pantoque duro "recommended when operating at SLR &gt; 3.0".</li>
+<li>"The planing hull has somewhat larger resistance than the displacement or semi-displacement hulls up to a SLR of approximately 3 (pre-planing speed)", por los pantoques vivos y el espejo ancho sumergido.</li>
+<li>Curva R/Δ típica (Fig. 4, leída a ojo ±0,01): <strong>≈0,02–0,025 a SLR 1,3; ≈0,05–0,06 a SLR 1,7; ≈0,08 a SLR 2; ≈0,10 a SLR 3</strong>. Es una curva "típica"; el ejemplo de potencia del mismo texto usa L/∇^⅓ = 6,9.</li>
+</ul>
+</li>
+<li><strong>Contraste [CALCULADO]:</strong> <code>hydro.py</code> da R/W = 0,047 (6 km/h, SLR 1,26), 0,093 (8 km/h) y 0,176 (12 km/h), o sea <strong>~2 veces la curva típica de Savitsky</strong>. Los datos medidos en botes reales de 2,4–2,75 m (R04: 95–150 N a 6 km/h) respaldan el nivel del proyecto. → <strong>No usar curvas R/Δ "típicas" para este casco rechoncho</strong>: subestiman la resistencia a la mitad.</li>
+<li><strong>Savitsky 1964</strong> [ESTIMADO: memoria técnica, no verificado; buscar: "Savitsky 1964 Hydrodynamic design of planing hulls Marine Technology pdf"]:<ul>
+<li>C_Lβ = Δ/(½ρV²b²) = C_L0 − 0,0065β·C_L0^0,6</li>
+<li>C_L0 = τ^1,1(0,0120λ^½ + 0,0055λ^2,5/C_V²)</li>
+<li>l_p/(λb) = 0,75 − 1/(5,21C_V²/λ² + 2,39)</li>
+<li>D = Δ·tan τ + ½ρV₁²λb²C_f/(cos β·cos τ)</li>
+<li>Validez: 0,60 ≤ C_V ≤ 13; 2° ≤ τ ≤ 15°; λ ≤ 4.</li>
+<li><strong>No aplica:</strong> a 12 km/h, C_V = 1,09 está formalmente en rango, pero Fn∇ = 1,31 es pre-planeo. Las hipótesis de Savitsky (espejo seco, pantoques secos, sustentación dominante) no se cumplen.</li>
+</ul>
+</li>
+<li><strong>Pre-planeo</strong> (Mercier &amp; Savitsky 1973, Davidson Lab; Savitsky &amp; Brown 1976): regresión de R/Δ en Fn∇ = 1,0–2,0 con variables ∇^⅓/L, ángulo de entrada, A_T/A_X y B/T [ESTIMADO: memoria]. <strong>No encontré los coeficientes en fuente abierta.</strong> El límite inferior de L/∇^⅓ (≈4 según la memoria) excluye este casco (3,0). → buscar: "Mercier Savitsky 1973 resistance of transom-stern craft in the pre-planing regime coefficients"; "Savitsky Brown 1976 procedures hydrodynamic evaluation planing hulls".</li>
+<li><strong>Series 62 (Clement &amp; Blount 1963):</strong> no encontré fuente abierta con R/Δ en la joroba. → buscar: "Clement Blount 1963 Series 62 resistance tests systematic series planing hull forms DTMB".</li>
+</ul>
+<h3 id="17-gerr-propeller-handbook-y-artículos-de-gerr-marine">1.7 Gerr (Propeller Handbook y artículos de Gerr Marine)</h3>
+<ul>
+<li><strong>Verificado</strong> [S22]: "Max Hull SL Ratio = 8.26/(DL ratio)^0.311, but never less than 1.34. This gives the maximum speed-length ratio a hull can be driven without planing". DL = Disp[t largas]/(0,01·WL[ft])³. SLR &lt; 1,34 es desplazamiento, &gt; 3 es planeo pleno y en medio está el semidesplazamiento. La muestra del artículo tiene DL de 79 a 334.</li>
+<li>No verificado: SLR = 10,665/(LB/SHP)^⅓ [ESTIMADO: memoria técnica; <code>hydro.gerr_power_w</code> usa esta fórmula; buscar: "Gerr Propeller Handbook 10.665 LB/SHP"].</li>
+<li><strong>Proyecto [CALCULADO]:</strong> DL = <strong>1010</strong>, unas 3 veces la muestra de Gerr. 8,26/1010^0,311 = 0,96 → se aplica el piso de 1,34 → velocidad máxima sin planear <strong>≈ 6,4 km/h</strong>. El crucero de 6 km/h ya está al 94 %.<ul>
+<li>Potencia de Gerr al eje: 460 W (5 km/h), <strong>795 W (6 km/h)</strong>, 1885 W (8 km/h), 6,4 kW (12 km/h).</li>
+<li>Con la B-series y R del proyecto, P_D = 507–545 W a 6 km/h (§2.3).</li>
+<li>En campo, un inflable de 8 ft necesitó ≈500 W <em>eléctricos</em> a 6,1–6,7 km/h (R04).</li>
+<li>→ <strong>Gerr sobreestima 1,5–2 veces</strong>. Usarlo solo como techo.</li>
+</ul>
+</li>
+</ul>
+<h3 id="18-agua-poco-profunda">1.8 Agua poco profunda</h3>
+<p>ITTC (Schuster): ΔV/V = m/(1 − m − Frh²) + (1 − R_V/R_T)·(2/3)·Frh¹⁰. El segundo término es "finite depth influence on wave making resistance … within the range 0 &lt; Frh &lt; 0.7" [VERIFICADO: S18].</p>
+<p>En aguas abiertas m ≈ 0 [ESTIMADO: extrapolación de una corrección para tanque]:</p>
+<ul>
+<li>Con h = 1 m: Frh = 0,53 a 6 km/h → efecto despreciable (Frh¹⁰ = 0,002).</li>
+<li><strong>Con h = 0,6 m a 8 km/h, Frh = 0,92</strong>: fuera de la validez y cerca del crítico (Frh = 1), con un aumento fuerte de resistencia que la fórmula no cuantifica.</li>
+<li>→ En los bajos de arena (&lt; 1 m), ir a ≤ 6 km/h.</li>
+<li>→ El ensayo de remolque necesita <strong>h ≥ 1,5 m</strong> (Frh ≤ 0,58 a 8 km/h).</li>
+</ul>
+<h3 id="19-datos-experimentales-de-botes-planos">1.9 Datos experimentales de botes planos</h3>
+<p>No encontré ensayos abiertos de remolque de jon boats, punts ni barcazas chicas. Lo más cercano es la Fig. 4 de S21, que no es representativa (§1.6), y los datos de campo de R04. → buscar: "jon boat towing tank resistance test", "flat bottom punt resistance model test", "garvey hull resistance".</p>
+<p><strong>Protocolo derivado (§1.2–1.8):</strong></p>
+<ul>
+<li>Remolque con dinamómetro a 2, 3, 4, 5, 6, 7 y 8 km/h (GPS), con h ≥ 1,5 m, sin viento o con viento promediado ida y vuelta, y con la carga y el trimado reales.</li>
+<li>Ajustar <strong>una sola</strong> curva R(v) y no separar (1+k), R_TR y R_W.</li>
+<li>Ajustar c_w y Fr_h con <code>form_factor_k</code> y <code>delta_cf</code> fijos.</li>
+</ul>
+<hr />
+<h2 id="2-hélice-wageningen-b-series">2. Hélice: Wageningen B-series</h2>
+<h3 id="21-fuente-pública-verificada-y-coeficientes">2.1 Fuente pública verificada y coeficientes</h3>
+<ul>
+<li><strong>Repositorio:</strong> GijsB/propy (MIT), archivo <code>src/propy/wageningen_b.py</code>. Implementa KT y KQ como polinomios en J con coeficientes en (P/D, AE/A0, Z). Límites del código: Z 2–7, AE/A0 0,3–1,05, P/D 0,5–1,4 [VERIFICADO: S13].</li>
+<li><strong>Fuente primaria (en el mismo repositorio):</strong> Bernitsas, Ray &amp; Kinley, <em>KT, KQ and Efficiency Curves for the Wageningen B-Series Propellers</em>, Univ. of Michigan, Dept. NA&amp;ME, Report No. 237, mayo de 1981. Es un PDF escaneado de 111 páginas.<ul>
+<li>Tabla 1, "Reproduced from [1] = Oosterveld &amp; van Oossanen 1974/75": KT = ΣC^T_{s,t,u,v}·J^s(P/D)^t(AE/A0)^u Z^v, con 39 términos para KT y 47 para KQ, a <strong>Rn = 2·10⁶</strong>.</li>
+<li>Tabla 2: corrección de Reynolds ΔKT y ΔKQ "above Rn = 2×10⁶", con términos en (log Rn − 0,301).</li>
+<li>Validez: "2 ≤ Z ≤ 7, 0.30 ≤ AE/A0 ≤ 1.05, 0.5 ≤ P/D ≤ 1.40 … at the extremes … not fully reliable (KT local maximum for low J, high Z, low AE/A0 and high P/D)" [VERIFICADO: S14].</li>
+</ul>
+</li>
+<li><strong>Control término a término:</strong> transcribí la Tabla 1 del escaneo y la comparé término a término con propy. Coinciden los 39 de KT y 46 de 47 de KQ. El restante, el término (s,t,u,v) = (1,3,1,0) de KQ, es 0,00318086 en el escaneo y 0,003180986 en propy: diferencia relativa de 4·10⁻⁵, despreciable [CALCULADO]. En el bloque de abajo va el valor del escaneo.</li>
+<li><strong>Valores de control</strong> (evaluados con los polinomios) [CALCULADO]. La Fig. 21 de S14 (3 palas, AE/A0 = 0,50), revisada a ojo, coincide: η máx ≈ 0,72 cerca de J ≈ 0,87 y KT = 0 en J ≈ 1,09 para P/D = 1,0.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Hélice</th>
+<th>J</th>
+<th>KT</th>
+<th>KQ</th>
+<th>η₀</th>
+<th>Otros</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>B3-50, P/D 1,0</strong></td>
+<td><strong>0,5</strong></td>
+<td><strong>0,2451</strong></td>
+<td><strong>0,03863</strong></td>
+<td><strong>0,505</strong></td>
+<td>KT0 = 0,4057; KQ0 = 0,05964; η_máx 0,723 en J = 0,869; KT = 0 en J = 1,087</td>
+</tr>
+<tr>
+<td>B3-50, P/D 0,8</td>
+<td>0,5</td>
+<td>0,1579</td>
+<td>0,02148</td>
+<td>0,585</td>
+<td>KT0 = 0,3217; η_máx 0,681 en J = 0,68; KT = 0 en J = 0,881</td>
+</tr>
+<tr>
+<td>B3-50, P/D 1,2</td>
+<td>0,5</td>
+<td>0,3280</td>
+<td>0,06000</td>
+<td>0,435</td>
+<td>KT0 = 0,4809; η_máx 0,745 en J = 1,055</td>
+</tr>
+<tr>
+<td>B4-55, P/D 1,0</td>
+<td>0,5</td>
+<td>0,2652</td>
+<td>0,04178</td>
+<td>0,505</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>Contraste con el modelo lineal de <code>prop.py</code></strong> [CALCULADO]:</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Parámetro</th>
+<th><code>prop.py</code> hoy</th>
+<th>B-series</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KT0/(P/D)</td>
+<td>0,38</td>
+<td>0,40 (B3-50, P/D 0,6–1,2: 0,389–0,406); 0,37 (B3-35); 0,44 (B3-65)</td>
+</tr>
+<tr>
+<td>J_T0</td>
+<td>1,05·P/D</td>
+<td>1,10·P/D (P/D 0,8); 1,09 (1,0); 1,08 (1,2); 1,125 (0,6)</td>
+</tr>
+<tr>
+<td>FOM en punto fijo, T^1,5/(√(2ρA)·2πnQ)</td>
+<td>0,60</td>
+<td>0,63 (P/D 0,6); 0,60 (0,8); 0,55 (1,0); 0,50 (1,2)</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>Otra implementación con la misma tabla y además la corrección de Reynolds de la Tabla 2: <code>msunderland78/NAVALARCHITECTURE-POP</code>, <code>pop_core/wageningen.py</code> [VERIFICADO: S17].</li>
+<li><strong>Cuatro cuadrantes (marcha atrás):</strong> propy dice "this is not currently implemented … a simple function fit is used to get a very rough approximation" [VERIFICADO: S13]. No hay datos abiertos de B-series en cuatro cuadrantes. → buscar: "Wageningen B-series four quadrant Fourier coefficients MARIN". Empuje atrás ≈ 50–70 % del empuje adelante a igual rpm [ESTIMADO: memoria técnica].</li>
+<li><strong>Gawn-Burrill</strong> (secciones segmentales, más parecidas a una hélice de fueraborda): propy lo implementa según Radojčić, con P/D 0,8–1,8, AE/A0 ≈ 0,5–1,2 y J ≥ AE/A0/2 [VERIFICADO: S13, código]. No lo validé numéricamente.</li>
+</ul>
+<p><strong>Bloque listo para <code>p1calc/bseries_coeffs.json</code>.</strong> El formato coincide con <code>_poly()</code> de <code>prop.py</code>: [C, s(J), t(P/D), u(AE/A0), v(Z)].</p>
+<pre><code class="language-json">{&quot;source&quot;: &quot;Bernitsas, Ray &amp; Kinley 1981 (UMich NAME Rep. 237) Tabla 1; transcripcion GijsB/propy wageningen_b.py&quot;,
+ &quot;Rn&quot;: 2.0e6,
+ &quot;format&quot;: &quot;[C, s(J), t(P/D), u(AE/A0), v(Z)]&quot;,
+ &quot;KT&quot;: [
+  [0.00880496, 0, 0, 0, 0], [0.0144043, 0, 0, 0, 1], [-0.000606848, 0, 0, 0, 2], [-0.0125894, 0, 0, 1, 1],
+  [0.000690904, 0, 0, 1, 2], [-0.0507214, 0, 0, 2, 0], [0.166351, 0, 1, 0, 0], [0.0143481, 0, 1, 0, 1],
+  [0.158114, 0, 2, 0, 0], [0.415437, 0, 2, 1, 0], [-0.00410798, 0, 2, 2, 1], [-0.133698, 0, 3, 0, 0],
+  [-0.00841728, 0, 3, 0, 1], [-0.0317791, 0, 3, 1, 1], [0.00421749, 0, 3, 1, 2], [-0.00146564, 0, 3, 2, 2],
+  [0.00638407, 0, 6, 0, 0], [-0.204554, 1, 0, 0, 0], [-0.0049819, 1, 0, 0, 2], [0.0109689, 1, 0, 1, 1],
+  [0.018604, 1, 0, 2, 1], [0.0606826, 1, 1, 0, 1], [-0.481497, 1, 1, 1, 0], [-0.00163652, 1, 2, 0, 2],
+  [0.0168424, 1, 3, 0, 1], [-0.000328787, 1, 6, 0, 2], [0.010465, 1, 6, 2, 0], [-0.0530054, 2, 0, 0, 1],
+  [0.0025983, 2, 0, 0, 2], [-0.147581, 2, 0, 1, 0], [0.0854559, 2, 0, 2, 0], [-0.00132718, 2, 6, 0, 0],
+  [0.000116502, 2, 6, 0, 2], [-0.00648272, 2, 6, 2, 0], [-0.000560528, 3, 0, 0, 2], [0.168496, 3, 0, 1, 0],
+  [-0.0504475, 3, 0, 2, 0], [-0.00102296, 3, 3, 0, 1], [5.65229e-05, 3, 6, 1, 2]
+ ],
+ &quot;KQ&quot;: [
+  [0.00379368, 0, 0, 0, 0], [0.015896, 0, 0, 2, 0], [-0.0001843, 0, 0, 2, 2], [0.00513696, 0, 1, 0, 1],
+  [-0.0408811, 0, 1, 1, 0], [-0.0502782, 0, 1, 2, 0], [0.00344778, 0, 2, 0, 0], [0.188561, 0, 2, 1, 0],
+  [-0.0269403, 0, 2, 1, 1], [0.00155334, 0, 2, 1, 2], [0.0126803, 0, 2, 2, 1], [0.0161886, 0, 3, 1, 0],
+  [-0.0397722, 0, 3, 2, 0], [-0.000425399, 0, 3, 2, 2], [-0.000313912, 0, 6, 0, 1], [-0.00142121, 0, 6, 1, 1],
+  [0.000302683, 0, 6, 1, 2], [-0.00350024, 0, 6, 2, 0], [0.00334268, 0, 6, 2, 1], [-0.0004659, 0, 6, 2, 2],
+  [-0.00370871, 1, 0, 0, 1], [0.000269551, 1, 0, 1, 2], [0.0471729, 1, 0, 2, 0], [-0.00383637, 1, 0, 2, 1],
+  [-0.032241, 1, 1, 0, 0], [0.0209449, 1, 1, 0, 1], [-0.00183491, 1, 1, 0, 2], [-0.108009, 1, 1, 1, 0],
+  [0.00438388, 1, 1, 1, 1], [0.00318086, 1, 3, 1, 0], [5.54194e-05, 1, 6, 2, 2], [0.00886523, 2, 0, 0, 0],
+  [-0.00723408, 2, 0, 1, 1], [0.00083265, 2, 0, 1, 2], [0.00474319, 2, 1, 0, 1], [-0.0885381, 2, 1, 1, 0],
+  [0.0417122, 2, 2, 2, 0], [-0.00318278, 2, 3, 2, 1], [-0.0106854, 3, 0, 0, 1], [0.0558082, 3, 0, 1, 0],
+  [0.0035985, 3, 0, 1, 1], [0.0196283, 3, 0, 2, 0], [0.000112451, 3, 2, 0, 2], [0.00110903, 3, 3, 0, 1],
+  [8.69243e-05, 3, 3, 2, 2], [-2.97228e-05, 3, 6, 0, 2], [-0.030055, 3, 1, 2, 0]
+ ]}
+</code></pre>
+<p>Prueba unitaria sugerida: B3-50, P/D = 1,0, J = 0,5 → KT = 0,2451 ± 0,0001, KQ = 0,03863 ± 0,00001, η₀ = 0,505 ± 0,001.</p>
+<h3 id="22-escala-y-rugosidad-la-hélice-chica-opera-por-debajo-de-rn-210⁶">2.2 Escala y rugosidad: la hélice chica opera por debajo de Rn = 2·10⁶</h3>
+<ul>
+<li><strong>Holtrop 1982 (método ITTC-78)</strong> [VERIFICADO: S15]. Los polinomios "are valid, however, for a Reynolds number of 2·10⁶ and need to be corrected for the specific Reynolds number and the roughness":<ul>
+<li>KT_buque = KT_B + ΔC_D·0,3·(P/D)·(c₀,₇₅Z/D)</li>
+<li>KQ_buque = KQ_B − ΔC_D·0,25·(c₀,₇₅Z/D)</li>
+<li>ΔC_D = (2 + 4(t/c)₀,₇₅)·{0,003605 − (1,89 + 1,62·log(c₀,₇₅/k_p))^−2,5}</li>
+<li>k_p = 0,00003 m para hélice nueva</li>
+<li>c₀,₇₅ = 2,073·(AE/A0)·D/Z</li>
+<li>(t/c)₀,₇₅ = (0,0185 − 0,00125Z)·D/c₀,₇₅</li>
+</ul>
+</li>
+<li><strong>EO10x8</strong> (D = 0,254 m, P/D 0,8, Z = 3, AE/A0 0,5) [CALCULADO]: c₀,₇₅ = 87,8 mm; t/c = 0,043; ΔC_D = −0,00624; ΔKT = −0,00155; ΔKQ = +0,00162 → <strong>η₀ baja ~7 %</strong> en crucero (0,494 → 0,459) y P_D sube de 507 a 545 W.</li>
+<li>Rn₀,₇₅ real = (5,7–7,7)·10⁵ [CALCULADO], por debajo de los 2·10⁶ de la regresión. La Tabla 2 solo corrige hacia arriba.</li>
+<li>→ Banda para <code>efficiency_factor</code>: <strong>0,93–0,98</strong>. Con 0,98 se cubre solo el efecto Re de una hélice lisa; con 0,93, la rugosidad de 30 µm de la ITTC-78 [ESTIMADO].</li>
+</ul>
+<h3 id="23-hélices-candidatas-en-crucero">2.3 Hélices candidatas en crucero</h3>
+<p>Condiciones: T = 169,2 N a lo largo del eje, V = 6 km/h, w = 0,02, Va axial = V(1 − w)·cos 25° = 1,48 m/s, ρ = 1013. B-series de 3 palas sin corrección de escala [CALCULADO].</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Hélice</th>
+<th>D m</th>
+<th>P/D</th>
+<th>rpm</th>
+<th>J</th>
+<th>η₀</th>
+<th>P_D W</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OB78x6 (7,8″ fueraborda)</td>
+<td>0,198</td>
+<td>0,77</td>
+<td>1369</td>
+<td>0,328</td>
+<td><strong>0,420</strong></td>
+<td>596</td>
+</tr>
+<tr>
+<td>OB74x55</td>
+<td>0,188</td>
+<td>0,74</td>
+<td>1536</td>
+<td>0,307</td>
+<td>0,406</td>
+<td>616</td>
+</tr>
+<tr>
+<td><strong>EO10x8 (elegida)</strong></td>
+<td>0,254</td>
+<td>0,80</td>
+<td>863</td>
+<td>0,405</td>
+<td><strong>0,494</strong></td>
+<td>507</td>
+</tr>
+<tr>
+<td>EO11x8</td>
+<td>0,279</td>
+<td>0,73</td>
+<td>782</td>
+<td>0,406</td>
+<td><strong>0,523</strong></td>
+<td>479</td>
+</tr>
+<tr>
+<td>Óptimo de la cuadrícula B3-50</td>
+<td>0,32</td>
+<td>0,8</td>
+<td>585</td>
+<td>—</td>
+<td>0,562</td>
+<td>445</td>
+</tr>
+<tr>
+<td>Óptimo de la cuadrícula B3-50</td>
+<td>0,34</td>
+<td>0,8</td>
+<td>530</td>
+<td>—</td>
+<td>0,579</td>
+<td>432</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>WW10x4 (P/D 0,4) queda <strong>fuera del rango B-series</strong> (P/D ≥ 0,5). No se puede evaluar con estos polinomios.</li>
+<li><code>sizing.json</code> hoy da η₀ = 0,480 para la EO10x8 con el modelo lineal, contra 0,494 de la B-series. La diferencia es chica, pero con la corrección del §2.2 queda en 0,459.</li>
+</ul>
+<h3 id="24-disco-actuador-límite-ideal">2.4 Disco actuador (límite ideal)</h3>
+<ul>
+<li>Potencia ideal en punto fijo: P = √(T³/(2ρA)) [VERIFICADO: S2]. En avance, η_i = 2/(1 + √(1 + C_T)), con C_T = T/(½ρVa²A) [ESTIMADO: derivación estándar de la misma teoría de momento].</li>
+<li>Crucero, T = 169 N, Va = 1,48 m/s [CALCULADO]:</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>D</th>
+<th>0,198</th>
+<th>0,254</th>
+<th>0,279</th>
+<th>0,30</th>
+<th>0,34</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C_T</td>
+<td>4,95</td>
+<td>3,01</td>
+<td>2,49</td>
+<td>2,16</td>
+<td>1,68</td>
+</tr>
+<tr>
+<td>η_i</td>
+<td>0,581</td>
+<td>0,666</td>
+<td>0,698</td>
+<td>0,720</td>
+<td>0,758</td>
+</tr>
+</tbody>
+</table></div>
+<p>La relación η₀/η_i de la B-series da 0,72–0,76. Es coherente.</p>
+<ul>
+<li>Punto fijo con T = 328 N: P_ideal = 586 W con D = 0,254 m. La B-series necesita 981 W (FOM 0,60) [CALCULADO].</li>
+</ul>
+<hr />
+<h2 id="3-cavitación">3. Cavitación</h2>
+<h3 id="31-definiciones-verificadas-en-el-código-de-s17">3.1 Definiciones (verificadas en el código de S17)</h3>
+<ul>
+<li>σ₀,₇R = (p_atm + ρgh)/(½ρ(Va² + (0,7πnD)²)). POP no resta p_v. <code>prop.py</code> sí lo resta, lo que es más conservador.</li>
+<li>POP calcula la carga de Burrill con <strong>A_E y la velocidad a 0,75R</strong>: T/(½ρV²₀,₇₅·A0·AE/A0) [VERIFICADO: S17]. Esa definición <strong>no es la clásica</strong>.</li>
+<li>La definición clásica, que usa <code>prop.py</code>, es τ_c = T/(½ρV²₀,₇R·A_P), con A_P ≈ A_E(1,067 − 0,229·P/D) [ESTIMADO: memoria técnica (Carlton), no verificado; buscar: "projected area ratio 1.067 0.229 P/D Burrill"].</li>
+</ul>
+<h3 id="32-curva-de-burrill-digitalizada-5-y-10-de-cavitación-en-la-cara-de-succión">3.2 Curva de Burrill digitalizada (5 % y 10 % de cavitación en la cara de succión)</h3>
+<p>Fuente: "Burrill back-cavitation chart digitised from Carlton (2012) Figure 9.21" [VERIFICADO: README y <code>solver.py</code> de S17]:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>σ₀,₇R</th>
+<th>0,10</th>
+<th>0,20</th>
+<th>0,30</th>
+<th>0,40</th>
+<th>0,50</th>
+<th>0,60</th>
+<th>0,80</th>
+<th>1,00</th>
+<th>1,50</th>
+<th>2,00</th>
+<th>3,00</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>τ_c, 5 %</td>
+<td>0,066</td>
+<td>0,118</td>
+<td>0,155</td>
+<td>0,181</td>
+<td>0,201</td>
+<td>0,218</td>
+<td>0,243</td>
+<td>0,260</td>
+<td>0,286</td>
+<td>0,301</td>
+<td>0,320</td>
+</tr>
+<tr>
+<td>τ_c, 10 %</td>
+<td>0,086</td>
+<td>0,148</td>
+<td>0,188</td>
+<td>0,219</td>
+<td>0,242</td>
+<td>0,260</td>
+<td>0,287</td>
+<td>0,306</td>
+<td>0,336</td>
+<td>0,354</td>
+<td>0,380</td>
+</tr>
+<tr>
+<td><code>prop.py</code>: 0,3σ^0,6</td>
+<td>0,075</td>
+<td>0,114</td>
+<td>0,146</td>
+<td>0,173</td>
+<td>0,198</td>
+<td>0,221</td>
+<td>0,262</td>
+<td><strong>0,300</strong></td>
+<td><strong>0,383</strong></td>
+<td><strong>0,455</strong></td>
+<td><strong>0,580</strong></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>El ajuste de <code>prop.py</code>, rotulado "2,5 %", <strong>sigue la curva de 5 % solo hasta σ ≈ 0,6</strong>. Por encima se vuelve no conservador: +15 % en σ = 1, +51 % en σ = 2 y +81 % en σ = 3 [CALCULADO].</li>
+<li>→ Reemplazarlo por <code>np.interp(σ, tabla 5 %)</code>. La curva de 2,5 % (no disponible) queda <strong>por debajo</strong> de la de 5 %.</li>
+</ul>
+<h3 id="33-keller">3.3 Keller</h3>
+<p>AE/A0_mín = (1,3 + 0,3Z)·T/(D²(p₀ + ρgh − p_v)) + K. "K = 0 to 0.1 for twin-screw ships, K = 0.2 for single-screw ships. For sea water of 15 °C, p₀ − p_v = 99047 N/m²" [VERIFICADO: S15]. La misma fórmula aparece en propy (<code>cavitation_margin</code>, K = 0,2) y en propy_opt (K = 0,2 con un eje, 0,1 con dos) [VERIFICADO: S13, S30]. Una hélice de cola larga en flujo casi uniforme se parece más al caso K = 0,1 [ESTIMADO].</p>
+<h3 id="34-resultados-para-la-eo10x8">3.4 Resultados para la EO10x8</h3>
+<p>Con eje a 0,9D = 0,229 m de profundidad (punta a 0,4D) [CALCULADO]:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>T eje N</th>
+<th>rpm</th>
+<th>σ₀,₇R</th>
+<th>τ_c</th>
+<th>Límite 5 %</th>
+<th>τ_c/límite</th>
+<th>AE/A0 mín Keller (K = 0,2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Crucero nominal</td>
+<td>169</td>
+<td>863</td>
+<td>3,00</td>
+<td>0,224</td>
+<td>0,320</td>
+<td>0,70</td>
+<td>0,26</td>
+</tr>
+<tr>
+<td>Crucero diseño</td>
+<td>195</td>
+<td>908</td>
+<td>2,71</td>
+<td>0,233</td>
+<td>0,315</td>
+<td>0,74</td>
+<td>0,27</td>
+</tr>
+<tr>
+<td>8 km/h</td>
+<td>309</td>
+<td>1162</td>
+<td>1,65</td>
+<td>0,225</td>
+<td>0,291</td>
+<td>0,77</td>
+<td>0,30</td>
+</tr>
+<tr>
+<td><strong>Punto fijo</strong></td>
+<td>328</td>
+<td>933</td>
+<td>2,65</td>
+<td><strong>0,383</strong></td>
+<td>0,313</td>
+<td><strong>1,22</strong> (también &gt; 10 %: 0,371)</td>
+<td>0,31</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>En punto fijo, τ_c = KT0/(½(0,7π)²·A_P/D²) <strong>no depende del empuje</strong>: es propiedad de la hélice. Da 0,38 para cualquier B3-50 con P/D 0,8. La OB78x6 da 0,40 y la EO11x8 0,34 [CALCULADO].</li>
+<li>Burrill es un criterio para el punto de diseño en avance. En punto fijo se espera algo de cavitación o ventilación en la cara de succión a fondo de acelerador, sobre todo con la punta a solo 0,10 m de la superficie [ESTIMADO].</li>
+<li>En crucero y a 8 km/h, el margen es suficiente con AE/A0 = 0,5.</li>
+</ul>
+<hr />
+<h2 id="4-toberas-kort-19a-y-aro-protector">4. Toberas (Kort 19A) y aro protector</h2>
+<ul>
+<li><strong>Kort o tobera acelerante</strong> [VERIFICADO: S5]:<ul>
+<li>Ventaja "at lower speeds (&lt;10 knots)", y "lose their advantage over propellers at about ten knots".</li>
+<li>"Bollard pull can increase up to 30% with ducts".</li>
+<li>Perfiles habituales: MARIN 19A y 37. Desventajas: arrastre, objetos que se atascan entre hélice y tobera ("more difficult to clear"), más cavitación y peor gobierno marcha atrás.</li>
+</ul>
+</li>
+<li><strong>Teoría de momento con carenado</strong> [VERIFICADO: S24, ec. 1.2 y 1.5]: P_i = T^1,5/√(4σ_dρA), con σ_d = A_salida/A_disco. La fracción de empuje del rotor es T_rotor/T_total = 1/(2σ_d). Con σ_d = 1 y la misma potencia, el empuje ideal crece (4/2)^⅓ = <strong>1,26 veces, +26 %</strong> [CALCULADO]. Coincide con el "+30 %" de S5.</li>
+<li><strong>La holgura de punta manda</strong> [VERIFICADO: S24]:<ul>
+<li>Mort, X-22A: pasar de 0,3 % a 2,0 %D de holgura bajó ≈20 % el coeficiente de empuje estático.</li>
+<li>Rotores de MAV: con 0,5 %D, FM fue 7 % mayor que el rotor libre; con 2,0 %D, <strong>25 % menor</strong>.</li>
+<li>Hubbard: de 0,2 % a 4,4 %D, "approximately an 84% reduction in total thrust".</li>
+<li>Los ensayos son aerodinámicos y a bajo Re; los tomo como análogos [ESTIMADO].</li>
+<li>Wikipedia: "Good efficiency requires very small clearances between the blade tips and the duct" [VERIFICADO: S12].</li>
+</ul>
+</li>
+<li><strong>Aro protector del proyecto:</strong> holgura de 6 mm en 254 mm = <strong>2,4 %D</strong>, perfil de 76 mm. Según los datos anteriores <strong>no da ganancia en punto fijo y puede restar</strong>. <code>guard.thrust_loss_frac = 0,10</code> y <code>bollard_gain_frac = 0</code> son coherentes. Una banda de 0,10–0,20 para análisis de sensibilidad es razonable [ESTIMADO]. El arrastre de fricción del aro es ≈1–3 N a 6 km/h [CALCULADO con C_f ≈ 0,0056 sobre 0,127 m² mojados]. La pérdida principal es por bloqueo y por la estela, no por fricción.</li>
+<li><strong>Datos de usuarios (eFoil)</strong> [VERIFICADO: S25, S26, S27]:<ul>
+<li>Un aro que gira con la hélice, impreso en 3D: "38A @ 20 km/h" sin aro contra "100A @ 20 km/h" con aro.</li>
+<li>Un protector impreso de 550 g: "It is only good for protection. Nothing else is positive about it. It works as an effective brake."</li>
+<li>Con tobera: "a big drop in efficiency above 12mph" (sin medición).</li>
+</ul>
+</li>
+<li>→ Una tobera 19A real necesitaría holgura ≤ 0,5 %D (≈1,3 mm), concentricidad y rigidez que no son viables en PETG con arena y golpes. <strong>El aro es solo protección.</strong></li>
+</ul>
+<hr />
+<h2 id="5-mecánica">5. Mecánica</h2>
+<h3 id="51-velocidad-crítica-whirling">5.1 Velocidad crítica (whirling)</h3>
+<ul>
+<li>Rayleigh: ω₁ ≈ √(g·Σwᵢyᵢ/Σwᵢyᵢ²). Con un solo tramo, ω₁ ≈ √(g/y_máx), que subestima. Se combinan cargas o se aplica Dunkerley. "Many practical applications suggest … maximum operating speed should not exceed 75% of the critical speed" (Wikipedia marca falta de cita) [VERIFICADO: S1].</li>
+<li>Euler-Bernoulli: ω = β²√(EI/μ). Voladizo: ω₁ = 3,5160/L²·√(EI/μ). Libre-libre: 22,3733/L²·√(EI/μ) [VERIFICADO: S7]. Viga biapoyada: βL = π → <strong>ω₁ = (π/L)²√(EI/μ)</strong> [ESTIMADO: derivación estándar de la misma ecuación]. Es lo que usa <code>mech.py</code>.</li>
+<li><strong>Ø16 AISI 316</strong> (E = 193 GPa, ρ = 8000): EI = 621 N·m², μ = 1,608 kg/m [CALCULADO]:</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tramo biapoyado L</th>
+<th>0,3 m</th>
+<th>0,4 m</th>
+<th>0,5 m</th>
+<th>0,6 m</th>
+<th>0,8 m</th>
+<th>1,0 m</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>n_crít (rpm)</td>
+<td>20 574</td>
+<td>11 573</td>
+<td>7 407</td>
+<td>5 144</td>
+<td>2 893</td>
+<td>1 852</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>Hélice en voladizo (0,65 kg, eje rígido sin su masa, k = 3EI/a³): con a = 60 mm, 34 800 rpm; con a = 100 mm, 16 200 rpm; con a = 150 mm y 0,8 kg, 7 900 rpm [CALCULADO].</li>
+<li>Máximo de la hélice ≈1 230 rpm, con un primer orden de pala de 3× ≈ 3 700 ciclos/min. → <strong>Tramo entre bujes ≤ 0,6 m</strong> (n_crít/n_máx &gt; 4). No conviene un tramo libre de 1 m. Los bujes de POM lubricados por agua con holgura no son apoyos perfectos [ESTIMADO]. Aplicar Dunkerley: 1/ω² = Σ 1/ωᵢ².</li>
+</ul>
+<h3 id="52-fatiga">5.2 Fatiga</h3>
+<ul>
+<li>Gerber: (nσ_m/σ_b)² + nσ_a/σ_w = 1. <strong>Goodman: σ_m/σ_b + σ_a/σ_w = 1/n. Soderberg: σ_m/σ_y + σ_a/σ_w = 1/n.</strong> El orden de conservadurismo es Soderberg &gt; Goodman &gt; Gerber [VERIFICADO: S3].</li>
+<li><code>mech.py</code> usa 1/n = σ_a/S_e + √3·τ_m/S_u: Goodman con von Mises, flexión alternante y torsión media. Es la forma DE-Goodman de Shigley con M_m = T_a = 0 [ESTIMADO: memoria técnica (Shigley)]. Agregar la componente alternante de torsión por el primer orden de pala: T_a ≈ 0,10–0,20·T_m (§5.4).</li>
+<li>En agua de mar, el acero inoxidable <strong>no tiene límite de fatiga verdadero</strong> (fatiga con corrosión) [ESTIMADO: memoria técnica; ver R05]. <code>se_mpa = 120</code> (contra 150 en seco) es la decisión correcta.</li>
+</ul>
+<h3 id="53-pasador-de-corte">5.3 Pasador de corte</h3>
+<ul>
+<li>Corte doble a través del eje Ø D_s: Q_corte = τ_u·(πd_p²/4)·D_s [ESTIMADO: equilibrio estático estándar, con las dos fuerzas de corte separadas D_s].</li>
+<li>τ_u ≈ 0,65·UTS en aluminios, ≈ 0,75·UTS en aceros (como guía "muy aproximada"). En general se estima en 60 % de la UTS [VERIFICADO: S6]. 6061-T6: UTS ≥ 42 ksi (290 MPa), fluencia ≥ 35 ksi (241 MPa), fatiga 14 ksi (96,5 MPa) a 5·10⁸ ciclos invertidos [VERIFICADO: S8].</li>
+<li>Par de corte con D_s = 16 mm [CALCULADO]:</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>d_p</th>
+<th>2,0 mm</th>
+<th>2,5 mm</th>
+<th><strong>3,0 mm</strong></th>
+<th>3,5 mm</th>
+<th>4,0 mm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6061-T6 (τ_u = 0,65·290 = 189 MPa)</td>
+<td>9,5 N·m</td>
+<td>14,8</td>
+<td><strong>21,3</strong></td>
+<td>29,0</td>
+<td>37,9</td>
+</tr>
+<tr>
+<td>6061-T6 (τ_u = 207 MPa, <code>inputs.yaml</code>)</td>
+<td>10,4</td>
+<td>16,3</td>
+<td><strong>23,4</strong></td>
+<td>31,9</td>
+<td>41,6</td>
+</tr>
+<tr>
+<td>AISI 316 recocido (0,75·515 = 386 MPa) [UTS: <code>inputs.yaml</code>]</td>
+<td><strong>19,4</strong></td>
+<td>30,3</td>
+<td>43,7</td>
+<td>59,5</td>
+<td>77,7</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>Par máximo en la hélice ≈ 9,7–10 N·m (punto fijo, <code>sizing.json</code>). → <strong>Pasador de 6061-T6 de Ø3 mm</strong> (21–23 N·m ≈ 2,2 veces Q_máx), o de 316 de Ø2 mm. No usar latón: se descinca (R06).</li>
+<li>En crucero (6 N·m), el pasador de Al de 3 mm trabaja a τ = 53 MPa. El límite de fatiga en corte es ≈ 0,577·96,5 = 56 MPa [ESTIMADO]. Con Goodman (τ_m dominante, τ_a = 10 %), n = 1,6 en punto fijo [CALCULADO]. → Llevar repuestos y revisar cada salida.</li>
+<li>Pasadores de fábrica de fueraborda de 2–3,5 hp: no encontré fuente abierta. → buscar: "Tohatsu 3.5 hp shear pin diameter material", "Mercury 2.5 shear pin dimensions". En R02 hay un caso DIY con ranura para pasador de 3,5 mm en eje de 10 mm.</li>
+</ul>
+<h3 id="54-eje-inclinado-cola-larga">5.4 Eje inclinado (cola larga)</h3>
+<ul>
+<li><strong>Tesis abierta sobre la hélice de long-tail tailandés</strong> [VERIFICADO: S23]:<ul>
+<li>"The actual inclined shaft angle of Long-Tail Boat is operated about 12° from horizontal axis. The shaft length is 4.5 m."</li>
+<li>"The component of flow Va·sin ψ perpendicular to the propeller shaft gives rise to an eccentricity of the propeller thrust … significant fluctuation in blade loading as the blade rotates. The thrust T can be resolved into a horizontal thrust T·cos ψ and a vertical force T·sin ψ … trim angle should be added to the shaft inclination."</li>
+<li>Ensayo N4990 con 4,8° y 8,8°: "the inclined shaft showed higher efficiency than straight shaft by … approximately 1–7 %"; KT similar, KQ algo menor.</li>
+<li>CFD a 12° de la hélice de long-tail: η +2,8 % (original) y +3,5 % (mejorada) en J = 1,1. Sin efecto entre J = 0,5 y 1,0.</li>
+</ul>
+</li>
+<li><strong>Aplicado al proyecto (ψ = 25°, más allá de los datos)</strong> [CALCULADO]:<ul>
+<li>Empuje horizontal = 0,906·T (<strong>−9,4 %</strong>).</li>
+<li>Fuerza vertical = 0,42·T: 72 N en crucero y 139 N en punto fijo. Levanta la popa.</li>
+<li>Va axial = 0,906·V.</li>
+<li>Velocidad transversal relativa V·sin ψ/(0,7πnD) = 0,086 → variación de ±8,6 % en la velocidad de la sección y de ≈ ±17 % en la presión dinámica, una vez por vuelta [ESTIMADO].</li>
+<li>Con 15° el empuje horizontal sería 0,966·T, un <strong>6,6 % más</strong> que con 25°.</li>
+</ul>
+</li>
+<li>Existen ensayos con 10°, 20° y 30° (Boswell, DTMB 4661, citados en S23), pero no los abrí. → buscar: "Boswell DTMB 4661 oblique flow 20 30 degrees single blade loads".</li>
+</ul>
+<hr />
+<h2 id="6-térmico">6. Térmico</h2>
+<h3 id="61-outrunner-refrigerado-por-aire">6.1 Outrunner refrigerado por aire</h3>
+<ul>
+<li>Pérdidas: P_cu = I²·R(T) ("Copper Loss ∝ I²·R") [VERIFICADO: S9 y Wikipedia "Copper loss"]. R(T) = R₂₀[1 + α(T − 20)], con <strong>α = 3,93·10⁻³ K⁻¹ para cobre recocido</strong> (4,04·10⁻³ para cobre puro) [VERIFICADO: S9]. → R(80 °C)/R(20 °C) = <strong>1,236</strong>: a la misma corriente, la pérdida en cobre sube 24 % en caliente [CALCULADO].</li>
+<li>Pérdidas en hierro y mecánicas ≈ I₀·V_bemf [ESTIMADO: modelo DC de motor de hobby].</li>
+<li>Temperatura: T_w(t) = T_amb + P_pérd·R_th·(1 − e^(−t/τ)). Los valores <code>rth_k_w = 0,45</code> y <code>tau_th_s = 600</code> de <code>inputs.yaml</code> <strong>no están verificados</strong> [SUPUESTO]. → buscar: "outrunner 63xx thermal resistance K/W measurement".</li>
+<li><strong>Medición propuesta (método de resistencia):</strong> T = T₀ + (R/R₀ − 1)/α, con R medida a 4 hilos usando una fuente de 5 A y el multímetro, o con la detección de motor del VESC en frío y en caliente. Correr 20 min a la corriente de crucero.</li>
+<li>VESC por defecto [VERIFICADO: S29]: limitación por motor desde 85 °C y corte a 100 °C (<code>MCCONF_L_LIM_TEMP_MOTOR_START/END</code>). Sensor NTC 10 k con β = 3380. → El <code>t_winding_max_c = 120</code> de <code>inputs.yaml</code> es más alto que lo que el VESC permite por defecto.</li>
+</ul>
+<h3 id="62-pérdidas-del-esc-mosfet">6.2 Pérdidas del ESC (MOSFET)</h3>
+<ul>
+<li>P_cond = R_DS(on)·I_RMS². P_sw = V_IN·I_OUT·f_sw·Q_sw/I_g, con I_g = (V_driver − V_PL)/(R_g + R_driver) [VERIFICADO: S28, medio puente síncrono]. Inversor trifásico con FOC: P_cond ≈ 3·I_fase,rms²·R_DS(on)(T_j) y P_sw ≈ 3·V_bat·(2/π)·I_pico·f_sw·t_sw [ESTIMADO: adaptación].</li>
+<li>VESC por defecto: f_zv (FOC) = <strong>25 kHz</strong>; limitación por MOSFET desde 85 °C y corte a 100 °C [VERIFICADO: S29].</li>
+<li>Ejemplo de crucero con I_fase,rms = 40 A, V = 44 V, R_DS(on) caliente = 2 mΩ [SUPUESTO] y t_sw = 50 ns [SUPUESTO]: P_cond ≈ 9,6 W y P_sw ≈ 5,9 W → <strong>≈ 15 W</strong>. <code>sizing.json</code> da 19 W (η 0,97 fija). Es coherente y algo conservador [CALCULADO].</li>
+</ul>
+<hr />
+<h2 id="7-no-encontrado-buscar">7. No encontrado (buscar)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Términos de búsqueda</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Coeficientes de Mercier-Savitsky 1973 y Savitsky-Brown 1976</td>
+<td>"Mercier Savitsky 1973 transom-stern craft pre-planing regime Davidson Laboratory report 1667"</td>
+</tr>
+<tr>
+<td>Savitsky 1964 (texto original)</td>
+<td>"Savitsky 1964 Hydrodynamic Design of Planing Hulls Marine Technology pdf"</td>
+</tr>
+<tr>
+<td>Series 62 en la joroba</td>
+<td>"Clement Blount 1963 Series 62 resistance systematic planing"</td>
+</tr>
+<tr>
+<td>Gerr, SLR = 10,665/(LB/SHP)^⅓</td>
+<td>"Gerr Propeller Handbook 10.665 LB/SHP"</td>
+</tr>
+<tr>
+<td>A_P/A_E = 1,067 − 0,229·P/D y curva de Burrill de 2,5 %</td>
+<td>"Burrill diagram 2.5 percent back cavitation formula"</td>
+</tr>
+<tr>
+<td>Tobera 19A con Ka4-70 (polinomios abiertos)</td>
+<td>"Ka 4-70 nozzle 19A KT KQ polynomial open"</td>
+</tr>
+<tr>
+<td>Datos de fábrica de protectores de hélice</td>
+<td>"propeller guard thrust loss test data outboard"</td>
+</tr>
+<tr>
+<td>Ensayos de jon boats o punts</td>
+<td>"jon boat resistance towing test", "flat bottom punt drag"</td>
+</tr>
+<tr>
+<td>R_th de outrunner 63xx</td>
+<td>"outrunner thermal resistance K/W 6374"</td>
+</tr>
+<tr>
+<td>Pasadores de corte de fueraborda</td>
+<td>"Tohatsu MFS3.5 shear pin size"</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="8-fuentes-abiertas-en-esta-sesión">8. Fuentes abiertas en esta sesión</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>URL</th>
+<th>Qué respalda</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>https://en.wikipedia.org/w/index.php?title=Critical_speed&amp;action=raw</td>
+<td>Rayleigh, √(g/y_máx), regla del 75 %</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>https://en.wikipedia.org/w/index.php?title=Momentum_theory&amp;action=raw</td>
+<td>P = √(T³/2ρA)</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>https://en.wikipedia.org/w/index.php?title=Goodman_relation&amp;action=raw</td>
+<td>Gerber, Goodman, Soderberg</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>https://en.wikipedia.org/w/index.php?title=Hull_speed&amp;action=raw</td>
+<td>1,34√L_WL; constantes 1,34–1,51</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>https://en.wikipedia.org/w/index.php?title=Ducted_propeller&amp;action=raw</td>
+<td>Kort 19A/37, +30 % en punto fijo, &lt; 10 kn</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>https://en.wikipedia.org/w/index.php?title=Shear_strength&amp;action=raw</td>
+<td>USS ≈ 0,65 UTS (Al), 0,75 (acero), 60 % en general</td>
+</tr>
+<tr>
+<td>S7</td>
+<td>https://en.wikipedia.org/w/index.php?title=Euler%E2%80%93Bernoulli_beam_theory&amp;action=raw</td>
+<td>ω = β²√(EI/μ), voladizo 3,516</td>
+</tr>
+<tr>
+<td>S8</td>
+<td>https://en.wikipedia.org/w/index.php?title=6061_aluminium_alloy&amp;action=raw</td>
+<td>6061-T6: 290/241 MPa; fatiga 96,5 MPa</td>
+</tr>
+<tr>
+<td>S9</td>
+<td>https://en.wikipedia.org/w/index.php?title=Electrical_resistivity_and_conductivity&amp;action=raw</td>
+<td>α del Cu = 3,93·10⁻³ (recocido)</td>
+</tr>
+<tr>
+<td>S10</td>
+<td>https://en.wikipedia.org/w/index.php?title=P-factor&amp;action=raw</td>
+<td>Carga asimétrica de las palas con disco inclinado</td>
+</tr>
+<tr>
+<td>S11</td>
+<td>https://en.wikipedia.org/w/index.php?title=Long-tail_boat&amp;action=raw</td>
+<td>Referencia a la tesis S23</td>
+</tr>
+<tr>
+<td>S12</td>
+<td>https://en.wikipedia.org/w/index.php?title=Ducted_fan&amp;action=raw</td>
+<td>La holgura de punta tiene que ser mínima</td>
+</tr>
+<tr>
+<td>S13</td>
+<td>https://github.com/GijsB/propy · https://raw.githubusercontent.com/GijsB/propy/main/src/propy/wageningen_b.py · …/propeller.py · …/gawn_burrill.py · …/README.md</td>
+<td>Polinomios B-series, Keller, Gawn-Burrill, nota sobre 4 cuadrantes</td>
+</tr>
+<tr>
+<td>S14</td>
+<td>https://raw.githubusercontent.com/GijsB/propy/main/literature/Kt,%20Kq%20and%20efficiency%20curves%20for%20the%20wageningen%20b-series%20propellers.pdf</td>
+<td>Bernitsas et al. 1981: Tablas 1 y 2, validez, Fig. 21</td>
+</tr>
+<tr>
+<td>S15</td>
+<td>https://raw.githubusercontent.com/msunderland78/NAVALARCHITECTURE-PPP/main/PPP-NEW/Paper/Holtrop_Approximate_1982_OCR.md</td>
+<td>Holtrop &amp; Mennen 1982: R_TR, c₆, F_nT, c₅, Keller, corrección ITTC-78 de la hélice</td>
+</tr>
+<tr>
+<td>S16</td>
+<td>https://raw.githubusercontent.com/msunderland78/NAVALARCHITECTURE-PPP/main/PPP-NEW/Paper/Holtrop_Resistance_and_Propulsion_1984_OCR.md</td>
+<td>Holtrop 1984: 1+k₁, C_stern, R_W por tramos, espejo</td>
+</tr>
+<tr>
+<td>S17</td>
+<td>https://github.com/msunderland78/NAVALARCHITECTURE-POP · https://raw.githubusercontent.com/msunderland78/NAVALARCHITECTURE-POP/main/POP-NEW/app/backend/pop_core/solver.py · …/core.py · …/wageningen.py</td>
+<td>Burrill de 5 % y 10 % digitalizado, σ, corrección de Re</td>
+</tr>
+<tr>
+<td>S18</td>
+<td>https://www.ittc.info/media/11780/75-02-02-01.pdf</td>
+<td>ITTC-57, Hughes, Prohaska y su exclusión, Schuster</td>
+</tr>
+<tr>
+<td>S19</td>
+<td>https://www.ittc.info/media/11846/75-02-05-01.pdf</td>
+<td>HSMV: (1+k) = 1,0 con espejo</td>
+</tr>
+<tr>
+<td>S20</td>
+<td>https://www.ittc.info/media/8017/75-02-03-014.pdf</td>
+<td>ITTC-78: ΔC_F, C_A</td>
+</tr>
+<tr>
+<td>S21</td>
+<td>http://oa.upm.es/14340/2/Documentacion/3_Formas/Savitskyreport_conSemidesplazamiento.pdf</td>
+<td>Savitsky 2003: regímenes, Fig. 4 R/Δ, Lw/LWL</td>
+</tr>
+<tr>
+<td>S22</td>
+<td>https://www.gerrmarine.com/Articles/efficientpowerboat01.pdf</td>
+<td>Gerr: SLR_máx = 8,26/DL^0,311, DL, regímenes</td>
+</tr>
+<tr>
+<td>S23</td>
+<td>https://catalog.lib.kyushu-u.ac.jp/opac_download_md/1560381/eng2512.pdf</td>
+<td>Kaewkhiaw 2015: eje inclinado, long-tail a 12°</td>
+</tr>
+<tr>
+<td>S24</td>
+<td>http://drum.lib.umd.edu/bitstream/1903/8752/1/umi-umd-5771.pdf</td>
+<td>Pereira 2008: P_i del rotor carenado, efecto de la holgura de punta</td>
+</tr>
+<tr>
+<td>S25</td>
+<td>https://foil.zone/t/propellers-and-ducts/38</td>
+<td>Tobera en eFoil (cualitativo)</td>
+</tr>
+<tr>
+<td>S26</td>
+<td>https://foil.zone/t/any-prop-guard-duct-options-for-a-6384-motor/17461</td>
+<td>Aro impreso "effective brake"; 38 → 100 A</td>
+</tr>
+<tr>
+<td>S27</td>
+<td>https://foil.zone/t/propeller-with-the-duct-integrated-vs-propeller-a-duct/3137</td>
+<td>38 A contra 100 A a 20 km/h</td>
+</tr>
+<tr>
+<td>S28</td>
+<td>https://www.ti.com/lit/an/slpa009a/slpa009a.pdf</td>
+<td>P_cond y P_sw de MOSFET</td>
+</tr>
+<tr>
+<td>S29</td>
+<td>https://raw.githubusercontent.com/vedderb/bldc/master/motor/mcconf_default.h</td>
+<td>f_zv = 25 kHz; límites de 85/100 °C; NTC</td>
+</tr>
+<tr>
+<td>S30</td>
+<td>https://raw.githubusercontent.com/nantonelli94/propy_opt/main/app.py</td>
+<td>Keller con K = 0,2 (1 eje) y 0,1 (2 ejes)</td>
+</tr>
+<tr>
+<td>S31</td>
+<td>https://github.com/nantonelli94/propulse</td>
+<td>Rango de Holtrop: Fn 0,15–0,45, Cp 0,55–0,85 (secundaria)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="hallazgos-que-cambian-el-diseño">Hallazgos que cambian el diseño</h2>
+<ul>
+<li><strong>Cambiar el modelo lineal de hélice por los polinomios verificados.</strong> El bloque JSON del §2.1 tiene los 86 términos; 85 son idénticos al escaneo y el restante quedó con el valor del escaneo. Corrige KT0/(P/D) de 0,38 a <strong>0,40</strong>, J_T0 de 1,05·P/D a <strong>1,09–1,10·P/D</strong> y FOM de 0,60 a <strong>0,55 con P/D 1,0</strong>. Prueba: B3-50, P/D 1,0, J 0,5 → KT 0,2451, KQ 0,03863, η₀ 0,505.</li>
+<li><strong>La hélice de fueraborda de 7,8″ es mala para crucerear a 6 km/h.</strong> Da η₀ = 0,42 a 1370 rpm. La 10x8 da 0,49 y la 11x8 da 0,52 (−6 % de energía contra la 10x8 y −20 % contra la 7,8″). Si el calado lo permite (punta ≤ 380 mm), una B3-50 de 0,30–0,34 m con P/D 0,8 a 530–585 rpm da <strong>η₀ 0,56–0,58 (+15 %)</strong>, con reducción ≈ 5:1.</li>
+<li><strong>Aplicar la corrección de escala y rugosidad ITTC-78 de Holtrop:</strong> η₀ −7 % en la 10x8 (P_D en crucero 507 → 545 W). La hélice trabaja a Rn = 5,7–7,7·10⁵, por debajo de los 2·10⁶ de la serie. → <code>efficiency_factor</code> entre 0,93 y 0,98 en lugar de 1,0.</li>
+<li><strong>Corregir <code>burrill_tau_limit</code>.</strong> El ajuste 0,3σ^0,6 sobreestima el τ_c admisible en +15 % (σ = 1), +51 % (σ = 2) y +81 % (σ = 3) frente a la curva de 5 %. Usar <code>np.interp</code> sobre la tabla del §3.2.<ul>
+<li>En crucero y a 8 km/h, la 10x8 queda en 0,70–0,77 del límite: bien.</li>
+<li>En punto fijo, τ_c = 0,38 supera incluso la curva de 10 % (0,37) en cualquier B3-50 con P/D 0,8. Es esperable algo de cavitación o ventilación arrancando a fondo. Keller no pone objeción (AE/A0 mín 0,26–0,31 &lt; 0,5).</li>
+</ul>
+</li>
+<li><strong>El ensayo de remolque tiene que medir R(v) total.</strong> Prohaska no vale porque el espejo va mojado (ITTC). La ΔC_F de la ITTC-78 da <strong>negativa</strong> con L = 2 m. (1+k) puede estar en cualquier punto entre 1,0 (ITTC, lanchas) y ≈1,47 (Holtrop "pram", extrapolado). Ensayar a 2–8 km/h con <strong>profundidad ≥ 1,5 m</strong>.</li>
+<li><strong>El espejo sumergido aporta 40 N de los 134 N a 6 km/h (30 %).</strong> Según la fórmula, no se ventila por debajo de 24,5 km/h, y Holtrop reconoce que hay pocos datos. Bajar la inmersión del espejo (carga hacia proa; hoy el bote va a 1,55 veces la placa de capacidad, con calado de 0,196 m) es la reducción de R más barata. A_T −25 % → R_TR −20 % aproximadamente.</li>
+<li><strong>Gerr confirma que el casco está en el muro de resistencia.</strong> Con DL = 1010, SLR_máx sale 0,96 y se aplica el piso de 1,34: <strong>6,4 km/h</strong> sin planear. El crucero está al 94 %. Su fórmula de potencia (795 W al eje a 6 km/h) sobreestima 1,5–2 veces: usarla solo como techo.</li>
+<li><strong>Savitsky (planeo) no aplica.</strong> Con Fn∇ ≤ 1,31 y C_V ≤ 1,09 a 12 km/h, y según Savitsky 2003 un casco de planeo tiene <em>más</em> resistencia hasta SLR 3, mientras que 12 km/h es SLR 2,53. Además, las curvas R/Δ típicas de Savitsky subestiman este casco a la mitad. Esto respalda bajar la meta de "8–12 km/h" a <strong>8–9 km/h</strong>.</li>
+<li><strong>Agua poco profunda:</strong> con h = 0,6 m a 8 km/h, Frh = 0,92, cerca del crítico. Con h = 1 m es 0,71, en el límite de validez. En los bajos (&lt; 1 m), ir a ≤ 6 km/h (Frh ≤ 0,69 con h = 0,6 m).</li>
+<li><strong>Eje a 25°:</strong> el empuje horizontal baja 9,4 % y aparecen 72 N verticales en crucero. La carga de las palas fluctúa ≈ ±17 % una vez por vuelta. Los únicos datos llegan a 12°, donde no hay pérdida de η. → Subir <code>blade_rate_amplitude_frac</code> de 0,10 a <strong>0,15–0,20</strong> para fatiga, y estudiar ψ = 15–20° (con 15°, +6,6 % de empuje horizontal) si el calado lo permite.</li>
+<li><strong>Velocidad crítica:</strong> con eje de Ø16 de 316, el tramo biapoyado da 7 400 rpm con 0,5 m, 5 100 rpm con 0,6 m, 2 900 rpm con 0,8 m y <strong>1 850 rpm con 1,0 m</strong>. La hélice gira a ≤ 1 230 rpm. → <strong>Tramo entre bujes ≤ 0,6 m.</strong> El voladizo de la hélice (≤ 100 mm) no limita (&gt; 16 000 rpm).</li>
+<li><strong>Pasador de corte:</strong> 6061-T6 de <strong>Ø3 mm</strong> en eje de 16 mm corta a 21–23 N·m, unas 2,2 veces el par en punto fijo (9,7–10 N·m). La alternativa es 316 de Ø2 mm (19 N·m). No usar latón. En crucero trabaja a 53 MPa, casi en el límite estimado de fatiga en corte (56 MPa), así que hacen falta repuestos.</li>
+<li><strong>El aro protector (holgura 2,4 %D) no es una tobera.</strong> Los datos de holgura muestran −20 % de empuje (de 0,3 a 2,0 %D) y FM −25 % con 2 %D. Dejar <code>bollard_gain_frac = 0</code> y usar <code>thrust_loss_frac</code> de 0,10–0,20. Una 19A útil (+26–30 % en punto fijo) pediría holgura ≤ 1,3 mm, inviable con arena.</li>
+<li><strong>Térmico:</strong> la resistencia del cobre sube 23,6 % a 80 °C. Recalcular las pérdidas del motor con R(T_caliente). El VESC limita por defecto desde 85 °C (motor y MOSFET), por debajo de los 120 °C de <code>inputs.yaml</code>. R_th = 0,45 K/W no está verificado: medirlo con el método de resistencia. El ESC pierde ≈ 15 W en crucero contra 19 W en <code>sizing</code>: está bien.</li>
+</ul></article>
+</div>
+</main>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+</body>
+</html>

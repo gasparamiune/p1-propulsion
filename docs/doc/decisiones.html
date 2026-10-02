@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro de decisiones y supuestos — P1-J (waterjet del jet boat de Jorge) — P1-J · Strålen</title>
+<meta name="description" content="Formato: Decisión · Alternativas · Justificación · Etiqueta · Qué cambia si el dato real difiere. Todos los valores numéricos viven en inputs.yaml o salen de resultados/*.json…">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="P1-J · Strålen">
+<meta property="og:title" content="Registro de decisiones y supuestos — P1-J (waterjet del jet boat de Jorge) — P1-J · Strålen">
+<meta property="og:description" content="Formato: Decisión · Alternativas · Justificación · Etiqueta · Qué cambia si el dato real difiere. Todos los valores numéricos viven en inputs.yaml o salen de resultados/*.json…">
+<meta property="og:url" content="https://gasparamiune.github.io/p1-propulsion/doc/decisiones.html">
+<meta property="og:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Registro de decisiones y supuestos — P1-J (waterjet del jet boat de Jorge) — P1-J · Strålen">
+<meta name="twitter:description" content="Formato: Decisión · Alternativas · Justificación · Etiqueta · Qué cambia si el dato real difiere. Todos los valores numéricos viven en inputs.yaml o salen de resultados/*.json…">
+<meta name="twitter:image" content="https://gasparamiune.github.io/p1-propulsion/og.png">
+<meta name="theme-color" content="#0f242b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f242b'/%3E%3Cpath d='M10 40c8-6 14-6 22 0s14 6 22 0' fill='none' stroke='%234fb0c2' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M12 26h26l14-8v20l-14-8H12z' fill='%23e2601a'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://gasparamiune.github.io/p1-propulsion/doc/decisiones.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&amp;family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header">
+  <div class="bar wide">
+    <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span>P1-J <b>Strålen</b></a>
+    <nav class="site-nav" aria-label="Secciones"><a href="../index.html">Inicio</a><a href="../visor/index.html">Visor 3D</a><a href="../documentos.html" aria-current="page">Documentos</a><a href="../planos.html">Planos</a><a href="../bom.html">Materiales</a><a href="../fea.html">FEA</a><a href="https://github.com/gasparamiune/p1-propulsion" class="ext">GitHub&nbsp;↗</a></nav>
+  </div>
+</header>
+<main id="main" class="main wide">
+
+<div class="doc-layout has-toc">
+  <div class="doc-top"><nav class="crumbs" aria-label="Ruta"><a href="../documentos.html">Documentos</a> / <span class="mono">decisiones.md</span></nav><a class="btn small" href="https://github.com/gasparamiune/p1-propulsion/blob/main/decisiones.md">Ver en GitHub ↗</a></div>
+  <details class="toc-m"><summary>Contenido de esta página</summary><div class="toc">
+<ul>
+<li><a href="#requisitos-y-casco">Requisitos y casco</a></li>
+<li><a href="#arquitectura">Arquitectura</a></li>
+<li><a href="#bomba-y-toma">Bomba y toma</a></li>
+<li><a href="#tren">Tren</a></li>
+<li><a href="#dirección-reversa-y-control">Dirección, reversa y control</a></li>
+<li><a href="#fabricación">Fabricación</a></li>
+<li><a href="#legal">Legal</a></li>
+<li><a href="#cálculo-auditoría-pass-3-ronda-1">Cálculo (auditoría Pass 3, ronda 1)</a></li>
+<li><a href="#historia">Historia</a></li>
+</ul>
+</div>
+</details><aside class="toc-d" aria-label="Contenido"><p class="eyebrow">Contenido</p><div class="toc">
+<ul>
+<li><a href="#requisitos-y-casco">Requisitos y casco</a></li>
+<li><a href="#arquitectura">Arquitectura</a></li>
+<li><a href="#bomba-y-toma">Bomba y toma</a></li>
+<li><a href="#tren">Tren</a></li>
+<li><a href="#dirección-reversa-y-control">Dirección, reversa y control</a></li>
+<li><a href="#fabricación">Fabricación</a></li>
+<li><a href="#legal">Legal</a></li>
+<li><a href="#cálculo-auditoría-pass-3-ronda-1">Cálculo (auditoría Pass 3, ronda 1)</a></li>
+<li><a href="#historia">Historia</a></li>
+</ul>
+</div>
+</aside>
+  <article class="prose doc"><h1 id="registro-de-decisiones-y-supuestos-p1-j-waterjet-del-jet-boat-de-jorge">Registro de decisiones y supuestos — P1-J (waterjet del jet boat de Jorge)</h1>
+<p>Formato: <strong>Decisión</strong> · Alternativas · Justificación · Etiqueta · <em>Qué cambia si el dato real difiere</em>.
+Todos los valores numéricos viven en <a href="https://github.com/gasparamiune/p1-propulsion/blob/main/inputs.yaml"><code>inputs.yaml</code></a> o salen de <code>resultados/*.json</code>
+(marcadores <code>&lt;!--V:…--&gt;</code>, que <code>docgen.py</code> actualiza); acá se explica el porqué.</p>
+<h2 id="requisitos-y-casco">Requisitos y casco</h2>
+<p><strong>D-01 Cambio de arquitectura: de cola larga para un jon boat a waterjet eléctrico inboard para el jet boat de Jorge.</strong></p>
+<ul>
+<li>Alternativas: seguir con la cola larga (2 personas, 6 km/h); adaptar la cola larga al casco nuevo (opción E de la matriz).</li>
+<li>Justificación: Jorge mostró el tipo de motor que necesita (su plano "Waterjet para jet boat 2,30 m", su croquis de propulsor en chapa, su hoja de impulsor y una foto de la AWT JT132). Los requisitos pasan a ser los de su plano: 1 piloto, ≥ 30 km/h, motor directo de ~5 kW, toma enrasada, boquilla direccional y reversa.</li>
+<li>[VERIFICADO: referencias/2026-09-26_plano_preliminar_waterjet_jorge.png; pedido del usuario].</li>
+<li><em>Si difiere:</em> si el uso real es mayormente dentro de 300 m (5 kn), un jet es la opción menos eficiente (matriz 03 §2, criterio eficiencia_5kn); revisar.</li>
+</ul>
+<p><strong>D-02 Casco: el de Jorge (2,30 × 0,80 m, puntal 0,52 m, espejo 0,42 m) leído del plano.</strong></p>
+<ul>
+<li>Alternativas: ninguna; el plano no tiene escala única (R10b §4.1).</li>
+<li>Justificación: es el casco al que va la propulsión. Fondo, pantoque y astilla muerta se leyeron de la vista trasera.</li>
+<li>[ESTIMADO: research/R10b §4.3].</li>
+<li><em>Si difiere:</em> medir el casco (PENDIENTES P0.1) y actualizar <code>boat.*</code>; cambian calado, cebado, resistencia, estabilidad y la placa de la toma.</li>
+</ul>
+<p><strong>D-03 Masa de diseño con el CAD real: 218 kg (1 piloto de 90 kg, batería, unidad de jet del CAD).</strong></p>
+<ul>
+<li>Alternativas: los 150 kg del plano de Jorge.</li>
+<li>Justificación: 150 kg no cierra (R10b §4.2: 165–242 kg). La masa de la unidad de jet sale del CAD (manifest) y la toma <code>sizing.py</code>.</li>
+<li>[CALCULADO].</li>
+<li><em>Si difiere:</em> la masa es la 2.ª entrada más influyente en la V máx. (02 §10).</li>
+</ul>
+<p><strong>D-04 La estabilidad del casco es el RIESGO N.º 1 y bloquea la navegación hasta resolverla.</strong></p>
+<ul>
+<li>Justificación: con 0,80 m de manga y el piloto sentado alto, GM = 0.009 m [CALCULADO]: correr el piloto 0,1 m a una banda escora 78° en el modelo lineal (o sea: vuelca). La propulsión no lo resuelve; es un cambio de casco (manga en la flotación ≥ 0,9 m, R10b H1, o flotadores laterales, asiento más bajo).</li>
+<li>[CALCULADO con casco ESTIMADO].</li>
+<li><em>Si difiere:</em> ensayo de escora con carga desplazada (R13 §5) antes de cualquier prueba con motor.</li>
+</ul>
+<h2 id="arquitectura">Arquitectura</h2>
+<p><strong>D-05 Recomendación: pedir cotización de la AWT JT132 en paralelo (opción B) y usar este diseño (A) si no cierra.</strong></p>
+<ul>
+<li>Alternativas: A (bomba propia, este paquete), C (bomba de Sea-Doo Spark usada), D (fueraborda eléctrico), E (cola larga), F (hélice entubada).</li>
+<li>Justificación: la matriz ponderada da B primero (3.47 contra 2.96 de A) y gana en el 62% del Monte Carlo de pesos: es la misma bomba de la foto de Jorge, más liviana (12 kg contra 20.8 kg de la toma + bomba + dirección propias) y sin impulsor a medida. El tren eléctrico, la toma de refrigeración, los mandos y el firmware de este paquete sirven para las dos.</li>
+<li>[CALCULADO: arquitectura.py; precio de la JT132 ESTIMADO, R11 §4].</li>
+<li><em>Si difiere:</em> si AWT no confirma la brida de toma, la altura del eje (cebado) y la curva de la bomba, o el costo puesto en DK supera ~1 500 €, A queda como camino completo y fabricable.</li>
+</ul>
+<h2 id="bomba-y-toma">Bomba y toma</h2>
+<p><strong>D-06 Impulsor axial Ø132, 5 álabes, cubo 0,50·D, tobera Ø87.</strong></p>
+<ul>
+<li>Alternativas: el Ø108 / 4 álabes / tobera Ø72 del plano; Ø100–120.</li>
+<li>Justificación: el optimizador (02 §4) elige el diámetro y la tobera de mayor margen en la joroba al menor costo. Con la resistencia corregida (D-21) <strong>ninguna</strong> combinación de 48 V llega al 10 % de margen con la banda alta (estado <code>sin_solucion_dura</code>); esta es la de mayor margen (-7.7%) y, empatada, la de mayor V máx. Con 217 kg el Ø108 queda peor. 5 álabes y cubo 0,50 por difusión (R12 §3: con cubo 0,40 el factor de difusión llega a 0,60).</li>
+<li>[CALCULADO: sizing.py; R12].</li>
+<li><em>Si difiere:</em> el impulsor se re-diseña solo (triángulos de velocidad en <code>sizing.json</code> → CAD → tabla de ángulos para el taller).</li>
+</ul>
+<p><strong>D-07 La bomba se diseña para absorber P_d = P_cont + f·(P_pico − P_cont) a plena tensión; el optimizador elige f = 1.0 (P_d = 11760 W al eje).</strong></p>
+<ul>
+<li>Justificación: con motor directo las rpm las fija la tensión; si la bomba se diseña para la potencia continua, la potencia pico no se puede usar en la joroba. El controlador limita a la potencia continua en crucero. El punto de diseño es la V más alta en que el empuje con P_d iguala a R nominal: 43.6 km/h (resuelto sin tope de grilla; es un punto "virtual", 02 §4.4).</li>
+<li>[CALCULADO: optimizador, variable design_power_frac ∈ {0; 0,5; 1}].</li>
+</ul>
+<p><strong>D-08 Toma enrasada entera a proa del impulsor (respuesta al comentario de Jorge "la rejilla está muy atrás").</strong></p>
+<ul>
+<li>Justificación: en el plano la rejilla quedaba a popa de la cara del impulsor, sin conducto y sobre la flotación: la bomba no ceba ni recibe agua (R10a). Ahora el labio está a 386 mm y la tangencia de la rampa a 766 mm del espejo; la cara del impulsor a 268 mm. Rampa de 27°, techo de curvatura continua, rejilla de 9 pletinas 316 aisladas con PTFE, con luz de 12.2 mm (auditoría C14).</li>
+<li>[CALCULADO: R10a §5, R12 §3.2; CAD P1-INT-*].</li>
+<li><em>Si difiere:</em> si el fondo no es plano en esa zona o tiene refuerzos, la placa base cambia (PENDIENTES P0.1).</li>
+</ul>
+<p><strong>D-09 Conducto de la toma en Al 5083 soldado y placa base enrasada con Sikaflex; NO en PETG.</strong></p>
+<ul>
+<li>Alternativas: conducto impreso en segmentos (lo que pedía el enfoque original del proyecto).</li>
+<li>Justificación: en PETG hacían falta ~20 mm de pared para FS 3 a fatiga por el ciclo de presión, más dos juntas en el límite estanco del casco; el 5083 es el metal del casco (sin par galvánico).</li>
+<li>[CALCULADO: 04_diseno/structural_toma.py].</li>
+</ul>
+<p><strong>D-10 Carcasa, estator y tobera de Al mecanizado; anillo de desgaste de 316 torneado en sitio; holgura de punta 0,4 mm.</strong></p>
+<ul>
+<li>Justificación: la holgura no se mantiene en PETG (R10b H15); un estator de PETG da FS 0,33 sostenido. 0,3–0,4 mm con anillo torneado (R12 §3).</li>
+<li>[CALCULADO: structural_bomba.py; R12].</li>
+</ul>
+<p><strong>D-11 Impulsor de 316 mecanizado en 5 ejes (o impreso en 316L SLM con el Ø torneado), arrastrado por un juego de 2 semipasadores de corte de Al 6061 Ø3.5 mm (equivalen a un pasador en corte doble).</strong></p>
+<ul>
+<li>Justificación: una piedra libera ~490 J de energía del rotor; el límite de corriente no protege (R12 §7.6). El juego corta a 33 N·m con τ_u 174 MPa (~1,8 × el par máximo del controlador) y a 40 N·m con 207 MPa (FS del eje al corte 1.87).</li>
+<li>[CALCULADO].</li>
+<li><em>Si difiere:</em> calibrar el corte real con el ensayo de probeta P1.9 (05) y llevar 3 juegos de repuesto (BOM).</li>
+</ul>
+<h2 id="tren">Tren</h2>
+<p><strong>D-12 Motor directo (sin reducción) Maytech MTI120116 150 KV refrigerado por agua, 12S.</strong></p>
+<ul>
+<li>Alternativas: Golden Motor HPM5000 (el del plano): 91,5 rpm/V a 48 V y 58,9 a 72 V de catálogo → no llega a las rpm del impulsor sin bobinado a pedido (R11 §1.3).</li>
+<li>Justificación: 4,4 kg, camisa de agua, eje Ø15 con chavetero; único de la clase con precio.</li>
+<li>[VERIFICADO: R11 §1.2; potencia continua no publicada → ESTIMADO 6 kW: pedir el dato a Maytech].</li>
+<li><em>Si difiere:</em> es la entrada más influyente en la V máx. (02 §10).</li>
+</ul>
+<p><strong>D-13 Tensión ≤ 50 V (LFP 12S, 2 × LiTime 36 V 60 Ah en paralelo) en lugar de los 72 V del plano.</strong></p>
+<ul>
+<li>Justificación: ISO 16315 fija 50 V CC como umbral de tensión segura (R06, R13 §4); a 72 V hacen falta componentes de clase 100 V y monitor de aislamiento (+709 €). No hay packs 13S comerciales en la UE y los "48 V" de catálogo son 16S (58,4 V) (R11 §3).</li>
+<li>[VERIFICADO: R11, R13].</li>
+<li><em>Si difiere:</em> <code>electrical.allow_72v: true</code> habilita las opciones de 72 V en el optimizador.</li>
+</ul>
+<p><strong>D-14 Eje 316L Ø20 con dos apoyos: par 7204 BECBP en O, en seco (toma todo el empuje) y buje de agua de POM en el cubo del estator; sello mecánico SiC/carbón con cámara de goteo y testigo.</strong></p>
+<ul>
+<li>Justificación: en voladizo la primera velocidad crítica caía debajo de la de servicio; con el buje queda en 3.8× las rpm máximas. El empuje va por un pórtico de Al sobre el conducto a la placa base, nunca al motor (acople Rotex 24 con juego axial).</li>
+<li>[CALCULADO: structural_tren.py; sizing.py].</li>
+</ul>
+<p><strong>D-15 Refrigeración por agua desde la bomba: orificio Ø4 en la carcasa del estator → controlador → motor → testigo en el espejo.</strong></p>
+<ul>
+<li>Justificación: como los jetboards; 4.9 L/min a V máx. alcanzan con un salto de 1.9 K.</li>
+<li>[CALCULADO].</li>
+</ul>
+<h2 id="dirección-reversa-y-control">Dirección, reversa y control</h2>
+<p><strong>D-16 Boquilla direccional de Al ±25° con cable Ultraflex M66 y timonería T85 al volante; topes mecánicos.</strong></p>
+<ul>
+<li>[VERIFICADO: R11 §7 (productos y precios)].</li>
+</ul>
+<p><strong>D-17 Bucket de reversa obligatorio (Al 5083 soldado) con émbolo de traba; reversa limitada al 50 % de la potencia; enclavamiento mecánico de palancas en la consola.</strong></p>
+<ul>
+<li>Justificación: sin chorro no hay dirección ni freno (R10b H10). El bucket solo se mueve con el acelerador en 0.</li>
+<li>[CALCULADO: structural_direccion.py; firmware].</li>
+</ul>
+<p><strong>D-17b Traba del bucket en LOS DOS brazos, chapa de 6 mm y pivote de espaciador + M12 (auditoría ronda 3, 2026-10-02).</strong></p>
+<ul>
+<li>Hallazgo: con la traba en un solo brazo el momento de la cuchara llegaba a ese brazo por torsión de la sección abierta (FEA: FS 0,44). Además la reacción de la traba (tangencial, M_h/r ≈ 2·F_b) se suma al chorro en el pivote: ≈ 1,6–2,4 kN por pivote con R12, no F_b/2 = 0,7 kN como suponía el cálculo a mano.</li>
+<li>Decisión: un émbolo por brazo (+Y a 10°, −Y a -25° para que pomos y Bowden pasen uno al lado del otro), chapa de 6 mm, lóbulo de traba r 18 unido al labio de la cuchara, aros de refuerzo de 8 mm; pivote = espaciador 316 Ø20 apretado contra la oreja por un M12 A4-80, buje POM-C Ø20/Ø24 × 18. Los dos émbolos se liberan con el mismo gatillo (2 Bowden).</li>
+<li>Por qué así y no una traba con chapa más gruesa: con una sola traba hacen falta ~10 mm de chapa para FS 2 (FEA) y el émbolo no tiene carrera. Con dos trabas el reparto depende del desfase entre agujeros (la cuchara abierta es blanda a torsión): se taladran en conjunto, se mide (06 T0.M6b) y se admite ≤ 0.10 mm [SUPUESTO: tolerancia de fabricación]. El cálculo a mano verifica brazo, agujero, perno del émbolo y oreja con M_h COMPLETO en una traba; pivote y buje con el reparto máximo admitido (78%) que el FEA recalcula y un test exige.</li>
+<li>Falla (un émbolo no entró): FS ≥ 2 con la reversa limitada por el firmware; a potencia plena sin límite (falla doble) solo se exige que no fluya (FS ≥ 1). Va al FMEA (F19b) y al checklist.</li>
+<li>Si el dato real difiere: si la prueba de desfase no pasa, casquillo excéntrico en el agujero −Y (05 §4); si el émbolo comprado tiene menos carrera que la liberación (chapa + 1,5 mm = 9.5 mm + 1), se cambia el émbolo: adelgazar los brazos no es opción (FS).</li>
+</ul>
+<p><strong>D-18 Perfil "costa" (≤ 5 kn) por defecto al encender, perfil "abierto" a pedido del piloto; kill switch por cordón + contactor.</strong></p>
+<ul>
+<li>Justificación: dentro de 300 m el límite es 5 kn (R07, R13 §3). El tope de ERPM del perfil COSTA hace cumplir <strong>solo esos 5 kn</strong> (rpm a 5 kn con piloto liviano, banda baja de resistencia y batería llena; sizing <code>legal_speed</code>, 5 pares de polos del MTI120116). <strong>No</strong> hace cumplir los 4 kn de Sønderborg Havn (Als Sund) ni los 3 kn de las marinas (R13 §3): ahí la velocidad la controla el piloto con el acelerador (un tercer perfil de 3–4 kn exigiría un selector de 3 posiciones y otra línea al VESC: queda para P2).</li>
+<li>[VERIFICADO: R07, R13].</li>
+</ul>
+<h2 id="fabricación">Fabricación</h2>
+<p><strong>D-19 PETG impreso solo donde da FS ≥ 3: tapa de inspección de la toma, base y capota del controlador, caja de palancas y soporte del kill switch.</strong></p>
+<ul>
+<li>Alternativas: imprimir conducto, carcasa, estator y boquilla (no cierran a FS 3, D-09/D-10).</li>
+<li>Justificación: la bomba de un jet de 5–10 kW es una pieza de presión y de precisión; se imprime lo que no lo es.</li>
+<li>[CALCULADO].</li>
+</ul>
+<h2 id="legal">Legal</h2>
+<p><strong>D-20 Diseño para NO ser "vandscooter" ni "speedbåd".</strong></p>
+<ul>
+<li>Justificación: la definición de vandscooter pide operar "på – snarere end i – skroget" (BEK 809/2019); el piloto va sentado dentro con volante. Speedbåd desde 19 kW de potencia propulsiva (BEK 749/2020); el pico de este diseño es 6.5 kW. Los 30 km/h solo son legales a más de 300 m de la costa y nunca en Als Sund (4 kn) ni en Augustenborg Fjord.</li>
+<li>[VERIFICADO: research/R13]. Confirmar por escrito con Søfartsstyrelsen (preguntas en danés en R13 §8).</li>
+</ul>
+<h2 id="cálculo-auditoría-pass-3-ronda-1">Cálculo (auditoría Pass 3, ronda 1)</h2>
+<p><strong>D-21 Savitsky solo donde es válido; con el casco corto, "Savitsky limitado por eslora" y banda ensanchada; el margen de empuje se exige de 0 a planeo pleno. Con la banda alta el bote no llega a planeo pleno y con potencia continua se cae del planeo; la V máx. queda sin base validada hasta T4.</strong></p>
+<ul>
+<li>Hallazgo: el equilibrio libre de Savitsky daba eslora mojada en la quilla L_K mayor que el fondo (2,1 m a 20 km/h contra L_wl 1,75 m) en todo el rango de planeo; el margen de 19 % y la V máx. de 26,3 km/h salían de puntos fuera de validez.</li>
+<li>Alternativas: (a) seguir con Savitsky libre (optimista: supone un fondo más largo); (b) Savitsky–Brown 1976 o Blount–Fox 1976 para el pre-planeo (no tengo fuente abierta, R12 §6.3); (c) Mercier–Savitsky (solo Fn∇ 1–2, ~17 km/h); (d) equilibrio vertical con L_K = L_wl.</li>
+<li>Elegida (d) como nominal [ESTIMADO: método propio, no validado; el momento de cabeceo no cierra], (a) × 0,92 como banda baja y (d) × 1,12 como banda alta [SUPUESTO en este régimen: el ×1,12 viene de cascos con Savitsky válido; sensibilidad 1,00–1,25]; la validez de cada punto (L_K, λ, τ, C_V) va en <code>sizing.json</code>.</li>
+<li>Ventana del margen (ronda 2, R2-C01): de 0 hasta el planeo pleno (27.1 km/h, donde el limitado y el libre difieren &lt; 2 %), no hasta el primer nodo de Savitsky: cortada ahí daba 3 % y el margen seguía cayendo. Así el resultado tampoco depende del corte arbitrario fn_planing.</li>
+<li>Consecuencia [CALCULADO]: margen de 0 a planeo pleno -7.7% (banda alta: a fondo se queda en 21.8 km/h, no llega a planeo pleno; con potencia continua cae a 17.8 km/h, debajo del inicio del planeo) y 3.4% (nominal); V máx. sostenida 17.8–28.6 km/h según la banda (02 §0, §3, §3.2).</li>
+<li><em>Si difiere:</em> con el casco medido (P0.1) se vuelve a correr; con 21 kg menos de masa total o L_wl ≥ 1,96 m el margen vuelve al 10 % con la banda alta. T4.1 (tiempo a planeo con la batería al 20 %) decide.</li>
+</ul>
+<p><strong>D-22 Deducción de empuje t = 0 y fracción de estela w = 0 se mantienen, pero t = 0 se declara NO conservador y se lleva en la sensibilidad (0–0,10).</strong></p>
+<ul>
+<li>Justificación: no hay fuente abierta con valores de t para jets chicos; poner un número sería inventarlo. w = 0 sí es conservador para el empuje (no recupera estela).</li>
+<li>Consecuencia [CALCULADO]: con t = 0,10 el margen de 0 a planeo pleno cae a -16.9% (con t = 0: -7.7%) (02 §10).</li>
+<li><em>Si difiere:</em> la prueba de punto fijo da el empuje sin casco en movimiento; el t real sale de comparar la curva P–V medida (T4) con el modelo.</li>
+</ul>
+<h2 id="historia">Historia</h2>
+<p>El diseño anterior (cola larga eléctrica para un jon boat de 2 personas a 6 km/h, decisiones D-01 a D-43
+de esa versión) quedó en el historial de git: commit <code>5dfada0</code>
+(<code>git show 5dfada0:decisiones.md</code>). De esa versión se reutilizan: el kill switch por cordón + contactor,
+el firmware del acelerador (adaptado al bucket), la investigación de materiales PETG (R05), la normativa
+general (R07) y el marco de cálculo, CAD, verificación y documentación.</p></article>
+</div>
+</main>
+<footer class="site-footer">
+  <div class="bar wide">
+    <span>P1-J · Strålen · paquete de ingeniería abierto · todo se regenera desde <code>inputs.yaml</code></span>
+    <a href="https://github.com/gasparamiune/p1-propulsion">Repositorio en GitHub ↗</a>
+  </div>
+</footer>
+</body>
+</html>
