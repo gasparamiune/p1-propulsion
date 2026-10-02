@@ -57,7 +57,7 @@ REVISAR = {
     "P1-PMP-02": ["Anillo de desgaste inox torneado EN SITIO: holgura de punta 0,3–0,4 mm medida con galgas."],
     "P1-PMP-03": ["Impulsor inox, 5 álabes, CNC 5 ejes (o 316L impreso en metal + torneado del Ø): balancear G6.3.",
                   "Sin chaveta: lo arrastra el pasador de corte."],
-    "P1-PMP-05": ["Pasador de corte Al 6061 Ø3,5: fusible si entra una piedra. Llevar 5 de repuesto."],
+    "P1-PMP-05": ["Pasador de corte Al 6061 Ø3,5: fusible si entra una piedra. Llevar 3 de repuesto."],
     "P1-PMP-06": ["Estator de 7 álabes con buje de agua (POM): segundo apoyo del eje."],
     "P1-PMP-08": ["Tobera fija: el chorro sale en el plano del espejo."],
     "P1-PMP-09": ["Placa de espejo con junta NBR: sella el casco y lleva las orejas de la boquilla."],

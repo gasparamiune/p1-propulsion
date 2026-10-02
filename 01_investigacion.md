@@ -25,8 +25,8 @@ investigación se citan con su informe.
    entre −113 y +90 mm según la posición del piloto [CALCULADO: R10b H1]; con el modelo de este proyecto,
    GM = <!--V:sizing.hydrostatics.GM_m:.3f-->0.008<!--/V--> m. La propulsión no lo resuelve (D-04).
 4. **La masa realista es 165–242 kg, no 150** [ESTIMADO: R10b §4.2]. Con más de ~200 kg, 5 kW continuos no alcanzan para 30 km/h
-   sostenidos [CALCULADO: R10b H13–H14]. Este diseño llega a <!--V:sizing.performance.vmax_cont_kmh:.1f-->26.3<!--/V--> km/h
-   sostenidos y <!--V:sizing.performance.vmax_peak_kmh:.1f-->29.0<!--/V--> km/h por ratos (02 §5).
+   sostenidos [CALCULADO: R10b H13–H14]. Este diseño llega a <!--V:sizing.performance.vmax_cont_kmh:.1f-->25.1<!--/V--> km/h
+   sostenidos y <!--V:sizing.performance.vmax_peak_kmh:.1f-->27.4<!--/V--> km/h por ratos (02 §5).
 5. **Motor y tensión.** El HPM5000 de catálogo gira muy lento para un impulsor chico (≈ 91 rpm/V a 48 V); el
    Maytech MTI120116 150 KV refrigerado por agua sí sirve en ≤ 50 V [VERIFICADO: R11 §0, §1]. No hay packs
    LFP 13S comerciales en la UE: la opción ≤ 50 V es 12S (2 × LiTime 36 V 60 Ah) [VERIFICADO: R11 §3].
@@ -146,7 +146,7 @@ encima de 50 V; el MTI120116 no declara sensor de temperatura (se agrega un NTC)
 AISI 420 se corroen en agua salada y van del lado seco; la JT132 exige confirmar su toma y la altura de su eje
 **antes** de comprarla.
 
-Costo total del paquete actual (BOM): <!--V:bom.total_eur:.0f-->10674<!--/V--> €, de los cuales
+Costo total del paquete actual (BOM): <!--V:bom.total_eur:.0f-->10865<!--/V--> €, de los cuales
 <!--V:bom.services_eur:.0f-->3910<!--/V--> € son servicios de fabricación (CNC, torneado de taller, soldadura) [CALCULADO:
 `bom.py`; ver 03 §3 y 05].
 
@@ -202,7 +202,9 @@ Las preguntas a las autoridades, ya redactadas en danés, están en R13 §8.
 ## 8. Eléctrica y seguridad (R06)
 
 - LFP por seguridad térmica; 12S (38,4 V nominal, 43,8 V llena) en vez de "48 V" de 16S, que supera 50 V,
-  el MRBF (58 V) y el contactor SW80 estándar [VERIFICADO: R06 §0, §4.3].
+  el MRBF (58 V) y el contactor SW80 estándar [VERIFICADO: R06 §0, §4.3]. El contactor elegido es el TE KILOVAC
+  EV200AAANA con la bobina a 12 V desde el DC-DC (el cordón Watski de 12 V trabaja dentro de su valor nominal;
+  04_diseno/electronica/README §1).
 - Kill switch: cordón en serie con la bobina de un contactor monoestable; el antichispa MOSFET no es un
   elemento de seguridad [VERIFICADO: R06 §0, §3].
 - VESC: los valores por defecto no sirven para un bote (corte de batería, rango ADC); configurar todo
