@@ -739,7 +739,7 @@ Comentario:
   de sizing (fatiga), las dos con FS ≥ 2. La segunda traba es redundancia, no reparto: con agujeros con juego el
   reparto depende de la carga (con la reversa de servicio una sola traba lleva prácticamente todo M_h) y el desfase
   entre trabas no se controla en fabricación, así que ya no se usa ningún reparto ni prueba de desfase (auditoría
-  ronda 4, R4-01/R4-02). Cargas en la tabla de §8. Geometría [CALCULADO: params_direccion]: chapa del bucket
+  ronda 4, R4-01, R4-02 y R4-05). Cargas en la tabla de §8. Geometría [CALCULADO: params_direccion]: chapa del bucket
   <!--V:manifest.params.REV_t:g-->8<!--/V--> mm (Al 5083), aro de refuerzo del pivote <!--V:manifest.params.REV_ring_t:g-->10<!--/V--> mm,
   agujeros de traba Ø<!--V:manifest.params.REV_lock_hole_d:g-->16.5<!--/V--> a r <!--V:manifest.params.REV_lock_r:g-->45<!--/V--> mm; orejas de
   la boquilla de <!--V:manifest.params.STE_ear_t:g-->12<!--/V--> mm.
@@ -757,17 +757,26 @@ Comentario:
     prensado con interferencia y escariado después de prensar. «<!--V:est.min_by_part.P1-REV-03.load_case:-->Buje POM Ø20.1/Ø24 × 18: presión (R12, una traba)<!--/V-->»
     FS <!--V:est.min_by_part.P1-REV-03.FS:.2f-->2.18<!--/V--> (la fila de sizing, contra el admisible de oscilación, da un FS casi igual: tabla completa).
   - **Émbolo propio (P1-REV-04):** perno 316 Ø<!--V:manifest.params.REV_lock_pin_d:g-->16<!--/V--> h9, cuerpo roscado
-    M<!--V:manifest.params.REV_lock_thread_d:g-->24<!--/V-->×1,5 en la oreja con contratuerca, carrera
+    M<!--V:manifest.params.REV_lock_thread_d:g-->24<!--/V-->×1,5 en la oreja con **collar integral** Ø36 × 8 (dos planos
+    e/c 32 para la llave) [CALCULADO: `piezas/_release.PLG_COLLAR_D/PLG_COLLAR_T`] que apoya en la cara interior,
+    anodizada, de la oreja: el cuerpo se aprieta contra su collar a <!--V:manifest.params.REV_lock_T_Nm:g-->75<!--/V--> N·m con
+    Loctite 243 (sin Tef-Gel en esa rosca). Ya no hay contratuerca (auditoria.md, R4-12): el collar fija la punta
+    enrasada con la cara exterior y lleva a la oreja el momento del perno en voladizo. Carrera
     <!--V:manifest.params.REV_plunger_stroke:g-->12<!--/V--> mm (liberar pide <!--V:manifest.params.REV_release_need:g-->9.5<!--/V--> mm), resorte
     inox comprado [ESTIMADO: fuerzas como el GN 617-10]. No hay émbolo de catálogo que alcance: el GN 617 inox más
-    grande tiene perno Ø10 (D-17c). «<!--V:est.min_by_part.P1-REV-04.load_case:-->Perno del émbolo Ø16 (316): flexión + corte con M_h completo (R12)<!--/V-->»
-    FS <!--V:est.min_by_part.P1-REV-04.FS:.2f-->2.83<!--/V-->.
+    grande tiene perno Ø10 (D-17c). Filas: perno a flexión + corte (R12) y a fatiga (sizing); la unión cuerpo–collar
+    **no se abre** con la precarga mínima bajo el momento del perno (R12, M_h completo; K ≤ 0,22 [ESTIMADO], como el
+    M12 del pivote); el cuerpo al apretar con la precarga máxima (≤ 0,9 Rp0,2, VDI 2230: criterio de montaje con
+    objetivo 1); y, en P1-STE-01, la presión del collar sobre la oreja con la precarga máxima. Fila más justa respecto
+    de su objetivo: «<!--V:est.min_by_part.P1-REV-04.load_case:-->Cuerpo del émbolo apretado contra su collar: la unión no se abre (R12, M_h completo) [N·m]<!--/V-->»,
+    FS <!--V:est.min_by_part.P1-REV-04.FS:.2f-->2.10<!--/V-->.
   - **Bucket (P1-REV-01):** brazo trabado a flexión, agujero de traba, aro del pivote y la cuchara abierta a torsión
     con un solo brazo trabado (Saint-Venant, cota). La más justa: «<!--V:est.min_by_part.P1-REV-01.load_case:-->Cuchara abierta a torsión con un solo brazo trabado (R12, corta)<!--/V-->»,
     FS <!--V:est.min_by_part.P1-REV-01.FS:.2f-->2.17<!--/V--> (objetivo <!--V:est.min_by_part.P1-REV-01.target:g-->2<!--/V-->).
   - **Oreja de la boquilla (P1-STE-01):** flexión en su plano y fuera del plano (pivote en voladizo), ligamento y
-    aplastamiento de la rosca M24, aplastamiento del piloto. La más justa: «<!--V:est.min_by_part.P1-STE-01.load_case:-->Oreja del bucket: flexión fuera del plano por el pivote en voladizo (R12, M_h completo)<!--/V-->»,
-    FS <!--V:est.min_by_part.P1-STE-01.FS:.2f-->4.65<!--/V-->.
+    aplastamiento de la rosca M24, aplastamiento del piloto y presión del collar del émbolo (la de la brida del
+    espaciador está en las filas de P1-REV-02). La más justa: «<!--V:est.min_by_part.P1-STE-01.load_case:-->Collar del émbolo sobre la oreja 6061: presión con la precarga máxima<!--/V-->»,
+    FS <!--V:est.min_by_part.P1-STE-01.FS:.2f-->4.02<!--/V-->.
   - **FEA (04_diseno/fea):** el FS de diseño de la chapa del bucket y de la boquilla es el del FEA, con las mismas
     cargas (`jet_momentum` y `bucket_reactions`; el setup verifica que la carga aplicada iguala la estática) y los
     casos de diseño de una traba sola por lado, a R12 contra fluencia y con la reversa de sizing contra fatiga, más
@@ -776,8 +785,10 @@ Comentario:
     P1-STE-01 <!--V:fea.piezas.P1-STE-01.FS_min:.2f-->1.80<!--/V--> (caso <!--V:fea.piezas.P1-STE-01.caso_gobernante:-->d2<!--/V-->);
     objetivo 2. El margen de REV-01 es justo: el punto caliente está en la cara exterior del brazo trabado, por
     debajo del pivote. Detalle, convergencia y limitaciones en [04_diseno/fea/README.md](04_diseno/fea/README.md).
-  - **Abierto:** el momento del perno en voladizo sobre la oreja supone la contratuerca M24 apretada y no tiene
-    par de apriete especificado ni fila a mano (auditoria.md, ronda 4).
+  - **Momento del perno sobre la oreja (antes abierto, auditoria.md R4-12):** lo cubren las filas del collar de
+    arriba (la unión cuerpo–collar no se abre con la precarga mínima a <!--V:manifest.params.REV_lock_T_Nm:g-->75<!--/V--> N·m;
+    cuerpo al apretar con la máxima; presión del collar sobre la oreja) y el FEA de STE-01 lo aplica como par bajo
+    el collar. Ya no queda abierto.
 - **Chaveta del acople:** justa con el par máx. del controlador. La chaveta 5×5 del eje del motor Ø15 en el cubo del
   acople queda **por debajo de 2**: FS <!--V:est.min_by_part.P1-DRV-08.FS:.2f-->1.74<!--/V--> en P1-DRV-08
   ("<!--V:est.min_by_part.P1-DRV-08.load_case:-->Chaveta 5×5 del eje del motor Ø15 en el cubo del acople: aplastamiento a T_max<!--/V-->"),
