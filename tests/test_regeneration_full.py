@@ -57,5 +57,6 @@ def test_full_regeneration(root, tmp_path):
     # BOM regenerada y documentos actualizados con los valores nuevos
     assert "total_eur" in bom
     readme = (dst / "README.md").read_text(encoding="utf-8")
-    m = re.search(r"<!--V:sizing\.performance\.hump_margin_min:\.0%-->(\d+)%<!--/V-->", readme)
-    assert m and int(m.group(1)) == round(100 * sz["performance"]["hump_margin_min"])
+    # el README cita el margen de la joroba con la resistencia NOMINAL (el de la banda alta puede ser negativo)
+    m = re.search(r"<!--V:sizing\.verdict\.hump_margin_min_nominal:\.0%-->(-?\d+)%<!--/V-->", readme)
+    assert m and int(m.group(1)) == round(100 * sz["verdict"]["hump_margin_min_nominal"])
