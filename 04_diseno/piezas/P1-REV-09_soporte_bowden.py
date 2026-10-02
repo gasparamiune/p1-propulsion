@@ -8,9 +8,9 @@ brazo del bucket (|Y| 56,5) [CALCULADO: _release]. Cada pomo tira de un eslabón
 del pomo, lazo en el perno de manivela Ø6 de su balancín); el balancín gira en un tornillo con hombro ISO 7379 Ø6 × M5
 del montante y su brazo de salida SUBE lo mismo que corre el pomo; el cable del Bowden sale vertical desde el
 terminal (barril Ø5) hasta el regulador M6 de la pestaña y la vaina sigue hacia arriba y a proa (P1-REV-10).
-Los balancines están a popa de las contratuercas M24 (la oreja +Y queda a ≥ 2 mm de la pestaña del lado +Y); el
-del émbolo +Y tiene el eje DEBAJO de la manivela (el perno pasa sobre la contratuerca del émbolo −Y) y el del −Y
-ENCIMA (el perno pasa bajo la contratuerca del +Y).
+Los balancines están a popa de los collares de los émbolos (la oreja +Y queda a ≥ 2 mm de la pestaña del lado +Y);
+el del émbolo +Y tiene el eje DEBAJO de la manivela (el perno pasa sobre el collar del émbolo −Y) y el del −Y
+ENCIMA (el perno pasa bajo el collar del +Y).
 
 Fijación (R4-07): la placa base apoya de cara sobre un PAD fresado en la parte superior del cuerpo de la boquilla
 (P1-STE-01, a popa de los émbolos, X 399–426,5) y se atornilla con 2 × ISO 4762 M5 × 12 A4-70 en roscas M5 × 7,5 del
@@ -142,7 +142,7 @@ def _other(stem):
 
 def pulled_interference(p):
     """Volumen (mm³) de los balancines/eslabones TIRADOS (carrera completa del émbolo) contra los émbolos (cuerpo,
-    contratuerca; pomo tirado) y la boquilla."""
+    collar; pomo tirado) y la boquilla."""
     from build123d import Pos, Rot
     m4 = _other("P1-REV-04_embolo")
     e = m4.build(p)
@@ -187,16 +187,16 @@ def checks(p, part):
         La, Lb = RL.lever(p, 1), RL.lever(p, -1)
         za = min(La["pose"](t)[0][1] for t in (0.0, 0.5, 1.0))
         zb_ = max(Lb["pose"](t)[0][1] for t in (0.0, 0.5, 1.0))
-        out.append(("perno de manivela +Y sobre la contratuerca del émbolo −Y (círculo circunscrito) [mm]",
+        out.append(("perno de manivela +Y sobre el collar del émbolo −Y (Ø del collar) [mm]",
                     (za - RL.CRANK_D / 2) - (zm + RL.NUT_R), 2.0, ">="))
-        out.append(("perno de manivela −Y bajo la contratuerca del émbolo +Y (círculo circunscrito) [mm]",
+        out.append(("perno de manivela −Y bajo el collar del émbolo +Y (Ø del collar) [mm]",
                     (zp - RL.NUT_R) - (zb_ + RL.CRANK_D / 2), 2.0, ">="))
         out.append(("perno de manivela −Y tirado ↔ cara interior de la oreja +Y [mm]",
                     p.STE_ear_y0 - (Lb["pose"](1.0)[0][0] + RL.CRANK_D / 2), 2.0, ">="))
     x_ear = max(RL.lock_xz(p, s)[0] for s in RL.lock_sides(p)) + p.STE_lock_lobe_r
     out.append(("pestaña del regulador a popa del lóbulo de la oreja [mm]",
                 (RL.cable_x(p) - RL.ADJ_HOLE_R - RL.ADJ_EDGE) - x_ear, 2.0, ">="))
-    out.append(("balancines a popa de las contratuercas M24 (círculo circunscrito) [mm]",
+    out.append(("balancines a popa de los collares de los émbolos (Ø del collar) [mm]",
                 RL.lever_x0(p) - max(RL.lock_xz(p, s)[0] + RL.NUT_R for s in RL.lock_sides(p)), 2.0, ">="))
     out.append(("salida del balancín ↔ brazo del bucket (Y) [mm]",
                 p.REV_y_in - max(abs(RL.lever(p, s)["pose"](0.5)[1][0]) + RL.OUT_BOSS_R for s in RL.lock_sides(p)), 5.0, ">="))
