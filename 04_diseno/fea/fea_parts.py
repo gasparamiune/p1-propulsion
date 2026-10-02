@@ -681,12 +681,22 @@ def setup_int02(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
 # P1-CTL-02 — caja de palancas PETG (marco BOTE)
 # ===========================================================================
 
-def setup_ctl02(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
+def setup_ctl02(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0, variant=None):
+    """variant (solo evaluación; NO modifica la pieza): dict con constantes del módulo a reemplazar durante el
+    build (p. ej. {"W": 5.0} pared, {"WT": 8.0} tapa)."""
     import _ctl as U
     pid = "P1-CTL-02"
     meta = mods[pid].META
     m = mods[pid]
-    part = m.build(p)
+    saved = {k: getattr(m, k) for k in (variant or {})}
+    try:
+        for k, v in (variant or {}).items():
+            setattr(m, k, v)
+        part = m.build(p)
+        WT_, W_ = m.WT, m.W
+    finally:
+        for k, v in saved.items():
+            setattr(m, k, v)
     A = allowables(p.inp)
     ax = np.array(p.CTL_axis, float)
     zb = U.top_local(p) + ax[2]
@@ -726,10 +736,11 @@ def setup_ctl02(p, mods, est, h, curv, tmpdir, log=print, hmin=1.0):
         return res
 
     zl = lambda X: X[:, 2] - ax[2]              # noqa: E731
-    regions = {"tapa": lambda X: zl(X) >= m.ZT - m.WT - 0.05,
-               "paredes": lambda X: (zl(X) < m.ZT - m.WT - 0.05) & (zl(X) > U.top_local(p) + 4.05),
+    regions = {"tapa": lambda X: zl(X) >= m.ZT - WT_ - 0.05,
+               "paredes": lambda X: (zl(X) < m.ZT - WT_ - 0.05) & (zl(X) > U.top_local(p) + 4.05),
                "ala": lambda X: zl(X) <= U.top_local(p) + 4.05}
     checks = {"F_mano_N": F, "D_palma_mm": D_PALM, "k_consola_N_mm3": k_ply, "solid_frac": meta.get("solid_frac"),
+              "pared_mm": W_, "tapa_mm": WT_,
               "nota": "Material macizo isotrópico equivalente; la pieza real es 5 perímetros + 30 % giroide (solid_frac 0,55)."}
     comp = comparisons(est, pid, [
         {"key": "Tapa PETG 6 mm", "caso": "a", "region": "tapa"},

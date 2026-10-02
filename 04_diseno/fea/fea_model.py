@@ -140,6 +140,27 @@ class Interface:
             raise ValueError(f"interfaz '{name}' sin facetas: revisar la selección geométrica")
 
 
+RHO_AVG = 3.0     # [SUPUESTO: radio de la esfera de promedio en volumen para picos que no convergen (aristas vivas
+                 # del CAD, astillas de malla): del orden del espesor mínimo de pared y ≥ h_fina local]
+
+
+def vol_avg_max(X, v, w, ok, rho=RHO_AVG, ntop=400):
+    """Máximo del promedio de v (ponderado por volumen nodal) en esferas de radio rho centradas en los
+    ntop nodos de mayor v dentro de `ok`. Devuelve (valor, ubicación)."""
+    idx = np.flatnonzero(ok)
+    if len(idx) == 0:
+        return None, None
+    top = idx[np.argsort(v[idx])[-ntop:]]
+    tree = cKDTree(X[idx])
+    best, at = -np.inf, None
+    for i in top:
+        nb = idx[tree.query_ball_point(X[i], rho)]
+        a = float((v[nb] * w[nb]).sum() / w[nb].sum())
+        if a > best:
+            best, at = a, X[i]
+    return best, at.round(1).tolist()
+
+
 class Model:
     def __init__(self, S: fc.P2Space, E, nu, n_print, body_names=("pieza",)):
         self.S, self.E, self.nu = S, E, nu
@@ -349,9 +370,10 @@ class Model:
                 ok = sel
             iarg = np.flatnonzero(sel)[np.argmax(vb)]
             iex = np.flatnonzero(ok)[np.argmax(v[ok])]
+            va, vat = vol_avg_max(S.X, v, w, ok)
             out[key] = {"max": float(vb.max()), "p99": fc.weighted_percentile(vb, wb, 99.0),
                         "max_excl": float(v[iex]), "at_max_mm": S.X[iarg].round(1).tolist(),
-                        "at_max_excl_mm": S.X[iex].round(1).tolist()}
+                        "at_max_excl_mm": S.X[iex].round(1).tolist(), "max_vol": va, "at_max_vol_mm": vat}
         um = np.linalg.norm(fields["u"], axis=1)[sel]
         out["u_max_mm"] = float(um.max())
         out["excl_frac_vol"] = float(w[sel & excl].sum() / w[sel].sum())
@@ -375,7 +397,9 @@ class Model:
                 v = fields[key]
                 vv = v[ok] if ok.any() else v[sel]
                 iex = (np.flatnonzero(ok) if ok.any() else np.flatnonzero(sel))[np.argmax(vv)]
+                va, vat = vol_avg_max(S.X, v, w, ok) if ok.any() else (None, None)
                 rec[key] = {"max": float(v[sel].max()), "max_excl": float(v[iex]) if ok.any() else None,
+                            "max_vol": va, "at_max_vol_mm": vat,
                             "p99": fc.weighted_percentile(v[sel], w[sel], 99.0),
                             "mean": float((v[sel] * w[sel]).sum() / w[sel].sum()),
                             "at_max_excl_mm": S.X[iex].round(1).tolist()}

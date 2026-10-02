@@ -49,7 +49,9 @@ CFG = {
                                 "V2": {"desc": "traba en ambos brazos + brazos y cuchara de 6 mm", "param": {"traba_doble": True, "t": 6.0}}}},
     "P1-STE-01": {"h": (8.0, 4.5), "curv": (8, 14), "hmin": 1.2},
     "P1-INT-02": {"h": (14.0, 8.0), "curv": (6, 10), "hmin": 2.0},
-    "P1-CTL-02": {"h": (6.0, 3.0), "curv": (8, 14), "hmin": 1.0},
+    "P1-CTL-02": {"h": (6.0, 3.0), "curv": (8, 14), "hmin": 1.0,
+                  "variantes": {"V1": {"desc": "paredes de 5 mm (hoy 3,5)", "param": {"W": 5.0}},
+                                "V2": {"desc": "paredes de 5 mm + tapa de 8 mm", "param": {"W": 5.0, "WT": 8.0}}}},
 }
 ORDER = ["P1-DRV-03", "P1-REV-01", "P1-STE-01", "P1-INT-02", "P1-CTL-02"]
 VIEWS = {"P1-DRV-03": ((25, -60), (25, 120)), "P1-REV-01": ((20, -130), (25, 50)),
@@ -94,18 +96,40 @@ def map_active(prev, M):
     return out
 
 
-def fs_block(summ, kind, A):
-    """FS = admisible / tensión. Metal dúctil: von Mises. PETG: σvm, σ1 y σZ (entre capas)."""
+CONV_TOL = 0.20         # [SUPUESTO: el máx* se considera convergido si cambia ≤ 20 % de la malla gruesa a la fina]
+
+
+def design_sigma(summ, key, coarse=None):
+    """σ de diseño de un criterio: máx* si convergió (o si no hay malla gruesa con qué comparar); si no
+    (pico en arista viva del CAD o astilla de malla que crece al refinar), el máximo del promedio en volumen
+    en una esfera de radio fea_model.RHO_AVG. Devuelve (σ, método, cambio gruesa→fina del máx*)."""
+    f = summ[key]
+    if coarse is None:
+        return f["max_excl"], "máx*", None
+    c = coarse[key]["max_excl"]
+    dif = (f["max_excl"] - c) / max(abs(f["max_excl"]), 1e-9)
+    if abs(dif) <= CONV_TOL or f.get("max_vol") is None:
+        return f["max_excl"], "máx*", dif
+    return f["max_vol"], "promedio en volumen", dif
+
+
+def fs_block(summ, kind, A, coarse=None):
+    """FS = admisible / σ de diseño. Metal dúctil: von Mises. PETG: σvm, σ1 y σZ (entre capas)."""
     S = A["S_short"] if kind == "short" else A["S_sust"]
 
     def fs(Sa, s):
-        return float(Sa / s) if s > 1e-9 else 999.0
-    out = {"S_MPa": S, "vm": fs(S, summ["vm"]["max_excl"]), "vm_max_global": fs(S, summ["vm"]["max"]),
-           "vm_p99": fs(S, summ["vm"]["p99"])}
+        return float(Sa / s) if s is not None and s > 1e-9 else 999.0
+    sv, mv, dv = design_sigma(summ, "vm", coarse)
+    out = {"S_MPa": S, "vm": fs(S, sv), "sigma_vm_diseno_MPa": sv, "metodo_vm": mv, "dif_conv_vm": dv,
+           "vm_max_excl": fs(S, summ["vm"]["max_excl"]), "vm_max_global": fs(S, summ["vm"]["max"]),
+           "vm_p99": fs(S, summ["vm"]["p99"]), "vm_vol": fs(S, summ["vm"].get("max_vol"))}
     crits = ["vm"]
     if A["tipo"] == "PETG":
         SZ = A["SZ_short"] if kind == "short" else A["SZ_sust"]
-        out.update({"S_Z_MPa": SZ, "s1": fs(S, summ["s1"]["max_excl"]), "Z": fs(SZ, summ["sZ"]["max_excl"]),
+        s1, m1, d1 = design_sigma(summ, "s1", coarse)
+        sz, mz, dz = design_sigma(summ, "sZ", coarse)
+        out.update({"S_Z_MPa": SZ, "s1": fs(S, s1), "Z": fs(SZ, sz), "sigma_s1_diseno_MPa": s1, "sigma_Z_diseno_MPa": sz,
+                    "metodo_s1": m1, "metodo_Z": mz, "dif_conv_s1": d1, "dif_conv_Z": dz,
                     "s1_max_global": fs(S, summ["s1"]["max"]), "Z_max_global": fs(SZ, summ["sZ"]["max"])})
         crits += ["s1", "Z"]
     crit = min(crits, key=lambda k: out[k])
@@ -127,14 +151,21 @@ def compare(out, level):
         met = c.get("metrica", "max_excl")
         if reg["vm"].get(met) is None:
             continue
-        s_fea = reg["vm"][met] * c["escala_carga"]
+        val = reg["vm"][met]
+        if met == "max_excl" and "gruesa" in case and level != "gruesa":
+            rg = case["gruesa"]["regiones"].get(c["region"])
+            if rg and rg["vm"]["max_excl"] is not None:
+                val, met_used, _ = design_sigma(reg, "vm", rg)
+                if met_used != "máx*":
+                    met = "max_vol"
+        s_fea = val * c["escala_carga"]
         s_p99 = reg["vm"]["p99"] * c["escala_carga"]
         S = c["S_cmp_MPa"]
         s_hand = None if c["sigma_MPa"] is None else c["sigma_MPa"] * c["k_mano_a_vm"]
         fs_fea = S / s_fea if s_fea > 1e-9 else 999.0
         fs_hand = (S / s_hand) if s_hand else c["FS"]
         dif = (fs_fea - fs_hand) / fs_hand if fs_hand else None
-        rows.append({**c, "sigma_FEA_MPa": s_fea, "sigma_FEA_p99_MPa": s_p99, "sigma_mano_vm_MPa": s_hand,
+        rows.append({**c, "metrica": met, "sigma_FEA_MPa": s_fea, "sigma_FEA_p99_MPa": s_p99, "sigma_mano_vm_MPa": s_hand,
                      "FS_FEA": fs_fea, "FS_FEA_p99": S / s_p99 if s_p99 > 1e-9 else 999.0, "FS_mano_cmp": fs_hand,
                      "dif_FS_rel": dif, "at_mm": reg["vm"]["at_max_excl_mm"]})
     return rows
@@ -205,7 +236,7 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
     A = out["admisibles"]
     fs_min, gov = 1e9, None
     for cid, rec in out["casos"].items():
-        rec["FS"] = fs_block(rec[level]["resumen"], rec["tipo"], A)
+        rec["FS"] = fs_block(rec[level]["resumen"], rec["tipo"], A, None if quick else rec["gruesa"]["resumen"])
         if not quick:
             g, f_ = rec["gruesa"]["resumen"], rec["fina"]["resumen"]
             conv = {k: {"gruesa": g[a][s_], "fina": f_[a][s_], "dif_rel": (f_[a][s_] - g[a][s_]) / max(abs(f_[a][s_]), 1e-9)}
@@ -258,7 +289,7 @@ def run_part(pid, quick=False, no_img=False, img_dir=None, log_prefix=None, cfg=
         summ = out["casos"][gov][level]["resumen"]
         views = VIEWS.get(pid, ((22, -58), (22, 122)))
         path = img_dir / f"{pid}_vm.png"
-        top = summ["vm"]["max_excl"] * 1.15
+        top = out["casos"][gov]["FS"]["sigma_vm_diseno_MPa"] * 1.25
         fea_plot.stress_figure(S, fk["vm"], f"{pid} — von Mises, caso {gov}: {nm[:95]}\nmáx. fuera de zonas de carga "
                                f"{summ['vm']['max_excl']:.1f} MPa · p99 {summ['vm']['p99']:.1f} MPa · máx. global "
                                f"{summ['vm']['max']:.1f} MPa · admisible {out['casos'][gov]['FS']['S_MPa']:.0f} MPa",
@@ -320,9 +351,12 @@ def readme_block(res):
         for lv, m in r["mallas"].items():
             L.append(f"| {pid} | {lv} | {m['h_mm']:g} | {m['n_tets']} | {m['n_gdl']} | {m['calidad_gamma_min']:.3f} | "
                      f"{m['calidad_gamma_p01']:.3f} | {m['n_gamma_menor_0_05']} |")
-    L += ["", "### Resultados (malla fina) — tensiones en MPa, FS = admisible / σvm máx* (máx. fuera de zonas de carga)", "",
-          "| Pieza | Caso | σvm máx | σvm p99 | σvm máx* | u máx [mm] | FS (máx*) | FS (p99) | Veredicto |",
-          "|---|---|---|---|---|---|---|---|---|"]
+    L += ["", "### Resultados (malla fina) — tensiones en MPa; FS = admisible / σ de diseño", "",
+          "σ de diseño = σvm máx* (máximo fuera de r_excl de cargas y apoyos) si cambia ≤ 20 % de la malla gruesa a la fina; "
+          "si no converge (arista viva del CAD o astilla de malla), el máximo del promedio en una esfera de radio 3 mm "
+          "(«prom.»). En PETG el FS es el menor de σvm, σ1 y σZ (el criterio va entre paréntesis).", "",
+          "| Pieza | Caso | σvm máx | σvm p99 | σvm máx* | σvm prom. | σ diseño | u máx [mm] | **FS** | FS (p99) | Veredicto |",
+          "|---|---|---|---|---|---|---|---|---|---|---|"]
     for pid, r in res["piezas"].items():
         lv = r["nivel_reportado"]
         for cid, c in r["casos"].items():
@@ -331,9 +365,16 @@ def readme_block(res):
             extra = ""
             if fs["criterio"] != "vm":
                 extra = f" ({fs['criterio']})"
+            sd = fs.get("sigma_vm_diseno_MPa")
+            if fs["criterio"] == "Z":
+                sd_txt = f"σZ {_f(fs['sigma_Z_diseno_MPa'])} ({fs['metodo_Z']})"
+            elif fs["criterio"] == "s1":
+                sd_txt = f"σ1 {_f(fs['sigma_s1_diseno_MPa'])} ({fs['metodo_s1']})"
+            else:
+                sd_txt = f"{_f(sd)} ({fs['metodo_vm']})"
             L.append(f"| {pid} | {cid}: {c['nombre']} | {_f(s['vm']['max'])} | {_f(s['vm']['p99'])} | {_f(s['vm']['max_excl'])} | "
-                     f"{_f(s['u_max_mm'], 3)} | **{_f(fs['gobernante'])}**{extra} | {_f(fs['vm_p99'])} | "
-                     f"{verdict(fs['gobernante'], r['FS_objetivo'])} |")
+                     f"{_f(s['vm'].get('max_vol'))} | {sd_txt} | {_f(s['u_max_mm'], 3)} | **{_f(fs['gobernante'])}**{extra} | "
+                     f"{_f(fs['vm_p99'])} | {verdict(fs['gobernante'], r['FS_objetivo'])} |")
     L += ["", "\\* máximo fuera de las zonas de aplicación de cargas/apoyos concentrados (r_excl en la tabla de "
           "convergencia); el máximo global incluye singularidades de aplicación y se reporta para transparencia.", ""]
     L += ["### Convergencia (gruesa → fina)", "",
@@ -358,7 +399,7 @@ def readme_block(res):
         for c in r["comparacion_mano"]:
             flag = " ⚠" if c["dif_FS_rel"] is not None and abs(c["dif_FS_rel"]) > 0.30 else ""
             dif = "—" if c["dif_FS_rel"] is None else f"{100 * c['dif_FS_rel']:+.0f} %"
-            met = {"max_excl": "máx*", "mean": "promedio", "p99": "p99"}[c.get("metrica", "max_excl")]
+            met = {"max_excl": "máx*", "mean": "promedio", "p99": "p99", "max_vol": "prom. esfera"}[c.get("metrica", "max_excl")]
             L.append(f"| {pid} | {c['load_case']} | {c['caso']} · {c['region']} ({met}) | {c['escala_carga']:.2f} | "
                      f"{_f(c['sigma_mano_vm_MPa'])} | {_f(c['sigma_FEA_MPa'])} ({_f(c['sigma_FEA_p99_MPa'])}) | "
                      f"{_f(c['FS_mano_cmp'])} | {_f(c['FS_FEA'])} | "
@@ -386,15 +427,22 @@ def findings(res):
         g = r["casos"][r["caso_gobernante"]]
         s = g[lv]["resumen"]
         tgt = r["FS_objetivo"]
-        H.append(f"- **{pid}: FS = {r['FS_min']:.2f}** (objetivo {tgt:.0f}, {'cumple' if r['cumple'] else 'NO CUMPLE'}); "
-                 f"caso {r['caso_gobernante']}, σvm máx* = {s['vm']['max_excl']:.1f} MPa en {tuple(s['vm']['at_max_excl_mm'])} mm, "
-                 f"p99 {s['vm']['p99']:.1f} MPa (FS p99 {g['FS']['vm_p99']:.2f}).")
+        fsg = g["FS"]
+        k = {"vm": ("vm", "sigma_vm_diseno_MPa", "metodo_vm", "dif_conv_vm"), "s1": ("s1", "sigma_s1_diseno_MPa", "metodo_s1", "dif_conv_s1"),
+             "Z": ("sZ", "sigma_Z_diseno_MPa", "metodo_Z", "dif_conv_Z")}[fsg["criterio"]]
+        at = s[k[0]]["at_max_excl_mm"] if fsg[k[2]] == "máx*" else s[k[0]]["at_max_vol_mm"]
+        conv = "" if fsg.get(k[3]) is None else f", máx* gruesa→fina {100 * fsg[k[3]]:+.0f} %"
+        H.append(f"- **{pid}: FS = {r['FS_min']:.2f}** (objetivo {tgt:.0f}, {'cumple' if r['cumple'] else '**NO CUMPLE**'}); "
+                 f"caso {r['caso_gobernante']}, criterio {fsg['criterio']}: σ de diseño {fsg[k[1]]:.1f} MPa ({fsg[k[2]]}{conv}) en "
+                 f"{tuple(at)} mm; σvm p99 {s['vm']['p99']:.1f} MPa (FS p99 {fsg['vm_p99']:.2f}). {PART_NOTES.get(pid, '')}")
         for c in r["comparacion_mano"]:
             if c["dif_FS_rel"] is not None and abs(c["dif_FS_rel"]) > 0.30:
                 H.append(f"  - ⚠ «{c['load_case']}»: FS mano {c['FS_mano_cmp']:.2f} vs FS FEA {c['FS_FEA']:.2f} "
                          f"({100 * c['dif_FS_rel']:+.0f} %). {NOTES.get((pid, c['load_case'][:24]), '')}")
     return H
 
+
+PART_NOTES = {}   # notas por pieza (ubicación, causa y propuesta), se completan abajo
 
 # Explicaciones de las diferencias > 30 % (clave: (pieza, primeros 24 caracteres de la fila de structural_*.py)).
 NOTES = {
