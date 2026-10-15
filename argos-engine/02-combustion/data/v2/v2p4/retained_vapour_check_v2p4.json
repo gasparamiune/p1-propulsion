@@ -1,0 +1,370 @@
+{
+ "version": "v2.4",
+ "date": "2026-10-13",
+ "script": "02-combustion/src/retained_vapour_check_v2p4.py",
+ "inputs": {
+  "gnc_coast_json": "/home/claude/work/shared-fallback/engine/01-systems-gnc/staging_v3.1/results/a1_coast_accel/coast_accel_a1_v1.json",
+  "gnc_coast_json_sha256_16": "3c1691e25c031a06",
+  "gnc_version": "m2_coast_accel_a1 v1",
+  "gnc_mc_case": "v28_liq_p0.81_A1_none_k2",
+  "stations": {
+   "z_pivot_m": 0.203,
+   "z_seat_from_pivot_m": 0.1106,
+   "z_seat_m": 0.3136,
+   "z_mv_m": 0.5,
+   "z_seat_tag": "DERIVED+ESTIMATE mechanical.json v2 (envelope.stations_from_pivot_m.z_seat + frames.rv1_station_of_pivot_m)",
+   "z_mv_tag": "ASSUMED GNC mass ledger P09 placement (tank bottom - 0.05 m); no isolation-valve station in mechanical.json v2"
+  },
+  "V_req_cm3": 19.0,
+  "V_trap_head_end_cm3": 8.059999999999999,
+  "tags": {
+   "gnc": "SIM (sim6 v2.7.1-dev, 500 runs; MV station ASSUMED; no drogue opening transient; no line fluid dynamics)",
+   "trap": "Mechanical figures via the lead (ESTIMATE)",
+   "requirement": "LEAD 2026-10-13",
+   "drift": "LITERATURE, AS RECALLED (Wallis 1969; White & Beardmore 1962; Bendiksen 1984), TO-VERIFY",
+   "props": "CoolProp HEOS (DERIVED); viscosity bounded at 1e-3 Pa s (no CoolProp model for N2O)"
+  }
+ },
+ "props_A1": {
+  "T_K": 286.7,
+  "rho_l": 830.1911718012161,
+  "rho_v": 128.21119889322767,
+  "h_fg_J_kg": 193539.66332397048,
+  "sigma_N_m": 0.0030696244717398798,
+  "cp_l_J_kgK": 2681.484409135395,
+  "pocket_cm3_per_J": 0.04029990826101627,
+  "sensible_credit_J": 66.58590864539106
+ },
+ "gnc_time_budget": {
+  "settled_before_relight_s_min": 11.420000000003457,
+  "settled_before_relight_s_p01": 11.671490000003386,
+  "above_half_g_before_relight_s_min": 9.233000000004154,
+  "window_s_p99": 21.060200000006404,
+  "window_s_max": 21.770000000007506,
+  "descent_mean_fz_mps2": {
+   "p01": 7.744278854336711,
+   "p50": 8.18312543274968,
+   "min": 7.662638308285739
+  },
+  "coast_up_fz_mps2": {
+   "mean_p50": 0.38228816283304357,
+   "min_p01": 1.4644400959686552
+  },
+  "turnover_fz_le_0_s_max": 0.265,
+  "turnover_fz_min_mps2": -1.8980331968579494,
+  "tilt": {
+   "descent_typical_deg_p99": 19.375185915387345,
+   "descent_typical_deg_max": 21.969240956440114,
+   "any_time_fz_gt_0p1g_deg_p50_p99_max": [
+    48.835537408654545,
+    67.70552102119187,
+    71.4430569192845
+   ],
+   "note": "atan(max lateral at the seat / descent mean f_z) is a representative tilt during the settled descent (DERIVED from GNC p99/max values that need not coincide in time); the 49-71 deg values occur at low f_z near turnover"
+  },
+  "rate_max_dps_p99_max": [
+   167.99640060676398,
+   193.86636640725573
+  ],
+  "mv_minus_seat_fz_maxabs_p99_mps2": 1.5688223589668218
+ },
+ "drift": {
+  "D4.6mm": {
+   "descent_p01_7.74": {
+    "U_m_s": 0.05789972315336223,
+    "Fr": 0.3336059396446815,
+    "Eo": 37.47452351655229,
+    "N_f_lower_bound": 662.7941327696973,
+    "drifts": true
+   },
+   "descent_p50_8.18": {
+    "U_m_s": 0.0599065467451156,
+    "Fr": 0.33578590349766363,
+    "Eo": 39.59809973742739,
+    "N_f_lower_bound": 681.314713706242,
+    "drifts": true
+   },
+   "coast_up_mean_p50_0.38_inverted": {
+    "U_m_s": 0.0,
+    "Fr": 0.0,
+    "Eo": 1.8498903535949018,
+    "N_f_lower_bound": 147.25959080697183,
+    "drifts": false
+   },
+   "coast_up_min_p01_1.46_inverted": {
+    "U_m_s": 0.008080251182606602,
+    "Fr": 0.10706236540692615,
+    "Eo": 7.086417708761573,
+    "N_f_lower_bound": 288.21990428011685,
+    "drifts": true
+   },
+   "stand_1g_9.81": {
+    "U_m_s": 0.06655979862199624,
+    "Fr": 0.340799885377919,
+    "Eo": 47.45432634283329,
+    "N_f_lower_bound": 745.844861119105,
+    "drifts": true
+   }
+  },
+  "D6mm": {
+   "descent_p01_7.74": {
+    "U_m_s": 0.06822154681575547,
+    "Fr": 0.34417723396535566,
+    "Eo": 63.75627819451239,
+    "N_f_lower_bound": 987.3446638036127,
+    "drifts": true
+   },
+   "descent_p50_8.18": {
+    "U_m_s": 0.07017870735716666,
+    "Fr": 0.3444267150336349,
+    "Eo": 67.36916779524508,
+    "N_f_lower_bound": 1014.934221185217,
+    "drifts": true
+   },
+   "coast_up_mean_p50_0.38_inverted": {
+    "U_m_s": 0.0,
+    "Fr": 0.0,
+    "Eo": 3.1472614711444455,
+    "N_f_lower_bound": 219.36822308547542,
+    "drifts": false
+   },
+   "coast_up_min_p01_1.46_inverted": {
+    "U_m_s": 0.01726173966858914,
+    "Fr": 0.2002625888349157,
+    "Eo": 12.056287217174699,
+    "N_f_lower_bound": 429.35260048815553,
+    "drifts": true
+   },
+   "stand_1g_9.81": {
+    "U_m_s": 0.0769199004441344,
+    "Fr": 0.3448493762783415,
+    "Eo": 80.73514878742904,
+    "N_f_lower_bound": 1111.0628583478656,
+    "drifts": true
+   }
+  },
+  "D7.75mm": {
+   "descent_p01_7.74": {
+    "U_m_s": 0.07771755658059985,
+    "Fr": 0.34498839791838054,
+    "Eo": 106.37115164049725,
+    "N_f_lower_bound": 1449.4207069360955,
+    "drifts": true
+   },
+   "descent_p50_8.18": {
+    "U_m_s": 0.07989044915684418,
+    "Fr": 0.3449936502907313,
+    "Eo": 112.3989066861641,
+    "N_f_lower_bound": 1489.9221419770745,
+    "drifts": true
+   },
+   "coast_up_mean_p50_0.38_inverted": {
+    "U_m_s": 0.0029604841412983088,
+    "Fr": 0.05914842118108228,
+    "Eo": 5.250899780850368,
+    "N_f_lower_bound": 322.0322716476523,
+    "drifts": true
+   },
+   "coast_up_min_p01_1.46_inverted": {
+    "U_m_s": 0.027463273681168975,
+    "Fr": 0.28034469499250786,
+    "Eo": 20.11474308282098,
+    "N_f_lower_bound": 630.2890698036672,
+    "drifts": true
+   },
+   "stand_1g_9.81": {
+    "U_m_s": 0.0874586421299302,
+    "Fr": 0.3449993172147934,
+    "Eo": 134.6987465012488,
+    "N_f_lower_bound": 1631.0388587032646,
+    "drifts": true
+   }
+  }
+ },
+ "heat_transit_budget_Ws": 271.46463781364747,
+ "allowable_Q_vs_route": {
+  "D4.6mm|vertical_or_inclined_ge_20deg|L0.3m": {
+   "U_m_s": 0.05789972315336223,
+   "t_transit_s": 5.181371924790956,
+   "transit_within_min_time_above_half_g": true,
+   "Q_allow_W": 52.392424584459796,
+   "note": null
+  },
+  "D4.6mm|vertical_or_inclined_ge_20deg|L0.5m": {
+   "U_m_s": 0.05789972315336223,
+   "t_transit_s": 8.635619874651594,
+   "transit_within_min_time_above_half_g": true,
+   "Q_allow_W": 31.435454750675877,
+   "note": null
+  },
+  "D4.6mm|vertical_or_inclined_ge_20deg|L0.75m": {
+   "U_m_s": 0.05789972315336223,
+   "t_transit_s": 12.953429811977392,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D4.6mm|vertical_or_inclined_ge_20deg|L1m": {
+   "U_m_s": 0.05789972315336223,
+   "t_transit_s": 17.271239749303188,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D4.6mm|slow_near_horizontal_coil|L0.3m": {
+   "U_m_s": 0.0173557231070377,
+   "t_transit_s": 17.28536449618459,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D4.6mm|slow_near_horizontal_coil|L0.5m": {
+   "U_m_s": 0.0173557231070377,
+   "t_transit_s": 28.808940826974318,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D4.6mm|slow_near_horizontal_coil|L0.75m": {
+   "U_m_s": 0.0173557231070377,
+   "t_transit_s": 43.213411240461475,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D4.6mm|slow_near_horizontal_coil|L1m": {
+   "U_m_s": 0.0173557231070377,
+   "t_transit_s": 57.617881653948636,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D6mm|vertical_or_inclined_ge_20deg|L0.3m": {
+   "U_m_s": 0.06822154681575547,
+   "t_transit_s": 4.3974376718576,
+   "transit_within_min_time_above_half_g": true,
+   "Q_allow_W": 61.73245832475285,
+   "note": null
+  },
+  "D6mm|vertical_or_inclined_ge_20deg|L0.5m": {
+   "U_m_s": 0.06822154681575547,
+   "t_transit_s": 7.329062786429334,
+   "transit_within_min_time_above_half_g": true,
+   "Q_allow_W": 37.03947499485171,
+   "note": null
+  },
+  "D6mm|vertical_or_inclined_ge_20deg|L0.75m": {
+   "U_m_s": 0.06822154681575547,
+   "t_transit_s": 10.993594179643999,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D6mm|vertical_or_inclined_ge_20deg|L1m": {
+   "U_m_s": 0.06822154681575547,
+   "t_transit_s": 14.658125572858667,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D6mm|slow_near_horizontal_coil|L0.3m": {
+   "U_m_s": 0.01982163260183053,
+   "t_transit_s": 15.13497934435002,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D6mm|slow_near_horizontal_coil|L0.5m": {
+   "U_m_s": 0.01982163260183053,
+   "t_transit_s": 25.224965573916702,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D6mm|slow_near_horizontal_coil|L0.75m": {
+   "U_m_s": 0.01982163260183053,
+   "t_transit_s": 37.83744836087505,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D6mm|slow_near_horizontal_coil|L1m": {
+   "U_m_s": 0.01982163260183053,
+   "t_transit_s": 50.449931147833404,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D7.75mm|vertical_or_inclined_ge_20deg|L0.3m": {
+   "U_m_s": 0.07771755658059985,
+   "t_transit_s": 3.8601316510623174,
+   "transit_within_min_time_above_half_g": true,
+   "Q_allow_W": 70.32522782971398,
+   "note": null
+  },
+  "D7.75mm|vertical_or_inclined_ge_20deg|L0.5m": {
+   "U_m_s": 0.07771755658059985,
+   "t_transit_s": 6.433552751770529,
+   "transit_within_min_time_above_half_g": true,
+   "Q_allow_W": 42.19513669782839,
+   "note": null
+  },
+  "D7.75mm|vertical_or_inclined_ge_20deg|L0.75m": {
+   "U_m_s": 0.07771755658059985,
+   "t_transit_s": 9.650329127655795,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D7.75mm|vertical_or_inclined_ge_20deg|L1m": {
+   "U_m_s": 0.07771755658059985,
+   "t_transit_s": 12.867105503541058,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D7.75mm|slow_near_horizontal_coil|L0.3m": {
+   "U_m_s": 0.022527585579555275,
+   "t_transit_s": 13.31700634054022,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D7.75mm|slow_near_horizontal_coil|L0.5m": {
+   "U_m_s": 0.022527585579555275,
+   "t_transit_s": 22.19501056756703,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D7.75mm|slow_near_horizontal_coil|L0.75m": {
+   "U_m_s": 0.022527585579555275,
+   "t_transit_s": 33.29251585135055,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  },
+  "D7.75mm|slow_near_horizontal_coil|L1m": {
+   "U_m_s": 0.022527585579555275,
+   "t_transit_s": 44.39002113513406,
+   "transit_within_min_time_above_half_g": false,
+   "Q_allow_W": null,
+   "note": "transit longer than the settled time: no-venting bound applies"
+  }
+ },
+ "no_venting_bound": {
+  "with_subcooling_credit_W": 24.715250424446744,
+  "without_credit_W": 21.6566418509342,
+  "window_s": 21.770000000007506,
+  "window_basis": "GNC dispersed MECO -> relight command, max of 500 runs"
+ },
+ "stand_scaling": {
+  "drift_ratio_flight_over_1g": [
+   0.8839522904062602,
+   0.9134804692278251
+  ],
+  "note": "U ~ sqrt(g'): a 1 g stand test with the flight route and orientation drifts 7-12 % faster than the descent (DERIVED)"
+ },
+ "closure_criterion": "V_trap_head + sum V_trap_i(tilt <= 20 deg) + pocket_cm3_per_J * integral of Q over the last t_tr before the relight command <= 19 cm3, with t_tr = sum L_i / U_i <= the minimum time above 0.5 g before relight; otherwise the no-venting bound on the mean heat input from MECO to relight applies",
+ "tag": "DERIVED (bounds; not a two-phase flow simulation)"
+}

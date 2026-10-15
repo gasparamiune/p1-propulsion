@@ -1,0 +1,1971 @@
+{
+ "id": "low_inlet_check",
+ "version": "v2p3",
+ "date": "2026-10-12",
+ "owner": "Combustion",
+ "script": "02-combustion/src/low_inlet_check.py",
+ "request": "lead follow-up 2026-10-12: Combustion judgement on the LOW INLET before Mechanical commits CAD v3.4",
+ "input_reviewed": {
+  "file": "03-cad/calcs/hose_routing_trade_v2.json",
+  "sha256_16": "bf183b936852be36",
+  "sha_expected": "bf183b936852be36",
+  "sha_ok": true,
+  "concept": "port block (316L) on the case OD at the head plug, held by 2 of the 8 radial M5 head screws (longer), O-ring face seal around a 4-5 mm hole through the case wall into a new annulus on the plug OD between the upper chamber gland and a NEW third gland below the bolt row, 3 mm radial passage from the annulus into the 10 mm manifold bore; riser 3/8 x 0.035 316 welded into the block; v3.3 bonnet inlet and its screen seat deleted",
+  "manifold_volume_estimate_cm3": {
+   "added_annulus": 1.05,
+   "added_passage": 0.16,
+   "v33_total": 3.3,
+   "target": 5.0,
+   "tag": "ESTIMATE (groove 1.5 x 4 at r 27.8, passage 3 x 23 mm)"
+  },
+  "riser_z_mm": [
+   62.0,
+   129.3
+  ],
+  "hose_length_m": 0.252
+ },
+ "basis": {
+  "budget_Pa": {
+   "v": 270400.00000000006,
+   "tag": "ASSUMED in every v2 simulation",
+   "src": "grain_q1d 2.5 bar at 0.25 kg/s ~ mdot^2"
+  },
+  "Cd": {
+   "v": 0.7,
+   "tag": "ASSUMED"
+  },
+  "K_values": {
+   "v": "handbook ranges, Idelchik / Crane type",
+   "tag": "ASSUMED"
+  },
+  "cad_stations_mm": {
+   "v": {
+    "face": 112.59,
+    "seat": 117.59,
+    "ins_top": 124.59,
+    "head_top": 178.59,
+    "needle_body_top": 180.59,
+    "bore_top": 204.59,
+    "v33_cross": 190.59,
+    "guide_bush": [
+     206.59,
+     210.59
+    ],
+    "carriage_pin": 215.59,
+    "g2_top": 128.29,
+    "bolt_hole_low": 133.84
+   },
+   "tag": "DERIVED",
+   "src": "reading of Mechanical parts_engine.py v3.3 primitives (read only)"
+  },
+  "low_entry_z_mm": {
+   "v": 131.065,
+   "tag": "ESTIMATE",
+   "src": "mid between g2 top 128.29 and bolt hole 133.84; plug grows 3-8 mm in v3.4"
+  }
+ },
+ "n2o_liquid_CoolProp": {
+  "15C": {
+   "rho_kg_m3": 820.7,
+   "Psat_Pa": 4504000.0,
+   "a_m_s": 443.0
+  },
+  "20C": {
+   "rho_kg_m3": 785.1,
+   "Psat_Pa": 5053000.0,
+   "a_m_s": 399.4
+  },
+  "25C": {
+   "rho_kg_m3": 742.9,
+   "Psat_Pa": 5652000.0,
+   "a_m_s": 351.1
+  }
+ },
+ "1_losses_budget_flash": {
+  "V0_v33_bonnet_reference": {
+   "note": "CAD v3.3 bonnet inlet: -6 ORB port -> 6 mm riser bore -> 90 deg -> 6 mm cross-drilling (17 mm) -> 10 mm bore (screen counted as the Cv 2.2 filter). Reference for \"no worse than v3.3\".",
+   "0p26_25C": {
+    "inlet_dp_Pa": 141600.0,
+    "sections": [
+     {
+      "name": "contraction ORB port -> 6 mm bore",
+      "A_mm2": 28.27,
+      "v_m_s": 12.38,
+      "q_kPa": 56.91,
+      "K": 0.3,
+      "K_fric": 0.0,
+      "dp_kPa": 17.07
+     },
+     {
+      "name": "90 deg turn into 6 mm cross-drilling",
+      "A_mm2": 28.27,
+      "v_m_s": 12.38,
+      "q_kPa": 56.91,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 62.6
+     },
+     {
+      "name": "6 mm drillings friction (6.6 + 17 mm)",
+      "A_mm2": 28.27,
+      "v_m_s": 12.38,
+      "q_kPa": 56.91,
+      "K": 0.0,
+      "K_fric": 0.08867,
+      "dp_kPa": 5.046
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 28.27,
+      "v_m_s": 12.38,
+      "q_kPa": 56.91,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 56.91
+     }
+    ],
+    "rest_of_line_Pa": 135100.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8860.0,
+     "minor_K2p4_on_hose_q": 45450.0,
+     "fixed_line_0p245m_plus_2_bends": 21800.0,
+     "riser_0p07m_plus_S_bend": 8861.0,
+     "valve_Cv3": 17530.0,
+     "filter_Cv2p2": 32600.0
+    },
+    "total_line_Pa": 276700.0,
+    "budget_Pa": 270400.0,
+    "within_budget": false,
+    "P_manifold_Pa": 5375000.0,
+    "below_Psat_Pa": 276700.0,
+    "flash_quality_eq": 0.04362,
+    "void_fraction_eq": 0.1668
+   },
+   "0p241_20C": {
+    "inlet_dp_Pa": 115200.0,
+    "sections": [
+     {
+      "name": "contraction ORB port -> 6 mm bore",
+      "A_mm2": 28.27,
+      "v_m_s": 10.86,
+      "q_kPa": 46.27,
+      "K": 0.3,
+      "K_fric": 0.0,
+      "dp_kPa": 13.88
+     },
+     {
+      "name": "90 deg turn into 6 mm cross-drilling",
+      "A_mm2": 28.27,
+      "v_m_s": 10.86,
+      "q_kPa": 46.27,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 50.9
+     },
+     {
+      "name": "6 mm drillings friction (6.6 + 17 mm)",
+      "A_mm2": 28.27,
+      "v_m_s": 10.86,
+      "q_kPa": 46.27,
+      "K": 0.0,
+      "K_fric": 0.0888,
+      "dp_kPa": 4.109
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 28.27,
+      "v_m_s": 10.86,
+      "q_kPa": 46.27,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 46.27
+     }
+    ],
+    "rest_of_line_Pa": 110000.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 7284.0,
+     "minor_K2p4_on_hose_q": 36950.0,
+     "fixed_line_0p245m_plus_2_bends": 17810.0,
+     "riser_0p07m_plus_S_bend": 7228.0,
+     "valve_Cv3": 14250.0,
+     "filter_Cv2p2": 26500.0
+    },
+    "total_line_Pa": 225200.0,
+    "budget_Pa": 232300.0,
+    "within_budget": true,
+    "P_manifold_Pa": 4827000.0,
+    "below_Psat_Pa": 225200.0,
+    "flash_quality_eq": 0.03082,
+    "void_fraction_eq": 0.1468
+   },
+   "0p26_15C": {
+    "inlet_dp_Pa": 128200.0,
+    "sections": [
+     {
+      "name": "contraction ORB port -> 6 mm bore",
+      "A_mm2": 28.27,
+      "v_m_s": 11.2,
+      "q_kPa": 51.52,
+      "K": 0.3,
+      "K_fric": 0.0,
+      "dp_kPa": 15.45
+     },
+     {
+      "name": "90 deg turn into 6 mm cross-drilling",
+      "A_mm2": 28.27,
+      "v_m_s": 11.2,
+      "q_kPa": 51.52,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 56.67
+     },
+     {
+      "name": "6 mm drillings friction (6.6 + 17 mm)",
+      "A_mm2": 28.27,
+      "v_m_s": 11.2,
+      "q_kPa": 51.52,
+      "K": 0.0,
+      "K_fric": 0.0888,
+      "dp_kPa": 4.575
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 28.27,
+      "v_m_s": 11.2,
+      "q_kPa": 51.52,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 51.52
+     }
+    ],
+    "rest_of_line_Pa": 122500.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8114.0,
+     "minor_K2p4_on_hose_q": 41140.0,
+     "fixed_line_0p245m_plus_2_bends": 19830.0,
+     "riser_0p07m_plus_S_bend": 8049.0,
+     "valve_Cv3": 15870.0,
+     "filter_Cv2p2": 29510.0
+    },
+    "total_line_Pa": 250700.0,
+    "budget_Pa": 270400.0,
+    "within_budget": true,
+    "P_manifold_Pa": 4253000.0,
+    "below_Psat_Pa": 250700.0,
+    "flash_quality_eq": 0.03131,
+    "void_fraction_eq": 0.1786
+   },
+   "pintle_at_100pct": {
+    "15C": {
+     "P1_Pa": 4288000.0,
+     "dP_inj_Pa": 1788000.0,
+     "A_req_mm2": 8.529,
+     "lift_req_mm": 2.11,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "20C": {
+     "P1_Pa": 4827000.0,
+     "dP_inj_Pa": 2327000.0,
+     "A_req_mm2": 7.75,
+     "lift_req_mm": 1.896,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "25C": {
+     "P1_Pa": 5414000.0,
+     "dP_inj_Pa": 2914000.0,
+     "A_req_mm2": 7.176,
+     "lift_req_mm": 1.743,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    }
+   }
+  },
+  "V1_as_drawn_hole4mm_aligned": {
+   "note": "Mechanical O3b as drawn: block 90 deg turn into a 4 mm case-wall hole, across the 1.5 mm annulus gap into ONE 3 mm x 23 mm radial passage aligned with the hole, exit against the 6 mm needle body.",
+   "0p26_25C": {
+    "inlet_dp_Pa": 1872000.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 4 mm case hole",
+      "A_mm2": 12.57,
+      "v_m_s": 27.85,
+      "q_kPa": 288.1,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 316.9
+     },
+     {
+      "name": "gap transfer + contraction into the 3 mm passage",
+      "A_mm2": 7.069,
+      "v_m_s": 49.51,
+      "q_kPa": 910.5,
+      "K": 0.5,
+      "K_fric": 0.0,
+      "dp_kPa": 455.3
+     },
+     {
+      "name": "3 mm passage friction (23 mm)",
+      "A_mm2": 7.069,
+      "v_m_s": 49.51,
+      "q_kPa": 910.5,
+      "K": 0.0,
+      "K_fric": 0.2075,
+      "dp_kPa": 188.9
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 7.069,
+      "v_m_s": 49.51,
+      "q_kPa": 910.5,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 910.5
+     }
+    ],
+    "rest_of_line_Pa": 135100.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8860.0,
+     "minor_K2p4_on_hose_q": 45450.0,
+     "fixed_line_0p245m_plus_2_bends": 21800.0,
+     "riser_0p07m_plus_S_bend": 8861.0,
+     "valve_Cv3": 17530.0,
+     "filter_Cv2p2": 32600.0
+    },
+    "total_line_Pa": 2007000.0,
+    "budget_Pa": 270400.0,
+    "within_budget": false,
+    "P_manifold_Pa": 3645000.0,
+    "below_Psat_Pa": 2007000.0,
+    "flash_quality_eq": 0.2298,
+    "void_fraction_eq": 0.7182
+   },
+   "0p241_20C": {
+    "inlet_dp_Pa": 1522000.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 4 mm case hole",
+      "A_mm2": 12.57,
+      "v_m_s": 24.43,
+      "q_kPa": 234.2,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 257.7
+     },
+     {
+      "name": "gap transfer + contraction into the 3 mm passage",
+      "A_mm2": 7.069,
+      "v_m_s": 43.43,
+      "q_kPa": 740.3,
+      "K": 0.5,
+      "K_fric": 0.0,
+      "dp_kPa": 370.2
+     },
+     {
+      "name": "3 mm passage friction (23 mm)",
+      "A_mm2": 7.069,
+      "v_m_s": 43.43,
+      "q_kPa": 740.3,
+      "K": 0.0,
+      "K_fric": 0.2076,
+      "dp_kPa": 153.7
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 7.069,
+      "v_m_s": 43.43,
+      "q_kPa": 740.3,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 740.3
+     }
+    ],
+    "rest_of_line_Pa": 110000.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 7284.0,
+     "minor_K2p4_on_hose_q": 36950.0,
+     "fixed_line_0p245m_plus_2_bends": 17810.0,
+     "riser_0p07m_plus_S_bend": 7228.0,
+     "valve_Cv3": 14250.0,
+     "filter_Cv2p2": 26500.0
+    },
+    "total_line_Pa": 1632000.0,
+    "budget_Pa": 232300.0,
+    "within_budget": false,
+    "P_manifold_Pa": 3421000.0,
+    "below_Psat_Pa": 1632000.0,
+    "flash_quality_eq": 0.1825,
+    "void_fraction_eq": 0.6766
+   },
+   "0p26_15C": {
+    "inlet_dp_Pa": 1694000.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 4 mm case hole",
+      "A_mm2": 12.57,
+      "v_m_s": 25.21,
+      "q_kPa": 260.8,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 286.9
+     },
+     {
+      "name": "gap transfer + contraction into the 3 mm passage",
+      "A_mm2": 7.069,
+      "v_m_s": 44.82,
+      "q_kPa": 824.3,
+      "K": 0.5,
+      "K_fric": 0.0,
+      "dp_kPa": 412.1
+     },
+     {
+      "name": "3 mm passage friction (23 mm)",
+      "A_mm2": 7.069,
+      "v_m_s": 44.82,
+      "q_kPa": 824.3,
+      "K": 0.0,
+      "K_fric": 0.2076,
+      "dp_kPa": 171.1
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 7.069,
+      "v_m_s": 44.82,
+      "q_kPa": 824.3,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 824.3
+     }
+    ],
+    "rest_of_line_Pa": 122500.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8114.0,
+     "minor_K2p4_on_hose_q": 41140.0,
+     "fixed_line_0p245m_plus_2_bends": 19830.0,
+     "riser_0p07m_plus_S_bend": 8049.0,
+     "valve_Cv3": 15870.0,
+     "filter_Cv2p2": 29510.0
+    },
+    "total_line_Pa": 1817000.0,
+    "budget_Pa": 270400.0,
+    "within_budget": false,
+    "P_manifold_Pa": 2687000.0,
+    "below_Psat_Pa": 1817000.0,
+    "flash_quality_eq": 0.1942,
+    "void_fraction_eq": 0.7583
+   },
+   "pintle_at_100pct": {
+    "15C": {
+     "P1_Pa": 2943000.0,
+     "dP_inj_Pa": 442600.0,
+     "A_req_mm2": 12.66,
+     "lift_req_mm": 3.336,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "20C": {
+     "P1_Pa": 3421000.0,
+     "dP_inj_Pa": 920700.0,
+     "A_req_mm2": 10.6,
+     "lift_req_mm": 2.703,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "25C": {
+     "P1_Pa": 3928000.0,
+     "dP_inj_Pa": 1428000.0,
+     "A_req_mm2": 9.316,
+     "lift_req_mm": 2.33,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    }
+   }
+  },
+  "V1_as_drawn_hole5mm_aligned": {
+   "note": "Mechanical O3b as drawn: block 90 deg turn into a 5 mm case-wall hole, across the 1.5 mm annulus gap into ONE 3 mm x 23 mm radial passage aligned with the hole, exit against the 6 mm needle body.",
+   "0p26_25C": {
+    "inlet_dp_Pa": 1685000.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 5 mm case hole",
+      "A_mm2": 19.63,
+      "v_m_s": 17.82,
+      "q_kPa": 118.0,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 129.8
+     },
+     {
+      "name": "gap transfer + contraction into the 3 mm passage",
+      "A_mm2": 7.069,
+      "v_m_s": 49.51,
+      "q_kPa": 910.5,
+      "K": 0.5,
+      "K_fric": 0.0,
+      "dp_kPa": 455.3
+     },
+     {
+      "name": "3 mm passage friction (23 mm)",
+      "A_mm2": 7.069,
+      "v_m_s": 49.51,
+      "q_kPa": 910.5,
+      "K": 0.0,
+      "K_fric": 0.2075,
+      "dp_kPa": 188.9
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 7.069,
+      "v_m_s": 49.51,
+      "q_kPa": 910.5,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 910.5
+     }
+    ],
+    "rest_of_line_Pa": 135100.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8860.0,
+     "minor_K2p4_on_hose_q": 45450.0,
+     "fixed_line_0p245m_plus_2_bends": 21800.0,
+     "riser_0p07m_plus_S_bend": 8861.0,
+     "valve_Cv3": 17530.0,
+     "filter_Cv2p2": 32600.0
+    },
+    "total_line_Pa": 1820000.0,
+    "budget_Pa": 270400.0,
+    "within_budget": false,
+    "P_manifold_Pa": 3832000.0,
+    "below_Psat_Pa": 1820000.0,
+    "flash_quality_eq": 0.2134,
+    "void_fraction_eq": 0.6826
+   },
+   "0p241_20C": {
+    "inlet_dp_Pa": 1370000.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 5 mm case hole",
+      "A_mm2": 19.63,
+      "v_m_s": 15.63,
+      "q_kPa": 95.94,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 105.5
+     },
+     {
+      "name": "gap transfer + contraction into the 3 mm passage",
+      "A_mm2": 7.069,
+      "v_m_s": 43.43,
+      "q_kPa": 740.3,
+      "K": 0.5,
+      "K_fric": 0.0,
+      "dp_kPa": 370.2
+     },
+     {
+      "name": "3 mm passage friction (23 mm)",
+      "A_mm2": 7.069,
+      "v_m_s": 43.43,
+      "q_kPa": 740.3,
+      "K": 0.0,
+      "K_fric": 0.2076,
+      "dp_kPa": 153.7
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 7.069,
+      "v_m_s": 43.43,
+      "q_kPa": 740.3,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 740.3
+     }
+    ],
+    "rest_of_line_Pa": 110000.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 7284.0,
+     "minor_K2p4_on_hose_q": 36950.0,
+     "fixed_line_0p245m_plus_2_bends": 17810.0,
+     "riser_0p07m_plus_S_bend": 7228.0,
+     "valve_Cv3": 14250.0,
+     "filter_Cv2p2": 26500.0
+    },
+    "total_line_Pa": 1480000.0,
+    "budget_Pa": 232300.0,
+    "within_budget": false,
+    "P_manifold_Pa": 3573000.0,
+    "below_Psat_Pa": 1480000.0,
+    "flash_quality_eq": 0.1682,
+    "void_fraction_eq": 0.6402
+   },
+   "0p26_15C": {
+    "inlet_dp_Pa": 1525000.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 5 mm case hole",
+      "A_mm2": 19.63,
+      "v_m_s": 16.13,
+      "q_kPa": 106.8,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 117.5
+     },
+     {
+      "name": "gap transfer + contraction into the 3 mm passage",
+      "A_mm2": 7.069,
+      "v_m_s": 44.82,
+      "q_kPa": 824.3,
+      "K": 0.5,
+      "K_fric": 0.0,
+      "dp_kPa": 412.1
+     },
+     {
+      "name": "3 mm passage friction (23 mm)",
+      "A_mm2": 7.069,
+      "v_m_s": 44.82,
+      "q_kPa": 824.3,
+      "K": 0.0,
+      "K_fric": 0.2076,
+      "dp_kPa": 171.1
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 7.069,
+      "v_m_s": 44.82,
+      "q_kPa": 824.3,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 824.3
+     }
+    ],
+    "rest_of_line_Pa": 122500.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8114.0,
+     "minor_K2p4_on_hose_q": 41140.0,
+     "fixed_line_0p245m_plus_2_bends": 19830.0,
+     "riser_0p07m_plus_S_bend": 8049.0,
+     "valve_Cv3": 15870.0,
+     "filter_Cv2p2": 29510.0
+    },
+    "total_line_Pa": 1647000.0,
+    "budget_Pa": 270400.0,
+    "within_budget": false,
+    "P_manifold_Pa": 2856000.0,
+    "below_Psat_Pa": 1647000.0,
+    "flash_quality_eq": 0.1781,
+    "void_fraction_eq": 0.7224
+   },
+   "pintle_at_100pct": {
+    "15C": {
+     "P1_Pa": 3088000.0,
+     "dP_inj_Pa": 588100.0,
+     "A_req_mm2": 12.02,
+     "lift_req_mm": 3.135,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "20C": {
+     "P1_Pa": 3573000.0,
+     "dP_inj_Pa": 1073000.0,
+     "A_req_mm2": 10.18,
+     "lift_req_mm": 2.579,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "25C": {
+     "P1_Pa": 4088000.0,
+     "dP_inj_Pa": 1588000.0,
+     "A_req_mm2": 9.012,
+     "lift_req_mm": 2.244,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    }
+   }
+  },
+  "V1b_as_drawn_hole4p5mm_180deg_misaligned": {
+   "note": "as drawn with the passage 180 deg from the case hole (no clocking feature): the 6 mm2 annulus carries half the flow each way; split K 1.0 + merge K 1.0 on the annulus velocity head (ASSUMED)",
+   "0p26_25C": {
+    "inlet_dp_Pa": 2761000.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 4.5 mm case hole",
+      "A_mm2": 15.9,
+      "v_m_s": 22.0,
+      "q_kPa": 179.9,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 197.8
+     },
+     {
+      "name": "annulus 1.5 x 4 mm, half flow each way, half circumference (87.5 mm)",
+      "A_mm2": 6.0,
+      "v_m_s": 29.16,
+      "q_kPa": 315.9,
+      "K": 1.0,
+      "K_fric": 1.193,
+      "dp_kPa": 692.8
+     },
+     {
+      "name": "annulus merge into the passage",
+      "A_mm2": 6.0,
+      "v_m_s": 29.16,
+      "q_kPa": 315.9,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 315.9
+     },
+     {
+      "name": "contraction into the 3 mm passage",
+      "A_mm2": 7.069,
+      "v_m_s": 49.51,
+      "q_kPa": 910.5,
+      "K": 0.5,
+      "K_fric": 0.0,
+      "dp_kPa": 455.3
+     },
+     {
+      "name": "3 mm passage friction (23 mm)",
+      "A_mm2": 7.069,
+      "v_m_s": 49.51,
+      "q_kPa": 910.5,
+      "K": 0.0,
+      "K_fric": 0.2075,
+      "dp_kPa": 188.9
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 7.069,
+      "v_m_s": 49.51,
+      "q_kPa": 910.5,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 910.5
+     }
+    ],
+    "rest_of_line_Pa": 135100.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8860.0,
+     "minor_K2p4_on_hose_q": 45450.0,
+     "fixed_line_0p245m_plus_2_bends": 21800.0,
+     "riser_0p07m_plus_S_bend": 8861.0,
+     "valve_Cv3": 17530.0,
+     "filter_Cv2p2": 32600.0
+    },
+    "total_line_Pa": 2896000.0,
+    "budget_Pa": 270400.0,
+    "within_budget": false,
+    "P_manifold_Pa": 2755000.0,
+    "below_Psat_Pa": 2896000.0,
+    "flash_quality_eq": 0.303,
+    "void_fraction_eq": 0.8456
+   },
+   "0p241_20C": {
+    "inlet_dp_Pa": 2245000.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 4.5 mm case hole",
+      "A_mm2": 15.9,
+      "v_m_s": 19.3,
+      "q_kPa": 146.2,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 160.9
+     },
+     {
+      "name": "annulus 1.5 x 4 mm, half flow each way, half circumference (87.5 mm)",
+      "A_mm2": 6.0,
+      "v_m_s": 25.58,
+      "q_kPa": 256.9,
+      "K": 1.0,
+      "K_fric": 1.194,
+      "dp_kPa": 563.5
+     },
+     {
+      "name": "annulus merge into the passage",
+      "A_mm2": 6.0,
+      "v_m_s": 25.58,
+      "q_kPa": 256.9,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 256.9
+     },
+     {
+      "name": "contraction into the 3 mm passage",
+      "A_mm2": 7.069,
+      "v_m_s": 43.43,
+      "q_kPa": 740.3,
+      "K": 0.5,
+      "K_fric": 0.0,
+      "dp_kPa": 370.2
+     },
+     {
+      "name": "3 mm passage friction (23 mm)",
+      "A_mm2": 7.069,
+      "v_m_s": 43.43,
+      "q_kPa": 740.3,
+      "K": 0.0,
+      "K_fric": 0.2076,
+      "dp_kPa": 153.7
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 7.069,
+      "v_m_s": 43.43,
+      "q_kPa": 740.3,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 740.3
+     }
+    ],
+    "rest_of_line_Pa": 110000.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 7284.0,
+     "minor_K2p4_on_hose_q": 36950.0,
+     "fixed_line_0p245m_plus_2_bends": 17810.0,
+     "riser_0p07m_plus_S_bend": 7228.0,
+     "valve_Cv3": 14250.0,
+     "filter_Cv2p2": 26500.0
+    },
+    "total_line_Pa": 2355000.0,
+    "budget_Pa": 232300.0,
+    "within_budget": false,
+    "P_manifold_Pa": 2697000.0,
+    "below_Psat_Pa": 2355000.0,
+    "flash_quality_eq": 0.2475,
+    "void_fraction_eq": 0.8099
+   },
+   "0p26_15C": {
+    "inlet_dp_Pa": 2500000.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 4.5 mm case hole",
+      "A_mm2": 15.9,
+      "v_m_s": 19.92,
+      "q_kPa": 162.8,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 179.1
+     },
+     {
+      "name": "annulus 1.5 x 4 mm, half flow each way, half circumference (87.5 mm)",
+      "A_mm2": 6.0,
+      "v_m_s": 26.4,
+      "q_kPa": 286.0,
+      "K": 1.0,
+      "K_fric": 1.194,
+      "dp_kPa": 627.4
+     },
+     {
+      "name": "annulus merge into the passage",
+      "A_mm2": 6.0,
+      "v_m_s": 26.4,
+      "q_kPa": 286.0,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 286.0
+     },
+     {
+      "name": "contraction into the 3 mm passage",
+      "A_mm2": 7.069,
+      "v_m_s": 44.82,
+      "q_kPa": 824.3,
+      "K": 0.5,
+      "K_fric": 0.0,
+      "dp_kPa": 412.1
+     },
+     {
+      "name": "3 mm passage friction (23 mm)",
+      "A_mm2": 7.069,
+      "v_m_s": 44.82,
+      "q_kPa": 824.3,
+      "K": 0.0,
+      "K_fric": 0.2076,
+      "dp_kPa": 171.1
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 7.069,
+      "v_m_s": 44.82,
+      "q_kPa": 824.3,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 824.3
+     }
+    ],
+    "rest_of_line_Pa": 122500.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8114.0,
+     "minor_K2p4_on_hose_q": 41140.0,
+     "fixed_line_0p245m_plus_2_bends": 19830.0,
+     "riser_0p07m_plus_S_bend": 8049.0,
+     "valve_Cv3": 15870.0,
+     "filter_Cv2p2": 29510.0
+    },
+    "total_line_Pa": 2622000.0,
+    "budget_Pa": 270400.0,
+    "within_budget": false,
+    "P_manifold_Pa": 1881000.0,
+    "below_Psat_Pa": 2622000.0,
+    "flash_quality_eq": 0.2706,
+    "void_fraction_eq": 0.8825
+   },
+   "pintle_at_100pct": {
+    "15C": {
+     "P1_Pa": 2250000.0,
+     "feasible": false,
+     "note": "manifold at or below Pc: 100 % point unreachable"
+    },
+    "20C": {
+     "P1_Pa": 2697000.0,
+     "dP_inj_Pa": 197200.0,
+     "A_req_mm2": 12.94,
+     "lift_req_mm": 3.427,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "25C": {
+     "P1_Pa": 3163000.0,
+     "dP_inj_Pa": 663000.0,
+     "A_req_mm2": 11.11,
+     "lift_req_mm": 2.855,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    }
+   }
+  },
+  "E1_top_entry_7mm": {
+   "note": "example compliant layout A (Combustion proposal, Mechanical to judge): 7 mm case hole clocked to a 7 mm radial drilling, internal axial 7 mm drilling (~60 mm) up the head to a 7 mm cross-drilling at the TOP of the bore (v3.3 entry level): v3.3 hydraulics, no dead leg, transfer groove minimal",
+   "0p26_25C": {
+    "inlet_dp_Pa": 139400.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 7 mm case hole",
+      "A_mm2": 38.48,
+      "v_m_s": 9.094,
+      "q_kPa": 30.72,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 33.79
+     },
+     {
+      "name": "transfer + 90 deg into the axial drilling",
+      "A_mm2": 38.48,
+      "v_m_s": 9.094,
+      "q_kPa": 30.72,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 33.79
+     },
+     {
+      "name": "axial + radial drillings friction (60 + 17 mm)",
+      "A_mm2": 38.48,
+      "v_m_s": 9.094,
+      "q_kPa": 30.72,
+      "K": 0.0,
+      "K_fric": 0.239,
+      "dp_kPa": 7.342
+     },
+     {
+      "name": "90 deg into the cross-drilling",
+      "A_mm2": 38.48,
+      "v_m_s": 9.094,
+      "q_kPa": 30.72,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 33.79
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 38.48,
+      "v_m_s": 9.094,
+      "q_kPa": 30.72,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 30.72
+     }
+    ],
+    "rest_of_line_Pa": 135100.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8860.0,
+     "minor_K2p4_on_hose_q": 45450.0,
+     "fixed_line_0p245m_plus_2_bends": 21800.0,
+     "riser_0p07m_plus_S_bend": 8861.0,
+     "valve_Cv3": 17530.0,
+     "filter_Cv2p2": 32600.0
+    },
+    "total_line_Pa": 274500.0,
+    "budget_Pa": 270400.0,
+    "within_budget": false,
+    "P_manifold_Pa": 5377000.0,
+    "below_Psat_Pa": 274500.0,
+    "flash_quality_eq": 0.0433,
+    "void_fraction_eq": 0.1656
+   },
+   "0p241_20C": {
+    "inlet_dp_Pa": 113400.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 7 mm case hole",
+      "A_mm2": 38.48,
+      "v_m_s": 7.976,
+      "q_kPa": 24.97,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 27.47
+     },
+     {
+      "name": "transfer + 90 deg into the axial drilling",
+      "A_mm2": 38.48,
+      "v_m_s": 7.976,
+      "q_kPa": 24.97,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 27.47
+     },
+     {
+      "name": "axial + radial drillings friction (60 + 17 mm)",
+      "A_mm2": 38.48,
+      "v_m_s": 7.976,
+      "q_kPa": 24.97,
+      "K": 0.0,
+      "K_fric": 0.2395,
+      "dp_kPa": 5.98
+     },
+     {
+      "name": "90 deg into the cross-drilling",
+      "A_mm2": 38.48,
+      "v_m_s": 7.976,
+      "q_kPa": 24.97,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 27.47
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 38.48,
+      "v_m_s": 7.976,
+      "q_kPa": 24.97,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 24.97
+     }
+    ],
+    "rest_of_line_Pa": 110000.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 7284.0,
+     "minor_K2p4_on_hose_q": 36950.0,
+     "fixed_line_0p245m_plus_2_bends": 17810.0,
+     "riser_0p07m_plus_S_bend": 7228.0,
+     "valve_Cv3": 14250.0,
+     "filter_Cv2p2": 26500.0
+    },
+    "total_line_Pa": 223400.0,
+    "budget_Pa": 232300.0,
+    "within_budget": true,
+    "P_manifold_Pa": 4829000.0,
+    "below_Psat_Pa": 223400.0,
+    "flash_quality_eq": 0.03059,
+    "void_fraction_eq": 0.1458
+   },
+   "0p26_15C": {
+    "inlet_dp_Pa": 126200.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 7 mm case hole",
+      "A_mm2": 38.48,
+      "v_m_s": 8.232,
+      "q_kPa": 27.81,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 30.59
+     },
+     {
+      "name": "transfer + 90 deg into the axial drilling",
+      "A_mm2": 38.48,
+      "v_m_s": 8.232,
+      "q_kPa": 27.81,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 30.59
+     },
+     {
+      "name": "axial + radial drillings friction (60 + 17 mm)",
+      "A_mm2": 38.48,
+      "v_m_s": 8.232,
+      "q_kPa": 27.81,
+      "K": 0.0,
+      "K_fric": 0.2395,
+      "dp_kPa": 6.659
+     },
+     {
+      "name": "90 deg into the cross-drilling",
+      "A_mm2": 38.48,
+      "v_m_s": 8.232,
+      "q_kPa": 27.81,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 30.59
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 38.48,
+      "v_m_s": 8.232,
+      "q_kPa": 27.81,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 27.81
+     }
+    ],
+    "rest_of_line_Pa": 122500.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8114.0,
+     "minor_K2p4_on_hose_q": 41140.0,
+     "fixed_line_0p245m_plus_2_bends": 19830.0,
+     "riser_0p07m_plus_S_bend": 8049.0,
+     "valve_Cv3": 15870.0,
+     "filter_Cv2p2": 29510.0
+    },
+    "total_line_Pa": 248700.0,
+    "budget_Pa": 270400.0,
+    "within_budget": true,
+    "P_manifold_Pa": 4255000.0,
+    "below_Psat_Pa": 248700.0,
+    "flash_quality_eq": 0.03107,
+    "void_fraction_eq": 0.1774
+   },
+   "pintle_at_100pct": {
+    "15C": {
+     "P1_Pa": 4290000.0,
+     "dP_inj_Pa": 1790000.0,
+     "A_req_mm2": 8.526,
+     "lift_req_mm": 2.109,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "20C": {
+     "P1_Pa": 4829000.0,
+     "dP_inj_Pa": 2329000.0,
+     "A_req_mm2": 7.747,
+     "lift_req_mm": 1.896,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "25C": {
+     "P1_Pa": 5416000.0,
+     "dP_inj_Pa": 2916000.0,
+     "A_req_mm2": 7.174,
+     "lift_req_mm": 1.742,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    }
+   }
+  },
+  "E2_low_4feeds_4p5mm": {
+   "note": "example compliant layout B: 8 mm case hole, annulus 2.5 x 7 mm (17.5 mm2), 4 radial feeds 4.5 mm at 45/135/225/315 deg from the hole, PLUS a dead-leg filler sleeve above the entry (volume above the entry <= 0.8 cm3)",
+   "0p26_25C": {
+    "inlet_dp_Pa": 86460.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 8 mm case hole",
+      "A_mm2": 50.27,
+      "v_m_s": 6.962,
+      "q_kPa": 18.01,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 19.81
+     },
+     {
+      "name": "annulus >= 17.5 mm2, half flow each way to the 45 deg feeds (21.9 mm)",
+      "A_mm2": 17.5,
+      "v_m_s": 9.999,
+      "q_kPa": 37.14,
+      "K": 1.0,
+      "K_fric": 0.153,
+      "dp_kPa": 42.82
+     },
+     {
+      "name": "branch into a 4.5 mm feed",
+      "A_mm2": 15.9,
+      "v_m_s": 5.501,
+      "q_kPa": 11.24,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 11.24
+     },
+     {
+      "name": "feed friction (22 mm)",
+      "A_mm2": 15.9,
+      "v_m_s": 5.501,
+      "q_kPa": 11.24,
+      "K": 0.0,
+      "K_fric": 0.1201,
+      "dp_kPa": 1.35
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 15.9,
+      "v_m_s": 5.501,
+      "q_kPa": 11.24,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 11.24
+     }
+    ],
+    "rest_of_line_Pa": 135100.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8860.0,
+     "minor_K2p4_on_hose_q": 45450.0,
+     "fixed_line_0p245m_plus_2_bends": 21800.0,
+     "riser_0p07m_plus_S_bend": 8861.0,
+     "valve_Cv3": 17530.0,
+     "filter_Cv2p2": 32600.0
+    },
+    "total_line_Pa": 221600.0,
+    "budget_Pa": 270400.0,
+    "within_budget": true,
+    "P_manifold_Pa": 5430000.0,
+    "below_Psat_Pa": 221600.0,
+    "flash_quality_eq": 0.03546,
+    "void_fraction_eq": 0.1364
+   },
+   "0p241_20C": {
+    "inlet_dp_Pa": 70310.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 8 mm case hole",
+      "A_mm2": 50.27,
+      "v_m_s": 6.107,
+      "q_kPa": 14.64,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 16.1
+     },
+     {
+      "name": "annulus >= 17.5 mm2, half flow each way to the 45 deg feeds (21.9 mm)",
+      "A_mm2": 17.5,
+      "v_m_s": 8.77,
+      "q_kPa": 30.2,
+      "K": 1.0,
+      "K_fric": 0.1533,
+      "dp_kPa": 34.82
+     },
+     {
+      "name": "branch into a 4.5 mm feed",
+      "A_mm2": 15.9,
+      "v_m_s": 4.825,
+      "q_kPa": 9.14,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 9.14
+     },
+     {
+      "name": "feed friction (22 mm)",
+      "A_mm2": 15.9,
+      "v_m_s": 4.825,
+      "q_kPa": 9.14,
+      "K": 0.0,
+      "K_fric": 0.1204,
+      "dp_kPa": 1.101
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 15.9,
+      "v_m_s": 4.825,
+      "q_kPa": 9.14,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 9.14
+     }
+    ],
+    "rest_of_line_Pa": 110000.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 7284.0,
+     "minor_K2p4_on_hose_q": 36950.0,
+     "fixed_line_0p245m_plus_2_bends": 17810.0,
+     "riser_0p07m_plus_S_bend": 7228.0,
+     "valve_Cv3": 14250.0,
+     "filter_Cv2p2": 26500.0
+    },
+    "total_line_Pa": 180300.0,
+    "budget_Pa": 232300.0,
+    "within_budget": true,
+    "P_manifold_Pa": 4872000.0,
+    "below_Psat_Pa": 180300.0,
+    "flash_quality_eq": 0.0249,
+    "void_fraction_eq": 0.1196
+   },
+   "0p26_15C": {
+    "inlet_dp_Pa": 78280.0,
+    "sections": [
+     {
+      "name": "90 deg turn into the 8 mm case hole",
+      "A_mm2": 50.27,
+      "v_m_s": 6.303,
+      "q_kPa": 16.3,
+      "K": 1.1,
+      "K_fric": 0.0,
+      "dp_kPa": 17.93
+     },
+     {
+      "name": "annulus >= 17.5 mm2, half flow each way to the 45 deg feeds (21.9 mm)",
+      "A_mm2": 17.5,
+      "v_m_s": 9.051,
+      "q_kPa": 33.62,
+      "K": 1.0,
+      "K_fric": 0.1533,
+      "dp_kPa": 38.77
+     },
+     {
+      "name": "branch into a 4.5 mm feed",
+      "A_mm2": 15.9,
+      "v_m_s": 4.98,
+      "q_kPa": 10.18,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 10.18
+     },
+     {
+      "name": "feed friction (22 mm)",
+      "A_mm2": 15.9,
+      "v_m_s": 4.98,
+      "q_kPa": 10.18,
+      "K": 0.0,
+      "K_fric": 0.1205,
+      "dp_kPa": 1.226
+     },
+     {
+      "name": "exit into the 10 mm bore",
+      "A_mm2": 15.9,
+      "v_m_s": 4.98,
+      "q_kPa": 10.18,
+      "K": 1.0,
+      "K_fric": 0.0,
+      "dp_kPa": 10.18
+     }
+    ],
+    "rest_of_line_Pa": 122500.0,
+    "rest_items_Pa": {
+     "hose_friction_0p252m": 8114.0,
+     "minor_K2p4_on_hose_q": 41140.0,
+     "fixed_line_0p245m_plus_2_bends": 19830.0,
+     "riser_0p07m_plus_S_bend": 8049.0,
+     "valve_Cv3": 15870.0,
+     "filter_Cv2p2": 29510.0
+    },
+    "total_line_Pa": 200800.0,
+    "budget_Pa": 270400.0,
+    "within_budget": true,
+    "P_manifold_Pa": 4303000.0,
+    "below_Psat_Pa": 200800.0,
+    "flash_quality_eq": 0.02526,
+    "void_fraction_eq": 0.1461
+   },
+   "pintle_at_100pct": {
+    "15C": {
+     "P1_Pa": 4331000.0,
+     "dP_inj_Pa": 1831000.0,
+     "A_req_mm2": 8.446,
+     "lift_req_mm": 2.087,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "20C": {
+     "P1_Pa": 4872000.0,
+     "dP_inj_Pa": 2372000.0,
+     "A_req_mm2": 7.687,
+     "lift_req_mm": 1.88,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    },
+    "25C": {
+     "P1_Pa": 5461000.0,
+     "dP_inj_Pa": 2961000.0,
+     "A_req_mm2": 7.127,
+     "lift_req_mm": 1.73,
+     "A_stop_4p2mm_mm2": 15.2,
+     "feasible": true,
+     "note": "Dyer with metastable-liquid inlet = OPTIMISTIC when the manifold is below Psat (equilibrium flash ignored)"
+    }
+   }
+  }
+ },
+ "2_distribution_side_load": {
+  "rows": [
+   {
+    "frac": "design_max_0p26",
+    "Pc_Pa": 2501000.0,
+    "dP_inj_Pa": 2318000.0,
+    "mdot_ox": 0.26,
+    "lift_mm": 2.054,
+    "seat_gap_um": 531.6,
+    "flux_first_harmonic_per_um_offset_pct": 0.1817,
+    "as_drawn_1x3mm": {
+     "v_m_s": 46.85,
+     "q_over_dPinj": 0.3716,
+     "flux_asym_bound_pct": 18.58,
+     "lateral_jet_N": 12.18
+    },
+    "v33_1x6mm": {
+     "v_m_s": 11.71,
+     "q_over_dPinj": 0.02323,
+     "flux_asym_bound_pct": 1.161,
+     "lateral_jet_N": 3.045
+    },
+    "E1_1x7mm_top": {
+     "v_m_s": 8.605,
+     "q_over_dPinj": 0.01254,
+     "flux_asym_bound_pct": 0.6269,
+     "lateral_jet_N": 2.237
+    },
+    "single_10mps_1x6p7mm": {
+     "v_m_s": 9.393,
+     "q_over_dPinj": 0.01494,
+     "flux_asym_bound_pct": 0.7469,
+     "lateral_jet_N": 2.442
+    },
+    "E2_4x4p5mm": {
+     "v_m_s": 5.206,
+     "q_over_dPinj": 0.004588,
+     "flux_asym_bound_pct": 0.2294,
+     "lateral_jet_N": 0.1353
+    }
+   },
+   {
+    "frac": 1.0,
+    "Pc_Pa": 2501000.0,
+    "dP_inj_Pa": 2318000.0,
+    "mdot_ox": 0.2266,
+    "lift_mm": 1.765,
+    "seat_gap_um": 456.7,
+    "flux_first_harmonic_per_um_offset_pct": 0.2115,
+    "as_drawn_1x3mm": {
+     "v_m_s": 40.83,
+     "q_over_dPinj": 0.2823,
+     "flux_asym_bound_pct": 14.12,
+     "lateral_jet_N": 9.253
+    },
+    "v33_1x6mm": {
+     "v_m_s": 10.21,
+     "q_over_dPinj": 0.01764,
+     "flux_asym_bound_pct": 0.8822,
+     "lateral_jet_N": 2.313
+    },
+    "E1_1x7mm_top": {
+     "v_m_s": 7.5,
+     "q_over_dPinj": 0.009524,
+     "flux_asym_bound_pct": 0.4762,
+     "lateral_jet_N": 1.7
+    },
+    "single_10mps_1x6p7mm": {
+     "v_m_s": 8.187,
+     "q_over_dPinj": 0.01135,
+     "flux_asym_bound_pct": 0.5674,
+     "lateral_jet_N": 1.855
+    },
+    "E2_4x4p5mm": {
+     "v_m_s": 4.537,
+     "q_over_dPinj": 0.003485,
+     "flux_asym_bound_pct": 0.1743,
+     "lateral_jet_N": 0.1028
+    }
+   },
+   {
+    "frac": 0.75,
+    "Pc_Pa": 1910000.0,
+    "dP_inj_Pa": 3012000.0,
+    "mdot_ox": 0.1685,
+    "lift_mm": 1.164,
+    "seat_gap_um": 301.1,
+    "flux_first_harmonic_per_um_offset_pct": 0.3208,
+    "as_drawn_1x3mm": {
+     "v_m_s": 30.37,
+     "q_over_dPinj": 0.1202,
+     "flux_asym_bound_pct": 6.01,
+     "lateral_jet_N": 5.119
+    },
+    "v33_1x6mm": {
+     "v_m_s": 7.592,
+     "q_over_dPinj": 0.007513,
+     "flux_asym_bound_pct": 0.3756,
+     "lateral_jet_N": 1.28
+    },
+    "E1_1x7mm_top": {
+     "v_m_s": 5.578,
+     "q_over_dPinj": 0.004055,
+     "flux_asym_bound_pct": 0.2028,
+     "lateral_jet_N": 0.9401
+    },
+    "single_10mps_1x6p7mm": {
+     "v_m_s": 6.089,
+     "q_over_dPinj": 0.004832,
+     "flux_asym_bound_pct": 0.2416,
+     "lateral_jet_N": 1.026
+    },
+    "E2_4x4p5mm": {
+     "v_m_s": 3.374,
+     "q_over_dPinj": 0.001484,
+     "flux_asym_bound_pct": 0.0742,
+     "lateral_jet_N": 0.05687
+    }
+   },
+   {
+    "frac": 0.5,
+    "Pc_Pa": 1320000.0,
+    "dP_inj_Pa": 3673000.0,
+    "mdot_ox": 0.113,
+    "lift_mm": 0.7111,
+    "seat_gap_um": 184.1,
+    "flux_first_harmonic_per_um_offset_pct": 0.5248,
+    "as_drawn_1x3mm": {
+     "v_m_s": 20.37,
+     "q_over_dPinj": 0.04434,
+     "flux_asym_bound_pct": 2.217,
+     "lateral_jet_N": 2.302
+    },
+    "v33_1x6mm": {
+     "v_m_s": 5.092,
+     "q_over_dPinj": 0.002771,
+     "flux_asym_bound_pct": 0.1386,
+     "lateral_jet_N": 0.5756
+    },
+    "E1_1x7mm_top": {
+     "v_m_s": 3.741,
+     "q_over_dPinj": 0.001496,
+     "flux_asym_bound_pct": 0.07479,
+     "lateral_jet_N": 0.4229
+    },
+    "single_10mps_1x6p7mm": {
+     "v_m_s": 4.084,
+     "q_over_dPinj": 0.001782,
+     "flux_asym_bound_pct": 0.08911,
+     "lateral_jet_N": 0.4616
+    },
+    "E2_4x4p5mm": {
+     "v_m_s": 2.263,
+     "q_over_dPinj": 0.0005474,
+     "flux_asym_bound_pct": 0.02737,
+     "lateral_jet_N": 0.02558
+    }
+   },
+   {
+    "frac": 0.25,
+    "Pc_Pa": 733400.0,
+    "dP_inj_Pa": 4301000.0,
+    "mdot_ox": 0.06133,
+    "lift_mm": 0.358,
+    "seat_gap_um": 92.66,
+    "flux_first_harmonic_per_um_offset_pct": 1.042,
+    "as_drawn_1x3mm": {
+     "v_m_s": 11.05,
+     "q_over_dPinj": 0.01115,
+     "flux_asym_bound_pct": 0.5574,
+     "lateral_jet_N": 0.6778
+    },
+    "v33_1x6mm": {
+     "v_m_s": 2.763,
+     "q_over_dPinj": 0.0006967,
+     "flux_asym_bound_pct": 0.03484,
+     "lateral_jet_N": 0.1695
+    },
+    "E1_1x7mm_top": {
+     "v_m_s": 2.03,
+     "q_over_dPinj": 0.0003761,
+     "flux_asym_bound_pct": 0.0188,
+     "lateral_jet_N": 0.1245
+    },
+    "single_10mps_1x6p7mm": {
+     "v_m_s": 2.216,
+     "q_over_dPinj": 0.0004481,
+     "flux_asym_bound_pct": 0.0224,
+     "lateral_jet_N": 0.1359
+    },
+    "E2_4x4p5mm": {
+     "v_m_s": 1.228,
+     "q_over_dPinj": 0.0001376,
+     "flux_asym_bound_pct": 0.006881,
+     "lateral_jet_N": 0.007531
+    }
+   },
+   {
+    "frac": 0.2,
+    "Pc_Pa": 616200.0,
+    "dP_inj_Pa": 4423000.0,
+    "mdot_ox": 0.05147,
+    "lift_mm": 0.2964,
+    "seat_gap_um": 76.72,
+    "flux_first_harmonic_per_um_offset_pct": 1.259,
+    "as_drawn_1x3mm": {
+     "v_m_s": 9.274,
+     "q_over_dPinj": 0.007634,
+     "flux_asym_bound_pct": 0.3817,
+     "lateral_jet_N": 0.4773
+    },
+    "v33_1x6mm": {
+     "v_m_s": 2.319,
+     "q_over_dPinj": 0.0004771,
+     "flux_asym_bound_pct": 0.02385,
+     "lateral_jet_N": 0.1193
+    },
+    "E1_1x7mm_top": {
+     "v_m_s": 1.703,
+     "q_over_dPinj": 0.0002575,
+     "flux_asym_bound_pct": 0.01288,
+     "lateral_jet_N": 0.08767
+    },
+    "single_10mps_1x6p7mm": {
+     "v_m_s": 1.859,
+     "q_over_dPinj": 0.0003068,
+     "flux_asym_bound_pct": 0.01534,
+     "lateral_jet_N": 0.0957
+    },
+    "E2_4x4p5mm": {
+     "v_m_s": 1.03,
+     "q_over_dPinj": 9.424e-05,
+     "flux_asym_bound_pct": 0.004712,
+     "lateral_jet_N": 0.005304
+    }
+   },
+   {
+    "frac": 0.125,
+    "Pc_Pa": 437000.0,
+    "dP_inj_Pa": 4608000.0,
+    "mdot_ox": 0.03633,
+    "lift_mm": 0.2051,
+    "seat_gap_um": 53.1,
+    "flux_first_harmonic_per_um_offset_pct": 1.819,
+    "as_drawn_1x3mm": {
+     "v_m_s": 6.546,
+     "q_over_dPinj": 0.003651,
+     "flux_asym_bound_pct": 0.1825,
+     "lateral_jet_N": 0.2378
+    },
+    "v33_1x6mm": {
+     "v_m_s": 1.636,
+     "q_over_dPinj": 0.0002282,
+     "flux_asym_bound_pct": 0.01141,
+     "lateral_jet_N": 0.05945
+    },
+    "E1_1x7mm_top": {
+     "v_m_s": 1.202,
+     "q_over_dPinj": 0.0001232,
+     "flux_asym_bound_pct": 0.006158,
+     "lateral_jet_N": 0.04368
+    },
+    "single_10mps_1x6p7mm": {
+     "v_m_s": 1.312,
+     "q_over_dPinj": 0.0001467,
+     "flux_asym_bound_pct": 0.007337,
+     "lateral_jet_N": 0.04768
+    },
+    "E2_4x4p5mm": {
+     "v_m_s": 0.7273,
+     "q_over_dPinj": 4.507e-05,
+     "flux_asym_bound_pct": 0.002253,
+     "lateral_jet_N": 0.002642
+    }
+   }
+  ],
+  "guide_lever": {
+   "low_entry": {
+    "arm_to_guide_mm": 75.53,
+    "support_spacing_mm": 7.0,
+    "friction_per_N_side_load": 4.516
+   },
+   "v33_entry": {
+    "arm_to_guide_mm": 16.0,
+    "support_spacing_mm": 7.0,
+    "friction_per_N_side_load": 1.114
+   }
+  },
+  "notes": [
+   "q = feed velocity head (20 C liquid); flux bound 0.5 q/dP_inj assumes the whole feed head appears as a circumferential pressure variation at the seat (upper bound; decay over the 13-17 mm to the seat not credited)",
+   "lateral jet = mdot v (full momentum transfer onto the needle body, upper bound); 4 feeds: opposite pair +/-10 % (ASSUMED imbalance) -> 0.4 x one feed",
+   "guide lever: two supports (TC-11 bushing, carriage pin) 7 mm apart on CAD v3.3 stations; friction = mu (R1 + R2), mu 0.2 (S3 baseline); v3.4 guide layout may differ (Mechanical)",
+   "needle lateral offset e changes the local seat gap by e cos(15 deg); the mean gap (total flow) is unchanged to first order"
+  ]
+ },
+ "3_volumes": {
+  "manifold_mech_estimate_cm3": {
+   "v": 4.51,
+   "tag": "ESTIMATE (Mechanical O3b)"
+  },
+  "bore_annulus_cad_v33_cm3": {
+   "v": 4.53,
+   "tag": "DERIVED",
+   "src": "10 mm bore 124.59-204.59 mm around the 6 mm body / 3 mm stem; Mechanical 3.3 cm3 matches the v3.2 52 mm wetted bore -> Mechanical to measure the v3.4 solid"
+  },
+  "dead_leg_above_entry_cm3": {
+   "low_entry_3mm": 4.129,
+   "low_entry_4p5mm": 4.092,
+   "v33_cross_6mm": 0.7862,
+   "tag": "DERIVED (CAD v3.3 stations)"
+  },
+  "valve_to_seat_cm3": {
+   "valve_at_coil_fixed_end": 21.42,
+   "valve_at_zone_top": 32.96,
+   "ref_v2_feed_line_checks": 17.04,
+   "ref_O1_0p40m": 23.91,
+   "items_cm3": {
+    "hose": 12.35,
+    "riser": 3.3,
+    "block": 0.2545,
+    "fittings": 1.0,
+    "manifold": 4.51,
+    "fixed_line": 11.55
+   },
+   "tag": "DERIVED from Mechanical O3b/O3_coils + ASSUMED fittings; fixed line ESTIMATE"
+  },
+  "trapped_liquid": {
+   "15C": {
+    "mass_g_valve_at_coil": 17.58,
+    "mass_g_valve_at_top": 27.05,
+    "dPdT_isochoric_bar_K": 5.335,
+    "dT_liquid_full_to_7p5MPa_K": 5.595
+   },
+   "20C": {
+    "mass_g_valve_at_coil": 16.81,
+    "mass_g_valve_at_top": 25.88,
+    "dPdT_isochoric_bar_K": 4.707,
+    "dT_liquid_full_to_7p5MPa_K": 5.175
+   },
+   "25C": {
+    "mass_g_valve_at_coil": 15.91,
+    "mass_g_valve_at_top": 24.49,
+    "dPdT_isochoric_bar_K": 4.047,
+    "dT_liquid_full_to_7p5MPa_K": 4.541
+   }
+  },
+  "head_thermal_v2": {
+   "T_crit_K": 309.5,
+   "T_head_max_in_flight_K": [
+    311.0,
+    747.3
+   ],
+   "T_head_at_relight_K": [
+    305.4,
+    477.7
+   ],
+   "T_case_fwd_at_relight_K": [
+    358.8,
+    547.9
+   ],
+   "src": "headend_thermal_v2.json (gnc v2 duty cycles, all variants), SIM"
+  },
+  "n2o_side_cooling_basis": "headend_thermal_v2 credits forced N2O cooling over a 52 mm wetted bore; a low entry leaves ~7-10 mm of flowing bore below the entry: the dead leg is stagnant (not covered by that model)"
+ },
+ "4_priming": {
+  "bleed_area_0p10mm_mm2": 0.4452,
+  "Q_crit_N2_293K_cm3_s": 62.94,
+  "Q_crit_N2O_vap_293K_cm3_s": 48.7,
+  "vent_time_constant_s": {
+   "ref_v2": {
+    "N2": 0.2708,
+    "N2O_vapour": 0.35
+   },
+   "ref_O1": {
+    "N2": 0.3798,
+    "N2O_vapour": 0.4909
+   },
+   "O3b_valve_at_coil": {
+    "N2": 0.3403,
+    "N2O_vapour": 0.4397
+   },
+   "O3b_valve_at_top": {
+    "N2": 0.5237,
+    "N2O_vapour": 0.6769
+   }
+  },
+  "liquid_flow_through_bleed_g_s": 27.48,
+  "isentropic_bound": {
+   "v": "N2 847-913 K, N2O vapour 614-646 K at 45-60 bar: volume-independent",
+   "tag": "DERIVED",
+   "src": "feed_line_checks_v2.json"
+  },
+  "note": "any valve inflow above Q_crit compresses the line gas whatever the volume (Q_crit ~ Cd A_bleed c*, volume-independent); a larger volume lengthens the compression (more wall heat loss) but carries more hot gas to the manifold end; a DEAD LEG above the feed entry is never vented by the bleed: its gas is compressed dead-ended (rule premise fails)"
+ },
+ "5_relight_purge": {
+  "states": {
+   "sat_vapour_20C": {
+    "P1_Pa": 5053000.0,
+    "rho1": 158.0,
+    "G_choked_kg_m2s": 16980.0,
+    "ign_lift_12p5pct": {
+     "lift_mm": 0.2051,
+     "A_mm2": 0.9089,
+     "Q_cm3_s": 68.39,
+     "purge_s": {
+      "ref_v2": 0.2492,
+      "ref_O1": 0.3496,
+      "O3b_valve_at_coil": 0.3131,
+      "O3b_valve_at_top": 0.482
+     }
+    },
+    "ign_lift_20pct": {
+     "lift_mm": 0.2964,
+     "A_mm2": 1.308,
+     "Q_cm3_s": 98.41,
+     "purge_s": {
+      "ref_v2": 0.1732,
+      "ref_O1": 0.2429,
+      "O3b_valve_at_coil": 0.2176,
+      "O3b_valve_at_top": 0.335
+     }
+    }
+   },
+   "supercritical_7p5MPa_330K": {
+    "P1_Pa": 7500000.0,
+    "rho1": 192.5,
+    "G_choked_kg_m2s": 24990.0,
+    "ign_lift_12p5pct": {
+     "lift_mm": 0.2051,
+     "A_mm2": 0.9089,
+     "Q_cm3_s": 82.6,
+     "purge_s": {
+      "ref_v2": 0.2064,
+      "ref_O1": 0.2894,
+      "O3b_valve_at_coil": 0.2593,
+      "O3b_valve_at_top": 0.3991
+     }
+    },
+    "ign_lift_20pct": {
+     "lift_mm": 0.2964,
+     "A_mm2": 1.308,
+     "Q_cm3_s": 118.9,
+     "purge_s": {
+      "ref_v2": 0.1434,
+      "ref_O1": 0.2011,
+      "O3b_valve_at_coil": 0.1802,
+      "O3b_valve_at_top": 0.2774
+     }
+    }
+   },
+   "supercritical_7p5MPa_360K": {
+    "P1_Pa": 7500000.0,
+    "rho1": 146.0,
+    "G_choked_kg_m2s": 21790.0,
+    "ign_lift_12p5pct": {
+     "lift_mm": 0.2051,
+     "A_mm2": 0.9089,
+     "Q_cm3_s": 94.99,
+     "purge_s": {
+      "ref_v2": 0.1794,
+      "ref_O1": 0.2517,
+      "O3b_valve_at_coil": 0.2255,
+      "O3b_valve_at_top": 0.347
+     }
+    },
+    "ign_lift_20pct": {
+     "lift_mm": 0.2964,
+     "A_mm2": 1.308,
+     "Q_cm3_s": 136.7,
+     "purge_s": {
+      "ref_v2": 0.1247,
+      "ref_O1": 0.1749,
+      "O3b_valve_at_coil": 0.1567,
+      "O3b_valve_at_top": 0.2412
+     }
+    }
+   }
+  },
+  "window_s": {
+   "v": 0.23,
+   "tag": "REQ/DERIVED",
+   "src": "combustion.json v2.3 igniter.sequence: ignition lift t 0.12 s, ignition check t 0.35 s"
+  },
+  "note": "upper bound of the purge time if the whole valve->seat volume is vapour/supercritical at relight (valve closed in coasts, block on the hot case, riser 3 mm from the pre-chamber case). Pre-existing gap: the v2 reference volume already exceeds the window if fully vapour."
+ },
+ "6_chug_feed": {
+  "rows": {
+   "liquid_4p5cm3": {
+    "C_kg_per_Pa": 2.821e-11,
+    "tau_RC_ms": 0.5773,
+    "f_feed_Hz_as_drawn": 221.7,
+    "f_feed_Hz_E1_top_entry": 229.8
+   },
+   "liquid_5p8cm3": {
+    "C_kg_per_Pa": 3.636e-11,
+    "tau_RC_ms": 0.7441,
+    "f_feed_Hz_as_drawn": 195.3,
+    "f_feed_Hz_E1_top_entry": 202.4
+   },
+   "liquid_4p5_plus_vapour_dead_leg_4p1cm3": {
+    "C_kg_per_Pa": 1.069e-10,
+    "tau_RC_ms": 2.187,
+    "f_feed_Hz_as_drawn": 113.9,
+    "f_feed_Hz_E1_top_entry": 118.0
+   },
+   "liquid_4p5_plus_vapour_1cm3": {
+    "C_kg_per_Pa": 4.74e-11,
+    "tau_RC_ms": 0.97,
+    "f_feed_Hz_as_drawn": 171.1,
+    "f_feed_Hz_E1_top_entry": 177.3
+   }
+  },
+  "theta_g_ms": 3.374,
+  "GM_100pct_tau1_10ms": [
+   21.8,
+   4.749
+  ],
+  "dtl_band_Hz": [
+   37.38,
+   114.3
+  ],
+  "R_inj_Pa_s_per_kg": 20460000.0,
+  "notes": [
+   "double-time-lag chug model (stability_v2) has no feed dynamics: margins unchanged only for a liquid-full manifold",
+   "vapour compliance uses the single-phase isentropic sound speed of saturated vapour (LOWER bound on compliance; condensation/evaporation make it larger)",
+   "inertance tank->manifold: tank-valve 0.15 m ASSUMED, fixed line, hose, riser, inlet passage; feed mode f = 1/(2 pi sqrt(I C)), lumped (indicative only)",
+   "dtl_band = 1/(2(theta_g + tau)) for tau 1-10 ms (indicative)"
+  ]
+ },
+ "verdict": {
+  "overall": "ACCEPT WITH CONDITIONS the low inlet ROUTING (block on the case OD at the head plug); REJECT the internal flow path as drawn",
+  "reject_reasons": [
+   "single 3 mm passage: 49.5 m/s at 0.26 kg/s, 25 C; inlet path 16.8-18.7 bar (4-5 mm case hole, aligned; 11.0 bar from the passage friction + exit alone; 27.6 bar if 180 deg out of clock) vs 2.70 bar for the WHOLE line",
+   "manifold 18.2-20.1 bar below Psat at 25 C: equilibrium flash quality 0.21-0.23 (void 68-72 %) upstream of the metering seat; 100 % lift (Dyer, optimistic) 2.24-3.34 mm vs 1.74-2.11 mm (v3.3 path)",
+   "single jet on the needle body: 12.2 N at 0.26 kg/s (9.3 N at 100 %), 76 mm below the guide -> ~55 N guide friction (ESTIMATE, mu 0.2); feed head / injector dP 37 % -> first-harmonic flux asymmetry up to 19 %",
+   "low entry leaves 4.1 cm3 of the 10 mm bore as a dead leg above it (v3.3 0.8 cm3); head wall in flight 311-747 K > T_crit 309.5 K -> vapour pocket; bleed cannot vent it (priming dead end)"
+  ],
+  "conditions": [
+   "C1 every flow section >= 35 mm2 (<= 10 m/s at 0.26 kg/s, 25 C); inlet path <= v3.3 (1.28 bar at 0.26 kg/s, 15 C), target <= 1.0 bar; line total at 15 C <= 2.70 bar (v3.3 2.51, example E1 2.49, E2 2.01)",
+   "C2 flow-through manifold: entry at the TOP of the bore (v3.3 hydraulics, example E1) or <= 0.8 cm3 above a low entry (filler sleeve)",
+   "C3 a low entry needs >= 4 equal feeds (example E2: net lateral jet 0.14 N, flux bound 0.23 %) and an annulus >= 17.5 mm2; a single path needs the case hole clocked to the passage (pin)",
+   "C4 no single seal between the N2O annulus and chamber gas: two seals + an overboard-vented interspace (reject the +3 mm variant)",
+   "C5 the <= 15 um / Cv >= 2.2 filter (OI-7) goes downstream of the hose and the riser weld (bonnet screen seat deleted)",
+   "C6 relief <= 7.5 MPa covers the valve->seat volume (liquid-full: relief after 4.5-5.6 K of warming); block isolated from the case, riser shielded (Mechanical G5)",
+   "C7 relight with a vapour-filled line: purge at the 12.5 % ignition lift 0.31 s (valve at the coil end) / 0.48 s (valve at the zone top) vs the 0.23 s window (v2 basis 0.25 s, pre-existing) -> sequence owners add a pre-purge or a T-gated check"
+  ],
+  "unchanged": [
+   "ENG-05 tail-off and dribble: all added volume is upstream of the metering seat (shutdown: pintle first, valve after seating)",
+   "priming rule kept for a flow-through manifold: isentropic bound volume-independent; bleed vents 63 cm3/s N2 whatever the volume",
+   "chug (DTL) margins for a liquid-full manifold: R*C 0.58 ms << theta_g 3.4 ms; with the vapour dead leg 2.2 ms and the feed mode 222 -> 114 Hz (not in the DTL model)"
+  ],
+  "verification": [
+   "CF-3: line loss with a test-only manifold tap, spray symmetry at 100/25/12.5 % (high-speed imaging), thermocouple at the bore top during priming, P_feed and Pc >= 1 kHz",
+   "B-PNT-1: needle friction under flow",
+   "T1: thrust misalignment"
+  ],
+  "pre_existing_findings_kept_as_evidence": [
+   "v2 line estimate allotted K 1.0 on the hose head to the bonnet inlet; the CAD v3.3 6 mm drillings give 1.42 bar (0.26 kg/s, 25 C) by this K-method: v3.3 line total 2.77 bar at 25 C (> 2.70, non-binding: the ceiling binds at 15 C, total 2.51 bar)",
+   "relight purge of a fully vapour line already exceeded the 0.23 s window on the v2 basis (0.25 s at the 12.5 % lift); not checked in v2.3",
+   "manifold volume: CAD v3.3 primitives give 4.53 cm3 for the 10 mm bore annulus alone (124.59-204.59 mm) vs Mechanical 3.3 cm3 (matches the v3.2 52 mm wetted bore) -> measure the v3.4 solid",
+   "the v3.3 cross-drilling also leaves a 0.8 cm3 dead leg at the stem seal (not flagged before)"
+  ]
+ }
+}

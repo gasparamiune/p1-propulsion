@@ -1,0 +1,2999 @@
+{
+ "id": "combustion",
+ "version": "v2.1",
+ "date": "2026-10-12",
+ "owner": "combustion",
+ "revision_note": "v2.1 (2026-10-12, same day as v2): soak-back wording corrected per lead (240 C is the aluminium lip allowable at 51 MPa; steel judged against its own allowable); lip/case temperatures for the lead's governing cases added (thermal_and_loads.relight_after_coast: TS-1 at relight after the MECO coast with the pressure at that time, TS-2 post-landing soak over 3600 s with times above 150/200/240/300 C); soak-back numbers in the text now read from the data files; gnc.json v2 (published 20:34:31Z, during the first v2.1 write) read: the duty-cycle results apply unchanged (identical F/F_cmd histories), settling recomputed on the v2 cycles, OI-1/2/9/10/11 updated, OI-12 (relight 'purged' wording) and OI-13 (deadband / Pc resolution) added",
+ "status": "SECOND PASS (M2). Quasi-1D port model with an ASSUMED regression law (band x0.6-1.5), two-CV non-equilibrium tank, Dyer pintle model with ASSUMED Cd, CEA (RocketCEA) thermochemistry, Bartz BCs, coupled throat erosion/conduction, 2-D axisymmetric plume CFD. Nothing here is hot-fire validated: the first cold-flow and static-fire tests (REPORT test plan) measure Cd, regression, eta_c*, ignition delay and erosion.",
+ "supersedes": "combustion.json v1 (2026-10-11): v1 numbers for the helical L200 grain are kept in 02-combustion/data/ (v1 files)",
+ "units": "SI (m, kg, s, N, Pa, K, J, W) unless the key says otherwise",
+ "conventions": "x_face = axial distance from the injector face toward the nozzle exit [m]. CAD +Z points forward (nozzle -> injector), so z_CAD = x_exit_face - x_face. Contour CSV radii are gas-side wall radii. Mechanical CAD v3.1: engine aft-most face = insert bottom = exit plane - 3 mm.",
+ "inputs_read": {
+  "ENGINE-BASELINE-v0.json": "v0",
+  "REQUIREMENTS.md": "rev 1 (ENG-02 pintle baseline, 12.5 % stretch) + lead decisions in interfaces/CHANGELOG.md to 2026-10-12",
+  "gnc.json": "v2 2026-10-12 (sha256 7089d7b34808cc31): requirements (floor, t10-90, slew, resolution, deadband, ignition latency, roll threshold, tank), duty cycles v2 (01-systems-gnc/duty_cycles/*_v2.csv); gnc.json v1 cycles kept as the comparison set",
+  "gnc_duty_cycles_v2": "published with gnc.json v2 (hub mtime 2026-10-12 20:34:31Z); the Combustion runs used the 19:15Z working-copy snapshot, whose F_N and F_cmd_N histories are identical (max difference 0 N; 02-combustion/inputs/gnc_v2_published_20261012T2034/MANIFEST.txt)",
+  "mechanical.json": "v1 2026-10-12 (sha256 c7435d16ad567039) + CHANGELOG notes CAD v3.1/v3.2 / hand calcs v2",
+  "electronics.json": "v1 2026-10-11 (sha256 42fe12e15baa6e3e)"
+ },
+ "decisions": {
+  "chamber_MEOP_Pa": {
+   "v": 4500000.0,
+   "tag": "LEAD decision 2026-10-12 (CHANGELOG): basis = pintle full-stroke failure, 30 C tank, Cd 0.8 (data/v2/full_stroke_failure_case_v2.json)"
+  },
+  "proof_pressure_Pa": {
+   "v": 6750000.0,
+   "tag": "LEAD decision 2026-10-12: 1.5 x MEOP; also covers the blocked-nozzle bound (tank pressure, 63.1 bar at 30 C) below yield"
+  },
+  "normal_software_Pc_cap_Pa": {
+   "v": 2500000.0,
+   "tag": "LEAD decision 2026-10-12"
+  },
+  "ecu_overpressure_abort_Pa": {
+   "v": 3000000.0,
+   "tag": "LEAD decision 2026-10-12 (~30 bar, Electronics implements; value approximate until Electronics fixes filter/latency)"
+  },
+  "grain_v2": {
+   "v": "centred straight round port, L 0.230 m (S230)",
+   "tag": "LEAD decision 2026-10-12 (CHANGELOG): removes the helical-port roll-torque source; grain trade data/v2/grain_trade_v2.csv"
+  },
+  "throttle_architecture": {
+   "v": "Servo-driven variable-area pintle (needle-in-seat) at the head end + separate NC main isolation valve upstream (tank side, off-gimbal)",
+   "tag": "LEAD decision 2026-10-11; v2 trade (data/v2/throttle_trade_v2.json) finds no showstopper"
+  },
+  "expansion_ratio": {
+   "v": 2.0,
+   "tag": "DERIVED v2 re-check with S230 (data/v2/nozzle_perf_v2.csv): attached to 15 % thrust, incipient lip separation at 12.5 % (Schmucker eps_sep 1.94; Summerfield attached), side-load bound < 0.01 N; eps 2.5/3.0 separate at <= 15 %/20 % (bounds 3-11 N)"
+  },
+  "fuel": {
+   "v": "ABS (FDM printed, 100 % infill); PETG backup",
+   "tag": "REQ founder/LEAD; ABS card c* within +/-0.3 % across compositions/hf sources (cea_cards.py)"
+  },
+  "igniter": {
+   "v": "spark-ignited N2O/propane torch (baseline kept); arc-ABS kept as a research option for bench tests (would remove the propane system)",
+   "tag": "DERIVED weighted trade data/v2/ignition_v2.json (torch 0.80, arc-ABS 0.675, pyro 0.64, catalytic 0.525)"
+  },
+  "tank_pressurisation": {
+   "v": "Self-pressurised N2O conditioned 15-25 C (heater blanket for cold days, removed at liftoff); N2 supercharge NOT baselined",
+   "tag": "DERIVED data/v2/supercharge_trade_v2.json: N2 pad 60 bar gives +3.4 bar at MECO vs heating to 25 C +4.3 bar; regulated N2 (0.21 L at 300 bar) adds a pressure system for +13 bar"
+  },
+  "N2O_load_and_tank": {
+   "v": {
+    "m_N2O_kg": 2.0018,
+    "V_tank_m3": 0.00317
+   },
+   "tag": "LEAD decision 2026-10-12 (CHANGELOG): 2.00 kg / 3.17 L (85 % fill)"
+  }
+ },
+ "gas_path": {
+  "case": {
+   "material": {
+    "v": "6061-T6 tube",
+    "tag": "mechanical.json v1 (Mechanical owns)"
+   },
+   "OD_m": {
+    "v": 0.0635,
+    "tag": "mechanical.json v1"
+   },
+   "wall_m": {
+    "v": 0.003175,
+    "tag": "mechanical.json v1"
+   }
+  },
+  "liner_grain_zone": {
+   "thickness_m": {
+    "v": 0.0016,
+    "tag": "v1 (grain zone only: the residual web >= 1 mm shields the case)"
+   },
+   "ID_m": {
+    "v": 0.05395,
+    "tag": "v1"
+   }
+  },
+  "post_chamber_insulator": {
+   "v": "phenolic, thickness set by thermal FEA; 1-D bound needs >= 5 mm and still exceeds the 192 C aft-land allowable (open issue OI-4)",
+   "tag": "DERIVED data/v2/soakback_wall_v2.json"
+  },
+  "chamber_gas_diameter_m": {
+   "v": 0.0539,
+   "tag": "v1 (pre/post-chamber gas-side diameter); changes if the post-chamber insulator thickens (OI-4)"
+  },
+  "grain": {
+   "material": {
+    "v": "ABS, FDM printed, 100 % infill",
+    "tag": "REQ"
+   },
+   "outer_diameter_m": {
+    "v": 0.0535,
+    "tag": "combustion.json v1 [m]"
+   },
+   "length_m": {
+    "v": 0.23,
+    "tag": "DERIVED v2 baseline (grain trade 2026-10-12; v1 0.200) [m]"
+   },
+   "port": {
+    "type": {
+     "v": "single centred straight round port",
+     "tag": "LEAD decision 2026-10-12"
+    },
+    "initial_diameter_m": {
+     "v": 0.025,
+     "tag": "combustion.json v1 [m]"
+    },
+    "initial_web_m": {
+     "v": 0.01425,
+     "tag": "DERIVED (OD - port)/2"
+    }
+   },
+   "density_kg_m3": {
+    "v": 1000.0,
+    "tag": "ASSUMED printed ABS [kg/m3]; filament 1040"
+   },
+   "mass_kg": {
+    "v": 0.404,
+    "tag": "DERIVED geometry x 1000 kg/m3",
+    "range_kg": [
+     0.394,
+     0.42
+    ],
+    "range_note": "975-1040 kg/m3 (printed parts .. filament); weigh every grain"
+   },
+   "regression_law": {
+    "form": "r = a * G_ox^n (oxidiser-flux law, local G_ox along the port)",
+    "a": {
+     "v": 5.77e-05,
+     "tag": "ASSUMED band x0.6-1.5 [m/s (kg/m2/s)^-n]"
+    },
+    "n": {
+     "v": 0.5,
+     "tag": "ASSUMED band 0.35-0.68"
+    },
+    "note": "No verified N2O/ABS law in accessible literature; every result is checked at x0.6 and x1.5 on a. Static fires T1-T2 measure it."
+   },
+   "x_face_start_m": {
+    "v": 0.03,
+    "tag": "DERIVED"
+   },
+   "x_face_end_m": {
+    "v": 0.26,
+    "tag": "DERIVED"
+   },
+   "residual_web_rule": {
+    "v": "web >= 1 mm at the x1.5 regression bound for every flight duty cycle",
+    "tag": "DERIVED: ABS thermal layer kappa/r 0.1-0.3 mm (soakback_v2.json grain_zone); >= 1 mm shields the case"
+   },
+   "retention": "forward face on the pre-chamber insulator shoulder, aft face on the post-chamber insulator; anti-rotation key (Mechanical)"
+  },
+  "pre_chamber": {
+   "length_m": {
+    "v": 0.03,
+    "tag": "v1 [m]"
+   },
+   "diameter_m": {
+    "v": 0.0539,
+    "tag": "v1"
+   }
+  },
+  "post_chamber": {
+   "length_m": {
+    "v": 0.04,
+    "tag": "v1 [m]"
+   },
+   "diameter_m": {
+    "v": 0.0539,
+    "tag": "v1"
+   }
+  },
+  "injector": {
+   "type": {
+    "v": "pintle (needle-in-seat), unchanged from v1",
+    "tag": "LEAD 2026-10-11"
+   },
+   "seat_diameter_m": {
+    "v": 0.0055,
+    "tag": "v1"
+   },
+   "stroke_m": {
+    "v": 0.004,
+    "tag": "v1"
+   },
+   "Cd": {
+    "v": 0.7,
+    "tag": "ASSUMED pintle Cd (0.6-0.8)"
+   },
+   "Cd_acceptance": {
+    "v": "Cd_eff (vs Dyer) >= 0.41 measured in N2O cold flow keeps the 15 C ceiling >= 500 N (HEM-like worst case, data/v2/injector_compare_v2.json)",
+    "tag": "DERIVED"
+   },
+   "flow_model": "Dyer et al. AIAA 2007-5702 (SPI/HEM blend); HEM and SPI bound it (G ratio 0.55-0.68 and 1.34-1.45 at 15 C)",
+   "filter": {
+    "v": "sintered <= 15 um, Cv >= 2.2",
+    "tag": "DERIVED: seat gap at the 12.5 % floor = lift 0.207 mm x sin 15 deg = 54 um; filter <= 1/3 of the smallest gap; Cv from the line budget (feed_line_checks_v2.json); v1 said 40 um"
+   }
+  },
+  "nozzle": {
+   "throat_diameter_m": {
+    "v": 0.013724,
+    "tag": "v1 geometry (data/v2/nozzle_contour_v2.csv)"
+   },
+   "exit_diameter_m": {
+    "v": 0.019409,
+    "tag": "v1 geometry"
+   },
+   "expansion_ratio": {
+    "v": 2.0,
+    "tag": "see decisions"
+   },
+   "throat_area_m2": {
+    "v": 0.000147928,
+    "tag": "DERIVED"
+   },
+   "contour_csv": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/nozzle_contour_v2.csv",
+   "x_face_throat_m": {
+    "v": 0.32767,
+    "tag": "DERIVED (contour v2: +30 mm vs v1)"
+   },
+   "x_face_exit_m": {
+    "v": 0.33862,
+    "tag": "DERIVED"
+   },
+   "pe_over_pa_at_max": {
+    "v": 3.199,
+    "tag": "CEA shifting, S230 max point (nozzle_perf_v2.csv)"
+   },
+   "graphite": {
+    "v": "isomolded/extruded fine-grain graphite, bulk density >= 1.80-1.85 g/cm3, ash <= 0.1 %; grade TO-QUOTE (Sønderborg DK-6400)",
+    "tag": "DERIVED (erosion model sensitivity to density/porosity)"
+   },
+   "insert_envelope_note": "Mechanical CAD v3.1: 44 mm OD + 30 x 6.5 mm aft spigot through a 6 mm lip; gas side unchanged (erosion/soak models used the 44 x 32 mm v3.0 slice)"
+  },
+  "pc_tap": {
+   "location": {
+    "v": "head top (Mechanical 2026-10-12) via sense line to the fixed side",
+    "tag": "mechanical CHANGELOG"
+   },
+   "sense_line": {
+    "v": "1/8 in OD (1.6 mm ID) SS, length <= 0.3 m, transducer dead volume <= 0.3 cm3",
+    "tag": "DERIVED data/v2/feed_line_checks_v2.json: lowest f_n per length (dead volume 0.1-0.5 cm3) {\"L0.20m\": [164.0, 325.0], \"L0.30m\": [125.0, 230.0], \"L0.45m\": [94.0, 160.0], \"L0.60m\": [75.0, 123.0]} Hz; phase lag <= 0.87 deg at 50 Hz"
+   }
+  },
+  "overall": {
+   "gas_path_length_injector_face_to_exit_m": {
+    "v": 0.3386,
+    "tag": "DERIVED"
+   },
+   "free_chamber_volume_initial_m3": {
+    "v": 0.0002846,
+    "tag": "DERIVED (pre + post + convergent + initial port)"
+   },
+   "L_star_initial_m": {
+    "v": 1.924,
+    "tag": "DERIVED V_free / A_t"
+   }
+  }
+ },
+ "operating_points": {
+  "basis": "20 C saturated tank (P_tank 50 bar row of the map for lift and dP/Pc), initial port 25 mm, nominal law. SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)",
+  "max_thrust": {
+   "F_N": {
+    "v": 500.0,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "Pc_Pa": {
+    "v": 2501007.0,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "mdot_ox_kg_s": {
+    "v": 0.24099,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "mdot_fuel_kg_s": {
+    "v": 0.02309,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "mdot_total_kg_s": {
+    "v": 0.26408,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "OF": {
+    "v": 10.435,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975) (v1 helical 7.76: the straight port burns less fuel)"
+   },
+   "Isp_SL_s": {
+    "v": 193.1,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "cstar_delivered_m_s": {
+    "v": 1401.0,
+    "tag": "CEA x eta_c* 0.92 (chamber_port_state_v2.json)"
+   },
+   "Tc_ideal_K": {
+    "v": 3257.0,
+    "tag": "CEA"
+   },
+   "T0_delivered_K": {
+    "v": 2757.0,
+    "tag": "CEA x eta_c*^2"
+   },
+   "gamma_chamber": {
+    "v": 1.1467,
+    "tag": "CEA"
+   },
+   "MW_chamber": {
+    "v": 28.72,
+    "tag": "CEA"
+   },
+   "G_ox_initial_kg_m2s": {
+    "v": 491.0,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "pintle_lift_m": {
+    "v": 0.001916,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "dP_inj_over_Pc": {
+    "v": 0.907,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   }
+  },
+  "throttle_points_20C_initial_port": [
+   {
+    "fraction": 1.0,
+    "F_N": 500.0,
+    "Pc_Pa": 2501007.0,
+    "mdot_ox_kg_s": 0.24099,
+    "mdot_fuel_kg_s": 0.02309,
+    "OF": 10.435,
+    "Isp_SL_s": 193.1,
+    "pintle_lift_m": 0.001916,
+    "dP_inj_over_Pc": 0.907,
+    "G_ox_head_kg_m2s": 490.9,
+    "T0_delivered_K": 2757.0
+   },
+   {
+    "fraction": 0.75,
+    "F_N": 375.0,
+    "Pc_Pa": 1909896.0,
+    "mdot_ox_kg_s": 0.17901,
+    "mdot_fuel_kg_s": 0.0199,
+    "OF": 8.994,
+    "Isp_SL_s": 192.2,
+    "pintle_lift_m": 0.001252,
+    "dP_inj_over_Pc": 1.551,
+    "G_ox_head_kg_m2s": null,
+    "T0_delivered_K": null
+   },
+   {
+    "fraction": 0.5,
+    "F_N": 250.0,
+    "Pc_Pa": 1320214.0,
+    "mdot_ox_kg_s": 0.1191,
+    "mdot_fuel_kg_s": 0.01624,
+    "OF": 7.336,
+    "Isp_SL_s": 188.4,
+    "pintle_lift_m": 0.000755,
+    "dP_inj_over_Pc": 2.744,
+    "G_ox_head_kg_m2s": 242.6,
+    "T0_delivered_K": 2795.0
+   },
+   {
+    "fraction": 0.4,
+    "F_N": 200.0,
+    "Pc_Pa": 1084840.0,
+    "mdot_ox_kg_s": 0.09592,
+    "mdot_fuel_kg_s": 0.01457,
+    "OF": 6.583,
+    "Isp_SL_s": 184.6,
+    "pintle_lift_m": 0.000588,
+    "dP_inj_over_Pc": 3.575,
+    "G_ox_head_kg_m2s": null,
+    "T0_delivered_K": null
+   },
+   {
+    "fraction": 0.25,
+    "F_N": 125.0,
+    "Pc_Pa": 733390.0,
+    "mdot_ox_kg_s": 0.06261,
+    "mdot_fuel_kg_s": 0.01177,
+    "OF": 5.319,
+    "Isp_SL_s": 171.4,
+    "pintle_lift_m": 0.000367,
+    "dP_inj_over_Pc": 5.796,
+    "G_ox_head_kg_m2s": null,
+    "T0_delivered_K": null
+   },
+   {
+    "fraction": 0.2,
+    "F_N": 100.0,
+    "Pc_Pa": 616171.0,
+    "mdot_ox_kg_s": 0.05202,
+    "mdot_fuel_kg_s": 0.01073,
+    "OF": 4.848,
+    "Isp_SL_s": 162.5,
+    "pintle_lift_m": 0.000301,
+    "dP_inj_over_Pc": 7.097,
+    "G_ox_head_kg_m2s": 106.0,
+    "T0_delivered_K": 2673.0
+   },
+   {
+    "fraction": 0.15,
+    "F_N": 75.0,
+    "Pc_Pa": 498407.0,
+    "mdot_ox_kg_s": 0.04173,
+    "mdot_fuel_kg_s": 0.00961,
+    "OF": 4.342,
+    "Isp_SL_s": 149.0,
+    "pintle_lift_m": 0.000238,
+    "dP_inj_over_Pc": 9.018,
+    "G_ox_head_kg_m2s": null,
+    "T0_delivered_K": null
+   },
+   {
+    "fraction": 0.125,
+    "F_N": 62.5,
+    "Pc_Pa": 436985.0,
+    "mdot_ox_kg_s": 0.03646,
+    "mdot_fuel_kg_s": 0.00898,
+    "OF": 4.059,
+    "Isp_SL_s": 140.2,
+    "pintle_lift_m": 0.000207,
+    "dP_inj_over_Pc": 10.43,
+    "G_ox_head_kg_m2s": 74.3,
+    "T0_delivered_K": 2500.0
+   }
+  ],
+  "throttle_map_csv": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/engine_S230/throttle_map_v2.csv",
+  "throttle_map_note": "map axes: P_tank 35-55 bar x D_port 25-45 mm x fraction 0.125-1; ceiling column = min(stroke 4 mm, dP/Pc >= 0.25)",
+  "floor_requirement_25pct": {
+   "F_N": {
+    "v": 125.0,
+    "tag": "REQ"
+   },
+   "Pc_Pa": {
+    "v": 733390.0,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "OF": {
+    "v": 5.32,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "status": "met (dP/Pc 5.8)"
+  },
+  "floor_target_20pct": {
+   "F_N": {
+    "v": 100.0,
+    "tag": "REQ"
+   },
+   "Pc_Pa": {
+    "v": 616171.0,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "OF": {
+    "v": 4.85,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "status": "met (dP/Pc 7.1)"
+  },
+  "floor_stretch_12p5pct": {
+   "F_N": {
+    "v": 62.5,
+    "tag": "REQ stretch"
+   },
+   "Pc_Pa": {
+    "v": 436985.0,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "OF": {
+    "v": 4.06,
+    "tag": "SIM grain_q1d.py v2 (quasi-1D port, S230, nominal ASSUMED law, Dyer pintle Cd 0.70, eta_c* 0.92, eta_cf 0.975)"
+   },
+   "status": "model meets it: dP/Pc 10.4, chug gain margin 38.6 at 10 ms delay, attached nozzle except incipient lip separation (Schmucker); G_ox 74 -> ~25 kg/m2s as the port opens: low-flux combustion efficiency/stability is UNVERIFIED (static fire T3)"
+  },
+  "pressure_limits": {
+   "chamber_MEOP_Pa": {
+    "v": 4500000.0,
+    "tag": "LEAD 2026-10-12"
+   },
+   "proof_Pa": {
+    "v": 6750000.0,
+    "tag": "LEAD 2026-10-12"
+   },
+   "normal_cap_Pa": {
+    "v": 2500000.0,
+    "tag": "LEAD 2026-10-12"
+   },
+   "abort_Pa": {
+    "v": 3000000.0,
+    "tag": "LEAD 2026-10-12 (~30 bar)"
+   },
+   "blocked_nozzle_bound_Pa": {
+    "v": 6308000.0,
+    "tag": "CoolProp Psat at 30 C (full_stroke_failure_case_v2.json)"
+   },
+   "full_stroke_failure_S230": {
+    "v": [
+     {
+      "T_tank_C": 15.0,
+      "Cd": 0.6,
+      "Pc_bar": 30.66,
+      "F_N": 619.3
+     },
+     {
+      "T_tank_C": 15.0,
+      "Cd": 0.7,
+      "Pc_bar": 32.87,
+      "F_N": 665.8
+     },
+     {
+      "T_tank_C": 15.0,
+      "Cd": 0.8,
+      "Pc_bar": 34.7,
+      "F_N": 704.3
+     },
+     {
+      "T_tank_C": 20.0,
+      "Cd": 0.6,
+      "Pc_bar": 32.9,
+      "F_N": 666.4
+     },
+     {
+      "T_tank_C": 20.0,
+      "Cd": 0.7,
+      "Pc_bar": 35.41,
+      "F_N": 719.2
+     },
+     {
+      "T_tank_C": 20.0,
+      "Cd": 0.8,
+      "Pc_bar": 37.52,
+      "F_N": 763.8
+     },
+     {
+      "T_tank_C": 25.0,
+      "Cd": 0.6,
+      "Pc_bar": 35.06,
+      "F_N": 711.9
+     },
+     {
+      "T_tank_C": 25.0,
+      "Cd": 0.7,
+      "Pc_bar": 37.86,
+      "F_N": 770.9
+     },
+     {
+      "T_tank_C": 25.0,
+      "Cd": 0.8,
+      "Pc_bar": 40.29,
+      "F_N": 822.0
+     },
+     {
+      "T_tank_C": 30.0,
+      "Cd": 0.6,
+      "Pc_bar": 37.01,
+      "F_N": 753.0
+     },
+     {
+      "T_tank_C": 30.0,
+      "Cd": 0.7,
+      "Pc_bar": 40.12,
+      "F_N": 818.5
+     },
+     {
+      "T_tank_C": 30.0,
+      "Cd": 0.8,
+      "Pc_bar": 42.85,
+      "F_N": 875.9
+     }
+    ],
+    "tag": "SIM grain_q1d v2 steady, initial port (full_stroke_failure_case_v2.json)"
+   },
+   "full_stroke_failure_S230_max_bar": {
+    "v": 42.85,
+    "tag": "SIM (30 C, Cd 0.8)"
+   }
+  },
+  "thrust_ceiling_rule": {
+   "v": "F_ceiling = F at min(stroke 4 mm, injector dP/Pc >= 0.25)",
+   "tag": "DERIVED stiffness rule (stability section)"
+  },
+  "ceiling_vs_Cd_20C_and_models": {
+   "v": "ceiling 603-747 N for Cd 0.5-0.8 at 20 C (Dyer); worst model case HEM at 15 C, Cd 0.6: 499 N (Cd_eff 0.407)",
+   "tag": "SIM injector_compare_v2.json"
+  },
+  "max_thrust_hold_baseline_tank": {
+   "csv": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/ceiling_vs_time_BLtank_v2.csv",
+   "t_500N_held_s": {
+    "v": [
+     4.06,
+     7.01
+    ],
+    "tag": "SIM 15-25 C, eq/neq E 100/1000 tank (min, max)"
+   },
+   "t_liquid_depletion_s": {
+    "v": [
+     6.77,
+     7.5
+    ],
+    "tag": "SIM (non-eq tank keeps a 0.011 kg residual)"
+   },
+   "F_ceiling_at_0s_N": {
+    "v": {
+     "15C": 665.8,
+     "20C": 719.2,
+     "25C": 770.9
+    },
+    "tag": "SIM"
+   },
+   "F_ceiling_at_liquid_end_N": {
+    "v": [
+     422.7,
+     550.7
+    ],
+    "tag": "SIM"
+   },
+   "impulse_to_liquid_end_Ns": {
+    "v": [
+     3387.0,
+     3616.0
+    ],
+    "tag": "SIM"
+   },
+   "ox_to_liquid_end_kg": {
+    "v": [
+     1.63,
+     1.737
+    ],
+    "tag": "SIM"
+   }
+  },
+  "max_thrust_hold_gnc_v1_tank_1p30kg": {
+   "csv": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/ceiling_vs_time_v2.csv",
+   "t_500N_held_s": {
+    "v": [
+     2.63,
+     4.56
+    ],
+    "tag": "SIM"
+   }
+  },
+  "tank_pressure_range_Pa": {
+   "v": [
+    4500000.0,
+    5650000.0
+   ],
+   "tag": "CoolProp Psat 15-25 C (n2o_validation_v2.json: CoolProp vs ESDU <= 0.98 % to 300 K)"
+  },
+  "tank_MEOP_Pa": {
+   "v": 7000000.0,
+   "tag": "LEAD v0"
+  },
+  "chamber_fill_time_constant_s": {
+   "v": 0.0034,
+   "tag": "DERIVED L*/(c*_del Gamma^2); step-response fit 0.004 s (1 ms sampling)"
+  }
+ },
+ "valves_and_actuators": {
+  "architecture": "tank -> NC main isolation valve (off-gimbal) -> -6 PTFE-lined braided hose across the gimbal -> <= 15 um filter -> pintle injector (on gimbal)",
+  "isolation_valve": {
+   "Cv_min": {
+    "v": 3.0,
+    "tag": "DERIVED feed budget (feed_line_checks_v2.json): valve Cv 3 + filter Cv 2.2 give 1.17 bar total at 0.26 kg/s vs the 2.70 bar budget; Cv 1.5 + Cv 1.0 give 2.85 bar"
+   },
+   "MEOP_Pa": {
+    "v": 7000000.0,
+    "tag": "LEAD"
+   },
+   "close_time_max_s": {
+    "v": 0.15,
+    "tag": "DERIVED"
+   },
+   "trapped_liquid_relief": {
+    "v": "required (<= 7.5 MPa) between the isolation valve and the pintle",
+    "tag": "v1 / mechanical.json v1"
+   }
+  },
+  "hose": {
+   "v": "-6 accepted: 6.3 m/s at 0.241 kg/s nominal, 6.5-7.1 m/s at 0.26 kg/s (15-25 C); hose friction 8-17 kPa; slow-closure surge (40-150 ms, 0.4-0.8 m line) 14-106 kPa",
+   "tag": "DERIVED feed_line_checks_v2.json (answers Mechanical REQUEST 2026-10-12)"
+  },
+  "priming_rule": {
+   "v": [
+    "first start of a flight/test (P_feed < 0.5 P_tank): pintle to a bleed lift (0.10 mm) BEFORE the isolation valve moves, so the line is vented through the injector (flow-through, no dead end); isolation valve opening ramp >= 0.3 s",
+    "relights with the line primed (P_feed >= 0.5 P_tank, trapped liquid or valve left open): normal sequence",
+    "trapped-liquid relief between the isolation valve and the pintle stays (mechanical.json v1: <= 7.5 MPa)"
+   ],
+   "tag": "DERIVED: isentropic compression bound N2 847-913 K, N2O vapour 614-646 K at 45-60 bar (feed_line_checks_v2.json)"
+  },
+  "pintle_actuator": {
+   "stroke_m": {
+    "v": 0.004,
+    "tag": "v1"
+   },
+   "full_stroke_time_s": {
+    "v": 0.08,
+    "tag": "v1 (50 mm/s)"
+   },
+   "position_resolution_m": {
+    "v": 1e-05,
+    "tag": "v1; v2 check: at the 12.5 % floor dF/dh = 369 N/mm (plant fit), so 2 % of 500 N needs 27 um and 2 % of the floor thrust 3.4 um (the closed Pc loop then rests on Pc resolution); gnc.json v2: resolution 2 % F_max (ENG-03), deadband <= 0.5 % F_max = 16 um at 100 % and 6.8 um at 12.5 % open-loop, closed Pc loop required"
+   },
+   "force_basis_note": "v1 force envelope was computed at the v1 MEOP (31 bar chamber); the needle force depends on feed pressure (tank MEOP 70 bar unchanged) and Pc: re-check with the 45 bar chamber MEOP in the pintle CAD (open item)"
+  },
+  "plant_model_valve_to_Pc": {
+   "form": "Pc(s)/h(s) = K_h [ (1 - phi)/(tau_c s + 1) + phi/(tau_f s + 1) ]   (h = pintle lift; fast chamber filling + slow fuel/thermal-lag mode)",
+   "fit": {
+    "v": [
+     {
+      "fraction": 1.0,
+      "h0_m": 0.0019,
+      "K_h_Pa_per_m": 754732000.0,
+      "phi": 0.06,
+      "tau_c_s": 0.004,
+      "tau_f_s": 0.107,
+      "dF_dh_N_per_m": 159449.0
+     },
+     {
+      "fraction": 0.5,
+      "h0_m": 0.000751,
+      "K_h_Pa_per_m": 1365016000.0,
+      "phi": 0.094,
+      "tau_c_s": 0.004,
+      "tau_f_s": 0.181,
+      "dF_dh_N_per_m": 289789.0
+     },
+     {
+      "fraction": 0.25,
+      "h0_m": 0.000366,
+      "K_h_Pa_per_m": 1776637000.0,
+      "phi": 0.089,
+      "tau_c_s": 0.004,
+      "tau_f_s": 0.316,
+      "dF_dh_N_per_m": 377916.0
+     },
+     {
+      "fraction": 0.125,
+      "h0_m": 0.000206,
+      "K_h_Pa_per_m": 2010813000.0,
+      "phi": 0.053,
+      "tau_c_s": 0.004,
+      "tau_f_s": 0.528,
+      "dF_dh_N_per_m": 369377.0
+     }
+    ],
+    "tag": "SIM grain_q1d v2 +3 % lift step, tank frozen at 50.5 bar (engine_S230/plant_valve_to_pc_v2.json)"
+   },
+   "tau_d_s": {
+    "v": [
+     0.003,
+     0.01
+    ],
+    "tag": "ASSUMED injection/vaporisation delay (v1)"
+   },
+   "note": "K_h grows 2.7x from 100 % to 12.5 % (gain scheduling or a closed Pc loop needed); the slow mode is 5-9 % of the static gain"
+  }
+ },
+ "igniter": {
+  "type": {
+   "v": "spark-ignited N2O/propane torch, radial into the pre-chamber",
+   "tag": "ignition_v2.json"
+  },
+  "torch_sizing": {
+   "v": {
+    "Pc_torch_bar": 3.0,
+    "OF": 5.5,
+    "throat_d_m": 0.002,
+    "cstar_m_s": 1586.483245,
+    "Tc_K": 2852.410049,
+    "mdot_total_kg_s": 0.000594,
+    "mdot_propane_kg_s": 9.1e-05,
+    "mdot_n2o_kg_s": 0.000503,
+    "enthalpy_flux_W": 3032.606623,
+    "per_start_0p6s_propane_g": 0.054837,
+    "per_start_0p6s_n2o_g": 0.301603,
+    "propane_orifice_d_mm_at_20C": 0.253828,
+    "note": "Cd 0.65 (N2O sharp orifice) and 0.80 (propane) ASSUMED; torch Pc 3 bar abs keeps the torch outlet choked into the cold chamber (~1 bar) and stays below the propane vapour pressure down to ~0 C (4.7 bar); calibrate both orifices by cold flow (weighing) before hot torch tests"
+   },
+   "tag": "DERIVED/CEA ignition_v2.json"
+  },
+  "N2O_orifice_d_m": {
+   "v": 0.000131,
+   "tag": "DERIVED Dyer at 20 C, Cd 0.65 ASSUMED (0.128-0.137 mm for 10-25 C)"
+  },
+  "propane_orifice_d_m": {
+   "v": 0.000254,
+   "tag": "DERIVED at 20 C, Cd 0.80 ASSUMED; calibrate both by weighing"
+  },
+  "envelope": {
+   "v": {
+    "body_max_length_m": 0.045,
+    "body_max_diameter_m": 0.02,
+    "mount": "radial boss on the head section at x_face 0.015 m, axis inclined 30 deg inward/aft so the plug end stays inside the 120 mm head sweep (answers Mechanical REQUEST 2026-10-12)",
+    "outlet_bore_m": 0.003
+   },
+   "tag": "DERIVED (answers Mechanical REQUEST 2026-10-12)"
+  },
+  "electrical": {
+   "v": {
+    "spark_supply_V": 12.0,
+    "coil_primary_peak_A": 4.0,
+    "spark_energy_J": 0.05,
+    "rate_Hz": 50.0,
+    "train_s": 0.5,
+    "solenoid_V": 12.0,
+    "solenoid_A_each": 0.8,
+    "solenoid_on_s": 0.6,
+    "energy_per_start_J": 15.0
+   },
+   "tag": "DERIVED; electronics.json v1 IGN_HV coil mode + SOL1/SOL2"
+  },
+  "mass_kg": {
+   "v": [
+    0.2,
+    0.3
+   ],
+   "tag": "ASSUMED: body 50 g, plug 10 g, two micro solenoids 60-120 g, propane cylinder 50 g, lines/fittings 50 g"
+  },
+  "sequence": {
+   "v": {
+    "arm_preconditions": [
+     "tank 15-25 C (heater blanket for cold days; supercharge not baselined)",
+     "pintle seated, position encoder healthy, isolation valve closed",
+     "igniter continuity checked (spark coil primary, both solenoids)",
+     "Pc, P_feed, P_tank sensors healthy; Pc reads ambient +/- 0.1 bar"
+    ],
+    "start": [
+     {
+      "t_s": -0.8,
+      "action": "ONLY if the line is not primed (P_feed < 0.5 P_tank, e.g. first start after a purge): pintle to a 0.10 mm bleed lift BEFORE the isolation valve moves, so the line vents through the injector (no dead-ended adiabatic compression of trapped gas: N2 isentropic 847-913 K, N2O vapour 614-646 K at 45-60 bar, feed_line_checks_v2.json); isolation valve opening ramp >= 0.3 s"
+     },
+     {
+      "t_s": -0.3,
+      "action": "primed line (relight, P_feed >= 0.5 P_tank): open the NC isolation valve with the pintle seated; unprimed line: isolation valve fully open by now and the pintle returns to seated; vapour-first (warm line flashes)"
+     },
+     {
+      "t_s": 0.0,
+      "action": "open torch solenoids (N2O SOL1, propane SOL2)"
+     },
+     {
+      "t_s": 0.02,
+      "action": "spark train 50 Hz, 50 mJ, up to 0.5 s"
+     },
+     {
+      "t_s": 0.1,
+      "action": "torch-flame confirmation (photodiode or 0.25 mm thermocouple at the torch outlet, Electronics to select; fallback = timing only)"
+     },
+     {
+      "t_s": 0.12,
+      "action": "pintle to the ignition lift (12.5-20 % flow, ~0.2-0.3 mm at 20 C)"
+     },
+     {
+      "t_s": 0.35,
+      "action": "ignition check: Pc > 3.0 bar abs (combustion 4.4-6.2 bar vs cold N2O flow ~1.5 bar); if not, ABORT"
+     },
+     {
+      "t_s": 0.35,
+      "action": "ramp to the commanded thrust at <= 2500 N/s (gnc.json engine model slew)"
+     },
+     {
+      "t_s": 0.4,
+      "action": "propane solenoid closed before Pc exceeds 5 bar (propane vapour pressure 6.4 bar at 10 C)"
+     },
+     {
+      "t_s": 0.6,
+      "action": "N2O torch solenoid closed; spark off"
+     }
+    ],
+    "abort_if_no_ignition": [
+     "pintle closed",
+     "torch solenoids closed",
+     "isolation valve closed",
+     "wait >= 5 s for the chamber to vent N2O (no re-try into a pooled chamber)",
+     "one automatic retry allowed in flight only if GNC margin permits; ground: safe the stand and investigate"
+    ],
+    "shutdown": [
+     "pintle ramps to seated at <= 50 mm/s (80 ms full stroke)",
+     "isolation valve closes after the pintle is seated (<= 0.15 s)",
+     "trapped liquid between the isolation valve and the pintle is relieved to the tank side (v1 requirement)",
+     "post-burn: chamber vents through the nozzle; the grain smoulders briefly in air"
+    ],
+    "relight": [
+     "same as start from t = 0 (the isolation valve may stay open between burns in flight)",
+     "settling: liquid at the tank outlet must be confirmed by the acceleration history (A1 has 15 s at ~1 g before relight; settling_v2.json)",
+     "torch fires into a hot, fuel-rich chamber: lower ignition energy expected"
+    ],
+    "flashback_and_backflow": [
+     "check valve on each torch line at the torch inlet (cracking <= 0.3 bar), rated to chamber MEOP 45 bar and hot gas",
+     "torch lines dead-ended during the main burn: the torch body sees Pc and soak heat; it is sized for MEOP 45 bar and checked for 30 s exposure (Mechanical)",
+     "no N2O purge through the torch during the main burn (a hot N2O-filled cavity is a decomposition site)",
+     "N2O decomposition in the feed: no heat source upstream of the injector, no adiabatic compression of vapour pockets (valves open slowly when lines contain vapour), clean Krytox-lubricated hardware only"
+    ],
+    "purge": [
+     "ground tests: N2 purge of the chamber after shutdown (stand-side valve, 5-10 s) and before a re-start attempt",
+     "flight: no purge gas carried (no N2 system baselined); the chamber vents through the nozzle"
+    ]
+   },
+   "tag": "DERIVED ignition_v2.json; verify by torch and static-fire tests"
+  },
+  "model_transients": {
+   "v": "SIM grain_q1d v2 (ASSUMED torch-to-main delay 0.10 s, 30 % preheated regression at main-flow arrival): relights in A1/A2 reach 10 % thrust 0.10-0.11 s and 90 % 0.28-0.29 s after the command; DC-D first start t10-90 0.04 s. Ignition delay is the least certain input: static fire measures it.",
+   "tag": "SIM"
+  },
+  "starts_per_flight": {
+   "v": ">= 3; limited by propane (0.055 g/start) and N2O torch flow (0.30 g/start)",
+   "tag": "DERIVED"
+  }
+ },
+ "thermal_and_loads": {
+  "thermal_bc_csv": {
+   "max": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/thermal_bc_max_v2.csv",
+   "75pct": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/thermal_bc_75pct_v2.csv",
+   "50pct": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/thermal_bc_50pct_v2.csv",
+   "20pct": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/thermal_bc_20pct_v2.csv",
+   "floor12p5": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/thermal_bc_floor12p5_v2.csv"
+  },
+  "thermal_bc_columns_note": "Bartz h_g (cold wall 600 K) with T_aw, plus q_rad_band (0.10-0.65 MW/m2, gas radiation band) and h_g_eqprops (equilibrium-property variant, ~x3, UPPER bound); use the x0.5-2 band for FEA sensitivity",
+  "peak_convective_heat_flux_W_m2": {
+   "v": 21919697.0,
+   "tag": "SIM Bartz at the throat, wall 600 K, max thrust, S230 (thermal_bc_summary_v2.json)"
+  },
+  "peak_h_g_W_m2K": {
+   "v": 10258.7,
+   "tag": "SIM"
+  },
+  "T_aw_throat_K": {
+   "v": 2736.7,
+   "tag": "SIM"
+  },
+  "peak_flux_by_point_W_m2": {
+   "v": {
+    "max": 21919697.0,
+    "75pct": 18086947.0,
+    "50pct": 13778289.0,
+    "20pct": 7432774.0,
+    "floor12p5": 5337720.0
+   },
+   "tag": "SIM"
+  },
+  "peak_incident_flux_cold_wall_transient_W_m2": {
+   "v": [
+    27120000.0,
+    31550000.0
+   ],
+   "tag": "SIM coupled insert model at start (wall near ambient), nominal/conservative (erosion_S230/erosion_dc_v2.json)"
+  },
+  "throat_erosion_per_flight": {
+   "v": {
+    "DC-A1-S230_neqE1e+03_reg1": {
+     "recession_nominal_mm": 0.0396,
+     "dAt_nominal_pct": 1.159,
+     "recession_conservative_mm": 0.1689,
+     "dAt_conservative_pct": 4.982,
+     "literature_scaled_mm": [
+      0.1593,
+      0.2368
+     ],
+     "q_in_max_MW_m2": [
+      27.12,
+      31.55
+     ],
+     "Tw_max_K": [
+      1514.0,
+      1761.0
+     ]
+    },
+    "DC-A2-S230_neqE1e+03_reg1": {
+     "recession_nominal_mm": 0.0567,
+     "dAt_nominal_pct": 1.658,
+     "recession_conservative_mm": 0.2413,
+     "dAt_conservative_pct": 7.156,
+     "literature_scaled_mm": [
+      0.2753,
+      0.4002
+     ],
+     "q_in_max_MW_m2": [
+      27.12,
+      31.55
+     ],
+     "Tw_max_K": [
+      1561.0,
+      1825.0
+     ]
+    },
+    "DC-B1-S230_neqE1e+03_reg1": {
+     "recession_nominal_mm": 0.028,
+     "dAt_nominal_pct": 0.817,
+     "recession_conservative_mm": 0.176,
+     "dAt_conservative_pct": 5.195,
+     "literature_scaled_mm": [
+      0.0648,
+      0.1014
+     ],
+     "q_in_max_MW_m2": [
+      27.12,
+      31.55
+     ],
+     "Tw_max_K": [
+      1685.0,
+      1966.0
+     ]
+    },
+    "DC-B2-S230_neqE1e+03_reg1": {
+     "recession_nominal_mm": 0.0202,
+     "dAt_nominal_pct": 0.589,
+     "recession_conservative_mm": 0.1261,
+     "dAt_conservative_pct": 3.709,
+     "literature_scaled_mm": [
+      0.0494,
+      0.0809
+     ],
+     "q_in_max_MW_m2": [
+      27.12,
+      31.55
+     ],
+     "Tw_max_K": [
+      1571.0,
+      1825.0
+     ]
+    },
+    "DC-A1-S230_neqE1e+03_reg1.5": {
+     "recession_nominal_mm": 0.0167,
+     "dAt_nominal_pct": 0.486,
+     "recession_conservative_mm": 0.1213,
+     "dAt_conservative_pct": 3.567,
+     "literature_scaled_mm": [
+      0.0329,
+      0.08
+     ],
+     "q_in_max_MW_m2": [
+      29.33,
+      33.81
+     ],
+     "Tw_max_K": [
+      1587.0,
+      1837.0
+     ]
+    },
+    "DC-A1-S230_neqE1e+03_reg0.6": {
+     "recession_nominal_mm": 0.0349,
+     "dAt_nominal_pct": 1.021,
+     "recession_conservative_mm": 0.1508,
+     "dAt_conservative_pct": 4.445,
+     "literature_scaled_mm": [
+      0.209,
+      0.2981
+     ],
+     "q_in_max_MW_m2": [
+      25.32,
+      29.38
+     ],
+     "Tw_max_K": [
+      1437.0,
+      1663.0
+     ]
+    }
+   },
+   "tag": "SIM coupled erosion model (nominal/conservative kinetics) + literature-scaled band; S230 over gnc.json v1 duty cycles"
+  },
+  "throat_replacement_rule": {
+   "v": "replace the insert when dA_t/A_t reaches 5 % (measured pin gauge / bore scan after each firing)",
+   "tag": "DERIVED"
+  },
+  "flights_per_insert_A1": {
+   "v": [
+    1.0,
+    4.3
+   ],
+   "tag": "DERIVED 5 % / (dAt per A1 flight): conservative, nominal kinetics"
+  },
+  "insert_soakback": {
+   "v": {
+    "retainer_0p15kg_peak_K": {
+     "DC-B1-S230_neqE1e+03_reg1": [
+      [
+       "hc2000|Al",
+       920.0
+      ],
+      [
+       "hc2000|steel",
+       1084.0
+      ],
+      [
+       "hc500|Al",
+       847.0
+      ],
+      [
+       "hc150|Al",
+       758.0
+      ]
+     ],
+     "DC-A1-S230_neqE1e+03_reg1": [
+      [
+       "hc2000|Al",
+       663.0
+      ],
+      [
+       "hc2000|steel",
+       774.0
+      ],
+      [
+       "hc500|Al",
+       634.0
+      ],
+      [
+       "hc150|Al",
+       588.0
+      ]
+     ]
+    },
+    "conclusion": "240 C (513 K) is the Mechanical v3.1 allowable of the ALUMINIUM lip at 51 MPa. With the 0.15 kg retainer of soakback.py on the gnc.json v1 cycles aluminium peaks at 588-920 K (above it); about 0.6 kg of aluminium (~540 J/K) in good thermal contact gives 435-532 K (sensitivity_summary). Steel results (774-1084 K at 0.15 kg) are for comparison with a steel temperature-dependent allowable, which is not defined here (lead note 2026-10-12)",
+    "sensitivity_csv": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/soakback_sens_v2.csv",
+    "sensitivity_summary": "retainer peak over hc 150-2000 W/m2K -> DC-A1 Al 0.15 kg: 647-747 K; DC-A1 Al 0.30 kg: 531-590 K; DC-A1 Al 0.60 kg: 435-465 K; DC-A1 steel 0.15 kg: 740-875 K; DC-A1 steel 0.30 kg: 629-723 K; DC-A1 steel 0.60 kg: 515-569 K; DC-B1 Al 0.15 kg: 752-908 K; DC-B1 Al 0.30 kg: 611-702 K; DC-B1 Al 0.60 kg: 487-532 K; DC-B1 steel 0.15 kg: 861-1070 K; DC-B1 steel 0.30 kg: 731-877 K; DC-B1 steel 0.60 kg: 590-673 K. Cases below 513 K (240 C): 5 of 36, all aluminium (0.60 kg); steel rows are for comparison with a steel temperature-dependent allowable (240 C applies to the aluminium lip at 51 MPa)."
+   },
+   "tag": "SIM lumped/1-D (soakback.py, soakback_sens.py); Mechanical thermal FEA supersedes"
+  },
+  "wall_soakback_post_chamber": {
+   "v": {
+    "DC-A1-S230|liner1.6mm|hgx1": {
+     "T_case_peak_K": 637.0,
+     "t_peak_s": 51.0
+    },
+    "DC-A1-S230|liner1.6mm|hgx2": {
+     "T_case_peak_K": 725.0,
+     "t_peak_s": 51.0
+    },
+    "DC-A1-S230|liner3.0mm|hgx1": {
+     "T_case_peak_K": 560.0,
+     "t_peak_s": 90.0
+    },
+    "DC-A1-S230|liner3.0mm|hgx2": {
+     "T_case_peak_K": 627.0,
+     "t_peak_s": 90.0
+    },
+    "DC-A1-S230|liner5.0mm|hgx1": {
+     "T_case_peak_K": 493.0,
+     "t_peak_s": 166.0
+    },
+    "DC-A1-S230|liner5.0mm|hgx2": {
+     "T_case_peak_K": 542.0,
+     "t_peak_s": 166.0
+    },
+    "DC-B1-S230|liner1.6mm|hgx1": {
+     "T_case_peak_K": 914.0,
+     "t_peak_s": 41.0
+    },
+    "DC-B1-S230|liner1.6mm|hgx2": {
+     "T_case_peak_K": 1053.0,
+     "t_peak_s": 41.0
+    },
+    "DC-B1-S230|liner3.0mm|hgx1": {
+     "T_case_peak_K": 747.0,
+     "t_peak_s": 82.0
+    },
+    "DC-B1-S230|liner3.0mm|hgx2": {
+     "T_case_peak_K": 836.0,
+     "t_peak_s": 82.0
+    },
+    "DC-B1-S230|liner5.0mm|hgx1": {
+     "T_case_peak_K": 633.0,
+     "t_peak_s": 161.0
+    },
+    "DC-B1-S230|liner5.0mm|hgx2": {
+     "T_case_peak_K": 699.0,
+     "t_peak_s": 160.0
+    }
+   },
+   "tag": "SIM 1-D slab, no char credit, h_g x1/x2 (soakback_wall_v2.json)"
+  },
+  "relight_after_coast": {
+   "v": {
+    "governing_cases": "lead CHANGELOG 2026-10-12: TS-1 relight after the MECO coast with Pc 25 bar (normal) and 45 bar (MEOP); TS-2 post-landing soak, unloaded, 6061-T6 over-ageing judgement for reuse (Mechanical)",
+    "soak_window_s": 3600.0,
+    "duty_cycles": {
+     "DC-A1-S230_neqE1e+03_reg1": {
+      "source": "dc_g3/DC-A1-S230_neqE1e+03_reg1.csv",
+      "burns_s": [
+       [
+        0.001,
+        2.531
+       ],
+       [
+        24.741,
+        28.011
+       ]
+      ],
+      "t_MECO_s": 2.531,
+      "t_relight_s": 24.741,
+      "coast_s": 22.21,
+      "Pc_relight_plus_0p5s_Pa": 1251470.0,
+      "Pc_max_landing_burn_Pa": 1773220.0,
+      "t_Pc_max_landing_burn_s": 26.221,
+      "t_last_shutdown_s": 28.011,
+      "note": "relight after coast (TS-1 and TS-2)"
+     },
+     "DC-A2-S230_neqE1e+03_reg1": {
+      "source": "dc_g3/DC-A2-S230_neqE1e+03_reg1.csv",
+      "burns_s": [
+       [
+        0.001,
+        2.601
+       ],
+       [
+        15.431,
+        20.531
+       ]
+      ],
+      "t_MECO_s": 2.601,
+      "t_relight_s": 15.431,
+      "coast_s": 12.83,
+      "Pc_relight_plus_0p5s_Pa": 923786.0,
+      "Pc_max_landing_burn_Pa": 2150390.0,
+      "t_Pc_max_landing_burn_s": 18.731,
+      "t_last_shutdown_s": 20.531,
+      "note": "relight after coast (TS-1 and TS-2)"
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1": {
+      "source": "dc_gncv2wip/DC-A1-S230v2wip_neqE1e+03_reg1.csv",
+      "burns_s": [
+       [
+        0.001,
+        3.221
+       ],
+       [
+        24.191,
+        28.351
+       ]
+      ],
+      "t_MECO_s": 3.221,
+      "t_relight_s": 24.191,
+      "coast_s": 20.97,
+      "Pc_relight_plus_0p5s_Pa": 1635140.0,
+      "Pc_max_landing_burn_Pa": 2083410.0,
+      "t_Pc_max_landing_burn_s": 25.601,
+      "t_last_shutdown_s": 28.351,
+      "note": "relight after coast (TS-1 and TS-2)"
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1": {
+      "source": "dc_gncv2wip/DC-A2-S230v2wip_neqE1e+03_reg1.csv",
+      "burns_s": [
+       [
+        0.001,
+        3.261
+       ],
+       [
+        14.571,
+        20.181
+       ]
+      ],
+      "t_MECO_s": 3.261,
+      "t_relight_s": 14.571,
+      "coast_s": 11.31,
+      "Pc_relight_plus_0p5s_Pa": 931043.0,
+      "Pc_max_landing_burn_Pa": 2248380.0,
+      "t_Pc_max_landing_burn_s": 15.931,
+      "t_last_shutdown_s": 20.181,
+      "note": "relight after coast (TS-1 and TS-2)"
+     },
+     "DC-B1-S230_neqE1e+03_reg1": {
+      "source": "dc_g3/DC-B1-S230_neqE1e+03_reg1.csv",
+      "burns_s": [
+       [
+        0.001,
+        20.721
+       ]
+      ],
+      "t_MECO_s": null,
+      "t_relight_s": null,
+      "coast_s": null,
+      "Pc_relight_plus_0p5s_Pa": null,
+      "Pc_max_landing_burn_Pa": 2502660.0,
+      "t_Pc_max_landing_burn_s": 0.671,
+      "t_last_shutdown_s": 20.721,
+      "note": "single burn: no relight (TS-2 only)"
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1": {
+      "source": "dc_gncv2wip/DC-B1-S230v2wip_neqE1e+03_reg1.csv",
+      "burns_s": [
+       [
+        0.001,
+        19.031
+       ]
+      ],
+      "t_MECO_s": null,
+      "t_relight_s": null,
+      "coast_s": null,
+      "Pc_relight_plus_0p5s_Pa": null,
+      "Pc_max_landing_burn_Pa": 2502680.0,
+      "t_Pc_max_landing_burn_s": 0.691,
+      "t_last_shutdown_s": 19.031,
+      "note": "single burn: no relight (TS-2 only)"
+     }
+    },
+    "csv": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/soakback_relight_v2.csv",
+    "summary": {
+     "DC-A1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x1": {
+      "T_at_relight_K": 487.0,
+      "T_at_Pcmax_landing_burn_K": 488.0,
+      "T_max_landing_burn_K": 507.0,
+      "Pc_at_Tmax_landing_burn_Pa": 593711.0,
+      "T_post_landing_peak_K": 637.0,
+      "t_post_peak_after_shutdown_s": 23.0,
+      "T_900s_K": 445.0,
+      "T_3600s_K": 305.0,
+      "t_above_150C_s": 1064.0,
+      "t_above_200C_s": 717.0,
+      "t_above_240C_s": 504.0,
+      "t_above_300C_s": 244.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x2": {
+      "T_at_relight_K": 528.0,
+      "T_at_Pcmax_landing_burn_K": 530.0,
+      "T_max_landing_burn_K": 556.0,
+      "Pc_at_Tmax_landing_burn_Pa": 593711.0,
+      "T_post_landing_peak_K": 725.0,
+      "t_post_peak_after_shutdown_s": 23.0,
+      "T_900s_K": 483.0,
+      "T_3600s_K": 308.0,
+      "t_above_150C_s": 1306.0,
+      "t_above_200C_s": 959.0,
+      "t_above_240C_s": 746.0,
+      "t_above_300C_s": 488.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x1": {
+      "T_at_relight_K": 406.0,
+      "T_at_Pcmax_landing_burn_K": 411.0,
+      "T_max_landing_burn_K": 416.0,
+      "Pc_at_Tmax_landing_burn_Pa": 593711.0,
+      "T_post_landing_peak_K": 560.0,
+      "t_post_peak_after_shutdown_s": 62.0,
+      "T_900s_K": 436.0,
+      "T_3600s_K": 312.0,
+      "t_above_150C_s": 1028.0,
+      "t_above_200C_s": 588.0,
+      "t_above_240C_s": 314.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x2": {
+      "T_at_relight_K": 430.0,
+      "T_at_Pcmax_landing_burn_K": 436.0,
+      "T_max_landing_burn_K": 441.0,
+      "Pc_at_Tmax_landing_burn_Pa": 593711.0,
+      "T_post_landing_peak_K": 627.0,
+      "t_post_peak_after_shutdown_s": 62.0,
+      "T_900s_K": 472.0,
+      "T_3600s_K": 317.0,
+      "t_above_150C_s": 1324.0,
+      "t_above_200C_s": 889.0,
+      "t_above_240C_s": 618.0,
+      "t_above_300C_s": 290.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x1": {
+      "T_at_relight_K": 325.0,
+      "T_at_Pcmax_landing_burn_K": 328.0,
+      "T_max_landing_burn_K": 332.0,
+      "Pc_at_Tmax_landing_burn_Pa": 593711.0,
+      "T_post_landing_peak_K": 493.0,
+      "t_post_peak_after_shutdown_s": 137.0,
+      "T_900s_K": 424.0,
+      "T_3600s_K": 320.0,
+      "t_above_150C_s": 874.0,
+      "t_above_200C_s": 283.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x2": {
+      "T_at_relight_K": 332.0,
+      "T_at_Pcmax_landing_burn_K": 336.0,
+      "T_max_landing_burn_K": 341.0,
+      "Pc_at_Tmax_landing_burn_Pa": 593711.0,
+      "T_post_landing_peak_K": 542.0,
+      "t_post_peak_after_shutdown_s": 138.0,
+      "T_900s_K": 456.0,
+      "T_3600s_K": 327.0,
+      "t_above_150C_s": 1260.0,
+      "t_above_200C_s": 686.0,
+      "t_above_240C_s": 320.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc150": {
+      "T_at_relight_K": 347.0,
+      "T_at_Pcmax_landing_burn_K": 350.0,
+      "T_max_landing_burn_K": 354.0,
+      "Pc_at_Tmax_landing_burn_Pa": 290156.0,
+      "T_post_landing_peak_K": 588.0,
+      "t_post_peak_after_shutdown_s": 251.0,
+      "T_900s_K": 505.0,
+      "T_3600s_K": 338.0,
+      "t_above_150C_s": 1729.0,
+      "t_above_200C_s": 1132.0,
+      "t_above_240C_s": 756.0,
+      "t_above_300C_s": 251.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc2000": {
+      "T_at_relight_K": 518.0,
+      "T_at_Pcmax_landing_burn_K": 521.0,
+      "T_max_landing_burn_K": 537.0,
+      "Pc_at_Tmax_landing_burn_Pa": 290156.0,
+      "T_post_landing_peak_K": 663.0,
+      "t_post_peak_after_shutdown_s": 32.0,
+      "T_900s_K": 509.0,
+      "T_3600s_K": 338.0,
+      "t_above_150C_s": 1758.0,
+      "t_above_200C_s": 1203.0,
+      "t_above_240C_s": 866.0,
+      "t_above_300C_s": 468.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc150": {
+      "T_at_relight_K": 321.0,
+      "T_at_Pcmax_landing_burn_K": 322.0,
+      "T_max_landing_burn_K": 325.0,
+      "Pc_at_Tmax_landing_burn_Pa": 290156.0,
+      "T_post_landing_peak_K": 488.0,
+      "t_post_peak_after_shutdown_s": 338.0,
+      "T_900s_K": 458.0,
+      "T_3600s_K": 358.0,
+      "t_above_150C_s": 1499.0,
+      "t_above_200C_s": 469.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc2000": {
+      "T_at_relight_K": 428.0,
+      "T_at_Pcmax_landing_burn_K": 430.0,
+      "T_max_landing_burn_K": 441.0,
+      "Pc_at_Tmax_landing_burn_Pa": 290156.0,
+      "T_post_landing_peak_K": 531.0,
+      "t_post_peak_after_shutdown_s": 41.0,
+      "T_900s_K": 467.0,
+      "T_3600s_K": 361.0,
+      "t_above_150C_s": 1726.0,
+      "t_above_200C_s": 805.0,
+      "t_above_240C_s": 246.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc150": {
+      "T_at_relight_K": 307.0,
+      "T_at_Pcmax_landing_burn_K": 308.0,
+      "T_max_landing_burn_K": 309.0,
+      "Pc_at_Tmax_landing_burn_Pa": 290156.0,
+      "T_post_landing_peak_K": 408.0,
+      "t_post_peak_after_shutdown_s": 409.0,
+      "T_900s_K": 400.0,
+      "T_3600s_K": 357.0,
+      "t_above_150C_s": 0.0,
+      "t_above_200C_s": 0.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc2000": {
+      "T_at_relight_K": 367.0,
+      "T_at_Pcmax_landing_burn_K": 369.0,
+      "T_max_landing_burn_K": 375.0,
+      "Pc_at_Tmax_landing_burn_Pa": 290156.0,
+      "T_post_landing_peak_K": 429.0,
+      "t_post_peak_after_shutdown_s": 46.0,
+      "T_900s_K": 409.0,
+      "T_3600s_K": 362.0,
+      "t_above_150C_s": 278.0,
+      "t_above_200C_s": 0.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc150": {
+      "T_at_relight_K": 342.0,
+      "T_at_Pcmax_landing_burn_K": 344.0,
+      "T_max_landing_burn_K": 348.0,
+      "Pc_at_Tmax_landing_burn_Pa": 290156.0,
+      "T_post_landing_peak_K": 572.0,
+      "t_post_peak_after_shutdown_s": 265.0,
+      "T_900s_K": 500.0,
+      "T_3600s_K": 342.0,
+      "t_above_150C_s": 1735.0,
+      "t_above_200C_s": 1096.0,
+      "t_above_240C_s": 691.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc2000": {
+      "T_at_relight_K": 503.0,
+      "T_at_Pcmax_landing_burn_K": 506.0,
+      "T_max_landing_burn_K": 521.0,
+      "Pc_at_Tmax_landing_burn_Pa": 290156.0,
+      "T_post_landing_peak_K": 642.0,
+      "t_post_peak_after_shutdown_s": 34.0,
+      "T_900s_K": 505.0,
+      "T_3600s_K": 342.0,
+      "t_above_150C_s": 1786.0,
+      "t_above_200C_s": 1191.0,
+      "t_above_240C_s": 830.0,
+      "t_above_300C_s": 403.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x1": {
+      "T_at_relight_K": 521.0,
+      "T_at_Pcmax_landing_burn_K": 523.0,
+      "T_max_landing_burn_K": 556.0,
+      "Pc_at_Tmax_landing_burn_Pa": 945415.0,
+      "T_post_landing_peak_K": 712.0,
+      "t_post_peak_after_shutdown_s": 22.0,
+      "T_900s_K": 478.0,
+      "T_3600s_K": 308.0,
+      "t_above_150C_s": 1273.0,
+      "t_above_200C_s": 927.0,
+      "t_above_240C_s": 714.0,
+      "t_above_300C_s": 456.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x2": {
+      "T_at_relight_K": 564.0,
+      "T_at_Pcmax_landing_burn_K": 567.0,
+      "T_max_landing_burn_K": 610.0,
+      "Pc_at_Tmax_landing_burn_Pa": 945415.0,
+      "T_post_landing_peak_K": 804.0,
+      "t_post_peak_after_shutdown_s": 22.0,
+      "T_900s_K": 518.0,
+      "T_3600s_K": 311.0,
+      "t_above_150C_s": 1484.0,
+      "t_above_200C_s": 1138.0,
+      "t_above_240C_s": 924.0,
+      "t_above_300C_s": 668.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x1": {
+      "T_at_relight_K": 423.0,
+      "T_at_Pcmax_landing_burn_K": 428.0,
+      "T_max_landing_burn_K": 437.0,
+      "Pc_at_Tmax_landing_burn_Pa": 945415.0,
+      "T_post_landing_peak_K": 616.0,
+      "t_post_peak_after_shutdown_s": 61.0,
+      "T_900s_K": 467.0,
+      "T_3600s_K": 316.0,
+      "t_above_150C_s": 1284.0,
+      "t_above_200C_s": 848.0,
+      "t_above_240C_s": 577.0,
+      "t_above_300C_s": 246.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x2": {
+      "T_at_relight_K": 448.0,
+      "T_at_Pcmax_landing_burn_K": 454.0,
+      "T_max_landing_burn_K": 465.0,
+      "Pc_at_Tmax_landing_burn_Pa": 945415.0,
+      "T_post_landing_peak_K": 685.0,
+      "t_post_peak_after_shutdown_s": 61.0,
+      "T_900s_K": 504.0,
+      "T_3600s_K": 321.0,
+      "t_above_150C_s": 1540.0,
+      "t_above_200C_s": 1107.0,
+      "t_above_240C_s": 837.0,
+      "t_above_300C_s": 512.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x1": {
+      "T_at_relight_K": 328.0,
+      "T_at_Pcmax_landing_burn_K": 332.0,
+      "T_max_landing_burn_K": 338.0,
+      "Pc_at_Tmax_landing_burn_Pa": 945415.0,
+      "T_post_landing_peak_K": 535.0,
+      "t_post_peak_after_shutdown_s": 138.0,
+      "T_900s_K": 451.0,
+      "T_3600s_K": 326.0,
+      "t_above_150C_s": 1206.0,
+      "t_above_200C_s": 632.0,
+      "t_above_240C_s": 262.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x2": {
+      "T_at_relight_K": 335.0,
+      "T_at_Pcmax_landing_burn_K": 340.0,
+      "T_max_landing_burn_K": 347.0,
+      "Pc_at_Tmax_landing_burn_Pa": 945415.0,
+      "T_post_landing_peak_K": 585.0,
+      "t_post_peak_after_shutdown_s": 138.0,
+      "T_900s_K": 484.0,
+      "T_3600s_K": 332.0,
+      "t_above_150C_s": 1538.0,
+      "t_above_200C_s": 970.0,
+      "t_above_240C_s": 614.0,
+      "t_above_300C_s": 156.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc150": {
+      "T_at_relight_K": 353.0,
+      "T_at_Pcmax_landing_burn_K": 356.0,
+      "T_max_landing_burn_K": 364.0,
+      "Pc_at_Tmax_landing_burn_Pa": 163352.0,
+      "T_post_landing_peak_K": 647.0,
+      "t_post_peak_after_shutdown_s": 253.0,
+      "T_900s_K": 546.0,
+      "T_3600s_K": 347.0,
+      "t_above_150C_s": 2040.0,
+      "t_above_200C_s": 1450.0,
+      "t_above_240C_s": 1083.0,
+      "t_above_300C_s": 633.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc2000": {
+      "T_at_relight_K": 558.0,
+      "T_at_Pcmax_landing_burn_K": 562.0,
+      "T_max_landing_burn_K": 592.0,
+      "Pc_at_Tmax_landing_burn_Pa": 163352.0,
+      "T_post_landing_peak_K": 747.0,
+      "t_post_peak_after_shutdown_s": 33.0,
+      "T_900s_K": 551.0,
+      "T_3600s_K": 346.0,
+      "t_above_150C_s": 2053.0,
+      "t_above_200C_s": 1498.0,
+      "t_above_240C_s": 1160.0,
+      "t_above_300C_s": 766.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc150": {
+      "T_at_relight_K": 324.0,
+      "T_at_Pcmax_landing_burn_K": 326.0,
+      "T_max_landing_burn_K": 330.0,
+      "Pc_at_Tmax_landing_burn_Pa": 163352.0,
+      "T_post_landing_peak_K": 531.0,
+      "t_post_peak_after_shutdown_s": 349.0,
+      "T_900s_K": 495.0,
+      "T_3600s_K": 372.0,
+      "t_above_150C_s": 2082.0,
+      "t_above_200C_s": 1103.0,
+      "t_above_240C_s": 462.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc2000": {
+      "T_at_relight_K": 452.0,
+      "T_at_Pcmax_landing_burn_K": 456.0,
+      "T_max_landing_burn_K": 475.0,
+      "Pc_at_Tmax_landing_burn_Pa": 163352.0,
+      "T_post_landing_peak_K": 590.0,
+      "t_post_peak_after_shutdown_s": 43.0,
+      "T_900s_K": 508.0,
+      "T_3600s_K": 376.0,
+      "t_above_150C_s": 2306.0,
+      "t_above_200C_s": 1389.0,
+      "t_above_240C_s": 836.0,
+      "t_above_300C_s": 187.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc150": {
+      "T_at_relight_K": 309.0,
+      "T_at_Pcmax_landing_burn_K": 310.0,
+      "T_max_landing_burn_K": 312.0,
+      "Pc_at_Tmax_landing_burn_Pa": 163352.0,
+      "T_post_landing_peak_K": 435.0,
+      "t_post_peak_after_shutdown_s": 427.0,
+      "T_900s_K": 425.0,
+      "T_3600s_K": 372.0,
+      "t_above_150C_s": 751.0,
+      "t_above_200C_s": 0.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc2000": {
+      "T_at_relight_K": 381.0,
+      "T_at_Pcmax_landing_burn_K": 383.0,
+      "T_max_landing_burn_K": 394.0,
+      "Pc_at_Tmax_landing_burn_Pa": 163352.0,
+      "T_post_landing_peak_K": 465.0,
+      "t_post_peak_after_shutdown_s": 48.0,
+      "T_900s_K": 439.0,
+      "T_3600s_K": 380.0,
+      "t_above_150C_s": 1471.0,
+      "t_above_200C_s": 0.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc150": {
+      "T_at_relight_K": 347.0,
+      "T_at_Pcmax_landing_burn_K": 350.0,
+      "T_max_landing_burn_K": 358.0,
+      "Pc_at_Tmax_landing_burn_Pa": 163352.0,
+      "T_post_landing_peak_K": 629.0,
+      "t_post_peak_after_shutdown_s": 268.0,
+      "T_900s_K": 540.0,
+      "T_3600s_K": 352.0,
+      "t_above_150C_s": 2075.0,
+      "t_above_200C_s": 1443.0,
+      "t_above_240C_s": 1050.0,
+      "t_above_300C_s": 565.0
+     },
+     "DC-A1-S230v2wip_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc2000": {
+      "T_at_relight_K": 540.0,
+      "T_at_Pcmax_landing_burn_K": 544.0,
+      "T_max_landing_burn_K": 572.0,
+      "Pc_at_Tmax_landing_burn_Pa": 163352.0,
+      "T_post_landing_peak_K": 723.0,
+      "t_post_peak_after_shutdown_s": 35.0,
+      "T_900s_K": 547.0,
+      "T_3600s_K": 351.0,
+      "t_above_150C_s": 2110.0,
+      "t_above_200C_s": 1515.0,
+      "t_above_240C_s": 1154.0,
+      "t_above_300C_s": 732.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x1": {
+      "T_at_relight_K": 479.0,
+      "T_at_Pcmax_landing_burn_K": 506.0,
+      "T_max_landing_burn_K": 548.0,
+      "Pc_at_Tmax_landing_burn_Pa": 802573.0,
+      "T_post_landing_peak_K": 713.0,
+      "t_post_peak_after_shutdown_s": 23.0,
+      "T_900s_K": 478.0,
+      "T_3600s_K": 308.0,
+      "t_above_150C_s": 1276.0,
+      "t_above_200C_s": 930.0,
+      "t_above_240C_s": 716.0,
+      "t_above_300C_s": 459.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x2": {
+      "T_at_relight_K": 518.0,
+      "T_at_Pcmax_landing_burn_K": 554.0,
+      "T_max_landing_burn_K": 606.0,
+      "Pc_at_Tmax_landing_burn_Pa": 802573.0,
+      "T_post_landing_peak_K": 804.0,
+      "t_post_peak_after_shutdown_s": 23.0,
+      "T_900s_K": 518.0,
+      "T_3600s_K": 311.0,
+      "t_above_150C_s": 1483.0,
+      "t_above_200C_s": 1137.0,
+      "t_above_240C_s": 924.0,
+      "t_above_300C_s": 666.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x1": {
+      "T_at_relight_K": 368.0,
+      "T_at_Pcmax_landing_burn_K": 386.0,
+      "T_max_landing_burn_K": 396.0,
+      "Pc_at_Tmax_landing_burn_Pa": 802573.0,
+      "T_post_landing_peak_K": 612.0,
+      "t_post_peak_after_shutdown_s": 64.0,
+      "T_900s_K": 465.0,
+      "T_3600s_K": 316.0,
+      "t_above_150C_s": 1265.0,
+      "t_above_200C_s": 828.0,
+      "t_above_240C_s": 558.0,
+      "t_above_300C_s": 226.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x2": {
+      "T_at_relight_K": 384.0,
+      "T_at_Pcmax_landing_burn_K": 405.0,
+      "T_max_landing_burn_K": 418.0,
+      "Pc_at_Tmax_landing_burn_Pa": 802573.0,
+      "T_post_landing_peak_K": 677.0,
+      "t_post_peak_after_shutdown_s": 64.0,
+      "T_900s_K": 500.0,
+      "T_3600s_K": 320.0,
+      "t_above_150C_s": 1514.0,
+      "t_above_200C_s": 1078.0,
+      "t_above_240C_s": 810.0,
+      "t_above_300C_s": 484.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x1": {
+      "T_at_relight_K": 303.0,
+      "T_at_Pcmax_landing_burn_K": 311.0,
+      "T_max_landing_burn_K": 315.0,
+      "Pc_at_Tmax_landing_burn_Pa": 802573.0,
+      "T_post_landing_peak_K": 532.0,
+      "t_post_peak_after_shutdown_s": 141.0,
+      "T_900s_K": 450.0,
+      "T_3600s_K": 325.0,
+      "t_above_150C_s": 1188.0,
+      "t_above_200C_s": 614.0,
+      "t_above_240C_s": 241.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x2": {
+      "T_at_relight_K": 306.0,
+      "T_at_Pcmax_landing_burn_K": 315.0,
+      "T_max_landing_burn_K": 320.0,
+      "Pc_at_Tmax_landing_burn_Pa": 802573.0,
+      "T_post_landing_peak_K": 580.0,
+      "t_post_peak_after_shutdown_s": 141.0,
+      "T_900s_K": 481.0,
+      "T_3600s_K": 332.0,
+      "t_above_150C_s": 1510.0,
+      "t_above_200C_s": 942.0,
+      "t_above_240C_s": 585.0,
+      "t_above_300C_s": 118.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc150": {
+      "T_at_relight_K": 327.0,
+      "T_at_Pcmax_landing_burn_K": 335.0,
+      "T_max_landing_burn_K": 341.0,
+      "Pc_at_Tmax_landing_burn_Pa": 149360.0,
+      "T_post_landing_peak_K": 645.0,
+      "t_post_peak_after_shutdown_s": 259.0,
+      "T_900s_K": 545.0,
+      "T_3600s_K": 347.0,
+      "t_above_150C_s": 2032.0,
+      "t_above_200C_s": 1442.0,
+      "t_above_240C_s": 1075.0,
+      "t_above_300C_s": 624.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc2000": {
+      "T_at_relight_K": 496.0,
+      "T_at_Pcmax_landing_burn_K": 525.0,
+      "T_max_landing_burn_K": 556.0,
+      "Pc_at_Tmax_landing_burn_Pa": 149360.0,
+      "T_post_landing_peak_K": 746.0,
+      "t_post_peak_after_shutdown_s": 34.0,
+      "T_900s_K": 550.0,
+      "T_3600s_K": 346.0,
+      "t_above_150C_s": 2050.0,
+      "t_above_200C_s": 1495.0,
+      "t_above_240C_s": 1158.0,
+      "t_above_300C_s": 762.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc150": {
+      "T_at_relight_K": 310.0,
+      "T_at_Pcmax_landing_burn_K": 315.0,
+      "T_max_landing_burn_K": 318.0,
+      "Pc_at_Tmax_landing_burn_Pa": 149360.0,
+      "T_post_landing_peak_K": 530.0,
+      "t_post_peak_after_shutdown_s": 354.0,
+      "T_900s_K": 494.0,
+      "T_3600s_K": 372.0,
+      "t_above_150C_s": 2066.0,
+      "t_above_200C_s": 1087.0,
+      "t_above_240C_s": 442.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc2000": {
+      "T_at_relight_K": 410.0,
+      "T_at_Pcmax_landing_burn_K": 429.0,
+      "T_max_landing_burn_K": 448.0,
+      "Pc_at_Tmax_landing_burn_Pa": 149360.0,
+      "T_post_landing_peak_K": 588.0,
+      "t_post_peak_after_shutdown_s": 45.0,
+      "T_900s_K": 507.0,
+      "T_3600s_K": 376.0,
+      "t_above_150C_s": 2287.0,
+      "t_above_200C_s": 1368.0,
+      "t_above_240C_s": 815.0,
+      "t_above_300C_s": 165.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc150": {
+      "T_at_relight_K": 302.0,
+      "T_at_Pcmax_landing_burn_K": 304.0,
+      "T_max_landing_burn_K": 305.0,
+      "Pc_at_Tmax_landing_burn_Pa": 149360.0,
+      "T_post_landing_peak_K": 434.0,
+      "t_post_peak_after_shutdown_s": 432.0,
+      "T_900s_K": 424.0,
+      "T_3600s_K": 371.0,
+      "t_above_150C_s": 717.0,
+      "t_above_200C_s": 0.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc2000": {
+      "T_at_relight_K": 356.0,
+      "T_at_Pcmax_landing_burn_K": 367.0,
+      "T_max_landing_burn_K": 378.0,
+      "Pc_at_Tmax_landing_burn_Pa": 149360.0,
+      "T_post_landing_peak_K": 463.0,
+      "t_post_peak_after_shutdown_s": 50.0,
+      "T_900s_K": 437.0,
+      "T_3600s_K": 379.0,
+      "t_above_150C_s": 1410.0,
+      "t_above_200C_s": 0.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc150": {
+      "T_at_relight_K": 324.0,
+      "T_at_Pcmax_landing_burn_K": 331.0,
+      "T_max_landing_burn_K": 336.0,
+      "Pc_at_Tmax_landing_burn_Pa": 149360.0,
+      "T_post_landing_peak_K": 627.0,
+      "t_post_peak_after_shutdown_s": 274.0,
+      "T_900s_K": 540.0,
+      "T_3600s_K": 351.0,
+      "t_above_150C_s": 2065.0,
+      "t_above_200C_s": 1435.0,
+      "t_above_240C_s": 1042.0,
+      "t_above_300C_s": 556.0
+     },
+     "DC-A2-S230_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc2000": {
+      "T_at_relight_K": 481.0,
+      "T_at_Pcmax_landing_burn_K": 508.0,
+      "T_max_landing_burn_K": 537.0,
+      "Pc_at_Tmax_landing_burn_Pa": 149360.0,
+      "T_post_landing_peak_K": 721.0,
+      "t_post_peak_after_shutdown_s": 36.0,
+      "T_900s_K": 547.0,
+      "T_3600s_K": 351.0,
+      "t_above_150C_s": 2106.0,
+      "t_above_200C_s": 1511.0,
+      "t_above_240C_s": 1150.0,
+      "t_above_300C_s": 726.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x1": {
+      "T_at_relight_K": 506.0,
+      "T_at_Pcmax_landing_burn_K": 512.0,
+      "T_max_landing_burn_K": 590.0,
+      "Pc_at_Tmax_landing_burn_Pa": 967036.0,
+      "T_post_landing_peak_K": 761.0,
+      "t_post_peak_after_shutdown_s": 22.0,
+      "T_900s_K": 499.0,
+      "T_3600s_K": 309.0,
+      "t_above_150C_s": 1390.0,
+      "t_above_200C_s": 1044.0,
+      "t_above_240C_s": 830.0,
+      "t_above_300C_s": 573.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x2": {
+      "T_at_relight_K": 546.0,
+      "T_at_Pcmax_landing_burn_K": 553.0,
+      "T_max_landing_burn_K": 650.0,
+      "Pc_at_Tmax_landing_burn_Pa": 967036.0,
+      "T_post_landing_peak_K": 852.0,
+      "t_post_peak_after_shutdown_s": 22.0,
+      "T_900s_K": 539.0,
+      "T_3600s_K": 313.0,
+      "t_above_150C_s": 1580.0,
+      "t_above_200C_s": 1233.0,
+      "t_above_240C_s": 1020.0,
+      "t_above_300C_s": 762.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x1": {
+      "T_at_relight_K": 373.0,
+      "T_at_Pcmax_landing_burn_K": 382.0,
+      "T_max_landing_burn_K": 410.0,
+      "Pc_at_Tmax_landing_burn_Pa": 967036.0,
+      "T_post_landing_peak_K": 646.0,
+      "t_post_peak_after_shutdown_s": 63.0,
+      "T_900s_K": 483.0,
+      "T_3600s_K": 318.0,
+      "t_above_150C_s": 1399.0,
+      "t_above_200C_s": 964.0,
+      "t_above_240C_s": 694.0,
+      "t_above_300C_s": 366.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x2": {
+      "T_at_relight_K": 388.0,
+      "T_at_Pcmax_landing_burn_K": 399.0,
+      "T_max_landing_burn_K": 433.0,
+      "Pc_at_Tmax_landing_burn_Pa": 967036.0,
+      "T_post_landing_peak_K": 710.0,
+      "t_post_peak_after_shutdown_s": 63.0,
+      "T_900s_K": 518.0,
+      "T_3600s_K": 322.0,
+      "t_above_150C_s": 1624.0,
+      "t_above_200C_s": 1189.0,
+      "t_above_240C_s": 920.0,
+      "t_above_300C_s": 596.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x1": {
+      "T_at_relight_K": 303.0,
+      "T_at_Pcmax_landing_burn_K": 306.0,
+      "T_max_landing_burn_K": 316.0,
+      "Pc_at_Tmax_landing_burn_Pa": 967036.0,
+      "T_post_landing_peak_K": 557.0,
+      "t_post_peak_after_shutdown_s": 141.0,
+      "T_900s_K": 466.0,
+      "T_3600s_K": 329.0,
+      "t_above_150C_s": 1362.0,
+      "t_above_200C_s": 792.0,
+      "t_above_240C_s": 431.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x2": {
+      "T_at_relight_K": 305.0,
+      "T_at_Pcmax_landing_burn_K": 308.0,
+      "T_max_landing_burn_K": 321.0,
+      "Pc_at_Tmax_landing_burn_Pa": 967036.0,
+      "T_post_landing_peak_K": 605.0,
+      "t_post_peak_after_shutdown_s": 141.0,
+      "T_900s_K": 497.0,
+      "T_3600s_K": 335.0,
+      "t_above_150C_s": 1652.0,
+      "t_above_200C_s": 1086.0,
+      "t_above_240C_s": 732.0,
+      "t_above_300C_s": 292.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc150": {
+      "T_at_relight_K": 328.0,
+      "T_at_Pcmax_landing_burn_K": 332.0,
+      "T_max_landing_burn_K": 346.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 681.0,
+      "t_post_peak_after_shutdown_s": 259.0,
+      "T_900s_K": 569.0,
+      "T_3600s_K": 352.0,
+      "t_above_150C_s": 2190.0,
+      "t_above_200C_s": 1603.0,
+      "t_above_240C_s": 1238.0,
+      "t_above_300C_s": 796.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc2000": {
+      "T_at_relight_K": 520.0,
+      "T_at_Pcmax_landing_burn_K": 531.0,
+      "T_max_landing_burn_K": 597.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 798.0,
+      "t_post_peak_after_shutdown_s": 34.0,
+      "T_900s_K": 574.0,
+      "T_3600s_K": 350.0,
+      "t_above_150C_s": 2194.0,
+      "t_above_200C_s": 1640.0,
+      "t_above_240C_s": 1303.0,
+      "t_above_300C_s": 908.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc150": {
+      "T_at_relight_K": 311.0,
+      "T_at_Pcmax_landing_burn_K": 313.0,
+      "T_max_landing_burn_K": 320.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 556.0,
+      "t_post_peak_after_shutdown_s": 359.0,
+      "T_900s_K": 517.0,
+      "T_3600s_K": 380.0,
+      "t_above_150C_s": 2367.0,
+      "t_above_200C_s": 1399.0,
+      "t_above_240C_s": 791.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc2000": {
+      "T_at_relight_K": 423.0,
+      "T_at_Pcmax_landing_burn_K": 431.0,
+      "T_max_landing_burn_K": 472.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 625.0,
+      "t_post_peak_after_shutdown_s": 45.0,
+      "T_900s_K": 531.0,
+      "T_3600s_K": 384.0,
+      "t_above_150C_s": 2580.0,
+      "t_above_200C_s": 1663.0,
+      "t_above_240C_s": 1111.0,
+      "t_above_300C_s": 468.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc150": {
+      "T_at_relight_K": 302.0,
+      "T_at_Pcmax_landing_burn_K": 303.0,
+      "T_max_landing_burn_K": 307.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 451.0,
+      "t_post_peak_after_shutdown_s": 442.0,
+      "T_900s_K": 440.0,
+      "T_3600s_K": 381.0,
+      "t_above_150C_s": 1361.0,
+      "t_above_200C_s": 0.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc2000": {
+      "T_at_relight_K": 363.0,
+      "T_at_Pcmax_landing_burn_K": 367.0,
+      "T_max_landing_burn_K": 391.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 485.0,
+      "t_post_peak_after_shutdown_s": 52.0,
+      "T_900s_K": 455.0,
+      "T_3600s_K": 389.0,
+      "t_above_150C_s": 2021.0,
+      "t_above_200C_s": 367.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc150": {
+      "T_at_relight_K": 325.0,
+      "T_at_Pcmax_landing_burn_K": 328.0,
+      "T_max_landing_burn_K": 341.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 662.0,
+      "t_post_peak_after_shutdown_s": 274.0,
+      "T_900s_K": 564.0,
+      "T_3600s_K": 357.0,
+      "t_above_150C_s": 2238.0,
+      "t_above_200C_s": 1610.0,
+      "t_above_240C_s": 1221.0,
+      "t_above_300C_s": 748.0
+     },
+     "DC-A2-S230v2wip_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc2000": {
+      "T_at_relight_K": 503.0,
+      "T_at_Pcmax_landing_burn_K": 513.0,
+      "T_max_landing_burn_K": 576.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 771.0,
+      "t_post_peak_after_shutdown_s": 36.0,
+      "T_900s_K": 571.0,
+      "T_3600s_K": 356.0,
+      "t_above_150C_s": 2266.0,
+      "t_above_200C_s": 1671.0,
+      "t_above_240C_s": 1311.0,
+      "t_above_300C_s": 889.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x1": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 757.0,
+      "Pc_at_Tmax_landing_burn_Pa": 830966.0,
+      "T_post_landing_peak_K": 914.0,
+      "t_post_peak_after_shutdown_s": 20.0,
+      "T_900s_K": 566.0,
+      "T_3600s_K": 315.0,
+      "t_above_150C_s": 1690.0,
+      "t_above_200C_s": 1344.0,
+      "t_above_240C_s": 1130.0,
+      "t_above_300C_s": 873.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x2": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 874.0,
+      "Pc_at_Tmax_landing_burn_Pa": 830966.0,
+      "T_post_landing_peak_K": 1053.0,
+      "t_post_peak_after_shutdown_s": 20.0,
+      "T_900s_K": 627.0,
+      "T_3600s_K": 320.0,
+      "t_above_150C_s": 1904.0,
+      "t_above_200C_s": 1558.0,
+      "t_above_240C_s": 1344.0,
+      "t_above_300C_s": 1088.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x1": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 464.0,
+      "Pc_at_Tmax_landing_burn_Pa": 830966.0,
+      "T_post_landing_peak_K": 747.0,
+      "t_post_peak_after_shutdown_s": 61.0,
+      "T_900s_K": 537.0,
+      "T_3600s_K": 325.0,
+      "t_above_150C_s": 1734.0,
+      "t_above_200C_s": 1302.0,
+      "t_above_240C_s": 1033.0,
+      "t_above_300C_s": 709.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x2": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 508.0,
+      "Pc_at_Tmax_landing_burn_Pa": 830966.0,
+      "T_post_landing_peak_K": 836.0,
+      "t_post_peak_after_shutdown_s": 61.0,
+      "T_900s_K": 584.0,
+      "T_3600s_K": 331.0,
+      "t_above_150C_s": 1970.0,
+      "t_above_200C_s": 1538.0,
+      "t_above_240C_s": 1272.0,
+      "t_above_300C_s": 949.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x1": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 321.0,
+      "Pc_at_Tmax_landing_burn_Pa": 830966.0,
+      "T_post_landing_peak_K": 633.0,
+      "t_post_peak_after_shutdown_s": 140.0,
+      "T_900s_K": 516.0,
+      "T_3600s_K": 339.0,
+      "t_above_150C_s": 1802.0,
+      "t_above_200C_s": 1236.0,
+      "t_above_240C_s": 884.0,
+      "t_above_300C_s": 453.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x2": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 330.0,
+      "Pc_at_Tmax_landing_burn_Pa": 830966.0,
+      "T_post_landing_peak_K": 699.0,
+      "t_post_peak_after_shutdown_s": 139.0,
+      "T_900s_K": 558.0,
+      "T_3600s_K": 348.0,
+      "t_above_150C_s": 2106.0,
+      "t_above_200C_s": 1542.0,
+      "t_above_240C_s": 1194.0,
+      "t_above_300C_s": 770.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc150": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 359.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 758.0,
+      "t_post_peak_after_shutdown_s": 255.0,
+      "T_900s_K": 619.0,
+      "T_3600s_K": 362.0,
+      "t_above_150C_s": 2474.0,
+      "t_above_200C_s": 1890.0,
+      "t_above_240C_s": 1529.0,
+      "t_above_300C_s": 1097.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc2000": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 294.0,
+      "T_max_landing_burn_K": 709.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 920.0,
+      "t_post_peak_after_shutdown_s": 33.0,
+      "T_900s_K": 625.0,
+      "T_3600s_K": 360.0,
+      "t_above_150C_s": 2454.0,
+      "t_above_200C_s": 1899.0,
+      "t_above_240C_s": 1561.0,
+      "t_above_300C_s": 1166.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc150": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 327.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 615.0,
+      "t_post_peak_after_shutdown_s": 366.0,
+      "T_900s_K": 566.0,
+      "T_3600s_K": 397.0,
+      "t_above_150C_s": 2918.0,
+      "t_above_200C_s": 1964.0,
+      "t_above_240C_s": 1377.0,
+      "t_above_300C_s": 661.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc2000": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 294.0,
+      "T_max_landing_burn_K": 538.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 712.0,
+      "t_post_peak_after_shutdown_s": 46.0,
+      "T_900s_K": 587.0,
+      "T_3600s_K": 403.0,
+      "t_above_150C_s": 3125.0,
+      "t_above_200C_s": 2209.0,
+      "t_above_240C_s": 1659.0,
+      "t_above_300C_s": 1020.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc150": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 310.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 490.0,
+      "t_post_peak_after_shutdown_s": 460.0,
+      "T_900s_K": 477.0,
+      "T_3600s_K": 401.0,
+      "t_above_150C_s": 2522.0,
+      "t_above_200C_s": 748.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc2000": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 427.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 539.0,
+      "t_post_peak_after_shutdown_s": 54.0,
+      "T_900s_K": 499.0,
+      "T_3600s_K": 413.0,
+      "t_above_150C_s": 3195.0,
+      "t_above_200C_s": 1548.0,
+      "t_above_240C_s": 564.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc150": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 353.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 737.0,
+      "t_post_peak_after_shutdown_s": 272.0,
+      "T_900s_K": 615.0,
+      "T_3600s_K": 368.0,
+      "t_above_150C_s": 2549.0,
+      "t_above_200C_s": 1925.0,
+      "t_above_240C_s": 1540.0,
+      "t_above_300C_s": 1080.0
+     },
+     "DC-B1-S230_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc2000": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 294.0,
+      "T_max_landing_burn_K": 679.0,
+      "Pc_at_Tmax_landing_burn_Pa": 101325.0,
+      "T_post_landing_peak_K": 888.0,
+      "t_post_peak_after_shutdown_s": 35.0,
+      "T_900s_K": 623.0,
+      "T_3600s_K": 367.0,
+      "t_above_150C_s": 2555.0,
+      "t_above_200C_s": 1959.0,
+      "t_above_240C_s": 1599.0,
+      "t_above_300C_s": 1177.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x1": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 731.0,
+      "Pc_at_Tmax_landing_burn_Pa": 911939.0,
+      "T_post_landing_peak_K": 891.0,
+      "t_post_peak_after_shutdown_s": 21.0,
+      "T_900s_K": 556.0,
+      "T_3600s_K": 314.0,
+      "t_above_150C_s": 1650.0,
+      "t_above_200C_s": 1303.0,
+      "t_above_240C_s": 1090.0,
+      "t_above_300C_s": 833.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 1.6 mm, h_g x2": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 838.0,
+      "Pc_at_Tmax_landing_burn_Pa": 911939.0,
+      "T_post_landing_peak_K": 1020.0,
+      "t_post_peak_after_shutdown_s": 21.0,
+      "T_900s_K": 613.0,
+      "T_3600s_K": 318.0,
+      "t_above_150C_s": 1856.0,
+      "t_above_200C_s": 1510.0,
+      "t_above_240C_s": 1296.0,
+      "t_above_300C_s": 1040.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x1": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 446.0,
+      "Pc_at_Tmax_landing_burn_Pa": 911939.0,
+      "T_post_landing_peak_K": 732.0,
+      "t_post_peak_after_shutdown_s": 62.0,
+      "T_900s_K": 529.0,
+      "T_3600s_K": 324.0,
+      "t_above_150C_s": 1689.0,
+      "t_above_200C_s": 1256.0,
+      "t_above_240C_s": 988.0,
+      "t_above_300C_s": 664.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 3.0 mm, h_g x2": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 485.0,
+      "Pc_at_Tmax_landing_burn_Pa": 911939.0,
+      "T_post_landing_peak_K": 815.0,
+      "t_post_peak_after_shutdown_s": 62.0,
+      "T_900s_K": 573.0,
+      "T_3600s_K": 330.0,
+      "t_above_150C_s": 1918.0,
+      "t_above_200C_s": 1486.0,
+      "t_above_240C_s": 1219.0,
+      "t_above_300C_s": 896.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x1": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 316.0,
+      "Pc_at_Tmax_landing_burn_Pa": 911939.0,
+      "T_post_landing_peak_K": 622.0,
+      "t_post_peak_after_shutdown_s": 140.0,
+      "T_900s_K": 508.0,
+      "T_3600s_K": 338.0,
+      "t_above_150C_s": 1744.0,
+      "t_above_200C_s": 1178.0,
+      "t_above_240C_s": 826.0,
+      "t_above_300C_s": 392.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|case_post_chamber|phenolic 5.0 mm, h_g x2": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 323.0,
+      "Pc_at_Tmax_landing_burn_Pa": 911939.0,
+      "T_post_landing_peak_K": 684.0,
+      "t_post_peak_after_shutdown_s": 140.0,
+      "T_900s_K": 549.0,
+      "T_3600s_K": 346.0,
+      "t_above_150C_s": 2040.0,
+      "t_above_200C_s": 1477.0,
+      "t_above_240C_s": 1128.0,
+      "t_above_300C_s": 702.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc150": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 352.0,
+      "Pc_at_Tmax_landing_burn_Pa": 106818.0,
+      "T_post_landing_peak_K": 752.0,
+      "t_post_peak_after_shutdown_s": 256.0,
+      "T_900s_K": 616.0,
+      "T_3600s_K": 361.0,
+      "t_above_150C_s": 2455.0,
+      "t_above_200C_s": 1870.0,
+      "t_above_240C_s": 1509.0,
+      "t_above_300C_s": 1078.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.15 kg|hc2000": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 295.0,
+      "T_max_landing_burn_K": 683.0,
+      "Pc_at_Tmax_landing_burn_Pa": 106818.0,
+      "T_post_landing_peak_K": 908.0,
+      "t_post_peak_after_shutdown_s": 34.0,
+      "T_900s_K": 620.0,
+      "T_3600s_K": 359.0,
+      "t_above_150C_s": 2432.0,
+      "t_above_200C_s": 1877.0,
+      "t_above_240C_s": 1540.0,
+      "t_above_300C_s": 1145.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc150": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 323.0,
+      "Pc_at_Tmax_landing_burn_Pa": 106818.0,
+      "T_post_landing_peak_K": 611.0,
+      "t_post_peak_after_shutdown_s": 367.0,
+      "T_900s_K": 562.0,
+      "T_3600s_K": 396.0,
+      "t_above_150C_s": 2881.0,
+      "t_above_200C_s": 1926.0,
+      "t_above_240C_s": 1339.0,
+      "t_above_300C_s": 617.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.30 kg|hc2000": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 294.0,
+      "T_max_landing_burn_K": 520.0,
+      "Pc_at_Tmax_landing_burn_Pa": 106818.0,
+      "T_post_landing_peak_K": 702.0,
+      "t_post_peak_after_shutdown_s": 47.0,
+      "T_900s_K": 581.0,
+      "T_3600s_K": 401.0,
+      "t_above_150C_s": 3075.0,
+      "t_above_200C_s": 2158.0,
+      "t_above_240C_s": 1609.0,
+      "t_above_300C_s": 969.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc150": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 308.0,
+      "Pc_at_Tmax_landing_burn_Pa": 106818.0,
+      "T_post_landing_peak_K": 487.0,
+      "t_post_peak_after_shutdown_s": 460.0,
+      "T_900s_K": 474.0,
+      "T_3600s_K": 400.0,
+      "t_above_150C_s": 2442.0,
+      "t_above_200C_s": 657.0,
+      "t_above_240C_s": 0.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|retainer_lip|Al 0.60 kg|hc2000": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 294.0,
+      "T_max_landing_burn_K": 416.0,
+      "Pc_at_Tmax_landing_burn_Pa": 106818.0,
+      "T_post_landing_peak_K": 532.0,
+      "t_post_peak_after_shutdown_s": 54.0,
+      "T_900s_K": 494.0,
+      "T_3600s_K": 411.0,
+      "t_above_150C_s": 3077.0,
+      "t_above_200C_s": 1430.0,
+      "t_above_240C_s": 444.0,
+      "t_above_300C_s": 0.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc150": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 293.0,
+      "T_max_landing_burn_K": 347.0,
+      "Pc_at_Tmax_landing_burn_Pa": 106818.0,
+      "T_post_landing_peak_K": 731.0,
+      "t_post_peak_after_shutdown_s": 273.0,
+      "T_900s_K": 611.0,
+      "T_3600s_K": 367.0,
+      "t_above_150C_s": 2529.0,
+      "t_above_200C_s": 1904.0,
+      "t_above_240C_s": 1519.0,
+      "t_above_300C_s": 1058.0
+     },
+     "DC-B1-S230v2wip_neqE1e+03_reg1|retainer_lip|steel 0.30 kg|hc2000": {
+      "T_at_relight_K": null,
+      "T_at_Pcmax_landing_burn_K": 294.0,
+      "T_max_landing_burn_K": 654.0,
+      "Pc_at_Tmax_landing_burn_Pa": 106818.0,
+      "T_post_landing_peak_K": 877.0,
+      "t_post_peak_after_shutdown_s": 36.0,
+      "T_900s_K": 618.0,
+      "T_3600s_K": 366.0,
+      "t_above_150C_s": 2531.0,
+      "t_above_200C_s": 1935.0,
+      "t_above_240C_s": 1574.0,
+      "t_above_300C_s": 1153.0
+     }
+    },
+    "note": "coast and relight time are explicit in each DC CSV (burn segments from the mox and Pc columns); coasts adiabatic (upper bound at relight); times above thresholds counted over the soak window; no allowable applied (240 C = Al lip at 51 MPa, 192 C = Al aft land, steel = own allowable; reuse judgement = Mechanical)"
+   },
+   "tag": "SIM soakback_relight.py (lumped insert/retainer + 1-D wall, coasts adiabatic = conservative); Mechanical FEA supersedes"
+  },
+  "grain_mass_kg": {
+   "v": 0.404,
+   "tag": "DERIVED"
+  },
+  "roll_torque": {
+   "v": "helical-port swirl source removed by the straight port; residual roll torque (injector/print asymmetry) is UNKNOWN: measure at static fire T1 (lead rule: RCS deleted only if |roll torque| <= 0.02 N m)",
+   "tag": "LEAD/DERIVED"
+  },
+  "thrust_misalignment": {
+   "v": "not quantified (asymmetric regression of a printed grain); measure at T1 with a 6-axis stand or two load cells",
+   "tag": "UNKNOWN"
+  },
+  "max_thrust_case_csv": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/engine_S230_BL/maxthrust_BLtank_neqE1e+03_T20C.csv"
+ },
+ "stability": {
+  "criteria": "injector dP/Pc >= 0.25 everywhere (ceiling rule); chug gain margin from the lumped feed/chamber model; acoustic modes far above the actuator band",
+  "points_initial_port": {
+   "v": {
+    "1.0": {
+     "dP_over_Pc": 0.93,
+     "GM_tau5ms": 6.5,
+     "GM_tau10ms": 4.7,
+     "f_1L_Hz": 1460.0,
+     "f_Helmholtz_Hz": 1125.0,
+     "f_1T_chamber_Hz": 10407.0,
+     "f_thermal_lag_Hz": 2.17
+    },
+    "0.75": {
+     "dP_over_Pc": 1.58,
+     "GM_tau5ms": 10.2,
+     "GM_tau10ms": 7.5,
+     "f_1L_Hz": 1477.0,
+     "f_Helmholtz_Hz": 1138.0,
+     "f_1T_chamber_Hz": 10524.0,
+     "f_thermal_lag_Hz": 1.61
+    },
+    "0.5": {
+     "dP_over_Pc": 2.78,
+     "GM_tau5ms": 17.0,
+     "GM_tau10ms": 12.5,
+     "f_1L_Hz": 1499.0,
+     "f_Helmholtz_Hz": 1155.0,
+     "f_1T_chamber_Hz": 10686.0,
+     "f_thermal_lag_Hz": 1.07
+    },
+    "0.25": {
+     "dP_over_Pc": 5.86,
+     "GM_tau5ms": 32.1,
+     "GM_tau10ms": 23.7,
+     "f_1L_Hz": 1532.0,
+     "f_Helmholtz_Hz": 1180.0,
+     "f_1T_chamber_Hz": 10916.0,
+     "f_thermal_lag_Hz": 0.56
+    },
+    "0.2": {
+     "dP_over_Pc": 7.18,
+     "GM_tau5ms": 36.8,
+     "GM_tau10ms": 27.2,
+     "f_1L_Hz": 1539.0,
+     "f_Helmholtz_Hz": 1186.0,
+     "f_1T_chamber_Hz": 10965.0,
+     "f_thermal_lag_Hz": 0.47
+    },
+    "0.125": {
+     "dP_over_Pc": 10.54,
+     "GM_tau5ms": 52.2,
+     "GM_tau10ms": 38.6,
+     "f_1L_Hz": 1544.0,
+     "f_Helmholtz_Hz": 1190.0,
+     "f_1T_chamber_Hz": 11003.0,
+     "f_thermal_lag_Hz": 0.33
+    }
+   },
+   "tag": "SIM stability.py v2 (stability_v2.json)"
+  },
+  "hybrid_LF_note": "classical hybrid low-frequency (thermal-lag/boundary-layer) instability 0.3-2 Hz band is identified but its amplitude is NOT predicted; static fire T2/T3 with 1 kHz Pc logging"
+ },
+ "duty_cycle_results": {
+  "gnc_v1_cycles_S230": {
+   "v": [
+    {
+     "duty_cycle": "DC-A1",
+     "regression_scale": 0.6,
+     "burn_s": 5.83,
+     "impulse_Ns": 1863.0,
+     "N2O_used_kg": 0.9849,
+     "fuel_used_kg": 0.0621,
+     "OF_mean": 15.87,
+     "Isp_mean_s": 181.4,
+     "web_end_mm": 11.19,
+     "burnthrough_s": null,
+     "liquid_left_kg": 0.11,
+     "min_ceiling_N": 533.3,
+     "min_dP_over_Pc": 0.509
+    },
+    {
+     "duty_cycle": "DC-A1",
+     "regression_scale": 1.0,
+     "burn_s": 5.83,
+     "impulse_Ns": 1852.0,
+     "N2O_used_kg": 0.9021,
+     "fuel_used_kg": 0.1014,
+     "OF_mean": 8.899,
+     "Isp_mean_s": 188.2,
+     "web_end_mm": 9.53,
+     "burnthrough_s": null,
+     "liquid_left_kg": 0.1954,
+     "min_ceiling_N": 557.7,
+     "min_dP_over_Pc": 0.553
+    },
+    {
+     "duty_cycle": "DC-A1",
+     "regression_scale": 1.5,
+     "burn_s": 5.83,
+     "impulse_Ns": 1860.0,
+     "N2O_used_kg": 0.8328,
+     "fuel_used_kg": 0.148,
+     "OF_mean": 5.626,
+     "Isp_mean_s": 193.3,
+     "web_end_mm": 7.75,
+     "burnthrough_s": null,
+     "liquid_left_kg": 0.2679,
+     "min_ceiling_N": 579.3,
+     "min_dP_over_Pc": 0.6
+    },
+    {
+     "duty_cycle": "DC-A2",
+     "regression_scale": 1.0,
+     "burn_s": 7.73,
+     "impulse_Ns": 2520.0,
+     "N2O_used_kg": 1.222,
+     "fuel_used_kg": 0.1378,
+     "OF_mean": 8.871,
+     "Isp_mean_s": 189.0,
+     "web_end_mm": 8.12,
+     "burnthrough_s": null,
+     "liquid_left_kg": 0.2576,
+     "min_ceiling_N": 547.6,
+     "min_dP_over_Pc": 0.614
+    },
+    {
+     "duty_cycle": "DC-B1",
+     "regression_scale": 1.0,
+     "burn_s": 20.73,
+     "impulse_Ns": 2748.0,
+     "N2O_used_kg": 1.391,
+     "fuel_used_kg": 0.2512,
+     "OF_mean": 5.539,
+     "Isp_mean_s": 170.6,
+     "web_end_mm": 4.3,
+     "burnthrough_s": null,
+     "liquid_left_kg": 0.6071,
+     "min_ceiling_N": 580.6,
+     "min_dP_over_Pc": 0.791
+    },
+    {
+     "duty_cycle": "DC-B1",
+     "regression_scale": 1.5,
+     "burn_s": 20.74,
+     "impulse_Ns": 2745.0,
+     "N2O_used_kg": 1.347,
+     "fuel_used_kg": 0.3685,
+     "OF_mean": 3.654,
+     "Isp_mean_s": 163.2,
+     "web_end_mm": 0.94,
+     "burnthrough_s": null,
+     "liquid_left_kg": 0.655,
+     "min_ceiling_N": 592.9,
+     "min_dP_over_Pc": 0.817
+    },
+    {
+     "duty_cycle": "DC-B2",
+     "regression_scale": 1.0,
+     "burn_s": 14.72,
+     "impulse_Ns": 1994.0,
+     "N2O_used_kg": 1.007,
+     "fuel_used_kg": 0.1806,
+     "OF_mean": 5.576,
+     "Isp_mean_s": 171.2,
+     "web_end_mm": 6.6,
+     "burnthrough_s": null,
+     "liquid_left_kg": 1.026,
+     "min_ceiling_N": 623.4,
+     "min_dP_over_Pc": 0.808
+    },
+    {
+     "duty_cycle": "DC-B2",
+     "regression_scale": 1.5,
+     "burn_s": 14.72,
+     "impulse_Ns": 1992.0,
+     "N2O_used_kg": 0.9732,
+     "fuel_used_kg": 0.2642,
+     "OF_mean": 3.684,
+     "Isp_mean_s": 164.1,
+     "web_end_mm": 3.91,
+     "burnthrough_s": null,
+     "liquid_left_kg": 1.063,
+     "min_ceiling_N": 635.2,
+     "min_dP_over_Pc": 0.832
+    },
+    {
+     "duty_cycle": "DC-C",
+     "regression_scale": 1.0,
+     "burn_s": 36.32,
+     "impulse_Ns": 4230.0,
+     "N2O_used_kg": 2.161,
+     "fuel_used_kg": 0.4041,
+     "OF_mean": 5.346,
+     "Isp_mean_s": 168.2,
+     "web_end_mm": -0.0,
+     "burnthrough_s": 46.35,
+     "liquid_left_kg": 6.943,
+     "min_ceiling_N": 638.3,
+     "min_dP_over_Pc": 5.078
+    },
+    {
+     "duty_cycle": "DC-D",
+     "regression_scale": 1.0,
+     "burn_s": 49.81,
+     "impulse_Ns": 13160.0,
+     "N2O_used_kg": 7.018,
+     "fuel_used_kg": 0.4041,
+     "OF_mean": 17.37,
+     "Isp_mean_s": 180.9,
+     "web_end_mm": -0.0,
+     "burnthrough_s": 24.11,
+     "liquid_left_kg": 1.665,
+     "min_ceiling_N": 528.5,
+     "min_dP_over_Pc": 0.496
+    }
+   ],
+   "tag": "SIM grain_q1d v2 over gnc.json v1 duty cycles (grain_trade_v2.csv); A1 x0.6: cumulative O/F 15.9 exceeds the CEA table range (instantaneous O/F clamped at 14)"
+  },
+  "gnc_v2_cycles_S230": {
+   "v": [
+    {
+     "case": "DC-A1-S230v2wip_neqE1e+03_reg1",
+     "burn_s": 7.4,
+     "impulse_Ns": 2527.8,
+     "gnc_impulse_Ns": 2503.7,
+     "ox_used_kg": 1.2216,
+     "fuel_used_kg": 0.1365,
+     "OF_mean": 8.951,
+     "Isp_mean_s": 189.8,
+     "web_end_mm": 8.17,
+     "liquid_left_kg": 0.4775,
+     "liquid_left_over_used": 0.391,
+     "min_dP_over_Pc": 0.591,
+     "min_ceiling_N": 577.9,
+     "ceiling_limited_s": 0.0,
+     "tank": "neq E=1000 V=3.170 L m=2.0018029785156246 kg",
+     "regression_scale": 1.0
+    },
+    {
+     "case": "DC-A2-S230v2wip_neqE1e+03_reg1",
+     "burn_s": 8.89,
+     "impulse_Ns": 3080.3,
+     "gnc_impulse_Ns": 3056.8,
+     "ox_used_kg": 1.4928,
+     "fuel_used_kg": 0.1639,
+     "OF_mean": 9.11,
+     "Isp_mean_s": 189.6,
+     "web_end_mm": 7.18,
+     "liquid_left_kg": 0.6668,
+     "liquid_left_over_used": 0.447,
+     "min_dP_over_Pc": 0.644,
+     "min_ceiling_N": 579.0,
+     "ceiling_limited_s": 0.0,
+     "tank": "neq E=1000 V=4.018 L m=2.5374542236328117 kg",
+     "regression_scale": 1.0
+    },
+    {
+     "case": "DC-B1-S230v2wip_neqE1e+03_reg1",
+     "burn_s": 19.04,
+     "impulse_Ns": 2870.9,
+     "gnc_impulse_Ns": 2841.9,
+     "ox_used_kg": 1.4372,
+     "fuel_used_kg": 0.2425,
+     "OF_mean": 5.926,
+     "Isp_mean_s": 174.3,
+     "web_end_mm": 4.57,
+     "liquid_left_kg": 0.6408,
+     "liquid_left_over_used": 0.446,
+     "min_dP_over_Pc": 0.77,
+     "min_ceiling_N": 580.8,
+     "ceiling_limited_s": 0.0,
+     "tank": "neq E=1000 V=3.869 L m=2.443314819335937 kg",
+     "regression_scale": 1.0
+    },
+    {
+     "case": "DC-B2-S230v2wip_neqE1e+03_reg1",
+     "burn_s": 14.49,
+     "impulse_Ns": 2078.2,
+     "gnc_impulse_Ns": 2050.1,
+     "ox_used_kg": 1.0432,
+     "fuel_used_kg": 0.1819,
+     "OF_mean": 5.737,
+     "Isp_mean_s": 173.0,
+     "web_end_mm": 6.55,
+     "liquid_left_kg": 0.4989,
+     "liquid_left_over_used": 0.478,
+     "min_dP_over_Pc": 0.784,
+     "min_ceiling_N": 583.5,
+     "ceiling_limited_s": 0.0,
+     "tank": "neq E=1000 V=2.868 L m=1.8113623046874998 kg",
+     "regression_scale": 1.0
+    },
+    {
+     "case": "DC-B1-S230v2wip_neqE1e+03_reg1.5",
+     "burn_s": 19.05,
+     "impulse_Ns": 2867.8,
+     "gnc_impulse_Ns": 2841.9,
+     "ox_used_kg": 1.3794,
+     "fuel_used_kg": 0.3546,
+     "OF_mean": 3.89,
+     "Isp_mean_s": 168.7,
+     "web_end_mm": 1.31,
+     "liquid_left_kg": 0.7024,
+     "liquid_left_over_used": 0.509,
+     "min_dP_over_Pc": 0.797,
+     "min_ceiling_N": 594.4,
+     "ceiling_limited_s": 0.0,
+     "tank": "neq E=1000 V=3.869 L m=2.443314819335937 kg",
+     "regression_scale": 1.5
+    },
+    {
+     "case": "DC-A1-S230v2wip_neqE1e+03_reg1.5",
+     "burn_s": 7.4,
+     "impulse_Ns": 2528.5,
+     "gnc_impulse_Ns": 2503.7,
+     "ox_used_kg": 1.126,
+     "fuel_used_kg": 0.198,
+     "OF_mean": 5.688,
+     "Isp_mean_s": 194.7,
+     "web_end_mm": 6.01,
+     "liquid_left_kg": 0.5793,
+     "liquid_left_over_used": 0.514,
+     "min_dP_over_Pc": 0.633,
+     "min_ceiling_N": 598.0,
+     "ceiling_limited_s": 0.0,
+     "tank": "neq E=1000 V=3.170 L m=2.0018029785156246 kg",
+     "regression_scale": 1.5
+    },
+    {
+     "case": "DC-A1-S230v2wip_neqE1e+03_reg0.6",
+     "burn_s": 7.4,
+     "impulse_Ns": 2539.4,
+     "gnc_impulse_Ns": 2503.7,
+     "ox_used_kg": 1.3341,
+     "fuel_used_kg": 0.0844,
+     "OF_mean": 15.799,
+     "Isp_mean_s": 182.5,
+     "web_end_mm": 10.22,
+     "liquid_left_kg": 0.3594,
+     "liquid_left_over_used": 0.269,
+     "min_dP_over_Pc": 0.551,
+     "min_ceiling_N": 556.4,
+     "ceiling_limited_s": 0.0,
+     "tank": "neq E=1000 V=3.170 L m=2.0018029785156246 kg",
+     "regression_scale": 0.6
+    }
+   ],
+   "tag": "SIM grain_q1d v2 over the gnc.json v2 duty cycles (published 2026-10-12 20:34Z; run on the 19:15Z working-copy snapshot with identical F/F_cmd histories, inputs/gnc_v2_published_20261012T2034/MANIFEST.txt)"
+  },
+  "ground_grain_counts": {
+   "v": {
+    "DC-C": 2,
+    "DC-D": 3
+   },
+   "tag": "SIM one S230 grain burns through at 46.4 s (C) and 24.1 s (D) of sim time (engine_S230/summary_v2.json)"
+  },
+  "reserve_check": {
+   "v": "liquid left / ox used 0.27-0.51 (gnc.json v2 cycles, incl. x0.6/x1.5) vs the gnc.json usable-liquid reserve rule >= 0.20 x used (+0.03 residual fraction): met",
+   "tag": "DERIVED"
+  }
+ },
+ "settling_and_relight": {
+  "v": {
+   "DC-A1_full_flight_drogue_300m_v1": {
+    "coast_s": 22.16,
+    "settled_interval_before_relight_s": 14.96,
+    "t_settle_estimate_s": 0.25,
+    "Bond": 6442.0
+   },
+   "DC-A2_full_flight_freefall_300m_v1": {
+    "coast_s": 12.78,
+    "settled_interval_before_relight_s": 3.13,
+    "t_settle_estimate_s": 0.58,
+    "Bond": 1158.0
+   },
+   "DC-A1_full_flight_drogue_fins_300m_v2": {
+    "coast_s": 20.92,
+    "settled_interval_before_relight_s": 13.93,
+    "t_settle_estimate_s": 0.25,
+    "Bond": 6400.0
+   },
+   "DC-A2_full_flight_freefall_300m_v2": {
+    "coast_s": 11.26,
+    "settled_interval_before_relight_s": 2.2,
+    "t_settle_estimate_s": 0.5,
+    "Bond": 1595.0
+   }
+  },
+  "tag": "DERIVED settling_v2.json (gnc.json v1 cycles) + settling_v2wip_preview.json (gnc.json v2 cycles; computed on the 19:15Z snapshot, acceleration differences to the published files <= 1e-4 m/s2): the shortest settled interval before relight is A2 (3.1 s v1, 2.2 s v2) vs a 0.5-0.6 s settle estimate"
+ },
+ "open_interface_issues": [
+  {
+   "id": "OI-1",
+   "issue": "gnc.json v2 duty cycles size A2 at 2.54 kg and B1 at 2.44 kg N2O (B2 1.81 kg), above the lead baseline 2.00 kg / 3.17 L that A1 uses. The engine flies all of them (ceiling never limits, min ceiling 556-598 N, min dP/Pc 0.55-0.80) but the tank is one part.",
+   "action": "GNC re-runs A2/B1 on the 3.17 L tank or the lead re-opens the tank size.",
+   "with": "Space/GNC + lead"
+  },
+  {
+   "id": "OI-2",
+   "issue": "gnc.json v2 flies the combustion.json v1 map x relay factors (its scripts switch to the v2 map automatically) and shows an open-loop case with phi 0.1 at P 0.982. v2 plant: tau_c 4 ms, slow fuel mode phi 0.05-0.09 with tau_f 0.11-0.53 s (0.3-1.5 Hz, inside the 2.3 Hz Pc-loop bandwidth of gnc.json v2), K_h x2.7 from 100 % to 12.5 %; relight 10/90 % at 0.10/0.29 s in the model vs ENG-04 <= 0.5 s (planning value 0.6 s).",
+   "action": "GNC re-runs the MC on throttle_map_v2.csv + plant fit (gain-scheduled K_h); ignition latency and repeatability (+/-50 ms) are measured at T1/T3.",
+   "with": "Space/GNC"
+  },
+  {
+   "id": "OI-3",
+   "issue": "Grain is L 0.230 m, 0.404 kg at 1000 kg/m3 (0.394-0.420); CAD v2 shows 0.369 kg (L 0.200). Gas path 0.3386 m (v1 0.3086).",
+   "action": "CAD v3.x carries S230 and the v2 contour; mass budget update.",
+   "with": "Mechanical"
+  },
+  {
+   "id": "OI-4",
+   "issue": "Post-chamber wall 1-D bound: case peak 220-269 C (A1) and 360-426 C (B1) behind 5 mm phenolic, 287-354 C (A1) behind 3 mm, vs aft-land T_allow 192 C. The model has no char credit and no 2-D heat sink.",
+   "action": "Thermal FEA with thermal_bc_*_v2.csv (x0.5-2 band) and the DC histories; insulator thickness and material from FEA.",
+   "with": "Mechanical"
+  },
+  {
+   "id": "OI-5",
+   "issue": "Insert retention lip vs soak-back. 240 C (513 K) is the Mechanical v3.1 allowable of the ALUMINIUM lip at 51 MPa. With the 0.15 kg retainer of soakback.py on the gnc.json v1 cycles aluminium peaks at 588-920 K (above it); about 0.6 kg of aluminium (~540 J/K) in good thermal contact gives 435-532 K (sensitivity_summary). Steel results (774-1084 K at 0.15 kg) are for comparison with a steel temperature-dependent allowable, which is not defined here (lead note 2026-10-12). TS-1 (relight after the MECO coast; A cycles, coast 11.3-22.2 s, coasts adiabatic): retainer at relight 302-558 K (Al brackets), 324-540 K (steel 0.30 kg); at the landing-burn Pc maximum (17.7-22.5 bar) 303-562 K (Al); the in-burn maximum 305-597 K (Al) occurs at the end of the landing burn at Pc 1.0-2.9 bar. Aft land behind 5 mm phenolic at relight 303-335 K. TS-2 (post-landing soak, 3600 s window, A and B cycles): retainer peak 408-920 K, time above 150 C 0-3195 s; aft land (5 mm phenolic) peak 493-699 K, time above 150 C 874-2106 s (soakback_relight_v2.csv). Governing cases per lead 2026-10-12: TS-1 temperature at relight after the MECO coast with Pc 25 bar (normal) and 45 bar (MEOP); TS-2 post-landing soak, unloaded, over-ageing of 6061-T6 for reuse.",
+   "action": "Mechanical: retainer material/mass/interlayer choice; TS-1 from T_at_relight_K / T_max_landing_burn_K with Pc_at_Tmax_landing_burn_Pa (coast and relight time explicit in the DC CSVs data/v2/dc_g3/*.csv, data/v2/dc_gncv2wip/*.csv); TS-2 from the soak times above 150/200/240/300 C; thermal FEA of the v3.1/v3.2 insert supersedes these lumped bounds.",
+   "with": "Mechanical"
+  },
+  {
+   "id": "OI-6",
+   "issue": "Pc transducer 0-34.5 bar (electronics.json v1) vs chamber MEOP 45 bar, proof 67.5 bar and full-stroke failure Pc up to 42.9 bar (S230, 30 C, Cd 0.8; 35.4 bar at 20 C, Cd 0.7): the ~30 bar abort is inside the range, the failure transient saturates.",
+   "action": "Electronics selects 0-69 bar (or confirms the 34.5 bar part survives 67.5 bar proof and accepts saturation); ignition check needs <= 0.1 bar resolution at 3 bar.",
+   "with": "Electronics"
+  },
+  {
+   "id": "OI-7",
+   "issue": "Isolation valve Cv >= 3 (v1 said 1.5) and filter <= 15 um with Cv >= 2.2 (v1 said 40 um) to stay inside the 2.7 bar line budget used by every v2 simulation.",
+   "action": "Component selection with datasheet Cv; TO-QUOTE (Sønderborg DK-6400).",
+   "with": "Electronics/Mechanical"
+  },
+  {
+   "id": "OI-8",
+   "issue": "Torch flame confirmation (photodiode or 0.25 mm TC) and the priming rule (pintle bleed lift 0.10 mm before the isolation valve opens on an unprimed line, valve opening ramp >= 0.3 s).",
+   "action": "ECU sequence implements ignition_v2.json; sensor selection.",
+   "with": "Electronics"
+  },
+  {
+   "id": "OI-9",
+   "issue": "Roll torque: helical source removed; residual unknown. gnc.json v2: RCS-off threshold 0.03 N m (no significant landing loss); the lead rule (delete the RCS provision only if T1 measures <= 0.02 N m) is inside it.",
+   "action": "T1 roll-torque measurement with a stand resolution well below 0.02 N m.",
+   "with": "Space/GNC + lead"
+  },
+  {
+   "id": "OI-10",
+   "issue": "Residual web at x1.5 regression: B1 is the limiting cycle (1.31 mm on gnc.json v2 B1, 0.94 mm on gnc.json v1 B1) against the >= 1 mm rule.",
+   "action": "Keep B1 within 19 s of burn or accept a longer grain after T1-T2 measure the law.",
+   "with": "Space/GNC"
+  },
+  {
+   "id": "OI-11",
+   "issue": "Pintle needle force envelope was sized at the v1 31 bar chamber MEOP; with 45 bar the closing-direction pressure force at shutdown changes; CAD v3.2 adds a torsion-spring spring-to-close with backlash preload.",
+   "action": "Re-check servo/linkage force with Pc 0-45 bar, feed 0-70 bar and the spring preload; the spring must still close the needle against the opening pressure force at MEOP.",
+   "with": "Mechanical"
+  },
+  {
+   "id": "OI-12",
+   "issue": "gnc.json v2 relight conditions say 'chamber purged'; combustion carries no purge gas in flight (ignition_v2.json): the chamber vents passively through the nozzle during the 11-22 s coast with the pintle seated.",
+   "action": "Read 'purged' as 'vented': the ECU checks Pc within 0.1 bar of ambient before the torch fires (arm precondition); N2 purge is a ground-test procedure only.",
+   "with": "Space/GNC + Electronics"
+  },
+  {
+   "id": "OI-13",
+   "issue": "gnc.json v2 asks deadband <= 0.5 % F_max (2.5 N), resolution 2 % F_max and a closed Pc loop. Open-loop this is 16 um of pintle lift at 100 % and 6.8 um at the 12.5 % floor (plant dF/dh); closed-loop it is 0.13 bar of Pc at 100 % and 0.17 bar at the floor.",
+   "action": "Pc measurement noise/resolution <= 0.1 bar over 0-25 bar (with OI-6 range); pintle drive backlash/hysteresis small against the closed-loop authority (spring preload, CAD v3.2); bench test with the measured plant.",
+   "with": "Electronics + Mechanical"
+  }
+ ],
+ "unknowns_and_open_items": [
+  "N2O/ABS regression law (a, n) and its band: static fires T1-T2.",
+  "Pintle Cd (N2O two-phase) at all lifts: water then N2O cold flow; acceptance Cd_eff >= 0.41.",
+  "eta_c* of the straight port at O/F 4-10 (assumed 0.92, band 0.85-0.96).",
+  "Low-flux combustion at the 12.5 % stretch floor (G_ox ~25-74 kg/m2s).",
+  "Ignition delay with the torch (assumed 0.10 s torch-to-main + 30 % preheat).",
+  "Graphite grade, density and erosion kinetics: post-fire bore measurement.",
+  "Residual roll torque and thrust misalignment of the straight port: T1.",
+  "Plume afterburning and radiation: CFD gives fast-chemistry bounds only (05-plume-cfd)."
+ ],
+ "files": {
+  "hub_root": "/home/claude/work/shared-fallback/engine/02-combustion",
+  "canonical_root": "/mnt/project-files/engine/02-combustion",
+  "src": "/home/claude/work/shared-fallback/engine/02-combustion/src",
+  "data_v2": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2",
+  "data_v1": "/home/claude/work/shared-fallback/engine/02-combustion/data",
+  "figs_v2": "/home/claude/work/shared-fallback/engine/02-combustion/figs/v2",
+  "plume_cfd": "/home/claude/work/shared-fallback/engine/05-plume-cfd",
+  "report": "02-combustion/REPORT.md (text delivered to the lead in the handback; the harness blocks subagent report files)"
+ }
+}

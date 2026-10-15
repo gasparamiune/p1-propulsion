@@ -1,0 +1,362 @@
+{
+ "version": "v2.4",
+ "run": 2,
+ "date": "2026-10-13",
+ "script": "02-combustion/src/prep_path_inventory_v2p4.py",
+ "script_sha256_16": "6e508f2cabf68f68",
+ "inputs": {
+  "hard_start_v2p4.json": "1bdcf295ce6f7413",
+  "relight_window_rule_seg44_v2p4.json": "f0e4890d7e500397",
+  "relight_vapour_order_v2p4.json": "78120ff97c0ac8dc",
+  "start_latency_v2p4.json": "809491fd86b91439",
+  "post_abort_pocket_v2p4.json": "a786b42bb499d68a",
+  "mv_actuator": {
+   "file": "/home/claude/work/shared-fallback/engine/03-cad/calcs/mv_actuator_v1.json",
+   "sha256_16": "a2d8cdd3ef4ca6c0",
+   "Cv": 3.64,
+   "tag": "Mechanical ESTIMATE"
+  },
+  "firmware_engine_ecu_cpp": {
+   "file": "/home/claude/work/shared-fallback/engine/06-electronics/firmware/src/core/engine_ecu.cpp",
+   "sha256_16": "5e5771220a602301"
+  },
+  "firmware_config_h": {
+   "file": "/home/claude/work/shared-fallback/engine/06-electronics/firmware/src/core/config.h",
+   "sha256_16": "0ee2a75b6c4441d5"
+  },
+  "sil_plant_cpp": {
+   "file": "/home/claude/work/shared-fallback/engine/06-electronics/firmware/sil/plant.cpp",
+   "sha256_16": "f7da155379e65496"
+  }
+ },
+ "prep_path": {
+  "bleed_lift_m": 0.0001,
+  "ignition_lift_m": 0.0002039,
+  "W_from_ignition_lift_cmd": true,
+  "bleed_cases_s": {
+   "run1_reading_0.06s": 0.06,
+   "invalid_pressure_to_OPEN_switch_0.41s": 0.41,
+   "firmware_bound_t_cock_end_0.56s": 0.56
+  },
+  "rule": "bleed only with P_feed < 0.5 P_tank or an invalid pressure (fw v2.8.2); a liquid line with valid pressures has no bleed"
+ },
+ "states": {
+  "A1_relight": {
+   "bleed_g": {
+    "run1_reading_0.06s": 1.143121002108633,
+    "invalid_pressure_to_OPEN_switch_0.41s": 7.146429219656369,
+    "firmware_bound_t_cock_end_0.56s": 9.719275197080083
+   },
+   "rows": {
+    "W0.65": {
+     "ignition_lift_g": 22.858220467717565,
+     "prep_valid_pressures_no_bleed_g": 22.858220467717565,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 30.004649687373934,
+     "prep_bleed_to_t_cock_end_bound_g": 32.57749566479765,
+     "run1_reading_bleed_0p06s_g": 24.001341469826198
+    },
+    "W0.76": {
+     "ignition_lift_g": 26.68705957307223,
+     "prep_valid_pressures_no_bleed_g": 26.68705957307223,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 33.8334887927286,
+     "prep_bleed_to_t_cock_end_bound_g": 36.40633477015231,
+     "run1_reading_bleed_0p06s_g": 27.83018057518086
+    },
+    "W0.88": {
+     "ignition_lift_g": 30.86397496073186,
+     "prep_valid_pressures_no_bleed_g": 30.86397496073186,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 38.01040418038823,
+     "prep_bleed_to_t_cock_end_bound_g": 40.583250157811946,
+     "run1_reading_bleed_0p06s_g": 32.007095962840495
+    },
+    "W0.93": {
+     "ignition_lift_g": 32.6043563722567,
+     "prep_valid_pressures_no_bleed_g": 32.6043563722567,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 39.75078559191307,
+     "prep_bleed_to_t_cock_end_bound_g": 42.32363156933678,
+     "run1_reading_bleed_0p06s_g": 33.74747737436534
+    },
+    "W1.05": {
+     "ignition_lift_g": 36.781271759916336,
+     "prep_valid_pressures_no_bleed_g": 36.781271759916336,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 43.927700979572705,
+     "prep_bleed_to_t_cock_end_bound_g": 46.500546956996416,
+     "run1_reading_bleed_0p06s_g": 37.92439276202497
+    }
+   },
+   "check_vs_window_rule_g": {
+    "0.65": 22.858220467717565,
+    "1.05": 36.781271759916336
+   },
+   "check_ok": true
+  },
+  "15C": {
+   "bleed_g": {
+    "run1_reading_0.06s": 1.158440683296386,
+    "invalid_pressure_to_OPEN_switch_0.41s": 7.242202997825109,
+    "firmware_bound_t_cock_end_0.56s": 9.849529297145294
+   },
+   "rows": {
+    "W0.65": {
+     "ignition_lift_g": 23.164557810342586,
+     "prep_valid_pressures_no_bleed_g": 23.164557810342586,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 30.406760808167697,
+     "prep_bleed_to_t_cock_end_bound_g": 33.01408710748788,
+     "run1_reading_bleed_0p06s_g": 24.322998493638973
+    },
+    "W0.76": {
+     "ignition_lift_g": 27.044709588900727,
+     "prep_valid_pressures_no_bleed_g": 27.044709588900727,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 34.28691258672583,
+     "prep_bleed_to_t_cock_end_bound_g": 36.89423888604602,
+     "run1_reading_bleed_0p06s_g": 28.203150272197114
+    },
+    "W0.88": {
+     "ignition_lift_g": 31.277602438236887,
+     "prep_valid_pressures_no_bleed_g": 31.277602438236887,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 38.51980543606199,
+     "prep_bleed_to_t_cock_end_bound_g": 41.12713173538218,
+     "run1_reading_bleed_0p06s_g": 32.436043121533274
+    },
+    "W0.93": {
+     "ignition_lift_g": 33.04130779212695,
+     "prep_valid_pressures_no_bleed_g": 33.04130779212695,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 40.28351078995206,
+     "prep_bleed_to_t_cock_end_bound_g": 42.890837089272246,
+     "run1_reading_bleed_0p06s_g": 34.199748475423334
+    },
+    "W1.05": {
+     "ignition_lift_g": 37.27420064146311,
+     "prep_valid_pressures_no_bleed_g": 37.27420064146311,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 44.51640363928822,
+     "prep_bleed_to_t_cock_end_bound_g": 47.123729938608406,
+     "run1_reading_bleed_0p06s_g": 38.432641324759494
+    }
+   },
+   "check_vs_window_rule_g": {
+    "0.65": 23.164557810342586,
+    "1.05": 37.27420064146311
+   },
+   "check_ok": true
+  },
+  "20C": {
+   "bleed_g": {
+    "run1_reading_0.06s": 1.208644312016711,
+    "invalid_pressure_to_OPEN_switch_0.41s": 7.556060129797926,
+    "firmware_bound_t_cock_end_0.56s": 10.276380770020692
+   },
+   "rows": {
+    "W0.65": {
+     "ignition_lift_g": 24.16844594768919,
+     "prep_valid_pressures_no_bleed_g": 24.16844594768919,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 31.724506077487113,
+     "prep_bleed_to_t_cock_end_bound_g": 34.44482671770988,
+     "run1_reading_bleed_0p06s_g": 25.377090259705902
+    },
+    "W0.76": {
+     "ignition_lift_g": 28.216752817895998,
+     "prep_valid_pressures_no_bleed_g": 28.216752817895998,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 35.77281294769392,
+     "prep_bleed_to_t_cock_end_bound_g": 38.49313358791669,
+     "run1_reading_bleed_0p06s_g": 29.42539712991271
+    },
+    "W0.88": {
+     "ignition_lift_g": 32.63308758539433,
+     "prep_valid_pressures_no_bleed_g": 32.63308758539433,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 40.189147715192256,
+     "prep_bleed_to_t_cock_end_bound_g": 42.90946835541502,
+     "run1_reading_bleed_0p06s_g": 33.84173189741104
+    },
+    "W0.93": {
+     "ignition_lift_g": 34.473227071851966,
+     "prep_valid_pressures_no_bleed_g": 34.473227071851966,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 42.02928720164989,
+     "prep_bleed_to_t_cock_end_bound_g": 44.74960784187266,
+     "run1_reading_bleed_0p06s_g": 35.681871383868675
+    },
+    "W1.05": {
+     "ignition_lift_g": 38.8895618393503,
+     "prep_valid_pressures_no_bleed_g": 38.8895618393503,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 46.44562196914823,
+     "prep_bleed_to_t_cock_end_bound_g": 49.165942609370994,
+     "run1_reading_bleed_0p06s_g": 40.09820615136701
+    }
+   },
+   "check_vs_window_rule_g": {
+    "0.65": 24.16844594768919,
+    "1.05": 38.8895618393503
+   },
+   "check_ok": true
+  },
+  "25C": {
+   "bleed_g": {
+    "run1_reading_0.06s": 1.252552409020349,
+    "invalid_pressure_to_OPEN_switch_0.41s": 7.8305595982072065,
+    "firmware_bound_t_cock_end_0.56s": 10.64970509646666
+   },
+   "rows": {
+    "W0.65": {
+     "ignition_lift_g": 25.046446579097154,
+     "prep_valid_pressures_no_bleed_g": 25.046446579097154,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 32.87700617730436,
+     "prep_bleed_to_t_cock_end_bound_g": 35.69615167556381,
+     "run1_reading_bleed_0p06s_g": 26.298998988117503
+    },
+    "W0.76": {
+     "ignition_lift_g": 29.241821903596303,
+     "prep_valid_pressures_no_bleed_g": 29.241821903596303,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 37.07238150180351,
+     "prep_bleed_to_t_cock_end_bound_g": 39.891527000062965,
+     "run1_reading_bleed_0p06s_g": 30.494374312616653
+    },
+    "W0.88": {
+     "ignition_lift_g": 33.818594984868106,
+     "prep_valid_pressures_no_bleed_g": 33.818594984868106,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 41.649154583075315,
+     "prep_bleed_to_t_cock_end_bound_g": 44.46830008133477,
+     "run1_reading_bleed_0p06s_g": 35.07114739388845
+    },
+    "W0.93": {
+     "ignition_lift_g": 35.725583768731354,
+     "prep_valid_pressures_no_bleed_g": 35.725583768731354,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 43.556143366938564,
+     "prep_bleed_to_t_cock_end_bound_g": 46.375288865198016,
+     "run1_reading_bleed_0p06s_g": 36.9781361777517
+    },
+    "W1.05": {
+     "ignition_lift_g": 40.302356850003164,
+     "prep_valid_pressures_no_bleed_g": 40.302356850003164,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 48.13291644821037,
+     "prep_bleed_to_t_cock_end_bound_g": 50.952061946469826,
+     "run1_reading_bleed_0p06s_g": 41.55490925902351
+    }
+   },
+   "check_vs_window_rule_g": {
+    "0.65": 25.046446579097154,
+    "1.05": 40.302356850003164
+   },
+   "check_ok": true
+  },
+  "24C_interp": {
+   "rows": {
+    "W0.65": {
+     "ignition_lift_g": 24.87084645281556,
+     "prep_valid_pressures_no_bleed_g": 24.87084645281556,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 32.64650615734091,
+     "prep_bleed_to_t_cock_end_bound_g": 35.445886683993024,
+     "run1_reading_bleed_0p06s_g": 26.114617242435184
+    },
+    "W0.76": {
+     "ignition_lift_g": 29.036808086456244,
+     "prep_valid_pressures_no_bleed_g": 29.036808086456244,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 36.81246779098159,
+     "prep_bleed_to_t_cock_end_bound_g": 39.61184831763371,
+     "run1_reading_bleed_0p06s_g": 30.280578876075865
+    },
+    "W0.88": {
+     "ignition_lift_g": 33.58149350497335,
+     "prep_valid_pressures_no_bleed_g": 33.58149350497335,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 41.357153209498705,
+     "prep_bleed_to_t_cock_end_bound_g": 44.15653373615082,
+     "run1_reading_bleed_0p06s_g": 34.82526429459297
+    },
+    "W0.93": {
+     "ignition_lift_g": 35.47511242935548,
+     "prep_valid_pressures_no_bleed_g": 35.47511242935548,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 43.25077213388083,
+     "prep_bleed_to_t_cock_end_bound_g": 46.050152660532945,
+     "run1_reading_bleed_0p06s_g": 36.718883218975094
+    },
+    "W1.05": {
+     "ignition_lift_g": 40.01979784787259,
+     "prep_valid_pressures_no_bleed_g": 40.01979784787259,
+     "prep_invalid_pressure_bleed_to_OPEN_switch_g": 47.79545755239794,
+     "prep_bleed_to_t_cock_end_bound_g": 50.59483807905006,
+     "run1_reading_bleed_0p06s_g": 41.26356863749221
+    }
+   },
+   "bleed_g": {
+    "run1_reading_0.06s": 1.2437707896196215,
+    "invalid_pressure_to_OPEN_switch_0.41s": 7.77565970452535,
+    "firmware_bound_t_cock_end_0.56s": 10.575040231177466
+   }
+  }
+ },
+ "vapour_full_prep_path": {
+  "no_bleed_valid_pressures": {
+   "bleed_close_cmd_s": 0.0,
+   "vapour_purged_cm3": 0.0,
+   "pocket_at_lift_cm3": 44.0,
+   "W_for_P_abort_0_s": 1.0410784223698837,
+   "P_abort": {
+    "W0.65": 1.0,
+    "W0.76": 1.0,
+    "W0.88": 0.61945,
+    "W0.93": 0.41846,
+    "W1.05": 0.0
+   }
+  },
+  "run1_reading_0.06s": {
+   "bleed_close_cmd_s": 0.06,
+   "vapour_purged_cm3": 2.0997898092285396,
+   "pocket_at_lift_cm3": 41.90021019077146,
+   "W_for_P_abort_0_s": 1.0084153849548665,
+   "P_abort": {
+    "W0.65": 1.0,
+    "W0.76": 0.96862,
+    "W0.88": 0.48806,
+    "W0.93": 0.2883,
+    "W1.05": 0.0
+   }
+  },
+  "invalid_pressure_to_OPEN_switch_0.41s": {
+   "bleed_close_cmd_s": 0.41,
+   "vapour_purged_cm3": 13.134732292404209,
+   "pocket_at_lift_cm3": 30.86526770759579,
+   "W_for_P_abort_0_s": 0.8367626139887328,
+   "P_abort": {
+    "W0.65": 0.72236,
+    "W0.76": 0.281615,
+    "W0.88": 0.0,
+    "W0.93": 0.0,
+    "W1.05": 0.0
+   }
+  },
+  "firmware_bound_t_cock_end_0.56s": {
+   "bleed_close_cmd_s": 0.56,
+   "vapour_purged_cm3": 17.863993356623055,
+   "pocket_at_lift_cm3": 26.136006643376945,
+   "W_for_P_abort_0_s": 0.7631971407175216,
+   "P_abort": {
+    "W0.65": 0.42725,
+    "W0.76": 0.000975,
+    "W0.88": 0.0,
+    "W0.93": 0.0,
+    "W1.05": 0.0
+   }
+  }
+ },
+ "mv_gate_check": {
+  "Q_replacement_m3_s": 6.428642206628172e-05,
+  "CdA_full_m2": 6.184360000000001e-05,
+  "by_opening_fraction": {
+   "0.05": {
+    "dP_bar": 1.7542100930375166
+   },
+   "0.10": {
+    "dP_bar": 0.43855252325937916
+   },
+   "0.25": {
+    "dP_bar": 0.07016840372150068
+   },
+   "0.45": {
+    "dP_bar": 0.021656914728858234
+   },
+   "1.00": {
+    "dP_bar": 0.004385525232593793
+   }
+  }
+ },
+ "accepted_flight_inventory_g": 26.6,
+ "tag": "DERIVED (hard_start_v2p4 inventory: Dyer cold flow, Cd 0.70 ASSUMED, servo history; everything admitted retained; purge scaled with lift; SIM on ASSUMED delays for P_abort)"
+}

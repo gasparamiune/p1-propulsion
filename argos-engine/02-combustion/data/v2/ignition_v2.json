@@ -1,0 +1,251 @@
+{
+ "version": "v2.2",
+ "date": "2026-10-12",
+ "revision_note": "v2.2 (2026-10-12): shutdown wording - the v1 pintle closing speed \"<= 50 mm/s (80 ms full stroke)\" is retired (no combustion basis; lead request on the HV69 drive); start ramp marked as a cap; floor-start t90 added to model_transients. Torch sizing unchanged (recomputed, same inputs).",
+ "decision": "spark-ignited N2O/propane torch (baseline kept); arc-ABS kept as a research option for bench tests (would remove the propane system)",
+ "weighted_scores": {
+  "arc_ABS": 0.675,
+  "torch_N2O_propane": 0.8,
+  "pyrotechnic": 0.6375,
+  "catalytic_N2O": 0.525
+ },
+ "trade": {
+  "criteria_weights": {
+   "restart_count_ge3": 3,
+   "ignition_reliability_with_N2O": 3,
+   "hard_start_risk": 2,
+   "mass_on_gimbal": 1,
+   "electrical_energy_and_HV": 1,
+   "extra_fluids_or_hazmat": 2,
+   "buildability_cost": 2,
+   "evidence_base": 2
+  },
+  "scale": "1 (poor) .. 5 (good); scores are engineering judgement (DERIVED), stated with their reason",
+  "options": {
+   "arc_ABS": {
+    "desc": "HV arc across electrodes embedded in the printed ABS at the head end pyrolyses fuel; N2O flow then ignites (USU / Whitmore type)",
+    "scores": {
+     "restart_count_ge3": 5,
+     "ignition_reliability_with_N2O": 2,
+     "hard_start_risk": 3,
+     "mass_on_gimbal": 5,
+     "electrical_energy_and_HV": 2,
+     "extra_fluids_or_hazmat": 5,
+     "buildability_cost": 3,
+     "evidence_base": 2
+    },
+    "reasons": "no extra fluid, many relights shown with GOX; with N2O the published work (as recalled, LITERATURE-UNVERIFIED here) needed higher arc power or an O2 assist; electrodes must be printed into every grain; 200-1000 V class supply near the avionics; restart surface is charred"
+   },
+   "torch_N2O_propane": {
+    "desc": "spark-ignited N2O/propane torch firing radially into the pre-chamber (v1 baseline)",
+    "scores": {
+     "restart_count_ge3": 5,
+     "ignition_reliability_with_N2O": 4,
+     "hard_start_risk": 4,
+     "mass_on_gimbal": 3,
+     "electrical_energy_and_HV": 4,
+     "extra_fluids_or_hazmat": 3,
+     "buildability_cost": 4,
+     "evidence_base": 4
+    },
+    "reasons": "independent of grain state; ~3 kW hot jet for 0.3-0.6 s per start; restarts limited only by propane (0.05 g/start); needs a propane cylinder, 2 NC solenoids, 2 check valves and a spark plug; widely used on amateur and university hybrids; orifice sizes are small (0.15-0.3 mm)"
+   },
+   "pyrotechnic": {
+    "desc": "electric match + pyrogen pellet per start (one cartridge per start, 3+ ports or a revolver)",
+    "scores": {
+     "restart_count_ge3": 1,
+     "ignition_reliability_with_N2O": 5,
+     "hard_start_risk": 4,
+     "mass_on_gimbal": 4,
+     "electrical_energy_and_HV": 5,
+     "extra_fluids_or_hazmat": 1,
+     "buildability_cost": 2,
+     "evidence_base": 5
+    },
+    "reasons": "excellent first start; each restart needs its own cartridge, port and seal; debris into the injector region; explosives handling and storage rules in Denmark (TO-VERIFY with the authorities and ACEMA rules)"
+   },
+   "catalytic_N2O": {
+    "desc": "pre-heated N2O decomposition catalyst (Rh/Ir class on alumina) feeding hot O2/N2 to the grain",
+    "scores": {
+     "restart_count_ge3": 4,
+     "ignition_reliability_with_N2O": 3,
+     "hard_start_risk": 2,
+     "mass_on_gimbal": 2,
+     "electrical_energy_and_HV": 1,
+     "extra_fluids_or_hazmat": 4,
+     "buildability_cost": 1,
+     "evidence_base": 2
+    },
+    "reasons": "needs 50-200 W preheat for minutes and a catalyst bed (cost TO-QUOTE); bed poisoning and decomposition propagating upstream into the feed is the N2O hazard this design must avoid"
+   }
+  }
+ },
+ "torch": {
+  "sizing": {
+   "Pc_torch_bar": 3.0,
+   "OF": 5.5,
+   "throat_d_m": 0.002,
+   "cstar_m_s": 1586.4832445973661,
+   "Tc_K": 2852.4100489494112,
+   "mdot_total_kg_s": 0.0005940672864251582,
+   "mdot_propane_kg_s": 9.139496714233203e-05,
+   "mdot_n2o_kg_s": 0.0005026723192828261,
+   "enthalpy_flux_W": 3032.6066232473636,
+   "per_start_0p6s_propane_g": 0.05483698028539922,
+   "per_start_0p6s_n2o_g": 0.3016033915696957,
+   "n2o_orifice": [
+    {
+     "T_C": 10.0,
+     "G_dyer": 52093.60862608043,
+     "d_orifice_mm": 0.1374828874791189
+    },
+    {
+     "T_C": 20.0,
+     "G_dyer": 57451.47716898496,
+     "d_orifice_mm": 0.1309152581605437
+    },
+    {
+     "T_C": 25.0,
+     "G_dyer": 59727.56779964869,
+     "d_orifice_mm": 0.1283965786301386
+    }
+   ],
+   "propane": [
+    {
+     "T_C": 0.0,
+     "Psat_bar": 4.744575428060169,
+     "choked": false,
+     "G": 1316.8481271788316,
+     "mdot_through_0p30mm_gps": 0.07446600724029291
+    },
+    {
+     "T_C": 10.0,
+     "Psat_bar": 6.366015641814749,
+     "choked": true,
+     "G": 1748.327503987894,
+     "mdot_through_0p30mm_gps": 0.09886559116675224
+    },
+    {
+     "T_C": 20.0,
+     "Psat_bar": 8.364609050465276,
+     "choked": true,
+     "G": 2257.6887535538576,
+     "mdot_through_0p30mm_gps": 0.1276692912406277
+    },
+    {
+     "T_C": 25.0,
+     "Psat_bar": 9.52074523342492,
+     "choked": true,
+     "G": 2548.1025854311315,
+     "mdot_through_0p30mm_gps": 0.1440918065337048
+    }
+   ],
+   "propane_orifice_d_mm_at_20C": 0.2538277917694895,
+   "note": "Cd 0.65 (N2O sharp orifice) and 0.80 (propane) ASSUMED; torch Pc 3 bar abs keeps the torch outlet choked into the cold chamber (~1 bar) and stays below the propane vapour pressure down to ~0 C (4.7 bar); calibrate both orifices by cold flow (weighing) before hot torch tests"
+  },
+  "envelope": {
+   "body_max_length_m": 0.045,
+   "body_max_diameter_m": 0.02,
+   "mount": "radial boss on the head section at x_face 0.015 m, axis inclined 30 deg inward/aft so the plug end stays inside the 120 mm head sweep (answers Mechanical REQUEST 2026-10-12)",
+   "outlet_bore_m": 0.003
+  },
+  "materials": "316L body, PTFE/FKM seals, nickel-electrode micro spark plug (model-engine class, TO-QUOTE)",
+  "electrical": {
+   "spark_supply_V": 12.0,
+   "coil_primary_peak_A": 4.0,
+   "spark_energy_J": 0.05,
+   "rate_Hz": 50.0,
+   "train_s": 0.5,
+   "solenoid_V": 12.0,
+   "solenoid_A_each": 0.8,
+   "solenoid_on_s": 0.6,
+   "energy_per_start_J": 15.0
+  },
+  "mass_estimate_kg": {
+   "v": [
+    0.2,
+    0.3
+   ],
+   "tag": "ASSUMED: body 50 g, plug 10 g, two micro solenoids 60-120 g, propane cylinder 50 g, lines/fittings 50 g"
+  }
+ },
+ "sequence": {
+  "arm_preconditions": [
+   "tank 15-25 C (heater blanket for cold days; supercharge not baselined)",
+   "pintle seated, position encoder healthy, isolation valve closed",
+   "igniter continuity checked (spark coil primary, both solenoids)",
+   "Pc, P_feed, P_tank sensors healthy; Pc reads ambient +/- 0.1 bar"
+  ],
+  "start": [
+   {
+    "t_s": -0.8,
+    "action": "ONLY if the line is not primed (P_feed < 0.5 P_tank, e.g. first start after a purge): pintle to a 0.10 mm bleed lift BEFORE the isolation valve moves, so the line vents through the injector (no dead-ended adiabatic compression of trapped gas: N2 isentropic 847-913 K, N2O vapour 614-646 K at 45-60 bar, feed_line_checks_v2.json); isolation valve opening ramp >= 0.3 s"
+   },
+   {
+    "t_s": -0.3,
+    "action": "primed line (relight, P_feed >= 0.5 P_tank): open the NC isolation valve with the pintle seated; unprimed line: isolation valve fully open by now and the pintle returns to seated; vapour-first (warm line flashes)"
+   },
+   {
+    "t_s": 0.0,
+    "action": "open torch solenoids (N2O SOL1, propane SOL2)"
+   },
+   {
+    "t_s": 0.02,
+    "action": "spark train 50 Hz, 50 mJ, up to 0.5 s"
+   },
+   {
+    "t_s": 0.1,
+    "action": "torch-flame confirmation (photodiode or 0.25 mm thermocouple at the torch outlet, Electronics to select; fallback = timing only)"
+   },
+   {
+    "t_s": 0.12,
+    "action": "pintle to the ignition lift (12.5-20 % flow, ~0.2-0.3 mm at 20 C)"
+   },
+   {
+    "t_s": 0.35,
+    "action": "ignition check: Pc > 3.0 bar abs (combustion 4.4-6.2 bar vs cold N2O flow ~1.5 bar); if not, ABORT"
+   },
+   {
+    "t_s": 0.35,
+    "action": "ramp to the commanded thrust at <= 2500 N/s (gnc.json engine model slew; a cap: the drive must give >= 2 F_max/s, gnc.json v2 ENG-03)"
+   },
+   {
+    "t_s": 0.4,
+    "action": "propane solenoid closed before Pc exceeds 5 bar (propane vapour pressure 6.4 bar at 10 C)"
+   },
+   {
+    "t_s": 0.6,
+    "action": "N2O torch solenoid closed; spark off"
+   }
+  ],
+  "abort_if_no_ignition": [
+   "pintle closed",
+   "torch solenoids closed",
+   "isolation valve closed",
+   "wait >= 5 s for the chamber to vent N2O (no re-try into a pooled chamber)",
+   "one automatic retry allowed in flight only if GNC margin permits; ground: safe the stand and investigate"
+  ],
+  "shutdown": [
+   "pintle closes to the seat at the drive's full speed (v2.2: the v1 \"<= 50 mm/s (80 ms full stroke)\" is retired; no combustion limit on the closing time; the ENG-05 tail-off sets the closing speed: combustion.json valves_and_actuators.pintle_actuator.speed_checks)",
+   "isolation valve closes after the pintle is seated (<= 0.15 s)",
+   "trapped liquid between the isolation valve and the pintle is relieved to the tank side (v1 requirement)",
+   "post-burn: chamber vents through the nozzle; the grain smoulders briefly in air"
+  ],
+  "relight": [
+   "same as start from t = 0 (the isolation valve may stay open between burns in flight)",
+   "settling: liquid at the tank outlet must be confirmed by the acceleration history (A1 has 15 s at ~1 g before relight; settling_v2.json)",
+   "torch fires into a hot, fuel-rich chamber: lower ignition energy expected"
+  ],
+  "flashback_and_backflow": [
+   "check valve on each torch line at the torch inlet (cracking <= 0.3 bar), rated to chamber MEOP 45 bar and hot gas",
+   "torch lines dead-ended during the main burn: the torch body sees Pc and soak heat; it is sized for MEOP 45 bar and checked for 30 s exposure (Mechanical)",
+   "no N2O purge through the torch during the main burn (a hot N2O-filled cavity is a decomposition site)",
+   "N2O decomposition in the feed: no heat source upstream of the injector, no adiabatic compression of vapour pockets (valves open slowly when lines contain vapour), clean Krytox-lubricated hardware only"
+  ],
+  "purge": [
+   "ground tests: N2 purge of the chamber after shutdown (stand-side valve, 5-10 s) and before a re-start attempt",
+   "flight: no purge gas carried (no N2 system baselined); the chamber vents through the nozzle"
+  ]
+ },
+ "model_transients": "SIM grain_q1d v2 (ASSUMED torch-to-main delay 0.10 s, 30 % preheated regression at main-flow arrival): relights in A1/A2 reach 10 % thrust 0.10-0.11 s and 90 % 0.28-0.29 s after the command; DC-D first start t10-90 0.04 s. Ignition delay is the least certain input: static fire measures it. Step starts to the 12.5 % / 20 % floor reach 90 % at 0.52-0.53 s / 0.43-0.44 s for every drive speed 0.08-0.40 s full stroke (actuator_rate_check_v2.json)."
+}

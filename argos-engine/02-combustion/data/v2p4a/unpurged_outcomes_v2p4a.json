@@ -1,0 +1,912 @@
+{
+ "version": "v2.4a",
+ "date": "2026-10-13",
+ "script": "unpurged_outcomes_v2p4a.py",
+ "script_sha256_16": "8256face5bcf7b27",
+ "request": "coordinator after REV-GNC-3 / LEAD CHANGELOG line 181 (2): unpurged start at the late-commit point, LO or HI, evidence class, hazard",
+ "inputs": {
+  "purge_duration_v2p4.json": "1ff6bfcd7d2f454c",
+  "purge_duration_v2p4_trade.json": "69e7192f63b5d8b8",
+  "purge_duration_v2p4_trade_summary.json.gz": "5971815ccd035b29",
+  "purge_duration_v2p4_trade.json.raw.json.gz": "02c30eb2e6569e8d",
+  "start_latency_v2p4.json": "809491fd86b91439",
+  "post_abort_pocket_v2p4.json": "a786b42bb499d68a",
+  "relight_vapour_order_v2p4.json": "78120ff97c0ac8dc",
+  "retained_table_v341_v2p4.json": "812cacc5b318e351",
+  "rg01_line_states_v2p4.json": "2939549811d4c381",
+  "rg01_line_states_v2p4.py": "a7f68a1a84286f9b",
+  "start_latency_v2p4.py": "989ccd9a004b2cb9",
+  "unpurged_start_check_v2p4a.py": "41fad4500f472bd4",
+  "unpurged_start_check_v2p4a.json": "4c745dcfbf09aef7",
+  "throttle_map_v2.csv": "4f2e6d846f7253da"
+ },
+ "constants": {
+  "W_s": 0.65,
+  "PURGE_s_per_cm3": 0.015555384292019896,
+  "DEAD_s_per_cm3": 0.023191806556369647,
+  "t_lift_s": 0.02964943243140622,
+  "A3_detect_s": 0.022,
+  "frame_s": 0.01,
+  "ramp_N_s": 2500.0,
+  "F_lift_N": 62.5,
+  "n_samples": 200000,
+  "population_subset": "first 20 000 samples"
+ },
+ "named_states": {
+  "purge_not_run_unlined_LO_0-2deg_worst": {
+   "sequence_P1_S1_C1_S2_C2_cm3": [
+    12.4945,
+    11.2106,
+    23.4431,
+    0.0,
+    0.0
+   ],
+   "published_P_abort": 0.24243000000000003,
+   "paused": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.24243,
+     "P_A3_before_release": 0.045955,
+     "P_released_then_A3": 0.711615,
+     "P_success": 0.0,
+     "P_light": 0.75757,
+     "P_light_then_gap": 0.75757,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.24243,
+     "P_A3_before_release": 0.04011,
+     "P_released_then_A3": 0.71746,
+     "P_success": 0.0,
+     "P_light": 0.75757,
+     "P_light_then_gap": 0.75757,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.24243,
+     "P_A3_before_release": 0.045955,
+     "P_released_then_A3": 0.711615,
+     "P_success": 0.0,
+     "P_light": 0.75757,
+     "P_light_then_gap": 0.75757,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.24243,
+     "P_A3_before_release": 0.045955,
+     "P_released_then_A3": 0.711615,
+     "P_success": 0.0,
+     "P_light": 0.75757,
+     "P_light_then_gap": 0.75757,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "restart": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.24243,
+     "P_A3_before_release": 0.045955,
+     "P_released_then_A3": 0.711615,
+     "P_success": 0.0,
+     "P_light": 0.75757,
+     "P_light_then_gap": 0.75757,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.24243,
+     "P_A3_before_release": 0.04011,
+     "P_released_then_A3": 0.71746,
+     "P_success": 0.0,
+     "P_light": 0.75757,
+     "P_light_then_gap": 0.75757,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.24243,
+     "P_A3_before_release": 0.045955,
+     "P_released_then_A3": 0.711615,
+     "P_success": 0.0,
+     "P_light": 0.75757,
+     "P_light_then_gap": 0.75757,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.24243,
+     "P_A3_before_release": 0.045955,
+     "P_released_then_A3": 0.711615,
+     "P_success": 0.0,
+     "P_light": 0.75757,
+     "P_light_then_gap": 0.75757,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "P_success_min_over_conventions_and_modes": 0.0,
+   "P_success_max_over_conventions_and_modes": 0.0
+  },
+  "purge_not_run_lined_LO_0-2deg_worst": {
+   "sequence_P1_S1_C1_S2_C2_cm3": [
+    15.6267,
+    12.359,
+    19.1625,
+    0.0,
+    0.0
+   ],
+   "published_P_abort": 0.13537500000000002,
+   "paused": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.135375,
+     "P_A3_before_release": 0.045525,
+     "P_released_then_A3": 0.8191,
+     "P_success": 0.0,
+     "P_light": 0.864625,
+     "P_light_then_gap": 0.864625,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.135375,
+     "P_A3_before_release": 0.03989,
+     "P_released_then_A3": 0.824735,
+     "P_success": 0.0,
+     "P_light": 0.864625,
+     "P_light_then_gap": 0.864625,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.135375,
+     "P_A3_before_release": 0.045525,
+     "P_released_then_A3": 0.8191,
+     "P_success": 0.0,
+     "P_light": 0.864625,
+     "P_light_then_gap": 0.864625,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.135375,
+     "P_A3_before_release": 0.045525,
+     "P_released_then_A3": 0.8191,
+     "P_success": 0.0,
+     "P_light": 0.864625,
+     "P_light_then_gap": 0.864625,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "restart": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.135375,
+     "P_A3_before_release": 0.045525,
+     "P_released_then_A3": 0.8191,
+     "P_success": 0.0,
+     "P_light": 0.864625,
+     "P_light_then_gap": 0.864625,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.135375,
+     "P_A3_before_release": 0.03989,
+     "P_released_then_A3": 0.824735,
+     "P_success": 0.0,
+     "P_light": 0.864625,
+     "P_light_then_gap": 0.864625,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.135375,
+     "P_A3_before_release": 0.045525,
+     "P_released_then_A3": 0.8191,
+     "P_success": 0.0,
+     "P_light": 0.864625,
+     "P_light_then_gap": 0.864625,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.135375,
+     "P_A3_before_release": 0.045525,
+     "P_released_then_A3": 0.8191,
+     "P_success": 0.0,
+     "P_light": 0.864625,
+     "P_light_then_gap": 0.864625,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "P_success_min_over_conventions_and_modes": 0.0,
+   "P_success_max_over_conventions_and_modes": 0.0
+  },
+  "purge_not_run_unlined_0-2deg_least": {
+   "sequence_P1_S1_C1_S2_C2_cm3": [
+    12.0285,
+    34.3821,
+    0.7377,
+    0.0,
+    0.0
+   ],
+   "published_P_abort": 0.0,
+   "paused": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 1.0,
+     "P_gap_shorter_than_A3": 1.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 1.0,
+     "P_gap_shorter_than_A3": 1.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 1.0,
+     "P_gap_shorter_than_A3": 1.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 1.0,
+     "P_gap_shorter_than_A3": 1.0
+    }
+   },
+   "restart": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 1.0,
+     "P_gap_shorter_than_A3": 1.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 1.0,
+     "P_gap_shorter_than_A3": 1.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 1.0,
+     "P_gap_shorter_than_A3": 1.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 1.0,
+     "P_gap_shorter_than_A3": 1.0
+    }
+   },
+   "P_success_min_over_conventions_and_modes": 1.0,
+   "P_success_max_over_conventions_and_modes": 1.0
+  },
+  "purge_not_run_lined_0-2deg_least": {
+   "sequence_P1_S1_C1_S2_C2_cm3": [
+    12.0247,
+    35.3157,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "published_P_abort": 0.0,
+   "paused": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "restart": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "P_success_min_over_conventions_and_modes": 1.0,
+   "P_success_max_over_conventions_and_modes": 1.0
+  },
+  "purge_not_run_unlined_HI_0-2deg_worst": {
+   "sequence_P1_S1_C1_S2_C2_cm3": [
+    51.7997,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "published_P_abort": 1.0,
+   "paused": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 1.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 0.0,
+     "P_light": 0.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 1.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 0.0,
+     "P_light": 0.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 1.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 0.0,
+     "P_light": 0.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 1.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 0.0,
+     "P_light": 0.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "restart": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 1.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 0.0,
+     "P_light": 0.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 1.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 0.0,
+     "P_light": 0.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 1.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 0.0,
+     "P_light": 0.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 1.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 0.0,
+     "P_light": 0.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "P_success_min_over_conventions_and_modes": 0.0,
+   "P_success_max_over_conventions_and_modes": 0.0
+  },
+  "purged_unlined_Tp2.5_0-2deg_worst": {
+   "sequence_P1_S1_C1_S2_C2_cm3": [
+    8.148,
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "published_P_abort": 0.0,
+   "paused": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "restart": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "P_success_min_over_conventions_and_modes": 1.0,
+   "P_success_max_over_conventions_and_modes": 1.0
+  },
+  "purged_lined_Tp2.5_0-2deg_worst": {
+   "sequence_P1_S1_C1_S2_C2_cm3": [
+    9.0788,
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "published_P_abort": 0.0,
+   "paused": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "restart": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "P_success_min_over_conventions_and_modes": 1.0,
+   "P_success_max_over_conventions_and_modes": 1.0
+  },
+  "purged_lined_Tp2.2_robust_edge_0-2deg_worst": {
+   "sequence_P1_S1_C1_S2_C2_cm3": [
+    7.1429,
+    1.3082,
+    7.204,
+    1.0,
+    0.0
+   ],
+   "published_P_abort": 0.0,
+   "paused": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "restart": {
+    "ramp_pool_Fcmd": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "lift_flow_held": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_200N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    },
+    "ramp_to_500N": {
+     "P_no_light": 0.0,
+     "P_A3_before_release": 0.0,
+     "P_released_then_A3": 0.0,
+     "P_success": 1.0,
+     "P_light": 1.0,
+     "P_light_then_gap": 0.0,
+     "P_gap_shorter_than_A3": 0.0
+    }
+   },
+   "P_success_min_over_conventions_and_modes": 1.0,
+   "P_success_max_over_conventions_and_modes": 1.0
+  }
+ },
+ "population_0_2deg": {
+  "lin0.0|HI": {
+   "n_records": 540,
+   "n_unique_sequences": 160,
+   "mean_over_records_worst_case": {
+    "P_success": 0.0,
+    "P_no_light": 0.7707016666666666,
+    "P_A3_before_release": 0.007855,
+    "P_released_then_A3": 0.22144333333333333,
+    "P_light": 0.22929833333333333
+   },
+   "mean_over_records_best_case": {
+    "P_success": 0.0,
+    "P_released_then_A3": 0.22144333333333333,
+    "P_light": 0.22929833333333333
+   },
+   "mean_over_records_pool_ramp_by_convention": {
+    "paused": {
+     "P_success": 0.0,
+     "P_released_then_A3": 0.22144333333333333,
+     "P_light": 0.22929833333333333
+    },
+    "restart": {
+     "P_success": 0.0,
+     "P_released_then_A3": 0.22144333333333333,
+     "P_light": 0.22929833333333333
+    }
+   },
+   "P_success_worst_case_over_records": {
+    "min": 0.0,
+    "p10": 0.0,
+    "median": 0.0,
+    "p90": 0.0,
+    "max": 0.0
+   },
+   "share_of_records_P_success_below_0p05": 1.0,
+   "share_of_records_P_success_above_0p70": 0.0,
+   "parent_mean_P_released_then_A3_pool_ramp_reproduced": 0.22144333333333333
+  },
+  "lin0.0|LO": {
+   "n_records": 540,
+   "n_unique_sequences": 360,
+   "mean_over_records_worst_case": {
+    "P_success": 0.1814814814814815,
+    "P_no_light": 0.011728333333333332,
+    "P_A3_before_release": 0.00459,
+    "P_released_then_A3": 0.8022001851851852,
+    "P_light": 0.9882716666666667
+   },
+   "mean_over_records_best_case": {
+    "P_success": 0.4,
+    "P_released_then_A3": 0.5836816666666667,
+    "P_light": 0.9882716666666667
+   },
+   "mean_over_records_pool_ramp_by_convention": {
+    "paused": {
+     "P_success": 0.4,
+     "P_released_then_A3": 0.5836816666666667,
+     "P_light": 0.9882716666666667
+    },
+    "restart": {
+     "P_success": 0.4,
+     "P_released_then_A3": 0.5836816666666667,
+     "P_light": 0.9882716666666667
+    }
+   },
+   "P_success_worst_case_over_records": {
+    "min": 0.0,
+    "p10": 0.0,
+    "median": 0.0,
+    "p90": 1.0,
+    "max": 1.0
+   },
+   "share_of_records_P_success_below_0p05": 0.8185185185185185,
+   "share_of_records_P_success_above_0p70": 0.1814814814814815,
+   "parent_mean_P_released_then_A3_pool_ramp_reproduced": 0.5836816666666667
+  },
+  "lin1.0|HI": {
+   "n_records": 540,
+   "n_unique_sequences": 210,
+   "mean_over_records_worst_case": {
+    "P_success": 0.0,
+    "P_no_light": 0.516285,
+    "P_A3_before_release": 0.0061266666666666665,
+    "P_released_then_A3": 0.4775883333333333,
+    "P_light": 0.483715
+   },
+   "mean_over_records_best_case": {
+    "P_success": 0.037037037037037035,
+    "P_released_then_A3": 0.44055129629629625,
+    "P_light": 0.483715
+   },
+   "mean_over_records_pool_ramp_by_convention": {
+    "paused": {
+     "P_success": 0.037037037037037035,
+     "P_released_then_A3": 0.44055129629629625,
+     "P_light": 0.483715
+    },
+    "restart": {
+     "P_success": 0.037037037037037035,
+     "P_released_then_A3": 0.44055129629629625,
+     "P_light": 0.483715
+    }
+   },
+   "P_success_worst_case_over_records": {
+    "min": 0.0,
+    "p10": 0.0,
+    "median": 0.0,
+    "p90": 0.0,
+    "max": 0.0
+   },
+   "share_of_records_P_success_below_0p05": 1.0,
+   "share_of_records_P_success_above_0p70": 0.0,
+   "parent_mean_P_released_then_A3_pool_ramp_reproduced": 0.44055129629629625
+  },
+  "lin1.0|LO": {
+   "n_records": 540,
+   "n_unique_sequences": 360,
+   "mean_over_records_worst_case": {
+    "P_success": 0.22592592592592592,
+    "P_no_light": 0.00348,
+    "P_A3_before_release": 0.0029275,
+    "P_released_then_A3": 0.767666574074074,
+    "P_light": 0.9965200000000001
+   },
+   "mean_over_records_best_case": {
+    "P_success": 0.4703703703703704,
+    "P_released_then_A3": 0.5232221296296296,
+    "P_light": 0.9965200000000001
+   },
+   "mean_over_records_pool_ramp_by_convention": {
+    "paused": {
+     "P_success": 0.4703703703703704,
+     "P_released_then_A3": 0.5232221296296296,
+     "P_light": 0.9965200000000001
+    },
+    "restart": {
+     "P_success": 0.4703703703703704,
+     "P_released_then_A3": 0.5232221296296296,
+     "P_light": 0.9965200000000001
+    }
+   },
+   "P_success_worst_case_over_records": {
+    "min": 0.0,
+    "p10": 0.0,
+    "median": 0.0,
+    "p90": 1.0,
+    "max": 1.0
+   },
+   "share_of_records_P_success_below_0p05": 0.774074074074074,
+   "share_of_records_P_success_above_0p70": 0.22592592592592592,
+   "parent_mean_P_released_then_A3_pool_ramp_reproduced": 0.5232221296296296
+  },
+  "both_linings|LO": {
+   "n_records": 1080,
+   "mean_P_success_worst_case": 0.2037037037037037,
+   "mean_P_success_best_case": 0.4351851851851852,
+   "mean_P_released_then_A3_worst_case": 0.7849333796296296
+  },
+  "both_linings|HI": {
+   "n_records": 1080,
+   "mean_P_success_worst_case": 0.0,
+   "mean_P_success_best_case": 0.018518518518518517,
+   "mean_P_released_then_A3_worst_case": 0.3495158333333333
+  }
+ },
+ "lo_hi_meaning": "LO/HI are the two ends of Mechanical's wall heat-transfer coefficient bracket (segment heat cases isothermal, hw+5K, ARM_bay45C_liq24C, each at h LO and h HI; segment_heat_v341_v2p4.json) that set how much liquid in the line flashes during the coast: ASSUMED bounds, not a measurement. Neither end is supported or excluded by evidence; CF-4 (optional generation runs) and T4 measure it.",
+ "tags": {
+  "classes": "SIM on ASSUMED delays (rg01 set reproduced) + DERIVED line states (records not re-run); post-light timing DERIVED approximation (parent); A3 rule per REPORT v2.4 7.4; release at E2 with Pc valid; lights during vapour not modelled",
+  "population": "bracket records, NOT probability-weighted; means are unweighted over records"
+ }
+}
