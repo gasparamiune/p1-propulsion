@@ -1,0 +1,332 @@
+### 7.3 Sequence (v2.4, replaces the v2.3 sequence)
+
+v2.4 changes, in response to RC-01 and RC-02:
+- The torch is a hard gate: no N2O reaches the main chamber before the torch flame is confirmed.
+- Pc confirmation gates the pintle ramp.
+- The torch valves close on the Pc-confirmation event, not on a clock. N2O closes first.
+- Every abort de-energises the NC valve at once and commands the pintle closed in parallel (LEAD 2026-10-13).
+- There is no automatic in-flight retry (LEAD 2026-10-13).
+- The abort deadline W replaces the fixed 0.35 s check and is selected by the state of the valve-to-seat segment.
+
+The v2.3 sequence is kept in §13 as superseded evidence.
+
+**Epochs** (published in combustion.json `igniter.sequence_v2p4.epochs`):
+
+| Epoch | Event |
+|---|---|
+| E0 | ECU receives START or RELIGHT. SOL1 (torch N2O) and SOL2 (propane) open; spark at E0 + 0.02 s |
+| E1 | Torch flame confirmed: torch-cavity pressure > 2.0 bar abs for 10 ms (lit about 3 bar, unlit about 1.1 bar), or a photodiode; Electronics selects. At E1 the NC valve open command (if closed) and the pintle command to the ignition lift are issued together |
+| E2 | Pc confirmed: Pc > 3.0 bar abs for 10 ms (sensor latency 2.3 ms). At E2, SOL1 is de-energised, SOL2 within 20 ms, spark off, and the ramp is released |
+| E3 | Thrust >= 90 % of the start or relight command (used for ENG-04 latency, §7.7) |
+
+**ARM preconditions** (v2.4; the rev-2 items are RC-13 b and c):
+- Tank at 15-25 C (ENG-01, ENG-12).
+- Tank heater hard-disabled at ARM (ENG-12).
+- Pintle seated and encoder healthy. NC valve, SOL0, SOL1 and SOL2 closed. SOL0 is the torch isolation valve proposed in §7.5.
+- Continuity of the spark primary and of every solenoid.
+- Sensors healthy:
+  - Pc reads ambient +/- 0.1 bar;
+  - Pc transducer range >= 70 bar (ENG-09; RC-13 d);
+  - P_feed and P_tank healthy;
+  - torch-cavity pressure or photodiode healthy;
+  - thermocouples on SOL1, the torch check valve and the injector manifold.
+- Chamber vented: Pc within 0.1 bar of ambient.
+- Ground only:
+  - stand vertical, nozzle down;
+  - burst disc fitted (§7.6);
+  - N2 purge connected;
+  - remote operation, with the crew outside the exclusion distance (§9.2).
+
+**Start and relight sequence.** The same sequence is used for a pad start, a ground restart and an in-flight relight.
+
+1. **Before E0** (relight only): settling confirmed by the acceleration history (§2.4) and chamber vented. The NC valve stays closed through the coast (LEAD rule).
+2. **E0:** SOL1 and SOL2 open; spark train 50 Hz, 50 mJ, from E0 + 0.02 s. The pintle stays seated and the NC valve stays closed.
+3. **Torch deadline:** if E1 has not occurred by E0 + 0.25 s, the torch no-light row of the abort matrix applies.
+   - Under the ASSUMED delay distributions, E0 -> E1 has p99 0.138 s and maximum about 0.15 s (§7.7).
+   - No main-chamber N2O has been admitted at that point.
+4. **E1:** the NC valve open command (if closed) and the pintle command to the ignition lift are issued together.
+   - The ignition lift is 12.5 % flow: 0.206 mm at 20 C, 0.216 mm at 15 C, 0.198 mm at 25 C, 0.219 mm at the A1 relight state. It is reached 45-46 ms after the command (SIM).
+   - Opening the valve against an open pintle vents any gas in the segment through the injector. A dead-ended segment is never compressed, so the v2.3 bleed-lift priming step (H2) is no longer needed.
+   - The lift is held until E2 (ENG-04 ignition-lift hold).
+5. **Abort deadline W,** counted from E1. If E2 has not occurred by E1 + W, the main no-light row applies. W depends on the segment state:
+
+   | Segment state | Condition | W |
+   |---|---|---|
+   | Proven liquid-full | Ground restart after a liquid prime, with the injector manifold thermocouple at least 1 K below T_sat(P_tank) | 0.40 s |
+   | All other cases | Pad start on a fresh or gas-filled line; every in-flight relight | 0.85 s |
+
+   Under the ASSUMED delays (§7.7), E1 -> E2 has these maxima over 200 000 samples:
+   - 0.357 s with a liquid segment;
+   - 0.815 s with a full-vapour segment and the valve closed.
+
+   No sample is a false abort at either W. The inventory and pressure consequences of W are in §7.6.
+6. **E2:**
+   - SOL1 (N2O) is de-energised first and SOL2 (propane) within 20 ms, so the torch ends propane-only and never runs N2O-only.
+   - At E2, Pc is about 3 bar, below the propane supply (6.4 bar at 10 C), so propane still flows until it is cut.
+   - The spark stops.
+   - The pintle ramps to the command at <= 2500 N/s. The drive must still deliver >= 2 F_max/s (ENG-03).
+7. **Run:** Pc loop at 1 kHz (Electronics). The abort monitors are listed in §7.4.
+
+**Normal shutdown** (unchanged order, plus a time-out; LEAD 2026-10-13):
+1. Pre-MECO throttle-down to <= 75 % (LEAD; ENG-05).
+2. The pintle closes at full drive speed.
+3. The NC valve is de-energised when the seat is confirmed (encoder at the seat and Pc < 2 bar abs), or 0.30 s after the shutdown command, whichever comes first.
+   - The 0.30 s time-out is DERIVED: full stroke at 16.7 mm/s is 0.24 s, plus 10 ms lag and 6.5 ms command latency.
+4. Trapped liquid in the valve-to-seat segment relieves to the tank side through the differential check valve S1 (§2.7).
+5. Ground only: after a 30 s hold, the post-test safing procedure applies (§10.2).
+
+**Abort** (any row of §7.4):
+- the NC valve is de-energised immediately;
+- the pintle is commanded closed in parallel;
+- SOL0, SOL1 and SOL2 are de-energised and the spark stops;
+- if the pintle shows no closing progress 0.10 s after the command, servo power is released and the pintle spring closes the unpowered servo (Electronics pintle_rail_v3; B-PNT-1 back-drive check);
+- the ECU reports the abort to GNC (drogue per the GNC policy).
+
+**No automatic retry** (LEAD 2026-10-13):
+- In flight, a no-light means the NC valve is de-energised and the pintle closed at once; the vehicle is accepted as lost under the drogue.
+- On the ground, the stand is safed (§10.2) and the cause is investigated before any new attempt.
+
+Research proposal for the lead, not adopted (in-flight torch-only retry):
+- **Proposal.** If E1 fails (torch no-light), no main-chamber N2O has been admitted, so a single torch retry adds no hard-start inventory.
+- **Hypothesis.** The retry raises P(relight) without raising hard-start exposure.
+- **Comparator.** The adopted no-retry rule.
+- **Evidence needed.**
+  - The torch no-light probability from IGN-1;
+  - GNC's landing margin for a relight about 0.25-0.4 s later. A1 relights at 36.5-37.3 m, descending at 21.3-21.6 m/s.
+- **Refutation criterion.** The GNC margin is negative, or the IGN-1 torch reliability makes the retry irrelevant.
+
+**Model transients** (SIM, ASSUMED delays; replaces the v2.3 paragraph):
+- The start and relight transients of the adopted sequence are in §7.7.
+- The v2.3 figures were 0.28-0.29 s to 90 %. They assumed a 0.10 s torch-to-main delay, a direct step to the command, no lift hold and no valve step. They are superseded.
+
+### 7.4 Abort matrix (RC-01)
+
+Every row's action is the abort of §7.3 (NC valve de-energised at once, pintle commanded closed in parallel, torch valves de-energised) unless stated otherwise.
+
+Latencies:
+- Pc sensor 2.3 ms; command to servo 6.5 ms; pintle 16.7 mm/s behind a 10 ms lag (DERIVED, CHANGELOG 2026-10-12).
+- NC valve closing 0.10 s (ASSUMED requirement, electronics.json v1).
+- ECU monitor rate 1 kHz; watchdog 50 ms (electronics.json v1).
+
+| # | Trigger | Detection | Threshold and persistence | Phase | Action | Latency and consequence (SIM unless stated) |
+|---|---|---|---|---|---|---|
+| A1 | Torch no-light | Torch-cavity pressure or photodiode | E1 not reached by E0 + 0.25 s | Start, relight | SOL0/SOL1 de-energised, then SOL2 within 20 ms; spark off. Pintle and NC valve have not moved. Ground: hold and investigate. Flight: abort, no retry (LEAD) | Main-chamber N2O 0 g. Unburnt torch flow into the chamber <= 0.15 g (0.594 g/s x 0.25 s, DERIVED) |
+| A2 | Main no-light | Pc | E2 (Pc > 3.0 bar abs for 10 ms) not reached by E1 + W; W 0.40 s (liquid segment) or 0.85 s (otherwise) | Start, relight | Abort. Ground: post-no-light safing (§10.2). Flight: no retry, vehicle lost under the drogue (LEAD) | Pintle closed 52 ms after the decision (20 C, from 12.5 %); valve closed 0.10 s. Inventory 15.1-15.2 g (W 0.40) or 31.8-32.0 g (W 0.85), §7.6 |
+| A3 | Flame-out | Pc against the map | Pc < 0.5 x Pc_map(lift, P_feed) for 20 ms. Cold-flow Pc is 0.15-0.25 of the lit Pc at the same lift, from 12.5 % to 100 % (DERIVED, `hard_start_sup_v2p4.json`) | After E2 | Abort | Detection 22 ms. Cold N2O inventory then accumulates at up to 0.30 kg/s at 100 %, so detection speed matters |
+| A4 | Over-pressure (hard start, runaway, blocked throat) | Pc | Pc > 30 bar abs for 5 ms (ENG-09 abort level) | All | Abort | Pintle runaway to full stroke from 100 %: peak 33.7 bar (20 C, Cd 0.7) to 37.3 bar (30 C, Cd 0.8) with the valve cut and no segment. With the 21.4 cm3 segment the model gives 35.8-41.2 bar, high-biased (§13). With no valve action, 34.7-41.7 bar. All are below MEOP 45 bar. Time above 30 bar: 0.10-0.12 s with the valve, 0.39-0.41 s+ without (`abort_cases_v2p4.json`). A hard-start spike (ms) is faster than any actuator; this row records it and stops the run, and the bound is by design (§7.6) |
+| A5 | Ignition-hold over-pressure | Pc | Pc > 8.0 bar abs for 5 ms while the lift command is the ignition lift (lit Pc 4.4 bar at 12.5 %, 6.2 bar at 20 %) | E1 to the ramp start | Abort | Stops a start after a pressure spike or a lift error before the ramp |
+| A6 | PINTLE_FAULT | Rail OV disconnect (LTC4365 trip, reported to the ECU); jam (no motion with a command error: 0.10 s time path, 0.07 s current path); encoder invalid; position error > 0.05 mm for 50 ms (ASSUMED, Electronics to set) | As stated | All | Abort (LEAD 2026-10-13: NC valve de-energised at once). Servo power released after a further 0.10 s without closing progress; the spring closes the unpowered servo | Tail-off from 100 % with the segment present: 38.3 N s, t10 0.121 s (pintle closing); with the pintle jammed, flow stops when the valve closes and the segment (16.8 g at 20 C) has drained through the jammed lift |
+| A7 | Loss or implausibility of Pc | Range, open or short, rate > 5 bar/ms, disagreement with the P_feed-based estimate > 30 % for 50 ms (ASSUMED, Electronics to set) | As stated | E0 to the ramp start: abort. Run: open-loop on P_feed with a lift cap at the 100 % lift for the current P_feed (electronics.json v1), shutdown at the next GNC command | Recommendation: a second, independent Pc channel (transducer or 35 bar pressure switch) so the over-pressure abort survives one sensor fault |
+| A8 | Torch-line over-temperature | Thermocouples on the SOL1 body and the torch check valve | > T_lim, ASSUMED 120 C, TO-SET at IGN-1 below the solenoid seal and coil rating | Burn and coast | Burn: abort. Coast or post-landing: SOL0 closed, remote vent armed (§10.2) | Guards the only dead-ended N2O volume near the hot torch (§7.5) |
+| A9 | Torch valve not closed after E2 | SOL drive-current signature (Electronics) | At E2 + 50 ms | After E2 | SOL0 closed; if SOL1 is the stuck valve, SOL0 isolates it. Burn continues on the ground only if the operator accepts; flight: abort | Two closures in series on the torch N2O path (§7.5) |
+| A10 | Watchdog or ECU power loss | Hardware | 50 ms | All | Hardware fail-safe: NC valve, SOL0, SOL1 and SOL2 de-energise to close; the unpowered pintle servo is closed by the spring | Same consequence as A6 |
+| A11 | Link loss | Link monitor | Degraded 0.02 s, lost 0.1 s (electronics.json v1) | Ignition: abort. Run: shutdown or GNC HOLD policy (Electronics and GNC) | As electronics.json v1 | – |
+
+Tail-off after an abort from 100 % (`abort_cases_v2p4.json`; cross-check of GNC's values, CHANGELOG 2026-10-13):
+
+| Case | Impulse after the decision [N s] | t10 [s] | N2O through the pintle [g] | GNC |
+|---|---|---|---|---|
+| Pintle only | 38.3 | 0.121 | 19.7 | 38.6 / 0.120 |
+| Pintle + NC valve, no segment | 35.8 | 0.102 | 18.0 | 36.6 / 0.103 (ASSUMED) |
+| Pintle + NC valve, 21.4 cm3 segment (adopted layout) | 38.3 | 0.121 | 19.7 | – |
+| Pintle + NC valve, 33.0 cm3 segment (valve at the zone top) | 38.3 | 0.121 | 19.7 | – |
+
+Reading:
+- With the liquid segment present, the valve cut does not shorten the tail-off.
+- The segment drains through the closing pintle while the valve closes; it ends at about 47 bar with a liquid fraction of 0.76.
+- GNC should use 38.3-38.6 N s and t10 0.12 s for every abort.
+- The valve's value in an abort is as the fail-safe for a pintle that does not close (A6), not as a faster tail-off.
+
+### 7.5 Torch N2O line and flashback (RC-01 points 1, 2 and 4; C4)
+
+The v2.3 contradiction (C4) is removed:
+- v2.3 closed propane at 0.4 s and torch N2O at 0.6 s, which gave an N2O-only interval through a hot torch.
+- v2.4 closes SOL1 (N2O) first at E2 and SOL2 (propane) within 20 ms. The torch ends propane-only. No N2O sweep is kept.
+
+Requirements for the torch feed (for Mechanical and Electronics, through the lead):
+
+| ID | Requirement | Reason |
+|---|---|---|
+| R-T1 | No N2O-only flow through a hot torch, in any sequence or abort. SOL1 closes no later than SOL2. If IGN-1 shows a propane-rich tail damages the torch, "both together" is the alternative | RC-01 point 1; ENG-05 |
+| R-T2 | Dead-ended N2O volume between the last N2O closure and the torch orifice <= 0.05 cm3. SOL1 sits on a thermal stand-off at the torch inlet, with its body <= T_lim (ASSUMED 120 C, TO-SET at IGN-1) through the burn and the soak | RC-01 point 4 (hot dead-ended line). Mechanical currently places the solenoids on the fixed side with check valves on the engine; that layout leaves the line from the solenoid to the hot check valve as a dead-ended N2O volume beside the torch |
+| R-T3 | Two closures in series between the tank and the torch. Baseline: torch N2O tapped on the tank side of the NC valve, so the torch lights before the main valve moves; SOL0 (NC) at the tap (fixed side, cold) and SOL1 (NC) at the torch. SOL0 is open from ARM to SAFE and closes on any abort | A single stuck SOL1 must not leave an N2O-only flow path from the tank to a hot torch |
+| R-T4 | SOL0 relieves backwards to the tank (built-in reverse relief or a check valve around it) so the SOL0-SOL1 line (about 1.2 cm3, 0.95 g liquid at 20 C, ASSUMED 1/8 in line, 0.6 m) is never a closed liquid volume | RC-04 trapped liquid |
+| R-T5 | Check valve plus a sintered-metal flame arrestor at the torch N2O inlet, rated to MEOP 45 bar and hot gas. Flame-quench test of the arrestor and the 1/8 in line at tank pressure is TO-TEST in IGN-1 | ENG-05: no flashback or decomposition in the feed |
+| R-T6 | Thermocouples on the SOL1 body and the check valve in IGN-1 and T1; SOL1 thermocouple also in flight (abort row A8) | RC-01 point 4 |
+
+Alternative, if Mechanical keeps both torch solenoids on the fixed side:
+- Tap the torch N2O downstream of the NC valve, so the NC valve is the second closure.
+- Fit the check valve on a stand-off whose temperature is shown <= T_lim by IGN-1/T1 thermocouples.
+- Cost: the dead-ended line from the fixed-side solenoid to the check valve stays. Its acceptance rests on the measured check-valve temperature.
+- Cost: on a pad start from a fresh line, the torch has no N2O until the segment is primed, so the torch-first gate needs the valve to open first. That re-introduces the dead-ended compression on priming (H2), unless the v2.3 bleed-lift step is kept.
+
+This alternative is not recommended.
+
+The flight-side change requests (Mechanical: SOL1 position, SOL0, arrestor; Electronics: SOL0 driver, thermocouple channels, torch-cavity pressure or photodiode) go to the lead (§12).
+
+### 7.6 Hard-start bound at the chosen lift and deadline (RC-02)
+
+Basis: `hard_start_v2p4.json`, `hard_start_sup_v2p4.json`; scripts `hard_start_v2p4.py` and `hard_start_sup_v2p4.py`.
+- Cold flow: Dyer, Cd 0.70 (ASSUMED).
+- HEM flash.
+- Chamber free volume 284.6 cm3 (author) and 300.9 cm3 (reviewer, RC-16). Both are run and the larger peak is quoted.
+- Products: Cantera GRI-3.0 equilibrium.
+- In the data files the label "ESTIMATE" means DERIVED from ASSUMED inputs (order of magnitude); it is not acceptance evidence.
+
+**Inventory against lift and deadline** (DERIVED; single fault, the pintle closes; primed liquid line; no ignition; N2O admitted from the lift command until the pintle seats):
+
+| W from E1 [s] | 0.10 | 0.20 | 0.30 | 0.40 | 0.50 | 0.60 | 0.75 | 0.85 |
+|---|---|---|---|---|---|---|---|---|
+| 12.5 %, 20 C [g] | 4.0 | 7.7 | 11.4 | **15.1** | 18.8 | 22.5 | 28.1 | **31.8** |
+| 12.5 %, A1 relight state [g] | 4.0 | 7.7 | 11.5 | 15.2 | 18.9 | 22.7 | 28.3 | 32.0 |
+| 15 %, 20 C [g] | 4.6 | 8.8 | 13.1 | 17.4 | 21.7 | 25.9 | – | – |
+| 20 %, 20 C [g] | 5.7 | 11.1 | 16.5 | 21.9 | 27.3 | 32.7 | – | – |
+
+Reading:
+- The v2.3 figure of 8.74 g covered one lift and one window only. It is superseded (RC-02).
+- Cold flow at 12.5 %: 37.1 g/s into 1.08 bar, flash quality 0.57, so about 43 % stays liquid at -87 C (20 C tank). At 20 %: 53.8 g/s.
+- Double fault (no light and the pintle stuck at the lift): the NC valve closes in 0.10 s and the segment (16.8 g at the coil end, 25.9 g at the zone top) drains into the chamber. That adds about 20-30 g to the row values (`inventory_special_cases_g`).
+
+**Constant-volume bound** (Cantera UV, reactants only):
+- Decomposition products: 190 bar for 8.74 g, 325 bar for 15 g, 434 bar for 20 g (284.6 cm3).
+- With fuel at O/F 8: 404 / 703 / 944 bar.
+- These reproduce the order of the review (165-354 bar with 1 bar of air). They are not credible peaks, because the chamber vents through the throat in 3.8-4.7 ms.
+
+**Vented peak against reaction time** (0-D vented chamber, all admitted N2O retained and reacting with the given time shape). The reaction time below which the peak exceeds MEOP / proof (decomposition, 284.6 cm3, top-hat):
+
+| Admitted mass | 8 g | 12 g | 15 g | 20 g | 25 g |
+|---|---|---|---|---|---|
+| tau for MEOP 45 bar [ms] | 12.1 | 18.6 | 23.4 | 31.3 | 39.2 |
+| tau for proof 67.5 bar [ms] | 7.4 | 12.0 | 15.4 | 20.8 | 26.0 |
+
+- With an exponential shape these fall to 6.2-29.6 ms (MEOP) and 2.9-17.5 ms (proof).
+- With fuel at O/F 8 they rise to 20.4-63.8 ms (MEOP) and 13.6-42.6 ms (proof).
+
+The reaction time of pooled cryogenic N2O is unknown and is not to be measured deliberately (review §11). This table is therefore an envelope, not a bound.
+
+**Credible case** (two-component; DERIVED from ASSUMED inputs). The admitted N2O splits into:
+- a fast part: the vapour already in the chamber plus the liquid spray in transit over a residence of 20-60 ms, 1.22-2.01 g, reacting in 1-5 ms;
+- a slow part: wall and pool liquid that can only react as fast as it evaporates under a wall heat flux of 0.5-2.0 MW/m2.
+
+| Deadline (12.5 % lift) | Inventory [g] | Peak, 20 C [bar] | Peak, A1 relight state [bar] |
+|---|---|---|---|
+| W 0.40 s | 15.1-15.2 | 16.2-37.7 | 16.5-39.7 |
+| W 0.75 s | 28.1-28.3 | 16.2-37.7 | 16.5-39.7 |
+| W 0.85 s (adopted for unproven segments) | 31.8-32.0 | 16.2-37.7 | 16.5-39.7 |
+
+- The peak does not depend on W, because the fast part sets it; the pool only lengthens the event.
+- Margin of the worst row: 5.3 bar (12 %) below MEOP and 27.8 bar (41 %) below proof.
+
+**Fuel-assisted fast part** (DERIVED from ASSUMED inputs; the fast part reacts with fuel at O/F 8, fuel unlimited):
+
+| tau_fast | 1 ms | 5 ms | 10 ms |
+|---|---|---|---|
+| Peak, 20 C and A1 state, both volumes [bar] | 47.7-75.8 | 26.4-41.3 | 15.0-23.6 |
+
+- Pad start from a cold chamber: the only fuel present before main ignition is the torch propane. That is 0.027 g over 0.30 s of torch operation, which can burn 0.27 g of N2O at stoichiometry (O/F_st 9.98, DERIVED). This is 14-22 % of the fast part, so the fuel-assisted row does not apply. Grain pyrolysis before main ignition is not credited (unknown).
+- Relight into a hot chamber: pyrolysis vapour from the hot grain can premix with arriving N2O. The fuel-assisted row applies if ignition is delayed and then sudden.
+  - With tau_fast >= 5 ms, the peak stays below MEOP.
+  - With tau_fast about 1 ms, it reaches 48-76 bar: above MEOP, and above proof at the long-residence end.
+  - The torch-first gate is the control: the flame is present before any N2O arrives.
+
+**Chosen lift and deadline, and the written bound** (RC-02 closure statement):
+- **Lift.** The ignition lift is 12.5 %. A 20 % lift would raise the fast part to 1.42 g and the 1 ms fuel-assisted peak to 55.5 bar.
+- **Deadline.** W is 0.40 s for a proven liquid segment and 0.85 s otherwise, counted from E1.
+- **Pad start, T1-T3 and A1 launch:**
+  - credible peak <= 37.7 bar (20 C) and <= 39.7 bar (A1 state);
+  - margin >= 5.3 bar to MEOP and >= 27.8 bar to proof.
+- **Relight, T4 and flight:**
+  - the same decomposition bound applies;
+  - the fuel-assisted bound exceeds MEOP if the fast part reacts in <= about 3 ms;
+  - in flight the vehicle is already lost on a no-light (LEAD), and the hazard on a delayed ignition is to the vehicle;
+  - on the ground (T4) it is covered by the stand provisions below.
+- **Inputs.** Every input of the credible case is ASSUMED. IGN-1 and T1 supply the ignition delay; nothing measures the pooled-liquid reaction time.
+
+**Stand provisions** (IGN-1 with main N2O, and T1-T4):
+- **Orientation.** Vertical, nozzle down, so liquid drains through the throat instead of pooling below a horizontal lip (RC-02 point 5).
+- **Test article.** Proof-tested chamber (67.5 bar), remote operation, crew beyond the exclusion distance (§9.2).
+- **Burst disc.** Stand-side burst disc or blow-out, 55 bar nominal (between MEOP 45 and proof 67.5), >= 16 mm and preferably 20 mm. It caps slow events (tau >= 5-10 ms) near 55 bar (`burst_disc_effect_bar`):
+  - for 12 g at tau 10 ms: 79 bar without a disc, 55 bar with 16 mm;
+  - for 12 g at tau 5 ms: 69.7 bar with 16 mm, 54.9 bar with 20 mm;
+  - it does not help at tau 2 ms.
+
+  The disc is test-article only; Mechanical places it and protects it from hot gas.
+- **Wait after a no-light.** After the deadline W the chamber holds 6.5-7.2 g of liquid at W 0.40 and 13.7-15.2 g at W 0.85, with no drainage (horizontal bound).
+  - Wall conduction alone needs >= 4.9-6.1 s (W 0.40) and >= 21.8-26.9 s (W 0.85) even with the film spread over the whole port. A pool takes far longer.
+  - An N2 purge at 10 g/s needs 2.2-5.1 s if ideal and 10.9-25.4 s at 20 % effectiveness (ASSUMED).
+  - The v2.3 rule "wait >= 5 s" is therefore not supported and is withdrawn.
+  - Ground rule: N2 purge >= 60 s at >= 10 g/s (>= 2.4x the 20 % effectiveness figure), then a hold of >= 15 min before approach with Pc at ambient and the head thermocouples falling, then the safing procedure (§10.2).
+- **Coast leak ceiling** (RC-13 g), recomputed. Accumulated seat leak over the longest A1 coast must stay <= 10 % of the smallest credible fast part:
+  - 0.10 x 1.22 g over 22.21 s gives a ceiling of 0.0055 g/s (DERIVED);
+  - this replaces 0.039 g/s, which inherited the 8.74 g inventory;
+  - the proposed CF-2 acceptance (<= 1 scc/min N2) is 2.1e-5 g/s of N2 (DERIVED), about 260 times below the ceiling in mass. Converting a gas leak at the CF-2 test pressure into a liquid-N2O leak at tank pressure depends on the leak path and is TO-VERIFY with N2O at CF-3.
+
+### 7.7 Relight latency of the adopted sequence (RC-03)
+
+Method (`start_latency_v2p4.py`, `relight_latency_sup_v2p4.py`):
+- Part 1: grain_q1d runs of the ignition-lift start at each state and lift, over a x0.6-1.5, n 0.35-0.68, preheat 0.15-0.6 and eta_c* 0.85/0.92 (ramp 2500 N/s, feed-forward and with a Pc loop K 15).
+- Part 2: a 200 000-sample Monte Carlo (seed 2024) over ASSUMED delay distributions:
+  - solenoid opening U(0.005, 0.020) s;
+  - torch light U(0.02, 0.10) s;
+  - flame detection U(0.005, 0.030) s;
+  - valve flow onset U(0.05, 0.15) s;
+  - main ignition delay U(0.05, 0.30) s (the review's band);
+  - segment vapour fraction U(0, 1) x a 0.31 s purge (full vapour: 0.31 s).
+- No distribution is MEASURED; IGN-1, T1 and T4 replace them.
+
+**Epoch definition for ENG-04** (for the lead to adopt):
+- ENG-04's 0.5 s is counted from E0, the RELIGHT command received by the ECU, to E3, 90 % of the relight command.
+- The time from the valve command (E1, v2.4) to E3 is also given, because RC-03 and the lead asked for it.
+- A1 relight at 12.5 % lift (`relight_latency_sup_v2p4.json`; s):
+
+| Case | E1->E2 median / p95 / p99 / max | E1->E3 (valve command to 90 %) median / p95 / p99, loop K15 | E1->E3 feed-forward median / p95 / p99 | E0->E3 median / p95 / p99, loop K15 | P(E0->E3 <= 0.5 s), loop / feed-forward |
+|---|---|---|---|---|---|
+| Valve closed, liquid segment (also: valve open in the coast; pre-opened) | 0.225 / 0.338 / 0.348 / 0.357 | 0.318 / 0.430 / 0.442 | 0.395 / 0.609 / 0.698 | 0.408 / 0.529 / 0.555 | 0.866 / 0.556 |
+| Valve closed, vapour U(0,1) | 0.480 / 0.677 / 0.733 / 0.809 | 0.572 / 0.769 / 0.825 | 0.651 / 0.906 / 1.015 | 0.662 / 0.863 / 0.923 | 0.099 / 0.041 |
+| Valve closed, full vapour | 0.635 / 0.760 / 0.788 / 0.815 | 0.727 / 0.853 / 0.881 | 0.804 / 1.023 / 1.112 | 0.817 / 0.950 / 0.985 | 0.000 / 0.000 |
+| Valve pre-opened (>= 0.3 s before RELIGHT), vapour U(0,1) | 0.380 / 0.572 / 0.621 / 0.664 | from E1: 0.473 / 0.665 / 0.714 | 0.550 / 0.803 / 0.910 | 0.563 / 0.758 / 0.812 | 0.310 / 0.163 |
+| Valve pre-opened, full vapour | 0.535 / 0.648 / 0.658 / 0.667 | from E1: 0.628 / 0.740 / 0.752 | 0.705 / 0.919 / 1.008 | 0.718 / 0.839 / 0.865 | 0.000 / 0.000 |
+| Pad start, primed, 20 C | 0.223 / 0.335 / 0.346 / 0.353 | – | 0.432 / 0.544 / 0.557 | feed-forward 0.522 / 0.643 / 0.669 | – / 0.413 |
+
+Notes:
+- For a pre-opened valve, the time from the valve command adds the pre-open lead, >= 0.3 s.
+- For a liquid segment, the valve's flow onset is hidden: the pintle draws from the segment while the valve opens. Pre-opening therefore gains nothing there.
+- E0->E1 is median 0.090 s, p99 0.138 s in every case.
+- 5 %-step quantile tables of E0->E3 and E1->E3 for every case are in `relight_latency_sup_v2p4.json` and in combustion.json `settling_and_relight.relight_latency_v2p4`, for GNC's Monte Carlo.
+
+**ENG-04 status** (Combustion's reading; the lead states the status):
+
+| Basis | Result | Status |
+|---|---|---|
+| E0 -> E3 (RELIGHT command to 90 %), liquid segment, Pc loop | Median 0.408 s, p95 0.529 s, p99 0.555 s | Met at the median only |
+| E0 -> E3, any vapour in the segment | Median 0.66-0.82 s | Not met |
+| E1 -> E3 (from the valve command), liquid segment, Pc loop | p99 0.442 s | Met under the ASSUMED delays |
+
+Reading:
+- The dominant term is the ASSUMED main-ignition delay U(0.05, 0.30) s, followed by the vapour purge.
+- A Pc loop during the ramp (K 15) removes 0.08-0.14 s at p99 against feed-forward.
+
+**Planning values for GNC** (relight latency E0 -> E3):
+
+| Segment state | With Pc loop (K 15): range, median | Feed-forward: range, median |
+|---|---|---|
+| Liquid | 0.22-0.59 s, 0.41 s | 0.23-0.90 s, 0.48 s |
+| Unknown vapour, U(0,1) | 0.29-1.04 s, 0.66 s | 0.31-1.33 s, 0.74 s |
+| Full vapour | 0.59-1.04 s, 0.82 s | 0.60-1.34 s, 0.89 s |
+
+- The v2.3 GNC draw U(0.2, 0.6) s is optimistic for any case with vapour.
+- The "0.6 s + worst case" planning value asked for by the lead is 0.6 + 0.357 = 0.96 s with a liquid segment, and 0.6 + 0.815 = 1.42 s with a full-vapour segment (E1->E2 maxima).
+
+**What keeps the segment liquid in the coast**, and so keeps relight inside ENG-04 at the median:
+- the differential check valve S1 (§2.7), which vents segment vapour to the tank;
+- low heat input to the coil and manifold (§2.7: 5 % vapour at 10 W, 16-19 % at 30 W, 38-45 % at 70 W, full at about 200 W);
+- the O3b routing condition (§2.7).
+
+The segment state at relight is not measured by any planned sensor. A thermocouple on the injector manifold is the proposed indicator for selecting W. Its ability to see vapour is TO-TEST at T4.
+
+**Options for the lead** (ENG-04 is not met at p95 under the ASSUMED delays):
+1. Accept ENG-04 as a median requirement, with GNC planning on the distributions above.
+2. Count ENG-04 from the valve command and pre-open the valve; this only helps if the segment holds vapour.
+3. Keep the NC valve open in coasts once the CF-2 seat-leak result meets the 0.0055 g/s ceiling. This removes the valve onset but not the vapour.
+4. Insulate or re-route the O3b coil and manifold so that heat input stays <= 10 W.
+5. Shorten the ignition delay with a hotter torch or a longer torch overlap; IGN-1 measures the effect.

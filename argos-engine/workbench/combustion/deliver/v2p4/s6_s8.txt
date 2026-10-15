@@ -1,0 +1,26 @@
+@@APPEND_61@@
+**v2.4 (RC-17).** The 21.92 MW/m2 peak uses the mean throat radius of curvature, Rc = 0.941 Rt, the mean of 1.5 Rt upstream and 0.382 Rt downstream (`nozzle.py`); the reviewer reproduced it exactly. Over that Rc range the peak is 20.2-24.0 MW/m2; with no eta credit (T0 = Tc) it is 26.0-28.4 MW/m2. Both lie inside the stated x0.7-1.3 band (15.3-28.5 MW/m2). T0 = eta_c*^2 Tc may under-state local streak heating; at the throat the band covers it. Oxidiser-rich operation (§4.6) lowers Tc by 2-6 % and does not raise the convective peak; its effect on the walls is chemical (§5.4).
+@@END@@
+
+@@APPEND_64@@
+**v2.4 notes.**
+- The relight-side heat now comes from Mechanical's FEA and estimates: 0.88-9.87 kJ into the valve-to-seat segment over the 18.67 s A1 coast in six heat cases (§2.8). That heat, not the head temperature, governs the relight (§2.8).
+- The seat insert TC-03 is Inconel 718 (LEAD 2026-10-13): Mechanical's upper-bound in-burn seat-face temperature on A1 is 695-712 C (§3.5).
+- Case thermocouple rules (LEAD): in-burn abort at 448.15 K for 0.2 s while the MV is open; RELIGHT refused above 433.15 K (§7.4).
+- OI-15 (HV69 mount at <= 50 C in flight) stands; T1 thermocouples on the face-disc back, head top, bracket foot and servo case.
+@@END@@
+
+@@APPEND_8@@
+**v2.4: oxidiser-rich low-a points** (REV-GNC-1 RG-03; `oxrich_62m_v2p4.json` part C, same model as Table 8.1). Points: a x0.6 with n 0.5 and 0.68, ports 30 / 40 / 45 mm, 30-70 % thrust, 46 bar tank; reference a x1.0, n 0.5 at the same ports and thrusts.
+
+| Case | O/F | dP/Pc | GM (tau 1 ms) | GM (tau 10 ms) | tau_crit | Thermal lag [s] | f thermal lag [Hz] | dc*/dO/F term k_c |
+|---|---|---|---|---|---|---|---|---|
+| a x0.6, n 0.5 and 0.68 (18 points) | 10.1-18.1 | 1.48-4.39 | 32.8-159.2 | 6.45-25.56 | inf | 0.38-3.34 | 0.048-0.42 | -0.106 to -0.119 where O/F < 14; unknown at the c* table clamp (11 points; 0 used) |
+| a x1.0, n 0.5, reference (9 points) | 5.8-8.7 | 1.51-4.38 | 37.3-148.1 | 7.51-24.29 | inf | 0.15-0.78 | 0.20-1.04 | -0.03 to -0.10 |
+
+- **Feed-coupled (chug) margins are unchanged:** the gain margin at a 10 ms delay is >= 6.4 and the critical delay is infinite at every point. The injector stays stiff (dP/Pc >= 1.48).
+- **The low-frequency band moves lower.** At low a the solid thermal lag lengthens to 0.38-3.3 s, so the hybrid thermal-lag frequency falls to 0.05-0.42 Hz, against 0.2-1.0 Hz at a x1.0. That overlaps the slow plant mode and GNC's throttle commands more than the baseline does (§3.4).
+- **c* slope.** k_c = d ln c*/d ln(O/F) is -0.106 to -0.119 at O/F 10-14, close to the reference at O/F 8.7 (-0.103) and steeper than near the optimum (-0.03 at O/F 5.8). The model includes it; above O/F 14, where the c* table is clamped, it is unknown.
+- **Not modelled:** the Karabeyoglu-type coupled modes; their amplitude is not predicted.
+- **Test requirement:** T2 and T3 log Pc at 1 kHz at every throttle level. The oxidiser-rich regime is reached at T1 at 100 % (O/F 10.4) and in the second half of T4; low a itself cannot be commanded and is identified from the T1-T4 regression data.
+@@END@@

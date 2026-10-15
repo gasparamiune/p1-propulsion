@@ -1,0 +1,352 @@
+{
+ "id": "pintle_rail_v3",
+ "version": "v3",
+ "date": "2026-10-13",
+ "owner": "electronics",
+ "question": "LEAD 2026-10-13: worst-case upper pintle-rail voltage vs the 7.6 V jam sizing (Mechanical pintle v2.3)",
+ "inputs_read": {
+  "mechanical_pintle_v2p3": {
+   "path": "/home/claude/work/shared-fallback/engine/03-cad/calcs/pintle_inline_v34_v2p3.json",
+   "sha256_16": "9356082d62c4f2ef",
+   "jam_design_F_link_N": 817.0,
+   "C2_margin_7V4": 1.6
+  }
+ },
+ "tps552882": {
+  "VREF_V": [
+   1.188,
+   1.2,
+   1.212
+  ],
+  "VREF_cond": "TJ = -40..125 C (typ at 25 C)",
+  "IFB_LKG_A": 1e-07,
+  "IFB_LKG_cond": "TJ up to 125 C, single value printed (treated as +/- bound)",
+  "IFB_CDC_float_typ_A": 3e-07,
+  "IFB_CDC_float_cond": "external feedback, RCDC floating, VISP-VISN 50 mV: MIN 0, TYP 0.3 uA, no MAX printed",
+  "IFB_CDC_eq": "IFB_CDC = 3 (VISP-VISN) / RCDC (consistent with the 7.23-7.87 uA row at RCDC 20k, 50 mV); dVout = IFB_CDC * Rup",
+  "VSNS_V": [
+   0.048,
+   0.05,
+   0.052
+  ],
+  "OVP_V": [
+   22.5,
+   23.5,
+   24.5
+  ],
+  "tSS_s": [
+   0.003,
+   0.004,
+   0.005
+  ],
+  "MODE_FPWM": "MODE 0 Ohm to AGND = internal VCC, PWM; in FPWM the power flow can reverse (output to input): servo regeneration is returned to VBAT; no reverse-current limit is printed",
+  "tag": "DATASHEET"
+ },
+ "ltc4365": {
+  "VOV_V": [
+   0.4925,
+   0.5,
+   0.5075
+  ],
+  "VOV_cond": "full operating temperature range (H grade -40..125 C)",
+  "ILEAK_A": 1e-08,
+  "t_fault_s": 2e-06,
+  "t_gate_fast_s": 4e-06,
+  "recovery_s": [
+   0.026,
+   0.036,
+   0.049
+  ],
+  "VIN_op_V": [
+   2.5,
+   34.0
+  ],
+  "gate_drive_V_at_5V": [
+   3.0,
+   3.6,
+   4.2
+  ],
+  "price": "ADI page \"Starting From $2.29\" 1ku list (a \"from\" price: NOT a quote) -> TO-QUOTE Mouser DK / Digi-Key DK, ship to DK-6400",
+  "tag": "DATASHEET"
+ },
+ "assumptions": {
+  "dT_res_K": 60.0,
+  "drift_each": 0.0005,
+  "IFB_CDC_bound_A": 6e-07,
+  "C_eff_F": [
+   0.00022000000000000003,
+   0.0003960000000000001
+  ],
+  "cer_bias_derate": 0.5,
+  "f_c_target_Hz": 5000.0,
+  "line_step_frac": 0.01,
+  "I_stall_bound_A": 1.7,
+  "I_out_limit_max_A": 4.333333333333333
+ },
+ "dividers": {
+  "A_v2_baseline_100k_19k1": {
+   "divider": {
+    "Rup": 100000.0,
+    "Rbt": 19100.0,
+    "tol": 0.001,
+    "tcr": 2.5e-05,
+    "tag": "DESIGN v2 (LEAD 2026-10-12 +1 % setpoint); TCR 25 ppm/K ASSUMED for the 0.1 % thin-film class"
+   },
+   "Vout_typ_V": 7.4827,
+   "Vout_DC_min_max_V": [
+    7.3955,
+    7.5703
+   ],
+   "upper_terms_V": {
+    "VREF+divider tolerance (DC, incl. temperature of VREF)": 0.0875,
+    "resistor TCR, not tracking, |dT| 60 K": 0.0188,
+    "resistor drift 0.05 % each": 0.0063,
+    "FB leakage 100 nA x Rup": 0.01,
+    "CDC floating FB sink (2 x 0.3 uA typ) x Rup": 0.06,
+    "output ripple (peak, boost at 6.0 V, 4.33 A)": 0.0064
+   },
+   "static_upper_worst_V": 7.6718,
+   "static_upper_rss_V": 7.6395,
+   "static_lower_worst_V": 7.3539,
+   "lower_terms_V": {
+    "VREF+divider tolerance": -0.0873,
+    "TCR": -0.0188,
+    "drift": -0.0063,
+    "FB leakage": -0.01,
+    "ripple": -0.0064
+   },
+   "cdc_typ_shift_V": 0.03,
+   "jam_F_link_N_at_static_upper": 827.5,
+   "jam_F_link_N_at_static_rss": 822.8,
+   "line_step_during_stall": {
+    "V_peak": 7.7485,
+    "F_link_N": 838.7,
+    "note": "<= ~1 ms (current-loop recovery), 1 % ASSUMED: not a static load"
+   },
+   "load_release": {
+    "f_RHPZ_Hz_boost_6V0_4A33": 37596,
+    "f_c_used_Hz": 5000,
+    "dV_V": {
+     "C_eff 220 uF (v2: 4x22 uF + 1x220 uF)": {
+      "1.70A": 0.246,
+      "4.33A": 0.627
+     },
+     "C_eff 396 uF (v3: + 2nd 220 uF polymer)": {
+      "1.70A": 0.137,
+      "4.33A": 0.348
+     }
+    },
+    "V_peak_V": {
+     "C_eff 220 uF (v2: 4x22 uF + 1x220 uF)": 8.299,
+     "C_eff 396 uF (v3: + 2nd 220 uF polymer)": 8.02
+    },
+    "coincident_with_stall": false
+   },
+   "opening_margin_at_static_lower": {
+    "T_stall_Nm": 0.8947,
+    "C2_margin": 1.591,
+    "basis": "Mechanical v2.3 C2 margin 1.6 at 7.4 V scaled by the HV69 stall-torque table (rail value, before the harness drop at the opening current)"
+   }
+  },
+  "B_v3_proposed_24k9_4k75": {
+   "divider": {
+    "Rup": 24900.0,
+    "Rbt": 4750.0,
+    "tol": 0.001,
+    "tcr": 1e-05,
+    "tag": "DESIGN v3 proposal: same setpoint (+0.1 %), FB-current terms / 4; 0.1 %, 10 ppm/K thin film (part number TO-CONFIRM, e.g. Susumu RG / Panasonic ERA-xAR class)"
+   },
+   "Vout_typ_V": 7.4905,
+   "Vout_DC_min_max_V": [
+    7.4032,
+    7.5782
+   ],
+   "upper_terms_V": {
+    "VREF+divider tolerance (DC, incl. temperature of VREF)": 0.0876,
+    "resistor TCR, not tracking, |dT| 60 K": 0.0075,
+    "resistor drift 0.05 % each": 0.0063,
+    "FB leakage 100 nA x Rup": 0.0025,
+    "CDC floating FB sink (2 x 0.3 uA typ) x Rup": 0.0149,
+    "output ripple (peak, boost at 6.0 V, 4.33 A)": 0.0065
+   },
+   "static_upper_worst_V": 7.6159,
+   "static_upper_rss_V": 7.6001,
+   "static_lower_worst_V": 7.3804,
+   "lower_terms_V": {
+    "VREF+divider tolerance": -0.0873,
+    "TCR": -0.0075,
+    "drift": -0.0063,
+    "FB leakage": -0.0025,
+    "ripple": -0.0065
+   },
+   "cdc_typ_shift_V": 0.0075,
+   "jam_F_link_N_at_static_upper": 819.3,
+   "jam_F_link_N_at_static_rss": 817.0,
+   "line_step_during_stall": {
+    "V_peak": 7.692,
+    "F_link_N": 830.4,
+    "note": "<= ~1 ms (current-loop recovery), 1 % ASSUMED: not a static load"
+   },
+   "load_release": {
+    "f_RHPZ_Hz_boost_6V0_4A33": 37557,
+    "f_c_used_Hz": 5000,
+    "dV_V": {
+     "C_eff 220 uF (v2: 4x22 uF + 1x220 uF)": {
+      "1.70A": 0.246,
+      "4.33A": 0.627
+     },
+     "C_eff 396 uF (v3: + 2nd 220 uF polymer)": {
+      "1.70A": 0.137,
+      "4.33A": 0.348
+     }
+    },
+    "V_peak_V": {
+     "C_eff 220 uF (v2: 4x22 uF + 1x220 uF)": 8.243,
+     "C_eff 396 uF (v3: + 2nd 220 uF polymer)": 7.964
+    },
+    "coincident_with_stall": false
+   },
+   "opening_margin_at_static_lower": {
+    "T_stall_Nm": 0.8978,
+    "C2_margin": 1.596,
+    "basis": "Mechanical v2.3 C2 margin 1.6 at 7.4 V scaled by the HV69 stall-torque table (rail value, before the harness drop at the opening current)"
+   }
+  },
+  "C_v1_setpoint_24k9_4k81": {
+   "divider": {
+    "Rup": 24900.0,
+    "Rbt": 4810.0,
+    "tol": 0.001,
+    "tcr": 1e-05,
+    "tag": "option (lead decision needed): the v1 setpoint (~7.41 V) with the v3 divider class"
+   },
+   "Vout_typ_V": 7.4121,
+   "Vout_DC_min_max_V": [
+    7.3257,
+    7.4987
+   ],
+   "upper_terms_V": {
+    "VREF+divider tolerance (DC, incl. temperature of VREF)": 0.0867,
+    "resistor TCR, not tracking, |dT| 60 K": 0.0075,
+    "resistor drift 0.05 % each": 0.0062,
+    "FB leakage 100 nA x Rup": 0.0025,
+    "CDC floating FB sink (2 x 0.3 uA typ) x Rup": 0.0149,
+    "output ripple (peak, boost at 6.0 V, 4.33 A)": 0.0063
+   },
+   "static_upper_worst_V": 7.5361,
+   "static_upper_rss_V": 7.5205,
+   "static_lower_worst_V": 7.3032,
+   "lower_terms_V": {
+    "VREF+divider tolerance": -0.0864,
+    "TCR": -0.0075,
+    "drift": -0.0062,
+    "FB leakage": -0.0025,
+    "ripple": -0.0063
+   },
+   "cdc_typ_shift_V": 0.0075,
+   "jam_F_link_N_at_static_upper": 807.7,
+   "jam_F_link_N_at_static_rss": 805.4,
+   "line_step_during_stall": {
+    "V_peak": 7.6115,
+    "F_link_N": 818.7,
+    "note": "<= ~1 ms (current-loop recovery), 1 % ASSUMED: not a static load"
+   },
+   "load_release": {
+    "f_RHPZ_Hz_boost_6V0_4A33": 37955,
+    "f_c_used_Hz": 5000,
+    "dV_V": {
+     "C_eff 220 uF (v2: 4x22 uF + 1x220 uF)": {
+      "1.70A": 0.246,
+      "4.33A": 0.627
+     },
+     "C_eff 396 uF (v3: + 2nd 220 uF polymer)": {
+      "1.70A": 0.137,
+      "4.33A": 0.348
+     }
+    },
+    "V_peak_V": {
+     "C_eff 220 uF (v2: 4x22 uF + 1x220 uF)": 8.163,
+     "C_eff 396 uF (v3: + 2nd 220 uF polymer)": 7.884
+    },
+    "coincident_with_stall": false
+   },
+   "opening_margin_at_static_lower": {
+    "T_stall_Nm": 0.8889,
+    "C2_margin": 1.58,
+    "basis": "Mechanical v2.3 C2 margin 1.6 at 7.4 V scaled by the HV69 stall-torque table (rail value, before the harness drop at the opening current)"
+   }
+  }
+ },
+ "failure": {
+  "modes": {
+   "FB top resistor open / FB pin open": "Vout -> regulator OVP 22.5-24.5 V [DATASHEET]",
+   "FB bottom resistor open": "Vout -> ~VREF (1.2 V): servo weak, spring closes (fail-safe direction)",
+   "buck high-side FET short": "Vout ~ VBAT <= 8.4 V (Mechanical row \"regulator failed through\")"
+  },
+  "without_OV_disconnect_V": 24.5,
+  "OV_disconnect": {
+   "part": "ADI LTC4365HTS8 (TSOT-23-8, -40..125 C) + 1 N-MOSFET (30 V logic-level, TO-SELECT), OV divider 154k / 10.0k 0.1 %",
+   "trip_V_min_nom_max": [
+    8.062,
+    8.2,
+    8.339
+   ],
+   "response_s": 6e-06,
+   "dVdt_V_per_s": 20227,
+   "overshoot_during_response_V": 0.121,
+   "peak_V": 8.46,
+   "after_trip": "servo unpowered -> spring closes the needle (PINTLE_FAULT / PC_BAND abort path); auto-retry after 26-49 ms only if the rail is back in the window",
+   "price": "ADI page \"Starting From $2.29\" 1ku list (a \"from\" price: NOT a quote) -> TO-QUOTE Mouser DK / Digi-Key DK, ship to DK-6400"
+  },
+  "nuisance_trip_margin_V": {
+   "C_eff 220 uF (v2: 4x22 uF + 1x220 uF)": -0.181,
+   "C_eff 396 uF (v3: + 2nd 220 uF polymer)": 0.098
+  }
+ },
+ "publish": {
+  "configuration": "v3 recommended: divider B 24.9k/4.75k 0.1 % 10 ppm/K, CDC floating, FPWM, 2nd 220 uF polymer, LTC4365 OV disconnect 8.2 V nominal (present v2 divider A gives 7.672 V static worst)",
+  "V_rail_max_static_V": {
+   "v": 7.62,
+   "tag": "DERIVED pintle_rail_v3, linear worst case 7.616 V (RSS 7.600 V); applies to a STALLED servo"
+  },
+  "jam_F_link_N_at_V_rail_max_static": {
+   "v": 819.9,
+   "tag": "DERIVED from Mechanical pintle v2.3 jam table (pin friction 0, -10 % spring)"
+  },
+  "V_rail_line_step_during_stall_V": {
+   "v": 7.7,
+   "tag": "ASSUMED 1 % allowance (no datasheet number), <= ~1 ms, B-PWR-2 measures; jam 831.6 N"
+  },
+  "V_rail_peak_load_release_V": {
+   "v": 7.97,
+   "tag": "DERIVED, 4.33 A release, f_c 5 kHz, C_eff 396 uF; current falling = not coincident with a stall; B-PWR-2"
+  },
+  "V_rail_failure_static_max_V": {
+   "v": 8.34,
+   "tag": "DERIVED: LTC4365 OV trip max (a failure can park the rail just below it); without the disconnect the regulator OVP allows 24.5 V"
+  },
+  "V_rail_failure_peak_V": {
+   "v": 8.46,
+   "tag": "DERIVED, <= 6 us, then the servo is unpowered"
+  },
+  "V_rail_min_static_V": {
+   "v": 7.38,
+   "tag": "DERIVED (C2 margin 1.596 at the rail, before the harness drop)"
+  },
+  "jam_detection": {
+   "v": "stall time path 0.10 s after the last progress mark (current path 0.02 + 0.05 s when the pintle current sense is fitted); back-off command the same 1 ms tick; in ABORT a further 0.10 s without closing progress releases the ARM bus (servo unpowered)",
+   "tag": "DESIGN firmware v2.6 config.h"
+  }
+ },
+ "design_actions": [
+  "CDC pin floating (cable-droop compensation off); MODE 0 Ohm = FPWM (regeneration returned to VBAT)",
+  "FB divider 24.9k / 4.75k 0.1 % 10 ppm/K (B): FB-current offsets / 4, setpoint unchanged (7.49 V typ)",
+  "second 220 uF 16 V polymer at the servo connector (load-release peak below the OV trip)",
+  "LTC4365 OV disconnect at 8.2 V nominal between TPS552882 and J_PINTLE (regulator fail-high)",
+  "COMP network designed for f_c ~5 kHz at VIN 6.0 V / 4.33 A (f_RHPZ/5), verified in B-PWR-2"
+ ],
+ "bench": [
+  "B-PWR-1: Vout at 0 / 1.7 / 4 A and -20 / 25 / 70 C board (static terms, CDC-floating offset)",
+  "B-PWR-2: load release 4.3 A -> 0 and line step 6.6 -> 8.4 V (< 100 us) with the HV69 stalled; pass: static <= 7.65 V, transient < OV trip min, no LTC4365 trip; LTC4365 trip and fail-high injection (FB open) on a dummy load, not the servo"
+ ]
+}

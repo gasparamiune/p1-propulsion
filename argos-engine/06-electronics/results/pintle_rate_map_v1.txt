@@ -1,0 +1,44 @@
+pintle_rate_map_v1 (2026-10-13): achievable thrust rate of the HV69 pintle drive vs P_tank and thrust; json sha256/16 411b0573d604364e, payload 10cc434a99a2239e, csv ec0e05889d16a09e
+servo corner: V_plug 7.335 V, T_stall 0.894 N m, w_nl 9.45 rad/s, w_n 164 rad/s zeta 0.70 -> tau_eq 8.5 ms, latency 4 ms
+servo nominal: V_plug 7.490 V, T_stall 0.913 N m, w_nl 9.63 rad/s, w_n 166 rad/s zeta 0.70 -> tau_eq 8.4 ms, latency 4 ms
+corner: opening min 1188 N/s at {'P_tank_MPa': 3.5, 'frac': 0.8, 'F_N': 400.0, 'lift_mm': 1.9394}, states >= 2500 29/95; closing min 2635 N/s at {'P_tank_MPa': 3.5, 'frac': 0.8, 'F_N': 400.0, 'lift_mm': 1.9394}, states >= 2500 95/95; resisting closing-load points 0
+    opening >= 2500 N/s up to frac (by P_tank): {'3.5': None, '4.0': None, '4.5': None, '5.0': None, '5.5': None}
+nominal: opening min 1347 N/s at {'P_tank_MPa': 3.5, 'frac': 0.8, 'F_N': 400.0, 'lift_mm': 1.9394}, states >= 2500 57/95; closing min 2684 N/s at {'P_tank_MPa': 3.5, 'frac': 0.8, 'F_N': 400.0, 'lift_mm': 1.9394}, states >= 2500 95/95; resisting closing-load points 0
+    opening >= 2500 N/s up to frac (by P_tank): {'3.5': None, '4.0': None, '4.5': 0.5, '5.0': 0.75, '5.5': 0.75}
+corner_friction_sens: opening min 1158 N/s at {'P_tank_MPa': 3.5, 'frac': 0.8, 'F_N': 400.0, 'lift_mm': 1.9394}, states >= 2500 25/95; closing min 2635 N/s at {'P_tank_MPa': 3.5, 'frac': 0.8, 'F_N': 400.0, 'lift_mm': 1.9394}, states >= 2500 95/95; resisting closing-load points 0
+    opening >= 2500 N/s up to frac (by P_tank): {'3.5': None, '4.0': None, '4.5': None, '5.0': None, '5.5': None}
+  corner opening rate [N/s] (rows P_tank, columns frac 0.125, 0.2, ..., 1.0 every 0.10):
+    3.5 MPa:  2179  2589  2455  2366  2075  1905  2010  1188  1211  1204
+    4.0 MPa:  2239  2675  2559  2491  2248  2120  2238  1535  1594  1636
+    4.5 MPa:  2276  2729  2624  2568  2359  2258  2381  1774  1853  1923
+    5.0 MPa:  2295  2755  2655  2606  2421  2338  2461  1931  2021  2106
+    5.5 MPa:  2296  2757  2658  2610  2442  2371  2488  2022  2115  2209
+  corner closing rate [N/s]:
+    3.5 MPa:  4124  5062  4972  4928  4412  4139  4402  2635  2725  2727
+    4.0 MPa:  4334  5362  5329  5346  4934  4750  5055  3493  3647  3730
+    4.5 MPa:  4515  5618  5629  5694  5362  5247  5583  4186  4384  4517
+    5.0 MPa:  4669  5835  5882  5986  5718  5657  6018  4755  4984  5154
+    5.5 MPa:  4798  6016  6093  6228  6013  5996  6376  5224  5478  5675
+  nominal opening rate [N/s] (rows P_tank, columns frac 0.125, 0.2, ..., 1.0 every 0.10):
+    3.5 MPa:  2387  2849  2717  2632  2319  2141  2267  1347  1382  1381
+    4.0 MPa:  2456  2949  2838  2778  2519  2387  2529  1741  1816  1869
+    4.5 MPa:  2503  3015  2918  2872  2651  2551  2699  2018  2115  2200
+    5.0 MPa:  2529  3053  2962  2924  2732  2652  2801  2206  2315  2417
+    5.5 MPa:  2536  3063  2975  2941  2768  2702  2847  2322  2436  2548
+  nominal closing rate [N/s]:
+    3.5 MPa:  4201  5156  5065  5019  4493  4216  4484  2684  2776  2778
+    4.0 MPa:  4414  5462  5428  5445  5025  4838  5149  3558  3715  3799
+    4.5 MPa:  4598  5722  5734  5799  5462  5344  5687  4264  4465  4601
+    5.0 MPa:  4756  5944  5991  6096  5825  5762  6129  4843  5077  5250
+    5.5 MPa:  4886  6128  6206  6344  6125  6107  6494  5321  5579  5780
+cross-check: {'rows': 45, 'max_abs_dev_T_open_Nm': 0.0001, 'tolerance_Nm': 0.005, 'pass': True, 'what': 'pintle_dynamics_v3 Tables (+10 % spring, L0/L1/L2) vs MECH pintle_crank_table_v1 Topen columns at the 45 hot-fire rows', 'eng03_partA_open_corner_max_rel_dev': 0.0004, 'eng03_partA_points': 45}
+model B fit (3.5 MPa runs): tau_p 8.5 ms, tau_v 8.0 ms
+validation A_first_order: large_steps n 36 shape max 69.3 N |dt10| 8.9 ms |dt90| 13.6 ms; small_steps n 36 shape max 8.9 N |dt10| 3.9 ms |dt90| 3.5 ms; ramps_2500 n 36 shape max 9.9 N |dt10| 4.1 ms |dt90| 3.0 ms; holdout_P_not_fit n 72 shape max 48.5 N |dt10| 8.7 ms |dt90| 10.2 ms
+validation A_first_order_assist_credited: large_steps n 18 shape max 85.0 N |dt10| 8.6 ms |dt90| 10.3 ms; small_steps n 18 shape max 6.4 N |dt10| 2.6 ms |dt90| 1.8 ms; ramps_2500 n 18 shape max 5.6 N |dt10| 1.5 ms |dt90| 0.8 ms; holdout_P_not_fit n 36 shape max 85.0 N |dt10| 7.7 ms |dt90| 9.6 ms
+validation B_two_state_assist_credited: large_steps n 36 shape max 16.2 N |dt10| 1.6 ms |dt90| 8.8 ms; small_steps n 36 shape max 4.1 N |dt10| 0.9 ms |dt90| 3.8 ms; ramps_2500 n 36 shape max 10.3 N |dt10| 1.0 ms |dt90| 7.1 ms; holdout_P_not_fit n 72 shape max 16.2 N |dt10| 1.5 ms |dt90| 4.6 ms
+validation B_two_state_conservative_close: large_steps n 18 shape max 118.5 N |dt10| 2.5 ms |dt90| 25.4 ms; small_steps n 18 shape max 4.1 N |dt10| 0.9 ms |dt90| 0.4 ms; ramps_2500 n 18 shape max 5.5 N |dt10| 2.0 ms |dt90| 0.9 ms; holdout_P_not_fit n 36 shape max 99.3 N |dt10| 1.5 ms |dt90| 17.7 ms
+spring baseline (T0 0.25 N m, k 0.12 N m/rad): hard constraint met True, MECH targets met True (C1 assist {'P3.5MPa': 0.1678, 'P5.5MPa': 0.1316, 'MEOP': 0.1017}, hot-line min 0.1337); spring nom at 3.5 MPa full thrust 0.4044 N m; corner opening 3.5 MPa/500 N 1204 N/s, min 1188, states >= 2500 29/95; nominal min 1347, states >= 2500 57/95; no-load bound 2727
+spring constant torque k = 0 (T0 kept): hard constraint met False, MECH targets met False (C1 assist {'P3.5MPa': 0.0786, 'P5.5MPa': 0.0324, 'MEOP': -0.0023}, hot-line min 0.0474); spring nom at 3.5 MPa full thrust 0.25 N m; corner opening 3.5 MPa/500 N 1722 N/s, min 1553, states >= 2500 69/95; nominal min 1678, states >= 2500 82/95; no-load bound 2727
+spring floor profile, MECH C1 targets (bound): hard constraint met True, MECH targets met True (C1 assist {'P3.5MPa': 0.0591, 'P5.5MPa': 0.08, 'MEOP': 0.05}, hot-line min 0.0801); spring nom at 3.5 MPa full thrust 0.3073 N m; corner opening 3.5 MPa/500 N 1530 N/s, min 1393, states >= 2500 64/95; nominal min 1533, states >= 2500 76/95; no-load bound 2727
+spring floor profile, zero margin (hard constraint only, bound): hard constraint met True, MECH targets met False (C1 assist {'P3.5MPa': -0.0, 'P5.5MPa': 0.0003, 'MEOP': -0.0}, hot-line min 0.0175); spring nom at 3.5 MPa full thrust 0.2517 N m; corner opening 3.5 MPa/500 N 1716 N/s, min 1573, states >= 2500 78/95; nominal min 1696, states >= 2500 84/95; no-load bound 2727
+B-PNT-1 torque-speed points: 3.5 MPa 0.25 corner 7.3354 V: 0.446 N m -> 4.745 rad/s; 3.5 MPa 0.25 nominal 7.4905 V: 0.4166 N m -> 5.236 rad/s; 3.5 MPa 0.5 corner 7.3354 V: 0.474 N m -> 4.446 rad/s; 3.5 MPa 0.5 nominal 7.4905 V: 0.442 N m -> 4.968 rad/s; 3.5 MPa 0.75 corner 7.3354 V: 0.486 N m -> 4.316 rad/s; 3.5 MPa 0.75 nominal 7.4905 V: 0.4509 N m -> 4.874 rad/s; 3.5 MPa 1.0 corner 7.3354 V: 0.5 N m -> 4.173 rad/s; 3.5 MPa 1.0 nominal 7.4905 V: 0.4592 N m -> 4.787 rad/s; 5.5 MPa 0.25 corner 7.3354 V: 0.495 N m -> 4.222 rad/s; 5.5 MPa 0.25 nominal 7.4905 V: 0.4666 N m -> 4.709 rad/s; 5.5 MPa 0.5 corner 7.3354 V: 0.531 N m -> 3.839 rad/s; 5.5 MPa 0.5 nominal 7.4905 V: 0.5006 N m -> 4.351 rad/s; 5.5 MPa 0.75 corner 7.3354 V: 0.546 N m -> 3.68 rad/s; 5.5 MPa 0.75 nominal 7.4905 V: 0.5134 N m -> 4.216 rad/s; 5.5 MPa 1.0 corner 7.3354 V: 0.546 N m -> 3.679 rad/s; 5.5 MPa 1.0 nominal 7.4905 V: 0.5108 N m -> 4.243 rad/s

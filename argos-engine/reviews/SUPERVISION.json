@@ -1,0 +1,628 @@
+{
+ "schema": "engine-supervision-v1",
+ "note": "Independent review verdicts for the engine team's digital deliverables. A verdict is not physical approval: no hardware has been tested.",
+ "reviews": [
+  {
+   "id": "REV-COMB-1",
+   "date": "2026-10-12/13",
+   "reviewer": "Independent reviewer agent (not the author)",
+   "author": "Combustion specialist agent",
+   "deliverable": "02-combustion (REPORT.md v2.3, combustion.json v2.3, HANDBACK-SUMMARY.md)",
+   "hashes_sha256_16": {
+    "02-combustion/REPORT.md": "59f69506fb5aa935",
+    "interfaces/combustion.json": "d9ec54fbf450e243",
+    "02-combustion/HANDBACK-SUMMARY.md": "efce17f348ca309e"
+   },
+   "criteria": "independent recomputation (CEA, sizing, injector, Bartz, L*, separation, Mach disk, erosion, grain), evidence tags, consistency with lead decisions, N2O safety, ENG traceability (REQUIREMENTS rev 2)",
+   "verdict": "REVISE",
+   "blocking": [
+    "RC-01 ignition/abort logic",
+    "RC-02 hard-start bound"
+   ],
+   "major": [
+    "RC-03 relight latency",
+    "RC-04 trapped liquid/relief/safing",
+    "RC-05 stored energy/stand-off/relief sizing",
+    "RC-06 insert life",
+    "RC-07 regression exponent band"
+   ],
+   "confirmed": "design point reproduced within 0.1-1 %",
+   "review_file": "reviews/REVIEW-COMBUSTION.md"
+  },
+  {
+   "id": "REV-PLUME-1",
+   "date": "2026-10-12/13",
+   "reviewer": "Independent reviewer agent (not the author)",
+   "author": "Combustion specialist agent",
+   "deliverable": "05-plume-cfd (REPORT.md)",
+   "hashes_sha256_16": {
+    "05-plume-cfd/REPORT.md": "7ce61efce1014e9f"
+   },
+   "criteria": "CFD verification (GCI, temporal bands), validation vs 1-D thrust and Mach-disk/shock-cell correlations, labelling of qualitative/artistic imagery",
+   "verdict": "ACCEPT WITH COMMENTS",
+   "comments": [
+    "RC-10 thrust GCI R=1.09 diverges: reword",
+    "RC-11 correlation claim wording",
+    "RC-19 presentation"
+   ],
+   "review_file": "reviews/REVIEW-COMBUSTION.md"
+  },
+  {
+   "id": "REV-GNC-1",
+   "date": "2026-10-13",
+   "reviewer": "Independent reviewer agent (not the author)",
+   "author": "Space/GNC specialist agent",
+   "deliverable": "01-systems-gnc v3 (REPORT-v3.md, gnc.json v3) with addendum on v3.1 staging (FC_THRUST)",
+   "hashes_sha256_16": {
+    "interfaces/gnc.json": "3e97c378cfebee95",
+    "01-systems-gnc/REPORT-v3.md": "2d79920b8cc1537d",
+    "01-systems-gnc/staging_v3.1/gnc_v3.1_staging.json": "695a069e8fc8dc53",
+    "01-systems-gnc/staging_v3.1/REPORT-v3.1-staging.md": "2e167607d7fbde5f",
+    "01-systems-gnc/duty_cycles/duty_cycles_index_v3.json": "4a07d68946bd0dc9"
+   },
+   "criteria": "bit-identical re-fly of 260 MC rows; statistics recomputed (Wilson, exact McNemar, bootstrap); independent 1-DOF vertical model as consistency check only; paired sensitivity MCs (thrust/flow, slew, gust, predictor, corner); traceability against REQUIREMENTS rev 2 + amendments and CHANGELOG",
+   "verdict": "REVISE",
+   "blocking": [
+    "RG-01 relight evidence on superseded 21.4 cm3 segment; flag blind to vapour"
+   ],
+   "major": [
+    "RG-02 no-light accounting",
+    "RG-03 85 m does not cover 62 m for fuel/web/O-F; burn limit not implemented",
+    "RG-04 epistemic engine properties drawn per run",
+    "RG-05 ENG-03 ramp not supported",
+    "RG-06 no gust criterion",
+    "RG-16 mass-estimate requirement lacks systematic terms"
+   ],
+   "minor": [
+    "RG-07",
+    "RG-08",
+    "RG-09",
+    "RG-10",
+    "RG-11",
+    "RG-12",
+    "RG-13",
+    "RG-17",
+    "RG-18",
+    "RG-19"
+   ],
+   "accepted_with_comments": [
+    "FSW v2.7 k_est_asc 2 + ratchet as provisional SIL/HIL baseline",
+    "v2.8 planning rule (0.81 s valid only for liquid or <= 19 cm3)",
+    "stale-flag rule",
+    "B1 62 m as provisional planning value",
+    "n 4.8, ARM rule, slew >= 100 deg/s",
+    "launch commit <= 6 m/s",
+    "FC_THRUST 650 N / 3 frames / tau 20 ms (provisional)"
+   ],
+   "confirmed": "reproduction bit-identical; 1-DOF agrees on N2O per impulse within 0.3 %; k_est_asc 2 benefit (k 0: P 0.968)",
+   "not_physical_approval": true,
+   "review_file": "reviews/REVIEW-GNC.md",
+   "review_file_sha256_16": "33d44f5022ebf5c4",
+   "reviewer_scripts": "reviews/gnc/"
+  },
+  {
+   "id": "REV-ELEC-1",
+   "date": "2026-10-13",
+   "reviewer": "Independent reviewer agent (not the author)",
+   "author": "Electronics specialist agent",
+   "deliverable": "06-electronics v2.9 (firmware v2.9, SIL sil_v2p9, KiCad ECU v2.4, BOM v2.1, bench_plan_v2.md, REPORT-v2.9-HANDBACK.md, interfaces/electronics.json v2)",
+   "hashes_sha256_16": {
+    "06-electronics/firmware/src/core/config.h": "0ba1e1ef0fbce180",
+    "06-electronics/firmware/src/core/engine_ecu.cpp": "dbe1a756c4b77d37",
+    "06-electronics/firmware/src/core/engine_ecu.h": "d9c557b96d1f809f",
+    "06-electronics/firmware/src/core/control.cpp": "cdd9749198b146eb",
+    "06-electronics/results/sil_v2p9/MANIFEST_v1.json": "5307366143b0237f",
+    "06-electronics/hardware/kicad_gen/ecu_design.py": "f6c13591f6486cab",
+    "06-electronics/results/bom_v2p1.json": "f754c27fec8c2971",
+    "06-electronics/docs/bench_plan_v2.md": "ece8ad4a1465886d",
+    "06-electronics/REPORT-v2.9-HANDBACK.md": "a7f047b1858f1293",
+    "interfaces/electronics.json": "da067408c1594814"
+   },
+   "criteria": "independent rebuild and bit-identical SIL reproduction; recomputation of OVP, P_mid, LTC4365, TPS and ladder values; probes A-F (late light with/without A5, baseline offset pad and A1, false E2 and drogue, coast drift, S5 over-pressure); traceability to REQUIREMENTS rev 2 + amendments and CHANGELOG l.154-161; ENG-14 pricing rules",
+   "verdict": "REVISE",
+   "blocking": [
+    "RE-01 A5 still an abort; spike source not in SIL",
+    "RE-02 BASE_AMB fallback gives false E2 on positive offset",
+    "RE-03 b7 not filtered-only",
+    "RE-04 S5 up-step overshoot reaches the 30 bar abort",
+    "RE-05 bleed logic and hardware vs l.160-161"
+   ],
+   "major": [
+    "RE-06 Teensy HAL missing",
+    "RE-07 coast re-zero drift loses A1",
+    "RE-08 invalid case TC disables case protection",
+    "RE-09 +12V_ARM / ARM bus over rating",
+    "RE-10 closure deadline vs valve datasheet",
+    "RE-11 SIL MC fixes sensitive inputs",
+    "RE-12 stand A7 band vs pool",
+    "RE-13 bench pass criteria",
+    "RE-14 BOM bench and bleed",
+    "RE-15 ERC self-consistency only",
+    "RE-16 electronics.json stale entries"
+   ],
+   "minor": [
+    "RE-17",
+    "RE-18",
+    "RE-19",
+    "RE-20",
+    "RE-21",
+    "RE-22",
+    "RE-23",
+    "RE-24",
+    "RE-25"
+   ],
+   "notes": [
+    "RE-26",
+    "RE-27",
+    "RE-28",
+    "RE-29"
+   ],
+   "confirmed": "SIL record reproduces bit-identically (test_core 287/0); OVP 31.465 bar g, P_mid 9.864/8.864 bar g, LTC4365 8.20 V, TPS 7.49 V, ladder ratios and pin map reproduced; drogue never released on a false E2",
+   "lead_disposition": "CHANGELOG line 166",
+   "review_file": "reviews/REVIEW-ELECTRONICS.md",
+   "review_file_sha256_16": "471d830c8d00dd85",
+   "not_physical_approval": true
+  },
+  {
+   "id": "REV-GNC-2",
+   "date": "2026-10-13",
+   "reviewer": "Independent reviewer agent (not the author; author of REV-GNC-1)",
+   "author": "Space/GNC specialist agent",
+   "deliverable": "01-systems-gnc/staging_v3.1/rev1 (REPORT-GNC-rev1.md, rev1_items.json, FSW record v1.4, sim6 v2.8-dev MWFPRS) responding to REV-GNC-1",
+   "hashes_sha256_16": {
+    "01-systems-gnc/staging_v3.1/rev1/REPORT-GNC-rev1.md": "2b96c0ec92263d0c",
+    "01-systems-gnc/staging_v3.1/rev1/MANIFEST_rev1.sha256": "2dbe49919289f0ac",
+    "01-systems-gnc/staging_v3.1/rev1/results/rev1_items/rev1_items.json": "799258458f0142a5",
+    "01-systems-gnc/staging_v3.1/rev1/results/fsw_record/fsw_config_record_v1.json": "08c85849a5da950d",
+    "01-systems-gnc/staging_v3.1/rev1/sim/gncsim_v2.8-dev_MWFPRS/sim6.py": "f9094b63e64f2324",
+    "01-systems-gnc/staging_v3.1/rev1/sim/gncsim_v2.8-dev_MWFPRS/run6.py": "35b5c808487b9339"
+   },
+   "criteria": "C1 manifest re-hash (387); C2 bit-check v1.5 all 13 parts on final code; C3 re-flight of L400_te and RR66_EI05 (500 runs x 2 bases each) with exact McNemar; C4 purge/stuck-bleed statistics recomputed; C5 RG-04 x0.90; C6 igniter.sequence claim; C7 RG-16 window dispute; C8 lead lines 160-161 against GNC evidence",
+   "verdict": "CONDICIONADO",
+   "blocking": [
+    "RG-01 relight on the current design basis not re-flown"
+   ],
+   "major": [
+    "Interim Pc-invalid rule scope and evidence (5.1)",
+    "Purge mass vs A1 reserve tail draws (5.2)",
+    "Stuck-open bleed risk acceptance (5.3)",
+    "N1 relight claim mixes FSW configurations"
+   ],
+   "closed": [
+    "RG-05",
+    "RG-07",
+    "RG-09",
+    "RG-10",
+    "RG-11",
+    "RG-17",
+    "RG-20"
+   ],
+   "partly_closed": [
+    "RG-02",
+    "RG-03",
+    "RG-04",
+    "RG-06",
+    "RG-08",
+    "RG-12",
+    "RG-13",
+    "RG-15",
+    "RG-16",
+    "RG-18",
+    "RG-19"
+   ],
+   "open": [
+    "RG-01",
+    "RG-14"
+   ],
+   "minor": [
+    "N2",
+    "N3",
+    "N4",
+    "N5"
+   ],
+   "notes": [
+    "N6",
+    "N7"
+   ],
+   "confirmed": "manifest 387/387; bit-check v1.5 ALL PASSED on final code; L400_te and RR66_EI05 reproduce exactly; RG-16 dispute upheld; RG-04 x0.90 confirmed; igniter.sequence claim refuted",
+   "lead_disposition": "CHANGELOG line 168",
+   "review_file": "reviews/REVIEW-GNC-R1.md",
+   "review_file_sha256_16": "a5c6b147c830b67e",
+   "not_physical_approval": true
+  },
+  {
+   "date": "2026-10-13",
+   "reviewer": "Independent reviewer agent (not the author; not the REV-COMB-1 author)",
+   "author": "Combustion specialist agent",
+   "review_file": "reviews/REVIEW-COMBUSTION-R2.md",
+   "review_file_sha256_16": "e6bf189fb271e652",
+   "lead_disposition": "CHANGELOG line 172",
+   "not_physical_approval": true,
+   "id": "REV-COMB-2",
+   "deliverable": "02-combustion v2.4 (REPORT.md, REVISION-RESPONSE.md, CF-4-SPEC.md, T1-T4-REGRESSION-SPEC.md, combustion.json v2.4)",
+   "hashes_sha256_16": {
+    "02-combustion/REPORT.md": "32e366bd78437dc0",
+    "02-combustion/REVISION-RESPONSE.md": "ee951fb865c1459d",
+    "interfaces/combustion.json": "469727032124329f",
+    "02-combustion/CF-4-SPEC.md": "c9e1efbb18177155",
+    "02-combustion/T1-T4-REGRESSION-SPEC.md": "25a207af8fe61f21"
+   },
+   "criteria": "C1 responses true in cited sections; C2 evidence tags; C3 honest status under REV-COMB-1 closure criteria; C4 independent recomputation (equilibrium three-node late-light/FA-1 network, Dyer/HEM purge, FD-01 four readings, stored energy, RocketCEA MEOP rows, OI-28); C5 interface vs lead lines 160-170 and REQUIREMENTS; C6 safety rules consistent across report, interface and specs",
+   "verdict": "REVISE (targeted)",
+   "blocking": [],
+   "major": [
+    "R2-01 line 166 (3)/(4) not implemented",
+    "R2-02 two stand safing rules",
+    "R2-03 FA-1 pulse single point at ASSUMED O/F",
+    "R2-04 T1-T4 law test cannot resolve; default gate less safe"
+   ],
+   "minor": [
+    "R2-05",
+    "R2-06",
+    "R2-07",
+    "R2-08",
+    "R2-09",
+    "R2-10"
+   ],
+   "notes": [
+    "R2-11",
+    "R2-12",
+    "R2-13"
+   ],
+   "rev_comb_1_status": "13 CLOSED, 7 PARTLY CLOSED (RC-01, 02, 03, 04, 06, 13, 15), 0 OPEN",
+   "confirmed": "decomposition late-light bound, purge flows, FD-01 deficit, stored energy, MEOP closure, OI-28 reproduced with independent code"
+  },
+  {
+   "date": "2026-10-13",
+   "reviewer": "Independent reviewer agent (not the author; not the REV-COMB-1 author)",
+   "author": "Combustion specialist agent",
+   "review_file": "reviews/REVIEW-COMBUSTION-R2.md",
+   "review_file_sha256_16": "e6bf189fb271e652",
+   "lead_disposition": "CHANGELOG line 172",
+   "not_physical_approval": true,
+   "id": "REV-PLUME-2",
+   "deliverable": "05-plume-cfd v2.2b (REPORT.md)",
+   "hashes_sha256_16": {
+    "05-plume-cfd/REPORT.md": "140b3c59f8323bba"
+   },
+   "criteria": "RC-10, RC-11, RC-19 wording against REV-COMB-1",
+   "verdict": "ACCEPT",
+   "comments": [
+    "R2-12 summary wording (lead file) corrected: HANDBACK-SUMMARY d12c8862bf5524a4"
+   ]
+  },
+  {
+   "id": "REV-GNC-3",
+   "date": "2026-10-13",
+   "reviewer": "Independent Space/GNC reviewer agent (not the author of rev2; authored no rev2 file, script or result)",
+   "author": "Space/GNC specialist agent (GNC rev2, CHANGELOG line 174)",
+   "deliverable": "01-systems-gnc/staging_v3.1/rev2 (REPORT-GNC-rev2.md, staging JSON, sim6 v2.9-dev amendments G, K, V) and the lead's provisional decisions in CHANGELOG line 175",
+   "hashes_sha256_16": {
+    "01-systems-gnc/staging_v3.1/rev2/REPORT-GNC-rev2.md": "2edf0360cbc975e5",
+    "01-systems-gnc/staging_v3.1/rev2/MANIFEST_rev2.sha256": "cb5d2c48e8d8fa27",
+    "01-systems-gnc/staging_v3.1/rev2/results/gnc_json/gnc_v3.1_staging_rev2.json": "a5564b45ed7fb463",
+    "01-systems-gnc/staging_v3.1/rev2/results/rg01_refly/rg01_refly.json": "8a3b34a08289d5b1",
+    "01-systems-gnc/staging_v3.1/rev2/sim/gncsim_v2.9-dev_MWFPRSGKV/sim6.py": "f90e0ba8e993ad60",
+    "01-systems-gnc/staging_v3.1/rev2/sim/gncsim_v2.9-dev_MWFPRSGKV/run6.py": "b054a222eff38b6e",
+    "interfaces/CHANGELOG.md (lines 155-175 read at)": "5d4d377621f1dcbb"
+   },
+   "criteria": "C1 manifest re-hash (280); C2 full bit-check v29 re-run on final code (A0 A1 K V RF G N, leaf equality); C3 RG-01 re-flight A1_none liq|G73 and pw|G73 500 runs each (byte identity); C4 K-off/K-on re-flight; C5 RG-16 re-evaluation 200 runs x 2 cases with detector-output statistics; C6 four amendment-V probes (pcf_tmax 0.8 s flame-out, L400 x pcf_k 0.875); C7 paired late-commit loss by T_fire delay; C8 staging JSON against decisions to line 175; exact McNemar, Wilson 95 %",
+   "verdict": "CONDICIONADO",
+   "blocking": [
+    "RV3-01 staging JSON stale/contradicts adopted decisions: gnc.json v3.1 must not be published from a5564b45ed7fb463 (publication gate only)"
+   ],
+   "major": [
+    "RV3-02 late-commit rule basis contradicted (paired loss 22.4 % at 0.55-0.60 s); -1.7 s is LO break-even only",
+    "RV3-03 RG-16 at instantaneous detector output 4.20 % (4.76 %) vs 2.99 %: FAIL; per-flight form needs a latency allowance",
+    "RV3-04 pcf_tmax 0.8 s cuts R2 flame-out margin to 1.96 N (35.20 vs 37.16 N)",
+    "RV3-05 0.30 kg re-fly trigger above DERIVED first re-exhaustion at 285 m (~0.07-0.28 kg)"
+   ],
+   "minor": [
+    "RV3-06 285 m trim coverage; W10 < 6 m/s becomes binding",
+    "RV3-07 simulator data tables and work-area inputs not pinned",
+    "RV3-08 bit-check record (G6 redesign undeclared; P30_reproduced not in pass criterion)",
+    "RV3-09 unnamed comparators (m60, L400o)"
+   ],
+   "notes": [
+    "RV3-10 K evidence not on FSW-R2",
+    "RV3-11 B1 default grain gate = 27.2 % grain change",
+    "RV3-12 FMEA: no in-flight over-thrust detector after Pc loss on A1; purge liquid depletion 81.6 g vs 73.0 g vented"
+   ],
+   "line_175_verdicts": {
+    "1": "supported with conditions",
+    "2": "supported with conditions",
+    "3": "withdrawal supported; -1.7 s rule supported with conditions",
+    "4": "supported",
+    "5": "supported with conditions (0.8 s not supported as proposed)",
+    "6": "supported with conditions (FC_THRUST not armed supported; per-flight form not supported)",
+    "7": "supported as simulation inputs"
+   },
+   "confirmed": "manifest 280/280; bit-check v29 0 differences on final code; RG-01 re-flights byte-identical; G decided path, K refutation, V R0-R3, RG-16 budget arithmetic, +0.60 kg A1/B1 and B1 grain gate reproduce exactly",
+   "reviewer_artefacts": "reviews/gnc/rev2/ (MANIFEST_REV-GNC-3.sha256 d3bca19f1fdb1ca2, 61 files; re-verified by lead 61/61)",
+   "lead_disposition": "CHANGELOG line 181",
+   "review_file": "reviews/REVIEW-GNC-R2.md",
+   "review_file_sha256_16": "fabfc81fa1d70327",
+   "not_physical_approval": true
+  },
+  {
+   "id": "REV-MECH-1",
+   "date": "2026-10-13",
+   "reviewer": "Independent structural/mechanical reviewer agent (not the author; read-only on author areas)",
+   "author": "Mechanical specialist agent (CHANGELOG 176, 178, 179; session ended)",
+   "deliverable": "04-fea (S-AX L1_TC09IN718_thJ1revB_TC09IN, S-3D v1.1, joints v1p1, stiffness V5c) and 03-cad v3.5 (BOM, massprops, assembly, checks run 6)",
+   "hashes_sha256_16": {
+    "interfaces/mechanical.json v2.1": "e4d3e7c9df529171",
+    "04-fea/loadcases_v1.json": "cbafa22eb69ef039",
+    "04-fea/materials/materials_v1p4.json": "18aa13a888b1e6f3",
+    "04-fea/structural/sax.py": "3ae4b1767f828ab6",
+    "results/sax_results_L1_TC09IN718_thJ1revB_TC09IN_v1.json": "f0e58699bf30b513",
+    "results/sax_margin_table_L1_TC09IN718_thJ1revB_TC09IN_v1.csv": "ba26b3d7a78cc753",
+    "results/s3d_results_v1.1.json": "beeba889ae549415",
+    "results/joints_v1p1.json": "2b9c8892b9c1d7b0",
+    "03-cad/BOM_v3.5.json": "2aff55e700ef0536",
+    "03-cad/massprops_v3.5.json": "8c11e1e136fc59d8",
+    "assembly/ENGINE_v3.5_neutral.step": "0dd8064359c6aa26",
+    "assembly/ENGINE_v3.5_neutral.glb": "812b78f59127e670"
+   },
+   "criteria": "C1 load-case coverage; C2 criteria and SFs vs decisions; C3 allowables at temperature and source class; C4 model fidelity (BCs, contacts, ties, convergence, units, frames); C5 independent recomputation (2 exact S-AX re-solves, hand checks); C6 CAD integrity (STEP spot checks, BOM/mass, whitelist, wall check, poses); C7 deliverable coherence",
+   "verdict": "REVISE (FEA); REVISE, not freezable (CAD v3.5)",
+   "blocking": [
+    "RM1-01 ENG-BL-02 penetrates the 140 mm bay bore inside the flown gimbal envelope (r_max 70.605 mm at 7 deg, 73.26 mm at 8 deg)"
+   ],
+   "major": [
+    "RM1-02 wall check unsigned/top-12",
+    "RM1-03 nozzle-stack contact not modelled",
+    "RM1-04 thread-tie bound not run; thread binds in soak",
+    "RM1-05 convergence at governing nodes",
+    "RM1-06 183 (1) temperature condition exceeded",
+    "RM1-07 S-3D pose/spike coverage, fillets not modelled",
+    "RM1-08 ENG-11 stiffness spread fails; stale interface",
+    "RM1-09 static-fire thermal state ASSUMED",
+    "RM1-12 fasteners and seals absent from BOM"
+   ],
+   "minor": [
+    "RM1-10 SFs untraced",
+    "RM1-11 table artefacts; carbon-phenolic tension unchecked",
+    "RM1-13 documentation currency",
+    "RM1-14 secondary structure",
+    "RM1-15 inertial loads predate gnc.json v3"
+   ],
+   "notes": [
+    "RM1-16 Ansys deck unexecuted 316L-era export",
+    "RM1-17 non-structural mass",
+    "RM1-18 TC-02 governing point on M14 tie",
+    "RM1-19 collar/case radial interaction"
+   ],
+   "confirmed": "S-AX A1_22.2 and B1_21.65 re-solves bit-identical; membranes, J-FWD, 608, GM-03 hand checks; STEP 10/10; BOM coverage 106/106; mass reconciled; frames and units verified; thermal BCs current",
+   "permitted_use": "S-AX results as reproducible SIM evidence; TC-01/TC-09 membrane margins at FA-1; negatives as found; J-FWD arithmetic; CAD v3.5 as design model of record for review, GNC mass (with RM1-12 caveat) and exchange",
+   "reviewer_artefacts": "reviews/mechanical/r1/ (MANIFEST_REV-MECH-1.sha256 b258bc363f99f4fa, 39 files; re-verified by lead 39/39)",
+   "lead_disposition": "CHANGELOG line 188",
+   "review_file": "reviews/REVIEW-MECHANICAL-R1.md",
+   "review_file_sha256_16": "dc1c1c6b8931c95d",
+   "not_physical_approval": true
+  },
+  {
+   "id": "REV-GNC-4",
+   "date": "2026-10-13",
+   "reviewer": "Independent Space/GNC reviewer agent (same reviewer as REV-GNC-3; not an author of rev2.1)",
+   "author": "Space/GNC specialist agent rev3 (CHANGELOG 184)",
+   "deliverable": "01-systems-gnc/staging_v3.1/rev2p1 (gnc.json v3.1 publication candidate)",
+   "hashes_sha256_16": {
+    "01-systems-gnc/staging_v3.1/rev2p1/MANIFEST_rev2p1.sha256": "02c554a2f0fe68fa",
+    "results/gnc_json/gnc_v3.1_staging_rev2p1.json": "c2860bd89c1e5920",
+    "results/comparators/comparators_rev2p1.json": "d5678ffbdbbd7a65",
+    "results/mass_v35/mass_v35_vs_v3d.json": "ee89a8c0dff34d89",
+    "interfaces/CHANGELOG.md (186 lines)": "b53a35db05dc76ba"
+   },
+   "criteria": "(a) RV3-01 items fixed or marked (own 38-pattern scan + t10 v2); (b) lead lines folded verbatim; (c) G basis citations; (d) RV3-08/09 closure incl. 69/69 comparators recomputed; (e) attribution of reviewer numbers; (f) mass arithmetic; (g) anything misleading if published",
+   "verdict": "PUBLISHABLE WITH CORRECTIONS (not publishable as staged)",
+   "blocking": [
+    "RV4-01 line 186 not folded: refuted 'relight unpurged' rule and pre-cold-flow R2 FMEA still in the staging"
+   ],
+   "major": [
+    "RV4-02 figures valid only at ledger v3d; not stated; 285 m not demonstrated for CAD v3.5"
+   ],
+   "minor": [
+    "RV4-03 stale 300 m / pre-R2 / pivot station / build basis",
+    "RV4-04 four wrong citations",
+    "RV4-05 undefined rev3 labels, staging wording"
+   ],
+   "notes": [
+    "RV4-06 bay-wall stop vs TVC authority not an open item; minor fold wording",
+    "RV4-07 60 % of the mass growth is ASSUMED; inputs outside the hub"
+   ],
+   "confirmed": "RV3-01 (a)-(f), RV3-08, RV3-09 closed; lines 175/177/181-183 verbatim; 69/69 comparators; G6; mass arithmetic; builder byte-identical",
+   "gate_tool": "reviews/gnc/rev2p1/scripts/t10_postcheck.py d51d079d81d64766 (exit 0 required; --publication for the final file)",
+   "reviewer_artefacts": "reviews/gnc/rev2p1/ (MANIFEST_REV-GNC-4.sha256 e3d4413e5ed10b94, 41 files; re-verified by lead 41/41)",
+   "lead_disposition": "CHANGELOG line 190",
+   "review_file": "reviews/REVIEW-GNC-R2P1.md",
+   "review_file_sha256_16": "b54970c4d39e192c",
+   "not_physical_approval": true,
+   "publication": {
+    "file": "interfaces/gnc.json v3.1",
+    "sha256_16": "4f3209323b0e0ed4",
+    "from": "01-systems-gnc/staging_v3.1/rev2p2 (MANIFEST db9237eeaa3a739e)",
+    "postcheck": "t10_postcheck.py --publication exit 0 (lead re-run)",
+    "diff_scope": "C1-C5 keys + fold map + open items + declared extras; no new computed numbers",
+    "changelog_line": 192,
+    "note": "added by the lead at publication; the reviewer's verdict text is unchanged"
+   }
+  },
+  {
+   "id": "REV-COMB-3",
+   "date": "2026-10-13",
+   "reviewer": "Independent reviewer agent (not the author; not the REV-COMB-1 or REV-COMB-2 author)",
+   "author": "Combustion specialist agent",
+   "deliverable": "02-combustion v2.4a (REPORT.md, REVISION-RESPONSE-R2.md, CF-4-SPEC.md, T1-T4-REGRESSION-SPEC.md, combustion.json v2.4a) and lead line 186",
+   "hashes_sha256_16": {
+    "02-combustion/REPORT.md": "062e307a8d25e1ec",
+    "02-combustion/REVISION-RESPONSE-R2.md": "e99595103ee17214",
+    "02-combustion/CF-4-SPEC.md": "a94211a295fe0224",
+    "02-combustion/T1-T4-REGRESSION-SPEC.md": "bbf0ea642453dc7a",
+    "interfaces/combustion.json": "5237d4584bad38c4",
+    "02-combustion/data/v2p4a/HASHES.txt": "b5e951a4864badd1"
+   },
+   "criteria": "(a) status of the R2 items; (b) independent re-derivation with own code: unpurged-start classes over the PURGE NOT RUN records, cold-flow bound, tank-outlet arithmetic; (c) FA-1 tables against the line 173 rule incl. pressure and thrust SDOF spectra beyond 1 ms; (d) founder executability of CF-4 and T1-T4; (e) whether line 186 (1)-(5) follow from the evidence; (f) stale values in and after the fold",
+   "verdict": "REVISE (targeted)",
+   "blocking": [],
+   "major": [
+    "R3-01 E2 + 0.22 s release hold from one state; population needs ~0.30 s on the 200 N ramp, none with lift flow",
+    "R3-02 FA-1 pressure DLF truncated at 1 ms (112-146 bar abs at 1.5-10 ms); line 173 lacks a period domain"
+   ],
+   "minor": [
+    "R3-03",
+    "R3-04",
+    "R3-05",
+    "R3-06",
+    "R3-07",
+    "R3-08",
+    "R3-09",
+    "R3-10"
+   ],
+   "notes": [
+    "R3-11",
+    "R3-12",
+    "R3-13",
+    "R3-14",
+    "R3-15",
+    "R3-16",
+    "R3-17"
+   ],
+   "rev_comb_2_status": "R2-03, R2-09, R2-11 PARTLY; R2-01, R2-10, R2-13 CONFIRMED; R2-04 CLOSED (new defects R3-06/07)",
+   "line_186_assessment": "(1) L* 1.3 s FOLLOWS, 0.22 s alternative does not; (2) FOLLOWS as design mitigation, margin conditional; (3) usable with frozen prediction; (4) FOLLOWS; (5) FOLLOWS, wording",
+   "confirmed": "unpurged classes (Table 2.17 within 0.0012), cold-flow bound (54 rows within 9.4e-6), tank arithmetic, FA-1 Tables 7.6a/b exact, author SDOF within 1.56 %; SDOF self-test < 0.1 %",
+   "reviewer_artefacts": {
+    "dir": "reviews/combustion/r3/",
+    "manifest": "reviews/combustion/r3/MANIFEST_REV-COMB-3.sha256",
+    "manifest_sha256_16": "a8ddc0f9854683d4",
+    "verified_by_lead": "16/16 OK"
+   },
+   "review_file": "reviews/REVIEW-COMBUSTION-R3.md",
+   "review_file_sha256_16": "a786101f28d45d6f",
+   "lead_disposition": "CHANGELOG line 194",
+   "not_physical_approval": true
+  },
+  {
+   "id": "REV-GNC-5",
+   "date": "2026-10-13",
+   "reviewer": "Independent reviewer agent (not the author; also REV-GNC-3 and REV-GNC-4)",
+   "author": "Space/GNC specialist agent",
+   "deliverable": "01-systems-gnc/staging_v3.1/rev3 (GNC rev3: P2-P6, P8-P9; 11 v3.2 proposals) and lead line 204",
+   "hashes_sha256_16": {
+    "01-systems-gnc/staging_v3.1/rev3/MANIFEST_rev3.sha256": "79c2c8cd5d10e3c4",
+    "01-systems-gnc/staging_v3.1/rev3/results/rev3_results.json": "e0f6e7611fe523b5",
+    "01-systems-gnc/staging_v3.1/rev3/REPORT-GNC-rev3.md": "4726faa1ce2ab39d",
+    "interfaces/gnc.json": "4f3209323b0e0ed4"
+   },
+   "criteria": "(a) reproduction by re-flight of staged arms and own statistics (P6, P6c, P2 with/without dip onset, P3, P5 windowed budget, F7, F9, F11); (b) independent bit-check re-runs; (c) marking of values withdrawn by line 194; (d) whether line 204 (1)-(4) follow from the evidence; (e) publishability of each v3.2 proposal",
+   "verdict": "PUBLISHABLE WITH CORRECTIONS",
+   "blocking": [],
+   "major": [
+    "RV5-01 apogee rule lacks non-inferiority margin, monotonicity and a fixed onset"
+   ],
+   "minor": [
+    "RV5-02",
+    "RV5-03",
+    "RV5-04",
+    "RV5-05",
+    "RV5-06",
+    "RV5-07"
+   ],
+   "notes": [
+    "RV5-08",
+    "RV5-09",
+    "RV5-10",
+    "RV5-11",
+    "RV5-12",
+    "RV5-13"
+   ],
+   "line_204_assessment": "(1) follows (D_crit pairing corrected); (2) NOT ADOPTED follows and is strengthened; (3) band statement reproduces, rule needs restating; (4) follows with nuances",
+   "proposals": "per review table: [5], [7], [8], [10] publishable as written; [0], [1], [2], [3], [4], [6], [9] with corrections; 0 not publishable. The review summary says 5/6; its table gives 4/7 and is used",
+   "confirmed": "19 arms re-flown identical; P6 table; P6c; P2; P3; 44 P5 strict totals; F7; F9; v2.12 bit-check A/B; v2.9 suite A0/G/K/V/RF",
+   "reviewer_artefacts": {
+    "dir": "reviews/gnc/rev3/",
+    "manifest": "reviews/gnc/rev3/MANIFEST_REV-GNC-5.sha256",
+    "manifest_sha256_16": "ce04a68c0539b7a1",
+    "verified_by_lead": "71/71 OK"
+   },
+   "review_file": "reviews/REVIEW-GNC-R3.md",
+   "review_file_sha256_16": "f2aafa51c7117ba8",
+   "lead_disposition": "CHANGELOG line 208",
+   "not_physical_approval": true
+  },
+  {
+   "id": "REV-ELEC-2",
+   "date": "2026-10-13",
+   "reviewer": "Independent reviewer agent (not the author; also REV-ELEC-1)",
+   "author": "Electronics specialist agent",
+   "deliverable": "06-electronics v2.10 hub copy (firmware, SIL sil_v2p10, FA-1 harness, bench_plan_v3, BOM v2.2, REPORT-v2.10-HANDBACK) and interfaces/electronics.json v3; lead line 203",
+   "hashes_sha256_16": {
+    "06-electronics/SHA256SUMS-v2.10.txt": "674eef94498822dd",
+    "06-electronics/REPORT-v2.10-HANDBACK.md": "05af80b9cdbee9b5",
+    "06-electronics/firmware/src/core/config.h": "0880af5a27880a5b",
+    "06-electronics/firmware/src/core/engine_ecu.cpp": "6e62a7e4e37930bd",
+    "06-electronics/results/sil_v2p10/MANIFEST_v1.json": "6d1dd43ddeeba0d7",
+    "06-electronics/results/sil_v2p10/S17/S17_r2hold.json": "c125095719fa563a",
+    "06-electronics/results/fa1_overrange_v2p10.json": "f2b07a3d780a289c",
+    "06-electronics/results/bleed_driver_v1.json": "298b405b0621acd5",
+    "06-electronics/results/bom_v2p2.csv": "75723fd39be88c20",
+    "06-electronics/docs/bench_plan_v3.md": "aa82f280feeeee4c",
+    "interfaces/electronics.json": "38bf149f368c1d4c"
+   },
+   "criteria": "(a) RE-01..RE-29 status truth; (b) independent rebuild and SIL re-runs under reviewer control, S5 to 3000 runs, reviewer-written FA-1 chain on 896 cases; (c) R2 command hold logic, interface and limits (reviewer probe on S17); (d) electronics.json v3 vs config.h; (e) 070BG and 113B22/NI 9234 datasheet answers to line 194; (f) whether line 203 (1)-(7) follow from the evidence, RE-12; (g) founder executability of bench plan v3",
+   "verdict": "REVISE",
+   "blocking": [],
+   "major": [
+    "R2-01 S17 W10 bound result conditional on early Pc loss and calm",
+    "R2-02 single lost DROGUE 0 frame keeps the R2 hold",
+    "R2-03 line 203 (1)(b) acceptance cannot fail; size from detector-side durations",
+    "R2-04 line 203 (5) S13 criteria cannot be met as written; classes missing",
+    "R2-05 line 203 (3) purge cap basis, non-discriminating check, hardware bound above cap (166 (3) not met)",
+    "R2-06 bench plan v3 has no founder-executable step"
+   ],
+   "minor": [
+    "R2-07",
+    "R2-08",
+    "R2-09",
+    "R2-10",
+    "R2-11",
+    "R2-12",
+    "R2-13",
+    "R2-14",
+    "R2-15",
+    "R2-16"
+   ],
+   "notes": [
+    "R2-17",
+    "R2-18",
+    "R2-19",
+    "R2-20",
+    "R2-21",
+    "R2-22",
+    "R2-23"
+   ],
+   "deliverable_verdicts": {
+    "firmware v2.10 core": "ACCEPT WITH COMMENTS as the v2.10 SIL baseline",
+    "SIL record sil_v2p10": "ACCEPT WITH COMMENTS",
+    "FA-1 harness / fa1_overrange_v2p10.json": "ACCEPT as SIM evidence for the 070BG no-line chain",
+    "interfaces/electronics.json v3": "ACCEPT WITH COMMENTS as the working interface",
+    "bench plan v3": "REVISE",
+    "BOM v2.2": "ACCEPT WITH COMMENTS",
+    "REPORT-v2.10-HANDBACK": "ACCEPT WITH COMMENTS"
+   },
+   "line_203_assessment": "(1)(a) follows; (1)(b) REVISE; (2) follows, superseded by 205; (3) REVISE; (4) follows; (5) REVISE; (6) follows; (7) follows with NOTE R2-22",
+   "re12_recommendation": "ACCEPT flight extension of the A7 high-side blank E2..E2 + 0.45 s as DESIGN with four conditions",
+   "confirmed": "rebuild equals MANIFEST_v1 binaries; test_core 309/0; 22 SIL outputs byte-identical; S5 3000 runs 0 PC_OVERPRESSURE; FA-1 chain agrees; json vs config.h 154/154; RE statuses truthful",
+   "reviewer_artefacts": {
+    "dir": "reviews/electronics/r2/",
+    "manifest": "reviews/electronics/r2/MANIFEST_REV-ELEC-2.sha256",
+    "manifest_sha256_16": "ecb1045f348efec9",
+    "verified_by_lead": "55/55 OK"
+   },
+   "review_file": "reviews/REVIEW-ELECTRONICS-R2.md",
+   "review_file_sha256_16": "c7dee8d6c73c9920",
+   "lead_disposition": "CHANGELOG line 216",
+   "not_physical_approval": true
+  }
+ ]
+}

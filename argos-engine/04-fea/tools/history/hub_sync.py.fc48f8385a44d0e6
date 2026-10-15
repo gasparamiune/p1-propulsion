@@ -1,0 +1,124 @@
+"""Copy Mechanical scripts and curated results from the workdir to the shared hub (04-fea/tools, v1, 2026-10-13).
+
+Hub = /home/claude/work/shared-fallback/engine (lead notice 2026-10-12: project mount has I/O errors).
+Writes only below hub engine/03-cad/ and engine/04-fea/.  Never deletes hub files.  Solver bulk (.frd, .inp, .12d,
+.brep, meshes) stays in the workdir; every script and every curated result (summaries, histories, logs, .dat/.sta
+evidence, failed-run logs) is copied.  A manifest per hub root (MANIFEST_mechanical.json) lists sha256/16, bytes,
+source path and copy time, so reviewers can match a quoted hash to a file.
+
+usage: hub_sync.py [--dry]
+"""
+from __future__ import annotations
+import hashlib, json, shutil, sys, time
+from pathlib import Path
+
+W = Path("/home/claude/work/mechanical")
+E = W / "engine"
+H = Path("/home/claude/work/shared-fallback/engine")
+RUNS = W / "runs"
+
+# (source dir, glob patterns, hub dest dir, recurse)
+SETS = [
+    (E / "03-cad/src", ["*.py"], H / "03-cad/src", False),
+    (E / "03-cad/src/calcs", ["*.py", "*.json", "*.csv", "*.md"], H / "03-cad/calcs", False),
+    (E / "03-cad/checks", ["*.json", "*.log", "*.csv"], H / "03-cad/checks", False),
+    (E / "03-cad", ["README.md", "BOM*.csv", "BOM*.json", "massprops*.json"], H / "03-cad", False),
+    (E / "03-cad/parts", ["*.step", "*.stl"], H / "03-cad/parts", False),
+    (E / "03-cad/assembly", ["*.step", "*.glb", "*.json"], H / "03-cad/assembly", False),
+    (E / "03-cad/drawings", ["*.svg", "*.pdf", "*.dxf"], H / "03-cad/drawings", False),
+    (E / "03-cad/petg-prototype", ["*.stl", "*.json"], H / "03-cad/petg-prototype", False),
+    (E / "04-fea/src", ["*.py"], H / "04-fea/src", False),
+    (E / "04-fea", ["*.json", "REPORT*.md"], H / "04-fea", False),
+    (E / "04-fea/materials", ["*.json"], H / "04-fea/materials", False),
+    (E / "04-fea/stiffness", ["*.py", "*.json"], H / "04-fea/stiffness", False),
+    (E / "04-fea/thermal", ["*.py", "*.json", "*.png"], H / "04-fea/thermal", False),
+    (E / "04-fea/thermal/networks", ["*.json", "*.log"], H / "04-fea/thermal/networks", False),
+    (E / "04-fea/thermal/tools", ["*.py"], H / "04-fea/thermal/tools", False),
+    (E / "04-fea/tools", ["*.py"], H / "04-fea/tools", False),
+    (E / "04-fea/structural", ["*.py", "*.json", "*.csv"], H / "04-fea/structural", True),
+    (E / "04-fea/ansys", ["*"], H / "04-fea/ansys", True),
+    # curated run evidence
+    (RUNS / "thermal", ["*.log"], H / "04-fea/runs/thermal", False),
+    (RUNS / "stiff", ["*.log", "*.sh", "*.py"], H / "04-fea/runs/stiff", False),
+    (RUNS / "stiff/clear", ["*.json"], H / "04-fea/runs/stiff/clear", False),
+    (RUNS / "queue", ["*.log", "*.sh"], H / "04-fea/runs/queue", False),
+]
+for s in ("slot0", "slot1"):
+    for d in ("done", "failed", "hold"):
+        SETS.append((RUNS / "queue" / s / d, ["*.sh", "*.log"], H / "04-fea/runs/queue" / s / d, False))
+TH_KEEP = ["summary.json", "envelope.json", "histories.npz", "histories_meta.json", "histories_lower.npz",
+           "histories_lower_meta.json", "monitors.csv", "*_meta.json", "*.sta", "*.log"]
+for run in sorted(p for p in (RUNS / "thermal").glob("DC-*") if p.is_dir()):
+    SETS.append((run, TH_KEEP, H / "04-fea/runs/thermal" / run.name, False))
+ST_KEEP = ["result.json", "*.meta.json", "*.log", "*.sta", "*.dat"]
+for run in sorted(p for p in (RUNS / "stiff").iterdir() if p.is_dir() and p.name not in ("clear",)):
+    SETS.append((run, ST_KEEP, H / "04-fea/runs/stiff" / run.name, False))
+for sub in ("structural",):
+    root = RUNS / sub
+    if root.exists():
+        for run in sorted(p for p in root.iterdir() if p.is_dir()):
+            SETS.append((run, ["*.json", "*.dat", "*.sta", "*.log", "*.csv", "*.vtu"], H / "04-fea/runs" / sub / run.name, False))
+MAX_BYTES = 40e6     # anything larger stays in the workdir (listed as skipped)
+
+
+def sha16(p):
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for b in iter(lambda: f.read(1 << 20), b""):
+            h.update(b)
+    return h.hexdigest()[:16]
+
+
+def main(dry=False):
+    t = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    man = {"03-cad": {}, "04-fea": {}}
+    copied = same = skipped = 0
+    skips = []
+    for src, pats, dst, rec in SETS:
+        if not src.exists():
+            continue
+        files = set()
+        for pat in pats:
+            files.update(q for q in (src.rglob(pat) if rec else src.glob(pat)) if q.is_file())
+        for q in sorted(files):
+            if "__pycache__" in q.parts:
+                continue
+            rel = q.relative_to(src)
+            out = dst / rel
+            if q.stat().st_size > MAX_BYTES:
+                skipped += 1
+                skips.append(str(q))
+                continue
+            root = "03-cad" if "/03-cad/" in str(out) else "04-fea"
+            key = str(out.relative_to(H / root))
+            h = sha16(q)
+            man[root][key] = {"sha256_16": h, "bytes": q.stat().st_size, "source": str(q)}
+            if out.exists() and out.stat().st_size == q.stat().st_size and sha16(out) == h:
+                same += 1
+                continue
+            copied += 1
+            if not dry:
+                out.parent.mkdir(parents=True, exist_ok=True)
+                if out.exists():             # keep the superseded hub copy (history/<name>.<sha16>), never overwrite evidence
+                    hist = out.parent / "history"
+                    hist.mkdir(exist_ok=True)
+                    shutil.copy2(out, hist / f"{out.name}.{sha16(out)}")
+                shutil.copy2(q, out)
+    if not dry:
+        for root, files in man.items():
+            p = H / root / "MANIFEST_mechanical.json"
+            old = {}
+            if p.exists():
+                try:
+                    old = json.loads(p.read_text()).get("files", {})
+                except Exception:
+                    old = {}
+            old.update(files)
+            p.write_text(json.dumps({"script": "04-fea/tools/hub_sync.py v1", "synced_utc": t,
+                                     "note": "Mechanical workdir copies; solver bulk (.frd/.inp/.12d/.brep/meshes) stays in "
+                                             "/home/claude/work/mechanical/runs", "files": dict(sorted(old.items()))}, indent=1))
+    print(json.dumps({"copied": copied, "unchanged": same, "skipped_large": skipped, "skips": skips[:20], "dry": dry}))
+
+
+if __name__ == "__main__":
+    main(dry="--dry" in sys.argv)

@@ -1,0 +1,193 @@
+{
+ "id": "hbleed_provision_v1",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "electronics",
+ "script": "calc/hbleed_provision_v1.py",
+ "ladder": {
+  "R_top_ohm": 10000.0,
+  "R0_eol_ohm": 82500.0,
+  "R1_mv_open_ohm": 9530.0,
+  "R2_mv_closed_ohm": 17800.0,
+  "R3_pmid_ohm": 33200.0,
+  "tolerance": 0.01,
+  "adc_error_ratio": 0.004,
+  "min_window_gap_ratio": 0.019261453582986754,
+  "codes_sorted": [
+   {
+    "open_sw": 1,
+    "closed_sw": 1,
+    "pmid_hi": 1,
+    "valid": 1,
+    "ratio_nom": 0.32965,
+    "ratio_lo": 0.32124,
+    "ratio_hi": 0.3381
+   },
+   {
+    "open_sw": 1,
+    "closed_sw": 1,
+    "pmid_hi": 0,
+    "valid": 1,
+    "ratio_nom": 0.36599,
+    "ratio_lo": 0.35736,
+    "ratio_hi": 0.37465
+   },
+   {
+    "open_sw": 1,
+    "closed_sw": 0,
+    "pmid_hi": 1,
+    "valid": 1,
+    "ratio_nom": 0.40457,
+    "ratio_lo": 0.39577,
+    "ratio_hi": 0.41342
+   },
+   {
+    "open_sw": 1,
+    "closed_sw": 0,
+    "pmid_hi": 0,
+    "valid": 1,
+    "ratio_nom": 0.46072,
+    "ratio_lo": 0.45175,
+    "ratio_hi": 0.4697
+   },
+   {
+    "open_sw": 0,
+    "closed_sw": 1,
+    "pmid_hi": 1,
+    "valid": 1,
+    "ratio_nom": 0.50398,
+    "ratio_lo": 0.49498,
+    "ratio_hi": 0.513
+   },
+   {
+    "open_sw": 0,
+    "closed_sw": 1,
+    "pmid_hi": 0,
+    "valid": 1,
+    "ratio_nom": 0.59417,
+    "ratio_lo": 0.58534,
+    "ratio_hi": 0.60299
+   },
+   {
+    "open_sw": 0,
+    "closed_sw": 0,
+    "pmid_hi": 1,
+    "valid": 1,
+    "ratio_nom": 0.70303,
+    "ratio_lo": 0.69484,
+    "ratio_hi": 0.71122
+   },
+   {
+    "open_sw": 0,
+    "closed_sw": 0,
+    "pmid_hi": 1,
+    "valid": 0,
+    "ratio_nom": 0.76852,
+    "ratio_lo": 0.76094,
+    "ratio_hi": 0.7761
+   },
+   {
+    "open_sw": 0,
+    "closed_sw": 0,
+    "pmid_hi": 0,
+    "valid": 1,
+    "ratio_nom": 0.89189,
+    "ratio_lo": 0.88595,
+    "ratio_hi": 0.89781
+   },
+   {
+    "open_sw": 0,
+    "closed_sw": 0,
+    "pmid_hi": 0,
+    "valid": 0,
+    "ratio_nom": 1.0,
+    "ratio_lo": 0.996,
+    "ratio_hi": 1.004
+   }
+  ],
+  "thresholds_ratio": [
+   0.34773,
+   0.38521,
+   0.43259,
+   0.48234,
+   0.54917,
+   0.64891,
+   0.73608,
+   0.83102,
+   0.9469
+  ],
+  "short_below_ratio": 0.02,
+  "tag": "DESIGN (values) / DERIVED (windows: 1 % resistors worst case + ADC 0.4 % FS ASSUMED + 2N7002 R_on 7.5 ohm DATASHEET)"
+ },
+ "pmid_comparator": {
+  "transducer": "TE M3234-000005-170BG class (0.5-4.5 V ratiometric on +5V_SNS)",
+  "p_rise_target_Pa_g": 1000000.0,
+  "p_fall_target_Pa_g": 900000.0,
+  "R_in_ohm": 4750.0,
+  "R_f_ohm": 1000000.0,
+  "pullup_V": 5.0,
+  "ref_divider_top_ohm": 10200.0,
+  "ref_divider_bot_ohm": 1740.0,
+  "V_ref": 0.7286432160804021,
+  "p_rise_Pa_g": 986443.1532663316,
+  "p_fall_Pa_g": 885505.6532663315,
+  "hysteresis_Pa": 100937.50000000012,
+  "transducer_TEB_Pa": 255000.0,
+  "note": "thresholds +/- TEB 2.55 bar: still far from both states (vented ~0 bar g, feed 40-55 bar g)",
+  "tag": "DESIGN / DERIVED; TEB from config.h (170BG class)"
+ },
+ "vent_time": {
+  "V_mid_m3": 5e-07,
+  "t_liquid_expulsion_s": 0.012460063897763577,
+  "tau_vapour_blowdown_s": 0.005902141292503862,
+  "t_vapour_45_to_10bar_s": 0.008877277310634963,
+  "valve_close_s_datasheet": [
+   0.05,
+   0.08
+  ],
+  "E0_to_confirm_s": [
+   0.07633734120839855,
+   0.10633734120839855
+  ],
+  "limit_s": 0.15,
+  "margin_s": [
+   0.07366265879160144,
+   0.043662658791601444
+  ],
+  "note": "ideal-gas blowdown; real-gas, flashing cooling and the transducer port dead volume TO-VERIFY on B-BLEED-1",
+  "tag": "DERIVED (LITERATURE density, SIM flow, ASSUMED Cd, DATASHEET valve time)"
+ },
+ "coil": {
+  "valve": "Burkert 6027 HP (stainless, G1/4, PEEK/FKM seat, NC, orifice 1.0 mm: 0-250 bar DC air/water) - DATASHEET via WebFetch summary",
+  "coil_42K_DC_W_cold_warm": [
+   16.0,
+   21.0
+  ],
+  "coil_note": "column mapping of the coil table ambiguous in the summary: TO-VERIFY on the PDF",
+  "coil_voltages_listed": "24 V DC, 230 V AC on the product page; 12 V DC TO-VERIFY (the ECU valve rail is +12V_ARM)",
+  "kick_and_drop_option": "exists (DATASHEET mentions Kick-and-Drop coils, max ambient 70 C); holding power TO-VERIFY",
+  "purge_current_12V_two_valves_A": 2.6666666666666665,
+  "purge_energy_J_2p6s_two_valves": 83.2,
+  "medium_T_HP_PEEK_FKM_C": [
+   -10,
+   80
+  ],
+  "switching_DC_ms": {
+   "open": [
+    20,
+    30
+   ],
+   "close": [
+    50,
+    80
+   ]
+  },
+  "mass": "not stated: TO-VERIFY",
+  "open_issue": "coil voltage vs +12V_ARM and the +2.7 A purge load on the ARM rail budget; alternative HP valves with low-power coils TO-QUOTE"
+ },
+ "visibility": {
+  "pfeed_change_at_20g_s_bar": 0.016,
+  "xdcr_TEB_bar": 2.55,
+  "conclusion": "invisible on P_feed and Pc; only P_mid shows the bleed"
+ }
+}

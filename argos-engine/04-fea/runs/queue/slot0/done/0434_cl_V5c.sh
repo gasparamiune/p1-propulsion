@@ -1,0 +1,3 @@
+set -e
+cd /home/claude/work/mechanical/scratch/lever
+/opt/engine-venv/bin/python -u lever_clear.py '{"tvc_lever_v34":{"cheek_t":8.0,"cheek_half_u":7.0,"cheek_below_eye":7.0,"web":{"rho":[32.5,38.5,46.0],"z_bot":-34.0,"half_w":4.5},"cheek_rib":{"u0":36.0,"t":6.0},"arm_chamfer":3.0,"cheek_ext_lo":15.0,"cheek_ext_ztop":-14.0,"root_flare":{"half_w":10.0,"r1":38.5,"z0":-34.0},"back_web":{"az_off":8.1,"t":6.0,"z_bot":-36.0,"z_top":-14.0,"r_fin":51.5,"z_fin":2.0,"r1":64.0}},"ring_band_z":[-7.0,24.0],"ring_lip":{"z0":18.0,"r_in":38.5}}' V5c /home/claude/work/mechanical/runs/stiff/clear ENG-GM-01,ENG-GM-02,ENG-GM-03

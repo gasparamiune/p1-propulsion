@@ -1,0 +1,120 @@
+{
+ "id": "seat_face_temp",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "04-fea/thermal/seat_face_coast.py",
+ "request": "Combustion v2.4 OI-21 / REPORT 9.1 H1: wetted seat face <= 800 K from MECO to E1 (A1 relight); coordinator 2026-10-13 item (2)",
+ "status": "FAILED QA (try 1, kept as evidence): restart with fixed 0.09984 s increments found the spurious negative radiation root at the liner hot faces (ENG-TC-06/08 -1777/-1882 K in the first increment); BASE 10.4 K below the full run at the seat monitor; superseded by seat_face_temp_v1p1.json; do not use",
+ "source_run": {
+  "label": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v13pre36IN_J1revB",
+  "frd_sha256_16": "246f168949267160",
+  "inp_sha256_16": "d6808f26733f006e",
+  "segments_s": [
+   [
+    0.001,
+    3.541
+   ],
+   [
+    22.211,
+    26.781
+   ]
+  ],
+  "bound": {
+   "HMUL_ch": 2.0,
+   "HMUL_nz": 1.3,
+   "QMUL": "hi",
+   "tag": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band"
+  },
+  "config_overrides": {
+   "D_pre": 0.0499,
+   "tc03_material": "IN718",
+   "nozzle_joint": "J1",
+   "insert_sleeve_material": "CARBON-PHENOLIC"
+  },
+  "coast_N2O_film": {
+   "G_total_W_K": 1.0,
+   "h_W_m2K": 375.9,
+   "A_wetted_mm2": 2660.0
+  }
+ },
+ "wetted_faces": {
+  "ENG-TC-04": {
+   "nodes": 25,
+   "r_mm": [
+    5.0,
+    5.36
+   ],
+   "z_thermal_mm": [
+    181.41,
+    205.26
+   ]
+  },
+  "ENG-TC-02": {
+   "nodes": 47,
+   "r_mm": [
+    5.0,
+    5.0
+   ],
+   "z_thermal_mm": [
+    127.41,
+    181.41
+   ]
+  },
+  "ENG-TC-03": {
+   "nodes": 21,
+   "r_mm": [
+    2.75,
+    5.0
+   ],
+   "z_thermal_mm": [
+    120.41,
+    127.41
+   ]
+  }
+ },
+ "limit_K": 800.0,
+ "in_burn_1": {
+  "TC03_wetted_max_K": 625.6,
+  "t_s": 3.541
+ },
+ "variants": {
+  "BASE": {
+   "TC03_wetted_max_K": 610.0,
+   "tau_at_max_s": 0.1,
+   "TC03_wetted_at_run_relight_K": 313.6,
+   "TC03_wetted_at_nominal_E1_K": 313.6,
+   "slope_last_1p7s_K_s": -0.157,
+   "TC02_wetted_max_K": 330.4,
+   "TC04_wetted_max_K": 303.7,
+   "margin_to_800K_K": 190.0,
+   "verdict": "BELOW 800 K throughout MECO-E1",
+   "TC03_wetted_K_at_tau_0.5s": 555.8,
+   "TC03_wetted_K_at_tau_1s": 497.3,
+   "TC03_wetted_K_at_tau_2s": 416.3,
+   "TC03_wetted_K_at_tau_5s": 334.6,
+   "TC03_wetted_K_at_tau_10s": 317.0,
+   "TC03_wetted_K_at_tau_18.67s": 313.6,
+   "QA_seat_monitor_max_abs_diff_K": 10.445,
+   "QA_pass": false
+  },
+  "ADIABATIC": {
+   "TC03_wetted_max_K": 613.5,
+   "tau_at_max_s": 0.1,
+   "TC03_wetted_at_run_relight_K": 315.7,
+   "TC03_wetted_at_nominal_E1_K": 315.7,
+   "slope_last_1p7s_K_s": -0.148,
+   "TC02_wetted_max_K": 331.0,
+   "TC04_wetted_max_K": 304.5,
+   "margin_to_800K_K": 186.5,
+   "verdict": "BELOW 800 K throughout MECO-E1",
+   "TC03_wetted_K_at_tau_0.5s": 563.0,
+   "TC03_wetted_K_at_tau_1s": 505.3,
+   "TC03_wetted_K_at_tau_2s": 423.5,
+   "TC03_wetted_K_at_tau_5s": 338.3,
+   "TC03_wetted_K_at_tau_10s": 319.3,
+   "TC03_wetted_K_at_tau_18.67s": 315.7
+  }
+ },
+ "summary": "NOT USABLE (restart QA failed). Wetted seat-face peak over MECO-E1 = 625.6 K (FE, both coast variants, 'hi' bound) vs the 800 K limit; the peak sits at MECO (in-burn value at the seat edge r 2.75 mm). Needle tip not modelled (OPEN); thermocouple T4 confirmation required (Combustion verification list)."
+}

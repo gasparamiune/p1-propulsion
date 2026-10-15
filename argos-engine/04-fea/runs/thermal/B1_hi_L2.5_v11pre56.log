@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "/home/claude/work/mechanical/engine/04-fea/thermal/run_thermal.py", line 182, in <module>
+    main()
+    ~~~~^^
+  File "/home/claude/work/mechanical/engine/04-fea/thermal/run_thermal.py", line 149, in main
+    faces, info = at.faces_model(aft_material=a.aft, r_port=rp, overrides=ov)
+                  ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/work/mechanical/engine/04-fea/thermal/ax_thermal.py", line 139, in faces_model
+    faces, info, _ = ax_section.section(overrides=ov or None)
+                     ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/work/mechanical/engine/04-fea/thermal/ax_section.py", line 46, in section
+    P, S, reg, log = build.build(include=("engine",), iterate_cg=True, overrides=overrides)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/work/mechanical/engine/03-cad/src/build.py", line 168, in build
+    S, reg = _one_build(P, include)
+             ~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/claude/work/mechanical/engine/03-cad/src/build.py", line 30, in _one_build
+    info = parts_engine.build_engine_parts(P, S, reg, engmat)
+  File "/home/claude/work/mechanical/engine/03-cad/src/parts_engine.py", line 289, in build_engine_parts
+    pre = pre.cut(box((-1.6, lip_r - 0.5, S["grain_top"] - 1), (1.6, r_pre + 0.5, S["grain_top"] + lipH + 0.01)).rotate((0, 0, 0), (0, 0, 1), a))
+                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/claude/work/mechanical/engine/03-cad/src/geom.py", line 57, in box
+    return cq.Solid.makeBox(*(hi - lo), cq.Vector(*lo))
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/engine-venv/lib/python3.13/site-packages/cadquery/occ_impl/shapes.py", line 4207, in makeBox
+    ).Shape()
+      ~~~~~^^
+OCP.OCP.Standard.Standard_DomainError

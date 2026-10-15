@@ -1,0 +1,43 @@
+teensy_pin,socket_pad,net,direction,function,ecu_rev
+0,2,SOL3_VENT_CMD,out,"FlexPWM: tank vent solenoid (VBAT, PWM hold), not ARM-gated, watchdog-gated",v2.5
+1,3,SOL4_ROLL_CW_CMD,out,"roll RCS provision: CW thruster pair, 2 coils (12 V, ARM-gated)",v2.5
+2,4,TVC_A_PWM,out,FlexPWM4.2 333 Hz servo TVC-A (pitch),v2.5
+3,5,TVC_B_PWM,out,FlexPWM4.2 333 Hz servo TVC-B (yaw),v2.5
+4,6,PINTLE_PWM,out,FlexPWM2.0 333 Hz pintle throttle servo,v2.5
+5,7,MV_OPENER_PWM,out,FlexPWM2.1 333 Hz main-valve opener servo,v2.5
+6,8,MV_LATCH_CMD,out,main-valve holding magnet (ARM-gated),v2.5
+7,9,ADC_DRDY,in,"ADS131M04 ADC1 data ready (4 kSPS); ADC2 shares the clock, its DRDY goes to TP901 (polled)",v2.5
+8,10,CS_A0,out,SPI0 CS decoder U203 address A (LSB),v2.5
+9,11,CS_A1,out,SPI0 CS decoder U203 address B,v2.5
+10,12,CS_A2,out,"SPI0 CS decoder U203 address C (MSB): Y0 ADC1, Y1 ADC2, Y2-Y7 TC1-TC6",v2.5
+11,13,MOSI0,out,SPI0 MOSI,v2.5
+12,14,MISO0,in,"SPI0 MISO (ADC1, ADC2 and 6 TC, 33 ohm per device)",v2.5
+13,35,SCK0,out,SPI0 SCK (on-board LED),v2.5
+14,36,VBAT_SENSE,ain,A0 battery voltage /4.03,v2.5
+15,37,HTR_PERMIT_CMD,out,"GSE tank-heater permit via U305 (SAFE; hardware cut at plug / ARM bus / watchdog) AND bleed V1 via U574 (AND PURGE_WIN, v2.5) -> U304 2A2 (+12V_ARM only)",v2.5
+16,38,IBAT_SENSE,ain,"A2 battery current, INA181A1 x20 on 2 mOhm (25 A/V)",v2.5
+17,39,MODE_SENSE,ain,"A3 mode strap J620 resistor code: FLIGHT 2.27 V, STAND 1.65 V, open 3.30 V, both 1.35 V",v2.5
+18,40,NTC_SERVO,ain,A4 pintle-servo bracket NTC 10k,v2.5
+19,41,V5SNS_SENSE,ain,A5 transducer excitation /2 (ratiometric correction),v2.5
+20,42,CS_EN_N,out,"SPI0 CS decoder enable (G2A, active low; 10k pull-up: no device selected in reset)",v2.5
+21,43,ARM_PLUG_SENSE,ain,A7 arming-plug voltage /4.03 (upstream of ARM switch),v2.5
+22,44,ARM_BUS_SENSE,ain,A8 ARM bus voltage /4.03 (proves switch closed),v2.5
+23,45,MV_LADDER,ain,A9 v2.4 ladder: MV OPEN / CLOSED switches + P_mid comparator (calc/hbleed_provision_v1.py),v2.5
+24,16,BLEED_B_CMD,out,"head-end bleed V2 command via U575 (AND PURGE_WIN, v2.5) -> U307 (ARM-gated, watchdog /OE)",v2.5
+25,17,ONEWIRE,io,1-Wire DS18B20 tank wall temperatures,v2.5
+26,18,MOSI1,out,SPI1 MOSI to AS5048A encoders,v2.5
+27,19,SCK1,out,SPI1 SCK to encoders (1 MHz over cable),v2.5
+28,20,SPARK_CMD,out,"spark coil dwell pulses (ARM-gated, AC-coupled gate)",v2.5
+29,21,OVP_OK,in,"hardware Pc over-pressure latch U331 Q: high = OK; low = tripped, ARM bus forced off",v2.5
+30,22,CAN_RX,in,CAN3 CRX3 (FD-capable) from MCP2562FD,v2.5
+31,23,CAN_TX,out,CAN3 CTX3 to MCP2562FD,v2.5
+32,24,SOL1_TORCH_OX_CMD,out,"torch N2O solenoid (12 V, ARM-gated)",v2.5
+33,25,SOL2_TORCH_FUEL_CMD,out,"torch propane solenoid (12 V, ARM-gated)",v2.5
+34,26,SOL5_ROLL_CCW_CMD,out,"roll RCS provision: CCW thruster pair, 2 coils (12 V, ARM-gated)",v2.5
+35,27,ENC_A_CS,out,AS5048A gimbal axis A CS,v2.5
+36,28,ENC_B_CS,out,AS5048A gimbal axis B CS,v2.5
+37,29,ENC_P_CS,out,AS5048A pintle crank CS,v2.5
+38,30,ARM_REQ,out,ARM switch request (AND watchdog OK AND OVP_OK); rising edge re-arms the OVP latch,v2.5
+39,31,MISO1,in,SPI1 MISO from encoders (47 ohm per encoder),v2.5
+40,32,TVC_PWR_CMD,out,TVC servo power switch (watchdog-gated),v2.5
+41,33,WDI,out,external watchdog kick (rising edge each healthy 1 ms tick),v2.5

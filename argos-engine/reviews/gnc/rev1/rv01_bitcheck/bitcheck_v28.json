@@ -1,0 +1,515 @@
+{
+ "tool": "m2_bitcheck_v28 v1.5",
+ "sim": "sim6 v2.8-dev (2026-10-13, amendments M, W, F, P, R, S)",
+ "iface": "/home/claude/work/space/iface_v3c",
+ "parts": {
+  "A_options_off_vs_v2.7.1-dev": {
+   "A1_none": {
+    "runs_checked": 12,
+    "failed_runs_included": 4,
+    "values_compared": 1104,
+    "mismatches": 0,
+    "first": [],
+    "reference": "/home/claude/work/space/out/relight_v28/mc6_runs_v28_liq_p0.81_A1_none_k2_v28.csv"
+   },
+   "A1J_pc": {
+    "runs_checked": 18,
+    "failed_runs_included": 10,
+    "values_compared": 1656,
+    "mismatches": 0,
+    "first": [],
+    "reference": "/home/claude/work/space/out/relight_v28/mc6_runs_v28_liq_p0.81_A1J_pc_k2_v28.csv"
+   },
+   "rbl_B1_lead62_pc_k2": {
+    "runs_checked": 10,
+    "failed_runs_included": 2,
+    "values_compared": 920,
+    "mismatches": 0,
+    "first": [],
+    "reference": "/home/claude/work/space/out/regband/mc6_runs_rbl_B1_lead62_pc_k2_rb.csv"
+   }
+  },
+  "B_T-RM1_capped_huge_map_identity": {
+   "A1_none": {
+    "runs_checked": 8,
+    "failed_runs_included": 0,
+    "values_compared": 736,
+    "mismatches": 0,
+    "first": [],
+    "reference": "/home/claude/work/space/out/relight_v28/mc6_runs_v28_liq_p0.81_A1_none_k2_v28.csv"
+   },
+   "rbl_B1_lead62_pc_k2": {
+    "runs_checked": 8,
+    "failed_runs_included": 0,
+    "values_compared": 736,
+    "mismatches": 0,
+    "first": [],
+    "reference": "/home/claude/work/space/out/regband/mc6_runs_rbl_B1_lead62_pc_k2_rb.csv"
+   }
+  },
+  "C_T-RM2_lookup": {
+   "points": 4000,
+   "outside_grid": 583,
+   "max_abs_diff_N_per_s": 0.0,
+   "passed": true
+  },
+  "D_T-RM3_rate_bounded_by_map": {
+   "cases": {
+    "A1|R1": {
+     "rise_rate_excess_N_per_s": -38.80800061964783,
+     "fall_rate_excess_N_per_s": -49.99999999972488,
+     "share_steps_at_open_limit": 0.02295952222959522,
+     "bind_t": 0.10700000000000008,
+     "bind_land": 0.0,
+     "bind_asc": 0.10700000000000008,
+     "P_tank_min_MPa": 4.028633075443969,
+     "P_tank_trigger_MPa": 4.419373379163507,
+     "landed_ok": true,
+     "passed": true
+    },
+    "A1|R3": {
+     "rise_rate_excess_N_per_s": -38.80003492012497,
+     "fall_rate_excess_N_per_s": -76.08328981395834,
+     "share_steps_at_open_limit": 0.022422714607934192,
+     "bind_t": 0.10700000000000008,
+     "bind_land": 0.0,
+     "bind_asc": 0.10700000000000008,
+     "P_tank_min_MPa": 4.0287771016345335,
+     "P_tank_trigger_MPa": 4.419458501410555,
+     "landed_ok": true,
+     "passed": true
+    },
+    "B1|R1": {
+     "rise_rate_excess_N_per_s": -38.80800061964783,
+     "fall_rate_excess_N_per_s": -49.999999998614385,
+     "share_steps_at_open_limit": 0.014919687638880071,
+     "bind_t": 0.11900000000000009,
+     "bind_land": 0.012000000000000004,
+     "bind_asc": 0.10700000000000008,
+     "P_tank_min_MPa": 4.074766113216699,
+     "P_tank_trigger_MPa": 4.357969417915764,
+     "landed_ok": true,
+     "passed": true
+    },
+    "B1|R3": {
+     "rise_rate_excess_N_per_s": -38.80003492012497,
+     "fall_rate_excess_N_per_s": -80.27331808463077,
+     "share_steps_at_open_limit": 0.014481560146746475,
+     "bind_t": 0.11500000000000009,
+     "bind_land": 0.008,
+     "bind_asc": 0.10700000000000008,
+     "P_tank_min_MPa": 4.088373871015409,
+     "P_tank_trigger_MPa": 4.369442241583546,
+     "landed_ok": true,
+     "passed": true
+    }
+   },
+   "note": "excess = max over lit steps (recorded command > 0) of the delivered thrust rate minus 1.02 x the map rate at the recorded state; shutdown transients (not lit) follow the sim6 shutdown model, not the map; R1 closing at 2500 N/s"
+  },
+  "E_T-LAT_latency_shift": {
+   "hold_steps": 56,
+   "max_abs_diff_N": 0.0,
+   "passed": true,
+   "note": "pad hold (vehicle not moving): F with 4 ms latency vs F without, shifted by 4 steps; the tank pressure differs slightly (different flow history), tolerance 0.5 N"
+  },
+  "F_T-DRV_model_B_twin": {
+   "steps": 16718,
+   "max_abs_diff_N": 0.001437638279753628,
+   "p99_abs_diff_N": 0.00017782903513704983,
+   "bind_t": 0.22000000000000017,
+   "landed_ok": true,
+   "passed": true,
+   "note": "numpy twin of Electronics' model B on the recorded target; the tank pressure is updated every 10 ms in sim6 (recorded at the end of the step): tolerance 1 N"
+  },
+  "G_T-MEST_estimator_identities": {
+   "A1|G1_all_zero": {
+    "max_abs_e": 7.260858581048524e-14,
+    "max_abs_dev": 7.260858581048524e-14,
+    "steps_out_of_tol": 0,
+    "n": 30141,
+    "landed_ok": true,
+    "touchdown_diff_vs_mode0": {
+     "td_vz": 0.05892196610732059,
+     "td_vh": -0.06515447726075345,
+     "td_tilt": 0.3544347933822578,
+     "td_t": -0.036000000000044,
+     "prop_used": -0.00017439798889151703
+    },
+    "passed": true
+   },
+   "A1|G2_weigh": {
+    "max_abs_e": 0.007047175239061065,
+    "max_abs_dev": 9.909362042549372e-07,
+    "steps_out_of_tol": 0,
+    "n": 30162,
+    "landed_ok": true,
+    "passed": true
+   },
+   "A1|G3_kcal": {
+    "max_abs_e": 0.0019159352102773308,
+    "max_abs_dev": 3.0847179926878597e-06,
+    "steps_out_of_tol": 0,
+    "n": 30138,
+    "landed_ok": true,
+    "passed": true
+   },
+   "A1|G4_dq": {
+    "max_abs_e": 0.0010863973652867065,
+    "max_abs_dev": 1.475754575727987e-07,
+    "steps_out_of_tol": 0,
+    "n": 30137,
+    "landed_ok": true,
+    "passed": true
+   },
+   "A1|G5_starts": {
+    "max_abs_e": 0.0002714942540460452,
+    "max_abs_dev": 0.00025717885596935637,
+    "steps_out_of_tol": 0,
+    "n": 30178,
+    "landed_ok": true,
+    "passed": true
+   },
+   "B1|G1_all_zero": {
+    "max_abs_e": 1.2567724638756772e-13,
+    "max_abs_dev": 1.2567724638756772e-13,
+    "steps_out_of_tol": 0,
+    "n": 21040,
+    "landed_ok": true,
+    "touchdown_diff_vs_mode0": {
+     "td_vz": 0.0033491272454688747,
+     "td_vh": 0.003945986230141141,
+     "td_tilt": -0.013551025917940773,
+     "td_t": 0.0010000000000012221,
+     "prop_used": 7.716556853676337e-05
+    },
+    "passed": true
+   },
+   "B1|G2_weigh": {
+    "max_abs_e": 0.007504307650437747,
+    "max_abs_dev": 1.0055115665002015e-06,
+    "steps_out_of_tol": 0,
+    "n": 21000,
+    "landed_ok": true,
+    "passed": true
+   },
+   "B1|G3_kcal": {
+    "max_abs_e": 0.002411715727292263,
+    "max_abs_dev": 3.005449985765381e-06,
+    "steps_out_of_tol": 0,
+    "n": 21054,
+    "landed_ok": true,
+    "passed": true
+   },
+   "B1|G4_dq": {
+    "max_abs_e": 0.002868733821001501,
+    "max_abs_dev": 1.8195502685938378e-07,
+    "steps_out_of_tol": 0,
+    "n": 21056,
+    "landed_ok": true,
+    "passed": true
+   },
+   "B1|G5_starts": {
+    "max_abs_e": 0.00030023278326174463,
+    "max_abs_dev": 0.00026794995540153015,
+    "steps_out_of_tol": 0,
+    "n": 21039,
+    "landed_ok": true,
+    "passed": true
+   }
+  },
+  "H_T-KCOMP_khat_compensation": {
+   "median_ratio_minus_1_uncomp": -0.014113847868603258,
+   "median_ratio_minus_1_comp": -0.0023894444145774463,
+   "runs": 40,
+   "passed": true
+  },
+  "W_T-WEB_web_state_and_limit": {
+   "W1_flight_identity_act0": {
+    "runs": 20,
+    "mismatches": [],
+    "passed": true
+   },
+   "W2_W3_numpy_twins": {
+    "runs": [
+     {
+      "run": 0,
+      "reg_a": 1.3448086467913476,
+      "reg_n": 0.5174622406069447,
+      "steps": 17585,
+      "truth_max_abs_diff_m": 0.0,
+      "fsw_max_abs_diff_m": 0.0,
+      "truth_web_end_mm": 3.585239659983006,
+      "fsw_web_end_mm": 2.4833402758369023,
+      "tL": -1.0,
+      "passed": true
+     },
+     {
+      "run": 1,
+      "reg_a": 1.4615288348800495,
+      "reg_n": 0.603958941954263,
+      "steps": 16838,
+      "truth_max_abs_diff_m": 0.0,
+      "fsw_max_abs_diff_m": 0.0,
+      "truth_web_end_mm": 4.941188972676067,
+      "fsw_web_end_mm": 3.9715261731700298,
+      "tL": -1.0,
+      "passed": true
+     },
+     {
+      "run": 6,
+      "reg_a": 1.3786190171118964,
+      "reg_n": 0.5845717753535554,
+      "steps": 18302,
+      "truth_max_abs_diff_m": 0.0,
+      "fsw_max_abs_diff_m": 0.0,
+      "truth_web_end_mm": 4.936535762551323,
+      "fsw_web_end_mm": 4.3777013756036505,
+      "tL": -1.0,
+      "passed": true
+     }
+    ],
+    "passed": true,
+    "tolerance": {
+     "truth_m": 1e-09,
+     "fsw_m": 2e-06,
+     "note": "FSW: map port from the recorded fuel mass of the previous step (exact replay not possible from the record)"
+    }
+   },
+   "passed": true
+  },
+  "X_T-FAULT_amendment_F": {
+   "X1_A1_armed_no_onset": {
+    "runs": 20,
+    "decisions": 0,
+    "geofence_trips_not_acted": 0,
+    "mismatches": [],
+    "passed": true
+   },
+   "X1_B1_armed_no_onset": {
+    "runs": 20,
+    "decisions": 0,
+    "geofence_trips_not_acted": 0,
+    "mismatches": [],
+    "passed": true
+   },
+   "X2_A1_overpressure_timing": {
+    "first_above_s": 0.5430000000000004,
+    "trip_s": 0.5440000000000004,
+    "delay_s": 0.0010000000000000009,
+    "det_op_t": 0.003,
+    "source": 2.0,
+    "decision_s": 0.5440000000000004,
+    "expected_delay_s": 0.001,
+    "passed": true
+   },
+   "X3_A1_abort_sequence": {
+    "mv_cmd_minus_dec_s": 0.0016800000000000148,
+    "seat_minus_mv_s": 0.04032000000000002,
+    "abt_lat": 0.00168,
+    "abt_seat": 0.0394,
+    "tailoff_impulse_Ns": 38.50745632526879,
+    "abt_imp": 38.2,
+    "passed": true
+   },
+   "X4_A1_pintle_fault_timing": {
+    "first_dev_s": 0.5240000000000004,
+    "trip_s": 0.6230000000000004,
+    "delay_s": 0.09900000000000009,
+    "det_pf_t": 0.1,
+    "det_pf_dF_N": 58.69692593473661,
+    "source": 3.0,
+    "expected_delay_s": 0.099,
+    "passed": true
+   },
+   "X2_B1_overpressure_timing": {
+    "first_above_s": 0.5430000000000004,
+    "trip_s": 0.5440000000000004,
+    "delay_s": 0.0010000000000000009,
+    "det_op_t": 0.003,
+    "source": 2.0,
+    "decision_s": 0.5440000000000004,
+    "expected_delay_s": 0.001,
+    "passed": true
+   },
+   "X3_B1_abort_sequence": {
+    "mv_cmd_minus_dec_s": 0.0016800000000000148,
+    "seat_minus_mv_s": 0.04032000000000002,
+    "abt_lat": 0.00168,
+    "abt_seat": 0.0394,
+    "tailoff_impulse_Ns": 38.50745632526879,
+    "abt_imp": 38.2,
+    "passed": true
+   },
+   "X4_B1_pintle_fault_timing": {
+    "first_dev_s": 0.5240000000000004,
+    "trip_s": 0.6230000000000004,
+    "delay_s": 0.09900000000000009,
+    "det_pf_t": 0.1,
+    "det_pf_dF_N": 58.69692593473661,
+    "source": 3.0,
+    "expected_delay_s": 0.099,
+    "passed": true
+   },
+   "X5_A1_linkage_normal_close_relight": {
+    "t_shutdown": 2.749999999999808,
+    "t_seat": 2.869999999999795,
+    "seat_minus_sd_s": 0.11999999999998678,
+    "expected_s": 0.1194,
+    "activations": 2.0,
+    "decision": -1.0,
+    "passed": true
+   }
+  },
+  "P_T-PURGE_amendment_P": {
+   "P1_A1_plumbing_identity": {
+    "runs": 20,
+    "mismatches": [],
+    "passed": true
+   },
+   "P2_A1_purge_accounting": {
+    "runs": 20,
+    "max_abs_mass_err_kg": 8.308631560538515e-14,
+    "step_mass_kg": 2e-05,
+    "waits": 0,
+    "dur_min_s": 2.8600000000034953,
+    "dur_max_s": 3.3700000000041186,
+    "passed": true
+   },
+   "P3_A1_truth_mass": {
+    "mass_drop_kg": 0.05839999999973422,
+    "expected_kg": 0.058400000000071374,
+    "duration_s": 2.9200000000035686,
+    "passed": true
+   },
+   "P4_A1_fsw_booking": {
+    "book1_max_abs_mhe": 2.0028423364237824e-13,
+    "book0_mhe_after": 0.003979470510753869,
+    "book0_expected": 0.0039794705107042685,
+    "passed": true
+   },
+   "P5_B1_jet_trim": {
+    "F_jet_N": 2.05252,
+    "F_mean_N": 100.0000000001442,
+    "steps": 10689,
+    "d_dgy_deg": -1.1683131666012618,
+    "d_dgx_deg": 0.0,
+    "expected_d_dgy_deg": -1.1760073336602215,
+    "passed": true
+   }
+  },
+  "R_T-REL_amendment_R": {
+   "R4_rel_F_derivation": {
+    "rel_F_N": 37.15933451611584,
+    "expected_N": 37.15933451611584,
+    "floor_N": 100.0,
+    "passed": true
+   },
+   "R1_A1_rule_identity": {
+    "runs": 20,
+    "rel_Pc_bar": 3.7212567375887464,
+    "mismatches": [],
+    "rel_t_equal": true,
+    "passed": true
+   },
+   "R2_A1_nominal_release": {
+    "t_light_s": 23.275000000005463,
+    "rel_t_s": 0.008000000000009777,
+    "rel_Fpc_N": 38.45095142746421,
+    "rel_F_N": 37.15933451611584,
+    "crossing_before_release": null,
+    "crossing_at_release": true,
+    "passed": true
+   },
+   "R3_A1_nominal_release": {
+    "t_light_s": 23.275000000005463,
+    "rel_t_s": 0.20000000000024443,
+    "rel_dt_s": 0.2,
+    "rel_Fpc_N": 99.30525210534357,
+    "passed": true
+   }
+  },
+  "S_T-START_amendment_S": {
+   "S5_derivations": {
+    "st_F_2p4_N": 27.31359769717673,
+    "expected_N": 27.31359769717673,
+    "rel_Frise_N": 22.918870904808998,
+    "rel_Frise_expected_N": 22.918870904808998,
+    "passed": true
+   },
+   "S1_A1_none_branch_noop_without_plateau": {
+    "reference": "/home/claude/work/space/out/release_rule/rel_A1_none_rel1.csv (sha256/16 ae0ce8dd505eb563)",
+    "runs": 500,
+    "values_compared": 74000,
+    "mismatches": 0,
+    "first": [],
+    "released_runs": 500,
+    "persistence_releases": 0,
+    "passed": true
+   },
+   "S1_A1J_pc_branch_noop_without_plateau": {
+    "reference": "/home/claude/work/space/out/release_rule/rel_A1J_pc_rel1.csv (sha256/16 aa231b129c7de817)",
+    "runs": 500,
+    "values_compared": 74000,
+    "mismatches": 0,
+    "first": [],
+    "released_runs": 500,
+    "persistence_releases": 0,
+    "passed": true
+   },
+   "S2_A1_nominal_plateau_2.4bar": {
+    "t_light_s": 23.275000000005463,
+    "st_F_N": 27.31359769717673,
+    "rel_t_s": 0.10000000000012221,
+    "rel_br": 2.0,
+    "rel_Fpc_N": 27.31359769717673,
+    "rel_vz": -21.468163969652224,
+    "st_vz_end": -23.639349429017436,
+    "st_h_end": 27.476121362087675,
+    "max_Fpc_inside_N": 27.31359769717673,
+    "frac_at_cap": 0.9974937343358395,
+    "max_Fpc_after_N": 149.81359769717673,
+    "landed_ok": true,
+    "passed": true
+   },
+   "S3_A1_nominal_plateau_3.6bar": {
+    "t_light_s": 23.275000000005463,
+    "st_F_N": 47.80625640869349,
+    "rel_t_s": 0.008000000000009777,
+    "rel_br": 1.0,
+    "rel_Fpc_N": 38.45095142746421,
+    "rel_vz": -21.647906989270933,
+    "st_vz_end": -23.953425840410734,
+    "st_h_end": 27.28628029973227,
+    "max_Fpc_inside_N": 47.80625640869349,
+    "frac_at_cap": 0.9649122807017544,
+    "max_Fpc_after_N": 170.30625640869349,
+    "landed_ok": true,
+    "passed": true
+   },
+   "S4_A1_nominal_plateau_2.0bar": {
+    "t_light_s": 23.275000000005463,
+    "st_F_N": 21.183202869113632,
+    "rel_t_s": 0.4070000000004974,
+    "rel_br": 1.0,
+    "rel_Fpc_N": 38.68320286911363,
+    "rel_vz": -21.089458492462366,
+    "st_vz_end": -21.1022448462137,
+    "st_h_end": 27.854096568688725,
+    "max_Fpc_inside_N": 21.183202869113632,
+    "frac_at_cap": 1.0,
+    "max_Fpc_after_N": 143.09828885016856,
+    "landed_ok": true,
+    "passed": true
+   },
+   "S6_B1_profile_A_only": {
+    "reference": "/home/claude/work/space/out/regband/mc6_runs_rbl_B1_lead62_pc_k2_rb.csv",
+    "runs": 20,
+    "values_compared": 1840,
+    "mismatches": 0,
+    "first": [],
+    "passed": true
+   }
+  }
+ },
+ "all_passed": true
+}

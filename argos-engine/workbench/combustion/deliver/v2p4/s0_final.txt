@@ -1,0 +1,59 @@
+# ARGOS H1: Combustion and propulsion report (02-combustion)
+
+Version 2.4, 2026-10-13. Owner: Combustion and Propulsion. Interface: `interfaces/combustion.json` v2.4 (sha256/16 `@@IFACE_SHA@@`); v2.3 (`d9ec54fbf450e243`) is kept as `data/v2/combustion_interface_v2p3_as_published.json`. Status: revision in answer to the independent review `reviews/REVIEW-COMBUSTION.md` (02-combustion REVISE; 05-plume-cfd ACCEPT WITH COMMENTS), to REV-GNC-1 and to the Electronics SIL items relayed by the lead. Digital only, *Por revisar*: the changed sections await re-review. The CF-4 cold-flow specification is published separately as `02-combustion/CF-4-SPEC.md`.
+
+Tag legend:
+- REQ: founder or lead requirement.
+- LEAD: lead decision (CHANGELOG line given where it matters).
+- LITERATURE: cited source; LITERATURE-UNVERIFIED or "as recalled" means quoted from memory and not re-checked.
+- CEA: NASA CEA through RocketCEA.
+- SIM: our simulation.
+- FEA: Mechanical's finite-element results, used as delivered.
+- DERIVED: calculation from tagged inputs.
+- ASSUMED: engineering assumption with a stated band.
+- TO-QUOTE / TO-VERIFY: open procurement or verification items. Prices are quoted to Sønderborg, DK-6400; none is set to zero or to a "from" price.
+
+No number in this report is MEASURED. No hardware has been tested. A passing simulation, a matching hash or a correct user interface is not physical approval.
+
+## 0. Checkpoint
+
+**Claim.** The v2.3 design point stands: N2O/ABS hybrid, 500 N at Pc 25 bar (software cap), Dt 13.724 mm, eps 2.0, S230 straight-port grain, servo pintle with a normally-closed main valve (MV-P). The reviewer reproduced the thermochemistry, sizing, injector model, throat heat flux, floor separation and grain at n 0.5 to 0.1-1 %; that core is not repeated here. v2.4 adds or replaces the following, each with its evidence:
+
+1. **Sequence and abort logic (RC-01; §7.3-7.5).** The relight follows the firmware v2.8 epochs (E0 T_fire, E1 torch confirmed, E2 main light, E3 steady). E1 needs P_torch AND the photodiode (2oo2) and the torch is supervised from E1 to E2 (FA-1 (a) and (b), REQUIRED of Electronics, LEAD line 164). Light windows W: 0.40 s at a flight first start, 0.65 s at a flight relight, 0.35 s on the stand. A5 is deleted and replaced by the LIGHT_SPIKE record; A4 trips at 30 bar raw for 5 ms; A14-A16 cover the bleed valves, the purge and the torch. MV closed in coasts; normal shutdown pintle-first, abort MV-first.
+2. **Hard start (RC-02; §7.6).** Decomposition-only late light: head peaks 43.7 / 43.1 / 42.0 bar at a 15 / 20 / 25 C pad start with the sharp entrance, 40.6 / 40.1 / 39.3 bar rounded; 37.8 bar (36.7 rounded) at the A1 relight (SIM, `late_light_tables_v2p4.json`). MEOP 45 bar holds for that case and the rounded entrance is REQUIRED. The v2.4-draft 44.9 bar is superseded. A **fuel-assisted** fast part at a relight reaches 48.9-75.5 bar at a 1 ms burn time (<= 55.5 bar at 5 ms, <= 41.4 bar at 10 ms; SIM on ASSUMED burn time and fuel fraction): MEOP is NOT shown for it. It is FMEA item FA-1, a single-control hazard accepted by the lead for design continuation only (§9.1).
+3. **Relight with retained vapour (RG-01; §2.8).** Design basis (LEAD line 164): the coil re-route plus a pre-scheduled two-tap purge on the decided path (two equal 0.707 mm restrictors, Cd 0.70 ASSUMED, valves non-controlling), 2.5 s of flow ending at E0 - 0.05 s, PURGE commanded at E0 - 2.90 s, theta <= 2 deg, balanced or axial vent, no lining. Needed flow time 1.9 s (<= 1.94 s with the FD-01 element), P_abort 0 at W 0.65 s in 200 000 samples per case, N2O vented 34.3-72.9 g (plan <= 76 g), E0 -> E2 max 0.626 s on the worst purged state, so the 0.81 s plan holds (SIM, `rg01_line_states_v2p4.json`). The claim is gated by CF-4 (founders; `CF-4-SPEC.md`).
+4. **Stuck-open bleed (§2.8, §9.1).** 31.24 g/s with both taps liquid (upper bound); additive tank outflow governs (GNC S313). Two NC valves in series: a stuck-open path then needs two faults or one common cause, but the pair doubles the fail-closed probability (no purge, so no relight on that pass). Both go to the FMEA.
+5. **Relight latency (RC-03; §7.7).** Latency distributions by line state are delivered to GNC (Table 2.15); the GNC re-fly runs on `rg01_line_states_v2p4.json` (`2939549811d4c381`).
+6. **MEOP basis (RC-08; §3.6).** 44.33 bar at the 24 C interlock with the designed line loss and the conservative bands: margin 0.67 bar (1.5 %) to MEOP 45 bar; proof 67.5 bar keeps >= 21.9 bar (SIM).
+7. **Trapped volumes, relief and stored energy (RC-04, RC-05, RC-12; §2.7, §9.2, §10.2).** Relief on every lockable volume; stored energy of the flight tank 0.77 kg TNT equivalent by decomposition (6.9 kPa at 16.4 m), ground 15 L tank 4.0 kg (28.4 m) (DERIVED).
+8. **Throat life (RC-06; §5.4).** Plan one insert per flight until T1/T4 bore data exist; the literature-kinetics case gives 0.38-0.60 A1 flights on the gnc.json v3 p99 cycle (SIM).
+9. **Regression band (RC-07; §4.1, §4.6).** The whole band is run. ENG-06 (web >= 1 mm) holds on A1 and B2 and fails on B1 85 m at a x1.5 with n <= 0.5; "85 m covers 62 m" is withdrawn; B1 flies only under the lead's gating rule after T1-T4.
+10. **Minor items.** eta_cf band 0.95-0.975 (RC-09); L* 2.03 m on 300.9 cm3 (RC-16); Bartz curvature stated (RC-17); eroded-throat separation at constant mass flow (RC-18); seat insert TC-03 in Inconel 718 and the coast leak ceiling 0.0055 g/s (RC-02, RC-13 g); cleaning, drying and catch-volume rules (RC-14; §10.1); load-bearing material data still TO-VERIFY (RC-15).
+11. **Nozzle joint (§6.5).** The NZ-03 mica/vermiculite gasket (900 C rating) sees 1595 C in Mechanical's FE: it fails by 695 K. Proposal J1: a 2.0 mm carbon-phenolic flange with a 0.5 mm flexible-graphite seal at the lip face. An unsealed joint leaks 0.83-1.10 % of the engine flow and could melt the 316L lip in 1.07-5.70 s (lumped bound); hence hazard H19 and an N2 leak check at 67.5 bar before and after every firing.
+
+**Configuration.** CAD v3.4.1 (Mechanical: coil re-route, FS-01 module with MV-P, bleed taps T4 and FD-01); mechanical.json v2 (`4f024ed4ccb4618c`); gnc.json v3 (`3e97c378cfebee95`); electronics.json v2 (`da067408c1594814`) and firmware sequence v2.8; ENGINE-BASELINE v0; REQUIREMENTS rev 2; lead decisions to CHANGELOG line 164 (Mechanical bleed path line 162). The throttle floor requirement is ENG-02 <= 20 %, which closes; 25 % is a flight fallback only (RC-13 a). The v2.3 duty-cycle claim is withdrawn: A2 is removed and B1 is capped at 85 m by the lead, with the 62 m records handled in §4.6 (RC-13 e).
+
+**Sources.** NASA CEA (RocketCEA); CoolProp 8 HEOS for N2O; Dyer et al. and HEM for two-phase injection and bleed flow; Bartz; Lewis & Carlson; Rotondi et al. (JPP 2024) and Nagle-Strickland-Constable for graphite erosion; Mechanical's CAD, FEA and bleed-path files; GNC's records; Electronics' SIL; the review. Material data quoted "as recalled" are marked TO-VERIFY.
+
+**Files.** Hub `02-combustion/`: scripts in `src/`, data in `data/v2/` and `data/v2/v2p4/` (index `data/v2/v2p4/FILE-INDEX.txt`; superseded runs in `data/v2/v2p4/superseded/`), the CF-4 specification `CF-4-SPEC.md`, and §14 here.
+
+**Tests (digital).** Every v2.4 script asserts its input hashes. The decided-path reduction reproduces the post-abort pocket base set before it extends it. The FD-01 element deficit is bounded on three readings of the element flow. Contradictions found during the work are kept in §13: the "restart" convention artefact in the purge reduction, the v3.4 inverted-U analysis, the 44.9 bar figure, the A5 abort and others.
+
+**Unknowns** (§11). The regression law; two-phase pintle Cd; the cap transport (slip) in the bleed path; the restrictor Cd; the torch reliability and photodiode false-positive rate (FA-1); the real late-light burn time and fuel fraction; graphite erosion kinetics; the joint materials at temperature.
+
+**Next closure** (§12). Founders: CF-4, IGN-1 (>= 30 lights with photodiode false-positive tests), B-PNT-1, CF-1 to CF-3, then T1-T4. Electronics: FA-1 (a) and (b), the BLEED_FAULT closure signal, the ECU purge cap, A4, A7, A14-A16, LIGHT_SPIKE. GNC: the RG-01 re-fly, the height cost of the T_fire delay rule, the +0.60 kg valve-mass sensitivity. Mechanical: the 75.5 bar, <= 3 ms pulse check, the measured dP-flow curve of the FD-01 element, the joint FE re-run.
+
+## Contents
+
+- §1 Thermochemistry (v2.3, unchanged)
+- §2 N2O tank and feed: 2.1 properties (RC-13 b corrected); 2.2-2.5 (v2.3; 2.4 note); 2.6 feed line (v2.4); 2.7 trapped volumes, relief and transducer protection (v2.4); 2.8 the valve-to-seat segment at relight and the forced purge (v2.4)
+- §3 Throttle and shutoff: 3.1 (v2.4 valve status); 3.2-3.4 (v2.3); 3.5 force law (v2.3) with the seat and seal (v2.4); 3.6 MEOP basis (v2.4); 3.7 throat block, runaway and tail-off (v2.4)
+- §4 Grain: 4.1 regression law (v2.4); 4.2-4.5 (v2.3 with v2.4 notes); 4.6 regression band, the B1 burn limit and oxidiser-rich operation (v2.4)
+- §5 Nozzle and erosion: 5.1 (v2.4 note); 5.2-5.3 (v2.3); 5.4 erosion and life (v2.4)
+- §6 Heat loads: 6.1-6.4 (v2.3 with v2.4 notes); 6.5 nozzle joint (v2.4)
+- §7 Ignition, restart, start-up and shutdown: 7.1-7.2 (v2.3; torch gate note); 7.3 sequence (v2.4); 7.4 abort matrix; 7.5 torch N2O line; 7.6 hard start and maximum unignited inventory; 7.7 relight latency
+- §8 Combustion stability (v2.3 with v2.4 note)
+- §9 N2O hazard list (v2.4): 9.1 purge, stuck-open and FA-1 (FMEA input); 9.2 stored energy
+- §10 Cold-flow and static-fire test plan (v2.4): 10.1 cleaning, drying and catch volumes; 10.2 safing; 10.3 CF-4 summary; 10.4 regression-rate measurement at T1-T4 (RG-03)
+- §11 Unknowns; §12 Open items with owners; §13 Failures and superseded evidence; §14 File index and reproduction
+

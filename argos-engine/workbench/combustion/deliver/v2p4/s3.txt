@@ -1,0 +1,201 @@
+@@REPLACE_31_DECISION@@
+Decision (LEAD 2026-10-11, confirmed by the v2 trade): a servo-driven variable-area pintle at the head end, plus a separate normally-closed main isolation valve upstream, on the tank side and off the gimbal.
+
+v2.4 status of the isolation valve (LEAD 2026-10-13; CHANGELOG):
+- **MV-P**, a balanced poppet with electric actuation, is the baseline. It is integrated in the FS-01 module at the top of the engine zone (option A), with a fixed 3/8 in line down the case wall to the O3b coil.
+- Values used here: Cv 3.6 (Cd 0.65 ASSUMED by Mechanical); fail-safe closed bias; over-centre latch; dashpot close of about 30 ms (0.10 s is the bounding value, B-MV-1 measures it); body MAWP >= 8.42 MPa and proof >= 10.5 MPa (§2.7).
+- B-MV-1 gates MV-P. The fallback is a Swagelok 62-series ball valve with a pneumatic spring-return actuator. The custom oxidiser valve is a programme risk (LEAD).
+- The v2.3 values "MEOP 70 bar, closes in <= 0.15 s" are superseded by the MAWP basis (§2.7) and the 0.10 s bounding close.
+- The FS-01 module also carries S1 (back-relief check to the tank), MSS-2, the P_feed transducer J602 and the secondary disc (§2.7).
+- Price TO-QUOTE (Sønderborg DK-6400).
+@@END@@
+
+@@REPLACE_35_SEAT@@
+**Seat (v2.4).** Metal-to-metal: a 15 deg 17-4PH H900 needle on a 5.5 mm sharp-edged seat with a 0.3 mm lapped land (land area 5.184 mm2). The seat insert TC-03 is now **Inconel 718** (LEAD 2026-10-13). Mechanical's upper-bound in-burn face temperature on A1 is 695-712 C, above the about 621 C ageing temperature of 17-4PH H1150 (AS RECALLED). The flux bound could not be narrowed with evidence, so the alloy changes. 17-4PH H1150 may return if the T1 thermocouples, 1 mm behind the seat face, show <= about 350 C.
+
+Table 3.5. Seat loads and land contact pressure (DERIVED). Normal factor on the land is 3.864 at mu 0 and 1.823 at mu 0.3. Net pressure area 16.689 mm2 (A_seat - A_stem).
+
+| Case | S3 load [N] | Land pressure, mu 0 / 0.3 [MPa] | Adopted 0.25/0.12 load [N] | Land pressure, mu 0 / 0.3 [MPa] |
+|---|---|---|---|---|
+| -10 % spring, bench | 315.1 | 234.9 / 110.8 | 262.6 | 195.7 / 92.3 |
+| nominal | 350.1 | 261.0 / 123.1 | 291.8 | 217.5 / 102.6 |
+| +10 % | 385.1 | 287.0 / 135.4 | 321.0 | 239.3 / 112.9 |
+| +10 % at 7.0 MPa | 500.3 | 372.9 / 175.9 | 436.1 | 325.1 / 153.4 |
+| +10 % at 7.5 MPa | 508.6 | 379.1 / 178.9 | 444.4 | 331.2 / 156.3 |
+| +10 % at MAWP 8.42 MPa (v2.4) | – | – | 459.9 | 342.8 / 161.7 |
+| +10 % at proof 10.5 MPa | 558.7 | 416.4 / 196.5 | 494.5 | 368.6 / 173.9 |
+
+Strength (RC-15):
+- Inconel 718, aged: room-temperature Fty about 1030 MPa (AS RECALLED; AMS 5662/5663 class). The land then works at 33 % of Fty at MAWP and 36 % at proof. In718 keeps most of its strength to about 650 C (AS RECALLED).
+- 17-4PH H900 needle: Fty about 1170 MPa (AS RECALLED).
+- These values are TO-VERIFY against maker data or MMPDS before the seat and needle drawings are released (RC-15). The v2.3 values for H1150 (724 MPa; 0.85 x at 316 C; creep negligible below 370 C) were also AS RECALLED and are no longer load-bearing for the seat.
+- The upper-bound face peak (695-712 C) lies near the In718 ageing temperatures (about 620-720 C, AS RECALLED). The exposure is seconds per flight. Land stability over repeated cycles is TO-VERIFY: T1 thermocouples, and inspection of the land by bluing after T1 and T4.
+
+Thermal expansion (DERIVED). The CTEs of In718 (about 13.0 um/m/K) and 17-4PH (about 10.8-11 um/m/K) are AS RECALLED. The mismatch moves the seat line by about 6-7 um of lift per 300 K of common temperature rise (5.5 mm seat, 15 deg cone).
+- At the 0.2039 mm ignition lift that is about 3 % of the flow area on a hot relight. It is inside the CF-3 lift calibration band and is recorded with the head temperature at T4.
+- The v2.3 rejection of Nitronic 60 (about 16 um per 300 K) is unchanged.
+
+Conditions (v2.3 conditions carried over, with the v2.4 seat):
+- Needle and stem H900; seat insert In718 (aged).
+- Galling of In718 against hardened 17-4PH is TO-VERIFY in B-PNT-1 cycling, with inspection of the land.
+- Lapped contact band >= 0.24 mm all round, checked by bluing. A 0.15 mm band would reach 758 MPa at the relief load and coin the land; 0.24 mm gives 474 MPa.
+- PFPE film on the land.
+
+Self-locking. tan 15 deg = 0.268, so the cone wedges if the seat friction coefficient exceeds 0.27.
+
+Table 3.6. Crack-open margin at MEOP against seat friction (Mechanical's servo_torque, guide amplification included).
+
+| Configuration | mu 0 | 0.3 | 0.4 | 0.5 | 0.6 |
+|---|---|---|---|---|---|
+| S3, PTFE 0.20 | 1.68 | 1.55 | 1.31 | 1.17 | 1.08 |
+| Rolling guide, 0.25/0.12 | 2.14 | 2.01 | 1.75 | 1.60 | 1.49 |
+
+B-PNT-1 measures the break-out torque after a dwell closed at MEOP.
+
+Polymer seat: not feasible. Land pressure of 111-379 MPa exceeds the compressive strength of PTFE (about 10-15 MPa), PCTFE (about 30-50 MPa) and PEEK (about 120 MPa), all AS RECALLED. PCTFE is also limited to about 150 C against the 339-586 K soak band.
+
+**Leak tightness (v2.4; RC-02, RC-13 g).**
+- **Acceptance** (adopted by the lead, 2026-10-13, as proposed by Mechanical):
+  - B-PNT-1 seat <= 10 sccm GN2 at 56 bar, at room temperature and after a 150 C soak;
+  - stem seal <= 1 sccm;
+  - MV-P seat Class VI at 56 and 84.2 bar (room temperature and 60 C);
+  - CF-3 logs J602 and the segment thermocouple decay on every closed hold.
+- **Coast leak ceiling.** The accumulated seat leak over the longest A1 coast stays <= 10 % of the smallest credible fast part of a hard start (§7.6): 0.10 x 1.22 g over 22.21 s gives 0.0055 g/s (DERIVED). This replaces the v2.3 ceiling of 0.039 g/s, which inherited the 8.74 g inventory.
+- **Consistency of the acceptance with the ceiling** (DERIVED, TO-VERIFY at CF-3):
+  - 10 sccm of GN2 is 2.1e-4 g/s of N2.
+  - The same leak path passes liquid N2O at 1.0-1.4e-3 g/s at tank pressure. Factors: x4.6 for a laminar path (viscosity and density ratio) and x6.5 for an orifice path (density ratio at the same pressure drop).
+  - That is 4-5x inside the 0.0055 g/s ceiling.
+- **Leak models outside the acceptance.** Mechanical's Class V-scaled seat leak (13.5-15.5 mg/s) and its 15 um particle case (77-82 mg/s) exceed the ceiling by 2.5-15x. They are fault cases: a seat that fails B-PNT-1, or a particle on the seat. They are not the design leak. The filter (<= 15 um) and the cleaning rules (§10.1) are the controls.
+- **Draining.** Mechanical shows that unpriming the segment needs >= 1 g/s, i.e. a stuck-open pintle (seat_leak_drain_v1, computed on 44 cm3; the v3.4.1 segment is 10-14 % larger). A leak within the acceptance does not change the relight state within a coast.
+- **Operating rule** (LEAD): the MV stays closed during coasts. In the v2.8 sequence it opens at E0 with the pintle seated (§7.3). On an A1 relight it opens at the PURGE command, 2.90 s before E0, still with the pintle seated (LEAD provision, §2.8). During PURGE the seat leak rate does not change, because S1 holds the segment at P_tank through the coast either way; the leaked mass over the 2.99-3.06 s exposure is 2.9-4.2 mg at the acceptance (§9.1). Option (d), the MV opened under the drogue, stays dropped (§2.8).
+
+**Rod seal.** A spring-energised PTFE-family seal is suitable in principle for a 3 mm rod in N2O at the 8.42 MPa MAWP and 10.5 MPa proof (ASSUMED).
+- Temperature range: from -88.5 C (N2O normal boiling point, venting; CoolProp) up to the bonnet temperature from Mechanical's FEA. The PTFE jacket limit is about 260 C (AS RECALLED, TO-VERIFY). It lies inside the 339-586 K head soak band, so the seal temperature is checked in Mechanical's FEA (RC-15).
+- Vendor classes, all TO-VERIFY per part:
+  - Trelleborg Turcon Variseal M2 (rod);
+  - Saint-Gobain OmniSeal 103A class;
+  - Parker FlexiSeal;
+  - Bal Seal canted-coil.
+- Specification:
+  - virgin PTFE or an oxygen-compatible filled jacket;
+  - Elgiloy, Hastelloy or 17-7PH spring;
+  - oxygen-cleaned, PFPE lubricant only;
+  - split or open gland;
+  - rod Ra 0.1-0.2 um, H900.
+- Friction is 1-5 N (DERIVED). Mechanical's ASSUMED 18.75 N is conservative.
+- Price TO-QUOTE (Sønderborg DK-6400).
+
+**Stem buckling.** Link compression is <= 385 N, i.e. 54 MPa on the 3 mm stem. Euler load over an ASSUMED 40 mm free length is 4.8 kN, a margin of 13. Mechanical confirms the free length.
+
+**Operating rules** (LEAD 2026-10-12, updated 2026-10-13):
+1. Hold the ignition lift until Pc confirms light. A no-light abort de-energises the MV and closes the pintle in parallel (§7.4).
+2. N2O cold flows go into a back-pressured catch volume with its own relief and vent (§10.1). Full-stroke checks use N2 at <= 3.5 MPa.
+3. Keep the MV closed during coasts. It opens at E0 with the pintle seated (v2.8), or at the PURGE command of an A1 relight (E0 - 2.90 s; §2.8, §7.3).
+@@END@@
+
+@@REPLACE_36@@
+### 3.6 Failure case and the MEOP basis (v2.4; RC-08)
+
+Table 3.7 is the v2.3 basis. It is kept as evidence and is superseded below.
+
+Table 3.7. Pintle stuck at full stroke (4 mm), initial port (SIM, `full_stroke_failure_case_v2.json`; v2.3 simulation line-loss law, eta_c* 0.92).
+
+| T [C] | P_v [bar] | Cd | Pc [bar] | F [N] | O/F | dP/Pc |
+|---|---|---|---|---|---|---|
+| 15 | 45.0 | 0.60 | 30.7 | 619 | 11.68 | 0.358 |
+| 15 | 45.0 | 0.70 | 32.9 | 666 | 12.13 | 0.257 |
+| 15 | 45.0 | 0.80 | 34.7 | 704 | 12.50 | 0.188 |
+| 20 | 50.5 | 0.60 | 32.9 | 666 | 12.14 | 0.414 |
+| 20 | 50.5 | 0.70 | 35.4 | 719 | 12.64 | 0.301 |
+| 20 | 50.5 | 0.80 | 37.5 | 764 | 13.05 | 0.223 |
+| 25 | 56.5 | 0.60 | 35.1 | 712 | 12.57 | 0.480 |
+| 25 | 56.5 | 0.70 | 37.9 | 771 | 13.12 | 0.355 |
+| 25 | 56.5 | 0.80 | 40.3 | 822 | 13.58 | 0.265 |
+| 30 | 63.1 | 0.60 | 37.0 | 753 | 12.95 | 0.562 |
+| 30 | 63.1 | 0.70 | 40.1 | 818 | 13.55 | 0.421 |
+| 30 | 63.1 | 0.80 | 42.9 | 876 | 14.05 | 0.319 |
+
+**Why it is superseded (RC-08, accepted).** The v2.3 basis of 42.85 bar used the simulation line-loss law (2.5 bar x (mdot/0.25)^2, about 0.75 MPa at the failure flow) and eta_c* 0.92. Both are non-conservative for an over-pressure basis. The reviewer's 42.4 bar confirms the v2.3 value to -1.0 %.
+
+**v2.4 basis** (SIM, `meop_basis_v2p4.json`, `meop_cv36_check_v2p4.json`; script `meop_basis_v2p4.py`). Same failure: pintle stuck at full stroke, S230 initial port, saturated tank. Worst corner of the uncertainty bands:
+- Cd 0.80 and eta_c* 0.96 (top of both bands);
+- regression band corner a x1.5, n 0.68;
+- line loss from the designed hardware (MV-P Cv 3.6 plus the filter, Table 2.6), and zero line loss as a bound.
+
+Table 3.8. Stuck-pintle Pc at the worst corner against tank temperature (SIM).
+
+| T_tank [C] | P_sat [bar abs] | Hardware Cv 3.6 [bar] | Hardware Cv 3 [bar] | Zero line loss [bar] |
+|---|---|---|---|---|
+| 22 | 52.86 | – | 42.85 | 44.08 |
+| 23 | 54.06 | 43.61 | 43.56 | 44.85 |
+| **24 (interlock)** | **55.28** | **44.33** | 44.28 | **45.55** |
+| 25 | 56.52 | 45.06 | 45.01 | 46.27 |
+| 30 (not a credible ignition state) | 63.08 | 48.46 | 48.40 | 49.87 |
+
+**MEOP restated (LEAD 2026-10-13).**
+- MEOP stays 45 bar, with an ignition interlock: T_tank <= 24 C at ARM and again at ignition. ENG-12's ignition range becomes 15-24 C, and 30 C is no longer a credible ignition state.
+- In pressure terms the interlock is P_tank <= 55.28 bar abs, i.e. 54.27 bar g on the 170BG tank transducer (DERIVED, CoolProp). Electronics implements it on T_tank and P_tank together.
+- **Basis:** 44.33 bar at the interlock with the designed line loss. **Margin 0.67 bar (1.5 %)** to MEOP.
+- That margin depends on the hardware line loss. With zero line loss the same corner gives 45.55 bar, 0.55 bar (1.2 %) above MEOP. CF-3 verifies the line loss at the failure flow (about 0.38 kg/s).
+- With the n 0.5 law the zero-loss maximum at <= 25 C is 43.96 bar.
+- **Proof 67.5 bar is unaffected.** The margin is >= 21.9 bar at the interlock and >= 17.6 bar even at 30 C with zero line loss.
+- Unchanged: software Pc cap 25 bar; ECU over-pressure abort at 31.47 bar g (OVP comparator, A4 in §7.4); Pc transducer range >= 70 bar.
+@@END@@
+
+@@INSERT_37@@
+### 3.7 Throat block, runaway and tail-off with the 44 cm3 segment (v2.4; RC-01)
+
+These runs used the v3.4 segment (44 cm3). They were not repeated on v3.4.1 (48.23-50.04 cm3, +10-14 %). The throat-block peaks and the runaway bound do not depend on the segment volume (the no-valve row bounds any volume). The tail-off rows depend on it only through the slower pressure decay of a larger flashing segment after an MV-first cut. The change is expected to be small but is not shown; the re-run is open (§11).
+
+Basis:
+- `throat_block_v2p4.json` and `throat_block_seg44_v2p4.json` (script `throat_block_v2p4.py`): grain_q1d v2 engine plus a series valve and a flashing segment (homogeneous equilibrium, CoolProp HEOS), RC-01 shutdown kinematics.
+- `abort_cases_v2p4.json` (pintle runaway) and `segment_drain_v2p4.json` (shutdown order).
+- Pintle kinematics: command 6.5 ms after the decision, 16.7 mm/s behind a 10 ms lag (CHANGELOG 2026-10-12).
+
+**Throat block (S6; lead question on A4).** 70 % or 90 % of the throat blocked at 500 N, Cd 0.8. Values are SIM.
+
+| Tank | Block | Pc peak [bar abs] | Peak after the block | Time above MEOP 45 bar [ms] | Time above 30 bar [ms] |
+|---|---|---|---|---|---|
+| 30 C | 70 % | 53.8 | 18 ms | 47.8-48.6 | 81-82 |
+| 30 C | 90 % | 61.6 | 12 ms | 96.6-98.0 | 119-120 |
+| 25 C | 70 % | 50.3 | 16 ms | 42.8-43.2 | 83-85 |
+| 25 C | 90 % | 55.3-55.4 | 9-37 ms | 96.2-98.0 | 121-122 |
+
+Ranges cover MV closing in 30 ms and 0.10 s.
+
+Reading:
+- Every peak is below proof (67.5 bar). The peak comes 9-37 ms after the block, so faster detection cannot lower it.
+- The MV close time changes the time above MEOP by <= 2 ms. Only the pintle closing rate shortens it.
+- Electronics' SIL plant gives 55.7 bar abs (transducer 58.1 bar) and 72 ms above MEOP for the 70 % / 30 C case. The two plants agree in kind.
+- **Combustion's answer to the lead (A4 / RC-01):** S6 is acceptable as a FAULT load case, because the peak stays below proof. The chamber, closure and seat are checked for it in the assembled FEA:
+  - **LC-TB70:** 58.1 bar abs peak, > 45 bar for 72 ms, > 30 bar for 112 ms, case at 448.15 K (the case-abort threshold).
+  - **LC-TB-S:** 63.1 bar abs held for 0.30 s. This is a static bound: the chamber at the 30 C tank pressure for the simulated window. It covers the 90 % block with the abort (61.6 bar peak).
+  - LEAD 2026-10-13: adopted, relayed to Mechanical.
+- Without any abort, a near-full block (99 %) overshoots to 67.1 bar at 30 C, i.e. proof, and to 61.4 bar at 25 C (SIM, `throat_block_v2p4.json` no-abort rows). At the 24 C interlock the tank is <= 55.3 bar. The abort (A4) is still required.
+- No faster cut is required for the chamber, provided LC-TB70 and LC-TB-S pass. If they do not, the pintle closing rate is the only effective lever.
+
+**Pintle runaway to full stroke from 100 %** (row A4). Runs at 20 C / Cd 0.7 and 30 C / Cd 0.8:
+
+| Case | Pc peak [bar] | Time above 30 bar [s] |
+|---|---|---|
+| Valve cut, no segment | 33.7-37.3 | 0.096-0.097 |
+| Valve cut, 21.4 cm3 segment | 35.8-41.2 | 0.125 |
+| No valve action | 34.7-41.7 | 0.39-0.41 |
+
+- All are below MEOP.
+- The no-valve case bounds both the peak and the duration for any segment volume. With the valve closed and a larger segment, the segment only feeds the pintle until it is empty, so the 44 cm3 case lies between the 21.4 cm3 row and the no-valve row (DERIVED argument; not re-run).
+
+**Tail-off from 500 N and shutdown order** (`throat_block_seg44_v2p4.json`, `segment_drain_v2p4.json`; Cd 0.70 ASSUMED):
+
+| Case | Impulse after the decision [N s] | t10 [s] | N2O after the decision [g] |
+|---|---|---|---|
+| 20 C, MV-first 30 ms / 0.10 s, 44 cm3 | 37.5 / 38.2 | 0.120-0.121 | 19.3-19.6 |
+| 30 C, MV-first, 44 cm3 | 33.1-33.5 | – | – |
+| 13.9 C (cold A1 state), MV-first 30 ms, 44 cm3 | 42.5 | – | – |
+| Pintle-first (normal shutdown), all temperatures, 44 cm3 | 33.5-43.6 | – | 17.0-22.7 |
+| Pintle only, no valve, earlier 21.4 cm3 basis (`abort_cases_v2p4.json`) | 38.3 | 0.121 | 19.7 |
+
+- GNC should use 33-44 N s and t10 0.12 s for every abort and every planned cut-off. The upper end is the cold-tank case: at 13.9 C the tail-off impulse exceeds the 20 C value (42.5 against 37.5 N s).
+- With the liquid segment present, the MV cut does not shorten the tail-off. In an abort the MV's role is the fail-safe for a pintle that does not close (A6), not a faster tail-off.
+- **Shutdown order** (LEAD 2026-10-13): a normal shutdown is pintle-first, with the MV de-energised on seat confirmation or after a 0.30 s time-out. The segment is liquid-full at MECO, and the coast then fills its traps, and in HI wet the whole segment, with vapour (§2.8). An abort is MV-first and leaves about half the segment as vapour (22.2-24.3 cm3 on 44 cm3). After any abort the next attempt is treated as a vapour-segment start, which PURGE clears (§2.8).
+@@END@@

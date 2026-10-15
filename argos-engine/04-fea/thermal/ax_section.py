@@ -1,0 +1,113 @@
+"""2-D axisymmetric section of the CAD engine for the thermal FE (04-fea/thermal, v1, 2026-10-12, Mechanical).
+
+The engine-group solids of the CAD build (build.build, pivot at the mid-burn CG) are cut with the half-plane at
+azimuth ANGLE and each section face is mapped to the XY plane with x = r, y = z (mm), part number and material.
+v1.1: ANGLE 214 deg.  The first choice, 90 deg, cuts the TC-06 grain-key notches (box at +Y = 90/270 deg, parts_engine.py
+v3.3 line 289) and the TC-04 -6 ORB inlet (90 deg); found in the first mesh check (runs/thermal/checks/mesh_bc_check.png).
+Feature azimuths (parts_engine.py v3.3) with their half-widths at the relevant radius: M5 screws 22.5+45k (+/-5.5),
+bonnet bolts 60/120/240/300 (+/-8), carriage guide pins 27.8/152.2 (+/-14), Pc port 105, torch 0, head inlet passage 180
+(+/-27 at r 5), pockets/spanner holes/insert vents 45+90k (+/-6), aft-section flats |az| < 19.2 about 0/180, grain notches
+90/270 (+/-4), pintle bracket screws 247/293 (+/-5) -> 214 deg is clear (nearest: M5 at 202.5+5.5 = 208, pockets 225-6 = 219).
+Non-axisymmetric parts (bracket, servo, linkage,
+torch, gimbal collar, bolts) are not in the 2-D model; the servo mount is the network model servo_mount.py.
+
+The grain (GR-01/02) is replaced by a parametric annulus from the END-OF-CYCLE port radius to the liner bore
+(conservative: thinnest web for the whole cycle), and the needle (TC-05) is left out (Combustion head_end_bc:
+stem 2.3e-3 W/K, not a heat path).
+"""
+from __future__ import annotations
+import sys, math, json
+from pathlib import Path
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+CAD = HERE.parents[1] / "03-cad" / "src"
+sys.path.insert(0, str(CAD))
+sys.path.insert(0, str(HERE.parent / "src"))
+
+ANGLE = 214.0
+PARTS = ["ENG-TC-01", "ENG-TC-02", "ENG-TC-03", "ENG-TC-04", "ENG-TC-06", "ENG-TC-07", "ENG-TC-08", "ENG-TC-09", "ENG-TC-10",
+         "ENG-NZ-01", "ENG-NZ-02", "ENG-NZ-03", "ENG-NZ-04", "ENG-NZ-05"]   # v1.2 (2026-10-13): NZ-04 = J1 lip-face seal (CAD v3.4.1); NZ-05 = J1b mica (screen)
+
+
+def T_to_2d(angle_deg):
+    """4x4: rotate about Z by -angle, then map (x, 0, z) -> (x, z, 0)."""
+    a = math.radians(angle_deg)
+    Rz = np.array([[math.cos(-a), -math.sin(-a), 0, 0], [math.sin(-a), math.cos(-a), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+    Rx = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, -1, 0, 0], [0, 0, 0, 1]], float)
+    return Rx @ Rz
+
+
+def section(overrides=None, angle=ANGLE, verbose=False):
+    """Returns (faces, info): faces = [{"pn", "material", "face" (cq.Face in XY: x = r, y = z)}], info = stations (mm)."""
+    import cadquery as cq
+    import build
+    from geom import apply
+    P, S, reg, log = build.build(include=("engine",), iterate_cg=True, overrides=overrides)
+    a = math.radians(angle)
+    zlo, zhi = S["aft_bottom"] - 30.0, S["bonnet_top"] + 30.0
+    d = (math.cos(a), math.sin(a))
+    pts = [cq.Vector(0, 0, zlo), cq.Vector(150 * d[0], 150 * d[1], zlo), cq.Vector(150 * d[0], 150 * d[1], zhi), cq.Vector(0, 0, zhi)]
+    plane = cq.Face.makeFromWires(cq.Wire.makePolygon(pts, close=True))
+    T2 = T_to_2d(angle)
+    faces = []
+    for pn, i, grp, shp, body in build.posed_instances(reg, S, 0, 0):
+        if pn not in PARTS:
+            continue
+        sec = shp.intersect(plane)
+        for f in sec.Faces():
+            f2 = apply(f, T2)
+            faces.append({"pn": pn, "material": reg.parts[pn].material, "face": f2, "area_mm2": f2.Area()})
+        if verbose:
+            print(pn, len(sec.Faces()), round(sum(ff.Area() for ff in sec.Faces()), 1))
+    info = {k: float(S[k]) for k in ("head_top", "head_bot", "inj_face", "grain_top", "grain_bot", "tube_fwd", "tube_aft", "aft_bottom",
+                                      "throat", "insert_top", "insert_bot", "insert_shoulder", "lip_top", "post_bot", "bonnet_top",
+                                      "aft_step", "aft_land_top", "aft_thread_top", "z_ins_top", "z_seat", "exit", "rt", "re")}
+    info["contour"] = [(float(z), float(r)) for z, r in S["contour"]]
+    info["aft_section_material"] = P["aft_section_material"]["v"]
+    info["nozzle_joint"] = S.get("nozzle_joint", "MICA")
+    info["nz_seal_t"] = float(S.get("nz_seal_t", 0.0))           # J1 / J1B stack (monitors)
+    info["nz_mica_t"] = float(S.get("nz_mica_t", 0.0))
+    info["r_pre"] = P["D_pre"]["v"] * 500.0
+    info["r_post"] = P["D_post"]["v"] * 500.0
+    info["liner_ID"] = P["liner_ID"]["v"] * 1e3
+    info["liner_OD"] = P["liner_OD"]["v"] * 1e3
+    info["lip_r"] = P["lip_ID"]["v"] * 500.0
+    info["prechamber_lip"] = P["prechamber_lip"]["v"] * 1e3
+    info["D_port0"] = P["D_port0"]["v"] * 1e3
+    info["D_grain_outer"] = P["D_grain_outer"]["v"] * 1e3
+    return faces, info, (P, S, reg)
+
+
+def grain_face(info, r_port_mm):
+    """ABS annulus from the port radius to the grain OD between the grain end faces (anti-rotation keys omitted)."""
+    import cadquery as cq
+    ro = info["D_grain_outer"] / 2.0
+    zt, zb = info["grain_top"], info["grain_bot"]
+    w = cq.Wire.makePolygon([cq.Vector(r_port_mm, zb, 0), cq.Vector(ro, zb, 0), cq.Vector(ro, zt, 0), cq.Vector(r_port_mm, zt, 0)], close=True)
+    return cq.Face.makeFromWires(w)
+
+
+if __name__ == "__main__":
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    faces, info, _ = section(verbose=True)
+    fig, ax = plt.subplots(figsize=(6, 16))
+    cols = {}
+    for f in faces:
+        c = cols.setdefault(f["material"], plt.cm.tab10(len(cols)))
+        for w in [f["face"].outerWire()] + f["face"].innerWires():
+            pts = np.array([v.toTuple() for v in w.positions(np.linspace(0, 1, 400).tolist())])
+            ax.fill(pts[:, 0], pts[:, 1], color=c, alpha=0.6 if w is f["face"].outerWire() else 1.0, lw=0.3)
+    gf = grain_face(info, info["D_port0"] / 2)
+    gp = np.array([v.toTuple() for v in gf.outerWire().positions(np.linspace(0, 1, 50).tolist())])
+    ax.fill(gp[:, 0], gp[:, 1], color="0.6", alpha=0.6, lw=0.3)
+    ax.set_aspect("equal")
+    for f in faces:
+        bb = f["face"].BoundingBox()
+        print(f"{f['pn']:10s} {f['material']:12s} r {bb.xmin:7.2f}..{bb.xmax:7.2f} z {bb.ymin:8.2f}..{bb.ymax:8.2f} A {f['area_mm2']:8.1f} mm2")
+        ax.text(bb.xmax + 1, 0.5 * (bb.ymin + bb.ymax), f["pn"][4:], fontsize=5)
+    ax.set_title(f"thermal section ({ANGLE:g} deg plane), CAD v3.3")
+    fig.savefig(HERE / "ax_section_check.png", dpi=110)
+    print(json.dumps({k: v for k, v in info.items() if k != "contour"}, indent=0))

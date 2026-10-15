@@ -1,0 +1,3456 @@
+{
+ "id": "joints",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "04-fea/structural/joints.py",
+ "status": "DERIVED hand calculations on S-AX loads/temperatures (SIM) and ASSUMED/LITERATURE allowables; no test",
+ "inputs": {
+  "sax_results_L1_v1.json": "71252df4dfd685b4",
+  "sax_results_L1_TC09IN718_v1.json": "8fdffb34d52a1b59",
+  "sax_seal_gaps_L1_v1.json": "7ef37e2105f950f6",
+  "s3d_results_v1.1.json": "beeba889ae549415",
+  "hand_calcs.py": "86b7601a36222afa"
+ },
+ "method": "The axisymmetric FE (sax.py, S-AX) smears the non-axisymmetric fasteners: the 8 radial M5 screws of the forward closure are a u_z tie\nover the screw band, the M63x1.5 aft thread a u_z tie over the engagement, the 4 M4 bonnet bolts a tie over the bolt band.  The joint\nloads therefore come from the same pressures and states as the S-AX load cases (sax.combos), with the FE section force as the\ncross-check of each end load, and the joint temperatures from the S-AX thermal states (stress classification lines at the joint).\nThe calculations reuse 03-cad/src/calcs/hand_calcs.py (v2, cited references [R1]-[R6]): closure_bolts, thread_strip, row/ms.",
+ "joints": {
+  "J-FWD": {
+   "description": "forward closure 8 x M5 ISO 7380 A4-70 radial screws (single shear, thread root in the shear plane)",
+   "role": "LOAD-BEARING (retention of the forward closure)",
+   "governing_per_case": {
+    "LC1": {
+     "state": "B1_0.5",
+     "P_MPa": 2.501007,
+     "T_joint_C": 20.7,
+     "F_end_N": 6438.1,
+     "F_end_FE_case_fwd_gland_N": 6446.3,
+     "FE_over_hand": 1.0013,
+     "V_per_screw_N": 925.5,
+     "rows": [
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC1 B1_0.5 P 25.0 bar, T 21 C]: screw shear at thread root (d3=4.019 mm)",
+       "applied": 72.9701,
+       "allow_yield": 259.65,
+       "allow_ult": 420.0,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 1.3722,
+       "MS_u": 1.8779,
+       "unit": "MPa",
+       "note": "V/screw=925 N incl. x1.15 sharing; F_end=6438 N"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC1 B1_0.5 P 25.0 bar, T 21 C]: bearing in case wall",
+       "applied": 59.2303,
+       "allow_yield": 335.8529,
+       "allow_ult": 415.7684,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 2.7802,
+       "MS_u": 2.5098,
+       "unit": "MPa",
+       "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC1 B1_0.5 P 25.0 bar, T 21 C]: shear-out of case to tube end",
+       "applied": 15.5869,
+       "allow_yield": 138.4194,
+       "allow_ult": 155.9132,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 4.9203,
+       "MS_u": 4.0014,
+       "unit": "MPa",
+       "note": "e=12.0 mm [R4]"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC1 B1_0.5 P 25.0 bar, T 21 C]: case net section at inboard screw row (8 holes, axial)",
+       "applied": 14.1425,
+       "allow_yield": 239.895,
+       "allow_ult": 259.8553,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 10.3085,
+       "MS_u": 8.1871,
+       "unit": "MPa",
+       "note": "net axial 14.1 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 21.0 MPa"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC1 B1_0.5 P 25.0 bar, T 21 C]: bearing of screw on closure thread (Le=6.0 mm)",
+       "applied": 30.8491,
+       "allow_yield": 335.8529,
+       "allow_ult": 415.7684,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 6.258,
+       "MS_u": 5.7387,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 1.3722,
+     "criterion": "SF 1.5 yield / 2.0 ultimate at the node temperature (ENG-09/10)"
+    },
+    "LC2": {
+     "state": "B1_0.5",
+     "P_MPa": 4.5,
+     "T_joint_C": 20.7,
+     "F_end_N": 11583.9,
+     "F_end_FE_case_fwd_gland_N": 11523.6,
+     "FE_over_hand": 0.9948,
+     "V_per_screw_N": 1665.2,
+     "rows": [
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC2 B1_0.5 P 45.0 bar, T 21 C]: screw shear at thread root (d3=4.019 mm)",
+       "applied": 131.2933,
+       "allow_yield": 259.65,
+       "allow_ult": 420.0,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 0.3184,
+       "MS_u": 0.5995,
+       "unit": "MPa",
+       "note": "V/screw=1665 N incl. x1.15 sharing; F_end=11584 N"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC2 B1_0.5 P 45.0 bar, T 21 C]: bearing in case wall",
+       "applied": 106.5715,
+       "allow_yield": 335.8529,
+       "allow_ult": 415.7684,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 1.101,
+       "MS_u": 0.9507,
+       "unit": "MPa",
+       "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC2 B1_0.5 P 45.0 bar, T 21 C]: shear-out of case to tube end",
+       "applied": 28.0451,
+       "allow_yield": 138.4194,
+       "allow_ult": 155.9132,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 2.2904,
+       "MS_u": 1.7797,
+       "unit": "MPa",
+       "note": "e=12.0 mm [R4]"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC2 B1_0.5 P 45.0 bar, T 21 C]: case net section at inboard screw row (8 holes, axial)",
+       "applied": 25.4462,
+       "allow_yield": 239.895,
+       "allow_ult": 259.8553,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 5.285,
+       "MS_u": 4.106,
+       "unit": "MPa",
+       "note": "net axial 25.4 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 37.8 MPa"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC2 B1_0.5 P 45.0 bar, T 21 C]: bearing of screw on closure thread (Le=6.0 mm)",
+       "applied": 55.506,
+       "allow_yield": 335.8529,
+       "allow_ult": 415.7684,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 3.0338,
+       "MS_u": 2.7453,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 0.3184,
+     "criterion": "SF 1.5 / 2.0 at temperature"
+    },
+    "BN": {
+     "state": "B1_0.5",
+     "P_MPa": 6.308,
+     "T_joint_C": 20.7,
+     "F_end_N": 16238.0,
+     "F_end_FE_case_fwd_gland_N": 16135.9,
+     "FE_over_hand": 0.9937,
+     "V_per_screw_N": 2334.2,
+     "rows": [
+      {
+       "check": "J-FWD 8xM5 A4-70 [BN B1_0.5 P 63.1 bar, T 21 C]: screw shear at thread root (d3=4.019 mm)",
+       "applied": 184.044,
+       "allow_yield": 259.65,
+       "allow_ult": 420.0,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 0.4108,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "V/screw=2334 N incl. x1.15 sharing; F_end=16238 N"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [BN B1_0.5 P 63.1 bar, T 21 C]: bearing in case wall",
+       "applied": 149.3896,
+       "allow_yield": 335.8529,
+       "allow_ult": 415.7684,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 1.2482,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [BN B1_0.5 P 63.1 bar, T 21 C]: shear-out of case to tube end",
+       "applied": 39.3131,
+       "allow_yield": 138.4194,
+       "allow_ult": 155.9132,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 2.521,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "e=12.0 mm [R4]"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [BN B1_0.5 P 63.1 bar, T 21 C]: case net section at inboard screw row (8 holes, axial)",
+       "applied": 35.6699,
+       "allow_yield": 239.895,
+       "allow_ult": 259.8553,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 5.7254,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "net axial 35.7 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 53.0 MPa"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [BN B1_0.5 P 63.1 bar, T 21 C]: bearing of screw on closure thread (Le=6.0 mm)",
+       "applied": 77.8071,
+       "allow_yield": 335.8529,
+       "allow_ult": 415.7684,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 3.3165,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 0.4108,
+     "criterion": "no yield at temperature (lead 2026-10-12); ultimate reported"
+    },
+    "LC4": {
+     "state": "RT",
+     "P_MPa": 6.75,
+     "T_joint_C": 20.0,
+     "F_end_N": 17375.8,
+     "F_end_FE_case_fwd_gland_N": 17315.7,
+     "FE_over_hand": 0.9965,
+     "V_per_screw_N": 2497.8,
+     "rows": [
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC4 RT P 67.5 bar, T 20 C]: screw shear at thread root (d3=4.019 mm)",
+       "applied": 196.9399,
+       "allow_yield": 259.65,
+       "allow_ult": 420.0,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 0.3184,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "V/screw=2498 N incl. x1.15 sharing; F_end=17376 N"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC4 RT P 67.5 bar, T 20 C]: bearing in case wall",
+       "applied": 159.8573,
+       "allow_yield": 336.0,
+       "allow_ult": 416.0,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 1.1019,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC4 RT P 67.5 bar, T 20 C]: shear-out of case to tube end",
+       "applied": 42.0677,
+       "allow_yield": 138.48,
+       "allow_ult": 156.0,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 2.2918,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "e=12.0 mm [R4]"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC4 RT P 67.5 bar, T 20 C]: case net section at inboard screw row (8 holes, axial)",
+       "applied": 38.1692,
+       "allow_yield": 240.0,
+       "allow_ult": 260.0,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 5.2878,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "net axial 38.2 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 56.7 MPa"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [LC4 RT P 67.5 bar, T 20 C]: bearing of screw on closure thread (Le=6.0 mm)",
+       "applied": 83.259,
+       "allow_yield": 336.0,
+       "allow_ult": 416.0,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 3.0356,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 0.3184,
+     "criterion": "no yield at proof (20 C)"
+    },
+    "TS1a": {
+     "state": "A1_22.2",
+     "P_MPa": 2.501007,
+     "T_joint_C": 54.3,
+     "F_end_N": 6438.1,
+     "F_end_FE_case_fwd_gland_N": 6450.5,
+     "FE_over_hand": 1.0019,
+     "V_per_screw_N": 925.5,
+     "rows": [
+      {
+       "check": "J-FWD 8xM5 A4-70 [TS1a A1_22.2 P 25.0 bar, T 54 C]: screw shear at thread root (d3=4.019 mm)",
+       "applied": 72.9701,
+       "allow_yield": 259.65,
+       "allow_ult": 420.0,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 1.3722,
+       "MS_u": 1.8779,
+       "unit": "MPa",
+       "note": "V/screw=925 N incl. x1.15 sharing; F_end=6438 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TS1a A1_22.2 P 25.0 bar, T 54 C]: bearing in case wall",
+       "applied": 59.2303,
+       "allow_yield": 328.6993,
+       "allow_ult": 404.5035,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 2.6997,
+       "MS_u": 2.4147,
+       "unit": "MPa",
+       "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TS1a A1_22.2 P 25.0 bar, T 54 C]: shear-out of case to tube end",
+       "applied": 15.5869,
+       "allow_yield": 135.4711,
+       "allow_ult": 151.6888,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 4.7942,
+       "MS_u": 3.8659,
+       "unit": "MPa",
+       "note": "e=12.0 mm [R4]"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TS1a A1_22.2 P 25.0 bar, T 54 C]: case net section at inboard screw row (8 holes, axial)",
+       "applied": 14.1425,
+       "allow_yield": 234.7852,
+       "allow_ult": 252.8147,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 10.0676,
+       "MS_u": 7.9381,
+       "unit": "MPa",
+       "note": "net axial 14.1 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 21.0 MPa"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TS1a A1_22.2 P 25.0 bar, T 54 C]: bearing of screw on closure thread (Le=6.0 mm)",
+       "applied": 30.8491,
+       "allow_yield": 328.6993,
+       "allow_ult": 404.5035,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 6.1034,
+       "MS_u": 5.5562,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 1.3722,
+     "criterion": "SF 1.5 / 2.0 at temperature"
+    },
+    "TS1b": {
+     "state": "A1_22.2",
+     "P_MPa": 4.5,
+     "T_joint_C": 54.3,
+     "F_end_N": 11583.9,
+     "F_end_FE_case_fwd_gland_N": 11527.5,
+     "FE_over_hand": 0.9951,
+     "V_per_screw_N": 1665.2,
+     "rows": [
+      {
+       "check": "J-FWD 8xM5 A4-70 [TS1b A1_22.2 P 45.0 bar, T 54 C]: screw shear at thread root (d3=4.019 mm)",
+       "applied": 131.2933,
+       "allow_yield": 259.65,
+       "allow_ult": 420.0,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 0.3184,
+       "MS_u": 0.5995,
+       "unit": "MPa",
+       "note": "V/screw=1665 N incl. x1.15 sharing; F_end=11584 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TS1b A1_22.2 P 45.0 bar, T 54 C]: bearing in case wall",
+       "applied": 106.5715,
+       "allow_yield": 328.6993,
+       "allow_ult": 404.5035,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 1.0562,
+       "MS_u": 0.8978,
+       "unit": "MPa",
+       "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TS1b A1_22.2 P 45.0 bar, T 54 C]: shear-out of case to tube end",
+       "applied": 28.0451,
+       "allow_yield": 135.4711,
+       "allow_ult": 151.6888,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 2.2203,
+       "MS_u": 1.7044,
+       "unit": "MPa",
+       "note": "e=12.0 mm [R4]"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TS1b A1_22.2 P 45.0 bar, T 54 C]: case net section at inboard screw row (8 holes, axial)",
+       "applied": 25.4462,
+       "allow_yield": 234.7852,
+       "allow_ult": 252.8147,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 5.1512,
+       "MS_u": 3.9676,
+       "unit": "MPa",
+       "note": "net axial 25.4 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 37.8 MPa"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TS1b A1_22.2 P 45.0 bar, T 54 C]: bearing of screw on closure thread (Le=6.0 mm)",
+       "applied": 55.506,
+       "allow_yield": 328.6993,
+       "allow_ult": 404.5035,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 2.9479,
+       "MS_u": 2.6438,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 0.3184,
+     "criterion": "SF 1.5 / 2.0 at temperature"
+    },
+    "TB70": {
+     "state": "TB",
+     "P_MPa": 5.81,
+     "T_joint_C": 147.7,
+     "F_end_N": 14956.1,
+     "F_end_FE_case_fwd_gland_N": 14868.3,
+     "FE_over_hand": 0.9941,
+     "V_per_screw_N": 2149.9,
+     "rows": [
+      {
+       "check": "J-FWD 8xM5 A4-70 [TB70 TB P 58.1 bar, T 148 C]: screw shear at thread root (d3=4.019 mm)",
+       "applied": 169.5142,
+       "allow_yield": 259.65,
+       "allow_ult": 420.0,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 0.5317,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "V/screw=2150 N incl. x1.15 sharing; F_end=14956 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 148 C TO-VERIFY"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TB70 TB P 58.1 bar, T 148 C]: bearing in case wall",
+       "applied": 137.5957,
+       "allow_yield": 262.0364,
+       "allow_ult": 315.9608,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 0.9044,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TB70 TB P 58.1 bar, T 148 C]: shear-out of case to tube end",
+       "applied": 36.2094,
+       "allow_yield": 107.9964,
+       "allow_ult": 118.4853,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 1.9826,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "e=12.0 mm [R4]"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TB70 TB P 58.1 bar, T 148 C]: case net section at inboard screw row (8 holes, axial)",
+       "applied": 32.8538,
+       "allow_yield": 187.1689,
+       "allow_ult": 197.4755,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 4.697,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "net axial 32.9 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 48.8 MPa"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TB70 TB P 58.1 bar, T 148 C]: bearing of screw on closure thread (Le=6.0 mm)",
+       "applied": 71.6644,
+       "allow_yield": 262.0364,
+       "allow_ult": 315.9608,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 2.6564,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 0.5317,
+     "criterion": "no yield at Fty(T), no leak (Mechanical relay-2)"
+    },
+    "TBS": {
+     "state": "TB",
+     "P_MPa": 6.31,
+     "T_joint_C": 147.7,
+     "F_end_N": 16243.1,
+     "F_end_FE_case_fwd_gland_N": 16138.0,
+     "FE_over_hand": 0.9935,
+     "V_per_screw_N": 2335.0,
+     "rows": [
+      {
+       "check": "J-FWD 8xM5 A4-70 [TBS TB P 63.1 bar, T 148 C]: screw shear at thread root (d3=4.019 mm)",
+       "applied": 184.1024,
+       "allow_yield": 259.65,
+       "allow_ult": 420.0,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 0.4104,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "V/screw=2335 N incl. x1.15 sharing; F_end=16243 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 148 C TO-VERIFY"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TBS TB P 63.1 bar, T 148 C]: bearing in case wall",
+       "applied": 149.437,
+       "allow_yield": 262.0364,
+       "allow_ult": 315.9608,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 0.7535,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TBS TB P 63.1 bar, T 148 C]: shear-out of case to tube end",
+       "applied": 39.3255,
+       "allow_yield": 107.9964,
+       "allow_ult": 118.4853,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 1.7462,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "e=12.0 mm [R4]"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TBS TB P 63.1 bar, T 148 C]: case net section at inboard screw row (8 holes, axial)",
+       "applied": 35.6812,
+       "allow_yield": 187.1689,
+       "allow_ult": 197.4755,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 4.2456,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "net axial 35.7 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 53.0 MPa"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [TBS TB P 63.1 bar, T 148 C]: bearing of screw on closure thread (Le=6.0 mm)",
+       "applied": 77.8318,
+       "allow_yield": 262.0364,
+       "allow_ult": 315.9608,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 2.3667,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 0.4104,
+     "criterion": "no yield at Fty(T), no leak"
+    },
+    "FA1": {
+     "state": "A1_22.2",
+     "P_MPa": 9.133267860000002,
+     "T_joint_C": 54.3,
+     "F_end_N": 23510.8,
+     "F_end_FE_case_fwd_gland_N": 23310.6,
+     "FE_over_hand": 0.9915,
+     "V_per_screw_N": 3379.7,
+     "rows": [
+      {
+       "check": "J-FWD 8xM5 A4-70 [FA1 A1_22.2 P 91.3 bar, T 54 C]: screw shear at thread root (d3=4.019 mm)",
+       "applied": 266.4748,
+       "allow_yield": 259.65,
+       "allow_ult": 420.0,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": -0.0256,
+       "MS_u": 0.5761,
+       "unit": "MPa",
+       "note": "V/screw=3380 N incl. x1.15 sharing; F_end=23511 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [FA1 A1_22.2 P 91.3 bar, T 54 C]: bearing in case wall",
+       "applied": 216.2992,
+       "allow_yield": 328.6993,
+       "allow_ult": 404.5035,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 0.5197,
+       "MS_u": 0.8701,
+       "unit": "MPa",
+       "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [FA1 A1_22.2 P 91.3 bar, T 54 C]: shear-out of case to tube end",
+       "applied": 56.9208,
+       "allow_yield": 135.4711,
+       "allow_ult": 151.6888,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 1.38,
+       "MS_u": 1.6649,
+       "unit": "MPa",
+       "note": "e=12.0 mm [R4]"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [FA1 A1_22.2 P 91.3 bar, T 54 C]: case net section at inboard screw row (8 holes, axial)",
+       "applied": 51.6459,
+       "allow_yield": 234.7852,
+       "allow_ult": 252.8147,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 3.5461,
+       "MS_u": 3.8952,
+       "unit": "MPa",
+       "note": "net axial 51.6 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 76.8 MPa"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [FA1 A1_22.2 P 91.3 bar, T 54 C]: bearing of screw on closure thread (Le=6.0 mm)",
+       "applied": 112.6558,
+       "allow_yield": 328.6993,
+       "allow_ult": 404.5035,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 1.9177,
+       "MS_u": 2.5906,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": -0.0256,
+     "criterion": "failure case: yield (Fty(T), SF 1.0) and burst (Ftu(T), SF 1.0) reported; a negative value is reported as a failure"
+    },
+    "FA1S": {
+     "state": "A1_22.2",
+     "P_MPa": 15.103800000000001,
+     "T_joint_C": 54.3,
+     "F_end_N": 38880.1,
+     "F_end_FE_case_fwd_gland_N": 38474.4,
+     "FE_over_hand": 0.9896,
+     "V_per_screw_N": 5589.0,
+     "rows": [
+      {
+       "check": "J-FWD 8xM5 A4-70 [FA1S A1_22.2 P 151.0 bar, T 54 C]: screw shear at thread root (d3=4.019 mm)",
+       "applied": 440.6728,
+       "allow_yield": 259.65,
+       "allow_ult": 420.0,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": -0.4108,
+       "MS_u": -0.0469,
+       "unit": "MPa",
+       "note": "V/screw=5589 N incl. x1.15 sharing; F_end=38880 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [FA1S A1_22.2 P 151.0 bar, T 54 C]: bearing in case wall",
+       "applied": 357.6967,
+       "allow_yield": 328.6993,
+       "allow_ult": 404.5035,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": -0.0811,
+       "MS_u": 0.1309,
+       "unit": "MPa",
+       "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [FA1S A1_22.2 P 151.0 bar, T 54 C]: shear-out of case to tube end",
+       "applied": 94.1307,
+       "allow_yield": 135.4711,
+       "allow_ult": 151.6888,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 0.4392,
+       "MS_u": 0.6115,
+       "unit": "MPa",
+       "note": "e=12.0 mm [R4]"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [FA1S A1_22.2 P 151.0 bar, T 54 C]: case net section at inboard screw row (8 holes, axial)",
+       "applied": 85.4075,
+       "allow_yield": 234.7852,
+       "allow_ult": 252.8147,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 1.749,
+       "MS_u": 1.9601,
+       "unit": "MPa",
+       "note": "net axial 85.4 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 127.0 MPa"
+      },
+      {
+       "check": "J-FWD 8xM5 A4-70 [FA1S A1_22.2 P 151.0 bar, T 54 C]: bearing of screw on closure thread (Le=6.0 mm)",
+       "applied": 186.3004,
+       "allow_yield": 328.6993,
+       "allow_ult": 404.5035,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 0.7644,
+       "MS_u": 1.1712,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": -0.4108,
+     "criterion": "failure case (bound): yield (Fty(T), SF 1.0) and burst (Ftu(T), SF 1.0); a negative value is reported as a failure"
+    }
+   },
+   "options_FA1": {
+    "FA1": {
+     "12xM5": {
+      "min_MS": 0.4616,
+      "rows": [
+       {
+        "check": "option 12xM5 A4-70 [FA1]: screw shear at thread root (d3=4.019 mm)",
+        "applied": 177.6499,
+        "allow_yield": 259.65,
+        "allow_ult": 420.0,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.4616,
+        "MS_u": 1.3642,
+        "unit": "MPa",
+        "note": "V/screw=2253 N incl. x1.15 sharing; F_end=23511 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+       },
+       {
+        "check": "option 12xM5 A4-70 [FA1]: bearing in case wall",
+        "applied": 144.1995,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.2795,
+        "MS_u": 1.8052,
+        "unit": "MPa",
+        "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+       },
+       {
+        "check": "option 12xM5 A4-70 [FA1]: shear-out of case to tube end",
+        "applied": 37.9472,
+        "allow_yield": 135.4711,
+        "allow_ult": 151.6888,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 2.57,
+        "MS_u": 2.9974,
+        "unit": "MPa",
+        "note": "e=12.0 mm [R4]"
+       },
+       {
+        "check": "option 12xM5 A4-70 [FA1]: case net section at inboard screw row (12 holes, axial)",
+        "applied": 60.8331,
+        "allow_yield": 234.7852,
+        "allow_ult": 252.8147,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 2.8595,
+        "MS_u": 3.1559,
+        "unit": "MPa",
+        "note": "net axial 60.8 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 78.2 MPa"
+       },
+       {
+        "check": "option 12xM5 A4-70 [FA1]: bearing of screw on closure thread (Le=6.0 mm)",
+        "applied": 75.1039,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 3.3766,
+        "MS_u": 4.3859,
+        "unit": "MPa",
+        "note": ""
+       }
+      ]
+     },
+     "8xM6": {
+      "min_MS": 0.3747,
+      "rows": [
+       {
+        "check": "option 8xM6 A4-70 [FA1]: screw shear at thread root (d3=4.773 mm)",
+        "applied": 188.8768,
+        "allow_yield": 259.65,
+        "allow_ult": 420.0,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.3747,
+        "MS_u": 1.2237,
+        "unit": "MPa",
+        "note": "V/screw=3380 N incl. x1.15 sharing; F_end=23511 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+       },
+       {
+        "check": "option 8xM6 A4-70 [FA1]: bearing in case wall",
+        "applied": 180.2493,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.8236,
+        "MS_u": 1.2441,
+        "unit": "MPa",
+        "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+       },
+       {
+        "check": "option 8xM6 A4-70 [FA1]: shear-out of case to tube end",
+        "applied": 47.434,
+        "allow_yield": 135.4711,
+        "allow_ult": 151.6888,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.856,
+        "MS_u": 2.1979,
+        "unit": "MPa",
+        "note": "e=14.4 mm [R4]"
+       },
+       {
+        "check": "option 8xM6 A4-70 [FA1]: case net section at inboard screw row (8 holes, axial)",
+        "applied": 54.647,
+        "allow_yield": 234.7852,
+        "allow_ult": 252.8147,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 3.2964,
+        "MS_u": 3.6263,
+        "unit": "MPa",
+        "note": "net axial 54.6 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 77.1 MPa"
+       },
+       {
+        "check": "option 8xM6 A4-70 [FA1]: bearing of screw on closure thread (Le=6.0 mm)",
+        "applied": 93.8799,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 2.5013,
+        "MS_u": 3.3087,
+        "unit": "MPa",
+        "note": ""
+       }
+      ]
+     },
+     "12xM6": {
+      "min_MS": 1.0621,
+      "rows": [
+       {
+        "check": "option 12xM6 A4-70 [FA1]: screw shear at thread root (d3=4.773 mm)",
+        "applied": 125.9178,
+        "allow_yield": 259.65,
+        "allow_ult": 420.0,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.0621,
+        "MS_u": 2.3355,
+        "unit": "MPa",
+        "note": "V/screw=2253 N incl. x1.15 sharing; F_end=23511 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+       },
+       {
+        "check": "option 12xM6 A4-70 [FA1]: bearing in case wall",
+        "applied": 120.1662,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.7354,
+        "MS_u": 2.3662,
+        "unit": "MPa",
+        "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+       },
+       {
+        "check": "option 12xM6 A4-70 [FA1]: shear-out of case to tube end",
+        "applied": 31.6227,
+        "allow_yield": 135.4711,
+        "allow_ult": 151.6888,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 3.284,
+        "MS_u": 3.7968,
+        "unit": "MPa",
+        "note": "e=14.4 mm [R4]"
+       },
+       {
+        "check": "option 12xM6 A4-70 [FA1]: case net section at inboard screw row (12 holes, axial)",
+        "applied": 67.37,
+        "allow_yield": 234.7852,
+        "allow_ult": 252.8147,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 2.485,
+        "MS_u": 2.7526,
+        "unit": "MPa",
+        "note": "net axial 67.4 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 79.9 MPa"
+       },
+       {
+        "check": "option 12xM6 A4-70 [FA1]: bearing of screw on closure thread (Le=6.0 mm)",
+        "applied": 62.5866,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 4.2519,
+        "MS_u": 5.4631,
+        "unit": "MPa",
+        "note": ""
+       }
+      ]
+     },
+     "16xM5": {
+      "min_MS": 0.9488,
+      "rows": [
+       {
+        "check": "option 16xM5 A4-70 [FA1]: screw shear at thread root (d3=4.019 mm)",
+        "applied": 133.2374,
+        "allow_yield": 259.65,
+        "allow_ult": 420.0,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.9488,
+        "MS_u": 2.1523,
+        "unit": "MPa",
+        "note": "V/screw=1690 N incl. x1.15 sharing; F_end=23511 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+       },
+       {
+        "check": "option 16xM5 A4-70 [FA1]: bearing in case wall",
+        "applied": 108.1496,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 2.0393,
+        "MS_u": 2.7402,
+        "unit": "MPa",
+        "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+       },
+       {
+        "check": "option 16xM5 A4-70 [FA1]: shear-out of case to tube end",
+        "applied": 28.4604,
+        "allow_yield": 135.4711,
+        "allow_ult": 151.6888,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 3.76,
+        "MS_u": 4.3298,
+        "unit": "MPa",
+        "note": "e=12.0 mm [R4]"
+       },
+       {
+        "check": "option 16xM5 A4-70 [FA1]: case net section at inboard screw row (16 holes, axial)",
+        "applied": 73.9961,
+        "allow_yield": 234.7852,
+        "allow_ult": 252.8147,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 2.1729,
+        "MS_u": 2.4166,
+        "unit": "MPa",
+        "note": "net axial 74.0 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 82.0 MPa"
+       },
+       {
+        "check": "option 16xM5 A4-70 [FA1]: bearing of screw on closure thread (Le=6.0 mm)",
+        "applied": 56.3279,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 4.8355,
+        "MS_u": 6.1812,
+        "unit": "MPa",
+        "note": ""
+       }
+      ]
+     },
+     "8x shoulder 6/M5": {
+      "min_MS": 0.8322,
+      "rows": [
+       {
+        "check": "8 x shoulder screw, shank 6 mm in the shear plane (A4-70 class ASSUMED): shank shear",
+        "applied": 119.5315,
+        "allow_yield": 259.65,
+        "allow_ult": 420.0,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.1722,
+        "MS_u": 2.5137,
+        "unit": "MPa",
+        "note": "V/screw 3380 N"
+       },
+       {
+        "check": "8 x shoulder screw: bearing of the 6 mm shank in the case wall",
+        "applied": 180.2493,
+        "allow_yield": 330.2478,
+        "allow_ult": 406.9419,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.8322,
+        "MS_u": 1.2577,
+        "unit": "MPa",
+        "note": "6061 at 47 C (A1 relight state)"
+       }
+      ]
+     }
+    },
+    "FA1S": {
+     "12xM5": {
+      "min_MS": -0.1162,
+      "rows": [
+       {
+        "check": "option 12xM5 A4-70 [FA1S]: screw shear at thread root (d3=4.019 mm)",
+        "applied": 293.7819,
+        "allow_yield": 259.65,
+        "allow_ult": 420.0,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": -0.1162,
+        "MS_u": 0.4296,
+        "unit": "MPa",
+        "note": "V/screw=3726 N incl. x1.15 sharing; F_end=38880 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+       },
+       {
+        "check": "option 12xM5 A4-70 [FA1S]: bearing in case wall",
+        "applied": 238.4645,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.3784,
+        "MS_u": 0.6963,
+        "unit": "MPa",
+        "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+       },
+       {
+        "check": "option 12xM5 A4-70 [FA1S]: shear-out of case to tube end",
+        "applied": 62.7538,
+        "allow_yield": 135.4711,
+        "allow_ult": 151.6888,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.1588,
+        "MS_u": 1.4172,
+        "unit": "MPa",
+        "note": "e=12.0 mm [R4]"
+       },
+       {
+        "check": "option 12xM5 A4-70 [FA1S]: case net section at inboard screw row (12 holes, axial)",
+        "applied": 100.6004,
+        "allow_yield": 234.7852,
+        "allow_ult": 252.8147,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.3338,
+        "MS_u": 1.5131,
+        "unit": "MPa",
+        "note": "net axial 100.6 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 129.3 MPa"
+       },
+       {
+        "check": "option 12xM5 A4-70 [FA1S]: bearing of screw on closure thread (Le=6.0 mm)",
+        "applied": 124.2002,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.6465,
+        "MS_u": 2.2569,
+        "unit": "MPa",
+        "note": ""
+       }
+      ]
+     },
+     "8xM6": {
+      "min_MS": -0.1687,
+      "rows": [
+       {
+        "check": "option 8xM6 A4-70 [FA1S]: screw shear at thread root (d3=4.773 mm)",
+        "applied": 312.3479,
+        "allow_yield": 259.65,
+        "allow_ult": 420.0,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": -0.1687,
+        "MS_u": 0.3447,
+        "unit": "MPa",
+        "note": "V/screw=5589 N incl. x1.15 sharing; F_end=38880 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+       },
+       {
+        "check": "option 8xM6 A4-70 [FA1S]: bearing in case wall",
+        "applied": 298.0806,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.1027,
+        "MS_u": 0.357,
+        "unit": "MPa",
+        "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+       },
+       {
+        "check": "option 8xM6 A4-70 [FA1S]: shear-out of case to tube end",
+        "applied": 78.4423,
+        "allow_yield": 135.4711,
+        "allow_ult": 151.6888,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.727,
+        "MS_u": 0.9338,
+        "unit": "MPa",
+        "note": "e=14.4 mm [R4]"
+       },
+       {
+        "check": "option 8xM6 A4-70 [FA1S]: case net section at inboard screw row (8 holes, axial)",
+        "applied": 90.3704,
+        "allow_yield": 234.7852,
+        "allow_ult": 252.8147,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.598,
+        "MS_u": 1.7975,
+        "unit": "MPa",
+        "note": "net axial 90.4 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 127.6 MPa"
+       },
+       {
+        "check": "option 8xM6 A4-70 [FA1S]: bearing of screw on closure thread (Le=6.0 mm)",
+        "applied": 155.2503,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.1172,
+        "MS_u": 1.6055,
+        "unit": "MPa",
+        "note": ""
+       }
+      ]
+     },
+     "12xM6": {
+      "min_MS": 0.2469,
+      "rows": [
+       {
+        "check": "option 12xM6 A4-70 [FA1S]: screw shear at thread root (d3=4.773 mm)",
+        "applied": 208.2319,
+        "allow_yield": 259.65,
+        "allow_ult": 420.0,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.2469,
+        "MS_u": 1.017,
+        "unit": "MPa",
+        "note": "V/screw=3726 N incl. x1.15 sharing; F_end=38880 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+       },
+       {
+        "check": "option 12xM6 A4-70 [FA1S]: bearing in case wall",
+        "applied": 198.7204,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.6541,
+        "MS_u": 1.0355,
+        "unit": "MPa",
+        "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+       },
+       {
+        "check": "option 12xM6 A4-70 [FA1S]: shear-out of case to tube end",
+        "applied": 52.2948,
+        "allow_yield": 135.4711,
+        "allow_ult": 151.6888,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.5905,
+        "MS_u": 1.9006,
+        "unit": "MPa",
+        "note": "e=14.4 mm [R4]"
+       },
+       {
+        "check": "option 12xM6 A4-70 [FA1S]: case net section at inboard screw row (12 holes, axial)",
+        "applied": 111.4106,
+        "allow_yield": 234.7852,
+        "allow_ult": 252.8147,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.1074,
+        "MS_u": 1.2692,
+        "unit": "MPa",
+        "note": "net axial 111.4 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 132.1 MPa"
+       },
+       {
+        "check": "option 12xM6 A4-70 [FA1S]: bearing of screw on closure thread (Le=6.0 mm)",
+        "applied": 103.5002,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 2.1758,
+        "MS_u": 2.9082,
+        "unit": "MPa",
+        "note": ""
+       }
+      ]
+     },
+     "16xM5": {
+      "min_MS": 0.1784,
+      "rows": [
+       {
+        "check": "option 16xM5 A4-70 [FA1S]: screw shear at thread root (d3=4.019 mm)",
+        "applied": 220.3364,
+        "allow_yield": 259.65,
+        "allow_ult": 420.0,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.1784,
+        "MS_u": 0.9062,
+        "unit": "MPa",
+        "note": "V/screw=2795 N incl. x1.15 sharing; F_end=38880 N; A4-70 allowables at RT (ISO 3506-1), hot knock-down at 54 C TO-VERIFY"
+       },
+       {
+        "check": "option 16xM5 A4-70 [FA1S]: bearing in case wall",
+        "applied": 178.8483,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.8379,
+        "MS_u": 1.2617,
+        "unit": "MPa",
+        "note": "e/D=2.40 (>=2 for the bearing ratios used)"
+       },
+       {
+        "check": "option 16xM5 A4-70 [FA1S]: shear-out of case to tube end",
+        "applied": 47.0654,
+        "allow_yield": 135.4711,
+        "allow_ult": 151.6888,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 1.8784,
+        "MS_u": 2.2229,
+        "unit": "MPa",
+        "note": "e=12.0 mm [R4]"
+       },
+       {
+        "check": "option 16xM5 A4-70 [FA1S]: case net section at inboard screw row (16 holes, axial)",
+        "applied": 122.3682,
+        "allow_yield": 234.7852,
+        "allow_ult": 252.8147,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.9187,
+        "MS_u": 1.066,
+        "unit": "MPa",
+        "note": "net axial 122.4 MPa; upper bound with full hoop superposed (not physical, row is outboard of seals): VM 135.7 MPa"
+       },
+       {
+        "check": "option 16xM5 A4-70 [FA1S]: bearing of screw on closure thread (Le=6.0 mm)",
+        "applied": 93.1502,
+        "allow_yield": 328.6993,
+        "allow_ult": 404.5035,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 2.5287,
+        "MS_u": 3.3425,
+        "unit": "MPa",
+        "note": ""
+       }
+      ]
+     },
+     "8x shoulder 6/M5": {
+      "min_MS": 0.1079,
+      "rows": [
+       {
+        "check": "8 x shoulder screw, shank 6 mm in the shear plane (A4-70 class ASSUMED): shank shear",
+        "applied": 197.6708,
+        "allow_yield": 259.65,
+        "allow_ult": 420.0,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.3135,
+        "MS_u": 1.1247,
+        "unit": "MPa",
+        "note": "V/screw 5589 N"
+       },
+       {
+        "check": "8 x shoulder screw: bearing of the 6 mm shank in the case wall",
+        "applied": 298.0806,
+        "allow_yield": 330.2478,
+        "allow_ult": 406.9419,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 0.1079,
+        "MS_u": 0.3652,
+        "unit": "MPa",
+        "note": "6061 at 47 C (A1 relight state)"
+       }
+      ]
+     }
+    }
+   },
+   "note": "screw shear at the thread root uses A3 = pi/4 d3^2 (12.68 mm2 for M5); x1.15 unequal sharing ASSUMED"
+  },
+  "J-AFT": {
+   "description": "aft closure M63x1.5 x 14, 6061 case (6g) in the TC-09 socket (6H)",
+   "role": "LOAD-BEARING",
+   "governing_per_case": {
+    "TC09_316L": {
+     "LC1": {
+      "state": "B1_21.65",
+      "P_MPa": 2.501007,
+      "T_thread_C": 28.0,
+      "F_N": 6792.7,
+      "F_FE_case_mid_plus_end_face_N": 6807.0,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [LC1 B1_21.65 P 25.0 bar, T 28 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 4.3808,
+        "allow_yield": 137.7803,
+        "allow_ult": 154.9975,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 19.9671,
+        "MS_u": 16.6904,
+        "unit": "MPa",
+        "note": "F 6793 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [LC1 B1_21.65 P 25.0 bar, T 28 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 3.3852,
+        "allow_yield": 113.446,
+        "allow_ult": 299.1193,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 21.3418,
+        "MS_u": 43.181,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 16.6904
+     },
+     "LC2": {
+      "state": "B1_21.65",
+      "P_MPa": 4.5,
+      "T_thread_C": 28.0,
+      "F_N": 12222.0,
+      "F_FE_case_mid_plus_end_face_N": 12224.8,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [LC2 B1_21.65 P 45.0 bar, T 28 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 7.8823,
+        "allow_yield": 137.7803,
+        "allow_ult": 154.9975,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 10.6531,
+        "MS_u": 8.8319,
+        "unit": "MPa",
+        "note": "F 12222 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [LC2 B1_21.65 P 45.0 bar, T 28 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 6.0908,
+        "allow_yield": 113.446,
+        "allow_ult": 299.1193,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 11.4171,
+        "MS_u": 23.5549,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 8.8319
+     },
+     "BN": {
+      "state": "B1_21.65",
+      "P_MPa": 6.308,
+      "T_thread_C": 28.0,
+      "F_N": 18471.1,
+      "F_FE_case_mid_plus_end_face_N": 18434.8,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [BN B1_21.65 P 63.1 bar, T 28 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 11.9126,
+        "allow_yield": 137.7803,
+        "allow_ult": 154.9975,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 10.566,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": "F 18471 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [BN B1_21.65 P 63.1 bar, T 28 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 9.2051,
+        "allow_yield": 113.446,
+        "allow_ult": 299.1193,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 11.3243,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 10.566
+     },
+     "LC4": {
+      "state": "RT",
+      "P_MPa": 6.75,
+      "T_thread_C": 20.0,
+      "F_N": 19765.3,
+      "F_FE_case_mid_plus_end_face_N": 19726.5,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [LC4 RT P 67.5 bar, T 20 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 12.7473,
+        "allow_yield": 138.48,
+        "allow_ult": 156.0,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 9.8635,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": "F 19765 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [LC4 RT P 67.5 bar, T 20 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 9.8501,
+        "allow_yield": 115.4,
+        "allow_ult": 300.0,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 10.7157,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 9.8635
+     },
+     "TS1a": {
+      "state": "A1_26.78",
+      "P_MPa": 2.501007,
+      "T_thread_C": 26.5,
+      "F_N": 6792.7,
+      "F_FE_case_mid_plus_end_face_N": 6800.5,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [TS1a A1_26.78 P 25.0 bar, T 27 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 4.3808,
+        "allow_yield": 137.9053,
+        "allow_ult": 155.1766,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 19.9861,
+        "MS_u": 16.7108,
+        "unit": "MPa",
+        "note": "F 6793 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [TS1a A1_26.78 P 25.0 bar, T 27 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 3.3852,
+        "allow_yield": 113.795,
+        "allow_ult": 299.2766,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 21.4106,
+        "MS_u": 43.2042,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 16.7108
+     },
+     "TS1b": {
+      "state": "A1_26.78",
+      "P_MPa": 4.5,
+      "T_thread_C": 26.5,
+      "F_N": 12222.0,
+      "F_FE_case_mid_plus_end_face_N": 12218.3,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [TS1b A1_26.78 P 45.0 bar, T 27 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 7.8823,
+        "allow_yield": 137.9053,
+        "allow_ult": 155.1766,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 10.6636,
+        "MS_u": 8.8433,
+        "unit": "MPa",
+        "note": "F 12222 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [TS1b A1_26.78 P 45.0 bar, T 27 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 6.0908,
+        "allow_yield": 113.795,
+        "allow_ult": 299.2766,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 11.4553,
+        "MS_u": 23.5678,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 8.8433
+     },
+     "TB70": {
+      "state": "TB",
+      "P_MPa": 5.81,
+      "T_thread_C": 58.4,
+      "F_N": 17012.8,
+      "F_FE_case_mid_plus_end_face_N": 16979.4,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [TB70 TB P 58.1 bar, T 58 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 10.9721,
+        "allow_yield": 135.1102,
+        "allow_ult": 151.1718,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 11.314,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": "F 17013 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [TB70 TB P 58.1 bar, T 58 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 8.4783,
+        "allow_yield": 105.9887,
+        "allow_ult": 295.7582,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 11.5011,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 11.314
+     },
+     "TBS": {
+      "state": "TB",
+      "P_MPa": 6.31,
+      "T_thread_C": 58.4,
+      "F_N": 18476.9,
+      "F_FE_case_mid_plus_end_face_N": 18440.6,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [TBS TB P 63.1 bar, T 58 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 11.9163,
+        "allow_yield": 135.1102,
+        "allow_ult": 151.1718,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 10.3382,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": "F 18477 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [TBS TB P 63.1 bar, T 58 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 9.208,
+        "allow_yield": 105.9887,
+        "allow_ult": 295.7582,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 10.5105,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 10.3382
+     },
+     "FA1": {
+      "state": "A1_22.2",
+      "P_MPa": 9.133267860000002,
+      "T_thread_C": 24.6,
+      "F_N": 24806.0,
+      "F_FE_case_mid_plus_end_face_N": 24753.6,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [FA1 A1_22.2 P 91.3 bar, T 25 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 15.9981,
+        "allow_yield": 138.0721,
+        "allow_ult": 155.4156,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 7.6305,
+        "MS_u": 8.7146,
+        "unit": "MPa",
+        "note": "F 24806 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [FA1 A1_22.2 P 91.3 bar, T 25 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 12.362,
+        "allow_yield": 114.2609,
+        "allow_ult": 299.4866,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 8.2429,
+        "MS_u": 23.2263,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 7.6305
+     },
+     "FA1S": {
+      "state": "A1_22.2",
+      "P_MPa": 15.103800000000001,
+      "T_thread_C": 24.6,
+      "F_N": 41021.9,
+      "F_FE_case_mid_plus_end_face_N": 40935.3,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [FA1S A1_22.2 P 151.0 bar, T 25 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 26.4563,
+        "allow_yield": 138.0721,
+        "allow_ult": 155.4156,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 4.2189,
+        "MS_u": 4.8744,
+        "unit": "MPa",
+        "note": "F 41022 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (SS316L) [FA1S A1_22.2 P 151.0 bar, T 25 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 20.4433,
+        "allow_yield": 114.2609,
+        "allow_ult": 299.4866,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 4.5892,
+        "MS_u": 13.6497,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 4.2189
+     }
+    },
+    "TC09_IN718": {
+     "LC1": {
+      "state": "B1_21.65",
+      "P_MPa": 2.501007,
+      "T_thread_C": 28.0,
+      "F_N": 6792.7,
+      "F_FE_case_mid_plus_end_face_N": 6807.5,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [LC1 B1_21.65 P 25.0 bar, T 28 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 4.3808,
+        "allow_yield": 137.7803,
+        "allow_ult": 154.9975,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 19.9671,
+        "MS_u": 16.6904,
+        "unit": "MPa",
+        "note": "F 6793 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [LC1 B1_21.65 P 25.0 bar, T 28 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 3.3852,
+        "allow_yield": 595.3607,
+        "allow_ult": 742.5021,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 116.2493,
+        "MS_u": 108.6703,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 16.6904
+     },
+     "LC2": {
+      "state": "B1_21.65",
+      "P_MPa": 4.5,
+      "T_thread_C": 28.0,
+      "F_N": 12222.0,
+      "F_FE_case_mid_plus_end_face_N": 12225.3,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [LC2 B1_21.65 P 45.0 bar, T 28 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 7.8823,
+        "allow_yield": 137.7803,
+        "allow_ult": 154.9975,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 10.6531,
+        "MS_u": 8.8319,
+        "unit": "MPa",
+        "note": "F 12222 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [LC2 B1_21.65 P 45.0 bar, T 28 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 6.0908,
+        "allow_yield": 595.3607,
+        "allow_ult": 742.5021,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 64.1647,
+        "MS_u": 59.9525,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 8.8319
+     },
+     "BN": {
+      "state": "B1_21.65",
+      "P_MPa": 6.308,
+      "T_thread_C": 28.0,
+      "F_N": 18471.1,
+      "F_FE_case_mid_plus_end_face_N": 18434.8,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [BN B1_21.65 P 63.1 bar, T 28 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 11.9126,
+        "allow_yield": 137.7803,
+        "allow_ult": 154.9975,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 10.566,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": "F 18471 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [BN B1_21.65 P 63.1 bar, T 28 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 9.2051,
+        "allow_yield": 595.3607,
+        "allow_ult": 742.5021,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 63.6776,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 10.566
+     },
+     "LC4": {
+      "state": "RT",
+      "P_MPa": 6.75,
+      "T_thread_C": 20.0,
+      "F_N": 19765.3,
+      "F_FE_case_mid_plus_end_face_N": 19726.5,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [LC4 RT P 67.5 bar, T 20 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 12.7473,
+        "allow_yield": 138.48,
+        "allow_ult": 156.0,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 9.8635,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": "F 19765 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [LC4 RT P 67.5 bar, T 20 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 9.8501,
+        "allow_yield": 596.618,
+        "allow_ult": 744.6,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 59.57,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 9.8635
+     },
+     "TS1a": {
+      "state": "A1_26.78",
+      "P_MPa": 2.501007,
+      "T_thread_C": 26.5,
+      "F_N": 6792.7,
+      "F_FE_case_mid_plus_end_face_N": 6800.9,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [TS1a A1_26.78 P 25.0 bar, T 27 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 4.3808,
+        "allow_yield": 137.9053,
+        "allow_ult": 155.1766,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 19.9861,
+        "MS_u": 16.7108,
+        "unit": "MPa",
+        "note": "F 6793 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [TS1a A1_26.78 P 25.0 bar, T 27 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 3.3852,
+        "allow_yield": 595.5853,
+        "allow_ult": 742.8769,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 116.2935,
+        "MS_u": 108.7256,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 16.7108
+     },
+     "TS1b": {
+      "state": "A1_26.78",
+      "P_MPa": 4.5,
+      "T_thread_C": 26.5,
+      "F_N": 12222.0,
+      "F_FE_case_mid_plus_end_face_N": 12218.7,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [TS1b A1_26.78 P 45.0 bar, T 27 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 7.8823,
+        "allow_yield": 137.9053,
+        "allow_ult": 155.1766,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 10.6636,
+        "MS_u": 8.8433,
+        "unit": "MPa",
+        "note": "F 12222 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [TS1b A1_26.78 P 45.0 bar, T 27 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 6.0908,
+        "allow_yield": 595.5853,
+        "allow_ult": 742.8769,
+        "SF_y": 1.5,
+        "SF_u": 2.0,
+        "MS_y": 64.1893,
+        "MS_u": 59.9832,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 8.8433
+     },
+     "TB70": {
+      "state": "TB",
+      "P_MPa": 5.81,
+      "T_thread_C": 58.4,
+      "F_N": 17012.8,
+      "F_FE_case_mid_plus_end_face_N": 16979.4,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [TB70 TB P 58.1 bar, T 58 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 10.9721,
+        "allow_yield": 135.1102,
+        "allow_ult": 151.1718,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 11.314,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": "F 17013 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [TB70 TB P 58.1 bar, T 58 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 8.4783,
+        "allow_yield": 590.5626,
+        "allow_ult": 734.4959,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 68.6554,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 11.314
+     },
+     "TBS": {
+      "state": "TB",
+      "P_MPa": 6.31,
+      "T_thread_C": 58.4,
+      "F_N": 18476.9,
+      "F_FE_case_mid_plus_end_face_N": 18440.6,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [TBS TB P 63.1 bar, T 58 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 11.9163,
+        "allow_yield": 135.1102,
+        "allow_ult": 151.1718,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 10.3382,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": "F 18477 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [TBS TB P 63.1 bar, T 58 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 9.208,
+        "allow_yield": 590.5626,
+        "allow_ult": 734.4959,
+        "SF_y": 1.0,
+        "SF_u": null,
+        "MS_y": 63.136,
+        "MS_u": null,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 10.3382
+     },
+     "FA1": {
+      "state": "A1_22.2",
+      "P_MPa": 9.133267860000002,
+      "T_thread_C": 24.6,
+      "F_N": 24806.0,
+      "F_FE_case_mid_plus_end_face_N": 24753.6,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [FA1 A1_22.2 P 91.3 bar, T 25 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 15.9981,
+        "allow_yield": 138.0721,
+        "allow_ult": 155.4156,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 7.6305,
+        "MS_u": 8.7146,
+        "unit": "MPa",
+        "note": "F 24806 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [FA1 A1_22.2 P 91.3 bar, T 25 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 12.362,
+        "allow_yield": 595.8851,
+        "allow_ult": 743.3771,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 47.2028,
+        "MS_u": 59.1339,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 7.6305
+     },
+     "FA1S": {
+      "state": "A1_22.2",
+      "P_MPa": 15.103800000000001,
+      "T_thread_C": 24.6,
+      "F_N": 41021.9,
+      "F_FE_case_mid_plus_end_face_N": 40935.3,
+      "A_s_mm2": 1550.6,
+      "A_n_mm2": 2006.6,
+      "rows": [
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [FA1S A1_22.2 P 151.0 bar, T 25 C]: external thread (case) stripping, A_s 1551 mm2",
+        "applied": 26.4563,
+        "allow_yield": 138.0721,
+        "allow_ult": 155.4156,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 4.2189,
+        "MS_u": 4.8744,
+        "unit": "MPa",
+        "note": "F 41022 N, Le 14 mm, uniform load share assumed (first-thread peak in FEA)"
+       },
+       {
+        "check": "J-AFT M63x1.5x14 (IN718) [FA1S A1_22.2 P 151.0 bar, T 25 C]: internal thread (closure) stripping, A_n 2007 mm2",
+        "applied": 20.4433,
+        "allow_yield": 595.8851,
+        "allow_ult": 743.3771,
+        "SF_y": 1.0,
+        "SF_u": 1.0,
+        "MS_y": 28.1482,
+        "MS_u": 35.3629,
+        "unit": "MPa",
+        "note": ""
+       }
+      ],
+      "min_MS": 4.2189
+     }
+    }
+   },
+   "FE_peak_TC01": {
+    "FA1": {
+     "state": "A1_22.2",
+     "MS_regular": 0.886,
+     "at_r_z_mm": [
+      30.114,
+      -132.46
+     ],
+     "T_C": 23.0,
+     "vm_MPa": 127.0,
+     "note": "S-AX L1 regular-set peak of TC-01 (location decides whether it is the first engaged thread)"
+    },
+    "FA1S": {
+     "state": "A1_22.2",
+     "MS_regular": 0.137,
+     "at_r_z_mm": [
+      30.114,
+      -132.46
+     ],
+     "T_C": 23.0,
+     "vm_MPa": 210.7,
+     "note": "S-AX L1 regular-set peak of TC-01 (location decides whether it is the first engaged thread)"
+    },
+    "TB70": {
+     "state": "TB",
+     "MS_regular": 1.6197,
+     "at_r_z_mm": [
+      31.75,
+      97.92
+     ],
+     "T_C": 173.0,
+     "vm_MPa": 55.0,
+     "note": "S-AX L1 regular-set peak of TC-01 (location decides whether it is the first engaged thread)"
+    },
+    "TBS": {
+     "state": "TB",
+     "MS_regular": 1.4452,
+     "at_r_z_mm": [
+      31.75,
+      97.92
+     ],
+     "T_C": 173.0,
+     "vm_MPa": 58.9,
+     "note": "S-AX L1 regular-set peak of TC-01 (location decides whether it is the first engaged thread)"
+    },
+    "LC4": {
+     "state": "RT",
+     "MS_regular": 1.4323,
+     "at_r_z_mm": [
+      30.114,
+      -132.46
+     ],
+     "T_C": 20.0,
+     "vm_MPa": 98.7,
+     "note": "S-AX L1 regular-set peak of TC-01 (location decides whether it is the first engaged thread)"
+    }
+   },
+   "note": "uniform load share over 14 mm (hand_calcs [R3]); the first-thread peak is a local (P+Q) quantity: S-AX convergence shows the FA1S TC-01 regular peak at the thread top converging slowly (MS 0.213/0.137/0.078 on L2/L1/L0.5)"
+  },
+  "J-TC03": {
+   "description": "TC-03 IN718 seat insert in the 6061 head (flange seat + M14x1)",
+   "role": "LOAD-BEARING",
+   "governing_per_case": {
+    "LC1": {
+     "state": "B1_19",
+     "rows": [
+      {
+       "check": "J-TC03 flange bearing on the 6061 counterbore floor, lands 49.6 mm2 [LC1 B1_19, T_head_max 256 C]",
+       "applied": 14.632,
+       "allow_yield": 48.1383,
+       "allow_ult": 77.0616,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 1.1933,
+       "MS_u": 1.6333,
+       "unit": "MPa",
+       "note": "chamber only, manifold relief not credited: F 726 N"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [LC1 B1_19]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 9.57,
+       "allow_yield": 559.4604,
+       "allow_ult": 682.5982,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 37.9733,
+       "MS_u": 34.6635,
+       "unit": "MPa",
+       "note": "F 2112 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [LC1 B1_19]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 7.28,
+       "allow_yield": 19.8399,
+       "allow_ult": 28.8981,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 0.8168,
+       "MS_u": 0.9848,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 0.8168
+    },
+    "LC2": {
+     "state": "B1_19",
+     "rows": [
+      {
+       "check": "J-TC03 flange bearing on the 6061 counterbore floor, lands 49.6 mm2 [LC2 B1_19, T_head_max 256 C]",
+       "applied": 26.327,
+       "allow_yield": 48.1383,
+       "allow_ult": 77.0616,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 0.219,
+       "MS_u": 0.4635,
+       "unit": "MPa",
+       "note": "chamber only, manifold relief not credited: F 1307 N"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [LC2 B1_19]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 9.57,
+       "allow_yield": 559.4604,
+       "allow_ult": 682.5982,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 37.9733,
+       "MS_u": 34.6635,
+       "unit": "MPa",
+       "note": "F 2112 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [LC2 B1_19]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 7.28,
+       "allow_yield": 19.8399,
+       "allow_ult": 28.8981,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 0.8168,
+       "MS_u": 0.9848,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 0.219
+    },
+    "BN": {
+     "state": "B1_19",
+     "rows": [
+      {
+       "check": "J-TC03 flange bearing on the 6061 counterbore floor, lands 49.6 mm2 [BN B1_19, T_head_max 256 C]",
+       "applied": 36.9047,
+       "allow_yield": 48.1383,
+       "allow_ult": 77.0616,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 0.3044,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "chamber only, manifold relief not credited: F 1832 N"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [BN B1_19]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 9.57,
+       "allow_yield": 559.4604,
+       "allow_ult": 682.5982,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 57.46,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "F 2112 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [BN B1_19]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 7.28,
+       "allow_yield": 19.8399,
+       "allow_ult": 28.8981,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 1.7252,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 0.3044
+    },
+    "LC4": {
+     "state": "RT",
+     "rows": [
+      {
+       "check": "J-TC03 flange bearing on the 6061 counterbore floor, lands 49.6 mm2 [LC4 RT, T_head_max 20 C]",
+       "applied": 39.4906,
+       "allow_yield": 336.0,
+       "allow_ult": 416.0,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 7.5084,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "chamber only, manifold relief not credited: F 1960 N"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 105.0 bar, chamber vented [LC4 RT]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 14.355,
+       "allow_yield": 596.618,
+       "allow_ult": 744.6,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 40.5618,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "F 3168 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 105.0 bar, chamber vented [LC4 RT]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 10.92,
+       "allow_yield": 138.48,
+       "allow_ult": 156.0,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 11.6813,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 7.5084
+    },
+    "TS1a": {
+     "state": "A1_26.78",
+     "rows": [
+      {
+       "check": "J-TC03 flange bearing on the 6061 counterbore floor, lands 49.6 mm2 [TS1a A1_26.78, T_head_max 214 C]",
+       "applied": 14.632,
+       "allow_yield": 109.8393,
+       "allow_ult": 155.9176,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 4.0045,
+       "MS_u": 4.328,
+       "unit": "MPa",
+       "note": "chamber only, manifold relief not credited: F 726 N"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [TS1a A1_26.78]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 9.57,
+       "allow_yield": 565.9505,
+       "allow_ult": 693.4278,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 38.4254,
+       "MS_u": 35.2293,
+       "unit": "MPa",
+       "note": "F 2112 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [TS1a A1_26.78]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 7.28,
+       "allow_yield": 45.2695,
+       "allow_ult": 58.4691,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 3.1455,
+       "MS_u": 3.0157,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 3.0157
+    },
+    "TS1b": {
+     "state": "A1_26.78",
+     "rows": [
+      {
+       "check": "J-TC03 flange bearing on the 6061 counterbore floor, lands 49.6 mm2 [TS1b A1_26.78, T_head_max 214 C]",
+       "applied": 26.327,
+       "allow_yield": 109.8393,
+       "allow_ult": 155.9176,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 1.7814,
+       "MS_u": 1.9612,
+       "unit": "MPa",
+       "note": "chamber only, manifold relief not credited: F 1307 N"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [TS1b A1_26.78]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 9.57,
+       "allow_yield": 565.9505,
+       "allow_ult": 693.4278,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 38.4254,
+       "MS_u": 35.2293,
+       "unit": "MPa",
+       "note": "F 2112 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [TS1b A1_26.78]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 7.28,
+       "allow_yield": 45.2695,
+       "allow_ult": 58.4691,
+       "SF_y": 1.5,
+       "SF_u": 2.0,
+       "MS_y": 3.1455,
+       "MS_u": 3.0157,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 1.7814
+    },
+    "SEGP": {
+     "state": "B1_36.7",
+     "rows": [
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 99.8 bar, chamber vented [SEGP B1_36.7]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 13.6372,
+       "allow_yield": 577.1091,
+       "allow_ult": 712.0471,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 41.3187,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "F 3010 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 99.8 bar, chamber vented [SEGP B1_36.7]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 10.374,
+       "allow_yield": 110.0037,
+       "allow_ult": 120.834,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 9.6037,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 9.6037
+    },
+    "TB70": {
+     "state": "TB",
+     "rows": [
+      {
+       "check": "J-TC03 flange bearing on the 6061 counterbore floor, lands 49.6 mm2 [TB70 TB, T_head_max 277 C]",
+       "applied": 33.9911,
+       "allow_yield": 35.8632,
+       "allow_ult": 60.72,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 0.0551,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "chamber only, manifold relief not credited: F 1687 N"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [TB70 TB]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 9.57,
+       "allow_yield": 556.0758,
+       "allow_ult": 676.9507,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 57.1063,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "F 2112 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [TB70 TB]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 7.28,
+       "allow_yield": 14.7807,
+       "allow_ult": 22.77,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 1.0303,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 0.0551
+    },
+    "TBS": {
+     "state": "TB",
+     "rows": [
+      {
+       "check": "J-TC03 flange bearing on the 6061 counterbore floor, lands 49.6 mm2 [TBS TB, T_head_max 277 C]",
+       "applied": 36.9164,
+       "allow_yield": 35.8632,
+       "allow_ult": 60.72,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": -0.0285,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "chamber only, manifold relief not credited: F 1832 N"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [TBS TB]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 9.57,
+       "allow_yield": 556.0758,
+       "allow_ult": 676.9507,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 57.1063,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": "F 2112 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [TBS TB]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 7.28,
+       "allow_yield": 14.7807,
+       "allow_ult": 22.77,
+       "SF_y": 1.0,
+       "SF_u": null,
+       "MS_y": 1.0303,
+       "MS_u": null,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": -0.0285
+    },
+    "FA1": {
+     "state": "A1_22.2",
+     "rows": [
+      {
+       "check": "J-TC03 flange bearing on the 6061 counterbore floor, lands 49.6 mm2 [FA1 A1_22.2, T_head_max 63 C]",
+       "applied": 53.4338,
+       "allow_yield": 326.89,
+       "allow_ult": 401.6544,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 5.1177,
+       "MS_u": 6.5169,
+       "unit": "MPa",
+       "note": "chamber only, manifold relief not credited: F 2652 N"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [FA1 A1_22.2]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 9.57,
+       "allow_yield": 589.8711,
+       "allow_ult": 733.3421,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 60.6377,
+       "MS_u": 75.6295,
+       "unit": "MPa",
+       "note": "F 2112 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [FA1 A1_22.2]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 7.28,
+       "allow_yield": 134.7254,
+       "allow_ult": 150.6204,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 17.5062,
+       "MS_u": 19.6895,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 5.1177
+    },
+    "FA1S": {
+     "state": "A1_22.2",
+     "rows": [
+      {
+       "check": "J-TC03 flange bearing on the 6061 counterbore floor, lands 49.6 mm2 [FA1S A1_22.2, T_head_max 63 C]",
+       "applied": 88.3641,
+       "allow_yield": 326.89,
+       "allow_ult": 401.6544,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 2.6994,
+       "MS_u": 3.5454,
+       "unit": "MPa",
+       "note": "chamber only, manifold relief not credited: F 4386 N"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [FA1S A1_22.2]: external thread (TC-03 IN718) stripping, A_s 221 mm2",
+       "applied": 9.57,
+       "allow_yield": 589.8711,
+       "allow_ult": 733.3421,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 60.6377,
+       "MS_u": 75.6295,
+       "unit": "MPa",
+       "note": "F 2112 N, Le 10 mm, uniform load share assumed (first-thread peak in FEA)"
+      },
+      {
+       "check": "J-TC03 M14x1 x 10 thread, manifold 70.0 bar, chamber vented [FA1S A1_22.2]: internal thread (TC-02 6061) stripping, A_n 290 mm2",
+       "applied": 7.28,
+       "allow_yield": 134.7254,
+       "allow_ult": 150.6204,
+       "SF_y": 1.0,
+       "SF_u": 1.0,
+       "MS_y": 17.5062,
+       "MS_u": 19.6895,
+       "unit": "MPa",
+       "note": ""
+      }
+     ],
+     "min_MS": 2.6994
+    }
+   },
+   "lands_mm2": 49.6,
+   "A_manifold_aft_mm2": 301.7,
+   "note": "head temperature = TC-02 part maximum at the state (conservative for the flange seat at the injector face)"
+  },
+  "J-BON": {
+   "description": "bonnet TC-04 on the head: 4 x M4 A4-70 at r 16.5",
+   "role": "LOAD-BEARING + SEAL (S04, S05)",
+   "per_case": {
+    "LC1": {
+     "label": "J-BON 4xM4 A4-70 [LC1]",
+     "PM_MPa": 7.0,
+     "F_center_N": 1140.0,
+     "F_transfer_N": 929.1,
+     "bolt_loads_N": [
+      66.8,
+      967.8,
+      967.8,
+      66.8
+     ],
+     "F_bolt_max_ext_N": 967.8,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 1.654,
+     "bolt_stress_MPa": 314.5,
+     "MS_bolt_y": 0.431,
+     "joint_factor_phi": 0.2,
+     "T_C": 20.0,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [LC1]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 48.8377,
+      "allow_yield": 138.48,
+      "allow_ult": 156.0,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.8355,
+      "MS_u": 2.1943,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    },
+    "LC2": {
+     "label": "J-BON 4xM4 A4-70 [LC2]",
+     "PM_MPa": 7.0,
+     "F_center_N": 1140.0,
+     "F_transfer_N": 929.1,
+     "bolt_loads_N": [
+      66.8,
+      967.8,
+      967.8,
+      66.8
+     ],
+     "F_bolt_max_ext_N": 967.8,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 1.654,
+     "bolt_stress_MPa": 314.5,
+     "MS_bolt_y": 0.431,
+     "joint_factor_phi": 0.2,
+     "T_C": 20.0,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [LC2]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 48.8377,
+      "allow_yield": 138.48,
+      "allow_ult": 156.0,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.8355,
+      "MS_u": 2.1943,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    },
+    "BN": {
+     "label": "J-BON 4xM4 A4-70 [BN]",
+     "PM_MPa": 7.0,
+     "F_center_N": 1140.0,
+     "F_transfer_N": 929.1,
+     "bolt_loads_N": [
+      66.8,
+      967.8,
+      967.8,
+      66.8
+     ],
+     "F_bolt_max_ext_N": 967.8,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 1.654,
+     "bolt_stress_MPa": 314.5,
+     "MS_bolt_y": 0.431,
+     "joint_factor_phi": 0.2,
+     "T_C": 20.0,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [BN]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 48.8377,
+      "allow_yield": 138.48,
+      "allow_ult": 156.0,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.8355,
+      "MS_u": 2.1943,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    },
+    "LC4": {
+     "label": "J-BON 4xM4 A4-70 [LC4]",
+     "PM_MPa": 10.5,
+     "F_center_N": 1710.0,
+     "F_transfer_N": 1393.7,
+     "bolt_loads_N": [
+      100.2,
+      1451.7,
+      1451.7,
+      100.2
+     ],
+     "F_bolt_max_ext_N": 1451.7,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 0.769,
+     "bolt_stress_MPa": 325.6,
+     "MS_bolt_y": 0.382,
+     "joint_factor_phi": 0.2,
+     "T_C": 20.0,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [LC4]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 50.5491,
+      "allow_yield": 138.48,
+      "allow_ult": 156.0,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.7395,
+      "MS_u": 2.0861,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    },
+    "TS1a": {
+     "label": "J-BON 4xM4 A4-70 [TS1a]",
+     "PM_MPa": 7.0,
+     "F_center_N": 1140.0,
+     "F_transfer_N": 929.1,
+     "bolt_loads_N": [
+      66.8,
+      967.8,
+      967.8,
+      66.8
+     ],
+     "F_bolt_max_ext_N": 967.8,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 1.654,
+     "bolt_stress_MPa": 314.5,
+     "MS_bolt_y": 0.431,
+     "joint_factor_phi": 0.2,
+     "T_C": 34.3,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [TS1a]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 48.8377,
+      "allow_yield": 137.2274,
+      "allow_ult": 154.2052,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.8099,
+      "MS_u": 2.1575,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    },
+    "TS1b": {
+     "label": "J-BON 4xM4 A4-70 [TS1b]",
+     "PM_MPa": 7.0,
+     "F_center_N": 1140.0,
+     "F_transfer_N": 929.1,
+     "bolt_loads_N": [
+      66.8,
+      967.8,
+      967.8,
+      66.8
+     ],
+     "F_bolt_max_ext_N": 967.8,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 1.654,
+     "bolt_stress_MPa": 314.5,
+     "MS_bolt_y": 0.431,
+     "joint_factor_phi": 0.2,
+     "T_C": 34.3,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [TS1b]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 48.8377,
+      "allow_yield": 137.2274,
+      "allow_ult": 154.2052,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.8099,
+      "MS_u": 2.1575,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    },
+    "SEGP": {
+     "label": "J-BON 4xM4 A4-70 [SEGP]",
+     "PM_MPa": 9.975,
+     "F_center_N": 1624.5,
+     "F_transfer_N": 1324.0,
+     "bolt_loads_N": [
+      95.2,
+      1379.1,
+      1379.1,
+      95.2
+     ],
+     "F_bolt_max_ext_N": 1379.1,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 0.862,
+     "bolt_stress_MPa": 323.9,
+     "MS_bolt_y": 0.389,
+     "joint_factor_phi": 0.2,
+     "T_C": 20.0,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [SEGP]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 50.2923,
+      "allow_yield": 138.48,
+      "allow_ult": 156.0,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.7535,
+      "MS_u": 2.1019,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    },
+    "TB70": {
+     "label": "J-BON 4xM4 A4-70 [TB70]",
+     "PM_MPa": 7.0,
+     "F_center_N": 1140.0,
+     "F_transfer_N": 929.1,
+     "bolt_loads_N": [
+      66.8,
+      967.8,
+      967.8,
+      66.8
+     ],
+     "F_bolt_max_ext_N": 967.8,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 1.654,
+     "bolt_stress_MPa": 314.5,
+     "MS_bolt_y": 0.431,
+     "joint_factor_phi": 0.2,
+     "T_C": 65.4,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [TB70]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 48.8377,
+      "allow_yield": 134.4922,
+      "allow_ult": 150.2863,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.7539,
+      "MS_u": 2.0773,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    },
+    "TBS": {
+     "label": "J-BON 4xM4 A4-70 [TBS]",
+     "PM_MPa": 7.0,
+     "F_center_N": 1140.0,
+     "F_transfer_N": 929.1,
+     "bolt_loads_N": [
+      66.8,
+      967.8,
+      967.8,
+      66.8
+     ],
+     "F_bolt_max_ext_N": 967.8,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 1.654,
+     "bolt_stress_MPa": 314.5,
+     "MS_bolt_y": 0.431,
+     "joint_factor_phi": 0.2,
+     "T_C": 65.4,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [TBS]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 48.8377,
+      "allow_yield": 134.4922,
+      "allow_ult": 150.2863,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.7539,
+      "MS_u": 2.0773,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    },
+    "FA1": {
+     "label": "J-BON 4xM4 A4-70 [FA1]",
+     "PM_MPa": 7.0,
+     "F_center_N": 1140.0,
+     "F_transfer_N": 929.1,
+     "bolt_loads_N": [
+      66.8,
+      967.8,
+      967.8,
+      66.8
+     ],
+     "F_bolt_max_ext_N": 967.8,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 1.654,
+     "bolt_stress_MPa": 314.5,
+     "MS_bolt_y": 0.431,
+     "joint_factor_phi": 0.2,
+     "T_C": 34.3,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [FA1]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 48.8377,
+      "allow_yield": 137.2274,
+      "allow_ult": 154.2052,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.8099,
+      "MS_u": 2.1575,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    },
+    "FA1S": {
+     "label": "J-BON 4xM4 A4-70 [FA1S]",
+     "PM_MPa": 7.0,
+     "F_center_N": 1140.0,
+     "F_transfer_N": 929.1,
+     "bolt_loads_N": [
+      66.8,
+      967.8,
+      967.8,
+      66.8
+     ],
+     "F_bolt_max_ext_N": 967.8,
+     "preload_target_N": 2568.0,
+     "preload_note": "65 % of A4-70 Rp0.2 x As 8.78 mm2 (ASSUMED target); torque ~0.2 x F x d = 2.05 N m (K 0.2 ASSUMED, lubricated stainless lower: TO-VERIFY)",
+     "MS_no_gapping": 1.654,
+     "bolt_stress_MPa": 314.5,
+     "MS_bolt_y": 0.431,
+     "joint_factor_phi": 0.2,
+     "T_C": 34.3,
+     "strip_6061": {
+      "check": "J-BON 4xM4 A4-70 [FA1S]: M4 in 6061 head, stripping (Le 6 mm ASSUMED of the 10 mm tapped depth)",
+      "applied": 48.8377,
+      "allow_yield": 137.2274,
+      "allow_ult": 154.2052,
+      "SF_y": 1.0,
+      "SF_u": 1.0,
+      "MS_y": 1.8099,
+      "MS_u": 2.1575,
+      "unit": "MPa",
+      "note": "A_strip ~ 0.75 pi d Le (internal thread, approx [R3])"
+     }
+    }
+   }
+  },
+  "J-LIP": {
+   "description": "nozzle stack bearing on the J1 lip seal NZ-04 (and hot layer NZ-03)",
+   "role": "SEAL (bearing) / LOAD-BEARING",
+   "per_case": {
+    "LC1": {
+     "P_MPa": 2.501007,
+     "mean_bearing_MPa": 4.2,
+     "MS_NZ04_vs_Sc150_ASSUMED": 34.7,
+     "note": "scaled from Combustion's 10.6 MPa at BN 63.1 bar (P pi r_bore^2 / lip annulus); the S-AX NZ-03/NZ-04 rows hold the field"
+    },
+    "LC2": {
+     "P_MPa": 4.5,
+     "mean_bearing_MPa": 7.56,
+     "MS_NZ04_vs_Sc150_ASSUMED": 18.84,
+     "note": "scaled from Combustion's 10.6 MPa at BN 63.1 bar (P pi r_bore^2 / lip annulus); the S-AX NZ-03/NZ-04 rows hold the field"
+    },
+    "BN": {
+     "P_MPa": 6.308,
+     "mean_bearing_MPa": 10.6,
+     "MS_NZ04_vs_Sc150_ASSUMED": 13.16,
+     "note": "scaled from Combustion's 10.6 MPa at BN 63.1 bar (P pi r_bore^2 / lip annulus); the S-AX NZ-03/NZ-04 rows hold the field"
+    },
+    "LC4": {
+     "P_MPa": 6.75,
+     "mean_bearing_MPa": 11.34,
+     "MS_NZ04_vs_Sc150_ASSUMED": 12.23,
+     "note": "scaled from Combustion's 10.6 MPa at BN 63.1 bar (P pi r_bore^2 / lip annulus); the S-AX NZ-03/NZ-04 rows hold the field"
+    },
+    "TS1a": {
+     "P_MPa": 2.501007,
+     "mean_bearing_MPa": 4.2,
+     "MS_NZ04_vs_Sc150_ASSUMED": 34.7,
+     "note": "scaled from Combustion's 10.6 MPa at BN 63.1 bar (P pi r_bore^2 / lip annulus); the S-AX NZ-03/NZ-04 rows hold the field"
+    },
+    "TS1b": {
+     "P_MPa": 4.5,
+     "mean_bearing_MPa": 7.56,
+     "MS_NZ04_vs_Sc150_ASSUMED": 18.84,
+     "note": "scaled from Combustion's 10.6 MPa at BN 63.1 bar (P pi r_bore^2 / lip annulus); the S-AX NZ-03/NZ-04 rows hold the field"
+    },
+    "TB70": {
+     "P_MPa": 5.81,
+     "mean_bearing_MPa": 9.76,
+     "MS_NZ04_vs_Sc150_ASSUMED": 14.37,
+     "note": "scaled from Combustion's 10.6 MPa at BN 63.1 bar (P pi r_bore^2 / lip annulus); the S-AX NZ-03/NZ-04 rows hold the field"
+    },
+    "TBS": {
+     "P_MPa": 6.31,
+     "mean_bearing_MPa": 10.6,
+     "MS_NZ04_vs_Sc150_ASSUMED": 13.15,
+     "note": "scaled from Combustion's 10.6 MPa at BN 63.1 bar (P pi r_bore^2 / lip annulus); the S-AX NZ-03/NZ-04 rows hold the field"
+    },
+    "FA1": {
+     "P_MPa": 9.133267860000002,
+     "mean_bearing_MPa": 15.34,
+     "MS_NZ04_vs_Sc150_ASSUMED": 8.78,
+     "note": "scaled from Combustion's 10.6 MPa at BN 63.1 bar (P pi r_bore^2 / lip annulus); the S-AX NZ-03/NZ-04 rows hold the field"
+    },
+    "FA1S": {
+     "P_MPa": 15.103800000000001,
+     "mean_bearing_MPa": 25.37,
+     "MS_NZ04_vs_Sc150_ASSUMED": 4.91,
+     "note": "scaled from Combustion's 10.6 MPa at BN 63.1 bar (P pi r_bore^2 / lip annulus); the S-AX NZ-03/NZ-04 rows hold the field"
+    }
+   },
+   "pressure_assisted": "the insert load grows with chamber pressure: the lip seal is pressure-energised (no unloading under FA-1); S-AX NZ-04 MS 4.78 at FA1S (regular set, L1)"
+  },
+  "J-GIM": {
+   "thrust_spike_static_N": 1510.0,
+   "basis": "500 N x 75.52 / 25.01 bar (thrust ~ Pc at fixed Cf, ESTIMATE)",
+   "pin_radial_LC1_N": 250.0,
+   "airframe_screw_shear_LC1_N": 92.0,
+   "static": {
+    "factor_on_LC1": 3.02,
+    "pin_radial_N": 755.0,
+    "MS_608_C0": 0.815,
+    "airframe_screw_shear_N": 278.0,
+    "vs_S3D_design_max_screw_N": 955.6,
+    "vs_S3D_design_max_pin_N": 893.3
+   },
+   "FA1_DLF": {
+    "factor_on_LC1": 3.652,
+    "pin_radial_N": 913.0,
+    "MS_608_C0": 0.501,
+    "airframe_screw_shear_N": 336.0,
+    "vs_S3D_design_max_screw_N": 955.6,
+    "vs_S3D_design_max_pin_N": 893.3
+   },
+   "bound_DLF2": {
+    "factor_on_LC1": 6.039,
+    "pin_radial_N": 1510.0,
+    "MS_608_C0": -0.093,
+    "airframe_screw_shear_N": 556.0,
+    "vs_S3D_design_max_screw_N": 955.6,
+    "vs_S3D_design_max_pin_N": 893.3
+   },
+   "note": "DLF of the axial engine-on-gimbal mode is NOT computed (the V5c gimbal stiffness summary has no axial term): the FA1 DLF (pressure-part modes >= 2.1 kHz) does not apply to it; the bound 2.0 covers any mode.  608 C0 1.37 kN AS RECALLED, TO-VERIFY (static overload = brinelling, not fracture: inspect / replace the bearings after a FA-1 event)"
+  }
+ },
+ "seals": {
+  "S01": {
+   "ring": "AS568-226 FKM 90A",
+   "note": "bore 57.25 +0.046 (H8), plug 57.20 -0.030/-0.060 (f7): diametral 0.156 max cold",
+   "cases": {
+    "FA1@A1_22.2": {
+     "state": "A1_22.2",
+     "P_MPa": 9.133267860000002,
+     "radial_opening_flank_mm": 0.0128,
+     "radial_opening_mean_mm": 0.0199,
+     "radial_opening_max_mm": 0.0275,
+     "extrusion_gap_mm": 0.1816,
+     "limit_mm": 0.2073,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.142,
+     "squeeze_loss_pct_of_min": 4.8,
+     "pressure_tightened_at_flank": false
+    },
+    "FA1S@A1_22.2": {
+     "state": "A1_22.2",
+     "P_MPa": 15.103800000000001,
+     "radial_opening_flank_mm": 0.02,
+     "radial_opening_mean_mm": 0.0313,
+     "radial_opening_max_mm": 0.0433,
+     "extrusion_gap_mm": 0.1961,
+     "limit_mm": 0.1173,
+     "limit_src": "EXTRAPOLATED beyond the Parker chart (14 MPa): no data, guideline only",
+     "MS_extrusion": -0.402,
+     "squeeze_loss_pct_of_min": 7.6,
+     "pressure_tightened_at_flank": false
+    },
+    "TS1b@A1_22.2": {
+     "state": "A1_22.2",
+     "P_MPa": 4.5,
+     "radial_opening_flank_mm": 0.0072,
+     "radial_opening_mean_mm": 0.0111,
+     "radial_opening_max_mm": 0.0152,
+     "extrusion_gap_mm": 0.1704,
+     "limit_mm": 0.3214,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.886,
+     "squeeze_loss_pct_of_min": 2.7,
+     "pressure_tightened_at_flank": false
+    },
+    "LC1@B1_21.65": {
+     "state": "B1_21.65",
+     "P_MPa": 2.501007,
+     "radial_opening_flank_mm": -0.001,
+     "radial_opening_mean_mm": -0.0012,
+     "radial_opening_max_mm": -0.001,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.35,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.244,
+     "squeeze_loss_pct_of_min": 0.0,
+     "pressure_tightened_at_flank": true
+    },
+    "LC2@B1_21.65": {
+     "state": "B1_21.65",
+     "P_MPa": 4.5,
+     "radial_opening_flank_mm": 0.0015,
+     "radial_opening_mean_mm": 0.0028,
+     "radial_opening_max_mm": 0.0044,
+     "extrusion_gap_mm": 0.159,
+     "limit_mm": 0.3214,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.022,
+     "squeeze_loss_pct_of_min": 0.8,
+     "pressure_tightened_at_flank": false
+    },
+    "LC2@B1_1": {
+     "state": "B1_1",
+     "P_MPa": 4.5,
+     "radial_opening_flank_mm": 0.0021,
+     "radial_opening_mean_mm": 0.0037,
+     "radial_opening_max_mm": 0.0055,
+     "extrusion_gap_mm": 0.1601,
+     "limit_mm": 0.3214,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.007,
+     "squeeze_loss_pct_of_min": 1.0,
+     "pressure_tightened_at_flank": false
+    },
+    "BN@B1_21.65": {
+     "state": "B1_21.65",
+     "P_MPa": 6.308,
+     "radial_opening_flank_mm": 0.0038,
+     "radial_opening_mean_mm": 0.0065,
+     "radial_opening_max_mm": 0.0094,
+     "extrusion_gap_mm": 0.1636,
+     "limit_mm": 0.2698,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.649,
+     "squeeze_loss_pct_of_min": 1.6,
+     "pressure_tightened_at_flank": false
+    },
+    "LC4@RT": {
+     "state": "RT",
+     "P_MPa": 6.75,
+     "radial_opening_flank_mm": 0.0078,
+     "radial_opening_mean_mm": 0.0125,
+     "radial_opening_max_mm": 0.0174,
+     "extrusion_gap_mm": 0.1717,
+     "limit_mm": 0.2571,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.498,
+     "squeeze_loss_pct_of_min": 3.1,
+     "pressure_tightened_at_flank": false
+    },
+    "TB70@TB": {
+     "state": "TB",
+     "P_MPa": 5.81,
+     "radial_opening_flank_mm": 0.0032,
+     "radial_opening_mean_mm": 0.0057,
+     "radial_opening_max_mm": 0.0083,
+     "extrusion_gap_mm": 0.1625,
+     "limit_mm": 0.284,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.748,
+     "squeeze_loss_pct_of_min": 1.5,
+     "pressure_tightened_at_flank": false
+    },
+    "TBS@TB": {
+     "state": "TB",
+     "P_MPa": 6.31,
+     "radial_opening_flank_mm": 0.0039,
+     "radial_opening_mean_mm": 0.0067,
+     "radial_opening_max_mm": 0.0097,
+     "extrusion_gap_mm": 0.1638,
+     "limit_mm": 0.2697,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.647,
+     "squeeze_loss_pct_of_min": 1.7,
+     "pressure_tightened_at_flank": false
+    }
+   }
+  },
+  "S02": {
+   "ring": "AS568-226 FKM 90A (back-up gland)",
+   "note": "as S01",
+   "cases": {
+    "FA1@A1_22.2": {
+     "state": "A1_22.2",
+     "P_MPa": 9.133267860000002,
+     "radial_opening_flank_mm": -0.0053,
+     "radial_opening_mean_mm": -0.0002,
+     "radial_opening_max_mm": 0.0054,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.2073,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.329,
+     "squeeze_loss_pct_of_min": 0.9,
+     "pressure_tightened_at_flank": true
+    },
+    "FA1S@A1_22.2": {
+     "state": "A1_22.2",
+     "P_MPa": 15.103800000000001,
+     "radial_opening_flank_mm": -0.009,
+     "radial_opening_mean_mm": -0.0008,
+     "radial_opening_max_mm": 0.0082,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.1173,
+     "limit_src": "EXTRAPOLATED beyond the Parker chart (14 MPa): no data, guideline only",
+     "MS_extrusion": -0.248,
+     "squeeze_loss_pct_of_min": 1.4,
+     "pressure_tightened_at_flank": true
+    },
+    "TS1b@A1_22.2": {
+     "state": "A1_22.2",
+     "P_MPa": 4.5,
+     "radial_opening_flank_mm": -0.0024,
+     "radial_opening_mean_mm": 0.0002,
+     "radial_opening_max_mm": 0.0031,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.3214,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.06,
+     "squeeze_loss_pct_of_min": 0.5,
+     "pressure_tightened_at_flank": true
+    },
+    "LC1@B1_21.65": {
+     "state": "B1_21.65",
+     "P_MPa": 2.501007,
+     "radial_opening_flank_mm": -0.002,
+     "radial_opening_mean_mm": -0.0022,
+     "radial_opening_max_mm": -0.002,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.35,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.244,
+     "squeeze_loss_pct_of_min": 0.0,
+     "pressure_tightened_at_flank": true
+    },
+    "LC2@B1_21.65": {
+     "state": "B1_21.65",
+     "P_MPa": 4.5,
+     "radial_opening_flank_mm": -0.0033,
+     "radial_opening_mean_mm": -0.0024,
+     "radial_opening_max_mm": -0.0013,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.3214,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.06,
+     "squeeze_loss_pct_of_min": 0.0,
+     "pressure_tightened_at_flank": true
+    },
+    "LC2@B1_1": {
+     "state": "B1_1",
+     "P_MPa": 4.5,
+     "radial_opening_flank_mm": -0.0036,
+     "radial_opening_mean_mm": -0.002,
+     "radial_opening_max_mm": -0.0002,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.3214,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.06,
+     "squeeze_loss_pct_of_min": 0.0,
+     "pressure_tightened_at_flank": true
+    },
+    "BN@B1_21.65": {
+     "state": "B1_21.65",
+     "P_MPa": 6.308,
+     "radial_opening_flank_mm": -0.0044,
+     "radial_opening_mean_mm": -0.0026,
+     "radial_opening_max_mm": -0.0004,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.2698,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.729,
+     "squeeze_loss_pct_of_min": 0.0,
+     "pressure_tightened_at_flank": true
+    },
+    "LC4@RT": {
+     "state": "RT",
+     "P_MPa": 6.75,
+     "radial_opening_flank_mm": -0.0044,
+     "radial_opening_mean_mm": -0.0008,
+     "radial_opening_max_mm": 0.003,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.2571,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.648,
+     "squeeze_loss_pct_of_min": 0.5,
+     "pressure_tightened_at_flank": true
+    },
+    "TB70@TB": {
+     "state": "TB",
+     "P_MPa": 5.81,
+     "radial_opening_flank_mm": -0.0042,
+     "radial_opening_mean_mm": -0.0026,
+     "radial_opening_max_mm": -0.0007,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.284,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.821,
+     "squeeze_loss_pct_of_min": 0.0,
+     "pressure_tightened_at_flank": true
+    },
+    "TBS@TB": {
+     "state": "TB",
+     "P_MPa": 6.31,
+     "radial_opening_flank_mm": -0.0046,
+     "radial_opening_mean_mm": -0.0027,
+     "radial_opening_max_mm": -0.0004,
+     "extrusion_gap_mm": 0.156,
+     "limit_mm": 0.2697,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.729,
+     "squeeze_loss_pct_of_min": 0.0,
+     "pressure_tightened_at_flank": true
+    }
+   }
+  },
+  "S13": {
+   "ring": "AS568-229 FFKM (Kalrez 7075 class, ~75 Sh A AS RECALLED)",
+   "note": "TC-09 bore 61.0 +0.046 (H8) on the case land 61.0 -0.030/-0.060 (f7): diametral 0.106 max cold",
+   "cases": {
+    "FA1@A1_22.2": {
+     "state": "A1_22.2",
+     "P_MPa": 9.133267860000002,
+     "radial_opening_flank_mm": -0.0206,
+     "radial_opening_mean_mm": -0.0128,
+     "radial_opening_max_mm": 0.0033,
+     "extrusion_gap_mm": 0.106,
+     "limit_mm": 0.1195,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.128,
+     "squeeze_loss_pct_of_min": null,
+     "pressure_tightened_at_flank": true
+    },
+    "FA1S@A1_22.2": {
+     "state": "A1_22.2",
+     "P_MPa": 15.103800000000001,
+     "radial_opening_flank_mm": -0.0335,
+     "radial_opening_mean_mm": -0.0212,
+     "radial_opening_max_mm": 0.0044,
+     "extrusion_gap_mm": 0.106,
+     "limit_mm": 0.0626,
+     "limit_src": "EXTRAPOLATED beyond the Parker chart (14 MPa): no data, guideline only",
+     "MS_extrusion": -0.41,
+     "squeeze_loss_pct_of_min": null,
+     "pressure_tightened_at_flank": true
+    },
+    "TS1b@A1_22.2": {
+     "state": "A1_22.2",
+     "P_MPa": 4.5,
+     "radial_opening_flank_mm": -0.0106,
+     "radial_opening_mean_mm": -0.0064,
+     "radial_opening_max_mm": 0.0025,
+     "extrusion_gap_mm": 0.106,
+     "limit_mm": 0.2214,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.089,
+     "squeeze_loss_pct_of_min": null,
+     "pressure_tightened_at_flank": true
+    },
+    "LC1@B1_21.65": {
+     "state": "B1_21.65",
+     "P_MPa": 2.501007,
+     "radial_opening_flank_mm": -0.0085,
+     "radial_opening_mean_mm": -0.0054,
+     "radial_opening_max_mm": 0.0008,
+     "extrusion_gap_mm": 0.106,
+     "limit_mm": 0.25,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.358,
+     "squeeze_loss_pct_of_min": null,
+     "pressure_tightened_at_flank": true
+    },
+    "LC2@B1_21.65": {
+     "state": "B1_21.65",
+     "P_MPa": 4.5,
+     "radial_opening_flank_mm": -0.0129,
+     "radial_opening_mean_mm": -0.0083,
+     "radial_opening_max_mm": 0.0012,
+     "extrusion_gap_mm": 0.106,
+     "limit_mm": 0.2214,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.089,
+     "squeeze_loss_pct_of_min": null,
+     "pressure_tightened_at_flank": true
+    },
+    "LC2@B1_1": {
+     "state": "B1_1",
+     "P_MPa": 4.5,
+     "radial_opening_flank_mm": -0.0097,
+     "radial_opening_mean_mm": -0.0063,
+     "radial_opening_max_mm": 0.0008,
+     "extrusion_gap_mm": 0.106,
+     "limit_mm": 0.2214,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 1.089,
+     "squeeze_loss_pct_of_min": null,
+     "pressure_tightened_at_flank": true
+    },
+    "BN@B1_21.65": {
+     "state": "B1_21.65",
+     "P_MPa": 6.308,
+     "radial_opening_flank_mm": -0.0168,
+     "radial_opening_mean_mm": -0.0109,
+     "radial_opening_max_mm": 0.0013,
+     "extrusion_gap_mm": 0.106,
+     "limit_mm": 0.1698,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.602,
+     "squeeze_loss_pct_of_min": null,
+     "pressure_tightened_at_flank": true
+    },
+    "LC4@RT": {
+     "state": "RT",
+     "P_MPa": 6.75,
+     "radial_opening_flank_mm": -0.0145,
+     "radial_opening_mean_mm": -0.0095,
+     "radial_opening_max_mm": 0.001,
+     "extrusion_gap_mm": 0.106,
+     "limit_mm": 0.1571,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.482,
+     "squeeze_loss_pct_of_min": null,
+     "pressure_tightened_at_flank": true
+    },
+    "TB70@TB": {
+     "state": "TB",
+     "P_MPa": 5.81,
+     "radial_opening_flank_mm": -0.0236,
+     "radial_opening_mean_mm": -0.018,
+     "radial_opening_max_mm": -0.0064,
+     "extrusion_gap_mm": 0.106,
+     "limit_mm": 0.184,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.736,
+     "squeeze_loss_pct_of_min": null,
+     "pressure_tightened_at_flank": true
+    },
+    "TBS@TB": {
+     "state": "TB",
+     "P_MPa": 6.31,
+     "radial_opening_flank_mm": -0.0247,
+     "radial_opening_mean_mm": -0.0187,
+     "radial_opening_max_mm": -0.0064,
+     "extrusion_gap_mm": 0.106,
+     "limit_mm": 0.1697,
+     "limit_src": "Parker ORD 5700 Fig. 3-2 approx (hand_calcs [R2])",
+     "MS_extrusion": 0.601,
+     "squeeze_loss_pct_of_min": null,
+     "pressure_tightened_at_flank": true
+    }
+   }
+  }
+ },
+ "seals_qualitative": {
+  "S03": "TC-03 flange O-ring AS568-016 FFKM: the chamber pushes the TC-03 flange onto its seat (J-TC03): pressure-assisted, no unloading under FA-1",
+  "S14": "J1 lip-face seal NZ-04: the insert load grows with chamber pressure (pressure-energised); bearing scales to ~25 MPa at FA1S vs 150 MPa max gasket stress ASSUMED"
+ }
+}

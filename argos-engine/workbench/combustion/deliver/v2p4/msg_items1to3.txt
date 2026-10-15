@@ -1,0 +1,172 @@
+Combustion v2.4, coordinator items 1-3 and the FMEA entry (after CHANGELOG lines 160-161). Workdir data: data/v2/v2p4/rg01_line_states_v2p4.json (2939549811d4c381), script src/rg01_line_states_v2p4.py. Hub copies follow at handback (item 4).
+
+ITEM 1. PURGE ON THE DECIDED PATH (two equal restrictors, 0.707 mm each = 1.0 mm-equivalent area, Cd 0.70 ASSUMED, valves non-controlling)
+How: no re-run was needed. purge_duration_v2p4 already ran exactly this path ('0.707|2tap') on the fine grid (Tp 0.5-2.5 s in 0.1 s steps; 0 deg and 2 deg with all 8 azimuths; 6 heat cases; wet and dry; barrier and open element; 4 slip brackets; 5 GNC coast series), on hash-asserted inputs, and the model is deterministic. The new script reduces the per-series records (the 536 MB raw file, streamed), separates the two tilts and the two linings, and cross-checks the combined-tilt result against purge_duration_v2p4.json (asserted).
+Correction found while reducing (SIM model artefact; conservative; kept as evidence): the trade's 'restart' slug convention added the dead time of the 1 cm3 tank-liquid placeholder (+0.023 s) to single-pocket sequences. It does not move the governing robust times (1.9 s unlined, 2.2 s lined), which come from real gaps. It does move s 1.0 from 1.2 to 1.1 s unlined, and swall lined from 1.3 to 1.2 s. The GNC tables below use the corrected form.
+
+Needed Tp (P_abort <= 1e-3 over every case at that tilt; worst slip bracket), N2O vented, latest cap clearing, and residual pocket at the lift:
+| Lining | Tilt | Tp needed | N2O at Tp needed | N2O at 2.5 s | Cap cleared by (at 2.5 s) | Residual at the lift (2.5 s) |
+| unlined | 0 deg | 1.9 s | 19.5-54.7 g | 34.3-72.9 g | 2.26 s | 4.77-8.15 cm3 |
+| unlined | 2 deg | 1.9 s | 19.5-54.7 g | 34.3-72.9 g | 2.27 s | 4.77-8.15 cm3 |
+| lined 1 mm PTFE | 0 deg | 2.2 s | 26.1-63.9 g | 33.5-73.0 g | 2.45 s | 4.77-8.18 cm3 |
+| lined 1 mm PTFE | 2 deg | 2.2 s | 26.1-63.9 g | 33.5-73.0 g | 2.49 s (*) | 4.77-9.08 cm3 |
+(*) In 24 lined records at 2 deg (s 0.5) the cap is still in the line at 2.5 s, behind a slug too long to reach the seat: P = 0.
+- By slip bracket, unlined 0 / 2 deg: scons (s 0.548) 1.7 / 1.7 s; swall (0.885) 1.2 / 1.2 s; s 1.0 1.1 / 1.1 s; s 0.5 1.9 / 1.9 s.
+- By slip bracket, lined 0 / 2 deg: 2.0 / 2.0; 1.2 / 1.2; 1.2 / 1.2; 2.2 / 2.2 s.
+- Governing case at Tp 1.8 s, unlined: s 0.5, open element, isothermal LO dry. A 0.2 cm3 residual cap behind a 9.6 cm3 slug gives P 0.098 under the 'restart' convention. Under 'paused' alone the time would be 1.7 s (0 deg) / 1.8 s (2 deg).
+- Governing case, lined: hot-wall HI dry, s 0.5. A 6.0 cm3 gap behind a 3.8 cm3 slug at 2.1 s gives P 0.064. The lining lengthens the needed time, so it stays out of the minimal set.
+- At the scheduled 2.5 s the margin is 0.6 s unlined (0.3 s lined). N2O vented is <= 73.0 g in every case, inside the 76 g plan. The tilt (0 vs 2 deg) does not change the vented mass. The residual pocket stays >= 9.8 cm3 below V_zero 18.86 cm3.
+- Truncated purge (worst over all decision cases, corrected P_abort), unlined:
+
+  | Tp [s] | 1.0 | 1.5 | 1.6 | 1.7 | 1.8 | 1.9-2.5 |
+  |---|---|---|---|---|---|---|
+  | P_abort | 1.0 | 0.52 | 0.37 | 0.24 | 0.098 | 0 |
+
+  Lined: 2.0 s 0.20; 2.1 s 0.064; 2.2-2.5 s 0. A trigger-gate delay must therefore never shorten the flow time below 1.9 s (2.2 s lined). The ECU hard cap must allow >= 2.5 s of FLOW plus the valve opening and closing times.
+- Timing: Tp counts from both valves open to both valves closed (flow time), not the command interval. PURGE command = E0 - (0.35 MV ramp + 2.5 + 0.05) = E0 - 2.90 s. This supersedes E0 - 2.40 s, which belonged to the 0.8 mm-per-tap, 2.0 s option that was not adopted. The close command leads by the measured closing time (S12: 77 ms) so that flow has stopped by E0 - 0.05 s.
+- Unequal areas from Mechanical need a two-flow change to the purge kernel (T4 and FD-01 flows passed separately) and a run of about 20 min. Any restriction F2 adds in one leg (element on FD-01, or check valve on T4) unbalances the split in the same way. Mechanical, please give that part's dP-flow curve with the areas.
+
+Stuck-open flow on this path (both taps liquid, coast tank state 46.45 bar, 289.5 K; Dyer 56 843 kg/m2s, Cd 0.70 ASSUMED):
+- Flow: 31.24 g/s in total (15.62 g/s per tap; 4.25 g/s per tap as vapour), 11.8 % of the 264.08 g/s 100 % flow. It is an upper bound: it falls with tank pressure in blowdown, and during the burn the tap inlets sit below tank pressure by the line loss.
+- GNC S313 at 31.3 g/s therefore bounds it. S313 bracket CONFIRMED: no re-fly is needed for the flow value.
+- Which arm is physical: ADDITIVE (A1 0.896). The taps draw from the feed upstream of the pintle, in parallel with the injector, and the closed Pc loop restores the injector flow. Open loop, or at the pintle travel limit, the extra line loss subtracts about 1.5 % from the injector at 100 % flow: 0.70 bar on dP_inj 22.7 bar, with the line loss ASSUMED at 2.5 bar at 0.25 kg/s, proportional to mdot^2 (DERIVED). At the ignition lift the injector loses <= 0.09 % (ignition_detect part E).
+
+ITEM 2. RG-01 INTEGRATED VAPOUR TRADE: LINE STATES FOR THE GNC RE-FLY
+Configuration: re-routed coil (CAD v3.4.1 traps), pre-scheduled purge on the decided path, theta <= 2 deg, balanced or axial vent.
+Method: the same 200 000-sample ignition set (seed 2024, start_latency pool A1_relight 12.5 % K15) and the same E0 -> E1 torch-gate sample as post_abort_pocket_v2p4 (the published 19 cm3 state is reproduced to 1e-12, asserted). E0 = T_fire. A light requires E1 -> E2 <= W 0.65 s. Tags: SIM on ASSUMED delays, plus DERIVED line states.
+
+E0 -> E2 [s] (all samples) and P_abort at W 0.65 s:
+| Line state | P_abort | median | p99 | max |
+|---|---|---|---|---|
+| Liquid line (reference) | 0 | 0.315 | 0.462 | 0.499 |
+| PURGED unlined, Tp 2.5 s, worst: pocket 8.15 cm3 (ARM HI wet, scons, barrier, 0 deg) | 0 | 0.442 | 0.589 | 0.626 |
+| PURGED unlined, Tp 2.5 s, least: pocket 4.77 cm3 | 0 | 0.390 | 0.537 | 0.573 |
+| PURGED lined, Tp 2.5 s, worst: 9.08 cm3 at 2 deg | 0 | 0.456 | 0.603 | 0.640 |
+| PURGED unlined at the robust edge, Tp 1.9 s, worst: 14.88 cm3 | 0 | 0.547 | 0.694 | 0.730 |
+| PURGE NOT RUN, LO worst (ARM LO wet: 12.5 pocket, 11.2 slug, 23.4 gap) | 0.242 | 0.510 | 1.281 | 1.318 |
+| PURGE NOT RUN, HI worst (whole segment vapour, 51.8 cm3) | 1.000 | 1.121 | 1.268 | 1.305 |
+| BLEED_FAULT (closure not confirmed; the relight proceeds) | identical to PURGED | | | |
+
+For BLEED_FAULT, the injector loses <= 0.09 % at the lift. The mass cost is 31.2 g/s additive from E0 to the end of the flight, which is the S313 arm.
+
+E0 -> E2 given a light, 5 % quantiles (0, 5, ..., 100 %) [s]:
+- Liquid line: 0.1348 0.1939 0.2127 0.2271 0.2403 0.2529 0.2657 0.2781 0.2906 0.3031 0.3153 0.3277 0.3402 0.3527 0.3650 0.3778 0.3903 0.4033 0.4179 0.4367 0.4989
+- PURGED unlined Tp 2.5 worst: 0.2615 0.3206 0.3394 0.3539 0.3671 0.3797 0.3924 0.4049 0.4173 0.4298 0.4420 0.4544 0.4669 0.4794 0.4918 0.5045 0.5171 0.5300 0.5446 0.5635 0.6257
+- PURGED unlined Tp 2.5 least: 0.2090 0.2681 0.2869 0.3014 0.3146 0.3272 0.3399 0.3524 0.3648 0.3773 0.3895 0.4020 0.4144 0.4270 0.4393 0.4520 0.4646 0.4775 0.4921 0.5110 0.5732
+- PURGED lined Tp 2.5 worst: 0.2760 0.3351 0.3539 0.3684 0.3816 0.3942 0.4069 0.4194 0.4318 0.4443 0.4565 0.4689 0.4814 0.4939 0.5062 0.5190 0.5316 0.5445 0.5591 0.5780 0.6401
+- PURGED unlined Tp 1.9 edge: 0.3662 0.4253 0.4441 0.4586 0.4718 0.4844 0.4971 0.5096 0.5220 0.5345 0.5467 0.5592 0.5716 0.5842 0.5965 0.6092 0.6218 0.6347 0.6494 0.6682 0.7304
+- PURGE NOT RUN LO worst: 0.3291 0.3822 0.3987 0.4113 0.4219 0.4319 0.4416 0.4511 0.4608 0.4703 0.4797 0.4890 0.4986 0.5078 0.5172 0.5266 0.5364 0.5470 0.5595 0.5760 0.6284
+- PURGE NOT RUN HI: none (no light)
+Recommendation for the re-fly: fly 'PURGED unlined Tp 2.5 worst' as the nominal relight state. It bounds the decided path; 'least' is the other end. The 0.81 s plan from T_fire holds: E0 -> E2 max 0.626 s. 'PURGE NOT RUN' is a failure state whose probability comes from the FMEA (valve fails closed, trigger gate never released); weight it there, not in the nominal.
+
+Minimal case set for P_abort <= 1e-3 (decision tilts 0 and 2 deg, worst over every heat case, reading, element model, slip bracket and coast series):
+| Combination | Worst P_abort |
+|---|---|
+| (1) re-route alone | 1.0 (every HI wet case: whole segment vapour; ARM LO wet 0.24; hot-wall HI dry 0.65) |
+| (2) re-route + 1 mm PTFE lining | 1.0 (HI wet unchanged) |
+| (3) re-route + decided-path purge, Tp 2.5 s, unlined | 0 (needed 1.9 s) |
+| (4) re-route + lining + purge, Tp 2.5 s | 0 (needed 2.2 s: the lining costs time) |
+- MINIMAL SET = (3): re-routed coil (v3.4.1 traps) + pre-scheduled 2-tap purge on the decided path (a restrictor per tap, equal 0.707 mm, valves non-controlling), 2.5 s of flow ending 0.05 s before E0, + theta <= 2 deg with a balanced or axial vent. No lining.
+- The purge covers LO and HI, wet and dry. No reading-dependent element is left in the set.
+- The needed time is set by the cap transport (s 0.5 bracket), which CF-4 measures.
+- GNC's relight attitude (max 0.76 deg at RELIGHT, 0/500 above 1 deg) is inside the 2 deg design case.
+- Conditions: CF-4 passes (item 3); IGN-1/T1 ignition-delay p99.9 <= 0.30 s (otherwise V_zero moves); Mechanical's final areas re-run; GNC re-fly with 76 g per purge and the commitment at E0 - 2.90 s.
+
+ITEM 3. CF-4 COLD-FLOW SPECIFICATION (gate for the relight claim; physical execution by the founders)
+Claim under test (C-RL): on CAD v3.4.1 with the decided purge path and 2.5 s of flow ending 0.05 s before E0, at theta <= 2 deg, an A1 relight lights within W 0.65 s with P_abort <= 1e-3, venting <= 76 g.
+
+Hardware:
+- Metal, flight-equivalent segment from the MV-P seat to the pintle seat: module with S1 and the J602 cavity, FD-08F, wall line, the re-routed hose coil as clamped, riser, TEE, the FD-01 tap, the head with the 15 um element, the T4 crown tap, the manifold annulus and the pintle.
+- The flight bleed path as built: both restrictors; the F2 part; V1 and V2 meeting F1; the -2 line; the balanced or axial outlet.
+- Flight MV-P and pintle drive under the flight firmware's PURGE sequence (HIL).
+- A tilt fixture for 0 and 2 deg, toward az 45 and az 180 (sensitivity: 4 deg).
+- Back-pressured catch volumes (LEAD rule); the vent catch volume on a load cell.
+
+Instruments (minimum):
+- Void/phase probes, response <= 5 ms, at: the pintle inlet, FD-01 crown, T4 crown, riser top, TEE, the two hump crowns at 2 deg, and the S1 cap region.
+- Pressures at >= 1 kHz: tank, P_feed, manifold, upstream of each restrictor, downstream of V2.
+- Temperatures: a 0.5 mm sheathed thermocouple in each tap jet; head, hose and module walls; tank liquid.
+- Masses: tank load cell; vent catch-volume load cell.
+- Valve command and current signature for MV, V1 and V2.
+
+Initial states (tank at the A1 relight state, 43.5-46.5 bar, 286.7-289.5 K; heaters set to Mechanical's segment heat budget):
+- IS-1: vapour-full segment (HI bound).
+- IS-2: ARM-LO-like (traps full, short slug, cap at S1).
+- IS-3: liquid-primed reference.
+
+Runs: >= 5 per initial state and attitude (sample size ASSUMED; the founders may raise it). The ECU runs PURGE, then the lift to 0.2039 mm. Measured: time from the lift command to the first continuous liquid at the pintle inlet.
+
+Pass criteria. The claim is closed for the tested states only if all of P1-P7 hold in every run.
+- P1: first continuous liquid at the pintle inlet <= 0.293 s after the pintle reaches the 0.2039 mm lift (encoder), i.e. <= 0.32 s after the lift command (t_lift 29.6 ms). This is the claim limit (V_zero 18.86 cm3 x 0.015555 s/cm3). Model prediction: <= 0.13 s after reaching the lift (pocket <= 8.2 cm3).
+- P2: then >= 0.35 s of continuous liquid (15 cm3 at the lift flow). A later void is acceptable only inside the Table 10.4 budget (cf4_void_budget_v2p4.json 6c294cf2dec7af5d: C1_max as a function of P1 and S1).
+- P3: the S1 cap and the hump vapour clear the FD-01 crown before the flow ends. The probes at the FD-01 crown, riser top and hump crowns read liquid for >= 0.2 s before closure, so the cap is cleared <= 2.3 s after the flow starts (model latest: 2.27 s, s 0.5, unlined).
+- P4: each tap passes >= 80 % of the model:
+  - liquid >= 12.5 g/s per tap (model 15.62);
+  - vapour >= 3.4 g/s per tap (model 4.25);
+  - Cd_eff >= 0.56 with V1 and V2 in series, and dP across V1 + V2 <= 11 % of the path total. That is what F1 (each valve >= 4x the restriction's capacity) implies for incompressible flow: the restrictor controls.
+- P5: N2O vented <= 76 g per run from IS-1 and IS-2 (load cell; model 34-73 g at 2.5 s). IS-3 is all liquid and not a flight state; it calibrates the path at 2 x 15.62 g/s, about 78 g at 2.5 s. A mass below 80 % of that flags a restricted path.
+- P6: both bleed valves closed, with the flow stopped, by E0 - 0.05 s, as shown by the signal the ECU uses for closure. A run with one valve held open must raise BLEED_FAULT (this tests the detection).
+- P7 (F2): with the bleed valves closed and >= 264 g/s liquid through the pintle (100 % flow), no flow between the FD-01 and T4 legs within resolution (no unfiltered path to the seat).
+
+Model checks (they do not gate the claim; a failure triggers a re-run of the trade with the measured value):
+- Slip, as cap speed over column speed: >= 0.5 in the hose and the wall line.
+- Hump sweep at 2 deg: column flow while hump vapour remains >= 17.4 cm3/s needed at 1.14 g (model minimum on this path 26.0 cm3/s).
+- Regrowth from the flow end to the lift.
+- Restrictor Cd.
+
+Ground test vs flight: the specific force at RELIGHT is 0.94-1.14 g.
+- At 1.14 g the drift slip falls: s_flight = 1 - (1 - s_1g) x 1.068.
+- Report both slips, and run the model at s_flight; it must pass.
+
+Refutation:
+- Any P1 or P2 failure refutes the claim for that state. Combustion re-runs the trade on the measured inputs, GNC re-flies, and RG-01 stays BLOCKING.
+- P3 or P4 failing while P1 and P2 pass: the claim holds only for the runs tested. The margin is not shown; re-run with the measured flows and slip.
+- P5 above 76 g: GNC re-flies the A1 reserve.
+- P6 or P7 failing: hardware fix (F1/F2) and retest.
+
+Optional runs (they settle open disagreements, not the claim):
+- Generation runs: MV closed, heated hold at the LO/HI budget, void growth of the full head trap. This settles the wet/dry reading.
+- The SIL's 0.17 s prep-path purge credit.
+- S11's 15.91 cm3 unreached volume.
+
+FMEA INPUT FA-1 (single-control hazard; LEAD decision line 160 (4)): fuel-assisted fast part at an A1 relight.
+- Hazard: the main N2O reaches the 32.2 mm port of the warm grain with no torch flame, accumulates, and lights late.
+  - The fast part (1.2-2.1 g, vapour and spray in transit) burns with fuel vapour.
+  - Head Pc: 48.9-75.5 bar abs at a 1 ms burn time. It is above MEOP 45 for <= 3.0 ms and above proof 67.5 at a 60 ms residence time.
+  - At a 5 ms burn time <= 55.5 bar; at 10 ms <= 41.4 bar.
+  - The rounded entrance does not help at 32.2 mm.
+  - SIM on ASSUMED burn time and fuel fraction (late_light_spike_v2p4).
+- Single control: the torch-first gate (pintle lift only after E1, torch flame confirmed).
+- Failure modes of the control:
+  - FM1: false torch confirmation (P_torch bias or drift; photodiode false positive);
+  - FM2: lift commanded before E1 (sequence or firmware fault);
+  - FM3: torch blown out or quenched by the main flow between E1 and E2;
+  - FM4: torch lit but does not ignite the main flow promptly.
+- Detection that exists today:
+  - Before the start: P_torch auto-zero, and ARM refused above 1.05 bar abs (catches only a gross P_torch bias).
+  - At E1: 10 ms persistence.
+  - Between E1 and E2: nothing.
+  - The 30 bar abort (5 ms raw) and the comparator (RC 5.28 ms) cannot act within a 1-3 ms pulse. LIGHT_SPIKE records the event after the fact; it is evidence, not protection.
+- What could detect a gate failure, and its limits:
+  - (a) E1 by two dissimilar sensors (P_torch AND photodiode, 2oo2). This cuts FM1 and FM2 (FM2 is also caught by firmware sequence checks in SIL).
+  - (b) Continuous torch supervision from E1 to E2 with both sensors; loss for >= 5 ms closes the pintle and MV. This bounds the unlit N2O to about 35-38 g/s x (detection 5 ms + closing 20-100 ms), 0.9-4.0 g.
+  - That bound is comparable to the fast part itself, so (b) limits but does NOT remove the hazard (FM3, FM4).
+  - Nothing can detect the pulse in time to stop it.
+- Severity: catastrophic if the case or closures fail; critical otherwise.
+- Occurrence: unknown. No torch reliability data yet; the photodiode false-positive rate is unknown.
+- Verification:
+  - IGN-1: torch stability under the main N2O flow at the lift (blow-out margin), photodiode false-positive tests, >= 30 lights.
+  - T4: relights with LIGHT_SPIKE logging measure the real burn time and peak.
+- Owners:
+  - Electronics: (a), (b) and the sequence checks.
+  - Combustion: refines the bound with IGN-1/T4 data.
+  - Mechanical: case and closure response to a 75.5 bar, <= 3 ms pulse (dynamic load factor; burst margin).
+  - Lead: acceptance of a single-control hazard.
+- Research option (not proposed for adoption): a lower relight ignition lift shrinks the fast part (proportional to the flow at the lift), at the cost of the A3 margin. To be evaluated only if IGN-1 shows FM3.
+
+Open items with owners:
+- Mechanical: restrictor areas and the F2 part's dP-flow curve (Combustion re-runs, about 20 min); the 15.91 cm3 file.
+- Electronics: the closure-confirmation signal behind BLEED_FAULT; the ECU purge cap (>= 2.5 s of flow plus valve times); FA-1 (a) and (b).
+- GNC: re-fly with the PURGED tables, 76 g per purge (bounded by PS10 94.5 g) and PURGE committed at E0 - 2.90 s.
+- Founders: CF-4.
+Next: hub copies (item 4) and the v2.4 handback (item 5).

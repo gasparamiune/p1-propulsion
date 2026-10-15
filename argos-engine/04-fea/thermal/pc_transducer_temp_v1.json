@@ -1,0 +1,190 @@
+{
+ "id": "pc_transducer_temp",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "04-fea/thermal/pc_transducer_temp.py",
+ "request": "REV-ELEC-1 RE-07; lead decision CHANGELOG line 166 (5)",
+ "status": "BOUNDED ESTIMATE: SIM (2-D thermal FE, upper-bound heat transfer) + DERIVED extension + ASSUMED transducer body; mount location OPEN (not in CAD); not a measurement",
+ "geometry": {
+  "tap": "1/8-27 NPT, head top (ENG-TC-02) r 25 mm / az 142 deg, 2 mm passage to the face at r 20.5 (CAD v3.4.1 rev B)",
+  "sense_line": "1/8 in OD x 0.035 in wall 316, < 0.30 m (lead, config pc_sense_line_max_len)",
+  "transducer": "TE M3234-000005-070BG (Electronics), 1/4-18 NPT male; reservation 30 x 30 x 80 mm, 50 g ASSUMED; NOT placed in CAD",
+  "sense_line_conductance_W_K": 0.000294
+ },
+ "assumptions": {
+  "C_body_J_K": 25.0,
+  "G_mount_W_K": [
+   0.2,
+   0.5,
+   2.0
+  ],
+  "coast_nominal_s": 20.599,
+  "head_top_band": "max over the head-top face nodes r 20-26 mm (tap at r 25)",
+  "extension": "linear at the last-1.7 s slope of the run's coast (concave curve: upper bound)"
+ },
+ "cases": {
+  "design_revB": {
+   "source": {
+    "histories_npz_sha256_16": "4e6e0c0501b5d218",
+    "meta_sha256_16": "b7dd34d1ba62b03e",
+    "frd": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v13pre36IN_J1revB.frd",
+    "segments_s": [
+     [
+      0.001,
+      3.541
+     ],
+     [
+      22.211,
+      26.781
+     ]
+    ],
+    "dc_history": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/dc_gncv3/DC-A1dispp99_tg711-S230_neqE1e+03_reg1.csv",
+    "config_overrides": {
+     "D_pre": 0.0499,
+     "tc03_material": "IN718",
+     "nozzle_joint": "J1",
+     "insert_sleeve_material": "CARBON-PHENOLIC"
+    }
+   },
+   "t_MECO_s": 3.541,
+   "t_RELIGHT_run_s": 22.211,
+   "coast_run_s": 18.67,
+   "coast_used_s": 20.599,
+   "extension_slope_K_s": 0.678,
+   "D_direct_upper_bound": {
+    "T_MECO_C": 20.23,
+    "T_RELIGHT_C": 36.11,
+    "dT_coast_K": 15.89,
+    "dT_from_first_rezero_end_K": 15.76,
+    "slope_at_RELIGHT_K_s": 0.611,
+    "dT_last_3s_K": 1.96,
+    "dT_last_4s_K": 2.66,
+    "dT_last_5s_K": 3.38
+   },
+   "D_direct_at_run_coast": {
+    "T_MECO_C": 20.23,
+    "T_RELIGHT_C": 34.89,
+    "dT_coast_K": 14.67,
+    "dT_from_first_rezero_end_K": 14.54,
+    "slope_at_RELIGHT_K_s": 0.691,
+    "dT_last_3s_K": 2.11,
+    "dT_last_4s_K": 2.87,
+    "dT_last_5s_K": 3.65
+   },
+   "L_lagged_G0.2_W_K": {
+    "T_MECO_C": 20.23,
+    "T_RELIGHT_C": 21.43,
+    "dT_coast_K": 1.2,
+    "dT_from_first_rezero_end_K": 1.2,
+    "slope_at_RELIGHT_K_s": 0.104,
+    "dT_last_3s_K": 0.32,
+    "dT_last_4s_K": 0.42,
+    "dT_last_5s_K": 0.52
+   },
+   "L_lagged_G0.5_W_K": {
+    "T_MECO_C": 20.23,
+    "T_RELIGHT_C": 23.02,
+    "dT_coast_K": 2.79,
+    "dT_from_first_rezero_end_K": 2.79,
+    "slope_at_RELIGHT_K_s": 0.233,
+    "dT_last_3s_K": 0.72,
+    "dT_last_4s_K": 0.96,
+    "dT_last_5s_K": 1.18
+   },
+   "L_lagged_G2_W_K": {
+    "T_MECO_C": 20.23,
+    "T_RELIGHT_C": 28.29,
+    "dT_coast_K": 8.06,
+    "dT_from_first_rezero_end_K": 8.06,
+    "slope_at_RELIGHT_K_s": 0.562,
+    "dT_last_3s_K": 1.8,
+    "dT_last_4s_K": 2.41,
+    "dT_last_5s_K": 3.01
+   },
+   "R_remote": {
+    "dT_from_engine_K": "< 0.05 (sense line 2.9e-4 W/K; stagnant gas)",
+    "governed_by": "bracket / bay air (Electronics bay TC)"
+   }
+  },
+  "sensitivity_v11_geometry": {
+   "source": {
+    "histories_npz_sha256_16": "cf01ccbfbdca19e0",
+    "meta_sha256_16": "ba14378f483e26b6",
+    "frd": "DC-A1_gncv2_hi_SS316L_L2.5_v11.frd",
+    "segments_s": [
+     [
+      0.001,
+      3.221
+     ],
+     [
+      24.191,
+      28.351
+     ]
+    ],
+    "dc_history": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/dc_gncv2wip/DC-A1-S230v2wip_neqE1e+03_reg1.csv",
+    "config_overrides": null
+   },
+   "t_MECO_s": 3.221,
+   "t_RELIGHT_run_s": 24.191,
+   "coast_run_s": 20.97,
+   "coast_used_s": 20.599,
+   "extension_slope_K_s": null,
+   "D_direct_upper_bound": {
+    "T_MECO_C": 19.77,
+    "T_RELIGHT_C": 42.94,
+    "dT_coast_K": 23.17,
+    "dT_from_first_rezero_end_K": 23.19,
+    "slope_at_RELIGHT_K_s": 1.051,
+    "dT_last_3s_K": 3.33,
+    "dT_last_4s_K": 4.56,
+    "dT_last_5s_K": 5.85
+   },
+   "D_direct_at_run_coast": {
+    "T_MECO_C": 19.77,
+    "T_RELIGHT_C": 43.25,
+    "dT_coast_K": 23.48,
+    "dT_from_first_rezero_end_K": 23.5,
+    "slope_at_RELIGHT_K_s": 0.957,
+    "dT_last_3s_K": 3.19,
+    "dT_last_4s_K": 4.4,
+    "dT_last_5s_K": 5.67
+   },
+   "L_lagged_G0.2_W_K": {
+    "T_MECO_C": 19.77,
+    "T_RELIGHT_C": 21.37,
+    "dT_coast_K": 1.6,
+    "dT_from_first_rezero_end_K": 1.6,
+    "slope_at_RELIGHT_K_s": 0.169,
+    "dT_last_3s_K": 0.48,
+    "dT_last_4s_K": 0.63,
+    "dT_last_5s_K": 0.77
+   },
+   "L_lagged_G0.5_W_K": {
+    "T_MECO_C": 19.77,
+    "T_RELIGHT_C": 23.5,
+    "dT_coast_K": 3.74,
+    "dT_from_first_rezero_end_K": 3.74,
+    "slope_at_RELIGHT_K_s": 0.383,
+    "dT_last_3s_K": 1.1,
+    "dT_last_4s_K": 1.44,
+    "dT_last_5s_K": 1.75
+   },
+   "L_lagged_G2_W_K": {
+    "T_MECO_C": 19.77,
+    "T_RELIGHT_C": 30.79,
+    "dT_coast_K": 11.02,
+    "dT_from_first_rezero_end_K": 11.03,
+    "slope_at_RELIGHT_K_s": 0.97,
+    "dT_last_3s_K": 2.87,
+    "dT_last_4s_K": 3.8,
+    "dT_last_5s_K": 4.69
+   },
+   "R_remote": {
+    "dT_from_engine_K": "< 0.05 (sense line 2.9e-4 W/K; stagnant gas)",
+    "governed_by": "bracket / bay air (Electronics bay TC)"
+   }
+  }
+ },
+ "drift_note": "Drift = zero TC x dT. At the 0.01 bar/K placeholder (Electronics config.h l.558, TO-VERIFY at B-PC-1) the DIRECT bound gives ~0.15-0.16 bar over the whole coast (> the 0.10 bar allowance after the first re-zero) and <= ~0.03 bar over the last 3-5 s (second re-zero, lead RE-07 (5)). A remote mount removes the engine contribution. Recommendation: mount the transducer remote from the head (bracket on the gimbal-side structure with the 1/8 in line as the thermal break) and place it in CAD run 6."
+}

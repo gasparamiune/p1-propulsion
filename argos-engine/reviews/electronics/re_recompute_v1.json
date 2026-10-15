@@ -1,0 +1,783 @@
+{
+ "review": "REV-ELEC-1",
+ "script": "re_recompute_v1.py",
+ "note": "reviewer recomputation; no author script imported or run",
+ "inputs_sha256_16": {
+  "06-electronics/hardware/kicad_gen/ecu_design.py": "f6c13591f6486cab",
+  "06-electronics/firmware/src/core/config.h": "0ba1e1ef0fbce180",
+  "06-electronics/firmware/src/core/mv_ladder_table.h": "330eb425aaaf37f0",
+  "06-electronics/firmware/src/core/filters.h": "b698f33b51ea0b22",
+  "interfaces/electronics.json": "da067408c1594814",
+  "interfaces/combustion.json": "d9ec54fbf450e243",
+  "interfaces/gnc.json": "3e97c378cfebee95",
+  "06-electronics/results/bom_v2p1.csv": "a6353169e3e74ca3",
+  "interfaces/CHANGELOG.md": "e2aefd1f62481877",
+  "00-requirements/REQUIREMENTS.md": "8e3cb85b87f62aa2",
+  "00-requirements/ICD-AIRFRAME.md": "09c09dcc0916a6fd"
+ },
+ "A_k_div_Zin_330k": {
+  "v": 0.23822632901954408,
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "ecu_design.py l.568-570; config.h l.672 Zin 330k [DS]"
+ },
+ "A_k_div_Zin_300k": {
+  "v": 0.23800812069498373,
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "ecu_design.py l.568-570; config.h l.672 Zin 330k [DS]"
+ },
+ "A_k_div_Zin_inf": {
+  "v": 0.24043062200956938,
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "ecu_design.py l.568-570; config.h l.672 Zin 330k [DS]"
+ },
+ "A_adc_clip_at_PC_SIG_V": {
+  "v": 5.03722659430122,
+  "unit": "V",
+  "tag": "DERIVED",
+  "src": "Vref 1.2 V / k_div(330k); window top kPcSensorMax_V 4.75 V"
+ },
+ "A_pc_Pa_per_count": {
+  "v": 1.0508473563226624,
+  "unit": "Pa",
+  "tag": "DERIVED",
+  "src": "LSB referred to Pc"
+ },
+ "A_fw_ovp_30barabs_gauge_bar": {
+  "v": 28.98675,
+  "unit": "bar g",
+  "tag": "DERIVED",
+  "src": "config.h l.271 kPcOverPressureAbs 30 bar abs"
+ },
+ "A_fw_ovp_PC_SIG_V": {
+  "v": 2.1563857142857144,
+  "unit": "V",
+  "tag": "DERIVED",
+  "src": "ratiometric 070BG"
+ },
+ "A_hw_ovp_tap": {
+  "v": 0.2401215805471125,
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "ecu_design.py l.364-365 R330 100k / R331 31.6k"
+ },
+ "A_hw_ovp_Vref_V": {
+  "v": 0.5518018018018018,
+  "unit": "V",
+  "tag": "DERIVED",
+  "src": "ecu_design.py l.368-371 R332 237k / R333 29.4k from +5V_SNS"
+ },
+ "A_hw_ovp_trip_PC_SIG_V": {
+  "v": 2.2980100353518074,
+  "unit": "V",
+  "tag": "DERIVED",
+  "src": ""
+ },
+ "A_hw_ovp_trip_bar_g": {
+  "v": 31.465175618656627,
+  "unit": "bar g",
+  "tag": "DERIVED",
+  "src": "claim 31.47 bar g (ecu_design.py l.369)"
+ },
+ "A_hw_ovp_band_electronic_bar_g": {
+  "v": [
+   30.678,
+   32.255
+  ],
+  "unit": "bar g",
+  "tag": "DERIVED",
+  "src": "0.1 % resistors + Vio +/-9 mV (DS as quoted)"
+ },
+ "A_hw_ovp_band_min_minus_fw_ovp_bar": {
+  "v": 1.691057744757039,
+  "unit": "bar",
+  "tag": "DERIVED",
+  "src": "> 0: the hardware path always trips after the firmware path (backup), electronics only"
+ },
+ "A_teb_070BG_bar": {
+  "v": 1.05,
+  "unit": "bar",
+  "tag": "DATASHEET (as quoted)",
+  "src": "config.h TEB 1.5 % FS"
+ },
+ "A_hw_ovp_rc_tau_ms": {
+  "v": 5.282674772036474,
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "Rth(R330||R331) x C330 220 nF"
+ },
+ "A_hw_ovp_step_trip_ms_1_to_45_bar_abs": {
+  "v": 6.637339300409059,
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "ideal step at PC_SIG, RC only (comparator and latch delays < 10 us ignored)"
+ },
+ "A_hw_ovp_step_trip_ms_1_to_63_bar_abs": {
+  "v": 3.742705673308999,
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "ideal step at PC_SIG, RC only (comparator and latch delays < 10 us ignored)"
+ },
+ "A_hw_ovp_step_trip_ms_25_to_45_bar_abs": {
+  "v": 2.473766539030169,
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "ideal step at PC_SIG, RC only (comparator and latch delays < 10 us ignored)"
+ },
+ "A_hw_ovp_step_trip_ms_25_to_35_bar_abs": {
+  "v": 7.277949655009346,
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "ideal step at PC_SIG, RC only (comparator and latch delays < 10 us ignored)"
+ },
+ "B_pmid_rise_bar_g": {
+  "v": 9.864431532663316,
+  "unit": "bar g",
+  "tag": "DERIVED",
+  "src": "claim 9.86 bar g (ecu_design.py l.520-532)"
+ },
+ "B_pmid_fall_bar_g": {
+  "v": 8.863593959898504,
+  "unit": "bar g",
+  "tag": "DERIVED",
+  "src": "claim 8.86 bar g"
+ },
+ "B_pmid_rise_bar_g_with_Vol_0p15V": {
+  "v": 9.834150282663312,
+  "unit": "bar g",
+  "tag": "DERIVED",
+  "src": "LMV331 output-low saturation ~0.15 V at 0.5 mA ASSUMED"
+ },
+ "B_pmid_rise_band_electronic_bar_g": {
+  "v": [
+   8.95,
+   10.79
+  ],
+  "unit": "bar g",
+  "tag": "DERIVED",
+  "src": "1 % resistors (ASSUMED class) + Vio 9 mV"
+ },
+ "B_pmid_fall_band_electronic_bar_g": {
+  "v": [
+   7.93,
+   9.8
+  ],
+  "unit": "bar g",
+  "tag": "DERIVED",
+  "src": ""
+ },
+ "B_pmid_rise_band_with_TEB_bar_g": {
+  "v": [
+   6.4,
+   13.34
+  ],
+  "unit": "bar g",
+  "tag": "DERIVED",
+  "src": "+/- TEB 2.55 bar (config.h, 170BG class)"
+ },
+ "B_pmid_fall_band_with_TEB_bar_g": {
+  "v": [
+   5.38,
+   12.35
+  ],
+  "unit": "bar g",
+  "tag": "DERIVED",
+  "src": ""
+ },
+ "B_pmid_purge_level": {
+  "v": "NOT PUBLISHED",
+  "unit": "",
+  "tag": "TO-VERIFY",
+  "src": "P_mid with V1 and V2 both open (orifice ratio V1 : restriction) must sit outside the band above; not stated in electronics.json or the SIL record"
+ },
+ "C_ladder_nominal_ratios": {
+  "v": {
+   "harness1_open0_closed0_pmid0": 0.89189,
+   "harness1_open0_closed0_pmid1": 0.70303,
+   "harness1_open0_closed1_pmid0": 0.59417,
+   "harness1_open0_closed1_pmid1": 0.50398,
+   "harness1_open1_closed0_pmid0": 0.46072,
+   "harness1_open1_closed0_pmid1": 0.40457,
+   "harness1_open1_closed1_pmid0": 0.36599,
+   "harness1_open1_closed1_pmid1": 0.32965,
+   "harness0_open0_closed0_pmid0": 1.0,
+   "harness0_open0_closed0_pmid1": 0.76852
+  },
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "matches kLadderNom (mv_ladder_table.h) if equal to 5 decimals"
+ },
+ "C_ladder_physically_impossible_code_OPEN_and_CLOSED_decodes": {
+  "v": "valid open=1 closed=1 pmid=0",
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "sensor_scale.cpp mvLadderDecode: both limit switches closed is reported VALID (no plausibility check in engine_ecu.cpp l.567/879)"
+ },
+ "C_soft_short_region": {
+  "v": "[0.02, 0.34773) decodes as bits 15 (OPEN+CLOSED+P_mid high, VALID)",
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "a partial short of the pin 23 node to GND above 0.02 x 3.3 V is not reported as a fault"
+ },
+ "C_soft_short_R_to_GND_for_ratio_0.10_ohm": {
+  "v": 1111.111111111111,
+  "unit": "ohm",
+  "tag": "DERIVED",
+  "src": "decode: valid open=1 closed=1 pmid=1"
+ },
+ "C_soft_short_R_to_GND_for_ratio_0.20_ohm": {
+  "v": 2500.0,
+  "unit": "ohm",
+  "tag": "DERIVED",
+  "src": "decode: valid open=1 closed=1 pmid=1"
+ },
+ "C_soft_short_R_to_GND_for_ratio_0.30_ohm": {
+  "v": 4285.714285714286,
+  "unit": "ohm",
+  "tag": "DERIVED",
+  "src": "decode: valid open=1 closed=1 pmid=1"
+ },
+ "C_leak_to_GND_that_flips_coast_closed_pmid_lo_ohm": {
+  "v": 72505.85686331785,
+  "unit": "ohm",
+  "tag": "DERIVED",
+  "src": "closed + P_mid HIGH: coast leak flag / pad BLEED_FAULT / stand abort"
+ },
+ "C_leak_to_GND_that_flips_burn_open_pmid_lo_ohm": {
+  "v": 70857.84932057491,
+  "unit": "ohm",
+  "tag": "DERIVED",
+  "src": "open + P_mid HIGH: in-burn leak flag (flight) / BLEED_FAULT (stand)"
+ },
+ "C_leak_to_GND_that_flips_harness_R0_only_ohm": {
+  "v": 121760.63154342743,
+  "unit": "ohm",
+  "tag": "DERIVED",
+  "src": "invalid code 4 (harness open + P_mid high)"
+ },
+ "C_ladder_rc_tau_ms_max": {
+  "v": 0.9918899999999998,
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "(R_top || R_bottom + R571 1k) x C570 100 nF"
+ },
+ "C_settle_to_half_min_gap_ms": {
+  "v": 4.096477669054944,
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "worst full-swing 0.6 to within half the 0.0193 gap"
+ },
+ "E_tps552882_vout_V": {
+  "v": 7.490526315789473,
+  "unit": "V",
+  "tag": "DERIVED",
+  "src": "ecu_design.py l.703-742; 1.2 V reference as quoted by the author (TO-VERIFY on the TI datasheet)"
+ },
+ "E_sim_h_stale_comment_vout_V": {
+  "v": 7.482722513089005,
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "sim.h l.62 comment \"FB 100k/19.1k\": stale values, same voltage class"
+ },
+ "D_ltc4365_ov_nominal_V": {
+  "v": 8.2,
+  "unit": "V",
+  "tag": "DERIVED",
+  "src": "claim 8.20 V"
+ },
+ "D_ltc4365_ov_band_V": {
+  "v": [
+   8.062,
+   8.339
+  ],
+  "unit": "V",
+  "tag": "DERIVED",
+  "src": "OV pin 492.5-507.5 mV (DS as quoted) + 0.1 % resistors"
+ },
+ "D_ov_band_top_vs_jam_failure_case_8p34V": {
+  "v": -0.0009999999999994458,
+  "unit": "V",
+  "tag": "DERIVED",
+  "src": "REQUIREMENTS amendment: failure case 933.7 N at 8.34 V"
+ },
+ "D_ov_band_bottom_minus_rail_7p49V": {
+  "v": 0.5714736842105266,
+  "unit": "V",
+  "tag": "DERIVED",
+  "src": "headroom for regulation tolerance and load-release overshoot (TO-VERIFY at B-PNT-1)"
+ },
+ "D_ltc4365_uv_band_V": {
+  "v": [
+   4.955,
+   5.137
+  ],
+  "unit": "V",
+  "tag": "DERIVED",
+  "src": "UV threshold 0.5 V ASSUMED by the author (TO-CONFIRM); 1 % resistors"
+ },
+ "D_firmware_prail_lost_V": {
+  "v": 5.5,
+  "unit": "V",
+  "tag": "DESIGN",
+  "src": "config.h l.514 kPrailLost_V (above the UV band: firmware sees the loss first)"
+ },
+ "D_ov_uv_bench_test_in_plan": {
+  "v": false,
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "bench_plan_v2.md has no test of the LTC4365 OV/UV or the OVP comparator thresholds"
+ },
+ "F_boost_input_current_table": {
+  "v": {
+   "purge_both_valves": {
+    "P_out_W": 32.0,
+    "Iin_A_vin6.6_eta0.85": 5.7,
+    "Iin_A_vin6.6_eta0.90": 5.39,
+    "Iin_A_vin7.4_eta0.85": 5.09,
+    "Iin_A_vin7.4_eta0.90": 4.8,
+    "Iin_A_vin8.1_eta0.85": 4.65,
+    "Iin_A_vin8.1_eta0.90": 4.39
+   },
+   "purge_both_valves_warm": {
+    "P_out_W": 42.0,
+    "Iin_A_vin6.6_eta0.85": 7.49,
+    "Iin_A_vin6.6_eta0.90": 7.07,
+    "Iin_A_vin7.4_eta0.85": 6.68,
+    "Iin_A_vin7.4_eta0.90": 6.31,
+    "Iin_A_vin8.1_eta0.85": 6.1,
+    "Iin_A_vin8.1_eta0.90": 5.76
+   },
+   "purge_plus_roll_pair": {
+    "P_out_W": 60.0,
+    "Iin_A_vin6.6_eta0.85": 10.7,
+    "Iin_A_vin6.6_eta0.90": 10.1,
+    "Iin_A_vin7.4_eta0.85": 9.54,
+    "Iin_A_vin7.4_eta0.90": 9.01,
+    "Iin_A_vin8.1_eta0.85": 8.71,
+    "Iin_A_vin8.1_eta0.90": 8.23
+   },
+   "E0_overlap_V2_torch": {
+    "P_out_W": 40.2,
+    "Iin_A_vin6.6_eta0.85": 7.17,
+    "Iin_A_vin6.6_eta0.90": 6.77,
+    "Iin_A_vin7.4_eta0.85": 6.39,
+    "Iin_A_vin7.4_eta0.90": 6.04,
+    "Iin_A_vin8.1_eta0.85": 5.84,
+    "Iin_A_vin8.1_eta0.90": 5.51
+   },
+   "E0_overlap_V2_torch_roll": {
+    "P_out_W": 58.2,
+    "Iin_A_vin6.6_eta0.85": 10.37,
+    "Iin_A_vin6.6_eta0.90": 9.8,
+    "Iin_A_vin7.4_eta0.85": 9.25,
+    "Iin_A_vin7.4_eta0.90": 8.74,
+    "Iin_A_vin8.1_eta0.85": 8.45,
+    "Iin_A_vin8.1_eta0.90": 7.98
+   },
+   "E0_overlap_V2_torch_spark_dwell_peak": {
+    "P_out_W": 88.2,
+    "Iin_A_vin6.6_eta0.85": 15.72,
+    "Iin_A_vin6.6_eta0.90": 14.85,
+    "Iin_A_vin7.4_eta0.85": 14.02,
+    "Iin_A_vin7.4_eta0.90": 13.24,
+    "Iin_A_vin8.1_eta0.85": 12.81,
+    "Iin_A_vin8.1_eta0.90": 12.1
+   }
+  },
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "loads ASSUMED/DERIVED as noted; VIN 6.6 V = kTvcSupplyMin, 8.1 V = kBattArmMin; eta 0.85-0.90 ASSUMED"
+ },
+ "F_purge_duration_max_s": {
+  "v": 4.5,
+  "unit": "s",
+  "tag": "DESIGN",
+  "src": "kPurgeRelight_s 2.5 + kPurgeHoldMax_s 2.0 (config.h l.603-604)"
+ },
+ "F_ARM_BUS_at_PURGE_start_A": {
+  "v": [
+   14.5,
+   22.8
+  ],
+  "unit": "A",
+  "tag": "DERIVED",
+  "src": "MV opener stall (DATASHEET 9.2 A / ASSUMED 10.4 A) + pintle rail 0-4.33 A + boost (purge) + latch 4 W; vs F301 15 A (fuse I2t TO-VERIFY)"
+ },
+ "G_close_confirm_ms_restriction_1.0mm": {
+  "v": [
+   78.7,
+   108.7
+  ],
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "valve 50-80 ms (DATASHEET as quoted) + liquid 12.5 + vapour 8.9 + 5 ticks + ladder RC 2.4; limit 150 ms, bench pass <= 120 ms"
+ },
+ "G_close_confirm_ms_restriction_0.8mm": {
+  "v": [
+   90.7,
+   120.7
+  ],
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "valve 50-80 ms (DATASHEET as quoted) + liquid 19.4 + vapour 13.9 + 5 ticks + ladder RC 2.4; limit 150 ms, bench pass <= 120 ms"
+ },
+ "G_close_confirm_ms_restriction_0.6mm": {
+  "v": [
+   116.6,
+   146.6
+  ],
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "valve 50-80 ms (DATASHEET as quoted) + liquid 34.5 + vapour 24.7 + 5 ticks + ladder RC 2.4; limit 150 ms, bench pass <= 120 ms"
+ },
+ "G_butterworth_group_delay_DC_ms": {
+  "v": 4.466296415484017,
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "firmware LowPass2 replicated (filters.h)"
+ },
+ "G_A5_race_tau_max_ms_that_aborts": {
+  "v": {
+   "8.50_bar_abs": null,
+   "10.00_bar_abs": null,
+   "12.00_bar_abs": 1.25,
+   "15.85_bar_abs": 2.75,
+   "20.00_bar_abs": 4.5,
+   "25.00_bar_abs": 8.75,
+   "30.00_bar_abs": 11.25
+  },
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "largest first-order chamber rise time constant (0-100 ms grid) for which A5 completes before the 10-tick light confirmation; None = never"
+ },
+ "G_A5_race_note": {
+  "v": "A5 wins when the FILTERED Pc goes from the light threshold to 8 bar abs in < 5 ticks; the 10-tick confirmation and A5 overlap by design",
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "config.h l.305-306 vs l.542-543"
+ },
+ "G_A1_coast_burn_off_to_burn_on_s": {
+  "v": 20.599,
+  "unit": "s",
+  "tag": "DERIVED",
+  "src": "gnc.json v3 DC-A1 burns_s [[0.001, 3.261], [23.86, 28.07]]"
+ },
+ "G_rezero_end_to_T_fire_s": {
+  "v": [
+   18.3,
+   19.4
+  ],
+  "unit": "s",
+  "tag": "DERIVED",
+  "src": "re-zero block ends COAST + 1.2 s (config.h l.565-567); T_fire = burn-on minus 0-0.81 s; COAST entry 0-0.30 s after burn-off"
+ },
+ "G_vented_check_drift_allowance_bar": {
+  "v": [
+   0.0,
+   0.1
+  ],
+  "unit": "bar",
+  "tag": "DERIVED",
+  "src": "0.10 bar limit minus captured outgassing (ASSUMED ~0.05 bar by the author) minus re-zero span bias (<= 0.05 bar accepted)"
+ },
+ "G_transducer_dT_to_exhaust_0p1bar_K": {
+  "v": 10.0,
+  "unit": "K",
+  "tag": "DERIVED",
+  "src": "author linear-TEB estimate 0.01 bar/K (config.h l.560; TO-VERIFY at B-PC-1)"
+ },
+ "G_relight_worst_ms": {
+  "v": {
+   "direct": 810.0,
+   "prep_path": 1370.0,
+   "purge_integrated": 3310.0
+  },
+  "unit": "ms",
+  "tag": "DERIVED",
+  "src": "config.h torch gate 0.16 + W 0.65; prep bleed 0.06 + ramp 0.35 + hold 0.15; PURGE 2.5; GNC plans 0.81 / 1.41 s"
+ },
+ "H_false_light_window_base_v2p9_c0.41_bar": {
+  "v": [
+   0.7,
+   1.0
+  ],
+  "unit": "bar",
+  "tag": "DERIVED",
+  "src": "c = unlit pre-light rise (COMB plateau 0.41-0.44 bar g; SIL nominal 0.43, SIL MC max 0.50); upper edge ~1.0 bar g = torch gate kTorchGateMaxPcG (TORCH_FAULT above)"
+ },
+ "H_false_light_window_base_v2p9_c0.43_bar": {
+  "v": [
+   0.7,
+   1.0
+  ],
+  "unit": "bar",
+  "tag": "DERIVED",
+  "src": "c = unlit pre-light rise (COMB plateau 0.41-0.44 bar g; SIL nominal 0.43, SIL MC max 0.50); upper edge ~1.0 bar g = torch gate kTorchGateMaxPcG (TORCH_FAULT above)"
+ },
+ "H_false_light_window_base_v2p9_c0.50_bar": {
+  "v": [
+   0.7,
+   1.0
+  ],
+  "unit": "bar",
+  "tag": "DERIVED",
+  "src": "c = unlit pre-light rise (COMB plateau 0.41-0.44 bar g; SIL nominal 0.43, SIL MC max 0.50); upper edge ~1.0 bar g = torch gate kTorchGateMaxPcG (TORCH_FAULT above)"
+ },
+ "H_false_light_window_post_B_PC_1_c0.41_bar": {
+  "v": [
+   0.577,
+   1.0
+  ],
+  "unit": "bar",
+  "tag": "DERIVED",
+  "src": "c = unlit pre-light rise (COMB plateau 0.41-0.44 bar g; SIL nominal 0.43, SIL MC max 0.50); upper edge ~1.0 bar g = torch gate kTorchGateMaxPcG (TORCH_FAULT above)"
+ },
+ "H_false_light_window_post_B_PC_1_c0.43_bar": {
+  "v": [
+   0.557,
+   1.0
+  ],
+  "unit": "bar",
+  "tag": "DERIVED",
+  "src": "c = unlit pre-light rise (COMB plateau 0.41-0.44 bar g; SIL nominal 0.43, SIL MC max 0.50); upper edge ~1.0 bar g = torch gate kTorchGateMaxPcG (TORCH_FAULT above)"
+ },
+ "H_false_light_window_post_B_PC_1_c0.50_bar": {
+  "v": [
+   0.487,
+   1.0
+  ],
+  "unit": "bar",
+  "tag": "DERIVED",
+  "src": "c = unlit pre-light rise (COMB plateau 0.41-0.44 bar g; SIL nominal 0.43, SIL MC max 0.50); upper edge ~1.0 bar g = torch gate kTorchGateMaxPcG (TORCH_FAULT above)"
+ },
+ "H_torch_flow_chamber_rise_upper_bound_bar": {
+  "v": 0.06374172769895493,
+  "unit": "bar",
+  "tag": "DERIVED",
+  "src": "combustion.json torch mdot 0.000594 kg/s x c* 1586 m/s / main At (Dt 13.72 mm) as a CHOKED upper bound; the main throat is not choked at this level"
+ },
+ "H_offset_sources_not_bounded": {
+  "v": "spark-train EMI / ground shift on PC_SIG (spark 4 A peak, 50 Hz, runs through [E1-20 ms, E1]); Pc tap near the torch jet; sensor fault",
+  "unit": "",
+  "tag": "TO-VERIFY",
+  "src": "B-IGN-1 must bound the DC shift of filtered and raw Pc during the spark train"
+ },
+ "I_rows": {
+  "v": 229,
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "bom_v2p1.csv"
+ },
+ "I_price_basis_counts": {
+  "v": {
+   "TO-QUOTE": 194,
+   "NO PURCHASE (PCB hole)": 1,
+   "NO PURCHASE (PCB copper pad)": 24,
+   "CATALOGUE": 3,
+   "NO PURCHASE here (owner: Combustion)": 1,
+   "NO PURCHASE here (owner: Combustion / Mechanical)": 2,
+   "NO PURCHASE here (owner: Mechanical)": 1,
+   "NO PURCHASE here (owner: GNC / Mechanical)": 1,
+   "NO PURCHASE here (owner: Mechanical (MV-P))": 2
+  },
+  "unit": "",
+  "tag": "DERIVED",
+  "src": ""
+ },
+ "I_zero_price_rows": {
+  "v": [],
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "must be empty (ENG-14)"
+ },
+ "I_from_price_rows": {
+  "v": [],
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "must be empty (ENG-14)"
+ },
+ "I_rows_delivered_TO_QUOTE_DK6400": {
+  "v": 197,
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "n/a rows are no-purchase lines"
+ },
+ "I_rows_MPN_TO_SELECT": {
+  "v": 87,
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "temperature grade not fixed while the MPN is TO-SELECT"
+ },
+ "I_N2O_wetted_rows": {
+  "v": [
+   [
+    "190",
+    "TE M3234-000005-070BG",
+    true
+   ],
+   [
+    "191",
+    "TE M3234-000005-170BG",
+    false
+   ],
+   [
+    "198",
+    "Swagelok SS-100-1-2BT (1/16 in tube x 1/8 MNPT b",
+    false
+   ],
+   [
+    "208",
+    "Burkert 6027 HP class NC 2/2 solenoid valve, sta",
+    false
+   ],
+   [
+    "209",
+    "TE Connectivity M3234-000005-170BG class pressur",
+    false
+   ]
+  ],
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "(line, part, oxygen-clean note present); ENG-16 requires O2-clean wetted paths"
+ },
+ "I_bom_row_for: coriolis mass-flow reference (CF-3)": {
+  "v": "NONE",
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "searched the part field of bom_v2p1.csv"
+ },
+ "I_bom_row_for: reference pressure gauge (B-PC-1)": {
+  "v": "NONE",
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "searched the part field of bom_v2p1.csv"
+ },
+ "I_bom_row_for: bleed tee / restriction orifice / -2 line (B-BLEED-1)": {
+  "v": "NONE",
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "searched the part field of bom_v2p1.csv"
+ },
+ "I_bom_row_for: N2 bottle + regulator (B-PC-1, B-BLEED-1)": {
+  "v": "NONE",
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "searched the part field of bom_v2p1.csv"
+ },
+ "I_bom_row_for: resistor decade box (B-ECU-1 ladder)": {
+  "v": "NONE",
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "searched the part field of bom_v2p1.csv"
+ },
+ "I_bom_row_for: transducer simulator (B-FC-1)": {
+  "v": "NONE",
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "searched the part field of bom_v2p1.csv"
+ },
+ "I_bom_row_for: cold-flow catch volume / back-pressure (ENG-16)": {
+  "v": "NONE",
+  "unit": "",
+  "tag": "DERIVED",
+  "src": "searched the part field of bom_v2p1.csv"
+ },
+ "J_probe_files": {
+  "v": {
+   "re_probeA_late_light_a5off.json": {
+    "sha256_16": "6ca596f9f52a7738",
+    "n_cases": 60,
+    "kBpc1Shown": false,
+    "abort_counts": {
+     "NONE": 57,
+     "NO_IGNITION": 3
+    }
+   },
+   "re_probeA_late_light_base.json": {
+    "sha256_16": "f0a2d5aaae1d782b",
+    "n_cases": 60,
+    "kBpc1Shown": false,
+    "abort_counts": {
+     "NONE": 33,
+     "NO_IGNITION": 2,
+     "HARD_START": 25
+    }
+   },
+   "re_probeB_base_amb_base.json": {
+    "sha256_16": "e1da1ae58587f83a",
+    "n_cases": 22,
+    "kBpc1Shown": false,
+    "abort_counts": {
+     "NONE": 7,
+     "NO_IGNITION": 7,
+     "FLAMEOUT": 6,
+     "PC_SENSOR": 2
+    }
+   },
+   "re_probeB_base_amb_bpc1.json": {
+    "sha256_16": "9d412cc110c2b8d6",
+    "n_cases": 22,
+    "kBpc1Shown": true,
+    "abort_counts": {
+     "NONE": 5,
+     "NO_IGNITION": 5,
+     "FLAMEOUT": 10,
+     "PC_SENSOR": 2
+    }
+   },
+   "re_probeC_a1_relight_base.json": {
+    "sha256_16": "4f8bb63cd6585511",
+    "n_cases": 12,
+    "kBpc1Shown": false,
+    "abort_counts": {
+     "NONE": 2,
+     "NO_IGNITION": 2,
+     "FLAMEOUT": 6,
+     "PC_SENSOR": 2
+    }
+   },
+   "re_probeC_a1_relight_bpc1.json": {
+    "sha256_16": "59126c7b0173a6d8",
+    "n_cases": 12,
+    "kBpc1Shown": true,
+    "abort_counts": {
+     "NONE": 1,
+     "NO_IGNITION": 1,
+     "FLAMEOUT": 8,
+     "PC_SENSOR": 2
+    }
+   },
+   "re_probeD_drogue_false_e2_base.json": {
+    "sha256_16": "2d8c92b22b7db053",
+    "n_cases": 10,
+    "kBpc1Shown": false,
+    "abort_counts": {
+     "FLAMEOUT": 2,
+     "TORCH_FAULT": 8
+    }
+   },
+   "re_probeD_drogue_false_e2_bpc1.json": {
+    "sha256_16": "36645cc82071c127",
+    "n_cases": 10,
+    "kBpc1Shown": true,
+    "abort_counts": {
+     "FLAMEOUT": 2,
+     "TORCH_FAULT": 8
+    }
+   },
+   "re_probeE_coast_shift_after_rezero_base.json": {
+    "sha256_16": "a8bb89733853ec25",
+    "n_cases": 5,
+    "kBpc1Shown": false,
+    "abort_counts": {
+     "NONE": 5
+    }
+   }
+  },
+  "unit": "",
+  "tag": "SIM",
+  "src": "re_probe*.json in reviews/electronics"
+ }
+}

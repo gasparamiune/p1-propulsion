@@ -1,0 +1,53 @@
+C01 650 N confirmed                                          unmarked 0
+C02 mass estimate <= 1 % (1 sigma)                           unmarked 0
+C03 FC_THRUST budget OPEN / script staged                    unmarked 0
+C04 0.6 s delay costs no P                                   unmarked 0
+C05 time-only release term                                   unmarked 0
+C06 pcf_tmax 0.8 s                                           unmarked 0
+C07 per-flight RG-16 support                                 unmarked 0
+C08 0.30 kg trigger                                          unmarked 0
+C09 L* interim 1.7 s (line 186 (1))                          unmarked 5
+     status :: 'ommits iff the lead from the commit to the plain relight trigger is >= L*, else no purge; L* = 1.7 s if an unpurged start is LO, 1.3 s if HI; FSW interim 1.7 s; the rev2 basis that a T_fir'
+     requirements/ignition/relight_conditions/v :: ' the purge commit rule (PURGE commits iff the lead to the plain relight trigger is >= L*, interim 1.7 s; else the relight proceeds unpurged, lead 181 (2)); ignition at the floor; drogue release'
+     flight_software/rev2p1_entries/purge_commit_rule/v :: 'PURGE commits iff lead to the plain relight trigger >= L* (interim 1.7 s; 1.3 s if HI); else no purge, relight unpurged'
+     rev2/amendment_G_late_commit/finding :: '81 (2)): PURGE commits iff the lead to the plain relight trigger is >= L*, else no purge; L* = 1.7 s if an unpurged start is LO (break-even against PURGE NOT RUN LO, P_total ~0.75) and 1.3'
+     rev2/amendment_G_late_commit/finding :: ' against PURGE NOT RUN LO, P_total ~0.75) and 1.3 s if HI (skipping gives P_total 0); FSW interim 1.7 s until Combustion settles LO/HI and the unpurged-start hazard (the 175 (3) refutation clau'
+C10 unpurged relight fallback (line 186 (1))                 unmarked 2
+     requirements/ignition/relight_conditions/v :: 'PURGE commits iff the lead to the plain relight trigger is >= L*, interim 1.7 s; else the relight proceeds unpurged, lead 181 (2)); ignition at the floor; drogue release on the adopted predicate with the P'
+     flight_software/rev2p1_entries/purge_commit_rule/v :: ' iff lead to the plain relight trigger >= L* (interim 1.7 s; 1.3 s if HI); else no purge, relight unpurged'
+C11 PURGE NOT RUN LO P_total ~0.75 (line 186 (1))            unmarked 1
+     rev2/amendment_G_late_commit/finding :: 'lse no purge; L* = 1.7 s if an unpurged start is LO (break-even against PURGE NOT RUN LO, P_total ~0.75) and 1.3 s if HI (skipping gives P_total 0); FSW interim 1.7 s until Combustion settles L'
+C12 pre-R2 drogue predicate                                  unmarked 1
+     rev1_items/v/drogue_release_rule/fc_implementation/predicate :: ' the drogue is attached in the A relight, on each new TLM_FAST frame (sequence advanced): RELEASE iff b4 AND [(d2-d3 != 0xFFFF AND d2-d3 >= 300 kPa abs) OR b7]; b5 and b6 are logged, not used; the decision is latched'
+C13 unscoped '0.81 s plan holds'                             unmarked 1
+     rev1_items/v/purge_cost_A1_reserve/decision :: 'EAD 2026-10-13 on the Electronics handback (1): PURGE PRE-SCHEDULED (ends before T_fire), 0.81 s plan holds; GNC flies the purge N2O cost (~76 g at 1.0 mm, ~50 g at 0.8 mm) in the A1 reserve; vent '
+C14 RV-1c pivot station 0.2223 m in conventions              unmarked 1
+     conventions/stations :: 'z [m] from the airframe aft datum (base plane), +z toward the nose (RV-1c: pivot at 0.2223 m = mechanical.json frames.rv1_station_of_pivot_m)'
+C15 cold-flow unbounded (line 185/186 (2))                   unmarked 2
+     pending_inputs_rev2p1/cold_flow_bound :: 'e cold-flow apparent thrust under the drogue after a flame-out (181 (4)); rev3 P4 carries 0 / 5 / 10 N parametric until then'
+     checkpoint_rev2p1/unknowns/2 :: 'R2 v2 unflown; cold-flow apparent thrust unbounded'
+C16 H20/OI-31 still 'not decided' (line 186 (1))             unmarked 3
+     open_items/32 :: " (lead 181 (2)): Combustion settles LO/HI and the unpurged-start hazard; Combustion v2.4a H20 / OI-31 proposes 'no commit by the deadline -> no relight on that pass' (not decided by the lead)"
+     rev2/amendment_G_late_commit/finding :: "obability and the contingency flights with the L400 plateau are rev3 P6. Combustion v2.4a H20 / OI-31 (PURGE NOT RUN LO worst: every light followed by a 23.4 cm3 vapour gap; proposal 'no commit by the deadline -> no relight on that pass') is pending a lead decision and would move L* (rev3 P6 adds it as a third case)."
+     pending_inputs_rev2p1/combustion_unpurged_start/v :: "released-then-A3 0.712 (ramp) / 0.717 (flow held); proposal 'no commit by the deadline -> no relight on that pass'; NOT decided by the lead; affects L* (lead 175 (3) refutation clause)"
+C17 '2000 runs' where the plain trigger fired in 649         unmarked 1
+     rev2/amendment_G_late_commit/finding :: ': the decided predictor commits >= 2.66 s before the plain trigger in every run where the plain trigger fired (2000 runs; flow >= 2.387 s; REVIEWER reviews/gnc/rev2/logs/s15_g_decided.out (be3a6105746f9bce)), s'
+C18 W10 6.96-7.84 m/s cited to s04_wind.out                  unmarked 1
+     requirements/launch_commit_rev2p1/v/1/why :: 'at 285 m the trim trades exhaustion for wind-driven landing failures at W10 6.96-7.84 m/s (REVIEWER reviews/gnc/rev2/logs/s04_wind.out (40ac5dc493ea98e1)); the equivalence of the 10-min sigma and the Dryden intensity is a mo'
+C19 'RG-16 margin 0.012 %' (unit: percentage points; REVIEWER number) unmarked 2
+     pending_inputs_rev2p1/vibration_spectrum :: 'measured IMU vibration spectrum at F_max (DC-C / DC-D, founders); RG-16 margin 0.012 %'
+     checkpoint_rev2p1/unknowns/1 :: 'RG-16 margin 0.012 % on an ASSUMED white vibration model; consequence of 0.5 s at 670 N; B1 miss side'
+N01 numeric A1/A2 apogee target 300 m outside history        unmarked 5
+      flight_profile/mission_plan_v3/v/A1/apogee_target_m 300.0
+      propellant_closure_v3/table/DC-A1/h_target_m 300.0
+      propellant_closure_v3/table/DC-A2/h_target_m 300.0
+      propellant_closure_v3/trades/sweeps/A2_h_target/0/value 300.0
+      propellant_closure_v3/trades/sweeps/A1_h_target/0/value 300.0
+R01 fold map names line 186                                                                                    NO
+R02 R2 command hold (start level, 62.5 N) in requirements.ignition.relight_conditions                          NO
+R03 publication_note names sim6 v2.9-dev                                                                       NO
+R04 every live 'rev3 P#' reference is defined by a key (referenced ['2', '3', '4', '5', '6', '7', '9'], defined []) NO
+R05 status states validity at ledger v3d (re-exhaustion / not demonstrated)                                    NO
+R06 W<6 m/s probe carries its base (A1_none) and the binding A1J_pc 20.85 N                                    NO
+R07 FMEA inputs carry line 186 (below-L* pass loss; cold-flow condition on the R2 flame-out hold)              NO
+sha256/16 c2860bd89c1e5920 critical unmarked 20 numeric 300 5 required failed 7 publication mode False

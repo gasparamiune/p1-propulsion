@@ -1,0 +1,43 @@
+pintle_rail_v3 (Electronics 2026-10-13): worst-case pintle-rail voltage for the HV69 jam sizing (LEAD question, MECH v2.3)
+Mechanical input: /home/claude/work/shared-fallback/engine/03-cad/calcs/pintle_inline_v34_v2p3.json sha256/16 9356082d62c4f2ef (jam 817.0 N at 7.6 V, C2 1.6 at 7.4 V)
+TPS552882: VREF 1.188-1.212 V over TJ -40..125 C; FB leakage 100 nA; CDC-floating FB sink typ 0.3 uA (no max printed -> 0.6 uA)
+--- divider A_v2_baseline_100k_19k1: typ 7.483 V, DC 7.396-7.570 V
+      + VREF+divider tolerance (DC, incl. temperature of VREF)        87.5 mV
+      + resistor TCR, not tracking, |dT| 60 K                         18.8 mV
+      + resistor drift 0.05 % each                                     6.3 mV
+      + FB leakage 100 nA x Rup                                       10.0 mV
+      + CDC floating FB sink (2 x 0.3 uA typ) x Rup                   60.0 mV
+      + output ripple (peak, boost at 6.0 V, 4.33 A)                   6.4 mV
+    STATIC upper worst 7.672 V (RSS 7.639 V) -> jam F_link 827.5 N (822.8 N RSS); static lower 7.354 V -> C2 margin 1.591
+    load release (f_RHPZ 37596 Hz, f_c 5000 Hz): C_eff 220 uF (v2: 4x22 uF + 1x220 uF): {'1.70A': 0.246, '4.33A': 0.627} -> peak 8.299 V; C_eff 396 uF (v3: + 2nd 220 uF polymer): {'1.70A': 0.137, '4.33A': 0.348} -> peak 8.02 V
+    line step during a stall (1 % ASSUMED): 7.748 V -> 838.7 N (<= ~1 ms)
+--- divider B_v3_proposed_24k9_4k75: typ 7.490 V, DC 7.403-7.578 V
+      + VREF+divider tolerance (DC, incl. temperature of VREF)        87.6 mV
+      + resistor TCR, not tracking, |dT| 60 K                          7.5 mV
+      + resistor drift 0.05 % each                                     6.3 mV
+      + FB leakage 100 nA x Rup                                        2.5 mV
+      + CDC floating FB sink (2 x 0.3 uA typ) x Rup                   14.9 mV
+      + output ripple (peak, boost at 6.0 V, 4.33 A)                   6.5 mV
+    STATIC upper worst 7.616 V (RSS 7.600 V) -> jam F_link 819.3 N (817.0 N RSS); static lower 7.380 V -> C2 margin 1.596
+    load release (f_RHPZ 37557 Hz, f_c 5000 Hz): C_eff 220 uF (v2: 4x22 uF + 1x220 uF): {'1.70A': 0.246, '4.33A': 0.627} -> peak 8.243 V; C_eff 396 uF (v3: + 2nd 220 uF polymer): {'1.70A': 0.137, '4.33A': 0.348} -> peak 7.964 V
+    line step during a stall (1 % ASSUMED): 7.692 V -> 830.4 N (<= ~1 ms)
+--- divider C_v1_setpoint_24k9_4k81: typ 7.412 V, DC 7.326-7.499 V
+      + VREF+divider tolerance (DC, incl. temperature of VREF)        86.7 mV
+      + resistor TCR, not tracking, |dT| 60 K                          7.5 mV
+      + resistor drift 0.05 % each                                     6.2 mV
+      + FB leakage 100 nA x Rup                                        2.5 mV
+      + CDC floating FB sink (2 x 0.3 uA typ) x Rup                   14.9 mV
+      + output ripple (peak, boost at 6.0 V, 4.33 A)                   6.3 mV
+    STATIC upper worst 7.536 V (RSS 7.521 V) -> jam F_link 807.7 N (805.4 N RSS); static lower 7.303 V -> C2 margin 1.58
+    load release (f_RHPZ 37955 Hz, f_c 5000 Hz): C_eff 220 uF (v2: 4x22 uF + 1x220 uF): {'1.70A': 0.246, '4.33A': 0.627} -> peak 8.163 V; C_eff 396 uF (v3: + 2nd 220 uF polymer): {'1.70A': 0.137, '4.33A': 0.348} -> peak 7.884 V
+    line step during a stall (1 % ASSUMED): 7.612 V -> 818.7 N (<= ~1 ms)
+FAILURE: FB open -> regulator OVP 22.5-24.5 V (no protection today); LTC4365 OV disconnect trip [8.062, 8.2, 8.339] V, response 6 us at 20 V/ms -> peak 8.46 V then 0 V; nuisance-trip margin {'C_eff 220 uF (v2: 4x22 uF + 1x220 uF)': -0.181, 'C_eff 396 uF (v3: + 2nd 220 uF polymer)': 0.098}
+PUBLISH (v3 recommended: divider B 24.9k/4.75k 0.1 % 10 ppm/K, CDC floating, FPWM, 2nd 220 uF polymer, LTC4365 OV disconnect 8.2 V nominal (present v2 divider A gives 7.672 V static worst)):
+    V_rail_max_static_V: 7.62  [DERIVED pintle_rail_v3, linear worst case 7.616 V (RSS 7.600 V); applies to a STALLED servo]
+    jam_F_link_N_at_V_rail_max_static: 819.9  [DERIVED from Mechanical pintle v2.3 jam table (pin friction 0, -10 % spring)]
+    V_rail_line_step_during_stall_V: 7.7  [ASSUMED 1 % allowance (no datasheet number), <= ~1 ms, B-PWR-2 measures; jam 831.6 N]
+    V_rail_peak_load_release_V: 7.97  [DERIVED, 4.33 A release, f_c 5 kHz, C_eff 396 uF; current falling = not coincident with a stall; B-PWR-2]
+    V_rail_failure_static_max_V: 8.34  [DERIVED: LTC4365 OV trip max (a failure can park the rail just below it); without the disconnect the regulator OVP allows 24.5 V]
+    V_rail_failure_peak_V: 8.46  [DERIVED, <= 6 us, then the servo is unpowered]
+    V_rail_min_static_V: 7.38  [DERIVED (C2 margin 1.596 at the rail, before the harness drop)]
+    jam_detection: stall time path 0.10 s after the last progress mark (current path 0.02 + 0.05 s when the pintle current sense is fitted); back-off command the same 1 ms tick; in ABORT a further 0.10 s without closing progress releases the ARM bus (servo unpowered)  [DESIGN firmware v2.6 config.h]

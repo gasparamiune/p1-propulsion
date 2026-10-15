@@ -1,0 +1,181 @@
+#!/usr/bin/env python3
+"""ARGOS H1 - Electronics - manifold state rule support v1 (2026-10-13).
+
+Generates the N2O saturation table used by firmware v2.8 (src/core/n2o_sat_table.h) and records the error budget of the
+stand relight rule R3 (LEAD 2026-10-13, Combustion relight_window_rule_v2p4):
+
+  R3: ignition window 0.65 s only when superheat is PROVEN at both ends of the valve-to-seat segment:
+      T_inlet_block >= Tsat(P_feed) + 5 K  AND  T_valve_outlet >= Tsat(P_feed) + 5 K
+  R2: otherwise 0.50 s (stand default for every relight); R4: any of those sensors invalid -> no relight (stand).
+  FLIGHT: 0.65 s on every relight, the TCs are telemetry only.
+
+The table also gives T_tank = Tsat(P_tank) for the ignition-lift table (LEAD 2026-10-13: lift vs T_tank, build-time config).
+
+Method: CoolProp 8 (HEOS, NitrousOxide), saturated-liquid temperature at absolute pressure on a uniform grid; the firmware
+interpolates linearly. Interpolation error is checked on a 20x finer grid against CoolProp (max |error| reported).
+Tags: Tsat [LITERATURE/EOS via CoolProp], budget terms [DATASHEET] / [ASSUMED] as stated per term.
+
+Usage: /opt/engine-venv/bin/python calc/manifold_state_v1.py [--out-header firmware/src/core/n2o_sat_table.h]
+                                                              [--out-json results/manifold_state_v1.json]
+"""
+import argparse
+import hashlib
+import json
+import os
+
+import CoolProp.CoolProp as CP
+
+VERSION = "v1"
+FLUID = "NitrousOxide"
+P0_PA = 5.0e5          # [DESIGN] lowest table pressure (absolute); below it the rule reports 'not proven'
+DP_PA = 0.25e5         # [DESIGN] grid spacing; chosen so that the linear-interpolation error stays < 0.02 K (checked; 0.5 bar gave 0.021 K)
+P_LAST_MAX_PA = 72.0e5  # [DESIGN] last grid point <= 72.0 bar abs (critical point 72.45 bar abs, CoolProp); above: not proven
+ERR_LIMIT_K = 0.02      # [DESIGN] acceptance for the interpolation error
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+
+
+def tsat(p):
+    return CP.PropsSI("T", "P", p, "Q", 0, FLUID)
+
+
+def build_table():
+    n = int(round((P_LAST_MAX_PA - P0_PA) / DP_PA)) + 1
+    ps = [P0_PA + i * DP_PA for i in range(n)]
+    ts = [tsat(p) for p in ps]
+    return ps, ts
+
+
+def interp(ps, ts, p):
+    if p < ps[0] or p > ps[-1]:
+        return None
+    i = min(int((p - ps[0]) / DP_PA), len(ps) - 2)
+    f = (p - ps[i]) / DP_PA
+    return ts[i] + f * (ts[i + 1] - ts[i])
+
+
+def check_error(ps, ts):
+    worst = (0.0, None)
+    k = 20
+    for i in range(len(ps) - 1):
+        for j in range(1, k):
+            p = ps[i] + DP_PA * j / k
+            e = abs(interp(ps, ts, p) - tsat(p))
+            if e > worst[0]:
+                worst = (e, p)
+    return worst
+
+
+def dtdp(p):
+    h = 0.05e5
+    return (tsat(p + h) - tsat(p - h)) / (2 * h)
+
+
+def budget():
+    """R3 margin check: the +5 K superheat margin must cover the measurement error of 'T - Tsat(P_feed)'."""
+    # P_feed: TE M3200 170BG (0-170 bar g), TEB 1.5 % FS over -20..85 C [DATASHEET M3200 08/2018] = 2.55 bar
+    teb_pa = 0.015 * 170e5
+    rows = []
+    for p_abs in (40e5, 45e5, 50e5, 55e5, 60e5, 65e5):
+        s = dtdp(p_abs)                               # K/Pa
+        e_p = s * teb_pa                              # Tsat error from the P_feed TEB
+        e_tc = max(0.5, 0.004 * abs(tsat(p_abs) - 273.15))   # Type T IEC 60584 class 1: 0.5 K or 0.004|t| [DATASHEET IEC]
+        e_cj = 0.7                                    # MAX31856 cold-junction accuracy -20..85 C, max [DATASHEET 19-7534 Rev 0]
+        e_imm = 1.0                                   # immersion/stem conduction of a 1/16 in MI sheath in a 1/8 NPT port [ASSUMED]
+        tot = e_p + e_tc + e_cj + e_imm
+        rows.append({"p_abs_bar": p_abs / 1e5, "Tsat_K": round(tsat(p_abs), 3), "dTsat_dP_K_per_bar": round(s * 1e5, 4),
+                     "err_Tsat_from_P_TEB_K": round(e_p, 3), "err_TC_class1_K": round(e_tc, 3), "err_CJ_K": e_cj,
+                     "err_immersion_K": e_imm, "sum_K": round(tot, 3), "margin_5K_ok": tot <= 5.0})
+    return {"terms": {"P_feed": "M3200 170BG TEB 1.5 % FS = 2.55 bar [DATASHEET]",
+                      "TC": "Type T IEC 60584 class 1 [DATASHEET IEC 60584-1]",
+                      "CJ": "MAX31856 cold junction +/-0.7 C max [DATASHEET 19-7534 Rev 0]",
+                      "immersion": "1.0 K [ASSUMED]: stem conduction / immersion of the MI sheath; CF-3 checks it (vented vs full line)"},
+            "rows": rows,
+            "note": "Linear sum (worst case). The +5 K margin is the LEAD/Combustion value; this budget only checks that it covers "
+                    "the sensor errors. It does NOT make a TC able to prove liquid at saturation (Combustion RC-03: with S1 the "
+                    "segment sits only 0.3-0.6 K below Tsat); R3 proves superheated (dry) vapour, nothing else."}
+
+
+def write_header(path, ps, ts, sha):
+    lines = []
+    lines.append("// GENERATED by calc/manifold_state_v1.py (%s) - do not edit. N2O saturation temperature vs ABSOLUTE pressure," % VERSION)
+    lines.append("// CoolProp %s HEOS '%s', saturated liquid (Q = 0) [LITERATURE/EOS]. Linear interpolation on a uniform grid;" % (CP.get_global_param_string("version"), FLUID))
+    lines.append("// max interpolation error vs CoolProp checked by the script (results/manifold_state_v1.json). Table sha256/16 %s." % sha)
+    lines.append("// Uses (firmware v2.8): stand relight rule R3 (superheat proven: T >= Tsat(P_feed) + 5 K at both state TCs, LEAD")
+    lines.append("// 2026-10-13) and T_tank = Tsat(P_tank) for the ignition-lift table. Outside the table -> not valid (caller decides).")
+    lines.append("#pragma once")
+    lines.append("")
+    lines.append("namespace ecu {")
+    lines.append("namespace n2o {")
+    lines.append("")
+    lines.append("constexpr float kSatP0_Pa = %.1ff;       // first grid pressure, ABSOLUTE" % P0_PA)
+    lines.append("constexpr float kSatDp_Pa = %.1ff;       // grid spacing" % DP_PA)
+    lines.append("constexpr int kSatN = %d;" % len(ps))
+    lines.append("constexpr float kSatPLast_Pa = kSatP0_Pa + (kSatN - 1) * kSatDp_Pa;   // %.1f bar abs (critical 72.45 bar abs)" % (ps[-1] / 1e5))
+    lines.append("constexpr float kTsat_K[kSatN] = {")
+    row = []
+    for i, t in enumerate(ts):
+        row.append("%.4ff" % t)
+        if len(row) == 8 or i == len(ts) - 1:
+            lines.append("    " + ", ".join(row) + ("," if i < len(ts) - 1 else ""))
+            row = []
+    lines.append("};")
+    lines.append("")
+    lines.append("// Tsat [K] at an ABSOLUTE pressure; returns false (T untouched) outside [kSatP0_Pa, kSatPLast_Pa] or for a non-finite input")
+    lines.append("inline bool tsatK(float p_abs_Pa, float* T_K) {")
+    lines.append("  if (!(p_abs_Pa >= kSatP0_Pa && p_abs_Pa <= kSatPLast_Pa)) return false;   // also rejects NaN")
+    lines.append("  int i = static_cast<int>((p_abs_Pa - kSatP0_Pa) / kSatDp_Pa);")
+    lines.append("  if (i > kSatN - 2) i = kSatN - 2;")
+    lines.append("  const float f = (p_abs_Pa - (kSatP0_Pa + static_cast<float>(i) * kSatDp_Pa)) / kSatDp_Pa;")
+    lines.append("  *T_K = kTsat_K[i] + f * (kTsat_K[i + 1] - kTsat_K[i]);")
+    lines.append("  return true;")
+    lines.append("}")
+    lines.append("")
+    lines.append("}  // namespace n2o")
+    lines.append("}  // namespace ecu")
+    with open(path, "w") as f:
+        f.write("\n".join(lines) + "\n")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out-header", default=os.path.join(ROOT, "firmware", "src", "core", "n2o_sat_table.h"))
+    ap.add_argument("--out-json", default=os.path.join(ROOT, "results", "manifold_state_v1.json"))
+    a = ap.parse_args()
+    ps, ts = build_table()
+    sha = hashlib.sha256(json.dumps([round(t, 4) for t in ts]).encode()).hexdigest()[:16]
+    worst, at = check_error(ps, ts)
+    assert worst < ERR_LIMIT_K, "interpolation error %.4f K above the limit" % worst
+    write_header(a.out_header, ps, ts, sha)
+    out = {
+        "id": "manifold_state", "version": VERSION, "date": "2026-10-13", "owner": "electronics",
+        "script": "06-electronics/calc/manifold_state_v1.py",
+        "coolprop": CP.get_global_param_string("version"), "fluid": FLUID,
+        "critical": {"T_K": CP.PropsSI("Tcrit", FLUID), "p_abs_Pa": CP.PropsSI("pcrit", FLUID), "tag": "LITERATURE/EOS (CoolProp)"},
+        "table": {"p0_abs_Pa": P0_PA, "dp_Pa": DP_PA, "n": len(ps), "p_last_abs_Pa": ps[-1], "sha256_16": sha,
+                  "interp_err_max_K": round(worst, 5), "interp_err_at_abs_Pa": at, "limit_K": ERR_LIMIT_K,
+                  "header": "firmware/src/core/n2o_sat_table.h", "tag": "DERIVED"},
+        "spot_values": {"%.1f_bar_abs" % (p / 1e5): round(tsat(p), 3) for p in (30e5, 45e5, 50.5e5, 58e5, 59e5, 65e5, 66e5, 70e5)},
+        "r3_error_budget": budget(),
+        "rules_implemented_fw_v2p8": {
+            "stand": {"R1_first_start_W_s": 0.40, "R2_relight_default_W_s": 0.50, "R3_relight_superheat_both_ends_W_s": 0.65,
+                      "R3_margin_K": 5.0, "R4_sensor_invalid": "RELIGHT refused (no relight)",
+                      "sensors": ["MSS-1 inlet-block Type T TC (MAX31856 #5)", "MSS-2 NC-valve-outlet Type T TC (MAX31856 #6)",
+                                  "P_feed J602 170BG (moved to the FS-01 MV-outlet block, next to MSS-2)"]},
+            "flight": {"W_s_every_relight": 0.65, "first_start_W_s": 0.40, "state_TCs": "telemetry only"},
+            "W_epoch": "ignition-lift command (E1 = torch confirmation)",
+            "tag": "LEAD 2026-10-13 (Combustion relight_window_rule_v2p4)"},
+    }
+    with open(a.out_json, "w") as f:
+        json.dump(out, f, indent=1)
+    print("table: %d points %.1f-%.1f bar abs, max interp error %.4f K at %.2f bar abs, sha256/16 %s" %
+          (len(ps), ps[0] / 1e5, ps[-1] / 1e5, worst, at / 1e5, sha))
+    for r in out["r3_error_budget"]["rows"]:
+        print("  P %.0f bar abs: dTsat/dP %.3f K/bar, budget %.2f K (P %.2f, TC %.2f, CJ %.2f, imm %.2f) ok=%s" %
+              (r["p_abs_bar"], r["dTsat_dP_K_per_bar"], r["sum_K"], r["err_Tsat_from_P_TEB_K"], r["err_TC_class1_K"],
+               r["err_CJ_K"], r["err_immersion_K"], r["margin_5K_ok"]))
+
+
+if __name__ == "__main__":
+    main()

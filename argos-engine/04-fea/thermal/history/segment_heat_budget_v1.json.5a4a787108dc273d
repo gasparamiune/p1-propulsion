@@ -1,0 +1,373 @@
+{
+ "script": "04-fea/thermal/segment_heat_budget.py v1",
+ "date": "2026-10-13",
+ "dc": "DC-A1dispp99_tg711",
+ "headend_csv": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/headend_bc_DC-A1dispp99_tg711_v2.csv",
+ "t_meco_s": 3.541,
+ "t_relight_s": 22.211,
+ "coast_s": 18.67,
+ "T_liq_ignition_K": 297.56,
+ "T_sat_coast_K": 289.48,
+ "p_r": 0.641,
+ "h_fg_J_g": 183.9,
+ "rho_v_kg_m3": 140.0,
+ "budget": {
+  "lead": "19 cm3 retained vapour <= 24 W x ~22 s = 528 J (20 C basis)",
+  "at_coast_Tsat_J": 489.0
+ },
+ "assumptions": {
+  "h_flow": "Dittus-Boelter 14.3 kW/m2K at 0.24 kg/s in 7.75 mm, x (mdot/0.24)^0.8 (7.75/D)^1.8, ESTIMATE",
+  "coast_LO": "h 376.0 W/m2K (Combustion G_N2O_COAST 1 W/K convention)",
+  "coast_HI": "Cooper nucleate boiling, C 19.42, cap 20000.0 W/m2K (1-g correlation, ESTIMATE)",
+  "PTFE": "LITERATURE-approx (PTFE handbook class: k 0.24-0.26, cp 1.0 kJ/kgK), verify",
+  "far_field": "FE regions of DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36IN"
+ },
+ "elements": [
+  {
+   "name": "MV/FS-01 module, outlet side (316L body)",
+   "group": "route",
+   "A_mm2": 2600.0,
+   "layers": [
+    [
+     "SS316L",
+     10.0
+    ]
+   ],
+   "back": "adiabatic",
+   "tag": "ESTIMATE planned layout: outlet chamber 14 x 18, outlet drilling 8 x 30, 5 ports (J602, disc, MSS-2, check, vent plug); depth = outlet-side body share ~25 cm3 / area",
+   "E_coast_J": {
+    "isothermal|LO": 107.5,
+    "isothermal|HI": 534.0,
+    "hw+5K|LO": 159.9,
+    "hw+5K|HI": 830.6,
+    "ARM_bay45C_liq24C|LO": 328.0,
+    "ARM_bay45C_liq24C|HI": 1789.1
+   }
+  },
+  {
+   "name": "fixed wall line 3/8 x 0.035 316L, module -> coil (~250 mm)",
+   "group": "route",
+   "A_mm2": 6084.0,
+   "layers": [
+    [
+     "SS316L",
+     0.889
+    ]
+   ],
+   "back": "('air', 5.0)",
+   "tag": "DESIGN route r ~64, z 240 -> 62; bay air 5 W/m2K ASSUMED; case radiation <= 0.2 W (F 0.165) neglected",
+   "E_coast_J": {
+    "isothermal|LO": 18.3,
+    "isothermal|HI": 22.7,
+    "hw+5K|LO": 19.6,
+    "hw+5K|HI": 23.6,
+    "ARM_bay45C_liq24C|LO": 24.7,
+    "ARM_bay45C_liq24C|HI": 27.1
+   }
+  },
+  {
+   "name": "line-coil union / 90 deg elbow (316)",
+   "group": "route",
+   "A_mm2": 600.0,
+   "layers": [
+    [
+     "SS316L",
+     3.0
+    ]
+   ],
+   "back": "adiabatic",
+   "tag": "ESTIMATE",
+   "E_coast_J": {
+    "isothermal|LO": 11.0,
+    "isothermal|HI": 24.3,
+    "hw+5K|LO": 12.7,
+    "hw+5K|HI": 28.2,
+    "ARM_bay45C_liq24C|LO": 18.2,
+    "ARM_bay45C_liq24C|HI": 40.7
+   }
+  },
+  {
+   "name": "coil hose ends 2x -6 JIC swivel + nipple (316)",
+   "group": "route",
+   "A_mm2": 1400.0,
+   "layers": [
+    [
+     "SS316L",
+     3.0
+    ]
+   ],
+   "back": "adiabatic",
+   "tag": "ESTIMATE",
+   "E_coast_J": {
+    "isothermal|LO": 24.0,
+    "isothermal|HI": 53.0,
+    "hw+5K|LO": 27.3,
+    "hw+5K|HI": 60.4,
+    "ARM_bay45C_liq24C|LO": 37.7,
+    "ARM_bay45C_liq24C|HI": 84.2
+   }
+  },
+  {
+   "name": "coil hose O3b 0.252 m, PTFE liner 1.0 + SS braid 0.5 (equivalent)",
+   "group": "route",
+   "A_mm2": 6333.0,
+   "layers": [
+    [
+     "PTFE",
+     1.0
+    ],
+    [
+     "SS316L",
+     0.5
+    ]
+   ],
+   "back": "adiabatic",
+   "tag": "ESTIMATE -6 PTFE-lined hose class (ID 8.0, liner 1.0 mm TO-CONFIRM with the hose maker)",
+   "E_coast_J": {
+    "isothermal|LO": 94.4,
+    "isothermal|HI": 124.3,
+    "hw+5K|LO": 138.9,
+    "hw+5K|HI": 187.3,
+    "ARM_bay45C_liq24C|LO": 281.7,
+    "ARM_bay45C_liq24C|HI": 391.3
+   }
+  },
+  {
+   "name": "FD-05 TEE + MSS-1 port (316L)",
+   "group": "route",
+   "A_mm2": 700.0,
+   "layers": [
+    [
+     "SS316L",
+     7.0
+    ]
+   ],
+   "back": "adiabatic",
+   "tag": "ESTIMATE ~40 g block",
+   "E_coast_J": {
+    "isothermal|LO": 25.1,
+    "isothermal|HI": 102.6,
+    "hw+5K|LO": 35.7,
+    "hw+5K|HI": 151.4,
+    "ARM_bay45C_liq24C|LO": 69.8,
+    "ARM_bay45C_liq24C|HI": 309.3
+   }
+  },
+  {
+   "name": "FD-03 riser 3/8 x 0.035 316L (~130 mm)",
+   "group": "route",
+   "A_mm2": 3164.0,
+   "layers": [
+    [
+     "SS316L",
+     0.889
+    ]
+   ],
+   "back": "('air', 5.0)",
+   "tag": "DESIGN; behind the FD-04 foil shield (case radiation neglected)",
+   "E_coast_J": {
+    "isothermal|LO": 9.5,
+    "isothermal|HI": 11.8,
+    "hw+5K|LO": 10.2,
+    "hw+5K|HI": 12.3,
+    "ARM_bay45C_liq24C|LO": 12.8,
+    "ARM_bay45C_liq24C|HI": 14.1
+   }
+  },
+  {
+   "name": "FD-01 inlet block (316L, ~52 g)",
+   "group": "head",
+   "A_mm2": 614.0,
+   "layers": [
+    [
+     "SS316L",
+     10.0
+    ]
+   ],
+   "back": "adiabatic",
+   "tag": "ESTIMATE socket + vertical 8 x 7.5 + radial 8 x 11; contact with the warming head cap not credited (adds heat)",
+   "E_coast_J": {
+    "isothermal|LO": 24.4,
+    "isothermal|HI": 121.3,
+    "hw+5K|LO": 36.1,
+    "hw+5K|HI": 187.6,
+    "ARM_bay45C_liq24C|LO": 73.4,
+    "ARM_bay45C_liq24C|HI": 401.8
+   }
+  },
+  {
+   "name": "TC-02 head cap: filter bore 14 x 21 + axial 8 x 7 (6061)",
+   "group": "head",
+   "A_mm2": 1254.0,
+   "layers": [
+    [
+     "AL6061-T6",
+     8.0
+    ]
+   ],
+   "back": "('far', 'head_filter_bore')",
+   "tag": "DESIGN E1-M; back face = FE head region mean (soak-back), depth 8 mm ASSUMED",
+   "E_coast_J": {
+    "isothermal|LO": 108.7,
+    "isothermal|HI": 825.3,
+    "hw+5K|LO": 151.8,
+    "hw+5K|HI": 1152.5,
+    "ARM_bay45C_liq24C|LO": 289.8,
+    "ARM_bay45C_liq24C|HI": 2200.2
+   }
+  },
+  {
+   "name": "TC-04 bonnet: axial 8 x 26 + cross 8 x 14 + T4 port (6061)",
+   "group": "head",
+   "A_mm2": 1278.0,
+   "layers": [
+    [
+     "AL6061-T6",
+     6.0
+    ]
+   ],
+   "back": "('far', 'bonnet_boss')",
+   "tag": "DESIGN E1-M; back face = FE bonnet region mean, depth 6 mm ASSUMED",
+   "E_coast_J": {
+    "isothermal|LO": 75.0,
+    "isothermal|HI": 569.4,
+    "hw+5K|LO": 119.2,
+    "hw+5K|HI": 905.0,
+    "ARM_bay45C_liq24C|LO": 260.6,
+    "ARM_bay45C_liq24C|HI": 1978.5
+   }
+  }
+ ],
+ "needle": {
+  "name": "TC-05 needle tip (not in the 2-D model)",
+  "E_J": [
+   50.0,
+   150.0
+  ],
+  "tag": "ESTIMATE: 17-4PH cone below the seat ~0.56 g at 200-500 K above the liquid at MECO + the conduction-heated body; to be modelled"
+ },
+ "fe_head_bore": {
+  "LO": {
+   "label": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36IN",
+   "G_W_K": 1.0,
+   "E_coast_J": 327.4,
+   "coast_s": 18.67,
+   "E_22s_J": 401.0,
+   "E_by_part_J": {
+    "ENG-TC-02": 223.3,
+    "ENG-TC-03": 62.7,
+    "ENG-TC-04": 41.4
+   },
+   "material_overrides": {
+    "ENG-TC-03": "IN718"
+   }
+  },
+  "HI": {
+   "label": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36ING10",
+   "G_W_K": 10.0,
+   "E_coast_J": 2485.7,
+   "coast_s": 18.67,
+   "E_22s_J": 3006.7,
+   "E_by_part_J": {
+    "ENG-TC-02": 1813.5,
+    "ENG-TC-03": 386.2,
+    "ENG-TC-04": 286.0
+   },
+   "material_overrides": null
+  }
+ },
+ "far_field_HI_rule": "E1-M off-axis drillings (back face = FE far field): the Dirichlet far field is an unlimited source under a stiff boiling sink, so HI = LO x (FE head-bore E at G 10 W/K / E at G 1 W/K) = x 7.59",
+ "totals": {
+  "isothermal|LO": {
+   "route_J": 290.0,
+   "route_W": 15.5,
+   "head_end_J": 586.0,
+   "head_end_W": 31.4,
+   "head_end_split_J": {
+    "FD-01 + E1-M head/bonnet drillings": 208.0,
+    "FE manifold bore": 327.4,
+    "needle (ESTIMATE)": 50.0
+   },
+   "fe_source": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36IN",
+   "E_total_J": 875.0,
+   "P_mean_W": 46.9,
+   "vapour_cm3": 34.0
+  },
+  "isothermal|HI": {
+   "route_J": 873.0,
+   "route_W": 46.7,
+   "head_end_J": 4152.0,
+   "head_end_W": 222.4,
+   "head_end_split_J": {
+    "FD-01 + E1-M head/bonnet drillings": 1516.0,
+    "FE manifold bore": 2485.7,
+    "needle (ESTIMATE)": 150.0
+   },
+   "fe_source": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36ING10",
+   "E_total_J": 5024.0,
+   "P_mean_W": 269.1,
+   "vapour_cm3": 195.1
+  },
+  "hw+5K|LO": {
+   "route_J": 404.0,
+   "route_W": 21.7,
+   "head_end_J": 684.0,
+   "head_end_W": 36.7,
+   "head_end_split_J": {
+    "FD-01 + E1-M head/bonnet drillings": 307.0,
+    "FE manifold bore": 327.4,
+    "needle (ESTIMATE)": 50.0
+   },
+   "fe_source": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36IN",
+   "E_total_J": 1089.0,
+   "P_mean_W": 58.3,
+   "vapour_cm3": 42.3
+  },
+  "hw+5K|HI": {
+   "route_J": 1294.0,
+   "route_W": 69.3,
+   "head_end_J": 4881.0,
+   "head_end_W": 261.4,
+   "head_end_split_J": {
+    "FD-01 + E1-M head/bonnet drillings": 2245.0,
+    "FE manifold bore": 2485.7,
+    "needle (ESTIMATE)": 150.0
+   },
+   "fe_source": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36ING10",
+   "E_total_J": 6175.0,
+   "P_mean_W": 330.7,
+   "vapour_cm3": 239.8
+  },
+  "ARM_bay45C_liq24C|LO": {
+   "route_J": 773.0,
+   "route_W": 41.4,
+   "head_end_J": 1001.0,
+   "head_end_W": 53.6,
+   "head_end_split_J": {
+    "FD-01 + E1-M head/bonnet drillings": 624.0,
+    "FE manifold bore": 327.4,
+    "needle (ESTIMATE)": 50.0
+   },
+   "fe_source": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36IN",
+   "E_total_J": 1774.0,
+   "P_mean_W": 95.0,
+   "vapour_cm3": 68.9
+  },
+  "ARM_bay45C_liq24C|HI": {
+   "route_J": 2656.0,
+   "route_W": 142.2,
+   "head_end_J": 7216.0,
+   "head_end_W": 386.5,
+   "head_end_split_J": {
+    "FD-01 + E1-M head/bonnet drillings": 4580.0,
+    "FE manifold bore": 2485.7,
+    "needle (ESTIMATE)": 150.0
+   },
+   "fe_source": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36ING10",
+   "E_total_J": 9872.0,
+   "P_mean_W": 528.8,
+   "vapour_cm3": 383.4
+  }
+ },
+ "note_fe_hi": "HI uses the FE G 10 W/K run when given (--fe_hi), otherwise the G 1 W/K value (then HI understates the head-end bore)"
+}

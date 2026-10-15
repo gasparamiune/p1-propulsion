@@ -1,0 +1,328 @@
+{
+ "id": "pintle_rail_v2",
+ "version": "v2",
+ "date": "2026-10-12",
+ "owner": "electronics",
+ "requirement": {
+  "v": "regulated pintle servo rail ~7.49 V typ (v2, LEAD: +1 % so the opening margin >= 1.5 at the servo plug), held over the battery range down to the 6.6 V TVC-sag case",
+  "tag": "LEAD 2026-10-12"
+ },
+ "topology": "4-switch synchronous buck-boost (input 6.0-8.4 V straddles 7.4 V)",
+ "part": {
+  "pn": "TI TPS552882RPMR (VQFN-HR 26, 4.0 x 3.5 mm)",
+  "src": "https://www.ti.com/product/TPS552882",
+  "datasheet": "https://www.ti.com/lit/ds/symlink/tps552882.pdf",
+  "tag": "DATASHEET",
+  "price": "TO-QUOTE Mouser Denmark / Digi-Key Denmark, ship to Sonderborg DK-6400 (TI page shows no price without login)"
+ },
+ "alternative": {
+  "pn": "TI TPS63070RNMR",
+  "src": "https://www.ti.com/product/TPS63070",
+  "why_not": "3.6 A switch limit: ~2.3 A at 6 V -> 7.4 V, no margin against the unpublished HV69 stall current"
+ },
+ "components": {
+  "R_FB_UP_ohm": 100000.0,
+  "R_FB_BT_ohm": 19100.0,
+  "Vout_V_min_typ_max": [
+   7.395,
+   7.483,
+   7.57
+  ],
+  "R_FSW_ohm": 49900.0,
+  "f_sw_Hz": 400802,
+  "L_H": 4.7e-06,
+  "L_requirements": "Isat >= 8 A (above the 8 A average limit + ripple), Irms >= 6 A, DCR <= 20 mOhm; datasheet EVM uses Coilcraft XAL1010-472ME (25.4 A sat, 17.5 A heating, 10 mOhm max, DATASHEET); a 6 x 6 mm XAL6060-class 4.7 uH part is the likely fit -> TO-CONFIRM against its datasheet, TO-QUOTE",
+  "R_SNS_ohm": 0.012,
+  "I_out_limit_A_min_typ_max": [
+   4.0,
+   4.17,
+   4.33
+  ],
+  "R_ILIM_ohm": 41200.0,
+  "I_L_avg_limit_A_approx": 8.0,
+  "C_in": "4 x 10 uF X7R 25 V 1210 (datasheet range 4.7-22 uF total min) + the ECU VBAT bulk",
+  "C_out": "4 x 22 uF X7R 16 V 1210 + 220 uF 16 V polymer at the servo connector (servo current steps)",
+  "MODE": "0 Ohm to AGND: internal LDO, FPWM (fixed frequency: no audible PFM bursts, predictable EMI)",
+  "EN": "driven by the ARM-bus-derived PINTLE_RAIL_EN (rail off in SAFE unless the TVC/pintle bench test enables it); EN/UVLO rising 1.23 V typ"
+ },
+ "vout_vs_servo_rating": {
+  "Vout_max_V": 7.57,
+  "HV69_rating_V": 8.2,
+  "margin_V": 0.63,
+  "tag": "DERIVED; HV69 8.2 V = retailer copies of MKS data"
+ },
+ "stall_current_bound": {
+  "P_max_W_7.4V": 2.15,
+  "eta_gear": [
+   0.7,
+   1.0
+  ],
+  "I_electronics_A": 0.1,
+  "tag": "DERIVED from pintle_mini_servo_v1 (retailer copies of MKS data); B-PNT-1 measures it"
+ },
+ "eta": {
+  "v": 0.92,
+  "range": [
+   0.88,
+   0.95
+  ],
+  "tag": "ASSUMED (datasheet: 97 % at 12 V -> 20 V, 3 A; lower at 7.4 V out)"
+ },
+ "operating_points": [
+  {
+   "case": "full charge",
+   "Vin_V": 8.4,
+   "load": "hold / slow throttle",
+   "Iout_A": 0.4,
+   "mode": "buck",
+   "I_L_avg_A": 0.4,
+   "I_L_ripple_pp_A": 0.47,
+   "I_L_peak_A": 0.64,
+   "I_in_A": 0.39,
+   "P_loss_W": 0.26,
+   "Tj_C_range": [
+    57.0,
+    62.0
+   ]
+  },
+  {
+   "case": "full charge",
+   "Vin_V": 8.4,
+   "load": "stall bound (DERIVED 1.2-1.7 A)",
+   "Iout_A": 1.7,
+   "mode": "buck",
+   "I_L_avg_A": 1.7,
+   "I_L_ripple_pp_A": 0.47,
+   "I_L_peak_A": 1.94,
+   "I_in_A": 1.65,
+   "P_loss_W": 1.11,
+   "Tj_C_range": [
+    79.0,
+    103.0
+   ]
+  },
+  {
+   "case": "full charge",
+   "Vin_V": 8.4,
+   "load": "output current limit",
+   "Iout_A": 4.2,
+   "mode": "buck",
+   "I_L_avg_A": 4.2,
+   "I_L_ripple_pp_A": 0.47,
+   "I_L_peak_A": 4.44,
+   "I_in_A": 4.07,
+   "P_loss_W": 2.73,
+   "Tj_C_range": [
+    121.0,
+    180.0
+   ]
+  },
+  {
+   "case": "nominal",
+   "Vin_V": 7.6,
+   "load": "hold / slow throttle",
+   "Iout_A": 0.4,
+   "mode": "buck-boost",
+   "I_L_avg_A": 0.39,
+   "I_L_ripple_pp_A": 0.12,
+   "I_L_peak_A": 0.45,
+   "I_in_A": 0.43,
+   "P_loss_W": 0.26,
+   "Tj_C_range": [
+    57.0,
+    62.0
+   ]
+  },
+  {
+   "case": "nominal",
+   "Vin_V": 7.6,
+   "load": "stall bound (DERIVED 1.2-1.7 A)",
+   "Iout_A": 1.7,
+   "mode": "buck-boost",
+   "I_L_avg_A": 1.67,
+   "I_L_ripple_pp_A": 0.5,
+   "I_L_peak_A": 1.92,
+   "I_in_A": 1.82,
+   "P_loss_W": 1.11,
+   "Tj_C_range": [
+    79.0,
+    103.0
+   ]
+  },
+  {
+   "case": "nominal",
+   "Vin_V": 7.6,
+   "load": "output current limit",
+   "Iout_A": 4.2,
+   "mode": "buck-boost",
+   "I_L_avg_A": 4.14,
+   "I_L_ripple_pp_A": 1.24,
+   "I_L_peak_A": 4.76,
+   "I_in_A": 4.49,
+   "P_loss_W": 2.73,
+   "Tj_C_range": [
+    121.0,
+    180.0
+   ]
+  },
+  {
+   "case": "TVC-sag case (LEAD 6.6 V at the TVC plug)",
+   "Vin_V": 6.8,
+   "load": "hold / slow throttle",
+   "Iout_A": 0.4,
+   "mode": "boost",
+   "I_L_avg_A": 0.48,
+   "I_L_ripple_pp_A": 0.59,
+   "I_L_peak_A": 0.77,
+   "I_in_A": 0.48,
+   "P_loss_W": 0.26,
+   "Tj_C_range": [
+    57.0,
+    62.0
+   ]
+  },
+  {
+   "case": "TVC-sag case (LEAD 6.6 V at the TVC plug)",
+   "Vin_V": 6.8,
+   "load": "stall bound (DERIVED 1.2-1.7 A)",
+   "Iout_A": 1.7,
+   "mode": "boost",
+   "I_L_avg_A": 2.03,
+   "I_L_ripple_pp_A": 0.59,
+   "I_L_peak_A": 2.33,
+   "I_in_A": 2.03,
+   "P_loss_W": 1.11,
+   "Tj_C_range": [
+    79.0,
+    103.0
+   ]
+  },
+  {
+   "case": "TVC-sag case (LEAD 6.6 V at the TVC plug)",
+   "Vin_V": 6.8,
+   "load": "output current limit",
+   "Iout_A": 4.2,
+   "mode": "boost",
+   "I_L_avg_A": 5.02,
+   "I_L_ripple_pp_A": 0.59,
+   "I_L_peak_A": 5.32,
+   "I_in_A": 5.02,
+   "P_loss_W": 2.73,
+   "Tj_C_range": [
+    121.0,
+    180.0
+   ]
+  },
+  {
+   "case": "V_val at VBAT node",
+   "Vin_V": 6.6,
+   "load": "hold / slow throttle",
+   "Iout_A": 0.4,
+   "mode": "boost",
+   "I_L_avg_A": 0.49,
+   "I_L_ripple_pp_A": 0.66,
+   "I_L_peak_A": 0.82,
+   "I_in_A": 0.49,
+   "P_loss_W": 0.26,
+   "Tj_C_range": [
+    57.0,
+    62.0
+   ]
+  },
+  {
+   "case": "V_val at VBAT node",
+   "Vin_V": 6.6,
+   "load": "stall bound (DERIVED 1.2-1.7 A)",
+   "Iout_A": 1.7,
+   "mode": "boost",
+   "I_L_avg_A": 2.09,
+   "I_L_ripple_pp_A": 0.66,
+   "I_L_peak_A": 2.43,
+   "I_in_A": 2.09,
+   "P_loss_W": 1.11,
+   "Tj_C_range": [
+    79.0,
+    103.0
+   ]
+  },
+  {
+   "case": "V_val at VBAT node",
+   "Vin_V": 6.6,
+   "load": "output current limit",
+   "Iout_A": 4.2,
+   "mode": "boost",
+   "I_L_avg_A": 5.18,
+   "I_L_ripple_pp_A": 0.66,
+   "I_L_peak_A": 5.51,
+   "I_in_A": 5.18,
+   "P_loss_W": 2.73,
+   "Tj_C_range": [
+    121.0,
+    180.0
+   ]
+  },
+  {
+   "case": "design minimum",
+   "Vin_V": 6.0,
+   "load": "hold / slow throttle",
+   "Iout_A": 0.4,
+   "mode": "boost",
+   "I_L_avg_A": 0.54,
+   "I_L_ripple_pp_A": 0.84,
+   "I_L_peak_A": 0.96,
+   "I_in_A": 0.54,
+   "P_loss_W": 0.26,
+   "Tj_C_range": [
+    57.0,
+    62.0
+   ]
+  },
+  {
+   "case": "design minimum",
+   "Vin_V": 6.0,
+   "load": "stall bound (DERIVED 1.2-1.7 A)",
+   "Iout_A": 1.7,
+   "mode": "boost",
+   "I_L_avg_A": 2.3,
+   "I_L_ripple_pp_A": 0.84,
+   "I_L_peak_A": 2.72,
+   "I_in_A": 2.3,
+   "P_loss_W": 1.11,
+   "Tj_C_range": [
+    79.0,
+    103.0
+   ]
+  },
+  {
+   "case": "design minimum",
+   "Vin_V": 6.0,
+   "load": "output current limit",
+   "Iout_A": 4.2,
+   "mode": "boost",
+   "I_L_avg_A": 5.69,
+   "I_L_ripple_pp_A": 0.84,
+   "I_L_peak_A": 6.11,
+   "I_in_A": 5.69,
+   "P_loss_W": 2.73,
+   "Tj_C_range": [
+    121.0,
+    180.0
+   ]
+  }
+ ],
+ "battery_side": {
+  "pintle_hold_at_battery_A": 0.47,
+  "note": "calc/tvc_supply_budget_v1 I_other 1.0 A already carries ~0.45 A for the pintle servo; the regulated rail draws ~0.47 A at 6.8 V for a 0.4 A hold -> FM-PWR-01 constants unchanged"
+ },
+ "soft_start_s": {
+  "v": 0.004,
+  "tag": "DATASHEET 3-5 ms"
+ },
+ "open": [
+  "HV69 stall current and current at 7.4 V under the needle load (B-PNT-1)",
+  "TPS552882 Eq. 5 (ILIM) and Eq. 6 (FB) confirmed against the original PDF (the extract was garbled)",
+  "inductor part number and price",
+  "layout: 4-layer ECU board, thermal pad vias, input loop < 10 mm",
+  "regulator efficiency at 7.4 V out measured on the bench (ASSUMED 0.92)"
+ ]
+}

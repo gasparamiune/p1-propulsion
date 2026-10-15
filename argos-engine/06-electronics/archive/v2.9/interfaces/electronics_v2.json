@@ -1,0 +1,3555 @@
+{
+ "id": "electronics",
+ "version": "v2",
+ "date": "2026-10-13",
+ "owner": "electronics (06-electronics)",
+ "status": "DESIGN + SIL + schematic. Firmware v2.9 runs only in SIL; the ECU v2.3 schematic passes ERC and a netlist cross-check; no board has been built and nothing here is hardware-validated. Values carry tags; open items are listed in open_issues, and the bench plan (06-electronics/docs/bench_plan_v2.md) is where each is closed.",
+ "units": "SI unless the key names another unit (mm in *_mm envelopes, deg in *_deg, kg-cm never used in keys)",
+ "supersedes": {
+  "file": "electronics.json v1 (2026-10-11)",
+  "sha256_16": "42fe12e15baa6e3e",
+  "archive": "06-electronics/results/electronics_v1.json"
+ },
+ "scripts": [
+  "06-electronics/calc/make_interface_json_v2.py (this file)",
+  "06-electronics/calc/bom_v2.py",
+  "06-electronics/calc/ecu_v2p3_values_v1.py",
+  "06-electronics/calc/fault_path_v2.py",
+  "06-electronics/calc/ignition_detect_margin_v1.py",
+  "06-electronics/calc/pintle_rail_v3.py",
+  "06-electronics/calc/over_thrust_v3.py",
+  "06-electronics/calc/pintle_rate_map_v1.py",
+  "06-electronics/firmware/tools/sil_manifest_v1.py",
+  "06-electronics/hardware/kicad_gen/run_all.sh"
+ ],
+ "inputs": {
+  "gnc.json": "v3 3e97c378cfebee95",
+  "firmware": "v2.9 (SIL record 89ecd67612d90133, source tree 4455ee5946b835fe)",
+  "generated_headers": {
+   "src/core/engine_params.h": [
+    [
+     "combustion.json",
+     "v2.3",
+     "d9ec54fbf450e243",
+     "current"
+    ],
+    [
+     "gnc.json",
+     "v3",
+     "3e97c378cfebee95",
+     "current"
+    ],
+    [
+     "pintle_mini_servo_v1.json",
+     null,
+     "62b326482617125a",
+     "current"
+    ]
+   ],
+   "src/core/mech_params.h": [
+    [
+     "mechanical.json",
+     "v2",
+     "4f024ed4ccb4618c",
+     "current"
+    ]
+   ],
+   "src/core/mv_ladder_table.h": [],
+   "src/core/n2o_sat_table.h": [
+    [
+     "Table",
+     null,
+     "b11b49519ba2fe30",
+     "not checked (source not mapped)"
+    ]
+   ],
+   "src/core/valve_map_table.h": [
+    [
+     "throttle_map_csv",
+     "(not named in the header)",
+     "4f2e6d846f7253da",
+     "current"
+    ]
+   ],
+   "sil/gnc_tables.h": [
+    [
+     "gnc.json",
+     "v3",
+     "3e97c378cfebee95",
+     "current"
+    ],
+    [
+     "gnc.json",
+     "v1",
+     "ad2477c8be8932db",
+     "HISTORICAL (names v1; the file is now v3)"
+    ]
+   ],
+   "sil/mech_tables.h": [
+    [
+     "mechanical.json",
+     "v2",
+     "4f024ed4ccb4618c",
+     "current"
+    ]
+   ],
+   "sil/ovp_hw_params.h": [],
+   "sil/plant_tables.h": [
+    [
+     "combustion.json",
+     "v2.3",
+     "d9ec54fbf450e243",
+     "current"
+    ],
+    [
+     "geometry",
+     null,
+     "598365dac1bfa0c1",
+     "not checked (source not mapped)"
+    ],
+    [
+     "table",
+     "v1",
+     "aa3021ea5ae5ea6c",
+     "not checked (source not mapped)"
+    ]
+   ]
+  },
+  "files_read_sha256_16": {
+   "firmware/src/core/engine_params.h": "6b73317fcd7d07ac",
+   "firmware/src/core/mech_params.h": "7301439a64bb18f4",
+   "firmware/src/core/config.h": "0ba1e1ef0fbce180",
+   "/home/claude/work/shared-fallback/engine/interfaces/CHANGELOG.md": "baca77342b927a29",
+   "/home/claude/work/shared-fallback/engine/interfaces/electronics.json": "42fe12e15baa6e3e",
+   "/home/claude/work/shared-fallback/engine/interfaces/gnc.json": "3e97c378cfebee95",
+   "results/sil_v2p9/MANIFEST_v1.json": "5307366143b0237f",
+   "results/sil_v2p8_2/MANIFEST_v1.json": "35a045d23497d106",
+   "results/sil_v2p8_1/test_core_v2p8_1.txt": "ab48240edacf77e7",
+   "results/sil_v2p8_3/S6_aborts.json": "461d7b26cabf67f0",
+   "results/sil_v2p8_3/S10_relight_v2p8.json": "59050c7336b491ad",
+   "results/sil_v2p8_3/S8_priming.json": "d796074cda7f8bb3",
+   "results/sil_v2p8_3/S5_mc.json": "ef36d3f157a5578f",
+   "results/sil_v2p8_3/S5_mc.csv": "c9e16c0687fd9dfa",
+   "results/sil_v2p7/S5_mc.csv": "b1d4bb6f25202133",
+   "results/ignition_detect_margin_v1.json": "92e246cc004bbf05",
+   "results/pintle_rail_v3.json": "694e471732ad070a",
+   "results/ecu_v2p3_values_v1.json": "c7fddf3d760d00c3",
+   "results/over_thrust_v3.json": "770bf284d14b1336",
+   "results/pintle_rate_map_v1.json": "411b0573d604364e",
+   "results/eng03_slew_check_v1.json": "2c357fce063c19ca",
+   "results/fault_path_v1.json": "756c595d356b7997",
+   "results/fault_path_v2.json": "bb6a1960605adffd",
+   "results/pc_transducer_v2.json": "e354a85d5c279611",
+   "results/mv_latch_magnet_v1.json": "90225910d7e98850",
+   "results/tvc_supply_budget_v1.json": "3ee9d60ad039ed45",
+   "results/pintle_mini_servo_v1.json": "62b326482617125a",
+   "results/bom_v2p1.json": "f754c27fec8c2971",
+   "hardware/kicad/erc/netlist_crosscheck.txt": "92d9da26bb92707a",
+   "hardware/kicad/erc/argos_ecu_erc.rpt": "c36dd1a288078ea1",
+   "hardware/kicad/pin_map_v2p4.csv": "36cba2dc400dda69",
+   "firmware/src/core/protocol.h": "ee974e67adac9c28",
+   "firmware/src/core/types.h": "0fe8be0bbc628807",
+   "results/ignition_rule_sil_v1.json": "baff9efcdd49da66",
+   "results/fault_path_v3.json": "786c3982616fe7f3",
+   "results/hbleed_provision_v1.json": "d9709d1e28dc12d7",
+   "results/sil_v2p9/S12_bleed.json": "102576c2550e1b3b",
+   "results/sil_v2p9/S5_mc.json": "2145c2533fa09c18"
+  }
+ },
+ "change_summary_v1_to_v2": [
+  "firmware: v1 had no firmware; v2 publishes firmware v2.9 (SIL only) with its manifest, test record and four pre-existing SIL FAILs and their dispositions",
+  "pintle actuator: Savox SB-2292SG on VBAT (v1) -> MKS HV69 on a regulated 7.49 V pintle rail (TPS552882 + LTC4365 OV disconnect)",
+  "main valve: spring-closed ball valve with servo opener (v1) -> MV-P balanced poppet with the SB-2292SG cam opener, over-centre latch magnet and dashpot (lead line 91)",
+  "transducers: Pc 0-34.5 bar / feed and tank 0-68.9 bar (v1) -> Pc and P_torch 070BG, P_feed and P_tank 170BG; hardware OVP comparator 31.47 bar g",
+  "new channels: ADC2 (P_torch, pintle rail, rail current, regulator output), TC4-TC6 (bore top, MSS-1, MSS-2), bay DS18B20, mode strap, GSE heater interlock",
+  "CAN: + FC_THRUST 0x024, CMD_AUX 0x028, TLM_RELIGHT 0x102; Pc-invalid markers (RG-15); EVENT codes enumerated",
+  "relight: v2.8 design (valve and torch at E0, lift at E1, W from the lift), TLM_RELIGHT PRIMED = DIRECT PATH, stale-flag rule",
+  "aborts: 27 causes (v1 listed 7 fail-safe states); over-thrust abort from the FC accelerometer estimate (650 N, 3 frames)",
+  "ECU schematic v2.3 (KiCad 7.0.11, 9 sheets, ERC 0/0) and pin map; BOM v2 (TO-QUOTE, ship to DK-6400)",
+  "v2.9 update (2026-10-13): relative light rule, A3/A5/A7/E3 start monitors, CF-3 lift table, coast re-zero, head-end bleed provision (PURGE, pad BIT, P_mid ladder; schematic v2.4, BOM v2.1), drogue-release telemetry (TLM_FAST d1 b4-b7), log v10 (150 B); SIL record sil_v2p9 (S6: 2 NEW late-light HARD_START fails; S9 TEB cases re-dispositioned)"
+ ],
+ "firmware": {
+  "version": "v2.9",
+  "target": "PJRC Teensy 4.1 (i.MX RT1062); HAL for the hardware NOT written (core runs in SIL and test_core)",
+  "record": {
+   "manifest": "06-electronics/results/sil_v2p9/MANIFEST_v1.json",
+   "record_sha256_16": "89ecd67612d90133",
+   "tree_sha256_16": "4455ee5946b835fe",
+   "n_files": 38
+  },
+  "unit_tests": {
+   "v2.8.1": "245 passed, 0 failed",
+   "v2.8.2": "250 passed, 0 failed",
+   "v2.9": "287 passed, 0 failed",
+   "note": "test_core runs 1-2 of v2.8.3 (254/258, 256/258) failed on Electronics expectations, not on the code; kept"
+  },
+  "sil_scenarios_v2p8_3": {
+   "S5_dispersed_pad_start_MC": {
+    "runs": 300,
+    "aborts": 59,
+    "abort_codes": {
+     "0": 241,
+     "3": 31,
+     "19": 27,
+     "17": 1
+    },
+    "v2.7_abort_codes": {
+     "0": 272,
+     "19": 27,
+     "17": 1
+    },
+    "note": "code 3 NO_IGNITION on a LIT plant from v2.8.1 on: see open_issues OI-IGN-DET"
+   },
+   "S6_abort_paths": "55/58",
+   "S8_priming": "5/5",
+   "S10_relight_v2p8": "31/31",
+   "fail_lines": [
+    "S6 jam events 0 kind 0, Pc at transducer max 41.5 bar, faults 0x0001 | S6 hard_start_0p25s_delay_late_light_inside_W           expect   0 got   2 (HARD_START) abort+331 ms, F<10% +nan ms, MV closed +369 ms, ARM off +388 ms, Pc max 28.6 bar, final SAFE FAIL",
+    "S6 jam events 0 kind 0, Pc at transducer max 39.0 bar, faults 0x0001 | S6 hard_start_0p20s_delay_late_light_inside_W           expect   0 got   2 (HARD_START) abort+283 ms, F<10% +nan ms, MV closed +321 ms, ARM off +340 ms, Pc max 26.9 bar, final SAFE FAIL",
+    "S6 jam events 0 kind 0, Pc at transducer max 15.8 bar, faults 0x0000 | S6 gimbal_jam_moving_cmd                                expect   8 got   0 (NONE) abort+nan ms, F<10% +1570 ms, MV closed +1609 ms, ARM off +nan ms, Pc max 15.6 bar, final COAST FAIL",
+    "S6 jam events 0 kind 0, Pc at transducer max 56.9 bar, faults 0x0001 | S6 throat_blocked_70pct_500N_24C_Cd0p8                  expect  17 got  18 (HW_OVERPRESSURE) abort+8 ms, F<10% +189 ms, MV closed +46 ms, ARM off +12 ms, Pc max 53.4 bar > MEOP, final SAFE FAIL",
+    "S6 jam events 0 kind 0, Pc at transducer max 56.9 bar, faults 0x0001 | S6 throat_blocked_70pct_500N_24C_Cd0p8_ballvalve_v2p7_compare expect  17 got  18 (HW_OVERPRESSURE) abort+8 ms, F<10% +186 ms, MV closed +105 ms, ARM off +12 ms, Pc max 53.4 bar > MEOP, final SAFE FAIL",
+    "S9 unlit_bias_plus_1p034bar_TEB         cause FLAMEOUT, RUN yes, plant Pc max 1.43 bar, filtered max 1.87 bar abs FAIL",
+    "S9 lit_bias_minus_1p034bar_TEB          plant lit +173 ms after IGNITION, RUN +22.0 ms after plant light (Pc 3.22 bar abs) FAIL",
+    "S9 lit_bias_plus_1p034bar_TEB           plant lit +-2400 ms after IGNITION, RUN +2522.0 ms after plant light (Pc 1.43 bar abs) FAIL"
+   ]
+  },
+  "arm_build": "53 double-promotion warnings (unchanged; listed in open_issues)",
+  "gnc_conformance_RG13": {
+   "law": "gnc.json v3 flight_software.gimbal_command_tracker (sim6) ahead of the 50 rad/s low-pass",
+   "rate": {
+    "v": 1.74533,
+    "unit": "rad/s",
+    "tag": "GNC",
+    "src": "engine_params.h kGncShapeSlew_radps"
+   },
+   "accel": {
+    "v": 34.9066,
+    "unit": "rad/s^2",
+    "tag": "GNC",
+    "src": "engine_params.h kGncShapeAccel_radps2"
+   },
+   "lowpass_w": {
+    "v": 50.0,
+    "unit": "rad/s",
+    "tag": "GNC",
+    "src": "engine_params.h kGncShapeW_radps"
+   },
+   "lowpass_zeta": {
+    "v": 0.5,
+    "unit": "-",
+    "tag": "",
+    "src": "engine_params.h kGncShapeZeta"
+   },
+   "trace_match": {
+    "v": "3.93e-8 rad tracker, 2.54e-8 rad chain vs a double-precision sim6 transcription",
+    "tag": "SIL test_core v2.8.3"
+   },
+   "finding": "v2.4-v2.8.2 ran the gnc.json v2 plain 100 deg/s limiter (engine_params.h generated from gnc.json v2 7089d7b34808cc31); fixed in v2.8.3",
+   "btvc1_bypass": "B-TVC-1 bypass mode keeps the plain limiter (actuator characterisation)"
+  },
+  "W_build_constant": {
+   "flight_relight_W": {
+    "v": 0.65,
+    "unit": "s",
+    "tag": "LEAD 2026-10-13",
+    "src": "config.h kIgnWindowRelightLong_s"
+   },
+   "flight_first_start_W": {
+    "v": 0.4,
+    "unit": "s",
+    "tag": "LEAD 2026-10-13",
+    "src": "config.h kIgnWindowFirst_s"
+   },
+   "stand_R1_W": {
+    "v": 0.35,
+    "unit": "s",
+    "tag": "LEAD 2026-10-13 fallback (b)",
+    "src": "config.h kIgnWindowFirstStand_s"
+   },
+   "stand_R2_W": {
+    "v": 0.35,
+    "unit": "s",
+    "tag": "LEAD 2026-10-13 fallback (b)",
+    "src": "config.h kIgnWindowRelightStand_s"
+   },
+   "rule": "W is a compile-time constant. SIL_WHATIF_RELIGHT_W exists only for SIL what-if builds: config.h #errors unless ECU_SIL_TEST_HOOKS is defined, so a flight, Teensy or test_core build cannot carry it (coordinator: keep W a build constant)"
+  }
+ },
+ "sil_fail_dispositions": [
+  {
+   "id": "S6 gimbal_jam_moving_cmd",
+   "checks": "gimbal jam at 3.0 s under a 2 deg alpha 1 Hz sine -> GIMBAL_FAULT abort",
+   "why_fails": "on the as-built 135/225 deg linkage the per-axis mismatch reaches 1.0 deg (1.41 deg along servo A), below the 1.5 deg threshold (kGimbalFaultErr_rad); the 4 deg case is detected. Detection bound >= 3 deg per axis / >= 2.12 deg along a servo line",
+   "flight_path": true,
+   "disposition": "FIX",
+   "closure": "servo-frame mismatch metric (proposal); needs the GNC false-abort trade before implementation; until then a jammed gimbal under small commands is caught only by the encoder-vs-command error at larger amplitude"
+  },
+  {
+   "id": "S6 throat_blocked_70pct_500N_24C_Cd0p8",
+   "checks": "over-pressure abort and plant Pc <= MEOP 45 bar abs",
+   "why_fails": "hardware trip first (HW_OVERPRESSURE, abort +8 ms; expected firmware PC_OVERPRESSURE) and plant Pc max 53.4 bar abs > MEOP (< proof 67.5 bar); the peak comes 9-18 ms after the block, before any detection can act",
+   "flight_path": true,
+   "disposition": "ACCEPTED-WITH-REASON",
+   "closure": "Combustion v2.4 accepted it as fault load case LC-TB70 (58.1 bar abs, > 45 bar 72 ms) and LC-TB-S; the assembled FEA closes it. CHANGELOG line 101 (combustion, 2026-10-13): v2.4 ANSWERS (Combustion workdir data/v2/v2p4; SIM/DERIVED on ASSUMED): (1) torch gate 0.16 s CONFIRMED (E0->E1 max 0.14..."
+  },
+  {
+   "id": "S6 throat_blocked_70pct_500N_24C_Cd0p8_ballvalve_v2p7_compare",
+   "checks": "same case with the superseded ball valve",
+   "why_fails": "same as above; MV closed +105 ms (ball) vs +46 ms (MV-P)",
+   "flight_path": false,
+   "disposition": "OBSOLETE",
+   "closure": "kept as comparison evidence for the superseded ball-valve concept (lead line 91 adopted MV-P)"
+  },
+  {
+   "id": "S6 hard_start_0p20s / 0p25s_delay_late_light_inside_W (NEW in v2.9)",
+   "checks": "a late light (0.20 / 0.25 s delay, inside W) continues (v2.8.3: PASS)",
+   "why_fails": "HARD_START (A5 8.0 bar abs for 5 ms) at IGNITION +283 / +331 ms: the 10 ms relative confirmation lets A5 persist first; plant Pc max 26.9 / 28.6 bar abs (< 30 bar A4, < MEOP 45)",
+   "flight_path": true,
+   "disposition": "OPEN (LEAD/COMB): accept A5 aborting these starts, or change A5/the confirmation",
+   "closure": "lead decision; no firmware change made by Electronics"
+  },
+  {
+   "id": "S9 +/-1.034 bar TEB cases (relative rule)",
+   "checks": "light detection at the full 070BG TEB post-zero bias",
+   "why_fails": "-TEB: lit, RUN +22 ms after light, then A3 on the biased ratio; +TEB unlit: filtered 1.87 bar abs > 1.8 floor -> false E2 -> RUN -> A3 FLAMEOUT at IGNITION +0.14 s",
+   "flight_path": true,
+   "disposition": "OPEN (LEAD): outside the adopted +/-0.6 bar residual band",
+   "closure": "B-PC-1 residual <= 0.3 bar -> floor 2.0 bar abs (> 1.87)"
+  }
+ ],
+ "can_interface": {
+  "physical": {
+   "v": "ISO 11898-2 CAN, classic 2.0B 1 Mbit/s, 11-bit IDs; CAN-FD-capable transceivers so FD is a firmware upgrade",
+   "tag": "DESIGN"
+  },
+  "bus": "2-node point-to-point FC<->ECU, 120 ohm at both ends, twisted pair + GND + shield, <= 2 m",
+  "e2e": {
+   "v": "8-bit rolling sequence per ID + CRC-8 (SAE J1850 poly 0x1D, init 0xFF, final XOR 0xFF) over the preceding payload bytes; CMD_STATE key = 0xA500 | (cmd XOR 0x5A); ABORT magic 0xA5 0x5A",
+   "tag": "DESIGN protocol.h"
+  },
+  "ids_parsed_from_protocol_h": {
+   "0x010": "ABORT",
+   "0x020": "CMD_FAST",
+   "0x024": "FC_THRUST",
+   "0x028": "CMD_AUX",
+   "0x030": "CMD_STATE",
+   "0x100": "TLM_FAST",
+   "0x101": "TLM_GIMBAL",
+   "0x102": "TLM_RELIGHT",
+   "0x110": "TLM_SLOW",
+   "0x120": "EVENT"
+  },
+  "frames": {
+   "0x010 FC->ECU ABORT (event, sent 3x)": "len 5: [0xA5][0x5A][abort code][seq][crc8]",
+   "0x020 FC->ECU CMD_FAST 500 Hz": "len 8: [seq][thrust setpoint u16 0.1 N][gimbal a i16 0.001 deg][gimbal b i16 0.001 deg][crc8]",
+   "0x024 FC->ECU FC_THRUST >= 100 Hz": "len 5: [seq][thrust estimate u16 0.1 N][flags b0 valid][crc8]; accelerometer estimate, tau 20 ms",
+   "0x028 FC->ECU CMD_AUX >= 50 Hz while wanted": "len 4: [seq][roll bits b0 CW b1 CCW][~roll bits][crc8]; dead-man 50 ms",
+   "0x030 FC->ECU CMD_STATE event + 10 Hz": "len 7: [seq][cmd][arg u16][key u16][crc8]; cmd = Cmd enum (types.h)",
+   "0x100 ECU->FC TLM_FAST 500 Hz": "len 8: [seq][state][Pc u16 kPa abs, 0xFFFF = invalid (RG-15)][pintle lift u16 um][fault bits u16]",
+   "0x101 ECU->FC TLM_GIMBAL 500 Hz": "len 8: [seq][flags][gimbal a meas i16][gimbal b meas i16][thrust u16 0.1 N, 0xFFFF when Pc invalid]",
+   "0x102 ECU->FC TLM_RELIGHT 50 Hz": "len 8: [seq][state][flags][relight worst u16 ms][P_feed/P_tank %, 0xFF invalid][refuse reason][crc8]",
+   "0x110 ECU->FC TLM_SLOW 50 Hz": "NOT DEFINED in v2.8.3 (page layout TO-DEFINE before the HAL)",
+   "0x120 ECU->FC EVENT": "len 8: [code][state][t_ms u32][arg u16]; each event sent 3x 10 ms apart"
+  },
+  "tlm_relight_flags": {
+   "PRIMED": "1u << 0",
+   "DIRECT_PATH": "PRIMED",
+   "VALID": "1u << 1",
+   "READY": "1u << 2",
+   "LOCKOUT": "1u << 3",
+   "S1_FAULT": "1u << 4",
+   "STAND": "1u << 5",
+   "POST_ABORT": "1u << 6",
+   "UNKNOWN": "1u << 7"
+  },
+  "rg15_pc_invalid": "TLM_FAST d2-d3 = 0xFFFF and TLM_GIMBAL d6-d7 = 0xFFFF while the Pc channel is invalid; the latched PC_SENSOR fault bit stays in TLM_FAST d6-d7. FC: k_est_asc and the B apex predictor freeze on the marker; FC_THRUST keeps running (lead line 113)",
+  "bus_load": {
+   "v": 0.2,
+   "tag": "DERIVED (~1560 frames/s x ~130 bit at 1 Mbit/s)"
+  },
+  "flight_computer_side": "any Teensy 4.x CAN1 (pins 22/23) or CAN2 (0/1) + 3.3 V transceiver; CAN-FD only on CAN3"
+ },
+ "relight_interface": {
+  "sequence_v2p8": "RELIGHT at the planned T_fire: NC valve latch + opener ramp and torch at E0, ignition lift at E1 on torch confirmation (gate 0.16 s), W 0.65 s from the lift; worst E0 -> Pc-confirm deadline 0.81 s (direct path)",
+  "torch_gate": {
+   "v": 0.16,
+   "unit": "s",
+   "tag": "[DESIGN; COMB v2.4 CONFIRMED 2026-10-13: E0->E1 max 0.1494 s over 1e6 samples,",
+   "src": "config.h kTorchGate_s"
+  },
+  "W_flight_relight": {
+   "v": 0.65,
+   "unit": "s",
+   "tag": "LEAD 2026-10-13",
+   "src": "config.h kIgnWindowRelightLong_s"
+  },
+  "prep_path_bound_s": {
+   "v": 1.37,
+   "tag": "DERIVED config.h (bleed 0.06 + ramp 0.35 + hold 0.15 + 0.81)"
+  },
+  "primed_flag": "PRIMED = DIRECT PATH (protocol.h alias tlmr::DIRECT_PATH). It is NOT a liquid or vapour detector: P_feed = P_sat in both phases and the MSS TCs read Tsat either way (lead line 113 (1)); flight planning must not use it to exclude vapour",
+  "states": "NONE (VALID 0), PRIMED, UNPRIMED, UNKNOWN (P_feed or P_tank invalid, or a coast pintle anomaly: encoder invalid or lift > 0.10 mm for 20 ms, RG-08); POST_ABORT b6: PRIMED never shown after an abort",
+  "rate": {
+   "v": "50 Hz in every state (>= 10 Hz required in COAST)",
+   "tag": "DESIGN protocol.h"
+  },
+  "fc_planning_from_gnc": {
+   "relight_planning_value_s": 0.81,
+   "option_c_unprimed_s": "NOT in gnc.json v3 requirements.ignition (key removed; FC rule source to be re-confirmed by GNC)",
+   "stale_or_missing_flag": "NOT in gnc.json v3",
+   "source": "gnc.json v3 requirements.ignition (3e97c378cfebee95)"
+  },
+  "freeze_status": "CHANGELOG line 111 (lead, 2026-10-13): On REV-GNC-1: (1) ENG-03 raised to >= 5 F_max/s (2500 N/s) under load, as flown; a lower B-PNT-1 value needs an explicit lead decision on the published loss. (2) Relight values 0.81 s / 1.41 s are NOT...",
+  "retained_vapour_fix": "CHANGELOG line 126 (lead, 2026-10-13): RETAINED-VAPOUR FIX = COIL RE-ROUTE (option e), ADOPTED as baseline: hose fixed end moved to the wall-line start (az 219.5 deg, z >= 71 mm engine frame) on an airframe-wall clamp or GM-09 standoff; bore-crown low point >= 75 mm; wall clearance >= 3 mm at the 8...",
+  "mv_early_open_sketch": "DROPPED (lead line 126: option (d) has no effect, Mechanical segment_traps_v34 13.947 vs 13.939 cm3); no firmware state added",
+  "head_end_bleed": {
+   "status": "FALLBACK only (lead line 126); no design (coordinator)",
+   "budget_line": "one ARM-gated spare channel U304 2A2 (pin 13) -> 2Y2 (pin 7) driving a SOL1-type DMN6075S low-side switch on +12V_ARM; coil <= 0.75 A ASSUMED (~9 W while open), inside the U3V70F12 budget if not overlapping spark/torch; no Teensy pin free: share pin 15 with the heater permit (separated in hardware by the ARM state) or add an I/O expander"
+  },
+  "fault_path": {
+   "v1_44cm3_whole_segment_vapour": [
+    "drained 44.00 cm3 segment (prep path): command -> E2 0.752 s (E0 at 0.560 s) vs the 1.37 s bound and the GNC 1.41 s plan",
+    "vapour-full 44.00 cm3 segment read PRIMED (direct): NO_IGNITION 0.696 s after the command; unignited N2O 5.64 g, vapour purged 5.64 g"
+   ],
+   "v2_lead_targets": [
+    "13.5 cm3 retained-vapour slug, direct (reads PRIMED): lit, command -> E2 0.499 s, E1 -> E2 0.454 s vs W 0.65 s (margin 0.196 s); unignited N2O 5.80 g",
+    "13.5 cm3 retained-vapour slug, prep (P_feed invalid, UNKNOWN): lit, command -> E2 0.897 s, E1 -> E2 0.292 s vs W 0.65 s (margin 0.358 s); unignited N2O 5.01 g",
+    "19.0 cm3 retained-vapour slug, direct (reads PRIMED): lit, command -> E2 0.584 s, E1 -> E2 0.539 s vs W 0.65 s (margin 0.111 s); unignited N2O 6.66 g",
+    "19.0 cm3 retained-vapour slug, prep (P_feed invalid, UNKNOWN): lit, command -> E2 0.982 s, E1 -> E2 0.377 s vs W 0.65 s (margin 0.273 s); unignited N2O 5.86 g",
+    "drained 43.444 cm3 segment (PROVISIONAL: CAD v3.4 segment before the coil re-route), prep path: command -> E2 0.756 s (E0 0.560 s) vs the 1.37 s bound and the 1.41 s plan",
+    "drained 45.254 cm3 segment (PROVISIONAL: CAD v3.4 segment before the coil re-route), prep path: command -> E2 0.752 s (E0 0.560 s) vs the 1.37 s bound and the 1.41 s plan"
+   ],
+   "v2_sil": "results/fault_path_v2.json (firmware/sil/sil_main.cpp scFaultPath (S11), firmware v2.8.3, 126)",
+   "pending": "drained case on the RE-ROUTED segment: re-run with --segment-json <Mechanical re-route trap file> --segment-status \"re-routed (v3.4.1)\" once Mechanical publishes it; the slug cases do not depend on the total segment volume in this plant"
+  }
+ },
+ "abort_matrix": {
+  "actions": "every abort de-energises the NC valve at once and commands the pintle closed in parallel (lead line 56); no in-flight relight retry after a no-light; normal shutdown: pintle first, MV on seat confirmation or the timeout",
+  "mv_seat_timeout": {
+   "v": 0.3,
+   "unit": "s",
+   "tag": "COMB v2.4 / LEAD 2026-10-13; v2.7-v2.8 draft 0.25 DESIGN",
+   "src": "config.h kMvSeatTimeout_s"
+  },
+  "causes": [
+   {
+    "code": 17,
+    "cause": "PC_OVERPRESSURE",
+    "trigger": "firmware Pc above the over-pressure limit outside IGNITION",
+    "thresholds": {
+     "kPcOverPressureAbs_Pa": {
+      "v": 3000000.0,
+      "unit": "Pa",
+      "tag": "LEAD via COMB",
+      "src": "config.h kPcOverPressureAbs_Pa"
+     },
+     "kPcOverPressureTime_s": {
+      "v": 0.003,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kPcOverPressureTime_s"
+     }
+    }
+   },
+   {
+    "code": 18,
+    "cause": "HW_OVERPRESSURE",
+    "trigger": "hardware comparator latch (31.47 bar g on the 070BG): ARM bus already off in hardware",
+    "thresholds": {
+     "kHwOvpTime_s": {
+      "v": 0.002,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kHwOvpTime_s"
+     }
+    }
+   },
+   {
+    "code": 19,
+    "cause": "TVC_SUPPLY",
+    "trigger": "pad only: predicted both-stall TVC plug voltage below the minimum",
+    "thresholds": {
+     "kTvcSupplyMin_V": {
+      "v": 6.6,
+      "unit": "V",
+      "tag": "LEAD 2026-10-12, V_val",
+      "src": "config.h kTvcSupplyMin_V"
+     },
+     "kTvcSupplyTime_s": {
+      "v": 0.1,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kTvcSupplyTime_s"
+     }
+    }
+   },
+   {
+    "code": 20,
+    "cause": "OVERCURRENT",
+    "trigger": "firmware e-fuse before the first start",
+    "thresholds": {
+     "kEfuse_A": {
+      "v": 22.0,
+      "unit": "A",
+      "tag": "DESIGN",
+      "src": "config.h kEfuse_A"
+     },
+     "kEfuseTime_s": {
+      "v": 1.0,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kEfuseTime_s"
+     }
+    }
+   },
+   {
+    "code": 21,
+    "cause": "MAINT_JAM",
+    "trigger": "ARM refused: a pintle jam recorded in NV memory and not cleared (bearing A rule)",
+    "thresholds": {}
+   },
+   {
+    "code": 22,
+    "cause": "TORCH_FAULT",
+    "trigger": "no torch flame (P_torch) by the gate: abort before the pintle step",
+    "thresholds": {
+     "kTorchGate_s": {
+      "v": 0.16,
+      "unit": "s",
+      "tag": "[DESIGN; COMB v2.4 CONFIRMED 2026-10-13: E0->E1 max 0.1494 s over 1e6 samples,",
+      "src": "config.h kTorchGate_s"
+     },
+     "kTorchLitAbs_Pa": {
+      "v": 200000.0,
+      "unit": "Pa",
+      "tag": "DESIGN, ESTIMATE",
+      "src": "config.h kTorchLitAbs_Pa"
+     },
+     "kTorchConfirmN": {
+      "v": 3.0,
+      "unit": "-",
+      "tag": "DESIGN",
+      "src": "config.h kTorchConfirmN"
+     }
+    }
+   },
+   {
+    "code": 23,
+    "cause": "RELIGHT_LOCKOUT",
+    "trigger": "ARM/IGNITE/RELIGHT refused after an abort following a lit burn or on a relight, until CLEAR_LOCKOUT (ground)",
+    "thresholds": {}
+   },
+   {
+    "code": 24,
+    "cause": "OVER_THRUST",
+    "trigger": "flight RUN: FC_THRUST above the threshold on consecutive fresh valid frames (with or without a valid Pc; never on the stand)",
+    "thresholds": {
+     "kOverThrust_N": {
+      "v": 650.0,
+      "unit": "N",
+      "tag": "LEAD 2026-10-13 ADOPTED",
+      "src": "config.h kOverThrust_N"
+     },
+     "kOverThrustFrames": {
+      "v": 3.0,
+      "unit": "-",
+      "tag": "LEAD 2026-10-13 ADOPTED",
+      "src": "config.h kOverThrustFrames"
+     },
+     "kFcThrustRate_Hz": {
+      "v": 100.0,
+      "unit": "Hz",
+      "tag": "GNC m2_fc_thrust v1.1 / LEAD",
+      "src": "config.h kFcThrustRate_Hz"
+     },
+     "kFcThrustStale_s": {
+      "v": 0.05,
+      "unit": "s",
+      "tag": "GNC decision 2026-10-13",
+      "src": "config.h kFcThrustStale_s"
+     }
+    }
+   },
+   {
+    "code": 25,
+    "cause": "MODE_MISMATCH",
+    "trigger": "ARM refused: strap invalid, or strap and load-cell reading disagree",
+    "thresholds": {}
+   },
+   {
+    "code": 26,
+    "cause": "BAY_HOT",
+    "trigger": "ARM refused: bay temperature above the limit or no valid reading",
+    "thresholds": {
+     "kBayArmMax_K": {
+      "v": 318.15,
+      "unit": "K",
+      "tag": "LEAD approx 45 C, TO-DEFINE",
+      "src": "config.h kBayArmMax_K"
+     }
+    }
+   },
+   {
+    "code": 27,
+    "cause": "TANK_HOT",
+    "trigger": "ARM refused: tank temperature (max of wall DS18B20 and Tsat(P_tank)) above the limit or none valid",
+    "thresholds": {
+     "kTankIgnMax_K": {
+      "v": 297.15,
+      "unit": "K",
+      "tag": "LEAD 2026-10-13",
+      "src": "config.h kTankIgnMax_K"
+     }
+    }
+   },
+   {
+    "code": 28,
+    "cause": "BLEED_FAULT",
+    "trigger": "v2.9 head-end bleed: pad BIT step failed, V1 closure not confirmed by E0 + kHbleedCloseConfirm_s, or (stand) path / leak fault",
+    "thresholds": {
+     "kHbleedCloseConfirm_s": {
+      "v": 0.15,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kHbleedCloseConfirm_s"
+     },
+     "kHbleedLeakTime_s": {
+      "v": 0.2,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kHbleedLeakTime_s"
+     },
+     "kHbleedPathBy_s": {
+      "v": 0.1,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kHbleedPathBy_s"
+     }
+    }
+   },
+   {
+    "code": 1,
+    "cause": "CMD",
+    "trigger": "FC ABORT frame 0x010 or CMD_STATE ABORT",
+    "thresholds": {}
+   },
+   {
+    "code": 2,
+    "cause": "HARD_START",
+    "trigger": "Pc above the over-pressure limit during IGNITION",
+    "thresholds": {
+     "kPcOverPressureAbs_Pa": {
+      "v": 3000000.0,
+      "unit": "Pa",
+      "tag": "LEAD via COMB",
+      "src": "config.h kPcOverPressureAbs_Pa"
+     },
+     "kPcOverPressureTime_s": {
+      "v": 0.003,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kPcOverPressureTime_s"
+     }
+    }
+   },
+   {
+    "code": 3,
+    "cause": "NO_IGNITION",
+    "trigger": "v2.9: no light by the relative rule (rise >= kIgnRise_Pa over P0, floor, kIgnConfirmRelN ticks) within W from the lift command (v2.6-v2.8.3 text: Pc (filtered and raw, kIgnitionConfirmN ticks) not above the light threshold)",
+    "thresholds": {
+     "kIgnRise_Pa": {
+      "v": 80000.0,
+      "unit": "Pa",
+      "tag": "LEAD/COMB",
+      "src": "config.h kIgnRise_Pa"
+     },
+     "kIgnConfirmRelN": {
+      "v": 10.0,
+      "unit": "-",
+      "tag": "LEAD/COMB",
+      "src": "config.h kIgnConfirmRelN"
+     },
+     "kIgnWindowFirst_s": {
+      "v": 0.4,
+      "unit": "s",
+      "tag": "LEAD 2026-10-13",
+      "src": "config.h kIgnWindowFirst_s"
+     },
+     "kIgnWindowRelightLong_s": {
+      "v": 0.65,
+      "unit": "s",
+      "tag": "LEAD 2026-10-13",
+      "src": "config.h kIgnWindowRelightLong_s"
+     },
+     "kIgnWindowFirstStand_s": {
+      "v": 0.35,
+      "unit": "s",
+      "tag": "LEAD 2026-10-13 fallback (b)",
+      "src": "config.h kIgnWindowFirstStand_s"
+     }
+    }
+   },
+   {
+    "code": 4,
+    "cause": "FLAMEOUT",
+    "trigger": "RUN: gauge Pc below the floor or below a fraction of the expected Pc",
+    "thresholds": {
+     "kFlameoutPc_Pa": {
+      "v": 150000.0,
+      "unit": "Pa",
+      "tag": "DESIGN v2.2-v2.8.3, legacy rule only",
+      "src": "config.h kFlameoutPc_Pa"
+     },
+     "kFlameoutFrac": {
+      "v": 0.35,
+      "unit": "-",
+      "tag": "DESIGN v2.2-v2.8.3, legacy rule only",
+      "src": "config.h kFlameoutFrac"
+     },
+     "kFlameoutTime_s": {
+      "v": 0.02,
+      "unit": "s",
+      "tag": "LEAD/COMB 2026-10-13",
+      "src": "config.h kFlameoutTime_s"
+     }
+    }
+   },
+   {
+    "code": 5,
+    "cause": "PC_BAND",
+    "trigger": "RUN after settling: |Pc - Pc_ref| above both band limits",
+    "thresholds": {
+     "kPcBandFrac": {
+      "v": 0.3,
+      "unit": "-",
+      "tag": "DESIGN",
+      "src": "config.h kPcBandFrac"
+     },
+     "kPcBandMin_Pa": {
+      "v": 200000.0,
+      "unit": "Pa",
+      "tag": "DESIGN",
+      "src": "config.h kPcBandMin_Pa"
+     },
+     "kPcBandTime_s": {
+      "v": 0.15,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kPcBandTime_s"
+     },
+     "kRunSettle_s": {
+      "v": 0.3,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kRunSettle_s"
+     }
+    }
+   },
+   {
+    "code": 6,
+    "cause": "OVER_TEMP",
+    "trigger": "case TC (az 90/270, armed only while the MV is latched or OPEN) or nozzle holder above limit, in a burn or PREPRESS; servo-bracket NTC only flags",
+    "thresholds": {
+     "kCaseOverTemp_K": {
+      "v": 448.15,
+      "unit": "K",
+      "tag": "LEAD 2026-10-13 correction, MECH pre36 final",
+      "src": "config.h kCaseOverTemp_K"
+     },
+     "kNozzleHolderOverTemp_K": {
+      "v": 523.15,
+      "unit": "K",
+      "tag": "ASSUMED",
+      "src": "config.h kNozzleHolderOverTemp_K"
+     },
+     "kServoBracketOverTemp_K": {
+      "v": 333.15,
+      "unit": "K",
+      "tag": "DS-derived",
+      "src": "config.h kServoBracketOverTemp_K"
+     },
+     "kOverTempTime_s": {
+      "v": 0.2,
+      "unit": "s",
+      "tag": "MECH 2026-10-13: 0.2 s hold",
+      "src": "config.h kOverTempTime_s"
+     }
+    }
+   },
+   {
+    "code": 7,
+    "cause": "TANK_OVERPRESSURE",
+    "trigger": "P_tank above limit in ARMED/PREPRESS (never aborts a burn)",
+    "thresholds": {
+     "kTankOverPressure_Pa": {
+      "v": 6500000.0,
+      "unit": "Pa",
+      "tag": "DESIGN",
+      "src": "config.h kTankOverPressure_Pa"
+     },
+     "kTankOverPressureTime_s": {
+      "v": 0.2,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kTankOverPressureTime_s"
+     }
+    }
+   },
+   {
+    "code": 8,
+    "cause": "GIMBAL_FAULT",
+    "trigger": "command-model vs encoder mismatch while burning (allowance grows with the model rate)",
+    "thresholds": {
+     "kGimbalFaultErr_rad": {
+      "v": 0.02618,
+      "unit": "rad",
+      "tag": "DESIGN",
+      "src": "config.h kGimbalFaultErr_rad"
+     },
+     "kGimbalFaultTime_s": {
+      "v": 0.05,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kGimbalFaultTime_s"
+     },
+     "kGimbalFaultRateWin_s": {
+      "v": 0.04,
+      "unit": "s",
+      "tag": "DESIGN v2.2",
+      "src": "config.h kGimbalFaultRateWin_s"
+     }
+    }
+   },
+   {
+    "code": 9,
+    "cause": "PINTLE_FAULT",
+    "trigger": "pintle rail lost (LTC4365 trip / regulator failure), jam, encoder invalid at ARM",
+    "thresholds": {
+     "kPrailLost_V": {
+      "v": 5.5,
+      "unit": "V",
+      "tag": "DESIGN",
+      "src": "config.h kPrailLost_V"
+     },
+     "kPrailLostTime_s": {
+      "v": 0.002,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kPrailLostTime_s"
+     },
+     "kPintleStallTime_s": {
+      "v": 0.1,
+      "unit": "s",
+      "tag": "DESIGN, LEAD approved",
+      "src": "config.h kPintleStallTime_s"
+     },
+     "kPintleStallTimeI_s": {
+      "v": 0.05,
+      "unit": "s",
+      "tag": "DESIGN, LEAD approved",
+      "src": "config.h kPintleStallTimeI_s"
+     }
+    }
+   },
+   {
+    "code": 10,
+    "cause": "LINK_LOST",
+    "trigger": "no valid CMD_FAST: SAFE/ARMED/PREPRESS -> SAFE; RUN -> SHUTDOWN by default",
+    "thresholds": {
+     "kLinkDegraded_s": {
+      "v": 0.02,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kLinkDegraded_s"
+     },
+     "kLinkLost_s": {
+      "v": 0.1,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kLinkLost_s"
+     }
+    }
+   },
+   {
+    "code": 11,
+    "cause": "PREPRESS_FAIL",
+    "trigger": "feed not primed (P_feed > fraction of P_tank) in time, bleed lift not confirmed, MV not open",
+    "thresholds": {
+     "kPrepressTimeout_s": {
+      "v": 0.6,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kPrepressTimeout_s"
+     },
+     "kFeedPrimedFrac": {
+      "v": 0.8,
+      "unit": "-",
+      "tag": "DESIGN",
+      "src": "config.h kFeedPrimedFrac"
+     }
+    }
+   },
+   {
+    "code": 12,
+    "cause": "PC_SENSOR",
+    "trigger": "Pc transducer output outside the window: IGNITION and stand abort; flight RUN continues open loop",
+    "thresholds": {
+     "kPcSensorMin_V": {
+      "v": 0.25,
+      "unit": "V",
+      "tag": "DESIGN",
+      "src": "config.h kPcSensorMin_V"
+     },
+     "kPcSensorMax_V": {
+      "v": 4.75,
+      "unit": "V",
+      "tag": "4.75 V = 74.4 bar g with the 0-70 bar g (070BG) transducer",
+      "src": "config.h kPcSensorMax_V"
+     },
+     "kPcSensorLossStand_s": {
+      "v": 0.005,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kPcSensorLossStand_s"
+     }
+    }
+   },
+   {
+    "code": 13,
+    "cause": "BATT_LOW",
+    "trigger": "VBAT low in pad states before the first start (flag in flight); ARM refused below the rest-voltage rule",
+    "thresholds": {
+     "kBattLow_V": {
+      "v": 6.6,
+      "unit": "V",
+      "tag": "DESIGN",
+      "src": "config.h kBattLow_V"
+     },
+     "kBattLowTime_s": {
+      "v": 0.2,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kBattLowTime_s"
+     },
+     "kBattArmMin_V": {
+      "v": 8.1,
+      "unit": "V",
+      "tag": "LEAD 2026-10-12 ARM rule, rest voltage",
+      "src": "config.h kBattArmMin_V"
+     }
+    }
+   },
+   {
+    "code": 14,
+    "cause": "MV_FAULT",
+    "trigger": "MV CLOSED switch missing at ARM; direct relight OPEN switch missing by the deadline: stand abort, flight flag",
+    "thresholds": {
+     "kMvOpenBy_s": {
+      "v": 0.95,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kMvOpenBy_s"
+     },
+     "kMvCloseConfirm_s": {
+      "v": 0.5,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kMvCloseConfirm_s"
+     }
+    }
+   },
+   {
+    "code": 15,
+    "cause": "ARM_LOST",
+    "trigger": "arming plug removed or ARM bus not on 50 ms after the request",
+    "thresholds": {}
+   },
+   {
+    "code": 16,
+    "cause": "WATCHDOG",
+    "trigger": "hardware watchdog reset: reboot lands in SAFE; a lit-session marker becomes a relight lockout",
+    "thresholds": {
+     "kHwWatchdog_s": {
+      "v": 0.05,
+      "unit": "s",
+      "tag": "DESIGN",
+      "src": "config.h kHwWatchdog_s"
+     }
+    }
+   }
+  ]
+ },
+ "over_thrust": {
+  "rule": "flight RUN, FC_THRUST > 650 N on 3 consecutive fresh valid frames; stale > 50 ms or b0 = 0 -> flag only; never on the stand",
+  "threshold": {
+   "v": 650.0,
+   "unit": "N",
+   "tag": "LEAD 2026-10-13 ADOPTED",
+   "src": "config.h kOverThrust_N"
+  },
+  "frames": {
+   "v": 3.0,
+   "unit": "-",
+   "tag": "LEAD 2026-10-13 ADOPTED",
+   "src": "config.h kOverThrustFrames"
+  },
+  "rate": {
+   "v": 100.0,
+   "unit": "Hz",
+   "tag": "GNC m2_fc_thrust v1.1 / LEAD",
+   "src": "config.h kFcThrustRate_Hz"
+  },
+  "stale": {
+   "v": 0.05,
+   "unit": "s",
+   "tag": "GNC decision 2026-10-13",
+   "src": "config.h kFcThrustStale_s"
+  },
+  "valid_window": "CHANGELOG line 111 (lead, 2026-10-13): On REV-GNC-1: (1) ENG-03 raised to >= 5 F_max/s (2500 N/s) under load, as flown; a lower B-PNT-1 value needs an explicit lead decision on the published loss. (2... (FC sets b0). Firmware comment in protocol.h still says \"drogue released\": comment-only correction for the next release",
+  "rg15": "CHANGELOG line 113 (lead, 2026-10-13): (1) The PRIMED flag is not a vapour detector; flight planning must not rely on it to exclude vapour. (2) CORRECTION to the REV-GNC-1 decision (7): FC_THRUST is accelerometer-based and must NOT freeze ...",
+  "rg19_budget_known_terms_s": {
+   "mean": 0.07859,
+   "max": 0.08408,
+   "unknown_terms": [
+    "E1 IMU filter",
+    "E2 SPI/driver",
+    "E4 FC scheduling",
+    "E10 airframe / oscillation"
+   ],
+   "tag": "DERIVED sum of E3 + E5 + E6 + E7 + E8 (E0 sample age adds up to one IMU sample)"
+  },
+  "rg19_terms": [
+   {
+    "id": "E0",
+    "term": "IMU sample age at the FC read",
+    "mean_s": 0.00025,
+    "max_s": 0.0005,
+    "tag": "DERIVED (1 / output rate, repo record)",
+    "owner": "FC owner (read on data-ready -> 0)",
+    "verify": "B-FC-1: IMU DR pin vs FC read GPIO on the logic analyser"
+   },
+   {
+    "id": "E1",
+    "term": "IMU internal digital filter / decimation group delay",
+    "mean_s": null,
+    "max_s": null,
+    "tag": "UNKNOWN (ADIS16470 data sheet Rev. C not read: analog.com refused by the egress proxy; FC owner sets the filter)",
+    "owner": "FC owner + Electronics",
+    "verify": "B-FC-1: step input (drop / pneumatic step fixture) on the flight IMU, DR edges vs a reference accelerometer (or the data sheet value once read)"
+   },
+   {
+    "id": "E2",
+    "term": "IMU SPI burst read + FC driver to the estimator",
+    "mean_s": null,
+    "max_s": null,
+    "tag": "TO-DEFINE (FC software not written)",
+    "owner": "FC owner",
+    "verify": "HIL-OT-1: FC GPIO toggles at read start / estimator input"
+   },
+   {
+    "id": "E3",
+    "term": "FC estimator (tau 20 ms) + 650 N on 3 frames decision, from a thrust step",
+    "mean_s": 0.03849999999999998,
+    "max_s": 0.04299999999999993,
+    "tag": "SIM (GNC m2_fc_thrust v1.1, rigid airframe)",
+    "owner": "GNC",
+    "verify": "HIL-OT-1: SPI-replayed sim6 F_acc step / ramp, FC decision GPIO"
+   },
+   {
+    "id": "E4",
+    "term": "FC task scheduling (decision -> FC_THRUST in the CAN TX mailbox)",
+    "mean_s": null,
+    "max_s": null,
+    "tag": "TO-DEFINE",
+    "owner": "FC owner",
+    "verify": "HIL-OT-1: FC decision GPIO vs CAN analyser start-of-frame"
+   },
+   {
+    "id": "E5",
+    "term": "CAN FC_THRUST worst response (incl. one ABORT frame)",
+    "mean_s": 8.7e-05,
+    "max_s": 0.00048,
+    "tag": "DERIVED (Davis et al. 2007, frame lengths parsed from protocol.cpp)",
+    "owner": "Electronics",
+    "verify": "B-ECU-1 / HIL-OT-1: CAN analyser timestamps"
+   },
+   {
+    "id": "E6",
+    "term": "ECU receipt -> MV latch gate off (RX at the next 1 kHz tick + core step)",
+    "mean_s": 0.0006000000000000001,
+    "max_s": 0.0012000000000000001,
+    "tag": "DERIVED (tick, DESIGN) + ASSUMED core step (HAL not written)",
+    "owner": "Electronics",
+    "verify": "B-ECU-1: CAN analyser end-of-frame vs scope on MVL_G (gate) over >= 1000 frames"
+   },
+   {
+    "id": "E7",
+    "term": "MV latch release (8.4 V / -10 C worst)",
+    "mean_s": 0.0094,
+    "max_s": 0.0094,
+    "tag": "DERIVED calc/mv_latch_magnet_v1 (estimate)",
+    "owner": "Electronics",
+    "verify": "B-MV-1: latch coil current + poppet position switch on the scope"
+   },
+   {
+    "id": "E8",
+    "term": "MV-P closing with dashpot",
+    "mean_s": 0.03,
+    "max_s": 0.03,
+    "tag": "MECH mv_actuator_v1 ESTIMATE; COMB B-MV-1 bound 0.10 s",
+    "owner": "Mechanical",
+    "verify": "B-MV-1 (flowing, 0.05-0.26 kg/s per COMB)"
+   },
+   {
+    "id": "E9",
+    "term": "tail-off after the MV seats (impulse)",
+    "mean_s": null,
+    "max_s": null,
+    "tag": "COMB v2.4 (CHANGELOG combustion v2.4 ANSWERS, parsed)",
+    "owner": "Combustion",
+    "verify": "T1-T4 hot fires: load cell"
+   },
+   {
+    "id": "E10",
+    "term": "airframe axial modes between the engine and the IMU; low-frequency combustion oscillation",
+    "mean_s": null,
+    "max_s": null,
+    "tag": "UNKNOWN (rigid airframe in sim6; outside the vibration model)",
+    "owner": "GNC / Mechanical / Combustion",
+    "verify": "T1-T4: F_acc vs load cell with the low-frequency content (5-200 Hz) on a common time base"
+   }
+  ],
+  "imu": {
+   "v": "ADIS16470 filter / decimation delay UNKNOWN (analog.com refused by the egress proxy, not retried)",
+   "tag": "UNKNOWN"
+  },
+  "proposed_allocations": "IMU-to-estimator <= 5 ms, FC scheduling <= 2 ms (Electronics proposal, FC owner to accept)",
+  "source": "results/over_thrust_v3.json"
+ },
+ "eng03_pintle_rate": {
+  "requirement": "CHANGELOG line 121 (lead, 2026-10-13): ENG-03 AMENDED to the state-dependent map: closing >= 2500 N/s everywhere, opening >= the HV69 corner rate map, closed-loop t10-90 <= 100 ms under load including the drive. HV69 STAYS; no actuator change, no spring change. B-PNT-1 measures the HV69 torque-spee...",
+  "gnc_result": "CHANGELOG line 120 (gnc, 2026-10-13): ENG-03 rate map in the 6-DOF (sim6 v2.8-dev, bit-identical to v2.7.1-dev with options off): R1 corner map capped 2500 N/s, A1 +0.00 % (-17/+17, p 1.0), B1 -0.20 % (-4/+2, p 0.688), all -0.07 % (p 0.875). R2 lag bound (drive lag in series, double-counted): A1 0...",
+  "rate_map": {
+   "file": "06-electronics/results/pintle_rate_map_v1.json",
+   "sha256_16": "411b0573d604364e",
+   "summary": {
+    "corner": {
+     "open_min_N_per_s": 1188.2,
+     "open_min_at": {
+      "P_tank_MPa": 3.5,
+      "frac": 0.8,
+      "F_N": 400.0,
+      "lift_mm": 1.9394
+     },
+     "close_min_N_per_s": 2635.2,
+     "close_min_at": {
+      "P_tank_MPa": 3.5,
+      "frac": 0.8,
+      "F_N": 400.0,
+      "lift_mm": 1.9394
+     },
+     "states_open_ge_2500": "29/95",
+     "states_close_ge_2500": "95/95",
+     "open_ge_2500_below_frac_by_P": {
+      "3.5": null,
+      "4.0": null,
+      "4.5": null,
+      "5.0": null,
+      "5.5": null
+     },
+     "closing_load_resisting_states": 0
+    },
+    "nominal": {
+     "open_min_N_per_s": 1347.1,
+     "open_min_at": {
+      "P_tank_MPa": 3.5,
+      "frac": 0.8,
+      "F_N": 400.0,
+      "lift_mm": 1.9394
+     },
+     "close_min_N_per_s": 2684.1,
+     "close_min_at": {
+      "P_tank_MPa": 3.5,
+      "frac": 0.8,
+      "F_N": 400.0,
+      "lift_mm": 1.9394
+     },
+     "states_open_ge_2500": "57/95",
+     "states_close_ge_2500": "95/95",
+     "open_ge_2500_below_frac_by_P": {
+      "3.5": null,
+      "4.0": null,
+      "4.5": 0.5,
+      "5.0": 0.75,
+      "5.5": 0.75
+     },
+     "closing_load_resisting_states": 0
+    },
+    "corner_friction_sens": {
+     "open_min_N_per_s": 1157.8,
+     "open_min_at": {
+      "P_tank_MPa": 3.5,
+      "frac": 0.8,
+      "F_N": 400.0,
+      "lift_mm": 1.9394
+     },
+     "close_min_N_per_s": 2635.2,
+     "close_min_at": {
+      "P_tank_MPa": 3.5,
+      "frac": 0.8,
+      "F_N": 400.0,
+      "lift_mm": 1.9394
+     },
+     "states_open_ge_2500": "25/95",
+     "states_close_ge_2500": "95/95",
+     "open_ge_2500_below_frac_by_P": {
+      "3.5": null,
+      "4.0": null,
+      "4.5": null,
+      "5.0": null,
+      "5.5": null
+     },
+     "closing_load_resisting_states": 0
+    }
+   },
+   "reduced_model_for_gnc": {
+    "A_first_order": {
+     "equation": "dF/dt = clip((F_cmd(t - latency_s) - F) / tau_eq_s, -R_close(P_tank, F), +R_open(P_tank, F))",
+     "parameters": {
+      "corner": {
+       "latency_s": 0.004,
+       "tau_eq_s": 0.00851
+      },
+      "nominal": {
+       "latency_s": 0.004,
+       "tau_eq_s": 0.00843
+      }
+     },
+     "tags": "latency ASSUMED; tau_eq DERIVED (2 zeta / w_n of the ASSUMED servo loop)"
+    },
+    "B_two_state": {
+     "equation": "v_cmd = clip((F_cmd(t - latency_s) - F) / tau_p_s, -R_close(P_tank, F), +R_open(P_tank, F)); tau_v_s dv/dt = v_cmd - v; dF/dt = v",
+     "parameters": {
+      "latency_s": 0.004,
+      "tau_p_s": 0.0085,
+      "tau_v_s": 0.008,
+      "closing_rate_table": "R_close_assist_credited (by_law) for fidelity; R_close for the bound"
+     },
+     "tags": "latency ASSUMED; tau_p, tau_v FIT to the nonlinear drive simulation (3.5 MPa runs, grid tau_p [0.004, 0.006, 0.0085, 0.01] s x tau_v [0.002, 0.004, 0.006, 0.008, 0.01] s, minimum of the maximum shape error), checked on 4.5 / 5.5 MPa (holdout_P_not_fit)"
+    },
+    "recommended": "B_two_state with the envelope tables (R_open; R_close for robustness runs, the assist-credited closing for nominal trajectories); A_first_order is the simplest form and leads the simulation by up to the validation dt10 at the start of large steps",
+    "second_order_small_signal": {
+     "corner": {
+      "w_n_rad_s": 164.4,
+      "zeta": 0.7
+     },
+     "nominal": {
+      "w_n_rad_s": 166.2,
+      "zeta": 0.7
+     }
+    },
+    "rate_tables": "rate_map.<case>.R_open_N_per_s / R_close_N_per_s (envelope = minimum over L0/L1/L2); bilinear in (P_tank, F); F from the [P][frac] F_N array",
+    "includes": "HV69 torque-speed line under the needle-force + spring + friction load, crank kinematics, thrust-map gain, servo latency and loop lag (pintle_dynamics_v3 model)",
+    "excludes": [
+     "ECU Pc loop (PI) and its static-droop removal; the drive alone holds a static offset (validation sim_static_offset_end_N) that the Pc loop integrates out",
+     "chamber filling and fuel thermal lag (Combustion)",
+     "FC_THRUST -> CAN -> ECU latency (RG-19 budget, Electronics, open)",
+     "start transient (IGNITION -> RUN is capped by kStartRamp_Nps in firmware) and shutdown (kPintleCloseRate_mps)"
+    ],
+    "closed_loop_reference": "SIL v2.8.2 S4 (ECU firmware + ASSUMED plant): 150 +/- 25 N sine at 1 Hz -> gain 1.024, phase -8.7 deg (about 24 ms equivalent delay end to end, SIL)"
+   }
+  },
+  "quasi_static_check": {
+   "open_states_meeting_2500": "22/45",
+   "close_states_meeting_2500": "45/45",
+   "open_min_N_per_s": 1204.0,
+   "open_min_at": {
+    "P_tank_MPa": 3.5,
+    "frac": 1.0,
+    "F_N": 500.0,
+    "lift_mm": 2.9815
+   },
+   "close_min_N_per_s": 2727.0,
+   "close_min_at": {
+    "P_tank_MPa": 3.5,
+    "frac": 1.0,
+    "F_N": 500.0,
+    "lift_mm": 2.9815
+   }
+  },
+  "start_ramp": {
+   "v": 2500.0,
+   "unit": "N/s",
+   "tag": "COMB/GNC",
+   "src": "engine_params.h kStartRamp_Nps"
+  },
+  "b_pnt_1": "HV69 torque-speed line under load (0.42-0.55 N m at 7.335 and 7.49 V); closed-loop t10-90 <= 100 ms under load with the drive in the loop; until then B1 launch commit mean wind < 6 m/s (lead line 121)"
+ },
+ "pintle_rail": {
+  "adopted": "CHANGELOG line 62 (lead, 2026-10-13): PINTLE RAIL (Electronics pintle_rail_v3, 06-electronics/results/pintle_rail_v3.json): ADOPTED (a) FB divider 24.9k/4.75k 0.1 % 10 ppm/K, setpoint 7.49 V typ, V_rail_max_static 7.62 V; (b) second 220 uF polymer output capacitor (load-release...",
+  "publish_v3": {
+   "configuration": "v3 recommended: divider B 24.9k/4.75k 0.1 % 10 ppm/K, CDC floating, FPWM, 2nd 220 uF polymer, LTC4365 OV disconnect 8.2 V nominal (present v2 divider A gives 7.672 V static worst)",
+   "V_rail_max_static_V": {
+    "v": 7.62,
+    "tag": "DERIVED pintle_rail_v3, linear worst case 7.616 V (RSS 7.600 V); applies to a STALLED servo"
+   },
+   "jam_F_link_N_at_V_rail_max_static": {
+    "v": 819.9,
+    "tag": "DERIVED from Mechanical pintle v2.3 jam table (pin friction 0, -10 % spring)"
+   },
+   "V_rail_line_step_during_stall_V": {
+    "v": 7.7,
+    "tag": "ASSUMED 1 % allowance (no datasheet number), <= ~1 ms, B-PWR-2 measures; jam 831.6 N"
+   },
+   "V_rail_peak_load_release_V": {
+    "v": 7.97,
+    "tag": "DERIVED, 4.33 A release, f_c 5 kHz, C_eff 396 uF; current falling = not coincident with a stall; B-PWR-2"
+   },
+   "V_rail_failure_static_max_V": {
+    "v": 8.34,
+    "tag": "DERIVED: LTC4365 OV trip max (a failure can park the rail just below it); without the disconnect the regulator OVP allows 24.5 V"
+   },
+   "V_rail_failure_peak_V": {
+    "v": 8.46,
+    "tag": "DERIVED, <= 6 us, then the servo is unpowered"
+   },
+   "V_rail_min_static_V": {
+    "v": 7.38,
+    "tag": "DERIVED (C2 margin 1.596 at the rail, before the harness drop)"
+   },
+   "jam_detection": {
+    "v": "stall time path 0.10 s after the last progress mark (current path 0.02 + 0.05 s when the pintle current sense is fitted); back-off command the same 1 ms tick; in ABORT a further 0.10 s without closing progress releases the ARM bus (servo unpowered)",
+    "tag": "DESIGN firmware v2.6 config.h"
+   }
+  },
+  "schematic_v2p3_values": {
+   "tps552882": {
+    "vout_V_min_nom_max_DC_divider_and_VREF_only": {
+     "v": [
+      7.403,
+      7.491,
+      7.578
+     ],
+     "tag": "DERIVED (CDC/FB-leakage terms: pintle_rail_v3, static worst 7.62 V)"
+    },
+    "en_uvlo_rising_V": {
+     "v": [
+      4.341,
+      4.514,
+      4.692
+     ],
+     "tag": "DERIVED R804/R805 with VUVLO 1.20-1.26 V, 1 % resistors"
+    },
+    "en_uvlo_falling_V": {
+     "v": [
+      4.12,
+      4.329,
+      4.543
+     ],
+     "tag": "DERIVED: rising - IUVLO_HYS x R804 - VUVLO_HYS x (1 + R804/R805)"
+    },
+    "iout_limit_A": {
+     "v": [
+      4.0,
+      4.167,
+      4.333
+     ],
+     "tag": "DERIVED VSNS 48-52 mV / R807"
+    },
+    "boost_worst": {
+     "VIN_V": 6.0,
+     "D": 0.1989,
+     "R_LOAD_ohm": 1.7286,
+     "f_RHPZ_Hz": {
+      "v": 37562,
+      "tag": "DERIVED Eq. 22 (pintle_rail_v3 37.6 kHz)"
+     },
+     "f_c_limit_Hz": {
+      "v": 7512,
+      "tag": "DATASHEET rule min(f_SW/10, f_RHPZ/5)"
+     }
+    },
+    "comp_computed": {
+     "R_C_ohm": {
+      "v": 28060,
+      "tag": "DERIVED Eq. 24, f_C 5000 Hz, C_OUT 396 uF, G_EA typ"
+     },
+     "C_C_F": {
+      "v": 1.2197561957773507e-08,
+      "tag": "DERIVED Eq. 25"
+     },
+     "C_P_F": {
+      "v": 9.878885226735067e-11,
+      "tag": "DERIVED Eq. 26 with 7.0 mOhm ESR"
+     }
+    },
+    "comp_fitted": {
+     "R806_ohm": 28000.0,
+     "C812_F": 1.2000000000000002e-08,
+     "C813_F": 1e-10,
+     "f_c_boost_6V0_Hz": {
+      "v": 4989,
+      "tag": "DERIVED with the fitted R806 (G_EA typical: no min/max printed)"
+     },
+     "f_c_buck_8V4_Hz": {
+      "v": 6228,
+      "tag": "DERIVED (1-D) -> 1 in buck mode"
+     },
+     "zero_Hz": 474,
+     "hf_pole_Hz": 56841
+    },
+    "verification": "B-PWR-2 load step / Bode: phase margin >= 45 deg at 6.0 and 8.4 V in, 0.1-4.3 A (G_EA spread unknown)"
+   },
+   "external_fets": {
+    "finding": "TPS552882 integrates only the boost-leg MOSFETs; the buck leg needs two external N-MOSFETs driven by DR1H/DR1L. pintle_rail_v1/v2 listed neither the parts nor their losses (eta 0.92 ASSUMED covered the converter as if fully integrated).",
+    "candidate": "TI CSD17578Q5A (30 V, 9.3 mOhm max at 4.5 V, SON 5x6) for Q801/Q802 and the LTC4365 switch Q803",
+    "P_Q801_boost_6V0_at_limit_W": {
+     "v": 0.482,
+     "tag": "DERIVED I_in 5.88 A (eta 0.92 ASSUMED), RDS x 1.5 hot ASSUMED"
+    },
+    "P_Q801_boost_6V0_at_stall_W": {
+     "v": 0.074,
+     "tag": "DERIVED at 1.7 A HV69 stall bound"
+    },
+    "P_Q801_buck_8V4_at_limit_W": {
+     "v": 0.306,
+     "tag": "DERIVED conduction + switching (t_sw ASSUMED 10 ns)"
+    },
+    "P_Q802_buck_8V4_at_limit_W": {
+     "v": 0.028,
+     "tag": "DERIVED conduction (dead-time body-diode loss not modelled)"
+    },
+    "P_Q803_at_limit_W": {
+     "v": 0.262,
+     "tag": "DERIVED if fully enhanced (VGS >= 4.5 V); at the 3.0 V gate drive class RDS(on) is not printed: TO-CONFIRM"
+    },
+    "dT_junction_K_worst": {
+     "v": 24.1,
+     "tag": "DERIVED with RthJA 50 K/W (1 in2 2 oz pad, DATASHEET)"
+    },
+    "P_R807_at_limit_W": {
+     "v": 0.225,
+     "tag": "DERIVED: 2512 1 W part"
+    },
+    "duty_note": "the 4.33 A limit is reached only in a fault or a jam; the HV69 stall bound is 1.2-1.7 A (DERIVED, unmeasured)"
+   },
+   "ltc4365": {
+    "ov_trip_V": {
+     "v": [
+      8.062,
+      8.2,
+      8.339
+     ],
+     "tag": "DERIVED VOV and 0.1 % divider (pintle_rail_v3: 8.062/8.2/8.339 V without divider tolerance)"
+    },
+    "uv_trip_V": {
+     "v": [
+      4.881,
+      5.045,
+      5.214
+     ],
+     "tag": "DERIVED with VUV ASSUMED = VOV (TO-CONFIRM) and 1 % divider; firmware PRAIL lost < 5.5 V"
+    },
+    "ov_filter_tau_s": {
+     "v": 9.390243902439025e-06,
+     "tag": "DESIGN pintle_rail_ovtrip_v1 choice 10 us (1.0 nF at Rth 9.39 kOhm)"
+    },
+    "fault_to_mv": "LTC4365 /FAULT (open drain, R817 10k to +5V_ARM) = PRAIL_OK -> U306 AND -> MV holding magnet gate: an OV or UV disconnect releases the MV latch in hardware; firmware sees PRAIL < 5.5 V on ADC2 CH1 (PINTLE_FAULT)",
+    "not_covered": "a regulator collapse below the LTC4365 operating minimum (2.5 V VIN) leaves /FAULT undriven (pulled high): the firmware PRAIL path covers it"
+   }
+  },
+  "finding": "the TPS552882 integrates only the boost-leg FETs: the buck leg needs two external FETs driven by DR1H/DR1L (missed in pintle_rail_v1/v2; drawn in v2.3 with CSD17578Q5A, losses in ecu_v2p3_values_v1)",
+  "to_confirm": [
+   "LTC4365 UV threshold = OV threshold ASSUMED (datasheet blocked)",
+   "Q803 enhancement at the LTC4365 gate drive",
+   "TPS552882 compensation equations 22, 24-26 (garbled extraction) and phase margin at B-PWR-1",
+   "RPM0026A land pattern (placeholder footprint)"
+  ]
+ },
+ "ecu": {
+  "architecture": {
+   "v": "separate engine ECU (Teensy 4.1) on the fixed thrust structure, CAN link to flight computer",
+   "tag": "DERIVED trade (REPORT Architecture)"
+  },
+  "mcu": "PJRC Teensy 4.1 (i.MX RT1062 600 MHz, native SDIO microSD, 3 CAN incl. 1 CAN-FD)",
+  "pcb_outline_mm": {
+   "v": [
+    120.0,
+    60.0,
+    1.6
+   ],
+   "tag": "DESIGN v1 (4-layer, hand-solderable)"
+  },
+  "mount_holes": {
+   "v": {
+    "dia_mm": 3.2,
+    "screw": "M3",
+    "xy_mm": [
+     [
+      4,
+      4
+     ],
+     [
+      116,
+      4
+     ],
+     [
+      4,
+      56
+     ],
+     [
+      116,
+      56
+     ]
+    ],
+    "datum": "PCB lower-left corner, top view"
+   },
+   "tag": "DESIGN v1"
+  },
+  "enclosure_envelope_mm": {
+   "v": [
+    128.0,
+    68.0,
+    32.0
+   ],
+   "tag": "DESIGN v1 reservation (PETG or 1 mm Al); +25 mm connector/cable clearance on both long sides"
+  },
+  "mass_kg": {
+   "v": 0.16,
+   "tag": "ASSUMED (PCB+Teensy+connectors 0.11, enclosure 0.05)",
+   "range": [
+    0.12,
+    0.22
+   ]
+  },
+  "connector_edges": {
+   "v": {
+    "edge_y0 (long side A)": [
+     "BATT XT60",
+     "ARM plug",
+     "SERVO TVC-A",
+     "SERVO TVC-B",
+     "SERVO PINTLE",
+     "SERVO MV",
+     "MV LATCH",
+     "IGN/PYRO",
+     "SOL1/SOL2"
+    ],
+    "edge_y60 (long side B)": [
+     "P_C",
+     "P_FEED",
+     "P_TANK",
+     "TC x4",
+     "ENC x3",
+     "CAN-FC",
+     "CAN-GSE/umbilical",
+     "1-wire T_tank"
+    ],
+    "short edge x0": [
+     "Teensy USB (service)",
+     "microSD (service)"
+    ]
+   },
+   "tag": "DESIGN v1"
+  },
+  "placement_constraints": "fixed (non-gimballed) structure, >= 100 mm from igniter HV lead path, not on the tank wall; keep feed-line axis free",
+  "battery": {
+   "type": "LiPo 2S1P 2.2 Ah 25C+ (part TO-QUOTE)",
+   "envelope_reservation_mm": {
+    "v": [
+     110,
+     36,
+     20
+    ],
+    "tag": "ASSUMED"
+   },
+   "mass_kg": {
+    "v": 0.125,
+    "tag": "ASSUMED"
+   }
+  },
+  "schematic": {
+   "version": "v2.4 (KiCad 7.0.11, generated from hardware/kicad_gen/ecu_design.py; v2.4 = head-end bleed provision drawn)",
+   "erc": {
+    "v": "0 errors, 0 warnings, 9 sheets",
+    "tag": "KiCad eeschema ERC (GUI on Xvfb)"
+   },
+   "netlist_crosscheck": {
+    "v": "components 449, nets 277, pins 1256 of 1244 intended, errors 0, warnings 0",
+    "tag": "check_netlist.py v1"
+   },
+   "negative_control": "PREG PWR_FLAG removed -> 1 error power_pin_not_driven U802 pin 1 (erc/negative_control_v2p3)",
+   "files": "06-electronics/hardware/kicad (README.md lists them)",
+   "placeholders": [
+    "TI_RPM0026A_PLACEHOLDER (NOT FOR FABRICATION)",
+    "Pololu_U3V70_WireAttach (wire pads only)",
+    "Teensy41_Socket (verify vs PJRC drawing)"
+   ]
+  },
+  "pin_map": [
+   {
+    "pin": "0",
+    "net": "SOL3_VENT_CMD",
+    "dir": "out",
+    "function": "FlexPWM: tank vent solenoid (VBAT, PWM hold), not ARM-gated, watchdog-gated"
+   },
+   {
+    "pin": "1",
+    "net": "SOL4_ROLL_CW_CMD",
+    "dir": "out",
+    "function": "roll RCS provision: CW thruster pair, 2 coils (12 V, ARM-gated)"
+   },
+   {
+    "pin": "2",
+    "net": "TVC_A_PWM",
+    "dir": "out",
+    "function": "FlexPWM4.2 333 Hz servo TVC-A (pitch)"
+   },
+   {
+    "pin": "3",
+    "net": "TVC_B_PWM",
+    "dir": "out",
+    "function": "FlexPWM4.2 333 Hz servo TVC-B (yaw)"
+   },
+   {
+    "pin": "4",
+    "net": "PINTLE_PWM",
+    "dir": "out",
+    "function": "FlexPWM2.0 333 Hz pintle throttle servo"
+   },
+   {
+    "pin": "5",
+    "net": "MV_OPENER_PWM",
+    "dir": "out",
+    "function": "FlexPWM2.1 333 Hz main-valve opener servo"
+   },
+   {
+    "pin": "6",
+    "net": "MV_LATCH_CMD",
+    "dir": "out",
+    "function": "main-valve holding magnet (ARM-gated)"
+   },
+   {
+    "pin": "7",
+    "net": "ADC_DRDY",
+    "dir": "in",
+    "function": "ADS131M04 ADC1 data ready (4 kSPS); ADC2 shares the clock, its DRDY goes to TP901 (polled)"
+   },
+   {
+    "pin": "8",
+    "net": "CS_A0",
+    "dir": "out",
+    "function": "SPI0 CS decoder U203 address A (LSB)"
+   },
+   {
+    "pin": "9",
+    "net": "CS_A1",
+    "dir": "out",
+    "function": "SPI0 CS decoder U203 address B"
+   },
+   {
+    "pin": "10",
+    "net": "CS_A2",
+    "dir": "out",
+    "function": "SPI0 CS decoder U203 address C (MSB): Y0 ADC1, Y1 ADC2, Y2-Y7 TC1-TC6"
+   },
+   {
+    "pin": "11",
+    "net": "MOSI0",
+    "dir": "out",
+    "function": "SPI0 MOSI"
+   },
+   {
+    "pin": "12",
+    "net": "MISO0",
+    "dir": "in",
+    "function": "SPI0 MISO (ADC1, ADC2 and 6 TC, 33 ohm per device)"
+   },
+   {
+    "pin": "13",
+    "net": "SCK0",
+    "dir": "out",
+    "function": "SPI0 SCK (on-board LED)"
+   },
+   {
+    "pin": "14",
+    "net": "VBAT_SENSE",
+    "dir": "ain",
+    "function": "A0 battery voltage /4.03"
+   },
+   {
+    "pin": "15",
+    "net": "HTR_PERMIT_CMD",
+    "dir": "out",
+    "function": "GSE tank-heater permit via U305 (SAFE; hardware cut at plug / ARM bus / watchdog) AND v2.4 bleed V1 via U304 2A2 (+12V_ARM only)"
+   },
+   {
+    "pin": "16",
+    "net": "IBAT_SENSE",
+    "dir": "ain",
+    "function": "A2 battery current, INA181A1 x20 on 2 mOhm (25 A/V)"
+   },
+   {
+    "pin": "17",
+    "net": "MODE_SENSE",
+    "dir": "ain",
+    "function": "A3 mode strap J620 resistor code: FLIGHT 2.27 V, STAND 1.65 V, open 3.30 V, both 1.35 V"
+   },
+   {
+    "pin": "18",
+    "net": "NTC_SERVO",
+    "dir": "ain",
+    "function": "A4 pintle-servo bracket NTC 10k"
+   },
+   {
+    "pin": "19",
+    "net": "V5SNS_SENSE",
+    "dir": "ain",
+    "function": "A5 transducer excitation /2 (ratiometric correction)"
+   },
+   {
+    "pin": "20",
+    "net": "CS_EN_N",
+    "dir": "out",
+    "function": "SPI0 CS decoder enable (G2A, active low; 10k pull-up: no device selected in reset)"
+   },
+   {
+    "pin": "21",
+    "net": "ARM_PLUG_SENSE",
+    "dir": "ain",
+    "function": "A7 arming-plug voltage /4.03 (upstream of ARM switch)"
+   },
+   {
+    "pin": "22",
+    "net": "ARM_BUS_SENSE",
+    "dir": "ain",
+    "function": "A8 ARM bus voltage /4.03 (proves switch closed)"
+   },
+   {
+    "pin": "23",
+    "net": "MV_LADDER",
+    "dir": "ain",
+    "function": "A9 v2.4 ladder: MV OPEN / CLOSED switches + P_mid comparator (calc/hbleed_provision_v1.py)"
+   },
+   {
+    "pin": "24",
+    "net": "BLEED_B_CMD",
+    "dir": "out",
+    "function": "v2.4 head-end bleed V2 command via U307 (ARM-gated, watchdog /OE)"
+   },
+   {
+    "pin": "25",
+    "net": "ONEWIRE",
+    "dir": "io",
+    "function": "1-Wire DS18B20 tank wall temperatures"
+   },
+   {
+    "pin": "26",
+    "net": "MOSI1",
+    "dir": "out",
+    "function": "SPI1 MOSI to AS5048A encoders"
+   },
+   {
+    "pin": "27",
+    "net": "SCK1",
+    "dir": "out",
+    "function": "SPI1 SCK to encoders (1 MHz over cable)"
+   },
+   {
+    "pin": "28",
+    "net": "SPARK_CMD",
+    "dir": "out",
+    "function": "spark coil dwell pulses (ARM-gated, AC-coupled gate)"
+   },
+   {
+    "pin": "29",
+    "net": "OVP_OK",
+    "dir": "in",
+    "function": "hardware Pc over-pressure latch U331 Q: high = OK; low = tripped, ARM bus forced off"
+   },
+   {
+    "pin": "30",
+    "net": "CAN_RX",
+    "dir": "in",
+    "function": "CAN3 CRX3 (FD-capable) from MCP2562FD"
+   },
+   {
+    "pin": "31",
+    "net": "CAN_TX",
+    "dir": "out",
+    "function": "CAN3 CTX3 to MCP2562FD"
+   },
+   {
+    "pin": "32",
+    "net": "SOL1_TORCH_OX_CMD",
+    "dir": "out",
+    "function": "torch N2O solenoid (12 V, ARM-gated)"
+   },
+   {
+    "pin": "33",
+    "net": "SOL2_TORCH_FUEL_CMD",
+    "dir": "out",
+    "function": "torch propane solenoid (12 V, ARM-gated)"
+   },
+   {
+    "pin": "34",
+    "net": "SOL5_ROLL_CCW_CMD",
+    "dir": "out",
+    "function": "roll RCS provision: CCW thruster pair, 2 coils (12 V, ARM-gated)"
+   },
+   {
+    "pin": "35",
+    "net": "ENC_A_CS",
+    "dir": "out",
+    "function": "AS5048A gimbal axis A CS"
+   },
+   {
+    "pin": "36",
+    "net": "ENC_B_CS",
+    "dir": "out",
+    "function": "AS5048A gimbal axis B CS"
+   },
+   {
+    "pin": "37",
+    "net": "ENC_P_CS",
+    "dir": "out",
+    "function": "AS5048A pintle crank CS"
+   },
+   {
+    "pin": "38",
+    "net": "ARM_REQ",
+    "dir": "out",
+    "function": "ARM switch request (AND watchdog OK AND OVP_OK); rising edge re-arms the OVP latch"
+   },
+   {
+    "pin": "39",
+    "net": "MISO1",
+    "dir": "in",
+    "function": "SPI1 MISO from encoders (47 ohm per encoder)"
+   },
+   {
+    "pin": "40",
+    "net": "TVC_PWR_CMD",
+    "dir": "out",
+    "function": "TVC servo power switch (watchdog-gated)"
+   },
+   {
+    "pin": "41",
+    "net": "WDI",
+    "dir": "out",
+    "function": "external watchdog kick (rising edge each healthy 1 ms tick)"
+   }
+  ],
+  "cs_decoder": {
+   "address_C_B_A_to_net": {
+    "000": "ADC1_CS",
+    "001": "ADC2_CS",
+    "010": "TC1_CS",
+    "011": "TC2_CS",
+    "100": "TC3_CS",
+    "101": "TC4_CS",
+    "110": "TC5_CS",
+    "111": "TC6_CS"
+   },
+   "enable": "G1 = +3V3, G2B = GND, G2A = CS_EN_N (Teensy pin 20, 10k pull-up)",
+   "timing": {
+    "v": "tpd A/B/C->Y <= 6.7 ns, G2A->Y <= 6.5 ns at 3.3 V; HAL waits >= 1 us after CS_EN_N low",
+    "tag": "DATASHEET TI SN74LVC138A datasheet SCAS291W + DESIGN"
+   },
+   "hal_rule": "set the address with CS_EN_N high; no address change while enabled"
+  },
+  "mode_strap": {
+   "levels_V_min_nom_max": {
+    "OPEN (INVALID)": [
+     3.3,
+     3.3,
+     3.3
+    ],
+    "FLIGHT (B low)": [
+     2.2578,
+     2.272,
+     2.2861
+    ],
+    "STAND (A low)": [
+     1.6335,
+     1.65,
+     1.6665
+    ],
+    "BOTH LOW (INVALID)": [
+     1.3297,
+     1.3456,
+     1.3615
+    ]
+   },
+   "hal_thresholds_V": {
+    "v": [
+     2.786,
+     1.961,
+     1.498
+    ],
+    "tag": "DERIVED midpoints between adjacent nominal levels"
+   },
+   "worst_margin_to_threshold_V": {
+    "v": 0.136,
+    "tag": "DERIVED 1 % resistors, ratiometric (supply cancels)"
+   },
+   "decode": "V > 2.79: OPEN -> INVALID; 1.96 < V <= 2.79: FLIGHT; 1.50 < V <= 1.96: STAND; V <= 1.50: BOTH -> INVALID (firmware strap:: codes 1 FLIGHT, 2 STAND, 0 INVALID)",
+   "adc_codes_12bit": {
+    "OPEN (INVALID)": 4095,
+    "FLIGHT (B low)": 2819,
+    "STAND (A low)": 2048,
+    "BOTH LOW (INVALID)": 1670
+   }
+  },
+  "adc2": {
+   "PRAIL_PREG_divider": {
+    "ratio_unloaded": {
+     "v": 0.099243,
+     "tag": "DERIVED R920/R921"
+    },
+    "ratio_loaded": {
+     "v": 0.098573,
+     "tag": "DERIVED with Zin 330 kOhm (DATASHEET TI ADS131M04 datasheet SBAS890 (D) 8.3.3 at gain 1 (the electrical table says 300 kOhm: conflict kept, firmware config.h))"
+    },
+    "FS_V": 12.174,
+    "at_7V49_V": 0.7383,
+    "at_5V5_lost_threshold_V": 0.5422,
+    "at_24V5_fail_high_pin_V": {
+     "v": 2.431,
+     "tag": "DERIVED; analog input absolute maximum AVDD + 0.3 V = 3.6 V: TO-CONFIRM on SBAS890 (not re-read this session)"
+    }
+   },
+   "IPINT": {
+    "V_per_A_at_ADC": {
+     "v": 0.14294,
+     "tag": "DERIVED INA181 gain 50 x 12 mOhm x divider (loaded)"
+    },
+    "FS_A": 8.4,
+    "INA_output_limit_A": {
+     "v": 8.3,
+     "tag": "ASSUMED output swing to V+ - 20 mV at V+ = 5 V (INA181 datasheet row not re-read)"
+    },
+    "stall_threshold_1A_V": 0.1429
+   },
+   "P_TORCH": "same transducer (070BG), divider (12.7k/4.02k) and filter as Pc: scaling in calc/pc_transducer_v2.py (its label \"J610\" for P_torch is wrong: the connector is J901)",
+   "sampling": "ADC2 OSR 4096 -> 1 kSPS (DESIGN), read once per 1 ms tick; firmware kPrailLostTime_s 2 ms = 2 frames"
+  },
+  "heater_interlock": {
+   "inhibit_VGS_V_at_VBAT_6V6_8V4": {
+    "v": [
+     4.49,
+     5.71
+    ],
+    "tag": "DERIVED; 2N7002 VGS(th) <= 2.5 V (DATASHEET 2N7002 class VGS(th) max (part datasheet not re-read))"
+   },
+   "Q616_VGS_on_V": {
+    "v": 4.78,
+    "tag": "DERIVED U305 5 V output through R654/R655 (DMN6075S RDS(on) specified at 4.5 V)"
+   },
+   "Q616_P_at_1A_W": {
+    "v": 0.12,
+    "tag": "DERIVED DATASHEET Diodes DS37023 Rev6-2"
+   },
+   "gse_limits": {
+    "v": "coil supply <= 28 V DC, coil current <= 1.0 A, flyback diode in the GSE",
+    "tag": "DESIGN interface limit stated on J616 (GSE side to comply)"
+   },
+   "clamp": {
+    "v": "SMAJ33A standoff 33 V >= 28 V GSE supply; clamp below the 60 V switch rating TO-CONFIRM",
+    "tag": "DATASHEET SMAJ series naming: reverse standoff 33 V (clamp voltage TO-CONFIRM)"
+   },
+   "logic": "closed = HTR_PERMIT_CMD (firmware: SAFE only, tank below the cut pressure) AND watchdog OK (U305 /OE) AND arming plug out (Q617) AND ARM bus off (Q618); ECU unpowered = open"
+  },
+  "superseded_v1": [
+   "pcb_outline_mm / mount_holes / enclosure_envelope_mm / connector_edges stay DESIGN reservations from v1: no layout yet",
+   "mass_kg 0.16 ASSUMED (v1) not re-estimated for v2.3 (two more ICs sheets): re-weigh after the board is built"
+  ]
+ },
+ "actuators": {
+  "tvc_A": {
+   "model": "Savox SB-2292SG",
+   "supplier": "Lindinger (AT) item 9738546, 119.99 EUR incl. VAT (alt: rc-modelshop EE 135 EUR, RC Team FR 129.90 EUR)",
+   "type": "rotary HV brushless digital servo, steel gears, aluminium case, PWM 333 Hz, 12-bit",
+   "body_LxWxH_mm": {
+    "v": [
+     40.3,
+     20.2,
+     38.7
+    ],
+    "tag": "DATASHEET vendor listing",
+    "note": "Lindinger table gives H 40.3; reserve 40.3"
+   },
+   "envelope_reservation_mm": {
+    "v": [
+     58.0,
+     22.0,
+     46.0
+    ],
+    "tag": "ASSUMED space reservation incl. flanges and horn hub; excludes horn sweep"
+   },
+   "mounting_pattern": {
+    "v": "standard-size servo flange, 4 x ~Ø4.5 mm on ~49.5 x 10 mm",
+    "tag": "ASSUMED class value - VERIFY on received unit before machining"
+   },
+   "output": {
+    "v": "25-tooth spline, 6.0 mm (Futaba-type); use aluminium clamping horn",
+    "tag": "DATASHEET Lindinger listing"
+   },
+   "mass_kg": {
+    "v": 0.081,
+    "tag": "DATASHEET",
+    "note": "Lindinger table 0.079"
+   },
+   "voltage_V": {
+    "v": [
+     6.0,
+     8.4
+    ],
+    "tag": "DATASHEET",
+    "note": "fed directly from 2S LiPo; ARM inhibited below 7.8 V resting"
+   },
+   "stall_torque_Nm": {
+    "v": {
+     "6.0V": 2.157,
+     "7.4V": 3.04,
+     "8.4V": 4.413
+    },
+    "tag": "DATASHEET (22/31/45 kg-cm; lower of two conflicting vendor sets)"
+   },
+   "noload_speed_dps": {
+    "v": {
+     "6.0V": 706,
+     "7.4V": 857,
+     "8.4V": 1091
+    },
+    "tag": "DATASHEET (0.085/0.07/0.055 s/60deg)"
+   },
+   "torque_speed_model": {
+    "v": "linear: T = T_stall*(1 - w/w_noload)",
+    "tag": "ASSUMED (not published)"
+   },
+   "stall_current_A": {
+    "v": {
+     "6.0V": 7.5,
+     "7.4V": 9.2,
+     "8.4V": 10.4
+    },
+    "tag": "DATASHEET 6.0/7.4 V; 8.4 V ASSUMED linear scaling"
+   },
+   "idle_current_A": {
+    "v": 0.005,
+    "tag": "DATASHEET"
+   },
+   "deadband": {
+    "v": {
+     "us": 1.0,
+     "deg_output": 0.1
+    },
+    "tag": "ASSUMED (not published; range 0.5-3 us) - bench measure"
+   },
+   "cmd_resolution_deg_output": {
+    "v": 0.0342,
+    "tag": "DERIVED 12-bit over 800-2200 us, 0.1 deg/us"
+   },
+   "backlash_deg_output": {
+    "v": 0.2,
+    "tag": "ASSUMED",
+    "range": [
+     0.05,
+     0.5
+    ]
+   },
+   "op_temp_C": {
+    "v": [
+     -10,
+     50
+    ],
+    "tag": "DATASHEET"
+   },
+   "update_rate_Hz": {
+    "v": 333,
+    "tag": "DATASHEET"
+   },
+   "operating_travel_deg": {
+    "v": 100,
+    "tag": "DATASHEET (1000-2000 us)"
+   },
+   "max_travel_deg": {
+    "v": 130,
+    "tag": "DATASHEET (900-2100 us)"
+   },
+   "function": "TVC gimbal actuator, axis A (pitch)",
+   "mount": "fixed side (thrust structure); pushrod with ball links to gimballed engine",
+   "feedback": "independent AS5048A 14-bit magnetic encoder on the gimbal pivot of this axis (not the servo pot)",
+   "superseded_v1": "linkage, engine-side, hinge-moment, margin, stiffness and dynamics fields of v1 are superseded by mechanical.json v2 (as-built 135/225 deg linkage), gnc.json v3 and the TVC calcs below",
+   "supply": {
+    "switch": "Q401 + Q403 AOD4185 on VBAT, watchdog-gated (F401 removed)",
+    "budget": {
+     "basis": "The accepted basis (source 15 + branch 20 mOhm, nothing shared) gives 7.61 V at the plug with both servos stalled from the 8.1 V permit.",
+     "v2.2_as_drawn_typ": "equivalent branch 76.5 mOhm (vs 20 assumed) and source 32.3 mOhm: 6.86 V at the plug, holding 13.0 N m (p99 15.6) at the 8.1 V permit; slew is not the issue (7.79 V, 128 deg/s)",
+     "v2.3_proposal_typ": "equivalent branch 36.5 mOhm: 7.25 V at the plug, holding 14.1 N m at 8.1 V; rest voltage for 7.6 V: 8.49 V",
+     "v2.3_low_IR_pack_typ": "with a 6 mOhm pack: 7.41 V at the plug, holding 14.6 N m at 8.1 V; rest voltage for 7.6 V: 8.31 V",
+     "reading": "The holding case (both servos at stall, ~9.4 A each) sets the supply requirement, not the slew (~1-2 A per servo). Every 1 mOhm in the shared source costs 0.020 V, in the TVC common path 0.019 V and in one servo branch 0.009 V; near the design point the holding moment moves 6.60 N m per volt."
+    },
+    "pad_rule": {
+     "v": 6.6,
+     "unit": "V",
+     "tag": "LEAD 2026-10-12, V_val",
+     "src": "config.h kTvcSupplyMin_V"
+    },
+    "arm_rule": {
+     "v": 8.1,
+     "unit": "V",
+     "tag": "LEAD 2026-10-12 ARM rule, rest voltage",
+     "src": "config.h kBattArmMin_V"
+    }
+   },
+   "temperature": "SB-2292SG rated -10..50 C: bay <= 45 C at ARM (BAY_HOT, lead line 91); in flight within limits (Mechanical pre36)"
+  },
+  "tvc_B": {
+   "model": "Savox SB-2292SG",
+   "supplier": "Lindinger (AT) item 9738546, 119.99 EUR incl. VAT (alt: rc-modelshop EE 135 EUR, RC Team FR 129.90 EUR)",
+   "type": "rotary HV brushless digital servo, steel gears, aluminium case, PWM 333 Hz, 12-bit",
+   "body_LxWxH_mm": {
+    "v": [
+     40.3,
+     20.2,
+     38.7
+    ],
+    "tag": "DATASHEET vendor listing",
+    "note": "Lindinger table gives H 40.3; reserve 40.3"
+   },
+   "envelope_reservation_mm": {
+    "v": [
+     58.0,
+     22.0,
+     46.0
+    ],
+    "tag": "ASSUMED space reservation incl. flanges and horn hub; excludes horn sweep"
+   },
+   "mounting_pattern": {
+    "v": "standard-size servo flange, 4 x ~Ø4.5 mm on ~49.5 x 10 mm",
+    "tag": "ASSUMED class value - VERIFY on received unit before machining"
+   },
+   "output": {
+    "v": "25-tooth spline, 6.0 mm (Futaba-type); use aluminium clamping horn",
+    "tag": "DATASHEET Lindinger listing"
+   },
+   "mass_kg": {
+    "v": 0.081,
+    "tag": "DATASHEET",
+    "note": "Lindinger table 0.079"
+   },
+   "voltage_V": {
+    "v": [
+     6.0,
+     8.4
+    ],
+    "tag": "DATASHEET",
+    "note": "fed directly from 2S LiPo; ARM inhibited below 7.8 V resting"
+   },
+   "stall_torque_Nm": {
+    "v": {
+     "6.0V": 2.157,
+     "7.4V": 3.04,
+     "8.4V": 4.413
+    },
+    "tag": "DATASHEET (22/31/45 kg-cm; lower of two conflicting vendor sets)"
+   },
+   "noload_speed_dps": {
+    "v": {
+     "6.0V": 706,
+     "7.4V": 857,
+     "8.4V": 1091
+    },
+    "tag": "DATASHEET (0.085/0.07/0.055 s/60deg)"
+   },
+   "torque_speed_model": {
+    "v": "linear: T = T_stall*(1 - w/w_noload)",
+    "tag": "ASSUMED (not published)"
+   },
+   "stall_current_A": {
+    "v": {
+     "6.0V": 7.5,
+     "7.4V": 9.2,
+     "8.4V": 10.4
+    },
+    "tag": "DATASHEET 6.0/7.4 V; 8.4 V ASSUMED linear scaling"
+   },
+   "idle_current_A": {
+    "v": 0.005,
+    "tag": "DATASHEET"
+   },
+   "deadband": {
+    "v": {
+     "us": 1.0,
+     "deg_output": 0.1
+    },
+    "tag": "ASSUMED (not published; range 0.5-3 us) - bench measure"
+   },
+   "cmd_resolution_deg_output": {
+    "v": 0.0342,
+    "tag": "DERIVED 12-bit over 800-2200 us, 0.1 deg/us"
+   },
+   "backlash_deg_output": {
+    "v": 0.2,
+    "tag": "ASSUMED",
+    "range": [
+     0.05,
+     0.5
+    ]
+   },
+   "op_temp_C": {
+    "v": [
+     -10,
+     50
+    ],
+    "tag": "DATASHEET"
+   },
+   "update_rate_Hz": {
+    "v": 333,
+    "tag": "DATASHEET"
+   },
+   "operating_travel_deg": {
+    "v": 100,
+    "tag": "DATASHEET (1000-2000 us)"
+   },
+   "max_travel_deg": {
+    "v": 130,
+    "tag": "DATASHEET (900-2100 us)"
+   },
+   "function": "TVC gimbal actuator, axis B (yaw)",
+   "mount": "fixed side (thrust structure); pushrod with ball links to gimballed engine",
+   "feedback": "independent AS5048A 14-bit magnetic encoder on the gimbal pivot of this axis (not the servo pot)",
+   "superseded_v1": "linkage, engine-side, hinge-moment, margin, stiffness and dynamics fields of v1 are superseded by mechanical.json v2 (as-built 135/225 deg linkage), gnc.json v3 and the TVC calcs below",
+   "supply": {
+    "switch": "Q401 + Q403 AOD4185 on VBAT, watchdog-gated (F401 removed)",
+    "budget": {
+     "basis": "The accepted basis (source 15 + branch 20 mOhm, nothing shared) gives 7.61 V at the plug with both servos stalled from the 8.1 V permit.",
+     "v2.2_as_drawn_typ": "equivalent branch 76.5 mOhm (vs 20 assumed) and source 32.3 mOhm: 6.86 V at the plug, holding 13.0 N m (p99 15.6) at the 8.1 V permit; slew is not the issue (7.79 V, 128 deg/s)",
+     "v2.3_proposal_typ": "equivalent branch 36.5 mOhm: 7.25 V at the plug, holding 14.1 N m at 8.1 V; rest voltage for 7.6 V: 8.49 V",
+     "v2.3_low_IR_pack_typ": "with a 6 mOhm pack: 7.41 V at the plug, holding 14.6 N m at 8.1 V; rest voltage for 7.6 V: 8.31 V",
+     "reading": "The holding case (both servos at stall, ~9.4 A each) sets the supply requirement, not the slew (~1-2 A per servo). Every 1 mOhm in the shared source costs 0.020 V, in the TVC common path 0.019 V and in one servo branch 0.009 V; near the design point the holding moment moves 6.60 N m per volt."
+    },
+    "pad_rule": {
+     "v": 6.6,
+     "unit": "V",
+     "tag": "LEAD 2026-10-12, V_val",
+     "src": "config.h kTvcSupplyMin_V"
+    },
+    "arm_rule": {
+     "v": 8.1,
+     "unit": "V",
+     "tag": "LEAD 2026-10-12 ARM rule, rest voltage",
+     "src": "config.h kBattArmMin_V"
+    }
+   },
+   "temperature": "SB-2292SG rated -10..50 C: bay <= 45 C at ARM (BAY_HOT, lead line 91); in flight within limits (Mechanical pre36)"
+  },
+  "pintle_throttle": {
+   "model": "MKS HV69 (MKS HV69, MKS no. S0022012 (Lindinger item 9788343))",
+   "rail": "PRAIL 7.49 V typ (TPS552882 + LTC4365, see pintle_rail)",
+   "datasheet_class": {
+    "dims_mm": [
+     29.0,
+     13.0,
+     28.7
+    ],
+    "mass_g": 21.0,
+    "V_range": [
+     4.8,
+     8.2
+    ],
+    "T_kgcm": [
+     6.0,
+     7.5,
+     9.2,
+     10.2
+    ],
+    "s60": [
+     0.17,
+     0.13,
+     0.11,
+     0.1
+    ],
+    "stall_A": null,
+    "T_op_C": [
+     -10.0,
+     60.0
+    ],
+    "deadband_us": 1.0,
+    "spline": "6 mm, 25 T (Extreme Flight, Aloft; Gator: 25-tooth arm)"
+   },
+   "tags": "DATASHEET via retailer copies of MKS data (TO-CONFIRM with MKS); see pintle_mini_servo_v1.json",
+   "mechanism": "crank r and linkage per Mechanical pintle v2.3/v2.4 (PLANNED v3.4); spring closes the unpowered servo (B-PNT-1 back-drive check)",
+   "jam": {
+    "detection": {
+     "v": "stall time path 0.10 s after the last progress mark (current path 0.02 + 0.05 s when the pintle current sense is fitted); back-off command the same 1 ms tick; in ABORT a further 0.10 s without closing progress releases the ARM bus (servo unpowered)",
+     "tag": "DESIGN firmware v2.6 config.h"
+    },
+    "design_load": "CHANGELOG line 62 (lead, 2026-10-13): PINTLE RAIL (Electronics pintle_rail_v3, 06-electronics/results/pintle_rail_v3.json): ADOPTED (a) FB divider 24.9k/4.75k..."
+   },
+   "pulse": {
+    "centre": {
+     "v": 1520.0,
+     "unit": "us",
+     "tag": "DS HV69, retailer copies of MKS data",
+     "src": "config.h kPintleCenter_us"
+    },
+    "us_per_deg": {
+     "v": 10.0,
+     "unit": "-",
+     "tag": "ASSUMED",
+     "src": "config.h kPintleUsPerDeg"
+    },
+    "min": {
+     "v": 900.0,
+     "unit": "us",
+     "tag": "ASSUMED, LEAD default",
+     "src": "config.h kPintleMin_us"
+    },
+    "max": {
+     "v": 2100.0,
+     "unit": "us",
+     "tag": "accepts 800-2200 us is TO-CONFIRM (MKS/Lindinger publish no range)",
+     "src": "config.h kPintleMax_us"
+    }
+   },
+   "eng03": "see eng03_pintle_rate",
+   "superseded_v1": "v1 SB-2292SG pintle actuator on VBAT, force_assumed_N, full_stroke_time_s and stroke_resolution_um"
+  },
+  "main_valve": {
+   "concept": "CHANGELOG line 91 (lead, 2026-10-13): CASE ABORT 448.15 K / 0.2 s armed while MV open (supersedes 433.15 K); relight refusal stays at 433.15 K. Upper-bay vent REQUIRED >= 0.3 W/K in ICD-AIRFRAME, goal 1.0 W/K (~3,800 mm2 per level) unless...",
+   "opener": "Savox SB-2292SG on ARM_BUS (J404), cam; ramp 0.35 s, cock hold 0.15 s",
+   "latch_magnet": {
+    "design": {
+     "tag": "DERIVED (lightest candidate meeting F >= 30.5 N at 6.0 V / 100 C / 0.07 mm per face / mu_r 500, >= 1.25 x the true load at mu_r 250 or at 0.10 mm per face, bus power <= 4.0 W at 8.4 V / -10 C, steel <= 1.3 T; direct ARM-bus drive)",
+     "geometry_mm": {
+      "inner_pole_d": 9.0,
+      "window_w": 7.0,
+      "coil_h": 12.0,
+      "outer_d": 24.698,
+      "back_plate_t": 2.475,
+      "armature_t": 2.475,
+      "pole_area_mm2": 63.6
+     },
+     "coil": {
+      "awg": 32,
+      "bare_d_mm": 0.202,
+      "turns": 735,
+      "R_20C_ohm": 19.89,
+      "R_100C_ohm": 26.14,
+      "R_m10C_ohm": 17.54
+     },
+     "mass_g": {
+      "steel": 30.7,
+      "copper": 10.6,
+      "tag": "DERIVED, excl. bobbin, leads, housing"
+     },
+     "worst_hold": {
+      "condition": "6.0 V bus, coil 100 C, gap 0.07 mm/face, mu_r 500",
+      "I_A": 0.228,
+      "NI_At": 167.3,
+      "B_pole_T": 0.987,
+      "F_N": 41.1,
+      "margin_vs_30p5N": 1.35,
+      "margin_vs_true_load": 2.69
+     },
+     "nominal": {
+      "condition": "7.4 V, 20 C, gap 0.06 mm/face",
+      "I_A": 0.368,
+      "F_N": 130.0,
+      "P_coil_W": 2.694,
+      "P_bus_W": 2.723,
+      "L_H": 0.2202,
+      "B_pole_T": 1.733
+     },
+     "max_power": {
+      "condition": "8.4 V, -10 C, gap 0.06 mm/face",
+      "I_A": 0.473,
+      "P_coil_W": 3.923,
+      "P_bus_W": 3.972,
+      "B_pole_T_linear_model": 2.227,
+      "within_budget_4W": true,
+      "note": "B above ~1.3 T means the linear model overestimates the force here (saturation): irrelevant, the worst hold case sets the design"
+     },
+     "dropout_V": {
+      "hot_worst_gap_true_load": 3.66,
+      "hot_worst_gap_30p5N": 5.17,
+      "tag": "DERIVED: bus voltage at which the force falls to the load (releases below it)"
+     },
+     "release": {
+      "nominal_7V4": {
+       "t_coil_s": 0.00166,
+       "tau_eddy_s": 0.00704,
+       "t_release_s": 0.00871,
+       "I_release_A": 0.12613,
+       "tau_LR_s": 0.01095,
+       "V_drain_peak_V": 38.3
+      },
+      "cold_8V4": {
+       "t_coil_s": 0.00236,
+       "tau_eddy_s": 0.00704,
+       "t_release_s": 0.0094,
+       "I_release_A": 0.12613,
+       "tau_LR_s": 0.01239,
+       "V_drain_peak_V": 38.3
+      },
+      "req_s": 0.01,
+      "meets_req": true,
+      "tag": "DERIVED estimate (clamp decay + ASSUMED eddy factor); B-MV-1 measures it"
+     },
+     "self_heating_K": {
+      "v": 26.32,
+      "tag": "DERIVED adiabatic, 120 s at the 8.4 V / -10 C power"
+     },
+     "energy_per_60s_burn_J": {
+      "v": 163.4,
+      "tag": "DERIVED at 7.4 V (flight-day budget 13 Wh usable: negligible)"
+     },
+     "sensitivity_F_N": {
+      "mu_r_250_worst_gap_hot_6V_F_N": 21.0,
+      "gap_0p10mm_hot_6V_F_N": 25.4,
+      "gap_0p15mm_hot_6V_F_N": 13.8,
+      "gap_0p20mm_hot_6V_F_N": 8.7
+     }
+    },
+    "open": [
+     "mu_r and the gap allowance are ASSUMED: B-MV-1 pull-off force vs bus voltage at 20 C and hot (oven 100 C coil)",
+     "release time: B-MV-1 latch-drop to CLOSED switch with the SMAJ24A clamp (<= 10 ms latch release required)",
+     "steel grade and annealing: Mechanical drawing (pure iron or 1010, stress-relief anneal after machining)"
+    ]
+   },
+   "hardware_gate": "MV_LATCH_G = MV_LATCH_GB AND PRAIL_OK (U306): an LTC4365 trip drops the latch without firmware",
+   "spec_v1": "CHANGELOG line 88 (electronics, 2026-10-13): S6 THROAT BLOCK (SIL v2.7 plant, 70 % throat blocked at 500 N, 30 C, Cd 0.8): plant Pc peak 55.7 bar abs (transducer 58.1), > MEOP 72 ms, > 30 bar 112 ms; HW trip +5.7 ms, abort +8 ms, ARM off +12 ms, MV closed +105 ms, pintle closed +137 ms, F < 10 % +201 ms;...",
+   "close_time": {
+    "v": "MV-P dashpot ~30 ms ESTIMATE (Mechanical); B-MV-1 bound 0.10 s with flow 0.05-0.26 kg/s (Combustion)",
+    "tag": "MECH/COMB"
+   },
+   "position": "OPEN/CLOSED microswitches J508",
+   "superseded_v1": "v1 ball valve with torsion spring, one-way dog and latch coil; Swagelok 62 ball fails the opener torque 14x (Mechanical)"
+  }
+ },
+ "igniter": {
+  "type": "torch: spark coil (IGBT, hardware-limited dwell) + SOL1 N2O and SOL2 propane solenoids (12 V, ARM-gated); P_torch flame confirmation",
+  "torch_gate": {
+   "v": 0.16,
+   "unit": "s",
+   "tag": "[DESIGN; COMB v2.4 CONFIRMED 2026-10-13: E0->E1 max 0.1494 s over 1e6 samples,",
+   "src": "config.h kTorchGate_s"
+  },
+  "torch_lit": {
+   "v": 200000.0,
+   "unit": "Pa",
+   "tag": "DESIGN, ESTIMATE",
+   "src": "config.h kTorchLitAbs_Pa"
+  },
+  "torch_confirm_ticks": {
+   "v": 3.0,
+   "unit": "-",
+   "tag": "DESIGN",
+   "src": "config.h kTorchConfirmN"
+  },
+  "torch_arm_zero_max": {
+   "v": 105000.0,
+   "unit": "Pa",
+   "tag": "DERIVED: M3200 TEB 1.5 % of the 070BG 70 bar FS",
+   "src": "config.h kTorchArmZeroMax_Pa"
+  },
+  "chamber_vented_for_spark": {
+   "v": 10000.0,
+   "unit": "Pa",
+   "tag": "COMB OI-12",
+   "src": "config.h kPcVentedMax_Pa"
+  },
+  "spark_dwell": {
+   "v": 0.003,
+   "unit": "s",
+   "tag": "ASSUMED",
+   "src": "config.h kSparkDwell_s"
+  },
+  "light_threshold": {
+   "v": "v2.9 relative rule (light_rule_v2p9); eng::kIgnitionPcAbs_Pa 3.0 bar abs WITHDRAWN (LEAD 2026-10-13)",
+   "tag": "LEAD"
+  },
+  "ignition_lift_table": {
+   "v": "17-row lift-vs-T_tank table 0.1928-0.2520 mm (config.h kIgnLiftTab_m, CF-3 temperature-dependent table; start_monitors_v2p9.cf3_lift_table)",
+   "tag": "CF-3 pending / DERIVED"
+  },
+  "timing_only_ground_start": "SET_TORCH_GATE with the key, stand only (finite load cell), first start of the arming session",
+  "superseded_v1": "v1 arc / spark-coil / pyro channel options (igniter selected by Combustion: torch)"
+ },
+ "sensors": {
+  "pressure_transducers": {
+   "selection": {
+    "v": {
+     "PC": "M3234-000005-070BG",
+     "P_TORCH": "M3234-000005-070BG",
+     "P_FEED": "M3234-000005-170BG",
+     "P_TANK": "M3234-000005-170BG"
+    },
+    "tag": "DESIGN pc_transducer_v2; lead line 73 (3)"
+   },
+   "connectors": "Pc J601, P_feed J602 (FS-01 MV-outlet block, Mechanical), P_tank J603, P_torch J901 (pc_transducer_v2 text says J610: wrong, J610 is ENC_A)",
+   "hw_ovp": {
+    "v": "31.47 bar g = 32.48 bar abs nominal on the 070BG; band 30.90-34.06 bar abs; firmware abort 30 bar abs",
+    "tag": "DERIVED pc_transducer_v2 C"
+   },
+   "fault_window": {
+    "min": {
+     "v": 0.25,
+     "unit": "V",
+     "tag": "DESIGN",
+     "src": "config.h kPcSensorMin_V"
+    },
+    "max": {
+     "v": 4.75,
+     "unit": "V",
+     "tag": "4.75 V = 74.4 bar g with the 0-70 bar g (070BG) transducer",
+     "src": "config.h kPcSensorMax_V"
+    }
+   },
+   "auto_zero": {
+    "Pc": {
+     "v": 0.5,
+     "unit": "s",
+     "tag": "DESIGN",
+     "src": "config.h kAutoZeroTime_s"
+    },
+    "P_torch_arm_max": {
+     "v": 105000.0,
+     "unit": "Pa",
+     "tag": "DERIVED: M3200 TEB 1.5 % of the 070BG 70 bar FS",
+     "src": "config.h kTorchArmZeroMax_Pa"
+    }
+   }
+  },
+  "thermocouples": {
+   "channels": [
+    "TC1 type K case az 90 (MAX31856 U604)",
+    "TC2 type K case az 270 (U605)",
+    "TC3 type K nozzle holder (U606)",
+    "TC4 type K bore top (U904; CF-3/T1 evidence, flight TO-DEFINE)",
+    "TC5 type T MSS-1 riser-foot TEE (U905)",
+    "TC6 type T MSS-2 NC-valve outlet FS-01 (U906)"
+   ],
+   "correction": "CHANGELOG line 84 said \"ECU carries 7 MAX31856\": the firmware inputs and the v2.3 schematic carry 6 MAX31856 plus the servo-bracket NTC",
+   "case_abort": {
+    "v": 448.15,
+    "unit": "K",
+    "tag": "LEAD 2026-10-13 correction, MECH pre36 final",
+    "src": "config.h kCaseOverTemp_K"
+   },
+   "relight_refusal": {
+    "v": 433.15,
+    "unit": "K",
+    "tag": "LEAD 2026-10-13",
+    "src": "config.h kCaseRelightMax_K"
+   },
+   "mss_role": "flight: telemetry only (lead line 83); stand rules R1/R2 (R3 deleted, lead line 107)"
+  },
+  "temperature_other": [
+   "DS18B20 x2 tank wall + #3 bay (TVC bracket) on 1-Wire (J608/J614)",
+   "NTC 10k pintle-servo bracket (J609, flag 60 C)"
+  ],
+  "encoders": "AS5048A x3 (gimbal A/B J610/J611, pintle crank J612), SPI1 1 MHz over cable",
+  "load_cell": {
+   "model": "1 kN S-type or compression load cell, 2 mV/V (TO-QUOTE)",
+   "adc": "ADS131M04 on ECU ADC2, PGA 64-128, 1-4 kSPS, 24-bit",
+   "note": "HX711 rejected: 10/80 SPS max"
+  },
+  "stand_fast_pc": "CHANGELOG line 79 (lead, 2026-10-13): ACCEPTED: max unignited inventory 20 g per no-light event (stand-protection criterion); stand burst disc 25 mm at 55 bar...",
+  "imu": "FC side (ADIS16470 per the GNC/FC record): filter delay UNKNOWN (over_thrust)",
+  "superseded_v1": "v1 Pc 500PG and feed/tank 01KPG codes; TC list (4 x K); ADXL1002 option"
+ },
+ "power_budget": {
+  "battery": "LiPo 2S 2.2 Ah (16.3 Wh), usable 13 Wh",
+  "logic_W": {
+   "v": {
+    "typ": 1.25,
+    "peak": 2.6
+   },
+   "tag": "DERIVED"
+  },
+  "flight_day_Wh": {
+   "v": 1.73,
+   "tag": "DERIVED (30 min pad hold + 60 s flight + 3 starts)"
+  },
+  "static_fire_session_Wh": {
+   "v": 2.79,
+   "tag": "DERIVED"
+  },
+  "peak_current_A": {
+   "v": 35.7,
+   "tag": "DERIVED worst case: 3 servos stalled"
+  },
+  "min_voltage_at_ECU_V": {
+   "v": 6.11,
+   "tag": "DERIVED at 3.5 V/cell OCV, ASSUMED 10 mOhm pack"
+  },
+  "rails": {
+   "VBAT_SERVO": "TVC servos A/B on VBAT through the watchdog-gated Q401 + Q403 (the MV opener is on ARM_BUS, the pintle on PRAIL)",
+   "ARM_BUS": "VBAT via arming plug + watchdog-gated high-side switch",
+   "IGN_12V": "boost 12 V from ARM bus",
+   "5V_LOGIC": "buck from VBAT via ideal diode + 1 mF hold-up",
+   "5V_SNS": "precision LDO for transducers",
+   "3V3": "LDO from 5V_LOGIC",
+   "PRAIL": "pintle servo rail 7.49 V typ (TPS552882 on ARM_BUS) behind the LTC4365 OV disconnect"
+  },
+  "fusing": {
+   "F101": "25 A ATM main",
+   "F102": "2 A 1206 logic",
+   "F301": "15 A ATM ARM bus",
+   "F501": "3 A 1206 12 V boost"
+  },
+  "ground_power": "umbilical 12 V via ideal-diode OR keeps flight pack full during pad hold (GSE)",
+  "arm_bus_peak_vs_F301": {
+   "v": "TO-CHECK: MV opener stall 9.2 A at 7.4 V (DATASHEET) / 10.4 A at 8.4 V (ASSUMED) + pintle rail input <= 4.33 A + 12 V boost loads vs F301 15 A (Littelfuse 0297015 curve)",
+   "tag": "OPEN"
+  },
+  "heater_interlock": "J616 GSE heater permit: <= 28 V, <= 1 A at the contact; hardware cut by ARM plug or ARM bus",
+  "superseded_v1": "v1 fusing (logic 1 A, IGN 5 A, SOL 3 A) -> v2.3: F101 25 A main, F102 2 A logic, F301 15 A ARM, F501 3 A 12 V boost"
+ },
+ "loop_rates_and_latency": {
+  "pc_control_Hz": {
+   "v": 1000,
+   "tag": "DESIGN"
+  },
+  "pc_adc_Hz": {
+   "v": 4000,
+   "tag": "DESIGN"
+  },
+  "tvc_shaping_Hz": {
+   "v": 1000,
+   "tag": "DESIGN"
+  },
+  "servo_pwm_Hz": {
+   "v": 333,
+   "tag": "DATASHEET servo"
+  },
+  "fc_command_Hz": {
+   "v": 500,
+   "tag": "DESIGN (>= 500 Hz brief)"
+  },
+  "telemetry_fast_Hz": {
+   "v": 500,
+   "tag": "DESIGN"
+  },
+  "telemetry_slow_Hz": {
+   "v": 50,
+   "tag": "DESIGN"
+  },
+  "sd_log_Hz": {
+   "v": 1000,
+   "tag": "DESIGN (+4 kHz raw Pc block)"
+  },
+  "safety_monitor_Hz": {
+   "v": 1000,
+   "tag": "DESIGN"
+  },
+  "hw_watchdog_timeout_s": {
+   "v": 0.05,
+   "tag": "DESIGN"
+  },
+  "latency_s": {
+   "v": {
+    "fc_cmd_to_ecu_tick_max": 0.0012,
+    "ecu_to_servo_pwm_max": 0.005,
+    "servo_internal_assumed": 0.0015,
+    "fc_cmd_to_servo_motion_typ": 0.0045,
+    "fc_cmd_to_servo_motion_max": 0.0077,
+    "pc_sensor_to_controller": 0.0023,
+    "ecu_tlm_to_fc_max": 0.0022
+   },
+   "tag": "DERIVED budget (CAN 1 Mbit/s 8-byte frame <= 0.135 ms; PWM frame 3 ms; transducer tau 0.9 ms; sinc3+decimation ~1.4 ms)"
+  },
+  "tick": {
+   "v": 0.001,
+   "unit": "s",
+   "tag": "DESIGN",
+   "src": "config.h kDt_s"
+  },
+  "fc_command_period": {
+   "v": 0.002,
+   "unit": "s",
+   "tag": "DESIGN",
+   "src": "config.h kFcCmdPeriod_s"
+  },
+  "hw_watchdog": {
+   "v": 0.05,
+   "unit": "s",
+   "tag": "DESIGN",
+   "src": "config.h kHwWatchdog_s"
+  },
+  "tlm_relight_Hz": {
+   "v": 50,
+   "tag": "DESIGN protocol.h"
+  },
+  "fc_thrust_Hz": {
+   "v": 100.0,
+   "unit": "Hz",
+   "tag": "GNC m2_fc_thrust v1.1 / LEAD",
+   "src": "config.h kFcThrustRate_Hz"
+  },
+  "end_to_end_over_thrust": "see over_thrust.rg19_budget_known_terms_s"
+ },
+ "link_loss": {
+  "degraded_after": {
+   "v": 0.02,
+   "unit": "s",
+   "tag": "DESIGN",
+   "src": "config.h kLinkDegraded_s"
+  },
+  "lost_after": {
+   "v": 0.1,
+   "unit": "s",
+   "tag": "DESIGN",
+   "src": "config.h kLinkLost_s"
+  },
+  "action_on_lost": {
+   "SAFE/ARMED/PREPRESS": "-> SAFE (main valve closes, igniter disarmed)",
+   "IGNITION": "-> ABORT/SHUTDOWN",
+   "RUN": "default SHUTDOWN (range safety: no unguided powered flight); policy HOLD_N_S selectable by GNC (REQUEST)",
+   "gimbal": "centre at <= 60 deg/s, then hold"
+  }
+ },
+ "fail_safe_states": {
+  "ECU power loss": "MV latch drops -> MV-P spring + pressure bias close it (dashpot ~30 ms ESTIMATE); the pintle spring closes the unpowered HV69 (B-PNT-1 back-drive check); igniter dead",
+  "MCU hang": "hardware watchdog (50 ms) resets MCU and drops ARM bus -> same as above; reboot lands in SAFE, never resumes RUN",
+  "link loss": "see link_loss",
+  "Pc sensor fault": "RUN: open-loop feed-forward map on P_feed + fault flag; IGNITION: abort",
+  "gimbal encoder fault": "flag; RUN: continue on servo commands (default) unless mismatch abort criterion met",
+  "arming plug removed": "ARM bus dead: igniter, pintle and main valve power removed regardless of firmware",
+  "pintle rail fail-high": "LTC4365 OV disconnect 8.06-8.34 V: servo unpowered, spring closes; PRAIL_OK low drops the MV latch in hardware (U306); firmware PINTLE_FAULT abort",
+  "Pc over-pressure": "hardware comparator latch 31.47 bar g removes the ARM bus independent of firmware; firmware abort at 30 bar abs",
+  "superseded_v1": "v1 \"latch drops -> spring closes main valve (ball valve)\""
+ },
+ "harness_across_gimbal": {
+  "bundle": "Pc (3 + shield), pintle servo HV69 (3 x AWG20 on PRAIL), pintle encoder (4 + shield), case TCs x2 + nozzle holder TC (K), bore-top TC (stand), servo-bracket NTC (2); P_feed no longer crosses: J602 sits on the fixed-side FS-01 block (Mechanical); MSS-1 side of the gimbal TO-CONFIRM with Mechanical",
+  "igniter": "separate HV/pyro loop",
+  "service_loop": "route near pivot axis, >= 100 mm free length, bend radius >= 10 x OD, clamp both ends, PTFE/FEP insulation + glass sleeve near chamber",
+  "lengths": "TO-DEFINE on the CAD v3.4 solids (the coil re-route changes the crossing)"
+ },
+ "gse_interface": {
+  "arming_plug": "J301 XT30, remove-before-flight shorting link; removes the ARM bus in hardware",
+  "mode_strap": "J620 [MODE_A, MODE_B, GND]: FLIGHT plug grounds MODE_B, STAND plug grounds MODE_A; open or both = invalid -> ARM refused; stand also needs a finite load-cell reading (MODE_MISMATCH otherwise)",
+  "heater_permit": "J616 [HTR_ILK_SW, GND]: low-side permit for the GSE tank heater, <= 28 V and <= 1 A; SAFE only",
+  "can": "J201 to the FC (flight) or the test-stand box (same protocol encoders)",
+  "stand_arm_loop": "burst-disc break-wire in series with the stand ARM loop (lead line 88/89)",
+  "umbilical": "umbilical 12 V via ideal-diode OR keeps flight pack full during pad hold (GSE)"
+ },
+ "bom": {
+  "file": "06-electronics/results/bom_v2p1.csv (v2.1: + head-end bleed provision)",
+  "summary": {
+   "id": "bom",
+   "version": "v2.1",
+   "date": "2026-10-13",
+   "owner": "electronics (06-electronics)",
+   "ship_to": "Soenderborg, DK-6400, Denmark",
+   "inputs": {
+    "argos_ecu_bom_grouped.csv": {
+     "sha256_16": "ddc7c1ab702f140b",
+     "lines": 182,
+     "symbols": 449,
+     "schematic": "ECU v2.3 (KiCad 7.0.11, ERC 0/0)"
+    },
+    "parts_db.py": {
+     "sha256_16": "488762c1923261df",
+     "access": "2026-10-11"
+    },
+    "pintle_mini_servo_v1.json": {
+     "sha256_16": "62b326482617125a"
+    }
+   },
+   "rows": 229,
+   "rows_catalogue_priced": 3,
+   "rows_to_quote": 194,
+   "rows_no_purchase": 32,
+   "sections": {
+    "A ECU PCB": {
+     "lines": 182,
+     "to_quote": 156,
+     "catalogue": 1,
+     "no_purchase": 25
+    },
+    "B ECU PCB fab + mechanics": {
+     "lines": 5,
+     "to_quote": 5,
+     "catalogue": 0,
+     "no_purchase": 0
+    },
+    "C actuators": {
+     "lines": 2,
+     "to_quote": 0,
+     "catalogue": 2,
+     "no_purchase": 0
+    },
+    "D vehicle sensors": {
+     "lines": 11,
+     "to_quote": 11,
+     "catalogue": 0,
+     "no_purchase": 0
+    },
+    "E driven items owned elsewhere": {
+     "lines": 7,
+     "to_quote": 0,
+     "catalogue": 0,
+     "no_purchase": 7
+    },
+    "F bleed": {
+     "lines": 4,
+     "to_quote": 4,
+     "catalogue": 0,
+     "no_purchase": 0
+    },
+    "F harness": {
+     "lines": 8,
+     "to_quote": 8,
+     "catalogue": 0,
+     "no_purchase": 0
+    },
+    "G power": {
+     "lines": 2,
+     "to_quote": 2,
+     "catalogue": 0,
+     "no_purchase": 0
+    },
+    "H test stand + bench": {
+     "lines": 8,
+     "to_quote": 8,
+     "catalogue": 0,
+     "no_purchase": 0
+    }
+   },
+   "known_catalogue_subtotal_by_currency": {
+    "SEK": 379.0,
+    "EUR": 422.96
+   },
+   "known_subtotal_note": "listing prices incl. the vendor's local VAT, before shipping; NOT DK-6400 quotes and NOT a total",
+   "total": "UNKNOWN: 194 rows are TO-QUOTE (no zero and no 'from' prices used); currencies not converted",
+   "blocked": [
+    "ECU PCB fabrication cannot be quoted before layout",
+    "TPS552882 footprint is a placeholder (TI RPM0026A land pattern needed)",
+    "LTC4365 order suffix and UV threshold TO-CONFIRM (analog.com 403 at the proxy)"
+   ],
+   "tags": "CATALOGUE = vendor listing read and recorded with date and URL; TO-QUOTE = named vendor, price unknown; NO PURCHASE = PCB feature or item owned and priced by another discipline"
+  }
+ },
+ "bench_plan": {
+  "file": "06-electronics/docs/bench_plan_v2.md",
+  "tests": [
+   "LEAK-1",
+   "B-PWR-1",
+   "B-PWR-2",
+   "B-ECU-1",
+   "B-IGN-1",
+   "B-MV-1",
+   "B-TVC-1",
+   "B-PNT-1",
+   "B-PC-1",
+   "B-FC-1",
+   "HIL-OT-1",
+   "HIL-TR-1",
+   "CF-3",
+   "CF-4",
+   "B-BLEED-1",
+   "IGN-1",
+   "T1-T4 F_acc"
+  ]
+ },
+ "open_issues": [
+  {
+   "id": "OI-IGN-DET",
+   "severity": "HIGH (cross-discipline)",
+   "issue": "light-detection margin at the v2.8 ignition lift: S5 dispersed pad-start MC 31/300 NO_IGNITION on a LIT plant since v2.8.1 (v2.7 at 20 % lift: 0). The lit plant Pc at 0.2039 mm sits at the 3.0 bar abs threshold (nominal replay 3.02 bar abs; low-Cd/low-efficiency replay plateau 2.84-2.99 bar abs); replay of all 300 S5 runs: lit Pc 30 ms after the light min 2.53 / p05 2.65 / p50 2.89 / p95 3.07 bar abs vs threshold 3.0; 78.4 % below",
+   "owner": "Combustion (threshold and lift) + Electronics (detection logic)",
+   "closure": "Combustion states the lit Pc at the ignition lift over its band; options: threshold inside 1.87-2.66 bar abs (S9 bounds), larger lift (inventory), or detection on the rise above the measured cold-flow plateau; IGN-1/T1 measure",
+   "status_v2p9": "CLOSED IN SIL by the LEAD relative light rule (firmware v2.9): S5 pad MC NO_IGNITION 31/300 (v2.8.3) -> 0/300; A1 relight MC 0 light-rule aborts / 0 unlit false lights; hardware evidence = IGN-1 / B-PC-1"
+  },
+  {
+   "id": "OI-RELIGHT-A1",
+   "severity": "HIGH",
+   "issue": "A1 relight not frozen (RG-01): re-routed segment volume and the GNC re-fly pending; drained-segment fault path to re-run on the published re-route",
+   "owner": "Mechanical / Electronics / GNC",
+   "closure": "fault_path_v2 --segment-json <re-route file>; GNC re-fly"
+  },
+  {
+   "id": "OI-GIMBAL-JAM",
+   "severity": "MEDIUM",
+   "issue": "S6 gimbal_jam_moving_cmd FAIL (small-amplitude jam undetected)",
+   "owner": "Electronics + GNC",
+   "closure": "servo-frame mismatch metric after the GNC false-abort trade"
+  },
+  {
+   "id": "OI-TB-MEOP",
+   "severity": "ACCEPTED",
+   "issue": "S6 throat block Pc 53.4 bar abs > MEOP for 72 ms",
+   "owner": "Mechanical FEA",
+   "closure": "LC-TB70 / LC-TB-S in the assembled FEA"
+  },
+  {
+   "id": "OI-HAL",
+   "severity": "HIGH",
+   "issue": "hardware HAL not written; TLM_SLOW 0x110 undefined; 53 ARM double-promotion warnings",
+   "owner": "Electronics",
+   "closure": "HAL v1 with B-ECU-1"
+  },
+  {
+   "id": "OI-FC",
+   "severity": "HIGH",
+   "issue": "GNC tracker / FSW not yet in the flight computer; IMU filter delay unknown; RG-16 mass budget",
+   "owner": "FC owner + GNC",
+   "closure": "B-FC-1, HIL-OT-1"
+  },
+  {
+   "id": "OI-TIMEBASE",
+   "severity": "MEDIUM",
+   "issue": "no common time base yet for DAQ, CAN analyser and ECU",
+   "owner": "Electronics",
+   "closure": "1 Hz sync GPIO into the stand DAQ; alignment <= 1 ms (bench_plan_v2)"
+  },
+  {
+   "id": "OI-PFEED-SPOF",
+   "severity": "MEDIUM",
+   "issue": "P_feed is a single point for the relight path choice (invalid -> UNKNOWN -> prep path) and S1",
+   "owner": "Electronics",
+   "closure": "accepted fail-safe direction; second transducer only if the stand shows dropouts"
+  },
+  {
+   "id": "OI-LATE-FLIP",
+   "severity": "MEDIUM",
+   "issue": "a coast encoder loss after the last TLM_RELIGHT frame flips the path late (S10 evidence case)",
+   "owner": "GNC planning",
+   "closure": "GNC stale-flag rule covers it only if the FC plans on the last fresh frame"
+  },
+  {
+   "id": "OI-B1-WIND",
+   "severity": "MEDIUM",
+   "issue": "B1 launch commit mean wind < 6 m/s until B-PNT-1 shows the drive lag inside the MC tau",
+   "owner": "Electronics bench",
+   "closure": "B-PNT-1 closed-loop t10-90"
+  },
+  {
+   "id": "OI-RAIL",
+   "severity": "MEDIUM",
+   "issue": "LTC4365 UV ASSUMED; Q803 enhancement; RPM0026A footprint placeholder; ARM-bus peak vs F301",
+   "owner": "Electronics",
+   "closure": "datasheet read (proxy) or bench; B-PWR-1/2"
+  },
+  {
+   "id": "OI-MV-CAM",
+   "severity": "LOW",
+   "issue": "MV-P opener cam-limited 61 ms opening (bench B-MV-1)",
+   "owner": "Mechanical + Electronics",
+   "closure": "B-MV-1"
+  },
+  {
+   "id": "OI-TRIM",
+   "severity": "LOW",
+   "issue": "map-trim plateau (Pc loop trim authority +/-40 %) not yet characterised on hardware",
+   "owner": "Electronics + Combustion",
+   "closure": "T1-T4 logs"
+  },
+  {
+   "id": "OI-DOC",
+   "severity": "LOW",
+   "issue": "pc_transducer_v2 labels P_torch J610 (is J901); protocol.h FC_THRUST valid-window comment wording",
+   "owner": "Electronics",
+   "closure": "next calc / firmware release"
+  },
+  {
+   "id": "OI-A5-LATE",
+   "severity": "HIGH",
+   "issue": "v2.9 light rule (10 ms) + unchanged A5 (8.0 bar abs, 5 ms): S6 late lights 0.20/0.25 s inside W now abort HARD_START (v2.8.3 continued; plant Pc max 26.9/28.6 bar abs)",
+   "owner": "LEAD / Combustion"
+  },
+  {
+   "id": "OI-TEB-FALSE-LIGHT",
+   "severity": "MEDIUM",
+   "issue": "S9 +1.034 bar post-zero bias: unlit filtered 1.87 bar abs > floor 1.8 -> false E2 -> RUN -> A3 FLAMEOUT +0.14 s; closed by B-PC-1 <= 0.3 bar (floor 2.0)",
+   "owner": "LEAD / Electronics (B-PC-1)"
+  },
+  {
+   "id": "OI-E2-LATENCY",
+   "severity": "LOW",
+   "issue": "E2 - light 16-18 ms in SIL (target ~15 ms): plant rise + 50 Hz filter + 10 ms persistence; IGN-1 measures",
+   "owner": "Combustion / Electronics"
+  },
+  {
+   "id": "OI-A3-MARGIN",
+   "severity": "MEDIUM",
+   "issue": "A3 ratio minimum 0.454 at the A1 relight MC (threshold 0.40) during the start ramp; after E3 0.719",
+   "owner": "Combustion"
+  },
+  {
+   "id": "OI-BLEED-COIL",
+   "severity": "HIGH",
+   "issue": "Burkert 6027 HP: 24 V DC listed, ECU valve rail +12V_ARM (U3V70F12); 2 x 16 W -> +2.7 A for ~2.6 s per purge at 12 V; 12 V coil or a 24 V boost, rail budget and valve mass TO-VERIFY; HP seat PEEK/FKM medium -10..80 C and N2O compatibility TO-VERIFY",
+   "owner": "Electronics / Mechanical"
+  },
+  {
+   "id": "OI-BLEED-VOL",
+   "severity": "MEDIUM",
+   "issue": "unreached vapour with taps (2 deg 4.84 cm3, 10 deg 15.91 cm3) from an UNPUBLISHED Mechanical workdir file",
+   "owner": "Mechanical"
+  },
+  {
+   "id": "OI-GNC-V3",
+   "severity": "MEDIUM",
+   "issue": "gnc.json v3 requirements.ignition no longer carries option_c_unprimed_s / stale_or_missing_flag: FC relight planning source to be re-confirmed",
+   "owner": "GNC"
+  }
+ ],
+ "requests": [
+  "Mechanical: publish the re-routed MV-to-seat segment volume (coil re-route, v3.4.1) -> Electronics re-runs fault_path_v2 drained case",
+  "Combustion: lit chamber Pc at the v2.8 ignition lift (0.2039 mm) over the c*/regression/Cd band, and the light threshold it supports (OI-IGN-DET)",
+  "GNC: sim6 F_acc / gimbal trace vectors for HIL trace match (RG-13, HIL-TR-1); re-fly A1 relight with the fault_path_v2 slug times (RG-01)",
+  "FC owner: ADIS16470 filter setting and its group delay; FC scheduling budget (RG-19)",
+  "Founders: confirm owned bench instruments (scope, e-load, PSU, DAQ) so bom_v2 section H can drop those lines"
+ ],
+ "coordinator_items_reported": {
+  "PRIMED": "PRIMED = DIRECT_PATH alias in protocol.h; not a vapour detector",
+  "RG-15": "FC_THRUST does not freeze on PC_SENSOR; k_est_asc and the B apex predictor freeze on the 0xFFFF markers",
+  "MV_early_open": "DROPPED",
+  "bleed": "fallback budget line only (relight_interface.head_end_bleed)",
+  "W": "build constant (firmware.W_build_constant)",
+  "fault_path": "slugs 13.5 / 19 cm3 run on fw v2.8.3; drained case provisional on the v3.4 segment until the re-route volume is published",
+  "drogue_release_support": "TLM_FAST d1 b4-b7 + EVENT STATE t_ms implemented (firmware v2.9, tests (25)-(26)); SIL A1: rise held to E2 + 0.10 s in all lit runs, E2 -> Pc 3.0 bar abs max 43 ms"
+ },
+ "light_rule_v2p9": {
+  "rule": {
+   "v": "P0 = mean of filtered/raw gauge Pc over [E1 - 20 ms, E1]; |P0| > residual + 0.1 bar -> ambient (BASE_AMB); light (E2) = filtered AND raw rise over P0 >= 0.8 bar with filtered AND raw Pc >= floor, for 10 consecutive 1 kHz ticks; legacy 3.0 bar abs rule WITHDRAWN",
+   "tag": "LEAD/COMB"
+  },
+  "kIgnRise_Pa": {
+   "v": 80000.0,
+   "unit": "Pa",
+   "tag": "LEAD/COMB",
+   "src": "config.h kIgnRise_Pa"
+  },
+  "kIgnConfirmRelN": {
+   "v": 10.0,
+   "unit": "-",
+   "tag": "LEAD/COMB",
+   "src": "config.h kIgnConfirmRelN"
+  },
+  "kIgnPreN": {
+   "v": 20.0,
+   "unit": "-",
+   "tag": "LEAD/COMB",
+   "src": "config.h kIgnPreN"
+  },
+  "kIgnFloorAbs_Pa": {
+   "v": "1.8e5 Pa abs until B-PC-1 shows residual <= 0.3 bar, then 2.0e5 (kBpc1Shown)",
+   "tag": "LEAD/COMB"
+  },
+  "kIgnBaseCheck_Pa": {
+   "v": "residual + 0.1 bar (0.7 bar now, 0.4 bar after B-PC-1)",
+   "tag": "LEAD"
+  },
+  "sil_a1_relight_mc": {
+   "runs_lit": 300,
+   "pad_aborts_before_relight": 27,
+   "pad_abort_cause": "TVC_SUPPLY (pre-existing pad refusal at the battery-R corners, also in S5 v2.8.3)",
+   "light_rule_aborts": 0,
+   "unlit_false_lights": 0,
+   "E2_minus_light_ms": {
+    "n": 273,
+    "min": 16.0,
+    "p50": 17.0,
+    "p95": 18.0,
+    "max": 18.0
+   },
+   "A3_ratio_min": {
+    "n": 273,
+    "min": 0.4544,
+    "p50": 0.6166,
+    "p95": 0.6931,
+    "max": 0.7482
+   },
+   "unlit_rise_max_Pa": 49653,
+   "residual_corners_B": "52 cases, 0 fail",
+   "tag": "SIL (ASSUMED/SIM plant); target E2 <= ~15 ms after light NOT met: 16-18 ms = plant rise + 50 Hz filter + 10 ms"
+  },
+  "sil_s5_pad_mc": {
+   "runs": 300,
+   "aborts": 28,
+   "light_to_E2_ms_max": 18,
+   "note": "v2.8.3: 31 NO_IGNITION on lit pad starts (legacy rule); v2.9: 0; the 27 TVC_SUPPLY + 1 PC_OVERPRESSURE are unchanged"
+  }
+ },
+ "start_monitors_v2p9": {
+  "A3": {
+   "v": "(Pc - P0)/(Pc_map_lo - P0) < 0.40 for 20 ms in RUN; Pc_map_lo = min(40 ms-lagged map, instantaneous map) at the encoder lift; denominator >= 0.5 bar (the lagged map alone false-tripped on fast throttle-downs: SIL finding)",
+   "tag": "LEAD/COMB + DESIGN"
+  },
+  "A5": {
+   "v": "8.0 bar abs for 5 ms from E1 to the ramp start (unchanged); with the 10 ms light confirmation a fast late light can trip A5 first",
+   "tag": "LEAD/COMB"
+  },
+  "A7": {
+   "v": "HOLD band from E1 (lo P0 - 0.3 bar), START band E2->E3 (lo = A3 threshold on the map, hi 1.3 x max(map, 5.3 bar)), RUN_MAP after E3 (0.7..1.3 x map); 50 ms; IGNITION / stand -> PC_SENSOR abort, flight RUN -> flag; A7 kept ARMED E1->E3 with the lit-start band; the rate criterion is not implemented (written reason: no Combustion rate bound yet)",
+   "tag": "LEAD/COMB + DESIGN"
+  },
+  "E3": {
+   "v": "first RUN tick with the ramp done and Pc >= P0 + 0.9 (setpoint - P0), or E2 + 0.6 s",
+   "tag": "DESIGN"
+  },
+  "cf3_lift_table": {
+   "v": "17 rows 0.1928-0.2520 mm vs T_tank (A1 row 286.7 K 0.2178 mm vs the flat 0.2039 mm); warm rows reach 37.4 g/s, +0.8 % over 37.1 g/s",
+   "tag": "CF-3 pending / DERIVED"
+  }
+ },
+ "drogue_release_support": {
+  "rule_owner": "FC (LEAD decision 2026-10-13 CHANGELOG): release at E2 AND [measured Pc >= 3.0 bar abs OR the 0.8 bar rise held continuously to E2 + 0.10 s]",
+  "ecu_publishes": [
+   {
+    "v": "TLM_FAST 0x100 at 500 Hz: d1 b0-b3 state (decoders mask d1 & 0x0F), b4 E2 of this start, b5 rise now (filtered AND raw over P0), b6 rise held since E2 (cleared at the first tick without it), b7 rise held to E2 + kDrogueRiseHold_s (latched); d2-d3 Pc kPa abs (0xFFFF = invalid), d6-d7 fault bits incl. PC_SENSOR",
+    "tag": "DESIGN protocol.h (tlmf::)"
+   },
+   {
+    "v": "E2 timestamp = EVENT 0x120 STATE (RUN entry) t_ms",
+    "tag": "DESIGN"
+   }
+  ],
+  "kDrogueRiseHold_s": {
+   "v": 0.1,
+   "unit": "s",
+   "tag": "LEAD/GNC",
+   "src": "config.h kDrogueRiseHold_s"
+  },
+  "sil_a1_relight": {
+   "rise_held_to_E2_0p10_s": "273 of 273 lit runs",
+   "E2_to_Pc_3bar_ms": {
+    "n": 273,
+    "min": 0.0,
+    "p50": 3.0,
+    "p95": 34.0,
+    "max": 43.0
+   },
+   "E2_to_release_ms": {
+    "n": 273,
+    "min": 0.0,
+    "p50": 3.0,
+    "p95": 34.0,
+    "max": 43.0
+   },
+   "limit": "the SIL plant does not reproduce the GNC fuel-starved plateau (2.4-3.4 bar abs for 0.1-0.4 s)"
+  },
+  "tests": "test_core (25)-(26): bits, latch at E2 + 100 ms, dip clears held, d1 packing, log v10 tlm_flags"
+ },
+ "head_end_bleed_provision": {
+  "architecture": {
+   "v": "2 NC valves in series (V1 at the engine-side tee of the T4 crown + FD-01 radial taps via one -2 line across the gimbal; V1 and V2 on the fixed side), restriction downstream of V2, P_mid transducer between them; ECU drives V1 on pin 15 (U304) and V2 on pin 24 (U307), low-side on +12V_ARM (J509/J510); P_mid comparator on the pin 23 ladder",
+   "tag": "DESIGN / MECH v3.4.1 relay"
+  },
+  "pad_bit": "PREPRESS steps S0-S4 (valve pattern vs P_mid); any failure -> BLEED_FAULT",
+  "purge": {
+   "v": "PURGE state: MV open, pintle seated, V1+V2 open, t_purge 2.5 s; pre-scheduled (Cmd PURGE) or sequence-integrated (RELIGHT); PINTLE_FAULT / encoder / MV OPEN / P_feed fill checks active; V1-first closure confirmed by P_mid, else BLEED_FAULT at E0 + 0.15 s",
+   "tag": "LEAD + DESIGN"
+  },
+  "in_burn_stuck_open": "invisible on P_feed (0.016 bar) and Pc (SIL -0.02..-0.05 bar); seen only by the P_mid leak monitor at +0.21 s: flight flag + EVENT, stand BLEED_FAULT; V2-only stuck open is latent until the next pad BIT; the next purge relight then ends BLEED_FAULT (V1 unconfirmable)",
+  "ladder": {
+   "R_top_ohm": 10000.0,
+   "R0_eol_ohm": 82500.0,
+   "R1_mv_open_ohm": 9530.0,
+   "R2_mv_closed_ohm": 17800.0,
+   "R3_pmid_ohm": 33200.0,
+   "tolerance": 0.01,
+   "adc_error_ratio": 0.004,
+   "min_window_gap_ratio": 0.019261453582986754,
+   "codes_sorted": [
+    {
+     "open_sw": 1,
+     "closed_sw": 1,
+     "pmid_hi": 1,
+     "valid": 1,
+     "ratio_nom": 0.32965,
+     "ratio_lo": 0.32124,
+     "ratio_hi": 0.3381
+    },
+    {
+     "open_sw": 1,
+     "closed_sw": 1,
+     "pmid_hi": 0,
+     "valid": 1,
+     "ratio_nom": 0.36599,
+     "ratio_lo": 0.35736,
+     "ratio_hi": 0.37465
+    },
+    {
+     "open_sw": 1,
+     "closed_sw": 0,
+     "pmid_hi": 1,
+     "valid": 1,
+     "ratio_nom": 0.40457,
+     "ratio_lo": 0.39577,
+     "ratio_hi": 0.41342
+    },
+    {
+     "open_sw": 1,
+     "closed_sw": 0,
+     "pmid_hi": 0,
+     "valid": 1,
+     "ratio_nom": 0.46072,
+     "ratio_lo": 0.45175,
+     "ratio_hi": 0.4697
+    },
+    {
+     "open_sw": 0,
+     "closed_sw": 1,
+     "pmid_hi": 1,
+     "valid": 1,
+     "ratio_nom": 0.50398,
+     "ratio_lo": 0.49498,
+     "ratio_hi": 0.513
+    },
+    {
+     "open_sw": 0,
+     "closed_sw": 1,
+     "pmid_hi": 0,
+     "valid": 1,
+     "ratio_nom": 0.59417,
+     "ratio_lo": 0.58534,
+     "ratio_hi": 0.60299
+    },
+    {
+     "open_sw": 0,
+     "closed_sw": 0,
+     "pmid_hi": 1,
+     "valid": 1,
+     "ratio_nom": 0.70303,
+     "ratio_lo": 0.69484,
+     "ratio_hi": 0.71122
+    },
+    {
+     "open_sw": 0,
+     "closed_sw": 0,
+     "pmid_hi": 1,
+     "valid": 0,
+     "ratio_nom": 0.76852,
+     "ratio_lo": 0.76094,
+     "ratio_hi": 0.7761
+    },
+    {
+     "open_sw": 0,
+     "closed_sw": 0,
+     "pmid_hi": 0,
+     "valid": 1,
+     "ratio_nom": 0.89189,
+     "ratio_lo": 0.88595,
+     "ratio_hi": 0.89781
+    },
+    {
+     "open_sw": 0,
+     "closed_sw": 0,
+     "pmid_hi": 0,
+     "valid": 0,
+     "ratio_nom": 1.0,
+     "ratio_lo": 0.996,
+     "ratio_hi": 1.004
+    }
+   ],
+   "thresholds_ratio": [
+    0.34773,
+    0.38521,
+    0.43259,
+    0.48234,
+    0.54917,
+    0.64891,
+    0.73608,
+    0.83102,
+    0.9469
+   ],
+   "short_below_ratio": 0.02,
+   "tag": "DESIGN (values) / DERIVED (windows: 1 % resistors worst case + ADC 0.4 % FS ASSUMED + 2N7002 R_on 7.5 ohm DATASHEET)"
+  },
+  "pmid_comparator": {
+   "transducer": "TE M3234-000005-170BG class (0.5-4.5 V ratiometric on +5V_SNS)",
+   "p_rise_target_Pa_g": 1000000.0,
+   "p_fall_target_Pa_g": 900000.0,
+   "R_in_ohm": 4750.0,
+   "R_f_ohm": 1000000.0,
+   "pullup_V": 5.0,
+   "ref_divider_top_ohm": 10200.0,
+   "ref_divider_bot_ohm": 1740.0,
+   "V_ref": 0.7286432160804021,
+   "p_rise_Pa_g": 986443.1532663316,
+   "p_fall_Pa_g": 885505.6532663315,
+   "hysteresis_Pa": 100937.50000000012,
+   "transducer_TEB_Pa": 255000.0,
+   "note": "thresholds +/- TEB 2.55 bar: still far from both states (vented ~0 bar g, feed 40-55 bar g)",
+   "tag": "DESIGN / DERIVED; TEB from config.h (170BG class)"
+  },
+  "vent_time": {
+   "V_mid_m3": 5e-07,
+   "t_liquid_expulsion_s": 0.012460063897763577,
+   "tau_vapour_blowdown_s": 0.005902141292503862,
+   "t_vapour_45_to_10bar_s": 0.008877277310634963,
+   "valve_close_s_datasheet": [
+    0.05,
+    0.08
+   ],
+   "E0_to_confirm_s": [
+    0.07633734120839855,
+    0.10633734120839855
+   ],
+   "limit_s": 0.15,
+   "margin_s": [
+    0.07366265879160144,
+    0.043662658791601444
+   ],
+   "note": "ideal-gas blowdown; real-gas, flashing cooling and the transducer port dead volume TO-VERIFY on B-BLEED-1",
+   "tag": "DERIVED (LITERATURE density, SIM flow, ASSUMED Cd, DATASHEET valve time)"
+  },
+  "coil": {
+   "valve": "Burkert 6027 HP (stainless, G1/4, PEEK/FKM seat, NC, orifice 1.0 mm: 0-250 bar DC air/water) - DATASHEET via WebFetch summary",
+   "coil_42K_DC_W_cold_warm": [
+    16.0,
+    21.0
+   ],
+   "coil_note": "column mapping of the coil table ambiguous in the summary: TO-VERIFY on the PDF",
+   "coil_voltages_listed": "24 V DC, 230 V AC on the product page; 12 V DC TO-VERIFY (the ECU valve rail is +12V_ARM)",
+   "kick_and_drop_option": "exists (DATASHEET mentions Kick-and-Drop coils, max ambient 70 C); holding power TO-VERIFY",
+   "purge_current_12V_two_valves_A": 2.6666666666666665,
+   "purge_energy_J_2p6s_two_valves": 83.2,
+   "medium_T_HP_PEEK_FKM_C": [
+    -10,
+    80
+   ],
+   "switching_DC_ms": {
+    "open": [
+     20,
+     30
+    ],
+    "close": [
+     50,
+     80
+    ]
+   },
+   "mass": "not stated: TO-VERIFY",
+   "open_issue": "coil voltage vs +12V_ARM and the +2.7 A purge load on the ARM rail budget; alternative HP valves with low-power coils TO-QUOTE"
+  },
+  "sil_s12": {
+   "cases": 25,
+   "fail": 0
+  },
+  "sil_s11_fault_path_v3": [
+   {
+    "run": "attitude_2deg",
+    "unreached_cm3": 4.8362,
+    "cases": [
+     {
+      "case": "liquid_direct",
+      "V_cm3": 0.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.187
+     },
+     {
+      "case": "liquid_purge_integrated",
+      "V_cm3": 0.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.69
+     },
+     {
+      "case": "liquid_purge_prescheduled",
+      "V_cm3": 0.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.19
+     },
+     {
+      "case": "drained_prep_seg",
+      "V_cm3": 48.23,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.747
+     },
+     {
+      "case": "drained_prep_seg_bleed_fitted",
+      "V_cm3": 48.23,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.747
+     },
+     {
+      "case": "vapour_s0deg_direct",
+      "V_cm3": 12.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.466
+     },
+     {
+      "case": "vapour_s0deg_purge_integrated",
+      "V_cm3": 12.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.692
+     },
+     {
+      "case": "vapour_s0deg_purge_prescheduled",
+      "V_cm3": 12.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.192
+     },
+     {
+      "case": "vapour_s0deg_purge_integrated_unreached",
+      "V_cm3": 12.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.774
+     },
+     {
+      "case": "vapour_leadlimit_direct",
+      "V_cm3": 19.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.57
+     },
+     {
+      "case": "vapour_leadlimit_purge_integrated",
+      "V_cm3": 19.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.691
+     },
+     {
+      "case": "vapour_leadlimit_purge_prescheduled",
+      "V_cm3": 19.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.193
+     },
+     {
+      "case": "vapour_leadlimit_purge_integrated_unreached",
+      "V_cm3": 19.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.775
+     },
+     {
+      "case": "vapour_s10degmax_direct",
+      "V_cm3": 28.92,
+      "first_abort": "NO_IGNITION",
+      "cmd_to_E2_s": null
+     },
+     {
+      "case": "vapour_s10degmax_purge_integrated",
+      "V_cm3": 28.92,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.69
+     },
+     {
+      "case": "vapour_s10degmax_purge_prescheduled",
+      "V_cm3": 28.92,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.19
+     },
+     {
+      "case": "vapour_s10degmax_purge_integrated_unreached",
+      "V_cm3": 28.92,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.773
+     }
+    ]
+   },
+   {
+    "run": "robustness_10deg",
+    "unreached_cm3": 15.9135,
+    "cases": [
+     {
+      "case": "liquid_direct",
+      "V_cm3": 0.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.187
+     },
+     {
+      "case": "liquid_purge_integrated",
+      "V_cm3": 0.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.69
+     },
+     {
+      "case": "liquid_purge_prescheduled",
+      "V_cm3": 0.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.19
+     },
+     {
+      "case": "drained_prep_seg",
+      "V_cm3": 48.23,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.747
+     },
+     {
+      "case": "drained_prep_seg_bleed_fitted",
+      "V_cm3": 48.23,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.747
+     },
+     {
+      "case": "vapour_s0deg_direct",
+      "V_cm3": 12.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.466
+     },
+     {
+      "case": "vapour_s0deg_purge_integrated",
+      "V_cm3": 12.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.692
+     },
+     {
+      "case": "vapour_s0deg_purge_prescheduled",
+      "V_cm3": 12.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.192
+     },
+     {
+      "case": "vapour_leadlimit_direct",
+      "V_cm3": 19.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.569
+     },
+     {
+      "case": "vapour_leadlimit_purge_integrated",
+      "V_cm3": 19.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.69
+     },
+     {
+      "case": "vapour_leadlimit_purge_prescheduled",
+      "V_cm3": 19.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.191
+     },
+     {
+      "case": "vapour_leadlimit_purge_integrated_unreached",
+      "V_cm3": 19.0,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.941
+     },
+     {
+      "case": "vapour_s10degmax_direct",
+      "V_cm3": 28.92,
+      "first_abort": "NO_IGNITION",
+      "cmd_to_E2_s": null
+     },
+     {
+      "case": "vapour_s10degmax_purge_integrated",
+      "V_cm3": 28.92,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.689
+     },
+     {
+      "case": "vapour_s10degmax_purge_prescheduled",
+      "V_cm3": 28.92,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 0.19
+     },
+     {
+      "case": "vapour_s10degmax_purge_integrated_unreached",
+      "V_cm3": 28.92,
+      "first_abort": "NONE",
+      "cmd_to_E2_s": 2.939
+     }
+    ]
+   }
+  ]
+ },
+ "log_v10": {
+  "v": "LogRecord v10 = 150 bytes (1 kHz): + hbleed io/flags/BIT, P0, rise, det flags, A3 ratio, map Pc, seq4 flags, tlm_flags",
+  "tag": "DESIGN protocol.h"
+ }
+}

@@ -1,0 +1,58 @@
+"""Case-OD temperature histories below the extract_histories.py range (04-fea/thermal, v1, 2026-10-13, Mechanical).
+
+extract_histories.py v1 covers the ENG-TC-01 outer surface from z 20 mm (thermal-model frame) upward.  The TVC servos
+(ENG-GM-15, body CAD z -80.3..-40.0 above the pivot = thermal z -24.0..+16.3; thermal z = CAD z + 56.3) face the case
+below that range.  This script reads the same .frd once and writes <label>/histories_lower.npz with the time vector and
+the mean/max case-OD temperature (K) in 5 mm z bands from z -100 to +20 mm (thermal frame).  It does not touch
+histories.npz (whose hashes other results quote).
+"""
+from __future__ import annotations
+import sys, json, time
+from pathlib import Path
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import ax_thermal as at
+
+RUNS = Path("/home/claude/work/mechanical/runs/thermal")
+Z0, Z1, DZ = -100, 20, 5
+
+
+def main(label):
+    run = RUNS / label
+    t0 = time.time()
+    d = np.load(run / "envelope_nodes.npz", allow_pickle=True)
+    X, E, pn = d["X"], d["E"], d["pn"]
+    case = set()
+    for e, p in zip(E, pn):
+        if str(p) == "ENG-TC-01":
+            case.update(int(n) for n in e)
+    r_od = max(X[n][0] for n in case)
+    g = {}
+    for z0 in range(Z0, Z1, DZ):
+        ids = sorted(n for n in case if X[n][0] >= r_od - 0.05 and z0 <= X[n][1] < z0 + DZ)
+        if ids:
+            g[f"case_OD_z{z0}_{z0 + DZ}"] = ids
+    want = sorted({n for ids in g.values() for n in ids})
+    ts, rows = [], []
+    for t, vals in at.read_frd_nt(run / f"{label}.frd"):
+        ts.append(t)
+        rows.append([vals.get(n + 1, np.nan) for n in want])
+    A = np.array(rows)
+    col = {n: i for i, n in enumerate(want)}
+    out = {"t_s": np.array(ts)}
+    for k, ids in g.items():
+        sub = A[:, [col[n] for n in ids]]
+        out[k + "_mean"] = np.nanmean(sub, axis=1)
+        out[k + "_max"] = np.nanmax(sub, axis=1)
+    np.savez(run / "histories_lower.npz", **out)
+    meta = {"label": label, "script": "04-fea/thermal/extract_case_lower.py v1", "frame": "thermal-model z (CAD z + 56.3 mm)",
+            "groups": {k: len(v) for k, v in g.items()}, "case_r_OD_mm": float(r_od), "n_times": len(ts), "t_read_s": round(time.time() - t0, 1)}
+    (run / "histories_lower_meta.json").write_text(json.dumps(meta, indent=1))
+    print(json.dumps(meta)[:400])
+
+
+if __name__ == "__main__":
+    for lab in sys.argv[1:]:
+        main(lab)

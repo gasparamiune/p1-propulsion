@@ -1,0 +1,305 @@
+"""ENG materials database v1 (Mechanical, 2026-10-11).
+
+Single source of truth for densities (CAD mass properties), FEA properties and allowables.
+SI units: Pa, K or degC as labelled, W/m/K, J/kg/K, kg/m3, 1/K.
+
+Every entry carries a tag (charter rule 2) and a source string.  Tags used here:
+  LITERATURE          value transcribed from a named handbook/standard/datasheet.  Values were
+                      transcribed from the engineer's reference knowledge, not re-read from the
+                      document in this session (web access to standards is blocked), so each is
+                      also flagged verify=True: confirm against the cited document or a mill cert
+                      before release for manufacture.
+  LITERATURE-approx   curve digitised/approximated from a handbook trend; uncertainty stated.
+  DATASHEET           vendor datasheet value (vendor + grade named), verify=True as above.
+  ASSUMED             placeholder with a stated range; must be replaced by a datasheet value.
+
+Allowables are spec minimums (S-basis-like) where a specification exists; typical values are
+knocked down by the ratio (spec-min / typical) at room temperature when only typical
+temperature curves are available.  This is stated per material.
+"""
+from __future__ import annotations
+import json, math
+from pathlib import Path
+import numpy as np
+
+C2K = 273.15
+
+
+def _tab(T_C, vals, tag, src, verify=True, unit=""):
+    return {"T_C": list(T_C), "v": list(vals), "tag": tag, "src": src, "verify": verify, "unit": unit}
+
+
+def _const(v, tag, src, verify=True, unit="", rng=None):
+    d = {"v": v, "tag": tag, "src": src, "verify": verify, "unit": unit}
+    if rng is not None:
+        d["range"] = list(rng)
+    return d
+
+
+# --------------------------------------------------------------------------------------------
+# 6061-T6.  RT spec minimum: ASTM B221 / B241 (extruded bar, rod, seamless tube), 6061-T6:
+#   Ftu >= 260 MPa (38 ksi), Fty >= 240 MPa (35 ksi).  Drawn tube (B210/B483) is 290/240.
+#   Elevated temperature: ratios of ASM typical yield/tensile after 10 000 h at temperature
+#   (ASM Handbook Vol. 2, 1990, 6061-T6 typical properties at temperature: YS 276/262/214/103/
+#   34/19 MPa and TS 310/290/234/131/51/32 MPa at 24/100/149/204/260/316 C).  10 000 h exposure
+#   is CONSERVATIVE for the minutes-long exposures here (MMPDS 0.5 h curves are higher); the
+#   short-exposure relief is listed as an open item, not taken.
+# --------------------------------------------------------------------------------------------
+_al_T = [20, 100, 149, 204, 260, 316]
+_al_ys_ratio = [1.0, 262/276, 214/276, 103/276, 34/276, 19/276]
+_al_ts_ratio = [1.0, 290/310, 234/310, 131/310, 51/310, 32/310]
+
+MATERIALS = {
+    "AL6061-T6": {
+        "name": "Aluminium alloy 6061-T6 (EN AW-6061 T6), bar/tube",
+        "rho": _const(2700.0, "LITERATURE", "ASM Handbook Vol.2 (1990): 6061 density 2.70 g/cm3", unit="kg/m3"),
+        "E": _tab([20, 100, 150, 200, 250, 300], [68.9e9, 66.2e9, 63.4e9, 60.0e9, 55.8e9, 51.0e9],
+                  "LITERATURE-approx", "RT 68.9 GPa (ASM Vol.2 / MMPDS 10.0 Msi); temperature trend "
+                  "approximated from MMPDS 6061-T6 elevated-temperature modulus curve (+/-5 %)", unit="Pa"),
+        "nu": _const(0.33, "LITERATURE", "ASM Handbook Vol.2: Poisson ratio 0.33"),
+        "alpha": _tab([20, 100, 200, 300], [23.2e-6, 23.6e-6, 24.3e-6, 25.2e-6], "LITERATURE",
+                      "ASM Handbook Vol.2: mean CTE 23.6 (20-100 C), 24.3 (20-200 C), 25.2 (20-300 C) um/m/K; "
+                      "20 C value extrapolated", unit="1/K (secant from 20 C)"),
+        "k": _tab([20, 100, 200, 300], [167.0, 172.0, 177.0, 180.0], "LITERATURE-approx",
+                  "167 W/m/K at 25 C (ASM Vol.2, 6061-T6); mild rise with T approximated (+/-5 %)", unit="W/m/K"),
+        "cp": _tab([25, 127, 227, 327], [896.0, 949.0, 997.0, 1042.0], "LITERATURE-approx",
+                   "896 J/kg/K at 25 C (ASM Vol.2); T-trend of pure Al (NIST-JANAF) applied", unit="J/kg/K"),
+        "Fty": _tab(_al_T, [240e6 * r for r in _al_ys_ratio], "LITERATURE",
+                    "ASTM B221/B241 6061-T6 min Fty 240 MPa x ASM typical ratio YS(T)/YS(RT) after 10 000 h "
+                    "(conservative for short exposure)", unit="Pa"),
+        "Ftu": _tab(_al_T, [260e6 * r for r in _al_ts_ratio], "LITERATURE",
+                    "ASTM B221/B241 6061-T6 min Ftu 260 MPa x ASM typical ratio TS(T)/TS(RT) after 10 000 h", unit="Pa"),
+        "Fsu_over_Ftu": _const(0.60, "LITERATURE-approx", "MMPDS 6061-T6: Fsu 24-27 ksi vs Ftu 38-42 ksi (ratio 0.63-0.64); 0.60 used"),
+        "Fbry_over_Fty_eD2": _const(1.40, "LITERATURE-approx", "MMPDS 6061-T6 sheet Fbry(e/D=2.0)=58 ksi vs Fty 36 ksi (1.61); 1.40 used, conservative"),
+        "Fbru_over_Ftu_eD2": _const(1.60, "LITERATURE-approx", "MMPDS 6061-T6 sheet Fbru(e/D=2.0)=88 ksi vs Ftu 42 ksi (2.1); 1.60 used, conservative"),
+        "emissivity": _const(0.25, "ASSUMED", "machined/oxidised Al 0.05-0.3; 0.25 used for soak-back (bounds radiation loss low)", rng=(0.05, 0.3)),
+        "T_max_C": _const(150.0, "LITERATURE-approx", "6061-T6 overaging/strength loss accelerates above ~150 C; design limit for loaded parts"),
+        "process": "CNC/lathe from bar or stock tube",
+        "color": [0.72, 0.74, 0.78],
+    },
+    "SS304": {
+        "name": "Stainless steel 1.4301 / AISI 304, annealed bar (EN 10088-3)",
+        "rho": _const(7900.0, "LITERATURE", "EN 10088-1: 7.9 kg/dm3", unit="kg/m3"),
+        "E": _tab([20, 100, 200, 300, 400, 500], [200e9, 194e9, 186e9, 179e9, 172e9, 165e9], "LITERATURE",
+                  "EN 10088-1 Table (1.4301): 200/194/186/179/172/165 GPa at 20/100/200/300/400/500 C", unit="Pa"),
+        "nu": _const(0.29, "LITERATURE", "typical austenitic 0.28-0.30"),
+        "alpha": _tab([20, 100, 200, 300, 400, 500], [16.0e-6, 16.0e-6, 16.5e-6, 17.0e-6, 17.5e-6, 18.0e-6], "LITERATURE",
+                      "EN 10088-1: mean CTE 20-100 C 16.0, 20-200 16.5, 20-300 17.0, 20-400 17.5, 20-500 18.0 um/m/K", unit="1/K"),
+        "k": _tab([20, 100, 300, 500, 700], [15.0, 16.2, 18.8, 21.4, 24.0], "LITERATURE-approx",
+                  "EN 10088-1: 15 W/m/K at 20 C; ASM trend ~16.2 at 100 C, 21.5 at 500 C", unit="W/m/K"),
+        "cp": _tab([20, 200, 400, 600], [500.0, 530.0, 560.0, 590.0], "LITERATURE-approx", "EN 10088-1: 500 J/kg/K at 20 C; ASM trend", unit="J/kg/K"),
+        "Fty": _tab([20, 100, 150, 200, 250, 300, 350, 400, 450, 500], [190e6, 157e6, 142e6, 127e6, 118e6, 110e6, 104e6, 98e6, 95e6, 92e6],
+                    "LITERATURE", "EN 10088-3 1.4301 bar: min Rp0.2 190 MPa (20 C); EN 10088-2/-3 elevated-T min Rp0.2", unit="Pa"),
+        "Ftu": _tab([20, 200, 400, 500], [500e6, 440e6, 420e6, 400e6], "LITERATURE-approx",
+                    "EN 10088-3 1.4301: Rm 500-700 MPa (min 500); elevated-T ratio from ASME II-D Table U trend", unit="Pa"),
+        "Fsu_over_Ftu": _const(0.60, "LITERATURE-approx", "common design ratio for austenitic stainless"),
+        "Fbry_over_Fty_eD2": _const(1.50, "LITERATURE-approx", "conservative"),
+        "Fbru_over_Ftu_eD2": _const(1.60, "LITERATURE-approx", "conservative"),
+        "emissivity": _const(0.4, "ASSUMED", "oxidised stainless 0.3-0.6", rng=(0.3, 0.6)),
+        "T_max_C": _const(500.0, "LITERATURE-approx", "strength data tabulated to 500 C"),
+        "process": "CNC/lathe from bar",
+        "color": [0.60, 0.62, 0.66],
+    },
+    "SS316L": {
+        "name": "Stainless steel 1.4404 / 316L, annealed bar (EN 10088-3), oxidiser-wetted parts",
+        "rho": _const(8000.0, "LITERATURE", "EN 10088-1: 8.0 kg/dm3", unit="kg/m3"),
+        "E": _tab([20, 100, 200, 300, 400], [200e9, 194e9, 186e9, 179e9, 172e9], "LITERATURE", "EN 10088-1 (1.4404)", unit="Pa"),
+        "nu": _const(0.29, "LITERATURE", "typical austenitic"),
+        "alpha": _tab([20, 100, 200, 300, 400], [16.0e-6, 16.0e-6, 16.5e-6, 17.0e-6, 17.5e-6], "LITERATURE", "EN 10088-1 (1.4404)", unit="1/K"),
+        "k": _tab([20, 300], [15.0, 18.5], "LITERATURE-approx", "EN 10088-1 15 W/m/K at 20 C", unit="W/m/K"),
+        "cp": _tab([20, 400], [500.0, 560.0], "LITERATURE-approx", "EN 10088-1 500 J/kg/K", unit="J/kg/K"),
+        "Fty": _tab([20, 100, 200, 300, 400], [200e6, 166e6, 137e6, 118e6, 108e6], "LITERATURE",
+                    "EN 10088-3 1.4404 bar min Rp0.2 200 MPa; EN 10088 elevated-T min Rp0.2", unit="Pa"),
+        "Ftu": _tab([20, 400], [500e6, 430e6], "LITERATURE-approx", "EN 10088-3 1.4404: Rm 500-700 MPa", unit="Pa"),
+        "Fsu_over_Ftu": _const(0.60, "LITERATURE-approx", "common design ratio"),
+        "emissivity": _const(0.4, "ASSUMED", "", rng=(0.3, 0.6)),
+        "process": "CNC/lathe from bar",
+        "color": [0.62, 0.64, 0.68],
+    },
+    "SS17-4PH-H1150": {
+        "name": "17-4PH (1.4542) condition H1150, pins",
+        "rho": _const(7800.0, "LITERATURE", "AMS 5643 / ASM: 7.78 g/cm3", unit="kg/m3"),
+        "E": _tab([20, 200], [196e9, 186e9], "LITERATURE", "ASM: 196 GPa", unit="Pa"),
+        "nu": _const(0.27, "LITERATURE", "ASM"),
+        "alpha": _tab([20, 300], [10.8e-6, 11.3e-6], "LITERATURE", "ASM 17-4PH H1150", unit="1/K"),
+        "k": _tab([20], [18.0], "LITERATURE", "ASM", unit="W/m/K"),
+        "cp": _tab([20], [460.0], "LITERATURE", "ASM", unit="J/kg/K"),
+        "Fty": _tab([20, 200], [725e6, 650e6], "LITERATURE", "AMS 5643 / ASTM A564 H1150 min Rp0.2 725 MPa (105 ksi); 200 C ~0.9x", unit="Pa"),
+        "Ftu": _tab([20, 200], [930e6, 850e6], "LITERATURE", "AMS 5643 / ASTM A564 H1150 min Rm 930 MPa (135 ksi)", unit="Pa"),
+        "Fsu_over_Ftu": _const(0.60, "LITERATURE-approx", "common design ratio"),
+        "process": "CNC/lathe, ground to h6",
+        "color": [0.45, 0.47, 0.50],
+    },
+    "STEEL-12.9": {
+        "name": "Alloy steel bolts ISO 898-1 property class 12.9 (zinc-flake or black oxide)",
+        "rho": _const(7850.0, "LITERATURE", "steel", unit="kg/m3"),
+        "E": _tab([20], [205e9], "LITERATURE", "steel", unit="Pa"), "nu": _const(0.29, "LITERATURE", ""),
+        "alpha": _tab([20], [11.5e-6], "LITERATURE", "", unit="1/K"), "k": _tab([20], [42.0], "LITERATURE", "", unit="W/m/K"),
+        "cp": _tab([20], [460.0], "LITERATURE", "", unit="J/kg/K"),
+        "Fty": _tab([20], [1100e6], "LITERATURE", "ISO 898-1 class 12.9: min Rp0.2 1100 MPa", unit="Pa"),
+        "Ftu": _tab([20], [1220e6], "LITERATURE", "ISO 898-1 class 12.9: min Rm 1220 MPa", unit="Pa"),
+        "Fsu_over_Ftu": _const(0.60, "LITERATURE-approx", "EN 1993-1-8 alpha_v=0.6 for grades 4.6/5.6/8.8, 0.5 for 10.9; 0.5 used for 12.9 below"),
+        "process": "COTS", "color": [0.20, 0.20, 0.22],
+    },
+    "SS-A4-70": {
+        "name": "Stainless bolts ISO 3506-1 A4-70",
+        "rho": _const(8000.0, "LITERATURE", "", unit="kg/m3"),
+        "E": _tab([20], [193e9], "LITERATURE", "", unit="Pa"), "nu": _const(0.29, "LITERATURE", ""),
+        "alpha": _tab([20], [16.0e-6], "LITERATURE", "", unit="1/K"), "k": _tab([20], [15.0], "LITERATURE", "", unit="W/m/K"),
+        "cp": _tab([20], [500.0], "LITERATURE", "", unit="J/kg/K"),
+        "Fty": _tab([20], [450e6], "LITERATURE", "ISO 3506-1 A4-70: min Rp0.2 450 MPa", unit="Pa"),
+        "Ftu": _tab([20], [700e6], "LITERATURE", "ISO 3506-1 A4-70: min Rm 700 MPa", unit="Pa"),
+        "Fsu_over_Ftu": _const(0.60, "LITERATURE-approx", "common design ratio"),
+        "process": "COTS", "color": [0.55, 0.56, 0.58],
+    },
+    "GRAPHITE-ISO": {
+        "name": "Isomolded fine-grain graphite (reference grade Toyo Tanso IG-110 or equivalent)",
+        "rho": _const(1770.0, "DATASHEET", "Toyo Tanso IG-110 datasheet: bulk density 1.77 Mg/m3", unit="kg/m3"),
+        "E": _tab([20, 2000], [9.8e9, 9.8e9], "DATASHEET", "IG-110: Young's modulus 9.8 GPa; held constant (graphite E rises ~10-20 % to 2000 C: unconservative for thermal stress by that amount, offset by the strength rise)", unit="Pa"),
+        "nu": _const(0.15, "LITERATURE-approx", "fine-grain nuclear graphites 0.13-0.21", rng=(0.13, 0.21)),
+        "alpha": _tab([20, 500, 1000, 1500, 2000, 2500], [4.0e-6, 4.5e-6, 4.9e-6, 5.3e-6, 5.6e-6, 5.9e-6], "LITERATURE-approx",
+                      "IG-110 datasheet 4.5e-6/K (350-450 C); trend for isomolded graphite (+/-10 %)", unit="1/K"),
+        "k": _tab([20, 200, 400, 800, 1200, 1600, 2000, 2500], [120.0, 105.0, 90.0, 70.0, 55.0, 46.0, 40.0, 36.0], "LITERATURE-approx",
+                  "IG-110 120 W/m/K at RT (datasheet); decline with T typical of isomolded graphite (+/-20 %)", unit="W/m/K"),
+        "cp": _tab([25, 127, 227, 327, 527, 727, 1227, 1727, 2227], [710.0, 995.0, 1197.0, 1350.0, 1570.0, 1710.0, 1890.0, 1990.0, 2060.0],
+                   "LITERATURE", "graphite heat capacity, NIST-JANAF / Butland & Maddison (1973) (+/-3 %)", unit="J/kg/K"),
+        "St": _tab([20], [25e6], "DATASHEET", "IG-110 tensile strength 25 MPa (RT; rises with T, not credited)", unit="Pa"),
+        "Sc": _tab([20], [78e6], "DATASHEET", "IG-110 compressive strength 78 MPa", unit="Pa"),
+        "Sf": _tab([20], [39e6], "DATASHEET", "IG-110 flexural strength 39 MPa", unit="Pa"),
+        "emissivity": _const(0.85, "LITERATURE-approx", "graphite 0.7-0.9", rng=(0.7, 0.9)),
+        "oxidation_note": "oxidises in O2-bearing exhaust above ~700 K: throat erosion is Combustion's item",
+        "process": "lathe from isomolded rod (dust extraction required)",
+        "color": [0.12, 0.12, 0.13],
+    },
+    "PHENOLIC": {
+        "name": "Cotton/paper phenolic laminate tube (NEMA LI-1 grade CE/XX class)",
+        "rho": _const(1350.0, "ASSUMED", "NEMA CE/XX laminates 1.30-1.40 g/cm3", rng=(1300, 1400), unit="kg/m3"),
+        "E": _tab([20, 150], [7.0e9, 5.0e9], "ASSUMED", "typical 5-9 GPa in-plane; softens above ~150 C", unit="Pa"),
+        "nu": _const(0.30, "ASSUMED", ""),
+        "alpha": _tab([20, 200], [25e-6, 25e-6], "ASSUMED", "in-plane 15-35e-6/K", unit="1/K"),
+        "k": _tab([20, 300, 600], [0.25, 0.30, 0.40], "ASSUMED", "virgin 0.2-0.3 W/m/K; char ~0.4-1.0 (char not modelled: see sensitivity)", unit="W/m/K"),
+        "cp": _tab([20, 300], [1400.0, 1700.0], "ASSUMED", "1300-1700 J/kg/K", unit="J/kg/K"),
+        "St": _tab([20], [60e6], "ASSUMED", "CE grade tensile 50-80 MPa", unit="Pa"),
+        "Sc": _tab([20], [150e6], "ASSUMED", "compressive 120-250 MPa", unit="Pa"),
+        "emissivity": _const(0.85, "ASSUMED", "charred surface", rng=(0.7, 0.95)),
+        "T_char_C": _const(350.0, "ASSUMED", "onset of pyrolysis 300-450 C (ablative function intended)"),
+        "process": "cut from stock tube / turned",
+        "color": [0.55, 0.33, 0.15],
+    },
+    "ABS": {
+        "name": "ABS, FDM-printed fuel grain (100 % infill)",
+        "rho": _const(1050.0, "ASSUMED", "ENGINE-BASELINE v0 uses 1050; bulk ABS 1.04-1.06; printed 100 % infill 0.95-1.0 of bulk", rng=(1000, 1060), unit="kg/m3"),
+        "E": _tab([20, 80], [2.0e9, 1.5e9], "LITERATURE-approx", "ABS 1.8-2.4 GPa", unit="Pa"),
+        "nu": _const(0.35, "LITERATURE-approx", ""),
+        "alpha": _tab([20], [90e-6], "LITERATURE-approx", "ABS 70-110e-6/K", unit="1/K"),
+        "k": _tab([20, 100], [0.17, 0.18], "LITERATURE-approx", "ABS 0.14-0.21 W/m/K", unit="W/m/K"),
+        "cp": _tab([20, 127], [1400.0, 2000.0], "LITERATURE-approx", "ABS 1300-2000 J/kg/K", unit="J/kg/K"),
+        "Tg_C": _const(105.0, "LITERATURE-approx", "ABS glass transition ~105 C"),
+        "process": "FDM print (ABS), enclosure, 100 % infill",
+        "color": [0.95, 0.85, 0.40],
+    },
+    "PETG": {
+        "name": "PETG, FDM-printed (fit-check prototypes; cold parts only)",
+        "rho": _const(1270.0, "LITERATURE-approx", "PETG filament 1.27 g/cm3", unit="kg/m3"),
+        "E": _tab([20, 60], [2.0e9, 1.6e9], "LITERATURE-approx", "PETG 1.9-2.1 GPa (bulk)", unit="Pa"),
+        "nu": _const(0.38, "LITERATURE-approx", ""),
+        "alpha": _tab([20], [68e-6], "LITERATURE-approx", "PETG ~60-70e-6/K", unit="1/K"),
+        "k": _tab([20], [0.20], "LITERATURE-approx", "", unit="W/m/K"),
+        "cp": _tab([20], [1200.0], "LITERATURE-approx", "", unit="J/kg/K"),
+        "Fty": _tab([20, 60], [30e6, 20e6], "ASSUMED", "printed PETG XY tensile 30-50 MPa; Z (interlayer) 15-30 MPa; 30 MPa used", unit="Pa"),
+        "Ftu": _tab([20, 60], [35e6, 25e6], "ASSUMED", "", unit="Pa"),
+        "Tg_C": _const(80.0, "LITERATURE-approx", "PETG Tg 75-85 C: never near hot gas"),
+        "process": "FDM print (PETG)",
+        "color": [0.30, 0.65, 0.85],
+    },
+    "FKM": {
+        "name": "Fluorocarbon (FKM/Viton) O-ring compound",
+        "rho": _const(1900.0, "LITERATURE-approx", "FKM 1.8-2.0 g/cm3", unit="kg/m3"),
+        "T_max_cont_C": _const(204.0, "LITERATURE", "Parker O-Ring Handbook ORD 5700: fluorocarbon -26 to +205 C (400 F)"),
+        "T_max_short_C": _const(250.0, "ASSUMED", "short excursions 250-300 C quoted by compounders; 250 used"),
+        "process": "COTS", "color": [0.10, 0.10, 0.10],
+    },
+    "PTFE": {"name": "PTFE", "rho": _const(2200.0, "LITERATURE", "PTFE 2.14-2.20 g/cm3", unit="kg/m3"), "process": "COTS", "color": [0.95, 0.95, 0.95]},
+    "BRASS": {"name": "Brass CW614N (fittings)", "rho": _const(8450.0, "LITERATURE", "EN 12164 CW614N 8.4-8.5", unit="kg/m3"), "process": "COTS", "color": [0.80, 0.65, 0.25]},
+    "STEEL": {"name": "Carbon/bearing steel (generic COTS)", "rho": _const(7850.0, "LITERATURE", "steel", unit="kg/m3"), "process": "COTS", "color": [0.35, 0.36, 0.38]},
+    "ELASTOMER-PU": {"name": "Polyurethane bumper 90A", "rho": _const(1200.0, "LITERATURE-approx", "PU 1.1-1.25", unit="kg/m3"), "process": "COTS/cast", "color": [0.85, 0.40, 0.10]},
+    "GRAFOIL": {"name": "Flexible graphite sheet gasket (GrafTech Grafoil GTB class, 0.5 mm)", "rho": _const(1120.0, "DATASHEET", "GrafTech Grafoil GTB 1.12 g/cm3 (70 lb/ft3) nominal; verify with supplier sheet", unit="kg/m3"), "process": "COTS die-cut", "color": [0.20, 0.20, 0.22]},
+    "PEEK": {"name": "PEEK unfilled (Victrex 450G class)", "rho": _const(1300.0, "DATASHEET", "Victrex 450G 1.30 g/cm3", unit="kg/m3"), "process": "CNC", "color": [0.80, 0.70, 0.50]},
+    "AL7075-T6": {
+        "name": "Aluminium alloy 7075-T6 (EN AW-7075 T6), bar",
+        "rho": _const(2810.0, "LITERATURE", "ASM Handbook Vol.2 (1990): 7075 density 2.81 g/cm3", unit="kg/m3"),
+        "E": _const(71.7e9, "LITERATURE", "ASM Vol.2 / MMPDS 7075-T6 10.4 Msi", unit="Pa"),
+        "nu": _const(0.33, "LITERATURE", "ASM Vol.2"),
+        "alpha": _const(23.4e-6, "LITERATURE", "ASM Vol.2: 23.4 um/m/K (20-100 C)", unit="1/K"),
+        "k": _const(130.0, "LITERATURE", "ASM Vol.2: 130 W/m/K", unit="W/m/K"),
+        "cp": _const(960.0, "LITERATURE", "ASM Vol.2: 960 J/kg/K", unit="J/kg/K"),
+        "Fty": _const(470e6, "LITERATURE", "MMPDS 7075-T6 rolled/drawn bar A/B-basis 66-73 ksi; 68 ksi (470 MPa) used (verify with mill cert)", unit="Pa"),
+        "Ftu": _const(540e6, "LITERATURE", "MMPDS 7075-T6 bar 77-81 ksi; 78 ksi (540 MPa) used (verify)", unit="Pa"),
+        "T_max_C": _const(120.0, "LITERATURE-approx", "7075-T6 strength loss above ~120 C; cold-side parts only"),
+        "process": "CNC from bar",
+        "color": [0.60, 0.62, 0.66],
+    },
+    "TI6AL4V": {
+        "name": "Titanium Ti-6Al-4V (grade 5), annealed bar (AMS 4928 / ASTM B348)",
+        "rho": _const(4430.0, "LITERATURE", "ASM Handbook Vol.2 / MMPDS: 4.43 g/cm3", unit="kg/m3"),
+        "E": _tab([20, 200, 400], [113.8e9, 105e9, 96e9], "LITERATURE-approx", "MMPDS 16.5 Msi at RT; elevated-T trend approximated (+/-5 %)", unit="Pa"),
+        "nu": _const(0.342, "LITERATURE", "MMPDS / ASM"),
+        "alpha": _tab([20, 100, 300, 500], [8.6e-6, 8.6e-6, 9.2e-6, 9.7e-6], "LITERATURE-approx", "ASM: 8.6 (20-100 C) to 9.7 (20-500 C) um/m/K", unit="1/K"),
+        "k": _tab([20, 100, 300, 500], [6.7, 7.4, 9.6, 11.8], "LITERATURE-approx", "ASM: 6.7 W/m/K at RT; rising ~11 % per 100 C", unit="W/m/K"),
+        "cp": _tab([20, 200, 400, 600], [526.0, 570.0, 610.0, 650.0], "LITERATURE-approx", "ASM: 526 J/kg/K at RT; trend approximated", unit="J/kg/K"),
+        "Fty": _tab([20, 100, 200, 300, 400, 500], [827e6, 745e6, 660e6, 590e6, 540e6, 490e6], "LITERATURE-approx",
+                    "AMS 4928 bar min Fty 120 ksi (827 MPa) x MMPDS elevated-temperature ratio (approximated, +/-5 %)", unit="Pa"),
+        "Ftu": _tab([20, 100, 200, 300, 400, 500], [896e6, 810e6, 730e6, 670e6, 630e6, 590e6], "LITERATURE-approx",
+                    "AMS 4928 bar min Ftu 130 ksi (896 MPa) x MMPDS ratio (approximated)", unit="Pa"),
+        "Fsu_over_Ftu": _const(0.60, "LITERATURE-approx", "MMPDS Ti-6Al-4V Fsu/Ftu ~0.6"),
+        "emissivity": _const(0.4, "ASSUMED", "oxidised Ti 0.3-0.6", rng=(0.3, 0.6)),
+        "T_max_C": _const(400.0, "LITERATURE-approx", "Ti-6Al-4V usable to ~400 C (strength, oxidation/alpha case above ~500 C)"),
+        "process": "CNC lathe from bar (sharp carbide, flood coolant; anti-gall coating or nickel anti-seize on threads)",
+        "color": [0.55, 0.55, 0.60],
+    },
+    "MICA": {
+        "name": "High-temperature mica/vermiculite gasket sheet (phlogopite or exfoliated vermiculite, e.g. Thermiculite 866 / Klinger Milam PSS class)",
+        "rho": _const(2000.0, "ASSUMED", "1.8-2.3 g/cm3 by grade; supplier sheet required", rng=(1800, 2300), unit="kg/m3"),
+        "k": _tab([20, 500], [0.3, 0.4], "ASSUMED", "through-thickness 0.2-0.6 W/m/K (supplier value required); FEA uses the range", unit="W/m/K"),
+        "cp": _tab([20, 500], [850.0, 1050.0], "ASSUMED", "mica/silicate ~0.85-1.1 kJ/kg/K", unit="J/kg/K"),
+        "Sc": _tab([20], [100e6], "ASSUMED", "compressive/crush resistance of mica laminates > 100 MPa (supplier value required)", unit="Pa"),
+        "T_max_C": _const(700.0, "ASSUMED", "mica/vermiculite gaskets rated 700-1000 C (supplier value required)"),
+        "process": "cut from sheet", "color": [0.75, 0.70, 0.55],
+    },
+    "NDFEB": {"name": "NdFeB magnet N35 (diametral, Ni-plated)", "rho": _const(7500.0, "LITERATURE", "sintered NdFeB 7.4-7.6 g/cm3", unit="kg/m3"), "process": "COTS", "color": [0.55, 0.55, 0.60]},
+    "COTS-MIXED": {"name": "COTS assembly (mixed materials), mass from datasheet or assumed", "rho": _const(None, "ASSUMED", "mass given per item, not from volume"), "process": "COTS", "color": [0.25, 0.25, 0.30]},
+}
+
+
+def prop(mat: str, key: str, T_C: float | None = None) -> float:
+    """Property value; tables are interpolated linearly in T (clamped at the ends)."""
+    d = MATERIALS[mat][key]
+    if "T_C" in d:
+        if T_C is None:
+            T_C = 20.0
+        return float(np.interp(T_C, d["T_C"], d["v"]))
+    return d["v"]
+
+
+def rho(mat: str) -> float:
+    return MATERIALS[mat]["rho"]["v"]
+
+
+def color(mat: str):
+    return MATERIALS[mat].get("color", [0.5, 0.5, 0.5])
+
+
+def export_json(path: str | Path):
+    out = {"id": "ENG-MATERIALS", "version": "v1", "date": "2026-10-11", "owner": "mechanical",
+           "units": "SI; temperature tables in degC (T_C) with values in the stated unit",
+           "note": __doc__, "materials": MATERIALS}
+    Path(path).write_text(json.dumps(out, indent=1))
+
+
+if __name__ == "__main__":
+    import sys
+    p = Path(__file__).resolve().parents[1] / "materials" / "materials_v1.json"
+    export_json(p)
+    print("wrote", p)
+    for m in ["AL6061-T6", "SS304", "GRAPHITE-ISO"]:
+        print(m, "Fty(20,150,200 C) =", [round(prop(m, "Fty" if m != "GRAPHITE-ISO" else "St", t) / 1e6, 1) for t in (20, 150, 200)])

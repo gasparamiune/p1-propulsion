@@ -1,0 +1,19 @@
+A. Pc transducer range (TE M3200 ratiometric 0.5-4.5 V at 5 V; firmware sensor-fault window 0.25-4.75 V)
+  normal max (cap)        25.00 bar g   0-500 psig:  3.40 V ok         0-1000 psig: 1.950 V ok
+  firmware OVP            28.99 bar g   0-500 psig:  3.86 V ok         0-1000 psig: 2.182 V ok
+  pintle failure low      30.99 bar g   0-500 psig:  4.09 V ok         0-1000 psig: 2.298 V ok
+  pintle failure high     42.99 bar g   0-500 psig:  5.49 V SATURATES   0-1000 psig: 2.994 V ok
+  MEOP                    43.99 bar g   0-500 psig:  5.60 V SATURATES   0-1000 psig: 3.052 V ok
+  blocked nozzle 30 C     61.99 bar g   0-500 psig:  7.69 V SATURATES   0-1000 psig: 4.096 V ok
+  chamber proof           66.49 bar g   0-500 psig:  8.21 V SATURATES   0-1000 psig: 4.357 V ok
+  proof 2 x FS = 137.9 bar, burst 5 x FS = 345 bar (DATASHEET); the transducer can stay fitted for the 67.5 bar chamber proof.
+  4.75 V fault limit = 73.3 bar g; ADC input at 4.5 V = 1.082 V of 1.2 V FS.
+  Cost of the wider range: sensitivity halves (116.0 -> 58.0 mV/bar); 2 % of the deep-throttle Pc 4.36 bar = 5.06 mV.
+
+B. Hardware trip (values read from hardware/kicad_gen/ecu_design.py)
+  tap 100000/31600 (k 0.24012, Rth 24.0 k, tau 5.28 ms); reference 237000/29400 from +5V_SNS (k 0.11036, Rth 26.2 k, tau 2.62 ms)
+  V_ref 0.5518 V -> PC_SIG 2.2980 V -> trip 30.99 bar g = 32.01 bar abs at sea level
+  worst-case circuit band +/- 1.56 bar (Vio 9.0 mV, bias 10.5 mV, ratios 1.10 + 1.10 mV at 13.93 mV/bar) -> 30.45..33.56 bar abs
+  plus transducer TEB +/- 1.03 bar (common to both paths)
+
+C. Firmware 30.00 bar abs; hardware nominal 32.01 bar abs (+2.01 bar); hardware band low end 30.45 bar abs (>= firmware); hardware band high end 33.56 bar abs = 11.4 bar below MEOP 45 bar

@@ -1,0 +1,109 @@
+# ARGOS H1: Combustion and propulsion report (02-combustion)
+
+Version 2.4, 2026-10-13. Owner: Combustion and Propulsion. Interface: `interfaces/combustion.json` v2.4 (sha256/16 `@@IFACE_SHA@@`; v2.3 `d9ec54fbf450e243` is kept as `data/v2/combustion_interface_v2p3_as_published.json`). Status: revision in answer to the independent review `reviews/REVIEW-COMBUSTION.md` (02-combustion REVISE; 05-plume-cfd ACCEPT WITH COMMENTS) and to the REV-GNC-1 and Electronics SIL S11 items relayed by the lead. Digital only, *Por revisar*: the changed sections await re-review.
+
+Tag legend:
+- REQ: founder or lead requirement.
+- LEAD: lead decision.
+- LITERATURE: cited source; LITERATURE-UNVERIFIED or "as recalled" means quoted from memory and not re-checked (TO-VERIFY).
+- CEA: NASA CEA through RocketCEA.
+- SIM: our simulation.
+- DERIVED: calculation from tagged inputs.
+- ASSUMED: engineering assumption with a stated band.
+- FEA, DESIGN, ESTIMATE: Mechanical's tags, kept on Mechanical's numbers read here as data.
+- TO-QUOTE / TO-VERIFY: open procurement or verification items. Prices are TO-QUOTE to Sønderborg DK-6400; none is zero or "from".
+
+No number in this report is MEASURED. Agreement between models, matching hashes or a passing SIL are not physical approval.
+
+## 0. Checkpoint
+
+**Claim.**
+1. **The paper design point stands.** The independent review reproduced the thermochemistry, sizing, injector model, throat heat flux, floor separation and the grain at n 0.5 to within 0.1-1 % (review §3). No input to that core changed in v2.4. The engine: N2O/ABS hybrid, printed straight-port grain S230, servo-driven pintle behind the normally-closed MV-P, spark-ignited N2O/propane torch, conical graphite-throat nozzle with eps 2.0; 500 N at sea level needs Pc 25.01-25.63 bar over the eta_cf band 0.975-0.95, against the 25 bar cap (§4.3). The throttle floor closes in the models at the 20 % requirement (ENG-02) and at the 12.5 % stretch; 25 % is a flight fallback only (RC-13 a; v2.3 called it the requirement). Three or more starts per flight are built into the sequence, but an in-flight relight after a coast lights reliably only with the fix of Claim 3.
+2. **v2.4 revises what the review found unfit for the stated use** (the basis for N2O cold-flow, torch and static-fire tests):
+   - sequence, abort matrix and torch feed (RC-01): the v2.8 relight design adopted by the lead, torch-first gate 0.16 s, no N2O-only torch interval, abort matrix A1-A14 (§7.3-§7.5);
+   - hard start (RC-02): a three-node relief network bounds it. The credible peak is <= 44.9 bar with a sharp port entrance and <= 41.5 bar with the rounded entrance (r >= 4 mm, now required on every grain), below the 45 bar MEOP and independent of the inventory. Stand: aft DN32 disc, R1 = R2 = 0.35 s, 13.5 g at 24 C against a 13.84 g allowable (§7.6);
+   - relight latency (RC-03): published per line state. ENG-04 (<= 0.5 s to 90 %) is met at the median only on a liquid line; no relight after a coast starts on a liquid line (§7.7);
+   - relief, safing and stored energy (RC-04, RC-05, RC-12): S1 back-relief, 9.5 MPa disc, MAWP >= 8.42 MPa on the N2O side, tank relief 6.9 MPa (proposed), post-test and post-landing safing, stored-energy table (§2.7, §9, §10);
+   - throat life (RC-06): 0.38-0.60 A1 flights per insert on the literature-scaled method and the gnc.json v3 A1 p99 cycle; plan on one insert per flight (§5.4);
+   - web band (RC-07): on B1 85 m the corner a x1.5 with n 0.35 burns through at 17.0-17.8 s; the 62 m cap with the lead's gating rule covers it, and GNC has a web-against-time law for the burn limit (§4.6);
+   - minor items RC-08 to RC-20: corrected or answered (REVISION-RESPONSE).
+3. **A new finding governs the relight.** The 44 cm3 valve-to-seat segment is an inverted U. Every coast fills it with vapour: 26.5-44 cm3 ahead of the first liquid at RELIGHT across Mechanical's six heat cases. At the flight window W 0.65 s, 45-100 % of would-be relights abort. Combustion recommends **option (a), a crest bleed before E0**: P_abort 0 in every heat case at W 0.65 s, at a cost of up to 28.3 g of N2O vented per relight and a new valve. Option (d), early MV opening under the drogue, is refuted for this routing. Widening W was rejected by the lead. No prep-path fallback exists on the 26.6 g inventory basis (§2.8).
+4. **REV-GNC-1 items** answered here: RG-03 (oxidiser-rich low-a operation at 62 m: c*, Isp, throat oxidation, stability; §4.6, §5.4, §8), the burn-limit law (§4.6) and RG-20 (coast migration on GNC's time histories; §2.8).
+
+This is a design basis for cold-flow and static-fire testing. It is not a demonstrated engine. A higher-fidelity model is not proof of higher accuracy (AGENTS.md).
+
+**Configuration** (combustion.json v2.4):
+- Grain: S230 ABS, OD 53.5 mm, L 230 mm, centred straight 25 mm port. New: rounded port entrance r >= 4 mm on every grain, flight and stand (§7.6).
+- Case: 6061-T6 tube, 63.5 x 3.175 mm, liner per mechanical.json v2 (`4f024ed4ccb4618c`); pre-chamber liner TC-06 3.6 mm (D_pre 49.9 mm, LEAD).
+- Chambers: pre-chamber 30 mm, post-chamber 40 mm; free volume 300.9 cm3 with the convergent (RC-16).
+- Pintle: 5.5 mm seat, 15 deg needle, 4 mm stroke, 3 mm stem; rolling-guide carriage, spring 0.25 N m + 0.12 N m/rad; 17-4PH H900 needle; seat insert TC-03 Inconel 718 (LEAD 2026-10-13).
+- Feed (LEAD 2026-10-13): MV-P balanced poppet, Cv 3.6 (Mechanical ESTIMATE), in the FS-01 module at the top of the engine zone with S1 (back-relief check to the tank), MSS-2, P_feed and a 9.5 MPa secondary disc; fixed 3/8 in wall line; O3b coil hose. Valve-to-seat segment about 44 cm3 (ESTIMATE). N2O-side MAWP >= 8.42 MPa.
+- Proposed, pending the lead: crest bleed valve at the bonnet cross-drilling port (option (a)), orifice 1.56 mm open 0.375 s or 1.20 mm open 0.625 s.
+- Nozzle: conical, Dt 13.724 mm, eps 2.0, graphite insert.
+- Igniter and sequence: N2O/propane torch; Electronics firmware v2.8 sequence (fw v2.8.3 in the hub): MV and torch at E0, lift 0.2039 mm at E1 (torch gate 0.16 s), flight W 0.65 s from the lift command, stand R1 = R2 = 0.35 s, no in-flight retry.
+- Tank: 2.00 kg in 3.17 L, conditioned to 15-25 C; ignition interlock T_tank <= 24 C (P_tank <= 55.28 bar abs) at ARM and at ignition (LEAD).
+- Pressure basis: chamber MEOP 45 bar (44.33 bar at the interlock, margin 0.67 bar), proof 67.5 bar; Pc cap 25 bar; hardware over-pressure abort 31.47 bar g.
+- Duty cycles: gnc.json v3 (`3e97c378cfebee95`; A1 dispersed p99 and B1 85 m p99/max records, with and without throat growth), GNC staging v3.1 (B1 62 m records), gnc.json v2 B2.
+- Model assumptions: eta_c* 0.92 (band 0.85-0.96); eta_cf 0.975 (band 0.95-0.975, RC-09); Cd 0.70 (0.6-0.8); regression r = a G_ox^n re-anchored at r(300 kg/m2s) = 1 mm/s, a x0.6-1.5 (to x1.65 on the 62 m records) and n 0.35-0.68; non-equilibrium tank, E = 1000 (band 100-1000).
+- Software: Python 3 in /opt/engine-venv with rocketcea 1.2.3, cantera 3.2.0, CoolProp 8.0.0, numpy 2.5.4, scipy 1.18.1, numba 0.68.0, pandas. OpenFOAM v1912 for the plume (05-plume-cfd).
+
+**Sources** (full citations in the script docstrings):
+- The v2.3 sources: NASA CEA, Cantera GRI-3.0, NIST WebBook; ABS composition and heats of formation (FAA, Wilkey et al. 2026, Walker 2015); CoolProp 8 against ESDU 91022; Dyer et al. AIAA 2007-5702; Zilliac & Karabeyoglu AIAA 2005-3549 and 2006-4504; Zimmerman et al. AIAA 2013-4045; Karabeyoglu et al. JPP 2005; Boughaba & Hendrick EUCASS 2013; Bartz 1957; Huzel & Huang 1992; Rao 1958; Summerfield and Schmucker; Rotondi et al. JPP 2024; Thakre & Yang JPP 2008; Modest.
+- New in v2.4, all as recalled and TO-VERIFY: Taylor-bubble drift (Wallis 1969; White & Beardmore 1962), inclined-tube drift (Bendiksen 1984), annular drift (Das et al.), counter-current flooding (Wallis form); API 521 fire-case heat input; Kinney & Graham blast scaling; filter bubble point 4 sigma/d.
+- Reviews: `reviews/REVIEW-COMBUSTION.md` (`54ceaa46e9e17594`), `reviews/REVIEW-GNC.md` REV-GNC-1 (`33d44f5022ebf5c4`).
+- Requirements: `00-requirements/REQUIREMENTS.md` rev 2 with the 2026-10-13 amendments (`2ae6c5f9e43d004d`).
+- Interfaces read: gnc.json v3 (`3e97c378cfebee95`); mechanical.json v2 (`4f024ed4ccb4618c`); electronics.json v1 (`42fe12e15baa6e3e`); CHANGELOG to line 123 (`3325f430af6c3886`).
+- Other teams' files read as data (hashes inside each JSON):
+  - GNC staging v3.1: 62 m records and Monte Carlo tables, A1 coast acceleration series, drogue window (`3b3d789025c42b23`), REPORT-GNC-VAPOUR-COST (`5de51a7ce5f92b09`);
+  - Mechanical: segment heat budget and FE coast heat, inlet_e1m and hose routing (volumes and elevations), mv_actuator_v1 (`a2d8cdd3ef4ca6c0`), relief note, pre36 case temperatures;
+  - Electronics: fw v2.8.3 `engine_ecu.cpp` (`5e5771220a602301`), `config.h` (`0ee2a75b6c4441d5`), SIL `plant.cpp` (`f7da155379e65496`).
+
+**Files:**
+- Hub `/home/claude/work/shared-fallback/engine/02-combustion/`:
+  - `src/`: the v2.3 scripts plus the v2.4 scripts (`*_v2p4.py`, the interface writer and the report builder);
+  - `data/v2/v2p4/`: every v2.4 result JSON, with the superseded runs kept beside them (§13);
+  - `data/v2/dc_gncv3/`, `dc_gncv3_band/`, `dc_gncv31_62m/`: grain_q1d histories on the gnc.json v3 and v3.1 records;
+  - `data/v2/combustion_interface_v2p4_as_published.json`;
+  - `REPORT_v2p4.txt` (this report) and `REVISION-RESPONSE_v2p4.txt`.
+- Interface: `interfaces/combustion.json` v2.4 (every v2.3 key unchanged; v2.4 keys added), plus one append-only CHANGELOG line.
+- Working runs and logs: `/home/claude/work/combustion/`.
+- §14 indexes the files.
+
+**Tests / verification:**
+- The review's recomputation (§3 of the review) confirmed the core to 0.0-1 %; its inputs are unchanged, so it is not repeated.
+- Each v2.4 script records the sha256/16 of every file it reads. The interface writer asserts the v2.3 input hash and that every v2.3 key is unchanged; the published file was read back more than 10 s after writing.
+- Model cross-checks:
+  - the three-node hard-start network reproduces the single-volume model within 0.6 % with the port opened up;
+  - the segment heat totals reproduce Mechanical's 875 J and 5024 J;
+  - the prep-path script reproduces the post-abort E1 -> E2 distribution (assert) and gives identical results on fw v2.8.3 and v2.8.2 inputs;
+  - the burn-limit proxy is checked against 43 grain_q1d histories (largest web difference 0.34 mm; 0.11 mm with the lag state);
+  - the 62 m gating re-run of a reference case reproduces it exactly.
+- Disagreements kept as evidence: Combustion's plant does not reproduce the SIL's 0.17 s prep-path purge credit (§2.8); Table 7.2 uses a 0.637 s whole-segment purge where 0.685 s applies (§7.7, §13).
+- Not run: `npm test` and `npm run build`, because no application code was touched and the repository is read-only for this role. No physical test exists yet.
+
+**Unknowns** (full list in §11): regression law (a, n) and its axial form; two-phase Cd; eta_c* and eta_cf; ignition delay and the pooled-liquid reaction time; heat into the segment on the zone-top route; bubble transport in the U; purge time and bleed liquid arrival (CF-4); graphite erosion at O/F above stoichiometric; seat leak and break-out; roll torque.
+
+**Next closure:**
+1. Lead: adopt option (a) or not; the fallback if the bleed fails before E0; ENG-04 status with (a); the tank relief set point; OI-23 (a stand basis for a lit vapour start); ENG-06 text with the v3 life figures.
+2. Mechanical: bleed port and valve feasibility (radial fitting outside the 8 deg cone, oxygen-clean, MAWP >= 8.42 MPa) and a series valve; the heat cases on the final routing; the no-U routing study with a 12-16 mm exchange path.
+3. Electronics: bleed valve drive and position feedback, the PRE-BLEED step and A14; A3 arming in the first 0.5 s after E2.
+4. GNC: Monte Carlo re-run with 28.3 g per relight and the (a) latency states; the burn-limit law in sim6 and the FSW; the prep-path credit dispute.
+5. Founders: CF-1 to CF-4, B-PNT-1, B-MV-1, IGN-1 and T1-T4 (§10), which measure Cd, the purge and bleed times, the leak, the ignition delay, (a, n), eta_c*, eta_cf and the throat bore.
+6. An independent reviewer re-reviews the changed sections and records criteria and verdict in `public/engineering/supervision.json`.
+
+## Contents
+
+1. Thermochemistry
+2. N2O tank and feed (2.8: the valve-to-seat segment at relight)
+3. Throttle and shutoff architecture (3.6: MEOP basis; 3.7: throat block, runaway and tail-off)
+4. Grain and internal ballistics (4.6: regression band, burn limit and oxidiser-rich operation)
+5. Nozzle and throat erosion
+6. Heat loads
+7. Ignition, restart, start-up and shutdown (7.4: abort matrix; 7.6: hard start; 7.7: relight latency)
+8. Combustion stability
+9. N2O hazard list and stored energy
+10. Cold-flow and static-fire test plan, cleaning and safing
+11. Unknowns
+12. Remaining mismatches and open items, with owners
+13. Failures and superseded evidence
+14. File index and reproduction

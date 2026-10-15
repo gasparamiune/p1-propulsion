@@ -1,0 +1,128 @@
+@@REPLACE_41@@
+### 4.1 Regression law (v2.4; RC-07)
+
+No verified N2O/ABS (or N2O/PETG) regression law was found in the literature accessed. Design law: r = a G_ox^n, with:
+- a ASSUMED, anchored at about 1 mm/s at 300 kg/m2s for HTPB/N2O (Boughaba & Hendrick, EUCASS 2013, citing literature);
+- n = 0.5 ASSUMED, band 0.35-0.68, covering GOX polymer laws with n 0.50-0.68 (Zilliac & Karabeyoglu, AIAA 2006-4504) and the low end the review ran.
+
+**v2.4: the whole band is run.** Every law is re-anchored at r(300 kg/m2s) = band x 1 mm/s, so a and n vary about the anchor, as in the review. The band is a x0.6 / 1.0 / 1.5 against n 0.35 / 0.5 / 0.68 on every flight cycle, and a x1.1-1.65 on the B1 62 m records for the gating rule. Results: §4.4 (A1, B2) and §4.6 (B1 85 m and 62 m).
+- Baseline form: oxidiser-flux law with the local G_ox(x) of the quasi-1D model. The total-flux form (G = G_ox + G_fuel, regressing faster aft) runs as a sensitivity on B1 (§4.6). Which form holds is a T1-T4 measurement: the port bore at several stations.
+- The solid thermal lag (first order, kappa/r^2) and the 30 % preheat at each start are as in v2.3.
+
+Static fires T1-T2 measure (a, n) by mass loss and port bore at several fluxes. PETG has no law at all and needs its own tests.
+@@END@@
+
+@@APPEND_43@@
+**v2.4: free volume and nozzle efficiency** (RC-16, RC-09).
+- **Free volume.** v2.3 quoted 284.6 cm3 (L* 1.92 m) without the convergent. With the 28.26 cm3 convergent of the published contour the initial free volume is 300.9 cm3 and L* is 2.03 m, as the reviewer found. v2.4 uses 300.9 cm3 in the hard-start and chamber-gas calculations (§7.6, §9). The chamber fill time constant scales to about 3.6 ms (DERIVED). No conclusion changes.
+- **eta_cf band.** 0.975 stays the nominal and 0.95 is the low end, from the CFD: own solver with slip walls 0.9755, OpenFOAM slip 0.962, OpenFOAM no-slip SST 0.9525 (review RC-09). `rc09_etacf_band_v2p4.json` (DERIVED, Cf_vac backed out of the design point):
+
+| eta_cf | 0.975 | 0.970 | 0.965 | 0.960 | 0.955 | 0.950 |
+|---|---|---|---|---|---|---|
+| Pc for 500 N at sea level [bar] | 25.01 | 25.13 | 25.25 | 25.38 | 25.50 | 25.63 |
+| Thrust at the 25 bar cap [N] | 499.8 | 497.2 | 494.7 | 492.1 | 489.5 | 487.0 |
+
+- The reviewer's 25.27 / 25.40 / 25.67 bar at 0.965 / 0.960 / 0.950 agree within 0.04 bar.
+- ENG-01 has no margin at the cap even at the nominal. If T1 measures eta_cf at the low end, the lead chooses between a cap of about 25.7 bar (still far below the 45 bar MEOP and the 31.47 bar g abort) and 487 N at 25 bar (open item, §12). The maps keep 0.975; combustion.json v2.4 publishes the band.
+@@END@@
+
+@@APPEND_44@@
+**v2.4: gnc.json v3 cycles.** Table 4.5. S230 on the gnc.json v3 sizing records at a x1.0, n 0.5 (SIM, `data/v2/dc_gncv3/summary_v2p4.json`; non-equilibrium tank E 1000, 2.00 kg / 3.17 L as in GNC's record index; "growth" = GNC's throat-growth reproduction, sim6 v2.7 Pc hold, At +7.2 % by the end of B1).
+
+| Record | Burn [s] | N2O [kg] | Fuel [kg] | O/F mean | Web end [mm] | Liquid left [kg] | Min ceiling [N] | Min dP/Pc |
+|---|---|---|---|---|---|---|---|---|
+| A1 dispersed p99 | 8.26 | 1.430 | 0.158 | 9.05 | 7.39 | 0.250 | 557 | 0.60 |
+| A1 p99, growth | 8.14 | 1.432 | 0.156 | 9.19 | 7.47 | 0.214 | 626 | 0.70 |
+| B1 85 m p99 | 21.78 | 1.497 | 0.269 | 5.57 | 3.76 | 0.226 | 491 | 0.61 |
+| B1 85 m p99, growth | 21.66 | 1.663 | 0.282 | 5.89 | 3.37 | 0.047 | 507 | 0.44 |
+| B1 85 m max | 23.63 | 1.520 | 0.284 | 5.36 | 3.33 | 0.170 | 527 | 0.71 |
+| B1 85 m max, growth | 23.46 | 1.524 | 0.283 | 5.39 | 3.34 | 0.167 | 565 | 0.77 |
+
+- No record is ceiling-limited (0.00 s). The minimum dP/Pc stays >= 0.44, above the 0.25 rule.
+- B1 85 m p99 with growth ends with 0.047 kg of liquid. The 85 m records are thermal and erosion sizing cases, not flight cases (62 m cap, LEAD), but GNC should know the margin (§12).
+- Residual web: the ENG-06 rule is now >= 1 mm over the whole envelope a x0.6-1.5, n 0.35-0.68. A1 and B2 meet it everywhere (Table 4.6); B1 at 85 m does not (§4.6).
+- The A1 cases at a x0.6 have cumulative O/F 15.8-16.3, beyond the O/F 14 clamp of the c* table; their O/F and Isp are approximate, as in v2.3.
+@@END@@
+
+@@INSERT_46@@
+### 4.6 Regression band, the B1 burn limit and oxidiser-rich operation (v2.4; RC-07, REV-GNC-1 RG-03)
+
+Basis (SIM, grain_q1d v2.4 driven by the GNC records):
+- `dc_gncv3_band/summary_v2p4.json`: gnc.json v3 records, a x0.6 / 1.0 / 1.5 against n 0.35 / 0.5 / 0.68;
+- `dc_gncv31_62m/lane*/summary_v2p4.json`: GNC staging v3.1 B1 62 m records (p99 and max, with and without growth), a x0.6-1.65;
+- `b1_web_fix_v2p4.json` (smaller ports), `b1_axial_law_v2p4.json` (total-flux law), `b1_62m_gating_v2p4.json`, `burn_limit_proxy_v2p4.json`, `oxrich_62m_v2p4.json`.
+
+Table 4.6. Minimum residual web at the end of the cycle [mm] against the regression band; "BT t" = local burn-through at t seconds (SIM).
+
+| Cycle (record, burn) | a x0.6: n 0.35 / 0.5 / 0.68 | a x1.0: n 0.35 / 0.5 / 0.68 | a x1.5: n 0.35 / 0.5 / 0.68 |
+|---|---|---|---|
+| A1 dispersed p99 (8.26 s) | 9.64 / 9.66 / 9.67 | 7.12 / 7.39 / 7.62 | 4.35 / 5.02 / 5.61 |
+| A1 p99, growth (8.14 s) | 9.71 / 9.73 / 9.73 | 7.20 / 7.46 / 7.69 | 4.46 / 5.10 / 5.68 |
+| B1 85 m p99 (21.78 s) | 5.85 / 6.86 / 7.72 | 1.79 / 3.76 / 5.29 | BT 17.65 / 0.25 / 2.77 |
+| B1 85 m p99, growth (21.66 s) | 5.63 / 6.62 / 7.48 | 1.48 / 3.36 / 4.85 | BT 17.02 / BT 21.23 / 2.24 |
+| B1 85 m max (23.63 s) | 5.41 / 6.55 / 7.54 | 1.14 / 3.32 / 5.02 | BT 17.76 / BT 22.92 / 2.41 |
+| B1 85 m max, growth (23.46 s) | not run | 1.18 / 3.34 / not run | BT 17.73 / BT 22.82 / not run |
+| B2 (gnc v2, 14.49 s) | 8.29 / 8.89 / 9.41 | 5.30 / 6.55 / 7.55 | 1.89 / 3.86 / 5.55 |
+
+- **The review is confirmed.** It found B1 v2 at n 0.35, a x1.5 burning through at 17.4 s; on the v3 85 m records the same corner burns through at 17.0-17.8 s. n 0.68 is benign everywhere (>= 2.2 mm).
+- **Web rule.** ENG-06 (>= 1 mm over the envelope) holds on A1 and B2. On B1 85 m it fails at a x1.5 for n <= 0.5 and is close at a x1.0, n 0.35 (1.14-1.79 mm).
+- **Liner margin.** The rule keeps >= 1 mm of ABS, 3-10 times the ABS thermal layer (kappa/r 0.1-0.3 mm). No credit is taken for the 1.6 mm phenolic liner, whose recession under direct flame is unknown (T1-T4 post-test inspection).
+- **A smaller port does not restore B1 85 m** (`b1_web_fix_v2p4.json`, a x1.5, n 0.35): burn-through moves from 17.02 s (25 mm) to 18.31 s (22 mm) and 18.92 s (20 mm) on the p99 record with growth, and to 19.12 / 19.94 s on the max record, against 21.66 s and 23.63 s of burn. A smaller port also raises the head-end flux. It is not proposed.
+- **Total-flux law** (`b1_axial_law_v2p4.json`, B1 85 m p99 with growth): a x1.0, n 0.5 leaves 2.71 mm (oxidiser-flux law 3.36 mm); a x1.0, n 0.35 leaves 0.73 mm (1.48 mm); a x1.5, n 0.35 burns through at 15.24 s (17.02 s), first at the aft end (x/L 0.99).
+
+**B1 62 m** (LEAD: hop cap 62 m, provisional until the T1-T4 regression law). Table 4.7. Minimum residual web at the end of the 62 m records [mm] (SIM; "BT t" = burn-through at t s).
+
+| Record (burn) | a x1.0 n 0.35 | x1.0 n 0.5 | x1.1 n 0.35 | x1.25 n 0.35 | x1.375 n 0.35 | x1.5 n 0.35 | x1.5 n 0.5 | x1.65 n 0.5 |
+|---|---|---|---|---|---|---|---|---|
+| p99 (18.63 s) | 3.29 | 4.96 | 2.42 | 1.16 | 0.16 | BT 17.45 | 1.79 | 0.90 |
+| p99, growth (18.28 s) | 3.10 | not run | 2.22 | 0.94 | BT 18.15 | BT 16.77 | 1.44 | 0.53 |
+| max (20.65 s) | 2.44 | 4.33 | 1.51 | 0.16 | BT 19.17 | BT 17.79 | 0.96 | 0.02 |
+| max, growth (20.15 s) | 2.65 | not run | 1.74 | 0.41 | BT 19.11 | BT 17.64 | 1.17 | 0.24 |
+
+At low a the 62 m records keep 5.7-8.5 mm (a x0.6, n 0.35-0.68: 6.31-8.46 mm; a x0.8, n 0.5: 5.74-6.30 mm).
+
+**"85 m covers 62 m" is withdrawn for fuel, web and O/F** (REV-GNC-1 RG-03, accepted). GNC's 85 m sizing populations carry no regression band. At equal (a, n) the 62 m records burn through about as early as the 85 m records (a x1.5, n 0.35: 16.8-17.8 s against 17.0-17.8 s), so the 85 m cycles cannot stand in for the 62 m web. They still cover engine-on time, N2O burned and the throat-growth integral J.
+
+**The lead's gating rule** (LEAD 2026-10-13): B1 flies only after the T1-T4 regression law; burn limit at t(w_min = 1 mm) computed with 1.1 x the measured a; grain change if a >= 1.25 x nominal with n <= 0.4. Check against the 62 m records (`b1_62m_gating_v2p4.json`; the limit is computed with a x1.1 the "true" law, then applied to the true-law history; MC fractions from GNC's 500-run tables, thrust-on p50 / p99 / max 15.86 / 18.41 / 20.65 s without growth and 15.84 / 18.21 / 20.15 s with the Pc hold):
+
+| Measured law | Limit case | t_L [s] | N2O used at t_L [kg] | Web at t_L, true law [mm] | MC fraction burning past t_L |
+|---|---|---|---|---|---|
+| a x1.0, n 0.35 | x1.1 | never reached (web at the end 1.51-2.42 mm) | – | – | 0 |
+| a just below x1.25, n 0.35 | x1.375 | 16.64-17.67 | 1.09-1.23 | 1.94-1.95 | 0.02-0.15 |
+| a x1.5, n 0.5 | x1.65 | 17.48-18.81 | 1.19-1.29 | 1.89 | 0.004-0.034 |
+| a x1.5, n 0.35 (corner) | grain-change branch: this grain does not fly | burns through at 16.77-17.79 s | – | – | (0.02-0.12 would burn past it) |
+
+- Within the oxidiser-flux law the rule holds: wherever the limit binds, the true-law web at t_L is 1.9 mm, and the corner that burns through is excluded by the grain-change branch.
+- **The 1.1 factor does not cover an error in the law's form.** If the true law were the total-flux form while a and the limit use the oxidiser-flux form, the web at the oxidiser-law t_L would be zero (p99 and max records with growth). Under the total-flux law, t_L itself falls at 15.30-15.87 s, and 48-81 % of the MC runs burn past it. The burn-limit law below therefore requires a to be taken at the station of largest local regression; that reading needs the T1-T4 bore at several stations.
+
+**Burn-limit law for GNC** (REV-GNC-1 item 2; `burn_limit_proxy_v2p4.json`; DERIVED proxy of grain_q1d v2.4, ASSUMED until T1-T4):
+- State: port diameter D, uniform along the grain; D(0) = 25.0 mm; web w = (53.5 mm - D)/2.
+- Rate: dD/dt = 2 k_a x 1.0e-3 m/s x (G_ox / 300 kg/m2s)^n, with G_ox = 4 mdot_ox / (pi D^2); no regression while mdot_ox = 0 (coasts).
+- k_a = 1.1 x a_meas / a_ref (lead rule), a_meas re-anchored at r(300 kg/m2s) and taken at the station of largest local regression; n = n_meas, evaluated at both ends of its T1-T4 confidence band, keeping the earlier t_L.
+- Limit: t_L = first time with w <= 1.0 mm. The FSW action at t_L is GNC's and the lead's to define (REV-GNC-1).
+- Optional second state for higher fidelity: r_eff with a first-order lag to the quasi-steady rate, tau = 1.2e-7 / max(r_eff, r_qs)^2 s clipped to 0.02-2 s, r_eff = 0.3 r_qs at the first flow and decaying in 0.05 s when the flow stops (this reproduces grain_q1d).
+- Verification on 43 grain_q1d histories of the 62 m records (oxidiser-flux law):
+  - with k_a = 1.0 the proxy reaches w = 1 mm 0.043-0.267 s later than the model's minimum web; a factor of 1.004-1.016 on a closes that gap, inside the rule's 1.1;
+  - largest web difference 0.34 mm, the proxy's web being the larger; with the lag state 0.11 mm and 0.029-0.062 s;
+  - to match the total-flux histories the oxidiser-flux proxy needs 1.10-1.15 on a: the measurement allowance would be consumed by a law-form error, hence the station rule above.
+
+**Oxidiser-rich operation at low a** (REV-GNC-1 RG-03; `oxrich_62m_v2p4.json`). GNC's 62 m band population reaches a mean O/F of 11.6 (p50 8.0 in the a 0.6-0.9 tercile) against <= 6.6 in its 85 m sizing populations.
+
+Table 4.8. Oxidiser-rich 62 m histories (SIM; O/F time-weighted over the burn; stoichiometric O/F 8.17).
+
+| Record and law | Cumulative O/F | Instantaneous O/F, median | Time at O/F >= 8.17 [s] | N2O used [kg] | Liquid left [kg] | Web end [mm] |
+|---|---|---|---|---|---|---|
+| 62 m p99 / max, a x1.0 n 0.5 (reference) | 5.54 / 5.40 | 4.96 | 1.0-1.2 | 1.28 / 1.35 | 0.40 / 0.34 | 4.96 / 4.33 |
+| a x0.8, n 0.5 | 6.84-7.02 | 6.30 | 1.0-1.2 | 1.33-1.41 | 0.29-0.34 | 5.74-6.30 |
+| a x0.6, n 0.35 | 7.59-7.89 | 6.83-6.92 | 1.0-1.2 | 1.36-1.43 | 0.26-0.32 | 6.31-6.90 |
+| a x0.6, n 0.5 | 9.28-9.51 | 8.62 | 16.4-18.4 | 1.41-1.49 | 0.20-0.26 | 7.28-7.74 |
+| a x0.6, n 0.68 (with and without growth) | 11.26-11.94 | 10.96-11.34 | 17.7-19.9 | 1.46-1.62 | 0.087-0.20 | 8.10-8.46 |
+
+- At a x0.6 with n >= 0.5 the engine runs above stoichiometric for 16-20 s of an 18-21 s burn.
+- **Performance** (CEA, card ABS_TYP_v1, Pc 5-25 bar; the c* and Isp optimum lies at O/F 5-6): c* falls by 2.1-2.5 % at O/F 8, 6.0-6.1 % at O/F 11.6 and 8.0-8.2 % at O/F 14; sea-level Isp at eps 2 by 1.9-2.1 %, 5.8-5.9 % and 7.9-8.2 %. Tc falls only to 2990-3210 K at O/F 11.6-14 (3160-3380 K at the optimum).
+- **Oxidising species in the chamber** (equilibrium mole fractions, Pc 5-25 bar): O2 3.6-4.1 % at O/F 8, 8.8-9.3 % at 11.6, 11.8-12.1 % at 14, against 0.1-1.2 % at O/F 5-6; O 1.3-2.0 % and OH 2.6-3.3 % above O/F 8. These drive the throat (§5.4) and wall (§6) oxidation.
+- **Consequences:**
+  - for GNC: at a given Pc the thrust per kilogram of N2O falls with the Isp deficit, about 6 % at O/F 11.6, so these runs use 0.05-0.23 kg more N2O than the a x1.0 runs on the same record, and the lowest liquid left is 0.087 kg (a x0.6, n 0.68, p99 with growth). The throat-growth integral J does not see O/F, but the erosion does (§5.4): GNC's growth law under-states At growth in the low-a tercile;
+  - for the grain: no web concern (7.3-8.5 mm left);
+  - stability: §8.
+@@END@@

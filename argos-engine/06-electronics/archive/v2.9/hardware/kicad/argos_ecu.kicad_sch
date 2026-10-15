@@ -1,0 +1,265 @@
+(kicad_sch
+  (version 20230121)
+  (generator eeschema)
+  (uuid 094b993c-57dc-5a62-9ff7-8811b1b454a0)
+  (paper "A3")
+  (title_block
+    (title "ARGOS engine ECU v2.4 - root")
+    (date "2026-10-13")
+    (rev "v2.4")
+    (company "ARGOS H1 engine - 06-electronics")
+    (comment 1 "Root: overview and sheet index")
+    (comment 2 "KiCad used: 7.0.11 (Ubuntu 24.04 package 7.0.11+dfsg-1build4)")
+    (comment 3 "Status: design schematic, not hardware-validated")
+  )
+  (lib_symbols)
+  (text "ARGOS H1 engine ECU v2.4 (Teensy 4.1, separate from the flight computer, CAN 1 Mbit/s)"
+    (at 20.32 25.4 0)
+    (effects (font (size 1.8 1.8) bold) (justify left bottom))
+    (uuid 6d5b08df-6dd9-5b96-ab30-71ae2c2f7f1d)
+  )
+  (text "Eight hierarchical sheets (v2.3 adds Pintle_Rail and Sensors_B); nets connect by global labels and power symbols."
+    (at 20.32 30.48 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid e4a8db7f-c66e-50a9-be21-a54e25fc7593)
+  )
+  (text "Generated 2026-10-13 by hardware/kicad_gen/make_ecu_kicad.py from hardware/kicad_gen/ecu_design.py, then editable by hand."
+    (at 20.32 34.29 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid aff35215-3486-5770-8629-f3f0c04d5199)
+  )
+  (text "KiCad used: 7.0.11 (Ubuntu 24.04 package 7.0.11+dfsg-1build4). Files use the KiCad 7 format and open in KiCad 7, 8 and 9 (8/9 upgrade on save)."
+    (at 20.32 38.1 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid 15d33b5f-d004-5e23-81a6-14091d6e8918)
+  )
+  (text "ERC: KiCad 7 eeschema ERC run headless (kicad-cli 7 has no sch erc); report: erc/argos_ecu_erc.rpt."
+    (at 20.32 41.91 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid b5027f7d-1b9c-583b-9898-5f1e1dfb44ce)
+  )
+  (text "All symbols live in the project library argos_ecu.kicad_sym (flattened copies of KiCad 7.0.11 stock symbols + custom)."
+    (at 20.32 45.72 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid 965382d4-ab32-5c4c-927d-fa9c7d8175a0)
+  )
+  (text "Status: design schematic only. Not built, no PCB layout routed, no bench test. ERC clean is not hardware validation."
+    (at 20.32 49.53 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid 70101459-d5d7-5922-a877-030a30f6e308)
+  )
+  (text "Safety chain: arming plug (physical) -> fused ARM bus switch = ARM_REQ AND watchdog OK AND OVP_OK -> ARM-only 5 V gate rail."
+    (at 20.32 53.34 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid 464be842-3f45-5fdc-bcd9-7833a0796dac)
+  )
+  (text "OVP_OK: LMV331 comparator on PC_SIG (31.47 bar g on the 070BG, ratiometric) clears a 74LVC1G175 latch; only an ARM_REQ rising edge sets it."
+    (at 20.32 57.15 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid aa424d3c-5a65-5c94-adc1-9edfdc001aad)
+  )
+  (text "v2.3: MV holding magnet gate = MV latch command AND PRAIL_OK (LTC4365 OV disconnect of the pintle rail, U306)."
+    (at 20.32 60.96 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid 53804124-d578-5a6e-a1ce-62bffff36053)
+  )
+  (text "v2.3: GSE heater interlock J616 closes only with the firmware permit AND no arming plug AND ARM bus off AND watchdog OK."
+    (at 20.32 64.77 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid f204821f-b73a-5fa4-a880-4394df061955)
+  )
+  (text "Placeholder footprints (not for fabrication): Teensy socket outline (check), Pololu wire pads, TPS552882 RPM0026A pads."
+    (at 20.32 68.58 0)
+    (effects (font (size 1.4 1.4)) (justify left bottom))
+    (uuid 3977989e-f73b-501f-9fdc-e64b26c002bd)
+  )
+  (sheet
+    (at 20.32 88.9)
+    (size 63.5 30.48)
+    (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0))
+    (uuid 1319776a-0d34-5a63-a6cf-5fddccb29645)
+    (property "Sheetname" "Power"
+      (at 20.32 88.2 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "power.kicad_sch"
+      (at 20.32 119.98 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "argos_ecu"
+        (path "/094b993c-57dc-5a62-9ff7-8811b1b454a0"
+          (page "2")
+        )
+      )
+    )
+  )
+  (sheet
+    (at 96.52 88.9)
+    (size 63.5 30.48)
+    (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0))
+    (uuid 9bb90956-eb46-5d33-9f1a-eabee574c071)
+    (property "Sheetname" "MCU_CAN"
+      (at 96.52 88.2 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "mcu_can.kicad_sch"
+      (at 96.52 119.98 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "argos_ecu"
+        (path "/094b993c-57dc-5a62-9ff7-8811b1b454a0"
+          (page "3")
+        )
+      )
+    )
+  )
+  (sheet
+    (at 172.72 88.9)
+    (size 63.5 30.48)
+    (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0))
+    (uuid 06c0f61d-fe21-5f77-9bf1-1982e306a4a0)
+    (property "Sheetname" "Safety_Arming"
+      (at 172.72 88.2 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "safety_arming.kicad_sch"
+      (at 172.72 119.98 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "argos_ecu"
+        (path "/094b993c-57dc-5a62-9ff7-8811b1b454a0"
+          (page "4")
+        )
+      )
+    )
+  )
+  (sheet
+    (at 20.32 134.62)
+    (size 63.5 30.48)
+    (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0))
+    (uuid 0af13ee0-b989-5707-9695-ae3ac0ca75b7)
+    (property "Sheetname" "Actuators"
+      (at 20.32 133.92 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "actuators.kicad_sch"
+      (at 20.32 165.7 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "argos_ecu"
+        (path "/094b993c-57dc-5a62-9ff7-8811b1b454a0"
+          (page "5")
+        )
+      )
+    )
+  )
+  (sheet
+    (at 96.52 134.62)
+    (size 63.5 30.48)
+    (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0))
+    (uuid de1e2af5-ca14-56e3-b277-3ce382661bce)
+    (property "Sheetname" "Igniter_Valves"
+      (at 96.52 133.92 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "igniter_valves.kicad_sch"
+      (at 96.52 165.7 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "argos_ecu"
+        (path "/094b993c-57dc-5a62-9ff7-8811b1b454a0"
+          (page "6")
+        )
+      )
+    )
+  )
+  (sheet
+    (at 172.72 134.62)
+    (size 63.5 30.48)
+    (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0))
+    (uuid 7c58486c-fa0d-5c34-8f25-d4d29d642623)
+    (property "Sheetname" "Sensors"
+      (at 172.72 133.92 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "sensors.kicad_sch"
+      (at 172.72 165.7 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "argos_ecu"
+        (path "/094b993c-57dc-5a62-9ff7-8811b1b454a0"
+          (page "7")
+        )
+      )
+    )
+  )
+  (sheet
+    (at 20.32 180.34)
+    (size 63.5 30.48)
+    (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0))
+    (uuid d90e083d-76c1-57fa-8825-c36841a7e837)
+    (property "Sheetname" "Pintle_Rail"
+      (at 20.32 179.64 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "pintle_rail.kicad_sch"
+      (at 20.32 211.42 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "argos_ecu"
+        (path "/094b993c-57dc-5a62-9ff7-8811b1b454a0"
+          (page "8")
+        )
+      )
+    )
+  )
+  (sheet
+    (at 96.52 180.34)
+    (size 63.5 30.48)
+    (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0))
+    (uuid cd41af85-fbbd-5b3b-9ace-dc7e0dd1ce94)
+    (property "Sheetname" "Sensors_B"
+      (at 96.52 179.64 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "sensors_b.kicad_sch"
+      (at 96.52 211.42 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "argos_ecu"
+        (path "/094b993c-57dc-5a62-9ff7-8811b1b454a0"
+          (page "9")
+        )
+      )
+    )
+  )
+  (sheet_instances
+    (path "/"
+      (page "1")
+    )
+  )
+)

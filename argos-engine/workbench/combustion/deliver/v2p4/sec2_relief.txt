@@ -1,0 +1,76 @@
+### 2.7 Trapped volumes, relief and segment heating (v2.4; RC-04, RC-12, O3b reply)
+
+Basis: `safing_relief_v2p4.json` (script `safing_relief_v2p4.py`, CoolProp 8 equilibrium unless stated).
+
+**Trapped volumes** (lockable N2O volumes on the vehicle):
+
+| Volume | Size | Liquid at 15 / 20 / 25 C | Trapped when | Source |
+|---|---|---|---|---|
+| NC valve to pintle seat, valve at the coil end (adopted, LEAD) | 21.42 cm3: hose 12.35, riser 3.30, block 0.25, fittings 1.00, manifold 4.51 | 17.6 / 16.8 / 15.9 g | Every coast and after every burn (valve closed, pintle seated) | SIM `low_inlet_check_v2p3` (CAD v3.3 stations); Mechanical re-measures on CAD v3.4 with E1 |
+| Same, valve at the zone top (rejected layout) | 32.96 cm3 | 27.1 / 25.9 / 24.5 g | As above | Same |
+| Torch N2O line, tank-side tap to SOL1 (§7.5) | 1.21 cm3 (ASSUMED 1/8 in line, 1.6 mm bore, 0.6 m) | 0.95 g at 20 C | Only if SOL0 closes on liquid; R-T4 gives it a backward relief path | ASSUMED routing (Mechanical TBD) |
+| Flight tank | 3.17 L, 2.00 kg | Liquid volume fraction 72 / 75 / 80 % (87 % at 30 C) | Always (closed vessel) | DERIVED; LEAD 2.00 kg / 3.17 L |
+| Ground panel lines and the catch volume (CF-3) | Stand-specific | – | Any closed pair of valves | Ground panel design (founders); every lockable volume gets a relief (§10.1) |
+
+**Liquid-full segment against warming** (isochore from saturated liquid):
+
+| Start temperature | dP/dT [MPa/K] | Warming to 7.0 MPa [K] | Warming to 7.5 MPa [K] | P after +10 K [MPa] | P after +30 K [MPa] |
+|---|---|---|---|---|---|
+| 286.7 K (A1 relight state) | 0.551 | 5 | 6 | 9.90 | 21.1 |
+| 293.15 K | 0.471 | 5 | 6 | 9.80 | 19.5 |
+| 298.15 K | 0.405 | 4 | 5 | 9.75 | 18.1 |
+
+The relief therefore operates within a few kelvin of warming, which confirms the review's 4.5-5.5 K. It must be a working device, not an emergency one.
+
+**Heat into the segment** (DERIVED from ASSUMED inputs):
+
+| Source | Model | Heat input |
+|---|---|---|
+| O3b hose coil, 3-15 mm from the case | Radiation (case eps 0.8, braid 0.35, ASSUMED) plus still-air conduction across the gap (no convection credit); hose wall resistance neglected | Case 86-250 C, the head-model range at the A1 relight (`headend_thermal_v2`): 1.6-21.1 W. At the lead's 136-178 C routing condition: 3.3-12.5 W |
+| Injector manifold and block | hA 1 W/K (ASSUMED, headend_thermal_v2 coast model) x (T_head - 286.7 K) | Head at 312-478 K at the A1 relight: 25-191 W |
+| Post-landing soak | Head peak 347-644 K (A1 gnc v2) | Up to about 350 W |
+
+**Segment state at the A1 relight**, with the valve closed at MECO and segment vapour vented to the tank through S1. Coast 19.1 s (dispersed p99 v3) to 22.2 s (A1 v2):
+
+| Heat input | Vapour generated [g] | Vapour volume fraction | Time to boil off the 17.8 g segment |
+|---|---|---|---|
+| 10 W | 0.86-1.03 | 5-6 % | 347 s |
+| 30 W | 2.84-3.32 | 16-19 % | 116 s |
+| 70 W | 6.79-7.91 | 38-44 % | 50 s |
+| 200 W | 17.8 (all) | 100 % | 17 s |
+
+The hot manifold boils first, so the vapour sits at the injector end. That is the vapour-first relight that W 0.85 s covers (§7.3). The segment state at relight is therefore unknown within 5-100 % vapour until T4 measures the manifold and head temperatures.
+
+**Relief specification** (RC-04 fix option "differential relief back to the tank side"; ADOPTED in v2.4, subject to the lead):
+
+| Item | Value | Basis |
+|---|---|---|
+| S1: segment relief | Differential check valve around the NC valve, flowing from the segment to the tank side | – |
+| S1 cracking pressure | 0.3-0.7 bar (ASSUMED class) | – |
+| S1 capacity | Cv >= 0.035 needed for a 380 W boil-off at 0.5 bar (DERIVED); any 1/8-1/4 in soft-seat check valve (Cv >= 0.1) passes it | – |
+| S1 materials | Oxygen-clean, N2O-compatible seat (PTFE or PCTFE), rated >= 7.0 MPa, -40 to +80 C (TO-VERIFY per part) | – |
+| S1 effect | The segment is held at <= P_tank + 0.07 MPa. Nothing is discharged overboard, and nothing is released near hot parts | Removes the "destination undefined" finding (C5) |
+| Tank relief set pressure | 6.9 MPa, so the segment (tank + S1 cracking <= 0.07 MPa) stays <= the 7.0 MPa N2O-side MEOP | RC-12 option "relief at or below MEOP" |
+| Tank relief reseat | Above 5.66 MPa (the 25 C arm pressure) | TO-VERIFY with the part |
+| Tank relief capacity, flight tank 3.17 L, 2.00 kg | Fire, relieving at 8.35 MPa (set x 1.21): 2.87 mm2 (adequate drainage) to 4.71 mm2 (no drainage), d_eq 1.9-2.4 mm. Heater runaway 100 W, relieving at 7.59 MPa: 0.036 mm2 | DERIVED. Fire heat by API 521 (as recalled, TO-VERIFY) Q = C1 F A^0.82 with C1 43.2 / 70.9 kW, F 1, A = whole outer surface. Relieving state scanned along the isobar (supercritical above 7.245 MPa). HEM isentropic flux, Kd 0.85 (ASSUMED) |
+| Tank relief capacity, ground tank 15 L, 10.4 kg (ASSUMED 140 mm x 0.974 m) | Fire: 6.9-11.3 mm2, d_eq 3.0-3.8 mm | Same method. A commercial cylinder carries its own relief device under its standard (TO-VERIFY on the purchased cylinder) |
+| Discharge | Tank relief and remote vent discharge through a line routed away from the nozzle, the case and people. Mechanical routes it. Never through the engine | H1, H8 |
+
+**MEOP and the relief (RC-12, for the lead).**
+- The set point is now <= MEOP: 6.9 against 7.0 MPa.
+- During relief, the parts can still see the relieving pressure: 7.59 MPa in the heater case (10 % accumulation) and 8.35 MPa in a fire (21 %).
+- A part sized to SF 1.5 on yield at 7.0 MPa keeps SF 1.38 at 7.59 MPa and 1.26 at 8.35 MPa.
+- Proposal: check the N2O-side parts (tank, NC valve, S1, hose, riser, block, manifold) for no yield at 8.35 MPa and SF >= 1.38 at 7.59 MPa. COTS ratings are checked against 8.35 MPa (Mechanical).
+- The alternative is MEOP >= 7.6 MPa with the relief at 6.9 MPa. The lead decides.
+
+**Flight tank against temperature** (DERIVED):
+- The 2.00 kg / 3.17 L load becomes liquid-full at 306.6 K (33.5 C) and 6.80 MPa.
+- Above that, pressure rises at 0.4-0.5 MPa/K and the relief flows liquid or supercritical fluid.
+- The 15-25 C arm window stays below it. A pad hold in the sun with the heater disabled is the credible way to reach it, and the 25 C ARM check at E0 guards it (§3.6).
+
+**O3b reply** (RC-04, C16; for the CHANGELOG):
+- The thermal check of stagnant N2O in the O3b coil has been run (`safing_relief_v2p4.json`, sections B and C).
+- At the lead's condition (case 136-178 C, gap 3-15 mm) the coil adds 3.3-12.5 W. That is 5-6 % segment vapour over the A1 coast with the S1 relief, and liquid boil-off in 6-17 min after landing.
+- The manifold and block are the larger source, at 25-191 W.
+- The coil routing is ACCEPTED on thermal grounds with S1 fitted, and the manifold heat input becomes the dominant relight risk (§7.7). The O3b conditions C1-C7 of 2026-10-12 stand.
+- New condition C8: the block and riser get a radiation shield and a contact break to the head (Mechanical); target manifold heat input <= 30 W at the A1 relight, verified by T4 thermocouples.
