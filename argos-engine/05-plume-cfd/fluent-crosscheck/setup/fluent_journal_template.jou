@@ -1,0 +1,21 @@
+;; ARGOS-H1 plume cross-check - Fluent TUI journal TEMPLATE (UNTESTED: no Fluent licence was available to the author).
+;; The README lists the same steps for the GUI, which are the reference. Check each command against your Fluent version.
+/file/read-case mesh/argos_plume_medium_80k.msh
+/mesh/check
+/define/models/axisymmetric? yes
+/define/models/solver/density-based-implicit yes
+/define/operating-conditions/operating-pressure 0
+/define/models/energy? yes
+;; case F1 (inviscid): /define/models/viscous/inviscid yes
+/define/models/viscous/kw-sst? yes
+/define/models/species/species-transport? yes mixture-template
+;; materials: create 'exhaust' (ideal-gas, cp and MW from setup/gas_properties_v2.csv) and 'air' with the listed cp,
+;; mixture species = exhaust, air (last species = air); reactions off -> done in the GUI (Materials panel)
+;; boundary conditions: setup/boundary_conditions_v2.csv (GUI Boundary Conditions panel)
+/solve/set/discretization-scheme/amg-c 1
+/solve/set/courant-number 1
+/solve/initialize/hyb-initialization
+/solve/iterate 500
+/solve/set/courant-number 5
+/solve/iterate 5000
+/file/write-case-data argos_plume_F3_medium.cas.h5

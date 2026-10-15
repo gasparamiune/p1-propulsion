@@ -1,0 +1,2373 @@
+{
+ "version": "m2_rev3_p6 v1.0",
+ "date": "2026-10-13",
+ "method": "Inputs (all read, none flown here): m2_rev3_fly v2.1 tables (sim6 v2.10-dev): e19|G73|L400|ant<X>|h285 (P6) and\ne19|G73|ant<X>|h285 (P6b) - the commit predictor horizon X = 1.3 / 1.7 / 2.1 / 2.5 s puts the commit about X before the plain\nrelight trigger, the flight software then delays T_fire until 1.9 s of flow (amendment G, pgg_Tmin); their references\ne19|G73(|L400)|h285 (decided horizon 2.90 s) and liq|none(|L400)|h285; nrLO|none|rh220 / rh250 (unpurged relight with the\ndrogue release held to >= E2 + 0.22 / 0.25 s) against nrLO|none|h285 (release at E2) and liq|none|h285. Combustion v2.4a\nunpurged_outcomes_v2p4a.json (outcome classes per line state: no light, A3 before release, released then A3, success) and the\nv2.4 line-state table used by the flights (rg01_line_states_v2p4.json, P_abort per state).\nMethod: (A) per arm and base: P (Wilson 95 %), the realised commit lead (first plain-trigger time - commit), T_fire after the\nplain trigger, flow, E0 height, touchdown speed, failure modes; paired exact McNemar against the references. (B) P against\nthe realised lead, pooled over the contingency arms and bases, in lead bins. (C) gate-delay tolerance (DERIVED from the\nnominal predictor tables): the commit happens at max(predictor time, gate opening); a gate opening delayed by D moves the\ncommit only when D > slack (commit - gate opening in the nominal run); the delay that brings the lead below L is\nD_crit(L) = slack + lead_nom - L, with lead_nom = the plain-trigger lead when the plain trigger fired before E0, else the\nlower bound 2.90 s. (D) the release-hold alternative: GNC trajectory P (SIM) and Combustion's classes (DERIVED/SIM):\nP_total = P_success(class) x P_GNC; hazard = P_released_then_A3 (Combustion: release at E2); with the hold >= E2 + 0.22 s\nthe class moves to A3 before release only under Combustion's DERIVED gap-arrival bound (0.193 s, flow held at the lift) plus\nthe 0.022 s A3 detection. (E) the L* table: lead bins x decided action (186 (1)) x Combustion class x GNC P (nominal start and\nthe L400 bracket). Not modelled in the flights: lights during the vapour gap and the A3 abort itself (the classes stay\nCombustion's), canopy dynamics (quasi-steady massless drogue), a commit the ECU refuses, valve-time dispersion. SIM on\nDERIVED / ASSUMED inputs; no hardware data; not a physical approval.\nOutput: <out>/p6_late_commit.json.",
+ "sources": {
+  "unpurged_outcomes": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2p4a/unpurged_outcomes_v2p4a.json (18a639d61b58ce8a)",
+  "line_states_v2p4": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2p4/rg01_line_states_v2p4.json (2939549811d4c381)",
+  "tables": "/home/claude/work/space/out/rev3/fly",
+  "fly": "m2_rev3_fly v2.1"
+ },
+ "contingency": {
+  "A1_none|e19|G73|L400|h285": {
+   "n": 500,
+   "P": 0.94,
+   "P_wilson": [
+    0.9156,
+    0.9577
+   ],
+   "P_W10_lt6": 0.9945,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 160,
+   "lead_commit_to_plain_s": {
+    "min": 2.67,
+    "p01": 2.706,
+    "p50": 2.87,
+    "p99": 2.9,
+    "max": 2.9
+   },
+   "tfire_after_plain_s": {
+    "min": 0.0,
+    "p01": 0.0,
+    "p50": 0.03,
+    "p99": 0.127,
+    "max": 0.127
+   },
+   "flow_s": {
+    "min": 2.397,
+    "p01": 2.477,
+    "p50": 2.5,
+    "p99": 2.5,
+    "max": 2.5
+   },
+   "E0_height_m": {
+    "min": 34.4,
+    "p50": 44.8,
+    "max": 56.5
+   },
+   "plain_height_m": {
+    "min": 36.7,
+    "p50": 44.6,
+    "max": 57.1
+   },
+   "td_vz_m_s": {
+    "min": -6.53,
+    "p01": -1.22,
+    "p50": -0.97,
+    "p99": -0.29,
+    "max": -0.21
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "no_touchdown_or_crash": 16,
+    "vh": 9,
+    "tipover": 4,
+    "tilt": 1
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_L400_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "98fb327806d9a122"
+   }
+  },
+  "A1J_pc|e19|G73|L400|h285": {
+   "n": 500,
+   "P": 0.952,
+   "P_wilson": [
+    0.9296,
+    0.9675
+   ],
+   "P_W10_lt6": 0.9945,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 176,
+   "lead_commit_to_plain_s": {
+    "min": 2.65,
+    "p01": 2.705,
+    "p50": 2.87,
+    "p99": 2.9,
+    "max": 2.9
+   },
+   "tfire_after_plain_s": {
+    "min": 0.0,
+    "p01": 0.0,
+    "p50": 0.03,
+    "p99": 0.127,
+    "max": 0.127
+   },
+   "flow_s": {
+    "min": 2.377,
+    "p01": 2.467,
+    "p50": 2.5,
+    "p99": 2.5,
+    "max": 2.5
+   },
+   "E0_height_m": {
+    "min": 34.4,
+    "p50": 44.7,
+    "max": 55.1
+   },
+   "plain_height_m": {
+    "min": 36.8,
+    "p50": 44.7,
+    "max": 54.5
+   },
+   "td_vz_m_s": {
+    "min": -4.08,
+    "p01": -1.24,
+    "p50": -1.03,
+    "p99": -0.33,
+    "max": -0.23
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "vh": 12,
+    "no_touchdown_or_crash": 9,
+    "vz": 2,
+    "rate": 1
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_L400_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "47ff6ee063f2cbfd"
+   }
+  },
+  "A1_none|e19|G73|L400|ant13|h285": {
+   "n": 500,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.0076
+   ],
+   "P_W10_lt6": 0.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.2,
+    "p01": 1.21,
+    "p50": 1.31,
+    "p99": 1.4,
+    "max": 1.5
+   },
+   "tfire_after_plain_s": {
+    "min": 0.8,
+    "p01": 0.9,
+    "p50": 0.99,
+    "p99": 1.09,
+    "max": 1.1
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.9,
+    "max": 1.9
+   },
+   "E0_height_m": {
+    "min": 15.4,
+    "p50": 22.3,
+    "max": 31.8
+   },
+   "plain_height_m": {
+    "min": 34.2,
+    "p50": 44.6,
+    "max": 57.1
+   },
+   "td_vz_m_s": {
+    "min": -27.27,
+    "p01": -26.39,
+    "p50": -23.67,
+    "p99": -20.78,
+    "max": -19.96
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "tipover": 484,
+    "vz": 16
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_L400_ant13_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "f3a6049d043f388b"
+   },
+   "vs_e19|G73|L400|h285": {
+    "P_ref": 0.94,
+    "P_case": 0.0,
+    "lost": 470,
+    "gained": 0,
+    "p_exact": 6.560425886295985e-142,
+    "loses": true
+   },
+   "vs_liq|none|L400|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.0,
+    "lost": 496,
+    "gained": 0,
+    "p_exact": 9.775796363198735e-150,
+    "loses": true
+   }
+  },
+  "A1J_pc|e19|G73|L400|ant13|h285": {
+   "n": 500,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.0076
+   ],
+   "P_W10_lt6": 0.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.16,
+    "p01": 1.21,
+    "p50": 1.31,
+    "p99": 1.41,
+    "max": 1.46
+   },
+   "tfire_after_plain_s": {
+    "min": 0.84,
+    "p01": 0.89,
+    "p50": 0.99,
+    "p99": 1.09,
+    "max": 1.14
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.9,
+    "max": 1.9
+   },
+   "E0_height_m": {
+    "min": 15.5,
+    "p50": 22.3,
+    "max": 30.6
+   },
+   "plain_height_m": {
+    "min": 33.6,
+    "p50": 44.8,
+    "max": 54.7
+   },
+   "td_vz_m_s": {
+    "min": -26.63,
+    "p01": -26.36,
+    "p50": -23.69,
+    "p99": -20.56,
+    "max": -19.8
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "tipover": 488,
+    "vz": 12
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_L400_ant13_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "32c9246aab7a16ae"
+   },
+   "vs_e19|G73|L400|h285": {
+    "P_ref": 0.952,
+    "P_case": 0.0,
+    "lost": 476,
+    "gained": 0,
+    "p_exact": 1.0250665447337477e-143,
+    "loses": true
+   },
+   "vs_liq|none|L400|h285": {
+    "P_ref": 0.98,
+    "P_case": 0.0,
+    "lost": 490,
+    "gained": 0,
+    "p_exact": 6.256509672447191e-148,
+    "loses": true
+   }
+  },
+  "A1_none|e19|G73|L400|ant17|h285": {
+   "n": 500,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.0076
+   ],
+   "P_W10_lt6": 0.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.56,
+    "p01": 1.6,
+    "p50": 1.71,
+    "p99": 1.84,
+    "max": 1.98
+   },
+   "tfire_after_plain_s": {
+    "min": 0.32,
+    "p01": 0.46,
+    "p50": 0.59,
+    "p99": 0.7,
+    "max": 0.74
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.9,
+    "max": 1.9
+   },
+   "E0_height_m": {
+    "min": 23.6,
+    "p50": 31.2,
+    "max": 41.4
+   },
+   "plain_height_m": {
+    "min": 34.2,
+    "p50": 44.6,
+    "max": 57.1
+   },
+   "td_vz_m_s": {
+    "min": -24.59,
+    "p01": -23.04,
+    "p50": -16.55,
+    "p99": -7.68,
+    "max": -4.48
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "tipover": 424,
+    "no_touchdown_or_crash": 67,
+    "vz": 9
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_L400_ant17_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "2bb23740d46edc04"
+   },
+   "vs_e19|G73|L400|h285": {
+    "P_ref": 0.94,
+    "P_case": 0.0,
+    "lost": 470,
+    "gained": 0,
+    "p_exact": 6.560425886295985e-142,
+    "loses": true
+   },
+   "vs_liq|none|L400|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.0,
+    "lost": 496,
+    "gained": 0,
+    "p_exact": 9.775796363198735e-150,
+    "loses": true
+   }
+  },
+  "A1J_pc|e19|G73|L400|ant17|h285": {
+   "n": 500,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.0076
+   ],
+   "P_W10_lt6": 0.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.52,
+    "p01": 1.59,
+    "p50": 1.71,
+    "p99": 1.83,
+    "max": 1.94
+   },
+   "tfire_after_plain_s": {
+    "min": 0.36,
+    "p01": 0.47,
+    "p50": 0.59,
+    "p99": 0.71,
+    "max": 0.78
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.9,
+    "max": 1.9
+   },
+   "E0_height_m": {
+    "min": 23.0,
+    "p50": 31.2,
+    "max": 41.2
+   },
+   "plain_height_m": {
+    "min": 33.6,
+    "p50": 44.8,
+    "max": 54.8
+   },
+   "td_vz_m_s": {
+    "min": -24.23,
+    "p01": -22.57,
+    "p50": -16.31,
+    "p99": -6.35,
+    "max": -4.66
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "tipover": 423,
+    "no_touchdown_or_crash": 68,
+    "vz": 9
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_L400_ant17_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "2ae9f85b25468fc7"
+   },
+   "vs_e19|G73|L400|h285": {
+    "P_ref": 0.952,
+    "P_case": 0.0,
+    "lost": 476,
+    "gained": 0,
+    "p_exact": 1.0250665447337477e-143,
+    "loses": true
+   },
+   "vs_liq|none|L400|h285": {
+    "P_ref": 0.98,
+    "P_case": 0.0,
+    "lost": 490,
+    "gained": 0,
+    "p_exact": 6.256509672447191e-148,
+    "loses": true
+   }
+  },
+  "A1_none|e19|G73|L400|ant21|h285": {
+   "n": 500,
+   "P": 0.64,
+   "P_wilson": [
+    0.597,
+    0.6809
+   ],
+   "P_W10_lt6": 0.7582,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.88,
+    "p01": 1.98,
+    "p50": 2.11,
+    "p99": 2.26,
+    "max": 2.38
+   },
+   "tfire_after_plain_s": {
+    "min": 0.127,
+    "p01": 0.127,
+    "p50": 0.19,
+    "p99": 0.32,
+    "max": 0.42
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.987,
+    "max": 2.107
+   },
+   "E0_height_m": {
+    "min": 31.7,
+    "p50": 40.1,
+    "max": 50.1
+   },
+   "plain_height_m": {
+    "min": 34.2,
+    "p50": 44.5,
+    "max": 57.1
+   },
+   "td_vz_m_s": {
+    "min": -15.74,
+    "p01": -12.26,
+    "p50": -0.52,
+    "p99": -0.12,
+    "max": -0.04
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "tipover": 8,
+    "vz": 36,
+    "vh": 34,
+    "no_touchdown_or_crash": 100,
+    "rate": 1,
+    "tilt": 1
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_L400_ant21_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "5dd90885869b9b0d"
+   },
+   "vs_e19|G73|L400|h285": {
+    "P_ref": 0.94,
+    "P_case": 0.64,
+    "lost": 151,
+    "gained": 1,
+    "p_exact": 5.359966626042425e-44,
+    "loses": true
+   },
+   "vs_liq|none|L400|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.64,
+    "lost": 177,
+    "gained": 1,
+    "p_exact": 9.344235998173887e-52,
+    "loses": true
+   }
+  },
+  "A1J_pc|e19|G73|L400|ant21|h285": {
+   "n": 500,
+   "P": 0.72,
+   "P_wilson": [
+    0.6791,
+    0.7576
+   ],
+   "P_W10_lt6": 0.8187,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.88,
+    "p01": 1.99,
+    "p50": 2.11,
+    "p99": 2.27,
+    "max": 2.35
+   },
+   "tfire_after_plain_s": {
+    "min": 0.127,
+    "p01": 0.127,
+    "p50": 0.19,
+    "p99": 0.31,
+    "max": 0.42
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.997,
+    "max": 2.077
+   },
+   "E0_height_m": {
+    "min": 30.8,
+    "p50": 40.1,
+    "max": 49.8
+   },
+   "plain_height_m": {
+    "min": 33.6,
+    "p50": 44.7,
+    "max": 54.5
+   },
+   "td_vz_m_s": {
+    "min": -14.78,
+    "p01": -10.42,
+    "p50": -0.52,
+    "p99": -0.16,
+    "max": -0.13
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "vz": 23,
+    "no_touchdown_or_crash": 68,
+    "vh": 32,
+    "tipover": 12,
+    "tilt": 3,
+    "rate": 2
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_L400_ant21_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "41f15ffe6dca16cc"
+   },
+   "vs_e19|G73|L400|h285": {
+    "P_ref": 0.952,
+    "P_case": 0.72,
+    "lost": 119,
+    "gained": 3,
+    "p_exact": 1.1387963575850963e-31,
+    "loses": true
+   },
+   "vs_liq|none|L400|h285": {
+    "P_ref": 0.98,
+    "P_case": 0.72,
+    "lost": 133,
+    "gained": 3,
+    "p_exact": 9.62796454058168e-36,
+    "loses": true
+   }
+  },
+  "A1_none|e19|G73|L400|ant25|h285": {
+   "n": 500,
+   "P": 0.786,
+   "P_wilson": [
+    0.7479,
+    0.8197
+   ],
+   "P_W10_lt6": 0.8984,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 2.28,
+    "p01": 2.37,
+    "p50": 2.52,
+    "p99": 2.7,
+    "max": 2.85
+   },
+   "tfire_after_plain_s": {
+    "min": 0.05,
+    "p01": 0.127,
+    "p50": 0.127,
+    "p99": 0.127,
+    "max": 0.127
+   },
+   "flow_s": {
+    "min": 2.007,
+    "p01": 2.097,
+    "p50": 2.247,
+    "p99": 2.427,
+    "max": 2.5
+   },
+   "E0_height_m": {
+    "min": 32.1,
+    "p50": 41.8,
+    "max": 54.0
+   },
+   "plain_height_m": {
+    "min": 34.2,
+    "p50": 44.5,
+    "max": 57.1
+   },
+   "td_vz_m_s": {
+    "min": -9.48,
+    "p01": -6.84,
+    "p50": -0.54,
+    "p99": -0.18,
+    "max": -0.07
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "no_touchdown_or_crash": 52,
+    "vh": 32,
+    "vz": 14,
+    "tilt": 3,
+    "tipover": 5,
+    "rate": 1
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_L400_ant25_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "9014f7a33c28f891"
+   },
+   "vs_e19|G73|L400|h285": {
+    "P_ref": 0.94,
+    "P_case": 0.786,
+    "lost": 77,
+    "gained": 0,
+    "p_exact": 1.3234889800848443e-23,
+    "loses": true
+   },
+   "vs_liq|none|L400|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.786,
+    "lost": 103,
+    "gained": 0,
+    "p_exact": 1.9721522630525295e-31,
+    "loses": true
+   }
+  },
+  "A1J_pc|e19|G73|L400|ant25|h285": {
+   "n": 500,
+   "P": 0.854,
+   "P_wilson": [
+    0.8204,
+    0.8823
+   ],
+   "P_W10_lt6": 0.9423,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 2.28,
+    "p01": 2.38,
+    "p50": 2.52,
+    "p99": 2.68,
+    "max": 2.78
+   },
+   "tfire_after_plain_s": {
+    "min": 0.12,
+    "p01": 0.127,
+    "p50": 0.127,
+    "p99": 0.127,
+    "max": 0.127
+   },
+   "flow_s": {
+    "min": 2.007,
+    "p01": 2.107,
+    "p50": 2.247,
+    "p99": 2.407,
+    "max": 2.5
+   },
+   "E0_height_m": {
+    "min": 31.2,
+    "p50": 41.9,
+    "max": 51.5
+   },
+   "plain_height_m": {
+    "min": 33.4,
+    "p50": 44.6,
+    "max": 54.5
+   },
+   "td_vz_m_s": {
+    "min": -7.89,
+    "p01": -4.74,
+    "p50": -0.55,
+    "p99": -0.19,
+    "max": -0.08
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "vh": 29,
+    "no_touchdown_or_crash": 28,
+    "vz": 9,
+    "tipover": 5,
+    "tilt": 2
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_L400_ant25_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "19cf163256f16655"
+   },
+   "vs_e19|G73|L400|h285": {
+    "P_ref": 0.952,
+    "P_case": 0.854,
+    "lost": 52,
+    "gained": 3,
+    "p_exact": 1.5418777365994174e-12,
+    "loses": true
+   },
+   "vs_liq|none|L400|h285": {
+    "P_ref": 0.98,
+    "P_case": 0.854,
+    "lost": 67,
+    "gained": 4,
+    "p_exact": 8.735848890518809e-16,
+    "loses": true
+   }
+  },
+  "A1_none|e19|G73|h285": {
+   "n": 500,
+   "P": 0.992,
+   "P_wilson": [
+    0.9796,
+    0.9969
+   ],
+   "P_W10_lt6": 1.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 160,
+   "lead_commit_to_plain_s": {
+    "min": 2.67,
+    "p01": 2.706,
+    "p50": 2.87,
+    "p99": 2.9,
+    "max": 2.9
+   },
+   "tfire_after_plain_s": {
+    "min": 0.0,
+    "p01": 0.0,
+    "p50": 0.03,
+    "p99": 0.127,
+    "max": 0.127
+   },
+   "flow_s": {
+    "min": 2.397,
+    "p01": 2.477,
+    "p50": 2.5,
+    "p99": 2.5,
+    "max": 2.5
+   },
+   "E0_height_m": {
+    "min": 34.4,
+    "p50": 44.8,
+    "max": 56.5
+   },
+   "plain_height_m": {
+    "min": 36.7,
+    "p50": 44.6,
+    "max": 57.1
+   },
+   "td_vz_m_s": {
+    "min": -1.18,
+    "p01": -1.15,
+    "p50": -1.04,
+    "p99": -0.92,
+    "max": -0.89
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "tipover": 1,
+    "no_touchdown_or_crash": 1,
+    "vh": 2
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "998ce40ce7822668"
+   }
+  },
+  "A1J_pc|e19|G73|h285": {
+   "n": 500,
+   "P": 0.99,
+   "P_wilson": [
+    0.9768,
+    0.9957
+   ],
+   "P_W10_lt6": 1.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 176,
+   "lead_commit_to_plain_s": {
+    "min": 2.65,
+    "p01": 2.705,
+    "p50": 2.87,
+    "p99": 2.9,
+    "max": 2.9
+   },
+   "tfire_after_plain_s": {
+    "min": 0.0,
+    "p01": 0.0,
+    "p50": 0.03,
+    "p99": 0.127,
+    "max": 0.127
+   },
+   "flow_s": {
+    "min": 2.377,
+    "p01": 2.467,
+    "p50": 2.5,
+    "p99": 2.5,
+    "max": 2.5
+   },
+   "E0_height_m": {
+    "min": 34.4,
+    "p50": 44.7,
+    "max": 55.1
+   },
+   "plain_height_m": {
+    "min": 36.8,
+    "p50": 44.7,
+    "max": 54.5
+   },
+   "td_vz_m_s": {
+    "min": -1.22,
+    "p01": -1.18,
+    "p50": -1.04,
+    "p99": -0.92,
+    "max": -0.87
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "tipover": 2,
+    "no_touchdown_or_crash": 1,
+    "vh": 2
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "a1e3b49fbc76b724"
+   }
+  },
+  "A1_none|e19|G73|ant13|h285": {
+   "n": 500,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.0076
+   ],
+   "P_W10_lt6": 0.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.2,
+    "p01": 1.21,
+    "p50": 1.31,
+    "p99": 1.4,
+    "max": 1.5
+   },
+   "tfire_after_plain_s": {
+    "min": 0.8,
+    "p01": 0.9,
+    "p50": 0.99,
+    "p99": 1.09,
+    "max": 1.1
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.9,
+    "max": 1.9
+   },
+   "E0_height_m": {
+    "min": 15.4,
+    "p50": 22.3,
+    "max": 31.8
+   },
+   "plain_height_m": {
+    "min": 34.2,
+    "p50": 44.6,
+    "max": 57.1
+   },
+   "td_vz_m_s": {
+    "min": -21.69,
+    "p01": -20.76,
+    "p50": -12.63,
+    "p99": -1.97,
+    "max": -0.35
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "tipover": 267,
+    "no_touchdown_or_crash": 207,
+    "vz": 23,
+    "vh": 3
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_ant13_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "36aa4742a1232cba"
+   },
+   "vs_e19|G73|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.0,
+    "lost": 496,
+    "gained": 0,
+    "p_exact": 9.775796363198735e-150,
+    "loses": true
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.0,
+    "lost": 496,
+    "gained": 0,
+    "p_exact": 9.775796363198735e-150,
+    "loses": true
+   }
+  },
+  "A1J_pc|e19|G73|ant13|h285": {
+   "n": 500,
+   "P": 0.012,
+   "P_wilson": [
+    0.0055,
+    0.0259
+   ],
+   "P_W10_lt6": 0.0165,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.16,
+    "p01": 1.21,
+    "p50": 1.31,
+    "p99": 1.41,
+    "max": 1.46
+   },
+   "tfire_after_plain_s": {
+    "min": 0.84,
+    "p01": 0.89,
+    "p50": 0.99,
+    "p99": 1.09,
+    "max": 1.14
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.9,
+    "max": 1.9
+   },
+   "E0_height_m": {
+    "min": 15.5,
+    "p50": 22.3,
+    "max": 30.6
+   },
+   "plain_height_m": {
+    "min": 33.6,
+    "p50": 44.8,
+    "max": 54.7
+   },
+   "td_vz_m_s": {
+    "min": -20.78,
+    "p01": -19.76,
+    "p50": -12.07,
+    "p99": -0.26,
+    "max": -0.13
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "no_touchdown_or_crash": 230,
+    "vz": 27,
+    "tipover": 235,
+    "vh": 2
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_ant13_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "66af3099b7995455"
+   },
+   "vs_e19|G73|h285": {
+    "P_ref": 0.99,
+    "P_case": 0.012,
+    "lost": 489,
+    "gained": 0,
+    "p_exact": 1.2513019344894381e-147,
+    "loses": true
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.982,
+    "P_case": 0.012,
+    "lost": 485,
+    "gained": 0,
+    "p_exact": 2.002083095183101e-146,
+    "loses": true
+   }
+  },
+  "A1_none|e19|G73|ant17|h285": {
+   "n": 500,
+   "P": 0.758,
+   "P_wilson": [
+    0.7186,
+    0.7935
+   ],
+   "P_W10_lt6": 0.9121,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.56,
+    "p01": 1.6,
+    "p50": 1.71,
+    "p99": 1.84,
+    "max": 1.98
+   },
+   "tfire_after_plain_s": {
+    "min": 0.32,
+    "p01": 0.46,
+    "p50": 0.59,
+    "p99": 0.7,
+    "max": 0.74
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.9,
+    "max": 1.9
+   },
+   "E0_height_m": {
+    "min": 23.6,
+    "p50": 31.2,
+    "max": 41.4
+   },
+   "plain_height_m": {
+    "min": 34.2,
+    "p50": 44.6,
+    "max": 57.1
+   },
+   "td_vz_m_s": {
+    "min": -9.21,
+    "p01": -4.97,
+    "p50": -0.63,
+    "p99": -0.19,
+    "max": -0.1
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "no_touchdown_or_crash": 77,
+    "tipover": 6,
+    "vh": 34,
+    "vz": 4
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_ant17_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "44f9ec21c528cf02"
+   },
+   "vs_e19|G73|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.758,
+    "lost": 117,
+    "gained": 0,
+    "p_exact": 1.2037062152420224e-35,
+    "loses": true
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.758,
+    "lost": 118,
+    "gained": 1,
+    "p_exact": 3.6111186457260672e-34,
+    "loses": true
+   }
+  },
+  "A1J_pc|e19|G73|ant17|h285": {
+   "n": 500,
+   "P": 0.78,
+   "P_wilson": [
+    0.7416,
+    0.8141
+   ],
+   "P_W10_lt6": 0.9231,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.52,
+    "p01": 1.59,
+    "p50": 1.71,
+    "p99": 1.83,
+    "max": 1.94
+   },
+   "tfire_after_plain_s": {
+    "min": 0.36,
+    "p01": 0.47,
+    "p50": 0.59,
+    "p99": 0.71,
+    "max": 0.78
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.9,
+    "max": 1.9
+   },
+   "E0_height_m": {
+    "min": 23.0,
+    "p50": 31.2,
+    "max": 41.2
+   },
+   "plain_height_m": {
+    "min": 33.6,
+    "p50": 44.8,
+    "max": 54.8
+   },
+   "td_vz_m_s": {
+    "min": -5.93,
+    "p01": -2.61,
+    "p50": -0.69,
+    "p99": -0.25,
+    "max": -0.2
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "no_touchdown_or_crash": 71,
+    "vh": 33,
+    "tipover": 4,
+    "tilt": 1,
+    "vz": 1
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_ant17_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "6ffcd281a17d66ef"
+   },
+   "vs_e19|G73|h285": {
+    "P_ref": 0.99,
+    "P_case": 0.78,
+    "lost": 105,
+    "gained": 0,
+    "p_exact": 4.930380657631324e-32,
+    "loses": true
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.982,
+    "P_case": 0.78,
+    "lost": 101,
+    "gained": 0,
+    "p_exact": 7.888609052210118e-31,
+    "loses": true
+   }
+  },
+  "A1_none|e19|G73|ant21|h285": {
+   "n": 500,
+   "P": 0.99,
+   "P_wilson": [
+    0.9768,
+    0.9957
+   ],
+   "P_W10_lt6": 1.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.88,
+    "p01": 1.98,
+    "p50": 2.11,
+    "p99": 2.26,
+    "max": 2.38
+   },
+   "tfire_after_plain_s": {
+    "min": 0.127,
+    "p01": 0.127,
+    "p50": 0.19,
+    "p99": 0.32,
+    "max": 0.42
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.987,
+    "max": 2.107
+   },
+   "E0_height_m": {
+    "min": 31.7,
+    "p50": 40.1,
+    "max": 50.1
+   },
+   "plain_height_m": {
+    "min": 34.2,
+    "p50": 44.5,
+    "max": 57.1
+   },
+   "td_vz_m_s": {
+    "min": -1.24,
+    "p01": -1.21,
+    "p50": -1.09,
+    "p99": -0.95,
+    "max": -0.79
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "vh": 4,
+    "no_touchdown_or_crash": 1
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_ant21_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "ea425446bd5ecefc"
+   },
+   "vs_e19|G73|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.99,
+    "lost": 3,
+    "gained": 2,
+    "p_exact": 1.0,
+    "loses": false
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.99,
+    "lost": 3,
+    "gained": 2,
+    "p_exact": 1.0,
+    "loses": false
+   }
+  },
+  "A1J_pc|e19|G73|ant21|h285": {
+   "n": 500,
+   "P": 0.99,
+   "P_wilson": [
+    0.9768,
+    0.9957
+   ],
+   "P_W10_lt6": 1.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 1.88,
+    "p01": 1.99,
+    "p50": 2.11,
+    "p99": 2.27,
+    "max": 2.35
+   },
+   "tfire_after_plain_s": {
+    "min": 0.127,
+    "p01": 0.127,
+    "p50": 0.19,
+    "p99": 0.31,
+    "max": 0.42
+   },
+   "flow_s": {
+    "min": 1.9,
+    "p01": 1.9,
+    "p50": 1.9,
+    "p99": 1.997,
+    "max": 2.077
+   },
+   "E0_height_m": {
+    "min": 30.8,
+    "p50": 40.1,
+    "max": 49.8
+   },
+   "plain_height_m": {
+    "min": 33.6,
+    "p50": 44.7,
+    "max": 54.5
+   },
+   "td_vz_m_s": {
+    "min": -1.28,
+    "p01": -1.21,
+    "p50": -1.09,
+    "p99": -0.95,
+    "max": -0.92
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "vh": 2,
+    "no_touchdown_or_crash": 3
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_ant21_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "029afb6302a79f3b"
+   },
+   "vs_e19|G73|h285": {
+    "P_ref": 0.99,
+    "P_case": 0.99,
+    "lost": 1,
+    "gained": 1,
+    "p_exact": 1.0,
+    "loses": false
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.982,
+    "P_case": 0.99,
+    "lost": 1,
+    "gained": 5,
+    "p_exact": 0.21875,
+    "loses": false
+   }
+  },
+  "A1_none|e19|G73|ant25|h285": {
+   "n": 500,
+   "P": 0.996,
+   "P_wilson": [
+    0.9855,
+    0.9989
+   ],
+   "P_W10_lt6": 1.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 2.28,
+    "p01": 2.37,
+    "p50": 2.52,
+    "p99": 2.7,
+    "max": 2.85
+   },
+   "tfire_after_plain_s": {
+    "min": 0.05,
+    "p01": 0.127,
+    "p50": 0.127,
+    "p99": 0.127,
+    "max": 0.127
+   },
+   "flow_s": {
+    "min": 2.007,
+    "p01": 2.097,
+    "p50": 2.247,
+    "p99": 2.427,
+    "max": 2.5
+   },
+   "E0_height_m": {
+    "min": 32.1,
+    "p50": 41.8,
+    "max": 54.0
+   },
+   "plain_height_m": {
+    "min": 34.2,
+    "p50": 44.5,
+    "max": 57.1
+   },
+   "td_vz_m_s": {
+    "min": -1.21,
+    "p01": -1.2,
+    "p50": -1.07,
+    "p99": -0.95,
+    "max": -0.92
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "no_touchdown_or_crash": 1,
+    "vh": 1
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_ant25_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "a8e77d5e7969b18c"
+   },
+   "vs_e19|G73|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.996,
+    "lost": 0,
+    "gained": 2,
+    "p_exact": 0.5,
+    "loses": false
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.996,
+    "lost": 0,
+    "gained": 2,
+    "p_exact": 0.5,
+    "loses": false
+   }
+  },
+  "A1J_pc|e19|G73|ant25|h285": {
+   "n": 500,
+   "P": 0.99,
+   "P_wilson": [
+    0.9768,
+    0.9957
+   ],
+   "P_W10_lt6": 1.0,
+   "n_W10_lt6": 364,
+   "commit_source": {
+    "1": 500,
+    "2": 0,
+    "3": 0
+   },
+   "plain_fired_before_E0": 500,
+   "lead_commit_to_plain_s": {
+    "min": 2.28,
+    "p01": 2.38,
+    "p50": 2.52,
+    "p99": 2.68,
+    "max": 2.78
+   },
+   "tfire_after_plain_s": {
+    "min": 0.12,
+    "p01": 0.127,
+    "p50": 0.127,
+    "p99": 0.127,
+    "max": 0.127
+   },
+   "flow_s": {
+    "min": 2.007,
+    "p01": 2.107,
+    "p50": 2.247,
+    "p99": 2.407,
+    "max": 2.5
+   },
+   "E0_height_m": {
+    "min": 31.2,
+    "p50": 41.9,
+    "max": 51.5
+   },
+   "plain_height_m": {
+    "min": 33.4,
+    "p50": 44.6,
+    "max": 54.5
+   },
+   "td_vz_m_s": {
+    "min": -1.25,
+    "p01": -1.21,
+    "p50": -1.07,
+    "p99": -0.93,
+    "max": -0.91
+   },
+   "exhausted": 0,
+   "fail_modes": {
+    "tipover": 1,
+    "no_touchdown_or_crash": 2,
+    "vh": 2
+   },
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_ant25_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "d932ffecd16066ba"
+   },
+   "vs_e19|G73|h285": {
+    "P_ref": 0.99,
+    "P_case": 0.99,
+    "lost": 0,
+    "gained": 0,
+    "p_exact": 1.0,
+    "loses": false
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.982,
+    "P_case": 0.99,
+    "lost": 0,
+    "gained": 4,
+    "p_exact": 0.125,
+    "loses": false
+   }
+  }
+ },
+ "lead_bins": {
+  "L400": {
+   ">= 2.9 s": {
+    "n": 0,
+    "ok": 0,
+    "P": null,
+    "P_wilson": null
+   },
+   "2.4-2.9 s": {
+    "n": 977,
+    "ok": 806,
+    "P": 0.825,
+    "P_wilson": [
+     0.7999,
+     0.8475
+    ]
+   },
+   "1.9-2.4 s": {
+    "n": 1022,
+    "ok": 694,
+    "P": 0.6791,
+    "P_wilson": [
+     0.6498,
+     0.707
+    ]
+   },
+   "1.3-1.9 s": {
+    "n": 1701,
+    "ok": 0,
+    "P": 0.0,
+    "P_wilson": [
+     0.0,
+     0.0023
+    ]
+   },
+   "0.0-1.3 s": {
+    "n": 300,
+    "ok": 0,
+    "P": 0.0,
+    "P_wilson": [
+     0.0,
+     0.0126
+    ]
+   },
+   "plain trigger after E0 (lead > ~2.9 s)": {
+    "n": 0,
+    "ok": 0
+   }
+  },
+  "nominal": {
+   ">= 2.9 s": {
+    "n": 0,
+    "ok": 0,
+    "P": null,
+    "P_wilson": null
+   },
+   "2.4-2.9 s": {
+    "n": 977,
+    "ok": 971,
+    "P": 0.9939,
+    "P_wilson": [
+     0.9867,
+     0.9972
+    ]
+   },
+   "1.9-2.4 s": {
+    "n": 1022,
+    "ok": 1012,
+    "P": 0.9902,
+    "P_wilson": [
+     0.9821,
+     0.9947
+    ]
+   },
+   "1.3-1.9 s": {
+    "n": 1701,
+    "ok": 775,
+    "P": 0.4556,
+    "P_wilson": [
+     0.4321,
+     0.4794
+    ]
+   },
+   "0.0-1.3 s": {
+    "n": 300,
+    "ok": 0,
+    "P": 0.0,
+    "P_wilson": [
+     0.0,
+     0.0126
+    ]
+   },
+   "plain trigger after E0 (lead > ~2.9 s)": {
+    "n": 0,
+    "ok": 0
+   }
+  }
+ },
+ "gate_delay": {
+  "A1_none|e19|G73|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_e19_G73_h285.csv",
+    "sha256_16": "998ce40ce7822668"
+   },
+   "n": 500,
+   "gate_open_height_m": {
+    "min": 202.6,
+    "p50": 224.1,
+    "max": 239.1
+   },
+   "commit_height_m": {
+    "min": 89.9,
+    "p50": 110.0,
+    "max": 129.7
+   },
+   "slack_commit_minus_gate_open_s": {
+    "min": 2.965,
+    "p01": 3.379,
+    "p50": 5.085,
+    "p99": 6.704,
+    "max": 7.727
+   },
+   "lead_nominal_s": {
+    "min": 2.67,
+    "p01": 2.75,
+    "p50": 2.9,
+    "p99": 2.9,
+    "max": 2.9
+   },
+   "plain_fired_before_E0": 160,
+   "D_crit_lead_below_2.4s": {
+    "min": 3.465,
+    "p01": 3.879,
+    "p50": 5.569
+   },
+   "D_crit_lead_below_1.9s": {
+    "min": 3.965,
+    "p01": 4.379,
+    "p50": 6.069
+   },
+   "D_crit_lead_below_1.3s": {
+    "min": 4.565,
+    "p01": 4.979,
+    "p50": 6.669
+   }
+  },
+  "A1J_pc|e19|G73|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_e19_G73_h285.csv",
+    "sha256_16": "a1e3b49fbc76b724"
+   },
+   "n": 500,
+   "gate_open_height_m": {
+    "min": 205.6,
+    "p50": 224.8,
+    "max": 239.6
+   },
+   "commit_height_m": {
+    "min": 89.8,
+    "p50": 110.0,
+    "max": 128.2
+   },
+   "slack_commit_minus_gate_open_s": {
+    "min": 3.121,
+    "p01": 3.502,
+    "p50": 5.116,
+    "p99": 6.76,
+    "max": 7.615
+   },
+   "lead_nominal_s": {
+    "min": 2.65,
+    "p01": 2.74,
+    "p50": 2.9,
+    "p99": 2.9,
+    "max": 2.9
+   },
+   "plain_fired_before_E0": 176,
+   "D_crit_lead_below_2.4s": {
+    "min": 3.621,
+    "p01": 3.985,
+    "p50": 5.609
+   },
+   "D_crit_lead_below_1.9s": {
+    "min": 4.121,
+    "p01": 4.485,
+    "p50": 6.109
+   },
+   "D_crit_lead_below_1.3s": {
+    "min": 4.721,
+    "p01": 5.085,
+    "p50": 6.709
+   }
+  },
+  "A1_none|liq|G73|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_liq_G73_h285.csv",
+    "sha256_16": "cc82880f539d0c83"
+   },
+   "n": 500,
+   "gate_open_height_m": {
+    "min": 202.6,
+    "p50": 224.1,
+    "max": 239.1
+   },
+   "commit_height_m": {
+    "min": 89.9,
+    "p50": 110.0,
+    "max": 129.7
+   },
+   "slack_commit_minus_gate_open_s": {
+    "min": 2.965,
+    "p01": 3.379,
+    "p50": 5.085,
+    "p99": 6.704,
+    "max": 7.727
+   },
+   "lead_nominal_s": {
+    "min": 2.67,
+    "p01": 2.75,
+    "p50": 2.9,
+    "p99": 2.9,
+    "max": 2.9
+   },
+   "plain_fired_before_E0": 160,
+   "D_crit_lead_below_2.4s": {
+    "min": 3.465,
+    "p01": 3.879,
+    "p50": 5.569
+   },
+   "D_crit_lead_below_1.9s": {
+    "min": 3.965,
+    "p01": 4.379,
+    "p50": 6.069
+   },
+   "D_crit_lead_below_1.3s": {
+    "min": 4.565,
+    "p01": 4.979,
+    "p50": 6.669
+   }
+  },
+  "A1J_pc|liq|G73|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_liq_G73_h285.csv",
+    "sha256_16": "288a69d1804c36e0"
+   },
+   "n": 500,
+   "gate_open_height_m": {
+    "min": 205.6,
+    "p50": 224.8,
+    "max": 239.6
+   },
+   "commit_height_m": {
+    "min": 89.8,
+    "p50": 110.0,
+    "max": 128.2
+   },
+   "slack_commit_minus_gate_open_s": {
+    "min": 3.121,
+    "p01": 3.502,
+    "p50": 5.116,
+    "p99": 6.76,
+    "max": 7.615
+   },
+   "lead_nominal_s": {
+    "min": 2.65,
+    "p01": 2.74,
+    "p50": 2.9,
+    "p99": 2.9,
+    "max": 2.9
+   },
+   "plain_fired_before_E0": 176,
+   "D_crit_lead_below_2.4s": {
+    "min": 3.621,
+    "p01": 3.985,
+    "p50": 5.609
+   },
+   "D_crit_lead_below_1.9s": {
+    "min": 4.121,
+    "p01": 4.485,
+    "p50": 6.109
+   },
+   "D_crit_lead_below_1.3s": {
+    "min": 4.721,
+    "p01": 5.085,
+    "p50": 6.709
+   }
+  },
+  "A1_none|pw|G73|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_pw_G73_h285.csv",
+    "sha256_16": "748d776ee1e181e0"
+   },
+   "n": 500,
+   "gate_open_height_m": {
+    "min": 202.6,
+    "p50": 224.1,
+    "max": 239.1
+   },
+   "commit_height_m": {
+    "min": 89.9,
+    "p50": 110.0,
+    "max": 129.7
+   },
+   "slack_commit_minus_gate_open_s": {
+    "min": 2.965,
+    "p01": 3.379,
+    "p50": 5.085,
+    "p99": 6.704,
+    "max": 7.727
+   },
+   "lead_nominal_s": {
+    "min": 2.67,
+    "p01": 2.75,
+    "p50": 2.9,
+    "p99": 2.9,
+    "max": 2.9
+   },
+   "plain_fired_before_E0": 160,
+   "D_crit_lead_below_2.4s": {
+    "min": 3.465,
+    "p01": 3.879,
+    "p50": 5.569
+   },
+   "D_crit_lead_below_1.9s": {
+    "min": 3.965,
+    "p01": 4.379,
+    "p50": 6.069
+   },
+   "D_crit_lead_below_1.3s": {
+    "min": 4.565,
+    "p01": 4.979,
+    "p50": 6.669
+   }
+  },
+  "A1J_pc|pw|G73|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_pw_G73_h285.csv",
+    "sha256_16": "98f61e5dc5cd2941"
+   },
+   "n": 500,
+   "gate_open_height_m": {
+    "min": 205.6,
+    "p50": 224.8,
+    "max": 239.6
+   },
+   "commit_height_m": {
+    "min": 89.8,
+    "p50": 110.0,
+    "max": 128.2
+   },
+   "slack_commit_minus_gate_open_s": {
+    "min": 3.121,
+    "p01": 3.502,
+    "p50": 5.116,
+    "p99": 6.76,
+    "max": 7.615
+   },
+   "lead_nominal_s": {
+    "min": 2.65,
+    "p01": 2.74,
+    "p50": 2.9,
+    "p99": 2.9,
+    "max": 2.9
+   },
+   "plain_fired_before_E0": 176,
+   "D_crit_lead_below_2.4s": {
+    "min": 3.621,
+    "p01": 3.985,
+    "p50": 5.609
+   },
+   "D_crit_lead_below_1.9s": {
+    "min": 4.121,
+    "p01": 4.485,
+    "p50": 6.109
+   },
+   "D_crit_lead_below_1.3s": {
+    "min": 4.721,
+    "p01": 5.085,
+    "p50": 6.709
+   }
+  }
+ },
+ "release_hold": {
+  "A1_none|nrLO|none|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_nrLO_none_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "4aebb3b1d3bf8fbc"
+   },
+   "n": 500,
+   "P_GNC": 0.994,
+   "P_wilson": [
+    0.9825,
+    0.998
+   ],
+   "release_after_light_ms": {
+    "min": 5.0,
+    "p50": 5.0,
+    "p99": 8.0,
+    "max": 8.0
+   },
+   "hold_acted": null,
+   "td_vz_m_s": {
+    "p01": -1.14,
+    "p50": -1.03,
+    "p99": -0.92
+   },
+   "fail_modes": {
+    "no_touchdown_or_crash": 1,
+    "vh": 2
+   }
+  },
+  "A1J_pc|nrLO|none|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_nrLO_none_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "15c39cc5153f0bcd"
+   },
+   "n": 500,
+   "P_GNC": 0.99,
+   "P_wilson": [
+    0.9768,
+    0.9957
+   ],
+   "release_after_light_ms": {
+    "min": 5.0,
+    "p50": 6.0,
+    "p99": 8.0,
+    "max": 8.0
+   },
+   "hold_acted": null,
+   "td_vz_m_s": {
+    "p01": -1.16,
+    "p50": -1.03,
+    "p99": -0.91
+   },
+   "fail_modes": {
+    "no_touchdown_or_crash": 3,
+    "vh": 2
+   }
+  },
+  "A1_none|nrLO|none|rh220|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_nrLO_none_rh220_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "5ee482f9131d621b"
+   },
+   "n": 500,
+   "P_GNC": 0.988,
+   "P_wilson": [
+    0.9741,
+    0.9945
+   ],
+   "release_after_light_ms": {
+    "min": 220.0,
+    "p50": 220.0,
+    "p99": 220.0,
+    "max": 220.0
+   },
+   "hold_acted": 500,
+   "td_vz_m_s": {
+    "p01": -1.18,
+    "p50": -1.07,
+    "p99": -0.91
+   },
+   "fail_modes": {
+    "no_touchdown_or_crash": 2,
+    "vh": 3,
+    "tilt": 1
+   },
+   "vs_nrLO|none|h285": {
+    "P_ref": 0.994,
+    "P_case": 0.988,
+    "lost": 4,
+    "gained": 1,
+    "p_exact": 0.375,
+    "loses": false
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.988,
+    "lost": 3,
+    "gained": 1,
+    "p_exact": 0.625,
+    "loses": false
+   }
+  },
+  "A1J_pc|nrLO|none|rh220|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_nrLO_none_rh220_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "c9ad534bfdb869ec"
+   },
+   "n": 500,
+   "P_GNC": 0.986,
+   "P_wilson": [
+    0.9714,
+    0.9932
+   ],
+   "release_after_light_ms": {
+    "min": 220.0,
+    "p50": 220.0,
+    "p99": 220.0,
+    "max": 220.0
+   },
+   "hold_acted": 500,
+   "td_vz_m_s": {
+    "p01": -1.18,
+    "p50": -1.06,
+    "p99": -0.91
+   },
+   "fail_modes": {
+    "tipover": 2,
+    "no_touchdown_or_crash": 2,
+    "vh": 2,
+    "rate": 1
+   },
+   "vs_nrLO|none|h285": {
+    "P_ref": 0.99,
+    "P_case": 0.986,
+    "lost": 3,
+    "gained": 1,
+    "p_exact": 0.625,
+    "loses": false
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.982,
+    "P_case": 0.986,
+    "lost": 2,
+    "gained": 4,
+    "p_exact": 0.6875,
+    "loses": false
+   }
+  },
+  "A1_none|nrLO|none|rh250|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1_none_nrLO_none_rh250_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "4c978e1acc1e31ab"
+   },
+   "n": 500,
+   "P_GNC": 0.99,
+   "P_wilson": [
+    0.9768,
+    0.9957
+   ],
+   "release_after_light_ms": {
+    "min": 250.0,
+    "p50": 250.0,
+    "p99": 250.0,
+    "max": 250.0
+   },
+   "hold_acted": 500,
+   "td_vz_m_s": {
+    "p01": -1.18,
+    "p50": -1.07,
+    "p99": -0.91
+   },
+   "fail_modes": {
+    "no_touchdown_or_crash": 2,
+    "vh": 2,
+    "tipover": 1
+   },
+   "vs_nrLO|none|h285": {
+    "P_ref": 0.994,
+    "P_case": 0.99,
+    "lost": 3,
+    "gained": 1,
+    "p_exact": 0.625,
+    "loses": false
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.992,
+    "P_case": 0.99,
+    "lost": 2,
+    "gained": 1,
+    "p_exact": 1.0,
+    "loses": false
+   }
+  },
+  "A1J_pc|nrLO|none|rh250|h285": {
+   "table": {
+    "path": "/home/claude/work/space/out/rev3/fly/rf_A1J_pc_nrLO_none_rh250_h285.csv",
+    "origin": "rev3",
+    "sha256_16": "a32477ce5c2ad887"
+   },
+   "n": 500,
+   "P_GNC": 0.988,
+   "P_wilson": [
+    0.9741,
+    0.9945
+   ],
+   "release_after_light_ms": {
+    "min": 250.0,
+    "p50": 250.0,
+    "p99": 250.0,
+    "max": 250.0
+   },
+   "hold_acted": 500,
+   "td_vz_m_s": {
+    "p01": -1.19,
+    "p50": -1.06,
+    "p99": -0.92
+   },
+   "fail_modes": {
+    "no_touchdown_or_crash": 3,
+    "vh": 3
+   },
+   "vs_nrLO|none|h285": {
+    "P_ref": 0.99,
+    "P_case": 0.988,
+    "lost": 2,
+    "gained": 1,
+    "p_exact": 1.0,
+    "loses": false
+   },
+   "vs_liq|none|h285": {
+    "P_ref": 0.982,
+    "P_case": 0.988,
+    "lost": 1,
+    "gained": 4,
+    "p_exact": 0.375,
+    "loses": false
+   }
+  },
+  "combustion_classes_lift_flow_held": {
+   "purge_not_run_unlined_LO_0-2deg_worst": {
+    "P_no_light": 0.2424,
+    "P_A3_before_release": 0.0401,
+    "P_released_then_A3": 0.7175,
+    "P_success": 0.0
+   },
+   "purge_not_run_lined_LO_0-2deg_worst": {
+    "P_no_light": 0.1354,
+    "P_A3_before_release": 0.0399,
+    "P_released_then_A3": 0.8247,
+    "P_success": 0.0
+   },
+   "purge_not_run_unlined_HI_0-2deg_worst": {
+    "P_no_light": 1.0,
+    "P_A3_before_release": 0.0,
+    "P_released_then_A3": 0.0,
+    "P_success": 0.0
+   },
+   "purge_not_run_unlined_0-2deg_least": {
+    "P_no_light": 0.0,
+    "P_A3_before_release": 0.0,
+    "P_released_then_A3": 0.0,
+    "P_success": 1.0
+   },
+   "population both_linings|LO (records, NOT probability-weighted)": {
+    "P_success_worst_convention": 0.2037,
+    "P_success_best_convention": 0.4352,
+    "P_released_then_A3_worst": 0.7849
+   },
+   "population both_linings|HI (records, NOT probability-weighted)": {
+    "P_success_worst_convention": 0.0,
+    "P_success_best_convention": 0.0185,
+    "P_released_then_A3_worst": 0.3495
+   }
+  },
+  "hold_vs_gap_bound": {
+   "gap_arrival_bound_s": 0.193,
+   "A3_detection_s": 0.022,
+   "sum_s": 0.215,
+   "margin_rh220_s": 0.005,
+   "margin_rh250_s": 0.035,
+   "tag": "DERIVED (Combustion bound, flow held at the lift); the flights do not model the gap or A3; the bound under the flown command profile during the hold is TO-VERIFY (Combustion)"
+  },
+  "P_total_DERIVED": {
+   "rule": "P_total = P_success(class, Combustion) x P_GNC(rh220, SIM, min over the two bases)",
+   "P_GNC_rh220_min": 0.986,
+   "worst_LO": 0.0,
+   "worst_HI": 0.0,
+   "population_LO": [
+    0.2008,
+    0.4291
+   ],
+   "population_HI": [
+    0.0,
+    0.0182
+   ],
+   "no_relight_reference": 0.0,
+   "note": "no gain at the worst states (P_success 0 under LO and HI); a gain exists only in non-worst states, and the population means are over bracket records, not a probability; the expected gain is therefore not stated"
+  }
+ },
+ "lstar_table": [
+  {
+   "lead_bin": ">= 2.9 s (decided predictor)",
+   "decided_action": "PURGE (2.5 s flow), T_fire = commit + 2.90 s",
+   "combustion_class": "purged Tp2.5 worst: P_success 1.0 (v2.4a); v2.4 P_abort 0",
+   "P_GNC_nominal_start_A1_none_A1J_pc": [
+    0.992,
+    0.99
+   ],
+   "P_GNC_L400_bracket_A1_none_A1J_pc": [
+    0.94,
+    0.952
+   ]
+  },
+  {
+   "lead_bin": "2.4-2.9 s (contingency)",
+   "decided_action": "PURGE; flow 2.0-2.5 s; T_fire <= ~0.15 s after the plain trigger",
+   "combustion_class": "purged Tp2.2 robust edge: P_success 1.0 (v2.4a); e19 = Tp1.9 robust edge, v2.4 P_abort 0",
+   "P_GNC_nominal_start_A1_none_A1J_pc": [
+    0.996,
+    0.99
+   ],
+   "P_GNC_L400_bracket_A1_none_A1J_pc": [
+    0.786,
+    0.854
+   ]
+  },
+  {
+   "lead_bin": "1.9-2.4 s (contingency)",
+   "decided_action": "PURGE; flow 1.9-2.1 s; T_fire ~0.2-0.4 s after the plain trigger",
+   "combustion_class": "e19 = Tp1.9 robust edge (v2.4 P_abort 0); 1.9-2.2 s class not tabulated in v2.4a: TO-VERIFY (Combustion)",
+   "P_GNC_nominal_start_A1_none_A1J_pc": [
+    0.99,
+    0.99
+   ],
+   "P_GNC_L400_bracket_A1_none_A1J_pc": [
+    0.64,
+    0.72
+   ]
+  },
+  {
+   "lead_bin": "1.3-1.9 s (contingency)",
+   "decided_action": "PURGE (lead >= L* = 1.3 s); FSW holds T_fire until 1.9 s of flow: 0.6-1.0 s after the plain trigger",
+   "combustion_class": "e19 (flow 1.9 s)",
+   "P_GNC_nominal_start_A1_none_A1J_pc": [
+    0.758,
+    0.78
+   ],
+   "P_GNC_L400_bracket_A1_none_A1J_pc": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "lead_bin": "1.3 s (edge, ant13)",
+   "decided_action": "PURGE at the L* edge; T_fire ~1.0 s after the plain trigger",
+   "combustion_class": "e19 (flow 1.9 s)",
+   "P_GNC_nominal_start_A1_none_A1J_pc": [
+    0.0,
+    0.012
+   ],
+   "P_GNC_L400_bracket_A1_none_A1J_pc": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "lead_bin": "< 1.3 s",
+   "decided_action": "no purge, no unpurged relight (186 (1)): drogue descent, vehicle loss; alternative = unpurged relight with the release held to >= E2 + 0.22 s",
+   "combustion_class": "PURGE NOT RUN: worst LO / HI P_success 0 (v2.4a); population LO 0.20-0.44, HI 0.00-0.02 (records, not probability-weighted)",
+   "P_GNC_nominal_start": [
+    0.988,
+    0.986
+   ],
+   "P_total_decided": 0.0,
+   "P_total_alternative_DERIVED": {
+    "rule": "P_total = P_success(class, Combustion) x P_GNC(rh220, SIM, min over the two bases)",
+    "P_GNC_rh220_min": 0.986,
+    "worst_LO": 0.0,
+    "worst_HI": 0.0,
+    "population_LO": [
+     0.2008,
+     0.4291
+    ],
+    "population_HI": [
+     0.0,
+     0.0182
+    ],
+    "no_relight_reference": 0.0,
+    "note": "no gain at the worst states (P_success 0 under LO and HI); a gain exists only in non-worst states, and the population means are over bracket records, not a probability; the expected gain is therefore not stated"
+   }
+  }
+ ],
+ "findings": [
+  "L400 start, horizon 1.3 s: P 0.000 / 0.000 (A1_none / A1J_pc), lead p50 1.31 s, T_fire after the plain trigger p50 0.99 s, E0 height p50 22.3 m, touchdown vz p50 -23.67 m/s",
+  "L400 start, horizon 1.7 s: P 0.000 / 0.000 (A1_none / A1J_pc), lead p50 1.71 s, T_fire after the plain trigger p50 0.59 s, E0 height p50 31.2 m, touchdown vz p50 -16.55 m/s",
+  "L400 start, horizon 2.1 s: P 0.640 / 0.720 (A1_none / A1J_pc), lead p50 2.11 s, T_fire after the plain trigger p50 0.19 s, E0 height p50 40.1 m, touchdown vz p50 -0.52 m/s",
+  "L400 start, horizon 2.5 s: P 0.786 / 0.854 (A1_none / A1J_pc), lead p50 2.52 s, T_fire after the plain trigger p50 0.127 s, E0 height p50 41.8 m, touchdown vz p50 -0.54 m/s",
+  "nominal start, horizon 1.3 s: P 0.000 / 0.012 (A1_none / A1J_pc), lead p50 1.31 s, T_fire after the plain trigger p50 0.99 s, E0 height p50 22.3 m, touchdown vz p50 -12.63 m/s",
+  "nominal start, horizon 1.7 s: P 0.758 / 0.780 (A1_none / A1J_pc), lead p50 1.71 s, T_fire after the plain trigger p50 0.59 s, E0 height p50 31.2 m, touchdown vz p50 -0.63 m/s",
+  "nominal start, horizon 2.1 s: P 0.990 / 0.990 (A1_none / A1J_pc), lead p50 2.11 s, T_fire after the plain trigger p50 0.19 s, E0 height p50 40.1 m, touchdown vz p50 -1.09 m/s",
+  "nominal start, horizon 2.5 s: P 0.996 / 0.990 (A1_none / A1J_pc), lead p50 2.52 s, T_fire after the plain trigger p50 0.127 s, E0 height p50 41.8 m, touchdown vz p50 -1.07 m/s",
+  "gate-delay tolerance: the gate may open up to 2.96 s late (minimum slack over 6 tables) without moving the commit; a later opening moves the commit one for one"
+ ],
+ "missing": []
+}

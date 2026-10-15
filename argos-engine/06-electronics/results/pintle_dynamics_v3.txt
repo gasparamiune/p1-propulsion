@@ -1,0 +1,109 @@
+pintle_dynamics_v3 (Electronics 2026-10-13): MKS HV69 on MECH 03-cad/calcs/pintle_inline_v34_v2p4.json v2.4 sha 76df8634be1aecaf; rail divider B 7.380/7.490/7.616 V (slow case 7.335 V at the plug)
+MECH baseline cfg {'name': 'v2.3 baseline: MGN09H + plain DU pins', 'mu_g': 0.01, 's_eff': 29.9, 'S': 2.0, 'mu_p': 0.15, 'r_p': 1.5, 'y_l': 11.0, 'f_seal': 18.75, 'T0': 0.25, 'k': 0.12, 'tol': 0.1}
+needle force: Combustion needle_force_v2p3 (csv sha aa12d678b3a85b67); steps under hot-fire L0/L1/L2 (worst law per step); closing under L0 at tank pressure (MECH C1 basis); start P1 [50.5, 70.0] bar with P_torch 1.5 bar
+cross-check vs MECH v2.4 published values (PASS): max |dev| {'C1': np.float64(0.0), 'C2': np.float64(0.0), 'unlit_margin': np.float64(0.0), 'seat_load_N': 0.0, 'r3p5': {'travel_cmd_deg': 0.0, 'seat_load_nom_N': 0.0, 'C1_assist_MEOP_Nm': np.float64(0.0), 'C2_margin_L1': np.float64(0.0), 'C2_margin_L2': np.float64(0.0)}, 'crank': {'phi_stop_deg': 0.0, 'travel_cmd_deg': 0.01, 'dx_dphi_closed_mm_per_rad': 0.0}}; jam rows |dF| N {'7.4V': 0.03, '7.505V': 0.01, '7.6V': 0.05, '7.62V': 0.03, '7.7V': 0.04, '8.2V': 0.02, '8.34V': 0.0, '8.4V': 0.04}
+  this code: C1 {'P3.5MPa': np.float64(0.168), 'P5.5MPa': np.float64(0.132), 'MEOP': np.float64(0.102)}, C2 L1 {'bench_start_hot_Nm': [np.float64(0.561), np.float64(0.538), 0.501], 'max_Nm': np.float64(0.561), 'margin_7V4': np.float64(1.6)}, C2 L2 {'bench_start_hot_Nm': [np.float64(0.561), np.float64(0.554), 0.546], 'max_Nm': np.float64(0.561), 'margin_7V4': np.float64(1.6)}, unlit {'L1': np.float64(1.55), 'L2': np.float64(1.24), 'L0': np.float64(1.82)}, seat {'minus10': 262.6, 'nominal': 291.8, 'plus10': 320.9}; r 3.5 mm {'travel_cmd_deg': 90.2, 'seat_load_nom_N': 246.2, 'C1_assist_MEOP_Nm': np.float64(0.068), 'C2_margin_L1': np.float64(1.61), 'C2_margin_L2': np.float64(1.56)}
+opening margin (stall / max C2 demand) vs rail:
+  rail min static                              7.380 V  T_stall 0.8978 N m  margin 1.600
+  servo plug at rail min (- 30 mOhm x 1.5 A)   7.335 V  T_stall 0.8926 N m  margin 1.591
+  rail typ                                     7.490 V  T_stall 0.9113 N m  margin 1.624
+  7.4 V (MECH C2 basis)                        7.400 V  T_stall 0.9000 N m  margin 1.604
+jam link tension (servo stalled opening, needle held, -10 % spring, pin friction 0): {'7.380 V': 785.2, '7.490 V': 801.0, '7.616 V': 819.3, '7.700 V': 831.5, '8.200 V': 904.5, '8.340 V': 924.9, '8.400 V': 933.7}; r 3.5 mm {'7.616 V': 691.4, '7.700 V': 701.8, '8.340 V': 780.6}
+33 throttle steps (11 x 3.5/5.0/5.5 MPa) x laws L0/L1/L2 (worst per step); GNC criterion t10-90 <= max(0.15 s, 0.8 dF / 1000 N/s):
+  nominal: spring 0, MECH baseline friction, rail typ            GNC True  strict False | open max 0.170 s (min margin 1.67) | close max 0.071 s (min margin 4.73) | assist min +0.165 N m | no-progress max 12.4 ms
+  spring +10 %, plug at rail min                                 GNC True  strict False | open max 0.190 s (min margin 1.48) | close max 0.070 s (min margin 4.81) | assist min +0.196 N m | no-progress max 13.0 ms
+  spring -10 %, plug at rail min                                 GNC True  strict False | open max 0.164 s (min margin 1.73) | close max 0.075 s (min margin 4.53) | assist min +0.134 N m | no-progress max 12.4 ms
+  guide mu 0.02 + S 5 N (MECH sens.), spring +10 %, rail min     GNC True  strict False | open max 0.194 s (min margin 1.44) | close max 0.071 s (min margin 4.78) | assist min +0.188 N m | no-progress max 13.0 ms
+  tau_m 20 ms, spring +10 %, rail min                            GNC True  strict False | open max 0.191 s (min margin 1.44) | close max 0.074 s (min margin 4.54) | assist min +0.196 N m | no-progress max 16.2 ms
+  ECU 60 mm/s command slew, nominal                              GNC True  strict False | open max 0.170 s (min margin 1.67) | close max 0.071 s (min margin 4.74) | assist min +0.165 N m | no-progress max 10.5 ms
+  r 3.5 mm fallback, nominal                                     GNC True  strict False | open max 0.152 s (min margin 1.88) | close max 0.065 s (min margin 5.17) | assist min +0.141 N m | no-progress max 12.0 ms
+  r 3.5 mm fallback, spring +10 %, rail min                      GNC True  strict False | open max 0.170 s (min margin 1.67) | close max 0.065 s (min margin 5.25) | assist min +0.173 N m | no-progress max 12.5 ms
+  per step, spring +10 %, plug at rail min (t10-90 s by law L0/L1/L2, worst margin):
+    3.5 MPa 0.125->1.000 open  0.243->2.981 mm  0.148/0.180/0.190 (req 0.350, margin 1.85, worst L2)
+    3.5 MPa 0.200->1.000 open  0.357->2.981 mm  0.141/0.171/0.181 (req 0.320, margin 1.77, worst L2)
+    3.5 MPa 0.250->1.000 open  0.438->2.981 mm  0.136/0.165/0.174 (req 0.300, margin 1.72, worst L2)
+    3.5 MPa 0.200->0.500 open  0.357->0.941 mm  0.041/0.050/0.051 (req 0.150, margin 2.91, worst L2)
+    3.5 MPa 0.500->1.000 open  0.941->2.981 mm  0.107/0.127/0.135 (req 0.200, margin 1.48, worst L2)
+    3.5 MPa 0.500->0.550 open  0.941->1.089 mm  0.017/0.018/0.018 (req 0.150, margin 8.11, worst L2)
+    3.5 MPa 0.950->1.000 open  2.721->2.981 mm  0.021/0.022/0.023 (req 0.150, margin 6.61, worst L2)
+    3.5 MPa 1.000->0.200 close 2.981->0.357 mm  0.067/0.062/0.061 (req 0.320, margin 4.81, worst L0)
+    3.5 MPa 1.000->0.125 close 2.981->0.243 mm  0.070/0.066/0.065 (req 0.350, margin 4.97, worst L0)
+    3.5 MPa 0.500->0.200 close 0.941->0.357 mm  0.025/0.023/0.023 (req 0.150, margin 6.10, worst L0)
+    3.5 MPa 0.550->0.500 close 1.089->0.941 mm  0.015/0.014/0.014 (req 0.150, margin 10.27, worst L0)
+    5.0 MPa 0.125->1.000 open  0.207->1.916 mm  0.097/0.136/0.146 (req 0.350, margin 2.40, worst L2)
+    5.0 MPa 0.200->1.000 open  0.301->1.916 mm  0.091/0.127/0.137 (req 0.320, margin 2.34, worst L2)
+    5.0 MPa 0.250->1.000 open  0.367->1.916 mm  0.086/0.120/0.130 (req 0.300, margin 2.31, worst L2)
+    5.0 MPa 0.200->0.500 open  0.301->0.755 mm  0.034/0.046/0.047 (req 0.150, margin 3.18, worst L2)
+    5.0 MPa 0.500->1.000 open  0.755->1.916 mm  0.062/0.085/0.094 (req 0.200, margin 2.14, worst L2)
+    5.0 MPa 0.500->0.550 open  0.755->0.854 mm  0.015/0.017/0.017 (req 0.150, margin 8.77, worst L2)
+    5.0 MPa 0.950->1.000 open  1.783->1.916 mm  0.016/0.017/0.018 (req 0.150, margin 8.38, worst L2)
+    5.0 MPa 1.000->0.200 close 1.916->0.301 mm  0.049/0.044/0.043 (req 0.320, margin 6.50, worst L0)
+    5.0 MPa 1.000->0.125 close 1.916->0.207 mm  0.053/0.047/0.046 (req 0.350, margin 6.63, worst L0)
+    5.0 MPa 0.500->0.200 close 0.755->0.301 mm  0.022/0.020/0.020 (req 0.150, margin 6.79, worst L0)
+    5.0 MPa 0.550->0.500 close 0.854->0.755 mm  0.015/0.015/0.015 (req 0.150, margin 10.27, worst L0)
+    5.5 MPa 0.125->1.000 open  0.200->1.775 mm  0.090/0.132/0.143 (req 0.350, margin 2.45, worst L2)
+    5.5 MPa 0.200->1.000 open  0.290->1.775 mm  0.084/0.123/0.134 (req 0.320, margin 2.39, worst L2)
+    5.5 MPa 0.250->1.000 open  0.353->1.775 mm  0.080/0.116/0.127 (req 0.300, margin 2.36, worst L2)
+    5.5 MPa 0.200->0.500 open  0.290->0.721 mm  0.033/0.045/0.047 (req 0.150, margin 3.20, worst L2)
+    5.5 MPa 0.500->1.000 open  0.721->1.775 mm  0.057/0.082/0.091 (req 0.200, margin 2.20, worst L2)
+    5.5 MPa 0.500->0.550 open  0.721->0.813 mm  0.015/0.017/0.017 (req 0.150, margin 8.82, worst L2)
+    5.5 MPa 0.950->1.000 open  1.656->1.775 mm  0.015/0.017/0.018 (req 0.150, margin 8.43, worst L2)
+    5.5 MPa 1.000->0.200 close 1.775->0.290 mm  0.047/0.041/0.040 (req 0.320, margin 6.81, worst L0)
+    5.5 MPa 1.000->0.125 close 1.775->0.200 mm  0.051/0.044/0.043 (req 0.350, margin 6.93, worst L0)
+    5.5 MPa 0.500->0.200 close 0.721->0.290 mm  0.022/0.020/0.019 (req 0.150, margin 6.88, worst L0)
+    5.5 MPa 0.550->0.500 close 0.813->0.721 mm  0.015/0.015/0.015 (req 0.150, margin 10.20, worst L0)
+ENG-05 closing (SHUTDOWN, lift command ramp 0.2 m/s; L0 at tank pressure, chamber ambient):
+  nominal, rail typ                      3.5 MPa from  75 % (375 N, 1.679 mm): <10 % at 0.0706 s, seated 0.0852 s  ENG-05 PASS  assist min +0.197
+  nominal, rail typ                      3.5 MPa from 100 % (500 N, 2.981 mm): <10 % at 0.1065 s, seated 0.1212 s  ENG-05 FAIL  assist min +0.197
+  nominal, rail typ                      5.5 MPa from  75 % (375 N, 1.181 mm): <10 % at 0.0586 s, seated 0.0713 s  ENG-05 PASS  assist min +0.164
+  nominal, rail typ                      5.5 MPa from 100 % (500 N, 1.775 mm): <10 % at 0.0778 s, seated 0.0905 s  ENG-05 PASS  assist min +0.164
+  spring -10 %, plug at rail min         3.5 MPa from  75 % (375 N, 1.679 mm): <10 % at 0.0732 s, seated 0.0885 s  ENG-05 PASS  assist min +0.168
+  spring -10 %, plug at rail min         3.5 MPa from 100 % (500 N, 2.981 mm): <10 % at 0.111 s, seated 0.1263 s  ENG-05 FAIL  assist min +0.168
+  spring -10 %, plug at rail min         5.5 MPa from  75 % (375 N, 1.181 mm): <10 % at 0.0608 s, seated 0.074 s  ENG-05 PASS  assist min +0.132
+  spring -10 %, plug at rail min         5.5 MPa from 100 % (500 N, 1.775 mm): <10 % at 0.0809 s, seated 0.0941 s  ENG-05 PASS  assist min +0.132
+  spring -10 %, rail min, tau_m 20 ms    3.5 MPa from  75 % (375 N, 1.679 mm): <10 % at 0.0828 s, seated 0.0984 s  ENG-05 PASS  assist min +0.168
+  spring -10 %, rail min, tau_m 20 ms    3.5 MPa from 100 % (500 N, 2.981 mm): <10 % at 0.1207 s, seated 0.1361 s  ENG-05 FAIL  assist min +0.168
+  spring -10 %, rail min, tau_m 20 ms    5.5 MPa from  75 % (375 N, 1.181 mm): <10 % at 0.0701 s, seated 0.0839 s  ENG-05 PASS  assist min +0.132
+  spring -10 %, rail min, tau_m 20 ms    5.5 MPa from 100 % (500 N, 1.775 mm): <10 % at 0.0907 s, seated 0.1042 s  ENG-05 PASS  assist min +0.132
+  r 3.5 mm, spring -10 %, rail min       3.5 MPa from  75 % (375 N, 1.679 mm): <10 % at 0.068 s, seated 0.0814 s  ENG-05 PASS  assist min +0.150
+  r 3.5 mm, spring -10 %, rail min       3.5 MPa from 100 % (500 N, 2.981 mm): <10 % at 0.1021 s, seated 0.1155 s  ENG-05 FAIL  assist min +0.150
+  r 3.5 mm, spring -10 %, rail min       5.5 MPa from  75 % (375 N, 1.181 mm): <10 % at 0.0568 s, seated 0.0684 s  ENG-05 PASS  assist min +0.106
+  r 3.5 mm, spring -10 %, rail min       5.5 MPa from 100 % (500 N, 1.775 mm): <10 % at 0.0753 s, seated 0.0869 s  ENG-05 PASS  assist min +0.104
+  MECH meco_close_estimate vs this (nominal, seated): {'F75_P3.5MPa': {'mech_t_s': 0.079, 'this_nominal_t_seated_s': 0.0852}, 'F100_P3.5MPa': {'mech_t_s': 0.118, 'this_nominal_t_seated_s': 0.1212}, 'F75_P5.5MPa': {'mech_t_s': 0.064, 'this_nominal_t_seated_s': 0.0713}, 'F100_P5.5MPa': {'mech_t_s': 0.085, 'this_nominal_t_seated_s': 0.0905}}
+full strokes 0 <-> 4.0 mm: t90/t99 [s] (seated for closing), end droop [mm]:
+  nominal, rail typ                    open_bench 0.2899/0.3191 (+0.047) | close_bench 0.1158/0.137 seat 0.1405 (+0.000) | close_MEOP_L0 0.1301/0.1532 seat 0.1568 (+0.000) | open_3p5MPa_unlit_L1 0.3455/0.3776 (+0.050) | open_3p5MPa_unlit_L2 0.4158/0.4654 (+0.064)
+  spring +10 %, plug at rail min       open_bench 0.3204/0.3543 (+0.052) | close_bench 0.1139/0.1348 seat 0.1383 (+0.000) | close_MEOP_L0 0.1278/0.1505 seat 0.1541 (+0.000) | open_3p5MPa_unlit_L1 0.3918/0.4296 (+0.055) | open_3p5MPa_unlit_L2 0.4966/0.5631 (+0.070)
+  spring -10 %, plug at rail min       open_bench 0.2819/0.3097 (+0.043) | close_bench 0.1206/0.1426 seat 0.1463 (+0.000) | close_MEOP_L0 0.1364/0.1605 seat 0.1642 (+0.000) | open_3p5MPa_unlit_L1 0.3338/0.3641 (+0.046) | open_3p5MPa_unlit_L2 0.3959/0.441 (+0.060)
+  spring -10 %, rail min, tau_m 20 ms  open_bench 0.2863/0.315 (+0.043) | close_bench 0.1299/0.1518 seat 0.1556 (+0.000) | close_MEOP_L0 0.1458/0.17 seat 0.174 (+0.000) | open_3p5MPa_unlit_L1 0.3371/0.3685 (+0.046) | open_3p5MPa_unlit_L2 0.3949/0.4405 (+0.060)
+  spring +10 %, rail min, tau_m 20 ms  open_bench 0.3229/0.3574 (+0.052) | close_bench 0.1231/0.1439 seat 0.1475 (+0.000) | close_MEOP_L0 0.1371/0.1599 seat 0.1637 (+0.000) | open_3p5MPa_unlit_L1 0.3927/0.4314 (+0.055) | open_3p5MPa_unlit_L2 0.4914/0.5577 (+0.070)
+  r 3.5 mm, spring +10 %, rail min     open_bench 0.2792/0.3066 (+0.062) | close_bench 0.1027/0.1213 seat 0.1243 (+0.000) | close_MEOP_L0 0.1175/0.138 seat 0.1411 (+0.000) | open_3p5MPa_unlit_L1 0.3498/0.3809 (+0.066) | open_3p5MPa_unlit_L2 0.4621/0.5243 (+0.089)
+  r 3.5 mm, spring -10 %, rail min     open_bench 0.2478/0.2708 (+0.051) | close_bench 0.1086/0.1281 seat 0.1313 (+0.000) | close_MEOP_L0 0.1254/0.1471 seat 0.1504 (+0.000) | open_3p5MPa_unlit_L1 0.2996/0.325 (+0.055) | open_3p5MPa_unlit_L2 0.3655/0.4067 (+0.077)
+firmware constants vs v3: no-progress normal max {'nominal_tau_m': 0.0242, 'with_tau_m_20ms': 0.0301, 'source': 'lost motion at the opening from the closed command (dog crosses 5 deg before the crank moves)'}; slowest flight full stroke {'nominal_tau_m': {'case': 'spring +10 %, plug at rail min', 'record': 'open_bench', 't_s': 0.3543}, 'with_tau_m_20ms': {'case': 'spring +10 %, rail min, tau_m 20 ms', 'record': 'open_bench', 't_s': 0.3574}}; slowest powered close {'nominal_tau_m': {'case': 'spring -10 %, plug at rail min', 't_seated_s': 0.1642}, 'with_tau_m_20ms': {'case': 'spring -10 %, rail min, tau_m 20 ms', 't_seated_s': 0.174}}; ground unlit N2 stroke {'case': 'spring +10 %, plug at rail min', 'record': 'open_3p5MPa_unlit_L2', 't99_s': 0.5631, 'track_err_max_s': 0.555, 'note': 'cold-flow procedure case; the tracking timeout runs on the error > kPintleStallErr_m'}
+  firmware {'kPintleNoProgNormal_s': 0.0242, 'kPintleFullStrokeSlow_s': 0.383, 'kPintleCloseSlow_s': 0.17, 'kPintleStallTime_s': 0.1, 'kPintleTrackTime_s': 0.6, 'kPintleUnpoweredClose_s': 1.0, 'kMvSeatTimeout_s': 0.25}
+  PASS  kPintleNoProgNormal_s bounds the v3 nominal value
+  PASS  kPintleFullStrokeSlow_s bounds the v3 flight full strokes (nominal)
+  PASS  kPintleCloseSlow_s bounds the v3 powered closing (nominal)
+  PASS  stall time >= 4 x no-progress (nominal tau_m)
+  PASS  track time >= 1.5 x slowest flight full stroke (nominal)
+  PASS  unpowered check >= 3 x slowest powered close (with tau_m 20 ms)
+  PASS  seat timeout >= 1.4 x slowest powered close (with tau_m 20 ms)
+  sensitivity ratios: {'stall_time_over_noprog_tau20': 3.32, 'track_time_over_slowest_flight_stroke_tau20': 1.68, 'track_time_over_ground_unlit_track_err': 1.08, 'seat_timeout_over_close_tau20': 1.44}
+B-PNT-1 back-drive (L0, -10 % spring): min closing assist over the stroke 0.1018 N m; acceptance {'T_bd_max_Nm': 0.05, 'rule': 'measured unpowered back-drive torque at the HV69 output (slow, and at ~2 rad/s), every crank angle over the full stroke, <= 0.5 x the -10 % spring closing assist at that angle (column T_bd_allow_Nm, the minimum of bench and L0 at 3.5 / 5.5 / 7.0 MPa); scalar target <= 0.05 N m kept from v2', 'unpowered_close_s_max': 0.333, 'unpowered_close_rule': 'unpowered spring closing 4.0 mm -> seated (servo unpowered, bench, nominal spring) within kPintleUnpoweredClose_s / 3 = SAFE-check margin 3 (config.h static_assert)'}
+  crank  16.00 deg (servo +  6.00) lift 0.015 mm: spring -10 % 0.227, assist bench 0.203 / 3.5 0.243 / 5.5 0.261 / MEOP 0.274 N m -> T_bd allowed 0.102 N m
+  crank  22.00 deg (servo + 12.00) lift 0.128 mm: spring -10 % 0.238, assist bench 0.208 / 3.5 0.172 / 5.5 0.151 / MEOP 0.136 N m -> T_bd allowed 0.068 N m
+  crank  28.00 deg (servo + 18.00) lift 0.274 mm: spring -10 % 0.249, assist bench 0.213 / 3.5 0.170 / 5.5 0.145 / MEOP 0.126 N m -> T_bd allowed 0.063 N m
+  crank  34.00 deg (servo + 24.00) lift 0.450 mm: spring -10 % 0.261, assist bench 0.218 / 3.5 0.168 / 5.5 0.139 / MEOP 0.117 N m -> T_bd allowed 0.059 N m
+  crank  40.00 deg (servo + 30.00) lift 0.655 mm: spring -10 % 0.272, assist bench 0.224 / 3.5 0.168 / 5.5 0.135 / MEOP 0.110 N m -> T_bd allowed 0.055 N m
+  crank  46.00 deg (servo + 36.00) lift 0.886 mm: spring -10 % 0.283, assist bench 0.230 / 3.5 0.169 / 5.5 0.132 / MEOP 0.105 N m -> T_bd allowed 0.052 N m
+  crank  52.00 deg (servo + 42.00) lift 1.140 mm: spring -10 % 0.295, assist bench 0.237 / 3.5 0.171 / 5.5 0.132 / MEOP 0.102 N m -> T_bd allowed 0.051 N m
+  crank  58.00 deg (servo + 48.00) lift 1.413 mm: spring -10 % 0.306, assist bench 0.245 / 3.5 0.174 / 5.5 0.133 / MEOP 0.102 N m -> T_bd allowed 0.051 N m
+  crank  64.00 deg (servo + 54.00) lift 1.702 mm: spring -10 % 0.317, assist bench 0.254 / 3.5 0.180 / 5.5 0.136 / MEOP 0.104 N m -> T_bd allowed 0.052 N m
+  crank  70.00 deg (servo + 60.00) lift 2.003 mm: spring -10 % 0.329, assist bench 0.263 / 3.5 0.186 / 5.5 0.142 / MEOP 0.108 N m -> T_bd allowed 0.054 N m
+  crank  76.00 deg (servo + 66.00) lift 2.313 mm: spring -10 % 0.340, assist bench 0.273 / 3.5 0.195 / 5.5 0.149 / MEOP 0.115 N m -> T_bd allowed 0.057 N m
+  crank  82.00 deg (servo + 72.00) lift 2.628 mm: spring -10 % 0.351, assist bench 0.283 / 3.5 0.205 / 5.5 0.159 / MEOP 0.124 N m -> T_bd allowed 0.062 N m
+  crank  88.00 deg (servo + 78.00) lift 2.943 mm: spring -10 % 0.363, assist bench 0.295 / 3.5 0.217 / 5.5 0.170 / MEOP 0.136 N m -> T_bd allowed 0.068 N m
+  crank  94.00 deg (servo + 84.00) lift 3.257 mm: spring -10 % 0.374, assist bench 0.307 / 3.5 0.230 / 5.5 0.184 / MEOP 0.150 N m -> T_bd allowed 0.075 N m
+  crank 100.00 deg (servo + 90.00) lift 3.564 mm: spring -10 % 0.385, assist bench 0.320 / 3.5 0.244 / 5.5 0.199 / MEOP 0.166 N m -> T_bd allowed 0.083 N m
+  crank 106.00 deg (servo + 96.00) lift 3.863 mm: spring -10 % 0.397, assist bench 0.333 / 3.5 0.259 / 5.5 0.216 / MEOP 0.184 N m -> T_bd allowed 0.092 N m
+  crank 112.00 deg (servo +102.00) lift 4.149 mm: spring -10 % 0.408, assist bench 0.347 / 3.5 0.276 / 5.5 0.235 / MEOP 0.204 N m -> T_bd allowed 0.102 N m
+  crank 113.09 deg (servo +103.09) lift 4.200 mm: spring -10 % 0.410, assist bench 0.349 / 3.5 0.280 / 5.5 0.238 / MEOP 0.207 N m -> T_bd allowed 0.104 N m

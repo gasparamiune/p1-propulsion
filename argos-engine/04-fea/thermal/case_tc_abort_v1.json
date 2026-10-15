@@ -1,0 +1,693 @@
+{
+ "id": "case_tc_abort",
+ "version": "v1",
+ "date": "2026-10-13",
+ "script": "04-fea/thermal/case_tc_abort.py",
+ "station": {
+  "history_key": "case_OD_z95_100_max",
+  "where": "TC-01 case OD r 31.75 mm, z 95-100 mm thermal-model frame = 12.6-17.6 mm below the injector face (TC-06 pre-chamber section, plain tube); the in-burn maximum of every run peaks in this band (see burn_max_by_band_C)",
+  "geometry": {
+   "ri_mm": 28.575,
+   "ro_mm": 31.75,
+   "tag": "CAD v3.3/v3.4 TC-01 6061-T6 tube 63.5 x 3.175 (plain section at the pre-chamber)"
+  }
+ },
+ "allowable": {
+  "MEOP_Pa": {
+   "P_bar": 45.0,
+   "stress": {
+    "hoop_ID_MPa": 42.87,
+    "radial_MPa": -4.5,
+    "axial_MPa": 19.18,
+    "tresca_MPa": 47.37,
+    "vm_MPa": 41.02
+   },
+   "SF_y": 1.5,
+   "SF_u": 2.0,
+   "T_allow_yield_C": 221.3,
+   "T_allow_ult_C": 216.6,
+   "T_allow_C": 216.6,
+   "tag": "LC2 chamber MEOP 45 bar (lead 2026-10-12), SF_y 1.5 / SF_u 2.0 at part temperature"
+  },
+  "BN_Pa": {
+   "P_bar": 63.08,
+   "stress": {
+    "hoop_ID_MPa": 60.09,
+    "radial_MPa": -6.31,
+    "axial_MPa": 26.89,
+    "tresca_MPa": 66.4,
+    "vm_MPa": 57.5
+   },
+   "SF_y": 1.0,
+   "SF_u": null,
+   "T_allow_yield_C": 225.6,
+   "T_allow_ult_C": null,
+   "T_allow_C": 225.6,
+   "tag": "BN blocked-nozzle bound 63.08 bar (lead 2026-10-12), SF_y 1.0 at temperature"
+  }
+ },
+ "T_allow_C": 216.6,
+ "T_allow_K": 489.75,
+ "material_basis": "ASTM B221/B241 6061-T6 min Fty 240 MPa x ASM typical ratio YS(T)/YS(RT) after 10 000 h (conservative for short exposure)",
+ "check_548K": {
+  "MEOP_Pa": {
+   "Fty_MPa": 26.1,
+   "Ftu_MPa": 38.5,
+   "tresca_MPa": 47.4,
+   "SF_y_actual": 0.55,
+   "SF_y_req": 1.5,
+   "SF_u_actual": 0.81,
+   "SF_u_req": 2.0,
+   "pass": false
+  },
+  "BN_Pa": {
+   "Fty_MPa": 26.1,
+   "Ftu_MPa": 38.5,
+   "tresca_MPa": 66.4,
+   "SF_y_actual": 0.39,
+   "SF_y_req": 1.0,
+   "SF_u_actual": 0.58,
+   "SF_u_req": null,
+   "pass": false
+  },
+  "Pc_25bar": {
+   "tresca_MPa": 26.3,
+   "SF_y_actual": 0.99,
+   "SF_u_actual": 1.46
+  },
+  "Pc_15bar": {
+   "tresca_MPa": 15.8,
+   "SF_y_actual": 1.65,
+   "SF_u_actual": 2.44
+  }
+ },
+ "margins": {
+  "nuisance_K": {
+   "v": 15.0,
+   "tag": "ASSUMED: threshold above the upper-bound in-burn prediction (sensor accuracy Class 1 +/-1.5 K, TC placement, burn-to-burn scatter beyond the p99 cycle)"
+  },
+  "tau_TC_s": {
+   "v": 1.0,
+   "tag": "ASSUMED bonded bare-bead / 0.5 mm sheathed TC on the case OD (cemented + Al tape): first-order lag 0.3-1 s"
+  },
+  "hold_s": {
+   "v": 0.2,
+   "tag": "firmware v2.7 hold time"
+  },
+  "decay_s": {
+   "v": 0.35,
+   "tag": "ASSUMED: NC valve close <= 0.15 s (combustion.json isolation_valve) + chamber blow-down ~0.2 s"
+  },
+  "circ_model_K": {
+   "v": 20.0,
+   "tag": "ASSUMED: circumferential hot streaks (axisymmetric model), TC-06 thickness tolerance, OD-ID difference 3-4 K"
+  }
+ },
+ "runs": {
+  "base_TC06_1p6": [
+   {
+    "label": "DC-A1dispp99_hi_SS316L_L2.5_v11",
+    "segments_s": [
+     [
+      0.001,
+      3.751
+     ],
+     [
+      22.891,
+      27.371
+     ]
+    ],
+    "D_pre_override": null,
+    "histories_sha256_16": "b1294bf58b3d520e",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "T_max_burn_C": 164.4,
+    "T_max_burn_K": 437.6,
+    "T_max_flight_C": 164.4,
+    "T_max_overall_C": 215.1,
+    "t_max_overall_s": 32.4,
+    "rate_max_burn_K_s": 29.5,
+    "seg_end": [
+     {
+      "t_s": 3.751,
+      "T_C": 74.0,
+      "rate_last_1s_K_s": 27.7
+     },
+     {
+      "t_s": 27.371,
+      "T_C": 164.4,
+      "rate_last_1s_K_s": 23.0
+     }
+    ],
+    "first_burn_crossing_s": {
+     "150C": 26.87,
+     "175C": null,
+     "200C": null,
+     "217C": null
+    },
+    "burn_max_by_band_C": {
+     "z20_25": 43.0,
+     "z25_30": 46.0,
+     "z30_35": 50.0,
+     "z35_40": 55.0,
+     "z40_45": 60.0,
+     "z45_50": 65.0,
+     "z50_55": 71.0,
+     "z55_60": 77.0,
+     "z60_65": 85.0,
+     "z65_70": 94.0,
+     "z70_75": 105.0,
+     "z75_80": 120.0,
+     "z80_85": 138.0,
+     "z85_90": 153.0,
+     "z90_95": 162.0,
+     "z95_100": 164.0,
+     "z100_105": 164.0,
+     "z105_110": 158.0,
+     "z110_115": 146.0,
+     "z115_120": 128.0,
+     "z120_125": 107.0,
+     "z125_130": 92.0,
+     "z130_135": 80.0,
+     "z135_140": 71.0,
+     "z140_145": 66.0,
+     "z145_150": 63.0
+    }
+   },
+   {
+    "label": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v11",
+    "segments_s": [
+     [
+      0.001,
+      21.651
+     ]
+    ],
+    "D_pre_override": null,
+    "histories_sha256_16": "2378bba2a2617145",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "T_max_burn_C": 323.1,
+    "T_max_burn_K": 596.3,
+    "T_max_flight_C": 323.1,
+    "T_max_overall_C": 332.6,
+    "t_max_overall_s": 23.7,
+    "rate_max_burn_K_s": 25.8,
+    "seg_end": [
+     {
+      "t_s": 21.651,
+      "T_C": 323.1,
+      "rate_last_1s_K_s": 8.3
+     }
+    ],
+    "first_burn_crossing_s": {
+     "150C": 7.5,
+     "175C": 8.5,
+     "200C": 10.0,
+     "217C": 11.5
+    },
+    "burn_max_by_band_C": {
+     "z20_25": 48.0,
+     "z25_30": 55.0,
+     "z30_35": 63.0,
+     "z35_40": 73.0,
+     "z40_45": 85.0,
+     "z45_50": 99.0,
+     "z50_55": 115.0,
+     "z55_60": 134.0,
+     "z60_65": 156.0,
+     "z65_70": 182.0,
+     "z70_75": 211.0,
+     "z75_80": 244.0,
+     "z80_85": 279.0,
+     "z85_90": 307.0,
+     "z90_95": 321.0,
+     "z95_100": 323.0,
+     "z100_105": 320.0,
+     "z105_110": 302.0,
+     "z110_115": 271.0,
+     "z115_120": 231.0,
+     "z120_125": 192.0,
+     "z125_130": 162.0,
+     "z130_135": 137.0,
+     "z135_140": 116.0,
+     "z140_145": 103.0,
+     "z145_150": 96.0
+    }
+   },
+   {
+    "label": "DC-B1v3max_hi_SS316L_L2.5_v11",
+    "segments_s": [
+     [
+      0.001,
+      23.621
+     ]
+    ],
+    "D_pre_override": null,
+    "histories_sha256_16": "88d949fc9bb3b70c",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "T_max_burn_C": 330.1,
+    "T_max_burn_K": 603.3,
+    "T_max_flight_C": 330.1,
+    "T_max_overall_C": 338.3,
+    "t_max_overall_s": 25.6,
+    "rate_max_burn_K_s": 25.0,
+    "seg_end": [
+     {
+      "t_s": 23.621,
+      "T_C": 330.1,
+      "rate_last_1s_K_s": 7.1
+     }
+    ],
+    "first_burn_crossing_s": {
+     "150C": 7.49,
+     "175C": 8.99,
+     "200C": 10.49,
+     "217C": 11.49
+    },
+    "burn_max_by_band_C": {
+     "z20_25": 54.0,
+     "z25_30": 61.0,
+     "z30_35": 70.0,
+     "z35_40": 81.0,
+     "z40_45": 93.0,
+     "z45_50": 108.0,
+     "z50_55": 125.0,
+     "z55_60": 145.0,
+     "z60_65": 167.0,
+     "z65_70": 193.0,
+     "z70_75": 222.0,
+     "z75_80": 254.0,
+     "z80_85": 288.0,
+     "z85_90": 315.0,
+     "z90_95": 329.0,
+     "z95_100": 330.0,
+     "z100_105": 326.0,
+     "z105_110": 308.0,
+     "z110_115": 277.0,
+     "z115_120": 237.0,
+     "z120_125": 198.0,
+     "z125_130": 168.0,
+     "z130_135": 143.0,
+     "z135_140": 123.0,
+     "z140_145": 110.0,
+     "z145_150": 103.0
+    }
+   }
+  ],
+  "pre36_TC06_3p6": [
+   {
+    "label": "DC-A1dispp99_hi_SS316L_L2.5_v11pre36",
+    "segments_s": [
+     [
+      0.001,
+      3.751
+     ],
+     [
+      22.891,
+      27.371
+     ]
+    ],
+    "D_pre_override": {
+     "D_pre": 0.0499
+    },
+    "histories_sha256_16": "c2596a6e02e55947",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "T_max_burn_C": 86.6,
+    "T_max_burn_K": 359.8,
+    "T_max_flight_C": 86.6,
+    "T_max_overall_C": 124.6,
+    "t_max_overall_s": 46.4,
+    "rate_max_burn_K_s": 4.0,
+    "seg_end": [
+     {
+      "t_s": 3.751,
+      "T_C": 29.0,
+      "rate_last_1s_K_s": 3.7
+     },
+     {
+      "t_s": 27.371,
+      "T_C": 86.6,
+      "rate_last_1s_K_s": 3.3
+     }
+    ],
+    "first_burn_crossing_s": {
+     "150C": null,
+     "175C": null,
+     "200C": null,
+     "217C": null
+    },
+    "burn_max_by_band_C": {
+     "z20_25": 27.0,
+     "z25_30": 29.0,
+     "z30_35": 31.0,
+     "z35_40": 33.0,
+     "z40_45": 36.0,
+     "z45_50": 39.0,
+     "z50_55": 42.0,
+     "z55_60": 46.0,
+     "z60_65": 51.0,
+     "z65_70": 56.0,
+     "z70_75": 62.0,
+     "z75_80": 68.0,
+     "z80_85": 74.0,
+     "z85_90": 80.0,
+     "z90_95": 84.0,
+     "z95_100": 87.0,
+     "z100_105": 88.0,
+     "z105_110": 88.0,
+     "z110_115": 88.0,
+     "z115_120": 83.0,
+     "z120_125": 75.0,
+     "z125_130": 67.0,
+     "z130_135": 60.0,
+     "z135_140": 55.0,
+     "z140_145": 51.0,
+     "z145_150": 48.0
+    }
+   },
+   {
+    "label": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v11pre36",
+    "segments_s": [
+     [
+      0.001,
+      21.651
+     ]
+    ],
+    "D_pre_override": {
+     "D_pre": 0.0499
+    },
+    "histories_sha256_16": "17bd07412de68761",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "T_max_burn_C": 142.7,
+    "T_max_burn_K": 415.9,
+    "T_max_flight_C": 142.7,
+    "T_max_overall_C": 180.3,
+    "t_max_overall_s": 36.7,
+    "rate_max_burn_K_s": 7.6,
+    "seg_end": [
+     {
+      "t_s": 21.651,
+      "T_C": 142.7,
+      "rate_last_1s_K_s": 6.7
+     }
+    ],
+    "first_burn_crossing_s": {
+     "150C": null,
+     "175C": null,
+     "200C": null,
+     "217C": null
+    },
+    "burn_max_by_band_C": {
+     "z20_25": 27.0,
+     "z25_30": 29.0,
+     "z30_35": 31.0,
+     "z35_40": 34.0,
+     "z40_45": 37.0,
+     "z45_50": 42.0,
+     "z50_55": 47.0,
+     "z55_60": 54.0,
+     "z60_65": 62.0,
+     "z65_70": 72.0,
+     "z70_75": 84.0,
+     "z75_80": 98.0,
+     "z80_85": 114.0,
+     "z85_90": 127.0,
+     "z90_95": 136.0,
+     "z95_100": 143.0,
+     "z100_105": 144.0,
+     "z105_110": 143.0,
+     "z110_115": 139.0,
+     "z115_120": 129.0,
+     "z120_125": 116.0,
+     "z125_130": 102.0,
+     "z130_135": 91.0,
+     "z135_140": 81.0,
+     "z140_145": 74.0,
+     "z145_150": 69.0
+    }
+   },
+   {
+    "label": "DC-B1v3max_hi_SS316L_L2.5_v11pre36",
+    "segments_s": [
+     [
+      0.001,
+      23.621
+     ]
+    ],
+    "D_pre_override": {
+     "D_pre": 0.0499
+    },
+    "histories_sha256_16": "fef28029c08d4a0c",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "T_max_burn_C": 151.8,
+    "T_max_burn_K": 424.9,
+    "T_max_flight_C": 151.8,
+    "T_max_overall_C": 185.8,
+    "t_max_overall_s": 38.6,
+    "rate_max_burn_K_s": 7.5,
+    "seg_end": [
+     {
+      "t_s": 23.621,
+      "T_C": 151.8,
+      "rate_last_1s_K_s": 6.2
+     }
+    ],
+    "first_burn_crossing_s": {
+     "150C": 23.47,
+     "175C": null,
+     "200C": null,
+     "217C": null
+    },
+    "burn_max_by_band_C": {
+     "z20_25": 30.0,
+     "z25_30": 32.0,
+     "z30_35": 34.0,
+     "z35_40": 38.0,
+     "z40_45": 42.0,
+     "z45_50": 47.0,
+     "z50_55": 53.0,
+     "z55_60": 60.0,
+     "z60_65": 69.0,
+     "z65_70": 80.0,
+     "z70_75": 93.0,
+     "z75_80": 108.0,
+     "z80_85": 124.0,
+     "z85_90": 137.0,
+     "z90_95": 146.0,
+     "z95_100": 152.0,
+     "z100_105": 152.0,
+     "z105_110": 150.0,
+     "z110_115": 145.0,
+     "z115_120": 134.0,
+     "z120_125": 120.0,
+     "z125_130": 107.0,
+     "z130_135": 95.0,
+     "z135_140": 86.0,
+     "z140_145": 78.0,
+     "z145_150": 74.0
+    }
+   },
+   {
+    "label": "DC-B1_gncv2_hi_SS316L_L2.5_v11pre36",
+    "segments_s": [
+     [
+      0.001,
+      19.031
+     ]
+    ],
+    "D_pre_override": {
+     "D_pre": 0.0499
+    },
+    "histories_sha256_16": "281f15f689ad3ec0",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "T_max_burn_C": 123.1,
+    "T_max_burn_K": 396.2,
+    "T_max_flight_C": 123.1,
+    "T_max_overall_C": 165.9,
+    "t_max_overall_s": 35.0,
+    "rate_max_burn_K_s": 7.7,
+    "seg_end": [
+     {
+      "t_s": 19.031,
+      "T_C": 123.1,
+      "rate_last_1s_K_s": 7.3
+     }
+    ],
+    "first_burn_crossing_s": {
+     "150C": null,
+     "175C": null,
+     "200C": null,
+     "217C": null
+    },
+    "burn_max_by_band_C": {
+     "z20_25": 23.0,
+     "z25_30": 25.0,
+     "z30_35": 26.0,
+     "z35_40": 28.0,
+     "z40_45": 31.0,
+     "z45_50": 34.0,
+     "z50_55": 38.0,
+     "z55_60": 43.0,
+     "z60_65": 50.0,
+     "z65_70": 58.0,
+     "z70_75": 69.0,
+     "z75_80": 81.0,
+     "z80_85": 95.0,
+     "z85_90": 107.0,
+     "z90_95": 116.0,
+     "z95_100": 123.0,
+     "z100_105": 125.0,
+     "z105_110": 125.0,
+     "z110_115": 124.0,
+     "z115_120": 116.0,
+     "z120_125": 105.0,
+     "z125_130": 92.0,
+     "z130_135": 82.0,
+     "z135_140": 73.0,
+     "z140_145": 66.0,
+     "z145_150": 62.0
+    }
+   }
+  ],
+  "reference": [
+   {
+    "label": "DC-B1_gncv2_nom_SS316L_L2.5_v11",
+    "segments_s": [
+     [
+      0.001,
+      19.031
+     ]
+    ],
+    "D_pre_override": null,
+    "histories_sha256_16": "6e6161892f12c1d8",
+    "bound": "Bartz x1 everywhere, gas radiation LOW band (Combustion headend_bc 'x1')",
+    "T_max_burn_C": 227.3,
+    "T_max_burn_K": 500.4,
+    "T_max_flight_C": 227.3,
+    "T_max_overall_C": 240.2,
+    "t_max_overall_s": 22.0,
+    "rate_max_burn_K_s": 17.0,
+    "seg_end": [
+     {
+      "t_s": 19.031,
+      "T_C": 227.3,
+      "rate_last_1s_K_s": 9.0
+     }
+    ],
+    "first_burn_crossing_s": {
+     "150C": 10.99,
+     "175C": 12.99,
+     "200C": 15.98,
+     "217C": 17.98
+    },
+    "burn_max_by_band_C": {
+     "z20_25": 33.0,
+     "z25_30": 37.0,
+     "z30_35": 42.0,
+     "z35_40": 48.0,
+     "z40_45": 55.0,
+     "z45_50": 64.0,
+     "z50_55": 75.0,
+     "z55_60": 88.0,
+     "z60_65": 103.0,
+     "z65_70": 121.0,
+     "z70_75": 142.0,
+     "z75_80": 167.0,
+     "z80_85": 194.0,
+     "z85_90": 215.0,
+     "z90_95": 226.0,
+     "z95_100": 227.0,
+     "z100_105": 224.0,
+     "z105_110": 211.0,
+     "z110_115": 186.0,
+     "z115_120": 155.0,
+     "z120_125": 126.0,
+     "z125_130": 104.0,
+     "z130_135": 87.0,
+     "z135_140": 73.0,
+     "z140_145": 65.0,
+     "z145_150": 61.0
+    }
+   },
+   {
+    "label": "DC-B1_gncv2_hi_SS316L_L2.5_v11",
+    "segments_s": [
+     [
+      0.001,
+      19.031
+     ]
+    ],
+    "D_pre_override": null,
+    "histories_sha256_16": "c32bec03292883fb",
+    "bound": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band",
+    "T_max_burn_C": 299.6,
+    "T_max_burn_K": 572.7,
+    "T_max_flight_C": 299.6,
+    "T_max_overall_C": 311.8,
+    "t_max_overall_s": 22.0,
+    "rate_max_burn_K_s": 25.4,
+    "seg_end": [
+     {
+      "t_s": 19.031,
+      "T_C": 299.6,
+      "rate_last_1s_K_s": 9.9
+     }
+    ],
+    "first_burn_crossing_s": {
+     "150C": 7.49,
+     "175C": 8.99,
+     "200C": 10.49,
+     "217C": 11.49
+    },
+    "burn_max_by_band_C": {
+     "z20_25": 39.0,
+     "z25_30": 45.0,
+     "z30_35": 51.0,
+     "z35_40": 60.0,
+     "z40_45": 70.0,
+     "z45_50": 82.0,
+     "z50_55": 97.0,
+     "z55_60": 115.0,
+     "z60_65": 135.0,
+     "z65_70": 159.0,
+     "z70_75": 187.0,
+     "z75_80": 219.0,
+     "z80_85": 254.0,
+     "z85_90": 282.0,
+     "z90_95": 297.0,
+     "z95_100": 300.0,
+     "z100_105": 297.0,
+     "z105_110": 281.0,
+     "z110_115": 252.0,
+     "z115_120": 213.0,
+     "z120_125": 176.0,
+     "z125_130": 147.0,
+     "z130_135": 123.0,
+     "z135_140": 103.0,
+     "z140_145": 91.0,
+     "z145_150": 85.0
+    }
+   }
+  ]
+ },
+ "window_base_TC06_1p6": {
+  "T_pred_max_burn_C": 330.1,
+  "rate_end_burn_K_s": 27.7,
+  "lag_K": 42.9,
+  "lower_C": 345.1,
+  "upper_C": 153.7,
+  "feasible": false,
+  "recommended_C": null,
+  "recommended_K": null,
+  "hold_s": 0.2
+ },
+ "window_pre36_TC06_3p6": {
+  "T_pred_max_burn_C": 151.8,
+  "rate_end_burn_K_s": 7.3,
+  "lag_K": 11.3,
+  "lower_C": 166.8,
+  "upper_C": 185.3,
+  "feasible": true,
+  "recommended_C": 175.0,
+  "recommended_K": 448.15,
+  "hold_s": 0.2
+ }
+}

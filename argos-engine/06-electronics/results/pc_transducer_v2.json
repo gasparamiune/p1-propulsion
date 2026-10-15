@@ -1,0 +1,392 @@
+{
+ "script": "calc/pc_transducer_v2.py v2",
+ "date": "2026-10-13",
+ "supersedes": "calc/archive/ovp_threshold_v1.py (01KPG full scale)",
+ "inputs": {
+  "chamber_MEOP_Pa": {
+   "v": 4500000.0,
+   "tag": "LEAD via combustion.json decisions"
+  },
+  "proof_Pa": {
+   "v": 6750000.0,
+   "tag": "LEAD via combustion.json decisions"
+  },
+  "ecu_abort_lead_Pa": {
+   "v": 3000000.0,
+   "tag": "LEAD via combustion.json decisions (~30 bar)"
+  },
+  "blocked_nozzle_bound_Pa": {
+   "v": 6308000.0,
+   "tag": "combustion.json (CoolProp Psat 30 C)"
+  },
+  "tank_MEOP_Pa": {
+   "v": 7000000.0,
+   "tag": "combustion.json operating_points (LEAD v0)"
+  },
+  "trapped_liquid_relief_max_Pa": {
+   "v": 7500000.0,
+   "tag": "combustion.json isolation_valve: \"required (<= 7.5 MPa) between the isolation valve and the pintle\""
+  },
+  "firmware_abort_abs_Pa": {
+   "v": 3000000.0,
+   "tag": "engine_params.h kPcAbortAbs_Pa (generated from combustion.json)"
+  },
+  "firmware_cmd_cap_abs_Pa": {
+   "v": 2500000.0,
+   "tag": "engine_params.h kPcNormalCapAbs_Pa (config.h kPcCmdCapAbs_Pa)"
+  },
+  "firmware_pc_fs_Pa": {
+   "v": 7000000.0,
+   "tag": "config.h kPcXdcrFs_Pa"
+  },
+  "firmware_tank_overpressure_gauge_Pa": {
+   "v": 6500000.0,
+   "tag": "config.h kTankOverPressure_Pa"
+  },
+  "firmware_sensor_fault_high_V": {
+   "v": 4.75,
+   "tag": "config.h kPcSensorMax_V"
+  },
+  "torch_lit_threshold_abs_Pa": {
+   "v": 200000.0,
+   "tag": "config.h kTorchLitAbs_Pa (ESTIMATE until IGN-1)"
+  },
+  "m3200": {
+   "v": {
+    "standard_bar_codes": [
+     "007B",
+     "017B",
+     "035B",
+     "070B",
+     "170B",
+     "350B",
+     "500B",
+     "700B"
+    ],
+    "TEB_pct_FS": 1.5,
+    "BFSL_pct_FS": 0.25,
+    "proof_x": 2.0,
+    "burst_x": 5.0
+   },
+   "tag": "DATASHEET TE M3200 datasheet 08/2018, https://www.farnell.com/datasheets/3007269.pdf"
+  }
+ },
+ "A_ranges": {
+  "rows": [
+   {
+    "channel": "PC (J601)",
+    "code": "070BG",
+    "case": "normal command cap",
+    "p_gauge_bar": 23.99,
+    "v_sig_V": 1.871,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "PC (J601)",
+    "code": "070BG",
+    "case": "firmware abort",
+    "p_gauge_bar": 28.99,
+    "v_sig_V": 2.156,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "PC (J601)",
+    "code": "070BG",
+    "case": "MEOP",
+    "p_gauge_bar": 43.99,
+    "v_sig_V": 3.014,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "PC (J601)",
+    "code": "070BG",
+    "case": "blocked nozzle 30 C",
+    "p_gauge_bar": 62.07,
+    "v_sig_V": 4.047,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "PC (J601)",
+    "code": "070BG",
+    "case": "proof (hydro test, if fitted)",
+    "p_gauge_bar": 66.49,
+    "v_sig_V": 4.299,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "P_TORCH (J610, v2.7)",
+    "code": "070BG",
+    "case": "lit threshold 2.0 bar abs",
+    "p_gauge_bar": 0.99,
+    "v_sig_V": 0.556,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "P_TORCH (J610, v2.7)",
+    "code": "070BG",
+    "case": "chamber MEOP via the torch port",
+    "p_gauge_bar": 43.99,
+    "v_sig_V": 3.014,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "P_TORCH (J610, v2.7)",
+    "code": "070BG",
+    "case": "proof",
+    "p_gauge_bar": 66.49,
+    "v_sig_V": 4.299,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "P_FEED (J602)",
+    "code": "070BG",
+    "case": "tank MEOP",
+    "p_gauge_bar": 68.99,
+    "v_sig_V": 4.442,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "P_FEED (J602)",
+    "code": "070BG",
+    "case": "trapped-liquid relief max",
+    "p_gauge_bar": 73.99,
+    "v_sig_V": 4.728,
+    "status": "ABOVE FS: output not specified",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "P_FEED (J602) option",
+    "code": "170BG",
+    "case": "tank MEOP",
+    "p_gauge_bar": 68.99,
+    "v_sig_V": 2.123,
+    "status": "in range",
+    "teb_bar": 2.55
+   },
+   {
+    "channel": "P_FEED (J602) option",
+    "code": "170BG",
+    "case": "trapped-liquid relief max",
+    "p_gauge_bar": 73.99,
+    "v_sig_V": 2.241,
+    "status": "in range",
+    "teb_bar": 2.55
+   },
+   {
+    "channel": "P_TANK (J603)",
+    "code": "070BG",
+    "case": "firmware tank over-pressure",
+    "p_gauge_bar": 65.0,
+    "v_sig_V": 4.214,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "P_TANK (J603)",
+    "code": "070BG",
+    "case": "tank MEOP",
+    "p_gauge_bar": 68.99,
+    "v_sig_V": 4.442,
+    "status": "in range",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "P_TANK (J603)",
+    "code": "070BG",
+    "case": "relief max",
+    "p_gauge_bar": 73.99,
+    "v_sig_V": 4.728,
+    "status": "ABOVE FS: output not specified",
+    "teb_bar": 1.05
+   },
+   {
+    "channel": "P_TANK (J603) option",
+    "code": "170BG",
+    "case": "firmware tank over-pressure",
+    "p_gauge_bar": 65.0,
+    "v_sig_V": 2.029,
+    "status": "in range",
+    "teb_bar": 2.55
+   },
+   {
+    "channel": "P_TANK (J603) option",
+    "code": "170BG",
+    "case": "tank MEOP",
+    "p_gauge_bar": 68.99,
+    "v_sig_V": 2.123,
+    "status": "in range",
+    "teb_bar": 2.55
+   },
+   {
+    "channel": "P_TANK (J603) option",
+    "code": "170BG",
+    "case": "relief max",
+    "p_gauge_bar": 73.99,
+    "v_sig_V": 2.241,
+    "status": "in range",
+    "teb_bar": 2.55
+   }
+  ],
+  "decision": {
+   "v": {
+    "PC": "M3234-000005-070BG",
+    "P_TORCH": "M3234-000005-070BG",
+    "P_FEED": "M3234-000005-170BG",
+    "P_TANK": "M3234-000005-170BG"
+   },
+   "tag": "DESIGN v2.7: the 070BG reaches its full scale at the tank MEOP (70 bar g) and the trapped-liquid relief (<= 75 bar) lies above it (output not specified there); the standard 170B code covers both with proof 340 bar. Cost: TEB 2.55 bar instead of 1.05 bar on the two feed-side channels (ratio checks and the 65 bar tank threshold tolerate it). Combustion/lead to confirm the relief-cycle monitoring need (RC-04)"
+  },
+  "sensitivity_mV_per_bar": {
+   "070BG": {
+    "v": 57.143,
+    "tag": "DERIVED"
+   },
+   "170BG": {
+    "v": 23.529,
+    "tag": "DERIVED"
+   },
+   "01KPG": {
+    "v": 58.015,
+    "tag": "DERIVED"
+   }
+  }
+ },
+ "B_adc_chain": {
+  "k_div_loaded": {
+   "v": 0.238226,
+   "tag": "DERIVED R610/R611 loaded by Zin 330 k (config.h; datasheet conflict kept there)"
+  },
+  "lsb_V": {
+   "v": 1.430511474609375e-07,
+   "tag": "DATASHEET ADS131M04 gain 1"
+  },
+  "per_range": {
+   "070BG": {
+    "pa_per_count": {
+     "v": 1.0508,
+     "tag": "DERIVED"
+    },
+    "adc_at_4p5V_V": {
+     "v": 1.072,
+     "tag": "DERIVED (ADC FS 1.2 V)"
+    },
+    "adc_at_fault_high_V": {
+     "v": 1.1316,
+     "tag": "DERIVED"
+    }
+   },
+   "170BG": {
+    "pa_per_count": {
+     "v": 2.5521,
+     "tag": "DERIVED"
+    },
+    "adc_at_4p5V_V": {
+     "v": 1.072,
+     "tag": "DERIVED (ADC FS 1.2 V)"
+    },
+    "adc_at_fault_high_V": {
+     "v": 1.1316,
+     "tag": "DERIVED"
+    }
+   },
+   "01KPG": {
+    "pa_per_count": {
+     "v": 1.035,
+     "tag": "DERIVED"
+    },
+    "adc_at_4p5V_V": {
+     "v": 1.072,
+     "tag": "DERIVED (ADC FS 1.2 V)"
+    },
+    "adc_at_fault_high_V": {
+     "v": 1.1316,
+     "tag": "DERIVED"
+    }
+   }
+  },
+  "torch_threshold_v_sig_V": {
+   "v": 0.5564,
+   "tag": "DERIVED: 2.0 bar abs on the 070BG = 0.99 bar g -> 56.4 mV above zero"
+  },
+  "torch_threshold_vs_teb": {
+   "v": 0.94,
+   "tag": "DERIVED: the 0.99 bar g threshold is only 0.94 x the 070BG TEB (1.05 bar): the ARMED auto-zero must also zero P_torch (HAL, same as Pc) and IGN-1 sets the threshold (ESTIMATE until then)"
+  }
+ },
+ "C_hardware_trip": {
+  "transducer": "M3234-000005-070BG (OI-6)",
+  "values": {
+   "R330": 100000.0,
+   "R331": 31600.0,
+   "C330": 2.2e-07,
+   "R332": 237000.0,
+   "R333": 29400.0,
+   "C331": 1.0000000000000001e-07,
+   "resistor_tol": 0.001
+  },
+  "pc_sig_trip_V": {
+   "v": 2.298,
+   "tag": "DERIVED (unchanged by the range: a fixed PC_SIG voltage)"
+  },
+  "trip_nominal_Pa_g": {
+   "v": 3146517.6,
+   "tag": "DERIVED"
+  },
+  "trip_nominal_Pa_abs_sea_level": {
+   "v": 3247843.0,
+   "tag": "DERIVED"
+  },
+  "band_circuit_Pa": {
+   "v": 157925.8,
+   "tag": "DERIVED worst-case linear sum (Vio, Iib, 0.1 % ratios)"
+  },
+  "band_with_transducer_Pa": {
+   "v": 262926.0,
+   "tag": "DERIVED + M3200 TEB 1.5 % FS (common to the firmware path)"
+  },
+  "trip_range_abs_Pa": {
+   "v": [
+    3089917.0,
+    3405768.0
+   ],
+   "tag": "DERIVED, circuit terms"
+  },
+  "rc_tap_s": {
+   "v": 0.005283,
+   "tag": "DERIVED"
+  },
+  "v1_01KPG_trip_abs_Pa": {
+   "v": 3200536.0,
+   "tag": "DERIVED v1 basis (superseded)"
+  }
+ },
+ "D_summary": {
+  "hardware_minus_firmware_nominal_Pa": {
+   "v": 247843.0,
+   "tag": "DERIVED"
+  },
+  "hardware_low_end_above_firmware": {
+   "v": true,
+   "tag": "DERIVED (circuit band; the transducer error is common to both)"
+  },
+  "margin_hw_high_end_to_MEOP_Pa": {
+   "v": 1094232.0,
+   "tag": "DERIVED"
+  },
+  "fault_high_equiv_Pa_g_070BG": {
+   "v": 7437500.0,
+   "tag": "DERIVED"
+  }
+ },
+ "sil_header": "firmware/sil/ovp_hw_params.h",
+ "engine_root": "../shared-fallback/engine"
+}

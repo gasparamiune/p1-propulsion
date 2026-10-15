@@ -1,0 +1,16 @@
+{
+ "id": "ignition_lift", "version": "v1", "date": "2026-10-13", "script": "firmware/sil/ign_lift_cal.cpp",
+ "model": "SIL plant cold flow: k_Cd x pintleArea(x) x dyerG2(T, Psat(T), Pc); saturated inlet, no line loss (upper bound); ESTIMATE",
+ "k_Cd": 0.7000,
+ "inputs": {"m_20C_max_kg_s": [0.0371, "LEAD 2026-10-13 CHANGELOG"], "m_A1_max_kg_s": [0.0374, "LEAD 2026-10-13 CHANGELOG"], "T_20C_K": [293.15, "DESIGN"], "T_A1_K": [286.70, "COMB A1 relight state"]},
+ "lift_for_limit_m": [
+  {"Pc_abs_Pa": 100000, "lift_37p1_at_20C_m": 2.0395e-04, "flow_A1_at_it_kg_s": 0.03505, "lift_37p4_at_A1_m": 2.1776e-04, "flow_20C_at_it_kg_s": 0.03959},
+  {"Pc_abs_Pa": 166000, "lift_37p1_at_20C_m": 2.0499e-04, "flow_A1_at_it_kg_s": 0.03502, "lift_37p4_at_A1_m": 2.1907e-04, "flow_20C_at_it_kg_s": 0.03962}
+ ],
+ "firmware_default_m": [2.0390e-04, "config.h kIgnLiftTab_m (both rows), from lift_37p1_at_20C at Pc 1.0 bar"],
+ "default_flow": {"at_20C_Pc1_kg_s": 0.03709, "at_A1_Pc1_kg_s": 0.03504, "at_20C_Pc1p66_kg_s": 0.03690},
+ "flow_vs_T_at_default_lift": [{"T_K": 273.15, "Psat_Pa": 3122178, "flow_kg_s": 0.03033}, {"T_K": 283.15, "Psat_Pa": 4001312, "flow_kg_s": 0.03384}, {"T_K": 288.15, "Psat_Pa": 4503837, "flow_kg_s": 0.03552}, {"T_K": 293.15, "Psat_Pa": 5052638, "flow_kg_s": 0.03709}, {"T_K": 298.15, "Psat_Pa": 5651943, "flow_kg_s": 0.03847}, {"T_K": 303.15, "Psat_Pa": 6307719, "flow_kg_s": 0.03943}, {"T_K": 308.15, "Psat_Pa": 7007848, "flow_kg_s": 0.03899}],
+ "lift_for_37p1_vs_T_m": [{"T_K": 273.15, "lift_m": 2.4996e-04}, {"T_K": 283.15, "lift_m": 2.2374e-04}, {"T_K": 293.15, "lift_m": 2.0395e-04}, {"T_K": 303.15, "lift_m": 1.9176e-04}, {"T_K": 308.15, "lift_m": 1.9392e-04}],
+ "reconciliation": {"comb_12p5pct_A1_lift_m": 2.1916e-04, "flow_at_it_A1_kg_s": 0.03764, "comb_12p5pct_20C_lift_m": 2.0590e-04, "flow_at_it_20C_kg_s": 0.03745, "v2p7_lift_m": 3.0100e-04, "flow_at_v2p7_lift_20C_Pc1p66_kg_s": 0.05424, "T_tank_at_48p32bar_K": 291.19, "note": "the 51.6 g/s that Combustion read from the SIL came from the 0.301 mm (20 %) lift of firmware v2.5-v2.7, not from a different flow model"},
+ "limitations": "saturated inlet with no line loss (real flow lower); Cd 0.70 ASSUMED; area law and Dyer blend are models; the flow rises with T_tank at a fixed lift, so CF-3 measures a lift-vs-T_tank table"
+}

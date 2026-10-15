@@ -1,0 +1,253 @@
+@@REPLACE_9@@
+## 9. N2O hazard list (v2.4)
+
+Rows H1-H13 are the v2.3 rows with their v2.4 controls; H14-H19 are new. A control marked REQUIRED is a lead decision or a Combustion requirement. No control has been verified by test.
+
+| # | Hazard | Mechanism and numbers | Control (v2.4) |
+|---|---|---|---|
+| H1 | Exothermic decomposition | N2O -> N2 + 1/2 O2 releases about 1.85 MJ/kg as gas, 1.60 MJ/kg from liquid (hf N2O(g) +82 kJ/mol, NIST, LITERATURE). Triggers: heat, adiabatic compression, catalytic surfaces, a hot cavity. Gas-phase induction at 46.45 bar (Cantera gri30, SIM): none within the run at <= 800 K, 43 s at 850 K, 8.0 s at 900 K, 0.46 s at 1000 K | No heat source upstream of the injector. No N2O-only flow through a hot torch (R-T1, §7.5). The purge path stays <= 424 K. REQUIRED: the wetted seat face <= 800 K from MECO to E1 (Mechanical FE, §9.1). Clean, PFPE-lubricated hardware only (§10.1) |
+| H2 | Adiabatic compression on priming | A dead-ended line compressed by a fast valve reaches 847-913 K (N2) or 614-646 K (N2O vapour) at 45-60 bar (Table 2.7) | The MV opens with the pintle seated (v2.8); on an A1 relight it opens at PURGE, so the segment is swept before the lift. No fast-opening valve into a vapour-filled dead end |
+| H3 | Trapped liquid (hydraulic lock) | Liquid between closed valves warms; a liquid-full segment rises 5.5 bar/K at 286.7 K (`safing_relief_v2p4.json`) | Relief on every lockable volume, set points and capacities in §2.7. Ground panel: every closed pair of valves gets a relief (§10.1) |
+| H4 | Near-critical tank | Tc 36.4 C, Pc 72.5 bar; the 2.00 kg / 3.17 L tank is liquid-full above 33.5 C (68.0 bar) | Arm window 15-25 C (ENG-12); 24 C liquid-line interlock (§2.8); heater hard-disabled at ARM (§7.3); tank relief per §2.7; sun and heat shielding |
+| H5 | Particles and galling debris | Particles are ignition sources; a particle on the seat is Mechanical's 77-82 mg/s fault leak | Filter <= 15 um at the head, and the inline <= 15 um element on the FD-01 bleed leg (F2, §2.8). H900 needle on an Inconel 718 seat (§3.5). Cleaning per §10.1. Seat inspection after B-PNT-1 |
+| H6 | Material compatibility | Hydrocarbon greases and some elastomers are incompatible with oxidisers | PTFE, PCTFE, PFPE. Elastomers only where the maker rates them for N2O (TO-VERIFY per part). No silicone or hydrocarbon lubricants |
+| H7 | Cold burns and embrittlement | Venting liquid reaches -88.5 C at 1 atm; a vented tank keeps cold liquid (§10.2) | Gloves and face shield. Seals and polymers rated for venting temperatures. Bleed vent overboard, away from people |
+| H8 | Asphyxia and anaesthetic exposure | N2O displaces air and is an anaesthetic. Each A1 relight purge vents 34.3-72.9 g (§2.8) | Fill, vent and cold-flow outdoors or in ventilated areas; vent lines and catch-volume vents routed away from people |
+| H9 | Pooled N2O in the chamber after a no-light | A later spark into pooled oxidiser causes a hard start | No retry into a pooled chamber. Ground: >= 5 s wait, N2 purge, safing (§10.2). Inventories in §7.6: flight unignited inventory accepted 26.6 g; stand allowable 13.84 g with the aft DN32 disc and the rounded entrance |
+| H10 | Seat leak during coast | Leaked liquid flashes and leaves vapour in the feed | MV closed during coasts. Seat acceptance <= 10 sccm GN2 at 56 bar; coast leak ceiling 0.0055 g/s (§3.5) |
+| H11 | Over-pressure | Stuck-open pintle: MEOP basis 44.33 bar (§3.6); throat block below proof (§3.7) | MEOP 45 bar, proof 67.5 bar, software cap 25 bar; A4 at 30 bar raw for 5 ms (§7.4); Pc transducer range >= 70 bar (ENG-09) |
+| H12 | Combustion products | Fuel-rich exhaust and a smouldering grain release CO and nitrogen-containing species (ABS contains acrylonitrile); oxidiser-rich operation at low a (§4.6) | Remote operation. Treat the stand area as toxic until ventilated |
+| H13 | Pressure-system failure | Hose whip; tank or fitting burst. Stored energy in §9.2 | Restrained hoses; proof testing per Mechanical; remote filling; exclusion zone set by the founders under local rules, informed by §9.2 |
+| H14 | Late light at start or relight | Decomposition-only fast part: 43.7 bar (pad, 15 C, sharp entrance), 40.6 bar rounded; 37.8 bar at the A1 relight. Fuel-assisted fast part at a relight: 48.9-75.5 bar at a 1 ms burn (§7.6) | Torch-first gate; rounded entrance REQUIRED; W per §7.3; LIGHT_SPIKE logging; FA-1 (a) and (b) REQUIRED (§9.1) |
+| H15 | Purge jets and vented N2O near the vehicle | 1.6-2.5 N per tap; 3.3-5.0 N if both taps vent one way; vent at -88.5 C; closure surge about 2.9 bar | Balanced (opposed pair) or axial vent, overboard, away from the nozzle, case and torch (LEAD) |
+| H16 | Stuck-open bleed | 31.24 g/s with both taps liquid (upper bound), additive tank outflow | Two NC valves in series; drivers hardware-inhibited outside the purge window; ECU cap; A14; BLEED_FAULT to the FC (§9.1) |
+| H17 | Bleed fails closed (no purge) | The segment keeps its coast vapour: P_abort 0.242 (LO) to 1.0 (HI, 51.8 cm3) at W 0.65 s (Table 2.15) | The relight is never committed before a complete purge (LEAD line 164): the FC delays T_fire or does not relight on that pass |
+| H18 | Torch line: flashback, hot dead-ended N2O | §7.5 | R-T1 and R-T2 (§7.5); A8 |
+| H19 | Hot-gas leak past the nozzle joint | An unsealed joint leaks 0.83-1.10 % of the engine flow; the 316L lip could melt in 1.07-5.70 s (lumped bound) (§6.5) | Seal layer of proposal J1; N2 pressure-decay leak check at 67.5 bar before and after every firing (criterion TO-DEFINE with Mechanical) |
+
+### 9.1 Purge, stuck-open bleed and FA-1: FMEA input
+
+**Purge exposure** (`purge_hazard_v2p4.json`, `ba24882f3ca956ba`; SIM and DERIVED):
+- With PURGE at E0 - 2.90 s the MV is open with the pintle seated for 2.99-3.06 s before the light, against 0.09-0.16 s in the v2.8 sequence (19-34 times longer).
+- The seat leak rate does not change, because the segment is at tank pressure through the coast via S1 either way. The purge adds 2.9-4.2 mg at the seat acceptance and 40-251 mg in Mechanical's fault leaks. No sustained light is possible from a leak (G_ox <= 0.17 kg/m2s against >= 25).
+- The purge path stays <= 424 K. The open item is the stagnant annulus at the seat: the wetted seat face must stay <= 800 K from MECO to E1 (Mechanical FE; at 850 K the gas-phase induction time is 43 s, at 900 K 8.0 s).
+- A pintle drift or runaway during PURGE is tank-fed for about 3 s. A15 monitors it and inhibits the torch. The lead accepted the exposure with the purge (line 160).
+
+**Stuck-open bleed** (LEAD lines 160 and 164; GNC S313):
+- 31.24 g/s with both taps liquid, 11.8 % of the 264.08 g/s at 100 % (upper bound); additive tank outflow governs.
+- Open loop at 100 %: 0.70 bar more line loss on a dP_inj of 22.7 bar, so the injector flow falls by 1.54 %; at the ignition lift <= 0.09 %. In closed loop the Pc loop compensates.
+- Detection: A14 (valve position or current signature, and closure not confirmed by E0 - 0.05 s), BLEED_FAULT to the FC (LOG-ONLY until a leak response is flown, LEAD line 168). Closure from P_mid is a pad go/no-go on every flight with the bleed fitted (line 168). FC_THRUST is not armed on A1 at this path until RG-16 is re-flown at about 31 g/s (line 168); the table below supports that re-fly.
+
+**Vented mass against time on the decided path** (REV-GNC-2 RG-16; `purge_vented_mass_v2p4.json` `0038561f71a51502`, script `purge_vented_mass_v2p4.py`; SIM on ASSUMED Cd and slip brackets; unlined, 0 and 2 deg, 4320 records per time). The mass vented by a time t into the flow equals the total of a purge truncated at t, so the envelope at Tp = t is the vented-mass envelope at t. The full 0.1 s grid is in the file.
+
+| Flow time [s] | Time from E0 [s] | Min [g] | Median [g] | p99 [g] | Max [g] |
+|---|---|---|---|---|---|
+| 0.5 | -2.05 | 3.2 | 9.7 | 11.9 | 11.9 |
+| 1.0 | -1.55 | 5.9 | 21.8 | 27.1 | 27.2 |
+| 1.5 | -1.05 | 9.6 | 30.6 | 42.4 | 42.5 |
+| 1.9 | -0.65 | 19.5 | 41.0 | 54.6 | 54.7 |
+| 2.0 | -0.55 | 21.9 | 42.7 | 57.7 | 57.8 |
+| 2.5 | -0.05 | 34.3 | 56.6 | 72.5 | 72.9 |
+
+- Before 0.5 s: m(t) lies between 8.49 t (both taps vapour) and 31.24 t (both liquid), g with t in s. The flow rate never exceeds 31.24 g/s.
+- The minimum rises at about 6 g/s until liquid reaches the taps, then at about 25 g/s after 1.5 s; the maximum is all-liquid flow from the start.
+- Closure: the close command leads the flow end by the measured valve closing time, so the 2.5 s already contains the closing transient. If the closing time is not subtracted, add at most 31.24 g/s x t_close (0.6-1.6 g for an ASSUMED 0.02-0.05 s). After a failed closure the flow continues at <= 31.24 g/s (B-2).
+
+**FMEA rows for the bleed path** (occurrence values are not available; the founders and Electronics supply them from part data):
+
+| ID | Failure | Effect | Detection | Control and owner |
+|---|---|---|---|---|
+| B-1 | One bleed valve stuck open | None while the other closes; the next fault is the stuck-open path | A14 at the closure check | Series pair; replace before flight (Electronics, founders) |
+| B-2 | Both stuck open, or a common cause (driver, harness, software) | H16: 31.24 g/s additive outflow to landing | A14, BLEED_FAULT | Drivers hardware-inhibited outside the purge window; independent drivers (Electronics) |
+| B-3 | One valve fails closed | No purge: H17 | Flow not seen (CF-4 P6 shows the signal; in flight, the closure signal and the P downstream of V2) | The series pair doubles this probability. No relight on that pass (LEAD line 164) |
+| B-4 | Restrictor or FD-01 element partly blocked | Slower purge; the s 0.5 margin shrinks | CF-4 P4 and P5 on the ground; none in flight | Cleaning, filtering upstream of each restrictor; flow test of each restrictor (Mechanical, founders) |
+| B-5 | Purge truncated by T_fire | P_abort up to 0.098 at 1.8 s, 1.0 at 1.0 s (truncated-purge table, §2.8) | FC timing | The FC delays T_fire if the flow would fall below 1.9 s (LEAD line 164) |
+
+**FA-1: fuel-assisted fast part at an A1 relight (single-control hazard; LEAD lines 160 (4) and 164 (8)).**
+- Hazard: the main N2O reaches the 32.2 mm port of the warm grain with no torch flame, accumulates and lights late. The fast part (1.2-2.1 g, vapour and spray in transit) burns with fuel vapour. Head Pc 48.9-75.5 bar abs at a 1 ms burn time: above MEOP 45 bar for <= 3.0 ms, above proof 67.5 bar at a 60 ms residence time. At a 5 ms burn time <= 55.5 bar, at 10 ms <= 41.4 bar. The rounded entrance does not help at 32.2 mm. SIM on ASSUMED burn time and fuel fraction (`late_light_spike_v2p4.json`).
+- Single control: the torch-first gate (pintle lift only after E1, torch flame confirmed).
+- Failure modes of the control: FM1 false torch confirmation (P_torch bias or drift; photodiode false positive); FM2 lift commanded before E1 (sequence or firmware fault); FM3 torch blown out or quenched by the main flow between E1 and E2; FM4 torch lit but not igniting the main flow promptly.
+- Detection without (a) and (b): before the start, the P_torch auto-zero and the ARM refusal above 1.05 bar abs (gross bias only); at E1, 10 ms persistence; between E1 and E2, nothing. The 30 bar abort (5 ms raw) and the comparator (RC 5.28 ms) cannot act within a 1-3 ms pulse. LIGHT_SPIKE records the event afterwards: evidence, not protection.
+- REQUIRED of Electronics (LEAD line 164): (a) E1 declared only on P_torch AND the photodiode (2oo2), which cuts FM1 and FM2 (FM2 is also covered by the firmware sequence checks in SIL); (b) torch supervision from E1 to E2, where loss on BOTH sensors for >= 5 ms closes the pintle and the MV. (b) bounds the unlit N2O to about 35-38 g/s x (5 ms detection + 20-100 ms closing), 0.9-4.0 g. That is comparable to the fast part itself: (b) limits the hazard but does not remove it (FM3, FM4). Nothing can detect the pulse in time to stop it. In flight, the (b) closure is an accepted mission loss in exchange for avoiding a pulse above proof.
+- Severity: catastrophic if the case or closures fail; critical otherwise. Occurrence: unknown (no torch reliability data; photodiode false-positive rate unknown).
+- Verification: IGN-1 with >= 30 lights, including photodiode false-positive tests and torch stability under the main N2O flow at the lift (blow-out margin); T4 relights with LIGHT_SPIKE logging to measure the real burn time and peak; Mechanical's check of the case and closures for a 75.5 bar abs, <= 3 ms head pulse (dynamic load factor, burst margin), added to the FEA scope.
+- Status: accepted as a single-control hazard for design continuation only. Flight acceptance needs IGN-1 and the Mechanical pulse check (LEAD line 164).
+- Owners: Electronics (a), (b) and the sequence checks; Combustion refines the bound with IGN-1 and T4 data; Mechanical the pulse check; the lead the acceptance.
+- Research option (not proposed for adoption): a lower relight ignition lift shrinks the fast part in proportion to the flow at the lift, at the cost of the A3 margin. Hypothesis: a lift giving half the flow halves the fast part. Comparator: the 0.2039 mm lift. Evidence needed: IGN-1 showing FM3. Refutation: the A3 margin goes negative.
+
+### 9.2 Stored energy (RC-05)
+
+Basis (DERIVED; `safing_relief_v2p4.json` `33a95a70e8008e2e` and `stored_energy_sup_v2p4.json` `1b846c99f3145985`): decomposition energy 1.854 MJ/kg (gas) and 1.603 MJ/kg (liquid); TNT 4.184 MJ/kg; distance to 6.9 kPa side-on overpressure from the scaled distance 17.9 m/kg^(1/3) (LITERATURE as recalled, TO-VERIFY). Full decomposition of the whole mass is a bound, not an expected event. Expansion energy is the isentropic expansion of the contents (Brode form for the chamber gas).
+
+| Inventory | Mass | Decomposition [kg TNT] / R(6.9 kPa) [m] | Expansion [kg TNT] / R [m] |
+|---|---|---|---|
+| Flight tank, 20 C | 2.00 kg | 0.774 / 16.4 | 0.030 / 5.6 |
+| Flight tank, 35 C | 2.00 kg | 0.766 / 16.4 | 0.040 / 6.1 |
+| A1 residual at landing, 20 C | 0.61 kg | 0.262 / 11.5 | 0.014 / 4.3 |
+| Ground tank 15 L, 20 C | – | 4.01 / 28.4 | 0.154 / 9.6 |
+| Valve-to-seat segment, liquid, A1 relight state (44 cm3; v3.4.1 is 10-14 % larger, R +3-5 %) | 36.5 g | 0.014 / 4.3 | 0.0005 / 1.4 |
+| Flight unignited inventory accepted | 26.6 g | 0.010 / 3.9 | 0.0004 / 1.3 |
+| Stand allowable (aft DN32 disc, rounded entrance) | 13.84 g | 0.005 / 3.1 | 0.0002 / 1.0 |
+| Chamber gas at MEOP (Brode) | – | – | 0.0012 / 1.9 |
+
+The founders set the exclusion zone under local rules; these distances are inputs to that decision, not the decision.
+@@END@@
+
+@@APPEND_10@@
+**v2.4 amendments to the test plan.**
+- **All N2O tests:** remote, metal hardware, into a back-pressured catch volume with its own relief and vent (§10.1). Water tests are followed by drying, re-cleaning and an N2 leak check before any N2O (§10.1).
+- **CF-2:** the leak acceptance is now the lead's (§3.5): B-PNT-1 seat <= 10 sccm GN2 at 56 bar at room temperature and after a 150 C soak; stem seal <= 1 sccm; MV-P seat Class VI at 56 and 84.2 bar (room temperature and 60 C). The v2.3 "<= 1 scc/min (proposed)" is superseded.
+- **CF-4 (new): relight purge cold flow.** The gate for the W 0.65 s relight claim (LEAD lines 160 and 164). The full specification is the standalone `02-combustion/CF-4-SPEC.md`; the summary is §10.3.
+- **IGN-1:** >= 30 lights including photodiode false-positive tests (LEAD line 164); torch stability under the main N2O flow at the ignition lift (blow-out margin, FA-1 FM3); the three E0 -> E1 delays (the 0.16 s gate stands if the measured p99.9 is <= 0.15 s); T_lim for SOL1.
+- **T1:** LIGHT_SPIKE logging at every start; the nozzle-joint N2 leak check at 67.5 bar before and after (H19); lip thermocouples (§6.5); Pc transducer >= 70 bar.
+- **T4:** relights with the flight PURGE sequence: vented mass per purge, line state at the lift, latency, and LIGHT_SPIKE (FA-1 burn time and peak).
+
+### 10.1 Cleaning, drying and catch volumes (RC-14)
+
+- **Cleaning standard.** Every N2O-wetted part is cleaned and verified for oxygen service per ASTM G93/G93M with CGA G-4.1 as the procedure reference (LITERATURE as recalled, TO-VERIFY against the current editions). Proposed acceptance: particulate and non-volatile residue levels per IEST-STD-CC1246 as referenced by G93, proposed level 100A (as recalled, TO-VERIFY; the founders confirm with the cleaning supplier).
+- **Inspection.** White light and UV (black-light) inspection of every wetted surface for hydrocarbon fluorescence and particles; a solvent-rinse NVR and particle-count sample per cleaning batch; parts bagged and capped until assembly; cleaning records kept per part.
+- **Water before N2O (CF-1 to CF-3, and CF-0 parts never reused).** After any water test: drain; blow down with dry N2; dry with heated N2 or vacuum until the outlet dew point is <= -40 C (ASSUMED criterion); re-clean per the standard if the water carried additives, dye or particles; then an N2 leak check (CF-2 criteria) before the first N2O.
+- **Catch volumes** (CF-3, CF-4 and any back-pressured volume): a relief valve set at or below the volume's MAWP, with capacity for the largest test inflow as vapour at the set pressure (264 g/s for CF-3 at 100 %, 31.24 g/s for the CF-4 bleed path, plus the pintle flow at the lift); a burst disc as the second device; a remote vent valve; the vent routed outdoors away from people; oxygen-clean; no hydrocarbon lubricants. Stand-specific values belong to the founders' panel design.
+
+### 10.2 Safing after a test, a no-light or a landing
+
+- **No-light or abort on the stand:** no retry into a pooled chamber; wait >= 5 s; N2 purge of the chamber; then the post-test procedure.
+- **Post-test:** MV and torch isolation closed; tank vented remotely; the segment drained through the bleed path or by its relief.
+- **Tank vent times** (`safing_vent_v2p4.json` `ccc94365e1c8e737`; DERIVED, CoolProp blow-down through a top vent, Cd 0.80 ASSUMED, vent-line losses not included). Full 2.00 kg load at 20 C (50.5 bar): to 11 bar in 148-204 s through 1.0 mm, 37-49 s through 2.0 mm, 16-22 s through 3.0 mm. A1 landing residual 0.61 kg: to 11 bar in 70-91 s (1.0 mm), 18-23 s (2.0 mm), 8-10 s (3.0 mm).
+- **A vented tank is not empty.** The adiabatic bound ends at about 1.2 bar with 0.92 kg (full load) or 0.13 kg (A1 residual) of liquid at about -86 C; with wall heating the full load still holds 0.49-0.54 kg at 1.2 bar through 2-3 mm vents; only the 1.0 mm vent ends nearly empty (0.01 kg after 1660 s), and the A1 residual ends at 0.007-0.009 kg. Treat the tank as holding cold liquid N2O until its mass or temperature shows otherwise (H7).
+- **Flight, post-landing:** torch isolation closed and the remote vent armed (§7.4).
+
+### 10.3 CF-4 summary (full text in `CF-4-SPEC.md`)
+
+- **Claim under test (C-RL).** On CAD v3.4.1 with the decided purge path and 2.5 s of flow ending 0.05 s before E0, at theta <= 2 deg, an A1 relight lights within W 0.65 s with P_abort <= 1e-3, venting <= 76 g.
+- **Hardware.** The metal, flight-equivalent segment from the MV-P seat to the pintle seat, with the flight bleed path as built (two 0.707 mm restrictors, the FD-01 inline element, V1 and V2, the -2 line, the vent), the flight MV-P and pintle drive under the flight firmware's PURGE sequence (HIL), a 0 / 2 deg tilt fixture.
+- **States.** IS-1 vapour-full (HI bound), IS-2 ARM-LO-like, IS-3 liquid-primed reference; >= 5 runs per state and attitude.
+- **Pass criteria P1-P7.** P1 first continuous liquid at the pintle inlet <= 0.293 s after the pintle reaches the lift; P2 then >= 0.35 s of continuous liquid, or a later void inside Table 10.4; P3 the cap clears the FD-01 crown <= 2.3 s after the flow starts; P4 each tap >= 80 % of the model flow; P5 <= 76 g vented from IS-1 and IS-2; P6 both valves closed with the flow stopped by E0 - 0.05 s, and BLEED_FAULT raised with one valve held open; P7 no unfiltered path from the FD-01 tap to the seat.
+
+Table 10.4. Largest acceptable second void C1 [cm3] after a first pocket P1 and a liquid slug S1, both in cm3 (`cf4_void_budget_v2p4.json`, `6c294cf2dec7af5d`; worst of the "paused" and "restart" conventions). 0 means no second void is acceptable; "none" means no limit below 80 cm3.
+
+| P1 \ S1 | 2.5 | 5 | 10 | >= 15 |
+|---|---|---|---|---|
+| 0 | 15.3 | 11.6 | 4.2 | none |
+| 2.5 | 12.8 | 9.1 | 1.7 | none |
+| 5 | 10.3 | 6.6 | 0 | none |
+| 7.5 | 7.8 | 4.1 | 0 | none |
+| 10 | 5.3 | 1.6 | 0 | none |
+| 12.5 | 2.8 | 0 | 0 | none |
+| 15 | 0.3 | 0 | 0 | none |
+| 17.5 | 0 | 0 | 0 | none |
+
+### 10.4 Regression-rate measurement at T1-T4 and the law form (REV-GNC-2 RG-03)
+
+Why it matters: the B1 gate uses a measured a. If the true law is the total-flux form, the reviewer finds 19 of 500 runs ending below 1 mm of web with the burn limit active (truth k = 1.149 a), and the lead's rule becomes "current rule OR a_meas >= 1.25 -> change grain" (CHANGELOG line 168). Which law applies is decided by this measurement.
+
+**What is measured** (founders execute; Combustion reduces):
+- Grain mass before and after each firing (balance resolution <= 0.1 g), dried to constant mass.
+- Port diameter at six stations, x/L = 0.10, 0.30, 0.50, 0.70, 0.90 and 0.97 from the head end, on two orthogonal diameters (bore gauge, resolution <= 0.02 mm), or a 3-D scan of the bore with the same stations extracted. x/L 0.97 is where the total-flux law burns through first (§4.6, `b1_axial_law_v2p4.json`).
+- Time histories: Pc at 1 kHz, oxidiser mass flow from the tank load cell and P_feed, thrust, burn time from the Pc rise and fall (E2 to the tail-off at 10 % of the run Pc).
+- At least two oxidiser fluxes: T1 at 100 % and the T2 throttle steps, so that n is fitted rather than assumed.
+
+**Reduction.**
+- Mean regression per station: r_i = (D_after,i - D_before,i) / (2 t_burn); the mass loss checks the integral (sum over stations against the weighed loss, within 5 %, ASSUMED).
+- Both laws are fitted to the station data with the measured oxidiser-flux history: oxidiser-flux r = a G_ox^n (nearly uniform along x) and total-flux r = a G^n with G = (mdot_ox + mdot_f(x)) / A_port (rising toward the aft end). At O/F 4-6 and n 0.5 the total-flux form predicts an aft-to-head ratio r(0.97)/r(0.10) of about 1.08-1.12 against about 1.0.
+- Law decision: the total-flux form is declared when the measured aft-to-head ratio exceeds the oxidiser-flux prediction by more than twice its measurement uncertainty, on at least two firings. The head-end station (x/L 0.10) is checked for injector-spray effects against x/L 0.30; if they differ by more than the uncertainty, x/L 0.30 is used as the head reference.
+- a_meas for the B1 gate: the multiplier on the nominal model law (anchored at r(300 kg/m2 s) = 1 mm/s, §4.1) that reproduces the regression measured at x/L 0.97. Evaluated at the aft station, a total-flux truth shows up as a larger a_meas (about x1.10-1.15), so the gate errs on the safe side whichever law holds. The head-station multiplier is reported beside it.
+- The burn limit for GNC is recomputed with 1.1 x a_meas and the declared law form (§4.6).
+
+Uncertainty to report with every a_meas: bore-gauge and station-position error, burn-time definition, and the oxidiser-flux history from the load cell (TO-VERIFY at T1).
+@@END@@
+
+@@APPEND_11@@
+v2.4 additions:
+
+15. Cap transport (slip) in the bleed path, the restrictor Cd and the hump sweep: CF-4.
+16. Whether the wet or dry reading of the coast vapour generation holds: CF-4 optional generation runs.
+17. The real late-light burn time and fuel fraction (FA-1): T4 with LIGHT_SPIKE logging.
+18. Torch reliability, blow-out margin under the main flow and photodiode false-positive rate: IGN-1.
+19. The wetted seat-face temperature from MECO to E1 (<= 800 K required): Mechanical FE, then T4 thermocouples.
+20. The FD-01 element's dP-flow curve (Cd.A >= 0.63 mm2 keeps the margin): Mechanical, then CF-4.
+21. Tank outlet coverage from the PURGE command (§2.4 note): GNC records, then flight data.
+22. Joint materials at temperature (carbon-phenolic char rate and strength, graphite seal): Mechanical FE re-run, T1 sectioning.
+23. Throat erosion kinetics in oxidiser-rich exhaust at low a: T1-T4 bore data.
+24. The tail-off rows of §3.7 on the v3.4.1 segment (+10-14 %): not re-run; expected small.
+@@END@@
+
+@@REPLACE_12@@
+## 12. Open items with owners (v2.4)
+
+Status of the v2.3 items:
+
+| ID | Item | v2.4 status | Owner |
+|---|---|---|---|
+| OI-1 | N2O load against the GNC cycles | Closed by the lead: A2 removed, B1 capped at 85 m; gnc.json v3 published (`3e97c378cfebee95`) | Lead |
+| OI-2 | Engine map in the GNC Monte Carlo | Open: GNC flies the v3 records; the RG-01 re-fly uses the §2.8 line states | GNC |
+| OI-3 | Grain in CAD | Open: confirm S230 in CAD v3.4.1 and the mass budget | Mechanical |
+| OI-4, OI-5 | Post-chamber insulator; insert retention lip | Open: thermal FEA; the nozzle joint adds H19 and proposal J1 (§6.5) | Mechanical |
+| OI-6 | Pc transducer | Range >= 70 bar per ENG-09 (RC-13 d) | Electronics |
+| OI-7 | Valve and filter | MV-P Cv 3.6 baseline; filter <= 15 um; FD-01 inline element added (F2) | Mechanical |
+| OI-8 | ECU sequence | v2.8 in SIL; v2.4 changes listed below | Electronics |
+| OI-9 | Roll torque | Open: T1 | Founders |
+| OI-10 | Residual web | Superseded by §4.6 and the lead's B1 gating rule | Lead, GNC |
+| OI-11, OI-14 | Pintle force and spring; ENG-05 shutdown | Resolved (v2.3) | – |
+| OI-12 | Relight precondition "purged" | In v2.4 "PURGE" is the forced bleed purge of an A1 relight (§2.8); the ground N2 chamber purge stays a ground step | – |
+| OI-13 | Deadband and resolution | Open: bench with the measured plant | Electronics, Mechanical |
+| OI-15 | Servo thermal | Open: FEA and T1 thermocouples | Mechanical |
+| internal | Relight text "the isolation valve may stay open between burns" | Corrected: `igniter.sequence` v2.4 keeps the MV closed in coasts | – |
+
+v2.4 items:
+
+| ID | Item | Need | Owner |
+|---|---|---|---|
+| OI-16 | FA-1 | (a) 2oo2 E1 and (b) torch supervision, REQUIRED; sequence checks in SIL | Electronics |
+| OI-17 | FA-1 pulse | Case and closures under a 75.5 bar abs, <= 3 ms head pulse | Mechanical |
+| OI-18 | Abort matrix changes | A5 deleted and the LIGHT_SPIKE record; A4 at 30 bar raw for 5 ms; A7 bands and the flight START high-side rule; A14-A16 | Electronics |
+| OI-19 | Bleed control | Closure signal behind BLEED_FAULT; ECU cap = 2.5 s of flow plus the measured valve times; drivers hardware-inhibited outside the window; 12 V NC valves with >= 4x capacity, mass target <= 0.15 kg each (2 x 0.30 kg is a MASS RISK); price TO-QUOTE (Sønderborg DK-6400) | Electronics |
+| OI-20 | FD-01 element | Measured dP-flow curve; Cd.A < 0.63 mm2 triggers the two-flow re-run (about 20 min) | Mechanical, then Combustion |
+| OI-21 | Seat face | <= 800 K from MECO to E1 in the FE | Mechanical |
+| OI-22 | Nozzle joint | Agree J1 or J2; FE re-run with the two-layer stack; leak criterion | Mechanical, Combustion |
+| OI-23 | RG-01 re-fly | Fly the PURGED tables (Table 2.15) from the pinned hub copies `02-combustion/data/v2p4/` (HASHES.txt), the purge at the ECU cap (<= 73.0 g, line 168) and the vented mass against time (§9.1), PURGE committed at E0 - 2.90 s; one flight FSW for every base and arm (line 168); the height cost and the floor of the T_fire delay rule; the +0.60 kg valve-mass sensitivity; tank outlet coverage from PURGE (§2.4) | GNC |
+| OI-24 | Gates | CF-4 (relight claim), IGN-1 (>= 30 lights), B-PNT-1, CF-1 to CF-3, T1-T4 | Founders |
+| OI-25 | Material data (RC-15) | 17-4PH H900/H1150 Fty and hot strength (maker data or MMPDS); Inconel 718 TC-03; PTFE rod-seal temperature in the FEA | Mechanical, Combustion |
+| OI-26 | Interface hygiene (RC-20) | Tags added to `props_100pct` and `props_12p5pct` in combustion.json v2.4; gnc.json v3 now published | Done |
+| OI-27 | HANDBACK-SUMMARY lines 79-80 | Replace "grid-converged" per RC-10 (text supplied with the handback) | Lead |
+| OI-28 | ENG-01 at the 25 bar cap (RC-09) | With eta_cf at the 0.95 low end: a cap of about 25.7 bar, or 487 N at 25 bar (§4.3) | Lead, after T1 |
+| OI-29 | Regression law form (RG-03) | Measurement and reduction per §10.4 at T1-T4; decides the B1 gate form | Founders, Combustion |
+| OI-30 | Bleed-size comparator | Optional: two taps at about 20 g/s total (2 x 0.57 mm) through the purge sweep, if the FMEA cannot bound the stuck-open probability | Combustion (offered) |
+@@END@@
+
+@@APPEND_13@@
+v2.4 failures and superseded evidence (kept; superseded runs in `data/v2/v2p4/superseded/` with `SUPERSEDED.txt`):
+
+| Item | What happened | Consequence |
+|---|---|---|
+| §2.8 on the CAD v3.4 inverted U (44 cm3) | The hardware changed (re-route, CAD v3.4.1) | Text kept as `superseded/s2_8_v34_inverted_U.txt`; segment-void and pre-void-fix runs superseded |
+| Late-light 44.9 bar (v2.4 draft) and the 37.1-44.9 bar table | Single-case run before the full grid | Tables 7.4 and 7.5 (43.7 bar sharp, 40.6 bar rounded at 15 C) |
+| Fuel-assisted 72.8 / 62.9 bar (draft) | Run 1 at 20 C and the A1 relight only | 48.9-75.5 bar at 1 ms (run 2, full grid); FA-1 |
+| A5 (Pc > 8.0 bar for 5 ms from E1) | Tripped on 98 % of the late-light grid | Deleted (LEAD line 160); LIGHT_SPIKE |
+| "About 50 g" per purge; 0.8 mm per tap; PURGE at E0 - 2.40 s | Coarse-grid and Tp 2.0 drafts | Decided path, 34.3-72.9 g at 2.5 s, E0 - 2.90 s (LEAD lines 160, 164) |
+| Purge reduction, first run | The trade's "restart" convention added 0.023 s of dead time to single-pocket sequences: E0 -> E2 max 0.649 s | Corrected to 0.626 s; two non-governing brackets moved (s 1.0 unlined 1.2 -> 1.1 s; swall lined 1.3 -> 1.2 s); governing times unchanged |
+| PTFE lining (research) | Refuted as a replacement for the purge; costs 0.3 s of margin | Dropped (LEAD line 164) |
+| ECU cap 2.5 + 0.3 s | Placeholder | 2.5 s of flow plus measured valve times (LEAD line 164) |
+| Mechanical's 15.91 cm3 | A 10 deg robustness row read as the design case | 4.84 cm3 at theta <= 2 deg, reproduced; closed (line 162) |
+| v2.3 MEOP basis 42.85 bar | Non-conservative line loss and eta_c* (RC-08) | 44.33 bar (§3.6) |
+| v2.3 hard-start inventory 8.74 g and coast leak ceiling 0.039 g/s | Understated (RC-02) | §7.6 inventories; ceiling 0.0055 g/s |
+| v2.3 throat life "1.0-4.3 A1 flights" | Not supported on the v2 cycles (RC-06) | One insert per flight (§5.4) |
+| "85 m covers 62 m" | No regression band in GNC's 85 m populations | Withdrawn (§4.6) |
+| NZ-03 mica/vermiculite gasket | 1595 C against a 900 C rating | Proposal J1 (§6.5) |
+| Draft files `sec2_relief.txt`, `sec7_sequence.txt` | Earlier drafts | Replaced by §2.6-2.7 and §7.3 |
+| Run-1 files: late_light_spike, ignition_detect, prep_path_inventory (0.06 s bleed reading), purge_hazard label fix | Corrected runs | Listed in `SUPERSEDED.txt` |
+@@END@@
+
+@@APPEND_14@@
+v2.4 additions (all under `02-combustion/`; per-file hashes and producing scripts in `data/v2/v2p4/FILE-INDEX.txt`):
+
+| Area | Scripts (`src/`) | Data (`data/v2/v2p4/`) |
+|---|---|---|
+| Relight vapour and purge (§2.8) | `retained_vapour_v341_v2p4.py`, `retained_table_v341_v2p4.py`, `segment_heat_v341_v2p4.py`, `purge_sizing_v2p4.py`, `purge_slip_v2p4.py`, `purge_table_v2p4.py`, `purge_duration_v2p4.py`, `rg01_line_states_v2p4.py`, `fd01_element_deficit_v2p4.py`, `cf4_void_budget_v2p4.py`, `purge_hazard_v2p4.py` | `retained_vapour_v341_v2p4*`, `purge_*_v2p4.json`, `rg01_line_states_v2p4.json`, `fd01_element_deficit_v2p4.json`, `cf4_void_budget_v2p4.json` |
+| Ignition and sequence (§7) | `start_latency_v2p4.py`, `torch_gate_v2p4.py`, `ignition_detect_v2p4.py`, `relight_*_v2p4.py`, `post_abort_pocket_v2p4.py`, `drogue_hold_check_v2p4.py`, `hard_start*_v2p4.py`, `late_light_spike_v2p4.py`, `late_light_tables_v2p4.py`, `sil_inventory_bound_v2p4.py` | matching `*_v2p4.json` |
+| Relief, safing, stored energy (§2.7, §9, §10) | `safing_relief_v2p4.py`, `safing_vent_v2p4.py`, `stored_energy_sup_v2p4.py`, `meop_basis_v2p4.py` | matching `*_v2p4.json` |
+| Grain, erosion, nozzle (§4-§6) | `run_dispersed_v2p4.py`, `dispersed_checks_v2p4.py`, `b1_*_v2p4.py`, `burn_limit_proxy_v2p4.py`, `oxrich_62m_v2p4.py`, `coast_migration_v2p4.py`, `erosion_v2p4.py`, `rc09_etacf_band_v2p4.py`, `nozzle_joint_v2p4.py`, `nozzle_lip_melt_v2p4.py` | matching files and `erosion/` |
+| Report and interface | `build_report_v2p4.py` (assembles this report from v2.3 and the v2.4 section drafts), `write_interface_v2p4.py` (combustion.json v2.4 from v2.3 by keyed edits; every v2.3 key kept), `hub_copy_v2p4.py` | `combustion_interface_v2p4_as_published.json` |
+
+Reproduction: each script states its usage and asserts its input hashes; run with `python -I`. The CF-4 specification is `CF-4-SPEC.md`.
+@@END@@

@@ -1,0 +1,780 @@
+"""CAD v3.4 feed parts, Option A (lead 2026-10-13): riser-foot TEE, O3b hose coil, fixed 3/8 wall line, MV-P main-valve module
+FS-01 at the top of the engine zone (Mechanical, 2026-10-13).  Families ENG-FD (feed, engine and fixed side) and ENG-FS (module).
+
+Flow path (tank -> seat): tank port FD-12F -> FS-01B inlet chamber -> MV-P seat (poppet FS-02 below the seat, opens DOWN) ->
+FS-01A outlet chamber (segment side: S1 back-relief check to the inlet chamber, secondary rupture disc 9.5 MPa, P_feed J602,
+MSS-2 thermocouple, drain plug) -> flange FD-08F -> wall line FD-08 (3/8 x 0.035 in 316L, vertical on the bay wall at az 219.5)
+-> fixed hose end FD-07B (clamped by FD-09 on a GM-09 standoff) -> hose FD-07 (v3.4.1: 3/8 in convoluted PTFE / 316 braid, ~205 deg
+clockwise coil RISING from the TEE side port z 72 to the fixed end z 74) -> engine hose end FD-07A -> TEE FD-05 (MSS-1 side port) -> riser
+FD-03 (parts_inlet) -> FD-01 -> head (E1-M) -> seat.
+v3.4.1 (2026-10-13, lead re-route decision): the v3.4 coil fell from z 72 to 47 (bore-crown low point 50.6 mm = the retained-vapour trap of
+segment_traps_v34_v1p1) and failed the 8 deg stop (0.23 mm to the wall); re-routed per calcs/coil_reroute_v341*.py (v4 = closed-route grid).
+Joints: FD-07A/B tube stubs socket- or butt-welded (316L, TIG back-purged) to FD-05 / FD-08; FD-08 socket-welded into the 316L
+flange FD-08F, which seals to the 6061 module with an AS568-012 FKM face O-ring (module at ambient temperature).
+
+Engine frame, mm, +Z forward, az measured from +X.  Every dimension is DESIGN (chosen here) unless tagged; COTS envelopes are
+ESTIMATES until the vendor drawing is in hand; no price is given (TO-QUOTE, delivery Sonderborg DK-6400).
+Geometry decisions recorded here (v3.4):
+  * TEE axis (-44, 0), z 60..88 (riser starts at z 88): the v3.4 sketch had z 52..80 at x -46, but its bottom MSS-1 fitting came
+    within 1.6 mm of the gimbal-ring top at beta 8 deg (3 mm rule) and the side boss left the 8 deg sweep cone by 0.8 mm.
+  * MSS-1 enters the TEE from below (1/8-27 NPT, 1/16 in MI sheath up the riser to the FD-01 turn, immersion >= 100 mm).
+  * Module axis r 10 mm (not 20): with the wall line vertical at r 64.24 and a R24 top bend, the line arrives horizontal at
+    r 40.24; the flange and a straight tube length need the module face at r <= 28.
+"""
+from __future__ import annotations
+import json, math
+from pathlib import Path
+import numpy as np
+import cadquery as cq
+from geom import cyl, cyl_dir, tube, box, union_all, cut_all, T_trans, T_rot, apply, revolve, T_basis
+from partlib import Part
+
+FEED = {
+    "tee": {"axis_xy": (-44.0, 0.0), "z_bot": 60.0, "z_top": 88.0, "od": 18.0, "socket_d": 9.6, "socket_depth": 8.0, "bore": 7.75,
+            "bore_z": (68.0, 80.0), "mss1_tap": 8.7, "mss1_z": (60.0, 68.0), "side_z": 72.0, "side_boss_d": 15.0, "side_boss_len": 8.5,
+            "side_socket_depth": 7.0, "side_aim": -12.0,
+            "tag": "DESIGN 316L bar; side socket aimed so that P_e . d = -12 mm (v3.4.1; v3.4 -14) (hose leaves tangentially, clockwise)"},
+    "tube": {"od": 9.525, "id": 7.747, "tag": "3/8 x 0.035 in 316L seamless (ASTM A269)"},
+    "hose": {"id": 10.5, "od": 16.2, "EI_nom": 0.25, "EI_range": (0.05, 0.25, 0.5), "mass_kg_m": 0.21,
+             "tag": "v3.4.1: 3/8 in CONVOLUTED PTFE, 1x 316 SS braid (a smooth-bore -6 hose has MBR 102 mm and cannot be coiled here, "
+                    "Parker 919B-6); ID 10.5 (10-11 DICSA M293009), OD 16.2 (max of 14.7-16.2), mass 0.21 kg/m (Indunorm TEF3W10, TO-VERIFY); "
+                    "EI ASSUMED until B-FD-1 (pressurised)"},
+    "ferrule": {"od": 20.0, "len": 15.0, "stub": 3.0, "mass_kg": 0.025,
+                "tag": "v3.4.1: crimp sleeve OD 20 (Flowtech TS68768 FE ferrule 19.0 before / 17.2 after crimp) x 15 mm long = REQUIREMENT to the "
+                       "hose maker (the 25 mm ESTIMATE gives 1.5 mm at the 8 deg stop, coil_reroute_v341_v4.json); 3 mm 3/8 in tube stub"},
+    "coil": {"fq_r": 54.0, "fq_az": 303.0, "ferrule_in_deg": 10.0, "z_end": 74.0, "R_min_plan": 41.5, "r_max": 56.0, "r_pref": 50.0,
+             "wall_L1": 3.0, "wall_alpha_search": (-90.0, 90.0), "wall_L2_min": 6.0,
+             "tag": "DESIGN v3.4.1 (lead 2026-10-13 re-route, coil_reroute_v341_v4.json): clockwise coil from the TEE side socket (z 72) RISING "
+                    "monotonically to the fixed hose end at az 303 / r 54 / z 74 (bore-crown low point = TEE side passage, 75.87 mm); fixed sleeve 10 deg "
+                    "inward of the tangent; plan curve with minimum curvature variation (R >= 41.5 mm, r <= 56), SLSQP end residual closed exactly; "
+                    "z quintic 72 -> 74 (zero slope and curvature at both ends).  v3.4: z 72 -> 47 (low point 50.6 mm, the retained-vapour trap)"},
+    "wall": {"r": 64.24, "az": 219.5, "z_top_bend": 249.5, "R_bend": 24.0, "clip_z": (110.0, 170.0, 230.0),
+             "tag": "DESIGN: corridor of feed_route_v34_v1.json (free sector 216-223 deg); R >= 24 mm bends (2.5 D)"},
+    "module": {"r": 10.0, "az": 219.5, "z0": 279.5, "tag": "DESIGN: MV-P seat plane z0; bottom w -20 -> z 259.5 >= swept top 255.09 + 3"},
+}
+
+
+# ------------------------------------------------------------------------------------------------ small helpers
+def pol(r, az_deg, z):
+    a = math.radians(az_deg)
+    return np.array([r * math.cos(a), r * math.sin(a), z])
+
+
+def _unit(v):
+    v = np.asarray(v, float)
+    return v / np.linalg.norm(v)
+
+
+def smooth_curve(points, d0, d1, step=1.0):
+    """C2 cubic spline through `points` (chord-length parameter) with unit end tangents d0, d1; returns points every ~step mm."""
+    from scipy.interpolate import make_interp_spline
+    P = np.asarray(points, float)
+    s = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(P, axis=0), axis=1))])
+    sp = make_interp_spline(s, P, k=3, bc_type=([(1, _unit(d0))], [(1, _unit(d1))]))
+    n = max(8, int(math.ceil(s[-1] / step)))
+    return sp(np.linspace(0.0, s[-1], n + 1))
+
+
+def curvature_radius(pts):
+    """Discrete radius of curvature at the interior points (mm)."""
+    P = np.asarray(pts, float)
+    out = np.full(len(P), np.inf)
+    for i in range(1, len(P) - 1):
+        a, b, c = P[i - 1], P[i], P[i + 1]
+        ab, bc, ac = np.linalg.norm(b - a), np.linalg.norm(c - b), np.linalg.norm(c - a)
+        A2 = np.linalg.norm(np.cross(b - a, c - a))
+        if A2 > 1e-12:
+            out[i] = ab * bc * ac / (2.0 * A2)
+    return out
+
+
+def sweep_tube(pts, od, idd=None):
+    """Tube (or rod) swept along one interpolating spline through pts (single spline: valid OCC solid)."""
+    P = np.asarray(pts, float)
+    idx = np.unique(np.r_[np.arange(0, len(P), 2), len(P) - 1])          # every 2nd sample of a ~1 mm polyline
+    if len(idx) > 2 and idx[-1] - idx[-2] < 2:
+        idx = np.delete(idx, -2)
+    vecs = [cq.Vector(*map(float, P[i])) for i in idx]
+    t0 = _unit(P[1] - P[0])
+    edge = cq.Edge.makeSpline(vecs)                                       # no end-tangent constraint: with it OCC returned void solids
+    path = cq.Wire.assembleEdges([edge])
+    outer = cq.Wire.makeCircle(od / 2.0, cq.Vector(*P[0]), cq.Vector(*t0))
+    inner = [cq.Wire.makeCircle(idd / 2.0, cq.Vector(*P[0]), cq.Vector(*t0))] if idd else []
+    return cq.Solid.sweep(outer, inner, path, makeSolid=True, isFrenet=False, transitionMode="right")
+
+
+def plan_curve(Q, psi0, F, psi1, kmax, rmax, r_pref, n_c=14, n_s=400):
+    """Plan-view centreline from Q (heading psi0, rad) to F (heading psi1) turning clockwise: curvature as a cubic B-spline in the
+    arc length, end position/heading as equality constraints, kappa <= kmax and r <= rmax as inequalities; objective = curvature
+    variation + a penalty on r above r_pref (SLSQP).  Returns (s, x, y, psi, kappa, success)."""
+    from scipy.optimize import minimize
+    from scipy.interpolate import BSpline
+    dpsi = (psi0 - psi1) % (2 * math.pi)
+    k = 3
+    t = np.r_[[0.0] * k, np.linspace(0.0, 1.0, n_c - k + 1), [1.0] * k]
+    def geom(xv):
+        L, c = xv[-1], xv[:-1]
+        sig = np.linspace(0.0, 1.0, n_s + 1)
+        kap = BSpline(t, c, k)(sig)
+        ds = L / n_s
+        psi = psi0 - np.concatenate([[0.0], np.cumsum(0.5 * (kap[1:] + kap[:-1]) * ds)])
+        x = Q[0] + np.concatenate([[0.0], np.cumsum(0.5 * (np.cos(psi[1:]) + np.cos(psi[:-1])) * ds)])
+        y = Q[1] + np.concatenate([[0.0], np.cumsum(0.5 * (np.sin(psi[1:]) + np.sin(psi[:-1])) * ds)])
+        return sig * L, x, y, psi, kap
+    def obj(xv):
+        s_, x, y, psi, kap = geom(xv)
+        ds = xv[-1] / n_s
+        return float(np.sum((np.diff(kap) / ds) ** 2) * ds) * 1e4 + 0.02 * float(np.sum(np.maximum(np.hypot(x, y) - r_pref, 0.0) ** 2) * ds)
+    L0 = 1.2 * dpsi * 50.0
+    x0 = np.r_[np.full(n_c, dpsi / L0), L0]
+    cons = [{"type": "eq", "fun": lambda xv: (lambda g: np.array([g[1][-1] - F[0], g[2][-1] - F[1],
+                                                               (g[3][-1] - psi1 + math.pi) % (2 * math.pi) - math.pi]))(geom(xv))},
+            {"type": "ineq", "fun": lambda xv: kmax - geom(xv)[4]},
+            {"type": "ineq", "fun": lambda xv: geom(xv)[4] + 0.002},
+            {"type": "ineq", "fun": lambda xv: rmax - np.hypot(geom(xv)[1], geom(xv)[2])}]
+    r = minimize(obj, x0, method="SLSQP", constraints=cons, options={"maxiter": 500, "ftol": 1e-10})
+    s_, x, y, psi, kap = geom(r.x)
+    return s_, x, y, psi, kap, bool(r.success)
+
+
+def resample(P, step=1.0):
+    """Uniform arc-length resampling of a polyline."""
+    P = np.asarray(P, float)
+    s = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(P, axis=0), axis=1))])
+    n = max(2, int(math.ceil(s[-1] / step)))
+    si = np.linspace(0.0, s[-1], n + 1)
+    return np.column_stack([np.interp(si, s, P[:, j]) for j in range(3)])
+
+
+def rot_z(v, deg):
+    a = math.radians(deg)
+    return np.array([math.cos(a) * v[0] - math.sin(a) * v[1], math.sin(a) * v[0] + math.cos(a) * v[1], v[2]])
+
+
+def seg_points(segs, step=1.0, step_deg=0.5):
+    """Polyline of a list of exact segments: ('line', p0, p1) and ('arc', centre, axis, p_start, angle_deg)."""
+    out = []
+    for sg in segs:
+        if sg[0] == "line":
+            p0, p1 = np.asarray(sg[1], float), np.asarray(sg[2], float)
+            n = max(1, int(math.ceil(np.linalg.norm(p1 - p0) / step)))
+            pts = [p0 + (p1 - p0) * k / n for k in range(n + 1)]
+        else:
+            C, ax, p0, ang = np.asarray(sg[1], float), _unit(sg[2]), np.asarray(sg[3], float), sg[4]
+            n = max(2, int(math.ceil(abs(ang) / step_deg)))
+            v = p0 - C
+            pts = []
+            for k in range(n + 1):
+                t = math.radians(ang * k / n)
+                pts.append(C + v * math.cos(t) + np.cross(ax, v) * math.sin(t) + ax * (ax @ v) * (1 - math.cos(t)))
+        out += pts if not out else pts[1:]
+    return np.array(out)
+
+
+def tube_segments(segs, od, idd):
+    """Exact tube along line/arc segments.  v3.4.1: one annulus swept along the G1 line/arc wire (the v3.4 'union of rods minus union of
+    bores' returned the SOLID rods: OCC dropped the bore cut silently, FD-08 weighed 159 g instead of 54 g and had no bore - found by the
+    segment_traps_v341 CAD-consistency check).  Falls back to per-segment annuli; the result is checked against A x L."""
+    def path_wire():
+        edges = []
+        for sg in segs:
+            if sg[0] == "line":
+                p0, p1 = np.asarray(sg[1], float), np.asarray(sg[2], float)
+                if np.linalg.norm(p1 - p0) > 1e-6:
+                    edges.append(cq.Edge.makeLine(cq.Vector(*p0), cq.Vector(*p1)))
+            else:
+                C, ax, p0, ang = np.asarray(sg[1], float), _unit(sg[2]), np.asarray(sg[3], float), sg[4]
+                rv = lambda a: C + _rodrigues(p0 - C, ax, a)
+                edges.append(cq.Edge.makeThreePointArc(cq.Vector(*p0), cq.Vector(*rv(0.5 * ang)), cq.Vector(*rv(ang))))
+        return cq.Wire.assembleEdges(edges)
+    L = 0.0
+    for sg in segs:
+        L += float(np.linalg.norm(np.asarray(sg[2], float) - np.asarray(sg[1], float))) if sg[0] == "line" else \
+            math.radians(sg[4]) * float(np.linalg.norm(np.asarray(sg[3], float) - np.asarray(sg[1], float)))
+    v_ref = math.pi / 4.0 * (od ** 2 - idd ** 2) * L
+    first = segs[0]
+    p0 = np.asarray(first[1] if first[0] == "line" else first[3], float)
+    t0 = _unit(np.asarray(first[2], float) - p0) if first[0] == "line" else \
+        _unit(np.cross(_unit(first[2]), p0 - np.asarray(first[1], float)))
+    try:
+        w = path_wire()
+        outer = cq.Wire.makeCircle(od / 2.0, cq.Vector(*p0), cq.Vector(*t0))
+        inner = cq.Wire.makeCircle(idd / 2.0, cq.Vector(*p0), cq.Vector(*t0))
+        sol = cq.Solid.sweep(outer, [inner], w, makeSolid=True, isFrenet=False, transitionMode="right")
+        if sol.isValid() and abs(sol.Volume() - v_ref) < 0.01 * v_ref:
+            return sol
+    except Exception:
+        pass
+    fb = _tube_segments_v34(segs, od, idd)
+    v_fb = sum(x.Volume() for x in fb.Solids())
+    if abs(v_fb - v_ref) > 0.01 * v_ref:
+        raise RuntimeError(f"tube_segments: sweep and fallback both failed the volume check ({v_fb:.0f} vs {v_ref:.0f} mm3)")
+    return fb
+
+
+def _rodrigues(v, k, deg):
+    a = math.radians(deg)
+    v = np.asarray(v, float)
+    return v * math.cos(a) + np.cross(k, v) * math.sin(a) + k * (k @ v) * (1.0 - math.cos(a))
+
+
+def _tube_segments_v34(segs, od, idd):
+    """Fallback: per-segment annulus (outer minus a slightly longer bore), then the union (v3.4.1; the v3.4 union-then-cut lost the bore)."""
+    pieces = []
+    for sg in segs:
+        if sg[0] == "line":
+            p0, p1 = np.asarray(sg[1], float), np.asarray(sg[2], float)
+            L = float(np.linalg.norm(p1 - p0))
+            if L <= 1e-6:
+                continue
+            u = (p1 - p0) / L
+            pieces.append(cyl_dir(od, L, tuple(p0), tuple(u)).cut(cyl_dir(idd, L + 0.2, tuple(p0 - 0.1 * u), tuple(u))))
+        else:
+            C, ax, p0, ang = np.asarray(sg[1], float), _unit(sg[2]), np.asarray(sg[3], float), sg[4]
+            tg = _unit(np.cross(ax, p0 - C))
+            o = cq.Solid.revolve(cq.Wire.makeCircle(od / 2.0, cq.Vector(*p0), cq.Vector(*tg)), [], float(ang), cq.Vector(*C), cq.Vector(*(C + ax)))
+            q0 = C + _rodrigues(p0 - C, ax, -0.2)
+            tq = _unit(np.cross(ax, q0 - C))
+            i_ = cq.Solid.revolve(cq.Wire.makeCircle(idd / 2.0, cq.Vector(*q0), cq.Vector(*tq)), [], float(ang) + 0.4, cq.Vector(*C), cq.Vector(*(C + ax)))
+            pieces.append(o.cut(i_))
+    return union_all(pieces).clean()
+
+
+def arc_pts(c, e1, e2, R, a0, a1, step_deg=3.0):
+    """Points on a circular arc centre c, radius R, in the plane (e1, e2): angle a0 -> a1 (deg)."""
+    n = max(2, int(math.ceil(abs(a1 - a0) / step_deg)))
+    return [c + R * (math.cos(math.radians(a)) * e1 + math.sin(math.radians(a)) * e2) for a in np.linspace(a0, a1, n + 1)]
+
+
+# ------------------------------------------------------------------------------------------------ frozen plan curve (v3.4.1)
+# The SLSQP plan curve is ill-conditioned: with multi-threaded OpenBLAS (OMP_NUM_THREADS >= 2) the v3.4.1 coil diverges (length -781 mm),
+# single-threaded it converges (180.25 mm) - found 2026-10-13.  The baseline plan is therefore FROZEN in data/feed_plan_v341.json
+# (written by `OMP_NUM_THREADS=1 python parts_feed.py --freeze-plan`) and used whenever the route inputs match its key; studies with
+# other inputs still optimise (run them single-threaded).
+PLAN_FROZEN = Path(__file__).resolve().parent / "data" / "feed_plan_v341.json"
+LAST_PLAN = {}
+
+
+def _plan_key(Q, psi0, Fq, psi1, c):
+    return [round(float(v), 4) for v in (Q[0], Q[1], psi0, Fq[0], Fq[1], psi1, c["R_min_plan"], c["r_max"], c["r_pref"])]
+
+
+def _frozen_plan(key):
+    try:
+        d = json.loads(PLAN_FROZEN.read_text())
+    except (OSError, ValueError):
+        return None
+    return d if d.get("key") == key else None
+
+
+# ------------------------------------------------------------------------------------------------ route
+def route(S):
+    """All feed centrelines and stations (engine frame, neutral).  Stored in S['feed']."""
+    t = FEED["tee"]
+    ax, ay = t["axis_xy"]
+    zs = t["side_z"]
+    Pe = np.array([ax, 8.0, zs])                                   # side-socket mouth on the TEE +Y face
+    # d = (sin th, cos th, 0) with Pe . d = side_aim
+    f = lambda th: ax * math.sin(th) + 8.0 * math.cos(th) - t["side_aim"]
+    lo, hi = 0.0, 1.2
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        lo, hi = (mid, hi) if f(lo) * f(mid) > 0 else (lo, mid)
+    th = 0.5 * (lo + hi)
+    d = np.array([math.sin(th), math.cos(th), 0.0])
+    fe = FEED["ferrule"]
+    Q = Pe + (fe["stub"] + fe["len"]) * d                          # flexible hose starts here (engine side)
+    c = FEED["coil"]
+    Fq = pol(c["fq_r"], c["fq_az"], c["z_end"])                     # flexible hose ends here (fixed side)
+    tang = np.array([math.sin(math.radians(c["fq_az"])), -math.cos(math.radians(c["fq_az"])), 0.0])   # clockwise tangent
+    c1, c2 = rot_z(tang, c["ferrule_in_deg"]), rot_z(tang, -c["ferrule_in_deg"])
+    cdir = c1 if np.linalg.norm((Fq + 28.0 * c1)[:2]) < np.linalg.norm((Fq + 28.0 * c2)[:2]) else c2        # inward of the tangent
+    Fe = Fq + (fe["len"] + fe["stub"]) * cdir                     # fixed end of the sleeve stub (butt weld to FD-08)
+    # hose: optimised plan curve (R >= R_min_plan, r <= r_max) + quintic z from the TEE side height to z_end
+    psi0, psi1 = math.atan2(d[1], d[0]), math.atan2(cdir[1], cdir[0])
+    key = _plan_key(Q, psi0, Fq, psi1, c)
+    fz = None if FEED.get("no_frozen_plan") else _frozen_plan(key)
+    if fz is not None:
+        s_, x_, y_ = (np.asarray(fz[k], float) for k in ("s", "x", "y"))
+        ok, plan_err = bool(fz["ok"]), tuple(fz["plan_err"])
+        sig = s_ / s_[-1]
+    else:
+        s_, x_, y_, psi_, kap_, ok = plan_curve(Q[:2], psi0, Fq[:2], psi1, 1.0 / c["R_min_plan"], c["r_max"], c["r_pref"])
+        if not np.isfinite(s_[-1]) or not (20.0 < s_[-1] < 1000.0):        # v3.4.1 guard: a diverged SLSQP plan (8e8 mm) exhausted memory
+            raise RuntimeError(f"feed route: plan curve diverged (length {s_[-1]:.3g} mm); with OpenBLAS threads > 1 the SLSQP plan is not "
+                               "reproducible: run single-threaded (OMP_NUM_THREADS=1) or use the frozen plan (data/feed_plan_v341.json)")
+        sig = s_ / s_[-1]
+    # v3.4.1: SLSQP stops with end residuals of up to a few mm / degrees (coil_reroute_v341: 0-6 mm), i.e. the hose solid did not meet
+    # the fixed ferrule exactly.  Close the plan curve on Fq and on the sleeve heading: position by a quintic smoothstep (zero slope at
+    # both ends: start point and both end headings unchanged), heading by A s^2 (s - 1) along the end normal (start point/heading and
+    # end point unchanged).  Residuals before closure are kept in S['feed'] (plan_end_err_mm, plan_end_heading_err_deg).
+        e_xy = Fq[:2] - np.array([x_[-1], y_[-1]])
+        psi_end = math.atan2(y_[-1] - y_[-2], x_[-1] - x_[-2])
+        d_psi = (math.atan2(cdir[1], cdir[0]) - psi_end + math.pi) % (2 * math.pi) - math.pi
+        n_end = np.array([-math.sin(psi_end), math.cos(psi_end)])
+        hst = 10 * sig ** 3 - 15 * sig ** 4 + 6 * sig ** 5
+        hrot = s_[-1] * d_psi * sig ** 2 * (sig - 1.0)
+        x_ = x_ + e_xy[0] * hst + n_end[0] * hrot
+        y_ = y_ + e_xy[1] * hst + n_end[1] * hrot
+        plan_err = (float(np.linalg.norm(e_xy)), float(math.degrees(d_psi)))
+    LAST_PLAN.clear()
+    LAST_PLAN.update(key=key, s=[float(v) for v in s_], x=[float(v) for v in x_], y=[float(v) for v in y_], ok=bool(ok),
+                     plan_err=[float(v) for v in plan_err], frozen=fz is not None)
+    z_ = zs + (c["z_end"] - zs) * (10 * sig ** 3 - 15 * sig ** 4 + 6 * sig ** 5)
+    hose = resample(np.column_stack([x_, y_, z_]), 1.0)
+    # wall line: Fe -> L1 along cdir -> horizontal bend (R, alpha) -> L2 -> vertical 90 deg bend (R) -> vertical at (r_w, az_w)
+    w = FEED["wall"]
+    m = FEED["module"]
+    R = w["R_bend"]
+    T_xy = pol(w["r"], w["az"], 0.0)[:2]
+    best = None
+    for alpha in np.arange(c["wall_alpha_search"][0], c["wall_alpha_search"][1] + 1e-9, 0.05):
+        if abs(alpha) < 0.05:
+            continue
+        P1 = Fe[:2] + c["wall_L1"] * cdir[:2]
+        sg = 1.0 if alpha > 0 else -1.0
+        nrm = np.array([-cdir[1], cdir[0]]) * sg
+        Cc = P1 + R * nrm
+        h = rot_z(cdir, alpha)[:2]
+        P2 = Cc - R * np.array([-h[1], h[0]]) * sg
+        dd = T_xy - P2
+        L2 = float(dd @ h) - R
+        lat = abs(dd[0] * h[1] - dd[1] * h[0])
+        if L2 >= c["wall_L2_min"] and lat < 0.06 and (best is None or abs(alpha) < abs(best[0])):
+            best = (alpha, L2, Cc, P1, P2, h, sg, nrm)
+    if best is None:
+        raise RuntimeError("feed route: no two-bend wall-line solution (move the fixed end)")
+    alpha, L2, Cc, P1, P2, h, sg, nrm = best
+    zf = Fe[2]
+    P1_3, P2_3 = np.array([P1[0], P1[1], zf]), np.array([P2[0], P2[1], zf])
+    Cc3 = np.array([Cc[0], Cc[1], zf])
+    B = P2_3 + L2 * np.array([h[0], h[1], 0.0])
+    h3 = np.array([h[0], h[1], 0.0])
+    cv = B + R * np.array([0.0, 0.0, 1.0])
+    V0 = cv + R * h3
+    ur = pol(1.0, w["az"], 0.0)
+    Vt = np.array([V0[0], V0[1], w["z_top_bend"]])
+    ct = Vt - w["R_bend"] * ur
+    top_end = ct + w["R_bend"] * np.array([0.0, 0.0, 1.0])
+    z_line = w["z_top_bend"] + w["R_bend"]
+    mod_c = pol(m["r"], m["az"], m["z0"])
+    u_face, fl_t, sock = 18.0, 6.0, 4.5                            # module lower-body face, flange thickness, tube insertion
+    end = mod_c + (u_face + fl_t - sock) * ur
+    end[2] = z_line
+    wall_segs = [("line", Fe, P1_3),
+                 ("arc", Cc3, np.array([0.0, 0.0, sg]), P1_3, abs(alpha)),
+                 ("line", P2_3, B),
+                 ("arc", cv, _unit(np.cross(h3, [0.0, 0.0, 1.0])), B, 90.0),
+                 ("line", V0, Vt),
+                 ("arc", ct, _unit(np.cross([0.0, 0.0, 1.0], -ur)), Vt, 90.0),
+                 ("line", top_end, end)]
+    wall = seg_points(wall_segs)
+    feed = dict(Pe=Pe, d=d, theta_deg=math.degrees(th), Q=Q, Fq=Fq, Fe=Fe, cdir=cdir, hose=hose, wall=wall, wall_segs=wall_segs, V0=V0,
+                z_line_top=z_line, module_c=mod_c, module_ur=ur, module_ut=np.array([-ur[1], ur[0], 0.0]),
+                hose_len_mm=float(np.sum(np.linalg.norm(np.diff(hose, axis=0), axis=1))),
+                wall_len_mm=float(np.sum(np.linalg.norm(np.diff(wall, axis=0), axis=1))),
+                hose_Rmin_mm=float(np.min(curvature_radius(hose))), wall_Rmin_mm=float(np.min(curvature_radius(wall))),
+                coil_sweep_deg=float((math.degrees(math.atan2(Q[1], Q[0])) - math.degrees(math.atan2(Fq[1], Fq[0]))) % 360.0),
+                tee_axis=(ax, ay), plan_opt_ok=ok, wall_alpha_deg=float(alpha), wall_L2_mm=float(L2), R_wall=R,
+                plan_end_err_mm=plan_err[0], plan_end_heading_err_deg=plan_err[1], plan_frozen=fz is not None)
+    S["feed"] = feed
+    S["z_r0"] = t["z_top"]
+    return feed
+
+
+def module_T(S):
+    f = S["feed"]
+    return T_basis(f["module_c"], f["module_ur"], f["module_ut"], np.array([0.0, 0.0, 1.0]))
+
+
+# ------------------------------------------------------------------------------------------------ module MV-P / FS-01 (local u, v, w)
+MOD = {
+    "chamber": {"d": 18.0, "w": (-12.0, 0.3)},
+    "seat": {"d": 11.5, "land_od": 12.5, "insert_od": 14.0, "insert_t": 2.3},
+    "web_top": 6.0, "inlet": {"d": 16.0, "w": (6.0, 18.0)}, "piston": {"d": 11.9, "w": (18.0, 26.0)}, "balance_top": 30.0,
+    "rod": {"d": 4.0, "seal_w": (30.0, 33.6), "seal_od": 8.0}, "body_top": 34.0,
+    "disc": {"d": 14.0, "t": 3.0}, "stem_d": 3.0, "hole_d": 1.2, "cross_w": 28.0, "lift": 2.8,
+    "line_w": -6.0, "port_w": -9.0, "mss2_w": -8.0, "s1": {"uv": (0.0, -8.0), "d": 1.5, "cart_d": 5.6, "cart_w": (2.4, 12.0)}, "tank_w": 13.0,
+    "tag": "DESIGN layout of calcs/mvp_v1p1.json (seat 11.5, piston 11.9, stem 3 hollow 1.2, lift 2.8, spring 1.8/12, cam r 6 + 2.8)",
+}
+
+
+def _mod_parts():
+    """Module solids in the local frame (u radial out, v tangential, w = +Z); origin on the axis at the seat plane."""
+    M = MOD
+    ch0, ch1 = M["chamber"]["w"]
+    out = {}
+    # FS-01A lower body: outlet chamber (segment side) + ports
+    lb = union_all([box((-14.0, -16.0, -20.0), (18.0, 16.0, 0.3)),
+                    box((-32.0, -8.0, -20.0), (-14.0, 8.0, 0.3)),                                   # J602 boss (vertical port)
+                    cyl_dir(18.0, 8.0, (0.0, 16.0, M["port_w"]), (0, 1, 0))])                      # rupture-disc boss (+v)
+    cuts = [cyl(M["chamber"]["d"], ch0, ch1 + 0.01),
+            cyl_dir(7.75, 10.02, (8.0, 0.0, M["line_w"]), (1, 0, 0)),                                          # line passage u 8..18
+            cyl(11.1, -12.0, 0.31, -24.0, 0.0),                                                    # J602 1/4-18 NPT, tap drill 7/16
+            cyl_dir(4.0, 15.5, (-24.0, 0.0, -10.0), (1, 0, 0)),                                    # cross passage to the chamber
+            cyl_dir(11.1, 17.0, (0.0, 7.0, M["port_w"]), (0, 1, 0)),                               # disc port 1/4-18 NPT
+            cyl_dir(8.7, 9.0, (0.0, -16.01, M["mss2_w"]), (0, 1, 0)),                              # MSS-2 1/8-27 NPT
+            cyl(8.7, -20.01, ch0 + 0.01),                                                          # drain 1/8-27 NPT (flush plug)
+            tube(24.0, 20.2, -1.0, 0.31)]                                                          # AS568-020 face groove
+    for (uu, vv) in ((11.0, 11.0), (11.0, -11.0), (-11.0, 11.0), (-11.0, -11.0)):
+        cuts += [cyl(4.5, -20.01, 0.31, uu, vv), cyl(7.5, -20.01, -15.5, uu, vv)]                 # M4 x 25 socket head, cbore
+    for vv in (-9.0, 9.0):
+        cuts.append(cyl_dir(3.3, 8.0, (18.01, vv, M["line_w"]), (-1, 0, 0)))                      # M4 for the line flange
+    out["FS-01A"] = cut_all(lb, cuts)
+    # FS-01B upper body: seat web, inlet chamber, piston bore, balance chamber, rod gland
+    ub = union_all([box((-14.0, -16.0, 0.3), (18.0, 16.0, M["web_top"])), box((-12.0, -12.0, M["web_top"]), (12.0, 12.0, M["body_top"]))])
+    s1u, s1v = M["s1"]["uv"]
+    cuts = [cyl(M["seat"]["insert_od"], 0.29, M["seat"]["insert_t"]),                              # seat-insert counterbore
+            cyl(M["seat"]["d"], 0.29, M["web_top"] + 0.01),                                         # seat orifice
+            cyl(M["inlet"]["d"], M["web_top"], M["inlet"]["w"][1]),
+            cyl(M["piston"]["d"], M["piston"]["w"][0] - 0.01, M["balance_top"]),
+            cyl(M["rod"]["d"] + 0.05, M["balance_top"] - 0.01, M["body_top"] + 0.01),
+            tube(M["rod"]["seal_od"], M["rod"]["d"], *M["rod"]["seal_w"]),
+            cyl(M["s1"]["d"], 0.29, M["s1"]["cart_w"][0] + 0.01, s1u, s1v),
+            cyl(M["s1"]["cart_d"], M["s1"]["cart_w"][0], M["s1"]["cart_w"][1], s1u, s1v),
+            cyl_dir(7.75, 5.0, (0.0, -12.01, M["tank_w"]), (0, 1, 0))]                               # tank port passage (-v face)
+    for (uu, vv) in ((11.0, 11.0), (11.0, -11.0), (-11.0, 11.0), (-11.0, -11.0)):
+        cuts.append(cyl(3.3, 0.29, 10.3, uu, vv))                                                 # M4 tapped from below
+    for uu in (-8.0, 8.0):
+        cuts.append(cyl_dir(3.3, 7.0, (uu, -12.01, M["tank_w"]), (0, 1, 0)))                       # M4 for the tank flange
+    for (uu, vv) in ((8.5, 8.5), (8.5, -8.5), (-8.5, 8.5), (-8.5, -8.5)):
+        cuts.append(cyl(2.5, M["body_top"] - 8.0, M["body_top"] + 0.01, uu, vv))                  # M3 for the actuator housing
+    out["FS-01B"] = cut_all(ub, cuts)
+    # FS-03 PCTFE seat insert (land 11.5-12.5 protrudes 0.3 to the seat plane)
+    out["FS-03"] = revolve([(M["seat"]["d"] / 2, 0.0), (M["seat"]["land_od"] / 2, 0.0), (M["seat"]["land_od"] / 2, 0.3),
+                            (M["seat"]["insert_od"] / 2, 0.3), (M["seat"]["insert_od"] / 2, M["seat"]["insert_t"]),
+                            (M["seat"]["d"] / 2, M["seat"]["insert_t"])])
+    # FS-02 poppet: disc + 3 mm stem (hollow 1.2) with M3 into the piston
+    dk = M["disc"]
+    pop = union_all([cyl(dk["d"], -dk["t"], 0.0), cyl(M["stem_d"], -0.01, M["piston"]["w"][0] + 5.0)])
+    out["FS-02"] = pop.cut(cyl(M["hole_d"], -dk["t"] - 0.01, M["piston"]["w"][0] + 5.01))
+    # FS-04 piston + rod (balance hole continues, cross hole at w 28 into the balance chamber)
+    pr = union_all([cyl(M["piston"]["d"] - 0.05, M["piston"]["w"][0], M["piston"]["w"][1]), cyl(M["rod"]["d"], M["piston"]["w"][1] - 0.01, 56.7)])
+    pr = cut_all(pr, [cyl(M["stem_d"], M["piston"]["w"][0] - 0.01, M["piston"]["w"][0] + 5.0),           # M3 thread (stem)
+                      cyl(M["hole_d"], M["piston"]["w"][0] + 4.9, M["cross_w"] + 0.6),
+                      cyl_dir(M["hole_d"], 5.0, (-2.5, 0.0, M["cross_w"]), (1, 0, 0)),
+                      tube(M["piston"]["d"] + 0.1, M["piston"]["d"] - 3.2, 20.0, 24.0),                  # seal groove 2.4 x 4
+                      cyl(2.5, 50.7, 56.71)])                                                           # M3 for the follower screw
+    out["FS-04"] = pr
+    # FS-06 actuator housing (dry): spring pocket, follower bore, cam slot, bearing bores
+    hz0 = M["body_top"]
+    hs = box((-9.0, -12.0, hz0), (12.0, 12.0, 74.0))
+    zc = 65.7
+    out["FS-06"] = cut_all(hs, [cyl(18.0, hz0 + 2.0, 61.0), cyl(4.6, hz0 - 0.01, hz0 + 2.01), box((-4.0, -10.0, 59.0), (4.0, 10.0, 74.01)),
+                                cyl_dir(8.0, 2.6, (-9.01, 0.0, zc), (1, 0, 0)), cyl_dir(8.0, 2.6, (9.41, 0.0, zc), (1, 0, 0)),
+                                cyl_dir(5.2, 21.1, (-9.05, 0.0, zc), (1, 0, 0))]
+                           + [cyl(3.4, hz0 - 0.01, hz0 + 6.0, uu, vv) for (uu, vv) in ((8.5, 8.5), (8.5, -8.5), (-8.5, 8.5), (-8.5, -8.5))])
+    # FS-07 spring (envelope coil as a tube 13.8/10.2, L_closed 20.7)
+    out["FS-07"] = tube(13.8, 10.2, hz0 + 2.0, hz0 + 2.0 + 20.7)
+    # FS-08 follower (17-4PH H900 flat, M3 to the rod)
+    out["FS-08"] = cyl(16.0, 56.7, 59.7).cut(cyl(3.4, 56.69, 59.71))
+    # FS-09 cam + shaft (cam r 6.0 -> 8.8 over 45 deg; shaft 5 in two MR85 bearings)
+    prof = [(6.0 + 2.8 * min(1.0, max(0.0, a / 45.0)) if a <= 60 else 6.0) for a in range(0, 361, 5)]
+    cam_pts = [(r * math.sin(math.radians(a)), zc - r * math.cos(math.radians(a))) for a, r in zip(range(0, 361, 5), prof)]
+    cam2d = cq.Workplane("YZ", origin=(-2.5, 0, 0)).polyline(cam_pts[:-1]).close().extrude(5.0).val()
+    out["FS-09"] = union_all([cam2d, cyl_dir(5.0, 22.0, (-9.5, 0.0, zc), (1, 0, 0))])
+    # FS-10 servo SB-2292SG on the +u face (shaft along u, L vertical with the spline 10 mm below the top end)
+    sx0 = 12.5
+    out["FS-10"] = union_all([box((sx0, -10.1, zc - 30.3), (sx0 + 38.7, 10.1, zc + 10.0)), cyl_dir(6.0, 3.5, (sx0, 0.0, zc), (-1, 0, 0))])
+    # FS-11 latch / release / dashpot / OPEN-CLOSED switches: reserved envelope (TO-DESIGN)
+    out["FS-11"] = box((-8.0, -24.0, 40.0), (8.0, -12.0, 70.0))
+    # FS-12 S1 back-relief check cartridge (envelope in its bore)
+    out["FS-12"] = cyl(M["s1"]["cart_d"] - 0.1, M["s1"]["cart_w"][0] + 0.5, M["s1"]["cart_w"][1] - 0.5, s1u, s1v).cut(
+        cyl(1.0, M["s1"]["cart_w"][0], M["s1"]["cart_w"][1], s1u, s1v))
+    # FS-13 secondary rupture disc assembly (+v), FS-14 drain plug, EL P_feed and MSS-2 bodies
+    out["FS-13"] = union_all([cyl_dir(11.0, 9.0, (0.0, 15.0, M["port_w"]), (0, 1, 0)), cyl_dir(22.0, 26.0, (0.0, 24.0, M["port_w"]), (0, 1, 0))])
+    out["FS-14"] = cyl(8.6, -20.0, -13.0).cut(cyl(4.0, -20.01, -16.0))
+    out["EL-PF"] = union_all([cyl(11.0, -2.0, 0.3, -24.0, 0.0), cyl(19.0, 0.3, 52.0, -24.0, 0.0)])
+    out["EL-MS2"] = union_all([cyl_dir(8.6, 7.0, (0.0, -16.0, M["mss2_w"]), (0, 1, 0)), cyl_dir(12.7, 14.0, (0.0, -16.0, M["mss2_w"]), (0, -1, 0)),
+                               cyl_dir(1.59, 9.0, (0.0, -9.0, M["mss2_w"]), (0, 1, 0))])
+    # FS-15 mounting bracket to the airframe wall (2x M5 radial; holes in the airframe = ICD)
+    br = union_all([box((12.0, -12.0, 10.0), (58.5, 12.0, 15.0)), box((54.5, -12.0, 10.0), (58.5, 12.0, 40.0))])
+    out["FS-15"] = cut_all(br, [cyl_dir(5.5, 4.2, (54.4, vv, 30.0), (1, 0, 0)) for vv in (-6.0, 6.0)] +
+                           [cyl(4.5, 9.9, 15.1, 15.5, vv) for vv in (-7.0, 7.0)])
+    # FD-08F line flange (316L) and FD-12F tank flange (316L): socket 9.6 x 4.5, AS568-012 groove on the mating face
+    def flange(u0, sgn, w):
+        fl = box((min(u0, u0 + sgn * 6.0), -14.0, w - 7.0), (max(u0, u0 + sgn * 6.0), 14.0, w + 7.0))
+        return cut_all(fl, [cyl_dir(9.6, 4.51, (u0 + sgn * 6.01, 0.0, w), (-sgn, 0, 0)), cyl_dir(7.75, 6.1, (u0 - sgn * 0.05, 0.0, w), (sgn, 0, 0)),
+                            cyl_dir(13.0, 1.3, (u0 - sgn * 0.01, 0.0, w), (sgn, 0, 0)).cut(cyl_dir(9.4, 1.4, (u0 - sgn * 0.06, 0.0, w), (sgn, 0, 0)))]
+                       + [cyl_dir(4.5, 6.2, (u0 - sgn * 0.1, vv, w), (sgn, 0, 0)) for vv in (-9.0, 9.0)])
+    out["FD-08F"] = flange(18.0, +1.0, M["line_w"])
+    fl = box((-14.0, -18.0, M["tank_w"] - 7.0), (14.0, -12.0, M["tank_w"] + 7.0))
+    out["FD-12F"] = cut_all(fl, [cyl_dir(9.6, 4.51, (0.0, -18.01, M["tank_w"]), (0, 1, 0)), cyl_dir(7.75, 6.1, (0.0, -18.05, M["tank_w"]), (0, 1, 0)),
+                                 cyl_dir(13.0, 1.3, (0.0, -13.29, M["tank_w"]), (0, 1, 0)).cut(cyl_dir(9.4, 1.4, (0.0, -13.35, M["tank_w"]), (0, 1, 0)))]
+                            + [cyl_dir(4.5, 6.2, (uu, -18.1, M["tank_w"]), (0, 1, 0)) for uu in (-8.0, 8.0)])
+    return out
+
+
+# ------------------------------------------------------------------------------------------------ parts
+def build_feed_parts(P, S, reg):
+    if "feed" not in S:
+        route(S)
+    f = S["feed"]
+    t, tb, fe = FEED["tee"], FEED["tube"], FEED["ferrule"]
+    ax, ay = t["axis_xy"]
+    # ---------------------------------------------------------------- FD-05 riser-foot TEE (316L, engine)
+    Pe, d = f["Pe"], f["d"]
+    body = union_all([cyl(t["od"], t["z_bot"], t["z_top"], ax, ay),
+                      cyl_dir(t["side_boss_d"], t["side_boss_len"], tuple(Pe - t["side_boss_len"] * d), tuple(d))])
+    cuts = [cyl(t["socket_d"], t["z_top"] - t["socket_depth"], t["z_top"] + 0.01, ax, ay),
+            cyl(t["bore"], t["bore_z"][0] - 0.01, t["bore_z"][1] + 0.01, ax, ay),
+            cyl(t["mss1_tap"], t["z_bot"] - 0.01, t["mss1_z"][1] + 0.01, ax, ay),
+            cyl_dir(t["socket_d"], t["side_socket_depth"] + 0.01, tuple(Pe - t["side_socket_depth"] * d), tuple(d)),
+            cyl_dir(t["bore"], 4.0, tuple(Pe - (t["side_socket_depth"] + 3.0) * d), tuple(d))]
+    tee = cut_all(body, cuts)
+    reg.add(Part("ENG-FD-05", f"Riser-foot TEE (316L): riser socket (top), hose socket (side, {f['theta_deg']:.1f} deg), MSS-1 1/8-27 NPT (bottom)", "SS316L",
+                 "CNC lathe + mill (2 setups); socket welds of FD-03 and FD-07A (TIG, back-purged)", tee, drawing=True, wetted="N2O",
+                 notes=f"axis ({ax:.0f}, {ay:.0f}), z {t['z_bot']:.0f}-{t['z_top']:.0f}; side socket mouth at ({Pe[0]:.1f}, {Pe[1]:.1f}, {Pe[2]:.0f}) aimed "
+                       f"{f['theta_deg']:.1f} deg from +Y; MSS-1 = 1/16 in MI Type T up the riser to the FD-01 turn (immersion >= 100 mm), "
+                       "fitting 1/16 tube x 1/8-27 NPT male connector (Swagelok SS-100-1-2 class); oxygen-clean",
+                 dwg={"datum": "riser socket axis A, bottom face B", "fits": ["sockets 9.60 +0.05/0 x 8 deep (3/8 in tube)", "1/8-27 NPT",
+                                                                               "bores 7.75 burr-free"],
+                      "finish": "pickled + passivated (ASTM A967), oxygen-clean ASTM G93", "ht": "316L annealed"})).place(np.eye(4), "engine")
+    # MSS-1 sheath (COTS, Electronics) inside the TEE + riser: modelled as the straight part in the TEE
+    # ---------------------------------------------------------------- FD-07A engine hose end (rigid, engine)
+    stubA0 = Pe - (t["side_socket_depth"] - 1.5) * d
+    endA = union_all([cyl_dir(tb["od"], t["side_socket_depth"] - 1.5 + fe["stub"], tuple(stubA0), tuple(d)),
+                      cyl_dir(fe["od"], fe["len"], tuple(Pe + fe["stub"] * d), tuple(d))]).cut(
+        cyl_dir(tb["id"], 50.0, tuple(stubA0 - d), tuple(d)))
+    reg.add(Part("ENG-FD-07A", f"Hose end, engine side: crimp sleeve OD {fe['od']:.0f} x {fe['len']:.0f} on the 3/8 in convoluted PTFE hose + 3/8 in 316L tube stub (socket-welded into FD-05)",
+                 "COTS-MIXED", "COTS hose assembly (crimped by the hose maker)", endA, cots=True, mass_each_kg=fe["mass_kg"],
+                 mass_tag="ESTIMATE 20-30 g (crimp sleeve + stub)", wetted="N2O", bom_parent="ENG-FD-07",
+                 supplier="hose assembly maker (convoluted PTFE 3/8 in class: Indunorm TEF3W10 / DICSA M2930 / Swagelok) - TO-QUOTE, Sonderborg DK-6400",
+                 notes=f"rigid with the engine; stub welded before the coil is formed; sleeve length <= {fe['len']:.0f} mm is a REQUIREMENT to the maker "
+                       "(stop clearance, coil_reroute_v341_v4.json)")).place(np.eye(4), "engine")
+    # ---------------------------------------------------------------- FD-07 flexible hose (group 'hose')
+    hs = FEED["hose"]
+    hose_pts = f["hose"]
+    hose = sweep_tube(hose_pts, hs["od"], hs["id"])
+    L_h = f["hose_len_mm"] / 1000.0
+    p_h = reg.add(Part("ENG-FD-07", f"Feed hose 3/8 in convoluted PTFE / 316 braid, rising coil {f['coil_sweep_deg']:.0f} deg, flexible length {f['hose_len_mm']:.0f} mm",
+                       "COTS-MIXED", "COTS hose assembly (both ends crimped; FD-07A/B are its end fittings)", hose, cots=True,
+                       mass_each_kg=round(hs["mass_kg_m"] * L_h, 4), mass_tag=f"ESTIMATE {hs['mass_kg_m']} kg/m x {L_h:.3f} m (datasheet TO-VERIFY)",
+                       wetted="N2O", supplier="convoluted PTFE 3/8 in, 1x 316 braid, O2-clean, pressure-test certificate: Indunorm TEF3W10 (103 bar) / DICSA "
+                                              "M293009 (120 bar) class; Flowfit 1962 (97 bar) does NOT meet SEG-P 9.975 MPa - TO-QUOTE, Sonderborg DK-6400",
+                       notes=f"SPEC: working pressure >= 9.975 MPa (SEG-P) at the hose temperature (PTFE derating TO-VERIFY); static MBR <= 30 mm (installed "
+                             f"{f['hose_Rmin_mm']:.0f} mm, >= 30 at the 8 deg stop); flexes +/-8 deg about the installed shape: dynamic MBR 100 mm (Flowfit) is not met "
+                             "-> maker duty acceptance or B-FD-1 flex-life test; pressurised EI <= 0.18 N m2 for K_max <= 17.2 N m/rad (B-FD-1 measures); "
+                             "convolution volume and micro-traps TO-VERIFY (CF-4); posed shapes from the linear frame model (calcs/hose_frame.py)",
+                       split_engine=0.5))
+    p_h.place(np.eye(4), "hose")
+    # ---------------------------------------------------------------- FD-07B fixed hose end (rigid, fixed; clamped in FD-09)
+    Fq, Fe, cd = f["Fq"], f["Fe"], f["cdir"]
+    endB = union_all([cyl_dir(fe["od"], fe["len"], tuple(Fq), tuple(cd)), cyl_dir(tb["od"], fe["stub"] + 0.01, tuple(Fq + fe["len"] * cd), tuple(cd))]).cut(
+        cyl_dir(tb["id"], 40.0, tuple(Fq - cd), tuple(cd)))
+    reg.add(Part("ENG-FD-07B", f"Hose end, fixed side: crimp sleeve OD {fe['od']:.0f} x {fe['len']:.0f} + 3/8 in 316L stub (butt-welded to FD-08), clamped in FD-09",
+                 "COTS-MIXED", "COTS hose assembly", endB, cots=True, mass_each_kg=fe["mass_kg"], mass_tag="ESTIMATE 20-30 g",
+                 wetted="N2O", bom_parent="ENG-FD-07", supplier="as ENG-FD-07")).place(np.eye(4), "fixed")
+    # ---------------------------------------------------------------- FD-08 wall line (rigid, fixed)
+    wl = tube_segments(f["wall_segs"], tb["od"], tb["id"])
+    reg.add(Part("ENG-FD-08", f"Fixed feed line 3/8 x 0.035 in 316L, {f['wall_len_mm']:.0f} mm developed: 3D bend, vertical on the bay wall at az "
+                              f"{FEED['wall']['az']}, R24 top bend into the module flange", "SS316L",
+                 "tube bender (R 24 die) + orbital/TIG butt weld to FD-07B + socket weld into FD-08F", wl, drawing=True, wetted="N2O",
+                 supplier="316L seamless 3/8 x 0.035 in (ASTM A269): Swagelok SS-T6-S-035-6ME / Sandvik (TO-QUOTE, Sonderborg DK-6400)",
+                 notes=f"centreline r {FEED['wall']['r']} mm (1 mm clip band to the 140 mm bay wall); min bend radius {f['wall_Rmin_mm']:.1f} mm; "
+                       f"3 P-clips (FD-11) at z {FEED['wall']['clip_z']}; rises monotonically from the fixed hose end (z {Fe[2]:.0f}) to the module",
+                 dwg={"datum": "fixed-end stub A", "fits": ["bend radius >= 24 mm centreline", "ends square 0.1, deburred, oxygen-clean"],
+                      "finish": "pickled + passivated", "ht": "annealed"})).place(np.eye(4), "fixed")
+    # ---------------------------------------------------------------- FD-09 fixed-end bracket on GM-09 (6061, 2-piece clamp)
+    mid = Fq + 0.3 * fe["len"] * cd                                # clamp near the Fq end: az ~292, between the GM-09 pockets at 270 and 315
+    nrm = _unit(np.cross(cd, [0.0, 0.0, 1.0]))
+    Tc = T_basis(mid, -cd, nrm, np.array([0.0, 0.0, 1.0]))          # right-handed (-cd, -radial, +z); the clamp is symmetric in local x
+    z_top_gm09 = S["z_upper_ring"][1]
+    r_mid = float(np.hypot(mid[0], mid[1]))
+    y_in = r_mid - 52.0                                             # local y = -radial: GM-09 bore edge (r 52)
+    hw = fe["od"] / 2 + 1.75
+    base_out = box((-6.0, -hw - 8.0, z_top_gm09 - mid[2]), (6.0, min(y_in, hw), 0.0))
+    base_in = box((-6.0, min(y_in, hw), 34.5 - mid[2]), (6.0, hw, 0.0))        # inner part clears the gimbal ring (top 30.8 at the stop)
+    cap = box((-6.0, -hw, 0.0), (6.0, hw, fe["od"] / 2 + 2.5))
+    clamp = union_all([base_out, base_in, cap]).cut(cyl_dir(fe["od"] + 0.2, 13.0, (-6.5, 0.0, 0.0), (1, 0, 0)))
+    clamp = cut_all(clamp, [cyl(4.5, z_top_gm09 - mid[2] - 0.1, 0.1, xx, -hw - 4.0) for xx in (-3.0, 3.0)] +
+                    [cyl(3.4, -0.1, fe["od"] / 2 + 2.6, 0.0, yy) for yy in (-hw + 0.9, hw - 0.9)])
+    reg.add(Part("ENG-FD-09", "Fixed hose-end clamp (6061-T6, base + cap, 2x M4 into GM-09 top face, EPDM-free: bare aluminium on the sleeve)",
+                 "AL6061-T6", "CNC mill", clamp, drawing=True,
+                 notes=f"standoff clamp on the GM-09 top face at az {math.degrees(math.atan2(mid[1], mid[0])) % 360:.0f} deg, sleeve axis at z {mid[2]:.0f} "
+                       f"({mid[2] - z_top_gm09:.0f} mm above GM-09); reacts the hose end force/moment (calcs/coil_reroute_v341_v4.json) into the thrust ring; "
+                       "2x M4 x 30 A4-70 into GM-09 (helicoil); alternative per ICD-12: airframe-wall clamp",
+                 dwg={"datum": "GM-09 contact face A", "fits": [f"clamp bore {fe['od'] + 0.2:.1f} +0.1/0 (sleeve {fe['od']:.1f})", "M4 clearance 4.5"], "finish": "clear anodise",
+                      "ht": "T6"})).place(Tc, "fixed")
+    # ---------------------------------------------------------------- FD-11 P-clips on the wall line (airframe screws = ICD)
+    w = FEED["wall"]
+    ur = pol(1.0, w["az"], 0.0)
+    clip_parts = []
+    pc = union_all([cyl_dir(11.5, 10.0, (0.0, 0.0, -5.0), (0, 0, 1)).cut(cyl_dir(9.6, 10.2, (0.0, 0.0, -5.1), (0, 0, 1))),
+                    box((4.76, -3.0, -5.0), (5.70, 16.0, 5.0))]).cut(cyl_dir(4.3, 2.0, (4.5, 12.0, 0.0), (1, 0, 0)))
+    p_clip = reg.add(Part("ENG-FD-11", "P-clip 3/8 in, 316 band + silicone cushion, M4 to the airframe wall (insert/rivet nut in the airframe = ICD)",
+                          "COTS-MIXED", "COTS", pc, cots=True, mass_each_kg=0.004, mass_tag="ESTIMATE 3-5 g",
+                          supplier="Essentra / RS Components DK P-clip 3/8 in SS (TO-QUOTE)"))
+    for zc in w["clip_z"]:
+        o = pol(w["r"], w["az"], zc)
+        p_clip.place(T_basis(o, ur, np.array([-ur[1], ur[0], 0.0]), np.array([0.0, 0.0, 1.0])), "fixed")
+    # ---------------------------------------------------------------- module FS-01 (MV-P) and its parts (fixed)
+    T = module_T(S)
+    mp = _mod_parts()
+    specs = [
+        ("ENG-FS-01A", "MV module lower body (6061-T6): outlet chamber 18 x 12.3 (segment side), line flange face, J602 / MSS-2 / disc / drain ports",
+         "AL6061-T6", "CNC mill 3 setups", False, None, "", True, "N2O"),
+        ("ENG-FS-01B", "MV module upper body (6061-T6): seat web + PCTFE seat counterbore, inlet chamber 16, piston bore 11.9 H8, balance chamber, rod gland, S1 bore, tank port",
+         "AL6061-T6", "CNC lathe + mill", False, None, "", True, "N2O"),
+        ("ENG-FS-02", "MV-P poppet: disc 14 x 3 + stem 3 h7, hollow 1.2 (balance hole), M3 into FS-04", "SS17-4PH-H1150", "CNC lathe, stem ground", False, None, "", True, "N2O"),
+        ("ENG-FS-03", "MV-P soft seat insert PCTFE: land 11.5-12.5 x 0.3, OD 16 x 2.3 (retention lip TO-DESIGN)", "PCTFE", "lathe from rod", False, None, "", True, "N2O"),
+        ("ENG-FS-04", "MV-P balance piston 11.9 f7 + rod 4 h7 (one piece), seal groove, cross hole 1.2 into the balance chamber", "SS17-4PH-H1150", "CNC lathe, rod ground", False, None, "", True, "N2O"),
+        ("ENG-FS-06", "MV actuator housing (dry side, 6061-T6): spring pocket, cam slot, 2x MR85 bearing bores, servo face", "AL6061-T6", "CNC mill", False, None, "", True, ""),
+        ("ENG-FS-07", "MV closing spring EN 10270-3 1.4310, d 1.8 / Dm 12 / n 6.6 active, L0 31.3, 85 N closed / 107.6 N open (mvp_v1p1)", "SS-SPRING", "COTS custom spring (Gutekunst / Lee Spring, TO-QUOTE)", True, 0.008, "ESTIMATE wire volume 8 g", False, ""),
+        ("ENG-FS-08", "MV follower (17-4PH H900, flat hardened face) on the rod top, M3", "SS17-4PH-H900", "CNC lathe + H900", False, None, "", False, ""),
+        ("ENG-FS-09", "MV cam (r 6.0 -> 8.8 over 45 deg, 15 deg dwell, width 5) + shaft 5 in 2x MR85-2RS", "SS17-4PH-H900", "wire EDM + lathe", False, None, "", True, ""),
+        ("ENG-FS-10", "MV opener servo Savox SB-2292SG (Electronics, commonality) on the housing +u face, spline coupled to the cam shaft", "COTS-MIXED", "COTS", True, 0.081, "DATASHEET 81 g (electronics.json)", False, ""),
+        ("ENG-FS-11", "MV latch + release + dashpot + OPEN/CLOSED microswitches: RESERVED ENVELOPE 16 x 12 x 30 (TO-DESIGN with Electronics)", "COTS-MIXED", "TO-DESIGN", True, 0.025, "ESTIMATE reserve 25 g (no design yet)", False, ""),
+        ("ENG-FS-12", "S1 back-relief check, insert cartridge 5.5 mm class, crack 0.3-0.7 bar (outlet -> inlet chamber), N2O-compatible seat", "COTS-MIXED", "COTS (TO-SELECT: The Lee Company Chek insert class)", True, 0.002, "ESTIMATE 1-3 g", False, "N2O"),
+        ("ENG-FS-13", "Secondary rupture disc 9.5 MPa +/-5 %, reverse-acting, 1/4-18 NPT holder with 1/4 NPT outlet to the overboard vent line (ICD-4)", "COTS-MIXED", "COTS (TO-SELECT: Fike / BS&B / Oseco mini disc assemblies)", True, 0.045, "ESTIMATE 35-60 g holder + disc", False, "N2O"),
+        ("ENG-FS-14", "Drain port plug 1/8-27 NPT flush socket plug 316 (ground drain/purge; segment low point of the module)", "COTS-MIXED", "COTS", True, 0.004, "ESTIMATE 4 g", False, "N2O"),
+        ("ENG-FS-15", "MV module mounting bracket (6061-T6): 2x M4 to FS-01A/B, 2x M5 radial into the airframe wall at az 219.5 (ICD-2)", "AL6061-T6", "CNC mill", False, None, "", True, ""),
+        ("ENG-FD-08F", "Line flange (316L): socket for FD-08, AS568-012 FKM face seal to FS-01A, 2x M4", "SS316L", "CNC mill", False, None, "", True, "N2O"),
+        ("ENG-FD-12F", "Tank-line flange (316L) on FS-01B: socket for the tank line (route TO-DEFINE with the tank, ICD-5), AS568-012 FKM, 2x M4", "SS316L", "CNC mill", False, None, "", True, "N2O"),
+        ("ENG-EL-11", "P_feed transducer J602 TE M3234-000005 class, 1/4-18 NPT male, vertical on the FS-01A boss (Electronics part; envelope ESTIMATE)", "COTS-MIXED", "COTS (Electronics)", True, 0.05, "ASSUMED 50 g (electronics.json)", False, "N2O"),
+        ("ENG-EL-12", "MSS-2 Type T MI thermocouple 1/16 in in a 1/16 x 1/8-27 NPT male connector (Electronics part; tip 9 mm into the outlet chamber)", "COTS-MIXED", "COTS (Electronics)", True, 0.015, "ESTIMATE 15 g incl. connector", False, "N2O"),
+    ]
+    key = {"ENG-FS-01A": "FS-01A", "ENG-FS-01B": "FS-01B", "ENG-FS-02": "FS-02", "ENG-FS-03": "FS-03", "ENG-FS-04": "FS-04", "ENG-FS-06": "FS-06",
+           "ENG-FS-07": "FS-07", "ENG-FS-08": "FS-08", "ENG-FS-09": "FS-09", "ENG-FS-10": "FS-10", "ENG-FS-11": "FS-11", "ENG-FS-12": "FS-12",
+           "ENG-FS-13": "FS-13", "ENG-FS-14": "FS-14", "ENG-FS-15": "FS-15", "ENG-FD-08F": "FD-08F", "ENG-FD-12F": "FD-12F",
+           "ENG-EL-11": "EL-PF", "ENG-EL-12": "EL-MS2"}
+    for (pn, name, mat, proc, cots, m_kg, m_tag, dwg_on, wet) in specs:
+        reg.add(Part(pn, name, mat, proc, mp[key[pn]], cots=cots, mass_each_kg=m_kg, mass_tag=m_tag, drawing=dwg_on, wetted=wet,
+                     supplier="" if not cots else "TO-QUOTE (delivery Sonderborg DK-6400)",
+                     notes="module frame: axis r 10 / az 219.5, seat plane z 279.5 (lead Option A, zone top); "
+                           + ("oxygen-clean ASTM G93, Krytox only" if wet else "dry side"),
+                     dwg={"datum": "seat plane A, module axis B", "finish": "clear anodise (6061) / passivate (316L, 17-4PH); oxygen-clean wetted parts",
+                          "fits": ["piston bore 11.9 H8 Ra 0.4", "rod bore 4.05 +0.02/0", "seat counterbore 16 H7", "1/4-18 NPT, 1/8-27 NPT"]} if dwg_on else {})
+                ).place(T, "fixed")
+    return f
+
+
+# ------------------------------------------------------------------------------------------------ posed flexible items
+_HOSE_U = {}
+
+
+def hose_modes(S, EI=None):
+    """Linear frame displacement fields of the hose for a unit small rotation about X and Y (hose_frame.solve); cached."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "calcs"))
+    import hose_frame as hf
+    EI = FEED["hose"]["EI_nom"] if EI is None else EI
+    key = (EI, round(float(S["feed"]["Q"][2]), 3), len(S["feed"]["hose"]))
+    if key in _HOSE_U:
+        return _HOSE_U[key]
+    nodes = S["feed"]["hose"][::3] * 1e-3
+    if not np.allclose(nodes[-1], S["feed"]["hose"][-1] * 1e-3):
+        nodes = np.vstack([nodes, S["feed"]["hose"][-1] * 1e-3])
+    th = 1e-3
+    kx, wx, bx, Ux = hf.solve(nodes, EI, axis=(1, 0, 0), theta=th)
+    ky, wy, by, Uy = hf.solve(nodes, EI, axis=(0, 1, 0), theta=th)
+    _HOSE_U[key] = (nodes, Ux / th, Uy / th, kx, ky, bx / th, by / th)
+    return _HOSE_U[key]
+
+
+def hose_centreline_at(S, alpha, beta, EI=None):
+    """Hose centreline (mm) at the engine pose (alpha, beta) deg: linear frame superposition + exact rigid end correction blended
+    along the arc length (engine end exact, fixed end fixed)."""
+    import tvc_kinematics as tk
+    nodes, Ux, Uy, *_ = hose_modes(S, EI)
+    a, b = math.radians(alpha), math.radians(beta)
+    U = a * Ux + b * Uy
+    X = nodes + np.column_stack([U[0::6], U[1::6], U[2::6]])
+    R = tk.R_pose(alpha, beta)
+    exact0 = R @ nodes[0]
+    corr = exact0 - X[0]
+    s = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(nodes, axis=0), axis=1))])
+    X = X + np.outer(1.0 - s / s[-1], corr)
+    return X * 1e3
+
+
+def posed_flex(p, S, alpha, beta, i):
+    if p.pn != "ENG-FD-07":
+        return apply(p.shape, np.eye(4))
+    if abs(alpha) < 1e-9 and abs(beta) < 1e-9:
+        return p.shape
+    pts = hose_centreline_at(S, alpha, beta)
+    return sweep_tube(pts, FEED["hose"]["od"], FEED["hose"]["id"])
+
+
+# ------------------------------------------------------------------------------------------------ wetted geometry for the trap analysis
+def fluid_spec(S):
+    """Feed-side wetted cavities as primitives (engine frame, mm): ('tube', centreline pts, radius) along tubes and hoses, ('cyl', p0, p1, r)
+    for drillings, minus ('solid_cyl', p0, p1, r) for parts inside the fluid.  Same parameters as the solids above (consistency is checked
+    against the solids by segment_traps_v34.py)."""
+    f = S["feed"]
+    t, tb, hs, fe = FEED["tee"], FEED["tube"], FEED["hose"], FEED["ferrule"]
+    ax, ay = t["axis_xy"]
+    Pe, d = f["Pe"], f["d"]
+    spec = []
+    # TEE: vertical bore + riser socket bottom gap + side socket/passage (MSS-1 port below the bore is filled by the fitting up to z 66)
+    spec.append(("cyl", np.array([ax, ay, 66.0]), np.array([ax, ay, t["bore_z"][1]]), t["bore"] / 2, "FD-05 TEE bore (above the MSS-1 fitting tip)"))
+    spec.append(("cyl", np.array([ax, ay, t["bore_z"][1]]), np.array([ax, ay, t["z_top"] - t["socket_depth"] + 1.5]), t["socket_d"] / 2, "FD-05 riser socket gap"))
+    spec.append(("cyl", Pe - (t["side_socket_depth"] + 3.0) * d, Pe - (t["side_socket_depth"] - 1.5) * d, t["bore"] / 2, "FD-05 side passage + socket gap"))
+    # hose stubs and hose
+    spec.append(("cyl", Pe - (t["side_socket_depth"] - 1.5) * d, f["Q"], tb["id"] / 2, "FD-07A stub/sleeve bore"))
+    spec.append(("tube", f["hose"], hs["id"] / 2, "FD-07 hose bore"))
+    spec.append(("cyl", f["Fq"], f["Fe"], tb["id"] / 2, "FD-07B sleeve/stub bore"))
+    spec.append(("tube", f["wall"], tb["id"] / 2, "FD-08 wall line bore"))
+    # module (local -> engine)
+    T = module_T(S)
+    L = lambda u, v, w: (T @ np.array([u, v, w, 1.0]))[:3]
+    M = MOD
+    end_u = 18.0 + 6.0 - 4.5
+    spec.append(("cyl", L(end_u, 0, M["line_w"]), L(8.0, 0, M["line_w"]), 7.75 / 2, "FD-08F flange bore + FS-01A line passage"))
+    spec.append(("cyl", L(0, 0, M["chamber"]["w"][0]), L(0, 0, M["chamber"]["w"][1]), M["chamber"]["d"] / 2, "FS-01A outlet chamber"))
+    spec.append(("cyl", L(-22.0, 0, -12.0), L(-22.0, 0, -2.0), 11.1 / 2, "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)"))
+    spec.append(("cyl", L(-22.0, 0, -10.0), L(-9.0 + 0.5, 0, -10.0), 2.0, "J602 cross passage"))
+    spec.append(("cyl", L(0, 7.0, M["port_w"]), L(0, 15.0, M["port_w"]), 11.1 / 2, "rupture-disc port (to the disc face, ESTIMATE)"))
+    spec.append(("cyl", L(0, -9.0, M["mss2_w"]), L(0, -9.5, M["mss2_w"]), 8.7 / 2, "MSS-2 port gap"))
+    spec.append(("cyl", L(0, 0, M["chamber"]["w"][0] - 0.0), L(0, 0, M["chamber"]["w"][0] - 1.0), 8.7 / 2, "drain port gap above the plug"))
+    spec.append(("cyl", L(*M["s1"]["uv"], 0.3), L(*M["s1"]["uv"], M["s1"]["cart_w"][0] + 0.5), M["s1"]["d"] / 2, "S1 check inlet passage (to the cartridge poppet)"))
+    spec.append(("cyl", L(0, 0, -M["disc"]["t"]), L(0, 0, M["piston"]["w"][0] + 4.9), M["hole_d"] / 2, "FS-02 balance hole (axial)"))
+    spec.append(("cyl", L(0, 0, M["piston"]["w"][0] + 4.9), L(0, 0, M["cross_w"] + 0.6), M["hole_d"] / 2, "FS-04 balance hole (axial)"))
+    spec.append(("cyl", L(-2.0, 0, M["cross_w"]), L(2.0, 0, M["cross_w"]), M["hole_d"] / 2, "FS-04 cross hole"))
+    spec.append(("cyl", L(0, 0, M["piston"]["w"][1]), L(0, 0, M["balance_top"]), M["piston"]["d"] / 2, "balance chamber"))
+    # solids inside the fluid
+    spec.append(("solid_cyl", L(0, 0, -M["disc"]["t"]), L(0, 0, 0.0), M["disc"]["d"] / 2, "FS-02 disc"))
+    spec.append(("solid_cyl", L(0, 0, M["piston"]["w"][1] - 0.01), L(0, 0, M["balance_top"] + 0.01), M["rod"]["d"] / 2, "FS-04 rod in the balance chamber"))
+    spec.append(("solid_cyl", L(0, 0, 0.0), L(0, 0, 0.31), M["seat"]["land_od"] / 2, "FS-03 seat land (closed seat)"))
+    spec.append(("solid_cyl", L(0, -16.0, M["mss2_w"]), L(0, 0.0, M["mss2_w"]), 1.59 / 2, "MSS-2 sheath"))
+    spec.append(("solid_cyl", np.array([ax, ay, 66.0]), np.array([ax, ay, t["z_top"] - 7.0]), 1.59 / 2, "MSS-1 sheath in the TEE"))
+    # tank side boundary: the closed seat (vent = S1 check passage top when the MV is closed)
+    vents = {"S1_check": L(*M["s1"]["uv"], M["s1"]["cart_w"][0] + 0.5)}
+    return spec, vents
+
+
+def fluid_spec_mv_open(S):
+    """MV OPEN variant of the module cavity (concept d, early MV opening): disc down by the lift, seat orifice open (annulus around the
+    3 mm stem through the seat insert and web up to the inlet chamber floor), vent = the orifice top (tank side).  Returns (add, remove,
+    vents): primitives to add, labels of fluid_spec solids to drop, and the vent point."""
+    T = module_T(S)
+    L = lambda u, v, w: (T @ np.array([u, v, w, 1.0]))[:3]
+    M = MOD
+    lift = M["lift"]
+    add = [("cyl", L(0, 0, -lift - 0.01), L(0, 0, M["web_top"]), M["seat"]["d"] / 2, "MV seat orifice (open) + curtain"),
+           ("cyl", L(0, 0, -M["disc"]["t"] - lift), L(0, 0, -lift), M["hole_d"] / 2, "FS-02 balance hole in the disc (open position)"),
+           ("solid_cyl", L(0, 0, -M["disc"]["t"] - lift), L(0, 0, -lift), M["disc"]["d"] / 2, "FS-02 disc (open)"),
+           ("solid_cyl", L(0, 0, -lift), L(0, 0, M["web_top"] + 0.01), M["stem_d"] / 2, "FS-02 stem through the orifice (open)")]
+    remove = ["FS-02 disc", "FS-03 seat land (closed seat)"]
+    vents = {"MV_seat_open": L(4.0, 0.0, M["web_top"] - 0.3)}
+    return add, remove, vents
+
+
+if __name__ == "__main__":
+    import os, sys
+    if "--freeze-plan" in sys.argv:
+        if os.environ.get("OMP_NUM_THREADS") != "1" or os.environ.get("OPENBLAS_NUM_THREADS", "1") != "1":
+            raise SystemExit("run with OMP_NUM_THREADS=1 (the SLSQP plan is only reproducible single-threaded)")
+        FEED["no_frozen_plan"] = True
+        f = route({})
+        FEED.pop("no_frozen_plan")
+        PLAN_FROZEN.parent.mkdir(parents=True, exist_ok=True)
+        rec = dict(LAST_PLAN, id="feed_plan_v341", date="2026-10-13", owner="mechanical",
+                   note="FD-07 plan-view centreline (after the v3.4.1 closure), engine frame mm; key = route inputs (Q x, Q y, psi0, Fq x, Fq y, psi1, "
+                        "R_min_plan, r_max, r_pref); generated single-threaded by parts_feed.py --freeze-plan",
+                   hose_len_mm=f["hose_len_mm"], coil_sweep_deg=f["coil_sweep_deg"], hose_Rmin_mm=f["hose_Rmin_mm"])
+        rec["frozen"] = False
+        PLAN_FROZEN.write_text(json.dumps(rec, indent=0))
+        print("frozen plan written", PLAN_FROZEN, round(f["hose_len_mm"], 2), "mm, plan_err", [round(v, 3) for v in LAST_PLAN["plan_err"]])

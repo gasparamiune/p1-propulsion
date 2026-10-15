@@ -1,0 +1,2277 @@
+{
+ "id": "mechanical",
+ "version": "v2",
+ "date": "2026-10-12",
+ "owner": "Mechanical (03-cad / 04-fea)",
+ "supersedes": "v1 (2026-10-12, M1 first pass; sha256 c7435d16ad5670399c79f3ebc4d5c9ee085880ba42ae471b3bb73436b1c00c44)",
+ "status": "M2. Mass properties from the CAD v3.3 solids (engine + gimbal, CG pivot iterated in CAD) with the v3.4 pintle stack (HV69 in-line) and the feed/line engine shares added as tagged ESTIMATE items and the pivot re-centred on the mid-burn CG; gimbal axis stiffness from CalculiX FEA of the as-built load path at 9 poses (mesh-converged < 0.4 %); as-built TVC linkage n 4.8; hose hinge stiffness ERRATUM. CAD v3.4 (pintle stack, feed parts, stiffened levers/ring) re-issues mass properties and K as v2.1. Thermal FEA in progress (v2.1).",
+ "units": "SI (m, kg, s, N, Pa, rad) unless the key says _mm/_deg/_Hz/_g/_dps",
+ "written_to": "/home/claude/work/shared-fallback/engine/interfaces",
+ "scripts": {
+  "writer": "03-cad/src/calcs/write_mechanical_json_v2.py",
+  "mass": "03-cad/src/calcs/massprops_v2.py",
+  "stiffness": "04-fea/stiffness/gimbal_k.py + summarise_poses.py",
+  "linkage": "03-cad/src/calcs/actuator_loads.py + 03-cad/src/tvc_kinematics.py",
+  "hose": "03-cad/src/calcs/hose_frame.py",
+  "pintle": "03-cad/src/calcs/pintle_inline_v34.py"
+ },
+ "inputs_read": {
+  "combustion.json": {
+   "version": "v2.3",
+   "sha256": "d9ec54fbf450e243a4258af14bf7fbca53f29e5a4b917a3cedb0bb6c46d947ad"
+  },
+  "electronics.json": {
+   "version": "v1",
+   "sha256": "42fe12e15baa6e3e8bcbc98a991e0d21a04d85bb0600a25efb41ed630c6b1fd6"
+  },
+  "gnc.json": {
+   "version": "v2",
+   "sha256": "7089d7b34808cc310747618342c9ca013569d52c357e804a5718546e8460c79c"
+  },
+  "ENGINE-BASELINE-v0.json": {
+   "version": "v0",
+   "sha256": "508faa652ccbd539f31c2da5e7e7f3fd8f1aa52198f9a0673431c427b86752cf"
+  }
+ },
+ "errata_to_v1": [
+  {
+   "key": "feed_across_gimbal.hinge_stiffness_Nm_per_rad",
+   "v1": [
+    0.2,
+    1.97
+   ],
+   "v2": "see feed_across_gimbal (1.7-31 N m/rad radial routing; S-offset routings up to 1278)",
+   "why": "v1 used K = 4EI/L (3x^2 - 3x + 1); the clamped-guided beam with the engine end on a rigid arm from the pivot gives K = 4EI/L (1 + 3x + 3x^2), x = h/L (hose_frame.py verification: numeric = analytic, rel. err 0). v1 understated K by ~14x at x = 0.55."
+  },
+  {
+   "key": "frames.rv1_station_of_pivot_m",
+   "v1": 0.2223,
+   "v2": 0.203,
+   "why": "CAD v3.3 engine (grain v2 S230, contour +30 mm, 316L aft section) + re-centred pivot"
+  },
+  {
+   "key": "tvc_actuation (lever azimuths, radii, n)",
+   "v1": "64.5/154.5 deg, r_e 48, r_h 8, n 6.0",
+   "v2": "135/225 deg, r_e 53.466, r_h 11.139, n 4.80 (as built)",
+   "why": "CAD v3 layout + lead decision n 4.8 (ENG-07 slew)"
+  },
+  {
+   "key": "tvc_actuation.axis_stiffness_Nm_per_rad",
+   "v1": [
+    2088.0,
+    6264.0
+   ],
+   "v2": [
+    552.5,
+    1681.0
+   ],
+   "why": "v1 was the servo alone through a rigid linkage at n 6; v2 is FEA of the structure + rod chain in series with the servo basis at n 4.8, over 9 poses"
+  }
+ ],
+ "frames": {
+  "engine_frame": "origin = gimbal pivot (intersection of both gimbal axes) at neutral; +Z = engine axis toward the injector (forward); +X = outer gimbal axis (ring pins in the fixed yoke posts); +Y = inner axis (engine collar pins in the ring); right-handed",
+  "pose": "R = Rx(alpha) * Ry(beta): alpha about the fixed X axis (outer), beta about the ring Y axis (inner); thrust direction = R * (0,0,1)",
+  "cad": "STEP in mm, +Z forward; GLB in metres, +Y up (glTF)",
+  "rv1_station_of_pivot_m": {
+   "v": 0.203,
+   "tag": "DERIVED+ESTIMATE",
+   "src": "RV-1 convention: nozzle exit at z = -0.03 m; z_station = pivot_station + z_engine; exit from CAD v3.3 shifted by the re-centring dz"
+  }
+ },
+ "gimbal": {
+  "architecture": {
+   "v": "two-axis Cardan gimbal of the whole thrust chamber; split engine collar (GM-01/02) clamped on the case at the pivot plane carries the inner pins (+/-Y) in 608-2RS bearings in the ring GM-03; the ring carries the outer pins (+/-X) in 608-2RS bearings in two yoke posts GM-08 on the thrust rings GM-09/GM-10 (fixed module); 8 deg conical PU stop GM-11",
+   "tag": "DERIVED",
+   "src": "CAD v3.3"
+  },
+  "pivot_location": {
+   "v": "at the mid-burn CG of the gimballed group (founder decision FINAL 2026-10-12); re-centred here for the v3.4/feed ESTIMATE items",
+   "tag": "DERIVED"
+  },
+  "pivot_recentring_dz_mm": {
+   "v": -6.99,
+   "tag": "DERIVED+ESTIMATE",
+   "src": "shift of all head-moving items relative to the pivot vs CAD v3.3 (negative = engine moves aft relative to the pivot)"
+  },
+  "pivot_from_injector_face_m": {
+   "v": 0.1056,
+   "tag": "DERIVED+ESTIMATE",
+   "src": "injector face is forward of the pivot"
+  },
+  "pivot_from_nozzle_exit_m": {
+   "v": 0.233,
+   "tag": "DERIVED+ESTIMATE"
+  },
+  "range_deg": {
+   "v": 7.0,
+   "tag": "REQ",
+   "src": "gnc.json v2 (vector norm, CONFIRMED)"
+  },
+  "mechanical_stop_deg": {
+   "v": 8.0,
+   "tag": "DERIVED",
+   "src": "conical PU stop GM-11"
+  },
+  "bearings": {
+   "v": "4 x 608-2RS (8x22x7); pins 8 h6 17-4PH H1150",
+   "tag": "DATASHEET-PENDING",
+   "src": "C0/C and mass per the maker's datasheet to be recorded in the BOM before the build (datasheet discipline, lead 2026-10-12); v1 'SKF 608-2RSH' values were as-recalled"
+  },
+  "hinge_friction_Nm_per_axis": {
+   "v": 0.04,
+   "tag": "ASSUMED",
+   "src": "2 x 608-2RS contact-seal drag ~0.02 N m each + rolling 0.003 N m; measure in B-TVC-1 (breakaway and running, both axes)"
+  },
+  "pushrod_joint_friction": {
+   "v": "2 x GE 5 E steel/steel per rod: torque mu F r_ball ~ 0.15 x F x 4 mm at the joints (ASSUMED mu 0.1-0.2); acts on the servo, not on the gimbal axis",
+   "tag": "ASSUMED"
+  },
+  "ring_alpha_axis_only": {
+   "m_kg": {
+    "v": 0.21664,
+    "tag": "CAD v3.5.2",
+    "src": "massprops_v3.5.2.json states.mid.ring"
+   },
+   "I_xx_pivot_kgm2": {
+    "v": 0.000244,
+    "tag": "CAD v3.5.2",
+    "src": "ring group about the outer (X) axis"
+   },
+   "I_tensor_pivot_kgm2": {
+    "v": [
+     [
+      0.000244,
+      -0.0,
+      0.0
+     ],
+     [
+      -0.0,
+      0.0002717,
+      -0.0
+     ],
+     [
+      0.0,
+      -0.0,
+      0.0004499
+     ]
+    ],
+    "tag": "CAD v3.5.2"
+   },
+   "superseded_v2_value": {
+    "m_kg": {
+     "v": 0.1236,
+     "tag": "DERIVED",
+     "src": "CAD v3.3 ring GM-03 + outer pins + spacers + 2 x 608 + clips + encoder magnet"
+    },
+    "I_xx_pivot_kgm2": {
+     "v": 0.0001394,
+     "tag": "DERIVED",
+     "src": "ring group about the outer (X) axis"
+    },
+    "I_tensor_pivot_kgm2": {
+     "v": [
+      [
+       0.00013936,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.00013439,
+       -0.0
+      ],
+      [
+       0.0,
+       -0.0,
+       0.00026756
+      ]
+     ],
+     "tag": "DERIVED"
+    }
+   }
+  },
+  "transport_lock": {
+   "v": "split 6061 lock ring in the thrust-ring bore around the case (both axes at neutral) + REMOVE-BEFORE-FLIGHT streamer; servos unpowered; 3 g any axis on the pins",
+   "tag": "DERIVED"
+  }
+ },
+ "gimballed_mass_properties": {
+  "about": "pivot, engine frame; the 'engine' group: thrust chamber, grain, collar + levers, inner pins, lever-joint studs, pintle stack, encoders on the engine, engine shares of hose and lines. NOT included: ring (see gimbal.ring_alpha_axis_only, alpha axis only), horns, pushrods (between horn and lever: GNC may split 50/50), fixed module",
+  "basis": "CAD v3.3 solids (316L aft section, grain S230) + ESTIMATE items below; pivot re-centred so the mid-burn CG is on z = 0",
+  "states_note": "wet_full_grain = fresh grain; mid_burn = half of the max-thrust-case fuel burnt (the pivot definition state); end_of_max_thrust_case = 0.166 kg burnt; end_of_DC-B1 = grain fraction 0.379 left (Combustion: B1 burns 0.251 of 0.404 kg); dry_grain_burnt = NO grain (same meaning as v1). Grain rule: mass and inertia about the pivot are linear in the grain mass (grain CG fixed, port growth axisymmetric), so any other state interpolates between wet_full_grain and dry_grain_burnt",
+  "wet_full_grain": {
+   "m_kg": {
+    "v": 2.5809,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 ledger (massprops_v2.json) + v3.4/feed ESTIMATE items, re-centred"
+   },
+   "cg_m": {
+    "v": [
+     0.00031,
+     0.00089,
+     -0.00127
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "engine frame, from the pivot"
+   },
+   "I_pivot_kgm2": {
+    "v": [
+     [
+      0.055531,
+      -9e-06,
+      -0.00035
+     ],
+     [
+      -9e-06,
+      0.055487,
+      -0.00047
+     ],
+     [
+      -0.00035,
+      -0.00047,
+      0.0018
+     ]
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "tensor about the pivot, engine axes"
+   },
+   "I_cg_kgm2": {
+    "v": [
+     [
+      0.055525,
+      -8e-06,
+      -0.000351
+     ],
+     [
+      -8e-06,
+      0.055482,
+      -0.000473
+     ],
+     [
+      -0.000351,
+      -0.000473,
+      0.001797
+     ]
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "tensor about the own CG, engine axes"
+   },
+   "grain_mass_inside_kg": {
+    "v": 0.4244,
+    "tag": "DERIVED",
+    "src": "CAD grain S230 x rho_ABS 1050 (engmat), state 'wet'"
+   },
+   "cad_v33_only": {
+    "m_kg": 2.5003,
+    "cg_mm": [
+     0.135,
+     -0.5304,
+     -0.9556
+    ],
+    "I_pivot_diag_kgm2": [
+     0.052247,
+     0.052235,
+     0.001747
+    ]
+   }
+  },
+  "mid_burn": {
+   "m_kg": {
+    "v": 2.4979,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 ledger (massprops_v2.json) + v3.4/feed ESTIMATE items, re-centred"
+   },
+   "cg_m": {
+    "v": [
+     0.00032,
+     0.00092,
+     0.0
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "engine frame, from the pivot"
+   },
+   "I_pivot_kgm2": {
+    "v": [
+     [
+      0.055018,
+      -9e-06,
+      -0.00035
+     ],
+     [
+      -9e-06,
+      0.054974,
+      -0.00047
+     ],
+     [
+      -0.00035,
+      -0.00047,
+      0.001763
+     ]
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "tensor about the pivot, engine axes"
+   },
+   "I_cg_kgm2": {
+    "v": [
+     [
+      0.055016,
+      -8e-06,
+      -0.00035
+     ],
+     [
+      -8e-06,
+      0.054973,
+      -0.00047
+     ],
+     [
+      -0.00035,
+      -0.00047,
+      0.001761
+     ]
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "tensor about the own CG, engine axes"
+   },
+   "grain_mass_inside_kg": {
+    "v": 0.3414,
+    "tag": "DERIVED",
+    "src": "CAD grain S230 x rho_ABS 1050 (engmat), state 'mid'"
+   },
+   "cad_v33_only": {
+    "m_kg": 2.4173,
+    "cg_mm": [
+     0.1397,
+     -0.5486,
+     0.1244
+    ],
+    "I_pivot_diag_kgm2": [
+     0.051775,
+     0.051764,
+     0.00171
+    ]
+   }
+  },
+  "end_of_max_thrust_case": {
+   "m_kg": {
+    "v": 2.4149,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 ledger (massprops_v2.json) + v3.4/feed ESTIMATE items, re-centred"
+   },
+   "cg_m": {
+    "v": [
+     0.00033,
+     0.00095,
+     0.00135
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "engine frame, from the pivot"
+   },
+   "I_pivot_kgm2": {
+    "v": [
+     [
+      0.054505,
+      -9e-06,
+      -0.00035
+     ],
+     [
+      -9e-06,
+      0.054461,
+      -0.00047
+     ],
+     [
+      -0.00035,
+      -0.00047,
+      0.001727
+     ]
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "tensor about the pivot, engine axes"
+   },
+   "I_cg_kgm2": {
+    "v": [
+     [
+      0.054499,
+      -8e-06,
+      -0.000349
+     ],
+     [
+      -8e-06,
+      0.054456,
+      -0.000467
+     ],
+     [
+      -0.000349,
+      -0.000467,
+      0.001725
+     ]
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "tensor about the own CG, engine axes"
+   },
+   "grain_mass_inside_kg": {
+    "v": 0.2584,
+    "tag": "DERIVED",
+    "src": "CAD grain S230 x rho_ABS 1050 (engmat), state 'end of the max-thrust case'"
+   },
+   "cad_v33_only": {
+    "m_kg": 2.3343,
+    "cg_mm": [
+     0.1446,
+     -0.5681,
+     1.2812
+    ],
+    "I_pivot_diag_kgm2": [
+     0.051304,
+     0.051293,
+     0.001674
+    ]
+   }
+  },
+  "end_of_DC-B1": {
+   "m_kg": {
+    "v": 2.3172,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 ledger (massprops_v2.json) + v3.4/feed ESTIMATE items, re-centred"
+   },
+   "cg_m": {
+    "v": [
+     0.00034,
+     0.00099,
+     0.00307
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "engine frame, from the pivot"
+   },
+   "I_pivot_kgm2": {
+    "v": [
+     [
+      0.053902,
+      -9e-06,
+      -0.00035
+     ],
+     [
+      -9e-06,
+      0.053857,
+      -0.00047
+     ],
+     [
+      -0.00035,
+      -0.00047,
+      0.001685
+     ]
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "tensor about the pivot, engine axes"
+   },
+   "I_cg_kgm2": {
+    "v": [
+     [
+      0.053878,
+      -8e-06,
+      -0.000347
+     ],
+     [
+      -8e-06,
+      0.053835,
+      -0.000463
+     ],
+     [
+      -0.000347,
+      -0.000463,
+      0.001682
+     ]
+    ],
+    "tag": "DERIVED+ESTIMATE",
+    "src": "tensor about the own CG, engine axes"
+   },
+   "grain_mass_inside_kg": {
+    "v": 0.1607,
+    "tag": "DERIVED",
+    "src": "CAD grain S230 x rho_ABS 1050 (engmat), state 'end of DC-B1'"
+   },
+   "cad_v33_only": {
+    "m_kg": null,
+    "cg_mm": null,
+    "I_pivot_diag_kgm2": null
+   }
+  },
+  "dry_grain_burnt": {
+   "m_kg": {
+    "v": 2.37124,
+    "tag": "CAD v3.5.2 (DERIVED+ASSUMED+ESTIMATE+CALC items)",
+    "src": "massprops_v3.5.2.json (8f887d83896aa7dd) states.nograin.engine; GNC-DERIVED copy"
+   },
+   "cg_m": {
+    "v": [
+     -0.00279,
+     0.001064,
+     0.012095
+    ],
+    "tag": "CAD v3.5.2",
+    "src": "engine frame, from the pivot"
+   },
+   "I_pivot_kgm2": {
+    "v": [
+     [
+      0.0545645,
+      2.24e-05,
+      0.0002248
+     ],
+     [
+      2.24e-05,
+      0.0547844,
+      -0.0004495
+     ],
+     [
+      0.0002248,
+      -0.0004495,
+      0.0019726
+     ]
+    ],
+    "tag": "CAD v3.5.2",
+    "src": "tensor about the pivot, engine axes"
+   },
+   "I_cg_kgm2": {
+    "v": [
+     [
+      0.0542149,
+      1.54e-05,
+      0.0001448
+     ],
+     [
+      1.54e-05,
+      0.0544191,
+      -0.000419
+     ],
+     [
+      0.0001448,
+      -0.000419,
+      0.0019514
+     ]
+    ],
+    "tag": "CAD v3.5.2",
+    "src": "tensor about the own CG, engine axes"
+   },
+   "grain_mass_inside_kg": {
+    "v": 0.0,
+    "tag": "DERIVED",
+    "src": "state nograin"
+   },
+   "superseded_v2_value": {
+    "m_kg": {
+     "v": 2.1565,
+     "tag": "DERIVED+ESTIMATE",
+     "src": "CAD v3.3 ledger (massprops_v2.json) + v3.4/feed ESTIMATE items, re-centred"
+    },
+    "cg_m": {
+     "v": [
+      0.00037,
+      0.00107,
+      0.00624
+     ],
+     "tag": "DERIVED+ESTIMATE",
+     "src": "engine frame, from the pivot"
+    },
+    "I_pivot_kgm2": {
+     "v": [
+      [
+       0.052909,
+       -9e-06,
+       -0.00035
+      ],
+      [
+       -9e-06,
+       0.052864,
+       -0.00047
+      ],
+      [
+       -0.00035,
+       -0.00047,
+       0.001615
+      ]
+     ],
+     "tag": "DERIVED+ESTIMATE",
+     "src": "tensor about the pivot, engine axes"
+    },
+    "I_cg_kgm2": {
+     "v": [
+      [
+       0.052822,
+       -8e-06,
+       -0.000345
+      ],
+      [
+       -8e-06,
+       0.05278,
+       -0.000456
+      ],
+      [
+       -0.000345,
+       -0.000456,
+       0.001612
+      ]
+     ],
+     "tag": "DERIVED+ESTIMATE",
+     "src": "tensor about the own CG, engine axes"
+    },
+    "grain_mass_inside_kg": {
+     "v": 0.0,
+     "tag": "DERIVED",
+     "src": "CAD grain S230 x rho_ABS 1050 (engmat), state 'no grain (all burnt)'"
+    },
+    "cad_v33_only": {
+     "m_kg": 2.0759,
+     "cg_mm": [
+      0.1626,
+      -0.6388,
+      5.4744
+     ],
+     "I_pivot_diag_kgm2": [
+      0.049837,
+      0.049826,
+      0.001562
+     ]
+    }
+   }
+  },
+  "grain_mass_kg": {
+   "v": 0.4244,
+   "tag": "DERIVED",
+   "src": "CAD v3.3 grain S230 (2 x 115 mm) at rho_ABS 1050 kg/m3 (engmat, solid ABS); Combustion quotes 0.404 kg at 1000 kg/m3 (0.394-0.420): the printed density sets it, weigh the grain (0.020 kg changes the CG by ~0.3 mm)"
+  },
+  "fuel_burnt_basis": {
+   "v": 0.166,
+   "tag": "DERIVED",
+   "src": "kg fuel burnt in the S230 max-thrust case to liquid depletion (1 % liquid left), 15 C neq tank: Combustion data/v2/engine_S230_BL/maxthrust_BLtank_neqE1e+03_T15C.csv integrated (20 C 0.162, 25 C 0.157; v1 L200 helix 0.178); sets the 'mid' (half burnt) state of the CG pivot; flight cycles: A1 0.101 (x1.5 0.148), A2 0.138, B1 0.251 kg (combustion.json v2)"
+  },
+  "estimate_items_added": [
+   {
+    "item": "HV69 pintle servo",
+    "m_kg": 0.021,
+    "centre_mm_v33_frame": [
+     0,
+     -12.0,
+     239.23
+    ],
+    "tag": "Electronics msg 2026-10-12 (retailer copies of MKS data, TO-CONFIRM)"
+   },
+   {
+    "item": "crank housing + one-sided dog coupling (6061)",
+    "m_kg": 0.02,
+    "centre_mm_v33_frame": [
+     0,
+     -2.0,
+     246.5
+    ],
+    "tag": "ESTIMATE (pintle v2.2 option C envelope, ~40 % solid)"
+   },
+   {
+    "item": "servo mount bracket + low-conductance foot (6061, G10/PEEK washers, Ti/A4 screws)",
+    "m_kg": 0.015,
+    "centre_mm_v33_frame": [
+     0,
+     -8.0,
+     216.0
+    ],
+    "tag": "ESTIMATE"
+   },
+   {
+    "item": "bearings A NB701-class 12x18x4 + B 6800 10x19x5",
+    "m_kg": 0.0075,
+    "centre_mm_v33_frame": [
+     0,
+     -2.0,
+     246.5
+    ],
+    "tag": "ESTIMATE from ring volume (maker mass TO-VERIFY)"
+   },
+   {
+    "item": "crank (17-4PH journal tube 12 OD)",
+    "m_kg": 0.006,
+    "centre_mm_v33_frame": [
+     0,
+     0.0,
+     246.5
+    ],
+    "tag": "ESTIMATE"
+   },
+   {
+    "item": "flat spiral spring 7.0 x 0.60 x 260 mm + arbor",
+    "m_kg": 0.0106,
+    "centre_mm_v33_frame": [
+     0,
+     6.0,
+     246.5
+    ],
+    "tag": "DERIVED strip 8.6 g (pintle v2.2) + 2 g arbor ESTIMATE"
+   },
+   {
+    "item": "link 28 mm with ball-bearing eyes",
+    "m_kg": 0.003,
+    "centre_mm_v33_frame": [
+     0,
+     0.0,
+     233.0
+    ],
+    "tag": "ESTIMATE"
+   },
+   {
+    "item": "rolling-guide carriage + rails/bushings + needle clamp",
+    "m_kg": 0.018,
+    "centre_mm_v33_frame": [
+     0,
+     0.0,
+     221.0
+    ],
+    "tag": "ESTIMATE (design in progress, lead task 1)"
+   },
+   {
+    "item": "feed hose engine share: JIC 90 deg elbow + engine-end fitting + half the free hose + liquid",
+    "m_kg": 0.066,
+    "centre_mm_v33_frame": [
+     1.83697019872103e-15,
+     30.0,
+     218.5854833789252
+    ],
+    "tag": "ASSUMED as M1 (elbow 45 g, hose 0.13 kg/m, -6 PTFE/SS braid; hose datasheet TO-VERIFY); bonnet -6 ORB inlet at az 90 (CAD v3.3)"
+   },
+   {
+    "item": "Pc sense line, torch N2O/propane lines, harness: engine shares + Pc fitting",
+    "m_kg": 0.03,
+    "centre_mm_v33_frame": [
+     15.426902632476946,
+     18.385066634855473,
+     193.5854833789252
+    ],
+    "tag": "ASSUMED as M1"
+   }
+  ],
+  "estimate_items_removed": {
+   "item": "CAD v3.3 pintle stack TC-11..TC-17 (SB-2292SG pintle servo 81 g, bracket, crank, link, carriage, pins)",
+   "m_kg": 0.1165,
+   "cg_mm": [
+    0.033,
+    -12.521,
+    237.024
+   ]
+  },
+  "uncertainty": {
+   "v": {
+    "m_kg": 0.073,
+    "I_xx_I_yy_kgm2": 0.0034,
+    "head_relative_pivot_shift_mm": 6.45
+   },
+   "tag": "DERIVED",
+   "src": "worst-case sum of the ESTIMATE item uncertainties (stack +/-25 g, hose share +/-33 g, lines +/-15 g); CAD solids +/-1 % (densities)"
+  },
+  "sensitivity": "each +10 g at the head stack (z ~ +0.22 m) moves the mid-burn CG ~0.9 mm forward; CAD then re-centres the pivot (engine ~0.95 mm aft relative to the pivot) and I_xx/I_yy grow ~0.0005 kg m2",
+  "for_gnc_l_e": {
+   "v": {
+    "wet_mm": -1.27,
+    "mid_mm": 0.0,
+    "end_max_thrust_mm": 1.35,
+    "end_DC-B1_mm": 3.07,
+    "no_grain_mm": 6.24
+   },
+   "tag": "DERIVED+ESTIMATE",
+   "src": "axial CG offset from the pivot (+ = forward); the pivot is on the mid-burn CG by design, so the wet CG sits aft and the burnout CG forward"
+  }
+ },
+ "tvc_actuation": {
+  "concept": {
+   "v": "2 x Savox SB-2292SG on the fixed lower ring GM-10 below the gimbal ring, shafts tangential; 7075 clamp horns r_h; vertical dog-bone pushrods (GE 5 E spherical plain bearings both ends) to two levers on the engine collar",
+   "tag": "DERIVED",
+   "src": "CAD v3.3"
+  },
+  "lever_azimuth_deg": {
+   "v": [
+    135.0,
+    225.0
+   ],
+   "tag": "DERIVED",
+   "src": "90 deg apart; servo 2 = mirror of servo 1"
+  },
+  "lever_radius_m": {
+   "v": 0.05347,
+   "tag": "DERIVED",
+   "src": "lever-eye radius r_e (tvc_kinematics)"
+  },
+  "lever_ball_z_m": {
+   "v": -0.028,
+   "tag": "DERIVED",
+   "src": "lever-eye centre height (pushrod upper bearing), pivot frame"
+  },
+  "lever_eye_xyz_m": {
+   "v": [
+    [
+     -0.03781,
+     0.03781,
+     -0.028
+    ],
+    [
+     -0.03781,
+     -0.03781,
+     -0.028
+    ]
+   ],
+   "tag": "DERIVED",
+   "src": "neutral, servos 1, 2"
+  },
+  "horn_radius_m": {
+   "v": 0.011139,
+   "tag": "LEAD-DECISION",
+   "src": "n 4.8 FINAL (lead 2026-10-12)"
+  },
+  "servo_shaft_z_m": {
+   "v": -0.0703,
+   "tag": "DERIVED"
+  },
+  "horn_eye_xyz_m": {
+   "v": [
+    [
+     -0.03781,
+     0.03781,
+     -0.0703
+    ],
+    [
+     -0.03781,
+     -0.03781,
+     -0.0703
+    ]
+   ],
+   "tag": "DERIVED",
+   "src": "neutral"
+  },
+  "pushrod_length_m": {
+   "v": 0.0423,
+   "tag": "DERIVED",
+   "src": "eye centre to eye centre"
+  },
+  "gear_ratio_n": {
+   "v": 4.8,
+   "tag": "LEAD-DECISION",
+   "src": "r_e/r_h at neutral; exact kinematics in tvc_kinematics.py"
+  },
+  "mixing_servo_deg_per_engine_deg": {
+   "v": [
+    [
+     3.3941,
+     3.3941
+    ],
+    [
+     -3.3941,
+     3.3941
+    ]
+   ],
+   "tag": "DERIVED",
+   "src": "d psi_i / d(alpha, beta) at neutral, rows servo 1, 2 (central difference of the exact solve)"
+  },
+  "mixing_matrix_dz_per_rad": {
+   "v": [
+    [
+     0.03781,
+     0.03781
+    ],
+    [
+     -0.03781,
+     0.03781
+    ]
+   ],
+   "tag": "DERIVED",
+   "src": "lever-eye vertical displacement per rad (rows servo 1, 2; columns alpha, beta) at neutral"
+  },
+  "servo_angle_range_deg": {
+   "v": {
+    "cmd_7deg": {
+     "amp_deg": 7.0,
+     "psi_min_deg": [
+      -32.37,
+      -32.37
+     ],
+     "psi_max_deg": [
+      37.39,
+      37.39
+     ],
+     "rod_tilt_max_deg": [
+      7.37,
+      7.37
+     ]
+    },
+    "stop_8deg": {
+     "amp_deg": 8.0,
+     "psi_min_deg": [
+      -36.82,
+      -36.82
+     ],
+     "psi_max_deg": [
+      44.22,
+      44.22
+     ],
+     "rod_tilt_max_deg": [
+      8.83,
+      8.83
+     ]
+    }
+   },
+   "tag": "DERIVED",
+   "src": "exact kinematics over the 7 deg cone / 8 deg stop"
+  },
+  "rate_engine_dps_under_3.19Nm": {
+   "v": {
+    "6.6": {
+     "worst_dps": 95.3,
+     "worst_dir_deg": 315.0,
+     "alpha_dps": 153.3,
+     "beta_dps": 152.2,
+     "centre_worst_dps": 117.5
+    },
+    "7.4": {
+     "worst_dps": 111.2,
+     "worst_dir_deg": 315.0,
+     "alpha_dps": 178.0,
+     "beta_dps": 175.5,
+     "centre_worst_dps": 139.5
+    },
+    "7.6": {
+     "worst_dps": 118.3,
+     "worst_dir_deg": 315.0,
+     "alpha_dps": 189.0,
+     "beta_dps": 185.9,
+     "centre_worst_dps": 149.4
+    },
+    "7.8": {
+     "worst_dps": 125.4,
+     "worst_dir_deg": 315.0,
+     "alpha_dps": 200.0,
+     "beta_dps": 196.2,
+     "centre_worst_dps": 159.2
+    },
+    "8.0": {
+     "worst_dps": 133.0,
+     "worst_dir_deg": 315.0,
+     "alpha_dps": 211.9,
+     "beta_dps": 207.5,
+     "centre_worst_dps": 169.7
+    },
+    "8.4": {
+     "worst_dps": 150.2,
+     "worst_dir_deg": 315.0,
+     "alpha_dps": 238.8,
+     "beta_dps": 233.1,
+     "centre_worst_dps": 193.1
+    }
+   },
+   "tag": "DERIVED",
+   "src": "actuator_loads.py v1: linear torque-speed lines (electronics.json v1 + tvc_slew_check_v1), rigid links; worst over 72 directions at 7 deg; file 03-cad/src/calcs/tvc_rate_vs_angle_mech_v1.csv (0-8 deg, 6.6-8.4 V)"
+  },
+  "ENG-07_rate_status": "as built: worst-direction slew at 7 deg 111.2 deg/s at 7.4 V, 118.3 at 7.6 V (>= 100); 95.3 deg/s at the 6.6 V degraded plug voltage, the case GNC validated for n 4.8 (lead FINAL: P(landing) 0.982 at 6.6 V)",
+  "resolution_deg_engine": {
+   "v": 0.0208,
+   "tag": "DERIVED",
+   "src": "0.1 deg servo deadband ASSUMED (electronics.json v1) / n"
+  },
+  "backlash_deg_engine": {
+   "v": 0.0417,
+   "tag": "DERIVED",
+   "src": "0.2 deg servo backlash ASSUMED (electronics.json v1) / n; GE joints preloaded (zero-play class)"
+  },
+  "design_loads": {
+   "v": {
+    "M_engine_GS_Nm": 37.95,
+    "F_rod_centre_N": 441.0,
+    "F_rod_7deg_N": 552.0,
+    "F_rod_stop_N": 609.0,
+    "M_engine_stop_Nm": 41.14,
+    "governs": {
+     "M_engine_GS_Nm": "as-built",
+     "F_rod_centre_N": "lead",
+     "F_rod_7deg_N": "lead",
+     "F_rod_stop_N": "lead",
+     "M_engine_stop_Nm": "as-built"
+    }
+   },
+   "tag": "DERIVED",
+   "src": "DERIVED: max(lead 2026-10-12, as-built exact kinematics at 8.4 V stall); SF per charter ENG-10 (1.5 yield / 2.0 ult) applied in hand_calcs/FEA"
+  },
+  "stall_load_on_structure": {
+   "pushrod_N_8V4": {
+    "v": 609.0,
+    "tag": "DERIVED",
+    "src": "max(lead 609 N, as built 561 N at the stop)"
+   },
+   "engine_moment_Nm_8V4": {
+    "v": 37.95,
+    "tag": "DERIVED",
+    "src": "as built both-servo stall at 7 deg (lead 35.3 N m)"
+   }
+  },
+  "hinge_moment_terms_Nm": {
+   "inertia_Ipivot_x_GNC_min_accel_87.3": {
+    "v": 4.815,
+    "tag": "DERIVED",
+    "src": "I 0.0552 kg m2 x 87.3 rad/s2 (gnc.json v2 requirements.gimbal.angular_accel_min)"
+   },
+   "inertia_Ipivot_x_MC_p99_accel_331": {
+    "v": 18.26,
+    "tag": "DERIVED",
+    "src": "I x 331 rad/s2 (gnc.json v2 design_limit_loads gimbal_angular_accel_actuator_max p99; includes rocking ringing)"
+   },
+   "vehicle_angular_accel_Ipivot_x_omegadot": {
+    "v": 0.607,
+    "tag": "DERIVED",
+    "src": "I x 11.01 rad/s2 (gnc.json v2 flight max)"
+   },
+   "axial_accel_m_a_le_sin7": {
+    "v": 0.0158,
+    "tag": "DERIVED",
+    "src": "4.04 g flight max, l_e 1.27 mm (wet)"
+   },
+   "lateral_accel_m_alat_le": {
+    "v": 0.0196,
+    "tag": "DERIVED",
+    "src": "0.61 g at the pivot, flight max (gnc.json v2), l_e 1.27 mm"
+   },
+   "hose_K_x_7deg_radial_L0.40": {
+    "v": [
+     0.211,
+     2.136
+    ],
+    "tag": "DERIVED+ASSUMED",
+    "src": "K_hose [1.73, 17.48] N m/rad (EI 0.05-0.5 N m2 ASSUMED, hose routed along the pivot radial line, 0.40 m free length)"
+   },
+   "bearing_seal_friction_per_axis": {
+    "v": 0.04,
+    "tag": "ASSUMED",
+    "src": "2 x 608-2RS contact-seal drag ~0.02 N m each (model class value, TO-VERIFY with the maker's seal-moment data and B-TVC-1)"
+   },
+   "thrust_misalignment": {
+    "v": 0.758,
+    "tag": "DERIVED",
+    "src": "500 N x (0.5 mm offset + 0.25 deg x pivot-exit arm 0.2330 m) ASSUMED tolerances"
+   },
+   "nozzle_side_load_floor": {
+    "v": 1.291,
+    "tag": "DERIVED",
+    "src": "gnc.json v1 1.3 N m (mid pivot) scaled to the pivot-exit arm"
+   }
+  },
+  "hinge_moment_linear_sum_Nm": {
+   "v": 9.68,
+   "tag": "DERIVED",
+   "src": "linear sum of the terms above with the 87.3 rad/s2 inertia term and the radial-L0.40 hose upper value"
+  },
+  "hinge_moment_design_Nm": {
+   "v": 37.95,
+   "tag": "DERIVED",
+   "src": "structural design load = both-servo stall at 8.4 V through the as-built linkage (37.95 N m governs the lead's 35.3 N m, which used r_h 10 / r_e 48); GNC flight max 19.5 N m; ENG-10 factors 1.5 yield / 2.0 ultimate applied in the structural checks"
+  },
+  "axis_stiffness_Nm_per_rad": {
+   "v": [
+    552.5,
+    1681.0
+   ],
+   "tag": "FEA+ASSUMED",
+   "src": "[min, max] over 9 poses and both axes of the TOTAL stiffness (structure + rod chain in series with the servo, K_s 58 / 174 N m/rad ASSUMED); per pose and axis in axis_stiffness_table",
+   "basis": {
+    "K_s_output_Nm_per_rad": [
+     58.0,
+     174.0
+    ],
+    "tag": "ASSUMED in electronics.json v1 (T_stall / 1-3 deg proportional band); bench measurement B-TVC-1 required",
+    "series_model": "1/k = 1/k_chain + lambda^2/K_s per rod (lambda = horn moment arm at the pose)"
+   },
+   "chain_basis": "rod FE (rod_k.py) + 2 x GE 5 E (1e5 N/mm ASSUMED; low 5e4, high 3e5) + stud/shoulder screw cantilever; variants T/M/C = rod tension / mean / compression stiffness"
+  },
+  "axis_stiffness_table": {
+   "v": {
+    "centre": {
+     "alpha_deg": 0.0,
+     "beta_deg": 0.0,
+     "mech_T": [
+      2442.0,
+      1608.2
+     ],
+     "smin_T": [
+      863.6,
+      730.0
+     ],
+     "smax_T": [
+      1517.5,
+      1147.9
+     ],
+     "servo_only_min": [
+      890.0,
+      748.7
+     ],
+     "servo_only_max": [
+      1601.0,
+      1194.9
+     ],
+     "mech_rigidchain": [
+      2665.6,
+      1702.2
+     ],
+     "mech_T_K_xy": [
+      [
+       2442.0,
+       -0.7
+      ],
+      [
+       -0.4,
+       1608.2
+      ]
+     ],
+     "smin_T_K_xy": [
+      [
+       863.6,
+       -0.8
+      ],
+      [
+       0.1,
+       730.0
+      ]
+     ],
+     "smax_T_K_xy": [
+      [
+       1517.5,
+       -0.9
+      ],
+      [
+       -0.1,
+       1147.9
+      ]
+     ],
+     "f_rock_Hz_smin_smax_mech": {
+      "smin_T": [
+       19.9,
+       18.3
+      ],
+      "smax_T": [
+       26.4,
+       23.0
+      ],
+      "mech_T": [
+       33.5,
+       27.2
+      ]
+     }
+    },
+    "alphap7": {
+     "alpha_deg": 7.0,
+     "beta_deg": 0.0,
+     "mech_T": [
+      2349.0,
+      1690.6
+     ],
+     "smin_T": [
+      874.7,
+      770.6
+     ],
+     "smax_T": [
+      1493.0,
+      1200.1
+     ],
+     "servo_only_min": [
+      903.8,
+      792.3
+     ],
+     "servo_only_max": [
+      1581.4,
+      1254.9
+     ],
+     "mech_rigidchain": [
+      2584.0,
+      1807.8
+     ],
+     "mech_T_K_xy": [
+      [
+       2349.0,
+       -180.8
+      ],
+      [
+       -180.6,
+       1690.6
+      ]
+     ],
+     "smin_T_K_xy": [
+      [
+       874.7,
+       67.2
+      ],
+      [
+       68.7,
+       770.6
+      ]
+     ],
+     "smax_T_K_xy": [
+      [
+       1493.0,
+       5.2
+      ],
+      [
+       6.3,
+       1200.1
+      ]
+     ],
+     "f_rock_Hz_smin_smax_mech": {
+      "smin_T": [
+       20.0,
+       18.8
+      ],
+      "smax_T": [
+       26.2,
+       23.5
+      ],
+      "mech_T": [
+       32.8,
+       27.9
+      ]
+     }
+    },
+    "alpham7": {
+     "alpha_deg": -7.0,
+     "beta_deg": 0.0,
+     "mech_T": [
+      2347.6,
+      1688.8
+     ],
+     "smin_T": [
+      875.1,
+      768.5
+     ],
+     "smax_T": [
+      1492.8,
+      1198.2
+     ],
+     "servo_only_min": [
+      904.2,
+      790.3
+     ],
+     "servo_only_max": [
+      1581.1,
+      1253.0
+     ],
+     "mech_rigidchain": [
+      2582.1,
+      1806.0
+     ],
+     "mech_T_K_xy": [
+      [
+       2347.6,
+       178.3
+      ],
+      [
+       178.6,
+       1688.8
+      ]
+     ],
+     "smin_T_K_xy": [
+      [
+       875.1,
+       -68.7
+      ],
+      [
+       -68.5,
+       768.5
+      ]
+     ],
+     "smax_T_K_xy": [
+      [
+       1492.8,
+       -7.4
+      ],
+      [
+       -6.8,
+       1198.2
+      ]
+     ],
+     "f_rock_Hz_smin_smax_mech": {
+      "smin_T": [
+       20.0,
+       18.8
+      ],
+      "smax_T": [
+       26.2,
+       23.5
+      ],
+      "mech_T": [
+       32.8,
+       27.9
+      ]
+     }
+    },
+    "betap7": {
+     "alpha_deg": 0.0,
+     "beta_deg": 7.0,
+     "mech_T": [
+      2164.5,
+      1919.6
+     ],
+     "smin_T": [
+      929.1,
+      1009.8
+     ],
+     "smax_T": [
+      1499.8,
+      1476.3
+     ],
+     "servo_only_min": [
+      961.0,
+      1038.4
+     ],
+     "servo_only_max": [
+      1584.7,
+      1538.2
+     ],
+     "mech_rigidchain": [
+      2345.7,
+      2025.6
+     ],
+     "mech_T_K_xy": [
+      [
+       2164.5,
+       -0.7
+      ],
+      [
+       -0.6,
+       1919.6
+      ]
+     ],
+     "smin_T_K_xy": [
+      [
+       929.1,
+       -0.8
+      ],
+      [
+       -0.1,
+       1009.8
+      ]
+     ],
+     "smax_T_K_xy": [
+      [
+       1499.8,
+       -0.9
+      ],
+      [
+       -0.2,
+       1476.3
+      ]
+     ],
+     "f_rock_Hz_smin_smax_mech": {
+      "smin_T": [
+       20.7,
+       21.6
+      ],
+      "smax_T": [
+       26.2,
+       26.1
+      ],
+      "mech_T": [
+       31.5,
+       29.7
+      ]
+     }
+    },
+    "betam7": {
+     "alpha_deg": 0.0,
+     "beta_deg": -7.0,
+     "mech_T": [
+      2723.4,
+      1194.5
+     ],
+     "smin_T": [
+      952.2,
+      552.5
+     ],
+     "smax_T": [
+      1681.0,
+      861.0
+     ],
+     "servo_only_min": [
+      985.8,
+      568.5
+     ],
+     "servo_only_max": [
+      1788.7,
+      900.5
+     ],
+     "mech_rigidchain": [
+      3017.7,
+      1272.1
+     ],
+     "mech_T_K_xy": [
+      [
+       2723.4,
+       0.1
+      ],
+      [
+       0.4,
+       1194.5
+      ]
+     ],
+     "smin_T_K_xy": [
+      [
+       952.2,
+       -0.5
+      ],
+      [
+       0.3,
+       552.5
+      ]
+     ],
+     "smax_T_K_xy": [
+      [
+       1681.0,
+       -0.4
+      ],
+      [
+       0.3,
+       861.0
+      ]
+     ],
+     "f_rock_Hz_smin_smax_mech": {
+      "smin_T": [
+       20.9,
+       16.0
+      ],
+      "smax_T": [
+       27.8,
+       19.9
+      ],
+      "mech_T": [
+       35.4,
+       23.5
+      ]
+     }
+    },
+    "cone7_045": {
+     "alpha_deg": -4.96,
+     "beta_deg": 4.94,
+     "mech_T": [
+      2216.3,
+      1878.5
+     ],
+     "smin_T": [
+      931.1,
+      953.5
+     ],
+     "smax_T": [
+      1504.1,
+      1407.8
+     ],
+     "servo_only_min": [
+      963.5,
+      980.8
+     ],
+     "servo_only_max": [
+      1590.5,
+      1467.8
+     ],
+     "mech_rigidchain": [
+      2412.1,
+      1989.3
+     ],
+     "mech_T_K_xy": [
+      [
+       2216.3,
+       102.3
+      ],
+      [
+       102.5,
+       1878.5
+      ]
+     ],
+     "smin_T_K_xy": [
+      [
+       931.1,
+       -128.6
+      ],
+      [
+       -128.0,
+       953.5
+      ]
+     ],
+     "smax_T_K_xy": [
+      [
+       1504.1,
+       -69.3
+      ],
+      [
+       -68.6,
+       1407.8
+      ]
+     ],
+     "f_rock_Hz_smin_smax_mech": {
+      "smin_T": [
+       20.7,
+       21.0
+      ],
+      "smax_T": [
+       26.3,
+       25.5
+      ],
+      "mech_T": [
+       31.9,
+       29.4
+      ]
+     }
+    },
+    "cone7_135": {
+     "alpha_deg": -4.96,
+     "beta_deg": -4.94,
+     "mech_T": [
+      2562.1,
+      1362.5
+     ],
+     "smin_T": [
+      892.6,
+      611.8
+     ],
+     "smax_T": [
+      1575.8,
+      965.5
+     ],
+     "servo_only_min": [
+      923.1,
+      629.9
+     ],
+     "servo_only_max": [
+      1674.6,
+      1012.0
+     ],
+     "mech_rigidchain": [
+      2838.6,
+      1459.8
+     ],
+     "mech_T_K_xy": [
+      [
+       2562.1,
+       140.2
+      ],
+      [
+       140.5,
+       1362.5
+      ]
+     ],
+     "smin_T_K_xy": [
+      [
+       892.6,
+       -3.3
+      ],
+      [
+       -3.3,
+       611.8
+      ]
+     ],
+     "smax_T_K_xy": [
+      [
+       1575.8,
+       37.8
+      ],
+      [
+       38.2,
+       965.5
+      ]
+     ],
+     "f_rock_Hz_smin_smax_mech": {
+      "smin_T": [
+       20.2,
+       16.8
+      ],
+      "smax_T": [
+       26.9,
+       21.1
+      ],
+      "mech_T": [
+       34.3,
+       25.1
+      ]
+     }
+    },
+    "cone7_225": {
+     "alpha_deg": 4.96,
+     "beta_deg": -4.94,
+     "mech_T": [
+      2565.6,
+      1363.8
+     ],
+     "smin_T": [
+      892.7,
+      613.7
+     ],
+     "smax_T": [
+      1577.0,
+      967.1
+     ],
+     "servo_only_min": [
+      923.2,
+      631.8
+     ],
+     "servo_only_max": [
+      1676.0,
+      1013.6
+     ],
+     "mech_rigidchain": [
+      2842.8,
+      1461.0
+     ],
+     "mech_T_K_xy": [
+      [
+       2565.6,
+       -139.7
+      ],
+      [
+       -139.4,
+       1363.8
+      ]
+     ],
+     "smin_T_K_xy": [
+      [
+       892.7,
+       2.5
+      ],
+      [
+       4.1,
+       613.7
+      ]
+     ],
+     "smax_T_K_xy": [
+      [
+       1577.0,
+       -38.5
+      ],
+      [
+       -37.3,
+       967.1
+      ]
+     ],
+     "f_rock_Hz_smin_smax_mech": {
+      "smin_T": [
+       20.2,
+       16.8
+      ],
+      "smax_T": [
+       26.9,
+       21.1
+      ],
+      "mech_T": [
+       34.3,
+       25.1
+      ]
+     }
+    },
+    "cone7_315": {
+     "alpha_deg": 4.96,
+     "beta_deg": 4.94,
+     "mech_T": [
+      2216.4,
+      1878.8
+     ],
+     "smin_T": [
+      930.8,
+      954.6
+     ],
+     "smax_T": [
+      1504.1,
+      1408.6
+     ],
+     "servo_only_min": [
+      963.2,
+      981.9
+     ],
+     "servo_only_max": [
+      1590.5,
+      1468.7
+     ],
+     "mech_rigidchain": [
+      2412.1,
+      1989.4
+     ],
+     "mech_T_K_xy": [
+      [
+       2216.4,
+       -102.3
+      ],
+      [
+       -102.1,
+       1878.8
+      ]
+     ],
+     "smin_T_K_xy": [
+      [
+       930.8,
+       127.3
+      ],
+      [
+       128.4,
+       954.6
+      ]
+     ],
+     "smax_T_K_xy": [
+      [
+       1504.1,
+       68.2
+      ],
+      [
+       69.1,
+       1408.6
+      ]
+     ],
+     "f_rock_Hz_smin_smax_mech": {
+      "smin_T": [
+       20.7,
+       21.0
+      ],
+      "smax_T": [
+       26.3,
+       25.5
+      ],
+      "mech_T": [
+       31.9,
+       29.4
+      ]
+     }
+    }
+   },
+   "tag": "FEA+ASSUMED",
+   "src": "K [alpha, beta] N m/rad: mech_T = structure + rod chain, servo rigid; smin_T / smax_T = with K_s 58 / 174 N m/rad; servo_only_* = servo through a rigid structure; mech_rigidchain = structure only; *_K_xy full 2x2 (cross terms at the cone poses); f_rock = sqrt(K/I)/2pi",
+   "I_used_kgm2": {
+    "alpha": 0.05516,
+    "beta": 0.05497,
+    "note": "mid-burn engine group about the pivot (+ ring for alpha), this file"
+   }
+  },
+  "axis_stiffness_checks": {
+   "v": {
+    "mesh_study": {
+     "centre_h4_hf4_T62.5": {
+      "nodes": 192084,
+      "K_alpha": 2485.9,
+      "K_beta": 1629.6
+     },
+     "centre_h3_hf4_T62.5": {
+      "nodes": 229255,
+      "K_alpha": 2442.0,
+      "K_beta": 1608.2
+     },
+     "centre_h3_hf3_T62.5": {
+      "nodes": 275011,
+      "K_alpha": 2441.7,
+      "K_beta": 1608.0
+     },
+     "centre_h2.5_hf4_T62.5": {
+      "nodes": 269840,
+      "K_alpha": 2434.3,
+      "K_beta": 1603.5
+     },
+     "change_h3_to_h2.5_pct": [
+      -0.32,
+      -0.29
+     ],
+     "change_h4_to_h3_pct": [
+      -1.77,
+      -1.31
+     ],
+     "note": "C3D10 displacement FE converges from above; h 3 (production) is within 0.4 % of h 2.5 and the hf 3 refinement of the fillet/eye zones changes K by < 0.05 %"
+    },
+    "thrust_preload_study": {
+     "T62.5": {
+      "K_alpha": 2442.0,
+      "K_beta": 1608.2,
+      "smin_T": [
+       863.6,
+       730.0
+      ],
+      "K_roll": 24047.0
+     },
+     "T160": {
+      "K_alpha": 2442.0,
+      "K_beta": 1631.1,
+      "smin_T": [
+       863.6,
+       734.7
+      ],
+      "K_roll": 27434.0
+     },
+     "T500": {
+      "K_alpha": 2442.0,
+      "K_beta": 1651.4,
+      "smin_T": [
+       863.6,
+       738.7
+      ],
+      "K_roll": 31209.0
+     }
+    },
+    "K_roll_Nm_rad_centre": 24047.0
+   },
+   "tag": "FEA"
+  },
+  "axis_stiffness_stiffened_concept": {
+   "v": {
+    "mech_T": [
+     3400.4,
+     1974.6
+    ],
+    "smin_T": [
+     959.3,
+     797.1
+    ],
+    "smax_T": [
+     1839.8,
+     1323.1
+    ],
+    "servo_only_min": [
+     991.9,
+     819.5
+    ],
+    "servo_only_max": [
+     1963.9,
+     1386.1
+    ],
+    "note": "tapered lever-root webs on GM-01/02 + deeper GM-03 section (lead-approved concept), centre pose only; not yet in the CAD baseline (v3.4) and not yet checked for pushrod-eye clearance at the stop poses"
+   },
+   "tag": "FEA",
+   "src": "centre pose; lead-approved concept (lever-root webs + deeper GM-03), not yet in the CAD baseline"
+  },
+  "where_the_compliance_is": {
+   "v": {
+    "alpha (Mx)": {
+     "E_FRAME": 0.031,
+     "E_COLLAR": 0.838,
+     "E_HORN1": 0.024,
+     "E_HORN2": 0.024,
+     "ROD_CHAIN1": 0.042,
+     "ROD_CHAIN2": 0.042
+    },
+    "beta (My)": {
+     "E_FRAME": 0.022,
+     "E_RING": 0.277,
+     "E_COLLAR": 0.554,
+     "E_HORN1": 0.016,
+     "E_HORN2": 0.016,
+     "ROD_CHAIN1": 0.028,
+     "ROD_CHAIN2": 0.028,
+     "BEARINGS_INNER(608+pin)": 0.031,
+     "BEARINGS_OUTER(608+pin)": 0.03
+    }
+   },
+   "tag": "FEA",
+   "src": "strain-energy fractions, structure + chain with the servo rigid (centre)"
+  },
+  "rocking_mode_Hz": {
+   "v": [
+    16.0,
+    27.8
+   ],
+   "tag": "FEA+ASSUMED",
+   "src": "single-DOF sqrt(K/I)/2pi over the 9 poses and both axes with K_s 58-174 N m/rad; EXCLUDES the reflected servo rotor inertia J_int n^2 (Electronics servo_jint_estimate_v1: 0.032-0.042 kg m2 at the engine) and the hose (parallel, < 2 %); GNC CSI carries both",
+   "lowest": {
+    "Hz": 16.0,
+    "pose": "betam7",
+    "axis": "beta",
+    "K_Nm_rad": 552.5
+   },
+   "structure_only_servo_rigid_Hz": [
+    23.5,
+    35.4
+   ]
+  },
+  "rocking_mode_Hz_rigid_structure": {
+   "v": [
+    16.2,
+    28.7
+   ],
+   "tag": "DERIVED+ASSUMED",
+   "src": "servo stiffness alone through a rigid structure and chain (v1 key; v1 used n 6)"
+  },
+  "ENG-11_status": "first rocking mode 16.0-27.8 Hz (excl. J_int) vs the 25 Hz minimum: below it whenever the servo is at the low end of its ASSUMED stiffness; the servo caps the total (servo alone through a rigid structure 16.2-28.7 Hz incl. pose); lead route: ENG-07d closes by control + B-TVC-1 measurement; GNC to state the minimum K / f for a 6 dB flex gain margin, Mechanical stiffens to it (stiffened concept: structure-only 3400/1975 vs 2442/1608 N m/rad at the centre)"
+ },
+ "feed_across_gimbal": {
+  "hose": {
+   "v": "-6 PTFE-lined stainless-braided hose (oxygen-cleaned, PFPE only), JIC-37 ends: fixed end at the isolation-valve outlet above the engine, engine end on a JIC 90 deg elbow at the bonnet -6 ORB inlet (az 90 deg)",
+   "tag": "DERIVED"
+  },
+  "hinge_stiffness_Nm_per_rad": {
+   "v": [
+    1.73,
+    17.48
+   ],
+   "tag": "DERIVED+ASSUMED",
+   "src": "ERRATUM to v1 [0.20, 1.97]: [alpha min, beta max] for a hose routed along the pivot radial line, 0.40 m free length, EI 0.05-0.5 N m2 ASSUMED (hose_frame.py 3-D frame, engine end 0.215 m above the pivot)",
+   "table_K_alpha_beta": {
+    "straight along pivot radial line L=0.30": {
+     "EI=0.05": [
+      3.11,
+      3.15
+     ],
+     "EI=0.25": [
+      15.57,
+      15.73
+     ],
+     "EI=0.5": [
+      31.14,
+      31.45
+     ]
+    },
+    "straight along pivot radial line L=0.40": {
+     "EI=0.05": [
+      1.73,
+      1.75
+     ],
+     "EI=0.25": [
+      8.66,
+      8.74
+     ],
+     "EI=0.5": [
+      17.31,
+      17.48
+     ]
+    },
+    "S offset toward +X: up 0.03, R 0.08 x 45 deg, 0.0, back, 0.03": {
+     "EI=0.05": [
+      9.02,
+      127.96
+     ],
+     "EI=0.25": [
+      45.09,
+      639.38
+     ],
+     "EI=0.5": [
+      90.19,
+      1277.71
+     ]
+    },
+    "S offset toward +X: up 0.03, R 0.09 x 30 deg, 0.05, back, 0.05": {
+     "EI=0.05": [
+      5.79,
+      75.05
+     ],
+     "EI=0.25": [
+      28.95,
+      375.0
+     ],
+     "EI=0.5": [
+      57.91,
+      749.43
+     ]
+    },
+    "S offset toward +X: up 0.05, R 0.1 x 40 deg, 0.02, back, 0.05": {
+     "EI=0.05": [
+      4.2,
+      45.66
+     ],
+     "EI=0.25": [
+      21.0,
+      228.24
+     ],
+     "EI=0.5": [
+      42.01,
+      456.3
+     ]
+    }
+   },
+   "routing_rule": "hinge stiffness is set by the ROUTING: radial routing through the pivot line gives 1.7-31 N m/rad (L 0.30-0.40 m); S-offset routings give 4-1278 N m/rad (up to 156 N m at 7 deg: NOT acceptable); a straight hose whose line misses the pivot is axially constrained (EA-dominated, ~1e4 N m/rad). Requirement: route along the pivot radial line, free length >= 0.40 m, K_hose <= 20 N m/rad per axis, measured pressurised (bench test B-FD-1) before the gimbal is closed out"
+  },
+  "free_length_m": {
+   "v": 0.4,
+   "tag": "REQ",
+   "src": "routing rule above (v1 0.26 m)"
+  },
+  "min_bend_radius_check": "hose_frame_v1.json gives the installed + 8 deg bend radius per routing; the maker's minimum bend radius for -6 PTFE hose is TO-VERIFY",
+  "flow_velocity_mps": {
+   "v": 5.8,
+   "tag": "DERIVED",
+   "src": "0.227 kg/s liquid N2O in 7.9 mm ID (v1); -8 alternative is stiffer"
+  },
+  "other_lines_across_gimbal": "1/8 in PTFE Pc sense line (transducer fixed side), 1/8 in PTFE N2O and propane torch lines (solenoids fixed side, check valves on the engine), harness for pintle servo, encoder, spark"
+ },
+ "envelope": {
+  "stations_from_pivot_m": {
+   "head_top": {
+    "v": 0.1716,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "head_bot": {
+    "v": 0.1436,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "inj_face": {
+    "v": 0.1056,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "grain_top": {
+    "v": 0.0756,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "grain_bot": {
+    "v": -0.1544,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "tube_fwd": {
+    "v": 0.1416,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "tube_aft": {
+    "v": -0.1544,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "aft_bottom": {
+    "v": -0.236,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "throat": {
+    "v": -0.2221,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "exit": {
+    "v": -0.233,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "bonnet_top": {
+    "v": 0.2036,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   },
+   "z_seat": {
+    "v": 0.1106,
+    "tag": "DERIVED+ESTIMATE",
+    "src": "CAD v3.3 station + re-centring dz"
+   }
+  },
+  "head_stack_top_m": {
+   "v": 0.252,
+   "tag": "DERIVED+ESTIMATE",
+   "src": "v3.4 HV69 in-line stack forward extent (pintle v2.2 option C, 259.0 mm in the v3.3 frame) + dz"
+  },
+  "overall_gimballed_length_m": {
+   "v": 0.488,
+   "tag": "DERIVED+ESTIMATE"
+  },
+  "required_engine_bay_ID_m": {
+   "v": 0.14,
+   "tag": "REQ",
+   "src": "founder decision FINAL 2026-10-12 (ICD-AIRFRAME)"
+  },
+  "engine_bay_zone_m": {
+   "v": [
+    -0.2377,
+    0.252
+   ],
+   "tag": "DERIVED+ESTIMATE",
+   "src": "z range (engine frame) of the 140 mm ID: CAD v3.3 sweep aft extent -230.7 mm (aft closure at the 8 deg stop) + dz; forward extent = v3.4 stack top + dz. CAD v3.3 sweep FAILED at z 215-260 (v3.3 pintle servo SB-2292SG sweeps to r 75.2 mm vs 67 allowed): replaced by the HV69 in-line stack in v3.4; the v3.4 sweep is the closing check"
+  },
+  "nozzle_exit_below_pivot_m": {
+   "v": 0.233,
+   "tag": "DERIVED+ESTIMATE"
+  },
+  "fixed_parts_at_the_wall": "thrust rings GM-09/GM-10 are the airframe interface (outer r 69.75 mm in a 140 mm bore, 0.25 mm radial gap): fit and bolt pattern in ICD-AIRFRAME"
+ },
+ "fixed_module": {
+  "thrust_frame_kg": {
+   "v": 0.6225,
+   "tag": "DERIVED",
+   "src": "CAD v3.3: yoke posts GM-08 x2, upper ring GM-09, lower ring GM-10, stop bumper GM-11, TVC brackets GM-13/14, 2 x 608 in the posts; fasteners not modelled"
+  },
+  "tvc_servos_kg": {
+   "v": 0.162,
+   "tag": "DATASHEET",
+   "src": "2 x SB-2292SG 0.081 kg (electronics.json v1)"
+  },
+  "horns_group_kg": {
+   "v": 0.0182,
+   "tag": "DERIVED",
+   "src": "2 x horn GM-16 + shoulder screws + washers + GE inner rings + M3 screws (moves with the servo shafts)"
+  },
+  "pushrods_group_kg": {
+   "v": 0.0184,
+   "tag": "DERIVED",
+   "src": "2 x dog-bone GM-17 + 4 x GE 5 E outer rings (between horn and lever)"
+  },
+  "fixed_group_total_CAD_kg": {
+   "v": 0.771522,
+   "tag": "CAD v3.5.2 (P07 subset: GM-08/09/10/11/13/14/15, EL-04)",
+   "src": "massprops_v3.5.2.json (8f887d83896aa7dd) states.nograin.engine; GNC-DERIVED copy",
+   "cg_mm": [
+    -2.736,
+    0.0,
+    -45.763
+   ],
+   "superseded_v2_value": {
+    "v": 0.7875,
+    "tag": "DERIVED",
+    "src": "everything fixed in CAD v3.3 incl. servos and encoder EL-04",
+    "cg_mm": [
+     -2.681,
+     -0.0,
+     -44.969
+    ]
+   }
+  },
+  "items": {
+   "ENG-EL-04": {
+    "name": "Gimbal encoder, outer axis (alpha): AS5048A on a round PCB 20 x 2.8 recessed in the -X post bore (REQUEST to Electronics)",
+    "qty": 1,
+    "m_total_kg": 0.003,
+    "tag": "COTS mass (ASSUMED 2-5 g)"
+   },
+   "ENG-GM-08": {
+    "name": "Yoke post (outer-axis bearing housing + frame post), x2",
+    "qty": 2,
+    "m_total_kg": 0.1468,
+    "tag": "CAD volume x rho(AL6061-T6)"
+   },
+   "ENG-GM-09": {
+    "name": "Upper thrust ring (engine module to airframe, thrust path)",
+    "qty": 1,
+    "m_total_kg": 0.152,
+    "tag": "CAD volume x rho(AL6061-T6)"
+   },
+   "ENG-GM-10": {
+    "name": "Lower ring (stop ring, TVC servo base, frame tie)",
+    "qty": 1,
+    "m_total_kg": 0.1927,
+    "tag": "CAD volume x rho(AL6061-T6)"
+   },
+   "ENG-GM-11": {
+    "name": "Conical stop bumper, PU 90A, 8 deg line contact",
+    "qty": 1,
+    "m_total_kg": 0.0092,
+    "tag": "CAD volume x rho(ELASTOMER-PU)"
+   },
+   "ENG-GM-13": {
+    "name": "TVC servo 1 bracket (C-frame: top/bottom ear blocks + back rail)",
+    "qty": 1,
+    "m_total_kg": 0.0489,
+    "tag": "CAD volume x rho(AL6061-T6)"
+   },
+   "ENG-GM-14": {
+    "name": "TVC servo 2 bracket (mirror of GM-13)",
+    "qty": 1,
+    "m_total_kg": 0.0489,
+    "tag": "CAD volume x rho(AL6061-T6)"
+   },
+   "ENG-GM-15": {
+    "name": "TVC servo Savox SB-2292SG (electronics.json)",
+    "qty": 2,
+    "m_total_kg": 0.162,
+    "tag": "COTS mass (INTERFACE electronics.json v1 (actuators.tvc_A.mass_kg))"
+   },
+   "ENG-HW-20": {
+    "name": "Deep-groove ball bearing 608-2RS (8x22x7)",
+    "qty": 2,
+    "m_total_kg": 0.024,
+    "tag": "COTS mass (DATASHEET SKF 608-2RSH 0.012 kg (verify))"
+   }
+  },
+  "not_modelled": {
+   "v": [
+    "thrust-ring radial screws (16 x M5)",
+    "isolation valve + actuator (mass UNKNOWN: Electronics/Combustion)",
+    "tee, filter (<= 15 um, OI-7), relief, fill/vent",
+    "hose and lines fixed shares (~0.07 kg ASSUMED)",
+    "tank"
+   ],
+   "tag": "OPEN",
+   "src": "not zero: UNKNOWN until designed"
+  },
+  "tank": {
+   "concept": {
+    "v": "6061-T6 tube 101.6 x 3.175 + 2 bolted bulkheads (radial M6, 2 FKM O-rings each)",
+    "tag": "DERIVED",
+    "src": "v1 concept, not yet in CAD"
+   },
+   "internal_volume_L": {
+    "v": 3.17,
+    "tag": "LEAD-DECISION",
+    "src": "N2O 2.00 kg at 85 % fill (lead 2026-10-12)"
+   },
+   "internal_cyl_length_m": {
+    "v": 0.4449,
+    "tag": "DERIVED",
+    "src": "3.17 L / (pi 47.625^2 mm2), bulkhead volume ignored (conservative length)"
+   },
+   "tube_mass_kg": {
+    "v": 1.179,
+    "tag": "DERIVED",
+    "src": "tube only at rho 2700"
+   },
+   "hoop_stress_at_7MPa_MPa": {
+    "v": 105.0,
+    "tag": "DERIVED",
+    "src": "thin wall P r / t at 7.0 MPa (relief <= 7.5 MPa)"
+   }
+  }
+ },
+ "pintle_drive_status": {
+  "v": {
+   "drive": "MKS HV69 in-line toggle crank-slider (crank r 3.0 mm, link 28 mm, closed at 15 deg, stop 113.09 deg), crank on its own bearings, one-sided dog coupling to the spline",
+   "bearings": "A NB701-class 12x18x4 (C0r 0.655 kN, NSK e1153a) KEPT; jam design case 7.4 V + regulator tolerance (~602 N at the ~7.49 V setpoint); any recorded jam -> replace bearing A before the next flight; B 6800 10x19x5",
+   "guide_and_spring": "lead decision after Combustion v2.3 (force law L1/L2): ROLLING guide carriage (mu <= 0.01) with spiral spring 0.25 N m + 0.12 N m/rad (+/-10 %); C1 closing on L0, C2 opening on L1 and L2; carriage design + pintle_inline v2.3 re-check in progress",
+   "seat_needle": "17-4PH needle H900 / seat H1150, lapped land, blued contact >= 0.24 mm all round, PFPE film",
+   "rod_seal": "spring-energised PTFE (Variseal M2 / OmniSeal 103A / FlexiSeal / Bal Seal class) TO-VERIFY / TO-QUOTE; O2-clean, PFPE only, split gland, rod Ra 0.1-0.2 um",
+   "filter": "CAD screen 40 um -> <= 15 um at Cv >= 2.2 in v3.4 (OI-7)",
+   "gating_item": "HV69 commanded travel >= 103 deg (10 -> 113 deg) - founder buys one HV69 early for B-PNT-1 (travel, back-drive, guide friction); jackshaft layout kept as a documented fallback",
+   "forward_zone_m_v33_frame": 0.259
+  },
+  "tag": "DERIVED",
+  "src": "pintle_inline_v34 v2.2 + lead decisions 2026-10-12"
+ },
+ "materials": {
+  "v": [
+   "6061-T6 (case, head, closures, collar, ring, frame, tank)",
+   "316L (aft section, flight baseline)",
+   "17-4PH H1150/H900 (pins, needle, seat, link, crank)",
+   "7075-T6 (horns, pushrods)",
+   "isomolded graphite (throat)",
+   "paper/glass phenolic (liner, insulators)",
+   "ABS (grain)",
+   "mica (nozzle interlayer)",
+   "PTFE/FKM/PFPE (seals, lubricant)",
+   "flexible graphite (insert gasket)",
+   "polyurethane 90A (stop bumper)",
+   "G10/PEEK (servo-foot washers)",
+   "steel 12.9 zinc-flake / A4-70 / Ti (fasteners)"
+  ],
+  "tag": "DERIVED",
+  "src": "04-fea/materials + engmat"
+ },
+ "requests": [
+  "REQUEST Space/GNC: (1) re-baseline on these mass properties (gimballed_mass_properties) and the per-pose K table (tvc_actuation.axis_stiffness_table); the lowest mode is beta at beta -7 deg with the servo low-end stiffness (16.0 Hz excl. J_int); (2) state the minimum axis stiffness or mode frequency for a 6 dB flex gain margin (lead 2026-10-12) so Mechanical stiffens to a number; (3) hose hinge stiffness up to 20 N m/rad per axis (radial routing rule) in the hinge loop.",
+  "REQUEST Electronics: (1) B-TVC-1: powered SB-2292SG torque-deflection (K_s) - it caps the total stiffness; (2) J_int basis (servo_jint_estimate_v1) feeds the CSI; (3) HV69 drawing (ear pattern, spline face, case dimensions) for CAD v3.4.",
+  "REQUEST Combustion: hose -6 at 5.8 m/s accepted or -8 (stiffer hose, higher K_hose)?",
+  "REQUEST Airframe (Lauty) via lead: engine-bay ID 140 mm over engine_bay_zone_m (update from v1 [-0.26, 0.24]); thrust-ring interface in ICD-AIRFRAME.md."
+ ],
+ "open_items": [
+  "CAD v3.4: HV69 in-line pintle stack with rolling guide, feed parts (hose/elbow/lines), stiffened levers/ring -> mass properties and K re-issued (v2.1); v3.4 sweep must clear r 67 mm at z 215-260",
+  "hose EI must be bench-measured pressurised (B-FD-1); routing along the pivot radial line",
+  "servo stiffness K_s (B-TVC-1) caps the rocking mode; ENG-11 25 Hz not met at the low K_s end",
+  "thermal FEA v1.1 (B1/A1/A2, TS-1 relight, TS-2 soak, servo mount, TC-06 sizing, Al vs 316L retainer) -> v2.1",
+  "gimbal bearing / O-ring / fastener datasheet values to the BOM (datasheet discipline)",
+  "tank, isolation valve, filter, relief masses UNKNOWN (not designed)"
+ ],
+ "gnc_derived_v351": {
+  "by": "m2_mass_v352 v1.0",
+  "date": "2026-10-13",
+  "variant": "v352",
+  "status": "GNC-DERIVED simulator input; NOT a Mechanical publication",
+  "base_file": "iface_v3d/mechanical.json v2 (4f024ed4ccb4618c)",
+  "replaced": [
+   "gimballed_mass_properties.dry_grain_burnt",
+   "gimbal.ring_alpha_axis_only",
+   "fixed_module.fixed_group_total_CAD_kg"
+  ],
+  "not_replaced": "every other key = v2 (stiffness, linkage, frames); version field kept 'v2' for the run6 strict check",
+  "rest_as_ballast": "see out/rev4/mass_v352/mass_v352_vs_v3d.json variants"
+ }
+}

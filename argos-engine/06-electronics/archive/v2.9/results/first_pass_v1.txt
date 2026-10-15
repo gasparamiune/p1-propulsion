@@ -1,0 +1,56 @@
+== A. Pc plant (pintle injector, baseline v0 gas path; ASSUMED where combustion.json absent)
+Gamma(gamma=1.154) = 0.6394;  Cf_vac(delivered) = 1.5205;  Ae = 428.0 mm2
+Chamber free volume 390 -> 703 cm3; filling time tau = V/(Gamma^2 c* At) = 4.55 -> 8.20 ms (independent of Pc to first order)
+ frac  F[N]   x[mm]  Pc[bar] mox[kg/s] O/F  dF/dx[N/mm] dPc/dx[bar/mm] fuel%  tauTL[s] dPinj/Pc
+ 1.100  550.0  4.000  26.21  0.2190  6.16      36.7       1.69    14.0  0.119   0.82
+ 1.000  500.0  3.674  25.05  0.2083  6.00      81.0       3.73    14.3  0.125   0.92
+ 0.750  375.0  2.417  19.29  0.1571  5.21     119.4       5.51    16.1  0.166   1.55
+ 0.500  250.0  1.517  13.52  0.1089  4.34     156.2       7.20    18.7  0.239   2.69
+ 0.250  125.0  0.805   7.76  0.0626  3.29     190.8       8.79    23.3  0.416   5.48
+ 0.200  100.0  0.675   6.61  0.0532  3.03     194.1       8.95    24.8  0.489   6.62
+ 0.150   75.0  0.547   5.46  0.0437  2.75     197.3       9.10    26.7  0.595   8.24
+ 0.125   62.5  0.484   4.88  0.0389  2.60     198.8       9.17    27.8  0.668   9.34
+
+== B. Pintle (throttle) actuator: Savox SB-2292SG + crank, ASSUMED force until combustion.json
+ V=7.0: stall 2.79 N m, no-load 808 deg/s, crank r=4.73 mm, load 0.568 N m (20 % stall) -> 643 deg/s, full stroke 88 ms (req <= 100 ms)
+ V=7.4: stall 3.04 N m, no-load 857 deg/s, crank r=4.73 mm, load 0.568 N m (19 % stall) -> 697 deg/s, full stroke 82 ms (req <= 100 ms)
+ V=8.4: stall 4.41 N m, no-load 1091 deg/s, crank r=4.73 mm, load 0.568 N m (13 % stall) -> 951 deg/s, full stroke 63 ms (req <= 100 ms)
+ Floor (12.5 %): x = 0.484 mm, crank angle -18.7 deg; deadband 0.10 deg -> 7.8 um -> 1.56 N (0.31 % of Fmax); 12-bit step 0.034 deg -> 2.67 um
+
+== C. TVC gimbal actuators (2x SB-2292SG), hinge moment ASSUMED until mechanical.json
+ Gimballed: m=2.5 kg, L=0.4 m, d_cg=0.18 m -> I_pivot=0.1143 kg m2; alpha_req=44.1 rad/s2
+   inertial         5.04 N m
+   axial_accel      2.19 N m
+   lateral_accel    2.25 N m
+   hose             1.40 N m
+   misalignment     0.50 N m
+   friction         0.30 N m
+ Peak hinge moment (linear sum, conservative) 11.69 N m; constant-slew moment 6.64 N m
+ V=7.0: best lever ratio n=6.75: engine stall 16.9 N m, no-load 120 deg/s, T@60deg/s 8.4 N m; margins peak 1.45, slew 1.27
+ V=7.4: best lever ratio n=7.25: engine stall 19.8 N m, no-load 118 deg/s, T@60deg/s 9.8 N m; margins peak 1.70, slew 1.47
+ V=8.4: best lever ratio n=9.00: engine stall 35.7 N m, no-load 121 deg/s, T@60deg/s 18.1 N m; margins peak 3.06, slew 2.72
+ Selected n=7.0: horn 58.5 deg for +/-7 deg (operating travel +/-50 deg); resolution: deadband 0.0143 deg, 12-bit 0.0049 deg (req <= 0.1)
+ Servo output stiffness (ASSUMED PB 1-3 deg) 58-174 N m/rad -> engine 2560-7681 N m/rad -> rigid-engine-on-actuator mode 24-41 Hz (ENG-11 needs >= 24 Hz)
+ Rate bound: engine no-load slew 122 deg/s @7.4 V -> 1 deg sine can be followed to 19.5 Hz without rate saturation
+
+== D. Power budget (2S LiPo, servos direct on battery; logic via buck)
+   Teensy 4.1 @600 MHz                  5V     5.0 V  typ  100.0 mA  peak  150.0 mA  [DATASHEET PJRC (typ ~100 mA); peak ASSUMED]
+   ADS131M04 x2 + 8.192 MHz osc         3V3    3.3 V  typ   12.0 mA  peak   15.0 mA  [ASSUMED pending TI SBAS890 check]
+   MAX31856 x4                          3V3    3.3 V  typ    8.0 mA  peak   10.0 mA  [ASSUMED pending ADI datasheet check]
+   AS5048A x3                           5V     5.0 V  typ   45.0 mA  peak   60.0 mA  [ASSUMED ~15 mA each pending ams datasheet]
+   M3200 transducers x3                 5V_SNS 5.0 V  typ   15.0 mA  peak   15.0 mA  [DATASHEET TE M3200 5 mA each]
+   CAN transceivers x2                  5V     5.0 V  typ   20.0 mA  peak  140.0 mA  [ASSUMED (recessive/dominant)]
+   Watchdog, supervisors, LEDs, buzzer  5V     5.0 V  typ   20.0 mA  peak   60.0 mA  [ASSUMED]
+ Logic from battery (buck eta 0.85): typ 1.25 W, peak 2.60 W
+   pad_hold_30min       1800 s x   2.36 W =  1.182 Wh   (TVC+pintle powered, holding (ASSUMED 50 mA each))
+   flight                 60 s x  28.40 W =  0.473 Wh   (ASSUMED avg 1.5 A per TVC servo, 0.5 A pintle; latch 3 W x 25 s burn)
+   igniter_3_starts        6 s x  42.35 W =  0.071 Wh   (IGN rail cap 36 W for 2 s x 3 (boost eta 0.85))
+   mv_opener_3x            1 s x  29.60 W =  0.008 Wh   (ASSUMED 4 A x 0.33 s per opening)
+ Flight-day energy (30 min hold + flight): 1.73 Wh vs usable 13.0 Wh -> margin x7.5
+ Static-fire session (60 min powered, 3 x 20 s burns): 2.79 Wh (stand also has GSE/umbilical power)
+ Peak current: 3 servos stalled (10.4 A each, ASSUMED 8.4 V scaling) + logic + latch = 35.7 A; path R 25 mOhm -> sag 0.89 V; at 3.5 V/cell OCV: 6.11 V at the ECU (buck needs >= 5.5 V)
+   Battery->ECU (loop 2x0.3 m)                      AWG16: R=  7.9 mOhm, I= 35.7 A -> drop  0.28 V
+   TVC servo lead (loop 2x0.6 m)                    AWG20: R= 40.0 mOhm, I= 10.4 A -> drop  0.42 V
+   Pintle servo lead across gimbal (loop 2x1.0 m)   AWG20: R= 66.6 mOhm, I= 10.4 A -> drop  0.70 V
+   Igniter 12 V feed (loop 2x1.0 m)                 AWG18: R= 41.9 mOhm, I=  3.0 A -> drop  0.13 V
+   MV latch (loop 2x0.5 m)                          AWG22: R= 53.0 mOhm, I=  0.5 A -> drop  0.03 V

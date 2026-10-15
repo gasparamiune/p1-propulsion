@@ -1,0 +1,1814 @@
+{
+ "id": "segment_traps_v34",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/segment_traps_v34.py",
+ "method": "Lead relay 3 item 4 (2026-10-13): \"from the v3.4 solids, give the volume and location of every local high point in the MV-to-seat\npath, nozzle-down attitude, that cannot vent upward by buoyancy\"; coordinator 2026-10-13: concepts (a) head-end bleed, (d) early MV\nopening under the drogue, smaller segment.  Method:\n  1. The wetted cavity of the segment (closed MV seat -> closed pintle seat) is described by primitives that carry the SAME\n     parameters as the CAD cuts (parts_engine / parts_inlet / parts_feed, CAD v3.4 build with the feed, pivot iterated): drillings\n     (cylinders), tube and hose bores (centreline + radius, flat ends), the TC-03/TC-02/TC-04 manifold bore (revolved profile)\n     minus the parts inside the liquid (needle TC-05, filter element FD-02, MSS-1/MSS-2 sheaths, MV disc, MV rod).  Consistency with\n     the solids is checked: random fluid voxel centres are classified against every wetted CAD solid (should lie outside).\n  2. Voxelisation (h = 0.25 mm), 6-connected graph.  Elevation e = x . u with u = \"up\" (opposite to the apparent gravity): u = +Z\n     engine axis for the drogue / burn attitude (nozzle down).  Vent = top of the S1 back-relief check passage (MV closed) or the MV\n     seat orifice (MV open: concept d); both at the zone-top module.\n  3. Spill level s(v) = max over paths v -> vent of the minimum elevation on the path (maximin path = path in the maximum spanning\n     tree of the edge weights min(e_a, e_b)).  Vapour at v is trapped when e(v) > s(v): it cannot reach the vent without first\n     going down.  Pockets = connected sets of trapped voxels; local high points = leaves of the merge tree (elder rule) with their\n     own volume above their saddle and the pocket they spill into.\n  4. The filter element (15 um, FD-02) is a capillary barrier for vapour (bubble point ESTIMATE 49-130 mm of liquid at 8 m/s2):\n     analysed as a wall (barrier) and as open (permeable), both reported.\n  5. Tilt sensitivity: up vector tilted 10 and 20 deg in 8 directions (drogue swing / gimbal).\nOutput: calcs/segment_traps_v34_v1.json (+ _pockets.csv, _Vz.csv).  Everything is DERIVED from the CAD v3.4 DESIGN geometry;\nno physical test.  Not a two-phase flow model: buoyant migration times and condensation are Combustion's (lead 2026-10-13).\n",
+ "voxel_mm": 0.25,
+ "fluid": {
+  "T_K": 289.48,
+  "rho_l": 811.7,
+  "rho_v": 140.0,
+  "sigma_N_m": 0.002625,
+  "tag": "LITERATURE/CoolProp-class saturated N2O at 289.48 K (as segment_heat_budget v1.1)"
+ },
+ "g_drogue_m_s2": 8.0,
+ "cad": {
+  "build": "CAD v3.4 (config.V34_ON) incl. feed parts_feed.py, pivot iterated",
+  "t_build_s": 65.5,
+  "stations_mm": {
+   "head_top": 170.652,
+   "inj_face": 104.652,
+   "z_seat": 109.652,
+   "z_seat_line": 109.952,
+   "bonnet_top": 202.652,
+   "z_ins_top": 116.652
+  },
+  "e1m_stations_mm": {
+   "zt": 170.652,
+   "zb": 142.652,
+   "z_f": 156.652,
+   "bore_top": 192.652,
+   "z_x": 188.652,
+   "z_blk0": 143.152,
+   "z_blk1": 169.152
+  },
+  "feed": {
+   "hose_len_mm": 185.9,
+   "wall_len_mm": 296.44,
+   "coil_sweep_deg": 193.21,
+   "hose_Rmin_mm": 40.05,
+   "wall_Rmin_mm": 24.0
+  }
+ },
+ "primitives_raw_cm3": {
+  "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)": 6.3296,
+  "TC-04 cross-drilling 8 mm (bore top flush)": 0.7035,
+  "TC-04 bonnet axial 8 mm": 1.1165,
+  "TC-02 head axial 8 mm": 0.7105,
+  "TC-02 filter bore annulus (outside the element)": 2.7698,
+  "FD-02 element core + cap inlet": 0.6953,
+  "FD-01 radial 8 mm": 0.603,
+  "FD-01 vertical 8 mm": 0.406,
+  "FD-03 riser bore": 3.3503,
+  "FD-05 TEE bore (above the MSS-1 fitting tip)": 0.6475,
+  "FD-05 riser socket gap": 0.1087,
+  "FD-05 side passage + socket gap": 0.2103,
+  "FD-07A stub/sleeve bore": 1.5696,
+  "FD-07 hose bore": 9.2768,
+  "FD-07B sleeve/stub bore": 1.3121,
+  "FD-08 wall line bore": 14.1565,
+  "FD-08F flange bore + FS-01A line passage": 0.5392,
+  "FS-01A outlet chamber": 3.1176,
+  "TC-04 T4 port cavity below the flush plug (dead end)": 0.1481,
+  "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)": 0.9656,
+  "J602 cross passage": 0.1705,
+  "rupture-disc port (to the disc face, ESTIMATE)": 0.7739,
+  "MSS-2 port gap": 0.0296,
+  "drain port gap above the plug": 0.0596,
+  "S1 check inlet passage (to the cartridge poppet)": 0.005,
+  "FS-02 balance hole (axial)": 0.0293,
+  "FS-04 balance hole (axial)": 0.0062,
+  "FS-04 cross hole": 0.0042,
+  "balance chamber": 0.4445
+ },
+ "segment_volume_cm3": {
+  "fluid_barrier_model": 43.447,
+  "fluid_incl_element_pores_as_open": 45.255,
+  "note": "voxel volume (h 0.25 mm) of the MV-to-seat wetted cavity minus the parts inside it; the filter element wall is excluded in the barrier model"
+ },
+ "segment_volume_by_primitive_cm3": {
+  "FD-08 wall line bore": 14.07,
+  "FD-07 hose bore": 9.1962,
+  "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)": 4.4221,
+  "FD-03 riser bore": 3.2067,
+  "FS-01A outlet chamber": 2.5709,
+  "FD-07A stub/sleeve bore": 1.5371,
+  "FD-07B sleeve/stub bore": 1.2307,
+  "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)": 0.9656,
+  "TC-02 filter bore annulus (outside the element)": 0.9075,
+  "TC-04 bonnet axial 8 mm": 0.8458,
+  "TC-04 cross-drilling 8 mm (bore top flush)": 0.6726,
+  "rupture-disc port (to the disc face, ESTIMATE)": 0.6533,
+  "FD-05 TEE bore (above the MSS-1 fitting tip)": 0.6195,
+  "FD-01 radial 8 mm": 0.5757,
+  "FD-08F flange bore + FS-01A line passage": 0.4625,
+  "TC-02 head axial 8 mm": 0.4293,
+  "balance chamber": 0.3944,
+  "FD-05 side passage + socket gap": 0.1159,
+  "FD-02 element core + cap inlet": 0.1159,
+  "FD-05 riser socket gap": 0.1057,
+  "J602 cross passage": 0.096,
+  "TC-04 T4 port cavity below the flush plug (dead end)": 0.0686,
+  "FD-01 vertical 8 mm": 0.0628,
+  "drain port gap above the plug": 0.0596,
+  "MSS-2 port gap": 0.0287,
+  "FS-02 balance hole (axial)": 0.0256,
+  "S1 check inlet passage (to the cartridge poppet)": 0.005,
+  "FS-04 balance hole (axial)": 0.0034,
+  "FS-04 cross hole": 0.0001
+ },
+ "cases_nominal_attitude": {
+  "S1_check|barrier|+Z": {
+   "case": "S1_check/barrier/up=+Z",
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "n_vox": 2780614,
+   "unreached_vox": 497234,
+   "trapped_vol_cm3": 13.517,
+   "pockets": [
+    {
+     "vol_cm3": 12.9376,
+     "top_e_mm": 160.62,
+     "spill_e_mm": 50.62,
+     "spill_e_max_mm": 50.62,
+     "top_xyz_mm": [
+      -38.88,
+      -3.88,
+      160.62
+     ],
+     "top_at": "FD-01 vertical 8 mm",
+     "by_primitive_cm3": [
+      [
+       "FD-07 hose bore",
+       6.5983,
+       "path"
+      ],
+      [
+       "FD-03 riser bore",
+       3.2067,
+       "path"
+      ],
+      [
+       "FD-07A stub/sleeve bore",
+       1.5371,
+       "path"
+      ],
+      [
+       "FD-05 TEE bore (above the MSS-1 fitting tip)",
+       0.6195,
+       "path"
+      ],
+      [
+       "FD-01 radial 8 mm",
+       0.5757,
+       "path"
+      ],
+      [
+       "FD-02 element core + cap inlet",
+       0.1159,
+       "path"
+      ],
+      [
+       "FD-05 side passage + socket gap",
+       0.1159,
+       "path"
+      ],
+      [
+       "FD-05 riser socket gap",
+       0.1057,
+       "path"
+      ],
+      [
+       "FD-01 vertical 8 mm",
+       0.0628,
+       "path"
+      ]
+     ],
+     "dead_end_cm3": 0.0,
+     "flow_path_cm3": 12.9376
+    },
+    {
+     "vol_cm3": 0.5794,
+     "top_e_mm": 277.38,
+     "spill_e_mm": 271.38,
+     "spill_e_max_mm": 271.38,
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "by_primitive_cm3": [
+      [
+       "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+       0.5794,
+       "dead"
+      ]
+     ],
+     "dead_end_cm3": 0.5794,
+     "flow_path_cm3": 0.0
+    }
+   ],
+   "vent_vox": 107
+  },
+  "S1_check|open_element|+Z": {
+   "case": "S1_check/open_element/up=+Z",
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "n_vox": 2896326,
+   "unreached_vox": 27118,
+   "trapped_vol_cm3": 22.671,
+   "pockets": [
+    {
+     "vol_cm3": 22.0912,
+     "top_e_mm": 192.88,
+     "spill_e_mm": 50.62,
+     "spill_e_max_mm": 50.62,
+     "top_xyz_mm": [
+      -20.38,
+      -0.88,
+      192.88
+     ],
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "by_primitive_cm3": [
+      [
+       "FD-07 hose bore",
+       6.5983,
+       "path"
+      ],
+      [
+       "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+       4.4219,
+       "path"
+      ],
+      [
+       "FD-03 riser bore",
+       3.2067,
+       "path"
+      ],
+      [
+       "TC-02 filter bore annulus (outside the element)",
+       2.4343,
+       "path"
+      ],
+      [
+       "FD-07A stub/sleeve bore",
+       1.5371,
+       "path"
+      ],
+      [
+       "TC-04 bonnet axial 8 mm",
+       0.8458,
+       "path"
+      ],
+      [
+       "TC-02 head axial 8 mm",
+       0.7105,
+       "path"
+      ],
+      [
+       "TC-04 cross-drilling 8 mm (bore top flush)",
+       0.6726,
+       "path"
+      ],
+      [
+       "FD-05 TEE bore (above the MSS-1 fitting tip)",
+       0.6195,
+       "path"
+      ],
+      [
+       "FD-01 radial 8 mm",
+       0.5757,
+       "path"
+      ],
+      [
+       "FD-02 element core + cap inlet",
+       0.1159,
+       "path"
+      ],
+      [
+       "FD-05 side passage + socket gap",
+       0.1159,
+       "path"
+      ],
+      [
+       "FD-05 riser socket gap",
+       0.1057,
+       "path"
+      ],
+      [
+       "TC-04 T4 port cavity below the flush plug (dead end)",
+       0.0686,
+       "dead"
+      ],
+      [
+       "FD-01 vertical 8 mm",
+       0.0628,
+       "path"
+      ]
+     ],
+     "dead_end_cm3": 0.0686,
+     "flow_path_cm3": 22.0227
+    },
+    {
+     "vol_cm3": 0.5794,
+     "top_e_mm": 277.38,
+     "spill_e_mm": 271.38,
+     "spill_e_max_mm": 271.38,
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "by_primitive_cm3": [
+      [
+       "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+       0.5794,
+       "dead"
+      ]
+     ],
+     "dead_end_cm3": 0.5794,
+     "flow_path_cm3": 0.0
+    }
+   ],
+   "vent_vox": 107
+  },
+  "MV_seat|barrier|+Z": {
+   "case": "MV_seat/barrier/up=+Z",
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "n_vox": 2780614,
+   "unreached_vox": 2778760,
+   "trapped_vol_cm3": 0.028,
+   "pockets": [
+    {
+     "vol_cm3": 0.0278,
+     "top_e_mm": 305.38,
+     "spill_e_mm": 280.62,
+     "spill_e_max_mm": 280.62,
+     "top_xyz_mm": [
+      -7.88,
+      -6.88,
+      305.38
+     ],
+     "top_at": "FS-04 balance hole (axial)",
+     "by_primitive_cm3": [
+      [
+       "FS-02 balance hole (axial)",
+       0.0245,
+       "dead"
+      ],
+      [
+       "FS-04 balance hole (axial)",
+       0.0034,
+       "dead"
+      ]
+     ],
+     "dead_end_cm3": 0.0279,
+     "flow_path_cm3": 0.0
+    }
+   ],
+   "vent_vox": 56
+  },
+  "MV_seat|open_element|+Z": {
+   "case": "MV_seat/open_element/up=+Z",
+   "up": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "n_vox": 2896326,
+   "unreached_vox": 2894472,
+   "trapped_vol_cm3": 0.028,
+   "pockets": [
+    {
+     "vol_cm3": 0.0278,
+     "top_e_mm": 305.38,
+     "spill_e_mm": 280.62,
+     "spill_e_max_mm": 280.62,
+     "top_xyz_mm": [
+      -7.88,
+      -6.88,
+      305.38
+     ],
+     "top_at": "FS-04 balance hole (axial)",
+     "by_primitive_cm3": [
+      [
+       "FS-02 balance hole (axial)",
+       0.0245,
+       "dead"
+      ],
+      [
+       "FS-04 balance hole (axial)",
+       0.0034,
+       "dead"
+      ]
+     ],
+     "dead_end_cm3": 0.0279,
+     "flow_path_cm3": 0.0
+    }
+   ],
+   "vent_vox": 56
+  }
+ },
+ "local_high_points_nominal": {
+  "case": "S1_check vent, filter barrier, up = +Z (nozzle down)",
+  "min_depth_mm": 0.5,
+  "min_vol_mm3": 1.0,
+  "n": 2,
+  "items": [
+   {
+    "peak_at": "FD-01 vertical 8 mm",
+    "peak_xyz_mm": [
+     -41.88,
+     -0.88,
+     160.62
+    ],
+    "peak_z_mm": 160.62,
+    "saddle_z_mm": 50.62,
+    "depth_mm": 110.0,
+    "own_vol_cm3": 12.9376,
+    "spills_into": "VENT (module)",
+    "kind": "path"
+   },
+   {
+    "peak_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+    "peak_xyz_mm": [
+     3.88,
+     6.38,
+     277.38
+    ],
+    "peak_z_mm": 277.38,
+    "saddle_z_mm": 271.38,
+    "depth_mm": 6.0,
+    "own_vol_cm3": 0.5816,
+    "spills_into": "VENT (module)",
+    "kind": "dead"
+   }
+  ]
+ },
+ "V_of_z_main_pocket": [
+  {
+   "z_mm": 278.0,
+   "V_above_cm3": 0.0,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 277.0,
+   "V_above_cm3": 0.048,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 276.0,
+   "V_above_cm3": 0.145,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 275.0,
+   "V_above_cm3": 0.241,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 274.0,
+   "V_above_cm3": 0.338,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 273.0,
+   "V_above_cm3": 0.435,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 272.0,
+   "V_above_cm3": 0.531,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 271.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 270.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 269.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 268.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 267.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 266.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 265.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 264.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 263.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 262.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 261.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 260.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 259.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 258.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 257.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 256.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 255.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 254.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 253.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 252.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 251.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 250.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 249.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 248.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 247.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 246.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 245.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 244.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 243.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 242.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 241.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 240.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 239.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 238.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 237.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 236.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 235.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 234.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 233.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 232.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 231.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 230.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 229.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 228.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 227.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 226.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 225.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 224.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 223.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 222.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 221.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 220.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 219.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 218.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 217.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 216.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 215.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 214.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 213.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 212.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 211.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 210.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 209.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 208.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 207.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 206.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 205.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 204.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 203.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 202.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 201.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 200.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 199.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 198.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 197.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 196.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 195.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 194.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 193.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 192.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 191.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 190.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 189.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 188.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 187.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 186.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 185.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 184.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 183.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 182.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 181.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 180.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 179.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 178.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 177.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 176.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 175.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 174.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 173.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 172.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 171.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 170.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 169.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 168.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 167.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 166.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 165.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 164.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 163.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 162.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 161.0,
+   "V_above_cm3": 0.579,
+   "V_above_flow_path_cm3": 0.0
+  },
+  {
+   "z_mm": 160.0,
+   "V_above_cm3": 0.626,
+   "V_above_flow_path_cm3": 0.047
+  },
+  {
+   "z_mm": 159.0,
+   "V_above_cm3": 0.714,
+   "V_above_flow_path_cm3": 0.134
+  },
+  {
+   "z_mm": 158.0,
+   "V_above_cm3": 0.815,
+   "V_above_flow_path_cm3": 0.236
+  },
+  {
+   "z_mm": 157.0,
+   "V_above_cm3": 0.927,
+   "V_above_flow_path_cm3": 0.348
+  },
+  {
+   "z_mm": 156.0,
+   "V_above_cm3": 1.039,
+   "V_above_flow_path_cm3": 0.46
+  },
+  {
+   "z_mm": 155.0,
+   "V_above_cm3": 1.146,
+   "V_above_flow_path_cm3": 0.566
+  },
+  {
+   "z_mm": 154.0,
+   "V_above_cm3": 1.242,
+   "V_above_flow_path_cm3": 0.662
+  },
+  {
+   "z_mm": 153.0,
+   "V_above_cm3": 1.319,
+   "V_above_flow_path_cm3": 0.74
+  },
+  {
+   "z_mm": 152.0,
+   "V_above_cm3": 1.367,
+   "V_above_flow_path_cm3": 0.787
+  },
+  {
+   "z_mm": 151.0,
+   "V_above_cm3": 1.411,
+   "V_above_flow_path_cm3": 0.832
+  },
+  {
+   "z_mm": 150.0,
+   "V_above_cm3": 1.455,
+   "V_above_flow_path_cm3": 0.876
+  },
+  {
+   "z_mm": 149.0,
+   "V_above_cm3": 1.5,
+   "V_above_flow_path_cm3": 0.92
+  },
+  {
+   "z_mm": 148.0,
+   "V_above_cm3": 1.544,
+   "V_above_flow_path_cm3": 0.965
+  },
+  {
+   "z_mm": 147.0,
+   "V_above_cm3": 1.588,
+   "V_above_flow_path_cm3": 1.009
+  },
+  {
+   "z_mm": 146.0,
+   "V_above_cm3": 1.632,
+   "V_above_flow_path_cm3": 1.053
+  },
+  {
+   "z_mm": 145.0,
+   "V_above_cm3": 1.677,
+   "V_above_flow_path_cm3": 1.097
+  },
+  {
+   "z_mm": 144.0,
+   "V_above_cm3": 1.721,
+   "V_above_flow_path_cm3": 1.141
+  },
+  {
+   "z_mm": 143.0,
+   "V_above_cm3": 1.765,
+   "V_above_flow_path_cm3": 1.186
+  },
+  {
+   "z_mm": 142.0,
+   "V_above_cm3": 1.81,
+   "V_above_flow_path_cm3": 1.23
+  },
+  {
+   "z_mm": 141.0,
+   "V_above_cm3": 1.855,
+   "V_above_flow_path_cm3": 1.276
+  },
+  {
+   "z_mm": 140.0,
+   "V_above_cm3": 1.9,
+   "V_above_flow_path_cm3": 1.321
+  },
+  {
+   "z_mm": 139.0,
+   "V_above_cm3": 1.946,
+   "V_above_flow_path_cm3": 1.366
+  },
+  {
+   "z_mm": 138.0,
+   "V_above_cm3": 1.992,
+   "V_above_flow_path_cm3": 1.412
+  },
+  {
+   "z_mm": 137.0,
+   "V_above_cm3": 2.037,
+   "V_above_flow_path_cm3": 1.458
+  },
+  {
+   "z_mm": 136.0,
+   "V_above_cm3": 2.083,
+   "V_above_flow_path_cm3": 1.504
+  },
+  {
+   "z_mm": 135.0,
+   "V_above_cm3": 2.129,
+   "V_above_flow_path_cm3": 1.549
+  },
+  {
+   "z_mm": 134.0,
+   "V_above_cm3": 2.174,
+   "V_above_flow_path_cm3": 1.595
+  },
+  {
+   "z_mm": 133.0,
+   "V_above_cm3": 2.219,
+   "V_above_flow_path_cm3": 1.64
+  },
+  {
+   "z_mm": 132.0,
+   "V_above_cm3": 2.264,
+   "V_above_flow_path_cm3": 1.685
+  },
+  {
+   "z_mm": 131.0,
+   "V_above_cm3": 2.309,
+   "V_above_flow_path_cm3": 1.729
+  },
+  {
+   "z_mm": 130.0,
+   "V_above_cm3": 2.353,
+   "V_above_flow_path_cm3": 1.774
+  },
+  {
+   "z_mm": 129.0,
+   "V_above_cm3": 2.397,
+   "V_above_flow_path_cm3": 1.818
+  },
+  {
+   "z_mm": 128.0,
+   "V_above_cm3": 2.441,
+   "V_above_flow_path_cm3": 1.862
+  },
+  {
+   "z_mm": 127.0,
+   "V_above_cm3": 2.486,
+   "V_above_flow_path_cm3": 1.906
+  },
+  {
+   "z_mm": 126.0,
+   "V_above_cm3": 2.53,
+   "V_above_flow_path_cm3": 1.951
+  },
+  {
+   "z_mm": 125.0,
+   "V_above_cm3": 2.574,
+   "V_above_flow_path_cm3": 1.995
+  },
+  {
+   "z_mm": 124.0,
+   "V_above_cm3": 2.618,
+   "V_above_flow_path_cm3": 2.039
+  },
+  {
+   "z_mm": 123.0,
+   "V_above_cm3": 2.663,
+   "V_above_flow_path_cm3": 2.083
+  },
+  {
+   "z_mm": 122.0,
+   "V_above_cm3": 2.707,
+   "V_above_flow_path_cm3": 2.128
+  },
+  {
+   "z_mm": 121.0,
+   "V_above_cm3": 2.751,
+   "V_above_flow_path_cm3": 2.172
+  },
+  {
+   "z_mm": 120.0,
+   "V_above_cm3": 2.795,
+   "V_above_flow_path_cm3": 2.216
+  },
+  {
+   "z_mm": 119.0,
+   "V_above_cm3": 2.84,
+   "V_above_flow_path_cm3": 2.26
+  },
+  {
+   "z_mm": 118.0,
+   "V_above_cm3": 2.884,
+   "V_above_flow_path_cm3": 2.305
+  },
+  {
+   "z_mm": 117.0,
+   "V_above_cm3": 2.928,
+   "V_above_flow_path_cm3": 2.349
+  },
+  {
+   "z_mm": 116.0,
+   "V_above_cm3": 2.972,
+   "V_above_flow_path_cm3": 2.393
+  },
+  {
+   "z_mm": 115.0,
+   "V_above_cm3": 3.017,
+   "V_above_flow_path_cm3": 2.437
+  },
+  {
+   "z_mm": 114.0,
+   "V_above_cm3": 3.061,
+   "V_above_flow_path_cm3": 2.482
+  },
+  {
+   "z_mm": 113.0,
+   "V_above_cm3": 3.105,
+   "V_above_flow_path_cm3": 2.526
+  },
+  {
+   "z_mm": 112.0,
+   "V_above_cm3": 3.149,
+   "V_above_flow_path_cm3": 2.57
+  },
+  {
+   "z_mm": 111.0,
+   "V_above_cm3": 3.194,
+   "V_above_flow_path_cm3": 2.614
+  },
+  {
+   "z_mm": 110.0,
+   "V_above_cm3": 3.238,
+   "V_above_flow_path_cm3": 2.659
+  },
+  {
+   "z_mm": 109.0,
+   "V_above_cm3": 3.284,
+   "V_above_flow_path_cm3": 2.704
+  },
+  {
+   "z_mm": 108.0,
+   "V_above_cm3": 3.329,
+   "V_above_flow_path_cm3": 2.749
+  },
+  {
+   "z_mm": 107.0,
+   "V_above_cm3": 3.374,
+   "V_above_flow_path_cm3": 2.795
+  },
+  {
+   "z_mm": 106.0,
+   "V_above_cm3": 3.42,
+   "V_above_flow_path_cm3": 2.841
+  },
+  {
+   "z_mm": 105.0,
+   "V_above_cm3": 3.466,
+   "V_above_flow_path_cm3": 2.887
+  },
+  {
+   "z_mm": 104.0,
+   "V_above_cm3": 3.513,
+   "V_above_flow_path_cm3": 2.934
+  },
+  {
+   "z_mm": 103.0,
+   "V_above_cm3": 3.561,
+   "V_above_flow_path_cm3": 2.981
+  },
+  {
+   "z_mm": 102.0,
+   "V_above_cm3": 3.609,
+   "V_above_flow_path_cm3": 3.029
+  },
+  {
+   "z_mm": 101.0,
+   "V_above_cm3": 3.657,
+   "V_above_flow_path_cm3": 3.078
+  },
+  {
+   "z_mm": 100.0,
+   "V_above_cm3": 3.706,
+   "V_above_flow_path_cm3": 3.127
+  },
+  {
+   "z_mm": 99.0,
+   "V_above_cm3": 3.754,
+   "V_above_flow_path_cm3": 3.175
+  },
+  {
+   "z_mm": 98.0,
+   "V_above_cm3": 3.801,
+   "V_above_flow_path_cm3": 3.222
+  },
+  {
+   "z_mm": 97.0,
+   "V_above_cm3": 3.848,
+   "V_above_flow_path_cm3": 3.269
+  },
+  {
+   "z_mm": 96.0,
+   "V_above_cm3": 3.894,
+   "V_above_flow_path_cm3": 3.315
+  },
+  {
+   "z_mm": 95.0,
+   "V_above_cm3": 3.94,
+   "V_above_flow_path_cm3": 3.361
+  },
+  {
+   "z_mm": 94.0,
+   "V_above_cm3": 3.985,
+   "V_above_flow_path_cm3": 3.406
+  },
+  {
+   "z_mm": 93.0,
+   "V_above_cm3": 4.03,
+   "V_above_flow_path_cm3": 3.451
+  },
+  {
+   "z_mm": 92.0,
+   "V_above_cm3": 4.075,
+   "V_above_flow_path_cm3": 3.496
+  },
+  {
+   "z_mm": 91.0,
+   "V_above_cm3": 4.12,
+   "V_above_flow_path_cm3": 3.541
+  },
+  {
+   "z_mm": 90.0,
+   "V_above_cm3": 4.164,
+   "V_above_flow_path_cm3": 3.585
+  },
+  {
+   "z_mm": 89.0,
+   "V_above_cm3": 4.209,
+   "V_above_flow_path_cm3": 3.629
+  },
+  {
+   "z_mm": 88.0,
+   "V_above_cm3": 4.253,
+   "V_above_flow_path_cm3": 3.673
+  },
+  {
+   "z_mm": 87.0,
+   "V_above_cm3": 4.297,
+   "V_above_flow_path_cm3": 3.718
+  },
+  {
+   "z_mm": 86.0,
+   "V_above_cm3": 4.341,
+   "V_above_flow_path_cm3": 3.762
+  },
+  {
+   "z_mm": 85.0,
+   "V_above_cm3": 4.386,
+   "V_above_flow_path_cm3": 3.806
+  },
+  {
+   "z_mm": 84.0,
+   "V_above_cm3": 4.43,
+   "V_above_flow_path_cm3": 3.85
+  },
+  {
+   "z_mm": 83.0,
+   "V_above_cm3": 4.474,
+   "V_above_flow_path_cm3": 3.895
+  },
+  {
+   "z_mm": 82.0,
+   "V_above_cm3": 4.518,
+   "V_above_flow_path_cm3": 3.939
+  },
+  {
+   "z_mm": 81.0,
+   "V_above_cm3": 4.576,
+   "V_above_flow_path_cm3": 3.996
+  },
+  {
+   "z_mm": 80.0,
+   "V_above_cm3": 4.646,
+   "V_above_flow_path_cm3": 4.067
+  },
+  {
+   "z_mm": 79.0,
+   "V_above_cm3": 4.69,
+   "V_above_flow_path_cm3": 4.111
+  },
+  {
+   "z_mm": 78.0,
+   "V_above_cm3": 4.735,
+   "V_above_flow_path_cm3": 4.155
+  },
+  {
+   "z_mm": 77.0,
+   "V_above_cm3": 4.779,
+   "V_above_flow_path_cm3": 4.2
+  },
+  {
+   "z_mm": 76.0,
+   "V_above_cm3": 4.823,
+   "V_above_flow_path_cm3": 4.244
+  },
+  {
+   "z_mm": 75.0,
+   "V_above_cm3": 5.037,
+   "V_above_flow_path_cm3": 4.458
+  },
+  {
+   "z_mm": 74.0,
+   "V_above_cm3": 5.479,
+   "V_above_flow_path_cm3": 4.9
+  },
+  {
+   "z_mm": 73.0,
+   "V_above_cm3": 6.057,
+   "V_above_flow_path_cm3": 5.478
+  },
+  {
+   "z_mm": 72.0,
+   "V_above_cm3": 6.727,
+   "V_above_flow_path_cm3": 6.148
+  },
+  {
+   "z_mm": 71.0,
+   "V_above_cm3": 7.451,
+   "V_above_flow_path_cm3": 6.872
+  },
+  {
+   "z_mm": 70.0,
+   "V_above_cm3": 8.189,
+   "V_above_flow_path_cm3": 7.61
+  },
+  {
+   "z_mm": 69.0,
+   "V_above_cm3": 8.89,
+   "V_above_flow_path_cm3": 8.31
+  },
+  {
+   "z_mm": 68.0,
+   "V_above_cm3": 9.439,
+   "V_above_flow_path_cm3": 8.86
+  },
+  {
+   "z_mm": 67.0,
+   "V_above_cm3": 9.783,
+   "V_above_flow_path_cm3": 9.203
+  },
+  {
+   "z_mm": 66.0,
+   "V_above_cm3": 10.086,
+   "V_above_flow_path_cm3": 9.507
+  },
+  {
+   "z_mm": 65.0,
+   "V_above_cm3": 10.324,
+   "V_above_flow_path_cm3": 9.744
+  },
+  {
+   "z_mm": 64.0,
+   "V_above_cm3": 10.548,
+   "V_above_flow_path_cm3": 9.968
+  },
+  {
+   "z_mm": 63.0,
+   "V_above_cm3": 10.762,
+   "V_above_flow_path_cm3": 10.183
+  },
+  {
+   "z_mm": 62.0,
+   "V_above_cm3": 10.97,
+   "V_above_flow_path_cm3": 10.391
+  },
+  {
+   "z_mm": 61.0,
+   "V_above_cm3": 11.174,
+   "V_above_flow_path_cm3": 10.595
+  },
+  {
+   "z_mm": 60.0,
+   "V_above_cm3": 11.376,
+   "V_above_flow_path_cm3": 10.796
+  },
+  {
+   "z_mm": 59.0,
+   "V_above_cm3": 11.576,
+   "V_above_flow_path_cm3": 10.997
+  },
+  {
+   "z_mm": 58.0,
+   "V_above_cm3": 11.778,
+   "V_above_flow_path_cm3": 11.198
+  },
+  {
+   "z_mm": 57.0,
+   "V_above_cm3": 11.982,
+   "V_above_flow_path_cm3": 11.402
+  },
+  {
+   "z_mm": 56.0,
+   "V_above_cm3": 12.19,
+   "V_above_flow_path_cm3": 11.61
+  },
+  {
+   "z_mm": 55.0,
+   "V_above_cm3": 12.404,
+   "V_above_flow_path_cm3": 11.825
+  },
+  {
+   "z_mm": 54.0,
+   "V_above_cm3": 12.628,
+   "V_above_flow_path_cm3": 12.049
+  },
+  {
+   "z_mm": 53.0,
+   "V_above_cm3": 12.866,
+   "V_above_flow_path_cm3": 12.287
+  },
+  {
+   "z_mm": 52.0,
+   "V_above_cm3": 13.125,
+   "V_above_flow_path_cm3": 12.546
+  },
+  {
+   "z_mm": 51.0,
+   "V_above_cm3": 13.425,
+   "V_above_flow_path_cm3": 12.845
+  },
+  {
+   "z_mm": 50.0,
+   "V_above_cm3": 13.517,
+   "V_above_flow_path_cm3": 12.938
+  }
+ ],
+ "manifold_annulus_V_below_z_cm3": [
+  {
+   "z_mm": 110.0,
+   "V_cm3": 0.0
+  },
+  {
+   "z_mm": 115.0,
+   "V_cm3": 0.099
+  },
+  {
+   "z_mm": 120.0,
+   "V_cm3": 0.304
+  },
+  {
+   "z_mm": 125.0,
+   "V_cm3": 0.559
+  },
+  {
+   "z_mm": 130.0,
+   "V_cm3": 0.814
+  },
+  {
+   "z_mm": 135.0,
+   "V_cm3": 1.069
+  },
+  {
+   "z_mm": 140.0,
+   "V_cm3": 1.324
+  },
+  {
+   "z_mm": 145.0,
+   "V_cm3": 1.579
+  },
+  {
+   "z_mm": 150.0,
+   "V_cm3": 1.834
+  },
+  {
+   "z_mm": 155.0,
+   "V_cm3": 2.089
+  },
+  {
+   "z_mm": 160.0,
+   "V_cm3": 2.344
+  },
+  {
+   "z_mm": 165.0,
+   "V_cm3": 2.599
+  },
+  {
+   "z_mm": 170.0,
+   "V_cm3": 2.854
+  },
+  {
+   "z_mm": 175.0,
+   "V_cm3": 3.144
+  },
+  {
+   "z_mm": 180.0,
+   "V_cm3": 3.504
+  },
+  {
+   "z_mm": 185.0,
+   "V_cm3": 3.864
+  },
+  {
+   "z_mm": 190.0,
+   "V_cm3": 4.224
+  }
+ ],
+ "tilt_sensitivity": [
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 0.0,
+   "trapped_cm3": 18.165,
+   "largest_pocket_cm3": 17.2818,
+   "largest_top_at": "FD-01 radial 8 mm",
+   "n_pockets": 4
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 45.0,
+   "trapped_cm3": 17.501,
+   "largest_pocket_cm3": 16.6147,
+   "largest_top_at": "FD-01 radial 8 mm",
+   "n_pockets": 3
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 90.0,
+   "trapped_cm3": 15.574,
+   "largest_pocket_cm3": 14.8385,
+   "largest_top_at": "FD-01 vertical 8 mm",
+   "n_pockets": 3
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 135.0,
+   "trapped_cm3": 13.9,
+   "largest_pocket_cm3": 13.2712,
+   "largest_top_at": "FD-01 vertical 8 mm",
+   "n_pockets": 3
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 180.0,
+   "trapped_cm3": 13.385,
+   "largest_pocket_cm3": 12.486,
+   "largest_top_at": "FD-01 vertical 8 mm",
+   "n_pockets": 5
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 225.0,
+   "trapped_cm3": 12.678,
+   "largest_pocket_cm3": 11.4891,
+   "largest_top_at": "FD-01 vertical 8 mm",
+   "n_pockets": 4
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 270.0,
+   "trapped_cm3": 11.436,
+   "largest_pocket_cm3": 10.3253,
+   "largest_top_at": "FD-01 vertical 8 mm",
+   "n_pockets": 6
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 315.0,
+   "trapped_cm3": 17.848,
+   "largest_pocket_cm3": 17.0473,
+   "largest_top_at": "FD-01 radial 8 mm",
+   "n_pockets": 4
+  },
+  {
+   "tilt_deg": 20.0,
+   "toward_az_deg": 0.0,
+   "trapped_cm3": 19.051,
+   "largest_pocket_cm3": 17.879,
+   "largest_top_at": "FD-02 element core + cap inlet",
+   "n_pockets": 3
+  },
+  {
+   "tilt_deg": 20.0,
+   "toward_az_deg": 45.0,
+   "trapped_cm3": 18.288,
+   "largest_pocket_cm3": 17.2044,
+   "largest_top_at": "FD-02 element core + cap inlet",
+   "n_pockets": 3
+  },
+  {
+   "tilt_deg": 20.0,
+   "toward_az_deg": 90.0,
+   "trapped_cm3": 16.512,
+   "largest_pocket_cm3": 15.6288,
+   "largest_top_at": "FD-01 vertical 8 mm",
+   "n_pockets": 3
+  },
+  {
+   "tilt_deg": 20.0,
+   "toward_az_deg": 135.0,
+   "trapped_cm3": 14.094,
+   "largest_pocket_cm3": 13.4683,
+   "largest_top_at": "FD-01 vertical 8 mm",
+   "n_pockets": 3
+  },
+  {
+   "tilt_deg": 20.0,
+   "toward_az_deg": 180.0,
+   "trapped_cm3": 13.988,
+   "largest_pocket_cm3": 12.3616,
+   "largest_top_at": "FD-01 vertical 8 mm",
+   "n_pockets": 4
+  },
+  {
+   "tilt_deg": 20.0,
+   "toward_az_deg": 225.0,
+   "trapped_cm3": 12.952,
+   "largest_pocket_cm3": 10.5826,
+   "largest_top_at": "FD-01 vertical 8 mm",
+   "n_pockets": 4
+  },
+  {
+   "tilt_deg": 20.0,
+   "toward_az_deg": 270.0,
+   "trapped_cm3": 10.724,
+   "largest_pocket_cm3": 8.071,
+   "largest_top_at": "FD-01 vertical 8 mm",
+   "n_pockets": 4
+  },
+  {
+   "tilt_deg": 20.0,
+   "toward_az_deg": 315.0,
+   "trapped_cm3": 17.465,
+   "largest_pocket_cm3": 16.315,
+   "largest_top_at": "FD-02 element core + cap inlet",
+   "n_pockets": 3
+  }
+ ],
+ "cad_consistency": {
+  "n_points": 6000,
+  "n_inside_solid": 195,
+  "fraction": 0.0325,
+  "by_primitive_and_part": {
+   "FD-07B sleeve/stub bore -> ENG-FD-09": 90,
+   "FD-07 hose bore -> ENG-FD-09": 57,
+   "J602 port cavity below the transducer tip (ESTIMATE tip at w -2) -> ENG-FS-01A": 30,
+   "FD-07A stub/sleeve bore -> ENG-FD-05": 11,
+   "MSS-2 port gap -> ENG-EL-12": 6,
+   "FD-05 TEE bore (above the MSS-1 fitting tip) -> ENG-FD-07A": 1
+  },
+  "note": "voxel centres within ~h/2 of a wall can classify inside the metal (partial voxels); a primitive that disagrees with the CAD cut shows up as a large count against one part"
+ },
+ "t_run_s": 754.3
+}

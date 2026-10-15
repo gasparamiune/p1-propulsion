@@ -1,0 +1,307 @@
+SUPERSEDED (Combustion v2.4, 2026-10-13). This is the v2.4-draft section 2.8, written on CAD v3.4: a 44 cm3 valve-to-seat
+segment with an inverted U. The lead adopted the coil re-route (CAD v3.4.1, 48.23 / 50.04 cm3) and the forced-purge provision
+the same day, so the hardware below no longer exists. Kept as evidence (AGENTS.md). Results still valid are carried into
+REPORT v2.4 section 2.8: the single-pocket abort curve, the prep-path and wide-W inventories, the refutation of (d), the
+shutdown order. Superseded here: the 44 cm3 states and P_abort, option (a) (crest bleed 1.56 mm / 0.375 s, 28.3 g), the
+no-U research case, the stand crest-bleed procedure, segment_void_balance runs 1 and 2, vapour_options (a) sizing.
+
+### 2.8 The valve-to-seat segment at relight: vapour, migration and the fix (v2.4)
+
+Basis files (scripts of the same name in `src/`; inputs and their sha256/16 inside each JSON):
+- `relight_vapour_order_v2p4.json`: geometry in flow order, heat by element, bubble mobility, first pocket model (VO).
+- `segment_void_balance_v2p4.json`: volume balance of the segment over the coast with S1 venting, option (d) and a no-U re-route; ignition on a split pocket. It supersedes the HI pocket of VO (below). Run 2; run 1 applied the "dry" reading only after the drogue load and is kept as `segment_void_balance_v2p4_run1_coastup_wet.json` (§13).
+- `coast_migration_v2p4.json`: bubble drift along GNC's specific-force time histories (REV-GNC-1 RG-20).
+- `vapour_options_v2p4.json`: option (d) exchange limits, option (a) bleed sizing and residual, heat cases.
+- `relight_vapour_states_v2p4.json`, `route_void_bracket_v2p4.json`: abort probability and latency per line state; check of VO's route void.
+- `hard_start_wide_window_v2p4.json`, `prep_path_inventory_v2p4.json`: inventories and hard-start peaks of a wider window; the prep path as coded in fw v2.8.2 and v2.8.3 (run 2; run 1 read the PREPRESS bleed as 0.06 s and is kept as `prep_path_inventory_v2p4_run1_bleed0p06.json`).
+- Kept from the first v2.4 pass: `segment_recheck_v2p4.json`, `post_abort_pocket_v2p4.json`, `segment_drain_v2p4.json`, `relight_window_rule_seg44_v2p4.json`.
+
+Inputs read:
+- Mechanical `04-fea/thermal/segment_heat_budget_v1.json` (six heat cases, 875 J to 9.87 kJ over the 18.67 s A1 coast) and `segment_heat_coast_v1.json` (FE manifold-bore Q(t)); FEA + ESTIMATE. The coast file gained a run at 05:36 (DC-A1v28liq, 393 J at the bore against 327 J in the case used here); the two series used were re-checked and are unchanged.
+- Mechanical `03-cad/src/calcs/inlet_e1m_v1.json` and `hose_routing_trade_v2.json`: volumes and elevations (DESIGN/ESTIMATE).
+- GNC `staging_v3.1/results/a1_coast_accel/` (500-run coast series and envelope) and `staging_v3.1/results/drogue_window/drogue_window_v1.json` (3b3d789025c42b23); SIM. GNC `REPORT-GNC-VAPOUR-COST.md` for the prep-path credit.
+- Electronics fw v2.8.3 `06-electronics/firmware/src/core/engine_ecu.cpp` (5e5771220a602301, unchanged since v2.8.2) and `config.h` (0ee2a75b6c4441d5; against the archived v2.8.2 file d585f7bd385d6564 it changes only the TVC command tracker, diff checked), PREPRESS logic; SIL plant `firmware/sil/plant.cpp` (f7da155379e65496), vapour purge; read as data. Mechanical `03-cad/calcs/mv_actuator_v1.json` (a2d8cdd3ef4ca6c0), MV-P Cv 3.64 (ESTIMATE).
+
+**Question** (LEAD 2026-10-13, Electronics SIL S11 relayed). The vapour between the first liquid and the pintle, in flow order, at RELIGHT governs ignition. In SIL S11 a vapour-full 44 cm3 segment does not light at W 0.65 s on either path. The lead has rejected widening W as the primary fix (CHANGELOG) and will choose between (d) early MV opening under the drogue and (a) a head-end bleed, on this analysis.
+
+**Answer.**
+1. **The segment is an inverted U.** The 27.87 cm3 between the U-bottom and the seat cannot reach the MV or S1 by buoyancy in either coast phase. Its crest is 159.6 mm above the U-bottom, and f_z does not reverse after the drogue load in any GNC series.
+2. **S1 vents the expansion, not the void.** Once vapour sits at the S1 port, every joule that still boils liquid adds 0.0067 cm3 of vapour to the segment. In the HI heat cases **the whole 44 cm3 is vapour at RELIGHT** (the SIL S11 case) whenever a full U keeps boiling (the "wet" reading), and also on the "dry" lower bound in the hot-wall and ARM HI cases. Only the isothermal HI case on the dry reading keeps liquid: 3.5-5.1 cm3 between the U and an 11.0-12.6 cm3 cap. In LO the U is 95-100 % vapour and the route holds a cap of 0-8 cm3 behind the first liquid.
+3. **W 0.65 s does not light it.** P(abort of a would-be light) is 0.45-0.54 in LO (0.78-0.96 with a refilled bore leg) and 0.81-1.0 in HI. The 19 cm3 requirement is not met in any heat case.
+4. **(d) is refuted for the current routing.** It cannot reach the U, so P_abort at W 0.65 s stays >= 0.45 in every heat case (0.54-1.0 in HI). It also puts tank pressure behind a seated pintle in a hot chamber for 9.3-15.6 s.
+5. **(a) is recommended:** a crest bleed with the MV opened first, closing at E0. It lights all six heat cases at W 0.65 s (residual 6.9-9.6 cm3; P_abort 0 in 200 000 samples). It keeps the 0.81 s plan and the 26.6 g inventory basis. Its costs: up to 28.3 g of N2O vented per relight, a new valve and port, and new failure modes (below).
+6. **Wider W (rejected by the lead as primary).** A vapour-full segment needs W 1.041 s on either path: 36.8-40.3 g on a liquid line (40.0 g at 24 C), against the 26.6 g accepted. The credible hard-start peak does not depend on that inventory.
+7. **Prep path at W 0.88 s (the lead's question).** On a liquid line it admits 30.9-33.8 g (33.6 g at 24 C) when the pressures are valid, which is when the firmware runs no PREPRESS bleed. On Combustion's plant the prep path then gets no purge credit: a vapour-full segment still aborts 62 % at 0.88 s. The SIL's 0.17 s prep-path advantage comes from its plant gate (vapour purges only with the MV more than 50 % open), not from the physics (below). The prep path lights a vapour-full segment at 0.88 s only if the PREPRESS bleed runs, and then the liquid line holds 38.0-41.7 g (41.4 g at 24 C). **So a prep-path fallback at W 0.88 s with the 26.6 g basis does not exist.**
+8. **The lasting fix is a routing without the U.** It also needs an exchange path to the tank of 12-16 mm with the MV open under the drogue (research case below). Without that path, a no-U routing still fills with vapour in the HI cases on the wet reading, and in ARM HI on either reading.
+
+**Segment in flow order** (engine frame, z above the pivot, +Z forward; "up" while f_z > 0). Volumes and elevations are Mechanical DESIGN/ESTIMATE; heat is Mechanical FEA + ESTIMATE, isothermal case, over 18.67 s.
+
+| # | Element | V [cm3] | z from -> to [mm] | Side | Q LO / HI [J] |
+|---|---|---|---|---|---|
+| 0 | MV/FS-01 module, outlet side | 4.35 | 255 -> 240 | Route (S1) | 107.5 / 534.0 |
+| 1 | Fixed 3/8 in wall line | 11.78 | 240 -> 45 | Route | 18.3 / 22.7 |
+| 2 | Union, elbow and fixed-end hose fitting (U-bottom) | in the U list | 45 | Route | 23.0 / 50.8 |
+| 3 | O3b coil hose (300 deg) | 12.35 | 45 -> 62 (3.9 deg) | U | 94.4 / 124.3 |
+| 4 | Coil-end fittings, FD-05 TEE, MSS-1 | 1.00 | 62 -> 80 | U | 37.1 / 129.1 |
+| 5 | FD-03 riser | 4.27 | 80 -> 151.1 | U | 9.5 / 11.8 |
+| 6 | FD-01 block passages (8 mm) | 0.91 | 151.1 -> 164.6 | U | 24.4 / 121.3 |
+| 7 | Filter bore (14 mm) and cartridge; 15 um mesh between core and annulus | 2.42 | 164.6 | U | 81.5 / 619.0 |
+| 8 | Head axial (8 mm) | 0.35 | 171.6 -> 178.6 | U | 27.2 / 206.3 |
+| 9 | Bonnet axial (8 mm) | 1.31 | 178.6 -> 204.6 | U | 45.0 / 341.6 |
+| 10 | Bonnet cross-drilling and tap stub: the crest | 0.75 | 200.6 | U | 30.0 / 227.8 |
+| 11 | Manifold 10 mm bore, 2 mm annulus: dead-end leg to the seat | 4.51 | 204.6 -> 110.6 | U | 377.4 / 2635.7 |
+| | **U (seat to U-bottom)** | **27.87** | crest 159.6 mm above the U-bottom | | **726.5 / 4416.9** |
+| | Segment | 44.0 | | | 875.3 / 5024.4 (Mechanical 875 / 5024) |
+
+The heat split between elements 7 and 9 (0.75/0.25 and 0.6/0.4 by wetted area) and the 50/50 core/annulus split of the filter volume are ASSUMED. Mechanical's other four heat cases (hot wall +5 K, and ARM with a 45 C bay and 24 C liquid, each LO and HI) scale the same elements: 1.09-9.87 kJ in total.
+
+**Why the U traps vapour.**
+- With f_z > 0 (descent), vapour rises toward +z and collects at the crest (z 204.6). The only path from the crest to the MV and S1 runs down the riser and coil to the U-bottom (z 45), then up the wall line. Buoyancy cannot carry vapour 160 mm down, so the U fills from the crest downward. The liquid it displaces leaves through the U-bottom, up the wall line and through S1.
+- With f_z < 0 (coast-up), the U-bottom is the high point and both legs leave it toward +z, so nothing leaves the U either.
+- The dead-end bore leg (4.51 cm3) holds a liquid plug only if the crest still held liquid when the descent began. Both readings are carried: plug 2.2-2.9 cm3 (LO), or dry.
+
+**Bubble mobility** (Taylor-bubble drift in the Wallis / White-Beardmore form, no drift for Eo <= 3.37; inclined coil between Fr 0.10 and Bendiksen 1984; Das et al. form for the annulus; LITERATURE as recalled, TO-VERIFY). Properties from CoolProp at Mechanical's coast saturation state, 289.48 K and 46.45 bar: rho_l 811.7, rho_v 140.0 kg/m3, sigma 2.63 mN/m, h_fg 183.9 kJ/kg. CoolProp has no N2O viscosity, so the viscosity term is bounded at 1e-3 Pa s; N_f stays large.
+
+| Passage | Eo, descent p50 (8.18 m/s2) | Drift, descent [m/s] | Eo, coast-up mean (0.39 m/s2) | Drift, coast-up [m/s] |
+|---|---|---|---|---|
+| 2 mm annular gap (bore leg) | 8.4 | 0.016 (to 0.093, annulus bracket) | 0.40 | 0 |
+| 3 mm drilling | 18.8 | 0.039 | 0.90 | 0 |
+| 7.75 mm riser / wall line | 125.6 | 0.079 | 6.0 | 0.004 |
+| 7.9 mm hose (coil at 3.9 deg) | 130.6 | 0.022-0.126 (inclined bracket) | 6.2 | 0.004 |
+| 8 mm drillings / block | 134.0 | 0.080 | 6.4 | 0.005 |
+| 14 mm filter bore | 410.2 | 0.106 | 19.6 | 0.019 |
+
+**Migration along GNC's time histories (RG-20).** `coast_migration_v2p4.json` integrates the drift with the instantaneous seat f_z of the nominal run, of runs 101, 264, 329 and 380 (264 is the minimum-acceleration run), and of the p01/p50/p99 envelope aligned at the relight command. It does not use the shorthand "11.4 s at 8 m/s2".
+- **Coast-up** (MECO to the drogue load, 6.8-8.4 s; f_z down to -0.96 to -1.87 m/s2): no motion in the 2-3 mm passages (Eo <= 3.37). The 7.75-8 mm passages move 19-53 mm toward the U-bottom, the filter bore 17-141 mm, and the coil 9-210 mm (Bendiksen bracket). Vapour formed in the coast-up stays essentially where it forms.
+- **Dip at the turnover.** The -1.87 / -1.90 m/s2 minimum lies before the drogue load in every series. After the drogue load f_z never reverses: its minimum is 2.47 m/s2 (run 264) and 4.91-4.96 m/s2 in the other series and the envelope. No backward excursion follows the load.
+- **Final positive interval** (11.40-13.92 s in the series, 11.67-14.47 s in the envelope). Every leg is traversed with margin before the relight command: wall line 3.1-3.9 s, riser 1.6-2.5 s, drillings 1.0-1.9 s, bore leg 6.7-7.7 s; the smallest margin is 3.76 s (bore leg, run 380). Vapour therefore reaches the crest in every series, and the U fills from the top as stated.
+- **GNC drogue window** (`drogue_window_v1.json`, deployment to the relight command): p01 11.80 s at the 0.81 s plan and 10.99-11.80 s across plans, minimum 10.71 s, inflation not modelled. f_z <= 0 lasts at most 0.23-0.27 s at deployment, then rises to 2.45 (p01 1.52) m/s2 at 1 s, 7.34 (6.70) at 3 s and 9.6-9.8 (9.2-9.3) after 6 s; continuous time above 0.5 g is p01 9.60 s. A 0.23 s dip at <= 1.14 m/s2 moves a bubble in the 7.75 mm line by about 6 mm, against the 160 mm the crest would need (DERIVED).
+- **Lateral force and tilt.** The specific-force angle from the axis while f_z > 0, after the drogue load, is at most 13.9 deg (run 264; 0-4.4 deg in the other runs). Emptying the U would need the U-bottom held above the crest, i.e. beyond about 71.3 deg with the coil end about 54 mm off the axis (ASSUMED crest on the axis). No series spends any time beyond it. The v2.4-draft wording "angle up to 71 deg" counted the turnover before the drogue load and is withdrawn.
+
+**Filter mesh.** A fully wetted 15 um mesh has a bubble point of about 700 Pa (4 sigma/d; ASSUMED pore = rating). The buoyancy head is 172 Pa across the upper trap and at most 658 Pa across the lower trap, so in the coast the mesh holds vapour below it. That changes where the vapour sits inside the U, not how much there is. In flow the mesh passes gas above 700 Pa of pressure drop, which is negligible at the lift.
+
+**What S1 does and does not do** (`segment_void_balance_v2p4.json`). S1 is a relief: it vents the volume the boiling adds, so the segment stays at P_tank + crack. What it vents depends on what sits at its port.
+- While liquid sits at the port, S1 vents liquid. The void then grows by the full vapour volume, 1/(rho_v h_fg) = 0.0388 cm3/J.
+- While vapour sits at the port, S1 vents vapour. The void still grows by the volume of liquid evaporated, 1/(rho_l h_fg) = 0.0067 cm3/J. The vapour vented carries away only (v_g - v_l)/h_fg per joule.
+- A closed, relief-vented segment therefore never stays liquid-full while it is heated. Only an exchange with the tank (MV open and a path vapour can rise through) or a bleed can return liquid to it.
+- **Model.** Over MECO to the relight command, with the heat of each case on the FE Q(t) shape:
+  - coast-up: bubbles stay where they form and S1 vents liquid;
+  - drogue load: the route's bubbles rise to S1 and form a cap;
+  - descent: the U fills from the crest; arrivals at the cap are the route's boiling plus the overflow of a full U; S1 removes only the expansion.
+  - After the U is full, its heat either keeps boiling liquid at the U-bottom front ("wet", as VO, heat conducted to the liquid) or stops ("dry", lower bound). The reading applies in the coast-up and in the descent.
+  - Five GNC coast series, six heat cases.
+- **Results** (cm3 at the relight command; "slug" is the liquid between the U vapour and the cap):
+
+| Heat case | U vapour | Cap under S1: wet / dry | Liquid slug: wet / dry | Pocket ahead of the first liquid |
+|---|---|---|---|---|
+| Isothermal LO (875 J) | 26.5-27.9 | 0-0.9 / 0-0.2 | 15.3-17.5 / 16.0-17.5 | 26.5-27.9 (dry bore leg); 31.8-34.8 equivalent with a refilled bore leg as dead time and the bubbles in transit (`route_void_bracket_v2p4.json`) |
+| Hot wall +5 K, LO (1.09 kJ) | 27.9 | 0.9-2.4 / 0.2-0.5 | 13.8-15.2 / 15.7-16.0 | 27.9 |
+| ARM 45 C bay, 24 C liquid, LO (1.77 kJ) | 27.9 | 5.8-8.1 / 1.6-2.4 | 8.0-10.3 / 13.8-14.6 | 27.9 |
+| Isothermal HI (5.02 kJ) | 27.9 | 16.1, route full / 11.0-12.6 | 0 / 3.5-5.1 | **44 (whole segment)** wet; 27.9 dry, with 11.0-12.6 cm3 behind a 3.5-5.1 cm3 slug |
+| Hot wall +5 K HI (6.17 kJ), ARM HI (9.87 kJ) | 27.9 | 16.1 / 16.1 | 0 / 0 | **44 (whole segment)** |
+
+- In the HI cases the U is full 1.8-3.3 s after MECO (ARM 1.76 s, hot wall 2.71 s, isothermal 3.27 s). With S1 venting liquid, the coast-up heat would make 65-159 cm3 of vapour by the drogue load (6.9-8.5 s).
+  - Wet reading: the full U keeps boiling, and the segment is vapour-full 2.3-4.6 s after MECO, well before the drogue load.
+  - Dry reading: only the route's own heat adds vapour. It fills the segment in the coast-up in ARM HI (4.5 s after MECO) and during the descent in hot-wall HI, and leaves 3.5-5.1 cm3 of liquid in isothermal HI.
+- **VO's HI pocket (38.7 cm3) is superseded** by 44 cm3. VO counted only a quasi-steady bubble void in the route and so assumed S1 vents all route vapour. The check `route_void_bracket_v2p4.json` also shows VO's LO route void is an upper bound when the overflow is small (5.8 cm3 counted against 0.3 cm3 overflowed at 18.67 s) and was omitted when the U does not overflow. The LO range above carries both readings.
+
+Table 2.10. P(abort of a would-be light) at RELIGHT (SIM on ASSUMED delays; 0.2039 mm lift; W from the lift command; 200 000 samples, seed 2024). A short slug either still counts toward the ignition delay ("paused") or is lost as dead time, the clock restarting on tank liquid ("restart"); the two bracket the unknown.
+
+| Heat case, reading | W 0.65 s | 0.76 s | 0.88 s | 0.93 s | 1.05 s |
+|---|---|---|---|---|---|
+| Isothermal LO, wet or dry | 0.45-0.54 | 0.01-0.10 | 0 | 0 | 0 |
+| Hot wall +5 K LO, wet / dry | 0.54 | 0.10 | 0 (restart, wet: <= 0.008) | same | same |
+| ARM LO, wet | 0.54 | 0.33-0.54 | 0-0.12 / 0.33-0.54 | 0 / 0.33-0.54 | 0 / 0.18-0.25 |
+| ARM LO, dry | 0.54 | 0.10 | 0 (restart <= 0.008) | same | same |
+| Isothermal HI, dry | 0.81-0.96 | 0.78-0.88 / 0.81-0.96 | 0.30-0.40 / 0.73-0.78 | 0.10-0.20 / 0.53-0.58 | 0 / 0.05-0.10 |
+| Every other HI state (44 cm3) | 1.0 | 1.0 | 0.62 | 0.42 | 0 |
+
+Pairs read "paused / restart"; a single value holds for both. Five GNC coast series per row.
+- Counting the bubbles still in transit in the wall line as part of the pocket (`route_void_bracket_v2p4.json`, transit estimate) raises the isothermal LO values at W 0.65 s to 0.55-0.90 with a dry bore leg and 0.78-0.96 with a refilled one.
+- W 0.65 s does not light any case: even the most favourable LO state (26.5 cm3, bore leg dry) aborts 45 % of would-be lights.
+- W 1.05 s does not light every case either on the "restart" reading: ARM LO wet aborts 18-25 % and isothermal HI dry 5-10 %, because a short slug is followed by a cap.
+- **Most favourable reading of RG-20** (`relight_vapour_states_v2p4.json` `descent_only_bound`): suppose every bubble formed before the drogue load had left the U, which the migration result says it cannot. The vapour formed in the U after the drogue load is then 15.3-22.8 cm3 in LO (P_abort at W 0.65 s: 0, 0, 0.008, 0.11, 0.22 over the five series) and fills the U in HI. The requirement fails even on that reading.
+
+**Latency of a vapour start that lights** (W 1.05 s; `route_void_bracket_v2p4.json` `fixed_states`; s):
+
+| Line state | E0 -> E2 median / p99 / max | E0 -> E3 median / p95 / p99 / max | W for P_abort 0 |
+|---|---|---|---|
+| Liquid (primed) | 0.315 / 0.462 / 0.499 | 0.408 / 0.529 / 0.555 / 0.591 | 0.357 |
+| 19 cm3 (the requirement) | 0.611 / 0.758 / 0.794 | 0.703 / 0.825 / 0.851 / 0.887 | 0.652 |
+| U full, bore leg dry (27.87 cm3) | 0.749 / 0.896 / 0.932 | 0.841 / 0.963 / 0.989 / 1.025 | 0.790 |
+| LO with the bore-leg plug as dead time (35.09 cm3) | 0.861 / 1.008 / 1.045 | 0.953 / 1.075 / 1.101 / 1.137 | 0.902 |
+| Whole segment (44 cm3; HI wet, hot-wall and ARM HI dry) | 1.000 / 1.147 / 1.183 | 1.092 / 1.214 / 1.240 / 1.276 | 1.041 |
+
+The SIL S11 direct-path minimum window for 44 cm3 (0.93 s, nominal delays) lies between the median (0.91 s) and the bound (1.041 s) of this distribution, so the two plants agree on the direct path. They disagree on the prep path: the SIL's 0.76 s rests on its MV gate, which Combustion's plant does not reproduce (option (b) below).
+
+**Flow order and a second-order risk.** From the pintle back, a LO state at RELIGHT reads: [bore-leg plug <= 2.9 cm3, or vapour] [U vapour] [liquid slug 8-17.5 cm3] [cap 0-8.1 cm3] [tank liquid]; the isothermal HI dry state reads [U vapour] [slug 3.5-5.1 cm3] [cap 11.0-12.6 cm3] [tank liquid]. A light on the slug is followed by the cap during the ramp. The cap passes in <= 0.13 s and could trip the flame-out monitor A3 after E2 (§7.4). Open item (Electronics with Combustion, CF-4 data): A3 arming and persistence in the first 0.5 s after E2.
+
+**Option (d): MV opened early under the drogue, pintle seated** (answer to SIL question 1).
+- **U exchange: none, at any time.** Every buoyant path from the crest to the MV first descends 159.6 mm to the U-bottom, and f_z stays positive after the drogue load. The U keeps its 26.5-27.9 cm3 whatever the window.
+- **Route exchange** through the MV path: Wallis counter-current flooding, 8 mm module drilling ASSUMED, C 0.725-1.0. Capacity is 1.2-4.3 cm3/s of vapour exchanged for liquid. With the MV opened at the drogue load or about 2 s earlier (exposure 9.3-15.6 s in the coast series; GNC's window from deployment p01 10.99-11.80 s, minimum 10.71 s):
+  - the cap clears 0.5-3.8 s after opening in the LO cases;
+  - in HI it clears only on the dry reading, 2.7-12.0 s after opening (hot-wall HI at C 0.725 still holds up to 1.3 cm3 in some series), and not at all in ARM HI with C 0.725 (9.2-11.0 cm3 left);
+  - on the wet reading it never clears in HI: the U's overflow (10.8-19.5 cm3/s at relight) exceeds the path's capacity.
+- **Soak-back against clearing:** at relight the U regenerates vapour at 1.9 (isothermal LO) to 19.5 (ARM HI) cm3/s, and the route at 0.39-4.64 cm3/s. The U never clears; the route clears only where its capacity exceeds its generation.
+- **Effect on ignition:** P_abort at W 0.65 s stays 0.45-0.54 in every LO case; in HI it is 0.54-0.81 on the dry reading and 1.0 on the wet reading. (d) removes only the cap behind the first liquid.
+- **Risk with the MV open and the pintle seated for 9.3-15.6 s:**
+  - Seat leak into the hot chamber: within the B-PNT-1 acceptance (1.0-1.4e-3 g/s liquid N2O) it adds <= 0.022 g over 15.6 s, and the fault-case leaks of §3.5 (13.5-82 mg/s) add 0.2-1.3 g. The closed MV would not have stopped either: the 35.7 g in the segment feeds them anyway.
+  - The difference is a stuck-open or drifting pintle. With the MV closed it can deliver at most the segment's 35.7 g. With the MV open the tank (0.825 kg of liquid at relight on A1) feeds it. That would mean a sustained, unplanned flow into a chamber whose grain surface and throat are still hot, i.e. a delayed light or an uncontrolled burn under the drogue. A pyrolysis-premixed delayed light is the case whose 1 ms peak exceeds MEOP (§7.6).
+- **Verdict:** (d) is refuted for the inverted-U routing: no relight benefit, and a new hazard.
+
+**Option (a): crest prime bleed** (answer to SIL question 2; `vapour_options_v2p4.json`).
+- **Arrangement:**
+  - an NC bleed valve at the bonnet cross-drilling outer port (today the stand-only T4 / P_manifold port), vented overboard;
+  - sequence: MV opened onto the seated pintle, then the bleed opened (MV ramp complete), then the bleed closed at E0 (gap <= 0.5 s), then the torch and lift as in v2.8;
+  - the bleed flow path runs tank -> MV -> module -> wall line -> U -> crest, so it sweeps the cap and the U. It does not sweep the 4.51 cm3 dead-end bore leg.
+- **Fluxes** at the coast state (46.45 bar, 289.5 K): choked HEM vapour 15 450 kg/m2s; saturated liquid by Dyer (k = 1) 56 843 kg/m2s. Cd 0.70 and a 25 % timing margin are ASSUMED.
+
+| Volume to clear | Orifice for a 0.30 s purge [mm] | Open time [s] | Orifice for 0.50 s [mm] | Open time [s] | N2O vented: vapour-full / liquid-full segment [g] |
+|---|---|---|---|---|---|
+| 27.87 cm3 (U) | 1.24 | 0.375 | 0.96 | 0.625 | 7.5 / 17.9 |
+| 34 cm3 (SIL lower bound) | 1.37 | 0.375 | 1.06 | 0.625 | 9.1 / 21.9 |
+| 44 cm3 (whole segment; HI) | **1.56** | **0.375** | 1.20 | 0.625 | **11.8 / 28.3** |
+
+- **Size for 44 cm3**, because the HI cases are vapour-full on the wet reading, and hot-wall and ARM HI on either reading. The ECU cannot tell vapour from liquid (Electronics), so the bleed runs for its full time on every relight. A primed segment loses the liquid-full figure: 28.3 g, about 3.4 % of the 0.825 kg of liquid at the A1 relight, against 0.214 kg left at the end of the A1 burn (GNC to confirm the cost).
+- **Residual at the lift** (bore leg as 4.51 cm3 of vapour, or a liquid-full bore leg counted as dead time, 6.72 cm3 equivalent, bounding; plus the U boiling again from bleed closure to the lift, with E0 -> E1 included). P_abort at W 0.65 s is in brackets.
+  - Bleed closed at E0: 6.9-7.0 cm3 (isothermal LO) to 8.5-9.6 cm3 (ARM HI); P_abort 0 in all six cases.
+  - Closed 0.5 s before E0: 7.8-19.4 cm3; at most 9.5e-5 (ARM HI).
+  - Closed 1.0 s before E0: 8.8-29.1 cm3; 0.092 (hot wall +5 K HI) and 0.54 (ARM HI).
+  - Rule: the bleed closes no earlier than 0.5 s before E0.
+- **Planning value.** The bleed and its MV opening run before T_fire: about 0.35 s of MV ramp plus 0.375 s of bleed (1.56 mm). The FC therefore issues a PRE-BLEED about 0.75 s before T_fire (1.0 s with the 1.20 mm orifice). The light still falls within 0.81 s of T_fire, so W stays 0.65 s and the liquid-line inventory stays 22.9-25.0 g (24.9 g at 24 C), inside the 26.6 g accepted. If RELIGHT is cancelled after a PRE-BLEED, the MV and the bleed close.
+- **New failure modes and controls:**
+  - Bleed fails closed: the relight sees the full pocket and aborts. The valve's current and position feedback detects it before E0; the lead decides the response (fallback below).
+  - Bleed fails open: 45-76 g/s of liquid overboard, 18-29 % of full-thrust oxidiser flow. The ECU detects it, closes the MV and aborts, or the lead accepts a degraded burn. A second NC valve in series removes the single point (Mechanical and Electronics, mass and cost TO-QUOTE, Sønderborg DK-6400).
+  - Jet reaction <= 8 N while liquid flows (<= mdot sqrt(2 dP/rho_l) = 0.0755 kg/s x 107 m/s; DERIVED upper bound): vent aft-facing or balanced (tee) so that no side force reaches the TVC.
+  - MV open on the seated pintle for about 1.0-1.3 s instead of 0.35 s: the stuck-open exposure of (d), reduced about tenfold.
+  - Port feasibility: a radial fitting at the bonnet leaves the 8 deg sweep cone (Mechanical); the valve must be oxygen-clean and rated MAWP >= 8.42 MPa.
+
+**Option (b): a wider W** (answer to SIL question 3; `hard_start_wide_window_v2p4.json`, `prep_path_inventory_v2p4.json`). Rejected by the lead as the primary fix; numbers for the record and for any fallback.
+- **Unignited N2O admitted by the deadline** (direct path, from the lift command; A1 / 15 / 20 / 25 C):
+
+| W [s] | Primed liquid line [g] | Vapour-full 44 cm3: total [g] | of which vapour [g] |
+|---|---|---|---|
+| 0.65 | 22.9 / 23.2 / 24.2 / 25.1 | 6.9 / 7.2 / 8.3 / 9.7 | 5.6 / 5.9 / 7.0 / 8.3 |
+| 0.76 | 26.7 / 27.0 / 28.2 / 29.2 | 10.7 / 11.0 / 12.3 / 13.9 | same |
+| 0.93 | 32.6 / 33.0 / 34.5 / 35.7 | 16.6 / 17.0 / 18.6 / 20.4 | same |
+| 1.05 | 36.8 / 37.3 / 38.9 / 40.3 | 20.8 / 21.3 / 23.0 / 24.9 | same |
+
+- **Prep path, liquid line, W 0.88 s** (the lead's question; `prep_path_inventory_v2p4.json` run 2; W from the ignition-lift command; everything admitted retained). The fw v2.8.2 PREPRESS lifts the pintle to the 0.10 mm bleed only when P_feed < 0.5 P_tank or a pressure is invalid. In flight with an invalid pressure the bleed then lasts until the MV OPEN switch, <= 0.41 s; the firmware bound is 0.56 s.
+
+| Prep path, liquid line (A1 / 15 / 20 / 25 C; 24 C) | W 0.65 s [g] | W 0.88 s [g] | W 1.05 s [g] |
+|---|---|---|---|
+| Valid pressures: no bleed (any latch-forced prep path with the segment at P_tank) | 22.9 / 23.2 / 24.2 / 25.1; 24.9 | **30.9 / 31.3 / 32.6 / 33.8; 33.6** | 36.8 / 37.3 / 38.9 / 40.3; 40.0 |
+| Invalid pressure: bleed to the OPEN switch (0.41 s, +7.2-7.8 g) | 30.0-32.9; 32.7 | **38.0 / 38.5 / 40.2 / 41.7; 41.4** | 43.9-48.1; 47.8 |
+| Firmware bound: bleed to 0.56 s (+9.7-10.7 g) | 32.6-35.7; 35.5 | 40.6-44.5; 44.2 | 46.5-51.0; 50.6 |
+
+- Run 1 read the bleed as 0.06 s on every prep path (32.0-35.1 g at 0.88 s); that reading matches neither firmware branch and is superseded.
+- **The prep path's purge credit.** GNC's zero-abort prep window, W 0.88 s, is 1.05 s minus the 0.17 s by which the SIL lights 44 cm3 earlier on the prep path than on the direct path (transfer ASSUMED by GNC). In the SIL plant, segment vapour purges only while the MV is more than 50 % open. On the direct path the MV opens during the torch phase, so the SIL delays the purge there.
+  - Physically, the pocket at P_tank leaves through the pintle as soon as it lifts, and the MV only has to pass the liquid that replaces it (64 cm3/s, 52 g/s).
+  - That flow needs 0.44 bar across the MV-P at 10 % of its lift and 0.02 bar at 45 % (Mechanical Cv 3.64 ESTIMATE, curtain area proportional to lift), against about 42 bar across the pintle. On Combustion's plant the direct path therefore purges as fast as the prep path.
+  - **Vapour-full 44 cm3 on the prep path** (same 200 000-sample distribution): no bleed (valid pressures): P_abort 1.0 / 0.62 / 0 at W 0.65 / 0.88 / 1.05 s, W_req 1.041 s, as on the direct path. Bleed to the OPEN switch: it purges 13.1 cm3 into the cold chamber, P_abort 0.72 / 0 / 0, W_req 0.837 s. Bleed to 0.56 s: 17.9 cm3, W_req 0.763 s.
+- **Answer:** at W 0.88 s the prep path lights a vapour-full segment only when the PREPRESS bleed runs, and then the liquid line holds 38.0-41.7 g (41.4 g at 24 C). Without the bleed it holds 30.9-33.8 g (33.6 g at 24 C) but aborts 62 % of vapour-full lights. Either way the inventory exceeds 26.6 g: **no prep-path fallback exists on the 26.6 g basis.** Which plant is right on the 0.17 s credit is a CF-4 question (purge time with the MV opening on the direct profile; open item).
+- **The first part is vapour.** The vapour part passes through the chamber at 8.9-13.0 g/s during the 0.64 s purge and mostly leaves through the throat. At any instant 0.85-0.94 g of it is resident (isenthalpic throttling to the 1.07-1.08 bar cold-flow chamber pressure, 300.9 cm3; CoolProp). A liquid start holds 0.95 g of flashed vapour. The fast part of a hard start is therefore no larger with a vapour-first inventory.
+- **Hard-start peak against MEOP 45 bar** (credible case, flight, no disc; the same inputs as §7.6; every inventory from 6.9 to 40.3 g):
+  - tf 1 ms: 43.7-44.9 bar at the A1 state with a sharp entrance; 40.1-41.5 bar with the rounded entrance; <= 42.4 bar at 20 C and <= 40.3 bar at 25 C;
+  - tf 5 ms: <= 29.2 bar.
+  - The peak does not depend on the inventory: the fast part sets it. The margin to MEOP is 0.1 bar (sharp) and 3.5 bar (rounded); the rounded entrance is required on every grain (§7.6).
+- What changes with the inventory is the duration of the event and the mass that can react if the fast-part estimate is wrong. Every input of the credible case is ASSUMED, so an acceptance of 32-41 g rests on the same unmeasured basis as the 26.6 g.
+- On the "restart" reading the split pockets still abort at W 1.05 s: ARM LO wet (U full, slug 8.0-10.3 cm3, cap 5.8-8.1 cm3) 18-25 %, isothermal HI dry (slug 3.5-5.1 cm3, cap 11.0-12.6 cm3) 5-10 %.
+
+**The lasting fix: a routing without the U** (research case; `segment_void_balance_v2p4.json` `noU_*`).
+- Hypothesis: with the line rising monotonically from the seat to the MV, every vapour except the 4.51 cm3 bore-leg annulus collects at the top, behind the liquid, and the relight lights on that liquid. With the MV open under the drogue, the top can exchange with the tank.
+- Results (W 0.65 s):
+  - **No U, S1 only.** Wet reading: isothermal and hot-wall LO light (cap 11.0-17.6 cm3 behind a 21.9-28.5 cm3 slug); ARM LO aborts 11-54 % (cap 26.8-31.5 cm3, slug 8.0-12.7 cm3); **every HI case is vapour-full** and aborts. Dry reading: every LO case lights (cap 2.6-7.9 cm3); isothermal and hot-wall HI light (cap 11.0-19.0 cm3 behind a 20.5-28.5 cm3 slug); ARM HI aborts 81-100 %.
+  - **No U plus the MV opened at the drogue load** (C 0.725). 8 mm exchange path: every case lights on the dry reading (ARM HI with a 17.5-25.4 cm3 cap); on the wet reading LO lights but every HI case stays vapour-full. 10 mm: the same. 12 mm: isothermal HI wet lights (cap 18.0-23.7 cm3 behind a 15.7-21.5 cm3 slug); hot-wall HI wet aborts 43-64 % and ARM HI wet stays vapour-full. **16 mm: every case lights on both readings** (ARM HI wet clears 10-11 s after opening, cap <= 3.7 cm3).
+- Comparator: (a) on the present routing.
+- Evidence needed: Mechanical's routing with its exchange path diameter (MV, module, line), and its heat cases on that routing.
+- Refutation criterion: the re-routed heat cases leave the liquid slug at RELIGHT shorter than 14 cm3 (0.33 s of liquid flow, the ASSUMED ignition delay plus confirmation), or the exchange path cannot reach 12-16 mm within the MV and module.
+- A U of <= 18.9 cm3 alone does not meet the requirement. In the HI cases the coast-up fills the whole segment through S1 whatever the U volume.
+
+**Recommendation (Combustion; the lead decides).** **Adopt (a)**, the crest bleed sized for 44 cm3 (1.56 mm, 0.375 s; or 1.20 mm, 0.625 s), closing at E0 (no earlier than 0.5 s before it), with W kept at 0.65 s and the 0.81 s plan from T_fire.
+- Evidence:
+  - (a) is the only option that removes the vapour before the lift: P_abort 0 in all six heat cases at W 0.65 s (residual 6.9-9.6 cm3);
+  - (d) cannot reach the U (P_abort >= 0.45 in every case) and adds a tank-fed stuck-pintle hazard;
+  - a wider W needs 1.041 s for the vapour-full states, with 36.8-40.3 g on a liquid line (40.0 g at 24 C); the prep path at 0.88 s lights them only with the PREPRESS bleed, with 41.4 g at 24 C.
+- Costs for the lead: <= 28.3 g of N2O per relight (GNC margin); a valve, a port, a harness channel and the PRE-BLEED step (Mechanical, Electronics); a fail-open mode needing either a series valve or an abort rule.
+- **Fallback if the bleed is detected failed before E0** (lead's choice; each needs an inventory above 26.6 g accepted on the credible-case basis, whose peak does not depend on the inventory):
+  - no relight (vehicle lost under the drogue);
+  - a relight at W 1.05 s on either path: 40.0 g on a liquid line at 24 C; vapour-full lights, the split pockets still abort 5-25 % on the restart reading;
+  - the prep path with the PREPRESS bleed forced (a firmware change; today it runs only with an invalid pressure) at W 0.88 s: 41.4 g at 24 C; vapour-full lights (W_req 0.837 s).
+- **Refutation criteria for (a):**
+  - CF-4 with a heated U (vapour-full, then bled): the first sustained liquid at the injector arrives > 0.29 s after the lift (18.9 cm3 at 0.0156 s/cm3), or the bleed needs more than 0.30 s at 1.56 mm to pass liquid at the crest port;
+  - IGN-1/T1: the ignition delay p99.9 exceeds 0.30 s, which moves every allowance above;
+  - Mechanical's heat cases put the U's regeneration after closure above 19.5 cm3/s (ARM HI), which would shorten the allowed gap below 0.5 s;
+  - GNC: P(landing) with 28.3 g less N2O per relight falls below the lead's threshold.
+
+**Research proposal (not adopted): sensed bleed closure.**
+- Hypothesis: a thermocouple just downstream of the bleed orifice sees liquid arrival as a step toward the 1 bar saturation temperature (-88.5 C), because flashing liquid cools the jet far more than choked vapour. Closing on that signal would cut the vented N2O from 28.3 g to about 6-12 g on a primed line.
+- Comparator: the fixed 0.375 s bleed.
+- Evidence needed: a CF-4 run with a 0.5 mm sheathed thermocouple in the bleed jet.
+- Refutation criterion: the signal takes longer than 50 ms, or does not separate vapour from liquid.
+
+**Research proposal (not adopted): abort deadline referenced to liquid arrival.**
+- Hypothesis: the chamber pressure at the ignition lift separates vapour flow from liquid flow. Cold liquid flow gives 0.15-0.25 of the lit Pc; vapour gives less, about 28 % of the liquid mass flow. Liquid arrival is then detectable within about 20 ms.
+- Rule: abort at (liquid arrival + 0.65 s), capped at 1.05 s from the lift. That bounds the unignited liquid at the W 0.65 s level whatever the vapour pocket.
+- Comparator: a fixed W.
+- Evidence needed: CF-4 traces of Pc and P_feed at the lift with a heated U.
+- Refutation criterion: the signatures overlap, or detection takes longer than 50 ms.
+
+**Research proposal (not adopted): pintle-side purge with the existing PREPRESS bleed.**
+- Hypothesis: forcing the fw v2.8.2 PREPRESS bleed (0.10 mm until the MV OPEN switch) on every in-flight prep-path relight purges 13.1 cm3 of segment vapour into the unlit chamber, with no new valve. On Combustion's plant a vapour-full segment then lights at W 0.88 s (W_req 0.837 s). Keeping W 0.65 s would need about 25 cm3 purged, about 0.8 s of bleed.
+- Cost: on a primed line the bleed admits 7.2-7.8 g of liquid into the unlit chamber before the torch. If all of it is retained, the inventory at W 0.88 s is 38.0-41.7 g (41.4 g at 24 C).
+- Comparator: (a), the crest bleed overboard (24.9 g at W 0.65 s; 28.3 g vented).
+- Evidence needed: CF-4 with a heated U. How much bleed liquid leaves the hot chamber before E1, and the purge time with the MV opening.
+- Refutation criterion: with the bleed ending no earlier than 0.5 s before E0 (the regrowth rule of (a)), more than 1.7 g of bleed liquid (26.6 - 24.9 g) is still in the chamber at E1.
+
+**What the PRIMED flag does not see.** A segment full of saturated vapour reads P_feed = P_tank, so it reads PRIMED; MSS-1 and MSS-2 read T_sat either way (Electronics, REV-GNC-1 answers). The flag decides only the fault path. Under (a) every relight bleeds, whatever the flag says. Mechanical's seat-leak drain analysis shows that unpriming the segment within a coast needs >= 1 g/s, i.e. a stuck-open pintle; UNPRIMED in flight is a fault indication.
+
+**Segment contents** (DERIVED, 44 cm3):
+
+| State | Liquid-full [g] | Vapour-full [g] | Whole-segment purge [s] |
+|---|---|---|---|
+| A1 relight state (286.7 K, 43.5 bar) | 36.5 | 5.64 | 0.637 at 0.2192 mm; 0.685 at 0.2039 mm |
+| 15 / 20 / 25 C | 36.1 / 34.5 / 32.7 | 5.90 / 6.95 / 8.31 | Same |
+
+**Relight abort probability against a single pocket** (SIM on ASSUMED delays, `post_abort_pocket_v2p4.json`; MV open before the lift; W from the lift command). This curve underlies every P_abort above.
+
+| Pocket [cm3] | 0 | 8 | 12 | 16 | 19 | 20 | 22 | 24 | 30 | 44 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| P(abort of a would-be light), W 0.65 s, 0.2039 mm | 0 | 0 | 0 | 0 | 0.0005 | 0.046 | 0.17 | 0.29 | 0.67 | 1.00 |
+| Same, W 0.50 s | 0 | 0 | 0.15 | 0.40 | 0.58 | 0.65 | 0.77 | 0.90 | 1.00 | 1.00 |
+| E1 -> E2 maximum [s], 0.2039 mm | 0.357 | 0.481 | 0.543 | 0.606 | 0.652 | 0.668 | 0.699 | 0.730 | 0.823 | 1.041 |
+
+**Shutdown order and the segment** (SIM, `segment_drain_v2p4.json`; 500 N steady, Cd 0.70 ASSUMED):
+
+| Order | Vapour left in 44 cm3 | Liquid volume fraction | Segment pressure | N2O after the decision |
+|---|---|---|---|---|
+| MV first, 30 ms MV-P close (abort order) | 22.2-24.3 cm3 | 0.45-0.50 | 7.8-10.9 bar below P_tank | 16.8-22.1 g (19.3 g at 20 C) |
+| MV first, 0.10 s close | 4.5-8.2 cm3 | 0.81-0.90 | 1.6-2.4 bar below P_tank | 17.0-22.6 g |
+| Pintle first (MV on seat confirmation or timeout; seat reached 0.18-0.19 s after the decision) | 0 | 1.0 | P_tank | 17.0-22.7 g (0.25-0.58 g more than MV first, 30 ms) |
+| MV first, 30 ms, from 300 N | 5.7-7.7 cm3 | 0.82-0.87 | 1.7-2.9 bar below P_tank | 6.1-7.0 g |
+
+Rows cover tank temperatures of 13.9, 20 and 30 C. The 13.9 C pintle-first run used the 0.20 s valve timeout of the model: a first-order-lag threshold artifact left the seat flag unset, and the segment stayed liquid-full.
+- **Normal shutdown is pintle-first** (LEAD): the segment is liquid-full at MECO. The coast then fills the U (and in most HI states the whole segment) with vapour, so pintle-first no longer guarantees a primed relight; it still minimises the starting vapour.
+- **An abort is MV-first** (the NC valve is the fail-safe): it empties about half the segment. The next attempt is a vapour start (LEAD), which (a) clears like any other.
+
+**Stand rules at 44 cm3** (LEAD 2026-10-13: stand option (b) adopted; aft DN32 disc only; R1 = R2 = 0.35 s; R3 deleted; R4 kept).
+
+Unignited N2O admitted by the deadline W from the lift command, at the 0.2039 mm lift (DERIVED, `relight_window_rule_seg44_v2p4.json`; Dyer, Cd 0.70 ASSUMED). Columns are the A1 state / 15 C / 20 C / 25 C.
+
+| W [s] | Liquid line [g] | Whole-segment vapour [g] |
+|---|---|---|
+| 0.35 | 12.4 / 12.6 / 13.1 / 13.6 | 5.6 / 5.9 / 7.0 / 8.3 |
+| 0.65 | 22.9 / 23.2 / 24.2 / 25.0 | 6.9 / 7.2 / 8.3 / 9.7 |
+| 0.85 | 29.8 / 30.2 / 31.5 / 32.7 | 13.8 / 14.2 / 15.6 / 17.3 |
+| 1.05 | 36.8 / 37.3 / 38.9 / 40.3 | 20.8 / 21.3 / 23.0 / 24.9 |
+
+At the 24 C interlock the liquid-line values are 13.5 g (0.35 s), 24.9 g (0.65 s) and 40.0 g (1.05 s), by linear interpolation.
+- **R1 and R2, 0.35 s.** At 24 C the liquid line admits 13.5 g against the 13.84 g allowable of the aft DN32 disc with the rounded entrance, a margin of 0.3 g. With a sharp entrance (9.09 g) the rule would fail by 4.4 g, so the rounded entrance is required on every stand grain (§7.6).
+- **Abort rate at 0.35 s:** 0.0051 for a primed start; 1.0 for any vapour ahead of the liquid.
+- **Stand relights therefore need the U primed.** The vertical stand at 1 g reproduces the flight trap. Procedure (GSE, stand only; it is option (a) with the T4 / P_manifold port):
+  1. Open the MV with the pintle seated.
+  2. Bleed at the crest port to a safe vent until liquid arrives, then close it.
+  3. Command START or RELIGHT within 0.5 s.
+  T4 measures the resulting abort rate and, with a thermocouple in the bleed jet, the sensed-closure proposal.
+- **Test coverage.** No stand test can light a vapour start within the 13.84 g allowable: a 27.87 cm3 pocket needs W >= 0.79 s. CF-4 measures the purge and the bleed, IGN-1 the torch, and T4 bled relights. A lit vapour start would first occur in flight unless the lead approves a stand basis for one (open item OI-23).
+- **Boil-dry on the stand.** After a hot hold of >= about 100 s (58 W) to 330 s (18 W), the whole segment boils dry.

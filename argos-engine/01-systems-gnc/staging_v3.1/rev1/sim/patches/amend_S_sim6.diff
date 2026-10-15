@@ -1,0 +1,107 @@
+--- patches/sim6_MWFPR_v28dev_pre_S.py	2026-10-13 09:23:48.721749019 +0000
++++ gnc_dev28/gncsim/sim6.py	2026-10-13 09:15:39.452410962 +0000
+@@ -191,6 +191,19 @@
+    not modelled (B-PC-1 residual target <= 0.3 bar). The 6-DOF light remains the drawn start delay (RC-03 E0 -> E2 on the old
+    3.0 bar absolute rule); the earlier E2 of the relative rule is represented by a start-delay shift in the run (t_ign).
+    Results: release time after the light, Pc-equivalent thrust at the release.
++ * v2.8-dev amendment S (2026-10-13, review RG-01 start-transient re-fly; LEAD release-rule decision 2026-10-13; off by default,
++   bit-identical when off, m2_bitcheck_v28 part S): (1) RELEASE PERSISTENCE BRANCH (rel_to > 0, with rel_mode 1): the drogue
++   also releases when the >= 0.8 bar rise over the pre-lift baseline is held continuously from E2 until E2 + rel_to, evaluated
++   as the Pc-equivalent thrust F / tsc >= rel_Frise (run6 DERIVED: map thrust at the absolute pressure baseline + 0.8 bar); one
++   step below rel_Frise after E2 loses the branch (the release then waits for Pc >= rel_Pc). (2) A-RELIGHT START PLATEAU (st_on
++   1, profile A only): for st_T after the 6-DOF light the delivered thrust is held at st_F x tsc (st_F = map thrust of the
++   plateau Pc, run6 DERIVED; Combustion ignition_detect_v2p4 / drogue_hold_check_v2p4: fuel-starved start, Pc 2.4-3.6 bar abs
++   for 0.1-0.4 s); the pintle, the command chain and the flows at the map (F / tsc) are unchanged, and after st_T the thrust
++   rises from the plateau at the modelled rate limits (conservative: the chamber would follow the already-open pintle faster).
++   Not modelled: the oxidiser flow at the ignition lift during the plateau (the map books the flow of the plateau thrust),
++   the plateau of the pad start (profile A first burn, profile B), Pc sensor error and roughness. Results: release branch
++   (1 = Pc >= rel_Pc or the v2.8 rule, 2 = persistence), vertical velocity at the release, vertical velocity and CG height
++   at the end of the plateau.
+ All parameters are passed in par[] (names in PAR_NAMES) by run6.py, which reads the interface
+ JSON and tags every value.
+ """
+@@ -202,7 +215,7 @@
+ from .vehicle import massprops
+ 
+ G0 = 9.80665
+-SIM6_VERSION = "sim6 v2.8-dev (2026-10-13, amendments M, W, F, P, R)"
++SIM6_VERSION = "sim6 v2.8-dev (2026-10-13, amendments M, W, F, P, R, S)"
+ 
+ PAR_NAMES = """
+ profile h_target Fmax floor tau slew deadb quant t_ign t_ign_est t_rise t_off thrust_scale isp_scale
+@@ -253,6 +266,8 @@
+               "blf_fmax bl_vj bl_az").split()
+ # v2.8-dev amendment R: drogue release rule (E2 relative light confirmation AND measured Pc >= 3.0 bar abs)
+ PAR_NAMES += "rel_mode rel_F rel_dt".split()
++# v2.8-dev amendment S: A-relight start plateau and the drogue-release persistence branch (LEAD 2026-10-13)
++PAR_NAMES += "st_on st_F st_T rel_to rel_Frise".split()
+ # v2.7.1-dev: regression-law band (gncsim.regband): reg_nk knots X [kg oxidiser at the map flows] in reg_x*, phi_ox in reg_o*,
+ # phi_f in reg_u* (40 slots; off unless reg_on)
+ for _i, _n in enumerate(PAR_NAMES):
+@@ -279,6 +294,7 @@
+ flt_tr_fct flt_tr_op flt_tr_pf flt_tr_geo fct_held_pre fct_held_post
+ prg_t0 prg_dur prg_wait prg_mass prg_h0 prg_tilt_max prg_tilt_lift prg_rate_max blf_t0 blf_mass blf_time blf_kF_min
+ rel_t rel_Fpc
++rel_br rel_vz st_vz_end st_h_end
+ """.split()
+ for _i, _n in enumerate(RES_NAMES):
+     globals()["R_" + _n] = _i
+@@ -855,6 +871,9 @@
+     pg_t0 = -1.0; pg_t1 = -1.0; pg_tw = -1.0; pg_h0 = 0.0; pg_m = 0.0; pg_tilt = 0.0; pg_rate = 0.0; pg_tlift = 0.0
+     bl_t0 = -1.0; bl_m = 0.0; bl_time = 0.0; bl_kmin = 1.0
+     rl_t = -1.0; rl_F = 0.0      # amendment R: drogue release time after the light, Pc-equivalent thrust at the release
++    # amendment S: plateau (st_*); release branch rl_br (1 = Pc / v2.8 rule, 2 = persistence), rl_hl = rise lost after E2
++    st_on = par[P_st_on] > 0.5
++    rl_br = 0.0; rl_vz = 0.0; rl_hl = False; st_vze = 0.0; st_he = -1.0; st_done = False
+     blx_ = 0.0; pg_act_ = False; blf_fl_ = False; bjm_ = 0.0
+     while t < par[P_tmax]:
+         # ================================================================ mass properties
+@@ -1233,14 +1252,27 @@
+                 res[R_F_start_cmd] = F_start
+             if par[P_rel_mode] > 0.5:
+                 # amendment R: release on E2 (rel_dt after the 6-DOF light) AND measured Pc >= 3.0 bar abs (F / tsc >= rel_F)
+-                rls_ = t - t5 >= par[P_rel_dt] - 1e-9 and F / tsc >= par[P_rel_F]
++                e2_ = t - t5 >= par[P_rel_dt] - 1e-9
++                rls_ = e2_ and F / tsc >= par[P_rel_F]
++                if drogue and e2_ and not rls_ and par[P_rel_to] > 0.0:
++                    # amendment S: OR the >= 0.8 bar rise (F / tsc >= rel_Frise) held continuously from E2 until E2 + rel_to
++                    if F / tsc < par[P_rel_Frise]:
++                        rl_hl = True
++                    elif not rl_hl and t - t5 >= par[P_rel_dt] + par[P_rel_to] - 1e-9:
++                        rls_ = True
++                        rl_br = 2.0
+             else:
+                 rls_ = F > 0.5 * floorF * tsc
+             if drogue and rls_:
+                 drogue = False
+                 rl_t = t - t5; rl_F = F / tsc
++                if rl_br == 0.0:
++                    rl_br = 1.0
++                rl_vz = v[2]
+                 apar[A_DROGUE_DEPLOYED] = 0.0
+                 relight_ok = 1.0
++            if st_on and prof == 0 and not st_done and t - t5 >= par[P_st_T] - 1e-9:
++                st_done = True; st_vze = v[2]; st_he = r[2]
+             keff = k_hat if par[P_k_est] > 0.5 else 1.0
+             amin = keff * floorF / m_est - g
+             amax = keff * Fc_avail / m_est - g
+@@ -1720,6 +1752,9 @@
+                 if dF < -lim:
+                     dF = -lim
+             Fa_ += dF
++            if st_on and prof == 0 and t5 >= 0.0 and t - t5 < par[P_st_T] - 1e-9 and Fa_ > par[P_st_F] * tsc:
++                # amendment S: fuel-starved start plateau after the A-relight light (delivered thrust held at st_F x tsc)
++                Fa_ = par[P_st_F] * tsc
+             if Pt < pt_min:
+                 pt_min = Pt
+             if phi_f > 0.0:
+@@ -2642,6 +2677,9 @@
+         res[R_prg_rate_max] = np.degrees(pg_rate)
+         res[R_blf_t0] = bl_t0; res[R_blf_mass] = bl_m; res[R_blf_time] = bl_time; res[R_blf_kF_min] = bl_kmin
+     res[R_rel_t] = rl_t; res[R_rel_Fpc] = rl_F
++    res[R_rel_br] = rl_br; res[R_rel_vz] = rl_vz
++    if st_on:
++        res[R_st_vz_end] = st_vze; res[R_st_h_end] = st_he
+     res[R_aw_resets] = aw_resets; res[R_aw_time] = aw_time
+     res[R_act_sat_max_t1] = act_sat_max_t1; res[R_t_relight] = t_relight
+     res[R_max_tilt_desc] = np.degrees(max_tilt_desc)

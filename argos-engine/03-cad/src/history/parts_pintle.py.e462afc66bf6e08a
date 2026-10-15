@@ -1,0 +1,352 @@
+"""CAD v3.4 pintle drive: MKS HV69 in-line toggle crank-slider with rolling-guide carriage and servo mount V3 (Mechanical,
+2026-10-13).  Family ENG-PD (pintle drive) + ENG-EL-05 (encoder PCB).
+
+Sources (each number below is DESIGN unless tagged):
+  calcs/pintle_v2p3.py / pintle_v2p4.py  crank r 3.0, link 28 (centres), closed at 15 deg, stop 113.09 deg (4.2 mm), spiral spring
+                                         0.25 N m + 0.12 N m/rad, MGN09H block, bearings NB701-class 12x18x4 (A) and 6800 (B),
+                                         link eyes OD 8 x 4 with 3 x 4.5 x 4 PTFE-lined bushes, 3 mm pins H900, stem 3 mm with M3,
+                                         jam design 831.6 N / failure 933.7 N (component margins in pintle_inline_v34_v2p4.json)
+  04-fea/thermal/servo_mount_net.py V3   G11 shoulder washers under the frame feet, polished Al shield under the servo, G11 pad
+                                         under the servo ears (V3 passed 48/48 corners; G11 replaces G10: Tg vs 128-130 C soak)
+  Electronics pintle_mini_servo_v1       HV69 29 x 13 x 28.7 mm, 21 g, spline 6 mm 25T (DATASHEET, retailer copies of MKS data);
+                                         ears and shaft position NOT published -> ASSUMED below (REQUEST to Electronics: MKS drawing)
+Layout (engine frame, mm, +Z forward; zbt = bonnet top): carriage (link) pin at z_k0 = zbt + 5 closed; crank axis along +Y at
+(x 0, z_c = z_k0 + s(15 deg)); link plane y 11; HV69 case below its shaft ("case down") on the -Y side, spline toward +Y into
+the crank housing; MGN09H rail on the +Y side of the stem axis; drive frame PD-01 on the head top through G11 isolators.
+The stack is gimballed (group 'engine'); its sweep at the 8 deg stop is verified in checks (r cos 8 + |z| sin 8 <= 67).
+"""
+from __future__ import annotations
+import math
+import numpy as np
+import cadquery as cq
+from geom import cyl, cyl_dir, tube, box, union_all, cut_all, T_trans, T_rot, apply
+from partlib import Part
+
+# ------------------------------------------------------------------------------------------------ DESIGN / ASSUMED inputs
+CRANK = {"r": 3.0, "L": 28.0, "phi_closed_deg": 15.0, "phi_stop_deg": 113.09, "tag": "pintle_v2p3 CRANK (Electronics / lead 2026-10-12)"}
+HV69 = {"L": 29.0, "W": 13.0, "H": 28.7, "mass_kg": 0.021, "spline_d": 6.0, "spline_len": 4.0, "shaft_from_top_end": 7.25,
+        "ear_ext": 6.0, "ear_t": 2.0, "ear_face_below_top": 4.0,
+        "tag": "DATASHEET dims/mass/spline (Electronics pintle_mini_servo_v1, retailer copies of MKS data); ears, shaft position and spline "
+               "protrusion ASSUMED (MKS drawing not available)"}
+Y_LINK = 11.0
+ISO_T = 2.0                       # G11 isolator washer thickness under the frame feet
+
+
+def stations(S):
+    zt, zbt = S["head_top"], S["bonnet_top"]
+    r, L, ph = CRANK["r"], CRANK["L"], math.radians(CRANK["phi_closed_deg"])
+    s0 = r * math.cos(ph) + math.sqrt(L * L - (r * math.sin(ph)) ** 2)
+    z_k0 = zbt + 5.0
+    z_c = z_k0 + s0
+    return dict(zt=zt, zbt=zbt, z_k0=z_k0, z_c=z_c, s0=s0)
+
+
+def slider_s(phi_deg):
+    r, L = CRANK["r"], CRANK["L"]
+    p = math.radians(phi_deg)
+    return r * math.cos(p) + math.sqrt(L * L - (r * math.sin(p)) ** 2)
+
+
+def crank_pin(st, phi_deg):
+    p = math.radians(phi_deg)
+    return np.array([CRANK["r"] * math.sin(p), Y_LINK, st["z_c"] - CRANK["r"] * math.cos(p)])
+
+
+def _loc(shape, z_ref):
+    return apply(shape, T_trans(0, 0, -z_ref)), T_trans(0, 0, z_ref)
+
+
+def _link_T(st, phi_deg, dz_slider=0.0):
+    """Placement of the link (local +Z from the carriage pin to the crank pin, local origin at the carriage pin)."""
+    from geom import T_axis_to
+    pk = np.array([0.0, Y_LINK, st["z_k0"] + dz_slider])
+    pc = crank_pin(st, phi_deg)
+    return T_trans(*pk) @ T_axis_to(pc - pk)
+
+
+def build_pintle_parts(P, S, reg):
+    st = stations(S)
+    zt, zbt, z_k0, z_c = st["zt"], st["zbt"], st["z_k0"], st["z_c"]
+    S["pintle_v34"] = dict(st, crank=CRANK, hv69=HV69, y_link=Y_LINK)
+    S["pintle_shaft"] = np.array([0.0, 0.0, z_c])
+    h = HV69
+    zc0, zc1 = z_c - (h["L"] - h["shaft_from_top_end"]), z_c + h["shaft_from_top_end"]        # case z range (case down)
+    y_top = -2.0                                                                                    # case top face (spline side)
+    y_bot = y_top - h["H"]                                                                          # -30.7
+    y_ear1 = y_top - h["ear_face_below_top"]                                                        # -6
+    y_ear0 = y_ear1 - h["ear_t"]                                                                    # -8
+    ze0, ze1 = zc0 - h["ear_ext"], zc1 + h["ear_ext"]
+    ear_holes = [(sx * 3.5, zz) for sx in (-1, 1) for zz in (zc0 - h["ear_ext"] / 2.0, zc1 + h["ear_ext"] / 2.0)]
+    S["pintle_v34"]["hv69_case_z"] = (zc0, zc1)
+
+    # ------------------------------------------------------------------ PD-01 drive frame (6061-T6, one piece)
+    zf0, zf1 = zt + ISO_T, zt + ISO_T + 4.0                     # feet on the G11 isolators
+    feet_holes = [(26.0 * math.cos(math.radians(a)), 26.0 * math.sin(math.radians(a))) for a in (250.0, 290.0, 70.0, 110.0)]
+    S["pd01_feet_holes"] = feet_holes
+    z_plate0 = zbt + 0.4                                         # servo plate starts above the bonnet top / E1-M boss
+    z_shelf0, z_shelf1 = z_c - 14.0, z_c - 11.0
+    z_cap0, z_cap1 = z_c + 11.0, z_c + 13.0
+    frame = union_all([
+        box((-13.0, -30.0, zf0), (13.0, -21.0, zf1)),           # -Y foot
+        box((-13.0, -30.0, zf1), (13.0, -13.0, zf1 + 4.0)),     # bridge over the bonnet base flange
+        box((-10.0, -17.0, zf1), (10.0, -13.0, zbt + 4.0)),     # leg
+        box((-10.0, -13.5, z_plate0), (10.0, -9.5, z_cap1)),    # servo plate
+        box((-12.5, -13.5, z_cap0), (12.5, 25.5, z_cap1)),      # cap over the crank housing
+        box((-13.0, 21.0, zf0), (13.0, 30.0, zf1)),             # +Y foot
+        box((-10.0, 27.0, zf0), (10.0, 31.0, z_shelf1)),        # rail plate
+        box((-12.5, 14.0, z_shelf0), (12.5, 31.0, z_shelf1)),   # shelf under the crank housing
+    ])
+    fcuts = [box((-7.0, -14.0, zc0 - 0.5), (7.0, -9.0, zc1 + 0.5))]                    # servo window (case passes through)
+    for (x, y) in feet_holes:
+        fcuts.append(cyl(3.4, zf0 - 1.0, zf1 + 1.0, x, y))                                # M3 clearance (G11 sleeve washers)
+    for (x, z) in ear_holes:
+        fcuts.append(cyl_dir(1.6, 6.0, (x, -14.0, z), (0, 1, 0)))                        # M2 tapped (modelled at the drill)
+    for x in (-8.5, 8.5):
+        fcuts.append(cyl(2.5, z_shelf0 - 1.0, z_shelf1 + 0.01, x, 22.0))                 # M3 tapped: housing to shelf
+        fcuts.append(cyl(3.4, z_cap0 - 0.01, z_cap1 + 1.0, x, 22.0))                     # M3 clearance: cap to housing
+    for z in (zbt - 21.5, zbt - 1.5, zbt + 18.5):
+        fcuts.append(cyl_dir(2.5, 5.0, (0.0, 26.0, z), (0, 1, 0)))                       # M3 tapped rail screws (pitch 20)
+    for x in (-7.0, 7.0):
+        fcuts.append(cyl_dir(1.6, 5.0, (x, -14.0, z_c - 28.5), (0, 1, 0)))               # M2 tapped: shield stand-offs
+    frame = cut_all(frame, fcuts)
+    shp, T = _loc(frame, zt)
+    reg.add(Part("ENG-PD-01", "Pintle drive frame (feet + bridge + leg + servo plate + cap + rail plate + shelf), one piece", "AL6061-T6",
+                 "CNC mill from 6061-T6 block (3 setups) or welded/bolted 3-plate version (TO-DECIDE with the shop)", shp, drawing=True,
+                 notes=f"4x M3 A2-70 through G11 shoulder washers (PD-11) into TC-02 at r 26, az 70/110/250/290; servo window 14 x {zc1-zc0+1:.1f}; "
+                       "HV69 ears on the +Y face through the G11 pad (PD-12), 4x M2 tapped (ear pattern ASSUMED +/-3.5); MGNR09R rail on the rail "
+                       "plate (3x M3 tapped, pitch 20); crank housing between shelf and cap (2x M3 each); low-emissivity faces (polished or bright "
+                       "chromate, no black anodise: servo_mount_net V3)",
+                 dwg={"datum": "foot faces A (head top), rail-plate face B (rail datum), servo-plate face C",
+                      "fits": ["foot hole pattern r 26.00 +/-0.05 at 70/110/250/290 deg", "rail plate face flat 0.02 over the rail length, parallel to the "
+                               "stem axis 0.02", "shelf/cap faces parallel 0.02, crank-housing hole pattern position 0.05", "servo window 14.0 +0.2/0"],
+                      "finish": "bright chromate conversion (Alodine 1200 class) or polished: emissivity <= 0.1 ASSUMED", "ht": "T6"})).place(T, "engine")
+
+    # ------------------------------------------------------------------ PD-11 G11 isolator washers (under the feet)
+    wsh = tube(7.0, 3.4, 0.0, ISO_T)
+    reg.add(Part("ENG-PD-11", "Isolator washer G11 7/3.4 x 2 (frame feet to head top)", "G11", "punched / turned from G11 sheet", wsh,
+                 supplier="NEMA G11 sheet 2 mm: Rochling / Isola / RS Components DK (TO-QUOTE, delivery Sonderborg DK-6400)",
+                 notes="servo_mount_net V3 isolators; G11 (Tg ~170 C) instead of G10 (Tg ~130 C) for the 128-130 C head-top soak; "
+                       "M3 screw torque limited to 0.6 N m (G11 creep, TO-VERIFY)"))
+    for (x, y) in feet_holes:
+        reg.parts["ENG-PD-11"].place(T_trans(x, y, zt), "engine")
+
+    # ------------------------------------------------------------------ PD-02 crank housing, PD-03 cover
+    hx, hy0, hy1 = 12.5, -1.0, 25.5
+    hz0, hz1 = z_c - 11.0, z_c + 11.0
+    hous = box((-hx, hy0, hz0), (hx, hy1, hz1))
+    for sx in (-1, 1):                                                                    # outer vertical edge chamfers (sweep)
+        hous = hous.cut(apply(box((-3.0, -3.0, hz0 - 1), (3.0, 3.0, hz1 + 1)), T_trans(sx * hx, hy1, 0.0) @ T_rot("z", 45.0)))
+    ax = lambda d, y0, y1: cyl_dir(d, y1 - y0, (0.0, y0, z_c), (0, 1, 0))
+    hcuts = [ax(13.0, hy0 - 0.01, 3.5), ax(18.0, 3.5, 7.5), ax(15.0, 7.5, 14.5), ax(19.0, 14.5, 19.5), ax(22.0, 19.5, hy1 + 0.01),
+             box((-6.0, 8.5, hz0 - 0.01), (6.0, 13.5, z_c - 5.0))]                       # link slot to the cavity
+    for x in (-8.5, 8.5):
+        hcuts += [cyl(2.5, hz0 - 0.01, hz0 + 6.0, x, 22.0), cyl(2.5, hz1 - 6.0, hz1 + 0.01, x, 22.0)]    # M3 tapped bottom/top
+    hous = cut_all(hous, hcuts)                                                          # (3x M2 cover screws in the +Y end face: drawing only)
+    shp, T = _loc(hous, z_c)
+    reg.add(Part("ENG-PD-02", "Pintle crank housing (bearing seats A 18 and B 19, crank cavity, spring cavity 22)", "AL6061-T6",
+                 "CNC mill + lathe (bores in one setup)", shp, drawing=True,
+                 notes="bore A 18 K6 x 4 (NB701-class 12x18x4), cavity 15, bore B 19 K6 x 5 (6800), spring cavity 22 x 6 (outer spring end anchored "
+                       "in a 1 mm slot, not modelled), link slot 12 x 5 to the cavity; 2x M3 tapped to the shelf, 2x M3 to the cap; edges chamfered "
+                       "3 x 45 deg on the +Y corners (8 deg sweep)",
+                 dwg={"datum": "bore A axis A, bottom face B", "fits": ["bore A 18 K6", "bore B 19 K6 coaxial 0.01 to A", "spring cavity 22 H11",
+                                                                      "bottom face B perpendicular to A 0.02", "M3 pattern position 0.05"],
+                      "finish": "bright chromate (low emissivity)", "ht": "T6"})).place(T, "engine")
+    cy0, cy1 = hy1, hy1 + 4.0
+    cov = box((-hx, cy0, hz0), (hx, cy1, hz1))
+    for sx in (-1, 1):
+        cov = cov.cut(apply(box((-3.0, -3.0, hz0 - 1), (3.0, 3.0, hz1 + 1)), T_trans(sx * hx, cy1, 0.0) @ T_rot("z", 45.0)))
+        cov = cov.cut(apply(box((-3.0, -3.0, hz0 - 1), (3.0, 3.0, hz1 + 1)), T_trans(sx * hx, cy0, 0.0) @ T_rot("z", 45.0)))
+    cov = cov.cut(cyl_dir(16.0, 3.1, (0.0, cy0 - 0.01, z_c), (0, 1, 0)))                 # PCB pocket (EL-05) y 25.5..28.6
+    for (x, z) in ((-8.5, z_c - 8.0), (8.5, z_c - 8.0), (0.0, z_c + 9.0)):
+        cov = cov.cut(cyl_dir(2.2, 6.0, (x, cy0 - 1.0, z), (0, 1, 0)))                   # 3x M2 clearance
+    shp, T = _loc(cov, z_c)
+    reg.add(Part("ENG-PD-03", "Crank-housing cover with encoder PCB pocket", "AL6061-T6", "CNC mill", shp, drawing=True,
+                 notes="3x M2 into the housing end face; holds the EL-05 PCB (16 H9 pocket); harness exit groove at the bottom (not modelled)",
+                 dwg={"datum": "inner face A", "fits": ["PCB pocket 16 H9 coaxial 0.05 to the housing bore A"], "finish": "bright chromate", "ht": "T6"}
+                 )).place(T, "engine")
+    reg.parts["ENG-PD-02"].notes += "; 3x M2 tapped in the +Y end face for the PD-03 cover (not modelled)"
+
+    # ------------------------------------------------------------------ PD-04 crankshaft (17-4PH H900) at closed (phi 15 deg)
+    ph = CRANK["phi_closed_deg"]
+    pin_c = crank_pin(st, ph)
+    shaft = union_all([ax(11.0, 2.2, 3.5), ax(12.0, 3.5, 7.5), ax(14.0, 7.6, 9.0), ax(14.0, 13.0, 14.4), ax(10.0, 14.5, 19.5),
+                       ax(8.0, 19.5, 24.0),
+                       cyl_dir(3.0, 4.0, (pin_c[0], 9.0, pin_c[2]), (0, 1, 0))])
+    # dog notch (one-sided coupling): 100 deg sector window in the 11 mm dog end, centred on -X at closed
+    notch = cq.Solid.makeCylinder(6.0, 1.5, cq.Vector(0.0, 2.1, z_c), cq.Vector(0, 1, 0), 100.0)
+    notch = apply(notch, T_trans(0.0, 0.0, z_c) @ T_rot("y", 130.0) @ T_trans(0.0, 0.0, -z_c))
+    shaft = shaft.cut(notch)
+    shaft = shaft.cut(cyl_dir(1.2, 4.5, (0.0, 19.5, z_c + 2.6), (0, 1, 0)))              # spring inner-end slot (modelled as a 1.2 hole)
+    shaft = shaft.cut(ax(6.05, 23.0, 24.01))                                             # magnet pocket 6 x 1
+    shp, T = _loc(shaft, z_c)
+    reg.add(Part("ENG-PD-04", "Pintle crankshaft (throw r 3.0, pin 3, journals 12 / 10, dog end, spring hub, magnet pocket)", "SS17-4PH-H900",
+                 "CNC lathe + mill (eccentric pin turned in a second setup) + grind journals, H900 after rough machining", shp, drawing=True,
+                 notes="closed at phi 15 deg (shown), mechanical stop 113.09 deg = 4.2 mm stroke; pin span 4 mm between the webs (pintle_v2p4 jam "
+                       "margins use a 6 mm simply-supported span: conservative); dog notch 100 deg for the PD-05 tooth (one-sided coupling: the spring "
+                       "can close the needle ahead of the servo)",
+                 dwg={"datum": "journal A axis A", "fits": ["journal A 12 k5", "journal B 10 k5 coaxial 0.005 to A", "pin 3 g6, offset 3.000 +/-0.01, "
+                                                            "parallel to A 0.01", "spring hub 8 h9"],
+                      "finish": "ground journals Ra 0.4; passivate", "ht": "17-4PH H900 (AMS 5643)"})).place(T, "engine")
+    # ------------------------------------------------------------------ PD-14 / PD-15 bearings, PD-09 spiral spring, PD-18 magnet
+    reg.add(Part("ENG-PD-14", "Thin-section ball bearing 12x18x4 (NSK/NMB 6701 class, 'NB701' in pintle_v2p3), C0r 655 N", "STEEL", "COTS",
+                 apply(ax(18.0, 3.5, 7.5).cut(ax(12.0, 3.0, 8.0)), T_trans(0, 0, -z_c)), cots=True, mass_each_kg=0.0031,
+                 mass_tag="ASSUMED catalogue class 3 g (6701)", supplier="NSK / NMB / SKF 61701 class (TO-QUOTE, Sonderborg DK-6400)",
+                 notes="bearing A (link side of the servo): s0 1.0 at the 7.70 V jam (pintle_v2p4); replace after any recorded jam")).place(T_trans(0, 0, z_c), "engine")
+    reg.add(Part("ENG-PD-15", "Deep-groove ball bearing 6800-2Z 10x19x5, C0r 840 N", "STEEL", "COTS",
+                 apply(ax(19.0, 14.5, 19.5).cut(ax(10.0, 14.0, 20.0)), T_trans(0, 0, -z_c)), cots=True, mass_each_kg=0.0055,
+                 mass_tag="ASSUMED catalogue class 5.5 g (61800)", supplier="SKF 61800-2Z / NSK 6800ZZ (TO-QUOTE, Sonderborg DK-6400)",
+                 notes="bearing B")).place(T_trans(0, 0, z_c), "engine")
+    reg.add(Part("ENG-PD-09", "Spiral (clock) return spring, 0.25 N m at closed + 0.12 N m/rad (+/-10 %), envelope 21/8 x 4.5", "SS-SPRING",
+                 "COTS custom (spring maker)", apply(ax(21.0, 19.75, 24.25).cut(ax(8.0, 19.0, 25.0)), T_trans(0, 0, -z_c)), cots=True,
+                 mass_each_kg=0.0055, mass_tag="ESTIMATE 5-6 g (strip 4.5 x ~0.71, ~206 mm active, 1.4310 +C1900 class: calcs/pd09_spring_fit_v1.json; "
+                                                 "v3.4 erratum: the earlier 4.5 x 0.25 strip note gave 9.7 GPa at 0.455 N m)",
+                 supplier="custom flat spiral spring 1.4310 strip (Gutekunst / Lesjofors DK, TO-QUOTE Sonderborg DK-6400)",
+                 notes="lead decision 2026-10-12 (T0 0.25 N m, k 0.12 N m/rad); inner end in the PD-04 hub slot, outer end CLAMPED in the PD-02 cavity "
+                       "slot (a pinned outer end doubles the end moment and does not fit); open coils, fill ~0.49 of the 21/8 annulus (no margin to the "
+                       "0.50 guideline: spring maker to confirm, else the cavity grows); modelled as its envelope")).place(T_trans(0, 0, z_c), "engine")
+    reg.add(Part("ENG-PD-18", "Encoder magnet NdFeB N35 diametral 6 x 1", "NDFEB", "COTS", apply(ax(6.0, 23.0, 24.0), T_trans(0, 0, -z_c)),
+                 supplier="diametral 6 x 1 mm N35 (Supermagnete / Magnetladen, TO-QUOTE)", notes="bonded (Loctite 638) in the PD-04 end pocket; AS5048A gap "
+                                                                                                    "1.2 mm to the chip face (EL-05)")).place(T_trans(0, 0, z_c), "engine")
+    enc = cyl_dir(14.0, 2.4, (0.0, 25.2, z_c), (0, 1, 0))
+    reg.add(Part("ENG-EL-05", "Pintle-position encoder AS5048A on a 14 mm round PCB (chip + PCB envelope 14 x 2.4) in the PD-03 cover",
+                 "COTS-MIXED", "COTS/custom PCB", apply(enc, T_trans(0, 0, -z_c)), cots=True, mass_each_kg=0.002, mass_tag="ASSUMED 1-3 g",
+                 supplier="ams AS5048A on a 14 mm round PCB (Electronics request 2026-10-12)",
+                 notes="v3.4: resized from the 25x25x10 reservation (Electronics request); chip face y 25.2, magnet face y 24.0 (gap 1.2 mm, design 0.5-3)"
+                 )).place(T_trans(0, 0, z_c), "engine")
+
+    # ------------------------------------------------------------------ PD-05 dog hub (on the HV69 spline)
+    hub = union_all([ax(11.0, -1.0, 2.0)])
+    tooth = cq.Solid.makeCylinder(5.4, 1.4, cq.Vector(0.0, 2.0, z_c), cq.Vector(0, 1, 0), 60.0)
+    tooth = tooth.cut(ax(5.0, 1.9, 3.5))
+    tooth = apply(tooth, T_trans(0.0, 0.0, z_c) @ T_rot("y", 150.0) @ T_trans(0.0, 0.0, -z_c))
+    hub = union_all([hub, tooth]).cut(ax(h["spline_d"], -1.5, 2.5))
+    shp, T = _loc(hub, z_c)
+    reg.add(Part("ENG-PD-05", "Dog hub on the HV69 6 mm 25T spline (one-sided drive tooth 60 deg)", "AL7075-T6",
+                 "CNC lathe + broach 25T (or re-machined COTS aluminium horn)", shp, drawing=True,
+                 notes="M2 clamp screw (not modelled); the tooth drives the PD-04 notch in the opening sense only; 20 deg free play to the closing face "
+                       "(spring closes the needle ahead of a stalled servo)",
+                 dwg={"datum": "spline bore A", "fits": ["25T spline per MKS (TO-CONFIRM)", "OD 11 h9"], "finish": "hard anodise", "ht": "T6"})).place(T, "engine")
+
+    # ------------------------------------------------------------------ PD-13 HV69 servo (COTS), PD-12 G11 pad
+    servo = union_all([box((-h["W"] / 2, y_bot, zc0), (h["W"] / 2, y_top, zc1)),
+                       box((-h["W"] / 2, y_ear0, ze0), (h["W"] / 2, y_ear1, ze1)),
+                       cyl_dir(h["spline_d"], h["spline_len"], (0.0, y_top, z_c), (0, 1, 0))])
+    servo = cut_all(servo, [cyl_dir(2.2, 4.0, (x, y_ear0 - 1.0, z), (0, 1, 0)) for (x, z) in ear_holes])
+    shp, T = _loc(servo, z_c)
+    reg.add(Part("ENG-PD-13", "Pintle servo MKS HV69 (29 x 13 x 28.7, 21 g, 6 mm 25T spline), case below the shaft", "COTS-MIXED", "COTS", shp,
+                 cots=True, mass_each_kg=h["mass_kg"], mass_tag="DATASHEET 21 g (Electronics pintle_mini_servo_v1, retailer copies of MKS data)",
+                 supplier="MKS HV69 (MKS S0022012); Lindinger AT item 9788343", price="TO-QUOTE delivered Sonderborg DK-6400 (reference: Lindinger AT "
+                 "catalogue 62.99 EUR incl. 20 % AT VAT, 2026-10-12, Electronics pintle_mini_servo_v1; not a DK quote)",
+                 notes="limits: 60 C operating (retailer copies, TO-CONFIRM with MKS), rail 8.2 V rating; ears and shaft position ASSUMED until the MKS "
+                       "drawing (REQUEST to Electronics); cable exit not modelled")).place(T, "engine")
+    pad = box((-9.0, y_ear0 - 1.5, ze0), (9.0, y_ear0, ze1))
+    pad = pad.cut(box((-7.0, y_ear0 - 2.0, zc0 - 0.5), (7.0, y_ear0 + 0.5, zc1 + 0.5)))
+    pad = cut_all(pad, [cyl_dir(2.2, 3.0, (x, y_ear0 - 2.0, z), (0, 1, 0)) for (x, z) in ear_holes])
+    shp, T = _loc(pad, z_c)
+    reg.add(Part("ENG-PD-12", "G11 pad 1.5 mm under the HV69 ears (window for the case)", "G11", "CNC from G11 sheet", shp,
+                 supplier="NEMA G11 sheet 1.5 mm (TO-QUOTE)", notes="servo_mount_net V3 pad; M2 A2 screws through G11 washers (not modelled)")).place(T, "engine")
+
+    # ------------------------------------------------------------------ PD-10 radiation shield + PD-20 G11 stand-offs
+    zs = zc0 - 3.0
+    shield = union_all([box((-11.0, -33.0, zs - 0.5), (11.0, -15.5, zs)), box((-11.0, -16.0, z_c - 31.5), (11.0, -15.5, zs))])
+    shield = cut_all(shield, [cyl_dir(2.2, 2.0, (x, -16.5, z_c - 28.5), (0, 1, 0)) for x in (-7.0, 7.0)])
+    shp, T = _loc(shield, zs)
+    reg.add(Part("ENG-PD-10", "Radiation shield under the HV69: 0.5 mm polished aluminium L-sheet on 2 G11 stand-offs", "AL6061-T6",
+                 "cut + bend from 0.5 mm 1050A-H14 sheet, polished both faces", shp,
+                 notes="servo_mount_net V3: blocks the bonnet/head-top view of the servo case bottom; emissivity <= 0.1 ASSUMED (polished); 2x M2 "
+                       "through the G11 stand-offs into the servo plate; material listed as 6061 for mass (1050A same density class)")).place(T, "engine")
+    so = cyl_dir(5.0, 2.0, (0.0, -15.5, 0.0), (0, 1, 0)).cut(cyl_dir(2.2, 2.2, (0.0, -15.6, 0.0), (0, 1, 0)))
+    reg.add(Part("ENG-PD-20", "G11 stand-off 5/2.2 x 2 (shield to servo plate)", "G11", "turned from G11 rod", so,
+                 supplier="G11 rod 6 mm (TO-QUOTE)", notes="servo_mount_net V3")).place(T_trans(-7.0, 0.0, z_c - 28.5), "engine")
+    reg.parts["ENG-PD-20"].place(T_trans(7.0, 0.0, z_c - 28.5), "engine")
+
+    # ------------------------------------------------------------------ PD-07 carriage, PD-08 MGN09H block, PD-19 rail
+    za0, za1 = zbt + 1.0, zbt + 9.0                              # arm (needle clamp + link clevis)
+    zp0, zp1 = zbt - 14.6, zbt + 11.4                            # plate on the MGN block
+    car = union_all([box((-10.0, 14.0, zp0), (10.0, 17.0, zp1)), box((-9.0, -5.0, za0), (9.0, 14.0, za1))])
+    zblk_c = zbt - 3.76                                          # block centre (closed)
+    ccuts = [box((-5.5, 9.0, za0 - 0.01), (5.5, 13.0, za1 + 0.01)),                      # link slot
+             cyl(3.0, za0 - 0.01, za1 + 0.01),                                           # stem M3 (modelled at the major diameter)
+             cyl_dir(3.0, 12.0, (0.0, 5.0, z_k0), (0, 1, 0))]                            # link pin bore 3 H7 (y 5..17)
+    for x in (-7.5, 7.5):
+        for dz in (-8.0, 8.0):
+            ccuts.append(cyl_dir(3.4, 4.0, (x, 13.5, zblk_c + dz), (0, 1, 0)))          # 4x M3 to the block (pattern ASSUMED 15 x 16)
+    car = cut_all(car, ccuts)
+    shp, T = _loc(car, z_k0)
+    reg.add(Part("ENG-PD-07", "Pintle carriage: needle clamp arm (M3 stem thread) + link clevis + plate on the MGN09H block", "AL6061-T6",
+                 "CNC mill, hard anodise", shp, drawing=True,
+                 notes="needle stem M3 screwed into the arm (4.5 mm engagement, Loctite 243) - aluminium thread shear MS +2.7 at the jam (pintle_v2p4); "
+                       "link pin 3 mm H900 through the cheek and the plate (e-clip, not modelled); 4x M3 to the block (pattern 15 x 16 ASSUMED from the "
+                       "HIWIN catalogue copy, TO-VERIFY)",
+                 dwg={"datum": "stem bore A, block face B", "fits": ["stem M3-6H perpendicular to B 0.02", "pin bore 3 H7 position 0.02 to A", "slot 4.0 +0.1/0"],
+                      "finish": "hard anodise 25 um", "ht": "T6"})).place(T, "engine")
+    blk = box((-10.0, 17.0, zblk_c - 19.95), (10.0, 25.0, zblk_c + 19.95)).cut(box((-4.6, 20.4, zblk_c - 21.0), (4.6, 25.1, zblk_c + 21.0)))
+    shp, T = _loc(blk, zblk_c)
+    reg.add(Part("ENG-PD-08", "Miniature linear guide block HIWIN MGN09H (C0 4020 N, M0Y 18.6 N m)", "STEEL", "COTS", shp, cots=True,
+                 mass_each_kg=0.030, mass_tag="DATASHEET HIWIN MG catalogue 2023 (copy) 0.03 kg incl. rail share? - block only TO-VERIFY",
+                 supplier="HIWIN MGN09H-ZF (preload ZF, end seals) via HIWIN GmbH / Misumi (TO-QUOTE, Sonderborg DK-6400)",
+                 notes="moment M = 831.6 N x 11 mm = 9.15 N m at the 7.70 V jam (s0 2.0); stroke 4.2 mm; oxygen-free lubricant not required (dry side), "
+                       "grease Klueber Isoflex Topas class")).place(T, "engine")
+    zr0, zr1 = zbt - 24.7, zbt + 21.4
+    rail = box((-4.5, 20.5, zr0), (4.5, 27.0, zr1))
+    for z in (zbt - 21.5, zbt - 1.5, zbt + 18.5):
+        rail = rail.cut(cyl_dir(3.5, 7.0, (0.0, 20.0, z), (0, 1, 0)))
+    shp, T = _loc(rail, zr0)
+    reg.add(Part("ENG-PD-19", f"Miniature rail HIWIN MGNR09R, length {zr1-zr0:.1f} mm (cut to length)", "STEEL", "COTS", shp, cots=True,
+                 mass_each_kg=round(0.38 * (zr1 - zr0) * 1e-3, 4), mass_tag="DATASHEET 0.38 kg/m (HIWIN MG catalogue copy)",
+                 supplier="HIWIN MGNR09R cut to 46 mm (TO-QUOTE)", notes="3x M3 x 8 into the PD-01 rail plate (pitch 20)")).place(T, "engine")
+
+    # ------------------------------------------------------------------ PD-06 link, PD-16 pins, PD-17 bushes (closed position)
+    Lk = CRANK["L"]
+    lk = union_all([cyl_dir(8.0, 3.8, (0.0, -1.9, 0.0), (0, 1, 0)), cyl_dir(8.0, 3.8, (0.0, -1.9, Lk), (0, 1, 0)),
+                    box((-2.0, -1.5, 0.0), (2.0, 1.5, Lk))])
+    lk = cut_all(lk, [cyl_dir(4.5, 4.0, (0.0, -2.0, 0.0), (0, 1, 0)), cyl_dir(4.5, 4.0, (0.0, -2.0, Lk), (0, 1, 0))])
+    # the link solid is built along local +Z; local Y is kept along the engine Y by the placement (rotation about Y only)
+    Tl = _link_T(st, ph)
+    reg.add(Part("ENG-PD-06", "Pintle connecting link 28 mm centres, eyes OD 8 x 3.8 with 4.5 bores, shank 4 x 3", "SS17-4PH-H1150",
+                 "wire EDM from plate + ream", lk, drawing=True,
+                 notes="eye net tension MS_yield +3.9 and shear-out MS +1.9 at the 7.70 V jam (pintle_v2p4); PTFE-lined bushes PD-17",
+                 dwg={"datum": "eye A bore", "fits": ["centres 28.00 +/-0.02", "bores 4.5 H7 (bush press per maker)", "eye faces parallel 0.02"],
+                      "finish": "passivate", "ht": "17-4PH H1150"})).place(Tl, "engine")
+    bush = tube(4.5, 3.0, -1.9, 1.9)
+    reg.add(Part("ENG-PD-17", "PTFE-lined steel-backed bush 3 x 4.5 x 3.8 (DU class)", "STEEL", "COTS", apply(bush, T_rot("x", -90.0)),
+                 cots=True, mass_each_kg=0.0003, mass_tag="ESTIMATE 0.3 g", supplier="GGB DU / SKF PCM class 3 x 4.5 (maker part TO-SELECT, TO-QUOTE)",
+                 notes="static limit ~250 MPa AS RECALLED (maker value TO-VERIFY); 69 MPa at the 7.70 V jam (pintle_v2p4)"))
+    pin = cyl_dir(3.0, 12.0, (0.0, -6.0, 0.0), (0, 1, 0))
+    reg.add(Part("ENG-PD-16", "Pin 3 g6 x 12 (17-4PH H900) with e-clip grooves (crank pin bush / carriage link pin)", "SS17-4PH-H900",
+                 "turned + ground (or ISO 2338 3 m6 x 12 hardened)", pin, notes="link pins double shear MS_yield +4.7 at the jam (pintle_v2p4)"))
+    pk = np.array([0.0, Y_LINK, z_k0])
+    reg.parts["ENG-PD-17"].place(T_trans(*pk), "engine").place(T_trans(*pin_c), "engine")
+    reg.parts["ENG-PD-16"].place(T_trans(0.0, Y_LINK, z_k0), "engine")
+    # one PD-16 (carriage pin); the crank-side PD-17 bush runs on the pin integral with PD-04
+    S["pintle_geom"] = dict(z_c=z_c, z_k0=z_k0, y_l=Y_LINK, rc=CRANK["r"], Lk=Lk, phi_closed_deg=ph, s0=st["s0"],
+                            stroke_stop_mm=round(st["s0"] - slider_s(CRANK["phi_stop_deg"]), 3), z_needle_top=S["z_needle_top"],
+                            hv69_case_z=(zc0, zc1), frame_top=z_cap1, cover_y=(cy0, cy1))
+    return st
+
+
+def moving_parts_at(reg, S, phi_deg):
+    """Posed shapes of the pintle moving train at crank angle phi (deg): [(pn, idx, shape)].  Slider items translate by the
+    slider travel, crank items rotate about the crank axis, the link is re-placed.  Used by the stroke check (make_all)."""
+    st = S["pintle_v34"]
+    ph0 = CRANK["phi_closed_deg"]
+    dz = slider_s(ph0) - slider_s(phi_deg)                         # + = needle moves away from the seat (opening)
+    z_c = st["z_c"]
+    Rc = T_trans(0.0, 0.0, z_c) @ T_rot("y", -(phi_deg - ph0)) @ T_trans(0.0, 0.0, -z_c)
+    out = []
+    for pn in ("ENG-PD-04", "ENG-PD-05", "ENG-PD-18", "ENG-PD-09"):
+        p = reg.get(pn)
+        for i, (T, g) in enumerate(p.placements):
+            out.append((pn, i, apply(p.shape, Rc @ T)))
+    for pn in ("ENG-PD-07", "ENG-PD-08", "ENG-TC-05"):
+        p = reg.get(pn)
+        for i, (T, g) in enumerate(p.placements):
+            out.append((pn, i, apply(p.shape, T_trans(0, 0, dz) @ T)))
+    p = reg.get("ENG-PD-16")
+    out.append(("ENG-PD-16", 0, apply(p.shape, T_trans(0, 0, dz) @ p.placements[0][0])))
+    p = reg.get("ENG-PD-17")
+    out.append(("ENG-PD-17", 0, apply(p.shape, T_trans(0, 0, dz) @ p.placements[0][0])))
+    out.append(("ENG-PD-17", 1, apply(p.shape, T_trans(*crank_pin(st, phi_deg)))))
+    p = reg.get("ENG-PD-06")
+    out.append(("ENG-PD-06", 0, apply(p.shape, _link_T(st, phi_deg, dz))))
+    return out, dz

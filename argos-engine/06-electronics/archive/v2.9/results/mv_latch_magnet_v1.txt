@@ -1,0 +1,14 @@
+MV-P holding magnet sizing v1 (2026-10-13)  - SIZING, not validation
+input /home/claude/work/shared-fallback/engine/03-cad/calcs/mv_actuator_v1.json sha256 a2d8cdd3ef4ca6c0
+requirement 30.5 N (MECH incl. 2x), true load 15.27 N, model factor 1.00 -> design 30.5 N at 6.0 V, 100 C, 0.07 mm/face, mu_r 500; robust >= 1.25 x true load at mu_r 250 or 0.10 mm/face
+selected: inner pole d 9.0 mm, window 7.0 mm, coil h 12.0 mm, outer d 24.70 mm, plates 2.48 mm; AWG 32, 735 turns
+R coil 20 C 19.89 ohm, 100 C 26.14 ohm; mass steel 30.7 g + copper 10.60 g
+worst hold: I 0.228 A, NI 167.3 At, B 0.987 T, F 41.1 N (x1.35 of 30.5 N, x2.69 of the true load)
+nominal 7.4 V 20 C: I 0.368 A, P coil 2.694 W, F 130.0 N, L 0.2202 H
+max power 8.4 V -10 C: I 0.473 A, P coil 3.923 W (bus 3.972 W; budget 4.0 W)
+drop-out (hot, worst gap): true load 3.66 V, 30.5 N 5.17 V
+release (8.4 V cold): coil decay 2.36 ms + eddy 7.04 ms = 9.40 ms (req <= 10 ms); 7.4 V: 8.71 ms
+self-heating 26.32 K over 120 s; energy per 60 s burn 163.4 J
+sensitivity (6.0 V, 100 C): mu_r 250 -> 21.0 N; gap 0.10 mm -> 25.4 N; gap 0.15 mm -> 13.8 N; gap 0.20 mm -> 8.7 N (true load 15.27 N)
+drive options: direct_bus gap 0.07 P<=2 W: 70.2 g OD 27.9 mm; direct_bus gap 0.07 P<=4 W: 31.1 g OD 22.1 mm; buck_5V gap 0.07 P<=2 W: 43.1 g OD 25.3 mm; buck_5V gap 0.07 P<=4 W: 18.8 g OD 19.3 mm; cc_linear gap 0.07 P<=2 W: 34.9 g OD 24.4 mm; cc_linear gap 0.07 P<=4 W: 34.9 g OD 24.4 mm; direct_bus gap 0.10 P<=2 W: none; direct_bus gap 0.10 P<=4 W: 54.4 g OD 25.6 mm; buck_5V gap 0.10 P<=2 W: 75.2 g OD 27.9 mm; buck_5V gap 0.10 P<=4 W: 33.9 g OD 21.9 mm; cc_linear gap 0.10 P<=2 W: 59.2 g OD 26.9 mm; cc_linear gap 0.10 P<=4 W: 59.2 g OD 26.9 mm
+lightest candidates: 41.28 g d9.0/w7.0/h12.0 AWG32 F41.1 P3.92; 41.54 g d9.0/w6.0/h15.0 AWG32 F41.3 P3.94; 41.89 g d9.0/w7.5/h11.0 AWG32 F40.2 P3.86; 42.37 g d9.0/w8.0/h10.0 AWG32 F39.4 P3.87; 42.43 g d9.0/w6.5/h14.0 AWG32 F40.3 P3.74

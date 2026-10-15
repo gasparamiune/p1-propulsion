@@ -1,0 +1,134 @@
+{
+ "id": "manifold_state",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "electronics",
+ "script": "06-electronics/calc/manifold_state_v1.py",
+ "coolprop": "8.0.0",
+ "fluid": "NitrousOxide",
+ "critical": {
+  "T_K": 309.52067823146285,
+  "p_abs_Pa": 7244816.70160716,
+  "tag": "LITERATURE/EOS (CoolProp)"
+ },
+ "table": {
+  "p0_abs_Pa": 500000.0,
+  "dp_Pa": 25000.0,
+  "n": 269,
+  "p_last_abs_Pa": 7200000.0,
+  "sha256_16": "b11b49519ba2fe30",
+  "interp_err_max_K": 0.00542,
+  "interp_err_at_abs_Pa": 512500.0,
+  "limit_K": 0.02,
+  "header": "firmware/src/core/n2o_sat_table.h",
+  "tag": "DERIVED"
+ },
+ "spot_values": {
+  "30.0_bar_abs": 271.603,
+  "45.0_bar_abs": 288.115,
+  "50.5_bar_abs": 293.128,
+  "58.0_bar_abs": 299.321,
+  "59.0_bar_abs": 300.097,
+  "65.0_bar_abs": 304.532,
+  "66.0_bar_abs": 305.236,
+  "70.0_bar_abs": 307.948
+ },
+ "r3_error_budget": {
+  "terms": {
+   "P_feed": "M3200 170BG TEB 1.5 % FS = 2.55 bar [DATASHEET]",
+   "TC": "Type T IEC 60584 class 1 [DATASHEET IEC 60584-1]",
+   "CJ": "MAX31856 cold junction +/-0.7 C max [DATASHEET 19-7534 Rev 0]",
+   "immersion": "1.0 K [ASSUMED]: stem conduction / immersion of the MI sheath; CF-3 checks it (vented vs full line)"
+  },
+  "rows": [
+   {
+    "p_abs_bar": 40.0,
+    "Tsat_K": 283.137,
+    "dTsat_dP_K_per_bar": 1.0407,
+    "err_Tsat_from_P_TEB_K": 2.654,
+    "err_TC_class1_K": 0.5,
+    "err_CJ_K": 0.7,
+    "err_immersion_K": 1.0,
+    "sum_K": 4.854,
+    "margin_5K_ok": true
+   },
+   {
+    "p_abs_bar": 45.0,
+    "Tsat_K": 288.115,
+    "dTsat_dP_K_per_bar": 0.9529,
+    "err_Tsat_from_P_TEB_K": 2.43,
+    "err_TC_class1_K": 0.5,
+    "err_CJ_K": 0.7,
+    "err_immersion_K": 1.0,
+    "sum_K": 4.63,
+    "margin_5K_ok": true
+   },
+   {
+    "p_abs_bar": 50.0,
+    "Tsat_K": 292.69,
+    "dTsat_dP_K_per_bar": 0.8793,
+    "err_Tsat_from_P_TEB_K": 2.242,
+    "err_TC_class1_K": 0.5,
+    "err_CJ_K": 0.7,
+    "err_immersion_K": 1.0,
+    "sum_K": 4.442,
+    "margin_5K_ok": true
+   },
+   {
+    "p_abs_bar": 55.0,
+    "Tsat_K": 296.925,
+    "dTsat_dP_K_per_bar": 0.816,
+    "err_Tsat_from_P_TEB_K": 2.081,
+    "err_TC_class1_K": 0.5,
+    "err_CJ_K": 0.7,
+    "err_immersion_K": 1.0,
+    "sum_K": 4.281,
+    "margin_5K_ok": true
+   },
+   {
+    "p_abs_bar": 60.0,
+    "Tsat_K": 300.862,
+    "dTsat_dP_K_per_bar": 0.76,
+    "err_Tsat_from_P_TEB_K": 1.938,
+    "err_TC_class1_K": 0.5,
+    "err_CJ_K": 0.7,
+    "err_immersion_K": 1.0,
+    "sum_K": 4.138,
+    "margin_5K_ok": true
+   },
+   {
+    "p_abs_bar": 65.0,
+    "Tsat_K": 304.532,
+    "dTsat_dP_K_per_bar": 0.7085,
+    "err_Tsat_from_P_TEB_K": 1.807,
+    "err_TC_class1_K": 0.5,
+    "err_CJ_K": 0.7,
+    "err_immersion_K": 1.0,
+    "sum_K": 4.007,
+    "margin_5K_ok": true
+   }
+  ],
+  "note": "Linear sum (worst case). The +5 K margin is the LEAD/Combustion value; this budget only checks that it covers the sensor errors. It does NOT make a TC able to prove liquid at saturation (Combustion RC-03: with S1 the segment sits only 0.3-0.6 K below Tsat); R3 proves superheated (dry) vapour, nothing else."
+ },
+ "rules_implemented_fw_v2p8": {
+  "stand": {
+   "R1_first_start_W_s": 0.4,
+   "R2_relight_default_W_s": 0.5,
+   "R3_relight_superheat_both_ends_W_s": 0.65,
+   "R3_margin_K": 5.0,
+   "R4_sensor_invalid": "RELIGHT refused (no relight)",
+   "sensors": [
+    "MSS-1 inlet-block Type T TC (MAX31856 #5)",
+    "MSS-2 NC-valve-outlet Type T TC (MAX31856 #6)",
+    "P_feed J602 170BG (moved to the FS-01 MV-outlet block, next to MSS-2)"
+   ]
+  },
+  "flight": {
+   "W_s_every_relight": 0.65,
+   "first_start_W_s": 0.4,
+   "state_TCs": "telemetry only"
+  },
+  "W_epoch": "ignition-lift command (E1 = torch confirmation)",
+  "tag": "LEAD 2026-10-13 (Combustion relight_window_rule_v2p4)"
+ }
+}

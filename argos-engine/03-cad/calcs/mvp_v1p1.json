@@ -1,0 +1,168 @@
+{
+ "id": "mvp",
+ "version": "v1.1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/mvp_v1p1.py",
+ "supersedes": "mv_actuator_v1.json block B (concept) for the CAD dimensions; v1 kept as the concept record",
+ "method": "v1 (mv_actuator_v1.py, block B) sized the concept with a seat bore 11.0 and a balance piston 11.4 and no stem through the seat.\nThe CAD layout (FS-01 module at the zone top, lead Option A) puts the poppet disc in the OUTLET chamber below the seat, the stem up\nthrough the seat orifice and the inlet chamber to the balance piston, and the actuator ON TOP (spring, follower, cam, latch):\n  opening = stem DOWN (cam pushes the follower), closing = stem UP (compression spring under the follower + pressure bias).\nPressure bias (closing, up): P1 acts up on the piston underside (A_b - A_stem) and down on the disc inside the seat line (A_s - A_stem);\nnet P1 (A_b - A_s) toward CLOSED when the outlet is vented; the space above the piston is at P2 through the hollow stem (balance hole).\nChanges v1 -> v1.1 (DESIGN): seat 11.0 -> 11.5 and piston 11.4 -> 11.9 because the 3 mm stem passes through the orifice (net area);\nsecond dynamic seal (4 mm rod seal to the dry actuator housing) added to the friction; spring designed (EN 10270-3 1.4310).\nThe segment side (outlet chamber) is at the BOTTOM of the module and its ceiling (seat-web underside) carries the S1 back-relief check\nto the inlet chamber: the module is the top of the MV-to-seat segment, so vapour that reaches it can leave to the tank side.\nAll values DESIGN unless tagged; friction, seat stress and Cd ASSUMED as in v1.  Output: calcs/mvp_v1p1.json.\n",
+ "inputs": {
+  "d_seat": {
+   "v": 11.5,
+   "tag": "DESIGN: seat line diameter (land 11.5-12.5)"
+  },
+  "seat_land": {
+   "v": 0.5,
+   "tag": "DESIGN"
+  },
+  "d_stem": {
+   "v": 3.0,
+   "tag": "DESIGN: stem through the orifice, 17-4PH H1150, hollow 1.2 (balance hole)"
+  },
+  "d_hole": {
+   "v": 1.2,
+   "tag": "DESIGN: balance hole"
+  },
+  "d_piston": {
+   "v": 11.9,
+   "tag": "DESIGN: A_b - A_s = 7.3 mm2 -> closing bias"
+  },
+  "d_rod": {
+   "v": 4.0,
+   "tag": "DESIGN: upper stem through the PTFE rod seal into the dry actuator housing"
+  },
+  "lift": {
+   "v": 2.8,
+   "tag": "DESIGN: curtain >= orifice net area"
+  },
+  "disc_od": {
+   "v": 14.0,
+   "tag": "DESIGN"
+  },
+  "disc_t": {
+   "v": 3.0,
+   "tag": "DESIGN"
+  },
+  "Cd": {
+   "v": 0.65,
+   "tag": "ASSUMED (v1)"
+  },
+  "P1_open": {
+   "v": 6500000.0,
+   "tag": "Electronics MV spec v1: pad first prepress, cold"
+  },
+  "f_piston": {
+   "v": 30.0,
+   "tag": "ASSUMED PTFE spring-energised piston seal 11.9 at 6.5 MPa (v1 value)"
+  },
+  "f_rod": {
+   "v": 10.0,
+   "tag": "ASSUMED PTFE spring-energised rod seal 4 mm"
+  },
+  "seat_stress_target": {
+   "v": 7.0,
+   "tag": "ASSUMED PCTFE soft seat 5-10 MPa (v1)"
+  },
+  "spring_d": {
+   "v": 1.8,
+   "tag": "DESIGN wire EN 10270-3 1.4310"
+  },
+  "spring_Dm": {
+   "v": 12.0,
+   "tag": "DESIGN mean diameter"
+  },
+  "spring_G": {
+   "v": 70000.0,
+   "tag": "LITERATURE EN 10270-3 G 70 GPa (engmat SS-SPRING)"
+  },
+  "spring_Rm": {
+   "v": 1850.0,
+   "tag": "LITERATURE-approx EN 10270-3 NS 1.8 mm Rm ~1850 MPa"
+  },
+  "spring_F0": {
+   "v": 85.0,
+   "tag": "DESIGN preload at CLOSED (v1)"
+  },
+  "servo_angle": {
+   "v": 45.0,
+   "tag": "Electronics MV spec v1"
+  },
+  "servo_stall": {
+   "v": 2.16,
+   "tag": "Electronics: SB-2292SG 2.157 N m DATASHEET"
+  },
+  "latch_ratio": {
+   "v": 10.0,
+   "tag": "DESIGN (v1)"
+  },
+  "latch_factor": {
+   "v": 2.0,
+   "tag": "Electronics MV spec v1"
+  },
+  "moving_mass": {
+   "v": 0.018,
+   "tag": "ESTIMATE stem+disc+piston+follower"
+  }
+ },
+ "areas_mm2": {
+  "seat": 103.87,
+  "piston": 111.22,
+  "stem": 7.07,
+  "orifice_net": 96.8,
+  "curtain": 101.16
+ },
+ "Cv": 3.7,
+ "Cv_req": 3.0,
+ "F_bias_closed_N": 47.8,
+ "spring": {
+  "wire_mm": 1.8,
+  "Dm_mm": 12.0,
+  "OD_mm": 13.8,
+  "n_active": 6.6,
+  "n_total": 8.6,
+  "rate_N_mm": 8.05,
+  "F_closed_N": 85.0,
+  "F_open_N": 107.6,
+  "L_free_mm": 31.3,
+  "L_closed_mm": 20.7,
+  "L_open_mm": 17.9,
+  "L_solid_mm": 15.5,
+  "tau_open_MPa": 690.0,
+  "tau_allow_MPa": 832.0,
+  "MS_tau": 0.21,
+  "material": "EN 10270-3 1.4310 (302) NS, passivated; dry side (actuator housing), not N2O-wetted"
+ },
+ "seat": {
+  "F_closed_P1_N": 132.8,
+  "F_closed_P0_N": 85.0,
+  "land_area_mm2": 18.85,
+  "stress_P1_MPa": 7.0,
+  "stress_P0_MPa": 4.5,
+  "target_MPa": 7.0
+ },
+ "opening": {
+  "F_open_max_N": 195.3,
+  "cam_r_eff_mm": 3.57,
+  "T_cam_peak_Nm": 0.696,
+  "servo_use_of_stall": 0.32,
+  "limit": 0.5
+ },
+ "cam": {
+  "base_r_mm": 6.0,
+  "lift_mm": 2.8,
+  "rise_deg": 45.0,
+  "dwell_deg": 15.0,
+  "width_mm": 5.0,
+  "profile": "constant-velocity rise r(phi) = 6.0 + 2.8 phi/45deg, 15 deg dwell at full lift; 17-4PH H1150 + roller-less flat follower (hardened insert)"
+ },
+ "latch_hold_force_N_incl_2x": 31.1,
+ "closing": {
+  "F_close_N": 115.3,
+  "t_undamped_s": 0.0009,
+  "dashpot_target_s": 0.03
+ },
+ "pockets": {
+  "balance_chamber": "above the piston, P2 via the 1.2 mm hollow stem: Eotvos(1.2 mm) ~3 at 8 m/s2 -> a dead pocket (~0.5 cm3); reported in the trap table"
+ },
+ "tag": "DESIGN numbers; friction, seat stress, Cd ASSUMED (B-MV-1 bench gates them)"
+}

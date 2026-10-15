@@ -1,0 +1,180 @@
+### 2.8 The valve-to-seat segment at relight: vapour in flow order (v2.4)
+
+Basis files:
+- `relight_vapour_order_v2p4.json` (script `relight_vapour_order_v2p4.py`): geometry in flow order, heat, bubble mobility, pocket at RELIGHT, options;
+- `relight_vapour_states_v2p4.json` (script `relight_vapour_states_v2p4.py`): abort probability and latency of each line state, option (a) with the E0 -> E1 time;
+- `coast_migration_v2p4.json` (script `coast_migration_v2p4.py`): migration along GNC's specific-force time history (REV-GNC-1 RG-20);
+- kept from the first v2.4 pass: `segment_recheck_v2p4.json`, `post_abort_pocket_v2p4.json`, `segment_drain_v2p4.json`, `relight_window_rule_seg44_v2p4.json`.
+
+Inputs read, with sha256/16 in the JSON:
+- Mechanical `04-fea/thermal/segment_heat_budget_v1.json` and `segment_heat_coast_v1.json`: coast heat by element over the 18.67 s A1 coast, 875 J (LO) to 5.02 kJ (HI), and the FE manifold-bore Q(t) (FEA + ESTIMATE);
+- Mechanical `03-cad/src/calcs/inlet_e1m_v1.json` and `hose_routing_trade_v2.json`: volumes and elevations (DESIGN/ESTIMATE);
+- GNC `staging_v3.1/results/a1_coast_accel/coast_accel_a1_v1.json` and its series and envelope CSVs (SIM, 500 runs).
+
+**Question (LEAD 2026-10-13).** What governs ignition is the vapour between the first liquid and the pintle, in flow order, at RELIGHT. How much is there (LO and HI heat), does W 0.65 s light it, and if not, which fix?
+
+**Answer.**
+- The segment is an inverted U. Vapour that forms between the U-bottom and the seat cannot reach the MV or S1 by buoyancy, in either coast phase. Mechanical's reading that the head end cannot vent is confirmed, and it applies to the whole U (27.87 cm3), not only to the head end.
+- Vapour ahead of the first sustained liquid at RELIGHT, over GNC's MECO-to-RELIGHT windows of 17.8-21.8 s:
+  - LO heat: 26.5-29.3 cm3 effective. The U is 95-100 % vapour.
+  - HI heat: 38.7 cm3 effective (the U full, plus the void of the overflow rising through the wall line).
+- W 0.65 s does not light it. The probability that a relight which would light is aborted instead is 0.45-0.62 (LO) and 1.0 (HI).
+- The 19 cm3 requirement is not met by the zone-top routing. No passive coast condition meets it, because the LO case already fills 95 % of the U.
+- **Recommendation: (b), plan every relight as a vapour start with W 1.05 s.** It lights every state of this analysis (P_abort 0 in 200 000 samples). It costs GNC's planning time (1.21 s primed, 1.77 s unprimed) and raises the unignited liquid-line inventory to 36.8-40.3 g against the 26.6 g accepted. Both need the lead (and GNC's P cost).
+- **Fallback: (a)**, a crest prime bleed, if the lead does not accept the inventory or GNC's cost is too high.
+- **(d) does nothing** for the U.
+- **The lasting fix is Mechanical's:** a U of 18.9 cm3 or less, or no U. That restores W 0.65 s.
+
+**Segment in flow order** (engine frame, z above the pivot, +Z forward; "up" while f_z > 0). Volumes and elevations are Mechanical DESIGN/ESTIMATE; heat is Mechanical FEA + ESTIMATE over 18.67 s.
+
+| # | Element | V [cm3] | z from -> to [mm] | Side | Q LO / HI [J] |
+|---|---|---|---|---|---|
+| 0 | MV/FS-01 module, outlet side | 4.35 | 255 -> 240 | Route (vents through S1) | 107.5 / 534.0 |
+| 1 | Fixed 3/8 in wall line | 11.78 | 240 -> 45 | Route | 18.3 / 22.7 |
+| 2 | Union, elbow and fixed-end hose fitting (U-bottom) | in the U list | 45 | Route | 23.0 / 50.8 |
+| 3 | O3b coil hose (300 deg) | 12.35 | 45 -> 62 (3.9 deg) | U | 94.4 / 124.3 |
+| 4 | Coil-end fittings, FD-05 TEE, MSS-1 | 1.00 | 62 -> 80 | U | 37.1 / 129.1 |
+| 5 | FD-03 riser | 4.27 | 80 -> 151.1 | U | 9.5 / 11.8 |
+| 6 | FD-01 block passages (8 mm) | 0.91 | 151.1 -> 164.6 | U | 24.4 / 121.3 |
+| 7 | Filter bore (14 mm) and cartridge; 15 um mesh between core and annulus | 2.42 | 164.6 | U | 81.5 / 619.0 |
+| 8 | Head axial (8 mm) | 0.35 | 171.6 -> 178.6 | U | 27.2 / 206.3 |
+| 9 | Bonnet axial (8 mm) | 1.31 | 178.6 -> 204.6 | U | 45.0 / 341.6 |
+| 10 | Bonnet cross-drilling and tap stub: the crest | 0.75 | 200.6 | U | 30.0 / 227.8 |
+| 11 | Manifold 10 mm bore, 2 mm annulus: dead-end leg to the seat | 4.51 | 204.6 -> 110.6 | U | 377.4 / 2635.7 |
+| | **U (seat to U-bottom)** | **27.87** | crest 159.6 mm above the U-bottom | | **726.5 / 4416.9** |
+| | Segment | 44.0 | | | 875.3 / 5024.4 (Mechanical 875 / 5024) |
+
+The heat splits between elements 7 and 9 (0.75/0.25 and 0.6/0.4 by wetted area) and the 50/50 core/annulus volume split of the filter are ASSUMED.
+
+**Why the U traps vapour.**
+- With f_z > 0 (descent), vapour rises toward +z. The crest (z 204.6) is the top of the U. The only way from the crest to the MV and S1 runs down the riser and coil to the U-bottom (z 45) and then up the wall line. Buoyancy cannot carry vapour down 160 mm, so it collects at the crest and fills the U from the top down.
+  - Liquid displaced from the U leaves through the U-bottom, up the wall line, and out through S1 to the tank.
+  - When the vapour front reaches the U-bottom, further vapour overflows into the wall line and vents through S1. The U then holds as much vapour as it can.
+- With f_z < 0 (coast-up), vapour drifts toward -z. The U-bottom is then the top, and both legs leave it toward +z, so nothing leaves the U either.
+- The dead-end bore leg (4.51 cm3) can only lose liquid by boiling. In the LO case it keeps a plug of up to 2.9 cm3 at the seat if the crest held liquid at the descent onset; in the HI case it boils dry.
+- Lateral specific force (GNC: up to 3.1 m/s2 at the seat; angle up to 71 deg from the axis while f_z > 0.1 g; rates up to 194 deg/s near the drogue turnover) is brief. Emptying the U would need the U-bottom held above the crest. With the coil end about 54 mm off the axis, that is a tilt beyond about 71 deg held for the >= 4 s that vapour needs to travel about 0.4 m at <= 0.1 m/s. Nothing in the history does that (DERIVED).
+
+**Bubble mobility** (Taylor-bubble drift in the Wallis / White-Beardmore form, no drift for Eo <= 3.37; inclined coil bracketed between Fr 0.10 and Bendiksen 1984; Das et al. form for the annulus; LITERATURE as recalled, TO-VERIFY). Properties are CoolProp at Mechanical's coast saturation state, 289.48 K and 46.45 bar: rho_l 811.7, rho_v 140.0 kg/m3, sigma 2.63 mN/m, h_fg 183.9 kJ/kg. CoolProp has no N2O viscosity, so the viscosity term is bounded at 1e-3 Pa s; N_f stays large.
+
+| Passage | Eo, descent p50 (8.18 m/s2) | Drift, descent [m/s] | Eo, coast-up mean (0.39 m/s2) | Drift, coast-up [m/s] |
+|---|---|---|---|---|
+| 2 mm annular gap (bore leg) | 8.4 | 0.016 (to 0.093, annulus bracket) | 0.40 | 0 |
+| 3 mm drilling | 18.8 | 0.039 | 0.90 | 0 |
+| 7.75 mm riser / wall line | 125.6 | 0.079 | 6.0 | 0.004 |
+| 7.9 mm hose (coil at 3.9 deg) | 130.6 | 0.022-0.126 (inclined bracket) | 6.2 | 0.004 |
+| 8 mm drillings / block | 134.0 | 0.080 | 6.4 | 0.005 |
+| 14 mm filter bore | 410.2 | 0.106 | 19.6 | 0.019 |
+
+Time to clear each leg at the p01 descent force (7.74 m/s2): wall line 195 mm 2.5 s; riser 89 mm 1.2 s; block, head and bonnet drillings 54 mm 0.7 s; bore leg 94 mm 1.0-6.6 s; coil 252 mm 2.0-11.2 s. The capillary length in the descent is 0.71 mm.
+
+@@MIG@@
+
+**Filter mesh.** A fully wetted 15 um mesh has a bubble point of about 700 Pa (4 sigma/d, ASSUMED pore = rating). The buoyancy head is 172 Pa across the upper trap and at most 658 Pa across the lower trap, so in the coast the mesh holds vapour below it. That changes where the vapour sits inside the U, not how much there is. In flow the mesh passes gas at any pressure drop above 700 Pa, which is negligible against the bar-level drops at the lift.
+
+**Vapour generated and the pocket at RELIGHT.** Vapour in the U = heat into the U x v_fg/h_fg (0.0388 cm3/J). All of it is retained: no condensation sink, because the walls are hotter than the liquid. The S1-crack subcooling credit is 30 J, about 1.2 cm3, and is shown but not taken. Heat is scaled from Mechanical's 18.67 s coast to GNC's windows with the FE bore Q(t) shape (linear extrapolation of the last 5 samples, ASSUMED for every element). The pocket ahead of the first sustained liquid is the smaller of the vapour generated and the U volume less the liquid plug kept in the bore leg. A liquid plug at the seat is counted as dead time (V_plug / 43.1 cm3/s at the ignition lift, i.e. 1.49 cm3 of equivalent vapour per cm3 of plug). That is conservative. In HI the wall-line void of the overflow (drift flux) is added.
+
+Table 2.10. Pocket at RELIGHT and P(abort of a would-be light) (DERIVED + SIM on ASSUMED delays; lift 0.2039 mm; W from the lift command). Window = MECO to the relight command.
+
+| Heat | Window [s] | Vapour generated in the U [cm3] | U filled | Bore leg | Effective pocket [cm3] | P_abort W 0.65 | W 0.85 | W 1.05 |
+|---|---|---|---|---|---|---|---|---|
+| LO | 17.77 (min) | 26.5 | 95 % | plug 2.88 cm3 / dry | 29.3 / 26.5 | 0.62 / 0.45 | 0 | 0 |
+| LO | 18.67 (Mechanical) | 28.2 | 100 % | plug 2.73 / dry | 29.2 / 27.9 | 0.62 / 0.54 | 0 | 0 |
+| LO | 19.54 (p50) | 29.9 | 100 % | plug 2.58 / dry | 29.1 / 27.9 | 0.61 / 0.54 | 0 | 0 |
+| LO | 21.77 (max) | 34.3 | 100 % | plug 2.18 / dry | 28.9 / 27.9 | 0.60 / 0.54 | 0 | 0 |
+| HI | 17.77-21.77 | 162-206 | 100 % (overflow 134-178 cm3 vents through S1) | dry | 38.7 | 1.0 | 0.41 | 0 |
+
+- The pocket allowances of the abort model are 18.9 cm3 at W 0.65 s, 31.7 cm3 at W 0.85 s and 44.6 cm3 at W 1.05 s. W 0.85 s covers LO only.
+- The 200 000-sample E1 -> E2 liquid-line distribution is rebuilt exactly (maximum 0.35664 s, as in `post_abort_pocket_v2p4.json`).
+
+**Latency of a vapour start that lights** (W 1.05 s; `relight_vapour_states_v2p4.json`; s):
+
+| Line state | E0 -> E2 median / p99 / max | E0 -> E3 median / p95 / p99 / max |
+|---|---|---|
+| Liquid (primed) | 0.315 / 0.462 / 0.499 | 0.408 / 0.529 / 0.555 / 0.591 |
+| 19 cm3 (the requirement) | 0.611 / 0.758 / 0.794 | 0.703 / 0.825 / 0.851 / 0.887 |
+| U full, bore leg dry (27.87 cm3) | 0.749 / 0.896 / 0.932 | 0.841 / 0.963 / 0.989 / 1.025 |
+| LO with the bore-leg plug (29.3 cm3 effective) | 0.771 / 0.918 / 0.954 | 0.863 / 0.985 / 1.011 / 1.047 |
+| HI (38.7 cm3) | 0.917 / 1.064 / 1.100 | 1.009 / 1.131 / 1.157 / 1.193 |
+
+The 5 %-step quantiles for GNC's re-run are in the JSON (`states.*.W1.05`). ENG-04 (0.5 s to 90 %) is not met on any vapour start (§7.7).
+
+**Flow-order structure and a second-order risk.** From the pintle back, the LO state at RELIGHT is: [bore-leg plug <= 2.9 cm3 of liquid] [vapour] [liquid from the U-bottom on]. The plug flows for about 67 ms, shorter than the minimum assumed ignition delay plus the 10 ms Pc confirmation, so E2 on the plug alone is not expected under the ASSUMED delays. If a faster ignition did reach E2 on the plug, the vapour behind it would follow during the ramp and could trip the flame-out monitor A3 (§7.4) after E2. The same applies to module vapour if the S1 port is not at the module's high point. Open item (Electronics with Combustion, CF-4 data): A3 arming and persistence in the first 0.4 s after E2.
+
+**Options.**
+
+| Option | What it does to the pocket | Pocket at the lift [cm3] | P_abort, W 0.65 s | Cost and new failure modes |
+|---|---|---|---|---|
+| (a) Crest prime bleed: NC valve at the bonnet cross-drilling outer port (today the stand-only T4 / P_manifold port), vented overboard; MV opened before T_fire with the pintle seated; bleed open until liquid, then closed before E0 | Sweeps the U above the bore leg. The bore leg (4.51 cm3, below the crest) is not swept; the U boils again between bleed closure and the lift | 6.9-8.9 (LO), 7.7-19.1 (HI), for closure 0-1.0 s before E0, including E0 -> E1 and a liquid-full bore leg counted as dead time (bounding) | 0 (LO and HI, closure up to 1.0 s before E0) | Orifice about 1.1 mm for a 0.30 s purge (choked vapour, Cd 0.8 ASSUMED). About 3.9 g of vapour plus about 5 g of liquid per relight if it closes 0.10 s after liquid arrives (liquid about 50 g/s through the orifice). A new valve and harness; the MV open on a seated pintle for about 1-2 s (single barrier); stuck-open bleed (continuous N2O overboard, liquid during the burn); the port's radial fitting leaves the 8 deg sweep cone (Mechanical feasibility) |
+| (d) MV opened early in the steady descent, pintle seated | None in the U: the crest stays 160 mm above the U-bottom, and with the pintle seated nothing flows. The wall line and module vent to the tank through the MV instead of S1; they already vent | Unchanged | Unchanged (0.45-1.0) | The MV open on a seated pintle for seconds (single barrier). Not recommended |
+| (b) Every relight planned as a vapour start, W 1.05 s | None; the window covers it (allowance 44.6 cm3, the whole 44 cm3 segment) | As Table 2.10 | 0 at W 1.05 s, LO and HI | Planning 0.16 + 1.05 = 1.21 s primed; 0.56 + 0.16 + 1.05 = 1.77 s unprimed (GNC computes the P cost). Unignited liquid-line inventory 36.8 / 37.3 / 38.9 / 40.3 g (A1 / 15 / 20 / 25 C; about 40.0 g at the 24 C interlock) against 22.9-25.0 g at W 0.65 s and the 26.6 g accepted. No hardware change |
+
+- A pintle pre-bleed (venting the U through the chamber before E0) was considered and set aside. It needs the same purge time as (b), sends 3.9-5.4 g of unignited vapour through a hot chamber without the torch, and does not shorten the plan.
+- Mechanical's re-route (U <= 18.9 cm3, or the MV moved to the riser foot so that no U remains between the MV and the seat) is the lasting fix. One candidate quoted by Mechanical, a -4 hose with a 1/4 in riser, gives a U of about 17.3 cm3 for about 3 bar more feed loss (both ESTIMATE). Criterion for any re-route: vapour ahead of the first sustained liquid at RELIGHT <= 18.9 cm3 in the HI case, counting every high point between the tank liquid and the pintle and a bore-leg plug at 1.49 cm3 per cm3.
+
+**Recommendation, with numbers.** Adopt (b) now: P_abort 0 for LO and HI, no hardware, and the hard-start credible peaks of §7.6 do not depend on the inventory (<= 41.5 bar with the rounded entrance, <= 44.9 bar sharp). Two conditions belong to the lead:
+1. Accept the unignited inventory of up to 40.3 g (40.0 g at 24 C) on the credible-case basis, as was done for 26.6 g.
+2. Accept GNC's P cost of planning 1.21 s (1.77 s unprimed).
+
+If either is refused, adopt (a), subject to Mechanical's port and the valve's failure modes. In both cases Mechanical should study a smaller U.
+
+**Research proposal (not adopted): abort deadline referenced to liquid arrival.**
+- Hypothesis: the chamber pressure at the ignition lift separates vapour flow from liquid flow. Cold liquid flow gives 0.15-0.25 of the lit Pc; vapour gives less, about 28 % of the liquid mass flow. Liquid arrival can then be detected within about 20 ms.
+- Rule: an abort at (liquid arrival + 0.65 s), capped at 1.05 s from the lift. This would bound the unignited liquid at the W 0.65 s level (<= 25 g) whatever the vapour pocket, and would let the stand light vapour starts within its disc allowable.
+- Comparator: (b) with a fixed W of 1.05 s.
+- Evidence needed: CF-4 traces of Pc and P_feed at the ignition lift with a heated U.
+- Refutation criterion: the vapour and liquid signatures overlap, or detection takes longer than 50 ms.
+
+**What the PRIMED flag does not see.** A segment full of saturated vapour reads P_feed = P_tank, so it reads PRIMED. The UNPRIMED flag (P_feed < 0.5 P_tank) therefore cannot detect coast vapour (REV-GNC-1 RG-01, RG-08). Under (b) every relight is planned as a vapour start, so the flag decides only the unprimed fault path (prepress). Mechanical's seat-leak drain analysis (CHANGELOG 2026-10-13) shows that unpriming the segment within a coast needs >= 1 g/s, i.e. a stuck-open pintle. UNPRIMED in flight is therefore a fault indication.
+
+**Segment contents** (DERIVED, 44 cm3):
+
+| State | Liquid-full [g] | Vapour-full [g] | Whole-segment purge [s] |
+|---|---|---|---|
+| A1 relight state (286.7 K, 43.5 bar) | 36.5 | 5.64 | 0.637 at 0.2192 mm; 0.685 at 0.2039 mm |
+| 15 / 20 / 25 C | 36.1 / 34.5 / 32.7 | 5.90 / 6.95 / 8.31 | Same |
+
+**Relight abort probability against the pocket** (SIM on ASSUMED delays, `post_abort_pocket_v2p4.json`; MV open before the lift; W from the lift command). The basis of every P_abort in this section.
+
+| Pocket [cm3] | 0 | 8 | 12 | 16 | 19 | 20 | 22 | 24 | 30 | 44 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| P(abort of a would-be light), W 0.65 s, 0.2039 mm | 0 | 0 | 0 | 0 | 0.0005 | 0.046 | 0.17 | 0.29 | 0.67 | 1.00 |
+| Same, W 0.50 s | 0 | 0 | 0.15 | 0.40 | 0.58 | 0.65 | 0.77 | 0.90 | 1.00 | 1.00 |
+| E1 -> E2 maximum [s], 0.2039 mm | 0.357 | 0.481 | 0.543 | 0.606 | 0.652 | 0.668 | 0.699 | 0.730 | 0.823 | 1.041 |
+
+**Shutdown order and the segment** (SIM, `segment_drain_v2p4.json`; 500 N steady, Cd 0.70 ASSUMED):
+
+| Order | Vapour left in 44 cm3 | Liquid volume fraction | Segment pressure | N2O after the decision |
+|---|---|---|---|---|
+| MV first, 30 ms MV-P close (abort order) | 22.2-24.3 cm3 | 0.45-0.50 | 7.8-10.9 bar below P_tank | 16.8-22.1 g (19.3 g at 20 C) |
+| MV first, 0.10 s close | 4.5-8.2 cm3 | 0.81-0.90 | 1.6-2.4 bar below P_tank | 17.0-22.6 g |
+| Pintle first (MV on seat confirmation or timeout; seat reached 0.18-0.19 s after the decision) | 0 | 1.0 | P_tank | 17.0-22.7 g (0.25-0.58 g more than MV first, 30 ms) |
+| MV first, 30 ms, from 300 N | 5.7-7.7 cm3 | 0.82-0.87 | 1.7-2.9 bar below P_tank | 6.1-7.0 g |
+
+Rows cover tank temperatures of 13.9, 20 and 30 C. The 13.9 C pintle-first run used the 0.20 s valve timeout of the model: a first-order-lag threshold artifact left the seat flag unset, and the segment stayed liquid-full.
+
+- **Normal shutdown is pintle-first** (LEAD). The segment is liquid-full at MECO. The coast then fills the U with vapour (Table 2.10), so a pintle-first shutdown no longer guarantees a primed relight; it still minimises the segment's starting vapour.
+- **An abort is MV-first** (the NC valve is the fail-safe). It empties about half the segment. The next attempt is a vapour start (LEAD), which (b) already plans for.
+
+**Stand rules at 44 cm3** (LEAD 2026-10-13: stand option (b) adopted; aft DN32 disc only; R1 = R2 = 0.35 s; R3 deleted; R4 kept).
+
+Unignited N2O admitted by the abort deadline W from the lift command, at the 0.2039 mm lift (DERIVED, `relight_window_rule_seg44_v2p4.json`; Dyer, Cd 0.70 ASSUMED). Columns are the A1 state / 15 C / 20 C / 25 C.
+
+| W [s] | Liquid line [g] | Whole-segment vapour [g] |
+|---|---|---|
+| 0.35 | 12.4 / 12.6 / 13.1 / 13.6 | 5.6 / 5.9 / 7.0 / 8.3 |
+| 0.65 | 22.9 / 23.2 / 24.2 / 25.0 | 6.9 / 7.2 / 8.3 / 9.7 |
+| 0.85 | 29.8 / 30.2 / 31.5 / 32.7 | 13.8 / 14.2 / 15.6 / 17.3 |
+| 1.05 | 36.8 / 37.3 / 38.9 / 40.3 | 20.8 / 21.3 / 23.0 / 24.9 |
+
+At the 24 C interlock the liquid-line values are 13.5 g (0.35 s), 24.9 g (0.65 s) and 40.0 g (1.05 s), by linear interpolation.
+
+- **R1 and R2, 0.35 s.** At 24 C the liquid line admits 13.5 g against the 13.84 g allowable of the aft DN32 disc with the rounded entrance, a margin of 0.3 g. With a sharp entrance (9.09 g) the rule would fail by 4.4 g, so the rounded entrance is required on every stand grain (§7.6).
+- **Abort rate at 0.35 s** (`relight_vapour_states_v2p4.json`): 0.0051 for a primed (liquid) start. Any vapour ahead of the liquid aborts: 1.0 for a U full of vapour, and 0.43-0.55 even after a crest bleed if the unswept bore leg holds a plug (bounding).
+- **Stand relights therefore need the U primed.** The vertical stand at 1 g reproduces the flight trap. Recommended stand procedure (GSE, stand only):
+  1. Open the MV with the pintle seated.
+  2. Bleed at the T4 / P_manifold crest port to a safe vent until liquid arrives, then close it.
+  3. Run the unprimed path's prepress (the 0.10 mm bleed lift vents part of the bore leg through the injector).
+  4. Command START or RELIGHT.
+  T4 measures the resulting abort rate.
+- **Test coverage.** No stand test can light a vapour start within the 13.84 g allowable: a 27.87 cm3 pocket needs W >= about 0.80 s. Cold flow CF-4 (§10) measures the purge, IGN-1 the torch and T4 primed relights. The first lit vapour start would be the first flight relight, unless the lead approves a stand basis for one, e.g. a dedicated article with head-end relief or a test under the credible-case basis. This is open item OI-23 for the lead.
+- **Boil-dry on the stand.** After a hot hold of >= about 100 s (58 W) to 330 s (18 W), the whole segment boils dry.

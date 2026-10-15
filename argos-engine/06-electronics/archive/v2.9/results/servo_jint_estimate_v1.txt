@@ -1,0 +1,28 @@
+servo_jint_estimate_v1 (Electronics 2026-10-12): J_int = tau_m T_s / (eta w_nl)  [route A], J_rotor N^2 [route B]
+requirement ENG-07c J_int <= 1.0e-03 kg m2 (LEAD provisional); linkage n 4.8 -> engine-side J_int n^2
+
+SB-2292SG: Savox SB-2292SG (HV brushless digital servo, steel gears, aluminium case)
+  6.0 V  Ts 2.16 N m  w_nl 12.32 rad/s  Ts/w 0.1751 N m s  J_int central 1.38e-03  range 6.57e-04..2.33e-03 kg m2  meets 1e-3 only if tau_m <= 4.0 ms (eta 0.7)  engine side 0.032 kg m2
+  7.4 V  Ts 3.04 N m  w_nl 14.96 rad/s  Ts/w 0.2032 N m s  J_int central 1.60e-03  range 7.62e-04..2.71e-03 kg m2  meets 1e-3 only if tau_m <= 3.4 ms (eta 0.7)  engine side 0.037 kg m2
+  8.4 V  Ts 4.41 N m  w_nl 19.04 rad/s  Ts/w 0.2318 N m s  J_int central 1.82e-03  range 8.69e-04..3.09e-03 kg m2  meets 1e-3 only if tau_m <= 3.0 ms (eta 0.7)  engine side 0.042 kg m2
+SB-2290SG: Savox SB-2290SG (comparator, high torque)
+  6.0 V  Ts 4.41 N m  w_nl 6.54 rad/s  Ts/w 0.6743 N m s  J_int central 5.30e-03  range 2.53e-03..8.99e-03 kg m2  meets 1e-3 only if tau_m <= 1.0 ms (eta 0.7)  engine side 0.122 kg m2
+  7.4 V  Ts 5.39 N m  w_nl 8.06 rad/s  Ts/w 0.6696 N m s  J_int central 5.26e-03  range 2.51e-03..8.93e-03 kg m2  meets 1e-3 only if tau_m <= 1.1 ms (eta 0.7)  engine side 0.121 kg m2
+  8.4 V  Ts 6.87 N m  w_nl 9.52 rad/s  Ts/w 0.7211 N m s  J_int central 5.67e-03  range 2.70e-03..9.61e-03 kg m2  meets 1e-3 only if tau_m <= 1.0 ms (eta 0.7)  engine side 0.131 kg m2
+SB-2274SG: Savox SB-2274SG (comparator, fast/low torque)
+  6.0 V  Ts 1.96 N m  w_nl 9.97 rad/s  Ts/w 0.1967 N m s  J_int central 1.54e-03  range 7.37e-04..2.62e-03 kg m2  meets 1e-3 only if tau_m <= 3.6 ms (eta 0.7)  engine side 0.036 kg m2
+  7.4 V  Ts 2.45 N m  w_nl 13.09 rad/s  Ts/w 0.1873 N m s  J_int central 1.47e-03  range 7.02e-04..2.50e-03 kg m2  meets 1e-3 only if tau_m <= 3.7 ms (eta 0.7)  engine side 0.034 kg m2
+
+route B (J_rotor N^2) for SB-2292SG at 7.4 V, output no-load 142.9 rpm:
+  J_rotor 1.0 g cm2, Kv 1500 rpm/V (ASSUMED) -> N 78 -> J_int 6.04e-04 kg m2
+  J_rotor 1.0 g cm2, Kv 2000 rpm/V (ASSUMED) -> N 104 -> J_int 1.07e-03 kg m2
+  J_rotor 1.0 g cm2, Kv 3000 rpm/V (ASSUMED) -> N 155 -> J_int 2.42e-03 kg m2
+  J_rotor 1.9 g cm2, Kv 1500 rpm/V (ASSUMED) -> N 78 -> J_int 1.15e-03 kg m2
+  J_rotor 1.9 g cm2, Kv 2000 rpm/V (ASSUMED) -> N 104 -> J_int 2.04e-03 kg m2
+  J_rotor 1.9 g cm2, Kv 3000 rpm/V (ASSUMED) -> N 155 -> J_int 4.59e-03 kg m2
+  route A central implies N 92 with a 1.9 g cm2 rotor (motor 13096 rpm no-load, Kv 1770 rpm/V): plausible
+
+by construction: J_rotor 1.91 g cm2 (maxon ECX 22) needs N <= 72 for J_int <= 1e-3 (gearhead inertia extra)
+
+physics note: J_int n^2 = (tau_m/eta) x (T_e/w_e) at the engine, independent of the gear and linkage ratios:
+for the torque-speed the TVC needs, only the motor time constant (and gear efficiency) can lower it.

@@ -1,0 +1,443 @@
+{
+ "id": "mv_latch_magnet",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "electronics",
+ "script": "06-electronics/calc/mv_latch_magnet_v1.py",
+ "status": "SIZING (analytic magnetic circuit). Not a validation: B-MV-1 measures pull-off force, drop-out voltage and release time",
+ "inputs": {
+  "mv_actuator_json": {
+   "path": "/home/claude/work/shared-fallback/engine/03-cad/calcs/mv_actuator_v1.json",
+   "sha256": "a2d8cdd3ef4ca6c0ecd128f30b82d505ac630800fdc163537c1b16a0517bb7da",
+   "tag": "MECH mv_actuator_v1 (LEAD 2026-10-13 quoted a2d8cdd3ef4ca6c0)"
+  },
+  "F_hold_req_incl_2x_N": {
+   "v": 30.5,
+   "tag": "MECH latch_hold_force_N_incl_2x"
+  },
+  "F_true_load_N": {
+   "v": 15.27,
+   "tag": "DERIVED (spring_open_N + F_bias_closed_N) / latch_lever_ratio (MECH)"
+  },
+  "F_model_factor": {
+   "v": 1.0,
+   "tag": "DESIGN"
+  },
+  "V_min_bus_V": {
+   "v": 6.0,
+   "tag": "DESIGN"
+  },
+  "V_max_bus_V": {
+   "v": 8.4,
+   "tag": "DATASHEET 2S"
+  },
+  "R_fet_ohm": {
+   "v": 0.12,
+   "tag": "DATASHEET DMN6075S"
+  },
+  "R_harness_ohm": {
+   "v": 0.1,
+   "tag": "ASSUMED"
+  },
+  "T_coil_hot_C": {
+   "v": 100.0,
+   "tag": "ASSUMED bound"
+  },
+  "T_coil_cold_C": {
+   "v": -10.0,
+   "tag": "DATASHEET SB-2292SG lower rating"
+  },
+  "gap_per_face_nom_mm": {
+   "v": 0.06,
+   "tag": "DESIGN shim 0.05 + ASSUMED 0.01"
+  },
+  "gap_per_face_worst_mm": {
+   "v": 0.07,
+   "tag": "DESIGN shim 0.05 + ASSUMED 0.05"
+  },
+  "mu_r": {
+   "v": 500.0,
+   "tag": "ASSUMED"
+  },
+  "B_steel_max_T": {
+   "v": 1.3,
+   "tag": "DESIGN"
+  },
+  "sigma_Fe_S_m": {
+   "v": 10000000.0,
+   "tag": "LITERATURE"
+  },
+  "fill": {
+   "v": 0.55,
+   "tag": "ASSUMED"
+  },
+  "V_clamp_min_V": {
+   "v": 27.099999999999998,
+   "tag": "DATASHEET SMAJ24A V_BR min + SS14"
+  },
+  "P_budget_W": {
+   "v": 4.0,
+   "tag": "electronics.json v1 latch_coil power_W_max (ASSUMED requirement)"
+  },
+  "P_target_W": {
+   "v": 4.0,
+   "tag": "DESIGN"
+  }
+ },
+ "selected": {
+  "tag": "DERIVED (lightest candidate meeting F >= 30.5 N at 6.0 V / 100 C / 0.07 mm per face / mu_r 500, >= 1.25 x the true load at mu_r 250 or at 0.10 mm per face, bus power <= 4.0 W at 8.4 V / -10 C, steel <= 1.3 T; direct ARM-bus drive)",
+  "geometry_mm": {
+   "inner_pole_d": 9.0,
+   "window_w": 7.0,
+   "coil_h": 12.0,
+   "outer_d": 24.698,
+   "back_plate_t": 2.475,
+   "armature_t": 2.475,
+   "pole_area_mm2": 63.6
+  },
+  "coil": {
+   "awg": 32,
+   "bare_d_mm": 0.202,
+   "turns": 735,
+   "R_20C_ohm": 19.89,
+   "R_100C_ohm": 26.14,
+   "R_m10C_ohm": 17.54
+  },
+  "mass_g": {
+   "steel": 30.7,
+   "copper": 10.6,
+   "tag": "DERIVED, excl. bobbin, leads, housing"
+  },
+  "worst_hold": {
+   "condition": "6.0 V bus, coil 100 C, gap 0.07 mm/face, mu_r 500",
+   "I_A": 0.228,
+   "NI_At": 167.3,
+   "B_pole_T": 0.987,
+   "F_N": 41.1,
+   "margin_vs_30p5N": 1.35,
+   "margin_vs_true_load": 2.69
+  },
+  "nominal": {
+   "condition": "7.4 V, 20 C, gap 0.06 mm/face",
+   "I_A": 0.368,
+   "F_N": 130.0,
+   "P_coil_W": 2.694,
+   "P_bus_W": 2.723,
+   "L_H": 0.2202,
+   "B_pole_T": 1.733
+  },
+  "max_power": {
+   "condition": "8.4 V, -10 C, gap 0.06 mm/face",
+   "I_A": 0.473,
+   "P_coil_W": 3.923,
+   "P_bus_W": 3.972,
+   "B_pole_T_linear_model": 2.227,
+   "within_budget_4W": true,
+   "note": "B above ~1.3 T means the linear model overestimates the force here (saturation): irrelevant, the worst hold case sets the design"
+  },
+  "dropout_V": {
+   "hot_worst_gap_true_load": 3.66,
+   "hot_worst_gap_30p5N": 5.17,
+   "tag": "DERIVED: bus voltage at which the force falls to the load (releases below it)"
+  },
+  "release": {
+   "nominal_7V4": {
+    "t_coil_s": 0.00166,
+    "tau_eddy_s": 0.00704,
+    "t_release_s": 0.00871,
+    "I_release_A": 0.12613,
+    "tau_LR_s": 0.01095,
+    "V_drain_peak_V": 38.3
+   },
+   "cold_8V4": {
+    "t_coil_s": 0.00236,
+    "tau_eddy_s": 0.00704,
+    "t_release_s": 0.0094,
+    "I_release_A": 0.12613,
+    "tau_LR_s": 0.01239,
+    "V_drain_peak_V": 38.3
+   },
+   "req_s": 0.01,
+   "meets_req": true,
+   "tag": "DERIVED estimate (clamp decay + ASSUMED eddy factor); B-MV-1 measures it"
+  },
+  "self_heating_K": {
+   "v": 26.32,
+   "tag": "DERIVED adiabatic, 120 s at the 8.4 V / -10 C power"
+  },
+  "energy_per_60s_burn_J": {
+   "v": 163.4,
+   "tag": "DERIVED at 7.4 V (flight-day budget 13 Wh usable: negligible)"
+  },
+  "sensitivity_F_N": {
+   "mu_r_250_worst_gap_hot_6V_F_N": 21.0,
+   "gap_0p10mm_hot_6V_F_N": 25.4,
+   "gap_0p15mm_hot_6V_F_N": 13.8,
+   "gap_0p20mm_hot_6V_F_N": 8.7
+  }
+ },
+ "candidates_lightest": [
+  {
+   "mass_g": 41.28,
+   "r1_mm": 4.5,
+   "w_mm": 7.0,
+   "h_mm": 12.0,
+   "awg": 32,
+   "N": 735,
+   "F_worst_N": 41.1,
+   "P_max_W": 3.92
+  },
+  {
+   "mass_g": 41.54,
+   "r1_mm": 4.5,
+   "w_mm": 6.0,
+   "h_mm": 15.0,
+   "awg": 32,
+   "N": 780,
+   "F_worst_N": 41.3,
+   "P_max_W": 3.94
+  },
+  {
+   "mass_g": 41.89,
+   "r1_mm": 4.5,
+   "w_mm": 7.5,
+   "h_mm": 11.0,
+   "awg": 32,
+   "N": 724,
+   "F_worst_N": 40.2,
+   "P_max_W": 3.86
+  },
+  {
+   "mass_g": 42.37,
+   "r1_mm": 4.5,
+   "w_mm": 8.0,
+   "h_mm": 10.0,
+   "awg": 32,
+   "N": 702,
+   "F_worst_N": 39.4,
+   "P_max_W": 3.87
+  },
+  {
+   "mass_g": 42.43,
+   "r1_mm": 4.5,
+   "w_mm": 6.5,
+   "h_mm": 14.0,
+   "awg": 32,
+   "N": 796,
+   "F_worst_N": 40.3,
+   "P_max_W": 3.74
+  },
+  {
+   "mass_g": 43.25,
+   "r1_mm": 4.5,
+   "w_mm": 7.0,
+   "h_mm": 13.0,
+   "awg": 32,
+   "N": 802,
+   "F_worst_N": 39.4,
+   "P_max_W": 3.6
+  },
+  {
+   "mass_g": 43.96,
+   "r1_mm": 4.5,
+   "w_mm": 7.5,
+   "h_mm": 12.0,
+   "awg": 32,
+   "N": 796,
+   "F_worst_N": 38.6,
+   "P_max_W": 3.52
+  },
+  {
+   "mass_g": 44.29,
+   "r1_mm": 5.5,
+   "w_mm": 5.5,
+   "h_mm": 10.0,
+   "awg": 33,
+   "N": 569,
+   "F_worst_N": 38.5,
+   "P_max_W": 3.9
+  }
+ ],
+ "drive_options": {
+  "v": [
+   {
+    "mode": "direct_bus",
+    "gap_mm": 0.07,
+    "P_bus_limit_W": 2.0,
+    "mass_g": 70.2,
+    "outer_d_mm": 27.9,
+    "pole_d_mm": 10.0,
+    "window_mm": 8.0,
+    "coil_h_mm": 18.0,
+    "awg": 32,
+    "turns": 1326,
+    "I_hold_A": 0.113,
+    "P_bus_max_W": 1.97
+   },
+   {
+    "mode": "direct_bus",
+    "gap_mm": 0.07,
+    "P_bus_limit_W": 4.0,
+    "mass_g": 31.1,
+    "outer_d_mm": 22.1,
+    "pole_d_mm": 7.0,
+    "window_mm": 7.0,
+    "coil_h_mm": 14.0,
+    "awg": 32,
+    "turns": 869,
+    "I_hold_A": 0.22,
+    "P_bus_max_W": 3.84
+   },
+   {
+    "mode": "buck_5V",
+    "gap_mm": 0.07,
+    "P_bus_limit_W": 2.0,
+    "mass_g": 43.1,
+    "outer_d_mm": 25.3,
+    "pole_d_mm": 8.0,
+    "window_mm": 8.0,
+    "coil_h_mm": 14.0,
+    "awg": 31,
+    "turns": 804,
+    "I_hold_A": 0.214,
+    "P_bus_max_W": 1.98
+   },
+   {
+    "mode": "buck_5V",
+    "gap_mm": 0.07,
+    "P_bus_limit_W": 4.0,
+    "mass_g": 18.8,
+    "outer_d_mm": 19.3,
+    "pole_d_mm": 7.0,
+    "window_mm": 5.5,
+    "coil_h_mm": 9.0,
+    "awg": 32,
+    "turns": 401,
+    "I_hold_A": 0.431,
+    "P_bus_max_W": 3.98
+   },
+   {
+    "mode": "cc_linear",
+    "gap_mm": 0.07,
+    "P_bus_limit_W": 2.0,
+    "mass_g": 34.9,
+    "outer_d_mm": 24.4,
+    "pole_d_mm": 8.0,
+    "window_mm": 7.5,
+    "coil_h_mm": 11.0,
+    "awg": 32,
+    "turns": 724,
+    "I_hold_A": 0.217,
+    "P_bus_max_W": 1.83
+   },
+   {
+    "mode": "cc_linear",
+    "gap_mm": 0.07,
+    "P_bus_limit_W": 4.0,
+    "mass_g": 34.9,
+    "outer_d_mm": 24.4,
+    "pole_d_mm": 8.0,
+    "window_mm": 7.5,
+    "coil_h_mm": 11.0,
+    "awg": 32,
+    "turns": 724,
+    "I_hold_A": 0.217,
+    "P_bus_max_W": 1.83
+   },
+   {
+    "mode": "direct_bus",
+    "gap_mm": 0.1,
+    "P_bus_limit_W": 2.0,
+    "result": "none in the search range"
+   },
+   {
+    "mode": "direct_bus",
+    "gap_mm": 0.1,
+    "P_bus_limit_W": 4.0,
+    "mass_g": 54.4,
+    "outer_d_mm": 25.6,
+    "pole_d_mm": 9.0,
+    "window_mm": 7.5,
+    "coil_h_mm": 17.0,
+    "awg": 31,
+    "turns": 919,
+    "I_hold_A": 0.223,
+    "P_bus_max_W": 3.89
+   },
+   {
+    "mode": "buck_5V",
+    "gap_mm": 0.1,
+    "P_bus_limit_W": 2.0,
+    "mass_g": 75.2,
+    "outer_d_mm": 27.9,
+    "pole_d_mm": 10.0,
+    "window_mm": 8.0,
+    "coil_h_mm": 20.0,
+    "awg": 30,
+    "turns": 932,
+    "I_hold_A": 0.207,
+    "P_bus_max_W": 1.92
+   },
+   {
+    "mode": "buck_5V",
+    "gap_mm": 0.1,
+    "P_bus_limit_W": 4.0,
+    "mass_g": 33.9,
+    "outer_d_mm": 21.9,
+    "pole_d_mm": 9.0,
+    "window_mm": 5.5,
+    "coil_h_mm": 12.0,
+    "awg": 31,
+    "turns": 437,
+    "I_hold_A": 0.43,
+    "P_bus_max_W": 3.97
+   },
+   {
+    "mode": "cc_linear",
+    "gap_mm": 0.1,
+    "P_bus_limit_W": 2.0,
+    "mass_g": 59.2,
+    "outer_d_mm": 26.9,
+    "pole_d_mm": 10.0,
+    "window_mm": 7.5,
+    "coil_h_mm": 15.0,
+    "awg": 31,
+    "turns": 804,
+    "I_hold_A": 0.218,
+    "P_bus_max_W": 1.83
+   },
+   {
+    "mode": "cc_linear",
+    "gap_mm": 0.1,
+    "P_bus_limit_W": 4.0,
+    "mass_g": 59.2,
+    "outer_d_mm": 26.9,
+    "pole_d_mm": 10.0,
+    "window_mm": 7.5,
+    "coil_h_mm": 15.0,
+    "awg": 31,
+    "turns": 804,
+    "I_hold_A": 0.218,
+    "P_bus_max_W": 1.83
+   }
+  ],
+  "tag": "DERIVED trade (same magnetic model): a regulated coil supply removes the (8.4/6.0)^2 bus factor; baseline keeps the direct ARM-bus drive (existing MVL channel, no new parts)"
+ },
+ "driver": {
+  "switch": "DMN6075S low side (existing solenoid_channel, fast release SS14 + SMAJ24A), ARM bus, AND /FAULT (LTC4365) and the HAL dynamic gate (v2.7)",
+  "peak_drain_V": 38.3,
+  "tag": "DATASHEET DMN6075S 60 V / 2.0 A"
+ },
+ "notes": [
+  "The armature is pushed onto the poles by the cam (over-centre lever): no pull-in force is required, only holding at a closed armature.",
+  "Self-aligning armature (floats on the latch lever) is part of the design: the 0.07 mm/face worst gap assumes both faces seat.",
+  "Non-magnetic layer 0.05 mm per face is part of the design: it fixes the working gap and removes remanent sticking (release must never rely on demagnetisation). Without it the force rises but release becomes unpredictable.",
+  "COTS alternative: a DC holding electromagnet of the ~22 mm class with a 6 V coil can replace the custom pot core if its datasheet gives the force at a 0.07 mm gap: requirement F >= 30.5 N at 6.0 V and 100 C coil, bus power <= 4.0 W at 8.4 V. TO-QUOTE.",
+  "Vibration: the 2x factor in the 30.5 N covers the armature/lever inertial load only if Mechanical confirms the lever mass and the flight acceleration spectrum (TO-VERIFY)."
+ ],
+ "open": [
+  "mu_r and the gap allowance are ASSUMED: B-MV-1 pull-off force vs bus voltage at 20 C and hot (oven 100 C coil)",
+  "release time: B-MV-1 latch-drop to CLOSED switch with the SMAJ24A clamp (<= 10 ms latch release required)",
+  "steel grade and annealing: Mechanical drawing (pure iron or 1010, stress-relief anneal after machining)"
+ ]
+}

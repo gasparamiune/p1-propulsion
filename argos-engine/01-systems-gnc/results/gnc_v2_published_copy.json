@@ -1,0 +1,3990 @@
+{
+ "id": "gnc",
+ "version": "v2",
+ "date": "2026-10-12",
+ "owner": "Space/GNC (01-systems-gnc)",
+ "supersedes": "gnc.json v1 (2026-10-11; 1-D + analytic first pass)",
+ "status": "M2. 6-DOF Monte Carlo (sim6 v2.4, 500 runs per case, 42 cases) on reference vehicle RV-1c (ledger v3c): mechanical.json v1 engine module (CG pivot, 146 mm body for the 140 mm engine-bay ID of the founder decision 2026-10-12, final) + the combustion v2 engine growth relayed by the lead; engine = combustion.json v1 throttle map x combustion v2 relay factors (S230 straight-port grain, pre-publication: see engine_model); electronics.json v1 servo/latency data. Requirements below supersede v1 where restated; the 1-D v1 sweeps are kept where the 6-DOF does not replace them. Lead decisions 2026-10-12 (N2O 2.00 kg / 3.17 L; roll RCS provision only; ENG-07 slew >= 100 deg/s; gimbal parts designed to the 26.5 N m actuator stall load) are the baseline: see lead_decisions_2026-10-12. Everything here is a prediction: no hardware has been tested. Written to the lead's fallback hub during the /mnt outage.",
+ "publication_note": {
+  "published": "2026-10-12, to the lead's fallback hub (interfaces/gnc.json); built 19:58Z",
+  "built_on": "sim6 v2.4 with the v1 interface snapshot recorded in inputs_read (combustion.json v1 x relay factors, mechanical.json v1, electronics.json v1). A first build recorded the hub's combustion.json v2 in inputs_read although the runs used v1; it is kept as 01-systems-gnc/results/history/gnc_v2_build_1958_inputs_record_wrong.json.",
+  "superseded_since_build": [
+   "Gimbal/mount/rod structural design load: 26.5 N m -> engine moment 35.3 N m (both servos at 8.4 V stall, n 4.8; lead decision 2026-10-12). requirements.gimbal.hinge_moment and requests[mechanical] still quote 26.5.",
+   "TVC linkage ratio n 4.8 FINAL on the as-drawn supply, V_val = 6.6 V (both-stall plug voltage), ARM rule predicted both-stall plug voltage >= 6.6 V and rest >= 8.1 V (lead decision on the GNC actuator study, sim6 v2.5: P(landing) 0.982 [0.966, 0.991] at 6.6 V with supply sag, 0 lost / 0 gained against the same vehicle with the reference servo model).",
+   "New requirements (lead decisions 2026-10-12): ENG-07b no actuator saturation episode longer than 0.1 s in the landing burn; ENG-07c servo rotor inertia at the output J_int <= 1e-3 kg m2 (provisional); ENG-07d flex gain margin >= 6 dB, otherwise an ECU notch at the measured rocking mode; close-out test B-TVC-1."
+  ],
+  "next": "gnc.json v3 after the re-baseline on mechanical.json v2 (CAD v3.2/3.3 mass properties) and combustion.json v2 (map published 2026-10-12)"
+ },
+ "lead_decisions_2026-10-12": {
+  "source": "lead message 2026-10-12 (approved and logged in interfaces/CHANGELOG.md)",
+  "n2o_load_and_tank": {
+   "v": {
+    "n2o_load_kg": 2.0,
+    "tank_volume_L": 3.17,
+    "liquid_fill_at_25C": 0.85
+   },
+   "tag": "REQ lead decision 2026-10-12",
+   "note": "GNC basis: RCS-fitted vehicle sized 1.741 kg x 1.15 = 2.002 kg (3.17 L), P 0.984 [0.969, 0.992]; RCS not fitted, sized 1.692 kg, flown at the fixed 2.00 kg (3.17 L): P 0.982 [0.966, 0.991]; paired vs baseline: 7 runs lost / 6 gained, McNemar p = 1"
+  },
+  "roll_rcs_provision": {
+   "v": "provision only: bosses, an ullage port and reserved ECU channels; deleted if T1 measures a roll torque <= 0.02 N m",
+   "tag": "REQ lead decision 2026-10-12",
+   "note": "GNC threshold 0.03 N m (largest amplitude flown without RCS with no significant loss); the lead's 0.02 N m criterion is at or inside it. RCS off, roll-torque sweep (same 500 draws, torque scaled): 0.000 N m: P 0.980; paired vs baseline: 9 runs lost / 7 gained, McNemar p = 0.8; 0.005 N m: P 0.974; paired vs baseline: 9 runs lost / 4 gained, McNemar p = 0.27; 0.010 N m: P 0.990; paired vs baseline: 4 runs lost / 7 gained, McNemar p = 0.55; 0.020 N m: P 0.990; paired vs baseline: 4 runs lost / 7 gained, McNemar p = 0.55; 0.030 N m: P 0.972; paired vs baseline: 13 runs lost / 7 gained, McNemar p = 0.26; 0.040 N m: P 0.900; paired vs baseline: 48 runs lost / 6 gained, McNemar p = 3.3e-09; 0.050 N m: P 0.810; paired vs baseline: 92 runs lost / 5 gained, McNemar p = 8.6e-22; 0.100 N m: P 0.548; paired vs baseline: 222 runs lost / 4 gained, McNemar p = 2e-60; RCS not fitted at the 2.00 kg lead load: P 0.982 [0.966, 0.991]; paired vs baseline: 7 runs lost / 6 gained, McNemar p = 1; RCS on: P 0.984 [0.969, 0.992] (U(+/-0.02) N m), P 0.982 [0.966, 0.991] (U(+/-0.1) N m). Threshold rule: largest amplitude without a significant loss vs the baseline (McNemar p < 0.05 and lower P). Straight port (lead decision 2026-10-12): no designed torque; residual U(-0.02, 0.02) N m ASSUMED. Unmodelled roll sources: fin misalignment in the ascent (fin_roll_v2.json hand estimate), aero asymmetry."
+  },
+  "gimbal_slew": {
+   "v": ">= 100 deg/s (ENG-07, was 60 deg/s)",
+   "tag": "REQ lead decision 2026-10-12",
+   "note": "100 deg/s baseline P 0.984 [0.969, 0.992]; 80 deg/s P 0.966 [0.946, 0.979]; paired vs baseline: 11 runs lost / 2 gained, McNemar p = 0.022; 60 deg/s P 0.716 [0.675, 0.754]; paired vs baseline: 137 runs lost / 3 gained, McNemar p = 6.6e-37"
+  },
+  "gimbal_parts_design_load": {
+   "v": 26.5,
+   "tag": "REQ lead decision 2026-10-12",
+   "note": "actuator stall at 8.4 V (mechanical.json v1); SIM hinge flight max 19.53 N m (p99 15.83), after touchdown max 7.83 N m; without the ECU structural filter the 6-DOF exceeds it (filter mandatory)"
+  },
+  "lead_baseline_monte_carlo": {
+   "v": {
+    "success": 0.982,
+    "ci95_lo": 0.9661,
+    "ci95_hi": 0.9905,
+    "fail_modes": "no_touchdown_or_crash:1;rate:1;vh:7",
+    "m_n2o_sized_kg": 1.6922,
+    "m_n2o_mc_kg": 2.0,
+    "tank_V_L": 3.1671,
+    "m_liftoff_kg": 15.9026,
+    "td_vz_p99": 1.1996,
+    "td_vh_p99": 0.6176,
+    "td_tilt_p99": 4.2363,
+    "td_rate_p99": 7.7366,
+    "td_miss_p50": 81.292,
+    "td_miss_p95": 163.4437,
+    "liq_left_p01": 0.2185,
+    "max_gim_p99": 7.337,
+    "max_hinge_p99": 15.8271,
+    "td_roll_rate_p99": 74.3959,
+    "max_roll_rate_p99": 84.4604,
+    "paired_delta_vs_base": -0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+   "note": "AD_prov_2kg: roll RCS not fitted, N2O fixed 2.00 kg, residual roll torque U(+/-0.02) N m ASSUMED; paired against the RCS-fitted baseline on the same 500 draws"
+  }
+ },
+ "units": "SI (m, kg, s, N, Pa, K, rad) unless the key names another unit (_deg, _dps, _Hz, _g, _L, _cal)",
+ "conventions": {
+  "body_frame": "z_b along the vehicle axis toward the nose; x_b, y_b = gimbal axes (pitch/yaw)",
+  "stations": "z [m] from the airframe aft datum (base plane), +z toward the nose (RV-1c: pivot at 0.2223 m = mechanical.json frames.rv1_station_of_pivot_m)",
+  "world_frame_6dof": "ENU, flat Earth, ISA density (site density dispersed 1.10-1.25 kg/m3)",
+  "throttle_frac": "F / 500 N (F_max)",
+  "gimbal_angle": "engine axis relative to the body axis; the LIMIT applies to the vector norm sqrt(dx^2+dy^2)",
+  "success_criteria": "touchdown |vz| <= 2.0 m/s, v_h <= 0.5 m/s, tilt <= 5.0 deg, tilt rate <= 10.0 deg/s, no propellant exhaustion, no tip-over (REQ brief)",
+  "statistics": "success P with Wilson 95 % interval; p99 = 99th percentile over landed runs; paired McNemar exact test against the baseline where the dispersion draws are identical (same seed and sequence)"
+ },
+ "inputs_read": {
+  "combustion.json": {
+   "version": "v1",
+   "sha256": "598365dac1bfa0c10f3697c2c8e505cbfe7efccd77056e550f4a85a33e919e3e"
+  },
+  "electronics.json": {
+   "version": "v1",
+   "sha256": "42fe12e15baa6e3e8bcbc98a991e0d21a04d85bb0600a25efb41ed630c6b1fd6"
+  },
+  "mechanical.json": {
+   "version": "v1",
+   "sha256": "c7435d16ad5670399c79f3ebc4d5c9ee085880ba42ae471b3bb73436b1c00c44"
+  },
+  "ENGINE-BASELINE-v0.json": {
+   "version": "v0",
+   "sha256": "508faa652ccbd539f31c2da5e7e7f3fd8f1aa52198f9a0673431c427b86752cf"
+  },
+  "throttle_map_initial_port_v1.csv": {
+   "sha256": "54967e584acccdba083ac51365e5dc0679b0adce00f0dd531d6b0fc3727eaf79",
+   "source": "02-combustion/data (via the Mechanical mirror during the outage)"
+  },
+  "REQUIREMENTS.md": "rev 1 (ENG-01..16)",
+  "founder_decision_2026-10-12": "gimbal pivot at the engine CG and engine-bay ID >= 140 mm APPROVED (final; relayed by the lead)",
+  "lead_decision_2026-10-12_MEOP_grain": "chamber MEOP 45 bar; grain v2 = centred straight port (CHANGELOG)",
+  "lead_decisions_2026-10-12_gnc": "N2O 2.00 kg / 3.17 L baseline; roll RCS provision only (delete if T1 roll torque <= 0.02 N m); ENG-07 slew >= 100 deg/s; gimbal parts to the 26.5 N m stall load",
+  "lead_relay_combustion_v2_20261012.json": {
+   "sha256": "9b231aaecbe4dc1b547b1cbab08275a81274ad092c5b52f34922f2514d8faea7",
+   "note": "GNC record of the lead's relay of combustion v2 numbers (pre-publication)"
+  },
+  "engine_correction_v2.json": {
+   "sha256": "67113a6fd16c9de732a1f8ea76d0265b0474ad9a247a3b38502e5438b075b67b",
+   "combustion_work_files_sha256": {
+    "DC-A1-S230_neqE1e+03_reg1.csv": "f12af5764bc6d0776f73c545ebe44cbf0d720d7ce64d148c113a7972652f219e",
+    "DC-A2-S230_neqE1e+03_reg1.csv": "6a3b532474ecf8dbe077b92ee36be917acba6d995854188e5c4069c3d29b842a",
+    "DC-B1-S230_neqE1e+03_reg1.csv": "4f46370977c6fcb6d6fe6e684c6325630674c336523caa9fad8929e3398666c4",
+    "DC-B2-S230_neqE1e+03_reg1.csv": "ed308f40e6bc8f980895a4e7c783acc29e2d0c1bd18db77f7cf7816cfe4cd834"
+   },
+   "note": "GNC-derived thrust-binned mass-flow factors (m2_engine_relay.py)"
+  }
+ },
+ "scripts": [
+  "01-systems-gnc/sim/gncsim/*.py",
+  "01-systems-gnc/sim/scripts/m2_mc6.py",
+  "01-systems-gnc/sim/scripts/m2_verify6.py",
+  "01-systems-gnc/sim/scripts/m2_csi.py",
+  "01-systems-gnc/sim/scripts/m2_csi_timedomain.py",
+  "01-systems-gnc/sim/scripts/m2_duty_cycles.py",
+  "01-systems-gnc/sim/scripts/m2_vehicle.py",
+  "01-systems-gnc/sim/scripts/m2_trade.py",
+  "01-systems-gnc/sim/scripts/m2_imu_sweep.py",
+  "01-systems-gnc/sim/scripts/m2_failure_forensics.py",
+  "01-systems-gnc/sim/scripts/m2_analysis.py",
+  "01-systems-gnc/sim/scripts/m2_gnc_json.py",
+  "01-systems-gnc/sim/scripts/m2_engine_relay.py"
+ ],
+ "engine_model": {
+  "model": {
+   "v": "combustion.json v1 throttle map x thrust-binned factors k_ox(F), k_f(F) from combustion's S230 duty-cycle runs (nominal regression, non-equilibrium tank); S230 grain 0.230 m / 0.404 kg; v1 thrust ceiling kept",
+   "tag": "RELAY (lead 2026-10-12) + DERIVED m2_engine_relay.py c1",
+   "note": "replaced by the combustion.json v2 map when it is published (scripts switch automatically)"
+  },
+  "anchors": {
+   "v": {
+    "F_N": [
+     100.6276,
+     136.7218,
+     161.2794,
+     276.511,
+     328.9853,
+     369.5703,
+     499.9119
+    ],
+    "k_ox": [
+     1.0095,
+     1.0162,
+     1.0588,
+     1.0852,
+     1.085,
+     1.0673,
+     1.0619
+    ],
+    "k_f": [
+     0.7957,
+     0.8558,
+     0.7355,
+     0.7124,
+     0.7279,
+     0.7738,
+     0.7958
+    ]
+   },
+   "tag": "DERIVED (bins with >= 0.75 s of combustion run time)"
+  },
+  "at_500N": {
+   "v": {
+    "k_ox": 1.0619,
+    "k_f": 0.7958,
+    "mox_corrected": 0.2406,
+    "mf_corrected": 0.0232,
+    "OF_corrected": 10.351,
+    "Isp_corrected": 193.2236,
+    "OF_relay": 10.4
+   },
+   "tag": "DERIVED",
+   "note": "relay O/F 10.4 at 500 N"
+  },
+  "validation_ox_per_impulse_error": {
+   "v": {
+    "DC-A1": -0.46,
+    "DC-A2": -0.22,
+    "DC-B1": 0.06,
+    "DC-B2": 0.09
+   },
+   "tag": "DERIVED: corrected map flown on combustion's thrust profiles vs combustion N2O per impulse [%]",
+   "note": "v1 map error before correction: DC-A1 -6.1 %, DC-A2 -6.0 %, DC-B1 -2.5 %, DC-B2 -2.6 %"
+  },
+  "delivered_Isp_DC_A1_s": {
+   "v": {
+    "combustion_v2": 188.0,
+    "corrected_map": 188.6,
+    "v1_map": 193.0
+   },
+   "tag": "RELAY / DERIVED (gnc.json v1 DC-A1 profile)"
+  },
+  "regression_band_DC_A1": {
+   "v": {
+    "DC-A1-S230_neqE1e+03_reg0.6": {
+     "Isp_s": 181.4,
+     "ox_kg": 0.9849,
+     "fuel_kg": 0.0621,
+     "OF_mean": 15.873,
+     "min_F_ceiling_N": 533.3,
+     "ox_per_kNs": 0.5287
+    },
+    "DC-A1-S230_neqE1e+03_reg1": {
+     "Isp_s": 188.2,
+     "ox_kg": 0.9021,
+     "fuel_kg": 0.1014,
+     "OF_mean": 8.899,
+     "min_F_ceiling_N": 557.7,
+     "ox_per_kNs": 0.4871
+    },
+    "DC-A1-S230_neqE1e+03_reg1.5": {
+     "Isp_s": 193.3,
+     "ox_kg": 0.8328,
+     "fuel_kg": 0.148,
+     "OF_mean": 5.626,
+     "min_F_ceiling_N": 579.3,
+     "ox_per_kNs": 0.4479
+    }
+   },
+   "tag": "combustion work files (x0.6 / x1 / x1.5 regression)",
+   "note": "MC Isp dispersion N(1, 0.05) covers the band (181-193 s)"
+  },
+  "propellant_effect": {
+   "v": {
+    "sized_N2O_v1_map_kg": 1.597,
+    "sized_N2O_relay_kg": 1.741,
+    "MC_P_v1_map": "P 0.982 [0.966, 0.991]",
+    "MC_P_relay": "P 0.984 [0.969, 0.992]"
+   },
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)"
+  }
+ },
+ "reference_vehicle": {
+  "name": "RV-1c (GNC reference vehicle v3c, parametric; real airframe owner: Lauty). RV-1b + mechanical.json v1 engine module + uniform 146 mm body",
+  "length_overall_m": {
+   "v": 2.03,
+   "tag": "ASSUMED REQUIREMENTS ref. vehicle ~2.0 m + 0.03 m nozzle protrusion"
+  },
+  "body_diameter_m": {
+   "v": 0.146,
+   "tag": "DERIVED engine-bay ID 0.140 m (mechanical.json v1 required_engine_bay_ID_m, founder decision 2026-10-12, final) + 2 x 3 mm PETG wall ASSUMED",
+   "note": "uniform body assumed; a stepped 146/126 mm airframe is Lauty's option (mass and aero change)"
+  },
+  "nose": {
+   "v": "tangent ogive, L 0.30 m",
+   "tag": "ASSUMED"
+  },
+  "fins": {
+   "v": "4 aft fins, span 0.12 m, root/tip chord 0.20/0.10 m, 3 mm GF/PETG, 0.30 kg",
+   "tag": "DERIVED descent/coast trade (REPORT B)",
+   "note": "fins stabilise the nose-first coast and are DE-stabilising tail-first (they lead in the engine-first descent): the drogue sets the descent attitude; finless flight closes too (see landing_closure)"
+  },
+  "landing_legs": {
+   "v": {
+    "n": 4,
+    "foot_radius_m": 0.4,
+    "stroke_m": 0.1,
+    "k_per_leg_N_m": 2500.0,
+    "c_per_leg_N_s_m": 120.0,
+    "deploy": "at relight command (A) / fixed (B)"
+   },
+   "tag": "ASSUMED (Lauty to design; MC disperses k, c x U(0.8, 1.2), mu U(0.3, 0.7))"
+  },
+  "mass_ledger_csv": "01-systems-gnc/vehicle/mass_ledger_v3c.csv",
+  "dry_mass_kg": {
+   "v": 13.75,
+   "tag": "DERIVED mass ledger v3c (mechanical.json v1 gimballed engine + ring; ASSUMED fixed propulsion items, airframe, legs, avionics, recovery)",
+   "note": "range 9.32-19.02 kg (item min/max); propulsion 5.71 kg, airframe 8.04 kg; MC disperses dry mass N(1, 0.05)"
+  },
+  "fuel_grain_mass_kg": {
+   "v": 0.4036,
+   "tag": "DERIVED combustion.json v1 grain mass x 0.230/0.2 (same OD, port, density)",
+   "note": "combustion.json v1 grain 0.351 kg (L 0.200 m)"
+  },
+  "n2o_load_kg": {
+   "v": 2.0,
+   "tag": "REQ lead decision 2026-10-12, from the GNC sizing",
+   "note": "SIM 6-DOF sizing of the nominal A-D flight (1.741 kg with 20 % usable-liquid reserve, RCS fitted) x 1.15 MC load margin = 2.002 kg; was 1.30 kg in v1 (RV-1, placeholder map)"
+  },
+  "tank_volume_L": {
+   "v": 3.17,
+   "tag": "REQ lead decision 2026-10-12; DERIVED load / (0.85 rho_l(25 C)): 3.170 L (15 % ullage at 25 C, ASSUMED fill rule)",
+   "note": "internal length 0.445 m in the 101.6 x 3.175 mm tube (mechanical.json v1 sized 289 mm for 2.06 L)"
+  },
+  "liftoff_mass_kg": {
+   "v": 16.155,
+   "tag": "SIM nominal A-D flight (ledger v3c + load, roll RCS fitted)",
+   "note": "lead baseline (RCS provision only, 2.00 kg): 15.903 kg"
+  },
+  "landing_mass_kg": {
+   "v": 14.825,
+   "tag": "SIM nominal A-D flight",
+   "note": "MC: dry +/-5 % 1 sigma; landing-mass window in icd_inputs_for_airframe"
+  },
+  "mass_properties_vs_time": {
+   "events": [
+    {
+     "event": "liftoff",
+     "t_s": 0.001,
+     "h_cg_above_liftoff_m": 0.0,
+     "vz_mps": 0.0,
+     "F_N": 2.5,
+     "m_kg": 16.155,
+     "z_cg_m": 0.6716,
+     "I_transverse_kgm2": 4.2706,
+     "I_roll_kgm2": 0.0926,
+     "liquid_kg": 1.879,
+     "fuel_kg": 0.4036,
+     "P_tank_Pa": 5052524.0,
+     "T_tank_K": 293.15
+    },
+    {
+     "event": "MECO",
+     "t_s": 3.161,
+     "h_cg_above_liftoff_m": 98.3,
+     "vz_mps": 65.28,
+     "F_N": 471.8,
+     "m_kg": 15.348,
+     "z_cg_m": 0.6674,
+     "I_transverse_kgm2": 4.2326,
+     "I_roll_kgm2": 0.0926,
+     "liquid_kg": 1.012,
+     "fuel_kg": 0.3319,
+     "P_tank_Pa": 4418027.0,
+     "T_tank_K": 287.33
+    },
+    {
+     "event": "apogee",
+     "t_s": 9.68,
+     "h_cg_above_liftoff_m": 309.06,
+     "vz_mps": -0.29,
+     "F_N": 0.0,
+     "m_kg": 15.338,
+     "z_cg_m": 0.6674,
+     "I_transverse_kgm2": 4.2321,
+     "I_roll_kgm2": 0.0926,
+     "liquid_kg": 1.002,
+     "fuel_kg": 0.3303,
+     "P_tank_Pa": 4410600.0,
+     "T_tank_K": 287.26
+    },
+    {
+     "event": "relight_command",
+     "t_s": 23.54,
+     "h_cg_above_liftoff_m": 37.98,
+     "vz_mps": -21.85,
+     "F_N": 0.0,
+     "m_kg": 15.338,
+     "z_cg_m": 0.6674,
+     "I_transverse_kgm2": 4.2321,
+     "I_roll_kgm2": 0.0926,
+     "liquid_kg": 1.002,
+     "fuel_kg": 0.3303,
+     "P_tank_Pa": 4410600.0,
+     "T_tank_K": 287.26
+    },
+    {
+     "event": "landing_burn_start",
+     "t_s": 23.84,
+     "h_cg_above_liftoff_m": 31.45,
+     "vz_mps": -21.71,
+     "F_N": 27.5,
+     "m_kg": 15.338,
+     "z_cg_m": 0.6674,
+     "I_transverse_kgm2": 4.2321,
+     "I_roll_kgm2": 0.0926,
+     "liquid_kg": 1.002,
+     "fuel_kg": 0.3303,
+     "P_tank_Pa": 4410583.0,
+     "T_tank_K": 287.26
+    },
+    {
+     "event": "terminal_gate",
+     "t_s": 25.38,
+     "h_cg_above_liftoff_m": 7.8,
+     "vz_mps": -5.3,
+     "F_N": 389.2,
+     "m_kg": 15.087,
+     "z_cg_m": 0.6675,
+     "I_transverse_kgm2": 4.2234,
+     "I_roll_kgm2": 0.0926,
+     "liquid_kg": 0.751,
+     "fuel_kg": 0.3044,
+     "P_tank_Pa": 4215083.0,
+     "T_tank_K": 285.33
+    },
+    {
+     "event": "touchdown",
+     "t_s": 28.05,
+     "h_cg_above_liftoff_m": -0.01,
+     "vz_mps": -0.74,
+     "F_N": 136.4,
+     "m_kg": 14.825,
+     "z_cg_m": 0.6686,
+     "I_transverse_kgm2": 4.2126,
+     "I_roll_kgm2": 0.0926,
+     "liquid_kg": 0.506,
+     "fuel_kg": 0.2703,
+     "P_tank_Pa": 4018754.0,
+     "T_tank_K": 283.33
+    }
+   ],
+   "vs_propellant_state_csv": "01-systems-gnc/vehicle/massprops_vs_propellant_v3c.csv",
+   "full_histories": "every duty-cycle CSV v2 carries m_kg, z_cg_m, I_transverse_kgm2, I_roll_kgm2",
+   "tag": "SIM sim6 v2.4 nominal A-D flight (no wind) + DERIVED vehicle.massprops (liquid settled aft, rigid in pitch, excluded from roll; grain from combustion.json)"
+  },
+  "liquid_level_cg_shift": {
+   "v": {
+    "full_load_forward_minus_aft_m": 0.0127,
+    "at_MECO_m": 0.0177,
+    "liquid_at_MECO_kg": 1.012
+   },
+   "tag": "DERIVED vehicle.massprops: liquid column at the forward end (drag deceleration in the nose-first coast) vs settled aft"
+  },
+  "gimballed_subassembly": {
+   "v": {
+    "pivot": "at the engine CG (mechanical.json v1 gimbal.pivot_location)",
+    "z_pivot_m": 0.2223,
+    "touchdown_state": {
+     "m_e_kg": 2.3983,
+     "z_e_m": 0.2178,
+     "l_e_m": 0.0045,
+     "I_e_own_kgm2": 0.04687,
+     "J_twd_kgm2": 0.0517,
+     "l_p_m": 0.4433,
+     "I_transverse_kgm2": 4.2026
+    },
+    "tail_wags_dog_zero_rad_s": {
+     "liftoff|12.5 %": 22.43,
+     "liftoff|20.0 %": 28.38,
+     "liftoff|hover (T=W)": 35.66,
+     "liftoff|100.0 %": 63.45,
+     "MECO|12.5 %": 22.43,
+     "MECO|20.0 %": 28.38,
+     "MECO|hover (T=W)": 34.53,
+     "MECO|100.0 %": 63.46,
+     "relight_command|12.5 %": 22.45,
+     "relight_command|20.0 %": 28.4,
+     "relight_command|hover (T=W)": 34.54,
+     "relight_command|100.0 %": 63.5,
+     "touchdown|12.5 %": 23.15,
+     "touchdown|20.0 %": 29.28,
+     "touchdown|hover (T=W)": 34.95,
+     "touchdown|100.0 %": 65.48
+    },
+    "control_moment_per_deg_Nm": {
+     "liftoff|12.5 %": 0.492,
+     "liftoff|20.0 %": 0.787,
+     "liftoff|hover (T=W)": 1.243,
+     "liftoff|100.0 %": 3.936,
+     "MECO|12.5 %": 0.482,
+     "MECO|20.0 %": 0.771,
+     "MECO|hover (T=W)": 1.141,
+     "MECO|100.0 %": 3.855,
+     "relight_command|12.5 %": 0.482,
+     "relight_command|20.0 %": 0.771,
+     "relight_command|hover (T=W)": 1.14,
+     "relight_command|100.0 %": 3.855,
+     "touchdown|12.5 %": 0.483,
+     "touchdown|20.0 %": 0.774,
+     "touchdown|hover (T=W)": 1.102,
+     "touchdown|100.0 %": 3.868
+    },
+    "table_csv": "01-systems-gnc/vehicle/twd_table_v2.csv"
+   },
+   "tag": "DERIVED vehicle.massprops + mechanical.json v1 (gimballed dry mass/inertia, grain from combustion.json)",
+   "note": "l_p = z_cg - z_pivot; l_e = z_pivot - z_e; J_twd = I_e + m_e l_e (l_e + l_p); w_twd = sqrt(F l_p / J_twd)"
+  },
+  "aero": {
+   "method": "component build-up (Barrowman nose, blunt-base leading term, Allen-Perkins/Jorgensen crossflow, legs, Barrowman fins with interference); evaluated at the local velocity incl. omega x r",
+   "static_table_csv": "01-systems-gnc/vehicle/aero_static_v2.csv",
+   "uncertainty_sets": {
+    "nominal": "k_base_lead 0.75, k_nose_trail 0.25, crossflow x1.0, CA x1.0",
+    "benign_tail_first": "k_base_lead 0.5, k_nose_trail 0.0, crossflow x1.25, CA x0.7",
+    "adverse_tail_first": "k_base_lead 1.0, k_nose_trail 0.5, crossflow x0.75, CA x1.3",
+    "MC": "each run draws k_base_lead U(0.5,1), k_nose_trail U(0,0.5), crossflow U(0.75,1.25), CA_tf U(0.7,1.3), retro factor U(0.25,0.75)"
+   },
+   "nose_first_fins": {
+    "v": {
+     "CNa_nose_first_per_rad": 8.8562,
+     "z_cp_nose_first_2deg_m": 0.5526,
+     "static_margin_nose_first_cal": 0.815
+    },
+    "tag": "DERIVED aero.py (2 deg, liftoff CG)"
+   },
+   "nose_first_finless": {
+    "v": {
+     "CNa_nose_first_per_rad": 2.4493,
+     "z_cp_nose_first_2deg_m": 1.693,
+     "static_margin_nose_first_cal": -6.996
+    },
+    "tag": "DERIVED aero.py",
+    "note": "finless body is statically UNSTABLE nose-first"
+   },
+   "tail_first_by_set": {
+    "v": {
+     "fins1_nominal_legs0": {
+      "CNa_tail_first_per_rad": -7.2163,
+      "z_cp_tail_first_2deg_m": 0.0391,
+      "static_margin_tail_first_cal": -4.312,
+      "static_margin_tail_first_10deg_cal": -3.049
+     },
+     "fins1_nominal_legs1": {
+      "CNa_tail_first_per_rad": -7.2891,
+      "z_cp_tail_first_2deg_m": 0.0382,
+      "static_margin_tail_first_cal": -4.318,
+      "static_margin_tail_first_10deg_cal": -3.122
+     },
+     "fins1_benign_tail_first_legs0": {
+      "CNa_tail_first_per_rad": -7.329,
+      "z_cp_tail_first_2deg_m": 0.175,
+      "static_margin_tail_first_cal": -3.381,
+      "static_margin_tail_first_10deg_cal": -2.117
+     },
+     "fins1_benign_tail_first_legs1": {
+      "CNa_tail_first_per_rad": -7.4019,
+      "z_cp_tail_first_2deg_m": 0.1728,
+      "static_margin_tail_first_cal": -3.396,
+      "static_margin_tail_first_10deg_cal": -2.22
+     },
+     "fins1_adverse_tail_first_legs0": {
+      "CNa_tail_first_per_rad": -7.1036,
+      "z_cp_tail_first_2deg_m": -0.1011,
+      "static_margin_tail_first_cal": -5.272,
+      "static_margin_tail_first_10deg_cal": -4.106
+     },
+     "fins1_adverse_tail_first_legs1": {
+      "CNa_tail_first_per_rad": -7.1764,
+      "z_cp_tail_first_2deg_m": -0.1006,
+      "static_margin_tail_first_cal": -5.268,
+      "static_margin_tail_first_10deg_cal": -4.14
+     },
+     "fins0_nominal_legs0": {
+      "CNa_tail_first_per_rad": -1.4501,
+      "z_cp_tail_first_2deg_m": -0.2693,
+      "static_margin_tail_first_cal": -6.424,
+      "static_margin_tail_first_10deg_cal": -1.761
+     },
+     "fins0_nominal_legs1": {
+      "CNa_tail_first_per_rad": -1.523,
+      "z_cp_tail_first_2deg_m": -0.2588,
+      "static_margin_tail_first_cal": -6.353,
+      "static_margin_tail_first_10deg_cal": -2.08
+     },
+     "fins0_benign_tail_first_legs0": {
+      "CNa_tail_first_per_rad": -1.5629,
+      "z_cp_tail_first_2deg_m": 0.3901,
+      "static_margin_tail_first_cal": -1.908,
+      "static_margin_tail_first_10deg_cal": 0.377
+     },
+     "fins0_benign_tail_first_legs1": {
+      "CNa_tail_first_per_rad": -1.6357,
+      "z_cp_tail_first_2deg_m": 0.3705,
+      "static_margin_tail_first_cal": -2.042,
+      "static_margin_tail_first_10deg_cal": -0.085
+     },
+     "fins0_adverse_tail_first_legs0": {
+      "CNa_tail_first_per_rad": -1.3374,
+      "z_cp_tail_first_2deg_m": -1.0399,
+      "static_margin_tail_first_cal": -11.702,
+      "static_margin_tail_first_10deg_cal": -4.799
+     },
+     "fins0_adverse_tail_first_legs1": {
+      "CNa_tail_first_per_rad": -1.4102,
+      "z_cp_tail_first_2deg_m": -0.9888,
+      "static_margin_tail_first_cal": -11.352,
+      "static_margin_tail_first_10deg_cal": -4.814
+     }
+    },
+    "tag": "ASSUMED sets (unvalidated tail-first terms) evaluated with aero.py",
+    "note": "negative margin = unstable engine-first; the drogue (A-D) or the TVC in the burn provides the attitude"
+   },
+   "CA": {
+    "v": {
+     "nose_first": 0.45,
+     "tail_first": 1.05,
+     "legs_deployed_increment": 1.5
+    },
+    "tag": "ASSUMED (+/-30 %); tail-first retropropulsion factor 0.5-1.0 with the engine on (ASSUMED)"
+   },
+   "unknowns": "Tail-first aero (CNa, CP, base/plume interaction) is UNKNOWN to better than ~x2: only CFD (05-plume-cfd), a wind tunnel or flight data close it. The MC draws the whole band."
+  }
+ },
+ "flight_profile": {
+  "recommended_baseline": {
+   "v": "A-D",
+   "tag": "DERIVED descent-attitude trade + 6-DOF MC (REPORT B, landing_closure)",
+   "note": "Full-thrust ascent under TVC (aft fins) -> MECO on predicted apogee (300 m) -> nose-first coast -> nose drogue at apogee (engine-down, liquid settled aft) -> relight planned on the latest ignition (0.6 s) at ~35-45 m and ~22 m/s -> drogue released on Pc-confirmed ignition -> throttled TVC landing burn (velocity-tracking reference + PI, PD lateral to the reachable pad target, disturbance feed-forward) -> 8 m terminal gate -> touchdown ~1.1 m/s -> engine cut on contact. Roll: no active control in the lead baseline (RCS provision only; the N2O-vapour couple is fitted if T1 measures an engine roll torque above 0.02 N m)."
+  },
+  "why": [
+   "best landing closure of the full-profile options: P 0.984 [0.969, 0.992] vs A-F free fall P 0.988 [0.974, 0.994]",
+   "lowest N2O load of the full profiles: 1.74 kg sized vs A-F 2.21 kg",
+   "drogue gives a passive engine-down attitude and settles the liquid for the relight; relight at ~22 m/s instead of ~50 m/s",
+   "drogue is also a degraded recovery path if the relight fails (vehicle loss, low-energy impact)",
+   "2 starts per flight; ENG-04 >= 3 keeps one spare"
+  ],
+  "costs_and_risks": [
+   "drift under the drogue: median miss 78 m, p95 155 m (wind U(0,8) m/s); an upwind ascent bias from the pad wind measurement cuts the median to 28 m",
+   "relight at ~35-45 m leaves no time for a backup main parachute: ignition reliability is mission-critical",
+   "drogue release and line/plume clearance at relight (Lauty: release + swivel at the nose)",
+   "the passive drogue phase is the least modelled part (quasi-steady tension, no inflation transient)"
+  ],
+  "baseline_numbers": {
+   "v": {
+    "apogee_m": 310.5,
+    "t_meco_s": 3.07,
+    "v_meco_mps": 65.7,
+    "relight_height_m": 37.3,
+    "relight_speed_mps": -21.57,
+    "total_burn_s": 7.23,
+    "propellant_used_kg": 1.294,
+    "touchdown_vz_mps": -0.98,
+    "starts": 2,
+    "landing_mass_kg": 14.45,
+    "MC_apogee_p01_p50_p99_m": [
+     307.7,
+     310.0,
+     313.1
+    ]
+   },
+   "tag": "SIM sim6 v2.4 nominal A-D (no wind, no noise) at the MC load; MC percentiles from the baseline case"
+  },
+  "lead_baseline_numbers": {
+   "v": {
+    "apogee_m": 311.0,
+    "relight_height_m": 36.5,
+    "relight_speed_mps": -21.34,
+    "total_burn_s": 7.08,
+    "propellant_used_kg": 1.258,
+    "landing_mass_kg": 14.16,
+    "MC_P": "P 0.982 [0.966, 0.991]",
+    "MC_apogee_p01_p50_p99_m": [
+     308.0,
+     310.3,
+     313.1
+    ]
+   },
+   "tag": "SIM sim6 v2.4 AD_prov_2kg: roll RCS not fitted, N2O fixed 2.00 kg (lead decisions 2026-10-12)"
+  },
+  "descent_attitude_trade": {
+   "1_continuous_burn_hop": {
+    "propellant": "100 m hop N2O sized: 12.5 % 1.74 kg, 20 % 2.12 kg, 25 % 2.72 kg; 300 m apex: {'0.125': 3.129, '0.200': 3.774, '0.250': 4.488}",
+    "landing_P": "B 100 m: 20 % P 0.994 [0.983, 0.998], 25 % P 0.950 [0.927, 0.966], 12.5 % P 0.856 [0.823, 0.884]",
+    "added_mass": "none (no drogue); larger tank",
+    "authority": "TVC always available (>= floor thrust)",
+    "failure_modes": "long burn (grain/thermal, ENG-06 15 s exceeded), propellant-limited apex, floor-coast controllability at low floor thrust",
+    "airframe_needs": "legs fixed from liftoff; none else",
+    "verdict": "test-campaign profile (tethered/low hops) and fallback; not for 300 m"
+   },
+   "2_tvc_flip_tail_first_aero": {
+    "propellant": "A-F free fall relight at ~44 m/s: N2O sized 2.21 kg (+0.47 kg vs A-D)",
+    "flap_area_for_tail_first_stability_m2": {
+     "nominal_legs0": 0.01,
+     "nominal_legs1": 0.01,
+     "adverse_legs0": 0.02,
+     "adverse_legs1": 0.02
+    },
+    "added_mass": "flaps/grid fins + deployment ~0.4-0.8 kg ASSUMED",
+    "authority": "aero restoring moment only with sufficient flap area (sweep in trade_flaps_v2.csv); none at low speed",
+    "failure_modes": "flap deployment failure, tail-first aero unknown to ~x2, high-speed relight (TVC flip at ignition)",
+    "airframe_needs": "hinged flaps/grid fins and actuators at the nose; flap loads",
+    "landing_P_finless_free_fall": "P 0.988 [0.974, 0.994]"
+   },
+   "3_n2o_cold_gas_attitude_rcs": {
+    "control_moment_and_impulse": {
+     "nominal_2deg": {
+      "M_aero_max_Nm": 1.407,
+      "thruster_force_with_margin_2_N": 3.034,
+      "thruster_impulse_Ns": 3.365,
+      "vapour_kg_isp50": 0.007,
+      "tank_dT_K": -0.206
+     },
+     "nominal_5deg": {
+      "M_aero_max_Nm": 3.016,
+      "thruster_force_with_margin_2_N": 6.503,
+      "thruster_impulse_Ns": 7.213,
+      "vapour_kg_isp50": 0.015,
+      "tank_dT_K": -0.441
+     },
+     "adverse_2deg": {
+      "M_aero_max_Nm": 2.359,
+      "thruster_force_with_margin_2_N": 5.087,
+      "thruster_impulse_Ns": 5.643,
+      "vapour_kg_isp50": 0.012,
+      "tank_dT_K": -0.345
+     },
+     "adverse_5deg": {
+      "M_aero_max_Nm": 5.508,
+      "thruster_force_with_margin_2_N": 11.876,
+      "thruster_impulse_Ns": 13.174,
+      "vapour_kg_isp50": 0.027,
+      "tank_dT_K": -0.805
+     }
+    },
+    "added_mass": "6 valves + nozzles + lines ~0.6 kg ASSUMED (P13)",
+    "valve_count": "4 pitch/yaw + 2 roll (6 NC solenoids)",
+    "failure_modes": "valve stuck open, icing/two-phase flow in the lines, tank cooling (lower thrust ceiling), insufficient thrust at high descent speed",
+    "airframe_needs": "nozzle ports at the nose, lines along the body, valve bay",
+    "verdict": "not baseline for pitch/yaw; a roll-only couple is kept as a PROVISION (lead decision 2026-10-12)"
+   },
+   "4_nose_drogue": {
+    "propellant": "N2O sized 1.74 kg (lowest of the full profiles)",
+    "added_mass": "0.35 kg (drogue, ejection, release, swivel)",
+    "authority": "passive engine-down attitude; liquid settled",
+    "landing_P": "P 0.984 [0.969, 0.992]",
+    "failure_modes": "deployment/tangling, release failure, plume-line interaction at relight, drift with wind, failed relight -> impact at ~22 m/s",
+    "airframe_needs": "nose drogue bay + ejection + release + swivel, line clearance from the plume",
+    "verdict": "BASELINE"
+   },
+   "5_research_proposals": "REPORT section B.5 (hypothesis, comparator, evidence, refutation criterion for each)",
+   "tag": "SIM m2_mc6 v2 / m2_trade v2 (sim6 v2.4, aero.py) + DERIVED"
+  },
+  "test_campaign": [
+   "T0 bench: gimbal + servos (stiffness, rocking mode and damping, backlash, hinge torque, slew vs angle), IMU bias/temperature, LiDAR/GNSS, structural command filter in the ECU, drogue-release actuator",
+   "T1 static fires (DC-D): ignition latency distribution (>= 30 starts), throttle map and Pc loop (t10-90, slew, resolution, floor stability), 3 starts per run, gimbal sweeps under thrust, thrust-vector alignment, ENGINE ROLL TORQUE, rocking mode under thrust",
+   "T2 tethered hover (DC-C): 0.5-2 m; hover, doublets, TVC attitude hold, estimator and thrust-effectiveness estimator, roll RCS",
+   "T3 low hops (B, 5-50 m then 100 m) with the hover-capable floor; legs fixed; landing guidance and lateral divert",
+   "T4 drogue drop tests (no engine, dummy mass): deployment, swing, drift, release",
+   "T5 relight hop (A-D mini: MECO ~60-100 m, drogue, relight ~30-40 m)",
+   "T6 full profile A-D 300 m (ACEMA 2027-09-01)"
+  ]
+ },
+ "requirements": {
+  "throttle": {
+   "floor_frac_required_max": {
+    "v": 0.2,
+    "tag": "DERIVED 6-DOF MC (landing closure by floor) + hover rule",
+    "note": "RV-1c landing mass 14.83 kg nominal: hover rule T_floor <= 0.9 W gives floor <= 0.262; MC A-D: {'12.5%': 'P 0.984 [0.969, 0.992]', '20%': 'P 0.984 [0.969, 0.992]', '25%': 'P 0.976 [0.959, 0.986]', '40%': 'P 0.520 [0.476, 0.563]'}; paired vs baseline: 4 runs lost / 0 gained, McNemar p = 0.12 (25 % vs 20 %). 20 % keeps the hover window over the dry-mass dispersion; 25 % sits on the boundary (about half the runs switch to hoverslam)."
+   },
+   "floor_frac_acceptable_flight": {
+    "v": 0.25,
+    "tag": "SIM m2_mc6 v2 AD_fins_f25 / AD_fins_f25_ballast",
+    "note": "25 % flies at P 0.976 [0.959, 0.986]; with 0.0 kg ballast P 0.976 [0.959, 0.986]. 40 % FAILS without ballast (P 0.520 [0.476, 0.563]: hoverslam lateral/rate failures) and needs 8.5 kg ballast and 4.62 kg N2O (P 0.994 [0.983, 0.998])"
+   },
+   "floor_frac_goal": {
+    "v": 0.125,
+    "tag": "REQ ENG-02 rev1 stretch (8:1)",
+    "note": "A-D at 12.5 %: P 0.984 [0.969, 0.992]; hop B at 12.5 %: P 0.856 [0.823, 0.884]"
+   },
+   "hover_rule": {
+    "v": "hover-capable if T_floor <= 0.9 W_land(estimated); otherwise the flight software selects the hoverslam",
+    "tag": "DERIVED (lead update 2026-10-11)",
+    "note": "forced hoverslam at 20 %: P 0.986 [0.971, 0.993]"
+   },
+   "landing_mass_window_min_kg_by_floor": {
+    "v": {
+     "12.5%": 7.08,
+     "20.0%": 11.33,
+     "25.0%": 14.16,
+     "40.0%": 22.66
+    },
+    "tag": "DERIVED m_land >= F_floor / (0.9 g0)",
+    "note": "RV-1c nominal landing mass 14.83 kg"
+   },
+   "t10_90_s": {
+    "v": 0.15,
+    "tag": "REQ ENG-03 (target 0.10 s); SIM 6-DOF MC disperses the thrust lag x U(0.7, 1.5) around 0.10 s -> 0.07-0.15 s, closure above",
+    "note": "slower engine, t10-90 0.20 s nominal (0.14-0.30 s): P 0.960 [0.939, 0.974]; paired vs baseline: 15 runs lost / 3 gained, McNemar p = 0.0075; 1-D v1 sweep: P >= 0.99 up to 0.30 s"
+   },
+   "pc_loop_bandwidth_Hz": {
+    "v": 2.3,
+    "tag": "DERIVED first-order equivalent of t10-90 0.15 s"
+   },
+   "slew_min_Fmax_per_s": {
+    "v": 2.0,
+    "tag": "SIM mc1d v1p2 slew sweep (6-DOF runs at 5 F_max/s)",
+    "note": "target 5 F_max/s"
+   },
+   "resolution_frac": {
+    "v": 0.02,
+    "tag": "REQ ENG-03",
+    "note": "baseline 6-DOF runs with 1 % quantisation; 2 % quantisation (AD_fins_f20_q2): P 0.986 [0.971, 0.993]; paired vs baseline: 4 runs lost / 5 gained, McNemar p = 1"
+   },
+   "overshoot_max_frac": {
+    "v": 0.1,
+    "tag": "ASSUMED (not exercised by the first-order plant; combustion.json plant phi 0.1 open-loop case flies at P 0.982 [0.966, 0.991])"
+   },
+   "pc_closed_loop_required": {
+    "v": true,
+    "tag": "SIM AD_fins_f20_openloop",
+    "note": "open-loop pintle with the fuel lag: P 0.982 [0.966, 0.991] vs P 0.984 [0.969, 0.992]; paired vs baseline: 5 runs lost / 4 gained, McNemar p = 1; Pc closed loop kept (ENG-03)"
+   },
+   "deadband_max_frac": {
+    "v": 0.005,
+    "tag": "ASSUMED (as simulated)"
+   },
+   "ceiling_at_landing_min_N": {
+    "v": 218.1,
+    "tag": "DERIVED 1.5 x landing weight (RV-1c)"
+   },
+   "thrust_effectiveness_estimation": {
+    "v": "FC estimates delivered/commanded thrust from the accelerometer (tau 0.1 s) in the landing burn, nominal drag model",
+    "tag": "SIM (all 6-DOF cases)",
+    "note": "needs Pc and accelerometer >= 100 Hz in the FC"
+   }
+  },
+  "ignition": {
+   "latency_cmd_to_90pct_max_s": {
+    "v": 0.5,
+    "tag": "REQ ENG-04 (target 0.3 s)",
+    "note": "6-DOF MC draws U(0.2, 0.6) s with the relight planned on 0.6 s: P 0.984 [0.969, 0.992]; Spearman rank of t_ign with |vz| at touchdown: +0.53, with failure: +nan (blank/NaN = not in the top 8)"
+   },
+   "relight_planning_value_s": {
+    "v": 0.6,
+    "tag": "DESIGN flight software plans the relight on the latest ignition"
+   },
+   "repeatability_s": {
+    "v": 0.05,
+    "tag": "REQ ENG-04 (+/-50 ms)",
+    "note": "6-DOF closes with a 0.4 s spread when planning on the latest; tighter spread lowers the relight height and propellant"
+   },
+   "latency_sweep_1d": {
+    "v": {
+     "A_drogue": {
+      "mean_0.3_s": {
+       "P_at_halfwidths_0_0.05_0.1_0.2_0.3": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+       ],
+       "prop_used_kg": [
+        0.899,
+        0.904,
+        0.909,
+        0.917,
+        0.921
+       ],
+       "relight_alt_m": [
+        21.8,
+        22.8,
+        23.7,
+        25.7,
+        27.7
+       ]
+      },
+      "mean_0.5_s": {
+       "P_at_halfwidths_0_0.05_0.1_0.2_0.3": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+       ],
+       "prop_used_kg": [
+        0.899,
+        0.904,
+        0.909,
+        0.917,
+        0.923
+       ],
+       "relight_alt_m": [
+        25.7,
+        26.7,
+        27.7,
+        29.7,
+        31.6
+       ]
+      },
+      "mean_0.8_s": {
+       "P_at_halfwidths_0_0.05_0.1_0.2_0.3": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+       ],
+       "prop_used_kg": [
+        0.899,
+        0.904,
+        0.909,
+        0.916,
+        0.923
+       ],
+       "relight_alt_m": [
+        31.6,
+        32.6,
+        33.6,
+        35.6,
+        37.5
+       ]
+      },
+      "mean_1.2_s": {
+       "P_at_halfwidths_0_0.05_0.1_0.2_0.3": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+       ],
+       "prop_used_kg": [
+        0.899,
+        0.905,
+        0.909,
+        0.917,
+        0.923
+       ],
+       "relight_alt_m": [
+        39.5,
+        40.5,
+        41.5,
+        43.5,
+        45.5
+       ]
+      }
+     },
+     "A_freefall": {
+      "mean_0.3_s": {
+       "P_at_halfwidths_0_0.05_0.1_0.2_0.3": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+       ],
+       "prop_used_kg": [
+        1.257,
+        1.257,
+        1.257,
+        1.258,
+        1.26
+       ],
+       "relight_alt_m": [
+        115.3,
+        118.2,
+        121.0,
+        126.8,
+        132.4
+       ]
+      },
+      "mean_0.5_s": {
+       "P_at_halfwidths_0_0.05_0.1_0.2_0.3": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+       ],
+       "prop_used_kg": [
+        1.254,
+        1.254,
+        1.254,
+        1.256,
+        1.259
+       ],
+       "relight_alt_m": [
+        126.8,
+        129.6,
+        132.4,
+        138.0,
+        143.5
+       ]
+      },
+      "mean_0.8_s": {
+       "P_at_halfwidths_0_0.05_0.1_0.2_0.3": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+       ],
+       "prop_used_kg": [
+        1.25,
+        1.251,
+        1.251,
+        1.254,
+        1.257
+       ],
+       "relight_alt_m": [
+        143.5,
+        146.2,
+        148.9,
+        154.3,
+        159.6
+       ]
+      },
+      "mean_1.2_s": {
+       "P_at_halfwidths_0_0.05_0.1_0.2_0.3": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+       ],
+       "prop_used_kg": [
+        1.247,
+        1.247,
+        1.248,
+        1.251,
+        1.255
+       ],
+       "relight_alt_m": [
+        164.8,
+        167.4,
+        169.9,
+        175.0,
+        180.0
+       ]
+      }
+     }
+    },
+    "tag": "SIM mc1d v1p2 (gnc.json v1, RV-1) kept"
+   },
+   "starts_per_flight_used": {
+    "v": {
+     "A-D": 2,
+     "A-F": 2,
+     "B": 1,
+     "tethered_hover": 1
+    },
+    "tag": "SIM profiles"
+   },
+   "starts_per_flight_required": {
+    "v": 3,
+    "tag": "REQ ENG-04",
+    "note": "one spare relight"
+   },
+   "relight_conditions": {
+    "v": "liquid settled aft by the drogue (~1 g); tank P >= 3.5 MPa; chamber purged; ignition at the floor; drogue release only on Pc >= 50 % of floor Pc",
+    "tag": "DERIVED CONOPS"
+   },
+   "shutdown_tail_off": {
+    "v": "< 10 % thrust within 0.10 s",
+    "tag": "REQ ENG-05",
+    "note": "simulated tau_off 35 ms"
+   }
+  },
+  "gimbal": {
+   "range_deg": {
+    "v": 7.0,
+    "tag": "SIM m2_mc6 v2 gimbal-limit cases + DERIVED",
+    "note": "commanded limit on the VECTOR norm (mechanical.json v1 REQUEST): CONFIRMED. 7 deg: P 0.984 [0.969, 0.992]; 6 deg: P 0.982 [0.966, 0.991]; paired vs baseline: 3 runs lost / 2 gained, McNemar p = 1; 5 deg: P 0.924 [0.897, 0.944]; paired vs baseline: 30 runs lost / 0 gained, McNemar p = 1.9e-09. Engine angle p99 7.32 deg, max 7.36 deg (flexible-mount overshoot beyond the 7 deg command, inside the 8.0 deg conical stop); saturated fraction of burn p99 0.167"
+   },
+   "mechanical_stop_deg": {
+    "v": 8.0,
+    "tag": "mechanical.json v1 (accepted)"
+   },
+   "rate_min_dps": {
+    "v": 100.0,
+    "tag": "REQ lead decision 2026-10-12 (ENG-07 raised from 60 deg/s), from SIM m2_mc6 v2 (command slew limit 100 deg/s in every baseline run) + rate comparators",
+    "note": "engine-side slew under load across the full +/-7 deg range (lead note 2026-10-12). 80 deg/s command limit: P 0.966 [0.946, 0.979]; paired vs baseline: 11 runs lost / 2 gained, McNemar p = 0.022; 60 deg/s: P 0.716 [0.675, 0.754]; paired vs baseline: 137 runs lost / 3 gained, McNemar p = 6.6e-37. With mechanical.json v1 (n 6.0) the crank (psi ~47 deg at 7 deg) cuts the no-load engine rate to ~97 deg/s at the extreme: Mechanical/Electronics size the lever ratio or servo for margin at full deflection."
+   },
+   "angular_accel_min_rad_s2": {
+    "v": 87.3,
+    "tag": "DERIVED reach 100 deg/s within 20 ms",
+    "note": "MC engine angular acceleration p99 331 rad/s2 (includes rocking-mode ringing)"
+   },
+   "bandwidth_min_Hz": {
+    "v": 8.0,
+    "tag": "REQ ENG-07 8 Hz, demonstrated by the fixed-8 Hz 6-DOF case",
+    "note": "baseline MC disperses the actuator natural frequency U(62.8, 157.1) rad/s (10-25 Hz, zeta 0.7, electronics.json v1 range) + up to 3.2 ms extra delay; fixed 8 Hz: P 0.980 [0.964, 0.989]; paired vs baseline: 3 runs lost / 1 gained, McNemar p = 0.62; fixed 6 Hz: P 0.974 [0.956, 0.985]; paired vs baseline: 6 runs lost / 1 gained, McNemar p = 0.12"
+   },
+   "resolution_max_deg": {
+    "v": 0.1,
+    "tag": "REQ ENG-07",
+    "note": "mechanical.json v1: 0.0167 deg (as simulated)"
+   },
+   "backlash_max_deg": {
+    "v": 0.1,
+    "tag": "DERIVED limit-cycle allowance",
+    "note": "mechanical.json v1: 0.0333 deg (as simulated)"
+   },
+   "latency_cmd_to_motion_max_s": {
+    "v": 0.01,
+    "tag": "SIM MC up to 7.7 ms + 3.2 ms",
+    "note": "electronics.json v1: 7.7 ms max"
+   },
+   "hinge_moment": {
+    "v": {
+     "flight_p99_Nm": 15.62,
+     "flight_max_Nm": 19.53,
+     "after_touchdown_p99_Nm": 5.24,
+     "after_touchdown_max_Nm": 5.55,
+     "mechanical_linear_sum_Nm": 5.63,
+     "servo_stall_at_engine_neutral_7V4_Nm": 16.42
+    },
+    "tag": "SIM sim6 v2.4 mount torque K(d_link - d_engine) + c(..) with base excitation (baseline MC)",
+    "note": "transient peaks (relight and attitude manoeuvres with the rocking mode ringing) exceed the 5.6 N m linear-sum design value and approach the servo stall; the actuator saturates in torque at times (closure above includes this). Gimbal parts are designed to the actuator stall load 26.5 N m (lead decision 2026-10-12; mechanical.json 26.5 N m at 8.4 V)."
+   },
+   "command_shaping_in_ecu": {
+    "v": {
+     "slew_limit_dps": 100.0,
+     "lowpass_2nd_order_w_rad_s": 50.0,
+     "lowpass_zeta": 0.5,
+     "rate_Hz": ">= 500 (ECU tvc_shaping task 1000 Hz)"
+    },
+    "tag": "DERIVED CSI (m2_csi v2) + SIM",
+    "note": "MANDATORY: without it the rocking mode destabilises the loop in the linear model and the 6-DOF linkage torque reaches 154 N m p99"
+   }
+  },
+  "structure": {
+   "gimballed_engine_first_mode_min_Hz": {
+    "v": 25.0,
+    "tag": "DERIVED ENG-11 (>= 3 x actuator 8 Hz) + CSI m2_csi v2",
+    "note": "mechanical.json v1 rocking mode [33.43189879630056, 57.90574730869336] Hz (rigid structure) PASSES with the structural command filter; FEA with pushrod/lever/frame compliance must stay >= 25 Hz"
+   },
+   "rocking_mode_damping_min": {
+    "v": 0.02,
+    "tag": "SIM range flown U(0.02, 0.10) (ASSUMED, unpublished)",
+    "note": "bench-measure"
+   },
+   "csi_margins_with_filter": {
+    "v": {
+     "n_cases": 105,
+     "n_unstable": 0,
+     "rigid_pm_min_deg": 31.063829978626188,
+     "rigid_gm_up_min_dB": 8.007857598896361,
+     "flex_gm_up_min_dB": 7.058289535458439
+    },
+    "tag": "SIM m2_csi v2 (python-control, Pade-3 delay)",
+    "note": "without filter: 39 of 105 linear cases unstable (rocking mode in the loop)"
+   },
+   "airframe_first_bending_min_Hz": {
+    "v": 10.0,
+    "tag": "DERIVED >= 5 x attitude crossover; goal 15 Hz",
+    "note": "uniform PETG tube estimate 26.980104845330285 Hz (ASSUMED E 2 GPa); Lauty's FE model replaces it"
+   },
+   "tail_wags_dog_zero_min_rad_s": {
+    "v": 20.0,
+    "tag": "DERIVED >= ~3 x attitude bandwidth (6 rad/s) at the floor thrust; SIM evidence",
+    "note": "RV-1c CG pivot at touchdown: 12.5 % 23.15 rad/s, 20 % 29.28 rad/s, hover 34.95 rad/s. v1 asked >= 25 rad/s: 12.5 % FAILS that number, yet the MC closes at 12.5 % (P 0.984 [0.969, 0.992]) and the CSI floor62N cases are stable with the filter -> requirement restated as >= 20 rad/s at the lowest flown thrust"
+   }
+  },
+  "roll": {
+   "decision": {
+    "v": "roll RCS PROVISION ONLY (lead decision 2026-10-12): mounting bosses, a tank ullage port and 2 reserved ECU solenoid channels; the RCS hardware is not fitted. The provision is deleted if T1 measures |roll torque| <= 0.02 N m at every throttle setting; above that the couple is fitted (RCS-fitted vehicle = AD_fins_f20).",
+    "tag": "REQ lead decision 2026-10-12 + SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "GNC threshold 0.03 N m (largest amplitude flown without RCS with no significant loss); the lead's 0.02 N m criterion is at or inside it. RCS off, roll-torque sweep (same 500 draws, torque scaled): 0.000 N m: P 0.980; paired vs baseline: 9 runs lost / 7 gained, McNemar p = 0.8; 0.005 N m: P 0.974; paired vs baseline: 9 runs lost / 4 gained, McNemar p = 0.27; 0.010 N m: P 0.990; paired vs baseline: 4 runs lost / 7 gained, McNemar p = 0.55; 0.020 N m: P 0.990; paired vs baseline: 4 runs lost / 7 gained, McNemar p = 0.55; 0.030 N m: P 0.972; paired vs baseline: 13 runs lost / 7 gained, McNemar p = 0.26; 0.040 N m: P 0.900; paired vs baseline: 48 runs lost / 6 gained, McNemar p = 3.3e-09; 0.050 N m: P 0.810; paired vs baseline: 92 runs lost / 5 gained, McNemar p = 8.6e-22; 0.100 N m: P 0.548; paired vs baseline: 222 runs lost / 4 gained, McNemar p = 2e-60; RCS not fitted at the 2.00 kg lead load: P 0.982 [0.966, 0.991]; paired vs baseline: 7 runs lost / 6 gained, McNemar p = 1; RCS on: P 0.984 [0.969, 0.992] (U(+/-0.02) N m), P 0.982 [0.966, 0.991] (U(+/-0.1) N m). Threshold rule: largest amplitude without a significant loss vs the baseline (McNemar p < 0.05 and lower P). Straight port (lead decision 2026-10-12): no designed torque; residual U(-0.02, 0.02) N m ASSUMED. Unmodelled roll sources: fin misalignment in the ascent (fin_roll_v2.json hand estimate), aero asymmetry."
+   },
+   "gnc_threshold_Nm": {
+    "v": 0.03,
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "largest RCS-off roll-torque amplitude with no significant landing loss"
+   },
+   "roll_sweep_csv": "01-systems-gnc/results/mc6_roll_sweep_v2.csv",
+   "provider": {
+    "v": "propulsion: N2O-vapour cold-gas couple from the tank ullage, 2 NC solenoids, 4 nozzles (2 couples), 0.5 N per nozzle (ASSUMED), on the body wall",
+    "tag": "DERIVED (REPORT option 3, roll only)"
+   },
+   "torque_Nm": {
+    "v": 0.073,
+    "tag": "DERIVED 2 x 0.5 N x body radius",
+    "note": "simulated, bang-bang, deadband 5 deg/s"
+   },
+   "firing_time_p99_s": {
+    "v": 2.4,
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) (RCS fitted)"
+   },
+   "n2o_vapour_p99_kg": {
+    "v": 0.0049,
+    "tag": "DERIVED firing time x 1 N / (Isp 50 s ASSUMED x g0)",
+    "note": "Isp 40 s: 0.0061 kg; not removed from the tank in the sim (< 1 % of the load)"
+   },
+   "added_mass_kg": {
+    "v": {
+     "fitted": 0.25,
+     "provision_only": null
+    },
+    "tag": "ASSUMED ledger P14 (0.15-0.40) when fitted",
+    "note": "provision masses (bosses, ullage port) UNKNOWN: Mechanical to supply; not in ledger v3c"
+   },
+   "touchdown_roll_rate_p99_dps": {
+    "v": {
+     "rcs_fitted": 4.82,
+     "provision_only": 74.4
+    },
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)"
+   },
+   "roll_rate_max_p99_dps": {
+    "v": {
+     "rcs_fitted": 37.0,
+     "provision_only": 84.5
+    },
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)"
+   }
+  },
+  "tank": {
+   "temperature_at_liftoff_C": {
+    "v": [
+     17.0,
+     23.0
+    ],
+    "tag": "REQ ENG-12 (20 +/- 3 C)",
+    "note": "6-DOF MC spans 15-25 C"
+   },
+   "n2o_load_A_D_kg": {
+    "v": 2.0,
+    "tag": "REQ lead decision 2026-10-12",
+    "note": "from SIM sizing x 1.15 = 2.002 kg (RCS fitted); RCS not fitted: sized 1.692 kg, 2.00 kg flown at P 0.982 [0.966, 0.991]"
+   },
+   "tank_volume_L": {
+    "v": 3.17,
+    "tag": "REQ lead decision 2026-10-12",
+    "note": "DERIVED 85 % liquid fill at 25 C: 3.170 L"
+   },
+   "usable_liquid_left_p01_kg": {
+    "v": {
+     "rcs_fitted": 0.199,
+     "provision_only_2kg": 0.218
+    },
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "1st percentile of liquid left at touchdown (incl. 3 % residual)"
+   },
+   "n2o_load_B_hop100_floor20_kg": {
+    "v": 2.443,
+    "tag": "SIM sizing x 1.15"
+   },
+   "n2o_load_with_v1_map_kg": {
+    "v": 1.837,
+    "tag": "SIM sizing x 1.15 with the uncorrected combustion.json v1 map (comparator)",
+    "note": "the combustion v2 relay (Isp 188 s on DC-A1, O/F 10.4 at 500 N) raises the load"
+   },
+   "fill_rule": {
+    "v": "liquid fraction <= 0.85 at 25 C",
+    "tag": "ASSUMED"
+   },
+   "usable_liquid_reserve": {
+    "v": 0.2,
+    "tag": "DERIVED sizing rule"
+   },
+   "residual_liquid_frac": {
+    "v": 0.03,
+    "tag": "ASSUMED"
+   }
+  },
+  "navigation_and_loop_rates": {
+   "imu_class": {
+    "v": "ADIS16470 class (gyro residual bias <= 0.03 deg/s after pad calibration) with the baseline gyro-propagated attitude",
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "ADIS16470 P 0.984 [0.969, 0.992]; BMI088 class P 0.304 [0.265, 0.346]; ICM-42688 class P 0.440 [0.397, 0.484] (gyro-bias attitude drift over the ~30 s flight -> lateral-speed and crash failures). Cheaper MEMS need an aided attitude estimator (GNSS/INS EKF), not modelled -> research item."
+   },
+   "gyro_residual_bias_sweep": {
+    "v": [
+     {
+      "gyro_residual_bias_dps": 0.015,
+      "success": 0.987,
+      "ci95_lo": 0.966,
+      "ci95_hi": 0.995,
+      "crashes": 1
+     },
+     {
+      "gyro_residual_bias_dps": 0.03,
+      "success": 0.987,
+      "ci95_lo": 0.966,
+      "ci95_hi": 0.995,
+      "crashes": 1
+     },
+     {
+      "gyro_residual_bias_dps": 0.045,
+      "success": 0.92,
+      "ci95_lo": 0.884,
+      "ci95_hi": 0.946,
+      "crashes": 2
+     },
+     {
+      "gyro_residual_bias_dps": 0.06,
+      "success": 0.793,
+      "ci95_lo": 0.744,
+      "ci95_hi": 0.835,
+      "crashes": 1
+     },
+     {
+      "gyro_residual_bias_dps": 0.09,
+      "success": 0.503,
+      "ci95_lo": 0.447,
+      "ci95_hi": 0.56,
+      "crashes": 13
+     },
+     {
+      "gyro_residual_bias_dps": 0.125,
+      "success": 0.32,
+      "ci95_lo": 0.27,
+      "ci95_hi": 0.375,
+      "crashes": 49
+     },
+     {
+      "gyro_residual_bias_dps": 0.03,
+      "success": 0.983,
+      "ci95_lo": 0.962,
+      "ci95_hi": 0.993,
+      "crashes": 0
+     }
+    ],
+    "tag": "SIM m2_imu_sweep v2 (300 runs per point, ADIS16470 class otherwise)"
+   },
+   "gnss": {
+    "v": "standalone (u-blox M9/M10 class) sufficient",
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "RTK P 0.982 [0.966, 0.991] vs standalone P 0.984 [0.969, 0.992]; paired vs baseline: 5 runs lost / 4 gained, McNemar p = 1"
+   },
+   "lidar_range_min_m": {
+    "v": 40.0,
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "12 m LiDAR P 0.980 [0.964, 0.989]; paired vs baseline: 5 runs lost / 3 gained, McNemar p = 0.73"
+   },
+   "fc_to_ecu_command_rate_Hz": {
+    "v": 500,
+    "tag": "DERIVED/accepted electronics.json v1"
+   },
+   "attitude_loop_rate_Hz": {
+    "v": 1000,
+    "tag": "SIM (sim6 integrates the control law every 1 ms step)",
+    "note": "250 Hz ASSUMED in v1; 6-DOF flown at 1 kHz"
+   },
+   "nav_filter_rate_Hz": {
+    "v": 100,
+    "tag": "SIM sim6 estimator"
+   },
+   "link_loss_policy_in_RUN": {
+    "v": "ascent: SHUTDOWN after 0.1 s (backup chute); landing burn: HOLD last Pc setpoint and gimbal 0.3 s, then SHUTDOWN",
+    "tag": "DERIVED (unchanged from v1)"
+   }
+  },
+  "guidance": {
+   "baseline": {
+    "v": "vertical: velocity-tracking reference + PI with thrust-effectiveness estimator; lateral: PD to the reachable target + disturbance feed-forward; 8 m terminal gate",
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "P 0.984 [0.969, 0.992]"
+   },
+   "convex_lite_lateral": {
+    "v": "P 0.982 [0.966, 0.991]",
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "paired vs baseline: 4 runs lost / 3 gained, McNemar p = 1"
+   },
+   "zem_zev_vertical_and_lateral": {
+    "v": "P 0.982 [0.966, 0.991]",
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "sim6 v2.3 law (tgo re-estimated from the planned deceleration, hand-over to the terminal law at tgo < 0.5 s): sized N2O 1.83 kg vs baseline 1.74 kg; paired vs baseline: 7 runs lost / 6 gained, McNemar p = 1. The v2.2 fixed-final-time law (0.3 s floor) failed (P 0.836, sized 4.81 kg): equilibrium hover ~0.5 m above the gate until the load was exhausted (kept as evidence)."
+   },
+   "zem_zev_lateral_only": {
+    "v": "P 0.984 [0.969, 0.992]",
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "paired vs baseline: 1 runs lost / 1 gained, McNemar p = 1"
+   },
+   "hoverslam_forced_20pct": {
+    "v": "P 0.986 [0.971, 0.993]",
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)"
+   },
+   "upwind_ascent_bias": {
+    "v": "k = 1.5 m/s per m/s of measured pad wind",
+    "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+    "note": "P 0.976 [0.959, 0.986], median miss 28 m vs 78 m"
+   }
+  }
+ },
+ "design_limit_loads": {
+  "note": "LIMIT loads = maxima over the 500 dispersed runs of the RCS-fitted case (AD_fins_f20) and the lead baseline (AD_prov_2kg), whichever is larger (p99 given for reference), engine-mount station unless stated. Mechanical applies ENG-10 factors (1.5 yield, 2.0 ultimate). Touchdown values depend on the ASSUMED legs (k 2500 N/m per leg, c 120 N s/m, stroke 0.10 m, mu 0.3-0.7) and are only as good as that assumption.",
+  "axial_accel_flight_g": {
+   "v": 4.04,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) max (flight, before touchdown)",
+   "note": "p99 3.77 g; MECO at full thrust"
+  },
+  "axial_accel_touchdown_g": {
+   "v": 5.43,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) max (after first contact, rigid body at the CG)",
+   "note": "p99 5.0 g; v1 design value 10 g (3 m/s off-nominal, 0.1 m stroke) is kept as the envelope for a hard landing"
+  },
+  "axial_accel_landing_shock_envelope_g": {
+   "v": 10.0,
+   "tag": "DERIVED v1: 3 m/s touchdown, 0.10 m stroke, 50 % efficiency"
+  },
+  "lateral_accel_at_pivot_flight_g": {
+   "v": 0.61,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) max",
+   "note": "p99 0.6 g"
+  },
+  "lateral_accel_at_pivot_touchdown_g": {
+   "v": 6.29,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) max",
+   "note": "p99 5.22 g"
+  },
+  "body_angular_rate_max_rad_s": {
+   "v": 0.255,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) p99 coast rate (fins)",
+   "note": "finless coast tumbles (see landing_closure AD_nofins_f20)"
+  },
+  "body_angular_accel_flight_rad_s2": {
+   "v": 11.01,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) max",
+   "note": "p99 10.16"
+  },
+  "body_angular_accel_touchdown_rad_s2": {
+   "v": 79.28,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) max",
+   "note": "p99 66.78"
+  },
+  "hinge_moment_design_Nm": {
+   "v": 26.5,
+   "tag": "REQ lead decision 2026-10-12 (actuator stall load, mechanical.json v1 8.4 V)",
+   "note": "gimbal parts, linkage, bearings and mount; covers the SIM peaks below"
+  },
+  "hinge_moment_flight_Nm": {
+   "v": 19.53,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) max",
+   "note": "p99 15.83"
+  },
+  "hinge_moment_touchdown_gimbal_unlocked_Nm": {
+   "v": 7.83,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) max (actuator holds/returns the engine after touchdown; base excitation incl.)",
+   "note": "p99 5.34"
+  },
+  "peak_total_leg_force_N": {
+   "v": 690.81,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) max",
+   "note": "p99 661.32; Lauty's legs"
+  },
+  "gimbal_angular_accel_actuator_max_rad_s2": {
+   "v": 331.0,
+   "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model) p99"
+  },
+  "mount_force_estimates_N": {
+   "v": {
+    "axial_thrust_max_N": 575.0,
+    "axial_inertial_touchdown_N": 127.6,
+    "lateral_inertial_touchdown_N": 147.9,
+    "lateral_inertial_flight_N": 14.4,
+    "gimballed_mass_used_kg": 2.398
+   },
+   "tag": "DERIVED m_e (gimballed engine at touchdown, burnt grain) x the MC maxima; thrust 500 N x (1 + 3 sigma 5 %)",
+   "note": "the mount also carries the hinge moments above; Mechanical adds its own factors (ENG-10)"
+  },
+  "transport_handling_g": {
+   "v": 3.0,
+   "tag": "ASSUMED any axis, gimbal locked (mechanical.json transport lock)"
+  },
+  "duty_cycle_loads": "time histories of F, a_axial, m, CG, inertia, gimbal angles and hinge estimate in every duty-cycle CSV v2"
+ },
+ "duty_cycles": {
+  "index": "01-systems-gnc/duty_cycles/duty_cycles_index_v2.json",
+  "files": {
+   "DC-A1_full_flight_drogue_fins_300m_v2": {
+    "file": "01-systems-gnc/duty_cycles/DC-A1_full_flight_drogue_fins_300m_v2.csv",
+    "burn_s": 7.38,
+    "impulse_Ns": 2504.0,
+    "starts": 2,
+    "max_axial_specific_mps2": 35.69,
+    "max_gimbal_deg": 7.17,
+    "success": true
+   },
+   "DC-A2_full_flight_freefall_300m_v2": {
+    "file": "01-systems-gnc/duty_cycles/DC-A2_full_flight_freefall_300m_v2.csv",
+    "burn_s": 8.88,
+    "impulse_Ns": 3057.0,
+    "starts": 2,
+    "max_axial_specific_mps2": 45.2,
+    "max_gimbal_deg": 7.17,
+    "success": true
+   },
+   "DC-B1_hop_100m_floor20_v2": {
+    "file": "01-systems-gnc/duty_cycles/DC-B1_hop_100m_floor20_v2.csv",
+    "burn_s": 19.0,
+    "impulse_Ns": 2842.0,
+    "starts": 1,
+    "max_axial_specific_mps2": 36.4,
+    "max_gimbal_deg": 7.04,
+    "success": true
+   },
+   "DC-B2_hop_50m_floor20_v2": {
+    "file": "01-systems-gnc/duty_cycles/DC-B2_hop_50m_floor20_v2.csv",
+    "burn_s": 14.45,
+    "impulse_Ns": 2050.0,
+    "starts": 1,
+    "max_axial_specific_mps2": 35.06,
+    "max_gimbal_deg": 6.73,
+    "success": true
+   },
+   "DC-C_tethered_hover_v2": {
+    "file": "01-systems-gnc/duty_cycles/DC-C_tethered_hover_v2.csv",
+    "burn_s": 35.84,
+    "impulse_Ns": 4797.0,
+    "starts": 2,
+    "max_axial_specific_mps2": null,
+    "max_gimbal_deg": null,
+    "success": null
+   },
+   "DC-D_static_fire_qualification_v2": {
+    "file": "01-systems-gnc/duty_cycles/DC-D_static_fire_qualification_v2.csv",
+    "burn_s": 49.09,
+    "impulse_Ns": 12934.0,
+    "starts": 3,
+    "max_axial_specific_mps2": null,
+    "max_gimbal_deg": null,
+    "success": null
+   }
+  },
+  "columns": [
+   "t_s",
+   "F_N",
+   "F_cmd_N",
+   "throttle_frac",
+   "mdot_ox_kgps",
+   "mdot_fuel_kgps",
+   "Pc_Pa",
+   "P_tank_Pa",
+   "T_tank_K",
+   "a_axial_specific_mps2",
+   "h_m",
+   "v_mps",
+   "m_kg",
+   "z_cg_m",
+   "I_transverse_kgm2",
+   "I_roll_kgm2",
+   "gimbal_x_cmd_deg",
+   "gimbal_y_cmd_deg",
+   "gimbal_x_deg",
+   "gimbal_y_deg",
+   "hinge_moment_est_Nm",
+   "tilt_deg",
+   "phase"
+  ],
+  "tag": "SIM sim6 v2.4 (flights, relay engine model, RCS-fitted baseline load) / DERIVED commanded test sequences",
+  "note": "longest flight burn 19.0 s; DC-D qualification ratio to it 2.58"
+ },
+ "landing_closure": {
+  "cases": [
+   {
+    "case": "AD_fins_f20",
+    "note": "BASELINE: RV-1c A-D + aft fins, 20 % floor, ADIS16470, PD lateral, roll RCS",
+    "vehicle": "RV-1c",
+    "success": 0.984,
+    "ci95_lo": 0.9687,
+    "ci95_hi": 0.9919,
+    "fail_modes": "no_touchdown_or_crash:1;vh:7",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1793,
+    "td_vh_p99": 0.5224,
+    "td_tilt_p99": 3.8916,
+    "td_rate_p99": 6.4237,
+    "td_miss_p50": 78.4014,
+    "td_miss_p95": 154.932,
+    "prop_used_p50": 1.3605,
+    "liq_left_p01": 0.1988,
+    "max_gim_p99": 7.3222,
+    "gim_sat_frac_p99": 0.1666,
+    "max_hinge_p99": 15.6187,
+    "max_rate_coast_p99": 14.6114,
+    "hslam_frac": 0.0
+   },
+   {
+    "case": "AD_nofins_f20",
+    "note": "A-D finless (coast attitude)",
+    "vehicle": "RV-1c",
+    "success": 0.982,
+    "ci95_lo": 0.9661,
+    "ci95_hi": 0.9905,
+    "fail_modes": "tilt:1;vh:8",
+    "m_n2o_sized_kg": 1.6793,
+    "m_n2o_mc_kg": 1.9311,
+    "tank_V_L": 3.0581,
+    "m_liftoff_kg": 15.7428,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2038,
+    "td_vh_p99": 0.5467,
+    "td_tilt_p99": 4.4001,
+    "td_rate_p99": 5.6084,
+    "td_miss_p50": 78.3021,
+    "td_miss_p95": 144.0281,
+    "prop_used_p50": 1.3133,
+    "liq_left_p01": 0.1812,
+    "max_gim_p99": 7.3185,
+    "gim_sat_frac_p99": 0.1179,
+    "max_hinge_p99": 15.4587,
+    "max_rate_coast_p99": 519.1208,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f125",
+    "note": "stretch floor 12.5 %",
+    "vehicle": "RV-1c",
+    "success": 0.984,
+    "ci95_lo": 0.9687,
+    "ci95_hi": 0.9919,
+    "fail_modes": "no_touchdown_or_crash:1;vh:7",
+    "m_n2o_sized_kg": 1.7411,
+    "m_n2o_mc_kg": 2.0023,
+    "tank_V_L": 3.1707,
+    "m_liftoff_kg": 16.1559,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1852,
+    "td_vh_p99": 0.5196,
+    "td_tilt_p99": 3.8997,
+    "td_rate_p99": 5.8103,
+    "td_miss_p50": 78.4041,
+    "td_miss_p95": 155.1039,
+    "prop_used_p50": 1.3607,
+    "liq_left_p01": 0.1966,
+    "max_gim_p99": 7.3223,
+    "gim_sat_frac_p99": 0.1663,
+    "max_hinge_p99": 15.6332,
+    "max_rate_coast_p99": 14.6126,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": 0.0,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f25",
+    "note": "requirement floor 25 % (auto hover/hoverslam)",
+    "vehicle": "RV-1c",
+    "success": 0.976,
+    "ci95_lo": 0.9585,
+    "ci95_hi": 0.9862,
+    "fail_modes": "no_touchdown_or_crash:1;vh:11",
+    "m_n2o_sized_kg": 1.7404,
+    "m_n2o_mc_kg": 2.0015,
+    "tank_V_L": 3.1695,
+    "m_liftoff_kg": 16.1552,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1802,
+    "td_vh_p99": 0.5621,
+    "td_tilt_p99": 3.6777,
+    "td_rate_p99": 6.9484,
+    "td_miss_p50": 78.3988,
+    "td_miss_p95": 154.6592,
+    "prop_used_p50": 1.3603,
+    "liq_left_p01": 0.1983,
+    "max_gim_p99": 7.3223,
+    "gim_sat_frac_p99": 0.1725,
+    "max_hinge_p99": 15.5306,
+    "max_rate_coast_p99": 14.6107,
+    "hslam_frac": 0.048,
+    "paired_delta_vs_base": -0.008,
+    "mcnemar_p_vs_base": 0.125
+   },
+   {
+    "case": "AD_fins_f40",
+    "note": "40 % floor (auto -> hoverslam)",
+    "vehicle": "RV-1c",
+    "success": 0.52,
+    "ci95_lo": 0.4762,
+    "ci95_hi": 0.5635,
+    "fail_modes": "no_touchdown_or_crash:7;rate:96;tipover:1;vh:195",
+    "m_n2o_sized_kg": 1.5382,
+    "m_n2o_mc_kg": 1.7689,
+    "tank_V_L": 2.8012,
+    "m_liftoff_kg": 15.7856,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1384,
+    "td_vh_p99": 1.4201,
+    "td_tilt_p99": 4.4597,
+    "td_rate_p99": 15.1187,
+    "td_miss_p50": 82.0252,
+    "td_miss_p95": 161.9836,
+    "prop_used_p50": 1.1952,
+    "liq_left_p01": 0.1438,
+    "max_gim_p99": 7.3331,
+    "gim_sat_frac_p99": 0.197,
+    "max_hinge_p99": 15.251,
+    "max_rate_coast_p99": 14.9381,
+    "hslam_frac": 1.0,
+    "paired_delta_vs_base": -0.464,
+    "mcnemar_p_vs_base": 0.0
+   },
+   {
+    "case": "AD_fins_f20_hslam",
+    "note": "forced Falcon-9-style hoverslam at 20 %",
+    "vehicle": "RV-1c",
+    "success": 0.986,
+    "ci95_lo": 0.9714,
+    "ci95_hi": 0.9932,
+    "fail_modes": "exhausted:1;no_touchdown_or_crash:1;vh:5;vz:1",
+    "m_n2o_sized_kg": 1.8723,
+    "m_n2o_mc_kg": 2.1531,
+    "tank_V_L": 3.4096,
+    "m_liftoff_kg": 16.3958,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1378,
+    "td_vh_p99": 0.5336,
+    "td_tilt_p99": 4.2253,
+    "td_rate_p99": 7.3961,
+    "td_miss_p50": 75.6359,
+    "td_miss_p95": 154.1523,
+    "prop_used_p50": 1.4852,
+    "liq_left_p01": 0.161,
+    "max_gim_p99": 7.3121,
+    "gim_sat_frac_p99": 0.1798,
+    "max_hinge_p99": 14.2087,
+    "max_rate_coast_p99": 15.699,
+    "hslam_frac": 1.0,
+    "paired_delta_vs_base": 0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f40_ballast",
+    "note": "40 % floor, hover with ballast",
+    "vehicle": "RV-1c",
+    "success": 0.994,
+    "ci95_lo": 0.9825,
+    "ci95_hi": 0.998,
+    "fail_modes": "exhausted:2;vh:1;vz:2",
+    "m_n2o_sized_kg": 4.0149,
+    "m_n2o_mc_kg": 4.6172,
+    "tank_V_L": 7.3115,
+    "m_liftoff_kg": 28.8198,
+    "ballast_kg": 8.509,
+    "td_vz_p99": 1.1512,
+    "td_vh_p99": 0.4105,
+    "td_tilt_p99": 3.6063,
+    "td_rate_p99": 6.1855,
+    "td_miss_p50": 27.3686,
+    "td_miss_p95": 84.6368,
+    "prop_used_p50": 3.2658,
+    "liq_left_p01": 0.2502,
+    "max_gim_p99": 7.3252,
+    "gim_sat_frac_p99": 0.1243,
+    "max_hinge_p99": 14.1797,
+    "max_rate_coast_p99": 19.5716,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": 0.01,
+    "mcnemar_p_vs_base": 0.2266
+   },
+   {
+    "case": "AD_fins_f25_ballast",
+    "note": "25 % floor, hover with ballast",
+    "vehicle": "RV-1c",
+    "success": 0.976,
+    "ci95_lo": 0.9585,
+    "ci95_hi": 0.9862,
+    "fail_modes": "no_touchdown_or_crash:3;vh:9",
+    "m_n2o_sized_kg": 1.7414,
+    "m_n2o_mc_kg": 2.0026,
+    "tank_V_L": 3.1712,
+    "m_liftoff_kg": 16.1676,
+    "ballast_kg": 0.0113,
+    "td_vz_p99": 1.196,
+    "td_vh_p99": 0.5973,
+    "td_tilt_p99": 3.9027,
+    "td_rate_p99": 6.303,
+    "td_miss_p50": 78.1759,
+    "td_miss_p95": 155.3667,
+    "prop_used_p50": 1.3608,
+    "liq_left_p01": 0.1925,
+    "max_gim_p99": 7.3187,
+    "gim_sat_frac_p99": 0.1695,
+    "max_hinge_p99": 15.5878,
+    "max_rate_coast_p99": 14.6093,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.008,
+    "mcnemar_p_vs_base": 0.424
+   },
+   {
+    "case": "AD_fins_f20_BMI088",
+    "note": "cheaper IMU class (BMI088)",
+    "vehicle": "RV-1c",
+    "success": 0.304,
+    "ci95_lo": 0.2653,
+    "ci95_hi": 0.3457,
+    "fail_modes": "no_touchdown_or_crash:108;tipover:7;vh:240",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2227,
+    "td_vh_p99": 3.8244,
+    "td_tilt_p99": 4.9743,
+    "td_rate_p99": 5.9654,
+    "td_miss_p50": 77.9883,
+    "td_miss_p95": 155.7211,
+    "prop_used_p50": 1.3624,
+    "liq_left_p01": 0.1924,
+    "max_gim_p99": 7.3302,
+    "gim_sat_frac_p99": 0.189,
+    "max_hinge_p99": 15.2697,
+    "max_rate_coast_p99": 14.6137,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.68,
+    "mcnemar_p_vs_base": 0.0
+   },
+   {
+    "case": "AD_fins_f20_ICM42688",
+    "note": "cheaper IMU class (ICM-42688-P)",
+    "vehicle": "RV-1c",
+    "success": 0.44,
+    "ci95_lo": 0.3971,
+    "ci95_hi": 0.4838,
+    "fail_modes": "no_touchdown_or_crash:44;tilt:1;tipover:4;vh:235",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1958,
+    "td_vh_p99": 2.5541,
+    "td_tilt_p99": 3.8766,
+    "td_rate_p99": 6.4094,
+    "td_miss_p50": 78.1067,
+    "td_miss_p95": 155.0703,
+    "prop_used_p50": 1.3614,
+    "liq_left_p01": 0.1902,
+    "max_gim_p99": 7.3223,
+    "gim_sat_frac_p99": 0.1891,
+    "max_hinge_p99": 15.0559,
+    "max_rate_coast_p99": 14.6158,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.544,
+    "mcnemar_p_vs_base": 0.0
+   },
+   {
+    "case": "AD_fins_f20_rtk",
+    "note": "RTK GNSS",
+    "vehicle": "RV-1c",
+    "success": 0.982,
+    "ci95_lo": 0.9661,
+    "ci95_hi": 0.9905,
+    "fail_modes": "vh:9",
+    "m_n2o_sized_kg": 1.7427,
+    "m_n2o_mc_kg": 2.0042,
+    "tank_V_L": 3.1737,
+    "m_liftoff_kg": 16.1588,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1502,
+    "td_vh_p99": 0.5219,
+    "td_tilt_p99": 4.2423,
+    "td_rate_p99": 6.4708,
+    "td_miss_p50": 78.5599,
+    "td_miss_p95": 155.4016,
+    "prop_used_p50": 1.3578,
+    "liq_left_p01": 0.2001,
+    "max_gim_p99": 7.3184,
+    "gim_sat_frac_p99": 0.1739,
+    "max_hinge_p99": 15.5093,
+    "max_rate_coast_p99": 14.6378,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f20_lidar12",
+    "note": "short-range LiDAR (12 m)",
+    "vehicle": "RV-1c",
+    "success": 0.98,
+    "ci95_lo": 0.9636,
+    "ci95_hi": 0.9891,
+    "fail_modes": "no_touchdown_or_crash:1;vh:9",
+    "m_n2o_sized_kg": 1.74,
+    "m_n2o_mc_kg": 2.001,
+    "tank_V_L": 3.1687,
+    "m_liftoff_kg": 16.1537,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2276,
+    "td_vh_p99": 0.5465,
+    "td_tilt_p99": 3.8355,
+    "td_rate_p99": 6.1695,
+    "td_miss_p50": 80.5516,
+    "td_miss_p95": 156.4705,
+    "prop_used_p50": 1.3604,
+    "liq_left_p01": 0.1932,
+    "max_gim_p99": 7.3184,
+    "gim_sat_frac_p99": 0.1554,
+    "max_hinge_p99": 14.8635,
+    "max_rate_coast_p99": 15.3022,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.004,
+    "mcnemar_p_vs_base": 0.7266
+   },
+   {
+    "case": "AD_fins_f20_zemzev",
+    "note": "ZEM/ZEV vertical (sim6 v2.3 tgo law) + lateral",
+    "vehicle": "RV-1c",
+    "success": 0.982,
+    "ci95_lo": 0.9661,
+    "ci95_hi": 0.9905,
+    "fail_modes": "no_touchdown_or_crash:2;tilt:1;vh:6",
+    "m_n2o_sized_kg": 1.8323,
+    "m_n2o_mc_kg": 2.1071,
+    "tank_V_L": 3.3368,
+    "m_liftoff_kg": 16.3228,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 0.8841,
+    "td_vh_p99": 0.5831,
+    "td_tilt_p99": 4.2005,
+    "td_rate_p99": 6.5513,
+    "td_miss_p50": 79.8771,
+    "td_miss_p95": 157.4339,
+    "prop_used_p50": 1.427,
+    "liq_left_p01": 0.2099,
+    "max_gim_p99": 7.3195,
+    "gim_sat_frac_p99": 0.0999,
+    "max_hinge_p99": 15.0545,
+    "max_rate_coast_p99": 15.4605,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f20_zemzev_lat",
+    "note": "reference+PI vertical, ZEM/ZEV lateral",
+    "vehicle": "RV-1c",
+    "success": 0.984,
+    "ci95_lo": 0.9687,
+    "ci95_hi": 0.9919,
+    "fail_modes": "no_touchdown_or_crash:1;vh:7",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1939,
+    "td_vh_p99": 0.5128,
+    "td_tilt_p99": 3.7186,
+    "td_rate_p99": 6.1163,
+    "td_miss_p50": 78.7073,
+    "td_miss_p95": 155.2005,
+    "prop_used_p50": 1.3597,
+    "liq_left_p01": 0.2006,
+    "max_gim_p99": 7.319,
+    "gim_sat_frac_p99": 0.1339,
+    "max_hinge_p99": 15.0491,
+    "max_rate_coast_p99": 14.6114,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": 0.0,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f20_cvx",
+    "note": "reference+PI vertical, convex-lite lateral",
+    "vehicle": "RV-1c",
+    "success": 0.982,
+    "ci95_lo": 0.9661,
+    "ci95_hi": 0.9905,
+    "fail_modes": "vh:9",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1863,
+    "td_vh_p99": 0.5096,
+    "td_tilt_p99": 3.7195,
+    "td_rate_p99": 6.9014,
+    "td_miss_p50": 78.3745,
+    "td_miss_p95": 155.9745,
+    "prop_used_p50": 1.359,
+    "liq_left_p01": 0.1991,
+    "max_gim_p99": 7.3202,
+    "gim_sat_frac_p99": 0.1065,
+    "max_hinge_p99": 14.606,
+    "max_rate_coast_p99": 14.6114,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f20_norcs",
+    "note": "no roll control, straight-port residual roll torque U(-0.02, 0.02) N m ASSUMED",
+    "vehicle": "RV-1c",
+    "success": 0.99,
+    "ci95_lo": 0.9768,
+    "ci95_hi": 0.9957,
+    "fail_modes": "no_touchdown_or_crash:1;vh:4",
+    "m_n2o_sized_kg": 1.6922,
+    "m_n2o_mc_kg": 1.946,
+    "tank_V_L": 3.0816,
+    "m_liftoff_kg": 15.8166,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1992,
+    "td_vh_p99": 0.4744,
+    "td_tilt_p99": 4.4117,
+    "td_rate_p99": 7.2732,
+    "td_miss_p50": 80.8498,
+    "td_miss_p95": 160.6043,
+    "prop_used_p50": 1.3224,
+    "liq_left_p01": 0.175,
+    "max_gim_p99": 7.3317,
+    "gim_sat_frac_p99": 0.1884,
+    "max_hinge_p99": 14.5443,
+    "max_rate_coast_p99": 14.9501,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": 0.006,
+    "mcnemar_p_vs_base": 0.5488
+   },
+   {
+    "case": "AD_fins_f20_norcs_r0",
+    "note": "no roll control, zero engine roll torque (gimbal x CG-offset roll only)",
+    "vehicle": "RV-1c",
+    "success": 0.98,
+    "ci95_lo": 0.9636,
+    "ci95_hi": 0.9891,
+    "fail_modes": "vh:10",
+    "m_n2o_sized_kg": 1.6922,
+    "m_n2o_mc_kg": 1.946,
+    "tank_V_L": 3.0816,
+    "m_liftoff_kg": 15.8166,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1964,
+    "td_vh_p99": 0.5387,
+    "td_tilt_p99": 4.1315,
+    "td_rate_p99": 6.3616,
+    "td_miss_p50": 80.9481,
+    "td_miss_p95": 160.9725,
+    "prop_used_p50": 1.3221,
+    "liq_left_p01": 0.1734,
+    "max_gim_p99": 7.3165,
+    "gim_sat_frac_p99": 0.1765,
+    "max_hinge_p99": 15.1362,
+    "max_rate_coast_p99": 14.7956,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.004,
+    "mcnemar_p_vs_base": 0.8036
+   },
+   {
+    "case": "AD_fins_f20_norcs_r005",
+    "note": "no roll control, roll torque U(-0.005, 0.005) N m",
+    "vehicle": "RV-1c",
+    "success": 0.974,
+    "ci95_lo": 0.956,
+    "ci95_hi": 0.9847,
+    "fail_modes": "no_touchdown_or_crash:2;tilt:1;tipover:1;vh:10",
+    "m_n2o_sized_kg": 1.6922,
+    "m_n2o_mc_kg": 1.946,
+    "tank_V_L": 3.0816,
+    "m_liftoff_kg": 15.8166,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1961,
+    "td_vh_p99": 0.7108,
+    "td_tilt_p99": 4.2722,
+    "td_rate_p99": 5.882,
+    "td_miss_p50": 81.1406,
+    "td_miss_p95": 160.3823,
+    "prop_used_p50": 1.323,
+    "liq_left_p01": 0.1787,
+    "max_gim_p99": 7.324,
+    "gim_sat_frac_p99": 0.1894,
+    "max_hinge_p99": 15.2933,
+    "max_rate_coast_p99": 14.8594,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.01,
+    "mcnemar_p_vs_base": 0.2668
+   },
+   {
+    "case": "AD_fins_f20_norcs_r01",
+    "note": "no roll control, roll torque U(-0.01, 0.01) N m",
+    "vehicle": "RV-1c",
+    "success": 0.99,
+    "ci95_lo": 0.9768,
+    "ci95_hi": 0.9957,
+    "fail_modes": "vh:5",
+    "m_n2o_sized_kg": 1.6922,
+    "m_n2o_mc_kg": 1.946,
+    "tank_V_L": 3.0816,
+    "m_liftoff_kg": 15.8166,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2047,
+    "td_vh_p99": 0.4921,
+    "td_tilt_p99": 4.3426,
+    "td_rate_p99": 7.1555,
+    "td_miss_p50": 80.652,
+    "td_miss_p95": 161.0098,
+    "prop_used_p50": 1.3219,
+    "liq_left_p01": 0.1746,
+    "max_gim_p99": 7.3345,
+    "gim_sat_frac_p99": 0.1902,
+    "max_hinge_p99": 15.3055,
+    "max_rate_coast_p99": 14.9283,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": 0.006,
+    "mcnemar_p_vs_base": 0.5488
+   },
+   {
+    "case": "AD_fins_f20_norcs_r05",
+    "note": "no roll control, roll torque U(-0.05, 0.05) N m",
+    "vehicle": "RV-1c",
+    "success": 0.81,
+    "ci95_lo": 0.7733,
+    "ci95_hi": 0.842,
+    "fail_modes": "rate:88;tilt:39;tipover:1;vh:15",
+    "m_n2o_sized_kg": 1.6922,
+    "m_n2o_mc_kg": 1.946,
+    "tank_V_L": 3.0816,
+    "m_liftoff_kg": 15.8166,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2139,
+    "td_vh_p99": 0.6117,
+    "td_tilt_p99": 6.3151,
+    "td_rate_p99": 19.4289,
+    "td_miss_p50": 81.1581,
+    "td_miss_p95": 161.2011,
+    "prop_used_p50": 1.3224,
+    "liq_left_p01": 0.1762,
+    "max_gim_p99": 7.3353,
+    "gim_sat_frac_p99": 0.1958,
+    "max_hinge_p99": 15.2992,
+    "max_rate_coast_p99": 15.0518,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.174,
+    "mcnemar_p_vs_base": 0.0
+   },
+   {
+    "case": "AD_fins_f20_norcs_r10",
+    "note": "no roll control, v1 helical-port envelope U(-0.1, 0.1) N m",
+    "vehicle": "RV-1c",
+    "success": 0.548,
+    "ci95_lo": 0.5042,
+    "ci95_hi": 0.5911,
+    "fail_modes": "no_touchdown_or_crash:1;rate:220;tilt:59;tipover:1;vh:36",
+    "m_n2o_sized_kg": 1.6922,
+    "m_n2o_mc_kg": 1.946,
+    "tank_V_L": 3.0816,
+    "m_liftoff_kg": 15.8166,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2199,
+    "td_vh_p99": 0.6406,
+    "td_tilt_p99": 7.2248,
+    "td_rate_p99": 23.8093,
+    "td_miss_p50": 81.0746,
+    "td_miss_p95": 161.1855,
+    "prop_used_p50": 1.3219,
+    "liq_left_p01": 0.1806,
+    "max_gim_p99": 7.3371,
+    "gim_sat_frac_p99": 0.2482,
+    "max_hinge_p99": 15.0801,
+    "max_rate_coast_p99": 14.8622,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.436,
+    "mcnemar_p_vs_base": 0.0
+   },
+   {
+    "case": "AD_fins_f20_r10",
+    "note": "roll RCS on, v1 helical-port envelope U(-0.1, 0.1) N m",
+    "vehicle": "RV-1c",
+    "success": 0.982,
+    "ci95_lo": 0.9661,
+    "ci95_hi": 0.9905,
+    "fail_modes": "no_touchdown_or_crash:3;vh:6",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1786,
+    "td_vh_p99": 0.5857,
+    "td_tilt_p99": 3.8258,
+    "td_rate_p99": 6.0289,
+    "td_miss_p50": 78.1911,
+    "td_miss_p95": 154.6205,
+    "prop_used_p50": 1.3609,
+    "liq_left_p01": 0.1872,
+    "max_gim_p99": 7.3187,
+    "gim_sat_frac_p99": 0.1737,
+    "max_hinge_p99": 15.6436,
+    "max_rate_coast_p99": 14.6369,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f20_v1engine",
+    "note": "combustion.json v1 map without the relay correction, v1 grain, no engine growth",
+    "vehicle": "RV-1c",
+    "success": 0.982,
+    "ci95_lo": 0.9661,
+    "ci95_hi": 0.9905,
+    "fail_modes": "no_touchdown_or_crash:2;vh:7",
+    "m_n2o_sized_kg": 1.5971,
+    "m_n2o_mc_kg": 1.8367,
+    "tank_V_L": 2.9085,
+    "m_liftoff_kg": 15.7307,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.22,
+    "td_vh_p99": 0.5484,
+    "td_tilt_p99": 3.9526,
+    "td_rate_p99": 6.3865,
+    "td_miss_p50": 81.2257,
+    "td_miss_p95": 160.0232,
+    "prop_used_p50": 1.2865,
+    "liq_left_p01": 0.1804,
+    "max_gim_p99": 7.3054,
+    "gim_sat_frac_p99": 0.1678,
+    "max_hinge_p99": 14.914,
+    "max_rate_coast_p99": 15.3092,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f20_norcs_r03",
+    "note": "no roll control, roll torque U(-0.03, 0.03) N m",
+    "vehicle": "RV-1c",
+    "success": 0.972,
+    "ci95_lo": 0.9536,
+    "ci95_hi": 0.9832,
+    "fail_modes": "no_touchdown_or_crash:1;rate:8;tilt:2;vh:7",
+    "m_n2o_sized_kg": 1.6922,
+    "m_n2o_mc_kg": 1.946,
+    "tank_V_L": 3.0816,
+    "m_liftoff_kg": 15.8166,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2101,
+    "td_vh_p99": 0.5252,
+    "td_tilt_p99": 4.7517,
+    "td_rate_p99": 11.5565,
+    "td_miss_p50": 80.6058,
+    "td_miss_p95": 161.743,
+    "prop_used_p50": 1.3227,
+    "liq_left_p01": 0.1792,
+    "max_gim_p99": 7.3401,
+    "gim_sat_frac_p99": 0.1902,
+    "max_hinge_p99": 14.8756,
+    "max_rate_coast_p99": 15.0868,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.012,
+    "mcnemar_p_vs_base": 0.2632
+   },
+   {
+    "case": "AD_fins_f20_norcs_r04",
+    "note": "no roll control, roll torque U(-0.04, 0.04) N m",
+    "vehicle": "RV-1c",
+    "success": 0.9,
+    "ci95_lo": 0.8706,
+    "ci95_hi": 0.9233,
+    "fail_modes": "no_touchdown_or_crash:2;rate:44;tilt:18;vh:10",
+    "m_n2o_sized_kg": 1.6922,
+    "m_n2o_mc_kg": 1.946,
+    "tank_V_L": 3.0816,
+    "m_liftoff_kg": 15.8166,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2092,
+    "td_vh_p99": 0.6148,
+    "td_tilt_p99": 6.1163,
+    "td_rate_p99": 17.0749,
+    "td_miss_p50": 80.8148,
+    "td_miss_p95": 161.8572,
+    "prop_used_p50": 1.3213,
+    "liq_left_p01": 0.1766,
+    "max_gim_p99": 7.3265,
+    "gim_sat_frac_p99": 0.2024,
+    "max_hinge_p99": 14.8141,
+    "max_rate_coast_p99": 15.1194,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.084,
+    "mcnemar_p_vs_base": 0.0
+   },
+   {
+    "case": "AD_fins_f20_rate80",
+    "note": "command slew limit 80 deg/s (rate requirement comparator)",
+    "vehicle": "RV-1c",
+    "success": 0.966,
+    "ci95_lo": 0.9462,
+    "ci95_hi": 0.9787,
+    "fail_modes": "no_touchdown_or_crash:1;tilt:1;vh:15",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1844,
+    "td_vh_p99": 0.6398,
+    "td_tilt_p99": 4.2796,
+    "td_rate_p99": 7.1293,
+    "td_miss_p50": 77.1158,
+    "td_miss_p95": 154.6917,
+    "prop_used_p50": 1.3635,
+    "liq_left_p01": 0.1879,
+    "max_gim_p99": 7.262,
+    "gim_sat_frac_p99": 0.2299,
+    "max_hinge_p99": 13.0887,
+    "max_rate_coast_p99": 14.614,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.018,
+    "mcnemar_p_vs_base": 0.0225
+   },
+   {
+    "case": "AD_fins_f20_bw8",
+    "note": "actuator natural frequency fixed at 8 Hz (ENG-07 bandwidth)",
+    "vehicle": "RV-1c",
+    "success": 0.98,
+    "ci95_lo": 0.9636,
+    "ci95_hi": 0.9891,
+    "fail_modes": "no_touchdown_or_crash:1;tipover:1;vh:9",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1762,
+    "td_vh_p99": 0.5687,
+    "td_tilt_p99": 4.0293,
+    "td_rate_p99": 5.6901,
+    "td_miss_p50": 77.9473,
+    "td_miss_p95": 155.2627,
+    "prop_used_p50": 1.3615,
+    "liq_left_p01": 0.1916,
+    "max_gim_p99": 7.2529,
+    "gim_sat_frac_p99": 0.194,
+    "max_hinge_p99": 5.3096,
+    "max_rate_coast_p99": 14.7181,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.004,
+    "mcnemar_p_vs_base": 0.625
+   },
+   {
+    "case": "AD_fins_f20_bw6",
+    "note": "actuator natural frequency fixed at 6 Hz (below ENG-07)",
+    "vehicle": "RV-1c",
+    "success": 0.974,
+    "ci95_lo": 0.956,
+    "ci95_hi": 0.9847,
+    "fail_modes": "no_touchdown_or_crash:1;vh:12",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1851,
+    "td_vh_p99": 0.6573,
+    "td_tilt_p99": 4.2301,
+    "td_rate_p99": 6.335,
+    "td_miss_p50": 77.6898,
+    "td_miss_p95": 155.0629,
+    "prop_used_p50": 1.3617,
+    "liq_left_p01": 0.1946,
+    "max_gim_p99": 7.3168,
+    "gim_sat_frac_p99": 0.2174,
+    "max_hinge_p99": 4.5551,
+    "max_rate_coast_p99": 14.7916,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.01,
+    "mcnemar_p_vs_base": 0.125
+   },
+   {
+    "case": "AD_fins_f20_slowPc",
+    "note": "thrust response t10-90 0.20 s nominal (MC 0.14-0.30 s)",
+    "vehicle": "RV-1c",
+    "success": 0.96,
+    "ci95_lo": 0.939,
+    "ci95_hi": 0.974,
+    "fail_modes": "no_touchdown_or_crash:3;tipover:1;vh:17",
+    "m_n2o_sized_kg": 1.73,
+    "m_n2o_mc_kg": 1.9895,
+    "tank_V_L": 3.1505,
+    "m_liftoff_kg": 16.1362,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.3299,
+    "td_vh_p99": 0.614,
+    "td_tilt_p99": 4.0651,
+    "td_rate_p99": 7.0328,
+    "td_miss_p50": 79.6519,
+    "td_miss_p95": 158.5832,
+    "prop_used_p50": 1.354,
+    "liq_left_p01": 0.1794,
+    "max_gim_p99": 7.3197,
+    "gim_sat_frac_p99": 0.1565,
+    "max_hinge_p99": 14.7935,
+    "max_rate_coast_p99": 15.7069,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.024,
+    "mcnemar_p_vs_base": 0.0075
+   },
+   {
+    "case": "AD_fins_f20_q2",
+    "note": "throttle command resolution 2 % (ENG-03 limit)",
+    "vehicle": "RV-1c",
+    "success": 0.986,
+    "ci95_lo": 0.9714,
+    "ci95_hi": 0.9932,
+    "fail_modes": "no_touchdown_or_crash:1;vh:6",
+    "m_n2o_sized_kg": 1.7378,
+    "m_n2o_mc_kg": 1.9985,
+    "tank_V_L": 3.1647,
+    "m_liftoff_kg": 16.1501,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1946,
+    "td_vh_p99": 0.5193,
+    "td_tilt_p99": 3.9241,
+    "td_rate_p99": 6.0133,
+    "td_miss_p50": 78.3532,
+    "td_miss_p95": 154.8068,
+    "prop_used_p50": 1.359,
+    "liq_left_p01": 0.1948,
+    "max_gim_p99": 7.3167,
+    "gim_sat_frac_p99": 0.1666,
+    "max_hinge_p99": 15.5676,
+    "max_rate_coast_p99": 14.961,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": 0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_prov_2kg",
+    "note": "LEAD BASELINE 2026-10-12: roll RCS provision only (not fitted), N2O load fixed 2.00 kg (3.17 L), residual roll torque U(-0.02, 0.02) N m ASSUMED",
+    "vehicle": "RV-1c",
+    "success": 0.982,
+    "ci95_lo": 0.9661,
+    "ci95_hi": 0.9905,
+    "fail_modes": "no_touchdown_or_crash:1;rate:1;vh:7",
+    "m_n2o_sized_kg": 1.6922,
+    "m_n2o_mc_kg": 2.0,
+    "tank_V_L": 3.1671,
+    "m_liftoff_kg": 15.9026,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1996,
+    "td_vh_p99": 0.6176,
+    "td_tilt_p99": 4.2363,
+    "td_rate_p99": 7.7366,
+    "td_miss_p50": 81.292,
+    "td_miss_p95": 163.4437,
+    "prop_used_p50": 1.3314,
+    "liq_left_p01": 0.2185,
+    "max_gim_p99": 7.337,
+    "gim_sat_frac_p99": 0.1851,
+    "max_hinge_p99": 15.8271,
+    "max_rate_coast_p99": 15.2118,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f20_openloop",
+    "note": "open-loop pintle (fuel lag per combustion.json plant)",
+    "vehicle": "RV-1c",
+    "success": 0.982,
+    "ci95_lo": 0.9661,
+    "ci95_hi": 0.9905,
+    "fail_modes": "tipover:1;vh:9",
+    "m_n2o_sized_kg": 1.7405,
+    "m_n2o_mc_kg": 2.0016,
+    "tank_V_L": 3.1696,
+    "m_liftoff_kg": 16.1553,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2979,
+    "td_vh_p99": 0.5754,
+    "td_tilt_p99": 3.8363,
+    "td_rate_p99": 6.7042,
+    "td_miss_p50": 80.8409,
+    "td_miss_p95": 157.9022,
+    "prop_used_p50": 1.36,
+    "liq_left_p01": 0.1946,
+    "max_gim_p99": 7.3127,
+    "gim_sat_frac_p99": 0.1705,
+    "max_hinge_p99": 15.4347,
+    "max_rate_coast_p99": 14.9975,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f20_nolpf",
+    "note": "no structural filter / slew limit (CSI comparator)",
+    "vehicle": "RV-1c",
+    "success": 0.976,
+    "ci95_lo": 0.9585,
+    "ci95_hi": 0.9862,
+    "fail_modes": "no_touchdown_or_crash:1;rate:2;vh:9",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1965,
+    "td_vh_p99": 0.5746,
+    "td_tilt_p99": 3.6019,
+    "td_rate_p99": 8.7615,
+    "td_miss_p50": 78.6485,
+    "td_miss_p95": 155.163,
+    "prop_used_p50": 1.3593,
+    "liq_left_p01": 0.2003,
+    "max_gim_p99": 8.0,
+    "gim_sat_frac_p99": 0.1437,
+    "max_hinge_p99": 153.7268,
+    "max_rate_coast_p99": 14.9836,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.008,
+    "mcnemar_p_vs_base": 0.2891
+   },
+   {
+    "case": "AD_fins_f20_rate60",
+    "note": "command slew limit 60 deg/s (rate requirement comparator)",
+    "vehicle": "RV-1c",
+    "success": 0.716,
+    "ci95_lo": 0.6749,
+    "ci95_hi": 0.7538,
+    "fail_modes": "no_touchdown_or_crash:112;rate:9;tilt:10;tipover:4;vh:26",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 2.6421,
+    "td_vh_p99": 10.2575,
+    "td_tilt_p99": 58.7601,
+    "td_rate_p99": 139.2812,
+    "td_miss_p50": 75.3582,
+    "td_miss_p95": 152.9923,
+    "prop_used_p50": 1.3725,
+    "liq_left_p01": 0.1766,
+    "max_gim_p99": 7.1741,
+    "gim_sat_frac_p99": 0.4551,
+    "max_hinge_p99": 9.7607,
+    "max_rate_coast_p99": 14.6162,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.268,
+    "mcnemar_p_vs_base": 0.0
+   },
+   {
+    "case": "AD_fins_f20_gim6",
+    "note": "gimbal vector limit 6 deg (7 deg decision)",
+    "vehicle": "RV-1c",
+    "success": 0.982,
+    "ci95_lo": 0.9661,
+    "ci95_hi": 0.9905,
+    "fail_modes": "tipover:1;vh:9",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1801,
+    "td_vh_p99": 0.5784,
+    "td_tilt_p99": 3.8525,
+    "td_rate_p99": 6.6733,
+    "td_miss_p50": 78.4548,
+    "td_miss_p95": 155.1026,
+    "prop_used_p50": 1.3605,
+    "liq_left_p01": 0.1973,
+    "max_gim_p99": 6.308,
+    "gim_sat_frac_p99": 0.2289,
+    "max_hinge_p99": 14.4393,
+    "max_rate_coast_p99": 14.6114,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.002,
+    "mcnemar_p_vs_base": 1.0
+   },
+   {
+    "case": "AD_fins_f20_gim5",
+    "note": "gimbal vector limit 5 deg (7 deg decision)",
+    "vehicle": "RV-1c",
+    "success": 0.924,
+    "ci95_lo": 0.8974,
+    "ci95_hi": 0.9441,
+    "fail_modes": "no_touchdown_or_crash:2;rate:7;vh:34",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1879,
+    "td_vh_p99": 0.7392,
+    "td_tilt_p99": 4.0285,
+    "td_rate_p99": 12.2969,
+    "td_miss_p50": 78.2558,
+    "td_miss_p95": 155.1345,
+    "prop_used_p50": 1.3613,
+    "liq_left_p01": 0.1965,
+    "max_gim_p99": 5.3012,
+    "gim_sat_frac_p99": 0.4213,
+    "max_hinge_p99": 13.7794,
+    "max_rate_coast_p99": 14.6114,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.06,
+    "mcnemar_p_vs_base": 0.0
+   },
+   {
+    "case": "AD_fins_f20_upwind",
+    "note": "upwind ascent bias 1.5 x pad wind (meas. error 1 m/s, 15 deg)",
+    "vehicle": "RV-1c",
+    "success": 0.976,
+    "ci95_lo": 0.9585,
+    "ci95_hi": 0.9862,
+    "fail_modes": "no_touchdown_or_crash:2;tipover:2;vh:10",
+    "m_n2o_sized_kg": 1.7407,
+    "m_n2o_mc_kg": 2.0018,
+    "tank_V_L": 3.17,
+    "m_liftoff_kg": 16.1555,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.1857,
+    "td_vh_p99": 0.6177,
+    "td_tilt_p99": 3.6786,
+    "td_rate_p99": 5.7106,
+    "td_miss_p50": 27.9938,
+    "td_miss_p95": 80.3762,
+    "prop_used_p50": 1.3625,
+    "liq_left_p01": 0.1834,
+    "max_gim_p99": 7.3481,
+    "gim_sat_frac_p99": 0.1817,
+    "max_hinge_p99": 16.7343,
+    "max_rate_coast_p99": 30.9852,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.008,
+    "mcnemar_p_vs_base": 0.424
+   },
+   {
+    "case": "AD_fins_f20_RV1b",
+    "note": "pre-mechanical vehicle RV-1b (126 mm, ledger engine), same GNC",
+    "vehicle": "RV-1b",
+    "success": 0.966,
+    "ci95_lo": 0.9462,
+    "ci95_hi": 0.9787,
+    "fail_modes": "no_touchdown_or_crash:1;tipover:1;vh:16",
+    "m_n2o_sized_kg": 1.4354,
+    "m_n2o_mc_kg": 1.6507,
+    "tank_V_L": 2.614,
+    "m_liftoff_kg": 13.8773,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2161,
+    "td_vh_p99": 0.6397,
+    "td_tilt_p99": 4.0471,
+    "td_rate_p99": 7.7068,
+    "td_miss_p50": 79.7954,
+    "td_miss_p95": 171.8783,
+    "prop_used_p50": 1.1166,
+    "liq_left_p01": 0.1429,
+    "max_gim_p99": 7.1839,
+    "gim_sat_frac_p99": 0.1584,
+    "max_hinge_p99": 6.3782,
+    "max_rate_coast_p99": 20.1672,
+    "hslam_frac": 0.006,
+    "paired_delta_vs_base": -0.018,
+    "mcnemar_p_vs_base": null
+   },
+   {
+    "case": "AF_nofins_f20",
+    "note": "A-F free fall, TVC flip, relight ~140 m",
+    "vehicle": "RV-1c",
+    "success": 0.988,
+    "ci95_lo": 0.9741,
+    "ci95_hi": 0.9945,
+    "fail_modes": "vh:6",
+    "m_n2o_sized_kg": 2.2065,
+    "m_n2o_mc_kg": 2.5375,
+    "tank_V_L": 4.0182,
+    "m_liftoff_kg": 16.3561,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2454,
+    "td_vh_p99": 0.5091,
+    "td_tilt_p99": 3.8128,
+    "td_rate_p99": 5.7283,
+    "td_miss_p50": 43.7658,
+    "td_miss_p95": 82.8597,
+    "prop_used_p50": 1.66,
+    "liq_left_p01": 0.3122,
+    "max_gim_p99": 7.3458,
+    "gim_sat_frac_p99": 0.145,
+    "max_hinge_p99": 13.9349,
+    "max_rate_coast_p99": 529.2078,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": 0.004,
+    "mcnemar_p_vs_base": 0.7744
+   },
+   {
+    "case": "B_f20",
+    "note": "continuous-burn hop 100 m",
+    "vehicle": "RV-1c",
+    "success": 0.994,
+    "ci95_lo": 0.9825,
+    "ci95_hi": 0.998,
+    "fail_modes": "tilt:1;vh:2",
+    "m_n2o_sized_kg": 2.1246,
+    "m_n2o_mc_kg": 2.4433,
+    "tank_V_L": 3.8691,
+    "m_liftoff_kg": 16.207,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 1.2659,
+    "td_vh_p99": 0.4165,
+    "td_tilt_p99": 3.6569,
+    "td_rate_p99": 5.1136,
+    "td_miss_p50": 5.9388,
+    "td_miss_p95": 24.1685,
+    "prop_used_p50": 1.6988,
+    "liq_left_p01": 0.3629,
+    "max_gim_p99": 7.1452,
+    "gim_sat_frac_p99": 0.5313,
+    "max_hinge_p99": 10.8948,
+    "max_rate_coast_p99": 0.0,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": 0.01,
+    "mcnemar_p_vs_base": 0.2266
+   },
+   {
+    "case": "B_f25",
+    "note": "continuous-burn hop 100 m, 25 % floor",
+    "vehicle": "RV-1c",
+    "success": 0.95,
+    "ci95_lo": 0.9272,
+    "ci95_hi": 0.9659,
+    "fail_modes": "exhausted:15;no_touchdown_or_crash:9;rate:8;tilt:11;tipover:13;vh:10;vz:14",
+    "m_n2o_sized_kg": 2.7159,
+    "m_n2o_mc_kg": 3.1233,
+    "tank_V_L": 4.9459,
+    "m_liftoff_kg": 17.287,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 35.8241,
+    "td_vh_p99": 6.1604,
+    "td_tilt_p99": 43.9687,
+    "td_rate_p99": 26.2529,
+    "td_miss_p50": 5.6013,
+    "td_miss_p95": 21.6746,
+    "prop_used_p50": 2.123,
+    "liq_left_p01": 0.0932,
+    "max_gim_p99": 7.0506,
+    "gim_sat_frac_p99": 0.0076,
+    "max_hinge_p99": 5.632,
+    "max_rate_coast_p99": 0.0,
+    "hslam_frac": 0.072,
+    "paired_delta_vs_base": -0.034,
+    "mcnemar_p_vs_base": 0.0023
+   },
+   {
+    "case": "B_f125",
+    "note": "continuous-burn hop 100 m, 12.5 % floor",
+    "vehicle": "RV-1c",
+    "success": 0.856,
+    "ci95_lo": 0.8225,
+    "ci95_hi": 0.8841,
+    "fail_modes": "no_touchdown_or_crash:51;rate:4;tilt:6;tipover:5;vh:21;vz:4",
+    "m_n2o_sized_kg": 1.7381,
+    "m_n2o_mc_kg": 1.9989,
+    "tank_V_L": 3.1653,
+    "m_liftoff_kg": 15.5005,
+    "ballast_kg": 0.0,
+    "td_vz_p99": 8.7479,
+    "td_vh_p99": 7.3534,
+    "td_tilt_p99": 9.776,
+    "td_rate_p99": 15.2342,
+    "td_miss_p50": 8.7512,
+    "td_miss_p95": 85.1243,
+    "prop_used_p50": 1.3423,
+    "liq_left_p01": 0.307,
+    "max_gim_p99": 7.2683,
+    "gim_sat_frac_p99": 0.7407,
+    "max_hinge_p99": 14.7766,
+    "max_rate_coast_p99": 0.0,
+    "hslam_frac": 0.0,
+    "paired_delta_vs_base": -0.128,
+    "mcnemar_p_vs_base": 0.0
+   }
+  ],
+  "table_csv": "01-systems-gnc/results/mc6_cases_summary_v2.csv",
+  "tag": "SIM m2_mc6 v2 (sim6 v2.4, 500 dispersed runs, brief C.7 dispersions, relay engine model)",
+  "criteria": {
+   "vz": 2.0,
+   "vh": 0.5,
+   "tilt": 5.0,
+   "rate": 10.0
+  },
+  "load_margin": 1.15,
+  "failure_drivers_csv": "01-systems-gnc/results/mc6_failure_drivers_v2.csv",
+  "failure_forensics": "01-systems-gnc/results/mc6_failure_forensics_v2.csv",
+  "sensitivity_baseline": {
+   "td_vz": [
+    [
+     "t_ign",
+     0.5272927651710607
+    ],
+    [
+     "tau_f",
+     0.23586852747410988
+    ],
+    [
+     "wind",
+     -0.22609021636086543
+    ],
+    [
+     "baro_b",
+     0.1622375769503078
+    ],
+    [
+     "m_est_err",
+     -0.12998509594038377
+    ],
+    [
+     "gnss_bv",
+     0.12240960963843854
+    ],
+    [
+     "thrust_scale",
+     -0.10298201192804772
+    ],
+    [
+     "drogue_f",
+     -0.09259093036372144
+    ]
+   ],
+   "td_vh": [
+    [
+     "g_bias_dps",
+     0.6067282829131316
+    ],
+    [
+     "rock_K",
+     -0.09894817179268715
+    ],
+    [
+     "cg_off_mm",
+     0.09125153300613202
+    ],
+    [
+     "k_nose_trail",
+     -0.0791625886503546
+    ],
+    [
+     "k_retro",
+     -0.0758873435493742
+    ],
+    [
+     "dry_scale",
+     -0.07055173820695282
+    ],
+    [
+     "t_ign",
+     -0.06897685190740761
+    ],
+    [
+     "gust_scale",
+     0.0628873555494222
+    ]
+   ],
+   "td_tilt": [
+    [
+     "dz_air",
+     -0.255313021252085
+    ],
+    [
+     "m_est_err",
+     -0.14487859551438206
+    ],
+    [
+     "t_ign",
+     0.11637742550970205
+    ],
+    [
+     "wind",
+     0.10861953847815391
+    ],
+    [
+     "isp_scale",
+     0.08957843831375326
+    ],
+    [
+     "legs_mu",
+     0.08589096756387025
+    ],
+    [
+     "drogue_f",
+     0.08571730286921148
+    ],
+    [
+     "k_base_lead",
+     -0.08500363601454405
+    ]
+   ],
+   "td_rate": [
+    [
+     "hose_K",
+     -0.09392399169596678
+    ],
+    [
+     "crossflow",
+     -0.08966810267241068
+    ],
+    [
+     "wind",
+     0.07911737246948987
+    ],
+    [
+     "rock_zeta",
+     -0.07287053148212592
+    ],
+    [
+     "k_nose_trail",
+     0.07267776271105084
+    ],
+    [
+     "t_ign",
+     -0.07032623330493322
+    ],
+    [
+     "gim_delay_add",
+     0.06968869475477903
+    ],
+    [
+     "slosh_zeta",
+     0.06268661874647498
+    ]
+   ],
+   "td_miss": [
+    [
+     "wind",
+     0.9848643874575497
+    ],
+    [
+     "dry_scale",
+     -0.0899937359749439
+    ],
+    [
+     "T0",
+     -0.08522885291541166
+    ],
+    [
+     "gnss_bv",
+     -0.0815565502262009
+    ],
+    [
+     "rock_zeta",
+     0.07722808491233965
+    ],
+    [
+     "m_est_err",
+     -0.0749936759747039
+    ],
+    [
+     "legs_mu",
+     0.05962113448453794
+    ],
+    [
+     "g_bias_dps",
+     -0.0585250981003924
+    ]
+   ],
+   "prop_used": [
+    [
+     "thrust_scale",
+     -0.5981419125676503
+    ],
+    [
+     "dry_scale",
+     0.5540909843639374
+    ],
+    [
+     "isp_scale",
+     -0.5319131676526705
+    ],
+    [
+     "gim_delay_add",
+     -0.10854369817479269
+    ],
+    [
+     "cg_off_mm",
+     0.10628528914115655
+    ],
+    [
+     "crossflow",
+     -0.08866422665690663
+    ],
+    [
+     "drogue_f",
+     -0.08807987231948927
+    ],
+    [
+     "t_ign",
+     -0.08256071424285696
+    ]
+   ],
+   "failure": [
+    [
+     "g_bias_dps",
+     0.18132892847311763
+    ],
+    [
+     "crossflow",
+     0.09662777857124111
+    ],
+    [
+     "rock_zeta",
+     0.09298353092226859
+    ],
+    [
+     "cg_off_mm",
+     0.08370726417942945
+    ],
+    [
+     "wind",
+     0.08304467369779808
+    ],
+    [
+     "roll_abs",
+     -0.07697092761617721
+    ],
+    [
+     "gim_wn_f",
+     -0.06935113707741648
+    ],
+    [
+     "legs_c_f",
+     0.06824681960803089
+    ]
+   ]
+  },
+  "v1_1d_reference": "gnc.json v1 landing_closure (1-D, RV-1) superseded"
+ },
+ "verification_6dof": {
+  "torque_free": [
+   {
+    "dt": 0.0005,
+    "H_rel_drift_max": 1.538e-13,
+    "Ek_rel_drift_max": 1.683e-13,
+    "qnorm_err_max": 2e-16,
+    "pass": true
+   },
+   {
+    "dt": 0.001,
+    "H_rel_drift_max": 3.183e-13,
+    "Ek_rel_drift_max": 3.855e-13,
+    "qnorm_err_max": 2e-16,
+    "pass": true
+   },
+   {
+    "dt": 0.002,
+    "H_rel_drift_max": 9.45e-14,
+    "Ek_rel_drift_max": 1.124e-13,
+    "qnorm_err_max": 2e-16,
+    "pass": true
+   }
+  ],
+  "torque_free_note": "rigid-body kernel (roll RCS, slosh and flexible mount off), pass if the relative drift of |H| and T < 1e-09. sim6 v2.3 FAILED this test (explicit-Euler body rates: transverse amplitude grows as exp(T b^2 dt / 2)); v2.4 integrates the free motion exactly. The v2.3 runs also left the roll RCS on, which despun the body (a control torque, not a defect).",
+  "torque_free_v2_3_integrator": [
+   {
+    "dt": 0.0005,
+    "H_rel_drift_max": 0.04339,
+    "Ek_rel_drift_max": 0.053751
+   },
+   {
+    "dt": 0.001,
+    "H_rel_drift_max": 0.088709,
+    "Ek_rel_drift_max": 0.112332
+   },
+   {
+    "dt": 0.002,
+    "H_rel_drift_max": 0.185504,
+    "Ek_rel_drift_max": 0.245794
+   }
+  ],
+  "torque_free_internal_dofs": [
+   {
+    "dt": 0.0005,
+    "H_rel_drift_max": 0.00019731,
+    "Ek_rel_drift_max": 3.373e-05
+   },
+   {
+    "dt": 0.001,
+    "H_rel_drift_max": 0.00020768,
+    "Ek_rel_drift_max": 3.375e-05
+   },
+   {
+    "dt": 0.002,
+    "H_rel_drift_max": 0.00022452,
+    "Ek_rel_drift_max": 3.589e-05
+   }
+  ],
+  "vacuum_ballistic": [
+   {
+    "dt": 0.0005,
+    "E_rel_drift_max": 0.00010778,
+    "z_err_max_m": 0.02451663
+   },
+   {
+    "dt": 0.001,
+    "E_rel_drift_max": 0.00021554,
+    "z_err_max_m": 0.04903325
+   },
+   {
+    "dt": 0.002,
+    "E_rel_drift_max": 0.00043104,
+    "z_err_max_m": 0.0980665
+   }
+  ],
+  "dt_convergence": [
+   {
+    "profile": "A-D",
+    "dt": 0.0005,
+    "wind": 0.0,
+    "td_vz": -0.9655,
+    "td_vh": 0.0,
+    "h_max": 310.1163,
+    "prop_used": 1.3356,
+    "td_t": 28.0555
+   },
+   {
+    "profile": "A-D",
+    "dt": 0.001,
+    "wind": 0.0,
+    "td_vz": -0.9848,
+    "td_vh": 0.0,
+    "h_max": 309.9851,
+    "prop_used": 1.335,
+    "td_t": 28.042
+   },
+   {
+    "profile": "A-D",
+    "dt": 0.002,
+    "wind": 0.0,
+    "td_vz": -0.971,
+    "td_vh": 0.0,
+    "h_max": 309.7219,
+    "prop_used": 1.3355,
+    "td_t": 28.034
+   },
+   {
+    "profile": "A-D",
+    "dt": 0.0005,
+    "wind": 5.0,
+    "td_vz": -0.9567,
+    "td_vh": 0.0021,
+    "h_max": 310.3112,
+    "prop_used": 1.3529,
+    "td_t": 28.093
+   },
+   {
+    "profile": "A-D",
+    "dt": 0.001,
+    "wind": 5.0,
+    "td_vz": -0.9703,
+    "td_vh": 0.0069,
+    "h_max": 310.1799,
+    "prop_used": 1.3517,
+    "td_t": 28.074
+   },
+   {
+    "profile": "A-D",
+    "dt": 0.002,
+    "wind": 5.0,
+    "td_vz": -0.9484,
+    "td_vh": 0.018,
+    "h_max": 309.9162,
+    "prop_used": 1.352,
+    "td_t": 28.07
+   },
+   {
+    "profile": "B",
+    "dt": 0.0005,
+    "wind": 0.0,
+    "td_vz": -1.0831,
+    "td_vh": 0.0,
+    "h_max": 98.8106,
+    "prop_used": 1.6572,
+    "td_t": 18.8585
+   },
+   {
+    "profile": "B",
+    "dt": 0.001,
+    "wind": 0.0,
+    "td_vz": -1.0698,
+    "td_vh": 0.0,
+    "h_max": 98.7969,
+    "prop_used": 1.6574,
+    "td_t": 18.859
+   },
+   {
+    "profile": "B",
+    "dt": 0.002,
+    "wind": 0.0,
+    "td_vz": -1.0912,
+    "td_vh": 0.0,
+    "h_max": 98.7991,
+    "prop_used": 1.6573,
+    "td_t": 18.86
+   },
+   {
+    "profile": "B",
+    "dt": 0.0005,
+    "wind": 5.0,
+    "td_vz": -1.0842,
+    "td_vh": 0.0454,
+    "h_max": 98.8074,
+    "prop_used": 1.6598,
+    "td_t": 18.9005
+   },
+   {
+    "profile": "B",
+    "dt": 0.001,
+    "wind": 5.0,
+    "td_vz": -1.0713,
+    "td_vh": 0.0448,
+    "h_max": 98.7917,
+    "prop_used": 1.6598,
+    "td_t": 18.899
+   },
+   {
+    "profile": "B",
+    "dt": 0.002,
+    "wind": 5.0,
+    "td_vz": -1.0827,
+    "td_vh": 0.0437,
+    "h_max": 98.7953,
+    "prop_used": 1.6601,
+    "td_t": 18.904
+   }
+  ],
+  "zero_dispersion": [
+   {
+    "profile": "A-D",
+    "fins": true,
+    "success": true,
+    "td_vz": -0.9848,
+    "prop_used": 1.335,
+    "h_max": 309.9851
+   },
+   {
+    "profile": "A-D",
+    "fins": false,
+    "success": true,
+    "td_vz": -0.9641,
+    "prop_used": 1.2944,
+    "h_max": 310.4154
+   },
+   {
+    "profile": "A-F",
+    "fins": false,
+    "success": true,
+    "td_vz": -1.1515,
+    "prop_used": 1.7083,
+    "h_max": 310.9196
+   },
+   {
+    "profile": "B",
+    "fins": false,
+    "success": true,
+    "td_vz": -1.0698,
+    "prop_used": 1.6574,
+    "h_max": 98.7969
+   }
+  ],
+  "vs_sim1d": [
+   {
+    "profile": "A-D",
+    "sim6": {
+     "h_max": 309.985,
+     "prop_used": 1.335,
+     "h_ign": 38.561,
+     "v_ign": -21.848,
+     "td_vz": -0.985
+    },
+    "sim1d": {
+     "h_max": 304.786,
+     "prop_used": 1.256,
+     "h_ign": 35.394,
+     "v_ign": -21.949,
+     "td_v": -1.0
+    }
+   },
+   {
+    "profile": "A-F",
+    "sim6": {
+     "h_max": 310.92,
+     "prop_used": 1.708,
+     "h_ign": 150.664,
+     "v_ign": -53.18,
+     "td_vz": -1.151
+    },
+    "sim1d": {
+     "h_max": 304.6,
+     "prop_used": 1.655,
+     "h_ign": 149.223,
+     "v_ign": -53.099,
+     "td_v": -1.068
+    }
+   },
+   {
+    "profile": "B",
+    "sim6": {
+     "h_max": 98.797,
+     "prop_used": 1.657,
+     "h_ign": 22.515,
+     "v_ign": -20.824,
+     "td_vz": -1.07
+    },
+    "sim1d": {
+     "h_max": 99.404,
+     "prop_used": 1.607,
+     "h_ign": 0.0,
+     "v_ign": 0.0,
+     "td_v": -1.135
+    }
+   }
+  ],
+  "vs_lead_seed": {
+   "seed": {
+    "m_dry": 13.8186,
+    "prop_loaded": 1.8485,
+    "prop_used": 1.4793,
+    "v_ign": -53.246,
+    "h_ign": 144.5355,
+    "h_apo": 300.1706,
+    "t_total": 20.446,
+    "m_land": 14.1878,
+    "seed_sha256": "464275e661c818ce2b689844b766f20a968cfd450ca401d481f1213706054ed2"
+   },
+   "sim6_AF": {
+    "prop_used": 1.7083,
+    "h_ign": 150.6637,
+    "v_ign": -53.1796,
+    "h_max": 310.9196,
+    "m_land": 14.6525
+   }
+  },
+  "file": "01-systems-gnc/results/verify6_v2.json",
+  "tag": "SIM m2_verify6 v2"
+ },
+ "csi_time_domain": {
+  "rows": [
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.02,
+    "w_act": 62.8,
+    "success": true,
+    "td_vz": -1.036,
+    "td_vh": 0.059,
+    "td_tilt": 0.616,
+    "td_rate": 8.063,
+    "max_gim_deg": 8.0,
+    "max_hinge_Nm": 157.213,
+    "max_gim_rate_dps": 966.385,
+    "hf_rms_deg": 2.416,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.02,
+    "w_act": 94.2,
+    "success": false,
+    "td_vz": -1.04,
+    "td_vh": 0.071,
+    "td_tilt": 0.395,
+    "td_rate": 10.372,
+    "max_gim_deg": 8.0,
+    "max_hinge_Nm": 205.38,
+    "max_gim_rate_dps": 1247.582,
+    "hf_rms_deg": 3.554,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.02,
+    "w_act": 157.1,
+    "success": true,
+    "td_vz": -1.046,
+    "td_vh": 0.174,
+    "td_tilt": 0.417,
+    "td_rate": 3.852,
+    "max_gim_deg": 8.0,
+    "max_hinge_Nm": 267.568,
+    "max_gim_rate_dps": 1579.097,
+    "hf_rms_deg": 3.68,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.05,
+    "w_act": 62.8,
+    "success": true,
+    "td_vz": -1.049,
+    "td_vh": 0.085,
+    "td_tilt": 1.113,
+    "td_rate": 0.63,
+    "max_gim_deg": 7.358,
+    "max_hinge_Nm": 15.306,
+    "max_gim_rate_dps": 206.654,
+    "hf_rms_deg": 0.162,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.05,
+    "w_act": 94.2,
+    "success": true,
+    "td_vz": -1.037,
+    "td_vh": 0.059,
+    "td_tilt": 0.517,
+    "td_rate": 2.66,
+    "max_gim_deg": 8.0,
+    "max_hinge_Nm": 113.698,
+    "max_gim_rate_dps": 697.366,
+    "hf_rms_deg": 2.141,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.05,
+    "w_act": 157.1,
+    "success": true,
+    "td_vz": -1.0,
+    "td_vh": 0.092,
+    "td_tilt": 1.623,
+    "td_rate": 7.824,
+    "max_gim_deg": 8.0,
+    "max_hinge_Nm": 143.973,
+    "max_gim_rate_dps": 862.054,
+    "hf_rms_deg": 2.767,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.02,
+    "w_act": 62.8,
+    "success": true,
+    "td_vz": -1.048,
+    "td_vh": 0.084,
+    "td_tilt": 1.13,
+    "td_rate": 0.541,
+    "max_gim_deg": 7.254,
+    "max_hinge_Nm": 20.728,
+    "max_gim_rate_dps": 181.686,
+    "hf_rms_deg": 0.099,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.02,
+    "w_act": 94.2,
+    "success": true,
+    "td_vz": -1.044,
+    "td_vh": 0.092,
+    "td_tilt": 1.166,
+    "td_rate": 0.745,
+    "max_gim_deg": 7.16,
+    "max_hinge_Nm": 23.194,
+    "max_gim_rate_dps": 181.549,
+    "hf_rms_deg": 0.122,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.02,
+    "w_act": 157.1,
+    "success": true,
+    "td_vz": -1.043,
+    "td_vh": 0.1,
+    "td_tilt": 1.207,
+    "td_rate": 1.086,
+    "max_gim_deg": 7.243,
+    "max_hinge_Nm": 76.742,
+    "max_gim_rate_dps": 295.921,
+    "hf_rms_deg": 0.537,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.05,
+    "w_act": 62.8,
+    "success": true,
+    "td_vz": -1.049,
+    "td_vh": 0.084,
+    "td_tilt": 1.132,
+    "td_rate": 0.524,
+    "max_gim_deg": 7.196,
+    "max_hinge_Nm": 20.156,
+    "max_gim_rate_dps": 169.653,
+    "hf_rms_deg": 0.097,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.05,
+    "w_act": 94.2,
+    "success": true,
+    "td_vz": -1.045,
+    "td_vh": 0.093,
+    "td_tilt": 1.167,
+    "td_rate": 0.725,
+    "max_gim_deg": 7.111,
+    "max_hinge_Nm": 22.525,
+    "max_gim_rate_dps": 174.927,
+    "hf_rms_deg": 0.12,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 0.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.05,
+    "w_act": 157.1,
+    "success": true,
+    "td_vz": -1.041,
+    "td_vh": 0.102,
+    "td_tilt": 1.084,
+    "td_rate": 2.094,
+    "max_gim_deg": 7.079,
+    "max_hinge_Nm": 54.374,
+    "max_gim_rate_dps": 224.216,
+    "hf_rms_deg": 0.471,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.02,
+    "w_act": 62.8,
+    "success": true,
+    "td_vz": -1.064,
+    "td_vh": 0.221,
+    "td_tilt": 0.696,
+    "td_rate": 3.138,
+    "max_gim_deg": 7.192,
+    "max_hinge_Nm": 5.016,
+    "max_gim_rate_dps": 115.748,
+    "hf_rms_deg": 0.073,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.02,
+    "w_act": 94.2,
+    "success": true,
+    "td_vz": -1.061,
+    "td_vh": 0.198,
+    "td_tilt": 0.888,
+    "td_rate": 2.602,
+    "max_gim_deg": 7.162,
+    "max_hinge_Nm": 8.01,
+    "max_gim_rate_dps": 117.802,
+    "hf_rms_deg": 0.094,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.02,
+    "w_act": 157.1,
+    "success": true,
+    "td_vz": -1.048,
+    "td_vh": 0.169,
+    "td_tilt": 1.075,
+    "td_rate": 1.836,
+    "max_gim_deg": 7.348,
+    "max_hinge_Nm": 13.686,
+    "max_gim_rate_dps": 151.3,
+    "hf_rms_deg": 0.125,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.05,
+    "w_act": 62.8,
+    "success": true,
+    "td_vz": -1.063,
+    "td_vh": 0.221,
+    "td_tilt": 0.69,
+    "td_rate": 3.19,
+    "max_gim_deg": 7.18,
+    "max_hinge_Nm": 4.192,
+    "max_gim_rate_dps": 115.671,
+    "hf_rms_deg": 0.069,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.05,
+    "w_act": 94.2,
+    "success": true,
+    "td_vz": -1.06,
+    "td_vh": 0.199,
+    "td_tilt": 0.881,
+    "td_rate": 2.61,
+    "max_gim_deg": 7.117,
+    "max_hinge_Nm": 6.828,
+    "max_gim_rate_dps": 116.934,
+    "hf_rms_deg": 0.091,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 2088.0,
+    "zeta_rock": 0.05,
+    "w_act": 157.1,
+    "success": true,
+    "td_vz": -1.051,
+    "td_vh": 0.171,
+    "td_tilt": 1.068,
+    "td_rate": 1.895,
+    "max_gim_deg": 7.289,
+    "max_hinge_Nm": 11.356,
+    "max_gim_rate_dps": 158.674,
+    "hf_rms_deg": 0.115,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.02,
+    "w_act": 62.8,
+    "success": true,
+    "td_vz": -1.063,
+    "td_vh": 0.222,
+    "td_tilt": 0.686,
+    "td_rate": 3.269,
+    "max_gim_deg": 7.14,
+    "max_hinge_Nm": 5.585,
+    "max_gim_rate_dps": 114.711,
+    "hf_rms_deg": 0.063,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.02,
+    "w_act": 94.2,
+    "success": true,
+    "td_vz": -1.06,
+    "td_vh": 0.199,
+    "td_tilt": 0.878,
+    "td_rate": 2.702,
+    "max_gim_deg": 7.096,
+    "max_hinge_Nm": 6.443,
+    "max_gim_rate_dps": 116.698,
+    "hf_rms_deg": 0.081,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.02,
+    "w_act": 157.1,
+    "success": true,
+    "td_vz": -1.05,
+    "td_vh": 0.172,
+    "td_tilt": 1.059,
+    "td_rate": 1.957,
+    "max_gim_deg": 7.055,
+    "max_hinge_Nm": 13.516,
+    "max_gim_rate_dps": 128.288,
+    "hf_rms_deg": 0.098,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.05,
+    "w_act": 62.8,
+    "success": true,
+    "td_vz": -1.064,
+    "td_vh": 0.222,
+    "td_tilt": 0.687,
+    "td_rate": 3.255,
+    "max_gim_deg": 7.141,
+    "max_hinge_Nm": 4.738,
+    "max_gim_rate_dps": 114.671,
+    "hf_rms_deg": 0.062,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.05,
+    "w_act": 94.2,
+    "success": true,
+    "td_vz": -1.06,
+    "td_vh": 0.199,
+    "td_tilt": 0.879,
+    "td_rate": 2.664,
+    "max_gim_deg": 7.092,
+    "max_hinge_Nm": 6.119,
+    "max_gim_rate_dps": 116.614,
+    "hf_rms_deg": 0.08,
+    "crash": 0.0
+   },
+   {
+    "lpf_rad_s": 50.0,
+    "K_Nm_rad": 6264.0,
+    "zeta_rock": 0.05,
+    "w_act": 157.1,
+    "success": true,
+    "td_vz": -1.05,
+    "td_vh": 0.172,
+    "td_tilt": 1.059,
+    "td_rate": 1.964,
+    "max_gim_deg": 7.048,
+    "max_hinge_Nm": 13.484,
+    "max_gim_rate_dps": 122.968,
+    "hf_rms_deg": 0.097,
+    "crash": 0.0
+   }
+  ],
+  "tag": "SIM m2_csi_timedomain v2",
+  "summary": {
+   "lpf_on_max_hinge_Nm": 13.69,
+   "lpf_off_max_hinge_Nm": 267.57,
+   "lpf_on_max_hf_rms_deg": 0.125,
+   "lpf_off_max_hf_rms_deg": 3.68
+  }
+ },
+ "answers_to_requests": {
+  "mechanical_7deg_vector_norm": "CONFIRMED (7 deg P 0.984 [0.969, 0.992]; 6 deg P 0.982 [0.966, 0.991]; 5 deg P 0.924 [0.897, 0.944]); sim6 applies the limit to the vector norm with the 8 deg conical stop behind it",
+  "mechanical_cg_pivot": "Founder APPROVED the CG pivot and the >= 140 mm engine-bay ID (final, 2026-10-12); this is the gnc.json v2 baseline. GNC evidence agrees with a caveat: TWD zero at touchdown 20 % 29.28 rad/s, 12.5 % 23.15 rad/s (below the v1 25 rad/s number; requirement restated to >= 20 rad/s with MC/CSI evidence). Keep the pivot at or slightly aft of the wet engine CG: J_twd grows with l_e; each mm of l_e changes J_twd by ~2 %.",
+  "mechanical_limit_loads_engine_mount_landing_gimbal_unlocked": "design_limit_loads *_touchdown_* and hinge_moment_touchdown_gimbal_unlocked_Nm",
+  "mechanical_hinge_design_value": "superseded by the lead decision 2026-10-12: gimbal parts to the 26.5 N m actuator stall load (SIM flight max 19.53 N m, touchdown max 7.83 N m)",
+  "electronics_v1_requests": "gimbal range/rate/bandwidth/resolution, throttle response/resolution, link-loss policy, GNC loop rate: requirements above"
+ },
+ "requests": [
+  "REQUEST mechanical: (1) gimbal parts, linkage and mount to the 26.5 N m actuator stall load (lead decision 2026-10-12) with the SIM limit loads (design_limit_loads); (2) bench-measure the rocking mode and its damping (flown 0.02-0.10) and the servo stiffness; (3) list masses of the fixed module (thrust frame, servos, valve, feed) - GNC ledger ASSUMES 1.37 kg; (4) tank for 3.17 L / 2.00 kg N2O (lead decision; GNC estimate 0.445 m internal in the 101.6 x 3.175 mm tube); (5) grain mass basis (mechanical 0.369 kg vs combustion 0.351 kg; relay S230 0.404 kg DERIVED); (6) roll-RCS provision: boss and ullage-port masses and positions; (7) mass properties for the combustion v2 engine (+0.11 kg)",
+  "REQUEST electronics: (1) structural command filter + 100 deg/s slew limit in the ECU TVC shaping task; (2) IMU ADIS16470 class (residual gyro bias <= 0.03 deg/s) or an aided estimator for cheaper MEMS; (3) gimbal engine-side slew >= 100 deg/s under load across the full +/-7 deg range (ENG-07 as raised by the lead; lever ratio/servo with Mechanical); (4) reserve 2 NC solenoid driver channels for the roll-RCS provision (lead decision); (5) Pc and accelerometer >= 100 Hz to the FC",
+  "REQUEST combustion: (1) publish combustion.json v2 with the S230 throttle map (F, mdot_ox, mdot_f, Pc vs port diameter and tank T) - GNC flies a relay correction of the v1 map until then; (2) measure the residual engine roll torque vs throttle in the static fires to +/-0.005 N m: the roll-RCS provision is deleted at <= 0.02 N m (lead decision); (3) ignition-latency distribution of the torch (MC U(0.2, 0.6) s); (4) re-run the grain/thermal duty cycles on the 6-DOF duty cycles v2 and the 2.00 kg / 3.17 L tank (heavier RV-1c: impulse above the v1 cycles)",
+  "REQUEST lead/airframe (Lauty): fins (span 0.12 m, 0.3 kg) with the alignment tolerance in icd_inputs_for_airframe, or a finless coast with tumbling; drogue CdA 0.5 m2 + release + swivel; legs (stroke >= 0.10 m, k/c as simulated); CG range and landing-mass window below; body 146 mm; first bending >= 10 Hz; roll-RCS provision (4 nozzle bosses on the body wall)",
+  "REQUEST lead: confirm A-D baseline, launch-commit wind (MC success drops above ~7 m/s), landing-zone radius (median miss 78 m, p95 155 m without upwind bias)"
+ ],
+ "open_interface_issues": [
+  "tank: the lead fixed 2.00 kg / 3.17 L (2026-10-12, from this sizing); mechanical.json v1 tank 2.06 L (289 mm), combustion.json v1 placeholder 2.5 L / 1.6 kg and combustion's v2 duty-cycle runs on 2.06 L / 1.30 kg (DC-A1) predate it",
+  "combustion.json v2 not yet published: the 6-DOF flies the v1 map x relay factors (validation within 0.5 % N2O per impulse on combustion's four S230 runs); S230 grain mass DERIVED from the v1 geometry",
+  "engine v2 growth (+0.11 kg, gas path +30 mm) placed at the engine CG; mechanical.json v2 mass properties pending",
+  "grain mass: mechanical.json v1 gimballed wet-dry difference 0.369 kg vs combustion.json v1 grain 0.351 kg (GNC uses combustion)",
+  "mechanical.json v1 fixed module (thrust frame, servos, NC valve, feed) has no masses: GNC ledger ASSUMES them",
+  "hinge moment: mechanical.json v1 design 5.63 N m (linear sum) vs SIM peaks 15.6 N m p99 / 19.53 N m max: closed by the lead decision (parts to the 26.5 N m stall load); mechanical.json to restate it",
+  "gimbal rate: ENG-07 raised to >= 100 deg/s by the lead (80 deg/s loses landings: P 0.966 [0.946, 0.979]; paired vs baseline: 11 runs lost / 2 gained, McNemar p = 0.022); at the 7 deg extreme the mechanical.json v1 crank allows ~97 deg/s no-load; the lead requires >= 100 deg/s across the full +/-7 deg range (lever ratio or servo to change); REQUIREMENTS.md, mechanical.json and electronics.json to restate it",
+  "rocking-mode damping and servo stiffness are unpublished (electronics.json ASSUMED); CSI depends on them",
+  "engine-bay ID >= 140 mm approved (founder, final): the 146 mm body is GNC's uniform-diameter assumption; Lauty's airframe (stepped or uniform) sets the real aero and mass; RV-1b (126 mm) comparator: P 0.966 [0.946, 0.979]",
+  "IMU: electronics.json v1 has no FC IMU selection yet; ADIS16470 class required by this analysis",
+  "engine roll torque: straight port has no designed torque but the residual is unmeasured (baseline U(-0.02, 0.02) N m ASSUMED); roll RCS is a provision (lead decision) and appears in no propulsion interface file yet",
+  "duty cycles: combustion.json v1 says 'duty cycles from gnc.json not yet available' - v2 CSVs published here"
+ ],
+ "icd_inputs_for_airframe": {
+  "body_diameter_m": {
+   "v": 0.146,
+   "tag": "DERIVED (see reference_vehicle)"
+  },
+  "landing_mass_window_kg": {
+   "v": {
+    "floor_12.5%": [
+     7.08,
+     16.0
+    ],
+    "floor_20%": [
+     11.33,
+     16.0
+    ],
+    "floor_25%": [
+     14.16,
+     16.0
+    ],
+    "floor_40%": "none below 22.7 kg (ballast)"
+   },
+   "tag": "DERIVED hover rule; upper bound REQ ref. vehicle 16 kg",
+   "note": "RV-1c nominal 14.83 kg"
+  },
+  "cg_range_z_m": {
+   "v": {
+    "flight_history": [
+     0.6674,
+     0.6716
+    ],
+    "ledger_extremes_dry": [
+     0.5141,
+     0.7939
+    ],
+    "liquid_forward_excursion_m": 0.0127
+   },
+   "tag": "SIM nominal flight + DERIVED ledger extremes"
+  },
+  "touchdown_vertical_speed_max_mps": {
+   "v": 2.0,
+   "tag": "REQ",
+   "note": "MC p99 1.18 m/s"
+  },
+  "touchdown_lateral_speed_max_mps": {
+   "v": 0.5,
+   "tag": "REQ",
+   "note": "MC p99 0.52 m/s"
+  },
+  "touchdown_tilt_max_deg": {
+   "v": 5.0,
+   "tag": "REQ brief",
+   "note": "MC p99 3.89 deg"
+  },
+  "touchdown_tilt_rate_max_dps": {
+   "v": 10.0,
+   "tag": "REQ brief",
+   "note": "MC p99 6.42 deg/s"
+  },
+  "leg_stroke_min_m": {
+   "v": 0.1,
+   "tag": "ASSUMED (as simulated)"
+  },
+  "leg_design_values": {
+   "v": {
+    "k_per_leg_N_m": 2500.0,
+    "c_per_leg_N_s_m": 120.0,
+    "foot_radius_m": 0.4,
+    "mu": [
+     0.3,
+     0.7
+    ]
+   },
+   "tag": "ASSUMED (as simulated)",
+   "note": "peak total leg force p99 661 N"
+  },
+  "drogue_CdA_m2": {
+   "v": 0.5,
+   "tag": "DERIVED descent ~22 m/s at ~14.4 kg",
+   "note": "MC x U(0.85, 1.15)"
+  },
+  "fins": {
+   "v": "4 x span 0.12 m, chords 0.20/0.10 m at the aft end",
+   "tag": "DERIVED trade",
+   "note": "coast rate p99 15 deg/s"
+  },
+  "fin_alignment_cant_max_deg": {
+   "v": 0.162,
+   "tag": "DERIVED fin_roll_v2.json (hand calculation, not in the 6-DOF)",
+   "note": "same-sense cant on all fins; rule: fin-induced steady roll rate at MECO (66 m/s) <= the 84 deg/s p99 roll rate flown by the lead-baseline MC; 0.1 deg gives 0.134 N m at max q and 52 deg/s steady"
+  },
+  "roll_rcs_mounting": {
+   "v": "PROVISION (lead decision 2026-10-12): 4 nozzle bosses on the body wall (2 tangential couples) and a tank ullage port; valves, lines and nozzles fitted only if T1 measures a roll torque above 0.02 N m",
+   "tag": "DERIVED + REQ lead decision"
+  }
+ },
+ "open_items": [
+  "Tail-first aero unknown to ~x2 (CFD/tunnel/drop test); drogue inflation and swing dynamics not modelled",
+  "Ignition reliability at relight is mission-critical (no backup chute window below ~40 m)",
+  "Aided attitude estimator (GNSS/INS) would relax the IMU requirement - research item",
+  "Rocking-mode damping, servo stiffness, hose stiffness, legs: bench data replace the ASSUMED ranges",
+  "ZEM/ZEV vertical (v2.3 law) is a comparator only; the baseline keeps the reference + PI law",
+  "Fin misalignment roll torque is a hand estimate (fin_roll_v2.json), not in the 6-DOF"
+ ],
+ "lift_capability": {
+  "v1_table_kept": {
+   "TW_vs_liftoff_mass": {
+    "v": {
+     "12_kg": 4.25,
+     "13_kg": 3.92,
+     "15_kg": 3.4,
+     "17_kg": 3.0,
+     "20_kg": 2.55,
+     "25.5_kg": 2.0,
+     "34_kg": 1.5,
+     "51_kg": 1.0
+    },
+    "tag": "DERIVED T/W = 500 N / (m g0)"
+   },
+   "liftoff_TW_min": {
+    "v": 2.0,
+    "tag": "ASSUMED design rule for rail-less TVC liftoff with 8 m/s wind (6-DOF v2 to confirm)",
+    "note": "-> max liftoff mass ~25.5 kg; hover-only limit (T = W) 51 kg"
+   },
+   "payload_or_ballast_trade_300m_A_D": {
+    "v": [
+     {
+      "profile": "A_drogue_300m",
+      "ballast_kg": 0.0,
+      "closes": "True",
+      "m_n2o_kg": 1.126,
+      "tank_V_L": 1.783,
+      "prop_used_kg": 0.897,
+      "m_liftoff_kg": 12.78,
+      "m_land_kg": 11.88,
+      "TW_liftoff": 3.99,
+      "T_floor_over_W_land": 0.858,
+      "dprop_per_kg_ballast": 0.0,
+      "dn2o_per_kg_ballast": 0.0
+     },
+     {
+      "profile": "A_drogue_300m",
+      "ballast_kg": 1.0,
+      "closes": "True",
+      "m_n2o_kg": 1.251,
+      "tank_V_L": 1.981,
+      "prop_used_kg": 0.995,
+      "m_liftoff_kg": 13.98,
+      "m_land_kg": 12.98,
+      "TW_liftoff": 3.65,
+      "T_floor_over_W_land": 0.785,
+      "dprop_per_kg_ballast": 0.0982,
+      "dn2o_per_kg_ballast": 0.125
+     },
+     {
+      "profile": "A_drogue_300m",
+      "ballast_kg": 2.0,
+      "closes": "True",
+      "m_n2o_kg": 1.389,
+      "tank_V_L": 2.2,
+      "prop_used_kg": 1.104,
+      "m_liftoff_kg": 15.2,
+      "m_land_kg": 14.09,
+      "TW_liftoff": 3.35,
+      "T_floor_over_W_land": 0.723,
+      "dprop_per_kg_ballast": 0.1035,
+      "dn2o_per_kg_ballast": 0.1318
+     },
+     {
+      "profile": "A_drogue_300m",
+      "ballast_kg": 3.0,
+      "closes": "True",
+      "m_n2o_kg": 1.533,
+      "tank_V_L": 2.428,
+      "prop_used_kg": 1.216,
+      "m_liftoff_kg": 16.43,
+      "m_land_kg": 15.21,
+      "TW_liftoff": 3.1,
+      "T_floor_over_W_land": 0.67,
+      "dprop_per_kg_ballast": 0.1064,
+      "dn2o_per_kg_ballast": 0.1357
+     },
+     {
+      "profile": "A_drogue_300m",
+      "ballast_kg": 5.0,
+      "closes": "True",
+      "m_n2o_kg": 1.865,
+      "tank_V_L": 2.953,
+      "prop_used_kg": 1.475,
+      "m_liftoff_kg": 18.95,
+      "m_land_kg": 17.48,
+      "TW_liftoff": 2.69,
+      "T_floor_over_W_land": 0.583,
+      "dprop_per_kg_ballast": 0.1157,
+      "dn2o_per_kg_ballast": 0.1477
+     },
+     {
+      "profile": "A_drogue_300m",
+      "ballast_kg": 8.0,
+      "closes": "True",
+      "m_n2o_kg": 2.483,
+      "tank_V_L": 3.931,
+      "prop_used_kg": 1.961,
+      "m_liftoff_kg": 22.94,
+      "m_land_kg": 20.97,
+      "TW_liftoff": 2.22,
+      "T_floor_over_W_land": 0.486,
+      "dprop_per_kg_ballast": 0.133,
+      "dn2o_per_kg_ballast": 0.1696
+     },
+     {
+      "profile": "A_drogue_300m",
+      "ballast_kg": 11.0,
+      "closes": "True",
+      "m_n2o_kg": 3.347,
+      "tank_V_L": 5.3,
+      "prop_used_kg": 2.638,
+      "m_liftoff_kg": 27.31,
+      "m_land_kg": 24.67,
+      "TW_liftoff": 1.87,
+      "T_floor_over_W_land": 0.413,
+      "dprop_per_kg_ballast": 0.1583,
+      "dn2o_per_kg_ballast": 0.2019
+     },
+     {
+      "profile": "A_drogue_300m",
+      "ballast_kg": 15.0,
+      "closes": "True",
+      "m_n2o_kg": 5.412,
+      "tank_V_L": 8.571,
+      "prop_used_kg": 4.142,
+      "m_liftoff_kg": 34.59,
+      "m_land_kg": 30.45,
+      "TW_liftoff": 1.47,
+      "T_floor_over_W_land": 0.335,
+      "dprop_per_kg_ballast": 0.2163,
+      "dn2o_per_kg_ballast": 0.2858
+     }
+    ],
+    "tag": "SIM sizing v1p2 (20 % floor, 20 % reserve)",
+    "note": "ballast_kg = mass added to RV-1"
+   },
+   "answer": "500 N lifts RV-1 (13 kg) at T/W 3.9; adding ~5 kg payload keeps T/W 2.7 and closes the 300 m A-D profile with ~1.9 kg N2O; ~12 kg added mass reaches the T/W 2 limit (needs ~3.5 kg N2O, ~5 L tank)."
+  },
+  "rv1c_liftoff_T_W": {
+   "v": 3.156,
+   "tag": "DERIVED 500 N / (m_liftoff g0) at the MC load"
+  },
+  "rv1c_liftoff_mass_kg": {
+   "v": 16.155,
+   "tag": "SIM build at the MC load (ledger v3c)"
+  },
+  "tag": "v1 table: 1-D, RV-1, placeholder map (kept for reference)"
+ },
+ "answers_to_lead_relay_combustion_v2": {
+  "applied": "engine map factors (Isp/O/F), S230 grain length and mass, +0.11 kg engine growth at the engine CG, straight-port roll-torque assumption; thrust ceiling unchanged (never binds; relay 548 N > 500 N)",
+  "effect_on_load": "sized N2O 1.741 kg (MC load 2.002 kg, tank 3.17 L) vs 1.597 kg with the v1 map",
+  "effect_on_landing": "baseline P 0.984 [0.969, 0.992]; v1-map comparator P 0.982 [0.966, 0.991]; paired vs baseline: 6 runs lost / 5 gained, McNemar p = 1",
+  "roll": "roll RCS PROVISION ONLY (lead decision 2026-10-12): mounting bosses, a tank ullage port and 2 reserved ECU solenoid channels; the RCS hardware is not fitted. The provision is deleted if T1 measures |roll torque| <= 0.02 N m at every throttle setting; above that the couple is fitted (RCS-fitted vehicle = AD_fins_f20)."
+ }
+}

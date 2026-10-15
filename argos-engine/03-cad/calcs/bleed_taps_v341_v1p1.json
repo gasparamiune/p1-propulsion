@@ -1,0 +1,6590 @@
+{
+ "id": "bleed_taps_v341",
+ "version": "v1.1",
+ "tilts_deg": [
+  1.0,
+  2.0
+ ],
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/bleed_taps_v341.py",
+ "method": "Head-end bleed taps on the CAD v3.4.1 segment: retained vapour that buoyancy alone cannot bring to a vent (v1, 2026-10-13, Mechanical).\n\nCoordinator 2026-10-13: \"state whether one bleed at T4 purges the whole re-routed segment or the FD-01 top still needs a second one\".\nLead A1 RELIGHT CONFIGURATION: bleed at the T4 port (S12 plug location), forced purge (MV open, pintle seated, bleed open >= 2-3 s).\nMethod: segment_traps_v34.py v1.3 geometry, voxels and maximin spill analysis unchanged (MV closed geometry, both filter-element models),\nwith extra vents (tap inlets) added to the S1 back-relief vent:\n  T4      crown of the T4 port cavity at its outer end (r 20.3, z_x + 4.05): the bleed fitting must take vapour from the CAVITY CROWN\n          (an on-axis orifice would leave the upper half of the port, the cross-drilling crown and the bore top: ~0.6 cm3, ESTIMATE);\n  FD01    crown of the FD-01 radial drilling at its outer end (r 41.5, z_f + 3.7) = the plug of that drilling (second tap).\nAttitudes: nozzle-down +Z, 10 and 20 deg in 8 directions (as the trap run).  Output per case: retained flow-path volume (trapped +\nunreached), split into hose bore, sleeves, wall line, upstream / downstream of the element (downstream = the S1-only barrier model's\nisolated region), and the residual OUTSIDE the hose / sleeves / wall line (what a purge flow that clears the hose humps would still\nleave by buoyancy in the head end and the TEE/riser).  Buoyancy only: a forced purge can also drag bubbles with the flow (hose humps,\nFr criterion, see headend_bleed_concept) but cannot push them through the element below its bubble point (barrier model).\nOutput: calcs/bleed_taps_v341_v1.json.  DERIVED (CAD v3.4.1 DESIGN geometry, voxel 0.25 mm); no two-phase flow model; no test.\nv1.1 (2026-10-13): --tilts / --out options.  Lead: design attitude at relight theta <= 2 deg (GNC relight attitude p99 0.63 deg,\nmax 0.75 deg); run with --tilts 1,2 --out bleed_taps_v341_v1p1.json.  The 10 / 20 deg rows of v1 stay as robustness information.\n",
+ "cad": "CAD v3.4.1 (config.V34_ON) incl. feed, pivot iterated",
+ "voxel_mm": 0.25,
+ "taps_xyz_mm": {
+  "T4": [
+   -20.3,
+   0.0,
+   191.56
+  ],
+  "FD01": [
+   -41.5,
+   0.0,
+   159.21
+  ]
+ },
+ "summary": {
+  "barrier|S1": {
+   "0": {
+    "flow_path_max_cm3": 12.0022,
+    "flow_path_min_cm3": 12.0022,
+    "residual_outside_hose_and_lines_max_cm3": 11.4805,
+    "hose_bore_max_cm3": 0.5217,
+    "upstream_max_cm3": 4.7231,
+    "downstream_max_cm3": 7.2791
+   },
+   "1": {
+    "flow_path_max_cm3": 13.8553,
+    "flow_path_min_cm3": 11.9567,
+    "residual_outside_hose_and_lines_max_cm3": 11.5366,
+    "hose_bore_max_cm3": 2.2636,
+    "upstream_max_cm3": 6.5762,
+    "downstream_max_cm3": 7.2791
+   },
+   "2": {
+    "flow_path_max_cm3": 16.2507,
+    "flow_path_min_cm3": 11.9433,
+    "residual_outside_hose_and_lines_max_cm3": 11.5677,
+    "hose_bore_max_cm3": 4.5817,
+    "upstream_max_cm3": 8.9715,
+    "downstream_max_cm3": 7.2791
+   }
+  },
+  "barrier|S1+T4": {
+   "0": {
+    "flow_path_max_cm3": 4.7231,
+    "flow_path_min_cm3": 4.7231,
+    "residual_outside_hose_and_lines_max_cm3": 4.2014,
+    "hose_bore_max_cm3": 0.5217,
+    "upstream_max_cm3": 4.7231,
+    "downstream_max_cm3": 0.0
+   },
+   "1": {
+    "flow_path_max_cm3": 6.6104,
+    "flow_path_min_cm3": 4.6963,
+    "residual_outside_hose_and_lines_max_cm3": 4.2863,
+    "hose_bore_max_cm3": 2.2636,
+    "upstream_max_cm3": 6.5762,
+    "downstream_max_cm3": 0.0502
+   },
+   "2": {
+    "flow_path_max_cm3": 9.0254,
+    "flow_path_min_cm3": 4.6883,
+    "residual_outside_hose_and_lines_max_cm3": 4.3288,
+    "hose_bore_max_cm3": 4.5817,
+    "upstream_max_cm3": 8.9715,
+    "downstream_max_cm3": 0.0759
+   }
+  },
+  "barrier|S1+T4+FD01": {
+   "0": {
+    "flow_path_max_cm3": 0.5217,
+    "flow_path_min_cm3": 0.5217,
+    "residual_outside_hose_and_lines_max_cm3": 0.0,
+    "hose_bore_max_cm3": 0.5217,
+    "upstream_max_cm3": 0.5217,
+    "downstream_max_cm3": 0.0
+   },
+   "1": {
+    "flow_path_max_cm3": 2.4208,
+    "flow_path_min_cm3": 0.4584,
+    "residual_outside_hose_and_lines_max_cm3": 0.0882,
+    "hose_bore_max_cm3": 2.2636,
+    "upstream_max_cm3": 2.3866,
+    "downstream_max_cm3": 0.0502
+   },
+   "2": {
+    "flow_path_max_cm3": 4.8362,
+    "flow_path_min_cm3": 0.4166,
+    "residual_outside_hose_and_lines_max_cm3": 0.1268,
+    "hose_bore_max_cm3": 4.5817,
+    "upstream_max_cm3": 4.7823,
+    "downstream_max_cm3": 0.0759
+   }
+  },
+  "open_element|S1": {
+   "0": {
+    "flow_path_max_cm3": 13.8102,
+    "flow_path_min_cm3": 13.8102,
+    "residual_outside_hose_and_lines_max_cm3": 13.2885,
+    "hose_bore_max_cm3": 0.5217,
+    "upstream_max_cm3": 4.7231,
+    "downstream_max_cm3": 9.0871
+   },
+   "1": {
+    "flow_path_max_cm3": 15.6633,
+    "flow_path_min_cm3": 13.7647,
+    "residual_outside_hose_and_lines_max_cm3": 13.3446,
+    "hose_bore_max_cm3": 2.2636,
+    "upstream_max_cm3": 6.5762,
+    "downstream_max_cm3": 9.0871
+   },
+   "2": {
+    "flow_path_max_cm3": 18.0587,
+    "flow_path_min_cm3": 13.7513,
+    "residual_outside_hose_and_lines_max_cm3": 13.3757,
+    "hose_bore_max_cm3": 4.5817,
+    "upstream_max_cm3": 8.9715,
+    "downstream_max_cm3": 9.0871
+   }
+  },
+  "open_element|S1+T4": {
+   "0": {
+    "flow_path_max_cm3": 0.5528,
+    "flow_path_min_cm3": 0.5528,
+    "residual_outside_hose_and_lines_max_cm3": 0.0311,
+    "hose_bore_max_cm3": 0.5217,
+    "upstream_max_cm3": 0.5528,
+    "downstream_max_cm3": 0.0
+   },
+   "1": {
+    "flow_path_max_cm3": 2.4397,
+    "flow_path_min_cm3": 0.495,
+    "residual_outside_hose_and_lines_max_cm3": 0.105,
+    "hose_bore_max_cm3": 2.2636,
+    "upstream_max_cm3": 2.4055,
+    "downstream_max_cm3": 0.0502
+   },
+   "2": {
+    "flow_path_max_cm3": 4.8502,
+    "flow_path_min_cm3": 0.4491,
+    "residual_outside_hose_and_lines_max_cm3": 0.1332,
+    "hose_bore_max_cm3": 4.5817,
+    "upstream_max_cm3": 4.7963,
+    "downstream_max_cm3": 0.0759
+   }
+  },
+  "open_element|S1+T4+FD01": {
+   "0": {
+    "flow_path_max_cm3": 0.5217,
+    "flow_path_min_cm3": 0.5217,
+    "residual_outside_hose_and_lines_max_cm3": 0.0,
+    "hose_bore_max_cm3": 0.5217,
+    "upstream_max_cm3": 0.5217,
+    "downstream_max_cm3": 0.0
+   },
+   "1": {
+    "flow_path_max_cm3": 2.4198,
+    "flow_path_min_cm3": 0.458,
+    "residual_outside_hose_and_lines_max_cm3": 0.087,
+    "hose_bore_max_cm3": 2.2636,
+    "upstream_max_cm3": 2.3856,
+    "downstream_max_cm3": 0.0502
+   },
+   "2": {
+    "flow_path_max_cm3": 4.8352,
+    "flow_path_min_cm3": 0.4166,
+    "residual_outside_hose_and_lines_max_cm3": 0.1255,
+    "hose_bore_max_cm3": 4.5817,
+    "upstream_max_cm3": 4.7813,
+    "downstream_max_cm3": 0.0759
+   }
+  }
+ },
+ "rows": [
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 0.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 12.0022,
+   "hose_bore_cm3": 0.5217,
+   "sleeves_wall_line_cm3": 0.0,
+   "upstream_cm3": 4.7231,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.4805,
+   "dead_end_retained_cm3": 1.0818,
+   "pockets": [
+    {
+     "vol_cm3": 4.2014,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      -3.88,
+      159.38
+     ],
+     "top_e_mm": 159.38,
+     "spill_e_mm": 75.62,
+     "flow_path_cm3": 4.2013
+    },
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.38,
+     "spill_e_mm": 271.38,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.5217,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.12,
+     "spill_e_mm": 77.62,
+     "flow_path_cm3": 0.5217
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.38,
+     "spill_e_mm": 276.38,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 13.3862,
+   "hose_bore_cm3": 1.7448,
+   "sleeves_wall_line_cm3": 0.1319,
+   "upstream_cm3": 6.1071,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.5095,
+   "dead_end_retained_cm3": 1.1127,
+   "pockets": [
+    {
+     "vol_cm3": 4.2077,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 158.82,
+     "spill_e_mm": 74.83,
+     "flow_path_cm3": 4.2075
+    },
+    {
+     "vol_cm3": 1.8684,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.03,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 1.8685
+    },
+    {
+     "vol_cm3": 0.6066,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.59,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.3,
+     "spill_e_mm": 276.21,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 13.8553,
+   "hose_bore_cm3": 2.2636,
+   "sleeves_wall_line_cm3": 0.0944,
+   "upstream_cm3": 6.5762,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.4973,
+   "dead_end_retained_cm3": 1.1216,
+   "pockets": [
+    {
+     "vol_cm3": 4.2031,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      0.88,
+      159.38
+     ],
+     "top_e_mm": 158.99,
+     "spill_e_mm": 75.11,
+     "flow_path_cm3": 4.203
+    },
+    {
+     "vol_cm3": 2.3257,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -18.38,
+      79.12
+     ],
+     "top_e_mm": 79.53,
+     "spill_e_mm": 76.69,
+     "flow_path_cm3": 2.3257
+    },
+    {
+     "vol_cm3": 0.6143,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.64,
+     "spill_e_mm": 271.32,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.26,
+     "spill_e_mm": 276.17,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 13.4025,
+   "hose_bore_cm3": 1.9041,
+   "sleeves_wall_line_cm3": 0.0137,
+   "upstream_cm3": 6.1234,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.4848,
+   "dead_end_retained_cm3": 1.1085,
+   "pockets": [
+    {
+     "vol_cm3": 4.2014,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      3.88,
+      159.38
+     ],
+     "top_e_mm": 159.42,
+     "spill_e_mm": 75.68,
+     "flow_path_cm3": 4.2013
+    },
+    {
+     "vol_cm3": 1.9163,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      1.62,
+      78.88
+     ],
+     "top_e_mm": 78.89,
+     "spill_e_mm": 76.67,
+     "flow_path_cm3": 1.9163
+    },
+    {
+     "vol_cm3": 0.6058,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.56,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.32,
+     "spill_e_mm": 276.23,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 12.8321,
+   "hose_bore_cm3": 1.3088,
+   "sleeves_wall_line_cm3": 0.0348,
+   "upstream_cm3": 5.553,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.4885,
+   "dead_end_retained_cm3": 1.0934,
+   "pockets": [
+    {
+     "vol_cm3": 4.2014,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -41.38,
+      2.12,
+      159.38
+     ],
+     "top_e_mm": 159.89,
+     "spill_e_mm": 76.22,
+     "flow_path_cm3": 4.2013
+    },
+    {
+     "vol_cm3": 1.2793,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      -18.62,
+      79.12
+     ],
+     "top_e_mm": 78.24,
+     "spill_e_mm": 76.73,
+     "flow_path_cm3": 1.2793
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.41,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.45,
+     "spill_e_mm": 276.36,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 12.0521,
+   "hose_bore_cm3": 0.51,
+   "sleeves_wall_line_cm3": 0.035,
+   "upstream_cm3": 4.7729,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.507,
+   "dead_end_retained_cm3": 1.0828,
+   "pockets": [
+    {
+     "vol_cm3": 4.2259,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -41.88,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 160.08,
+     "spill_e_mm": 76.28,
+     "flow_path_cm3": 4.2258
+    },
+    {
+     "vol_cm3": 0.5801,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.27,
+     "spill_e_mm": 271.25,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.509,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.12,
+      -44.62,
+      79.12
+     ],
+     "top_e_mm": 78.6,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 0.509
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.57,
+     "spill_e_mm": 276.47,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 11.9683,
+   "hose_bore_cm3": 0.3768,
+   "sleeves_wall_line_cm3": 0.0611,
+   "upstream_cm3": 4.6892,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.5304,
+   "dead_end_retained_cm3": 1.088,
+   "pockets": [
+    {
+     "vol_cm3": 4.2457,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -40.12,
+      -3.38,
+      159.38
+     ],
+     "top_e_mm": 159.89,
+     "spill_e_mm": 75.8,
+     "flow_path_cm3": 4.2456
+    },
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.22,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.6,
+     "spill_e_mm": 276.51,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.2701,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.31,
+     "spill_e_mm": 77.85,
+     "flow_path_cm3": 0.2701
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 11.9567,
+   "hose_bore_cm3": 0.3456,
+   "sleeves_wall_line_cm3": 0.0745,
+   "upstream_cm3": 4.6776,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.5366,
+   "dead_end_retained_cm3": 1.0876,
+   "pockets": [
+    {
+     "vol_cm3": 4.2447,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      -3.88,
+      159.38
+     ],
+     "top_e_mm": 159.42,
+     "spill_e_mm": 75.24,
+     "flow_path_cm3": 4.2446
+    },
+    {
+     "vol_cm3": 0.5812,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.3,
+     "spill_e_mm": 271.27,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.54,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.3084,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.92,
+     "spill_e_mm": 78.44,
+     "flow_path_cm3": 0.3084
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 12.6163,
+   "hose_bore_cm3": 0.9373,
+   "sleeves_wall_line_cm3": 0.1477,
+   "upstream_cm3": 5.3371,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.5312,
+   "dead_end_retained_cm3": 1.1031,
+   "pockets": [
+    {
+     "vol_cm3": 4.2253,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 158.99,
+     "spill_e_mm": 74.9,
+     "flow_path_cm3": 4.2252
+    },
+    {
+     "vol_cm3": 1.0036,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 80.1,
+     "spill_e_mm": 77.87,
+     "flow_path_cm3": 1.0037
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.45,
+     "spill_e_mm": 271.34,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.41,
+     "spill_e_mm": 276.32,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 14.9641,
+   "hose_bore_cm3": 3.1683,
+   "sleeves_wall_line_cm3": 0.2765,
+   "upstream_cm3": 7.685,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.5193,
+   "dead_end_retained_cm3": 1.1315,
+   "pockets": [
+    {
+     "vol_cm3": 4.2077,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 158.23,
+     "spill_e_mm": 74.02,
+     "flow_path_cm3": 4.2075
+    },
+    {
+     "vol_cm3": 3.437,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.9,
+     "spill_e_mm": 76.63,
+     "flow_path_cm3": 3.437
+    },
+    {
+     "vol_cm3": 0.6254,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.72,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.12,
+     "spill_e_mm": 275.96,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 16.2507,
+   "hose_bore_cm3": 4.5817,
+   "sleeves_wall_line_cm3": 0.1713,
+   "upstream_cm3": 8.9715,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.4977,
+   "dead_end_retained_cm3": 1.1464,
+   "pockets": [
+    {
+     "vol_cm3": 4.7337,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.62,
+      1.38,
+      78.88
+     ],
+     "top_e_mm": 80.16,
+     "spill_e_mm": 75.73,
+     "flow_path_cm3": 4.7336
+    },
+    {
+     "vol_cm3": 4.2031,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      0.88,
+      159.38
+     ],
+     "top_e_mm": 158.56,
+     "spill_e_mm": 74.57,
+     "flow_path_cm3": 4.203
+    },
+    {
+     "vol_cm3": 0.6392,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.81,
+     "spill_e_mm": 271.17,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.04,
+     "spill_e_mm": 275.88,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 15.4272,
+   "hose_bore_cm3": 3.8872,
+   "sleeves_wall_line_cm3": 0.0548,
+   "upstream_cm3": 8.148,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.4853,
+   "dead_end_retained_cm3": 1.1223,
+   "pockets": [
+    {
+     "vol_cm3": 8.1437,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      3.88,
+      159.38
+     ],
+     "top_e_mm": 159.41,
+     "spill_e_mm": 75.69,
+     "flow_path_cm3": 8.1436
+    },
+    {
+     "vol_cm3": 0.6196,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.66,
+     "spill_e_mm": 271.21,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.16,
+     "spill_e_mm": 276.0,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0043,
+     "top_at": "FS-01A outlet chamber",
+     "top_xyz_mm": [
+      -8.12,
+      2.62,
+      279.62
+     ],
+     "top_e_mm": 279.55,
+     "spill_e_mm": 279.47,
+     "flow_path_cm3": 0.0043
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 14.2278,
+   "hose_bore_cm3": 2.5253,
+   "sleeves_wall_line_cm3": 0.1597,
+   "upstream_cm3": 6.9487,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.5428,
+   "dead_end_retained_cm3": 1.0934,
+   "pockets": [
+    {
+     "vol_cm3": 6.8912,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -41.38,
+      2.12,
+      159.38
+     ],
+     "top_e_mm": 160.35,
+     "spill_e_mm": 75.81,
+     "flow_path_cm3": 6.8911
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.35,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.43,
+     "spill_e_mm": 276.26,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0075,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.38,
+      -26.12,
+      277.12
+     ],
+     "top_e_mm": 277.14,
+     "spill_e_mm": 277.06,
+     "flow_path_cm3": 0.0076
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 12.2072,
+   "hose_bore_cm3": 0.6026,
+   "sleeves_wall_line_cm3": 0.0773,
+   "upstream_cm3": 4.928,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.5272,
+   "dead_end_retained_cm3": 1.0775,
+   "pockets": [
+    {
+     "vol_cm3": 4.8747,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -41.88,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 160.74,
+     "spill_e_mm": 76.64,
+     "flow_path_cm3": 4.8747
+    },
+    {
+     "vol_cm3": 0.5748,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.07,
+     "spill_e_mm": 271.05,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.66,
+     "spill_e_mm": 276.49,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.038,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.88,
+      -27.88,
+      277.12
+     ],
+     "top_e_mm": 278.14,
+     "spill_e_mm": 277.49,
+     "flow_path_cm3": 0.038
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 12.0566,
+   "hose_bore_cm3": 0.3871,
+   "sleeves_wall_line_cm3": 0.1081,
+   "upstream_cm3": 4.7775,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.5615,
+   "dead_end_retained_cm3": 1.0807,
+   "pockets": [
+    {
+     "vol_cm3": 4.4934,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -40.12,
+      -3.38,
+      159.38
+     ],
+     "top_e_mm": 160.35,
+     "spill_e_mm": 75.86,
+     "flow_path_cm3": 4.4934
+    },
+    {
+     "vol_cm3": 0.5721,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 276.98,
+     "spill_e_mm": 270.98,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.74,
+     "spill_e_mm": 276.57,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.1478,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.48,
+     "spill_e_mm": 78.06,
+     "flow_path_cm3": 0.1478
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 11.9433,
+   "hose_bore_cm3": 0.2713,
+   "sleeves_wall_line_cm3": 0.1043,
+   "upstream_cm3": 4.6642,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.5677,
+   "dead_end_retained_cm3": 1.0837,
+   "pockets": [
+    {
+     "vol_cm3": 4.2771,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      -3.88,
+      159.38
+     ],
+     "top_e_mm": 159.41,
+     "spill_e_mm": 74.82,
+     "flow_path_cm3": 4.2771
+    },
+    {
+     "vol_cm3": 0.5773,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.13,
+     "spill_e_mm": 271.08,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.61,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.203,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 80.69,
+     "spill_e_mm": 79.23,
+     "flow_path_cm3": 0.203
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 13.1107,
+   "hose_bore_cm3": 1.303,
+   "sleeves_wall_line_cm3": 0.2537,
+   "upstream_cm3": 5.8316,
+   "downstream_cm3": 7.2791,
+   "residual_outside_hose_and_lines_cm3": 11.5541,
+   "dead_end_retained_cm3": 1.1031,
+   "pockets": [
+    {
+     "vol_cm3": 4.2349,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 158.56,
+     "spill_e_mm": 74.16,
+     "flow_path_cm3": 4.2348
+    },
+    {
+     "vol_cm3": 1.4806,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 81.06,
+     "spill_e_mm": 78.09,
+     "flow_path_cm3": 1.4805
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.43,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.36,
+     "spill_e_mm": 276.19,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 0.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 4.7231,
+   "hose_bore_cm3": 0.5217,
+   "sleeves_wall_line_cm3": 0.0,
+   "upstream_cm3": 4.7231,
+   "downstream_cm3": 0.0,
+   "residual_outside_hose_and_lines_cm3": 4.2014,
+   "dead_end_retained_cm3": 1.0123,
+   "pockets": [
+    {
+     "vol_cm3": 4.2014,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      -3.88,
+      159.38
+     ],
+     "top_e_mm": 159.38,
+     "spill_e_mm": 75.62,
+     "flow_path_cm3": 4.2013
+    },
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.38,
+     "spill_e_mm": 271.38,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.5217,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.12,
+     "spill_e_mm": 77.62,
+     "flow_path_cm3": 0.5217
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.38,
+     "spill_e_mm": 276.38,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 6.1573,
+   "hose_bore_cm3": 1.7448,
+   "sleeves_wall_line_cm3": 0.1319,
+   "upstream_cm3": 6.1071,
+   "downstream_cm3": 0.0502,
+   "residual_outside_hose_and_lines_cm3": 4.2806,
+   "dead_end_retained_cm3": 1.0442,
+   "pockets": [
+    {
+     "vol_cm3": 4.2077,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 158.82,
+     "spill_e_mm": 74.83,
+     "flow_path_cm3": 4.2075
+    },
+    {
+     "vol_cm3": 1.8684,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.03,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 1.8685
+    },
+    {
+     "vol_cm3": 0.6066,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.59,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.3,
+     "spill_e_mm": 276.21,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 6.6104,
+   "hose_bore_cm3": 2.2636,
+   "sleeves_wall_line_cm3": 0.0944,
+   "upstream_cm3": 6.5762,
+   "downstream_cm3": 0.0342,
+   "residual_outside_hose_and_lines_cm3": 4.2524,
+   "dead_end_retained_cm3": 1.0529,
+   "pockets": [
+    {
+     "vol_cm3": 4.2031,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      0.88,
+      159.38
+     ],
+     "top_e_mm": 158.99,
+     "spill_e_mm": 75.11,
+     "flow_path_cm3": 4.203
+    },
+    {
+     "vol_cm3": 2.3257,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -18.38,
+      79.12
+     ],
+     "top_e_mm": 79.53,
+     "spill_e_mm": 76.69,
+     "flow_path_cm3": 2.3257
+    },
+    {
+     "vol_cm3": 0.6143,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.64,
+     "spill_e_mm": 271.32,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.26,
+     "spill_e_mm": 276.17,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 6.1475,
+   "hose_bore_cm3": 1.9041,
+   "sleeves_wall_line_cm3": 0.0137,
+   "upstream_cm3": 6.1234,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 4.2298,
+   "dead_end_retained_cm3": 1.0399,
+   "pockets": [
+    {
+     "vol_cm3": 4.2014,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      3.88,
+      159.38
+     ],
+     "top_e_mm": 159.42,
+     "spill_e_mm": 75.68,
+     "flow_path_cm3": 4.2013
+    },
+    {
+     "vol_cm3": 1.9163,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      1.62,
+      78.88
+     ],
+     "top_e_mm": 78.89,
+     "spill_e_mm": 76.67,
+     "flow_path_cm3": 1.9163
+    },
+    {
+     "vol_cm3": 0.6058,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.56,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.32,
+     "spill_e_mm": 276.23,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 5.5601,
+   "hose_bore_cm3": 1.3088,
+   "sleeves_wall_line_cm3": 0.0348,
+   "upstream_cm3": 5.553,
+   "downstream_cm3": 0.0071,
+   "residual_outside_hose_and_lines_cm3": 4.2165,
+   "dead_end_retained_cm3": 1.0242,
+   "pockets": [
+    {
+     "vol_cm3": 4.2014,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -41.38,
+      2.12,
+      159.38
+     ],
+     "top_e_mm": 159.89,
+     "spill_e_mm": 76.22,
+     "flow_path_cm3": 4.2013
+    },
+    {
+     "vol_cm3": 1.2793,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      -18.62,
+      79.12
+     ],
+     "top_e_mm": 78.24,
+     "spill_e_mm": 76.73,
+     "flow_path_cm3": 1.2793
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.41,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.45,
+     "spill_e_mm": 276.36,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 4.7786,
+   "hose_bore_cm3": 0.51,
+   "sleeves_wall_line_cm3": 0.035,
+   "upstream_cm3": 4.7729,
+   "downstream_cm3": 0.0057,
+   "residual_outside_hose_and_lines_cm3": 4.2336,
+   "dead_end_retained_cm3": 1.0134,
+   "pockets": [
+    {
+     "vol_cm3": 4.2259,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -41.88,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 160.08,
+     "spill_e_mm": 76.28,
+     "flow_path_cm3": 4.2258
+    },
+    {
+     "vol_cm3": 0.5801,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.27,
+     "spill_e_mm": 271.25,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.509,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.12,
+      -44.62,
+      79.12
+     ],
+     "top_e_mm": 78.6,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 0.509
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.57,
+     "spill_e_mm": 276.47,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 4.6963,
+   "hose_bore_cm3": 0.3768,
+   "sleeves_wall_line_cm3": 0.0611,
+   "upstream_cm3": 4.6892,
+   "downstream_cm3": 0.0071,
+   "residual_outside_hose_and_lines_cm3": 4.2583,
+   "dead_end_retained_cm3": 1.0188,
+   "pockets": [
+    {
+     "vol_cm3": 4.2457,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -40.12,
+      -3.38,
+      159.38
+     ],
+     "top_e_mm": 159.89,
+     "spill_e_mm": 75.8,
+     "flow_path_cm3": 4.2456
+    },
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.22,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.6,
+     "spill_e_mm": 276.51,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.2701,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.31,
+     "spill_e_mm": 77.85,
+     "flow_path_cm3": 0.2701
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 4.7018,
+   "hose_bore_cm3": 0.3456,
+   "sleeves_wall_line_cm3": 0.0745,
+   "upstream_cm3": 4.6776,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 4.2817,
+   "dead_end_retained_cm3": 1.019,
+   "pockets": [
+    {
+     "vol_cm3": 4.2447,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      -3.88,
+      159.38
+     ],
+     "top_e_mm": 159.42,
+     "spill_e_mm": 75.24,
+     "flow_path_cm3": 4.2446
+    },
+    {
+     "vol_cm3": 0.5812,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.3,
+     "spill_e_mm": 271.27,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.54,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.3084,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.92,
+     "spill_e_mm": 78.44,
+     "flow_path_cm3": 0.3084
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 5.3713,
+   "hose_bore_cm3": 0.9373,
+   "sleeves_wall_line_cm3": 0.1477,
+   "upstream_cm3": 5.3371,
+   "downstream_cm3": 0.0342,
+   "residual_outside_hose_and_lines_cm3": 4.2863,
+   "dead_end_retained_cm3": 1.0344,
+   "pockets": [
+    {
+     "vol_cm3": 4.2253,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 158.99,
+     "spill_e_mm": 74.9,
+     "flow_path_cm3": 4.2252
+    },
+    {
+     "vol_cm3": 1.0036,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 80.1,
+     "spill_e_mm": 77.87,
+     "flow_path_cm3": 1.0037
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.45,
+     "spill_e_mm": 271.34,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.41,
+     "spill_e_mm": 276.32,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 7.7608,
+   "hose_bore_cm3": 3.1683,
+   "sleeves_wall_line_cm3": 0.2765,
+   "upstream_cm3": 7.685,
+   "downstream_cm3": 0.0759,
+   "residual_outside_hose_and_lines_cm3": 4.316,
+   "dead_end_retained_cm3": 1.063,
+   "pockets": [
+    {
+     "vol_cm3": 4.2077,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 158.23,
+     "spill_e_mm": 74.02,
+     "flow_path_cm3": 4.2075
+    },
+    {
+     "vol_cm3": 3.437,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.9,
+     "spill_e_mm": 76.63,
+     "flow_path_cm3": 3.437
+    },
+    {
+     "vol_cm3": 0.6254,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.72,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.12,
+     "spill_e_mm": 275.96,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 9.0254,
+   "hose_bore_cm3": 4.5817,
+   "sleeves_wall_line_cm3": 0.1713,
+   "upstream_cm3": 8.9715,
+   "downstream_cm3": 0.0539,
+   "residual_outside_hose_and_lines_cm3": 4.2724,
+   "dead_end_retained_cm3": 1.0777,
+   "pockets": [
+    {
+     "vol_cm3": 4.7337,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.62,
+      1.38,
+      78.88
+     ],
+     "top_e_mm": 80.16,
+     "spill_e_mm": 75.73,
+     "flow_path_cm3": 4.7336
+    },
+    {
+     "vol_cm3": 4.2031,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      0.88,
+      159.38
+     ],
+     "top_e_mm": 158.56,
+     "spill_e_mm": 74.57,
+     "flow_path_cm3": 4.203
+    },
+    {
+     "vol_cm3": 0.6392,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.81,
+     "spill_e_mm": 271.17,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.04,
+     "spill_e_mm": 275.88,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 8.1722,
+   "hose_bore_cm3": 3.8872,
+   "sleeves_wall_line_cm3": 0.0548,
+   "upstream_cm3": 8.148,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 4.2303,
+   "dead_end_retained_cm3": 1.0537,
+   "pockets": [
+    {
+     "vol_cm3": 8.1437,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      3.88,
+      159.38
+     ],
+     "top_e_mm": 159.41,
+     "spill_e_mm": 75.69,
+     "flow_path_cm3": 8.1436
+    },
+    {
+     "vol_cm3": 0.6196,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.66,
+     "spill_e_mm": 271.21,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.16,
+     "spill_e_mm": 276.0,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0072,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      -0.88,
+      4.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.29,
+     "flow_path_cm3": 0.0072
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 6.9558,
+   "hose_bore_cm3": 2.5253,
+   "sleeves_wall_line_cm3": 0.1597,
+   "upstream_cm3": 6.9487,
+   "downstream_cm3": 0.0071,
+   "residual_outside_hose_and_lines_cm3": 4.2707,
+   "dead_end_retained_cm3": 1.0242,
+   "pockets": [
+    {
+     "vol_cm3": 6.8912,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -41.38,
+      2.12,
+      159.38
+     ],
+     "top_e_mm": 160.35,
+     "spill_e_mm": 75.81,
+     "flow_path_cm3": 6.8911
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.35,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.43,
+     "spill_e_mm": 276.26,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0075,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.38,
+      -26.12,
+      277.12
+     ],
+     "top_e_mm": 277.14,
+     "spill_e_mm": 277.06,
+     "flow_path_cm3": 0.0076
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 4.9343,
+   "hose_bore_cm3": 0.6026,
+   "sleeves_wall_line_cm3": 0.0773,
+   "upstream_cm3": 4.928,
+   "downstream_cm3": 0.0063,
+   "residual_outside_hose_and_lines_cm3": 4.2544,
+   "dead_end_retained_cm3": 1.008,
+   "pockets": [
+    {
+     "vol_cm3": 4.8747,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -41.88,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 160.74,
+     "spill_e_mm": 76.64,
+     "flow_path_cm3": 4.8747
+    },
+    {
+     "vol_cm3": 0.5748,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.07,
+     "spill_e_mm": 271.05,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.66,
+     "spill_e_mm": 276.49,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.038,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.88,
+      -27.88,
+      277.12
+     ],
+     "top_e_mm": 278.14,
+     "spill_e_mm": 277.49,
+     "flow_path_cm3": 0.038
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 4.7846,
+   "hose_bore_cm3": 0.3871,
+   "sleeves_wall_line_cm3": 0.1081,
+   "upstream_cm3": 4.7775,
+   "downstream_cm3": 0.0071,
+   "residual_outside_hose_and_lines_cm3": 4.2894,
+   "dead_end_retained_cm3": 1.0115,
+   "pockets": [
+    {
+     "vol_cm3": 4.4934,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -40.12,
+      -3.38,
+      159.38
+     ],
+     "top_e_mm": 160.35,
+     "spill_e_mm": 75.86,
+     "flow_path_cm3": 4.4934
+    },
+    {
+     "vol_cm3": 0.5721,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 276.98,
+     "spill_e_mm": 270.98,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.74,
+     "spill_e_mm": 276.57,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.1478,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.48,
+     "spill_e_mm": 78.06,
+     "flow_path_cm3": 0.1478
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 4.6883,
+   "hose_bore_cm3": 0.2713,
+   "sleeves_wall_line_cm3": 0.1043,
+   "upstream_cm3": 4.6642,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 4.3128,
+   "dead_end_retained_cm3": 1.0151,
+   "pockets": [
+    {
+     "vol_cm3": 4.2771,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      -3.88,
+      159.38
+     ],
+     "top_e_mm": 159.41,
+     "spill_e_mm": 74.82,
+     "flow_path_cm3": 4.2771
+    },
+    {
+     "vol_cm3": 0.5773,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.13,
+     "spill_e_mm": 271.08,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.61,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.203,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 80.69,
+     "spill_e_mm": 79.23,
+     "flow_path_cm3": 0.203
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 5.8855,
+   "hose_bore_cm3": 1.303,
+   "sleeves_wall_line_cm3": 0.2537,
+   "upstream_cm3": 5.8316,
+   "downstream_cm3": 0.0539,
+   "residual_outside_hose_and_lines_cm3": 4.3288,
+   "dead_end_retained_cm3": 1.0344,
+   "pockets": [
+    {
+     "vol_cm3": 4.2349,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -30.12,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 158.56,
+     "spill_e_mm": 74.16,
+     "flow_path_cm3": 4.2348
+    },
+    {
+     "vol_cm3": 1.4806,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 81.06,
+     "spill_e_mm": 78.09,
+     "flow_path_cm3": 1.4805
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.43,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.36,
+     "spill_e_mm": 276.19,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 0.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 0.5217,
+   "hose_bore_cm3": 0.5217,
+   "sleeves_wall_line_cm3": 0.0,
+   "upstream_cm3": 0.5217,
+   "downstream_cm3": 0.0,
+   "residual_outside_hose_and_lines_cm3": 0.0,
+   "dead_end_retained_cm3": 1.0123,
+   "pockets": [
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.38,
+     "spill_e_mm": 271.38,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.5217,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.12,
+     "spill_e_mm": 77.62,
+     "flow_path_cm3": 0.5217
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.38,
+     "spill_e_mm": 276.38,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 1.965,
+   "hose_bore_cm3": 1.7448,
+   "sleeves_wall_line_cm3": 0.1319,
+   "upstream_cm3": 1.9148,
+   "downstream_cm3": 0.0502,
+   "residual_outside_hose_and_lines_cm3": 0.0882,
+   "dead_end_retained_cm3": 1.0442,
+   "pockets": [
+    {
+     "vol_cm3": 1.8684,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.03,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 1.8685
+    },
+    {
+     "vol_cm3": 0.6066,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.59,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.3,
+     "spill_e_mm": 276.21,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0483,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      4.88,
+      -0.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.03,
+     "flow_path_cm3": 0.0483
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 2.4208,
+   "hose_bore_cm3": 2.2636,
+   "sleeves_wall_line_cm3": 0.0944,
+   "upstream_cm3": 2.3866,
+   "downstream_cm3": 0.0342,
+   "residual_outside_hose_and_lines_cm3": 0.0628,
+   "dead_end_retained_cm3": 1.0529,
+   "pockets": [
+    {
+     "vol_cm3": 2.3257,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -18.38,
+      79.12
+     ],
+     "top_e_mm": 79.53,
+     "spill_e_mm": 76.69,
+     "flow_path_cm3": 2.3257
+    },
+    {
+     "vol_cm3": 0.6143,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.64,
+     "spill_e_mm": 271.32,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.26,
+     "spill_e_mm": 276.17,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0325,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.88,
+      3.12,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.14,
+     "flow_path_cm3": 0.0324
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 1.9516,
+   "hose_bore_cm3": 1.9041,
+   "sleeves_wall_line_cm3": 0.0137,
+   "upstream_cm3": 1.9274,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.0338,
+   "dead_end_retained_cm3": 1.0399,
+   "pockets": [
+    {
+     "vol_cm3": 1.9163,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      1.62,
+      78.88
+     ],
+     "top_e_mm": 78.89,
+     "spill_e_mm": 76.67,
+     "flow_path_cm3": 1.9163
+    },
+    {
+     "vol_cm3": 0.6058,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.56,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.32,
+     "spill_e_mm": 276.23,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0072,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      -0.88,
+      4.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.36,
+     "flow_path_cm3": 0.0072
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 1.3663,
+   "hose_bore_cm3": 1.3088,
+   "sleeves_wall_line_cm3": 0.0348,
+   "upstream_cm3": 1.3592,
+   "downstream_cm3": 0.0071,
+   "residual_outside_hose_and_lines_cm3": 0.0227,
+   "dead_end_retained_cm3": 1.0242,
+   "pockets": [
+    {
+     "vol_cm3": 1.2793,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      -18.62,
+      79.12
+     ],
+     "top_e_mm": 78.24,
+     "spill_e_mm": 76.73,
+     "flow_path_cm3": 1.2793
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.41,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.45,
+     "spill_e_mm": 276.36,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0075,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.38,
+      -26.12,
+      277.12
+     ],
+     "top_e_mm": 277.17,
+     "spill_e_mm": 277.14,
+     "flow_path_cm3": 0.0076
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 0.5563,
+   "hose_bore_cm3": 0.51,
+   "sleeves_wall_line_cm3": 0.023,
+   "upstream_cm3": 0.5506,
+   "downstream_cm3": 0.0057,
+   "residual_outside_hose_and_lines_cm3": 0.0232,
+   "dead_end_retained_cm3": 1.0134,
+   "pockets": [
+    {
+     "vol_cm3": 0.5801,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.27,
+     "spill_e_mm": 271.25,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.509,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.12,
+      -44.62,
+      79.12
+     ],
+     "top_e_mm": 78.6,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 0.509
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.57,
+     "spill_e_mm": 276.47,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0214,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.88,
+      -27.88,
+      277.12
+     ],
+     "top_e_mm": 277.67,
+     "spill_e_mm": 277.35,
+     "flow_path_cm3": 0.0213
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 0.4584,
+   "hose_bore_cm3": 0.3768,
+   "sleeves_wall_line_cm3": 0.0424,
+   "upstream_cm3": 0.4513,
+   "downstream_cm3": 0.0071,
+   "residual_outside_hose_and_lines_cm3": 0.0392,
+   "dead_end_retained_cm3": 1.0188,
+   "pockets": [
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.22,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.6,
+     "spill_e_mm": 276.51,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.2701,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.31,
+     "spill_e_mm": 77.85,
+     "flow_path_cm3": 0.2701
+    },
+    {
+     "vol_cm3": 0.0671,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -36.88,
+      24.62,
+      77.12
+     ],
+     "top_e_mm": 77.26,
+     "spill_e_mm": 76.63,
+     "flow_path_cm3": 0.0671
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 0.4625,
+   "hose_bore_cm3": 0.3456,
+   "sleeves_wall_line_cm3": 0.0569,
+   "upstream_cm3": 0.4383,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.06,
+   "dead_end_retained_cm3": 1.019,
+   "pockets": [
+    {
+     "vol_cm3": 0.5812,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.3,
+     "spill_e_mm": 271.27,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.54,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.3084,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.92,
+     "spill_e_mm": 78.44,
+     "flow_path_cm3": 0.3084
+    },
+    {
+     "vol_cm3": 0.0354,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -35.38,
+      23.88,
+      77.12
+     ],
+     "top_e_mm": 76.7,
+     "spill_e_mm": 76.27,
+     "flow_path_cm3": 0.0354
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 1.1601,
+   "hose_bore_cm3": 0.9373,
+   "sleeves_wall_line_cm3": 0.1369,
+   "upstream_cm3": 1.126,
+   "downstream_cm3": 0.0342,
+   "residual_outside_hose_and_lines_cm3": 0.086,
+   "dead_end_retained_cm3": 1.0344,
+   "pockets": [
+    {
+     "vol_cm3": 1.0036,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 80.1,
+     "spill_e_mm": 77.87,
+     "flow_path_cm3": 1.0037
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.45,
+     "spill_e_mm": 271.34,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.41,
+     "spill_e_mm": 276.32,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0335,
+     "top_at": "FS-01A outlet chamber",
+     "top_xyz_mm": [
+      -2.12,
+      -13.38,
+      279.62
+     ],
+     "top_e_mm": 279.72,
+     "spill_e_mm": 279.44,
+     "flow_path_cm3": 0.0335
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 3.5716,
+   "hose_bore_cm3": 3.1683,
+   "sleeves_wall_line_cm3": 0.2765,
+   "upstream_cm3": 3.4957,
+   "downstream_cm3": 0.0759,
+   "residual_outside_hose_and_lines_cm3": 0.1268,
+   "dead_end_retained_cm3": 1.063,
+   "pockets": [
+    {
+     "vol_cm3": 3.437,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.9,
+     "spill_e_mm": 76.63,
+     "flow_path_cm3": 3.437
+    },
+    {
+     "vol_cm3": 0.6254,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.72,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.12,
+     "spill_e_mm": 275.96,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0739,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      4.88,
+      -0.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 190.63,
+     "flow_path_cm3": 0.0739
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 4.8362,
+   "hose_bore_cm3": 4.5817,
+   "sleeves_wall_line_cm3": 0.1713,
+   "upstream_cm3": 4.7823,
+   "downstream_cm3": 0.0539,
+   "residual_outside_hose_and_lines_cm3": 0.0832,
+   "dead_end_retained_cm3": 1.0777,
+   "pockets": [
+    {
+     "vol_cm3": 4.7337,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.62,
+      1.38,
+      78.88
+     ],
+     "top_e_mm": 80.16,
+     "spill_e_mm": 75.73,
+     "flow_path_cm3": 4.7336
+    },
+    {
+     "vol_cm3": 0.6392,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.81,
+     "spill_e_mm": 271.17,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.04,
+     "spill_e_mm": 275.88,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0521,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.88,
+      3.12,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 190.85,
+     "flow_path_cm3": 0.0521
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 3.9414,
+   "hose_bore_cm3": 3.8557,
+   "sleeves_wall_line_cm3": 0.0519,
+   "upstream_cm3": 3.9173,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.0338,
+   "dead_end_retained_cm3": 1.0537,
+   "pockets": [
+    {
+     "vol_cm3": 3.9075,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      23.62,
+      43.88,
+      77.88
+     ],
+     "top_e_mm": 79.36,
+     "spill_e_mm": 75.71,
+     "flow_path_cm3": 3.9076
+    },
+    {
+     "vol_cm3": 0.6196,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.66,
+     "spill_e_mm": 271.21,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.16,
+     "spill_e_mm": 276.0,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0072,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      -0.88,
+      4.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.29,
+     "flow_path_cm3": 0.0072
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 1.2433,
+   "hose_bore_cm3": 1.168,
+   "sleeves_wall_line_cm3": 0.0521,
+   "upstream_cm3": 1.2363,
+   "downstream_cm3": 0.0071,
+   "residual_outside_hose_and_lines_cm3": 0.0233,
+   "dead_end_retained_cm3": 1.0242,
+   "pockets": [
+    {
+     "vol_cm3": 1.1569,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -9.38,
+      48.12,
+      77.38
+     ],
+     "top_e_mm": 78.75,
+     "spill_e_mm": 76.79,
+     "flow_path_cm3": 1.1569
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.35,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.43,
+     "spill_e_mm": 276.26,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0075,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.38,
+      -26.12,
+      277.12
+     ],
+     "top_e_mm": 277.14,
+     "spill_e_mm": 277.06,
+     "flow_path_cm3": 0.0076
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 0.5391,
+   "hose_bore_cm3": 0.4762,
+   "sleeves_wall_line_cm3": 0.0387,
+   "upstream_cm3": 0.5328,
+   "downstream_cm3": 0.0063,
+   "residual_outside_hose_and_lines_cm3": 0.0241,
+   "dead_end_retained_cm3": 1.008,
+   "pockets": [
+    {
+     "vol_cm3": 0.5748,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.07,
+     "spill_e_mm": 271.05,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.66,
+     "spill_e_mm": 276.49,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.2451,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -36.88,
+      24.62,
+      77.12
+     ],
+     "top_e_mm": 78.36,
+     "spill_e_mm": 76.92,
+     "flow_path_cm3": 0.2451
+    },
+    {
+     "vol_cm3": 0.2202,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.12,
+      -44.62,
+      79.12
+     ],
+     "top_e_mm": 78.06,
+     "spill_e_mm": 76.65,
+     "flow_path_cm3": 0.2202
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 0.4669,
+   "hose_bore_cm3": 0.3549,
+   "sleeves_wall_line_cm3": 0.0667,
+   "upstream_cm3": 0.4598,
+   "downstream_cm3": 0.0071,
+   "residual_outside_hose_and_lines_cm3": 0.0454,
+   "dead_end_retained_cm3": 1.0115,
+   "pockets": [
+    {
+     "vol_cm3": 0.5721,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 276.98,
+     "spill_e_mm": 270.98,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.74,
+     "spill_e_mm": 276.57,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.1677,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -36.88,
+      24.62,
+      77.12
+     ],
+     "top_e_mm": 77.38,
+     "spill_e_mm": 75.96,
+     "flow_path_cm3": 0.1677
+    },
+    {
+     "vol_cm3": 0.1478,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.48,
+     "spill_e_mm": 78.06,
+     "flow_path_cm3": 0.1478
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 0.4166,
+   "hose_bore_cm3": 0.2712,
+   "sleeves_wall_line_cm3": 0.0744,
+   "upstream_cm3": 0.3924,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.071,
+   "dead_end_retained_cm3": 1.0151,
+   "pockets": [
+    {
+     "vol_cm3": 0.5773,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.13,
+     "spill_e_mm": 271.08,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.61,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.203,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 80.69,
+     "spill_e_mm": 79.23,
+     "flow_path_cm3": 0.203
+    },
+    {
+     "vol_cm3": 0.0669,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -35.38,
+      23.88,
+      77.12
+     ],
+     "top_e_mm": 76.24,
+     "spill_e_mm": 75.4,
+     "flow_path_cm3": 0.0669
+    }
+   ]
+  },
+  {
+   "model": "barrier",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 1.665,
+   "hose_bore_cm3": 1.303,
+   "sleeves_wall_line_cm3": 0.2429,
+   "upstream_cm3": 1.6112,
+   "downstream_cm3": 0.0539,
+   "residual_outside_hose_and_lines_cm3": 0.1192,
+   "dead_end_retained_cm3": 1.0344,
+   "pockets": [
+    {
+     "vol_cm3": 1.4806,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 81.06,
+     "spill_e_mm": 78.09,
+     "flow_path_cm3": 1.4805
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.43,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.36,
+     "spill_e_mm": 276.19,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0521,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.12,
+      -3.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 190.85,
+     "flow_path_cm3": 0.0521
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 0.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 13.8102,
+   "hose_bore_cm3": 0.5217,
+   "sleeves_wall_line_cm3": 0.0,
+   "upstream_cm3": 4.7231,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.2885,
+   "dead_end_retained_cm3": 1.0818,
+   "pockets": [
+    {
+     "vol_cm3": 13.358,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      -1.38,
+      191.62
+     ],
+     "top_e_mm": 191.62,
+     "spill_e_mm": 75.62,
+     "flow_path_cm3": 13.2885
+    },
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.38,
+     "spill_e_mm": 271.38,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.5217,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.12,
+     "spill_e_mm": 77.62,
+     "flow_path_cm3": 0.5217
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.38,
+     "spill_e_mm": 276.38,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 15.1942,
+   "hose_bore_cm3": 1.7448,
+   "sleeves_wall_line_cm3": 0.1319,
+   "upstream_cm3": 6.1071,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3175,
+   "dead_end_retained_cm3": 1.1127,
+   "pockets": [
+    {
+     "vol_cm3": 13.3643,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      4.88,
+      -0.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 74.83,
+     "flow_path_cm3": 13.2947
+    },
+    {
+     "vol_cm3": 1.8684,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.03,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 1.8685
+    },
+    {
+     "vol_cm3": 0.6066,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.59,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.3,
+     "spill_e_mm": 276.21,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 15.6633,
+   "hose_bore_cm3": 2.2636,
+   "sleeves_wall_line_cm3": 0.0944,
+   "upstream_cm3": 6.5762,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3053,
+   "dead_end_retained_cm3": 1.1216,
+   "pockets": [
+    {
+     "vol_cm3": 13.3597,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.88,
+      3.12,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 75.11,
+     "flow_path_cm3": 13.2902
+    },
+    {
+     "vol_cm3": 2.3257,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -18.38,
+      79.12
+     ],
+     "top_e_mm": 79.53,
+     "spill_e_mm": 76.69,
+     "flow_path_cm3": 2.3257
+    },
+    {
+     "vol_cm3": 0.6143,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.64,
+     "spill_e_mm": 271.32,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.26,
+     "spill_e_mm": 276.17,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 15.2105,
+   "hose_bore_cm3": 1.9041,
+   "sleeves_wall_line_cm3": 0.0137,
+   "upstream_cm3": 6.1234,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.2928,
+   "dead_end_retained_cm3": 1.1085,
+   "pockets": [
+    {
+     "vol_cm3": 13.358,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      1.38,
+      191.62
+     ],
+     "top_e_mm": 191.62,
+     "spill_e_mm": 75.68,
+     "flow_path_cm3": 13.2885
+    },
+    {
+     "vol_cm3": 1.9163,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      1.62,
+      78.88
+     ],
+     "top_e_mm": 78.89,
+     "spill_e_mm": 76.67,
+     "flow_path_cm3": 1.9163
+    },
+    {
+     "vol_cm3": 0.6058,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.56,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.32,
+     "spill_e_mm": 276.23,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 14.6401,
+   "hose_bore_cm3": 1.3088,
+   "sleeves_wall_line_cm3": 0.0348,
+   "upstream_cm3": 5.553,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.2965,
+   "dead_end_retained_cm3": 1.0934,
+   "pockets": [
+    {
+     "vol_cm3": 13.358,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      1.38,
+      191.62
+     ],
+     "top_e_mm": 191.86,
+     "spill_e_mm": 76.22,
+     "flow_path_cm3": 13.2885
+    },
+    {
+     "vol_cm3": 1.2793,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      -18.62,
+      79.12
+     ],
+     "top_e_mm": 78.24,
+     "spill_e_mm": 76.73,
+     "flow_path_cm3": 1.2793
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.41,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.45,
+     "spill_e_mm": 276.36,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 13.8601,
+   "hose_bore_cm3": 0.51,
+   "sleeves_wall_line_cm3": 0.035,
+   "upstream_cm3": 4.7729,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.315,
+   "dead_end_retained_cm3": 1.0828,
+   "pockets": [
+    {
+     "vol_cm3": 13.3825,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      -1.38,
+      191.62
+     ],
+     "top_e_mm": 191.95,
+     "spill_e_mm": 76.28,
+     "flow_path_cm3": 13.313
+    },
+    {
+     "vol_cm3": 0.5801,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.27,
+     "spill_e_mm": 271.25,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.509,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.12,
+      -44.62,
+      79.12
+     ],
+     "top_e_mm": 78.6,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 0.509
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.57,
+     "spill_e_mm": 276.47,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 13.7763,
+   "hose_bore_cm3": 0.3768,
+   "sleeves_wall_line_cm3": 0.0611,
+   "upstream_cm3": 4.6892,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3384,
+   "dead_end_retained_cm3": 1.088,
+   "pockets": [
+    {
+     "vol_cm3": 13.4023,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      -1.38,
+      191.62
+     ],
+     "top_e_mm": 191.86,
+     "spill_e_mm": 75.8,
+     "flow_path_cm3": 13.3328
+    },
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.22,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.6,
+     "spill_e_mm": 276.51,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.2701,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.31,
+     "spill_e_mm": 77.85,
+     "flow_path_cm3": 0.2701
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 13.7647,
+   "hose_bore_cm3": 0.3456,
+   "sleeves_wall_line_cm3": 0.0745,
+   "upstream_cm3": 4.6776,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3446,
+   "dead_end_retained_cm3": 1.0876,
+   "pockets": [
+    {
+     "vol_cm3": 13.4013,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      -1.38,
+      191.62
+     ],
+     "top_e_mm": 191.62,
+     "spill_e_mm": 75.24,
+     "flow_path_cm3": 13.3318
+    },
+    {
+     "vol_cm3": 0.5812,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.3,
+     "spill_e_mm": 271.27,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.54,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.3084,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.92,
+     "spill_e_mm": 78.44,
+     "flow_path_cm3": 0.3084
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 14.4243,
+   "hose_bore_cm3": 0.9373,
+   "sleeves_wall_line_cm3": 0.1477,
+   "upstream_cm3": 5.3371,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3392,
+   "dead_end_retained_cm3": 1.1031,
+   "pockets": [
+    {
+     "vol_cm3": 13.3819,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.12,
+      -3.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 74.9,
+     "flow_path_cm3": 13.3124
+    },
+    {
+     "vol_cm3": 1.0036,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 80.1,
+     "spill_e_mm": 77.87,
+     "flow_path_cm3": 1.0037
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.45,
+     "spill_e_mm": 271.34,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.41,
+     "spill_e_mm": 276.32,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 16.7721,
+   "hose_bore_cm3": 3.1683,
+   "sleeves_wall_line_cm3": 0.2765,
+   "upstream_cm3": 7.685,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3273,
+   "dead_end_retained_cm3": 1.1315,
+   "pockets": [
+    {
+     "vol_cm3": 13.3643,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      4.88,
+      -0.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 74.02,
+     "flow_path_cm3": 13.2947
+    },
+    {
+     "vol_cm3": 3.437,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.9,
+     "spill_e_mm": 76.63,
+     "flow_path_cm3": 3.437
+    },
+    {
+     "vol_cm3": 0.6254,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.72,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.12,
+     "spill_e_mm": 275.96,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 18.0587,
+   "hose_bore_cm3": 4.5817,
+   "sleeves_wall_line_cm3": 0.1713,
+   "upstream_cm3": 8.9715,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3057,
+   "dead_end_retained_cm3": 1.1464,
+   "pockets": [
+    {
+     "vol_cm3": 13.3597,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.88,
+      3.12,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 74.57,
+     "flow_path_cm3": 13.2902
+    },
+    {
+     "vol_cm3": 4.7337,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.62,
+      1.38,
+      78.88
+     ],
+     "top_e_mm": 80.16,
+     "spill_e_mm": 75.73,
+     "flow_path_cm3": 4.7336
+    },
+    {
+     "vol_cm3": 0.6392,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.81,
+     "spill_e_mm": 271.17,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.04,
+     "spill_e_mm": 275.88,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 17.2352,
+   "hose_bore_cm3": 3.8872,
+   "sleeves_wall_line_cm3": 0.0548,
+   "upstream_cm3": 8.148,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.2933,
+   "dead_end_retained_cm3": 1.1223,
+   "pockets": [
+    {
+     "vol_cm3": 17.3003,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      1.38,
+      191.62
+     ],
+     "top_e_mm": 191.56,
+     "spill_e_mm": 75.69,
+     "flow_path_cm3": 17.2308
+    },
+    {
+     "vol_cm3": 0.6196,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.66,
+     "spill_e_mm": 271.21,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.16,
+     "spill_e_mm": 276.0,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0043,
+     "top_at": "FS-01A outlet chamber",
+     "top_xyz_mm": [
+      -8.12,
+      2.62,
+      279.62
+     ],
+     "top_e_mm": 279.55,
+     "spill_e_mm": 279.47,
+     "flow_path_cm3": 0.0043
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 16.0358,
+   "hose_bore_cm3": 2.5253,
+   "sleeves_wall_line_cm3": 0.1597,
+   "upstream_cm3": 6.9487,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3508,
+   "dead_end_retained_cm3": 1.0934,
+   "pockets": [
+    {
+     "vol_cm3": 16.0478,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      1.38,
+      191.62
+     ],
+     "top_e_mm": 192.05,
+     "spill_e_mm": 75.81,
+     "flow_path_cm3": 15.9783
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.35,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.43,
+     "spill_e_mm": 276.26,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0075,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.38,
+      -26.12,
+      277.12
+     ],
+     "top_e_mm": 277.14,
+     "spill_e_mm": 277.06,
+     "flow_path_cm3": 0.0076
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 14.0152,
+   "hose_bore_cm3": 0.6026,
+   "sleeves_wall_line_cm3": 0.0773,
+   "upstream_cm3": 4.928,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3352,
+   "dead_end_retained_cm3": 1.0775,
+   "pockets": [
+    {
+     "vol_cm3": 14.0313,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      -1.38,
+      191.62
+     ],
+     "top_e_mm": 192.22,
+     "spill_e_mm": 76.64,
+     "flow_path_cm3": 13.9619
+    },
+    {
+     "vol_cm3": 0.5748,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.07,
+     "spill_e_mm": 271.05,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.66,
+     "spill_e_mm": 276.49,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.038,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.88,
+      -27.88,
+      277.12
+     ],
+     "top_e_mm": 278.14,
+     "spill_e_mm": 277.49,
+     "flow_path_cm3": 0.038
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 13.8646,
+   "hose_bore_cm3": 0.3871,
+   "sleeves_wall_line_cm3": 0.1081,
+   "upstream_cm3": 4.7775,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3695,
+   "dead_end_retained_cm3": 1.0807,
+   "pockets": [
+    {
+     "vol_cm3": 13.65,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      -1.38,
+      191.62
+     ],
+     "top_e_mm": 192.05,
+     "spill_e_mm": 75.86,
+     "flow_path_cm3": 13.5806
+    },
+    {
+     "vol_cm3": 0.5721,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 276.98,
+     "spill_e_mm": 270.98,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.74,
+     "spill_e_mm": 276.57,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.1478,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.48,
+     "spill_e_mm": 78.06,
+     "flow_path_cm3": 0.1478
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 13.7513,
+   "hose_bore_cm3": 0.2713,
+   "sleeves_wall_line_cm3": 0.1043,
+   "upstream_cm3": 4.6642,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3757,
+   "dead_end_retained_cm3": 1.0837,
+   "pockets": [
+    {
+     "vol_cm3": 13.4337,
+     "top_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+     "top_xyz_mm": [
+      -20.38,
+      -1.38,
+      191.62
+     ],
+     "top_e_mm": 191.56,
+     "spill_e_mm": 74.82,
+     "flow_path_cm3": 13.3643
+    },
+    {
+     "vol_cm3": 0.5773,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.13,
+     "spill_e_mm": 271.08,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.61,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.203,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 80.69,
+     "spill_e_mm": 79.23,
+     "flow_path_cm3": 0.203
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 14.9187,
+   "hose_bore_cm3": 1.303,
+   "sleeves_wall_line_cm3": 0.2537,
+   "upstream_cm3": 5.8316,
+   "downstream_cm3": 9.0871,
+   "residual_outside_hose_and_lines_cm3": 13.3621,
+   "dead_end_retained_cm3": 1.1031,
+   "pockets": [
+    {
+     "vol_cm3": 13.3915,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.12,
+      -3.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 74.16,
+     "flow_path_cm3": 13.322
+    },
+    {
+     "vol_cm3": 1.4806,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 81.06,
+     "spill_e_mm": 78.09,
+     "flow_path_cm3": 1.4805
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.43,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.36,
+     "spill_e_mm": 276.19,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 0.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 0.5528,
+   "hose_bore_cm3": 0.5217,
+   "sleeves_wall_line_cm3": 0.0,
+   "upstream_cm3": 0.5528,
+   "downstream_cm3": 0.0,
+   "residual_outside_hose_and_lines_cm3": 0.0311,
+   "dead_end_retained_cm3": 1.0123,
+   "pockets": [
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.38,
+     "spill_e_mm": 271.38,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.5217,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.12,
+     "spill_e_mm": 77.62,
+     "flow_path_cm3": 0.5217
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.38,
+     "spill_e_mm": 276.38,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0311,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      -3.88,
+      159.38
+     ],
+     "top_e_mm": 159.38,
+     "spill_e_mm": 158.88,
+     "flow_path_cm3": 0.0311
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 1.9817,
+   "hose_bore_cm3": 1.7448,
+   "sleeves_wall_line_cm3": 0.1319,
+   "upstream_cm3": 1.9316,
+   "downstream_cm3": 0.0502,
+   "residual_outside_hose_and_lines_cm3": 0.105,
+   "dead_end_retained_cm3": 1.0442,
+   "pockets": [
+    {
+     "vol_cm3": 1.8684,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.03,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 1.8685
+    },
+    {
+     "vol_cm3": 0.6066,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.59,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.3,
+     "spill_e_mm": 276.21,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0483,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      4.88,
+      -0.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.03,
+     "flow_path_cm3": 0.0483
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 2.4397,
+   "hose_bore_cm3": 2.2636,
+   "sleeves_wall_line_cm3": 0.0944,
+   "upstream_cm3": 2.4055,
+   "downstream_cm3": 0.0342,
+   "residual_outside_hose_and_lines_cm3": 0.0817,
+   "dead_end_retained_cm3": 1.0529,
+   "pockets": [
+    {
+     "vol_cm3": 2.3257,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -18.38,
+      79.12
+     ],
+     "top_e_mm": 79.53,
+     "spill_e_mm": 76.69,
+     "flow_path_cm3": 2.3257
+    },
+    {
+     "vol_cm3": 0.6143,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.64,
+     "spill_e_mm": 271.32,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.26,
+     "spill_e_mm": 276.17,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0325,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.88,
+      3.12,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.14,
+     "flow_path_cm3": 0.0324
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 1.9841,
+   "hose_bore_cm3": 1.9041,
+   "sleeves_wall_line_cm3": 0.0137,
+   "upstream_cm3": 1.96,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.0664,
+   "dead_end_retained_cm3": 1.0399,
+   "pockets": [
+    {
+     "vol_cm3": 1.9163,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      1.62,
+      78.88
+     ],
+     "top_e_mm": 78.89,
+     "spill_e_mm": 76.67,
+     "flow_path_cm3": 1.9163
+    },
+    {
+     "vol_cm3": 0.6058,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.56,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.32,
+     "spill_e_mm": 276.23,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0369,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      3.88,
+      159.38
+     ],
+     "top_e_mm": 159.42,
+     "spill_e_mm": 158.87,
+     "flow_path_cm3": 0.0369
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 1.4147,
+   "hose_bore_cm3": 1.3088,
+   "sleeves_wall_line_cm3": 0.0348,
+   "upstream_cm3": 1.408,
+   "downstream_cm3": 0.0067,
+   "residual_outside_hose_and_lines_cm3": 0.0711,
+   "dead_end_retained_cm3": 1.0242,
+   "pockets": [
+    {
+     "vol_cm3": 1.2793,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      -18.62,
+      79.12
+     ],
+     "top_e_mm": 78.24,
+     "spill_e_mm": 76.73,
+     "flow_path_cm3": 1.2793
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.41,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.45,
+     "spill_e_mm": 276.36,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0495,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -41.38,
+      2.12,
+      159.38
+     ],
+     "top_e_mm": 159.89,
+     "spill_e_mm": 159.2,
+     "flow_path_cm3": 0.0495
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 0.6065,
+   "hose_bore_cm3": 0.51,
+   "sleeves_wall_line_cm3": 0.023,
+   "upstream_cm3": 0.6008,
+   "downstream_cm3": 0.0057,
+   "residual_outside_hose_and_lines_cm3": 0.0735,
+   "dead_end_retained_cm3": 1.0134,
+   "pockets": [
+    {
+     "vol_cm3": 0.5801,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.27,
+     "spill_e_mm": 271.25,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.509,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.12,
+      -44.62,
+      79.12
+     ],
+     "top_e_mm": 78.6,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 0.509
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.57,
+     "spill_e_mm": 276.47,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0503,
+     "top_at": "FD-01 radial 8 mm",
+     "top_xyz_mm": [
+      -41.88,
+      -0.88,
+      159.38
+     ],
+     "top_e_mm": 160.08,
+     "spill_e_mm": 159.33,
+     "flow_path_cm3": 0.0503
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 0.5068,
+   "hose_bore_cm3": 0.3768,
+   "sleeves_wall_line_cm3": 0.0424,
+   "upstream_cm3": 0.5001,
+   "downstream_cm3": 0.0067,
+   "residual_outside_hose_and_lines_cm3": 0.0876,
+   "dead_end_retained_cm3": 1.0188,
+   "pockets": [
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.22,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.6,
+     "spill_e_mm": 276.51,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.2701,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.31,
+     "spill_e_mm": 77.85,
+     "flow_path_cm3": 0.2701
+    },
+    {
+     "vol_cm3": 0.0671,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -36.88,
+      24.62,
+      77.12
+     ],
+     "top_e_mm": 77.26,
+     "spill_e_mm": 76.63,
+     "flow_path_cm3": 0.0671
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 0.495,
+   "hose_bore_cm3": 0.3456,
+   "sleeves_wall_line_cm3": 0.0569,
+   "upstream_cm3": 0.4709,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.0926,
+   "dead_end_retained_cm3": 1.019,
+   "pockets": [
+    {
+     "vol_cm3": 0.5812,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.3,
+     "spill_e_mm": 271.27,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.54,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.3084,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.92,
+     "spill_e_mm": 78.44,
+     "flow_path_cm3": 0.3084
+    },
+    {
+     "vol_cm3": 0.0369,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      -3.88,
+      159.38
+     ],
+     "top_e_mm": 159.42,
+     "spill_e_mm": 158.87,
+     "flow_path_cm3": 0.0369
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 1.179,
+   "hose_bore_cm3": 0.9373,
+   "sleeves_wall_line_cm3": 0.1369,
+   "upstream_cm3": 1.1448,
+   "downstream_cm3": 0.0342,
+   "residual_outside_hose_and_lines_cm3": 0.1048,
+   "dead_end_retained_cm3": 1.0344,
+   "pockets": [
+    {
+     "vol_cm3": 1.0036,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 80.1,
+     "spill_e_mm": 77.87,
+     "flow_path_cm3": 1.0037
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.45,
+     "spill_e_mm": 271.34,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.41,
+     "spill_e_mm": 276.32,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0335,
+     "top_at": "FS-01A outlet chamber",
+     "top_xyz_mm": [
+      -2.12,
+      -13.38,
+      279.62
+     ],
+     "top_e_mm": 279.72,
+     "spill_e_mm": 279.44,
+     "flow_path_cm3": 0.0335
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 3.5774,
+   "hose_bore_cm3": 3.1683,
+   "sleeves_wall_line_cm3": 0.2765,
+   "upstream_cm3": 3.5015,
+   "downstream_cm3": 0.0759,
+   "residual_outside_hose_and_lines_cm3": 0.1326,
+   "dead_end_retained_cm3": 1.063,
+   "pockets": [
+    {
+     "vol_cm3": 3.437,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.9,
+     "spill_e_mm": 76.63,
+     "flow_path_cm3": 3.437
+    },
+    {
+     "vol_cm3": 0.6254,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.72,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.12,
+     "spill_e_mm": 275.96,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0739,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      4.88,
+      -0.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 190.63,
+     "flow_path_cm3": 0.0739
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 4.8502,
+   "hose_bore_cm3": 4.5817,
+   "sleeves_wall_line_cm3": 0.1713,
+   "upstream_cm3": 4.7963,
+   "downstream_cm3": 0.0539,
+   "residual_outside_hose_and_lines_cm3": 0.0972,
+   "dead_end_retained_cm3": 1.0777,
+   "pockets": [
+    {
+     "vol_cm3": 4.7337,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.62,
+      1.38,
+      78.88
+     ],
+     "top_e_mm": 80.16,
+     "spill_e_mm": 75.73,
+     "flow_path_cm3": 4.7336
+    },
+    {
+     "vol_cm3": 0.6392,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.81,
+     "spill_e_mm": 271.17,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.04,
+     "spill_e_mm": 275.88,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0521,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.88,
+      3.12,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 190.85,
+     "flow_path_cm3": 0.0521
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 3.9739,
+   "hose_bore_cm3": 3.8557,
+   "sleeves_wall_line_cm3": 0.0519,
+   "upstream_cm3": 3.9498,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.0664,
+   "dead_end_retained_cm3": 1.0537,
+   "pockets": [
+    {
+     "vol_cm3": 3.9075,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      23.62,
+      43.88,
+      77.88
+     ],
+     "top_e_mm": 79.36,
+     "spill_e_mm": 75.71,
+     "flow_path_cm3": 3.9076
+    },
+    {
+     "vol_cm3": 0.6196,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.66,
+     "spill_e_mm": 271.21,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.16,
+     "spill_e_mm": 276.0,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0369,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -38.88,
+      3.88,
+      159.38
+     ],
+     "top_e_mm": 159.41,
+     "spill_e_mm": 158.81,
+     "flow_path_cm3": 0.0369
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 1.2979,
+   "hose_bore_cm3": 1.168,
+   "sleeves_wall_line_cm3": 0.0521,
+   "upstream_cm3": 1.2912,
+   "downstream_cm3": 0.0067,
+   "residual_outside_hose_and_lines_cm3": 0.0778,
+   "dead_end_retained_cm3": 1.0242,
+   "pockets": [
+    {
+     "vol_cm3": 1.1569,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -9.38,
+      48.12,
+      77.38
+     ],
+     "top_e_mm": 78.75,
+     "spill_e_mm": 76.79,
+     "flow_path_cm3": 1.1569
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.35,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.43,
+     "spill_e_mm": 276.26,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0556,
+     "top_at": "FD-01 vertical 8 mm",
+     "top_xyz_mm": [
+      -41.38,
+      2.12,
+      159.38
+     ],
+     "top_e_mm": 160.35,
+     "spill_e_mm": 159.48,
+     "flow_path_cm3": 0.0556
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 0.6021,
+   "hose_bore_cm3": 0.4762,
+   "sleeves_wall_line_cm3": 0.0387,
+   "upstream_cm3": 0.5958,
+   "downstream_cm3": 0.0063,
+   "residual_outside_hose_and_lines_cm3": 0.0871,
+   "dead_end_retained_cm3": 1.008,
+   "pockets": [
+    {
+     "vol_cm3": 0.5748,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.07,
+     "spill_e_mm": 271.05,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.66,
+     "spill_e_mm": 276.49,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.2451,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -36.88,
+      24.62,
+      77.12
+     ],
+     "top_e_mm": 78.36,
+     "spill_e_mm": 76.92,
+     "flow_path_cm3": 0.2451
+    },
+    {
+     "vol_cm3": 0.2202,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.12,
+      -44.62,
+      79.12
+     ],
+     "top_e_mm": 78.06,
+     "spill_e_mm": 76.65,
+     "flow_path_cm3": 0.2202
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 0.5214,
+   "hose_bore_cm3": 0.3549,
+   "sleeves_wall_line_cm3": 0.0667,
+   "upstream_cm3": 0.5148,
+   "downstream_cm3": 0.0067,
+   "residual_outside_hose_and_lines_cm3": 0.0999,
+   "dead_end_retained_cm3": 1.0115,
+   "pockets": [
+    {
+     "vol_cm3": 0.5721,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 276.98,
+     "spill_e_mm": 270.98,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.74,
+     "spill_e_mm": 276.57,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.1677,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -36.88,
+      24.62,
+      77.12
+     ],
+     "top_e_mm": 77.38,
+     "spill_e_mm": 75.96,
+     "flow_path_cm3": 0.1677
+    },
+    {
+     "vol_cm3": 0.1478,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.48,
+     "spill_e_mm": 78.06,
+     "flow_path_cm3": 0.1478
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 0.4491,
+   "hose_bore_cm3": 0.2712,
+   "sleeves_wall_line_cm3": 0.0744,
+   "upstream_cm3": 0.425,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.1035,
+   "dead_end_retained_cm3": 1.0151,
+   "pockets": [
+    {
+     "vol_cm3": 0.5773,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.13,
+     "spill_e_mm": 271.08,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.61,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.203,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 80.69,
+     "spill_e_mm": 79.23,
+     "flow_path_cm3": 0.203
+    },
+    {
+     "vol_cm3": 0.0669,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -35.38,
+      23.88,
+      77.12
+     ],
+     "top_e_mm": 76.24,
+     "spill_e_mm": 75.4,
+     "flow_path_cm3": 0.0669
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 1.679,
+   "hose_bore_cm3": 1.303,
+   "sleeves_wall_line_cm3": 0.2429,
+   "upstream_cm3": 1.6252,
+   "downstream_cm3": 0.0539,
+   "residual_outside_hose_and_lines_cm3": 0.1332,
+   "dead_end_retained_cm3": 1.0344,
+   "pockets": [
+    {
+     "vol_cm3": 1.4806,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 81.06,
+     "spill_e_mm": 78.09,
+     "flow_path_cm3": 1.4805
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.43,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.36,
+     "spill_e_mm": 276.19,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0521,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.12,
+      -3.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 190.85,
+     "flow_path_cm3": 0.0521
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 0.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 0.5217,
+   "hose_bore_cm3": 0.5217,
+   "sleeves_wall_line_cm3": 0.0,
+   "upstream_cm3": 0.5217,
+   "downstream_cm3": 0.0,
+   "residual_outside_hose_and_lines_cm3": 0.0,
+   "dead_end_retained_cm3": 1.0123,
+   "pockets": [
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.38,
+     "spill_e_mm": 271.38,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.5217,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.12,
+     "spill_e_mm": 77.62,
+     "flow_path_cm3": 0.5217
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.38,
+     "spill_e_mm": 276.38,
+     "flow_path_cm3": 0.0
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 1.9637,
+   "hose_bore_cm3": 1.7448,
+   "sleeves_wall_line_cm3": 0.1319,
+   "upstream_cm3": 1.9135,
+   "downstream_cm3": 0.0502,
+   "residual_outside_hose_and_lines_cm3": 0.087,
+   "dead_end_retained_cm3": 1.0442,
+   "pockets": [
+    {
+     "vol_cm3": 1.8684,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.03,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 1.8685
+    },
+    {
+     "vol_cm3": 0.6066,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.59,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.3,
+     "spill_e_mm": 276.21,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0483,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      4.88,
+      -0.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.03,
+     "flow_path_cm3": 0.0483
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 2.4198,
+   "hose_bore_cm3": 2.2636,
+   "sleeves_wall_line_cm3": 0.0944,
+   "upstream_cm3": 2.3856,
+   "downstream_cm3": 0.0342,
+   "residual_outside_hose_and_lines_cm3": 0.0618,
+   "dead_end_retained_cm3": 1.0529,
+   "pockets": [
+    {
+     "vol_cm3": 2.3257,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -18.38,
+      79.12
+     ],
+     "top_e_mm": 79.53,
+     "spill_e_mm": 76.69,
+     "flow_path_cm3": 2.3257
+    },
+    {
+     "vol_cm3": 0.6143,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.64,
+     "spill_e_mm": 271.32,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.26,
+     "spill_e_mm": 276.17,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0325,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.88,
+      3.12,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.14,
+     "flow_path_cm3": 0.0324
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 1.9516,
+   "hose_bore_cm3": 1.9041,
+   "sleeves_wall_line_cm3": 0.0137,
+   "upstream_cm3": 1.9274,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.0338,
+   "dead_end_retained_cm3": 1.0399,
+   "pockets": [
+    {
+     "vol_cm3": 1.9163,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      1.62,
+      78.88
+     ],
+     "top_e_mm": 78.89,
+     "spill_e_mm": 76.67,
+     "flow_path_cm3": 1.9163
+    },
+    {
+     "vol_cm3": 0.6058,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.56,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.32,
+     "spill_e_mm": 276.23,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0072,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      -0.88,
+      4.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.36,
+     "flow_path_cm3": 0.0072
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 1.3659,
+   "hose_bore_cm3": 1.3088,
+   "sleeves_wall_line_cm3": 0.0348,
+   "upstream_cm3": 1.3592,
+   "downstream_cm3": 0.0067,
+   "residual_outside_hose_and_lines_cm3": 0.0223,
+   "dead_end_retained_cm3": 1.0242,
+   "pockets": [
+    {
+     "vol_cm3": 1.2793,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.12,
+      -18.62,
+      79.12
+     ],
+     "top_e_mm": 78.24,
+     "spill_e_mm": 76.73,
+     "flow_path_cm3": 1.2793
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.41,
+     "spill_e_mm": 271.33,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.45,
+     "spill_e_mm": 276.36,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0075,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.38,
+      -26.12,
+      277.12
+     ],
+     "top_e_mm": 277.17,
+     "spill_e_mm": 277.14,
+     "flow_path_cm3": 0.0076
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 0.5563,
+   "hose_bore_cm3": 0.51,
+   "sleeves_wall_line_cm3": 0.023,
+   "upstream_cm3": 0.5506,
+   "downstream_cm3": 0.0057,
+   "residual_outside_hose_and_lines_cm3": 0.0232,
+   "dead_end_retained_cm3": 1.0134,
+   "pockets": [
+    {
+     "vol_cm3": 0.5801,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.27,
+     "spill_e_mm": 271.25,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.509,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.12,
+      -44.62,
+      79.12
+     ],
+     "top_e_mm": 78.6,
+     "spill_e_mm": 77.14,
+     "flow_path_cm3": 0.509
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.57,
+     "spill_e_mm": 276.47,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0214,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.88,
+      -27.88,
+      277.12
+     ],
+     "top_e_mm": 277.67,
+     "spill_e_mm": 277.35,
+     "flow_path_cm3": 0.0213
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 0.458,
+   "hose_bore_cm3": 0.3768,
+   "sleeves_wall_line_cm3": 0.0424,
+   "upstream_cm3": 0.4513,
+   "downstream_cm3": 0.0067,
+   "residual_outside_hose_and_lines_cm3": 0.0387,
+   "dead_end_retained_cm3": 1.0188,
+   "pockets": [
+    {
+     "vol_cm3": 0.5794,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.22,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.6,
+     "spill_e_mm": 276.51,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.2701,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.31,
+     "spill_e_mm": 77.85,
+     "flow_path_cm3": 0.2701
+    },
+    {
+     "vol_cm3": 0.0671,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -36.88,
+      24.62,
+      77.12
+     ],
+     "top_e_mm": 77.26,
+     "spill_e_mm": 76.63,
+     "flow_path_cm3": 0.0671
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 0.4625,
+   "hose_bore_cm3": 0.3456,
+   "sleeves_wall_line_cm3": 0.0569,
+   "upstream_cm3": 0.4383,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.06,
+   "dead_end_retained_cm3": 1.019,
+   "pockets": [
+    {
+     "vol_cm3": 0.5812,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.3,
+     "spill_e_mm": 271.27,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.54,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.3084,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.92,
+     "spill_e_mm": 78.44,
+     "flow_path_cm3": 0.3084
+    },
+    {
+     "vol_cm3": 0.0354,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -35.38,
+      23.88,
+      77.12
+     ],
+     "top_e_mm": 76.7,
+     "spill_e_mm": 76.27,
+     "flow_path_cm3": 0.0354
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 1.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 1.1591,
+   "hose_bore_cm3": 0.9373,
+   "sleeves_wall_line_cm3": 0.1369,
+   "upstream_cm3": 1.125,
+   "downstream_cm3": 0.0342,
+   "residual_outside_hose_and_lines_cm3": 0.085,
+   "dead_end_retained_cm3": 1.0344,
+   "pockets": [
+    {
+     "vol_cm3": 1.0036,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 80.1,
+     "spill_e_mm": 77.87,
+     "flow_path_cm3": 1.0037
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.45,
+     "spill_e_mm": 271.34,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.41,
+     "spill_e_mm": 276.32,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0335,
+     "top_at": "FS-01A outlet chamber",
+     "top_xyz_mm": [
+      -2.12,
+      -13.38,
+      279.62
+     ],
+     "top_e_mm": 279.72,
+     "spill_e_mm": 279.44,
+     "flow_path_cm3": 0.0335
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 0.0,
+   "retained_flow_path_cm3": 3.5703,
+   "hose_bore_cm3": 3.1683,
+   "sleeves_wall_line_cm3": 0.2765,
+   "upstream_cm3": 3.4945,
+   "downstream_cm3": 0.0759,
+   "residual_outside_hose_and_lines_cm3": 0.1255,
+   "dead_end_retained_cm3": 1.063,
+   "pockets": [
+    {
+     "vol_cm3": 3.437,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.38,
+      -19.38,
+      79.12
+     ],
+     "top_e_mm": 80.9,
+     "spill_e_mm": 76.63,
+     "flow_path_cm3": 3.437
+    },
+    {
+     "vol_cm3": 0.6254,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      14.62,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.72,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -1.88,
+      -7.38,
+      309.38
+     ],
+     "top_e_mm": 309.12,
+     "spill_e_mm": 275.96,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0739,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      4.88,
+      -0.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 190.63,
+     "flow_path_cm3": 0.0739
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 45.0,
+   "retained_flow_path_cm3": 4.8352,
+   "hose_bore_cm3": 4.5817,
+   "sleeves_wall_line_cm3": 0.1713,
+   "upstream_cm3": 4.7813,
+   "downstream_cm3": 0.0539,
+   "residual_outside_hose_and_lines_cm3": 0.0822,
+   "dead_end_retained_cm3": 1.0777,
+   "pockets": [
+    {
+     "vol_cm3": 4.7337,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      52.62,
+      1.38,
+      78.88
+     ],
+     "top_e_mm": 80.16,
+     "spill_e_mm": 75.73,
+     "flow_path_cm3": 4.7336
+    },
+    {
+     "vol_cm3": 0.6392,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      13.88,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.81,
+     "spill_e_mm": 271.17,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.12,
+      -2.62,
+      309.38
+     ],
+     "top_e_mm": 309.04,
+     "spill_e_mm": 275.88,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0521,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.88,
+      3.12,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 190.85,
+     "flow_path_cm3": 0.0521
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 90.0,
+   "retained_flow_path_cm3": 3.9414,
+   "hose_bore_cm3": 3.8557,
+   "sleeves_wall_line_cm3": 0.0519,
+   "upstream_cm3": 3.9173,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.0338,
+   "dead_end_retained_cm3": 1.0537,
+   "pockets": [
+    {
+     "vol_cm3": 3.9075,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      23.62,
+      43.88,
+      77.88
+     ],
+     "top_e_mm": 79.36,
+     "spill_e_mm": 75.71,
+     "flow_path_cm3": 3.9076
+    },
+    {
+     "vol_cm3": 0.6196,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      13.12,
+      277.38
+     ],
+     "top_e_mm": 277.66,
+     "spill_e_mm": 271.21,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -0.62,
+      309.38
+     ],
+     "top_e_mm": 309.16,
+     "spill_e_mm": 276.0,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0072,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      -0.88,
+      4.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 191.29,
+     "flow_path_cm3": 0.0072
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 135.0,
+   "retained_flow_path_cm3": 1.2429,
+   "hose_bore_cm3": 1.168,
+   "sleeves_wall_line_cm3": 0.0521,
+   "upstream_cm3": 1.2363,
+   "downstream_cm3": 0.0067,
+   "residual_outside_hose_and_lines_cm3": 0.0229,
+   "dead_end_retained_cm3": 1.0242,
+   "pockets": [
+    {
+     "vol_cm3": 1.1569,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -9.38,
+      48.12,
+      77.38
+     ],
+     "top_e_mm": 78.75,
+     "spill_e_mm": 76.79,
+     "flow_path_cm3": 1.1569
+    },
+    {
+     "vol_cm3": 0.5885,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      4.62,
+      10.62,
+      277.38
+     ],
+     "top_e_mm": 277.35,
+     "spill_e_mm": 271.2,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -12.12,
+      -2.38,
+      309.38
+     ],
+     "top_e_mm": 309.43,
+     "spill_e_mm": 276.26,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0075,
+     "top_at": "FD-08 wall line bore",
+     "top_xyz_mm": [
+      -33.38,
+      -26.12,
+      277.12
+     ],
+     "top_e_mm": 277.14,
+     "spill_e_mm": 277.06,
+     "flow_path_cm3": 0.0076
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 180.0,
+   "retained_flow_path_cm3": 0.5391,
+   "hose_bore_cm3": 0.4762,
+   "sleeves_wall_line_cm3": 0.0387,
+   "upstream_cm3": 0.5328,
+   "downstream_cm3": 0.0063,
+   "residual_outside_hose_and_lines_cm3": 0.0241,
+   "dead_end_retained_cm3": 1.008,
+   "pockets": [
+    {
+     "vol_cm3": 0.5748,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      3.88,
+      6.38,
+      277.38
+     ],
+     "top_e_mm": 277.07,
+     "spill_e_mm": 271.05,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -13.62,
+      -6.88,
+      309.38
+     ],
+     "top_e_mm": 309.66,
+     "spill_e_mm": 276.49,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.2451,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -36.88,
+      24.62,
+      77.12
+     ],
+     "top_e_mm": 78.36,
+     "spill_e_mm": 76.92,
+     "flow_path_cm3": 0.2451
+    },
+    {
+     "vol_cm3": 0.2202,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.12,
+      -44.62,
+      79.12
+     ],
+     "top_e_mm": 78.06,
+     "spill_e_mm": 76.65,
+     "flow_path_cm3": 0.2202
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 225.0,
+   "retained_flow_path_cm3": 0.4665,
+   "hose_bore_cm3": 0.3549,
+   "sleeves_wall_line_cm3": 0.0667,
+   "upstream_cm3": 0.4598,
+   "downstream_cm3": 0.0067,
+   "residual_outside_hose_and_lines_cm3": 0.045,
+   "dead_end_retained_cm3": 1.0115,
+   "pockets": [
+    {
+     "vol_cm3": 0.5721,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      6.12,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 276.98,
+     "spill_e_mm": 270.98,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -10.88,
+      -11.38,
+      309.38
+     ],
+     "top_e_mm": 309.74,
+     "spill_e_mm": 276.57,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.1677,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -36.88,
+      24.62,
+      77.12
+     ],
+     "top_e_mm": 77.38,
+     "spill_e_mm": 75.96,
+     "flow_path_cm3": 0.1677
+    },
+    {
+     "vol_cm3": 0.1478,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 79.48,
+     "spill_e_mm": 78.06,
+     "flow_path_cm3": 0.1478
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 270.0,
+   "retained_flow_path_cm3": 0.4166,
+   "hose_bore_cm3": 0.2712,
+   "sleeves_wall_line_cm3": 0.0744,
+   "upstream_cm3": 0.3924,
+   "downstream_cm3": 0.0242,
+   "residual_outside_hose_and_lines_cm3": 0.071,
+   "dead_end_retained_cm3": 1.0151,
+   "pockets": [
+    {
+     "vol_cm3": 0.5773,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      8.62,
+      2.12,
+      277.38
+     ],
+     "top_e_mm": 277.13,
+     "spill_e_mm": 271.08,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -9.12,
+      -12.12,
+      309.38
+     ],
+     "top_e_mm": 309.61,
+     "spill_e_mm": 276.45,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.203,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      29.88,
+      -46.12,
+      79.12
+     ],
+     "top_e_mm": 80.69,
+     "spill_e_mm": 79.23,
+     "flow_path_cm3": 0.203
+    },
+    {
+     "vol_cm3": 0.0669,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      -35.38,
+      23.88,
+      77.12
+     ],
+     "top_e_mm": 76.24,
+     "spill_e_mm": 75.4,
+     "flow_path_cm3": 0.0669
+    }
+   ]
+  },
+  {
+   "model": "open_element",
+   "vents": "S1+T4+FD01",
+   "tilt_deg": 2.0,
+   "toward_az_deg": 315.0,
+   "retained_flow_path_cm3": 1.664,
+   "hose_bore_cm3": 1.303,
+   "sleeves_wall_line_cm3": 0.2429,
+   "upstream_cm3": 1.6102,
+   "downstream_cm3": 0.0539,
+   "residual_outside_hose_and_lines_cm3": 0.1182,
+   "dead_end_retained_cm3": 1.0344,
+   "pockets": [
+    {
+     "vol_cm3": 1.4806,
+     "top_at": "FD-07 hose bore",
+     "top_xyz_mm": [
+      40.62,
+      -39.62,
+      79.12
+     ],
+     "top_e_mm": 81.06,
+     "spill_e_mm": 78.09,
+     "flow_path_cm3": 1.4805
+    },
+    {
+     "vol_cm3": 0.5943,
+     "top_at": "J602 port cavity below the transducer tip (ESTIMATE tip at w -2)",
+     "top_xyz_mm": [
+      12.38,
+      3.12,
+      277.38
+     ],
+     "top_e_mm": 277.43,
+     "spill_e_mm": 271.22,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.433,
+     "top_at": "balance chamber",
+     "top_xyz_mm": [
+      -3.88,
+      -10.88,
+      309.38
+     ],
+     "top_e_mm": 309.36,
+     "spill_e_mm": 276.19,
+     "flow_path_cm3": 0.0
+    },
+    {
+     "vol_cm3": 0.0521,
+     "top_at": "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)",
+     "top_xyz_mm": [
+      3.12,
+      -3.88,
+      191.38
+     ],
+     "top_e_mm": 191.43,
+     "spill_e_mm": 190.85,
+     "flow_path_cm3": 0.0521
+    }
+   ]
+  }
+ ],
+ "tag": "DERIVED (buoyancy-only maximin analysis on the DESIGN geometry); sweep by the purge flow and two-phase effects not modelled",
+ "t_s": 636.1
+}

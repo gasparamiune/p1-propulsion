@@ -1,0 +1,27 @@
+A. Transducer range per channel (M3200 0.5-4.5 V on +5V_SNS; firmware fault window 0.25-4.75 V)
+  PC (J601)              070BG  normal command cap                  23.99 bar g -> 1.871 V  in range
+  PC (J601)              070BG  firmware abort                      28.99 bar g -> 2.156 V  in range
+  PC (J601)              070BG  MEOP                                43.99 bar g -> 3.014 V  in range
+  PC (J601)              070BG  blocked nozzle 30 C                 62.07 bar g -> 4.047 V  in range
+  PC (J601)              070BG  proof (hydro test, if fitted)       66.49 bar g -> 4.299 V  in range
+  P_TORCH (J610, v2.7)   070BG  lit threshold 2.0 bar abs            0.99 bar g -> 0.556 V  in range
+  P_TORCH (J610, v2.7)   070BG  chamber MEOP via the torch port     43.99 bar g -> 3.014 V  in range
+  P_TORCH (J610, v2.7)   070BG  proof                               66.49 bar g -> 4.299 V  in range
+  P_FEED (J602)          070BG  tank MEOP                           68.99 bar g -> 4.442 V  in range
+  P_FEED (J602)          070BG  trapped-liquid relief max           73.99 bar g -> 4.728 V  ABOVE FS: output not specified
+  P_FEED (J602) option   170BG  tank MEOP                           68.99 bar g -> 2.123 V  in range
+  P_FEED (J602) option   170BG  trapped-liquid relief max           73.99 bar g -> 2.241 V  in range
+  P_TANK (J603)          070BG  firmware tank over-pressure         65.00 bar g -> 4.214 V  in range
+  P_TANK (J603)          070BG  tank MEOP                           68.99 bar g -> 4.442 V  in range
+  P_TANK (J603)          070BG  relief max                          73.99 bar g -> 4.728 V  ABOVE FS: output not specified
+  P_TANK (J603) option   170BG  firmware tank over-pressure         65.00 bar g -> 2.029 V  in range
+  P_TANK (J603) option   170BG  tank MEOP                           68.99 bar g -> 2.123 V  in range
+  P_TANK (J603) option   170BG  relief max                          73.99 bar g -> 2.241 V  in range
+  -> DESIGN v2.7: Pc and P_torch 070BG; P_feed and P_tank 170BG (tank MEOP at FS and relief above FS with 070BG).
+
+B. ADC chain: divider 12.7k/4.02k loaded by 330 k -> k 0.23823; LSB 1.43e-07 V; Pa/count: 070BG 1.051, 170BG 2.552, 01KPG 1.035
+  torch threshold 2.0 bar abs = 0.99 bar g = 56 mV above zero on the 070BG; TEB 1.05 bar -> auto-zero of P_torch required (ratio 0.94)
+
+C. Hardware trip (070BG): PC_SIG 2.2980 V -> 31.47 bar g = 32.48 bar abs; circuit band +/- 1.58 bar -> 30.90..34.06 bar abs (01KPG basis was 32.01 bar abs); + TEB +/- 1.05 bar common
+
+D. firmware 30.00 bar abs; hardware nominal 32.48 bar abs (+2.48), band low end 30.90 (>= firmware), high end 34.06 = 10.94 bar below MEOP 45.0 bar; 4.75 V fault = 74.4 bar g

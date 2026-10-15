@@ -1,0 +1,141 @@
+{
+ "id": "over_thrust",
+ "version": "v1",
+ "date": "2026-10-13",
+ "script": "calc/over_thrust_v1.py",
+ "inputs": {
+  "threshold_N": [
+   650.0,
+   "config.h kOverThrust_N (LEAD PROVISIONAL)"
+  ],
+  "hold_s": [
+   0.02,
+   "config.h kOverThrustTime_s (LEAD PROVISIONAL)"
+  ],
+  "stale_s": [
+   0.05,
+   "config.h kFcThrustStale_s (GNC decision: stale > 50 ms -> flag only)"
+  ],
+  "F_cmd_max_N": [
+   500.0,
+   "REQ"
+  ],
+  "Cd_rows": [
+   [
+    0.6,
+    0.7,
+    0.8
+   ],
+   "combustion.json full_stroke_failure_S230"
+  ],
+  "Cd_band": [
+   1.142857142857143,
+   "DERIVED max Cd / nominal 0.7 (combustion.json rows)"
+  ],
+  "MEOP_Pa": [
+   4500000.0,
+   "combustion.json pressure_limits (LEAD)"
+  ],
+  "abort_Pa": [
+   3000000.0,
+   "combustion.json pressure_limits (LEAD)"
+  ],
+  "gnc_decision": "firmware v2.7 flies open loop on Pc loss; an accelerometer over-thrust abort is added on the CAN frame FC_THRUST (ID 0x024, >= 100 Hz, sequence, accelerometer thrust in 0.1 N steps, valid flag, CRC-8, raw or lightly filtered, tau <= 20 ms); provisional threshold 650 N held 20 ms (500 N x 1.143 Cd band x 1.10 estimate error, ASSUMED); a stale (> 50 ms) or invalid estimate only raises a flag; GNC publishes the estimate's 3-sigma error and latency, the false-abort rate and the stuck-pintle detection time, and confirms or proposes the threshold"
+ },
+ "false_trip": {
+  "F_nominal_max_N": 571.4285714285716,
+  "cases": [
+   {
+    "est_err": 0.0,
+    "F_est_N": 571.4285714285716,
+    "margin_N": 78.57142857142844
+   },
+   {
+    "est_err": 0.05,
+    "F_est_N": 600.0000000000001,
+    "margin_N": 49.999999999999886
+   },
+   {
+    "est_err": 0.1,
+    "F_est_N": 628.5714285714288,
+    "margin_N": 21.428571428571217
+   },
+   {
+    "est_err": 0.15,
+    "F_est_N": 657.1428571428572,
+    "margin_N": -7.142857142857224
+   }
+  ],
+  "note": "LEAD basis 500 x 1.143 x 1.10 = 628 N < 650 N; a 3-sigma estimate error above ~13.7 % removes the margin"
+ },
+ "runaway_coverage": [
+  {
+   "est_err": 0.0,
+   "detected": 11,
+   "of": 12,
+   "missed": [
+    "15 C Cd 0.6: 619.3 N, 30.66 bar"
+   ]
+  },
+  {
+   "est_err": 0.05,
+   "detected": 9,
+   "of": 12,
+   "missed": [
+    "15 C Cd 0.6: 619.3 N, 30.66 bar",
+    "15 C Cd 0.7: 665.8 N, 32.87 bar",
+    "20 C Cd 0.6: 666.4 N, 32.90 bar"
+   ]
+  },
+  {
+   "est_err": 0.1,
+   "detected": 6,
+   "of": 12,
+   "missed": [
+    "15 C Cd 0.6: 619.3 N, 30.66 bar",
+    "15 C Cd 0.7: 665.8 N, 32.87 bar",
+    "15 C Cd 0.8: 704.3 N, 34.70 bar",
+    "20 C Cd 0.6: 666.4 N, 32.90 bar",
+    "20 C Cd 0.7: 719.2 N, 35.41 bar",
+    "25 C Cd 0.6: 711.9 N, 35.06 bar"
+   ]
+  },
+  {
+   "est_err": 0.15,
+   "detected": 4,
+   "of": 12,
+   "missed": [
+    "15 C Cd 0.6: 619.3 N, 30.66 bar",
+    "15 C Cd 0.7: 665.8 N, 32.87 bar",
+    "15 C Cd 0.8: 704.3 N, 34.70 bar",
+    "20 C Cd 0.6: 666.4 N, 32.90 bar",
+    "20 C Cd 0.7: 719.2 N, 35.41 bar",
+    "20 C Cd 0.8: 763.8 N, 37.52 bar",
+    "25 C Cd 0.6: 711.9 N, 35.06 bar",
+    "30 C Cd 0.6: 753.0 N, 37.01 bar"
+   ]
+  }
+ ],
+ "pc_equivalent": {
+  "fit_F_N_per_bar": 21.056056838778726,
+  "fit_offset_N": -26.313404396333226,
+  "fit_resid_max_N": 0.09015180535527634,
+  "threshold_Pc_bar_abs": 32.119660845081576,
+  "abort_bar_abs": 30.0,
+  "MEOP_bar_abs": 45.0
+ },
+ "timing_budget_s": {
+  "fc_latency_s": 0.02,
+  "fc_frame_period_s": 0.01,
+  "ecu_persistence_s": 0.02,
+  "ecu_tick_s": 0.001,
+  "mv_latch_release_s": 0.0094,
+  "mv_close_s": 0.03
+ },
+ "timing_total_s": 0.0904,
+ "limitations": [
+  "SIM steady runaway table (initial port); transients and the estimate dynamics are not modelled here (SIL S6 runs them with ASSUMED latency 20 ms and 5 N rms noise)",
+  "blind to throat blockage (thrust falls while Pc rises) and to over-pressure without over-thrust",
+  "estimate error and latency ASSUMED until GNC publishes them"
+ ]
+}

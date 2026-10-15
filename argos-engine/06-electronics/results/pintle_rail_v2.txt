@@ -1,0 +1,22 @@
+pintle_rail_v2 (Electronics 2026-10-12): TPS552882 4-switch buck-boost, 7.48 V pintle servo rail (LEAD 2026-10-12, +1 % vs v1)
+Vout min/typ/max 7.395 / 7.483 / 7.570 V (FB 100k/19.1k 0.1 %, VREF 1.188-1.212 V); HV69 rated 8.2 V -> margin 0.63 V
+fSW 401 kHz (RFSW 49.9k), L 4.7 uH, output current limit 4.00-4.33 A (12 mOhm), avg inductor limit ~8.0 A (RILIM 41.2k)
+input case                                     Vin load                            Iout mode       IL_avg  IL_pp  IL_pk   I_in  Ploss Tj C (Rth 25.8/47.5)
+full charge                                   8.40 hold / slow throttle            0.40 buck         0.40   0.47   0.64   0.39   0.26 [57.0, 62.0]
+full charge                                   8.40 stall bound (DERIVED 1.2-1.7 A  1.70 buck         1.70   0.47   1.94   1.65   1.11 [79.0, 103.0]
+full charge                                   8.40 output current limit            4.20 buck         4.20   0.47   4.44   4.07   2.73 [121.0, 180.0]
+nominal                                       7.60 hold / slow throttle            0.40 buck-boost   0.39   0.12   0.45   0.43   0.26 [57.0, 62.0]
+nominal                                       7.60 stall bound (DERIVED 1.2-1.7 A  1.70 buck-boost   1.67   0.50   1.92   1.82   1.11 [79.0, 103.0]
+nominal                                       7.60 output current limit            4.20 buck-boost   4.14   1.24   4.76   4.49   2.73 [121.0, 180.0]
+TVC-sag case (LEAD 6.6 V at the TVC plug)     6.80 hold / slow throttle            0.40 boost        0.48   0.59   0.77   0.48   0.26 [57.0, 62.0]
+TVC-sag case (LEAD 6.6 V at the TVC plug)     6.80 stall bound (DERIVED 1.2-1.7 A  1.70 boost        2.03   0.59   2.33   2.03   1.11 [79.0, 103.0]
+TVC-sag case (LEAD 6.6 V at the TVC plug)     6.80 output current limit            4.20 boost        5.02   0.59   5.32   5.02   2.73 [121.0, 180.0]
+V_val at VBAT node                            6.60 hold / slow throttle            0.40 boost        0.49   0.66   0.82   0.49   0.26 [57.0, 62.0]
+V_val at VBAT node                            6.60 stall bound (DERIVED 1.2-1.7 A  1.70 boost        2.09   0.66   2.43   2.09   1.11 [79.0, 103.0]
+V_val at VBAT node                            6.60 output current limit            4.20 boost        5.18   0.66   5.51   5.18   2.73 [121.0, 180.0]
+design minimum                                6.00 hold / slow throttle            0.40 boost        0.54   0.84   0.96   0.54   0.26 [57.0, 62.0]
+design minimum                                6.00 stall bound (DERIVED 1.2-1.7 A  1.70 boost        2.30   0.84   2.72   2.30   1.11 [79.0, 103.0]
+design minimum                                6.00 output current limit            4.20 boost        5.69   0.84   6.11   5.69   2.73 [121.0, 180.0]
+worst inductor peak 6.11 A (< 8 A avg limit + ripple; inductor Isat >= 8 A); worst input current 5.69 A at the 4.2 A output limit and 6.0 V
+stall-current bound (DERIVED, unpublished): 1.2-1.7 A + 0.1 A electronics; output limit 4.2 A = 2.4x the bound
+thermal: at the stall bound (1.7 A) Ploss ~1.1 W -> Tj 78-102 C at 50 C ambient (OK); a sustained stall AT the 4.2 A limit (2.7 W) exceeds 125 C -> only a fault case (servo jammed): the pintle monitor aborts within 80 ms (kPintleFaultTime_s) and the regulator thermal shutdown is the backstop

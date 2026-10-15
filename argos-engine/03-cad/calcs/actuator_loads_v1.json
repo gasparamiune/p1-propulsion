@@ -1,0 +1,706 @@
+{
+ "id": "ENG-TVC-ACTUATOR-LOADS",
+ "version": "v1",
+ "date": "2026-10-12",
+ "owner": "mechanical",
+ "linkage": {
+  "r_h_mm": 11.139,
+  "r_e_mm": 53.466,
+  "n": 4.8,
+  "L_pushrod_mm": 42.3,
+  "u_eye_mm": 44.492,
+  "t_eye_mm": 29.65,
+  "lever_phi_deg": [
+   135.0,
+   225.0
+  ],
+  "src": "tvc_kinematics.geometry(P), CAD v3.3 config v3.3"
+ },
+ "assumptions": [
+  "rigid links, frictionless joints, quasi-static (inertia of the servo rotor and linkage excluded from the rate)",
+  "linear torque-speed line (Electronics ASSUMED shape); aiding load capped at no-load speed",
+  "slew hinge load 3.19 N m opposing the motion (Electronics' non-inertial sum); GNC p99/max mount torque used for holding checks",
+  "servo stall torques electronics.json v1 (stall 2.157/3.04/4.413 N m at 6.0/7.4/8.4 V; no-load 706/857/1091 deg/s) + Electronics tvc_slew_check_v1 interpolation (6.6/7.8/8.0 V); 7.6 V = mean of 7.4/7.8"
+ ],
+ "range_scan": {
+  "centre": {
+   "theta_deg": 0.0,
+   "psi_range_deg": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0
+    ]
+   ],
+   "lambda_min_mm": [
+    11.139,
+    11.139
+   ],
+   "GS_8V4_both_stall": {
+    "M_engine_max_Nm": 29.96,
+    "worst": {
+     "dir_deg": 0.0,
+     "signs": [
+      1,
+      1
+     ],
+     "M_Nm": [
+      0.0,
+      29.96
+     ]
+    },
+    "F_rod_max_N": [
+     396.2,
+     396.2
+    ]
+   }
+  },
+  "cmd_7deg": {
+   "theta_deg": 7.0,
+   "psi_range_deg": [
+    [
+     -32.37,
+     37.39
+    ],
+    [
+     -32.37,
+     37.39
+    ]
+   ],
+   "lambda_min_mm": [
+    8.844,
+    8.844
+   ],
+   "GS_8V4_both_stall": {
+    "M_engine_max_Nm": 37.95,
+    "worst": {
+     "dir_deg": 25.0,
+     "signs": [
+      1,
+      1
+     ],
+     "M_Nm": [
+      -4.23,
+      37.71
+     ]
+    },
+    "F_rod_max_N": [
+     499.0,
+     499.0
+    ]
+   }
+  },
+  "stop_8deg": {
+   "theta_deg": 8.0,
+   "psi_range_deg": [
+    [
+     -36.82,
+     44.22
+    ],
+    [
+     -36.82,
+     44.22
+    ]
+   ],
+   "lambda_min_mm": [
+    7.861,
+    7.861
+   ],
+   "GS_8V4_both_stall": {
+    "M_engine_max_Nm": 41.14,
+    "worst": {
+     "dir_deg": 30.0,
+     "signs": [
+      1,
+      1
+     ],
+     "M_Nm": [
+      -7.05,
+      40.53
+     ]
+    },
+    "F_rod_max_N": [
+     561.4,
+     561.4
+    ]
+   }
+  }
+ },
+ "SR": {
+  "note": "servo runaway at 8.4 V stall drives the engine onto the 8 deg conical stop; rod force = Ts / lambda at the stop pose; the stop reaction carries J^T tau (both servos stalled in the worst sign combination is the GS-at-stop bound)",
+  "F_rod_max_N": [
+   561.4,
+   561.4
+  ],
+  "M_engine_at_stop_max_Nm": 41.14
+ },
+ "design_loads": {
+  "as_built": {
+   "M_engine_GS_Nm": 37.95,
+   "F_rod_centre_N": 396.2,
+   "F_rod_7deg_N": 499.0,
+   "F_rod_stop_N": 561.4,
+   "M_engine_stop_Nm": 41.14
+  },
+  "lead": {
+   "M_engine_GS_Nm": 35.3,
+   "F_rod_centre_N": 441.0,
+   "F_rod_7deg_N": 552.0,
+   "F_rod_stop_N": 609.0,
+   "src": "lead decision 2026-10-12 (Electronics tvc_slew_check_v1, r_h 10 / r_e 48, n 4.8, 8.4 V stall both servos)"
+  },
+  "design": {
+   "M_engine_GS_Nm": 37.95,
+   "F_rod_centre_N": 441.0,
+   "F_rod_7deg_N": 552.0,
+   "F_rod_stop_N": 609.0,
+   "M_engine_stop_Nm": 41.14,
+   "governs": {
+    "M_engine_GS_Nm": "as-built",
+    "F_rod_centre_N": "lead",
+    "F_rod_7deg_N": "lead",
+    "F_rod_stop_N": "lead",
+    "M_engine_stop_Nm": "as-built"
+   }
+  },
+  "tag": "DERIVED: max(lead 2026-10-12, as-built exact kinematics at 8.4 V stall); SF per charter ENG-10 (1.5 yield / 2.0 ult) applied in hand_calcs/FEA"
+ },
+ "holding_GNC_p99": {
+  "centre": {
+   "servo_torque_for_GNC_p99_15.6Nm_worst_Nm": 3.25,
+   "margin_vs_stall": {
+    "7.4": 0.94,
+    "8.4": 1.36
+   }
+  },
+  "cmd_7deg": {
+   "servo_torque_for_GNC_p99_15.6Nm_worst_Nm": 3.514,
+   "margin_vs_stall": {
+    "7.4": 0.87,
+    "8.4": 1.26
+   }
+  }
+ },
+ "rate_vs_angle": {
+  "load_Nm": 3.19,
+  "rows": [
+   {
+    "V": 6.6,
+    "theta_deg": 0.0,
+    "alpha_dps": 183.5,
+    "beta_dps": 183.5,
+    "worst_dps": 117.5,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 159.2
+   },
+   {
+    "V": 6.6,
+    "theta_deg": 1.0,
+    "alpha_dps": 179.5,
+    "beta_dps": 180.3,
+    "worst_dps": 116.2,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 156.5
+   },
+   {
+    "V": 6.6,
+    "theta_deg": 2.0,
+    "alpha_dps": 175.6,
+    "beta_dps": 176.8,
+    "worst_dps": 114.6,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 153.1
+   },
+   {
+    "V": 6.6,
+    "theta_deg": 3.0,
+    "alpha_dps": 171.7,
+    "beta_dps": 173.0,
+    "worst_dps": 112.4,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 148.9
+   },
+   {
+    "V": 6.6,
+    "theta_deg": 4.0,
+    "alpha_dps": 167.5,
+    "beta_dps": 168.8,
+    "worst_dps": 109.7,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 143.7
+   },
+   {
+    "V": 6.6,
+    "theta_deg": 5.0,
+    "alpha_dps": 163.2,
+    "beta_dps": 164.0,
+    "worst_dps": 106.2,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 137.1
+   },
+   {
+    "V": 6.6,
+    "theta_deg": 6.0,
+    "alpha_dps": 158.5,
+    "beta_dps": 158.5,
+    "worst_dps": 101.5,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 128.9
+   },
+   {
+    "V": 6.6,
+    "theta_deg": 7.0,
+    "alpha_dps": 153.3,
+    "beta_dps": 152.2,
+    "worst_dps": 95.3,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 118.5
+   },
+   {
+    "V": 7.4,
+    "theta_deg": 0.0,
+    "alpha_dps": 213.5,
+    "beta_dps": 213.5,
+    "worst_dps": 139.5,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 178.5
+   },
+   {
+    "V": 7.4,
+    "theta_deg": 1.0,
+    "alpha_dps": 208.9,
+    "beta_dps": 209.6,
+    "worst_dps": 137.8,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 175.5
+   },
+   {
+    "V": 7.4,
+    "theta_deg": 2.0,
+    "alpha_dps": 204.4,
+    "beta_dps": 205.4,
+    "worst_dps": 135.6,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 171.7
+   },
+   {
+    "V": 7.4,
+    "theta_deg": 3.0,
+    "alpha_dps": 199.7,
+    "beta_dps": 200.7,
+    "worst_dps": 132.9,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 167.0
+   },
+   {
+    "V": 7.4,
+    "theta_deg": 4.0,
+    "alpha_dps": 194.9,
+    "beta_dps": 195.5,
+    "worst_dps": 129.3,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 161.2
+   },
+   {
+    "V": 7.4,
+    "theta_deg": 5.0,
+    "alpha_dps": 189.7,
+    "beta_dps": 189.7,
+    "worst_dps": 124.8,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 153.8
+   },
+   {
+    "V": 7.4,
+    "theta_deg": 6.0,
+    "alpha_dps": 184.1,
+    "beta_dps": 183.1,
+    "worst_dps": 118.9,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 144.6
+   },
+   {
+    "V": 7.4,
+    "theta_deg": 7.0,
+    "alpha_dps": 178.0,
+    "beta_dps": 175.5,
+    "worst_dps": 111.2,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 132.9
+   },
+   {
+    "V": 7.6,
+    "theta_deg": 0.0,
+    "alpha_dps": 226.9,
+    "beta_dps": 226.9,
+    "worst_dps": 149.4,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 187.0
+   },
+   {
+    "V": 7.6,
+    "theta_deg": 1.0,
+    "alpha_dps": 222.0,
+    "beta_dps": 222.7,
+    "worst_dps": 147.5,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 183.8
+   },
+   {
+    "V": 7.6,
+    "theta_deg": 2.0,
+    "alpha_dps": 217.2,
+    "beta_dps": 218.1,
+    "worst_dps": 145.1,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 179.9
+   },
+   {
+    "V": 7.6,
+    "theta_deg": 3.0,
+    "alpha_dps": 212.2,
+    "beta_dps": 213.1,
+    "worst_dps": 142.1,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 174.9
+   },
+   {
+    "V": 7.6,
+    "theta_deg": 4.0,
+    "alpha_dps": 207.1,
+    "beta_dps": 207.5,
+    "worst_dps": 138.2,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 168.8
+   },
+   {
+    "V": 7.6,
+    "theta_deg": 5.0,
+    "alpha_dps": 201.6,
+    "beta_dps": 201.2,
+    "worst_dps": 133.2,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 161.1
+   },
+   {
+    "V": 7.6,
+    "theta_deg": 6.0,
+    "alpha_dps": 195.6,
+    "beta_dps": 194.1,
+    "worst_dps": 126.8,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 151.5
+   },
+   {
+    "V": 7.6,
+    "theta_deg": 7.0,
+    "alpha_dps": 189.0,
+    "beta_dps": 185.9,
+    "worst_dps": 118.3,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 139.2
+   },
+   {
+    "V": 7.8,
+    "theta_deg": 0.0,
+    "alpha_dps": 240.2,
+    "beta_dps": 240.2,
+    "worst_dps": 159.2,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 195.4
+   },
+   {
+    "V": 7.8,
+    "theta_deg": 1.0,
+    "alpha_dps": 235.1,
+    "beta_dps": 235.6,
+    "worst_dps": 157.1,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 192.1
+   },
+   {
+    "V": 7.8,
+    "theta_deg": 2.0,
+    "alpha_dps": 229.9,
+    "beta_dps": 230.7,
+    "worst_dps": 154.5,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 188.0
+   },
+   {
+    "V": 7.8,
+    "theta_deg": 3.0,
+    "alpha_dps": 224.7,
+    "beta_dps": 225.3,
+    "worst_dps": 151.1,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 182.8
+   },
+   {
+    "V": 7.8,
+    "theta_deg": 4.0,
+    "alpha_dps": 219.2,
+    "beta_dps": 219.3,
+    "worst_dps": 146.9,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 176.4
+   },
+   {
+    "V": 7.8,
+    "theta_deg": 5.0,
+    "alpha_dps": 213.3,
+    "beta_dps": 212.6,
+    "worst_dps": 141.5,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 168.4
+   },
+   {
+    "V": 7.8,
+    "theta_deg": 6.0,
+    "alpha_dps": 207.0,
+    "beta_dps": 204.9,
+    "worst_dps": 134.5,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 158.3
+   },
+   {
+    "V": 7.8,
+    "theta_deg": 7.0,
+    "alpha_dps": 200.0,
+    "beta_dps": 196.2,
+    "worst_dps": 125.4,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 145.5
+   },
+   {
+    "V": 8.0,
+    "theta_deg": 0.0,
+    "alpha_dps": 254.6,
+    "beta_dps": 254.6,
+    "worst_dps": 169.7,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 205.0
+   },
+   {
+    "V": 8.0,
+    "theta_deg": 1.0,
+    "alpha_dps": 249.2,
+    "beta_dps": 249.7,
+    "worst_dps": 167.4,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 201.5
+   },
+   {
+    "V": 8.0,
+    "theta_deg": 2.0,
+    "alpha_dps": 243.7,
+    "beta_dps": 244.5,
+    "worst_dps": 164.5,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 197.2
+   },
+   {
+    "V": 8.0,
+    "theta_deg": 3.0,
+    "alpha_dps": 238.2,
+    "beta_dps": 238.7,
+    "worst_dps": 160.9,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 191.8
+   },
+   {
+    "V": 8.0,
+    "theta_deg": 4.0,
+    "alpha_dps": 232.3,
+    "beta_dps": 232.2,
+    "worst_dps": 156.3,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 185.0
+   },
+   {
+    "V": 8.0,
+    "theta_deg": 5.0,
+    "alpha_dps": 226.1,
+    "beta_dps": 225.0,
+    "worst_dps": 150.4,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 176.6
+   },
+   {
+    "V": 8.0,
+    "theta_deg": 6.0,
+    "alpha_dps": 219.3,
+    "beta_dps": 216.8,
+    "worst_dps": 142.8,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 166.0
+   },
+   {
+    "V": 8.0,
+    "theta_deg": 7.0,
+    "alpha_dps": 211.9,
+    "beta_dps": 207.5,
+    "worst_dps": 133.0,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 152.6
+   },
+   {
+    "V": 8.4,
+    "theta_deg": 0.0,
+    "alpha_dps": 287.2,
+    "beta_dps": 287.2,
+    "worst_dps": 193.1,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 227.3
+   },
+   {
+    "V": 8.4,
+    "theta_deg": 1.0,
+    "alpha_dps": 281.1,
+    "beta_dps": 281.6,
+    "worst_dps": 190.4,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 223.4
+   },
+   {
+    "V": 8.4,
+    "theta_deg": 2.0,
+    "alpha_dps": 274.9,
+    "beta_dps": 275.5,
+    "worst_dps": 187.0,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 218.6
+   },
+   {
+    "V": 8.4,
+    "theta_deg": 3.0,
+    "alpha_dps": 268.6,
+    "beta_dps": 268.8,
+    "worst_dps": 182.7,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 212.6
+   },
+   {
+    "V": 8.4,
+    "theta_deg": 4.0,
+    "alpha_dps": 262.0,
+    "beta_dps": 261.4,
+    "worst_dps": 177.2,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 205.2
+   },
+   {
+    "V": 8.4,
+    "theta_deg": 5.0,
+    "alpha_dps": 255.0,
+    "beta_dps": 253.2,
+    "worst_dps": 170.4,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 195.8
+   },
+   {
+    "V": 8.4,
+    "theta_deg": 6.0,
+    "alpha_dps": 247.3,
+    "beta_dps": 243.8,
+    "worst_dps": 161.6,
+    "worst_dir_deg": 45.0,
+    "worst_noload_dps": 184.1
+   },
+   {
+    "V": 8.4,
+    "theta_deg": 7.0,
+    "alpha_dps": 238.8,
+    "beta_dps": 233.1,
+    "worst_dps": 150.2,
+    "worst_dir_deg": 315.0,
+    "worst_noload_dps": 169.2
+   }
+  ],
+  "summary": {
+   "6.6": {
+    "min_loaded_rate_dps_over_7deg_cone": 95.3,
+    "at_theta_dir_deg": [
+     7.0,
+     315.0
+    ],
+    "meets_ENG07_100dps": 0.0
+   },
+   "7.4": {
+    "min_loaded_rate_dps_over_7deg_cone": 111.2,
+    "at_theta_dir_deg": [
+     7.0,
+     315.0
+    ],
+    "meets_ENG07_100dps": 1.0
+   },
+   "7.6": {
+    "min_loaded_rate_dps_over_7deg_cone": 118.3,
+    "at_theta_dir_deg": [
+     7.0,
+     315.0
+    ],
+    "meets_ENG07_100dps": 1.0
+   },
+   "7.8": {
+    "min_loaded_rate_dps_over_7deg_cone": 125.4,
+    "at_theta_dir_deg": [
+     7.0,
+     315.0
+    ],
+    "meets_ENG07_100dps": 1.0
+   },
+   "8.0": {
+    "min_loaded_rate_dps_over_7deg_cone": 133.0,
+    "at_theta_dir_deg": [
+     7.0,
+     315.0
+    ],
+    "meets_ENG07_100dps": 1.0
+   },
+   "8.4": {
+    "min_loaded_rate_dps_over_7deg_cone": 150.2,
+    "at_theta_dir_deg": [
+     7.0,
+     315.0
+    ],
+    "meets_ENG07_100dps": 1.0
+   }
+  }
+ },
+ "travel": {
+  "cmd": {
+   "amp_deg": 7.0,
+   "psi_min_deg": [
+    -32.37,
+    -32.37
+   ],
+   "psi_max_deg": [
+    37.39,
+    37.39
+   ],
+   "rod_tilt_max_deg": [
+    7.37,
+    7.37
+   ]
+  },
+  "stop": {
+   "amp_deg": 8.0,
+   "psi_min_deg": [
+    -36.82,
+    -36.82
+   ],
+   "psi_max_deg": [
+    44.22,
+    44.22
+   ],
+   "rod_tilt_max_deg": [
+    8.83,
+    8.83
+   ]
+  }
+ }
+}

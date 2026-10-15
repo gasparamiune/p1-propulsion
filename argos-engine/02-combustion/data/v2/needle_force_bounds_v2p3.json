@@ -1,0 +1,3377 @@
+{
+ "version": "v2.3",
+ "date": "2026-10-12",
+ "script": "02-combustion/src/needle_force_v2p3.py",
+ "sign": "+ closing (needle into the seat)",
+ "inputs": {
+  "seat_D_m": 0.0055,
+  "cone_half_angle_deg": 15.0,
+  "A_seat_m2": 2.3758294442772808e-05,
+  "A_stem_m2": {
+   "3mm": 7.068583470577034e-06,
+   "4mm": 1.2566370614359172e-05
+  },
+  "Pa_Pa": 101325.0,
+  "throttle_map": "data/v2/engine_S230/throttle_map_v2.csv",
+  "throttle_map_sha256_16": "4f2e6d846f7253da",
+  "mechanical_script": "/home/claude/work/mechanical/engine/03-cad/src/calcs/pintle_inline_v34.py",
+  "mechanical_script_sha256_16": "10f5130fb51147ea",
+  "mechanical_json": {
+   "v2p2": [
+    "/home/claude/work/mechanical/engine/03-cad/src/calcs/pintle_inline_v34_v2p2.json",
+    "91892a911c6440cc"
+   ],
+   "v2p1": [
+    "/home/claude/work/mechanical/engine/03-cad/src/calcs/pintle_inline_v34_v2p1.json",
+    "8656e75c5d74f0a4"
+   ],
+   "v2": [
+    "/home/claude/work/mechanical/engine/03-cad/src/calcs/pintle_inline_v34_v2.json",
+    "0de0d0155656f346"
+   ]
+  }
+ },
+ "tags": {
+  "laws": "DERIVED (static pressure-area; no flow-momentum, approach-velocity or flashing terms) - bounds, not a prediction",
+  "throttle_map": "SIM grain_q1d.py v2 (S230, nominal ASSUMED regression law, Dyer pintle Cd 0.70); P1 = Pc (1 + dP/Pc) as simulated",
+  "mechanical_model": "Mechanical pintle_inline_v34.py v2 friction/spring/crank model (ASSUMED frictions), re-run with replaced F_po only"
+ },
+ "hot_fire_D25_summary": {
+  "35bar": [
+   {
+    "frac": 0.125,
+    "lift_mm": 0.2429,
+    "P1_bar": 34.95,
+    "Pc_bar": 4.37,
+    "F_3mm_L0_L1_L2_N": [
+     -23.99,
+     45.49,
+     48.66
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -42.64,
+     26.83,
+     30.0
+    ]
+   },
+   {
+    "frac": 0.15,
+    "lift_mm": 0.2807,
+    "P1_bar": 34.93,
+    "Pc_bar": 4.98,
+    "F_3mm_L0_L1_L2_N": [
+     -23.97,
+     43.59,
+     47.17
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -42.62,
+     24.94,
+     28.53
+    ]
+   },
+   {
+    "frac": 0.2,
+    "lift_mm": 0.3568,
+    "P1_bar": 34.89,
+    "Pc_bar": 6.16,
+    "F_3mm_L0_L1_L2_N": [
+     -23.95,
+     39.95,
+     44.31
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -42.57,
+     21.33,
+     25.68
+    ]
+   },
+   {
+    "frac": 0.25,
+    "lift_mm": 0.4382,
+    "P1_bar": 34.84,
+    "Pc_bar": 7.33,
+    "F_3mm_L0_L1_L2_N": [
+     -23.91,
+     36.34,
+     41.44
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -42.51,
+     17.74,
+     22.85
+    ]
+   },
+   {
+    "frac": 0.3,
+    "lift_mm": 0.5255,
+    "P1_bar": 34.78,
+    "Pc_bar": 8.5,
+    "F_3mm_L0_L1_L2_N": [
+     -23.87,
+     32.74,
+     38.56
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -42.44,
+     14.17,
+     20.0
+    ]
+   },
+   {
+    "frac": 0.4,
+    "lift_mm": 0.7188,
+    "P1_bar": 34.63,
+    "Pc_bar": 10.85,
+    "F_3mm_L0_L1_L2_N": [
+     -23.76,
+     25.6,
+     32.74
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -42.25,
+     7.11,
+     14.26
+    ]
+   },
+   {
+    "frac": 0.5,
+    "lift_mm": 0.941,
+    "P1_bar": 34.43,
+    "Pc_bar": 13.2,
+    "F_3mm_L0_L1_L2_N": [
+     -23.62,
+     18.56,
+     26.82
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -42.0,
+     0.18,
+     8.44
+    ]
+   },
+   {
+    "frac": 0.75,
+    "lift_mm": 1.6789,
+    "P1_bar": 33.73,
+    "Pc_bar": 19.1,
+    "F_3mm_L0_L1_L2_N": [
+     -23.12,
+     1.83,
+     11.63
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -41.11,
+     -16.16,
+     -6.36
+    ]
+   },
+   {
+    "frac": 1.0,
+    "lift_mm": 2.9815,
+    "P1_bar": 32.8,
+    "Pc_bar": 25.01,
+    "F_3mm_L0_L1_L2_N": [
+     -22.47,
+     -12.63,
+     -3.96
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -39.94,
+     -30.11,
+     -21.44
+    ]
+   }
+  ],
+  "40bar": [
+   {
+    "frac": 0.125,
+    "lift_mm": 0.2278,
+    "P1_bar": 39.95,
+    "Pc_bar": 4.37,
+    "F_3mm_L0_L1_L2_N": [
+     -27.52,
+     53.54,
+     57.0
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -48.93,
+     32.13,
+     35.6
+    ]
+   },
+   {
+    "frac": 0.15,
+    "lift_mm": 0.2629,
+    "P1_bar": 39.93,
+    "Pc_bar": 4.98,
+    "F_3mm_L0_L1_L2_N": [
+     -27.51,
+     51.6,
+     55.52
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -48.9,
+     30.2,
+     34.12
+    ]
+   },
+   {
+    "frac": 0.2,
+    "lift_mm": 0.3333,
+    "P1_bar": 39.89,
+    "Pc_bar": 6.16,
+    "F_3mm_L0_L1_L2_N": [
+     -27.48,
+     47.87,
+     52.66
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -48.86,
+     26.5,
+     31.28
+    ]
+   },
+   {
+    "frac": 0.25,
+    "lift_mm": 0.4081,
+    "P1_bar": 39.84,
+    "Pc_bar": 7.33,
+    "F_3mm_L0_L1_L2_N": [
+     -27.45,
+     44.16,
+     49.79
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -48.8,
+     22.82,
+     28.44
+    ]
+   },
+   {
+    "frac": 0.3,
+    "lift_mm": 0.4878,
+    "P1_bar": 39.78,
+    "Pc_bar": 8.5,
+    "F_3mm_L0_L1_L2_N": [
+     -27.41,
+     40.46,
+     46.91
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -48.72,
+     19.15,
+     25.59
+    ]
+   },
+   {
+    "frac": 0.4,
+    "lift_mm": 0.6625,
+    "P1_bar": 39.63,
+    "Pc_bar": 10.85,
+    "F_3mm_L0_L1_L2_N": [
+     -27.3,
+     33.1,
+     41.09
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -48.53,
+     11.86,
+     19.85
+    ]
+   },
+   {
+    "frac": 0.5,
+    "lift_mm": 0.8596,
+    "P1_bar": 39.43,
+    "Pc_bar": 13.2,
+    "F_3mm_L0_L1_L2_N": [
+     -27.16,
+     25.8,
+     35.16
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -48.28,
+     4.68,
+     14.04
+    ]
+   },
+   {
+    "frac": 0.75,
+    "lift_mm": 1.4808,
+    "P1_bar": 38.72,
+    "Pc_bar": 19.1,
+    "F_3mm_L0_L1_L2_N": [
+     -26.66,
+     8.26,
+     19.97
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -47.39,
+     -12.47,
+     -0.76
+    ]
+   },
+   {
+    "frac": 1.0,
+    "lift_mm": 2.4318,
+    "P1_bar": 37.73,
+    "Pc_bar": 25.01,
+    "F_3mm_L0_L1_L2_N": [
+     -25.95,
+     -7.62,
+     4.27
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -46.14,
+     -27.8,
+     -15.92
+    ]
+   }
+  ],
+  "45bar": [
+   {
+    "frac": 0.125,
+    "lift_mm": 0.216,
+    "P1_bar": 44.95,
+    "Pc_bar": 4.37,
+    "F_3mm_L0_L1_L2_N": [
+     -31.05,
+     61.6,
+     65.35
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -55.21,
+     37.45,
+     41.2
+    ]
+   },
+   {
+    "frac": 0.15,
+    "lift_mm": 0.2491,
+    "P1_bar": 44.93,
+    "Pc_bar": 4.98,
+    "F_3mm_L0_L1_L2_N": [
+     -31.04,
+     59.61,
+     63.86
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -55.19,
+     35.47,
+     39.72
+    ]
+   },
+   {
+    "frac": 0.2,
+    "lift_mm": 0.3151,
+    "P1_bar": 44.89,
+    "Pc_bar": 6.16,
+    "F_3mm_L0_L1_L2_N": [
+     -31.02,
+     55.81,
+     61.0
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -55.14,
+     31.68,
+     36.88
+    ]
+   },
+   {
+    "frac": 0.25,
+    "lift_mm": 0.3851,
+    "P1_bar": 44.84,
+    "Pc_bar": 7.33,
+    "F_3mm_L0_L1_L2_N": [
+     -30.98,
+     52.0,
+     58.13
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -55.08,
+     27.91,
+     34.04
+    ]
+   },
+   {
+    "frac": 0.3,
+    "lift_mm": 0.4592,
+    "P1_bar": 44.78,
+    "Pc_bar": 8.5,
+    "F_3mm_L0_L1_L2_N": [
+     -30.94,
+     48.21,
+     55.25
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -55.0,
+     24.14,
+     31.19
+    ]
+   },
+   {
+    "frac": 0.4,
+    "lift_mm": 0.6204,
+    "P1_bar": 44.63,
+    "Pc_bar": 10.85,
+    "F_3mm_L0_L1_L2_N": [
+     -30.83,
+     40.63,
+     49.43
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -54.81,
+     16.65,
+     25.45
+    ]
+   },
+   {
+    "frac": 0.5,
+    "lift_mm": 0.8,
+    "P1_bar": 44.43,
+    "Pc_bar": 13.2,
+    "F_3mm_L0_L1_L2_N": [
+     -30.69,
+     33.11,
+     43.51
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -54.56,
+     9.24,
+     19.64
+    ]
+   },
+   {
+    "frac": 0.75,
+    "lift_mm": 1.3472,
+    "P1_bar": 43.72,
+    "Pc_bar": 19.1,
+    "F_3mm_L0_L1_L2_N": [
+     -30.19,
+     14.86,
+     28.31
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -53.67,
+     -8.62,
+     4.83
+    ]
+   },
+   {
+    "frac": 1.0,
+    "lift_mm": 2.1192,
+    "P1_bar": 42.71,
+    "Pc_bar": 25.01,
+    "F_3mm_L0_L1_L2_N": [
+     -29.47,
+     -2.07,
+     12.57
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -52.39,
+     -24.99,
+     -10.35
+    ]
+   }
+  ],
+  "50bar": [
+   {
+    "frac": 0.125,
+    "lift_mm": 0.2068,
+    "P1_bar": 49.95,
+    "Pc_bar": 4.37,
+    "F_3mm_L0_L1_L2_N": [
+     -34.59,
+     69.66,
+     73.69
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -61.49,
+     42.76,
+     46.79
+    ]
+   },
+   {
+    "frac": 0.15,
+    "lift_mm": 0.2382,
+    "P1_bar": 49.93,
+    "Pc_bar": 4.98,
+    "F_3mm_L0_L1_L2_N": [
+     -34.58,
+     67.63,
+     72.21
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -61.47,
+     40.74,
+     45.31
+    ]
+   },
+   {
+    "frac": 0.2,
+    "lift_mm": 0.301,
+    "P1_bar": 49.89,
+    "Pc_bar": 6.16,
+    "F_3mm_L0_L1_L2_N": [
+     -34.55,
+     63.74,
+     69.34
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -61.42,
+     36.87,
+     42.47
+    ]
+   },
+   {
+    "frac": 0.25,
+    "lift_mm": 0.3672,
+    "P1_bar": 49.84,
+    "Pc_bar": 7.33,
+    "F_3mm_L0_L1_L2_N": [
+     -34.52,
+     59.85,
+     66.48
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -61.36,
+     33.0,
+     39.63
+    ]
+   },
+   {
+    "frac": 0.3,
+    "lift_mm": 0.4371,
+    "P1_bar": 49.78,
+    "Pc_bar": 8.5,
+    "F_3mm_L0_L1_L2_N": [
+     -34.47,
+     55.96,
+     63.6
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -61.29,
+     29.15,
+     36.79
+    ]
+   },
+   {
+    "frac": 0.4,
+    "lift_mm": 0.5882,
+    "P1_bar": 49.63,
+    "Pc_bar": 10.85,
+    "F_3mm_L0_L1_L2_N": [
+     -34.37,
+     48.19,
+     57.78
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -61.1,
+     21.46,
+     31.05
+    ]
+   },
+   {
+    "frac": 0.5,
+    "lift_mm": 0.755,
+    "P1_bar": 49.43,
+    "Pc_bar": 13.2,
+    "F_3mm_L0_L1_L2_N": [
+     -34.23,
+     40.44,
+     51.85
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -60.85,
+     13.82,
+     25.23
+    ]
+   },
+   {
+    "frac": 0.75,
+    "lift_mm": 1.2516,
+    "P1_bar": 48.72,
+    "Pc_bar": 19.1,
+    "F_3mm_L0_L1_L2_N": [
+     -33.72,
+     21.55,
+     36.65
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -59.95,
+     -4.68,
+     10.42
+    ]
+   },
+   {
+    "frac": 1.0,
+    "lift_mm": 1.916,
+    "P1_bar": 47.7,
+    "Pc_bar": 25.01,
+    "F_3mm_L0_L1_L2_N": [
+     -33.0,
+     3.76,
+     20.9
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -58.66,
+     -21.91,
+     -4.77
+    ]
+   }
+  ],
+  "55bar": [
+   {
+    "frac": 0.125,
+    "lift_mm": 0.1996,
+    "P1_bar": 54.95,
+    "Pc_bar": 4.37,
+    "F_3mm_L0_L1_L2_N": [
+     -38.12,
+     77.72,
+     82.04
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -67.78,
+     48.07,
+     52.39
+    ]
+   },
+   {
+    "frac": 0.15,
+    "lift_mm": 0.2299,
+    "P1_bar": 54.93,
+    "Pc_bar": 4.98,
+    "F_3mm_L0_L1_L2_N": [
+     -38.11,
+     75.64,
+     80.55
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -67.75,
+     46.0,
+     50.91
+    ]
+   },
+   {
+    "frac": 0.2,
+    "lift_mm": 0.29,
+    "P1_bar": 54.89,
+    "Pc_bar": 6.16,
+    "F_3mm_L0_L1_L2_N": [
+     -38.08,
+     71.67,
+     77.69
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -67.71,
+     42.04,
+     48.07
+    ]
+   },
+   {
+    "frac": 0.25,
+    "lift_mm": 0.3534,
+    "P1_bar": 54.84,
+    "Pc_bar": 7.33,
+    "F_3mm_L0_L1_L2_N": [
+     -38.05,
+     67.69,
+     74.82
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -67.64,
+     38.09,
+     45.23
+    ]
+   },
+   {
+    "frac": 0.3,
+    "lift_mm": 0.4201,
+    "P1_bar": 54.78,
+    "Pc_bar": 8.5,
+    "F_3mm_L0_L1_L2_N": [
+     -38.01,
+     63.71,
+     71.94
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -67.57,
+     34.14,
+     42.38
+    ]
+   },
+   {
+    "frac": 0.4,
+    "lift_mm": 0.5637,
+    "P1_bar": 54.63,
+    "Pc_bar": 10.85,
+    "F_3mm_L0_L1_L2_N": [
+     -37.9,
+     55.73,
+     66.12
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -67.38,
+     26.25,
+     36.64
+    ]
+   },
+   {
+    "frac": 0.5,
+    "lift_mm": 0.721,
+    "P1_bar": 54.43,
+    "Pc_bar": 13.2,
+    "F_3mm_L0_L1_L2_N": [
+     -37.76,
+     47.78,
+     60.2
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -67.13,
+     18.41,
+     30.83
+    ]
+   },
+   {
+    "frac": 0.75,
+    "lift_mm": 1.1813,
+    "P1_bar": 53.72,
+    "Pc_bar": 19.1,
+    "F_3mm_L0_L1_L2_N": [
+     -37.26,
+     28.28,
+     45.0
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -66.23,
+     -0.7,
+     16.02
+    ]
+   },
+   {
+    "frac": 1.0,
+    "lift_mm": 1.7749,
+    "P1_bar": 52.69,
+    "Pc_bar": 25.01,
+    "F_3mm_L0_L1_L2_N": [
+     -36.53,
+     9.72,
+     29.23
+    ],
+    "F_4mm_L0_L1_L2_N": [
+     -64.94,
+     -18.69,
+     0.82
+    ]
+   }
+  ]
+ },
+ "hot_fire_envelope_all_rows_N": {
+  "3mm": {
+   "L0_min": -38.12,
+   "L1_min": -12.63,
+   "L1_max": 77.72,
+   "L2_max": 82.04
+  },
+  "4mm": {
+   "L0_min": -67.78,
+   "L1_min": -30.11,
+   "L1_max": 48.07,
+   "L2_max": 52.39
+  }
+ },
+ "unlit_opening_force_vs_lift": {
+  "P1_35.0bar_ambient": [
+   {
+    "lift_mm": 0.0,
+    "r_throat_mm": 2.75,
+    "3mm_L0_L1_L2_N": [
+     56.7,
+     56.7,
+     56.7
+    ],
+    "4mm_L0_L1_L2_N": [
+     38.0,
+     38.0,
+     38.0
+    ]
+   },
+   {
+    "lift_mm": 0.05,
+    "r_throat_mm": 2.737,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     56.0,
+     56.7
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     37.3,
+     38.0
+    ]
+   },
+   {
+    "lift_mm": 0.1,
+    "r_throat_mm": 2.725,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     55.3,
+     56.7
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     36.6,
+     38.0
+    ]
+   },
+   {
+    "lift_mm": 0.2,
+    "r_throat_mm": 2.7,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     53.8,
+     56.7
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     35.1,
+     38.0
+    ]
+   },
+   {
+    "lift_mm": 0.5,
+    "r_throat_mm": 2.625,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     49.5,
+     56.7
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     30.9,
+     38.0
+    ]
+   },
+   {
+    "lift_mm": 1.0,
+    "r_throat_mm": 2.5,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     42.7,
+     56.7
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     24.0,
+     38.0
+    ]
+   },
+   {
+    "lift_mm": 2.0,
+    "r_throat_mm": 2.25,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     30.0,
+     56.7
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     11.3,
+     38.0
+    ]
+   },
+   {
+    "lift_mm": 3.0,
+    "r_throat_mm": 2.0,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     18.7,
+     56.7
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     0.0,
+     38.0
+    ]
+   },
+   {
+    "lift_mm": 4.0,
+    "r_throat_mm": 1.75,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     8.7,
+     56.7
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     -10.0,
+     38.0
+    ]
+   },
+   {
+    "lift_mm": 4.2,
+    "r_throat_mm": 1.7,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     6.8,
+     56.7
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     -11.9,
+     38.0
+    ]
+   }
+  ],
+  "P1_35.0bar_torch_1p5bar": [
+   {
+    "lift_mm": 0.0,
+    "r_throat_mm": 2.75,
+    "3mm_L0_L1_L2_N": [
+     55.6,
+     55.6,
+     55.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     36.9,
+     36.9,
+     36.9
+    ]
+   },
+   {
+    "lift_mm": 0.05,
+    "r_throat_mm": 2.737,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     54.8,
+     55.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     36.2,
+     36.9
+    ]
+   },
+   {
+    "lift_mm": 0.1,
+    "r_throat_mm": 2.725,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     54.1,
+     55.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     35.4,
+     36.9
+    ]
+   },
+   {
+    "lift_mm": 0.2,
+    "r_throat_mm": 2.7,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     52.7,
+     55.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     34.0,
+     36.9
+    ]
+   },
+   {
+    "lift_mm": 0.5,
+    "r_throat_mm": 2.625,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     48.5,
+     55.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     29.8,
+     36.9
+    ]
+   },
+   {
+    "lift_mm": 1.0,
+    "r_throat_mm": 2.5,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     41.8,
+     55.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     23.1,
+     36.9
+    ]
+   },
+   {
+    "lift_mm": 2.0,
+    "r_throat_mm": 2.25,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     29.3,
+     55.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     10.6,
+     36.9
+    ]
+   },
+   {
+    "lift_mm": 3.0,
+    "r_throat_mm": 2.0,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     18.1,
+     55.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     -0.6,
+     36.9
+    ]
+   },
+   {
+    "lift_mm": 4.0,
+    "r_throat_mm": 1.75,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     8.2,
+     55.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     -10.5,
+     36.9
+    ]
+   },
+   {
+    "lift_mm": 4.2,
+    "r_throat_mm": 1.7,
+    "3mm_L0_L1_L2_N": [
+     -24.0,
+     6.4,
+     55.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -42.7,
+     -12.3,
+     36.9
+    ]
+   }
+  ],
+  "P1_50.5bar_ambient": [
+   {
+    "lift_mm": 0.0,
+    "r_throat_mm": 2.75,
+    "3mm_L0_L1_L2_N": [
+     82.6,
+     82.6,
+     82.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     55.4,
+     55.4,
+     55.4
+    ]
+   },
+   {
+    "lift_mm": 0.05,
+    "r_throat_mm": 2.737,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     81.5,
+     82.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     54.3,
+     55.4
+    ]
+   },
+   {
+    "lift_mm": 0.1,
+    "r_throat_mm": 2.725,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     80.5,
+     82.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     53.3,
+     55.4
+    ]
+   },
+   {
+    "lift_mm": 0.2,
+    "r_throat_mm": 2.7,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     78.4,
+     82.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     51.1,
+     55.4
+    ]
+   },
+   {
+    "lift_mm": 0.5,
+    "r_throat_mm": 2.625,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     72.1,
+     82.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     44.9,
+     55.4
+    ]
+   },
+   {
+    "lift_mm": 1.0,
+    "r_throat_mm": 2.5,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     62.2,
+     82.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     35.0,
+     55.4
+    ]
+   },
+   {
+    "lift_mm": 2.0,
+    "r_throat_mm": 2.25,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     43.7,
+     82.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     16.5,
+     55.4
+    ]
+   },
+   {
+    "lift_mm": 3.0,
+    "r_throat_mm": 2.0,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     27.2,
+     82.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     0.0,
+     55.4
+    ]
+   },
+   {
+    "lift_mm": 4.0,
+    "r_throat_mm": 1.75,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     12.6,
+     82.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     -14.6,
+     55.4
+    ]
+   },
+   {
+    "lift_mm": 4.2,
+    "r_throat_mm": 1.7,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     9.9,
+     82.6
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     -17.3,
+     55.4
+    ]
+   }
+  ],
+  "P1_50.5bar_torch_1p5bar": [
+   {
+    "lift_mm": 0.0,
+    "r_throat_mm": 2.75,
+    "3mm_L0_L1_L2_N": [
+     81.4,
+     81.4,
+     81.4
+    ],
+    "4mm_L0_L1_L2_N": [
+     54.2,
+     54.2,
+     54.2
+    ]
+   },
+   {
+    "lift_mm": 0.05,
+    "r_throat_mm": 2.737,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     80.4,
+     81.4
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     53.2,
+     54.2
+    ]
+   },
+   {
+    "lift_mm": 0.1,
+    "r_throat_mm": 2.725,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     79.3,
+     81.4
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     52.1,
+     54.2
+    ]
+   },
+   {
+    "lift_mm": 0.2,
+    "r_throat_mm": 2.7,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     77.2,
+     81.4
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     50.0,
+     54.2
+    ]
+   },
+   {
+    "lift_mm": 0.5,
+    "r_throat_mm": 2.625,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     71.1,
+     81.4
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     43.9,
+     54.2
+    ]
+   },
+   {
+    "lift_mm": 1.0,
+    "r_throat_mm": 2.5,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     61.2,
+     81.4
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     34.0,
+     54.2
+    ]
+   },
+   {
+    "lift_mm": 2.0,
+    "r_throat_mm": 2.25,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     43.0,
+     81.4
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     15.7,
+     54.2
+    ]
+   },
+   {
+    "lift_mm": 3.0,
+    "r_throat_mm": 2.0,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     26.6,
+     81.4
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     -0.6,
+     54.2
+    ]
+   },
+   {
+    "lift_mm": 4.0,
+    "r_throat_mm": 1.75,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     12.2,
+     81.4
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     -15.0,
+     54.2
+    ]
+   },
+   {
+    "lift_mm": 4.2,
+    "r_throat_mm": 1.7,
+    "3mm_L0_L1_L2_N": [
+     -35.0,
+     9.5,
+     81.4
+    ],
+    "4mm_L0_L1_L2_N": [
+     -62.2,
+     -17.7,
+     54.2
+    ]
+   }
+  ],
+  "P1_55.0bar_ambient": [
+   {
+    "lift_mm": 0.0,
+    "r_throat_mm": 2.75,
+    "3mm_L0_L1_L2_N": [
+     90.1,
+     90.1,
+     90.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     60.4,
+     60.4,
+     60.4
+    ]
+   },
+   {
+    "lift_mm": 0.05,
+    "r_throat_mm": 2.737,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     88.9,
+     90.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     59.3,
+     60.4
+    ]
+   },
+   {
+    "lift_mm": 0.1,
+    "r_throat_mm": 2.725,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     87.8,
+     90.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     58.1,
+     60.4
+    ]
+   },
+   {
+    "lift_mm": 0.2,
+    "r_throat_mm": 2.7,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     85.5,
+     90.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     55.8,
+     60.4
+    ]
+   },
+   {
+    "lift_mm": 0.5,
+    "r_throat_mm": 2.625,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     78.7,
+     90.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     49.0,
+     60.4
+    ]
+   },
+   {
+    "lift_mm": 1.0,
+    "r_throat_mm": 2.5,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     67.8,
+     90.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     38.2,
+     60.4
+    ]
+   },
+   {
+    "lift_mm": 2.0,
+    "r_throat_mm": 2.25,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     47.7,
+     90.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     18.0,
+     60.4
+    ]
+   },
+   {
+    "lift_mm": 3.0,
+    "r_throat_mm": 2.0,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     29.7,
+     90.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     0.0,
+     60.4
+    ]
+   },
+   {
+    "lift_mm": 4.0,
+    "r_throat_mm": 1.75,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     13.8,
+     90.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     -15.9,
+     60.4
+    ]
+   },
+   {
+    "lift_mm": 4.2,
+    "r_throat_mm": 1.7,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     10.9,
+     90.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     -18.8,
+     60.4
+    ]
+   }
+  ],
+  "P1_55.0bar_torch_1p5bar": [
+   {
+    "lift_mm": 0.0,
+    "r_throat_mm": 2.75,
+    "3mm_L0_L1_L2_N": [
+     88.9,
+     88.9,
+     88.9
+    ],
+    "4mm_L0_L1_L2_N": [
+     59.3,
+     59.3,
+     59.3
+    ]
+   },
+   {
+    "lift_mm": 0.05,
+    "r_throat_mm": 2.737,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     87.8,
+     88.9
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     58.1,
+     59.3
+    ]
+   },
+   {
+    "lift_mm": 0.1,
+    "r_throat_mm": 2.725,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     86.6,
+     88.9
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     57.0,
+     59.3
+    ]
+   },
+   {
+    "lift_mm": 0.2,
+    "r_throat_mm": 2.7,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     84.4,
+     88.9
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     54.7,
+     59.3
+    ]
+   },
+   {
+    "lift_mm": 0.5,
+    "r_throat_mm": 2.625,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     77.7,
+     88.9
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     48.0,
+     59.3
+    ]
+   },
+   {
+    "lift_mm": 1.0,
+    "r_throat_mm": 2.5,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     66.9,
+     88.9
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     37.2,
+     59.3
+    ]
+   },
+   {
+    "lift_mm": 2.0,
+    "r_throat_mm": 2.25,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     46.9,
+     88.9
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     17.2,
+     59.3
+    ]
+   },
+   {
+    "lift_mm": 3.0,
+    "r_throat_mm": 2.0,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     29.1,
+     88.9
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     -0.6,
+     59.3
+    ]
+   },
+   {
+    "lift_mm": 4.0,
+    "r_throat_mm": 1.75,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     13.3,
+     88.9
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     -16.4,
+     59.3
+    ]
+   },
+   {
+    "lift_mm": 4.2,
+    "r_throat_mm": 1.7,
+    "3mm_L0_L1_L2_N": [
+     -38.2,
+     10.4,
+     88.9
+    ],
+    "4mm_L0_L1_L2_N": [
+     -67.8,
+     -19.3,
+     59.3
+    ]
+   }
+  ],
+  "P1_70.0bar_ambient": [
+   {
+    "lift_mm": 0.0,
+    "r_throat_mm": 2.75,
+    "3mm_L0_L1_L2_N": [
+     115.1,
+     115.1,
+     115.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     77.2,
+     77.2,
+     77.2
+    ]
+   },
+   {
+    "lift_mm": 0.05,
+    "r_throat_mm": 2.737,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     113.7,
+     115.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     75.7,
+     77.2
+    ]
+   },
+   {
+    "lift_mm": 0.1,
+    "r_throat_mm": 2.725,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     112.2,
+     115.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     74.2,
+     77.2
+    ]
+   },
+   {
+    "lift_mm": 0.2,
+    "r_throat_mm": 2.7,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     109.2,
+     115.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     71.3,
+     77.2
+    ]
+   },
+   {
+    "lift_mm": 0.5,
+    "r_throat_mm": 2.625,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     100.6,
+     115.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     62.6,
+     77.2
+    ]
+   },
+   {
+    "lift_mm": 1.0,
+    "r_throat_mm": 2.5,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     86.7,
+     115.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     48.8,
+     77.2
+    ]
+   },
+   {
+    "lift_mm": 2.0,
+    "r_throat_mm": 2.25,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     61.0,
+     115.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     23.0,
+     77.2
+    ]
+   },
+   {
+    "lift_mm": 3.0,
+    "r_throat_mm": 2.0,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     37.9,
+     115.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     0.0,
+     77.2
+    ]
+   },
+   {
+    "lift_mm": 4.0,
+    "r_throat_mm": 1.75,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     17.6,
+     115.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     -20.3,
+     77.2
+    ]
+   },
+   {
+    "lift_mm": 4.2,
+    "r_throat_mm": 1.7,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     13.9,
+     115.1
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     -24.1,
+     77.2
+    ]
+   }
+  ],
+  "P1_70.0bar_torch_1p5bar": [
+   {
+    "lift_mm": 0.0,
+    "r_throat_mm": 2.75,
+    "3mm_L0_L1_L2_N": [
+     114.0,
+     114.0,
+     114.0
+    ],
+    "4mm_L0_L1_L2_N": [
+     76.1,
+     76.1,
+     76.1
+    ]
+   },
+   {
+    "lift_mm": 0.05,
+    "r_throat_mm": 2.737,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     112.5,
+     114.0
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     74.6,
+     76.1
+    ]
+   },
+   {
+    "lift_mm": 0.1,
+    "r_throat_mm": 2.725,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     111.0,
+     114.0
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     73.1,
+     76.1
+    ]
+   },
+   {
+    "lift_mm": 0.2,
+    "r_throat_mm": 2.7,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     108.1,
+     114.0
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     70.2,
+     76.1
+    ]
+   },
+   {
+    "lift_mm": 0.5,
+    "r_throat_mm": 2.625,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     99.5,
+     114.0
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     61.6,
+     76.1
+    ]
+   },
+   {
+    "lift_mm": 1.0,
+    "r_throat_mm": 2.5,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     85.7,
+     114.0
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     47.8,
+     76.1
+    ]
+   },
+   {
+    "lift_mm": 2.0,
+    "r_throat_mm": 2.25,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     60.2,
+     114.0
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     22.3,
+     76.1
+    ]
+   },
+   {
+    "lift_mm": 3.0,
+    "r_throat_mm": 2.0,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     37.3,
+     114.0
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     -0.6,
+     76.1
+    ]
+   },
+   {
+    "lift_mm": 4.0,
+    "r_throat_mm": 1.75,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     17.1,
+     114.0
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     -20.8,
+     76.1
+    ]
+   },
+   {
+    "lift_mm": 4.2,
+    "r_throat_mm": 1.7,
+    "3mm_L0_L1_L2_N": [
+     -48.8,
+     13.4,
+     114.0
+    ],
+    "4mm_L0_L1_L2_N": [
+     -86.7,
+     -24.5,
+     76.1
+    ]
+   }
+  ]
+ },
+ "unlit_note": "P1 = tank pressure (no line loss at crack; with full-stroke flow the line loss lowers P1); 5.05 MPa = saturated N2O at 20 C (CoolProp, combustion.json), 7.0 MPa = tank MEOP (LEAD v0). Cold flow and the start before Pc rises are these cases.",
+ "cases": {
+  "S3mu20_T0.30_baseline": {
+   "config": "S3_PTFE15mu20_plainpins",
+   "spring_T0_Nm": 0.3,
+   "spring_k_Nm_per_rad": 0.1
+  },
+  "S3mu10_T0.30": {
+   "config": "S3_PTFE15_plainpins",
+   "spring_T0_Nm": 0.3,
+   "spring_k_Nm_per_rad": 0.1
+  },
+  "v2p1_baseline": {
+   "config": "S3_PTFE15_plainpins",
+   "spring_T0_Nm": 0.19,
+   "spring_k_Nm_per_rad": 0.17
+  },
+  "v2_baseline": {
+   "config": "S3_PTFE18_plainpins",
+   "spring_T0_Nm": 0.18,
+   "spring_k_Nm_per_rad": 0.175
+  },
+  "S4_rolling_own_spring": {
+   "config": "S4_rolling_ballpins",
+   "spring_T0_Nm": 0.31,
+   "spring_k_Nm_per_rad": 0.1
+  },
+  "S4_PTFE18_with_v2p1_spring": {
+   "config": "S4_PTFE18_plainpins",
+   "spring_T0_Nm": 0.19,
+   "spring_k_Nm_per_rad": 0.17
+  }
+ },
+ "mechanical_C1_C2_rerun": {
+  "P_down": "ambient (cold flow / unlit full stroke to the 4.2 mm stop); hot fire lowers the closing force (P_down = Pc), see flight_line_C2",
+  "results": {
+   "S3mu20_T0.30_baseline": {
+    "L0": {
+     "bench": {
+      "open_demand_max_Nm": 0.597,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.51,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.241,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.509,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.77,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.156,
+      "assist_at_lift_mm": 1.454
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.498,
+      "at_lift_mm": 0.0,
+      "margin_vs_stall_7V4": 1.81,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.094,
+      "assist_at_lift_mm": 1.765
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.537,
+      "at_lift_mm": 0.0,
+      "margin_vs_stall_7V4": 1.68,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.047,
+      "assist_at_lift_mm": 1.914
+     }
+    },
+    "L1": {
+     "bench": {
+      "open_demand_max_Nm": 0.597,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.51,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.241,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.659,
+      "at_lift_mm": 2.064,
+      "margin_vs_stall_7V4": 1.37,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.288,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.745,
+      "at_lift_mm": 1.62,
+      "margin_vs_stall_7V4": 1.21,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.305,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.813,
+      "at_lift_mm": 1.477,
+      "margin_vs_stall_7V4": 1.11,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.317,
+      "assist_at_lift_mm": 0.0
+     }
+    },
+    "L2": {
+     "bench": {
+      "open_demand_max_Nm": 0.597,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.51,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.241,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.839,
+      "at_lift_mm": 3.775,
+      "margin_vs_stall_7V4": 1.07,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.288,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.991,
+      "at_lift_mm": 3.453,
+      "margin_vs_stall_7V4": 0.91,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.305,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 1.107,
+      "at_lift_mm": 3.326,
+      "margin_vs_stall_7V4": 0.81,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.317,
+      "assist_at_lift_mm": 0.0
+     }
+    }
+   },
+   "S3mu10_T0.30": {
+    "L0": {
+     "bench": {
+      "open_demand_max_Nm": 0.583,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.55,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.246,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.507,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.77,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.189,
+      "assist_at_lift_mm": 1.16
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.478,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.88,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.141,
+      "assist_at_lift_mm": 1.525
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.5,
+      "at_lift_mm": 0.0,
+      "margin_vs_stall_7V4": 1.8,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.103,
+      "assist_at_lift_mm": 1.716
+     }
+    },
+    "L1": {
+     "bench": {
+      "open_demand_max_Nm": 0.583,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.55,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.246,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.619,
+      "at_lift_mm": 2.345,
+      "margin_vs_stall_7V4": 1.45,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.291,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.685,
+      "at_lift_mm": 1.741,
+      "margin_vs_stall_7V4": 1.31,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.309,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.74,
+      "at_lift_mm": 1.548,
+      "margin_vs_stall_7V4": 1.22,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.323,
+      "assist_at_lift_mm": 0.0
+     }
+    },
+    "L2": {
+     "bench": {
+      "open_demand_max_Nm": 0.583,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.55,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.246,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.777,
+      "at_lift_mm": 4.038,
+      "margin_vs_stall_7V4": 1.16,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.291,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.898,
+      "at_lift_mm": 3.628,
+      "margin_vs_stall_7V4": 1.0,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.309,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.991,
+      "at_lift_mm": 3.478,
+      "margin_vs_stall_7V4": 0.91,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.323,
+      "assist_at_lift_mm": 0.0
+     }
+    }
+   },
+   "v2p1_baseline": {
+    "L0": {
+     "bench": {
+      "open_demand_max_Nm": 0.593,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.52,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.147,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.518,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.74,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.116,
+      "assist_at_lift_mm": 0.126
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.489,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.84,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.082,
+      "assist_at_lift_mm": 0.734
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.467,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.93,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.05,
+      "assist_at_lift_mm": 1.032
+     }
+    },
+    "L1": {
+     "bench": {
+      "open_demand_max_Nm": 0.593,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.52,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.147,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.617,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.46,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.192,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.639,
+      "at_lift_mm": 2.448,
+      "margin_vs_stall_7V4": 1.41,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.21,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.686,
+      "at_lift_mm": 1.964,
+      "margin_vs_stall_7V4": 1.31,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.224,
+      "assist_at_lift_mm": 0.0
+     }
+    },
+    "L2": {
+     "bench": {
+      "open_demand_max_Nm": 0.593,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.52,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.147,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.787,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.14,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.192,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.902,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.0,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.21,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.989,
+      "at_lift_mm": 3.991,
+      "margin_vs_stall_7V4": 0.91,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.224,
+      "assist_at_lift_mm": 0.0
+     }
+    }
+   },
+   "v2_baseline": {
+    "L0": {
+     "bench": {
+      "open_demand_max_Nm": 0.59,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.53,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.139,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.516,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.74,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.11,
+      "assist_at_lift_mm": 0.105
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.486,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.85,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.08,
+      "assist_at_lift_mm": 0.625
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.464,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.94,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.05,
+      "assist_at_lift_mm": 0.949
+     }
+    },
+    "L1": {
+     "bench": {
+      "open_demand_max_Nm": 0.59,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.53,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.139,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.613,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.47,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.183,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.628,
+      "at_lift_mm": 2.63,
+      "margin_vs_stall_7V4": 1.43,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.202,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.672,
+      "at_lift_mm": 2.064,
+      "margin_vs_stall_7V4": 1.34,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.216,
+      "assist_at_lift_mm": 0.0
+     }
+    },
+    "L2": {
+     "bench": {
+      "open_demand_max_Nm": 0.59,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.53,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.139,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.779,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.16,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.183,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.89,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.01,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.202,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.973,
+      "at_lift_mm": 4.062,
+      "margin_vs_stall_7V4": 0.92,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.216,
+      "assist_at_lift_mm": 0.0
+     }
+    }
+   },
+   "S4_rolling_own_spring": {
+    "L0": {
+     "bench": {
+      "open_demand_max_Nm": 0.596,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.51,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.257,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.483,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.86,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.163,
+      "assist_at_lift_mm": 1.525
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.417,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 2.16,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.091,
+      "assist_at_lift_mm": 1.839
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.43,
+      "at_lift_mm": 0.0,
+      "margin_vs_stall_7V4": 2.09,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.036,
+      "assist_at_lift_mm": 1.989
+     }
+    },
+    "L1": {
+     "bench": {
+      "open_demand_max_Nm": 0.596,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.51,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.257,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.564,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.59,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.29,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.574,
+      "at_lift_mm": 1.765,
+      "margin_vs_stall_7V4": 1.57,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.309,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.594,
+      "at_lift_mm": 1.477,
+      "margin_vs_stall_7V4": 1.51,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.301,
+      "assist_at_lift_mm": 3.991
+     }
+    },
+    "L2": {
+     "bench": {
+      "open_demand_max_Nm": 0.596,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.51,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.257,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.698,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.29,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.29,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.758,
+      "at_lift_mm": 4.062,
+      "margin_vs_stall_7V4": 1.19,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.309,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.804,
+      "at_lift_mm": 3.824,
+      "margin_vs_stall_7V4": 1.12,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.323,
+      "assist_at_lift_mm": 0.0
+     }
+    }
+   },
+   "S4_PTFE18_with_v2p1_spring": {
+    "L0": {
+     "bench": {
+      "open_demand_max_Nm": 0.612,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.47,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.14,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.492,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.83,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.056,
+      "assist_at_lift_mm": 0.99
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.438,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 2.05,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": -0.026,
+      "assist_at_lift_mm": 1.454
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.398,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 2.26,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": -0.09,
+      "assist_at_lift_mm": 1.644
+     }
+    },
+    "L1": {
+     "bench": {
+      "open_demand_max_Nm": 0.612,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.47,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.14,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.573,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.57,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.178,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.55,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.64,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.191,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.564,
+      "at_lift_mm": 1.765,
+      "margin_vs_stall_7V4": 1.6,
+      "C2_pass(<=stall/1.5=0.60)": true,
+      "close_assist_min_Nm(-10% spring)": 0.2,
+      "assist_at_lift_mm": 0.0
+     }
+    },
+    "L2": {
+     "bench": {
+      "open_demand_max_Nm": 0.612,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.47,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.14,
+      "assist_at_lift_mm": 0.0
+     },
+     "P3.5MPa": {
+      "open_demand_max_Nm": 0.739,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.22,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.178,
+      "assist_at_lift_mm": 0.0
+     },
+     "P5.5MPa": {
+      "open_demand_max_Nm": 0.813,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.11,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.191,
+      "assist_at_lift_mm": 0.0
+     },
+     "MEOP": {
+      "open_demand_max_Nm": 0.869,
+      "at_lift_mm": 4.2,
+      "margin_vs_stall_7V4": 1.04,
+      "C2_pass(<=stall/1.5=0.60)": false,
+      "close_assist_min_Nm(-10% spring)": 0.2,
+      "assist_at_lift_mm": 0.0
+     }
+    }
+   }
+  },
+  "L0_reproduces_published [ours, Mechanical]": {
+   "v2p1_baseline": {
+    "bench_open_Nm": [
+     0.593,
+     0.593
+    ],
+    "MEOP_assist_Nm": [
+     0.05,
+     0.05
+    ],
+    "P5.5_assist_Nm": [
+     0.082,
+     0.082
+    ]
+   },
+   "v2_baseline": {
+    "bench_open_Nm": [
+     0.59,
+     0.59
+    ],
+    "MEOP_assist_Nm": [
+     0.05,
+     0.05
+    ],
+    "P5.5_assist_Nm": [
+     0.08,
+     0.08
+    ]
+   },
+   "S3mu20_T0.30_baseline": {
+    "open_max_all_P_Nm": [
+     0.597,
+     0.597
+    ],
+    "MEOP_assist_Nm": [
+     0.047,
+     0.047
+    ],
+    "P5.5_assist_Nm": [
+     0.094,
+     0.094
+    ],
+    "v2p2_flight_open_Nm": [
+     0.537,
+     0.537
+    ]
+   }
+  }
+ },
+ "flight_line_C2": {
+  "note": "servo opening torque (+10 % spring, Mechanical friction model) at each throttle_map_v2 state, D_port 25 mm, P_tank 35-55 bar; the start before Pc rises is the unlit case at the ignition lift (<= 0.3 mm)",
+  "results": {
+   "S3mu20_T0.30_baseline": {
+    "L1": {
+     "open_demand_max_Nm": 0.61,
+     "margin_vs_stall_7V4": 1.47,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 0.5,
+      "lift_mm": 0.721,
+      "F_closing_N": 47.8
+     }
+    },
+    "L2": {
+     "open_demand_max_Nm": 0.659,
+     "margin_vs_stall_7V4": 1.37,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 0.75,
+      "lift_mm": 1.1813,
+      "F_closing_N": 45.0
+     }
+    }
+   },
+   "S3mu10_T0.30": {
+    "L1": {
+     "open_demand_max_Nm": 0.569,
+     "margin_vs_stall_7V4": 1.58,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 0.5,
+      "lift_mm": 0.721,
+      "F_closing_N": 47.8
+     }
+    },
+    "L2": {
+     "open_demand_max_Nm": 0.612,
+     "margin_vs_stall_7V4": 1.47,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 0.75,
+      "lift_mm": 1.1813,
+      "F_closing_N": 45.0
+     }
+    }
+   },
+   "v2p1_baseline": {
+    "L1": {
+     "open_demand_max_Nm": 0.487,
+     "margin_vs_stall_7V4": 1.85,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 0.75,
+      "lift_mm": 1.1813,
+      "F_closing_N": 28.3
+     }
+    },
+    "L2": {
+     "open_demand_max_Nm": 0.549,
+     "margin_vs_stall_7V4": 1.64,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 1.0,
+      "lift_mm": 1.7749,
+      "F_closing_N": 29.2
+     }
+    }
+   },
+   "v2_baseline": {
+    "L1": {
+     "open_demand_max_Nm": 0.476,
+     "margin_vs_stall_7V4": 1.89,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 0.75,
+      "lift_mm": 1.1813,
+      "F_closing_N": 28.3
+     }
+    },
+    "L2": {
+     "open_demand_max_Nm": 0.538,
+     "margin_vs_stall_7V4": 1.67,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 1.0,
+      "lift_mm": 1.7749,
+      "F_closing_N": 29.2
+     }
+    }
+   },
+   "S4_rolling_own_spring": {
+    "L1": {
+     "open_demand_max_Nm": 0.487,
+     "margin_vs_stall_7V4": 1.85,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 0.5,
+      "lift_mm": 0.721,
+      "F_closing_N": 18.4
+     }
+    },
+    "L2": {
+     "open_demand_max_Nm": 0.519,
+     "margin_vs_stall_7V4": 1.73,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 0.75,
+      "lift_mm": 1.1813,
+      "F_closing_N": 16.0
+     }
+    }
+   },
+   "S4_PTFE18_with_v2p1_spring": {
+    "L1": {
+     "open_demand_max_Nm": 0.437,
+     "margin_vs_stall_7V4": 2.06,
+     "at": {
+      "P_tank_bar": 35.0,
+      "frac": 1.0,
+      "lift_mm": 2.9815,
+      "F_closing_N": -30.1
+     }
+    },
+    "L2": {
+     "open_demand_max_Nm": 0.465,
+     "margin_vs_stall_7V4": 1.93,
+     "at": {
+      "P_tank_bar": 55.0,
+      "frac": 1.0,
+      "lift_mm": 1.7749,
+      "F_closing_N": 0.8
+     }
+    }
+   }
+  }
+ },
+ "partial_stroke_unlit_C2": {
+  "S3mu20_T0.30_baseline|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.602,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.5
+  },
+  "S3mu20_T0.30_baseline|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.618,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.46
+  },
+  "S3mu20_T0.30_baseline|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.68,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.32
+  },
+  "S3mu20_T0.30_baseline|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.703,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.28
+  },
+  "S3mu20_T0.30_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.725,
+   "at_lift_mm": 1.696,
+   "margin_vs_stall_7V4": 1.24
+  },
+  "S3mu20_T0.30_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.894,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.01
+  },
+  "S3mu20_T0.30_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.813,
+   "at_lift_mm": 1.479,
+   "margin_vs_stall_7V4": 1.11
+  },
+  "S3mu20_T0.30_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 1.042,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 0.86
+  },
+  "S3mu10_T0.30|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.558,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.61
+  },
+  "S3mu10_T0.30|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.571,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.58
+  },
+  "S3mu10_T0.30|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.622,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.45
+  },
+  "S3mu10_T0.30|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.641,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.4
+  },
+  "S3mu10_T0.30|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.669,
+   "at_lift_mm": 1.83,
+   "margin_vs_stall_7V4": 1.34
+  },
+  "S3mu10_T0.30|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.808,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.11
+  },
+  "S3mu10_T0.30|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.74,
+   "at_lift_mm": 1.565,
+   "margin_vs_stall_7V4": 1.22
+  },
+  "S3mu10_T0.30|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.928,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 0.97
+  },
+  "v2p1_baseline|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.455,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.98
+  },
+  "v2p1_baseline|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.469,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.92
+  },
+  "v2p1_baseline|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.52,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.73
+  },
+  "v2p1_baseline|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.539,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.67
+  },
+  "v2p1_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.62,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.45
+  },
+  "v2p1_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.759,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.19
+  },
+  "v2p1_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.686,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.31
+  },
+  "v2p1_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.879,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.02
+  },
+  "v2_baseline|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.44,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 2.04
+  },
+  "v2_baseline|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.453,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.99
+  },
+  "v2_baseline|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.503,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.79
+  },
+  "v2_baseline|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.521,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.73
+  },
+  "v2_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.607,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.48
+  },
+  "v2_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.742,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.21
+  },
+  "v2_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.671,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.34
+  },
+  "v2_baseline|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.859,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.05
+  },
+  "S4_rolling_own_spring|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.485,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.86
+  },
+  "S4_rolling_own_spring|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.495,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.82
+  },
+  "S4_rolling_own_spring|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.516,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.74
+  },
+  "S4_rolling_own_spring|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.53,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.7
+  },
+  "S4_rolling_own_spring|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.569,
+   "at_lift_mm": 1.897,
+   "margin_vs_stall_7V4": 1.58
+  },
+  "S4_rolling_own_spring|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.679,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.33
+  },
+  "S4_rolling_own_spring|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.594,
+   "at_lift_mm": 1.479,
+   "margin_vs_stall_7V4": 1.51
+  },
+  "S4_rolling_own_spring|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.743,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.21
+  },
+  "S4_PTFE18_with_v2p1_spring|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.406,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 2.22
+  },
+  "S4_PTFE18_with_v2p1_spring|start_to_ignition_lift_0p3mm_torch|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.419,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 2.15
+  },
+  "S4_PTFE18_with_v2p1_spring|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.446,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 2.02
+  },
+  "S4_PTFE18_with_v2p1_spring|start_to_ignition_lift_0p3mm_torch|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.465,
+   "at_lift_mm": 0.3,
+   "margin_vs_stall_7V4": 1.94
+  },
+  "S4_PTFE18_with_v2p1_spring|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L1": {
+   "open_demand_max_Nm": 0.538,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.67
+  },
+  "S4_PTFE18_with_v2p1_spring|coldflow_to_100pct_lift_1p92mm_ambient|P1_50.5bar|L2": {
+   "open_demand_max_Nm": 0.673,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.34
+  },
+  "S4_PTFE18_with_v2p1_spring|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L1": {
+   "open_demand_max_Nm": 0.564,
+   "at_lift_mm": 1.763,
+   "margin_vs_stall_7V4": 1.6
+  },
+  "S4_PTFE18_with_v2p1_spring|coldflow_to_100pct_lift_1p92mm_ambient|P1_70.0bar|L2": {
+   "open_demand_max_Nm": 0.751,
+   "at_lift_mm": 1.92,
+   "margin_vs_stall_7V4": 1.2
+  }
+ },
+ "seat_breakout_C2": {
+  "note": "crack-open torque (+10 % spring, Mechanical friction model incl. guide amplification) with the wedge break-out of a self-locking 15 deg seat; mu_seat ASSUMED range (dry 17-4PH self-mated ~0.4-0.6 AS RECALLED; PFPE-lubricated lower)",
+  "results": {
+   "S3mu20_T0.30_baseline": {
+    "P1_50.5bar": {
+     "seat_load_N": 467.7,
+     "rows": [
+      {
+       "mu_seat": 0.0,
+       "extra_N": 0.0,
+       "crack_T_Nm": 0.486,
+       "margin_7V4": 1.85
+      },
+      {
+       "mu_seat": 0.3,
+       "extra_N": 26.4,
+       "crack_T_Nm": 0.527,
+       "margin_7V4": 1.71
+      },
+      {
+       "mu_seat": 0.4,
+       "extra_N": 92.5,
+       "crack_T_Nm": 0.629,
+       "margin_7V4": 1.43
+      },
+      {
+       "mu_seat": 0.5,
+       "extra_N": 141.3,
+       "crack_T_Nm": 0.704,
+       "margin_7V4": 1.28
+      },
+      {
+       "mu_seat": 0.6,
+       "extra_N": 178.9,
+       "crack_T_Nm": 0.762,
+       "margin_7V4": 1.18
+      }
+     ]
+    },
+    "P1_70.0bar": {
+     "seat_load_N": 500.3,
+     "rows": [
+      {
+       "mu_seat": 0.0,
+       "extra_N": 0.0,
+       "crack_T_Nm": 0.537,
+       "margin_7V4": 1.68
+      },
+      {
+       "mu_seat": 0.3,
+       "extra_N": 28.2,
+       "crack_T_Nm": 0.58,
+       "margin_7V4": 1.55
+      },
+      {
+       "mu_seat": 0.4,
+       "extra_N": 98.9,
+       "crack_T_Nm": 0.689,
+       "margin_7V4": 1.31
+      },
+      {
+       "mu_seat": 0.5,
+       "extra_N": 151.2,
+       "crack_T_Nm": 0.77,
+       "margin_7V4": 1.17
+      },
+      {
+       "mu_seat": 0.6,
+       "extra_N": 191.4,
+       "crack_T_Nm": 0.832,
+       "margin_7V4": 1.08
+      }
+     ]
+    }
+   },
+   "S3mu10_T0.30": {
+    "P1_50.5bar": {
+     "seat_load_N": 467.7,
+     "rows": [
+      {
+       "mu_seat": 0.0,
+       "extra_N": 0.0,
+       "crack_T_Nm": 0.459,
+       "margin_7V4": 1.96
+      },
+      {
+       "mu_seat": 0.3,
+       "extra_N": 26.4,
+       "crack_T_Nm": 0.492,
+       "margin_7V4": 1.83
+      },
+      {
+       "mu_seat": 0.4,
+       "extra_N": 92.5,
+       "crack_T_Nm": 0.577,
+       "margin_7V4": 1.56
+      },
+      {
+       "mu_seat": 0.5,
+       "extra_N": 141.3,
+       "crack_T_Nm": 0.639,
+       "margin_7V4": 1.41
+      },
+      {
+       "mu_seat": 0.6,
+       "extra_N": 178.9,
+       "crack_T_Nm": 0.686,
+       "margin_7V4": 1.31
+      }
+     ]
+    },
+    "P1_70.0bar": {
+     "seat_load_N": 500.3,
+     "rows": [
+      {
+       "mu_seat": 0.0,
+       "extra_N": 0.0,
+       "crack_T_Nm": 0.5,
+       "margin_7V4": 1.8
+      },
+      {
+       "mu_seat": 0.3,
+       "extra_N": 28.2,
+       "crack_T_Nm": 0.536,
+       "margin_7V4": 1.68
+      },
+      {
+       "mu_seat": 0.4,
+       "extra_N": 98.9,
+       "crack_T_Nm": 0.626,
+       "margin_7V4": 1.44
+      },
+      {
+       "mu_seat": 0.5,
+       "extra_N": 151.2,
+       "crack_T_Nm": 0.693,
+       "margin_7V4": 1.3
+      },
+      {
+       "mu_seat": 0.6,
+       "extra_N": 191.4,
+       "crack_T_Nm": 0.744,
+       "margin_7V4": 1.21
+      }
+     ]
+    }
+   },
+   "v2p1_baseline": {
+    "P1_50.5bar": {
+     "seat_load_N": 326.5,
+     "rows": [
+      {
+       "mu_seat": 0.0,
+       "extra_N": 0.0,
+       "crack_T_Nm": 0.338,
+       "margin_7V4": 2.66
+      },
+      {
+       "mu_seat": 0.3,
+       "extra_N": 18.4,
+       "crack_T_Nm": 0.361,
+       "margin_7V4": 2.49
+      },
+      {
+       "mu_seat": 0.4,
+       "extra_N": 64.5,
+       "crack_T_Nm": 0.42,
+       "margin_7V4": 2.14
+      },
+      {
+       "mu_seat": 0.5,
+       "extra_N": 98.7,
+       "crack_T_Nm": 0.463,
+       "margin_7V4": 1.94
+      },
+      {
+       "mu_seat": 0.6,
+       "extra_N": 124.9,
+       "crack_T_Nm": 0.497,
+       "margin_7V4": 1.81
+      }
+     ]
+    },
+    "P1_70.0bar": {
+     "seat_load_N": 359.1,
+     "rows": [
+      {
+       "mu_seat": 0.0,
+       "extra_N": 0.0,
+       "crack_T_Nm": 0.379,
+       "margin_7V4": 2.37
+      },
+      {
+       "mu_seat": 0.3,
+       "extra_N": 20.3,
+       "crack_T_Nm": 0.405,
+       "margin_7V4": 2.22
+      },
+      {
+       "mu_seat": 0.4,
+       "extra_N": 71.0,
+       "crack_T_Nm": 0.47,
+       "margin_7V4": 1.92
+      },
+      {
+       "mu_seat": 0.5,
+       "extra_N": 108.5,
+       "crack_T_Nm": 0.517,
+       "margin_7V4": 1.74
+      },
+      {
+       "mu_seat": 0.6,
+       "extra_N": 137.4,
+       "crack_T_Nm": 0.554,
+       "margin_7V4": 1.62
+      }
+     ]
+    }
+   },
+   "S3_rolling_plainpins_T0.30_k0.10 (hypothetical)": {
+    "P1_50.5bar": {
+     "seat_load_N": 467.7,
+     "rows": [
+      {
+       "mu_seat": 0.0,
+       "extra_N": 0.0,
+       "crack_T_Nm": 0.44,
+       "margin_7V4": 2.04
+      },
+      {
+       "mu_seat": 0.3,
+       "extra_N": 26.4,
+       "crack_T_Nm": 0.469,
+       "margin_7V4": 1.92
+      },
+      {
+       "mu_seat": 0.4,
+       "extra_N": 92.5,
+       "crack_T_Nm": 0.541,
+       "margin_7V4": 1.66
+      },
+      {
+       "mu_seat": 0.5,
+       "extra_N": 141.3,
+       "crack_T_Nm": 0.594,
+       "margin_7V4": 1.51
+      },
+      {
+       "mu_seat": 0.6,
+       "extra_N": 178.9,
+       "crack_T_Nm": 0.635,
+       "margin_7V4": 1.42
+      }
+     ]
+    },
+    "P1_70.0bar": {
+     "seat_load_N": 500.3,
+     "rows": [
+      {
+       "mu_seat": 0.0,
+       "extra_N": 0.0,
+       "crack_T_Nm": 0.476,
+       "margin_7V4": 1.89
+      },
+      {
+       "mu_seat": 0.3,
+       "extra_N": 28.2,
+       "crack_T_Nm": 0.506,
+       "margin_7V4": 1.78
+      },
+      {
+       "mu_seat": 0.4,
+       "extra_N": 98.9,
+       "crack_T_Nm": 0.583,
+       "margin_7V4": 1.54
+      },
+      {
+       "mu_seat": 0.5,
+       "extra_N": 151.2,
+       "crack_T_Nm": 0.64,
+       "margin_7V4": 1.41
+      },
+      {
+       "mu_seat": 0.6,
+       "extra_N": 191.4,
+       "crack_T_Nm": 0.684,
+       "margin_7V4": 1.32
+      }
+     ]
+    }
+   },
+   "S3_rolling_plainpins_T0.25_k0.12 (hypothetical)": {
+    "P1_50.5bar": {
+     "seat_load_N": 403.5,
+     "rows": [
+      {
+       "mu_seat": 0.0,
+       "extra_N": 0.0,
+       "crack_T_Nm": 0.385,
+       "margin_7V4": 2.34
+      },
+      {
+       "mu_seat": 0.3,
+       "extra_N": 22.8,
+       "crack_T_Nm": 0.41,
+       "margin_7V4": 2.19
+      },
+      {
+       "mu_seat": 0.4,
+       "extra_N": 79.8,
+       "crack_T_Nm": 0.472,
+       "margin_7V4": 1.91
+      },
+      {
+       "mu_seat": 0.5,
+       "extra_N": 121.9,
+       "crack_T_Nm": 0.518,
+       "margin_7V4": 1.74
+      },
+      {
+       "mu_seat": 0.6,
+       "extra_N": 154.4,
+       "crack_T_Nm": 0.553,
+       "margin_7V4": 1.63
+      }
+     ]
+    },
+    "P1_70.0bar": {
+     "seat_load_N": 436.1,
+     "rows": [
+      {
+       "mu_seat": 0.0,
+       "extra_N": 0.0,
+       "crack_T_Nm": 0.421,
+       "margin_7V4": 2.14
+      },
+      {
+       "mu_seat": 0.3,
+       "extra_N": 24.6,
+       "crack_T_Nm": 0.448,
+       "margin_7V4": 2.01
+      },
+      {
+       "mu_seat": 0.4,
+       "extra_N": 86.2,
+       "crack_T_Nm": 0.515,
+       "margin_7V4": 1.75
+      },
+      {
+       "mu_seat": 0.5,
+       "extra_N": 131.8,
+       "crack_T_Nm": 0.564,
+       "margin_7V4": 1.6
+      },
+      {
+       "mu_seat": 0.6,
+       "extra_N": 166.8,
+       "crack_T_Nm": 0.602,
+       "margin_7V4": 1.49
+      }
+     ]
+    }
+   }
+  }
+ }
+}

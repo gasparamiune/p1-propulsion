@@ -1,0 +1,183 @@
+refs,qty,value,footprint,mpn,dnp,sheets,function,spec_source
+C101 C106 C107 C120 C202 C203 C204 C207 C302 C303 C304 C309 C310 C311 C312 C331 C332 C334 C505 C570 C571 C572 C574 C602 C604 C606 C640 C660 C670 C680 C690 C691 C809 C810 C817 C902 C904 C950 C960 C970,40,100nF/50V X7R,Capacitor_SMD:C_0603_1608Metric,,,Igniter_Valves MCU_CAN Pintle_Rail Power Safety_Arming Sensors Sensors_B,,"DATASHEET SLVSD26C 0.1 uF BOOT | reference filter 2.6 ms (DC reference; latch state at power-up is irrelevant, set by ARM_REQ) | DERIVED tau <= 1.0 ms (static input) | DATASHEET 0.1 uF BOOT1-SW1 | DATASHEET 0.1 uF BOOT2-SW2"
+C102 C402,2,470uF/16V low-ESR,Capacitor_SMD:CP_Elec_10x10.5,,,Actuators Power,VBAT bulk | TVC servo reservoir,DESIGN servo transient reservoir
+C103,1,1000uF/16V,Capacitor_SMD:CP_Elec_10x10.5,,,Power,logic hold-up,DERIVED hold-up: 0.5 C (7.0^2-4.5^2)/2.9 W = 5 ms at peak logic load
+C104 C105,2,10uF/25V X7R,Capacitor_SMD:C_1206_3216Metric,,,Power,,
+C108 C109,2,22uF/25V X7R,Capacitor_SMD:C_1206_3216Metric,,,Power,,
+C110,1,75pF C0G,Capacitor_SMD:C_0603_1608Metric,,,Power,,DATASHEET SLVSD26C feed-forward
+C111 C114 C117 C305,4,1uF/25V X7R,Capacitor_SMD:C_0603_1608Metric,,,Power Safety_Arming,,
+C112 C115 C306,3,470pF C0G,Capacitor_SMD:C_0603_1608Metric,,,Power Safety_Arming,,
+C113 C116 C307,3,2.2uF/16V X7R,Capacitor_SMD:C_0603_1608Metric,,,Power Safety_Arming,,
+C118,1,10nF C0G,Capacitor_SMD:C_0603_1608Metric,,,Power,,
+C119 C811,2,10uF/16V X7R,Capacitor_SMD:C_0805_2012Metric,,,Pintle_Rail Power,,DATASHEET VCC needs > 4.7 uF ceramic (10 uF for DC-bias derating)
+C201 C501,2,100uF/16V,Capacitor_SMD:CP_Elec_6.3x7.7,,,Igniter_Valves MCU_CAN,VIN bulk,DATASHEET Pololu: >= 33 uF electrolytic near VIN
+C205,1,4.7nF/50V C0G,Capacitor_SMD:C_0603_1608Metric,,,MCU_CAN,,
+C206,1,10nF/100V X7R,Capacitor_SMD:C_0603_1608Metric,,,MCU_CAN,,
+C301 C401,2,47nF/50V X7R,Capacitor_SMD:C_0603_1608Metric,,,Actuators Safety_Arming,,"DERIVED Miller soft start ~24 V/ms (inrush ~ C_bus x dV/dt); off ~6 ms (bench verify) | Miller soft start; C401 >> Cgd of two AOD4185, ramp about unchanged (B-PWR-1 verifies)"
+C308,1,470nF/16V C0G/film,Capacitor_SMD:C_0603_1608Metric,,,Safety_Arming,,timing capacitor (C0G or PPS film for stability)
+C330,1,220nF/50V C0G,Capacitor_SMD:C_1206_3216Metric,,,Safety_Arming,,"DERIVED tau = 24.0k x 220n = 5.3 ms: x0.17 at the ~180 Hz sense-line resonance (COMB v2), adds ~5 ms to the trip"
+C333 C814,2,1nF/50V C0G,Capacitor_SMD:C_0603_1608Metric,,,Pintle_Rail Safety_Arming,,"DESIGN EMI shunt at /CLR (10 us release) | DESIGN pintle_rail_ovtrip_v1: tau = 9.39k x 1.0 nF = 9.4 us; margin 0.134 V with allowances, fail-high peak 8.69 V for <= 29 us"
+C403,1,220uF/16V low-ESR,Capacitor_SMD:CP_Elec_8x10.5,,,Actuators,MV-opener servo reservoir (the pintle servo is on PRAIL since v2.3),
+C502,1,470uF/25V low-ESR,Capacitor_SMD:CP_Elec_10x10.5,,,Igniter_Valves,,DERIVED coil peak share: dV ~1.2 V at 470 uF
+C504,1,2.2uF/16V X7R,Capacitor_SMD:C_0805_2012Metric,,,Igniter_Valves,,DERIVED tau = 2.2 uF x (R505 || RGE 10-26k) = 18-37 ms: 3 ms dwell keeps VGE >= 4.2 V; stuck-high gate < VGE(th) after 24-50 ms
+C573,1,10nF/50V X7R,Capacitor_SMD:C_0603_1608Metric,,,Igniter_Valves,,
+C601 C603 C650 C651 C700 C710 C720 C901 C903,9,1uF/16V X7R,Capacitor_SMD:C_0603_1608Metric,,,Sensors Sensors_B,,
+C605 C905,2,220nF/16V X7R,Capacitor_SMD:C_0603_1608Metric,,,Sensors Sensors_B,,DATASHEET SBAS890 CAP pin 220 nF
+C610 C620 C630 C910 C920 C930 C940,7,22nF/50V C0G,Capacitor_SMD:C_0603_1608Metric,,,Sensors Sensors_B,,DERIVED anti-alias: 1/(2 pi 3.05k 22n) = 2.4 kHz; ADC sinc3 + 4:1 average + 120 Hz IIR follow | DERIVED anti-alias 2.4 kHz (as C610) | DERIVED 1/(2 pi 2.24k 22n) = 3.2 kHz
+C652 C661 C671 C681 C951 C961 C971,7,100nF/50V C0G,Capacitor_SMD:C_1206_3216Metric,,,Sensors Sensors_B,,DERIVED differential fc = 1/(2 pi 2k 100n) = 0.8 kHz
+C653 C654 C662 C663 C672 C673 C682 C683 C952 C953 C962 C963 C972 C973,14,10nF/50V C0G,Capacitor_SMD:C_0603_1608Metric,,,Sensors Sensors_B,,
+C801 C802 C803 C804,4,10uF/25V X7R,Capacitor_SMD:C_1210_3225Metric,,,Pintle_Rail,,DATASHEET ~20 uF effective input (start point)
+C805 C806 C807 C808,4,22uF/16V X7R,Capacitor_SMD:C_1210_3225Metric,,,Pintle_Rail,,pintle_rail_v2/v3 output ceramics 4 x 22 uF
+C812,1,12nF/50V C0G,Capacitor_SMD:C_0603_1608Metric,,,Pintle_Rail,,DERIVED Eq. 25: 12.2 nF
+C813,1,100pF/50V C0G,Capacitor_SMD:C_0603_1608Metric,,,Pintle_Rail,,DERIVED Eq. 26 with 7 mOhm polymer ESR: 99 pF
+C815 C816,2,220uF/16V polymer,Capacitor_SMD:CP_Elec_8x10.5,,,Pintle_Rail,pintle servo reservoir,"LEAD 2026-10-13 (b): 2 x 220 uF polymer at the servo connector J403 (layout), ESR ~7 mOhm pair ASSUMED in pintle_rail_ovtrip_v1"
+D101,1,SMAJ10A,Diode_SMD:D_SMA,,,Power,VBAT TVS,DESIGN: standoff 10 V > 8.4 V; clamps servo regeneration/ESD below LT1761 20 V abs max
+D102,1,SS34,Diode_SMD:D_SMA,,,Power,logic OR diode,DESIGN blocks back-feed so servo sag does not drain hold-up
+D201,1,NUP2105L,Package_TO_SOT_SMD:SOT-23,,,MCU_CAN,CAN ESD,CAN bus ESD/surge protector; pinout per KiCad lib
+D501,1,BAT54W,Package_TO_SOT_SMD:SOT-323_SC-70,,,Igniter_Valves,gate clamp,clamps negative gate swing; pinout per KiCad lib
+D510 D520 D530 D540 D550 D560 D580 D590,8,SS14,Diode_SMD:D_SMA,,,Igniter_Valves,"SOL1 torch N2O freewheel | SOL2 torch propane freewheel | SOL4 roll CW pair freewheel | SOL5 roll CCW pair freewheel | MV latch magnet freewheel | vent freewheel | bleed V1 (upstream, T4) freewheel | bleed V2 (downstream) freewheel",freewheel path | freewheel (PWM hold)
+D511 D521 D531 D541 D551 D581 D591,7,SMAJ24A,Diode_SMD:D_SMA,,,Igniter_Valves,"SOL1 torch N2O clamp | SOL2 torch propane clamp | SOL4 roll CW pair clamp | SOL5 roll CCW pair clamp | MV latch magnet clamp | bleed V1 (upstream, T4) clamp | bleed V2 (downstream) clamp",DERIVED fast release: Vds_max ~ Vsupply + 0.5 + 29.5 V < 60 V
+D616,1,SMAJ33A,Diode_SMD:D_SMA,,,Sensors,interlock clamp,"DESIGN coil-flyback clamp: standoff 33 V above a 28 V GSE coil supply, below the 60 V switch rating (clamp voltage TO-CONFIRM on the SMAJ33A datasheet)"
+D690 D691 D692,3,ESD9B3.3ST5G,Diode_SMD:D_SOD-923,,,Sensors,1-Wire ESD | strap ESD,3.3 V bidirectional ESD; pinout per KiCad lib
+D910,1,ESD9B5.0ST5G,Diode_SMD:D_SOD-923,,,Sensors_B,P_torch ESD,5 V bidirectional ESD (signal 0.5-4.5 V); pinout per KiCad lib
+F101,1,25A,Fuse:Fuseholder_Blade_Mini_Keystone_3568,Littelfuse 0297025 (ATM 25 A) + Keystone 3568 holder,,Power,main fuse,DESIGN: >= 1.3 x 18.4 A two-servo stall transient; slow-blow class
+F102,1,2A,Fuse:Fuse_1206_3216Metric,"Littelfuse 0466002 (1206, 2 A fast)",,Power,logic branch fuse,
+F301,1,15A,Fuse:Fuseholder_Blade_Mini_Keystone_3568,Littelfuse 0297015 (ATM 15 A) + Keystone 3568,,Safety_Arming,ARM branch fuse,
+F501,1,3A,Fuse:Fuse_1206_3216Metric,"Littelfuse 0466003 (1206, 3 A fast)",,Igniter_Valves,vent branch fuse,
+H101 H102 H103 H104,4,M3,MountingHole:MountingHole_3.2mm_M3,,,Power,mounting hole,
+J101,1,BATT_2S_XT60,Connector_AMASS:AMASS_XT60PW-M_1x02_P7.20mm_Horizontal,,,Power,"battery 2S LiPo input (pin1 +, pin2 -; verify AMASS polarity marking)",
+J201,1,CAN_FC,Connector_JST:JST_GH_SM04B-GHS-TB_1x04-1MP_P1.25mm_Horizontal,,,MCU_CAN,CAN to flight computer / test-stand bridge,
+J301,1,ARM_PLUG_XT30,Connector_AMASS:AMASS_XT30PW-M_1x02_P2.50mm_Horizontal,,,Safety_Arming,"arming plug socket: insert-to-arm XT30 shorting plug (red tag) breaks igniter, valve, pintle power",
+J401,1,SERVO_TVC_A,Connector_Molex:Molex_Micro-Fit_3.0_43650-0300_1x03_P3.00mm_Horizontal,,,Actuators,"servo TVC-A pitch (Savox SB-2292SG; lead crimped to Micro-Fit, JR plug cut off, v2.3)",
+J402,1,SERVO_TVC_B,Connector_Molex:Molex_Micro-Fit_3.0_43650-0300_1x03_P3.00mm_Horizontal,,,Actuators,"servo TVC-B yaw (Savox SB-2292SG; lead crimped to Micro-Fit, JR plug cut off, v2.3)",
+J403,1,SERVO_PINTLE,Connector_Molex:Molex_Micro-Fit_3.0_43650-0300_1x03_P3.00mm_Horizontal,,,Actuators,"pintle throttle servo MKS HV69 on the regulated rail PRAIL 7.49 V typ (crosses the gimbal, service loop)",
+J404,1,SERVO_MV_OPENER,Connector_Molex:Molex_Micro-Fit_3.0_43650-0300_1x03_P3.00mm_Horizontal,,,Actuators,main-valve opener servo,
+J501,1,SPARK_COIL,Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,,,Igniter_Valves,"spark coil primary (COMB: 12 V, 4 A peak ASSUMED; coil primary >= 3 ohm so steady current <= 4 A)",
+J502,1,SOL1 torch N2O,Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,,,Igniter_Valves,"SOL1 torch N2O (Micro-Fit 3.0, pin1 +, pin2 low side)",
+J503,1,SOL2 torch propane,Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,,,Igniter_Valves,"SOL2 torch propane (Micro-Fit 3.0, pin1 +, pin2 low side)",
+J504,1,SOL4 roll CW pair,Connector_Molex:Molex_Micro-Fit_3.0_43650-0400_1x04_P3.00mm_Horizontal,,,Igniter_Valves,"SOL4 roll CW pair (Micro-Fit 3.0 4-pin: coil 1 pins 1 +/2 low side, coil 2 pins 3 +/4 low side)",
+J505,1,SOL5 roll CCW pair,Connector_Molex:Molex_Micro-Fit_3.0_43650-0400_1x04_P3.00mm_Horizontal,,,Igniter_Valves,"SOL5 roll CCW pair (Micro-Fit 3.0 4-pin: coil 1 pins 1 +/2 low side, coil 2 pins 3 +/4 low side)",
+J506,1,MV latch magnet,Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,,,Igniter_Valves,"MV latch magnet (Micro-Fit 3.0, pin1 +, pin2 low side)",
+J507,1,SOL3_VENT,Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,,,Igniter_Valves,"SOL3 tank vent (VBAT 6.6-8.4 V, PWM hold; coil class to suit 2S)",
+J508,1,MV_LADDER,Connector_JST:JST_GH_SM03B-GHS-TB_1x03-1MP_P1.25mm_Horizontal,,,Igniter_Valves,"MV switch ladder: pin 1 node, pins 2-3 return (R0 82.5k EOL, R1 9.53k + OPEN sw, R2 17.8k + CLOSED sw in the backshell)",
+J509,1,"bleed V1 (upstream, T4)",Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,,,Igniter_Valves,"bleed V1 (upstream, T4) (Micro-Fit 3.0, pin1 +, pin2 low side)",
+J510,1,bleed V2 (downstream),Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,,,Igniter_Valves,"bleed V2 (downstream) (Micro-Fit 3.0, pin1 +, pin2 low side)",
+J511,1,P_MID,Connector_JST:JST_GH_SM03B-GHS-TB_1x03-1MP_P1.25mm_Horizontal,,,Igniter_Valves,P_mid transducer TE M3234 170BG class (fixed-side tee),
+J601,1,PC_XDCR,Connector_JST:JST_GH_SM03B-GHS-TB_1x03-1MP_P1.25mm_Horizontal,,,Sensors,"Pc chamber pressure (TE M3234-000005-070BG 0-70 bar g, OI-6; fixed side on the 1/8 in sense line) (1 +5V_SNS, 2 signal, 3 GND)",
+J602,1,PFEED_XDCR,Connector_JST:JST_GH_SM03B-GHS-TB_1x03-1MP_P1.25mm_Horizontal,,,Sensors,"injector feed pressure (TE M3200 170BG 0-170 bar g, LEAD 2026-10-13; gimballed side) (1 +5V_SNS, 2 signal, 3 GND)",
+J603,1,PTANK_XDCR,Connector_JST:JST_GH_SM03B-GHS-TB_1x03-1MP_P1.25mm_Horizontal,,,Sensors,"tank pressure (TE M3200 170BG 0-170 bar g, LEAD 2026-10-13) (1 +5V_SNS, 2 signal, 3 GND)",
+J604,1,LOAD_CELL,Connector_JST:JST_GH_SM05B-GHS-TB_1x05-1MP_P1.25mm_Horizontal,,,Sensors,"load cell bridge (1 EXC+, 2 EXC-, 3 SIG+, 4 SIG-, 5 shield); empty in flight",
+J605,1,TC1_K,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal",,,Sensors,K thermocouple case forward (screw terminal next to U604 for isothermal cold junction),
+J606,1,TC2_K,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal",,,Sensors,K thermocouple case aft (screw terminal next to U605 for isothermal cold junction),
+J607,1,TC3_K,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal",,,Sensors,K thermocouple nozzle holder (screw terminal next to U606 for isothermal cold junction),
+J608,1,ONEWIRE_TTANK,Connector_JST:JST_GH_SM03B-GHS-TB_1x03-1MP_P1.25mm_Horizontal,,,Sensors,1-Wire DS18B20 #1/#2 tank wall,
+J609,1,NTC_SERVO,Connector_JST:JST_GH_SM02B-GHS-TB_1x02-1MP_P1.25mm_Horizontal,,,Sensors,NTC 10k B3950 on pintle-servo bracket,
+J610,1,ENC_A,Connector_JST:JST_GH_SM06B-GHS-TB_1x06-1MP_P1.25mm_Horizontal,,,Sensors,"AS5048A gimbal axis A (1 3V3, 2 GND, 3 CSn, 4 CLK, 5 MOSI, 6 MISO)",
+J611,1,ENC_B,Connector_JST:JST_GH_SM06B-GHS-TB_1x06-1MP_P1.25mm_Horizontal,,,Sensors,"AS5048A gimbal axis B (1 3V3, 2 GND, 3 CSn, 4 CLK, 5 MOSI, 6 MISO)",
+J612,1,ENC_P,Connector_JST:JST_GH_SM06B-GHS-TB_1x06-1MP_P1.25mm_Horizontal,,,Sensors,"AS5048A pintle crank (1 3V3, 2 GND, 3 CSn, 4 CLK, 5 MOSI, 6 MISO)",
+J614,1,ONEWIRE_BAY,Connector_JST:JST_GH_SM03B-GHS-TB_1x03-1MP_P1.25mm_Horizontal,,,Sensors,"1-Wire DS18B20 #3 bay temperature at the TVC servo bracket (v2.3; LEAD 2026-10-13 bay ARM inhibit), same bus as J608",
+J616,1,HTR_ILK,Connector_Molex:Molex_Micro-Fit_3.0_43650-0200_1x02_P3.00mm_Horizontal,,,Sensors,"GSE heater contactor coil loop: GSE coil supply (<= 28 V DC, <= 1.0 A; flyback diode in the GSE) -> coil -> pin 1; pin 2 = return (GSE 0 V tied to ECU GND)",
+J620,1,MODE_STRAP,Connector_JST:JST_GH_SM03B-GHS-TB_1x03-1MP_P1.25mm_Horizontal,,,Sensors,mode strap: FLIGHT harness links pin 2 (MODE_B) to pin 3; STAND harness links pin 1 (MODE_A) to pin 3; open or both = INVALID,
+J901,1,PTORCH_XDCR,Connector_JST:JST_GH_SM03B-GHS-TB_1x03-1MP_P1.25mm_Horizontal,,,Sensors_B,"torch chamber pressure TE M3234-000005-070BG (1 +5V_SNS, 2 signal, 3 GND)",
+J904,1,TC4_K,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal",,,Sensors_B,"type K thermocouple bore-top / manifold (firmware v2.7, CF-3/T1 evidence) (screw terminal next to U904, isothermal cold junction)",
+J905,1,TC5_T,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal",,,Sensors_B,"type T thermocouple MSS-1 inlet-block manifold state sensor (LEAD 2026-10-13) (screw terminal next to U905, isothermal cold junction)",
+J906,1,TC6_T,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal",,,Sensors_B,"type T thermocouple MSS-2 NC-valve-outlet manifold state sensor (LEAD 2026-10-13) (screw terminal next to U906, isothermal cold junction)",
+L101,1,15uH,Inductor_SMD:L_Bourns_SRN6045TA,,,Power,buck inductor,DATASHEET SLVSD26C 5 V design 15 uH; Isat >= 3.9 A (current-limit max) TO-VERIFY part
+L801,1,4.7uH,Inductor_SMD:L_Coilcraft_XAL1010-XXX,Coilcraft XAL1010-472ME,,Pintle_Rail,buck-boost inductor,"DATASHEET TPS552882 application: Coilcraft XAL1010-472ME 4.7 uH, 10 mOhm max, 25.4 A sat (needs Isat >= 8 A + ripple); a 6 x 6 mm part is the likely size fit, TO-CONFIRM"
+PS501,1,U3V70F12,argos_ecu:Pololu_U3V70_WireAttach,Pololu 2895,,Igniter_Valves,12 V boost,"DATASHEET Pololu #2895: VIN 2.9-12 V, 12 V +/-4 %, input 6 A prolonged / 7 A seconds / 10 A cycle limit; EN pulled up to VIN (left open)"
+Q301 Q401 Q403,3,AOD4185,Package_TO_SOT_SMD:TO-252-2,AOD4185,,Actuators Safety_Arming,ARM bus switch | TVC power switch A | TVC power switch B,"DATASHEET AOS Rev4.2: -40 V, -40 A, RDS(on) <= 20 mOhm @ -4.5 V, VGS +/-20 V | DATASHEET AOS Rev4.2 (see Q301) | DATASHEET AOS Rev4.2; in parallel with Q401 (LEAD 2026-10-12)"
+Q302 Q303 Q304 Q402 Q570 Q617 Q618,7,2N7002,Package_TO_SOT_SMD:SOT-23,2N7002,,Actuators Igniter_Valves Safety_Arming Sensors,ARM switch driver | /OE driver ARM buffer | /OE driver SAFE buffer | TVC switch driver | P_mid ladder switch | heater inhibit: arming plug present | heater inhibit: ARM bus on,
+Q501,1,ISL9V3040D3ST,Package_TO_SOT_SMD:TO-252-2,ISL9V3040D3ST-F085C,,Igniter_Valves,spark coil switch,"DATASHEET onsemi ISL9V3040-F085C/D Rev3: BVCER 400 V clamp, ESCIS 300 mJ, VCE(sat) 1.25 V @ 6 A VGE 4 V, VGEM +/-10 V"
+Q510 Q520 Q530 Q540 Q550 Q580 Q590 Q616,8,DMN6075S-7,Package_TO_SOT_SMD:SOT-23,DMN6075S-7,,Igniter_Valves Sensors,"SOL1 torch N2O | SOL2 torch propane | SOL4 roll CW pair | SOL5 roll CCW pair | MV latch magnet | bleed V1 (upstream, T4) | bleed V2 (downstream) | heater interlock switch","DATASHEET DS37023 Rev6-2: 60 V, 2.0 A, RDS(on) <=120 mOhm @4.5 V | DATASHEET DS37023 Rev6-2: 60 V, 2.0 A, RDS(on) <= 120 mOhm @4.5 V"
+Q560,1,AO3400A,Package_TO_SOT_SMD:SOT-23,AO3400A,,Igniter_Valves,SOL3 vent switch,"DATASHEET AOS Rev3.1: 30 V, 5.7 A, RDS(on) <= 32 mOhm @4.5 V"
+Q801 Q802 Q803,3,CSD17578Q5A,Package_TO_SOT_SMD:TDSON-8-1,CSD17578Q5A,,Pintle_Rail,buck leg high side | buck leg low side | OV disconnect switch,"DATASHEET TI SLPS526: 30 V, RDS(on) <= 9.3 mOhm @4.5 V, Qg 7.9 nC typ, VGS(th) 1.1-1.9 V; driven from BOOT1 (VCC 5.2 V typ) - candidate, losses in calc/ecu_v2p3_values_v1.py | DATASHEET TI SLPS526 (as Q801); driven from VCC | DATASHEET TI SLPS526: RDS(on) <= 9.3 mOhm @4.5 V; LTC4365 gate drive above"
+R101,1,2m 1% 3W,Resistor_SMD:R_2512_6332Metric,,,Power,battery current shunt,DERIVED: 50 A x 2 mOhm x 20 = 2.0 V at A2 (Teensy ADC 3.3 V FS)
+R102 R506 R571 R693,4,1k,Resistor_SMD:R_0603_1608Metric,,,Igniter_Valves Power Sensors,,DERIVED RC 1.6 kHz anti-alias for 1 kHz sampling | DESIGN pin protection
+R103 R309,2,100k 1%,Resistor_SMD:R_0603_1608Metric,,,Power Safety_Arming,,DERIVED 0.596 x (1+100/13.3) = 5.08 V | DATASHEET Rext >= 1 kOhm at VCC >= 3 V
+R104,1,13.3k 1%,Resistor_SMD:R_0603_1608Metric,,,Power,,
+R105 R305 R307 R640 R641 R692,6,10k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Power Safety_Arming Sensors,,DERIVED 13.3 V full scale (ratio 0.248) | ratiometric to Teensy ADC reference
+R106 R306 R308,3,3.3k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Power Safety_Arming,,
+R201 R202,2,60.4 1%,Resistor_SMD:R_0603_1608Metric,,,MCU_CAN,,DESIGN split termination 120 ohm (ECU is one bus end)
+R203 R574 R652 R653,4,1M,Resistor_SMD:R_0603_1608Metric,,,Igniter_Valves MCU_CAN Sensors,,DESIGN shield drain: RC to GND (no DC ground loop) | DESIGN hysteresis feedback (1.0 bar) | DESIGN defined reading with no load cell
+R204 R310 R312 R313 R334 R570 R575 R601 R817,9,10k,Resistor_SMD:R_0603_1608Metric,,,Igniter_Valves MCU_CAN Pintle_Rail Safety_Arming Sensors,,"DESIGN decoder disabled (all CS high) while the MCU pins are high-Z | DATASHEET SCLS228O: OE pulled to VCC = high-Z at power up | DESIGN pull-up to the latch rail (output low = over-pressure) | DESIGN ladder top, 0.1 % / 1 % thin film (ratiometric to the ADC ref) | DESIGN open-collector pull-up (hig"
+R205 R206 R207 R303 R304 R311 R314 R315 R316 R317 R318 R319 R320 R321 R322 R323 R324 R325 R328 R329 R335 R403 R511 R521 R531 R541 R551 R561 R578 R579 R581 R591 R655 R657 R659 R810 R811 R816,38,100k,Resistor_SMD:R_0603_1608Metric,,,Actuators Igniter_Valves MCU_CAN Pintle_Rail Safety_Arming Sensors,"SOL1 torch N2O gate pull-down | SOL2 torch propane gate pull-down | SOL4 roll CW pair gate pull-down | SOL5 roll CCW pair gate pull-down | MV latch magnet gate pull-down | bleed V1 (upstream, T4) gate pull-down | bleed V2 (downstream) gate pull-down",DESIGN defined address in reset | DESIGN off when U301 unpowered | DESIGN MCU reset (high-Z) = no ARM | DESIGN WD_OK low when unpowered | DESIGN heater permit off while the MCU pin is high-Z | DESIGN defined input while U304 is high-Z (watchdog) or unpowered | DESIGN OVP_OK low when U331 unpowered |
+R301 R401 R503 R656 R658,5,47k,Resistor_SMD:R_0603_1608Metric,,,Actuators Igniter_Valves Safety_Arming Sensors,,DESIGN off-state pull-up | DERIVED VGS = VBAT x 100/147 = 4.5-5.7 V at 6.6-8.4 V
+R302 R402 R654 R690,4,4.7k,Resistor_SMD:R_0603_1608Metric,,,Actuators Safety_Arming Sensors,,DERIVED |VGS| on = 8.4 x 47/51.7 = 7.6 V | DESIGN lets Q617/Q618 override the U305 drive (~1 mA)
+R330,1,100k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Safety_Arming,,"DERIVED tap 31.6/131.6 = 0.2401 (same scale as the ADC divider), Rth 24.0 kOhm"
+R331,1,31.6k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Safety_Arming,,
+R332,1,237k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Safety_Arming,,DERIVED ratiometric threshold 29.4/266.4 x 5 V = 0.5518 V = PC_SIG 2.298 V = 31.47 bar g on the 070BG (calc/pc_transducer_v2.py; 31.0 bar g on the superseded 01KPG basis)
+R333,1,29.4k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Safety_Arming,,Rth 26.2 kOhm ~ tap Rth (bias currents roughly cancel)
+R404 R405 R406 R407,4,220,Resistor_SMD:R_0603_1608Metric,,,Actuators,,DESIGN series termination/current limit
+R504 R510 R520 R530 R540 R550 R560 R580 R590 R660 R661 R670 R671 R680 R681 R691 R950 R951 R960 R961 R970 R971,22,100,Resistor_SMD:R_0603_1608Metric,,,Igniter_Valves Sensors Sensors_B,"SOL1 torch N2O gate | SOL2 torch propane gate | SOL4 roll CW pair gate | SOL5 roll CCW pair gate | MV latch magnet gate | bleed V1 (upstream, T4) gate | bleed V2 (downstream) gate",DESIGN gate damping
+R505,1,20m 1% 1W,Resistor_SMD:R_2512_6332Metric,,,Igniter_Valves,coil current shunt,DERIVED 4 A x 20 mOhm x 20 = 1.6 V
+R572,1,33.2k,Resistor_SMD:R_0603_1608Metric,,,Igniter_Valves,,"DESIGN ladder R3 (P_mid high), 1 % thin film"
+R573,1,4.75k,Resistor_SMD:R_0603_1608Metric,,,Igniter_Valves,,DESIGN hysteresis input resistor
+R576,1,10.2k,Resistor_SMD:R_0603_1608Metric,,,Igniter_Valves,,DESIGN ratiometric reference 0.7286 V
+R577,1,1.74k,Resistor_SMD:R_0603_1608Metric,,,Igniter_Valves,,
+R602 R603 R662 R672 R682 R901 R952 R962 R972,9,33,Resistor_SMD:R_0603_1608Metric,,,Sensors Sensors_B,,DESIGN shared-MISO series resistor
+R610 R620 R630 R910 R930,5,12.7k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Sensors Sensors_B,,"DERIVED divider 4.02/(12.7+4.02) = 0.240: 4.5 V -> 1.082 V, 5.0 V -> 1.202 V (FS 1.2 V) | DERIVED as R610: divider 0.240, 4.5 V -> 1.082 V | DERIVED 0.60 V/A x 0.240 = 0.144 V/A at the ADC; FS 8.3 A = INA181 swing limit, above the 4.33 A regulator limit"
+R611 R621 R631 R911 R931,5,4.02k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Sensors Sensors_B,,
+R650 R651,2,1k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Sensors,,
+R694 R695 R805 R815,4,10.0k 1%,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail Sensors,,"DERIVED levels: open 3.30 V, FLIGHT (B low) 2.27 V, STAND (A low) 1.65 V, both low 1.35 V; HAL thresholds 2.79 / 1.96 / 1.50 V (calc/ecu_v2p3_values_v1.py) | DESIGN STAND leg"
+R696,1,22.1k 1%,Resistor_SMD:R_0603_1608Metric,,,Sensors,,DESIGN FLIGHT leg
+R700 R701 R702 R703 R710 R711 R712 R713 R720 R721 R722 R723,12,47,Resistor_SMD:R_0603_1608Metric,,,Sensors,,
+R801,1,49.9k 1%,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail,,DATASHEET 49.9 kOhm = 400 kHz
+R802,1,41.2k 1%,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail,,DERIVED pintle_rail_v2: average inductor limit ~8 A (Eq. 5 extraction garbled: TO-CONFIRM on the PDF)
+R803,1,0R,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail,,"DATASHEET MODE resistor table: 0 Ohm = internal VCC, forced PWM"
+R804,1,26.7k 1%,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail,,DERIVED EN/UVLO 1.23 V x (1 + 26.7/10.0) = 4.51 V rising (4.40-4.62 V); 5 uA hysteresis current -> ~0.13 V
+R806,1,28.0k 1%,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail,,"DERIVED Eq. 24 (f_c 5 kHz at 6.0 V in / 4.33 A, C_eff 396 uF): 28.06 kOhm"
+R807,1,12m 1% 1W,Resistor_SMD:R_2512_6332Metric,,,Pintle_Rail,output current sense,DERIVED output current limit VSNS 48-52 mV / 12 mOhm = 4.0-4.33 A (pintle_rail_v2); Kelvin sense to ISP/ISN
+R808,1,24.9k 0.1% 10ppm,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail,,"LEAD 2026-10-13 adopted divider B: 1.2 V x (1 + 24.9/4.75) = 7.49 V typ, static worst 7.62 V (pintle_rail_v3)"
+R809,1,4.75k 0.1% 10ppm,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail,,
+R812,1,154k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail,,DESIGN pintle_rail_v3: 0.5 V x (1 + 154/10.0) = 8.20 V
+R813,1,10.0k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail,,
+R814,1,90.9k 1%,Resistor_SMD:R_0603_1608Metric,,,Pintle_Rail,,DERIVED UV 0.5 V x (1 + 90.9/10.0) = 5.05 V (firmware PRAIL lost < 5.5 V)
+R920 R940,2,22.6k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Sensors_B,,"DERIVED 2.49/25.09 = 1/10.08 (1/10.15 with the 330 kOhm ADC load): 7.49 V -> 0.74 V, FS 12.1 V, 24.5 V -> 2.43 V | DERIVED as R920"
+R921 R941,2,2.49k 0.1%,Resistor_SMD:R_0603_1608Metric,,,Sensors_B,,
+TP101,1,TP_VBAT,TestPoint:TestPoint_Pad_D1.5mm,,,Power,test point VBAT,
+TP102,1,TP_VLOGIC,TestPoint:TestPoint_Pad_D1.5mm,,,Power,test point VLOGIC,
+TP103,1,TP_5V,TestPoint:TestPoint_Pad_D1.5mm,,,Power,test point +5V,
+TP104,1,TP_3V3,TestPoint:TestPoint_Pad_D1.5mm,,,Power,test point +3V3,
+TP105,1,TP_GND,TestPoint:TestPoint_Pad_D1.5mm,,,Power,test point GND,
+TP301,1,TP_ARM_BUS,TestPoint:TestPoint_Pad_D1.5mm,,,Safety_Arming,test point ARM_BUS,
+TP302,1,TP_5V_ARM,TestPoint:TestPoint_Pad_D1.5mm,,,Safety_Arming,test point +5V_ARM,
+TP303,1,TP_WD_OK,TestPoint:TestPoint_Pad_D1.5mm,,,Safety_Arming,test point WD_OK,
+TP304,1,TP_MV_LATCH_GB,TestPoint:TestPoint_Pad_D1.5mm,,,Safety_Arming,test point MV_LATCH_GB,
+TP330,1,TP_OVP_PC,TestPoint:TestPoint_Pad_D1.5mm,,,Safety_Arming,test point OVP_PC,
+TP331,1,TP_OVP_REF,TestPoint:TestPoint_Pad_D1.5mm,,,Safety_Arming,test point OVP_REF,
+TP332,1,TP_OVP_TRIP_N,TestPoint:TestPoint_Pad_D1.5mm,,,Safety_Arming,test point OVP_TRIP_N,
+TP333,1,TP_OVP_OK,TestPoint:TestPoint_Pad_D1.5mm,,,Safety_Arming,test point OVP_OK,
+TP401,1,TP_TVC_PWR,TestPoint:TestPoint_Pad_D1.5mm,,,Actuators,test point TVC_PWR,
+TP501,1,TP_12V_ARM,TestPoint:TestPoint_Pad_D1.5mm,,,Igniter_Valves,test point +12V_ARM,
+TP502,1,TP_IGN_ISENSE,TestPoint:TestPoint_Pad_D1.5mm,,,Igniter_Valves,test point IGN_ISENSE,
+TP616,1,TP_HTR_G,TestPoint:TestPoint_Pad_D1.5mm,,,Sensors,test point HTR_G,
+TP801,1,TP_PR_PG,TestPoint:TestPoint_Pad_D1.5mm,,,Pintle_Rail,test point PR_PG,
+TP802,1,TP_PR_CC,TestPoint:TestPoint_Pad_D1.5mm,,,Pintle_Rail,test point PR_CC,
+TP803,1,TP_PR_SW1,TestPoint:TestPoint_Pad_D1.5mm,,,Pintle_Rail,test point PR_SW1,
+TP804,1,TP_PREG,TestPoint:TestPoint_Pad_D1.5mm,,,Pintle_Rail,test point PREG,
+TP805,1,TP_PRAIL,TestPoint:TestPoint_Pad_D1.5mm,,,Pintle_Rail,test point PRAIL,
+TP806,1,TP_PRAIL_OK,TestPoint:TestPoint_Pad_D1.5mm,,,Pintle_Rail,test point PRAIL_OK,
+TP901,1,TP_ADC2_DRDY,TestPoint:TestPoint_Pad_D1.5mm,,,Sensors_B,test point ADC2_DRDY,
+U101 U501,2,INA181A1IDBVR,Package_TO_SOT_SMD:SOT-23-6,,,Igniter_Valves Power,battery current amplifier | coil current amplifier,gain 20 V/V (A1); CM -0.2..26 V; pinout per KiCad lib | gain 20; low-side
+U102,1,TPS54202DDCR,Package_TO_SOT_SMD:SOT-23-6,,,Power,+5V logic buck,"DATASHEET SLVSD26C: VIN 4.5-28 V, 2 A, 500 kHz, VREF 0.596 V +/-2.5 %, EN float = enabled"
+U103 U104,2,MIC5205-3.3YM5,Package_TO_SOT_SMD:SOT-23-5,,,Power,+3V3A for ADS131M04 AVDD | +3V3_ENC encoder supply,"150 mA LDO; pinout per KiCad lib | 150 mA LDO, separate so a cable short cannot pull down MCU 3V3"
+U105,1,LT1761ES5-5,Package_TO_SOT_SMD:TSOT-23-5,,,Power,+5V_SNS transducer excitation,100 mA low-noise LDO; 3 x 5 mA transducers; pinout per KiCad lib
+U201,1,Teensy_4.1,argos_ecu:Teensy41_Socket,PJRC Teensy 4.1 (DEV-16771),,MCU_CAN,engine ECU MCU,"DATASHEET PJRC: 600 MHz i.MX RT1062, 3.3 V I/O NOT 5 V tolerant, 3.3 V out 250 mA max"
+U202,1,MCP2562FD-E/SN,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,,,MCU_CAN,CAN transceiver,MCP2562FD pin-compatible with MCP2562 symbol; STBY tied low = normal mode; VIO 3.3 V; pinout per KiCad lib
+U203,1,SN74LVC138APWR,Package_SO:TSSOP-16_4.4x5mm_P0.65mm,SN74LVC138APWR,,MCU_CAN,SPI0 CS decoder,"DATASHEET TI SCAS291W: pinout = KiCad 74HC138 symbol (A,B,C = A0..A2; G2A,G2B = ~E0,~E1; G1 = E2); VCC 1.65-3.6 V, inputs to 5.5 V, tpd A->Y 6.7 ns max at 3.3 V"
+U301,1,SN74LVC1G11DBVR,Package_TO_SOT_SMD:SOT-23-6,,,Safety_Arming,ARM permit AND (v2.1: 3 inputs),DATASHEET SCES487I: ARM_EN = ARM_REQ AND WD_OK AND OVP_OK (three independent conditions); Ioff
+U302,1,MIC5205-5.0YM5,Package_TO_SOT_SMD:SOT-23-5,,,Safety_Arming,+5V_ARM,gate-drive rail exists only when ARM bus is live (hardware interlock)
+U303,1,SN74LVC1G123DCTR,Package_SO:SSOP-8_2.95x2.8mm_P0.65mm,,,Safety_Arming,hardware watchdog (retriggerable monostable),DATASHEET SCES586E: B rising-edge retrigger with A low; K ~1.0-1.1 at 3.3 V; Ioff; no Q-bar output
+U304 U305,2,SN74AHCT244PWR,Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm,,,Safety_Arming,ARM-gated 5 V gate drive | servo PWM / SAFE outputs,"DATASHEET SCLS228O: VIH 2.0 V (3.3 V MCU OK), inputs -0.5..7 V independent of VCC | servo inputs need >= 3.5 V class pulses over cable (5 V push-pull)"
+U306,1,SN74LVC1G08DBVR,Package_TO_SOT_SMD:SOT-23-5,SN74LVC1G08DBVR,,Safety_Arming,MV latch permit AND,"2-input AND, inputs to 5.5 V, Ioff; on +5V_ARM (exists only with the ARM bus on); pinout per KiCad lib (TI DBV), datasheet not re-read this session"
+U307,1,SN74AHCT1G125DBVR,Package_TO_SOT_SMD:SOT-23-5,SN74AHCT1G125DBVR,,Igniter_Valves,ARM-gated V2 gate buffer,"DATASHEET-class AHCT: TTL inputs (3.3 V MCU OK), /OE = watchdog as U304"
+U330 U570,2,LMV331IDBVR,Package_TO_SOT_SMD:SOT-23-5,LMV331IDBVR,,Igniter_Valves Safety_Arming,Pc over-pressure comparator | P_mid comparator,"DATASHEET SLCS136V: Vio <= 9 mV, Iib <= 400 nA (-40..125 C), VICR -0.1..4.2 V at 5 V, open collector; on +5V_SNS so the inputs never exceed its supply | DATASHEET SLCS136V (as U330): open collector, VICR -0.1..4.2 V at 5 V"
+U331,1,SN74LVC1G175DBVR,Package_TO_SOT_SMD:SOT-23-6,SN74LVC1G175DBVR,,Safety_Arming,over-pressure latch (OVP_OK),DATASHEET SCES560G: /CLR low forces Q low (asynchronous); Q <- D = 1 on the ARM_REQ rising edge; Ioff
+U401 U602 U610 U611 U612,5,SRV05-4,Package_TO_SOT_SMD:SOT-23-6,,,Actuators Sensors,servo signal ESD | transducer/NTC ESD | encoder ESD,ESD array; pinout per KiCad lib
+U601 U901,2,ADS131M04IPWR,Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm,,,Sensors Sensors_B,Pc / feed / tank / load-cell ADC | P_torch / rail / pintle-current ADC,"DATASHEET SBAS890: +/-1.2 V/gain FS, 1.2 V internal ref, CLKIN 8.192 MHz -> 4 kSPS at OSR 1024 | DATASHEET SBAS890: +/-1.2 V FS at gain 1, internal 1.2 V ref; DRDY polled (TP901); no SYNC pin from the MCU: frame phase vs ADC1 arbitrary (< 1 ms)"
+U603,1,ADR4525BRZ,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,,,Sensors,bridge excitation,"2.5 V reference, +/-10 mA class; 350 ohm bridge draws 7.1 mA; pinout per KiCad lib"
+U604 U605 U606 U904 U905 U906,6,MAX31856MUD+,Package_SO:TSSOP-14_4.4x5mm_P0.65mm,,,Sensors Sensors_B,"TC1 case forward | TC2 case aft | TC3 nozzle holder | TC4 bore-top / manifold (firmware v2.7, CF-3/T1 evidence) | TC5 MSS-1 inlet-block manifold state sensor (LEAD 2026-10-13) | TC6 MSS-2 NC-valve-outlet manifold state sensor (LEAD 2026-10-13)","DATASHEET 19-7534: BIAS to T-, SPI CPHA=1 <= 5 MHz, ~10 S/s auto mode, SDO high-Z when CS high | DATASHEET 19-7534: thermocouple type set in CR1 (K/T), SPI CPHA=1 <= 5 MHz, SDO high-Z when CS high"
+U801,1,TPS552882RPMR,argos_ecu:TI_RPM0026A_PLACEHOLDER,TPS552882RPMR,,Pintle_Rail,pintle rail buck-boost,"DATASHEET TI TPS552882 (pin functions, VREF 1.188-1.212 V, VSNS 48-52 mV, VCC 5.0-5.4 V, GEA 190 uA/V typ); footprint is a PLACEHOLDER (RPM0026A land pattern TO-DRAW)"
+U802,1,LTC4365HTS8,Package_TO_SOT_SMD:TSOT-23-8,LTC4365HTS8 (order suffix TO-CONFIRM),,Pintle_Rail,pintle rail OV/UV disconnect,"DATASHEET ADI LTC4365 Rev B (as read for pintle_rail_v3): OV 492.5-507.5 mV H grade, fault 2 us, gate off 4 us, retry 26-49 ms; UV threshold ASSUMED the same 0.5 V (TO-CONFIRM, analog.com blocked)"
+U803,1,INA181A2IDBVR,Package_TO_SOT_SMD:SOT-23-6,INA181A2IDBVR,,Pintle_Rail,pintle rail current amplifier,gain 50 V/V (A2): 0.60 V/A on 12 mOhm; CM -0.2..26 V; pinout per KiCad lib
+Y601,1,8.192MHz,Oscillator:Oscillator_SMD_Abracon_ASE-4Pin_3.2x2.5mm,,,Sensors,ADC clock,"3.3 V CMOS oscillator, Abracon ASE series (orderable code TO-CONFIRM)"

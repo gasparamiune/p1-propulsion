@@ -1,0 +1,136 @@
+### 2.6 Feed line, hose and sense line (v2.4)
+
+The feed layout in v2.4 follows the lead's decisions of 2026-10-13:
+- Main valve: MV-P, a balanced poppet. Cv 3.6 (Cd 0.65 ASSUMED), seat 11 mm, lift 2.75 mm.
+  - Closing time: about 30 ms with the dashpot; 0.10 s is the bounding value until bench B-MV-1.
+  - Rating: MAWP >= 8.42 MPa, proof >= 10.5 MPa.
+- MV-P location: in the FS-01 module at the top of the zone (option A), with a fixed 3/8 in line down the wall to the coil (LEAD).
+- Back-relief check: FS-01 also carries a check valve (crack 0.03-0.07 MPa) that relieves the segment back to the tank (§2.7).
+
+Table 2.6. Feed pressure drop at 0.26 kg/s (DERIVED, `throat_block_v2p4.json` `feed_budget_MVP`). "Smooth" and "rough" are the ASSUMED friction bounds of the hose.
+
+| Tank | MV-P Cv 3.6 + filter Cv 2.2, smooth hose | Same, rough hose | Cv 3 valve (v2.3 basis), smooth |
+|---|---|---|---|
+| 15 C | 107.2 kPa | 113.9 kPa | 112.0 kPa |
+| 20 C | 112.0 kPa | 119.1 kPa | 117.1 kPa |
+| 25 C | 118.3 kPa | 125.8 kPa | 123.6 kPa |
+
+How the drop splits, at 20 C:
+- MV-P 11.5 kPa;
+- filter 30.8 kPa;
+- fittings and bends 60.9 kPa;
+- hose 8.7-15.8 kPa.
+
+The fixed 3/8 in wall line from the zone-top MV-P to the coil (278.75 mm on v3.4.1) adds about 8-15 kPa (ESTIMATE). Every simulation uses a line-loss budget of 270.4 kPa, so the margin is at least 129 kPa.
+
+The MEOP basis (§3.6) uses this hardware line loss. A larger loss lowers the stuck-pintle Pc. A smaller loss raises it, up to 45.55 bar at the 24 C interlock with zero loss. CF-3 therefore measures the line loss.
+
+Hose and sense line are unchanged from v2.3:
+- **Hose.** -6 PTFE-lined braid across the gimbal.
+  - Velocity: 6.3 m/s at 0.241 kg/s and 6.5-7.1 m/s at 0.26 kg/s.
+  - Friction: 8-17 kPa.
+  - Surge on slow closure: 14-106 kPa, for a 40-150 ms closure and a 0.4-0.8 m line.
+- **Pc sense line.**
+  - 1/8 in tube (1.6 mm ID), no longer than 0.3 m; transducer dead volume <= 0.3 cm3.
+  - Natural frequency >= 144 Hz in N2O-like gas and >= 188 Hz in N2.
+  - Phase lag <= 0.64 deg at 50 Hz (DERIVED).
+
+**Priming.** The v2.3 bleed-lift rule is no longer a separate step. The v2.8 sequence (§7.3) handles priming on two paths:
+- **Primed** (P_feed >= 0.5 P_tank): the MV-P opens at E0 with the pintle seated. On an A1 relight it opens at the PURGE command, 2.90 s before E0 (§2.8, §7.3).
+  - Any gas in the segment is already at >= 0.5 P_tank.
+  - Isentropic compression of saturated vapour from 0.5 P_tank to P_tank heats it to at most 310 / 315 / 319 K at 15 / 20 / 24 C (CoolProp, DERIVED). From 0.8 P_tank the bound is 295-304 K.
+  - This is far below the 614-646 K of a line compressed from 1 bar (Table 2.7). No bleed is needed.
+- **Unprimed** (P_feed < 0.5 P_tank or a pressure invalid, including the first start on a fresh line; also any latched prep path): the PREPRESS of fw v2.8.2 / v2.8.3 (§7.3).
+  - The pintle goes to the 0.10 mm bleed lift 0.06 s before the MV ramp starts; the MV ramps open over 0.35 s and holds 0.15 s; the bleed lasts until the feed reads primed, at most 0.56 s. A gas-filled dead end is therefore never compressed fast.
+  - Read in `engine_ecu.cpp` (5e5771220a602301) and `config.h` (0ee2a75b6c4441d5): the bleed lift and a ramp >= 0.3 s (`kMvOpenRampSlow_s` 0.35 s, with a static assert against Combustion's minimum) are present. The v2.4-draft open item is closed. With valid pressures and P_feed >= 0.5 P_tank the prep path runs the ramp without a bleed.
+
+Table 2.7 is unchanged and remains the bound for a fast valve onto a gas-filled line.
+
+Table 2.7. Upper-bound gas temperature from adiabatic compression when the isolation valve opens fast onto a dead-ended line (DERIVED).
+
+| P_tank [bar] | N2 ideal [K] | N2 CoolProp [K] | N2O vapour CoolProp [K] |
+|---|---|---|---|
+| 45 | 870 | 847 | 614 |
+| 52 | 907 | 879 | 630 |
+| 60 | 944 | 913 | 646 |
+
+### 2.7 Trapped volumes, relief and transducer protection (v2.4; RC-04, RC-12)
+
+Basis files:
+- `safing_relief_v2p4.json` (script `safing_relief_v2p4.py`);
+- `segment_recheck_v2p4.json` (script `segment_recheck_v2p4.py`);
+- CoolProp 8 equilibrium unless stated.
+
+Volumes are SI, quoted in cm3 for readability.
+
+Table 2.8. Lockable N2O volumes.
+
+| Volume | Size | Liquid at 15 / 20 / 25 C | Trapped when | Source and status |
+|---|---|---|---|---|
+| MV-P to pintle seat, CAD v3.4.1 re-route (adopted) | 48.23 cm3 with the filter element as a capillary barrier, 50.04 cm3 with it open (Mechanical DERIVED on the v3.4.1 solids) | 39.6 / 37.8 / 35.8 g (40.0 g at the A1 relight state, 286.7 K), barrier | Every coast; after every burn and every abort | LEAD (re-route baseline). The v2.4-draft 44 cm3 (v3.4) is superseded; results computed on 44 cm3 and not re-run say so |
+| Flow-path traps at 0 deg (part of the segment) | 12.00 / 13.81 cm3, including the 4.42 cm3 manifold annulus at the seat. Above about 0.6 deg of tilt the hose forms humps: 3.84 cm3 at 2 deg, 16.9 at 10 deg (worst azimuth) | – | Every coast (§2.8) | Mechanical `segment_traps_v341_v1`, DERIVED. Replaces the v3.4 inverted U (27.87 cm3, superseded) |
+| Torch N2O line, SOL0 to SOL1 (§7.5) | 1.21 cm3 (ASSUMED 1/8 in line, 1.6 mm bore, 0.6 m) | 0.95 g at 20 C | Only if SOL0 closes on liquid; R-T4 gives it a backward relief path | ASSUMED routing (Mechanical) |
+| Flight tank | 3.17 L, 2.00 kg | Liquid volume fraction 72 / 75 / 80 % | Always (closed vessel) | LEAD |
+| Ground panel lines and the CF-3 catch volume | Stand-specific | – | Any closed pair of valves | Founders' panel; every lockable volume gets a relief (§10.1) |
+
+**Liquid-full segment against warming** (isochore from saturated liquid; `segment_recheck_v2p4.json` part C):
+- dP/dT at constant density is 0.551 MPa/K at the A1 relight state, 0.471 MPa/K at 20 C and 0.405 MPa/K at 25 C.
+- From the A1 state, the warming needed to reach each pressure is:
+  - 8.42 MPa (MAWP): 7.3 K;
+  - 9.03 MPa (lower burst limit of the secondary disc): 8.4 K;
+  - 10.5 MPa (proof): 11.1 K.
+- A trapped-liquid relief must therefore be a working device. It acts within a few kelvin of warming.
+
+**Relief arrangement** (Mechanical FS-01, adopted by the lead 2026-10-13; Combustion basis):
+
+| Item | Value | Basis |
+|---|---|---|
+| S1, back-relief check | In FS-01, around the MV-P, flowing from the segment to the tank. Crack 0.03-0.07 MPa | Mechanical FS-01 (LEAD adopted). Holds the segment at <= P_tank + 0.07 MPa. Nothing is discharged near hot parts (C5 closed) |
+| S1 capacity needed | Liquid expansion 0.075 / 0.241 / 0.831 cm3/s at 18 / 58 / 200 W. Boiling displacement 0.72 / 2.32 / 7.98 cm3/s. Required Cv of liquid at the crack: 0.0032 / 0.0105 / 0.036. The vapour-venting requirement is lower (about 0.014 at 200 W) | DERIVED, volume-independent. Any soft-seat check valve with Cv >= 0.1 passes 200 W with a margin of 2.8 |
+| Secondary disc on FS-01 | 9.5 MPa +/- 5 % (burst 9.03-9.98 MPa), reverse-acting, rated at the coincident temperature. Discharges overboard (ICD item) | LEAD adopted. Operating ratio 0.93 against the 8.42 MPa fire case and 0.77 against normal relief (6.97 MPa) |
+| Part ratings, N2O side | MAWP >= 8.42 MPa, proof >= 10.5 MPa: tank, MV-P, S1, hose, riser, block, manifold, transducers | LEAD (Mechanical relief note). 8.42 MPa = fire-case tank relief 8.35 MPa + S1 crack 0.07 MPa |
+| Tank relief set pressure | 6.9 MPa, below the 7.0 MPa tank MEOP (ENG-09) | Combustion proposal (v2.4 draft), used by Mechanical for the 8.42 MPa basis; the lead confirms the set point (§12) |
+| Tank relief reseat | Above 5.53 MPa (Psat at the 24 C interlock) | TO-VERIFY with the part |
+| Tank relief capacity, flight tank | Fire, relieving at 8.35 MPa (set x 1.21): 2.87-4.71 mm2, d_eq 1.9-2.4 mm. Heater runaway at 100 W, relieving at 7.59 MPa: 0.036 mm2 | DERIVED. Fire heat by the API 521 form Q = C1 F A^0.82 (as recalled, TO-VERIFY), C1 43.2 / 70.9 kW, F 1, whole outer surface. Relieving state scanned along the isobar (supercritical above 7.245 MPa). HEM isentropic flux, Kd 0.85 (ASSUMED) |
+| Tank relief capacity, 15 L ground tank (10.4 kg; ASSUMED 140 mm x 0.974 m) | Fire: 6.9-11.3 mm2, d_eq 3.0-3.8 mm | Same method. A commercial cylinder carries its own relief under its standard (TO-VERIFY on the purchased cylinder) |
+| Discharge | Tank relief and remote vent through a line routed away from the nozzle, the case and people; never through the engine | H1, H8. Mechanical routes it |
+| Transducers | P_feed and P_tank 170BG (proof 34 MPa, burst 85 MPa); Pc and P_torch 070BG | LEAD. Above the 9.98 MPa upper disc limit: protected by the relief chain. Overpressure and burst ratings of the 070BG units against the 10.5 MPa proof are TO-VERIFY (§12) |
+
+**What S1 does not do** (§2.8). S1 vents the volume that heating adds, not the vapour.
+- With vapour at its port, the segment's void still grows by 0.0067 cm3 per joule that boils liquid; with liquid at its port, by 0.0388 cm3/J.
+- Only an exchange with the tank or a bleed returns liquid to the segment.
+- The S1 sizing above is unaffected.
+
+**RC-12, set point against MEOP:**
+- The tank relief set point is now below MEOP (6.9 against 7.0 MPa).
+- The parts are rated for the relieving pressure, MAWP >= 8.42 MPa, not for MEOP. The finding is closed by the adopted MAWP basis.
+- COTS ratings are checked against 8.42 MPa (Mechanical, TO-VERIFY per part).
+
+**Flight tank against temperature:**
+- The 2.00 kg / 3.17 L load becomes liquid-full at 306.6 K (33.5 C) and 6.80 MPa. Above that the pressure rises at 0.4-0.5 MPa/K and the relief flows liquid or supercritical fluid.
+- The ignition interlock (T_tank <= 24 C at ARM and at ignition, §3.6) keeps the vehicle well below this.
+- A pad hold in the sun with the heater disabled is the credible way to reach it. The tank relief and the remote vent (§10.2) cover it.
+
+**S1 failure (stuck shut) and the S1 flag** (`segment_recheck_v2p4.json` part C, 44 cm3):
+
+Table 2.9. Heating time for a liquid-full segment with S1 stuck shut, from saturated liquid.
+
+| Threshold | Warming [K] (A1 / 25 C start) | Time at 18 / 58 / 200 W [s] (A1 start) |
+|---|---|---|
+| S1 flag: P_feed - P_tank > 2 bar | 0.36 / 0.49 | 0.7 / 0.2 / 0.06 |
+| MAWP 8.42 MPa | 7.34 / 6.78 | 13.7 / 4.3 / 1.2 |
+| Disc lower limit 9.03 MPa | 8.44 / 8.26 | 15.8 / 4.9 / 1.4 |
+| Proof 10.5 MPa | 11.08 / 11.82 | 20.7 / 6.4 / 1.9 |
+
+- **Flag rule.** The S1 flag fires when the MV is closed and P_feed - P_tank > 2 bar for 1 s (LEAD).
+  - At 18 W it precedes MAWP by 9.8-12.0 s; at 58 W by 2.3-3.1 s, over the 15-25 C and A1 starts.
+  - At 200 W it does not precede MAWP (-0.03 to +0.17 s); only the passive disc protects.
+  - Times scale with the segment volume: for the v3.4.1 segment (48.23 cm3) they are 1.096 times longer (MAWP at 15.0 / 4.7 / 1.3 s).
+- **Flag action** (LEAD):
+  - Stand: lockout.
+  - Flight: flag and log. The relight proceeds, because opening the MV at E0 relieves the segment.
+
+**O3b reply** (RC-04, C16). The O3b coil is part of the segment and is re-routed on v3.4.1 (LEAD).
+- The thermal question is the heat input to the whole segment. On v3.4.1 it comes from Mechanical's slab model and FE head-end W(t): 0.83-9.0 kJ over the coast (§2.8).
+- The 2026-10-12 O3b conditions C1-C7 stand.
+- The relight requirement and the forced purge in §2.8 replace the v2.4-draft condition C8 ("manifold <= 30 W").

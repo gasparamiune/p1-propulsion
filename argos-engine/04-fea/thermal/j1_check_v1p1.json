@@ -1,0 +1,730 @@
+{
+ "id": "j1_check",
+ "version": "v1.1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "04-fea/thermal/j1_check.py",
+ "method": "Nozzle joint J1 thermal check on the axisymmetric FE (04-fea/thermal, v1, 2026-10-13, Mechanical).\n\nLead 2026-10-13: \"J1 is the baseline for your FE re-run ... Confirm that NZ-02 is carbon-phenolic.\"  Combustion nozzle_joint_v2p4\n(b5f396c7155c06c4) requirements: hot layer T_service >= FE peak + 100 K (they wrote >= 1700 C from the mica-gasket FE peak 1595 C),\nbearing 10.6 MPa at BN with strength >= 2x at temperature (structural FEA), k_through <= ~1 W/m/K \"keeps the lip at or below the\npresent 250 C in-burn\"; seal layer at the lip face: in-burn face temperature + 100 K <= class rating (lead rule).\nRuns (run_thermal.py v1.2, hi flux bound, perfect contact = upper bound of conduction through the stack, TC-06 bore 49.9 mm, TC-03 IN718):\n  J1:   DC-B1v3p99_tg711_hi_SS316L_L2.5_v12pre36IN_J1, DC-A1dispp99_tg711_hi_SS316L_L2.5_v12pre36IN_J1\n  MICA: DC-B1v3p99_tg711_hi_SS316L_L2.5_v11pre36IN,    DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36IN   (comparator, 1.0 mm mica gasket)\nMaterial data: engmat v1.2 (carbon-phenolic k 0.9-2.5 W/m/K 20-2000 C LITERATURE-approx; flexible graphite through-thickness 5-4 W/m/K\nLITERATURE-approx; mica 0.3-0.4 ASSUMED).  Output: thermal/j1_check_v1.json.  SIM (FE) on ASSUMED/LITERATURE-approx data; no test.\nv1.1 (2026-10-13): J1b screen (lead: \"carbon-phenolic hot layer + a mica/vermiculite insulating layer behind it ... + graphite seal, to bring\nthe lip toward <= 250 C and the seal below a 500 C class\"): B1 p99 hi-bound runs with an NZ-05 mica layer of 0.5 mm (J1B05) and 1.0 mm\n(J1B10) between the 2.0 mm carbon-phenolic hot layer and the 0.5 mm flexible-graphite lip seal (the stack grows by the mica thickness; the\ninsert sits that much further forward).  Criteria: NZ-04 in-burn + 100 K <= 500 C class (in-burn <= 400 C); lip bore edge in-burn <= 250 C\n(Combustion goal); mica hot face <= 900 C (phlogopite class ASSUMED, supplier rating TO-QUOTE; with the lead +100 K rule the grade must be\nrated >= peak + 100 K).  A1 was not re-run for J1b (B1 bounds the in-burn temperatures, as for J1).  Output: thermal/j1_check_v1p1.json.\n",
+ "runs": {
+  "B1": {
+   "J1": {
+    "label": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v12pre36IN_J1",
+    "summary_sha16": "0b57ae1950652c26"
+   },
+   "MICA": {
+    "label": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v11pre36IN",
+    "summary_sha16": "930b029c9a0eaa9e"
+   }
+  },
+  "A1": {
+   "J1": {
+    "label": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v12pre36IN_J1",
+    "summary_sha16": "a50afc439411fd9e"
+   },
+   "MICA": {
+    "label": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v11pre36IN",
+    "summary_sha16": "d0c9fbff0712d000"
+   }
+  }
+ },
+ "compare": {
+  "B1": {
+   "monitors": {
+    "NZ03_hot_top_r16": {
+     "J1_max_C": 1453.0,
+     "J1_flight_C": 1448.7,
+     "MICA_max_C": null,
+     "MICA_flight_C": null
+    },
+    "NZ04_seal_r16": {
+     "J1_max_C": 733.2,
+     "J1_flight_C": 387.0,
+     "MICA_max_C": null,
+     "MICA_flight_C": null
+    },
+    "NZ04_seal_r20": {
+     "J1_max_C": 729.7,
+     "J1_flight_C": 347.6,
+     "MICA_max_C": null,
+     "MICA_flight_C": null
+    },
+    "TC09_lip_top_bore_edge": {
+     "J1_max_C": 728.4,
+     "J1_flight_C": 342.2,
+     "MICA_max_C": null,
+     "MICA_flight_C": null
+    },
+    "T1_TC09_lip_bore_well": {
+     "J1_max_C": 724.5,
+     "J1_flight_C": 303.7,
+     "MICA_max_C": null,
+     "MICA_flight_C": null
+    },
+    "T1_TC09_lip_well": {
+     "J1_max_C": 714.1,
+     "J1_flight_C": 225.8,
+     "MICA_max_C": 636.4,
+     "MICA_flight_C": 153.8
+    },
+    "TC09_step": {
+     "J1_max_C": 690.9,
+     "J1_flight_C": 247.4,
+     "MICA_max_C": 565.4,
+     "MICA_flight_C": 164.9
+    },
+    "TC09_barrel": {
+     "J1_max_C": 404.1,
+     "J1_flight_C": 163.6,
+     "MICA_max_C": 405.7,
+     "MICA_flight_C": 163.7
+    },
+    "NZ01_throat": {
+     "J1_max_C": 1975.1,
+     "J1_flight_C": 1975.1,
+     "MICA_max_C": 2009.7,
+     "MICA_flight_C": 2009.7
+    },
+    "NZ01_OD": {
+     "J1_max_C": 1383.6,
+     "J1_flight_C": 1368.5,
+     "MICA_max_C": 1545.2,
+     "MICA_flight_C": 1514.4
+    },
+    "NZ03_mica": {
+     "J1_max_C": 733.9,
+     "J1_flight_C": 380.1,
+     "MICA_max_C": 873.4,
+     "MICA_flight_C": 825.6
+    },
+    "aft_land_oring": {
+     "J1_max_C": 165.2,
+     "J1_flight_C": 38.5,
+     "MICA_max_C": 164.1,
+     "MICA_flight_C": 38.5
+    },
+    "case_aft_inner": {
+     "J1_max_C": 166.3,
+     "J1_flight_C": 43.0,
+     "MICA_max_C": 165.2,
+     "MICA_flight_C": 43.0
+    }
+   },
+   "parts": {
+    "ENG-NZ-01": {
+     "J1": {
+      "T_max_C": 1976.2,
+      "t_max_s": 19.0,
+      "at_r_z_mm": [
+       6.88,
+       -215.19
+      ],
+      "T_max_in_flight_C": 1976.2,
+      "T_max_soak_C": 1674.7
+     },
+     "MICA": {
+      "T_max_C": 2011.6,
+      "T_max_in_flight_C": 2011.6,
+      "T_max_soak_C": 1752.1
+     }
+    },
+    "ENG-NZ-02": {
+     "J1": {
+      "T_max_C": 1395.3,
+      "t_max_s": 22.7,
+      "at_r_z_mm": [
+       22.0,
+       -205.07
+      ],
+      "T_max_in_flight_C": 1388.0,
+      "T_max_soak_C": 1395.3
+     },
+     "MICA": {
+      "T_max_C": 1551.0,
+      "T_max_in_flight_C": 1533.3,
+      "T_max_soak_C": 1551.0
+     }
+    },
+    "ENG-NZ-03": {
+     "J1": {
+      "T_max_C": 1497.8,
+      "t_max_s": 21.7,
+      "at_r_z_mm": [
+       15.3,
+       -221.18
+      ],
+      "T_max_in_flight_C": 1497.8,
+      "T_max_soak_C": 1495.3
+     },
+     "MICA": {
+      "T_max_C": 1595.0,
+      "T_max_in_flight_C": 1593.1,
+      "T_max_soak_C": 1595.0
+     }
+    },
+    "ENG-NZ-04": {
+     "J1": {
+      "T_max_C": 737.5,
+      "t_max_s": 96.7,
+      "at_r_z_mm": [
+       15.5,
+       -223.18
+      ],
+      "T_max_in_flight_C": 427.1,
+      "T_max_soak_C": 737.5
+     },
+     "MICA": null
+    },
+    "ENG-TC-09": {
+     "J1": {
+      "T_max_C": 772.0,
+      "t_max_s": 68.7,
+      "at_r_z_mm": [
+       24.98,
+       -209.02
+      ],
+      "T_max_in_flight_C": 395.0,
+      "T_max_soak_C": 772.0
+     },
+     "MICA": {
+      "T_max_C": 653.5,
+      "T_max_in_flight_C": 250.6,
+      "T_max_soak_C": 653.5
+     }
+    },
+    "ENG-TC-03": {
+     "J1": {
+      "T_max_C": 710.7,
+      "t_max_s": 1.0,
+      "at_r_z_mm": [
+       6.58,
+       111.94
+      ],
+      "T_max_in_flight_C": 710.7,
+      "T_max_soak_C": 273.2
+     },
+     "MICA": {
+      "T_max_C": 710.7,
+      "T_max_in_flight_C": 710.7,
+      "T_max_soak_C": 273.2
+     }
+    },
+    "ENG-TC-01": {
+     "J1": {
+      "T_max_C": 181.4,
+      "t_max_s": 36.7,
+      "at_r_z_mm": [
+       28.58,
+       94.83
+      ],
+      "T_max_in_flight_C": 144.6,
+      "T_max_soak_C": 181.4
+     },
+     "MICA": {
+      "T_max_C": 181.4,
+      "T_max_in_flight_C": 144.6,
+      "T_max_soak_C": 181.4
+     }
+    }
+   }
+  },
+  "A1": {
+   "monitors": {
+    "NZ03_hot_top_r16": {
+     "J1_max_C": 1117.9,
+     "J1_flight_C": 1091.0,
+     "MICA_max_C": null,
+     "MICA_flight_C": null
+    },
+    "NZ04_seal_r16": {
+     "J1_max_C": 575.7,
+     "J1_flight_C": 288.4,
+     "MICA_max_C": null,
+     "MICA_flight_C": null
+    },
+    "NZ04_seal_r20": {
+     "J1_max_C": 573.6,
+     "J1_flight_C": 267.6,
+     "MICA_max_C": null,
+     "MICA_flight_C": null
+    },
+    "TC09_lip_top_bore_edge": {
+     "J1_max_C": 572.9,
+     "J1_flight_C": 263.6,
+     "MICA_max_C": null,
+     "MICA_flight_C": null
+    },
+    "T1_TC09_lip_bore_well": {
+     "J1_max_C": 570.5,
+     "J1_flight_C": 241.9,
+     "MICA_max_C": null,
+     "MICA_flight_C": null
+    },
+    "T1_TC09_lip_well": {
+     "J1_max_C": 564.4,
+     "J1_flight_C": 203.1,
+     "MICA_max_C": 512.7,
+     "MICA_flight_C": 142.6
+    },
+    "TC09_step": {
+     "J1_max_C": 538.2,
+     "J1_flight_C": 211.3,
+     "MICA_max_C": 451.7,
+     "MICA_flight_C": 126.2
+    },
+    "TC09_barrel": {
+     "J1_max_C": 293.9,
+     "J1_flight_C": 126.0,
+     "MICA_max_C": 294.8,
+     "MICA_flight_C": 126.2
+    },
+    "NZ01_throat": {
+     "J1_max_C": 1740.6,
+     "J1_flight_C": 1740.6,
+     "MICA_max_C": 1750.1,
+     "MICA_flight_C": 1750.1
+    },
+    "NZ01_OD": {
+     "J1_max_C": 1043.1,
+     "J1_flight_C": 989.7,
+     "MICA_max_C": 1156.8,
+     "MICA_flight_C": 1088.3
+    },
+    "NZ03_mica": {
+     "J1_max_C": 576.0,
+     "J1_flight_C": 284.9,
+     "MICA_max_C": 684.7,
+     "MICA_flight_C": 596.7
+    },
+    "aft_land_oring": {
+     "J1_max_C": 105.5,
+     "J1_flight_C": 32.6,
+     "MICA_max_C": 104.3,
+     "MICA_flight_C": 32.6
+    },
+    "case_aft_inner": {
+     "J1_max_C": 106.2,
+     "J1_flight_C": 34.9,
+     "MICA_max_C": 104.9,
+     "MICA_flight_C": 34.9
+    }
+   },
+   "parts": {
+    "ENG-NZ-01": {
+     "J1": {
+      "T_max_C": 1740.8,
+      "t_max_s": 3.5,
+      "at_r_z_mm": [
+       6.88,
+       -215.19
+      ],
+      "T_max_in_flight_C": 1740.8,
+      "T_max_soak_C": 1373.5
+     },
+     "MICA": {
+      "T_max_C": 1751.4,
+      "T_max_in_flight_C": 1751.4,
+      "T_max_soak_C": 1382.2
+     }
+    },
+    "ENG-NZ-02": {
+     "J1": {
+      "T_max_C": 1043.2,
+      "t_max_s": 29.8,
+      "at_r_z_mm": [
+       22.0,
+       -209.63
+      ],
+      "T_max_in_flight_C": 1009.9,
+      "T_max_soak_C": 1043.2
+     },
+     "MICA": {
+      "T_max_C": 1156.9,
+      "T_max_in_flight_C": 1110.2,
+      "T_max_soak_C": 1156.9
+     }
+    },
+    "ENG-NZ-03": {
+     "J1": {
+      "T_max_C": 1158.3,
+      "t_max_s": 27.8,
+      "at_r_z_mm": [
+       15.3,
+       -221.18
+      ],
+      "T_max_in_flight_C": 1140.7,
+      "T_max_soak_C": 1158.3
+     },
+     "MICA": {
+      "T_max_C": 1229.5,
+      "T_max_in_flight_C": 1211.1,
+      "T_max_soak_C": 1229.5
+     }
+    },
+    "ENG-NZ-04": {
+     "J1": {
+      "T_max_C": 578.2,
+      "t_max_s": 111.8,
+      "at_r_z_mm": [
+       15.7,
+       -223.18
+      ],
+      "T_max_in_flight_C": 310.7,
+      "T_max_soak_C": 578.2
+     },
+     "MICA": null
+    },
+    "ENG-TC-09": {
+     "J1": {
+      "T_max_C": 596.3,
+      "t_max_s": 82.8,
+      "at_r_z_mm": [
+       24.98,
+       -209.63
+      ],
+      "T_max_in_flight_C": 308.4,
+      "T_max_soak_C": 596.3
+     },
+     "MICA": {
+      "T_max_C": 524.2,
+      "T_max_in_flight_C": 205.1,
+      "T_max_soak_C": 524.2
+     }
+    },
+    "ENG-TC-03": {
+     "J1": {
+      "T_max_C": 819.5,
+      "t_max_s": 3.0,
+      "at_r_z_mm": [
+       6.58,
+       111.94
+      ],
+      "T_max_in_flight_C": 819.5,
+      "T_max_soak_C": 246.0
+     },
+     "MICA": {
+      "T_max_C": 819.5,
+      "T_max_in_flight_C": 819.5,
+      "T_max_soak_C": 246.0
+     }
+    },
+    "ENG-TC-01": {
+     "J1": {
+      "T_max_C": 124.8,
+      "t_max_s": 45.8,
+      "at_r_z_mm": [
+       28.58,
+       95.2
+      ],
+      "T_max_in_flight_C": 88.7,
+      "T_max_soak_C": 124.8
+     },
+     "MICA": {
+      "T_max_C": 124.8,
+      "T_max_in_flight_C": 88.6,
+      "T_max_soak_C": 124.8
+     }
+    }
+   }
+  }
+ },
+ "findings": {
+  "hot_layer_NZ03_peak_C": 1497.8,
+  "hot_layer_T_service_required_C": 1597.8,
+  "hot_layer_note": "FE peak with J1 is below the 1595 C mica-joint value that set Combustion's >= 1700 C; requirement becomes >= FE + 100 K; carbon-phenolic char capability at this temperature in O2-bearing exhaust TO-VERIFY",
+  "seal_NZ04_inburn_max_C": 427.1,
+  "seal_NZ04_soak_max_C": 737.5,
+  "seal_class_required_C (in-burn + 100 K)": 527.1,
+  "seal_vs_assumed_class": "in-burn rule FAILS at the ASSUMED 500 C class (needs >= 527 C); an OI grade with a supplier rating >= that value is required (TO-QUOTE / TO-VERIFY)",
+  "lip_inburn_bore_edge_C": {
+   "B1": 342.2,
+   "A1": 263.6
+  },
+  "lip_vs_combustion_goal": "Combustion's k <= ~1 W/m/K goal 'keeps the lip <= 250 C in-burn' is NOT met by the modelled carbon-phenolic (k 0.9 -> 1.6 W/m/K at 20 -> 1000 C): lip bore edge in-burn rises vs the mica gasket (see compare)",
+  "NZ02_peak_C": 1395.3,
+  "NZ02_material": "CONFIRMED carbon-phenolic (CAD v3.4.1 baseline): peak below the 1551 C of the phenolic-sleeve run; glass-phenolic would melt its glass and silica-phenolic is to be kept below ~1500 C against graphite (Combustion, as recalled)",
+  "TC03_IN718_peak_C": 819.5,
+  "contact_model": "perfect contact (conforming mesh): UPPER bound of conduction into the lip; a contact conductance would lower the lip and raise the hot-layer face"
+ },
+ "j1b_screen": {
+  "basis": "B1 p99 hi bound, perfect contact; J1 comparator DC-B1v3p99_tg711_hi_SS316L_L2.5_v12pre36IN_J1",
+  "J1_reference": {
+   "seal_NZ04_inburn_C": 427.1,
+   "lip_bore_edge_inburn_C": 342.2,
+   "hot_layer_NZ03_peak_C": 1497.8
+  },
+  "variants": {
+   "J1B05": {
+    "run": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v13pre36IN_J1B05",
+    "summary_sha16": "371233175b1667cf",
+    "mica_t_mm": 0.5,
+    "extra_stack_length_mm": 0.5,
+    "monitors": {
+     "NZ05_mica_top_r16": {
+      "max_C": 898.7,
+      "flight_C": 844.4,
+      "t_max_s": 25.65
+     },
+     "NZ05_mica_top_r20": {
+      "max_C": 823.8,
+      "flight_C": 744.5,
+      "t_max_s": 28.65
+     },
+     "NZ04_seal_r16": {
+      "max_C": 684.7,
+      "flight_C": 249.3,
+      "t_max_s": 121.65
+     },
+     "NZ04_seal_r20": {
+      "max_C": 682.8,
+      "flight_C": 225.9,
+      "t_max_s": 121.65
+     },
+     "TC09_lip_top_bore_edge": {
+      "max_C": 681.6,
+      "flight_C": 222.9,
+      "t_max_s": 121.65
+     },
+     "T1_TC09_lip_bore_well": {
+      "max_C": 679.4,
+      "flight_C": 199.2,
+      "t_max_s": 126.65
+     },
+     "T1_TC09_lip_well": {
+      "max_C": 673.1,
+      "flight_C": 152.8,
+      "t_max_s": 126.65
+     },
+     "NZ03_hot_top_r16": {
+      "max_C": 1489.5,
+      "flight_C": 1483.3,
+      "t_max_s": 22.65
+     },
+     "NZ01_OD": {
+      "max_C": 1399.3,
+      "flight_C": 1382.2,
+      "t_max_s": 23.65
+     },
+     "TC09_step": {
+      "max_C": 694.9,
+      "flight_C": 248.0,
+      "t_max_s": 79.65
+     }
+    },
+    "parts": {
+     "ENG-NZ-01": {
+      "T_max_C": 1987.9,
+      "t_max_s": 19.0,
+      "at_r_z_mm": [
+       6.88,
+       -215.17
+      ],
+      "T_max_in_flight_C": 1987.9,
+      "T_max_soak_C": 1700.2
+     },
+     "ENG-NZ-02": {
+      "T_max_C": 1407.3,
+      "t_max_s": 22.7,
+      "at_r_z_mm": [
+       22.0,
+       -205.06
+      ],
+      "T_max_in_flight_C": 1399.0,
+      "T_max_soak_C": 1407.3
+     },
+     "ENG-NZ-03": {
+      "T_max_C": 1529.4,
+      "t_max_s": 21.7,
+      "at_r_z_mm": [
+       15.3,
+       -220.66
+      ],
+      "T_max_in_flight_C": 1529.4,
+      "T_max_soak_C": 1529.1
+     },
+     "ENG-NZ-04": {
+      "T_max_C": 687.1,
+      "t_max_s": 121.7,
+      "at_r_z_mm": [
+       15.9,
+       -223.16
+      ],
+      "T_max_in_flight_C": 271.2,
+      "T_max_soak_C": 687.1
+     },
+     "ENG-NZ-05": {
+      "T_max_C": 901.8,
+      "t_max_s": 25.7,
+      "at_r_z_mm": [
+       15.3,
+       -222.66
+      ],
+      "T_max_in_flight_C": 848.8,
+      "T_max_soak_C": 901.8
+     },
+     "ENG-TC-09": {
+      "T_max_C": 773.9,
+      "t_max_s": 67.7,
+      "at_r_z_mm": [
+       24.98,
+       -207.81
+      ],
+      "T_max_in_flight_C": 395.5,
+      "T_max_soak_C": 773.9
+     }
+    },
+    "criteria": {
+     "seal_NZ04_inburn_C": 271.2,
+     "seal_class_required_C": 371.2,
+     "seal_vs_500C_class": "PASS",
+     "lip_bore_edge_inburn_C": 222.9,
+     "lip_vs_250C": "PASS",
+     "mica_hot_face_peak_C": 901.8,
+     "mica_vs_900C_class_ASSUMED": "AT LIMIT (within 0.5 %)",
+     "mica_grade_required_C (+100 K rule)": 1001.8,
+     "hot_layer_NZ03_peak_C": 1529.4,
+     "hot_layer_T_service_required_C": 1629.4,
+     "NZ04_soak_peak_C": 687.1,
+     "TC09_soak_peak_C": 773.9
+    }
+   },
+   "J1B10": {
+    "run": "DC-B1v3p99_tg711_hi_SS316L_L2.5_v13pre36IN_J1B10",
+    "summary_sha16": "6fc9651566b67b87",
+    "mica_t_mm": 1.0,
+    "extra_stack_length_mm": 1.0,
+    "monitors": {
+     "NZ05_mica_top_r16": {
+      "max_C": 1072.3,
+      "flight_C": 1009.3,
+      "t_max_s": 25.65
+     },
+     "NZ05_mica_top_r20": {
+      "max_C": 975.8,
+      "flight_C": 887.9,
+      "t_max_s": 27.65
+     },
+     "NZ04_seal_r16": {
+      "max_C": 656.0,
+      "flight_C": 177.1,
+      "t_max_s": 136.65
+     },
+     "NZ04_seal_r20": {
+      "max_C": 655.4,
+      "flight_C": 166.3,
+      "t_max_s": 136.65
+     },
+     "TC09_lip_top_bore_edge": {
+      "max_C": 653.9,
+      "flight_C": 160.8,
+      "t_max_s": 141.65
+     },
+     "T1_TC09_lip_bore_well": {
+      "max_C": 652.2,
+      "flight_C": 143.4,
+      "t_max_s": 141.65
+     },
+     "T1_TC09_lip_well": {
+      "max_C": 647.8,
+      "flight_C": 115.0,
+      "t_max_s": 141.65
+     },
+     "NZ03_hot_top_r16": {
+      "max_C": 1509.8,
+      "flight_C": 1502.3,
+      "t_max_s": 22.65
+     },
+     "NZ01_OD": {
+      "max_C": 1408.4,
+      "flight_C": 1390.1,
+      "t_max_s": 23.65
+     },
+     "TC09_step": {
+      "max_C": 697.0,
+      "flight_C": 248.3,
+      "t_max_s": 79.65
+     }
+    },
+    "parts": {
+     "ENG-NZ-01": {
+      "T_max_C": 1996.2,
+      "t_max_s": 19.0,
+      "at_r_z_mm": [
+       6.88,
+       -215.15
+      ],
+      "T_max_in_flight_C": 1996.2,
+      "T_max_soak_C": 1722.0
+     },
+     "ENG-NZ-02": {
+      "T_max_C": 1414.5,
+      "t_max_s": 22.7,
+      "at_r_z_mm": [
+       22.0,
+       -205.37
+      ],
+      "T_max_in_flight_C": 1405.7,
+      "T_max_soak_C": 1414.5
+     },
+     "ENG-NZ-03": {
+      "T_max_C": 1548.5,
+      "t_max_s": 22.7,
+      "at_r_z_mm": [
+       15.3,
+       -220.14
+      ],
+      "T_max_in_flight_C": 1547.3,
+      "T_max_soak_C": 1548.5
+     },
+     "ENG-NZ-04": {
+      "T_max_C": 658.8,
+      "t_max_s": 126.7,
+      "at_r_z_mm": [
+       24.9,
+       -223.14
+      ],
+      "T_max_in_flight_C": 192.7,
+      "T_max_soak_C": 658.8
+     },
+     "ENG-NZ-05": {
+      "T_max_C": 1076.0,
+      "t_max_s": 25.7,
+      "at_r_z_mm": [
+       15.3,
+       -222.14
+      ],
+      "T_max_in_flight_C": 1014.3,
+      "T_max_soak_C": 1076.0
+     },
+     "ENG-TC-09": {
+      "T_max_C": 774.8,
+      "t_max_s": 67.7,
+      "at_r_z_mm": [
+       24.98,
+       -206.9
+      ],
+      "T_max_in_flight_C": 395.1,
+      "T_max_soak_C": 774.8
+     }
+    },
+    "criteria": {
+     "seal_NZ04_inburn_C": 192.7,
+     "seal_class_required_C": 292.7,
+     "seal_vs_500C_class": "PASS",
+     "lip_bore_edge_inburn_C": 160.8,
+     "lip_vs_250C": "PASS",
+     "mica_hot_face_peak_C": 1076.0,
+     "mica_vs_900C_class_ASSUMED": "FAIL",
+     "mica_grade_required_C (+100 K rule)": 1176.0,
+     "hot_layer_NZ03_peak_C": 1548.5,
+     "hot_layer_T_service_required_C": 1648.5,
+     "NZ04_soak_peak_C": 658.8,
+     "TC09_soak_peak_C": 774.8
+    }
+   }
+  },
+  "verdict": "J1b with 0.5 mm mica (J1B05) meets the seal rule (in-burn 271.2 C -> class >= 371 C) and the lip goal (222.9 C in burn); its mica hot face peaks at 901.8 C, at the ASSUMED 900 C phlogopite class (grade rated >= 1002 C needed with the +100 K rule, TO-QUOTE). 1.0 mm mica (J1B10) cools the seal/lip further but puts the mica at 1076.0 C (FAILS the 900 C class). The hot layer runs hotter with mica behind it (NZ-03 1529.4 / 1548.5 C vs J1 1497.8 C).",
+  "structural_baseline": "J1 stays the working baseline of the structural FEA (lead); its lip is hotter in burn (conservative for the lip strength); a J1b adoption adds t_mica to the stack (CAD change: holder depth or exit plane).",
+  "not_modelled": "contact conductances (perfect contact = upper bound of conduction through the stack), mica anisotropy, char shrinkage, A1 duty cycle for J1b"
+ },
+ "tag": "SIM (2-D FE, hi bound, perfect contact); material data ASSUMED / LITERATURE-approx; no test"
+}

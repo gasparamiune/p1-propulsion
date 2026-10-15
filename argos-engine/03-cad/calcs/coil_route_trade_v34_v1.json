@@ -1,0 +1,578 @@
+{
+ "id": "coil_route_trade_v34",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/coil_route_trade_v34.py",
+ "method": "Why: coil_o3b_v34 v1 found that the routed v3.4 coil (fixed end az 300, sweep 193 deg, 185.9 mm) misses three gates at the 8 deg stop:\nbay-wall clearance 0.23 mm (rule 3), bend radius 34.2 mm (G4 gate 39) and, with the v2 scalar method at EI 0.5 ASSUMED, ENG-07\n89.7 deg/s at 7.4 V.  This trade varies the fixed-end azimuth and the plan radius limits of parts_feed.route (the CAD route function)\nand evaluates every candidate with the same models:\n  * hinge stiffness matrix K (hose_frame.solve, pivot = origin), bend radius at the stop (installed + |change|, 36 directions),\n    clearances at the stop to the bay wall (r 70) and the GM-09 ring top (z 32, r >= 52) from the posed centreline (linear field +\n    exact rigid end, parts_feed.hose_centreline_at);\n  * ENG-07 at 7 deg, 7.4 V and 6.6 V, two load treatments:\n      scalar (actuator_slew_v2): other v2 terms 2.731 N m + K_max x 7 deg, all opposing the motion (bound);\n      vector: other v2 terms 2.731 N m opposing the motion + the hose spring moment -K (alpha, beta) at the pose (a linear spring\n      opposes outward motion and aids inward motion; its direction follows K's principal axes) -- the consistent model for a spring;\n  * installation moment if the hose is NOT pre-formed: a straight hose forced to the coil carries M = EI kappa; the engine-end couple\n    EI kappa_end b_end (b = binormal) has X/Y (servo) components -> a static hinge moment.  Pre-formed (heat-set) assemblies remove it.\nHose EI 0.25 (nominal) / 0.5 N m2 (upper) ASSUMED; B-FD-1 measures.  Output: calcs/coil_route_trade_v34_v1.json.\n",
+ "baseline_params": {
+  "fq_az": 300.0,
+  "r_max": 58.0,
+  "r_pref": 54.5,
+  "R_min_plan": 41.5,
+  "fq_r": 55.0
+ },
+ "L_other_Nm": 2.7314,
+ "rows": [
+  {
+   "params": {
+    "fq_az": 300.0,
+    "r_max": 58.0,
+    "r_pref": 54.5,
+    "fq_r": 55.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 185.9,
+   "sweep_deg": 193.2,
+   "r_range_mm": [
+    44.7,
+    57.4
+   ],
+   "Rmin_installed_mm": 40.1,
+   "wall_alpha_deg": -49.3,
+   "wall_L2_mm": 8.1,
+   "wall_len_mm": 296.4,
+   "wall_clr_stop_mm": 0.23,
+   "wall_worst": [
+    40.0,
+    [
+     28.3,
+     55.4,
+     61.2
+    ],
+    0.323
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 34.2,
+   "EI=0.25": {
+    "K": [
+     [
+      10.254,
+      4.958
+     ],
+     [
+      4.958,
+      9.412
+     ]
+    ],
+    "K_eig": [
+     4.857,
+     14.809
+    ],
+    "K_max": 14.809,
+    "install_moment_if_not_preformed_XY_Nm": 0.325,
+    "install_moment_total_Nm": 6.017,
+    "ENG07_vector_7.4V": {
+     "dps": 101.98,
+     "pose_phi_deg": 318.0,
+     "motion_chi_deg": 357.5
+    },
+    "ENG07_scalar_7.4V": {
+     "dps": 101.94,
+     "pose_phi_deg": 40.5,
+     "motion_chi_deg": 4.5
+    },
+    "ENG07_vector_6.6V": {
+     "dps": 85.52,
+     "pose_phi_deg": 317.5,
+     "motion_chi_deg": 357.5
+    },
+    "ENG07_scalar_6.6V": {
+     "dps": 85.48,
+     "pose_phi_deg": 40.5,
+     "motion_chi_deg": 5.0
+    }
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      20.508,
+      9.916
+     ],
+     [
+      9.916,
+      18.824
+     ]
+    ],
+    "K_eig": [
+     9.714,
+     29.618
+    ],
+    "K_max": 29.618,
+    "install_moment_if_not_preformed_XY_Nm": 0.65,
+    "install_moment_total_Nm": 12.033,
+    "ENG07_vector_7.4V": {
+     "dps": 89.73,
+     "pose_phi_deg": 316.5,
+     "motion_chi_deg": 358.5
+    },
+    "ENG07_scalar_7.4V": {
+     "dps": 89.68,
+     "pose_phi_deg": 40.0,
+     "motion_chi_deg": 5.5
+    },
+    "ENG07_vector_6.6V": {
+     "dps": 72.42,
+     "pose_phi_deg": 315.5,
+     "motion_chi_deg": 359.5
+    },
+    "ENG07_scalar_6.6V": {
+     "dps": 72.39,
+     "pose_phi_deg": 40.0,
+     "motion_chi_deg": 6.0
+    }
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "fq_az": 300.0,
+    "r_max": 58.0,
+    "r_pref": 54.5,
+    "fq_r": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": true,
+   "length_mm": 183.5,
+   "sweep_deg": 193.2,
+   "r_range_mm": [
+    44.7,
+    55.5
+   ],
+   "Rmin_installed_mm": 40.1,
+   "wall_alpha_deg": -46.4,
+   "wall_L2_mm": 6.8,
+   "wall_len_mm": 293.9,
+   "wall_clr_stop_mm": 0.29,
+   "wall_worst": [
+    40.0,
+    [
+     28.2,
+     55.4,
+     61.1
+    ],
+    0.323
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 34.1,
+   "EI=0.25": {
+    "K": [
+     [
+      10.185,
+      4.785
+     ],
+     [
+      4.785,
+      9.62
+     ]
+    ],
+    "K_eig": [
+     5.109,
+     14.696
+    ],
+    "K_max": 14.696,
+    "install_moment_if_not_preformed_XY_Nm": 0.337,
+    "install_moment_total_Nm": 6.016
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      20.37,
+      9.57
+     ],
+     [
+      9.57,
+      19.24
+     ]
+    ],
+    "K_eig": [
+     10.219,
+     29.392
+    ],
+    "K_max": 29.392,
+    "install_moment_if_not_preformed_XY_Nm": 0.674,
+    "install_moment_total_Nm": 12.032
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "fq_az": 300.0,
+    "r_max": 54.0,
+    "r_pref": 50.5,
+    "fq_r": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 176.0,
+   "sweep_deg": 193.2,
+   "r_range_mm": [
+    44.7,
+    55.3
+   ],
+   "Rmin_installed_mm": 39.4,
+   "wall_alpha_deg": -46.4,
+   "wall_L2_mm": 6.8,
+   "wall_len_mm": 293.9,
+   "wall_clr_stop_mm": 0.37,
+   "wall_worst": [
+    40.0,
+    [
+     28.0,
+     55.5,
+     60.8
+    ],
+    0.339
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 33.3,
+   "EI=0.25": {
+    "K": [
+     [
+      10.774,
+      5.861
+     ],
+     [
+      5.861,
+      12.164
+     ]
+    ],
+    "K_eig": [
+     5.567,
+     17.371
+    ],
+    "K_max": 17.371,
+    "install_moment_if_not_preformed_XY_Nm": 0.38,
+    "install_moment_total_Nm": 6.076
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      21.547,
+      11.721
+     ],
+     [
+      11.721,
+      24.328
+     ]
+    ],
+    "K_eig": [
+     11.135,
+     34.741
+    ],
+    "K_max": 34.741,
+    "install_moment_if_not_preformed_XY_Nm": 0.76,
+    "install_moment_total_Nm": 12.152
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "fq_az": 300.0,
+    "r_max": 52.0,
+    "r_pref": 48.5,
+    "fq_r": 50.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 164.6,
+   "sweep_deg": 193.2,
+   "r_range_mm": [
+    44.7,
+    56.3
+   ],
+   "Rmin_installed_mm": 32.8,
+   "wall_alpha_deg": -44.25,
+   "wall_L2_mm": 6.0,
+   "wall_len_mm": 292.2,
+   "wall_clr_stop_mm": 1.63,
+   "wall_worst": [
+    30.0,
+    [
+     34.2,
+     50.4,
+     59.7
+    ],
+    0.4
+   ],
+   "ring_clr_stop_mm": 7.34,
+   "Rmin_stop_mm": 28.3,
+   "EI=0.25": {
+    "K": [
+     [
+      11.558,
+      7.724
+     ],
+     [
+      7.724,
+      17.848
+     ]
+    ],
+    "K_eig": [
+     6.363,
+     23.043
+    ],
+    "K_max": 23.043,
+    "install_moment_if_not_preformed_XY_Nm": 0.465,
+    "install_moment_total_Nm": 6.694
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      23.116,
+      15.447
+     ],
+     [
+      15.447,
+      35.694
+     ]
+    ],
+    "K_eig": [
+     12.727,
+     46.083
+    ],
+    "K_max": 46.083,
+    "install_moment_if_not_preformed_XY_Nm": 0.93,
+    "install_moment_total_Nm": 13.389
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "fq_az": 300.0,
+    "r_max": 50.0,
+    "r_pref": 46.5,
+    "fq_r": 48.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 285.0,
+    "r_max": 58.0,
+    "r_pref": 54.5,
+    "fq_r": 55.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 285.0,
+    "r_max": 58.0,
+    "r_pref": 54.5,
+    "fq_r": 52.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 285.0,
+    "r_max": 54.0,
+    "r_pref": 50.5,
+    "fq_r": 52.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 285.0,
+    "r_max": 52.0,
+    "r_pref": 48.5,
+    "fq_r": 50.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 285.0,
+    "r_max": 50.0,
+    "r_pref": 46.5,
+    "fq_r": 48.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 270.0,
+    "r_max": 58.0,
+    "r_pref": 54.5,
+    "fq_r": 55.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 270.0,
+    "r_max": 58.0,
+    "r_pref": 54.5,
+    "fq_r": 52.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 270.0,
+    "r_max": 54.0,
+    "r_pref": 50.5,
+    "fq_r": 52.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 270.0,
+    "r_max": 52.0,
+    "r_pref": 48.5,
+    "fq_r": 50.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 270.0,
+    "r_max": 50.0,
+    "r_pref": 46.5,
+    "fq_r": 48.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 255.0,
+    "r_max": 58.0,
+    "r_pref": 54.5,
+    "fq_r": 55.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 255.0,
+    "r_max": 58.0,
+    "r_pref": 54.5,
+    "fq_r": 52.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 255.0,
+    "r_max": 54.0,
+    "r_pref": 50.5,
+    "fq_r": 52.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 255.0,
+    "r_max": 52.0,
+    "r_pref": 48.5,
+    "fq_r": 50.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 255.0,
+    "r_max": 50.0,
+    "r_pref": 46.5,
+    "fq_r": 48.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 240.0,
+    "r_max": 58.0,
+    "r_pref": 54.5,
+    "fq_r": 55.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 240.0,
+    "r_max": 58.0,
+    "r_pref": 54.5,
+    "fq_r": 52.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 240.0,
+    "r_max": 54.0,
+    "r_pref": 50.5,
+    "fq_r": 52.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 240.0,
+    "r_max": 52.0,
+    "r_pref": 48.5,
+    "fq_r": 50.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  },
+  {
+   "params": {
+    "fq_az": 240.0,
+    "r_max": 50.0,
+    "r_pref": 46.5,
+    "fq_r": 48.0
+   },
+   "feasible": false,
+   "why": "feed route: no two-bend wall-line solution (move the fixed end)"
+  }
+ ],
+ "tag": "DERIVED (linear frame on CAD route candidates; EI ASSUMED; servo line ASSUMED linear)",
+ "t_s": 18.5
+}

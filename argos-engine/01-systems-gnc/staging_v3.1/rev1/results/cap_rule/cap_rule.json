@@ -1,0 +1,541 @@
+{
+ "version": "m2_cap_rule v1.1",
+ "date": "2026-10-13",
+ "sim": "sim6 v2.8-dev (2026-10-13, amendments M, W, F, P, R)",
+ "method": "Rule (PROPOSAL for the lead, to be re-applied per engine after T1-T4):\n  inputs  k = delivered thrust per propellant flow relative to the map (T1-T4 load cell / flow), u_k its 1-sigma;\n          (a, n) regression law with its 2-sigma region; g = throat growth per flight with u_g; N2O load 2.00 kg.\n  corner  k_c = k - 2 u_k; (a_c, n_c) = the 2-sigma point with the lowest regression (low a, high n: the longest burn and\n          the largest N2O use); g_c = g + 2 u_g.\n  cap     h_cap = the largest grid height (0.25 m steps from H_LO) such that EVERY grid height up to it meets the +25 %\n          reserve rule (usable N2O = liquid left - 3 % trapped >= 25 % of the N2O burned) on the nominal flight at the\n          corner with the flight FSW. Grid, not bisection: reserve(h) is a step function of the 10 ms MECO quantisation\n          (RG-11 b).\n  check   conditional MC at h_cap with (k_c, a_c, n_c, g_c) fixed in every run and every other dispersion drawn (seed 101,\n          500 runs): P >= 0.99 and no exhausted run; otherwise lower h_cap by 0.25 m and repeat.\nPre-T1-T4 demonstration (the measured values do not exist yet; the rows are examples, not flight values):\n  k in {1.00, 0.97, 0.95, 0.90} with u_k = 0; corner (a 0.6, n 0.68), g 0.11 (the reviewer's corner, rg11 / rg14); and the\n  band centre (a 1.05, n 0.515) for comparison. Cross-check against the reviewer's independent rg11 cap search\n  (62.92 / 59.65 / 56.43 / 50.79 m at k 1.00 / 0.97 / 0.95 / 0.90) and the reviewer's 1-DOF k limits (rg08: A1 0.922,\n  B1 62 m 0.859).\nConditional MC (B1): corner k 1.00 at 62 m on v27 (the reviewer's rg14 basis: P 0.990, 3 exhausted) and on W1p; corner k 0.97\nat 62 m and at the W1p cap; corner k 1.00 at the W1p cap when it differs from 62 m.\nA1 at fixed efficiency: A1_none base with thrust_scale fixed at 1.00 / 0.97 / 0.95 / 0.90 in every run, other dispersions\ndrawn (seed 101, 500 runs, paired with the stored A1_none table); nominal A1 reserve at each k (k-scan).\nOutput: <out>/cap_grid.json, cap_kscan.json, cond_<case>.csv, cap_rule.json",
+ "reserve_rule": {
+  "reserve": 0.25,
+  "trapped": 0.03,
+  "m_n2o_kg": 2.0
+ },
+ "grid_step_m": 0.25,
+ "grid": {
+  "v27|corner|k1.00": {
+   "fsw": "v27",
+   "a": 0.6,
+   "n": 0.68,
+   "g": 0.11,
+   "k": 1.0,
+   "cap_m": 62.75,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.25805670574544765,
+   "reviewer_rg11_cap_m": 62.92
+  },
+  "v27|corner|k0.97": {
+   "fsw": "v27",
+   "a": 0.6,
+   "n": 0.68,
+   "g": 0.11,
+   "k": 0.97,
+   "cap_m": 59.5,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.22797391409607573,
+   "reviewer_rg11_cap_m": 59.65
+  },
+  "v27|corner|k0.95": {
+   "fsw": "v27",
+   "a": 0.6,
+   "n": 0.68,
+   "g": 0.11,
+   "k": 0.95,
+   "cap_m": 56.25,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.20596352762535305,
+   "reviewer_rg11_cap_m": 56.43
+  },
+  "v27|corner|k0.90": {
+   "fsw": "v27",
+   "a": 0.6,
+   "n": 0.68,
+   "g": 0.11,
+   "k": 0.9,
+   "cap_m": 51.0,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.14305177004833036,
+   "reviewer_rg11_cap_m": 50.79
+  },
+  "v27|centre|k1.00": {
+   "fsw": "v27",
+   "a": 1.05,
+   "n": 0.515,
+   "g": 0.11,
+   "k": 1.0,
+   "cap_m": 68.0,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.4360802226911322,
+   "reviewer_rg11_cap_m": null
+  },
+  "v27|centre|k0.97": {
+   "fsw": "v27",
+   "a": 1.05,
+   "n": 0.515,
+   "g": 0.11,
+   "k": 0.97,
+   "cap_m": 68.0,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.4037074672068558,
+   "reviewer_rg11_cap_m": null
+  },
+  "v27|centre|k0.95": {
+   "fsw": "v27",
+   "a": 1.05,
+   "n": 0.515,
+   "g": 0.11,
+   "k": 0.95,
+   "cap_m": 68.0,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.36448116653029944,
+   "reviewer_rg11_cap_m": null
+  },
+  "v27|centre|k0.90": {
+   "fsw": "v27",
+   "a": 1.05,
+   "n": 0.515,
+   "g": 0.11,
+   "k": 0.9,
+   "cap_m": 68.0,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.3022224891626696,
+   "reviewer_rg11_cap_m": null
+  },
+  "W1p|corner|k1.00": {
+   "fsw": "W1p",
+   "a": 0.6,
+   "n": 0.68,
+   "g": 0.11,
+   "k": 1.0,
+   "cap_m": 62.5,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.25805670574544765,
+   "reviewer_rg11_cap_m": 62.92
+  },
+  "W1p|corner|k0.97": {
+   "fsw": "W1p",
+   "a": 0.6,
+   "n": 0.68,
+   "g": 0.11,
+   "k": 0.97,
+   "cap_m": 60.0,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.22797391409607573,
+   "reviewer_rg11_cap_m": 59.65
+  },
+  "W1p|corner|k0.95": {
+   "fsw": "W1p",
+   "a": 0.6,
+   "n": 0.68,
+   "g": 0.11,
+   "k": 0.95,
+   "cap_m": 57.5,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.20596352762535305,
+   "reviewer_rg11_cap_m": 56.43
+  },
+  "W1p|corner|k0.90": {
+   "fsw": "W1p",
+   "a": 0.6,
+   "n": 0.68,
+   "g": 0.11,
+   "k": 0.9,
+   "cap_m": 51.5,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.14754591936646735,
+   "reviewer_rg11_cap_m": 50.79
+  },
+  "W1p|centre|k1.00": {
+   "fsw": "W1p",
+   "a": 1.05,
+   "n": 0.515,
+   "g": 0.11,
+   "k": 1.0,
+   "cap_m": 68.0,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.4360802226911322,
+   "reviewer_rg11_cap_m": null
+  },
+  "W1p|centre|k0.97": {
+   "fsw": "W1p",
+   "a": 1.05,
+   "n": 0.515,
+   "g": 0.11,
+   "k": 0.97,
+   "cap_m": 68.0,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.4037074672068558,
+   "reviewer_rg11_cap_m": null
+  },
+  "W1p|centre|k0.95": {
+   "fsw": "W1p",
+   "a": 1.05,
+   "n": 0.515,
+   "g": 0.11,
+   "k": 0.95,
+   "cap_m": 68.0,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.3794870969807116,
+   "reviewer_rg11_cap_m": null
+  },
+  "W1p|centre|k0.90": {
+   "fsw": "W1p",
+   "a": 1.05,
+   "n": 0.515,
+   "g": 0.11,
+   "k": 0.9,
+   "cap_m": 68.0,
+   "closing_heights_above_first_failure": 0,
+   "reserve_at_62m": 0.3054779242172617,
+   "reviewer_rg11_cap_m": null
+  }
+ },
+ "kscan": {
+  "B1_62|v27|corner": {
+   "lowest_closing_k": 1.0,
+   "highest_failing_k": 0.99,
+   "monotone": true
+  },
+  "B1_62|v27|centre": {
+   "lowest_closing_k": 0.87,
+   "highest_failing_k": 0.86,
+   "monotone": true
+  },
+  "B1_62|W1p|corner": {
+   "lowest_closing_k": 1.0,
+   "highest_failing_k": 0.99,
+   "monotone": true
+  },
+  "B1_62|W1p|centre": {
+   "lowest_closing_k": 0.87,
+   "highest_failing_k": 0.86,
+   "monotone": true
+  },
+  "A1|v28": {
+   "lowest_closing_k": 0.92,
+   "highest_failing_k": 0.91,
+   "monotone": true
+  },
+  "reviewer_rg08_1dof": {
+   "A1": 0.922,
+   "B1_62m": 0.859
+  }
+ },
+ "cond": {
+  "B1_corner_k1.00_h62_v27": {
+   "prof": "B1",
+   "k": 1.0,
+   "h": 62.0,
+   "fsw": "v27",
+   "P": 0.994,
+   "P_wilson": [
+    0.9825094361891064,
+    0.9979574407023611
+   ],
+   "exhausted": 1,
+   "liquid_left_kg": {
+    "p01": 0.20858437881821904,
+    "min": 0.059803065619858174
+   },
+   "usable_left_kg": {
+    "p01": 0.14858437881821904,
+    "min": -0.00019693438014182357
+   },
+   "burn_time_s": {
+    "p99": 18.066889999999095,
+    "max": 20.46700000000203
+   },
+   "h_max_m": {
+    "p99": 65.24800109847436,
+    "max": 66.28062993270106
+   },
+   "vs_stored_band_table": {
+    "P_ref": 0.996,
+    "P_case": 0.994,
+    "lost": 2,
+    "gained": 1,
+    "p_exact": 1.0,
+    "n": 500
+   }
+  },
+  "B1_corner_k1.00_h62_W1p": {
+   "prof": "B1",
+   "k": 1.0,
+   "h": 62.0,
+   "fsw": "W1p",
+   "P": 0.992,
+   "P_wilson": [
+    0.9796126401630988,
+    0.9968847352024922
+   ],
+   "exhausted": 1,
+   "liquid_left_kg": {
+    "p01": 0.19860639911742173,
+    "min": 0.059803065619858174
+   },
+   "usable_left_kg": {
+    "p01": 0.13860639911742173,
+    "min": -0.00019693438014182357
+   },
+   "burn_time_s": {
+    "p99": 18.066889999999095,
+    "max": 20.46700000000203
+   },
+   "h_max_m": {
+    "p99": 65.60797982252556,
+    "max": 66.41099181006693
+   },
+   "vs_stored_band_table": {
+    "P_ref": 0.996,
+    "P_case": 0.992,
+    "lost": 3,
+    "gained": 1,
+    "p_exact": 0.625,
+    "n": 500
+   }
+  },
+  "B1_corner_k1.00_cap_W1p": {
+   "prof": "B1",
+   "k": 1.0,
+   "h": 62.5,
+   "fsw": "W1p",
+   "P": 0.992,
+   "P_wilson": [
+    0.9796126401630988,
+    0.9968847352024922
+   ],
+   "exhausted": 1,
+   "liquid_left_kg": {
+    "p01": 0.1946442426507407,
+    "min": 0.0592650274340901
+   },
+   "usable_left_kg": {
+    "p01": 0.1346442426507407,
+    "min": -0.0007349725659098957
+   },
+   "burn_time_s": {
+    "p99": 18.253879999999324,
+    "max": 20.381000000001926
+   },
+   "h_max_m": {
+    "p99": 66.07746985841895,
+    "max": 66.41099181006693
+   },
+   "vs_stored_band_table": {
+    "P_ref": 0.996,
+    "P_case": 0.992,
+    "lost": 3,
+    "gained": 1,
+    "p_exact": 0.625,
+    "n": 500
+   }
+  },
+  "B1_corner_k0.97_h62_W1p": {
+   "prof": "B1",
+   "k": 0.97,
+   "h": 62.0,
+   "fsw": "W1p",
+   "P": 0.99,
+   "P_wilson": [
+    0.976806564621235,
+    0.9957213092184797
+   ],
+   "exhausted": 2,
+   "liquid_left_kg": {
+    "p01": 0.16544502415087461,
+    "min": 0.059140893070365755
+   },
+   "usable_left_kg": {
+    "p01": 0.10544502415087462,
+    "min": -0.000859106929634243
+   },
+   "burn_time_s": {
+    "p99": 18.187619999999242,
+    "max": 20.444000000002003
+   },
+   "h_max_m": {
+    "p99": 64.42679760206111,
+    "max": 65.41081113191481
+   },
+   "vs_stored_band_table": {
+    "P_ref": 0.996,
+    "P_case": 0.99,
+    "lost": 4,
+    "gained": 1,
+    "p_exact": 0.375,
+    "n": 500
+   }
+  },
+  "B1_corner_k0.97_cap_W1p": {
+   "prof": "B1",
+   "k": 0.97,
+   "h": 60.0,
+   "fsw": "W1p",
+   "P": 0.996,
+   "P_wilson": [
+    0.9855339859585811,
+    0.9989023924587627
+   ],
+   "exhausted": 1,
+   "liquid_left_kg": {
+    "p01": 0.18585769696892346,
+    "min": 0.059567387001204126
+   },
+   "usable_left_kg": {
+    "p01": 0.12585769696892346,
+    "min": -0.0004326129987958713
+   },
+   "burn_time_s": {
+    "p99": 17.805339999998775,
+    "max": 20.071000000001547
+   },
+   "h_max_m": {
+    "p99": 62.77367808316008,
+    "max": 63.633109922051666
+   },
+   "vs_stored_band_table": {
+    "P_ref": 0.996,
+    "P_case": 0.996,
+    "lost": 2,
+    "gained": 2,
+    "p_exact": 1.0,
+    "n": 500
+   }
+  },
+  "A1_k1.00": {
+   "prof": "A1",
+   "k": 1.0,
+   "P": 0.986,
+   "P_wilson": [
+    0.9713865738597492,
+    0.9932022969282127
+   ],
+   "exhausted": 0,
+   "liquid_left_kg": {
+    "p01": 0.24726155518124163,
+    "min": 0.156815364939837
+   },
+   "usable_left_kg": {
+    "p01": 0.18726155518124163,
+    "min": 0.096815364939837
+   },
+   "burn_time_s": {
+    "p99": 8.355060000000808,
+    "max": 8.517000000000719
+   },
+   "h_max_m": {
+    "p99": 305.87439066553253,
+    "max": 306.44323404728897
+   },
+   "vs_stored_band_table": {
+    "P_ref": 0.992,
+    "P_case": 0.986,
+    "lost": 4,
+    "gained": 1,
+    "p_exact": 0.375,
+    "n": 500
+   }
+  },
+  "A1_k0.97": {
+   "prof": "A1",
+   "k": 0.97,
+   "P": 0.988,
+   "P_wilson": [
+    0.9740692922810136,
+    0.9944890800328247
+   ],
+   "exhausted": 0,
+   "liquid_left_kg": {
+    "p01": 0.19281347931554482,
+    "min": 0.10141721880932515
+   },
+   "usable_left_kg": {
+    "p01": 0.13281347931554482,
+    "min": 0.041417218809325154
+   },
+   "burn_time_s": {
+    "p99": 8.505030000000726,
+    "max": 8.725000000000604
+   },
+   "h_max_m": {
+    "p99": 305.74967940009293,
+    "max": 306.48534035045293
+   },
+   "vs_stored_band_table": {
+    "P_ref": 0.992,
+    "P_case": 0.988,
+    "lost": 3,
+    "gained": 1,
+    "p_exact": 0.625,
+    "n": 500
+   }
+  },
+  "A1_k0.95": {
+   "prof": "A1",
+   "k": 0.95,
+   "P": 0.996,
+   "P_wilson": [
+    0.9855339859585811,
+    0.9989023924587627
+   ],
+   "exhausted": 0,
+   "liquid_left_kg": {
+    "p01": 0.15956511011012384,
+    "min": 0.06559918278514786
+   },
+   "usable_left_kg": {
+    "p01": 0.09956511011012383,
+    "min": 0.005599182785147858
+   },
+   "burn_time_s": {
+    "p99": 8.58564000000068,
+    "max": 8.851000000000534
+   },
+   "h_max_m": {
+    "p99": 305.34952771339886,
+    "max": 305.6079352572947
+   },
+   "vs_stored_band_table": {
+    "P_ref": 0.992,
+    "P_case": 0.996,
+    "lost": 1,
+    "gained": 3,
+    "p_exact": 0.625,
+    "n": 500
+   }
+  },
+  "A1_k0.90": {
+   "prof": "A1",
+   "k": 0.9,
+   "P": 0.98,
+   "P_wilson": [
+    0.9635794314459021,
+    0.9891009347644306
+   ],
+   "exhausted": 5,
+   "liquid_left_kg": {
+    "p01": 0.06488673097143306,
+    "min": 0.05901552108699977
+   },
+   "usable_left_kg": {
+    "p01": 0.004886730971433059,
+    "min": -0.000984478913000228
+   },
+   "burn_time_s": {
+    "p99": 8.903110000000504,
+    "max": 9.159000000000363
+   },
+   "h_max_m": {
+    "p99": 304.77185917889466,
+    "max": 304.9364422086208
+   },
+   "vs_stored_band_table": {
+    "P_ref": 0.992,
+    "P_case": 0.98,
+    "lost": 8,
+    "gained": 2,
+    "p_exact": 0.109375,
+    "n": 500
+   }
+  }
+ },
+ "grid_full_path": "/home/claude/work/space/out/cap_rule/cap_grid.json",
+ "kscan_full_path": "/home/claude/work/space/out/cap_rule/cap_kscan.json"
+}

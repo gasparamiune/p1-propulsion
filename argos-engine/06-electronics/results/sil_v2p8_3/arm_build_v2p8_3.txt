@@ -1,0 +1,174 @@
+for f in src/core/control.cpp src/core/engine_ecu.cpp src/core/protocol.cpp src/core/sensor_scale.cpp; do arm-none-eabi-g++ -std=c++17 -Os -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16 -fno-exceptions -fno-rtti -Wall -Wextra -Wno-unused-parameter -Wdouble-promotion -Isrc/core -c $f -o build/arm/$(basename $f .cpp).o || exit 1; done
+src/core/engine_ecu.cpp: In member function 'bool ecu::EngineEcu::mvOpener(double)':
+src/core/engine_ecu.cpp:165:34: warning: implicit conversion from 'float' to 'double' to match other result of conditional [-Wdouble-promotion]
+  165 |   const double t_ramp = mv_ramp_ ? kMvOpenRampSlow_s : 0.0;
+      |                         ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:166:31: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  166 |   const double t_end = t_ramp + (mv_ramp_ ? kMvCockHold_s : kMvCockTime_s);
+      |                        ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp: In member function 'bool ecu::EngineEcu::armChecksOk(const ecu::Inputs&, ecu::Abort*) const':
+src/core/engine_ecu.cpp:300:29: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  300 |   if (t_now_ - last_fast_t_ > kLinkDegraded_s) { *why = Abort::LINK_LOST; return false; }   // FC heartbeat (CMD_FAST) required
+      |       ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp: In member function 'void ecu::EngineEcu::monitors(const ecu::Inputs&, double)':
+src/core/engine_ecu.cpp:475:79: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  475 |     const bool ign_phase = st_ == State::IGNITION || (st_ == State::RUN && ts < kRunSettle_s);
+      |                                                                            ~~~^~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:483:74: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  483 |     const bool fresh = fc_thr_ok_ && (t - t_fc_thr_) <= kFcThrustStale_s + kTimeEps_s;
+      |                                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+src/core/engine_ecu.cpp:491:12: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  491 |     if (ts > kRunSettle_s) {
+      |         ~~~^~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:510:76: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  510 |     const bool watch = pwr && in.prail_valid && t - t_bus_on_ + kTimeEps_s >= kPrailSettle_s;
+      |                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:584:44: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  584 |   if (st_ != State::SAFE && t - t_arm_req_ > kHwOvpArmSettle_s && p_hwovp_.step(!in.ovp_ok, kHwOvpTime_s, dt)) {
+      |                             ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:595:35: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  595 |   if (!mv_latch_ && t - t_mv_cmd_ > kMvCloseConfirm_s && !in.mv_closed_sw) faults_ |= fault::MV;
+      |                     ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:603:55: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  603 |     if (!mv_open_seen_ && t - t_mv_cmd_ > kMvOpenBy_s + kTimeEps_s) {
+      |                                           ~~~~~~~~~~~~^~~~~~~~~~~~
+src/core/engine_ecu.cpp: In member function 'void ecu::EngineEcu::s1Step(const ecu::Inputs&, double)':
+src/core/engine_ecu.cpp:623:118: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  623 |   if (st_ == State::PREPRESS) sample = both && seated && !bleed_active_ && t_mv_open_sw_ >= 0.0 && t - t_mv_open_sw_ >= kS1ZeroMvOpen_s;
+      |                                                                                                    ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:626:54: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  626 |     sample = both && seated && in.mv_closed_sw && tc >= kS1CoastZeroFrom_s && tc <= kS1CoastZeroTo_s;
+      |                                                   ~~~^~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:626:82: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  626 |     sample = both && seated && in.mv_closed_sw && tc >= kS1CoastZeroFrom_s && tc <= kS1CoastZeroTo_s;
+      |                                                                               ~~~^~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:627:12: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  627 |     if (tc > kS1CoastZeroTo_s) s1_coast_zero_done_ = true;   // window over (with or without a complete block)
+      |         ~~~^~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp: In member function 'void ecu::EngineEcu::pintleMonitor(const ecu::Inputs&, double, bool*)':
+src/core/engine_ecu.cpp:664:42: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  664 |     if (safe_chk_ && t - t_state_ + 1e-6 >= kPintleUnpoweredClose_s) {
+      |                      ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:685:90: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  685 |   const bool cur = in.pintle_i_valid && in.pintle_i_A > kPintleStallI_A && noprog + 1e-6 >= kPintleProgWin_s;
+      |                                                                            ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:689:21: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  689 |   if (noprog + 1e-6 >= kPintleStallTime_s) kind = jam::STALL_TIME;
+      |       ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:690:53: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  690 |   else if (t_pint_i_ >= 0.0 && t - t_pint_i_ + 1e-6 >= kPintleStallTimeI_s) kind = jam::STALL_CURRENT;
+      |                                ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:691:35: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  691 |   else if (t - t_pint_err_ + 1e-6 >= kPintleTrackTime_s) kind = jam::TRACK_TIMEOUT;
+      |            ~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp: In member function 'void ecu::EngineEcu::torchStep(const ecu::Inputs&, double, double, bool*, bool*, bool*, bool*)':
+src/core/engine_ecu.cpp:720:59: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  720 |   if (!torch_closed_ && ((lit_ && t - t_lit_ + kTimeEps_s >= kTorchHoldAfterLight_s) ||
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:724:31: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  724 |   *n2o = !torch_closed_ && ti >= eng::kTorchSolOpen_s;
+      |                            ~~~^~~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:725:56: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  725 |   *prop = *n2o || (torch_closed_ && t - t_torch_close_ < kTorchPropaneLag_s);
+      |                                     ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:727:18: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  727 |   if (*n2o && ti >= eng::kSparkStart_s && ti < eng::kSparkStart_s + eng::kSparkTrain_s) {
+      |               ~~~^~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:727:46: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  727 |   if (*n2o && ti >= eng::kSparkStart_s && ti < eng::kSparkStart_s + eng::kSparkTrain_s) {
+      |                                           ~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:728:36: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  728 |     const double ph = std::fmod(ti - eng::kSparkStart_s, 1.0 / eng::kSparkRate_Hz);
+      |                                 ~~~^~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:728:62: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  728 |     const double ph = std::fmod(ti - eng::kSparkStart_s, 1.0 / eng::kSparkRate_Hz);
+      |                                                          ~~~~^~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:729:17: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  729 |     *spark = ph < kSparkDwell_s;
+      |              ~~~^~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp: In member function 'void ecu::EngineEcu::step(const ecu::Inputs&, const ecu::Commands&, ecu::Outputs&)':
+src/core/engine_ecu.cpp:754:57: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  754 |     const bool gap = (t - t_fc_thr_) > kFcThrustStale_s + kTimeEps_s;   // the previous frame is stale: the run of frames restarts
+      |                                        ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+src/core/engine_ecu.cpp:768:34: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  768 |   const bool link_degraded = age > kLinkDegraded_s, link_lost = age > kLinkLost_s;
+      |                              ~~~~^~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:768:69: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  768 |   const bool link_degraded = age > kLinkDegraded_s, link_lost = age > kLinkLost_s;
+      |                                                                 ~~~~^~~~~~~~~~~~~
+src/core/engine_ecu.cpp:816:14: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  816 |       if (ts < kAutoZeroTime_s) { pc_zero_acc_ += in.pc_Pa; ++pc_zero_n_; }
+      |           ~~~^~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:819:14: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  819 |       if (ts < kAutoZeroTime_s) { if (in.ptorch_valid) { ptorch_zero_acc_ += in.ptorch_Pa; ++ptorch_zero_n_; } }
+      |           ~~~^~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:827:42: warning: implicit conversion from 'float' to 'double' to match other result of conditional [-Wdouble-promotion]
+  827 |       const double t_open0 = prime_slow_ ? kBleedSettle_s : 0.0;
+      |                              ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:828:38: warning: implicit conversion from 'float' to 'double' to match other result of conditional [-Wdouble-promotion]
+  828 |       const double t_ramp = mv_ramp_ ? kMvOpenRampSlow_s : 0.0;
+      |                             ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:829:50: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  829 |       const double t_cock_end = t_open0 + t_ramp + (mv_ramp_ ? kMvCockHold_s : kMvCockTime_s);
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:832:65: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  832 |       if (prime_slow_ && bleed_active_ && !bleed_checked_ && ts >= kBleedSettle_s) {
+      |                                                              ~~~^~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:848:21: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  848 |         else if (ts > kPrepressHoldMax_s) enter(State::ARMED, t);
+      |                  ~~~^~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:849:37: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  849 |       } else if (ts > t_open_expect + kPrepressTimeout_s && !in.mv_open_sw) {
+      |                       ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:851:43: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  851 |       } else if (ts > t_open_expect + 2.0 * kPrepressTimeout_s) {
+      |                                       ~~~~^~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:880:38: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  880 |       if (!gate && ti > kTorchGate_s + kTimeEps_s) { faults_ |= fault::NO_IGNITION; doAbort(Abort::TORCH_FAULT, t); break; }   // v2.8 0.16 s
+      |                         ~~~~~~~~~~~~~^~~~~~~~~~~~
+src/core/engine_ecu.cpp:898:76: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  898 |       if (t_lift_ < 0.0 && (torch_ok_ || (bypass_start_ && ti + kTimeEps_s >= kTimingOnlyLiftAt_s))) t_lift_ = t;
+      |                                                            ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:901:57: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  901 |       else if (t_lift_ >= 0.0 && t - t_lift_ > ign_w_s_ + kTimeEps_s) { faults_ |= fault::NO_IGNITION; doAbort(Abort::NO_IGNITION, t); }
+      |                                                ~~~~~~~~~^~~~~~~~~~~~
+src/core/engine_ecu.cpp:921:56: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  921 |         if (link_policy == LinkPolicy::SHUTDOWN || age > kLinkLost_s + link_hold_s) { doAbort(Abort::LINK_LOST, t); break; }
+      |                                                    ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:925:78: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  925 |       pintle_target = pcc_.step(sp, pc_abs, ptank_abs, dt, pc_sensor_ok_, ts > kRunIntegHold_s);
+      |                                                                           ~~~^~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:938:30: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  938 |         if (!arm_drop_ && ts > kAbortPcCheck_s && pc_abs > kPcOverPressureAbs_Pa) arm_drop_ = true;
+      |                           ~~~^~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:946:39: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  946 |         if (seated || ts + kTimeEps_s >= kMvSeatTimeout_s) {
+      |                       ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:954:77: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  954 |       if (((pc_sensor_ok_ && pc_f_ < kShutdownPcDone_Pa && ts > 0.05) || ts > kShutdownTimeout_s) && !mv_seat_wait_) {
+      |                                                                          ~~~^~~~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:962:14: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  962 |       if (ts > kPurgeTime_s) enter(starts_ < kMaxStarts ? State::COAST : State::SAFE, t);
+      |           ~~~^~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:966:37: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+  966 |       if (mv_latch_ && t - t_coast_ > kCoastMvMax_s) { mv_latch_ = false; t_mv_cmd_ = t; }
+      |                        ~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:1010:42: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+ 1010 |                        (t - last_aux_t_) <= kRollDeadman_s && (t - roll_on_since_) <= kRollMaxPulse_s;
+      |                        ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:1010:84: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+ 1010 |                        (t - last_aux_t_) <= kRollDeadman_s && (t - roll_on_since_) <= kRollMaxPulse_s;
+      |                                                               ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+src/core/engine_ecu.cpp:1075:75: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+ 1075 |   out.fc_thrust_fresh = fc_thr_ok_ && (t - t_fc_thr_) <= kFcThrustStale_s + kTimeEps_s;
+      |                                                          ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+src/core/engine_ecu.cpp:1087:113: warning: implicit conversion from 'float' to 'double' to match other operand of binary expression [-Wdouble-promotion]
+ 1087 |     const bool valid = st_ == State::COAST && (meco_closed_ || (!mv_latch_ && t - t_mv_cmd_ > kMvCloseConfirm_s + kTimeEps_s));
+      |                                                                                               ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+arm-none-eabi-size build/arm/*.o | tee build/arm/size.txt
+   text	   data	    bss	    dec	    hex	filename
+   5366	      0	      0	   5366	   14f6	build/arm/control.o
+  18033	      0	      0	  18033	   4671	build/arm/engine_ecu.o
+   3352	      0	      0	   3352	    d18	build/arm/protocol.o
+    328	      0	      0	    328	    148	build/arm/sensor_scale.o
+exit 0

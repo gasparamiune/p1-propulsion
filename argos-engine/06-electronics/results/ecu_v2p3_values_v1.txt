@@ -1,0 +1,11 @@
+ecu_v2p3_values_v1 (Electronics 2026-10-13): values of the ECU schematic v2.3 additions; reads ecu_design.py sha256/16 b0aed1b5043d07d4
+A. mode strap (R694 10.0k 1% / R695 10.0k 1% / R696 22.1k 1%, 1 %): OPEN (INVALID) 3.300 V, FLIGHT (B low) 2.272 V, STAND (A low) 1.650 V, BOTH LOW (INVALID) 1.346 V; thresholds 2.786, 1.961, 1.498 V; worst margin 0.136 V
+B. TPS552882: VOUT 7.403/7.491/7.578 V (DC, divider + VREF); EN rising 4.34/4.51/4.69 V, falling 4.33 V nom; I_limit 4.00-4.33 A; f_RHPZ 37562 Hz; COMP computed R_C 28060 ohm, C_C 12.20 nF, C_P 99 pF -> fitted 28.0k 1% / 12nF/50V C0G / 100pF/50V C0G: f_c 4989 Hz boost 6.0 V, 6228 Hz buck (limit 7512 Hz), zero 474 Hz, pole 57 kHz
+   external buck-leg FETs (gap in pintle_rail_v1/v2): Q801 0.48 W boost at the 4.33 A limit (0.07 W at the 1.7 A stall), 0.31 W buck; Q802 0.028 W; Q803 0.26 W if enhanced; dT_j <= 24 K at 50 K/W; R807 0.23 W
+C. LTC4365: OV 8.062/8.200/8.339 V; UV 4.88/5.04/5.21 V (VUV ASSUMED = VOV); OV filter tau 9.39 us
+D. ADC2: PRAIL/PREG ratio 0.09857 loaded (0.09924 unloaded): FS 12.17 V, 7.49 V -> 0.7383 V, 5.5 V -> 0.5422 V, 24.5 V -> 2.43 V at the pin; IPINT 0.1429 V/A, FS 8.40 A, INA181 output limit 8.30 A
+E. heater interlock: inhibit VGS 4.49-5.71 V; Q616 VGS on 4.78 V; Q616 0.120 W at 1 A
+F. CS decoder: 000 -> ADC1_CS, 001 -> ADC2_CS, 010 -> TC1_CS, 011 -> TC2_CS, 100 -> TC3_CS, 101 -> TC4_CS, 110 -> TC5_CS, 111 -> TC6_CS
+G. regression: R330-R333, C330, C331, R610, R611 unchanged = True; F401 deleted True; J403 pin 2 = PRAIL; TVC switches ['Q401', 'Q403']
+H. +5V_SNS: 6 transducers x 5 mA = 30 mA of 100 mA
+CHECKS FAILED: none

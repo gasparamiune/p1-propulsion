@@ -1,0 +1,176 @@
+"""Write interfaces/mechanical.json v2.1 (Mechanical, 2026-10-13): v2 content kept, plus icd_airframe, stand_interface, bleed (lead RE-10),
+FA-1 final load rule results (lead CHANGELOG 172 (2) / 173), LC-TB70, RE-07, seat face, RC-15 data, bench list.  Numbers are read from
+the result files named in 'sources' (sha256 recorded); nothing is typed by hand except tagged constants (ASSUMED / AS RECALLED / DESIGN).
+Usage: python write_mechanical_json_v2p1.py [--dry]  (re-reads the hub file, writes it, reads it back)."""
+import hashlib, json, math, sys
+from pathlib import Path
+
+ENG = Path("/home/claude/work/mechanical/engine")
+HUB = Path("/home/claude/work/shared-fallback/engine/interfaces/mechanical.json")
+R = ENG / "04-fea" / "structural" / "results"
+SRC = {"sax_316L": R / "sax_results_L1_v1.json", "sax_TC09IN718": R / "sax_results_L1_TC09IN718_thJ1revB_TC09IN_v1.json",
+       "joints": R / "joints_v1p1.json", "seals": R / "sax_seal_gaps_L1_v1.json", "conv": R / "sax_convergence_v1.json",
+       "pc_temp": ENG / "04-fea" / "thermal" / "pc_transducer_temp_v1.json", "seat_face": ENG / "04-fea" / "thermal" / "seat_face_temp_v1p1.json",
+       "bleed_topology": ENG / "03-cad" / "checks" / "bleed_topology_v3.5.json", "corridor": ENG / "03-cad" / "src" / "calcs" / "bleed_corridor_v35_v1.json",
+       "mass_v35": ENG / "03-cad" / "checks" / "mass_properties_v3.5.json", "nozzle_joint": ENG / "04-fea" / "thermal" / "nozzle_joint_fe_v1.json"}
+FA1_CASES = ("FA1Q", "FA1QB", "FA1D", "FA1DB", "FA1U", "FA1UB", "TB70", "TBS", "SEGP")
+
+
+def sha(p):
+    return hashlib.sha256(Path(p).read_bytes()).hexdigest()[:16] if Path(p).exists() else "MISSING"
+
+
+def load(k):
+    p = SRC[k]
+    return json.loads(p.read_text()) if p.exists() else None
+
+
+def per_part(res, cases):
+    """Min yield MS (regular set) and the ultimate MS on the same record, per part and case, with the role criterion."""
+    out = {}
+    for g in res["governing"]:
+        if g["case"] not in cases or g.get("set") != "regular":
+            continue
+        k = (g["part"], g["case"])
+        if k not in out or g["MS"] < out[k]["MS_yield"]:
+            out[k] = {"MS_yield": round(g["MS"], 3), "MS_ult": None if g.get("MS_ult") is None else round(g["MS_ult"], 3),
+                      "MS_primary_only": None if g.get("MS_primary_only") is None else round(g["MS_primary_only"], 3),
+                      "state": g["state"], "T_C": round(g.get("T_C", float("nan")), 1), "role": g.get("role"), "criterion": g.get("role_criterion")}
+    tab = {}
+    for (pn, c), v in sorted(out.items()):
+        tab.setdefault(pn, {})[c] = v
+    return tab
+
+
+def element_curve():
+    """FD-01 leg element (BL-02) dP-flow, equivalent-orifice ESTIMATE: dP = (mdot / CdA)^2 / (2 rho).  Bench measures the real curve."""
+    rho = {"liquid_N2O_20C": 786.0, "vapour_N2O_20C_sat": 160.0}     # kg/m3, AS RECALLED (NIST WebBook saturation, TO-VERIFY)
+    rows = []
+    for cda in (1.57, 0.63):
+        for fl, r in rho.items():
+            for md in (2.0, 5.0, 10.0, 20.0, 30.0):                   # g/s
+                dp = (md * 1e-3 / (cda * 1e-6)) ** 2 / (2.0 * r) / 1e5
+                rows.append({"CdA_mm2": cda, "fluid": fl, "mdot_g_s": md, "dP_bar": round(dp, 3)})
+    r2 = 0.62 * math.pi / 4 * 0.71 ** 2
+    return {"model": "equivalent orifice dP = (mdot/CdA)^2/(2 rho); incompressible; ESTIMATE (no media data), bench B-EL-02 measures it",
+            "acceptance": "CdA >= 1.57 mm2 (lead F2) at the rated flow; Combustion's check holds down to CdA ~0.63 mm2",
+            "R2_CdA_mm2_for_reference": round(r2, 3), "R2_CdA_note": "Cd 0.62 ASSUMED sharp-edged; series dP share of the element "
+            f"= (R2/element)^2 = {round((r2 / 1.57) ** 2, 3)} at 1.57 mm2, {round((r2 / 0.63) ** 2, 3)} at 0.63 mm2", "rho_kg_m3": rho, "rows": rows}
+
+
+def main(dry=False):
+    base = json.loads(HUB.read_text())
+    assert base.get("version") in ("v2", "v2.1"), base.get("version")
+    s316, sin, jn = load("sax_316L"), load("sax_TC09IN718"), load("joints")
+    out = dict(base)
+    out.update({"version": "v2.1", "date": "2026-10-13", "supersedes": "v2 (2026-10-12)",
+                "status": "SIM + DERIVED + DESIGN; physical validation pending (bench list). Margins are model results, not test results."})
+    out["sources_v2p1"] = {k: {"path": str(p), "sha256_16": sha(p)} for k, p in SRC.items()}
+    out["fa1"] = {
+        "load_rule": "lead CHANGELOG 172 (2) + 173: 90 bar abs quasi-static at head AND aft end, every part; parts with periods 0.25-1 ms also "
+                     "92 bar abs (design) and 102 bar abs (sensitivity); thrust spike 1.8 kN / 4 ms for 1-5 ms parts (Combustion SDOF eq. <= 3.05 kN)",
+        "cases": {"FA1Q": "90 bar uniform (OP shape)", "FA1QB": "90 bar blocked distribution", "FA1D": "92 bar", "FA1DB": "92 bar blocked",
+                  "FA1U": "102 bar", "FA1UB": "102 bar blocked", "TB70": "LC-TB70 58.1 bar abs (>= the 53.4 bar / 34 ms request; conservative)",
+                  "TBS": "63.1 bar", "SEGP": "manifold 99.75 bar"},
+        "state": "A1_22.2 relight thermal state (governing for FA-1), SF 1.0 / 1.0 (failure case): negative = failure predicted",
+        "per_part_baseline_TC09_316L": per_part(s316, FA1_CASES) if s316 else "MISSING",
+        "per_part_design_change_TC09_IN718": per_part(sin, FA1_CASES) if sin else "MISSING",
+        "periods_and_dlf": jn.get("fa1_periods") if jn else "MISSING",
+        "thrust_spike": jn.get("fa1_interim_spike") if jn else "MISSING",
+        "joints_table": "04-fea/structural/results/joints_table_v1p1.csv (J-FWD 8 x M5 A4-70 screw shear: yield MS -0.011 / -0.033 / -0.128 at "
+                        "90 / 92 / 102 bar, ultimate +0.60 / +0.56 / +0.41; shoulder-screw option 8 x 6/M5: +0.86 / +0.82 / +0.64)",
+        "seals": "sax_seal_gaps_L1_v1.json: extrusion MS S01 +0.158/+0.133/+0.010, S02 +0.35/+0.32/+0.19, S13 +0.146/+0.119/-0.016 at 90/92/102 bar; "
+                 "S13 back-up ring (gland 4.85 -> 6.25 mm) recommended, not yet in CAD",
+        "fmea_wording_proposal": {
+            "ENG-TC-09 (316L, v3.4.1)": "yield predicted at 90 bar (MS -0.40, primary-only -0.17); ultimate positive (+0.80); replace by IN718 (v3.5)",
+            "ENG-TC-09 (IN718, v3.5)": "no yield predicted at 90/92/102 bar (MS +2.81/+2.76/+2.51); ultimate positive",
+            "J-FWD 8 x M5": "v3.4.1 A4-70: yield possible at 90 bar (MS -0.011); v3.5 A4-80 (lead 177 (2)): yield MS +0.29 at 92 bar, ultimate +0.61 at 102 bar",
+            "608 gimbal bearings": "static capacity C0 exceeded under the 1.8 kN / 4 ms spike (MS -0.24 DLF 2.0, -0.10 at Combustion's 3.05 kN SDOF); "
+                                   "brinelling possible; ultimate not demonstrated (C0 AS RECALLED); inspect/replace after any FA-1 event or larger bearings",
+            "ENG-TC-01, TC-02, NZ-01..04, J-AFT, J-TC03, J-LIP": "no yield predicted at 90/92/102 bar (all MS positive, see per_part tables)",
+            "seal S13": "extrusion margin negative at 102 bar (-0.016) only; positive at 90/92 bar; accepted as a sensitivity result (lead 177 (3))"},
+        "convergence": "sax_convergence_v1.json (levels 2/1/0.5 mm): FA1Q TC-09 regular MS -0.404/-0.403/-0.404; TC-01 1.042/0.914/0.816 "
+                       "(slow convergence at a re-entrant corner, extrapolated about +0.49: still positive)"}
+    pc = load("pc_temp")
+    out["re07_pc_transducer_temperature"] = {"source": "pc_transducer_temp_v1.json", "status": pc.get("status") if pc else "MISSING",
+                                             "design_revB": {k: v for k, v in (pc or {}).get("cases", {}).get("design_revB", {}).items() if k != "source"},
+                                             "drift_note": (pc or {}).get("drift_note")}
+    sf = load("seat_face")
+    out["seat_face_meco_to_e1"] = {"source": "seat_face_temp_v1p1.json", "summary": (sf or {}).get("summary", "MISSING"),
+                                   "criterion": "seat face <= 800 K from MECO to E1 (Combustion v2.4)",
+                                   "status": "BASE case 625.6 K at MECO, coast max 497.4 K, 324 K at relight: below 800 K; ADIABATIC bound OPEN "
+                                             "(restart run diverged, kept as evidence); pintle needle not modelled (OPEN)"}
+    out["rc15_material_data"] = {
+        "17-4PH_H900": {"Ftu_MPa": 1310, "Fty_MPa": 1172, "tag": "AS RECALLED AMS 5643 minima (190/170 ksi), TO-VERIFY against the mill certificate"},
+        "17-4PH_H1150": {"Ftu_MPa": 931, "Fty_MPa": 724, "tag": "AS RECALLED AMS 5643 minima (135/105 ksi), TO-VERIFY"},
+        "IN718_TC-03": "engmat key IN718 (04-fea/src/engmat.py, source string there); used in S-AX and the J1/J2 thermal runs",
+        "PTFE_rod_seal": {"T_max_C": 84.4, "at_s": 161.8, "where": "TC-04 bonnet top (max over the face), A1 J1 rev B design run, soak-back",
+                          "limit_C": 260, "limit_tag": "AS RECALLED PTFE continuous service, TO-VERIFY seal maker",
+                          "caveat": "needle/stem conduction path not in the axisymmetric model (OPEN): the gland may run hotter than the bonnet face"}}
+    bt = load("bleed_topology")
+    cor = load("corridor")
+    out["bleed"] = {"cad": "v3.5 run 6 (parts_bleed.py); topology from 03-cad/checks/bleed_topology_v3.5.json", "topology": bt or "MISSING (make_all v3.5 pending)",
+                    "restrictors": "R1 (BL-01, T4 crown tap) and R2 (BL-02, FD-01 leg tap) both 0.71 mm (lead F3), both UPSTREAM of V1 at the engine taps",
+                    "element": "<= 15 um sintered 316L disc in BL-02 upstream of R2 (FD-01 leg; T4 leg already filtered by FD-02)",
+                    "valves": "V1/V2 envelopes Ø36 x 90 at r 48, az 26 / 112, z 265-355; 0.30 kg each ASSUMED = MASS RISK (target <= 0.15 kg, seat >= 2 mm, 12 V NC)",
+                    "p_mid_comparator_issue": "during a healthy purge P_mid sits near the vent back-pressure (about 3-4 bar abs ESTIMATE) - below a "
+                                              "6.40-13.34 bar g band: Electronics to confirm the comparator logic (open to Electronics)",
+                    "fixed_line_corridors_deg": (cor or {}).get("corridors")}
+    out["icd_airframe"] = {
+        "ICD-1_engine_mount": {"fasteners": "16 x M5 (grade A4-70 ASSUMED; ICD TO-DEFINE)", "spike_check": "per-screw shear at DLF 2.0: 662 N vs 3292 N "
+                               "(MS +3.97), joints_v1p1.json fa1_interim_spike"},
+        "ICD-11_mass": {"source": "03-cad/checks/mass_properties_v3.5.json", "data": load("mass_v35") or "MISSING (make_all v3.5 pending)"},
+        "ICD-14_bleed_vent": {"bulkhead": "ENG-BL-06 at az 112, z 260, r 67 -> 74 through the bay wall", "outside": "non-propulsive opposed tee "
+                              "(airframe item, TO-DEFINE): balanced pair 180 deg apart", "line_corridor": "fixed bleed line at az 312, r 66, z 100-257"},
+        "bay_wall": {"R_mm": 70, "finding": "72-direction sweep (bleed_corridor_v35_v1.json): engine group reaches r 70.6 at az 56/122 and 70.1 at "
+                     "az 238/300 within z 90-250 at the 8 deg stop - beyond R 70 between the 8 sampled stop directions of checks.py. OPEN: confirm "
+                     "the local bay radius or trim the parts at those azimuths; add a 72-direction wall check"}}
+    out["stand_interface"] = {
+        "mount": "same bolt pattern as ICD-1 (GM-10 base ring); stand plate flatness and screw grade TO-DEFINE",
+        "axial_design_load_N": {"steady": 500, "spike_DLF2_bound": 3600, "spike_combustion_SDOF": 3050,
+                                "tag": "DESIGN 500 N max thrust; spike 1.8 kN / 4 ms (lead 172/173) x DLF"},
+        "safing": "lead R2-02 rule: N2 purge >= 60 s at >= 10 g/s after a no-light, then hold >= 15 min (CHANGELOG 2026-10-13)",
+        "instrumentation_ports": "Pc 1/8-27 NPT at TC-02 r 25 / 142 deg; P_feed on FD-01; P_mid on BL-08; T4 on TC-04"}
+    out["bench_list_v2p1"] = {"B-EL-02_FD01_element_dP_flow": element_curve(),
+                              "B-608-C0": "verify 608 bearing C0 (1.37 kN AS RECALLED) and post-spike brinelling inspection",
+                              "B-ICD1-grade": "confirm the airframe screw grade (A4-70 ASSUMED)",
+                              "B-BL-hose-stiffness": "bleed hose torque about the pivot (ESTIMATE 0.5-2 N m/rad)",
+                              "B-valve-mass": "weigh selected bleed valves (target <= 0.15 kg each)"}
+    # ---- lead decisions CHANGELOG line 177 (2026-10-13) folded in
+    def bom(v):
+        f = ENG / "03-cad" / f"BOM_{v}.json"
+        return ({l["pn"]: l for l in json.loads(f.read_text())["lines"]}, sha(f)) if f.exists() else ({}, "MISSING")
+    b5, h5 = bom("v3.5")
+    b4, h4 = bom("v3.4.1")
+    dm = None
+    if "ENG-TC-09" in b5 and "ENG-TC-09" in b4:
+        dm = round(b5["ENG-TC-09"]["unit_mass_kg"] - b4["ENG-TC-09"]["unit_mass_kg"], 4)
+    out["design_changes_v35"] = {
+        "TC-09_IN718": {"decision": "lead 177 (1)", "mass_delta_kg": dm, "bom_v3.5_sha256_16": h5, "bom_v3.4.1_sha256_16": h4,
+                        "price": "TO-QUOTE (delivered Sonderborg DK-6400)"},
+        "J-FWD_screws": {"decision": "lead 177 (2): A4-80 chosen (ISO 3506-1: Rp0.2 600 / Rm 800 MPa vs A4-70 450 / 700)",
+                         "MS_yield_92bar": round((600 / 450) * (1 - 0.033) - 1, 3), "MS_ult_102bar": round((800 / 700) * (1 + 0.41) - 1, 3),
+                         "why": "same 316-class austenitic steel (N2O compatibility unchanged, screws not wetted), no geometry change; the shoulder-"
+                                "screw option needs new reamed holes and fits", "basis": "joints_v1p1.json A4-70 margins scaled by the ISO 3506-1 minima"},
+        "seal_S13": "lead 177 (3): -0.016 at 102 bar accepted as a sensitivity result; FMEA records it; no design change",
+        "gimbal_608": {"decision": "lead 177 (4)", "status": "OPEN - maker-datasheet selection not done in this delivery",
+                       "requirement": "C0 >= 1.80 kN per bearing (1.8 kN x DLF 2.0 shared by 2 bearings); >= 1.525 kN at Combustion's 3.05 kN SDOF",
+                       "current": "608: C0 1.37 kN AS RECALLED (not a datasheet value) -> MS -0.24 / -0.10", "note": "no positive margin claimed"},
+        "GM-01/02": "7075-T6 (was 6061-T6), R >= 2 internal corners", "transport_lock": "lead 177 (5): GM-12 excluded from the flight mass sum, listed as GSE",
+        "LC-TB70_TC-02": "OPEN design issue: TC-02 head combined MS -0.756 (converged -0.760/-0.756/-0.764), P+Q shakedown -0.51, primary +6.86 at "
+                         "r 7 / z 106.6 mm, 245 C, thermal 183 of 186 MPa (TB stand-transient state; pressure is not the driver)"}
+    nj = load("nozzle_joint")
+    out["nozzle_joint_v2p4"] = nj.get("summary") if nj else "MISSING (nozzle_joint_fe_v1.json pending)"
+    if dry:
+        print(json.dumps({k: (v if k in ("version",) else "...") for k, v in out.items()})[:600])
+        return
+    cur = json.loads(HUB.read_text())                  # re-read just before writing (shared file)
+    assert cur.get("version") == base.get("version"), "hub changed under us"
+    HUB.write_text(json.dumps(out, indent=1, default=str))
+    back = json.loads(HUB.read_text())
+    assert back["version"] == "v2.1" and "icd_airframe" in back and "bleed" in back
+    print("written", HUB, sha(HUB))
+
+
+if __name__ == "__main__":
+    main("--dry" in sys.argv)

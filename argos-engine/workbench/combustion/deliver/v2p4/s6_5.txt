@@ -1,0 +1,31 @@
+@@INSERT_65@@
+### 6.5 Nozzle joint: hot layer, seal and hazard H19 (v2.4)
+
+Basis: `nozzle_joint_v2p4.json` (`b5f396c7155c06c4`, script `nozzle_joint_v2p4.py`) and `nozzle_lip_melt_v2p4.json` (`118b7901855d74a4`, script `nozzle_lip_melt_v2p4.py`), on Mechanical's FE runs of the assembled nozzle (FEA, used as delivered).
+
+**Finding.** The NZ-03 insert-shoulder gasket (mica/vermiculite, 1 mm, continuous rating 900 C as recalled, TO-VERIFY) reaches 1595 C in the FE runs (B1 p99, in-burn 1593 C, soak 1595 C): it fails by 695 K. NZ-02 peaks at 1551 C (soak), which also rules out a glass-phenolic sleeve (as recalled, TO-VERIFY); Mechanical confirms the NZ-02 material in the same FE re-run.
+
+**Leak path if the joint does not seal** (DERIVED on design dimensions): grooves 2.0 mm2 (0.014 At) and the spigot-lip radial gap 23.8-33.9 mm2 (0.16-0.23 At). The hot-gas leak is 0.83-1.10 % of the engine flow, 2.2-2.9 g/s at 100 %.
+
+**Lip melt if the leak impinges** (DERIVED; 316L melting at 1400 C; deposition 5-20 % ASSUMED; adiabatic outer face and no latent heat, so the times are short and conservative):
+
+| Joint and start temperature | Lumped, 1 mm of lip [s] | Finite difference, 1 mm depth [s] |
+|---|---|---|
+| J1, start 342 C (B1 p99, the worst start) | 1.07-5.70 | 6.63-40.26 |
+| J1b (0.5 mm graphite), B1 start 223 C | 1.19-6.34 | 7.39-44.33 |
+
+All are shorter than an A1 or B1 burn: a leaking joint is not tolerable, and sealing is the control.
+
+**Proposal J1 (preferred; LITERATURE as recalled, TO-VERIFY; pending agreement with Mechanical through the lead).**
+- Hot layer: a 2.0 mm carbon-phenolic flange, integral with NZ-02 (top-hat sleeve) or a separate washer. Requirement: service >= 1700 C (FE 1595 C + 100 K); bearing 10.6 MPa (Mechanical load case BN, 63.1 bar) with >= 2x strength at temperature; through-conductivity about 1 W/m K or less, so the lip stays at or below its present 250 C in-burn; no SiO2 in contact with graphite above about 1400-1500 C.
+- Seal: a 0.5 mm flexible-graphite ring (oxidation-inhibited grade) at the cold lip face, gas-tight at MEOP 45 bar. Free O2 reaches up to 12 % at O/F 8-11.6 (§4.6), hence the inhibited grade.
+- Risks: char depth and shrinkage (the preload is pressure-energised); pyrolysis gas into the annulus, which vents to the chamber through the grooves.
+- Alternative J2 (zirconia washer) is listed in the data file.
+
+**Verification.**
+- Mechanical FE re-run with the two-layer stack and contact conductances: hot-layer peak, seal-face peak in-burn and in soak, lip peak.
+- T1: a thermocouple well in the lip at r 21 mm and one at the lip bore edge.
+- Before and after every firing: pressure-decay leak check of the assembled joint with N2 at 67.5 bar (criterion TO-DEFINE with Mechanical). This is the control for H19 (§9).
+- Post-test: section the hot layer (char depth, cracks), inspect the lip bore and the spigot OD for leak tracks, and measure the stack height loss.
+- Prices TO-QUOTE (Sønderborg DK-6400): carbon-phenolic tube or plate, zirconia washers, flexible-graphite sheet, C-rings.
+@@END@@

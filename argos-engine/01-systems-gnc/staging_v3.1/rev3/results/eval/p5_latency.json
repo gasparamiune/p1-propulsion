@@ -1,0 +1,3026 @@
+{
+ "version": "m2_rev3_p5 v1.0",
+ "date": "2026-10-13",
+ "sim": "sim6 v2.11-dev (2026-10-13, amendments M, W, F, P, R, S, G, K, V, V2, L)",
+ "sim6_sha16": "8ae4ecdc5ac910dc",
+ "run6_sha16": "d6b91f1649048254",
+ "method": "Fault (m2_fault_f v1.1 definitions, same onset generator and draws): stuck pintle, ramp 2.5 kN/s to the 670 N plateau (L670),\nonsets A1asc (boost, U(0.3, 2.5) s), A1land (U(0.2, 2.0) s after the landing-burn start), B1asc (U(0.3, 0.8) s), B1floor\n(U(1.2, 10.0) s, floor phases), B1land (U(0.2, 2.0) s after the landing-burn start). Bases: V = Pc valid, linkage failure\n(A1_none / tgl_B1_lead62_pc_k2, tot_cal_comp); Lhi = Pc lost, flow and thrust per command x 1.143 (A1_none / B1_62_none,\npclhi_re_comp) - the case where FC_THRUST is the only over-thrust detector. Arms per onset: dla05 (decision 0.5 s after the\nplateau onset), dla00 (decision at the plateau onset: the zero-latency comparator, V only); per profile and base: nom (no\nfault, same draws). The abort follows amendment F (relight lockout, MV commanded abt_lat later, seated abt_seat after,\nCombustion tail-off impulse); an aborted flight is a lost vehicle (the landing flag is reported, not a success criterion).\nA forced decision needs the engine lit: when the flight software shut the engine down before the allowance (MECO / landing\ncut), the fault ends with that shutdown (linkage failure: servo seat, MV closes, no lockout) and re-activates at the next\nstart (flt_persist), where the plateau clock restarts.\nMetrics: velocity gained during the allowance (v_z at the decision - v_z at the plateau onset) and from the fault onset to the\nend of the first tail-off; DERIVED cross-check (670 / m - g) x 0.5 s; apex (whole flight) and highest true height after the\nonset, paired against the nominal flight and the zero-latency arm (same draw); touchdown vertical speed and distance;\nlanding criteria met (Wilson 95 %); the in-loop FC_THRUST statistic (sim6 amendment F, detector computed but not acting):\nlargest 3-frame held estimate after the onset (> 650 N = the detector would have tripped inside the allowance) and its trip\ntime after the plateau onset. SIM on ASSUMED fault shape and white vibration model; no hardware data.\nEnv: m2r3_env.sh; GNC_P5_OUT (out/rev3/p5); GNC_P5_N (200); GNC_P5_PARTS (mc,eval).\nOutput: <out>/p5_<arm>.csv, <out>/p5_latency.json.",
+ "n": 200,
+ "rng_onset": 20261029,
+ "level": {
+  "F_N": 670.0,
+  "rate_N_s": 2500.0
+ },
+ "allowance_s": 0.5,
+ "abort_chain_s": {
+  "abt_lat": 0.00168,
+  "abt_seat": 0.0394,
+  "abt_imp_Ns": 38.2
+ },
+ "arms": {
+  "A1asc|dla05|V": {
+   "on": "A1asc",
+   "br": "V",
+   "dla": 0.5,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 44.268,
+    "p50": 141.769,
+    "p99": 357.983,
+    "min": 40.359,
+    "max": 391.295,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -24.365,
+    "p50": -21.719,
+    "p99": -19.528,
+    "min": -26.104,
+    "max": -18.896,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.822,
+    "p50": 26.913,
+    "p99": 163.131,
+    "min": 0.4,
+    "max": 182.593,
+    "n": 200
+   },
+   "onset_reached": 200,
+   "forced_decisions": 200,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 200
+   },
+   "ramp_s": {
+    "p50": 0.071,
+    "p100": 0.075,
+    "min": 0.068,
+    "max": 0.075,
+    "n": 200
+   },
+   "dv_allowance_mps": {
+    "p01": 14.622,
+    "p50": 16.349,
+    "p99": 18.35,
+    "min": 13.646,
+    "max": 19.093,
+    "n": 200
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 14.861,
+    "p50": 16.62,
+    "p99": 18.671,
+    "min": 13.749,
+    "max": 19.385,
+    "n": 200
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 15.471,
+    "p50": 17.787,
+    "p99": 20.495,
+    "min": 14.409,
+    "max": 21.337,
+    "n": 200
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": 18.147,
+    "p50": 38.704,
+    "p99": 67.05,
+    "min": 17.241,
+    "max": 70.769,
+    "n": 200
+   },
+   "vz_at_decision_mps": {
+    "p01": 22.367,
+    "p50": 42.59,
+    "p99": 70.313,
+    "min": 21.191,
+    "max": 74.187,
+    "n": 200
+   },
+   "h_at_decision_m": {
+    "p01": 7.702,
+    "p50": 33.194,
+    "p99": 91.951,
+    "min": 7.593,
+    "max": 99.578,
+    "n": 200
+   },
+   "h_at_onset_m": {
+    "p01": 0.404,
+    "p50": 14.292,
+    "p99": 57.592,
+    "min": 0.336,
+    "max": 62.992,
+    "n": 200
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 43.349,
+    "p50": 140.871,
+    "p99": 357.065,
+    "min": 39.452,
+    "max": 390.402,
+    "n": 200
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 24.732,
+    "p50": 45.069,
+    "p99": 72.803,
+    "min": 23.421,
+    "max": 76.808,
+    "n": 200
+   },
+   "mass_at_decision_kg": {
+    "p01": 14.21,
+    "p50": 15.565,
+    "p99": 16.949,
+    "min": 13.793,
+    "max": 17.96,
+    "n": 200
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 441.351,
+    "p50": 442.844,
+    "p99": 443.985,
+    "min": 441.346,
+    "max": 444.78,
+    "n": 200
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 669.194,
+     "p50": 676.893,
+     "p99": 685.716,
+     "min": 667.935,
+     "max": 686.214,
+     "n": 200
+    },
+    "tripped_650_inside_allowance": 200,
+    "held_post_gt_650": 200,
+    "trip_after_plateau_ms": {
+     "p50": 44.0,
+     "p99": 79.03,
+     "p100": 82.0,
+     "min": 27.0,
+     "max": 82.0,
+     "n": 200
+    },
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_A1|nom|V": {
+    "apex_minus_ref_m": {
+     "p01": -259.849,
+     "p50": -161.916,
+     "p99": 53.439,
+     "min": -263.602,
+     "max": 86.48,
+     "n": 200
+    },
+    "P_ref": 0.985,
+    "both_ok": 0,
+    "ref_ok_only": 197,
+    "this_ok_only": 0
+   },
+   "paired_vs_A1asc|dla00|V": {
+    "apex_minus_ref_m": {
+     "p01": 37.205,
+     "p50": 78.552,
+     "p99": 133.912,
+     "min": 33.929,
+     "max": 144.187,
+     "n": 200
+    },
+    "P_ref": 0.0,
+    "both_ok": 0,
+    "ref_ok_only": 0,
+    "this_ok_only": 0,
+    "dv_onset_to_tailoff_end_minus_ref_mps": {
+     "p01": 14.481,
+     "p50": 16.22,
+     "p99": 18.224,
+     "min": 13.611,
+     "max": 18.934,
+     "n": 200
+    },
+    "max_height_after_onset_minus_ref_m": {
+     "p01": 37.207,
+     "p50": 78.554,
+     "p99": 133.912,
+     "min": 33.931,
+     "max": 144.188,
+     "n": 200
+    },
+    "td_vz_minus_ref_mps": {
+     "p01": -10.384,
+     "p50": -0.905,
+     "p99": 0.692,
+     "min": -10.509,
+     "max": 1.508,
+     "n": 200
+    }
+   }
+  },
+  "A1asc|dla00|V": {
+   "on": "A1asc",
+   "br": "V",
+   "dla": 0.0,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 6.429,
+    "p50": 63.15,
+    "p99": 221.5,
+    "min": 6.305,
+    "max": 247.107,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -24.037,
+    "p50": -20.864,
+    "p99": -9.861,
+    "min": -24.1,
+    "max": -9.744,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.285,
+    "p50": 7.948,
+    "p99": 95.559,
+    "min": 0.083,
+    "max": 112.256,
+    "n": 200
+   },
+   "onset_reached": 200,
+   "forced_decisions": 200,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 200
+   },
+   "ramp_s": {
+    "p50": 0.071,
+    "p100": 0.075,
+    "min": 0.068,
+    "max": 0.075,
+    "n": 200
+   },
+   "dv_allowance_mps": {
+    "p01": 0.029,
+    "p50": 0.033,
+    "p99": 0.037,
+    "min": 0.027,
+    "max": 0.038,
+    "n": 200
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 0.0,
+    "p50": 0.0,
+    "p99": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 200
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 0.989,
+    "p50": 1.569,
+    "p99": 2.277,
+    "min": 0.798,
+    "max": 2.404,
+    "n": 200
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": 3.552,
+    "p50": 14.244,
+    "p99": 28.36,
+    "min": 3.515,
+    "max": 30.08,
+    "n": 200
+   },
+   "vz_at_decision_mps": {
+    "p01": 5.917,
+    "p50": 26.258,
+    "p99": 52.761,
+    "min": 5.652,
+    "max": 56.249,
+    "n": 200
+   },
+   "h_at_decision_m": {
+    "p01": 0.767,
+    "p50": 16.061,
+    "p99": 61.263,
+    "min": 0.682,
+    "max": 66.961,
+    "n": 200
+   },
+   "h_at_onset_m": {
+    "p01": 0.404,
+    "p50": 14.292,
+    "p99": 57.592,
+    "min": 0.336,
+    "max": 62.992,
+    "n": 200
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 5.52,
+    "p50": 62.258,
+    "p99": 220.623,
+    "min": 5.378,
+    "max": 246.214,
+    "n": 200
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 8.123,
+    "p50": 28.633,
+    "p99": 55.411,
+    "min": 8.059,
+    "max": 58.888,
+    "n": 200
+   },
+   "mass_at_decision_kg": {
+    "p01": 14.393,
+    "p50": 15.75,
+    "p99": 17.125,
+    "min": 13.966,
+    "max": 18.144,
+    "n": 200
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 106.351,
+    "p50": 107.844,
+    "p99": 108.985,
+    "min": 106.346,
+    "max": 109.78,
+    "n": 200
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 0.0,
+     "p50": 562.963,
+     "p99": 583.601,
+     "min": 0.0,
+     "max": 586.492,
+     "n": 200
+    },
+    "tripped_650_inside_allowance": 0,
+    "held_post_gt_650": 0,
+    "trip_after_plateau_ms": null,
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_A1|nom|V": {
+    "apex_minus_ref_m": {
+     "p01": -297.483,
+     "p50": -241.263,
+     "p99": -82.93,
+     "min": -298.468,
+     "max": -57.707,
+     "n": 200
+    },
+    "P_ref": 0.985,
+    "both_ok": 0,
+    "ref_ok_only": 197,
+    "this_ok_only": 0
+   }
+  },
+  "A1asc|dla05|Lhi": {
+   "on": "A1asc",
+   "br": "Lhi",
+   "dla": 0.5,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 43.829,
+    "p50": 167.443,
+    "p99": 435.551,
+    "min": 40.154,
+    "max": 463.248,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -24.366,
+    "p50": -21.752,
+    "p99": -19.195,
+    "min": -24.569,
+    "max": -19.019,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 1.203,
+    "p50": 28.257,
+    "p99": 200.027,
+    "min": 0.417,
+    "max": 233.789,
+    "n": 200
+   },
+   "onset_reached": 200,
+   "forced_decisions": 200,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 2.0,
+    "min": 1.0,
+    "max": 2.0,
+    "n": 200
+   },
+   "ramp_s": {
+    "p50": 0.042,
+    "p100": 0.091,
+    "min": 0.039,
+    "max": 0.091,
+    "n": 200
+   },
+   "dv_allowance_mps": {
+    "p01": 12.893,
+    "p50": 16.343,
+    "p99": 18.357,
+    "min": -67.093,
+    "max": 19.098,
+    "n": 200
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 14.908,
+    "p50": 16.632,
+    "p99": 18.984,
+    "min": 13.763,
+    "max": 19.425,
+    "n": 200
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 14.749,
+    "p50": 17.037,
+    "p99": 19.789,
+    "min": 13.847,
+    "max": 20.522,
+    "n": 200
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": 17.888,
+    "p50": 42.447,
+    "p99": 74.563,
+    "min": 17.076,
+    "max": 81.979,
+    "n": 200
+   },
+   "vz_at_decision_mps": {
+    "p01": 20.943,
+    "p50": 46.147,
+    "p99": 77.775,
+    "min": -0.049,
+    "max": 80.012,
+    "n": 200
+   },
+   "h_at_decision_m": {
+    "p01": 7.543,
+    "p50": 36.896,
+    "p99": 105.398,
+    "min": 7.474,
+    "max": 106.857,
+    "n": 200
+   },
+   "h_at_onset_m": {
+    "p01": 0.436,
+    "p50": 16.981,
+    "p99": 68.936,
+    "min": 0.363,
+    "max": 75.173,
+    "n": 200
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 42.922,
+    "p50": 166.545,
+    "p99": 434.675,
+    "min": 39.247,
+    "max": 462.332,
+    "n": 200
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 24.747,
+    "p50": 49.001,
+    "p99": 82.636,
+    "min": 23.38,
+    "max": 84.761,
+    "n": 200
+   },
+   "mass_at_decision_kg": {
+    "p01": 14.024,
+    "p50": 15.556,
+    "p99": 16.909,
+    "min": 13.77,
+    "max": 17.947,
+    "n": 200
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 425.834,
+    "p50": 427.625,
+    "p99": 435.937,
+    "min": 425.831,
+    "max": 967.312,
+    "n": 200
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 670.458,
+     "p50": 677.14,
+     "p99": 685.139,
+     "min": 669.489,
+     "max": 686.117,
+     "n": 200
+    },
+    "tripped_650_inside_allowance": 200,
+    "held_post_gt_650": 200,
+    "trip_after_plateau_ms": {
+     "p50": 42.0,
+     "p99": 85.1,
+     "p100": 99.0,
+     "min": 25.0,
+     "max": 99.0,
+     "n": 200
+    },
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_A1|nom|Lhi": {
+    "apex_minus_ref_m": {
+     "p01": -262.036,
+     "p50": -138.311,
+     "p99": 129.399,
+     "min": -265.187,
+     "max": 157.919,
+     "n": 200
+    },
+    "P_ref": 0.965,
+    "both_ok": 0,
+    "ref_ok_only": 193,
+    "this_ok_only": 0
+   }
+  },
+  "A1land|dla05|V": {
+   "on": "A1land",
+   "br": "V",
+   "dla": 0.5,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 303.297,
+    "p50": 304.34,
+    "p99": 306.084,
+    "min": 303.166,
+    "max": 306.203,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -23.626,
+    "p50": -17.752,
+    "p99": 0.0,
+    "min": -24.739,
+    "max": 0.0,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.0,
+    "p50": 76.859,
+    "p99": 174.712,
+    "min": 0.0,
+    "max": 192.753,
+    "n": 200
+   },
+   "onset_reached": 200,
+   "forced_decisions": 200,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 200
+   },
+   "ramp_s": {
+    "p50": 0.14,
+    "p100": 0.21,
+    "min": 0.1,
+    "max": 0.21,
+    "n": 200
+   },
+   "dv_allowance_mps": {
+    "p01": 13.734,
+    "p50": 16.756,
+    "p99": 19.15,
+    "min": 12.845,
+    "max": 19.463,
+    "n": 200
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 15.729,
+    "p50": 17.624,
+    "p99": 19.728,
+    "min": 14.677,
+    "max": 20.324,
+    "n": 200
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 16.077,
+    "p50": 19.413,
+    "p99": 22.599,
+    "min": 14.651,
+    "max": 23.529,
+    "n": 200
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": -12.97,
+    "p50": -0.533,
+    "p99": 12.785,
+    "min": -14.909,
+    "max": 13.805,
+    "n": 200
+   },
+   "vz_at_decision_mps": {
+    "p01": -5.479,
+    "p50": 5.184,
+    "p99": 18.085,
+    "min": -8.369,
+    "max": 19.251,
+    "n": 200
+   },
+   "h_at_decision_m": {
+    "p01": 9.607,
+    "p50": 11.022,
+    "p99": 27.754,
+    "min": 9.082,
+    "max": 29.126,
+    "n": 200
+   },
+   "h_at_onset_m": {
+    "p01": 6.492,
+    "p50": 14.062,
+    "p99": 38.916,
+    "min": 6.45,
+    "max": 40.562,
+    "n": 200
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 14.153,
+    "p50": 22.463,
+    "p99": 38.916,
+    "min": 14.097,
+    "max": 40.562,
+    "n": 200
+   },
+   "max_vz_after_onset_mps": {
+    "p01": -0.592,
+    "p50": 10.44,
+    "p99": 20.902,
+    "min": -1.184,
+    "max": 22.144,
+    "n": 200
+   },
+   "mass_at_decision_kg": {
+    "p01": 13.601,
+    "p50": 14.871,
+    "p99": 16.237,
+    "min": 13.279,
+    "max": 17.109,
+    "n": 200
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 456.871,
+    "p50": 470.819,
+    "p99": 486.723,
+    "min": 456.1,
+    "max": 487.178,
+    "n": 200
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 667.121,
+     "p50": 674.918,
+     "p99": 682.648,
+     "min": 664.973,
+     "max": 686.939,
+     "n": 200
+    },
+    "tripped_650_inside_allowance": 200,
+    "held_post_gt_650": 200,
+    "trip_after_plateau_ms": {
+     "p50": 45.0,
+     "p99": 79.05,
+     "p100": 90.0,
+     "min": 27.0,
+     "max": 90.0,
+     "n": 200
+    },
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_A1|nom|V": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 0.0,
+     "p99": 0.0,
+     "min": 0.0,
+     "max": 0.0,
+     "n": 200
+    },
+    "P_ref": 0.985,
+    "both_ok": 0,
+    "ref_ok_only": 197,
+    "this_ok_only": 0
+   },
+   "paired_vs_A1land|dla00|V": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 0.0,
+     "p99": 0.0,
+     "min": 0.0,
+     "max": 0.0,
+     "n": 200
+    },
+    "P_ref": 0.0,
+    "both_ok": 0,
+    "ref_ok_only": 0,
+    "this_ok_only": 0,
+    "dv_onset_to_tailoff_end_minus_ref_mps": {
+     "p01": 13.3,
+     "p50": 16.537,
+     "p99": 18.875,
+     "min": 12.578,
+     "max": 19.268,
+     "n": 200
+    },
+    "max_height_after_onset_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 0.712,
+     "p99": 28.876,
+     "min": 0.0,
+     "max": 30.937,
+     "n": 200
+    },
+    "td_vz_minus_ref_mps": {
+     "p01": -12.175,
+     "p50": 1.035,
+     "p99": 11.57,
+     "min": -13.073,
+     "max": 12.474,
+     "n": 200
+    }
+   }
+  },
+  "A1land|dla00|V": {
+   "on": "A1land",
+   "br": "V",
+   "dla": 0.0,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 303.297,
+    "p50": 304.34,
+    "p99": 306.084,
+    "min": 303.166,
+    "max": 306.203,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -25.853,
+    "p50": -16.875,
+    "p99": -11.147,
+    "min": -27.704,
+    "max": -11.079,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.734,
+    "p50": 76.949,
+    "p99": 170.204,
+    "min": 0.515,
+    "max": 176.377,
+    "n": 200
+   },
+   "onset_reached": 200,
+   "forced_decisions": 200,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 200
+   },
+   "ramp_s": {
+    "p50": 0.14,
+    "p100": 0.21,
+    "min": 0.1,
+    "max": 0.21,
+    "n": 200
+   },
+   "dv_allowance_mps": {
+    "p01": 0.027,
+    "p50": 0.033,
+    "p99": 0.038,
+    "min": 0.026,
+    "max": 0.038,
+    "n": 200
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 0.0,
+    "p50": 0.0,
+    "p99": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 200
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 1.904,
+    "p50": 3.014,
+    "p99": 4.262,
+    "min": 1.803,
+    "max": 4.472,
+    "n": 200
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": -13.355,
+    "p50": -6.288,
+    "p99": 0.02,
+    "min": -13.578,
+    "max": 0.354,
+    "n": 200
+   },
+   "vz_at_decision_mps": {
+    "p01": -20.707,
+    "p50": -11.542,
+    "p99": -0.363,
+    "min": -21.835,
+    "max": 0.141,
+    "n": 200
+   },
+   "h_at_decision_m": {
+    "p01": 5.905,
+    "p50": 12.421,
+    "p99": 34.089,
+    "min": 5.853,
+    "max": 36.566,
+    "n": 200
+   },
+   "h_at_onset_m": {
+    "p01": 6.492,
+    "p50": 14.062,
+    "p99": 38.916,
+    "min": 6.45,
+    "max": 40.562,
+    "n": 200
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 6.492,
+    "p50": 14.062,
+    "p99": 38.916,
+    "min": 6.472,
+    "max": 40.562,
+    "n": 200
+   },
+   "max_vz_after_onset_mps": {
+    "p01": -16.592,
+    "p50": 8.03,
+    "p99": 17.514,
+    "min": -17.587,
+    "max": 19.306,
+    "n": 200
+   },
+   "mass_at_decision_kg": {
+    "p01": 13.774,
+    "p50": 15.057,
+    "p99": 16.412,
+    "min": 13.452,
+    "max": 17.294,
+    "n": 200
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 121.871,
+    "p50": 135.819,
+    "p99": 151.723,
+    "min": 121.1,
+    "max": 152.178,
+    "n": 200
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 539.291,
+     "p50": 557.21,
+     "p99": 577.716,
+     "min": 536.542,
+     "max": 583.535,
+     "n": 200
+    },
+    "tripped_650_inside_allowance": 0,
+    "held_post_gt_650": 0,
+    "trip_after_plateau_ms": null,
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_A1|nom|V": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 0.0,
+     "p99": 0.0,
+     "min": 0.0,
+     "max": 0.0,
+     "n": 200
+    },
+    "P_ref": 0.985,
+    "both_ok": 0,
+    "ref_ok_only": 197,
+    "this_ok_only": 0
+   }
+  },
+  "A1land|dla05|Lhi": {
+   "on": "A1land",
+   "br": "Lhi",
+   "dla": 0.5,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 304.553,
+    "p50": 306.099,
+    "p99": 307.693,
+    "min": 304.101,
+    "max": 308.107,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -23.205,
+    "p50": -17.511,
+    "p99": 0.0,
+    "min": -24.054,
+    "max": 0.0,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.0,
+    "p50": 75.484,
+    "p99": 180.207,
+    "min": 0.0,
+    "max": 183.826,
+    "n": 200
+   },
+   "onset_reached": 200,
+   "forced_decisions": 200,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 200
+   },
+   "ramp_s": {
+    "p50": 0.138,
+    "p100": 0.221,
+    "min": 0.069,
+    "max": 0.221,
+    "n": 200
+   },
+   "dv_allowance_mps": {
+    "p01": 13.725,
+    "p50": 16.777,
+    "p99": 19.183,
+    "min": 12.766,
+    "max": 19.482,
+    "n": 200
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 15.695,
+    "p50": 17.605,
+    "p99": 19.69,
+    "min": 14.649,
+    "max": 20.296,
+    "n": 200
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 16.236,
+    "p50": 19.222,
+    "p99": 22.62,
+    "min": 14.71,
+    "max": 23.476,
+    "n": 200
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": -13.577,
+    "p50": -0.724,
+    "p99": 13.044,
+    "min": -14.272,
+    "max": 13.802,
+    "n": 200
+   },
+   "vz_at_decision_mps": {
+    "p01": -6.28,
+    "p50": 4.679,
+    "p99": 18.403,
+    "min": -7.428,
+    "max": 19.278,
+    "n": 200
+   },
+   "h_at_decision_m": {
+    "p01": 8.96,
+    "p50": 10.671,
+    "p99": 25.424,
+    "min": 8.842,
+    "max": 27.306,
+    "n": 200
+   },
+   "h_at_onset_m": {
+    "p01": 6.25,
+    "p50": 13.549,
+    "p99": 36.383,
+    "min": 5.953,
+    "max": 38.878,
+    "n": 200
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 13.393,
+    "p50": 22.307,
+    "p99": 36.989,
+    "min": 12.951,
+    "max": 38.878,
+    "n": 200
+   },
+   "max_vz_after_onset_mps": {
+    "p01": -1.434,
+    "p50": 9.593,
+    "p99": 21.198,
+    "min": -3.056,
+    "max": 22.159,
+    "n": 200
+   },
+   "mass_at_decision_kg": {
+    "p01": 13.622,
+    "p50": 14.883,
+    "p99": 16.263,
+    "min": 13.294,
+    "max": 17.133,
+    "n": 200
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 447.703,
+    "p50": 470.148,
+    "p99": 488.171,
+    "min": 441.992,
+    "max": 488.636,
+    "n": 200
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 670.686,
+     "p50": 677.142,
+     "p99": 685.556,
+     "min": 669.979,
+     "max": 689.455,
+     "n": 200
+    },
+    "tripped_650_inside_allowance": 200,
+    "held_post_gt_650": 200,
+    "trip_after_plateau_ms": {
+     "p50": 43.0,
+     "p99": 68.07,
+     "p100": 82.0,
+     "min": 26.0,
+     "max": 82.0,
+     "n": 200
+    },
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_A1|nom|Lhi": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 0.0,
+     "p99": 0.0,
+     "min": 0.0,
+     "max": 0.0,
+     "n": 200
+    },
+    "P_ref": 0.965,
+    "both_ok": 0,
+    "ref_ok_only": 193,
+    "this_ok_only": 0
+   }
+  },
+  "B1asc|dla05|V": {
+   "on": "B1asc",
+   "br": "V",
+   "dla": 0.5,
+   "n": 200,
+   "landing_criteria_met": 3,
+   "P": 0.015,
+   "P_wilson": [
+    0.005114145184492387,
+    0.043166480556278884
+   ],
+   "apex_m": {
+    "p01": 39.115,
+    "p50": 61.534,
+    "p99": 89.009,
+    "min": 35.303,
+    "max": 90.379,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -35.443,
+    "p50": -29.888,
+    "p99": -1.126,
+    "min": -36.176,
+    "max": 0.0,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.177,
+    "p50": 10.898,
+    "p99": 31.133,
+    "min": 0.0,
+    "max": 35.826,
+    "n": 200
+   },
+   "onset_reached": 197,
+   "forced_decisions": 197,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 197
+   },
+   "ramp_s": {
+    "p50": 0.07,
+    "p100": 0.073,
+    "min": 0.066,
+    "max": 0.073,
+    "n": 197
+   },
+   "dv_allowance_mps": {
+    "p01": 14.994,
+    "p50": 16.862,
+    "p99": 18.899,
+    "min": 14.273,
+    "max": 19.672,
+    "n": 197
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 15.193,
+    "p50": 17.189,
+    "p99": 19.325,
+    "min": 14.492,
+    "max": 20.14,
+    "n": 197
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 15.98,
+    "p50": 18.252,
+    "p99": 20.787,
+    "min": 15.034,
+    "max": 21.728,
+    "n": 197
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": 17.091,
+    "p50": 23.844,
+    "p99": 31.01,
+    "min": 16.205,
+    "max": 31.358,
+    "n": 197
+   },
+   "vz_at_decision_mps": {
+    "p01": 21.2,
+    "p50": 28.136,
+    "p99": 35.58,
+    "min": 20.136,
+    "max": 35.803,
+    "n": 197
+   },
+   "h_at_decision_m": {
+    "p01": 7.404,
+    "p50": 12.372,
+    "p99": 19.328,
+    "min": 6.953,
+    "max": 19.557,
+    "n": 197
+   },
+   "h_at_onset_m": {
+    "p01": 0.345,
+    "p50": 1.839,
+    "p99": 4.972,
+    "min": 0.311,
+    "max": 5.14,
+    "n": 197
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 38.188,
+    "p50": 60.409,
+    "p99": 88.118,
+    "min": 34.413,
+    "max": 89.501,
+    "n": 197
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 23.363,
+    "p50": 30.512,
+    "p99": 38.285,
+    "min": 22.275,
+    "max": 38.398,
+    "n": 197
+   },
+   "mass_at_decision_kg": {
+    "p01": 13.827,
+    "p50": 15.164,
+    "p99": 16.67,
+    "min": 13.377,
+    "max": 17.272,
+    "n": 197
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 440.427,
+    "p50": 442.367,
+    "p99": 443.949,
+    "min": 440.341,
+    "max": 443.983,
+    "n": 197
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 670.5,
+     "p50": 676.783,
+     "p99": 686.379,
+     "min": 668.095,
+     "max": 688.294,
+     "n": 197
+    },
+    "tripped_650_inside_allowance": 197,
+    "held_post_gt_650": 197,
+    "trip_after_plateau_ms": {
+     "p50": 43.0,
+     "p99": 83.48,
+     "p100": 107.0,
+     "min": 28.0,
+     "max": 107.0,
+     "n": 197
+    },
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_B1|nom|V": {
+    "apex_minus_ref_m": {
+     "p01": -24.325,
+     "p50": -1.559,
+     "p99": 25.686,
+     "min": -27.977,
+     "max": 29.015,
+     "n": 197
+    },
+    "P_ref": 0.99,
+    "both_ok": 3,
+    "ref_ok_only": 195,
+    "this_ok_only": 0
+   },
+   "paired_vs_B1asc|dla00|V": {
+    "apex_minus_ref_m": {
+     "p01": 32.922,
+     "p50": 45.756,
+     "p99": 58.067,
+     "min": 29.878,
+     "max": 59.279,
+     "n": 197
+    },
+    "P_ref": 0.015,
+    "both_ok": 3,
+    "ref_ok_only": 0,
+    "this_ok_only": 0,
+    "dv_onset_to_tailoff_end_minus_ref_mps": {
+     "p01": 14.786,
+     "p50": 16.495,
+     "p99": 18.408,
+     "min": 14.062,
+     "max": 19.104,
+     "n": 197
+    },
+    "max_height_after_onset_minus_ref_m": {
+     "p01": 32.923,
+     "p50": 45.758,
+     "p99": 58.069,
+     "min": 29.88,
+     "max": 59.281,
+     "n": 197
+    },
+    "td_vz_minus_ref_mps": {
+     "p01": -16.66,
+     "p50": -13.638,
+     "p99": -10.447,
+     "min": -34.58,
+     "max": 10.907,
+     "n": 197
+    }
+   }
+  },
+  "B1asc|dla00|V": {
+   "on": "B1asc",
+   "br": "V",
+   "dla": 0.0,
+   "n": 200,
+   "landing_criteria_met": 3,
+   "P": 0.015,
+   "P_wilson": [
+    0.005114145184492387,
+    0.043166480556278884
+   ],
+   "apex_m": {
+    "p01": 6.038,
+    "p50": 15.198,
+    "p99": 61.941,
+    "min": 5.425,
+    "max": 62.579,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -22.783,
+    "p50": -16.0,
+    "p99": -1.126,
+    "min": -22.973,
+    "max": 0.0,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.074,
+    "p50": 1.257,
+    "p99": 9.568,
+    "min": 0.0,
+    "max": 15.119,
+    "n": 200
+   },
+   "onset_reached": 197,
+   "forced_decisions": 197,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 197
+   },
+   "ramp_s": {
+    "p50": 0.07,
+    "p100": 0.073,
+    "min": 0.066,
+    "max": 0.073,
+    "n": 197
+   },
+   "dv_allowance_mps": {
+    "p01": 0.03,
+    "p50": 0.034,
+    "p99": 0.038,
+    "min": 0.028,
+    "max": 0.039,
+    "n": 197
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 0.0,
+    "p50": 0.0,
+    "p99": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 197
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 1.193,
+    "p50": 1.757,
+    "p99": 2.352,
+    "min": 0.972,
+    "max": 2.624,
+    "n": 197
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": 3.416,
+    "p50": 6.366,
+    "p99": 9.776,
+    "min": 3.137,
+    "max": 9.875,
+    "n": 197
+   },
+   "vz_at_decision_mps": {
+    "p01": 5.548,
+    "p50": 11.018,
+    "p99": 17.57,
+    "min": 5.164,
+    "max": 17.674,
+    "n": 197
+   },
+   "h_at_decision_m": {
+    "p01": 0.662,
+    "p50": 2.551,
+    "p99": 6.154,
+    "min": 0.617,
+    "max": 6.269,
+    "n": 197
+   },
+   "h_at_onset_m": {
+    "p01": 0.345,
+    "p50": 1.839,
+    "p99": 4.972,
+    "min": 0.311,
+    "max": 5.14,
+    "n": 197
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 5.151,
+    "p50": 14.181,
+    "p99": 29.655,
+    "min": 4.533,
+    "max": 30.33,
+    "n": 197
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 7.901,
+    "p50": 13.627,
+    "p99": 20.276,
+    "min": 7.328,
+    "max": 20.324,
+    "n": 197
+   },
+   "mass_at_decision_kg": {
+    "p01": 14.013,
+    "p50": 15.337,
+    "p99": 16.845,
+    "min": 13.55,
+    "max": 17.456,
+    "n": 197
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 105.427,
+    "p50": 107.367,
+    "p99": 108.949,
+    "min": 105.341,
+    "max": 108.983,
+    "n": 197
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 0.0,
+     "p50": 561.006,
+     "p99": 583.139,
+     "min": 0.0,
+     "max": 588.516,
+     "n": 197
+    },
+    "tripped_650_inside_allowance": 0,
+    "held_post_gt_650": 0,
+    "trip_after_plateau_ms": null,
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_B1|nom|V": {
+    "apex_minus_ref_m": {
+     "p01": -57.441,
+     "p50": -47.896,
+     "p99": -31.946,
+     "min": -57.856,
+     "max": -30.204,
+     "n": 197
+    },
+    "P_ref": 0.99,
+    "both_ok": 3,
+    "ref_ok_only": 195,
+    "this_ok_only": 0
+   }
+  },
+  "B1asc|dla05|Lhi": {
+   "on": "B1asc",
+   "br": "Lhi",
+   "dla": 0.5,
+   "n": 200,
+   "landing_criteria_met": 19,
+   "P": 0.095,
+   "P_wilson": [
+    0.06166261364986359,
+    0.14360265114397636
+   ],
+   "apex_m": {
+    "p01": 38.403,
+    "p50": 64.074,
+    "p99": 84.592,
+    "min": 34.631,
+    "max": 85.706,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -35.436,
+    "p50": -29.695,
+    "p99": -1.116,
+    "min": -36.295,
+    "max": 0.0,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.087,
+    "p50": 10.396,
+    "p99": 33.862,
+    "min": 0.0,
+    "max": 37.668,
+    "n": 200
+   },
+   "onset_reached": 181,
+   "forced_decisions": 181,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 181
+   },
+   "ramp_s": {
+    "p50": 0.043,
+    "p100": 0.047,
+    "min": 0.039,
+    "max": 0.047,
+    "n": 181
+   },
+   "dv_allowance_mps": {
+    "p01": 14.963,
+    "p50": 16.774,
+    "p99": 18.856,
+    "min": 14.266,
+    "max": 19.659,
+    "n": 181
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 15.157,
+    "p50": 17.126,
+    "p99": 19.275,
+    "min": 14.495,
+    "max": 20.143,
+    "n": 181
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 15.332,
+    "p50": 17.481,
+    "p99": 20.006,
+    "min": 14.466,
+    "max": 20.863,
+    "n": 181
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": 16.746,
+    "p50": 23.77,
+    "p99": 29.769,
+    "min": 15.896,
+    "max": 30.16,
+    "n": 181
+   },
+   "vz_at_decision_mps": {
+    "p01": 20.92,
+    "p50": 28.54,
+    "p99": 34.451,
+    "min": 19.93,
+    "max": 34.671,
+    "n": 181
+   },
+   "h_at_decision_m": {
+    "p01": 7.237,
+    "p50": 12.475,
+    "p99": 18.955,
+    "min": 6.759,
+    "max": 19.527,
+    "n": 181
+   },
+   "h_at_onset_m": {
+    "p01": 0.364,
+    "p50": 1.991,
+    "p99": 5.329,
+    "min": 0.332,
+    "max": 5.532,
+    "n": 181
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 37.299,
+    "p50": 60.62,
+    "p99": 83.687,
+    "min": 33.74,
+    "max": 84.836,
+    "n": 181
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 23.174,
+    "p50": 30.934,
+    "p99": 36.96,
+    "min": 22.069,
+    "max": 37.29,
+    "n": 181
+   },
+   "mass_at_decision_kg": {
+    "p01": 13.855,
+    "p50": 15.207,
+    "p99": 16.7,
+    "min": 13.375,
+    "max": 17.27,
+    "n": 181
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 425.836,
+    "p50": 428.109,
+    "p99": 430.355,
+    "min": 425.831,
+    "max": 430.395,
+    "n": 181
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 669.503,
+     "p50": 676.483,
+     "p99": 686.278,
+     "min": 668.021,
+     "max": 688.129,
+     "n": 181
+    },
+    "tripped_650_inside_allowance": 181,
+    "held_post_gt_650": 181,
+    "trip_after_plateau_ms": {
+     "p50": 43.0,
+     "p99": 100.4,
+     "p100": 115.0,
+     "min": 24.0,
+     "max": 115.0,
+     "n": 181
+    },
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_B1|nom|Lhi": {
+    "apex_minus_ref_m": {
+     "p01": -25.337,
+     "p50": -2.778,
+     "p99": 20.827,
+     "min": -30.517,
+     "max": 24.781,
+     "n": 181
+    },
+    "P_ref": 0.99,
+    "both_ok": 19,
+    "ref_ok_only": 179,
+    "this_ok_only": 0
+   }
+  },
+  "B1floor|dla05|V": {
+   "on": "B1floor",
+   "br": "V",
+   "dla": 0.5,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 63.01,
+    "p50": 106.546,
+    "p99": 119.284,
+    "min": 50.082,
+    "max": 120.133,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -40.83,
+    "p50": -37.58,
+    "p99": -29.125,
+    "min": -41.336,
+    "max": -1.228,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.96,
+    "p50": 17.235,
+    "p99": 38.279,
+    "min": 0.759,
+    "max": 63.244,
+    "n": 200
+   },
+   "onset_reached": 199,
+   "forced_decisions": 199,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 199
+   },
+   "ramp_s": {
+    "p50": 0.227,
+    "p100": 0.229,
+    "min": 0.226,
+    "max": 0.229,
+    "n": 199
+   },
+   "dv_allowance_mps": {
+    "p01": 14.948,
+    "p50": 17.416,
+    "p99": 19.935,
+    "min": 13.898,
+    "max": 20.277,
+    "n": 199
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 15.827,
+    "p50": 17.833,
+    "p99": 20.336,
+    "min": 14.967,
+    "max": 20.613,
+    "n": 199
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 16.927,
+    "p50": 20.631,
+    "p99": 24.077,
+    "min": 15.872,
+    "max": 24.848,
+    "n": 199
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": 4.059,
+    "p50": 21.589,
+    "p99": 37.209,
+    "min": 1.973,
+    "max": 37.367,
+    "n": 199
+   },
+   "vz_at_decision_mps": {
+    "p01": 10.15,
+    "p50": 25.432,
+    "p99": 38.457,
+    "min": 8.197,
+    "max": 38.944,
+    "n": 199
+   },
+   "h_at_decision_m": {
+    "p01": 32.563,
+    "p50": 61.178,
+    "p99": 70.261,
+    "min": 32.097,
+    "max": 70.703,
+    "n": 199
+   },
+   "h_at_onset_m": {
+    "p01": 13.236,
+    "p50": 54.535,
+    "p99": 62.821,
+    "min": 12.854,
+    "max": 63.369,
+    "n": 199
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 56.839,
+    "p50": 105.732,
+    "p99": 118.386,
+    "min": 48.077,
+    "max": 119.269,
+    "n": 199
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 14.433,
+    "p50": 28.721,
+    "p99": 40.992,
+    "min": 10.586,
+    "max": 41.541,
+    "n": 199
+   },
+   "mass_at_decision_kg": {
+    "p01": 13.273,
+    "p50": 14.734,
+    "p99": 16.16,
+    "min": 13.129,
+    "max": 16.859,
+    "n": 199
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 488.976,
+    "p50": 489.383,
+    "p99": 489.701,
+    "min": 488.969,
+    "max": 489.807,
+    "n": 199
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 668.941,
+     "p50": 675.914,
+     "p99": 684.534,
+     "min": 667.954,
+     "max": 687.139,
+     "n": 199
+    },
+    "tripped_650_inside_allowance": 199,
+    "held_post_gt_650": 199,
+    "trip_after_plateau_ms": {
+     "p50": 44.0,
+     "p99": 79.02,
+     "p100": 86.0,
+     "min": 26.0,
+     "max": 86.0,
+     "n": 199
+    },
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_B1|nom|V": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 43.631,
+     "p99": 55.913,
+     "min": 0.0,
+     "max": 56.704,
+     "n": 199
+    },
+    "P_ref": 0.99,
+    "both_ok": 0,
+    "ref_ok_only": 198,
+    "this_ok_only": 0
+   },
+   "paired_vs_B1floor|dla00|V": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 41.982,
+     "p99": 62.133,
+     "min": 0.0,
+     "max": 64.145,
+     "n": 199
+    },
+    "P_ref": 0.0,
+    "both_ok": 0,
+    "ref_ok_only": 0,
+    "this_ok_only": 0,
+    "dv_onset_to_tailoff_end_minus_ref_mps": {
+     "p01": 14.576,
+     "p50": 17.096,
+     "p99": 19.408,
+     "min": 13.25,
+     "max": 19.972,
+     "n": 199
+    },
+    "max_height_after_onset_minus_ref_m": {
+     "p01": 8.996,
+     "p50": 41.983,
+     "p99": 62.135,
+     "min": 5.135,
+     "max": 64.147,
+     "n": 199
+    },
+    "td_vz_minus_ref_mps": {
+     "p01": -11.624,
+     "p50": -5.745,
+     "p99": -0.183,
+     "min": -12.075,
+     "max": 0.128,
+     "n": 199
+    }
+   }
+  },
+  "B1floor|dla00|V": {
+   "on": "B1floor",
+   "br": "V",
+   "dla": 0.0,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 50.077,
+    "p50": 63.715,
+    "p99": 69.893,
+    "min": 48.003,
+    "max": 70.331,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -34.391,
+    "p50": -31.395,
+    "p99": -27.413,
+    "min": -34.458,
+    "max": -1.228,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.311,
+    "p50": 5.392,
+    "p99": 24.211,
+    "min": 0.212,
+    "max": 63.244,
+    "n": 200
+   },
+   "onset_reached": 199,
+   "forced_decisions": 199,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 199
+   },
+   "ramp_s": {
+    "p50": 0.227,
+    "p100": 0.229,
+    "min": 0.226,
+    "max": 0.229,
+    "n": 199
+   },
+   "dv_allowance_mps": {
+    "p01": 0.03,
+    "p50": 0.035,
+    "p99": 0.04,
+    "min": 0.029,
+    "max": 0.04,
+    "n": 199
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 0.0,
+    "p50": 0.0,
+    "p99": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 199
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 2.589,
+    "p50": 3.542,
+    "p99": 4.673,
+    "min": 2.205,
+    "max": 4.877,
+    "n": 199
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": -4.389,
+    "p50": 5.477,
+    "p99": 14.527,
+    "min": -5.406,
+    "max": 14.778,
+    "n": 199
+   },
+   "vz_at_decision_mps": {
+    "p01": -6.573,
+    "p50": 7.858,
+    "p99": 21.279,
+    "min": -8.04,
+    "max": 21.678,
+    "n": 199
+   },
+   "h_at_decision_m": {
+    "p01": 17.571,
+    "p50": 54.704,
+    "p99": 63.032,
+    "min": 17.077,
+    "max": 63.529,
+    "n": 199
+   },
+   "h_at_onset_m": {
+    "p01": 13.236,
+    "p50": 54.535,
+    "p99": 62.821,
+    "min": 12.854,
+    "max": 63.369,
+    "n": 199
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 47.092,
+    "p50": 61.214,
+    "p99": 69.023,
+    "min": 42.942,
+    "max": 69.426,
+    "n": 199
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 6.225,
+    "p50": 21.994,
+    "p99": 26.451,
+    "min": 2.184,
+    "max": 26.622,
+    "n": 199
+   },
+   "mass_at_decision_kg": {
+    "p01": 13.447,
+    "p50": 14.924,
+    "p99": 16.335,
+    "min": 13.302,
+    "max": 17.044,
+    "n": 199
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 153.976,
+    "p50": 154.383,
+    "p99": 154.701,
+    "min": 153.969,
+    "max": 154.807,
+    "n": 199
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 538.666,
+     "p50": 559.886,
+     "p99": 576.509,
+     "min": 534.765,
+     "max": 585.887,
+     "n": 199
+    },
+    "tripped_650_inside_allowance": 0,
+    "held_post_gt_650": 0,
+    "trip_after_plateau_ms": null,
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_B1|nom|V": {
+    "apex_minus_ref_m": {
+     "p01": -13.02,
+     "p50": 0.0,
+     "p99": 5.934,
+     "min": -14.842,
+     "max": 6.317,
+     "n": 199
+    },
+    "P_ref": 0.99,
+    "both_ok": 0,
+    "ref_ok_only": 198,
+    "this_ok_only": 0
+   }
+  },
+  "B1floor|dla05|Lhi": {
+   "on": "B1floor",
+   "br": "Lhi",
+   "dla": 0.5,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 64.172,
+    "p50": 108.443,
+    "p99": 120.823,
+    "min": 46.822,
+    "max": 123.162,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -41.35,
+    "p50": -37.716,
+    "p99": -29.828,
+    "min": -42.008,
+    "max": -1.112,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 1.035,
+    "p50": 17.301,
+    "p99": 39.341,
+    "min": 0.648,
+    "max": 83.191,
+    "n": 200
+   },
+   "onset_reached": 199,
+   "forced_decisions": 199,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 199
+   },
+   "ramp_s": {
+    "p50": 0.227,
+    "p100": 0.229,
+    "min": 0.226,
+    "max": 0.229,
+    "n": 199
+   },
+   "dv_allowance_mps": {
+    "p01": 14.981,
+    "p50": 17.425,
+    "p99": 19.952,
+    "min": 13.991,
+    "max": 20.31,
+    "n": 199
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 15.832,
+    "p50": 17.844,
+    "p99": 20.36,
+    "min": 14.975,
+    "max": 20.631,
+    "n": 199
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 17.008,
+    "p50": 20.662,
+    "p99": 24.034,
+    "min": 15.913,
+    "max": 24.864,
+    "n": 199
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": 4.775,
+    "p50": 21.698,
+    "p99": 37.29,
+    "min": 2.298,
+    "max": 37.436,
+    "n": 199
+   },
+   "vz_at_decision_mps": {
+    "p01": 10.766,
+    "p50": 25.506,
+    "p99": 38.586,
+    "min": 8.472,
+    "max": 39.14,
+    "n": 199
+   },
+   "h_at_decision_m": {
+    "p01": 33.769,
+    "p50": 63.529,
+    "p99": 72.343,
+    "min": 33.002,
+    "max": 72.554,
+    "n": 199
+   },
+   "h_at_onset_m": {
+    "p01": 14.392,
+    "p50": 56.429,
+    "p99": 65.08,
+    "min": 13.769,
+    "max": 65.464,
+    "n": 199
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 59.978,
+    "p50": 107.65,
+    "p99": 119.95,
+    "min": 50.809,
+    "max": 122.297,
+    "n": 199
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 15.88,
+    "p50": 28.963,
+    "p99": 41.052,
+    "min": 10.866,
+    "max": 41.735,
+    "n": 199
+   },
+   "mass_at_decision_kg": {
+    "p01": 13.26,
+    "p50": 14.727,
+    "p99": 16.156,
+    "min": 13.12,
+    "max": 16.852,
+    "n": 199
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 488.951,
+    "p50": 489.304,
+    "p99": 489.703,
+    "min": 488.945,
+    "max": 489.708,
+    "n": 199
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 669.203,
+     "p50": 677.088,
+     "p99": 685.732,
+     "min": 668.924,
+     "max": 691.1,
+     "n": 199
+    },
+    "tripped_650_inside_allowance": 199,
+    "held_post_gt_650": 199,
+    "trip_after_plateau_ms": {
+     "p50": 43.0,
+     "p99": 63.04,
+     "p100": 75.0,
+     "min": 29.0,
+     "max": 75.0,
+     "n": 199
+    },
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_B1|nom|Lhi": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 44.272,
+     "p99": 55.447,
+     "min": 0.0,
+     "max": 56.889,
+     "n": 199
+    },
+    "P_ref": 0.99,
+    "both_ok": 0,
+    "ref_ok_only": 198,
+    "this_ok_only": 0
+   }
+  },
+  "B1land|dla05|V": {
+   "on": "B1land",
+   "br": "V",
+   "dla": 0.5,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 60.932,
+    "p50": 62.909,
+    "p99": 64.596,
+    "min": 50.082,
+    "max": 64.755,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -26.433,
+    "p50": -23.262,
+    "p99": -17.04,
+    "min": -27.228,
+    "max": 0.0,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.504,
+    "p50": 8.593,
+    "p99": 31.144,
+    "min": 0.0,
+    "max": 62.377,
+    "n": 200
+   },
+   "onset_reached": 200,
+   "forced_decisions": 200,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 200
+   },
+   "ramp_s": {
+    "p50": 0.206,
+    "p100": 0.225,
+    "min": 0.102,
+    "max": 0.225,
+    "n": 200
+   },
+   "dv_allowance_mps": {
+    "p01": 16.332,
+    "p50": 18.612,
+    "p99": 21.196,
+    "min": 15.668,
+    "max": 21.915,
+    "n": 200
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 16.54,
+    "p50": 18.885,
+    "p99": 21.613,
+    "min": 15.91,
+    "max": 22.361,
+    "n": 200
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 18.492,
+    "p50": 22.205,
+    "p99": 25.93,
+    "min": 18.145,
+    "max": 27.065,
+    "n": 200
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": 1.679,
+    "p50": 12.901,
+    "p99": 16.464,
+    "min": 0.991,
+    "max": 17.176,
+    "n": 200
+   },
+   "vz_at_decision_mps": {
+    "p01": 7.584,
+    "p50": 18.072,
+    "p99": 22.393,
+    "min": 6.24,
+    "max": 23.237,
+    "n": 200
+   },
+   "h_at_decision_m": {
+    "p01": 7.613,
+    "p50": 10.433,
+    "p99": 12.422,
+    "min": 7.485,
+    "max": 12.607,
+    "n": 200
+   },
+   "h_at_onset_m": {
+    "p01": 3.502,
+    "p50": 6.791,
+    "p99": 13.023,
+    "min": 2.837,
+    "max": 13.498,
+    "n": 200
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 17.77,
+    "p50": 33.656,
+    "p99": 43.638,
+    "min": 15.808,
+    "max": 48.134,
+    "n": 200
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 10.52,
+    "p50": 20.706,
+    "p99": 25.52,
+    "min": 8.622,
+    "max": 26.51,
+    "n": 200
+   },
+   "mass_at_decision_kg": {
+    "p01": 12.634,
+    "p50": 14.083,
+    "p99": 15.623,
+    "min": 12.287,
+    "max": 16.096,
+    "n": 200
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 457.501,
+    "p50": 486.593,
+    "p99": 488.791,
+    "min": 456.962,
+    "max": 489.165,
+    "n": 200
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 668.417,
+     "p50": 676.26,
+     "p99": 685.794,
+     "min": 666.188,
+     "max": 686.796,
+     "n": 200
+    },
+    "tripped_650_inside_allowance": 200,
+    "held_post_gt_650": 200,
+    "trip_after_plateau_ms": {
+     "p50": 42.0,
+     "p99": 66.0,
+     "p100": 70.0,
+     "min": 30.0,
+     "max": 70.0,
+     "n": 200
+    },
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_B1|nom|V": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 0.0,
+     "p99": 0.0,
+     "min": 0.0,
+     "max": 0.0,
+     "n": 200
+    },
+    "P_ref": 0.99,
+    "both_ok": 0,
+    "ref_ok_only": 198,
+    "this_ok_only": 0
+   },
+   "paired_vs_B1land|dla00|V": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 0.0,
+     "p99": 0.0,
+     "min": 0.0,
+     "max": 0.0,
+     "n": 200
+    },
+    "P_ref": 0.0,
+    "both_ok": 0,
+    "ref_ok_only": 0,
+    "this_ok_only": 0,
+    "dv_onset_to_tailoff_end_minus_ref_mps": {
+     "p01": 16.193,
+     "p50": 18.304,
+     "p99": 20.577,
+     "min": 15.394,
+     "max": 21.379,
+     "n": 200
+    },
+    "max_height_after_onset_minus_ref_m": {
+     "p01": 4.612,
+     "p50": 27.757,
+     "p99": 37.677,
+     "min": 2.788,
+     "max": 39.871,
+     "n": 200
+    },
+    "td_vz_minus_ref_mps": {
+     "p01": -16.08,
+     "p50": -12.421,
+     "p99": -1.082,
+     "min": -16.36,
+     "max": 12.26,
+     "n": 200
+    }
+   }
+  },
+  "B1land|dla00|V": {
+   "on": "B1land",
+   "br": "V",
+   "dla": 0.0,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 60.932,
+    "p50": 62.909,
+    "p99": 64.596,
+    "min": 50.082,
+    "max": 64.755,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -15.958,
+    "p50": -11.843,
+    "p99": -8.851,
+    "min": -16.133,
+    "max": -8.624,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.132,
+    "p50": 5.571,
+    "p99": 25.595,
+    "min": 0.079,
+    "max": 60.257,
+    "n": 200
+   },
+   "onset_reached": 200,
+   "forced_decisions": 200,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 200
+   },
+   "ramp_s": {
+    "p50": 0.206,
+    "p100": 0.225,
+    "min": 0.102,
+    "max": 0.225,
+    "n": 200
+   },
+   "dv_allowance_mps": {
+    "p01": 0.033,
+    "p50": 0.037,
+    "p99": 0.042,
+    "min": 0.031,
+    "max": 0.044,
+    "n": 200
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 0.0,
+    "p50": 0.0,
+    "p99": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "n": 200
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 2.493,
+    "p50": 3.908,
+    "p99": 5.358,
+    "min": 2.245,
+    "max": 5.685,
+    "n": 200
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": -5.457,
+    "p50": 0.271,
+    "p99": 1.1,
+    "min": -5.793,
+    "max": 1.227,
+    "n": 200
+   },
+   "vz_at_decision_mps": {
+    "p01": -10.363,
+    "p50": 0.076,
+    "p99": 1.15,
+    "min": -10.868,
+    "max": 1.366,
+    "n": 200
+   },
+   "h_at_decision_m": {
+    "p01": 3.096,
+    "p50": 6.297,
+    "p99": 11.613,
+    "min": 2.473,
+    "max": 11.838,
+    "n": 200
+   },
+   "h_at_onset_m": {
+    "p01": 3.502,
+    "p50": 6.791,
+    "p99": 13.023,
+    "min": 2.837,
+    "max": 13.498,
+    "n": 200
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 4.091,
+    "p50": 7.29,
+    "p99": 13.023,
+    "min": 3.847,
+    "max": 13.498,
+    "n": 200
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 3.768,
+    "p50": 6.961,
+    "p99": 10.166,
+    "min": 1.515,
+    "max": 10.4,
+    "n": 200
+   },
+   "mass_at_decision_kg": {
+    "p01": 12.823,
+    "p50": 14.268,
+    "p99": 15.799,
+    "min": 12.461,
+    "max": 16.282,
+    "n": 200
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 122.501,
+    "p50": 151.593,
+    "p99": 153.791,
+    "min": 121.962,
+    "max": 154.165,
+    "n": 200
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 542.23,
+     "p50": 560.962,
+     "p99": 579.354,
+     "min": 540.972,
+     "max": 583.027,
+     "n": 200
+    },
+    "tripped_650_inside_allowance": 0,
+    "held_post_gt_650": 0,
+    "trip_after_plateau_ms": null,
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_B1|nom|V": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 0.0,
+     "p99": 0.0,
+     "min": 0.0,
+     "max": 0.0,
+     "n": 200
+    },
+    "P_ref": 0.99,
+    "both_ok": 0,
+    "ref_ok_only": 198,
+    "this_ok_only": 0
+   }
+  },
+  "B1land|dla05|Lhi": {
+   "on": "B1land",
+   "br": "Lhi",
+   "dla": 0.5,
+   "n": 200,
+   "landing_criteria_met": 0,
+   "P": 0.0,
+   "P_wilson": [
+    0.0,
+    0.018846005918320894
+   ],
+   "apex_m": {
+    "p01": 62.071,
+    "p50": 64.533,
+    "p99": 67.325,
+    "min": 46.822,
+    "max": 67.541,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -26.953,
+    "p50": -23.378,
+    "p99": -16.916,
+    "min": -27.577,
+    "max": 0.0,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.324,
+    "p50": 8.552,
+    "p99": 33.012,
+    "min": 0.0,
+    "max": 70.774,
+    "n": 200
+   },
+   "onset_reached": 200,
+   "forced_decisions": 200,
+   "no_forced_decision": 0,
+   "no_forced_detail": {
+    "ended_by_fsw_shutdown": 0,
+    "liquid_exhausted": 0
+   },
+   "activations": {
+    "p50": 1.0,
+    "p100": 1.0,
+    "min": 1.0,
+    "max": 1.0,
+    "n": 200
+   },
+   "ramp_s": {
+    "p50": 0.207,
+    "p100": 0.223,
+    "min": 0.061,
+    "max": 0.223,
+    "n": 200
+   },
+   "dv_allowance_mps": {
+    "p01": 16.098,
+    "p50": 18.687,
+    "p99": 21.329,
+    "min": 15.476,
+    "max": 22.101,
+    "n": 200
+   },
+   "dv_allowance_derived_mps": {
+    "p01": 16.585,
+    "p50": 18.937,
+    "p99": 21.742,
+    "min": 15.946,
+    "max": 22.543,
+    "n": 200
+   },
+   "dv_onset_to_tailoff_end_mps": {
+    "p01": 18.38,
+    "p50": 22.302,
+    "p99": 26.134,
+    "min": 16.587,
+    "max": 27.286,
+    "n": 200
+   },
+   "dh_onset_to_tailoff_end_m": {
+    "p01": 1.851,
+    "p50": 12.951,
+    "p99": 16.766,
+    "min": 0.917,
+    "max": 17.774,
+    "n": 200
+   },
+   "vz_at_decision_mps": {
+    "p01": 7.773,
+    "p50": 18.132,
+    "p99": 22.646,
+    "min": 6.189,
+    "max": 23.817,
+    "n": 200
+   },
+   "h_at_decision_m": {
+    "p01": 7.554,
+    "p50": 10.422,
+    "p99": 12.708,
+    "min": 7.526,
+    "max": 13.03,
+    "n": 200
+   },
+   "h_at_onset_m": {
+    "p01": 3.628,
+    "p50": 6.845,
+    "p99": 12.901,
+    "min": 3.176,
+    "max": 13.424,
+    "n": 200
+   },
+   "max_true_height_after_onset_m": {
+    "p01": 17.316,
+    "p50": 33.63,
+    "p99": 45.117,
+    "min": 15.604,
+    "max": 49.941,
+    "n": 200
+   },
+   "max_vz_after_onset_mps": {
+    "p01": 10.544,
+    "p50": 20.739,
+    "p99": 25.762,
+    "min": 9.675,
+    "max": 27.098,
+    "n": 200
+   },
+   "mass_at_decision_kg": {
+    "p01": 12.573,
+    "p50": 14.052,
+    "p99": 15.59,
+    "min": 12.206,
+    "max": 16.068,
+    "n": 200
+   },
+   "impulse_after_onset_Ns": {
+    "p01": 454.512,
+    "p50": 486.715,
+    "p99": 489.036,
+    "min": 437.914,
+    "max": 489.1,
+    "n": 200
+   },
+   "fct_inloop": {
+    "held_post_N": {
+     "p01": 670.694,
+     "p50": 678.745,
+     "p99": 688.216,
+     "min": 669.598,
+     "max": 693.736,
+     "n": 200
+    },
+    "tripped_650_inside_allowance": 200,
+    "held_post_gt_650": 200,
+    "trip_after_plateau_ms": {
+     "p50": 41.0,
+     "p99": 63.01,
+     "p100": 65.0,
+     "min": 26.0,
+     "max": 65.0,
+     "n": 200
+    },
+    "note": "sim6 amendment F FC_THRUST computed in the loop (same ASSUMED white noise model), det_fct 0"
+   },
+   "paired_vs_B1|nom|Lhi": {
+    "apex_minus_ref_m": {
+     "p01": 0.0,
+     "p50": 0.0,
+     "p99": 0.0,
+     "min": 0.0,
+     "max": 0.0,
+     "n": 200
+    },
+    "P_ref": 0.99,
+    "both_ok": 0,
+    "ref_ok_only": 198,
+    "this_ok_only": 0
+   }
+  },
+  "A1|nom|V": {
+   "on": null,
+   "prof": "A1",
+   "br": "V",
+   "dla": null,
+   "n": 200,
+   "landing_criteria_met": 197,
+   "P": 0.985,
+   "P_wilson": [
+    0.9568335194437211,
+    0.9948858548155076
+   ],
+   "apex_m": {
+    "p01": 303.297,
+    "p50": 304.34,
+    "p99": 306.084,
+    "min": 303.166,
+    "max": 306.203,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -1.122,
+    "p50": -1.009,
+    "p99": -0.908,
+    "min": -1.159,
+    "max": -0.904,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 1.154,
+    "p50": 74.196,
+    "p99": 171.201,
+    "min": 0.132,
+    "max": 176.625,
+    "n": 200
+   }
+  },
+  "A1|nom|Lhi": {
+   "on": null,
+   "prof": "A1",
+   "br": "Lhi",
+   "dla": null,
+   "n": 200,
+   "landing_criteria_met": 193,
+   "P": 0.965,
+   "P_wilson": [
+    0.9295285391333187,
+    0.9829446753626429
+   ],
+   "apex_m": {
+    "p01": 304.553,
+    "p50": 306.099,
+    "p99": 307.693,
+    "min": 304.101,
+    "max": 308.107,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -1.147,
+    "p50": -1.031,
+    "p99": -0.919,
+    "min": -1.165,
+    "max": -0.838,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.998,
+    "p50": 75.74,
+    "p99": 179.717,
+    "min": 0.312,
+    "max": 182.156,
+    "n": 200
+   }
+  },
+  "B1|nom|V": {
+   "on": null,
+   "prof": "B1",
+   "br": "V",
+   "dla": null,
+   "n": 200,
+   "landing_criteria_met": 198,
+   "P": 0.99,
+   "P_wilson": [
+    0.9642775148038205,
+    0.9972533993962251
+   ],
+   "apex_m": {
+    "p01": 60.932,
+    "p50": 62.909,
+    "p99": 64.596,
+    "min": 50.082,
+    "max": 64.755,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -1.272,
+    "p50": -1.172,
+    "p99": -1.086,
+    "min": -1.294,
+    "max": -1.069,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.093,
+    "p50": 5.256,
+    "p99": 25.018,
+    "min": 0.09,
+    "max": 63.244,
+    "n": 200
+   }
+  },
+  "B1|nom|Lhi": {
+   "on": null,
+   "prof": "B1",
+   "br": "Lhi",
+   "dla": null,
+   "n": 200,
+   "landing_criteria_met": 198,
+   "P": 0.99,
+   "P_wilson": [
+    0.9642775148038205,
+    0.9972533993962251
+   ],
+   "apex_m": {
+    "p01": 62.071,
+    "p50": 64.533,
+    "p99": 67.325,
+    "min": 46.822,
+    "max": 67.541,
+    "n": 200
+   },
+   "touchdown_vz_mps": {
+    "p01": -1.277,
+    "p50": -1.189,
+    "p99": -1.099,
+    "min": -1.326,
+    "max": -1.062,
+    "n": 200
+   },
+   "touchdown_distance_m": {
+    "p01": 0.087,
+    "p50": 5.133,
+    "p99": 34.151,
+    "min": 0.052,
+    "max": 83.191,
+    "n": 200
+   }
+  }
+ },
+ "missing": []
+}

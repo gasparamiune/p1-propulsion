@@ -1,0 +1,181 @@
+{
+ "id": "ENG-FEA-LOADCASES",
+ "version": "v1",
+ "date": "2026-10-12",
+ "owner": "mechanical",
+ "history": "* 2026-10-12 lead decision: chamber MEOP 31 -> 45 bar (Combustion pintle full-stroke failure case,\n    data/v2/full_stroke_failure_case_v2.json: 30 C tank, Cd 0.8).  LC2 at 45 bar, LC4 hydrostatic proof at\n    1.5 x 45 = 67.5 bar, new bound BN (blocked nozzle: chamber at tank pressure 63.1 bar at 30 C) checked\n    against yield (SF 1.0) at temperature.  The 31 bar values of hand_calcs v1 (2026-10-11) are superseded.",
+ "cases": [
+  {
+   "id": "LC1",
+   "title": "Steady max thrust, gimbal neutral",
+   "chamber_Pa": 2499311.0,
+   "manifold_Pa": 7000000.0,
+   "thrust_N": 500.0,
+   "thermal": {
+    "bc": "02-combustion/data/thermal_bc_max_v1.csv",
+    "state": "end of the longest max-thrust burn (LC5 critical instant)"
+   },
+   "criterion": {
+    "SF_y": 1.5,
+    "SF_u": 2.0,
+    "T": "part temperature"
+   },
+   "src": {
+    "Pc_max": "INTERFACE combustion.json v1",
+    "thrust": "REQ"
+   },
+   "chamber_bar": 24.99,
+   "manifold_bar": 70.0
+  },
+  {
+   "id": "LC2",
+   "title": "Chamber MEOP + thermal state at the critical time",
+   "chamber_Pa": 4500000.0,
+   "manifold_Pa": 7000000.0,
+   "thrust_N": null,
+   "thermal": {
+    "bc": "02-combustion/data/thermal_bc_max_v1.csv",
+    "state": "LC5 critical instant (hottest pressure-carrying structure)"
+   },
+   "criterion": {
+    "SF_y": 1.5,
+    "SF_u": 2.0,
+    "T": "part temperature"
+   },
+   "src": {
+    "MEOP": "lead decision 2026-10-12: chamber MEOP 45 bar from Combustion pintle full-stroke failure case (data/v2/full_stroke_failure_case_v2.json: 30 C tank, Cd 0.8 -> 44.3 bar v1 helix, 43.5 S260, 42.6 S200); replaces 31 bar (1.25 x Pc max)"
+   },
+   "focus": [
+    "forward closure (head) + 8 x M5 radial screws",
+    "aft closure M63x1.5 thread + retaining lip (nozzle retention)",
+    "graphite insert",
+    "liner / insulators",
+    "case tube incl. collar groove and aft land"
+   ],
+   "chamber_bar": 45.0,
+   "manifold_bar": 70.0
+  },
+  {
+   "id": "LC2F",
+   "title": "Pintle full-stroke failure thrust (structure)",
+   "chamber_Pa": 4500000.0,
+   "thrust_N": 907.7,
+   "thermal": {
+    "state": "as LC2"
+   },
+   "criterion": {
+    "SF_y": 1.0,
+    "SF_u": 1.5,
+    "T": "part temperature",
+    "note": "failure case: no yield, 1.5 on ultimate (Mechanical choice, lead to confirm)"
+   },
+   "src": {
+    "thrust": "Combustion data/v2/full_stroke_failure_case_v2.json max F_N 907.7 N (v1 helix, 30 C, Cd 0.8)"
+   },
+   "chamber_bar": 45.0
+  },
+  {
+   "id": "LC3",
+   "title": "Max thrust + max gimbal (both axes) + lateral and angular acceleration limit loads",
+   "chamber_Pa": 2499311.0,
+   "thrust_N": 500.0,
+   "gimbal_deg": {
+    "commanded_norm": 7.0,
+    "stop": 8.0
+   },
+   "lateral_g": 1.5,
+   "gimbal_accel_rad_s2": 519.0,
+   "body_accel_rad_s2": 8.59,
+   "criterion": {
+    "SF_y": 1.5,
+    "SF_u": 2.0
+   },
+   "src": {
+    "loads": "gnc.json v1 design_limit_loads (limit values)"
+   },
+   "outputs": [
+    "actuator (pushrod) reactions",
+    "inner/outer pin and 608 bearing loads",
+    "frame ring bolt loads"
+   ],
+   "chamber_bar": 24.99
+  },
+  {
+   "id": "LC4",
+   "title": "Hydrostatic proof 1.5 x MEOP, room temperature (chamber and tank)",
+   "chamber_Pa": 6750000.0,
+   "tank_Pa": 10500000.0,
+   "T_C": 20.0,
+   "fixture": "exit blanked by a solid dummy insert (no throat) so the retaining lip carries P x pi r_bore^2 (bounds the flight insert)",
+   "criterion": {
+    "SF_y": 1.0,
+    "SF_u": null,
+    "note": "no yield at proof"
+   },
+   "chamber_bar": 67.5,
+   "tank_bar": 105.0
+  },
+  {
+   "id": "BN",
+   "title": "Blocked-nozzle bound: chamber at tank pressure (30 C), hot",
+   "chamber_Pa": 6308000.0,
+   "thrust_N": 0.0,
+   "thermal": {
+    "state": "as LC2 (blockage during a burn)"
+   },
+   "load_on_insert": "P x pi r_bore^2 (throat blocked: no divergent relief)",
+   "criterion": {
+    "SF_y": 1.0,
+    "SF_u": null,
+    "note": "stays below yield (lead 2026-10-12); ultimate margin reported"
+   },
+   "src": {
+    "P": "blocked-nozzle bound (lead 2026-10-12): chamber at tank pressure = N2O vapour pressure at 30 C, 63.08 bar (Pv_bar in Combustion data/v2/full_stroke_failure_case_v2.json); criterion: stress below yield (SF 1.0) at temperature"
+   },
+   "chamber_bar": 63.08
+  },
+  {
+   "id": "LC5",
+   "title": "Transient thermal over the flight duty cycle, structural at the critical instants",
+   "thermal": {
+    "bc": {
+     "max": "02-combustion/data/thermal_bc_max_v1.csv",
+     "50pct": "02-combustion/data/thermal_bc_50pct_v1.csv",
+     "floor12p5": "02-combustion/data/thermal_bc_floor12p5_v1.csv"
+    },
+    "duty_cycles": "gnc.json v1 duty_cycles (DC-A1 baseline, DC-B1 longest flight burn 20.7 s, DC-D static-fire 49 s)"
+   },
+   "criterion": {
+    "SF_y": 1.5,
+    "SF_u": 2.0
+   }
+  },
+  {
+   "id": "LC6",
+   "title": "Landing shock and handling/transport",
+   "axial_g": 10.0,
+   "lateral_g": 3.0,
+   "transport_g": 3.0,
+   "criterion": {
+    "SF_y": 1.5,
+    "SF_u": 2.0
+   },
+   "src": {
+    "loads": "gnc.json v1 design_limit_loads"
+   }
+  },
+  {
+   "id": "MODAL",
+   "title": "Gimballed engine on its actuators: first modes vs ENG-11",
+   "servo_stiffness_Nm_per_rad": [
+    58,
+    174
+   ],
+   "requirement_Hz": 25.0,
+   "src": {
+    "req": "gnc.json v1 engine rocking mode >= 25 Hz",
+    "stiffness": "INTERFACE electronics.json v1"
+   }
+  }
+ ]
+}

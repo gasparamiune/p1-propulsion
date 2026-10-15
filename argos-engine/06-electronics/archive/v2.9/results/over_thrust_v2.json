@@ -1,0 +1,299 @@
+{
+ "id": "over_thrust",
+ "version": "v2",
+ "date": "2026-10-13",
+ "script": "calc/over_thrust_v2.py",
+ "supersedes": "over_thrust_v1 (provisional basis, kept)",
+ "rule_implemented_v2p8_1": {
+  "v": "abort OVER_THRUST when 3 consecutive fresh FC_THRUST frames carry the valid flag and a value > 650 N while the ECU is in RUN in FLIGHT mode; fresh = received within 50 ms of the previous one (+1 us slack); the count restarts on a frame <= threshold, a frame with the flag clear, a gap > 50 ms or leaving RUN; the abort is taken on the tick that receives the 3rd frame and drops the MV latch drive on that tick",
+  "tag": "LEAD 2026-10-13 ADOPTED (GNC m2_fc_thrust v1.1); firmware config.h kOverThrust_N / kOverThrustFrames / kFcThrustStale_s",
+  "frame_rate_Hz": [
+   100.0,
+   "LEAD / GNC interface requirement (static_assert: (frames - 1) / rate = 20 ms)"
+  ],
+  "hold_s": [
+   0.02,
+   "LEAD"
+  ]
+ },
+ "item1_latency": {
+  "can": {
+   "bitrate_bps": [
+    1000000.0,
+    "DESIGN (protocol.h)"
+   ],
+   "frame_bits_worst": {
+    "ID_CMD_FAST": 135,
+    "ID_CMD_STATE": 125,
+    "ID_ABORT": 105,
+    "ID_FC_THRUST": 105,
+    "ID_CMD_AUX": 95,
+    "ID_TLM_FAST": 135,
+    "ID_TLM_GIMBAL": 135,
+    "ID_EVENT": 135,
+    "ID_TLM_RELIGHT": 135
+   },
+   "fc_thrust_frame_s": [
+    0.00010499999999999999,
+    "DERIVED worst stuffing"
+   ],
+   "fc_thrust_frame_nominal_s": [
+    8.7e-05,
+    "DERIVED no stuff bits"
+   ],
+   "blocking_longest_frame_s": [
+    0.000135,
+    "DERIVED 8-byte frame in progress (non-pre-emptive)"
+   ],
+   "higher_priority_fc_frames": {
+    "ID_ABORT": [
+     "0x10",
+     5,
+     0.00010499999999999999
+    ],
+    "ID_CMD_FAST": [
+     "0x20",
+     8,
+     0.000135
+    ]
+   },
+   "worst_response_s": [
+    0.000375,
+    "DERIVED blocking + one CMD_FAST + own frame"
+   ],
+   "worst_response_with_abort_frame_s": [
+    0.00048,
+    "DERIVED + one ABORT frame queued (then the burn is ending anyway)"
+   ]
+  },
+  "ecu": {
+   "tick_s": [
+    0.001,
+    "DESIGN config.h kDt_s"
+   ],
+   "core_step_max_s": [
+    0.0002,
+    "ASSUMED (B-ECU-1 measures it on the Teensy)"
+   ],
+   "receipt_to_latch_gate_off_worst_s": [
+    0.0012000000000000001,
+    "DERIVED: RX drained at the next tick + core step; latch gate written at the end of that tick"
+   ],
+   "receipt_to_latch_gate_off_mean_s": [
+    0.0006000000000000001,
+    "DERIVED"
+   ],
+   "note": "HAL not written: the RX-at-tick design and the core step time are requirements on the HAL until B-ECU-1 measures them"
+  },
+  "fc_thrust_receipt_to_latch_drive_off_worst_s": [
+   0.00168,
+   "DERIVED (CAN worst incl. ABORT + ECU worst)"
+  ],
+  "latch_release_s": [
+   0.0094,
+   "DERIVED calc/mv_latch_magnet_v1 worst (8.4 V, -10 C), estimate"
+  ],
+  "mv_p_closing_s": [
+   0.03,
+   "MECH mv_actuator_v1 closing_with_dashpot_s, ESTIMATE (B-MV-1 gates it)"
+  ],
+  "latch_off_to_mv_closed_s": [
+   0.0394,
+   "DERIVED (SIL plant uses the same two values)"
+  ],
+  "arm_bus": "not dropped by the over-thrust decision (abort law: the pintle is driven closed on the ARM bus, the NC valve closes on the latch); the ARM bus drops at ABORT->SAFE: with a valid Pc when Pc < 3 bar abs (>= 50 ms), with an invalid Pc only at the 0.5 s timeout (v2.8.1), earlier by the pintle monitor (no closing progress 0.1 s), the 60 ms Pc > 30 bar check (valid Pc) or the hardware comparator; SIL numbers in sil_v2p8_1",
+  "chain_step_to_latch_drive_off_s": {
+   "mean": [
+    0.03918699999999998,
+    "DERIVED GNC mean 38.5 ms + nominal CAN + mean ECU"
+   ],
+   "max": [
+    0.04467999999999993,
+    "DERIVED GNC max 43 ms + worst CAN incl. ABORT + worst ECU"
+   ],
+   "excludes": "IMU internal filter / sample delay (item 2, UNKNOWN) and FC task scheduling (FC owner)"
+  },
+  "chain_step_to_mv_closed_s": {
+   "mean": [
+    0.07858699999999998,
+    "DERIVED"
+   ],
+   "max": [
+    0.08407999999999993,
+    "DERIVED"
+   ],
+   "excludes": "same; the true thrust keeps flowing until the MV-P seats (the pintle is the failed part in a runaway)"
+  },
+  "gnc_inputs": {
+   "decision_step_to_2T_mean_max_s": [
+    [
+     0.03849999999999998,
+     0.04299999999999993
+    ],
+    "GNC m2_fc_thrust v1.1 tau20ms (staging v3.1)"
+   ],
+   "frame_staleness_s": [
+    [
+     0.0,
+     0.009000000000000001
+    ],
+    "GNC"
+   ],
+   "gnc_latency_note": "estimate latency at the FC output = filter delay (step 50 % / 90 %, ramp lag) + frame staleness 0-9 ms (the ECU holds the last frame); NOT included: IMU internal digital filter and sample delay (part not chosen: DATASHEET needed), FC task scheduling, CAN transport and ECU scheduling (Electronics), airframe axial dynamics between the engine and the IMU (rigid body in sim6)"
+  }
+ },
+ "item2_imu": {
+  "part": "ADIS16470AMLZ",
+  "source": "repo public/engineering/vehicle/electronics-candidates.json (data sheet Rev. C 2019-04 read by the repo team 2026-10-03)",
+  "status_in_repo": "research-only-not-selected",
+  "output_rate_Hz": [
+   2000,
+   "DATASHEET via repo record: Actualizaci\u00f3n por defecto; filtrado/decimaci\u00f3n y sincronizaci\u00f3n modifican salida."
+  ],
+  "sample_period_s": [
+   0.0005,
+   "DERIVED 1 / output rate"
+  ],
+  "timestamp_quantum_s": [
+   4.902e-05,
+   "DATASHEET via repo record (TIME_STAMP LSB, scaled sync mode)"
+  ],
+  "system_latency_s": [
+   null,
+   "repo record: No se midi\u00f3 latencia extremo a extremo con portadora, filtros, bus y software ARGOS."
+  ],
+  "internal_filter_group_delay_s": [
+   null,
+   "UNKNOWN: not in the repo record; analog.com refused by the egress proxy on 2026-10-13 (not retried, not routed around). The FC owner fixes the filter / decimation setting; its group delay comes from data sheet Rev. C (or a measurement, bench plan B-FC-1) and adds to the GNC 38.5 / 43 ms"
+  ],
+  "sample_age_s": [
+   [
+    0.0,
+    0.0005
+   ],
+   "DERIVED: 0 if the FC reads on data-ready, up to one sample period if it polls asynchronously"
+  ]
+ },
+ "item3_pc_valid": {
+  "v": "IMPLEMENTED with a valid Pc as well (v2.8.1): covers an in-range wrong Pc, which the firmware over-pressure check and the hardware comparator (same PC_SIG) cannot see; FLIGHT RUN only, never on the stand (strap STAND latched at ARM)",
+  "tag": "DESIGN (LEAD: either choice acceptable; GNC 0/1000 healthy false aborts at >= 610 N)"
+ },
+ "item4_valid_flag": {
+  "v": "FC sets b0 only while airborne, engine lit (ECU RUN) and drogue released; the ECU additionally requires RUN, the FLIGHT strap, freshness <= 50 ms and 3 consecutive frames; a stale stream or b0 = 0 never aborts: it clears the count, raises the log flag (seq2_flags b4 clear, fc_thr_dN 0xFFFF) and TLM fault bit only",
+  "tag": "LEAD 2026-10-13 / firmware v2.8.1"
+ },
+ "sil_v2p8_1_S6": {
+  "pc_lost_then_runaway_500N_24C_Cd0p8_over_thrust": {
+   "cause_name": "OVER_THRUST",
+   "inj_to_abort_s": 0.125,
+   "inj_to_MV_latch_hw_off_s": 0.125,
+   "inj_to_MV_closed_s": 0.163,
+   "inj_to_ARM_bus_off_s": 0.132,
+   "inj_to_pintle_closed_s": 0.278,
+   "Pc_max_abs_Pa": 3887572,
+   "t_Pc_above_30bar_s": 0.146,
+   "F_at_inj_N": 499.2,
+   "F_max_after_inj_N": 791.9,
+   "pass": true
+  },
+  "pc_lost_then_runaway_300N_over_thrust_monitor_off": {
+   "cause_name": "OVER_THRUST",
+   "inj_to_abort_s": 0.215,
+   "inj_to_MV_latch_hw_off_s": 0.215,
+   "inj_to_MV_closed_s": 0.253,
+   "inj_to_ARM_bus_off_s": 0.722,
+   "inj_to_pintle_closed_s": 0.829,
+   "Pc_max_abs_Pa": 3737475,
+   "t_Pc_above_30bar_s": 0.163,
+   "F_at_inj_N": 300.2,
+   "F_max_after_inj_N": 760.2,
+   "pass": true
+  },
+  "pc_lost_then_runaway_500N_24C_Cd0p8_over_thrust_extra_delay_10ms": {
+   "cause_name": "PINTLE_FAULT",
+   "inj_to_abort_s": 0.126,
+   "inj_to_MV_latch_hw_off_s": 0.126,
+   "inj_to_MV_closed_s": 0.164,
+   "inj_to_ARM_bus_off_s": 0.133,
+   "inj_to_pintle_closed_s": 0.279,
+   "Pc_max_abs_Pa": 3883001,
+   "t_Pc_above_30bar_s": 0.146,
+   "F_at_inj_N": 499.2,
+   "F_max_after_inj_N": 791.0,
+   "pass": true
+  },
+  "pc_reads_low_x0p70_500N_24C_Cd0p8_over_thrust_pc_valid": {
+   "cause_name": "OVER_THRUST",
+   "inj_to_abort_s": 0.355,
+   "inj_to_MV_latch_hw_off_s": 0.355,
+   "inj_to_MV_closed_s": 0.393,
+   "inj_to_ARM_bus_off_s": 0.497,
+   "inj_to_pintle_closed_s": 0.479,
+   "Pc_max_abs_Pa": 3217441,
+   "t_Pc_above_30bar_s": 0.325,
+   "F_at_inj_N": 499.4,
+   "F_max_after_inj_N": 651.1,
+   "pass": true
+  },
+  "pc_reads_low_x0p85_500N_24C_Cd0p8_below_threshold_EVIDENCE": {
+   "cause_name": "NONE",
+   "inj_to_abort_s": null,
+   "inj_to_MV_latch_hw_off_s": 1.619,
+   "inj_to_MV_closed_s": 1.657,
+   "inj_to_ARM_bus_off_s": null,
+   "inj_to_pintle_closed_s": 1.614,
+   "Pc_max_abs_Pa": 2921139,
+   "t_Pc_above_30bar_s": 0.0,
+   "F_at_inj_N": 499.5,
+   "F_max_after_inj_N": 588.7,
+   "pass": true
+  },
+  "pc_lost_500N_24C_Cd0p8_fc_bias_plus10pct_no_false_trip": {
+   "cause_name": "NONE",
+   "inj_to_abort_s": null,
+   "inj_to_MV_latch_hw_off_s": 1.596,
+   "inj_to_MV_closed_s": 1.634,
+   "inj_to_ARM_bus_off_s": null,
+   "inj_to_pintle_closed_s": 1.591,
+   "Pc_max_abs_Pa": 2501936,
+   "t_Pc_above_30bar_s": 0.0,
+   "F_at_inj_N": 499.4,
+   "F_max_after_inj_N": 500.2,
+   "pass": true
+  },
+  "pc_valid_500N_24C_Cd0p8_fc_bias_plus10pct_no_false_trip": {
+   "cause_name": "NONE",
+   "inj_to_abort_s": null,
+   "inj_to_MV_latch_hw_off_s": 1.598,
+   "inj_to_MV_closed_s": 1.636,
+   "inj_to_ARM_bus_off_s": null,
+   "inj_to_pintle_closed_s": 1.593,
+   "Pc_max_abs_Pa": 2502668,
+   "t_Pc_above_30bar_s": 0.0,
+   "F_at_inj_N": 499.5,
+   "F_max_after_inj_N": 500.3,
+   "pass": true
+  },
+  "pc_lost_runaway_fc_estimate_stale_monitor_only": {
+   "cause_name": "PINTLE_FAULT",
+   "inj_to_abort_s": 0.126,
+   "inj_to_MV_latch_hw_off_s": 0.126,
+   "inj_to_MV_closed_s": 0.164,
+   "inj_to_ARM_bus_off_s": 0.133,
+   "inj_to_pintle_closed_s": 0.279,
+   "Pc_max_abs_Pa": 3882029,
+   "t_Pc_above_30bar_s": 0.146,
+   "F_at_inj_N": 499.3,
+   "F_max_after_inj_N": 790.8,
+   "pass": true
+  }
+ },
+ "sil_fc_model": "v2.8.1 SIL: first-order tau 20 ms on the plant thrust (adopted estimate), 5 N rms noise [ASSUMED], 100 Hz; extra delay 0 (IMU / FC scheduling unknown) except the 10 ms [ASSUMED] sensitivity case; v2.8 used a pure 20 ms delay",
+ "limitations": [
+  "CAN analysis assumes the FC queues frames in ID order with no FC-side transmit-buffer priority inversion (FC owner to confirm)",
+  "ECU core step time ASSUMED; HAL not written",
+  "IMU internal delay UNKNOWN",
+  "valve closing times are estimates (B-MV-1)",
+  "SIL plant and FC model are models, not hardware"
+ ]
+}

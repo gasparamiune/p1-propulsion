@@ -1,0 +1,16 @@
+[
+ {"id": "test_core", "binary": "test_core", "command": "nice -n 10 ./build/test_core > $OUT/test_core_log.txt", "outputs": ["test_core_log.txt"]},
+ {"id": "all_S1-S10_S12", "binary": "sil", "command": "(time nice -n 10 ./build/sil all $OUT 300 > $OUT/sil_run_log.txt 2>&1) 2> $OUT/sil_all_time.txt",
+  "outputs": ["S1_*", "S2_*", "S3_*", "S4_*", "S5_*", "S6_*", "S7_*", "S8_*", "S9_*", "S10_*", "S12_*", "sil_monitor_clearance_all.json", "sil_n2o_alone_all.json", "sil_run_log.txt", "sil_all_time.txt"]},
+ {"id": "S13_ignrule", "binary": "sil", "command": "nice -n 10 ./build/sil ignrule $OUT/S13 \"286.70,1.16,0.032213\" 300 > $OUT/S13/S13_run_log.txt",
+  "outputs": ["S13/S13_*", "S13/S13B_ext_bpc1_false.json", "S13/sil_n2o_alone_ignrule.json"]},
+ {"id": "S13_Bext_bpc1", "binary": "sil_bpc1", "command": "nice -n 10 ./build/sil_bpc1 ignruleb $OUT/S13 > $OUT/S13/S13B_ext_bpc1_true_run_log.txt",
+  "outputs": ["S13/S13B_ext_bpc1_true*", "S13/sil_n2o_alone_ignruleb.json"]},
+ {"id": "S15_startmc", "binary": "sil", "command": "nice -n 10 ./build/sil startmc $OUT/S15 300 > $OUT/S15/S15_run_log.txt", "outputs": ["S15/*"]},
+ {"id": "S14_v210", "binary": "sil", "command": "nice -n 10 ./build/sil v210 $OUT/S14 > $OUT/S14/S14_run_log.txt", "outputs": ["S14/*"]},
+ {"id": "S16_coast206", "binary": "sil", "command": "nice -n 10 ./build/sil coast206 $OUT/S16 > $OUT/S16/S16_run_log.txt", "outputs": ["S16/*"]},
+ {"id": "probeF", "binary": "sil", "command": "nice -n 10 ./build/sil probef $OUT/probeF > $OUT/probeF/probeF_run_log.txt", "outputs": ["probeF/*"]},
+ {"id": "S11_fault_path_v4", "binary": "sil", "command": "python ../calc/fault_path_v4.py --out $OUT --sil ./build/sil > $OUT/S11_fault_path_v4_log.txt (also writes results/fault_path_v4.json/.txt outside this folder)",
+  "outputs": ["S11v210_*/*", "S11_fault_path_v4_log.txt"]},
+ {"id": "S17_r2hold", "binary": "sil", "command": "nice -n 10 ./build/sil r2hold $OUT/S17 > $OUT/S17/S17_run_log.txt", "outputs": ["S17/*"]}
+]

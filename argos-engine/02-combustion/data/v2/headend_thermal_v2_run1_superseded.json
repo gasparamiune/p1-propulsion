@@ -1,0 +1,3044 @@
+{
+ "version": "v2.2",
+ "date": "2026-10-12",
+ "owner": "Combustion",
+ "purpose": "head-end thermal BC for the pintle-servo mount check (lead request 2026-10-12)",
+ "bc_points_x_face0": [
+  {
+   "point": "floor12p5",
+   "Pc": 436985.0,
+   "h": 250.9,
+   "Taw": 2496.3,
+   "qlo": 109667.0,
+   "qhi": 438667.0
+  },
+  {
+   "point": "20pct",
+   "Pc": 616171.0,
+   "h": 317.2,
+   "Taw": 2668.4,
+   "qlo": 143318.0,
+   "qhi": 573272.0
+  },
+  {
+   "point": "50pct",
+   "Pc": 1320214.0,
+   "h": 549.1,
+   "Taw": 2795.0,
+   "qlo": 172598.0,
+   "qhi": 690393.0
+  },
+  {
+   "point": "75pct",
+   "Pc": 1909896.0,
+   "h": 724.5,
+   "Taw": 2783.3,
+   "qlo": 169726.0,
+   "qhi": 678905.0
+  },
+  {
+   "point": "max",
+   "Pc": 2501007.0,
+   "h": 889.4,
+   "Taw": 2756.8,
+   "qlo": 163321.0,
+   "qhi": 653286.0
+  }
+ ],
+ "n2o_side": {
+  "geometry": "representative annulus 8 mm bore / 4 mm stem (D_h 4 mm, A 37.7 mm2) ASSUMED",
+  "formula": "h_c = 0.023 Re^0.8 Pr^0.4 k / D_h, Re = (mdot/A) D_h / mu",
+  "h_c_100pct_W_m2K": 20559.046715066692,
+  "props_100pct": {
+   "rho": 785.1039703854526,
+   "cp": 3199.202562880891,
+   "mu": 7.546731839643816e-05,
+   "k": 0.0912799612628095,
+   "Re": 338834.0109790455,
+   "Pr": 2.644997161343033,
+   "v": 8.142518428974327
+  },
+  "h_c_12p5pct_W_m2K": 4541.754245878962,
+  "props_12p5pct": {
+   "rho": 785.1039703854526,
+   "cp": 3199.202562880891,
+   "mu": 7.546731839643816e-05,
+   "k": 0.0912799612628095,
+   "Re": 51317.1842354156,
+   "Pr": 2.644997161343033,
+   "v": 1.2332029985790993
+  },
+  "coast": "static liquid at the tank temperature, hA 1 W/K (ASSUMED 1000 W/m2K x 10 cm2)",
+  "soak": "vapour only, hA 0.01 W/K (no evaporative credit)"
+ },
+ "coast_soak_gas_side": {
+  "h_nc_W_m2K": 10.0,
+  "band": "x0.5-2",
+  "T_cavity": "insulator surface temperature (upper bound)",
+  "view_factors": {
+   "insulator": 0.65,
+   "grain_face_and_port": 0.35
+  },
+  "emissivity": 0.8,
+  "grain_side": "700 K at shutdown, 1 s decay (ASSUMED)"
+ },
+ "pintle_needle": {
+  "stem_conductance_W_K": 0.002261946710584651,
+  "note": "17-4PH 4 mm stem over 0.10 m: 2.3e-3 W/K, i.e. < 1 W at 300 K difference: the needle is not a heat path to the servo; its tip takes the injector-face BC"
+ },
+ "not_modelled": "axial conduction along the 6061 case from the hot aft end (post-landing item for the FEA: fin m 4.5 1/m, cosh mL 1.8, diffusion ~1000 s); head-to-servo path (bonnet, bracket)",
+ "cases": {
+  "DC-A1 gnc v2": {
+   "dc_file": "dc_gncv2wip/DC-A1-S230v2wip_neqE1e+03_reg1.csv",
+   "bc_csv": "headend_bc_DC-A1_gncv2_v2.csv",
+   "variants": {
+    "hg_x0.5|bare|head_0.2kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 333.4889121927679,
+      "at_relight_K": 376.0498451594397,
+      "max_in_flight_K": 402.8122219561875,
+      "at_last_shutdown_K": 403.03685942495787,
+      "soak_peak_K": 627.0001758275968,
+      "soak_peak_after_shutdown_s": 130.49000000000083,
+      "at_3600s_K": 301.7378054453897
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 317.7780140916364,
+      "at_relight_K": 491.9504923016491,
+      "max_in_flight_K": 528.1134787235889,
+      "at_last_shutdown_K": 528.9216784028728,
+      "soak_peak_K": 672.8585287783275,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 301.57079642323123
+     },
+     "T_ins": {
+      "at_MECO_K": 1851.3813440431256,
+      "at_relight_K": 543.7585588733871,
+      "max_in_flight_K": 1891.7534130552565,
+      "at_last_shutdown_K": 1753.3115358068983,
+      "soak_peak_K": 1746.0545021598427,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 301.6707460387544
+     },
+     "T_head_time_above_50C_in_flight_s": 26.099999999999998,
+     "T_head_time_above_50C_soak_s": 2593.005000000001,
+     "T_head_time_above_60C_in_flight_s": 25.15,
+     "T_head_time_above_60C_soak_s": 2325.005000000001
+    },
+    "hg_x0.5|bare|head_0.4kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 315.513612633636,
+      "at_relight_K": 344.1174940476924,
+      "max_in_flight_K": 363.4401469472744,
+      "at_last_shutdown_K": 363.5842800086309,
+      "soak_peak_K": 600.2598861785103,
+      "soak_peak_after_shutdown_s": 217.49000000000083,
+      "at_3600s_K": 302.34375416150294
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 317.7780140916364,
+      "at_relight_K": 491.9504923016491,
+      "max_in_flight_K": 528.1134787235889,
+      "at_last_shutdown_K": 528.9216784028728,
+      "soak_peak_K": 672.8585287783275,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 301.57079642323123
+     },
+     "T_ins": {
+      "at_MECO_K": 1851.3813440431256,
+      "at_relight_K": 543.7585588733871,
+      "max_in_flight_K": 1891.7534130552565,
+      "at_last_shutdown_K": 1753.3115358068983,
+      "soak_peak_K": 1746.0545021598427,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 301.6707460387544
+     },
+     "T_head_time_above_50C_in_flight_s": 17.95,
+     "T_head_time_above_50C_soak_s": 2639.005000000001,
+     "T_head_time_above_60C_in_flight_s": 11.299999999999997,
+     "T_head_time_above_60C_soak_s": 2372.005000000001
+    },
+    "hg_x0.5|disc3mm|head_0.2kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 292.6220124193353,
+      "at_relight_K": 358.59883658803096,
+      "max_in_flight_K": 358.6257471692398,
+      "at_last_shutdown_K": 356.99689261320464,
+      "soak_peak_K": 624.6225627263174,
+      "soak_peak_after_shutdown_s": 137.49000000000083,
+      "at_3600s_K": 301.77723472400294
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 317.7780140916364,
+      "at_relight_K": 491.9504923016491,
+      "max_in_flight_K": 528.1134787235889,
+      "at_last_shutdown_K": 528.9216784028728,
+      "soak_peak_K": 672.8585287783275,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 301.57079642323123
+     },
+     "T_ins": {
+      "at_MECO_K": 1851.3813440431256,
+      "at_relight_K": 543.7585588733871,
+      "max_in_flight_K": 1891.7534130552565,
+      "at_last_shutdown_K": 1753.3115358068983,
+      "soak_peak_K": 1746.0545021598427,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 301.6707460387544
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 1797.3773772668865,
+      "at_relight_K": 575.915487775841,
+      "max_in_flight_K": 1821.0738646471323,
+      "at_last_shutdown_K": 1733.7211510141954,
+      "soak_peak_K": 1729.1070143690836,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 301.9227638307465
+     },
+     "T_head_time_above_50C_in_flight_s": 14.649999999999999,
+     "T_head_time_above_50C_soak_s": 2596.005000000001,
+     "T_head_time_above_60C_in_flight_s": 11.95,
+     "T_head_time_above_60C_soak_s": 2328.005000000001
+    },
+    "hg_x0.5|disc3mm|head_0.4kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 292.8606281031316,
+      "at_relight_K": 330.35504834955344,
+      "max_in_flight_K": 333.5978589995772,
+      "at_last_shutdown_K": 333.676678300686,
+      "soak_peak_K": 597.7407505987056,
+      "soak_peak_after_shutdown_s": 227.49000000000083,
+      "at_3600s_K": 302.386979755416
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 317.7780140916364,
+      "at_relight_K": 491.9504923016491,
+      "max_in_flight_K": 528.1134787235889,
+      "at_last_shutdown_K": 528.9216784028728,
+      "soak_peak_K": 672.8585287783275,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 301.57079642323123
+     },
+     "T_ins": {
+      "at_MECO_K": 1851.3813440431256,
+      "at_relight_K": 543.7585588733871,
+      "max_in_flight_K": 1891.7534130552565,
+      "at_last_shutdown_K": 1753.3115358068983,
+      "soak_peak_K": 1746.0545021598427,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 301.6707460387544
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 1797.3774645396486,
+      "at_relight_K": 571.2672157490235,
+      "max_in_flight_K": 1821.0739401428311,
+      "at_last_shutdown_K": 1728.7883713704234,
+      "soak_peak_K": 1724.183501916712,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 302.49136459981423
+     },
+     "T_head_time_above_50C_in_flight_s": 7.899999999999999,
+     "T_head_time_above_50C_soak_s": 2642.005000000001,
+     "T_head_time_above_60C_in_flight_s": 0.3999999999999986,
+     "T_head_time_above_60C_soak_s": 2375.005000000001
+    },
+    "hg_x1|bare|head_0.2kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 376.6217364491744,
+      "at_relight_K": 428.94355036840454,
+      "max_in_flight_K": 484.75405239360754,
+      "at_last_shutdown_K": 485.1938681016547,
+      "soak_peak_K": 781.0437185072848,
+      "soak_peak_after_shutdown_s": 123.49000000000083,
+      "at_3600s_K": 307.8407840182681
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 330.7893621934503,
+      "at_relight_K": 572.5968851391749,
+      "max_in_flight_K": 629.285948445576,
+      "at_last_shutdown_K": 630.5164498686363,
+      "soak_peak_K": 845.421004584615,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 307.59325197513243
+     },
+     "T_ins": {
+      "at_MECO_K": 2410.285186266671,
+      "at_relight_K": 665.8173648638674,
+      "max_in_flight_K": 2471.846915239422,
+      "at_last_shutdown_K": 2430.7771393637577,
+      "soak_peak_K": 2420.5096953948446,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 307.7380530359701
+     },
+     "T_head_time_above_50C_in_flight_s": 27.349999999999994,
+     "T_head_time_above_50C_soak_s": 2987.005000000001,
+     "T_head_time_above_60C_in_flight_s": 26.999999999999996,
+     "T_head_time_above_60C_soak_s": 2720.005000000001
+    },
+    "hg_x1|bare|head_0.4kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 339.5934730419901,
+      "at_relight_K": 378.8692580810435,
+      "max_in_flight_K": 417.02463757771363,
+      "at_last_shutdown_K": 417.3011613345993,
+      "soak_peak_K": 742.7006546116504,
+      "soak_peak_after_shutdown_s": 210.49000000000083,
+      "at_3600s_K": 308.71578023738965
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 330.7893621934503,
+      "at_relight_K": 572.5968851391749,
+      "max_in_flight_K": 629.285948445576,
+      "at_last_shutdown_K": 630.5164498686363,
+      "soak_peak_K": 845.421004584615,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 307.59325197513243
+     },
+     "T_ins": {
+      "at_MECO_K": 2410.285186266671,
+      "at_relight_K": 665.8173648638674,
+      "max_in_flight_K": 2471.846915239422,
+      "at_last_shutdown_K": 2430.7771393637577,
+      "soak_peak_K": 2420.5096953948446,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 307.7380530359701
+     },
+     "T_head_time_above_50C_in_flight_s": 26.349999999999998,
+     "T_head_time_above_50C_soak_s": 3034.005000000001,
+     "T_head_time_above_60C_in_flight_s": 25.599999999999998,
+     "T_head_time_above_60C_soak_s": 2766.005000000001
+    },
+    "hg_x1|disc3mm|head_0.2kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 292.86854541183,
+      "at_relight_K": 385.6500233801625,
+      "max_in_flight_K": 385.68805542536694,
+      "at_last_shutdown_K": 384.0034817592078,
+      "soak_peak_K": 775.5851056164009,
+      "soak_peak_after_shutdown_s": 137.49000000000083,
+      "at_3600s_K": 307.89730592159685
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 330.7893621934503,
+      "at_relight_K": 572.5968851391749,
+      "max_in_flight_K": 629.285948445576,
+      "at_last_shutdown_K": 630.5164498686363,
+      "soak_peak_K": 845.421004584615,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 307.59325197513243
+     },
+     "T_ins": {
+      "at_MECO_K": 2410.285186266671,
+      "at_relight_K": 665.8173648638674,
+      "max_in_flight_K": 2471.846915239422,
+      "at_last_shutdown_K": 2430.7771393637577,
+      "soak_peak_K": 2420.5096953948446,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 307.7380530359701
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2361.7690086688535,
+      "at_relight_K": 678.4267273113479,
+      "max_in_flight_K": 2438.8318531325817,
+      "at_last_shutdown_K": 2404.7543822159705,
+      "soak_peak_K": 2396.23501448682,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 308.0808662044424
+     },
+     "T_head_time_above_50C_in_flight_s": 17.099999999999998,
+     "T_head_time_above_50C_soak_s": 2991.005000000001,
+     "T_head_time_above_60C_in_flight_s": 15.25,
+     "T_head_time_above_60C_soak_s": 2723.005000000001
+    },
+    "hg_x1|disc3mm|head_0.4kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 292.98874165654826,
+      "at_relight_K": 345.8079585565356,
+      "max_in_flight_K": 350.7064012058044,
+      "at_last_shutdown_K": 350.820568553023,
+      "soak_peak_K": 736.7527794382202,
+      "soak_peak_after_shutdown_s": 226.49000000000083,
+      "at_3600s_K": 308.77824589748354
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 330.7893621934503,
+      "at_relight_K": 572.5968851391749,
+      "max_in_flight_K": 629.285948445576,
+      "at_last_shutdown_K": 630.5164498686363,
+      "soak_peak_K": 845.421004584615,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 307.59325197513243
+     },
+     "T_ins": {
+      "at_MECO_K": 2410.285186266671,
+      "at_relight_K": 665.8173648638674,
+      "max_in_flight_K": 2471.846915239422,
+      "at_last_shutdown_K": 2430.7771393637577,
+      "soak_peak_K": 2420.5096953948446,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 307.7380530359701
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2361.7690829502108,
+      "at_relight_K": 672.1942235393486,
+      "max_in_flight_K": 2433.6310399229433,
+      "at_last_shutdown_K": 2399.731045247001,
+      "soak_peak_K": 2391.256046578018,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 308.8634059922514
+     },
+     "T_head_time_above_50C_in_flight_s": 12.249999999999998,
+     "T_head_time_above_50C_soak_s": 3037.005000000001,
+     "T_head_time_above_60C_in_flight_s": 8.799999999999997,
+     "T_head_time_above_60C_soak_s": 2769.005000000001
+    },
+    "hg_x2|bare|head_0.2kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 452.6648383740106,
+      "at_relight_K": 490.8965992548645,
+      "max_in_flight_K": 593.9336927401557,
+      "at_last_shutdown_K": 594.6144237391323,
+      "soak_peak_K": 878.7536513216734,
+      "soak_peak_after_shutdown_s": 113.49000000000083,
+      "at_3600s_K": 311.5472610210791
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 340.9414912809276,
+      "at_relight_K": 621.5073805372551,
+      "max_in_flight_K": 693.6348401942432,
+      "at_last_shutdown_K": 695.1366606760009,
+      "soak_peak_K": 950.2921064441846,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 311.2516529151951
+     },
+     "T_ins": {
+      "at_MECO_K": 2704.1263333333764,
+      "at_relight_K": 768.3980803974339,
+      "max_in_flight_K": 2841.888204307982,
+      "at_last_shutdown_K": 2794.4899155907206,
+      "soak_peak_K": 2782.6403434114086,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 311.4236994356776
+     },
+     "T_head_time_above_50C_in_flight_s": 27.849999999999998,
+     "T_head_time_above_50C_soak_s": 3171.005000000001,
+     "T_head_time_above_60C_in_flight_s": 27.65,
+     "T_head_time_above_60C_soak_s": 2903.005000000001
+    },
+    "hg_x2|bare|head_0.4kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 382.5994018100069,
+      "at_relight_K": 422.67986326261826,
+      "max_in_flight_K": 490.4314636872232,
+      "at_last_shutdown_K": 490.86410539242263,
+      "soak_peak_K": 833.6269109545972,
+      "soak_peak_after_shutdown_s": 198.49000000000083,
+      "at_3600s_K": 312.5805463459568
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 340.9414912809276,
+      "at_relight_K": 621.5073805372551,
+      "max_in_flight_K": 693.6348401942432,
+      "at_last_shutdown_K": 695.1366606760009,
+      "soak_peak_K": 950.2921064441846,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 311.2516529151951
+     },
+     "T_ins": {
+      "at_MECO_K": 2704.1263333333764,
+      "at_relight_K": 768.3980803974339,
+      "max_in_flight_K": 2841.888204307982,
+      "at_last_shutdown_K": 2794.4899155907206,
+      "soak_peak_K": 2782.6403434114086,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 311.4236994356776
+     },
+     "T_head_time_above_50C_in_flight_s": 27.349999999999994,
+     "T_head_time_above_50C_soak_s": 3217.005000000001,
+     "T_head_time_above_60C_in_flight_s": 26.999999999999996,
+     "T_head_time_above_60C_soak_s": 2949.005000000001
+    },
+    "hg_x2|disc3mm|head_0.2kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 293.07703831361357,
+      "at_relight_K": 402.31699862057394,
+      "max_in_flight_K": 402.36137056074404,
+      "at_last_shutdown_K": 400.6707461981473,
+      "soak_peak_K": 867.5263035566704,
+      "soak_peak_after_shutdown_s": 137.49000000000083,
+      "at_3600s_K": 311.61337096889037
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 340.9414912809276,
+      "at_relight_K": 621.5073805372551,
+      "max_in_flight_K": 693.6348401942432,
+      "at_last_shutdown_K": 695.1366606760009,
+      "soak_peak_K": 950.2921064441846,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 311.2516529151951
+     },
+     "T_ins": {
+      "at_MECO_K": 2704.1263333333764,
+      "at_relight_K": 768.3980803974339,
+      "max_in_flight_K": 2841.888204307982,
+      "at_last_shutdown_K": 2794.4899155907206,
+      "soak_peak_K": 2782.6403434114086,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 311.4236994356776
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2680.2356338798254,
+      "at_relight_K": 750.4073867500663,
+      "max_in_flight_K": 2834.9256948424386,
+      "at_last_shutdown_K": 2785.164608081659,
+      "soak_peak_K": 2772.724336391467,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 311.79133699520764
+     },
+     "T_head_time_above_50C_in_flight_s": 18.099999999999998,
+     "T_head_time_above_50C_soak_s": 3174.005000000001,
+     "T_head_time_above_60C_in_flight_s": 16.5,
+     "T_head_time_above_60C_soak_s": 2906.005000000001
+    },
+    "hg_x2|disc3mm|head_0.4kg": {
+     "t_MECO_s": 3.221,
+     "t_relight_s": 24.191,
+     "t_last_shutdown_s": 28.351,
+     "T_head": {
+      "at_MECO_K": 293.09730223182805,
+      "at_relight_K": 355.35447997994305,
+      "max_in_flight_K": 361.2805292796781,
+      "at_last_shutdown_K": 361.4175413352338,
+      "soak_peak_K": 821.4757007418306,
+      "soak_peak_after_shutdown_s": 226.49000000000083,
+      "at_3600s_K": 312.65541890679094
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 340.9414912809276,
+      "at_relight_K": 621.5073805372551,
+      "max_in_flight_K": 693.6348401942432,
+      "at_last_shutdown_K": 695.1366606760009,
+      "soak_peak_K": 950.2921064441846,
+      "soak_peak_after_shutdown_s": 22.090000000000302,
+      "at_3600s_K": 311.2516529151951
+     },
+     "T_ins": {
+      "at_MECO_K": 2704.1263333333764,
+      "at_relight_K": 768.3980803974339,
+      "max_in_flight_K": 2841.888204307982,
+      "at_last_shutdown_K": 2794.4899155907206,
+      "soak_peak_K": 2782.6403434114086,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 311.4236994356776
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2680.23569540934,
+      "at_relight_K": 743.4438141261353,
+      "max_in_flight_K": 2830.679018454371,
+      "at_last_shutdown_K": 2781.144119410599,
+      "soak_peak_K": 2768.7603946496592,
+      "soak_peak_after_shutdown_s": 0.00999999999999801,
+      "at_3600s_K": 312.64027165381344
+     },
+     "T_head_time_above_50C_in_flight_s": 13.899999999999999,
+     "T_head_time_above_50C_soak_s": 3220.005000000001,
+     "T_head_time_above_60C_in_flight_s": 10.999999999999998,
+     "T_head_time_above_60C_soak_s": 2953.005000000001
+    }
+   }
+  },
+  "DC-A2 gnc v2": {
+   "dc_file": "dc_gncv2wip/DC-A2-S230v2wip_neqE1e+03_reg1.csv",
+   "bc_csv": "headend_bc_DC-A2_gncv2_v2.csv",
+   "variants": {
+    "hg_x0.5|bare|head_0.2kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 334.0306088286014,
+      "at_relight_K": 355.10783354196076,
+      "max_in_flight_K": 397.90133697641954,
+      "at_last_shutdown_K": 398.04506162741353,
+      "soak_peak_K": 672.3521204531526,
+      "soak_peak_after_shutdown_s": 132.49000000000083,
+      "at_3600s_K": 303.5955944139608
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 318.61449874073384,
+      "at_relight_K": 478.5786979190793,
+      "max_in_flight_K": 558.6352521594886,
+      "at_last_shutdown_K": 559.1567417187599,
+      "soak_peak_K": 725.3961806354982,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 303.4036058721207
+     },
+     "T_ins": {
+      "at_MECO_K": 1855.1435576597378,
+      "at_relight_K": 607.0266525375309,
+      "max_in_flight_K": 1918.3365487255855,
+      "at_last_shutdown_K": 1895.9283694560029,
+      "soak_peak_K": 1862.7622082691842,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 303.5172050948615
+     },
+     "T_head_time_above_50C_in_flight_s": 17.95,
+     "T_head_time_above_50C_soak_s": 2728.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 17.049999999999997,
+     "T_head_time_above_60C_soak_s": 2461.9850000000006
+    },
+    "hg_x0.5|bare|head_0.4kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 315.8545153496228,
+      "at_relight_K": 329.8090160722321,
+      "max_in_flight_K": 359.10240574041114,
+      "at_last_shutdown_K": 359.1846710253544,
+      "soak_peak_K": 641.8416883223983,
+      "soak_peak_after_shutdown_s": 220.49000000000083,
+      "at_3600s_K": 304.28423612271786
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 318.61449874073384,
+      "at_relight_K": 478.5786979190793,
+      "max_in_flight_K": 558.6352521594886,
+      "at_last_shutdown_K": 559.1567417187599,
+      "soak_peak_K": 725.3961806354982,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 303.4036058721207
+     },
+     "T_ins": {
+      "at_MECO_K": 1855.1435576597378,
+      "at_relight_K": 607.0266525375309,
+      "max_in_flight_K": 1918.3365487255855,
+      "at_last_shutdown_K": 1895.9283694560029,
+      "soak_peak_K": 1862.7622082691842,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 303.5172050948615
+     },
+     "T_head_time_above_50C_in_flight_s": 10.100000000000001,
+     "T_head_time_above_50C_soak_s": 2775.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 4.850000000000001,
+     "T_head_time_above_60C_soak_s": 2507.9850000000006
+    },
+    "hg_x0.5|disc3mm|head_0.2kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 292.8438557543702,
+      "at_relight_K": 327.00172045510584,
+      "max_in_flight_K": 336.6265755880648,
+      "at_last_shutdown_K": 336.7370001648146,
+      "soak_peak_K": 669.4627760972784,
+      "soak_peak_after_shutdown_s": 140.49000000000083,
+      "at_3600s_K": 303.64040348208283
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 318.61449874073384,
+      "at_relight_K": 478.5786979190793,
+      "max_in_flight_K": 558.6352521594886,
+      "at_last_shutdown_K": 559.1567417187599,
+      "soak_peak_K": 725.3961806354982,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 303.4036058721207
+     },
+     "T_ins": {
+      "at_MECO_K": 1855.1435576597378,
+      "at_relight_K": 607.0266525375309,
+      "max_in_flight_K": 1918.3365487255855,
+      "at_last_shutdown_K": 1895.9283694560029,
+      "soak_peak_K": 1862.7622082691842,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 303.5172050948615
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 1805.9060830270603,
+      "at_relight_K": 696.7804738973771,
+      "max_in_flight_K": 1940.0749596727162,
+      "at_last_shutdown_K": 1919.8344788783775,
+      "soak_peak_K": 1889.4737576868765,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 303.80304098074214
+     },
+     "T_head_time_above_50C_in_flight_s": 6.65,
+     "T_head_time_above_50C_soak_s": 2731.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 1.1499999999999986,
+     "T_head_time_above_60C_soak_s": 2464.9850000000006
+    },
+    "hg_x0.5|disc3mm|head_0.4kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 292.97876266782737,
+      "at_relight_K": 311.26458835779675,
+      "max_in_flight_K": 319.83362790307626,
+      "at_last_shutdown_K": 319.89361718848176,
+      "soak_peak_K": 638.7425011875259,
+      "soak_peak_after_shutdown_s": 231.49000000000083,
+      "at_3600s_K": 304.3333629846676
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 318.61449874073384,
+      "at_relight_K": 478.5786979190793,
+      "max_in_flight_K": 558.6352521594886,
+      "at_last_shutdown_K": 559.1567417187599,
+      "soak_peak_K": 725.3961806354982,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 303.4036058721207
+     },
+     "T_ins": {
+      "at_MECO_K": 1855.1435576597378,
+      "at_relight_K": 607.0266525375309,
+      "max_in_flight_K": 1918.3365487255855,
+      "at_last_shutdown_K": 1895.9283694560029,
+      "soak_peak_K": 1862.7622082691842,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 303.5172050948615
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 1805.9061552394337,
+      "at_relight_K": 696.1423219081788,
+      "max_in_flight_K": 1938.2716287734888,
+      "at_last_shutdown_K": 1918.0795827838317,
+      "soak_peak_K": 1887.791513799353,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 304.4486449969883
+     },
+     "T_head_time_above_50C_in_flight_s": 0.0,
+     "T_head_time_above_50C_soak_s": 2777.955000000001,
+     "T_head_time_above_60C_in_flight_s": 0.0,
+     "T_head_time_above_60C_soak_s": 2507.4000000000005
+    },
+    "hg_x1|bare|head_0.2kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 377.47693580479296,
+      "at_relight_K": 405.08104742714073,
+      "max_in_flight_K": 487.06475303848583,
+      "at_last_shutdown_K": 487.36543719593806,
+      "soak_peak_K": 834.149174974266,
+      "soak_peak_after_shutdown_s": 124.49000000000085,
+      "at_3600s_K": 309.9978566736176
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 332.0075676343208,
+      "at_relight_K": 553.934629997291,
+      "max_in_flight_K": 670.6599648304084,
+      "at_last_shutdown_K": 671.400645687079,
+      "soak_peak_K": 906.5033544440001,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 309.72155847576147
+     },
+     "T_ins": {
+      "at_MECO_K": 2413.297246415151,
+      "at_relight_K": 738.7338563652015,
+      "max_in_flight_K": 2585.0601505523537,
+      "at_last_shutdown_K": 2553.9706928014543,
+      "soak_peak_K": 2507.7112544696192,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 309.8822098192291
+     },
+     "T_head_time_above_50C_in_flight_s": 19.2,
+     "T_head_time_above_50C_soak_s": 3097.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 18.85,
+     "T_head_time_above_60C_soak_s": 2830.9850000000006
+    },
+    "hg_x1|bare|head_0.4kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 340.1610893473029,
+      "at_relight_K": 360.6073387416873,
+      "max_in_flight_K": 416.4386608504871,
+      "at_last_shutdown_K": 416.60830733829,
+      "soak_peak_K": 791.5230598854638,
+      "soak_peak_after_shutdown_s": 211.49000000000083,
+      "at_3600s_K": 310.9685325366152
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 332.0075676343208,
+      "at_relight_K": 553.934629997291,
+      "max_in_flight_K": 670.6599648304084,
+      "at_last_shutdown_K": 671.400645687079,
+      "soak_peak_K": 906.5033544440001,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 309.72155847576147
+     },
+     "T_ins": {
+      "at_MECO_K": 2413.297246415151,
+      "at_relight_K": 738.7338563652015,
+      "max_in_flight_K": 2585.0601505523537,
+      "at_last_shutdown_K": 2553.9706928014543,
+      "soak_peak_K": 2507.7112544696192,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 309.8822098192291
+     },
+     "T_head_time_above_50C_in_flight_s": 18.2,
+     "T_head_time_above_50C_soak_s": 3143.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 17.5,
+     "T_head_time_above_60C_soak_s": 2876.9850000000006
+    },
+    "hg_x1|disc3mm|head_0.2kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 293.1021099480438,
+      "at_relight_K": 341.4374394619606,
+      "max_in_flight_K": 355.73472109455145,
+      "at_last_shutdown_K": 355.8912221024286,
+      "soak_peak_K": 827.5591847632327,
+      "soak_peak_after_shutdown_s": 140.49000000000083,
+      "at_3600s_K": 310.060571658505
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 332.0075676343208,
+      "at_relight_K": 553.934629997291,
+      "max_in_flight_K": 670.6599648304084,
+      "at_last_shutdown_K": 671.400645687079,
+      "soak_peak_K": 906.5033544440001,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 309.72155847576147
+     },
+     "T_ins": {
+      "at_MECO_K": 2413.297246415151,
+      "at_relight_K": 738.7338563652015,
+      "max_in_flight_K": 2585.0601505523537,
+      "at_last_shutdown_K": 2553.9706928014543,
+      "soak_peak_K": 2507.7112544696192,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 309.8822098192291
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2376.1774609352083,
+      "at_relight_K": 830.3515339244742,
+      "max_in_flight_K": 2611.658221038344,
+      "at_last_shutdown_K": 2570.3035342056087,
+      "soak_peak_K": 2508.2715039565205,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 310.2598973195504
+     },
+     "T_head_time_above_50C_in_flight_s": 9.05,
+     "T_head_time_above_50C_soak_s": 3100.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 7.15,
+     "T_head_time_above_60C_soak_s": 2833.9850000000006
+    },
+    "hg_x1|disc3mm|head_0.4kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 293.11309435872175,
+      "at_relight_K": 319.030817997653,
+      "max_in_flight_K": 331.55522924576314,
+      "at_last_shutdown_K": 331.64036192153026,
+      "soak_peak_K": 784.2466380630158,
+      "soak_peak_after_shutdown_s": 230.49000000000083,
+      "at_3600s_K": 311.0378550033365
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 332.0075676343208,
+      "at_relight_K": 553.934629997291,
+      "max_in_flight_K": 670.6599648304084,
+      "at_last_shutdown_K": 671.400645687079,
+      "soak_peak_K": 906.5033544440001,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 309.72155847576147
+     },
+     "T_ins": {
+      "at_MECO_K": 2413.297246415151,
+      "at_relight_K": 738.7338563652015,
+      "max_in_flight_K": 2585.0601505523537,
+      "at_last_shutdown_K": 2553.9706928014543,
+      "soak_peak_K": 2507.7112544696192,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 309.8822098192291
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2376.1775232430086,
+      "at_relight_K": 829.4686445762903,
+      "max_in_flight_K": 2609.6770236883594,
+      "at_last_shutdown_K": 2568.460791365515,
+      "soak_peak_K": 2506.6364428812626,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 311.12709860135476
+     },
+     "T_head_time_above_50C_in_flight_s": 3.25,
+     "T_head_time_above_50C_soak_s": 3147.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 0.0,
+     "T_head_time_above_60C_soak_s": 2879.6350000000007
+    },
+    "hg_x2|bare|head_0.2kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 454.0903641580868,
+      "at_relight_K": 474.64360375494675,
+      "max_in_flight_K": 616.1246018636217,
+      "at_last_shutdown_K": 616.5410144007278,
+      "soak_peak_K": 931.589633064442,
+      "soak_peak_after_shutdown_s": 112.49000000000085,
+      "at_3600s_K": 313.64806647309035
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 342.41505122958046,
+      "at_relight_K": 599.8014170457725,
+      "max_in_flight_K": 740.2739920103469,
+      "at_last_shutdown_K": 741.1317643003113,
+      "soak_peak_K": 1009.8626437359927,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 313.3245947658462
+     },
+     "T_ins": {
+      "at_MECO_K": 2705.3334443341287,
+      "at_relight_K": 826.5558993331807,
+      "max_in_flight_K": 2910.94046505469,
+      "at_last_shutdown_K": 2875.3972992624927,
+      "soak_peak_K": 2823.2842111212217,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 313.5120792480125
+     },
+     "T_head_time_above_50C_in_flight_s": 19.7,
+     "T_head_time_above_50C_soak_s": 3261.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 19.5,
+     "T_head_time_above_60C_soak_s": 2994.9850000000006
+    },
+    "hg_x2|bare|head_0.4kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 383.5856131410685,
+      "at_relight_K": 405.3802741722038,
+      "max_in_flight_K": 501.90877854943494,
+      "at_last_shutdown_K": 502.14939499311436,
+      "soak_peak_K": 882.2983785186381,
+      "soak_peak_after_shutdown_s": 198.49000000000083,
+      "at_3600s_K": 314.77395508258513
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 342.41505122958046,
+      "at_relight_K": 599.8014170457725,
+      "max_in_flight_K": 740.2739920103469,
+      "at_last_shutdown_K": 741.1317643003113,
+      "soak_peak_K": 1009.8626437359927,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 313.3245947658462
+     },
+     "T_ins": {
+      "at_MECO_K": 2705.3334443341287,
+      "at_relight_K": 826.5558993331807,
+      "max_in_flight_K": 2910.94046505469,
+      "at_last_shutdown_K": 2875.3972992624927,
+      "soak_peak_K": 2823.2842111212217,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 313.5120792480125
+     },
+     "T_head_time_above_50C_in_flight_s": 19.2,
+     "T_head_time_above_50C_soak_s": 3307.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 18.85,
+     "T_head_time_above_60C_soak_s": 3040.9850000000006
+    },
+    "hg_x2|disc3mm|head_0.2kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 293.3197621333734,
+      "at_relight_K": 350.5544526135574,
+      "max_in_flight_K": 367.71554751003714,
+      "at_last_shutdown_K": 367.90076604042554,
+      "soak_peak_K": 917.9934346164459,
+      "soak_peak_after_shutdown_s": 140.49000000000083,
+      "at_3600s_K": 313.7201434522251
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 342.41505122958046,
+      "at_relight_K": 599.8014170457725,
+      "max_in_flight_K": 740.2739920103469,
+      "at_last_shutdown_K": 741.1317643003113,
+      "soak_peak_K": 1009.8626437359927,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 313.3245947658462
+     },
+     "T_ins": {
+      "at_MECO_K": 2705.3334443341287,
+      "at_relight_K": 826.5558993331807,
+      "max_in_flight_K": 2910.94046505469,
+      "at_last_shutdown_K": 2875.3972992624927,
+      "soak_peak_K": 2823.2842111212217,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 313.5120792480125
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2699.9071665031815,
+      "at_relight_K": 909.3612295561255,
+      "max_in_flight_K": 2956.883070747531,
+      "at_last_shutdown_K": 2898.1489069783242,
+      "soak_peak_K": 2810.0476613245355,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 313.9094964175071
+     },
+     "T_head_time_above_50C_in_flight_s": 10.0,
+     "T_head_time_above_50C_soak_s": 3264.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 8.4,
+     "T_head_time_above_60C_soak_s": 2997.9850000000006
+    },
+    "hg_x2|disc3mm|head_0.4kg": {
+     "t_MECO_s": 3.261,
+     "t_relight_s": 14.571,
+     "t_last_shutdown_s": 20.181,
+     "T_head": {
+      "at_MECO_K": 293.22653778968674,
+      "at_relight_K": 323.9475548469721,
+      "max_in_flight_K": 338.91577677634723,
+      "at_last_shutdown_K": 339.01658513141905,
+      "soak_peak_K": 867.54044646773,
+      "soak_peak_after_shutdown_s": 229.49000000000083,
+      "at_3600s_K": 314.8556099896152
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 342.41505122958046,
+      "at_relight_K": 599.8014170457725,
+      "max_in_flight_K": 740.2739920103469,
+      "at_last_shutdown_K": 741.1317643003113,
+      "soak_peak_K": 1009.8626437359927,
+      "soak_peak_after_shutdown_s": 22.0900000000003,
+      "at_3600s_K": 313.3245947658462
+     },
+     "T_ins": {
+      "at_MECO_K": 2705.3334443341287,
+      "at_relight_K": 826.5558993331807,
+      "max_in_flight_K": 2910.94046505469,
+      "at_last_shutdown_K": 2875.3972992624927,
+      "soak_peak_K": 2823.2842111212217,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 313.5120792480125
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2699.9072184262855,
+      "at_relight_K": 908.347993191756,
+      "max_in_flight_K": 2955.188883854217,
+      "at_last_shutdown_K": 2896.6138658013097,
+      "soak_peak_K": 2808.75133872197,
+      "soak_peak_after_shutdown_s": 0.029999999999997584,
+      "at_3600s_K": 314.8336445880838
+     },
+     "T_head_time_above_50C_in_flight_s": 5.850000000000001,
+     "T_head_time_above_50C_soak_s": 3311.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 1.6499999999999986,
+     "T_head_time_above_60C_soak_s": 3043.9850000000006
+    }
+   }
+  },
+  "DC-B1 gnc v2": {
+   "dc_file": "dc_gncv2wip/DC-B1-S230v2wip_neqE1e+03_reg1.csv",
+   "bc_csv": "headend_bc_DC-B1_gncv2_v2.csv",
+   "variants": {
+    "hg_x0.5|bare|head_0.2kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 430.3422786091785,
+      "at_relight_K": null,
+      "max_in_flight_K": 430.12163123558446,
+      "at_last_shutdown_K": 430.3422786091785,
+      "soak_peak_K": 814.3948343193557,
+      "soak_peak_after_shutdown_s": 130.49000000000083,
+      "at_3600s_K": 309.31631447719514
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 719.6204125381724,
+      "at_relight_K": null,
+      "max_in_flight_K": 719.0556279323647,
+      "at_last_shutdown_K": 719.6204125381724,
+      "soak_peak_K": 888.0312673756919,
+      "soak_peak_after_shutdown_s": 21.09000000000028,
+      "at_3600s_K": 309.04844039335615
+     },
+     "T_ins": {
+      "at_MECO_K": 2053.4074344488604,
+      "at_relight_K": null,
+      "max_in_flight_K": 2090.937839014548,
+      "at_last_shutdown_K": 2053.4074344488604,
+      "soak_peak_K": 2023.4351953786706,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 309.2040787784712
+     },
+     "T_head_time_above_50C_in_flight_s": 15.55,
+     "T_head_time_above_50C_soak_s": 3063.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 13.8,
+     "T_head_time_above_60C_soak_s": 2796.9850000000006
+    },
+    "hg_x0.5|bare|head_0.4kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 379.0940760395153,
+      "at_relight_K": null,
+      "max_in_flight_K": 378.9700866654328,
+      "at_last_shutdown_K": 379.0940760395153,
+      "soak_peak_K": 772.8103535056995,
+      "soak_peak_after_shutdown_s": 218.49000000000083,
+      "at_3600s_K": 310.2595457842441
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 719.6204125381724,
+      "at_relight_K": null,
+      "max_in_flight_K": 719.0556279323647,
+      "at_last_shutdown_K": 719.6204125381724,
+      "soak_peak_K": 888.0312673756919,
+      "soak_peak_after_shutdown_s": 21.09000000000028,
+      "at_3600s_K": 309.04844039335615
+     },
+     "T_ins": {
+      "at_MECO_K": 2053.4074344488604,
+      "at_relight_K": null,
+      "max_in_flight_K": 2090.937839014548,
+      "at_last_shutdown_K": 2053.4074344488604,
+      "soak_peak_K": 2023.4351953786706,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 309.2040787784712
+     },
+     "T_head_time_above_50C_in_flight_s": 11.5,
+     "T_head_time_above_50C_soak_s": 3110.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 8.950000000000003,
+     "T_head_time_above_60C_soak_s": 2842.9850000000006
+    },
+    "hg_x0.5|disc3mm|head_0.2kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 355.7718880953397,
+      "at_relight_K": null,
+      "max_in_flight_K": 355.5841818433658,
+      "at_last_shutdown_K": 355.7718880953397,
+      "soak_peak_K": 811.0127733059483,
+      "soak_peak_after_shutdown_s": 139.49000000000083,
+      "at_3600s_K": 309.3776848010552
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 719.6204125381724,
+      "at_relight_K": null,
+      "max_in_flight_K": 719.0556279323647,
+      "at_last_shutdown_K": 719.6204125381724,
+      "soak_peak_K": 888.0312673756919,
+      "soak_peak_after_shutdown_s": 21.09000000000028,
+      "at_3600s_K": 309.04844039335615
+     },
+     "T_ins": {
+      "at_MECO_K": 2053.4074344488604,
+      "at_relight_K": null,
+      "max_in_flight_K": 2090.937839014548,
+      "at_last_shutdown_K": 2053.4074344488604,
+      "soak_peak_K": 2023.4351953786706,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 309.2040787784712
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2180.528431886548,
+      "at_relight_K": null,
+      "max_in_flight_K": 2207.064147894439,
+      "at_last_shutdown_K": 2180.528431886548,
+      "soak_peak_K": 2140.7248578747094,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 309.5890665464094
+     },
+     "T_head_time_above_50C_in_flight_s": 5.900000000000002,
+     "T_head_time_above_50C_soak_s": 3066.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 4.100000000000002,
+     "T_head_time_above_60C_soak_s": 2799.9850000000006
+    },
+    "hg_x0.5|disc3mm|head_0.4kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 330.05937460516793,
+      "at_relight_K": null,
+      "max_in_flight_K": 329.9581042205907,
+      "at_last_shutdown_K": 330.05937460516793,
+      "soak_peak_K": 768.8755306087419,
+      "soak_peak_after_shutdown_s": 229.49000000000083,
+      "at_3600s_K": 310.32684600119643
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 719.6204125381724,
+      "at_relight_K": null,
+      "max_in_flight_K": 719.0556279323647,
+      "at_last_shutdown_K": 719.6204125381724,
+      "soak_peak_K": 888.0312673756919,
+      "soak_peak_after_shutdown_s": 21.09000000000028,
+      "at_3600s_K": 309.04844039335615
+     },
+     "T_ins": {
+      "at_MECO_K": 2053.4074344488604,
+      "at_relight_K": null,
+      "max_in_flight_K": 2090.937839014548,
+      "at_last_shutdown_K": 2053.4074344488604,
+      "soak_peak_K": 2023.4351953786706,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 309.2040787784712
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2179.0646910530395,
+      "at_relight_K": null,
+      "max_in_flight_K": 2205.534808623728,
+      "at_last_shutdown_K": 2179.0646910530395,
+      "soak_peak_K": 2139.3595146970047,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 310.47079507409296
+     },
+     "T_head_time_above_50C_in_flight_s": 1.75,
+     "T_head_time_above_50C_soak_s": 3113.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 0.0,
+     "T_head_time_above_60C_soak_s": 2845.3850000000007
+    },
+    "hg_x1|bare|head_0.2kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 550.601123147444,
+      "at_relight_K": null,
+      "max_in_flight_K": 550.1607570867424,
+      "at_last_shutdown_K": 550.601123147444,
+      "soak_peak_K": 1055.1580115984657,
+      "soak_peak_after_shutdown_s": 120.49000000000083,
+      "at_3600s_K": 318.86477610439323
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 932.5494501184536,
+      "at_relight_K": null,
+      "max_in_flight_K": 931.7805458868302,
+      "at_last_shutdown_K": 932.5494501184536,
+      "soak_peak_K": 1158.8081639318848,
+      "soak_peak_after_shutdown_s": 21.09000000000028,
+      "at_3600s_K": 318.47191823813245
+     },
+     "T_ins": {
+      "at_MECO_K": 2722.7655890429714,
+      "at_relight_K": null,
+      "max_in_flight_K": 2750.4450399220964,
+      "at_last_shutdown_K": 2722.7655890429714,
+      "soak_peak_K": 2683.0412381026317,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 318.69773673459645
+     },
+     "T_head_time_above_50C_in_flight_s": 18.05,
+     "T_head_time_above_50C_soak_s": 3460.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 17.55,
+     "T_head_time_above_60C_soak_s": 3192.9850000000006
+    },
+    "hg_x1|bare|head_0.4kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 456.779618307596,
+      "at_relight_K": null,
+      "max_in_flight_K": 456.53388702249055,
+      "at_last_shutdown_K": 456.779618307596,
+      "soak_peak_K": 996.3231555182747,
+      "soak_peak_after_shutdown_s": 206.49000000000083,
+      "at_3600s_K": 320.2286014923914
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 932.5494501184536,
+      "at_relight_K": null,
+      "max_in_flight_K": 931.7805458868302,
+      "at_last_shutdown_K": 932.5494501184536,
+      "soak_peak_K": 1158.8081639318848,
+      "soak_peak_after_shutdown_s": 21.09000000000028,
+      "at_3600s_K": 318.47191823813245
+     },
+     "T_ins": {
+      "at_MECO_K": 2722.7655890429714,
+      "at_relight_K": null,
+      "max_in_flight_K": 2750.4450399220964,
+      "at_last_shutdown_K": 2722.7655890429714,
+      "soak_peak_K": 2683.0412381026317,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 318.69773673459645
+     },
+     "T_head_time_above_50C_in_flight_s": 16.15,
+     "T_head_time_above_50C_soak_s": 3506.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 14.649999999999999,
+     "T_head_time_above_60C_soak_s": 3238.9850000000006
+    },
+    "hg_x1|disc3mm|head_0.2kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 390.33768916026486,
+      "at_relight_K": null,
+      "max_in_flight_K": 390.0583677356001,
+      "at_last_shutdown_K": 390.33768916026486,
+      "soak_peak_K": 1047.4025244422116,
+      "soak_peak_after_shutdown_s": 138.49000000000083,
+      "at_3600s_K": 318.9529675836927
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 932.5494501184536,
+      "at_relight_K": null,
+      "max_in_flight_K": 931.7805458868302,
+      "at_last_shutdown_K": 932.5494501184536,
+      "soak_peak_K": 1158.8081639318848,
+      "soak_peak_after_shutdown_s": 21.09000000000028,
+      "at_3600s_K": 318.47191823813245
+     },
+     "T_ins": {
+      "at_MECO_K": 2722.7655890429714,
+      "at_relight_K": null,
+      "max_in_flight_K": 2750.4450399220964,
+      "at_last_shutdown_K": 2722.7655890429714,
+      "soak_peak_K": 2683.0412381026317,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 318.69773673459645
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2850.0102963377913,
+      "at_relight_K": null,
+      "max_in_flight_K": 2907.29103976438,
+      "at_last_shutdown_K": 2850.0102963377913,
+      "soak_peak_K": 2764.089181197903,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 319.2083292117885
+     },
+     "T_head_time_above_50C_in_flight_s": 8.200000000000003,
+     "T_head_time_above_50C_soak_s": 3463.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 6.8000000000000025,
+     "T_head_time_above_60C_soak_s": 3195.9850000000006
+    },
+    "hg_x1|disc3mm|head_0.4kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 350.5374844680232,
+      "at_relight_K": null,
+      "max_in_flight_K": 350.38635540882785,
+      "at_last_shutdown_K": 350.5374844680232,
+      "soak_peak_K": 986.5004753073857,
+      "soak_peak_after_shutdown_s": 228.49000000000083,
+      "at_3600s_K": 320.32616302320605
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 932.5494501184536,
+      "at_relight_K": null,
+      "max_in_flight_K": 931.7805458868302,
+      "at_last_shutdown_K": 932.5494501184536,
+      "soak_peak_K": 1158.8081639318848,
+      "soak_peak_after_shutdown_s": 21.09000000000028,
+      "at_3600s_K": 318.47191823813245
+     },
+     "T_ins": {
+      "at_MECO_K": 2722.7655890429714,
+      "at_relight_K": null,
+      "max_in_flight_K": 2750.4450399220964,
+      "at_last_shutdown_K": 2722.7655890429714,
+      "soak_peak_K": 2683.0412381026317,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 318.69773673459645
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2848.3129686697803,
+      "at_relight_K": null,
+      "max_in_flight_K": 2905.409705785447,
+      "at_last_shutdown_K": 2848.3129686697803,
+      "soak_peak_K": 2762.6678629962753,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 320.4213671358175
+     },
+     "T_head_time_above_50C_in_flight_s": 5.0500000000000025,
+     "T_head_time_above_50C_soak_s": 3509.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 3.0500000000000016,
+     "T_head_time_above_60C_soak_s": 3241.9850000000006
+    },
+    "hg_x2|bare|head_0.2kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 711.0429114116062,
+      "at_relight_K": null,
+      "max_in_flight_K": 710.4853053619955,
+      "at_last_shutdown_K": 711.0429114116062,
+      "soak_peak_K": 1181.5874008266192,
+      "soak_peak_after_shutdown_s": 108.49000000000083,
+      "at_3600s_K": 323.629571114097
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1048.7141358619608,
+      "at_relight_K": null,
+      "max_in_flight_K": 1047.8721614089018,
+      "at_last_shutdown_K": 1048.7141358619608,
+      "soak_peak_K": 1294.171612178693,
+      "soak_peak_after_shutdown_s": 20.090000000000266,
+      "at_3600s_K": 323.1757445730195
+     },
+     "T_ins": {
+      "at_MECO_K": 2990.9440518614206,
+      "at_relight_K": null,
+      "max_in_flight_K": 3021.2969053466254,
+      "at_last_shutdown_K": 2990.9440518614206,
+      "soak_peak_K": 2947.2194221895734,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 323.4365941972038
+     },
+     "T_head_time_above_50C_in_flight_s": 18.55,
+     "T_head_time_above_50C_soak_s": 3599.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 18.35,
+     "T_head_time_above_60C_soak_s": 3345.9850000000006
+    },
+    "hg_x2|bare|head_0.4kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 565.0616131873511,
+      "at_relight_K": null,
+      "max_in_flight_K": 564.7413670833622,
+      "at_last_shutdown_K": 565.0616131873511,
+      "soak_peak_K": 1115.0525177761922,
+      "soak_peak_after_shutdown_s": 192.49000000000083,
+      "at_3600s_K": 325.1952430158348
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1048.7141358619608,
+      "at_relight_K": null,
+      "max_in_flight_K": 1047.8721614089018,
+      "at_last_shutdown_K": 1048.7141358619608,
+      "soak_peak_K": 1294.171612178693,
+      "soak_peak_after_shutdown_s": 20.090000000000266,
+      "at_3600s_K": 323.1757445730195
+     },
+     "T_ins": {
+      "at_MECO_K": 2990.9440518614206,
+      "at_relight_K": null,
+      "max_in_flight_K": 3021.2969053466254,
+      "at_last_shutdown_K": 2990.9440518614206,
+      "soak_peak_K": 2947.2194221895734,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 323.4365941972038
+     },
+     "T_head_time_above_50C_in_flight_s": 18.05,
+     "T_head_time_above_50C_soak_s": 3599.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 17.599999999999998,
+     "T_head_time_above_60C_soak_s": 3391.9850000000006
+    },
+    "hg_x2|disc3mm|head_0.2kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 410.93256872719144,
+      "at_relight_K": null,
+      "max_in_flight_K": 410.60491232626276,
+      "at_last_shutdown_K": 410.93256872719144,
+      "soak_peak_K": 1165.7214292129754,
+      "soak_peak_after_shutdown_s": 138.49000000000083,
+      "at_3600s_K": 323.7300831845406
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1048.7141358619608,
+      "at_relight_K": null,
+      "max_in_flight_K": 1047.8721614089018,
+      "at_last_shutdown_K": 1048.7141358619608,
+      "soak_peak_K": 1294.171612178693,
+      "soak_peak_after_shutdown_s": 20.090000000000266,
+      "at_3600s_K": 323.1757445730195
+     },
+     "T_ins": {
+      "at_MECO_K": 2990.9440518614206,
+      "at_relight_K": null,
+      "max_in_flight_K": 3021.2969053466254,
+      "at_last_shutdown_K": 2990.9440518614206,
+      "soak_peak_K": 2947.2194221895734,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 323.4365941972038
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 3098.594773742637,
+      "at_relight_K": null,
+      "max_in_flight_K": 3171.4772947403203,
+      "at_last_shutdown_K": 3098.594773742637,
+      "soak_peak_K": 2989.3042988996626,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 323.9636212828169
+     },
+     "T_head_time_above_50C_in_flight_s": 9.150000000000002,
+     "T_head_time_above_50C_soak_s": 3599.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 7.900000000000002,
+     "T_head_time_above_60C_soak_s": 3349.9850000000006
+    },
+    "hg_x2|disc3mm|head_0.4kg": {
+     "t_MECO_s": 19.031,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 19.031,
+     "T_head": {
+      "at_MECO_K": 362.8659735220278,
+      "at_relight_K": null,
+      "max_in_flight_K": 362.6883135954962,
+      "at_last_shutdown_K": 362.8659735220278,
+      "soak_peak_K": 1095.4975080017919,
+      "soak_peak_after_shutdown_s": 227.49000000000083,
+      "at_3600s_K": 325.3092854020847
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1048.7141358619608,
+      "at_relight_K": null,
+      "max_in_flight_K": 1047.8721614089018,
+      "at_last_shutdown_K": 1048.7141358619608,
+      "soak_peak_K": 1294.171612178693,
+      "soak_peak_after_shutdown_s": 20.090000000000266,
+      "at_3600s_K": 323.1757445730195
+     },
+     "T_ins": {
+      "at_MECO_K": 2990.9440518614206,
+      "at_relight_K": null,
+      "max_in_flight_K": 3021.2969053466254,
+      "at_last_shutdown_K": 2990.9440518614206,
+      "soak_peak_K": 2947.2194221895734,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 323.4365941972038
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 3097.094297082612,
+      "at_relight_K": null,
+      "max_in_flight_K": 3169.798144744366,
+      "at_last_shutdown_K": 3097.094297082612,
+      "soak_peak_K": 2988.1020658851958,
+      "soak_peak_after_shutdown_s": 0.030000000000001137,
+      "at_3600s_K": 325.24282625953884
+     },
+     "T_head_time_above_50C_in_flight_s": 6.3000000000000025,
+     "T_head_time_above_50C_soak_s": 3599.9850000000006,
+     "T_head_time_above_60C_in_flight_s": 4.600000000000002,
+     "T_head_time_above_60C_soak_s": 3395.9850000000006
+    }
+   }
+  },
+  "DC-A1 gnc v1": {
+   "dc_file": "dc_g3/DC-A1-S230_neqE1e+03_reg1.csv",
+   "bc_csv": "headend_bc_DC-A1_gncv1_v2.csv",
+   "variants": {
+    "hg_x0.5|bare|head_0.2kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 325.8753636552186,
+      "at_relight_K": 362.2729375747994,
+      "max_in_flight_K": 383.3358577826646,
+      "at_last_shutdown_K": 383.3358577826646,
+      "soak_peak_K": 559.8029941652132,
+      "soak_peak_after_shutdown_s": 130.49000000000083,
+      "at_3600s_K": 299.0326173105767
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 305.3329456055885,
+      "at_relight_K": 458.21917285011807,
+      "max_in_flight_K": 475.6427254929297,
+      "at_last_shutdown_K": 475.64272549292974,
+      "soak_peak_K": 596.3768354499854,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 298.9057188891623
+     },
+     "T_ins": {
+      "at_MECO_K": 1744.4084237984298,
+      "at_relight_K": 492.8186895538752,
+      "max_in_flight_K": 1787.7366948141496,
+      "at_last_shutdown_K": 1578.6722382094056,
+      "soak_peak_K": 1516.5500923623124,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 298.9858206904098
+     },
+     "T_head_time_above_50C_in_flight_s": 25.799999999999994,
+     "T_head_time_above_50C_soak_s": 2356.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 18.849999999999994,
+     "T_head_time_above_60C_soak_s": 2089.9650000000006
+    },
+    "hg_x0.5|bare|head_0.4kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 310.904756915245,
+      "at_relight_K": 335.5169820302713,
+      "max_in_flight_K": 349.647125672035,
+      "at_last_shutdown_K": 349.647125672035,
+      "soak_peak_K": 538.2579375392893,
+      "soak_peak_after_shutdown_s": 218.49000000000083,
+      "at_3600s_K": 299.5182967213771
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 305.3329456055885,
+      "at_relight_K": 458.21917285011807,
+      "max_in_flight_K": 475.6427254929297,
+      "at_last_shutdown_K": 475.64272549292974,
+      "soak_peak_K": 596.3768354499854,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 298.9057188891623
+     },
+     "T_ins": {
+      "at_MECO_K": 1744.4084237984298,
+      "at_relight_K": 492.8186895538752,
+      "max_in_flight_K": 1787.7366948141496,
+      "at_last_shutdown_K": 1578.6722382094056,
+      "soak_peak_K": 1516.5500923623124,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 298.9858206904098
+     },
+     "T_head_time_above_50C_in_flight_s": 12.999999999999996,
+     "T_head_time_above_50C_soak_s": 2402.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 5.1999999999999975,
+     "T_head_time_above_60C_soak_s": 2135.9650000000006
+    },
+    "hg_x0.5|disc3mm|head_0.2kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 292.35021254331434,
+      "at_relight_K": 349.18463987010074,
+      "max_in_flight_K": 349.3964683842624,
+      "at_last_shutdown_K": 348.2246969186632,
+      "soak_peak_K": 557.9883497748008,
+      "soak_peak_after_shutdown_s": 137.49000000000083,
+      "at_3600s_K": 299.06421972946356
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 305.3329456055885,
+      "at_relight_K": 458.21917285011807,
+      "max_in_flight_K": 475.6427254929297,
+      "at_last_shutdown_K": 475.64272549292974,
+      "soak_peak_K": 596.3768354499854,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 298.9057188891623
+     },
+     "T_ins": {
+      "at_MECO_K": 1744.4084237984298,
+      "at_relight_K": 492.8186895538752,
+      "max_in_flight_K": 1787.7366948141496,
+      "at_last_shutdown_K": 1578.6722382094056,
+      "soak_peak_K": 1516.5500923623124,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 298.9858206904098
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 1682.676848908767,
+      "at_relight_K": 522.7424486564588,
+      "max_in_flight_K": 1707.4107894953681,
+      "at_last_shutdown_K": 1549.3051218555893,
+      "soak_peak_K": 1500.8085211239497,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 299.18408891457864
+     },
+     "T_head_time_above_50C_in_flight_s": 12.949999999999998,
+     "T_head_time_above_50C_soak_s": 2359.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 9.549999999999995,
+     "T_head_time_above_60C_soak_s": 2092.9650000000006
+    },
+    "hg_x0.5|disc3mm|head_0.4kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 292.72599245171995,
+      "at_relight_K": 325.1461376388411,
+      "max_in_flight_K": 327.26630915554773,
+      "at_last_shutdown_K": 327.26630915554773,
+      "soak_peak_K": 536.3775989739569,
+      "soak_peak_after_shutdown_s": 226.49000000000083,
+      "at_3600s_K": 299.5529386554867
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 305.3329456055885,
+      "at_relight_K": 458.21917285011807,
+      "max_in_flight_K": 475.6427254929297,
+      "at_last_shutdown_K": 475.64272549292974,
+      "soak_peak_K": 596.3768354499854,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 298.9057188891623
+     },
+     "T_ins": {
+      "at_MECO_K": 1744.4084237984298,
+      "at_relight_K": 492.8186895538752,
+      "max_in_flight_K": 1787.7366948141496,
+      "at_last_shutdown_K": 1578.6722382094056,
+      "soak_peak_K": 1516.5500923623124,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 298.9858206904098
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 1682.6768710823471,
+      "at_relight_K": 518.423459336345,
+      "max_in_flight_K": 1707.4108069741073,
+      "at_last_shutdown_K": 1544.8816318762028,
+      "soak_peak_K": 1496.6189598332317,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 299.64043419380664
+     },
+     "T_head_time_above_50C_in_flight_s": 4.599999999999996,
+     "T_head_time_above_50C_soak_s": 2406.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 0.0,
+     "T_head_time_above_60C_soak_s": 2136.4000000000005
+    },
+    "hg_x1|bare|head_0.2kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 361.2786819123315,
+      "at_relight_K": 407.33684905809736,
+      "max_in_flight_K": 451.56153660236265,
+      "at_last_shutdown_K": 451.5615366023627,
+      "soak_peak_K": 696.0253520832208,
+      "soak_peak_after_shutdown_s": 125.49000000000083,
+      "at_3600s_K": 304.4440572841189
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 312.3390126722383,
+      "at_relight_K": 530.5330161719183,
+      "max_in_flight_K": 559.4553532003071,
+      "at_last_shutdown_K": 559.4553532003072,
+      "soak_peak_K": 749.3107154331959,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 304.2455488799039
+     },
+     "T_ins": {
+      "at_MECO_K": 2312.86236395487,
+      "at_relight_K": 593.7112895522328,
+      "max_in_flight_K": 2361.3917793590904,
+      "at_last_shutdown_K": 2264.8704546684553,
+      "soak_peak_K": 2171.882573304999,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 304.36541836241594
+     },
+     "T_head_time_above_50C_in_flight_s": 27.049999999999997,
+     "T_head_time_above_50C_soak_s": 2785.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 26.699999999999992,
+     "T_head_time_above_60C_soak_s": 2518.9650000000006
+    },
+    "hg_x1|bare|head_0.4kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 330.21390891295806,
+      "at_relight_K": 364.84092805983556,
+      "max_in_flight_K": 393.2034672798363,
+      "at_last_shutdown_K": 393.2034672798363,
+      "soak_peak_K": 663.9911600412098,
+      "soak_peak_after_shutdown_s": 212.49000000000083,
+      "at_3600s_K": 305.1685130099691
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 312.3390126722383,
+      "at_relight_K": 530.5330161719183,
+      "max_in_flight_K": 559.4553532003071,
+      "at_last_shutdown_K": 559.4553532003072,
+      "soak_peak_K": 749.3107154331959,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 304.2455488799039
+     },
+     "T_ins": {
+      "at_MECO_K": 2312.86236395487,
+      "at_relight_K": 593.7112895522328,
+      "max_in_flight_K": 2361.3917793590904,
+      "at_last_shutdown_K": 2264.8704546684553,
+      "soak_peak_K": 2171.882573304999,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 304.36541836241594
+     },
+     "T_head_time_above_50C_in_flight_s": 26.049999999999994,
+     "T_head_time_above_50C_soak_s": 2831.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 23.749999999999993,
+     "T_head_time_above_60C_soak_s": 2564.9650000000006
+    },
+    "hg_x1|disc3mm|head_0.2kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 292.44289357286056,
+      "at_relight_K": 374.21762158619333,
+      "max_in_flight_K": 374.5387744254586,
+      "at_last_shutdown_K": 373.3435254793791,
+      "soak_peak_K": 691.8031707118977,
+      "soak_peak_after_shutdown_s": 137.49000000000083,
+      "at_3600s_K": 304.4908360762667
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 312.3390126722383,
+      "at_relight_K": 530.5330161719183,
+      "max_in_flight_K": 559.4553532003071,
+      "at_last_shutdown_K": 559.4553532003072,
+      "soak_peak_K": 749.3107154331959,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 304.2455488799039
+     },
+     "T_ins": {
+      "at_MECO_K": 2312.86236395487,
+      "at_relight_K": 593.7112895522328,
+      "max_in_flight_K": 2361.3917793590904,
+      "at_last_shutdown_K": 2264.8704546684553,
+      "soak_peak_K": 2171.882573304999,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 304.36541836241594
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2249.469057858784,
+      "at_relight_K": 612.2899461132433,
+      "max_in_flight_K": 2287.9391123856053,
+      "at_last_shutdown_K": 2226.336711443973,
+      "soak_peak_K": 2126.6098391167534,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 304.6484085666324
+     },
+     "T_head_time_above_50C_in_flight_s": 16.049999999999997,
+     "T_head_time_above_50C_soak_s": 2788.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 13.799999999999997,
+     "T_head_time_above_60C_soak_s": 2521.9650000000006
+    },
+    "hg_x1|disc3mm|head_0.4kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 292.7736259781208,
+      "at_relight_K": 339.5063112170856,
+      "max_in_flight_K": 342.8370881932846,
+      "at_last_shutdown_K": 342.8370881932846,
+      "soak_peak_K": 659.5512236879861,
+      "soak_peak_after_shutdown_s": 226.49000000000083,
+      "at_3600s_K": 305.2201973745261
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 312.3390126722383,
+      "at_relight_K": 530.5330161719183,
+      "max_in_flight_K": 559.4553532003071,
+      "at_last_shutdown_K": 559.4553532003072,
+      "soak_peak_K": 749.3107154331959,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 304.2455488799039
+     },
+     "T_ins": {
+      "at_MECO_K": 2312.86236395487,
+      "at_relight_K": 593.7112895522328,
+      "max_in_flight_K": 2361.3917793590904,
+      "at_last_shutdown_K": 2264.8704546684553,
+      "soak_peak_K": 2171.882573304999,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 304.36541836241594
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2249.4690773002894,
+      "at_relight_K": 606.3044143135443,
+      "max_in_flight_K": 2287.9391311947775,
+      "at_last_shutdown_K": 2221.4429283942954,
+      "soak_peak_K": 2122.5519261475,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 305.2973656078458
+     },
+     "T_head_time_above_50C_in_flight_s": 10.349999999999996,
+     "T_head_time_above_50C_soak_s": 2835.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 6.149999999999997,
+     "T_head_time_above_60C_soak_s": 2567.9650000000006
+    },
+    "hg_x2|bare|head_0.2kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 424.1048165924527,
+      "at_relight_K": 459.847094535645,
+      "max_in_flight_K": 541.401199322507,
+      "at_last_shutdown_K": 541.4011993225071,
+      "soak_peak_K": 790.225785088503,
+      "soak_peak_after_shutdown_s": 116.49000000000083,
+      "at_3600s_K": 308.063023619745
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 318.2531153969069,
+      "at_relight_K": 577.1844209055251,
+      "max_in_flight_K": 616.005706934548,
+      "at_last_shutdown_K": 616.0057069345481,
+      "soak_peak_K": 851.6211421782002,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 307.81731185112693
+     },
+     "T_ins": {
+      "at_MECO_K": 2634.537793363694,
+      "at_relight_K": 677.8844912658615,
+      "max_in_flight_K": 2703.2014448491964,
+      "at_last_shutdown_K": 2685.775919525748,
+      "soak_peak_K": 2578.646247945035,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 307.9637815684103
+     },
+     "T_head_time_above_50C_in_flight_s": 27.549999999999994,
+     "T_head_time_above_50C_soak_s": 2998.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 27.349999999999994,
+     "T_head_time_above_60C_soak_s": 2731.9650000000006
+    },
+    "hg_x2|bare|head_0.4kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 364.8358959162139,
+      "at_relight_K": 401.4364720631601,
+      "max_in_flight_K": 452.1014373335838,
+      "at_last_shutdown_K": 452.1014373335839,
+      "soak_peak_K": 751.3366944501182,
+      "soak_peak_after_shutdown_s": 202.49000000000083,
+      "at_3600s_K": 308.94284435435856
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 318.2531153969069,
+      "at_relight_K": 577.1844209055251,
+      "max_in_flight_K": 616.005706934548,
+      "at_last_shutdown_K": 616.0057069345481,
+      "soak_peak_K": 851.6211421782002,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 307.81731185112693
+     },
+     "T_ins": {
+      "at_MECO_K": 2634.537793363694,
+      "at_relight_K": 677.8844912658615,
+      "max_in_flight_K": 2703.2014448491964,
+      "at_last_shutdown_K": 2685.775919525748,
+      "soak_peak_K": 2578.646247945035,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 307.9637815684103
+     },
+     "T_head_time_above_50C_in_flight_s": 27.049999999999997,
+     "T_head_time_above_50C_soak_s": 3044.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 26.699999999999992,
+     "T_head_time_above_60C_soak_s": 2777.9650000000006
+    },
+    "hg_x2|disc3mm|head_0.2kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 292.5266481437191,
+      "at_relight_K": 390.52435920507287,
+      "max_in_flight_K": 390.91096024778875,
+      "at_last_shutdown_K": 389.713971180329,
+      "soak_peak_K": 781.4976150990059,
+      "soak_peak_after_shutdown_s": 137.49000000000083,
+      "at_3600s_K": 308.11924958550793
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 318.2531153969069,
+      "at_relight_K": 577.1844209055251,
+      "max_in_flight_K": 616.005706934548,
+      "at_last_shutdown_K": 616.0057069345481,
+      "soak_peak_K": 851.6211421782002,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 307.81731185112693
+     },
+     "T_ins": {
+      "at_MECO_K": 2634.537793363694,
+      "at_relight_K": 677.8844912658615,
+      "max_in_flight_K": 2703.2014448491964,
+      "at_last_shutdown_K": 2685.775919525748,
+      "soak_peak_K": 2578.646247945035,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 307.9637815684103
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2589.7460173422046,
+      "at_relight_K": 675.2340089596953,
+      "max_in_flight_K": 2673.3274531464554,
+      "at_last_shutdown_K": 2666.3846193655404,
+      "soak_peak_K": 2512.6418495913026,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 308.2774908944019
+     },
+     "T_head_time_above_50C_in_flight_s": 17.249999999999996,
+     "T_head_time_above_50C_soak_s": 3002.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 15.399999999999997,
+     "T_head_time_above_60C_soak_s": 2734.9650000000006
+    },
+    "hg_x2|disc3mm|head_0.4kg": {
+     "t_MECO_s": 2.531,
+     "t_relight_s": 24.741,
+     "t_last_shutdown_s": 28.011,
+     "T_head": {
+      "at_MECO_K": 292.81672750759685,
+      "at_relight_K": 348.87986480340516,
+      "max_in_flight_K": 353.0001791667051,
+      "at_last_shutdown_K": 353.0001791667051,
+      "soak_peak_K": 742.1743226144769,
+      "soak_peak_after_shutdown_s": 226.49000000000083,
+      "at_3600s_K": 309.00649368006
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 318.2531153969069,
+      "at_relight_K": 577.1844209055251,
+      "max_in_flight_K": 616.005706934548,
+      "at_last_shutdown_K": 616.0057069345481,
+      "soak_peak_K": 851.6211421782002,
+      "soak_peak_after_shutdown_s": 23.090000000000312,
+      "at_3600s_K": 307.81731185112693
+     },
+     "T_ins": {
+      "at_MECO_K": 2634.537793363694,
+      "at_relight_K": 677.8844912658615,
+      "max_in_flight_K": 2703.2014448491964,
+      "at_last_shutdown_K": 2685.775919525748,
+      "soak_peak_K": 2578.646247945035,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 307.9637815684103
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2589.7460339971362,
+      "at_relight_K": 668.3994598664603,
+      "max_in_flight_K": 2669.2179536701187,
+      "at_last_shutdown_K": 2662.2253612674895,
+      "soak_peak_K": 2509.5958566822724,
+      "soak_peak_after_shutdown_s": 0.04999999999999716,
+      "at_3600s_K": 309.0014487748247
+     },
+     "T_head_time_above_50C_in_flight_s": 12.449999999999998,
+     "T_head_time_above_50C_soak_s": 3048.9650000000006,
+     "T_head_time_above_60C_in_flight_s": 9.049999999999995,
+     "T_head_time_above_60C_soak_s": 2780.9650000000006
+    }
+   }
+  },
+  "DC-B1 gnc v1": {
+   "dc_file": "dc_g3/DC-B1-S230_neqE1e+03_reg1.csv",
+   "bc_csv": "headend_bc_DC-B1_gncv1_v2.csv",
+   "variants": {
+    "hg_x0.5|bare|head_0.2kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 440.3415852543847,
+      "at_relight_K": null,
+      "max_in_flight_K": 440.2210503505936,
+      "at_last_shutdown_K": 440.3415852543847,
+      "soak_peak_K": 836.4127625496108,
+      "soak_peak_after_shutdown_s": 129.49000000000083,
+      "at_3600s_K": 310.193747315865
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 752.4007773410234,
+      "at_relight_K": null,
+      "max_in_flight_K": 752.1301617354341,
+      "at_last_shutdown_K": 752.4007773410234,
+      "soak_peak_K": 913.1172210510662,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 309.9144820717646
+     },
+     "T_ins": {
+      "at_MECO_K": 2033.45643155935,
+      "at_relight_K": null,
+      "max_in_flight_K": 2099.9274995644782,
+      "at_last_shutdown_K": 2033.45643155935,
+      "soak_peak_K": 1993.8109581154472,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 310.07657018832964
+     },
+     "T_head_time_above_50C_in_flight_s": 16.85,
+     "T_head_time_above_50C_soak_s": 3107.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 15.099999999999998,
+     "T_head_time_above_60C_soak_s": 2839.9750000000004
+    },
+    "hg_x0.5|bare|head_0.4kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 385.57078287938003,
+      "at_relight_K": null,
+      "max_in_flight_K": 385.5039169058211,
+      "at_last_shutdown_K": 385.57078287938003,
+      "soak_peak_K": 793.1900694824914,
+      "soak_peak_after_shutdown_s": 217.49000000000083,
+      "at_3600s_K": 311.1760252073801
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 752.4007773410234,
+      "at_relight_K": null,
+      "max_in_flight_K": 752.1301617354341,
+      "at_last_shutdown_K": 752.4007773410234,
+      "soak_peak_K": 913.1172210510662,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 309.9144820717646
+     },
+     "T_ins": {
+      "at_MECO_K": 2033.45643155935,
+      "at_relight_K": null,
+      "max_in_flight_K": 2099.9274995644782,
+      "at_last_shutdown_K": 2033.45643155935,
+      "soak_peak_K": 1993.8109581154472,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 310.07657018832964
+     },
+     "T_head_time_above_50C_in_flight_s": 12.8,
+     "T_head_time_above_50C_soak_s": 3153.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 10.3,
+     "T_head_time_above_60C_soak_s": 2885.9750000000004
+    },
+    "hg_x0.5|disc3mm|head_0.2kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 366.8991196855423,
+      "at_relight_K": null,
+      "max_in_flight_K": 366.79842226559873,
+      "at_last_shutdown_K": 366.8991196855423,
+      "soak_peak_K": 833.061237155436,
+      "soak_peak_after_shutdown_s": 139.49000000000083,
+      "at_3600s_K": 310.25765748298096
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 752.4007773410234,
+      "at_relight_K": null,
+      "max_in_flight_K": 752.1301617354341,
+      "at_last_shutdown_K": 752.4007773410234,
+      "soak_peak_K": 913.1172210510662,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 309.9144820717646
+     },
+     "T_ins": {
+      "at_MECO_K": 2033.45643155935,
+      "at_relight_K": null,
+      "max_in_flight_K": 2099.9274995644782,
+      "at_last_shutdown_K": 2033.45643155935,
+      "soak_peak_K": 1993.8109581154472,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 310.07657018832964
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2175.0118411028593,
+      "at_relight_K": null,
+      "max_in_flight_K": 2209.4968134566375,
+      "at_last_shutdown_K": 2175.0118411028593,
+      "soak_peak_K": 2112.6034457926603,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 310.4759932668655
+     },
+     "T_head_time_above_50C_in_flight_s": 7.400000000000001,
+     "T_head_time_above_50C_soak_s": 3110.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 5.600000000000001,
+     "T_head_time_above_60C_soak_s": 2842.9750000000004
+    },
+    "hg_x0.5|disc3mm|head_0.4kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 336.83272076389034,
+      "at_relight_K": null,
+      "max_in_flight_K": 336.7784035573061,
+      "at_last_shutdown_K": 336.83272076389034,
+      "soak_peak_K": 789.2120425363777,
+      "soak_peak_after_shutdown_s": 228.49000000000083,
+      "at_3600s_K": 311.2461134881919
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 752.4007773410234,
+      "at_relight_K": null,
+      "max_in_flight_K": 752.1301617354341,
+      "at_last_shutdown_K": 752.4007773410234,
+      "soak_peak_K": 913.1172210510662,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 309.9144820717646
+     },
+     "T_ins": {
+      "at_MECO_K": 2033.45643155935,
+      "at_relight_K": null,
+      "max_in_flight_K": 2099.9274995644782,
+      "at_last_shutdown_K": 2033.45643155935,
+      "soak_peak_K": 1993.8109581154472,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 310.07657018832964
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2172.943761755008,
+      "at_relight_K": null,
+      "max_in_flight_K": 2208.118500999752,
+      "at_last_shutdown_K": 2172.943761755008,
+      "soak_peak_K": 2110.775985589058,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 311.3938069963735
+     },
+     "T_head_time_above_50C_in_flight_s": 3.5,
+     "T_head_time_above_50C_soak_s": 3156.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 0.8500000000000014,
+     "T_head_time_above_60C_soak_s": 2889.9750000000004
+    },
+    "hg_x1|bare|head_0.2kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 567.1587484695225,
+      "at_relight_K": null,
+      "max_in_flight_K": 566.9052345298297,
+      "at_last_shutdown_K": 567.1587484695225,
+      "soak_peak_K": 1094.7429344817313,
+      "soak_peak_after_shutdown_s": 119.49000000000083,
+      "at_3600s_K": 320.44412605305297
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 986.6600380322209,
+      "at_relight_K": null,
+      "max_in_flight_K": 986.2885997193736,
+      "at_last_shutdown_K": 986.6600380322209,
+      "soak_peak_K": 1203.9523539070449,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 320.03082313579347
+     },
+     "T_ins": {
+      "at_MECO_K": 2718.06471952835,
+      "at_relight_K": null,
+      "max_in_flight_K": 2758.4381979228633,
+      "at_last_shutdown_K": 2718.06471952835,
+      "soak_peak_K": 2665.088085118461,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 320.26825137136893
+     },
+     "T_head_time_above_50C_in_flight_s": 19.7,
+     "T_head_time_above_50C_soak_s": 3513.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 18.85,
+     "T_head_time_above_60C_soak_s": 3245.9750000000004
+    },
+    "hg_x1|bare|head_0.4kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 467.81612396514663,
+      "at_relight_K": null,
+      "max_in_flight_K": 467.6772330572401,
+      "at_last_shutdown_K": 467.81612396514663,
+      "soak_peak_K": 1033.2113963598206,
+      "soak_peak_after_shutdown_s": 205.49000000000083,
+      "at_3600s_K": 321.87795189228797
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 986.6600380322209,
+      "at_relight_K": null,
+      "max_in_flight_K": 986.2885997193736,
+      "at_last_shutdown_K": 986.6600380322209,
+      "soak_peak_K": 1203.9523539070449,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 320.03082313579347
+     },
+     "T_ins": {
+      "at_MECO_K": 2718.06471952835,
+      "at_relight_K": null,
+      "max_in_flight_K": 2758.4381979228633,
+      "at_last_shutdown_K": 2718.06471952835,
+      "soak_peak_K": 2665.088085118461,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 320.26825137136893
+     },
+     "T_head_time_above_50C_in_flight_s": 17.45,
+     "T_head_time_above_50C_soak_s": 3559.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 15.95,
+     "T_head_time_above_60C_soak_s": 3292.9750000000004
+    },
+    "hg_x1|disc3mm|head_0.2kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 408.17897250103107,
+      "at_relight_K": null,
+      "max_in_flight_K": 408.02828601332703,
+      "at_last_shutdown_K": 408.17897250103107,
+      "soak_peak_K": 1087.0230826619045,
+      "soak_peak_after_shutdown_s": 137.49000000000083,
+      "at_3600s_K": 320.5368591659693
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 986.6600380322209,
+      "at_relight_K": null,
+      "max_in_flight_K": 986.2885997193736,
+      "at_last_shutdown_K": 986.6600380322209,
+      "soak_peak_K": 1203.9523539070449,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 320.03082313579347
+     },
+     "T_ins": {
+      "at_MECO_K": 2718.06471952835,
+      "at_relight_K": null,
+      "max_in_flight_K": 2758.4381979228633,
+      "at_last_shutdown_K": 2718.06471952835,
+      "soak_peak_K": 2665.088085118461,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 320.26825137136893
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2868.127586079439,
+      "at_relight_K": null,
+      "max_in_flight_K": 2907.0141211037776,
+      "at_last_shutdown_K": 2868.127586079439,
+      "soak_peak_K": 2730.142579737339,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 320.800693682374
+     },
+     "T_head_time_above_50C_in_flight_s": 9.8,
+     "T_head_time_above_50C_soak_s": 3516.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 8.400000000000002,
+     "T_head_time_above_60C_soak_s": 3248.9750000000004
+    },
+    "hg_x1|disc3mm|head_0.4kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 361.44045066050586,
+      "at_relight_K": null,
+      "max_in_flight_K": 361.3589469736744,
+      "at_last_shutdown_K": 361.44045066050586,
+      "soak_peak_K": 1023.051955317636,
+      "soak_peak_after_shutdown_s": 227.49000000000083,
+      "at_3600s_K": 321.9805534358689
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 986.6600380322209,
+      "at_relight_K": null,
+      "max_in_flight_K": 986.2885997193736,
+      "at_last_shutdown_K": 986.6600380322209,
+      "soak_peak_K": 1203.9523539070449,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 320.03082313579347
+     },
+     "T_ins": {
+      "at_MECO_K": 2718.06471952835,
+      "at_relight_K": null,
+      "max_in_flight_K": 2758.4381979228633,
+      "at_last_shutdown_K": 2718.06471952835,
+      "soak_peak_K": 2665.088085118461,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 320.26825137136893
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2865.645992444637,
+      "at_relight_K": null,
+      "max_in_flight_K": 2904.4076946156133,
+      "at_last_shutdown_K": 2865.645992444637,
+      "soak_peak_K": 2728.311960872647,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 322.0749530045502
+     },
+     "T_head_time_above_50C_in_flight_s": 6.650000000000001,
+     "T_head_time_above_50C_soak_s": 3562.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 4.800000000000002,
+     "T_head_time_above_60C_soak_s": 3295.9750000000004
+    },
+    "hg_x2|bare|head_0.2kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 730.6733301638593,
+      "at_relight_K": null,
+      "max_in_flight_K": 730.3502055042384,
+      "at_last_shutdown_K": 730.6733301638593,
+      "soak_peak_K": 1229.870324312008,
+      "soak_peak_after_shutdown_s": 107.49000000000083,
+      "at_3600s_K": 325.5566163615449
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1113.709962098964,
+      "at_relight_K": null,
+      "max_in_flight_K": 1113.3032047035483,
+      "at_last_shutdown_K": 1113.709962098964,
+      "soak_peak_K": 1349.2410960837492,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 325.0779818156455
+     },
+     "T_ins": {
+      "at_MECO_K": 2991.767150771088,
+      "at_relight_K": null,
+      "max_in_flight_K": 3018.5484534066313,
+      "at_last_shutdown_K": 2991.767150771088,
+      "soak_peak_K": 2934.614111723506,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 325.35299810140634
+     },
+     "T_head_time_above_50C_in_flight_s": 20.25,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 20.049999999999997,
+     "T_head_time_above_60C_soak_s": 3402.9750000000004
+    },
+    "hg_x2|bare|head_0.4kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 578.8926410881782,
+      "at_relight_K": null,
+      "max_in_flight_K": 578.7120288562627,
+      "at_last_shutdown_K": 578.8926410881782,
+      "soak_peak_K": 1160.3102631622396,
+      "soak_peak_after_shutdown_s": 191.49000000000083,
+      "at_3600s_K": 327.20715153967996
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1113.709962098964,
+      "at_relight_K": null,
+      "max_in_flight_K": 1113.3032047035483,
+      "at_last_shutdown_K": 1113.709962098964,
+      "soak_peak_K": 1349.2410960837492,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 325.0779818156455
+     },
+     "T_ins": {
+      "at_MECO_K": 2991.767150771088,
+      "at_relight_K": null,
+      "max_in_flight_K": 3018.5484534066313,
+      "at_last_shutdown_K": 2991.767150771088,
+      "soak_peak_K": 2934.614111723506,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 325.35299810140634
+     },
+     "T_head_time_above_50C_in_flight_s": 19.7,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 18.85,
+     "T_head_time_above_60C_soak_s": 3448.9750000000004
+    },
+    "hg_x2|disc3mm|head_0.2kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 432.63927220655427,
+      "at_relight_K": null,
+      "max_in_flight_K": 432.4624703103338,
+      "at_last_shutdown_K": 432.63927220655427,
+      "soak_peak_K": 1214.0622945998643,
+      "soak_peak_after_shutdown_s": 137.49000000000083,
+      "at_3600s_K": 325.66263531409743
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1113.709962098964,
+      "at_relight_K": null,
+      "max_in_flight_K": 1113.3032047035483,
+      "at_last_shutdown_K": 1113.709962098964,
+      "soak_peak_K": 1349.2410960837492,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 325.0779818156455
+     },
+     "T_ins": {
+      "at_MECO_K": 2991.767150771088,
+      "at_relight_K": null,
+      "max_in_flight_K": 3018.5484534066313,
+      "at_last_shutdown_K": 2991.767150771088,
+      "soak_peak_K": 2934.614111723506,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 325.35299810140634
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 3123.330157948341,
+      "at_relight_K": null,
+      "max_in_flight_K": 3172.234224540549,
+      "at_last_shutdown_K": 3123.330157948341,
+      "soak_peak_K": 2950.416906250466,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 325.9027637605793
+     },
+     "T_head_time_above_50C_in_flight_s": 10.8,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 9.55,
+     "T_head_time_above_60C_soak_s": 3405.9750000000004
+    },
+    "hg_x2|disc3mm|head_0.4kg": {
+     "t_MECO_s": 20.721,
+     "t_relight_s": null,
+     "t_last_shutdown_s": 20.721,
+     "T_head": {
+      "at_MECO_K": 376.1915855149616,
+      "at_relight_K": null,
+      "max_in_flight_K": 376.09575594922615,
+      "at_last_shutdown_K": 376.1915855149616,
+      "soak_peak_K": 1140.0966197823968,
+      "soak_peak_after_shutdown_s": 226.49000000000083,
+      "at_3600s_K": 327.32747987196433
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1113.709962098964,
+      "at_relight_K": null,
+      "max_in_flight_K": 1113.3032047035483,
+      "at_last_shutdown_K": 1113.709962098964,
+      "soak_peak_K": 1349.2410960837492,
+      "soak_peak_after_shutdown_s": 20.09000000000027,
+      "at_3600s_K": 325.0779818156455
+     },
+     "T_ins": {
+      "at_MECO_K": 2991.767150771088,
+      "at_relight_K": null,
+      "max_in_flight_K": 3018.5484534066313,
+      "at_last_shutdown_K": 2991.767150771088,
+      "soak_peak_K": 2934.614111723506,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 325.35299810140634
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 3121.111842448425,
+      "at_relight_K": null,
+      "max_in_flight_K": 3169.8834505961913,
+      "at_last_shutdown_K": 3121.111842448425,
+      "soak_peak_K": 2948.89459711236,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 327.2500613351073
+     },
+     "T_head_time_above_50C_in_flight_s": 7.950000000000001,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 6.250000000000002,
+     "T_head_time_above_60C_soak_s": 3451.9750000000004
+    }
+   }
+  },
+  "DC-C ground": {
+   "dc_file": "engine_S230/DC-C-S230_ground_reg1.csv",
+   "bc_csv": "headend_bc_DC-C_ground_v2.csv",
+   "variants": {
+    "hg_x0.5|bare|head_0.2kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 491.58458728933664,
+      "at_relight_K": 592.2747882233389,
+      "max_in_flight_K": 636.9300149377927,
+      "at_last_shutdown_K": 637.103200435436,
+      "soak_peak_K": 1151.859208026371,
+      "soak_peak_after_shutdown_s": 115.49000000000083,
+      "at_3600s_K": 322.67856037150347
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 905.8182358500859,
+      "at_relight_K": 1034.4308619483495,
+      "max_in_flight_K": 1154.368275163948,
+      "at_last_shutdown_K": 1154.5713003854573,
+      "soak_peak_K": 1269.712551425472,
+      "soak_peak_after_shutdown_s": 17.090000000000224,
+      "at_3600s_K": 322.219215349699
+     },
+     "T_ins": {
+      "at_MECO_K": 2038.118465912727,
+      "at_relight_K": 1173.9440027052844,
+      "max_in_flight_K": 2160.0734988617846,
+      "at_last_shutdown_K": 2150.2983500257433,
+      "soak_peak_K": 2119.509861776642,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 322.47294134834857
+     },
+     "T_head_time_above_50C_in_flight_s": 41.349999999999994,
+     "T_head_time_above_50C_soak_s": 3584.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 39.8,
+     "T_head_time_above_60C_soak_s": 3316.9750000000004
+    },
+    "hg_x0.5|bare|head_0.4kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 421.8702683469232,
+      "at_relight_K": 485.2822891997392,
+      "max_in_flight_K": 537.2455397877638,
+      "at_last_shutdown_K": 537.3448083817118,
+      "soak_peak_K": 1088.687265467322,
+      "soak_peak_after_shutdown_s": 198.49000000000083,
+      "at_3600s_K": 324.21521007048585
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 905.8182358500859,
+      "at_relight_K": 1034.4308619483495,
+      "max_in_flight_K": 1154.368275163948,
+      "at_last_shutdown_K": 1154.5713003854573,
+      "soak_peak_K": 1269.712551425472,
+      "soak_peak_after_shutdown_s": 17.090000000000224,
+      "at_3600s_K": 322.219215349699
+     },
+     "T_ins": {
+      "at_MECO_K": 2038.118465912727,
+      "at_relight_K": 1173.9440027052844,
+      "max_in_flight_K": 2160.0734988617846,
+      "at_last_shutdown_K": 2150.2983500257433,
+      "soak_peak_K": 2119.509861776642,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 322.47294134834857
+     },
+     "T_head_time_above_50C_in_flight_s": 37.8,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 35.449999999999996,
+     "T_head_time_above_60C_soak_s": 3363.9750000000004
+    },
+    "hg_x0.5|disc3mm|head_0.2kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 415.6328302435692,
+      "at_relight_K": 535.3778198415864,
+      "max_in_flight_K": 566.1415620635335,
+      "at_last_shutdown_K": 566.2779607711643,
+      "soak_peak_K": 1148.3421712885881,
+      "soak_peak_after_shutdown_s": 129.49000000000083,
+      "at_3600s_K": 322.778549022256
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 905.8182358500859,
+      "at_relight_K": 1034.4308619483495,
+      "max_in_flight_K": 1154.368275163948,
+      "at_last_shutdown_K": 1154.5713003854573,
+      "soak_peak_K": 1269.712551425472,
+      "soak_peak_after_shutdown_s": 17.090000000000224,
+      "at_3600s_K": 322.219215349699
+     },
+     "T_ins": {
+      "at_MECO_K": 2038.118465912727,
+      "at_relight_K": 1173.9440027052844,
+      "max_in_flight_K": 2160.0734988617846,
+      "at_last_shutdown_K": 2150.2983500257433,
+      "soak_peak_K": 2119.509861776642,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 322.47294134834857
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2205.6394533121816,
+      "at_relight_K": 1142.96795997845,
+      "max_in_flight_K": 2222.625268954311,
+      "at_last_shutdown_K": 2106.4800946098608,
+      "soak_peak_K": 2066.1411401065725,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 323.0775548989193
+     },
+     "T_head_time_above_50C_in_flight_s": 32.4,
+     "T_head_time_above_50C_soak_s": 3587.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 30.649999999999995,
+     "T_head_time_above_60C_soak_s": 3320.9750000000004
+    },
+    "hg_x0.5|disc3mm|head_0.4kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 367.7750775385891,
+      "at_relight_K": 438.9852234266032,
+      "max_in_flight_K": 480.06606655226807,
+      "at_last_shutdown_K": 480.14539506072316,
+      "soak_peak_K": 1081.8613532687214,
+      "soak_peak_after_shutdown_s": 215.49000000000083,
+      "at_3600s_K": 324.3249360546367
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 905.8182358500859,
+      "at_relight_K": 1034.4308619483495,
+      "max_in_flight_K": 1154.368275163948,
+      "at_last_shutdown_K": 1154.5713003854573,
+      "soak_peak_K": 1269.712551425472,
+      "soak_peak_after_shutdown_s": 17.090000000000224,
+      "at_3600s_K": 322.219215349699
+     },
+     "T_ins": {
+      "at_MECO_K": 2038.118465912727,
+      "at_relight_K": 1173.9440027052844,
+      "max_in_flight_K": 2160.0734988617846,
+      "at_last_shutdown_K": 2150.2983500257433,
+      "soak_peak_K": 2119.509861776642,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 322.47294134834857
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2200.649328537568,
+      "at_relight_K": 1132.838082065391,
+      "max_in_flight_K": 2217.511796988003,
+      "at_last_shutdown_K": 2083.6029134337687,
+      "soak_peak_K": 2045.8382778043685,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 324.503783777313
+     },
+     "T_head_time_above_50C_in_flight_s": 28.65,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 26.299999999999997,
+     "T_head_time_above_60C_soak_s": 3366.9750000000004
+    },
+    "hg_x1|bare|head_0.2kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 645.944749024802,
+      "at_relight_K": 801.4643554140354,
+      "max_in_flight_K": 860.6571958118784,
+      "at_last_shutdown_K": 860.9991255156729,
+      "soak_peak_K": 1531.6743540207901,
+      "soak_peak_after_shutdown_s": 99.49000000000083,
+      "at_3600s_K": 337.64741024342635
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1195.7406359621054,
+      "at_relight_K": 1371.5964872100833,
+      "max_in_flight_K": 1543.0134196852573,
+      "at_last_shutdown_K": 1543.2860883739277,
+      "soak_peak_K": 1695.8574662619676,
+      "soak_peak_after_shutdown_s": 17.090000000000224,
+      "at_3600s_K": 336.9951068396455
+     },
+     "T_ins": {
+      "at_MECO_K": 2749.8308082926296,
+      "at_relight_K": 1568.6735380292403,
+      "max_in_flight_K": 2885.332753213019,
+      "at_last_shutdown_K": 2870.9802465675207,
+      "soak_peak_K": 2830.0001577840444,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 337.35887434601915
+     },
+     "T_head_time_above_50C_in_flight_s": 44.05,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 43.199999999999996,
+     "T_head_time_above_60C_soak_s": 3599.9750000000004
+    },
+    "hg_x1|bare|head_0.4kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 526.7966076661946,
+      "at_relight_K": 626.9620863146696,
+      "max_in_flight_K": 705.4263378041376,
+      "at_last_shutdown_K": 705.6176500108302,
+      "soak_peak_K": 1448.0627458122326,
+      "soak_peak_after_shutdown_s": 176.49000000000083,
+      "at_3600s_K": 339.8421268590384
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1195.7406359621054,
+      "at_relight_K": 1371.5964872100833,
+      "max_in_flight_K": 1543.0134196852573,
+      "at_last_shutdown_K": 1543.2860883739277,
+      "soak_peak_K": 1695.8574662619676,
+      "soak_peak_after_shutdown_s": 17.090000000000224,
+      "at_3600s_K": 336.9951068396455
+     },
+     "T_ins": {
+      "at_MECO_K": 2749.8308082926296,
+      "at_relight_K": 1568.6735380292403,
+      "max_in_flight_K": 2885.332753213019,
+      "at_last_shutdown_K": 2870.9802465675207,
+      "soak_peak_K": 2830.0001577840444,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 337.35887434601915
+     },
+     "T_head_time_above_50C_in_flight_s": 41.89999999999999,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 40.599999999999994,
+     "T_head_time_above_60C_soak_s": 3599.9750000000004
+    },
+    "hg_x1|disc3mm|head_0.2kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 478.6174424010097,
+      "at_relight_K": 650.5463548043666,
+      "max_in_flight_K": 692.9441965714227,
+      "at_last_shutdown_K": 693.1406740420567,
+      "soak_peak_K": 1522.3667460841868,
+      "soak_peak_after_shutdown_s": 128.49000000000083,
+      "at_3600s_K": 337.7896819550249
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1195.7406359621054,
+      "at_relight_K": 1371.5964872100833,
+      "max_in_flight_K": 1543.0134196852573,
+      "at_last_shutdown_K": 1543.2860883739277,
+      "soak_peak_K": 1695.8574662619676,
+      "soak_peak_after_shutdown_s": 17.090000000000224,
+      "at_3600s_K": 336.9951068396455
+     },
+     "T_ins": {
+      "at_MECO_K": 2749.8308082926296,
+      "at_relight_K": 1568.6735380292403,
+      "max_in_flight_K": 2885.332753213019,
+      "at_last_shutdown_K": 2870.9802465675207,
+      "soak_peak_K": 2830.0001577840444,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 337.35887434601915
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2907.4676967162095,
+      "at_relight_K": 1456.0731602842684,
+      "max_in_flight_K": 2944.9642759777785,
+      "at_last_shutdown_K": 2818.3122110704758,
+      "soak_peak_K": 2726.224766447296,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 338.11149036794785
+     },
+     "T_head_time_above_50C_in_flight_s": 34.949999999999996,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 33.55,
+     "T_head_time_above_60C_soak_s": 3599.9750000000004
+    },
+    "hg_x1|disc3mm|head_0.4kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 406.77072520530976,
+      "at_relight_K": 509.46563138805436,
+      "max_in_flight_K": 568.0907623761309,
+      "at_last_shutdown_K": 568.2051629477003,
+      "soak_peak_K": 1427.434360478582,
+      "soak_peak_after_shutdown_s": 213.49000000000083,
+      "at_3600s_K": 339.9998388903801
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1195.7406359621054,
+      "at_relight_K": 1371.5964872100833,
+      "max_in_flight_K": 1543.0134196852573,
+      "at_last_shutdown_K": 1543.2860883739277,
+      "soak_peak_K": 1695.8574662619676,
+      "soak_peak_after_shutdown_s": 17.090000000000224,
+      "at_3600s_K": 336.9951068396455
+     },
+     "T_ins": {
+      "at_MECO_K": 2749.8308082926296,
+      "at_relight_K": 1568.6735380292403,
+      "max_in_flight_K": 2885.332753213019,
+      "at_last_shutdown_K": 2870.9802465675207,
+      "soak_peak_K": 2830.0001577840444,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 337.35887434601915
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 2901.6058107451436,
+      "at_relight_K": 1446.0481880706882,
+      "max_in_flight_K": 2938.734963869732,
+      "at_last_shutdown_K": 2794.901462678806,
+      "soak_peak_K": 2708.923495880556,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 340.0438062199174
+     },
+     "T_head_time_above_50C_in_flight_s": 31.849999999999994,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 29.999999999999996,
+     "T_head_time_above_60C_soak_s": 3599.9750000000004
+    },
+    "hg_x2|bare|head_0.2kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 828.3875758528081,
+      "at_relight_K": 990.6608387454232,
+      "max_in_flight_K": 1063.3012028548862,
+      "at_last_shutdown_K": 1063.717590161728,
+      "soak_peak_K": 1708.4676307522375,
+      "soak_peak_after_shutdown_s": 87.49000000000083,
+      "at_3600s_K": 344.3332431215129
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1342.1830396304974,
+      "at_relight_K": 1532.5796597203205,
+      "max_in_flight_K": 1726.9476671982104,
+      "at_last_shutdown_K": 1727.23714894548,
+      "soak_peak_K": 1886.6995697414457,
+      "soak_peak_after_shutdown_s": 16.09000000000021,
+      "at_3600s_K": 343.5973679584503
+     },
+     "T_ins": {
+      "at_MECO_K": 3028.1375662990313,
+      "at_relight_K": 1757.8228158075524,
+      "max_in_flight_K": 3140.0408618250076,
+      "at_last_shutdown_K": 3121.8258781190784,
+      "soak_peak_K": 3078.856090333308,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 344.0103049358098
+     },
+     "T_head_time_above_50C_in_flight_s": 45.14999999999999,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 44.699999999999996,
+     "T_head_time_above_60C_soak_s": 3599.9750000000004
+    },
+    "hg_x2|bare|head_0.4kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 658.7245685837975,
+      "at_relight_K": 770.4406251959251,
+      "max_in_flight_K": 871.9390442107588,
+      "at_last_shutdown_K": 872.1735736156687,
+      "soak_peak_K": 1619.760016113519,
+      "soak_peak_after_shutdown_s": 159.49000000000083,
+      "at_3600s_K": 346.80888826804073
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1342.1830396304974,
+      "at_relight_K": 1532.5796597203205,
+      "max_in_flight_K": 1726.9476671982104,
+      "at_last_shutdown_K": 1727.23714894548,
+      "soak_peak_K": 1886.6995697414457,
+      "soak_peak_after_shutdown_s": 16.09000000000021,
+      "at_3600s_K": 343.5973679584503
+     },
+     "T_ins": {
+      "at_MECO_K": 3028.1375662990313,
+      "at_relight_K": 1757.8228158075524,
+      "max_in_flight_K": 3140.0408618250076,
+      "at_last_shutdown_K": 3121.8258781190784,
+      "soak_peak_K": 3078.856090333308,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 344.0103049358098
+     },
+     "T_head_time_above_50C_in_flight_s": 43.949999999999996,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 43.14999999999999,
+     "T_head_time_above_60C_soak_s": 3599.9750000000004
+    },
+    "hg_x2|disc3mm|head_0.2kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 513.7323604729007,
+      "at_relight_K": 709.2672769253754,
+      "max_in_flight_K": 755.7625939222007,
+      "at_last_shutdown_K": 755.9869884219304,
+      "soak_peak_K": 1689.9180625738186,
+      "soak_peak_after_shutdown_s": 128.49000000000083,
+      "at_3600s_K": 344.4932670822059
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1342.1830396304974,
+      "at_relight_K": 1532.5796597203205,
+      "max_in_flight_K": 1726.9476671982104,
+      "at_last_shutdown_K": 1727.23714894548,
+      "soak_peak_K": 1886.6995697414457,
+      "soak_peak_after_shutdown_s": 16.09000000000021,
+      "at_3600s_K": 343.5973679584503
+     },
+     "T_ins": {
+      "at_MECO_K": 3028.1375662990313,
+      "at_relight_K": 1757.8228158075524,
+      "max_in_flight_K": 3140.0408618250076,
+      "at_last_shutdown_K": 3121.8258781190784,
+      "soak_peak_K": 3078.856090333308,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 344.0103049358098
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 3152.355404202961,
+      "at_relight_K": 1607.960038509357,
+      "max_in_flight_K": 3199.0638396787203,
+      "at_last_shutdown_K": 3102.257895271775,
+      "soak_peak_K": 2970.7693836299136,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 344.7582570607666
+     },
+     "T_head_time_above_50C_in_flight_s": 36.099999999999994,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 34.849999999999994,
+     "T_head_time_above_60C_soak_s": 3599.9750000000004
+    },
+    "hg_x2|disc3mm|head_0.4kg": {
+     "t_MECO_s": 27.02,
+     "t_relight_s": 37.1,
+     "t_last_shutdown_s": 46.52,
+     "T_head": {
+      "at_MECO_K": 428.97478211383805,
+      "at_relight_K": 546.2050649566571,
+      "max_in_flight_K": 612.525315259825,
+      "at_last_shutdown_K": 612.656067435283,
+      "soak_peak_K": 1582.3634299772118,
+      "soak_peak_after_shutdown_s": 213.49000000000083,
+      "at_3600s_K": 346.9911198278344
+     },
+     "T_case_fwd": {
+      "at_MECO_K": 1342.1830396304974,
+      "at_relight_K": 1532.5796597203205,
+      "max_in_flight_K": 1726.9476671982104,
+      "at_last_shutdown_K": 1727.23714894548,
+      "soak_peak_K": 1886.6995697414457,
+      "soak_peak_after_shutdown_s": 16.09000000000021,
+      "at_3600s_K": 343.5973679584503
+     },
+     "T_ins": {
+      "at_MECO_K": 3028.1375662990313,
+      "at_relight_K": 1757.8228158075524,
+      "max_in_flight_K": 3140.0408618250076,
+      "at_last_shutdown_K": 3121.8258781190784,
+      "soak_peak_K": 3078.856090333308,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 344.0103049358098
+     },
+     "T_disc_surf": {
+      "at_MECO_K": 3147.274838566258,
+      "at_relight_K": 1598.3355698198652,
+      "max_in_flight_K": 3193.6004687125633,
+      "at_last_shutdown_K": 3084.0446445087023,
+      "soak_peak_K": 2958.4535344981427,
+      "soak_peak_after_shutdown_s": 0.03999999999999915,
+      "at_3600s_K": 346.759960775306
+     },
+     "T_head_time_above_50C_in_flight_s": 33.24999999999999,
+     "T_head_time_above_50C_soak_s": 3599.9750000000004,
+     "T_head_time_above_60C_in_flight_s": 31.549999999999997,
+     "T_head_time_above_60C_soak_s": 3599.9750000000004
+    }
+   }
+  }
+ }
+}

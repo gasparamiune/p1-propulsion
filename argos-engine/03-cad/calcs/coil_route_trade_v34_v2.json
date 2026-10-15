@@ -1,0 +1,2282 @@
+{
+ "id": "coil_route_trade_v34",
+ "version": "v2",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/coil_route_trade_v34.py (main_v2)",
+ "why": "v1 (fixed-end azimuth and plan radius) could not clear the bay wall at the 8 deg stop: every fixed end other than az 300 has no two-bend wall-line solution and the bulge comes from the 28 mm straight engine-end ferrule leaving the TEE 18 deg outward of the coil tangent; v2 varies that end (ferrule length, side-port aim) and the plan limits",
+ "method": "Why: coil_o3b_v34 v1 found that the routed v3.4 coil (fixed end az 300, sweep 193 deg, 185.9 mm) misses three gates at the 8 deg stop:\nbay-wall clearance 0.23 mm (rule 3), bend radius 34.2 mm (G4 gate 39) and, with the v2 scalar method at EI 0.5 ASSUMED, ENG-07\n89.7 deg/s at 7.4 V.  This trade varies the fixed-end azimuth and the plan radius limits of parts_feed.route (the CAD route function)\nand evaluates every candidate with the same models:\n  * hinge stiffness matrix K (hose_frame.solve, pivot = origin), bend radius at the stop (installed + |change|, 36 directions),\n    clearances at the stop to the bay wall (r 70) and the GM-09 ring top (z 32, r >= 52) from the posed centreline (linear field +\n    exact rigid end, parts_feed.hose_centreline_at);\n  * ENG-07 at 7 deg, 7.4 V and 6.6 V, two load treatments:\n      scalar (actuator_slew_v2): other v2 terms 2.731 N m + K_max x 7 deg, all opposing the motion (bound);\n      vector: other v2 terms 2.731 N m opposing the motion + the hose spring moment -K (alpha, beta) at the pose (a linear spring\n      opposes outward motion and aids inward motion; its direction follows K's principal axes) -- the consistent model for a spring;\n  * installation moment if the hose is NOT pre-formed: a straight hose forced to the coil carries M = EI kappa; the engine-end couple\n    EI kappa_end b_end (b = binormal) has X/Y (servo) components -> a static hinge moment.  Pre-formed (heat-set) assemblies remove it.\nHose EI 0.25 (nominal) / 0.5 N m2 (upper) ASSUMED; B-FD-1 measures.  Output: calcs/coil_route_trade_v34_v1.json.\n",
+ "rows": [
+  {
+   "params": {
+    "ferrule.len": 25.0,
+    "tee.side_aim": -14.0,
+    "R_min_plan": 41.5,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 185.9,
+   "sweep_deg": 193.2,
+   "r_range_mm": [
+    44.7,
+    57.4
+   ],
+   "Rmin_installed_mm": 40.1,
+   "wall_alpha_deg": -49.3,
+   "wall_L2_mm": 8.1,
+   "wall_len_mm": 296.4,
+   "wall_clr_stop_mm": 0.23,
+   "wall_worst": [
+    40.0,
+    [
+     28.3,
+     55.4,
+     61.2
+    ],
+    0.323
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 34.2,
+   "ferrule_A_to_case_static_mm": 1.97,
+   "hose_to_case_static_mm": 5.47,
+   "Q_r_az_mm_deg": [
+    44.7,
+    133.2
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      10.254,
+      4.958
+     ],
+     [
+      4.958,
+      9.412
+     ]
+    ],
+    "K_eig": [
+     4.857,
+     14.809
+    ],
+    "K_max": 14.809,
+    "install_moment_if_not_preformed_XY_Nm": 0.325,
+    "install_moment_total_Nm": 6.017
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      20.508,
+      9.916
+     ],
+     [
+      9.916,
+      18.824
+     ]
+    ],
+    "K_eig": [
+     9.714,
+     29.618
+    ],
+    "K_max": 29.618,
+    "install_moment_if_not_preformed_XY_Nm": 0.65,
+    "install_moment_total_Nm": 12.033
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 25.0,
+    "tee.side_aim": -14.0,
+    "R_min_plan": 44.0,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 189.6,
+   "sweep_deg": 193.2,
+   "r_range_mm": [
+    44.7,
+    58.1
+   ],
+   "Rmin_installed_mm": 42.7,
+   "wall_alpha_deg": -49.3,
+   "wall_L2_mm": 8.1,
+   "wall_len_mm": 296.4,
+   "wall_clr_stop_mm": -2.27,
+   "wall_worst": [
+    30.0,
+    [
+     39.1,
+     51.6,
+     59.6
+    ],
+    0.375
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 36.3,
+   "ferrule_A_to_case_static_mm": 1.97,
+   "hose_to_case_static_mm": 5.47,
+   "Q_r_az_mm_deg": [
+    44.7,
+    133.2
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      9.219,
+      4.217
+     ],
+     [
+      4.217,
+      8.893
+     ]
+    ],
+    "K_eig": [
+     4.836,
+     13.277
+    ],
+    "K_max": 13.277,
+    "install_moment_if_not_preformed_XY_Nm": 0.306,
+    "install_moment_total_Nm": 5.675
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      18.438,
+      8.435
+     ],
+     [
+      8.435,
+      17.787
+     ]
+    ],
+    "K_eig": [
+     9.671,
+     26.553
+    ],
+    "K_max": 26.553,
+    "install_moment_if_not_preformed_XY_Nm": 0.612,
+    "install_moment_total_Nm": 11.35
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 25.0,
+    "tee.side_aim": -14.0,
+    "R_min_plan": 41.5,
+    "r_max": 56.0,
+    "r_pref": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 184.5,
+   "sweep_deg": 193.2,
+   "r_range_mm": [
+    44.7,
+    56.0
+   ],
+   "Rmin_installed_mm": 39.9,
+   "wall_alpha_deg": -49.3,
+   "wall_L2_mm": 8.1,
+   "wall_len_mm": 296.4,
+   "wall_clr_stop_mm": 0.28,
+   "wall_worst": [
+    40.0,
+    [
+     28.2,
+     55.5,
+     61.1
+    ],
+    0.323
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 34.2,
+   "ferrule_A_to_case_static_mm": 1.97,
+   "hose_to_case_static_mm": 5.47,
+   "Q_r_az_mm_deg": [
+    44.7,
+    133.2
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      10.382,
+      4.955
+     ],
+     [
+      4.955,
+      9.516
+     ]
+    ],
+    "K_eig": [
+     4.975,
+     14.922
+    ],
+    "K_max": 14.922,
+    "install_moment_if_not_preformed_XY_Nm": 0.332,
+    "install_moment_total_Nm": 6.016
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      20.763,
+      9.909
+     ],
+     [
+      9.909,
+      19.031
+     ]
+    ],
+    "K_eig": [
+     9.95,
+     29.843
+    ],
+    "K_max": 29.843,
+    "install_moment_if_not_preformed_XY_Nm": 0.663,
+    "install_moment_total_Nm": 12.031
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 25.0,
+    "tee.side_aim": -18.0,
+    "R_min_plan": 41.5,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 177.7,
+   "sweep_deg": 192.2,
+   "r_range_mm": [
+    42.1,
+    57.4
+   ],
+   "Rmin_installed_mm": 39.8,
+   "wall_alpha_deg": -49.3,
+   "wall_L2_mm": 8.1,
+   "wall_len_mm": 296.4,
+   "wall_clr_stop_mm": 2.69,
+   "wall_worst": [
+    340.0,
+    [
+     56.9,
+     -18.3,
+     48.3
+    ],
+    0.75
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 33.5,
+   "ferrule_A_to_case_static_mm": 0.44,
+   "hose_to_case_static_mm": 2.89,
+   "Q_r_az_mm_deg": [
+    42.1,
+    132.2
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      11.658,
+      5.907
+     ],
+     [
+      5.907,
+      10.828
+     ]
+    ],
+    "K_eig": [
+     5.322,
+     17.165
+    ],
+    "K_max": 17.165,
+    "install_moment_if_not_preformed_XY_Nm": 0.371,
+    "install_moment_total_Nm": 6.016
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      23.316,
+      11.813
+     ],
+     [
+      11.813,
+      21.656
+     ]
+    ],
+    "K_eig": [
+     10.644,
+     34.328
+    ],
+    "K_max": 34.328,
+    "install_moment_if_not_preformed_XY_Nm": 0.742,
+    "install_moment_total_Nm": 12.032
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 25.0,
+    "tee.side_aim": -18.0,
+    "R_min_plan": 44.0,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": true,
+   "length_mm": 182.1,
+   "sweep_deg": 192.2,
+   "r_range_mm": [
+    42.1,
+    57.9
+   ],
+   "Rmin_installed_mm": 42.1,
+   "wall_alpha_deg": -49.3,
+   "wall_L2_mm": 8.1,
+   "wall_len_mm": 296.4,
+   "wall_clr_stop_mm": 1.13,
+   "wall_worst": [
+    10.0,
+    [
+     49.2,
+     36.7,
+     58.5
+    ],
+    0.443
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 35.6,
+   "ferrule_A_to_case_static_mm": 0.44,
+   "hose_to_case_static_mm": 2.89,
+   "Q_r_az_mm_deg": [
+    42.1,
+    132.2
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      10.533,
+      5.064
+     ],
+     [
+      5.064,
+      9.986
+     ]
+    ],
+    "K_eig": [
+     5.188,
+     15.331
+    ],
+    "K_max": 15.331,
+    "install_moment_if_not_preformed_XY_Nm": 0.344,
+    "install_moment_total_Nm": 5.676
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      21.066,
+      10.128
+     ],
+     [
+      10.128,
+      19.971
+     ]
+    ],
+    "K_eig": [
+     10.376,
+     30.661
+    ],
+    "K_max": 30.661,
+    "install_moment_if_not_preformed_XY_Nm": 0.687,
+    "install_moment_total_Nm": 11.352
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 25.0,
+    "tee.side_aim": -18.0,
+    "R_min_plan": 41.5,
+    "r_max": 56.0,
+    "r_pref": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 174.5,
+   "sweep_deg": 192.2,
+   "r_range_mm": [
+    42.1,
+    56.8
+   ],
+   "Rmin_installed_mm": 39.5,
+   "wall_alpha_deg": -49.3,
+   "wall_L2_mm": 8.1,
+   "wall_len_mm": 296.4,
+   "wall_clr_stop_mm": 2.87,
+   "wall_worst": [
+    340.0,
+    [
+     58.3,
+     -12.4,
+     48.8
+    ],
+    0.729
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 33.2,
+   "ferrule_A_to_case_static_mm": 0.44,
+   "hose_to_case_static_mm": 2.89,
+   "Q_r_az_mm_deg": [
+    42.1,
+    132.2
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      12.041,
+      6.434
+     ],
+     [
+      6.434,
+      11.893
+     ]
+    ],
+    "K_eig": [
+     5.533,
+     18.402
+    ],
+    "K_max": 18.402,
+    "install_moment_if_not_preformed_XY_Nm": 0.391,
+    "install_moment_total_Nm": 6.015
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      24.082,
+      12.868
+     ],
+     [
+      12.868,
+      23.786
+     ]
+    ],
+    "K_eig": [
+     11.066,
+     36.802
+    ],
+    "K_max": 36.802,
+    "install_moment_if_not_preformed_XY_Nm": 0.782,
+    "install_moment_total_Nm": 12.03
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 25.0,
+    "tee.side_aim": -10.0,
+    "R_min_plan": 41.5,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 182.9,
+   "sweep_deg": 194.3,
+   "r_range_mm": [
+    47.2,
+    59.4
+   ],
+   "Rmin_installed_mm": 39.6,
+   "wall_alpha_deg": -49.3,
+   "wall_L2_mm": 8.1,
+   "wall_len_mm": 296.4,
+   "wall_clr_stop_mm": -3.67,
+   "wall_worst": [
+    50.0,
+    [
+     20.4,
+     63.0,
+     60.9
+    ],
+    0.311
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 33.7,
+   "ferrule_A_to_case_static_mm": 3.09,
+   "hose_to_case_static_mm": 7.91,
+   "Q_r_az_mm_deg": [
+    47.2,
+    134.3
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      9.455,
+      5.254
+     ],
+     [
+      5.254,
+      11.514
+     ]
+    ],
+    "K_eig": [
+     5.131,
+     15.839
+    ],
+    "K_max": 15.839,
+    "install_moment_if_not_preformed_XY_Nm": 0.341,
+    "install_moment_total_Nm": 6.081
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      18.91,
+      10.508
+     ],
+     [
+      10.508,
+      23.028
+     ]
+    ],
+    "K_eig": [
+     10.261,
+     31.677
+    ],
+    "K_max": 31.677,
+    "install_moment_if_not_preformed_XY_Nm": 0.681,
+    "install_moment_total_Nm": 12.163
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 25.0,
+    "tee.side_aim": -10.0,
+    "R_min_plan": 44.0,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 186.6,
+   "sweep_deg": 194.3,
+   "r_range_mm": [
+    47.2,
+    61.8
+   ],
+   "Rmin_installed_mm": 34.6,
+   "wall_alpha_deg": -49.3,
+   "wall_L2_mm": 8.1,
+   "wall_len_mm": 296.4,
+   "wall_clr_stop_mm": -6.03,
+   "wall_worst": [
+    40.0,
+    [
+     29.0,
+     62.1,
+     60.1
+    ],
+    0.349
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 30.2,
+   "ferrule_A_to_case_static_mm": 3.09,
+   "hose_to_case_static_mm": 7.91,
+   "Q_r_az_mm_deg": [
+    47.2,
+    134.3
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      8.659,
+      4.592
+     ],
+     [
+      4.592,
+      10.893
+     ]
+    ],
+    "K_eig": [
+     5.05,
+     14.502
+    ],
+    "K_max": 14.502,
+    "install_moment_if_not_preformed_XY_Nm": 0.321,
+    "install_moment_total_Nm": 5.696
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      17.317,
+      9.183
+     ],
+     [
+      9.183,
+      21.786
+     ]
+    ],
+    "K_eig": [
+     10.101,
+     29.002
+    ],
+    "K_max": 29.002,
+    "install_moment_if_not_preformed_XY_Nm": 0.641,
+    "install_moment_total_Nm": 11.392
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 25.0,
+    "tee.side_aim": -10.0,
+    "R_min_plan": 41.5,
+    "r_max": 56.0,
+    "r_pref": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 176.9,
+   "sweep_deg": 194.3,
+   "r_range_mm": [
+    47.2,
+    59.5
+   ],
+   "Rmin_installed_mm": 39.5,
+   "wall_alpha_deg": -49.3,
+   "wall_L2_mm": 8.1,
+   "wall_len_mm": 296.4,
+   "wall_clr_stop_mm": -3.91,
+   "wall_worst": [
+    40.0,
+    [
+     23.9,
+     61.9,
+     61.1
+    ],
+    0.339
+   ],
+   "ring_clr_stop_mm": 7.34,
+   "Rmin_stop_mm": 33.1,
+   "ferrule_A_to_case_static_mm": 3.09,
+   "hose_to_case_static_mm": 7.91,
+   "Q_r_az_mm_deg": [
+    47.2,
+    134.3
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      9.477,
+      5.847
+     ],
+     [
+      5.847,
+      14.262
+     ]
+    ],
+    "K_eig": [
+     5.553,
+     18.187
+    ],
+    "K_max": 18.187,
+    "install_moment_if_not_preformed_XY_Nm": 0.376,
+    "install_moment_total_Nm": 6.081
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      18.954,
+      11.693
+     ],
+     [
+      11.693,
+      28.523
+     ]
+    ],
+    "K_eig": [
+     11.105,
+     36.373
+    ],
+    "K_max": 36.373,
+    "install_moment_if_not_preformed_XY_Nm": 0.753,
+    "install_moment_total_Nm": 12.162
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 20.0,
+    "tee.side_aim": -14.0,
+    "R_min_plan": 41.5,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 183.4,
+   "sweep_deg": 199.5,
+   "r_range_mm": [
+    43.4,
+    57.4
+   ],
+   "Rmin_installed_mm": 40.1,
+   "wall_alpha_deg": -43.4,
+   "wall_L2_mm": 14.0,
+   "wall_len_mm": 299.9,
+   "wall_clr_stop_mm": 2.84,
+   "wall_worst": [
+    340.0,
+    [
+     56.8,
+     -18.2,
+     48.2
+    ],
+    0.758
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 33.9,
+   "ferrule_A_to_case_static_mm": 1.97,
+   "hose_to_case_static_mm": 4.17,
+   "Q_r_az_mm_deg": [
+    43.4,
+    139.5
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      9.998,
+      5.237
+     ],
+     [
+      5.237,
+      10.306
+     ]
+    ],
+    "K_eig": [
+     4.913,
+     15.392
+    ],
+    "K_max": 15.392,
+    "install_moment_if_not_preformed_XY_Nm": 0.337,
+    "install_moment_total_Nm": 6.016
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      19.996,
+      10.474
+     ],
+     [
+      10.474,
+      20.612
+     ]
+    ],
+    "K_eig": [
+     9.825,
+     30.782
+    ],
+    "K_max": 30.782,
+    "install_moment_if_not_preformed_XY_Nm": 0.674,
+    "install_moment_total_Nm": 12.032
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 20.0,
+    "tee.side_aim": -14.0,
+    "R_min_plan": 44.0,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 187.8,
+   "sweep_deg": 199.5,
+   "r_range_mm": [
+    43.4,
+    57.9
+   ],
+   "Rmin_installed_mm": 42.4,
+   "wall_alpha_deg": -43.4,
+   "wall_L2_mm": 14.0,
+   "wall_len_mm": 299.9,
+   "wall_clr_stop_mm": 1.59,
+   "wall_worst": [
+    340.0,
+    [
+     60.2,
+     -9.2,
+     49.3
+    ],
+    0.714
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 36.1,
+   "ferrule_A_to_case_static_mm": 1.97,
+   "hose_to_case_static_mm": 4.17,
+   "Q_r_az_mm_deg": [
+    43.4,
+    139.5
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      9.163,
+      4.572
+     ],
+     [
+      4.572,
+      9.553
+     ]
+    ],
+    "K_eig": [
+     4.782,
+     13.935
+    ],
+    "K_max": 13.935,
+    "install_moment_if_not_preformed_XY_Nm": 0.315,
+    "install_moment_total_Nm": 5.677
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      18.326,
+      9.144
+     ],
+     [
+      9.144,
+      19.105
+     ]
+    ],
+    "K_eig": [
+     9.563,
+     27.868
+    ],
+    "K_max": 27.868,
+    "install_moment_if_not_preformed_XY_Nm": 0.63,
+    "install_moment_total_Nm": 11.354
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 20.0,
+    "tee.side_aim": -14.0,
+    "R_min_plan": 41.5,
+    "r_max": 56.0,
+    "r_pref": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 179.4,
+   "sweep_deg": 199.5,
+   "r_range_mm": [
+    43.4,
+    56.4
+   ],
+   "Rmin_installed_mm": 35.6,
+   "wall_alpha_deg": -43.4,
+   "wall_L2_mm": 14.0,
+   "wall_len_mm": 299.9,
+   "wall_clr_stop_mm": 3.91,
+   "wall_worst": [
+    0.0,
+    [
+     54.8,
+     20.8,
+     54.2
+    ],
+    0.567
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 30.5,
+   "ferrule_A_to_case_static_mm": 1.97,
+   "hose_to_case_static_mm": 4.17,
+   "Q_r_az_mm_deg": [
+    43.4,
+    139.5
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      10.165,
+      5.556
+     ],
+     [
+      5.556,
+      11.386
+     ]
+    ],
+    "K_eig": [
+     5.186,
+     16.365
+    ],
+    "K_max": 16.365,
+    "install_moment_if_not_preformed_XY_Nm": 0.359,
+    "install_moment_total_Nm": 5.871
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      20.329,
+      11.111
+     ],
+     [
+      11.111,
+      22.772
+     ]
+    ],
+    "K_eig": [
+     10.372,
+     32.729
+    ],
+    "K_max": 32.729,
+    "install_moment_if_not_preformed_XY_Nm": 0.719,
+    "install_moment_total_Nm": 11.742
+   },
+   "gates": {
+    "wall_3mm": true,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 20.0,
+    "tee.side_aim": -18.0,
+    "R_min_plan": 41.5,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 176.2,
+   "sweep_deg": 199.0,
+   "r_range_mm": [
+    41.2,
+    57.4
+   ],
+   "Rmin_installed_mm": 39.5,
+   "wall_alpha_deg": -43.4,
+   "wall_L2_mm": 14.0,
+   "wall_len_mm": 299.9,
+   "wall_clr_stop_mm": 2.56,
+   "wall_worst": [
+    340.0,
+    [
+     57.6,
+     -16.5,
+     48.5
+    ],
+    0.746
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 33.2,
+   "ferrule_A_to_case_static_mm": 0.44,
+   "hose_to_case_static_mm": 1.99,
+   "Q_r_az_mm_deg": [
+    41.2,
+    139.0
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      11.141,
+      6.077
+     ],
+     [
+      6.077,
+      11.702
+     ]
+    ],
+    "K_eig": [
+     5.338,
+     17.505
+    ],
+    "K_max": 17.505,
+    "install_moment_if_not_preformed_XY_Nm": 0.379,
+    "install_moment_total_Nm": 6.018
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      22.282,
+      12.154
+     ],
+     [
+      12.154,
+      23.403
+     ]
+    ],
+    "K_eig": [
+     10.675,
+     35.009
+    ],
+    "K_max": 35.009,
+    "install_moment_if_not_preformed_XY_Nm": 0.759,
+    "install_moment_total_Nm": 12.036
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 20.0,
+    "tee.side_aim": -18.0,
+    "R_min_plan": 44.0,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": true,
+   "length_mm": 180.0,
+   "sweep_deg": 199.0,
+   "r_range_mm": [
+    41.2,
+    57.9
+   ],
+   "Rmin_installed_mm": 42.2,
+   "wall_alpha_deg": -43.4,
+   "wall_L2_mm": 14.0,
+   "wall_len_mm": 299.9,
+   "wall_clr_stop_mm": 1.25,
+   "wall_worst": [
+    340.0,
+    [
+     60.7,
+     -8.3,
+     49.7
+    ],
+    0.7
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 35.2,
+   "ferrule_A_to_case_static_mm": 0.44,
+   "hose_to_case_static_mm": 1.99,
+   "Q_r_az_mm_deg": [
+    41.2,
+    139.0
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      10.283,
+      5.415
+     ],
+     [
+      5.415,
+      10.969
+     ]
+    ],
+    "K_eig": [
+     5.2,
+     16.052
+    ],
+    "K_max": 16.052,
+    "install_moment_if_not_preformed_XY_Nm": 0.357,
+    "install_moment_total_Nm": 5.672
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      20.566,
+      10.83
+     ],
+     [
+      10.83,
+      21.937
+     ]
+    ],
+    "K_eig": [
+     10.4,
+     32.103
+    ],
+    "K_max": 32.103,
+    "install_moment_if_not_preformed_XY_Nm": 0.714,
+    "install_moment_total_Nm": 11.344
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 20.0,
+    "tee.side_aim": -18.0,
+    "R_min_plan": 41.5,
+    "r_max": 56.0,
+    "r_pref": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 179.3,
+   "sweep_deg": 199.0,
+   "r_range_mm": [
+    41.2,
+    56.0
+   ],
+   "Rmin_installed_mm": 39.9,
+   "wall_alpha_deg": -43.4,
+   "wall_L2_mm": 14.0,
+   "wall_len_mm": 299.9,
+   "wall_clr_stop_mm": 4.15,
+   "wall_worst": [
+    340.0,
+    [
+     56.5,
+     -14.7,
+     48.5
+    ],
+    0.75
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 33.7,
+   "ferrule_A_to_case_static_mm": 0.44,
+   "hose_to_case_static_mm": 1.99,
+   "Q_r_az_mm_deg": [
+    41.2,
+    139.0
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      10.458,
+      5.23
+     ],
+     [
+      5.23,
+      10.649
+     ]
+    ],
+    "K_eig": [
+     5.323,
+     15.785
+    ],
+    "K_max": 15.785,
+    "install_moment_if_not_preformed_XY_Nm": 0.359,
+    "install_moment_total_Nm": 4.625
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      20.916,
+      10.46
+     ],
+     [
+      10.46,
+      21.297
+     ]
+    ],
+    "K_eig": [
+     10.645,
+     31.569
+    ],
+    "K_max": 31.569,
+    "install_moment_if_not_preformed_XY_Nm": 0.718,
+    "install_moment_total_Nm": 9.25
+   },
+   "gates": {
+    "wall_3mm": true,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 20.0,
+    "tee.side_aim": -10.0,
+    "R_min_plan": 41.5,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 190.9,
+   "sweep_deg": 200.2,
+   "r_range_mm": [
+    45.5,
+    57.4
+   ],
+   "Rmin_installed_mm": 40.3,
+   "wall_alpha_deg": -43.4,
+   "wall_L2_mm": 14.0,
+   "wall_len_mm": 299.9,
+   "wall_clr_stop_mm": 1.11,
+   "wall_worst": [
+    60.0,
+    [
+     14.4,
+     59.7,
+     61.5
+    ],
+    0.281
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 34.5,
+   "ferrule_A_to_case_static_mm": 3.09,
+   "hose_to_case_static_mm": 6.24,
+   "Q_r_az_mm_deg": [
+    45.5,
+    140.2
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      8.968,
+      4.501
+     ],
+     [
+      4.501,
+      9.101
+     ]
+    ],
+    "K_eig": [
+     4.533,
+     13.537
+    ],
+    "K_max": 13.537,
+    "install_moment_if_not_preformed_XY_Nm": 0.3,
+    "install_moment_total_Nm": 6.013
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      17.935,
+      9.002
+     ],
+     [
+      9.002,
+      18.202
+     ]
+    ],
+    "K_eig": [
+     9.065,
+     27.072
+    ],
+    "K_max": 27.072,
+    "install_moment_if_not_preformed_XY_Nm": 0.601,
+    "install_moment_total_Nm": 12.026
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 20.0,
+    "tee.side_aim": -10.0,
+    "R_min_plan": 44.0,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 196.1,
+   "sweep_deg": 200.2,
+   "r_range_mm": [
+    45.5,
+    57.9
+   ],
+   "Rmin_installed_mm": 43.5,
+   "wall_alpha_deg": -43.4,
+   "wall_L2_mm": 14.0,
+   "wall_len_mm": 299.9,
+   "wall_clr_stop_mm": -1.12,
+   "wall_worst": [
+    40.0,
+    [
+     29.8,
+     56.2,
+     60.3
+    ],
+    0.348
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 36.7,
+   "ferrule_A_to_case_static_mm": 3.09,
+   "hose_to_case_static_mm": 6.24,
+   "Q_r_az_mm_deg": [
+    45.5,
+    140.2
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      8.115,
+      3.813
+     ],
+     [
+      3.813,
+      8.333
+     ]
+    ],
+    "K_eig": [
+     4.409,
+     12.039
+    ],
+    "K_max": 12.039,
+    "install_moment_if_not_preformed_XY_Nm": 0.276,
+    "install_moment_total_Nm": 5.671
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      16.229,
+      7.627
+     ],
+     [
+      7.627,
+      16.666
+     ]
+    ],
+    "K_eig": [
+     8.818,
+     24.077
+    ],
+    "K_max": 24.077,
+    "install_moment_if_not_preformed_XY_Nm": 0.552,
+    "install_moment_total_Nm": 11.343
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 20.0,
+    "tee.side_aim": -10.0,
+    "R_min_plan": 41.5,
+    "r_max": 56.0,
+    "r_pref": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 189.6,
+   "sweep_deg": 200.2,
+   "r_range_mm": [
+    45.5,
+    56.4
+   ],
+   "Rmin_installed_mm": 40.3,
+   "wall_alpha_deg": -43.4,
+   "wall_L2_mm": 14.0,
+   "wall_len_mm": 299.9,
+   "wall_clr_stop_mm": 1.17,
+   "wall_worst": [
+    60.0,
+    [
+     14.3,
+     59.6,
+     61.5
+    ],
+    0.281
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 34.4,
+   "ferrule_A_to_case_static_mm": 3.09,
+   "hose_to_case_static_mm": 6.24,
+   "Q_r_az_mm_deg": [
+    45.5,
+    140.2
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      9.139,
+      4.59
+     ],
+     [
+      4.59,
+      9.269
+     ]
+    ],
+    "K_eig": [
+     4.614,
+     13.795
+    ],
+    "K_max": 13.795,
+    "install_moment_if_not_preformed_XY_Nm": 0.306,
+    "install_moment_total_Nm": 6.024
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      18.278,
+      9.18
+     ],
+     [
+      9.18,
+      18.538
+     ]
+    ],
+    "K_eig": [
+     9.227,
+     27.589
+    ],
+    "K_max": 27.589,
+    "install_moment_if_not_preformed_XY_Nm": 0.612,
+    "install_moment_total_Nm": 12.048
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 15.0,
+    "tee.side_aim": -14.0,
+    "R_min_plan": 41.5,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 182.0,
+   "sweep_deg": 206.1,
+   "r_range_mm": [
+    42.7,
+    57.4
+   ],
+   "Rmin_installed_mm": 39.8,
+   "wall_alpha_deg": -38.8,
+   "wall_L2_mm": 19.7,
+   "wall_len_mm": 303.6,
+   "wall_clr_stop_mm": 2.76,
+   "wall_worst": [
+    340.0,
+    [
+     57.4,
+     -16.5,
+     48.4
+    ],
+    0.754
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 33.8,
+   "ferrule_A_to_case_static_mm": 1.97,
+   "hose_to_case_static_mm": 3.41,
+   "Q_r_az_mm_deg": [
+    42.7,
+    146.1
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      9.505,
+      5.262
+     ],
+     [
+      5.262,
+      11.019
+     ]
+    ],
+    "K_eig": [
+     4.946,
+     15.578
+    ],
+    "K_max": 15.578,
+    "install_moment_if_not_preformed_XY_Nm": 0.344,
+    "install_moment_total_Nm": 6.014
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      19.009,
+      10.524
+     ],
+     [
+      10.524,
+      22.037
+     ]
+    ],
+    "K_eig": [
+     9.891,
+     31.155
+    ],
+    "K_max": 31.155,
+    "install_moment_if_not_preformed_XY_Nm": 0.688,
+    "install_moment_total_Nm": 12.028
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 15.0,
+    "tee.side_aim": -14.0,
+    "R_min_plan": 44.0,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 185.9,
+   "sweep_deg": 206.1,
+   "r_range_mm": [
+    42.7,
+    57.9
+   ],
+   "Rmin_installed_mm": 42.4,
+   "wall_alpha_deg": -38.8,
+   "wall_L2_mm": 19.7,
+   "wall_len_mm": 303.6,
+   "wall_clr_stop_mm": 1.46,
+   "wall_worst": [
+    340.0,
+    [
+     60.0,
+     -11.2,
+     49.1
+    ],
+    0.726
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 35.9,
+   "ferrule_A_to_case_static_mm": 1.97,
+   "hose_to_case_static_mm": 3.41,
+   "Q_r_az_mm_deg": [
+    42.7,
+    146.1
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      8.818,
+      4.712
+     ],
+     [
+      4.712,
+      10.354
+     ]
+    ],
+    "K_eig": [
+     4.812,
+     14.36
+    ],
+    "K_max": 14.36,
+    "install_moment_if_not_preformed_XY_Nm": 0.325,
+    "install_moment_total_Nm": 5.677
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      17.636,
+      9.423
+     ],
+     [
+      9.423,
+      20.708
+     ]
+    ],
+    "K_eig": [
+     9.625,
+     28.72
+    ],
+    "K_max": 28.72,
+    "install_moment_if_not_preformed_XY_Nm": 0.649,
+    "install_moment_total_Nm": 11.355
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 15.0,
+    "tee.side_aim": -14.0,
+    "R_min_plan": 41.5,
+    "r_max": 56.0,
+    "r_pref": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 183.8,
+   "sweep_deg": 206.1,
+   "r_range_mm": [
+    42.7,
+    60.6
+   ],
+   "Rmin_installed_mm": 38.4,
+   "wall_alpha_deg": -38.8,
+   "wall_L2_mm": 19.7,
+   "wall_len_mm": 303.6,
+   "wall_clr_stop_mm": 0.56,
+   "wall_worst": [
+    340.0,
+    [
+     57.9,
+     -22.0,
+     47.3
+    ],
+    0.823
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 32.9,
+   "ferrule_A_to_case_static_mm": 1.97,
+   "hose_to_case_static_mm": 3.41,
+   "Q_r_az_mm_deg": [
+    42.7,
+    146.1
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      8.959,
+      5.485
+     ],
+     [
+      5.485,
+      12.09
+     ]
+    ],
+    "K_eig": [
+     4.821,
+     16.229
+    ],
+    "K_max": 16.229,
+    "install_moment_if_not_preformed_XY_Nm": 0.335,
+    "install_moment_total_Nm": 3.187
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      17.918,
+      10.97
+     ],
+     [
+      10.97,
+      24.18
+     ]
+    ],
+    "K_eig": [
+     9.642,
+     32.457
+    ],
+    "K_max": 32.457,
+    "install_moment_if_not_preformed_XY_Nm": 0.67,
+    "install_moment_total_Nm": 6.374
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 15.0,
+    "tee.side_aim": -18.0,
+    "R_min_plan": 41.5,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 176.5,
+   "sweep_deg": 206.0,
+   "r_range_mm": [
+    40.9,
+    57.4
+   ],
+   "Rmin_installed_mm": 39.5,
+   "wall_alpha_deg": -38.8,
+   "wall_L2_mm": 19.7,
+   "wall_len_mm": 303.6,
+   "wall_clr_stop_mm": 2.55,
+   "wall_worst": [
+    340.0,
+    [
+     57.6,
+     -16.5,
+     48.5
+    ],
+    0.746
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 33.3,
+   "ferrule_A_to_case_static_mm": 0.44,
+   "hose_to_case_static_mm": 1.69,
+   "Q_r_az_mm_deg": [
+    40.9,
+    146.0
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      10.273,
+      5.818
+     ],
+     [
+      5.818,
+      12.103
+     ]
+    ],
+    "K_eig": [
+     5.299,
+     17.077
+    ],
+    "K_max": 17.077,
+    "install_moment_if_not_preformed_XY_Nm": 0.378,
+    "install_moment_total_Nm": 5.901
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      20.545,
+      11.635
+     ],
+     [
+      11.635,
+      24.205
+     ]
+    ],
+    "K_eig": [
+     10.597,
+     34.153
+    ],
+    "K_max": 34.153,
+    "install_moment_if_not_preformed_XY_Nm": 0.755,
+    "install_moment_total_Nm": 11.802
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 15.0,
+    "tee.side_aim": -18.0,
+    "R_min_plan": 44.0,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 180.5,
+   "sweep_deg": 206.0,
+   "r_range_mm": [
+    40.9,
+    57.9
+   ],
+   "Rmin_installed_mm": 42.0,
+   "wall_alpha_deg": -38.8,
+   "wall_L2_mm": 19.7,
+   "wall_len_mm": 303.6,
+   "wall_clr_stop_mm": 1.25,
+   "wall_worst": [
+    340.0,
+    [
+     60.4,
+     -10.4,
+     49.3
+    ],
+    0.705
+   ],
+   "ring_clr_stop_mm": 7.35,
+   "Rmin_stop_mm": 35.3,
+   "ferrule_A_to_case_static_mm": 0.44,
+   "hose_to_case_static_mm": 1.69,
+   "Q_r_az_mm_deg": [
+    40.9,
+    146.0
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      9.417,
+      5.101
+     ],
+     [
+      5.101,
+      11.273
+     ]
+    ],
+    "K_eig": [
+     5.161,
+     15.53
+    ],
+    "K_max": 15.53,
+    "install_moment_if_not_preformed_XY_Nm": 0.353,
+    "install_moment_total_Nm": 5.607
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      18.834,
+      10.201
+     ],
+     [
+      10.201,
+      22.546
+     ]
+    ],
+    "K_eig": [
+     10.321,
+     31.059
+    ],
+    "K_max": 31.059,
+    "install_moment_if_not_preformed_XY_Nm": 0.706,
+    "install_moment_total_Nm": 11.213
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 15.0,
+    "tee.side_aim": -18.0,
+    "R_min_plan": 41.5,
+    "r_max": 56.0,
+    "r_pref": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 188.5,
+   "sweep_deg": 206.0,
+   "r_range_mm": [
+    40.9,
+    61.6
+   ],
+   "Rmin_installed_mm": 31.9,
+   "wall_alpha_deg": -38.8,
+   "wall_L2_mm": 19.7,
+   "wall_len_mm": 303.6,
+   "wall_clr_stop_mm": 0.61,
+   "wall_worst": [
+    340.0,
+    [
+     46.7,
+     -40.6,
+     46.9
+    ],
+    0.921
+   ],
+   "ring_clr_stop_mm": 7.37,
+   "Rmin_stop_mm": 28.5,
+   "ferrule_A_to_case_static_mm": 0.44,
+   "hose_to_case_static_mm": 1.69,
+   "Q_r_az_mm_deg": [
+    40.9,
+    146.0
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      9.48,
+      5.043
+     ],
+     [
+      5.043,
+      9.922
+     ]
+    ],
+    "K_eig": [
+     4.653,
+     14.749
+    ],
+    "K_max": 14.749,
+    "install_moment_if_not_preformed_XY_Nm": 0.31,
+    "install_moment_total_Nm": 0.344
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      18.96,
+      10.086
+     ],
+     [
+      10.086,
+      19.844
+     ]
+    ],
+    "K_eig": [
+     9.307,
+     29.497
+    ],
+    "K_max": 29.497,
+    "install_moment_if_not_preformed_XY_Nm": 0.62,
+    "install_moment_total_Nm": 0.688
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 15.0,
+    "tee.side_aim": -10.0,
+    "R_min_plan": 41.5,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 188.5,
+   "sweep_deg": 206.4,
+   "r_range_mm": [
+    44.3,
+    57.4
+   ],
+   "Rmin_installed_mm": 40.1,
+   "wall_alpha_deg": -38.8,
+   "wall_L2_mm": 19.7,
+   "wall_len_mm": 303.6,
+   "wall_clr_stop_mm": 2.98,
+   "wall_worst": [
+    340.0,
+    [
+     56.4,
+     -19.1,
+     48.0
+    ],
+    0.778
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 34.4,
+   "ferrule_A_to_case_static_mm": 3.09,
+   "hose_to_case_static_mm": 5.07,
+   "Q_r_az_mm_deg": [
+    44.3,
+    146.4
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      8.697,
+      4.65
+     ],
+     [
+      4.65,
+      9.882
+     ]
+    ],
+    "K_eig": [
+     4.602,
+     13.977
+    ],
+    "K_max": 13.977,
+    "install_moment_if_not_preformed_XY_Nm": 0.311,
+    "install_moment_total_Nm": 6.015
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      17.394,
+      9.3
+     ],
+     [
+      9.3,
+      19.763
+     ]
+    ],
+    "K_eig": [
+     9.203,
+     27.954
+    ],
+    "K_max": 27.954,
+    "install_moment_if_not_preformed_XY_Nm": 0.623,
+    "install_moment_total_Nm": 12.031
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 15.0,
+    "tee.side_aim": -10.0,
+    "R_min_plan": 44.0,
+    "r_max": 58.0,
+    "r_pref": 54.5
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 193.0,
+   "sweep_deg": 206.4,
+   "r_range_mm": [
+    44.3,
+    57.9
+   ],
+   "Rmin_installed_mm": 43.0,
+   "wall_alpha_deg": -38.8,
+   "wall_L2_mm": 19.7,
+   "wall_len_mm": 303.6,
+   "wall_clr_stop_mm": 1.76,
+   "wall_worst": [
+    340.0,
+    [
+     60.0,
+     -9.3,
+     49.1
+    ],
+    0.723
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 36.4,
+   "ferrule_A_to_case_static_mm": 3.09,
+   "hose_to_case_static_mm": 5.07,
+   "Q_r_az_mm_deg": [
+    44.3,
+    146.4
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      8.01,
+      4.075
+     ],
+     [
+      4.075,
+      9.163
+     ]
+    ],
+    "K_eig": [
+     4.471,
+     12.702
+    ],
+    "K_max": 12.702,
+    "install_moment_if_not_preformed_XY_Nm": 0.289,
+    "install_moment_total_Nm": 5.668
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      16.019,
+      8.15
+     ],
+     [
+      8.15,
+      18.326
+     ]
+    ],
+    "K_eig": [
+     8.942,
+     25.404
+    ],
+    "K_max": 25.404,
+    "install_moment_if_not_preformed_XY_Nm": 0.578,
+    "install_moment_total_Nm": 11.335
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  },
+  {
+   "params": {
+    "ferrule.len": 15.0,
+    "tee.side_aim": -10.0,
+    "R_min_plan": 41.5,
+    "r_max": 56.0,
+    "r_pref": 52.0
+   },
+   "feasible": true,
+   "plan_opt_ok": false,
+   "length_mm": 182.4,
+   "sweep_deg": 206.4,
+   "r_range_mm": [
+    44.3,
+    57.7
+   ],
+   "Rmin_installed_mm": 39.7,
+   "wall_alpha_deg": -38.8,
+   "wall_L2_mm": 19.7,
+   "wall_len_mm": 303.6,
+   "wall_clr_stop_mm": 2.26,
+   "wall_worst": [
+    350.0,
+    [
+     59.5,
+     -9.5,
+     48.3
+    ],
+    0.754
+   ],
+   "ring_clr_stop_mm": 7.36,
+   "Rmin_stop_mm": 33.6,
+   "ferrule_A_to_case_static_mm": 3.09,
+   "hose_to_case_static_mm": 5.07,
+   "Q_r_az_mm_deg": [
+    44.3,
+    146.4
+   ],
+   "EI=0.25": {
+    "K": [
+     [
+      8.988,
+      5.474
+     ],
+     [
+      5.474,
+      12.146
+     ]
+    ],
+    "K_eig": [
+     4.87,
+     16.264
+    ],
+    "K_max": 16.264,
+    "install_moment_if_not_preformed_XY_Nm": 0.343,
+    "install_moment_total_Nm": 6.01
+   },
+   "EI=0.5": {
+    "K": [
+     [
+      17.976,
+      10.947
+     ],
+     [
+      10.947,
+      24.291
+     ]
+    ],
+    "K_eig": [
+     9.741,
+     32.527
+    ],
+    "K_max": 32.527,
+    "install_moment_if_not_preformed_XY_Nm": 0.685,
+    "install_moment_total_Nm": 12.021
+   },
+   "gates": {
+    "wall_3mm": false,
+    "ring_3mm": true,
+    "MBR_39": false,
+    "ENG07_vector_EI0.5_7V4": false,
+    "ENG07_scalar_EI0.5_7V4": false
+   }
+  }
+ ],
+ "case_r_mm": 31.75,
+ "tag": "DERIVED (linear frame on CAD route candidates; EI ASSUMED; ferrule lengths are candidate COTS values TO-VERIFY)",
+ "t_s": 28.9
+}

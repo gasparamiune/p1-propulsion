@@ -1,0 +1,209 @@
+"""Driver for the 2-D axisymmetric thermal FE runs (04-fea/thermal, v1, 2026-10-12, Mechanical).
+
+Usage:  python -u run_thermal.py --dc DC-B1_gncv2 --bound hi --level 1.4 [--aft SS316L|AL6061-T6] [--soak 3600] [--tag x]
+Writes runs/thermal/<label>/ : <label>.inp/.dat/.frd/.log, <label>_meta.json, monitors.csv, envelope.json, summary.json.
+v1.1 (2026-10-13): --g_n2o_coast W/K (coast N2O bore conductance sensitivity); --mat PN=MATERIAL replaces the engmat material of one part after the section is cut (lead 2026-10-13:
+ENG-TC-03 seat insert -> Inconel 718, engmat v1.1 "IN718"; emissivity 0.40 / mesh size 0.5 as 17-4PH, ASSUMED).
+v1.2 (2026-10-13): --ovs KEY=STRING config overrides (CAD v3.4.1 nozzle joint J1: nozzle_joint=J1, insert_sleeve_material=CARBON-PHENOLIC,
+tc03_material=IN718); J1 monitors (NZ-04 seal, NZ-03 hot-layer top, lip top at the bore edge, second T1 lip well).
+"""
+from __future__ import annotations
+import sys, json, math, time, argparse
+from pathlib import Path
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import ax_thermal as at
+
+BOUNDS = {
+    "nom": {"HMUL_ch": 1.0, "HMUL_nz": 1.0, "QMUL": "lo",
+            "tag": "Bartz x1 everywhere, gas radiation LOW band (Combustion headend_bc 'x1')"},
+    "hi": {"HMUL_ch": 2.0, "HMUL_nz": 1.3, "QMUL": "hi",
+           "tag": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band"},
+}
+
+
+def monitors(info):
+    i = info
+    zf, zt, zb = i["inj_face"], i["head_top"], i["bonnet_top"]
+    zpre = 0.5 * (zf + i["grain_top"])
+    return {
+        "T1_face_disc_back": (18.0, zf + 2.0, "ENG-TC-10"),
+        "T1_head_top_bracket_foot": (25.5, zt, "ENG-TC-02"),
+        "head_top_r12": (12.5, zt, "ENG-TC-02"),
+        "bonnet_top": (12.0, zb, "ENG-TC-04"),
+        "bonnet_rod_seal": (4.5, zb - 9.0, "ENG-TC-04"),
+        "bonnet_face_oring": (7.3, zt, "ENG-TC-04"),
+        "head_oring_lower": (25.9, 118.0, "ENG-TC-02"),
+        "head_oring_upper": (25.9, 126.5, "ENG-TC-02"),
+        "head_bore_N2O": (5.05, 150.0, "ENG-TC-02"),
+        "insert_TC03_seat": (2.8, i["z_seat"], "ENG-TC-03"),
+        "insert_TC03_face": (5.0, zf, "ENG-TC-03"),
+        "TC06_hot_face": (i["r_pre"], zpre, "ENG-TC-06"),
+        "case_pre_inner": (28.6, zpre, "ENG-TC-01"),
+        "case_pre_outer": (31.75, zpre, "ENG-TC-01"),
+        "case_grain_mid": (28.6, 0.0, "ENG-TC-01"),
+        "liner_hot_face_mid": (26.98, 0.0, "ENG-TC-07"),
+        "grain_web_outer_mid": (26.7, 0.0, "ENG-GR"),
+        "case_aft_inner": (28.6, i["tube_aft"] + 2.0, "ENG-TC-01"),
+        "aft_land_oring": (30.45, i["tube_aft"] + 2.0 + 2.4, "ENG-TC-01"),
+        "TC08_hot_face": (i["r_post"], -170.0, "ENG-TC-08"),
+        "TC08_back": (30.4, -170.0, "ENG-TC-08"),
+        "TC09_barrel": (31.5, -170.0, "ENG-TC-09"),
+        "TC09_step": (31.0, i["aft_step"] - 1.0, "ENG-TC-09"),
+        "T1_TC09_lip_well": (21.0, i["aft_bottom"] + 2.5, "ENG-TC-09"),
+        "NZ01_throat": (i["rt"], i["throat"], "ENG-NZ-01"),
+        "NZ01_OD": (22.0, -210.0, "ENG-NZ-01"),
+        "NZ03_mica": (20.0, i["lip_top"] + 0.5, "ENG-NZ-03"),
+        # v1.2 (CAD v3.4.1 J1): seal mid-plane near the spigot and mid-radius, hot-layer top (shoulder side), lip top at the bore edge, second T1 well
+        "NZ04_seal_r16": (16.0, i["lip_top"] + 0.25, "ENG-NZ-04"),
+        "NZ04_seal_r20": (20.0, i["lip_top"] + 0.25, "ENG-NZ-04"),
+        "NZ03_hot_top_r16": (16.0, i["insert_shoulder"] - 0.05, "ENG-NZ-03"),
+        "TC09_lip_top_bore_edge": (15.4, i["lip_top"], "ENG-TC-09"),
+        "T1_TC09_lip_bore_well": (17.5, i["aft_bottom"] + 5.0, "ENG-TC-09"),
+    }
+
+
+def postprocess(out_dir, label, m, meta):
+    mon = meta["monitors"]
+    dat = out_dir / f"{label}.dat"
+    hist = at.read_monitors(dat, [(n, k, r, z, pn) for n, k, r, z, pn in mon])
+    names = [n for n, *_ in mon]
+    t = hist[names[0]][0]
+    with open(out_dir / "monitors.csv", "w") as f:
+        f.write("# monitor temperatures (K) vs total time (s); node positions in " + f"{label}_meta.json\n")
+        f.write("t_s," + ",".join(names) + "\n")
+        for k in range(len(t)):
+            f.write(f"{t[k]:.4f}," + ",".join(f"{hist[n][1][k]:.3f}" for n in names) + "\n")
+    t_last = meta["t_last_shutdown_s"]
+    summ = {}
+    for n in names:
+        tt, TT = hist[n]
+        fl = tt <= t_last + 1e-6
+        k = int(np.argmax(TT))
+        kf = int(np.argmax(np.where(fl, TT, -1)))
+        summ[n] = {"T_max_K": round(float(TT[k]), 2), "t_max_s": round(float(tt[k]), 2), "T_max_C": round(float(TT[k]) - 273.15, 1),
+                   "T_max_flight_C": round(float(TT[kf]) - 273.15, 1), "t_max_flight_s": round(float(tt[kf]), 2),
+                   "T_end_C": round(float(TT[-1]) - 273.15, 1)}
+        segs = meta["segments_s"]
+        if len(segs) > 1:            # temperature at relight (start of the last burn)
+            kr = int(np.argmin(np.abs(tt - segs[-1][0])))
+            summ[n]["T_relight_C"] = round(float(TT[kr]) - 273.15, 1)
+    # per-part envelope from the frd (sampled time points)
+    E = m["E"]
+    parts = sorted(set(m["pn"]))
+    pnodes = {pn: np.unique(E[m["pn"] == pn]) for pn in parts}
+    Tmax = None
+    tser = []
+    pser = {pn: [] for pn in parts}
+    for tt, vals in at.read_frd_nt(out_dir / f"{label}.frd"):
+        if Tmax is None:
+            Tmax = np.full(len(m["X"]), -1.0)
+            tmax = np.zeros(len(m["X"]))
+        v = np.full(len(m["X"]), np.nan)
+        ids = np.fromiter(vals.keys(), int) - 1
+        v[ids] = np.fromiter(vals.values(), float)
+        upd = v > Tmax
+        Tmax[upd] = v[upd]
+        tmax[upd] = tt
+        tser.append(tt)
+        for pn in parts:
+            pser[pn].append(float(np.nanmax(v[pnodes[pn]])))
+    env = {}
+    if Tmax is not None:
+        for pn in parts:
+            nn = pnodes[pn]
+            k = nn[int(np.argmax(Tmax[nn]))]
+            ser = np.array(pser[pn])
+            tser_a = np.array(tser)
+            fl = tser_a <= t_last + 1e-6
+            env[pn] = {"T_max_C": round(float(Tmax[k]) - 273.15, 1), "t_max_s": round(float(tmax[k]), 1), "at_r_z_mm": [round(float(m["X"][k, 0]), 2), round(float(m["X"][k, 1]), 2)],
+                       "T_max_in_flight_C": round(float(ser[fl].max()) - 273.15, 1) if fl.any() else None,
+                       "T_max_soak_C": round(float(ser[~fl].max()) - 273.15, 1) if (~fl).any() else None}
+        np.savez_compressed(out_dir / "envelope_nodes.npz", Tmax=Tmax, tmax=tmax, X=m["X"], E=E, pn=m["pn"], mat=m["mat"],
+                            t_frames=np.array(tser), part_series=np.array([pser[pn] for pn in parts]), parts=np.array(parts))
+    (out_dir / "envelope.json").write_text(json.dumps({"note": "per-part maximum over the frd time points (0.5 s in flight, 1-20 s in the soak)",
+                                                         "parts": env}, indent=1))
+    return summ, env
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dc", default="DC-B1_gncv2")
+    ap.add_argument("--bound", default="hi", choices=list(BOUNDS))
+    ap.add_argument("--level", type=float, default=1.4)
+    ap.add_argument("--aft", default="SS316L")
+    ap.add_argument("--aft_wall_t", type=float, default=None, help="m, override aft_wall_t (Al variant)")
+    ap.add_argument("--soak", type=float, default=3600.0)
+    ap.add_argument("--dt_burn", type=float, default=None)
+    ap.add_argument("--k_phen", type=float, default=1.0, help="phenolic conductivity scale (char sensitivity)")
+    ap.add_argument("--tag", default="")
+    ap.add_argument("--threads", type=int, default=1)
+    ap.add_argument("--no_run", action="store_true")
+    ap.add_argument("--ov", action="append", default=[], help="config override KEY=VALUE (SI), e.g. D_pre=0.0499 (TC-06 sizing); repeatable")
+    ap.add_argument("--ovs", action="append", default=[], help="v1.2: string-valued config override KEY=VALUE, e.g. nozzle_joint=J1, "
+                    "insert_sleeve_material=CARBON-PHENOLIC, tc03_material=IN718 (CAD v3.4.1); repeatable")
+    ap.add_argument("--mat", action="append", default=[], help="part material override PN=MATERIAL (engmat key), e.g. ENG-TC-03=IN718; repeatable")
+    ap.add_argument("--g_n2o_coast", type=float, default=None, help="W/K, static-N2O conductance of the manifold bore in coasts "
+                    "(default ax_thermal G_N2O_COAST 1 W/K, Combustion); a high value bounds the heat drawn into trapped liquid")
+    ap.add_argument("--hmul_ch", type=float, default=None, help="override the chamber Bartz multiplier of the bound (e.g. D-corrected hi bound)")
+    a = ap.parse_args()
+    if a.dt_burn:
+        at.DT_BURN = a.dt_burn
+    if a.g_n2o_coast is not None:
+        at.G_N2O_COAST = a.g_n2o_coast * 1e3          # W/K -> mW/K (model units)
+    label = f"{a.dc}_{a.bound}_{a.aft.split('-')[0]}_L{a.level:g}" + (f"_{a.tag}" if a.tag else "")
+    out_dir = at.RUNS / label
+    out_dir.mkdir(parents=True, exist_ok=True)
+    t0 = time.time()
+    rp, src = at.end_port_radius(a.dc)
+    ov = {"aft_wall_t": a.aft_wall_t} if a.aft_wall_t else {}
+    for kv in a.ov:
+        k, val = kv.split("=")
+        ov[k] = float(val)
+    for kv in a.ovs:
+        k, val = kv.split("=")
+        ov[k] = val
+    ov = ov or None
+    faces, info = at.faces_model(aft_material=a.aft, r_port=rp, overrides=ov)
+    matov = dict(kv.split("=") for kv in a.mat)
+    for f in faces:
+        if f["pn"] in matov:
+            f["material"] = matov[f["pn"]]
+    missing = set(matov) - {f["pn"] for f in faces}
+    if missing:
+        raise SystemExit(f"--mat part(s) not in the section: {sorted(missing)}")
+    m = at.mesh(faces, info, level=a.level, workdir=out_dir / "mesh")
+    ed = at.boundary_edges(m)
+    bnd = dict(BOUNDS[a.bound])
+    if a.hmul_ch is not None:
+        bnd["HMUL_ch"] = a.hmul_ch
+        bnd["tag"] += f"; HMUL_ch overridden to {a.hmul_ch}"
+    case = dict(bnd, dc=a.dc, label=label, soak_s=a.soak, monitors=monitors(info),
+                k_scale={"PHENOLIC": a.k_phen} if a.k_phen != 1.0 else {})
+    inp, meta = at.write_case(case, m, ed, info, out_dir)
+    meta.update({"r_port_end_mm": rp, "dc_history": str(src), "level": a.level, "aft_material": a.aft, "aft_wall_t_override": a.aft_wall_t,
+                 "overlaps": m["overlaps"], "t_prep_s": round(time.time() - t0, 1), "dt_burn": at.DT_BURN, "bound": bnd,
+                 "config_overrides": ov, "material_overrides": matov, "G_N2O_COAST_W_K": at.G_N2O_COAST * 1e-3})
+    print(label, "nodes", meta["n_nodes"], "elems", meta["n_elems"], "edges", meta["n_edges"], "r_port", round(rp, 2), "prep", meta["t_prep_s"], "s", flush=True)
+    if a.no_run:
+        (out_dir / f"{label}_meta.json").write_text(json.dumps(meta, indent=1, default=str))
+        return
+    r = at.run(inp, threads=a.threads)
+    meta["ccx"] = r
+    print("ccx", r, flush=True)
+    summ, env = postprocess(out_dir, label, m, meta)
+    meta["summary_monitors"] = summ
+    meta["envelope"] = env
+    (out_dir / f"{label}_meta.json").write_text(json.dumps(meta, indent=1, default=str))
+    (out_dir / "summary.json").write_text(json.dumps({"label": label, "monitors": summ, "envelope": env, "ccx": r}, indent=1))
+    for k, v in summ.items():
+        print(f"  {k:28s} max {v['T_max_C']:7.1f} C at {v['t_max_s']:8.1f} s  flight {v['T_max_flight_C']:7.1f}" +
+              (f"  relight {v['T_relight_C']:6.1f}" if "T_relight_C" in v else ""))
+    for k, v in env.items():
+        print(f"  ENV {k:12s} {v['T_max_C']:7.1f} C at {v['t_max_s']:8.1f} s  (r,z) {v['at_r_z_mm']}  flight {v['T_max_in_flight_C']}  soak {v['T_max_soak_C']}")
+
+
+if __name__ == "__main__":
+    main()

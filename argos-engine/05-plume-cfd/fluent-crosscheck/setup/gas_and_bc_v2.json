@@ -1,0 +1,63 @@
+{
+ "version": "v2",
+ "date": "2026-10-12",
+ "operating_point": {
+  "thrust_N": 500.0,
+  "Pc_Pa": 2499311.0,
+  "OF": 7.76,
+  "note": "combustion.json v1 max-thrust point (O/F 7.76); the v2 grain runs O/F ~10.5 at max with the nominal law (inside the regression band 7-15): the plume CFD stays at the v1 point (see 05-plume-cfd/REPORT.md)"
+ },
+ "exhaust": {
+  "model": "calorically perfect ideal gas calibrated on CEA (shifting) so that pe/pc at eps 2 matches CEA",
+  "gamma": 1.1367624322348118,
+  "R_J_kgK": 296.9308481756402,
+  "molecular_weight_kg_kmol": 28.001343306310286,
+  "cp_J_kgK": 2468.074219374466,
+  "viscosity_Pa_s": 0.0001004,
+  "thermal_conductivity_W_mK": 0.35756803986319824,
+  "transport_note": "CEA frozen chamber values (thermal_bc_max_v1.csv header); irrelevant for the inviscid case, negligible against turbulent transport in the plume",
+  "T0_K": 2844.866404159714,
+  "T0_note": "delivered stagnation temperature eta_c*^2 Tc with eta_c* 0.92 (Tc CEA 3361 K)",
+  "cstar_delivered_m_s": 1445.2124953462032
+ },
+ "air": {
+  "gamma": 1.4,
+  "R_J_kgK": 287.05,
+  "molecular_weight_kg_kmol": 28.965206821111302,
+  "cp_J_kgK": 1004.675,
+  "viscosity_Pa_s": 1.79e-05,
+  "thermal_conductivity_W_mK": 0.0253
+ },
+ "mixture": {
+  "species": [
+   "exhaust",
+   "air"
+  ],
+  "density": "ideal-gas (mixture R = sum Y_i R_i)",
+  "cp": "mixing-law (mass weighted)",
+  "reactions": "none (frozen): afterburning is a post-processed fast-chemistry estimate in the own solver",
+  "turbulent_Schmidt": 0.7,
+  "turbulent_Prandtl": 0.7
+ },
+ "inlet": {
+  "location_x_mm": -19.333500000000004,
+  "area_ratio": 2.56,
+  "total_pressure_Pa": 2499311.0,
+  "total_temperature_K": 2844.866404159714,
+  "Y_exhaust": 1.0,
+  "M_estimate": 0.24028132315017994,
+  "static_pressure_estimate_Pa": 2418782.0958387107,
+  "static_temperature_estimate_K": 2833.679046861604,
+  "direction": "own solver: flow angle varies linearly from 0 on the axis to -45 deg (convergent wall angle) at the wall; Fluent: normal-to-boundary is acceptable (difference confined to the convergent)"
+ },
+ "ambient": {
+  "p_Pa": 101325.0,
+  "T_K": 288.15,
+  "coflow_velocity_m_s": 5.0,
+  "Y_exhaust": 0.0
+ },
+ "expected": {
+  "mdot_throat_kg_s_own_medium": 0.25397,
+  "thrust_exit_N_own_medium": 500.6
+ }
+}

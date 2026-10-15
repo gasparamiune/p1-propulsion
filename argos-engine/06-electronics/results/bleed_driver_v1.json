@@ -1,0 +1,238 @@
+{
+ "id": "bleed_driver",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "electronics",
+ "inputs": {
+  "firmware": {
+   "kPurgeRelight_s": 2.9,
+   "kPurgeFlow_s": 2.5,
+   "kPurgeFlowEndLead_s": 0.05,
+   "kHbleedOpenTime_s": 0.03,
+   "kHbleedCloseTime_s": 0.08,
+   "kHbleedPathBy_s": 0.1,
+   "kHbleedVentMax_s": 0.03,
+   "kFcPurgeEnLead_s": 0.02,
+   "kPurgeFlowStart_s": 0.3500000000000001,
+   "kHbleedCap_s": 2.61
+  },
+  "ltc6993": {
+   "equation": "tOUT = NDIV x RSET / 50k x 1 us",
+   "rset_range_ohm": [
+    50000.0,
+    800000.0
+   ],
+   "ndiv_divcode7": 2097152,
+   "divcode7_R1_R2_ohm": [
+    1000000.0,
+    887000.0
+   ],
+   "err_max_25C": 0.023,
+   "err_max_grade": 0.03,
+   "rset_tol": 0.001,
+   "startup": "OUT held low for 500 tMASTER; POL 0 stays low",
+   "variant": "-1 rising edge, non-retriggerable"
+  },
+  "mdot_comb_g_s": 29.2,
+  "mdot_sil_g_s": 31.44,
+  "mass_limit_g": 76.0
+ },
+ "hardware_window": {
+  "rset_ohm": 75000.0,
+  "t_nom_s": 3.1457,
+  "error_total": 0.031,
+  "t_min_s": 3.0482,
+  "t_max_s": 3.2432,
+  "rset_in_range": true,
+  "powered_span_needed_s": 3.0,
+  "powered_span_nominal_s": 2.88,
+  "margin_min_s": 0.048,
+  "covers": true,
+  "cap_equal_window_would_cut_flow": true,
+  "basis": "DERIVED from config.h v2.10 schedule + DATASHEET LTC6993 Rev F"
+ },
+ "purge_mass": {
+  "rows": [
+   {
+    "case": "nominal 2.5 s flow",
+    "flow_s": 2.5,
+    "mass_comb_basis_g": 73.0,
+    "mass_sil_basis_g": 78.6,
+    "le_76g_comb": true,
+    "le_76g_sil": false
+   },
+   {
+    "case": "firmware cap (both open 2.61 s)",
+    "flow_s": 2.66,
+    "mass_comb_basis_g": 77.7,
+    "mass_sil_basis_g": 83.6,
+    "le_76g_comb": false,
+    "le_76g_sil": false
+   },
+   {
+    "case": "hardware window bound (both open t_max)",
+    "flow_s": 3.293,
+    "mass_comb_basis_g": 96.2,
+    "mass_sil_basis_g": 103.5,
+    "le_76g_comb": false,
+    "le_76g_sil": false
+   }
+  ],
+  "flow_for_76g_comb_s": 2.603,
+  "powered_both_open_for_76g_comb_s": 2.553,
+  "basis": "COMB 29.2 g/s (lead l.166 (3)) and SIL 31.44 g/s (S12 nominal); valve times ASSUMED 30/80 ms",
+  "quantity": "VENTED N2O (vehicle-level mass leaving through the bleed; the 76 g limit applies to it). Tank LIQUID depletion is larger: 81.6 g at 73.0 g vented, 8.6 g boils into the ullage (LEAD CHANGELOG 181 (10)); tank-outlet coverage checks use the liquid figure"
+ },
+ "valve_kv": {
+  "restrictor_equivalent_d_mm": 1.0,
+  "cd_assumed": 0.7,
+  "kv_restriction_m3h": 0.028,
+  "kv_valve_min_m3h_4x": 0.112,
+  "seat_force_2mm_55bar_N": 17.3,
+  "candidate_A_burkert_6027_1p5mm_kv_m3h": 0.07,
+  "candidate_A_meets_kv": false,
+  "basis": "DERIVED (incompressible water-equivalent Kv; flashing N2O changes the real capacity: B-BLEED-1 measures)"
+ },
+ "fast_release_clamp": {
+  "vds_peak_V": 42.0,
+  "vds_ok_60V": true,
+  "tvs_single_pulse_energy_J": 0.576,
+  "rows": [
+   {
+    "L_mH": 10.0,
+    "I_release_A": 0.5,
+    "E_tvs_mJ": 1.23,
+    "t_release_ms": 0.17,
+    "within_single_pulse_rating": true,
+    "fet_current_ok": true
+   },
+   {
+    "L_mH": 10.0,
+    "I_release_A": 1.0,
+    "E_tvs_mJ": 4.92,
+    "t_release_ms": 0.33,
+    "within_single_pulse_rating": true,
+    "fet_current_ok": true
+   },
+   {
+    "L_mH": 10.0,
+    "I_release_A": 2.0,
+    "E_tvs_mJ": 19.67,
+    "t_release_ms": 0.67,
+    "within_single_pulse_rating": true,
+    "fet_current_ok": true
+   },
+   {
+    "L_mH": 10.0,
+    "I_release_A": 10.0,
+    "E_tvs_mJ": 491.67,
+    "t_release_ms": 3.33,
+    "within_single_pulse_rating": true,
+    "fet_current_ok": false
+   },
+   {
+    "L_mH": 30.0,
+    "I_release_A": 0.5,
+    "E_tvs_mJ": 3.69,
+    "t_release_ms": 0.5,
+    "within_single_pulse_rating": true,
+    "fet_current_ok": true
+   },
+   {
+    "L_mH": 30.0,
+    "I_release_A": 1.0,
+    "E_tvs_mJ": 14.75,
+    "t_release_ms": 1.0,
+    "within_single_pulse_rating": true,
+    "fet_current_ok": true
+   },
+   {
+    "L_mH": 30.0,
+    "I_release_A": 2.0,
+    "E_tvs_mJ": 59.0,
+    "t_release_ms": 2.0,
+    "within_single_pulse_rating": true,
+    "fet_current_ok": true
+   },
+   {
+    "L_mH": 30.0,
+    "I_release_A": 10.0,
+    "E_tvs_mJ": 1475.0,
+    "t_release_ms": 10.0,
+    "within_single_pulse_rating": false,
+    "fet_current_ok": false
+   },
+   {
+    "L_mH": 100.0,
+    "I_release_A": 0.5,
+    "E_tvs_mJ": 12.29,
+    "t_release_ms": 1.67,
+    "within_single_pulse_rating": true,
+    "fet_current_ok": true
+   },
+   {
+    "L_mH": 100.0,
+    "I_release_A": 1.0,
+    "E_tvs_mJ": 49.17,
+    "t_release_ms": 3.33,
+    "within_single_pulse_rating": true,
+    "fet_current_ok": true
+   },
+   {
+    "L_mH": 100.0,
+    "I_release_A": 2.0,
+    "E_tvs_mJ": 196.67,
+    "t_release_ms": 6.67,
+    "within_single_pulse_rating": true,
+    "fet_current_ok": true
+   },
+   {
+    "L_mH": 100.0,
+    "I_release_A": 10.0,
+    "E_tvs_mJ": 4916.67,
+    "t_release_ms": 33.33,
+    "within_single_pulse_rating": false,
+    "fet_current_ok": false
+   }
+  ],
+  "smaj24a": {
+   "VRWM_V": 24.0,
+   "VBR_min_V": 26.7,
+   "VBR_max_V": 29.5,
+   "VC_max_V": 38.9,
+   "IPP_A": 10.3,
+   "PPP_W_10_1000us": 400.0,
+   "source": "DATASHEET-class (Littelfuse/Vishay SMAJ series table, AS-RECALLED values; TO-VERIFY against the ordered part)"
+  },
+  "dmn6075s": {
+   "VDS_V": 60.0,
+   "ID_A": 2.0,
+   "source": "DATASHEET DS37023 Rev 6-2 (as in ecu_design.py)"
+  },
+  "note": "coil L, R and currents UNKNOWN (valve not selected): parametric screen. Repetitive release (purge per flight, BIT steps) is far below any duty limit at these energies except the 10 A rows"
+ },
+ "high_current_candidate_B": {
+  "listed_current_A": [
+   8.6,
+   10.3
+  ],
+  "power_at_12V_W": [
+   103.2,
+   123.6
+  ],
+  "implications": [
+   "DMN6075S (2.0 A) and the SS14/SMAJ24A clamp are NOT rated for it: channel redesign (FET >= 20 A, clamp >= SMCJ)",
+   "+12V_ARM must source 2 x 10 A peaks: power budget RE-09 and the boost converter rating TO-VERIFY",
+   "peak-and-hold (TI DRV110 class controller with external FET, Rev G 2018; Vs range TO-VERIFY) cuts the hold to the coil's hold current (UNKNOWN)"
+  ],
+  "source": "retail listing jbspowercentre.com 18020BNOS (conflicting 8.6 / 10.3 A), not a datasheet"
+ },
+ "findings": [
+  "hardware window 3.048-3.243 s covers the 3.000 s scheduled powered span (margin 0.048 s)",
+  "a window equal to the 2.61 s both-open cap would cut the schedule (V1 is powered from the PURGE entry for the fill step)",
+  "mass: nominal 73.0 g (COMB basis) / 78.6 g (SIL); firmware cap 77.7 / 83.6 g; hardware bound 96.2 / 103.5 g; limit 76 g",
+  "all masses are VENTED N2O; tank liquid depletion is larger (81.6 g at 73.0 g vented, LEAD CHANGELOG 181 (10))",
+  "to keep the firmware cap inside 76 g on the COMB basis the both-open command must be <= 2.553 s (cap today 2.61 s)",
+  "valve Kv >= 0.112 m3/h (4 x restriction); Burkert 6027 1.5 mm Kv 0.07 fails"
+ ]
+}

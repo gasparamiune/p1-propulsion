@@ -1,0 +1,104 @@
+{
+ "id": "seat_leak_drain",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/seat_leak_drain_v1.py",
+ "inputs": {
+  "V_segment_cm3": 44.0,
+  "seat_d_mm": 5.5,
+  "land_mm": 0.3,
+  "coast_s_ASSUMED": 30.0
+ },
+ "cases": {
+  "15C": {
+   "Psat_bar": 45.04,
+   "rho_l": 820.7,
+   "mu_l_mPas": 0.07,
+   "mass_liquid_full_g": 36.1,
+   "mass_left_at_half_P_g": 2.15,
+   "dm_to_unprime_g": 34.0,
+   "L1_classV": {
+    "water_mL_min": 0.0692,
+    "N2O_liquid_mL_min": 0.989,
+    "mdot_mg_s": 13.53,
+    "equiv_gap_um": 0.379,
+    "N2_gas_same_gap_sccm": 83.4,
+    "t_unprime_s": 2510,
+    "t_unprime_min": 41.8
+   },
+   "L2_debris_15um": {
+    "mdot_mg_s": 76.5,
+    "t_unprime_s": 444,
+    "t_unprime_min": 7.4
+   },
+   "L3_stem_seal_ASSUMED": {
+    "mdot_mg_s": 0.0228,
+    "t_unprime_h": 414.0
+   },
+   "mdot_needed_to_unprime_in_coast_g_s": 1.13
+  },
+  "20C": {
+   "Psat_bar": 50.53,
+   "rho_l": 785.1,
+   "mu_l_mPas": 0.07,
+   "mass_liquid_full_g": 34.5,
+   "mass_left_at_half_P_g": 2.4,
+   "dm_to_unprime_g": 32.1,
+   "L1_classV": {
+    "water_mL_min": 0.0778,
+    "N2O_liquid_mL_min": 1.113,
+    "mdot_mg_s": 14.56,
+    "equiv_gap_um": 0.379,
+    "N2_gas_same_gap_sccm": 105.0,
+    "t_unprime_s": 2208,
+    "t_unprime_min": 36.8
+   },
+   "L2_debris_15um": {
+    "mdot_mg_s": 79.4,
+    "t_unprime_s": 405,
+    "t_unprime_min": 6.8
+   },
+   "L3_stem_seal_ASSUMED": {
+    "mdot_mg_s": 0.0218,
+    "t_unprime_h": 409.0
+   },
+   "mdot_needed_to_unprime_in_coast_g_s": 1.07
+  },
+  "25C": {
+   "Psat_bar": 56.52,
+   "rho_l": 742.9,
+   "mu_l_mPas": 0.07,
+   "mass_liquid_full_g": 32.7,
+   "mass_left_at_half_P_g": 2.67,
+   "dm_to_unprime_g": 30.0,
+   "L1_classV": {
+    "water_mL_min": 0.0872,
+    "N2O_liquid_mL_min": 1.247,
+    "mdot_mg_s": 15.45,
+    "equiv_gap_um": 0.379,
+    "N2_gas_same_gap_sccm": 131.4,
+    "t_unprime_s": 1944,
+    "t_unprime_min": 32.4
+   },
+   "L2_debris_15um": {
+    "mdot_mg_s": 81.7,
+    "t_unprime_s": 367,
+    "t_unprime_min": 6.1
+   },
+   "L3_stem_seal_ASSUMED": {
+    "mdot_mg_s": 0.0206,
+    "t_unprime_h": 404.0
+   },
+   "mdot_needed_to_unprime_in_coast_g_s": 1.0
+  }
+ },
+ "verdict": "leakage cannot unprime the segment within a flight coast: shortest drain 367 s (debris-held seat, liquid, 25 C) vs coast <= 30 s ASSUMED; unpriming in 30 s needs >= ~1 g/s, i.e. a stuck-open seat (an effective hole ~0.1 mm2), which is a pintle failure, not leakage",
+ "acceptance_proposal": {
+  "B-PNT-1 pintle seat": "seat closed by the spiral spring alone (no servo torque), GN2 at 56 bar (Psat 25 C) upstream, chamber side at ambient, RT and after a 150 C soak of the head: <= 10 sccm GN2 (pressure decay or flowmeter on the chamber side); liquid N2O equivalent ~1 mg/s (same gap, viscous) -> > 8 h to unprime 44 cm3 and <= 0.6 g of N2O into the chamber over a 10 min hold (hard-start inventory criterion 20 g)",
+  "B-PNT-1 stem seal": "<= 1 sccm GN2 at 56 bar static, RT and 150 C (spring-energised PTFE class)",
+  "B-MV-1 MV-P seat": "ANSI/FCI 70-2 Class VI with GN2 at 56 bar and at 84.2 bar (MAWP), RT and 60 C (bay soak)",
+  "CF-3": "record P_feed (J602) and the segment TCs during every closed hold: the decay rate gives the in-situ leak (target: no measurable decay over 10 min while liquid remains, consistent with the B-PNT-1 number)",
+  "tag": "DESIGN (proposal for lead approval)"
+ }
+}

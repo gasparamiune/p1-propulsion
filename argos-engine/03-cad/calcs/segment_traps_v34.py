@@ -1,0 +1,660 @@
+"""Retained-vapour trap geometry of the MV-to-seat segment on CAD v3.4 (v1.1, Mechanical, 2026-10-13).
+
+Lead relay 3 item 4 (2026-10-13): "from the v3.4 solids, give the volume and location of every local high point in the MV-to-seat
+path, nozzle-down attitude, that cannot vent upward by buoyancy"; coordinator 2026-10-13: concepts (a) head-end bleed, (d) early MV
+opening under the drogue, smaller segment.  Method:
+  1. The wetted cavity of the segment (closed MV seat -> closed pintle seat) is described by primitives that carry the SAME
+     parameters as the CAD cuts (parts_engine / parts_inlet / parts_feed, CAD v3.4 build with the feed, pivot iterated): drillings
+     (cylinders), tube and hose bores (centreline + radius, flat ends), the TC-03/TC-02/TC-04 manifold bore (revolved profile)
+     minus the parts inside the liquid (needle TC-05, filter element FD-02, MSS-1/MSS-2 sheaths, MV disc, MV rod).  Consistency with
+     the solids is checked: random fluid voxel centres are classified against every wetted CAD solid (should lie outside).
+  2. Voxelisation (h = 0.25 mm), 6-connected graph.  Elevation e = x . u with u = "up" (opposite to the apparent gravity): u = +Z
+     engine axis for the drogue / burn attitude (nozzle down).  Vent = top of the S1 back-relief check passage (MV closed) or the open
+     MV seat orifice (MV open, disc down by the 2.8 mm lift: concept d); both at the zone-top module.  Bores through moving solids
+     (MV balance hole) are kept after the solid exclusions.
+  3. Spill level s(v) = max over paths v -> vent of the minimum elevation on the path (maximin path = path in the maximum spanning
+     tree of the edge weights min(e_a, e_b)).  Vapour at v is trapped when e(v) > s(v): it cannot reach the vent without first
+     going down.  Pockets = connected sets of trapped voxels; local high points = leaves of the merge tree (elder rule) with their
+     own volume above their saddle and the pocket they spill into.
+  4. The filter element (15 um, FD-02) is a capillary barrier for vapour (bubble point ESTIMATE 49-130 mm of liquid at 8 m/s2):
+     analysed as a wall (barrier) and as open (permeable), both reported.
+  5. Tilt sensitivity: up vector tilted 10 and 20 deg in 8 directions (drogue swing / gimbal).
+Output: calcs/segment_traps_v34_v1p1.json (+ _pockets.csv, _Vz.csv); v1 outputs kept as evidence (errors listed in 'supersedes').
+Script v1.2 (2026-10-13): output stem and CAD label from the command line (--stem, --cad); the CAD v3.4.1 coil re-route run is
+`segment_traps_v34.py --stem segment_traps_v341_v1 --cad v3.4.1`; the method is unchanged.
+Script v1.3 (2026-10-13): adds, for every case (nominal and tilted), the retained volume split by flow path / dead end, upstream / downstream
+of the filter element (downstream = the barrier model's isolated region, mapped onto the open-element voxels), and the retained volume inside
+the FD-07 hose bore and its sleeves, with the explicit condition HOSE_OUT_OF_TRAP (coordinator 2026-10-13: a hose inside the trap gives
+~22 cm3 and P_abort 0.17): hose bore retained <= HOSE_MICRO_CM3 in every case at 0 and 10 deg (20 deg reported).  Everything is DERIVED from the CAD v3.4 DESIGN geometry;
+no physical test.  Not a two-phase flow model: buoyant migration times and condensation are Combustion's (lead 2026-10-13).
+"""
+from __future__ import annotations
+import sys, json, math, time, csv
+from pathlib import Path
+import numpy as np
+from scipy import sparse
+from scipy.sparse.csgraph import minimum_spanning_tree, breadth_first_order, connected_components
+from scipy.spatial import cKDTree
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent))
+sys.path.insert(0, str(HERE.parents[2] / "04-fea" / "src"))
+STEM = sys.argv[sys.argv.index("--stem") + 1] if "--stem" in sys.argv else "segment_traps_v34_v1p1"
+CADV = sys.argv[sys.argv.index("--cad") + 1] if "--cad" in sys.argv else "v3.4"
+OUT = HERE / f"{STEM}.json"
+H = 0.25                                         # voxel edge, mm
+ORG = np.array([-100.0, -100.0, 30.0])           # grid origin (engine frame, mm)
+NX = NY = 1024                                    # index strides (x, y < 256 mm span)
+N2O = {"T_K": 289.48, "rho_l": 811.7, "rho_v": 140.0, "sigma_N_m": 2.625e-3,
+       "tag": "LITERATURE/CoolProp-class saturated N2O at 289.48 K (as segment_heat_budget v1.1)"}
+G_DROGUE = 8.0                                    # m/s2 apparent gravity under the drogue (lead: >= 11.4 s of +8 m/s2)
+
+
+# ------------------------------------------------------------------------------------------------ primitives
+def unit(v):
+    v = np.asarray(v, float)
+    return v / np.linalg.norm(v)
+
+
+def head_spec(S, P):
+    """Engine-side wetted primitives (head, bonnet, FD-01, filter, riser), engine frame mm, from the CAD stations."""
+    from calcs.inlet_e1m import E1M
+    import parts_inlet
+    st = parts_inlet.stations(S)
+    g = E1M
+    zt, zf = S["head_top"], S["inj_face"]
+    z_seat, z_sl, z_ins = S["z_seat"], S["z_seat_line"], S["z_ins_top"]
+    d_seat = P["pintle_seat_d"]["v"] * 1e3
+    a = math.radians(g["az_deg"])
+    ux = np.array([math.cos(a), math.sin(a), 0.0])                  # radial unit at the inlet azimuth (-X)
+    spec, excl = [], []
+    # manifold: TC-03 land + 45 deg lead-in + approach bore 8, TC-02 bore 10, TC-04 bore 10 to the bore top
+    bt = st["bore_top"]
+    prof = [(z_sl, d_seat / 2), (z_sl + 1.25, 4.0), (z_ins, 4.0), (z_ins + 0.001, 5.0), (bt, 5.0)]
+    spec.append(("rev", (0.0, 0.0), prof, "TC-03/TC-02/TC-04 manifold bore (annulus around the needle)", "path"))
+    npf = S["needle_profile"]
+    nprof = [(z_sl - 0.01, d_seat / 2 + 0.01 * math.tan(npf["cone_rad"])), (npf["z_cone_top"], 3.0), (npf["z_body_top"], 3.0),
+             (npf["z_body_top"] + 1.5, 1.5), (S["z_needle_top"], 1.5)]
+    excl.append(("rev", (0.0, 0.0), nprof, "TC-05 needle (closed)"))
+    # bonnet cross-drilling (8 mm, r 4..18) and the T4 1/8 NPT port cavity up to the flush plug tip (plug engagement 7.6 mm ESTIMATE)
+    zx = st["z_x"]
+    spec.append(("cyl", ux * 4.0 + [0, 0, zx], ux * 18.0 + [0, 0, zx], 4.0, "TC-04 cross-drilling 8 mm (bore top flush)", "path"))
+    spec.append(("cyl", ux * 17.9 + [0, 0, zx], ux * (28.2 - 7.6) + [0, 0, zx], 8.7 / 2, "TC-04 T4 port cavity below the flush plug (dead end)", "dead"))
+    # bonnet axial 8 mm (r 16) from the head top to the cross-drilling top, head axial 8 mm from the filter bore to the head top
+    pa = ux * g["axial_head"]["r"]
+    spec.append(("cyl", pa + [0, 0, zt], pa + [0, 0, zx + 4.0], 4.0, "TC-04 bonnet axial 8 mm", "path"))
+    spec.append(("cyl", pa + [0, 0, st["z_f"]], pa + [0, 0, zt], 4.0, "TC-02 head axial 8 mm", "path"))
+    # filter bore 14 (radial, r 9.5 .. flat_r) with the cartridge: cap (r 30.5..27.5, sealed on its OD), element 12/7 x 16
+    c = g["cartridge"]
+    fr = g["flat_r"]
+    zfb = st["z_f"]
+    spec.append(("cyl", ux * g["filter_bore"]["r_bottom"] + [0, 0, zfb], ux * (fr - c["cap_t"]) + [0, 0, zfb], 7.0, "TC-02 filter bore annulus (outside the element)", "path"))
+    excl.append(("cyl", ux * (fr - c["cap_t"] - c["element_len"]) + [0, 0, zfb], ux * (fr - c["cap_t"]) + [0, 0, zfb], c["element_od"] / 2, "FD-02 element (porous wall + end cap)"))
+    spec.append(("cyl", ux * (fr - c["cap_t"] - c["element_len"] + 1.0) + [0, 0, zfb], ux * fr + [0, 0, zfb], c["element_id"] / 2, "FD-02 element core + cap inlet", "path"))
+    # FD-01: radial 8 mm (flat .. r 42) and vertical 8 mm at r 38 from the socket bottom to the radial crown
+    blk = g["block"]
+    spec.append(("cyl", ux * (fr - 0.5) + [0, 0, zfb], ux * 42.0 + [0, 0, zfb], 4.0, "FD-01 radial 8 mm", "path"))
+    zs0 = st["z_blk0"] + blk["socket_depth"]
+    spec.append(("cyl", ux * blk["socket_r"] + [0, 0, zs0 - 0.3], ux * blk["socket_r"] + [0, 0, zfb + 4.0], 4.0, "FD-01 vertical 8 mm", "path"))
+    # riser bore (3/8 x 0.035, ID 7.747) along the CAD polyline
+    rp = np.array(S["e1m_riser"]["points"], float)
+    spec.append(("tube", rp, 7.747 / 2, "FD-03 riser bore", "path"))
+    # MSS-1 sheath 1/16 in from the TEE up the riser to the FD-01 turn (centred, ESTIMATE path)
+    sheath = np.vstack([np.array([rp[0][0], 0.0, 66.0]), rp[rp[:, 2] < zs0], np.array([ux * blk["socket_r"] + [0, 0, zfb]])])
+    excl.append(("tube", sheath, 1.59 / 2, "MSS-1 sheath"))
+    return spec, excl, st
+
+
+def all_spec(S, P):
+    import parts_feed
+    hs, hx, st = head_spec(S, P)
+    fs, vents = parts_feed.fluid_spec(S)
+    spec = list(hs)
+    excl = list(hx)
+    for item in fs:
+        if item[0] == "solid_cyl":
+            excl.append(("cyl",) + item[1:])
+        else:
+            lab = item[-1]
+            dead = any(k in lab for k in ("J602", "rupture", "MSS-2", "drain", "S1", "balance", "cross hole"))
+            spec.append(item + ("dead" if dead else "path",))
+    return spec, excl, vents, st
+
+
+# ------------------------------------------------------------------------------------------------ voxelisation
+def _grid_box(lo, hi):
+    i0 = np.floor((np.asarray(lo) - ORG) / H).astype(int)
+    i1 = np.ceil((np.asarray(hi) - ORG) / H).astype(int)
+    ii = [np.arange(i0[k], i1[k] + 1) for k in range(3)]
+    I, J, K = np.meshgrid(*ii, indexing="ij")
+    I, J, K = I.ravel(), J.ravel(), K.ravel()
+    X = ORG + (np.column_stack([I, J, K]) + 0.5) * H
+    return I, J, K, X
+
+
+def _key(I, J, K):
+    return (K.astype(np.int64) * NY + J.astype(np.int64)) * NX + I.astype(np.int64)
+
+
+def vox_cyl(p0, p1, r):
+    p0, p1 = np.asarray(p0, float), np.asarray(p1, float)
+    ax = p1 - p0
+    L = np.linalg.norm(ax)
+    ax /= L
+    lo = np.minimum(p0, p1) - r
+    hi = np.maximum(p0, p1) + r
+    I, J, K, X = _grid_box(lo, hi)
+    d = X - p0
+    t = d @ ax
+    rr = np.linalg.norm(d - np.outer(t, ax), axis=1)
+    m = (t >= 0) & (t <= L) & (rr <= r)
+    return _key(I[m], J[m], K[m])
+
+
+def vox_tube(pts, r):
+    pts = np.asarray(pts, float)
+    keys = []
+    n = len(pts)
+    for i in range(n - 1):
+        a, b = pts[i], pts[i + 1]
+        ab = b - a
+        L = np.linalg.norm(ab)
+        if L < 1e-9:
+            continue
+        u = ab / L
+        lo = np.minimum(a, b) - r
+        hi = np.maximum(a, b) + r
+        I, J, K, X = _grid_box(lo, hi)
+        d = X - a
+        t = d @ u
+        tc = np.clip(t, 0.0, L)
+        rr = np.linalg.norm(d - np.outer(tc, u), axis=1)
+        m = rr <= r
+        if i == 0:
+            m &= t >= 0.0                                   # flat start
+        if i == n - 2:
+            m &= t <= L                                     # flat end
+        keys.append(_key(I[m], J[m], K[m]))
+    return np.unique(np.concatenate(keys)) if keys else np.zeros(0, np.int64)
+
+
+def vox_rev(cxy, prof):
+    prof = np.asarray(prof, float)
+    zs, rs = prof[:, 0], prof[:, 1]
+    rmax = rs.max()
+    lo = np.array([cxy[0] - rmax, cxy[1] - rmax, zs.min()])
+    hi = np.array([cxy[0] + rmax, cxy[1] + rmax, zs.max()])
+    I, J, K, X = _grid_box(lo, hi)
+    rr = np.hypot(X[:, 0] - cxy[0], X[:, 1] - cxy[1])
+    m = (X[:, 2] >= zs.min()) & (X[:, 2] <= zs.max())
+    rlim = np.interp(X[:, 2], zs, rs)
+    m &= rr <= rlim
+    return _key(I[m], J[m], K[m])
+
+
+def vox(item):
+    kind = item[0]
+    if kind == "cyl":
+        return vox_cyl(item[1], item[2], item[3])
+    if kind == "tube":
+        return vox_tube(item[1], item[2])
+    if kind == "rev":
+        return vox_rev(item[1], item[2])
+    raise ValueError(kind)
+
+
+def key_to_xyz(k):
+    I = k % NX
+    J = (k // NX) % NY
+    K = k // (NX * NY)
+    return ORG + (np.column_stack([I, J, K]) + 0.5) * H
+
+
+# ------------------------------------------------------------------------------------------------ graph analysis
+def build_graph(keys):
+    """6-connected edges (index pairs) of the sorted unique voxel keys."""
+    E = []
+    for off in (1, NX, NX * NY):
+        nb = keys + off
+        pos = np.searchsorted(keys, nb)
+        pos = np.minimum(pos, len(keys) - 1)
+        ok = keys[pos] == nb
+        E.append(np.column_stack([np.nonzero(ok)[0], pos[ok]]))
+    return np.vstack(E)
+
+
+def spill_levels(e, E, vent_idx):
+    """s(v) = maximin elevation to the vent (virtual root node N connected to the vent voxels)."""
+    N = len(e)
+    w = np.minimum(e[E[:, 0]], e[E[:, 1]])
+    top = float(e.max()) + 10.0
+    rows = np.r_[E[:, 0], np.full(len(vent_idx), N)]
+    cols = np.r_[E[:, 1], vent_idx]
+    wts = np.r_[w, e[vent_idx]]
+    M = sparse.coo_matrix((top + 1.0 - wts, (rows, cols)), shape=(N + 1, N + 1)).tocsr()
+    T = minimum_spanning_tree(M)                      # = maximum spanning tree of w
+    T = T + T.T
+    order, pred = breadth_first_order(T, N, directed=False, return_predecessors=True)
+    T = T.tocsr()
+    ch = order[1:]
+    par = pred[ch]
+    wv = (top + 1.0 - np.asarray(T[par, ch]).ravel()).tolist()     # vectorised edge lookup (v1 used per-edge sparse indexing)
+    sl = [-math.inf] * (N + 1)
+    sl[N] = math.inf
+    for v, p, w in zip(ch.tolist(), par.tolist(), wv):
+        sp = sl[p]
+        sl[v] = sp if sp < w else w
+    s = np.array(sl)
+    reach = np.zeros(N + 1, bool)
+    reach[order] = True
+    return s[:N], reach[:N], T
+
+
+def merge_tree(e, T, N, vent_root=True, min_depth=0.5, min_vol_mm3=1.0):
+    """Elder-rule merge of the maximum spanning tree (edges in decreasing weight): every local high point with its peak, saddle,
+    own volume above the saddle and the component it merges into (or the vent)."""
+    Tc = sparse.triu(T, k=0).tocoo()
+    top = float(np.max(e)) + 10.0
+    rows, cols, wt = Tc.row, Tc.col, top + 1.0 - Tc.data
+    o = np.argsort(-wt, kind="stable")
+    parent = np.arange(N + 1)
+    size = np.ones(N + 1, np.int64)
+    size[N] = 0
+    peak = np.r_[np.arange(N), N]
+    peak_e = np.r_[e, np.inf]
+    has_vent = np.zeros(N + 1, bool)
+    has_vent[N] = True
+
+    def find(x):
+        r = x
+        while parent[r] != r:
+            r = parent[r]
+        while parent[x] != r:
+            parent[x], x = r, parent[x]
+        return r
+    deaths = []
+    for i in o:
+        a, b, w = int(rows[i]), int(cols[i]), float(wt[i])
+        ra, rb = find(a), find(b)
+        if ra == rb:
+            continue
+        # survivor: the component with the vent, else the higher peak
+        if has_vent[ra] or (not has_vent[rb] and peak_e[ra] >= peak_e[rb]):
+            surv, dead = ra, rb
+        else:
+            surv, dead = rb, ra
+        depth = peak_e[dead] - w
+        vol = size[dead] * H ** 3
+        if depth >= min_depth and vol >= min_vol_mm3:
+            deaths.append({"peak_idx": int(peak[dead]), "peak_e": float(peak_e[dead]), "saddle_e": w, "depth_mm": float(depth),
+                           "vol_mm3": float(vol), "into_vent": bool(has_vent[surv]), "into_peak_idx": int(peak[surv]) if not has_vent[surv] else -1})
+        parent[dead] = surv
+        size[surv] += size[dead]
+        has_vent[surv] |= has_vent[dead]
+    return deaths
+
+
+# ------------------------------------------------------------------------------------------------ main
+def analyse(keys, labels, lab_names, lab_kind, X, up, vent_idx, E, title):
+    e = X @ up
+    s, reach, T = spill_levels(e, E, vent_idx)
+    trapped = reach & (e > s + 1e-6)
+    N = len(e)
+    res = {"case": title, "up": [round(float(x), 4) for x in up], "n_vox": int(N), "unreached_vox": int((~reach).sum()),
+           "trapped_vol_cm3": round(float(trapped.sum() * H ** 3 / 1e3), 3)}
+    # pockets = connected components of trapped voxels
+    idx = np.nonzero(trapped)[0]
+    pockets = []
+    if len(idx):
+        m = trapped[E[:, 0]] & trapped[E[:, 1]]
+        Esub = E[m]
+        remap = -np.ones(N, np.int64)
+        remap[idx] = np.arange(len(idx))
+        A = sparse.coo_matrix((np.ones(len(Esub)), (remap[Esub[:, 0]], remap[Esub[:, 1]])), shape=(len(idx), len(idx)))
+        nc, lab = connected_components(A, directed=False)
+        for cidx in range(nc):
+            vv = idx[lab == cidx]
+            vol = len(vv) * H ** 3
+            if vol < 1.0:
+                continue
+            ipk = vv[np.argmax(e[vv])]
+            labs, cnt = np.unique(labels[vv], return_counts=True)
+            comp = sorted([(lab_names[l], round(float(c * H ** 3 / 1e3), 4), lab_kind[l]) for l, c in zip(labs, cnt)], key=lambda x: -x[1])
+            pockets.append({"vol_cm3": round(float(vol / 1e3), 4), "top_e_mm": round(float(e[ipk]), 2), "spill_e_mm": round(float(s[vv].min()), 2),
+                            "spill_e_max_mm": round(float(s[vv].max()), 2), "top_xyz_mm": [round(float(x), 2) for x in X[ipk]],
+                            "top_at": lab_names[labels[ipk]], "by_primitive_cm3": comp,
+                            "dead_end_cm3": round(float(sum(c for _, c, k in comp if k == "dead")), 4),
+                            "flow_path_cm3": round(float(sum(c for _, c, k in comp if k == "path")), 4)})
+        pockets.sort(key=lambda p: -p["vol_cm3"])
+    res["pockets"] = pockets
+    return res, e, s, trapped, T
+
+
+THROUGH = ("balance hole", "cross hole")          # bores inside moving solids: re-added after the solid exclusions (v1.1)
+
+
+def voxelise(spec, excl):
+    """Fluid voxels of the spec minus the exclusions (bores through the excluded solids kept).  Returns keys, labels, element keys."""
+    order = sorted(range(len(spec)), key=lambda i: 0 if spec[i][-1] == "path" else 1)
+    kl, ll = [], []
+    for i in order:
+        k = np.unique(vox(spec[i]))
+        kl.append(k)
+        ll.append(np.full(len(k), i))
+    K = np.concatenate(kl)
+    L = np.concatenate(ll)
+    keys, first = np.unique(K, return_index=True)
+    labels = L[first]
+    ex_keys, elem_keys = [], np.zeros(0, np.int64)
+    for it in excl:
+        kk = vox(it)
+        if "element" in it[-1]:
+            elem_keys = np.unique(kk)
+        else:
+            ex_keys.append(kk)
+    ex = np.unique(np.concatenate(ex_keys))
+    keep = ~np.isin(keys, ex)
+    th_idx = [i for i in range(len(spec)) if any(t in spec[i][-2] for t in THROUGH)]
+    th_k = [np.unique(vox(spec[i])) for i in th_idx]
+    th_l = [np.full(len(k), i) for k, i in zip(th_k, th_idx)]
+    keys2 = np.r_[keys[keep], np.concatenate(th_k)] if th_k else keys[keep]
+    labels2 = np.r_[labels[keep], np.concatenate(th_l)] if th_l else labels[keep]
+    keys3, first = np.unique(keys2, return_index=True)
+    return keys3, labels2[first], elem_keys
+
+
+def element_variants(keys_all, labels_all, elem_keys, lab_names):
+    kb = ~np.isin(keys_all, elem_keys)
+    core_lab = [i for i, n in enumerate(lab_names) if "element core" in n][0]
+    ek = elem_keys[~np.isin(elem_keys, keys_all)]
+    keys_o = np.unique(np.r_[keys_all, ek])
+    lab_map = dict(zip(keys_all.tolist(), labels_all.tolist()))
+    labels_o = np.array([lab_map.get(int(k), core_lab) for k in keys_o])
+    return (keys_all[kb], labels_all[kb]), (keys_o, labels_o)
+
+
+def isolated(keys, labels, lab_names, lab_kind, X, e, reach, E):
+    """Connected components of fluid not reached from the vent (behind the element in the barrier model)."""
+    idx = np.nonzero(~reach)[0]
+    out = []
+    if not len(idx):
+        return out, None
+    m = (~reach[E[:, 0]]) & (~reach[E[:, 1]])
+    Es = E[m]
+    remap = -np.ones(len(e), np.int64)
+    remap[idx] = np.arange(len(idx))
+    A = sparse.coo_matrix((np.ones(len(Es)), (remap[Es[:, 0]], remap[Es[:, 1]])), shape=(len(idx), len(idx)))
+    nc, lab = connected_components(A, directed=False)
+    big = None
+    for c in range(nc):
+        vv = idx[lab == c]
+        vol = len(vv) * H ** 3
+        if vol < 1.0:
+            continue
+        ipk = vv[np.argmax(e[vv])]
+        labs, cnt = np.unique(labels[vv], return_counts=True)
+        comp = sorted([(lab_names[l], round(float(cc * H ** 3 / 1e3), 4), lab_kind[l]) for l, cc in zip(labs, cnt)], key=lambda x: -x[1])
+        out.append({"vol_cm3": round(vol / 1e3, 4), "top_e_mm": round(float(e[ipk]), 2), "bottom_e_mm": round(float(e[vv].min()), 2),
+                    "top_xyz_mm": [round(float(x), 2) for x in X[ipk]], "top_at": lab_names[labels[ipk]], "by_primitive_cm3": comp,
+                    "flow_path_cm3": round(float(sum(cc for _, cc, k in comp if k == "path")), 4),
+                    "dead_end_cm3": round(float(sum(cc for _, cc, k in comp if k == "dead")), 4)})
+        if big is None or len(vv) > len(big):
+            big = vv
+    out.sort(key=lambda p: -p["vol_cm3"])
+    return out, big
+
+
+def lhp_list(deaths, labels, lab_names, lab_kind, X, n=40):
+    lh = []
+    for dd in sorted(deaths, key=lambda x: -x["vol_mm3"]):
+        pk = dd["peak_idx"]
+        lh.append({"peak_at": lab_names[labels[pk]], "peak_xyz_mm": [round(float(x), 2) for x in X[pk]], "peak_e_mm": round(dd["peak_e"], 2),
+                   "saddle_e_mm": round(dd["saddle_e"], 2), "depth_mm": round(dd["depth_mm"], 2), "own_vol_cm3": round(dd["vol_mm3"] / 1e3, 4),
+                   "spills_into": "VENT" if dd["into_vent"] else lab_names[labels[dd["into_peak_idx"]]], "kind": lab_kind[labels[pk]]})
+    return lh[:n]
+
+
+def vz_table(e, sel, labels, path_labs):
+    if not sel.any():
+        return []
+    tz = e[sel]
+    tzp = e[sel & np.isin(labels, path_labs)]
+    out = []
+    for z in np.arange(math.ceil(tz.max()), math.floor(tz.min()) - 1, -1.0):
+        out.append({"z_mm": float(z), "V_above_cm3": round(float((tz >= z).sum() * H ** 3 / 1e3), 3),
+                    "V_above_flow_path_cm3": round(float((tzp >= z).sum() * H ** 3 / 1e3), 3)})
+    return out
+
+
+HOSE_MICRO_CM3 = 0.5     # allowance for the bore-step micro-trap at the hose ends (hose ID 10.5 -> tube bore 7.75: crown step ~1.4 mm), v1.3
+
+
+def retained_split(trapped, reach, l_, lab_names, lab_kind, down=None):
+    """v1.3: retained (trapped + unreached) volume split by kind, by element side and in the hose."""
+    ret = trapped | ~reach
+    path = np.array([k == "path" for k in lab_kind])
+    v = lambda m: round(float(m.sum() * H ** 3 / 1e3), 4)
+    lab = lambda txt: np.array([txt in n for n in lab_names])
+    out = {"retained_total_cm3": v(ret), "retained_flow_path_cm3": v(ret & path[l_]), "retained_dead_end_cm3": v(ret & ~path[l_]),
+           "hose_bore_cm3": v(ret & lab("FD-07 hose bore")[l_]), "FD07A_sleeve_cm3": v(ret & lab("FD-07A")[l_]),
+           "FD07B_sleeve_cm3": v(ret & lab("FD-07B")[l_]), "wall_line_cm3": v(ret & lab("FD-08 wall line")[l_])}
+    if down is not None:
+        out["upstream_of_element_flow_path_cm3"] = v(ret & path[l_] & ~down)
+        out["downstream_of_element_flow_path_cm3"] = v(ret & path[l_] & down)
+    return out
+
+
+def main():
+    t0 = time.time()
+    import build, config, parts_feed
+    P, S, reg, clog = build.build(include=("engine", "gimbal", "feed"), iterate_cg=True, overrides=config.V34_ON)
+    t_build = time.time() - t0
+    spec, excl, vents, st = all_spec(S, P)
+    add, remove, vents_open = parts_feed.fluid_spec_mv_open(S)
+    spec_open = list(spec) + [a + ("path",) for a in add if a[0] == "cyl"]
+    excl_open = [x for x in excl if x[-1] not in remove] + [("cyl",) + a[1:] for a in add if a[0] == "solid_cyl"]
+    lab_names = [s_[-2] for s_ in spec_open]
+    lab_kind = [s_[-1] for s_ in spec_open]
+    path_labs = [i for i, k in enumerate(lab_kind) if k == "path"]
+    geoms = {}
+    for gname, sp, ex_, vpt in (("MV_closed", spec, excl, vents["S1_check"]), ("MV_open", spec_open, excl_open, vents_open["MV_seat_open"])):
+        ka, la, ek = voxelise(sp, ex_)
+        (kb, lb), (ko, lo) = element_variants(ka, la, ek, lab_names)
+        geoms[gname] = {"vent_pt": vpt, "barrier": (kb, lb), "open_element": (ko, lo), "elem_keys": ek}
+    out = {"id": "segment_traps_v34", "version": ("v1.1" if STEM == "segment_traps_v34_v1p1" else f"{STEM} (script v1.3)"), "date": "2026-10-13", "owner": "mechanical", "script": "03-cad/src/calcs/segment_traps_v34.py",
+           "supersedes": "segment_traps_v34_v1.json (kept as evidence): v1 put the 'MV_seat' vent inside the 1.2 mm balance hole (closed disc), cut "
+                         "the balance hole where it passes through the disc (balance chamber disconnected, 0.42 cm3 'unreached'), reported "
+                         "the barrier model's isolated downstream region as 'unreached' instead of trapped, and ran on an inside-out FD-09 "
+                         "(left-handed placement, fixed in CAD v3.4)",
+           "method": __doc__.split("\n\n")[1], "voxel_mm": H, "fluid": N2O, "g_drogue_m_s2": G_DROGUE,
+           "cad": {"build": f"CAD {CADV} (config.V34_ON) incl. feed parts_feed.py, pivot iterated", "t_build_s": round(t_build, 1),
+                   "stations_mm": {k: round(float(S[k]), 3) for k in ("head_top", "inj_face", "z_seat", "z_seat_line", "bonnet_top", "z_ins_top")},
+                   "e1m_stations_mm": {k: round(float(v), 3) for k, v in st.items() if isinstance(v, float)},
+                   "feed": {k: round(float(S["feed"][k]), 2) for k in ("hose_len_mm", "wall_len_mm", "coil_sweep_deg", "hose_Rmin_mm", "wall_Rmin_mm")}}}
+    kb, lb = geoms["MV_closed"]["barrier"]
+    ko, lo = geoms["MV_closed"]["open_element"]
+    out["segment_volume_cm3"] = {"MV_closed_barrier_model": round(len(kb) * H ** 3 / 1e3, 3), "MV_closed_element_pores_open": round(len(ko) * H ** 3 / 1e3, 3),
+                                 "note": "voxel volume (h 0.25 mm) of the MV-to-seat wetted cavity minus the parts inside it (needle, element wall in "
+                                         "the barrier model, MSS sheaths, MV disc/rod); MV closed"}
+    labs, cnt = np.unique(lb, return_counts=True)
+    out["segment_volume_by_primitive_cm3"] = {lab_names[l]: round(float(c * H ** 3 / 1e3), 4) for l, c in sorted(zip(labs, cnt), key=lambda x: -x[1])}
+    up0 = np.array([0.0, 0.0, 1.0])
+    results, keep = {}, {}
+    for gname, gd in geoms.items():
+        for model in ("barrier", "open_element"):
+            k_, l_ = gd[model]
+            X_ = key_to_xyz(k_)
+            E_ = build_graph(k_)
+            vi = np.nonzero(np.linalg.norm(X_ - gd["vent_pt"], axis=1) <= max(1.0, 2 * H))[0]
+            r, e, s, trapped, T = analyse(k_, l_, lab_names, lab_kind, X_, up0, vi, E_, f"{gname}/{model}/up=+Z")
+            reach = np.isfinite(s)
+            iso, big = isolated(k_, l_, lab_names, lab_kind, X_, e, reach, E_)
+            r["vent_vox"] = int(len(vi))
+            r["isolated_cm3"] = round(float((~reach).sum() * H ** 3 / 1e3), 4)
+            r["isolated_components"] = iso
+            r["retained_total_cm3"] = round(r["trapped_vol_cm3"] + r["isolated_cm3"], 3)
+            results[f"{gname}|{model}|+Z"] = r
+            keep[(gname, model)] = (e, s, trapped, T, X_, l_, k_, E_, vi, reach, big)
+            print(gname, model, "trapped", r["trapped_vol_cm3"], "isolated", r["isolated_cm3"], "vent_vox", len(vi),
+                  [(p["vol_cm3"], p["top_at"][:30], p["top_e_mm"], p["spill_e_mm"]) for p in r["pockets"][:4]],
+                  [(p["vol_cm3"], p["top_at"][:30], p["top_e_mm"]) for p in iso[:3]], flush=True)
+    out["cases_nominal_attitude"] = results
+    # v1.3: downstream-of-element masks (barrier model: unreached region; open model: the same keys) and the retained split
+    down = {}
+    for gname in geoms:
+        e_b, s_b, tr_b, T_b, X_b, l_b, k_b, E_b, vi_b, reach_b, big_b = keep[(gname, "barrier")]
+        kdown = k_b[~reach_b]
+        down[(gname, "barrier")] = ~reach_b
+        k_o = keep[(gname, "open_element")][6]
+        ek = geoms[gname]["elem_keys"]
+        down[(gname, "open_element")] = np.isin(k_o, kdown) | np.isin(k_o, ek)      # element pores counted downstream
+    split = {}
+    for (gname, model), kv in keep.items():
+        e, s, trapped, T, X_, l_, k_, E_, vi, reach, big = kv
+        split[f"{gname}|{model}|+Z"] = retained_split(trapped, reach, l_, lab_names, lab_kind, down[(gname, model)])
+        print("SPLIT", gname, model, split[f"{gname}|{model}|+Z"], flush=True)
+    out["retained_split_nominal"] = split
+    # local high points: MV closed, both element models; for the barrier model also inside the isolated downstream region, with the
+    # element surface as its 'vent' (vapour there leaves only through the wetted 15 um element above its bubble point)
+    lhp = {}
+    for model in ("barrier", "open_element"):
+        e, s, trapped, T, X_, l_, k_, E_, vi, reach, big = keep[("MV_closed", model)]
+        deaths = merge_tree(e, T, len(e), min_depth=0.5, min_vol_mm3=1.0)
+        lhp[f"MV_closed|{model}|vent S1"] = lhp_list(deaths, l_, lab_names, lab_kind, X_)
+        if model == "barrier" and big is not None:
+            ek = geoms["MV_closed"]["elem_keys"]
+            nb = np.unique(np.concatenate([ek + o for o in (1, -1, NX, -NX, NX * NY, -NX * NY)]))
+            sub = np.zeros(len(k_), bool)
+            sub[big] = True
+            vi2 = np.nonzero(sub & np.isin(k_, nb))[0]
+            ks = k_[sub]
+            pos = np.nonzero(sub)[0]
+            remap = -np.ones(len(k_), np.int64)
+            remap[pos] = np.arange(len(pos))
+            Es = E_[sub[E_[:, 0]] & sub[E_[:, 1]]]
+            Es = np.column_stack([remap[Es[:, 0]], remap[Es[:, 1]]])
+            es = e[sub]
+            s2, reach2, T2 = spill_levels(es, Es, remap[vi2])
+            d2 = merge_tree(es, T2, len(es), min_depth=0.5, min_vol_mm3=1.0)
+            lhp["MV_closed|barrier|downstream of the element (vent = element surface)"] = lhp_list(d2, l_[sub], lab_names, lab_kind, X_[sub])
+            tr2 = reach2 & (es > s2 + 1e-6)
+            out["downstream_region_barrier"] = {"vol_cm3": round(len(pos) * H ** 3 / 1e3, 4), "element_surface_vox": int(len(vi2)),
+                                                "above_element_access_cm3": round(float(tr2.sum() * H ** 3 / 1e3), 4),
+                                                "note": "isolated by the element in the barrier model: all of it is retained; 'above element access' = the part "
+                                                        "that cannot reach the element surface without going down"}
+    out["local_high_points"] = lhp
+    # V(z) tables
+    e, s, trapped, T, X_, l_, k_, E_, vi, reach, big = keep[("MV_closed", "open_element")]
+    out["V_of_z_open_element_retained"] = vz_table(e, trapped | ~reach, l_, path_labs)
+    e, s, trapped, T, X_, l_, k_, E_, vi, reach, big = keep[("MV_closed", "barrier")]
+    out["V_of_z_barrier_retained"] = vz_table(e, trapped | ~reach, l_, path_labs)
+    man = [i for i, n in enumerate(lab_names) if n.startswith("TC-03/TC-02/TC-04 manifold")][0]
+    zm = e[l_ == man]
+    out["manifold_annulus_V_below_z_cm3"] = [{"z_mm": float(z), "V_cm3": round(float((zm <= z).sum() * H ** 3 / 1e3), 3)}
+                                             for z in np.arange(math.floor(zm.min()), math.ceil(zm.max()) + 1, 5.0)]
+    # tilt sensitivity (MV closed, both element models)
+    tilt = []
+    for model in ("barrier", "open_element"):
+        e0, s0, tr0, T0, X_, l_, k_, E_, vi, reach0, big0 = keep[("MV_closed", model)]
+        for th in (10.0, 20.0):
+            for kdir in range(8):
+                psi = 2 * math.pi * kdir / 8
+                up = np.array([math.sin(math.radians(th)) * math.cos(psi), math.sin(math.radians(th)) * math.sin(psi), math.cos(math.radians(th))])
+                r, e, s, trapped, T = analyse(k_, l_, lab_names, lab_kind, X_, up, vi, E_, f"tilt {th:.0f} toward az {math.degrees(psi):.0f}")
+                reach = np.isfinite(s)
+                tilt.append({"model": model, "tilt_deg": th, "toward_az_deg": round(math.degrees(psi), 0), "trapped_cm3": r["trapped_vol_cm3"],
+                             "isolated_cm3": round(float((~reach).sum() * H ** 3 / 1e3), 4),
+                             "split": retained_split(trapped, reach, l_, lab_names, lab_kind, down[("MV_closed", model)]),
+                             "pockets": [{k: p[k] for k in ("vol_cm3", "top_at", "top_xyz_mm", "top_e_mm", "spill_e_mm", "flow_path_cm3", "dead_end_cm3")}
+                                         for p in r["pockets"][:5]]})
+                print("TILT", model, th, round(math.degrees(psi)), r["trapped_vol_cm3"], [(p["vol_cm3"], p["top_at"][:28]) for p in r["pockets"][:4]], flush=True)
+    out["tilt_sensitivity"] = tilt
+    # v1.3 summary: flow-path retained (the quantity Combustion's relight criterion uses) at 0 / 10 / 20 deg, both element models, MV closed
+    summ = {}
+    for model in ("barrier", "open_element"):
+        sp0 = split[f"MV_closed|{model}|+Z"]
+        row = {"0": {"flow_path_cm3": sp0["retained_flow_path_cm3"], "total_cm3": sp0["retained_total_cm3"], "hose_bore_cm3": sp0["hose_bore_cm3"],
+                     "upstream_cm3": sp0["upstream_of_element_flow_path_cm3"], "downstream_cm3": sp0["downstream_of_element_flow_path_cm3"]}}
+        for th in (10.0, 20.0):
+            tt = [t_ for t_ in tilt if t_["model"] == model and t_["tilt_deg"] == th]
+            w = max(tt, key=lambda t_: t_["split"]["retained_flow_path_cm3"])
+            row[f"{th:.0f}"] = {"flow_path_max_cm3": w["split"]["retained_flow_path_cm3"], "toward_az_deg": w["toward_az_deg"],
+                                "flow_path_min_cm3": min(t_["split"]["retained_flow_path_cm3"] for t_ in tt),
+                                "hose_bore_max_cm3": max(t_["split"]["hose_bore_cm3"] for t_ in tt),
+                                "upstream_at_max_cm3": w["split"]["upstream_of_element_flow_path_cm3"],
+                                "downstream_at_max_cm3": w["split"]["downstream_of_element_flow_path_cm3"]}
+        summ[model] = row
+    hose_0_10 = max([split[f"MV_closed|{m}|+Z"]["hose_bore_cm3"] for m in ("barrier", "open_element")] +
+                    [t_["split"]["hose_bore_cm3"] for t_ in tilt if t_["tilt_deg"] <= 10.0])
+    hose_20 = max([t_["split"]["hose_bore_cm3"] for t_ in tilt if t_["tilt_deg"] == 20.0] or [0.0])
+    out["summary_v13"] = {"retained_flow_path_MV_closed": summ,
+                          "HOSE_OUT_OF_TRAP": {"criterion": f"hose-bore retained <= {HOSE_MICRO_CM3} cm3 (bore-step micro-trap allowance) in every case at 0 and 10 deg",
+                                               "hose_bore_max_0_10deg_cm3": hose_0_10, "hose_bore_max_20deg_cm3": hose_20,
+                                               "pass_0_10deg": bool(hose_0_10 <= HOSE_MICRO_CM3), "pass_20deg": bool(hose_20 <= HOSE_MICRO_CM3)},
+                          "targets_lead": "flow-path retained <= 13.5 cm3 nominal and <= 19 cm3 at a 10 deg swing (zero-abort limit 18.86 cm3 slug, Combustion v2.4)"}
+    print("SUMMARY", json.dumps(out["summary_v13"], indent=1), flush=True)
+    e, s, trapped, T, X_, l_, k_, E_, vi, reach, big = keep[("MV_closed", "open_element")]
+    out["cad_consistency"] = cad_check(reg, S, X_, l_, lab_names)
+    out["t_run_s"] = round(time.time() - t0, 1)
+    OUT.write_text(json.dumps(out, indent=1, default=float))
+    with open(HERE / f"{STEM}_pockets.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["case", "kind", "vol_cm3", "top_z_mm", "spill_z_mm", "top_at", "flow_path_cm3", "dead_end_cm3"])
+        for kcase, r in results.items():
+            for p in r["pockets"]:
+                w.writerow([kcase, "trapped (spills under the coil)", p["vol_cm3"], p["top_e_mm"], p["spill_e_mm"], p["top_at"], p["flow_path_cm3"], p["dead_end_cm3"]])
+            for p in r["isolated_components"]:
+                w.writerow([kcase, "isolated (behind the element)", p["vol_cm3"], p["top_e_mm"], "", p["top_at"], p["flow_path_cm3"], p["dead_end_cm3"]])
+    with open(HERE / f"{STEM}_Vz.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["model", "z_mm", "V_above_cm3", "V_above_flow_path_cm3"])
+        for mname, tab in (("open_element", out["V_of_z_open_element_retained"]), ("barrier", out["V_of_z_barrier_retained"])):
+            for r in tab:
+                w.writerow([mname, r["z_mm"], r["V_above_cm3"], r["V_above_flow_path_cm3"]])
+    print(json.dumps({k: out[k] for k in ("segment_volume_cm3", "t_run_s")}, indent=1))
+    for kk, v in lhp.items():
+        for x in v[:12]:
+            print("LHP", kk[:40], x)
+    print("CAD", out["cad_consistency"])
+
+
+def cad_check(reg, S, X, labels, lab_names, n=6000, seed=7):
+    """Fraction of random fluid voxel centres that fall inside a wetted CAD solid (should be ~0; boundary voxels allowed)."""
+    import build
+    from OCP.BRepClass3d import BRepClass3d_SolidClassifier
+    from OCP.gp import gp_Pnt
+    from OCP.TopAbs import TopAbs_IN
+    rng = np.random.default_rng(seed)
+    sel = rng.choice(len(X), size=min(n, len(X)), replace=False)
+    inst = build.posed_instances(reg, S, 0.0, 0.0)
+    solids = []
+    for (pn, i, g, sh, body) in inst:
+        p = reg.parts[pn]
+        if p.wetted == "N2O" or pn.startswith(("ENG-TC-02", "ENG-TC-03", "ENG-TC-04", "ENG-TC-05", "ENG-FD", "ENG-FS")):
+            bb = sh.BoundingBox()
+            solids.append((pn, sh, (bb.xmin, bb.ymin, bb.zmin, bb.xmax, bb.ymax, bb.zmax)))
+    inside = {}
+    n_in = 0
+    for j in sel:
+        x = X[j]
+        hit = None
+        for pn, sh, bb in solids:
+            if not (bb[0] <= x[0] <= bb[3] and bb[1] <= x[1] <= bb[4] and bb[2] <= x[2] <= bb[5]):
+                continue
+            cl = BRepClass3d_SolidClassifier(sh.wrapped, gp_Pnt(*map(float, x)), 1e-6)
+            if cl.State() == TopAbs_IN:
+                hit = pn
+                break
+        if hit:
+            n_in += 1
+            key = f"{lab_names[labels[j]]} -> {hit}"
+            inside[key] = inside.get(key, 0) + 1
+    return {"n_points": int(len(sel)), "n_inside_solid": int(n_in), "fraction": round(n_in / len(sel), 5),
+            "by_primitive_and_part": dict(sorted(inside.items(), key=lambda kv: -kv[1])[:20]),
+            "note": "voxel centres within ~h/2 of a wall can classify inside the metal (partial voxels); a primitive that disagrees with the CAD "
+                    "cut shows up as a large count against one part"}
+
+
+if __name__ == "__main__":
+    main()

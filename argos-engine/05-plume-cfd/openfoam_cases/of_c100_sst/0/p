@@ -1,0 +1,23 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p;
+}
+dimensions [1 -1 -2 0 0 0 0];
+internalField uniform 101325.0;
+boundaryField
+{
+    inlet { type totalPressure; rho none; psi thermo:psi; p0 uniform 2499311.0; gamma 1.136762; value uniform 2499311.0; }
+    nozzleWall { type zeroGradient; }
+    base { type zeroGradient; }
+    body { type zeroGradient; }
+    coflow { type zeroGradient; }
+    farfield { type totalPressure; rho none; psi thermo:psi; p0 uniform 101325.0; gamma 1.136762; value uniform 101325.0; }
+    outlet { type waveTransmissive; field p; psi thermo:psi; gamma 1.136762; fieldInf 101325.0; lInf 0.1747; value uniform 101325.0; }
+    axis { type empty; }
+    front { type wedge; }
+    back { type wedge; }
+}

@@ -1,0 +1,20 @@
+SIL probe 2026-10-13 (Electronics, v2.10): the 2 S5/S15 runs that neither abort nor light
+Question: S5 (300 runs) counts 241 no-abort runs but only 239 lit runs; S15 shows the same 2 runs (125, 127) with abort 'none', lit 0, E2 0.
+Method: scratch copy of firmware/src + firmware/sil; one line added after the 'S5 run %d' printf of scMCone printing s.out.cmd_refused;
+  built with the Makefile sil flags (-std=c++17 -O2 -DECU_SIL_TEST_HOOKS ...). Record tree unchanged.
+  sil_main.cpp record 870cb0d9c2aea13e -> probe copy ad6ac2431eeafdc9; probe binary b3d39c121facfd2b (NOT the record binary 71489602d1c325af).
+Runs: ./sil_probe mcone <out> 125 | 127 | 124 (124 = control)
+Output:
+  S5 run 125: abort 0 (NONE) at nan s, final ARMED   cmd_refused 14
+  S5 run 127: abort 0 (NONE) at nan s, final ARMED   cmd_refused 14
+  S5 run 124: abort 0 (NONE) at nan s, final COAST   cmd_refused 0
+  Run 125 state trace (record binary, sil mcone): ARMED 0.05 s -> PREPRESS 0.80 s -> (IGNITE at 1.40 s refused) -> PREPRESS held -> ARMED at the
+  profile SHUTDOWN 7.60 s.
+Finding [SIM]: runs 125 and 127 (T_tank0 15.06 / 15.03 C, ASSUMED U(15,24) C draw with the guard-band reading errors) pass ARM and are then
+  refused at IGNITE with refuse::TANK_COLD (14). The rule is min(valid tank walls, Tsat(P_tank)) < 15 C; the mechanism of the crossing between
+  ARM and IGNITE (P_tank falls during PREPRESS, or reading errors) is NOT isolated. Fail-safe (no start); the ECU holds PREPRESS (MV open,
+  line primed) until the FC sends SHUTDOWN.
+Gap: the S5 and S15 summaries classify neither run (not in interlock_refused_at_arm, not in the aborts). SIL statistics accounting gap; no
+  firmware change. Operational note: a tank that arms within about 0.1 K of 15 C can be refused at IGNITE; the countdown margin above 15 C
+  is NOT derived (MISSING).
+Tags: SIM on ASSUMED dispersions; not physical evidence.

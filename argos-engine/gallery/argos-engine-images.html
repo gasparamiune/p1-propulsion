@@ -1,0 +1,241 @@
+<title>ARGOS H1 Engine Images</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column of figures on dark "test-cell" frames; captions carry the evidence status. */
+:root {
+  --bg: #eef0f1;
+  --surface: #ffffff;
+  --fg: #161a1e;
+  --muted: #5a6470;
+  --line: #d4d9de;
+  --accent: #b9561a;      /* exhaust orange, darkened for text on light */
+  --frame: #15181c;       /* figure backdrop in both themes */
+  --chip-bg: #e3e7ea;
+  --warn: #8a5a00;
+  --warn-bg: #fbefd6;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1114; --surface: #161a1f; --fg: #e6e9ec; --muted: #98a2ad; --line: #2a3138;
+    --accent: #f0a04b; --frame: #0b0d10; --chip-bg: #222930; --warn: #f3c46b; --warn-bg: #2d2412;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1114; --surface: #161a1f; --fg: #e6e9ec; --muted: #98a2ad; --line: #2a3138;
+  --accent: #f0a04b; --frame: #0b0d10; --chip-bg: #222930; --warn: #f3c46b; --warn-bg: #2d2412;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 400 15px/1.55 var(--font-body);
+  padding-inline: 16px; padding-block: 32px 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+header { display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
+.eyebrow { font: 500 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 600 clamp(34px, 5vw, 52px)/1.02 var(--font-display); letter-spacing: .01em; margin: 0; text-wrap: balance; }
+h2 { font: 600 30px/1.1 var(--font-display); margin: 0; text-wrap: balance; }
+h3 { font: 600 15px/1.3 var(--font-body); margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.lead { color: var(--muted); font-size: 16px; }
+.status {
+  display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px;
+  background: var(--warn-bg); color: var(--warn); border-radius: 6px; font-size: 14px; max-width: 760px;
+}
+.status b { font-weight: 600; }
+section { display: flex; flex-direction: column; gap: 20px; }
+.sec-head { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 20px; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.frame { background: var(--frame); border-radius: 4px; overflow: hidden; display: block; }
+.frame img, .frame video { display: block; width: 100%; height: auto; max-width: 100%; }
+figcaption { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); min-width: 0; }
+figcaption strong { color: var(--fg); font-weight: 500; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font: 500 11px/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase;
+  padding: 5px 7px; border-radius: 3px; background: var(--chip-bg); color: var(--muted);
+}
+.chip.hot { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.grid2 .frame { display: flex; justify-content: center; }
+.grid2 .frame img { width: auto; max-height: 720px; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.stat { background: var(--surface); padding: 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.stat .v { font: 500 22px/1.1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.stat .k { font-size: 13px; color: var(--muted); }
+.facts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+dl { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 16px; font-size: 14px; }
+dt { color: var(--muted); }
+dd { margin: 0; font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.key { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.key div { display: flex; gap: 10px; align-items: center; }
+.sw { width: 14px; height: 14px; border-radius: 2px; flex: none; border: 1px solid var(--line); }
+.notyet { display: flex; flex-direction: column; gap: 8px; }
+.notyet ul { margin: 0; padding-left: 18px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; max-width: 68ch; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 760px) {
+  .grid2, .facts { grid-template-columns: minmax(0, 1fr); }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">ARGOS H1 · 500 N throttleable N2O / ABS hybrid · gimballed</span>
+    <h1>The engine so far: CAD, cutaway and plume</h1>
+    <p class="lead">Renders of the current engine model and the max-thrust plume simulation, as of 13 October 2026. Each image says what kind of evidence it is.</p>
+    <div class="status"><span>●</span><span><b>Draft.</b> Everything here is simulation or display geometry. The assembled-engine FEA and the reviews of the CAD and plume work are still open, and nothing here has been tested on hardware.</span></div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Mechanical · CAD v3.4.1</span>
+      <h2>Engine assembly</h2>
+      <p>The engine module as modelled today: chamber and nozzle, pintle throttle, main valve, torch igniter, feed hose, and the two-axis gimbal with its thrust rings. Nozzle points down and the gimbal is centred.</p>
+    </div>
+
+    <figure>
+      <a class="frame" href="img/engine_section_labelled.jpg" target="_blank" rel="noopener"><img src="img/engine_section_labelled.jpg" alt="Labelled half-section of the engine: main valve and servo at the top, pintle drive and torch igniter, injector head, pre-chamber, ABS fuel grain in a phenolic liner inside the aluminium case, gimbal ring and thrust rings around the chamber, graphite throat at the bottom." width="2160" height="1700"></a>
+      <figcaption>
+        <div class="chips"><span class="chip">Display geometry</span><span class="chip hot">Draft</span></div>
+        <span><strong>Half-section through the engine axis.</strong> Cut faces are the darker shade of each part's colour. The white channel is the 25 mm grain port. Parts in front of the cut are removed, so the feed line between the main valve and the injector is hidden here.</span>
+      </figcaption>
+    </figure>
+
+    <div class="grid2">
+      <figure>
+        <a class="frame" href="img/engine_iso.jpg" target="_blank" rel="noopener"><img src="img/engine_iso.jpg" alt="Three-quarter view of the complete engine assembly." width="744" height="1620" loading="lazy"></a>
+        <figcaption>
+          <div class="chips"><span class="chip">Display geometry</span><span class="chip hot">Draft</span></div>
+          <span><strong>Full assembly, three-quarter view.</strong> The two dark boxes on the gimbal frame are the TVC servos; the tube above the upper ring is the feed hose coil that crosses the gimbal.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <a class="frame" href="img/engine_section_iso.jpg" target="_blank" rel="noopener"><img src="img/engine_section_iso.jpg" alt="Three-quarter view of the half-section, showing the grain port and insulators." width="724" height="1623" loading="lazy"></a>
+        <figcaption>
+          <div class="chips"><span class="chip">Display geometry</span><span class="chip hot">Draft</span></div>
+          <span><strong>Half-section, three-quarter view.</strong> Shows the depth of the port, the phenolic pre- and post-chamber insulators and the graphite throat.</span>
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="facts">
+      <dl>
+        <dt>Model</dt><dd>CAD v3.4.1, neutral pose</dd>
+        <dt>Parts</dt><dd>95 BOM lines, 134 instances</dd>
+        <dt>Envelope</dt><dd>Ø 139.5 mm over the thrust rings, 593 mm long</dd>
+        <dt>Mass in CAD</dt><dd>4.39 kg (no tank, no purge line yet)</dd>
+        <dt>Fuel grain</dt><dd>2 × ABS, Ø 53.5 × 115 mm, 25 mm port</dd>
+        <dt>Nozzle</dt><dd>throat 13.72 mm, exit 19.41 mm, ε 2</dd>
+      </dl>
+      <div class="key" aria-label="Colour key">
+        <h3>Colour key</h3>
+        <div><span class="sw" style="background:#c9cbcf"></span>Aluminium 6061-T6 / 7075-T6</div>
+        <div><span class="sw" style="background:#8f9094"></span>Stainless steel, 17-4PH, bearings</div>
+        <div><span class="sw" style="background:#8a5a2c"></span>Phenolic insulators and liner</div>
+        <div><span class="sw" style="background:#e9e4d2"></span>ABS fuel grain</div>
+        <div><span class="sw" style="background:#2a2b2d"></span>Graphite throat, carbon-phenolic joint</div>
+        <div><span class="sw" style="background:#1d2230"></span>Bought-in parts: servos, valves, sensors</div>
+        <div><span class="sw" style="background:#9aa36c"></span>G11 insulating washers</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Combustion · plume CFD · 2-D axisymmetric</span>
+      <h2>The flame at 500 N</h2>
+      <p>The exhaust leaves the nozzle under-expanded (exit pressure 3.2 times ambient), forms a small Mach disk, then a train of shock diamonds. The CFD is at the first design point (chamber 25 bar, O/F 7.76). The current rated point is O/F 10.4, which has only been run on the coarse grid so far.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="v">500.8 N</span><span class="k">CFD thrust, vs 505.8 N from 1-D theory (−1.0 %)</span></div>
+      <div class="stat"><span class="v">2.68 De</span><span class="k">Mach disk from the exit, about 52 mm</span></div>
+      <div class="stat"><span class="v">≈ 4 De</span><span class="k">Shock-cell spacing, about 78 mm</span></div>
+      <div class="stat"><span class="v">13–15 De</span><span class="k">Where the supersonic core closes</span></div>
+    </div>
+
+    <figure>
+      <a class="frame" href="img/plume_artistic_side.png" target="_blank" rel="noopener"><img src="img/plume_artistic_side.png" alt="Artistic render of the orange exhaust plume leaving the nozzle with visible shock diamonds." width="1600" height="680" loading="lazy"></a>
+      <figcaption>
+        <div class="chips"><span class="chip hot">Artistic render</span><span class="chip">Fields: SIM</span></div>
+        <span><strong>What it might look like.</strong> Blender render built on the CFD fields. Colour, brightness and exposure were chosen for illustration; this is not a radiation prediction.</span>
+      </figcaption>
+    </figure>
+
+    <figure>
+      <a class="frame" href="img/plume_synth_photo.png" target="_blank" rel="noopener"><img src="img/plume_synth_photo.png" alt="Synthetic line-of-sight image of the plume with the Mach disk and shock cells." width="2016" height="562" loading="lazy"></a>
+      <figcaption>
+        <div class="chips"><span class="chip">Qualitative</span><span class="chip">SIM</span></div>
+        <span><strong>Synthetic photo.</strong> Line-of-sight integration of an assumed soot emitter over the CFD temperature field. It is the image to compare against a static-fire video, not the artistic one.</span>
+      </figcaption>
+    </figure>
+
+    <figure>
+      <a class="frame" href="img/plume_T_full.png" target="_blank" rel="noopener"><img src="img/plume_T_full.png" alt="Temperature field of the plume over 45 exit diameters." width="2340" height="1138" loading="lazy"></a>
+      <figcaption>
+        <div class="chips"><span class="chip">SIM</span><span class="chip">Fine grid</span></div>
+        <span><strong>Temperature, full domain (45 exit diameters, about 0.87 m).</strong> Frozen chemistry, so afterburning in air is not included here; the report bounds it separately.</span>
+      </figcaption>
+    </figure>
+
+    <div class="grid2">
+      <figure>
+        <a class="frame" href="img/plume_mach_near.png" target="_blank" rel="noopener"><img src="img/plume_mach_near.png" alt="Mach number field near the nozzle exit showing the Mach disk." width="1950" height="806" loading="lazy"></a>
+        <figcaption>
+          <div class="chips"><span class="chip">SIM</span><span class="chip">Fine grid</span></div>
+          <span><strong>Mach number near the exit.</strong> Mach 3.5 before the disk, then the first shock cells.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <a class="frame" href="img/plume_schlieren_near.png" target="_blank" rel="noopener"><img src="img/plume_schlieren_near.png" alt="Numerical schlieren near the nozzle exit showing shocks and shear-layer vortices." width="1950" height="816" loading="lazy"></a>
+        <figcaption>
+          <div class="chips"><span class="chip">SIM</span><span class="chip">Fine grid</span></div>
+          <span><strong>Numerical schlieren.</strong> Density gradients: shocks, the Mach disk and the vortices rolling off the nozzle lip.</span>
+        </figcaption>
+      </figure>
+    </div>
+
+    <figure>
+      <div class="frame"><video src="img/plume_startup.mp4" controls muted loop playsinline preload="metadata" aria-label="Start-up transient animation, Mach number on top and schlieren below"></video></div>
+      <figcaption>
+        <div class="chips"><span class="chip">SIM</span><span class="chip">Medium grid</span></div>
+        <span><strong>Start-up to 500 N, first 3 ms.</strong> Top half Mach number, bottom half schlieren, 0 to 30 exit diameters.</span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">GNC · 6-DOF Monte Carlo</span>
+      <h2>Landing simulation</h2>
+      <p>Where 500 simulated flights touch down against the landing limits (dashed lines). This plot is the 12 October baseline at 98.4 %. Today's runs with the decided flight rules land between 98.4 % and 99.4 % depending on the mission profile.</p>
+    </div>
+    <figure>
+      <a class="frame" href="img/landing_scatter.png" target="_blank" rel="noopener" style="background:#fff"><img src="img/landing_scatter.png" alt="Scatter of touchdown lateral and vertical speed, and touchdown tilt and tilt rate, for 500 simulated landings." width="1430" height="546" loading="lazy"></a>
+      <figcaption>
+        <div class="chips"><span class="chip">SIM</span><span class="chip">Earlier baseline</span></div>
+        <span><strong>Touchdown speed and tilt, 500 dispersed flights.</strong> Red crosses are failures; every one touched down with sideways speed at or above the 0.5 m/s limit.</span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="notyet">
+    <div class="sec-head">
+      <h2>Not in these images yet</h2>
+    </div>
+    <ul>
+      <li>FEA stress and temperature plots of the assembled engine at max thrust. That run is in progress.</li>
+      <li>The purge vent line and its two valves, decided this morning. They go into the next CAD build with the rounded grain entrance.</li>
+      <li>The engine at full gimbal deflection, and the oxidiser tank.</li>
+    </ul>
+  </section>
+</div>

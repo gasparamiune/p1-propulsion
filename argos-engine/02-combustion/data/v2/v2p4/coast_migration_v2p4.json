@@ -1,0 +1,699 @@
+{
+ "version": "v2.4",
+ "date": "2026-10-13",
+ "script": "02-combustion/src/coast_migration_v2p4.py",
+ "script_sha256_16": "672afab81d303540",
+ "inputs": {
+  "series": {
+   "file": "/home/claude/work/shared-fallback/engine/01-systems-gnc/staging_v3.1/results/a1_coast_accel/coast_accel_a1_series_v1.csv",
+   "sha256_16": "cec7df69803059b9"
+  },
+  "envelope": {
+   "file": "/home/claude/work/shared-fallback/engine/01-systems-gnc/staging_v3.1/results/a1_coast_accel/coast_accel_a1_envelope_relight_v1.csv",
+   "sha256_16": "6efb6455dd82eee0"
+  },
+  "vapour_order": {
+   "file": "data/v2/v2p4/relight_vapour_order_v2p4.json",
+   "sha256_16": "fd8950a2f5f2b63c"
+  }
+ },
+ "sign": "x > 0 toward +z (zone-top MV); x < 0 toward the seat and the U-bottom",
+ "series": {
+  "nominal": {
+   "t_final_positive_s": 13.400000000000002,
+   "t_from_drogue_load_s": 11.420000000000002,
+   "t_coast_up_to_drogue_load_s": 8.28,
+   "t_coast_up_to_final_positive_s": 6.299999999999999,
+   "fz_min_mps2": -1.2292,
+   "fz_min_after_drogue_load_mps2": 4.92102,
+   "passages": {
+    "2 mm annular gap (bore leg)": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 223.60850855627902,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 1.2580558962313413
+    },
+    "3 mm drilling": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 506.81138416077886,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 2.830625766520518
+    },
+    "7.75 mm riser / wall line": {
+     "x_coast_up_net_mm": -36.980866024437624,
+     "x_coast_up_max_toward_seat_mm": -36.980866024437624,
+     "x_final_positive_interval_mm": 1017.0379761745769,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 18.875873497680814
+    },
+    "8 mm drillings / block": {
+     "x_coast_up_net_mm": -39.909055624260944,
+     "x_coast_up_max_toward_seat_mm": -39.909055624260944,
+     "x_final_positive_interval_mm": 1034.1508742408635,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 20.12889433970146
+    },
+    "14 mm filter bore": {
+     "x_coast_up_net_mm": -97.7559820311055,
+     "x_coast_up_max_toward_seat_mm": -97.7559820311055,
+     "x_final_positive_interval_mm": 1376.1201112551762,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 61.64473891533572
+    },
+    "7.9 mm coil hose at 3.9 deg (Fr 0.10 bracket)": {
+     "x_coast_up_net_mm": -27.526902452367874,
+     "x_coast_up_max_toward_seat_mm": -27.527016997283226,
+     "x_final_positive_interval_mm": 300.41771877779235,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    },
+    "7.9 mm coil hose at 3.9 deg (Bendiksen bracket)": {
+     "x_coast_up_net_mm": -154.79285761249906,
+     "x_coast_up_max_toward_seat_mm": -154.79350173636308,
+     "x_final_positive_interval_mm": 1689.3479841224382,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    }
+   },
+   "legs": {
+    "wall line (module -> U-bottom), 7.75 mm": {
+     "L_m": 0.195,
+     "time_to_traverse_in_final_interval_s": 3.84,
+     "margin_to_relight_cmd_s": 9.560000000000002
+    },
+    "riser + fittings, 7.75 mm": {
+     "L_m": 0.089,
+     "time_to_traverse_in_final_interval_s": 2.450000000000001,
+     "margin_to_relight_cmd_s": 10.950000000000001
+    },
+    "block + head + bonnet drillings, 8 mm": {
+     "L_m": 0.054,
+     "time_to_traverse_in_final_interval_s": 1.8800000000000008,
+     "margin_to_relight_cmd_s": 11.520000000000001
+    },
+    "bore leg (crest -> seat), 2 mm gap": {
+     "L_m": 0.094,
+     "time_to_traverse_in_final_interval_s": 7.34,
+     "margin_to_relight_cmd_s": 6.060000000000002
+    }
+   },
+   "tilt": {
+    "critical_angle_deg": 71.30532886611475,
+    "max_angle_after_drogue_load_while_fz_pos_deg": 0.0,
+    "time_beyond_critical_after_drogue_load_s": 0.0,
+    "longest_continuous_beyond_critical_s": 0.0
+   },
+   "window_s": 19.790000000000003,
+   "flat_seat_max_mps2": 0.0
+  },
+  "run101": {
+   "t_final_positive_s": 11.399999999999999,
+   "t_from_drogue_load_s": 9.29,
+   "t_coast_up_to_drogue_load_s": 8.43,
+   "t_coast_up_to_final_positive_s": 6.32,
+   "fz_min_mps2": -0.955796,
+   "fz_min_after_drogue_load_mps2": 4.91904,
+   "passages": {
+    "2 mm annular gap (bore leg)": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 180.19252025480708,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 0.9782336425271159
+    },
+    "3 mm drilling": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 418.14375921618097,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 2.2010256956860115
+    },
+    "7.75 mm riser / wall line": {
+     "x_coast_up_net_mm": -26.34467891062239,
+     "x_coast_up_max_toward_seat_mm": -26.34467891062239,
+     "x_final_positive_interval_mm": 866.8554366179162,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 14.677419773502548
+    },
+    "8 mm drillings / block": {
+     "x_coast_up_net_mm": -28.917800495730624,
+     "x_coast_up_max_toward_seat_mm": -28.917800495730624,
+     "x_final_positive_interval_mm": 881.4743741382974,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 15.651738280433854
+    },
+    "14 mm filter bore": {
+     "x_coast_up_net_mm": -85.56745967555779,
+     "x_coast_up_max_toward_seat_mm": -85.56745967555779,
+     "x_final_positive_interval_mm": 1170.821188880388,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 47.93344848382869
+    },
+    "7.9 mm coil hose at 3.9 deg (Fr 0.10 bracket)": {
+     "x_coast_up_net_mm": -26.081229969969062,
+     "x_coast_up_max_toward_seat_mm": -26.09738655685939,
+     "x_final_positive_interval_mm": 255.09228530535944,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    },
+    "7.9 mm coil hose at 3.9 deg (Bendiksen bracket)": {
+     "x_coast_up_net_mm": -146.66336410666426,
+     "x_coast_up_max_toward_seat_mm": -146.754217927153,
+     "x_final_positive_interval_mm": 1434.4681122638567,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    }
+   },
+   "legs": {
+    "wall line (module -> U-bottom), 7.75 mm": {
+     "L_m": 0.195,
+     "time_to_traverse_in_final_interval_s": 3.5600000000000005,
+     "margin_to_relight_cmd_s": 7.839999999999998
+    },
+    "riser + fittings, 7.75 mm": {
+     "L_m": 0.089,
+     "time_to_traverse_in_final_interval_s": 2.0600000000000005,
+     "margin_to_relight_cmd_s": 9.339999999999998
+    },
+    "block + head + bonnet drillings, 8 mm": {
+     "L_m": 0.054,
+     "time_to_traverse_in_final_interval_s": 1.4499999999999993,
+     "margin_to_relight_cmd_s": 9.95
+    },
+    "bore leg (crest -> seat), 2 mm gap": {
+     "L_m": 0.094,
+     "time_to_traverse_in_final_interval_s": 7.52,
+     "margin_to_relight_cmd_s": 3.879999999999999
+    }
+   },
+   "tilt": {
+    "critical_angle_deg": 71.30532886611475,
+    "max_angle_after_drogue_load_while_fz_pos_deg": 1.7488535374329068,
+    "time_beyond_critical_after_drogue_load_s": 0.0,
+    "longest_continuous_beyond_critical_s": 0.0
+   },
+   "window_s": 17.81,
+   "flat_seat_max_mps2": 2.04999
+  },
+  "run264": {
+   "t_final_positive_s": 13.92,
+   "t_from_drogue_load_s": 13.61,
+   "t_coast_up_to_drogue_load_s": 6.760000000000001,
+   "t_coast_up_to_final_positive_s": 6.45,
+   "fz_min_mps2": -1.86547,
+   "fz_min_after_drogue_load_mps2": 2.4686,
+   "passages": {
+    "2 mm annular gap (bore leg)": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 250.39853935926365,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 1.9092625551111946
+    },
+    "3 mm drilling": {
+     "x_coast_up_net_mm": -0.07903327840981653,
+     "x_coast_up_max_toward_seat_mm": -0.07903327840981653,
+     "x_final_positive_interval_mm": 567.531971857831,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 4.295840749000187
+    },
+    "7.75 mm riser / wall line": {
+     "x_coast_up_net_mm": -40.238758728389925,
+     "x_coast_up_max_toward_seat_mm": -40.238758728389925,
+     "x_final_positive_interval_mm": 1127.817058429356,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 28.64657967272911
+    },
+    "8 mm drillings / block": {
+     "x_coast_up_net_mm": -43.445371383020095,
+     "x_coast_up_max_toward_seat_mm": -43.445371383020095,
+     "x_final_positive_interval_mm": 1146.282986371921,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 30.548200881779113
+    },
+    "14 mm filter bore": {
+     "x_coast_up_net_mm": -107.42395906390887,
+     "x_coast_up_max_toward_seat_mm": -107.46013558361221,
+     "x_final_positive_interval_mm": 1517.8283807236658,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 93.55386520044853
+    },
+    "7.9 mm coil hose at 3.9 deg (Fr 0.10 bracket)": {
+     "x_coast_up_net_mm": -30.40447794224609,
+     "x_coast_up_max_toward_seat_mm": -30.43363072345775,
+     "x_final_positive_interval_mm": 330.51842247662046,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    },
+    "7.9 mm coil hose at 3.9 deg (Bendiksen bracket)": {
+     "x_coast_up_net_mm": -170.97441432214725,
+     "x_coast_up_max_toward_seat_mm": -171.13835003263674,
+     "x_final_positive_interval_mm": 1858.6141756146044,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    }
+   },
+   "legs": {
+    "wall line (module -> U-bottom), 7.75 mm": {
+     "L_m": 0.195,
+     "time_to_traverse_in_final_interval_s": 3.1099999999999994,
+     "margin_to_relight_cmd_s": 10.81
+    },
+    "riser + fittings, 7.75 mm": {
+     "L_m": 0.089,
+     "time_to_traverse_in_final_interval_s": 1.5899999999999999,
+     "margin_to_relight_cmd_s": 12.33
+    },
+    "block + head + bonnet drillings, 8 mm": {
+     "L_m": 0.054,
+     "time_to_traverse_in_final_interval_s": 1.0199999999999996,
+     "margin_to_relight_cmd_s": 12.9
+    },
+    "bore leg (crest -> seat), 2 mm gap": {
+     "L_m": 0.094,
+     "time_to_traverse_in_final_interval_s": 6.65,
+     "margin_to_relight_cmd_s": 7.27
+    }
+   },
+   "tilt": {
+    "critical_angle_deg": 71.30532886611475,
+    "max_angle_after_drogue_load_while_fz_pos_deg": 13.90980077227293,
+    "time_beyond_critical_after_drogue_load_s": 0.0,
+    "longest_continuous_beyond_critical_s": 0.0
+   },
+   "window_s": 20.46,
+   "flat_seat_max_mps2": 2.56559
+  },
+  "run329": {
+   "t_final_positive_s": 13.819999999999999,
+   "t_from_drogue_load_s": 12.229999999999999,
+   "t_coast_up_to_drogue_load_s": 8.35,
+   "t_coast_up_to_final_positive_s": 6.76,
+   "fz_min_mps2": -1.46842,
+   "fz_min_after_drogue_load_mps2": 4.91473,
+   "passages": {
+    "2 mm annular gap (bore leg)": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 239.88706525648203,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 1.5028916686820908
+    },
+    "3 mm drilling": {
+     "x_coast_up_net_mm": -0.00023616127404167686,
+     "x_coast_up_max_toward_seat_mm": -0.00023616127404167686,
+     "x_final_positive_interval_mm": 541.3321258487017,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 3.3815062545347048
+    },
+    "7.75 mm riser / wall line": {
+     "x_coast_up_net_mm": -49.278480172992964,
+     "x_coast_up_max_toward_seat_mm": -49.278480172992964,
+     "x_final_positive_interval_mm": 1083.425651773976,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 22.54938997841235
+    },
+    "8 mm drillings / block": {
+     "x_coast_up_net_mm": -52.708728579913796,
+     "x_coast_up_max_toward_seat_mm": -52.708728579913796,
+     "x_final_positive_interval_mm": 1101.506606856293,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 24.046266698913453
+    },
+    "14 mm filter bore": {
+     "x_coast_up_net_mm": -117.19829639236116,
+     "x_coast_up_max_toward_seat_mm": -117.19829639236116,
+     "x_final_positive_interval_mm": 1462.7377562051086,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 73.64169176542245
+    },
+    "7.9 mm coil hose at 3.9 deg (Fr 0.10 bracket)": {
+     "x_coast_up_net_mm": -32.05980792508703,
+     "x_coast_up_max_toward_seat_mm": -32.06671810359608,
+     "x_final_positive_interval_mm": 318.86394566343574,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    },
+    "7.9 mm coil hose at 3.9 deg (Bendiksen bracket)": {
+     "x_coast_up_net_mm": -180.28288114942552,
+     "x_coast_up_max_toward_seat_mm": -180.32173936385337,
+     "x_final_positive_interval_mm": 1793.0772059895928,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    }
+   },
+   "legs": {
+    "wall line (module -> U-bottom), 7.75 mm": {
+     "L_m": 0.195,
+     "time_to_traverse_in_final_interval_s": 3.5199999999999996,
+     "margin_to_relight_cmd_s": 10.299999999999999
+    },
+    "riser + fittings, 7.75 mm": {
+     "L_m": 0.089,
+     "time_to_traverse_in_final_interval_s": 2.0999999999999996,
+     "margin_to_relight_cmd_s": 11.719999999999999
+    },
+    "block + head + bonnet drillings, 8 mm": {
+     "L_m": 0.054,
+     "time_to_traverse_in_final_interval_s": 1.5299999999999994,
+     "margin_to_relight_cmd_s": 12.29
+    },
+    "bore leg (crest -> seat), 2 mm gap": {
+     "L_m": 0.094,
+     "time_to_traverse_in_final_interval_s": 7.15,
+     "margin_to_relight_cmd_s": 6.669999999999998
+    }
+   },
+   "tilt": {
+    "critical_angle_deg": 71.30532886611475,
+    "max_angle_after_drogue_load_while_fz_pos_deg": 4.4376135838185125,
+    "time_beyond_critical_after_drogue_load_s": 0.0,
+    "longest_continuous_beyond_critical_s": 0.0
+   },
+   "window_s": 20.669999999999998,
+   "flat_seat_max_mps2": 2.20066
+  },
+  "run380": {
+   "t_final_positive_s": 11.430000000000001,
+   "t_from_drogue_load_s": 9.290000000000001,
+   "t_coast_up_to_drogue_load_s": 8.38,
+   "t_coast_up_to_final_positive_s": 6.24,
+   "fz_min_mps2": -0.962285,
+   "fz_min_after_drogue_load_mps2": 4.91015,
+   "passages": {
+    "2 mm annular gap (bore leg)": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 173.92743428961484,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 0.9848749740522097
+    },
+    "3 mm drilling": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 404.617008596222,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 2.215968691617472
+    },
+    "7.75 mm riser / wall line": {
+     "x_coast_up_net_mm": -25.097120728694993,
+     "x_coast_up_max_toward_seat_mm": -25.097120728694993,
+     "x_final_positive_interval_mm": 836.167114984137,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 14.777066326648043
+    },
+    "8 mm drillings / block": {
+     "x_coast_up_net_mm": -27.474628241096656,
+     "x_coast_up_max_toward_seat_mm": -27.474628241096656,
+     "x_final_positive_interval_mm": 850.401534684922,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 15.757999584835355
+    },
+    "14 mm filter bore": {
+     "x_coast_up_net_mm": -79.19698258939796,
+     "x_coast_up_max_toward_seat_mm": -79.19698258939796,
+     "x_final_positive_interval_mm": 1133.2574217802871,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 48.25887372855827
+    },
+    "7.9 mm coil hose at 3.9 deg (Fr 0.10 bracket)": {
+     "x_coast_up_net_mm": -24.027123522703473,
+     "x_coast_up_max_toward_seat_mm": -24.032042200334867,
+     "x_final_positive_interval_mm": 247.5481794303178,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    },
+    "7.9 mm coil hose at 3.9 deg (Bendiksen bracket)": {
+     "x_coast_up_net_mm": -135.11244560565652,
+     "x_coast_up_max_toward_seat_mm": -135.14010495336393,
+     "x_final_positive_interval_mm": 1392.0451150323458,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    }
+   },
+   "legs": {
+    "wall line (module -> U-bottom), 7.75 mm": {
+     "L_m": 0.195,
+     "time_to_traverse_in_final_interval_s": 3.92,
+     "margin_to_relight_cmd_s": 7.510000000000002
+    },
+    "riser + fittings, 7.75 mm": {
+     "L_m": 0.089,
+     "time_to_traverse_in_final_interval_s": 2.469999999999999,
+     "margin_to_relight_cmd_s": 8.960000000000003
+    },
+    "block + head + bonnet drillings, 8 mm": {
+     "L_m": 0.054,
+     "time_to_traverse_in_final_interval_s": 1.879999999999999,
+     "margin_to_relight_cmd_s": 9.550000000000002
+    },
+    "bore leg (crest -> seat), 2 mm gap": {
+     "L_m": 0.094,
+     "time_to_traverse_in_final_interval_s": 7.67,
+     "margin_to_relight_cmd_s": 3.7600000000000016
+    }
+   },
+   "tilt": {
+    "critical_angle_deg": 71.30532886611475,
+    "max_angle_after_drogue_load_while_fz_pos_deg": 2.427917579383899,
+    "time_beyond_critical_after_drogue_load_s": 0.0,
+    "longest_continuous_beyond_critical_s": 0.0
+   },
+   "window_s": 17.76,
+   "flat_seat_max_mps2": 0.804515
+  }
+ },
+ "envelope_aligned_at_relight_cmd": {
+  "p01": {
+   "t_final_positive_s": 11.67,
+   "t_from_drogue_load_s": 9.59,
+   "t_coast_up_to_drogue_load_s": 9.040000000000001,
+   "t_coast_up_to_final_positive_s": 6.960000000000001,
+   "fz_min_mps2": -1.18383,
+   "fz_min_after_drogue_load_mps2": 4.91773,
+   "passages": {
+    "2 mm annular gap (bore leg)": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 171.86482317233794,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 1.2116208197490632
+    },
+    "3 mm drilling": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 408.01995782775754,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 2.7261468444353922
+    },
+    "7.75 mm riser / wall line": {
+     "x_coast_up_net_mm": -48.0340142724494,
+     "x_coast_up_max_toward_seat_mm": -48.0340142724494,
+     "x_final_positive_interval_mm": 850.770998541812,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 18.179161505661792
+    },
+    "8 mm drillings / block": {
+     "x_coast_up_net_mm": -52.28797598332895,
+     "x_coast_up_max_toward_seat_mm": -52.28797598332895,
+     "x_final_positive_interval_mm": 865.2597707520645,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 19.38593311598501
+    },
+    "14 mm filter bore": {
+     "x_coast_up_net_mm": -141.32051135563034,
+     "x_coast_up_max_toward_seat_mm": -141.32051135563034,
+     "x_final_positive_interval_mm": 1153.3617406095107,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 59.369420167704114
+    },
+    "7.9 mm coil hose at 3.9 deg (Fr 0.10 bracket)": {
+     "x_coast_up_net_mm": -37.41169955135821,
+     "x_coast_up_max_toward_seat_mm": -37.4153198118833,
+     "x_final_positive_interval_mm": 251.84079711289576,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    },
+    "7.9 mm coil hose at 3.9 deg (Bendiksen bracket)": {
+     "x_coast_up_net_mm": -210.37833413024802,
+     "x_coast_up_max_toward_seat_mm": -210.39869205003032,
+     "x_final_positive_interval_mm": 1416.1839210194667,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    }
+   },
+   "legs": {
+    "wall line (module -> U-bottom), 7.75 mm": {
+     "L_m": 0.195,
+     "time_to_traverse_in_final_interval_s": 3.8499999999999996,
+     "margin_to_relight_cmd_s": 7.819999999999999
+    },
+    "riser + fittings, 7.75 mm": {
+     "L_m": 0.089,
+     "time_to_traverse_in_final_interval_s": 2.42,
+     "margin_to_relight_cmd_s": 9.25
+    },
+    "block + head + bonnet drillings, 8 mm": {
+     "L_m": 0.054,
+     "time_to_traverse_in_final_interval_s": 1.8199999999999985,
+     "margin_to_relight_cmd_s": 9.850000000000001
+    },
+    "bore leg (crest -> seat), 2 mm gap": {
+     "L_m": 0.094,
+     "time_to_traverse_in_final_interval_s": 7.719999999999999,
+     "margin_to_relight_cmd_s": 3.95
+    }
+   }
+  },
+  "p50": {
+   "t_final_positive_s": 12.99,
+   "t_from_drogue_load_s": 11.3,
+   "t_coast_up_to_drogue_load_s": 7.33,
+   "t_coast_up_to_final_positive_s": 5.640000000000001,
+   "fz_min_mps2": -0.836507,
+   "fz_min_after_drogue_load_mps2": 4.91757,
+   "passages": {
+    "2 mm annular gap (bore leg)": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 216.13225898060463,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 0.8561442918880496
+    },
+    "3 mm drilling": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 494.34941180323034,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 1.9263246567481116
+    },
+    "7.75 mm riser / wall line": {
+     "x_coast_up_net_mm": -18.950056136410307,
+     "x_coast_up_max_toward_seat_mm": -18.950056136410307,
+     "x_final_positive_interval_mm": 1000.7006028095573,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 12.845590881812953
+    },
+    "8 mm drillings / block": {
+     "x_coast_up_net_mm": -20.905176817489174,
+     "x_coast_up_max_toward_seat_mm": -20.905176817489174,
+     "x_final_positive_interval_mm": 1017.4582126681299,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 13.698308670208794
+    },
+    "14 mm filter bore": {
+     "x_coast_up_net_mm": -65.644611003657,
+     "x_coast_up_max_toward_seat_mm": -65.644611003657,
+     "x_final_positive_interval_mm": 1351.7506438818361,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 41.951070302514424
+    },
+    "7.9 mm coil hose at 3.9 deg (Fr 0.10 bracket)": {
+     "x_coast_up_net_mm": -21.012021736072118,
+     "x_coast_up_max_toward_seat_mm": -21.01263755108916,
+     "x_final_positive_interval_mm": 294.7483002927249,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    },
+    "7.9 mm coil hose at 3.9 deg (Bendiksen bracket)": {
+     "x_coast_up_net_mm": -118.15753313946752,
+     "x_coast_up_max_toward_seat_mm": -118.16099607055516,
+     "x_final_positive_interval_mm": 1657.466972816376,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    }
+   },
+   "legs": {
+    "wall line (module -> U-bottom), 7.75 mm": {
+     "L_m": 0.195,
+     "time_to_traverse_in_final_interval_s": 3.59,
+     "margin_to_relight_cmd_s": 9.4
+    },
+    "riser + fittings, 7.75 mm": {
+     "L_m": 0.089,
+     "time_to_traverse_in_final_interval_s": 2.16,
+     "margin_to_relight_cmd_s": 10.83
+    },
+    "block + head + bonnet drillings, 8 mm": {
+     "L_m": 0.054,
+     "time_to_traverse_in_final_interval_s": 1.58,
+     "margin_to_relight_cmd_s": 11.41
+    },
+    "bore leg (crest -> seat), 2 mm gap": {
+     "L_m": 0.094,
+     "time_to_traverse_in_final_interval_s": 7.279999999999999,
+     "margin_to_relight_cmd_s": 5.71
+    }
+   }
+  },
+  "p99": {
+   "t_final_positive_s": 14.47,
+   "t_from_drogue_load_s": 13.030000000000001,
+   "t_coast_up_to_drogue_load_s": 5.159999999999998,
+   "t_coast_up_to_final_positive_s": 3.719999999999999,
+   "fz_min_mps2": -0.364966,
+   "fz_min_after_drogue_load_mps2": 4.95831,
+   "passages": {
+    "2 mm annular gap (bore leg)": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 268.63454117452824,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 0.3735337034038137
+    },
+    "3 mm drilling": {
+     "x_coast_up_net_mm": 0.0,
+     "x_coast_up_max_toward_seat_mm": 0.0,
+     "x_final_positive_interval_mm": 596.6072069353979,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 0.8404508326585808
+    },
+    "7.75 mm riser / wall line": {
+     "x_coast_up_net_mm": -1.3452881279663529,
+     "x_coast_up_max_toward_seat_mm": -1.3452881279663529,
+     "x_final_positive_interval_mm": 1171.7650953027114,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 5.604500526321653
+    },
+    "8 mm drillings / block": {
+     "x_coast_up_net_mm": -1.7211080524247544,
+     "x_coast_up_max_toward_seat_mm": -1.7211080524247544,
+     "x_final_positive_interval_mm": 1191.0116521647453,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 5.976539254461019
+    },
+    "14 mm filter bore": {
+     "x_coast_up_net_mm": -16.92161911320844,
+     "x_coast_up_max_toward_seat_mm": -16.92161911320844,
+     "x_final_positive_interval_mm": 1578.2846108943197,
+     "max_backward_excursion_after_drogue_load_mm": 0.0,
+     "Eo_at_fz_min": 18.30315146678687
+    },
+    "7.9 mm coil hose at 3.9 deg (Fr 0.10 bracket)": {
+     "x_coast_up_net_mm": -9.325252346522449,
+     "x_coast_up_max_toward_seat_mm": -9.329262910718434,
+     "x_final_positive_interval_mm": 343.87039390148635,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    },
+    "7.9 mm coil hose at 3.9 deg (Bendiksen bracket)": {
+     "x_coast_up_net_mm": -52.438971699545675,
+     "x_coast_up_max_toward_seat_mm": -52.46152442568729,
+     "x_final_positive_interval_mm": 1933.696717691098,
+     "max_backward_excursion_after_drogue_load_mm": 0.0
+    }
+   },
+   "legs": {
+    "wall line (module -> U-bottom), 7.75 mm": {
+     "L_m": 0.195,
+     "time_to_traverse_in_final_interval_s": 3.290000000000001,
+     "margin_to_relight_cmd_s": 11.18
+    },
+    "riser + fittings, 7.75 mm": {
+     "L_m": 0.089,
+     "time_to_traverse_in_final_interval_s": 1.8499999999999996,
+     "margin_to_relight_cmd_s": 12.620000000000001
+    },
+    "block + head + bonnet drillings, 8 mm": {
+     "L_m": 0.054,
+     "time_to_traverse_in_final_interval_s": 1.2799999999999994,
+     "margin_to_relight_cmd_s": 13.190000000000001
+    },
+    "bore leg (crest -> seat), 2 mm gap": {
+     "L_m": 0.094,
+     "time_to_traverse_in_final_interval_s": 6.85,
+     "margin_to_relight_cmd_s": 7.62
+    }
+   }
+  }
+ },
+ "note": "Envelope rows are pointwise percentiles (not a run); only instants covered by >= 450 of 500 runs are used.",
+ "tag": "DERIVED (GNC SIM specific force x LITERATURE drift forms as recalled, TO-VERIFY)"
+}

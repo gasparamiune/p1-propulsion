@@ -1,0 +1,117 @@
+{
+ "id": "seat_face_temp",
+ "version": "v1.1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "04-fea/thermal/seat_face_coast.py",
+ "request": "Combustion v2.4 OI-21 / REPORT 9.1 H1: wetted seat face <= 800 K from MECO to E1 (A1 relight); coordinator 2026-10-13 item (2)",
+ "status": "SIM (2-D axisymmetric thermal FE, upper-bound heat transfer) + restart variants; needle not modelled; not a measurement",
+ "source_run": {
+  "label": "DC-A1dispp99_tg711_hi_SS316L_L2.5_v13pre36IN_J1revB",
+  "frd_sha256_16": "246f168949267160",
+  "inp_sha256_16": "d6808f26733f006e",
+  "segments_s": [
+   [
+    0.001,
+    3.541
+   ],
+   [
+    22.211,
+    26.781
+   ]
+  ],
+  "bound": {
+   "HMUL_ch": 2.0,
+   "HMUL_nz": 1.3,
+   "QMUL": "hi",
+   "tag": "UPPER bound: Bartz x2 in the chamber (recirculating flow, Combustion 0.5-2), x1.3 in the nozzle (0.7-1.3), gas radiation HIGH band"
+  },
+  "config_overrides": {
+   "D_pre": 0.0499,
+   "tc03_material": "IN718",
+   "nozzle_joint": "J1",
+   "insert_sleeve_material": "CARBON-PHENOLIC"
+  },
+  "coast_N2O_film": {
+   "G_total_W_K": 1.0,
+   "h_W_m2K": 375.9,
+   "A_wetted_mm2": 2660.0
+  }
+ },
+ "wetted_faces": {
+  "ENG-TC-04": {
+   "nodes": 25,
+   "r_mm": [
+    5.0,
+    5.36
+   ],
+   "z_thermal_mm": [
+    181.41,
+    205.26
+   ]
+  },
+  "ENG-TC-02": {
+   "nodes": 47,
+   "r_mm": [
+    5.0,
+    5.0
+   ],
+   "z_thermal_mm": [
+    127.41,
+    181.41
+   ]
+  },
+  "ENG-TC-03": {
+   "nodes": 21,
+   "r_mm": [
+    2.75,
+    5.0
+   ],
+   "z_thermal_mm": [
+    120.41,
+    127.41
+   ]
+  }
+ },
+ "limit_K": 800.0,
+ "in_burn_1": {
+  "TC03_wetted_max_K": 625.6,
+  "t_s": 3.541
+ },
+ "variants": {
+  "BASE": {
+   "status": "RUN FAILED (kept as evidence)",
+   "n_increments": 0,
+   "ccx_log_tail": [
+    "divergence; the increment size is decreased to 1.084978e-05",
+    "the increment is reattempted",
+    "*ERROR: increment size smaller than minimum",
+    "best solution and residuals are in the frd file"
+   ]
+  },
+  "ADIABATIC": {
+   "status": "RUN FAILED (kept as evidence)",
+   "n_increments": 0,
+   "ccx_log_tail": [
+    "divergence; the increment size is decreased to 1.084978e-05",
+    "the increment is reattempted",
+    "*ERROR: increment size smaller than minimum",
+    "best solution and residuals are in the frd file"
+   ]
+  }
+ },
+ "full_run_coast_frames": {
+  "frames": 19,
+  "TC03_wetted_max_K": 497.4,
+  "TC03_wetted_at_relight_K": 324.0,
+  "TC02_wetted_max_K": 330.4,
+  "TC04_wetted_max_K": 306.2,
+  "note": "first frame 0.9984 s after MECO; between MECO and that frame the restart (or the MECO value) applies"
+ },
+ "try1_evidence": {
+  "file": "seat_face_temp_v1_try1_FAILED_QA.json",
+  "QA_seat_monitor_max_abs_diff_K": 10.445,
+  "cause": "fixed 0.09984 s first increment: liner hot faces ENG-TC-06/08 went to -1777/-1882 K (spurious negative radiation root), non-conservative cooling of the head end; results not used"
+ },
+ "summary": "RESTART RUN FAILED (BASE, ADIABATIC: ccx diverged in the first increment) (variants run: none; BASE QA pass False, non-physical check pass True): the restart variants are not usable. The design run's own coast frames give a wetted seat-face maximum of 497.4 K after MECO and 625.6 K at MECO (BASE coast only); the ADIABATIC bound is OPEN."
+}

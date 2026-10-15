@@ -1,0 +1,124 @@
+{
+ "id": "REV-MECH-1 r1 results index",
+ "date": "2026-10-13",
+ "reviewer": "REV-MECH-1 (independent; read-only on author areas; no author module imported)",
+ "runtime": "/opt/engine-venv/bin/python -I (numpy 2.5.4, trimesh 5.1.1, cadquery 2.8.0, OCP 7.9.3.1); CalculiX 2.21 (ccx) at nice 15, 1 thread",
+ "items": [
+  {
+   "script": "scripts/rm1_sax_rerun_compare.py",
+   "inputs": "author deck runs/structural/L1_TC09IN718_thJ1revB_TC09IN/A1_22.2/sax.inp (copied unchanged, sha256 18a2a45a...) re-solved in /home/claude/work/reviews-mech-r1/rerun/A1_22.2; author res.npz; materials_v1p4.json",
+   "outputs": [
+    "results/rm1_sax_rerun_A1_22.2.json",
+    "results/rm1_ccx_rerun_A1_22.2_sax.dat",
+    "logs/rm1_sax_rerun_A1_22.2.log",
+    "logs/rm1_ccx_rerun_A1_22.2_stdout.log",
+    "logs/rm1_ccx_rerun_A1_22.2_time.log"
+   ],
+   "criterion": "C5(e) exact re-run; C4 RF/units",
+   "tag": "SIM repeatability (not physical validation)"
+  },
+  {
+   "script": "scripts/rm1_hand_checks.py",
+   "inputs": "geometry from the author deck / BOM notes; loads from combos() and CHANGELOG 172/173",
+   "outputs": [
+    "results/rm1_hand_checks.json",
+    "logs/rm1_hand_checks.log"
+   ],
+   "criterion": "C5(a)-(d); C4 contact bound (ESTIMATE)",
+   "tag": "DERIVED / ESTIMATE / ASSUMED as marked inside"
+  },
+  {
+   "script": "scripts/rm1_convergence_recheck.py",
+   "inputs": "author sax_convergence_v1.json (316L baseline, h 2/1/0.5)",
+   "outputs": [
+    "results/rm1_convergence_recheck.json",
+    "logs/rm1_convergence_recheck.log"
+   ],
+   "criterion": "C4 mesh convergence at governing locations",
+   "tag": "DERIVED from SIM"
+  },
+  {
+   "script": "scripts/rm1_baywall_sweep.py",
+   "inputs": "03-cad/assembly/ENGINE_v3.5_neutral.glb, assembly_manifest_v3.5.json",
+   "outputs": [
+    "results/rm1_baywall_sweep_v35.json",
+    "logs/rm1_baywall_sweep_v35.log"
+   ],
+   "criterion": "C6 bay wall, 72 directions at 7 and 8 deg (engine + ring groups; hose/horn/pushrod not swept)",
+   "tag": "DERIVED geometry (tessellation +0/-0.1 mm)"
+  },
+  {
+   "script": "scripts/rm1_bl02_exact.py",
+   "inputs": "03-cad/parts/ENG-BL-02.step (sha256/16 53fe82fe70761b13)",
+   "outputs": [
+    "results/rm1_bl02_exact_v35.json",
+    "logs/rm1_bl02_exact_v35.log"
+   ],
+   "criterion": "C6 exact B-rep cross-check of RM1-01",
+   "tag": "DERIVED geometry (B-rep, tessellation 0.002 mm + boolean common)"
+  },
+  {
+   "script": "scripts/rm1_cad_spotcheck.py",
+   "inputs": "03-cad parts/, BOM_v3.5.json, massprops_v3.5.json, roundtrip_parts_v3.5.json, assembly_manifest_v3.5.json",
+   "outputs": [
+    "results/rm1_cad_spotcheck_v35.json",
+    "logs/rm1_cad_spotcheck_v35.log"
+   ],
+   "criterion": "C6 STEP round-trip spot checks, BOM arithmetic, PN coverage, GSE separation",
+   "tag": "DERIVED"
+  },
+  {
+   "script": "scripts/rm1_tc09_contact_superpose.py",
+   "inputs": "author deck runs/structural/L1_TC09IN718_thJ1revB_TC09IN/B1_21.65/sax.inp re-solved in /home/claude/work/reviews-mech-r1/rerun/B1_21.65; author res.npz; materials_v1p4.json; results/rm1_hand_checks.json",
+   "outputs": [
+    "results/rm1_tc09_contact_B1_21.65.json",
+    "logs/rm1_tc09_contact_B1_21.65.log",
+    "logs/rm1_ccx_rerun_B1_21.65_stdout.log",
+    "logs/rm1_ccx_rerun_B1_21.65_time.log"
+   ],
+   "criterion": "C5(e) second exact re-run; C4 contact assumption (RM1-03) ESTIMATE on the TC-09 holder LC1 margin",
+   "tag": "SIM repeatability + ESTIMATE (bound-type superposition, ASSUMED carbon-phenolic E)"
+  },
+  {
+   "script": "scripts/rm1_wall_top12_audit.py",
+   "inputs": "03-cad/checks/checks_v3.5.json (as read 2026-10-13, sha256/16 974a236f1e6d94b6, 5 poses stored; make_all run 6 log 5a7964732b0d11a2 lists 11 of 18 poses), ENGINE_v3.5_neutral.glb, assembly_manifest_v3.5.json, BOM_v3.5.json",
+   "outputs": [
+    "results/rm1_wall_top12_audit_v35.json",
+    "logs/rm1_wall_top12_audit_v35.log"
+   ],
+   "criterion": "C6 / RM1-01, RM1-02: can the stored wall check reveal a moving-part violation; fixed parts reported 0.0 that extend beyond r 70",
+   "tag": "DERIVED from the author's stored check output and GLB (tessellation +0/-0.1 mm)"
+  },
+  {
+   "script": "scripts/rm1_nz02_interface_T.py",
+   "inputs": "re-solved deck /home/claude/work/reviews-mech-r1/rerun/B1_21.65/sax.inp (identical to the author's), materials_v1p4.json CARBON-PHENOLIC Sc(T) ASSUMED, results/rm1_tc09_contact_B1_21.65.json",
+   "outputs": [
+    "results/rm1_nz02_interface_T_B1_21.65.json",
+    "logs/rm1_nz02_interface_T_B1_21.65.log"
+   ],
+   "criterion": "C4 / RM1-03: NZ-02 temperature at both radial interfaces in the closed band, Sc(T) vs the ESTIMATED contact pressure",
+   "tag": "DERIVED from SIM temperatures; Sc ASSUMED; contact pressure ESTIMATE"
+  },
+  {
+   "script": "scripts/rm1_collar_band_T.py",
+   "inputs": "re-solved deck /home/claude/work/reviews-mech-r1/rerun/B1_21.65/sax.inp (identical to the author's)",
+   "outputs": [
+    "results/rm1_collar_band_T_B1_21.65.json",
+    "logs/rm1_collar_band_T_B1_21.65.log"
+   ],
+   "criterion": "C4: test of the 60 C ASSUMED ring temperature in flight (S-3D LC1/LC3)",
+   "tag": "DERIVED from SIM temperatures"
+  },
+  {
+   "script": "scripts/rm1_thread_fit_T.py",
+   "inputs": "author state decks runs/structural/L1_TC09IN718_thJ1revB_TC09IN/{A1_22.2,B1_36.7,B1_186.7,TB}/sax.inp (read-only) and the reviewer's identical B1_21.65 copy; materials_v1p4.json alpha (author tags)",
+   "outputs": [
+    "results/rm1_thread_fit_T_v35.json",
+    "logs/rm1_thread_fit_T_v35.log"
+   ],
+   "criterion": "C4 / RM1-04: free differential radial growth across the TC-01/TC-09 M63x1.5 6H/6e thread vs half the 6e allowance (0.03325 mm, ISO 965-1 AS RECALLED)",
+   "tag": "DERIVED from SIM temperatures (free growth indicator, not a stress result)"
+  }
+ ],
+ "note": "Matching numbers prove repeatability, not physical acceptance. The review text (findings and verdicts) is delivered to the lead by hand-back; the lead records it."
+}

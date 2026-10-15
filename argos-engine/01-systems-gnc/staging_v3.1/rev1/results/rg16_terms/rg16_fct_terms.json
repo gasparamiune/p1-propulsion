@@ -1,0 +1,878 @@
+{
+ "version": "m2_rg16_fct_terms v1.0.1",
+ "date": "2026-10-13",
+ "sim": "sim6 v2.8-dev (2026-10-13, amendments M, W, F, P, R, S)",
+ "method": "Terms (m_hat = the flown estimator of m2_mass_est v2; e = m_hat / m_exact - 1):\n  PURGE BOOKING (A1 relight only; B1, B2, C, D have no purge). The FSW books the commanded purge at prg_mdot_hat x t (sim6\n    amendment P, prg_book 1). Booked at the liquid flow of the 0.8 mm orifice (20.0 g/s, Combustion purge_sizing_v2p4, DERIVED)\n    the booking over-states the vented mass because the segment vents vapour first: residual = booked - vented = 4.6-19.0 g at\n    Tp 2.0 s and 4.9-23.1 g at Tp 3.0 s (Combustion purge_table_v2p4 rows 0.8|*: vented 20.98-35.36 g / 36.86-55.12 g, DERIVED).\n    The orifice passes at most its liquid flow and at least its vapour flow (5.44 g/s), so the residual does not decrease with\n    Tp and grows by at most 20.0 - 5.44 = 14.56 g/s beyond the last table point: the flown purges last up to Tp_max = the\n    largest prg_dur of pb_A1_P25 (the purge runs between two evaluations of the trigger, 2.77-3.32 s p1-p99), so the bound is\n    23.1 g + (Tp_max - 3.0 s) x 14.56 g/s (DERIVED, bounded extrapolation). Sign: m_hat UNDER-reads (missed-detection side of\n    FC_THRUST). Comparator: the purge NOT booked, m_hat over-reads by the vented mass: sim6 truth (liquid for the whole purge,\n    upper bound) prg_mass max of pb_A1_P25_nobook.\n  STUCK-OPEN BLEED (fault; outside the nominal budget; the bleed is confirmed closed before E1, lead decision 2026-10-13):\n    m_hat over-reads by the bled mass (no FSW model, no detector): blf_mass max of pb_A1_S194_0 (relight lift onward) and\n    pb_B1_B194_0 (from the first ignition), 19.4 g/s additive bracket (the largest Combustion flow, 0.8 mm).\nMethod: each term is applied as a CONSTANT m_hat offset from ARM (mest_w + w_bias) in the m2_mass_est v2 fct part (same draws,\nnoise model, frames, 3-frame hold and stuck-ramp test as fct_mest_v2.json; m2_fc_thrust v1.1 configurations A1 0.81 s liquid /\nB1 85 m; 200 runs per case). A constant offset from ARM bounds a term that appears only after the purge (A1) or grows during the\nburn (bleed): it applies the full offset to every FC frame, including the first burn of A1 (conservative on both sides).\nComparator for each case: the same case without the offset (fct_mest_v2.json, m2_mass_est v2 part fct).\nCases (profile|case = base fct case + w_bias kg):\n  A1|H_cal_pbk, A1|H_cal_comp_pbk, A1|Llo_re_pbk, A1|Llo_cmd_pbk, A1|Llo_re_comp_pbk   -(residual bound) = -0.0291 (booked purge)\n  A1|H_cal_pnb, A1|Lhi_re_pnb, A1|Lhi_cmd_pnb, A1|Lhi_re_comp_pnb                         + purge mass max (purge not booked)\n  A1|H_cal_blf                                                                             + bled mass max of A1 S194_0\n  B1|H_cal_blf, B1|H_cal_comp_blf                                                          + bled mass max of B1 B194_0\nEnv: GNC_IFACE, GNC_ACT_RATE (v3c set), GNC_RG16_PARTS (fct,eval), GNC_RG16_OUT (out/rg16_terms), GNC_MEST2_NFCT (200).\nOutput: <out>/fct2_<profile>_<case>.json (m2_mass_est v2 format), <out>/rg16_fct_terms.json",
+ "threshold_N": 650.0,
+ "stuck_N": 670.0,
+ "offsets_kg": {
+  "pbk": -0.029115497737057666,
+  "pnb": 0.06819999999999954,
+  "blf_A1": 0.10181120000000916,
+  "blf_B1": 0.3611504000000459
+ },
+ "combustion_purge": {
+  "orifice_mm": 0.8,
+  "liquid_flow_g_s": 20.000685735296514,
+  "vapour_flow_g_s": 5.436211927771778,
+  "vented_g": {
+   "2.0": [
+    20.975321086072004,
+    35.3585381624576
+   ],
+   "3.0": [
+    36.857993729977714,
+    55.11971682072233
+   ]
+  },
+  "residual_booked_minus_vented_g": {
+   "2.0": [
+    4.64283330813543,
+    19.026050384521024
+   ],
+   "3.0": [
+    4.882340385167211,
+    23.144063475911828
+   ]
+  },
+  "sources": {
+   "purge_table": "/home/claude/work/combustion/data/v2/v2p4/purge_table_v2p4.json (sha256/16 79880ab51139ff99)",
+   "purge_sizing": "/home/claude/work/combustion/data/v2/v2p4/purge_sizing_v2p4.json (sha256/16 00955c206987e5e8)"
+  },
+  "tag": "DERIVED (Combustion v2.4)",
+  "Tp_max_flown_s": 3.4100000000041675,
+  "residual_bound_g": 29.115497737057666,
+  "residual_bound_rule": "residual(3.0 s) max + (Tp_max - 3.0) x (liquid - vapour flow)"
+ },
+ "comparator": "/home/claude/work/space/out/mass_est_v2/fct_mest_v2.json (sha256/16 fb574ace518f5c65)",
+ "cases": {
+  "A1|H_cal_pbk": {
+   "w_bias_kg": -0.029115497737057666,
+   "base_case": "A1|H_cal",
+   "held_max_N": 575.7,
+   "margin_to_650_N": 74.29999999999995,
+   "runs_above_650": 0,
+   "base_held_max_N": 576.7,
+   "b_sys_min": -0.02622399937824549,
+   "b_sys_p01": -0.0250295926864792,
+   "base_b_sys_min": -0.024233314084430746,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.128,
+      0.249,
+      0.30900000000000005
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.09499999999999997,
+      0.14800000000000002,
+      0.15200000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.1265,
+      0.24301999999999999,
+      0.30900000000000005
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.09399999999999997,
+      0.14800000000000002,
+      0.15200000000000002
+     ]
+    }
+   },
+   "P": 0.985,
+   "base_P": 0.98,
+   "mhe_fc_min_max": [
+    -0.006139702241036993,
+    0.0039029836660315897
+   ],
+   "base_mhe_fc_min_max": [
+    -0.004273448183659712,
+    0.005910171996615254
+   ]
+  },
+  "A1|H_cal_comp_pbk": {
+   "w_bias_kg": -0.029115497737057666,
+   "base_case": "A1|H_cal_comp",
+   "held_max_N": 574.8,
+   "margin_to_650_N": 75.20000000000005,
+   "runs_above_650": 0,
+   "base_held_max_N": 576.3,
+   "b_sys_min": -0.020011529790821325,
+   "b_sys_p01": -0.013831120443163324,
+   "base_b_sys_min": -0.018089101135901564,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.128,
+      0.21699999999999997,
+      0.24
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.09449999999999997,
+      0.14701,
+      0.15000000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.126,
+      0.21299999999999997,
+      0.24
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.09399999999999997,
+      0.14700000000000002,
+      0.15000000000000002
+     ]
+    }
+   },
+   "P": 0.98,
+   "base_P": 0.975,
+   "mhe_fc_min_max": [
+    -0.006136204234578058,
+    0.003898781737831092
+   ],
+   "base_mhe_fc_min_max": [
+    -0.004270193017205215,
+    0.005905797523105605
+   ]
+  },
+  "A1|Llo_re_pbk": {
+   "w_bias_kg": -0.029115497737057666,
+   "base_case": "A1|Llo_re",
+   "held_max_N": 449.5,
+   "margin_to_650_N": 200.5,
+   "runs_above_650": 0,
+   "base_held_max_N": 450.5,
+   "b_sys_min": -0.03452324979252075,
+   "b_sys_p01": -0.028260830930202638,
+   "base_b_sys_min": -0.03272115002881182,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.15000000000000002,
+      0.265,
+      0.387
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.10799999999999998,
+      0.14900000000000002,
+      0.15200000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.14700000000000002,
+      0.249,
+      0.387
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.10749999999999998,
+      0.14900000000000002,
+      0.15200000000000002
+     ]
+    }
+   },
+   "P": 0.97,
+   "base_P": 0.975,
+   "mhe_fc_min_max": [
+    -0.007407185088808554,
+    0.0021614930528419674
+   ],
+   "base_mhe_fc_min_max": [
+    -0.005678362427022132,
+    0.004039590113197544
+   ]
+  },
+  "A1|Llo_cmd_pbk": {
+   "w_bias_kg": -0.029115497737057666,
+   "base_case": "A1|Llo_cmd",
+   "held_max_N": 448.8,
+   "margin_to_650_N": 201.2,
+   "runs_above_650": 0,
+   "base_held_max_N": 448.9,
+   "b_sys_min": -0.04379838407706638,
+   "b_sys_p01": -0.03671119912012389,
+   "base_b_sys_min": -0.0418893529962282,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 1,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 1,
+     "t_detect_p50_p99_max_s": [
+      0.15400000000000003,
+      0.4403999999999997,
+      0.56
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.10799999999999998,
+      0.15200000000000002,
+      0.15500000000000003
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.15100000000000002,
+      0.39517999999999986,
+      1.6869999999999998
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.10799999999999998,
+      0.15100000000000002,
+      0.15500000000000003
+     ]
+    }
+   },
+   "P": 0.97,
+   "base_P": 0.97,
+   "mhe_fc_min_max": [
+    -0.021304374064607168,
+    -0.00037711469441525924
+   ],
+   "base_mhe_fc_min_max": [
+    -0.01942458237611655,
+    0.0015028203087203984
+   ]
+  },
+  "A1|Llo_re_comp_pbk": {
+   "w_bias_kg": -0.029115497737057666,
+   "base_case": "A1|Llo_re_comp",
+   "held_max_N": 449.6,
+   "margin_to_650_N": 200.39999999999998,
+   "runs_above_650": 0,
+   "base_held_max_N": 450.2,
+   "b_sys_min": -0.01802167108178121,
+   "b_sys_p01": -0.015144311554112746,
+   "base_b_sys_min": -0.016197358638323722,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.15000000000000002,
+      0.22803999999999994,
+      0.25
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.10799999999999998,
+      0.14800000000000002,
+      0.15000000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.14700000000000002,
+      0.21999999999999997,
+      0.245
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.10799999999999998,
+      0.14800000000000002,
+      0.15000000000000002
+     ]
+    }
+   },
+   "P": 0.97,
+   "base_P": 0.97,
+   "mhe_fc_min_max": [
+    -0.007718713417924072,
+    0.002027795074017069
+   ],
+   "base_mhe_fc_min_max": [
+    -0.005989285685344181,
+    0.0039056330024358488
+   ]
+  },
+  "A1|H_cal_pnb": {
+   "w_bias_kg": 0.06819999999999954,
+   "base_case": "A1|H_cal",
+   "held_max_N": 579.0,
+   "margin_to_650_N": 71.0,
+   "runs_above_650": 0,
+   "base_held_max_N": 576.7,
+   "b_sys_min": -0.019461415625221967,
+   "b_sys_p01": -0.018802336163158514,
+   "base_b_sys_min": -0.024233314084430746,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.122,
+      0.21899999999999997,
+      0.269
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.09299999999999997,
+      0.14700000000000002,
+      0.15000000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.1265,
+      0.24301999999999999,
+      0.30900000000000005
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.09399999999999997,
+      0.14800000000000002,
+      0.15200000000000002
+     ]
+    }
+   },
+   "P": 0.985,
+   "base_P": 0.98,
+   "mhe_fc_min_max": [
+    9.710821976760542e-05,
+    0.010611815765876997
+   ],
+   "base_mhe_fc_min_max": [
+    -0.004273448183659712,
+    0.005910171996615254
+   ]
+  },
+  "A1|Lhi_re_pnb": {
+   "w_bias_kg": 0.06819999999999954,
+   "base_case": "A1|Lhi_re",
+   "held_max_N": 591.7,
+   "margin_to_650_N": 58.299999999999955,
+   "runs_above_650": 0,
+   "base_held_max_N": 587.1,
+   "b_sys_min": -0.02059668046319285,
+   "b_sys_p01": -0.01855882617161395,
+   "base_b_sys_min": -0.024778330748942423,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.08599999999999997,
+      0.22499999999999998,
+      0.26
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.06700000000000006,
+      0.14800000000000002,
+      0.15200000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.08899999999999997,
+      0.25001,
+      0.31800000000000006
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.06800000000000006,
+      0.14800000000000002,
+      0.15300000000000002
+     ]
+    }
+   },
+   "P": 0.98,
+   "base_P": 0.98,
+   "mhe_fc_min_max": [
+    0.0005372231247664505,
+    0.010489818116728777
+   ],
+   "base_mhe_fc_min_max": [
+    -0.0036719768978477063,
+    0.006083914182399175
+   ]
+  },
+  "A1|Lhi_cmd_pnb": {
+   "w_bias_kg": 0.06819999999999954,
+   "base_case": "A1|Lhi_cmd",
+   "held_max_N": 593.9,
+   "margin_to_650_N": 56.10000000000002,
+   "runs_above_650": 0,
+   "base_held_max_N": 591.3,
+   "b_sys_min": -0.011045523980726224,
+   "b_sys_p01": -0.01005348981774038,
+   "base_b_sys_min": -0.016474271934239337,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.08499999999999996,
+      0.20800999999999994,
+      0.24
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.06700000000000006,
+      0.14601,
+      0.14900000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.08799999999999997,
+      0.21499999999999997,
+      0.26
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.06700000000000006,
+      0.14700000000000002,
+      0.15000000000000002
+     ]
+    }
+   },
+   "P": 0.975,
+   "base_P": 0.98,
+   "mhe_fc_min_max": [
+    0.0005376029707957475,
+    0.01918345810791733
+   ],
+   "base_mhe_fc_min_max": [
+    -0.003671595939794936,
+    0.014486699990432728
+   ]
+  },
+  "A1|Lhi_re_comp_pnb": {
+   "w_bias_kg": 0.06819999999999954,
+   "base_case": "A1|Lhi_re_comp",
+   "held_max_N": 591.4,
+   "margin_to_650_N": 58.60000000000002,
+   "runs_above_650": 0,
+   "base_held_max_N": 588.9,
+   "b_sys_min": -0.009217706178841989,
+   "b_sys_p01": -0.007847665516628684,
+   "base_b_sys_min": -0.013339476743722045,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.08599999999999997,
+      0.20400999999999994,
+      0.21299999999999997
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.06700000000000006,
+      0.14600000000000002,
+      0.14900000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.08899999999999997,
+      0.21000999999999995,
+      0.23199999999999998
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.06800000000000006,
+      0.14700000000000002,
+      0.15000000000000002
+     ]
+    }
+   },
+   "P": 0.97,
+   "base_P": 0.975,
+   "mhe_fc_min_max": [
+    0.00038889590480328806,
+    0.010334378898066987
+   ],
+   "base_mhe_fc_min_max": [
+    -0.0036719774962824525,
+    0.005925604613255864
+   ]
+  },
+  "A1|H_cal_blf": {
+   "w_bias_kg": 0.10181120000000916,
+   "base_case": "A1|H_cal",
+   "held_max_N": 580.1,
+   "margin_to_650_N": 69.89999999999998,
+   "runs_above_650": 0,
+   "base_held_max_N": 576.7,
+   "b_sys_min": -0.01694529962577318,
+   "b_sys_p01": -0.016667301546295463,
+   "base_b_sys_min": -0.024233314084430746,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.1205,
+      0.21499999999999997,
+      0.26
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.09299999999999997,
+      0.14700000000000002,
+      0.15000000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.1265,
+      0.24301999999999999,
+      0.30900000000000005
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.09399999999999997,
+      0.14800000000000002,
+      0.15200000000000002
+     ]
+    }
+   },
+   "P": 0.985,
+   "base_P": 0.98,
+   "mhe_fc_min_max": [
+    0.0022505893496778118,
+    0.01292923010146163
+   ],
+   "base_mhe_fc_min_max": [
+    -0.004273448183659712,
+    0.005910171996615254
+   ]
+  },
+  "B1|H_cal_blf": {
+   "w_bias_kg": 0.3611504000000459,
+   "base_case": "B1|H_cal",
+   "held_max_N": 583.7,
+   "margin_to_650_N": 66.29999999999995,
+   "runs_above_650": 0,
+   "base_held_max_N": 570.2,
+   "b_sys_min": -0.11319135427521099,
+   "b_sys_p01": -0.053010242603145595,
+   "base_b_sys_min": -0.0330470262035667,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 1,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 1,
+     "t_detect_p50_p99_max_s": [
+      0.14600000000000002,
+      0.18800000000000006,
+      1.331
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.11399999999999999,
+      0.14201,
+      0.14600000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.15600000000000003,
+      0.21000999999999995,
+      0.281
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.11699999999999999,
+      0.14700000000000002,
+      0.14900000000000002
+     ]
+    }
+   },
+   "P": 0.975,
+   "base_P": 0.985,
+   "mhe_fc_min_max": [
+    0.019622884572014998,
+    0.03433496096220279
+   ],
+   "base_mhe_fc_min_max": [
+    -0.004701511223169974,
+    0.006959348429696144
+   ]
+  },
+  "B1|H_cal_comp_blf": {
+   "w_bias_kg": 0.3611504000000459,
+   "base_case": "B1|H_cal_comp",
+   "held_max_N": 584.3,
+   "margin_to_650_N": 65.70000000000005,
+   "runs_above_650": 0,
+   "base_held_max_N": 569.8,
+   "b_sys_min": 0.014997867616177274,
+   "b_sys_p01": 0.015048769162105973,
+   "base_b_sys_min": -0.009075509977221063,
+   "stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.14500000000000002,
+      0.18800000000000006,
+      0.19700000000000006
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.11299999999999999,
+      0.14200000000000002,
+      0.14600000000000002
+     ]
+    }
+   },
+   "base_stuck": {
+    "670": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.15500000000000003,
+      0.20600999999999994,
+      0.22199999999999998
+     ]
+    },
+    "876": {
+     "cases": 1000,
+     "misses": 0,
+     "pre_onset_alarms": 0,
+     "runs_with_miss": 0,
+     "t_detect_p50_p99_max_s": [
+      0.11599999999999999,
+      0.14700000000000002,
+      0.14900000000000002
+     ]
+    }
+   },
+   "P": 0.965,
+   "base_P": 0.98,
+   "mhe_fc_min_max": [
+    0.019622884572014998,
+    0.034335015378002876
+   ],
+   "base_mhe_fc_min_max": [
+    -0.004700020530123861,
+    0.0069564211682102695
+   ]
+  }
+ }
+}

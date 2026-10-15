@@ -1,0 +1,1122 @@
+{
+ "id": "drain_pose_v341",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/drain_pose_v341.py",
+ "method": "DRAIN POSE screen (research hypothesis, coordinator 2026-10-13): can a gimbal pose within the 7 deg command cone, set from the\nmeasured specific-force direction, make the FD-07 hose rise monotonically toward its fixed end at a vehicle tilt?  (v1, Mechanical)\n\nHypothesis H-DP: for a vehicle tilt theta_v toward az psi (specific force -u, u = 'up' in the airframe frame), some gimbal pose\n(alpha, beta) with |pose| <= 7 deg leaves no vapour pocket in the hose (hose bore pocket <= 0.5 cm3, the bore-step micro-trap allowance\nof segment_traps v1.3) with the posed hose >= 3 mm from the bay wall, the case and the TEE/riser.\nComparator: neutral pose (0, 0).  Refuted if no pose clears the hose at 10 deg in the worst direction, or if the clearing pose breaks a\nclearance.  Tested at theta_v = 2, 4, 10 deg in 8 directions (0 deg for reference).\nModel: the path proxy of coil_tilt_screen_v341 (series path TEE side passage -> FD-07A -> hose -> FD-07B -> fixed leg -> 30 mm into\nthe vertical wall line; at every point the bore volume above the lowest crown ahead of it is a pocket) with the engine-side items\nrotated by R_pose(alpha, beta) and the hose at the posed linear-frame shape parts_feed.hose_centreline_at (uniform EI: the shape does\nnot depend on EI); FD-07B, the fixed leg and the wall line stay with the airframe.  Poses: 1 deg grid inside the 7 deg cone (149).\nClearances as coil_reroute_v341.evaluate (bay wall r 70, case r 31.75 about the posed engine axis, TEE/riser), at every pose.\nProxy only (centreline pockets, quasi-static hose, no hose sag under 8 m/s2 or pressure); a chosen pose would need segment_traps on the\nposed CAD.  Output: calcs/drain_pose_v341_v1.json.  RESEARCH PROPOSAL screen, DERIVED from the CAD v3.4.1 route.\n",
+ "hypothesis": "H-DP (research proposal): a gimbal pose within the 7 deg cone clears the hose of vapour pockets at a vehicle tilt",
+ "comparator": "neutral pose",
+ "refutation": "no pose clears the hose at 10 deg in the worst direction, or the clearing pose breaks a clearance",
+ "cone_deg": 7.0,
+ "n_poses": 149,
+ "n_poses_clearance_ok": 149,
+ "micro_allowance_cm3": 0.5,
+ "verdict_by_tilt": {
+  "2": {
+   "directions_cleared_by_a_pose": 4,
+   "of": 8,
+   "neutral_hose_max_cm3": 4.075,
+   "best_pose_hose_max_cm3": 1.505,
+   "fixed_leg_max_at_best_cm3": 0.097
+  },
+  "4": {
+   "directions_cleared_by_a_pose": 3,
+   "of": 8,
+   "neutral_hose_max_cm3": 9.175,
+   "best_pose_hose_max_cm3": 4.438,
+   "fixed_leg_max_at_best_cm3": 0.267
+  },
+  "10": {
+   "directions_cleared_by_a_pose": 1,
+   "of": 8,
+   "neutral_hose_max_cm3": 15.342,
+   "best_pose_hose_max_cm3": 13.844,
+   "fixed_leg_max_at_best_cm3": 0.937
+  }
+ },
+ "worst_10deg_direction": {
+  "toward_az_deg": 45.0,
+  "best_feasible": {
+   "pose": [
+    -3.0,
+    -6.0
+   ],
+   "hose_cm3": 13.844,
+   "hose_and_sleeves_cm3": 14.55,
+   "fixed_leg_cm3": 0.405,
+   "total_cm3": 14.955,
+   "clr": {
+    "wall": 6.54,
+    "case": 3.65,
+    "tee": 33.47,
+    "ok": true
+   }
+  },
+  "neutral": {
+   "pose": [
+    0.0,
+    0.0
+   ],
+   "hose_cm3": 15.342,
+   "hose_and_sleeves_cm3": 16.635,
+   "fixed_leg_cm3": 0.405,
+   "total_cm3": 17.039,
+   "clr": {
+    "wall": 5.78,
+    "case": 3.65,
+    "tee": 33.79,
+    "ok": true
+   }
+  }
+ },
+ "H_DP_refuted_at_10deg": true,
+ "proxy_check_neutral_10deg_vs_voxel": [
+  {
+   "toward_az_deg": 0.0,
+   "proxy_hose_cm3": 11.285,
+   "voxel_hose_cm3": 11.6428
+  },
+  {
+   "toward_az_deg": 45.0,
+   "proxy_hose_cm3": 15.342,
+   "voxel_hose_cm3": 15.674
+  },
+  {
+   "toward_az_deg": 90.0,
+   "proxy_hose_cm3": 13.779,
+   "voxel_hose_cm3": 13.9731
+  },
+  {
+   "toward_az_deg": 135.0,
+   "proxy_hose_cm3": 9.936,
+   "voxel_hose_cm3": 10.1433
+  },
+  {
+   "toward_az_deg": 180.0,
+   "proxy_hose_cm3": 5.604,
+   "voxel_hose_cm3": 5.8294
+  },
+  {
+   "toward_az_deg": 225.0,
+   "proxy_hose_cm3": 2.094,
+   "voxel_hose_cm3": 2.3326
+  },
+  {
+   "toward_az_deg": 270.0,
+   "proxy_hose_cm3": 0.425,
+   "voxel_hose_cm3": 0.5268
+  },
+  {
+   "toward_az_deg": 315.0,
+   "proxy_hose_cm3": 4.289,
+   "voxel_hose_cm3": 4.7101
+  }
+ ],
+ "rows": [
+  {
+   "tilt_deg": 0.0,
+   "toward_az_deg": 0.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 0.432,
+    "hose_and_sleeves_cm3": 0.436,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.436,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -6.0,
+     -3.0
+    ],
+    "hose_cm3": 0.248,
+    "hose_and_sleeves_cm3": 0.351,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.351,
+    "clr": {
+     "wall": 6.44,
+     "case": 3.65,
+     "tee": 33.42,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 59,
+   "clearing_pose_min_norm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "tilt_deg": 2.0,
+   "toward_az_deg": 0.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 2.779,
+    "hose_and_sleeves_cm3": 2.925,
+    "fixed_leg_cm3": 0.097,
+    "total_cm3": 3.022,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -7.0,
+     0.0
+    ],
+    "hose_cm3": 1.477,
+    "hose_and_sleeves_cm3": 1.79,
+    "fixed_leg_cm3": 0.097,
+    "total_cm3": 1.887,
+    "clr": {
+     "wall": 6.21,
+     "case": 3.65,
+     "tee": 33.49,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 2.0,
+   "toward_az_deg": 45.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 4.075,
+    "hose_and_sleeves_cm3": 4.164,
+    "fixed_leg_cm3": 0.039,
+    "total_cm3": 4.203,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -7.0,
+     0.0
+    ],
+    "hose_cm3": 1.505,
+    "hose_and_sleeves_cm3": 1.704,
+    "fixed_leg_cm3": 0.039,
+    "total_cm3": 1.744,
+    "clr": {
+     "wall": 6.21,
+     "case": 3.65,
+     "tee": 33.49,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 2.0,
+   "toward_az_deg": 90.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 3.482,
+    "hose_and_sleeves_cm3": 3.52,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 3.52,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -7.0,
+     0.0
+    ],
+    "hose_cm3": 0.717,
+    "hose_and_sleeves_cm3": 0.876,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.876,
+    "clr": {
+     "wall": 6.21,
+     "case": 3.65,
+     "tee": 33.49,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 2.0,
+   "toward_az_deg": 135.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 2.143,
+    "hose_and_sleeves_cm3": 2.268,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 2.268,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -6.0,
+     -3.0
+    ],
+    "hose_cm3": 0.287,
+    "hose_and_sleeves_cm3": 0.368,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.368,
+    "clr": {
+     "wall": 6.44,
+     "case": 3.65,
+     "tee": 33.42,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 20,
+   "clearing_pose_min_norm": [
+    -3.0,
+    -1.0
+   ]
+  },
+  {
+   "tilt_deg": 2.0,
+   "toward_az_deg": 180.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 0.362,
+    "hose_and_sleeves_cm3": 0.394,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.395,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -4.0,
+     -5.0
+    ],
+    "hose_cm3": 0.118,
+    "hose_and_sleeves_cm3": 0.163,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.163,
+    "clr": {
+     "wall": 6.51,
+     "case": 3.65,
+     "tee": 33.44,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 51,
+   "clearing_pose_min_norm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "tilt_deg": 2.0,
+   "toward_az_deg": 225.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 0.198,
+    "hose_and_sleeves_cm3": 0.238,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.238,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -3.0,
+     -6.0
+    ],
+    "hose_cm3": 0.091,
+    "hose_and_sleeves_cm3": 0.128,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.129,
+    "clr": {
+     "wall": 6.54,
+     "case": 3.65,
+     "tee": 33.47,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 87,
+   "clearing_pose_min_norm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "tilt_deg": 2.0,
+   "toward_az_deg": 270.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 0.158,
+    "hose_and_sleeves_cm3": 0.192,
+    "fixed_leg_cm3": 0.011,
+    "total_cm3": 0.204,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -4.0,
+     -5.0
+    ],
+    "hose_cm3": 0.131,
+    "hose_and_sleeves_cm3": 0.205,
+    "fixed_leg_cm3": 0.011,
+    "total_cm3": 0.217,
+    "clr": {
+     "wall": 6.51,
+     "case": 3.65,
+     "tee": 33.44,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 123,
+   "clearing_pose_min_norm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "tilt_deg": 2.0,
+   "toward_az_deg": 315.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 1.04,
+    "hose_and_sleeves_cm3": 1.14,
+    "fixed_leg_cm3": 0.079,
+    "total_cm3": 1.219,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -6.0,
+     -3.0
+    ],
+    "hose_cm3": 0.751,
+    "hose_and_sleeves_cm3": 0.966,
+    "fixed_leg_cm3": 0.079,
+    "total_cm3": 1.046,
+    "clr": {
+     "wall": 6.44,
+     "case": 3.65,
+     "tee": 33.42,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 4.0,
+   "toward_az_deg": 0.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 5.881,
+    "hose_and_sleeves_cm3": 6.253,
+    "fixed_leg_cm3": 0.267,
+    "total_cm3": 6.52,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -7.0,
+     0.0
+    ],
+    "hose_cm3": 3.575,
+    "hose_and_sleeves_cm3": 4.062,
+    "fixed_leg_cm3": 0.267,
+    "total_cm3": 4.329,
+    "clr": {
+     "wall": 6.21,
+     "case": 3.65,
+     "tee": 33.49,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 4.0,
+   "toward_az_deg": 45.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 9.175,
+    "hose_and_sleeves_cm3": 9.431,
+    "fixed_leg_cm3": 0.109,
+    "total_cm3": 9.539,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -7.0,
+     0.0
+    ],
+    "hose_cm3": 4.438,
+    "hose_and_sleeves_cm3": 4.715,
+    "fixed_leg_cm3": 0.109,
+    "total_cm3": 4.823,
+    "clr": {
+     "wall": 6.21,
+     "case": 3.65,
+     "tee": 33.49,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 4.0,
+   "toward_az_deg": 90.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 8.04,
+    "hose_and_sleeves_cm3": 8.475,
+    "fixed_leg_cm3": 0.001,
+    "total_cm3": 8.475,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -7.0,
+     0.0
+    ],
+    "hose_cm3": 2.694,
+    "hose_and_sleeves_cm3": 2.877,
+    "fixed_leg_cm3": 0.001,
+    "total_cm3": 2.879,
+    "clr": {
+     "wall": 6.21,
+     "case": 3.65,
+     "tee": 33.49,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 4.0,
+   "toward_az_deg": 135.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 5.066,
+    "hose_and_sleeves_cm3": 5.817,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 5.818,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -7.0,
+     0.0
+    ],
+    "hose_cm3": 0.621,
+    "hose_and_sleeves_cm3": 1.118,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 1.118,
+    "clr": {
+     "wall": 6.21,
+     "case": 3.65,
+     "tee": 33.49,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 4.0,
+   "toward_az_deg": 180.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 1.464,
+    "hose_and_sleeves_cm3": 2.066,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 2.066,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -2.0,
+     -6.0
+    ],
+    "hose_cm3": 0.049,
+    "hose_and_sleeves_cm3": 0.063,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.063,
+    "clr": {
+     "wall": 6.51,
+     "case": 3.65,
+     "tee": 33.53,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 24,
+   "clearing_pose_min_norm": [
+    -2.0,
+    -2.0
+   ]
+  },
+  {
+   "tilt_deg": 4.0,
+   "toward_az_deg": 225.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 0.506,
+    "hose_and_sleeves_cm3": 0.95,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.95,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     2.0,
+     -5.0
+    ],
+    "hose_cm3": 0.041,
+    "hose_and_sleeves_cm3": 0.044,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 0.044,
+    "clr": {
+     "wall": 6.26,
+     "case": 3.65,
+     "tee": 33.84,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 61,
+   "clearing_pose_min_norm": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "tilt_deg": 4.0,
+   "toward_az_deg": 270.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 0.161,
+    "hose_and_sleeves_cm3": 0.285,
+    "fixed_leg_cm3": 0.032,
+    "total_cm3": 0.317,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -1.0,
+     -6.0
+    ],
+    "hose_cm3": 0.081,
+    "hose_and_sleeves_cm3": 0.119,
+    "fixed_leg_cm3": 0.032,
+    "total_cm3": 0.151,
+    "clr": {
+     "wall": 6.47,
+     "case": 3.65,
+     "tee": 33.6,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 121,
+   "clearing_pose_min_norm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "tilt_deg": 4.0,
+   "toward_az_deg": 315.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 1.793,
+    "hose_and_sleeves_cm3": 2.053,
+    "fixed_leg_cm3": 0.221,
+    "total_cm3": 2.274,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -7.0,
+     0.0
+    ],
+    "hose_cm3": 1.377,
+    "hose_and_sleeves_cm3": 2.004,
+    "fixed_leg_cm3": 0.221,
+    "total_cm3": 2.226,
+    "clr": {
+     "wall": 6.21,
+     "case": 3.65,
+     "tee": 33.49,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 0.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 11.285,
+    "hose_and_sleeves_cm3": 12.162,
+    "fixed_leg_cm3": 0.937,
+    "total_cm3": 13.099,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -7.0,
+     0.0
+    ],
+    "hose_cm3": 9.028,
+    "hose_and_sleeves_cm3": 9.936,
+    "fixed_leg_cm3": 0.937,
+    "total_cm3": 10.873,
+    "clr": {
+     "wall": 6.21,
+     "case": 3.65,
+     "tee": 33.49,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 45.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 15.342,
+    "hose_and_sleeves_cm3": 16.635,
+    "fixed_leg_cm3": 0.405,
+    "total_cm3": 17.039,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -3.0,
+     -6.0
+    ],
+    "hose_cm3": 13.844,
+    "hose_and_sleeves_cm3": 14.55,
+    "fixed_leg_cm3": 0.405,
+    "total_cm3": 14.955,
+    "clr": {
+     "wall": 6.54,
+     "case": 3.65,
+     "tee": 33.47,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 90.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 13.779,
+    "hose_and_sleeves_cm3": 15.189,
+    "fixed_leg_cm3": 0.005,
+    "total_cm3": 15.193,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -3.0,
+     6.0
+    ],
+    "hose_cm3": 13.532,
+    "hose_and_sleeves_cm3": 14.942,
+    "fixed_leg_cm3": 0.005,
+    "total_cm3": 14.946,
+    "clr": {
+     "wall": 4.79,
+     "case": 3.65,
+     "tee": 33.82,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 135.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 9.936,
+    "hose_and_sleeves_cm3": 11.259,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 11.259,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -6.0,
+     3.0
+    ],
+    "hose_cm3": 7.818,
+    "hose_and_sleeves_cm3": 9.141,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 9.141,
+    "clr": {
+     "wall": 5.75,
+     "case": 3.65,
+     "tee": 33.63,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 180.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 5.604,
+    "hose_and_sleeves_cm3": 6.926,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 6.925,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -6.0,
+     -3.0
+    ],
+    "hose_cm3": 2.907,
+    "hose_and_sleeves_cm3": 4.229,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 4.229,
+    "clr": {
+     "wall": 6.44,
+     "case": 3.65,
+     "tee": 33.42,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 225.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 2.094,
+    "hose_and_sleeves_cm3": 3.416,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 3.415,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     0.0,
+     -7.0
+    ],
+    "hose_cm3": 0.568,
+    "hose_and_sleeves_cm3": 1.33,
+    "fixed_leg_cm3": 0.0,
+    "total_cm3": 1.33,
+    "clr": {
+     "wall": 6.51,
+     "case": 3.65,
+     "tee": 33.66,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 270.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 0.425,
+    "hose_and_sleeves_cm3": 1.334,
+    "fixed_leg_cm3": 0.126,
+    "total_cm3": 1.46,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     3.0,
+     -6.0
+    ],
+    "hose_cm3": 0.044,
+    "hose_and_sleeves_cm3": 0.143,
+    "fixed_leg_cm3": 0.126,
+    "total_cm3": 0.269,
+    "clr": {
+     "wall": 6.31,
+     "case": 3.65,
+     "tee": 33.92,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 81,
+   "clearing_pose_min_norm": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "tilt_deg": 10.0,
+   "toward_az_deg": 315.0,
+   "neutral": {
+    "pose": [
+     0.0,
+     0.0
+    ],
+    "hose_cm3": 4.289,
+    "hose_and_sleeves_cm3": 5.114,
+    "fixed_leg_cm3": 0.806,
+    "total_cm3": 5.92,
+    "clr": {
+     "wall": 5.78,
+     "case": 3.65,
+     "tee": 33.79,
+     "ok": true
+    }
+   },
+   "best_feasible": {
+    "pose": [
+     -7.0,
+     0.0
+    ],
+    "hose_cm3": 3.634,
+    "hose_and_sleeves_cm3": 4.865,
+    "fixed_leg_cm3": 0.806,
+    "total_cm3": 5.671,
+    "clr": {
+     "wall": 6.21,
+     "case": 3.65,
+     "tee": 33.49,
+     "ok": true
+    }
+   },
+   "best_ignoring_clearance": "same",
+   "n_feasible_poses_clearing_hose": 0,
+   "clearing_pose_min_norm": null
+  }
+ ],
+ "tag": "RESEARCH PROPOSAL screen; DERIVED proxy (centreline pockets on the linear-frame posed hose); not a two-phase model",
+ "t_s": 1.3
+}

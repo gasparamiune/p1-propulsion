@@ -1,0 +1,231 @@
+{
+ "script": "calc/ovp_threshold_v1.py v1",
+ "date": "2026-10-12",
+ "inputs": {
+  "chamber_MEOP_Pa": {
+   "v": 4500000.0,
+   "tag": "LEAD 2026-10-12 (was 31 bar, combustion.json v1)"
+  },
+  "pintle_full_stroke_failure_Pa": {
+   "v": [
+    3200000.0,
+    4400000.0
+   ],
+   "tag": "LEAD 2026-10-12 quoting Combustion v2 failure analysis"
+  },
+  "blocked_nozzle_bound_Pa": {
+   "v": 6300000.0,
+   "tag": "LEAD 2026-10-12: ~tank pressure at 30 C"
+  },
+  "chamber_proof_Pa": {
+   "v": 6750000.0,
+   "tag": "LEAD changelog 2026-10-12: 1.5 x MEOP"
+  },
+  "normal_command_cap_Pa": {
+   "v": 2500000.0,
+   "tag": "LEAD"
+  },
+  "firmware_ovp_abs_Pa": {
+   "v": 3000000.0,
+   "tag": "LEAD \"about 30 bar\"; DESIGN 30.0 bar abs, 3 ms persistence (config.h)"
+  }
+ },
+ "A_transducer_range": {
+  "selected": "TE M3234-000005-01KPG (0-1000 psig = 0-68.95 bar gauge), same part as P_feed and P_tank",
+  "fs_Pa": {
+   "v": 6894757.0,
+   "tag": "DATASHEET TE M3200 range code 01KPG = 1000 psi"
+  },
+  "rows": [
+   {
+    "case": "normal max (cap)",
+    "p_gauge_bar": 25.0,
+    "v1_0_500psig_V": 3.401,
+    "v1_0_500psig_status": "in range",
+    "v2_0_1000psig_V": 1.95,
+    "v2_0_1000psig_status": "in range"
+   },
+   {
+    "case": "firmware OVP",
+    "p_gauge_bar": 28.99,
+    "v1_0_500psig_V": 3.863,
+    "v1_0_500psig_status": "in range",
+    "v2_0_1000psig_V": 2.182,
+    "v2_0_1000psig_status": "in range"
+   },
+   {
+    "case": "pintle failure low",
+    "p_gauge_bar": 30.99,
+    "v1_0_500psig_V": 4.095,
+    "v1_0_500psig_status": "in range",
+    "v2_0_1000psig_V": 2.298,
+    "v2_0_1000psig_status": "in range"
+   },
+   {
+    "case": "pintle failure high",
+    "p_gauge_bar": 42.99,
+    "v1_0_500psig_V": 5.488,
+    "v1_0_500psig_status": "above FS, output not specified; > 4.75 V = sensor fault",
+    "v2_0_1000psig_V": 2.994,
+    "v2_0_1000psig_status": "in range"
+   },
+   {
+    "case": "MEOP",
+    "p_gauge_bar": 43.99,
+    "v1_0_500psig_V": 5.604,
+    "v1_0_500psig_status": "above FS, output not specified; > 4.75 V = sensor fault",
+    "v2_0_1000psig_V": 3.052,
+    "v2_0_1000psig_status": "in range"
+   },
+   {
+    "case": "blocked nozzle 30 C",
+    "p_gauge_bar": 61.99,
+    "v1_0_500psig_V": 7.692,
+    "v1_0_500psig_status": "above FS, output not specified; > 4.75 V = sensor fault",
+    "v2_0_1000psig_V": 4.096,
+    "v2_0_1000psig_status": "in range"
+   },
+   {
+    "case": "chamber proof",
+    "p_gauge_bar": 66.49,
+    "v1_0_500psig_V": 8.214,
+    "v1_0_500psig_status": "above FS, output not specified; > 4.75 V = sensor fault",
+    "v2_0_1000psig_V": 4.357,
+    "v2_0_1000psig_status": "in range"
+   }
+  ],
+  "proof_Pa": {
+   "v": 13789514.0,
+   "tag": "DATASHEET M3200 proof 2 x rated"
+  },
+  "burst_Pa": {
+   "v": 34473785.0,
+   "tag": "DATASHEET M3200 burst 5 x rated"
+  },
+  "sensor_fault_high_equiv_Pa_g": {
+   "v": 7325679.0,
+   "tag": "DERIVED from the 4.75 V firmware fault limit"
+  },
+  "adc_divider_ratio": {
+   "v": 0.24043,
+   "tag": "DERIVED R610/R611"
+  },
+  "adc_input_at_4V5_V": {
+   "v": 1.0819,
+   "tag": "DERIVED; ADS131M04 FS +/-1.2 V at gain 1 (DATASHEET SBAS890)"
+  },
+  "sensitivity_V_per_bar": {
+   "v": 0.05802,
+   "tag": "DERIVED (was 0.11603 V/bar with 0-500 psig)"
+  },
+  "teb_Pa": {
+   "v": 103421.0,
+   "tag": "DATASHEET M3200 TEB 1.5 % FS (-20..85 C); common to firmware and hardware paths"
+  }
+ },
+ "B_hardware_trip": {
+  "circuit": "PC_SIG -> R330/R331 tap + C330 -> LMV331 IN-; +5V_SNS -> R332/R333 + C331 -> IN+; open-collector out (R334 to +3V3) -> SN74LVC1G175 /CLR; Q = OVP_OK -> SN74LVC1G11 ARM AND + Teensy pin 29",
+  "values": {
+   "R330": 100000.0,
+   "R331": 31600.0,
+   "C330": 2.2e-07,
+   "R332": 237000.0,
+   "R333": 29400.0,
+   "C331": 1.0000000000000001e-07,
+   "resistor_tol": 0.001
+  },
+  "k_tap": {
+   "v": 0.240122,
+   "tag": "DERIVED"
+  },
+  "k_ref": {
+   "v": 0.11036,
+   "tag": "DERIVED"
+  },
+  "v_ref_V": {
+   "v": 0.5518,
+   "tag": "DERIVED at +5V_SNS = 5.000 V (ratiometric: tracks the transducer supply)"
+  },
+  "pc_sig_trip_V": {
+   "v": 2.298,
+   "tag": "DERIVED"
+  },
+  "trip_nominal_Pa_g": {
+   "v": 3099211.0,
+   "tag": "DERIVED"
+  },
+  "trip_nominal_Pa_abs_sea_level": {
+   "v": 3200536.0,
+   "tag": "DERIVED"
+  },
+  "error_terms_V": {
+   "Vio": {
+    "v": 0.009,
+    "tag": "DATASHEET SLCS136V max -40..125 C"
+   },
+   "bias": {
+    "v": 0.01046,
+    "tag": "DERIVED Iib 400 nA (SLCS136V) x max Rth"
+   },
+   "tap_ratio": {
+    "v": 0.0011,
+    "tag": "DERIVED 2 x 0.10 %"
+   },
+   "ref_ratio": {
+    "v": 0.0011,
+    "tag": "DERIVED 2 x 0.10 %"
+   }
+  },
+  "band_circuit_Pa": {
+   "v": 155551.0,
+   "tag": "DERIVED worst-case linear sum of the circuit terms"
+  },
+  "band_with_transducer_Pa": {
+   "v": 258973.0,
+   "tag": "DERIVED adds M3200 TEB 1.5 % FS (also shifts the firmware threshold)"
+  },
+  "trip_range_abs_Pa": {
+   "v": [
+    3044984.0,
+    3356087.0
+   ],
+   "tag": "DERIVED, circuit terms only"
+  },
+  "rc_tap_s": {
+   "v": 0.005283,
+   "tag": "DERIVED"
+  },
+  "rc_ref_s": {
+   "v": 0.002616,
+   "tag": "DERIVED"
+  },
+  "comparator_input_max_V": {
+   "v": 1.201,
+   "tag": "DERIVED at PC_SIG = 5 V; VICR -0.1..4.2 V at 5 V (SLCS136V)"
+  },
+  "response_chain": "comparator tPHL <= 1 us (SLCS136V) -> latch /CLR to Q <= 6.8 ns (SCES560G) -> AND <= 4.9 ns (SCES487I) -> Q302 -> ARM switch turn-off ~6 ms (C301 Miller estimate, bench verify) -> MV holding magnet releases, pintle servo unpowered (closing spring back-drives it)"
+ },
+ "C_summary": {
+  "firmware_trip_abs_Pa": {
+   "v": 3000000.0,
+   "tag": "DESIGN config.h kPcOverPressureAbs_Pa (LEAD ~30 bar)"
+  },
+  "hardware_minus_firmware_nominal_Pa": {
+   "v": 200536.0,
+   "tag": "DERIVED"
+  },
+  "hardware_never_below_firmware_in_band": {
+   "v": true,
+   "tag": "DERIVED (circuit band; transducer error is common)"
+  },
+  "margin_hw_max_to_MEOP_Pa": {
+   "v": 1143913.0,
+   "tag": "DERIVED"
+  },
+  "margin_normal_max_to_fw_Pa": {
+   "v": 336000.0,
+   "tag": "DERIVED: SIL S5 MC worst Pc 26.64 bar abs (v2.1 run, 300 cases)"
+  }
+ },
+ "sil_header": "firmware/sil/ovp_hw_params.h"
+}

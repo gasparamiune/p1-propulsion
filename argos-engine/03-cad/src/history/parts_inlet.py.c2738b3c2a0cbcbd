@@ -1,0 +1,162 @@
+"""CAD v3.4 oxidiser inlet E1-M (Mechanical, 2026-10-13): head-cap and bonnet features, inlet block, filter cartridge,
+riser, riser shield and coil-end adapter.
+
+Geometry source: calcs/inlet_e1m.py (E1M dict, hydraulics C1 and conditions C1-C6 of Combustion low_inlet_check_v2p3).
+Engine frame at neutral, mm, +Z forward; az 180 deg = -X.  Every dimension here is DESIGN (chosen), not measured.
+Switched on by the config key v34_inlet_e1m; with it off, parts_engine builds the v3.3 bonnet inlet unchanged.
+"""
+from __future__ import annotations
+import math
+import numpy as np
+import cadquery as cq
+from geom import cyl, cyl_dir, tube, box, radial_hole, union_all, cut_all, T_trans, T_axis_to, apply, revolve
+from partlib import Part
+from calcs.inlet_e1m import E1M
+
+SIN8, COS8 = math.sin(math.radians(8.0)), math.cos(math.radians(8.0))
+
+
+def r_sweep(z):
+    """Largest radius a gimballed point at height z (above the pivot) may have: bay R 70 - 3 mm clearance at the 8 deg stop."""
+    return (67.0 - abs(z) * SIN8) / COS8
+
+
+def stations(S):
+    zt, zb = S["head_top"], S["head_bot"]
+    g = E1M
+    z_f = zb + g["filter_bore"]["z_rel_zb"]
+    bore_top = zt + 26.0                                    # 10 mm bore in the bonnet ends at zb0 + 26 (v3.3 TC-04)
+    z_x = bore_top - g["cross"]["d"] / 2.0
+    zb0, zb1 = zb + g["block"]["z0_rel_zb"], zb + g["block"]["z1_rel_zb"]
+    return dict(zt=zt, zb=zb, z_f=z_f, bore_top=bore_top, z_x=z_x, z_blk0=zb0, z_blk1=zb1,
+                z_scr=(zb + 2.8, zb + 25.2))
+
+
+def head_cuts(S):
+    """Cuts added to TC-02 (injector head) for E1-M."""
+    g, st = E1M, stations(S)
+    a = g["az_deg"]
+    fb = g["filter_bore"]
+    ax = g["axial_head"]
+    cuts = [box((-45.0, -10.0, st["z_blk0"] - 0.01), (-g["flat_r"], 10.0, st["z_blk1"] + 0.01)),          # spot-faced flat for the block
+            radial_hole(fb["d"], a, st["z_f"], fb["r_bottom"], 33.0),                                     # radial filter bore, flat bottom
+            cyl(ax["d"], st["z_f"], st["zt"] + 1.0, -ax["r"], 0.0)]                                       # axial 8 mm to the head top
+    for zs in st["z_scr"]:
+        cuts.append(radial_hole(2.5, a, zs, g["flat_r"] - 8.0, 33.0))                                    # 2x M3 tapped 8 deep
+    S["e1m"] = st
+    return cuts
+
+
+def bonnet_body_and_cuts(S, zb0, v34_port=False):
+    """E1-M bonnet features: boss (block r 8-24, y +/-8) with the axial 8 mm, the 8 mm cross-drilling flush with the bore top,
+    the M10x1 downstream tap port at its outer end and the AS568-012 transfer groove in the bottom face.
+    v34_port (HV69 build): boss to r 28 and 3 mm taller; the cross-drilling entry becomes a 1/8-27 NPT port (tap drill 8.7,
+    r 17.9-28.1) closed by a flush 316 socket pipe plug (T4 / P_manifold on the stand only: a radial fitting there would leave
+    the 8 deg sweep cone, r_allow ~39.5 mm at this height)."""
+    g, st = E1M, stations(S)
+    r_ax = g["axial_head"]["r"]
+    if v34_port:
+        boss = box((-28.0, -8.0, zb0), (-8.0, 8.0, st["z_x"] + g["cross"]["d"] / 2.0 + 5.0))
+        port = radial_hole(8.7, g["az_deg"], st["z_x"], 17.9, 28.2)                                      # 1/8-27 NPT tap drill
+    else:
+        boss = box((-24.0, -8.0, zb0), (-8.0, 8.0, st["z_x"] + g["cross"]["d"] / 2.0 + 2.0))
+        port = radial_hole(9.0, g["az_deg"], st["z_x"], 17.9, 25.0)                                      # M10x1 port (tap drill 9) for P_manifold
+    cuts = [cyl(g["bonnet_axial"]["d"], zb0 - 0.01, st["z_x"] + g["cross"]["d"] / 2.0, -r_ax, 0.0),
+            radial_hole(g["cross"]["d"], g["az_deg"], st["z_x"], 4.0, 18.0), port,
+            apply(tube(13.0, 9.4, zb0 - 0.01, zb0 + 1.30), T_trans(-r_ax, 0.0, 0.0))]                     # AS568-012 face groove
+    return boss, cuts
+
+
+def build_inlet_parts(P, S, reg):
+    global V34_BLK
+    V34_BLK = bool(P.get("v34_pintle_hv69", {}).get("v", False))          # v3.4 build: no M10 P_feed port on FD-01 (P_feed = MSS-1 on the TEE)
+    g, st = E1M, stations(S)
+    zb = st["zb"]
+    # ------------------------------------------------------------------ FD-01 inlet block (316L)
+    blk = g["block"]
+    z0, z1 = st["z_blk0"], st["z_blk1"]
+    body = box((-48.0, -blk["half_w"], z0), (-g["flat_r"], blk["half_w"], z1))
+    env = revolve([(0.0, z0 - 1.0), (r_sweep(z0 - 1.0) - 0.5, z0 - 1.0), (r_sweep(z1 + 1.0) - 0.5, z1 + 1.0), (0.0, z1 + 1.0)])
+    body = body.intersect(env)                                                                            # outer face follows the sweep cone
+    rs = blk["socket_r"]
+    d8 = blk["passage_d"]
+    cuts = [cyl(g["riser"]["od"] + 0.075, z0 - 0.01, z0 + blk["socket_depth"], -rs, 0.0),                 # riser socket (socket weld)
+            cyl(d8, z0 + blk["socket_depth"] - 0.01, st["z_f"] + d8 / 2.0, -rs, 0.0),                        # vertical 8 mm
+            radial_hole(d8, g["az_deg"], st["z_f"], g["flat_r"] - 0.5, 42.0 if V34_BLK else 41.0),         # radial 8 mm to the face (v3.4: blind, drilled from the flat)
+            apply(cyl_dir(9.9, 1.3, (0, 0, 0), (1, 0, 0)).cut(cyl_dir(6.2, 1.3, (0, 0, 0), (1, 0, 0))),
+                  T_trans(-g["flat_r"] - 1.3, 0.0, st["z_f"]))]                                              # AS568-010 face groove
+    if not V34_BLK:
+        cuts.append(radial_hole(9.0, g["az_deg"], st["z_f"], 40.9, 49.0))                                 # M10x1 port: P_feed upstream of the filter
+    for zs in st["z_scr"]:
+        cuts += [radial_hole(3.4, g["az_deg"], zs, g["flat_r"] - 0.5, 49.0), radial_hole(6.0, g["az_deg"], zs, 41.0, 49.0)]   # M3 + DIN 7984 cbore
+    blk_s = cut_all(body, cuts)
+    reg.add(Part("ENG-FD-01", "Oxidiser inlet block E1-M (316L): riser socket, 8 mm passages, P_feed tap, face seal to the filter cartridge", "SS316L",
+                 "CNC mill (2 setups) + socket weld of the riser (TIG, back-purged)", blk_s, drawing=True, wetted="N2O",
+                 notes=f"on a flat r {g['flat_r']} of the TC-02 cap at 180 deg; 2x M3 DIN 7984 A4-70 x 16 (1.0 N m) into TC-02; AS568-010 FKM 75 face seal "
+                       "to the cartridge cap; outer face cut to the 8 deg sweep cone; M10x1 port = upstream pressure tap (or plug); retains the cartridge "
+                       "(service: 2 screws); oxygen-clean, Krytox only",
+                 dwg={"datum": "contact face A (flat), riser socket axis B", "fits": ["socket 9.60 +0.05/0 x 10 deep (3/8 in tube)", "8 mm passages, burr-free intersections",
+                                                                                    "face groove 6.2/9.9 x 1.30 (AS568-010)", "M10x1-6H port with 82 deg spot face"],
+                      "finish": "passivate ASTM A967; oxygen-clean ASTM G93", "ht": "316L solution-annealed"})).place(np.eye(4), "engine")
+    # ------------------------------------------------------------------ FD-02 filter cartridge (custom, TO-QUOTE)
+    c = g["cartridge"]
+    x0 = -g["flat_r"]
+    cap = cyl_dir(c["cap_od"], c["cap_t"], (x0, 0.0, st["z_f"]), (1, 0, 0)).cut(cyl_dir(c["inlet_d"], c["cap_t"] + 0.1, (x0 - 0.05, 0.0, st["z_f"]), (1, 0, 0)))
+    el = cyl_dir(c["element_od"], c["element_len"], (x0 + c["cap_t"], 0.0, st["z_f"]), (1, 0, 0)).cut(
+        cyl_dir(c["element_id"], c["element_len"] - 1.0, (x0 + c["cap_t"] - 0.01, 0.0, st["z_f"]), (1, 0, 0)))
+    cart = union_all([cap, el])
+    reg.add(Part("ENG-FD-02", f"Filter cartridge {c['rating_um']} um absolute, pleated 316L Dutch-twill mesh, area >= {c['area_target_mm2']} mm2 (custom, in the TC-02 cap)",
+                 "COTS-MIXED", "COTS custom (filter maker)", cart, cots=True, mass_each_kg=0.004, mass_tag="ESTIMATE 3-6 g (envelope 13.9 x 19, 316L)",
+                 wetted="N2O", supplier="custom element: Purolator Advanced Filtration / GKN Sinter Metals / Mott (TO-QUOTE, delivery Sønderborg DK-6400)",
+                 notes="flow inside-out: core inlet 8 mm through the cap, collecting annulus 1 mm to the axial drilling; cap seals in the 14 mm bore with an "
+                       "AS568-013 FKM 75 radial O-ring; requirement: dP <= 0.30 bar at 0.26 kg/s N2O (Cv >= 2.2 incl. housing), maker dP-flow curve, "
+                       "oxygen-clean (OI-7, Combustion C5)")).place(np.eye(4), "engine")
+    # ------------------------------------------------------------------ FD-03 riser 3/8 x 0.035 316L
+    r = g["riser"]
+    z_s = st["z_blk0"]
+    z_r0 = min(r["z_start_pivot"], z_s - 45.0)        # first pass of the CG iteration has the head low: keep the shape valid
+    pts = [(-42.0, 0.0, z_r0), (-42.0, 0.0, z_r0 + 3.0), (-41.2, 0.0, z_r0 + 7.0), (-40.1, 0.0, z_r0 + 11.0),
+           (-r["r_run"], 0.0, z_r0 + 15.0), (-r["r_run"], 0.0, z_s - 15.0),
+           (-(r["r_run"] - 0.25 * (r["r_run"] - r["r_socket"])), 0.0, z_s - 10.0), (-(r["r_socket"] + 0.25 * (r["r_run"] - r["r_socket"])), 0.0, z_s - 5.0),
+           (-r["r_socket"], 0.0, z_s), (-r["r_socket"], 0.0, z_s + g["block"]["socket_depth"] - 0.3)]
+    od, idd = r["od"], r["od"] - 2 * r["wall"]
+    outer, inner = [], []
+    for p, q in zip(pts[:-1], pts[1:]):
+        p, q = np.array(p), np.array(q)
+        L = float(np.linalg.norm(q - p))
+        outer.append(cyl_dir(od, L, tuple(p), tuple(q - p)))
+        inner.append(cyl_dir(idd, L + 0.02, tuple(p - (q - p) / L * 0.01), tuple(q - p)))
+    for p in pts[1:-1]:
+        outer.append(cq.Solid.makeSphere(od / 2, cq.Vector(*p), angleDegrees1=-90, angleDegrees2=90))
+        inner.append(cq.Solid.makeSphere(idd / 2, cq.Vector(*p), angleDegrees1=-90, angleDegrees2=90))
+    riser = union_all(outer).cut(union_all(inner))
+    if len(riser.Solids()) > 1:                                    # drop boolean slivers (< 0.1 % of the volume) at segment joints
+        riser = max(riser.Solids(), key=lambda s_: s_.Volume())
+    L_path = sum(float(np.linalg.norm(np.array(q) - np.array(p))) for p, q in zip(pts[:-1], pts[1:]))
+    S["e1m_riser"] = {"points": pts, "length_mm": L_path}
+    reg.add(Part("ENG-FD-03", f"Oxidiser riser 3/8 x 0.035 in 316L seamless, {L_path:.0f} mm developed, 2 S-bends (R >= 24 mm)", "SS316L",
+                 "tube bender + socket weld into FD-01 (TIG, back-purged) + coil-end adapter weld", riser, drawing=True, wetted="N2O",
+                 supplier="316L seamless 3/8 x 0.035 in (ASTM A269): Swagelok SS-T6-S-035-6ME / Sandvik (TO-QUOTE, Sønderborg DK-6400)",
+                 notes=f"runs up the case OD at r {r['r_run']} (az 180) from the O3b coil-end adapter (r 42, z {r['z_start_pivot']:.0f}) to the block socket "
+                       f"(r {r['r_socket']}); clipped to the shield stand-offs; modelled as straight segments with spherical joints (bend radii on the drawing)",
+                 dwg={"datum": "socket end A", "fits": ["bend radius >= 24 mm (2.5 D)", "ends square 0.1, deburred, oxygen-clean"],
+                      "finish": "pickled + passivated", "ht": "annealed"})).place(np.eye(4), "engine")
+    # ------------------------------------------------------------------ FD-04 riser radiation shield (polished foil on 2 stand-off clips)
+    zsh0, zsh1 = z_r0 + 14.0, max(z_s - 16.0, z_r0 + 30.0)
+    r_sh = 33.3
+    arc = tube(2 * (r_sh + 0.2), 2 * r_sh, zsh0, zsh1).intersect(box((-50.0, -12.0, zsh0 - 1), (-20.0, 12.0, zsh1 + 1)))
+    clips = [tube(2 * (r_sh + 0.1), 2 * 31.75, zz, zz + 6.0).intersect(box((-50.0, -14.0, zz - 1), (-20.0, 14.0, zz + 7))) for zz in (zsh0 + 4.0, zsh1 - 10.0)]
+    shield = union_all([arc] + clips)
+    reg.add(Part("ENG-FD-04", "Riser radiation shield: 0.2 mm polished 316 foil + 2 band-clip stand-offs (case OD -> riser)", "SS316L",
+                 "cut + roll + spot weld (or 3D-printed PEEK clips, TO-DECIDE by the RC-04 thermal result)", shield, drawing=True,
+                 notes=f"foil at r {r_sh} between the case OD (31.75) and the riser (inner edge 34.7), z {zsh0:.0f}-{zsh1:.0f}, +/-12 mm wide; polished "
+                       "(emissivity ~0.1-0.2 ASSUMED) on both faces; need and size set by the hose/riser thermal network (RC-04)")).place(np.eye(4), "engine")
+    # ------------------------------------------------------------------ FD-05 coil-end adapter (-6 JIC male x 3/8 tube weld)
+    ad = union_all([cyl(14.3, -8.0, 0.0), cyl(14.3, -18.0, -8.0).intersect(cyl(13.0, -18.0, -8.0))])            # hex 14.3 A/F class + 9/16-18 JIC nose
+    ad = ad.cut(cyl(7.75, -19.0, 1.0))
+    reg.add(Part("ENG-FD-05", "Coil-end adapter: -6 JIC 37 deg male x 3/8 in tube butt-weld (316L)", "SS316L", "COTS (or lathe from 316L hex)", ad, cots=True,
+                 mass_each_kg=0.012, mass_tag="ESTIMATE 10-15 g", wetted="N2O",
+                 supplier="Swagelok / Parker 316 -6 JIC tube-weld adapter class (TO-QUOTE, Sønderborg DK-6400)",
+                 notes="welded to the riser bottom (r 42, az 180, z 80); nose down to z 62; the O3b hose starts through a -6 JIC 90 deg swivel elbow hose end (horizontal, tangential)"))
+    reg.parts["ENG-FD-05"].place(T_trans(-42.0, 0.0, z_r0), "engine")   # nose down, z 62-80
+    return st
