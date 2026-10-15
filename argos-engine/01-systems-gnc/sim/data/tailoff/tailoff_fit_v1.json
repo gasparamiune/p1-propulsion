@@ -1,0 +1,300 @@
+{
+ "version": "v1",
+ "date": "2026-10-12",
+ "model": "Model (same equations as the sim6 v2.6 shutdown branch, toff_model = 1):\n    lift command  l_r(t) = l0 - v_s t (>= 0),  l0 = lift at the pre-shutdown thrust on the static table\n    actuator      l_a' = (l_r - l_a) / lag_a\n    thrust        F_q = table(l_a);  F' = (F_q - F) / lag_c;  F = 0 below 0.5 N\nThe static table is Combustion's pre-shutdown (lift, thrust) points at the chosen full-stroke time plus a cut-off\nlift l_cut where thrust reaches zero. lag_a, lag_c and l_cut are fitted by GNC to Combustion's time to 10 % and\ntail-off impulse for the five pre-shutdown levels (DERIVED; Combustion assumes a 10 ms actuator lag and a ~4 ms\nchamber lag). Nothing here is hard-coded from another discipline: the table, the speed and the targets are read\nfrom the Combustion file at run time, and the fitted constants are stored with the sha256 of that file.",
+ "tag": "DERIVED (GNC fit of the reduced model to Combustion SIM grain_q1d v2 shutdown runs)",
+ "fits": [
+  {
+   "full_stroke_s": 0.25,
+   "speed_mm_s": 16.0,
+   "lift_mm": [
+    0.20607286786225107,
+    0.3659953827374974,
+    0.7531537886862517,
+    1.2500178286104653,
+    1.9176458759758428
+   ],
+   "thrust_N": [
+    62.54352446843547,
+    125.12325787462979,
+    250.35507392581994,
+    375.38865293403336,
+    500.31329316598936
+   ],
+   "l_cut_mm": 0.015,
+   "lag_a_s": 0.009000000000000001,
+   "lag_c_s": 0.003,
+   "cost": 0.11668637826271988,
+   "residuals": [
+    {
+     "F0_N": 62.54352446843547,
+     "t10_comb_s": 0.023999999999997357,
+     "t10_gnc_s": 0.025,
+     "imp_comb_Ns": 0.9162499602553612,
+     "imp_gnc_Ns": 0.883,
+     "imp_err_pct": -3.67,
+     "t10_err_ms": 1.0
+    },
+    {
+     "F0_N": 125.12325787462979,
+     "t10_comb_s": 0.033999999999996255,
+     "t10_gnc_s": 0.033,
+     "imp_comb_Ns": 2.544825388662405,
+     "imp_gnc_Ns": 2.38,
+     "imp_err_pct": -6.48,
+     "t10_err_ms": -1.0
+    },
+    {
+     "F0_N": 250.35507392581994,
+     "t10_comb_s": 0.05499999999999394,
+     "t10_gnc_s": 0.053,
+     "imp_comb_Ns": 8.35095497889147,
+     "imp_gnc_Ns": 8.139,
+     "imp_err_pct": -2.54,
+     "t10_err_ms": -2.0
+    },
+    {
+     "F0_N": 375.38865293403336,
+     "t10_comb_s": 0.08199999999999097,
+     "t10_gnc_s": 0.081,
+     "imp_comb_Ns": 18.426164481995272,
+     "imp_gnc_Ns": 19.084,
+     "imp_err_pct": 3.57,
+     "t10_err_ms": -1.0
+    },
+    {
+     "F0_N": 500.31329316598936,
+     "t10_comb_s": 0.1189999999999869,
+     "t10_gnc_s": 0.12,
+     "imp_comb_Ns": 36.2614405384071,
+     "imp_gnc_Ns": 38.578,
+     "imp_err_pct": 6.39,
+     "t10_err_ms": 1.0
+    }
+   ],
+   "source": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/actuator_rate_check_v2.json",
+   "source_sha256": "2e1341e06b9e39680347ae19942aa3379add399223b6f98dfb5f3f5c8ca2d9b4",
+   "source_version": "v2.2",
+   "combustion_json_version": "v2.2"
+  },
+  {
+   "full_stroke_s": 0.24,
+   "speed_mm_s": 16.666666666666668,
+   "lift_mm": [
+    0.20607286786225107,
+    0.3659953827374974,
+    0.7531537886862517,
+    1.2500178286104653,
+    1.9176458759758428
+   ],
+   "thrust_N": [
+    62.54352446843547,
+    125.12325787462979,
+    250.35507392581994,
+    375.38865293403336,
+    500.31329316598936
+   ],
+   "l_cut_mm": 0.02,
+   "lag_a_s": 0.011,
+   "lag_c_s": 0.002,
+   "cost": 0.05886148455332972,
+   "residuals": [
+    {
+     "F0_N": 62.54352446843547,
+     "t10_comb_s": 0.023999999999997357,
+     "t10_gnc_s": 0.025,
+     "imp_comb_Ns": 0.9037753314606886,
+     "imp_gnc_Ns": 0.875,
+     "imp_err_pct": -3.21,
+     "t10_err_ms": 1.0
+    },
+    {
+     "F0_N": 125.12325787462979,
+     "t10_comb_s": 0.033999999999996255,
+     "t10_gnc_s": 0.033,
+     "imp_comb_Ns": 2.4977547922455496,
+     "imp_gnc_Ns": 2.381,
+     "imp_err_pct": -4.68,
+     "t10_err_ms": -1.0
+    },
+    {
+     "F0_N": 250.35507392581994,
+     "t10_comb_s": 0.05299999999999416,
+     "t10_gnc_s": 0.053,
+     "imp_comb_Ns": 8.14504017844682,
+     "imp_gnc_Ns": 8.091,
+     "imp_err_pct": -0.66,
+     "t10_err_ms": 0.0
+    },
+    {
+     "F0_N": 375.38865293403336,
+     "t10_comb_s": 0.0789999999999913,
+     "t10_gnc_s": 0.079,
+     "imp_comb_Ns": 17.928041797435572,
+     "imp_gnc_Ns": 18.796,
+     "imp_err_pct": 4.84,
+     "t10_err_ms": 0.0
+    },
+    {
+     "F0_N": 500.31329316598936,
+     "t10_comb_s": 0.11499999999998733,
+     "t10_gnc_s": 0.116,
+     "imp_comb_Ns": 35.09431325865609,
+     "imp_gnc_Ns": 37.708,
+     "imp_err_pct": 7.45,
+     "t10_err_ms": 1.0
+    }
+   ],
+   "source": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/actuator_rate_check_v2.json",
+   "source_sha256": "2e1341e06b9e39680347ae19942aa3379add399223b6f98dfb5f3f5c8ca2d9b4",
+   "source_version": "v2.2",
+   "combustion_json_version": "v2.2"
+  },
+  {
+   "full_stroke_s": 0.149,
+   "speed_mm_s": 26.84563758389262,
+   "lift_mm": [
+    0.20607286786225107,
+    0.3659953827374974,
+    0.7531537886862517,
+    1.2500178286104653,
+    1.9176458759758428
+   ],
+   "thrust_N": [
+    62.54352446843547,
+    125.12325787462979,
+    250.35507392581994,
+    375.38865293403336,
+    500.31329316598936
+   ],
+   "l_cut_mm": 0.025,
+   "lag_a_s": 0.012,
+   "lag_c_s": 0.001,
+   "cost": 0.05072151229885068,
+   "residuals": [
+    {
+     "F0_N": 62.54352446843547,
+     "t10_comb_s": 0.020999999999997687,
+     "t10_gnc_s": 0.022,
+     "imp_comb_Ns": 0.764578220206388,
+     "imp_gnc_Ns": 0.687,
+     "imp_err_pct": -10.21,
+     "t10_err_ms": 1.0
+    },
+    {
+     "F0_N": 125.12325787462979,
+     "t10_comb_s": 0.028999999999996806,
+     "t10_gnc_s": 0.028,
+     "imp_comb_Ns": 2.0182131678303055,
+     "imp_gnc_Ns": 1.827,
+     "imp_err_pct": -9.47,
+     "t10_err_ms": -1.0
+    },
+    {
+     "F0_N": 250.35507392581994,
+     "t10_comb_s": 0.040999999999995485,
+     "t10_gnc_s": 0.04,
+     "imp_comb_Ns": 6.1852568686910105,
+     "imp_gnc_Ns": 5.885,
+     "imp_err_pct": -4.85,
+     "t10_err_ms": -1.0
+    },
+    {
+     "F0_N": 375.38865293403336,
+     "t10_comb_s": 0.05599999999999383,
+     "t10_gnc_s": 0.056,
+     "imp_comb_Ns": 13.13072822767549,
+     "imp_gnc_Ns": 13.104,
+     "imp_err_pct": -0.21,
+     "t10_err_ms": 0.0
+    },
+    {
+     "F0_N": 500.31329316598936,
+     "t10_comb_s": 0.07799999999999141,
+     "t10_gnc_s": 0.078,
+     "imp_comb_Ns": 24.435631917191124,
+     "imp_gnc_Ns": 25.427,
+     "imp_err_pct": 4.06,
+     "t10_err_ms": 0.0
+    }
+   ],
+   "source": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/actuator_rate_check_v2.json",
+   "source_sha256": "2e1341e06b9e39680347ae19942aa3379add399223b6f98dfb5f3f5c8ca2d9b4",
+   "source_version": "v2.2",
+   "combustion_json_version": "v2.2"
+  },
+  {
+   "full_stroke_s": 0.4,
+   "speed_mm_s": 10.0,
+   "lift_mm": [
+    0.20607286786225107,
+    0.3659953827374974,
+    0.7531537886862517,
+    1.2500178286104653,
+    1.9176458759758428
+   ],
+   "thrust_N": [
+    62.54352446843547,
+    125.12325787462979,
+    250.35507392581994,
+    375.38865293403336,
+    500.31329316598936
+   ],
+   "l_cut_mm": 0.0,
+   "lag_a_s": 0.003,
+   "lag_c_s": 0.006,
+   "cost": 0.13128641830209908,
+   "residuals": [
+    {
+     "F0_N": 62.54352446843547,
+     "t10_comb_s": 0.027999999999996916,
+     "t10_gnc_s": 0.028,
+     "imp_comb_Ns": 1.1295004175272036,
+     "imp_gnc_Ns": 1.049,
+     "imp_err_pct": -7.14,
+     "t10_err_ms": 0.0
+    },
+    {
+     "F0_N": 125.12325787462979,
+     "t10_comb_s": 0.042999999999995264,
+     "t10_gnc_s": 0.041,
+     "imp_comb_Ns": 3.302483240245632,
+     "imp_gnc_Ns": 2.953,
+     "imp_err_pct": -10.57,
+     "t10_err_ms": -2.0
+    },
+    {
+     "F0_N": 250.35507392581994,
+     "t10_comb_s": 0.07699999999999152,
+     "t10_gnc_s": 0.075,
+     "imp_comb_Ns": 11.334361699745518,
+     "imp_gnc_Ns": 11.038,
+     "imp_err_pct": -2.62,
+     "t10_err_ms": -2.0
+    },
+    {
+     "F0_N": 375.38865293403336,
+     "t10_comb_s": 0.11999999999998678,
+     "t10_gnc_s": 0.12,
+     "imp_comb_Ns": 26.116779427813423,
+     "imp_gnc_Ns": 27.398,
+     "imp_err_pct": 4.9,
+     "t10_err_ms": 0.0
+    },
+    {
+     "F0_N": 500.31329316598936,
+     "t10_comb_s": 0.18199999999997996,
+     "t10_gnc_s": 0.183,
+     "imp_comb_Ns": 53.73680443460492,
+     "imp_gnc_Ns": 57.444,
+     "imp_err_pct": 6.9,
+     "t10_err_ms": 1.0
+    }
+   ],
+   "source": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2/actuator_rate_check_v2.json",
+   "source_sha256": "2e1341e06b9e39680347ae19942aa3379add399223b6f98dfb5f3f5c8ca2d9b4",
+   "source_version": "v2.2",
+   "combustion_json_version": "v2.2"
+  }
+ ]
+}

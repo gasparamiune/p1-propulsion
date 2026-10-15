@@ -1,0 +1,5589 @@
+{
+ "version": "m2_eng03_rate v1.1",
+ "date": "2026-10-13",
+ "sim": "sim6 v2.8-dev (2026-10-13)",
+ "iface": "/home/claude/work/space/iface_v3c",
+ "request": "Request (lead, CHANGELOG 2026-10-13 ENG-03 provisional): Electronics finds the HV69 CLOSES at >= 2500 N/s in every state but OPENS\nslower above ~50 % thrust at low tank pressure (dynamic 2500 N/s ramps to 100 %: 1484 / 1812 / 2024 / 2153 / 2220 N/s at 3.5 /\n4.0 / 4.5 / 5.0 / 5.5 MPa, corner spring +10 %, 7.335 V). Fly it as a state-dependent rate limit (opening vs closing, by tank\npressure and thrust) plus the servo lag; A1, A1J and B1 62 m paired against 5 F_max/s; rate-aware feed-forward allowed. Decision\nrule (lead): loss within the Monte Carlo resolution (about 1 %) -> ENG-03 becomes the state-dependent map and the HV69 stays;\notherwise an actuator change is sized. Report the P change, the exact McNemar p-value and the phases where the opening rate binds.",
+ "maps": {
+  "corner": {
+   "source": "/home/claude/work/shared-fallback/engine/06-electronics/results/pintle_rate_map_v1.json (sha256/16 411b0573d604364e) rate_map.corner",
+   "label": "spring +10 % opening / -10 % closing, servo plug at the rail static minimum",
+   "tag": "SIM/DERIVED Electronics pintle_rate_map v1 (DERIVED analysis on SIM (Combustion map) / DERIVED (needle force, rail) / MECH (crank, spring, friction) / DATASHEET (HV69, retailer copies, TO-CONFIRM) / ASSUM)",
+   "F_grid_max_dev_from_frac_x_500_N": 0.01999999999999602
+  },
+  "nominal": {
+   "source": "/home/claude/work/shared-fallback/engine/06-electronics/results/pintle_rate_map_v1.json (sha256/16 411b0573d604364e) rate_map.nominal",
+   "label": "spring nominal, rail typ",
+   "tag": "SIM/DERIVED Electronics pintle_rate_map v1 (DERIVED analysis on SIM (Combustion map) / DERIVED (needle force, rail) / MECH (crank, spring, friction) / DATASHEET (HV69, retailer copies, TO-CONFIRM) / ASSUM)",
+   "F_grid_max_dev_from_frac_x_500_N": 0.01999999999999602
+  }
+ },
+ "map_corner_min_open_N_per_s": 1188.2,
+ "model_B": {
+  "latency_s": 0.004,
+  "tau_p_s": 0.0085,
+  "tau_v_s": 0.008,
+  "closing_rate_table": "R_close_assist_credited (by_law) for fidelity; R_close for the bound"
+ },
+ "arms": {
+  "R1": {
+   "rate_map": "corner",
+   "rmap_close": 0,
+   "rmap_cap": 1
+  },
+  "R2": {
+   "rate_map": "corner",
+   "rmap_close": 0,
+   "rmap_cap": 1,
+   "thr_drive": 1,
+   "thr_lat": 0.004,
+   "thr_tau_p": 0.0085,
+   "thr_tau_v": 0.008
+  },
+  "R3": {
+   "rate_map": "corner",
+   "rmap_close": 1,
+   "rmap_cap": 0
+  },
+  "R1n": {
+   "rate_map": "nominal",
+   "rmap_close": 0,
+   "rmap_cap": 1
+  },
+  "R4f20": {
+   "rate_map": "corner",
+   "rmap_close": 0,
+   "rmap_cap": 1,
+   "thr_ff_rise": 0.02
+  },
+  "R2Ff20": {
+   "rate_map": "corner",
+   "rmap_close": 0,
+   "rmap_cap": 1,
+   "thr_ff_rise": 0.02,
+   "thr_drive": 1,
+   "thr_lat": 0.004,
+   "thr_tau_p": 0.0085,
+   "thr_tau_v": 0.008
+  },
+  "R4f40": {
+   "rate_map": "corner",
+   "rmap_close": 0,
+   "rmap_cap": 1,
+   "thr_ff_rise": 0.04
+  },
+  "R2Ff40": {
+   "rate_map": "corner",
+   "rmap_close": 0,
+   "rmap_cap": 1,
+   "thr_ff_rise": 0.04,
+   "thr_drive": 1,
+   "thr_lat": 0.004,
+   "thr_tau_p": 0.0085,
+   "thr_tau_v": 0.008
+  }
+ },
+ "by_base": {
+  "A1_none": {
+   "baseline": {
+    "csv": "/home/claude/work/space/out/relight_v28/mc6_runs_v28_liq_p0.81_A1_none_k2_v28.csv",
+    "P": 0.992,
+    "ci95": [
+     0.9796126401630988,
+     0.9968847352024922
+    ]
+   },
+   "R1": {
+    "P": 0.99,
+    "ci95": [
+     0.976806564621235,
+     0.9957213092184797
+    ],
+    "paired": {
+     "P_base": 0.992,
+     "P_arm": 0.99,
+     "dP": -0.0020000000000000018,
+     "lost": 3,
+     "gained": 2,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10500000000000008,
+     0.18507000000000007,
+     0.20300000000000015
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.022000000000000013,
+     0.02900000000000002
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 157
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5284957826942165,
+     4.0050493365337205
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.9546158981984387,
+     4.424961848857447,
+     4.92787596246038
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 119,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.11100000000000008,
+      "shortfall_N": 491.8548180359297,
+      "td_vz": -0.982124171749087,
+      "td_vh": 1.173960630991891,
+      "td_tilt": 4.224172027958762,
+      "td_rate": 1.4026199556440029,
+      "landed": 1.0,
+      "base_td_vz": -1.0551863616263801,
+      "base_td_vh": 0.49636170554912257
+     },
+     {
+      "run": 161,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.09700000000000007,
+      "shortfall_N": 498.58600524444677,
+      "td_vz": -1.06635232548567,
+      "td_vh": 0.4843517859002554,
+      "td_tilt": 5.230794706459351,
+      "td_rate": 12.481832242372127,
+      "landed": 1.0,
+      "base_td_vz": -1.069519214694999,
+      "base_td_vh": 0.36290289297349887
+     },
+     {
+      "run": 191,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05300000000000004,
+      "shortfall_N": 544.1529646297521,
+      "td_vz": -1.0931291583174285,
+      "td_vh": 0.27044086396798556,
+      "td_tilt": 1.3612266785529432,
+      "td_rate": 10.563634033141593,
+      "landed": 1.0,
+      "base_td_vz": -1.0509447198098296,
+      "base_td_vh": 0.29361067657565526
+     }
+    ],
+    "gained_runs": [
+     100,
+     111
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9779411764705882,
+      "P_arm": 0.9632352941176471,
+      "dP": -0.014705882352941124,
+      "lost": 3,
+      "gained": 1,
+      "p_exact": 0.625
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.56,
+     6.32,
+     7.02
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 0,
+     "all_runs_binding_landing": 157,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R2": {
+    "P": 0.992,
+    "ci95": [
+     0.9796126401630988,
+     0.9968847352024922
+    ],
+    "paired": {
+     "P_base": 0.992,
+     "P_arm": 0.992,
+     "dP": 0.0,
+     "lost": 3,
+     "gained": 3,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.17700000000000013,
+     0.26702000000000015,
+     0.3020000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.1500000000000001,
+     0.21501000000000015,
+     0.21800000000000017
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.027000000000000017,
+     0.06302000000000002,
+     0.08600000000000006
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 500,
+     "phase2to4": 0,
+     "landing": 489
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5300266321603715,
+     4.006812206467229
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.955000598250885,
+     4.422531036674351,
+     4.926084856215197
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 46,
+      "bind_land_s": 0.027000000000000017,
+      "bind_asc_s": 0.1490000000000001,
+      "shortfall_N": 494.10493678802936,
+      "td_vz": -1.1428569149186942,
+      "td_vh": 0.7029708215671657,
+      "td_tilt": 4.232481151210435,
+      "td_rate": 0.3773573900264487,
+      "landed": 1.0,
+      "base_td_vz": -0.9988962152632304,
+      "base_td_vh": 0.2426812336963606
+     },
+     {
+      "run": 119,
+      "bind_land_s": 0.027000000000000017,
+      "bind_asc_s": 0.1490000000000001,
+      "shortfall_N": 491.8548180359297,
+      "td_vz": -1.0450077704629201,
+      "td_vh": 0.5980101367171062,
+      "td_tilt": 4.0445684826107895,
+      "td_rate": 0.5942293177555972,
+      "landed": 1.0,
+      "base_td_vz": -1.0551863616263801,
+      "base_td_vh": 0.49636170554912257
+     },
+     {
+      "run": 297,
+      "bind_land_s": 0.027000000000000017,
+      "bind_asc_s": 0.1460000000000001,
+      "shortfall_N": 503.99359313220657,
+      "td_vz": -1.0791979853072844,
+      "td_vh": 0.5002973173990156,
+      "td_tilt": 2.890918291122591,
+      "td_rate": 0.5176303013052788,
+      "landed": 1.0,
+      "base_td_vz": -0.983749575262895,
+      "base_td_vh": 0.036089249711393656
+     }
+    ],
+    "gained_runs": [
+     100,
+     111,
+     190
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9779411764705882,
+      "P_arm": 0.9705882352941176,
+      "dP": -0.007352941176470562,
+      "lost": 3,
+      "gained": 2,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     6.95,
+     7.56,
+     7.01
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 3,
+     "all_runs_binding_landing": 489,
+     "bind_land_s_lost_median": 0.027000000000000017,
+     "bind_land_s_all_median": 0.027000000000000017
+    }
+   },
+   "R3": {
+    "P": 0.99,
+    "ci95": [
+     0.976806564621235,
+     0.9957213092184797
+    ],
+    "paired": {
+     "P_base": 0.992,
+     "P_arm": 0.99,
+     "dP": -0.0020000000000000018,
+     "lost": 3,
+     "gained": 2,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10500000000000008,
+     0.18507000000000007,
+     0.20300000000000015
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.022000000000000013,
+     0.02900000000000002
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 157
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.528484661672117,
+     4.005114020524378
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.9556352020136503,
+     4.425081765216574,
+     4.927477430105105
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 142,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.08800000000000006,
+      "shortfall_N": 511.8221196213064,
+      "td_vz": -1.0044467107535344,
+      "td_vh": 0.8178951545059608,
+      "td_tilt": 3.9719828764484704,
+      "td_rate": 0.5040157155089025,
+      "landed": 1.0,
+      "base_td_vz": -1.0375216656974857,
+      "base_td_vh": 0.20348357269697628
+     },
+     {
+      "run": 191,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05300000000000004,
+      "shortfall_N": 544.1529646297521,
+      "td_vz": -1.0639837551632232,
+      "td_vh": 0.26082331664357716,
+      "td_tilt": 1.7041481657078752,
+      "td_rate": 10.263777947414658,
+      "landed": 1.0,
+      "base_td_vz": -1.0509447198098296,
+      "base_td_vh": 0.29361067657565526
+     },
+     {
+      "run": 391,
+      "bind_land_s": 0.002,
+      "bind_asc_s": 0.09200000000000007,
+      "shortfall_N": 506.1348603903035,
+      "td_vz": -1.0543255361420036,
+      "td_vh": 0.5823423103061061,
+      "td_tilt": 4.142582941060098,
+      "td_rate": 0.5195695120042163,
+      "landed": 1.0,
+      "base_td_vz": -1.041319449174746,
+      "base_td_vh": 0.39353161860890684
+     }
+    ],
+    "gained_runs": [
+     100,
+     111
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9779411764705882,
+      "P_arm": 0.9632352941176471,
+      "dP": -0.014705882352941124,
+      "lost": 3,
+      "gained": 1,
+      "p_exact": 0.625
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.58,
+     7.02,
+     7.07
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 157,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R1n": {
+    "P": 0.992,
+    "ci95": [
+     0.9796126401630988,
+     0.9968847352024922
+    ],
+    "paired": {
+     "P_base": 0.992,
+     "P_arm": 0.992,
+     "dP": 0.0,
+     "lost": 0,
+     "gained": 0,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.01850000000000001,
+     0.10002000000000005,
+     0.1210000000000001
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.01800000000000001,
+     0.09301000000000006,
+     0.11700000000000009
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.017000000000000008,
+     0.01900000000000001
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     126.71740359786139,
+     495.66656669954745,
+     498.0238718758464
+    ],
+    "runs_binding": {
+     "ascent": 341,
+     "phase2to4": 0,
+     "landing": 71
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.528876773063976,
+     4.00573005157762
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.9554792801588587,
+     4.42482235753029,
+     4.927597544436539
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [],
+    "gained_runs": [],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 0.9921875,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9779411764705882,
+      "P_arm": 0.9779411764705882,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 0,
+     "all_runs_binding_landing": 71,
+     "bind_land_s_lost_median": null,
+     "bind_land_s_all_median": 0.0
+    }
+   }
+  },
+  "A1_pc": {
+   "baseline": {
+    "csv": "/home/claude/work/space/out/relight_v28/mc6_runs_v28_liq_p0.81_A1_pc_k2_v28.csv",
+    "P": 0.988,
+    "ci95": [
+     0.9740692922810136,
+     0.9944890800328247
+    ]
+   },
+   "R1": {
+    "P": 0.986,
+    "ci95": [
+     0.9713865738597492,
+     0.9932022969282127
+    ],
+    "paired": {
+     "P_base": 0.988,
+     "P_arm": 0.986,
+     "dP": -0.0020000000000000018,
+     "lost": 7,
+     "gained": 6,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10250000000000008,
+     0.19000000000000014,
+     0.20200000000000015
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10150000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.02000000000000001,
+     0.028000000000000018
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 140
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.526685069598863,
+     4.005341071552534
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.953661318701328,
+     4.423843766568087,
+     4.926828266875975
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 18,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.10500000000000008,
+      "shortfall_N": 484.0206945338767,
+      "td_vz": -1.0648466392236393,
+      "td_vh": 0.5049428886192667,
+      "td_tilt": 1.609644818632632,
+      "td_rate": 3.497603972418684,
+      "landed": 1.0,
+      "base_td_vz": -1.0858187640324966,
+      "base_td_vh": 0.46281180176977776
+     },
+     {
+      "run": 111,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.11600000000000009,
+      "shortfall_N": 499.6207479537174,
+      "td_vz": -1.0723813854815067,
+      "td_vh": 0.5956116584633722,
+      "td_tilt": 4.578481686260681,
+      "td_rate": 0.33974452471725547,
+      "landed": 1.0,
+      "base_td_vz": -1.0611817188842338,
+      "base_td_vh": 0.11132588324231812
+     },
+     {
+      "run": 119,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.11100000000000008,
+      "shortfall_N": 491.8548180359297,
+      "td_vz": -1.049275967739686,
+      "td_vh": 0.5650396005431012,
+      "td_tilt": 4.1744176195866896,
+      "td_rate": 1.4296510914832445,
+      "landed": 1.0,
+      "base_td_vz": -1.0139414450742028,
+      "base_td_vh": 0.05839524505654047
+     },
+     {
+      "run": 145,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.1380000000000001,
+      "shortfall_N": 436.29733766280265,
+      "td_vz": -1.0337261119304952,
+      "td_vh": 1.3456122929169902,
+      "td_tilt": 4.305070861671538,
+      "td_rate": 0.7514998278869434,
+      "landed": 1.0,
+      "base_td_vz": -1.1392498863748775,
+      "base_td_vh": 0.1094444133927075
+     },
+     {
+      "run": 190,
+      "bind_land_s": 0.01800000000000001,
+      "bind_asc_s": 0.11400000000000009,
+      "shortfall_N": 502.1220849256144,
+      "td_vz": -1.03386473106236,
+      "td_vh": 0.7575409846383226,
+      "td_tilt": 2.0483960521160336,
+      "td_rate": 1.484814976922958,
+      "landed": 1.0,
+      "base_td_vz": -1.0080701790214417,
+      "base_td_vh": 0.49888849390475704
+     },
+     {
+      "run": 264,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.18200000000000013,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -0.9974097943665593,
+      "td_vh": 0.6942573754351363,
+      "td_tilt": 4.2480147784107345,
+      "td_rate": 0.9684561386444985,
+      "landed": 1.0,
+      "base_td_vz": -1.087542625363577,
+      "base_td_vh": 0.14903541670487508
+     },
+     {
+      "run": 391,
+      "bind_land_s": 0.004,
+      "bind_asc_s": 0.09200000000000007,
+      "shortfall_N": 506.1348603903035,
+      "td_vz": -0.9931566353959494,
+      "td_vh": 0.7642780213961318,
+      "td_tilt": 3.9482558605822513,
+      "td_rate": 0.937225363870131,
+      "landed": 1.0,
+      "base_td_vz": -0.9699514791132915,
+      "base_td_vh": 0.04536031168287528
+     }
+    ],
+    "gained_runs": [
+     48,
+     142,
+     147,
+     206,
+     251,
+     412
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 0.9957627118644068,
+      "dP": -0.004237288135593209,
+      "lost": 1,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9558823529411765,
+      "P_arm": 0.9558823529411765,
+      "dP": 0.0,
+      "lost": 6,
+      "gained": 6,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     1.01,
+     7.51,
+     7.56,
+     6.96,
+     7.01,
+     7.25,
+     7.07
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 2,
+     "all_runs_binding_landing": 140,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R2": {
+    "P": 0.984,
+    "ci95": [
+     0.9687485245822888,
+     0.9918708446797967
+    ],
+    "paired": {
+     "P_base": 0.988,
+     "P_arm": 0.984,
+     "dP": -0.0040000000000000036,
+     "lost": 8,
+     "gained": 6,
+     "p_exact": 0.79052734375,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.17500000000000013,
+     0.24702000000000018,
+     0.2860000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.1500000000000001,
+     0.21501000000000015,
+     0.21800000000000017
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.025000000000000015,
+     0.03401000000000001,
+     0.07000000000000005
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 500,
+     "phase2to4": 0,
+     "landing": 420
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5550169670350993,
+     4.005087738090251
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.952729906164786,
+     4.422564571271061,
+     4.924236888657427
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 27,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.08800000000000006,
+      "shortfall_N": 542.0562845803662,
+      "td_vz": -1.1353967250826686,
+      "td_vh": 0.507922919621205,
+      "td_tilt": 0.13536147775391047,
+      "td_rate": 6.733272204944613,
+      "landed": 1.0,
+      "base_td_vz": -1.0085738284476888,
+      "base_td_vh": 0.40182290387154207
+     },
+     {
+      "run": 100,
+      "bind_land_s": 0.027000000000000017,
+      "bind_asc_s": 0.18400000000000014,
+      "shortfall_N": 468.31142382040105,
+      "td_vz": -1.1669256412776101,
+      "td_vh": 0.6441782766482415,
+      "td_tilt": 1.5358378725937034,
+      "td_rate": 0.3602576197290122,
+      "landed": 1.0,
+      "base_td_vz": -0.9874022595913229,
+      "base_td_vh": 0.4462021414953804
+     },
+     {
+      "run": 161,
+      "bind_land_s": 0.025000000000000015,
+      "bind_asc_s": 0.1490000000000001,
+      "shortfall_N": 498.58600524444677,
+      "td_vz": -1.1816181748576797,
+      "td_vh": 0.4584728210672868,
+      "td_tilt": 2.4076563714919206,
+      "td_rate": 10.813997155241262,
+      "landed": 1.0,
+      "base_td_vz": -1.1088924224686658,
+      "base_td_vh": 0.3935193749939073
+     },
+     {
+      "run": 190,
+      "bind_land_s": 0.025000000000000015,
+      "bind_asc_s": 0.1460000000000001,
+      "shortfall_N": 502.1220849256144,
+      "td_vz": -1.0985282217444519,
+      "td_vh": 0.9184348206716615,
+      "td_tilt": 1.8566950057212297,
+      "td_rate": 1.1787477687866532,
+      "landed": 1.0,
+      "base_td_vz": -1.0080701790214417,
+      "base_td_vh": 0.49888849390475704
+     },
+     {
+      "run": 211,
+      "bind_land_s": 0.028000000000000018,
+      "bind_asc_s": 0.1590000000000001,
+      "shortfall_N": 484.15599541169354,
+      "td_vz": -1.09401042427543,
+      "td_vh": 0.8110866970718316,
+      "td_tilt": 4.413591853014438,
+      "td_rate": 1.4448660938581117,
+      "landed": 1.0,
+      "base_td_vz": -1.0336613081967014,
+      "base_td_vh": 0.06321641563459798
+     },
+     {
+      "run": 264,
+      "bind_land_s": 0.03100000000000002,
+      "bind_asc_s": 0.21600000000000016,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.1518746346699904,
+      "td_vh": 1.1294002318410763,
+      "td_tilt": 4.140162028726755,
+      "td_rate": 1.0010011821949216,
+      "landed": 1.0,
+      "base_td_vz": -1.087542625363577,
+      "base_td_vh": 0.14903541670487508
+     },
+     {
+      "run": 348,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05600000000000004,
+      "shortfall_N": 144.91124461774433,
+      "td_vz": -1.254979096921705,
+      "td_vh": 0.6322496112362135,
+      "td_tilt": 4.2292692195792645,
+      "td_rate": 2.3204880774295074,
+      "landed": 1.0,
+      "base_td_vz": -1.0983013283882155,
+      "base_td_vh": 0.08396314996467227
+     },
+     {
+      "run": 457,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.11800000000000009,
+      "shortfall_N": 543.0863812745738,
+      "td_vz": -1.197184156709722,
+      "td_vh": 0.5450514354222789,
+      "td_tilt": 2.2917036066771783,
+      "td_rate": 0.9572522038218658,
+      "landed": 1.0,
+      "base_td_vz": -1.1191338967056284,
+      "base_td_vh": 0.29058260058586344
+     }
+    ],
+    "gained_runs": [
+     48,
+     142,
+     147,
+     206,
+     251,
+     412
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 0.9765625,
+      "dP": -0.0234375,
+      "lost": 3,
+      "gained": 0,
+      "p_exact": 0.25
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9558823529411765,
+      "P_arm": 0.9632352941176471,
+      "dP": 0.007352941176470562,
+      "lost": 5,
+      "gained": 6,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     5.42,
+     5.43,
+     6.32,
+     7.01,
+     5.86,
+     7.25,
+     6.77,
+     6.66
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 5,
+     "all_runs_binding_landing": 420,
+     "bind_land_s_lost_median": 0.025000000000000015,
+     "bind_land_s_all_median": 0.025000000000000015
+    }
+   },
+   "R3": {
+    "P": 0.99,
+    "ci95": [
+     0.976806564621235,
+     0.9957213092184797
+    ],
+    "paired": {
+     "P_base": 0.988,
+     "P_arm": 0.99,
+     "dP": 0.0020000000000000018,
+     "lost": 3,
+     "gained": 4,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10250000000000008,
+     0.19000000000000014,
+     0.20200000000000015
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10150000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.02000000000000001,
+     0.028000000000000018
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 138
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.526691998175191,
+     4.003039995773506
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.9539689627782395,
+     4.423908736569225,
+     4.927299537122308
+    ],
+    "runs_below_map_P": 2,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 100,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.11300000000000009,
+      "shortfall_N": 468.31142382040105,
+      "td_vz": -1.0523703885306055,
+      "td_vh": 0.5695012991676592,
+      "td_tilt": 1.9029581137827778,
+      "td_rate": 0.26127135510143246,
+      "landed": 1.0,
+      "base_td_vz": -0.9874022595913229,
+      "base_td_vh": 0.4462021414953804
+     },
+     {
+      "run": 145,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.1380000000000001,
+      "shortfall_N": 436.29733766280265,
+      "td_vz": -1.033147243874822,
+      "td_vh": 1.345476319144984,
+      "td_tilt": 4.305202192757642,
+      "td_rate": 0.7539676087361095,
+      "landed": 1.0,
+      "base_td_vz": -1.1392498863748775,
+      "base_td_vh": 0.1094444133927075
+     },
+     {
+      "run": 190,
+      "bind_land_s": 0.01800000000000001,
+      "bind_asc_s": 0.11500000000000009,
+      "shortfall_N": 502.1220849256144,
+      "td_vz": -0.995939013912903,
+      "td_vh": 0.5157085623185914,
+      "td_tilt": 1.9505864381818006,
+      "td_rate": 0.7654011427075584,
+      "landed": 1.0,
+      "base_td_vz": -1.0080701790214417,
+      "base_td_vh": 0.49888849390475704
+     }
+    ],
+    "gained_runs": [
+     48,
+     147,
+     251,
+     412
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 0.9921875,
+      "dP": -0.0078125,
+      "lost": 1,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9558823529411765,
+      "P_arm": 0.9705882352941176,
+      "dP": 0.014705882352941124,
+      "lost": 2,
+      "gained": 4,
+      "p_exact": 0.6875
+     }
+    },
+    "lost_runs_wind_m_s": [
+     5.43,
+     6.96,
+     7.01
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 138,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R1n": {
+    "P": 0.986,
+    "ci95": [
+     0.9713865738597492,
+     0.9932022969282127
+    ],
+    "paired": {
+     "P_base": 0.988,
+     "P_arm": 0.986,
+     "dP": -0.0020000000000000018,
+     "lost": 2,
+     "gained": 1,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.01800000000000001,
+     0.10102000000000005,
+     0.1210000000000001
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.01800000000000001,
+     0.09202000000000005,
+     0.11600000000000009
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.016000000000000007,
+     0.01800000000000001
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     125.78263225622342,
+     495.66656669954745,
+     498.0238718758464
+    ],
+    "runs_binding": {
+     "ascent": 342,
+     "phase2to4": 0,
+     "landing": 18
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.53619397445006,
+     4.005173009987642
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.9545810372917147,
+     4.423529307564199,
+     4.926532002961809
+    ],
+    "runs_below_map_P": 3,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 190,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.01800000000000001,
+      "shortfall_N": 120.13158144521924,
+      "td_vz": -1.037562548955567,
+      "td_vh": 0.7554120830072575,
+      "td_tilt": 2.047441071689573,
+      "td_rate": 1.6434599091027629,
+      "landed": 1.0,
+      "base_td_vz": -1.0080701790214417,
+      "base_td_vh": 0.49888849390475704
+     },
+     {
+      "run": 264,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.11600000000000009,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.0126511769347226,
+      "td_vh": 1.0722327708122172,
+      "td_tilt": 4.006462679543023,
+      "td_rate": 0.6813334121912524,
+      "landed": 1.0,
+      "base_td_vz": -1.087542625363577,
+      "base_td_vh": 0.14903541670487508
+     }
+    ],
+    "gained_runs": [
+     412
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9558823529411765,
+      "P_arm": 0.9485294117647058,
+      "dP": -0.007352941176470673,
+      "lost": 2,
+      "gained": 1,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.01,
+     7.25
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 0,
+     "all_runs_binding_landing": 18,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   }
+  },
+  "A1J_none": {
+   "baseline": {
+    "csv": "/home/claude/work/space/out/relight_v28/mc6_runs_v28_liq_p0.81_A1J_none_k2_v28.csv",
+    "P": 0.988,
+    "ci95": [
+     0.9740692922810136,
+     0.9944890800328247
+    ]
+   },
+   "R1": {
+    "P": 0.986,
+    "ci95": [
+     0.9713865738597492,
+     0.9932022969282127
+    ],
+    "paired": {
+     "P_base": 0.988,
+     "P_arm": 0.986,
+     "dP": -0.0020000000000000018,
+     "lost": 3,
+     "gained": 2,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10500000000000008,
+     0.18507000000000007,
+     0.20300000000000015
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.022000000000000013,
+     0.02900000000000002
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 157
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5265438408636864,
+     4.004240956999605
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.9546158981984387,
+     4.424961848857447,
+     4.92787596246038
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 161,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.09700000000000007,
+      "shortfall_N": 498.58600524444677,
+      "td_vz": -1.0549106733443068,
+      "td_vh": 0.47493103412505394,
+      "td_tilt": 5.185489347569645,
+      "td_rate": 12.859496779956796,
+      "landed": 1.0,
+      "base_td_vz": -1.0721438562027266,
+      "base_td_vh": 0.3760024935692473
+     },
+     {
+      "run": 191,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05300000000000004,
+      "shortfall_N": 544.1529646297521,
+      "td_vz": -1.1195622047400011,
+      "td_vh": 0.40350163630599534,
+      "td_tilt": 2.072434973046305,
+      "td_rate": 10.44908442588552,
+      "landed": 1.0,
+      "base_td_vz": -1.1493420264437892,
+      "base_td_vh": 0.37087431834762785
+     },
+     {
+      "run": 370,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.02900000000000002,
+      "shortfall_N": 140.26744314394125,
+      "td_vz": -0.9974081907379223,
+      "td_vh": 0.6625981212634998,
+      "td_tilt": 3.656167974264294,
+      "td_rate": 0.7190740754876916,
+      "landed": 1.0,
+      "base_td_vz": -1.047417094599201,
+      "base_td_vh": 0.10919458686606145
+     }
+    ],
+    "gained_runs": [
+     100,
+     145
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9632352941176471,
+      "P_arm": 0.9485294117647058,
+      "dP": -0.014705882352941235,
+      "lost": 3,
+      "gained": 1,
+      "p_exact": 0.625
+     }
+    },
+    "lost_runs_wind_m_s": [
+     6.32,
+     7.02,
+     7.91
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 0,
+     "all_runs_binding_landing": 157,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R2": {
+    "P": 0.992,
+    "ci95": [
+     0.9796126401630988,
+     0.9968847352024922
+    ],
+    "paired": {
+     "P_base": 0.988,
+     "P_arm": 0.992,
+     "dP": 0.0040000000000000036,
+     "lost": 2,
+     "gained": 4,
+     "p_exact": 0.6875,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.17700000000000013,
+     0.2680100000000002,
+     0.3020000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.1500000000000001,
+     0.21501000000000015,
+     0.21800000000000017
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.027000000000000017,
+     0.06302000000000002,
+     0.08600000000000006
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 500,
+     "phase2to4": 0,
+     "landing": 489
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5305126281413863,
+     4.006008888735242
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.955000598250885,
+     4.422531036674351,
+     4.926084856215197
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 46,
+      "bind_land_s": 0.027000000000000017,
+      "bind_asc_s": 0.1490000000000001,
+      "shortfall_N": 494.10493678802936,
+      "td_vz": -1.154306978673457,
+      "td_vh": 0.7049758169585341,
+      "td_tilt": 4.23614939013094,
+      "td_rate": 0.40903276299485947,
+      "landed": 1.0,
+      "base_td_vz": -1.0032689949842055,
+      "base_td_vh": 0.24496305570202373
+     },
+     {
+      "run": 457,
+      "bind_land_s": 0.025000000000000015,
+      "bind_asc_s": 0.11800000000000009,
+      "shortfall_N": 543.0863812745738,
+      "td_vz": -1.1505268026529427,
+      "td_vh": 0.5537710385496147,
+      "td_tilt": 1.9012252144244504,
+      "td_rate": 0.47044645344759267,
+      "landed": 1.0,
+      "base_td_vz": -1.1270300117142837,
+      "base_td_vh": 0.29202628143975706
+     }
+    ],
+    "gained_runs": [
+     100,
+     145,
+     190,
+     415
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9632352941176471,
+      "P_arm": 0.9705882352941176,
+      "dP": 0.007352941176470562,
+      "lost": 2,
+      "gained": 3,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     6.95,
+     6.66
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 2,
+     "all_runs_binding_landing": 489,
+     "bind_land_s_lost_median": 0.026000000000000016,
+     "bind_land_s_all_median": 0.027000000000000017
+    }
+   },
+   "R3": {
+    "P": 0.988,
+    "ci95": [
+     0.9740692922810136,
+     0.9944890800328247
+    ],
+    "paired": {
+     "P_base": 0.988,
+     "P_arm": 0.988,
+     "dP": 0.0,
+     "lost": 2,
+     "gained": 2,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10500000000000008,
+     0.1860600000000001,
+     0.20300000000000015
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.022000000000000013,
+     0.02900000000000002
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 156
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5265358258511736,
+     4.004919287155963
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.9556352020136503,
+     4.425081765216574,
+     4.927477430105105
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 191,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05300000000000004,
+      "shortfall_N": 544.1529646297521,
+      "td_vz": -1.0908084346898272,
+      "td_vh": 0.43361541668303866,
+      "td_tilt": 1.9839816648683921,
+      "td_rate": 11.22247772010978,
+      "landed": 1.0,
+      "base_td_vz": -1.1493420264437892,
+      "base_td_vh": 0.37087431834762785
+     },
+     {
+      "run": 391,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.09200000000000007,
+      "shortfall_N": 506.1348603903035,
+      "td_vz": -1.0585023327589127,
+      "td_vh": 0.5888477013700217,
+      "td_tilt": 4.132694479460026,
+      "td_rate": 0.5346699666603207,
+      "landed": 1.0,
+      "base_td_vz": -1.0506551746629458,
+      "base_td_vh": 0.36528753267330855
+     }
+    ],
+    "gained_runs": [
+     100,
+     145
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9632352941176471,
+      "P_arm": 0.9558823529411765,
+      "dP": -0.007352941176470562,
+      "lost": 2,
+      "gained": 1,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.02,
+     7.07
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 0,
+     "all_runs_binding_landing": 156,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R1n": {
+    "P": 0.992,
+    "ci95": [
+     0.9796126401630988,
+     0.9968847352024922
+    ],
+    "paired": {
+     "P_base": 0.988,
+     "P_arm": 0.992,
+     "dP": 0.0040000000000000036,
+     "lost": 0,
+     "gained": 2,
+     "p_exact": 0.5,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.01850000000000001,
+     0.10002000000000005,
+     0.1210000000000001
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.01800000000000001,
+     0.09301000000000006,
+     0.11700000000000009
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.017000000000000008,
+     0.01900000000000001
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     126.73874866695758,
+     495.66656669954745,
+     498.0238718758464
+    ],
+    "runs_binding": {
+     "ascent": 341,
+     "phase2to4": 0,
+     "landing": 72
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.527677547206081,
+     4.005394804528973
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.9554792801588587,
+     4.42482235753029,
+     4.927597544436539
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [],
+    "gained_runs": [
+     145,
+     415
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 0.9921875,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9632352941176471,
+      "P_arm": 0.9779411764705882,
+      "dP": 0.014705882352941124,
+      "lost": 0,
+      "gained": 2,
+      "p_exact": 0.5
+     }
+    },
+    "lost_runs_wind_m_s": [],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 0,
+     "all_runs_binding_landing": 72,
+     "bind_land_s_lost_median": null,
+     "bind_land_s_all_median": 0.0
+    }
+   }
+  },
+  "A1J_pc": {
+   "baseline": {
+    "csv": "/home/claude/work/space/out/relight_v28/mc6_runs_v28_liq_p0.81_A1J_pc_k2_v28.csv",
+    "P": 0.98,
+    "ci95": [
+     0.9635794314459021,
+     0.9891009347644306
+    ]
+   },
+   "R1": {
+    "P": 0.986,
+    "ci95": [
+     0.9713865738597492,
+     0.9932022969282127
+    ],
+    "paired": {
+     "P_base": 0.98,
+     "P_arm": 0.986,
+     "dP": 0.006000000000000005,
+     "lost": 4,
+     "gained": 7,
+     "p_exact": 0.548828125,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10250000000000008,
+     0.19000000000000014,
+     0.20200000000000015
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10150000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.02000000000000001,
+     0.028000000000000018
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 140
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.529321365069598,
+     4.004208298641643
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.953661318701328,
+     4.423843766568087,
+     4.926828266875975
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 119,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.11100000000000008,
+      "shortfall_N": 491.8548180359297,
+      "td_vz": -0.9816482546456596,
+      "td_vh": 1.3000558337094335,
+      "td_tilt": 4.300452473595902,
+      "td_rate": 1.1350680155154795,
+      "landed": 1.0,
+      "base_td_vz": -1.0166305583505106,
+      "base_td_vh": 0.045667789607698836
+     },
+     {
+      "run": 177,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.07000000000000005,
+      "shortfall_N": 508.75401872330326,
+      "td_vz": -1.067104225827997,
+      "td_vh": 0.5174015535222873,
+      "td_tilt": 4.562754863020822,
+      "td_rate": 0.3585815127501094,
+      "landed": 1.0,
+      "base_td_vz": -1.0497275627067,
+      "base_td_vh": 0.1346930469619037
+     },
+     {
+      "run": 391,
+      "bind_land_s": 0.005,
+      "bind_asc_s": 0.09200000000000007,
+      "shortfall_N": 506.1348603903035,
+      "td_vz": -0.9956565426230003,
+      "td_vh": 0.7393521975176522,
+      "td_tilt": 3.996413591104983,
+      "td_rate": 0.9991602022401597,
+      "landed": 1.0,
+      "base_td_vz": -0.9695446393456265,
+      "base_td_vh": 0.058819715617215614
+     },
+     {
+      "run": 452,
+      "bind_land_s": 0.012000000000000004,
+      "bind_asc_s": 0.10200000000000008,
+      "shortfall_N": 514.6257753616756,
+      "td_vz": -1.1385046407675707,
+      "td_vh": 0.9684917873760409,
+      "td_tilt": 4.468489852294789,
+      "td_rate": 0.6500258022105804,
+      "landed": 1.0,
+      "base_td_vz": -1.153004390465953,
+      "base_td_vh": 0.31631287409764725
+     }
+    ],
+    "gained_runs": [
+     48,
+     52,
+     142,
+     147,
+     206,
+     251,
+     412
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 0.9957627118644068,
+      "P_arm": 0.9957627118644068,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9338235294117647,
+      "P_arm": 0.9558823529411765,
+      "dP": 0.022058823529411797,
+      "lost": 4,
+      "gained": 7,
+      "p_exact": 0.548828125
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.56,
+     7.15,
+     7.07,
+     7.52
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 2,
+     "all_runs_binding_landing": 140,
+     "bind_land_s_lost_median": 0.0025,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R2": {
+    "P": 0.98,
+    "ci95": [
+     0.9635794314459021,
+     0.9891009347644306
+    ],
+    "paired": {
+     "P_base": 0.98,
+     "P_arm": 0.98,
+     "dP": 0.0,
+     "lost": 8,
+     "gained": 8,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.17500000000000013,
+     0.24702000000000018,
+     0.2860000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.1500000000000001,
+     0.21501000000000015,
+     0.21800000000000017
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.025000000000000015,
+     0.032029999999999996,
+     0.07000000000000005
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 500,
+     "phase2to4": 0,
+     "landing": 420
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5536990276739338,
+     4.004485188952293
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.952729906164786,
+     4.422564571271061,
+     4.924236888657427
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 6,
+      "bind_land_s": 0.025000000000000015,
+      "bind_asc_s": 0.1500000000000001,
+      "shortfall_N": 503.7783638911828,
+      "td_vz": -1.1761438845313863,
+      "td_vh": 0.5380088668534276,
+      "td_tilt": 3.9083947948850386,
+      "td_rate": 1.2069703952500686,
+      "landed": 1.0,
+      "base_td_vz": -0.979512206168636,
+      "base_td_vh": 0.298470841460791
+     },
+     {
+      "run": 60,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.07200000000000005,
+      "shortfall_N": 254.95647633202685,
+      "td_vz": -1.1819195058363432,
+      "td_vh": 0.5555268581473503,
+      "td_tilt": 3.2116395726478277,
+      "td_rate": 1.9040391953635811,
+      "landed": 1.0,
+      "base_td_vz": -0.9959131667792359,
+      "base_td_vh": 0.15189229803471518
+     },
+     {
+      "run": 100,
+      "bind_land_s": 0.027000000000000017,
+      "bind_asc_s": 0.18400000000000014,
+      "shortfall_N": 468.31142382040105,
+      "td_vz": -1.1477588465189648,
+      "td_vh": 0.661544882467069,
+      "td_tilt": 1.544097182250034,
+      "td_rate": 0.4704377394672947,
+      "landed": 1.0,
+      "base_td_vz": -0.989333706538076,
+      "base_td_vh": 0.4182140369281239
+     },
+     {
+      "run": 161,
+      "bind_land_s": 0.025000000000000015,
+      "bind_asc_s": 0.1490000000000001,
+      "shortfall_N": 498.58600524444677,
+      "td_vz": -1.1899640301053753,
+      "td_vh": 0.44748471265747397,
+      "td_tilt": 2.398541879024175,
+      "td_rate": 10.605263436337214,
+      "landed": 1.0,
+      "base_td_vz": -1.108877072159387,
+      "base_td_vh": 0.3666099603388921
+     },
+     {
+      "run": 189,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05200000000000004,
+      "shortfall_N": 139.30533193595335,
+      "td_vz": -1.2580427236011051,
+      "td_vh": 0.5253658265571521,
+      "td_tilt": 0.4916184568883196,
+      "td_rate": 5.913940035677822,
+      "landed": 1.0,
+      "base_td_vz": -1.1347996506243485,
+      "base_td_vh": 0.3729121012442211
+     },
+     {
+      "run": 211,
+      "bind_land_s": 0.03000000000000002,
+      "bind_asc_s": 0.1590000000000001,
+      "shortfall_N": 484.15599541169354,
+      "td_vz": -1.1073364396676961,
+      "td_vh": 0.8403609465793005,
+      "td_tilt": 4.40722987394525,
+      "td_rate": 1.5985796867042448,
+      "landed": 1.0,
+      "base_td_vz": -1.0324330457760356,
+      "base_td_vh": 0.1174471556689729
+     },
+     {
+      "run": 264,
+      "bind_land_s": 0.03100000000000002,
+      "bind_asc_s": 0.21600000000000016,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.1526984055579024,
+      "td_vh": 1.1173479796780996,
+      "td_tilt": 4.149623931903229,
+      "td_rate": 1.1309798063034353,
+      "landed": 1.0,
+      "base_td_vz": -1.087325339343783,
+      "base_td_vh": 0.140782891648509
+     },
+     {
+      "run": 285,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05200000000000004,
+      "shortfall_N": 139.75627309977978,
+      "td_vz": -1.2366714342261955,
+      "td_vh": 0.5338799051460505,
+      "td_tilt": 3.9311877741781243,
+      "td_rate": 2.7233481457279987,
+      "landed": 1.0,
+      "base_td_vz": -1.0850682637439701,
+      "base_td_vh": 0.12525810077600077
+     }
+    ],
+    "gained_runs": [
+     18,
+     48,
+     52,
+     142,
+     147,
+     206,
+     251,
+     412
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 0.9957627118644068,
+      "P_arm": 0.9957627118644068,
+      "dP": 0.0,
+      "lost": 1,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 0.984375,
+      "dP": -0.015625,
+      "lost": 2,
+      "gained": 0,
+      "p_exact": 0.5
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9338235294117647,
+      "P_arm": 0.9485294117647058,
+      "dP": 0.014705882352941124,
+      "lost": 5,
+      "gained": 7,
+      "p_exact": 0.7744140625
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.82,
+     6.43,
+     5.43,
+     6.32,
+     1.5,
+     5.86,
+     7.25,
+     7.67
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 5,
+     "all_runs_binding_landing": 420,
+     "bind_land_s_lost_median": 0.025000000000000015,
+     "bind_land_s_all_median": 0.025000000000000015
+    }
+   },
+   "R3": {
+    "P": 0.984,
+    "ci95": [
+     0.9687485245822888,
+     0.9918708446797967
+    ],
+    "paired": {
+     "P_base": 0.98,
+     "P_arm": 0.984,
+     "dP": 0.0040000000000000036,
+     "lost": 3,
+     "gained": 5,
+     "p_exact": 0.7265625,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10250000000000008,
+     0.1860400000000001,
+     0.20200000000000015
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10150000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.02000000000000001,
+     0.028000000000000018
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 137
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5285952984165494,
+     4.002531138646094
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.9539689627782395,
+     4.423908736569225,
+     4.927299537122308
+    ],
+    "runs_below_map_P": 2,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 40,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.1300000000000001,
+      "shortfall_N": 474.8125863757128,
+      "td_vz": -0.9822809363243251,
+      "td_vh": 0.510149754356515,
+      "td_tilt": 2.479899956567434,
+      "td_rate": 2.061620933290018,
+      "landed": 1.0,
+      "base_td_vz": -1.0630000245999534,
+      "base_td_vh": 0.2910026520138534
+     },
+     {
+      "run": 100,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.11300000000000009,
+      "shortfall_N": 468.31142382040105,
+      "td_vz": -1.0551567291978532,
+      "td_vh": 0.5574429997622956,
+      "td_tilt": 1.9204267050778463,
+      "td_rate": 0.15574640773241616,
+      "landed": 1.0,
+      "base_td_vz": -0.989333706538076,
+      "base_td_vh": 0.4182140369281239
+     },
+     {
+      "run": 203,
+      "bind_land_s": 0.001,
+      "bind_asc_s": 0.08800000000000006,
+      "shortfall_N": 518.6530876988936,
+      "td_vz": -1.0338831421506136,
+      "td_vh": 0.4155457101492457,
+      "td_tilt": 2.082258466194116,
+      "td_rate": 10.195176099675178,
+      "landed": 1.0,
+      "base_td_vz": -1.0313925102796961,
+      "base_td_vh": 0.15987583951181322
+     }
+    ],
+    "gained_runs": [
+     18,
+     48,
+     251,
+     412,
+     457
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 0.9957627118644068,
+      "P_arm": 1.0,
+      "dP": 0.004237288135593209,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 0.9765625,
+      "dP": -0.0234375,
+      "lost": 3,
+      "gained": 0,
+      "p_exact": 0.25
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9338235294117647,
+      "P_arm": 0.9632352941176471,
+      "dP": 0.02941176470588236,
+      "lost": 0,
+      "gained": 4,
+      "p_exact": 0.125
+     }
+    },
+    "lost_runs_wind_m_s": [
+     5.37,
+     5.43,
+     4.72
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 137,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R1n": {
+    "P": 0.978,
+    "ci95": [
+     0.9610387448516022,
+     0.9876721198328542
+    ],
+    "paired": {
+     "P_base": 0.98,
+     "P_arm": 0.978,
+     "dP": -0.0020000000000000018,
+     "lost": 2,
+     "gained": 1,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.01800000000000001,
+     0.10102000000000005,
+     0.1210000000000001
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.01800000000000001,
+     0.09202000000000005,
+     0.11600000000000009
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.016000000000000007,
+     0.01800000000000001
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     125.78263225622342,
+     495.66656669954745,
+     498.0238718758464
+    ],
+    "runs_binding": {
+     "ascent": 342,
+     "phase2to4": 0,
+     "landing": 17
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.535912786935216,
+     4.004345843380244
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.9545810372917147,
+     4.423529307564199,
+     4.926532002961809
+    ],
+    "runs_below_map_P": 2,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 40,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.04100000000000003,
+      "shortfall_N": 474.8125863757128,
+      "td_vz": -1.066849790141248,
+      "td_vh": 0.5132122895094395,
+      "td_tilt": 2.424778515566562,
+      "td_rate": 2.2016295504524908,
+      "landed": 1.0,
+      "base_td_vz": -1.0630000245999534,
+      "base_td_vh": 0.2910026520138534
+     },
+     {
+      "run": 264,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.11600000000000009,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.0111451796796662,
+      "td_vh": 1.0569132966716865,
+      "td_tilt": 4.030568371805,
+      "td_rate": 0.6358928709345424,
+      "landed": 1.0,
+      "base_td_vz": -1.087325339343783,
+      "base_td_vh": 0.140782891648509
+     }
+    ],
+    "gained_runs": [
+     412
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 0.9957627118644068,
+      "P_arm": 0.9957627118644068,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 0.9921875,
+      "dP": -0.0078125,
+      "lost": 1,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9338235294117647,
+      "P_arm": 0.9338235294117647,
+      "dP": 0.0,
+      "lost": 1,
+      "gained": 1,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     5.37,
+     7.25
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 0,
+     "all_runs_binding_landing": 17,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   }
+  },
+  "rbl_B1_lead62_pc_k2": {
+   "baseline": {
+    "csv": "/home/claude/work/space/out/regband/mc6_runs_rbl_B1_lead62_pc_k2_rb.csv",
+    "P": 0.996,
+    "ci95": [
+     0.9855339859585811,
+     0.9989023924587627
+    ]
+   },
+   "R1": {
+    "P": 0.992,
+    "ci95": [
+     0.9796126401630988,
+     0.9968847352024922
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.992,
+     "dP": -0.0040000000000000036,
+     "lost": 2,
+     "gained": 0,
+     "p_exact": 0.5,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10200000000000008,
+     0.2410000000000002,
+     0.2800000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.06601000000000004,
+     0.09800000000000007
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 122
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.6126873965473556,
+     4.047083821175991
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.89395367643282,
+     4.354380371049177,
+     4.845938221585689
+    ],
+    "runs_below_map_P": 0,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 264,
+      "bind_land_s": 0.09800000000000007,
+      "bind_asc_s": 0.18200000000000013,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.1600269700751176,
+      "td_vh": 1.0792706232358,
+      "td_tilt": 4.143625402785846,
+      "td_rate": 0.654510324868449,
+      "landed": 1.0,
+      "base_td_vz": -1.0795938502634195,
+      "base_td_vh": 0.1340765871683056
+     },
+     {
+      "run": 289,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.09100000000000007,
+      "shortfall_N": 498.5393410590342,
+      "td_vz": -1.2720111060740222,
+      "td_vh": 0.5250087696266059,
+      "td_tilt": 4.339580132543448,
+      "td_rate": 0.22553797156455674,
+      "landed": 1.0,
+      "base_td_vz": -1.1524051019030763,
+      "base_td_vh": 0.35415752566245773
+     }
+    ],
+    "gained_runs": [],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9852941176470589,
+      "P_arm": 0.9705882352941176,
+      "dP": -0.014705882352941235,
+      "lost": 2,
+      "gained": 0,
+      "p_exact": 0.5
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.25,
+     6.9
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 122,
+     "bind_land_s_lost_median": 0.04900000000000004,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R2": {
+    "P": 0.986,
+    "ci95": [
+     0.9713865738597492,
+     0.9932022969282127
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.986,
+     "dP": -0.010000000000000009,
+     "lost": 6,
+     "gained": 1,
+     "p_exact": 0.125,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.18900000000000014,
+     0.33408000000000015,
+     0.3970000000000003
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.1500000000000001,
+     0.21501000000000015,
+     0.21800000000000017
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.03900000000000003,
+     0.12600000000000008,
+     0.18100000000000013
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 500,
+     "phase2to4": 0,
+     "landing": 454
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5664723836711842,
+     3.981854748904415
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.8451782367148715,
+     4.2995854778340306,
+     4.7987848196558165
+    ],
+    "runs_below_map_P": 2,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 71,
+      "bind_land_s": 0.05000000000000004,
+      "bind_asc_s": 0.1500000000000001,
+      "shortfall_N": 505.1184402134651,
+      "td_vz": -1.1857131523409654,
+      "td_vh": 0.626073703230122,
+      "td_tilt": 4.30561962978053,
+      "td_rate": 2.077417808137368,
+      "landed": 1.0,
+      "base_td_vz": -1.2286781156869073,
+      "base_td_vh": 0.43230875851155903
+     },
+     {
+      "run": 211,
+      "bind_land_s": 0.08900000000000007,
+      "bind_asc_s": 0.1590000000000001,
+      "shortfall_N": 484.15599541169354,
+      "td_vz": -1.1397934474414573,
+      "td_vh": 0.7888544045575863,
+      "td_tilt": 4.15349369785329,
+      "td_rate": 1.052629685108183,
+      "landed": 1.0,
+      "base_td_vz": -1.1766505393487052,
+      "base_td_vh": 0.3590615749197415
+     },
+     {
+      "run": 285,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05200000000000004,
+      "shortfall_N": 139.67672871133317,
+      "td_vz": -1.2525225559666202,
+      "td_vh": 0.19181187641902184,
+      "td_tilt": 5.091901287762715,
+      "td_rate": 0.6425571618053938,
+      "landed": 1.0,
+      "base_td_vz": -1.2407279063168843,
+      "base_td_vh": 0.20431774310287584
+     },
+     {
+      "run": 371,
+      "bind_land_s": 0.11600000000000009,
+      "bind_asc_s": 0.18900000000000014,
+      "shortfall_N": 461.61722719513773,
+      "td_vz": -4.141067871561705,
+      "td_vh": 0.03757418057853721,
+      "td_tilt": 1.398463007311426,
+      "td_rate": 2.1852856197601267,
+      "landed": 1.0,
+      "base_td_vz": -1.1835919122826903,
+      "base_td_vh": 0.06423582008795065
+     },
+     {
+      "run": 415,
+      "bind_land_s": 0.07200000000000005,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 480.54967012239615,
+      "td_vz": -1.279884782824844,
+      "td_vh": 0.6248683344503098,
+      "td_tilt": 3.779015270168567,
+      "td_rate": 1.876206159698308,
+      "landed": 1.0,
+      "base_td_vz": -1.1435571006177705,
+      "base_td_vh": 0.4057915322610957
+     },
+     {
+      "run": 417,
+      "bind_land_s": 0.05600000000000004,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 489.0640137271416,
+      "td_vz": -1.2866724607759714,
+      "td_vh": 0.7216318499242173,
+      "td_tilt": 4.3317512755058125,
+      "td_rate": 1.039635060072519,
+      "landed": 1.0,
+      "base_td_vz": -1.1611915244610975,
+      "base_td_vh": 0.23099322449704485
+     }
+    ],
+    "gained_runs": [
+     331
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 0.9921875,
+      "dP": -0.0078125,
+      "lost": 1,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9852941176470589,
+      "P_arm": 0.9558823529411765,
+      "dP": -0.02941176470588236,
+      "lost": 5,
+      "gained": 1,
+      "p_exact": 0.21875
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.79,
+     5.86,
+     7.67,
+     6.12,
+     7.31,
+     7.51
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 5,
+     "all_runs_binding_landing": 454,
+     "bind_land_s_lost_median": 0.06400000000000004,
+     "bind_land_s_all_median": 0.03900000000000003
+    }
+   },
+   "R3": {
+    "P": 0.996,
+    "ci95": [
+     0.9855339859585811,
+     0.9989023924587627
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.996,
+     "dP": 0.0,
+     "lost": 1,
+     "gained": 1,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10200000000000008,
+     0.24201000000000017,
+     0.2850000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.06800000000000005,
+     0.10300000000000008
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 115
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.617594620410067,
+     4.055174503346355
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.89964361815189,
+     4.358932480054183,
+     4.847687141931476
+    ],
+    "runs_below_map_P": 0,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 371,
+      "bind_land_s": 0.046000000000000034,
+      "bind_asc_s": 0.1550000000000001,
+      "shortfall_N": 461.61722719513773,
+      "td_vz": -1.6974358855113623,
+      "td_vh": 0.060729276060517486,
+      "td_tilt": 0.5999622792099975,
+      "td_rate": 0.9373174085095147,
+      "landed": 1.0,
+      "base_td_vz": -1.1835919122826903,
+      "base_td_vh": 0.06423582008795065
+     }
+    ],
+    "gained_runs": [
+     331
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9852941176470589,
+      "P_arm": 0.9852941176470589,
+      "dP": 0.0,
+      "lost": 1,
+      "gained": 1,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     6.12
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 115,
+     "bind_land_s_lost_median": 0.046000000000000034,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R1n": {
+    "P": 0.992,
+    "ci95": [
+     0.9796126401630988,
+     0.9968847352024922
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.992,
+     "dP": -0.0040000000000000036,
+     "lost": 4,
+     "gained": 2,
+     "p_exact": 0.6875,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.01800000000000001,
+     0.11304000000000004,
+     0.16300000000000012
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.01800000000000001,
+     0.09202000000000005,
+     0.11600000000000009
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.026010000000000005,
+     0.047000000000000035
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     125.85450192331575,
+     495.66656669954745,
+     498.0238718758464
+    ],
+    "runs_binding": {
+     "ascent": 342,
+     "phase2to4": 0,
+     "landing": 39
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.6126038917765197,
+     4.045379806321833
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.893953454600907,
+     4.352098866263985,
+     4.844644197375174
+    ],
+    "runs_below_map_P": 0,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 71,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.013000000000000005,
+      "shortfall_N": 125.62172859589248,
+      "td_vz": -1.0871897018703833,
+      "td_vh": 0.5118839618789691,
+      "td_tilt": 4.157872613991747,
+      "td_rate": 1.3875931757911995,
+      "landed": 1.0,
+      "base_td_vz": -1.2286781156869073,
+      "base_td_vh": 0.43230875851155903
+     },
+     {
+      "run": 111,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.02100000000000001,
+      "shortfall_N": 227.34300990992313,
+      "td_vz": -1.1867834838427802,
+      "td_vh": 0.794265636161348,
+      "td_tilt": 4.391309533286218,
+      "td_rate": 0.8401671822382613,
+      "landed": 1.0,
+      "base_td_vz": -1.276009957341651,
+      "base_td_vh": 0.28047327418465257
+     },
+     {
+      "run": 264,
+      "bind_land_s": 0.047000000000000035,
+      "bind_asc_s": 0.11600000000000009,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.1654402648309543,
+      "td_vh": 1.0778380267081173,
+      "td_tilt": 4.132476262152921,
+      "td_rate": 0.5807558529237479,
+      "landed": 1.0,
+      "base_td_vz": -1.0795938502634195,
+      "base_td_vh": 0.1340765871683056
+     },
+     {
+      "run": 415,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.048000000000000036,
+      "shortfall_N": 480.54967012239615,
+      "td_vz": -1.2215916969574887,
+      "td_vh": 0.5357885921883019,
+      "td_tilt": 4.259564180738222,
+      "td_rate": 1.7122134962051545,
+      "landed": 1.0,
+      "base_td_vz": -1.1435571006177705,
+      "base_td_vh": 0.4057915322610957
+     }
+    ],
+    "gained_runs": [
+     119,
+     331
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9852941176470589,
+      "P_arm": 0.9705882352941176,
+      "dP": -0.014705882352941235,
+      "lost": 4,
+      "gained": 2,
+      "p_exact": 0.6875
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.79,
+     7.51,
+     7.25,
+     7.31
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 39,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R4f20": {
+    "P": 0.992,
+    "ci95": [
+     0.9796126401630988,
+     0.9968847352024922
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.992,
+     "dP": -0.0040000000000000036,
+     "lost": 2,
+     "gained": 0,
+     "p_exact": 0.5,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10200000000000008,
+     0.23302000000000017,
+     0.2760000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.058010000000000034,
+     0.09400000000000007
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 84
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.6128530246525234,
+     4.046930263410891
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.8944208773899773,
+     4.355454547399247,
+     4.8469147525435865
+    ],
+    "runs_below_map_P": 0,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 264,
+      "bind_land_s": 0.09400000000000007,
+      "bind_asc_s": 0.18200000000000013,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.1795120298042068,
+      "td_vh": 1.0765898219032517,
+      "td_tilt": 4.143747021359258,
+      "td_rate": 0.6138682363342369,
+      "landed": 1.0,
+      "base_td_vz": -1.0795938502634195,
+      "base_td_vh": 0.1340765871683056
+     },
+     {
+      "run": 289,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.09100000000000007,
+      "shortfall_N": 498.5393410590342,
+      "td_vz": -1.2701209012623498,
+      "td_vh": 0.5076106815787124,
+      "td_tilt": 4.3188631782119025,
+      "td_rate": 0.2633493857961077,
+      "landed": 1.0,
+      "base_td_vz": -1.1524051019030763,
+      "base_td_vh": 0.35415752566245773
+     }
+    ],
+    "gained_runs": [],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9852941176470589,
+      "P_arm": 0.9705882352941176,
+      "dP": -0.014705882352941235,
+      "lost": 2,
+      "gained": 0,
+      "p_exact": 0.5
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.25,
+     6.9
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 84,
+     "bind_land_s_lost_median": 0.047000000000000035,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R2Ff20": {
+    "P": 0.986,
+    "ci95": [
+     0.9713865738597492,
+     0.9932022969282127
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.986,
+     "dP": -0.010000000000000009,
+     "lost": 6,
+     "gained": 1,
+     "p_exact": 0.125,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.17950000000000013,
+     0.3160400000000002,
+     0.3750000000000003
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.1500000000000001,
+     0.21501000000000015,
+     0.21800000000000017
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.02900000000000002,
+     0.10801000000000008,
+     0.1590000000000001
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 500,
+     "phase2to4": 0,
+     "landing": 431
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5666240784668686,
+     3.984112335901307
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.845986741442304,
+     4.300421973482413,
+     4.799762717627342
+    ],
+    "runs_below_map_P": 2,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 71,
+      "bind_land_s": 0.03800000000000003,
+      "bind_asc_s": 0.1500000000000001,
+      "shortfall_N": 505.1184402134651,
+      "td_vz": -1.182226641789389,
+      "td_vh": 0.6051383137271727,
+      "td_tilt": 4.296128179325563,
+      "td_rate": 1.9671997655339035,
+      "landed": 1.0,
+      "base_td_vz": -1.2286781156869073,
+      "base_td_vh": 0.43230875851155903
+     },
+     {
+      "run": 211,
+      "bind_land_s": 0.06400000000000004,
+      "bind_asc_s": 0.1590000000000001,
+      "shortfall_N": 484.15599541169354,
+      "td_vz": -1.1468596699416356,
+      "td_vh": 0.7850463654351575,
+      "td_tilt": 4.181946021028817,
+      "td_rate": 1.2881274004033227,
+      "landed": 1.0,
+      "base_td_vz": -1.1766505393487052,
+      "base_td_vh": 0.3590615749197415
+     },
+     {
+      "run": 285,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05200000000000004,
+      "shortfall_N": 139.67672871133317,
+      "td_vz": -1.2518731984165643,
+      "td_vh": 0.1642090635965688,
+      "td_tilt": 5.095053992386247,
+      "td_rate": 0.8415564588796254,
+      "landed": 1.0,
+      "base_td_vz": -1.2407279063168843,
+      "base_td_vh": 0.20431774310287584
+     },
+     {
+      "run": 371,
+      "bind_land_s": 0.08900000000000007,
+      "bind_asc_s": 0.18900000000000014,
+      "shortfall_N": 461.61722719513773,
+      "td_vz": -4.339900383613432,
+      "td_vh": 0.0575757128932339,
+      "td_tilt": 1.4564532237389431,
+      "td_rate": 1.5889770066962778,
+      "landed": 1.0,
+      "base_td_vz": -1.1835919122826903,
+      "base_td_vh": 0.06423582008795065
+     },
+     {
+      "run": 415,
+      "bind_land_s": 0.06100000000000005,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 480.54967012239615,
+      "td_vz": -1.2654429673393288,
+      "td_vh": 0.588038556223721,
+      "td_tilt": 3.6376721147983666,
+      "td_rate": 1.9749877542058458,
+      "landed": 1.0,
+      "base_td_vz": -1.1435571006177705,
+      "base_td_vh": 0.4057915322610957
+     },
+     {
+      "run": 417,
+      "bind_land_s": 0.05000000000000004,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 489.0640137271416,
+      "td_vz": -1.2814944477165295,
+      "td_vh": 0.7060789112182565,
+      "td_tilt": 4.340292069573348,
+      "td_rate": 0.934452863885916,
+      "landed": 1.0,
+      "base_td_vz": -1.1611915244610975,
+      "base_td_vh": 0.23099322449704485
+     }
+    ],
+    "gained_runs": [
+     331
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 0.9921875,
+      "dP": -0.0078125,
+      "lost": 1,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9852941176470589,
+      "P_arm": 0.9558823529411765,
+      "dP": -0.02941176470588236,
+      "lost": 5,
+      "gained": 1,
+      "p_exact": 0.21875
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.79,
+     5.86,
+     7.67,
+     6.12,
+     7.31,
+     7.51
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 5,
+     "all_runs_binding_landing": 431,
+     "bind_land_s_lost_median": 0.05550000000000004,
+     "bind_land_s_all_median": 0.02900000000000002
+    }
+   },
+   "R4f40": {
+    "P": 0.994,
+    "ci95": [
+     0.9825094361891064,
+     0.9979574407023611
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.994,
+     "dP": -0.0020000000000000018,
+     "lost": 1,
+     "gained": 0,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10200000000000008,
+     0.22300000000000017,
+     0.2620000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.048010000000000025,
+     0.08000000000000006
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 49
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.611764354399518,
+     4.046454465142247
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.895817977647316,
+     4.356173496152522,
+     4.847886389181808
+    ],
+    "runs_below_map_P": 0,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 264,
+      "bind_land_s": 0.08000000000000006,
+      "bind_asc_s": 0.18200000000000013,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.1888105079825222,
+      "td_vh": 1.0618237503754475,
+      "td_tilt": 4.129073632596081,
+      "td_rate": 0.5833044072869191,
+      "landed": 1.0,
+      "base_td_vz": -1.0795938502634195,
+      "base_td_vh": 0.1340765871683056
+     }
+    ],
+    "gained_runs": [],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9852941176470589,
+      "P_arm": 0.9779411764705882,
+      "dP": -0.007352941176470673,
+      "lost": 1,
+      "gained": 0,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.25
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 49,
+     "bind_land_s_lost_median": 0.08000000000000006,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R2Ff40": {
+    "P": 0.986,
+    "ci95": [
+     0.9713865738597492,
+     0.9932022969282127
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.986,
+     "dP": -0.010000000000000009,
+     "lost": 6,
+     "gained": 1,
+     "p_exact": 0.125,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.17100000000000012,
+     0.3060200000000002,
+     0.36700000000000027
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.1500000000000001,
+     0.21501000000000015,
+     0.21800000000000017
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.02000000000000001,
+     0.09303000000000004,
+     0.1510000000000001
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 500,
+     "phase2to4": 0,
+     "landing": 396
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5673480489413727,
+     3.984618509292241
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.8467909312529183,
+     4.301258725803285,
+     4.800740506215436
+    ],
+    "runs_below_map_P": 2,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 71,
+      "bind_land_s": 0.03000000000000002,
+      "bind_asc_s": 0.1500000000000001,
+      "shortfall_N": 505.1184402134651,
+      "td_vz": -1.1812636321075394,
+      "td_vh": 0.5878149146336886,
+      "td_tilt": 4.333783149991322,
+      "td_rate": 2.0609031888623788,
+      "landed": 1.0,
+      "base_td_vz": -1.2286781156869073,
+      "base_td_vh": 0.43230875851155903
+     },
+     {
+      "run": 211,
+      "bind_land_s": 0.047000000000000035,
+      "bind_asc_s": 0.1590000000000001,
+      "shortfall_N": 484.15599541169354,
+      "td_vz": -1.155254042683962,
+      "td_vh": 0.8029194478443068,
+      "td_tilt": 4.164831695215905,
+      "td_rate": 1.170465234628565,
+      "landed": 1.0,
+      "base_td_vz": -1.1766505393487052,
+      "base_td_vh": 0.3590615749197415
+     },
+     {
+      "run": 285,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05200000000000004,
+      "shortfall_N": 139.67672871133317,
+      "td_vz": -1.2541329156362546,
+      "td_vh": 0.15536398133674909,
+      "td_tilt": 5.090244966193095,
+      "td_rate": 0.834160999487469,
+      "landed": 1.0,
+      "base_td_vz": -1.2407279063168843,
+      "base_td_vh": 0.20431774310287584
+     },
+     {
+      "run": 371,
+      "bind_land_s": 0.07200000000000005,
+      "bind_asc_s": 0.18900000000000014,
+      "shortfall_N": 461.61722719513773,
+      "td_vz": -4.307910261588575,
+      "td_vh": 0.05931497343953318,
+      "td_tilt": 1.4943198791252286,
+      "td_rate": 1.5842148984211786,
+      "landed": 1.0,
+      "base_td_vz": -1.1835919122826903,
+      "base_td_vh": 0.06423582008795065
+     },
+     {
+      "run": 415,
+      "bind_land_s": 0.05000000000000004,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 480.54967012239615,
+      "td_vz": -1.2604704591707958,
+      "td_vh": 0.5689712212724497,
+      "td_tilt": 3.50608346998893,
+      "td_rate": 1.9099341268078054,
+      "landed": 1.0,
+      "base_td_vz": -1.1435571006177705,
+      "base_td_vh": 0.4057915322610957
+     },
+     {
+      "run": 417,
+      "bind_land_s": 0.037000000000000026,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 489.0640137271416,
+      "td_vz": -1.2835493585432514,
+      "td_vh": 0.6957563990573287,
+      "td_tilt": 4.350405840418489,
+      "td_rate": 0.9845362894454913,
+      "landed": 1.0,
+      "base_td_vz": -1.1611915244610975,
+      "base_td_vh": 0.23099322449704485
+     }
+    ],
+    "gained_runs": [
+     331
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 1.0,
+      "P_arm": 0.9921875,
+      "dP": -0.0078125,
+      "lost": 1,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9852941176470589,
+      "P_arm": 0.9558823529411765,
+      "dP": -0.02941176470588236,
+      "lost": 5,
+      "gained": 1,
+      "p_exact": 0.21875
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.79,
+     5.86,
+     7.67,
+     6.12,
+     7.31,
+     7.51
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 5,
+     "all_runs_binding_landing": 396,
+     "bind_land_s_lost_median": 0.04200000000000003,
+     "bind_land_s_all_median": 0.02000000000000001
+    }
+   }
+  },
+  "tgl_B1_lead62_pc_k2": {
+   "baseline": {
+    "csv": "/home/claude/work/space/out/regband/mc6_runs_tgl_B1_lead62_pc_k2_rb.csv",
+    "P": 0.996,
+    "ci95": [
+     0.9855339859585811,
+     0.9989023924587627
+    ]
+   },
+   "R1": {
+    "P": 0.996,
+    "ci95": [
+     0.9855339859585811,
+     0.9989023924587627
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.996,
+     "dP": 0.0,
+     "lost": 2,
+     "gained": 2,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10200000000000008,
+     0.24101000000000017,
+     0.2910000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.06502000000000002,
+     0.10900000000000008
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 124
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.62951117014117,
+     4.070837826544837
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.896628867828681,
+     4.367192001471229,
+     4.8505439629440446
+    ],
+    "runs_below_map_P": 0,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 264,
+      "bind_land_s": 0.10900000000000008,
+      "bind_asc_s": 0.18200000000000013,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.1341063465339378,
+      "td_vh": 0.7461882353280941,
+      "td_tilt": 3.9681069948275978,
+      "td_rate": 0.5542189495624901,
+      "landed": 1.0,
+      "base_td_vz": -1.2177034828248843,
+      "base_td_vh": 0.18267979764766912
+     },
+     {
+      "run": 289,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.09100000000000007,
+      "shortfall_N": 498.5393410590342,
+      "td_vz": -1.259349050943997,
+      "td_vh": 0.526353515147362,
+      "td_tilt": 4.333624181613749,
+      "td_rate": 0.20142866923667532,
+      "landed": 1.0,
+      "base_td_vz": -1.1447809857559348,
+      "base_td_vh": 0.34907210858696197
+     }
+    ],
+    "gained_runs": [
+     71,
+     211
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9926470588235294,
+      "P_arm": 0.9852941176470589,
+      "dP": -0.007352941176470562,
+      "lost": 2,
+      "gained": 1,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.25,
+     6.9
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 124,
+     "bind_land_s_lost_median": 0.05450000000000004,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R2": {
+    "P": 0.982,
+    "ci95": [
+     0.9661479527879661,
+     0.9905019149482431
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.982,
+     "dP": -0.014000000000000012,
+     "lost": 7,
+     "gained": 0,
+     "p_exact": 0.015625,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.18800000000000014,
+     0.3360400000000002,
+     0.4070000000000003
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.1500000000000001,
+     0.21501000000000015,
+     0.21800000000000017
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.037000000000000026,
+     0.12404000000000005,
+     0.19100000000000014
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 500,
+     "phase2to4": 0,
+     "landing": 452
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5788074107587144,
+     4.005940165037116
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.853552422014816,
+     4.324394791833276,
+     4.802048568022006
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 9,
+      "bind_land_s": 0.016000000000000007,
+      "bind_asc_s": 0.1220000000000001,
+      "shortfall_N": 516.4696733273573,
+      "td_vz": -1.2086254788460737,
+      "td_vh": 0.9669510576731377,
+      "td_tilt": 4.287372726839432,
+      "td_rate": 0.36493574991133243,
+      "landed": 1.0,
+      "base_td_vz": -1.2120123964539853,
+      "base_td_vh": 0.16230827717689078
+     },
+     {
+      "run": 119,
+      "bind_land_s": 0.07800000000000006,
+      "bind_asc_s": 0.1490000000000001,
+      "shortfall_N": 491.8548180359297,
+      "td_vz": -1.2698422858402976,
+      "td_vh": 2.779329499317301,
+      "td_tilt": 4.124402735154785,
+      "td_rate": 1.8144279997010646,
+      "landed": 1.0,
+      "base_td_vz": -1.150361338652071,
+      "base_td_vh": 0.10857210137240893
+     },
+     {
+      "run": 264,
+      "bind_land_s": 0.19100000000000014,
+      "bind_asc_s": 0.21600000000000016,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.1847491954331313,
+      "td_vh": 0.5330779711134881,
+      "td_tilt": 3.8190341367898375,
+      "td_rate": 1.1258707764612554,
+      "landed": 1.0,
+      "base_td_vz": -1.2177034828248843,
+      "base_td_vh": 0.18267979764766912
+     },
+     {
+      "run": 285,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05200000000000004,
+      "shortfall_N": 139.67672871133317,
+      "td_vz": -1.2540858094566205,
+      "td_vh": 0.20127746398871707,
+      "td_tilt": 5.079553549563347,
+      "td_rate": 0.6220346563661031,
+      "landed": 1.0,
+      "base_td_vz": -1.240150383405839,
+      "base_td_vh": 0.21118800476464672
+     },
+     {
+      "run": 391,
+      "bind_land_s": 0.03200000000000002,
+      "bind_asc_s": 0.1380000000000001,
+      "shortfall_N": 506.1348603903035,
+      "td_vz": -1.2739952286691936,
+      "td_vh": 0.7697978554739312,
+      "td_tilt": 4.149858913928359,
+      "td_rate": 0.3410845837678776,
+      "landed": 1.0,
+      "base_td_vz": -1.1743197625686612,
+      "base_td_vh": 0.10653180637339187
+     },
+     {
+      "run": 415,
+      "bind_land_s": 0.06600000000000004,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 480.54967012239615,
+      "td_vz": -1.2327958582314187,
+      "td_vh": 0.9181081926349064,
+      "td_tilt": 3.9643797305192057,
+      "td_rate": 3.60365274620573,
+      "landed": 1.0,
+      "base_td_vz": -1.1437179919887925,
+      "base_td_vh": 0.3926187172349223
+     },
+     {
+      "run": 417,
+      "bind_land_s": 0.05600000000000004,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 489.0640137271416,
+      "td_vz": -1.298122800911468,
+      "td_vh": 1.0006592868643411,
+      "td_tilt": 4.332402933788329,
+      "td_rate": 0.6297199385638694,
+      "landed": 1.0,
+      "base_td_vz": -1.2184999995754016,
+      "base_td_vh": 0.22482566660331155
+     }
+    ],
+    "gained_runs": [],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 0.9921875,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9926470588235294,
+      "P_arm": 0.9411764705882353,
+      "dP": -0.05147058823529416,
+      "lost": 7,
+      "gained": 0,
+      "p_exact": 0.015625
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.38,
+     7.56,
+     7.25,
+     7.67,
+     7.07,
+     7.31,
+     7.51
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 6,
+     "all_runs_binding_landing": 452,
+     "bind_land_s_lost_median": 0.05600000000000004,
+     "bind_land_s_all_median": 0.037000000000000026
+    }
+   },
+   "R3": {
+    "P": 0.998,
+    "ci95": [
+     0.9887590072528046,
+     0.9996468726904154
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.998,
+     "dP": 0.0020000000000000018,
+     "lost": 1,
+     "gained": 2,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10200000000000008,
+     0.24004000000000014,
+     0.2780000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.06601000000000004,
+     0.09600000000000007
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 111
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.6414847904938843,
+     4.072687015246872
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.898417090042919,
+     4.36940681660975,
+     4.861234346938253
+    ],
+    "runs_below_map_P": 0,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 119,
+      "bind_land_s": 0.016000000000000007,
+      "bind_asc_s": 0.11100000000000008,
+      "shortfall_N": 491.8548180359297,
+      "td_vz": -1.0575792763899439,
+      "td_vh": 2.0044688008711695,
+      "td_tilt": 4.868000225753372,
+      "td_rate": 0.9259105903412974,
+      "landed": 1.0,
+      "base_td_vz": -1.150361338652071,
+      "base_td_vh": 0.10857210137240893
+     }
+    ],
+    "gained_runs": [
+     71,
+     211
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9926470588235294,
+      "P_arm": 0.9926470588235294,
+      "dP": 0.0,
+      "lost": 1,
+      "gained": 1,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.56
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 111,
+     "bind_land_s_lost_median": 0.016000000000000007,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R1n": {
+    "P": 0.988,
+    "ci95": [
+     0.9740692922810136,
+     0.9944890800328247
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.988,
+     "dP": -0.008000000000000007,
+     "lost": 5,
+     "gained": 1,
+     "p_exact": 0.21875,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.01800000000000001,
+     0.11801000000000009,
+     0.16700000000000012
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.01800000000000001,
+     0.09202000000000005,
+     0.11600000000000009
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.02900000000000002,
+     0.05100000000000004
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     125.85450192331575,
+     495.66656669954745,
+     498.0238718758464
+    ],
+    "runs_binding": {
+     "ascent": 342,
+     "phase2to4": 0,
+     "landing": 41
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.6347898240934895,
+     4.069028098776986
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.8960662256060408,
+     4.365557770961993,
+     4.853888041336338
+    ],
+    "runs_below_map_P": 0,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 111,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.02100000000000001,
+      "shortfall_N": 227.34300990992313,
+      "td_vz": -1.1863358028589526,
+      "td_vh": 0.7871129419558721,
+      "td_tilt": 4.389721474745594,
+      "td_rate": 0.8117880817696596,
+      "landed": 1.0,
+      "base_td_vz": -1.2567640385057712,
+      "base_td_vh": 0.2620614735993046
+     },
+     {
+      "run": 145,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.06300000000000004,
+      "shortfall_N": 436.29733766280265,
+      "td_vz": -1.2183177596616648,
+      "td_vh": 0.7752507071508751,
+      "td_tilt": 4.117036238406066,
+      "td_rate": 0.3449419469336085,
+      "landed": 1.0,
+      "base_td_vz": -1.1805956931421686,
+      "base_td_vh": 0.14145113060558118
+     },
+     {
+      "run": 264,
+      "bind_land_s": 0.05100000000000004,
+      "bind_asc_s": 0.11600000000000009,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.115181434575746,
+      "td_vh": 0.7454508684172051,
+      "td_tilt": 3.9892171556838476,
+      "td_rate": 0.8189576429205562,
+      "landed": 1.0,
+      "base_td_vz": -1.2177034828248843,
+      "base_td_vh": 0.18267979764766912
+     },
+     {
+      "run": 331,
+      "bind_land_s": 0.03100000000000002,
+      "bind_asc_s": 0.08700000000000006,
+      "shortfall_N": 476.6943285420906,
+      "td_vz": -1.2071953535402469,
+      "td_vh": 0.5740463626551217,
+      "td_tilt": 3.834286656772061,
+      "td_rate": 3.925180966910552,
+      "landed": 1.0,
+      "base_td_vz": -1.074583244865671,
+      "base_td_vh": 0.0334877979477459
+     },
+     {
+      "run": 415,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.048000000000000036,
+      "shortfall_N": 480.54967012239615,
+      "td_vz": -1.1987464319164427,
+      "td_vh": 0.5307693663922967,
+      "td_tilt": 4.208223519141946,
+      "td_rate": 1.8185101946724769,
+      "landed": 1.0,
+      "base_td_vz": -1.1437179919887925,
+      "base_td_vh": 0.3926187172349223
+     }
+    ],
+    "gained_runs": [
+     211
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9926470588235294,
+      "P_arm": 0.9558823529411765,
+      "dP": -0.03676470588235292,
+      "lost": 5,
+      "gained": 0,
+      "p_exact": 0.0625
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.51,
+     6.96,
+     7.25,
+     7.01,
+     7.31
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 2,
+     "all_runs_binding_landing": 41,
+     "bind_land_s_lost_median": 0.0,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R4f20": {
+    "P": 0.996,
+    "ci95": [
+     0.9855339859585811,
+     0.9989023924587627
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.996,
+     "dP": 0.0,
+     "lost": 2,
+     "gained": 2,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10200000000000008,
+     0.23303000000000015,
+     0.2760000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.058010000000000034,
+     0.09400000000000007
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 81
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.6296377247522287,
+     4.070332183999435
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.897058131369415,
+     4.368064517015266,
+     4.851517932228044
+    ],
+    "runs_below_map_P": 0,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 264,
+      "bind_land_s": 0.09400000000000007,
+      "bind_asc_s": 0.18200000000000013,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.1547595257111085,
+      "td_vh": 0.7365762114189599,
+      "td_tilt": 3.946165592781341,
+      "td_rate": 0.5780664147237493,
+      "landed": 1.0,
+      "base_td_vz": -1.2177034828248843,
+      "base_td_vh": 0.18267979764766912
+     },
+     {
+      "run": 289,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.09100000000000007,
+      "shortfall_N": 498.5393410590342,
+      "td_vz": -1.25838758091641,
+      "td_vh": 0.5116813804027236,
+      "td_tilt": 4.318244403888665,
+      "td_rate": 0.2163694045491448,
+      "landed": 1.0,
+      "base_td_vz": -1.1447809857559348,
+      "base_td_vh": 0.34907210858696197
+     }
+    ],
+    "gained_runs": [
+     71,
+     211
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9926470588235294,
+      "P_arm": 0.9852941176470589,
+      "dP": -0.007352941176470562,
+      "lost": 2,
+      "gained": 1,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.25,
+     6.9
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 81,
+     "bind_land_s_lost_median": 0.047000000000000035,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R2Ff20": {
+    "P": 0.982,
+    "ci95": [
+     0.9661479527879661,
+     0.9905019149482431
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.982,
+     "dP": -0.014000000000000012,
+     "lost": 7,
+     "gained": 0,
+     "p_exact": 0.015625,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.17900000000000013,
+     0.3190600000000002,
+     0.3820000000000003
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.1500000000000001,
+     0.21501000000000015,
+     0.21800000000000017
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.02900000000000002,
+     0.10803000000000006,
+     0.16600000000000012
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 500,
+     "phase2to4": 0,
+     "landing": 432
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5816061711278544,
+     4.00685795737108
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.854291474233248,
+     4.325316304619901,
+     4.802960164700304
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 9,
+      "bind_land_s": 0.015000000000000006,
+      "bind_asc_s": 0.1220000000000001,
+      "shortfall_N": 516.4696733273573,
+      "td_vz": -1.2059918211559664,
+      "td_vh": 0.9244770996451396,
+      "td_tilt": 4.215442696480109,
+      "td_rate": 0.11501470109458677,
+      "landed": 1.0,
+      "base_td_vz": -1.2120123964539853,
+      "base_td_vh": 0.16230827717689078
+     },
+     {
+      "run": 119,
+      "bind_land_s": 0.06400000000000004,
+      "bind_asc_s": 0.1490000000000001,
+      "shortfall_N": 491.8548180359297,
+      "td_vz": -1.2944765780612502,
+      "td_vh": 2.6628059666500934,
+      "td_tilt": 4.137946800599907,
+      "td_rate": 1.7942308421611075,
+      "landed": 1.0,
+      "base_td_vz": -1.150361338652071,
+      "base_td_vh": 0.10857210137240893
+     },
+     {
+      "run": 264,
+      "bind_land_s": 0.16600000000000012,
+      "bind_asc_s": 0.21600000000000016,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.271998337062687,
+      "td_vh": 0.5188474413623717,
+      "td_tilt": 3.815342647123448,
+      "td_rate": 1.2222800308506696,
+      "landed": 1.0,
+      "base_td_vz": -1.2177034828248843,
+      "base_td_vh": 0.18267979764766912
+     },
+     {
+      "run": 285,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05200000000000004,
+      "shortfall_N": 139.67672871133317,
+      "td_vz": -1.2533106700086865,
+      "td_vh": 0.1636967817764041,
+      "td_tilt": 5.086981026516578,
+      "td_rate": 1.1637578054070963,
+      "landed": 1.0,
+      "base_td_vz": -1.240150383405839,
+      "base_td_vh": 0.21118800476464672
+     },
+     {
+      "run": 391,
+      "bind_land_s": 0.026000000000000016,
+      "bind_asc_s": 0.1380000000000001,
+      "shortfall_N": 506.1348603903035,
+      "td_vz": -1.2700263963699947,
+      "td_vh": 0.7660348991953216,
+      "td_tilt": 4.138863356582642,
+      "td_rate": 0.24777772245690993,
+      "landed": 1.0,
+      "base_td_vz": -1.1743197625686612,
+      "base_td_vh": 0.10653180637339187
+     },
+     {
+      "run": 415,
+      "bind_land_s": 0.05300000000000004,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 480.54967012239615,
+      "td_vz": -1.2558355465440423,
+      "td_vh": 0.7044571638627523,
+      "td_tilt": 3.832672186222642,
+      "td_rate": 3.410298234695645,
+      "landed": 1.0,
+      "base_td_vz": -1.1437179919887925,
+      "base_td_vh": 0.3926187172349223
+     },
+     {
+      "run": 417,
+      "bind_land_s": 0.048000000000000036,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 489.0640137271416,
+      "td_vz": -1.3086598134328897,
+      "td_vh": 0.9930700014933466,
+      "td_tilt": 4.328794093012139,
+      "td_rate": 0.7127846292303988,
+      "landed": 1.0,
+      "base_td_vz": -1.2184999995754016,
+      "base_td_vh": 0.22482566660331155
+     }
+    ],
+    "gained_runs": [],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 0.9921875,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9926470588235294,
+      "P_arm": 0.9411764705882353,
+      "dP": -0.05147058823529416,
+      "lost": 7,
+      "gained": 0,
+      "p_exact": 0.015625
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.38,
+     7.56,
+     7.25,
+     7.67,
+     7.07,
+     7.31,
+     7.51
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 6,
+     "all_runs_binding_landing": 432,
+     "bind_land_s_lost_median": 0.048000000000000036,
+     "bind_land_s_all_median": 0.02900000000000002
+    }
+   },
+   "R4f40": {
+    "P": 0.996,
+    "ci95": [
+     0.9855339859585811,
+     0.9989023924587627
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.996,
+     "dP": 0.0,
+     "lost": 2,
+     "gained": 2,
+     "p_exact": 1.0,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.10200000000000008,
+     0.22002000000000016,
+     0.2630000000000002
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.10200000000000008,
+     0.17500000000000013,
+     0.18200000000000013
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.0,
+     0.04502000000000001,
+     0.08100000000000006
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 496,
+     "phase2to4": 0,
+     "landing": 48
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.6297487408426297,
+     4.0704016845697675
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.89832637547093,
+     4.36893744871171,
+     4.852497075695013
+    ],
+    "runs_below_map_P": 0,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 264,
+      "bind_land_s": 0.08100000000000006,
+      "bind_asc_s": 0.18200000000000013,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.1542032204376318,
+      "td_vh": 0.7266952331116567,
+      "td_tilt": 3.924585048105333,
+      "td_rate": 0.549202807997771,
+      "landed": 1.0,
+      "base_td_vz": -1.2177034828248843,
+      "base_td_vh": 0.18267979764766912
+     },
+     {
+      "run": 289,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.09100000000000007,
+      "shortfall_N": 498.5393410590342,
+      "td_vz": -1.2636356676748353,
+      "td_vh": 0.5109328780182351,
+      "td_tilt": 4.325101875944077,
+      "td_rate": 0.2769816347560459,
+      "landed": 1.0,
+      "base_td_vz": -1.1447809857559348,
+      "base_td_vh": 0.34907210858696197
+     }
+    ],
+    "gained_runs": [
+     71,
+     211
+    ],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 1.0,
+      "dP": 0.0078125,
+      "lost": 0,
+      "gained": 1,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9926470588235294,
+      "P_arm": 0.9852941176470589,
+      "dP": -0.007352941176470562,
+      "lost": 2,
+      "gained": 1,
+      "p_exact": 1.0
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.25,
+     6.9
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 1,
+     "all_runs_binding_landing": 48,
+     "bind_land_s_lost_median": 0.04050000000000003,
+     "bind_land_s_all_median": 0.0
+    }
+   },
+   "R2Ff40": {
+    "P": 0.982,
+    "ci95": [
+     0.9661479527879661,
+     0.9905019149482431
+    ],
+    "paired": {
+     "P_base": 0.996,
+     "P_arm": 0.982,
+     "dP": -0.014000000000000012,
+     "lost": 7,
+     "gained": 0,
+     "p_exact": 0.015625,
+     "n": 500
+    },
+    "same_draws": true,
+    "bind_total_s_p50_p99_max": [
+     0.17000000000000012,
+     0.3080000000000002,
+     0.36300000000000027
+    ],
+    "bind_ascent_s_p50_p99_max": [
+     0.1500000000000001,
+     0.21501000000000015,
+     0.21800000000000017
+    ],
+    "bind_phase2to4_s_p50_p99_max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bind_landing_s_p50_p99_max": [
+     0.01950000000000001,
+     0.09502000000000005,
+     0.1470000000000001
+    ],
+    "shortfall_max_N_p50_p99_max": [
+     496.62257203497984,
+     542.0665855473083,
+     544.7110190985982
+    ],
+    "runs_binding": {
+     "ascent": 500,
+     "phase2to4": 0,
+     "landing": 394
+    },
+    "tank_P_min_MPa_p01_p50": [
+     3.5803259909105902,
+     4.006101704664651
+    ],
+    "tank_P_at_landing_trigger_MPa_p01_p50_p99": [
+     3.8550347160496186,
+     4.325967736611074,
+     4.803867105676818
+    ],
+    "runs_below_map_P": 1,
+    "bind_below_map_P_s_max": 0.0,
+    "lost_runs": [
+     {
+      "run": 9,
+      "bind_land_s": 0.010000000000000002,
+      "bind_asc_s": 0.1220000000000001,
+      "shortfall_N": 516.4696733273573,
+      "td_vz": -1.2115588237869666,
+      "td_vh": 0.8959512988871918,
+      "td_tilt": 4.189280978950537,
+      "td_rate": 0.22962721109798087,
+      "landed": 1.0,
+      "base_td_vz": -1.2120123964539853,
+      "base_td_vh": 0.16230827717689078
+     },
+     {
+      "run": 119,
+      "bind_land_s": 0.048000000000000036,
+      "bind_asc_s": 0.1490000000000001,
+      "shortfall_N": 491.8548180359297,
+      "td_vz": -1.294817863195857,
+      "td_vh": 2.5550054441186223,
+      "td_tilt": 4.169508440086613,
+      "td_rate": 1.730067317518154,
+      "landed": 1.0,
+      "base_td_vz": -1.150361338652071,
+      "base_td_vh": 0.10857210137240893
+     },
+     {
+      "run": 264,
+      "bind_land_s": 0.1470000000000001,
+      "bind_asc_s": 0.21600000000000016,
+      "shortfall_N": 431.66537264509253,
+      "td_vz": -1.255166690850948,
+      "td_vh": 0.5298515571681096,
+      "td_tilt": 3.8277371273214174,
+      "td_rate": 1.289765941928193,
+      "landed": 1.0,
+      "base_td_vz": -1.2177034828248843,
+      "base_td_vh": 0.18267979764766912
+     },
+     {
+      "run": 285,
+      "bind_land_s": 0.0,
+      "bind_asc_s": 0.05200000000000004,
+      "shortfall_N": 139.67672871133317,
+      "td_vz": -1.2471803294269863,
+      "td_vh": 0.15516819851458763,
+      "td_tilt": 5.097242898956332,
+      "td_rate": 0.9603361576190532,
+      "landed": 1.0,
+      "base_td_vz": -1.240150383405839,
+      "base_td_vh": 0.21118800476464672
+     },
+     {
+      "run": 391,
+      "bind_land_s": 0.014000000000000005,
+      "bind_asc_s": 0.1380000000000001,
+      "shortfall_N": 506.1348603903035,
+      "td_vz": -1.2746385275923982,
+      "td_vh": 0.7629291868957799,
+      "td_tilt": 4.127283600548469,
+      "td_rate": 0.504673845747629,
+      "landed": 1.0,
+      "base_td_vz": -1.1743197625686612,
+      "base_td_vh": 0.10653180637339187
+     },
+     {
+      "run": 415,
+      "bind_land_s": 0.04300000000000003,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 480.54967012239615,
+      "td_vz": -1.24952934439753,
+      "td_vh": 0.6291557863567286,
+      "td_tilt": 3.6192101448123184,
+      "td_rate": 3.7037450140386086,
+      "landed": 1.0,
+      "base_td_vz": -1.1437179919887925,
+      "base_td_vh": 0.3926187172349223
+     },
+     {
+      "run": 417,
+      "bind_land_s": 0.03900000000000003,
+      "bind_asc_s": 0.16200000000000012,
+      "shortfall_N": 489.0640137271416,
+      "td_vz": -1.3124125756605363,
+      "td_vh": 0.9884122809216066,
+      "td_tilt": 4.330656250072484,
+      "td_rate": 0.7556483692978004,
+      "landed": 1.0,
+      "base_td_vz": -1.2184999995754016,
+      "base_td_vh": 0.22482566660331155
+     }
+    ],
+    "gained_runs": [],
+    "by_wind_m_s": {
+     "0-4": {
+      "n": 236,
+      "P_base": 1.0,
+      "P_arm": 1.0,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "4-6": {
+      "n": 128,
+      "P_base": 0.9921875,
+      "P_arm": 0.9921875,
+      "dP": 0.0,
+      "lost": 0,
+      "gained": 0,
+      "p_exact": 1.0
+     },
+     "6-8.01": {
+      "n": 136,
+      "P_base": 0.9926470588235294,
+      "P_arm": 0.9411764705882353,
+      "dP": -0.05147058823529416,
+      "lost": 7,
+      "gained": 0,
+      "p_exact": 0.015625
+     }
+    },
+    "lost_runs_wind_m_s": [
+     7.38,
+     7.56,
+     7.25,
+     7.67,
+     7.07,
+     7.31,
+     7.51
+    ],
+    "lost_vs_binding": {
+     "lost_runs_binding_landing": 6,
+     "all_runs_binding_landing": 394,
+     "bind_land_s_lost_median": 0.03900000000000003,
+     "bind_land_s_all_median": 0.01950000000000001
+    }
+   }
+  }
+ },
+ "pooled": {
+  "A1|R1": {
+   "P_base": 0.987,
+   "P_arm": 0.987,
+   "dP": 0.0,
+   "lost": 17,
+   "gained": 17,
+   "p_exact": 1.0,
+   "n": 2000,
+   "ci95_arm": [
+    0.9810195615113488,
+    0.9911131659457515
+   ],
+   "ci95_base": [
+    0.9810195615113488,
+    0.9911131659457515
+   ],
+   "n_bases": 4,
+   "within_1pct": true
+  },
+  "A1|R1n": {
+   "P_base": 0.987,
+   "P_arm": 0.987,
+   "dP": 0.0,
+   "lost": 4,
+   "gained": 4,
+   "p_exact": 1.0,
+   "n": 2000,
+   "ci95_arm": [
+    0.9810195615113488,
+    0.9911131659457515
+   ],
+   "ci95_base": [
+    0.9810195615113488,
+    0.9911131659457515
+   ],
+   "n_bases": 4,
+   "within_1pct": true
+  },
+  "A1|R2": {
+   "P_base": 0.987,
+   "P_arm": 0.987,
+   "dP": 0.0,
+   "lost": 21,
+   "gained": 21,
+   "p_exact": 1.0,
+   "n": 2000,
+   "ci95_arm": [
+    0.9810195615113488,
+    0.9911131659457515
+   ],
+   "ci95_base": [
+    0.9810195615113488,
+    0.9911131659457515
+   ],
+   "n_bases": 4,
+   "within_1pct": true
+  },
+  "A1|R3": {
+   "P_base": 0.987,
+   "P_arm": 0.988,
+   "dP": 0.0010000000000000009,
+   "lost": 11,
+   "gained": 13,
+   "p_exact": 0.8388197422027588,
+   "n": 2000,
+   "ci95_arm": [
+    0.9822059894056792,
+    0.9919229038162203
+   ],
+   "ci95_base": [
+    0.9810195615113488,
+    0.9911131659457515
+   ],
+   "n_bases": 4,
+   "within_1pct": true
+  },
+  "A1_wind>=6|R1": {
+   "P_base": 0.9577205882352942,
+   "P_arm": 0.9558823529411765,
+   "dP": -0.0018382352941176405,
+   "lost": 16,
+   "gained": 15,
+   "p_exact": 1.0,
+   "n": 544,
+   "ci95_arm": [
+    0.9351946059628827,
+    0.9701765816212659
+   ],
+   "ci95_base": [
+    0.9373574917900818,
+    0.9716643860665835
+   ],
+   "n_bases": 4,
+   "within_1pct": true
+  },
+  "A1_wind>=6|R1n": {
+   "P_base": 0.9577205882352942,
+   "P_arm": 0.9595588235294118,
+   "dP": 0.0018382352941176405,
+   "lost": 3,
+   "gained": 4,
+   "p_exact": 1.0,
+   "n": 544,
+   "ci95_arm": [
+    0.9395285541692512,
+    0.9731440139599307
+   ],
+   "ci95_base": [
+    0.9373574917900818,
+    0.9716643860665835
+   ],
+   "n_bases": 4,
+   "within_1pct": true
+  },
+  "A1_wind>=6|R2": {
+   "P_base": 0.9577205882352942,
+   "P_arm": 0.9632352941176471,
+   "dP": 0.005514705882352922,
+   "lost": 15,
+   "gained": 18,
+   "p_exact": 0.7283324808813632,
+   "n": 544,
+   "ci95_arm": [
+    0.943897329178409,
+    0.9760766194958064
+   ],
+   "ci95_base": [
+    0.9373574917900818,
+    0.9716643860665835
+   ],
+   "n_bases": 4,
+   "within_1pct": true
+  },
+  "A1_wind>=6|R3": {
+   "P_base": 0.9577205882352942,
+   "P_arm": 0.9632352941176471,
+   "dP": 0.005514705882352922,
+   "lost": 7,
+   "gained": 10,
+   "p_exact": 0.629058837890625,
+   "n": 544,
+   "ci95_arm": [
+    0.943897329178409,
+    0.9760766194958064
+   ],
+   "ci95_base": [
+    0.9373574917900818,
+    0.9716643860665835
+   ],
+   "n_bases": 4,
+   "within_1pct": true
+  },
+  "B1|R1": {
+   "P_base": 0.996,
+   "P_arm": 0.994,
+   "dP": -0.0020000000000000018,
+   "lost": 4,
+   "gained": 2,
+   "p_exact": 0.6875,
+   "n": 1000,
+   "ci95_arm": [
+    0.9869716557675544,
+    0.9972473684290918
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": true
+  },
+  "B1|R1n": {
+   "P_base": 0.996,
+   "P_arm": 0.99,
+   "dP": -0.006000000000000005,
+   "lost": 9,
+   "gained": 3,
+   "p_exact": 0.14599609375,
+   "n": 1000,
+   "ci95_arm": [
+    0.981690334694608,
+    0.9945593046907295
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": true
+  },
+  "B1|R2": {
+   "P_base": 0.996,
+   "P_arm": 0.984,
+   "dP": -0.01200000000000001,
+   "lost": 13,
+   "gained": 1,
+   "p_exact": 0.0018310546875,
+   "n": 1000,
+   "ci95_arm": [
+    0.9741677180358003,
+    0.9901278441325737
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "B1|R2Ff20": {
+   "P_base": 0.996,
+   "P_arm": 0.984,
+   "dP": -0.01200000000000001,
+   "lost": 13,
+   "gained": 1,
+   "p_exact": 0.0018310546875,
+   "n": 1000,
+   "ci95_arm": [
+    0.9741677180358003,
+    0.9901278441325737
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "B1|R2Ff40": {
+   "P_base": 0.996,
+   "P_arm": 0.984,
+   "dP": -0.01200000000000001,
+   "lost": 13,
+   "gained": 1,
+   "p_exact": 0.0018310546875,
+   "n": 1000,
+   "ci95_arm": [
+    0.9741677180358003,
+    0.9901278441325737
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "B1|R3": {
+   "P_base": 0.996,
+   "P_arm": 0.997,
+   "dP": 0.0010000000000000009,
+   "lost": 2,
+   "gained": 3,
+   "p_exact": 1.0,
+   "n": 1000,
+   "ci95_arm": [
+    0.9912168282105721,
+    0.9989792345945557
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": true
+  },
+  "B1|R4f20": {
+   "P_base": 0.996,
+   "P_arm": 0.994,
+   "dP": -0.0020000000000000018,
+   "lost": 4,
+   "gained": 2,
+   "p_exact": 0.6875,
+   "n": 1000,
+   "ci95_arm": [
+    0.9869716557675544,
+    0.9972473684290918
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": true
+  },
+  "B1|R4f40": {
+   "P_base": 0.996,
+   "P_arm": 0.995,
+   "dP": -0.0010000000000000009,
+   "lost": 3,
+   "gained": 2,
+   "p_exact": 1.0,
+   "n": 1000,
+   "ci95_arm": [
+    0.9883488743952387,
+    0.9978624960042348
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": true
+  },
+  "B1_wind>=6|R1": {
+   "P_base": 0.9889705882352942,
+   "P_arm": 0.9779411764705882,
+   "dP": -0.011029411764705954,
+   "lost": 4,
+   "gained": 1,
+   "p_exact": 0.375,
+   "n": 272,
+   "ci95_arm": [
+    0.9527178486337854,
+    0.9898520900556652
+   ],
+   "ci95_base": [
+    0.9680794359227837,
+    0.9962421167364236
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "B1_wind>=6|R1n": {
+   "P_base": 0.9889705882352942,
+   "P_arm": 0.9632352941176471,
+   "dP": -0.02573529411764708,
+   "lost": 9,
+   "gained": 2,
+   "p_exact": 0.0654296875,
+   "n": 272,
+   "ci95_arm": [
+    0.9336578822679338,
+    0.9799099044618416
+   ],
+   "ci95_base": [
+    0.9680794359227837,
+    0.9962421167364236
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "B1_wind>=6|R2": {
+   "P_base": 0.9889705882352942,
+   "P_arm": 0.9485294117647058,
+   "dP": -0.040441176470588314,
+   "lost": 12,
+   "gained": 1,
+   "p_exact": 0.00341796875,
+   "n": 272,
+   "ci95_arm": [
+    0.9154696306765813,
+    0.9690960040935186
+   ],
+   "ci95_base": [
+    0.9680794359227837,
+    0.9962421167364236
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "B1_wind>=6|R2Ff20": {
+   "P_base": 0.9889705882352942,
+   "P_arm": 0.9485294117647058,
+   "dP": -0.040441176470588314,
+   "lost": 12,
+   "gained": 1,
+   "p_exact": 0.00341796875,
+   "n": 272,
+   "ci95_arm": [
+    0.9154696306765813,
+    0.9690960040935186
+   ],
+   "ci95_base": [
+    0.9680794359227837,
+    0.9962421167364236
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "B1_wind>=6|R2Ff40": {
+   "P_base": 0.9889705882352942,
+   "P_arm": 0.9485294117647058,
+   "dP": -0.040441176470588314,
+   "lost": 12,
+   "gained": 1,
+   "p_exact": 0.00341796875,
+   "n": 272,
+   "ci95_arm": [
+    0.9154696306765813,
+    0.9690960040935186
+   ],
+   "ci95_base": [
+    0.9680794359227837,
+    0.9962421167364236
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "B1_wind>=6|R3": {
+   "P_base": 0.9889705882352942,
+   "P_arm": 0.9889705882352942,
+   "dP": 0.0,
+   "lost": 2,
+   "gained": 2,
+   "p_exact": 1.0,
+   "n": 272,
+   "ci95_arm": [
+    0.9680794359227837,
+    0.9962421167364236
+   ],
+   "ci95_base": [
+    0.9680794359227837,
+    0.9962421167364236
+   ],
+   "n_bases": 2,
+   "within_1pct": true
+  },
+  "B1_wind>=6|R4f20": {
+   "P_base": 0.9889705882352942,
+   "P_arm": 0.9779411764705882,
+   "dP": -0.011029411764705954,
+   "lost": 4,
+   "gained": 1,
+   "p_exact": 0.375,
+   "n": 272,
+   "ci95_arm": [
+    0.9527178486337854,
+    0.9898520900556652
+   ],
+   "ci95_base": [
+    0.9680794359227837,
+    0.9962421167364236
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "B1_wind>=6|R4f40": {
+   "P_base": 0.9889705882352942,
+   "P_arm": 0.9816176470588235,
+   "dP": -0.007352941176470673,
+   "lost": 3,
+   "gained": 1,
+   "p_exact": 0.625,
+   "n": 272,
+   "ci95_arm": [
+    0.9576971250445488,
+    0.9921233516348206
+   ],
+   "ci95_base": [
+    0.9680794359227837,
+    0.9962421167364236
+   ],
+   "n_bases": 2,
+   "within_1pct": true
+  },
+  "all|R1": {
+   "P_base": 0.99,
+   "P_arm": 0.9893333333333333,
+   "dP": -0.0006666666666667043,
+   "lost": 21,
+   "gained": 19,
+   "p_exact": 0.8746293123804207,
+   "n": 3000,
+   "ci95_arm": [
+    0.9849809096407924,
+    0.9924341444685854
+   ],
+   "ci95_base": [
+    0.9857603412033866,
+    0.992986341045105
+   ],
+   "n_bases": 6,
+   "within_1pct": true
+  },
+  "all|R1n": {
+   "P_base": 0.99,
+   "P_arm": 0.988,
+   "dP": -0.0020000000000000018,
+   "lost": 13,
+   "gained": 7,
+   "p_exact": 0.26317596435546875,
+   "n": 3000,
+   "ci95_arm": [
+    0.9834322851964714,
+    0.9913195126346792
+   ],
+   "ci95_base": [
+    0.9857603412033866,
+    0.992986341045105
+   ],
+   "n_bases": 6,
+   "within_1pct": true
+  },
+  "all|R2": {
+   "P_base": 0.99,
+   "P_arm": 0.986,
+   "dP": -0.0040000000000000036,
+   "lost": 34,
+   "gained": 22,
+   "p_exact": 0.1408954235984807,
+   "n": 3000,
+   "ci95_arm": [
+    0.9811310820092646,
+    0.9896258314045453
+   ],
+   "ci95_base": [
+    0.9857603412033866,
+    0.992986341045105
+   ],
+   "n_bases": 6,
+   "within_1pct": true
+  },
+  "all|R2Ff20": {
+   "P_base": 0.996,
+   "P_arm": 0.984,
+   "dP": -0.01200000000000001,
+   "lost": 13,
+   "gained": 1,
+   "p_exact": 0.0018310546875,
+   "n": 1000,
+   "ci95_arm": [
+    0.9741677180358003,
+    0.9901278441325737
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "all|R2Ff40": {
+   "P_base": 0.996,
+   "P_arm": 0.984,
+   "dP": -0.01200000000000001,
+   "lost": 13,
+   "gained": 1,
+   "p_exact": 0.0018310546875,
+   "n": 1000,
+   "ci95_arm": [
+    0.9741677180358003,
+    0.9901278441325737
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": false
+  },
+  "all|R3": {
+   "P_base": 0.99,
+   "P_arm": 0.991,
+   "dP": 0.0010000000000000009,
+   "lost": 13,
+   "gained": 16,
+   "p_exact": 0.711071103811264,
+   "n": 3000,
+   "ci95_arm": [
+    0.9869368364311744,
+    0.9938072880259876
+   ],
+   "ci95_base": [
+    0.9857603412033866,
+    0.992986341045105
+   ],
+   "n_bases": 6,
+   "within_1pct": true
+  },
+  "all|R4f20": {
+   "P_base": 0.996,
+   "P_arm": 0.994,
+   "dP": -0.0020000000000000018,
+   "lost": 4,
+   "gained": 2,
+   "p_exact": 0.6875,
+   "n": 1000,
+   "ci95_arm": [
+    0.9869716557675544,
+    0.9972473684290918
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": true
+  },
+  "all|R4f40": {
+   "P_base": 0.996,
+   "P_arm": 0.995,
+   "dP": -0.0010000000000000009,
+   "lost": 3,
+   "gained": 2,
+   "p_exact": 1.0,
+   "n": 1000,
+   "ci95_arm": [
+    0.9883488743952387,
+    0.9978624960042348
+   ],
+   "ci95_base": [
+    0.9897602795701941,
+    0.9984434370321067
+   ],
+   "n_bases": 2,
+   "within_1pct": true
+  }
+ },
+ "decision_rule": "lead 2026-10-13: loss within the Monte Carlo resolution (about 1 %) -> ENG-03 becomes the state-dependent map and the HV69 stays; otherwise an actuator change is sized",
+ "not_modelled": [
+  "the ECU Pc loop around the drive is represented by sim6's closed-loop first-order response (ENG-03 t10-90, MC-drawn tau); the drive enters as its rate saturation (R1, R3, R1n) and, as a bound, with its two-state dynamics in series (R2)",
+  "tank pressure below the map's 3.5 MPa: the 3.5 MPa rates are held (runs_below_map_P, bind_below_map_P_s_max)",
+  "the corner drive (spring +10 %, rail minimum) on every run (no per-run draw of the drive state): conservative for the decision",
+  "B-PNT-1 has not measured the HV69 torque-speed line under load (Electronics: retailer copies of MKS data, ASSUMED servo loop)",
+  "start (kStartRamp 2500 N/s COMB start cap) and shutdown transients: the sim6 start / lift-ramp shutdown models are unchanged"
+ ]
+}

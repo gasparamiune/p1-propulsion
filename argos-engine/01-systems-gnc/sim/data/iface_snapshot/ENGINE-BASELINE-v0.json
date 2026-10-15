@@ -1,0 +1,129 @@
+{
+  "id": "ENGINE-BASELINE",
+  "version": "v0",
+  "date": "2026-10-11",
+  "owner": "lead",
+  "status": "PROVISIONAL seed values; specialists replace with their own versioned files",
+  "units": "SI (m, kg, s, N, Pa, K) unless the key says otherwise",
+  "requirements": {
+    "F_max_SL_N": {
+      "v": 500.0,
+      "tag": "REQ founder 2026-10-11"
+    },
+    "throttle_floor_fraction_target": {
+      "v": 0.2,
+      "tag": "DERIVED landing hover closure (lift_and_landing_v0)"
+    },
+    "throttle_floor_fraction_required": {
+      "v": 0.25,
+      "tag": "DERIVED"
+    },
+    "starts_per_flight_min": {
+      "v": 3,
+      "tag": "DERIVED ascent + landing relight + 1 spare"
+    },
+    "tvc_method": {
+      "v": "two-axis gimbal of the whole thrust chamber",
+      "tag": "LEAD decision (founder delegated)"
+    },
+    "tvc_range_deg_per_axis": {
+      "v": 7.0,
+      "tag": "ASSUMED until Space/GNC derives it"
+    },
+    "propellants": {
+      "v": "N2O (self-pressurized, heated tank) / 3D-printed ABS grain (PETG backup)",
+      "tag": "REQ founder + LEAD default"
+    },
+    "hot_parts": {
+      "v": "metal case/closures, graphite throat insert; PETG fit-check copy of every part first",
+      "tag": "REQ founder"
+    }
+  },
+  "reference_vehicle": {
+    "m_landing_kg": {
+      "v": 13.0,
+      "range": [
+        11.0,
+        16.0
+      ],
+      "tag": "DERIVED/ASSUMED; airframe owned by Lauty"
+    },
+    "m_liftoff_kg": {
+      "v": 14.8,
+      "tag": "DERIVED for 300 m apogee + 25 % reserve"
+    },
+    "design_apogee_m": {
+      "v": 300.0,
+      "tag": "ASSUMED from 2026-09-29 plan (100-300 m)"
+    },
+    "airframe_ID_m": {
+      "v": 0.12,
+      "tag": "ASSUMED, to be agreed with Lauty through the ICD"
+    },
+    "length_m": {
+      "v": 2.0,
+      "tag": "ASSUMED"
+    }
+  },
+  "thermochemistry_CEA": {
+    "fuel_card": "ABS approximated as C15H17N, hf=+62.6 kJ/mol (ASSUMED, verify)",
+    "Pc_bar": 25.0,
+    "OF": 6.0,
+    "eps": 3.0,
+    "cstar_ideal_mps": 1598.2,
+    "Tc_K": 3369.0,
+    "MW_chamber": 26.84,
+    "gamma_chamber": 1.154,
+    "Cf_SL_ideal": 1.4379,
+    "Isp_SL_ideal_s": 234.3,
+    "Pe_over_Pc": 0.0681
+  },
+  "gas_path_v0": {
+    "eta_cstar": {
+      "v": 0.92,
+      "tag": "ASSUMED"
+    },
+    "eta_cf": {
+      "v": 0.975,
+      "tag": "ASSUMED (15 deg cone)"
+    },
+    "Pc_max_Pa": 2500000.0,
+    "At_m2": 0.00014265363581292663,
+    "Dt_m": 0.01348,
+    "De_m": 0.02334,
+    "mdot_kgps": 0.2425,
+    "mdot_ox_kgps": 0.2079,
+    "mdot_fuel_kgps": 0.0346,
+    "Isp_SL_delivered_s": 210.2
+  },
+  "grain_v0_placeholder": {
+    "regression_law": "r = 0.0577 mm/s * G^0.5 (G in kg/m2/s) ASSUMED placeholder",
+    "Dport0_m": 0.03,
+    "G_ox0_kgpm2s": 294.1,
+    "r0_mps": 0.00099,
+    "L_grain_m": 0.354,
+    "D_grain_outer_m": 0.052,
+    "note": "single round port; Combustion specialist to redesign (helical/multi-port allowed)"
+  },
+  "pressure_and_margins": {
+    "chamber_MEOP_Pa": 3100000.0,
+    "chamber_MEOP_note": "1.25 x Pc_max for start spikes/throttle overshoot (ASSUMED)",
+    "tank_MEOP_Pa": 7000000.0,
+    "tank_MEOP_note": "N2O vapour pressure at 35 C + margin; relief valve set ~7.5 MPa (ASSUMED)",
+    "SF_pressure_yield": 1.5,
+    "SF_pressure_ultimate": 2.0,
+    "SF_structure_yield": 1.5,
+    "SF_structure_ultimate": 2.0,
+    "proof_test_factor": 1.5
+  },
+  "case_v0": {
+    "material": "6061-T6 tube 63.5 mm OD x 3.175 mm wall (2.5 in x 0.125 in), ASSUMED stock size",
+    "liner": "phenolic or paper-phenolic tube, ASSUMED"
+  },
+  "tank_v0": {
+    "N2O_load_kg": 1.6,
+    "volume_m3": 0.0025,
+    "material": "6061-T6 tube 101.6 mm OD x 3.175 mm wall, ASSUMED",
+    "pressurization": "self-pressurized N2O, heater blanket to 20 +/- 3 C (N2 supercharge = trade item)"
+  }
+}

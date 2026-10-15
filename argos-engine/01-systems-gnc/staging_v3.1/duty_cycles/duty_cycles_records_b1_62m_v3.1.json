@@ -1,0 +1,788 @@
+{
+ "version": "duty_cycles v3 records (B1 62 m)",
+ "status": "v3.1 STAGING (gnc.json v3 and its duty_cycles_index_v3.json rev d are frozen under the independent GNC review; merge into the index at v3.1 publication)",
+ "date": "2026-10-13",
+ "owner": "Space/GNC",
+ "generator": "m2_dc_b1_62m_record v1",
+ "sim": "sim6 v2.7.1-dev (2026-10-13)",
+ "interface_set": "/home/claude/work/space/iface_v3c",
+ "base_index": {
+  "file": "01-systems-gnc/duty_cycles/duty_cycles_index_v3.json",
+  "revision": "2026-10-13d",
+  "sha256": "4a07d68946bd0dc9aa6abaa0c9bb16268756e9a39ef16f7a9a79f86305ccc53c"
+ },
+ "lead_decision": "B1 cap 62 m provisional (REQ lead decision 2026-10-13, b1_hop_cap_62m); the 85 m dispersed cycles stay the sizing cases",
+ "request": "lead 2026-10-13: the B1 62 m p99 and max duty-cycle CSVs, same format, for Combustion's web-corner check at 62 m",
+ "units": "SI; throttle_frac = F / 500 N; a_axial_specific = specific force along the body axis; gimbal angles at the engine (after actuator dynamics/backlash); hinge = actuator hinge-moment estimate (inertial + hose + friction) per axis max",
+ "phase_codes": {
+  "0": "pad",
+  "1": "ascent",
+  "2": "coast_or_floor_coast",
+  "3": "descent",
+  "4": "relight_wait",
+  "5": "landing_burn",
+  "6": "terminal",
+  "7": "shutdown",
+  "8": "landed",
+  "20": "test",
+  "99": "test"
+ },
+ "columns": [
+  "t_s",
+  "F_N",
+  "F_cmd_N",
+  "throttle_frac",
+  "mdot_ox_kgps",
+  "mdot_fuel_kgps",
+  "Pc_Pa",
+  "P_tank_Pa",
+  "T_tank_K",
+  "a_axial_specific_mps2",
+  "h_m",
+  "v_mps",
+  "m_kg",
+  "z_cg_m",
+  "I_transverse_kgm2",
+  "I_roll_kgm2",
+  "gimbal_x_cmd_deg",
+  "gimbal_y_cmd_deg",
+  "gimbal_x_deg",
+  "gimbal_y_deg",
+  "hinge_moment_est_Nm",
+  "tilt_deg",
+  "phase"
+ ],
+ "burn_time_definition": "burn_time_s = thrust-on time of the file: sum of the 10 ms record steps with delivered thrust F > 1 N (all burns; +/-0.01 s per burn edge). engine_on_counter_s = sim6 result burn_time (flight-software burn state on): it excludes the shutdown tail-off and, on a propellant-limited run, includes zero-thrust time after liquid depletion until the cut. Index revision 2026-10-13b; earlier v1 / v2 / v3 indexes gave the counter as burn_time_s (Combustion query relayed by the lead 2026-10-13)",
+ "max_axial_definition": "max_axial_specific_mps2 = maximum of the a_axial_specific_mps2 column over the whole record, leg contact included (pad and touchdown, leg spring-damper contact model of sim6): for a landing at ~1 m/s it is the touchdown load case, for a FAILED landing it is the crash impact, not a design load. max_axial_specific_airborne_mps2 = maximum over the records without leg contact (sim6 leg force = 0: powered ascent, coast, descent, landing burn before contact); max_axial_specific_leg_contact_mps2 = maximum with leg contact. max_axial_at_s / max_axial_phase / max_axial_thrust_N / max_axial_leg_force_N locate the overall maximum. Index revision 2026-10-13c (fields added, no value changed)",
+ "records": [
+  {
+   "name": "DC-B1_hop_62m_disp_p99_kest2_v3",
+   "kind": "record_b1_62m_lead_cap",
+   "generator": "m2_dc_b1_62m_record v1",
+   "source": "SIM sim6 v2.7.1-dev (2026-10-13) 6-DOF, engine: combustion.json v2.3 map as published (v2: P_tank x D_port x thrust fraction), dt 1 ms, recorded 10 ms; Monte Carlo run 159 of case tgl_B1_lead62_none_k2 re-flown",
+   "purpose": "RECORD (lead 2026-10-13): B1 at the provisional 62 m cap for Combustion's web-corner check; NOT a sizing case: the 85 m dispersed cycles stay the sizing cases (lead decision 2026-10-13)",
+   "selection": {
+    "rule": "smallest engine-on counter >= the 99th percentile of the 500 runs",
+    "rule_variable": "Monte Carlo engine-on counter (sim6 burn_time)",
+    "thrust_on_cross_check": {
+     "same_run": true,
+     "by_counter": {
+      "run": 159,
+      "value_s": 18.590999999999738,
+      "thrust_on_of_that_run_s": 18.630999999999787
+     },
+     "by_thrust_on": {
+      "run": 159,
+      "value_s": 18.630999999999787,
+      "p99_s": 18.403299999999508
+     }
+    },
+    "burn_time_p50_p99_max_of_case_s": [
+     15.815499999996675,
+     18.36428999999946,
+     20.6060000000022
+    ],
+    "n_runs": 500
+   },
+   "mc_case": "tgl_B1_lead62_none_k2",
+   "mc_csv": "duty_cycles_v3_1/mc/mc6_runs_tgl_B1_lead62_none_k2.csv",
+   "mc_csv_hub": "01-systems-gnc/staging_v3.1/results/b1_62m_mc/mc6_runs_tgl_B1_lead62_none_k2.csv.gz",
+   "mc_seed": 101,
+   "run_index": 159,
+   "run_seed": 1561135401,
+   "reproduces_mc_row": true,
+   "mismatched_fields": [],
+   "dispersions": {
+    "thrust_scale": 0.9282195692403931,
+    "isp_scale": 0.9653211597513939,
+    "dry_scale": 0.8650893397227475,
+    "m_est_err": -0.01580529740578648,
+    "_wind": 2.7811904090713115,
+    "_wind_dir": 5.62017333994729,
+    "_gust_scale": 0.8787791216399684,
+    "_T0": 295.2484666262402,
+    "_rho0": 1.2135230273973796,
+    "_t_ign": 0.21847695601005387,
+    "_k_retro": 0.5495918686862913,
+    "_ca_tf": 1.034780945790899,
+    "throat_g": null
+   },
+   "config": {
+    "profile": "B",
+    "fins": false,
+    "rcs": false,
+    "floor": 0.2,
+    "gim_cmd_acc": 2000.0,
+    "att_ref_rate": 40.0,
+    "toff_model": 1,
+    "att_ref_mode": 1,
+    "h_target": 62.0,
+    "k_est_asc": 2,
+    "m_fixed": 2.0
+   },
+   "m_n2o_kg": 2.0,
+   "tank_V_m3": 0.0031670974974577987,
+   "m_liftoff_kg": 13.667982256794005,
+   "summary": {
+    "landed": 1.0,
+    "td_vz": -1.1908393570752946,
+    "td_vh": 0.09244216963405512,
+    "td_tilt": 0.390065372603813,
+    "td_rate": 2.1487909655943143,
+    "prop_used": 1.5378871553455957,
+    "liq_left": 0.3721079824254425,
+    "h_max": 61.27707843250299,
+    "burn_time": 18.590999999999738,
+    "starts": 1.0,
+    "max_gim": 4.736494730827723,
+    "max_hinge": 2.9057787216536357,
+    "max_axial_g": 5.662434261042199,
+    "throat_g_end": 0.0,
+    "throat_J": 0.0
+   },
+   "success": true,
+   "burn_time_s": 18.630999999999787,
+   "engine_on_counter_s": 18.590999999999738,
+   "burns_s": [
+    [
+     0.001,
+     18.630999999999787
+    ]
+   ],
+   "thrust_end_s": 18.630999999999787,
+   "starts": 1,
+   "total_impulse_Ns": 2332.9131651953244,
+   "n2o_burned_kg": 1.3065589957740111,
+   "fuel_burned_kg": 0.2312983733735506,
+   "OF_overall": 5.648803217755004,
+   "OF_range_burning": [
+    2.0605850652268116,
+    10.43489210410614
+   ],
+   "Pc_max_Pa": 2501001.069753104,
+   "throttle_max": 0.9282160737106274,
+   "max_axial_specific_mps2": 49.66932909746575,
+   "max_gimbal_deg": 4.736494730827723,
+   "max_gimbal_rate_dps": 62.743476181513756,
+   "max_hinge_est_Nm": 2.9057787216536357,
+   "wind_mps_at_10m": 2.7811904090713115,
+   "vs_85m_sizing_cycle": {
+    "name": "DC-B1_hop_85m_disp_p99_kest2_v3",
+    "sizing_burn_time_s": 21.780000000003636,
+    "sizing_engine_on_counter_s": 21.73400000000358,
+    "sizing_impulse_Ns": 2794.9492283715617,
+    "sizing_n2o_burned_kg": 1.5385880029760102,
+    "inside_on_burn_time": true,
+    "inside_on_n2o": true
+   },
+   "note": "record at the lead's provisional 62 m cap; FSW v2.7 with k_est_asc 2 (provisional baseline); one Monte Carlo run, not a nominal flight",
+   "max_axial_specific_airborne_mps2": 34.11486720771958,
+   "max_axial_specific_leg_contact_mps2": 49.66932909746575,
+   "max_axial_at_s": 18.60099999999975,
+   "max_axial_phase": 6,
+   "max_axial_thrust_N": 123.50870381818184,
+   "max_axial_leg_force_N": 569.1389155795492,
+   "file": "01-systems-gnc/staging_v3.1/duty_cycles/DC-B1_hop_62m_disp_p99_kest2_v3.csv",
+   "sha256": "bab877e27435bf7fb9045f2b53f0939f1259c28e93ed3c664f773c76c47cf7db",
+   "columns": [
+    "t_s",
+    "F_N",
+    "F_cmd_N",
+    "throttle_frac",
+    "mdot_ox_kgps",
+    "mdot_fuel_kgps",
+    "Pc_Pa",
+    "P_tank_Pa",
+    "T_tank_K",
+    "a_axial_specific_mps2",
+    "h_m",
+    "v_mps",
+    "m_kg",
+    "z_cg_m",
+    "I_transverse_kgm2",
+    "I_roll_kgm2",
+    "gimbal_x_cmd_deg",
+    "gimbal_y_cmd_deg",
+    "gimbal_x_deg",
+    "gimbal_y_deg",
+    "hinge_moment_est_Nm",
+    "tilt_deg",
+    "phase"
+   ]
+  },
+  {
+   "name": "DC-B1_hop_62m_disp_max_kest2_v3",
+   "kind": "record_b1_62m_lead_cap",
+   "generator": "m2_dc_b1_62m_record v1",
+   "source": "SIM sim6 v2.7.1-dev (2026-10-13) 6-DOF, engine: combustion.json v2.3 map as published (v2: P_tank x D_port x thrust fraction), dt 1 ms, recorded 10 ms; Monte Carlo run 211 of case tgl_B1_lead62_none_k2 re-flown",
+   "purpose": "RECORD (lead 2026-10-13): B1 at the provisional 62 m cap for Combustion's web-corner check; NOT a sizing case: the 85 m dispersed cycles stay the sizing cases (lead decision 2026-10-13)",
+   "selection": {
+    "rule": "longest engine-on counter of the 500 runs",
+    "rule_variable": "Monte Carlo engine-on counter (sim6 burn_time)",
+    "thrust_on_cross_check": {
+     "same_run": true,
+     "by_counter": {
+      "run": 211,
+      "value_s": 20.6060000000022,
+      "thrust_on_of_that_run_s": 20.650000000002258
+     },
+     "by_thrust_on": {
+      "run": 211,
+      "value_s": 20.650000000002258,
+      "p99_s": 18.403299999999508
+     }
+    },
+    "burn_time_p50_p99_max_of_case_s": [
+     15.815499999996675,
+     18.36428999999946,
+     20.6060000000022
+    ],
+    "n_runs": 500
+   },
+   "mc_case": "tgl_B1_lead62_none_k2",
+   "mc_csv": "duty_cycles_v3_1/mc/mc6_runs_tgl_B1_lead62_none_k2.csv",
+   "mc_csv_hub": "01-systems-gnc/staging_v3.1/results/b1_62m_mc/mc6_runs_tgl_B1_lead62_none_k2.csv.gz",
+   "mc_seed": 101,
+   "run_index": 211,
+   "run_seed": 1167656254,
+   "reproduces_mc_row": true,
+   "mismatched_fields": [],
+   "dispersions": {
+    "thrust_scale": 0.968311990823387,
+    "isp_scale": 0.9229874158076727,
+    "dry_scale": 0.867141161810123,
+    "m_est_err": -0.04440101653482794,
+    "_wind": 5.861435465192736,
+    "_wind_dir": 3.7486907982294984,
+    "_gust_scale": 1.350842710237413,
+    "_T0": 292.50994906708166,
+    "_rho0": 1.154397806108635,
+    "_t_ign": 0.20600702506781873,
+    "_k_retro": 0.6837256170232756,
+    "_ca_tf": 1.286535156811818,
+    "throat_g": null
+   },
+   "config": {
+    "profile": "B",
+    "fins": false,
+    "rcs": false,
+    "floor": 0.2,
+    "gim_cmd_acc": 2000.0,
+    "att_ref_rate": 40.0,
+    "toff_model": 1,
+    "att_ref_mode": 1,
+    "h_target": 62.0,
+    "k_est_asc": 2,
+    "m_fixed": 2.0
+   },
+   "m_n2o_kg": 2.0,
+   "tank_V_m3": 0.0031670974974577987,
+   "m_liftoff_kg": 13.694698211464889,
+   "summary": {
+    "landed": 1.0,
+    "td_vz": -1.0985727712643927,
+    "td_vh": 0.6582486443377489,
+    "td_tilt": 4.049695107991941,
+    "td_rate": 0.4313491310405578,
+    "prop_used": 1.7121448341493677,
+    "liq_left": 0.24533501675152544,
+    "h_max": 62.528394324717425,
+    "burn_time": 20.6060000000022,
+    "starts": 1.0,
+    "max_gim": 7.1100903133533775,
+    "max_hinge": 4.121090254975706,
+    "max_axial_g": 3.622646603456784,
+    "throat_g_end": 0.0,
+    "throat_J": 0.0
+   },
+   "success": false,
+   "burn_time_s": 20.650000000002258,
+   "engine_on_counter_s": 20.6060000000022,
+   "burns_s": [
+    [
+     0.001,
+     20.650000000002255
+    ]
+   ],
+   "thrust_end_s": 20.650000000002255,
+   "starts": 1,
+   "total_impulse_Ns": 2569.5535256014296,
+   "n2o_burned_kg": 1.4488892432331055,
+   "fuel_burned_kg": 0.26322624120783905,
+   "OF_overall": 5.504349553390791,
+   "OF_range_burning": [
+    2.0605850652268116,
+    10.434891969426207
+   ],
+   "Pc_max_Pa": 2501001.01081568,
+   "throttle_max": 0.9683083202457545,
+   "max_axial_specific_mps2": 35.5172750512337,
+   "max_gimbal_deg": 7.1100903133533775,
+   "max_gimbal_rate_dps": 79.61758106168938,
+   "max_hinge_est_Nm": 4.121090254975706,
+   "wind_mps_at_10m": 5.861435465192736,
+   "vs_85m_sizing_cycle": {
+    "name": "DC-B1_hop_85m_disp_max_kest2_v3",
+    "sizing_burn_time_s": 23.580000000005835,
+    "sizing_engine_on_counter_s": 24.09000000000646,
+    "sizing_impulse_Ns": 2880.900333418219,
+    "sizing_n2o_burned_kg": 1.6294433880713148,
+    "inside_on_burn_time": true,
+    "inside_on_n2o": true
+   },
+   "note": "record at the lead's provisional 62 m cap; FSW v2.7 with k_est_asc 2 (provisional baseline); one Monte Carlo run, not a nominal flight; this run FAILS its landing (touchdown vz -1.10 m/s, vh 0.66 m/s, tilt 4.0 deg); the engine history is valid as a thermal input",
+   "max_axial_specific_airborne_mps2": 35.5172750512337,
+   "max_axial_specific_leg_contact_mps2": 30.305183423486568,
+   "max_axial_at_s": 0.47000000000000036,
+   "max_axial_phase": 1,
+   "max_axial_thrust_N": 484.0843559780912,
+   "max_axial_leg_force_N": 0.0,
+   "file": "01-systems-gnc/staging_v3.1/duty_cycles/DC-B1_hop_62m_disp_max_kest2_v3.csv",
+   "sha256": "e03cdf7107fb30d9897f01d86fe0dda8029a2e1803389b899a8e748d2558d5ab",
+   "columns": [
+    "t_s",
+    "F_N",
+    "F_cmd_N",
+    "throttle_frac",
+    "mdot_ox_kgps",
+    "mdot_fuel_kgps",
+    "Pc_Pa",
+    "P_tank_Pa",
+    "T_tank_K",
+    "a_axial_specific_mps2",
+    "h_m",
+    "v_mps",
+    "m_kg",
+    "z_cg_m",
+    "I_transverse_kgm2",
+    "I_roll_kgm2",
+    "gimbal_x_cmd_deg",
+    "gimbal_y_cmd_deg",
+    "gimbal_x_deg",
+    "gimbal_y_deg",
+    "hinge_moment_est_Nm",
+    "tilt_deg",
+    "phase"
+   ]
+  },
+  {
+   "name": "DC-B1_hop_62m_disp_p99_kest2_tg711_v3",
+   "kind": "record_b1_62m_lead_cap",
+   "generator": "m2_dc_b1_62m_record v1",
+   "source": "SIM sim6 v2.7.1-dev (2026-10-13) 6-DOF, engine: combustion.json v2.3 map as published (v2: P_tank x D_port x thrust fraction), dt 1 ms, recorded 10 ms; Monte Carlo run 264 of case tgl_B1_lead62_pc_k2 re-flown",
+   "purpose": "RECORD (lead 2026-10-13): B1 at the provisional 62 m cap for Combustion's web-corner check; NOT a sizing case: the 85 m dispersed cycles stay the sizing cases (lead decision 2026-10-13)",
+   "selection": {
+    "rule": "smallest engine-on counter >= the 99th percentile of the 500 runs",
+    "rule_variable": "Monte Carlo engine-on counter (sim6 burn_time)",
+    "thrust_on_cross_check": {
+     "same_run": true,
+     "by_counter": {
+      "run": 264,
+      "value_s": 18.236999999999306,
+      "thrust_on_of_that_run_s": 18.28099999999936
+     },
+     "by_thrust_on": {
+      "run": 264,
+      "value_s": 18.28099999999936,
+      "p99_s": 18.201799999999263
+     }
+    },
+    "burn_time_p50_p99_max_of_case_s": [
+     15.794499999996685,
+     18.16571999999922,
+     20.108000000001592
+    ],
+    "n_runs": 500
+   },
+   "mc_case": "tgl_B1_lead62_pc_k2",
+   "mc_csv": "regband/mc6_runs_tgl_B1_lead62_pc_k2_rb.csv",
+   "mc_csv_hub": "01-systems-gnc/results/regband/mc6_runs_tgl_B1_lead62_pc_k2_rb.csv.gz",
+   "mc_seed": 101,
+   "run_index": 264,
+   "run_seed": 648300995,
+   "reproduces_mc_row": true,
+   "mismatched_fields": [],
+   "dispersions": {
+    "thrust_scale": 0.863330745290185,
+    "isp_scale": 1.0319069949711823,
+    "dry_scale": 0.9305317293454489,
+    "m_est_err": -0.04439106234725767,
+    "_wind": 7.251337546812122,
+    "_wind_dir": 5.6926715197256605,
+    "_gust_scale": 1.4119315358707518,
+    "_T0": 289.98999566911283,
+    "_rho0": 1.1854778003653894,
+    "_t_ign": 0.22428238489394314,
+    "_k_retro": 0.4620868915321783,
+    "_ca_tf": 1.1857946302563278,
+    "throat_g": 0.07246082051683747
+   },
+   "config": {
+    "profile": "B",
+    "fins": false,
+    "rcs": false,
+    "floor": 0.2,
+    "gim_cmd_acc": 2000.0,
+    "att_ref_rate": 40.0,
+    "toff_model": 1,
+    "att_ref_mode": 1,
+    "h_target": 62.0,
+    "k_est_asc": 2,
+    "m_fixed": 2.0,
+    "throat_jref": 6.545215275268223,
+    "throat_g_band": [
+     0.07,
+     0.11
+    ],
+    "throat_loop": 1
+   },
+   "m_n2o_kg": 2.0,
+   "tank_V_m3": 0.0031670974974577987,
+   "m_liftoff_kg": 14.520081435115351,
+   "summary": {
+    "landed": 1.0,
+    "td_vz": -1.2177034828248843,
+    "td_vh": 0.18267979764766912,
+    "td_tilt": 2.8245740286234358,
+    "td_rate": 2.728238230613339,
+    "prop_used": 1.5840094672027232,
+    "liq_left": 0.3634332029092177,
+    "h_max": 62.76305925404619,
+    "burn_time": 18.236999999999306,
+    "starts": 1.0,
+    "max_gim": 7.081173571231796,
+    "max_hinge": 3.8151744277852644,
+    "max_axial_g": 3.6380054610745733,
+    "throat_g_end": 0.07246082051683747,
+    "throat_J": 7.785382864017411
+   },
+   "success": true,
+   "burn_time_s": 18.28099999999936,
+   "engine_on_counter_s": 18.236999999999306,
+   "burns_s": [
+    [
+     0.001,
+     18.28099999999936
+    ]
+   ],
+   "thrust_end_s": 18.28099999999936,
+   "starts": 1,
+   "total_impulse_Ns": 2426.0863661109206,
+   "n2o_burned_kg": 1.3541817224903854,
+   "fuel_burned_kg": 0.2298005669526204,
+   "OF_overall": 5.8928563164493255,
+   "OF_range_burning": [
+    2.0605850652268116,
+    10.43299352160981
+   ],
+   "Pc_max_Pa": 2500170.381832145,
+   "throttle_max": 0.8696438802960303,
+   "max_axial_specific_mps2": 32.042145364975006,
+   "max_gimbal_deg": 7.081173571231796,
+   "max_gimbal_rate_dps": 65.54047527001609,
+   "max_hinge_est_Nm": 3.8151744277852644,
+   "wind_mps_at_10m": 7.251337546812122,
+   "vs_85m_sizing_cycle": {
+    "name": "DC-B1_hop_85m_disp_p99_kest2_tg711_v3",
+    "sizing_burn_time_s": 21.660000000003492,
+    "sizing_engine_on_counter_s": 21.614000000003433,
+    "sizing_impulse_Ns": 2844.4231185167628,
+    "sizing_n2o_burned_kg": 1.589305305817991,
+    "inside_on_burn_time": true,
+    "inside_on_n2o": true
+   },
+   "note": "record at the lead's provisional 62 m cap; FSW v2.7 with k_est_asc 2 (provisional baseline); one Monte Carlo run, not a nominal flight",
+   "max_axial_specific_airborne_mps2": 31.19744937907874,
+   "max_axial_specific_leg_contact_mps2": 32.042145364975006,
+   "max_axial_at_s": 18.250999999999323,
+   "max_axial_phase": 6,
+   "max_axial_thrust_N": 121.02242164013231,
+   "max_axial_leg_force_N": 319.7764269875096,
+   "file": "01-systems-gnc/staging_v3.1/duty_cycles/DC-B1_hop_62m_disp_p99_kest2_tg711_v3.csv",
+   "sha256": "c377d60a20f1242ea5e52526aacc76c01b8fccd72be370a2a6fafaa11fa31ce9",
+   "columns": [
+    "t_s",
+    "F_N",
+    "F_cmd_N",
+    "throttle_frac",
+    "mdot_ox_kgps",
+    "mdot_fuel_kgps",
+    "Pc_Pa",
+    "P_tank_Pa",
+    "T_tank_K",
+    "a_axial_specific_mps2",
+    "h_m",
+    "v_mps",
+    "m_kg",
+    "z_cg_m",
+    "I_transverse_kgm2",
+    "I_roll_kgm2",
+    "gimbal_x_cmd_deg",
+    "gimbal_y_cmd_deg",
+    "gimbal_x_deg",
+    "gimbal_y_deg",
+    "hinge_moment_est_Nm",
+    "tilt_deg",
+    "phase"
+   ]
+  },
+  {
+   "name": "DC-B1_hop_62m_disp_max_kest2_tg711_v3",
+   "kind": "record_b1_62m_lead_cap",
+   "generator": "m2_dc_b1_62m_record v1",
+   "source": "SIM sim6 v2.7.1-dev (2026-10-13) 6-DOF, engine: combustion.json v2.3 map as published (v2: P_tank x D_port x thrust fraction), dt 1 ms, recorded 10 ms; Monte Carlo run 211 of case tgl_B1_lead62_pc_k2 re-flown",
+   "purpose": "RECORD (lead 2026-10-13): B1 at the provisional 62 m cap for Combustion's web-corner check; NOT a sizing case: the 85 m dispersed cycles stay the sizing cases (lead decision 2026-10-13)",
+   "selection": {
+    "rule": "longest engine-on counter of the 500 runs",
+    "rule_variable": "Monte Carlo engine-on counter (sim6 burn_time)",
+    "thrust_on_cross_check": {
+     "same_run": true,
+     "by_counter": {
+      "run": 211,
+      "value_s": 20.108000000001592,
+      "thrust_on_of_that_run_s": 20.150000000001643
+     },
+     "by_thrust_on": {
+      "run": 211,
+      "value_s": 20.150000000001643,
+      "p99_s": 18.201799999999263
+     }
+    },
+    "burn_time_p50_p99_max_of_case_s": [
+     15.794499999996685,
+     18.16571999999922,
+     20.108000000001592
+    ],
+    "n_runs": 500
+   },
+   "mc_case": "tgl_B1_lead62_pc_k2",
+   "mc_csv": "regband/mc6_runs_tgl_B1_lead62_pc_k2_rb.csv",
+   "mc_csv_hub": "01-systems-gnc/results/regband/mc6_runs_tgl_B1_lead62_pc_k2_rb.csv.gz",
+   "mc_seed": 101,
+   "run_index": 211,
+   "run_seed": 1167656254,
+   "reproduces_mc_row": true,
+   "mismatched_fields": [],
+   "dispersions": {
+    "thrust_scale": 0.968311990823387,
+    "isp_scale": 0.9229874158076727,
+    "dry_scale": 0.867141161810123,
+    "m_est_err": -0.04440101653482794,
+    "_wind": 5.861435465192736,
+    "_wind_dir": 3.7486907982294984,
+    "_gust_scale": 1.350842710237413,
+    "_T0": 292.50994906708166,
+    "_rho0": 1.154397806108635,
+    "_t_ign": 0.20600702506781873,
+    "_k_retro": 0.6837256170232756,
+    "_ca_tf": 1.286535156811818,
+    "throat_g": 0.10072950755150328
+   },
+   "config": {
+    "profile": "B",
+    "fins": false,
+    "rcs": false,
+    "floor": 0.2,
+    "gim_cmd_acc": 2000.0,
+    "att_ref_rate": 40.0,
+    "toff_model": 1,
+    "att_ref_mode": 1,
+    "h_target": 62.0,
+    "k_est_asc": 2,
+    "m_fixed": 2.0,
+    "throat_jref": 6.545215275268223,
+    "throat_g_band": [
+     0.07,
+     0.11
+    ],
+    "throat_loop": 1
+   },
+   "m_n2o_kg": 2.0,
+   "tank_V_m3": 0.0031670974974577987,
+   "m_liftoff_kg": 13.694698211464889,
+   "summary": {
+    "landed": 1.0,
+    "td_vz": -1.2056826424637808,
+    "td_vh": 0.5785931289803019,
+    "td_tilt": 3.7171229761545925,
+    "td_rate": 2.076778319108995,
+    "prop_used": 1.6894181480004302,
+    "liq_left": 0.27078087207918017,
+    "h_max": 62.78301033192988,
+    "burn_time": 20.108000000001592,
+    "starts": 1.0,
+    "max_gim": 7.1929219779531754,
+    "max_hinge": 3.578536650760979,
+    "max_axial_g": 3.775335833549856,
+    "throat_g_end": 0.10072950755150328,
+    "throat_J": 7.544726230575753
+   },
+   "success": false,
+   "burn_time_s": 20.150000000001643,
+   "engine_on_counter_s": 20.108000000001592,
+   "burns_s": [
+    [
+     0.001,
+     20.150000000001643
+    ]
+   ],
+   "thrust_end_s": 20.150000000001643,
+   "starts": 1,
+   "total_impulse_Ns": 2505.4865543514165,
+   "n2o_burned_kg": 1.4244729184917326,
+   "fuel_burned_kg": 0.2649205828871261,
+   "OF_overall": 5.376980916196509,
+   "OF_range_burning": [
+    2.0605850652268116,
+    10.431787805497791
+   ],
+   "Pc_max_Pa": 2499643.0027030823,
+   "throttle_max": 0.9748456451987532,
+   "max_axial_specific_mps2": 35.74904149192459,
+   "max_gimbal_deg": 7.1929219779531754,
+   "max_gimbal_rate_dps": 89.54819287308624,
+   "max_hinge_est_Nm": 3.578536650760979,
+   "wind_mps_at_10m": 5.861435465192736,
+   "vs_85m_sizing_cycle": {
+    "name": "DC-B1_hop_85m_disp_max_kest2_tg711_v3",
+    "sizing_burn_time_s": 23.410000000005628,
+    "sizing_engine_on_counter_s": 23.92700000000626,
+    "sizing_impulse_Ns": 2856.3073454053592,
+    "sizing_n2o_burned_kg": 1.6289973592618845,
+    "inside_on_burn_time": true,
+    "inside_on_n2o": true
+   },
+   "note": "record at the lead's provisional 62 m cap; FSW v2.7 with k_est_asc 2 (provisional baseline); one Monte Carlo run, not a nominal flight; this run FAILS its landing (touchdown vz -1.21 m/s, vh 0.58 m/s, tilt 3.7 deg); the engine history is valid as a thermal input",
+   "max_axial_specific_airborne_mps2": 35.74904149192459,
+   "max_axial_specific_leg_contact_mps2": 32.76415136679086,
+   "max_axial_at_s": 0.6300000000000004,
+   "max_axial_phase": 1,
+   "max_axial_thrust_N": 487.42282259937656,
+   "max_axial_leg_force_N": 0.0,
+   "file": "01-systems-gnc/staging_v3.1/duty_cycles/DC-B1_hop_62m_disp_max_kest2_tg711_v3.csv",
+   "sha256": "2f3b4f8f2f9bdcc2ef76009be2b230616f8eb69581ba6aef521633699b086274",
+   "columns": [
+    "t_s",
+    "F_N",
+    "F_cmd_N",
+    "throttle_frac",
+    "mdot_ox_kgps",
+    "mdot_fuel_kgps",
+    "Pc_Pa",
+    "P_tank_Pa",
+    "T_tank_K",
+    "a_axial_specific_mps2",
+    "h_m",
+    "v_mps",
+    "m_kg",
+    "z_cg_m",
+    "I_transverse_kgm2",
+    "I_roll_kgm2",
+    "gimbal_x_cmd_deg",
+    "gimbal_y_cmd_deg",
+    "gimbal_x_deg",
+    "gimbal_y_deg",
+    "hinge_moment_est_Nm",
+    "tilt_deg",
+    "phase"
+   ]
+  }
+ ],
+ "selection_checks": {
+  "tgl_B1_lead62_none_k2": {
+   "n_runs": 500,
+   "runs_reproducing_mc_row": 500,
+   "mismatches": [],
+   "counter_p50_p99_max_s": [
+    15.815499999996675,
+    18.36428999999946,
+    20.6060000000022
+   ],
+   "thrust_on_p50_p99_max_s": [
+    15.860999999996649,
+    18.403299999999508,
+    20.650000000002258
+   ],
+   "success_rate": 0.99,
+   "selection": {
+    "p99": {
+     "same_run": true,
+     "by_counter": {
+      "run": 159,
+      "value_s": 18.590999999999738,
+      "thrust_on_of_that_run_s": 18.630999999999787
+     },
+     "by_thrust_on": {
+      "run": 159,
+      "value_s": 18.630999999999787,
+      "p99_s": 18.403299999999508
+     }
+    },
+    "max": {
+     "same_run": true,
+     "by_counter": {
+      "run": 211,
+      "value_s": 20.6060000000022,
+      "thrust_on_of_that_run_s": 20.650000000002258
+     },
+     "by_thrust_on": {
+      "run": 211,
+      "value_s": 20.650000000002258,
+      "p99_s": 18.403299999999508
+     }
+    }
+   },
+   "mc_csv": "duty_cycles_v3_1/mc/mc6_runs_tgl_B1_lead62_none_k2.csv",
+   "mc_csv_hub": "01-systems-gnc/staging_v3.1/results/b1_62m_mc/mc6_runs_tgl_B1_lead62_none_k2.csv.gz",
+   "note": "B1 at the lead's provisional cap 62.0 m, k_est_asc 2, no throat growth (GNC 2026-10-13, for the 62 m records)"
+  },
+  "tgl_B1_lead62_pc_k2": {
+   "n_runs": 500,
+   "runs_reproducing_mc_row": 500,
+   "mismatches": [],
+   "counter_p50_p99_max_s": [
+    15.794499999996685,
+    18.16571999999922,
+    20.108000000001592
+   ],
+   "thrust_on_p50_p99_max_s": [
+    15.835999999996663,
+    18.201799999999263,
+    20.150000000001643
+   ],
+   "success_rate": 0.996,
+   "selection": {
+    "p99": {
+     "same_run": true,
+     "by_counter": {
+      "run": 264,
+      "value_s": 18.236999999999306,
+      "thrust_on_of_that_run_s": 18.28099999999936
+     },
+     "by_thrust_on": {
+      "run": 264,
+      "value_s": 18.28099999999936,
+      "p99_s": 18.201799999999263
+     }
+    },
+    "max": {
+     "same_run": true,
+     "by_counter": {
+      "run": 211,
+      "value_s": 20.108000000001592,
+      "thrust_on_of_that_run_s": 20.150000000001643
+     },
+     "by_thrust_on": {
+      "run": 211,
+      "value_s": 20.150000000001643,
+      "p99_s": 18.201799999999263
+     }
+    }
+   },
+   "mc_csv": "regband/mc6_runs_tgl_B1_lead62_pc_k2_rb.csv",
+   "mc_csv_hub": "01-systems-gnc/results/regband/mc6_runs_tgl_B1_lead62_pc_k2_rb.csv.gz",
+   "note": "B1 at the lead's provisional cap 62.0 m, k_est_asc 2, growth only (J_ref of the no-band 62.0 m flight)"
+  }
+ },
+ "note": "records, not sizing cases. Throat growth variant (tg711): growth U(0.07, 0.11) with the ECU Pc loop, J_ref of the no-band 62 m flight (m2_regband_mc v1.1 convention). No regression band in these flights (Combustion applies its band corners to the thrust and oxidiser-flow histories, as for DC-B1 v3 p99 at 85 m)."
+}

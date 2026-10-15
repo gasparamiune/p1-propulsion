@@ -1,0 +1,479 @@
+{
+ "version": "m2_rg16_fct_terms v2.1",
+ "date": "2026-10-13",
+ "sim": "sim6 v2.9-dev (2026-10-13, amendments M, W, F, P, R, S, G, K, V)",
+ "method": "Terms (m_hat = flown estimator of m2_mass_est v2; offsets applied as a CONSTANT m_hat offset from ARM, conservative):\n  PURGE BOOKING, missed-detection side (m_hat under-reads): booked - vented. Booking bound = the path's all-liquid flow over\n    the ECU-capped 2.5 s, 31.24 x 2.5 = 78.1 g (DERIVED upper bound of what the FSW can book; FSW-R2 books 73.0 g) minus the\n    smallest vented mass at t_flow 2.5 s (34.3 g, Combustion table, SIM on ASSUMED Cd / slip) = 43.8 g (DERIVED); flown as the\n    coordinator's bound -45 g.\n  PURGE NOT BOOKED, over-read side: + the largest vented mass, max(table 72.9 g, flown truth 29.2 g/s x 2.5 s = 73.0 g) = 73.0 g.\n  STUCK-OPEN BLEED (fault, over-read side; outside the nominal budget): + the largest bled mass at 31.24 g/s: A1 from the relight\n    lift (re-fly bf|G73 arms, A1_none and A1J_pc), B1 from the first ignition (m2_b1_m60 arm blf31).\nCases: A1 flown on the decided path (FSW-R2 decided release rule + decided purge sequence G73) WITH its own comparators (same\n    case, no offset, same path); B1 on the m2_fc_thrust B1 configuration with the rev1 comparator fct_mest_v2.json (B1 has no\n    purge; sim options-off identity m2_bitcheck_v29).\nBudget line per side (relative thrust-estimate error in the FC window, F_acc = m_hat x a):\n    random 1 sigma = RSS(mass-estimate random, m2_mest_budget v1 A1_none fc; FC frame random = (eps p50 - eps p1) / 2.326 of\n    the comparator, DERIVED, includes run-to-run spread -> conservative)\n    bias = mass-estimate bias bound (m2_mest_budget v1) + purge term / m_FC_min + |median accelerometer offset b_sys| of the comparator\n    miss side passes if 670 N x (1 - total) > 650 N; over-read side passes if F_true,max,FC x (1 + total) < 650 N.\nEnv: m2r2_env.sh; GNC_RG16_PARTS (fct,eval), GNC_RG16_OUT (out/rev2/rg16_v2), GNC_RG16_SPLIT (0/1), GNC_MEST2_NFCT (200).",
+ "threshold_N": 650.0,
+ "stuck_N": 670.0,
+ "vent": {
+  "source": "/home/claude/work/shared-fallback/engine/02-combustion/data/v2p4/purge_vented_mass_v2p4.json (sha256/16 0038561f71a51502)",
+  "t_flow_s": 2.5,
+  "vented_g": {
+   "min": 34.28,
+   "p50": 56.57,
+   "p99": 72.55,
+   "max": 72.93
+  },
+  "all_liquid_g_s": 31.2416,
+  "booked_bound_g": 78.104,
+  "booked_FSW_R2_g": 73.0,
+  "residual_bound_g": 43.824,
+  "residual_FSW_R2_g": 38.72,
+  "flown_miss_offset_g": 45.0,
+  "not_booked_g": 73.0,
+  "tag": "DERIVED (Combustion v2.4 SIM table)"
+ },
+ "bled_max_g": {
+  "A1": 161.60451999999057,
+  "B1": 568.8491599998334,
+  "A1_src": "/home/claude/work/space/out/rev2/rg01_refly/rf_*_bf_G73.csv",
+  "B1_src": "/home/claude/work/space/out/rev2/b1_m60/b1_blf31.csv"
+ },
+ "m_FC_min_kg": 12.871528446875732,
+ "mass_budget_A1_fc": {
+  "random_rss_1sigma": 0.0014302985974690339,
+  "bias_linear_bound": 0.009153750276874706,
+  "total_3sigma_plus_bias": 0.013444646069281807,
+  "source": "/home/claude/work/space/out/mass_est_v2/mest_budget_v1.json (sha256/16 05a2fb5728e73be7)"
+ },
+ "cases": {
+  "A1|H_cal_path": {
+   "w_bias_g": 0.0,
+   "comparator": "A1|H_cal_path",
+   "held_max_N": 576.7,
+   "margin_to_650_N": 73.29999999999995,
+   "runs_above_650": 0,
+   "b_sys_min": -0.027123267568816667,
+   "b_sys_p50": -0.0011831188335788556,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.975,
+   "mhe_fc_min_max": [
+    -0.004291137591770133,
+    0.005928276606313565
+   ],
+   "Ftrue_max_fc_N": 562.4512683581019
+  },
+  "A1|H_cal_comp_path": {
+   "w_bias_g": 0.0,
+   "comparator": "A1|H_cal_comp_path",
+   "held_max_N": 576.3,
+   "margin_to_650_N": 73.70000000000005,
+   "runs_above_650": 0,
+   "b_sys_min": -0.014142486753530581,
+   "b_sys_p50": -0.0001622932266255317,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.97,
+   "mhe_fc_min_max": [
+    -0.004287883030540507,
+    0.005923249724312685
+   ],
+   "Ftrue_max_fc_N": 562.4512683581019
+  },
+  "A1|Llo_re_path": {
+   "w_bias_g": 0.0,
+   "comparator": "A1|Llo_re_path",
+   "held_max_N": 451.0,
+   "margin_to_650_N": 199.0,
+   "runs_above_650": 0,
+   "b_sys_min": -0.03227765749059752,
+   "b_sys_p50": -0.002547224360133604,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.965,
+   "mhe_fc_min_max": [
+    -0.0057582460512913825,
+    0.004059493841981565
+   ],
+   "Ftrue_max_fc_N": 437.44531933508085
+  },
+  "A1|Llo_cmd_path": {
+   "w_bias_g": 0.0,
+   "comparator": "A1|Llo_cmd_path",
+   "held_max_N": 448.9,
+   "margin_to_650_N": 201.10000000000002,
+   "runs_above_650": 0,
+   "b_sys_min": -0.04105755139562495,
+   "b_sys_p50": -0.006498099420909509,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.97,
+   "mhe_fc_min_max": [
+    -0.019540392140260487,
+    0.0015028203087203984
+   ],
+   "Ftrue_max_fc_N": 437.44531933508085
+  },
+  "A1|Lhi_re_path": {
+   "w_bias_g": 0.0,
+   "comparator": "A1|Lhi_re_path",
+   "held_max_N": 586.9,
+   "margin_to_650_N": 63.10000000000002,
+   "runs_above_650": 0,
+   "b_sys_min": -0.02273483240491403,
+   "b_sys_p50": -0.0016953616574422181,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.98,
+   "mhe_fc_min_max": [
+    -0.0036719768978477063,
+    0.006098972142325465
+   ],
+   "Ftrue_max_fc_N": 571.4999999999972
+  },
+  "A1|Lhi_cmd_path": {
+   "w_bias_g": 0.0,
+   "comparator": "A1|Lhi_cmd_path",
+   "held_max_N": 591.1,
+   "margin_to_650_N": 58.89999999999998,
+   "runs_above_650": 0,
+   "b_sys_min": -0.015922843218052596,
+   "b_sys_p50": 0.0008572335257359676,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.975,
+   "mhe_fc_min_max": [
+    -0.003671595939794936,
+    0.01452585368960424
+   ],
+   "Ftrue_max_fc_N": 571.4999999999972
+  },
+  "A1|H_cal_pbk": {
+   "w_bias_g": -45.0,
+   "comparator": "A1|H_cal_path",
+   "held_max_N": 574.2,
+   "margin_to_650_N": 75.79999999999995,
+   "runs_above_650": 0,
+   "b_sys_min": -0.030855279750454878,
+   "b_sys_p50": -0.004038798623143158,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.975,
+   "mhe_fc_min_max": [
+    -0.0071887711560923995,
+    0.002811011844781941
+   ],
+   "Ftrue_max_fc_N": 562.4512683581019,
+   "cmp_held_max_N": 576.7,
+   "cmp_miss670": "0/1000",
+   "cmp_b_sys_min": -0.027123267568816667,
+   "cmp_P": 0.975
+  },
+  "A1|H_cal_comp_pbk": {
+   "w_bias_g": -45.0,
+   "comparator": "A1|H_cal_comp_path",
+   "held_max_N": 575.1,
+   "margin_to_650_N": 74.89999999999998,
+   "runs_above_650": 0,
+   "b_sys_min": -0.017189351761156213,
+   "b_sys_p50": -0.0029916867972328287,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.975,
+   "mhe_fc_min_max": [
+    -0.007185130931082084,
+    0.0028063402316858
+   ],
+   "Ftrue_max_fc_N": 562.4512683581019,
+   "cmp_held_max_N": 576.3,
+   "cmp_miss670": "0/1000",
+   "cmp_b_sys_min": -0.014142486753530581,
+   "cmp_P": 0.97
+  },
+  "A1|Llo_re_pbk": {
+   "w_bias_g": -45.0,
+   "comparator": "A1|Llo_re_path",
+   "held_max_N": 448.1,
+   "margin_to_650_N": 201.89999999999998,
+   "runs_above_650": 0,
+   "b_sys_min": -0.03501548671208565,
+   "b_sys_p50": -0.00536237126311534,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.97,
+   "mhe_fc_min_max": [
+    -0.008442235936583997,
+    0.0011394649103007026
+   ],
+   "Ftrue_max_fc_N": 437.44531933508085,
+   "cmp_held_max_N": 451.0,
+   "cmp_miss670": "0/1000",
+   "cmp_b_sys_min": -0.03227765749059752,
+   "cmp_P": 0.965
+  },
+  "A1|Llo_cmd_pbk": {
+   "w_bias_g": -45.0,
+   "comparator": "A1|Llo_cmd_path",
+   "held_max_N": 447.6,
+   "margin_to_650_N": 202.39999999999998,
+   "runs_above_650": 0,
+   "b_sys_min": -0.04397502623434235,
+   "b_sys_p50": -0.009384473311363273,
+   "miss670": "1/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.975,
+   "mhe_fc_min_max": [
+    -0.022465281754788458,
+    -0.0014027482618431675
+   ],
+   "Ftrue_max_fc_N": 437.44531933508085,
+   "cmp_held_max_N": 448.9,
+   "cmp_miss670": "0/1000",
+   "cmp_b_sys_min": -0.04105755139562495,
+   "cmp_P": 0.97
+  },
+  "A1|H_cal_pnb": {
+   "w_bias_g": 73.0,
+   "comparator": "A1|H_cal_path",
+   "held_max_N": 578.0,
+   "margin_to_650_N": 72.0,
+   "runs_above_650": 0,
+   "b_sys_min": -0.020903476314508063,
+   "b_sys_p50": 0.0035265710769317726,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.965,
+   "mhe_fc_min_max": [
+    0.00040735672390290745,
+    0.010989048366081278
+   ],
+   "Ftrue_max_fc_N": 562.4512683581019,
+   "cmp_held_max_N": 576.7,
+   "cmp_miss670": "0/1000",
+   "cmp_b_sys_min": -0.027123267568816667,
+   "cmp_P": 0.975
+  },
+  "A1|Lhi_re_pnb": {
+   "w_bias_g": 73.0,
+   "comparator": "A1|Lhi_re_path",
+   "held_max_N": 590.0,
+   "margin_to_650_N": 60.0,
+   "runs_above_650": 0,
+   "b_sys_min": -0.017841859448348707,
+   "b_sys_p50": 0.0029013177622131403,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.975,
+   "mhe_fc_min_max": [
+    0.0008302176399672678,
+    0.010842804490350133
+   ],
+   "Ftrue_max_fc_N": 571.4999999999972,
+   "cmp_held_max_N": 586.9,
+   "cmp_miss670": "0/1000",
+   "cmp_b_sys_min": -0.02273483240491403,
+   "cmp_P": 0.98
+  },
+  "A1|Lhi_cmd_pnb": {
+   "w_bias_g": 73.0,
+   "comparator": "A1|Lhi_cmd_path",
+   "held_max_N": 592.9,
+   "margin_to_650_N": 57.10000000000002,
+   "runs_above_650": 0,
+   "b_sys_min": -0.0111879696109215,
+   "b_sys_p50": 0.005569040917976054,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.975,
+   "mhe_fc_min_max": [
+    0.0008338515744736874,
+    0.019582294863810912
+   ],
+   "Ftrue_max_fc_N": 571.4999999999972,
+   "cmp_held_max_N": 591.1,
+   "cmp_miss670": "0/1000",
+   "cmp_b_sys_min": -0.015922843218052596,
+   "cmp_P": 0.975
+  },
+  "A1|H_cal_blf31": {
+   "w_bias_g": 161.60451999999057,
+   "comparator": "A1|H_cal_path",
+   "held_max_N": 581.8,
+   "margin_to_650_N": 68.20000000000005,
+   "runs_above_650": 0,
+   "b_sys_min": -0.015030582787290525,
+   "b_sys_p50": 0.009087340100934038,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.97,
+   "mhe_fc_min_max": [
+    0.0061135117184172305,
+    0.01712731994859862
+   ],
+   "Ftrue_max_fc_N": 562.4512683581019,
+   "cmp_held_max_N": 576.7,
+   "cmp_miss670": "0/1000",
+   "cmp_b_sys_min": -0.027123267568816667,
+   "cmp_P": 0.975
+  },
+  "B1|H_cal_blf31": {
+   "w_bias_g": 568.8491599998334,
+   "comparator": "rev1 B1|H_cal",
+   "held_max_N": 589.1,
+   "margin_to_650_N": 60.89999999999998,
+   "runs_above_650": 0,
+   "b_sys_min": -0.051616885506924004,
+   "b_sys_p50": 0.03826065103511245,
+   "miss670": "1/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.965,
+   "mhe_fc_min_max": [
+    0.03239722852587357,
+    0.05152398632924826
+   ],
+   "Ftrue_max_fc_N": 562.4508268572921,
+   "cmp_held_max_N": 570.2,
+   "cmp_miss670": "0/1000",
+   "cmp_b_sys_min": -0.0330470262035667,
+   "cmp_P": 0.985
+  },
+  "B1|H_cal_comp_blf31": {
+   "w_bias_g": 568.8491599998334,
+   "comparator": "rev1 B1|H_cal_comp",
+   "held_max_N": 589.2,
+   "margin_to_650_N": 60.799999999999955,
+   "runs_above_650": 0,
+   "b_sys_min": 0.027441249723156202,
+   "b_sys_p50": 0.038701547350818766,
+   "miss670": "0/1000",
+   "pre_onset_alarms_670": 0,
+   "miss876": "0/1000",
+   "P": 0.985,
+   "mhe_fc_min_max": [
+    0.03239722852587357,
+    0.0515200286581492
+   ],
+   "Ftrue_max_fc_N": 562.4507786114897,
+   "cmp_held_max_N": 569.8,
+   "cmp_miss670": "0/1000",
+   "cmp_b_sys_min": -0.009075509977221063,
+   "cmp_P": 0.98
+  }
+ },
+ "budget": {
+  "H_cal_path": {
+   "F_true_max_fc_N": 562.4512683581019,
+   "miss_side": {
+    "random_1sigma": 0.012947564550841208,
+    "frame_1sigma": 0.0128683205477746,
+    "mass_1sigma": 0.0014302985974690339,
+    "bias_sum": 0.013832957409968816,
+    "total": 0.05267565106249244,
+    "purge_term": 0.0034960882995152542,
+    "formB_per_flight": {
+     "run_1sigma": 0.007611713918243417,
+     "random_1sigma": 0.0077449301385553145,
+     "bias_sum": 0.013832957409968816,
+     "total": 0.03706774782563476
+    },
+    "stuck_N": 670.0,
+    "detected_F_N": 634.7073137881301,
+    "passes": false,
+    "allowed_total": 0.02985074626865669,
+    "formB_passes": false
+   },
+   "over_read_booked": {
+    "random_1sigma": 0.010856812407006543,
+    "frame_1sigma": 0.010762184795059474,
+    "mass_1sigma": 0.0014302985974690339,
+    "bias_sum": 0.010336869110453561,
+    "total": 0.04290730633147319,
+    "purge_term": 0.0,
+    "formB_per_flight": {
+     "run_1sigma": 0.002820427886907061,
+     "random_1sigma": 0.0031623673953487625,
+     "bias_sum": 0.010336869110453561,
+     "total": 0.019823971296499848
+    },
+    "worst_estimate_N": 586.5845372260685,
+    "passes": true
+   },
+   "over_read_not_booked": {
+    "random_1sigma": 0.010856812407006543,
+    "frame_1sigma": 0.010762184795059474,
+    "mass_1sigma": 0.0014302985974690339,
+    "bias_sum": 0.016008301240778306,
+    "total": 0.04857873846179793,
+    "purge_term": 0.0056714321303247455,
+    "formB_per_flight": {
+     "run_1sigma": 0.002820427886907061,
+     "random_1sigma": 0.0031623673953487625,
+     "bias_sum": 0.016008301240778306,
+     "total": 0.025495403426824593
+    },
+    "worst_estimate_N": 589.7744414211766,
+    "passes": true
+   }
+  },
+  "H_cal_comp_path": {
+   "F_true_max_fc_N": 562.4512683581019,
+   "miss_side": {
+    "random_1sigma": 0.010571363176765228,
+    "frame_1sigma": 0.010474157022746313,
+    "mass_1sigma": 0.0014302985974690339,
+    "bias_sum": 0.012812131803015492,
+    "total": 0.044526221333311175,
+    "purge_term": 0.0034960882995152542,
+    "formB_per_flight": {
+     "run_1sigma": 0.0037529672510885808,
+     "random_1sigma": 0.004016281522212463,
+     "bias_sum": 0.012812131803015492,
+     "total": 0.02486097636965288
+    },
+    "stuck_N": 670.0,
+    "detected_F_N": 640.1674317066816,
+    "passes": false,
+    "allowed_total": 0.02985074626865669,
+    "formB_passes": true
+   },
+   "over_read_booked": {
+    "random_1sigma": 0.010334210864222716,
+    "frame_1sigma": 0.010234752567028523,
+    "mass_1sigma": 0.0014302985974690339,
+    "bias_sum": 0.009316043503500238,
+    "total": 0.040318676096168383,
+    "purge_term": 0.0,
+    "formB_per_flight": {
+     "run_1sigma": 0.0027600270234013494,
+     "random_1sigma": 0.0031086175782536517,
+     "bias_sum": 0.009316043503500238,
+     "total": 0.018641896238261194
+    },
+    "worst_estimate_N": 585.1285588669112,
+    "passes": true
+   },
+   "over_read_not_booked": {
+    "random_1sigma": 0.010334210864222716,
+    "frame_1sigma": 0.010234752567028523,
+    "mass_1sigma": 0.0014302985974690339,
+    "bias_sum": 0.014987475633824982,
+    "total": 0.04599010822649313,
+    "purge_term": 0.0056714321303247455,
+    "formB_per_flight": {
+     "run_1sigma": 0.0027600270234013494,
+     "random_1sigma": 0.0031086175782536517,
+     "bias_sum": 0.014987475633824982,
+     "total": 0.024313328368585938
+    },
+    "worst_estimate_N": 588.3184630620193,
+    "passes": true
+   }
+  }
+ }
+}

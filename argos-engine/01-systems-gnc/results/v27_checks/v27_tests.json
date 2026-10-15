@@ -1,0 +1,469 @@
+{
+ "version": "m2_v27_tests v1.1",
+ "sim": "sim6 v2.7-dev (2026-10-13)",
+ "iface": "/home/claude/work/space/iface_v3c",
+ "n_fail": 0,
+ "failures": [],
+ "n_info": 17,
+ "checks": [
+  {
+   "test": "T10a Pc loop: thrust and flow per command",
+   "result": "PASS",
+   "detail": "200 floor samples, g(t) 0.0642-0.0723, k_cf(20 %) 0.0421: max |F/F_pc / ((1+g)(1+k g)) - 1| 4.36e-06, max |flow ratio / (1+g) - 1| 0.0001 (75 paired samples)"
+  },
+  {
+   "test": "T10c growth law",
+   "result": "PASS",
+   "detail": "g non-decreasing True; g_end 0.090000 = g min(1, J/J_ref) 0.090000 (J 7.6850, J_ref 7.4267); recorder end 0.090000"
+  },
+  {
+   "test": "T10b compensated loop: thrust and flow per command",
+   "result": "PASS",
+   "detail": "200 floor samples: max |F/F_pc - 1| 0.0e+00, max |flow ratio x (1 + k g) - 1| 0.0000"
+  },
+  {
+   "test": "T10d J_ref reproduces the Monte Carlo value",
+   "result": "PASS",
+   "detail": "J_ref B1 7.426678695627477 vs throat_growth.json 7.426678695627477"
+  },
+  {
+   "test": "T10e defaults bit-identical",
+   "result": "PASS",
+   "detail": "vs v2.6 runs (iface_v3c): True (3738 values, 3 cases); vs v2.5 runs (iface_v3a) with sim6 v2.7-dev (2026-10-13): True (2720 values)"
+  },
+  {
+   "test": "T11a k_est_asc 2 unbiased on the nominal B1",
+   "result": "PASS",
+   "detail": "max |k_hat - 1| 0.0019 over 1311 samples (t > 1.5 s, ascent / apex / floor)"
+  },
+  {
+   "test": "T11b k_est_asc 2 tracks the growth (g 0.09)",
+   "result": "PASS",
+   "detail": "200 floor samples: true k 1.0618-1.0701, max |k_hat / k - 1| 0.0014"
+  },
+  {
+   "test": "T11c floor compensation",
+   "result": "PASS",
+   "detail": "max |F_cmd - 100 N / k_hat| 1.69 N (half step 2.5 N + 0.5 N deadband), delivered floor 100.9-101.6 N"
+  },
+  {
+   "test": "T11d B1 85 m closes with g 0.11 and k_est_asc 2",
+   "result": "PASS",
+   "detail": "reserve 25.0 % (rule 25 %), burn 18.13 s vs 19.00 s (engine-on counters), apex 84.8 m"
+  },
+  {
+   "test": "T11e rejected first form (k_est_asc 1)",
+   "result": "INFO",
+   "detail": "no growth: k_hat min 0.891 / max 1.054 in ascent / floor (truth 1.000), apex 88.7 m vs 83.7 m with option 2"
+  },
+  {
+   "test": "T12 accel bias +0.05 m/s2",
+   "result": "INFO",
+   "detail": "k_hat error on the floor +0.86 % (analytic 0.72 %), k_hat / k_true 1.000-1.009 (phases 2-3, max tilt 0.0 deg), apex 83.1 m, burn 17.95 s, landed-ok True, td_vh 0.00 | comparator k_est_asc 0: landed-ok True, apex 83.7 m, burn 18.03 s, td_vh 0.00, max tilt 0.0 deg"
+  },
+  {
+   "test": "T12 accel bias -0.05 m/s2",
+   "result": "INFO",
+   "detail": "k_hat error on the floor -0.58 % (analytic 0.72 %), k_hat / k_true 0.992-1.003 (phases 2-3, max tilt 0.0 deg), apex 84.3 m, burn 18.15 s, landed-ok True, td_vh 0.00 | comparator k_est_asc 0: landed-ok True, apex 83.7 m, burn 18.06 s, td_vh 0.00, max tilt 0.0 deg"
+  },
+  {
+   "test": "T12 accel scale +0.5 %",
+   "result": "INFO",
+   "detail": "k_hat error on the floor +0.67 % (analytic 0.50 %), k_hat / k_true 1.001-1.009 (phases 2-3, max tilt 0.0 deg), apex 83.3 m, burn 17.98 s, landed-ok True, td_vh 0.00 | comparator k_est_asc 0: landed-ok True, apex 83.7 m, burn 18.03 s, td_vh 0.00, max tilt 0.0 deg"
+  },
+  {
+   "test": "T12 accel scale -0.5 %",
+   "result": "INFO",
+   "detail": "k_hat error on the floor -0.39 % (analytic 0.50 %), k_hat / k_true 0.995-1.001 (phases 2-3, max tilt 0.0 deg), apex 84.1 m, burn 18.13 s, landed-ok True, td_vh 0.00 | comparator k_est_asc 0: landed-ok True, apex 83.7 m, burn 18.06 s, td_vh 0.00, max tilt 0.0 deg"
+  },
+  {
+   "test": "T12 truth CA_tf x 0.7",
+   "result": "INFO",
+   "detail": "k_hat error on the floor -0.46 %, k_hat / k_true 0.994-1.005 (phases 2-3, max tilt 0.0 deg), apex 83.7 m, burn 18.05 s, landed-ok True, td_vh 0.00 | comparator k_est_asc 0: landed-ok True, apex 83.7 m, burn 18.04 s, td_vh 0.00, max tilt 0.0 deg"
+  },
+  {
+   "test": "T12 truth CA_tf x 1.3",
+   "result": "INFO",
+   "detail": "k_hat error on the floor +0.74 %, k_hat / k_true 0.999-1.010 (phases 2-3, max tilt 0.0 deg), apex 83.7 m, burn 18.07 s, landed-ok True, td_vh 0.00 | comparator k_est_asc 0: landed-ok True, apex 83.7 m, burn 18.06 s, td_vh 0.00, max tilt 0.0 deg"
+  },
+  {
+   "test": "T12 truth k_retro 0.25",
+   "result": "INFO",
+   "detail": "k_hat error on the floor -0.19 %, k_hat / k_true 0.997-1.005 (phases 2-3, max tilt 0.0 deg), apex 83.7 m, burn 18.06 s, landed-ok True, td_vh 0.00 | comparator k_est_asc 0: landed-ok True, apex 83.7 m, burn 18.04 s, td_vh 0.00, max tilt 0.0 deg"
+  },
+  {
+   "test": "T12 truth k_retro 0.75",
+   "result": "INFO",
+   "detail": "k_hat error on the floor +0.47 %, k_hat / k_true 0.999-1.006 (phases 2-3, max tilt 0.0 deg), apex 83.7 m, burn 18.07 s, landed-ok True, td_vh 0.00 | comparator k_est_asc 0: landed-ok True, apex 83.7 m, burn 18.05 s, td_vh 0.00, max tilt 0.0 deg"
+  },
+  {
+   "test": "T12 wind 8 m/s steady",
+   "result": "INFO",
+   "detail": "k_hat error on the floor -0.20 %, k_hat / k_true 0.982-1.003 (phases 2-3, max tilt 14.0 deg), apex 84.7 m, burn 18.36 s, landed-ok True, td_vh 0.14 | comparator k_est_asc 0: landed-ok True, apex 84.1 m, burn 18.25 s, td_vh 0.14, max tilt 13.9 deg"
+  },
+  {
+   "test": "T12 wind 6 m/s + gusts seed 7",
+   "result": "INFO",
+   "detail": "k_hat error on the floor -0.14 %, k_hat / k_true 0.983-1.004 (phases 2-3, max tilt 9.5 deg), apex 84.5 m, burn 18.25 s, landed-ok True, td_vh 0.11 | comparator k_est_asc 0: landed-ok True, apex 83.7 m, burn 18.15 s, td_vh 0.03, max tilt 9.5 deg"
+  },
+  {
+   "test": "T12 wind 8 m/s + gusts seed 3",
+   "result": "INFO",
+   "detail": "k_hat error on the floor +0.61 %, k_hat / k_true 0.980-1.009 (phases 2-3, max tilt 11.4 deg), apex 84.5 m, burn 18.26 s, landed-ok True, td_vh 0.15 | comparator k_est_asc 0: landed-ok True, apex 83.7 m, burn 18.16 s, td_vh 0.09, max tilt 11.4 deg"
+  },
+  {
+   "test": "T12 wind 8 m/s + gusts seed 7",
+   "result": "INFO",
+   "detail": "k_hat error on the floor -8.49 %, k_hat / k_true 0.757-1.003 (phases 2-3, max tilt 92.7 deg), apex 62.1 m, burn 12.77 s, landed-ok False, td_vh 1.39 | comparator k_est_asc 0: landed-ok False, apex 60.5 m, burn 12.01 s, td_vh 6.10, max tilt 107.5 deg"
+  },
+  {
+   "test": "T12 thrust scale 0.95",
+   "result": "INFO",
+   "detail": "k_hat error on the floor +0.14 %, k_hat / k_true 0.999-1.018 (phases 2-3, max tilt 0.0 deg), apex 84.0 m, burn 18.15 s, landed-ok True, td_vh 0.00 | comparator k_est_asc 0: landed-ok True, apex 81.2 m, burn 17.46 s, td_vh 0.00, max tilt 0.0 deg"
+  },
+  {
+   "test": "T12 thrust scale 1.05",
+   "result": "INFO",
+   "detail": "k_hat error on the floor +0.14 %, k_hat / k_true 0.952-1.002 (phases 2-3, max tilt 0.0 deg), apex 84.4 m, burn 18.01 s, landed-ok True, td_vh 0.00 | comparator k_est_asc 0: landed-ok True, apex 92.6 m, burn 19.80 s, td_vh 0.00, max tilt 0.0 deg"
+  },
+  {
+   "test": "T12 k_est_asc 2 loses no perturbed flight the comparator lands",
+   "result": "PASS",
+   "detail": "14 perturbations; lost vs k_est_asc 0: none; both fail: ['wind 8 m/s + gusts seed 7']; gained: none; nominal apex 83.7 m, burn 18.06 s"
+  },
+  {
+   "test": "T12 low-thrust start",
+   "result": "INFO",
+   "detail": "not flown: the B start is a full-thrust step and the vehicle is airborne before the 1 s gate; on the pad the accelerometer reads the ground reaction (specific force = g whatever the thrust), so a slow start would bias the estimate: option 2 also requires h_est > 1 m (airborne gate, sim6 v2.7); the gate changes no Monte Carlo run (tg_B1_none_k2 and tg_B1_pc_k2 byte-identical)"
+  },
+  {
+   "test": "T13 A1 landing-burn estimator",
+   "result": "INFO",
+   "detail": "option 0: k_hat 1.000-1.033 (true 1.000-1.000), landed-ok True, td_vz -0.97; option 2: k_hat 0.996-1.004 (true 1.000-1.000), landed-ok True, td_vz -0.98; option 0, g 0.11: k_hat 1.000-1.105 (true 1.061-1.117), landed-ok True, td_vz -1.01; option 2, g 0.11: k_hat 1.000-1.105 (true 1.061-1.115), landed-ok True, td_vz -1.00"
+  }
+ ],
+ "t12_rows": [
+  {
+   "case": "accel bias +0.05 m/s2",
+   "k_err_floor": 0.00858335522147548,
+   "analytic": 0.007189886871192988,
+   "k_ratio_min_max_floor_ascent_descent": [
+    1.0002085913339032,
+    1.0090101432503589
+   ],
+   "max_tilt_phase23_deg": 0.0,
+   "apex_m": 83.10612269422231,
+   "burn_s": 17.95299999999896,
+   "landed_ok": true,
+   "td_vz": -1.1320334112371633,
+   "td_vh": 0.0,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 83.67133386565925,
+    "burn_s": 18.032999999999056,
+    "td_vh": 0.0,
+    "tipover": false,
+    "max_tilt_phase23_deg": 0.0
+   }
+  },
+  {
+   "case": "accel bias -0.05 m/s2",
+   "k_err_floor": -0.005779955637525607,
+   "analytic": 0.007183395741696302,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.9917597691458876,
+    1.002933249580408
+   ],
+   "max_tilt_phase23_deg": 0.0,
+   "apex_m": 84.33500252545163,
+   "burn_s": 18.154999999999205,
+   "landed_ok": true,
+   "td_vz": -1.1326516744784008,
+   "td_vh": 0.0,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 83.6681456432386,
+    "burn_s": 18.057999999999087,
+    "td_vh": 0.0,
+    "tipover": false,
+    "max_tilt_phase23_deg": 0.0
+   }
+  },
+  {
+   "case": "accel scale +0.5 %",
+   "k_err_floor": 0.006677071771647351,
+   "analytic": 0.005,
+   "k_ratio_min_max_floor_ascent_descent": [
+    1.0011204546555903,
+    1.0093112698079543
+   ],
+   "max_tilt_phase23_deg": 0.0,
+   "apex_m": 83.25407351164102,
+   "burn_s": 17.982999999998995,
+   "landed_ok": true,
+   "td_vz": -1.1264839483830305,
+   "td_vh": 0.0,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 83.670282262182,
+    "burn_s": 18.02899999999905,
+    "td_vh": 0.0,
+    "tipover": false,
+    "max_tilt_phase23_deg": 0.0
+   }
+  },
+  {
+   "case": "accel scale -0.5 %",
+   "k_err_floor": -0.00388713752218396,
+   "analytic": 0.005,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.9947151376458586,
+    1.0012396706693367
+   ],
+   "max_tilt_phase23_deg": 0.0,
+   "apex_m": 84.09933546072914,
+   "burn_s": 18.128999999999174,
+   "landed_ok": true,
+   "td_vz": -1.1280469152378356,
+   "td_vh": 0.0,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 83.67560280189903,
+    "burn_s": 18.06199999999909,
+    "td_vh": 0.0,
+    "tipover": false,
+    "max_tilt_phase23_deg": 0.0
+   }
+  },
+  {
+   "case": "truth CA_tf x 0.7",
+   "k_err_floor": -0.004605558103692641,
+   "analytic": null,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.993897622951225,
+    1.0052478617262355
+   ],
+   "max_tilt_phase23_deg": 0.0,
+   "apex_m": 83.71155556936178,
+   "burn_s": 18.05099999999908,
+   "landed_ok": true,
+   "td_vz": -1.1429925315642757,
+   "td_vh": 0.0,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 83.6719960080337,
+    "burn_s": 18.03599999999906,
+    "td_vh": 0.0,
+    "tipover": false,
+    "max_tilt_phase23_deg": 0.0
+   }
+  },
+  {
+   "case": "truth CA_tf x 1.3",
+   "k_err_floor": 0.007351294652395091,
+   "analytic": null,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.9992977706376392,
+    1.0096842172288427
+   ],
+   "max_tilt_phase23_deg": 0.0,
+   "apex_m": 83.71155556936178,
+   "burn_s": 18.074999999999108,
+   "landed_ok": true,
+   "td_vz": -1.1427406235130737,
+   "td_vh": 0.0,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 83.6719960080337,
+    "burn_s": 18.05999999999909,
+    "td_vh": 0.0,
+    "tipover": false,
+    "max_tilt_phase23_deg": 0.0
+   }
+  },
+  {
+   "case": "truth k_retro 0.25",
+   "k_err_floor": -0.0019327493351526898,
+   "analytic": null,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.9974497407358076,
+    1.0052478617262355
+   ],
+   "max_tilt_phase23_deg": 0.0,
+   "apex_m": 83.71155556936178,
+   "burn_s": 18.056999999999086,
+   "landed_ok": true,
+   "td_vz": -1.135705475908478,
+   "td_vh": 0.0,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 83.6719960080337,
+    "burn_s": 18.04399999999907,
+    "td_vh": 0.0,
+    "tipover": false,
+    "max_tilt_phase23_deg": 0.0
+   }
+  },
+  {
+   "case": "truth k_retro 0.75",
+   "k_err_floor": 0.004709154377342209,
+   "analytic": null,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.9992977706376392,
+    1.0062188919817552
+   ],
+   "max_tilt_phase23_deg": 0.0,
+   "apex_m": 83.71155556936178,
+   "burn_s": 18.071999999999104,
+   "landed_ok": true,
+   "td_vz": -1.1314879822533488,
+   "td_vh": 0.0,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 83.6719960080337,
+    "burn_s": 18.05299999999908,
+    "td_vh": 0.0,
+    "tipover": false,
+    "max_tilt_phase23_deg": 0.0
+   }
+  },
+  {
+   "case": "wind 8 m/s steady",
+   "k_err_floor": -0.0020295529669278212,
+   "analytic": null,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.9824910509986656,
+    1.0030482502047766
+   ],
+   "max_tilt_phase23_deg": 13.990551049329037,
+   "apex_m": 84.71950228585877,
+   "burn_s": 18.360999999999457,
+   "landed_ok": true,
+   "td_vz": -1.1853009825078762,
+   "td_vh": 0.14044066459203683,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 84.0559859609336,
+    "burn_s": 18.250999999999323,
+    "td_vh": 0.1374557014385602,
+    "tipover": false,
+    "max_tilt_phase23_deg": 13.931292093344483
+   }
+  },
+  {
+   "case": "wind 6 m/s + gusts seed 7",
+   "k_err_floor": -0.0014277345486164716,
+   "analytic": null,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.9827828094532877,
+    1.0040018900767012
+   ],
+   "max_tilt_phase23_deg": 9.466249387327467,
+   "apex_m": 84.49746462064148,
+   "burn_s": 18.250999999999323,
+   "landed_ok": true,
+   "td_vz": -1.1450559006962555,
+   "td_vh": 0.11197324141711769,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 83.68715954610563,
+    "burn_s": 18.152999999999203,
+    "td_vh": 0.029031071012341002,
+    "tipover": false,
+    "max_tilt_phase23_deg": 9.455139360170477
+   }
+  },
+  {
+   "case": "wind 8 m/s + gusts seed 3",
+   "k_err_floor": 0.006143621447579259,
+   "analytic": null,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.9800022860594177,
+    1.00882622922855
+   ],
+   "max_tilt_phase23_deg": 11.359060375025235,
+   "apex_m": 84.45372714917124,
+   "burn_s": 18.258999999999332,
+   "landed_ok": true,
+   "td_vz": -1.1781177814799377,
+   "td_vh": 0.14878566032397325,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 83.69557402584766,
+    "burn_s": 18.160999999999213,
+    "td_vh": 0.09228882238441093,
+    "tipover": false,
+    "max_tilt_phase23_deg": 11.388802572285075
+   }
+  },
+  {
+   "case": "wind 8 m/s + gusts seed 7",
+   "k_err_floor": -0.08488197570643433,
+   "analytic": null,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.7571236653597936,
+    1.0026794623973878
+   ],
+   "max_tilt_phase23_deg": 92.69332775597903,
+   "apex_m": 62.05755698608218,
+   "burn_s": 12.77399999999836,
+   "landed_ok": false,
+   "td_vz": -1.1321887687016274,
+   "td_vh": 1.3889009993690413,
+   "comparator_k0": {
+    "landed_ok": false,
+    "apex_m": 60.52757653398009,
+    "burn_s": 12.005999999998785,
+    "td_vh": 6.1045014550157335,
+    "tipover": true,
+    "max_tilt_phase23_deg": 107.52992965299235
+   }
+  },
+  {
+   "case": "thrust scale 0.95",
+   "k_err_floor": 0.0014038634403875062,
+   "analytic": null,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.9993245285540087,
+    1.0184732378743127
+   ],
+   "max_tilt_phase23_deg": 0.0,
+   "apex_m": 83.97800770411334,
+   "burn_s": 18.154999999999205,
+   "landed_ok": true,
+   "td_vz": -1.0854432718727591,
+   "td_vh": 0.0,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 81.17555083942587,
+    "burn_s": 17.460999999998357,
+    "td_vh": 0.0,
+    "tipover": false,
+    "max_tilt_phase23_deg": 0.0
+   }
+  },
+  {
+   "case": "thrust scale 1.05",
+   "k_err_floor": 0.0014280619718504883,
+   "analytic": null,
+   "k_ratio_min_max_floor_ascent_descent": [
+    0.9523809523809523,
+    1.0018993111457875
+   ],
+   "max_tilt_phase23_deg": 0.0,
+   "apex_m": 84.38357984249345,
+   "burn_s": 18.014999999999034,
+   "landed_ok": true,
+   "td_vz": -1.0849695703269637,
+   "td_vh": 0.0,
+   "comparator_k0": {
+    "landed_ok": true,
+    "apex_m": 92.6482447995783,
+    "burn_s": 19.799000000001215,
+    "td_vh": 0.0,
+    "tipover": false,
+    "max_tilt_phase23_deg": 0.0
+   }
+  }
+ ]
+}

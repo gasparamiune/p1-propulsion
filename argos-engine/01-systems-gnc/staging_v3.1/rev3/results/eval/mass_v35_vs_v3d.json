@@ -1,0 +1,938 @@
+{
+ "version": "m2_mass_v35 v1.0",
+ "date": "2026-10-13",
+ "inputs": {
+  "massprops_v3.5.json": {
+   "path": "/home/claude/work/mechanical/engine/03-cad/massprops_v3.5.json",
+   "sha256_16": "8c11e1e136fc59d8"
+  },
+  "BOM_v3.5.csv": {
+   "path": "/home/claude/work/mechanical/engine/03-cad/BOM_v3.5.csv",
+   "sha256_16": "503e412b31fe4794"
+  },
+  "massprops_v2.json (CAD v3.3)": {
+   "path": "/home/claude/work/mechanical/engine/03-cad/src/calcs/massprops_v2.json",
+   "sha256_16": "e730fca4c5ddda18"
+  },
+  "hub mechanical.json v2.1": {
+   "path": "/home/claude/work/shared-fallback/engine/interfaces/mechanical.json",
+   "sha256_16": "e4d3e7c9df529171"
+  },
+  "iface_v3d mechanical.json v2": {
+   "path": "/home/claude/work/space/iface_v3d/mechanical.json",
+   "sha256_16": "4f024ed4ccb4618c"
+  },
+  "mass_ledger_v3d.csv": {
+   "path": "/home/claude/work/space/out/vehicle_v3d/mass_ledger_v3d.csv",
+   "sha256_16": "e4fb6a40c28751cc"
+  }
+ },
+ "check_hub_v2p1_equals_v3d_flown": {
+  "dry_grain_burnt": true,
+  "ring": true,
+  "fixed_total": true
+ },
+ "pivot_station_m": 0.203,
+ "frame": "vehicle station z [m] = pivot station 0.203 (mechanical.json frames.rv1_station_of_pivot_m) + engine-frame z",
+ "mapping": [
+  {
+   "item": "P00 gimballed engine dry (no grain)",
+   "v35_m_kg": 2.39322,
+   "v35_z_m": 0.207,
+   "v35_source": "states.nograin.engine (CAD v3.5 solids + COTS items; grain excluded)",
+   "v3d_m_kg": 2.1565,
+   "v3d_z_m": 0.2092,
+   "delta_m_kg": 0.23672,
+   "delta_first_moment_kgm": 0.04424,
+   "gimballed": true
+  },
+  {
+   "item": "P06 gimbal ring group",
+   "v35_m_kg": 0.22795,
+   "v35_z_m": 0.21059,
+   "v35_source": "states.mid.ring",
+   "v3d_m_kg": 0.1236,
+   "v3d_z_m": 0.203,
+   "delta_m_kg": 0.10435,
+   "delta_first_moment_kgm": 0.02291,
+   "gimballed": false,
+   "note": "rotates about the outer (alpha) axis only; non-gimballed in the simulator as in v3d"
+  },
+  {
+   "item": "P07 fixed TVC module (CAD v3.3 fixed set)",
+   "v35_m_kg": 0.78754,
+   "v35_z_m": 0.158,
+   "v35_pn": [
+    "ENG-EL-04",
+    "ENG-GM-08",
+    "ENG-GM-09",
+    "ENG-GM-10",
+    "ENG-GM-11",
+    "ENG-GM-13",
+    "ENG-GM-14",
+    "ENG-GM-15",
+    "ENG-HW-20"
+   ],
+   "v35_mass_by_tag_kg": {
+    "ASSUMED": 0.003,
+    "CAD": 0.59854,
+    "DATASHEET": 0.024,
+    "INTERFACE": 0.162
+   },
+   "v3d_m_kg": 0.7875,
+   "v3d_z_m": 0.158,
+   "delta_m_kg": 4e-05,
+   "delta_first_moment_kgm": 3e-05,
+   "gimballed": false,
+   "v35_items": [
+    {
+     "pn": "ENG-EL-04",
+     "idx": 0,
+     "name": "Gimbal encoder, outer axis (alpha): AS5048A on a round PCB 20 x 2.8 recessed in the -X post bore (REQUEST to E",
+     "m_kg": 0.003,
+     "z_m": 0.203,
+     "tag": "ASSUMED"
+    },
+    {
+     "pn": "ENG-GM-08",
+     "idx": 0,
+     "name": "Yoke post (outer-axis bearing housing + frame post), x2",
+     "m_kg": 0.073378,
+     "z_m": 0.1702,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-08",
+     "idx": 1,
+     "name": "Yoke post (outer-axis bearing housing + frame post), x2",
+     "m_kg": 0.073378,
+     "z_m": 0.1702,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-09",
+     "idx": 0,
+     "name": "Upper thrust ring (engine module to airframe, thrust path)",
+     "m_kg": 0.152032,
+     "z_m": 0.2297,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-10",
+     "idx": 0,
+     "name": "Lower ring (stop ring, TVC servo base, frame tie)",
+     "m_kg": 0.192685,
+     "z_m": 0.1083,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-11",
+     "idx": 0,
+     "name": "Conical stop bumper, PU 90A, 8 deg line contact",
+     "m_kg": 0.009199,
+     "z_m": 0.1086,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-13",
+     "idx": 0,
+     "name": "TVC servo 1 bracket (C-frame: top/bottom ear blocks + back rail)",
+     "m_kg": 0.048935,
+     "z_m": 0.1436,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-14",
+     "idx": 0,
+     "name": "TVC servo 2 bracket (mirror of GM-13)",
+     "m_kg": 0.048935,
+     "z_m": 0.1436,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-15",
+     "idx": 0,
+     "name": "TVC servo Savox SB-2292SG (electronics.json)",
+     "m_kg": 0.081,
+     "z_m": 0.1429,
+     "tag": "INTERFACE"
+    },
+    {
+     "pn": "ENG-GM-15",
+     "idx": 1,
+     "name": "TVC servo Savox SB-2292SG (electronics.json)",
+     "m_kg": 0.081,
+     "z_m": 0.1429,
+     "tag": "INTERFACE"
+    },
+    {
+     "pn": "ENG-HW-20",
+     "idx": 2,
+     "name": "Deep-groove ball bearing 608-2RS (8x22x7)",
+     "m_kg": 0.012,
+     "z_m": 0.203,
+     "tag": "DATASHEET"
+    },
+    {
+     "pn": "ENG-HW-20",
+     "idx": 3,
+     "name": "Deep-groove ball bearing 608-2RS (8x22x7)",
+     "m_kg": 0.012,
+     "z_m": 0.203,
+     "tag": "DATASHEET"
+    }
+   ]
+  },
+  {
+   "item": "P09 <- MV module ENG-FS-*",
+   "v35_m_kg": 0.33643,
+   "v35_z_m": 0.5089,
+   "v35_pn": [
+    "ENG-FS-01A",
+    "ENG-FS-01B",
+    "ENG-FS-02",
+    "ENG-FS-03",
+    "ENG-FS-04",
+    "ENG-FS-06",
+    "ENG-FS-07",
+    "ENG-FS-08",
+    "ENG-FS-09",
+    "ENG-FS-10",
+    "ENG-FS-11",
+    "ENG-FS-12",
+    "ENG-FS-13",
+    "ENG-FS-14",
+    "ENG-FS-15"
+   ],
+   "v35_mass_by_tag_kg": {
+    "CAD": 0.17143,
+    "DATASHEET": 0.081,
+    "ESTIMATE": 0.084
+   },
+   "v3d_m_kg": 0.35,
+   "v3d_z_m": 0.5,
+   "delta_m_kg": -0.01357,
+   "delta_first_moment_kgm": -0.00378,
+   "gimballed": false,
+   "v35_items": [
+    {
+     "pn": "ENG-FS-01A",
+     "idx": 0,
+     "name": "MV module lower body (6061-T6): outlet chamber 18 x 12.3 (segment side), line flange face, J602 / MSS-2 / disc",
+     "m_kg": 0.052105,
+     "z_m": 0.4719,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FS-01B",
+     "idx": 0,
+     "name": "MV module upper body (6061-T6): seat web + PCTFE seat counterbore, inlet chamber 16, piston bore 11.9 H8, bala",
+     "m_kg": 0.044351,
+     "z_m": 0.4984,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FS-02",
+     "idx": 0,
+     "name": "MV-P poppet: disc 14 x 3 + stem 3 h7, hollow 1.2 (balance hole), M3 into FS-04",
+     "m_kg": 0.004641,
+     "z_m": 0.484,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FS-03",
+     "idx": 0,
+     "name": "MV-P soft seat insert PCTFE: land 11.5-12.5 x 0.3, OD 16 x 2.3 (retention lip TO-DESIGN)",
+     "m_kg": 0.000225,
+     "z_m": 0.4837,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FS-04",
+     "idx": 0,
+     "name": "MV-P balance piston 11.9 f7 + rod 4 h7 (one piece), seal groove, cross hole 1.2 into the balance chamber",
+     "m_kg": 0.007724,
+     "z_m": 0.5111,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FS-06",
+     "idx": 0,
+     "name": "MV actuator housing (dry side, 6061-T6): spring pocket, cam slot, 2x MR85 bearing bores (servo-side bore inboa",
+     "m_kg": 0.029176,
+     "z_m": 0.5368,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FS-07",
+     "idx": 0,
+     "name": "MV closing spring EN 10270-3 1.4310, d 1.8 / Dm 12 / n 6.6 active, L0 31.3, 85 N closed / 107.6 N open (mvp_v1",
+     "m_kg": 0.008,
+     "z_m": 0.5289,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-FS-08",
+     "idx": 0,
+     "name": "MV follower (17-4PH H900, flat hardened face) on the rod top, M3",
+     "m_kg": 0.004481,
+     "z_m": 0.5407,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FS-09",
+     "idx": 0,
+     "name": "MV cam (r 6.0 -> 8.8 over 45 deg, 15 deg dwell, width 5; closed 25 deg before the rise) + shaft 5 in 2x MR85-2",
+     "m_kg": 0.008125,
+     "z_m": 0.548,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FS-10",
+     "idx": 0,
+     "name": "MV opener servo Savox SB-2292SG (Electronics, commonality) on the housing +u face, spline coupled to the cam s",
+     "m_kg": 0.081,
+     "z_m": 0.5381,
+     "tag": "DATASHEET"
+    },
+    {
+     "pn": "ENG-FS-11",
+     "idx": 0,
+     "name": "MV latch + release + dashpot + OPEN/CLOSED microswitches: RESERVED ENVELOPE 16 x 12 x 30 (TO-DESIGN with Elect",
+     "m_kg": 0.025,
+     "z_m": 0.5375,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-FS-12",
+     "idx": 0,
+     "name": "S1 back-relief check, insert cartridge 5.5 mm class, crack 0.3-0.7 bar (outlet -> inlet chamber), N2O-compatib",
+     "m_kg": 0.002,
+     "z_m": 0.4897,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-FS-13",
+     "idx": 0,
+     "name": "Secondary rupture disc 9.5 MPa +/-5 %, reverse-acting, 1/4-18 NPT holder with 1/4 NPT outlet to the overboard ",
+     "m_kg": 0.045,
+     "z_m": 0.4735,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-FS-14",
+     "idx": 0,
+     "name": "Drain port plug 1/8-27 NPT flush socket plug 316 (ground drain/purge; segment low point of the module)",
+     "m_kg": 0.004,
+     "z_m": 0.466,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-FS-15",
+     "idx": 0,
+     "name": "MV module mounting bracket (6061-T6): 2x M4 to FS-01A/B, 2x M5 radial into the airframe wall at az 219.5 (ICD-",
+     "m_kg": 0.020603,
+     "z_m": 0.4993,
+     "tag": "CAD"
+    }
+   ]
+  },
+  {
+   "item": "P10 <- fixed feed items ENG-FD-*",
+   "v35_m_kg": 0.17472,
+   "v35_z_m": 0.3385,
+   "v35_pn": [
+    "ENG-FD-07",
+    "ENG-FD-07B",
+    "ENG-FD-08",
+    "ENG-FD-08F",
+    "ENG-FD-09",
+    "ENG-FD-11",
+    "ENG-FD-12F"
+   ],
+   "v35_mass_by_tag_kg": {
+    "CAD": 0.11877,
+    "ESTIMATE": 0.05595
+   },
+   "v3d_m_kg": 0.2,
+   "v3d_z_m": 0.403,
+   "delta_m_kg": -0.02528,
+   "delta_first_moment_kgm": -0.02146,
+   "gimballed": false,
+   "v35_items": [
+    {
+     "pn": "ENG-FD-07",
+     "idx": 0,
+     "name": "Feed hose 3/8 in convoluted PTFE / 316 braid, rising coil 203 deg, flexible length 180 mm",
+     "m_kg": 0.01895,
+     "z_m": 0.2762,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-FD-07B",
+     "idx": 0,
+     "name": "",
+     "m_kg": 0.025,
+     "z_m": 0.277,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-FD-08",
+     "idx": 0,
+     "name": "Fixed feed line 3/8 x 0.035 in 316L, 279 mm developed: 3D bend, vertical on the bay wall at az 219.5, R24 top ",
+     "m_kg": 0.053786,
+     "z_m": 0.3659,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FD-08F",
+     "idx": 0,
+     "name": "Line flange (316L): socket for FD-08, AS568-012 FKM face seal to FS-01A, 2x M4",
+     "m_kg": 0.013464,
+     "z_m": 0.4765,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FD-09",
+     "idx": 0,
+     "name": "Fixed hose-end clamp (6061-T6, base + cap, 2x M4 into GM-09 top face, bare aluminium on the sleeve), v3.4.1 re",
+     "m_kg": 0.038027,
+     "z_m": 0.2557,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-FD-11",
+     "idx": 0,
+     "name": "P-clip 3/8 in, 316 band + silicone cushion, M4 to the airframe wall (insert/rivet nut in the airframe = ICD)",
+     "m_kg": 0.004,
+     "z_m": 0.313,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-FD-11",
+     "idx": 1,
+     "name": "P-clip 3/8 in, 316 band + silicone cushion, M4 to the airframe wall (insert/rivet nut in the airframe = ICD)",
+     "m_kg": 0.004,
+     "z_m": 0.373,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-FD-11",
+     "idx": 2,
+     "name": "P-clip 3/8 in, 316 band + silicone cushion, M4 to the airframe wall (insert/rivet nut in the airframe = ICD)",
+     "m_kg": 0.004,
+     "z_m": 0.433,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-FD-12F",
+     "idx": 0,
+     "name": "Tank-line flange (316L) on FS-01B: socket for the tank line (route TO-DEFINE with the tank, ICD-5), AS568-012 ",
+     "m_kg": 0.013495,
+     "z_m": 0.4955,
+     "tag": "CAD"
+    }
+   ]
+  },
+  {
+   "item": "NEW bleed fixed side ENG-BL-*",
+   "v35_m_kg": 0.76393,
+   "v35_z_m": 0.5007,
+   "v35_pn": [
+    "ENG-BL-03F",
+    "ENG-BL-04",
+    "ENG-BL-04B",
+    "ENG-BL-05",
+    "ENG-BL-06",
+    "ENG-BL-07",
+    "ENG-BL-08",
+    "ENG-BL-10"
+   ],
+   "v35_mass_by_tag_kg": {
+    "ASSUMED": 0.65,
+    "CAD": 0.07494,
+    "DERIVED": 0.01169,
+    "ESTIMATE": 0.0273
+   },
+   "v3d_m_kg": 0.0,
+   "v3d_z_m": null,
+   "delta_m_kg": 0.76393,
+   "delta_first_moment_kgm": 0.38253,
+   "gimballed": false,
+   "v35_items": [
+    {
+     "pn": "ENG-BL-03F",
+     "idx": 0,
+     "name": "Bleed line fixed side: 1/8 x 0.028 in 316L, 266 mm developed (wall clamps to the airframe TO-DEFINE)",
+     "m_kg": 0.01169,
+     "z_m": 0.3815,
+     "tag": "DERIVED"
+    },
+    {
+     "pn": "ENG-BL-04",
+     "idx": 0,
+     "name": "Bleed crossing hose -2 class PTFE / 316 braid, bundled 23 mm above the FD-07 coil (same sweep), 180 mm",
+     "m_kg": 0.0063,
+     "z_m": 0.2991,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-BL-04B",
+     "idx": 0,
+     "name": "",
+     "m_kg": 0.006,
+     "z_m": 0.3,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-BL-05",
+     "idx": 0,
+     "name": "Bleed valve 2/2 NC solenoid, 12 V, seat >= 2 mm, sub-base mount (ENVELOPE \u00d836 x 90)",
+     "m_kg": 0.3,
+     "z_m": 0.513,
+     "tag": "ASSUMED"
+    },
+    {
+     "pn": "ENG-BL-05",
+     "idx": 1,
+     "name": "Bleed valve 2/2 NC solenoid, 12 V, seat >= 2 mm, sub-base mount (ENVELOPE \u00d836 x 90)",
+     "m_kg": 0.3,
+     "z_m": 0.513,
+     "tag": "ASSUMED"
+    },
+    {
+     "pn": "ENG-BL-06",
+     "idx": 0,
+     "name": "V2 vent bulkhead fitting (316L) through the bay wall at az 112; outside: non-propulsive opposed tee (airframe ",
+     "m_kg": 0.01,
+     "z_m": 0.463,
+     "tag": "ESTIMATE"
+    },
+    {
+     "pn": "ENG-BL-07",
+     "idx": 0,
+     "name": "Bleed valve manifold (6061-T6): V1/V2 pads, \u00d81.5 mid passage with P_mid port, \u00d83 V2 vent passage",
+     "m_kg": 0.07494,
+     "z_m": 0.4633,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-BL-08",
+     "idx": 0,
+     "name": "P_mid pressure transducer (ENVELOPE \u00d822 x 55, Electronics selects) on the manifold boss",
+     "m_kg": 0.05,
+     "z_m": 0.4985,
+     "tag": "ASSUMED"
+    },
+    {
+     "pn": "ENG-BL-10",
+     "idx": 0,
+     "name": "V1 inlet fitting (316L): fixed line BL-03F into the manifold",
+     "m_kg": 0.005,
+     "z_m": 0.463,
+     "tag": "ESTIMATE"
+    }
+   ]
+  },
+  {
+   "item": "NEW EL-11 P_feed transducer + EL-12 thermocouple",
+   "v35_m_kg": 0.065,
+   "v35_z_m": 0.4999,
+   "v35_pn": [
+    "ENG-EL-11",
+    "ENG-EL-12"
+   ],
+   "v35_mass_by_tag_kg": {
+    "ASSUMED": 0.05,
+    "ESTIMATE": 0.015
+   },
+   "v3d_m_kg": 0.0,
+   "v3d_z_m": null,
+   "delta_m_kg": 0.065,
+   "delta_first_moment_kgm": 0.03249,
+   "gimballed": false,
+   "v35_items": [
+    {
+     "pn": "ENG-EL-11",
+     "idx": 0,
+     "name": "P_feed transducer J602 TE M3234-000005 class, 1/4-18 NPT male, vertical on the FS-01A boss (Electronics part; ",
+     "m_kg": 0.05,
+     "z_m": 0.5075,
+     "tag": "ASSUMED"
+    },
+    {
+     "pn": "ENG-EL-12",
+     "idx": 0,
+     "name": "MSS-2 Type T MI thermocouple 1/16 in in a 1/16 x 1/8-27 NPT male connector (Electronics part; tip 9 mm into th",
+     "m_kg": 0.015,
+     "z_m": 0.4745,
+     "tag": "ESTIMATE"
+    }
+   ]
+  },
+  {
+   "item": "NEW horns (GM-16 group; omitted in v3d)",
+   "v35_m_kg": 0.01816,
+   "v35_z_m": 0.1327,
+   "v35_pn": [
+    "ENG-GM-16",
+    "ENG-GM-19",
+    "ENG-GM-20",
+    "ENG-HW-22-IR",
+    "ENG-HW-25"
+   ],
+   "v35_mass_by_tag_kg": {
+    "ASSUMED": 0.001,
+    "CAD": 0.01716
+   },
+   "v3d_m_kg": 0.0,
+   "v3d_z_m": null,
+   "delta_m_kg": 0.01816,
+   "delta_first_moment_kgm": 0.00241,
+   "gimballed": false,
+   "v35_items": [
+    {
+     "pn": "ENG-GM-16",
+     "idx": 0,
+     "name": "TVC horn r 11.1 mm, 25T clamp (7075-T6)",
+     "m_kg": 0.002177,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-16",
+     "idx": 1,
+     "name": "TVC horn r 11.1 mm, 25T clamp (7075-T6)",
+     "m_kg": 0.002177,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-19",
+     "idx": 0,
+     "name": "Joint spacer washer 5.1 x 7.5 x 1.5 (17-4PH H1150), ground faces",
+     "m_kg": 0.000278,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-19",
+     "idx": 1,
+     "name": "Joint spacer washer 5.1 x 7.5 x 1.5 (17-4PH H1150), ground faces",
+     "m_kg": 0.000278,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-19",
+     "idx": 3,
+     "name": "Joint spacer washer 5.1 x 7.5 x 1.5 (17-4PH H1150), ground faces",
+     "m_kg": 0.000278,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-19",
+     "idx": 4,
+     "name": "Joint spacer washer 5.1 x 7.5 x 1.5 (17-4PH H1150), ground faces",
+     "m_kg": 0.000278,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-20",
+     "idx": 0,
+     "name": "Horn-joint shoulder screw: head 8.5 x 4, 5 h7 x 10 shoulder, M4 x 3.5 (17-4PH)",
+     "m_kg": 0.003516,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-20",
+     "idx": 1,
+     "name": "Horn-joint shoulder screw: head 8.5 x 4, 5 h7 x 10 shoulder, M4 x 3.5 (17-4PH)",
+     "m_kg": 0.003516,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-HW-22-IR",
+     "idx": 0,
+     "name": "",
+     "m_kg": 0.002331,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-HW-22-IR",
+     "idx": 2,
+     "name": "",
+     "m_kg": 0.002331,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-HW-25",
+     "idx": 0,
+     "name": "Horn axial screw ISO 10642 M3 x 6 (countersunk, 10.9), Loctite 243",
+     "m_kg": 0.0005,
+     "z_m": 0.1327,
+     "tag": "ASSUMED"
+    },
+    {
+     "pn": "ENG-HW-25",
+     "idx": 1,
+     "name": "Horn axial screw ISO 10642 M3 x 6 (countersunk, 10.9), Loctite 243",
+     "m_kg": 0.0005,
+     "z_m": 0.1327,
+     "tag": "ASSUMED"
+    }
+   ]
+  },
+  {
+   "item": "NEW pushrods (GM-17 group; omitted in v3d)",
+   "v35_m_kg": 0.01841,
+   "v35_z_m": 0.1539,
+   "v35_pn": [
+    "ENG-GM-17",
+    "ENG-HW-22"
+   ],
+   "v35_mass_by_tag_kg": {
+    "CAD": 0.01841
+   },
+   "v3d_m_kg": 0.0,
+   "v3d_z_m": null,
+   "delta_m_kg": 0.01841,
+   "delta_first_moment_kgm": 0.00283,
+   "gimballed": false,
+   "v35_items": [
+    {
+     "pn": "ENG-GM-17",
+     "idx": 0,
+     "name": "TVC pushrod dog-bone 42.3 mm between eyes (7075-T6), fixed length",
+     "m_kg": 0.004208,
+     "z_m": 0.1539,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-GM-17",
+     "idx": 1,
+     "name": "TVC pushrod dog-bone 42.3 mm between eyes (7075-T6), fixed length",
+     "m_kg": 0.004208,
+     "z_m": 0.1539,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-HW-22",
+     "idx": 0,
+     "name": "Spherical plain bearing GE 5 E (steel/steel) - outer ring (pressed in the pushrod eye)",
+     "m_kg": 0.002499,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-HW-22",
+     "idx": 1,
+     "name": "Spherical plain bearing GE 5 E (steel/steel) - outer ring (pressed in the pushrod eye)",
+     "m_kg": 0.002499,
+     "z_m": 0.175,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-HW-22",
+     "idx": 2,
+     "name": "Spherical plain bearing GE 5 E (steel/steel) - outer ring (pressed in the pushrod eye)",
+     "m_kg": 0.002499,
+     "z_m": 0.1327,
+     "tag": "CAD"
+    },
+    {
+     "pn": "ENG-HW-22",
+     "idx": 3,
+     "name": "Spherical plain bearing GE 5 E (steel/steel) - outer ring (pressed in the pushrod eye)",
+     "m_kg": 0.002499,
+     "z_m": 0.175,
+     "tag": "CAD"
+    }
+   ]
+  }
+ ],
+ "totals": {
+  "landing_mass_delta_kg": {
+   "v": 1.1678,
+   "tag": "DERIVED (CAD v3.5 groups mapped on ledger v3d items)",
+   "note": "same propellant and grain; dry vehicle and landing mass grow by the same amount"
+  },
+  "gimballed_delta_kg": {
+   "v": 0.2367,
+   "tag": "DERIVED",
+   "note": "engine group nograin 2.39322 vs v3d P00 2.1565; +0.0565 v3.4.1 -> v3.5 (bleed lines engine side, GM-01/02 7075, TC-09 IN718) and the rest v3.3+ESTIMATE (mechanical.json v2) -> v3.4.1 CAD"
+  },
+  "fixed_delta_kg": {
+   "v": 0.931,
+   "tag": "DERIVED",
+   "note": "ring + P07 + P09/P10 replacements + new items"
+  },
+  "new_items_mass_by_tag_kg": {
+   "ASSUMED": 0.701,
+   "CAD": 0.11051,
+   "DERIVED": 0.01169,
+   "ESTIMATE": 0.0423
+  },
+  "first_moment_delta_kgm": 0.4622,
+  "delta_cg_station_m": 0.3958
+ },
+ "tvc_inertia_about_pivot_kgm2": {
+  "dry": {
+   "v3d_Ixx_Iyy": [
+    0.052909,
+    0.052864
+   ],
+   "v35_Ixx_Iyy": [
+    0.0555221,
+    0.0557475
+   ],
+   "change_pct": [
+    4.94,
+    5.45
+   ]
+  },
+  "wet_full_grain": {
+   "v3d_Ixx_Iyy": [
+    0.055531,
+    0.055487
+   ],
+   "v35_Ixx_Iyy": [
+    0.0582157,
+    0.0584411
+   ],
+   "change_pct": [
+    4.83,
+    5.32
+   ]
+  },
+  "mid_burn": {
+   "v3d_Ixx_Iyy": [
+    0.055018,
+    0.054974
+   ],
+   "v35_Ixx_Iyy": [
+    0.0576889,
+    0.0579143
+   ],
+   "change_pct": [
+    4.85,
+    5.35
+   ]
+  }
+ },
+ "gimballed_cg_mm": {
+  "v3d_dry": [
+   0.37,
+   1.07,
+   6.24
+  ],
+  "v35_nograin": [
+   -2.807,
+   1.035,
+   3.995
+  ],
+  "v35_mid": [
+   -2.456,
+   0.906,
+   -1.682
+  ],
+  "note": "v3.5 lateral CG offset x -2.8 mm (nograin) / -2.5 mm (mid) from the pivot (v3d +0.4 mm): static gimbal moment under axial load; not a thrust-line offset; not modelled in sim6"
+ },
+ "simulator": {
+  "derived_mechanical_json": {
+   "path": "/home/claude/work/space/iface_v35a/mechanical.json",
+   "sha256_16": "3edda3aaefad6867"
+  },
+  "pin_list": {
+   "path": "/home/claude/work/space/pins_rev3/pins_rev3_v35a.sha256",
+   "sha256_16": "c77a56322ece7124"
+  },
+  "p07_subset": {
+   "m_kg": 0.787542,
+   "cg_mm": [
+    -2.68,
+    0.0,
+    -44.971
+   ],
+   "v3d": {
+    "v": 0.7875,
+    "tag": "DERIVED",
+    "src": "everything fixed in CAD v3.3 incl. servos and encoder EL-04",
+    "cg_mm": [
+     -2.681,
+     -0.0,
+     -44.969
+    ]
+   }
+  },
+  "ballast_inertia_note": {
+   "spread_items_second_moment_about_ballast_kgm2": 0.01052,
+   "removed_P09_P10_second_moment_kgm2": 0.00129,
+   "tag": "DERIVED",
+   "note": "the point-mass ballast omits this net transverse inertia (+0.0092 kg m2) against a vehicle pitch inertia of order 2-3 kg m2"
+  },
+  "variants": {
+   "v35a": {
+    "label": "CAD v3.5 with ASSUMED bleed valves 2 x 0.30 kg (bracketing case, coordinator)",
+    "iface": "/home/claude/work/space/iface_v35a",
+    "ballast_kg": 0.82665,
+    "ballast_z_m": 0.4779,
+    "landing_mass_delta_kg": 1.1678
+   },
+   "v35t": {
+    "label": "CAD v3.5 with the bleed valves at the lead target 0.15 kg each (line 182 (3); DESIGN TARGET, no datasheet)",
+    "iface": "/home/claude/work/space/iface_v35a",
+    "ballast_kg": 0.52665,
+    "ballast_z_m": 0.4578,
+    "landing_mass_delta_kg": 0.8678
+   },
+   "v35g": {
+    "label": "attribution: gimballed engine, ring and P07 from CAD v3.5, fixed P09/P10/new items as v3d (no ballast)",
+    "iface": "/home/claude/work/space/iface_v35a",
+    "ballast_kg": 0.0,
+    "ballast_z_m": null,
+    "landing_mass_delta_kg": 0.3411
+   }
+  },
+  "closure": {
+   "v35a": {
+    "ledger_dm_kg": 1.16777,
+    "mapped_dm_kg": 1.1678,
+    "ok": true,
+    "ledger_dfirst_moment_kgm": 0.46038,
+    "gimballed_dm_kg": 0.23672,
+    "mapped_dfirst_moment_kgm": 0.4622,
+    "first_moment_ok": true
+   },
+   "v35t": {
+    "ledger_dm_kg": 0.86777,
+    "mapped_dm_kg": 0.8678,
+    "ok": true,
+    "ledger_dfirst_moment_kgm": 0.30648,
+    "gimballed_dm_kg": 0.23672
+   },
+   "v35g": {
+    "ledger_dm_kg": 0.34111,
+    "mapped_dm_kg": 0.3411,
+    "ok": true,
+    "ledger_dfirst_moment_kgm": 0.06535,
+    "gimballed_dm_kg": 0.23672
+   },
+   "v3d_ledger_dry_kg": 13.6706,
+   "note": "ledger = R.build(A1_none) item sum without propellant and grain (nominal, dry_scale 1); the ring's 7.6 mm CG offset is not represented (P06 at the pivot station, as v3d): first-moment tolerance 2e-3 kg m"
+  }
+ },
+ "open_items": [
+  "massprops_v3.5.1 (lead line 182 (8)) pending: TC-02 head fix (line 182 (1), 183 (1)), 608 bearing replacement (182 (2)), NZ-04 seal (182 (4)), bay-wall trims (182 (5)), GM-01/02 geometry change (183 (3)) may change mass -> re-fly v35a at v3.5.1 (coordinator)",
+  "bleed valves 2 x 0.30 kg ASSUMED (MASS RISK) until a maker datasheet (line 182 (3)); v35t flies the 0.15 kg target",
+  "EL-11 P_feed transducer and EL-12 thermocouple (0.065 kg) may overlap the v3d P12 'tank sensors' allowance (ASSUMED 0.25 kg): counted here (conservative); TO-VERIFY Electronics / Mechanical",
+  "fasteners not modelled in CAD v3.5 (v3d P07 upper +15 % ASSUMED); torch propane line fixed share not in v3.5 (TO-VERIFY Mechanical)",
+  "v3d omitted horns and pushrods (0.0366 kg) and labelled P07 as including them: ledger v3d error, corrected here"
+ ]
+}

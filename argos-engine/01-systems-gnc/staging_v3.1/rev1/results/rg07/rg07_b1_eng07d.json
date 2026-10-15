@@ -1,0 +1,353 @@
+{
+ "version": "m2_rg07_b1_eng07d v1",
+ "date": "2026-10-13",
+ "sim": "sim6 v2.8-dev (2026-10-13, amendments M, W, F, P, R)",
+ "method": "ENG-07d basis = the actuator overrides of the published A1J tables, copied from m2_eng03_rate base_ref('A1J_pc') (not retyped):\nact_model 1 (servo pair on the SB-2292SG DATASHEET torque-speed lines through the Cardan kinematics, hose spring), servo_V 6.6 V\nplug, act_n 4.8, supply chain v2.2_as_drawn/typ/15, interface inertia act_Jint, notch tracking the landing-burn rocking mode with\nthe mistune drawn U(1 +/- gim_notch_mis_w), gim_notch_q, gim_notch_db.\nArms (500 runs, seed 101, paired exact McNemar against the stored reference of the same FSW):\n  E07d_66      rbl_B1_lead62_pc_k2 (stored, FSW v2.7 provisional, P 0.996) + ENG-07d basis at 6.6 V\n  E07d_74      the same at 7.4 V (B-TVC-1 measures both voltages)\n  W1p_E07d_66  the current B1 flight FSW (burn limit action 1, Pc-based apex predictor: m2_web_limit W1p, P 0.994) + ENG-07d 6.6 V\nPairing: run6 draws the notch mistune from its own generator; the common dispersion columns are compared with the reference CSV.\nMore degrees of freedom (act_model 1) is not proof of accuracy: the servo lines are DATASHEET values; B-TVC-1 measures them.\nOutput: <out>/rg07_<arm>.csv, <out>/rg07_b1_eng07d.json",
+ "eng07d_overrides": {
+  "act_model": 1,
+  "servo_V": 6.6,
+  "act_n": 4.8,
+  "supply_chain": "v2.2_as_drawn/typ/15",
+  "supply_Vrest": null,
+  "act_Jint": 0.0016,
+  "gim_notch_track": 1.0,
+  "gim_notch_mis_w": 0.15,
+  "gim_notch_q": 1.0,
+  "gim_notch_db": -12.0
+ },
+ "arms": {
+  "E07d_66": {
+   "over": {
+    "act_model": 1,
+    "servo_V": 6.6,
+    "act_n": 4.8,
+    "supply_chain": "v2.2_as_drawn/typ/15",
+    "supply_Vrest": null,
+    "act_Jint": 0.0016,
+    "gim_notch_track": 1.0,
+    "gim_notch_mis_w": 0.15,
+    "gim_notch_q": 1.0,
+    "gim_notch_db": -12.0
+   },
+   "fsw": "v27",
+   "reference": "/home/claude/work/space/out/regband/mc6_runs_rbl_B1_lead62_pc_k2_rb.csv",
+   "vs_reference": {
+    "P_ref": 0.996,
+    "P_case": 0.992,
+    "lost": 3,
+    "gained": 1,
+    "p_exact": 0.625,
+    "n": 500
+   },
+   "P_wilson": [
+    0.9796126401630988,
+    0.9968847352024922
+   ],
+   "same_common_draws": {
+    "wind": true,
+    "gust_scale": true,
+    "isp_scale": true,
+    "thrust_scale": true,
+    "m_est_err": true,
+    "reg_a": true,
+    "reg_n": true,
+    "throat_g": true,
+    "mis_deg": true,
+    "cg_off_mm": true
+   },
+   "failures": [
+    {
+     "run": 25,
+     "td_vz": -1.2285368745975385,
+     "td_vh": 0.09598626338770161,
+     "td_tilt": 5.163889075822645,
+     "td_rate": 2.1239568306868355,
+     "crash": 0.0,
+     "exhausted": 0.0
+    },
+    {
+     "run": 145,
+     "td_vz": -1.248778212617579,
+     "td_vh": 0.8470280729092386,
+     "td_tilt": 4.33222676240904,
+     "td_rate": 0.8989849816849381,
+     "crash": 0.0,
+     "exhausted": 0.0
+    },
+    {
+     "run": 191,
+     "td_vz": -1.238353989863023,
+     "td_vh": 0.4824387326309054,
+     "td_tilt": 1.7466999341925908,
+     "td_rate": 10.502360376751739,
+     "crash": 0.0,
+     "exhausted": 0.0
+    },
+    {
+     "run": 331,
+     "td_vz": -1.2512176310987955,
+     "td_vh": 0.8130185376210133,
+     "td_tilt": 4.351719824097703,
+     "td_rate": 1.5506118086698653,
+     "crash": 0.0,
+     "exhausted": 0.0
+    }
+   ],
+   "max_gim_deg": {
+    "p50": 5.704237955763766,
+    "p99": 7.668866172624427,
+    "min": 1.7279685427166156,
+    "max": 8.0,
+    "n": 500
+   },
+   "max_gim_rate_dps": {
+    "p50": 61.74644624083718,
+    "p99": 160.84099986716447,
+    "min": 34.32196172170805,
+    "max": 171.09179389435423,
+    "n": 500
+   },
+   "act_sat_time_land_s": {
+    "p50": 0.0,
+    "p99": 0.01802999999999998,
+    "min": 0.0,
+    "max": 0.07900000000000006,
+    "n": 500
+   },
+   "td_vz": {
+    "p01": -1.2812629542701115,
+    "p50": -1.1756620345707267,
+    "min": -1.3110010243142338,
+    "max": -1.0458706127953958,
+    "n": 500
+   },
+   "td_vh": {
+    "p50": 0.1242785103706556,
+    "p99": 0.42356136056803056,
+    "min": 0.01051371537122032,
+    "max": 0.8470280729092386,
+    "n": 500
+   },
+   "h_max": {
+    "p50": 62.72933049348947,
+    "p99": 66.10561944654445,
+    "min": 50.94130961648247,
+    "max": 67.458345379155,
+    "n": 500
+   }
+  },
+  "E07d_74": {
+   "over": {
+    "act_model": 1,
+    "servo_V": 7.4,
+    "act_n": 4.8,
+    "supply_chain": "v2.2_as_drawn/typ/15",
+    "supply_Vrest": null,
+    "act_Jint": 0.0016,
+    "gim_notch_track": 1.0,
+    "gim_notch_mis_w": 0.15,
+    "gim_notch_q": 1.0,
+    "gim_notch_db": -12.0
+   },
+   "fsw": "v27",
+   "reference": "/home/claude/work/space/out/regband/mc6_runs_rbl_B1_lead62_pc_k2_rb.csv",
+   "vs_reference": {
+    "P_ref": 0.996,
+    "P_case": 0.992,
+    "lost": 3,
+    "gained": 1,
+    "p_exact": 0.625,
+    "n": 500
+   },
+   "P_wilson": [
+    0.9796126401630988,
+    0.9968847352024922
+   ],
+   "same_common_draws": {
+    "wind": true,
+    "gust_scale": true,
+    "isp_scale": true,
+    "thrust_scale": true,
+    "m_est_err": true,
+    "reg_a": true,
+    "reg_n": true,
+    "throat_g": true,
+    "mis_deg": true,
+    "cg_off_mm": true
+   },
+   "failures": [
+    {
+     "run": 25,
+     "td_vz": -1.2285368745975385,
+     "td_vh": 0.09598626338770161,
+     "td_tilt": 5.163889075822645,
+     "td_rate": 2.1239568306868355,
+     "crash": 0.0,
+     "exhausted": 0.0
+    },
+    {
+     "run": 145,
+     "td_vz": -1.248778212617579,
+     "td_vh": 0.8470280729092386,
+     "td_tilt": 4.33222676240904,
+     "td_rate": 0.8989849816849381,
+     "crash": 0.0,
+     "exhausted": 0.0
+    },
+    {
+     "run": 191,
+     "td_vz": -1.2395606757244504,
+     "td_vh": 0.4828763920862689,
+     "td_tilt": 1.7668661148827687,
+     "td_rate": 10.512730349505754,
+     "crash": 0.0,
+     "exhausted": 0.0
+    },
+    {
+     "run": 331,
+     "td_vz": -1.2512176310987955,
+     "td_vh": 0.8130185376210133,
+     "td_tilt": 4.351719824097703,
+     "td_rate": 1.5506118086698653,
+     "crash": 0.0,
+     "exhausted": 0.0
+    }
+   ],
+   "max_gim_deg": {
+    "p50": 5.704237955763766,
+    "p99": 7.668866172624427,
+    "min": 1.7279685427166156,
+    "max": 8.000000000000002,
+    "n": 500
+   },
+   "max_gim_rate_dps": {
+    "p50": 61.74644624083718,
+    "p99": 170.57299040039408,
+    "min": 34.32196172170805,
+    "max": 177.7062601134246,
+    "n": 500
+   },
+   "act_sat_time_land_s": {
+    "p50": 0.0,
+    "p99": 0.0,
+    "min": 0.0,
+    "max": 0.036000000000000025,
+    "n": 500
+   },
+   "td_vz": {
+    "p01": -1.2812629542701115,
+    "p50": -1.1756053061166047,
+    "min": -1.3110010243142338,
+    "max": -1.0458706127953958,
+    "n": 500
+   },
+   "td_vh": {
+    "p50": 0.1242785103706556,
+    "p99": 0.41680336378749844,
+    "min": 0.01051371537122032,
+    "max": 0.8470280729092386,
+    "n": 500
+   },
+   "h_max": {
+    "p50": 62.72933049348947,
+    "p99": 66.10561944654445,
+    "min": 50.946342581348574,
+    "max": 67.458345379155,
+    "n": 500
+   }
+  },
+  "W1p_E07d_66": {
+   "over": {
+    "act_model": 1,
+    "servo_V": 6.6,
+    "act_n": 4.8,
+    "supply_chain": "v2.2_as_drawn/typ/15",
+    "supply_Vrest": null,
+    "act_Jint": 0.0016,
+    "gim_notch_track": 1.0,
+    "gim_notch_mis_w": 0.15,
+    "gim_notch_q": 1.0,
+    "gim_notch_db": -12.0
+   },
+   "fsw": "W1p",
+   "reference": "/home/claude/work/space/out/web_limit/web_W1p.csv",
+   "vs_reference": {
+    "P_ref": 0.994,
+    "P_case": 0.998,
+    "lost": 0,
+    "gained": 2,
+    "p_exact": 0.5,
+    "n": 500
+   },
+   "P_wilson": [
+    0.9887590072528046,
+    0.9996468726904154
+   ],
+   "same_common_draws": {
+    "wind": true,
+    "gust_scale": true,
+    "isp_scale": true,
+    "thrust_scale": true,
+    "m_est_err": true,
+    "reg_a": true,
+    "reg_n": true,
+    "throat_g": true,
+    "mis_deg": true,
+    "cg_off_mm": true
+   },
+   "failures": [
+    {
+     "run": 415,
+     "td_vz": -1.2602127723402492,
+     "td_vh": 0.5552235430760997,
+     "td_tilt": 4.35327120031854,
+     "td_rate": 0.5928413326102357,
+     "crash": 0.0,
+     "exhausted": 0.0
+    }
+   ],
+   "max_gim_deg": {
+    "p50": 5.702034044916174,
+    "p99": 7.646373640096229,
+    "min": 1.611798352024839,
+    "max": 8.0,
+    "n": 500
+   },
+   "max_gim_rate_dps": {
+    "p50": 60.891868628882406,
+    "p99": 166.3150810853024,
+    "min": 34.57631622664688,
+    "max": 202.3267252736341,
+    "n": 500
+   },
+   "act_sat_time_land_s": {
+    "p50": 0.0,
+    "p99": 0.023010000000000003,
+    "min": 0.0,
+    "max": 0.07500000000000005,
+    "n": 500
+   },
+   "td_vz": {
+    "p01": -1.2806061010433218,
+    "p50": -1.1737548807106541,
+    "min": -1.3110010243142338,
+    "max": -1.0290580770200373,
+    "n": 500
+   },
+   "td_vh": {
+    "p50": 0.12337329701583591,
+    "p99": 0.37731408436643943,
+    "min": 0.007948905399424964,
+    "max": 0.5552235430760997,
+    "n": 500
+   },
+   "h_max": {
+    "p50": 62.98584552409534,
+    "p99": 68.9883275101881,
+    "min": 51.17302088491426,
+    "max": 69.93189457793096,
+    "n": 500
+   }
+  }
+ }
+}

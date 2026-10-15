@@ -1,0 +1,140 @@
+{
+ "tool": "m2_bitcheck_v28 v1.4",
+ "sim": "sim6 v2.8-dev (2026-10-13, amendments M, W, F, P, R)",
+ "iface": "/home/claude/work/space/iface_v3c",
+ "parts": {
+  "A_options_off_vs_v2.7.1-dev": {
+   "A1_none": {
+    "runs_checked": 12,
+    "failed_runs_included": 4,
+    "values_compared": 1104,
+    "mismatches": 0,
+    "first": [],
+    "reference": "/home/claude/work/space/out/relight_v28/mc6_runs_v28_liq_p0.81_A1_none_k2_v28.csv"
+   },
+   "A1J_pc": {
+    "runs_checked": 18,
+    "failed_runs_included": 10,
+    "values_compared": 1656,
+    "mismatches": 0,
+    "first": [],
+    "reference": "/home/claude/work/space/out/relight_v28/mc6_runs_v28_liq_p0.81_A1J_pc_k2_v28.csv"
+   },
+   "rbl_B1_lead62_pc_k2": {
+    "runs_checked": 10,
+    "failed_runs_included": 2,
+    "values_compared": 920,
+    "mismatches": 0,
+    "first": [],
+    "reference": "/home/claude/work/space/out/regband/mc6_runs_rbl_B1_lead62_pc_k2_rb.csv"
+   }
+  },
+  "B_T-RM1_capped_huge_map_identity": {},
+  "C_T-RM2_lookup": {
+   "points": 4000,
+   "outside_grid": 583,
+   "max_abs_diff_N_per_s": 0.0,
+   "passed": true
+  },
+  "D_T-RM3_rate_bounded_by_map": {
+   "cases": {
+    "A1|R1": {
+     "rise_rate_excess_N_per_s": -38.80800061964783,
+     "fall_rate_excess_N_per_s": -49.99999999972488,
+     "share_steps_at_open_limit": 0.02295952222959522,
+     "bind_t": 0.10700000000000008,
+     "bind_land": 0.0,
+     "bind_asc": 0.10700000000000008,
+     "P_tank_min_MPa": 4.028633075443969,
+     "P_tank_trigger_MPa": 4.419373379163507,
+     "landed_ok": true,
+     "passed": true
+    },
+    "A1|R3": {
+     "rise_rate_excess_N_per_s": -38.80003492012497,
+     "fall_rate_excess_N_per_s": -76.08328981395834,
+     "share_steps_at_open_limit": 0.022422714607934192,
+     "bind_t": 0.10700000000000008,
+     "bind_land": 0.0,
+     "bind_asc": 0.10700000000000008,
+     "P_tank_min_MPa": 4.0287771016345335,
+     "P_tank_trigger_MPa": 4.419458501410555,
+     "landed_ok": true,
+     "passed": true
+    },
+    "B1|R1": {
+     "rise_rate_excess_N_per_s": -38.80800061964783,
+     "fall_rate_excess_N_per_s": -49.999999998614385,
+     "share_steps_at_open_limit": 0.014919687638880071,
+     "bind_t": 0.11900000000000009,
+     "bind_land": 0.012000000000000004,
+     "bind_asc": 0.10700000000000008,
+     "P_tank_min_MPa": 4.074766113216699,
+     "P_tank_trigger_MPa": 4.357969417915764,
+     "landed_ok": true,
+     "passed": true
+    },
+    "B1|R3": {
+     "rise_rate_excess_N_per_s": -38.80003492012497,
+     "fall_rate_excess_N_per_s": -80.27331808463077,
+     "share_steps_at_open_limit": 0.014481560146746475,
+     "bind_t": 0.11500000000000009,
+     "bind_land": 0.008,
+     "bind_asc": 0.10700000000000008,
+     "P_tank_min_MPa": 4.088373871015409,
+     "P_tank_trigger_MPa": 4.369442241583546,
+     "landed_ok": true,
+     "passed": true
+    }
+   },
+   "note": "excess = max over lit steps (recorded command > 0) of the delivered thrust rate minus 1.02 x the map rate at the recorded state; shutdown transients (not lit) follow the sim6 shutdown model, not the map; R1 closing at 2500 N/s"
+  },
+  "E_T-LAT_latency_shift": {
+   "hold_steps": 56,
+   "max_abs_diff_N": 0.0,
+   "passed": true,
+   "note": "pad hold (vehicle not moving): F with 4 ms latency vs F without, shifted by 4 steps; the tank pressure differs slightly (different flow history), tolerance 0.5 N"
+  },
+  "F_T-DRV_model_B_twin": {
+   "steps": 16718,
+   "max_abs_diff_N": 0.001437638279753628,
+   "p99_abs_diff_N": 0.00017782903513704983,
+   "bind_t": 0.22000000000000017,
+   "landed_ok": true,
+   "passed": true,
+   "note": "numpy twin of Electronics' model B on the recorded target; the tank pressure is updated every 10 ms in sim6 (recorded at the end of the step): tolerance 1 N"
+  },
+  "R_T-REL_amendment_R": {
+   "R4_rel_F_derivation": {
+    "rel_F_N": 37.15933451611584,
+    "expected_N": 37.15933451611584,
+    "floor_N": 100.0,
+    "passed": true
+   },
+   "R1_A1_rule_identity": {
+    "runs": 20,
+    "rel_Pc_bar": 3.7212567375887464,
+    "mismatches": [],
+    "rel_t_equal": true,
+    "passed": true
+   },
+   "R2_A1_nominal_release": {
+    "t_light_s": 23.275000000005463,
+    "rel_t_s": 0.008000000000009777,
+    "rel_Fpc_N": 38.45095142746421,
+    "rel_F_N": 37.15933451611584,
+    "crossing_before_release": null,
+    "crossing_at_release": true,
+    "passed": true
+   },
+   "R3_A1_nominal_release": {
+    "t_light_s": 23.275000000005463,
+    "rel_t_s": 0.20000000000024443,
+    "rel_dt_s": 0.2,
+    "rel_Fpc_N": 99.30525210534357,
+    "passed": true
+   }
+  }
+ },
+ "all_passed": true
+}
