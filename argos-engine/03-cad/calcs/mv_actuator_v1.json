@@ -1,0 +1,209 @@
+{
+ "id": "mv_actuator",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/mv_actuator_v1.py",
+ "requirements": {
+  "MAWP_Pa": {
+   "v": 8420000.0,
+   "tag": "LEAD 2026-10-13: tank fire-case relieving 8.35 MPa + check crack 0.07"
+  },
+  "proof_Pa": {
+   "v": 10500000.0,
+   "tag": "LEAD 2026-10-13: tank proof"
+  },
+  "Cv_min": {
+   "v": 3.0,
+   "tag": "combustion.json isolation_valve.Cv_min (line budget)"
+  },
+  "dP_open_Pa": {
+   "v": 6500000.0,
+   "tag": "Electronics MV spec v1: pad first prepress, cold, O2-clean and dry"
+  },
+  "servo_stall_Nm": {
+   "v": 2.16,
+   "tag": "Electronics: SB-2292SG at 6.0 V (DATASHEET 2.157 N m)"
+  },
+  "servo_use_frac": {
+   "v": 0.5,
+   "tag": "Electronics MV spec v1: <= 50 % of stall"
+  },
+  "servo_angle_deg": {
+   "v": 45.0,
+   "tag": "Electronics MV spec v1: about 45 deg of horn"
+  },
+  "valve_angle_deg": {
+   "v": 90.0,
+   "tag": "quarter turn"
+  },
+  "spring_factor": {
+   "v": 2.0,
+   "tag": "Electronics MV spec v1: spring torque >= 2x running torque at the closing dP"
+  },
+  "close_time_s": {
+   "v": 0.1,
+   "tag": "Electronics MV spec v1: latch release to CLOSED switch"
+  },
+  "latch_factor": {
+   "v": 2.0,
+   "tag": "Electronics MV spec v1: holding force >= 2x spring force at the latch radius"
+  }
+ },
+ "A_swagelok_62T_ball": {
+  "spec": {
+   "body": "Swagelok 60 series, 3-piece, 316 SS, 3/8 in (62 series), reinforced PTFE seats, e.g. SS-62TS6 (3/8 in tube ends)",
+   "Cv": [
+    3.8,
+    "DATASHEET products.swagelok.com SS-62TS6"
+   ],
+   "orifice_mm": [
+    7.1,
+    "DATASHEET MS-01-146 (0.281 in)"
+   ],
+   "rating_psig_by_F": [
+    {
+     "-20..100": 2200,
+     "150": 1850,
+     "200": 1500,
+     "250": 1150
+    },
+    "DATASHEET MS-01-146 (2-way, reinforced PTFE)"
+   ],
+   "vent": [
+    "internal upstream ball vent NUV (e.g. SS-62TNUVS6); rated as the standard 2-way valve",
+    "DATASHEET MS-02-28 rev D (ordering NUV / NDV / UV / DV)"
+   ],
+   "cleaning": [
+    "SC-11 per MS-06-63, ASTM G93 Level C",
+    "DATASHEET MS-01-146; combination with NUV TO-VERIFY with the distributor"
+   ],
+   "torque_inlb_start_end": [
+    {
+     "0": [
+      18,
+      16
+     ],
+     "1000": [
+      22,
+      20
+     ],
+     "1500": [
+      25,
+      22
+     ],
+     "2200": [
+      26,
+      23
+     ]
+    },
+    "DATASHEET Swagelok MS-02-136 Table 7 (62T), temperature factor 1.0 at -20..100 F, media factor 1.0 (water, N2)"
+   ],
+   "price": "TO-QUOTE (Swagelok authorised distributor, delivery Sonderborg DK-6400)"
+  },
+  "psig_at_open_dP": 942.7,
+  "T_start_Nm": 2.46,
+  "T_run_Nm": 2.23,
+  "T_spring_closed_Nm": 4.47,
+  "T_spring_open_Nm": 5.36,
+  "T_valve_stem_max_Nm": 7.6,
+  "linkage_ratio_valve_over_servo_angle": 2.0,
+  "T_servo_required_Nm": 15.2,
+  "T_servo_allowed_Nm": 1.08,
+  "excess_factor": 14.1,
+  "servo_angle_needed_for_budget_deg": 633.0,
+  "opener_needed_rated_Nm_at_1to1": 15.2,
+  "verdict": "body meets MAWP/proof (151 bar at 37 C, 103 bar at 93 C), Cv 3.8, vent and SC-11; NOT openable by the SB-2292SG within 50 % of 2.16 N m",
+  "tag": "DERIVED from DATASHEET torques; ideal linkage (no losses), so the shortfall is a lower bound"
+ },
+ "B_balanced_poppet_MVP": {
+  "spec": {
+   "d_seat_mm": {
+    "v": 11.0,
+    "tag": "DESIGN: curtain area at full lift = seat bore area"
+   },
+   "lift_mm": {
+    "v": 2.75,
+    "tag": "DESIGN: d/4"
+   },
+   "Cd": {
+    "v": 0.65,
+    "tag": "ASSUMED poppet discharge coefficient (0.6-0.7)"
+   },
+   "d_balance_mm": {
+    "v": 11.4,
+    "tag": "DESIGN: balance piston slightly larger than the seat -> pressure bias toward CLOSED (fail-safe)"
+   },
+   "seal_friction_N": {
+    "v": 30.0,
+    "tag": "ASSUMED PTFE spring-energised balance seal at 6.5 MPa (10-30 N class); TO-VERIFY vendor / bench B-MV-1"
+   },
+   "seat_land_mm": {
+    "v": 0.5,
+    "tag": "DESIGN: PCTFE seat insert land width"
+   },
+   "seat_stress_MPa": {
+    "v": 7.5,
+    "tag": "ASSUMED PCTFE soft-seat sealing stress (5-10 MPa)"
+   },
+   "spring_rate_N_mm": {
+    "v": 8.0,
+    "tag": "DESIGN compression spring, 17-7PH or 302 SS, outside the wetted path"
+   },
+   "moving_mass_kg": {
+    "v": 0.015,
+    "tag": "ESTIMATE poppet + stem + follower"
+   },
+   "latch_lever_ratio": {
+    "v": 10.0,
+    "tag": "DESIGN over-centre latch lever: magnet force = spring load / 10"
+   },
+   "a_N2O_m_s": {
+    "v": 350.0,
+    "tag": "ASSUMED liquid N2O sound speed near saturation (300-400 m/s), TO-VERIFY"
+   },
+   "L_tank_to_MV_m": {
+    "v": 0.3,
+    "tag": "ASSUMED feed line length"
+   },
+   "mdot_kg_s": {
+    "v": 0.26,
+    "tag": "combustion.json max flow"
+   },
+   "rho_kg_m3": {
+    "v": 785.1,
+    "tag": "CoolProp 20 C (inlet_e1m)"
+   },
+   "d_line_mm": {
+    "v": 7.75,
+    "tag": "3/8 x 0.035 tube ID"
+   }
+  },
+  "A_seat_mm2": 95.0,
+  "A_curtain_mm2": 95.0,
+  "Cv": 3.64,
+  "F_bias_closed_N": 45.7,
+  "F_seat_need_N": 129.6,
+  "spring_closed_N": 85.0,
+  "spring_open_N": 107.0,
+  "F_open_max_N": 182.7,
+  "W_open_J": 0.472,
+  "cam_r_eff_mm": 3.5,
+  "T_servo_avg_Nm": 0.6,
+  "T_servo_peak_Nm": 0.64,
+  "T_servo_allowed_Nm": 1.08,
+  "servo_use_of_stall": 0.3,
+  "latch_hold_force_N_incl_2x": 30.5,
+  "t_close_undamped_s": 0.0008,
+  "closing_with_dashpot_s": 0.03,
+  "water_hammer": {
+   "v_line_m_s": 7.02,
+   "dP_Joukowsky_instant_MPa": 1.93,
+   "2L_over_a_s": 0.0017,
+   "dP_with_30ms_closing_MPa": 0.11,
+   "note": "an undamped poppet closes in ~1 ms: the tank-side surge would reach ~P_tank + 1.9 MPa (at the 8.42 MPa MAWP); a dashpot stretching the closing to ~30 ms cuts it to ~0.1 MPa"
+  },
+  "verdict": "fits the SB-2292SG budget (peak cam torque <= 50 % of 2.16 N m) with Cv >= 3; needs design, machining and bench test B-MV-1 (leak, Cv, opening force, closing time)",
+  "tag": "ESTIMATE (Mechanical concept, ASSUMED friction/seat/sound-speed inputs)"
+ }
+}

@@ -1,0 +1,1002 @@
+{
+ "id": "ENG-07-slew-v2",
+ "version": "v2",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/actuator_slew_v2.py",
+ "supersedes": "actuator_loads_v1.json rate_vs_angle (kept: v1 load 3.19 N m)",
+ "method": "Asked (independent GNC review REV-GNC-1 / coordinator 2026-10-13; gnc.json requests): recompute the engine slew rate with the\nv2 non-inertial hinge terms (sum 4.867 N m incl. the hose upper term 2.136 N m; 5.175 N m with the hose at the 20 N m/rad routing\nlimit) instead of the v1 sum 3.19 N m, at the 7.4 V nominal plug and the 6.6 V case, worst vector direction at 7 deg.",
+ "loads_Nm": {
+  "L_v1_3.19": 3.19,
+  "L_v2_terms": 4.8674,
+  "L_v2_hose_at_20Nm_rad": 5.1749,
+  "L_v34_O3b_coil_EI0.5": 3.6831,
+  "no_load": 0.0
+ },
+ "terms_v2_Nm": {
+  "vehicle_angular_accel": 0.607,
+  "axial_accel": 0.0158,
+  "lateral_accel": 0.0196,
+  "hose_radial_L0.40_upper": 2.136,
+  "bearing_seal_friction": 0.04,
+  "thrust_misalignment": 0.758,
+  "nozzle_side_load_floor": 1.291
+ },
+ "servo_points": {
+  "6.6": {
+   "stall_Nm": 2.54,
+   "noload_dps": 764.0
+  },
+  "7.4": {
+   "stall_Nm": 3.04,
+   "noload_dps": 857.0
+  },
+  "8.4": {
+   "stall_Nm": 4.413,
+   "noload_dps": 1091.0
+  }
+ },
+ "servo_src": "electronics.json v1 (stall 2.157/3.04/4.413 N m at 6.0/7.4/8.4 V; no-load 706/857/1091 deg/s) + Electronics tvc_slew_check_v1 interpolation (6.6/7.8/8.0 V); 7.6 V = mean of 7.4/7.8",
+ "linkage": {
+  "r_h_mm": 11.139,
+  "r_e_mm": 53.466,
+  "n": 4.8,
+  "L_pushrod_mm": 42.3,
+  "lever_phi_deg": [
+   135.0,
+   225.0
+  ]
+ },
+ "cases": {
+  "6.6V|L_v1_3.19": {
+   "V": 6.6,
+   "load_Nm": 3.19,
+   "worst_any_motion_at_7deg": {
+    "dps": 95.24,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 5.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 95.36,
+    "pose_phi_deg": 44.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 95.36,
+    "pose_phi_deg": 44.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 117.68,
+    "pose_phi_deg": 44.0
+   },
+   "worst_at_centre": {
+    "dps": 117.52,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": false,
+    "any_direction": false
+   }
+  },
+  "6.6V|L_v2_terms": {
+   "V": 6.6,
+   "load_Nm": 4.8674,
+   "worst_any_motion_at_7deg": {
+    "dps": 83.12,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 5.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 83.24,
+    "pose_phi_deg": 315.0,
+    "limiting_servo": 1
+   },
+   "worst_inward_at_7deg": {
+    "dps": 83.24,
+    "pose_phi_deg": 315.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 95.59,
+    "pose_phi_deg": 221.0
+   },
+   "worst_at_centre": {
+    "dps": 95.62,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": false,
+    "any_direction": false
+   }
+  },
+  "6.6V|L_v2_hose_at_20Nm_rad": {
+   "V": 6.6,
+   "load_Nm": 5.1749,
+   "worst_any_motion_at_7deg": {
+    "dps": 80.9,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 6.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 81.01,
+    "pose_phi_deg": 315.0,
+    "limiting_servo": 1
+   },
+   "worst_inward_at_7deg": {
+    "dps": 81.01,
+    "pose_phi_deg": 315.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 91.52,
+    "pose_phi_deg": 221.0
+   },
+   "worst_at_centre": {
+    "dps": 91.61,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": false,
+    "any_direction": false
+   }
+  },
+  "6.6V|L_v34_O3b_coil_EI0.5": {
+   "V": 6.6,
+   "load_Nm": 3.6831,
+   "worst_any_motion_at_7deg": {
+    "dps": 91.68,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 5.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 91.8,
+    "pose_phi_deg": 44.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 91.8,
+    "pose_phi_deg": 44.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 111.21,
+    "pose_phi_deg": 44.0
+   },
+   "worst_at_centre": {
+    "dps": 111.08,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": false,
+    "any_direction": false
+   }
+  },
+  "6.6V|no_load": {
+   "V": 6.6,
+   "load_Nm": 0.0,
+   "worst_any_motion_at_7deg": {
+    "dps": 118.26,
+    "pose_phi_deg": 320.0,
+    "motion_chi_deg": 176.0,
+    "limiting_servo": 1
+   },
+   "worst_outward_at_7deg": {
+    "dps": 118.34,
+    "pose_phi_deg": 42.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 118.34,
+    "pose_phi_deg": 42.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 159.21,
+    "pose_phi_deg": 40.0
+   },
+   "worst_at_centre": {
+    "dps": 159.17,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": true,
+    "any_direction": true
+   }
+  },
+  "7.4V|L_v1_3.19": {
+   "V": 7.4,
+   "load_Nm": 3.19,
+   "worst_any_motion_at_7deg": {
+    "dps": 111.09,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 5.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 111.22,
+    "pose_phi_deg": 43.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 111.22,
+    "pose_phi_deg": 43.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 139.71,
+    "pose_phi_deg": 43.0
+   },
+   "worst_at_centre": {
+    "dps": 139.51,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": true,
+    "any_direction": true
+   }
+  },
+  "7.4V|L_v2_terms": {
+   "V": 7.4,
+   "load_Nm": 4.8674,
+   "worst_any_motion_at_7deg": {
+    "dps": 99.73,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 5.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 99.86,
+    "pose_phi_deg": 44.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 99.86,
+    "pose_phi_deg": 44.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 119.08,
+    "pose_phi_deg": 315.0
+   },
+   "worst_at_centre": {
+    "dps": 118.99,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": false,
+    "any_direction": false
+   }
+  },
+  "7.4V|L_v2_hose_at_20Nm_rad": {
+   "V": 7.4,
+   "load_Nm": 5.1749,
+   "worst_any_motion_at_7deg": {
+    "dps": 97.65,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 5.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 97.78,
+    "pose_phi_deg": 44.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 97.78,
+    "pose_phi_deg": 44.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 115.29,
+    "pose_phi_deg": 315.0
+   },
+   "worst_at_centre": {
+    "dps": 115.23,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": false,
+    "any_direction": false
+   }
+  },
+  "7.4V|L_v34_O3b_coil_EI0.5": {
+   "V": 7.4,
+   "load_Nm": 3.6831,
+   "worst_any_motion_at_7deg": {
+    "dps": 107.75,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 5.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 107.88,
+    "pose_phi_deg": 44.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 107.88,
+    "pose_phi_deg": 44.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 133.66,
+    "pose_phi_deg": 44.0
+   },
+   "worst_at_centre": {
+    "dps": 133.48,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": true,
+    "any_direction": true
+   }
+  },
+  "7.4V|no_load": {
+   "V": 7.4,
+   "load_Nm": 0.0,
+   "worst_any_motion_at_7deg": {
+    "dps": 132.66,
+    "pose_phi_deg": 320.0,
+    "motion_chi_deg": 176.0,
+    "limiting_servo": 1
+   },
+   "worst_outward_at_7deg": {
+    "dps": 132.75,
+    "pose_phi_deg": 42.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 132.75,
+    "pose_phi_deg": 42.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 178.59,
+    "pose_phi_deg": 40.0
+   },
+   "worst_at_centre": {
+    "dps": 178.54,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": true,
+    "any_direction": true
+   }
+  },
+  "8.4V|L_v1_3.19": {
+   "V": 8.4,
+   "load_Nm": 3.19,
+   "worst_any_motion_at_7deg": {
+    "dps": 149.97,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 4.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 150.12,
+    "pose_phi_deg": 43.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 150.12,
+    "pose_phi_deg": 43.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 193.32,
+    "pose_phi_deg": 318.0
+   },
+   "worst_at_centre": {
+    "dps": 193.06,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": true,
+    "any_direction": true
+   }
+  },
+  "8.4V|L_v2_terms": {
+   "V": 8.4,
+   "load_Nm": 4.8674,
+   "worst_any_motion_at_7deg": {
+    "dps": 140.02,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 5.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 140.18,
+    "pose_phi_deg": 43.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 140.18,
+    "pose_phi_deg": 43.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 175.32,
+    "pose_phi_deg": 43.0
+   },
+   "worst_at_centre": {
+    "dps": 175.07,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": true,
+    "any_direction": true
+   }
+  },
+  "8.4V|L_v2_hose_at_20Nm_rad": {
+   "V": 8.4,
+   "load_Nm": 5.1749,
+   "worst_any_motion_at_7deg": {
+    "dps": 138.19,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 5.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 138.36,
+    "pose_phi_deg": 44.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 138.36,
+    "pose_phi_deg": 44.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 172.0,
+    "pose_phi_deg": 44.0
+   },
+   "worst_at_centre": {
+    "dps": 171.77,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": true,
+    "any_direction": true
+   }
+  },
+  "8.4V|L_v34_O3b_coil_EI0.5": {
+   "V": 8.4,
+   "load_Nm": 3.6831,
+   "worst_any_motion_at_7deg": {
+    "dps": 147.05,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 4.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 147.19,
+    "pose_phi_deg": 43.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 147.19,
+    "pose_phi_deg": 43.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 188.04,
+    "pose_phi_deg": 43.0
+   },
+   "worst_at_centre": {
+    "dps": 187.77,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": true,
+    "any_direction": true
+   }
+  },
+  "8.4V|no_load": {
+   "V": 8.4,
+   "load_Nm": 0.0,
+   "worst_any_motion_at_7deg": {
+    "dps": 168.88,
+    "pose_phi_deg": 40.0,
+    "motion_chi_deg": 4.0,
+    "limiting_servo": 2
+   },
+   "worst_outward_at_7deg": {
+    "dps": 169.0,
+    "pose_phi_deg": 42.0,
+    "limiting_servo": 2
+   },
+   "worst_inward_at_7deg": {
+    "dps": 169.0,
+    "pose_phi_deg": 42.0
+   },
+   "worst_tangential_at_7deg": {
+    "dps": 227.36,
+    "pose_phi_deg": 40.0
+   },
+   "worst_at_centre": {
+    "dps": 227.3,
+    "motion_chi_deg": 135.0
+   },
+   "ENG07_100dps": {
+    "outward": true,
+    "any_direction": true
+   }
+  }
+ },
+ "jacobian": {
+  "centre": [
+   [
+    3.39405,
+    3.39405
+   ],
+   [
+    -3.39405,
+    3.39405
+   ]
+  ],
+  "at_7deg_every_15deg": [
+   {
+    "phi_deg": 0.0,
+    "alpha_deg": -0.0,
+    "beta_deg": 7.0,
+    "psi_deg": [
+     26.275,
+     26.275
+    ],
+    "J_rad_per_rad": [
+     [
+      3.74658,
+      4.2853
+     ],
+     [
+      -3.74658,
+      4.2853
+     ]
+    ]
+   },
+   {
+    "phi_deg": 15.0,
+    "alpha_deg": -1.8202,
+    "beta_deg": 6.7603,
+    "psi_deg": [
+     18.737,
+     32.316
+    ],
+    "J_rad_per_rad": [
+     [
+      3.45856,
+      4.0429
+     ],
+     [
+      -4.06453,
+      4.52626
+     ]
+    ]
+   },
+   {
+    "phi_deg": 30.0,
+    "alpha_deg": -3.5131,
+    "beta_deg": 6.0584,
+    "psi_deg": [
+     10.323,
+     36.195
+    ],
+    "J_rad_per_rad": [
+     [
+      3.22938,
+      3.84293
+     ],
+     [
+      -4.33838,
+      4.6731
+     ]
+    ]
+   },
+   {
+    "phi_deg": 45.0,
+    "alpha_deg": -4.9621,
+    "beta_deg": 4.9436,
+    "psi_deg": [
+     1.578,
+     37.394
+    ],
+    "J_rad_per_rad": [
+     [
+      3.05994,
+      3.69259
+     ],
+     [
+      -4.47363,
+      4.62531
+     ]
+    ]
+   },
+   {
+    "phi_deg": 60.0,
+    "alpha_deg": -6.0697,
+    "beta_deg": 3.4935,
+    "psi_deg": [
+     -7.013,
+     35.807
+    ],
+    "J_rad_per_rad": [
+     [
+      2.94245,
+      3.58235
+     ],
+     [
+      -4.43583,
+      4.36933
+     ]
+    ]
+   },
+   {
+    "phi_deg": 75.0,
+    "alpha_deg": -6.7637,
+    "beta_deg": 1.8075,
+    "psi_deg": [
+     -14.996,
+     31.787
+    ],
+    "J_rad_per_rad": [
+     [
+      2.87116,
+      3.49839
+     ],
+     [
+      -4.284,
+      3.99917
+     ]
+    ]
+   },
+   {
+    "phi_deg": 90.0,
+    "alpha_deg": -7.0,
+    "beta_deg": 0.0,
+    "psi_deg": [
+     -21.93,
+     25.9
+    ],
+    "J_rad_per_rad": [
+     [
+      2.84635,
+      3.42847
+     ],
+     [
+      -4.10479,
+      3.62695
+     ]
+    ]
+   },
+   {
+    "phi_deg": 105.0,
+    "alpha_deg": -6.7637,
+    "beta_deg": -1.8075,
+    "psi_deg": [
+     -27.393,
+     18.689
+    ],
+    "J_rad_per_rad": [
+     [
+      2.87312,
+      3.36364
+     ],
+     [
+      -3.9524,
+      3.31872
+     ]
+    ]
+   },
+   {
+    "phi_deg": 120.0,
+    "alpha_deg": -6.0697,
+    "beta_deg": -3.4935,
+    "psi_deg": [
+     -30.987,
+     10.591
+    ],
+    "J_rad_per_rad": [
+     [
+      2.95568,
+      3.29759
+     ],
+     [
+      -3.84316,
+      3.09741
+     ]
+    ]
+   },
+   {
+    "phi_deg": 135.0,
+    "alpha_deg": -4.9621,
+    "beta_deg": -4.9436,
+    "psi_deg": [
+     -32.371,
+     1.992
+    ],
+    "J_rad_per_rad": [
+     [
+      3.08903,
+      3.22539
+     ],
+     [
+      -3.76993,
+      2.96378
+     ]
+    ]
+   },
+   {
+    "phi_deg": 150.0,
+    "alpha_deg": -3.5131,
+    "beta_deg": -6.0584,
+    "psi_deg": [
+     -31.328,
+     -6.696
+    ],
+    "J_rad_per_rad": [
+     [
+      3.25324,
+      3.14428
+     ],
+     [
+      -3.71317,
+      2.90912
+     ]
+    ]
+   },
+   {
+    "phi_deg": 165.0,
+    "alpha_deg": -1.8202,
+    "beta_deg": -6.7603,
+    "psi_deg": [
+     -27.857,
+     -14.971
+    ],
+    "J_rad_per_rad": [
+     [
+      3.41718,
+      3.05716
+     ],
+     [
+      -3.64809,
+      2.91933
+     ]
+    ]
+   },
+   {
+    "phi_deg": 180.0,
+    "alpha_deg": -0.0,
+    "beta_deg": -7.0,
+    "psi_deg": [
+     -22.233,
+     -22.233
+    ],
+    "J_rad_per_rad": [
+     [
+      3.55252,
+      2.97578
+     ],
+     [
+      -3.55252,
+      2.97578
+     ]
+    ]
+   },
+   {
+    "phi_deg": 195.0,
+    "alpha_deg": 1.8202,
+    "beta_deg": -6.7603,
+    "psi_deg": [
+     -14.971,
+     -27.857
+    ],
+    "J_rad_per_rad": [
+     [
+      3.64809,
+      2.91933
+     ],
+     [
+      -3.41718,
+      3.05716
+     ]
+    ]
+   },
+   {
+    "phi_deg": 210.0,
+    "alpha_deg": 3.5131,
+    "beta_deg": -6.0584,
+    "psi_deg": [
+     -6.696,
+     -31.328
+    ],
+    "J_rad_per_rad": [
+     [
+      3.71317,
+      2.90912
+     ],
+     [
+      -3.25324,
+      3.14428
+     ]
+    ]
+   },
+   {
+    "phi_deg": 225.0,
+    "alpha_deg": 4.9621,
+    "beta_deg": -4.9436,
+    "psi_deg": [
+     1.992,
+     -32.371
+    ],
+    "J_rad_per_rad": [
+     [
+      3.76993,
+      2.96378
+     ],
+     [
+      -3.08903,
+      3.22539
+     ]
+    ]
+   },
+   {
+    "phi_deg": 240.0,
+    "alpha_deg": 6.0697,
+    "beta_deg": -3.4935,
+    "psi_deg": [
+     10.591,
+     -30.987
+    ],
+    "J_rad_per_rad": [
+     [
+      3.84316,
+      3.09741
+     ],
+     [
+      -2.95568,
+      3.29759
+     ]
+    ]
+   },
+   {
+    "phi_deg": 255.0,
+    "alpha_deg": 6.7637,
+    "beta_deg": -1.8075,
+    "psi_deg": [
+     18.689,
+     -27.393
+    ],
+    "J_rad_per_rad": [
+     [
+      3.9524,
+      3.31872
+     ],
+     [
+      -2.87312,
+      3.36364
+     ]
+    ]
+   },
+   {
+    "phi_deg": 270.0,
+    "alpha_deg": 7.0,
+    "beta_deg": -0.0,
+    "psi_deg": [
+     25.9,
+     -21.93
+    ],
+    "J_rad_per_rad": [
+     [
+      4.10479,
+      3.62695
+     ],
+     [
+      -2.84635,
+      3.42847
+     ]
+    ]
+   },
+   {
+    "phi_deg": 285.0,
+    "alpha_deg": 6.7637,
+    "beta_deg": 1.8075,
+    "psi_deg": [
+     31.787,
+     -14.996
+    ],
+    "J_rad_per_rad": [
+     [
+      4.284,
+      3.99917
+     ],
+     [
+      -2.87116,
+      3.49839
+     ]
+    ]
+   },
+   {
+    "phi_deg": 300.0,
+    "alpha_deg": 6.0697,
+    "beta_deg": 3.4935,
+    "psi_deg": [
+     35.807,
+     -7.013
+    ],
+    "J_rad_per_rad": [
+     [
+      4.43583,
+      4.36933
+     ],
+     [
+      -2.94245,
+      3.58235
+     ]
+    ]
+   },
+   {
+    "phi_deg": 315.0,
+    "alpha_deg": 4.9621,
+    "beta_deg": 4.9436,
+    "psi_deg": [
+     37.394,
+     1.578
+    ],
+    "J_rad_per_rad": [
+     [
+      4.47363,
+      4.62531
+     ],
+     [
+      -3.05994,
+      3.69259
+     ]
+    ]
+   },
+   {
+    "phi_deg": 330.0,
+    "alpha_deg": 3.5131,
+    "beta_deg": 6.0584,
+    "psi_deg": [
+     36.195,
+     10.323
+    ],
+    "J_rad_per_rad": [
+     [
+      4.33838,
+      4.6731
+     ],
+     [
+      -3.22938,
+      3.84293
+     ]
+    ]
+   },
+   {
+    "phi_deg": 345.0,
+    "alpha_deg": 1.8202,
+    "beta_deg": 6.7603,
+    "psi_deg": [
+     32.316,
+     18.737
+    ],
+    "J_rad_per_rad": [
+     [
+      4.06453,
+      4.52626
+     ],
+     [
+      -3.45856,
+      4.0429
+     ]
+    ]
+   }
+  ],
+  "note": "psi_i servo horn angle (deg), J = d psi_i / d(alpha, beta), engine pose R = Rx(alpha) Ry(beta), tilt azimuth phi (axis toward phi)"
+ },
+ "hose_K_breakeven_7V4_Nm_per_rad": {
+  "v": {
+   "outward": 17.31,
+   "any_direction": 17.17
+  },
+  "note": "largest hose hinge stiffness (per axis, linear, x 7 deg) with the other v2 terms for which the 7.4 V worst rate at 7 deg is >= 100 deg/s (2-deg scan)"
+ },
+ "csv": "03-cad/src/calcs/tvc_rate_vs_angle_mech_v2.csv",
+ "unknowns": [
+  "servo torque-speed line shape (ASSUMED linear) and the plug-to-servo voltage drop (Electronics; values are at the servo)",
+  "pushrod spherical-joint friction (acts on the servo torque, ~mu F r_ball, not in this rate)",
+  "rotor/linkage inertia (GNC 6-DOF); B-TVC-1 measures slew and acceleration at 6.6 / 7.4 V under the v2 load"
+ ],
+ "t_s": 184.4
+}

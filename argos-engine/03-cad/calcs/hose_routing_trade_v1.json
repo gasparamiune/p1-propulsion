@@ -1,0 +1,681 @@
+{
+ "id": "hose_routing_trade",
+ "version": "v1",
+ "date": "2026-10-12",
+ "script": "03-cad/src/calcs/hose_routing_trade.py",
+ "method": "Feed-hose routing trade across the gimbal (lead request 2026-10-12, after mechanical.json v2): v1, Mechanical.",
+ "assumptions": {
+  "OD_m": 0.015,
+  "EI_Nm2": [
+   0.05,
+   0.25,
+   0.5
+  ],
+  "hose_kg_per_m": 0.13,
+  "fitting_kg": 0.025,
+  "bay_radius_m": 0.07,
+  "clearance_m": 0.003,
+  "K_req_Nm_rad": 20.0,
+  "engine_profile": "case 31.75 / head 32.5 / bonnet-torch 36 / v3.4 stack 26 mm (CAD v3.3 frame)"
+ },
+ "options": [
+  {
+   "option": "O1 radial straight L 0.40 m (lead-adopted rule at 0.40)",
+   "hose_length_m": 0.4,
+   "engine_end_m": [
+    -0.022,
+    0.0,
+    0.215
+   ],
+   "fixed_end_m": [
+    -0.0627,
+    0.0,
+    0.6129
+   ],
+   "fixed_end_height_above_pivot_m": 0.613,
+   "installed_min_bend_radius_m": null,
+   "per_EI": {
+    "EI=0.05": {
+     "K_alpha_Nm_rad": 1.73,
+     "K_beta_Nm_rad": 1.75,
+     "M_7deg_Nm": [
+      0.21,
+      0.21
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.3956
+    },
+    "EI=0.25": {
+     "K_alpha_Nm_rad": 8.66,
+     "K_beta_Nm_rad": 8.74,
+     "M_7deg_Nm": [
+      1.06,
+      1.07
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.3956
+    },
+    "EI=0.5": {
+     "K_alpha_Nm_rad": 17.31,
+     "K_beta_Nm_rad": 17.48,
+     "M_7deg_Nm": [
+      2.12,
+      2.14
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.3956
+    }
+   },
+   "clearance_8deg": {
+    "wall_min_mm_at_stop": -3.5,
+    "engine_min_mm_at_stop": -9.9,
+    "wall_min_mm_neutral": -0.2,
+    "engine_min_mm_neutral": -9.5,
+    "worst": {
+     "wall": {
+      "node_s_m": 0.14,
+      "z_m": 0.351,
+      "tilt_dir_deg": 270.0
+     },
+     "engine": {
+      "node_s_m": 0.02,
+      "z_m": 0.237,
+      "tilt_dir_deg": 270.0
+     }
+    },
+    "pass": false
+   },
+   "mass_kg": 0.102,
+   "fixed_end": "isolation-valve outlet on the vehicle axis above the engine",
+   "needs": "hose min bend radius not engaged (straight)",
+   "risk": "low: bench EI (B-FD-1); valve end high in the vehicle"
+  },
+  {
+   "option": "O1 radial straight L 0.30 m (lead-adopted rule at 0.40)",
+   "hose_length_m": 0.3,
+   "engine_end_m": [
+    -0.022,
+    0.0,
+    0.215
+   ],
+   "fixed_end_m": [
+    -0.0525,
+    0.0,
+    0.5134
+   ],
+   "fixed_end_height_above_pivot_m": 0.513,
+   "installed_min_bend_radius_m": null,
+   "per_EI": {
+    "EI=0.05": {
+     "K_alpha_Nm_rad": 3.11,
+     "K_beta_Nm_rad": 3.15,
+     "M_7deg_Nm": [
+      0.38,
+      0.38
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.2582
+    },
+    "EI=0.25": {
+     "K_alpha_Nm_rad": 15.57,
+     "K_beta_Nm_rad": 15.73,
+     "M_7deg_Nm": [
+      1.9,
+      1.92
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.2582
+    },
+    "EI=0.5": {
+     "K_alpha_Nm_rad": 31.14,
+     "K_beta_Nm_rad": 31.45,
+     "M_7deg_Nm": [
+      3.8,
+      3.84
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.2582
+    }
+   },
+   "clearance_8deg": {
+    "wall_min_mm_at_stop": 1.6,
+    "engine_min_mm_at_stop": -10.2,
+    "wall_min_mm_neutral": 10.0,
+    "engine_min_mm_neutral": -9.2,
+    "worst": {
+     "wall": {
+      "node_s_m": 0.083,
+      "z_m": 0.294,
+      "tilt_dir_deg": 270.0
+     },
+     "engine": {
+      "node_s_m": 0.038,
+      "z_m": 0.255,
+      "tilt_dir_deg": 270.0
+     }
+    },
+    "pass": false
+   },
+   "mass_kg": 0.089,
+   "fixed_end": "isolation-valve outlet on the vehicle axis above the engine",
+   "needs": "hose min bend radius not engaged (straight)",
+   "risk": "low: bench EI (B-FD-1); valve end high in the vehicle"
+  },
+  {
+   "option": "O2 helix about the engine axis at the stack top: r 30->45 mm, 300 deg, z 0.215->0.255 m + 0.05 m lead-out",
+   "hose_length_m": 0.251,
+   "engine_end_m": [
+    0.0,
+    0.03,
+    0.215
+   ],
+   "fixed_end_m": [
+    0.039,
+    0.0225,
+    0.305
+   ],
+   "fixed_end_height_above_pivot_m": 0.305,
+   "installed_min_bend_radius_m": 0.0055,
+   "per_EI": {
+    "EI=0.05": {
+     "K_alpha_Nm_rad": 8.77,
+     "K_beta_Nm_rad": 13.2,
+     "M_7deg_Nm": [
+      1.07,
+      1.61
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.0054
+    },
+    "EI=0.25": {
+     "K_alpha_Nm_rad": 43.87,
+     "K_beta_Nm_rad": 65.99,
+     "M_7deg_Nm": [
+      5.36,
+      8.06
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.0054
+    },
+    "EI=0.5": {
+     "K_alpha_Nm_rad": 87.75,
+     "K_beta_Nm_rad": 131.98,
+     "M_7deg_Nm": [
+      10.72,
+      16.12
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.0054
+    }
+   },
+   "clearance_8deg": {
+    "wall_min_mm_at_stop": -0.1,
+    "engine_min_mm_at_stop": -18.3,
+    "wall_min_mm_neutral": 17.5,
+    "engine_min_mm_neutral": -11.7,
+    "worst": {
+     "wall": {
+      "node_s_m": 0.03,
+      "z_m": 0.218,
+      "tilt_dir_deg": 225.0
+     },
+     "engine": {
+      "node_s_m": 0.198,
+      "z_m": 0.259,
+      "tilt_dir_deg": 112.5
+     }
+    },
+    "pass": false
+   },
+   "mass_kg": 0.083,
+   "fixed_end": "fixed bracket at the bay wall above the stack, then the valve",
+   "needs": "hose bend radius <= 30 mm",
+   "risk": "medium-high: bend radius below typical -6 PTFE values (datasheet TO-VERIFY); coil near the engine end swings with the head"
+  },
+  {
+   "option": "O2 helix about the engine axis at the stack top: r 30->50 mm, 360 deg, z 0.215->0.265 m + 0.05 m lead-out",
+   "hose_length_m": 0.307,
+   "engine_end_m": [
+    0.0,
+    0.03,
+    0.215
+   ],
+   "fixed_end_m": [
+    0.0,
+    0.05,
+    0.315
+   ],
+   "fixed_end_height_above_pivot_m": 0.315,
+   "installed_min_bend_radius_m": 0.0056,
+   "per_EI": {
+    "EI=0.05": {
+     "K_alpha_Nm_rad": 8.77,
+     "K_beta_Nm_rad": 6.29,
+     "M_7deg_Nm": [
+      1.07,
+      0.77
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.0055
+    },
+    "EI=0.25": {
+     "K_alpha_Nm_rad": 43.83,
+     "K_beta_Nm_rad": 31.43,
+     "M_7deg_Nm": [
+      5.35,
+      3.84
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.0055
+    },
+    "EI=0.5": {
+     "K_alpha_Nm_rad": 87.65,
+     "K_beta_Nm_rad": 62.86,
+     "M_7deg_Nm": [
+      10.71,
+      7.68
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.0055
+    }
+   },
+   "clearance_8deg": {
+    "wall_min_mm_at_stop": -2.7,
+    "engine_min_mm_at_stop": -11.9,
+    "wall_min_mm_neutral": 12.5,
+    "engine_min_mm_neutral": -11.5,
+    "worst": {
+     "wall": {
+      "node_s_m": 0.158,
+      "z_m": 0.259,
+      "tilt_dir_deg": 67.5
+     },
+     "engine": {
+      "node_s_m": 0.02,
+      "z_m": 0.223,
+      "tilt_dir_deg": 270.0
+     }
+    },
+    "pass": false
+   },
+   "mass_kg": 0.09,
+   "fixed_end": "fixed bracket at the bay wall above the stack, then the valve",
+   "needs": "hose bend radius <= 30 mm",
+   "risk": "medium-high: bend radius below typical -6 PTFE values (datasheet TO-VERIFY); coil near the engine end swings with the head"
+  },
+  {
+   "option": "O2 helix about the engine axis at the stack top: r 45->50 mm, 300 deg, z 0.215->0.255 m + 0.05 m lead-out",
+   "hose_length_m": 0.302,
+   "engine_end_m": [
+    0.0,
+    0.045,
+    0.215
+   ],
+   "fixed_end_m": [
+    0.0433,
+    0.025,
+    0.305
+   ],
+   "fixed_end_height_above_pivot_m": 0.305,
+   "installed_min_bend_radius_m": 0.0055,
+   "per_EI": {
+    "EI=0.05": {
+     "K_alpha_Nm_rad": 5.41,
+     "K_beta_Nm_rad": 7.83,
+     "M_7deg_Nm": [
+      0.66,
+      0.96
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.0054
+    },
+    "EI=0.25": {
+     "K_alpha_Nm_rad": 27.07,
+     "K_beta_Nm_rad": 39.14,
+     "M_7deg_Nm": [
+      3.31,
+      4.78
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.0054
+    },
+    "EI=0.5": {
+     "K_alpha_Nm_rad": 54.13,
+     "K_beta_Nm_rad": 78.29,
+     "M_7deg_Nm": [
+      6.61,
+      9.56
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.0054
+    }
+   },
+   "clearance_8deg": {
+    "wall_min_mm_at_stop": -13.2,
+    "engine_min_mm_at_stop": -15.7,
+    "wall_min_mm_neutral": 12.5,
+    "engine_min_mm_neutral": 1.9,
+    "worst": {
+     "wall": {
+      "node_s_m": 0.021,
+      "z_m": 0.212,
+      "tilt_dir_deg": 202.5
+     },
+     "engine": {
+      "node_s_m": 0.249,
+      "z_m": 0.26,
+      "tilt_dir_deg": 112.5
+     }
+    },
+    "pass": false
+   },
+   "mass_kg": 0.089,
+   "fixed_end": "fixed bracket at the bay wall above the stack, then the valve",
+   "needs": "hose bend radius <= 45 mm",
+   "risk": "medium-high: bend radius below typical -6 PTFE values (datasheet TO-VERIFY); coil near the engine end swings with the head"
+  },
+  {
+   "option": "O3 low helix around the case at the pivot plane: r 42->54 mm, 300 deg, z 0.062->0.045 m, engine riser 0.18 m",
+   "hose_length_m": 0.252,
+   "engine_end_m": [
+    0.0,
+    0.042,
+    0.062
+   ],
+   "fixed_end_m": [
+    0.0468,
+    0.027,
+    0.045
+   ],
+   "fixed_end_height_above_pivot_m": 0.045,
+   "installed_min_bend_radius_m": 0.0423,
+   "per_EI": {
+    "EI=0.05": {
+     "K_alpha_Nm_rad": 0.62,
+     "K_beta_Nm_rad": 0.78,
+     "M_7deg_Nm": [
+      0.08,
+      0.1
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.0395
+    },
+    "EI=0.25": {
+     "K_alpha_Nm_rad": 3.1,
+     "K_beta_Nm_rad": 3.89,
+     "M_7deg_Nm": [
+      0.38,
+      0.48
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.0395
+    },
+    "EI=0.5": {
+     "K_alpha_Nm_rad": 6.2,
+     "K_beta_Nm_rad": 7.79,
+     "M_7deg_Nm": [
+      0.76,
+      0.95
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.0395
+    }
+   },
+   "clearance_8deg": {
+    "wall_min_mm_at_stop": 8.4,
+    "engine_min_mm_at_stop": 3.6,
+    "wall_min_mm_neutral": 8.5,
+    "engine_min_mm_neutral": 4.0,
+    "worst": {
+     "wall": {
+      "node_s_m": 0.167,
+      "z_m": 0.049,
+      "tilt_dir_deg": 22.5
+     },
+     "engine": {
+      "node_s_m": 0.022,
+      "z_m": 0.061,
+      "tilt_dir_deg": 292.5
+     }
+    },
+    "pass": true
+   },
+   "mass_kg": 0.137,
+   "fixed_end": "bulkhead fitting on the upper thrust ring GM-09 (z 0.035 m); fixed 3/8 line up the bay wall",
+   "needs": "a fixed 3/8 in line from GM-09 up past the head/stack heights: the engine sweeps to r 57-67 mm at z 0.18-0.25 m, so the line (OD 9.5 + 3 mm clearance) needs a local bay radius >= 72.5-79.8 mm (a ~10 mm deep channel in the airframe wall over ~0.15 m, or an external line)",
+   "risk": "high: airframe change; N2O riser 6 mm from the pre-chamber case (FEA hi bound case 315 C inner wall, B1) -> trapped-liquid heating and shielding"
+  },
+  {
+   "option": "O3 low helix around the case at the pivot plane: r 45->55 mm, 330 deg, z 0.062->0.045 m, engine riser 0.18 m",
+   "hose_length_m": 0.289,
+   "engine_end_m": [
+    0.0,
+    0.045,
+    0.062
+   ],
+   "fixed_end_m": [
+    0.0275,
+    0.0476,
+    0.045
+   ],
+   "fixed_end_height_above_pivot_m": 0.045,
+   "installed_min_bend_radius_m": 0.0453,
+   "per_EI": {
+    "EI=0.05": {
+     "K_alpha_Nm_rad": 0.5,
+     "K_beta_Nm_rad": 0.59,
+     "M_7deg_Nm": [
+      0.06,
+      0.07
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.043
+    },
+    "EI=0.25": {
+     "K_alpha_Nm_rad": 2.52,
+     "K_beta_Nm_rad": 2.94,
+     "M_7deg_Nm": [
+      0.31,
+      0.36
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.043
+    },
+    "EI=0.5": {
+     "K_alpha_Nm_rad": 5.04,
+     "K_beta_Nm_rad": 5.87,
+     "M_7deg_Nm": [
+      0.62,
+      0.72
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.043
+    }
+   },
+   "clearance_8deg": {
+    "wall_min_mm_at_stop": 7.0,
+    "engine_min_mm_at_stop": 6.3,
+    "wall_min_mm_neutral": 7.5,
+    "engine_min_mm_neutral": 6.5,
+    "worst": {
+     "wall": {
+      "node_s_m": 0.179,
+      "z_m": 0.048,
+      "tilt_dir_deg": 22.5
+     },
+     "engine": {
+      "node_s_m": 0.02,
+      "z_m": 0.061,
+      "tilt_dir_deg": 292.5
+     }
+    },
+    "pass": true
+   },
+   "mass_kg": 0.142,
+   "fixed_end": "bulkhead fitting on the upper thrust ring GM-09 (z 0.035 m); fixed 3/8 line up the bay wall",
+   "needs": "a fixed 3/8 in line from GM-09 up past the head/stack heights: the engine sweeps to r 57-67 mm at z 0.18-0.25 m, so the line (OD 9.5 + 3 mm clearance) needs a local bay radius >= 72.5-79.8 mm (a ~10 mm deep channel in the airframe wall over ~0.15 m, or an external line)",
+   "risk": "high: airframe change; N2O riser 6 mm from the pre-chamber case (FEA hi bound case 315 C inner wall, B1) -> trapped-liquid heating and shielding"
+  },
+  {
+   "option": "O5 inverted-U loop above the stack: up 0.06, bend R 45 mm toward -Y, down 0.05 m",
+   "hose_length_m": 0.251,
+   "engine_end_m": [
+    -0.022,
+    0.0,
+    0.215
+   ],
+   "fixed_end_m": [
+    -0.022,
+    -0.09,
+    0.225
+   ],
+   "fixed_end_height_above_pivot_m": 0.225,
+   "installed_min_bend_radius_m": 0.045,
+   "per_EI": {
+    "EI=0.05": {
+     "K_alpha_Nm_rad": 15.64,
+     "K_beta_Nm_rad": 5.56,
+     "M_7deg_Nm": [
+      1.91,
+      0.68
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.0357
+    },
+    "EI=0.25": {
+     "K_alpha_Nm_rad": 78.2,
+     "K_beta_Nm_rad": 27.79,
+     "M_7deg_Nm": [
+      9.55,
+      3.39
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.0357
+    },
+    "EI=0.5": {
+     "K_alpha_Nm_rad": 156.41,
+     "K_beta_Nm_rad": 55.58,
+     "M_7deg_Nm": [
+      19.11,
+      6.79
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.0357
+    }
+   },
+   "clearance_8deg": {
+    "wall_min_mm_at_stop": -38.7,
+    "engine_min_mm_at_stop": -14.2,
+    "wall_min_mm_neutral": -30.1,
+    "engine_min_mm_neutral": -11.5,
+    "worst": {
+     "wall": {
+      "node_s_m": 0.189,
+      "z_m": 0.287,
+      "tilt_dir_deg": 0.0
+     },
+     "engine": {
+      "node_s_m": 0.04,
+      "z_m": 0.257,
+      "tilt_dir_deg": 270.0
+     }
+    },
+    "pass": false
+   },
+   "mass_kg": 0.083,
+   "fixed_end": "fixed bracket beside the stack, then the valve",
+   "needs": "hose bend radius <= 45 mm",
+   "risk": "medium: bend radius; loop swings with the head"
+  },
+  {
+   "option": "O5 inverted-U loop above the stack: up 0.10, bend R 50 mm toward -Y, down 0.08 m",
+   "hose_length_m": 0.337,
+   "engine_end_m": [
+    -0.022,
+    0.0,
+    0.215
+   ],
+   "fixed_end_m": [
+    -0.022,
+    -0.1,
+    0.235
+   ],
+   "fixed_end_height_above_pivot_m": 0.235,
+   "installed_min_bend_radius_m": 0.05,
+   "per_EI": {
+    "EI=0.05": {
+     "K_alpha_Nm_rad": 7.13,
+     "K_beta_Nm_rad": 3.21,
+     "M_7deg_Nm": [
+      0.87,
+      0.39
+     ],
+     "K_rule_pass": true,
+     "min_bend_radius_at_stop_m": 0.0428
+    },
+    "EI=0.25": {
+     "K_alpha_Nm_rad": 35.65,
+     "K_beta_Nm_rad": 16.06,
+     "M_7deg_Nm": [
+      4.36,
+      1.96
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.0428
+    },
+    "EI=0.5": {
+     "K_alpha_Nm_rad": 71.3,
+     "K_beta_Nm_rad": 32.13,
+     "M_7deg_Nm": [
+      8.71,
+      3.93
+     ],
+     "K_rule_pass": false,
+     "min_bend_radius_at_stop_m": 0.0428
+    }
+   },
+   "clearance_8deg": {
+    "wall_min_mm_at_stop": -50.2,
+    "engine_min_mm_at_stop": -13.6,
+    "wall_min_mm_neutral": -39.9,
+    "engine_min_mm_neutral": -11.5,
+    "worst": {
+     "wall": {
+      "node_s_m": 0.25,
+      "z_m": 0.322,
+      "tilt_dir_deg": 0.0
+     },
+     "engine": {
+      "node_s_m": 0.04,
+      "z_m": 0.257,
+      "tilt_dir_deg": 270.0
+     }
+    },
+    "pass": false
+   },
+   "mass_kg": 0.094,
+   "fixed_end": "fixed bracket beside the stack, then the valve",
+   "needs": "hose bend radius <= 50 mm",
+   "risk": "medium: bend radius; loop swings with the head"
+  }
+ ],
+ "swivel": {
+  "option": "O4 two-axis rotary unions in the gimbal trunnions (fixed -> outer pin X -> ring passage -> inner pin Y -> collar -> engine riser)",
+  "K_Nm_rad": "~0 (no hose); seal friction torque instead: 2 rotary seals per axis on ~10 mm journals at 7 MPa, 0.1-0.5 N m per axis ASSUMED (no datasheet)",
+  "M_7deg_Nm": "friction 0.1-0.5 N m per axis (ASSUMED), stick-slip in the TVC loop",
+  "mass_kg": "0.10-0.20 ESTIMATE (2 unions, drilled ring/collar passages, engine riser 0.04)",
+  "vehicle_length": "same in-bay problem as O3: the fixed feed must reach the outer trunnion at z ~0 from the tank above, past the head/stack sweep (no room inside the 140 mm ID) -> no length saving without an airframe channel",
+  "risk": "high: rotating seals in liquid N2O at 7 MPa (leak/wear particles next to the engine, oxygen-service qualification), ring and collar become pressure parts, no qualified part identified (TO-VERIFY / TO-QUOTE)",
+  "verdict": "rejected (lead rule: no rotating seal in liquid N2O unless clearly better and qualified; it is neither)"
+ },
+ "radial_straight_L_min_m_for_K20": {
+  "EI=0.05": 0.135,
+  "EI=0.1": 0.179,
+  "EI=0.15": 0.213,
+  "EI=0.2": 0.242,
+  "EI=0.25": 0.267,
+  "EI=0.3": 0.291,
+  "EI=0.4": 0.334,
+  "EI=0.5": 0.373
+ }
+}

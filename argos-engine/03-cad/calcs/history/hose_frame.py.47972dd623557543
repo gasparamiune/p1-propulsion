@@ -1,0 +1,207 @@
+"""Feed-hose hinge stiffness and bend radius across the gimbal: linear 3D Euler-Bernoulli frame model (v1).
+
+The flexible part of the -6 PTFE hose is discretised into beam elements along its installed centreline
+(straight, bent or S-shaped).  The fixed end is clamped; the engine end (rigid hose-end fitting on the riser)
+receives the rigid-body motion of a small rotation theta about a gimbal axis through the pivot
+(u = theta a x r, rotation theta a).  The reaction wrench at the engine end gives the hinge moment about the
+pivot: M_p = M + r x F, K_aa = a . M_p / theta.  Curvature change along the hose at the 8 deg stop is the
+linear result scaled to 8 deg and added (in magnitude) to the installed curvature -> minimum bend radius.
+
+Inputs: EI (ASSUMED range, must be bench-measured pressurised), GJ = EI/(1+nu_eff) with nu_eff 0.3 ASSUMED,
+EA large (braided hose ~ inextensible).  Linear small-rotation theory: hinge stiffness exact to first order;
+the bend-radius estimate at 8 deg is a linear extrapolation (conservative sum of magnitudes).
+
+Analytic check (verification): a straight hose along the radial line from the pivot, engine end at distance h,
+length L: K = (4 EI / L) (1 + 3 x + 3 x^2), x = h / L (beam stiffness matrix with w0 = h theta, w0' = theta).
+"""
+from __future__ import annotations
+import math, json
+import numpy as np
+
+
+def beam_k_local(L, EA, EIy, EIz, GJ):
+    k = np.zeros((12, 12))
+    a = EA / L
+    k[0, 0] = k[6, 6] = a
+    k[0, 6] = k[6, 0] = -a
+    t = GJ / L
+    k[3, 3] = k[9, 9] = t
+    k[3, 9] = k[9, 3] = -t
+    for (iw, ith, EI, sgn) in ((1, 5, EIz, 1.0), (2, 4, EIy, -1.0)):
+        c1, c2, c3, c4 = 12 * EI / L ** 3, 6 * EI / L ** 2, 4 * EI / L, 2 * EI / L
+        w0, t0, w1, t1 = iw, ith, iw + 6, ith + 6
+        k[w0, w0] = k[w1, w1] = c1
+        k[w0, w1] = k[w1, w0] = -c1
+        k[w0, t0] = k[t0, w0] = sgn * c2
+        k[w0, t1] = k[t1, w0] = sgn * c2
+        k[w1, t0] = k[t0, w1] = -sgn * c2
+        k[w1, t1] = k[t1, w1] = -sgn * c2
+        k[t0, t0] = k[t1, t1] = c3
+        k[t0, t1] = k[t1, t0] = c4
+    return k
+
+
+def frame_T(p0, p1, ref=(0.0, 0.0, 1.0)):
+    ex = (p1 - p0) / np.linalg.norm(p1 - p0)
+    r = np.array(ref, float)
+    if abs(ex @ r) > 0.95:
+        r = np.array([1.0, 0.0, 0.0])
+    ey = np.cross(r, ex)
+    ey /= np.linalg.norm(ey)
+    ez = np.cross(ex, ey)
+    R = np.vstack([ex, ey, ez])
+    T = np.zeros((12, 12))
+    for i in range(4):
+        T[3 * i:3 * i + 3, 3 * i:3 * i + 3] = R
+    return T
+
+
+def solve(nodes, EI, GJ=None, EA=1e7, axis=(1, 0, 0), theta=1e-3, pivot=(0, 0, 0)):
+    """nodes [N x 3] m, node 0 = engine end, node N-1 = fixed end.  Returns (K N m/rad, reaction wrench,
+    bending moments per element (N m), displacements)."""
+    nodes = np.asarray(nodes, float)
+    N = len(nodes)
+    GJ = EI / 1.3 if GJ is None else GJ
+    K = np.zeros((6 * N, 6 * N))
+    els = []
+    for e in range(N - 1):
+        p0, p1 = nodes[e], nodes[e + 1]
+        L = np.linalg.norm(p1 - p0)
+        kl = beam_k_local(L, EA, EI, EI, GJ)
+        T = frame_T(p0, p1)
+        kg = T.T @ kl @ T
+        idx = list(range(6 * e, 6 * e + 12))
+        K[np.ix_(idx, idx)] += kg
+        els.append((e, kl, T, idx))
+    a = np.array(axis, float) / np.linalg.norm(axis)
+    r0 = nodes[0] - np.array(pivot, float)
+    u_eng = np.concatenate([theta * np.cross(a, r0), theta * a])
+    fixed_dofs = list(range(6 * (N - 1), 6 * N))
+    pres = list(range(0, 6))
+    free = [i for i in range(6 * N) if i not in fixed_dofs + pres]
+    U = np.zeros(6 * N)
+    U[pres] = u_eng
+    Kff = K[np.ix_(free, free)]
+    Kfp = K[np.ix_(free, pres)]
+    U[free] = np.linalg.solve(Kff, -Kfp @ u_eng)
+    R = K @ U
+    F, M = R[0:3], R[3:6]
+    Mp = M + np.cross(r0, F)
+    k_hinge = float(a @ Mp) / theta
+    bend = []
+    for (e, kl, T, idx) in els:
+        fl = kl @ (T @ U[idx])
+        # local end moments about y and z (bending), at both ends
+        m0 = math.hypot(fl[4], fl[5])
+        m1 = math.hypot(fl[10], fl[11])
+        bend.append(max(m0, m1))
+    return k_hinge, (F, M, Mp), np.array(bend), U
+
+
+def centreline_straight(p0, d, L, n=40):
+    d = np.asarray(d, float) / np.linalg.norm(d)
+    return np.array([p0 + d * L * i / n for i in range(n + 1)])
+
+
+def centreline_s(p0, L1, R, ang_deg, L2, L3, n=60, sx=1.0):
+    """Up L1, bend +ang (toward sx*X) with radius R, straight L2, bend back -ang, straight L3 (an S offset)."""
+    pts = [np.array(p0, float)]
+    pos = np.array(p0, float)
+    hdg = 0.0                                              # angle from +Z toward sx*X
+    def go_straight(L, m):
+        nonlocal pos
+        d = np.array([sx * math.sin(hdg), 0.0, math.cos(hdg)])
+        for i in range(1, m + 1):
+            pts.append(pos + d * L * i / m)
+        pos = pos + d * L
+    def go_bend(ang, m):
+        nonlocal pos, hdg
+        a = math.radians(ang)
+        for i in range(1, m + 1):
+            h = hdg + a * i / m
+            # arc integration
+            dh = a / m
+            hm = h - dh / 2
+            step = 2 * R * math.sin(abs(dh) / 2)
+            p = pts[-1] + step * np.array([sx * math.sin(hm), 0.0, math.cos(hm)])
+            pts.append(p)
+        pos = pts[-1].copy()
+        hdg += a
+    if L1 > 0:
+        go_straight(L1, max(2, int(L1 / 0.01)))
+    go_bend(ang_deg, 16)
+    if L2 > 0:
+        go_straight(L2, max(2, int(L2 / 0.01)))
+    go_bend(-ang_deg, 16)
+    if L3 > 0:
+        go_straight(L3, max(2, int(L3 / 0.01)))
+    return np.array(pts)
+
+
+def curvature_installed(nodes):
+    k = np.zeros(len(nodes))
+    for i in range(1, len(nodes) - 1):
+        a, b, c = nodes[i - 1], nodes[i], nodes[i + 1]
+        ab, bc, ac = np.linalg.norm(b - a), np.linalg.norm(c - b), np.linalg.norm(c - a)
+        area2 = np.linalg.norm(np.cross(b - a, c - a))
+        k[i] = 0.0 if area2 < 1e-15 else 2 * area2 / (ab * bc * ac)
+    return k
+
+
+def evaluate(name, nodes, EI_range, stop_deg, gimbal_deg):
+    out = {"config": name, "length_m": round(float(sum(np.linalg.norm(np.diff(nodes, axis=0), axis=1))), 4),
+           "engine_end_m": [round(float(c), 4) for c in nodes[0]], "fixed_end_m": [round(float(c), 4) for c in nodes[-1]]}
+    k0 = curvature_installed(nodes)
+    for EI in EI_range:
+        row = {}
+        for ax_name, ax in (("X(alpha)", (1, 0, 0)), ("Y(beta)", (0, 1, 0))):
+            kh, wr, bend, U = solve(nodes, EI, axis=ax)
+            dk = bend / EI * math.radians(stop_deg)          # curvature change per element at the stop
+            kk = np.maximum(k0[:-1], k0[1:]) + dk
+            rmin = 1.0 / kk.max() if kk.max() > 0 else float("inf")
+            row[ax_name] = {"K_Nm_per_rad": round(kh, 3), "M_at_range_Nm": round(kh * math.radians(gimbal_deg), 3),
+                            "min_bend_radius_at_stop_m": round(rmin, 4)}
+        out[f"EI={EI}"] = row
+    return out
+
+
+def main(out_path=None, h_engine_end=0.215, x_riser=-0.022, EI_range=(0.05, 0.25, 0.5), stop_deg=8.0, gimbal_deg=7.0):
+    res = {"id": "hose_frame", "version": "v1", "date": "2026-10-12", "method": __doc__.strip().splitlines()[0],
+           "inputs": {"engine_end_m": [x_riser, 0.0, h_engine_end], "EI_range_Nm2": list(EI_range),
+                      "EI_tag": "ASSUMED: -6 PTFE smooth-bore SS-braided hose, pressurised EI unknown, bench test required",
+                      "GJ": "EI/1.3 ASSUMED", "stop_deg": stop_deg, "range_deg": gimbal_deg}}
+    p0 = np.array([x_riser, 0.0, h_engine_end])
+    # verification against the closed form (straight radial hose)
+    d = p0 / np.linalg.norm(p0)
+    L = 0.30
+    nodes = centreline_straight(p0, d, L)
+    k_num, *_ = solve(nodes, 0.1, axis=(0, 1, 0))
+    h = np.linalg.norm(p0)
+    x = h / L
+    k_an = 4 * 0.1 / L * (1 + 3 * x + 3 * x * x)
+    res["verification_straight_radial"] = {"L_m": L, "h_m": round(h, 4), "K_numeric": round(k_num, 4), "K_analytic": round(k_an, 4),
+                                           "rel_err": round(abs(k_num - k_an) / k_an, 6)}
+    configs = []
+    for L in (0.22, 0.30, 0.40, 0.50):
+        configs.append((f"straight vertical L={L:.2f}", centreline_straight(p0, (0, 0, 1), L)))
+    for L in (0.30, 0.40):
+        configs.append((f"straight along pivot radial line L={L:.2f}", centreline_straight(p0, d, L)))
+    for (L1, R, ang, L2, L3) in ((0.03, 0.08, 45.0, 0.0, 0.03), (0.03, 0.09, 30.0, 0.05, 0.05), (0.05, 0.10, 40.0, 0.02, 0.05)):
+        nodes = centreline_s(p0, L1, R, ang, L2, L3, sx=1.0)
+        configs.append((f"S offset toward +X: up {L1}, R {R} x {ang:.0f} deg, {L2}, back, {L3}", nodes))
+    res["configs"] = [evaluate(n, nd, EI_range, stop_deg, gimbal_deg) for n, nd in configs]
+    if out_path:
+        with open(out_path, "w") as f:
+            json.dump(res, f, indent=1)
+    return res
+
+
+if __name__ == "__main__":
+    import sys
+    r = main(sys.argv[1] if len(sys.argv) > 1 else None)
+    print(json.dumps(r["verification_straight_radial"]))
+    for c in r["configs"]:
+        print(c["config"], c["length_m"], c["fixed_end_m"])
+        for k, v in c.items():
+            if k.startswith("EI="):
+                print("   ", k, {a: (b["K_Nm_per_rad"], b["M_at_range_Nm"], b["min_bend_radius_at_stop_m"]) for a, b in v.items()})

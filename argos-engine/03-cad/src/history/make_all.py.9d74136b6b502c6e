@@ -1,0 +1,677 @@
+"""CAD make-all: build, verify, export, BOM, mass properties, drawings, README (03-cad/src, v1, 2026-10-13, Mechanical).
+
+usage: make_all.py [--stages build,checks,parts,assembly,glb,bom,mass,drawings,readme] [--poses neutral,stop045] [--out DIR]
+
+Stages (all by default):
+  build     build.build(engine, gimbal, feed; config.V34_ON) with the pivot iterated onto the mid-burn CG of the engine group.
+  checks    BRepCheck validity of every part; boolean interference at neutral (all pairs) and, for relatively moving bodies, at every
+            pose of build.pose_list (17: neutral, +/-7 deg per axis, 4 combined corners at 7 deg, the 8 deg conical stop in 8
+            directions; the feed hose re-swept per pose from the linear frame shape); exact clearances < 3 mm between relatively
+            moving bodies; clearance of every instance to the 140 mm bay wall at every pose; swept envelope of the engine group.
+  parts     per part number: STEP (mm, +Z forward, the part's modelling frame; parts modelled in place carry engine-frame
+            coordinates) with the repository round-trip method (re-import: every solid valid, same solid count, |dV|/V < 1e-5,
+            bbox error < 0.01 mm; software verification, NOT a manufacturing tolerance) and STL (mm, linear deflection 0.05 mm).
+  assembly  assembly STEP of every instance at neutral (names PN#i, colours by material) + re-import verification; a posed
+            STEP at the 8 deg stop toward 45 deg (visual).
+  glb       GLB in metres with +Y up: (x, y, z)_glTF = (x, z, -y)_engine / 1000 (proper rotation, det +1); one mesh per instance,
+            material colours; read back and checked (node count, bounds against the STEP assembly within the tessellation
+            deflection).
+  bom       BOM_<ver>.csv/.json: one line per part number (sub-solids roll into their parent), qty, material, process, supplier,
+            mass and its source, unit price TO-QUOTE with delivery to Sonderborg DK-6400 unless the part carries a dated price
+            (no price is invented, no "from" offers), N2O-wetted flag (oxygen-clean), drawing file.
+  mass      massprops_<ver>.json: groups engine / fixed / ring / horn / pushrod (hose split by its engine fraction), burn states
+            wet / mid / burnout / nograin, mass, CG, inertia about the CG and about the pivot; per-part ledger.
+  drawings  hidden-line projections (front = view along +Y, top = along -Z, side = along -X, iso) of every part with
+            drawing=True: SVG + PDF (matplotlib) + DXF (ezdxf, mm, layer per view) with a title block, overall dimensions and
+            the part's datum / fits / finish / heat-treatment notes.  DESIGN-MODEL drawings: not released for fabrication.
+  readme    03-cad/README.md and 03-cad/properties.json (generator versions, sha256 of every source and output).
+Every output is a DESIGN MODEL from the parameter set; geometric checks are software checks, not physical validation.
+"""
+from __future__ import annotations
+import argparse, csv, hashlib, json, math, os, sys, time, traceback
+from pathlib import Path
+# v3.4.1: single-threaded BLAS before numpy loads (the feed-route SLSQP plan is not reproducible with threaded BLAS; the baseline
+# route comes from the frozen plan 03-cad/src/data/feed_plan_v341.json, this keeps any re-plan deterministic)
+for _k in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
+    os.environ.setdefault(_k, "1")
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+CAD = HERE.parent
+sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parents[1] / "04-fea" / "src"))
+import cadquery as cq
+import config
+import build
+import checks
+import sweep
+import engmat
+from geom import apply, bbox, T_trans
+
+CAD_VERSION = "v3.5"
+R_BAY = 70.0
+DELIVERY = "Sonderborg, Denmark, DK-6400"
+LOG = []
+
+
+def log(*a):
+    s = " ".join(str(x) for x in a)
+    LOG.append(s)
+    print(s, flush=True)
+
+
+def sha16(p):
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for b in iter(lambda: f.read(1 << 20), b""):
+            h.update(b)
+    return h.hexdigest()[:16]
+
+
+def jdump(path, obj):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(obj, indent=1, default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o)))
+
+
+def solid_volume(shape):
+    return sum(s.Volume() for s in shape.Solids())
+
+
+def bounds_of(shape):
+    """Exact (optimal) bounding box from the B-rep geometry, ignoring any triangulation and the shape tolerances.  v3.4.1: the cadquery
+    BoundingBox used the triangulation when one existed (the in-memory part is meshed by the checks stage, the re-imported one is not),
+    which failed ENG-EL-04 on a 0.012 mm tessellation difference (make_all v3.4.1 first run, kept in the log)."""
+    from OCP.Bnd import Bnd_Box
+    from OCP.BRepBndLib import BRepBndLib
+    b = Bnd_Box()
+    BRepBndLib.AddOptimal_s(shape.wrapped, b, False, False)
+    return list(b.Get())
+
+
+# --------------------------------------------------------------------------------------------- build
+def stage_build():
+    t0 = time.time()
+    P, S, reg, clog = build.build(include=("engine", "gimbal", "feed"), iterate_cg=True, overrides=config.V34_ON)
+    log(f"build: {len(list(reg))} part numbers, {sum(p.qty for p in reg)} instances, {time.time() - t0:.1f} s, "
+        f"z_head_mid {P['z_head_mid']['v'] * 1e3:.3f} mm")
+    return P, S, reg, clog
+
+
+# --------------------------------------------------------------------------------------------- checks
+def stage_checks(P, S, reg, out, only_poses=None):
+    cdir = out / "checks"
+    res = {"cad_version": CAD_VERSION, "validity": checks.validity(reg), "poses": [], "cg_iteration": S.get("cg_iteration")}
+    bad_valid = [v for v in res["validity"] if not v["valid"]]
+    bad_solids = [v for v in res["validity"] if not v.get("solids_ok", True)]
+    log(f"validity: {len(res['validity'])} parts, invalid {len(bad_valid)}: {[v['pn'] for v in bad_valid]}; unexpected solid count "
+        f"{len(bad_solids)}: {[(v['pn'], v['n_solids']) for v in bad_solids]}")
+    poses = build.pose_list(P, S)
+    for nm, a, b in poses:
+        if only_poses and nm not in only_poses:
+            continue
+        t1 = time.time()
+        inst = build.posed_instances(reg, S, a, b)
+        checks.PERTURB_LOG.clear()
+        hits = checks.interference_at_pose(inst, all_pairs=(nm == "neutral"))
+        close = checks.clearances_at_pose(inst, limit=3.0, pose=nm)
+        wall = checks.wall_clearance(inst, R_BAY, -260.0, 380.0)
+        rec = {"pose": nm, "alpha_deg": a, "beta_deg": b, "t_s": None, "interference": hits,
+               "interference_not_whitelisted": [h for h in hits if not h["whitelisted"]],
+               "clearance_lt_3mm": sorted(close, key=lambda r: r["dist_mm"]),
+               "clearance_lt_3mm_unexpected": sorted([c for c in close if not c["expected_contact"]], key=lambda r: r["dist_mm"]),
+               "bay_wall_min": wall[:12], "perturb_log": list(checks.PERTURB_LOG)}
+        rec["t_s"] = round(time.time() - t1, 1)
+        res["poses"].append(rec)
+        log(f"checks {nm}: a {a:.2f} b {b:.2f}: interference {len(hits)} (not whitelisted {len(rec['interference_not_whitelisted'])}), "
+            f"close<3 unexpected {len(rec['clearance_lt_3mm_unexpected'])}, wall min "
+            f"{wall[0]['dist_mm'] if wall else None} ({wall[0]['inst'] if wall else ''}), {rec['t_s']} s")
+        jdump(cdir / f"checks_{CAD_VERSION}.json", res)
+    inst0 = build.posed_instances(reg, S, 0.0, 0.0)
+    try:
+        res["swept_envelope"] = sweep.report(inst0, P, R_bay_mm=R_BAY)
+        res["swept_envelope_required_bay"] = sweep.required_bay(res["swept_envelope"])
+    except Exception as ex:
+        res["swept_envelope_error"] = repr(ex)
+    summ = {"cad_version": CAD_VERSION, "n_parts": len(res["validity"]), "invalid": [v["pn"] for v in bad_valid],
+            "unexpected_solid_count": [(v["pn"], v["n_solids"]) for v in bad_solids],
+            "poses": [{"pose": r["pose"], "interference_not_whitelisted": len(r["interference_not_whitelisted"]),
+                       "unexpected_close_lt_3mm": len(r["clearance_lt_3mm_unexpected"]),
+                       "min_unexpected_mm": (r["clearance_lt_3mm_unexpected"][0]["dist_mm"] if r["clearance_lt_3mm_unexpected"] else None),
+                       "wall_min_mm": (r["bay_wall_min"][0]["dist_mm"] if r["bay_wall_min"] else None),
+                       "wall_min_by": (r["bay_wall_min"][0]["inst"] if r["bay_wall_min"] else None)} for r in res["poses"]],
+            "swept_worst_band": res.get("swept_envelope", {}).get("worst_band")}
+    res["summary"] = summ
+    jdump(cdir / f"checks_{CAD_VERSION}.json", res)
+    jdump(cdir / f"checks_summary_{CAD_VERSION}.json", summ)
+    return res
+
+
+# --------------------------------------------------------------------------------------------- per-part STEP / STL
+def roundtrip(shape, path):
+    cq.exporters.export(shape, str(path))
+    imp = cq.importers.importStep(str(path)).val()
+    v0, v1 = solid_volume(shape), solid_volume(imp)
+    b0, b1 = bounds_of(shape), bounds_of(imp)
+    rel = abs(v1 - v0) / v0 if v0 > 0 else float("nan")
+    berr = max(abs(x - y) for x, y in zip(b0, b1))
+    ok = (imp.isValid() and all(s.isValid() for s in imp.Solids()) and len(imp.Solids()) == len(shape.Solids())
+          and rel < 1e-5 and berr < 0.01)
+    return {"passed": bool(ok), "solids": len(imp.Solids()), "volume_mm3": round(v0, 3), "volume_rel_err": rel,
+            "bbox_err_mm": berr, "sha256_16": sha16(path)}
+
+
+def stage_parts(reg, out):
+    pdir = out / "parts"
+    pdir.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for p in reg:
+        t1 = time.time()
+        rec = {"pn": p.pn, "file_step": f"parts/{p.pn}.step", "file_stl": f"parts/{p.pn}.stl"}
+        try:
+            rec.update(roundtrip(p.shape, pdir / f"{p.pn}.step"))
+            cq.exporters.export(p.shape, str(pdir / f"{p.pn}.stl"), tolerance=0.05, angularTolerance=0.2)
+            rec["stl_sha256_16"] = sha16(pdir / f"{p.pn}.stl")
+        except Exception as ex:
+            rec.update(passed=False, error=repr(ex))
+        rec["t_s"] = round(time.time() - t1, 2)
+        rows.append(rec)
+        if not rec.get("passed"):
+            log(f"  STEP round-trip FAILED {p.pn}: {rec}")
+    n_ok = sum(1 for r in rows if r.get("passed"))
+    log(f"parts: {n_ok}/{len(rows)} STEP round-trips passed")
+    res = {"cad_version": CAD_VERSION, "units": "mm", "frame": "part modelling frame (+Z forward); parts modelled in place carry engine-frame "
+                                                            "coordinates (origin = gimbal pivot at neutral)",
+           "thresholds": {"volume_rel": 1e-5, "bbox_mm": 0.01, "meaning": "software round-trip verification, NOT manufacturing tolerances"},
+           "n_passed": n_ok, "n": len(rows), "rows": rows}
+    jdump(out / "checks" / f"roundtrip_parts_{CAD_VERSION}.json", res)
+    return res
+
+
+# --------------------------------------------------------------------------------------------- assembly STEP
+def instances_neutral(reg, S, alpha=0.0, beta=0.0):
+    return build.posed_instances(reg, S, alpha, beta)
+
+
+def stage_assembly(reg, S, out):
+    adir = out / "assembly"
+    adir.mkdir(parents=True, exist_ok=True)
+    res = {}
+    for tag in ("neutral", "stop045"):          # v3.4.1 fix: the v1 loop unpacked None for the posed tag (TypeError, run 1 log kept)
+        if tag == "stop045":
+            import tvc_kinematics as tk
+            a, b = tk.cone_to_ab(8.0, 45.0)
+        else:
+            a, b = 0.0, 0.0
+        inst = instances_neutral(reg, S, a, b)
+        asm = cq.Assembly(name=f"ARGOS_ENGINE_{CAD_VERSION.replace('.', '_')}_{tag}_DESIGN_MODEL")
+        mats = {p.pn: p.material for p in reg}
+        for (pn, i, g, sh, body) in inst:
+            c = engmat.color(mats[pn])
+            asm.add(sh, name=f"{pn}#{i}", color=cq.Color(*c[:3]))
+        path = adir / f"ENGINE_{CAD_VERSION}_{tag}.step"
+        asm.export(str(path))
+        comp = cq.Compound.makeCompound([t[3] for t in inst])
+        imp = cq.importers.importStep(str(path)).val()
+        v0, v1 = solid_volume(comp), solid_volume(imp)
+        b0, b1 = bounds_of(comp), bounds_of(imp)
+        rel = abs(v1 - v0) / v0
+        berr = max(abs(x - y) for x, y in zip(b0, b1))
+        ok = (imp.isValid() and len(imp.Solids()) == len(comp.Solids()) and rel < 1e-5 and berr < 0.01)
+        res[tag] = {"file": f"assembly/{path.name}", "sha256_16": sha16(path), "instances": len(inst), "solids": len(comp.Solids()),
+                    "alpha_deg": a, "beta_deg": b, "bounds_mm": [round(x, 3) for x in b0], "roundtrip": {"passed": bool(ok), "volume_rel_err": rel,
+                                                                                                       "bbox_err_mm": berr, "solids_reimported": len(imp.Solids())}}
+        log(f"assembly {tag}: {len(inst)} instances, {len(comp.Solids())} solids, round-trip {'PASS' if ok else 'FAIL'} (dV/V {rel:.2e}, bbox {berr:.4f} mm)")
+        if tag == "neutral":
+            man = [{"inst": f"{pn}#{i}", "group": g, "body": body, "bounds_mm": [round(x, 2) for x in bounds_of(sh)]} for (pn, i, g, sh, body) in inst]
+            jdump(adir / f"assembly_manifest_{CAD_VERSION}.json", {"cad_version": CAD_VERSION, "frame": "engine frame, mm, +Z forward, origin pivot",
+                                                                   "instances": man})
+    jdump(out / "checks" / f"roundtrip_assembly_{CAD_VERSION}.json", res)
+    return res
+
+
+# --------------------------------------------------------------------------------------------- GLB
+R_GLTF = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]])     # engine (mm, +Z up) -> glTF (+Y up); det +1
+
+
+def stage_glb(reg, S, out, tol=0.1):
+    import trimesh
+    adir = out / "assembly"
+    adir.mkdir(parents=True, exist_ok=True)
+    assert abs(np.linalg.det(R_GLTF) - 1.0) < 1e-12
+    inst = instances_neutral(reg, S)
+    mats = {p.pn: p.material for p in reg}
+    scene = trimesh.Scene()
+    lo, hi = np.full(3, np.inf), np.full(3, -np.inf)
+    n = 0
+    for (pn, i, g, sh, body) in inst:
+        vs, ts = sh.tessellate(tol, 0.3)
+        if not ts:
+            continue
+        V = np.array([[p.x, p.y, p.z] for p in vs])
+        Vg = (V @ R_GLTF.T) * 1e-3
+        c = engmat.color(mats[pn])
+        rgba = [int(255 * x) for x in c[:3]] + [255]
+        m = trimesh.Trimesh(vertices=Vg, faces=np.array(ts), process=False)
+        m.visual.face_colors = np.tile(rgba, (len(ts), 1))
+        scene.add_geometry(m, node_name=f"{pn}#{i}", geom_name=f"{pn}#{i}")
+        lo, hi = np.minimum(lo, Vg.min(0)), np.maximum(hi, Vg.max(0))
+        n += 1
+    path = adir / f"ENGINE_{CAD_VERSION}_neutral.glb"
+    scene.export(str(path))
+    back = trimesh.load(str(path), force="scene")
+    bl = np.array(back.bounds)
+    comp = cq.Compound.makeCompound([t[3] for t in inst])
+    b0 = np.array(bounds_of(comp))
+    exp_lo = np.minimum((R_GLTF @ b0[:3]), (R_GLTF @ b0[3:])) * 1e-3
+    exp_hi = np.maximum((R_GLTF @ b0[:3]), (R_GLTF @ b0[3:])) * 1e-3
+    err = float(max(np.abs(bl[0] - exp_lo).max(), np.abs(bl[1] - exp_hi).max()))
+    ok = (len(back.geometry) == n) and err < 2e-4
+    res = {"file": f"assembly/{path.name}", "sha256_16": sha16(path), "units": "m", "up": "+Y", "transform": "(x, y, z)_glTF = (x, z, -y)_engine / 1000",
+           "meshes": n, "readback_meshes": len(back.geometry), "bounds_m": bl.tolist(), "expected_bounds_m": [exp_lo.tolist(), exp_hi.tolist()],
+           "bounds_err_m": err, "tessellation_deflection_mm": tol, "passed": bool(ok),
+           "note": "visualisation geometry only (tessellated); the STEP files are the CAD of record"}
+    jdump(out / "checks" / f"glb_readback_{CAD_VERSION}.json", res)
+    log(f"glb: {n} meshes, readback {len(back.geometry)}, bounds err {err * 1e3:.3f} mm, {'PASS' if ok else 'FAIL'}")
+    return res
+
+
+# --------------------------------------------------------------------------------------------- BOM
+# v3.4.1 (lead 2026-10-13): A1 head-end bleed = DESIGNED-IN PROVISION, reserved in the ICD but NOT modelled in the CAD solids.  The
+# lines below reserve part numbers, interfaces and budget; masses are computed only where the geometry is defined (tube), otherwise
+# None with an ESTIMATE range (no datasheet yet).  Ranges are summed separately (PROVISION_RANGE_G), never mixed with CAD masses.
+PROVISION_RANGE_G = {"ENG-BL-01": (10.0, 15.0), "ENG-BL-02": (10.0, 15.0), "ENG-BL-03": (13.0, 22.0), "ENG-BL-04": (15.0, 25.0),
+                     "ENG-BL-06": (10.0, 20.0)}          # ESTIMATE (engineering judgement, no datasheet); valves ENG-BL-05 TO-VERIFY
+BLEED_MODELLED = bool(config.V34_ON.get("v35_bleed"))  # v3.5 (run 6): the bleed is MODELLED (parts_bleed.py, BL-01..BL-10 in the BOM);
+if BLEED_MODELLED:                                     # only the opposed vent tee outside the wall (airframe ICD-14) stays a provision
+    PROVISION_RANGE_G = {"ENG-BL-06N": (10.0, 20.0)}
+
+
+def provision_lines():
+    rho316 = engmat.MATERIALS["SS316L"]["rho"]["v"]           # kg/m3, EN 10088-1
+    od, t = 3.175e-3, 0.711e-3                                 # 1/8 in x 0.028 in tube (standard size)
+    a_tube = math.pi / 4.0 * (od ** 2 - (od - 2 * t) ** 2)
+    L_tube = 0.30                                              # m, ESTIMATE route length (engine side ~0.10 + fixed side ~0.20)
+    m_tube = a_tube * rho316 * L_tube
+    tq = f"TO-QUOTE (delivery {DELIVERY})"
+    base = {"qty": 1, "groups": "provision (not modelled)", "cots": True, "supplier": "TO-SELECT", "supplier_pn": "", "unit_price": tq,
+            "wetted": "N2O", "oxygen_clean": True, "drawing": "", "step": "", "step_roundtrip": None, "sub_solids": ""}
+    rows = [
+        {"pn": "ENG-BL-01", "name": "bleed tap T4 crown take-off fitting with restrictor", "material": "SS316L", "process": "COTS fitting",
+         "unit_mass_kg": None, "mass_source": "ESTIMATE 10-15 g (no datasheet)",
+         "notes": "PROVISION (lead 2026-10-13, A1 head-end bleed): 1/8-27 NPT port at the TEE/T4 crown (CAD frame approx (-20.3, 0, 191.6) mm, "
+                  "bleed_taps_v341_v1), restrictor orifice >= 0.8 mm (Dyer purge-sweep bound; 1.0 mm HEM bound), oxygen-clean; port NOT cut in "
+                  "the CAD v3.4.1 solids"},
+        {"pn": "ENG-BL-02", "name": "bleed tap FD-01 radial take-off (plug-tap fitting)", "material": "SS316L", "process": "COTS fitting",
+         "unit_mass_kg": None, "mass_source": "ESTIMATE 10-15 g (no datasheet)",
+         "notes": "PROVISION: radial port on the FD-01 riser upstream crown (CAD frame approx (-41.5, 0, 159.2) mm); second tap required by the "
+                  "barrier-filter voxel model (T4 alone leaves 4.72 cm3 at 0 deg); port NOT cut in CAD v3.4.1"},
+        {"pn": "ENG-BL-03", "name": "bleed line 1/8 in x 0.028 in 316L tube + tee", "material": "SS316L", "process": "COTS tube, bent",
+         "unit_mass_kg": round(m_tube, 4),
+         "mass_source": f"CALC tube only: {a_tube * 1e6:.3f} mm2 x {rho316:.0f} kg/m3 x {L_tube} m (route length ESTIMATE); tee ESTIMATE +8 g",
+         "notes": "PROVISION: -2 class line from both taps to the crossing hose; route reserved in the ICD (mechanical.json v2.1 icd_airframe."
+                  "bleed_provision); not modelled"},
+        {"pn": "ENG-BL-04", "name": "bleed crossing hose -2 class PTFE / 316 braid, ~0.2 m", "material": "PTFE/SS316", "process": "COTS hose assembly",
+         "unit_mass_kg": None, "mass_source": "ESTIMATE 15-25 g (no datasheet)",
+         "notes": "PROVISION: crosses the gimbal next to FD-07; stiffness about the pivot 0.5-2 N m/rad ESTIMATE (coordinator 2026-10-13), "
+                  "carried inside the 17.2 N m/rad hose budget; to be measured with B-FD-1"},
+        {"pn": "ENG-BL-05", "name": "bleed valve 2/2 NC solenoid, x2 in series", "material": "SS316/FFKM", "process": "COTS valve",
+         "qty": 2, "unit_mass_kg": None, "mass_source": "TO-VERIFY (datasheet)",
+         "notes": "PROVISION: rated >= SEG-P 9.975 MPa, N2O-compatible seals, orifice >= 1.0 mm, fail-closed; two in series for "
+                  "stuck-open tolerance (stuck-open flow share 3.5-14 % at 0.8 mm, 5.5-22 % at 1.0 mm); ECU channel with Electronics; "
+                  "maker TO-SELECT"},
+        {"pn": "ENG-BL-06", "name": "bleed overboard vent: balanced opposed pair or axial outlet", "material": "SS316L", "process": "COTS fitting",
+         "unit_mass_kg": None, "mass_source": "ESTIMATE 10-20 g (no datasheet)",
+         "notes": "PROVISION: overboard vent through the airframe as a BALANCED OPPOSED PAIR (tee to two equal outlets 180 deg apart) or a "
+                  "single AXIAL outlet (coordinator 2026-10-13: a single lateral jet of about 2 N tilts the vehicle 1.2-1.9 deg); location in "
+                  "the ICD (airframe owner, mechanical.json v2.1 icd_airframe); away from the plume and the avionics bay"},
+    ]
+    if BLEED_MODELLED:
+        rows = [{"pn": "ENG-BL-06N", "name": "bleed vent non-propulsive opposed tee outside the airframe wall (on ENG-BL-06)", "material": "SS316L",
+                 "process": "COTS fitting", "unit_mass_kg": None, "mass_source": "ESTIMATE 10-20 g (no datasheet)",
+                 "notes": "PROVISION (v3.5): airframe item at the bay-wall bulkhead ENG-BL-06 (az 112, z 260); balanced opposed pair "
+                          "180 deg apart (single lateral jet of ~2 N tilts the vehicle 1.2-1.9 deg, coordinator 2026-10-13); ICD-14 TO-DEFINE"}]
+    out = []
+    for r in rows:
+        line = dict(base)
+        line.update(r)
+        line["material_name"] = engmat.MATERIALS.get(line["material"], {}).get("name", line["material"])
+        out.append({k: line[k] for k in ("pn", "name", "qty", "groups", "material", "material_name", "process", "cots", "supplier",
+                                         "supplier_pn", "unit_mass_kg", "mass_source", "unit_price", "wetted", "oxygen_clean", "drawing",
+                                         "step", "step_roundtrip", "sub_solids", "notes")})
+    return out
+
+
+def contingency_lines():
+    """Lines that are NOT fitted in the baseline but have a decided procurement path (lead 2026-10-13)."""
+    tq = f"TO-QUOTE (delivery {DELIVERY})"
+    r = {"pn": "ENG-NZ-05", "name": "J1b contingency: insulating layer 0.5 mm phlogopite mica between the NZ-03 hot layer and the NZ-04 seal",
+         "qty": 0, "groups": "contingency (not fitted)", "material": "MICA", "material_name": "phlogopite mica sheet/paper (grade TO-SELECT)",
+         "process": "cut from sheet (water-jet / punch)", "cots": True,
+         "supplier": "phlogopite mica sheet rated >= 1002 C (J1b FE mica-face peak 901.8 C + 100 K, j1_check v1.1); maker TO-SELECT",
+         "supplier_pn": "", "unit_mass_kg": None, "mass_source": "not fitted", "unit_price": tq, "wetted": "", "oxygen_clean": False,
+         "drawing": "", "step": "", "step_roundtrip": None, "sub_solids": "",
+         "notes": "Lead 2026-10-13: J1 confirmed, J1b dropped UNLESS S-AX fails the 316L lip at 342 C under the 10.6 MPa bearing load at 63.1 bar. "
+                  "If fitted: stack +0.5 mm (holder depth or exit plane changes in CAD); NZ-04 in-burn 271.2 C (class >= 371 C), lip 222.9 C."}
+    return [r]
+
+
+def stage_bom(reg, out, roundtrip_rows=None):
+    rt = {r["pn"]: r for r in (roundtrip_rows or [])}
+    lines = []
+    for p in reg:
+        if p.bom_parent:
+            continue
+        m, cg, I, tag = build.part_mass(p)
+        groups = sorted({build.group_of(g) for (_, g) in p.placements})
+        price = p.price if p.price and p.price != "TO-QUOTE" else f"TO-QUOTE (delivery {DELIVERY})"
+        lines.append({"pn": p.pn, "name": p.name, "qty": p.qty, "groups": "/".join(groups), "material": p.material,
+                      "material_name": engmat.MATERIALS.get(p.material, {}).get("name", p.material), "process": p.process,
+                      "cots": p.cots, "supplier": p.supplier or ("in-house / workshop TO-QUOTE" if not p.cots else "TO-SELECT"),
+                      "supplier_pn": p.supplier_pn, "unit_mass_kg": round(m, 5), "mass_source": tag, "unit_price": price,
+                      "wetted": p.wetted, "oxygen_clean": bool(p.wetted == "N2O"), "drawing": f"drawings/{p.pn}.pdf" if p.drawing else "",
+                      "step": f"parts/{p.pn}.step", "step_roundtrip": (rt.get(p.pn, {}).get("passed") if rt else None),
+                      "sub_solids": ", ".join(q.pn for q in reg if q.bom_parent == p.pn), "notes": p.notes})
+    # v3.5 (lead 177 (5), datasheet finding C-13): the transport lock (group "lock", GSE) is NOT flight hardware: excluded from the sum
+    gse = [l for l in lines if "lock" in str(l.get("groups", ""))]
+    tot = sum(l["unit_mass_kg"] * l["qty"] for l in lines if l not in gse)
+    prov = provision_lines()
+    cont = contingency_lines()
+    hdr = list(lines[0].keys())
+    path = out / f"BOM_{CAD_VERSION}.csv"
+    with open(path, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=hdr)
+        w.writeheader()
+        for l in lines + prov + cont:
+            w.writerow(l)
+    pm = [l["unit_mass_kg"] * l["qty"] for l in prov if l["unit_mass_kg"] is not None]
+    res = {"cad_version": CAD_VERSION, "delivery": DELIVERY, "currency": "prices not given: every line TO-QUOTE unless dated",
+           "n_lines": len(lines), "n_instances": sum(l["qty"] for l in lines), "mass_sum_kg": round(tot, 4),
+           "mass_sum_note": "sum of unit masses x qty (CAD volume x density, or tagged COTS masses); includes the transport-lock items only "
+                            "if they are placed (they are not: group 'lock' is excluded from the instance list); PROVISION lines excluded",
+           "lines": lines, "mass_sum_flight_kg": round(tot, 4), "gse_lines_excluded_from_flight_mass": [{"pn": l["pn"], "qty": l["qty"], "unit_mass_kg": l["unit_mass_kg"]} for l in gse], "provision_lines": prov, "contingency_lines": cont,
+           "provision_mass_estimate_kg": {"computed_lines": round(sum(pm), 4),
+                                          "estimate_range_kg": [round(sum(v[0] for v in PROVISION_RANGE_G.values()) / 1e3, 3),
+                                                                round(sum(v[1] for v in PROVISION_RANGE_G.values()) / 1e3, 3)],
+                                          "valves": "TO-VERIFY (datasheet)",
+                                          "note": ("v3.5: bleed MODELLED (ENG-BL-01..10 in the BOM lines); provision = opposed vent tee outside the wall only"
+                                                   if BLEED_MODELLED else "A1 head-end bleed provision (lead 2026-10-13), NOT modelled in CAD v3.4.1; range = "
+                                                   "ESTIMATE of taps, tube+tee, crossing hose and bulkhead (excl. valves)")}}
+    jdump(out / f"BOM_{CAD_VERSION}.json", res)
+    log(f"bom: {len(lines)} lines, {res['n_instances']} instances, mass sum {tot:.3f} kg")
+    return res
+
+
+# --------------------------------------------------------------------------------------------- mass properties
+def stage_mass(P, S, reg, out):
+    res = {"cad_version": CAD_VERSION, "frame": "engine frame, mm, origin = gimbal pivot (v3.4.1 rev B: pivot FROZEN at the rev A mid-burn CG, "
+                                                 "z_head_mid 155.513 mm; the rev B CG offset is reported in states.mid)",
+           "z_head_mid_mm": P["z_head_mid"]["v"] * 1e3, "cg_iteration": S.get("cg_iteration"), "states": {}}
+    for st in ("wet", "mid", "burnout", "nograin"):
+        rows, mg0 = build.mass_ledger(reg, P, st, S)
+        d = {}
+        for name, grps in (("engine", ("engine",)), ("fixed", ("fixed",)), ("ring", ("ring",)), ("horn", ("horn",)), ("pushrod", ("pushrod",)),
+                           ("all", ("engine", "fixed", "ring", "horn", "pushrod"))):
+            gp = build.group_props(rows, grps)
+            d[name] = {"m_kg": round(gp["m"], 5), "cg_mm": [round(x, 3) for x in gp["cg_mm"]], "n": gp["n"],
+                       "I_cg_kgm2": np.round(gp["I_cg"], 7).tolist(), "I_pivot_kgm2": np.round(gp["I_about"], 7).tolist()}
+        res["states"][st] = d
+        if st == "mid":
+            res["ledger_mid"] = [{"pn": r["pn"], "idx": r["idx"], "group": r["group"], "m_kg": round(r["m"], 6),
+                                  "cg_mm": [round(x, 2) for x in r["cg"]], "tag": r["tag"]} for r in rows]
+            res["grain_mass_wet_kg"] = round(mg0, 5)
+    jdump(out / f"massprops_{CAD_VERSION}.json", res)
+    e = res["states"]["mid"]["engine"]
+    log(f"mass: engine group mid {e['m_kg']:.4f} kg, CG {e['cg_mm']}, I_pivot diag {[round(e['I_pivot_kgm2'][k][k], 5) for k in range(3)]}; "
+        f"fixed {res['states']['mid']['fixed']['m_kg']:.4f} kg")
+    return res
+
+
+# --------------------------------------------------------------------------------------------- drawings
+VIEWS = {"front": ((0.0, 1.0, 0.0), (1.0, 0.0, 0.0)),        # looking along +Y: x right, z up
+         "top": ((0.0, 0.0, -1.0), (1.0, 0.0, 0.0)),         # looking down -Z: x right, y up (third-angle top)
+         "side": ((-1.0, 0.0, 0.0), (0.0, 1.0, 0.0)),        # looking along -X: y right, z up
+         "iso": ((-1.0, 1.0, -0.8), (1.0, 1.0, 0.0))}
+
+
+def hlr_polylines(shape, view_dir, x_dir, n_seg=24):
+    from OCP.HLRBRep import HLRBRep_Algo, HLRBRep_HLRToShape
+    from OCP.HLRAlgo import HLRAlgo_Projector
+    from OCP.gp import gp_Ax2, gp_Pnt, gp_Dir
+    vd = np.array(view_dir, float)
+    vd /= np.linalg.norm(vd)
+    xd = np.array(x_dir, float)
+    xd = xd - (xd @ vd) * vd
+    xd /= np.linalg.norm(xd)
+    algo = HLRBRep_Algo()
+    algo.Add(shape.wrapped)
+    algo.Projector(HLRAlgo_Projector(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(*(-vd)), gp_Dir(*xd))))
+    algo.Update()
+    algo.Hide()
+    h = HLRBRep_HLRToShape(algo)
+    out = {"visible": [], "hidden": []}
+    for kind, comps in (("visible", (h.VCompound(), h.Rg1LineVCompound(), h.OutLineVCompound())),
+                        ("hidden", (h.HCompound(), h.OutLineHCompound()))):
+        for c in comps:
+            if c is None or c.IsNull():
+                continue
+            for e in cq.Shape.cast(c).Edges():
+                try:
+                    pts = e.positions(np.linspace(0.0, 1.0, n_seg if e.geomType() != "LINE" else 2))
+                except Exception:
+                    continue
+                out[kind].append(np.array([[p.x, p.y] for p in pts]))
+    return out
+
+
+def draw_part(p, out_dir, mass_kg, cad_version):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import ezdxf
+    sh = p.shape
+    b = bounds_of(sh)
+    dims = [b[3] - b[0], b[4] - b[1], b[5] - b[2]]
+    proj = {k: hlr_polylines(sh, *v) for k, v in VIEWS.items()}
+    # layout (third-angle): top above front, side right of front, iso top-right
+    def ext(pl):
+        allp = np.vstack(pl["visible"] + pl["hidden"]) if (pl["visible"] or pl["hidden"]) else np.zeros((1, 2))
+        return allp.min(0), allp.max(0)
+    ex = {k: ext(v) for k, v in proj.items()}
+    gap = 0.25 * max(dims) + 10.0
+    fw, fh = ex["front"][1] - ex["front"][0]
+    origin = {"front": np.array([0.0, 0.0]) - ex["front"][0],
+              "top": np.array([0.0, fh + gap]) - ex["top"][0],
+              "side": np.array([fw + gap, 0.0]) - ex["side"][0]}
+    sw = ex["side"][1][0] - ex["side"][0][0]
+    origin["iso"] = np.array([fw + gap, fh + gap]) - ex["iso"][0]
+    doc = ezdxf.new("R2010")
+    doc.units = ezdxf.units.MM
+    msp = doc.modelspace()
+    for k in proj:
+        doc.layers.add(f"{k.upper()}_VISIBLE", color=7)
+        doc.layers.add(f"{k.upper()}_HIDDEN", color=8, linetype="DASHED" if "DASHED" in doc.linetypes else "CONTINUOUS")
+    fig, ax = plt.subplots(figsize=(16.54, 11.69))       # A3 landscape
+    for k, pl in proj.items():
+        o = origin[k]
+        for kind, style in (("hidden", dict(color="0.6", lw=0.4, ls=(0, (3, 2)))), ("visible", dict(color="k", lw=0.7))):
+            for poly in pl[kind]:
+                q = poly + o
+                ax.plot(q[:, 0], q[:, 1], **style)
+                msp.add_lwpolyline([tuple(map(float, r)) for r in q], dxfattribs={"layer": f"{k.upper()}_{kind.upper()}"})
+        lab = (o + np.array([ex[k][0][0], ex[k][0][1]]) + np.array([0.0, -6.0]))
+        ax.text(lab[0], lab[1], k.upper() + (" (along +Y)" if k == "front" else " (along -Z)" if k == "top" else " (along -X)" if k == "side" else " (iso, not to scale)"),
+                fontsize=7)
+        msp.add_text(k.upper(), dxfattribs={"layer": f"{k.upper()}_VISIBLE", "height": 2.5}).set_placement((float(lab[0]), float(lab[1])))
+    # overall dimensions on the front and top views
+    of, ot = origin["front"], origin["top"]
+    x0f, z0f = ex["front"][0] + of
+    x1f, z1f = ex["front"][1] + of
+    ax.annotate("", xy=(x0f, z0f - 0.08 * gap), xytext=(x1f, z0f - 0.08 * gap), arrowprops=dict(arrowstyle="<->", lw=0.5))
+    ax.text((x0f + x1f) / 2, z0f - 0.08 * gap - 3, f"{dims[0]:.2f} (X)", ha="center", va="top", fontsize=7)
+    ax.annotate("", xy=(x0f - 0.08 * gap, z0f), xytext=(x0f - 0.08 * gap, z1f), arrowprops=dict(arrowstyle="<->", lw=0.5))
+    ax.text(x0f - 0.08 * gap - 2, (z0f + z1f) / 2, f"{dims[2]:.2f} (Z)", ha="right", va="center", fontsize=7, rotation=90)
+    y0t, y1t = ex["top"][0][1] + ot[1], ex["top"][1][1] + ot[1]
+    xt = ex["top"][0][0] + ot[0]
+    ax.annotate("", xy=(xt - 0.08 * gap, y0t), xytext=(xt - 0.08 * gap, y1t), arrowprops=dict(arrowstyle="<->", lw=0.5))
+    ax.text(xt - 0.08 * gap - 2, (y0t + y1t) / 2, f"{dims[1]:.2f} (Y)", ha="right", va="center", fontsize=7, rotation=90)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    d = p.dwg or {}
+    tb = [f"{p.pn}   {p.name[:110]}",
+          f"Material: {engmat.MATERIALS.get(p.material, {}).get('name', p.material)}   Process: {p.process[:80]}",
+          f"Mass: {mass_kg * 1e3:.1f} g (CAD volume x density)   Units: mm   Frame: modelling frame (+Z forward)   Bounding box: "
+          f"{dims[0]:.2f} x {dims[1]:.2f} x {dims[2]:.2f}",
+          f"Datum: {d.get('datum', 'TO-DEFINE')}   Finish: {d.get('finish', 'TO-DEFINE')}   Heat treatment: {d.get('ht', 'n/a')}",
+          "Fits / features: " + "; ".join(d.get("fits", []))[:200],
+          f"Notes: {p.notes[:220]}",
+          f"ARGOS engine CAD {cad_version} - DESIGN-MODEL DRAWING generated from the solid; dimensions from the model; "
+          "general tolerances ISO 2768-m unless a fit is listed; NOT released for fabrication (Mechanical, 2026-10-13)",
+          ("Oxygen service: clean to ASTM G93, Krytox only" if p.wetted == "N2O" else "")]
+    fig.text(0.02, 0.02, "\n".join(t for t in tb if t), fontsize=7, family="monospace", va="bottom",
+             bbox=dict(boxstyle="square", fc="white", ec="black", lw=0.6))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_dir / f"{p.pn}.pdf")
+    fig.savefig(out_dir / f"{p.pn}.svg")
+    plt.close(fig)
+    y = -20.0
+    for t in tb:
+        if t:
+            msp.add_text(t[:250], dxfattribs={"height": 2.0}).set_placement((0.0, y))
+            y -= 4.0
+    doc.saveas(out_dir / f"{p.pn}.dxf")
+    return {"pn": p.pn, "views": list(proj), "n_visible_edges": sum(len(v["visible"]) for v in proj.values()),
+            "files": [f"drawings/{p.pn}.{x}" for x in ("pdf", "svg", "dxf")], "bbox_mm": [round(x, 3) for x in dims]}
+
+
+def stage_drawings(reg, out):
+    rows = []
+    for p in reg:
+        if not p.drawing:
+            continue
+        t1 = time.time()
+        try:
+            m = build.part_mass(p)[0]
+            r = draw_part(p, out / "drawings", m, CAD_VERSION)
+            r["t_s"] = round(time.time() - t1, 1)
+            rows.append(r)
+        except Exception as ex:
+            rows.append({"pn": p.pn, "error": repr(ex), "trace": traceback.format_exc()[-600:]})
+            log(f"  drawing FAILED {p.pn}: {ex!r}")
+    log(f"drawings: {sum(1 for r in rows if 'error' not in r)}/{len(rows)}")
+    jdump(out / "checks" / f"drawings_{CAD_VERSION}.json", {"cad_version": CAD_VERSION, "rows": rows})
+    return rows
+
+
+# --------------------------------------------------------------------------------------------- README + properties
+def stage_readme(P, S, reg, out, results):
+    import importlib.metadata as md
+    srcs = sorted(HERE.glob("*.py")) + sorted((HERE / "calcs").glob("*.py"))
+    outs = sorted([p for p in out.rglob("*") if p.is_file() and p.suffix in (".step", ".stl", ".glb", ".csv", ".json", ".pdf", ".svg", ".dxf")
+                   and "src" not in p.parts])
+    props = {"cad_version": CAD_VERSION, "date": "2026-10-13", "owner": "mechanical",
+             "status": "DESIGN MODEL - not released for fabrication; geometric checks are software checks, not physical validation",
+             "generator": {"cadquery": md.version("cadquery"), "cadquery-ocp": md.version("cadquery-ocp") if _has("cadquery-ocp") else "n/a",
+                           "trimesh": md.version("trimesh"), "ezdxf": md.version("ezdxf"), "python": sys.version.split()[0]},
+             "frames": {"cad": "engine frame, mm, +Z forward (nozzle -> injector), origin = gimbal pivot at neutral, +X outer gimbal axis, +Y inner",
+                        "glb": "metres, +Y up: (x, y, z)_glTF = (x, z, -y)_engine / 1000"},
+             "config_overrides": config.V34_ON | {"z_head_mid_m": P["z_head_mid"]["v"]},
+             "sources_sha256_16": {str(p.relative_to(HERE.parents[1])): sha16(p) for p in srcs},
+             "outputs_sha256_16": {str(p.relative_to(out)): sha16(p) for p in outs},
+             "results": {k: v for k, v in results.items() if k in ("assembly", "glb", "parts_summary", "checks_summary", "bom_summary", "mass_summary")}}
+    jdump(out / "properties.json", props)
+    n_parts = len(list(reg))
+    lines = [f"# ARGOS hopper engine - CAD {CAD_VERSION} (design model)", "",
+             "Mechanical, 2026-10-13.  Generated by `03-cad/src/make_all.py`; do not edit outputs by hand.", "",
+             "## Status", "",
+             "Design model of the gimballed N2O hybrid engine, its gimbal, TVC linkage, feed (riser TEE, O3b hose coil, fixed 3/8 line) and the",
+             "MV-P main-valve module.  It is **not released for fabrication**: drawings are design-model projections with the fits and notes the",
+             "parts carry; tolerances, weld procedures and inspection plans are open.  Geometric checks (validity, interference, clearance, sweep,",
+             "STEP round-trip, GLB read-back) are software checks; they are not physical validation.", "",
+             "## Frames and units", "",
+             "- CAD / STEP: millimetres, engine frame, +Z forward (nozzle to injector), origin at the gimbal pivot at neutral, +X outer gimbal axis,",
+             "  +Y inner gimbal axis.  Parts modelled in place carry engine-frame coordinates in their STEP files.",
+             "- GLB: metres, +Y up, (x, y, z)_glTF = (x, z, -y)_engine / 1000.  Visualisation only (tessellated).", "",
+             "## Contents", "",
+             f"- `parts/` - {n_parts} part numbers: STEP (verified round-trip) and STL.",
+             f"- `assembly/` - ENGINE_{CAD_VERSION}_neutral.step (every instance, re-import verified), ENGINE_{CAD_VERSION}_stop045.step (8 deg stop,",
+             f"  visual), ENGINE_{CAD_VERSION}_neutral.glb, assembly_manifest_{CAD_VERSION}.json.",
+             f"- `drawings/` - design-model drawings (PDF, SVG, DXF) of the {sum(1 for p in reg if p.drawing)} machined parts.",
+             f"- `BOM_{CAD_VERSION}.csv/.json` - one line per part number; every price TO-QUOTE (delivery {DELIVERY}) unless dated.",
+             f"- `massprops_{CAD_VERSION}.json` - groups, burn states, CG and inertia about the CG and the pivot.",
+             f"- `checks/` - validity, interference and clearance at 17 poses, bay-wall clearance, swept envelope, round-trips, GLB read-back.",
+             "- `src/` - the generator (parameters from the interface files through config.py; calcs/ holds the design calculations).", "",
+             "## Rebuild", "",
+             "```", "/opt/engine-venv/bin/python 03-cad/src/make_all.py            # all stages",
+             "/opt/engine-venv/bin/python 03-cad/src/make_all.py --stages build,parts,bom", "```", "",
+             "## Results of this build", "", "```", json.dumps(props["results"], indent=1, default=str)[:6000], "```", "",
+             "## Open items", "",
+             "- Hose FD-07: convoluted PTFE -6 assumed (sourced data in calcs/coil_reroute_v341.py); maker, pressurised EI (B-FD-1), dynamic",
+             "  duty acceptance and the convolution volume are open.",
+             "- Prices: every line TO-QUOTE for delivery to Sonderborg DK-6400.",
+             "- Fabrication drawings, tolerances, weld and cleaning procedures: open.", ""]
+    (out / "README.md").write_text("\n".join(lines))
+    log("readme + properties written")
+    return props
+
+
+def _has(dist):
+    import importlib.metadata as md
+    try:
+        md.version(dist)
+        return True
+    except md.PackageNotFoundError:
+        return False
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--stages", default="build,checks,parts,assembly,glb,bom,mass,drawings,readme")
+    ap.add_argument("--poses", default="")
+    ap.add_argument("--out", default=str(CAD))
+    a = ap.parse_args()
+    st = set(a.stages.split(","))
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    t0 = time.time()
+    P, S, reg, clog = stage_build()
+    results = {}
+    # v3.4.1: a partial re-run (e.g. --stages bom,...,readme after a failure) reports the stored results of the stages it skips
+    for stage, key, fn in (("parts", "parts_summary", f"roundtrip_parts_{CAD_VERSION}.json"),
+                           ("assembly", "assembly", f"roundtrip_assembly_{CAD_VERSION}.json"),
+                           ("glb", "glb", f"glb_readback_{CAD_VERSION}.json")):
+        f = out / "checks" / fn
+        if stage not in st and f.exists():
+            d = json.loads(f.read_text())
+            d = {"n": d["n"], "passed": d["n_passed"]} if stage == "parts" else d
+            results[key] = d | {"from_stored_file": f"checks/{fn}", "stored_sha256_16": sha16(f)}
+    jdump(out / "checks" / f"build_log_{CAD_VERSION}.json", {"cad_version": CAD_VERSION, "config_log": clog, "cg_iteration": S.get("cg_iteration")})
+    if S.get("bleed"):                                   # v3.5: bleed topology (lead RE-10) next to the other checks
+        jdump(out / "checks" / f"bleed_topology_{CAD_VERSION}.json", S["bleed"])
+    if "parts" in st:
+        r = stage_parts(reg, out)
+        results["parts_summary"] = {"n": r["n"], "passed": r["n_passed"]}
+    if "assembly" in st:
+        results["assembly"] = stage_assembly(reg, S, out)
+    if "glb" in st:
+        results["glb"] = stage_glb(reg, S, out)
+    if "bom" in st:
+        rt = json.loads((out / "checks" / f"roundtrip_parts_{CAD_VERSION}.json").read_text())["rows"] if (out / "checks" / f"roundtrip_parts_{CAD_VERSION}.json").exists() else None
+        b = stage_bom(reg, out, rt)
+        results["bom_summary"] = {"lines": b["n_lines"], "instances": b["n_instances"], "mass_sum_kg": b["mass_sum_kg"]}
+    if "mass" in st:
+        m = stage_mass(P, S, reg, out)
+        results["mass_summary"] = {k: m["states"]["mid"][k]["m_kg"] for k in ("engine", "fixed", "ring", "horn", "pushrod", "all")}
+        results["mass_summary"]["engine_cg_mid_mm"] = m["states"]["mid"]["engine"]["cg_mm"]
+    if "drawings" in st:
+        stage_drawings(reg, out)
+    if "checks" in st:
+        c = stage_checks(P, S, reg, out, only_poses=[x for x in a.poses.split(",") if x] or None)
+        results["checks_summary"] = c["summary"]
+    if "readme" in st:
+        stage_readme(P, S, reg, out, results)
+    jdump(out / "checks" / f"make_all_log_{CAD_VERSION}.json", {"stages": sorted(st), "t_s": round(time.time() - t0, 1), "log": LOG})
+    log(f"make_all done in {time.time() - t0:.1f} s")
+
+
+if __name__ == "__main__":
+    main()

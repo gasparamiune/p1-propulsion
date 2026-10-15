@@ -1,0 +1,147 @@
+{
+ "id": "ptfe_lining_estimate",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/ptfe_lining_estimate_v1.py",
+ "method": "Thermal isolation of the segment's route metal by a PTFE lining: lumped estimate (v1, 2026-10-13, Mechanical).\n\nCoordinator 2026-10-13 (optional): how much would isolating the MV module outlet chamber, the TEE and the hose ends cut the 534-1789 J\nmodule/route heat of Combustion's reroute_vapour_v2p4 (option: >= 1 mm PTFE lining)?\nModel (lumped, per heat source type):\n  (1) STORED heat: metal parts at dT0 above the liquid at MECO release m c dT0 (1 - exp(-t/tau)), tau = R m c, R = 1/(h A) unlined or\n      1/(h A) + t_l/(k_l A) lined.  The lining's own sensible heat (rho c t A dT0) is released with its own diffusion time\n      4 t^2/(pi^2 alpha) (slab, metal side ~adiabatic over seconds) - it is at the metal temperature at MECO.\n  (2) INFLOW from the bay air through the outer surface during the coast: Q = dT / (R_ext + R_l + R_h); R_ext from h_ext 10 W/m2K on the\n      outer area (ASSUMED): the lining is in series with a much larger outer resistance and changes little; external insulation is the\n      lever for this part.\nInputs: wetted areas from the CAD v3.4.1 fluid primitives (parts_feed.fluid_spec: module outlet side 2,070 mm2, TEE 496 mm2, hose-end\nsleeves 1,010 mm2), metal masses from the make_all v3.4.1 BOM (FS-01A 6061 52.1 g, FD-05 316L 42.1 g, FD-08F 13.5 g, sleeves 2 x 25 g\nESTIMATE); liquid-side h 1000-5000 W/m2K ASSUMED (natural convection to nucleate boiling of near-saturated N2O); PTFE k 0.25 W/m/K,\nrho 2200, c 1000 (LITERATURE as recalled); coast 18.7 s (A1, segment_heat_coast_v1), first 8.3 s (Combustion: 68-71 % of the heat).\nOutput: calcs/ptfe_lining_estimate_v1.json.  ESTIMATE (lumped; Combustion's own split uses older hardware: -6 JIC ends, 0.252 m hose,\n316L module body - to be updated with the v3.4.1 BOM).\n",
+ "area_m2": {
+  "module outlet side (FS-01A chamber, ports, line passage)": 0.00207,
+  "TEE FD-05 bores": 0.000496,
+  "hose-end sleeves FD-07A/B": 0.00101
+ },
+ "A_total_m2": 0.0035759999999999998,
+ "mc_J_K": {
+  "FS-01A 6061 52.1 g x 896": 46.6816,
+  "FD-05 316L 42.1 g x 500": 21.05,
+  "FD-08F 316L 13.5 g x 500": 6.75,
+  "FD-07A/B sleeves 2 x 25 g x 500 (ESTIMATE)": 25.0
+ },
+ "mc_total_J_K": 99.5,
+ "rows": [
+  {
+   "h_W_m2K": 1000.0,
+   "lining_mm": 0.0,
+   "R_K_W": 0.28,
+   "tau_s": 27.8,
+   "metal_fraction_delivered_18.7s": 0.489,
+   "metal_fraction_delivered_8.3s": 0.258,
+   "lining_mc_J_K": 0.0,
+   "lining_tau_s": 0.0,
+   "J_per_K_dT0_18.7s": 48.7,
+   "J_per_K_dT0_8.3s": 25.7
+  },
+  {
+   "h_W_m2K": 1000.0,
+   "lining_mm": 0.5,
+   "R_K_W": 0.839,
+   "tau_s": 83.5,
+   "metal_fraction_delivered_18.7s": 0.201,
+   "metal_fraction_delivered_8.3s": 0.095,
+   "lining_mc_J_K": 3.93,
+   "lining_tau_s": 0.89,
+   "J_per_K_dT0_18.7s": 23.9,
+   "J_per_K_dT0_8.3s": 13.4
+  },
+  {
+   "h_W_m2K": 1000.0,
+   "lining_mm": 1.0,
+   "R_K_W": 1.398,
+   "tau_s": 139.1,
+   "metal_fraction_delivered_18.7s": 0.126,
+   "metal_fraction_delivered_8.3s": 0.058,
+   "lining_mc_J_K": 7.87,
+   "lining_tau_s": 3.57,
+   "J_per_K_dT0_18.7s": 20.3,
+   "J_per_K_dT0_8.3s": 12.9
+  },
+  {
+   "h_W_m2K": 1000.0,
+   "lining_mm": 2.0,
+   "R_K_W": 2.517,
+   "tau_s": 250.4,
+   "metal_fraction_delivered_18.7s": 0.072,
+   "metal_fraction_delivered_8.3s": 0.033,
+   "lining_mc_J_K": 15.73,
+   "lining_tau_s": 14.27,
+   "J_per_K_dT0_18.7s": 18.7,
+   "J_per_K_dT0_8.3s": 10.2
+  },
+  {
+   "h_W_m2K": 5000.0,
+   "lining_mm": 0.0,
+   "R_K_W": 0.056,
+   "tau_s": 5.6,
+   "metal_fraction_delivered_18.7s": 0.965,
+   "metal_fraction_delivered_8.3s": 0.775,
+   "lining_mc_J_K": 0.0,
+   "lining_tau_s": 0.0,
+   "J_per_K_dT0_18.7s": 96.0,
+   "J_per_K_dT0_8.3s": 77.1
+  },
+  {
+   "h_W_m2K": 5000.0,
+   "lining_mm": 0.5,
+   "R_K_W": 0.615,
+   "tau_s": 61.2,
+   "metal_fraction_delivered_18.7s": 0.263,
+   "metal_fraction_delivered_8.3s": 0.127,
+   "lining_mc_J_K": 3.93,
+   "lining_tau_s": 0.89,
+   "J_per_K_dT0_18.7s": 30.1,
+   "J_per_K_dT0_8.3s": 16.5
+  },
+  {
+   "h_W_m2K": 5000.0,
+   "lining_mm": 1.0,
+   "R_K_W": 1.174,
+   "tau_s": 116.8,
+   "metal_fraction_delivered_18.7s": 0.148,
+   "metal_fraction_delivered_8.3s": 0.069,
+   "lining_mc_J_K": 7.87,
+   "lining_tau_s": 3.57,
+   "J_per_K_dT0_18.7s": 22.5,
+   "J_per_K_dT0_8.3s": 13.9
+  },
+  {
+   "h_W_m2K": 5000.0,
+   "lining_mm": 2.0,
+   "R_K_W": 2.293,
+   "tau_s": 228.1,
+   "metal_fraction_delivered_18.7s": 0.079,
+   "metal_fraction_delivered_8.3s": 0.036,
+   "lining_mc_J_K": 15.73,
+   "lining_tau_s": 14.27,
+   "J_per_K_dT0_18.7s": 19.3,
+   "J_per_K_dT0_8.3s": 10.5
+  }
+ ],
+ "stored_heat_ratio_lined_over_unlined": {
+  "h1000_t0.5mm": {
+   "coast": 0.491,
+   "first_8.3s": 0.521
+  },
+  "h1000_t1.0mm": {
+   "coast": 0.417,
+   "first_8.3s": 0.502
+  },
+  "h1000_t2.0mm": {
+   "coast": 0.384,
+   "first_8.3s": 0.397
+  },
+  "h5000_t0.5mm": {
+   "coast": 0.314,
+   "first_8.3s": 0.214
+  },
+  "h5000_t1.0mm": {
+   "coast": 0.234,
+   "first_8.3s": 0.18
+  },
+  "h5000_t2.0mm": {
+   "coast": 0.201,
+   "first_8.3s": 0.136
+  }
+ },
+ "inflow_note": "bay-air inflow during the coast: R_ext = 1/(10 W/m2K x outer area ~0.01 m2) ~ 10 K/W >> R_lining 1.1 K/W -> a lining cuts this part by ~10 % only; external insulation of the module/line is the lever for it (ESTIMATE)",
+ "tag": "ESTIMATE (lumped; h and outer area ASSUMED; PTFE properties as recalled)"
+}

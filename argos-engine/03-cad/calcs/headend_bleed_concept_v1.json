@@ -1,0 +1,689 @@
+{
+ "id": "headend_bleed_concept",
+ "version": "v1",
+ "date": "2026-10-13",
+ "owner": "mechanical",
+ "script": "03-cad/src/calcs/headend_bleed_concept_v1.py",
+ "method": "Method:\n  1. Saturated N2O at T_coast 289.48 K from CoolProp (Span-Wagner class EOS; LITERATURE).\n  2. Vapour generation V_gen(t) = integral Q dt / (h_fg rho_v) of the head-end series; the needle-tip energy (not time resolved,\n     ESTIMATE 50 / 150 J) is spread uniformly over the coast.  t_fill = time at which V_gen reaches the trap capacity.\n  3. Bleed orifice flow: choked HEM mass flux (isentropic, equilibrium, CoolProp) from saturated vapour (x = 1) and saturated\n     liquid (x = 0) at p_sat; SPI liquid bound G = sqrt(2 rho_l (p_sat - p_amb)); Dyer mean (kappa = 1 at saturation) as the\n     central liquid value.  Cd 0.6 / 0.8 ASSUMED (sharp-edged / short-tube orifice).\n  4. Forced purge (MV open, pintle seated, bleed open): t_purge = rho_v V_trap / (Cd A G_v - rho_v q_gen), q_gen = vapour\n     generation rate at relight (LO / HI head-end series end value).  Valid only with the MV OPEN: with the MV closed the bleed\n     depressurises the isolated segment and flashes its liquid (not a purge).\n  5. Failed-open bleed during a burn: liquid loss vs the engine flow 0.24 kg/s (segment_heat_budget h_flow basis).\n  6. Element barrier: Taylor-bubble rise velocity 0.35 sqrt(g D) in the 8 mm legs, the liquid flow that sweeps a bubble down, and\n     the element dp at the purge flow (filter requirement Cv >= 2.2, REQUIREMENTS sec. 3) against the bubble point range of the trap\n     script (49-130 mm of liquid at 8 m/s2, ESTIMATE).\n  7. Gimbal sensitivity per 10 g at the bleed location (v3.3 massprops I about the pivot, mid-burn mass; v3.4 values come from make_all).\nOutput: calcs/headend_bleed_concept_v1.json.  CONCEPT-LEVEL: DERIVED from ASSUMED discharge coefficients and literature properties;\nvalve selection, mass and overboard port are TO-DEFINE / TO-QUOTE.  Not a two-phase transient model.\n",
+ "inputs": {
+  "traps": "calcs/segment_traps_v34_v1p1.json",
+  "heat": "04-fea/thermal/segment_heat_budget_v1.json (v1.1)"
+ },
+ "n2o_sat": {
+  "p_sat_Pa": 4645024.9354,
+  "rho_l": 811.7132,
+  "h_l": 204481.4334,
+  "s_l": 846.8215,
+  "rho_v": 140.0131,
+  "h_v": 388389.4646,
+  "s_v": 1482.1263,
+  "h_fg_J_kg": 183908.0312,
+  "sigma_N_m": 0.0026
+ },
+ "vapour_cm3_per_J": 0.03884,
+ "capacity_cm3_nominal": {
+  "barrier": 21.283,
+  "open_element": 23.093
+ },
+ "capacity_cm3_tilt10_min_max": {
+  "barrier": [
+   19.2024,
+   25.9314
+  ],
+  "open_element": [
+   21.0123,
+   27.7413
+  ]
+ },
+ "crowns_drogue_attitude": {
+  "downstream_T4": {
+   "peak_at": "TC-04 T4 port cavity below the flush plug (dead end)",
+   "peak_xyz_mm": [
+    -20.38,
+    -0.88,
+    192.62
+   ],
+   "peak_e_mm": 192.62,
+   "saddle_e_mm": 162.62,
+   "depth_mm": 30.0,
+   "own_vol_cm3": 3.9533,
+   "spills_into": "VENT",
+   "kind": "dead"
+  },
+  "upstream_FD01": {
+   "peak_at": "FD-01 vertical 8 mm",
+   "peak_xyz_mm": [
+    -41.88,
+    -0.88,
+    160.38
+   ],
+   "peak_e_mm": 160.38,
+   "saddle_e_mm": 50.62,
+   "depth_mm": 109.75,
+   "own_vol_cm3": 12.9266,
+   "spills_into": "VENT",
+   "kind": "path"
+  }
+ },
+ "coast_history": {
+  "isothermal|LO": {
+   "rows": [
+    {
+     "t_after_MECO_s": 0.0,
+     "Q_head_end_W": 16.4,
+     "E_cum_J_incl_needle": 0.0,
+     "V_gen_cm3": 0.0
+    },
+    {
+     "t_after_MECO_s": 1.0,
+     "Q_head_end_W": 21.7,
+     "E_cum_J_incl_needle": 21.9,
+     "V_gen_cm3": 0.85
+    },
+    {
+     "t_after_MECO_s": 2.0,
+     "Q_head_end_W": 21.6,
+     "E_cum_J_incl_needle": 46.3,
+     "V_gen_cm3": 1.8
+    },
+    {
+     "t_after_MECO_s": 4.0,
+     "Q_head_end_W": 22.0,
+     "E_cum_J_incl_needle": 94.9,
+     "V_gen_cm3": 3.69
+    },
+    {
+     "t_after_MECO_s": 6.0,
+     "Q_head_end_W": 24.1,
+     "E_cum_J_incl_needle": 146.2,
+     "V_gen_cm3": 5.68
+    },
+    {
+     "t_after_MECO_s": 8.0,
+     "Q_head_end_W": 26.6,
+     "E_cum_J_incl_needle": 202.3,
+     "V_gen_cm3": 7.86
+    },
+    {
+     "t_after_MECO_s": 10.0,
+     "Q_head_end_W": 29.2,
+     "E_cum_J_incl_needle": 263.6,
+     "V_gen_cm3": 10.24
+    },
+    {
+     "t_after_MECO_s": 12.0,
+     "Q_head_end_W": 31.7,
+     "E_cum_J_incl_needle": 330.0,
+     "V_gen_cm3": 12.82
+    },
+    {
+     "t_after_MECO_s": 14.0,
+     "Q_head_end_W": 34.1,
+     "E_cum_J_incl_needle": 401.3,
+     "V_gen_cm3": 15.58
+    },
+    {
+     "t_after_MECO_s": 16.0,
+     "Q_head_end_W": 36.4,
+     "E_cum_J_incl_needle": 477.3,
+     "V_gen_cm3": 18.54
+    },
+    {
+     "t_after_MECO_s": 18.0,
+     "Q_head_end_W": 38.6,
+     "E_cum_J_incl_needle": 557.7,
+     "V_gen_cm3": 21.66
+    },
+    {
+     "t_after_MECO_s": 18.5,
+     "Q_head_end_W": 39.1,
+     "E_cum_J_incl_needle": 578.5,
+     "V_gen_cm3": 22.47
+    }
+   ],
+   "E_total_J_incl_needle": 578.5,
+   "Q_at_relight_W": 39.1,
+   "q_needle_W_uniform": 2.7,
+   "t_meco_s": 3.54,
+   "t_relight_s": 22.04,
+   "V_gen_total_cm3": 22.5,
+   "t_fill_capacity_after_MECO_s": {
+    "barrier": 17.76,
+    "open_element": null
+   },
+   "retained_at_relight_cm3 (= min(V_gen, capacity))": {
+    "barrier": 21.28,
+    "open_element": 22.47
+   },
+   "q_gen_at_relight_cm3_s": 1.62
+  },
+  "isothermal|HI": {
+   "rows": [
+    {
+     "t_after_MECO_s": 0.0,
+     "Q_head_end_W": 177.0,
+     "E_cum_J_incl_needle": 0.0,
+     "V_gen_cm3": 0.0
+    },
+    {
+     "t_after_MECO_s": 1.0,
+     "Q_head_end_W": 178.9,
+     "E_cum_J_incl_needle": 184.7,
+     "V_gen_cm3": 7.17
+    },
+    {
+     "t_after_MECO_s": 2.0,
+     "Q_head_end_W": 169.4,
+     "E_cum_J_incl_needle": 366.7,
+     "V_gen_cm3": 14.24
+    },
+    {
+     "t_after_MECO_s": 4.0,
+     "Q_head_end_W": 168.5,
+     "E_cum_J_incl_needle": 717.5,
+     "V_gen_cm3": 27.86
+    },
+    {
+     "t_after_MECO_s": 6.0,
+     "Q_head_end_W": 182.5,
+     "E_cum_J_incl_needle": 1083.8,
+     "V_gen_cm3": 42.09
+    },
+    {
+     "t_after_MECO_s": 8.0,
+     "Q_head_end_W": 199.8,
+     "E_cum_J_incl_needle": 1482.3,
+     "V_gen_cm3": 57.57
+    },
+    {
+     "t_after_MECO_s": 10.0,
+     "Q_head_end_W": 216.8,
+     "E_cum_J_incl_needle": 1915.2,
+     "V_gen_cm3": 74.38
+    },
+    {
+     "t_after_MECO_s": 12.0,
+     "Q_head_end_W": 232.9,
+     "E_cum_J_incl_needle": 2381.2,
+     "V_gen_cm3": 92.48
+    },
+    {
+     "t_after_MECO_s": 14.0,
+     "Q_head_end_W": 248.2,
+     "E_cum_J_incl_needle": 2878.6,
+     "V_gen_cm3": 111.79
+    },
+    {
+     "t_after_MECO_s": 16.0,
+     "Q_head_end_W": 262.4,
+     "E_cum_J_incl_needle": 3405.5,
+     "V_gen_cm3": 132.25
+    },
+    {
+     "t_after_MECO_s": 18.0,
+     "Q_head_end_W": 275.6,
+     "E_cum_J_incl_needle": 3959.9,
+     "V_gen_cm3": 153.79
+    },
+    {
+     "t_after_MECO_s": 18.5,
+     "Q_head_end_W": 278.9,
+     "E_cum_J_incl_needle": 4102.6,
+     "V_gen_cm3": 159.33
+    }
+   ],
+   "E_total_J_incl_needle": 4102.6,
+   "Q_at_relight_W": 278.9,
+   "q_needle_W_uniform": 8.11,
+   "t_meco_s": 3.54,
+   "t_relight_s": 22.04,
+   "V_gen_total_cm3": 159.3,
+   "t_fill_capacity_after_MECO_s": {
+    "barrier": 3.03,
+    "open_element": 3.3
+   },
+   "retained_at_relight_cm3 (= min(V_gen, capacity))": {
+    "barrier": 21.28,
+    "open_element": 23.09
+   },
+   "q_gen_at_relight_cm3_s": 11.15
+  },
+  "ARM_bay45C_liq24C|LO": {
+   "rows": [
+    {
+     "t_after_MECO_s": 0.0,
+     "Q_head_end_W": 34.1,
+     "E_cum_J_incl_needle": 0.0,
+     "V_gen_cm3": 0.0
+    },
+    {
+     "t_after_MECO_s": 1.0,
+     "Q_head_end_W": 43.3,
+     "E_cum_J_incl_needle": 42.3,
+     "V_gen_cm3": 1.64
+    },
+    {
+     "t_after_MECO_s": 2.0,
+     "Q_head_end_W": 43.6,
+     "E_cum_J_incl_needle": 88.5,
+     "V_gen_cm3": 3.44
+    },
+    {
+     "t_after_MECO_s": 4.0,
+     "Q_head_end_W": 44.3,
+     "E_cum_J_incl_needle": 181.6,
+     "V_gen_cm3": 7.05
+    },
+    {
+     "t_after_MECO_s": 6.0,
+     "Q_head_end_W": 46.5,
+     "E_cum_J_incl_needle": 277.7,
+     "V_gen_cm3": 10.78
+    },
+    {
+     "t_after_MECO_s": 8.0,
+     "Q_head_end_W": 49.1,
+     "E_cum_J_incl_needle": 378.8,
+     "V_gen_cm3": 14.71
+    },
+    {
+     "t_after_MECO_s": 10.0,
+     "Q_head_end_W": 51.7,
+     "E_cum_J_incl_needle": 485.0,
+     "V_gen_cm3": 18.84
+    },
+    {
+     "t_after_MECO_s": 12.0,
+     "Q_head_end_W": 54.2,
+     "E_cum_J_incl_needle": 596.4,
+     "V_gen_cm3": 23.16
+    },
+    {
+     "t_after_MECO_s": 14.0,
+     "Q_head_end_W": 56.5,
+     "E_cum_J_incl_needle": 712.5,
+     "V_gen_cm3": 27.67
+    },
+    {
+     "t_after_MECO_s": 16.0,
+     "Q_head_end_W": 58.8,
+     "E_cum_J_incl_needle": 833.2,
+     "V_gen_cm3": 32.36
+    },
+    {
+     "t_after_MECO_s": 18.0,
+     "Q_head_end_W": 60.9,
+     "E_cum_J_incl_needle": 958.3,
+     "V_gen_cm3": 37.22
+    },
+    {
+     "t_after_MECO_s": 18.5,
+     "Q_head_end_W": 61.4,
+     "E_cum_J_incl_needle": 990.3,
+     "V_gen_cm3": 38.46
+    }
+   ],
+   "E_total_J_incl_needle": 990.3,
+   "Q_at_relight_W": 61.4,
+   "q_needle_W_uniform": 2.7,
+   "t_meco_s": 3.54,
+   "t_relight_s": 22.04,
+   "V_gen_total_cm3": 38.5,
+   "t_fill_capacity_after_MECO_s": {
+    "barrier": 11.14,
+    "open_element": 11.97
+   },
+   "retained_at_relight_cm3 (= min(V_gen, capacity))": {
+    "barrier": 21.28,
+    "open_element": 23.09
+   },
+   "q_gen_at_relight_cm3_s": 2.49
+  },
+  "ARM_bay45C_liq24C|HI": {
+   "rows": [
+    {
+     "t_after_MECO_s": 0.0,
+     "Q_head_end_W": 346.4,
+     "E_cum_J_incl_needle": 0.0,
+     "V_gen_cm3": 0.0
+    },
+    {
+     "t_after_MECO_s": 1.0,
+     "Q_head_end_W": 356.7,
+     "E_cum_J_incl_needle": 359.6,
+     "V_gen_cm3": 13.97
+    },
+    {
+     "t_after_MECO_s": 2.0,
+     "Q_head_end_W": 344.7,
+     "E_cum_J_incl_needle": 718.3,
+     "V_gen_cm3": 27.9
+    },
+    {
+     "t_after_MECO_s": 4.0,
+     "Q_head_end_W": 339.3,
+     "E_cum_J_incl_needle": 1415.0,
+     "V_gen_cm3": 54.95
+    },
+    {
+     "t_after_MECO_s": 6.0,
+     "Q_head_end_W": 349.9,
+     "E_cum_J_incl_needle": 2119.4,
+     "V_gen_cm3": 82.31
+    },
+    {
+     "t_after_MECO_s": 8.0,
+     "Q_head_end_W": 364.5,
+     "E_cum_J_incl_needle": 2850.0,
+     "V_gen_cm3": 110.68
+    },
+    {
+     "t_after_MECO_s": 10.0,
+     "Q_head_end_W": 378.8,
+     "E_cum_J_incl_needle": 3609.7,
+     "V_gen_cm3": 140.19
+    },
+    {
+     "t_after_MECO_s": 12.0,
+     "Q_head_end_W": 392.7,
+     "E_cum_J_incl_needle": 4397.4,
+     "V_gen_cm3": 170.78
+    },
+    {
+     "t_after_MECO_s": 14.0,
+     "Q_head_end_W": 406.2,
+     "E_cum_J_incl_needle": 5212.5,
+     "V_gen_cm3": 202.43
+    },
+    {
+     "t_after_MECO_s": 16.0,
+     "Q_head_end_W": 419.0,
+     "E_cum_J_incl_needle": 6054.0,
+     "V_gen_cm3": 235.11
+    },
+    {
+     "t_after_MECO_s": 18.0,
+     "Q_head_end_W": 431.1,
+     "E_cum_J_incl_needle": 6920.4,
+     "V_gen_cm3": 268.76
+    },
+    {
+     "t_after_MECO_s": 18.5,
+     "Q_head_end_W": 434.0,
+     "E_cum_J_incl_needle": 7140.7,
+     "V_gen_cm3": 277.31
+    }
+   ],
+   "E_total_J_incl_needle": 7140.7,
+   "Q_at_relight_W": 434.0,
+   "q_needle_W_uniform": 8.11,
+   "t_meco_s": 3.54,
+   "t_relight_s": 22.04,
+   "V_gen_total_cm3": 277.3,
+   "t_fill_capacity_after_MECO_s": {
+    "barrier": 1.52,
+    "open_element": 1.65
+   },
+   "retained_at_relight_cm3 (= min(V_gen, capacity))": {
+    "barrier": 21.28,
+    "open_element": 23.09
+   },
+   "q_gen_at_relight_cm3_s": 17.17
+  }
+ },
+ "orifice": {
+  "G_vapour_HEM": {
+   "G_kg_m2s": 15450.7,
+   "p_throat_MPa": 2.78
+  },
+  "G_liquid_HEM": {
+   "G_kg_m2s": 27802.0,
+   "p_throat_MPa": 3.368
+  },
+  "G_liquid_SPI_kg_m2s": 85898.3,
+  "G_liquid_Dyer_kg_m2s": 56850.1,
+  "rows": [
+   {
+    "d_mm": 0.3,
+    "Cd": 0.6,
+    "vapour_g_s": 0.66,
+    "vapour_cm3_s": 4.7,
+    "t_purge_23.1cm3_s|isothermal|LO": 7.55,
+    "t_purge_23.1cm3_s|isothermal|HI": null,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": null,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     1.2,
+     2.4,
+     3.6
+    ],
+    "failed_open_share_of_engine_flow_pct": 1.5
+   },
+   {
+    "d_mm": 0.3,
+    "Cd": 0.8,
+    "vapour_g_s": 0.87,
+    "vapour_cm3_s": 6.2,
+    "t_purge_23.1cm3_s|isothermal|LO": 5.0,
+    "t_purge_23.1cm3_s|isothermal|HI": null,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": null,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     1.6,
+     3.2,
+     4.9
+    ],
+    "failed_open_share_of_engine_flow_pct": 2.0
+   },
+   {
+    "d_mm": 0.4,
+    "Cd": 0.6,
+    "vapour_g_s": 1.16,
+    "vapour_cm3_s": 8.3,
+    "t_purge_23.1cm3_s|isothermal|LO": 3.45,
+    "t_purge_23.1cm3_s|isothermal|HI": null,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": null,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     2.1,
+     4.3,
+     6.5
+    ],
+    "failed_open_share_of_engine_flow_pct": 2.7
+   },
+   {
+    "d_mm": 0.4,
+    "Cd": 0.8,
+    "vapour_g_s": 1.55,
+    "vapour_cm3_s": 11.1,
+    "t_purge_23.1cm3_s|isothermal|LO": 2.44,
+    "t_purge_23.1cm3_s|isothermal|HI": null,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": null,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     2.8,
+     5.7,
+     8.6
+    ],
+    "failed_open_share_of_engine_flow_pct": 3.6
+   },
+   {
+    "d_mm": 0.5,
+    "Cd": 0.6,
+    "vapour_g_s": 1.82,
+    "vapour_cm3_s": 13.0,
+    "t_purge_23.1cm3_s|isothermal|LO": 2.03,
+    "t_purge_23.1cm3_s|isothermal|HI": 12.48,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": null,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     3.3,
+     6.7,
+     10.1
+    ],
+    "failed_open_share_of_engine_flow_pct": 4.2
+   },
+   {
+    "d_mm": 0.5,
+    "Cd": 0.8,
+    "vapour_g_s": 2.43,
+    "vapour_cm3_s": 17.3,
+    "t_purge_23.1cm3_s|isothermal|LO": 1.47,
+    "t_purge_23.1cm3_s|isothermal|HI": 3.73,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": 140.79,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     4.4,
+     8.9,
+     13.5
+    ],
+    "failed_open_share_of_engine_flow_pct": 5.6
+   },
+   {
+    "d_mm": 0.6,
+    "Cd": 0.6,
+    "vapour_g_s": 2.62,
+    "vapour_cm3_s": 18.7,
+    "t_purge_23.1cm3_s|isothermal|LO": 1.35,
+    "t_purge_23.1cm3_s|isothermal|HI": 3.05,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": 14.89,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     4.7,
+     9.6,
+     14.6
+    ],
+    "failed_open_share_of_engine_flow_pct": 6.1
+   },
+   {
+    "d_mm": 0.6,
+    "Cd": 0.8,
+    "vapour_g_s": 3.49,
+    "vapour_cm3_s": 25.0,
+    "t_purge_23.1cm3_s|isothermal|LO": 0.99,
+    "t_purge_23.1cm3_s|isothermal|HI": 1.67,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": 2.96,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     6.3,
+     12.9,
+     19.4
+    ],
+    "failed_open_share_of_engine_flow_pct": 8.1
+   },
+   {
+    "d_mm": 0.8,
+    "Cd": 0.6,
+    "vapour_g_s": 4.66,
+    "vapour_cm3_s": 33.3,
+    "t_purge_23.1cm3_s|isothermal|LO": 0.73,
+    "t_purge_23.1cm3_s|isothermal|HI": 1.04,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": 1.43,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     8.4,
+     17.1,
+     25.9
+    ],
+    "failed_open_share_of_engine_flow_pct": 10.8
+   },
+   {
+    "d_mm": 0.8,
+    "Cd": 0.8,
+    "vapour_g_s": 6.21,
+    "vapour_cm3_s": 44.4,
+    "t_purge_23.1cm3_s|isothermal|LO": 0.54,
+    "t_purge_23.1cm3_s|isothermal|HI": 0.7,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": 0.85,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     11.2,
+     22.9,
+     34.5
+    ],
+    "failed_open_share_of_engine_flow_pct": 14.4
+   },
+   {
+    "d_mm": 1.0,
+    "Cd": 0.6,
+    "vapour_g_s": 7.28,
+    "vapour_cm3_s": 52.0,
+    "t_purge_23.1cm3_s|isothermal|LO": 0.46,
+    "t_purge_23.1cm3_s|isothermal|HI": 0.57,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": 0.66,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     13.1,
+     26.8,
+     40.5
+    ],
+    "failed_open_share_of_engine_flow_pct": 16.9
+   },
+   {
+    "d_mm": 1.0,
+    "Cd": 0.8,
+    "vapour_g_s": 9.71,
+    "vapour_cm3_s": 69.3,
+    "t_purge_23.1cm3_s|isothermal|LO": 0.34,
+    "t_purge_23.1cm3_s|isothermal|HI": 0.4,
+    "t_purge_23.1cm3_s|ARM_bay45C_liq24C|HI": 0.44,
+    "liquid_g_s_HEM_Dyer_SPI": [
+     17.5,
+     35.7,
+     54.0
+    ],
+    "failed_open_share_of_engine_flow_pct": 22.5
+   }
+  ]
+ },
+ "element_barrier": {
+  "U_taylor_m_s_8mm_8g": 0.0885,
+  "mdot_to_sweep_bubble_down_8mm_g_s": 3.61,
+  "element_dp": [
+   {
+    "mdot_g_s": 5.0,
+    "element_dp_Pa_at_Cv2.2": 11.0,
+    "vs_bubble_point_Pa": [
+     318.2,
+     844.2
+    ]
+   },
+   {
+    "mdot_g_s": 15.0,
+    "element_dp_Pa_at_Cv2.2": 99.3,
+    "vs_bubble_point_Pa": [
+     318.2,
+     844.2
+    ]
+   },
+   {
+    "mdot_g_s": 50.0,
+    "element_dp_Pa_at_Cv2.2": 1103.4,
+    "vs_bubble_point_Pa": [
+     318.2,
+     844.2
+    ]
+   },
+   {
+    "mdot_g_s": 240.0,
+    "element_dp_Pa_at_Cv2.2": 25421.6,
+    "vs_bubble_point_Pa": [
+     318.2,
+     844.2
+    ]
+   }
+  ],
+  "note": "with the element as a capillary barrier, a purge flow through a <= 1 mm bleed does not push the upstream pocket through the element (dp << bubble point): a bleed at the T4 port vents only the downstream region; the upstream crown needs its own bleed (FD-01 top) or the filter moved off the head end"
+ },
+ "gimbal_sensitivity": {
+  "rows": [
+   {
+    "location": "T4 port (TC-04 bonnet, crown z 192.6)",
+    "dI_per_10g_kgm2": 0.000373,
+    "dI_pct": 0.71,
+    "dz_cg_per_10g_mm": 0.8
+   },
+   {
+    "location": "FD-01 top (crown z 160.4)",
+    "dI_per_10g_kgm2": 0.000266,
+    "dI_pct": 0.51,
+    "dz_cg_per_10g_mm": 0.66
+   }
+  ],
+  "basis": {
+   "I_pivot_kgm2": 0.0522,
+   "m_kg": 2.417,
+   "src": "massprops_v2.json (CAD v3.3, mid-burn); v3.4 values from make_all"
+  }
+ },
+ "tag": "CONCEPT, DERIVED from LITERATURE properties and ASSUMED Cd; valve, mass and overboard port TO-DEFINE / TO-QUOTE"
+}

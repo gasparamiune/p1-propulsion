@@ -1,0 +1,1210 @@
+{
+ "version": "v2.1",
+ "date": "2026-10-12",
+ "script": "03-cad/src/calcs/pintle_inline_v34.py v2.1",
+ "revision_note": "v2.1: baseline guide 15 mm bushing spacing (v2 used 18 mm, which does not fit the v3.4 layout); bearing selection re-stated with NSK-verified C0r",
+ "inputs": {
+  "HV69": {
+   "L": 29.0,
+   "W": 13.0,
+   "H": 28.7,
+   "mass_kg": 0.021,
+   "stall_Nm": {
+    "4.8": 0.59,
+    "6.0": 0.74,
+    "7.4": 0.9,
+    "8.2": 1.0
+   },
+   "tag": "Electronics msg 2026-10-12 (retailer copies of MKS data, TO-CONFIRM with MKS; ear pattern unpublished)"
+  },
+  "assumed_geometry": {
+   "spline_protrusion_mm": 4.0,
+   "shaft_from_case_end_mm": 7.25,
+   "tag": "ASSUMED (MKS drawing not available): spline face 4.0 mm beyond the case face, shaft axis 7.25 mm (L/4) from one case end along L - VERIFY on the MKS drawing / B-PNT-1 sample"
+  },
+  "crank": {
+   "r": 3.0,
+   "L": 28.0,
+   "phi_closed": 15.0,
+   "phi_cmd_closed": 10.0,
+   "x_stop": 4.2,
+   "tag": "Electronics pintle_mini_servo_v1 / lead 2026-10-12"
+  },
+  "needle_v1_envelope": {
+   "F_open_max_N": 86.7,
+   "F_close_max_N": 77.2,
+   "seal_friction_N": 25.0,
+   "margin_N": 10.0,
+   "tag": "combustion.json v1 force envelope [-86.7, +77.2] N (+ closing) at tank MEOP 7.0 MPa; seal friction 25 N ASSUMED upper bound"
+  },
+  "loads": {
+   "link_operating_N": 224.0,
+   "link_stall_N": 378.0,
+   "tag": "Electronics msg 2026-10-12 (crack at MEOP / HV69 stall 1.00 N m at 8.2 V into the stop)"
+  },
+  "stations": {
+   "z_k0": 215.59,
+   "bonnet_top": 210.59,
+   "head_top": 178.59,
+   "tag": "CAD v3.3 (checks_v33.json): head top, bonnet top; needle-end (carriage) pin closed at z 215.6"
+  },
+  "guide_options": {
+   "PTFE_8mm_v33": {
+    "mu": 0.1,
+    "s_mm": 8.0,
+    "tag": "v3.3 carriage: 2 pins, PTFE-glass bushings 8 mm long; mu 0.10 ASSUMED (PTFE/steel dry, low speed)"
+   },
+   "PTFE_15mm": {
+    "mu": 0.1,
+    "s_mm": 15.0,
+    "tag": "v3.4 envelope: 2 fixed pins, 2 PTFE-lined bushings per pin 15 mm apart (carriage 211.1..230.8 between the bonnet top 210.6 and the crank housing 235.5 less the 4.2 mm stroke); mu 0.10 ASSUMED"
+   },
+   "PTFE_15mm_mu0.20": {
+    "mu": 0.2,
+    "s_mm": 15.0,
+    "tag": "sensitivity: dry polymer bushing upper value ASSUMED"
+   },
+   "PTFE_18mm": {
+    "mu": 0.1,
+    "s_mm": 18.0,
+    "tag": "2 pins, 2 PTFE-lined bushings per pin 18 mm apart (needs the crank axis 3 mm higher, zone +3 mm); mu 0.10 ASSUMED"
+   },
+   "PTFE_18mm_mu0.20": {
+    "mu": 0.2,
+    "s_mm": 18.0,
+    "tag": "sensitivity: dry polymer bushing upper value ASSUMED"
+   },
+   "rolling_18mm": {
+    "mu": 0.005,
+    "s_mm": 18.0,
+    "tag": "miniature cam-follower rollers (4x) on a hardened track, preloaded; effective mu 0.005 ASSUMED"
+   }
+  },
+  "pin": {
+   "mu": 0.15,
+   "r_mm": 1.5,
+   "tag": "3 mm link pins (17-4PH, dry-film lubricated), mu 0.15 ASSUMED; replaces Electronics' crank efficiency 0.90"
+  },
+  "spring_tolerance": 0.1,
+  "pressures_Pa": {
+   "bench": 101325.0,
+   "P3.5MPa": 3500000.0,
+   "P5.5MPa": 5500000.0,
+   "MEOP": 7000000.0
+  },
+  "omega0_deg_s": {
+   "7.4": 545.4545454545455,
+   "6.6": 487.8048780487805
+  },
+  "configs": {
+   "S4_PTFE18_plainpins": {
+    "stem_d": 4.0,
+    "f_seal": 25.0,
+    "guide": "PTFE_18mm",
+    "pin_mu": 0.15
+   },
+   "S4_rolling_ballpins": {
+    "stem_d": 4.0,
+    "f_seal": 25.0,
+    "guide": "rolling_18mm",
+    "pin_mu": 0.005
+   },
+   "S3_PTFE18_plainpins": {
+    "stem_d": 3.0,
+    "f_seal": 18.75,
+    "guide": "PTFE_18mm",
+    "pin_mu": 0.15
+   },
+   "S3_PTFE15_plainpins": {
+    "stem_d": 3.0,
+    "f_seal": 18.75,
+    "guide": "PTFE_15mm",
+    "pin_mu": 0.15
+   },
+   "S3_PTFE15mu20_plainpins": {
+    "stem_d": 3.0,
+    "f_seal": 18.75,
+    "guide": "PTFE_15mm_mu0.20",
+    "pin_mu": 0.15
+   },
+   "S3_PTFE8v33_plainpins": {
+    "stem_d": 3.0,
+    "f_seal": 18.75,
+    "guide": "PTFE_8mm_v33",
+    "pin_mu": 0.15
+   }
+  },
+  "baseline": "S3_PTFE15_plainpins",
+  "choice_rule": {
+   "assist_min_MEOP_Nm": 0.05,
+   "assist_min_5p5_Nm": 0.08,
+   "seat_load_nom_N_max": 300.0,
+   "k_min_Nm_per_rad": 0.1,
+   "objective": "minimum stored energy 1.1 T_stop^2 / (2 k) (smallest spring) among the rows meeting the targets"
+  },
+  "y_link_plane_mm": 11
+ },
+ "criteria": {
+  "C1": "spring close (THROTTLE function, not the safety shutoff - that is the NC isolation valve, closed when de-energised; lead 2026-10-12): -10 % spring closes the needle from every lift at tank MEOP 7.0 MPa against pressure + seal + guide + pin friction",
+  "B-PNT-1_performance_check": "unpowered HV69 back-drive torque at the output < the MEOP closing assist (0.05 N m) so the spring alone closes the pintle; a performance check, not a safety requirement",
+  "C2": "opening: +10 % spring; max servo torque over bench / crack-open at MEOP / 3.5 / 5.5 MPa <= HV69 stall at 7.4 V / 1.5",
+  "assist": "closing surplus with the -10 % spring (the servo dog brakes it); speeds MECO along the torque-speed line"
+ },
+ "crank_law": [
+  {
+   "phi_deg": 15,
+   "lift_mm": 0.0,
+   "dx_dphi_mm_per_rad": 0.8568
+  },
+  {
+   "phi_deg": 20,
+   "lift_mm": 0.0867,
+   "dx_dphi_mm_per_rad": 1.1294
+  },
+  {
+   "phi_deg": 30,
+   "lift_mm": 0.3291,
+   "dx_dphi_mm_per_rad": 1.6394
+  },
+  {
+   "phi_deg": 40,
+   "lift_mm": 0.6554,
+   "dx_dphi_mm_per_rad": 2.087
+  },
+  {
+   "phi_deg": 48.8,
+   "lift_mm": 1.0021,
+   "dx_dphi_mm_per_rad": 2.4171
+  },
+  {
+   "phi_deg": 60,
+   "lift_mm": 1.5078,
+   "dx_dphi_mm_per_rad": 2.7379
+  },
+  {
+   "phi_deg": 69.9,
+   "lift_mm": 1.9981,
+   "dx_dphi_mm_per_rad": 2.9215
+  },
+  {
+   "phi_deg": 80,
+   "lift_mm": 2.5224,
+   "dx_dphi_mm_per_rad": 3.0097
+  },
+  {
+   "phi_deg": 89.1,
+   "lift_mm": 3.001,
+   "dx_dphi_mm_per_rad": 3.0047
+  },
+  {
+   "phi_deg": 100,
+   "lift_mm": 3.5643,
+   "dx_dphi_mm_per_rad": 2.8991
+  },
+  {
+   "phi_deg": 108.8,
+   "lift_mm": 3.9982,
+   "dx_dphi_mm_per_rad": 2.7414
+  },
+  {
+   "phi_deg": 113.09,
+   "lift_mm": 4.2,
+   "dx_dphi_mm_per_rad": 2.6431
+  }
+ ],
+ "phi_stop_deg": 113.09,
+ "travel_cmd_deg": 103.1,
+ "z_crank_axis_mm": 246.48,
+ "fit": {
+  "A_straddle_external_coupling|case_down": {
+   "y_l_min_mm": 15.4,
+   "y_l_max_mm": 20.85,
+   "case_z_mm": [
+    224.72700959261107,
+    253.72700959261107
+   ],
+   "stack": {
+    "servo_side": 18.0,
+    "crank_side": 10.0,
+    "housing_half": 8.0,
+    "note": "link eye 4 + web 2 / bearing A 4 / Oldham 6 (hub + disc + slot) / spline 4; bearing B 4 + wall 2"
+   }
+  },
+  "A_straddle_external_coupling|case_up": {
+   "y_l_min_mm": 17.5,
+   "y_l_max_mm": 20.85,
+   "case_z_mm": [
+    239.22700959261107,
+    268.22700959261107
+   ],
+   "stack": {
+    "servo_side": 18.0,
+    "crank_side": 10.0,
+    "housing_half": 8.0,
+    "note": "link eye 4 + web 2 / bearing A 4 / Oldham 6 (hub + disc + slot) / spline 4; bearing B 4 + wall 2"
+   }
+  },
+  "B_straddle_nested_coupling|case_down": {
+   "y_l_min_mm": 10.4,
+   "y_l_max_mm": 19.450000000000003,
+   "case_z_mm": [
+    224.72700959261107,
+    253.72700959261107
+   ],
+   "stack": {
+    "servo_side": 13.0,
+    "crank_side": 10.0,
+    "housing_half": 11.0,
+    "note": "one-sided dog coupling nested inside the crank's 12 mm journal tube in bearing A (6701, 12x18x4); bearing B 694"
+   }
+  },
+  "B_straddle_nested_coupling|case_up": {
+   "y_l_min_mm": 12.5,
+   "y_l_max_mm": 19.450000000000003,
+   "case_z_mm": [
+    239.22700959261107,
+    268.22700959261107
+   ],
+   "stack": {
+    "servo_side": 13.0,
+    "crank_side": 10.0,
+    "housing_half": 11.0,
+    "note": "one-sided dog coupling nested inside the crank's 12 mm journal tube in bearing A (6701, 12x18x4); bearing B 694"
+   }
+  },
+  "C_nested_coupling_spiral_spring|case_down": {
+   "y_l_min_mm": 10.4,
+   "y_l_max_mm": 13.450000000000001,
+   "case_z_mm": [
+    224.72700959261107,
+    253.72700959261107
+   ],
+   "stack": {
+    "servo_side": 13.0,
+    "crank_side": 16.0,
+    "housing_half": 11.0,
+    "note": "B + flat spiral spring OD 21 x 6 wide inside the crank housing, outboard of the crank web (v3.4 BASELINE)"
+   }
+  },
+  "C_nested_coupling_spiral_spring|case_up": {
+   "y_l_min_mm": 12.5,
+   "y_l_max_mm": 13.450000000000001,
+   "case_z_mm": [
+    239.22700959261107,
+    268.22700959261107
+   ],
+   "stack": {
+    "servo_side": 13.0,
+    "crank_side": 16.0,
+    "housing_half": 11.0,
+    "note": "B + flat spiral spring OD 21 x 6 wide inside the crank housing, outboard of the crank web (v3.4 BASELINE)"
+   }
+  },
+  "D_helical_torsion_outboard|case_down": {
+   "y_l_min_mm": null,
+   "y_l_max_mm": null,
+   "case_z_mm": [
+    224.72700959261107,
+    253.72700959261107
+   ],
+   "stack": {
+    "servo_side": 13.0,
+    "crank_side": 21.0,
+    "housing_half": 14.0,
+    "note": "B + helical torsion spring d 1.6 D 26 (~10 mm body) outboard of bearing B"
+   }
+  },
+  "D_helical_torsion_outboard|case_up": {
+   "y_l_min_mm": null,
+   "y_l_max_mm": null,
+   "case_z_mm": [
+    239.22700959261107,
+    268.22700959261107
+   ],
+   "stack": {
+    "servo_side": 13.0,
+    "crank_side": 21.0,
+    "housing_half": 14.0,
+    "note": "B + helical torsion spring d 1.6 D 26 (~10 mm body) outboard of bearing B"
+   }
+  }
+ },
+ "zone_forward_extent_mm_option_C": 259.0,
+ "designs": {
+  "S4_PTFE18_plainpins": {
+   "config": {
+    "stem_d": 4.0,
+    "f_seal": 25.0,
+    "guide": "PTFE_18mm",
+    "pin_mu": 0.15
+   },
+   "n_feasible": 0,
+   "choice": null,
+   "choice_note": "INFEASIBLE: no linear spring meets C1 (fail-safe close at MEOP, -10 % spring) and C2 (opening margin 1.5 at 7.4 V, +10 % spring)"
+  },
+  "S4_rolling_ballpins": {
+   "config": {
+    "stem_d": 4.0,
+    "f_seal": 25.0,
+    "guide": "rolling_18mm",
+    "pin_mu": 0.005
+   },
+   "n_feasible": 179,
+   "choice": {
+    "T0_Nm": 0.31,
+    "k_Nm_per_rad": 0.1,
+    "T_stop_Nm": 0.481,
+    "open_demand_max_Nm": 0.596,
+    "assist_min_MEOP_Nm": 0.036,
+    "assist_min_5p5_Nm": 0.091,
+    "assist_min_3p5_Nm": 0.163,
+    "seat_load_nom_N": 361.8,
+    "U_plus10_J": 1.272
+   },
+   "choice_note": "targets NOT met: best assist at 5.5 MPa shown"
+  },
+  "S3_PTFE18_plainpins": {
+   "config": {
+    "stem_d": 3.0,
+    "f_seal": 18.75,
+    "guide": "PTFE_18mm",
+    "pin_mu": 0.15
+   },
+   "n_feasible": 498,
+   "choice": {
+    "T0_Nm": 0.18,
+    "k_Nm_per_rad": 0.175,
+    "T_stop_Nm": 0.48,
+    "open_demand_max_Nm": 0.59,
+    "assist_min_MEOP_Nm": 0.05,
+    "assist_min_5p5_Nm": 0.08,
+    "assist_min_3p5_Nm": 0.11,
+    "seat_load_nom_N": 210.1,
+    "U_plus10_J": 0.724
+   },
+   "choice_note": "targets met"
+  },
+  "S3_PTFE15_plainpins": {
+   "config": {
+    "stem_d": 3.0,
+    "f_seal": 18.75,
+    "guide": "PTFE_15mm",
+    "pin_mu": 0.15
+   },
+   "n_feasible": 461,
+   "choice": {
+    "T0_Nm": 0.19,
+    "k_Nm_per_rad": 0.17,
+    "T_stop_Nm": 0.481,
+    "open_demand_max_Nm": 0.593,
+    "assist_min_MEOP_Nm": 0.05,
+    "assist_min_5p5_Nm": 0.082,
+    "assist_min_3p5_Nm": 0.116,
+    "seat_load_nom_N": 221.7,
+    "U_plus10_J": 0.749
+   },
+   "choice_note": "targets met"
+  },
+  "S3_PTFE15mu20_plainpins": {
+   "config": {
+    "stem_d": 3.0,
+    "f_seal": 18.75,
+    "guide": "PTFE_15mm_mu0.20",
+    "pin_mu": 0.15
+   },
+   "n_feasible": 130,
+   "choice": {
+    "T0_Nm": 0.3,
+    "k_Nm_per_rad": 0.1,
+    "T_stop_Nm": 0.471,
+    "open_demand_max_Nm": 0.597,
+    "assist_min_MEOP_Nm": 0.047,
+    "assist_min_5p5_Nm": 0.094,
+    "assist_min_3p5_Nm": 0.156,
+    "seat_load_nom_N": 350.1,
+    "U_plus10_J": 1.22
+   },
+   "choice_note": "targets NOT met: best assist at 5.5 MPa shown"
+  },
+  "S3_PTFE8v33_plainpins": {
+   "config": {
+    "stem_d": 3.0,
+    "f_seal": 18.75,
+    "guide": "PTFE_8mm_v33",
+    "pin_mu": 0.15
+   },
+   "n_feasible": 196,
+   "choice": {
+    "T0_Nm": 0.3,
+    "k_Nm_per_rad": 0.1,
+    "T_stop_Nm": 0.471,
+    "open_demand_max_Nm": 0.594,
+    "assist_min_MEOP_Nm": 0.059,
+    "assist_min_5p5_Nm": 0.105,
+    "assist_min_3p5_Nm": 0.163,
+    "seat_load_nom_N": 350.1,
+    "U_plus10_J": 1.22
+   },
+   "choice_note": "targets NOT met: best assist at 5.5 MPa shown"
+  }
+ },
+ "baseline": {
+  "config": "S3_PTFE15_plainpins",
+  "spring_law": {
+   "T0_Nm_at_15deg": 0.19,
+   "k_Nm_per_rad": 0.17,
+   "T_stop_Nm": 0.481,
+   "tolerance": 0.1
+  },
+  "open_demand_bench_Nm": 0.593,
+  "open_demand_flight_Nm": 0.518,
+  "margin_bench_7V4": 1.52,
+  "margin_flight_7V4": 1.74,
+  "margin_bench_8V2": 1.69,
+  "assist_min_Nm": {
+   "bench": 0.147,
+   "P3.5MPa": 0.116,
+   "P5.5MPa": 0.082,
+   "MEOP": 0.05
+  },
+  "seat_load": {
+   "nominal_N": 221.7,
+   "plus10_N": 243.9,
+   "plus10_plus_MEOP_seated_pressure_N": 359.1
+  },
+  "link_force_max_N": 157.4,
+  "guide_normal_max_N": 247.8,
+  "jam_at_seat_link_tension_N": {
+   "7.4": 673.8,
+   "8.2": 766.3
+  },
+  "profile": [
+   {
+    "phi_deg": 15.0,
+    "lift_mm": 0.0,
+    "dx_dphi_mm_per_rad": 0.857,
+    "T_spring_nom_Nm": 0.19,
+    "open_T_bench_Nm": 0.233,
+    "close_assist_bench_Nm": 0.147,
+    "link_F_open_bench_N": -22.0,
+    "link_F_close_bench_N": 22.0,
+    "open_T_P3.5MPa_Nm": 0.305,
+    "close_assist_P3.5MPa_Nm": 0.192,
+    "link_F_open_P3.5MPa_N": -88.7,
+    "link_F_close_P3.5MPa_N": -33.0,
+    "open_T_P5.5MPa_Nm": 0.347,
+    "close_assist_P5.5MPa_Nm": 0.21,
+    "link_F_open_P5.5MPa_N": -128.0,
+    "link_F_close_P5.5MPa_N": -62.1,
+    "open_T_MEOP_Nm": 0.379,
+    "close_assist_MEOP_Nm": 0.224,
+    "link_F_open_MEOP_N": -157.4,
+    "link_F_close_MEOP_N": -83.9
+   },
+   {
+    "phi_deg": 19.93,
+    "lift_mm": 0.085,
+    "dx_dphi_mm_per_rad": 1.126,
+    "T_spring_nom_Nm": 0.205,
+    "open_T_bench_Nm": 0.255,
+    "close_assist_bench_Nm": 0.154,
+    "link_F_open_bench_N": -22.1,
+    "link_F_close_bench_N": 22.1,
+    "open_T_P3.5MPa_Nm": 0.236,
+    "close_assist_P3.5MPa_Nm": 0.135,
+    "link_F_open_P3.5MPa_N": -7.7,
+    "link_F_close_P3.5MPa_N": 36.4,
+    "open_T_P5.5MPa_Nm": 0.225,
+    "close_assist_P5.5MPa_Nm": 0.124,
+    "link_F_open_P5.5MPa_N": 0.5,
+    "link_F_close_P5.5MPa_N": 44.9,
+    "open_T_MEOP_Nm": 0.22,
+    "close_assist_MEOP_Nm": 0.115,
+    "link_F_open_MEOP_N": 5.2,
+    "link_F_close_MEOP_N": 51.2
+   },
+   {
+    "phi_deg": 24.86,
+    "lift_mm": 0.193,
+    "dx_dphi_mm_per_rad": 1.384,
+    "T_spring_nom_Nm": 0.219,
+    "open_T_bench_Nm": 0.277,
+    "close_assist_bench_Nm": 0.162,
+    "link_F_open_bench_N": -22.1,
+    "link_F_close_bench_N": 22.1,
+    "open_T_P3.5MPa_Nm": 0.236,
+    "close_assist_P3.5MPa_Nm": 0.116,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.4,
+    "open_T_P5.5MPa_Nm": 0.222,
+    "close_assist_P5.5MPa_Nm": 0.089,
+    "link_F_open_P5.5MPa_N": 16.9,
+    "link_F_close_P5.5MPa_N": 67.0,
+    "open_T_MEOP_Nm": 0.211,
+    "close_assist_MEOP_Nm": 0.069,
+    "link_F_open_MEOP_N": 26.1,
+    "link_F_close_MEOP_N": 79.5
+   },
+   {
+    "phi_deg": 29.79,
+    "lift_mm": 0.323,
+    "dx_dphi_mm_per_rad": 1.629,
+    "T_spring_nom_Nm": 0.234,
+    "open_T_bench_Nm": 0.298,
+    "close_assist_bench_Nm": 0.169,
+    "link_F_open_bench_N": -22.1,
+    "link_F_close_bench_N": 22.1,
+    "open_T_P3.5MPa_Nm": 0.251,
+    "close_assist_P3.5MPa_Nm": 0.117,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.4,
+    "open_T_P5.5MPa_Nm": 0.234,
+    "close_assist_P5.5MPa_Nm": 0.086,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.1,
+    "open_T_MEOP_Nm": 0.221,
+    "close_assist_MEOP_Nm": 0.063,
+    "link_F_open_MEOP_N": 26.1,
+    "link_F_close_MEOP_N": 79.6
+   },
+   {
+    "phi_deg": 34.72,
+    "lift_mm": 0.473,
+    "dx_dphi_mm_per_rad": 1.859,
+    "T_spring_nom_Nm": 0.249,
+    "open_T_bench_Nm": 0.319,
+    "close_assist_bench_Nm": 0.178,
+    "link_F_open_bench_N": -22.1,
+    "link_F_close_bench_N": 22.1,
+    "open_T_P3.5MPa_Nm": 0.266,
+    "close_assist_P3.5MPa_Nm": 0.118,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.5,
+    "open_T_P5.5MPa_Nm": 0.246,
+    "close_assist_P5.5MPa_Nm": 0.084,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.2,
+    "open_T_MEOP_Nm": 0.231,
+    "close_assist_MEOP_Nm": 0.058,
+    "link_F_open_MEOP_N": 26.0,
+    "link_F_close_MEOP_N": 79.7
+   },
+   {
+    "phi_deg": 39.65,
+    "lift_mm": 0.643,
+    "dx_dphi_mm_per_rad": 2.072,
+    "T_spring_nom_Nm": 0.263,
+    "open_T_bench_Nm": 0.34,
+    "close_assist_bench_Nm": 0.186,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.281,
+    "close_assist_P3.5MPa_Nm": 0.121,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.5,
+    "open_T_P5.5MPa_Nm": 0.258,
+    "close_assist_P5.5MPa_Nm": 0.082,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.2,
+    "open_T_MEOP_Nm": 0.241,
+    "close_assist_MEOP_Nm": 0.054,
+    "link_F_open_MEOP_N": 26.0,
+    "link_F_close_MEOP_N": 79.8
+   },
+   {
+    "phi_deg": 44.58,
+    "lift_mm": 0.829,
+    "dx_dphi_mm_per_rad": 2.267,
+    "T_spring_nom_Nm": 0.278,
+    "open_T_bench_Nm": 0.361,
+    "close_assist_bench_Nm": 0.195,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.296,
+    "close_assist_P3.5MPa_Nm": 0.124,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.6,
+    "open_T_P5.5MPa_Nm": 0.271,
+    "close_assist_P5.5MPa_Nm": 0.082,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.3,
+    "open_T_MEOP_Nm": 0.252,
+    "close_assist_MEOP_Nm": 0.051,
+    "link_F_open_MEOP_N": 26.0,
+    "link_F_close_MEOP_N": 79.8
+   },
+   {
+    "phi_deg": 49.51,
+    "lift_mm": 1.032,
+    "dx_dphi_mm_per_rad": 2.441,
+    "T_spring_nom_Nm": 0.292,
+    "open_T_bench_Nm": 0.381,
+    "close_assist_bench_Nm": 0.204,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.311,
+    "close_assist_P3.5MPa_Nm": 0.128,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.6,
+    "open_T_P5.5MPa_Nm": 0.284,
+    "close_assist_P5.5MPa_Nm": 0.084,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.3,
+    "open_T_MEOP_Nm": 0.264,
+    "close_assist_MEOP_Nm": 0.05,
+    "link_F_open_MEOP_N": 26.0,
+    "link_F_close_MEOP_N": 79.9
+   },
+   {
+    "phi_deg": 54.43,
+    "lift_mm": 1.249,
+    "dx_dphi_mm_per_rad": 2.593,
+    "T_spring_nom_Nm": 0.307,
+    "open_T_bench_Nm": 0.4,
+    "close_assist_bench_Nm": 0.214,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.327,
+    "close_assist_P3.5MPa_Nm": 0.134,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.6,
+    "open_T_P5.5MPa_Nm": 0.298,
+    "close_assist_P5.5MPa_Nm": 0.086,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.4,
+    "open_T_MEOP_Nm": 0.276,
+    "close_assist_MEOP_Nm": 0.051,
+    "link_F_open_MEOP_N": 26.0,
+    "link_F_close_MEOP_N": 79.9
+   },
+   {
+    "phi_deg": 59.36,
+    "lift_mm": 1.477,
+    "dx_dphi_mm_per_rad": 2.723,
+    "T_spring_nom_Nm": 0.322,
+    "open_T_bench_Nm": 0.419,
+    "close_assist_bench_Nm": 0.224,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.342,
+    "close_assist_P3.5MPa_Nm": 0.14,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.7,
+    "open_T_P5.5MPa_Nm": 0.312,
+    "close_assist_P5.5MPa_Nm": 0.091,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.4,
+    "open_T_MEOP_Nm": 0.289,
+    "close_assist_MEOP_Nm": 0.054,
+    "link_F_open_MEOP_N": 26.0,
+    "link_F_close_MEOP_N": 80.0
+   },
+   {
+    "phi_deg": 64.29,
+    "lift_mm": 1.716,
+    "dx_dphi_mm_per_rad": 2.829,
+    "T_spring_nom_Nm": 0.336,
+    "open_T_bench_Nm": 0.438,
+    "close_assist_bench_Nm": 0.235,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.358,
+    "close_assist_P3.5MPa_Nm": 0.148,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.7,
+    "open_T_P5.5MPa_Nm": 0.326,
+    "close_assist_P5.5MPa_Nm": 0.097,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.302,
+    "close_assist_MEOP_Nm": 0.058,
+    "link_F_open_MEOP_N": 26.0,
+    "link_F_close_MEOP_N": 80.0
+   },
+   {
+    "phi_deg": 69.22,
+    "lift_mm": 1.964,
+    "dx_dphi_mm_per_rad": 2.912,
+    "T_spring_nom_Nm": 0.351,
+    "open_T_bench_Nm": 0.456,
+    "close_assist_bench_Nm": 0.246,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.374,
+    "close_assist_P3.5MPa_Nm": 0.157,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.7,
+    "open_T_P5.5MPa_Nm": 0.341,
+    "close_assist_P5.5MPa_Nm": 0.104,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.316,
+    "close_assist_MEOP_Nm": 0.065,
+    "link_F_open_MEOP_N": 25.9,
+    "link_F_close_MEOP_N": 80.1
+   },
+   {
+    "phi_deg": 74.15,
+    "lift_mm": 2.217,
+    "dx_dphi_mm_per_rad": 2.971,
+    "T_spring_nom_Nm": 0.366,
+    "open_T_bench_Nm": 0.473,
+    "close_assist_bench_Nm": 0.258,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.39,
+    "close_assist_P3.5MPa_Nm": 0.167,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.7,
+    "open_T_P5.5MPa_Nm": 0.356,
+    "close_assist_P5.5MPa_Nm": 0.113,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.331,
+    "close_assist_MEOP_Nm": 0.073,
+    "link_F_open_MEOP_N": 25.9,
+    "link_F_close_MEOP_N": 80.1
+   },
+   {
+    "phi_deg": 79.08,
+    "lift_mm": 2.474,
+    "dx_dphi_mm_per_rad": 3.006,
+    "T_spring_nom_Nm": 0.38,
+    "open_T_bench_Nm": 0.49,
+    "close_assist_bench_Nm": 0.27,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.405,
+    "close_assist_P3.5MPa_Nm": 0.178,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.8,
+    "open_T_P5.5MPa_Nm": 0.372,
+    "close_assist_P5.5MPa_Nm": 0.124,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.346,
+    "close_assist_MEOP_Nm": 0.083,
+    "link_F_open_MEOP_N": 25.9,
+    "link_F_close_MEOP_N": 80.1
+   },
+   {
+    "phi_deg": 84.01,
+    "lift_mm": 2.733,
+    "dx_dphi_mm_per_rad": 3.017,
+    "T_spring_nom_Nm": 0.395,
+    "open_T_bench_Nm": 0.506,
+    "close_assist_bench_Nm": 0.283,
+    "link_F_open_bench_N": -22.3,
+    "link_F_close_bench_N": 22.3,
+    "open_T_P3.5MPa_Nm": 0.422,
+    "close_assist_P3.5MPa_Nm": 0.191,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.8,
+    "open_T_P5.5MPa_Nm": 0.387,
+    "close_assist_P5.5MPa_Nm": 0.136,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.362,
+    "close_assist_MEOP_Nm": 0.096,
+    "link_F_open_MEOP_N": 25.9,
+    "link_F_close_MEOP_N": 80.1
+   },
+   {
+    "phi_deg": 88.94,
+    "lift_mm": 2.993,
+    "dx_dphi_mm_per_rad": 3.005,
+    "T_spring_nom_Nm": 0.409,
+    "open_T_bench_Nm": 0.522,
+    "close_assist_bench_Nm": 0.297,
+    "link_F_open_bench_N": -22.3,
+    "link_F_close_bench_N": 22.3,
+    "open_T_P3.5MPa_Nm": 0.438,
+    "close_assist_P3.5MPa_Nm": 0.204,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.8,
+    "open_T_P5.5MPa_Nm": 0.404,
+    "close_assist_P5.5MPa_Nm": 0.15,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.378,
+    "close_assist_MEOP_Nm": 0.11,
+    "link_F_open_MEOP_N": 25.9,
+    "link_F_close_MEOP_N": 80.1
+   },
+   {
+    "phi_deg": 93.87,
+    "lift_mm": 3.25,
+    "dx_dphi_mm_per_rad": 2.971,
+    "T_spring_nom_Nm": 0.424,
+    "open_T_bench_Nm": 0.538,
+    "close_assist_bench_Nm": 0.31,
+    "link_F_open_bench_N": -22.3,
+    "link_F_close_bench_N": 22.3,
+    "open_T_P3.5MPa_Nm": 0.454,
+    "close_assist_P3.5MPa_Nm": 0.219,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.8,
+    "open_T_P5.5MPa_Nm": 0.42,
+    "close_assist_P5.5MPa_Nm": 0.165,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.395,
+    "close_assist_MEOP_Nm": 0.125,
+    "link_F_open_MEOP_N": 25.9,
+    "link_F_close_MEOP_N": 80.1
+   },
+   {
+    "phi_deg": 98.8,
+    "lift_mm": 3.503,
+    "dx_dphi_mm_per_rad": 2.916,
+    "T_spring_nom_Nm": 0.439,
+    "open_T_bench_Nm": 0.553,
+    "close_assist_bench_Nm": 0.325,
+    "link_F_open_bench_N": -22.3,
+    "link_F_close_bench_N": 22.3,
+    "open_T_P3.5MPa_Nm": 0.47,
+    "close_assist_P3.5MPa_Nm": 0.235,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.8,
+    "open_T_P5.5MPa_Nm": 0.437,
+    "close_assist_P5.5MPa_Nm": 0.182,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.413,
+    "close_assist_MEOP_Nm": 0.143,
+    "link_F_open_MEOP_N": 25.9,
+    "link_F_close_MEOP_N": 80.1
+   },
+   {
+    "phi_deg": 103.73,
+    "lift_mm": 3.751,
+    "dx_dphi_mm_per_rad": 2.84,
+    "T_spring_nom_Nm": 0.453,
+    "open_T_bench_Nm": 0.567,
+    "close_assist_bench_Nm": 0.339,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.487,
+    "close_assist_P3.5MPa_Nm": 0.252,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.7,
+    "open_T_P5.5MPa_Nm": 0.455,
+    "close_assist_P5.5MPa_Nm": 0.2,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.431,
+    "close_assist_MEOP_Nm": 0.162,
+    "link_F_open_MEOP_N": 25.9,
+    "link_F_close_MEOP_N": 80.1
+   },
+   {
+    "phi_deg": 108.66,
+    "lift_mm": 3.991,
+    "dx_dphi_mm_per_rad": 2.744,
+    "T_spring_nom_Nm": 0.468,
+    "open_T_bench_Nm": 0.581,
+    "close_assist_bench_Nm": 0.355,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.503,
+    "close_assist_P3.5MPa_Nm": 0.27,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.7,
+    "open_T_P5.5MPa_Nm": 0.473,
+    "close_assist_P5.5MPa_Nm": 0.22,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.45,
+    "close_assist_MEOP_Nm": 0.182,
+    "link_F_open_MEOP_N": 25.9,
+    "link_F_close_MEOP_N": 80.1
+   },
+   {
+    "phi_deg": 113.09,
+    "lift_mm": 4.2,
+    "dx_dphi_mm_per_rad": 2.643,
+    "T_spring_nom_Nm": 0.481,
+    "open_T_bench_Nm": 0.593,
+    "close_assist_bench_Nm": 0.369,
+    "link_F_open_bench_N": -22.2,
+    "link_F_close_bench_N": 22.2,
+    "open_T_P3.5MPa_Nm": 0.518,
+    "close_assist_P3.5MPa_Nm": 0.287,
+    "link_F_open_P3.5MPa_N": 4.6,
+    "link_F_close_P3.5MPa_N": 50.7,
+    "open_T_P5.5MPa_Nm": 0.489,
+    "close_assist_P5.5MPa_Nm": 0.238,
+    "link_F_open_P5.5MPa_N": 16.8,
+    "link_F_close_P5.5MPa_N": 67.5,
+    "open_T_MEOP_Nm": 0.467,
+    "close_assist_MEOP_Nm": 0.202,
+    "link_F_open_MEOP_N": 26.0,
+    "link_F_close_MEOP_N": 80.0
+   }
+  ],
+  "spring_hardware": {
+   "type": "flat spiral spring in the crank housing, outboard of the crank web (inner end on the crank shaft, outer end in the housing)",
+   "strip_b_mm": 6.0,
+   "strip_t_mm": 0.65,
+   "strip_length_mm": 166.4,
+   "r_inner_mm": 4.0,
+   "r_outer_mm": 10.5,
+   "turns": 3.65,
+   "pitch_mm": 1.78,
+   "gap_free_mm": 1.13,
+   "windup_at_stop_turns": 0.45,
+   "sigma_max_MPa": 1252.0,
+   "sigma_allow_MPa": 1300.0,
+   "mass_g": 5.1,
+   "tag": "DERIVED (free-spiral formulas); spring maker to design/confirm (rate, preload set, end clamps, fatigue for the throttle-cycle count)",
+   "preload_angle_deg": 64.0
+  }
+ },
+ "link": {
+  "max_link_angle_deg": 6.15,
+  "pin_d_mm": 3.0,
+  "F_design_N": 766.3,
+  "F_design_basis": "max(378 N servo stall into the 4.2 mm stop [lead], jam at the seat at 8.2 V stall)",
+  "tau_pin_double_shear_MPa": 54.2,
+  "eye_bearing_pressure_MPa": 63.9,
+  "stem_M3_thread_stress_MPa": 152.3,
+  "material": "17-4PH H1150 (Fty 724 MPa, engmat); stem top M3 (A_s 5.03 mm2) into the carriage with a lock nut"
+ },
+ "stop": {
+  "r_stop_mm": 6.0,
+  "F_stop_N_at_8V2_stall": 166.7,
+  "note": "crank-web tang on a pressed 3 mm stop pin; link load at the stop = needle loads only"
+ },
+ "bearings": {
+  "NB701 (12x18x4)": {
+   "d_D_B_mm": [
+    12,
+    18,
+    4
+   ],
+   "C0r_kN": 0.655,
+   "source": "NSK e1153a (https://www.nsk.com/content/dam/nsk/common/catalogs/ctrgPdf/bearings/e1153a.pdf), read 2026-10-12",
+   "P0_N_governing": 383.1,
+   "s0": 1.71,
+   "s0_jam_7V4": 1.94,
+   "s0_lead_378N": 3.47
+  },
+  "6800 (10x19x5)": {
+   "d_D_B_mm": [
+    10,
+    19,
+    5
+   ],
+   "C0r_kN": 0.84,
+   "source": "NSK e1153a (https://www.nsk.com/content/dam/nsk/common/catalogs/ctrgPdf/bearings/e1153a.pdf), read 2026-10-12",
+   "P0_N_governing": 383.1,
+   "s0": 2.19,
+   "s0_jam_7V4": 2.49,
+   "s0_lead_378N": 4.44
+  },
+  "6801 (12x21x5)": {
+   "d_D_B_mm": [
+    12,
+    21,
+    5
+   ],
+   "C0r_kN": 1.04,
+   "source": "NSK e1153a (https://www.nsk.com/content/dam/nsk/common/catalogs/ctrgPdf/bearings/e1153a.pdf), read 2026-10-12",
+   "P0_N_governing": 383.1,
+   "s0": 2.71,
+   "s0_jam_7V4": 3.09,
+   "s0_lead_378N": 5.5
+  },
+  "NB700 (10x15x3)": {
+   "d_D_B_mm": [
+    10,
+    15,
+    3
+   ],
+   "C0r_kN": 0.515,
+   "source": "NSK e1153a (https://www.nsk.com/content/dam/nsk/common/catalogs/ctrgPdf/bearings/e1153a.pdf), read 2026-10-12",
+   "P0_N_governing": 383.1,
+   "s0": 1.34,
+   "s0_jam_7V4": 1.53,
+   "s0_lead_378N": 2.72
+  },
+  "P0_cases_N": {
+   "jam_at_seat_8V2": 383.1,
+   "stall_into_open_stop": 163.3,
+   "lead_378N_link_basis": 189.0
+  },
+  "s0_vs_rail_voltage": {
+   "7.4": {
+    "T_stall_Nm": 0.9,
+    "link_jam_N": 673.8,
+    "s0_NB701": 1.94,
+    "s0_6800": 2.49
+   },
+   "7.5": {
+    "T_stall_Nm": 0.912,
+    "link_jam_N": 685.4,
+    "s0_NB701": 1.91,
+    "s0_6800": 2.45
+   },
+   "7.6": {
+    "T_stall_Nm": 0.925,
+    "link_jam_N": 697.0,
+    "s0_NB701": 1.88,
+    "s0_6800": 2.41
+   },
+   "7.8": {
+    "T_stall_Nm": 0.95,
+    "link_jam_N": 720.1,
+    "s0_NB701": 1.82,
+    "s0_6800": 2.33
+   },
+   "8.0": {
+    "T_stall_Nm": 0.975,
+    "link_jam_N": 743.2,
+    "s0_NB701": 1.76,
+    "s0_6800": 2.26
+   },
+   "8.2": {
+    "T_stall_Nm": 1.0,
+    "link_jam_N": 766.3,
+    "s0_NB701": 1.71,
+    "s0_6800": 2.19
+   }
+  },
+  "s0_vs_rail_voltage_note": "jam at the seat, -10 % spring, straddle split 1/2 per bearing; HV69 stall torque linear between the 7.4 V (0.90) and 8.2 V (1.00 N m) table points (retailer copies of MKS data, TO-CONFIRM); regulator tolerance of the 7.4 V rail = UNKNOWN (Electronics to specify) - read s0 at 7.4 V x (1 + tolerance)",
+  "selection": "A (servo side, nested dog coupling): 12x18x4 thin-section, NSK NB701 class, C0r 0.655 kN -> s0 1.71 jam at 8.2 V / 1.94 at 7.4 V / 3.47 at the 378 N basis; B (outboard): 6800 10x19x5, C0r 0.84 kN -> s0 2.19 jam at 8.2 V (s0 >= 1 normal duty; the jam is an exceptional case). v1 6700/6701 'as recalled' C0 (0.98/1.03 kN) WITHDRAWN (not verifiable). Shield/seal and high-temperature grease variants TO-VERIFY with the maker (head-top soak)"
+ },
+ "meco_close_estimate": {
+  "F75_P3.5MPa": {
+   "lift_from_mm": 1.679,
+   "lift_to_mm": 0.2,
+   "crank_deg": 38.4,
+   "assist_Nm": 0.116,
+   "t_s_estimate": 0.082,
+   "t_s_no_assist": 0.09
+  },
+  "F100_P3.5MPa": {
+   "lift_from_mm": 2.981,
+   "lift_to_mm": 0.2,
+   "crank_deg": 63.6,
+   "assist_Nm": 0.116,
+   "t_s_estimate": 0.123,
+   "t_s_no_assist": 0.137
+  },
+  "F75_P5.5MPa": {
+   "lift_from_mm": 1.181,
+   "lift_to_mm": 0.2,
+   "crank_deg": 27.8,
+   "assist_Nm": 0.082,
+   "t_s_estimate": 0.067,
+   "t_s_no_assist": 0.071
+  },
+  "F100_P5.5MPa": {
+   "lift_from_mm": 1.775,
+   "lift_to_mm": 0.2,
+   "crank_deg": 40.3,
+   "assist_Nm": 0.082,
+   "t_s_estimate": 0.088,
+   "t_s_no_assist": 0.094
+  }
+ },
+ "crank_radius_study": [
+  {
+   "r_mm": 3.0,
+   "phi_stop_deg": 113.1,
+   "travel_cmd_deg": 103.1,
+   "n_feasible": 461,
+   "choice": {
+    "T0_Nm": 0.19,
+    "k_Nm_per_rad": 0.17,
+    "T_stop_Nm": 0.481,
+    "open_demand_max_Nm": 0.593,
+    "assist_min_MEOP_Nm": 0.05,
+    "assist_min_5p5_Nm": 0.082,
+    "assist_min_3p5_Nm": 0.116,
+    "seat_load_nom_N": 221.7,
+    "U_plus10_J": 0.749
+   },
+   "note": "targets met"
+  },
+  {
+   "r_mm": 3.25,
+   "phi_stop_deg": 106.1,
+   "travel_cmd_deg": 96.1,
+   "n_feasible": 368,
+   "choice": {
+    "T0_Nm": 0.22,
+    "k_Nm_per_rad": 0.155,
+    "T_stop_Nm": 0.466,
+    "open_demand_max_Nm": 0.586,
+    "assist_min_MEOP_Nm": 0.05,
+    "assist_min_5p5_Nm": 0.088,
+    "assist_min_3p5_Nm": 0.132,
+    "seat_load_nom_N": 235.2,
+    "U_plus10_J": 0.771
+   },
+   "note": "targets met"
+  },
+  {
+   "r_mm": 3.5,
+   "phi_stop_deg": 100.2,
+   "travel_cmd_deg": 90.2,
+   "n_feasible": 283,
+   "choice": {
+    "T0_Nm": 0.25,
+    "k_Nm_per_rad": 0.145,
+    "T_stop_Nm": 0.466,
+    "open_demand_max_Nm": 0.593,
+    "assist_min_MEOP_Nm": 0.051,
+    "assist_min_5p5_Nm": 0.093,
+    "assist_min_3p5_Nm": 0.145,
+    "seat_load_nom_N": 246.2,
+    "U_plus10_J": 0.824
+   },
+   "note": "targets met"
+  },
+  {
+   "r_mm": 3.75,
+   "phi_stop_deg": 95.3,
+   "travel_cmd_deg": 85.3,
+   "n_feasible": 185,
+   "choice": {
+    "T0_Nm": 0.29,
+    "k_Nm_per_rad": 0.125,
+    "T_stop_Nm": 0.465,
+    "open_demand_max_Nm": 0.599,
+    "assist_min_MEOP_Nm": 0.053,
+    "assist_min_5p5_Nm": 0.1,
+    "assist_min_3p5_Nm": 0.16,
+    "seat_load_nom_N": 264.5,
+    "U_plus10_J": 0.951
+   },
+   "note": "targets met"
+  },
+  {
+   "r_mm": 4.0,
+   "phi_stop_deg": 91.0,
+   "travel_cmd_deg": 81.0,
+   "n_feasible": 97,
+   "choice": {
+    "T0_Nm": 0.32,
+    "k_Nm_per_rad": 0.105,
+    "T_stop_Nm": 0.459,
+    "open_demand_max_Nm": 0.599,
+    "assist_min_MEOP_Nm": 0.043,
+    "assist_min_5p5_Nm": 0.095,
+    "assist_min_3p5_Nm": 0.162,
+    "seat_load_nom_N": 271.6,
+    "U_plus10_J": 1.104
+   },
+   "note": "targets NOT met: best assist at 5.5 MPa shown"
+  }
+ ],
+ "lead_decisions_2026-10-12": {
+  "bearing_A": "keep the 12x18x4 NB701 class (6801 12x21x5 NOT adopted)",
+  "jam_design_case": "regulated 7.4 V pintle rail: jam design case = 7.4 V + regulator tolerance (not 8.2 V); s0 1.94 at 7.4 V accepted for an exceptional event with firmware stall detection",
+  "maintenance_rule": "any recorded pintle jam -> bearing A replaced before the next flight (BOM note)",
+  "approved": "15 mm bushing spacing and spring v2.1 (0.19 N m at closed + 0.17 N m/rad, +/-10 %)",
+  "datasheet_discipline": "every bearing, O-ring and fastener in the BOM carries a maker datasheet reference; no 'as recalled' values"
+ }
+}

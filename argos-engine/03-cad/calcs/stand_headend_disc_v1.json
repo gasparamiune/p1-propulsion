@@ -1,0 +1,82 @@
+{
+ "script": "03-cad/src/calcs/stand_headend_disc_v1.py",
+ "date": "2026-10-13",
+ "cad": "v3.4 build (config.V34_ON), pivot frame",
+ "stations_mm": {
+  "inj_face": 106.63,
+  "head_top": 172.63,
+  "pre_chamber": [
+   76.63,
+   106.63
+  ]
+ },
+ "A_through_flight_head": {
+  "verdict": "NOT FEASIBLE",
+  "why": "a DN32 path needs >= 792 mm2 (one 32 mm bore, or e.g. 6x 13 mm holes) from the pre-chamber through the head plug to a disc holder above it; the plug is 57.2 mm with the seat insert (20.2 counterbore) on the axis, the M5 row and 2 glands at r 22-28.6, and the r 10-21.5 annulus already carries the manifold bore, the E1-M filter/axial drillings, the Pc and torch passages and the 4 bonnet screws; any 792 mm2 of new holes there removes the injector features or the face-disc support: a different injector, not a flight-representative head",
+  "annulus_r10-21.5_gross_mm2": 1132.0,
+  "occupied_features": [
+   "seat insert counterbore (flange 20.2) + M14x1",
+   "manifold bore",
+   "E1-M filter bore (radial 14, az 180)",
+   "E1-M axial 8 at r 16",
+   "Pc passage 2 mm (r 20.5-25)",
+   "torch passage 5.2/3 (r 17-25)",
+   "2 AS568-226 glands (r 25.8-28.6)",
+   "8x M5 radial (r 22.1-28.6)",
+   "4x M4 bonnet (r 16.5)"
+  ]
+ },
+ "B_stand_case_section_window": {
+  "verdict": "GEOMETRICALLY POSSIBLE, stand-only, NOT representative",
+  "round_DN32_port_needs_axial_mm": 43.0,
+  "available_axial_mm": 30.0,
+  "oblong_window_mm": [
+   24.0,
+   33.0
+  ],
+  "window_arc_deg": 66.0,
+  "hardware": "TC-01S: stand-only 316L case (or 316L forward section) with the window at the pre-chamber station; saddle disc holder (oblong-to-round transition, DN32 disc) welded/bolted on the OD; TC-06S insulator with the same window; a sacrificial phenolic or graphite heat shield in front of the disc (ASSUMED necessity: the disc face otherwise sees the pre-chamber gas on every burn)",
+  "pre_chamber_volume_cm3": 58.7,
+  "added_dead_volume_cm3": 18.6,
+  "added_dead_volume_pct": 32.0,
+  "consequences": [
+   "pre-chamber +19 cm3 (+32 %, window through the 3.175 mm wall + a 20 mm DN32 neck, ESTIMATE) and asymmetric (Combustion: the stand test then differs from flight in the head-end volume and mixing)",
+   "disc exposed to hot gas -> premature-burst / fragment risk unless shielded (shield adds delay and changes the relief area)",
+   "TC-06/TC-01 joint and insulation changed at the hottest metal station"
+  ]
+ },
+ "C_spacer_ring": {
+  "verdict": "POSSIBLE, changes L_pre",
+  "L_pre_increase_mm": 43.0,
+  "note": "a 43 mm stand-only spacer with a radial DN32 port lengthens the pre-chamber 30 -> ~73 mm (Combustion change)"
+ },
+ "reaction": {
+  "model": "sonic orifice, F = C_F P0 A*, g 1.2 ASSUMED",
+  "C_F_parts": {
+   "Gamma": 0.6485,
+   "momentum_term": 0.6774,
+   "p*/P0": 0.5645
+  },
+  "z_pre_mid_above_pivot_mm": 91.6,
+  "cases": {
+   "burst 55 bar, A_eff 491 mm2": {
+    "C_F": 1.223,
+    "F_N": 3304.0,
+    "M_about_pivot_Nm": 303.0
+   },
+   "LC-TB-S 63.1 bar, A_eff 491 mm2": {
+    "C_F": 1.226,
+    "F_N": 3798.0,
+    "M_about_pivot_Nm": 348.0
+   },
+   "bound 63.1 bar, full MNFA 792 mm2": {
+    "C_F": 1.226,
+    "F_N": 6126.0,
+    "M_about_pivot_Nm": 561.0
+   }
+  },
+  "servo_reference": "SB-2292SG stall 2.16 N m (Electronics) through the TVC levers: the gimbal cannot react a lateral 3-6 kN at the head; the stand must lock the gimbal (rigid stand adapter) or the outlet must be a balanced tee"
+ },
+ "discharge_path": "radial at the disc; on the stand: DN32 elbow on the holder turning the jet aft (or a balanced tee with two opposed outlets, net lateral load ~0) and ducted out of the test cell; never into a vehicle bay",
+ "recommendation": "head-end DN32 not feasible on the flight head or as an adapter on it; possible only as a stand-only case section (B) or spacer (C) that changes the pre-chamber Combustion is testing.  Mechanical recommends the fallback: shorter stand windows with a rounded grain-port entrance (r >= 4 mm) and the aft TC-09S DN32 disc; reconsider B only if Combustion accepts the changed pre-chamber on the stand"
+}
