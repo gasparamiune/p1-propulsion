@@ -1,0 +1,29 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+
+fluxScheme      Kurganov;
+ddtSchemes      { default Euler; }
+gradSchemes     { default cellLimited Gauss linear 1; }
+divSchemes
+{
+    default         none;
+    div(tauMC)      Gauss linear;
+    div(phi,Z)      Gauss vanLeer;
+
+}
+laplacianSchemes { default Gauss linear corrected; }
+interpolationSchemes
+{
+    default         linear;
+    reconstruct(rho) vanLeer;
+    reconstruct(U)  vanLeerV;
+    reconstruct(T)  vanLeer;
+}
+snGradSchemes   { default corrected; }
+wallDist        { method meshWave; }

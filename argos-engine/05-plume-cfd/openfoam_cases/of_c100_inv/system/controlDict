@@ -1,0 +1,34 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+application     rhoCentralFoam;
+startFrom       latestTime;
+startTime       0;
+stopAt          endTime;
+endTime         0.001;
+deltaT          1e-9;
+writeControl    adjustableRunTime;
+writeInterval   5e-05;
+purgeWrite      0;
+writeFormat     binary;
+writePrecision  8;
+writeCompression off;
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable true;
+adjustTimeStep  yes;
+maxCo           0.25;
+maxDeltaT       1;
+// functionObjects disabled: every functionObject (scalarTransport, MachNo, even a bare
+// fieldMinMax) aborts this OpenFOAM v1912 Debian build at "Starting time loop" with
+// "FOAM FATAL IO ERROR: error in IOstream "sha1" for operation operator<<(Ostream&, const word&)".
+// Recorded as FAILURE-CFD-01 in 05-plume-cfd/REPORT.md; Mach and mixture fraction are post-processed.
+functions
+{
+}
