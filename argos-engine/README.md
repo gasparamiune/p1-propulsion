@@ -28,6 +28,8 @@ The airframe (tube, fins, legs, avionics bay) belongs to Lauty and is not design
 
 ## Where to start
 
+**Interactive visualizer:** open [`visualizer/README.md`](visualizer/README.md) for the ready-to-run exploded assembly, cutaway, part explorer, folder map and visual library. The guide includes a copyable prompt for an AI to launch it, with no package installation or CAD regeneration.
+
 | Folder | What is in it |
 |---|---|
 | `00-requirements/` | `REQUIREMENTS.md`, `TEAM-CHARTER.md`, `ICD-AIRFRAME.md` (airframe interface draft) |
