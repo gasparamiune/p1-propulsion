@@ -90,9 +90,9 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 <div class="wrap">
   <header>
     <span class="eyebrow">ARGOS H1 · 500 N throttleable N2O / ABS hybrid · gimballed</span>
-    <h1>The engine so far: rocket, CAD, cutaway and plume</h1>
-    <p class="lead">Updated 19 October 2026 with the whole rocket built around the frozen engine CAD. The engine and plume renders below are from 13 October. Each image says what kind of evidence it is.</p>
-    <div class="status"><span>●</span><span><b>Draft.</b> Everything here is simulation or display geometry. The airframe is a placeholder, the assembled-engine FEA is still finishing, and nothing here has been tested on hardware.</span></div>
+    <h1>The engine so far: rocket, CAD, stress and plume</h1>
+    <p class="lead">Updated 19 October 2026 with the finished 3D FEA of the assembled engine and the whole rocket built around the frozen engine CAD. The engine and plume renders below are from 13 October. Each image says what kind of evidence it is.</p>
+    <div class="status"><span>●</span><span><b>Draft.</b> Everything here is simulation or display geometry. The airframe is a placeholder, the FEA's independent check is still pending, and nothing here has been tested on hardware.</span></div>
   </header>
 
   <section>
@@ -277,6 +277,44 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   <section>
     <div class="sec-head">
+      <span class="eyebrow">Mechanical · 3D FEA of the assembled engine, CAD v3.5.1</span>
+      <h2>The engine under maximum load</h2>
+      <p>The whole engine was meshed as one assembly (CalculiX, about 171,000 nodes) and loaded with maximum thrust and its heat, a pressure spike at ignition, the gimbal held at its 8&deg; stop, the servos at stall, and touchdown. Six parts fall below the required margin and go to the Mechanical team as design changes. The rest of the engine passes.</p>
+    </div>
+    <figure>
+      <a class="frame" href="img/fea_min_margins.png" target="_blank" rel="noopener" style="background:#fff"><img src="img/fea_min_margins.png" alt="Bar chart of the lowest margin of safety for each of 23 engine parts. Six bars are negative: graphite throat NZ-01 -0.44, copper seat insert TC-03 -0.42, gimbal lever roots GM-02 -0.38 and GM-01 -0.37, case TC-01 -0.22 on the conservative pressure-spike bound, forward closure TC-02 -0.18." width="1350" height="1275" loading="lazy"></a>
+      <figcaption>
+        <div class="chips"><span class="chip">SIM</span><span class="chip">Final run</span><span class="chip hot">Independent check pending</span></div>
+        <span><strong>Lowest margin of each part over every load case.</strong> Below zero means the part fails its criterion (1.5 on yield and 2.0 on ultimate for normal operation). The graphite throat, the copper seat insert and the forward closure fail under the engine's own heat. The two gimbal lever roots fail when the servos drive the engine into its stop. The case is negative only on the conservative pressure-spike bound; on the period-based reading it is +0.23, which is still provisional.</span>
+      </figcaption>
+    </figure>
+    <figure>
+      <a class="frame" href="img/fea_max_thrust_vm.png" target="_blank" rel="noopener" style="background:#fff"><img src="img/fea_max_thrust_vm.png" alt="Half-section of the engine coloured by von Mises stress at maximum thrust. Most of the engine is pale (low stress); the aft end around the graphite throat shows the highest stress." width="1400" height="1700" loading="lazy"></a>
+      <figcaption>
+        <div class="chips"><span class="chip">SIM</span><span class="chip">Max thrust, hot</span></div>
+        <span><strong>Stress at maximum thrust, at the end of the longest full-thrust burn.</strong> Most of the engine is lightly loaded. The hot end around the graphite throat carries the highest stress.</span>
+      </figcaption>
+    </figure>
+    <div class="grid2">
+      <figure>
+        <a class="frame" href="img/fea_throat_ms.png" target="_blank" rel="noopener" style="background:#fff"><img src="img/fea_throat_ms.png" alt="Close-up of the graphite throat insert coloured by margin of safety; the throat ring is dark red, margin -0.435." width="1400" height="1100" loading="lazy"></a>
+        <figcaption>
+          <div class="chips"><span class="chip">SIM</span><span class="chip hot">Below margin</span></div>
+          <span><strong>Graphite throat insert at maximum thrust.</strong> The throat ring is squeezed by its own temperature gradient: about 69 MPa of compression at about 1330 &deg;C, margin -0.44. A finer mesh makes it worse, so this is a design question rather than a mesh artefact.</span>
+        </figcaption>
+      </figure>
+      <figure>
+        <a class="frame" href="img/fea_lever_root_vm.png" target="_blank" rel="noopener" style="background:#fff"><img src="img/fea_lever_root_vm.png" alt="Close-up of the gimbal collar lever root coloured by von Mises stress; a small red spot at the fillet reaches 403 MPa, margin -0.223." width="1400" height="1100" loading="lazy"></a>
+        <figcaption>
+          <div class="chips"><span class="chip">SIM</span><span class="chip hot">Below margin</span></div>
+          <span><strong>Gimbal lever root, servos at stall.</strong> 403 MPa in a 1.2 mm fillet on the 7075 aluminium collar, margin -0.22 on yield. A coarser mesh had missed this spot. The fix is a larger fillet or a thicker root, or a servo with a lower stall force.</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
       <span class="eyebrow">GNC · 6-DOF Monte Carlo</span>
       <h2>Landing simulation</h2>
       <p>Where 500 simulated flights touch down against the landing limits (dashed lines). This plot is the 12 October baseline at 98.4 %. Today's runs with the decided flight rules land between 98.4 % and 99.4 % depending on the mission profile.</p>
@@ -295,7 +333,6 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       <h2>Not in these images yet</h2>
     </div>
     <ul>
-      <li>FEA stress plots of the assembled engine at max thrust. An interim report is out, and the figures come here once the last runs and the gimbal connector fix are done.</li>
       <li>Close-up renders of the frozen v3.5.1 engine with its bleed valves. The engine section above still shows v3.4.1; v3.5.1 appears only in the rocket views.</li>
       <li>The N2O tank as real CAD, and Lauty's actual airframe.</li>
     </ul>
