@@ -1,10 +1,12 @@
-"""Airframe-interface export for ICD-AIRFRAME v2.1 (fea3d 2026-10-19): per-hole screw shear / axial / radial envelopes and the
+"""Engine mounting data for the datasheet (fea3d 2026-10-19; was the ICD-AIRFRAME v2.1 export: ICD removed from scope by CHANGELOG 222, the
+data are kept as ENGINE data; the earlier tables/icd_airframe_v21.md and results/icd_airframe_v21_fea3d.json stay as published and are no
+longer rewritten): per-hole screw shear / axial / radial envelopes and the
 resultant of each airframe ring (GM-09 forward ring z +27, GM-10 aft ring z -94.8; 8 radial M5 each) per load case, from the
 solved unit-step reactions (ccx RF at the 16 hole node sets) re-combined with every sub-case of the posted cases (SIM, asm v1.2).
 
 Sign: forces are those the ENGINE MODULE applies ON THE AIRFRAME; radial + = outward (screw pull-out), axial = +Z (forward),
 shear = hypot(tangential, axial) in the screw (radial screws); moments about the gimbal pivot (engine frame origin), N mm.
-usage: icd_export.py            -> results/icd_airframe_v21_fea3d.json, results/tables/icd_airframe_v21.md
+usage: icd_export.py            -> results/engine_mount_data_v351.json, results/tables/engine_mount_data_v351.md
 """
 from __future__ import annotations
 import sys, json, math
@@ -96,9 +98,10 @@ def main():
                              "holes": holes, "rings": {g: {k: (v.tolist() if isinstance(v, np.ndarray) else v) for k, v in e.items()} for g, e in rings.items()},
                              "total_on_airframe": {"max_abs_F_N": tot["F"].tolist(), "max_abs_M_Nmm": tot["M"].tolist()}})
         print(f"[icd] {lab} ({af}): {n} sub-cases, max shear {max(h['max_shear_N'] for h in holes.values()):.1f} N", flush=True)
-    (RES / "icd_airframe_v21_fea3d.json").write_text(json.dumps(out, indent=1, default=float))
+    (RES / "engine_mount_data_v351.json").write_text(json.dumps(out, indent=1, default=float))
     # paste-ready tables
-    L = ["Per-hole envelopes, N (shear in the radial M5 screw / max |axial| / max pull-out); engine module ON airframe; SIM asm v1.2.", ""]
+    L = ["ENGINE MOUNTING DATA (datasheet; CAD v3.5.1, fea3d-asm v1.2, SIM unless tagged). 16 radial M5 holes: GM-09 forward ring z +27 mm, GM-10 aft ring z -94.8 mm.", "",
+         "Per-hole envelopes, N (shear in the radial M5 screw / max |axial| / max pull-out); forces of the engine module ON its mount; SIM asm v1.2.", ""]
     cs = out["cases"]
     hdr = "| hole (x, y, z mm) | " + " | ".join(f"{c['case']} [{c['airframe']}]" for c in cs) + " |"
     L += [hdr, "|---|" + "---|" * len(cs)]
@@ -118,7 +121,32 @@ def main():
         mm = lambda v: ", ".join(f"{x / 1e3:.2f}" for x in v)
         L.append(f"| {c['case']} | {c['airframe']} | {fm(r9['max_abs_F_N'])} | {r9['max_lateral_F_N']:.0f} | {mm(r9['max_abs_M_Nmm'])} | "
                  f"{fm(r10['max_abs_F_N'])} | {r10['max_lateral_F_N']:.0f} | {mm(r10['max_abs_M_Nmm'])} | {fm(t['max_abs_F_N'])} | {mm(t['max_abs_M_Nmm'])} |")
-    (RES / "tables" / "icd_airframe_v21.md").write_text("\n".join(L) + "\n")
+    # gimbal stiffness at the stop poses (F3) and first engine-mount modes (modal 9A), engine data for the datasheet (lead 222)
+    fk = RES / "k_stop_c71.json"
+    if fk.exists():
+        L += ["", "Gimbal-axis stiffness at the 8 deg stop poses (engine held by the two TVC chains; rigid airframe; SIM with the servo output rigid, "
+              "DERIVED with the servo output k_s 58 / 174 N m/rad per servo in series, ASSUMED TO-VERIFY B-TVC-1), N m/rad:", "",
+              "| pose (alpha, beta deg) | K_alpha FE | K_alpha +servo 58 / 174 | K_beta FE | K_beta +servo 58 / 174 |", "|---|---|---|---|---|"]
+        for r in json.loads(fk.read_text())["runs"]:
+            a, b = r["axes"]["alpha (outer, X)"], r["axes"]["beta (inner, ring Y)"]
+            sv = lambda x, k: x["servo_series"][f"k_s{k}_engine"]["K_total_Nm_per_rad"]
+            L.append(f"| {r['run'].replace('pose_', '').replace('_c71', '')} ({r['pose_deg'][0]:+.2f}, {r['pose_deg'][1]:+.2f}) | {a['K_FE_engine_Nm_per_rad']:.0f} | "
+                     f"{sv(a, 58):.0f} / {sv(a, 174):.0f} | {b['K_FE_engine_Nm_per_rad']:.0f} | {sv(b, 58):.0f} / {sv(b, 174):.0f} |")
+        out["K_stop_source"] = "results/k_stop_c71.json"
+    fm_ = RES / "modal_summary_v351.json"
+    if fm_.exists():
+        ms = json.loads(fm_.read_text())
+        L += ["", f"First engine-mount modes ({ms['modal_run']}, every body at mesh level 2, rigid airframe holes, servo output rigid, unstressed T_REF; SIM; "
+              "production-K and servo-in-series columns DERIVED):", "",
+              "| mode | shape | f FE Hz | f at production K Hz | f with servo k_s 58 / 174 Hz |", "|---|---|---|---|---|"]
+        for e in ms["engine_mount_modes"]:
+            L.append(f"| {e['mode']} | {e['description']} | {e['f_FE_rigid_servo_Hz']:.1f} | "
+                     + (f"{e['f_scaled_to_pose_model_K_Hz']:.1f} | {e['f_with_servo_k58_Hz_DERIVED']:.1f} / {e['f_with_servo_k174_Hz_DERIVED']:.1f} |"
+                        if "f_scaled_to_pose_model_K_Hz" in e else "- | - |"))
+        out["modes_source"] = "results/modal_summary_v351.json"
+        out["engine_mount_modes"] = ms["engine_mount_modes"]
+    (RES / "engine_mount_data_v351.json").write_text(json.dumps(out, indent=1, default=float))
+    (RES / "tables" / "engine_mount_data_v351.md").write_text("\n".join(L) + "\n")
     print("\n".join(L))
 
 

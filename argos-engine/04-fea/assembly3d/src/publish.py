@@ -11,7 +11,7 @@ W = Path("/home/claude/work/fea3d")
 HUB = Path("/home/claude/work/shared-fallback/engine")
 ALLOWED = {"assembly3d": HUB / "04-fea" / "assembly3d", "s3d_v351": HUB / "04-fea" / "s3d_v351"}
 
-SRC = ["scripts/*.py", "chains/chain_B.sh", "chains/chain_C.sh", "chains/post_cones.sh"]
+SRC = ["scripts/*.py", "chains/chain_B.sh", "chains/chain_C.sh", "chains/post_cones.sh", "chains/final_f2.sh"]
 
 LISTS = {
     "assembly3d": {
@@ -22,7 +22,7 @@ LISTS = {
                      "results/f1_post_lc1v351_compliant_c71.json", "results/f1_post_lc3_pose_stop045_compliant_c71.json",
                      "results/f1_post_lc3_pose_stop045_gm02r*_c71.json", "results/f1_post_lc3_pose_stop315_gm01r*_c71.json", "results/f1_lever_root_*_c71.json",
                      "results/f1_lc3_summary_c71.json", "results/k_*.json", "results/modal_*.json", "results/f4_*.json", "results/fbd_*.json", "results/cmp_*.json", "results/icd_airframe_v21_fea3d.json", "results/s3d_summary_v351.json",
-                     "results/modal_*_modes.csv", "results/k_range_v351.json"],
+                     "results/modal_*_modes.csv", "results/k_range_v351.json", "results/engine_mount_data_v351.json", "results/fa1_band_sensitivity.json"],
         "tests/modal_diag/": ["tests/modal_diag/*.py"],
         "runs/modal_v351ca2b_c71/": ["runs/modal_v351ca2b_c71/model.json", "runs/modal_v351ca2b_c71/mass.json"],
         "results/legacy_asm_v1.1/": ["results/f1_post_lc1v351_design_rigid.json", "results/f1_post_fa1_v351.json",
@@ -39,8 +39,9 @@ LISTS = {
         "REPORT-S3D.md": "s3d/REPORT-S3D.md",
         "results/": ["results/s3d_pose_*_c71.json", "results/s3d_summary_v351.json", "results/f1_post_lc3_pose_stop*_c71.json",
                      "results/f1_post_lc3_pose_stop*_gm0*r*_c71.json", "results/f1_lever_root_*_c71.json", "results/f1_post_fa1_c71.json",
-                     "results/f1_lc3_hot_bound_s3d.json", "results/k_cone_c71.json", "results/k_stop_c71.json", "results/icd_airframe_v21_fea3d.json"],
-        "tables/": ["results/tables/s3d_*.md", "results/tables/icd_airframe_v21.md", "results/tables/k_range_v351.md"],
+                     "results/f1_lc3_hot_bound_s3d.json", "results/k_cone_c71.json", "results/k_stop_c71.json", "results/k_range_v351.json",
+                     "results/engine_mount_data_v351.json"],
+        "tables/": ["results/tables/s3d_*.md", "results/tables/engine_mount_data_v351.md", "results/tables/k_range_v351.md", "results/tables/margin_matrix_v351.md"],
         "figs/": "figs/s3d/*.png",
         "src/": SRC,
     },

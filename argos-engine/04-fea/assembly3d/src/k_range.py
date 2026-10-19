@@ -2,7 +2,7 @@
 two TVC chains, from post_k.py results (SIM unit angular-acceleration steps EAX / EAY, asm v1.2, coarse=2 pose runs, rigid servo output)
 plus the servo output compliance in series (k_s 58 / 174 N m/rad per servo, line 13 range, TO-VERIFY bench B-TVC).
 Sources: results/k_stop_c71.json (8 stop poses, 8 deg), results/k_cone_c71.json (9 range-cone poses, if present),
-results/k_stop045_compliant_c71.json (stop045 on the compliant airframe).  Comparison: V5c (CAD v3.3, engine rigid) as recalled in
+results/k_stop045_compliant_c71.json (stop045 on the compliant airframe).  Comparison: V5c (CAD v3.3, engine rigid) as published in
 hub/04-fea/stiffness/gimbal_k_summary_V5c_v1.json (read only).
 usage: k_range.py  -> results/k_range_v351.json, results/tables/k_range_v351.md
 """

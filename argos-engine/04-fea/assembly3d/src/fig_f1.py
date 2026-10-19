@@ -124,7 +124,7 @@ def main(spec_path):
             PF.merge_extra(F, RF, sp["extra"], state)
         if sp["kind"] in ("vm", "ms"):
             if sp.get("lc3env"):
-                env = dict(np.load(PF.RES / f"lc3_env_{run}.npz"))
+                env = dict(np.load(PF.RES / f"{sp.get('envpfx', 'lc3_env_')}{run}.npz"))   # envpfx s3d_env_: F2 GS + TD + LC6 envelope
                 nn = M.n_mesh + 1
                 vmx = env["vm"][:nn].astype(np.float64)
                 ms = np.full(nn, np.inf)

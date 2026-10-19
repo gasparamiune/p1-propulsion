@@ -33,10 +33,10 @@ def dom(row):
     slow = (b["T>20ms"]["share"] or 0.0) + (b["1<T<=20ms"]["share"] or 0.0)
     mid = b["0.1<T<=1ms"]["share"] or 0.0
     return {"share_T_gt_1ms": slow, "share_0.1_1ms": mid, "share_residual_T_lt_Tmin": res,
-            "column": ("T > 1 ms dominates: FA1S (DLF 2.0, about 151 bar abs) applies" if slow >= 0.5 else
-                       "T > 1 ms share {:.0%}: FA1S on that share, FA1Q (93 / 102 bar) on the rest".format(slow) if slow >= 0.1 else
-                       "fast (T <= 1 ms or unresolved residual T < T_min): FA1Q column (93 yield / 102 ult); the 90 bar T <= 0.1 ms column "
-                       "only if the residual is shown to be T <= 0.1 ms")}
+            "column": ("T > 1 ms dominates: FA1S (151.04 bar abs, DLF 2.0 bound) applies" if slow >= 0.5 else
+                       "T > 1 ms share {:.0%}: FA1S on that share, FA1D 93 bar (yield) / FA1U 102 bar (ultimate) on the rest".format(slow) if slow >= 0.1 else
+                       "0.1-1 ms band (incl. the unresolved residual T < T_min): FA1D 93 bar (yield) / FA1U 102 bar (ultimate); "
+                       "FA1Q 90 bar (T <= 0.1 ms) is NOT claimed")}
 
 
 def main(argv):

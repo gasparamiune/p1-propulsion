@@ -33,6 +33,7 @@ SAME_MESH_ENGINE = ["TC-01", "GM-01", "GM-02"]
 def main(lc1="lc1v351_design_rigid", poses=None, envpfx="lc3_env_", outsfx=None):
     t0 = time.time()
     poses = poses or [f"pose_stop{d:03d}" for d in range(0, 360, 45)]
+    INC = "F2 cone-pose (GS + TD + LC6)" if envpfx.startswith("s3d") else "LC3"
     M, meta = PF.load_model(lc1)
     names = list(M.bodies)
     pm = {p: json.loads((PF.RUNS / p / "model.json").read_text()) for p in poses}
@@ -58,7 +59,7 @@ def main(lc1="lc1v351_design_rigid", poses=None, envpfx="lc3_env_", outsfx=None)
                     acc[k] = v if acc[k] is None else np.maximum(acc[k], v)
         loc[nm] = acc
         pmax[nm] = mx
-    out = {"lc1_run": lc1, "poses": poses, "date": "2026-10-15", "method": __doc__.split("usage:")[0].strip(), "states": {}, "part_max_increment": pmax}
+    out = {"lc1_run": lc1, "poses": poses, "date": __import__("datetime").date.today().isoformat(), "method": __doc__.split("usage:")[0].strip(), "states": {}, "part_max_increment": pmax}
     for state in ("B1_21.65", "B1_19", "B1_2", "B1_1"):
         F = PF.load_fields(lc1, state)
         _, body, T, X = PF.node_arrays(M, lc1, state)
@@ -92,21 +93,21 @@ def main(lc1="lc1v351_design_rigid", poses=None, envpfx="lc3_env_", outsfx=None)
                 ms_ch = np.where(s3mb < 0, a2 / (SFU * np.maximum(-s3mb, 1e-9)) - 1.0, np.inf) if a2 is not None else big
                 ms = np.where(char, ms_ch, ms)
                 msu = ms
-                how = "LC1 principal + part-max LC3 increment (Weyl)"
+                how = f"LC1 principal + part-max {INC} increment (Weyl)"
             else:
                 if b.grp == "engine":
                     v1 = np.max([PF.vm(S[nodes]) for S, _ in Ss], axis=0)
                     if nm in SAME_MESH_ENGINE and loc[nm]["vmD"] is not None:
                         vb = v1 + loc[nm]["vmD"]
-                        how = "LC1 vm + node-wise LC3 increment (same mesh)"
+                        how = f"LC1 vm + node-wise {INC} increment (same mesh)"
                     else:
                         vb = v1 + pmax[nm]["vmD"]
-                        how = "LC1 vm + part-max LC3 increment (pose mesh coarser)"
+                        how = f"LC1 vm + part-max {INC} increment (pose mesh differs: coarser, or refined at the lever roots)"
                 else:
                     if loc[nm]["vm"] is None:
                         raise RuntimeError(f"{nm}: pose mesh differs from L1")
                     vb = loc[nm]["vm"] + PF.vm(S_th[nodes] + S_pm[nodes])
-                    how = "LC3 cold vm (8 poses) + LC1-run thermal + manifold vm (node-wise)"
+                    how = f"{INC} cold vm ({len(poses)} poses) + LC1-run thermal + manifold vm (node-wise)"
                 ms = a1 / (SFY * np.maximum(vb, 1e-9)) - 1.0
                 msu = a2 / (SFU * np.maximum(vb, 1e-9)) - 1.0
             for tag, m_ in (("regular", msk), ("all", np.ones(len(nodes), bool))):
