@@ -1,0 +1,316 @@
+{
+ "version": "v2.4b",
+ "date": "2026-10-13",
+ "script": "02-combustion/src/cold_flow_start_lift_v2p4b.py",
+ "script_sha256_16": "e1cd0a84e02aa802",
+ "request": "REV-COMB-3 R3-05/R3-14; LEAD CHANGELOG line 194 (4): CF-3 start-lift acceptance; the bound is CONDITIONAL on Cd x A x G at the start lift",
+ "inputs": {
+  "code": {
+   "cold_flow_thrust_v2p4a.py": "b4cbf147753ecc7c",
+   "injector.py": "4ee8e0a1b4825a09"
+  },
+  "throttle_map": "4f2e6d846f7253da"
+ },
+ "margins_N": {
+  "W10_lt_6": 16.31,
+  "all_winds": 4.16
+ },
+ "acceptance_rule": "CF-3 start-lift point: at the start-level command (62.5 N open-loop map lift) record the encoder lift, mdot and the load-cell F (cold chamber, ambient back pressure). Accept if F <= 16.31 N - heat allowance, or mdot <= 16.31 N / v(dh) (52.6-56.3 g/s with no heat allowance). dh is the heat added at tank pressure before the throttling (injector-body / feed soak-back at the relight, TO-VERIFY); the heat allowance in N is mdot_limit x (v(dh) - v(0)). A failure returns the hold level and the W10 rule to the lead (LEAD line 194 (4)).",
+ "states": {
+  "cold_283.15K": {
+   "T_K": 283.15,
+   "P_tank_bar": 40.012019940195216,
+   "start_lift_mm": 0.22776638283007333,
+   "v_iso_eq_m_s": 289.65135237084985,
+   "mdot_bound_g_s": 43.14860056041193,
+   "F_bound_N": 12.498050505232925,
+   "G_dyer_kg_m2s": 53505.448080378665,
+   "G_spi_kg_m2s": 81527.27031088929,
+   "G_hem_kg_m2s": 25483.62584986804,
+   "G_spi_over_dyer": 1.5237190461131134,
+   "F_bound_with_SPI_flux_N": 19.043517594107026,
+   "factor_on_CdAG_to_16p31N": 1.3050035278038774,
+   "lift_for_16p31N_mm": 0.2982006267605325,
+   "lift_offset_to_16p31N_mm": 0.07043424393045919,
+   "lift_for_4p16N_mm": 0.07528521819082598,
+   "cf3_acceptance_by_heat_allowance": [
+    {
+     "dh_kJ_kg": 0.0,
+     "v_m_s": 289.65135237084985,
+     "mdot_limit_g_s": 56.30907595113793,
+     "heat_allowance_N": 0.0,
+     "F_limit_cold_N": 16.31,
+     "heat_kW_at_mdot_limit": 0.0,
+     "F_bound_start_lift_N": 12.498050505232925
+    },
+    {
+     "dh_kJ_kg": 10.0,
+     "v_m_s": 301.41823624614216,
+     "mdot_limit_g_s": 54.110860056526356,
+     "heat_allowance_N": 0.6367162066773386,
+     "F_limit_cold_N": 15.67328379332266,
+     "heat_kW_at_mdot_limit": 0.5411086005652636,
+     "F_bound_start_lift_N": 13.005775077408664
+    },
+    {
+     "dh_kJ_kg": 20.0,
+     "v_m_s": 312.7427063149644,
+     "mdot_limit_g_s": 52.15149600826865,
+     "heat_allowance_N": 1.2042486530420073,
+     "F_limit_cold_N": 15.105751346957991,
+     "heat_kW_at_mdot_limit": 1.043029920165373,
+     "F_bound_start_lift_N": 13.494410112966614
+    },
+    {
+     "dh_kJ_kg": 30.0,
+     "v_m_s": 323.6712028659345,
+     "mdot_limit_g_s": 50.390642898051226,
+     "heat_allowance_N": 1.7142821377429018,
+     "F_limit_cold_N": 14.595717862257096,
+     "heat_kW_at_mdot_limit": 1.5117192869415368,
+     "F_bound_start_lift_N": 13.965959445370265
+    },
+    {
+     "dh_kJ_kg": 50.0,
+     "v_m_s": 344.48968342698856,
+     "mdot_limit_g_s": 47.34539460731558,
+     "heat_allowance_N": 2.5963424234594967,
+     "F_limit_cold_N": 13.713657576540502,
+     "heat_kW_at_mdot_limit": 2.3672697303657793,
+     "F_bound_start_lift_N": 14.864247747373886
+    },
+    {
+     "dh_kJ_kg": 75.0,
+     "v_m_s": 368.8641484561884,
+     "mdot_limit_g_s": 44.21682093058499,
+     "heat_allowance_N": 3.502538019916358,
+     "F_limit_cold_N": 12.807461980083641,
+     "heat_kW_at_mdot_limit": 3.316261569793874,
+     "F_bound_start_lift_N": 15.915971802792559
+    },
+    {
+     "dh_kJ_kg": 100.0,
+     "v_m_s": 391.72487544830665,
+     "mdot_limit_g_s": 41.63636527124845,
+     "heat_allowance_N": 4.2499704913761995,
+     "F_limit_cold_N": 12.0600295086238,
+     "heat_kW_at_mdot_limit": 4.1636365271248446,
+     "F_bound_start_lift_N": 16.902380180296095
+    }
+   ],
+   "heat_to_16p31N_at_start_lift_kJ_kg": 84.80617890853898,
+   "heat_to_16p31N_at_start_lift_kW": 3.659267938779379
+  },
+  "A1_relight_286.7K": {
+   "T_K": 286.7,
+   "P_tank_bar": 43.53385338638109,
+   "start_lift_mm": 0.2194672995432967,
+   "v_iso_eq_m_s": 300.9912663959349,
+   "mdot_bound_g_s": 43.068888726669684,
+   "F_bound_N": 12.96335936010591,
+   "G_dyer_kg_m2s": 55405.03709544412,
+   "G_spi_kg_m2s": 84024.07934757092,
+   "G_hem_kg_m2s": 26785.994843317305,
+   "G_spi_over_dyer": 1.5165422451180004,
+   "F_bound_with_SPI_flux_N": 19.659482108246465,
+   "factor_on_CdAG_to_16p31N": 1.2581615264167718,
+   "lift_for_16p31N_mm": 0.2768547711166521,
+   "lift_offset_to_16p31N_mm": 0.05738747157335539,
+   "lift_for_4p16N_mm": 0.06994785856390555,
+   "cf3_acceptance_by_heat_allowance": [
+    {
+     "dh_kJ_kg": 0.0,
+     "v_m_s": 300.9912663959349,
+     "mdot_limit_g_s": 54.187618781420824,
+     "heat_allowance_N": 0.0,
+     "F_limit_cold_N": 16.31,
+     "heat_kW_at_mdot_limit": 0.0,
+     "F_bound_start_lift_N": 12.96335936010591
+    },
+    {
+     "dh_kJ_kg": 10.0,
+     "v_m_s": 312.58969261774786,
+     "mdot_limit_g_s": 52.17702433952222,
+     "heat_allowance_N": 0.6051713672756889,
+     "F_limit_cold_N": 15.70482863272431,
+     "heat_kW_at_mdot_limit": 0.5217702433952222,
+     "F_bound_start_lift_N": 13.462890688457662
+    },
+    {
+     "dh_kJ_kg": 20.0,
+     "v_m_s": 323.77289790080846,
+     "mdot_limit_g_s": 50.37481551342434,
+     "heat_allowance_N": 1.1476204841528226,
+     "F_limit_cold_N": 15.162379515847176,
+     "heat_kW_at_mdot_limit": 1.0074963102684866,
+     "F_bound_start_lift_N": 13.944538912401304
+    },
+    {
+     "dh_kJ_kg": 30.0,
+     "v_m_s": 334.5825203134747,
+     "mdot_limit_g_s": 48.74731646088071,
+     "heat_allowance_N": 1.6374834850361115,
+     "F_limit_cold_N": 14.672516514963887,
+     "heat_kW_at_mdot_limit": 1.4624194938264212,
+     "F_bound_start_lift_N": 14.41009733726974
+    },
+    {
+     "dh_kJ_kg": 50.0,
+     "v_m_s": 355.21628603961193,
+     "mdot_limit_g_s": 45.91568754305705,
+     "heat_allowance_N": 2.4897790589752065,
+     "F_limit_cold_N": 13.820220941024793,
+     "heat_kW_at_mdot_limit": 2.2957843771528523,
+     "F_bound_start_lift_N": 15.298770697340915
+    },
+    {
+     "dh_kJ_kg": 75.0,
+     "v_m_s": 379.4338461159582,
+     "mdot_limit_g_s": 42.98509520686124,
+     "heat_allowance_N": 3.3718617575370056,
+     "F_limit_cold_N": 12.938138242462994,
+     "heat_kW_at_mdot_limit": 3.223882140514593,
+     "F_bound_start_lift_N": 16.34179409750051
+    },
+    {
+     "dh_kJ_kg": 100.0,
+     "v_m_s": 402.1958195816091,
+     "mdot_limit_g_s": 40.55238569353293,
+     "heat_allowance_N": 4.104086074727129,
+     "F_limit_cold_N": 12.20591392527287,
+     "heat_kW_at_mdot_limit": 4.0552385693532935,
+     "F_bound_start_lift_N": 17.32212699989204
+    }
+   ],
+   "heat_to_16p31N_at_start_lift_kJ_kg": 74.2135786769462,
+   "heat_to_16p31N_at_start_lift_kW": 3.1962963620453415
+  },
+  "coast_289.5K": {
+   "T_K": 289.5,
+   "P_tank_bar": 46.47175161365409,
+   "start_lift_mm": 0.21329597727774047,
+   "v_iso_eq_m_s": 310.18633433797675,
+   "mdot_bound_g_s": 42.96468292874549,
+   "F_bound_N": 13.32705750366101,
+   "G_dyer_kg_m2s": 56854.03780208707,
+   "G_spi_kg_m2s": 85898.7893755365,
+   "G_hem_kg_m2s": 27809.286228637655,
+   "G_spi_over_dyer": 1.5108652383592571,
+   "F_bound_with_SPI_flux_N": 20.135387911896316,
+   "factor_on_CdAG_to_16p31N": 1.223826039282832,
+   "lift_for_16p31N_mm": 0.261617420902296,
+   "lift_offset_to_16p31N_mm": 0.04832144362455554,
+   "lift_for_4p16N_mm": 0.06613297364526549,
+   "cf3_acceptance_by_heat_allowance": [
+    {
+     "dh_kJ_kg": 0.0,
+     "v_m_s": 310.18633433797675,
+     "mdot_limit_g_s": 52.581297737729294,
+     "heat_allowance_N": 0.0,
+     "F_limit_cold_N": 16.31,
+     "heat_kW_at_mdot_limit": 0.0,
+     "F_bound_start_lift_N": 13.32705750366101
+    },
+    {
+     "dh_kJ_kg": 10.0,
+     "v_m_s": 321.6469213865075,
+     "mdot_limit_g_s": 50.707775873287666,
+     "heat_allowance_N": 0.5811408794331995,
+     "F_limit_cold_N": 15.7288591205668,
+     "heat_kW_at_mdot_limit": 0.5070777587328766,
+     "F_bound_start_lift_N": 13.81945799237842
+    },
+    {
+     "dh_kJ_kg": 20.0,
+     "v_m_s": 332.71297249251535,
+     "mdot_limit_g_s": 49.02123255914497,
+     "heat_allowance_N": 1.1042835677493452,
+     "F_limit_cold_N": 15.205716432250654,
+     "heat_kW_at_mdot_limit": 0.9804246511828995,
+     "F_bound_start_lift_N": 14.294907369421342
+    },
+    {
+     "dh_kJ_kg": 30.0,
+     "v_m_s": 343.4226289751334,
+     "mdot_limit_g_s": 47.49250231026848,
+     "heat_allowance_N": 1.5784747998399271,
+     "F_limit_cold_N": 14.731525200160071,
+     "heat_kW_at_mdot_limit": 1.4247750693080543,
+     "F_bound_start_lift_N": 14.75504436447281
+    },
+    {
+     "dh_kJ_kg": 50.0,
+     "v_m_s": 363.89759843528276,
+     "mdot_limit_g_s": 44.82030128841492,
+     "heat_allowance_N": 2.4073550394228787,
+     "F_limit_cold_N": 13.90264496057712,
+     "heat_kW_at_mdot_limit": 2.241015064420746,
+     "F_bound_start_lift_N": 15.634744935303873
+    },
+    {
+     "dh_kJ_kg": 75.0,
+     "v_m_s": 387.97475718844635,
+     "mdot_limit_g_s": 42.03881746893635,
+     "heat_allowance_N": 3.2701333094073295,
+     "F_limit_cold_N": 13.03986669059267,
+     "heat_kW_at_mdot_limit": 3.1529113101702264,
+     "F_bound_start_lift_N": 16.669212426958616
+    },
+    {
+     "dh_kJ_kg": 100.0,
+     "v_m_s": 410.6426211243805,
+     "mdot_limit_g_s": 39.71823469113262,
+     "heat_allowance_N": 3.98994637478211,
+     "F_limit_cold_N": 12.320053625217888,
+     "heat_kW_at_mdot_limit": 3.971823469113262,
+     "F_bound_start_lift_N": 17.643130013637972
+    }
+   ],
+   "heat_to_16p31N_at_start_lift_kJ_kg": 66.137442505124,
+   "heat_to_16p31N_at_start_lift_kW": 2.8415742469507874
+  }
+ },
+ "summary": {
+  "start_lift_mm": [
+   0.21329597727774047,
+   0.22776638283007333
+  ],
+  "F_bound_N": [
+   12.498050505232925,
+   13.32705750366101
+  ],
+  "factor_on_CdAG": [
+   1.223826039282832,
+   1.3050035278038774
+  ],
+  "lift_offset_mm": [
+   0.04832144362455554,
+   0.07043424393045919
+  ],
+  "G_spi_over_dyer": [
+   1.5108652383592571,
+   1.5237190461131134
+  ],
+  "F_bound_SPI_N": [
+   19.043517594107026,
+   20.135387911896316
+  ],
+  "mdot_limit_no_heat_g_s": [
+   52.581297737729294,
+   56.30907595113793
+  ],
+  "heat_to_16p31N_kJ_kg": [
+   66.137442505124,
+   84.80617890853898
+  ],
+  "heat_to_16p31N_kW": [
+   2.8415742469507874,
+   3.659267938779379
+  ]
+ },
+ "tags": {
+  "bound": "DERIVED (adiabatic isentropic-equilibrium bound; Cd 0.80 ASSUMED limit; map lift DERIVED)",
+  "heat": "DERIVED sensitivity; the soak-back heat at the relight is TO-VERIFY (injector-body temperature)",
+  "status": "not physical evidence; CF-3 at the start lift measures it"
+ }
+}
