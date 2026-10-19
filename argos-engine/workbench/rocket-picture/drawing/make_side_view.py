@@ -498,7 +498,7 @@ finds = [
     ('1', f'GNC v3d tank {V3D_TANK[0]:.3f}–{V3D_TANK[1]:.3f} m overlaps the engine top ({Z_ENG_TOP:.3f} m).'),
     ('', f'Moved to {TANK["z0"]:.3f}–{TANK["z1"]:.3f} m: {1000 * (TANK["z0"] - Z_ENG_TOP):.0f} mm gap, tank line route TO-DEFINE.'),
     ('2', f'Battery, avionics, backup chute moved +{DZ:.3f} m; bay lengths MISSING.'),
-    ('3', 'Vent stub reaches r 74.2 > 73 mm OD: wall hole + outside tee TO-DEFINE.'),
+    ('3', 'Vent stub reaches r 74.2 > 73 mm body radius: wall hole + outside tee TO-DEFINE.'),
     ('4', f'ECU ledger point z {LED["P12"]["z"]:.2f} m lies inside the engine envelope: TO-DEFINE.'),
     ('5', f'Liftoff CG ≈ {CG:.3f} m: ESTIMATE in the GNC band, not a GNC run.'),
     ('6', 'Fins and legs drawn rotated into this plane; clocking TO-DEFINE.'),
