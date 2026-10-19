@@ -188,7 +188,7 @@ Hand-calculation cross-check (TC-01 mid-section z -60 mm, LC1 B1_21.65): FE memb
 
 Rod forces are max |F| over the 64 sub-cases (sign: - compression, + tension); the 609 N stall limit is reached in compression or tension depending on the pose. "Moment residual" = |rods' reaction moment + bumper moment| / bumper moment in the BUMP unit step (7.2). Bearing loads are max |component| of one bushing direction over the sub-cases [SIM]; they replace the v1.1 values. HK0808 C0 / PTFE washer limits: no datasheet value in the hub - **TO-VERIFY** (no value invented).
 
-Compliant airframe at stop045 (`pose_stop045_compliant_c71`): fb_run 324-419 N, rod 2 at 609 N, GM-02 +0.181 / +0.018 (rigid +0.182 / +0.019), NZ-03 +0.200, max hole shear 454 N (rigid 837 N), moment residual 3.3 % [SIM].
+Compliant airframe at stop045 (`pose_stop045_compliant_c71`): fb_run 324-419 N, rod 2 at 609 N, GM-02 +0.181 / +0.018 (rigid +0.182 / +0.019), NZ-03 +0.200, max hole shear 453 N (rigid 837 N), moment residual 3.3 % [SIM].
 
 ## 7. Connector defect 7.1 (CLOSED) and residual observation 7.2 (OPEN)
 
@@ -221,7 +221,7 @@ Screws are radial through the airframe wall: shear = hypot(tangential, axial Z);
 
 Rigid vs compliant airframe (k_af 2e3 / 2e4 / 2e4 N/mm radial / tangential / axial, ASSUMED): the compliant ring of springs spreads the load (LC1 max hole shear 75 -> 48 N; LC3 stop045 837 -> 453 N; pull-out 247 -> 25 N at stop045) and leaves the totals unchanged; **the rigid airframe is the bounding case for the hole loads**. The engine-part margins do not change (<= 0.005); frame-part margins drop (e.g. GM-09 LC1 +72.2 -> +36.0, GM-10 +192.5 -> +70.8) but stay large; GM-02 at stop045 +0.181 / +0.018 compliant vs +0.182 / +0.019 rigid [SIM].
 
-Long-period thrust spectrum for the ICD (CHANGELOG 194), linear scaling of the FA1T hole envelope with net thrust [DERIVED]: 1.76 kN @ 25 ms -> 314 N max hole shear; 1.45 kN @ 40 ms -> 259 N; 1.04 kN @ 100 ms -> 186 N.
+Long-period thrust spectrum for the mounting data (CHANGELOG 194), linear scaling of the FA1T hole envelope with net thrust [DERIVED]: 1.76 kN @ 25 ms -> 314 N max hole shear; 1.45 kN @ 40 ms -> 259 N; 1.04 kN @ 100 ms -> 186 N.
 
 ### 8.1 Engine mounting data for the datasheet (lead CHANGELOG 222; `tables/engine_mount_data_v351.md`, `results/engine_mount_data_v351.json`)
 
@@ -331,7 +331,7 @@ Range over the cone: **K_alpha 6430-8364, K_beta 4082-6380 N m/rad** (rigid serv
 - **Defect found and fixed on the way (evidence kept):** the first all-L2 run (`modal_v351ca2_c71`) gave rocking modes at 23.8 / 35.9 Hz. Diagnosis (`tests/modal_diag/`): rod springs held only 3.9 / 9.1 % of the modal strain energy and the collar turned 0.36 x the case (0.89 in the static L1 step); the collar-to-case bore bond kept **15 of about 2850 equations** at L2 because the coarse TC-01 bore faces straddle the +/-10 mm selection band and their chords sit up to 0.5 mm off the collar bore. A static EAX/EAY run on that same mesh gave K 3019 / 1330 N m/rad, matching the modal values (within 1 %), so the eigen step was right and the mesh rule was wrong. Fix (asm_build, **only when TC-01 is at level >= 2**; the L1 models of F1 / F2 are unchanged): band +/-16 mm, tie tolerance 0.6 mm -> 789 / 843 equations, bonded area 1941 / 1961 mm2 (L1: 1930 / 1957). The 23.8 / 35.9 Hz values are a model defect and are not results.
 - **Verification of the corrected modal:** Rayleigh check against a static EAX/EAY run on the same mesh (`kchk_ca2b_c71`): 51.9 / 59.9 Hz vs 51.4 / 59.4 Hz FE (<= 1 %); mode shapes: collar / case rotation 0.89 / 0.86 (static 0.885 / 0.895); lumped generalised mass 1.000-1.017; per-mode effective masses reproduced by a lumped-mass recomputation. **Coarsening bias:** the all-L2 gimbal is stiffer than the production pose model (TC-01 + gimbal parts at L1): K_beta 6209 vs 5370, K_alpha 8347 vs 7284 N m/rad (+16 / +15 %), so the FE rocking frequencies are about 7 % high; the values scaled to the production K are the best estimate. Lateral / axial mount modes carry a similar (unquantified) upward bias. Hot E of 6061 (-5 to -10 % at 120-150 degC) lowers f by a further 2.5-5 %.
 
-**First engine-mount modes (for ICD-AIRFRAME v2.1; rigid airframe at the 16 M5 holes):**
+**First engine-mount modes (engine data for the datasheet, 8.1; rigid airframe at the 16 M5 holes):**
 
 | mode | shape | f FE (all L2, rigid servo) Hz | f at the production K Hz [DERIVED] | f with servo output k_s 58 / 174 N m/rad in series Hz [DERIVED] | eff. mass / inertia |
 |---|---|---|---|---|---|
@@ -360,8 +360,6 @@ Local modes below 1 kHz: 186 Hz pintle linkage (81 % KE; needle, PD-02 crank and
 | forward equipment vs head: FD-04 | +0.08 | +0.62 | +0.30 | 0.1-1 ms band (FA1D / FA1U) |
 
 **Reading for the FA-1 column selection (DERIVED, for the lead and Mechanical):** the pressure stress at the TC-01 J-FWD hole is carried by modes with T <= 1 ms (98 %; slow share 0.02), i.e. it is a 0.1-1 ms path in the line-194 sense (the residual above 5130 Hz is not resolved below 0.195 ms, so the T <= 0.1 ms / 90 bar column FA1Q is not claimed). On that reading the TC-01 FA-1 margin is **FA1D 93 bar yield +0.251 / FA1U 102 bar ultimate +0.233**, and the FA1S value **-0.221 / -0.160** (151.04 bar, DLF 2.0) is a bound that does not apply to this node. *Correction (lead CHANGELOG 223 (1)): the first version of this paragraph (REPORT a9f7f30055063c8e) and CHANGELOG 221 quoted FA1Q +0.291 / +0.393 (90 bar, T <= 0.1 ms) for this band by mistake.* The same band reading holds for the head, nozzle and aft-closure nodes. The thrust path (GM-03 ring, posts, pintle linkage via the axial mount mode at 2.45 ms) is slow, so FA1S / FA1T apply there (all positive). Caveats: L2 mesh (local stresses coarse; the band shares are a property of the modes and are less mesh-sensitive than the stress itself), unstressed T_REF stiffness, rigid airframe, and the residual band is not resolved below 0.195 ms (the 90 bar T <= 0.1 ms column is NOT claimed). The lead decides the column; both values stay in the tables.
-
-
 
 ### 9A.1 FA-1 column sensitivity at TC-01 (lead CHANGELOG 223 (3)(a); `results/fa1_band_sensitivity.json`, `tables/fa1_band_sensitivity.md`, `scripts/fa1_band_sensitivity.py`)
 
