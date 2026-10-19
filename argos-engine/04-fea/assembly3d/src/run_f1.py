@@ -162,7 +162,7 @@ def main(argv):
     opts = dict(a.split("=", 1) for a in argv[3:])
     steps = opts.pop("steps", "TH,OP,PM,GX,GY,GZ").split(",")
     solve = opts.pop("solve", "1") == "1"
-    variant = {}
+    variant = {"conn": "v12"}       # REPORT 7.1: SPRINGA connectors 1e6 mm (asm v1.2)
     for k, v in opts.items():
         if k == "pose":
             variant[k] = tuple(float(x) for x in v.split("/"))

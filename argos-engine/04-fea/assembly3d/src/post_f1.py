@@ -60,6 +60,7 @@ def load_model(name):
     wd = RUNS / name
     meta = json.loads((wd / "model.json").read_text())
     var = {k: (tuple(v) if isinstance(v, list) else v) for k, v in meta["variant"].items()}
+    var.setdefault("conn", "v12" if "v1.2" in str(meta.get("version", "")) else "legacy")     # REPORT 7.1 connector formulation
     if var.get("refine"):
         var["refine"] = {bn: [tuple(b) for b in L] for bn, L in var["refine"].items()}
     level = meta.get("level", 1.0)

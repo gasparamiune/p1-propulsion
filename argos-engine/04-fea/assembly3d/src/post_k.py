@@ -9,7 +9,7 @@ and theta = engine rotation about the same axis: (a) mass-weighted best-fit rigi
 of the nozzle exit region (NZ-01 + TC-09 aft of z -200: thrust-line pointing).  Compliance split: rods (spring elongations), the rest
 = structure (collar, pins / needles / washers, ring, posts, brackets, horns).  Servo output compliance added in series afterwards:
 K_servo,engine = 2 a^2 k_s / r_eff^2 (both chains, arm a about the axis, horn radius r_eff), k_s = 58-174 N m/rad per servo (line 13
-range, TO-VERIFY by bench test).  Units: N, mm, rad -> reported in N m/rad.  fea3d 2026-10-13.
+range, TO-VERIFY by bench test).  Units: N, mm, rad -> reported in N m/rad.  fea3d 2026-10-13; 2026-10-19: rod elongation at the v1.2 aux node.
 """
 from __future__ import annotations
 import sys, json, math
@@ -84,7 +84,10 @@ def run_k(name, state):
         for lab, bu in rods.items():
             H, L = int(bu["A"]), int(bu["B"])
             e = AB.unit(X[L] - X[H])
-            dl = float((U[L] - U[H]) @ e)
+            # asm v1.2 (REPORT 7.1): the rod spring ends on an auxiliary node tied to the lever-eye REF node; *RIGID BODY REF nodes
+            # that belong to no element are not written to the .frd (zero in fields.npz), so the elongation is taken at the aux node.
+            Lu = int(bu["springs"][0][0]) if bu["springs"] and bu["springs"][0][0] is not None else L
+            dl = float((U[Lu] - U[H]) @ e)
             k = float(bu["springs"][0][3])
             Fr = -k * dl                                  # + = compression
             arm = float(np.cross(X[L], e) @ ax)          # moment about the axis of a unit push on the engine at the lever eye
@@ -119,7 +122,7 @@ def main(argv):
     state = opts.get("state", "B1_21.65")
     allr = [run_k(nm, state) for nm in names]
     tag = opts.get("tag", names[0])
-    (RES / f"k_{tag}.json").write_text(json.dumps({"date": "2026-10-13", "version": A3.VERSION, "servo_k_range_Nm_per_rad": K_SERVO,
+    (RES / f"k_{tag}.json").write_text(json.dumps({"date": __import__("datetime").date.today().isoformat(), "version": A3.VERSION, "servo_k_range_Nm_per_rad": K_SERVO,
                                                    "V5c_range_Nm_per_rad": V5C, "runs": allr}, indent=1, default=float))
     for r in allr:
         for axn, a in r["axes"].items():

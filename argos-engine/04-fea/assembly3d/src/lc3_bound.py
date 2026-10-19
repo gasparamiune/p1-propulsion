@@ -13,7 +13,8 @@
   Brittle parts: s1 <= s1_LC1(n) + max_part s1D ;  s3 >= s3_LC1(n) + min_part s3D ; char zone (T > T_char): primary s3 only.
   Allowables at the node temperature of the state; SF 1.5 / 2.0 (LC3 nominal operating, 188 (9)); brittle SF 2.0.
 The result is a LOWER BOUND on the hot LC3 margin (exact sum not available: the pose runs carry no TH step).  Units mm, N, MPa, K.
-usage: lc3_bound.py [lc1_run=lc1v351_design_rigid] [poses=pose_stop000,...]
+usage: lc3_bound.py [lc1_run=lc1v351_design_rigid] [poses=pose_stop000,...] [envpfx=lc3_env_] [out=_c71]
+       (F2 cone poses: envpfx=s3d_env_ out=_s3d -> results/f1_lc3_hot_bound_s3d.json; the method text then reads 'cone-pose increment')
 """
 from __future__ import annotations
 import sys, json, math, time
@@ -29,13 +30,13 @@ SFY, SFU = 1.5, 2.0
 SAME_MESH_ENGINE = ["TC-01", "GM-01", "GM-02"]
 
 
-def main(lc1="lc1v351_design_rigid", poses=None):
+def main(lc1="lc1v351_design_rigid", poses=None, envpfx="lc3_env_", outsfx=None):
     t0 = time.time()
     poses = poses or [f"pose_stop{d:03d}" for d in range(0, 360, 45)]
     M, meta = PF.load_model(lc1)
     names = list(M.bodies)
     pm = {p: json.loads((PF.RUNS / p / "model.json").read_text()) for p in poses}
-    envs = {p: dict(np.load(RES / f"lc3_env_{p}.npz")) for p in poses}
+    envs = {p: dict(np.load(RES / f"{envpfx}{p}.npz")) for p in poses}
     # per body: node-local envelopes over the poses (same-mesh bodies) and part maxima (all bodies)
     loc, pmax = {}, {}
     for nm in names:
@@ -127,11 +128,12 @@ def main(lc1="lc1v351_design_rigid", poses=None):
             if k not in summ or r["MS_bound"] < summ[k]["MS_bound"]:
                 summ[k] = dict(r)
     out["summary_min_over_states_regular"] = summ
-    (RES / "f1_lc3_hot_bound.json").write_text(json.dumps(out, indent=1, default=float))
+    sfx = outsfx if outsfx is not None else ("_c71" if lc1.endswith("_c71") else "")
+    (RES / f"f1_lc3_hot_bound{sfx}.json").write_text(json.dumps(out, indent=1, default=float))
     for k, r in sorted(summ.items(), key=lambda kv: kv[1]["MS_bound"]):
         print(f"  {k:7s} {r['MS_bound']:+.3f} / {(r['MS_ult_bound'] if r['MS_ult_bound'] is not None else float('nan')):+.3f}  {r['state']}  {r['method']}")
 
 
 if __name__ == "__main__":
     o = dict(x.split("=", 1) for x in sys.argv[1:])
-    main(o.get("lc1_run", "lc1v351_design_rigid"), o["poses"].split(",") if "poses" in o else None)
+    main(o.get("lc1_run", "lc1v351_design_rigid"), o["poses"].split(",") if "poses" in o else None, o.get("envpfx", "lc3_env_"), o.get("out"))

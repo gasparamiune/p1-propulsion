@@ -51,12 +51,23 @@ def gci(h, q):
         return {"p": None, "q_ext": None, "GCI_fine": None, "note": "degenerate (zero change or ratio <= 1)"}
     s = np.sign(e32 / e21)
     p = 1.0
+    ok = False
     for _ in range(200):
-        qq = math.log((r21 ** p - s) / (r32 ** p - s)) if (r21 ** p - s) > 0 and (r32 ** p - s) > 0 else 0.0
-        pn = abs(math.log(abs(e32 / e21)) + qq) / math.log(r21)
+        try:
+            qq = math.log((r21 ** p - s) / (r32 ** p - s)) if (r21 ** p - s) > 0 and (r32 ** p - s) > 0 else 0.0
+            pn = abs(math.log(abs(e32 / e21)) + qq) / math.log(r21)
+        except (OverflowError, ValueError, ZeroDivisionError):
+            break
         if abs(pn - p) < 1e-8:
+            ok = True
+            p = pn
             break
         p = pn
+        if p > 12.0:
+            break
+    if not ok:
+        return {"p": None, "q_ext": None, "GCI_fine": None, "oscillatory": bool(s < 0), "r21": r21, "r32": r32,
+                "note": "fixed-point iteration for the observed order did not converge (non-monotone or not asymptotic): no GCI"}
     ext = (r21 ** p * f1 - f2) / (r21 ** p - 1.0)
     ea = abs((f1 - f2) / f1)
     g = 1.25 * ea / (r21 ** p - 1.0)

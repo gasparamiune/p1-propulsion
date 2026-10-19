@@ -31,7 +31,7 @@ SNAP = Path("/home/claude/work/fea3d/snap/engmat_v1p6")
 sys.path.insert(0, str(SNAP))
 import engmat                # noqa: E402
 
-VERSION = "fea3d-asm v1.1"
+VERSION = "fea3d-asm v1.2"   # v1.2 2026-10-19: SPRINGA connectors 1e6 mm (REPORT 7.1)
 CAD = A.CAD
 T_REF = 293.15
 G_MM = 9810.0

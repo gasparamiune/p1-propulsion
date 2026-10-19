@@ -12,7 +12,11 @@ from pathlib import Path
 RES = Path("/home/claude/work/fea3d/results")
 OUT = RES / "tables"
 OUT.mkdir(exist_ok=True)
-POSES = [f"pose_stop{d:03d}" for d in range(0, 360, 45)]
+import os
+SFX = os.environ.get("FEA3D_SFX", "")          # "" = legacy asm v1.1 runs; "_c71" = connector-fix runs (REPORT 7.1)
+POSES = [f"pose_stop{d:03d}{SFX}" for d in range(0, 360, 45)]
+N_LC1 = "lc1v351_c71" if SFX else "lc1v351_design_rigid"
+N_FA1 = "fa1_c71" if SFX else "fa1_v351"
 
 
 def load(name):
@@ -41,13 +45,14 @@ def f(x, n=3):
 
 
 def main():
-    lc1 = load("f1_post_lc1v351_design_rigid.json")
-    fa1 = load("f1_post_fa1_v351.json")
-    thr = load("f1_post_tc03_thread.json")
-    cmp_ = load("f1_post_lc1v351_compliant.json")
+    lc1 = load(f"f1_post_{N_LC1}.json")
+    fa1 = load(f"f1_post_{N_FA1}.json")
+    thr = load(f"f1_post_tc03_thread{SFX}.json") or load("f1_post_tc03_thread.json")   # TB1 thread variant: engine-part result, asm v1.1 run
+                                                                                        # (engine parts unchanged by 7.1 fix, <= 0.15 %)
+    cmp_ = load(f"f1_post_lc1v351_compliant{SFX}.json")
     lc3 = {p: load(f"f1_post_lc3_{p}.json") for p in POSES}
     lc3 = {p: v for p, v in lc3.items() if v}
-    hot = load("f1_lc3_hot_bound.json")
+    hot = load(f"f1_lc3_hot_bound{SFX}.json")
     parts = sorted({r["part"] for r in rows_of(lc1, "LC1")}, key=lambda s: (s[:2] != "TC", s[:2] != "NZ", s))
     L1r, L1a = rows_of(lc1, "LC1"), rows_of(lc1, "LC1", "all")
     FA = {c: rows_of(fa1, c) for c in ("FA1Q", "FA1D", "FA1U", "FA1S", "FA1T")}
@@ -169,7 +174,7 @@ def main():
             g["max_abs_axial_N"] = max(g["max_abs_axial_N"], e["max_abs_axial_N"])
             g["max_abs_tangential_N"] = max(g["max_abs_tangential_N"], e["max_abs_tangential_N"])
     icd["LC3_rigid_8poses"] = {"holes": env3, "totals_envelope": {p: d["icd_totals_envelope"] for p, d in lc3.items()}}
-    c45 = load("f1_post_lc3_pose_stop045_compliant.json")
+    c45 = load(f"f1_post_lc3_pose_stop045_compliant{SFX}.json")
     if c45:
         icd["LC3_compliant_stop045"] = {"holes": c45["icd_envelope"], "totals_envelope": c45["icd_totals_envelope"]}
     (OUT / "f1_icd_airframe.json").write_text(json.dumps(icd, indent=1))

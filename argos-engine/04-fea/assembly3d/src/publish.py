@@ -11,18 +11,24 @@ W = Path("/home/claude/work/fea3d")
 HUB = Path("/home/claude/work/shared-fallback/engine")
 ALLOWED = {"assembly3d": HUB / "04-fea" / "assembly3d", "s3d_v351": HUB / "04-fea" / "s3d_v351"}
 
-SRC = ["scripts/*.py", "chains/chain_B.sh"]
+SRC = ["scripts/*.py", "chains/chain_B.sh", "chains/chain_C.sh"]
 
 LISTS = {
     "assembly3d": {
         "REPORT-FEA3D.md": "REPORT-FEA3D.md",
         "tables/": "results/tables/*",
-        "results/": ["results/f1_post_lc1v351_design_rigid.json", "results/f1_post_fa1_v351.json", "results/f1_post_lc3_pose_stop*.json",
-                     "results/f1_lc3_hot_bound.json", "results/f1_convergence.json", "results/f1_post_tc03_thread.json",
-                     "results/f1_post_lc1v351_compliant.json", "results/k_*.json", "results/modal_*.json", "results/f4_*.json"],
+        "results/": ["results/f1_post_lc1v351_c71.json", "results/f1_post_fa1_c71.json", "results/f1_post_lc3_pose_stop*_c71.json",
+                     "results/f1_lc3_hot_bound_c71.json", "results/f1_convergence.json", "results/f1_post_tc03_thread.json",
+                     "results/f1_post_lc1v351_compliant_c71.json", "results/f1_post_lc3_pose_stop045_compliant_c71.json",
+                     "results/f1_post_lc3_pose_stop045_gm02r*_c71.json", "results/f1_post_lc3_pose_stop315_gm01r*_c71.json", "results/f1_lever_root_*_c71.json",
+                     "results/f1_lc3_summary_c71.json", "results/k_*.json", "results/modal_*.json", "results/f4_*.json", "results/fbd_*.json", "results/cmp_*.json"],
+        "results/legacy_asm_v1.1/": ["results/f1_post_lc1v351_design_rigid.json", "results/f1_post_fa1_v351.json",
+                                     "results/f1_post_lc3_pose_stop???.json", "results/f1_lc3_hot_bound_legacy_v11.json", "results/f1_lc3_summary_legacy_v11.json"],
+        "tables_legacy_v1.1/": "results/tables_legacy_v11/*",
+        "tests/conn71/": ["tests/conn71/*.py", "tests/conn71/*.inp", "tests/conn71/*.dat", "tests/conn71/*.log", "tests/conn71/*.json"],
         "figs/": "figs/f1/*.png",
-        "runs/": ["runs/lc1v351_design_rigid/model.json", "runs/lc1v351_design_rigid/mass.json", "runs/lc1v351_design_rigid/pressure.json",
-                  "runs/queue_B.txt", "runs/chain_B.log"],
+        "runs/": ["runs/lc1v351_c71/model.json", "runs/lc1v351_c71/mass.json", "runs/lc1v351_c71/pressure.json",
+                  "runs/queue_B.txt", "runs/chain_B.log", "runs/queue_C.txt", "runs/chain_C.log"],
         "src/": SRC,
         "PROGRESS.md": "PROGRESS.md",
     },
@@ -61,13 +67,17 @@ def main(folder, note=""):
                 assert str(tgt.resolve()).startswith(str(dst.resolve())), tgt
                 shutil.copy2(src, tgt)
                 files[str(tgt.relative_to(dst))] = {"sha256_16": sha16(tgt), "bytes": tgt.stat().st_size, "source": str(src)}
-    man = {"script": "fea3d scripts/publish.py v1.0", "synced_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    # files of an earlier sync that are no longer in the list are NOT deleted; they are listed as superseded (not part of this release)
+    stale = {str(q.relative_to(dst)): sha16(q) for q in sorted(dst.rglob("*"))
+             if q.is_file() and q.name != "MANIFEST.json" and str(q.relative_to(dst)) not in files}
+    man = {"script": "fea3d scripts/publish.py v1.1", "synced_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
            "note": note or ("FEA3D successor deliverables (lead 188). Solver bulk (.frd/.dat/.inp, fields.npz, meshes) stays in "
                             "/home/claude/work/fea3d/runs and /home/claude/work/fea3d/mesh (not published). All numbers tagged in the report; "
                             "SIM results are not physical approval."),
-           "optional_not_present": missing, "files": files}
+           "optional_not_present": missing,
+           "superseded_not_in_this_release": stale, "files": files}
     (dst / "MANIFEST.json").write_text(json.dumps(man, indent=1))
-    print(f"published {len(files)} files to {dst}; MANIFEST sha16 {sha16(dst / 'MANIFEST.json')}; missing optional: {missing}")
+    print(f"published {len(files)} files to {dst}; MANIFEST sha16 {sha16(dst / 'MANIFEST.json')}; missing optional: {missing}; superseded (kept, not in release) {len(stale)}")
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ import pyvista as pv        # noqa: E402
 
 pv.OFF_SCREEN = True
 FIG = Path("/home/claude/work/fea3d/figs")
-FOOT = "ARGOS H1 engine | FEA3D (CalculiX 2.21, C3D10) on CAD v3.5.1 (STEP 4ca22820c796b670) | SIM - not physical approval | fea3d 2026-10-15"
+FOOT = "ARGOS H1 engine | FEA3D (CalculiX 2.21, C3D10) on CAD v3.5.1 (STEP 4ca22820c796b670) | SIM - not physical approval | asm v1.2 | fea3d 2026-10-19"
 
 
 def nodal_fields(M, names, T, F, subs, sfy, sfu):

@@ -76,7 +76,12 @@ def run(name, state="B1_21.65"):
     Rg = {k: np.asarray(v) for k, v in meta["Rg"].items()}
     aX, aY = np.array([1.0, 0, 0]), Rg["ring"] @ np.array([0, 1.0, 0])
     # ------------------------------------------------------------------ rod moment matrix (tension + ; moment on the engine)
-    rg = meta["rod_geom"]
+    rg = meta.get("rod_geom")
+    if not rg:   # refinement runs without R1/R2 steps: same pose and rod geometry as the base pose run (only the GM-02 mesh differs)
+        import re as _re
+        base = _re.sub(r"_gm0[12]r\d", "", name)
+        rg = json.loads((RUNS / base / "model.json").read_text())["rod_geom"]
+        print(f"[lc3 {name}] rod geometry taken from {base}", flush=True)
     A = np.zeros((2, 2))
     for j, i in enumerate(sorted(rg, key=int)):
         xL, e = np.asarray(rg[i]["lever_eye"]), np.asarray(rg[i]["e_push_on_engine"])

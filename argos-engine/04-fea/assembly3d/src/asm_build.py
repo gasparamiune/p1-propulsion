@@ -26,6 +26,15 @@ EX, EY, EZ = np.eye(3)
 K_JFWD_SHEAR = 42.7e3        # N/mm, M5 single shear, Huth (DERIVED, see report)
 K_JFWD_AXIAL = 1.0e5         # N/mm, screw axis (ASSUMED)
 K_PDFOOT = (1.0e4, 1.0e4, 1.0e5)   # N/mm x, y, z (ASSUMED: ISO 4762 M3 x 12 A2-70 (BOM v3.5.1 HW-105) shear through the G11 washer / washer compression)
+SPRING_OFF_MM = 1.0e6         # SPRINGA connector length (fea3d 2026-10-19, REPORT 7.1): CalculiX SPRINGA uses the DEFORMED length and
+                              # direction even in linear steps; with 1 mm aux springs the second-order term du_perp^2/(2L) and the
+                              # direction drift under thermal / previous-step displacements broke the free body (56-79 % closure).
+                              # At 1e6 mm both are negligible (test tests/conn71: closure 99.93 % after an 800 K pre-step).
+def spring_off(M):
+    """SPRINGA connector length: 1e6 mm (asm v1.2, default) or 1 mm for runs solved before the 7.1 fix (variant conn = legacy)."""
+    return 1.0 if M.v.get("conn", "v12") == "legacy" else SPRING_OFF_MM
+
+
 T_BAY_K = 333.15             # K, bay structure temperature for E(T) and allowables (ASSUMED 60 C, TO-VERIFY)
 LEDGER_STATE = "wet"
 
@@ -198,7 +207,7 @@ class Asm(A3.Model):
         for k_, (dv, kk) in enumerate(zip(dirs, ks)):
             if kk is None or kk <= 0:
                 continue
-            aux = self.new_node(xA + unit(dv), grp_aux)
+            aux = self.new_node(xA + spring_off(self) * unit(dv), grp_aux)
             for d in (1, 2, 3):
                 self.C.add_raw(f"{label}_aux", [(aux, d, 1.0), (nB, d, -1.0)])
             self.C.protected.add(aux)
@@ -210,7 +219,7 @@ class Asm(A3.Model):
         xA = self.xyz0(nA)
         g = []
         for k_, (dv, kk) in enumerate(zip(dirs, ks)):
-            gn = self.new_node(xA + unit(dv), grp)
+            gn = self.new_node(xA + spring_off(self) * unit(dv), grp)
             self.gnd.add(gn)
             self.spring_a(f"{label}_g{k_}", nA, gn, kk)
             g.append(gn)
@@ -480,8 +489,21 @@ def define(M: Asm):
         for k_, nid in zip(kL, M.members[f"LEYE_{i}"]):
             M.items.append({"label": f"LEYE_{i}", "items": [f"{k_[0]}#{k_[1]}x{k_[3]}"], "m_kg": rows[k_[:3]]["m_kg"] * k_[3],
                             "cg": list(M.xyz0(nid)), "group": "engine", "attach": ("member", nid)})
-        e = M.spring_a(f"ROD_{i}", refH, refL, M.k_chain)
-        M.bush.append({"label": f"ROD_{i}", "A": int(refH), "B": int(refL), "springs": [(refL, e, None, M.k_chain)]})
+        if M.v.get("conn", "v12") == "legacy":          # runs solved with fea3d-asm <= v1.1 (reload only)
+            e = M.spring_a(f"ROD_{i}", refH, refL, M.k_chain)
+            M.bush.append({"label": f"ROD_{i}", "A": int(refH), "B": int(refL), "springs": [(refL, e, None, M.k_chain)]})
+            continue
+        # rod: SPRINGA from the horn eye to an aux node 1e6 mm along the POSED rod line (group 'fixed' = identity pose), aux tied to the
+        # lever eye (u_aux = u_L): linear axial rod spring along the undeformed posed direction (REPORT 7.1)
+        xHp, xLp = M.xyzp([refH])[0], M.xyzp([refL])[0]
+        e_rod = unit(xLp - xHp)
+        aux = M.new_node(xHp + SPRING_OFF_MM * e_rod, "fixed")
+        for d in (1, 2, 3):
+            M.C.add_raw(f"ROD_{i}_aux", [(aux, d, 1.0), (refL, d, -1.0)])
+        M.C.protected.add(aux)
+        e = M.spring_a(f"ROD_{i}", refH, aux, M.k_chain)
+        M.bush.append({"label": f"ROD_{i}", "A": int(refH), "B": int(refL), "springs": [(aux, e, [float(c) for c in e_rod], M.k_chain)],
+                       "rod_length_mm": float(np.linalg.norm(xLp - xHp))})
 
     # ---------------------------------------------------------------- engine joints
     # J-FWD: 8 x M5 radial screws case -> head (bushings between RBE3 refs at the shear plane r 28.6)

@@ -17,11 +17,11 @@ import matplotlib.pyplot as plt          # noqa: E402
 W = Path("/home/claude/work/fea3d")
 TAB = W / "results" / "tables"
 OUT = W / "figs" / "f1"
-FOOT = "ARGOS H1 engine | FEA3D (CalculiX 2.21, C3D10) on CAD v3.5.1 (STEP 4ca22820c796b670) | SIM - not physical approval | fea3d 2026-10-15"
+FOOT = "ARGOS H1 engine | FEA3D (CalculiX 2.21, C3D10) on CAD v3.5.1 (STEP 4ca22820c796b670) | SIM - not physical approval | {asm} | fea3d 2026-10-19"
 
 
-def foot(fig):
-    fig.text(0.01, 0.005, FOOT, fontsize=7, color="dimgray", ha="left", va="bottom")
+def foot(fig, asm="asm v1.2"):
+    fig.text(0.01, 0.005, FOOT.format(asm=asm), fontsize=7, color="dimgray", ha="left", va="bottom")
 
 
 def c1():
@@ -120,19 +120,23 @@ def c3():
         a.plot(h, qa, "s--", color="#C44E52", label="max over all nodes (incl. singular)")
         for r, hh, q in zip(L, h, qr):
             a.annotate(f"{r['level']}\nMS {r['MS_min_reg']:+.3f}" if r["MS_min_reg"] is not None else r["level"], (hh, q),
-                       textcoords="offset points", xytext=(4, -22), fontsize=7)
+                       textcoords="offset points", xytext=(5, 4), fontsize=7)
         g = p.get("gci_q_max_reg")
-        if g and g.get("q_ext") is not None:
-            a.axhline(g["q_ext"], color="gray", ls=":", lw=1)
-            a.text(min(h), g["q_ext"], f" Richardson {g['q_ext']:.1f} (p {g['p']:.2f}, GCI {100 * g['GCI_fine']:.1f} %)", fontsize=7, va="bottom")
+        # no Richardson / GCI line: the observed orders (p > 6 where the fixed point converges) are far above the formal order of
+        # C3D10 (~2) or the sequence is non-monotone -> not asymptotic; the report quotes level-to-level changes only (REPORT 5)
+        if g:
+            note = ("no GCI: non-monotone / not asymptotic" if g.get("p") is None else
+                    f"no GCI: observed p {g['p']:.1f} >> formal ~2 (not asymptotic)")
+            a.text(0.02, 0.02, note, transform=a.transAxes, fontsize=7, color="dimgray", va="bottom")
         a.invert_xaxis()
         a.set_xlabel("local mean tet edge h (mm)")
-        a.set_ylabel(("s1" if p["levels"][0]["q"] == "s1" else "von Mises") + " (MPa)")
+        q = p["levels"][0]["q"]
+        a.set_ylabel({"s1": "max principal s1", "-s3": "compressive principal -s3", "vm": "von Mises"}.get(q, "von Mises") + " (MPa)")
         a.set_title(key, fontsize=9)
         a.grid(ls=":", lw=0.6)
-        a.legend(fontsize=7)
+        a.legend(fontsize=6.5, loc="best", framealpha=0.85)
     fig.suptitle("F1-C3  Mesh convergence at the governing locations (L1 global -> R2 -> R3 local ball refinement; same loads, ties and thermal map)", fontsize=9)
-    foot(fig)
+    foot(fig, "asm v1.1 convergence study (engine parts unchanged by v1.2, <= 0.15 %)")
     fig.tight_layout(rect=(0, 0.03, 1, 0.95))
     out = OUT / "F1-C3_convergence.png"
     fig.savefig(out, dpi=150)

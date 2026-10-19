@@ -271,7 +271,9 @@ def main(argv):
         for lab, bu in rods.items():
             H, L = int(bu["A"]), int(bu["B"])
             e = AB.unit(X[L] - X[H])
-            res[f"{lab}_elongation"] = (U[:, L, :] - U[:, H, :]) @ e
+            # asm v1.2 (REPORT 7.1): REF nodes in no element are not in the .frd -> use the rod spring's aux node (as post_k.py)
+            Lu = int(bu["springs"][0][0]) if bu.get("springs") and bu["springs"][0][0] is not None else L
+            res[f"{lab}_elongation"] = (U[:, Lu, :] - U[:, H, :]) @ e
         hb = np.einsum("aj,kj->ka", Ah, U[:, hsub, :].reshape(U.shape[0], -1))
         for lab in ITEM_FUNCTIONALS:
             if lab not in item_nodes:
