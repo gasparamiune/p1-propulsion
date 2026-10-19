@@ -1,7 +1,7 @@
 """Copy FEA3D deliverables to the engine hub and write a MANIFEST.json (sha256 first 16 hex, bytes, source) per folder.
 
 Writes ONLY under hub/04-fea/assembly3d/ or hub/04-fea/s3d_v351/ (brief 188 / successor brief).  Never touches other hub paths.
-usage: publish.py assembly3d|s3d_v351 [note=...]      (file lists below; missing optional files are skipped and listed in the manifest)
+usage: publish.py assembly3d|s3d_v351 [note=...] [exclude=glob;glob]  (exclude: source file names left out of this release)      (file lists below; missing optional files are skipped and listed in the manifest)
 """
 from __future__ import annotations
 import sys, json, hashlib, shutil, time
@@ -11,7 +11,7 @@ W = Path("/home/claude/work/fea3d")
 HUB = Path("/home/claude/work/shared-fallback/engine")
 ALLOWED = {"assembly3d": HUB / "04-fea" / "assembly3d", "s3d_v351": HUB / "04-fea" / "s3d_v351"}
 
-SRC = ["scripts/*.py", "chains/chain_B.sh", "chains/chain_C.sh"]
+SRC = ["scripts/*.py", "chains/chain_B.sh", "chains/chain_C.sh", "chains/post_cones.sh"]
 
 LISTS = {
     "assembly3d": {
@@ -21,7 +21,10 @@ LISTS = {
                      "results/f1_lc3_hot_bound_c71.json", "results/f1_convergence.json", "results/f1_post_tc03_thread.json",
                      "results/f1_post_lc1v351_compliant_c71.json", "results/f1_post_lc3_pose_stop045_compliant_c71.json",
                      "results/f1_post_lc3_pose_stop045_gm02r*_c71.json", "results/f1_post_lc3_pose_stop315_gm01r*_c71.json", "results/f1_lever_root_*_c71.json",
-                     "results/f1_lc3_summary_c71.json", "results/k_*.json", "results/modal_*.json", "results/f4_*.json", "results/fbd_*.json", "results/cmp_*.json"],
+                     "results/f1_lc3_summary_c71.json", "results/k_*.json", "results/modal_*.json", "results/f4_*.json", "results/fbd_*.json", "results/cmp_*.json", "results/icd_airframe_v21_fea3d.json", "results/s3d_summary_v351.json",
+                     "results/modal_*_modes.csv", "results/k_range_v351.json"],
+        "tests/modal_diag/": ["tests/modal_diag/*.py"],
+        "runs/modal_v351ca2b_c71/": ["runs/modal_v351ca2b_c71/model.json", "runs/modal_v351ca2b_c71/mass.json"],
         "results/legacy_asm_v1.1/": ["results/f1_post_lc1v351_design_rigid.json", "results/f1_post_fa1_v351.json",
                                      "results/f1_post_lc3_pose_stop???.json", "results/f1_lc3_hot_bound_legacy_v11.json", "results/f1_lc3_summary_legacy_v11.json"],
         "tables_legacy_v1.1/": "results/tables_legacy_v11/*",
@@ -34,8 +37,12 @@ LISTS = {
     },
     "s3d_v351": {
         "REPORT-S3D.md": "s3d/REPORT-S3D.md",
-        "results/": ["results/s3d_*.json", "results/f1_post_lc3_pose_stop*.json", "results/k_*.json"],
+        "results/": ["results/s3d_pose_*_c71.json", "results/s3d_summary_v351.json", "results/f1_post_lc3_pose_stop*_c71.json",
+                     "results/f1_post_lc3_pose_stop*_gm0*r*_c71.json", "results/f1_lever_root_*_c71.json", "results/f1_post_fa1_c71.json",
+                     "results/f1_lc3_hot_bound_s3d.json", "results/k_cone_c71.json", "results/k_stop_c71.json", "results/icd_airframe_v21_fea3d.json"],
+        "tables/": ["results/tables/s3d_*.md", "results/tables/icd_airframe_v21.md", "results/tables/k_range_v351.md"],
         "figs/": "figs/s3d/*.png",
+        "src/": SRC,
     },
 }
 
@@ -48,7 +55,9 @@ def sha16(p: Path) -> str:
     return h.hexdigest()[:16]
 
 
-def main(folder, note=""):
+def main(folder, note="", exclude=""):
+    import fnmatch
+    excl = [x for x in exclude.split(";") if x]
     dst = ALLOWED[folder]
     dst.mkdir(parents=True, exist_ok=True)
     files, missing = {}, []
@@ -60,7 +69,7 @@ def main(folder, note=""):
                 missing.append(pat)
                 continue
             for src in hits:
-                if src.is_dir():
+                if src.is_dir() or any(fnmatch.fnmatch(src.name, x) for x in excl):
                     continue
                 tgt = dst / rel if not rel.endswith("/") else dst / rel / src.name
                 tgt.parent.mkdir(parents=True, exist_ok=True)
@@ -82,4 +91,4 @@ def main(folder, note=""):
 
 if __name__ == "__main__":
     o = dict(x.split("=", 1) for x in sys.argv[2:])
-    main(sys.argv[1], o.get("note", ""))
+    main(sys.argv[1], o.get("note", ""), o.get("exclude", ""))

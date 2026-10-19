@@ -1,8 +1,8 @@
-# ARGOS H1 engine - assembled-engine 3D FE (FEA3D) - F1 final on asm v1.2, F4 done, F2 / F3 / modal in progress
+# ARGOS H1 engine - assembled-engine 3D FE (FEA3D) - F1 final on asm v1.2, F4 done, modal (coarsened) and F3 added, F2 in progress
 
 | | |
 |---|---|
-| Status | **2026-10-19, F1 FINAL on the corrected connector model (asm v1.2, REPORT 7.1 closed)**: LC1 (4 S-AX thermal states), FA-1 (FA1Q/D/U/S + FA1T), LC3 (8 stop poses x 64 sub-cases, cold + hot lower bound), rigid and compliant airframe, mesh convergence (3 levels at 4 points; lever roots R2 / R3). **F4** secondary-structure joints done (hand calcs on F1 loads). **Pending at this publish (queued, section 11):** modal + periods, F2 cone poses (S-3D on v3.5.1), F3 stiffness range over the cone poses. Supersedes the INTERIM of 2026-10-19 (hub commit 9bd6958). |
+| Status | **2026-10-19, F1 FINAL on the corrected connector model (asm v1.2, REPORT 7.1 closed)**: LC1 (4 S-AX thermal states), FA-1 (FA1Q/D/U/S + FA1T), LC3 (8 stop poses x 64 sub-cases, cold + hot lower bound), rigid and compliant airframe, mesh convergence (3 levels at 4 points; lever roots R2 / R3). **F4** secondary-structure joints done (hand calcs on F1 loads). **Added in this update (2026-10-19 ~20:10Z):** modal on a coarsened all-L2 model (periods for Mechanical, FA-1 column reading, first engine-mount modes, 9A) and F3 at neutral + compliant airframe (9). **Still running (section 11):** F2 cone poses (S-3D on v3.5.1, `hub/04-fea/s3d_v351/`), F3 over the cone poses. Supersedes the F1 FINAL publish (REPORT a66d660022618f48) and the INTERIM (hub commit 9bd6958). |
 | Author | fea3d (successor Senior FEA analyst 3D), lead brief CHANGELOG 188 + successor brief 2026-10-15 + coordinator 2026-10-19 (lead decision: fix 7.1 before modal and cones) |
 | Configuration | CAD v3.5.1 frozen (CHANGELOG 206): MANIFEST `b62c0e0ac8555fb8`, ENGINE STEP sha16 `4ca22820c796b670`, 5.40921 kg wet. (03-cad/v3.5.2 is a GNC mass sensitivity per CHANGELOG 209/211, not used.) |
 | Tool | CalculiX 2.21 (SPOOLES direct), C3D10 tets (gmsh 4.15 HXT), own Python pre/post (`src/`), assembly model **fea3d-asm v1.2** |
@@ -16,12 +16,13 @@
 1. **Connector defect 7.1 closed (lead decision 2026-10-19).** Root cause: CalculiX SPRINGA uses the current (deformed) geometry also in linear static steps; with 1 mm auxiliary springs the inner-gimbal bushings on rigid-body references carried only 56-79 % of the engine load. Fix (asm v1.2): spring length 1e6 mm. **Unit-step free body of the engine now closes to <= 0.006 N in every unit step (100.00 % of the engine load through the inner bearings, inner washer and rods)** at LC1 neutral and at the 8 deg stop pose [SIM]. The deck changed, so LC1, the 8 LC3 stop poses and FA-1 were re-solved; the LC3 stop poses and the FA1T gimbal margins are re-posted on v1.2 (sections 6, 7).
 2. **Effect of the fix:** engine-part stresses change <= 0.15 %, airframe hole loads < 0.3 %, LC3 margins unchanged to the third decimal; the bearing loads change materially: FA1T now 1764 N on each of the four needle cups (v1.1 gave 4036 N / 1766 N and 440 N on the inner washer), LC1 inner cups 199.8 N each. One residual observation stays open (7.2: moment closure 97-99.5 %, bounded impact).
 3. **LC1:** negative total-stress margins at **NZ-01** throat -0.435 (B1_1, thermal, S-AX -0.443), **TC-03** flange corner -0.312 / -0.375 (B1_1, 98 % thermal; primary-only +7.3) and **TC-02** TB1 seat ultimate -0.119 (B1_19; 159 degC > 150 degC limit, check (d) open per CHANGELOG 212). All other parts positive.
-4. **FA-1:** FA1S (151.04 bar abs, T > 1 ms bound) **TC-01 J-FWD hole -0.221 / -0.160**, converged (R3 -0.202 / -0.140). FA1Q/D/U positive. FA1T (3.6 kN spike, gimbal / mount parts) all positive, min GM-03 +1.483 / +1.671. Column selection waits for the modal (pending).
+4. **FA-1:** FA1S (151.04 bar abs, T > 1 ms bound) **TC-01 J-FWD hole -0.221 / -0.160**, converged (R3 -0.202 / -0.140). FA1Q/D/U positive. FA1T (3.6 kN spike, gimbal / mount parts) all positive, min GM-03 +1.483 / +1.671. Column selection (9A, DERIVED): the J-FWD pressure stress is a fast path (98 % of it in modes with T <= 1 ms), so on the line-194 reading **FA1Q +0.291 / +0.393 applies to TC-01** and FA1S is a bound that does not apply there; the lead decides, both values stay in the tables.
 5. **LC3 (8 deg stop, runaway with the rod at the 609 N stall limit, max thrust + touchdown inertia, cold):** at the L1 regular-node convention GM-02 +0.182 / +0.019 (stop045), GM-01 +0.206 / +0.039 (stop315), NZ-03 +0.194 (stop000). **Refinement of the GM-02 lever root makes it NEGATIVE: R3 -0.280 / -0.379** (435 MPa at the R1.2 lever-root fillet where it meets the collar OD; the stress 0.5 mm from the edge line is stable R2 -> R3, 420 -> 416 MPa, i.e. not a singularity). The L1 value was unconservative because the 1 mm exclusion around a flagged edge removed the 1.2 mm fillet zone (section 4.6). GM-01 (mirror): **GM-01 R3 -0.273 / -0.374** (431 MPa; 421 MPa at 0.5 mm from the edge line): the same finding for both levers.
 6. **LC3 hot lower bound:** NZ-01 -0.443, TC-03 -0.357 / -0.415, TC-02 +0.022 / -0.179, GM-02 +0.128 / -0.028 (L1 convention; refined: worse, section 4.6).
 7. **Airframe interface (16 x M5):** max screw shear LC1 75 N, FA1S 554 N, FA1T 643 N, LC3 889 N (rigid airframe) [SIM]; compliant airframe (k_af ASSUMED): max hole shear LC1 48 N, LC3 stop045 454 N (rigid 837 N at the same pose) - the rigid airframe bounds the hole loads; engine-part margins unchanged.
 8. **F4 joints:** **J-FD01 (2 x M3 A4-70 into TC-02) NEGATIVE: -0.41 bounding / -0.20 with load factor 0.2**, driven by the specified 1.0 N m (assembly utilisation 0.94 nominal, 1.18 at +25 % scatter) and the 121 degC screw temperature; J-FD09 -0.17 bounding / +0.05 (EI 0.5 sensitivity, 10 g); others +0.04 to +0.15 bounding (all hand calcs on ASSUMED preload scatter, K and hot-strength factor).
-9. **Gimbal stiffness at the 8 stop poses** (rigid servo, flexible engine and structure): K_alpha 6400-8577, K_beta 3888-6570 N m/rad; with the ASSUMED servo output stiffness 58-174 N m/rad in series: 686-2891 N m/rad [SIM/DERIVED].
+9. **Gimbal stiffness at the 8 stop poses** (rigid servo, flexible engine and structure): K_alpha 6400-8577, K_beta 3888-6570 N m/rad; with the ASSUMED servo output stiffness 58-174 N m/rad in series: 686-2891 N m/rad [SIM/DERIVED]. Neutral 7284 / 5370; compliant airframe at stop045 -14 / -13 % (section 9).
+10. **Modal (coarsened, all bodies at mesh level 2; 9A):** first engine-mount modes 51.4 Hz (rocking, inner axis) and 59.4 Hz (rocking, outer axis) with the servo output rigid, **about 48 / 56 Hz at the production-model stiffness and 21-33 Hz with the servo in series** [DERIVED]; lateral 267 / 372 Hz, axial 408 Hz; pintle linkage 186 Hz (upper bound, rigid linkage). Verified by a Rayleigh check on the same mesh (<= 1 %). A first all-L2 run had a broken collar-case bond (15 of ~2850 equations) and gave 24 / 36 Hz: a model defect, found, fixed and kept as evidence. Full-L1 and partly-L1 modals do not fit the 8 GB cap.
 
 ## 2. Configuration
 
@@ -177,7 +178,7 @@ Rigid vs compliant airframe (k_af 2e3 / 2e4 / 2e4 N/mm radial / tangential / axi
 
 Long-period thrust spectrum for the ICD (CHANGELOG 194), linear scaling of the FA1T hole envelope with net thrust [DERIVED]: 1.76 kN @ 25 ms -> 314 N max hole shear; 1.45 kN @ 40 ms -> 259 N; 1.04 kN @ 100 ms -> 186 N.
 
-## 9. Gimbal stiffness (F3, stop poses; cone poses pending) (`results/k_stop_c71.json`)
+## 9. Gimbal stiffness (F3: stop poses, neutral, compliant airframe; cone poses with F2) (`results/k_stop_c71.json`, `results/k_pose_neutral_c71.json`, `results/k_stop045_compliant_c71.json`, `results/k_range_v351.json`, `tables/k_range_v351.md`)
 
 Unit rod-pair steps R1/R2 on asm v1.2; K_FE = actuator moment / engine rotation about the gimbal axis with the servo output rigid; rods-only = rod chain alone; structure share = fraction of the compliance in the structure (bearings, levers, ring, brackets, engine) [SIM]; with servo = series with the ASSUMED servo output stiffness 58-174 N m/rad (electronics.json v1) [DERIVED].
 
@@ -192,7 +193,46 @@ Unit rod-pair steps R1/R2 on asm v1.2; K_FE = actuator moment / engine rotation 
 | stop270 (8, 0) | 6964 | 5176 | 30.2 / 30.7 | 0.77 / 0.83 | 1051 / 2421 ; 1011 / 2181 |
 | stop315 | 6533 | 6183 | 30.6 / 38.9 | 0.79 / 0.84 | 1051 / 2385 ; 1267 / 2696 |
 
-Range over the 8 stop poses: **K_alpha 6400-8577, K_beta 3888-6570 N m/rad** (rigid servo); with the servo 686-2891 N m/rad, i.e. the servo dominates the loop stiffness. Comparison: Mechanical V5c (CAD v3.3, engine rigid, chain variants) K_alpha 5573-8764, K_beta 3133-5631 N m/rad (rigid servo), 780-1518 with k_s 58 - consistent [DATASHEET hub 04-fea/stiffness/gimbal_k_summary_V5c_v1.json]. The interim neutral value from the predecessor's nx run (7834 / 5782, asm v1.1) used the rod REF-node elongation (zero output, 7.1) and is superseded by the cone-pose neutral run (pending).
+Range over the 8 stop poses: **K_alpha 6400-8577, K_beta 3888-6570 N m/rad** (rigid servo); with the servo 686-2891 N m/rad, i.e. the servo dominates the loop stiffness. Comparison: Mechanical V5c (CAD v3.3, engine rigid, chain variants) K_alpha 5573-8764, K_beta 3133-5631 N m/rad (rigid servo), 780-1518 with k_s 58 - consistent [SIM by Mechanical, hub 04-fea/stiffness/gimbal_k_summary_V5c_v1.json 82a737caa138259a; chain-low to chain-high envelope; mech_T alone 5808-7406 / 3239-5167]. **Neutral pose** (`pose_neutral_c71`, both lever-root R3 balls): **K_alpha 7284, K_beta 5370 N m/rad** (rigid servo); with the servo 1129 / 2586 and 1070 / 2295 N m/rad [SIM / DERIVED]; this supersedes the predecessor's nx value (7834 / 5782, asm v1.1, rod REF-node elongation, 7.1). **Compliant airframe** (stop045, k_af ASSUMED): K_alpha 5609 / K_beta 5520 vs rigid 6531 / 6348 N m/rad (**-14 / -13 %**); with the servo 1024 / 2250 and 1237 / 2562 N m/rad - the airframe compliance matters for the rigid-servo K but little once the servo is in series. Static K on the coarsened modal meshes (Rayleigh checks, 9A): all-L2 8347 / 6209 (+15 / +16 % vs the production model), mixed L1/L2 7422 / 5479 (+2 %). The 9 cone poses are posted with F2 (`k_cone_c71.json`).
+
+## 9A. Modal and load-path periods (coarsened model; `results/modal_modal_v351ca2b_c71.json`, `results/modal_summary_v351.json`, `tables/modal_v351.md`; defective first run kept as `results/modal_modal_v351ca2_c71_DEFECT_bore_bond.json` and `results/k_kchk_ca2_c71_DEFECT_bore_bond.json`)
+
+**Model actually solved (say it plainly):** asm v1.2, CAD v3.5.1, **every body at mesh level 2** (83,173 nodes, 7,059 constraint equations), neutral pose, rigid airframe holes, rigid servo output, unstressed at T_REF, item point masses (translational) and the ASSUMED 26 g Pc transducer; 60 modes to 5130 Hz (T_min 0.195 ms), ccx *FREQUENCY (SPOOLES / ARPACK), 430 s, peak 3.97 GB. It is a coarsened model, not the F1 L1 model.
+
+- **Why coarsened:** the eigen step needs far more memory than a static solve of the same deck (ccx expands the tie equations in K and M): full L1 (171k nodes) killed at 8.13 GB, coarse=2 (133.6k) at 8.02 GB, mixed TC-01 / GM-01 / GM-02 at L1 (115k, 10.7k equations) at 8.08 GB (8 GB cap). [SIM, run logs `runs/chain_C.log`]
+- **Defect found and fixed on the way (evidence kept):** the first all-L2 run (`modal_v351ca2_c71`) gave rocking modes at 23.8 / 35.9 Hz. Diagnosis (`tests/modal_diag/`): rod springs held only 3.9 / 9.1 % of the modal strain energy and the collar turned 0.36 x the case (0.89 in the static L1 step); the collar-to-case bore bond kept **15 of about 2850 equations** at L2 because the coarse TC-01 bore faces straddle the +/-10 mm selection band and their chords sit up to 0.5 mm off the collar bore. A static EAX/EAY run on that same mesh gave K 3019 / 1330 N m/rad, matching the modal values (within 1 %), so the eigen step was right and the mesh rule was wrong. Fix (asm_build, **only when TC-01 is at level >= 2**; the L1 models of F1 / F2 are unchanged): band +/-16 mm, tie tolerance 0.6 mm -> 789 / 843 equations, bonded area 1941 / 1961 mm2 (L1: 1930 / 1957). The 23.8 / 35.9 Hz values are a model defect and are not results.
+- **Verification of the corrected modal:** Rayleigh check against a static EAX/EAY run on the same mesh (`kchk_ca2b_c71`): 51.9 / 59.9 Hz vs 51.4 / 59.4 Hz FE (<= 1 %); mode shapes: collar / case rotation 0.89 / 0.86 (static 0.885 / 0.895); lumped generalised mass 1.000-1.017; per-mode effective masses reproduced by a lumped-mass recomputation. **Coarsening bias:** the all-L2 gimbal is stiffer than the production pose model (TC-01 + gimbal parts at L1): K_beta 6209 vs 5370, K_alpha 8347 vs 7284 N m/rad (+16 / +15 %), so the FE rocking frequencies are about 7 % high; the values scaled to the production K are the best estimate. Lateral / axial mount modes carry a similar (unquantified) upward bias. Hot E of 6061 (-5 to -10 % at 120-150 degC) lowers f by a further 2.5-5 %.
+
+**First engine-mount modes (for ICD-AIRFRAME v2.1; rigid airframe at the 16 M5 holes):**
+
+| mode | shape | f FE (all L2, rigid servo) Hz | f at the production K Hz [DERIVED] | f with servo output k_s 58 / 174 N m/rad in series Hz [DERIVED] | eff. mass / inertia |
+|---|---|---|---|---|---|
+| 1 | engine rocking about the inner axis (beta) | 51.4 | 47.8 | 21.3 / 31.3 | 0.0585 kg m2 about the pivot |
+| 2 | engine + ring rocking about the outer axis X (alpha) | 59.4 | 55.5 | 21.9 / 33.1 | 0.0590 kg m2 |
+| 4 | engine lateral X on the mount | 266.5 | - | - | 2.19 kg (x) |
+| 5 | engine lateral Y on the mount | 372.1 | - | - | 1.43 kg (y) |
+| 6 | engine axial (thrust path through bearings, ring, posts) | 408.3 | - | - | 2.46 kg (z) |
+
+Local modes below 1 kHz: 186 Hz pintle linkage (81 % KE; needle, PD-02 crank and servo drive are rigid bodies, so this is an upper bound on f), 518 Hz pintle linkage + head, 792 Hz pintle linkage (99 %), 825 / 917 / 1010 Hz forward equipment + case; servo brackets + servos 1611 / 1624 Hz. With the servo in series the loop sees the rocking pair at **about 21-33 Hz** (k_s range ASSUMED, TO-VERIFY bench B-TVC-1; servo rotor / gear-train reflected inertia NOT included, which would lower these further). Comparison: Mechanical V5c f_rock_min 53.2 / 39.8 Hz (mech_T, CAD v3.3, engine rigid) [SIM by Mechanical].
+
+**Load-path periods under chamber pressure (lead 194 period domain).** The static unit-pressure response is decomposed into modal contributions u = sum phi_i (phi_i . F_OP) / omega_i^2 plus the residual of the modes above 5130 Hz (T < 0.195 ms). Shares of the static response by band [SIM / DERIVED]:
+
+| path / governing node | share T > 1 ms | share 0.1-1 ms | residual T < 0.195 ms | period-domain reading |
+|---|---|---|---|---|
+| **TC-01 J-FWD hole (FA1S governing node, L1 node 8314, mapped 0.55 mm)** | +0.02 | +0.60 | +0.38 | fast: the FA1Q column (93 / 102 bar) applies, not FA1S |
+| TC-01 LC1 governing node | +0.03 | +0.52 | +0.44 | fast |
+| TC-02 / TC-03 governing nodes (head, seat) | -0.13 to +0.11 | +0.06 to +1.03 | -0.01 to +1.08 | fast (TC-03 LC1 node: 11 % slow share) |
+| NZ-01 / TC-09 governing nodes (nozzle, aft closure) | 0.00 | +0.00 to +0.18 | +0.83 to +1.00 | fast (residual: T < 0.195 ms, may be <= 0.1 ms) |
+| nozzle NZ-01 vs J1 lip (axial) | 0.00 | +0.11 | +0.90 | fast |
+| Pc transducer (ASSUMED 26 g) vs head | -0.29 | +0.50 | +0.79 | fast |
+| pintle needle vs seat (axial) | +0.61 | +0.30 | +0.09 | slow: governed by the axial mount mode (2.45 ms) -> FA1S on the pintle path |
+| engine axial on the mount / GM-03 ring nodes | +0.88 to +1.06 | -0.18 to 0.00 | +0.12 | slow (thrust path): FA1S applies, as used for FA1T |
+| GM-01 / GM-02 collar nodes | -0.10 to +0.32 | 0.00 to +0.20 | +0.48 to +1.09 | mostly fast; the FA1Q governing GM-02 node has 32 % slow share |
+| forward equipment vs head: torch, riser, bleed, FD-02 | -0.85 to +3.31 | -6.40 to -2.20 | +3.34 to +4.78 | not classifiable here: the shares cancel (tiny relative motions; items are point masses on RBE3) |
+| forward equipment vs head: FD-04 | +0.08 | +0.62 | +0.30 | fast |
+
+**Reading for the FA-1 column selection (DERIVED, for the lead and Mechanical):** the pressure stress at the TC-01 J-FWD hole is carried by modes with T <= 1 ms (98 %), i.e. it is a fast path in the line-194 sense. On that reading the TC-01 FA-1 margin is **FA1Q +0.291 / +0.393**, and the FA1S value **-0.221 / -0.160** (151 bar, DLF 2.0) is a bound that does not apply to this node. The same holds for the head, nozzle and aft-closure nodes. The thrust path (GM-03 ring, posts, pintle linkage via the axial mount mode at 2.45 ms) is slow, so FA1S / FA1T apply there (all positive). Caveats: L2 mesh (local stresses coarse; the band shares are a property of the modes and are less mesh-sensitive than the stress itself), unstressed T_REF stiffness, rigid airframe, and the residual band is not resolved below 0.195 ms (the 90 bar T <= 0.1 ms column is NOT claimed). The lead decides the column; both values stay in the tables.
+
 
 ## 10. F4 secondary structure (hand calcs on F1 loads; `results/f4_secondary.json`, `tables/f4_secondary.md`, `scripts/f4_secondary.py`)
 
@@ -211,7 +251,7 @@ J-FD01 is negative in every case, also in LC1 flight (-0.38 bounding) and with t
 
 ## 11. Not run or not done at this publish
 
-1. **Modal** (`modal_v351_c71`, 8 GB cap; coarse=2 fallback queued) -> periods for Mechanical (pintle / linkage, forward-closure equipment, nozzle on the J1 lip, Pc port) and the FA-1 column selection. Previous full-L1 attempt was killed at the 6 GB cap.
+1. **Modal on the production mesh:** not possible under the 8 GB cap (full L1 8.13 GB, coarse=2 8.02 GB, mixed 8.08 GB: killed). Reported on the all-L2 model with its bias (9A). Not run: prestressed (Pc / thrust) or hot modal; servo rotor / gear-train reflected inertia; airframe flexibility in the modal; forward-equipment local periods (shares cancel on point masses).
 2. **F2 cone poses** (9, with GM-01/02 lever-root R3 balls) -> S-3D on v3.5.1 in `hub/04-fea/s3d_v351/` (post script `post_s3d.py` written and tested).
 3. **F3** K range over the cone poses (incl. neutral) and the compliant stop045 pose.
 4. 7.2 moment-closure path not identified.
@@ -224,6 +264,6 @@ J-FD01 is negative in every case, also in LC1 flight (-0.38 bounding) and with t
 - `tables/`: part margins, ICD, LC3 summary, F4 tables (asm v1.2). `tables_legacy_v1.1/`: interim tables.
 - `results/`: post-processing JSON on asm v1.2 (LC1, FA-1 incl. FA1T, LC3 x 8 poses, GM-02 refinements and edge metric, hot bound, compliant airframe, convergence, TB1 thread variant, free-body checks, v1.1-vs-v1.2 comparisons, stiffness, F4). `results/legacy_asm_v1.1/`: interim JSON kept as evidence.
 - `figs/`: F1-01 LC1 B1_1 MS overall; F1-02 LC1 B1_21.65 vM; F1-03 NZ-01 throat MS; F1-04 TB1 zoom vM B1_19; F1-05 FA1S MS overall; F1-06 FA1S TC-01 J-FWD zoom vM; F1-07 LC3 stop045 MS overall; F1-08 GM-02 lever-root section vM (L1 mesh); F1-09 GM-02 lever root refined R3 vM; F1-C1 part margins; F1-C2 airframe holes; F1-C3 convergence. Each title gives case and criterion; colour bars give units; footer gives CAD, tool, asm version.
-- `tests/conn71/`: connector test models (7.1 evidence).
+- `tests/conn71/`: connector test models (7.1 evidence). `tests/modal_diag/`: modal diagnostics (spring strain-energy shares, per-body rotations, lumped effective masses) - evidence for the L2 bore-bond defect of 9A.
 - `runs/`: model, mass and pressure metadata of the v1.2 L1 run; queue and chain log.
 - `src/`: scripts, for reproduction. Solver bulk stays in `/home/claude/work/fea3d/runs` (not published).

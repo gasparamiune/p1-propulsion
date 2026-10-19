@@ -172,7 +172,8 @@ def run(name, state="B1_21.65"):
         cases[cid] = {"SF": [sfy, sfu], "n_subcases": len(subs), "margins": rows, "rod_max_abs_N": rmax,
                       "rod_over_stall": bool(max(rmax.values()) > F_STALL + 1e-6),
                       "connectors_envelope": con_env, "icd_envelope": icd_env,
-                      "subcases": info if cid == "GS" else None}
+                      "subcases": info if cid == "GS" else None,
+                      "subcase_coefs": subs}           # unit-step coefficients of every sub-case (for icd_export.py)
         worst = sorted([r for r in rows if r["set"] == "regular"], key=lambda r: r["MS"])[:4]
         print(f"[s3d {name} {cid}] rods max |F| {rmax}; worst: " + "; ".join(
             f"{r['part']} {r['MS']:+.3f}/{(r['MS_ult'] if r['MS_ult'] is not None else float('nan')):+.3f}" for r in worst), flush=True)

@@ -177,6 +177,11 @@ def main(argv):
             variant[k] = float(v)
         elif k == "coarse":       # coarse=2: engine pressure parts at level 2 (gimbal / fixed / TC-01 / collar stay at LEVEL)
             variant["levels"] = {bn: float(v) for bn in COARSE_BODIES}
+        elif k == "coarse_all":   # coarse_all=2 (2026-10-19, modal under the 8 GB cap): EVERY body at level 2
+            import asm_def as _AD
+            variant["levels"] = {bn: float(v) for bn in _AD.BODIES}
+        elif k == "keep":         # keep=TC-01,GM-01,GM-02 (2026-10-19): with coarse/coarse_all, these bodies stay at LEVEL (the
+            continue              # collar-case bore bond needs the L1 meshes: at L2 it keeps 15 of ~2850 equations); applied below
         elif k == "refine":       # refine=GM-01:x/y/z/r/h;GM-01:x/y/z/r/h
             ref = {}
             for part in v.split(";"):
@@ -189,6 +194,10 @@ def main(argv):
             variant[k] = float(v)
         else:
             variant[k] = v
+    if "keep" in opts and "levels" in variant:
+        variant["keep"] = opts["keep"].split(",")
+        for bn in variant["keep"]:
+            variant["levels"].pop(bn, None)
     wd = RUNS / name
     wd.mkdir(parents=True, exist_ok=True)
     M, prep = build(level, variant, steps)

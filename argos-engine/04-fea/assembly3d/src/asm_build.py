@@ -586,12 +586,17 @@ def define(M: Asm):
     M.tie("NZ03_NZ01", "NZ-03", "NZ-01", "bond", tol=0.12)
     M.tie("NZ03_NZ02", "NZ-03", "NZ-02", "bond", tol=0.12)
     # collar
+    # 2026-10-19 (modal under the 8 GB cap, TC-01 at mesh level 2): the coarse TC-01 bore faces straddle the +/-10 mm band and their
+    # chords sit up to ~0.5 mm off the collar bore, so the L1 rule kept 15 of ~2850 equations.  Only when TC-01 is overridden to level >= 2:
+    # independent band +/-16 mm and tie tolerance 0.6 mm (bond with the chord gap; F1 / pose models at L1 are unchanged).
+    _lv1 = (M.v.get("levels") or {}).get("TC-01", 1.0)
+    _band, _tolb = ((-16.0, 16.0), 0.6) if _lv1 >= 2 else ((-10.0, 10.0), 0.12)
     for coll in ("GM-01", "GM-02"):
         bc = B[coll]
         bore_d = sel_cyl(bc, (0, 0, 0), EZ, 31.25, -10.0, 10.0)
-        bore_i = sel_cyl(b1, (0, 0, 0), EZ, 31.25, -10.0, 10.0)
+        bore_i = sel_cyl(b1, (0, 0, 0), EZ, 31.25, *_band)
         if M.v["collar"] == "bonded":
-            M.tie(f"{coll}_TC01_bore", coll, "TC-01", "bond", tol=0.12, mask_dep=bore_d, mask_ind=bore_i)
+            M.tie(f"{coll}_TC01_bore", coll, "TC-01", "bond", tol=_tolb, mask_dep=bore_d, mask_ind=bore_i)
         else:
             M.tie(f"{coll}_TC01_bore", coll, "TC-01", "rt", tol=0.12, mask_dep=bore_d, mask_ind=bore_i)
             fl_d = sel_plane(bc, EZ, (0, 0, -9.95), side=-1, tol=0.03)

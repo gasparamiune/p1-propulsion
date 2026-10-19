@@ -1,6 +1,6 @@
 """FEA3D modal post-processing (lead 188 (14), 194: governing natural periods of the pressure-loaded load paths).
 
-usage: post_modal.py RUN STATE [govjson=results/f1_post_X.json,...]
+usage: post_modal.py RUN STATE [govjson=results/f1_post_X.json,...] [mapxyz=1]
   RUN solved with steps OP,PM,FREQn (static OP / PM at T_REF + n eigenmodes, unstressed, T_REF).
 
 What it does (all SIM / DERIVED on the 3-D assembly FE, rigid airframe holes, design ties, actuator chain springs in place):
@@ -210,7 +210,7 @@ def main(argv):
         if nid < N1:
             X[nid] = M.posed(np.asarray(x)[None], g)[0]
     F_op = nodal_force(M, "OP")
-    out = {"run": name, "state": state, "version": A3.VERSION, "date": "2026-10-13", "n_modes": int(nmode),
+    out = {"run": name, "state": state, "version": A3.VERSION, "date": __import__("datetime").date.today().isoformat(), "n_modes": int(nmode),
            "f_max_Hz": float(f.max()), "T_min_ms": float(1e3 / f.max()),
            "model": {"level": meta["level"], "cad": meta["cad"], "n_nodes": int(M.n_mesh), "n_eq": meta["n_eq"],
                      "boundary": "16 airframe M5 hole bores fixed (rigid airframe)", "temperature": f"T_REF {A3.T_REF} K (unstressed)",
@@ -332,7 +332,16 @@ def main(argv):
                 for r in c["margins"]:
                     if r["set"] != "regular":
                         continue
-                    nodes.setdefault((r["part"], int(r["node"])), []).append(f"{cid}@{stn} MS {r['MS']:.3f}")
+                    nd_ = int(r["node"])
+                    if opts.get("mapxyz") and r.get("xyz_mm") is not None and r["part"] in M.bodies:
+                        # governing node from another mesh (e.g. L1 statics -> all-L2 modal): nearest node of the same part (posed)
+                        bb = M.bodies[r["part"]]
+                        dd, ii = cKDTree(M.Xp[r["part"]]).query(np.asarray(r["xyz_mm"], float), k=1)
+                        nd_ = int(bb.noff + ii)
+                        tag_ = f" (mapped {dd:.2f} mm from L1 node {int(r['node'])})"
+                    else:
+                        tag_ = ""
+                    nodes.setdefault((r["part"], nd_), []).append(f"{cid}@{stn} MS {r['MS']:.3f}{tag_}")
     S_ccx = Z["S_OP"].astype(np.float64) if "S_OP" in Z.files else None
     for (part, nd), tags in sorted(nodes.items()):
         try:

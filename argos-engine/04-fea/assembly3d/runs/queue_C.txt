@@ -2,7 +2,16 @@
 modal_v351_c71 1.0 B1_21.65 steps=OP,PM,FREQ60
 modal_v351c2_c71 1.0 B1_21.65 coarse=2 steps=OP,PM,FREQ60 skipif=modal_v351_c71
 pose_neutral_c71 1.0 B1_21.65 posename=neutral coarse=2 refine=GM-01:-30.15/12.15/-10.9/2.5/0.25;GM-02:-30.15/-12.15/-10.9/2.5/0.25 steps=OP,GX,GY,GZ,EAX,EAY,R1,R2
+# 19:25Z full L1 (8.13 GB) and coarse=2 (8.02 GB) modal killed at the 8 GB cap -> every body at level 2 (83,173 nodes, dry build OK)
+modal_v351ca2_c71 1.0 B1_21.65 coarse_all=2 steps=OP,PM,FREQ60
 pose_alpha+_c71 1.0 B1_21.65 posename=alpha+ coarse=2 refine=GM-01:-30.15/12.15/-10.9/2.5/0.25;GM-02:-30.15/-12.15/-10.9/2.5/0.25 steps=OP,GX,GY,GZ,EAX,EAY,R1,R2
+# 19:40Z modal rocking 23.8 / 35.9 Hz implies K about 1/4 - 1/2.4 of the L1 static K (rod SE share 3.9 / 9.1 %) -> static EAX/EAY on the same all-L2 model to separate mesh softening from a FREQUENCY-step artefact
+# 19:37Z diagnosis: at L2 the collar-case bore bonds keep 15 of ~2850 equations (sel_cyl tolR 0.03 rejects the coarse TC-01 / collar bore faces) -> collar rotates 0.36 of the case in mode 1 (0.89 static). Mixed model: TC-01, GM-01, GM-02 at L1 (same meshes as every F1 run), rest L2 = 115,385 nodes, bonds 2526 / 2592 eq (dry build OK)
+modal_v351ca2m_c71 1.0 B1_21.65 coarse_all=2 keep=TC-01,GM-01,GM-02 steps=OP,PM,FREQ60
+kchk_ca2m_c71 1.0 B1_21.65 coarse_all=2 keep=TC-01,GM-01,GM-02 steps=EAX,EAY
+# 19:50Z mixed modal (115k nodes, 10.7k eq) KILLED at 8.075 GB; kchk_ca2m static K 7422 / 5479 (pose model 7284 / 5370). -> all L2 with the L2-only bore-bond rule (asm_build: TC-01 band +/-16, tol 0.6 mm when TC-01 is at L2): dry build 83.5k nodes, 7059 eq, bore bonds 789 / 843 eq, area 1941 / 1961 mm2
+modal_v351ca2b_c71 1.0 B1_21.65 coarse_all=2 steps=OP,PM,FREQ60
+kchk_ca2b_c71 1.0 B1_21.65 coarse_all=2 steps=EAX,EAY
 pose_alpha-_c71 1.0 B1_21.65 posename=alpha- coarse=2 refine=GM-01:-30.15/12.15/-10.9/2.5/0.25;GM-02:-30.15/-12.15/-10.9/2.5/0.25 steps=OP,GX,GY,GZ,EAX,EAY,R1,R2
 pose_beta+_c71 1.0 B1_21.65 posename=beta+ coarse=2 refine=GM-01:-30.15/12.15/-10.9/2.5/0.25;GM-02:-30.15/-12.15/-10.9/2.5/0.25 steps=OP,GX,GY,GZ,EAX,EAY,R1,R2
 pose_beta-_c71 1.0 B1_21.65 posename=beta- coarse=2 refine=GM-01:-30.15/12.15/-10.9/2.5/0.25;GM-02:-30.15/-12.15/-10.9/2.5/0.25 steps=OP,GX,GY,GZ,EAX,EAY,R1,R2
