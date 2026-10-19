@@ -1,0 +1,1311 @@
+{
+ "tool": "calc/tvc_supply_budget_v1.py",
+ "date": "2026-10-12",
+ "inputs": {
+  "mechanical_json": {
+   "version": "v1",
+   "sha256_16": "c7435d16ad567039"
+  },
+  "geometry": {
+   "r_h_m": 0.01,
+   "r_e_m": 0.048,
+   "n": 4.8,
+   "tag": "LEAD provisional n 4.8"
+  },
+  "slew_load_Nm": {
+   "v": 3.192,
+   "tag": "DERIVED (mechanical.json non-inertial hinge terms summed)"
+  },
+  "servo": {
+   "stall_current_A": {
+    "v": {
+     "6.0": 7.5,
+     "7.4": 9.2
+    },
+    "tag": "DATASHEET",
+    "src": "https://gator-rc.com/savox-sb2292sg-monster-performance-brushless-servo-black-edition-055sec-624-9oz-at-8-4v",
+    "accessed": "2026-10-11",
+    "note": "8.4 V value not published; identical numbers appear in SB-2290SG listings -> treat as family value, MEASURE"
+   },
+   "running_current_A": {
+    "v": {
+     "6.0": 0.18,
+     "7.4": 0.22
+    },
+    "tag": "DATASHEET",
+    "src": "https://gator-rc.com/savox-sb2292sg-monster-performance-brushless-servo-black-edition-055sec-624-9oz-at-8-4v",
+    "accessed": "2026-10-11",
+    "note": "no-load running"
+   },
+   "reference_plane": {
+    "v": "servo plug, stock 300 mm lead included",
+    "tag": "ASSUMED (vendor test conditions unpublished)"
+   }
+  },
+  "I_other_A": {
+   "v": 1.0,
+   "tag": "ASSUMED"
+  },
+  "I_roll_rcs_A": {
+   "v": 2.79,
+   "tag": "DERIVED from LEAD ASSUMED 0.75 A/coil"
+  },
+  "hinge_p99_Nm": {
+   "v": 15.6,
+   "tag": "LEAD (GNC sim6 v2.3)"
+  },
+  "aod4185": "DATASHEET AOS AOD4185 Rev 4.2 (2024-06): RDS(on) 12.5/15 mOhm @ -10 V, 16/20 mOhm @ -4.5 V, 19/23 @ 125 C",
+  "copper": "LITERATURE: IACS 1.7241e-8 ohm m at 20 C, alpha 0.00393/K, ASTM B258 AWG diameters"
+ },
+ "A_chains_at_8.1V": {
+  "basis_SIL_v2.2": {
+   "source": [
+    {
+     "name": "pack + source path (lumped)",
+     "typ_mohm": 15.0,
+     "max_mohm": 15.0,
+     "tag": "ASSUMED",
+     "src": "LEAD 2026-10-12 accepted value, open item B-PWR-1",
+     "carries": "single"
+    }
+   ],
+   "common": [],
+   "branch": [
+    {
+     "name": "servo branch (lumped)",
+     "typ_mohm": 20.0,
+     "max_mohm": 20.0,
+     "tag": "ASSUMED",
+     "src": "LEAD 2026-10-12 accepted value, open item B-PWR-2",
+     "carries": "single"
+    }
+   ],
+   "pack_mohm": null
+  },
+  "v2.2_as_drawn": {
+   "source": [
+    {
+     "name": "battery leads to the ECU AWG16 2 x 0.30 m (first_pass_v1 harness)",
+     "typ_mohm": 8.215,
+     "max_mohm": 8.215,
+     "tag": "LITERATURE+DESIGN",
+     "src": "calc/first_pass_v1.py battery->ECU run",
+     "carries": "single"
+    },
+    {
+     "name": "pack leads AWG14 2 x 0.10 m (stock pack leads)",
+     "typ_mohm": 1.722,
+     "max_mohm": 1.722,
+     "tag": "LITERATURE+ASSUMED",
+     "src": "AWG table at 30 C; length ASSUMED",
+     "carries": "single"
+    },
+    {
+     "name": "XT60 mated pair (2 contacts)",
+     "typ_mohm": 1.0,
+     "max_mohm": 2.0,
+     "tag": "ASSUMED",
+     "src": "TO-CONFIRM AMASS XT60 contact resistance; bench B-PWR-1 includes it",
+     "carries": "single"
+    },
+    {
+     "name": "F101 ATM 25 A + Keystone 3568 holder",
+     "typ_mohm": 3.0,
+     "max_mohm": 4.5,
+     "tag": "ASSUMED",
+     "src": "TO-CONFIRM Littelfuse 297 (MINI/ATM) datasheet cold-resistance column (not retrievable through the proxy on 2026-10-12)",
+     "carries": "single"
+    },
+    {
+     "name": "current shunt (INA181 sense)",
+     "typ_mohm": 2.0,
+     "max_mohm": 2.02,
+     "tag": "DESIGN",
+     "src": "ecu_design.py: INA181A1 x20 on 2 mOhm (1 % part)",
+     "carries": "single"
+    },
+    {
+     "name": "PCB VBAT_IN -> VBAT, 2 oz, 8 mm x 40 mm",
+     "typ_mohm": 1.328,
+     "max_mohm": 2.28,
+     "tag": "DERIVED",
+     "src": "copper pour; layout not routed",
+     "carries": "single"
+    }
+   ],
+   "common": [
+    {
+     "name": "F401 ATM 15 A + Keystone 3568 holder",
+     "typ_mohm": 5.0,
+     "max_mohm": 7.0,
+     "tag": "ASSUMED",
+     "src": "TO-CONFIRM Littelfuse 297 (MINI/ATM) datasheet cold-resistance column (not retrievable through the proxy on 2026-10-12)",
+     "carries": "single"
+    },
+    {
+     "name": "Q401 AOD4185 at VGS -7.4 V (typ 40 C / max 60 C junction)",
+     "typ_mohm": 15.312,
+     "max_mohm": 20.644,
+     "tag": "DATASHEET+DERIVED",
+     "src": "DATASHEET AOS AOD4185 Rev 4.2 (2024-06): RDS(on) 12.5/15 mOhm @ -10 V, 16/20 mOhm @ -4.5 V, 19/23 @ 125 C",
+     "carries": "single"
+    },
+    {
+     "name": "PCB VBAT -> TVC_PWR, 2 oz, 6 mm x 40 mm",
+     "typ_mohm": 1.771,
+     "max_mohm": 2.85,
+     "tag": "DERIVED",
+     "src": "copper pour; layout not routed",
+     "carries": "single"
+    }
+   ],
+   "branch": [
+    {
+     "name": "PCB TVC_PWR -> J401 and GND return",
+     "typ_mohm": 1.992,
+     "max_mohm": 2.85,
+     "tag": "DERIVED",
+     "src": "copper pour",
+     "carries": "single"
+    },
+    {
+     "name": "Micro-Fit 3.0 mated pair (V+ and GND contacts)",
+     "typ_mohm": 10.0,
+     "max_mohm": 20.0,
+     "tag": "ASSUMED",
+     "src": "TO-CONFIRM Molex Micro-Fit 3.0 product specification PS-43045 (low-level contact resistance; not retrievable 2026-10-12)",
+     "carries": "single"
+    },
+    {
+     "name": "extension AWG20 2 x 0.15 m",
+     "typ_mohm": 10.385,
+     "max_mohm": 10.385,
+     "tag": "LITERATURE+ASSUMED",
+     "src": "first_pass_v1 TVC lead gauge; length ASSUMED",
+     "carries": "single"
+    },
+    {
+     "name": "servo JR/universal plug mated pair (adapter lead)",
+     "typ_mohm": 10.0,
+     "max_mohm": 20.0,
+     "tag": "ASSUMED",
+     "src": "TO-CONFIRM; not published for JR-type servo plugs",
+     "carries": "single"
+    }
+   ],
+   "pack_mohm": 15.0
+  },
+  "v2.3_proposal": {
+   "source": [
+    {
+     "name": "battery leads to the ECU AWG12 2 x 0.30 m",
+     "typ_mohm": 3.249,
+     "max_mohm": 3.249,
+     "tag": "LITERATURE+DESIGN",
+     "src": "v2.3 harness",
+     "carries": "single"
+    },
+    {
+     "name": "pack leads AWG14 2 x 0.10 m (stock pack leads)",
+     "typ_mohm": 1.722,
+     "max_mohm": 1.722,
+     "tag": "LITERATURE+ASSUMED",
+     "src": "AWG table at 30 C; length ASSUMED",
+     "carries": "single"
+    },
+    {
+     "name": "XT60 mated pair (2 contacts)",
+     "typ_mohm": 1.0,
+     "max_mohm": 2.0,
+     "tag": "ASSUMED",
+     "src": "TO-CONFIRM AMASS XT60 contact resistance; bench B-PWR-1 includes it",
+     "carries": "single"
+    },
+    {
+     "name": "F101 ATM 25 A + Keystone 3568 holder",
+     "typ_mohm": 3.0,
+     "max_mohm": 4.5,
+     "tag": "ASSUMED",
+     "src": "TO-CONFIRM Littelfuse 297 (MINI/ATM) datasheet cold-resistance column (not retrievable through the proxy on 2026-10-12)",
+     "carries": "single"
+    },
+    {
+     "name": "current shunt (INA181 sense)",
+     "typ_mohm": 2.0,
+     "max_mohm": 2.02,
+     "tag": "DESIGN",
+     "src": "ecu_design.py: INA181A1 x20 on 2 mOhm (1 % part)",
+     "carries": "single"
+    },
+    {
+     "name": "PCB VBAT_IN -> VBAT, 2 oz, 8 mm x 40 mm",
+     "typ_mohm": 1.328,
+     "max_mohm": 2.28,
+     "tag": "DERIVED",
+     "src": "copper pour; layout not routed",
+     "carries": "single"
+    }
+   ],
+   "common": [
+    {
+     "name": "F401 deleted (hard-short protection by F101 25 A; firmware e-fuse on the pad)",
+     "typ_mohm": 0.0,
+     "max_mohm": 0.0,
+     "tag": "DESIGN",
+     "src": "v2.3 proposal",
+     "carries": "single"
+    },
+    {
+     "name": "Q401 + Q403 AOD4185 in parallel at VGS -7.4 V (+10/20 % sharing)",
+     "typ_mohm": 8.422,
+     "max_mohm": 12.386,
+     "tag": "DATASHEET+DERIVED",
+     "src": "DATASHEET AOS AOD4185 Rev 4.2 (2024-06): RDS(on) 12.5/15 mOhm @ -10 V, 16/20 mOhm @ -4.5 V, 19/23 @ 125 C",
+     "carries": "single"
+    },
+    {
+     "name": "PCB VBAT -> TVC_PWR, 2 oz, 10 mm x 30 mm",
+     "typ_mohm": 0.797,
+     "max_mohm": 1.222,
+     "tag": "DERIVED",
+     "src": "copper pour",
+     "carries": "single"
+    }
+   ],
+   "branch": [
+    {
+     "name": "PCB TVC_PWR -> J401 and GND return",
+     "typ_mohm": 1.063,
+     "max_mohm": 1.425,
+     "tag": "DERIVED",
+     "src": "copper pour",
+     "carries": "single"
+    },
+    {
+     "name": "Micro-Fit 3.0 mated pair (V+ and GND contacts)",
+     "typ_mohm": 10.0,
+     "max_mohm": 20.0,
+     "tag": "ASSUMED",
+     "src": "TO-CONFIRM Molex Micro-Fit 3.0 product specification PS-43045 (low-level contact resistance; not retrievable 2026-10-12)",
+     "carries": "single"
+    },
+    {
+     "name": "extension AWG18 2 x 0.15 m, crimped onto the cut servo lead",
+     "typ_mohm": 6.531,
+     "max_mohm": 6.531,
+     "tag": "LITERATURE+ASSUMED",
+     "src": "v2.3 harness",
+     "carries": "single"
+    },
+    {
+     "name": "servo plug removed (lead cut, butt-spliced or crimped)",
+     "typ_mohm": 0.5,
+     "max_mohm": 1.0,
+     "tag": "ASSUMED",
+     "src": "splice/crimp joint pair",
+     "carries": "single"
+    }
+   ],
+   "pack_mohm": 15.0
+  }
+ },
+ "C_capability_vs_plug_voltage_n4.8": [
+  {
+   "V_plug": 6.4,
+   "Ts_Nm": 2.41,
+   "slew_worst_dps": 93.3,
+   "hold_min_Nm": 11.57,
+   "load_frac_worst": 0.211
+  },
+  {
+   "V_plug": 6.5,
+   "Ts_Nm": 2.473,
+   "slew_worst_dps": 95.2,
+   "hold_min_Nm": 11.87,
+   "load_frac_worst": 0.205
+  },
+  {
+   "V_plug": 6.6,
+   "Ts_Nm": 2.536,
+   "slew_worst_dps": 97.1,
+   "hold_min_Nm": 12.17,
+   "load_frac_worst": 0.2
+  },
+  {
+   "V_plug": 6.7,
+   "Ts_Nm": 2.599,
+   "slew_worst_dps": 99.0,
+   "hold_min_Nm": 12.47,
+   "load_frac_worst": 0.195
+  },
+  {
+   "V_plug": 6.8,
+   "Ts_Nm": 2.662,
+   "slew_worst_dps": 101.0,
+   "hold_min_Nm": 12.78,
+   "load_frac_worst": 0.191
+  },
+  {
+   "V_plug": 6.9,
+   "Ts_Nm": 2.725,
+   "slew_worst_dps": 103.0,
+   "hold_min_Nm": 13.08,
+   "load_frac_worst": 0.186
+  },
+  {
+   "V_plug": 7.0,
+   "Ts_Nm": 2.788,
+   "slew_worst_dps": 105.0,
+   "hold_min_Nm": 13.38,
+   "load_frac_worst": 0.182
+  },
+  {
+   "V_plug": 7.1,
+   "Ts_Nm": 2.851,
+   "slew_worst_dps": 107.1,
+   "hold_min_Nm": 13.69,
+   "load_frac_worst": 0.178
+  },
+  {
+   "V_plug": 7.2,
+   "Ts_Nm": 2.914,
+   "slew_worst_dps": 109.2,
+   "hold_min_Nm": 13.99,
+   "load_frac_worst": 0.174
+  },
+  {
+   "V_plug": 7.3,
+   "Ts_Nm": 2.977,
+   "slew_worst_dps": 111.3,
+   "hold_min_Nm": 14.29,
+   "load_frac_worst": 0.171
+  },
+  {
+   "V_plug": 7.4,
+   "Ts_Nm": 3.04,
+   "slew_worst_dps": 113.5,
+   "hold_min_Nm": 14.59,
+   "load_frac_worst": 0.167
+  },
+  {
+   "V_plug": 7.5,
+   "Ts_Nm": 3.177,
+   "slew_worst_dps": 117.0,
+   "hold_min_Nm": 15.25,
+   "load_frac_worst": 0.16
+  },
+  {
+   "V_plug": 7.6,
+   "Ts_Nm": 3.315,
+   "slew_worst_dps": 120.6,
+   "hold_min_Nm": 15.91,
+   "load_frac_worst": 0.153
+  },
+  {
+   "V_plug": 7.7,
+   "Ts_Nm": 3.452,
+   "slew_worst_dps": 124.2,
+   "hold_min_Nm": 16.57,
+   "load_frac_worst": 0.147
+  },
+  {
+   "V_plug": 7.8,
+   "Ts_Nm": 3.589,
+   "slew_worst_dps": 128.0,
+   "hold_min_Nm": 17.23,
+   "load_frac_worst": 0.141
+  },
+  {
+   "V_plug": 7.9,
+   "Ts_Nm": 3.727,
+   "slew_worst_dps": 131.8,
+   "hold_min_Nm": 17.89,
+   "load_frac_worst": 0.136
+  },
+  {
+   "V_plug": 8.0,
+   "Ts_Nm": 3.864,
+   "slew_worst_dps": 135.8,
+   "hold_min_Nm": 18.55,
+   "load_frac_worst": 0.131
+  },
+  {
+   "V_plug": 8.1,
+   "Ts_Nm": 4.001,
+   "slew_worst_dps": 140.0,
+   "hold_min_Nm": 19.21,
+   "load_frac_worst": 0.127
+  },
+  {
+   "V_plug": 8.2,
+   "Ts_Nm": 4.138,
+   "slew_worst_dps": 144.3,
+   "hold_min_Nm": 19.87,
+   "load_frac_worst": 0.123
+  },
+  {
+   "V_plug": 8.3,
+   "Ts_Nm": 4.276,
+   "slew_worst_dps": 148.8,
+   "hold_min_Nm": 20.52,
+   "load_frac_worst": 0.119
+  },
+  {
+   "V_plug": 8.4,
+   "Ts_Nm": 4.413,
+   "slew_worst_dps": 153.5,
+   "hold_min_Nm": 21.18,
+   "load_frac_worst": 0.115
+  }
+ ],
+ "plug_voltage_thresholds": {
+  "hold_equals_GNC_p99_15.6Nm_V": 7.553,
+  "slew_worst_100dps_V": 6.75,
+  "slew_worst_120dps_V": 7.583
+ },
+ "B_cases": [
+  {
+   "config": "basis_SIL_v2.2",
+   "column": "typ",
+   "pack_mohm": null,
+   "R_source_mohm": 15.0,
+   "R_common_mohm": 0.0,
+   "R_branch_mohm": 20.0,
+   "R_branch_equivalent_mohm": 20.0,
+   "note_equivalent": "per servo with both servos at equal current: 2 x common + branch (what the ECU constant kRBranchEqCal_ohm holds)",
+   "by_rest_voltage": [
+    {
+     "V_rest": 8.4,
+     "HOLD_V_plug": 7.895,
+     "HOLD_I_servo_A": 9.8,
+     "HOLD_sag_V": 0.505,
+     "hold_min_Nm": 17.86,
+     "hold_ge_p99": true,
+     "SLEW_V_plug": 8.305,
+     "SLEW_I_servo_A": 1.59,
+     "slew_worst_dps": 149.1
+    },
+    {
+     "V_rest": 8.3,
+     "HOLD_V_plug": 7.801,
+     "HOLD_I_servo_A": 9.69,
+     "HOLD_sag_V": 0.499,
+     "hold_min_Nm": 17.23,
+     "hold_ge_p99": true,
+     "SLEW_V_plug": 8.204,
+     "SLEW_I_servo_A": 1.62,
+     "slew_worst_dps": 144.5
+    },
+    {
+     "V_rest": 8.2,
+     "HOLD_V_plug": 7.706,
+     "HOLD_I_servo_A": 9.57,
+     "HOLD_sag_V": 0.494,
+     "hold_min_Nm": 16.61,
+     "hold_ge_p99": true,
+     "SLEW_V_plug": 8.102,
+     "SLEW_I_servo_A": 1.66,
+     "slew_worst_dps": 140.1
+    },
+    {
+     "V_rest": 8.1,
+     "HOLD_V_plug": 7.612,
+     "HOLD_I_servo_A": 9.46,
+     "HOLD_sag_V": 0.488,
+     "hold_min_Nm": 15.99,
+     "hold_ge_p99": true,
+     "SLEW_V_plug": 8.0,
+     "SLEW_I_servo_A": 1.7,
+     "slew_worst_dps": 135.8
+    },
+    {
+     "V_rest": 7.8,
+     "HOLD_V_plug": 7.329,
+     "HOLD_I_servo_A": 9.11,
+     "HOLD_sag_V": 0.471,
+     "hold_min_Nm": 14.38,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.695,
+     "SLEW_I_servo_A": 1.81,
+     "slew_worst_dps": 124.0
+    },
+    {
+     "V_rest": 7.6,
+     "HOLD_V_plug": 7.141,
+     "HOLD_I_servo_A": 8.89,
+     "HOLD_sag_V": 0.459,
+     "hold_min_Nm": 13.81,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.494,
+     "SLEW_I_servo_A": 1.82,
+     "slew_worst_dps": 116.8
+    },
+    {
+     "V_rest": 7.4,
+     "HOLD_V_plug": 6.952,
+     "HOLD_I_servo_A": 8.66,
+     "HOLD_sag_V": 0.448,
+     "hold_min_Nm": 13.24,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.293,
+     "SLEW_I_servo_A": 1.85,
+     "slew_worst_dps": 111.1
+    },
+    {
+     "V_rest": 7.0,
+     "HOLD_V_plug": 6.575,
+     "HOLD_I_servo_A": 8.2,
+     "HOLD_sag_V": 0.425,
+     "hold_min_Nm": 12.1,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.89,
+     "SLEW_I_servo_A": 1.9,
+     "slew_worst_dps": 102.8
+    },
+    {
+     "V_rest": 6.6,
+     "HOLD_V_plug": 6.198,
+     "HOLD_I_servo_A": 7.74,
+     "HOLD_sag_V": 0.402,
+     "hold_min_Nm": 10.96,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.491,
+     "SLEW_I_servo_A": 1.88,
+     "slew_worst_dps": 95.0
+    }
+   ],
+   "V_rest_needed_for_7.6V_hold": 8.087,
+   "V_rest_needed_for_hold_p99": 8.037
+  },
+  {
+   "config": "v2.2_as_drawn",
+   "column": "typ",
+   "pack_mohm": 15.0,
+   "R_source_mohm": 32.27,
+   "R_common_mohm": 22.08,
+   "R_branch_mohm": 32.38,
+   "R_branch_equivalent_mohm": 76.54,
+   "note_equivalent": "per servo with both servos at equal current: 2 x common + branch (what the ECU constant kRBranchEqCal_ohm holds)",
+   "by_rest_voltage": [
+    {
+     "V_rest": 8.4,
+     "HOLD_V_plug": 7.118,
+     "HOLD_I_servo_A": 8.86,
+     "HOLD_sag_V": 1.282,
+     "hold_min_Nm": 13.74,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 8.091,
+     "SLEW_I_servo_A": 1.96,
+     "slew_worst_dps": 139.6
+    },
+    {
+     "V_rest": 8.3,
+     "HOLD_V_plug": 7.033,
+     "HOLD_I_servo_A": 8.75,
+     "HOLD_sag_V": 1.267,
+     "hold_min_Nm": 13.48,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.99,
+     "SLEW_I_servo_A": 1.97,
+     "slew_worst_dps": 135.4
+    },
+    {
+     "V_rest": 8.2,
+     "HOLD_V_plug": 6.947,
+     "HOLD_I_servo_A": 8.65,
+     "HOLD_sag_V": 1.253,
+     "hold_min_Nm": 13.22,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.888,
+     "SLEW_I_servo_A": 1.98,
+     "slew_worst_dps": 131.3
+    },
+    {
+     "V_rest": 8.1,
+     "HOLD_V_plug": 6.862,
+     "HOLD_I_servo_A": 8.55,
+     "HOLD_sag_V": 1.238,
+     "hold_min_Nm": 12.97,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.786,
+     "SLEW_I_servo_A": 2.0,
+     "slew_worst_dps": 127.5
+    },
+    {
+     "V_rest": 7.8,
+     "HOLD_V_plug": 6.606,
+     "HOLD_I_servo_A": 8.24,
+     "HOLD_sag_V": 1.194,
+     "hold_min_Nm": 12.19,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.481,
+     "SLEW_I_servo_A": 2.03,
+     "slew_worst_dps": 116.3
+    },
+    {
+     "V_rest": 7.6,
+     "HOLD_V_plug": 6.435,
+     "HOLD_I_servo_A": 8.03,
+     "HOLD_sag_V": 1.165,
+     "hold_min_Nm": 11.68,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.276,
+     "SLEW_I_servo_A": 2.06,
+     "slew_worst_dps": 110.8
+    },
+    {
+     "V_rest": 7.4,
+     "HOLD_V_plug": 6.264,
+     "HOLD_I_servo_A": 7.82,
+     "HOLD_sag_V": 1.136,
+     "hold_min_Nm": 11.16,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.081,
+     "SLEW_I_servo_A": 2.03,
+     "slew_worst_dps": 106.7
+    },
+    {
+     "V_rest": 7.0,
+     "HOLD_V_plug": 5.923,
+     "HOLD_I_servo_A": 7.41,
+     "HOLD_sag_V": 1.077,
+     "hold_min_Nm": 10.14,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.695,
+     "SLEW_I_servo_A": 1.93,
+     "slew_worst_dps": 98.9
+    },
+    {
+     "V_rest": 6.6,
+     "HOLD_V_plug": 5.581,
+     "HOLD_I_servo_A": 6.99,
+     "HOLD_sag_V": 1.019,
+     "hold_min_Nm": 9.11,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.309,
+     "SLEW_I_servo_A": 1.84,
+     "slew_worst_dps": 91.6
+    }
+   ],
+   "V_rest_needed_for_7.6V_hold": 8.964,
+   "V_rest_needed_for_hold_p99": 8.909
+  },
+  {
+   "config": "v2.2_as_drawn",
+   "column": "max",
+   "pack_mohm": 15.0,
+   "R_source_mohm": 35.74,
+   "R_common_mohm": 30.49,
+   "R_branch_mohm": 53.23,
+   "R_branch_equivalent_mohm": 114.22,
+   "note_equivalent": "per servo with both servos at equal current: 2 x common + branch (what the ECU constant kRBranchEqCal_ohm holds)",
+   "by_rest_voltage": [
+    {
+     "V_rest": 8.4,
+     "HOLD_V_plug": 6.793,
+     "HOLD_I_servo_A": 8.46,
+     "HOLD_sag_V": 1.607,
+     "hold_min_Nm": 12.76,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.979,
+     "SLEW_I_servo_A": 2.07,
+     "slew_worst_dps": 135.0
+    },
+    {
+     "V_rest": 8.3,
+     "HOLD_V_plug": 6.711,
+     "HOLD_I_servo_A": 8.36,
+     "HOLD_sag_V": 1.589,
+     "hold_min_Nm": 12.5,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.878,
+     "SLEW_I_servo_A": 2.08,
+     "slew_worst_dps": 131.0
+    },
+    {
+     "V_rest": 8.2,
+     "HOLD_V_plug": 6.63,
+     "HOLD_I_servo_A": 8.26,
+     "HOLD_sag_V": 1.57,
+     "hold_min_Nm": 12.26,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.776,
+     "SLEW_I_servo_A": 2.09,
+     "slew_worst_dps": 127.1
+    },
+    {
+     "V_rest": 8.1,
+     "HOLD_V_plug": 6.548,
+     "HOLD_I_servo_A": 8.17,
+     "HOLD_sag_V": 1.552,
+     "hold_min_Nm": 12.01,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.673,
+     "SLEW_I_servo_A": 2.11,
+     "slew_worst_dps": 123.2
+    },
+    {
+     "V_rest": 7.8,
+     "HOLD_V_plug": 6.303,
+     "HOLD_I_servo_A": 7.87,
+     "HOLD_sag_V": 1.497,
+     "hold_min_Nm": 11.28,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.373,
+     "SLEW_I_servo_A": 2.11,
+     "slew_worst_dps": 112.9
+    },
+    {
+     "V_rest": 7.6,
+     "HOLD_V_plug": 6.14,
+     "HOLD_I_servo_A": 7.67,
+     "HOLD_sag_V": 1.46,
+     "hold_min_Nm": 10.79,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.182,
+     "SLEW_I_servo_A": 2.06,
+     "slew_worst_dps": 108.8
+    },
+    {
+     "V_rest": 7.4,
+     "HOLD_V_plug": 5.977,
+     "HOLD_I_servo_A": 7.47,
+     "HOLD_sag_V": 1.423,
+     "hold_min_Nm": 10.3,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.991,
+     "SLEW_I_servo_A": 2.01,
+     "slew_worst_dps": 104.8
+    },
+    {
+     "V_rest": 7.0,
+     "HOLD_V_plug": 5.65,
+     "HOLD_I_servo_A": 7.08,
+     "HOLD_sag_V": 1.35,
+     "hold_min_Nm": 9.32,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.609,
+     "SLEW_I_servo_A": 1.91,
+     "slew_worst_dps": 97.3
+    },
+    {
+     "V_rest": 6.6,
+     "HOLD_V_plug": 5.324,
+     "HOLD_I_servo_A": 6.68,
+     "HOLD_sag_V": 1.276,
+     "hold_min_Nm": 8.34,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.227,
+     "SLEW_I_servo_A": 1.81,
+     "slew_worst_dps": 90.0
+    }
+   ],
+   "V_rest_needed_for_7.6V_hold": 9.389,
+   "V_rest_needed_for_hold_p99": 9.332
+  },
+  {
+   "config": "v2.3_proposal",
+   "column": "typ",
+   "pack_mohm": 15.0,
+   "R_source_mohm": 27.3,
+   "R_common_mohm": 9.22,
+   "R_branch_mohm": 18.09,
+   "R_branch_equivalent_mohm": 36.53,
+   "note_equivalent": "per servo with both servos at equal current: 2 x common + branch (what the ECU constant kRBranchEqCal_ohm holds)",
+   "by_rest_voltage": [
+    {
+     "V_rest": 8.4,
+     "HOLD_V_plug": 7.521,
+     "HOLD_I_servo_A": 9.35,
+     "HOLD_sag_V": 0.879,
+     "hold_min_Nm": 15.39,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 8.209,
+     "SLEW_I_servo_A": 1.8,
+     "slew_worst_dps": 144.7
+    },
+    {
+     "V_rest": 8.3,
+     "HOLD_V_plug": 7.431,
+     "HOLD_I_servo_A": 9.24,
+     "HOLD_sag_V": 0.869,
+     "hold_min_Nm": 14.79,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 8.105,
+     "SLEW_I_servo_A": 1.84,
+     "slew_worst_dps": 140.2
+    },
+    {
+     "V_rest": 8.2,
+     "HOLD_V_plug": 7.341,
+     "HOLD_I_servo_A": 9.13,
+     "HOLD_sag_V": 0.859,
+     "hold_min_Nm": 14.41,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 8.003,
+     "SLEW_I_servo_A": 1.86,
+     "slew_worst_dps": 135.9
+    },
+    {
+     "V_rest": 8.1,
+     "HOLD_V_plug": 7.251,
+     "HOLD_I_servo_A": 9.02,
+     "HOLD_sag_V": 0.849,
+     "hold_min_Nm": 14.14,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.902,
+     "SLEW_I_servo_A": 1.87,
+     "slew_worst_dps": 131.9
+    },
+    {
+     "V_rest": 7.8,
+     "HOLD_V_plug": 6.981,
+     "HOLD_I_servo_A": 8.69,
+     "HOLD_sag_V": 0.819,
+     "hold_min_Nm": 13.32,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.599,
+     "SLEW_I_servo_A": 1.91,
+     "slew_worst_dps": 120.6
+    },
+    {
+     "V_rest": 7.6,
+     "HOLD_V_plug": 6.801,
+     "HOLD_I_servo_A": 8.47,
+     "HOLD_sag_V": 0.799,
+     "hold_min_Nm": 12.78,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.396,
+     "SLEW_I_servo_A": 1.93,
+     "slew_worst_dps": 113.4
+    },
+    {
+     "V_rest": 7.4,
+     "HOLD_V_plug": 6.621,
+     "HOLD_I_servo_A": 8.25,
+     "HOLD_sag_V": 0.779,
+     "hold_min_Nm": 12.23,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.194,
+     "SLEW_I_servo_A": 1.96,
+     "slew_worst_dps": 109.1
+    },
+    {
+     "V_rest": 7.0,
+     "HOLD_V_plug": 6.26,
+     "HOLD_I_servo_A": 7.82,
+     "HOLD_sag_V": 0.74,
+     "hold_min_Nm": 11.15,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.794,
+     "SLEW_I_servo_A": 1.96,
+     "slew_worst_dps": 100.9
+    },
+    {
+     "V_rest": 6.6,
+     "HOLD_V_plug": 5.9,
+     "HOLD_I_servo_A": 7.38,
+     "HOLD_sag_V": 0.7,
+     "hold_min_Nm": 10.07,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.403,
+     "SLEW_I_servo_A": 1.86,
+     "slew_worst_dps": 93.4
+    }
+   ],
+   "V_rest_needed_for_7.6V_hold": 8.488,
+   "V_rest_needed_for_hold_p99": 8.436
+  },
+  {
+   "config": "v2.3_proposal",
+   "column": "max",
+   "pack_mohm": 15.0,
+   "R_source_mohm": 30.77,
+   "R_common_mohm": 13.61,
+   "R_branch_mohm": 28.96,
+   "R_branch_equivalent_mohm": 56.17,
+   "note_equivalent": "per servo with both servos at equal current: 2 x common + branch (what the ECU constant kRBranchEqCal_ohm holds)",
+   "by_rest_voltage": [
+    {
+     "V_rest": 8.4,
+     "HOLD_V_plug": 7.3,
+     "HOLD_I_servo_A": 9.08,
+     "HOLD_sag_V": 1.1,
+     "hold_min_Nm": 14.29,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 8.144,
+     "SLEW_I_servo_A": 1.91,
+     "slew_worst_dps": 141.9
+    },
+    {
+     "V_rest": 8.3,
+     "HOLD_V_plug": 7.213,
+     "HOLD_I_servo_A": 8.97,
+     "HOLD_sag_V": 1.087,
+     "hold_min_Nm": 14.03,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 8.044,
+     "SLEW_I_servo_A": 1.91,
+     "slew_worst_dps": 137.6
+    },
+    {
+     "V_rest": 8.2,
+     "HOLD_V_plug": 7.125,
+     "HOLD_I_servo_A": 8.87,
+     "HOLD_sag_V": 1.075,
+     "hold_min_Nm": 13.77,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.943,
+     "SLEW_I_servo_A": 1.93,
+     "slew_worst_dps": 133.5
+    },
+    {
+     "V_rest": 8.1,
+     "HOLD_V_plug": 7.038,
+     "HOLD_I_servo_A": 8.76,
+     "HOLD_sag_V": 1.062,
+     "hold_min_Nm": 13.5,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.841,
+     "SLEW_I_servo_A": 1.94,
+     "slew_worst_dps": 129.6
+    },
+    {
+     "V_rest": 7.8,
+     "HOLD_V_plug": 6.776,
+     "HOLD_I_servo_A": 8.44,
+     "HOLD_sag_V": 1.024,
+     "hold_min_Nm": 12.7,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.537,
+     "SLEW_I_servo_A": 1.98,
+     "slew_worst_dps": 118.3
+    },
+    {
+     "V_rest": 7.6,
+     "HOLD_V_plug": 6.601,
+     "HOLD_I_servo_A": 8.23,
+     "HOLD_sag_V": 0.999,
+     "hold_min_Nm": 12.17,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.334,
+     "SLEW_I_servo_A": 2.0,
+     "slew_worst_dps": 112.0
+    },
+    {
+     "V_rest": 7.4,
+     "HOLD_V_plug": 6.426,
+     "HOLD_I_servo_A": 8.02,
+     "HOLD_sag_V": 0.974,
+     "hold_min_Nm": 11.65,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.13,
+     "SLEW_I_servo_A": 2.03,
+     "slew_worst_dps": 107.7
+    },
+    {
+     "V_rest": 7.0,
+     "HOLD_V_plug": 6.076,
+     "HOLD_I_servo_A": 7.59,
+     "HOLD_sag_V": 0.924,
+     "hold_min_Nm": 10.6,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.74,
+     "SLEW_I_servo_A": 1.95,
+     "slew_worst_dps": 99.8
+    },
+    {
+     "V_rest": 6.6,
+     "HOLD_V_plug": 5.726,
+     "HOLD_I_servo_A": 7.17,
+     "HOLD_sag_V": 0.874,
+     "hold_min_Nm": 9.55,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.352,
+     "SLEW_I_servo_A": 1.85,
+     "slew_worst_dps": 92.4
+    }
+   ],
+   "V_rest_needed_for_7.6V_hold": 8.742,
+   "V_rest_needed_for_hold_p99": 8.689
+  },
+  {
+   "config": "v2.3_proposal",
+   "column": "typ",
+   "pack_mohm": 6.0,
+   "R_source_mohm": 18.3,
+   "R_common_mohm": 9.22,
+   "R_branch_mohm": 18.09,
+   "R_branch_equivalent_mohm": 36.53,
+   "note_equivalent": "per servo with both servos at equal current: 2 x common + branch (what the ECU constant kRBranchEqCal_ohm holds)",
+   "by_rest_voltage": [
+    {
+     "V_rest": 8.4,
+     "HOLD_V_plug": 7.684,
+     "HOLD_I_servo_A": 9.54,
+     "HOLD_sag_V": 0.716,
+     "hold_min_Nm": 16.46,
+     "hold_ge_p99": true,
+     "SLEW_V_plug": 8.257,
+     "SLEW_I_servo_A": 1.7,
+     "slew_worst_dps": 146.9
+    },
+    {
+     "V_rest": 8.3,
+     "HOLD_V_plug": 7.592,
+     "HOLD_I_servo_A": 9.43,
+     "HOLD_sag_V": 0.708,
+     "hold_min_Nm": 15.86,
+     "hold_ge_p99": true,
+     "SLEW_V_plug": 8.154,
+     "SLEW_I_servo_A": 1.74,
+     "slew_worst_dps": 142.3
+    },
+    {
+     "V_rest": 8.2,
+     "HOLD_V_plug": 7.5,
+     "HOLD_I_servo_A": 9.32,
+     "HOLD_sag_V": 0.7,
+     "hold_min_Nm": 15.25,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 8.051,
+     "SLEW_I_servo_A": 1.78,
+     "slew_worst_dps": 138.0
+    },
+    {
+     "V_rest": 8.1,
+     "HOLD_V_plug": 7.408,
+     "HOLD_I_servo_A": 9.21,
+     "HOLD_sag_V": 0.692,
+     "hold_min_Nm": 14.64,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.948,
+     "SLEW_I_servo_A": 1.83,
+     "slew_worst_dps": 133.7
+    },
+    {
+     "V_rest": 7.8,
+     "HOLD_V_plug": 7.133,
+     "HOLD_I_servo_A": 8.88,
+     "HOLD_sag_V": 0.667,
+     "hold_min_Nm": 13.79,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.646,
+     "SLEW_I_servo_A": 1.86,
+     "slew_worst_dps": 122.2
+    },
+    {
+     "V_rest": 7.6,
+     "HOLD_V_plug": 6.949,
+     "HOLD_I_servo_A": 8.65,
+     "HOLD_sag_V": 0.651,
+     "hold_min_Nm": 13.23,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.444,
+     "SLEW_I_servo_A": 1.88,
+     "slew_worst_dps": 115.0
+    },
+    {
+     "V_rest": 7.4,
+     "HOLD_V_plug": 6.765,
+     "HOLD_I_servo_A": 8.43,
+     "HOLD_sag_V": 0.635,
+     "hold_min_Nm": 12.67,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.242,
+     "SLEW_I_servo_A": 1.91,
+     "slew_worst_dps": 110.1
+    },
+    {
+     "V_rest": 7.0,
+     "HOLD_V_plug": 6.398,
+     "HOLD_I_servo_A": 7.98,
+     "HOLD_sag_V": 0.602,
+     "hold_min_Nm": 11.56,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.838,
+     "SLEW_I_servo_A": 1.97,
+     "slew_worst_dps": 101.8
+    },
+    {
+     "V_rest": 6.6,
+     "HOLD_V_plug": 6.031,
+     "HOLD_I_servo_A": 7.54,
+     "HOLD_sag_V": 0.569,
+     "hold_min_Nm": 10.46,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.445,
+     "SLEW_I_servo_A": 1.87,
+     "slew_worst_dps": 94.2
+    }
+   ],
+   "V_rest_needed_for_7.6V_hold": 8.309,
+   "V_rest_needed_for_hold_p99": 8.258
+  },
+  {
+   "config": "v2.3_proposal",
+   "column": "typ",
+   "pack_mohm": 24.0,
+   "R_source_mohm": 36.3,
+   "R_common_mohm": 9.22,
+   "R_branch_mohm": 18.09,
+   "R_branch_equivalent_mohm": 36.53,
+   "note_equivalent": "per servo with both servos at equal current: 2 x common + branch (what the ECU constant kRBranchEqCal_ohm holds)",
+   "by_rest_voltage": [
+    {
+     "V_rest": 8.4,
+     "HOLD_V_plug": 7.364,
+     "HOLD_I_servo_A": 9.16,
+     "HOLD_sag_V": 1.036,
+     "hold_min_Nm": 14.48,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 8.158,
+     "SLEW_I_servo_A": 1.89,
+     "slew_worst_dps": 142.5
+    },
+    {
+     "V_rest": 8.3,
+     "HOLD_V_plug": 7.276,
+     "HOLD_I_servo_A": 9.05,
+     "HOLD_sag_V": 1.024,
+     "hold_min_Nm": 14.22,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 8.056,
+     "SLEW_I_servo_A": 1.9,
+     "slew_worst_dps": 138.2
+    },
+    {
+     "V_rest": 8.2,
+     "HOLD_V_plug": 7.188,
+     "HOLD_I_servo_A": 8.94,
+     "HOLD_sag_V": 1.012,
+     "hold_min_Nm": 13.95,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.956,
+     "SLEW_I_servo_A": 1.9,
+     "slew_worst_dps": 134.0
+    },
+    {
+     "V_rest": 8.1,
+     "HOLD_V_plug": 7.1,
+     "HOLD_I_servo_A": 8.84,
+     "HOLD_sag_V": 1.0,
+     "hold_min_Nm": 13.69,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.855,
+     "SLEW_I_servo_A": 1.92,
+     "slew_worst_dps": 130.1
+    },
+    {
+     "V_rest": 7.8,
+     "HOLD_V_plug": 6.835,
+     "HOLD_I_servo_A": 8.51,
+     "HOLD_sag_V": 0.965,
+     "hold_min_Nm": 12.88,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.55,
+     "SLEW_I_servo_A": 1.95,
+     "slew_worst_dps": 118.8
+    },
+    {
+     "V_rest": 7.6,
+     "HOLD_V_plug": 6.658,
+     "HOLD_I_servo_A": 8.3,
+     "HOLD_sag_V": 0.942,
+     "hold_min_Nm": 12.34,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.348,
+     "SLEW_I_servo_A": 1.98,
+     "slew_worst_dps": 112.4
+    },
+    {
+     "V_rest": 7.4,
+     "HOLD_V_plug": 6.481,
+     "HOLD_I_servo_A": 8.08,
+     "HOLD_sag_V": 0.919,
+     "hold_min_Nm": 11.81,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 7.145,
+     "SLEW_I_servo_A": 2.01,
+     "slew_worst_dps": 108.0
+    },
+    {
+     "V_rest": 7.0,
+     "HOLD_V_plug": 6.128,
+     "HOLD_I_servo_A": 7.66,
+     "HOLD_sag_V": 0.872,
+     "hold_min_Nm": 10.75,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.751,
+     "SLEW_I_servo_A": 1.95,
+     "slew_worst_dps": 100.0
+    },
+    {
+     "V_rest": 6.6,
+     "HOLD_V_plug": 5.775,
+     "HOLD_I_servo_A": 7.23,
+     "HOLD_sag_V": 0.825,
+     "hold_min_Nm": 9.7,
+     "hold_ge_p99": false,
+     "SLEW_V_plug": 6.362,
+     "SLEW_I_servo_A": 1.85,
+     "slew_worst_dps": 92.6
+    }
+   ],
+   "V_rest_needed_for_7.6V_hold": 8.667,
+   "V_rest_needed_for_hold_p99": 8.614
+  }
+ ],
+ "sensitivity_at_design_point": {
+  "dHold_dV_Nm_per_V": 6.6,
+  "I_stall_at_7.6V_A": 9.44,
+  "per_mohm_source_V": 0.0199,
+  "per_mohm_common_V": 0.0189,
+  "per_mohm_branch_V": 0.0094
+ },
+ "D_ecu_constants": {
+  "kTvcSupplyMin_V": {
+   "v": 7.6,
+   "tag": "LEAD",
+   "src": "design point >= 7.6 V at the servo under peak (stall) load"
+  },
+  "kTvcSupplyHyst_V": {
+   "v": 0.1,
+   "tag": "DESIGN"
+  },
+  "kTvcSupplyTime_s": {
+   "v": 0.1,
+   "tag": "DESIGN",
+   "note": "set persistence; clear after 0.5 s above min + hysteresis"
+  },
+  "kTvcServoDesign_A": {
+   "v": 9.44,
+   "tag": "DERIVED",
+   "src": "DATASHEET stall current 7.5 A @ 6.0 V, 9.2 A @ 7.4 V, linear to 7.6 V"
+  },
+  "kAuxDesign_A": {
+   "v": 1.0,
+   "tag": "ASSUMED",
+   "note": "landing-burn other loads; roll RCS adds up to 2.8 A"
+  },
+  "kRSrcCal_ohm": {
+   "v": 0.015,
+   "tag": "ASSUMED (LEAD-accepted basis)",
+   "replace_with": "bench B-PWR-1 (and the in-situ estimate every flight)"
+  },
+  "kRBranchEqCal_ohm": {
+   "v": 0.02,
+   "tag": "ASSUMED (LEAD-accepted basis)",
+   "replace_with": "bench B-PWR-2"
+  },
+  "predicted_hold_plug_V_at_ARM_permit_with_basis": 7.612,
+  "note": "with the accepted basis, the 8.1 V rest permit and the 7.6 V predicted-voltage check coincide; with bench values worse than the basis the predicted-voltage check refuses ARM first (Abort TVC_SUPPLY = 19)"
+ },
+ "verdict": {
+  "basis": "The accepted basis (source 15 + branch 20 mOhm, nothing shared) gives 7.61 V at the plug with both servos stalled from the 8.1 V permit.",
+  "v2.2_as_drawn_typ": "equivalent branch 76.5 mOhm (vs 20 assumed) and source 32.3 mOhm: 6.86 V at the plug, holding 13.0 N m (p99 15.6) at the 8.1 V permit; slew is not the issue (7.79 V, 128 deg/s)",
+  "v2.3_proposal_typ": "equivalent branch 36.5 mOhm: 7.25 V at the plug, holding 14.1 N m at 8.1 V; rest voltage for 7.6 V: 8.49 V",
+  "v2.3_low_IR_pack_typ": "with a 6 mOhm pack: 7.41 V at the plug, holding 14.6 N m at 8.1 V; rest voltage for 7.6 V: 8.31 V",
+  "reading": "The holding case (both servos at stall, ~9.4 A each) sets the supply requirement, not the slew (~1-2 A per servo). Every 1 mOhm in the shared source costs 0.020 V, in the TVC common path 0.019 V and in one servo branch 0.009 V; near the design point the holding moment moves 6.60 N m per volt."
+ }
+}

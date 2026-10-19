@@ -1,0 +1,132 @@
+{
+ "version": "m2_rev4_v32new v1.0",
+ "date": "2026-10-19",
+ "items": [
+  {
+   "index": 11,
+   "path": "/landing_mass_window_kg (and the planning landing mass)",
+   "REV_GNC_5_verdict": "NEW (not reviewed)",
+   "proposal_rev4": "Widen landing_mass_window_kg to the flown A1 set at 210 m on v3.5.1: dispersed touchdown mass 14.18-18.13 kg (p01 14.50, p99 17.48 kg) over the main bases and line states (N=1000 per base). The v3.1 upper bound 16.0 kg is exceeded by 52-53 % of the flown runs; the lead's v3.5.1 landing estimate 16.15 kg lies inside the flown set (42-43 % of runs at or above it, P(80 g) 0.974-0.986 there against 0.986-0.991 below; unpaired, not a test). Nominal deterministic touchdown mass 16.11 kg (A1_none liq, tank at 0.58 m).",
+   "status": "NEW, for REV-GNC-5 delta re-check",
+   "tags": "DERIVED from SIM tables",
+   "evidence": [
+    {
+     "path": "/home/claude/work/space/out/rev4/p2/landing_mass_coverage_h210.json",
+     "sha256_16": "d40472c8d92eaac9"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/p2/p2_rev4.json",
+     "sha256_16": "68cf1f643effd5b9"
+    }
+   ]
+  },
+  {
+   "index": 12,
+   "path": "/tvc/ENG-11 structure-servo stiffness requirement (to mechanical.json / electronics.json owners via the lead)",
+   "REV_GNC_5_verdict": "NEW (not reviewed)",
+   "proposal_rev4": "ENG-11 final (DERIVED, linear, V5c structure as is, nominal J 1.6e-3 kg m2, V5c kinematics, fixed ECU notch Q 1 / -12 dB on the B-TVC-1 centre-pose mode +/-5 %, ENG-07d GM >= 6 dB on every floor20 corner): K_s 58 N m/rad FAILS (GM 3.09 dB alpha / 0.34 dB beta). On a 10 N m/rad grid 70-270 both axes pass together at 100-130, 190-190, 220-270 N m/rad and fail at 140-180 and 200-210. Inside 100-130 N m/rad the worst floor20 corner gives upper GM 6.18 dB (alpha) / 6.03 dB (beta), smallest |PM| over all gain crossings 23.8 / 23.3 deg, modulus margin >= 0.354, rigid-loop |PM| with the lowest notch >= 23.5 deg. Below 100 the failures are the landing-floor / max-q corners (beta needs >= 100, alpha >= 80) and do not move with the bending mode. The failures above 130 sit where an engine rocking mode at full tank meets the ASSUMED first bending mode (24.3 Hz full / 25.64 Hz landing, PETG tube E 2.0 GPa ASSUMED): scaling the bending frequency by 0.9 / 1.1 flips 6 of 16 tested corners; at 0.9 x bending beta fails at K_s 116 / 145 / 174 (GM 0.28 / 1.70 / 1.29 dB) and alpha at 116 (2.15 dB), while alpha 145 passes at both shifts. The grid gives no simple separation rule (beta passes at 220-270 with its pose range spanning the bending frequency). No K_s in 58-174 N m/rad is robust to a -10 % bending error with one fixed notch. The 100-130 window also fails at the J 2.7e-3 corner (K_s 116 beta 5.9 dB) and with the n48 kinematics convention (beta 2.8 dB). Margins above 6 dB are 0.03-0.3 dB. FINAL REQUIREMENT PROPOSED: (1) servo output stiffness K_s >= 100 N m/rad, measured at B-TVC-1 together with J and the reflected-inertia convention (replaces the interim 'K_s >= 116'); (2) the vehicle first bending mode (full and landing) is MEASURED or computed from the airframe (TO-VERIFY: airframe owner / Mechanical; the PETG tube value is a placeholder), and the TVC margins are re-run on it before K_s is frozen. At the ASSUMED bending mode, K_s 100-130 N m/rad is the window to design to. The ksmin / mink bisection numbers of m2_eng11 v1.1 (alpha 157.0, beta 95.4 N m/rad) are SUPERSEDED: they assume monotone pass/fail. The 6-DOF Monte Carlo (SIM, N=500/base) loses no landing for any arm, K_s 58 included; it does not carry the linear flex corner set, so the requirement rests on the linear margins. Gimbal pocketing (206 (5)) may proceed only with an S-3D re-run giving V5c-class structure stiffness at every pose. RESEARCH PROPOSAL: a second ECU notch on the measured bending mode; hypothesis: it removes the coincidence failures; comparator: the single notch; evidence: this grid and the 0.9 / 1.1 shift re-run with the second notch; refutation: any floor20 corner below 6 dB for K_s 100-270 at 0.9-1.1 x bending.",
+   "status": "NEW, for REV-GNC-5 delta re-check",
+   "tags": "DERIVED (linear) / SIM (6-DOF) / ASSUMED (K_s, J, bending, damping)",
+   "evidence": [
+    {
+     "path": "/home/claude/work/space/out/rev4/eng11/lin_v351/eng11_final.json",
+     "sha256_16": "47190558a3ae45e3"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/eng11/lin_v351/eng11_grid.json",
+     "sha256_16": "540a11f66863dbda"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/eng11/lin_v351/eng11_pose.json",
+     "sha256_16": "add964ad0c71fdc6"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/eng11/lin_v351/eng11_sens.json",
+     "sha256_16": "b5ac2ea8478a10b1"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/eng11/lin_v351/eng11_ends.json",
+     "sha256_16": "476f7e909e42e57b"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/eng11/lin_v351/eng11_ksmin.json",
+     "sha256_16": "5fce532c7da0fea5"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/eng11/lin_v351/eng11_mink.json",
+     "sha256_16": "15939b1fce4803a4"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/eng11/fly_v351_h210/eng11_fly.json",
+     "sha256_16": "600a9708c35586b8"
+    }
+   ]
+  },
+  {
+   "index": 13,
+   "path": "/flight_software/gimbal_fault_monitor (RE-24)",
+   "REV_GNC_5_verdict": "NEW (not reviewed)",
+   "proposal_rev4": "RE-24 answer (SIM, sim6 v2.13-dev amendment J, bit-check v1.1 ALL PASS, liq|G73|v351|h210, N=500 per base, jam bound ASSUMED from Electronics S6/SIL v2.10: 1.5 deg + 40 ms x model rate, 50 ms): an UNDETECTED gimbal jam at the bound does not lose a landing: 31 undetected landing-burn jam runs per base per servo, every one lands exactly as its no-jam twin (A1_none servo A 30/31 vs ref 30, servo B 29/31 vs 29; A1J_pc 31/31 vs 31, 30/31 vs 30; p = 1). Nominal flights: 0 false GIMBAL_FAULT aborts in 1000 (mon2), largest no-jam excursion of the monitor metric 0.18 deg against 1.5 deg. Detected jams are another matter: a landing-burn jam lands in 0.144-0.150 of runs if flown on and 0.086-0.088 with the monitor's abort (detected A1_none servo A: continue 42/469, abort 13/469); a coast or ascent jam is lost either way (P 0.000-0.002). Landed fraction by time-to-go at the jam: [0, 1) s 59/84, [1, 2) s 12/210, >= 2 s about 0. So the abort costs landings in the last ~1 s; whether to inhibit the GIMBAL_FAULT abort near touchdown is a safety decision for the lead (a jammed engine at up to ~20 deg may leave the range safety envelope) and is not proposed here. Not modelled: stall current sag on the shared supply, encoder faults, a roll recovery mode.",
+   "status": "NEW, for REV-GNC-5 delta re-check",
+   "tags": "SIM / ASSUMED (SIL bound)",
+   "evidence": [
+    {
+     "path": "/home/claude/work/space/out/rev4/re24/v351_h210/re24.json",
+     "sha256_16": "b2e784adbfe205be"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/bitcheck_v213/bitcheck_v213_func.json",
+     "sha256_16": "1f4b6d7aa78de31d"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/bitcheck_v213/bitcheck_v213_offparts.json",
+     "sha256_16": "4f4449fde2c8bd3b"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/bitcheck_v213/bitcheck_v213_func_v1.0_FAILS.json",
+     "sha256_16": "a50b5d740b1cdb31"
+    }
+   ]
+  },
+  {
+   "index": 14,
+   "path": "/rev2/amendment_V_pc_invalid (R2 v2): answers to the lead (2026-10-13 ~19:05Z) and REV-ELEC-2 R2-01 / line 216 (1)",
+   "REV_GNC_5_verdict": "NEW (not reviewed)",
+   "proposal_rev4": "(a) Counting start and flush, as implemented in sim6 V2 (gnc_dev6/7): E2 = the 6-DOF light (rel_dt 0); Pc is invalid from E2 + pcf_dt (pcf_dt 0 in the decided set). Counting starts on the first 1 ms step at which both hold and the 100 Hz frames are then taken every 10 ms from that step (frame phase tied to the counting start, not to a free-running FC clock: TO-VERIFY against the flight FC). Mode 3 (the R2 v2 candidate): the axial specific force is filtered continuously (first order, fct_tau 20 ms) from the drogue phase and is NOT flushed at E2 or at the Pc-invalid onset; the reference and the descent rate are sampled at E2 and the drag term is compensated by (vz/vz(E2))^2. Release needs 3 consecutive frames >= 37.16 N (3-frame running minimum) and the engine lit; not confirmed by E2 + pcf_tmax -> abort (hold). Consequence: lit thrust before a later flame-out stays in the filter for about 3 tau = 60 ms, so a vehicle that lights and dies 10-20 ms after E2 can meet the 3-frame rule on carried-over thrust; GNC's flown flame-out population is the never-lit cold-flow design bound with onsets 0 / 5 / 10 ms and does not contain this case. The sim also gates release on the engine-lit truth (ECU RUN), which a real ECU without valid Pc cannot know; GNC's 'released dead vehicle' counts are therefore computed from the window statistics, not from flown releases. Proposal: re-initialise the mode-3 filter at the Pc-invalid onset (or start counting at onset + 3 tau) and re-run the R2 v2 statistics after Electronics' S17 sweep (onsets 1-50 ms x frame phases x noise). (b) The 20.85 N W10 < 6 bound is the largest sim R2 estimate over the W10 < 6 flame-out runs (rev2, 0.5 s). It contains the modelled ADIS16470 white noise (100 ug/rtHz ASSUMED, about 0.06 N rms on the estimate after the 20 ms filter at ~16 kg, DERIVED) and the bias / scale / mass-estimate dispersions. It does NOT contain an FC frame noise of 5 N rms (about 90 x the modelled level), drogue canopy breathing (quasi-steady massless drogue), FC timing jitter, or structural vibration of an unlit vehicle (the sim's vibration term scales with thrust). Back-of-envelope (DERIVED, independent frames ASSUMED): 5 N rms frame noise raises the window maximum of the 3-frame minimum by about +4 N (median) to +8 N (p99) over 50 frames, which is the whole +5.3 to +6.0 N W10 < 6 margin, so a frame-noise budget is needed before the 'no released dead vehicle' claim is used. (c) Starve threshold (rev4, item [6]): 0.30 s at the 0.5 s window (all lit runs released; 5/60 aborted at 0.40 s), 0.60 s at the 0.8 s window (W10 < 6: 0.65 s). GNC's R2 v2 releases 0.08-0.12 s after the plateau ends, about 0.1 s later than Electronics' stand-in (0.46-0.48 s at 0.5 s), so the 0.5 s window has no margin over the top of the 0.1-0.4 s starve range and the 0.8 s window has >= 0.20 s. The ECU backstop (line 216 (2)(b): the hold ends by E2 + 0.8 s + margin) is compatible: GNC's latest release at the 0.8 s window is E2 + 0.80 s (st_T 0.6-0.7 s), so the R2 v2 decision precedes the backstop by the stated margin (>= 2 FC frames + link latency, Electronics).",
+   "status": "NEW, for REV-GNC-5 delta re-check",
+   "tags": "SIM (code reading + flights) / DERIVED / ASSUMED",
+   "evidence": [
+    {
+     "path": "/home/claude/work/space/out/rev4/r2_starve/r2_starve.json",
+     "sha256_16": "d743193bd5bdf88b"
+    },
+    {
+     "path": "/home/claude/work/space/gnc_dev7/gncsim/sim6.py",
+     "sha256_16": "f6a74a495474beab"
+    }
+   ]
+  },
+  {
+   "index": 15,
+   "path": "/payload_sensitivity (record, informational)",
+   "REV_GNC_5_verdict": "NEW (not reviewed)",
+   "proposal_rev4": "Payload sensitivity (record for the lead / founder; SIM flights, DERIVED iso-margin and T/W, ASSUMED point payload at the A05 station z 1.15 m and tank layout; v3.5.1 vehicle, 2.00 kg N2O tank moved to 0.58 m, CG +7.5 mm; criterion = sim6 landing success AND >= 80 g liquid at touchdown, judged by the line-208 rule against the v3d reference). (a) Apogee for the same propellant margin as the 0 kg 210 m vehicle (deterministic): +0.5 kg 181 m (58 m/kg); +1 kg 155 m (55 m/kg); +2 kg 117 m (47 m/kg); +3 kg 91 m (40 m/kg). Liftoff CG shift from the payload (above the 0 kg vehicle, which carries +7.5 mm from the tank move): +0.5 kg +14.1 mm, +1 kg +27.4 mm, +2 kg +52.0 mm, +3 kg +74.2 mm (DERIVED). The Monte Carlo shows a second floor the margin does not see: below about 180 m the relight timeline (drogue settle 1.0 s + 0.5 s quasi-steady + 2.90 s commit-to-fire) starts the landing burn too low (h_ign p50 about 30-35 m at 155 m, 0.4 m at 115 m), so the payload-0 vehicle itself fails the bound at 170 m and loses at 155 m. Bands by the line-208 rule with the sweep floor at 180 m: 0 kg 210 m; +0.5 kg 190 m (180 and 190 m pass, 200 m fails the bound, 210 m loses), i.e. 20 m for 0.5 kg (40 m/kg; the equal-margin estimate 181 m is conservative); +1 kg NO band (180 m fails the bound, 190-210 m lose: the propellant ceiling falls below the timeline floor); +2 and +3 kg NO band (P 0 at their equal-margin apogees 115 / 90 m). Flown: 0 kg 210 m: P(80 g) 0.988 / 0.986, pooled -9/+11 p 0.824 UB95 0.54 pp -> PASS (N=500/base); 0 kg 180 m: P(80 g) 0.988 / 0.988, pooled -4/+10 p 0.18 UB95 0.03 pp -> PASS (N=250/base); 0 kg 170 m: P(80 g) 0.968 / 0.968, pooled -15/+11 p 0.557 UB95 2.48 pp -> FAIL (N=250/base); +0.5 kg 210 m: P(80 g) 0.974 / 0.968, pooled -24/+10 p 0.0243 UB95 2.36 pp -> FAIL (N=500/base); +0.5 kg 200 m: P(80 g) 0.974 / 0.984, pooled -16/+10 p 0.327 UB95 1.44 pp -> FAIL (N=500/base); +0.5 kg 190 m: P(80 g) 0.988 / 0.992, pooled -6/+11 p 0.332 UB95 0.18 pp -> PASS (N=500/base); +0.5 kg 180 m: P(80 g) 0.984 / 0.988, pooled -11/+12 p 1 UB95 0.69 pp -> PASS (N=500/base); +1 kg 210 m: P(80 g) 0.934 / 0.930, pooled -61/+8 p 3.24e-11 UB95 6.64 pp -> FAIL (N=500/base); +1 kg 200 m: P(80 g) 0.946 / 0.946, pooled -47/+8 p 8.07e-08 UB95 5.10 pp -> FAIL (N=500/base); +1 kg 190 m: P(80 g) 0.956 / 0.970, pooled -31/+9 p 0.00068 UB95 3.23 pp -> FAIL (N=500/base); +1 kg 180 m: P(80 g) 0.980 / 0.976, pooled -20/+13 p 0.296 UB95 1.64 pp -> FAIL (N=500/base); +2 kg 210 m: P(80 g) 0.752 / 0.766, pooled -236/+10 p 3.43e-57 UB95 24.90 pp -> FAIL (N=500/base); +2 kg 115 m: P(80 g) 0.000 / 0.000, pooled -985/+0 p 6.12e-297 UB95 99.13 pp -> FAIL (N=500/base); +3 kg 90 m: P(80 g) 0.000 / 0.000, pooled -985/+0 p 6.12e-297 UB95 99.13 pp -> FAIL (N=500/base). (b) Load to carry the payload to 210 m: +1 kg: 2.20 kg N2O, 3.48 L at 85 % fill, inner span 0.58-1.069 m (tube 0.509 m); +2 kg: 2.45 kg N2O, 3.88 L at 85 % fill, inner span 0.58-1.124 m (tube 0.564 m), CLASHES with the A05 station at 1.15 m; flown: +1 kg 2.20 kg: P(80 g) 0.990 / 0.984, pooled -9/+11 p 0.824 UB95 0.54 pp -> PASS (N=500/base); +2 kg 2.45 kg: P(80 g) 0.978 / 0.970, pooled -24/+13 p 0.0989 UB95 2.10 pp -> FAIL (N=500/base); +2 kg 2.55 kg: P(80 g) 0.964 / 0.962, pooled -37/+15 p 0.00319 UB95 3.38 pp -> FAIL (N=500/base). So +1 kg reaches 210 m with 2.20 kg N2O (line-208 PASS at N=500/base); +2 kg does NOT meet the criterion with 2.45 or 2.55 kg: the residual losses at 2.55 kg are touchdown tilt / lateral speed with no exhaustion (landing mass 18.6 kg, liftoff CG about +65 mm, floor ratio about 0.55), so more N2O does not fix it; +2 kg needs a landing-control and structure study, not only a bigger tank. (c) Liftoff T/W, touchdown T/W and landing floor ratio (DERIVED, rated 500 N, nominal flights): 0 kg 2.92 / 3.16 / 0.633; with the 2.0 kg tank +0.5 kg 2.84 / 3.08 / 0.616, +1 kg 2.76 / 3.00 / 0.600, +2 kg 2.62 / 2.85 / 0.570, +3 kg 2.49 / 2.72 / 0.543; sized loads +1 kg at 2.20 kg 2.72 / 2.95 / 0.590, +2 kg at 2.45 kg 2.53 / 2.75 / 0.550. Monte Carlo N: 250 per base for the screen (all arms), 500 per base for the decision arms (same seed, first 250 runs identical). Separate table; SIM, not physical approval; the tank length, the payload station, its inertia and the structure for a longer tank are Mechanical's and the payload owner's (TO-VERIFY).",
+   "status": "NEW record, for REV-GNC-5 delta re-check",
+   "tags": "SIM / DERIVED / ASSUMED",
+   "evidence": [
+    {
+     "path": "/home/claude/work/space/out/rev4/payload/payload_rev4.json",
+     "sha256_16": "0b8f9a48792aad1e"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/payload_n500/payload_rev4.json",
+     "sha256_16": "6d62104dac3f4fcd"
+    },
+    {
+     "path": "/home/claude/work/space/out/rev4/payload/payload_check.json",
+     "sha256_16": "30dc1609ee2be904"
+    }
+   ]
+  }
+ ]
+}
