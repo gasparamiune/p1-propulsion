@@ -99,13 +99,25 @@ class Constraints:
         self.dep = set()              # (node, dof) already dependent
         self.protected = set()        # nodes that may not be dependent (BC, rigid body, coupling nodes)
         self.skipped = {}
+        self.dirs = {}                # dep node -> unit directions already constrained (2026-10-15: parallel-duplicate guard)
 
     def add(self, label, dep_node, dirv, ind_nodes, ind_w, tol_w=1e-7):
         """sum_d dirv_d u(dep_node, d) - sum_i w_i sum_d dirv_d u(ind_i, d) = 0.  The dependent DOF is the largest |dirv_d|
-        not yet dependent at dep_node.  Returns True if written."""
+        not yet dependent at dep_node.  Returns True if written.
+        2026-10-15 (fea3d successor): an equation whose direction is (to 1e-3) in the span of the directions already constrained at
+        dep_node is skipped (two ties sharing an edge node, e.g. the TB1 'thread' variant shoulder + thread 'zt' ties, otherwise write two
+        parallel equations and ccx stops with 'zero coefficient on the dependent DOF' in the MPC cascade).  No effect on models without
+        such duplicates (the solved v3.5.1 runs rebuild with identical equation counts)."""
         if dep_node in self.protected:
             self.skipped[label] = self.skipped.get(label, 0) + 1
             return False
+        dvu = np.asarray(dirv, float) / max(float(np.linalg.norm(dirv)), 1e-30)
+        prev = self.dirs.get(dep_node)
+        if prev:
+            Qm, _ = np.linalg.qr(np.array(prev).T)
+            if np.linalg.norm(dvu - Qm @ (Qm.T @ dvu)) < 1e-3:
+                self.skipped[label + "_parallel"] = self.skipped.get(label + "_parallel", 0) + 1
+                return False
         order = np.argsort(-np.abs(dirv))
         ddof = None
         for d in order:
@@ -128,6 +140,7 @@ class Constraints:
                 if abs(dirv[d]) > 1e-9:
                     terms.append((int(n), d + 1, -float(w * dirv[d])))
         self.dep.add((dep_node, ddof))
+        self.dirs.setdefault(dep_node, []).append(dvu)
         self.eqs.append((label, terms))
         return True
 

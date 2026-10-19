@@ -1,0 +1,1173 @@
+{
+ "title": "ARGOS H1 vehicle concept renders around the real engine CAD v3.5.1",
+ "generated_utc": "2026-10-15T15:46:15Z",
+ "status": "VISUALISATION ONLY: not a drawing, tolerance or fabrication source; not a physical approval. Airframe = ASSUMED GNC reference vehicle RV-1c, not Lauty's design.",
+ "glb_sha256_16": "4394fef4ba2fbe78",
+ "bom_sha256_16": "1bc213a2882cbd42",
+ "inputs": {
+  "glb": {
+   "path": "/home/claude/work/shared-fallback/engine/03-cad/v3.5.1/assembly/ENGINE_v3.5.1_neutral.glb",
+   "sha256_16": "4394fef4ba2fbe78"
+  },
+  "bom": {
+   "path": "/home/claude/work/shared-fallback/engine/03-cad/v3.5.1/BOM_v3.5.1.json",
+   "sha256_16": "1bc213a2882cbd42"
+  },
+  "assembly_manifest": {
+   "path": "/home/claude/work/shared-fallback/engine/03-cad/v3.5.1/assembly/assembly_manifest_v3.5.1.json",
+   "sha256_16": "fb101b9536c4b753"
+  },
+  "gnc_json": {
+   "path": "/home/claude/work/shared-fallback/engine/interfaces/gnc.json",
+   "sha256_16": "4f3209323b0e0ed4"
+  },
+  "gncsim_vehicle_py": {
+   "path": "/home/claude/work/shared-fallback/engine/01-systems-gnc/sim/gncsim/vehicle.py",
+   "sha256_16": "f22ba08947596613"
+  },
+  "vehicle_v3d": {
+   "path": "/home/claude/work/shared-fallback/engine/01-systems-gnc/vehicle/vehicle_v3d.json",
+   "sha256_16": "b26938b809bc4910"
+  },
+  "mass_ledger_v3d": {
+   "path": "/home/claude/work/shared-fallback/engine/01-systems-gnc/vehicle/mass_ledger_v3d.csv",
+   "sha256_16": "e4fb6a40c28751cc"
+  },
+  "datasheet_render_script": {
+   "path": "/home/claude/work/shared-fallback/engine/07-datasheet/gen/render_views_blender.py",
+   "sha256_16": "e1101af91aa80b06"
+  }
+ },
+ "scripts": {
+  "rocket_render_blender.py": "9412ac60af79f0ed",
+  "rocket_render_post.py": "6a7eb991bd53aee0",
+  "run_renders.sh": "03111c903b2082f3"
+ },
+ "frames": {
+  "vehicle": "metres, +z toward the nose, z = 0 at the aft datum (body tube aft end); Blender world frame = vehicle frame",
+  "engine_glb": "metres, +Y up = engine axis toward the injector, origin at the gimbal pivot; importer gives +Z up = CAD engine frame",
+  "azimuth": "from +X toward +Y (BOM convention, ENG-BL-06 at az 112)"
+ },
+ "elements": [
+  {
+   "key": "engine",
+   "what": "Engine assembly v3.5.1 (148 GLB instances; groups engine/fixed/ring/horn/pushrod/hose), pivot at the vehicle station of the gimbal pivot",
+   "z_m": [
+    -0.0351,
+    0.5582
+   ],
+   "r_max_m": 0.07417,
+   "status": "REAL CAD v3.5.1 (frozen GLB; display tessellation; BOM material per part)",
+   "source": "ENGINE_v3.5.1_neutral.glb + BOM_v3.5.1.json",
+   "placement": "translated +0.203 m in z; clocking CAD X = vehicle X (ASSUMED: airframe clocking not defined)"
+  },
+  {
+   "key": "gimbal_pivot",
+   "z_m": [
+    0.203,
+    0.203
+   ],
+   "status": "REAL CAD origin at the GNC station",
+   "source": "gnc.json reference_vehicle.gimballed_subassembly.z_pivot_m 0.203"
+  },
+  {
+   "key": "vent_stub ENG-BL-06",
+   "z_m": [
+    0.458,
+    0.468
+   ],
+   "r_max_m": 0.07417,
+   "az_deg": 112.0,
+   "status": "REAL CAD; the wall hole (exterior view: visual clearance cut r 0.0065 m) and the outside opposed vent tee (airframe ICD-14) are TO-DEFINE",
+   "source": "BOM ENG-BL-06 \"through the bay wall at az 112\"; vertex r_max 74.17 mm (trimesh, this task)"
+  },
+  {
+   "key": "n2o_tank",
+   "what": "6061 tube 101.6 OD x 3.175 wall, two flat plug bulkheads",
+   "z_m": [
+    0.58,
+    1.08
+   ],
+   "r_max_m": 0.0508,
+   "status": "CONCEPT (lead): tube size and internal length 0.445 m given; overall 0.50 m ESTIMATE; bulkheads drawn 0.0275 m each = (0.50 - 0.445)/2, thickness not designed; closure retention, outlet fitting and line route TO-DEFINE",
+   "source": "lead brief 2026-10-15; vehicle_v3d tank_internal_length_m 0.4445"
+  },
+  {
+   "key": "tank_mount_rings",
+   "z_m": [
+    0.6,
+    1.06
+   ],
+   "status": "ASSUMED placeholder (6 mm rings at z 0.600 and 1.054 m); tank mounting TO-DEFINE",
+   "source": "drawing choice, no source"
+  },
+  {
+   "key": "body_tube",
+   "what": "146 mm OD x 3 mm PETG",
+   "z_m": [
+    0.0,
+    1.7
+   ],
+   "r_max_m": 0.073,
+   "status": "ASSUMED GNC RV-1c",
+   "source": "gnc.json reference_vehicle (body_diameter_m 0.146 = 0.140 ID + 2 x 3 mm PETG ASSUMED); vehicle_v3d d_id_m 0.140"
+  },
+  {
+   "key": "nose",
+   "what": "tangent ogive L 0.30 m, 3 mm wall (wall ASSUMED = body)",
+   "z_m": [
+    1.7,
+    2.0
+   ],
+   "status": "ASSUMED GNC RV-1c",
+   "source": "gnc.json reference_vehicle.nose"
+  },
+  {
+   "key": "fins",
+   "what": "4 fins, root 0.20 m (LE z 0.20, TE z 0), tip 0.10 m, span 0.12 m, LE sweep 0.10 m, 3 mm; az 0/90/180/270 deg (clocking ASSUMED)",
+   "z_m": [
+    0.0,
+    0.2
+   ],
+   "r_max_m": 0.193,
+   "status": "ASSUMED GNC RV-1c",
+   "source": "gncsim/vehicle.py fin_cr/fin_ct/fin_span/fin_sweep/fin_z_le; gnc.json reference_vehicle.fins"
+  },
+  {
+   "key": "landing_legs",
+   "what": "4 legs at az 45/135/225/315 deg (clocking ASSUMED), 20 mm main strut of length 0.52 m from a hinge at r 0.080 m, z 0.160 m (DERIVED from leg_L) to the foot contact at r 0.40 m, z -0.25 m; damper strut from a wall mount at z 0.40 m to 55 % of the leg (drawing choice, no source); stroke 0.10 m not drawn as a value",
+   "z_m": [
+    -0.2562,
+    0.415
+   ],
+   "r_max_m": 0.435,
+   "status": "ASSUMED GNC RV-1c (Lauty to design)",
+   "source": "gncsim/vehicle.py n_legs 4, leg_d 0.020, leg_L 0.52, r_foot 0.40, z_foot -0.25; gnc.json reference_vehicle.landing_legs (stroke 0.10 m, k 2500 N/m, c 120 N s/m)"
+  },
+  {
+   "key": "bulkheads",
+   "what": "6 mm discs at z 1.090, 1.364, 1.600 m",
+   "z_m": [
+    1.09,
+    1.606
+   ],
+   "status": "ASSUMED (ledger A03b bulkheads and couplers exists; stations are a drawing choice)",
+   "source": "mass_ledger_v3d.csv A03b"
+  },
+  {
+   "key": "avionics",
+   "what": "sled with FC/IMU board, radio, GNSS receiver, LiDAR blocks (sizes not designed)",
+   "z_m": [
+    1.102,
+    1.357
+   ],
+   "status": "ASSUMED; ledger A05 z 1.15 m moved forward to clear the tank top (1.08 m)",
+   "source": "mass_ledger_v3d.csv A05"
+  },
+  {
+   "key": "battery",
+   "z_m": [
+    1.113,
+    1.203
+   ],
+   "status": "ASSUMED; ledger A06 z 1.10 m moved forward (block size not designed)",
+   "source": "mass_ledger_v3d.csv A06"
+  },
+  {
+   "key": "backup_parachute",
+   "z_m": [
+    1.376,
+    1.585
+   ],
+   "status": "ASSUMED; ledger A07 z 1.45 m (packed size not designed)",
+   "source": "mass_ledger_v3d.csv A07"
+  },
+  {
+   "key": "nose_drogue_and_ejection",
+   "z_m": [
+    1.606,
+    1.775
+   ],
+   "status": "ASSUMED; ledger A09 z 1.7 m",
+   "source": "mass_ledger_v3d.csv A09"
+  },
+  {
+   "key": "foot_plane (floor)",
+   "z_m": [
+    -0.25,
+    -0.25
+   ],
+   "status": "ASSUMED GNC (z_foot)",
+   "source": "gncsim/vehicle.py z_foot -0.25"
+  }
+ ],
+ "not_drawn": [
+  "tank-to-engine line and its route (engine side: tank-line flange ENG-FD-12F on the MV module, ICD-5): TO-DEFINE",
+  "ledger P09 NC isolation valve (v3d z 0.5 m): no room between the engine top (0.558 m) and the tank (0.58 m); whether the CAD MV module (ENG-FS-01A/B, FS-06..11) supersedes it is for the lead to confirm",
+  "airframe aft thrust ring and leg mounts (ledger A03a), nose shoulder/coupler, harness, GNSS antenna in the nose (ledger A02), roll RCS provision, LiDAR ground-view aperture, outside vent tee (ICD-14), MV bracket wall fasteners at az 219.5 deg (BOM ENG-FS-15, ICD-2)"
+ ],
+ "integration_finding": {
+  "claim": "The v3d layout tank (z 0.55-0.995 m) overlaps the v3.5.1 engine, whose top is at z 0.558 m. Drawn here: tank at z 0.58-1.08 m (22 mm gap for the tank line, route TO-DEFINE); avionics, battery and backup chute moved forward accordingly; all still fit in the 1.70 m tube.",
+  "numbers": {
+   "engine_top_z_m": 0.5582,
+   "nozzle_exit_z_m": -0.0351,
+   "tank_v3d_z_m": [
+    0.55,
+    0.995
+   ],
+   "tank_drawn_z_m": [
+    0.58,
+    1.08
+   ],
+   "gap_m": 0.0218
+  },
+  "consequence": "mass properties change (tank + N2O move forward ~0.058 m); GNC must recompute CG, inertia and margins; not done here"
+ },
+ "render": {
+  "engine": "Blender 4.0.2 Cycles CPU",
+  "threads": 2,
+  "nice": 10,
+  "samples_max_per_pixel": 64,
+  "adaptive_threshold": 0.01,
+  "denoiser": "none (this Blender 4.0.2 build has no OpenImageDenoise)",
+  "supersampling": "1.5x (render 1500x2700, Lanczos to 1000x1800)",
+  "view_transform": "Filmic",
+  "look": "None",
+  "exposure": 0.0,
+  "render_s": {
+   "exterior": 279.7,
+   "cutaway": 327.2
+  },
+  "backdrop": "film transparent, composited on sRGB #15181c; floor fades to transparent between r 0.6 and 7 m",
+  "lights": {
+   "exterior": [
+    {
+     "name": "key",
+     "az_deg": 40.0,
+     "el_deg": 32,
+     "dist_m": 3.4,
+     "size_m": [
+      1.8,
+      1.8
+     ],
+     "W": 170
+    },
+    {
+     "name": "fill",
+     "az_deg": 152.0,
+     "el_deg": 12,
+     "dist_m": 4.0,
+     "size_m": [
+      2.4,
+      2.4
+     ],
+     "W": 55
+    },
+    {
+     "name": "rim_left",
+     "az_deg": 320.0,
+     "el_deg": 28,
+     "dist_m": 3.0,
+     "size_m": [
+      0.6,
+      3.0
+     ],
+     "W": 110
+    },
+    {
+     "name": "rim_right",
+     "az_deg": 220.0,
+     "el_deg": 28,
+     "dist_m": 3.0,
+     "size_m": [
+      0.6,
+      3.0
+     ],
+     "W": 110
+    },
+    {
+     "name": "top",
+     "az_deg": 0,
+     "el_deg": 90,
+     "dist_m": 3.6,
+     "size_m": [
+      2.5,
+      2.5
+     ],
+     "W": 60
+    }
+   ],
+   "cutaway": [
+    {
+     "name": "key",
+     "az_deg": 40.0,
+     "el_deg": 32,
+     "dist_m": 3.4,
+     "size_m": [
+      1.8,
+      1.8
+     ],
+     "W": 170
+    },
+    {
+     "name": "fill",
+     "az_deg": 152.0,
+     "el_deg": 12,
+     "dist_m": 4.0,
+     "size_m": [
+      2.4,
+      2.4
+     ],
+     "W": 55
+    },
+    {
+     "name": "rim_left",
+     "az_deg": 320.0,
+     "el_deg": 28,
+     "dist_m": 3.0,
+     "size_m": [
+      0.6,
+      3.0
+     ],
+     "W": 110
+    },
+    {
+     "name": "rim_right",
+     "az_deg": 220.0,
+     "el_deg": 28,
+     "dist_m": 3.0,
+     "size_m": [
+      0.6,
+      3.0
+     ],
+     "W": 110
+    },
+    {
+     "name": "top",
+     "az_deg": 0,
+     "el_deg": 90,
+     "dist_m": 3.6,
+     "size_m": [
+      2.5,
+      2.5
+     ],
+     "W": 60
+    },
+    {
+     "name": "front_strip",
+     "az_deg": 90.0,
+     "el_deg": 4,
+     "dist_m": 0.65,
+     "size_m": [
+      0.22,
+      1.7
+     ],
+     "W": 7
+    }
+   ]
+  },
+  "pil": "12.3.0"
+ },
+ "camera": {
+  "type": "PERSP",
+  "lens_mm": 85.0,
+  "sensor_fit": "VERTICAL",
+  "sensor_height_mm": 36.0,
+  "az_deg": 90.0,
+  "elev_deg": 12.0,
+  "aim_m": [
+   0.0,
+   0.0,
+   0.875
+  ],
+  "distance_m": 6.6812,
+  "location_m": [
+   4.0016586638393764e-16,
+   6.5352044105529785,
+   2.2641005516052246
+  ],
+  "rotation_quat_wxyz": [
+   -3.397012804384758e-08,
+   2.7508464839343105e-08,
+   0.6293203830718994,
+   0.7771458625793457
+  ],
+  "matrix_world": [
+   [
+    -1.000000238418579,
+    8.742278367890322e-08,
+    -5.156163565095363e-15,
+    4.0016586638393764e-16
+   ],
+   [
+    -1.817621964050886e-08,
+    -0.20791175961494446,
+    0.9781476855278015,
+    6.5352044105529785
+   ],
+   [
+    8.551239005782918e-08,
+    0.9781476855278015,
+    0.20791156589984894,
+    2.2641005516052246
+   ],
+   [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ]
+  ],
+  "shift_x": -3.311369312086754e-08,
+  "shift_y": -0.0020091747865080833,
+  "f_px_render": 6375.0,
+  "fit_uv": {
+   "u": [
+    0.29643094539642334,
+    0.7035690546035767
+   ],
+   "v": [
+    0.085000179708004,
+    0.9049997925758362
+   ]
+  },
+  "band_v": [
+   0.085,
+   0.905
+  ],
+  "band_u": [
+   0.06,
+   0.94
+  ]
+ },
+ "cutaway": {
+  "shell_removed_az_deg": {
+   "z < 0.44 m": [
+    53.0,
+    127.0
+   ],
+   "z > 0.44 m (incl. nose, bulkheads, rings)": [
+    20.0,
+    160.0
+   ]
+  },
+  "omitted": [
+   "fin at az 90 (camera side)"
+  ],
+  "cut_objects": [
+   "AF_body_tube_low/up",
+   "AF_nose_ogive",
+   "AF_tank_ring_*",
+   "AF_bulkhead_*"
+  ],
+  "not_cut": [
+   "engine (real CAD)",
+   "N2O tank",
+   "bay contents",
+   "legs",
+   "fins (3 of 4 shown)"
+  ]
+ },
+ "anchor_rerun": "cutaway anchors recomputed without re-rendering (script --no-render, anchor candidate order changed for thrust_rings/body_tube/nose); camera, geometry summary, engine and cutaway records asserted identical to the render run",
+ "projection": {
+  "primary": "bpy_extras.object_utils.world_to_camera_view(scene, cam, P) -> (u, v); px = u*W, py = (1-v)*H",
+  "closed_form": "q = R^T (P - C); px = W/2 + f_px*q.x/(-q.z) - shift_x*max(W,H); py = H/2 - f_px*q.y/(-q.z) + shift_y*max(W,H); f_px = lens/sensor_height*H",
+  "note": "pixel coordinates at the render resolution; divide by ss for the final image",
+  "labels": "final px = render px / ss; leaders end at anchors[*].px_final",
+  "max_closed_form_residual_px": 0.0012726239747446783,
+  "scale_bar": {
+   "p0_m": [
+    -0.4999999999999999,
+    -9.088107653480715e-09,
+    1.45
+   ],
+   "p1_m": [
+    -0.4999999999999999,
+    -9.088107653480715e-09,
+    1.95
+   ],
+   "px_final": [
+    [
+     823.8513429172416,
+     532.0928619630124
+    ],
+    [
+     829.0647152183323,
+     204.354831666898
+    ]
+   ],
+   "note": "vertical 0.5 m segment at the depth of the vehicle axis, offset 0.50 m along the camera right vector; valid at that depth only (perspective)"
+  }
+ },
+ "anchors": {
+  "engine": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    1.942299487613314e-18,
+    0.03171968460083008,
+    0.31948453187942505
+   ],
+   "px_final": [
+    500.0,
+    1241.8597161769867
+   ],
+   "hit_object": "ENG-TC-01#0",
+   "closed_form_residual_px": 0.0010893649101900418,
+   "pixel_rgb_unlabelled": [
+    220,
+    220,
+    221
+   ],
+   "differs_from_background": true
+  },
+  "gimbal_pivot": {
+   "mode": "true projection of the 3-D point",
+   "p_m": [
+    0.0,
+    0.0,
+    0.2029999941587448
+   ],
+   "px_final": [
+    500.0,
+    1305.9459507465363
+   ],
+   "first_hit_object": "ENG-GM-03#0",
+   "occluded": true,
+   "closed_form_residual_px": 0.0012726239747446783,
+   "pixel_rgb_unlabelled": [
+    221,
+    221,
+    222
+   ],
+   "differs_from_background": true
+  },
+  "thrust_rings": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    -0.029456445947289467,
+    0.06318044662475586,
+    0.23000328242778778
+   ],
+   "px_final": [
+    518.5370445251465,
+    1301.6788244247437
+   ],
+   "hit_object": "ENG-GM-09#0",
+   "closed_form_residual_px": 0.0011860086983187983,
+   "pixel_rgb_unlabelled": [
+    122,
+    124,
+    126
+   ],
+   "differs_from_background": true
+  },
+  "vent_stub": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    -0.02639145217835903,
+    0.06914854049682617,
+    0.46405261754989624
+   ],
+   "px_final": [
+    516.7433619499207,
+    1160.5219423770905
+   ],
+   "hit_object": "ENG-BL-06#0",
+   "closed_form_residual_px": 0.001251192243771496,
+   "pixel_rgb_unlabelled": [
+    82,
+    84,
+    86
+   ],
+   "differs_from_background": true
+  },
+  "tank_engine_gap": {
+   "mode": "true projection of the 3-D point",
+   "p_m": [
+    2.755455252880505e-18,
+    0.04500000178813934,
+    0.569100022315979
+   ],
+   "px_final": [
+    500.0000596046448,
+    1092.0965909957886
+   ],
+   "first_hit_object": "ENG-FS-06#0",
+   "occluded": false,
+   "closed_form_residual_px": 0.0011085941495689706,
+   "pixel_rgb_unlabelled": [
+    114,
+    116,
+    120
+   ],
+   "differs_from_background": true
+  },
+  "tank": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    3.1106226196730112e-18,
+    0.050800323486328125,
+    0.8709144592285156
+   ],
+   "px_final": [
+    500.0000596046448,
+    905.712890625
+   ],
+   "hit_object": "TANK_tube",
+   "closed_form_residual_px": 0.0011761960818021497,
+   "pixel_rgb_unlabelled": [
+    238,
+    238,
+    238
+   ],
+   "differs_from_background": true
+  },
+  "battery": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    1.959425435015612e-18,
+    0.031999923288822174,
+    1.1634160280227661
+   ],
+   "px_final": [
+    500.0000596046448,
+    718.7334179878235
+   ],
+   "hit_object": "AV_battery",
+   "closed_form_residual_px": 0.000988272584647848,
+   "pixel_rgb_unlabelled": [
+    122,
+    138,
+    165
+   ],
+   "differs_from_background": true
+  },
+  "avionics": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    -0.019962357357144356,
+    0.012300606817007065,
+    1.2718710899353027
+   ],
+   "px_final": [
+    512.8806829452515,
+    647.5514531135559
+   ],
+   "hit_object": "AV_fc_mcu",
+   "closed_form_residual_px": 0.000987298510995883,
+   "pixel_rgb_unlabelled": [
+    100,
+    101,
+    101
+   ],
+   "differs_from_background": true
+  },
+  "backup_chute": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    -1.7763568394002505e-15,
+    0.0540008544921875,
+    1.4864790439605713
+   ],
+   "px_final": [
+    500.00011920928955,
+    512.722384929657
+   ],
+   "hit_object": "CHUTE_backup",
+   "closed_form_residual_px": 0.001015122841676763,
+   "pixel_rgb_unlabelled": [
+    198,
+    99,
+    95
+   ],
+   "differs_from_background": true
+  },
+  "drogue": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    -2.9753977059954195e-14,
+    0.043000221252441406,
+    1.703711748123169
+   ],
+   "px_final": [
+    500.0000596046448,
+    369.5328712463379
+   ],
+   "hit_object": "CHUTE_drogue",
+   "closed_form_residual_px": 0.0009574945842118985,
+   "pixel_rgb_unlabelled": [
+    216,
+    167,
+    86
+   ],
+   "differs_from_background": true
+  },
+  "fins": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    0.1279706060886383,
+    0.0015010833740234375,
+    0.07550287246704102
+   ],
+   "px_final": [
+    420.55535316467285,
+    1382.062777876854
+   ],
+   "hit_object": "AF_fin_000",
+   "closed_form_residual_px": 0.0010228520781137241,
+   "pixel_rgb_unlabelled": [
+    72,
+    74,
+    77
+   ],
+   "differs_from_background": true
+  },
+  "legs": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    0.2372359037399292,
+    0.2469087690114975,
+    -0.16442474722862244
+   ],
+   "px_final": [
+    348.51518273353577,
+    1578.3750906586647
+   ],
+   "hit_object": "LEG_045_tube",
+   "closed_form_residual_px": 0.0012589508819979955,
+   "pixel_rgb_unlabelled": [
+    83,
+    83,
+    85
+   ],
+   "differs_from_background": true
+  },
+  "body_tube": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    -0.07051295042037964,
+    0.01885986328125,
+    0.9499932527542114
+   ],
+   "px_final": [
+    545.0839400291443,
+    851.9903898239136
+   ],
+   "hit_object": "AF_body_tube_up",
+   "closed_form_residual_px": 0.0011067444547243014,
+   "pixel_rgb_unlabelled": [
+    189,
+    190,
+    191
+   ],
+   "differs_from_background": true
+  },
+  "nose": {
+   "mode": "visible surface point (camera ray-cast first hit)",
+   "p_m": [
+    -0.04826204478740692,
+    0.017565250396728516,
+    1.8602864742279053
+   ],
+   "px_final": [
+    531.7555069923401,
+    264.6557092666626
+   ],
+   "hit_object": "AF_nose_ogive",
+   "closed_form_residual_px": 0.000938274788177066,
+   "pixel_rgb_unlabelled": [
+    210,
+    211,
+    212
+   ],
+   "differs_from_background": true
+  }
+ },
+ "labels": [
+  {
+   "key": "drogue",
+   "side": "L",
+   "tag": "ASSUMED",
+   "text": [
+    "Nose drogue + ejection",
+    "ledger A09, z ~1.70 m"
+   ],
+   "text_box_px": [
+    149.7,
+    359.5,
+    322.0,
+    396.0
+   ],
+   "leader_px": [
+    [
+     329.0,
+     370.5328712463379
+    ],
+    [
+     343.0,
+     370.5328712463379
+    ],
+    [
+     500.0000596046448,
+     369.5328712463379
+    ]
+   ]
+  },
+  {
+   "key": "backup_chute",
+   "side": "L",
+   "tag": "ASSUMED",
+   "text": [
+    "Backup parachute",
+    "ledger A07, z ~1.45 m"
+   ],
+   "text_box_px": [
+    187.3,
+    502.7,
+    322.0,
+    539.2
+   ],
+   "leader_px": [
+    [
+     329.0,
+     513.722384929657
+    ],
+    [
+     343.0,
+     513.722384929657
+    ],
+    [
+     500.00011920928955,
+     512.722384929657
+    ]
+   ]
+  },
+  {
+   "key": "avionics",
+   "side": "L",
+   "tag": "ASSUMED",
+   "text": [
+    "Avionics bay + battery",
+    "FC, IMU, GNSS, LiDAR, radio",
+    "ledger A05/A06, drawn forward",
+    "of the tank (z 1.10-1.36 m)"
+   ],
+   "text_box_px": [
+    127.6,
+    637.6,
+    322.0,
+    707.1
+   ],
+   "leader_px": [
+    [
+     329.0,
+     648.5514531135559
+    ],
+    [
+     343.0,
+     648.5514531135559
+    ],
+    [
+     512.8806829452515,
+     647.5514531135559
+    ]
+   ]
+  },
+  {
+   "key": "tank",
+   "side": "L",
+   "tag": "CONCEPT",
+   "text": [
+    "N2O tank (concept)",
+    "6061 tube 101.6 x 3.175 mm",
+    "z 0.58-1.08 m, length ESTIMATE"
+   ],
+   "text_box_px": [
+    124.6,
+    895.7,
+    322.0,
+    948.7
+   ],
+   "leader_px": [
+    [
+     329.0,
+     906.712890625
+    ],
+    [
+     343.0,
+     906.712890625
+    ],
+    [
+     500.0000596046448,
+     905.712890625
+    ]
+   ]
+  },
+  {
+   "key": "engine",
+   "side": "L",
+   "tag": "CAD",
+   "text": [
+    "Engine v3.5.1 (real CAD)",
+    "frozen GLB, BOM materials",
+    "z -0.035 to 0.558 m"
+   ],
+   "text_box_px": [
+    144.7,
+    1231.9,
+    322.0,
+    1284.9
+   ],
+   "leader_px": [
+    [
+     329.0,
+     1242.8597161769867
+    ],
+    [
+     343.0,
+     1242.8597161769867
+    ],
+    [
+     500.0,
+     1241.8597161769867
+    ]
+   ]
+  },
+  {
+   "key": "fins",
+   "side": "L",
+   "tag": "ASSUMED",
+   "text": [
+    "Fins x4 (one cut away)",
+    "root 0.20, tip 0.10, span 0.12 m"
+   ],
+   "text_box_px": [
+    136.6,
+    1372.1,
+    322.0,
+    1408.6
+   ],
+   "leader_px": [
+    [
+     329.0,
+     1383.062777876854
+    ],
+    [
+     343.0,
+     1383.062777876854
+    ],
+    [
+     420.55535316467285,
+     1382.062777876854
+    ]
+   ]
+  },
+  {
+   "key": "legs",
+   "side": "L",
+   "tag": "ASSUMED",
+   "text": [
+    "Landing legs x4, deployed",
+    "foot r 0.40 m, foot plane z -0.25 m"
+   ],
+   "text_box_px": [
+    110.3,
+    1568.4,
+    322.0,
+    1604.9
+   ],
+   "leader_px": [
+    [
+     329.0,
+     1579.3750906586647
+    ],
+    [
+     343.0,
+     1579.3750906586647
+    ],
+    [
+     348.51518273353577,
+     1578.3750906586647
+    ]
+   ]
+  },
+  {
+   "key": "body_tube",
+   "side": "R",
+   "tag": "ASSUMED",
+   "text": [
+    "Body tube 146 mm OD",
+    "3 mm PETG, z 0-1.70 m,",
+    "ogive nose 0.30 m"
+   ],
+   "text_box_px": [
+    678.0,
+    842.0,
+    842.0,
+    895.0
+   ],
+   "leader_px": [
+    [
+     671.0,
+     852.9903898239136
+    ],
+    [
+     657.0,
+     852.9903898239136
+    ],
+    [
+     545.0839400291443,
+     851.9903898239136
+    ]
+   ]
+  },
+  {
+   "key": "tank_engine_gap",
+   "side": "R",
+   "tag": "TODEF",
+   "text": [
+    "Engine top 0.558, tank 0.580 m",
+    "22 mm gap: tank line route",
+    "TO-DEFINE"
+   ],
+   "text_box_px": [
+    678.0,
+    1082.1,
+    910.2,
+    1135.1
+   ],
+   "leader_px": [
+    [
+     671.0,
+     1093.0965909957886
+    ],
+    [
+     657.0,
+     1093.0965909957886
+    ],
+    [
+     500.0000596046448,
+     1092.0965909957886
+    ]
+   ]
+  },
+  {
+   "key": "vent_stub",
+   "side": "R",
+   "tag": "CAD",
+   "text": [
+    "Bleed vent stub ENG-BL-06",
+    "real CAD, az 112 deg, r 74.2 mm",
+    "wall hole + outer tee TO-DEFINE"
+   ],
+   "text_box_px": [
+    678.0,
+    1150.5,
+    881.1,
+    1203.5
+   ],
+   "leader_px": [
+    [
+     671.0,
+     1161.5219423770905
+    ],
+    [
+     657.0,
+     1161.5219423770905
+    ],
+    [
+     516.7433619499207,
+     1160.5219423770905
+    ]
+   ]
+  },
+  {
+   "key": "thrust_rings",
+   "side": "R",
+   "tag": "CAD",
+   "text": [
+    "Thrust rings GM-09 / GM-10",
+    "real CAD, r 69.75 mm:",
+    "the airframe interface"
+   ],
+   "text_box_px": [
+    678.0,
+    1291.7,
+    887.8,
+    1344.7
+   ],
+   "leader_px": [
+    [
+     671.0,
+     1302.6788244247437
+    ],
+    [
+     657.0,
+     1302.6788244247437
+    ],
+    [
+     518.5370445251465,
+     1301.6788244247437
+    ]
+   ]
+  },
+  {
+   "key": "gimbal_pivot",
+   "side": "R",
+   "tag": "CAD",
+   "text": [
+    "Gimbal pivot, z 0.203 m",
+    "on the axis, behind ring GM-03"
+   ],
+   "text_box_px": [
+    678.0,
+    1356.7,
+    869.0,
+    1393.2
+   ],
+   "leader_px": [
+    [
+     671.0,
+     1367.6788244247437
+    ],
+    [
+     657.0,
+     1367.6788244247437
+    ],
+    [
+     500.0,
+     1305.9459507465363
+    ]
+   ]
+  }
+ ],
+ "outputs": {
+  "rocket_exterior.jpg": {
+   "res": [
+    1000,
+    1800
+   ],
+   "jpeg_quality": 90,
+   "bytes": 84358,
+   "sha256_16": "ebce7a42aa4d614f"
+  },
+  "rocket_cutaway.jpg": {
+   "res": [
+    1000,
+    1800
+   ],
+   "jpeg_quality": 90,
+   "bytes": 109305,
+   "sha256_16": "6c34fb1c5c13cda2"
+  },
+  "rocket_cutaway_labelled.jpg": {
+   "res": [
+    1000,
+    1800
+   ],
+   "jpeg_quality": 90,
+   "bytes": 191053,
+   "sha256_16": "b98703a06d44edec"
+  }
+ }
+}
