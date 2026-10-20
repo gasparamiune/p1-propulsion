@@ -190,6 +190,10 @@ def build_gimbal_parts(P, S, reg, info):
             r0, r1, r2 = w_["rho"]
             if RV:                      # v3.5.1: web bottom-outer corner kept 0.5 mm inside the root cylinder (no 0.26 mm sliver at z0)
                 r1 = min(r1, RV.get("r_out", 38.5) - 0.5)
+                if R2 and R2.get("arm_loop"):
+                    # v3.5.2 rev (lead 2026-10-20 DC): bottom-outer corner 0.5 mm OUTSIDE the root cylinder instead, so the web sides meet the
+                    # root cylinder down to the root bottom and the junction fillet runs to z0 (no shallow web-slope / cylinder corner)
+                    r1 = RV.get("r_out", 38.5) + 0.5
             if R2:                      # v3.5.2: web inner end inside the root (root inner face r_in)
                 r0 = max(r0, r_a0)
             web = (cq.Workplane("XZ").polyline([(r0, z_arm0 + 0.5), (r2, z_arm0 + 0.5), (r1, w_["z_bot"]), (r0, w_["z_bot"])]).close()
@@ -208,12 +212,90 @@ def build_gimbal_parts(P, S, reg, info):
             # 45 deg chamfer c on the arm top edge on the side away from the eye, rho 38-52 (stop clearance to the ring band bottom)
             c = float(LV["arm_chamfer"])
             yz = [(sgn * (3.5 - c), z_arm1 + 1.0), (sgn * 5.5, z_arm1 + 1.0), (sgn * 5.5, z_arm1 - 1.0 - c)]
-            wedge = cq.Workplane("YZ", origin=(38.0, 0, 0)).polyline(yz).close().extrude(14.0).val()
+            R2c = LV.get("root_v352") or {}
+            Rt = float(R2c.get("R_chamfer_top", 0.0)) if (R2c.get("arm_loop") and LV.get("back_web")) else 0.0
+            if Rt > 0:
+                # v3.5.2 rev (lead 2026-10-20 DC, FEA3D INTERIM 1 item 1): far-side top profile in ONE cutter, tangent-continuous S-curve
+                # from the arm top z_arm1 down to the back-web top z_top: convex arc R_chamfer_top, inflection at 45 deg ON the v3.5.2
+                # chamfer line, concave arc R_foot = drop / (1 - cos 45) - R_chamfer_top (> the junction fillet radius, so the rolling ball
+                # of the root junction fillet touches it at a point, not along a line), then flat at z_top.  Replaces the 45 deg chamfer
+                # below z_top, which the back web covered except for a 315 deg V-groove at its near face and a 0.09 mm strip at the root.
+                zbw = LV["back_web"]["z_top"]
+                drop = z_arm1 - zbw
+                Rr = drop / (1.0 - math.cos(math.radians(45.0))) - Rt
+                wc = 4.5 - c                                     # v3.5.2 chamfer start on the arm top (w from the arm axis, far side)
+                zi = z_arm1 - Rt * (1.0 - math.cos(math.radians(45.0)))      # inflection height
+                wi = wc + (z_arm1 - zi)                          # inflection on the v3.5.2 chamfer line
+                ca0 = (wi - Rt * math.sin(math.radians(45.0)), z_arm1 - Rt)  # convex arc centre
+                cb0 = (wi + Rr * math.sin(math.radians(45.0)), zbw + Rr)     # concave arc centre (in the air)
+                q0 = (ca0[0], z_arm1)
+                qm1 = (ca0[0] + Rt * math.sin(math.radians(22.5)), ca0[1] + Rt * math.cos(math.radians(22.5)))
+                q1 = (wi, zi)
+                qm2 = (cb0[0] - Rr * math.sin(math.radians(22.5)), cb0[1] - Rr * math.cos(math.radians(22.5)))
+                q3 = (cb0[0], zbw)
+                S_ = lambda q: (sgn * q[0], q[1])
+                wp = (cq.Workplane("YZ", origin=(38.0, 0, 0)).moveTo(*S_((q0[0], z_arm1 + 1.0))).lineTo(*S_(q0))
+                      .threePointArc(S_(qm1), S_(q1)).threePointArc(S_(qm2), S_(q3))
+                      .lineTo(*S_((5.5, zbw))).lineTo(*S_((5.5, z_arm1 + 1.0))).close())
+                # v3.5.2 rev 3 (lead 2026-10-20 ~04:45Z, DC 6(b)): the cutter runs out past the arm end (r_ch + 2.0) instead of stopping at
+                # x 52.  At x 52 its end face left a 1 mm step on the far-side top, and between x 52 and the crossing of the arm far side face
+                # with the diverging back-web near face (8.1 deg, x ~52.9) a 352 deg slit (z -14..-13) plus 319-331 deg step edges.  The cut
+                # acts on the arm only: the cheek, cheek extension, rib and back web are united afterwards and keep their own material.
+                L_cut = (r_ch + 2.0 + 1.0 - 38.0) if R2c.get("chamfer_runout") else 14.0
+                wedge = wp.extrude(L_cut).val()
+                S.setdefault("arm_far_top_profile_v352", {})[sv["i"]] = {"w_start": round(q0[0], 4), "inflection": [round(wi, 4), round(zi, 4)],
+                                                                        "w_end": round(q3[0], 4), "R_top_convex": Rt, "R_foot_concave": round(Rr, 4),
+                                                                        "x_range": [38.0, round(38.0 + L_cut, 3)],
+                                                                        "arm_end_x": round(r_ch + 2.0, 3)}
+            else:
+                wedge = cq.Workplane("YZ", origin=(38.0, 0, 0)).polyline(yz).close().extrude(14.0).val()
             parts[parts.index(arm)] = arm.cut(apply(wedge, T_rot("z", a_ch)))
         if LV and LV.get("cheek_ext_lo"):
             # cheek extended on the low-u side (away from the eye) to meet the back web; top lowered (under the ring band)
             parts.append(box_ut(sv, g["u_eye"] - LV["cheek_ext_lo"], g["u_eye"] - hu + 0.01, s * t_ch0, s * t_ch1, zc0,
                                 LV.get("cheek_ext_ztop", -14.0)))
+            R2v = LV.get("root_v352") or {}
+            Rcb = float(R2v.get("cheek_bw_corner_R", 0.0)) if LV.get("back_web") else 0.0
+            if Rcb > 0:
+                # v3.5.2 rev 3 (lead 2026-10-20 ~04:45Z, DC 6(b)): above the lowered extension top (z -14) the cheek low-u end face and the
+                # back-web near face cross at about 41 deg and leave a 319 deg V-notch 1 mm deep (z -14..-13) at r ~53.5; it is not a cutter
+                # artefact, so the cutter run-out leaves it.  It is rounded by a vertical corner fill of radius Rcb tangent (to within
+                # ~10 deg, for a robust union) to both faces, from the -14 floor to the cheek top z_arm1: the region between the V vertex
+                # and the arc only.  Nothing is added outside that corner (the far-side S-curve, the cheek extension top and the back web
+                # keep their v3.5.2 rev 2 / rev 3 run-out shape).
+                bwv = LV["back_web"]
+                a_bwv = math.radians(a_ch + sgn * bwv["az_off"])
+                u_lo = g["u_eye"] - hu
+                p1a, p1b = pt_ut(sv, u_lo, s * t_ch0, 0.0)[:2], pt_ut(sv, u_lo, s * t_ch1, 0.0)[:2]
+                n1 = -np.array(sv["eu"][:2], float)
+                n1 /= np.linalg.norm(n1)                                               # air side of the cheek end face (u < u_lo)
+                cb, sb = math.cos(a_bwv), math.sin(a_bwv)
+                n2 = np.array([-sb * (-sgn), cb * (-sgn)])                              # air side of the back-web near face (towards the arm)
+                q0 = np.array([cb * 0.0 - sb * (-sgn * bwv["t"] / 2.0), sb * 0.0 + cb * (-sgn * bwv["t"] / 2.0)])
+                l1 = np.array(p1b, float) - np.array(p1a, float)
+                l1 /= np.linalg.norm(l1)
+                l2 = np.array([cb, sb])
+                # V0 = p1a + a l1 on the plane (x - q0) . n2 = 0
+                V0 = np.array(p1a, float) + l1 * float(np.dot(q0 - np.array(p1a, float), n2) / np.dot(l1, n2))
+                d1 = l1 if np.dot(l1, n2) > 0 else -l1
+                d2 = l2 if np.dot(l2, n1) > 0 else -l2
+                th = 0.5 * math.acos(float(np.clip(np.dot(d1, d2), -1.0, 1.0)))
+                bis = (d1 + d2) / np.linalg.norm(d1 + d2)
+                dlt = 0.02
+                Cc = V0 + bis * (Rcb / math.sin(th) - dlt)
+                hcrd = math.sqrt(max(Rcb ** 2 - (Rcb - dlt * math.sin(th)) ** 2, 0.0))
+                s_in = (Rcb / math.sin(th) - dlt) * math.cos(th) - hcrd
+                P1, P2, Pm = V0 + d1 * s_in, V0 + d2 * s_in, Cc - bis * Rcb
+                Vin = V0 - bis * 0.10
+                zf0 = LV.get("cheek_ext_ztop", -14.0) - 0.05
+                cfill = (cq.Workplane("XY").workplane(offset=zf0).moveTo(*Vin).lineTo(*P1).threePointArc(tuple(Pm), tuple(P2)).close()
+                         .extrude(z_arm1 - zf0).val())
+                parts.append(cfill)
+                S.setdefault("cheek_bw_corner_v352", {})[sv["i"]] = {
+                    "R_mm": Rcb, "V_vertex_xy": [round(float(V0[0]), 3), round(float(V0[1]), 3)], "V_angle_deg": round(math.degrees(2 * th), 2),
+                    "tangent_offset_mm": dlt, "crossing_angle_deg": round(math.degrees(math.asin(hcrd / Rcb)), 2),
+                    "P1_cheek_xy": [round(float(P1[0]), 3), round(float(P1[1]), 3)], "P2_backweb_xy": [round(float(P2[0]), 3), round(float(P2[1]), 3)],
+                    "z": [LV.get("cheek_ext_ztop", -14.0), z_arm1], "volume_mm3": round(cfill.Volume(), 4)}
         if RV:
             # v3.5.1 (lead 183 (4); REV-MECH-1 RM1-07): the lever root is ONE annular sector r_in..r_out over a_ch +/- half_ang from z0
             # up to the band bottom, replacing the v3.4 'drop' box (its outer corners stood 0.26 mm proud of the flare cylinder r 38.5:
@@ -322,10 +404,21 @@ def build_gimbal_parts(P, S, reg, info):
                 # (2) root inner face r_in / band bottom: R limited by the 0.75 mm gap to the case OD r 31.75
                 out = fillet_sel(out, RV.get("R_in", 0.5), lambda x, y, z: abs(math.hypot(x, y) - r_i) < 0.03 and abs(z - zb) < 0.03, "root_in/band", flog)
             # (4) arm top + arm/web side face / root outer face r_out on the eye side of the arm (flat arm top: the v3.5 LC3 governing
-            #     junction); the far side (arm chamfer meeting the back web) is left as modelled and reported (no fillet)
+            #     junction); v3.5.1 / v3.5.2 interim: the far side (arm chamfer meeting the back web) was left as modelled (no fillet)
+            w_hi = 1.6
+            if R2 and R2.get("arm_loop") and LV.get("back_web"):
+                # v3.5.2 rev (lead 2026-10-20 DC, FEA3D INTERIM 1 item 1): the eye-side chain ran out on the arm chamfer and left the
+                # chamfer / root-cylinder junction sharp (GM-02 STEP edge 1, GM-01 edge 4: 270 deg, zero radius).  The whole junction of
+                # the arm + back web with the root cylinder r_out is one fillet loop (one call, one radius, 6 edges): eye-side arm/web
+                # face, arm top, far-side top S-curve (convex + concave arc), back-web top, back-web far face.
+                bw_ = LV["back_web"]
+                w_hi = (math.sqrt(r_o ** 2 - (bw_["t"] / 2.0) ** 2) * math.sin(math.radians(bw_["az_off"]))
+                        + (bw_["t"] / 2.0) * math.cos(math.radians(bw_["az_off"]))) + 0.1
+
             def arm_chain(x, y, z):
-                return (abs(math.hypot(x, y) - r_o) < 0.03 and z0r - 0.1 <= z <= z_arm1 + 0.05 and -4.6 <= sgn * yp(x, y) <= 1.6)
-            out = fillet_sel(out, RV.get("R_arm", 1.5), arm_chain, "arm_top+side/root (eye side)", flog)
+                return (abs(math.hypot(x, y) - r_o) < 0.03 and z0r - 0.1 <= z <= z_arm1 + 0.05 and -4.6 <= sgn * yp(x, y) <= w_hi)
+            out = fillet_sel(out, RV.get("R_arm", 1.5), arm_chain, ("arm + back-web / root junction loop (v3.5.2 rev)" if w_hi > 1.6
+                             else "arm_top+side/root (eye side)"), flog)
             S.setdefault("collar_root_v351_fillets", {})[sv["i"]] = flog
         return out
 
@@ -333,7 +426,17 @@ def build_gimbal_parts(P, S, reg, info):
         reg.add(Part(pn, f"Engine collar half {nm}", "AL7075-T6", "CNC mill (pair machined as one ring, then split)", collar_half(sy, sv), drawing=True,
                      notes=f"v3.5: 7075-T6 (was 6061-T6; S-3D v1.1 + FA-1 spike margins), " + (
                            "v3.5.2 lever root (FEA3D 4.6/9B design change): through-band root r 33.25-38.5 x +/-22 deg (band-OD boss r 38.5), inner corners R2.5, "
-                           "junction fillet R1.25 all round, boss sides R1.0, arm R1.5 (eye side), other internal corners R >= 2 unless modelled; "
+                           "junction fillet R1.25 all round, boss sides R1.0, "
+                           + ("arm + back-web / root junction R1.5 all round (one loop: eye-side arm/web face, arm top, far-side top, back-web top "
+                              "and far face; ball nose D3), far-side arm top S-curve R1.0 convex / R2.41 concave down to the back-web top z -14 "
+                              + ("run out over the full arm length past the arm end (rev 3) " if LV["root_v352"].get("chamfer_runout") else "")
+                              + "(replaces the 3 x 45 deg chamfer), "
+                              + (f"cheek low-u end / back-web near face corner above the cheek extension top (z -14..-13) R{LV['root_v352']['cheek_bw_corner_R']:g} "
+                                 "vertical (rev 3), " if LV["root_v352"].get("cheek_bw_corner_R") else "")
+                              + "under-arm web outer corner at r 39.0 (v3.5.2 rev, lead 2026-10-20 DC), "
+                              if LV["root_v352"].get("arm_loop") else "arm R1.5 (eye side), ")
+                           + ("internal corners not modelled with a radius: R0.5 min, R2 where both adjacent faces are >= 2 mm long (v3.5.2 rev 3 "
+                              "general note); " if LV["root_v352"].get("chamfer_runout") else "other internal corners R >= 2 unless modelled; ")
                            if (LV and LV.get("root_v352")) else "all internal corners R >= 2 (drawing note); ") + f"bore {2*rc_in:.2f} H9 in the case groove (62.50 h9 x 20.0), width {cw:.1f} -0.05; OD {2*rc_out:.0f}; inner-pin boss 16 mm "
                            f"with 8 P7 x 6.5 blind; 2 clamp bosses with 2x M3 DIN 7984 each (4 total, 1.0 N m); TVC lever cheek with M4 x 5 thread "
                            f"for the pivot stud at r_e {g['r_e']:.1f} mm, z {g['z_lb']:.1f}; arm z {z_arm0:.0f}..{z_arm1:.0f}",

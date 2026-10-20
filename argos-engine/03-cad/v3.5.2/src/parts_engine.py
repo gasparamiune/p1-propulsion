@@ -523,7 +523,14 @@ def build_engine_parts(P, S, reg, mat):
                       "finish": "as turned Ra 1.6 gas side; no coating", "ht": "-"}
                  )).place(T, "engine")
     r_bore = r_io + v("insert_sleeve_t")
-    slv = tube(2 * r_bore - 0.05, 2 * r_io + 0.02, zsh, zi)
+    # v3.5.2 N-F2b (2026-10-20, Mechanical): with nz_foil_OD (m) the NZ-06 foil lies under the NZ-01 shoulder only and the sleeve stands on the
+    # J1 hot layer NZ-03 at the foil bottom (= the v3.5.1 sleeve, unchanged part).  The full-width foil (OD 2 r_bore - 0.2 = the NZ-03 / NZ-04
+    # OD; thermal tag v352_NF2) touched the TC-09 bore (0.10 mm radial clearance, closed in the thermal mesh) and carried the insert heat
+    # radially into TC-09 at the in-plane k 220 W/m/K: TC-09 B1 flight 760.2 C vs 417.8 C without the foil
+    # (runs/thermal/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2 vs _v352_TC09).
+    _fod = (P.get("nz_foil_OD") or {}).get("v")
+    z_slv_bot = zsh - S.get("nz_foil_t", 0.0) if (_fod and S.get("nz_foil_t", 0.0) > 0.0) else zsh
+    slv = tube(2 * r_bore - 0.05, 2 * r_io + 0.02, z_slv_bot, zi)
     shp, T = localize(slv, zi)
     J1 = S.get("nozzle_joint") in ("J1", "J1B", "J2")   # J2 (SCREEN 2026-10-13): J1 stack geometry, zirconia hot layer NZ-03
     J1B = S.get("nozzle_joint") == "J1B"
@@ -584,10 +591,12 @@ def build_engine_parts(P, S, reg, mat):
                                                      "faces parallel 0.01, flat 0.01"], "finish": "faces ground Ra 0.8", "ht": "post-cure per laminate maker"})
                 ).place(T, "engine")
         if S.get("nz_foil_t", 0.0) > 0.0:
-            # v3.5.2 N-F2 (lead CHANGELOG 212): load-spreading foil between the hot layer and the insert shoulder / sleeve
-            fo = tube(2 * r_bore - 0.2, 2 * r_sp + 0.6, z_foil_bot, zsh)
+            # v3.5.2 N-F2 (lead CHANGELOG 212): load-spreading foil between the hot layer and the insert shoulder (N-F2b: shoulder only, see the sleeve)
+            d_fo = float(_fod) * 1000.0 if _fod else 2 * r_bore - 0.2
+            assert d_fo <= 2 * r_io + 0.02 or not _fod, f"NZ-06 foil OD {d_fo} must stay inside the NZ-02 sleeve ID"
+            fo = tube(d_fo, 2 * r_sp + 0.6, z_foil_bot, zsh)
             shp, T = localize(fo, zsh)
-            reg.add(Part("ENG-NZ-06", f"Nozzle-joint load-spreading foil (v3.5.2 N-F2): flexible graphite ring {2*r_sp+0.6:.1f}/{2*r_bore-0.2:.1f} x {S['nz_foil_t']:.2f}",
+            reg.add(Part("ENG-NZ-06", f"Nozzle-joint load-spreading foil (v3.5.2 N-F2): flexible graphite ring {2*r_sp+0.6:.1f}/{d_fo:.1f} x {S['nz_foil_t']:.2f}",
                          "FLEX-GRAPHITE-TH", "cut from roll foil (steel-rule die / water-jet)", shp, hot=True,
                          supplier="flexible graphite roll foil 0.25 mm, >= 99.85 % C, 1.0 g/cm3 (SGL SIGRAFLEX TH class, datasheet "
                                   "https://www.sglcarbon.com/pdf/SGL-Datasheet-SIGRAFLEX-TH-NH-THP-S-HP-UHP-Foil-EN.pdf read 2026-10-13: roll thickness 0.25 mm, "
@@ -596,7 +605,9 @@ def build_engine_parts(P, S, reg, mat):
                                "(S-AX v3.5.1: NZ-03 TB70 node MS -0.158 at r 20.98 vs mean +0.063).  Sits at the 1500 C shoulder: above the ~400 C "
                                "in-air rating, relies on the confined joint (limited oxidant); char/oxidation loss TO-VERIFY at T1 (section after "
                                "firing); a lost foil leaves the R 1.0 shoulder edge only.  Replace at every insert change.  Material data in "
-                               "engmat v352 FLEX-GRAPHITE-TH (k isotropic at the in-plane value = upper bound of radial spreading)")
+                               "engmat v352 FLEX-GRAPHITE-TH (k isotropic at the in-plane value = upper bound of radial spreading)"
+                               + (".  N-F2b (2026-10-20): footprint under the NZ-01 shoulder only (OD inside the NZ-02 sleeve ID), so the foil "
+                                  "edge meets the carbon-phenolic sleeve, never the TC-09 bore; the sleeve stands on NZ-03 directly" if _fod else ""))
                     ).place(T, "engine")
         sl = tube(2 * r_bore - 0.2, 2 * r_sp + 0.6, S["lip_top"], z_seal_top)
         shp, T = localize(sl, z_seal_top)

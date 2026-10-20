@@ -606,7 +606,11 @@ def hardware_lines():
                      "notes": (f"host {r['host']}; joint {r['joint']}; torque {r['torque_Nm']} N m ({r['torque_basis']})" if r["torque_Nm"] is not None
                                else f"host {r['host']}; joint {r['joint']}") + (f"; {r['thread_locker']}" if r["thread_locker"] else "")
                               + f"; L basis: {r['L_basis']}; status {r['status']}" + (f"; ACTION: {r['action']}" if r["action"] else "")
-                              + (f"; {r['note']}" if r["note"] else ""),
+                              + (f"; {r['note']}" if r["note"] else "")
+                              + (f"; OXYGEN SERVICE: {r['oxygen_service']}" if r.get("oxygen_service") else "")
+                              + (f"; ASSEMBLY: {r['assembly_note']}" if r.get("assembly_note") else "")
+                              + (f"; TEST {r['test']['id']} ({r['test']['owner']}): {r['test']['samples']}; acceptance {r['test']['acceptance']}"
+                                 if r.get("test") else ""),
                      "category": "HARDWARE (standard part, not modelled)", "host": r["host"], "kind": r["kind"],
                      "standard": r["standard"], "size": r["size"], "length_mm": r["length_mm"], "grade": r["grade"],
                      "torque_Nm": r["torque_Nm"], "torque_basis": r["torque_basis"], "status": r["status"],

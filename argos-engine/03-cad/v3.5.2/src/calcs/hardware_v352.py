@@ -108,6 +108,134 @@ NEW103B.update({"id": "HW-103B", "item": "FD-01 inlet block screw, upper (FD-01 
                             "rule: host-thread strip checked in joints_v352_v1.json, not governing) in the TC-02 M4 tap (drill 3.3 x 7.5, full "
                             "thread 6.5: tip 1.0 short of the thread end) = 16.0; y 0 at zb+24"), "action": "", "note": "lead 2026-10-19 item 2"})
 o["lines"].insert(idx + 1, NEW103B)
+# ---------------------------------------------------------------- v1.3 (2026-10-20): lead CHANGELOG 234 (1)(b)/(c) J-FWD preload re-check
+JP = Path("/home/claude/work/mechanical/v352/jfwd/jfwd_preload_v352_v1.json")
+JPD = json.loads(JP.read_text())
+JPSHA = hashlib.sha256(JP.read_bytes()).hexdigest()[:16]
+SEL = JPD["selected"]
+o.update({"version": "v1.3", "basis": o["basis"] + f" | v1.3 (2026-10-20): HW-101 {SEL['torque_Nm']:g} N m M-T1L LOCTITE 243 (lead 234 (1)(b)/(c); "
+                                                    f"04-fea/v352/jfwd_preload_v352_v1.json {JPSHA})"})
+for L in o["lines"]:
+    if L["id"] == "HW-101":
+        lc2, fa = SEL["LC2_margins"], SEL["FA1S_margins"]
+        L["torque_Nm"] = SEL["torque_Nm"]
+        L["torque_basis"] = (f"DESIGN v3.5.2 (lead 234 (1)(b); 04-fea/v352/jfwd_preload_v352_v1.json {JPSHA}): 5.53 N m failed the LC2 combined "
+                             "check (-0.031 at 78.6 C, max preload +25 %); "
+                             f"{SEL['torque_Nm']:g} N m -> F_nom {SEL['preload_N']['F_nom']:.0f} N, range {SEL['preload_N']['F_min_-25pc']:.0f}-"
+                             f"{SEL['preload_N']['F_max_+25pc']:.0f} N (K 0.20, +/-25 %, ASSUMED); LC2 SF 1.5/2.0 yield combined "
+                             f"{lc2['LC2_78.6C_ruled']['MS_y_combined']:+.3f} (78.6 C) / {lc2['LC2_100C_thermal']['MS_y_combined']:+.3f} (100 C bound + "
+                             f"thermal rise), ult interaction {lc2['LC2_78.6C_ruled']['MS_u_interaction']:+.3f}; FA1S ult interaction "
+                             f"{fa['MS_u_interaction_maxpreload_thermal']:+.3f}, shear-only yield {fa['MS_y_shear_only_minor']:+.3f} (relaxation argument)")
+        L["thread_locker"] = ("LOCTITE 243 (Henkel, medium strength) or an equivalent medium-strength anaerobic locker rated -55..+180 C "
+                              "(DATASHEET-distributor: Hoffmann Group 083301 243, https://www.hoffmann-group.com/MT/en/mbbridge/p/083301-243, "
+                              "accessed 2026-10-20; Henkel TDS new formulation 03-2010 https://static.rapidonline.com/pdf/12-4132o_v1.pdf, accessed "
+                              "2026-10-20: works on passive substrates; hot strength charts and the wet-locker K TO-VERIFY); joint max 119.7 C (SIM)")
+        L["action"] = (L["action"] + " | v1.3 intervals (ASSUMED until a test): replace all 10 HW-101 at every J-FWD disassembly and at the latest "
+                       "every 10 firings, and after any Pc above 60 bar abs; gauge the TC-01 holes (pins GO 5.50 / NO-GO 5.68) and the TC-02 taps "
+                       "(M5-6H GO / NO-GO) after firing 1, every 5 firings, at every HW-101 replacement and after any Pc above 45 bar abs; "
+                       "torque-tension test of HW-101 with the locker in a 6061-T6 coupon TO-DO (acceptance: max preload at "
+                       f"{SEL['torque_Nm']:g} N m <= {SEL['K_validity']['LC2_78.6C_thermal'][1]:.0f} N)")
+        L["status"] = "DEFINED v3.5.2 (lead CHANGELOG 231 (1), 234 (1)(b)/(c); FEA3D one-sector contact sub-model re-check pending)"
+        # lead 2026-10-20 (after 234): oxygen service of the locker on the N2O-wetted, oxygen-clean TC-02, and the founder test J-F1
+        TW = json.loads(Path("/home/claude/work/mechanical/v352/checks/test_interim352b_v1.json").read_text())["tc02_jfwd_tap_walls"]
+        tw = {t["az_deg"]: t["min_wall_mm_from_M5_major"] for t in TW["taps"]}
+        tw_num = [v for v in tw.values() if not isinstance(v, str)]
+        L["oxygen_service"] = (
+            "DRY SIDE (CAD, v3.5.2): all 10 J-FWD taps (M5-6H, drill 4.2 x 9.0 radial at z 127.513, M5 major z 125.01-130.01) lie forward "
+            "of both AS568-226 bore seals (glands g1 z 106.51-111.36, g2 z 114.36-119.21; chamber side = aft of the injector face z 103.51): "
+            "5.8 mm from the M5 major to the g2 forward wall, in the dry plug / bore annulus that is closed only by the head shoulder on the "
+            "case end (ambient). No tap breaks into any N2O, torch or Pc passage: minimum wall from the M5 major diameter to any other "
+            f"TC-02 cavity {min(tw_num):.3f} mm (torch passage, az 18 / 342), {tw.get(126.0)} mm (az 126), > 4.0 mm at the other 7 "
+            "(checks/test_interim352b_v1.json, CAD probe bisection; repeated on the final set). Exposure only after a double-seal "
+            "failure, then to chamber gas. So the anaerobic methacrylate locker is acceptable on this joint; no tap needs a "
+            "non-adhesive locking method")
+        L["assembly_note"] = (
+            "Oxygen service (TC-02 N2O-wetted, oxygen-clean, Krytox only): apply LOCTITE 243 only AFTER the oxygen cleaning of TC-01 / TC-02 "
+            "and after the plug is installed with its O-rings; apply it to the screw thread only (the first 3-4 engaged threads, one small "
+            "drop per screw, no excess), never into the tap or the TC-01 hole first; wipe any squeeze-out at the TC-01 OD with a "
+            "lint-free wipe; keep the locker, the wipes and gloved fingers away from the seal lands, glands, the manifold bore, the torch "
+            "and Pc passages and every other wetted bore (wetted ports capped during the operation); torque M-T1L on the wet locker, cure "
+            "per the maker sheet before any pressurisation; on removal clean the cured locker out of the taps by a thread chaser only (no "
+            "re-tap), then gauge (M5-6H GO / NO-GO) before re-installation")
+        L["test"] = {
+            "id": "J-F1", "owner": "founder (lead 2026-10-20 founder test list)",
+            "what": ("torque-tension of ISO 7380-1 M5 x 10 A4-80 (flight lot) with LOCTITE 243 (flight lot) into a 6061-T6 M5-6H tap "
+                     "(drill 4.2 x 9.0, 8.0 full thread, TC-02 surface state) through a 3.125 mm 6061-T6 wall coupon with a 5.5 hole and the "
+                     "R 31.75 seat, preload by a through-hole load washer (grip restored) or ultrasonic elongation, at 4.0 N m by M-T1L"),
+            "samples": "10 screws, one per fresh tap; plus 3 of the taps re-used 3 times after chaser cleaning (the replacement procedure): 19 readings",
+            "acceptance": ("maximum preload <= 6144 N on every reading (K >= 0.130: LC2 combined check with the thermal rise at 78.6 C); "
+                           "minimum preload >= 3000 N on every reading (K <= 0.267: the 6.0 kN friction / retention figure); a reading "
+                           "below 3000 N does not reopen the strength margins (bearing-type joint) but re-issues the retention statement and "
+                           "halves the gauge interval"),
+            "optional_J-F1b": ("5 of the J-F1 joints with the load washer kept in: 10 oven cycles 20 -> 120 C, residual preload and "
+                               "breakaway torque recorded; sets the 10-firing HW-101 replacement interval (ASSUMED until then)")}
+        L["note"] = (L.get("note", "") + f" | v1.3: at {SEL['torque_Nm']:g} N m the friction capacity at F_min cold (6.00 kN, mu 0.2 ASSUMED) is "
+                     "below the LC1 joint load 6.44 kN: the joint can settle into bearing at a normal firing (shear pins; LC1 case bearing "
+                     "41 MPa); TC-02 internal-thread shear at the max preload + thermal rise: soak 119.7 C "
+                     f"{SEL['TC02_internal_thread_shear']['soak_119.7C']['MS_y']:+.3f} (5.53 N m: "
+                     f"{SEL['TC02_internal_thread_shear']['at_5.53Nm_soak_MS_y']:+.3f})").strip(" |")
+# ---------------------------------------------------------------- v1.4 (2026-10-20): lead 'J-FWD 3.0 N m ACCEPTED' (after the gap-variant soak
+# check: 4.0 N m fails the GVLO soak screw tension); J-F1 acceptance from all checks incl. the gap variants; 2.5 N m fallback rows
+JP2 = Path("/home/claude/work/mechanical/v352/jfwd/jfwd_preload_v352_v2.json")
+JPD2 = json.loads(JP2.read_text())
+JPSHA2 = hashlib.sha256(JP2.read_bytes()).hexdigest()[:16]
+SEL2, JF1, FB = JPD2["selected"], JPD2["J-F1_acceptance"], JPD2["fallback_2.5Nm"]
+VR = JPD2["selected_variant_rows"]["rows"]
+JVSHA = JPD2["selected_variant_rows"]["source"].split()[-1]
+T2 = SEL2["torque_Nm"]
+o.update({"version": "v1.4", "basis": o["basis"] + f" | v1.4 (2026-10-20): HW-101 {T2:.1f} N m M-T1L LOCTITE 243 (lead: 'J-FWD 3.0 N m ACCEPTED'; "
+                                                    f"04-fea/v352/jfwd_preload_v352_v2.json {JPSHA2}, jfwd_variant_v352_v2.json {JVSHA}); "
+                                                    f"J-F1 acceptance <= {JF1['max_preload_N']:.0f} N"})
+for L in o["lines"]:
+    if L["id"] == "HW-101":
+        lc2, fa = SEL2["LC2_margins"], SEL2["FA1S_margins"]
+        L["torque_Nm"] = T2
+        L["torque_basis"] = (
+            f"DESIGN v3.5.2 (lead 2026-10-20 'J-FWD 3.0 N m ACCEPTED'; 04-fea/v352/jfwd_preload_v352_v2.json {JPSHA2}, jfwd_variant_v352_v2.json "
+            f"{JVSHA}): 5.53 N m failed the LC2 combined check (-0.031 at 78.6 C, max preload +25 %); 4.0 N m (v1.3) fails the GVLO gap-variant "
+            f"soak screw tension ({JPD2['selection_basis'].split('MS ')[1].split(' ')[0]}); {T2:.1f} N m -> F_nom {SEL2['preload_N']['F_nom']:.0f} N, range "
+            f"{SEL2['preload_N']['F_min_-25pc']:.0f}-{SEL2['preload_N']['F_max_+25pc']:.0f} N (K 0.20, +/-25 %, ASSUMED); LC2 SF 1.5/2.0 yield combined "
+            f"{lc2['LC2_78.6C_ruled']['MS_y_combined']:+.3f} (78.6 C) / {lc2['LC2_100C_thermal']['MS_y_combined']:+.3f} (100 C bound + thermal rise), ult "
+            f"interaction {lc2['LC2_78.6C_ruled']['MS_u_interaction']:+.3f}; gap variants, every B1 frame: LC2 yield >= "
+            f"{min(VR[k]['LC2_MS_y_min'] for k in VR):+.3f}, soak screw tension GVLO {VR['GVLO_ksh_x1']['soak_MS_y_min']:+.3f} (k_sh x0.5 "
+            f"{VR['GVLO_ksh_x0.5']['soak_MS_y_min']:+.3f}, x1.5 {VR['GVLO_ksh_x1.5']['soak_MS_y_min']:+.3f}, shown as found), GVHI "
+            f"{VR['GVHI_ksh_x1']['soak_MS_y_min']:+.3f}, merged {VR['merged_ksh_x1']['soak_MS_y_min']:+.3f}; FA1S ult interaction "
+            f"{fa['MS_u_interaction_maxpreload_thermal']:+.3f}, shear-only yield {fa['MS_y_shear_only_minor']:+.3f} (relaxation argument)")
+        L["thread_locker"] = ("LOCTITE 243 (Henkel, medium strength) or an equivalent medium-strength anaerobic locker rated -55..+180 C "
+                              "(DATASHEET-distributor: Hoffmann Group 083301 243, https://www.hoffmann-group.com/MT/en/mbbridge/p/083301-243, "
+                              "accessed 2026-10-20; Henkel TDS new formulation 03-2010 https://static.rapidonline.com/pdf/12-4132o_v1.pdf, accessed "
+                              "2026-10-20: works on passive substrates; hot strength charts and the wet-locker K TO-VERIFY); "
+                              + SEL2["thread_locker"].split("; ", 1)[1])
+        L["action"] = (L["action"].split(" | v1.3 intervals")[0] + f" | v1.4 intervals (ASSUMED until a test): replace all 10 HW-101 (M-T1L at {T2:.1f} "
+                       "N m, fresh LOCTITE 243) at every J-FWD disassembly and at the latest every 10 firings, and after any Pc above 60 bar abs; "
+                       "gauge the TC-01 holes (pins GO 5.50 / NO-GO 5.68) and the TC-02 taps (M5-6H GO / NO-GO) after firing 1, every 5 firings, at "
+                       "every HW-101 replacement and after any Pc above 45 bar abs; torque-tension test J-F1 TO-DO (acceptance: max preload at "
+                       f"{T2:.1f} N m <= {JF1['max_preload_N']:.0f} N, min >= {JF1['min_preload_N']:.0f} N)")
+        L["status"] = "DEFINED v3.5.2 (lead CHANGELOG 231 (1), 234 (1)(b)/(c), 2026-10-20 3.0 N m decision; FEA3D one-sector contact sub-model re-check pending)"
+        L["test"]["what"] = L["test"]["what"].replace("at 4.0 N m by M-T1L", f"at {T2:.1f} N m by M-T1L")
+        assert f"at {T2:.1f} N m by M-T1L" in L["test"]["what"]
+        L["test"]["acceptance"] = (
+            f"maximum preload <= {JF1['max_preload_N']:.0f} N on every reading (K >= {JF1['K_min']:.4f}; governing: {JF1['governing']}; with the "
+            f"case-shell stiffness k_sh x1.5 the limit is {JF1['k_sh_x1.5_sensitivity']['max_preload_N']:.0f} N, K >= "
+            f"{JF1['k_sh_x1.5_sensitivity']['K_min']:.4f}); minimum preload >= {JF1['min_preload_N']:.0f} N on every reading (K <= "
+            f"{JF1['K_max']:.3f}: the -25 % scatter bound of the retention statement); a reading below the minimum does not reopen the strength "
+            "margins (bearing-type joint) but re-issues the retention statement and halves the gauge interval; a reading above the maximum "
+            f"goes to the lead: the {FB['torque_Nm']:g} N m fallback keeps the same {FB['J-F1_limit']['max_preload_N']:.0f} N limit (K >= "
+            f"{FB['J-F1_limit']['K_min']:.4f})")
+        L["fallback_2.5Nm"] = {
+            "torque_Nm": FB["torque_Nm"], "preload_N": FB["preload_N"], "LC2_margins": FB["LC2_margins"], "FA1S_margins": FB["FA1S_margins"],
+            "LC1_bearing": {"friction_kN": FB["LC1_bearing_retention"]["friction_mu0.2_kN"], "LC1_joint_load_kN": FB["LC1_bearing_retention"]["LC1_joint_load_kN"],
+                            "case_bearing_MS_y_u": [FB["LC1_bearing_retention"]["LC1_case_bearing"]["case_MS_y"], FB["LC1_bearing_retention"]["LC1_case_bearing"]["case_MS_u"]]},
+            "soak_variant_screw_tension_MS_y": FB["soak_variant_screw_tension_MS_y"], "J-F1_limit": FB["J-F1_limit"],
+            "source": f"04-fea/v352/jfwd_preload_v352_v2.json {JPSHA2}"}
+        L["note"] = (L.get("note", "").split(" | v1.3:")[0] + f" | v1.4: at {T2:.1f} N m the friction capacity (mu 0.2 ASSUMED) is "
+                     f"{SEL2['retention']['friction_mu0.2_ASSUMED_kN']['F_min_cold']:.2f} kN at F_min and "
+                     f"{SEL2['retention']['friction_mu0.2_ASSUMED_kN']['F_nom_cold']:.2f} kN at F_nom (cold), both below the LC1 joint load "
+                     f"{SEL2['retention']['joint_load_kN']['LC1_25.01bar']:.2f} kN: the joint settles into bearing at a normal firing (shear pins; LC1 "
+                     "case bearing 41 MPa); TC-02 internal-thread shear at the max preload + thermal rise: soak 119.7 C "
+                     f"{SEL2['TC02_internal_thread_shear']['soak_119.7C']['MS_y']:+.3f}, gap variants min "
+                     f"{min(VR[k]['thread_MS_y_min'] for k in VR if k.endswith('_ksh_x1')):+.3f} (5.53 N m soak: "
+                     f"{SEL2['TC02_internal_thread_shear']['at_5.53Nm_soak_MS_y']:+.3f})").strip(" |")
 TQ_METHOD = {}
 for L in o["lines"]:
     if L["kind"] != "screw":

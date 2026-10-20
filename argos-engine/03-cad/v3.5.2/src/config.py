@@ -606,6 +606,10 @@ V351_ON = dict(V34_ON, jfwd_tap_drill_mm=9.0, bleed_tap_v351=True, gimbal_bearin
 #        foil adds 0.25 mm to the J1 stack, the insert shoulder rises 0.25 mm (spigot +0.25, insert body and NZ-02 -0.25); the insert
 #        bottom stays flush with the lip bottom and the 2.0 mm hot layer keeps its thickness (Combustion J1 value).  Evidence: v352 thermal +
 #        S-AX re-run (tag v352_NF2); NZ-03 stays SHOWN AS FOUND until cleared there or by N-F1 (founder char test).
+#        N-F2b (2026-10-20, Mechanical): foil footprint under the NZ-01 shoulder only, OD 43.9 (nz_foil_OD, m) inside the NZ-02 sleeve
+#        ID 44.02; the sleeve stands on NZ-03 directly (= v3.5.1 sleeve).  The full-width foil (OD 49.8 = NZ-03 / NZ-04 OD) touched the
+#        TC-09 bore (0.10 mm clearance, closed in the thermal mesh) and carried the insert heat radially into TC-09 (in-plane k 220
+#        W/m/K): thermal tag v352_NF2 TC-09 B1 flight 760.2 C / soak 850.2 C vs 417.8 / 736.1 C without the foil -> tag v352_NF2b.
 #  - lever root (lead 2026-10-19 item 1; FEA3D REPORT 4.6 / 9B: GM-01/02 R3 LC3 -0.27/-0.38, F2 GS -0.21/-0.33): tvc_lever_v34.root_v352 =
 #        through-band root sector r 33.25..38.5 x a_ch +/- 22 deg from z -34 to the band top (r 37..38.5 = band-OD boss, so the junction at the band
 #        bottom spans r 33.25..38.5 instead of 32.5..37.0), inner vertical corners R2.5, ONE junction fillet R1.25 round the footprint (tangent line
@@ -625,14 +629,15 @@ V351_ON = dict(V34_ON, jfwd_tap_drill_mm=9.0, bleed_tap_v351=True, gimbal_bearin
 #        (+/-11.69 wide), FD-01 lower ears +/-13.5, 3x M4 DIN 7984 A4-80 (2 lower at y +/-8.5 / zb+5, x 20; 1 upper at y 0 / zb+24, x 16),
 #        1.8 N m (v352/jfd/joints_v352_v1.json: bounding R7 +0.12, groove-OD area +0.25, Phi 0.2 +0.40; nu 0.55 / 0.69)
 V5C_LEVER_V352 = dict(V5C_LEVER, root_v352={"half_ang": 22.0, "r_in": 33.25, "r_out": 38.5, "z0": -34.0, "R_v": 2.5, "R_j": 1.25, "R_b": 1.0,
-                                             "R_arm": 1.5})
-V352_ON = dict(V351_ON, tc09_barrel_wall=0.0018, tc09_socket_R2=0.0345, nz_foil_t=0.00025, nz01_shoulder_R=0.0010,
+                                             "R_arm": 1.5, "arm_loop": True, "R_chamfer_top": 1.0, "chamfer_runout": True, "cheek_bw_corner_R": 0.5})
+V352_ON = dict(V351_ON, tc09_barrel_wall=0.0018, tc09_socket_R2=0.0345, nz_foil_t=0.00025, nz01_shoulder_R=0.0010, nz_foil_OD=0.0439,
                tvc_lever_v34=V5C_LEVER_V352, n_bolts_chamber=10, jfwd_ang0_deg=18.0, jfwd_screw_len_mm=10.0, jfd01_v352=True,
                fd04_clear_jfwd=True, jfd09_v352=True)          # jfd09_v352: FD-09 note only (HW-127 A4-80 1.8 N m), no geometry
 # J-FWD land (line 230 (1) FA1S option, +21.7 g) WITHDRAWN by lead CHANGELOG 231 (1): kept as a trade key set for the record only
 V352_JFWD_LAND_TRADE = dict(jfwd_land_t=0.0044, jfwd_land_od=0.0669, jfwd_land_aft=0.011, jfwd_spot_d=0.0105, jfwd_screw_len_mm=12.0)
 V352_TC09_ON = dict(V351_ON, tc09_barrel_wall=0.0018, tc09_socket_R2=0.0345)     # TC-09-only sensitivity (thermal tag v352_TC09, mass file)
 V352_NF2_ON = dict(V351_ON, tc09_barrel_wall=0.0018, tc09_socket_R2=0.0345, nz_foil_t=0.00025, nz01_shoulder_R=0.0010)   # 2026-10-13 N-F2 state (test_nf2)
+V352_NF2B_ON = dict(V352_NF2_ON, nz_foil_OD=0.0439)   # 2026-10-20 N-F2b thermal state (tag v352_NF2b): foil under the shoulder only
 
 def val(P, k):
     return P[k]["v"]

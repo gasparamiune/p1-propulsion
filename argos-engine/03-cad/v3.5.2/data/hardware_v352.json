@@ -1,10 +1,10 @@
 {
  "id": "hardware_v352",
- "version": "v1.2",
+ "version": "v1.4",
  "cad_version": "v3.5.2",
  "date": "2026-10-20",
  "owner": "mechanical",
- "basis": "Standard hardware, O-rings and seals of CAD v3.5.1 (REV-MECH-1 RM1-12, lead CHANGELOG 188 (11)), v1, 2026-10-13, Mechanical. | v3.5.2: lead CHANGELOG 206 (2b) Ti-6Al-4V screws (v352/ti/ti_screws_v352_v1.json, sha256/16 recorded below) | v1.2 (2026-10-20): J-FWD HW-101 10x M5 x 10 A4-80 (item 11 per lead 231 (1)), J-FD01 3x M4 A4-80 (item 2), J-FD09 A4-80 1.8 N m (item 3), tightening method + preload scatter per screw line (04-fea/v352/joints_v352_v1.json)",
+ "basis": "Standard hardware, O-rings and seals of CAD v3.5.1 (REV-MECH-1 RM1-12, lead CHANGELOG 188 (11)), v1, 2026-10-13, Mechanical. | v3.5.2: lead CHANGELOG 206 (2b) Ti-6Al-4V screws (v352/ti/ti_screws_v352_v1.json, sha256/16 recorded below) | v1.2 (2026-10-20): J-FWD HW-101 10x M5 x 10 A4-80 (item 11 per lead 231 (1)), J-FD01 3x M4 A4-80 (item 2), J-FD09 A4-80 1.8 N m (item 3), tightening method + preload scatter per screw line (04-fea/v352/joints_v352_v1.json) | v1.3 (2026-10-20): HW-101 4 N m M-T1L LOCTITE 243 (lead 234 (1)(b)/(c); 04-fea/v352/jfwd_preload_v352_v1.json 5dbcb3597d009b0e) | v1.4 (2026-10-20): HW-101 3.0 N m M-T1L LOCTITE 243 (lead: 'J-FWD 3.0 N m ACCEPTED'; 04-fea/v352/jfwd_preload_v352_v2.json d76db66f4bfcff73, jfwd_variant_v352_v2.json c67c9ab17c37a2c1); J-F1 acceptance <= 4096 N",
  "rules": {
   "K_nut": 0.2,
   "preload_fraction_Rp02": 0.65,
@@ -38,13 +38,89 @@
    "L_basis": "v3.5.1 geometry kept: case wall 3.125 at the 5.5 hole (no spot face; the button head seats on the OD r 31.75) + plug gap 0.025 + engagement 6.85 in the TC-02 M5-6H tap (drill 4.2 x 9.0, full thread 8.0) = 10.0; 10 holes at az 18 + 36k deg, match-drilled TC-01 / TC-02",
    "unit_mass_g": 2.028,
    "mass_evidence": "CALC (standard nominal geometry AS RECALLED x engmat density); DATASHEET TO-FETCH",
-   "torque_Nm": 5.53,
-   "torque_basis": "DERIVED: T = 0.2 x F x d, F = 0.65 x Rp0.2,min 600 MPa x As 14.18 mm2 = 5531 N (K and preload fraction ASSUMED) | v3.5.2: unchanged (preload is not a strength item in this bearing-type joint)",
-   "thread_locker": "",
-   "status": "DEFINED v3.5.2 (lead CHANGELOG 231 (1); FEA3D one-sector contact sub-model re-check pending)",
-   "action": "v3.5.1 'spot face TO-DEFINE' CLOSED: no spot face (it would cut the case bearing to +0.19 / -0.05 at 10 / 8 screws); inspect-or-replace after any Pc excursion above 60 bar abs (v352/jfwd/jfwd_v352_v1.json)",
-   "note": "lead 177 (2) A4-80; 194: yield at 93 bar abs (0.1 < T <= 1 ms) / FA1S until the J-FWD period is shown (modal closure) | v3.5.2 (lead 231 (1)): 8 -> 10 screws; FA1S 151.04 bar abs SF 1.0 min MS +0.077 (screw shear yield on the minor area at 45 C; +0.137 at 20 C), case bearing +0.34 / +0.65, TC-02 tap mouth Neuber +0.62 (04-fea/v352/jfwd_v352_v1.json)",
-   "tightening_method": "M-T1",
+   "torque_Nm": 3.0,
+   "torque_basis": "DESIGN v3.5.2 (lead 2026-10-20 'J-FWD 3.0 N m ACCEPTED'; 04-fea/v352/jfwd_preload_v352_v2.json d76db66f4bfcff73, jfwd_variant_v352_v2.json c67c9ab17c37a2c1): 5.53 N m failed the LC2 combined check (-0.031 at 78.6 C, max preload +25 %); 4.0 N m (v1.3) fails the GVLO gap-variant soak screw tension (-0.118); 3.0 N m -> F_nom 3000 N, range 2250-3750 N (K 0.20, +/-25 %, ASSUMED); LC2 SF 1.5/2.0 yield combined +0.478 (78.6 C) / +0.267 (100 C bound + thermal rise), ult interaction +0.941; gap variants, every B1 frame: LC2 yield >= +0.388, soak screw tension GVLO +0.054 (k_sh x0.5 +0.128, x1.5 -0.008, shown as found), GVHI +0.300, merged +0.479; FA1S ult interaction +0.361, shear-only yield +0.068 (relaxation argument)",
+   "thread_locker": "LOCTITE 243 (Henkel, medium strength) or an equivalent medium-strength anaerobic locker rated -55..+180 C (DATASHEET-distributor: Hoffmann Group 083301 243, https://www.hoffmann-group.com/MT/en/mbbridge/p/083301-243, accessed 2026-10-20; Henkel TDS new formulation 03-2010 https://static.rapidonline.com/pdf/12-4132o_v1.pdf, accessed 2026-10-20: works on passive substrates; hot strength charts and the wet-locker K TO-VERIFY); J-FWD row maxima (SIM, B1 v352_NF2b, jfwd_variant_v352_v2): TC-01 wall 158.0 C, TC-02 tap zone (where the locker is) 119.6 C, screw mean 127.3 C: below the 180 C rating",
+   "status": "DEFINED v3.5.2 (lead CHANGELOG 231 (1), 234 (1)(b)/(c), 2026-10-20 3.0 N m decision; FEA3D one-sector contact sub-model re-check pending)",
+   "action": "v3.5.1 'spot face TO-DEFINE' CLOSED: no spot face (it would cut the case bearing to +0.19 / -0.05 at 10 / 8 screws); inspect-or-replace after any Pc excursion above 60 bar abs (v352/jfwd/jfwd_v352_v1.json) | v1.4 intervals (ASSUMED until a test): replace all 10 HW-101 (M-T1L at 3.0 N m, fresh LOCTITE 243) at every J-FWD disassembly and at the latest every 10 firings, and after any Pc above 60 bar abs; gauge the TC-01 holes (pins GO 5.50 / NO-GO 5.68) and the TC-02 taps (M5-6H GO / NO-GO) after firing 1, every 5 firings, at every HW-101 replacement and after any Pc above 45 bar abs; torque-tension test J-F1 TO-DO (acceptance: max preload at 3.0 N m <= 4096 N, min >= 2250 N)",
+   "note": "lead 177 (2) A4-80; 194: yield at 93 bar abs (0.1 < T <= 1 ms) / FA1S until the J-FWD period is shown (modal closure) | v3.5.2 (lead 231 (1)): 8 -> 10 screws; FA1S 151.04 bar abs SF 1.0 min MS +0.077 (screw shear yield on the minor area at 45 C; +0.137 at 20 C), case bearing +0.34 / +0.65, TC-02 tap mouth Neuber +0.62 (04-fea/v352/jfwd_v352_v1.json) | v1.4: at 3.0 N m the friction capacity (mu 0.2 ASSUMED) is 4.50 kN at F_min and 6.00 kN at F_nom (cold), both below the LC1 joint load 6.44 kN: the joint settles into bearing at a normal firing (shear pins; LC1 case bearing 41 MPa); TC-02 internal-thread shear at the max preload + thermal rise: soak 119.7 C +0.676, gap variants min +0.311 (5.53 N m soak: -0.006)",
+   "oxygen_service": "DRY SIDE (CAD, v3.5.2): all 10 J-FWD taps (M5-6H, drill 4.2 x 9.0 radial at z 127.513, M5 major z 125.01-130.01) lie forward of both AS568-226 bore seals (glands g1 z 106.51-111.36, g2 z 114.36-119.21; chamber side = aft of the injector face z 103.51): 5.8 mm from the M5 major to the g2 forward wall, in the dry plug / bore annulus that is closed only by the head shoulder on the case end (ambient). No tap breaks into any N2O, torch or Pc passage: minimum wall from the M5 major diameter to any other TC-02 cavity 1.906 mm (torch passage, az 18 / 342), 2.719 mm (az 126), > 4.0 mm at the other 7 (checks/test_interim352b_v1.json, CAD probe bisection; repeated on the final set). Exposure only after a double-seal failure, then to chamber gas. So the anaerobic methacrylate locker is acceptable on this joint; no tap needs a non-adhesive locking method",
+   "assembly_note": "Oxygen service (TC-02 N2O-wetted, oxygen-clean, Krytox only): apply LOCTITE 243 only AFTER the oxygen cleaning of TC-01 / TC-02 and after the plug is installed with its O-rings; apply it to the screw thread only (the first 3-4 engaged threads, one small drop per screw, no excess), never into the tap or the TC-01 hole first; wipe any squeeze-out at the TC-01 OD with a lint-free wipe; keep the locker, the wipes and gloved fingers away from the seal lands, glands, the manifold bore, the torch and Pc passages and every other wetted bore (wetted ports capped during the operation); torque M-T1L on the wet locker, cure per the maker sheet before any pressurisation; on removal clean the cured locker out of the taps by a thread chaser only (no re-tap), then gauge (M5-6H GO / NO-GO) before re-installation",
+   "test": {
+    "id": "J-F1",
+    "owner": "founder (lead 2026-10-20 founder test list)",
+    "what": "torque-tension of ISO 7380-1 M5 x 10 A4-80 (flight lot) with LOCTITE 243 (flight lot) into a 6061-T6 M5-6H tap (drill 4.2 x 9.0, 8.0 full thread, TC-02 surface state) through a 3.125 mm 6061-T6 wall coupon with a 5.5 hole and the R 31.75 seat, preload by a through-hole load washer (grip restored) or ultrasonic elongation, at 3.0 N m by M-T1L",
+    "samples": "10 screws, one per fresh tap; plus 3 of the taps re-used 3 times after chaser cleaning (the replacement procedure): 19 readings",
+    "acceptance": "maximum preload <= 4096 N on every reading (K >= 0.1465; governing: variant_GVLO_ksh_x1 (soak_tension_yield, t 63.651 s, TC-01 / TC-02 157.9 / 95.8 C); with the case-shell stiffness k_sh x1.5 the limit is 3697 N, K >= 0.1623); minimum preload >= 2250 N on every reading (K <= 0.267: the -25 % scatter bound of the retention statement); a reading below the minimum does not reopen the strength margins (bearing-type joint) but re-issues the retention statement and halves the gauge interval; a reading above the maximum goes to the lead: the 2.5 N m fallback keeps the same 4096 N limit (K >= 0.1221)",
+    "optional_J-F1b": "5 of the J-F1 joints with the load washer kept in: 10 oven cycles 20 -> 120 C, residual preload and breakaway torque recorded; sets the 10-firing HW-101 replacement interval (ASSUMED until then)"
+   },
+   "fallback_2.5Nm": {
+    "torque_Nm": 2.5,
+    "preload_N": {
+     "F_nom": 2500.0,
+     "F_min_-25pc": 1875.0,
+     "F_max_+25pc": 3125.0
+    },
+    "LC2_margins": {
+     "LC2_78.6C_ruled": {
+      "MS_y_combined": 0.6222,
+      "MS_u_interaction": 1.0829
+     },
+     "LC2_78.6C_thermal": {
+      "MS_y_combined": 0.5059,
+      "MS_u_interaction": 0.9689
+     },
+     "LC2_100C_ruled": {
+      "MS_y_combined": 0.538,
+      "MS_u_interaction": 1.0662
+     },
+     "LC2_100C_thermal": {
+      "MS_y_combined": 0.3879,
+      "MS_u_interaction": 0.9108
+     }
+    },
+    "FA1S_margins": {
+     "MS_u_interaction_maxpreload_thermal": 0.4088,
+     "MS_y_shear_only_minor": 0.0681,
+     "MS_y_combined_info": -0.0231
+    },
+    "LC1_bearing": {
+     "friction_kN": {
+      "F_min_cold": 3.75,
+      "F_nom_cold": 5.0
+     },
+     "LC1_joint_load_kN": 6.44,
+     "case_bearing_MS_y_u": [
+      6.8516,
+      8.6191
+     ]
+    },
+    "soak_variant_screw_tension_MS_y": {
+     "merged": {
+      "k_sh_x0.5": 0.7102,
+      "k_sh_x1": 0.7103,
+      "k_sh_x1.5": 0.7104
+     },
+     "GVLO": {
+      "k_sh_x0.5": 0.2595,
+      "k_sh_x1": 0.1686,
+      "k_sh_x1.5": 0.093
+     },
+     "GVHI": {
+      "k_sh_x0.5": 0.5331,
+      "k_sh_x1": 0.4735,
+      "k_sh_x1.5": 0.4204
+     }
+    },
+    "J-F1_limit": {
+     "max_preload_N": 4096,
+     "K_min": 0.1221,
+     "min_preload_N": 1875.0,
+     "K_max": 0.2667
+    },
+    "source": "04-fea/v352/jfwd_preload_v352_v2.json d76db66f4bfcff73"
+   },
+   "tightening_method": "M-T1L",
    "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
