@@ -1,7 +1,16 @@
 """J-FWD disc spring under the head: paper scoping (lead 12:09Z item 4 (iii); lead 12:52Z item 4).  No CAD change, no hardware.
-Mechanical, 2026-10-20, v2 (v1 7e7a15777f1e33b0 / json 6fd6420cdc529306 ACCEPTED by the lead 13:20Z, kept as jfwd_spring_v352_v1.py):
-re-run on relaxation v6 ((a'') joins, k_b lo on (a'') SOAK70) and rows v3; otherwise v1.  CALC / DERIVED on relaxation v6 and catalogue data;
-not physical approval.
+Mechanical, 2026-10-20, v3 (v2 6301f56f42d4a7ae / json 1df11254a2965d56 kept as jfwd_spring_v352_v2.py; v1 7e7a15777f1e33b0 / json
+6fd6420cdc529306 ACCEPTED by the lead 13:20Z, kept as jfwd_spring_v352_v1.py).  CALC / DERIVED on relaxation v7 and catalogue data; not
+physical approval.
+v3 (lead 15:37Z order item 1 'spring v3', lead 16:07Z item 5): re-run on relax v7 (FEA3D's ADOPTED envelope v3 0872de4ea7e3601d, 'worst
+computed instance, not a proven bound'; (b2) and '(b2) rep' join; IN718 k_b hi 1,100,023 N/mm on (b2) SOAK70, lo 418,365) and rows v6
+(THE ROW thread basis: drawn M5 x 10.2 +/-0.1 on the rev-5 flat, TC-01 wall seated, 0.078 gap bound).  Shows, per spring, R 0 / 0.2 / 0.4
+(and the full sweep), both k_b ends and both families: all 24 seated or not, the minimum screw force, the lift, and whether the spring is
+solid (flat) at every hot frame (T01 >= 140 C).  Geometry on the rev-5 basis (length 10.2 + t, tip with the wall seated, engagement at
+the gap bound, the thread row at every soak state), bearing at the largest soak screw force, and route (i) (drawn pilot) re-stated with
+the C1 (g) / (h) rulings (hole 5.5 +0.12/0, position 0.10 dia to A|B, spot face coaxial 0.10): the z-direction centring stack and the
+14:01Z tangential overhang finding (input), with geometry PROPOSALS where route (i) needs one (propose, do not apply).
+v2 notes follow (re-run on relaxation v6 ((a'') joins, k_b lo on (a'') SOAK70) and rows v3; otherwise v1).
 
 Spring in series with the screw, OUTSIDE the joint's strength path when flat: the spring is flat (solid) from its flat load up, so at the
 installation (2250..4096 N) and at every soak frame the joint is the v5 joint and every strength row is unchanged.  Only where the stiff
@@ -35,17 +44,17 @@ from pathlib import Path
 import numpy as np
 
 J = Path("/home/claude/work/mechanical/v352/jfwd")
-OUT = J / "jfwd_spring_v352_v2.json"
-_spec = importlib.util.spec_from_file_location("jfwd_relax_v352_v6", str(J / "jfwd_relax_v352.py"))
+OUT = J / "jfwd_spring_v352_v3.json"
+_spec = importlib.util.spec_from_file_location("jfwd_relax_v352_v7", str(J / "jfwd_relax_v352.py"))
 R = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(R)
-assert "v6 (v5 95409d512c83bb44" in R.__doc__
+assert "v7 (v6 9465eaeac9af407f" in R.__doc__
 sha = R.sha
 STATE0 = R.state_s
 K_C = R.K_C
 LBF = 4.4482216152605
-IN = "IN718 M5 x10 (RULED, ENG-HW-101-IN718)"
-V5J = J / "jfwd_relax_v352_v6.json"
+IN = R.IN_KEY
+V5J = J / "jfwd_relax_v352_v7.json"
 
 
 class Spring:
@@ -172,107 +181,122 @@ def verdict(cases):
             "max_screw_set_um": max(x["screw_set_end_um"] for x in cases.values()), "shakedown_min_MS": min(x["shakedown_MS"] for x in cases.values())}
 
 
+def seg_area(R_, d):
+    """area of the circle of radius R_ beyond a straight edge at distance d from its centre (0 if d >= R_)"""
+    if d >= R_:
+        return 0.0
+    if d <= -R_:
+        return math.pi * R_ ** 2
+    return R_ ** 2 * math.acos(d / R_) - d * math.sqrt(R_ ** 2 - d ** 2)
+
+
 def geometry_and_bearing():
-    """screw length 10.2 + t, tip clearance with the TC-01 wall seated on the plug at the hole (lead 12:52Z item 3), engagement, thread
-    shear at SOAK, head / spring / spot-face bearing at SOAK N max, fillet and centring geometry.  Uses the rows v2 module (published)."""
+    """v3: rev-5 basis (rows v6 eng_rev5 = THE ROW basis): screw length 10.2 + t, tip with the TC-01 wall seated (wall min), engagement at
+    local gap 0 and at the 0.078 gap bound (THE ROW), the thread row at every soak state on the envelope; head / spring / flat bearing at
+    the largest soak screw force; fillet; route (i) centring with C1 (g) / (h); the 14:01Z tangential overhang."""
     _sw = importlib.util.spec_from_file_location("jfwd_in718_rows_v352", str(J / "jfwd_in718_rows_v352.py"))
     W = importlib.util.module_from_spec(_sw)
     _sw.loader.exec_module(W)
-    R_FLAT_MIN, R_FLAT_MAX = W.R_FLAT_RANGE                     # d10.5 +/-0.2 (ISO 2768-m ASSUMED) on R31.75
-    R_PLUG = W.R_PLUG_DWG                                        # f7 plug d57.140-57.170
-    GAP_MIN, GAP_MAX = R.GAPS["H8f7_min"], R.GAPS["H8f7_max"]    # 239 (3): buildable radial gaps 0.040-0.078
-    R_BORE = (R_PLUG[1] + GAP_MIN, R_PLUG[0] + GAP_MAX)          # TC-01 bore radius 28.625-28.648 (d57.25 H8)
-    WALL = (R_FLAT_MIN - R_BORE[1], R_FLAT_MAX - R_BORE[0])      # TC-01 wall at the hole, flat to bore (local gap 0)
+    assert W.A_THE_ROW == 68.13, W.A_THE_ROW
     T_TOL = (+0.02, -0.06)                                        # DIN EN 16983 / DIN 2093 thickness t 0.20-0.60 (Schnorr brochure 2024-02 p. 10)
-    st = "SOAK"
-    th = W.CELLS[st]["TC-02"]["thread_shear_An"]
-    fsy = 0.577 * R.tab("AL6061-T6", "Fty", th["T_C"])
-    henv = max(W.HS, key=lambda h: W.n_in(st, h))
-    NS = {f"{FV:.0f}": W.n_in(st, henv, FV) for FV in (W.FV0, W.FVMAX)}
-    # lead 13:20Z item 3 (rev 5 drawing rule): each J-FWD flat defined by its depth from the bore axis, wall at the hole >= 2.665
-    # (r_flat >= 31.313 at the H8 maximum bore); tolerance proposed here: r_flat 31.313 +0.020 / 0 (milled in the hole set-up, depth
-    # referenced to bore A, CMM-verified)
-    RF5 = (31.313, 31.333)
-    WALL5 = (RF5[0] - R_BORE[1], RF5[1] - R_BORE[0])
-    BASES = {"v1: d10.5 +/-0.2 on the nominal OD (ASSUMED)": WALL, "rev 5: r_flat 31.313 +0.020/0 from the bore axis": WALL5}
+    SOAK = ("SOAK70", "SOAK", "SOAK52")
+    NS, FSY, HENV = {}, {}, {}
+    for st in SOAK:
+        th = W.CELLS[st]["TC-02"]["thread_shear_An"]
+        FSY[st] = (0.577 * R.tab("AL6061-T6", "Fty", th["T_C"]), th["T_C"])
+        HENV[st] = max(W.R.H_at(st), key=lambda h: W.n_in(st, h))
+        NS[st] = {f"{FV:.0f}": W.n_in(st, HENV[st], FV) for FV in (W.FV0, W.FVMAX)}
     cases = {}
-    for bname, WB in BASES.items():
-        for name, L, tol, t_nom in (("no spring, 10.2 +/-0.1 (RULED 12:52Z)", 10.2, 0.1, 0.0),
-                                    ("spring A t 0.5: 10.7 +/-0.1", 10.7, 0.1, 0.5), ("spring B t 0.4: 10.6 +/-0.1", 10.6, 0.1, 0.4)):
-            tmin, tmax = (t_nom + T_TOL[1], t_nom + T_TOL[0]) if t_nom > 0 else (0.0, 0.0)
-            clr0 = WB[0] + tmin + W.FULL_THREAD - (L + tol)                     # wall seated on the plug at the hole (local gap 0)
-            clr_cad = W.eng_case(L, tol, (tmin, tmax))["tip_clearance_to_full_thread_end_min_mm"]
-            Le0 = (L - tol) - (WB[1] + tmax)                                    # local gap 0 (the FE state: seat force > 0 at every step)
-            LeG = (L - tol) - (WB[1] + GAP_MAX + tmax)                          # the largest buildable gap at the hole (bound)
-            rows = {}
-            for nm_, Le in (("local_gap_0", Le0), ("gap_0.078_bound", LeG)):
-                An = W.strip_area(W.TH, Le - W.MOUTH)
-                rows[nm_] = {"L_e_min_mm": round(Le, 3), "A_n_mm2": round(An, 2),
-                             **{f"MS_y_{k}": round(fsy / (N / An) - 1.0, 3) for k, N in NS.items()}}
-            cases[f"{bname} | {name}"] = {"wall_at_hole_mm": [round(x, 4) for x in WB], "L_nom_mm": L, "L_tol_mm": tol,
-                                          "t_solid_min_max_mm": [round(tmin, 3), round(tmax, 3)],
-                                          "tip_clearance_local_gap_0_mm": round(clr0, 3), "tip_ok_ge_0.2": clr0 >= W.TIP_CLEAR_MIN - 1e-9,
-                                          "tip_clearance_v2_concentric_basis_mm": clr_cad, "engagement_and_thread_SOAK": rows}
-    # flat completeness under the rev-5 rule: the flat's tangential chord 2 sqrt(R_OD^2 - r_flat^2) (the axial extent is the cutter, d10.5 +0.2/0)
-    chord = lambda Rod, rf: 2.0 * math.sqrt(Rod ** 2 - rf ** 2)
-    need = {"head dk 9.5 centred": 9.5, "head dk 9.5 + 2 x 0.337 (screw at the 5.5 hole wall)": 9.5 + 2 * 0.337, "spring OD 10 + 2 x 0.20 (route (i))": 10.4}
-    comp = {"chord_at_r_flat_max_31.333_nominal_OD_63.5_mm": round(chord(31.75, RF5[1]), 3),
-            "chord_at_r_flat_min_31.313_nominal_OD_mm": round(chord(31.75, RF5[0]), 3),
-            "OD_min_for_complete_flat_at_r_flat_max_mm": {k: round(2.0 * math.sqrt(RF5[1] ** 2 + (v / 2.0) ** 2), 3) for k, v in need.items()},
-            "r_flat_max_for_complete_flat_at_nominal_OD_mm": {k: round(math.sqrt(31.75 ** 2 - (v / 2.0) ** 2), 4) for k, v in need.items()},
-            "note": ("tangentially the cylinder falls away beyond the chord (no wall, about 9.5 deg), so a part wider than the chord loses a sliver of "
-                     "support there but is not tilted; axially the pocket wall (up to 0.437) bounds the flat at the cutter diameter")}
-    geo_rule = {"proposal": "r_flat 31.313 +0.020/0 from the bore axis A (each J-FWD flat; profile 0.01 to be confirmed with the shop)",
-                "wall_at_hole_mm": [round(x, 4) for x in WALL5], "flat_completeness": comp}
-    geo = {"basis": {"wall_at_hole_flat_to_bore_mm": [round(x, 4) for x in WALL], "r_flat_mm": [round(R_FLAT_MIN, 4), round(R_FLAT_MAX, 4)],
-                     "r_bore_mm_d57.25H8": [round(x, 4) for x in R_BORE], "full_thread_mm": W.FULL_THREAD, "mouth_mm": W.MOUTH,
+    for name, L, tol, t_nom in (("no spring, 10.2 +/-0.1 (RULED 12:52Z, THE ROW)", 10.2, 0.1, 0.0),
+                                ("spring A t 0.5: 10.7 +/-0.1", 10.7, 0.1, 0.5), ("spring B t 0.4: 10.6 +/-0.1", 10.6, 0.1, 0.4)):
+        tt = (t_nom + T_TOL[1], t_nom + T_TOL[0]) if t_nom > 0 else (0.0, 0.0)
+        e = W.eng_rev5(L, tol, tt)
+        rows = {}
+        for st in SOAK:
+            fsy, T2 = FSY[st]
+            rows[st] = {"N_from": R.LABEL[HENV[st]], "T_C": T2, "Fsy_MPa": round(fsy, 1),
+                        **{f"MS_y_{k}_gap_bound_ROW": round(fsy / (N / e["A_n_gap_bound_mm2"]) - 1.0, 3) for k, N in NS[st].items()},
+                        **{f"MS_y_{k}_gap0_info": round(fsy / (N / e["A_n_gap0_mm2"]) - 1.0, 3) for k, N in NS[st].items()}}
+        gmin = min((rows[st][f"MS_y_{k}_gap_bound_ROW"], st, k) for st in SOAK for k in ("3750", "4096"))
+        cases[name] = {"t_solid_min_max_mm": [round(x, 3) for x in tt], **e, "thread_row_soak_states": rows,
+                       "thread_row_min": {"MS_y": gmin[0], "state": gmin[1], "preload_N": gmin[2]}}
+    geo = {"basis": {"rule": "rows v6 eng_rev5: r_flat 31.313 +0.020/0 from the bore axis (rev 5), TC-01 bore 28.625-28.648 (d57.25 H8 on the "
+                             "f7 plug with the 0.040-0.078 radial gaps), wall at the hole 2.665-2.708; L_e min = L_min - wall_max - t_max (local "
+                             "gap 0) and - 0.078 more at the gap bound (THE ROW); tip = wall_min + t_min + 8.0 - L_max >= 0.2",
                      "t_tol_mm": T_TOL, "t_tol_src": "Schnorr SCHNORR_Produktbroschuere_EN_2024-02.pdf p. 10 (DIN EN 16983, previously DIN 2093): t 0.20-0.60 +0.02 / -0.06",
-                     "thread_row": f"tau = N / A_n at SOAK (N {LBL_(henv)} IN718, {', '.join(f'{k}: {v:.1f} N' for k, v in NS.items())}); Fsy = 0.577 Fty "
-                                   f"(AL6061-T6, {th['T_C']} C) = {fsy:.1f} MPa; A_n = jfwd_v352 strip area at L_e - 0.5 mouth",
-                     "tip_rule": "tip >= 0.2 mm short of the 8.0 full-thread end; local gap 0 = wall_min + t_min + 8.0 - L_max (independent of the plug size)",
-                     "OD_tolerance_note": "R_flat from the d10.5 +/-0.2 spot face on the nominal OD R31.75 (the drawing OD tolerance moves the wall 1:1)"},
-           "cases": cases, "rev5_flat_depth_rule": geo_rule}
-    # bearing at SOAK N max (flat spring = flat washer): head on spring, spring on the anodised 6061 flat
-    dk_min, dk_max = 9.14, 9.5                  # ISO 7380-1 M5 dk (fasten.it DIN EN ISO 7380-1 table, accessed 2026-10-20)
-    hole = 5.5
-    bear = {}
-    N4096, N3750 = NS["4096"], NS["3750"]
+                     "thread_row": "tau = N_IN718 (envelope instance per state) / A_n; Fsy = 0.577 Fty (AL6061-T6, FEA3D's TC-02 thread temperature)",
+                     "soak_N_IN718_N": {st: {k: round(v, 1) for k, v in NS[st].items()} for st in SOAK}},
+           "cases": cases}
+    # bearing at the largest soak N (flat spring = flat washer): head on spring, spring on the anodised 6061 flat
+    stmax = max(SOAK, key=lambda st: NS[st]["4096"])
+    N4096, N3750 = NS[stmax]["4096"], NS[stmax]["3750"]
+    dk_min = 9.14                               # ISO 7380-1 M5 dk min (fasten.it DIN EN ISO 7380-1 table, accessed 2026-10-20)
+    hole = 5.62                                 # C1 (g) Option A: d5.5 +0.12/0 (H12), lead 14:34Z
     Fty_in = R.tab("IN718", "Fty", 127.0)       # screw at SOAK (FEA3D jfwd_deck: screw 127.0 C)
+    bear = {"state": stmax, "N_from": R.LABEL[HENV[stmax]], "N_3750_N": round(N3750, 1), "N_4096_N": round(N4096, 1)}
     for d_in, tag in ((5.2, "spring ID 5.2 (fillet cleared, da <= 5.2)"), (5.7, "da 5.7 (ISO 4762-like, AS RECALLED, TO-VERIFY for ISO 7380-1)")):
         A = math.pi / 4.0 * (dk_min ** 2 - d_in ** 2)
         bear[f"head_on_spring|{tag}"] = {"A_mm2": round(A, 2), "sigma_3750_MPa": round(N3750 / A, 1), "sigma_4096_MPa": round(N4096 / A, 1),
                                          "MS_vs_IN718_Fty_127C": round(Fty_in / (N4096 / A) - 1.0, 3), "IN718_Fty_127C_MPa": round(Fty_in, 1),
-                                         "spring_side": "17-7 PH condition / Fty: TO-SOURCE from the maker (the spring temper is far above 0.2 GPa)"}
-    for od, tag in ((9.85, "spring OD min 9.85"), (10.0, "spring OD max 10.0")):
-        A = math.pi / 4.0 * (od ** 2 - hole ** 2)
-        bear[f"spring_on_flat|{tag}"] = {"A_mm2": round(A, 2), "sigma_4096_MPa": round(N4096 / A, 1),
-                                         "area_ratio_vs_head_annulus_47.12": round(A / (math.pi / 4.0 * (9.5 ** 2 - hole ** 2)), 4)}
-    bear["TC01_flat_bearing_row"] = ("NO CREDIT TAKEN for load spreading through the 0.44-0.52 mm flat spring: the rows-v2 TC-01 flat bearing stands "
-                                     "(SOAK +0.386 / +0.329); the spring annulus on the flat is 1.11-1.16 x the head annulus (information)")
-    bear["spring_stress_at_flat"] = ("TO-SOURCE: the maker's sigma_OM at s = h0 for DIN 2093 A 10 and its static limit (McMaster gives none; Schnorr's 2024 "
-                                     "brochure p. 11 lists F and s at 0.75 h0 only); a flattened spring carries the excess load as a flat washer")
-    # fillet and centring
-    major = (4.826, 4.976)                      # M5 6g major (jfwd_v352 thread table basis)
-    Di = (5.2, 5.32)                            # H12 per Lesjofors 7909 'Di tol +0.12' and Schnorr p. 10 (3-6 mm: +0.12 / 0)
+                                         "spring_side": "17-7 PH condition / Fty: TO-SOURCE from the maker"}
+    # ---- route (i) (drawn pilot) with C1 (g) / (h): z-direction centring stack and the 14:01Z tangential overhang (input)
+    major_min = 4.826                           # M5 6g major minimum
+    pilot = (5.12, 5.15)                        # route (i): drawn pilot 5.15 h9 (13:18Z proposal)
+    Di = (5.2, 5.32)                            # spring ID H12 per Lesjofors 7909 'Di tol +0.12' and Schnorr p. 10 (3-6 mm: +0.12 / 0)
+    play = (Di[1] - pilot[0]) / 2.0
+    flt = (hole - major_min) / 2.0              # 0.397: screw float in the H12 hole
+    pos, coax = 0.10 / 2.0, 0.10 / 2.0          # C1 (h): hole position 0.10 dia to A|B; spot face coaxial to its hole 0.10 dia
+    tap_pos = 0.10 / 2.0                        # TC-02 tap position 0.10 dia to A|B: TO-DEFINE (ASSUMED equal to C1 (h))
+    fit = 0.078                                 # TC-01 / TC-02 registration through the bore / plug fit (radial gap bound)
+    stacks = {"full_float (the rows' head-offset basis: float + hole position)": round(flt + pos + play, 3),
+              "positional (pilot play + hole position + spot-face coaxiality + tap position TO-DEFINE + fit registration)":
+                  round(play + pos + coax + tap_pos + fit, 3)}
+    tol_e = {f"cutter d{d:.1f} (min), corner R <= 0.05": round((d - 0.1 - 10.0) / 2.0, 3) for d in (10.5, 10.7, 11.2)}
+    # tangential: worst-stack half chord (rows v6 flat stack: OD 63.426, eccentricity 0.02, r_flat 31.333) with and without the 0.1 break
+    hc = W.FLAT["half_chord_mm"]
+    hcb = W.FLAT["half_chord_after_OD_break_mm"]
+    Ann = math.pi / 4.0 * (10.0 ** 2 - 5.2 ** 2)
+    over = {}
+    for e_t in (0.0, 0.2, stacks["positional (pilot play + hole position + spot-face coaxiality + tap position TO-DEFINE + fit registration)"],
+                stacks["full_float (the rows' head-offset basis: float + hole position)"]):
+        for lab, h_ in (("after_0.1_OD_break", hcb), ("without_break", hc)):
+            a = seg_area(5.0, h_ - e_t) + seg_area(5.0, h_ + e_t)
+            Asup = Ann - a
+            over[f"e_t {e_t:.3f}|{lab}"] = {"overhang_mm2": round(a, 3), "supported_fraction": round(Asup / Ann, 4),
+                                            "spring_on_flat_sigma_4096_MPa": round(N4096 / Asup, 1)}
+    head_ring = W.A_ROW
+    route_i = {"inputs": {"hole_max_mm": hole, "screw_major_min_mm": major_min, "float_mm": round(flt, 3), "pilot_mm": pilot,
+                          "spring_ID_mm": Di, "pilot_play_mm": round(play, 3), "hole_position_radius_mm": pos,
+                          "spot_face_coaxiality_radius_mm": coax, "tap_position_radius_mm_TO-DEFINE": tap_pos, "fit_registration_mm": fit,
+                          "half_chord_worst_stack_mm": hc, "half_chord_after_OD_break_mm": hcb},
+               "z_centring_stack_mm": stacks, "tolerable_e_mm_by_cutter": tol_e,
+               "z_centring_verdict": {k: {c: bool(v <= t + 1e-9) for c, t in tol_e.items()} for k, v in stacks.items()},
+               "tangential_overhang_14_01Z": over,
+               "bearing_note": (f"spring solid at every hot frame (24-case): it bears as a flat washer; the supported annulus at the worst overhang "
+                                f"stays above the head's rev-5 minimum ring ({head_ring} mm2), so the TC-01 flat-bearing row (head ring) is not "
+                                f"worsened; no spreading credit is taken"),
+               "PROPOSALS_do_not_apply": [
+                   ("P(i)-1 z centring: under the rev-5 depth rule the wall at the hole is set by r_flat (31.313 +0.020/0 from the bore axis), "
+                    "not by the cutter diameter, so a larger J-FWD spot-face cutter no longer thins the wall (the 12:09Z d11.5 objection was "
+                    "on the old d-on-OD rule): cutter d11.2 +0.1/0 with corner R <= 0.05 tolerates e 0.55 >= the full-float stack; "
+                    "TO-CHECK in CAD (pocket length vs the TC-01 forward features and FD-04) before any ruling; the FA1S hole-bearing and "
+                    "TC-01 rows are on r_flat and do not move"),
+                   ("P(i)-2 tangential overhang (14:01Z finding): accept the sliver (no wall there, the spring is not tilted; supported "
+                    "fraction >= the value tabled at the full-float stack); a drawing note on the J-FWD flat: 'disc spring may overhang the "
+                    "flat's tangential edges'"),
+                   ("P(i)-3 alternative to P(i)-2: a smaller custom disc spring, OD <= 2 x (half chord after the break - e) = about 8.9 at "
+                    "e 0.2, ID 5.2 H12 (non-DIN size: TO-QUOTE with catalogue load-deflection and relaxation data; any sourced F_flat > 0 "
+                    "seats all 24, see relaxation_threshold_seat_family)")]}
+    # fillet (unchanged from v2)
+    major = (4.826, 4.976)
     fil = {"spring_ID_mm": Di,
            "fillet_from_full_major_neck": {"r_min_mm": 0.2, "da_min_mm": round(major[1] + 2 * 0.2, 3),
                                            "verdict": "da >= 5.376 > ID 5.2: the spring inner edge would sit on the fillet"},
            "fillet_from_rolled_blank_neck": {"neck_d_mm": "<= 4.75 (rolled-thread blank about d2 4.48)", "r_mm": "0.2-0.3", "da_max_drawn_mm": 5.15,
                                              "verdict": "clears ID 5.2 with r kept >= 0.2: the ENG-HW-101-IN718 drawing must state neck d <= 4.75, r 0.2-0.3, da max 5.15"},
-           "ISO_7380-1_r_min_and_da_max": "TO-VERIFY (AS RECALLED r min 0.2; da max 5.7 is the ISO 4762 M5 value); fasten.it's ISO 7380-1 table lists dk 9.5/9.14, k 2.75/2.5, s 3, t 1.56, w 0.38 only"}
-    e_spring = (Di[1] - major[0]) / 2.0
-    e_hole = (hole - major[0]) / 2.0
-    cen = {"spring_play_on_thread_max_mm": round(e_spring, 3), "screw_float_in_5.5_hole_max_mm": round(e_hole, 3),
-           "worst_eccentricity_mm": round(e_spring + e_hole, 3),
-           "tolerable_eccentricity_mm": {"CAD nominal d10.5 sharp": round((10.5 - 10.0) / 2.0, 3),
-                                         "drawing d10.3 min, R0.1 corner (ASSUMED)": round((10.3 - 0.2 - 10.0) / 2.0, 3),
-                                         "d10.5 +0.2/0, R <= 0.05": round((10.5 - 0.1 - 10.0) / 2.0, 3)},
-           "CAD_check": "checks/test_spring_r4s_v1.json: spring d10 x 0.5 on the d10.5 flat, common volume with TC-01 0.002 mm3 (noise) up to e 0.25; "
-                        "0.345 mm3 at e 0.40 and 0.886 mm3 at e 0.584 along z (the pocket wall, 0.437 deep at the z extremes); 0.049 / 0.181 mm3 tangential",
-           "verdict": "FOUND: with an OD 10 spring centred on the thread, the worst stack puts its rim on the pocket wall (tilt); the d10.5 spot face holds it "
-                      "only if the screw float in the hole (drawing positional tolerances, TO-DEFINE) plus the spring play stays <= 0.05 mm at the drawing "
-                      "minimum (0.25 at the CAD nominal)"}
-    return {"geometry_length_tip_engagement": geo, "bearing_SOAK_N_max": bear, "fillet": fil, "centring_on_the_d10.5_flat": cen,
+           "route_i_pilot": "neck 5.15 h9 with an undercut fillet r >= 0.2 (13:18Z proposal): the pilot centres the spring (play above)",
+           "ISO_7380-1_r_min_and_da_max": "TO-VERIFY (AS RECALLED r min 0.2; da max 5.7 is the ISO 4762 M5 value)"}
+    return {"geometry_length_tip_engagement": geo, "bearing_max_soak_N": bear, "fillet": fil, "route_i_pilot_centring_and_overhang": route_i,
             "rows_module": {"path": str(J / "jfwd_in718_rows_v352.py"), "sha256_16": sha(J / "jfwd_in718_rows_v352.py")}}
 
 
@@ -282,9 +306,10 @@ def LBL_(h):
 
 if __name__ == "__main__":
     t0 = time.time()
-    res = {"id": "jfwd_spring_v352", "version": "v2", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
-           "inputs": {"relax_v6_module": {"path": str(J / "jfwd_relax_v352.py"), "sha256_16": sha(J / "jfwd_relax_v352.py")},
-                      "relax_v6_json": {"path": str(V5J), "sha256_16": sha(V5J)}},
+    res = {"id": "jfwd_spring_v352", "version": "v3", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
+           "inputs": {"relax_v7_module": {"path": str(J / "jfwd_relax_v352.py"), "sha256_16": sha(J / "jfwd_relax_v352.py")},
+                      "relax_v7_json": {"path": str(V5J), "sha256_16": sha(V5J)},
+                      "fea3d_soak_envelope": {"path": str(R.F_ENV), "sha256_16": sha(R.F_ENV)}},
            "k_b_bracket_N_mm": {k: round(v) for k, v in R.KB.items()},
            "springs": {k: {"part": sp.part, "material": sp.material, "De_Di_t_l0_h0_mm": [sp.De, sp.Di, sp.t, sp.l0, sp.h0],
                            "catalogue_points_s_mm_F_N": [[round(a, 3), round(b, 1)] for a, b in zip(sp.s, sp.F / sp.scale)],
@@ -301,10 +326,11 @@ if __name__ == "__main__":
             cs, prm = run_cfg(None, 1.0, end, fam)
             v = verdict(cs)
             ref = v5[f"{IN}|{end}|{fam}"]
-            chk[f"{end}|{fam}"] = {"F_S_min_N": v["F_S_min_N"], "n_unseated": v["n_unseated"], "v5_F_S_min_N": ref["F_S_min_N"], "v5_n_unseated": ref["n_unseated"],
-                                   "cold_end_2250_N": v["cold_end_F_S_min_2250_N"], "v5_cold_end_2250_N": ref["cold_end_F_S_min_2250_N"], **prm}
+            chk[f"{end}|{fam}"] = {"F_S_min_N": v["F_S_min_N"], "n_unseated": v["n_unseated"], "relax_v7_F_S_min_N": ref["F_S_min_N"],
+                                   "relax_v7_n_unseated": ref["n_unseated"], "cold_end_2250_N": v["cold_end_F_S_min_2250_N"],
+                                   "relax_v7_cold_end_2250_N": ref["cold_end_F_S_min_2250_N"], **prm}
             assert abs(v["F_S_min_N"] - ref["F_S_min_N"]) <= 1.0 and v["n_unseated"] == ref["n_unseated"], (end, fam, v["F_S_min_N"], ref["F_S_min_N"])
-    res["harness_check_no_spring_vs_v6"] = chk
+    res["harness_check_no_spring_vs_v7"] = chk
     print("harness ok", {k: (x["F_S_min_N"], x["n_unseated"]) for k, x in chk.items()}, round(time.time() - t0, 1), flush=True)
     # spring runs
     runs, cases_keep = {}, {}
@@ -324,6 +350,17 @@ if __name__ == "__main__":
                   round(time.time() - t0, 1), flush=True)
     res["runs"] = runs
     res["cases_24_R0_and_R20"] = cases_keep
+    # lead 16:07Z item 5: spring A (and B) at R 0 / 0.2 / 0.4, both ends and families: all seated? solid at every hot frame?
+    l5 = {}
+    for sk in SPRINGS:
+        for Rr in (0.0, 0.20, 0.40):
+            for end in R.KB:
+                for fam in ("seat", "ring"):
+                    v = runs[f"{sk}|R{Rr:.2f}|{end}|{fam}"]
+                    l5[f"{sk}|R{Rr:.2f}|{end}|{fam}"] = {k: v[k] for k in ("all_seated", "n_unseated", "F_S_min_N", "min_case", "lift_max_um", "hot_F_S_min_N",
+                                                                         "solid_at_every_hot_frame_all_cases", "F_flat_derated_N", "k_b_N_mm",
+                                                                         "cold_end_F_S_min_2250_N")}
+    res["lead_16_07Z_item5_seated_and_solid"] = l5
     # threshold relaxation: the largest R with all 24 seated at both ends, seat family (the governing one), per spring
     thr = {}
     for sk, sp in SPRINGS.items():
@@ -365,7 +402,8 @@ if __name__ == "__main__":
                                  "note": ("FD-04 clearance is axial (foil top 1 mm below the head edge): the head stays 1.000 mm at every pose for "
                                           "t 0.40-0.52; the spring (d10) is 1.648-1.755 mm from FD-04; no FD-04 trim, no new RC-04 input "
                                           "(the RC-04 re-check of the earlier trim stays TO-DO)")}
-    print("geometry", json.dumps({k: (v["tip_clearance_local_gap_0_mm"], v["engagement_and_thread_SOAK"]) for k, v in res["geometry_length_tip_engagement"]["cases"].items()}),
+    print("geometry", json.dumps({k: (v["tip_clearance_to_full_thread_end_min_mm"], v["L_e_gap_bound_mm"], v["A_n_gap_bound_mm2"], v["thread_row_min"]) for k, v in res["geometry_length_tip_engagement"]["cases"].items()}),
+          json.dumps(res["route_i_pilot_centring_and_overhang"]["z_centring_stack_mm"]), json.dumps(res["route_i_pilot_centring_and_overhang"]["z_centring_verdict"]),
           flush=True)
     res["t_run_s"] = round(time.time() - t0, 1)
     s = json.dumps(res, indent=1, default=float)
