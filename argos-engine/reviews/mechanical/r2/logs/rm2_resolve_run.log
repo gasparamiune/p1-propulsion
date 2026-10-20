@@ -1,0 +1,35 @@
+REV-MECH-2 reviewer re-solve of fa1_c71/A1_22.2 steps TH + OP (lead authorisation 2026-10-20, run alongside Mechanical's thermal chain)
+deck: rs.inp = lines 1-561367 of /home/claude/work/fea3d/runs/fa1_c71/A1_22.2/f1.inp.gz (gz sha16 9e048668353fa96e); rs.inp sha16 2f8d313be40b129e = sha16 of those lines (verified)
+solver: CalculiX 2.21 (ccx, executable of 2023-07-29), spooles, static, 2 steps
+settings: nice 10; prlimit --as=6442450944 (6 GiB address-space cap); OMP_NUM_THREADS=2; CCX_NPROC_EQUATION_SOLVER=2; one reviewer ccx only
+concurrent ccx at start: PID 31180 (Mechanical thermal chain, ~0.6 GB), untouched
+task log:
+  ccx running before start: 1 (31180 ccx -i DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b;)
+  START 01:19:09 lead-authorised run: nice 10, AS cap 6 GiB, 2 threads
+  EXIT rc=0 01:21:11
+  real	2m2.224s
+  user	2m6.105s
+  sys	0m31.288s
+  
+  [exited with code 0]
+peak memory (sampler every 3 s, /proc/PID/status): VmPeak max 3416344 kB (3.26 GiB), VmHWM max 3188260 kB (3.04 GiB), 35 samples; cap 6 GiB not reached
+ccx summary:
+   number of equations
+   471278
+   20426798
+   number of equations
+   471278
+   20426798
+   STEP            1
+   STEP            2
+   Job finished
+  Total CalculiX Time: 122.165063
+  Total CalculiX Time: 122.165063
+  ________________________________________
+rs.sta:
+  SUMMARY OF JOB INFORMATION
+    STEP      INC     ATT  ITRS     TOT TIME     STEP TIME      INC TIME
+       1          1     1     1  0.100000E+01  0.100000E+01  0.100000E+01
+       2          1     1     1  0.200000E+01  0.100000E+01  0.100000E+01
+rs.frd sha16 before gzip: 40a5251b857a29c6 (75,202,864 bytes; kept gzipped in the reviewer scratchpad, not in the hub)
+comparison: results/rm2_resolve_fa1_c71_TH_OP.json (logs/rm2_resolve_cmp.log); extras: results/rm2_resolve_extra.json (logs/rm2_resolve_extra.log)

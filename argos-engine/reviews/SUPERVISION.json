@@ -674,6 +674,56 @@
    "review_file_sha256_16": "d83c93504accd30a",
    "lead_disposition": "CHANGELOG line 227",
    "not_physical_approval": true
+  },
+  {
+   "id": "REV-MECH-2",
+   "date": "2026-10-20",
+   "reviewer": "Independent reviewer agent (not the author; also REV-MECH-1)",
+   "author": "FEA3D specialist agent (assembled-engine 3D FE)",
+   "deliverable": "04-fea/assembly3d (FEA3D final on CAD v3.5.1, asm v1.2, CalculiX 2.21 C3D10, L1 171,123 nodes) and 04-fea/s3d_v351, with lead lines 217-231 as they bear on it",
+   "hashes_sha256_16": {
+    "04-fea/assembly3d/MANIFEST.json": "fa25b7f9ff8a19b7",
+    "04-fea/assembly3d/REPORT-FEA3D.md": "ff24718e9db201e5",
+    "04-fea/assembly3d/REPORT-FEA3D-HANDBACK.md": "7dfb4f8b53eaf84f",
+    "04-fea/s3d_v351/MANIFEST.json": "c650c7449af04738",
+    "04-fea/s3d_v351/REPORT-S3D.md": "88c34c5fe7394e60",
+    "interfaces/CHANGELOG.md (230 lines at the brief)": "838fb2278498d908"
+   },
+   "criteria": "(a) model fidelity (connectors, 7.1 fix, ties, airframe, thermal mapping, regular-node exclusion); (b) loads and criteria vs REQUIREMENTS and 188 (9) / 194 / 212; (c) reproduction incl. one re-solve and hand checks; (d) mesh convergence claims; (e) TC-01 FA-1 modal shares and band columns; (f) modal; (f2) GNC rev4b post_k and FE-vs-V5c findings; (g) F4 joints and mounting data; (h) margin-matrix completeness and classification",
+   "verdict": "REVISE",
+   "blocking": [],
+   "major": [
+    "RM2-01 TC-01 J-FWD FA1S value is an idealisation number, not a criterion result (adopted in 231; addenda in 234 (1))",
+    "RM2-04 the regular-node rule hides negative all-node values; re-entrant flag too broad",
+    "RM2-05 post_k uses the full horn radius at every pose (with-servo K wrong off-centre)"
+   ],
+   "minor": [
+    "RM2-02 LC2 rows missing; no factor conflict",
+    "RM2-03 'converged' at J-FWD not supported; gci() has no applicability check",
+    "RM2-06 modal deck unit-pressure load differs from production",
+    "RM2-07 servo J missing from the with-servo rocking frequencies",
+    "RM2-08 margin-matrix completeness",
+    "RM2-13 thermal map inherits the S-AX 0.10 mm closure at the TC-03 flange OD and the f7/H8 fit"
+   ],
+   "notes": [
+    "RM2-09",
+    "RM2-10",
+    "RM2-11",
+    "RM2-12"
+   ],
+   "confirmed": "re-solve fa1_c71 TH + OP: S rel. norm diff 2.6e-8, FA1S n8314 302.950 MPa; FA1S TC-01 -0.221 / -0.160 (idealisation number); LC1 NZ-01 -0.435, TC-03 -0.312 / -0.375, TC-02 +0.096 / -0.119; LC3 stop045 GM-02 R3 -0.280 / -0.379; GS alpha- GM-02 -0.223 / -0.330; free bodies FA1S 3065.0 / FA1Q 1826.2 N; modal rocking 51.42 / 59.42 Hz, axial 408.3 Hz; FE neutral K +11.4 / +24.2 % vs V5c; F4 J-FD01 / J-FD09 within 0.0005 / 0.0004; mount totals",
+   "permitted_use": "regular-set margins only with the all-node list (review section 6); all negatives as found, TC-03 and TC-02 with the RM2-13 dependence; rigid-servo K as published, with-servo K only at neutral; modal frequencies only with the RM2-07 J statement; mounting data with the RM2-11 notes",
+   "also_corrected": "lead line 231 (1) 'case Pm+Pb about +3.4' withdrawn; 231 (4) restated as LC2 rows at 1.5 / 2.0; line 217 'converged L1/R2 0.1 %' corrected",
+   "reviewer_artefacts": {
+    "dir": "reviews/mechanical/r2/",
+    "manifest": "reviews/mechanical/r2/MANIFEST_REV-MECH-2.sha256",
+    "manifest_sha256_16": "c7a8c1861a07891d",
+    "verified_by_lead": "56/56 OK"
+   },
+   "review_file": "reviews/REVIEW-MECHANICAL-R2.md",
+   "review_file_sha256_16": "dbe81010096d76d5",
+   "lead_disposition": "CHANGELOG line 234",
+   "not_physical_approval": true
   }
  ]
 }
