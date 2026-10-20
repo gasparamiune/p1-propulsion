@@ -7,7 +7,9 @@ Preload kept at the v3.5.1 A4-70 value (0.65 x 450 MPa x As); torque from a torq
 v1.2 (2026-10-20, lead resume items 1-3 + 11, CHANGELOG 230 / 231): HW-101 10x M5 x 10 A4-80 (J-FWD per line 231 (1): fastener count,
 no case land, no spot face); HW-103 J-FD01 relocated to 3x M4 DIN 7984 A4-80 (HW-103 2x M4 x 20 + HW-103B 1x M4 x 16; the v3.5.1 lower M3 ran through the
 FD-01 riser socket / FD-03 riser tube); HW-127 J-FD09 A4-80 1.8 N m (v352/jfd/joints_v352_v1.json); every screw line gets a tightening
-method and a preload scatter (BOM torque + method columns)."""
+method and a preload scatter (BOM torque + method columns).
+v1.7 (2026-10-20, lead 16:53Z R2 / R3, 17:55:55Z F1-F5, 18:36:37Z): J-FWD route (i): HW-101 = ENG-HW-101-IN718 (F3 head form, M5 x 10.7, J-F1 lot
+torque <= 3750 N, method M-T1J with the C4 registration, single-use) and HW-170 disc spring x 10; numbers read from the accepted v352/jfwd files."""
 import json, hashlib, copy
 from pathlib import Path
 HERE = Path(__file__).resolve().parent
@@ -312,13 +314,255 @@ for L in o["lines"]:
                               "AS568-226 ID 50.39 / CS 3.53 (FNST p. 16) x FKM 1900 kg/m3 ASSUMED; DATASHEET ring mass TO-FETCH")
 o.update({"version": "v1.6", "basis": o["basis"] + " | v1.6 (2026-10-20, lead 08:40Z item 3): HW-150 unit mass on the sourced AS568-226 size "
           "(CALC torus, FKM 1900 kg/m3 ASSUMED): +0.37 g for the 2 rings; massprops and massdelta v7 re-run"})
+# ---------------------------------------------------------------- v1.7 (2026-10-20): J-FWD route (i) (lead 16:53Z R2 / R3, 17:55:55Z F1-F5, 18:36:37Z)
+# HW-101 becomes ENG-HW-101-IN718 (IN718, ISO 7380-1 head form with the F3 head: pilot 5.15 h9 x 0.25-0.30, undercut fillet r 0.2-0.3 into the
+# head, da 5.55-5.80; M5 x 10.7 +/-0.1 with spring A, M5 x 10.6 +/-0.1 with spring B); torque set per flight lot by J-F1 (maximum 3750 N);
+# single-use founder rule (R3) with the removed-screw inspection at the thread root and the head-to-shank fillet (18:36:37Z); J-F1 gains the
+# spring items and the pressure-film footprint item; new line HW-170, the disc spring under each head (spring A baseline, spring B alternate).
+# Every number below is read from the accepted v352/jfwd result files (sha asserted); nothing is typed except the ruled texts and tagged constants.
+V17 = Path("/home/claude/work/mechanical/v352/jfwd")
+V17F = {"rows_v7": (V17 / "jfwd_in718_rows_v352_v7.json", "6113d28b64d0dba5"), "spring_v4": (V17 / "jfwd_spring_v352_v4.json", "a277b996c2d61b83"),
+        "head_fillet_v1": (V17 / "jfwd_head_fillet_v352_v1.json", "337883c3f2076a32"), "tap_wall_v1": (V17 / "jfwd_tapwall_v352_v1.json", "bcb21243d57af998"),
+        "K_js5_v2": (V17 / "jfwd_embed_fit_js5_v352_v2.json", "e2624bf729633fb8"), "screw_lcf_v2": (V17 / "jfwd_screw_lcf_v352_v2.json", "6acdaa2febdf3f6c")}
+V17D = {}
+for _k, (_p, _s) in V17F.items():
+    assert hashlib.sha256(_p.read_bytes()).hexdigest()[:16] == _s, (_k, _p)
+    V17D[_k] = json.loads(_p.read_text())
+R7, SP4, HF1, TW1, JS2, LC2 = (V17D[k] for k in ("rows_v7", "spring_v4", "head_fillet_v1", "tap_wall_v1", "K_js5_v2", "screw_lcf_v2"))
+JF1 = R7["J_F1"]
+F_CAP, F_MIN, T_LOT, KW = JF1["maximum_N"], JF1["minimum_N_today_K_window"], JF1["torque_Nm_today_K_window"], JF1["K_window"]
+assert (F_CAP, F_MIN, T_LOT, KW) == (3750.0, 2057.6, 2.747, [0.1465, 0.267]), (F_CAP, F_MIN, T_LOT, KW)
+ST3 = ("SOAK70", "SOAK", "SOAK52")
+row = lambda st, k: R7["states"][st]["rows"]["3750"][k]
+ROW7 = {st: R7["TC02_thread_shear_full_row"]["rows"][st]["3750"]["THE_ROW"]["MS_y"] for st in ST3 + ("FA1S",)}   # the line-245 file values
+UH7 = {st: row(st, "TC01_under_head_band_neuber")["MS_strain"] for st in ST3 + ("FA1S",)}
+FB7 = {st: row(st, "TC01_flat_bearing")["MS_vs_Fbry"] for st in ST3}
+FB7ff = {st: row(st, "TC01_flat_bearing")["MS_by_spring_basis"]["full_float_0.557"] for st in ST3}
+TEN7 = min(row(st, "screw_tension_234_1b")["MS_y"] for st in ST3)
+HOS7 = min(row(st, "head_on_spring_IN718")["MS_y"] for st in ST3 + ("FA1S", "PRELOAD"))
+PQ7 = {st: row(st, "seat_line_d6p051_z0_PQ")["MS_PQ_2Fty"] for st in ST3}
+assert all(PQ7[st] == row(st, "ring_line_PQ")["MS_PQ_2Fty"] for st in ST3)
+FIB7 = {st: row(st, "screw_fibre_soak")["MS_y_fibre"] for st in ST3}
+SHK7 = min(row(st, "screw_fibre_soak")["MS_shakedown"] for st in ST3)
+assert (ROW7["SOAK52"], ROW7["SOAK"], UH7["SOAK52"]) == (0.045, 0.104, 0.039), (ROW7, UH7)
+HG = HF1["governing_and_thread_root_comparison"]["3750"]
+TWc = TW1["rows"]["3750"]["cases"]
+TWg = min((v["TC02_thread_T"]["MS_y"], k) for k, v in TWc.items() if k.endswith("ruled_+/-0.25deg_net_GOVERNING"))
+TWp = min(v["TC02_thread_T"]["MS_y"] for k, v in TWc.items() if "FA-1_pulse_75.5bar_abs|ruled_+/-0.25deg" in k)
+assert (TWg[0], TWp) == (0.814, 0.902), (TWg, TWp)
+SPR = SP4["springs"]
+SA, SB = SPR["A_DIN2093_A10_17-7PH"], SPR["B_Lesjofors_7909_1.4310"]
+GEO = SP4["geometry_length_tip_engagement"]["cases"]
+GA, GB = GEO["spring A t 0.5: 10.7 +/-0.1"], GEO["spring B t 0.4: 10.6 +/-0.1"]
+assert (GA["L_e_gap_bound_mm"], GB["L_e_gap_bound_mm"], GA["A_n_gap_bound_mm2"]) == (7.294, 7.294, 67.93)
+SEAT = SP4["lead_16_07Z_item5_seated_and_solid"]
+FSA = {r: (SEAT[f"A_DIN2093_A10_17-7PH|R{r}|lo|seat"]["F_S_min_N"], SEAT[f"A_DIN2093_A10_17-7PH|R{r}|hi|seat"]["F_S_min_N"]) for r in ("0.00", "0.20", "0.40")}
+FSB = {r: (SEAT[f"B_Lesjofors_7909_1.4310|R{r}|lo|seat"]["F_S_min_N"], SEAT[f"B_Lesjofors_7909_1.4310|R{r}|hi|seat"]["F_S_min_N"]) for r in ("0.00", "0.20", "0.40")}
+assert all(v["all_seated"] and v["solid_at_every_hot_frame_all_cases"] for v in SEAT.values())
+FTP = SP4["route_i_pilot_centring_and_overhang"]["A_supp_mm2_by_basis"]
+ENV = SP4["cad_envelope_check_rev5_v2"]["by_config"]
+JSs = JS2["stop_test_lead_F1"]
+assert JSs["verdict"] == "NONE TURNED NEGATIVE" and SP4["stop_test_lead_F1"]["verdict"] == "NONE TURNED NEGATIVE"
+EMB = JS2["A_cold_embedding"]
+EMBlo = min(v["F_after_embedding_N"] for k, v in EMB.items() if k.startswith("lo|H8f7_") and "|J-F1_min_2058|" in k)
+EMBhi = min(v["F_after_embedding_N"] for k, v in EMB.items() if k.startswith("hi|H8f7_") and "|J-F1_min_2058|" in k)
+assert (EMBlo, EMBhi) == (754, 692), (EMBlo, EMBhi)
+LCFg = (HG["i_firing"]["thread_root_N_allow"], HG["i_firing"]["thread_root_MS"], HG["ii_assembly_from_zero"]["thread_root_N_allow"],
+        HG["ii_assembly_from_zero"]["thread_root_MS"])
+RHO_IN718 = H.engmat.MATERIALS["IN718"]["rho"]["v"]            # LITERATURE (engmat: Special Metals 718, 8.19 g/cm3)
+RHO_SPR = H.engmat.MATERIALS["SS-SPRING"]["rho"]["v"]          # LITERATURE (engmat SS-SPRING: 1.4310 / 17-7PH springs, 7.9 g/cm3)
+assert (RHO_IN718, RHO_SPR) == (8190.0, 7900.0)
+
+
+def _m_in718(L_mm, pilot_len=0.30, pilot_d=5.15):
+    """CALC unit mass of ENG-HW-101-IN718: the hardware_v351 ISO 7380-1 M5 rule (nominal head AS RECALLED, d2 shank over L) at IN718
+    density, plus the pilot ring (pilot_d over d2, longest pilot 0.30); the undercut-fillet groove (r 0.2-0.3) is not subtracted (< 0.1 mm3)."""
+    d2 = 5.0 - 0.649519 * H.PITCH[5.0]
+    v_pilot = math.pi / 4.0 * (pilot_d ** 2 - d2 ** 2) * pilot_len
+    return H.screw_mass_g("ISO 7380-1", 5.0, L_mm, "A4-80") * RHO_IN718 / H.RHO["A4-80"] + v_pilot * 1e-9 * RHO_IN718 * 1e3
+
+
+M101A, M101B = _m_in718(10.7), _m_in718(10.6)
+M170A = math.pi / 4.0 * (SA["De_Di_t_l0_h0_mm"][0] ** 2 - SA["De_Di_t_l0_h0_mm"][1] ** 2) * SA["De_Di_t_l0_h0_mm"][2] * 1e-9 * RHO_SPR * 1e3
+M170B = math.pi / 4.0 * (SB["De_Di_t_l0_h0_mm"][0] ** 2 - SB["De_Di_t_l0_h0_mm"][1] ** 2) * SB["De_Di_t_l0_h0_mm"][2] * 1e-9 * RHO_SPR * 1e3
+SRCSHA = ", ".join(f"jfwd/{p.name} {s}" for p, s in V17F.values())
+REG = ("C4 registration (lead 17:55:55Z F2): two GSE shoulder screws ENG-TC-13 (not flight), selected to the pin-gauged TC-01 holes, go into "
+       "two opposite holes before any flight screw; the flight screws are fitted one at a time, each taken to the lot torque and recorded "
+       "(hole number, screw and spring lot, torque, wrench); the two shoulder screws come out last and are replaced by flight screws, recorded")
+SINGLE = ("SINGLE-USE founder rule until C6 closes (lead 16:53Z R3): J-FWD screws are new at every assembly, never reused or re-torqued; "
+          "removed screws are kept per hole and inspected at 10x plus dye penetrant at the thread root AND the head-to-shank fillet "
+          "(lead 18:36:37Z), as data")
+o["rules"]["tightening_methods"]["M-T1J"] = (
+    "J-FWD (HW-101, lead 17:55:55Z F1 / F2, 16:53Z R3): as M-T1L (wet thread locker of the line, cure per the maker sheet before load) with "
+    "the final torque SET PER FLIGHT LOT by J-F1: T_lot = 3750 N x K_min(lot) x 5 mm, so that the lot's K_min gives <= 3750 N (today's K "
+    f"window {KW[0]}-{KW[1]}: {T_LOT:.3f} N m, minimum {F_MIN:.1f} N at K {KW[1]}); the disc spring HW-170 under each head; " + REG
+    + "; never re-torqued (single-use, R3)")
+for L in o["lines"]:
+    if L["id"] != "HW-101":
+        continue
+    v16 = {k: L.get(k) for k in ("item", "standard", "length_mm", "grade", "unit_mass_g", "torque_Nm")}
+    assert v16["grade"] == "A4-80" and v16["length_mm"] == 10 and v16["torque_Nm"] == 3.0, v16
+    m_old = L["unit_mass_g"]
+    L.update({
+        "item": "J-FWD forward-closure radial screw ENG-HW-101-IN718 (case TC-01 to head plug TC-02), with the disc spring HW-170 under the head",
+        "standard": "ENG-HW-101-IN718 (Mechanical drawing, TO-DRAW): ISO 7380-1 button-head form with the F3 head",
+        "size": "M5-6g", "length_mm": 10.7, "grade": "IN718 (UNS N07718, AMS 5662 bar aged to AMS 5663)",
+        "head_form_F3": {"pilot": "5.15 h9 x 0.25-0.30 long, full diameter from the bearing face, coaxial to the pitch cylinder within dia 0.02 "
+                                  "(TO-CONFIRM with the maker)",
+                         "under_head_fillet": "undercut fillet r 0.2-0.3 into the head, entirely above the bearing face",
+                         "da_mm": SP4["fillet"]["F3_adopted"]["da_mm"], "da_note": "stated on the drawing (F3; the head-on-spring row stops being AS RECALLED)",
+                         "lengths": "one head form: spring A on L 10.7 +/-0.1 (baseline), spring B on L 10.6 +/-0.1 (alternate): L_e 7.294 (THE ROW)",
+                         "pilot_vs_flat": SP4["fillet"]["F3_adopted"]["pilot_vs_flat"], "ruling": "lead 16:53Z R2, 17:55:55Z F3 ADOPTED"},
+        "L_basis": (f"v3.5.2 route (i) (lead 16:53Z R2): the head bears on the disc spring HW-170 (solid at every hot frame) on the rev-5 TC-01 "
+                    f"flat (cutter d11.2, r_flat 31.313 +0.020/0 from datum A): spring A t {GA['t_solid_min_max_mm'][0]}-{GA['t_solid_min_max_mm'][1]} + "
+                    f"wall {GA['wall_at_hole_mm'][0]}-{GA['wall_at_hole_mm'][1]} at the d5.5 H12 hole + plug gap 0-0.078 (H8 / f7) + engagement in the "
+                    f"TC-02 M5-6H tap (drill 4.2 x 9.0, full thread 8.0): L 10.7 +/-0.1 gives L_e min {GA['L_e_gap_bound_mm']} at the gap bound "
+                    f"(A_n {GA['A_n_gap_bound_mm2']} mm2, THE ROW; {GA['L_e_gap0_mm']} at gap 0) and a tip {GA['tip_clearance_to_full_thread_end_min_mm']} "
+                    f"min short of the full-thread end; spring B (t {GB['t_solid_min_max_mm'][0]}-{GB['t_solid_min_max_mm'][1]}) on L 10.6 +/-0.1 gives the "
+                    f"same L_e; 10 holes at az 18 + 36k deg, 12.000 BASIC from datum B (TC-01 fwd end face), position 0.10 to A|B, match-drilled "
+                    "TC-01 / TC-02 with clocking +/-0.25 deg by an index pin in the drill fixture (F5); the v1.5 L 10.0 on the d10.5 flat and the "
+                    "no-spring L 10.2 are superseded records (rows v7 keeps 10.2 as the record row)"),
+        "unit_mass_g": round(M101A, 3),
+        "mass_evidence": (f"CALC (hardware_v351 ISO 7380-1 M5 rule: nominal head AS RECALLED + d2 shank x L 10.7, plus the pilot ring 5.15 x 0.30; "
+                          f"x IN718 {RHO_IN718:.0f} kg/m3 LITERATURE, engmat 'Special Metals 718'); the undercut-fillet groove not subtracted; "
+                          f"L 10.6 (spring B) {M101B:.3f} g; v1.6 A4-80 M5 x 10 {m_old:.3f} g; DATASHEET TO-FETCH"),
+        "torque_Nm": T_LOT,
+        "torque_basis": (f"DESIGN v3.5.2 (lead 17:55:55Z F1, ACCEPTED 18:36:37Z): J-F1 sets the torque on the FLIGHT LOT so that the lot's K_min "
+                         f"gives <= {F_CAP:.0f} N (T_lot = {F_CAP:.0f} N x K_min x 5 mm); with today's K window {KW[0]}-{KW[1]} (the v1.4 J-F1 "
+                         f"bounds) T = {T_LOT:.3f} N m and the minimum is {F_MIN:.1f} N at K {KW[1]}; the {F_CAP:.0f} N column (FE-anchored) "
+                         "governs every J-FWD row and 4096 N is information; the rows that depend on the minimum are re-stated at "
+                         f"{F_MIN:.1f} N (K_js5 v2: cold after embedding min {EMBlo} / {EMBhi} N at k_b lo / hi over the drawing gaps, head "
+                         "seated; spring v4: all 24 seated): NONE TURNED NEGATIVE; a lot whose "
+                         f"minimum falls below {F_MIN:.1f} N goes to the lead (the rows are re-stated at the lot result); the v1.4 3.0 N m / "
+                         "2250-4096 N basis and the 2.5 N m fallback are superseded (sources: " + SRCSHA + ")"),
+        "thread_locker": (L["thread_locker"] + " | v1.7: kept on the IN718 screw (no ruling removes it); the wet-locker K WITH THE SPRING under the "
+                          "head is a J-F1 item; screw temperature in the soak states up to 158.6 C (SOAK70, tap-wall v1 screw_forces), TC-02 thread "
+                          "94.9-97.7 C: below the 180 C rating; at the R1 abort TB states (TC-02 TB field maximum 223.4 / 208.0 C, not located at the "
+                          "taps) the tap-zone temperature against the 180 C rating is TO-VERIFY"),
+        "status": ("DEFINED v3.5.2 route (i) (lead 16:53Z R2 / R3, 17:55:55Z F1-F5, rows v7 and companions ACCEPTED 18:36:37Z): "
+                   "ENG-HW-101-IN718 TO-DRAW (F3 head form) and TO-QUOTE; C6 OPEN (screw LCF FOUND NEGATIVE; closure paths 2 (FE levers, "
+                   "(b1) / select-fit band after chain E) and 3 (qualification test, TO-DEFINE, founder)): single-use founder rule"),
+        "action": (SINGLE + "; " + REG + "; at every J-FWD assembly gauge the TC-01 holes (pins GO 5.50 / NO-GO 5.62, C1 (g)) and the TC-02 taps "
+                   "(M5-6H GO / NO-GO; cured locker removed by a thread chaser only, no re-tap); gauge also after firing 1, every 5 firings and "
+                   "after any Pc above 45 bar abs (v1.4 gauge rule kept: each is a disassembly, so new screws follow); after any Pc above 60 bar "
+                   "abs the line-231 J-FWD inspection (C6 (2) list); the v1.4 10-firing replacement interval and the J-F1b interval purpose are "
+                   "superseded by the single-use rule"),
+        "note": (f"v1.7 route (i) rows at the J-F1 cap {F_CAP:.0f} N (04-fea/v352/jfwd_in718_rows_v352_v7.json 6113d28b64d0dba5; GOVERNING "
+                 f"column; SIM / CALC / DERIVED): THE ROW (TC-02 thread shear, A_n 67.93) MS_y SOAK52 {ROW7['SOAK52']:+.3f} (FLAG), SOAK70 "
+                 f"{ROW7['SOAK70']:+.3f}, SOAK {ROW7['SOAK']:+.3f}, FA1S {ROW7['FA1S']:+.3f}; under-head at full float [ASSUMED mean-pressure "
+                 f"scaling on the spring footprint, no edge loading] SOAK52 {UH7['SOAK52']:+.3f} (FLAG), SOAK70 {UH7['SOAK70']:+.3f}, SOAK "
+                 f"{UH7['SOAK']:+.3f}, FA1S {UH7['FA1S']:+.3f}; TC-01 flat bearing on the registered stack 0.4865 (F2) SOAK52 {FB7['SOAK52']:+.3f}, "
+                 f"SOAK70 {FB7['SOAK70']:+.3f}, SOAK {FB7['SOAK']:+.3f} (full float {FB7ff['SOAK52']:+.3f} / {FB7ff['SOAK70']:+.3f} / "
+                 f"{FB7ff['SOAK']:+.3f}); screw tension min {TEN7:+.3f}; head on spring >= {HOS7:+.2f}. FOUND NEGATIVES (unchanged, shown as found): "
+                 f"seat = ring line P+Q (2 Fty) SOAK70 {PQ7['SOAK70']:+.3f}, SOAK {PQ7['SOAK']:+.3f}, SOAK52 {PQ7['SOAK52']:+.3f}; screw fibre "
+                 f"yield SOAK70 {FIB7['SOAK70']:+.3f}, SOAK {FIB7['SOAK']:+.3f}, SOAK52 {FIB7['SOAK52']:+.3f} (shakedown >= {SHK7:+.3f}); screw "
+                 f"LCF at the thread root (C6, 183 (1)(c); jfwd_screw_lcf_v352_v2.json 6acdaa2febdf3f6c, Kf 3.0): per firing N_allow {LCFg[0]} "
+                 f"(MS {LCFg[1]:+.3f}), from zero {LCFg[2]} (MS {LCFg[3]:+.3f}). Head-to-shank fillet (jfwd_head_fillet_v352_v1.json "
+                 f"337883c3f2076a32; Kt LITERATURE, secondary via AMESweb (Pilkey 2005 stepped bar), book page and T-head Kt TO-SOURCE; the no-spring "
+                 f"FE head-end resultants carried over ASSUMED): static MS_y {HG['static']['MS_y_net']:+.3f} / MS_u {HG['static']['MS_u_net']:+.3f}; "
+                 f"LCF per firing N_allow {HG['i_firing']['fillet_N_allow']} (MS {HG['i_firing']['fillet_MS']:+.3f}), from zero "
+                 f"{HG['ii_assembly_from_zero']['fillet_N_allow']} (MS {HG['ii_assembly_from_zero']['fillet_MS']:+.3f}, FOUND NEGATIVE, not "
+                 f"governing: the thread root governs). Tap wall to the torch passage (jfwd_tapwall_v352_v1.json bcb21243d57af998, CALC, wall "
+                 f"1.6355 net at +/-0.25 deg): governing {TWg[1].split('|')[0]} with 102 bar abs MS_y {TWg[0]:+.3f}, the 75.5 bar FA-1 pulse "
+                 f"{TWp:+.3f}; P_torch and its distribution TO-CONFIRM (REV-COMB-4). No-spring record (K_js5 v2 e2624bf729633fb8): the 239 (3) "
+                 f"negative (-239 / -323 N, 9 / 12 of 24 unseated) is unchanged and answered by route (i). History: the A4-80 rows and texts of "
+                 "v1.2-v1.6 are in hardware_v352 v1.6 (0ed3f31d3e166f85)"),
+        "oxygen_service": (L["oxygen_service"].replace("minimum wall from the M5 major diameter to any other TC-02 cavity 1.906 mm (torch passage, "
+                                                       "az 18 / 342)", "minimum wall from the M5 major diameter to any other TC-02 cavity 1.906 mm "
+                                                       "CAD nominal (torch passage, az 18 / 342; 1.6355 net at the +/-0.25 deg clocking, F5, tap-wall "
+                                                       f"v1 MS_y {TWg[0]:+.3f})")),
+        "assembly_note": (L["assembly_note"] + " | v1.7: one HW-170 disc spring under each head (spring A with L 10.7, spring B with L 10.6; never "
+                          "mixed in one joint); spring orientation TO-DEFINE on the ENG-HW-101-IN718 drawing (the spring is flat above its derated "
+                          f"F_flat {SEAT['A_DIN2093_A10_17-7PH|R0.00|lo|seat']['F_flat_derated_N']:.0f} N, far below the {F_MIN:.1f} N minimum, so the "
+                          "rows take the flat annulus); the locker never on the spring or the flat; " + REG + "; " + SINGLE),
+    })
+    assert "1.906 mm CAD nominal" in L["oxygen_service"], "oxygen_service text anchor moved"
+    L["test"] = {
+        "id": "J-F1", "owner": "founder (lead 2026-10-20 founder test list)",
+        "what": ("torque-tension of ENG-HW-101-IN718 (flight lot: IN718 AMS 5662 / 5663, F3 head: pilot 5.15 h9 x 0.25-0.30, undercut fillet "
+                 "r 0.2-0.3, da 5.55-5.80; M5 x 10.7 +/-0.1) with the HW-170 disc spring under the head (flight lot, spring A; with M5 x 10.6 "
+                 "if spring B is bought) and LOCTITE 243 (flight lot), into a 6061-T6 M5-6H tap (drill 4.2 x 9.0, 8.0 full thread, TC-02 "
+                 "surface state) through a 2.69 mm 6061-T6 wall coupon with a d5.5 H12 hole and the rev-5 head-seat flat (cutter d11.2, Ra 1.6 "
+                 "max, square to the hole within 0.05: the TC-01 state; the spring and the under-head friction are part of K); preload by a "
+                 "through-hole load washer (grip restored) or ultrasonic elongation, M-T1J"),
+        "samples": ("10 screws, one per fresh tap; plus 3 of the taps re-used 3 times after chaser cleaning with a NEW screw and spring each time "
+                    "(the single-use rule): 19 readings"),
+        "acceptance": (f"sets the lot torque: T_lot = {F_CAP:.0f} N x K_min(lot) x 5 mm so that the MAXIMUM preload is <= {F_CAP:.0f} N on every "
+                       f"reading (lead 17:55:55Z F1; FE-anchored cap); the lot MINIMUM = T_lot / (K_max(lot) x 5 mm) is reported: the rows are "
+                       f"stated at {F_MIN:.1f} N (today's K window {KW[0]}-{KW[1]}, {T_LOT:.3f} N m); a lot minimum below {F_MIN:.1f} N goes to "
+                       "the lead and the minimum-dependent rows (cold-after-embedding seating, K_js5) are re-stated at the lot result; a reading "
+                       "below the minimum does not reopen the strength rows (bearing-type joint) but re-issues the retention statement"),
+        "spring_items": ("lead 16:53Z R2 'J-F1 gains the spring items': (1) K WITH THE SPRING under the head (the lot K window above is "
+                         "measured with it); (2) the spring FLATTENING: the spring is flat (solid) at every reading, by the head-height change "
+                         "against the derated F_flat (spring A about 360-411 N, spring B 236 N basis), recorded; (3) the CRACK-ON (breakaway) "
+                         "torque of every reading, recorded"),
+        "pressure_film_item": (f"TO-VERIFY (lead 17:55:55Z F1): Fuji Prescale pressure-film footprint of the spring on the flat at the J-F1 "
+                               f"maximum (film grade TO-SELECT for the expected pressure range), on at least 3 readings: the supported area "
+                               f"against the rows v7 basis ({FTP['registered_stack_0.4865_F2']} mm2 at the registered stack 0.4865, "
+                               f"{FTP['full_float_0.557']} at full float); it also covers the spring-footprint FE run, which is not run "
+                               "unless disk space appears (line 245 (6))"),
+        "optional_J-F1b": ("5 of the J-F1 joints (with the spring) with the load washer kept in: 10 oven cycles 20 -> 120 C, residual preload and "
+                           "breakaway torque recorded, as data for the preload-retention audit (16:53Z R2: the check on the relaxation model); "
+                           "its v1.4 purpose (the 10-firing replacement interval) is superseded by the single-use rule; the cycle temperature "
+                           "against the about 160 C spring relaxation basis is TO-RULE"),
+        "superseded": "v1.4-v1.6 J-F1 (A4-80 M5 x 10, 3.0 N m, acceptance 2250-4096 N, 2.5 N m fallback): hardware_v352 v1.6 0ed3f31d3e166f85"}
+    L["fallback_2.5Nm"] = {"status": "SUPERSEDED v1.7 (lead 17:55:55Z F1: the torque is set per flight lot by J-F1; the 2.5 N m A4-80 fallback "
+                                     "and its margins are records of hardware_v352 v1.6 0ed3f31d3e166f85)"}
+    L["v1_6_record"] = v16 | {"note": "hardware_v352 v1.6 values of this line (A4-80 basis), superseded by v1.7"}
+assert not any(L["id"] == "HW-170" for L in o["lines"])
+o["lines"].append({
+    "id": "HW-170", "kind": "washer",
+    "item": "J-FWD disc spring under each ENG-HW-101-IN718 head (route (i), lead 16:53Z R2): spring A baseline",
+    "standard": "DIN EN 16983 (previously DIN 2093) group 1, series A",
+    "size": (f"A10: De {SA['De_Di_t_l0_h0_mm'][0]} x Di {SA['De_Di_t_l0_h0_mm'][1]} x t {SA['De_Di_t_l0_h0_mm'][2]}, l0 "
+             f"{SA['De_Di_t_l0_h0_mm'][3]}, h0 {SA['De_Di_t_l0_h0_mm'][4]} mm (DATASHEET: Schnorr brochure p. 11 row 001 500 A)"),
+    "length_mm": None, "grade": "1.4568 (17-7 PH)", "qty": 10, "host": "ENG-TC-01", "joint": "J-FWD", "group": "engine",
+    "L_basis": (f"one per screw under the head, on the rev-5 TC-01 flat (cutter d11.2, r_flat 31.313 +0.020/0 from A); solid at every hot "
+                f"frame (spring v4); the thickness enters the HW-101 length (spring A t {GA['t_solid_min_max_mm'][0]}-{GA['t_solid_min_max_mm'][1]} "
+                f"with L 10.7, spring B t {GB['t_solid_min_max_mm'][0]}-{GB['t_solid_min_max_mm'][1]} with L 10.6; L_e 7.294); t tolerance "
+                f"{SP4['geometry_length_tip_engagement']['basis']['t_tol_src']}; drawing note on TC-01: 'disc spring may overhang the flat's "
+                "tangential edges' (P(i)-2, ACCEPTED 16:53Z)"),
+    "unit_mass_g": round(M170A, 3),
+    "mass_evidence": (f"CALC (flat annulus De 10 / Di 5.2 x t 0.5 x SS-SPRING {RHO_SPR:.0f} kg/m3 LITERATURE, engmat); spring B (t 0.4) "
+                      f"{M170B:.3f} g; DATASHEET TO-FETCH"),
+    "torque_Nm": None, "torque_basis": "", "thread_locker": "",
+    "status": ("DEFINED v3.5.2 route (i) (lead 16:53Z R2): spring A (DIN 2093 A10, 17-7 PH, Schnorr 001 500 A in 1.4568) is the baseline, "
+               "spring B (Lesjofors 7909) the alternate; both TO-QUOTE delivered to DK-6400 with relaxation data at about 160 C"),
+    "action": ("TO-QUOTE spring A and spring B delivered to DK-6400 with the maker's relaxation data at about 160 C (R2); relaxation R "
+               "TO-SOURCE (spring v4: seated for any R < 0.9999); reuse of a removed spring TO-RULE (Mechanical proposes: new with the screw at "
+               "every assembly, as HW-101)"),
+    "note": (f"spring v4 (04-fea/v352/jfwd_spring_v352_v4.json a277b996c2d61b83, CALC / DATASHEET; harness reproduces relax v7) at the J-F1 band "
+             f"{F_MIN:.1f}-{F_CAP:.0f} N: all 24 cases seated at both k_b ends and both families, R 0 to 0.80, both springs; spring A F_S min "
+             f"{FSA['0.00'][0]} / {FSA['0.00'][1]} N (k_b lo / hi) at R 0, {FSA['0.20'][0]} / {FSA['0.20'][1]} at R 0.2, {FSA['0.40'][0]} / "
+             f"{FSA['0.40'][1]} at R 0.4; spring B {FSB['0.00'][0]} / {FSB['0.00'][1]}, {FSB['0.20'][0]} / {FSB['0.20'][1]}, {FSB['0.40'][0]} / "
+             f"{FSB['0.40'][1]}; derating 0.925 (tolerance) x 0.946 (E at 160 C proxy) x (1 - R); supported area on the flat "
+             f"{FTP['registered_stack_0.4865_F2']} mm2 at the registered stack 0.4865 (F2), {FTP['full_float_0.557']} at full float; CAD (checks/"
+             f"test_rev5_jfwd_v2.json 32c41e1e207f9d64): spring to FD-04 >= {min(v['min_FD04_spring_mm'] for v in ENV.values()):.3f} mm, head "
+             f">= {min(v['min_FD04_head_mm'] for v in ENV.values()):.3f} mm; the springs are hardware lines, not CAD solids"),
+    "oxygen_service": "dry side (as HW-101): outside both bore seals; not N2O-wetted",
+    "assembly_note": "fitted with its screw (HW-101 assembly note); orientation TO-DEFINE on the ENG-HW-101-IN718 drawing",
+    "spring_A": {"part": SA["part"], "material": SA["material"], "De_Di_t_l0_h0_mm": SA["De_Di_t_l0_h0_mm"], "F_flat_basis_N": SA["F_flat_basis_N"],
+                 "basis_scale_note": SA["basis_scale_note"], "src": SA["src"], "ruled_as": "Schnorr 001 500 A in 1.4568 (R2)"},
+    "spring_B_alternate": {"part": SB["part"], "material": SB["material"], "De_Di_t_l0_h0_mm": SB["De_Di_t_l0_h0_mm"],
+                           "F_flat_basis_N": SB["F_flat_basis_N"], "src": SB["src"], "screw_length_mm": 10.6, "unit_mass_g_CALC": round(M170B, 3)},
+    "test": {"id": "J-F1", "owner": "founder (with HW-101)", "samples": "every J-F1 reading of HW-101 carries a new HW-170 of the flight lot",
+             "acceptance": "the HW-101 J-F1 spring items (K with the spring, flattening, crack-on torque) and the pressure-film footprint item"}})
+o["jfwd_route_i_basis"] = {k: {"path": f"04-fea/v352/{p.name}", "sha256_16": s} for k, (p, s) in V17F.items()}
+o.update({"version": "v1.7", "basis": o["basis"] + (
+    " | v1.7 (2026-10-20, lead 16:53Z R2 / R3, 17:55:55Z F1-F5, 18:36:37Z): J-FWD route (i): HW-101 = ENG-HW-101-IN718 (IN718 AMS 5662 / "
+    "5663, F3 head: pilot 5.15 h9 x 0.25-0.30, undercut fillet r 0.2-0.3, da 5.55-5.80; M5 x 10.7 +/-0.1, spring B with 10.6), torque set per "
+    f"flight lot by J-F1 (<= {F_CAP:.0f} N; today {T_LOT:.3f} N m, minimum {F_MIN:.1f} N), method M-T1J with the C4 registration, single-use "
+    f"founder rule; HW-170 disc spring x 10 (spring A Schnorr 001 500 A in 1.4568, spring B Lesjofors 7909); CALC mass HW-101 {m_old:.3f} -> "
+    f"{M101A:.3f} g, HW-170 {M170A:.3f} g ({10 * (M101A - m_old) + 10 * M170A:+.2f} g in all); rows: 04-fea/v352 rows v7 and companions")})
 TQ_METHOD = {}
 for L in o["lines"]:
     if L["kind"] != "screw":
         L["tightening_method"], L["preload_scatter"] = "M-NONE", ""
         continue
     t = L.get("torque_Nm")
-    if str(L.get("grade", "")).startswith("Ti-6Al-4V"):
+    if L["id"] == "HW-101" and "M-T1J" in o["rules"]["tightening_methods"]:     # v1.7: J-F1 lot torque, C4 registration, single-use
+        m = "M-T1J"
+    elif str(L.get("grade", "")).startswith("Ti-6Al-4V"):
         m = "M-T1Ti"
     elif L.get("thread_locker") or "Loctite" in L.get("note", "") or L["id"] == "HW-114":
         m = "M-T1L"
@@ -327,7 +571,8 @@ for L in o["lines"]:
     else:
         m = "M-T1"
     L["tightening_method"] = m
-    L["preload_scatter"] = "+/-25 % (ASSUMED, K 0.20)"
+    L["preload_scatter"] = ("J-F1 flight lot (lead 17:55:55Z F1): T_lot = 3750 N x K_min(lot) x 5 mm; today's K window 0.1465-0.267 gives "
+                            "2057.6-3750 N at 2.747 N m (replaces +/-25 % about K 0.20 for this line)") if m == "M-T1J" else "+/-25 % (ASSUMED, K 0.20)"
     TQ_METHOD[L["id"]] = m
 o["n_lines"] = len(o["lines"])
 o["n_items"] = sum(L["qty"] for L in o["lines"])

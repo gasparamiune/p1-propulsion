@@ -511,6 +511,28 @@ def contingency_lines():
     return [r]
 
 
+def gse_tool_lines():
+    """v3.5.2 rev 5 (lead 14:34Z item C3 'BOM line (rev 5)', 17:55:55Z F2): J-FWD assembly tools, GSE (not flight): BOM lines only, not
+    modelled, no flight mass; both TO-DRAW / TO-QUOTE."""
+    if not str(CAD_VERSION).startswith("v3.5.2"):
+        return []
+    tq = f"TO-QUOTE (delivery {DELIVERY})"
+    base = {"cots": False, "supplier": "in-house / workshop TO-QUOTE", "supplier_pn": "", "unit_mass_kg": None,
+            "mass_source": "GSE: not flight mass", "unit_price": tq, "wetted": "", "oxygen_clean": False, "drawing": "TO-DRAW", "step": "",
+            "step_roundtrip": None, "sub_solids": "", "groups": "gse (not flight)"}
+    return [dict(base, pn="ENG-TC-12", name="J-FWD hole plug set, 10 plugs + band, O-ring passage aid", qty=1, material="POM",
+                 material_name="POM (acetal) rod", process="turned plugs + split band",
+                 notes=("item C3 (accepted 14:34Z, 'BOM line (rev 5)'): 10 POM plugs (shank d5.5 -0.02/-0.05, head shoulder on the spot face, "
+                        "inner end contoured R28.6, length = the wall measured at that hole minus 0.025 +/- 0.010, numbered to their holes) and 1 "
+                        "retaining band; used at every TC-02 insertion (C4 steps 2-5); TO-DRAW / TO-QUOTE")),
+            dict(base, pn="ENG-TC-13", name="J-FWD registration shoulder screw pair (C4 registration)", qty=1, material="TO-SELECT",
+                 material_name="TO-SELECT", process="TO-DRAW",
+                 notes=("lead 17:55:55Z F2 (ADOPTED into C4): two GSE (non-flight) shoulder screws, the shoulder selected to the pin-gauged "
+                        "TC-01 holes (d5.5 H12, pins GO 5.50 / NO-GO 5.62), M5 into the TC-02 taps; they go into two opposite holes before any "
+                        "flight screw, the flight screws are fitted one at a time and recorded, and the shoulder screws come out last and are "
+                        "replaced by flight screws; never left in the engine; TO-DRAW / TO-QUOTE"))]
+
+
 def stage_bom(reg, out, roundtrip_rows=None):
     rt = {r["pn"]: r for r in (roundtrip_rows or [])}
     lines = []
@@ -534,6 +556,9 @@ def stage_bom(reg, out, roundtrip_rows=None):
     tot = sum(l["unit_mass_kg"] * l["qty"] for l in lines if l not in gse)
     prov = provision_lines()
     cont = contingency_lines()
+    tools = gse_tool_lines()
+    for l in tools:
+        l["category"] = "GSE (not flight)"
     for l in prov:
         l["category"] = "PROVISION (not modelled)"
     for l in cont:
@@ -554,7 +579,7 @@ def stage_bom(reg, out, roundtrip_rows=None):
     with open(path, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=hdr, extrasaction="ignore")
         w.writeheader()
-        for l in [l for l in lines if l not in gse] + hw["bom_lines"] + gse + prov + cont:
+        for l in [l for l in lines if l not in gse] + hw["bom_lines"] + gse + tools + prov + cont:
             w.writerow({k: l.get(k, "") for k in hdr})
     pm = [l["unit_mass_kg"] * l["qty"] for l in prov if l["unit_mass_kg"] is not None]
     res = {"cad_version": CAD_VERSION, "delivery": DELIVERY, "currency": "prices not given: every line TO-QUOTE unless dated",
@@ -562,6 +587,7 @@ def stage_bom(reg, out, roundtrip_rows=None):
            "mass_sum_note": "sum of unit masses x qty (CAD volume x density, or tagged COTS masses); includes the transport-lock items only "
                             "if they are placed (they are not: group 'lock' is excluded from the instance list); PROVISION lines excluded",
            "lines": lines, "mass_sum_flight_kg": round(tot, 4), "gse_lines_excluded_from_flight_mass": [{"pn": l["pn"], "qty": l["qty"], "unit_mass_kg": l["unit_mass_kg"]} for l in gse], "provision_lines": prov, "contingency_lines": cont,
+           "gse_tool_lines": tools,
            "tightening_methods": meth or {}, "preload_scatter_rule": (hw["raw"].get("rules") or {}).get("preload_scatter", ""),
            "hardware": {"source": hw["source"], "source_sha256_16": hw["sha"], "n_lines": len(hw["bom_lines"]),
                         "n_items": sum(l["qty"] for l in hw["bom_lines"]), "calc_mass_total_kg": hw["calc_total_kg"],

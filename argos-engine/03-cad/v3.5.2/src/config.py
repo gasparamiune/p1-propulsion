@@ -657,6 +657,19 @@ V352_REV3_ON = dict(V352_ON)
 V352_R4_NOSPOT = dict(V352_ON, tc0203_seat_r4=V352_SEAT_R4, jfwd_od_spot_d=0.0)
 V352_ON = dict(V352_R4_NOSPOT, jfwd_od_spot_d=0.0105)          # rev 4 + J-FWD head seat (a), lead 07:21Z
 V352_R4_JFWD_SPOT = V352_ON
+#  - REV 5 (2026-10-20, lead CHANGELOG 241 (6) / (8) and lead 16:53Z R2 / R4; TC-01 geometry in parts_engine, text in parts_engine / hardware v1.7):
+#        jfwd_od_spot_d 0.0112: J-FWD spot-face cutter d11.2 +0.1/0 (minimum modelled), corner R <= 0.05 (drawing; modelled sharp), lead 16:53Z
+#        R2 P(i)-1 (ADOPTED subject to the rev-5 CAD check: checks/test_rev5_jfwd.py); jfwd_od_spot_rflat 0.031313: the flat is defined by
+#        its depth from datum A (241 (6)(a): r_flat 31.313 +0.020/0, the d10.5 rev-4 value), so the larger cutter does not thin the wall
+#        (2.665-2.708 at the hole, unchanged) and only lengthens the flat axially (the tangential run-out on the OD is set by r_flat);
+#        tc01_leadin_len 0.0035: fwd bore lead-in 15 deg x 3.5 (C2; was x 3.0); jfwd_screw_len_mm 10.7: ENG-HW-101-IN718 L 10.7 +/-0.1 with
+#        the pilot 5.15 h9 and the disc spring under the head (route (i), R2; screws and springs are not modelled as solids: hardware
+#        lines); jfwd_rev5: the rev-5 TC-01 / TC-02 drawing notes (datum A = the 57.25 H8 bore axis, datum B = the TC-01 fwd end face,
+#        bore 57.15 +/-0.10, OD 63.5 h9 runout 0.04 to A, hole d5.5 H12 position 0.10 to A|B, C1 (a)-(h), P(i)-2 note, aft thread 6e,
+#        TC-02 match-drill method).  V352_R4_JFWD_SPOT keeps the rev-4 + d10.5 state (interim r4h6, FEA3D's FE flat).
+V352_R5 = dict(V352_R4_JFWD_SPOT, jfwd_od_spot_d=0.0112, jfwd_od_spot_rflat=0.031313, tc01_leadin_len=0.0035, jfwd_screw_len_mm=10.7,
+               jfwd_rev5=True)
+V352_ON = V352_R5
 # J-FWD land (line 230 (1) FA1S option, +21.7 g) WITHDRAWN by lead CHANGELOG 231 (1): kept as a trade key set for the record only
 V352_JFWD_LAND_TRADE = dict(jfwd_land_t=0.0044, jfwd_land_od=0.0669, jfwd_land_aft=0.011, jfwd_spot_d=0.0105, jfwd_screw_len_mm=12.0)
 V352_TC09_ON = dict(V351_ON, tc09_barrel_wall=0.0018, tc09_socket_R2=0.0345)     # TC-09-only sensitivity (thermal tag v352_TC09, mass file)

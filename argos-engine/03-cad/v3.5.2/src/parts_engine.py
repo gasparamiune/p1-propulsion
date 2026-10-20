@@ -151,7 +151,10 @@ def build_engine_parts(P, S, reg, mat):
                     (r_land_aft, zl), (31.5, zl), (31.5, zth), (r_land_aft, zth), (r_land_aft, zth + 2.0),
                     (case_R, zth + 2.0 + (case_R - r_land_aft))] + fwd_od + [(case_r, z1)])
     case = case.cut(tube(2 * seal_r, 2 * case_r - 1, z1 - land, z1 + 1))
-    ch = revolve([(seal_r, z1 - 3.0), (seal_r + 3.0 * math.tan(math.radians(15)), z1), (seal_r + 3, z1 + 0.01), (seal_r, z1 + 0.01)])
+    # v3.5.2 rev 5 (C2, CHANGELOG 241 (8)): fwd bore lead-in 15 deg x tc01_leadin_len (3.5; 3.0 before rev 5)
+    li = float((P.get("tc01_leadin_len") or {}).get("v", 0.003)) * 1000.0
+    S["tc01_leadin_mm"] = li
+    ch = revolve([(seal_r, z1 - li), (seal_r + li * math.tan(math.radians(15)), z1), (seal_r + 3, z1 + 0.01), (seal_r, z1 + 0.01)])
     case = case.cut(ch)
     case = cut_all(case, [radial_hole(db + 0.5, a, S["bolt_z_fwd"], case_r - 1, jl_R + 1) for a in angs])
     if jl_t > 0:                                                            # flat spot faces for the ISO 7380 heads (dk 9.5) on the land
@@ -159,18 +162,81 @@ def build_engine_parts(P, S, reg, mat):
     # v3.5.2 rev 4 (lead 2026-10-20 06:23Z item 6): J-FWD head-seat option (a) = flat spot face d jfwd_od_spot_d on the plain OD (no land);
     # the flat lies at r_flat = sqrt(case_R^2 - (d/2)^2) so the full head (dk 9.5) bears on a plane; wall at the hole = r_flat - seal_r
     sp_od = float((P.get("jfwd_od_spot_d") or {}).get("v", 0.0) or 0.0) * 1000.0
+    # v3.5.2 rev 5 (CHANGELOG 241 (6)(a), lead 16:53Z R2 P(i)-1): the flat is defined by its depth from datum A (jfwd_od_spot_rflat, r_flat
+    # 31.313 +0.020/0), not by the cutter diameter; the d11.2 cutter then runs out on the OD tangentially at the same half chord
+    sp_rf = float((P.get("jfwd_od_spot_rflat") or {}).get("v", 0.0) or 0.0) * 1000.0
+    R5 = bool((P.get("jfwd_rev5") or {}).get("v", False))
+    S["jfwd_rev5"] = R5
     S["jfwd_od_spot"] = None
     if jl_t <= 0 and sp_od > 0:
-        r_flat = math.sqrt(case_R ** 2 - (sp_od / 2) ** 2)
+        r_flat = sp_rf if sp_rf > 0 else math.sqrt(case_R ** 2 - (sp_od / 2) ** 2)
         S["jfwd_od_spot"] = {"d_mm": sp_od, "r_flat_mm": round(r_flat, 4), "wall_at_hole_mm": round(r_flat - seal_r, 3),
-                             "depth_at_edge_mm": round(case_R - r_flat, 3)}
+                             "depth_at_edge_mm": round(case_R - r_flat, 3),
+                             "half_chord_on_OD_mm": round(math.sqrt(max(case_R ** 2 - r_flat ** 2, 0.0)), 4),
+                             "rule": ("depth from datum A (rev 5)" if sp_rf > 0 else "r_flat from the cutter diameter on the OD (rev 4)")}
         case = cut_all(case, [radial_hole(sp_od, a, S["bolt_z_fwd"], r_flat, case_R + 1.0) for a in angs])
     gd, gwid = v("collar_groove_depth"), v("collar_w")
     S["collar_groove"] = (case_R - gd, -gwid / 2, gwid / 2)
     case = case.cut(tube(2 * case_R + 2, 2 * (case_R - gd), -gwid / 2, gwid / 2))      # engine-collar groove at the pivot plane
     shp, T = localize(case, z1)
+    TC01_R5 = None
+    if R5 and S.get("jfwd_od_spot"):
+        # v3.5.2 rev 5 drawing (CHANGELOG 241 (6) / (8), lead 16:53Z R2 / R4): datums, J-FWD flats on the depth rule with the d11.2 cutter,
+        # hole H12 and its position, C1 (a)-(h), C2, P(i)-2, bore and OD tolerances, aft thread 6e in the notes and the fits list
+        sp = S["jfwd_od_spot"]
+        zB = z1 - S["bolt_z_fwd"]
+        TC01_R5 = dict(
+            supplier=("6061-T6 tube with turning stock on the OD (rev 5: OD 63.5 h9 with runout 0.04 to A is turned) and a bore held to "
+                      "57.15 +/-0.10 (drawn-tube ID tolerance TO-CONFIRM with the stockist, else bored): stock TO-SELECT (e.g. 2.75 x 0.25 in drawn "
+                      "tube 69.85 x 6.35, ID 57.15; the rev-4 2.5 x 0.125 in tube has no OD stock for h9), DK delivery, TO-QUOTE"),
+            notes=(f"v3.2: case ends at the grain aft face (aft section TC-09 carries the post-chamber). Length {z1-z0:.2f} mm. Collar groove "
+                   f"{2*(case_R-gd):.2f} h9 x {gwid:.0f} mm at {z1:.1f} mm from the fwd end (pivot plane). Fwd: seal land bored 57.25 H8 x {land:.0f} "
+                   f"mm Ra 0.8 (datum A), 15 deg x {li:.1f} lead-in (rev 5, C2); {nb}x d{db + 0.5:.1f} H12 radial holes at {zB:.0f} mm from the fwd "
+                   f"end face (datum B) (az {angs[0]:g} + {360.0 / nb:g} k deg, pattern clocking free: match-drilled with TC-02; v3.5.2 J-FWD rev 5: "
+                   f"{nb}x ENG-HW-101-IN718 M5 x 10.7 with a disc spring HW-170 under each head (M5 x 10.6 with spring B), route (i), lead "
+                   f"16:53Z R2; J-FWD assembly per the fits-list note (C4 / C6); spot face cutter "
+                   f"d{sp['d_mm']:.1f}, flat at r {sp['r_flat_mm']:.3f} from datum A (depth {sp['depth_at_edge_mm']:.3f} at the screw axis, wall "
+                   f"{sp['wall_at_hole_mm']:.3f} at the hole, half chord {sp['half_chord_on_OD_mm']:.3f} on the OD)). Aft: M63x1.5-6e x "
+                   f"{P['aft_thread_len']['v']*1e3:.0f} mm (modelled at 63.0 major), relief 61.0 x 2, seal land 61.0 f7 x "
+                   f"{P['aft_land_len']['v']*1e3:.0f} mm Ra 0.8 with 15 deg lead-in"),
+            dwg={"datum": ("A = axis of the fwd seal-land bore 57.25 H8 (CHANGELOG 241 (6)(a)); B = the fwd end face, the face the J-FWD hole row is "
+                           "dimensioned from (TC-02 does not seat axially on TC-01: 2.0 head gap, no bore step contact; rev 5, lead 16:53Z R4)"),
+                 "fits": ["fwd bore 57.25 H8 (+0.046/0) Ra 0.8 = datum A",
+                          "bore aft of the seal land 57.15 +/-0.10 (rev 5, lead 16:53Z R4: maximum 57.25 = the seal-land clean-up bound; minimum "
+                          "wall 3.088 at the h9 OD)",
+                          "OD 63.50 h9 (0/-0.074), circular runout 0.04 to A (rev 5, 241 (6)(b))",
+                          "aft land 61.0 f7 (-0.030/-0.060) Ra 0.8",
+                          "collar groove 62.50 h9 (0/-0.074) x 20.0 +0.1/0, corner R0.4",
+                          "M63x1.5-6e thread, 14 mm (6e: thermal growth into the steel aft section; rev 5: the fits list and the notes agree, lead "
+                          "16:53Z R4)",
+                          f"fwd bore lead-in 15 deg x {li:.1f} (rev 5, C2: x 3.0 missed Parker Fig. 2.24 by 0.0005 at the worst stack)",
+                          (f"J-FWD holes {nb}x d5.5 +0.12/0 (H12), radial, through: position dia 0.10 to A|B, {zB:.3f} BASIC from B, pattern {nb}x "
+                           f"{360.0 / nb:g} deg BASIC, pattern clocking free on TC-01 (match-drilled with TC-02 at first assembly; TC-02 is "
+                           "clocked to this pattern within +/-0.25 deg by the index pin of the match-drill fixture: TC-02 tap note, lead 17:55:55Z "
+                           "F5); gauge pins "
+                           "GO 5.50 / NO-GO 5.62, the in-service limit is the drawn maximum (241 (6)(c) / (d), C1 (g) / (h))"),
+                          (f"J-FWD head-seat flats {nb}x (route (i), lead 16:53Z R2 P(i)-1): cutter d{sp['d_mm']:.1f} +0.1/0, corner R 0.05 max; "
+                           f"flat normal to its hole axis at r_flat {sp['r_flat_mm']:.3f} +0.020/0 from A (depth rule 241 (6)(a); profile 0.01 "
+                           "TO-CONFIRM with the shop); spot face coaxial to its hole within dia 0.10; wall at the hole 2.665-2.708; flat Ra 1.6 max, "
+                           "flat within 0.02, square to the hole axis within 0.05; the flat runs out on the OD tangentially (half chord "
+                           f"{sp['half_chord_on_OD_mm']:.3f} at the nominal OD) and is complete in the axial direction over the disc-spring bearing "
+                           "diameter at the positional stack (checks/test_rev5_jfwd.py); NOTE: 'disc spring may overhang the flat's tangential "
+                           "edges' (P(i)-2, ACCEPTED 16:53Z)"),
+                          ("J-FWD hole edges (C1 (a)-(c)): bore side R0.1-R0.2 blended and polished, no chamfer or step, R0.2 a HARD MAXIMUM (over "
+                           "it after rework: rejected or re-assessed, never accepted on sight); flat side 0.1 max; flat-to-OD edge 0.1 max"),
+                          ("J-FWD hole process (C1 (d)-(f)): deburr after match-drilling with TC-02 and after any rework, before anodise; 100 % 10x "
+                           "inspection of every hole before assembly; bearing length = wall minus both breaks (2.365 at the 2.665 limit wall)"),
+                          ("J-FWD assembly (C4 / C6 of 04-fea/v352/texts/item_c_tf1_texts_v352_v3.json; lead 16:53Z R3, 17:55:55Z F1 / F2, "
+                           "18:36:37Z): REGISTRATION by two GSE shoulder screws ENG-TC-13 (not flight), selected to the pin-gauged holes, in two "
+                           "opposite holes first; the flight screws ENG-HW-101-IN718, each with a new HW-170 disc spring, fitted one at a time to the "
+                           "J-F1 LOT TORQUE (method M-T1J: maximum preload capped at 3750 N, T_lot = 3750 N x K_min(lot) x 5 mm; J-F1 carries the "
+                           "Fuji Prescale footprint item, TO-VERIFY), each recorded (hole, pin size, screw and spring lot, torque, wrench); the "
+                           "shoulder screws out last, each replaced by a flight screw, recorded; J-FWD screws SINGLE-USE until C6 closes (new at "
+                           "every assembly, never reused or re-torqued); removed screws kept per hole and inspected at 10x plus dye penetrant at the "
+                           "thread root AND the head-to-shank fillet, as data")],
+                 "finish": "clear anodise (Type II) after machining, seal lands masked", "ht": "T6 as supplied (no welding)"})
     reg.add(Part("ENG-TC-01", "Combustion case tube", "AL6061-T6", "cut-stock + CNC lathe (bore fwd seal land, turn aft land and thread) + drill",
-                 shp, drawing=True, hot=True,
+                 shp, drawing=True, hot=True, **(TC01_R5 or dict(
                  supplier=("6061-T6 drawn tube 69.85 x 6.35 (2.75 x 0.25 in; ID 57.15 as the v3.5.1 tube) or >= 67 x <= 57.15 bar/tube, OD turned to 63.5 "
                            "except the J-FWD land (v3.5.2): supplier TO-SELECT (DK delivery), TO-QUOTE" if jl_t > 0 else
                            "6061-T6 drawn tube 63.5 x 3.175 (2.5 x 0.125 in): Aluminium-Online.de / Wefa / Metals4U (DK delivery)"),
@@ -191,8 +257,8 @@ def build_engine_parts(P, S, reg, mat):
                           f"circumferentially); wall at the hole {S['jfwd_od_spot']['wall_at_hole_mm']:.3f} nominal (>= 2.665 with the bore at "
                           f"57.296 and the flat at its limit); head seat Ra 1.6 max, flat within 0.02, square to the hole axis within 0.05; "
                           f"break the flat-to-OD edge 0.1 max"] if S.get('jfwd_od_spot') else []),
-                      "finish": "clear anodise (Type II) after machining, seal lands masked", "ht": "T6 as supplied (no welding)"}
-                 )).place(T, "engine")
+                      "finish": "clear anodise (Type II) after machining, seal lands masked", "ht": "T6 as supplied (no welding)"})))
+                 ).place(T, "engine")
 
     # ------------------------------------------------------------------ TC-02 injector head / forward closure
     face_rec = 2.0                                                        # recess for TC-10 face insulator
@@ -287,6 +353,21 @@ def build_engine_parts(P, S, reg, mat):
         cuts += parts_inlet.head_cuts(S)
     body = cut_all(body, cuts)
     shp, T = localize(body, zt)
+    TC02_R5_TAP = []
+    if R5:
+        # v3.5.2 rev 5 (lead 16:53Z R2): the TC-02 J-FWD tap position on the drawing, with the match-drill method (guide bushing in the TC-01
+        # d5.5 hole for the tap drill) and its positional result; the stack is checks/test_rev5_jfwd.py 'positional_stack_on_the_method'
+        TC02_R5_TAP = [(f"J-FWD taps {nb}x M5-6H x {jdrill - 1.0:.1f} full thread, drill 4.2 x {jdrill:.1f}, radial (rev 5, lead 16:53Z R2): "
+                        f"position {zt - S['bolt_z_fwd']:.3f} BASIC below A (head top face), pattern az {angs[0]:g} + {360.0 / nb:g} k deg BASIC from "
+                        "the torch-seat axis (0 deg); MATCH-DRILLED and tapped at a dry first fit (no O-rings, before finishing) through the ENG-TC-01 "
+                        "d5.5 H12 holes: TC-02 clocked to the TC-01 pattern within +/-0.25 deg by an index pin in the match-drill fixture (shop "
+                        "tooling, TO-DRAW; lead 17:55:55Z F5: tap-to-torch-passage wall 1.6355 net at +/-0.25 deg, 04-fea/v352/"
+                        "jfwd_tapwall_v352_v1.json; +/-0.5 deg (1.5415 net) is information only), head shoulder set 2.00 +/-0.02 from the TC-01 fwd "
+                        "end face with a gap gauge (TO-CONFIRM; the same "
+                        "gauge at every later assembly); at each hole a hardened guide bushing (GSE, TO-DRAW / TO-QUOTE: OD g6 in 0.01 mm steps selected "
+                        "to the hole size gauged with pins, bore 4.2 F7, bore concentric to the OD within 0.005 TIR) seated in the TC-01 hole guides "
+                        "the 4.2 h8 drill, then a tap guide of the same OD guides the M5-6H tap; tap axis coaxial with its TC-01 hole within dia 0.10 "
+                        "at match-drilling; separate, deburr (TC-01 C1 (d)), inspect, finish, oxygen-clean, assemble per C4")]
     reg.add(Part("ENG-TC-02", "Injector head / forward closure (pintle seat bore, manifold, Pc and torch ports)", "AL6061-T6",
                  "CNC lathe + 3-axis mill (2 setups)", shp, drawing=True, wetted="N2O",
                  notes="Head 63.5 x 28; plug 57.20 f7 with 2 AS568-226 FKM 90A glands (51.65 h9 groove, 4.85 wide); "
@@ -294,11 +375,18 @@ def build_engine_parts(P, S, reg, mat):
                           "TC-03 seats on its flange, top clear of the shoulder 0.125-0.225); " if R4 else "M14x1 seat-insert bore; ")
                        + "10 mm manifold bore; 1/4-18 NPT Pc tap (105 deg, 1/8 in sense line < 0.3 m) with 2 mm passage to the face at r 20.5; "
                        "M10x1 torch seat (0 deg, r 25) with 5.2 mm passage and 3 mm outlet drilled 30 deg inward/aft leaving the face at r 16.9 "
-                       "(v3.2 counter-proposal to Combustion's x_face 15 boss); " + (f"{nb}x M5 radial tapped at az {angs[0]:g} + {360.0 / nb:g} k deg (v3.5.2 J-FWD, lead CHANGELOG 231 (1): "
+                       "(v3.2 counter-proposal to Combustion's x_face 15 boss); " + (f"{nb}x M5-6H radial tapped at az {angs[0]:g} + {360.0 / nb:g} k deg (v3.5.2 J-FWD rev 5: ENG-HW-101-IN718 M5 x 10.7 +/-0.1 with "
+                       "a disc spring HW-170 under each head (M5 x 10.6 with spring B), route (i), lead 16:53Z R2; match-drilled and tapped through "
+                       "the TC-01 holes with a guide bushing, TC-02 clocked by an index pin within +/-0.25 deg, drawing note)" if (nb != 8 and R5) else
+                       f"{nb}x M5 radial tapped at az {angs[0]:g} + {360.0 / nb:g} k deg (v3.5.2 J-FWD, lead CHANGELOG 231 (1): "
                        "ISO 7380-1 M5 x 10 A4-80, sized at FA1S 151.04 bar abs SF 1.0 in v352/jfwd/jfwd_v352_v1.json; match-drilled with TC-01)" if nb != 8 else
                        "8x M5 radial tapped (J-FWD screws ISO 3506-1 A4-80, v3.5 lead decision 177 (2): yield MS +0.29 at 92 bar, ultimate +0.61 at 102 bar)")
-                       + (f"; v3.5.1: taps drilled 4.2 x {jdrill:.1f}, M5-6H full thread {jdrill - 1.0:.1f} for ISO 7380-1 M5 x 10 A4-80 (6.83 mm engagement; "
-                          "v3.5 6.5 deep: M5 x 10 bottomed)" if jdrill > 6.5 else "")
+                       + ((f"; taps drilled 4.2 x {jdrill:.1f}, M5-6H full thread {jdrill - 1.0:.1f}: with the spring (t 0.44-0.52) and the wall "
+                           "2.665-2.708, L 10.7 +/-0.1 engages L_e 7.294 min at the 0.078 gap bound (A_n 67.93 mm2) and stops 0.305 min short of the "
+                           "full-thread end; spring B (t 0.34-0.42) on L 10.6 +/-0.1 gives the same (rows v7 / spring v4 basis, lead 17:55:55Z F3); "
+                           "tap wall to the torch passage 1.6355 net at the +/-0.25 deg clocking (drawing note, F5)") if (R5 and jdrill > 6.5) else
+                          (f"; v3.5.1: taps drilled 4.2 x {jdrill:.1f}, M5-6H full thread {jdrill - 1.0:.1f} for ISO 7380-1 M5 x 10 A4-80 (6.83 mm engagement; "
+                          "v3.5 6.5 deep: M5 x 10 bottomed)" if jdrill > 6.5 else ""))
                        + "; 4x M4 bonnet" + (", 4x M3 PD-01 feet (r 26, 8 deep)" if HV69_ON else ", 2x M4 pintle bracket") + "; oxygen-clean, Krytox only",
                  dwg={"datum": "head top face A, axis B", "fits": ["plug 57.20 f7 (-0.030/-0.060)",
                                                                   "gland groove 51.65 h9 x 4.85 +0.13/0, Ra 0.8 groove bottom, Ra 1.6 flanks (Parker ORD 5700)",
@@ -309,7 +397,7 @@ def build_engine_parts(P, S, reg, mat):
                                                                      "run-out (DIN 76-1 class, AS RECALLED, TO-VERIFY; rev 4, mating corner)",
                                                                      "counterbore floor (S03 lands) to d10 shoulder 10.00 +0.05/0 (rev 4: TC-03 top gap 0.125-0.225, nominal 0.15)"]
                                                                     if R4 else []),
-                                                                  ("M10x1-6H x 10, 1/4-18 NPT, " if R4 else "M14x1-6H x 10, M10x1-6H x 10, 1/4-18 NPT, ") + (f"M5-6H x {jdrill - 1.0:.1f} full thread (drill 4.2 x {jdrill:.1f})" if jdrill > 6.5 else "M5-6H x 6.5") + ", M4-6H"],
+                                                                  ("M10x1-6H x 10, 1/4-18 NPT, " if R4 else "M14x1-6H x 10, M10x1-6H x 10, 1/4-18 NPT, ") + (f"M5-6H x {jdrill - 1.0:.1f} full thread (drill 4.2 x {jdrill:.1f})" if jdrill > 6.5 else "M5-6H x 6.5") + ", M4-6H"] + TC02_R5_TAP,
                       "finish": "clear anodise Type II except threads and gland; oxygen-clean per ASTM G93 / CGA G-4.1", "ht": "T6 as supplied"}
                  )).place(T, "engine")
 
