@@ -1,0 +1,3693 @@
+{
+ "id": "jfwd_in718_rows_v352",
+ "version": "v4",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "J-FWD screw-dependent rows re-issued for the ruled screw IN718 M5 x10 (ENG-HW-101-IN718), lead 11:25Z item 2, 11:41Z, 12:09Z item 5,\nrelay 12:28Z, relay 13:14Z, lead 14:03Z item 3.  Mechanical, 2026-10-20, v4 (v3 0a8aa3f87c0fc8bc / json f69595255aa9543d ACCEPTED by the\nlead 14:03Z, kept as jfwd_in718_rows_v352_v3.py; v2 b92cef86a2bc3919 kept).  [DERIVED] from SIM (FEA3D js5 complete run + seat patches (a),\n(a') and (a'')); no new run.  CALC / DERIVED, not physical approval.\n\nv4 (lead 14:03Z item 3, rev 5: r_flat 31.313 +0.020/0 from A, TC-01 OD 63.5 h9 with circular runout 0.04 to A, both ADOPTED):\n (a) every TC-01 flat-bearing row carries the worst-stack supported-area loss on the row's own area basis.  The row is FEA3D's\n     jfwd_spotface.py head_bearing 'flat_seat_MS_vs_Fbry' = Fbry / (F_head / A_ANN) - 1 with A_ANN = pi/4 (9.5^2 - 5.5^2) = 47.12 mm2 (dk 9.5);\n     at the worst stack (OD 63.426 = 63.5 h9 minimum, eccentricity 0.02 = runout 0.04 / 2, r_flat 31.333 = rule maximum, head at the full\n     float 0.337 tangentially) the head ring beyond the flat's tangential edge is CALC 0.749 mm2 for dk 9.5 and 0.218 mm2 for dk 9.14; on the\n     47.12 basis the smaller supported area is 47.12 - 0.749 -> the row x (1 - 0.749 / 47.12).  The full-flat value is kept beside.\n     INFORMATION (not applied, the row's own basis is kept as ruled): the 47.12 basis is the dk 9.5 MAXIMUM head; at the dk 9.14 minimum the\n     ring is 41.85 mm2 (41.63 after its 0.218 loss).\n (b) the TC-01 case membrane rows (03-cad/calcs hand_calcs_v2.json, Lame + end load at the bore) use the NOMINAL OD 63.5 and the nominal\n     bore (walls 3.175 full wall / 3.125 fwd seal land / 2.675 collar groove): the h9 radial -0.037 (and the H8 maximum bore +0.023 at the\n     fwd seal land) re-evaluated on every row whose outer surface is the 63.5 OD; the aft seal land (61.0) and the aft thread (M63 x 1.5) are\n     separate diameters.\n Otherwise as v3 (the screw LCF row is jfwd_screw_lcf_v352, on this json).\n\nv3: relaxation v6 (four histories: (a'') = seat_s5L12_mu0_go joins; FEA3D envelope 336568296bdb896f): every row takes the worst of the four\nhistories per state and quantity; k_b lo re-calibrated on (a'') SOAK70; the PRELOAD moment envelope is (a'')'s.  Otherwise as v2.\n\nv2: (1) the envelope is FEA3D's 12:21Z three-history envelope (js5, (a), (a'); results/v352/jfwd_soak_envelope_v352.json 1d970741cb95a885,\nread through relax v5 which cross-checks it): SOAK70 N max 6389 (a), SOAK 7383 (js5), SOAK52 6742 (a'); (2) the k_b bracket of relax v5\n(lo on (a') SOAK70 5627.3 N, hi on (a) SOAK70 6389.1 N); (3) FEA3D's TC-01 ligament-station P+Q is scaled per history (js5 only reports\nthat station: N_IN,js5 / N_js5) and carried as INFORMATION (contact-edge field, 0.08 mm from the hole wall, like the hole-edge line class\nof 239 (9)); the envelope-scaled value is quoted beside it; (4) the TC-02 A_n thread-shear FULL ROW (lead 12:09Z item 5) with the\nengagement basis and the cheapest fixes and their slack effect.\n\nBasis (stated per row in the output):\n - FE ANCHOR = the worst of the sharp-edge histories per state and per quantity (lead 11:41Z): highest screw N, lowest seat window,\n   lowest MS per line, highest screw section moment.  A4-80 values are the FE's own (the FE screw is A4-80); IN718 is mapped onto them.\n - IN718 screw force per history h and state: N_IN = F_V + (N_h - F_V) x r, r = (model IN718 soak gain) / (model A4-80 soak gain) at that\n   state's temperatures (relax v5 joint model; max over the k_b bracket; F_V = 3750 N, the FE preload).  dF_S / dF_V = 1.000 in the\n   model at every soak state, so the J-F1 maximum 4096 N adds 346 N.  Rows are given at 3750 N (the FE basis, as FEA3D's cells) and at\n   4096 N (the J-F1 maximum: 239 (3) 'strength checks at the maximum preload'; 239 (8)(a) P+Q at 3750 and 4096 N).\n - force-driven rows scale with N_IN / N_h on the FE row of the same history (screw tension, thread shear, flat bearing, under-head band,\n   Pm line counts): conservative where part of the stress is thermal and of the same sign.\n - seat / ring-line P+Q: (i) model-consistent, P+Q x F_sh,model(IN718) / F_sh,model(A4-80) (the lines track the shell pull, relax v4\n   item 4); (ii) bound, P+Q x N_IN / N_h.  The row is (i); (ii) is quoted beside and flagged where the two straddle zero.\n - screw moment for IN718: M_h x E ratio (imposed rotation) x max(1, F_c,IN / F_c,h) (the extra screw force goes to the seat contact,\n   K_C / (K_C + k_sh) of it): the product, conservative.\n - allowables: IN718 Fty / Ftu(T) AMS 5662/5663 minima (Special Metals SMC-045, engmat DATASHEET); AL6061-T6 engmat (10,000 h basis,\n   LITERATURE); TC-02 thread Fsy = 0.577 Fty, Fsu = 0.6 Ftu (FEA3D's rule, back-computed from its cells and verified); FEA3D's Neuber\n   (eps = s / E + 0.002 (s / Fty)^n, n 15 and 30, eps_limit of the node, the lower MS) reproduced exactly on js5 SOAK.\n - TC-02 A_n: FEA3D's cell A_n = N / tau = 63.48 mm2 = the strip area of jfwd_v352 at L_eff 6.35 mm (= the v3.5.1 engagement 6.85 less the\n   0.5 mm mouth, the jfwd_preload v2 basis).  The v3.5.2 spot-face engagement is longer (jfwd_seat_v352_v1: L_e 7.287 CAD, 7.257 at the\n   drawing minimum of the f7 plug): quoted as a BASIS CHECK for FEA3D, not credited in the row.\n - every row within 0.05 of zero (or negative) is flagged for an FE confirmation (lead 11:25Z).",
+ "inputs": {
+  "relax_v6_module": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_relax_v352.py",
+   "sha256_16": "9465eaeac9af407f"
+  },
+  "js5_cells": {
+   "path": "/home/claude/work/shared-fallback/engine/04-fea/assembly3d_v352/jfwd_interim/js5_mu0_T3750_g078_cells.json",
+   "sha256_16": "f9ed41727b0d4a46"
+  },
+  "fea3d_soak_envelope": {
+   "path": "/home/claude/work/fea3d/results/v352/jfwd_soak_envelope_v352.json",
+   "sha256_16": "336568296bdb896f"
+  },
+  "patch_compare": {
+   "(a)": {
+    "path": "/home/claude/work/fea3d/jfwd/runs/seat_s5L8_mu0/compare.json",
+    "sha256_16": "57724671790d58e0"
+   },
+   "(a')": {
+    "path": "/home/claude/work/fea3d/jfwd/runs/seat_s5L8_mu0_go/compare.json",
+    "sha256_16": "08fd149167aed345"
+   },
+   "(a'')": {
+    "path": "/home/claude/work/fea3d/jfwd/runs/seat_s5L12_mu0_go/compare.json",
+    "sha256_16": "5041b4179e3bb536"
+   }
+  },
+  "fix_v2_json": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_fix_v352_v2.json",
+   "sha256_16": "760d6c6f2d7d46d5"
+  },
+  "seat_v1_json": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_seat_v352_v1.json",
+   "sha256_16": "a371bdc9fe2d9986"
+  }
+ },
+ "histories": [
+  "js5",
+  "(a)",
+  "(a')",
+  "(a'')"
+ ],
+ "k_b_bracket_N_mm": {
+  "lo": 403723,
+  "hi": 632752
+ },
+ "IN718_over_A4-80_soak_gain_ratio": {
+  "SOAK70": 1.203,
+  "SOAK": 1.2002,
+  "SOAK52": 1.2013
+ },
+ "F_sh_ratio_IN718_over_A4-80": {
+  "SOAK70": 1.0027,
+  "SOAK": 1.0027,
+  "SOAK52": 1.0026
+ },
+ "FA1S_thermal_delta_IN718_N": 117.9,
+ "dF_S_per_dF_V_soak": 1.0,
+ "states": {
+  "PRELOAD": {
+   "state": "PRELOAD",
+   "kind": "soak",
+   "histories": {
+    "js5": {
+     "entered_from": "assembly",
+     "N_FE_A4-80_N": 3749.9,
+     "N_IN718_3750_N": 3750.0,
+     "N_IN718_4096_N": 4096.0
+    },
+    "(a)": {
+     "entered_from": "SEAT",
+     "N_FE_A4-80_N": 3750.2,
+     "N_IN718_3750_N": 3750.0,
+     "N_IN718_4096_N": 4096.0
+    },
+    "(a')": {
+     "entered_from": "SEAT",
+     "N_FE_A4-80_N": 3750.1,
+     "N_IN718_3750_N": 3750.0,
+     "N_IN718_4096_N": 4096.0
+    },
+    "(a'')": {
+     "entered_from": "SEAT",
+     "N_FE_A4-80_N": 3750.1,
+     "N_IN718_3750_N": 3750.0,
+     "N_IN718_4096_N": 4096.0
+    }
+   },
+   "N_envelope_from": "js5",
+   "rows": {
+    "3750": {
+     "screw_tension_234_1b": {
+      "N_N": 3750.0,
+      "from": "js5",
+      "sigma_As_MPa": 264.5,
+      "T_C": 20.0,
+      "Fty_IN718_MPa": 1034.0,
+      "Ftu_IN718_MPa": 1241.0,
+      "MS_y": 2.91,
+      "MS_u": 3.693,
+      "A4-80_FE_MS_y_at_FE_N": 1.269
+     },
+     "TC02_thread_shear_An": {
+      "A_n_mm2_FEA3D": 63.45,
+      "T_C": 20.0,
+      "N_N": 3750.0,
+      "tau_MPa": 59.1,
+      "Fsy_MPa": 138.6,
+      "Fsu_MPa": 156.1,
+      "MS_y": 1.345,
+      "MS_u": 1.642,
+      "A4-80_FE": {
+       "MS_y": 1.345,
+       "MS_u": 1.642,
+       "at_N": 3749.9
+      }
+     },
+     "TC01_flat_bearing": {
+      "MS_vs_Fbry": 3.155,
+      "MS_vs_Fbry_full_flat": 3.222,
+      "area_basis_mm2": 47.12,
+      "area_loss_mm2": 0.749,
+      "A4-80_FE_MS_at_FE_N": 3.222
+     },
+     "TC01_under_head_band_neuber": {
+      "per_history": {
+       "js5": {
+        "sigma_el_A4-80_MPa": 197.8,
+        "sigma_el_IN718_MPa": 197.8,
+        "T_C": 20.0,
+        "eps_limit": 0.0296,
+        "MS_strain_n15_n30": [
+         9.154,
+         9.3
+        ],
+        "MS_strain": 9.154
+       },
+       "(a)": {
+        "sigma_el_A4-80_MPa": 197.0,
+        "sigma_el_IN718_MPa": 197.0,
+        "T_C": 20.0,
+        "eps_limit": 0.0296,
+        "MS_strain_n15_n30": [
+         9.204,
+         9.344
+        ],
+        "MS_strain": 9.204
+       },
+       "(a')": {
+        "sigma_el_A4-80_MPa": 223.2,
+        "sigma_el_IN718_MPa": 223.2,
+        "T_C": 20.0,
+        "eps_limit": 0.0296,
+        "MS_strain_n15_n30": [
+         7.697,
+         7.961
+        ],
+        "MS_strain": 7.697
+       },
+       "(a'')": {
+        "sigma_el_A4-80_MPa": 228.0,
+        "sigma_el_IN718_MPa": 228.0,
+        "T_C": 20.0,
+        "eps_limit": 0.0296,
+        "MS_strain_n15_n30": [
+         7.438,
+         7.698
+        ],
+        "MS_strain": 7.438
+       }
+      },
+      "MS_strain": 7.438,
+      "from": "(a'')"
+     },
+     "TC01_ligament_station_PQ_FEA3D_cell_INFO": {
+      "PmPb_A4-80_MPa": 531.2,
+      "PmPb_IN718_js5_history_MPa": 531.2,
+      "two_Fty_MPa": 480.0,
+      "MS_PQ_2Fty_info": -0.096,
+      "envelope_scaled_bound_info": {
+       "PmPb_MPa": 531.2,
+       "MS": -0.096,
+       "N_from": "js5"
+      },
+      "A4-80_FE_MS": -0.096,
+      "class": "INFORMATION: contact-edge field (station 0.08 mm from the hole wall, inside the near-edge gradient: 572 / 346 / ~262 MPa at 0.08 / 0.26 / 0.52 mm at js5 SOAK70), like the hole-edge line class of 239 (9); only js5 reports this station, so the row scales with the js5 history's own force; not a cell"
+     },
+     "seat_line_d6p051_z0_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 226.5,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 226.5,
+        "MS_PQ_Fsh": 1.119,
+        "PmPb_IN718_headforce_bound_MPa": 226.5,
+        "MS_PQ_headforce_bound": 1.119
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 222.5,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 222.5,
+        "MS_PQ_Fsh": 1.157,
+        "PmPb_IN718_headforce_bound_MPa": 222.5,
+        "MS_PQ_headforce_bound": 1.157
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 227.1,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 227.1,
+        "MS_PQ_Fsh": 1.114,
+        "PmPb_IN718_headforce_bound_MPa": 227.1,
+        "MS_PQ_headforce_bound": 1.114
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 225.4,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 225.4,
+        "MS_PQ_Fsh": 1.13,
+        "PmPb_IN718_headforce_bound_MPa": 225.4,
+        "MS_PQ_headforce_bound": 1.13
+       }
+      },
+      "MS_PQ_2Fty": 1.114,
+      "from": "(a')",
+      "bound_MS": 1.114,
+      "bound_from": "(a')"
+     },
+     "ring_line_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 166.8,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 166.8,
+        "MS_PQ_Fsh": 1.878,
+        "PmPb_IN718_headforce_bound_MPa": 166.8,
+        "MS_PQ_headforce_bound": 1.878
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 166.9,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 166.9,
+        "MS_PQ_Fsh": 1.876,
+        "PmPb_IN718_headforce_bound_MPa": 166.9,
+        "MS_PQ_headforce_bound": 1.876
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 174.8,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 174.8,
+        "MS_PQ_Fsh": 1.746,
+        "PmPb_IN718_headforce_bound_MPa": 174.8,
+        "MS_PQ_headforce_bound": 1.746
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 176.2,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 176.2,
+        "MS_PQ_Fsh": 1.724,
+        "PmPb_IN718_headforce_bound_MPa": 176.2,
+        "MS_PQ_headforce_bound": 1.724
+       }
+      },
+      "MS_PQ_2Fty": 1.724,
+      "from": "(a'')",
+      "bound_MS": 1.724,
+      "bound_from": "(a'')"
+     }
+    },
+    "4096": {
+     "screw_tension_234_1b": {
+      "N_N": 4096.0,
+      "from": "js5",
+      "sigma_As_MPa": 288.9,
+      "T_C": 20.0,
+      "Fty_IN718_MPa": 1034.0,
+      "Ftu_IN718_MPa": 1241.0,
+      "MS_y": 2.58,
+      "MS_u": 3.296,
+      "A4-80_FE_MS_y_at_FE_N": 1.269
+     },
+     "TC02_thread_shear_An": {
+      "A_n_mm2_FEA3D": 63.45,
+      "T_C": 20.0,
+      "N_N": 4096.0,
+      "tau_MPa": 64.6,
+      "Fsy_MPa": 138.6,
+      "Fsu_MPa": 156.1,
+      "MS_y": 1.147,
+      "MS_u": 1.419,
+      "A4-80_FE": {
+       "MS_y": 1.345,
+       "MS_u": 1.642,
+       "at_N": 3749.9
+      }
+     },
+     "TC01_flat_bearing": {
+      "MS_vs_Fbry": 2.804,
+      "MS_vs_Fbry_full_flat": 2.865,
+      "area_basis_mm2": 47.12,
+      "area_loss_mm2": 0.749,
+      "A4-80_FE_MS_at_FE_N": 3.222
+     },
+     "TC01_under_head_band_neuber": {
+      "per_history": {
+       "js5": {
+        "sigma_el_A4-80_MPa": 197.8,
+        "sigma_el_IN718_MPa": 216.1,
+        "T_C": 20.0,
+        "eps_limit": 0.0296,
+        "MS_strain_n15_n30": [
+         8.092,
+         8.345
+        ],
+        "MS_strain": 8.092
+       },
+       "(a)": {
+        "sigma_el_A4-80_MPa": 197.0,
+        "sigma_el_IN718_MPa": 215.2,
+        "T_C": 20.0,
+        "eps_limit": 0.0296,
+        "MS_strain_n15_n30": [
+         8.142,
+         8.392
+        ],
+        "MS_strain": 8.142
+       },
+       "(a')": {
+        "sigma_el_A4-80_MPa": 223.2,
+        "sigma_el_IN718_MPa": 243.8,
+        "T_C": 20.0,
+        "eps_limit": 0.0296,
+        "MS_strain_n15_n30": [
+         6.637,
+         6.841
+        ],
+        "MS_strain": 6.637
+       },
+       "(a'')": {
+        "sigma_el_A4-80_MPa": 228.0,
+        "sigma_el_IN718_MPa": 249.0,
+        "T_C": 20.0,
+        "eps_limit": 0.0296,
+        "MS_strain_n15_n30": [
+         6.389,
+         6.569
+        ],
+        "MS_strain": 6.389
+       }
+      },
+      "MS_strain": 6.389,
+      "from": "(a'')"
+     },
+     "TC01_ligament_station_PQ_FEA3D_cell_INFO": {
+      "PmPb_A4-80_MPa": 531.2,
+      "PmPb_IN718_js5_history_MPa": 580.2,
+      "two_Fty_MPa": 480.0,
+      "MS_PQ_2Fty_info": -0.173,
+      "envelope_scaled_bound_info": {
+       "PmPb_MPa": 580.2,
+       "MS": -0.173,
+       "N_from": "js5"
+      },
+      "A4-80_FE_MS": -0.096,
+      "class": "INFORMATION: contact-edge field (station 0.08 mm from the hole wall, inside the near-edge gradient: 572 / 346 / ~262 MPa at 0.08 / 0.26 / 0.52 mm at js5 SOAK70), like the hole-edge line class of 239 (9); only js5 reports this station, so the row scales with the js5 history's own force; not a cell"
+     },
+     "seat_line_d6p051_z0_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 226.5,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 227.1,
+        "MS_PQ_Fsh": 1.114,
+        "PmPb_IN718_headforce_bound_MPa": 247.4,
+        "MS_PQ_headforce_bound": 0.94
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 222.5,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 223.1,
+        "MS_PQ_Fsh": 1.151,
+        "PmPb_IN718_headforce_bound_MPa": 243.0,
+        "MS_PQ_headforce_bound": 0.975
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 227.1,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 227.7,
+        "MS_PQ_Fsh": 1.108,
+        "PmPb_IN718_headforce_bound_MPa": 248.0,
+        "MS_PQ_headforce_bound": 0.935
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 225.4,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 226.0,
+        "MS_PQ_Fsh": 1.124,
+        "PmPb_IN718_headforce_bound_MPa": 246.2,
+        "MS_PQ_headforce_bound": 0.95
+       }
+      },
+      "MS_PQ_2Fty": 1.108,
+      "from": "(a')",
+      "bound_MS": 0.935,
+      "bound_from": "(a')"
+     },
+     "ring_line_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 166.8,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 167.3,
+        "MS_PQ_Fsh": 1.87,
+        "PmPb_IN718_headforce_bound_MPa": 182.2,
+        "MS_PQ_headforce_bound": 1.635
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 166.9,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 167.4,
+        "MS_PQ_Fsh": 1.868,
+        "PmPb_IN718_headforce_bound_MPa": 182.3,
+        "MS_PQ_headforce_bound": 1.633
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 174.8,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 175.3,
+        "MS_PQ_Fsh": 1.739,
+        "PmPb_IN718_headforce_bound_MPa": 190.9,
+        "MS_PQ_headforce_bound": 1.514
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 176.2,
+        "T_C": 20.0,
+        "two_Fty_MPa": 480.0,
+        "PmPb_IN718_Fsh_MPa": 176.7,
+        "MS_PQ_Fsh": 1.717,
+        "PmPb_IN718_headforce_bound_MPa": 192.5,
+        "MS_PQ_headforce_bound": 1.494
+       }
+      },
+      "MS_PQ_2Fty": 1.717,
+      "from": "(a'')",
+      "bound_MS": 1.494,
+      "bound_from": "(a'')"
+     }
+    }
+   }
+  },
+  "SOAK70": {
+   "state": "SOAK70",
+   "kind": "soak",
+   "histories": {
+    "js5": {
+     "entered_from": "PRELOAD",
+     "N_FE_A4-80_N": 5694.7,
+     "N_IN718_3750_N": 6089.4,
+     "N_IN718_4096_N": 6435.4
+    },
+    "(a)": {
+     "entered_from": "SOAK",
+     "N_FE_A4-80_N": 6389.1,
+     "N_IN718_3750_N": 6924.8,
+     "N_IN718_4096_N": 7270.8
+    },
+    "(a')": {
+     "entered_from": "PRELOAD",
+     "N_FE_A4-80_N": 5627.3,
+     "N_IN718_3750_N": 6008.3,
+     "N_IN718_4096_N": 6354.3
+    },
+    "(a'')": {
+     "entered_from": "PRELOAD",
+     "N_FE_A4-80_N": 5623.6,
+     "N_IN718_3750_N": 6003.9,
+     "N_IN718_4096_N": 6349.9
+    }
+   },
+   "N_envelope_from": "(a)",
+   "rows": {
+    "3750": {
+     "screw_tension_234_1b": {
+      "N_N": 6924.8,
+      "from": "(a)",
+      "sigma_As_MPa": 488.3,
+      "T_C": 158.6,
+      "Fty_IN718_MPa": 996.1,
+      "Ftu_IN718_MPa": 1180.2,
+      "MS_y": 1.04,
+      "MS_u": 1.417,
+      "A4-80_FE_MS_y_at_FE_N": 0.113
+     },
+     "TC02_thread_shear_An": {
+      "A_n_mm2_FEA3D": 63.49,
+      "T_C": 97.7,
+      "N_N": 6924.8,
+      "tau_MPa": 109.1,
+      "Fsy_MPa": 131.7,
+      "Fsu_MPa": 146.3,
+      "MS_y": 0.207,
+      "MS_u": 0.341,
+      "A4-80_FE": {
+       "MS_y": 0.468,
+       "MS_u": 0.631,
+       "at_N": 5694.7
+      }
+     },
+     "TC01_flat_bearing": {
+      "MS_vs_Fbry": 0.621,
+      "MS_vs_Fbry_full_flat": 0.647,
+      "area_basis_mm2": 47.12,
+      "area_loss_mm2": 0.749,
+      "A4-80_FE_MS_at_FE_N": 1.003
+     },
+     "TC01_under_head_band_neuber": {
+      "per_history": {
+       "js5": {
+        "sigma_el_A4-80_MPa": 377.0,
+        "sigma_el_IN718_MPa": 403.1,
+        "T_C": 156.5,
+        "eps_limit": 0.02217,
+        "MS_strain_n15_n30": [
+         0.657,
+         0.573
+        ],
+        "MS_strain": 0.573
+       },
+       "(a)": {
+        "sigma_el_A4-80_MPa": 363.6,
+        "sigma_el_IN718_MPa": 394.1,
+        "T_C": 156.3,
+        "eps_limit": 0.02202,
+        "MS_strain_n15_n30": [
+         0.719,
+         0.635
+        ],
+        "MS_strain": 0.635
+       },
+       "(a')": {
+        "sigma_el_A4-80_MPa": 378.5,
+        "sigma_el_IN718_MPa": 404.1,
+        "T_C": 156.5,
+        "eps_limit": 0.02216,
+        "MS_strain_n15_n30": [
+         0.648,
+         0.565
+        ],
+        "MS_strain": 0.565
+       },
+       "(a'')": {
+        "sigma_el_A4-80_MPa": 377.7,
+        "sigma_el_IN718_MPa": 403.2,
+        "T_C": 156.5,
+        "eps_limit": 0.02216,
+        "MS_strain_n15_n30": [
+         0.655,
+         0.571
+        ],
+        "MS_strain": 0.571
+       }
+      },
+      "MS_strain": 0.565,
+      "from": "(a')"
+     },
+     "TC01_ligament_station_PQ_FEA3D_cell_INFO": {
+      "PmPb_A4-80_MPa": 571.6,
+      "PmPb_IN718_js5_history_MPa": 611.2,
+      "two_Fty_MPa": 342.0,
+      "MS_PQ_2Fty_info": -0.44,
+      "envelope_scaled_bound_info": {
+       "PmPb_MPa": 695.1,
+       "MS": -0.508,
+       "N_from": "(a)"
+      },
+      "A4-80_FE_MS": -0.395,
+      "class": "INFORMATION: contact-edge field (station 0.08 mm from the hole wall, inside the near-edge gradient: 572 / 346 / ~262 MPa at 0.08 / 0.26 / 0.52 mm at js5 SOAK70), like the hole-edge line class of 239 (9); only js5 reports this station, so the row scales with the js5 history's own force; not a cell"
+     },
+     "seat_line_d6p051_z0_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 345.7,
+        "T_C": 157.6,
+        "two_Fty_MPa": 342.0,
+        "PmPb_IN718_Fsh_MPa": 346.6,
+        "MS_PQ_Fsh": -0.013,
+        "PmPb_IN718_headforce_bound_MPa": 369.7,
+        "MS_PQ_headforce_bound": -0.075
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 323.1,
+        "T_C": 157.6,
+        "two_Fty_MPa": 342.0,
+        "PmPb_IN718_Fsh_MPa": 324.0,
+        "MS_PQ_Fsh": 0.056,
+        "PmPb_IN718_headforce_bound_MPa": 350.2,
+        "MS_PQ_headforce_bound": -0.023
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 348.8,
+        "T_C": 157.6,
+        "two_Fty_MPa": 342.0,
+        "PmPb_IN718_Fsh_MPa": 349.7,
+        "MS_PQ_Fsh": -0.022,
+        "PmPb_IN718_headforce_bound_MPa": 372.4,
+        "MS_PQ_headforce_bound": -0.082
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 347.6,
+        "T_C": 157.6,
+        "two_Fty_MPa": 342.0,
+        "PmPb_IN718_Fsh_MPa": 348.5,
+        "MS_PQ_Fsh": -0.019,
+        "PmPb_IN718_headforce_bound_MPa": 371.1,
+        "MS_PQ_headforce_bound": -0.078
+       }
+      },
+      "MS_PQ_2Fty": -0.022,
+      "from": "(a')",
+      "bound_MS": -0.082,
+      "bound_from": "(a')"
+     },
+     "ring_line_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 289.0,
+        "T_C": 156.6,
+        "two_Fty_MPa": 345.5,
+        "PmPb_IN718_Fsh_MPa": 289.8,
+        "MS_PQ_Fsh": 0.192,
+        "PmPb_IN718_headforce_bound_MPa": 309.0,
+        "MS_PQ_headforce_bound": 0.118
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 298.2,
+        "T_C": 156.6,
+        "two_Fty_MPa": 345.5,
+        "PmPb_IN718_Fsh_MPa": 299.0,
+        "MS_PQ_Fsh": 0.156,
+        "PmPb_IN718_headforce_bound_MPa": 323.2,
+        "MS_PQ_headforce_bound": 0.069
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 288.9,
+        "T_C": 156.6,
+        "two_Fty_MPa": 345.5,
+        "PmPb_IN718_Fsh_MPa": 289.7,
+        "MS_PQ_Fsh": 0.193,
+        "PmPb_IN718_headforce_bound_MPa": 308.5,
+        "MS_PQ_headforce_bound": 0.12
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 288.1,
+        "T_C": 156.6,
+        "two_Fty_MPa": 345.5,
+        "PmPb_IN718_Fsh_MPa": 288.9,
+        "MS_PQ_Fsh": 0.196,
+        "PmPb_IN718_headforce_bound_MPa": 307.6,
+        "MS_PQ_headforce_bound": 0.123
+       }
+      },
+      "MS_PQ_2Fty": 0.156,
+      "from": "(a)",
+      "bound_MS": 0.069,
+      "bound_from": "(a)"
+     },
+     "TC01_lines_Pm_gt_Fty": {
+      "per_history": {
+       "js5": {
+        "seat": {
+         "A4-80": 12,
+         "IN718_Fsh": 13,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.138,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.536,
+         "n_lines": 10
+        }
+       },
+       "(a)": {
+        "seat": {
+         "A4-80": 14,
+         "IN718_Fsh": 14,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.149,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 8,
+         "IN718_Fsh": 8,
+         "IN718_headforce_bound": 8,
+         "max_Pm_over_Fty_bound": 1.407,
+         "n_lines": 10
+        }
+       },
+       "(a')": {
+        "seat": {
+         "A4-80": 12,
+         "IN718_Fsh": 12,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.133,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.586,
+         "n_lines": 10
+        }
+       },
+       "(a'')": {
+        "seat": {
+         "A4-80": 11,
+         "IN718_Fsh": 12,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.131,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.575,
+         "n_lines": 10
+        }
+       }
+      },
+      "envelope": {
+       "seat": {
+        "A4-80": 14,
+        "IN718_Fsh": 14,
+        "IN718_headforce_bound": 16,
+        "max_Pm_over_Fty_bound": 1.149
+       },
+       "hole_edge": {
+        "A4-80": 8,
+        "IN718_Fsh": 8,
+        "IN718_headforce_bound": 8,
+        "max_Pm_over_Fty_bound": 1.586
+       }
+      },
+      "js5_relax_json_count_A4-80": {
+       "seat": 12,
+       "hole_edge": 5
+      }
+     },
+     "screw_fibre_soak": {
+      "per_history": {
+       "js5": {
+        "N_section_N": 6180.7,
+        "M_Nmm": 1713.1,
+        "fibre_MPa": 704.7,
+        "Fty_IN718_MPa": 996.1,
+        "MS_y_fibre": 0.414,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 386.7,
+        "two_Fty_MPa": 1992.2,
+        "MS_shakedown": 4.152,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a)": {
+        "N_section_N": 7026.7,
+        "M_Nmm": 2995.7,
+        "fibre_MPa": 965.6,
+        "Fty_IN718_MPa": 996.1,
+        "MS_y_fibre": 0.032,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 647.6,
+        "two_Fty_MPa": 1992.2,
+        "MS_shakedown": 2.076,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a')": {
+        "N_section_N": 6098.7,
+        "M_Nmm": 1697.8,
+        "fibre_MPa": 696.5,
+        "Fty_IN718_MPa": 996.1,
+        "MS_y_fibre": 0.43,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 378.5,
+        "two_Fty_MPa": 1992.2,
+        "MS_shakedown": 4.264,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a'')": {
+        "N_section_N": 6094.1,
+        "M_Nmm": 1683.5,
+        "fibre_MPa": 693.9,
+        "Fty_IN718_MPa": 996.1,
+        "MS_y_fibre": 0.435,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 375.9,
+        "two_Fty_MPa": 1992.2,
+        "MS_shakedown": 4.3,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       }
+      },
+      "MS_y_fibre": 0.032,
+      "MS_shakedown": 2.076,
+      "range_max_MPa": 647.6,
+      "max_equiv_axial_set_um": 0.0,
+      "from": "(a)"
+     }
+    },
+    "4096": {
+     "screw_tension_234_1b": {
+      "N_N": 7270.8,
+      "from": "(a)",
+      "sigma_As_MPa": 512.7,
+      "T_C": 158.6,
+      "Fty_IN718_MPa": 996.1,
+      "Ftu_IN718_MPa": 1180.2,
+      "MS_y": 0.943,
+      "MS_u": 1.302,
+      "A4-80_FE_MS_y_at_FE_N": 0.113
+     },
+     "TC02_thread_shear_An": {
+      "A_n_mm2_FEA3D": 63.49,
+      "T_C": 97.7,
+      "N_N": 7270.8,
+      "tau_MPa": 114.5,
+      "Fsy_MPa": 131.7,
+      "Fsu_MPa": 146.3,
+      "MS_y": 0.15,
+      "MS_u": 0.277,
+      "A4-80_FE": {
+       "MS_y": 0.468,
+       "MS_u": 0.631,
+       "at_N": 5694.7
+      }
+     },
+     "TC01_flat_bearing": {
+      "MS_vs_Fbry": 0.544,
+      "MS_vs_Fbry_full_flat": 0.569,
+      "area_basis_mm2": 47.12,
+      "area_loss_mm2": 0.749,
+      "A4-80_FE_MS_at_FE_N": 1.003
+     },
+     "TC01_under_head_band_neuber": {
+      "per_history": {
+       "js5": {
+        "sigma_el_A4-80_MPa": 377.0,
+        "sigma_el_IN718_MPa": 426.0,
+        "T_C": 156.5,
+        "eps_limit": 0.02217,
+        "MS_strain_n15_n30": [
+         0.496,
+         0.414
+        ],
+        "MS_strain": 0.414
+       },
+       "(a)": {
+        "sigma_el_A4-80_MPa": 363.6,
+        "sigma_el_IN718_MPa": 413.8,
+        "T_C": 156.3,
+        "eps_limit": 0.02202,
+        "MS_strain_n15_n30": [
+         0.571,
+         0.489
+        ],
+        "MS_strain": 0.489
+       },
+       "(a')": {
+        "sigma_el_A4-80_MPa": 378.5,
+        "sigma_el_IN718_MPa": 427.4,
+        "T_C": 156.5,
+        "eps_limit": 0.02216,
+        "MS_strain_n15_n30": [
+         0.487,
+         0.405
+        ],
+        "MS_strain": 0.405
+       },
+       "(a'')": {
+        "sigma_el_A4-80_MPa": 377.7,
+        "sigma_el_IN718_MPa": 426.5,
+        "T_C": 156.5,
+        "eps_limit": 0.02216,
+        "MS_strain_n15_n30": [
+         0.492,
+         0.411
+        ],
+        "MS_strain": 0.411
+       }
+      },
+      "MS_strain": 0.405,
+      "from": "(a')"
+     },
+     "TC01_ligament_station_PQ_FEA3D_cell_INFO": {
+      "PmPb_A4-80_MPa": 571.6,
+      "PmPb_IN718_js5_history_MPa": 645.9,
+      "two_Fty_MPa": 342.0,
+      "MS_PQ_2Fty_info": -0.471,
+      "envelope_scaled_bound_info": {
+       "PmPb_MPa": 729.8,
+       "MS": -0.531,
+       "N_from": "(a)"
+      },
+      "A4-80_FE_MS": -0.395,
+      "class": "INFORMATION: contact-edge field (station 0.08 mm from the hole wall, inside the near-edge gradient: 572 / 346 / ~262 MPa at 0.08 / 0.26 / 0.52 mm at js5 SOAK70), like the hole-edge line class of 239 (9); only js5 reports this station, so the row scales with the js5 history's own force; not a cell"
+     },
+     "seat_line_d6p051_z0_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 345.7,
+        "T_C": 157.6,
+        "two_Fty_MPa": 342.0,
+        "PmPb_IN718_Fsh_MPa": 347.2,
+        "MS_PQ_Fsh": -0.015,
+        "PmPb_IN718_headforce_bound_MPa": 390.7,
+        "MS_PQ_headforce_bound": -0.125
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 323.1,
+        "T_C": 157.6,
+        "two_Fty_MPa": 342.0,
+        "PmPb_IN718_Fsh_MPa": 324.5,
+        "MS_PQ_Fsh": 0.054,
+        "PmPb_IN718_headforce_bound_MPa": 367.7,
+        "MS_PQ_headforce_bound": -0.07
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 348.8,
+        "T_C": 157.6,
+        "two_Fty_MPa": 342.0,
+        "PmPb_IN718_Fsh_MPa": 350.3,
+        "MS_PQ_Fsh": -0.024,
+        "PmPb_IN718_headforce_bound_MPa": 393.9,
+        "MS_PQ_headforce_bound": -0.132
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 347.6,
+        "T_C": 157.6,
+        "two_Fty_MPa": 342.0,
+        "PmPb_IN718_Fsh_MPa": 349.1,
+        "MS_PQ_Fsh": -0.02,
+        "PmPb_IN718_headforce_bound_MPa": 392.5,
+        "MS_PQ_headforce_bound": -0.129
+       }
+      },
+      "MS_PQ_2Fty": -0.024,
+      "from": "(a')",
+      "bound_MS": -0.132,
+      "bound_from": "(a')"
+     },
+     "ring_line_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 289.0,
+        "T_C": 156.6,
+        "two_Fty_MPa": 345.5,
+        "PmPb_IN718_Fsh_MPa": 290.3,
+        "MS_PQ_Fsh": 0.19,
+        "PmPb_IN718_headforce_bound_MPa": 326.6,
+        "MS_PQ_headforce_bound": 0.058
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 298.2,
+        "T_C": 156.6,
+        "two_Fty_MPa": 345.5,
+        "PmPb_IN718_Fsh_MPa": 299.5,
+        "MS_PQ_Fsh": 0.153,
+        "PmPb_IN718_headforce_bound_MPa": 339.3,
+        "MS_PQ_headforce_bound": 0.018
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 288.9,
+        "T_C": 156.6,
+        "two_Fty_MPa": 345.5,
+        "PmPb_IN718_Fsh_MPa": 290.2,
+        "MS_PQ_Fsh": 0.191,
+        "PmPb_IN718_headforce_bound_MPa": 326.2,
+        "MS_PQ_headforce_bound": 0.059
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 288.1,
+        "T_C": 156.6,
+        "two_Fty_MPa": 345.5,
+        "PmPb_IN718_Fsh_MPa": 289.4,
+        "MS_PQ_Fsh": 0.194,
+        "PmPb_IN718_headforce_bound_MPa": 325.3,
+        "MS_PQ_headforce_bound": 0.062
+       }
+      },
+      "MS_PQ_2Fty": 0.153,
+      "from": "(a)",
+      "bound_MS": 0.018,
+      "bound_from": "(a)"
+     },
+     "TC01_lines_Pm_gt_Fty": {
+      "per_history": {
+       "js5": {
+        "seat": {
+         "A4-80": 12,
+         "IN718_Fsh": 13,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.202,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.624,
+         "n_lines": 10
+        }
+       },
+       "(a)": {
+        "seat": {
+         "A4-80": 14,
+         "IN718_Fsh": 14,
+         "IN718_headforce_bound": 18,
+         "max_Pm_over_Fty_bound": 1.206,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 8,
+         "IN718_Fsh": 8,
+         "IN718_headforce_bound": 8,
+         "max_Pm_over_Fty_bound": 1.477,
+         "n_lines": 10
+        }
+       },
+       "(a')": {
+        "seat": {
+         "A4-80": 12,
+         "IN718_Fsh": 12,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.199,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.677,
+         "n_lines": 10
+        }
+       },
+       "(a'')": {
+        "seat": {
+         "A4-80": 11,
+         "IN718_Fsh": 12,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.196,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.666,
+         "n_lines": 10
+        }
+       }
+      },
+      "envelope": {
+       "seat": {
+        "A4-80": 14,
+        "IN718_Fsh": 14,
+        "IN718_headforce_bound": 18,
+        "max_Pm_over_Fty_bound": 1.206
+       },
+       "hole_edge": {
+        "A4-80": 8,
+        "IN718_Fsh": 8,
+        "IN718_headforce_bound": 8,
+        "max_Pm_over_Fty_bound": 1.677
+       }
+      },
+      "js5_relax_json_count_A4-80": {
+       "seat": 12,
+       "hole_edge": 5
+      }
+     },
+     "screw_fibre_soak": {
+      "per_history": {
+       "js5": {
+        "N_section_N": 6531.9,
+        "M_Nmm": 2038.0,
+        "fibre_MPa": 780.4,
+        "Fty_IN718_MPa": 996.1,
+        "MS_y_fibre": 0.276,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 433.1,
+        "two_Fty_MPa": 1992.2,
+        "MS_shakedown": 3.6,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a)": {
+        "N_section_N": 7377.8,
+        "M_Nmm": 3338.9,
+        "fibre_MPa": 1044.2,
+        "Fty_IN718_MPa": 996.1,
+        "MS_y_fibre": -0.046,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 696.9,
+        "two_Fty_MPa": 1992.2,
+        "MS_shakedown": 1.859,
+        "section_excess_N": 4.0,
+        "equiv_axial_set_um": 0.006
+       },
+       "(a')": {
+        "N_section_N": 6449.9,
+        "M_Nmm": 2028.6,
+        "fibre_MPa": 773.2,
+        "Fty_IN718_MPa": 996.1,
+        "MS_y_fibre": 0.288,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 425.8,
+        "two_Fty_MPa": 1992.2,
+        "MS_shakedown": 3.679,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a'')": {
+        "N_section_N": 6445.3,
+        "M_Nmm": 2014.6,
+        "fibre_MPa": 770.6,
+        "Fty_IN718_MPa": 996.1,
+        "MS_y_fibre": 0.293,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 423.3,
+        "two_Fty_MPa": 1992.2,
+        "MS_shakedown": 3.706,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       }
+      },
+      "MS_y_fibre": -0.046,
+      "MS_shakedown": 1.859,
+      "range_max_MPa": 696.9,
+      "max_equiv_axial_set_um": 0.006,
+      "from": "(a)"
+     }
+    }
+   }
+  },
+  "SOAK": {
+   "state": "SOAK",
+   "kind": "soak",
+   "histories": {
+    "js5": {
+     "entered_from": "FA1S",
+     "N_FE_A4-80_N": 7382.8,
+     "N_IN718_3750_N": 8110.2,
+     "N_IN718_4096_N": 8456.2
+    },
+    "(a)": {
+     "entered_from": "SOAK52",
+     "N_FE_A4-80_N": 6010.3,
+     "N_IN718_3750_N": 6462.9,
+     "N_IN718_4096_N": 6808.9
+    },
+    "(a')": {
+     "entered_from": "FA1S",
+     "N_FE_A4-80_N": 5780.1,
+     "N_IN718_3750_N": 6186.6,
+     "N_IN718_4096_N": 6532.6
+    },
+    "(a'')": {
+     "entered_from": "FA1S",
+     "N_FE_A4-80_N": 5558.8,
+     "N_IN718_3750_N": 5921.0,
+     "N_IN718_4096_N": 6267.0
+    }
+   },
+   "N_envelope_from": "js5",
+   "rows": {
+    "3750": {
+     "screw_tension_234_1b": {
+      "N_N": 8110.2,
+      "from": "js5",
+      "sigma_As_MPa": 571.9,
+      "T_C": 127.0,
+      "Fty_IN718_MPa": 1004.7,
+      "Ftu_IN718_MPa": 1194.0,
+      "MS_y": 0.757,
+      "MS_u": 1.088,
+      "A4-80_FE_MS_y_at_FE_N": -0.089
+     },
+     "TC02_thread_shear_An": {
+      "A_n_mm2_FEA3D": 63.48,
+      "T_C": 96.0,
+      "N_N": 8110.2,
+      "tau_MPa": 127.8,
+      "Fsy_MPa": 131.9,
+      "Fsu_MPa": 146.5,
+      "MS_y": 0.032,
+      "MS_u": 0.147,
+      "A4-80_FE": {
+       "MS_y": 0.134,
+       "MS_u": 0.26,
+       "at_N": 7382.8
+      }
+     },
+     "TC01_flat_bearing": {
+      "MS_vs_Fbry": 0.363,
+      "MS_vs_Fbry_full_flat": 0.386,
+      "area_basis_mm2": 47.12,
+      "area_loss_mm2": 0.749,
+      "A4-80_FE_MS_at_FE_N": 0.522
+     },
+     "TC01_under_head_band_neuber": {
+      "per_history": {
+       "js5": {
+        "sigma_el_A4-80_MPa": 379.6,
+        "sigma_el_IN718_MPa": 417.0,
+        "T_C": 158.0,
+        "eps_limit": 0.02338,
+        "MS_strain_n15_n30": [
+         0.617,
+         0.53
+        ],
+        "MS_strain": 0.53
+       },
+       "(a)": {
+        "sigma_el_A4-80_MPa": 321.8,
+        "sigma_el_IN718_MPa": 346.0,
+        "T_C": 158.0,
+        "eps_limit": 0.02338,
+        "MS_strain_n15_n30": [
+         1.279,
+         1.188
+        ],
+        "MS_strain": 1.188
+       },
+       "(a')": {
+        "sigma_el_A4-80_MPa": 320.5,
+        "sigma_el_IN718_MPa": 343.0,
+        "T_C": 158.0,
+        "eps_limit": 0.02338,
+        "MS_strain_n15_n30": [
+         1.315,
+         1.224
+        ],
+        "MS_strain": 1.224
+       },
+       "(a'')": {
+        "sigma_el_A4-80_MPa": 324.8,
+        "sigma_el_IN718_MPa": 346.0,
+        "T_C": 158.0,
+        "eps_limit": 0.02338,
+        "MS_strain_n15_n30": [
+         1.28,
+         1.188
+        ],
+        "MS_strain": 1.188
+       }
+      },
+      "MS_strain": 0.53,
+      "from": "js5"
+     },
+     "TC01_ligament_station_PQ_FEA3D_cell_INFO": {
+      "PmPb_A4-80_MPa": 425.7,
+      "PmPb_IN718_js5_history_MPa": 467.6,
+      "two_Fty_MPa": 340.6,
+      "MS_PQ_2Fty_info": -0.272,
+      "envelope_scaled_bound_info": {
+       "PmPb_MPa": 467.6,
+       "MS": -0.272,
+       "N_from": "js5"
+      },
+      "A4-80_FE_MS": -0.2,
+      "class": "INFORMATION: contact-edge field (station 0.08 mm from the hole wall, inside the near-edge gradient: 572 / 346 / ~262 MPa at 0.08 / 0.26 / 0.52 mm at js5 SOAK70), like the hole-edge line class of 239 (9); only js5 reports this station, so the row scales with the js5 history's own force; not a cell"
+     },
+     "seat_line_d6p051_z0_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 326.8,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 327.7,
+        "MS_PQ_Fsh": 0.039,
+        "PmPb_IN718_headforce_bound_MPa": 359.0,
+        "MS_PQ_headforce_bound": -0.051
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 343.9,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 344.8,
+        "MS_PQ_Fsh": -0.012,
+        "PmPb_IN718_headforce_bound_MPa": 369.8,
+        "MS_PQ_headforce_bound": -0.079
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 352.9,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 353.8,
+        "MS_PQ_Fsh": -0.037,
+        "PmPb_IN718_headforce_bound_MPa": 377.7,
+        "MS_PQ_headforce_bound": -0.098
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 352.9,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 353.8,
+        "MS_PQ_Fsh": -0.037,
+        "PmPb_IN718_headforce_bound_MPa": 375.9,
+        "MS_PQ_headforce_bound": -0.094
+       }
+      },
+      "MS_PQ_2Fty": -0.037,
+      "from": "(a')",
+      "bound_MS": -0.098,
+      "bound_from": "(a')"
+     },
+     "ring_line_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 307.6,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 308.4,
+        "MS_PQ_Fsh": 0.104,
+        "PmPb_IN718_headforce_bound_MPa": 337.9,
+        "MS_PQ_headforce_bound": 0.008
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 278.6,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 279.3,
+        "MS_PQ_Fsh": 0.219,
+        "PmPb_IN718_headforce_bound_MPa": 299.6,
+        "MS_PQ_headforce_bound": 0.137
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 269.4,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 270.1,
+        "MS_PQ_Fsh": 0.261,
+        "PmPb_IN718_headforce_bound_MPa": 288.3,
+        "MS_PQ_headforce_bound": 0.181
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 265.8,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 266.5,
+        "MS_PQ_Fsh": 0.278,
+        "PmPb_IN718_headforce_bound_MPa": 283.1,
+        "MS_PQ_headforce_bound": 0.203
+       }
+      },
+      "MS_PQ_2Fty": 0.104,
+      "from": "js5",
+      "bound_MS": 0.008,
+      "bound_from": "js5"
+     },
+     "TC01_lines_Pm_gt_Fty": {
+      "per_history": {
+       "js5": {
+        "seat": {
+         "A4-80": 12,
+         "IN718_Fsh": 12,
+         "IN718_headforce_bound": 18,
+         "max_Pm_over_Fty_bound": 1.206,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 6,
+         "IN718_Fsh": 7,
+         "IN718_headforce_bound": 8,
+         "max_Pm_over_Fty_bound": 1.462,
+         "n_lines": 10
+        }
+       },
+       "(a)": {
+        "seat": {
+         "A4-80": 13,
+         "IN718_Fsh": 13,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.162,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.486,
+         "n_lines": 10
+        }
+       },
+       "(a')": {
+        "seat": {
+         "A4-80": 9,
+         "IN718_Fsh": 10,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.154,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.715,
+         "n_lines": 10
+        }
+       },
+       "(a'')": {
+        "seat": {
+         "A4-80": 8,
+         "IN718_Fsh": 10,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.147,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.722,
+         "n_lines": 10
+        }
+       }
+      },
+      "envelope": {
+       "seat": {
+        "A4-80": 13,
+        "IN718_Fsh": 13,
+        "IN718_headforce_bound": 18,
+        "max_Pm_over_Fty_bound": 1.206
+       },
+       "hole_edge": {
+        "A4-80": 6,
+        "IN718_Fsh": 7,
+        "IN718_headforce_bound": 8,
+        "max_Pm_over_Fty_bound": 1.722
+       }
+      },
+      "js5_relax_json_count_A4-80": {
+       "seat": 12,
+       "hole_edge": 6
+      }
+     },
+     "screw_fibre_soak": {
+      "per_history": {
+       "js5": {
+        "N_section_N": 8257.2,
+        "M_Nmm": 4905.7,
+        "fibre_MPa": 1352.1,
+        "Fty_IN718_MPa": 1004.7,
+        "MS_y_fibre": -0.257,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 1034.1,
+        "two_Fty_MPa": 2009.5,
+        "MS_shakedown": 0.943,
+        "section_excess_N": 304.7,
+        "equiv_axial_set_um": 0.45
+       },
+       "(a)": {
+        "N_section_N": 6589.0,
+        "M_Nmm": 1682.2,
+        "fibre_MPa": 728.6,
+        "Fty_IN718_MPa": 1004.7,
+        "MS_y_fibre": 0.379,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 410.6,
+        "two_Fty_MPa": 2009.5,
+        "MS_shakedown": 3.894,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a')": {
+        "N_section_N": 6307.0,
+        "M_Nmm": 1249.3,
+        "fibre_MPa": 640.8,
+        "Fty_IN718_MPa": 1004.7,
+        "MS_y_fibre": 0.568,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 322.8,
+        "two_Fty_MPa": 2009.5,
+        "MS_shakedown": 5.225,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a'')": {
+        "N_section_N": 6036.1,
+        "M_Nmm": 727.2,
+        "fibre_MPa": 539.8,
+        "Fty_IN718_MPa": 1004.7,
+        "MS_y_fibre": 0.861,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 221.8,
+        "two_Fty_MPa": 2009.5,
+        "MS_shakedown": 8.06,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       }
+      },
+      "MS_y_fibre": -0.257,
+      "MS_shakedown": 0.943,
+      "range_max_MPa": 1034.1,
+      "max_equiv_axial_set_um": 0.45,
+      "from": "js5"
+     }
+    },
+    "4096": {
+     "screw_tension_234_1b": {
+      "N_N": 8456.2,
+      "from": "js5",
+      "sigma_As_MPa": 596.3,
+      "T_C": 127.0,
+      "Fty_IN718_MPa": 1004.7,
+      "Ftu_IN718_MPa": 1194.0,
+      "MS_y": 0.685,
+      "MS_u": 1.002,
+      "A4-80_FE_MS_y_at_FE_N": -0.089
+     },
+     "TC02_thread_shear_An": {
+      "A_n_mm2_FEA3D": 63.48,
+      "T_C": 96.0,
+      "N_N": 8456.2,
+      "tau_MPa": 133.2,
+      "Fsy_MPa": 131.9,
+      "Fsu_MPa": 146.5,
+      "MS_y": -0.01,
+      "MS_u": 0.1,
+      "A4-80_FE": {
+       "MS_y": 0.134,
+       "MS_u": 0.26,
+       "at_N": 7382.8
+      }
+     },
+     "TC01_flat_bearing": {
+      "MS_vs_Fbry": 0.308,
+      "MS_vs_Fbry_full_flat": 0.329,
+      "area_basis_mm2": 47.12,
+      "area_loss_mm2": 0.749,
+      "A4-80_FE_MS_at_FE_N": 0.522
+     },
+     "TC01_under_head_band_neuber": {
+      "per_history": {
+       "js5": {
+        "sigma_el_A4-80_MPa": 379.6,
+        "sigma_el_IN718_MPa": 434.8,
+        "T_C": 158.0,
+        "eps_limit": 0.02338,
+        "MS_strain_n15_n30": [
+         0.496,
+         0.411
+        ],
+        "MS_strain": 0.411
+       },
+       "(a)": {
+        "sigma_el_A4-80_MPa": 321.8,
+        "sigma_el_IN718_MPa": 364.6,
+        "T_C": 158.0,
+        "eps_limit": 0.02338,
+        "MS_strain_n15_n30": [
+         1.071,
+         0.98
+        ],
+        "MS_strain": 0.98
+       },
+       "(a')": {
+        "sigma_el_A4-80_MPa": 320.5,
+        "sigma_el_IN718_MPa": 362.2,
+        "T_C": 158.0,
+        "eps_limit": 0.02338,
+        "MS_strain_n15_n30": [
+         1.095,
+         1.004
+        ],
+        "MS_strain": 1.004
+       },
+       "(a'')": {
+        "sigma_el_A4-80_MPa": 324.8,
+        "sigma_el_IN718_MPa": 366.2,
+        "T_C": 158.0,
+        "eps_limit": 0.02338,
+        "MS_strain_n15_n30": [
+         1.054,
+         0.963
+        ],
+        "MS_strain": 0.963
+       }
+      },
+      "MS_strain": 0.411,
+      "from": "js5"
+     },
+     "TC01_ligament_station_PQ_FEA3D_cell_INFO": {
+      "PmPb_A4-80_MPa": 425.7,
+      "PmPb_IN718_js5_history_MPa": 487.6,
+      "two_Fty_MPa": 340.6,
+      "MS_PQ_2Fty_info": -0.301,
+      "envelope_scaled_bound_info": {
+       "PmPb_MPa": 487.6,
+       "MS": -0.301,
+       "N_from": "js5"
+      },
+      "A4-80_FE_MS": -0.2,
+      "class": "INFORMATION: contact-edge field (station 0.08 mm from the hole wall, inside the near-edge gradient: 572 / 346 / ~262 MPa at 0.08 / 0.26 / 0.52 mm at js5 SOAK70), like the hole-edge line class of 239 (9); only js5 reports this station, so the row scales with the js5 history's own force; not a cell"
+     },
+     "seat_line_d6p051_z0_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 326.8,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 328.2,
+        "MS_PQ_Fsh": 0.038,
+        "PmPb_IN718_headforce_bound_MPa": 374.3,
+        "MS_PQ_headforce_bound": -0.09
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 343.9,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 345.4,
+        "MS_PQ_Fsh": -0.014,
+        "PmPb_IN718_headforce_bound_MPa": 389.6,
+        "MS_PQ_headforce_bound": -0.126
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 352.9,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 354.5,
+        "MS_PQ_Fsh": -0.039,
+        "PmPb_IN718_headforce_bound_MPa": 398.8,
+        "MS_PQ_headforce_bound": -0.146
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 352.9,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 354.5,
+        "MS_PQ_Fsh": -0.039,
+        "PmPb_IN718_headforce_bound_MPa": 397.9,
+        "MS_PQ_headforce_bound": -0.144
+       }
+      },
+      "MS_PQ_2Fty": -0.039,
+      "from": "(a')",
+      "bound_MS": -0.146,
+      "bound_from": "(a')"
+     },
+     "ring_line_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 307.6,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 309.0,
+        "MS_PQ_Fsh": 0.102,
+        "PmPb_IN718_headforce_bound_MPa": 352.3,
+        "MS_PQ_headforce_bound": -0.033
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 278.6,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 279.8,
+        "MS_PQ_Fsh": 0.217,
+        "PmPb_IN718_headforce_bound_MPa": 315.6,
+        "MS_PQ_headforce_bound": 0.079
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 269.4,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 270.6,
+        "MS_PQ_Fsh": 0.259,
+        "PmPb_IN718_headforce_bound_MPa": 304.5,
+        "MS_PQ_headforce_bound": 0.119
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 265.8,
+        "T_C": 158.0,
+        "two_Fty_MPa": 340.6,
+        "PmPb_IN718_Fsh_MPa": 267.0,
+        "MS_PQ_Fsh": 0.276,
+        "PmPb_IN718_headforce_bound_MPa": 299.7,
+        "MS_PQ_headforce_bound": 0.137
+       }
+      },
+      "MS_PQ_2Fty": 0.102,
+      "from": "js5",
+      "bound_MS": -0.033,
+      "bound_from": "js5"
+     },
+     "TC01_lines_Pm_gt_Fty": {
+      "per_history": {
+       "js5": {
+        "seat": {
+         "A4-80": 12,
+         "IN718_Fsh": 12,
+         "IN718_headforce_bound": 20,
+         "max_Pm_over_Fty_bound": 1.257,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 6,
+         "IN718_Fsh": 7,
+         "IN718_headforce_bound": 8,
+         "max_Pm_over_Fty_bound": 1.525,
+         "n_lines": 10
+        }
+       },
+       "(a)": {
+        "seat": {
+         "A4-80": 13,
+         "IN718_Fsh": 13,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.225,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.566,
+         "n_lines": 10
+        }
+       },
+       "(a')": {
+        "seat": {
+         "A4-80": 9,
+         "IN718_Fsh": 10,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.219,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.81,
+         "n_lines": 10
+        }
+       },
+       "(a'')": {
+        "seat": {
+         "A4-80": 8,
+         "IN718_Fsh": 10,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.214,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 5,
+         "IN718_Fsh": 5,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.823,
+         "n_lines": 10
+        }
+       }
+      },
+      "envelope": {
+       "seat": {
+        "A4-80": 13,
+        "IN718_Fsh": 13,
+        "IN718_headforce_bound": 20,
+        "max_Pm_over_Fty_bound": 1.257
+       },
+       "hole_edge": {
+        "A4-80": 6,
+        "IN718_Fsh": 7,
+        "IN718_headforce_bound": 8,
+        "max_Pm_over_Fty_bound": 1.823
+       }
+      },
+      "js5_relax_json_count_A4-80": {
+       "seat": 12,
+       "hole_edge": 6
+      }
+     },
+     "screw_fibre_soak": {
+      "per_history": {
+       "js5": {
+        "N_section_N": 8609.5,
+        "M_Nmm": 5338.8,
+        "fibre_MPa": 1444.9,
+        "Fty_IN718_MPa": 1004.7,
+        "MS_y_fibre": -0.305,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 1097.5,
+        "two_Fty_MPa": 2009.5,
+        "MS_shakedown": 0.831,
+        "section_excess_N": 480.7,
+        "equiv_axial_set_um": 0.711
+       },
+       "(a)": {
+        "N_section_N": 6941.7,
+        "M_Nmm": 2005.7,
+        "fibre_MPa": 804.3,
+        "Fty_IN718_MPa": 1004.7,
+        "MS_y_fibre": 0.249,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 456.9,
+        "two_Fty_MPa": 2009.5,
+        "MS_shakedown": 3.398,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a')": {
+        "N_section_N": 6659.7,
+        "M_Nmm": 1511.2,
+        "fibre_MPa": 706.8,
+        "Fty_IN718_MPa": 1004.7,
+        "MS_y_fibre": 0.422,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 359.4,
+        "two_Fty_MPa": 2009.5,
+        "MS_shakedown": 4.591,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a'')": {
+        "N_section_N": 6388.8,
+        "M_Nmm": 883.6,
+        "fibre_MPa": 589.2,
+        "Fty_IN718_MPa": 1004.7,
+        "MS_y_fibre": 0.705,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 241.9,
+        "two_Fty_MPa": 2009.5,
+        "MS_shakedown": 7.308,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       }
+      },
+      "MS_y_fibre": -0.305,
+      "MS_shakedown": 0.831,
+      "range_max_MPa": 1097.5,
+      "max_equiv_axial_set_um": 0.711,
+      "from": "js5"
+     }
+    }
+   }
+  },
+  "SOAK52": {
+   "state": "SOAK52",
+   "kind": "soak",
+   "histories": {
+    "js5": {
+     "entered_from": "SOAK",
+     "N_FE_A4-80_N": 6559.9,
+     "N_IN718_3750_N": 7125.5,
+     "N_IN718_4096_N": 7471.5
+    },
+    "(a)": {
+     "entered_from": "PRELOAD",
+     "N_FE_A4-80_N": 5826.2,
+     "N_IN718_3750_N": 6244.1,
+     "N_IN718_4096_N": 6590.1
+    },
+    "(a')": {
+     "entered_from": "SOAK",
+     "N_FE_A4-80_N": 6742.0,
+     "N_IN718_3750_N": 7344.3,
+     "N_IN718_4096_N": 7690.3
+    },
+    "(a'')": {
+     "entered_from": "SOAK",
+     "N_FE_A4-80_N": 6719.5,
+     "N_IN718_3750_N": 7317.2,
+     "N_IN718_4096_N": 7663.2
+    }
+   },
+   "N_envelope_from": "(a')",
+   "rows": {
+    "3750": {
+     "screw_tension_234_1b": {
+      "N_N": 7344.3,
+      "from": "(a')",
+      "sigma_As_MPa": 517.9,
+      "T_C": 154.1,
+      "Fty_IN718_MPa": 997.3,
+      "Ftu_IN718_MPa": 1182.2,
+      "MS_y": 0.926,
+      "MS_u": 1.282,
+      "A4-80_FE_MS_y_at_FE_N": -0.025
+     },
+     "TC02_thread_shear_An": {
+      "A_n_mm2_FEA3D": 63.5,
+      "T_C": 94.9,
+      "N_N": 7344.3,
+      "tau_MPa": 115.7,
+      "Fsy_MPa": 131.9,
+      "Fsu_MPa": 146.6,
+      "MS_y": 0.141,
+      "MS_u": 0.267,
+      "A4-80_FE": {
+       "MS_y": 0.277,
+       "MS_u": 0.419,
+       "at_N": 6559.9
+      }
+     },
+     "TC01_flat_bearing": {
+      "MS_vs_Fbry": 0.614,
+      "MS_vs_Fbry_full_flat": 0.64,
+      "area_basis_mm2": 47.12,
+      "area_loss_mm2": 0.749,
+      "A4-80_FE_MS_at_FE_N": 0.836
+     },
+     "TC01_under_head_band_neuber": {
+      "per_history": {
+       "js5": {
+        "sigma_el_A4-80_MPa": 384.5,
+        "sigma_el_IN718_MPa": 417.7,
+        "T_C": 151.0,
+        "eps_limit": 0.01798,
+        "MS_strain_n15_n30": [
+         0.33,
+         0.262
+        ],
+        "MS_strain": 0.262
+       },
+       "(a)": {
+        "sigma_el_A4-80_MPa": 377.4,
+        "sigma_el_IN718_MPa": 404.5,
+        "T_C": 151.0,
+        "eps_limit": 0.01797,
+        "MS_strain_n15_n30": [
+         0.41,
+         0.342
+        ],
+        "MS_strain": 0.342
+       },
+       "(a')": {
+        "sigma_el_A4-80_MPa": 366.7,
+        "sigma_el_IN718_MPa": 399.5,
+        "T_C": 151.0,
+        "eps_limit": 0.01797,
+        "MS_strain_n15_n30": [
+         0.442,
+         0.374
+        ],
+        "MS_strain": 0.374
+       },
+       "(a'')": {
+        "sigma_el_A4-80_MPa": 367.2,
+        "sigma_el_IN718_MPa": 399.9,
+        "T_C": 151.0,
+        "eps_limit": 0.01797,
+        "MS_strain_n15_n30": [
+         0.44,
+         0.372
+        ],
+        "MS_strain": 0.372
+       }
+      },
+      "MS_strain": 0.262,
+      "from": "js5"
+     },
+     "TC01_ligament_station_PQ_FEA3D_cell_INFO": {
+      "PmPb_A4-80_MPa": 461.3,
+      "PmPb_IN718_js5_history_MPa": 501.1,
+      "two_Fty_MPa": 359.2,
+      "MS_PQ_2Fty_info": -0.283,
+      "envelope_scaled_bound_info": {
+       "PmPb_MPa": 516.5,
+       "MS": -0.305,
+       "N_from": "(a')"
+      },
+      "A4-80_FE_MS": -0.208,
+      "class": "INFORMATION: contact-edge field (station 0.08 mm from the hole wall, inside the near-edge gradient: 572 / 346 / ~262 MPa at 0.08 / 0.26 / 0.52 mm at js5 SOAK70), like the hole-edge line class of 239 (9); only js5 reports this station, so the row scales with the js5 history's own force; not a cell"
+     },
+     "seat_line_d6p051_z0_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 347.5,
+        "T_C": 152.7,
+        "two_Fty_MPa": 359.2,
+        "PmPb_IN718_Fsh_MPa": 348.4,
+        "MS_PQ_Fsh": 0.031,
+        "PmPb_IN718_headforce_bound_MPa": 377.5,
+        "MS_PQ_headforce_bound": -0.048
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 345.2,
+        "T_C": 152.7,
+        "two_Fty_MPa": 359.2,
+        "PmPb_IN718_Fsh_MPa": 346.1,
+        "MS_PQ_Fsh": 0.038,
+        "PmPb_IN718_headforce_bound_MPa": 370.0,
+        "MS_PQ_headforce_bound": -0.029
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 320.9,
+        "T_C": 152.7,
+        "two_Fty_MPa": 359.2,
+        "PmPb_IN718_Fsh_MPa": 321.7,
+        "MS_PQ_Fsh": 0.116,
+        "PmPb_IN718_headforce_bound_MPa": 349.6,
+        "MS_PQ_headforce_bound": 0.028
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 321.5,
+        "T_C": 152.7,
+        "two_Fty_MPa": 359.2,
+        "PmPb_IN718_Fsh_MPa": 322.3,
+        "MS_PQ_Fsh": 0.114,
+        "PmPb_IN718_headforce_bound_MPa": 350.1,
+        "MS_PQ_headforce_bound": 0.026
+       }
+      },
+      "MS_PQ_2Fty": 0.031,
+      "from": "js5",
+      "bound_MS": -0.048,
+      "bound_from": "js5"
+     },
+     "ring_line_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 301.2,
+        "T_C": 151.2,
+        "two_Fty_MPa": 364.5,
+        "PmPb_IN718_Fsh_MPa": 302.0,
+        "MS_PQ_Fsh": 0.207,
+        "PmPb_IN718_headforce_bound_MPa": 327.2,
+        "MS_PQ_headforce_bound": 0.114
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 288.9,
+        "T_C": 151.2,
+        "two_Fty_MPa": 364.5,
+        "PmPb_IN718_Fsh_MPa": 289.6,
+        "MS_PQ_Fsh": 0.258,
+        "PmPb_IN718_headforce_bound_MPa": 309.6,
+        "MS_PQ_headforce_bound": 0.177
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 298.4,
+        "T_C": 151.2,
+        "two_Fty_MPa": 364.5,
+        "PmPb_IN718_Fsh_MPa": 299.2,
+        "MS_PQ_Fsh": 0.218,
+        "PmPb_IN718_headforce_bound_MPa": 325.1,
+        "MS_PQ_headforce_bound": 0.121
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 299.1,
+        "T_C": 151.2,
+        "two_Fty_MPa": 364.5,
+        "PmPb_IN718_Fsh_MPa": 299.9,
+        "MS_PQ_Fsh": 0.215,
+        "PmPb_IN718_headforce_bound_MPa": 325.7,
+        "MS_PQ_headforce_bound": 0.119
+       }
+      },
+      "MS_PQ_2Fty": 0.207,
+      "from": "js5",
+      "bound_MS": 0.114,
+      "bound_from": "js5"
+     },
+     "TC01_lines_Pm_gt_Fty": {
+      "per_history": {
+       "js5": {
+        "seat": {
+         "A4-80": 0,
+         "IN718_Fsh": 0,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.075,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 3,
+         "IN718_Fsh": 3,
+         "IN718_headforce_bound": 8,
+         "max_Pm_over_Fty_bound": 1.423,
+         "n_lines": 10
+        }
+       },
+       "(a)": {
+        "seat": {
+         "A4-80": 2,
+         "IN718_Fsh": 2,
+         "IN718_headforce_bound": 12,
+         "max_Pm_over_Fty_bound": 1.08,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 1,
+         "IN718_Fsh": 1,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.439,
+         "n_lines": 10
+        }
+       },
+       "(a')": {
+        "seat": {
+         "A4-80": 0,
+         "IN718_Fsh": 0,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.083,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 3,
+         "IN718_Fsh": 3,
+         "IN718_headforce_bound": 8,
+         "max_Pm_over_Fty_bound": 1.322,
+         "n_lines": 10
+        }
+       },
+       "(a'')": {
+        "seat": {
+         "A4-80": 0,
+         "IN718_Fsh": 0,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.083,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 3,
+         "IN718_Fsh": 3,
+         "IN718_headforce_bound": 8,
+         "max_Pm_over_Fty_bound": 1.324,
+         "n_lines": 10
+        }
+       }
+      },
+      "envelope": {
+       "seat": {
+        "A4-80": 2,
+        "IN718_Fsh": 2,
+        "IN718_headforce_bound": 16,
+        "max_Pm_over_Fty_bound": 1.083
+       },
+       "hole_edge": {
+        "A4-80": 3,
+        "IN718_Fsh": 3,
+        "IN718_headforce_bound": 8,
+        "max_Pm_over_Fty_bound": 1.439
+       }
+      },
+      "js5_relax_json_count_A4-80": {
+       "seat": 0,
+       "hole_edge": 3
+      }
+     },
+     "screw_fibre_soak": {
+      "per_history": {
+       "js5": {
+        "N_section_N": 7232.8,
+        "M_Nmm": 3421.7,
+        "fibre_MPa": 1047.0,
+        "Fty_IN718_MPa": 997.3,
+        "MS_y_fibre": -0.047,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 729.0,
+        "two_Fty_MPa": 1994.7,
+        "MS_shakedown": 1.736,
+        "section_excess_N": 4.2,
+        "equiv_axial_set_um": 0.006
+       },
+       "(a)": {
+        "N_section_N": 6339.7,
+        "M_Nmm": 2071.0,
+        "fibre_MPa": 772.0,
+        "Fty_IN718_MPa": 997.3,
+        "MS_y_fibre": 0.292,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 454.0,
+        "two_Fty_MPa": 1994.7,
+        "MS_shakedown": 3.393,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a')": {
+        "N_section_N": 7454.3,
+        "M_Nmm": 3532.9,
+        "fibre_MPa": 1080.0,
+        "Fty_IN718_MPa": 997.3,
+        "MS_y_fibre": -0.077,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 762.0,
+        "two_Fty_MPa": 1994.7,
+        "MS_shakedown": 1.618,
+        "section_excess_N": 14.3,
+        "equiv_axial_set_um": 0.021
+       },
+       "(a'')": {
+        "N_section_N": 7427.0,
+        "M_Nmm": 3572.7,
+        "fibre_MPa": 1084.4,
+        "Fty_IN718_MPa": 997.3,
+        "MS_y_fibre": -0.08,
+        "fibre_cold_MPa": 318.0,
+        "range_MPa": 766.4,
+        "two_Fty_MPa": 1994.7,
+        "MS_shakedown": 1.603,
+        "section_excess_N": 16.0,
+        "equiv_axial_set_um": 0.024
+       }
+      },
+      "MS_y_fibre": -0.08,
+      "MS_shakedown": 1.603,
+      "range_max_MPa": 766.4,
+      "max_equiv_axial_set_um": 0.024,
+      "from": "(a'')"
+     }
+    },
+    "4096": {
+     "screw_tension_234_1b": {
+      "N_N": 7690.3,
+      "from": "(a')",
+      "sigma_As_MPa": 542.3,
+      "T_C": 154.1,
+      "Fty_IN718_MPa": 997.3,
+      "Ftu_IN718_MPa": 1182.2,
+      "MS_y": 0.839,
+      "MS_u": 1.18,
+      "A4-80_FE_MS_y_at_FE_N": -0.025
+     },
+     "TC02_thread_shear_An": {
+      "A_n_mm2_FEA3D": 63.5,
+      "T_C": 94.9,
+      "N_N": 7690.3,
+      "tau_MPa": 121.1,
+      "Fsy_MPa": 131.9,
+      "Fsu_MPa": 146.6,
+      "MS_y": 0.089,
+      "MS_u": 0.21,
+      "A4-80_FE": {
+       "MS_y": 0.277,
+       "MS_u": 0.419,
+       "at_N": 6559.9
+      }
+     },
+     "TC01_flat_bearing": {
+      "MS_vs_Fbry": 0.541,
+      "MS_vs_Fbry_full_flat": 0.566,
+      "area_basis_mm2": 47.12,
+      "area_loss_mm2": 0.749,
+      "A4-80_FE_MS_at_FE_N": 0.836
+     },
+     "TC01_under_head_band_neuber": {
+      "per_history": {
+       "js5": {
+        "sigma_el_A4-80_MPa": 384.5,
+        "sigma_el_IN718_MPa": 437.9,
+        "T_C": 151.0,
+        "eps_limit": 0.01798,
+        "MS_strain_n15_n30": [
+         0.218,
+         0.153
+        ],
+        "MS_strain": 0.153
+       },
+       "(a)": {
+        "sigma_el_A4-80_MPa": 377.4,
+        "sigma_el_IN718_MPa": 426.9,
+        "T_C": 151.0,
+        "eps_limit": 0.01797,
+        "MS_strain_n15_n30": [
+         0.276,
+         0.21
+        ],
+        "MS_strain": 0.21
+       },
+       "(a')": {
+        "sigma_el_A4-80_MPa": 366.7,
+        "sigma_el_IN718_MPa": 418.3,
+        "T_C": 151.0,
+        "eps_limit": 0.01797,
+        "MS_strain_n15_n30": [
+         0.325,
+         0.258
+        ],
+        "MS_strain": 0.258
+       },
+       "(a'')": {
+        "sigma_el_A4-80_MPa": 367.2,
+        "sigma_el_IN718_MPa": 418.8,
+        "T_C": 151.0,
+        "eps_limit": 0.01797,
+        "MS_strain_n15_n30": [
+         0.322,
+         0.255
+        ],
+        "MS_strain": 0.255
+       }
+      },
+      "MS_strain": 0.153,
+      "from": "js5"
+     },
+     "TC01_ligament_station_PQ_FEA3D_cell_INFO": {
+      "PmPb_A4-80_MPa": 461.3,
+      "PmPb_IN718_js5_history_MPa": 525.4,
+      "two_Fty_MPa": 359.2,
+      "MS_PQ_2Fty_info": -0.316,
+      "envelope_scaled_bound_info": {
+       "PmPb_MPa": 540.8,
+       "MS": -0.336,
+       "N_from": "(a')"
+      },
+      "A4-80_FE_MS": -0.208,
+      "class": "INFORMATION: contact-edge field (station 0.08 mm from the hole wall, inside the near-edge gradient: 572 / 346 / ~262 MPa at 0.08 / 0.26 / 0.52 mm at js5 SOAK70), like the hole-edge line class of 239 (9); only js5 reports this station, so the row scales with the js5 history's own force; not a cell"
+     },
+     "seat_line_d6p051_z0_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 347.5,
+        "T_C": 152.7,
+        "two_Fty_MPa": 359.2,
+        "PmPb_IN718_Fsh_MPa": 349.0,
+        "MS_PQ_Fsh": 0.029,
+        "PmPb_IN718_headforce_bound_MPa": 395.8,
+        "MS_PQ_headforce_bound": -0.092
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 345.2,
+        "T_C": 152.7,
+        "two_Fty_MPa": 359.2,
+        "PmPb_IN718_Fsh_MPa": 346.7,
+        "MS_PQ_Fsh": 0.036,
+        "PmPb_IN718_headforce_bound_MPa": 390.5,
+        "MS_PQ_headforce_bound": -0.08
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 320.9,
+        "T_C": 152.7,
+        "two_Fty_MPa": 359.2,
+        "PmPb_IN718_Fsh_MPa": 322.3,
+        "MS_PQ_Fsh": 0.114,
+        "PmPb_IN718_headforce_bound_MPa": 366.0,
+        "MS_PQ_headforce_bound": -0.019
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 321.5,
+        "T_C": 152.7,
+        "two_Fty_MPa": 359.2,
+        "PmPb_IN718_Fsh_MPa": 322.9,
+        "MS_PQ_Fsh": 0.112,
+        "PmPb_IN718_headforce_bound_MPa": 366.7,
+        "MS_PQ_headforce_bound": -0.02
+       }
+      },
+      "MS_PQ_2Fty": 0.029,
+      "from": "js5",
+      "bound_MS": -0.092,
+      "bound_from": "js5"
+     },
+     "ring_line_PQ": {
+      "per_history": {
+       "js5": {
+        "PmPb_A4-80_MPa": 301.2,
+        "T_C": 151.2,
+        "two_Fty_MPa": 364.5,
+        "PmPb_IN718_Fsh_MPa": 302.5,
+        "MS_PQ_Fsh": 0.205,
+        "PmPb_IN718_headforce_bound_MPa": 343.1,
+        "MS_PQ_headforce_bound": 0.062
+       },
+       "(a)": {
+        "PmPb_A4-80_MPa": 288.9,
+        "T_C": 151.2,
+        "two_Fty_MPa": 364.5,
+        "PmPb_IN718_Fsh_MPa": 290.2,
+        "MS_PQ_Fsh": 0.256,
+        "PmPb_IN718_headforce_bound_MPa": 326.8,
+        "MS_PQ_headforce_bound": 0.115
+       },
+       "(a')": {
+        "PmPb_A4-80_MPa": 298.4,
+        "T_C": 151.2,
+        "two_Fty_MPa": 364.5,
+        "PmPb_IN718_Fsh_MPa": 299.7,
+        "MS_PQ_Fsh": 0.216,
+        "PmPb_IN718_headforce_bound_MPa": 340.4,
+        "MS_PQ_headforce_bound": 0.071
+       },
+       "(a'')": {
+        "PmPb_A4-80_MPa": 299.1,
+        "T_C": 151.2,
+        "two_Fty_MPa": 364.5,
+        "PmPb_IN718_Fsh_MPa": 300.4,
+        "MS_PQ_Fsh": 0.213,
+        "PmPb_IN718_headforce_bound_MPa": 341.1,
+        "MS_PQ_headforce_bound": 0.068
+       }
+      },
+      "MS_PQ_2Fty": 0.205,
+      "from": "js5",
+      "bound_MS": 0.062,
+      "bound_from": "js5"
+     },
+     "TC01_lines_Pm_gt_Fty": {
+      "per_history": {
+       "js5": {
+        "seat": {
+         "A4-80": 0,
+         "IN718_Fsh": 0,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.127,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 3,
+         "IN718_Fsh": 3,
+         "IN718_headforce_bound": 8,
+         "max_Pm_over_Fty_bound": 1.492,
+         "n_lines": 10
+        }
+       },
+       "(a)": {
+        "seat": {
+         "A4-80": 2,
+         "IN718_Fsh": 2,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.14,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 1,
+         "IN718_Fsh": 1,
+         "IN718_headforce_bound": 5,
+         "max_Pm_over_Fty_bound": 1.518,
+         "n_lines": 10
+        }
+       },
+       "(a')": {
+        "seat": {
+         "A4-80": 0,
+         "IN718_Fsh": 0,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.134,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 3,
+         "IN718_Fsh": 3,
+         "IN718_headforce_bound": 8,
+         "max_Pm_over_Fty_bound": 1.385,
+         "n_lines": 10
+        }
+       },
+       "(a'')": {
+        "seat": {
+         "A4-80": 0,
+         "IN718_Fsh": 0,
+         "IN718_headforce_bound": 16,
+         "max_Pm_over_Fty_bound": 1.135,
+         "n_lines": 54
+        },
+        "hole_edge": {
+         "A4-80": 3,
+         "IN718_Fsh": 3,
+         "IN718_headforce_bound": 8,
+         "max_Pm_over_Fty_bound": 1.387,
+         "n_lines": 10
+        }
+       }
+      },
+      "envelope": {
+       "seat": {
+        "A4-80": 2,
+        "IN718_Fsh": 2,
+        "IN718_headforce_bound": 16,
+        "max_Pm_over_Fty_bound": 1.14
+       },
+       "hole_edge": {
+        "A4-80": 3,
+        "IN718_Fsh": 3,
+        "IN718_headforce_bound": 8,
+        "max_Pm_over_Fty_bound": 1.518
+       }
+      },
+      "js5_relax_json_count_A4-80": {
+       "seat": 0,
+       "hole_edge": 3
+      }
+     },
+     "screw_fibre_soak": {
+      "per_history": {
+       "js5": {
+        "N_section_N": 7584.0,
+        "M_Nmm": 3822.8,
+        "fibre_MPa": 1134.7,
+        "Fty_IN718_MPa": 997.3,
+        "MS_y_fibre": -0.121,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 787.3,
+        "two_Fty_MPa": 1994.7,
+        "MS_shakedown": 1.533,
+        "section_excess_N": 44.7,
+        "equiv_axial_set_um": 0.067
+       },
+       "(a)": {
+        "N_section_N": 6691.0,
+        "M_Nmm": 2474.1,
+        "fibre_MPa": 860.1,
+        "Fty_IN718_MPa": 997.3,
+        "MS_y_fibre": 0.16,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 512.7,
+        "two_Fty_MPa": 1994.7,
+        "MS_shakedown": 2.89,
+        "section_excess_N": 0.0,
+        "equiv_axial_set_um": 0.0
+       },
+       "(a')": {
+        "N_section_N": 7805.5,
+        "M_Nmm": 3913.0,
+        "fibre_MPa": 1164.4,
+        "Fty_IN718_MPa": 997.3,
+        "MS_y_fibre": -0.144,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 817.1,
+        "two_Fty_MPa": 1994.7,
+        "MS_shakedown": 1.441,
+        "section_excess_N": 70.2,
+        "equiv_axial_set_um": 0.104
+       },
+       "(a'')": {
+        "N_section_N": 7778.2,
+        "M_Nmm": 3965.3,
+        "fibre_MPa": 1170.7,
+        "Fty_IN718_MPa": 997.3,
+        "MS_y_fibre": -0.148,
+        "fibre_cold_MPa": 347.3,
+        "range_MPa": 823.4,
+        "two_Fty_MPa": 1994.7,
+        "MS_shakedown": 1.423,
+        "section_excess_N": 75.4,
+        "equiv_axial_set_um": 0.112
+       }
+      },
+      "MS_y_fibre": -0.148,
+      "MS_shakedown": 1.423,
+      "range_max_MPa": 823.4,
+      "max_equiv_axial_set_um": 0.112,
+      "from": "(a'')"
+     }
+    }
+   }
+  },
+  "FA1S": {
+   "state": "FA1S",
+   "kind": "FA1",
+   "histories": {
+    "js5": {
+     "entered_from": "SOAK70",
+     "N_FE_A4-80_N": 3138.2,
+     "N_IN718_3750_N": 3256.1,
+     "N_IN718_4096_N": 3602.1
+    },
+    "(a)": {
+     "entered_from": "SOAK70",
+     "N_FE_A4-80_N": 3124.5,
+     "N_IN718_3750_N": 3242.4,
+     "N_IN718_4096_N": 3588.4
+    },
+    "(a')": {
+     "entered_from": "SOAK70",
+     "N_FE_A4-80_N": 3096.0,
+     "N_IN718_3750_N": 3213.9,
+     "N_IN718_4096_N": 3559.9
+    },
+    "(a'')": {
+     "entered_from": "SOAK70",
+     "N_FE_A4-80_N": 3088.0,
+     "N_IN718_3750_N": 3205.9,
+     "N_IN718_4096_N": 3551.9
+    }
+   },
+   "N_envelope_from": "js5",
+   "rows": {
+    "3750": {
+     "screw_tension_234_1b": {
+      "N_N": 3256.1,
+      "from": "js5",
+      "sigma_As_MPa": 229.6,
+      "T_C": 45.6,
+      "Fty_IN718_MPa": 1027.0,
+      "Ftu_IN718_MPa": 1229.8,
+      "MS_y": 3.472,
+      "MS_u": 4.355,
+      "A4-80_FE_MS_y_at_FE_N": null
+     },
+     "TC02_thread_shear_An": {
+      "A_n_mm2_FEA3D": 63.53,
+      "T_C": 45.6,
+      "N_N": 3256.1,
+      "tau_MPa": 51.3,
+      "Fsy_MPa": 136.2,
+      "Fsu_MPa": 152.7,
+      "MS_y": 1.657,
+      "MS_u": 1.979,
+      "A4-80_FE": {
+       "MS_y": 1.757,
+       "MS_u": 2.091,
+       "at_N": 3138.2
+      }
+     },
+     "TC01_under_head_band_neuber": {
+      "per_history": {
+       "js5": {
+        "sigma_el_A4-80_MPa": 556.9,
+        "sigma_el_IN718_MPa": 577.8,
+        "T_C": 45.6,
+        "eps_limit": 0.02744,
+        "MS_strain_n15_n30": [
+         0.505,
+         0.414
+        ],
+        "MS_strain": 0.414
+       },
+       "(a)": {
+        "sigma_el_A4-80_MPa": 557.4,
+        "sigma_el_IN718_MPa": 578.4,
+        "T_C": 45.6,
+        "eps_limit": 0.02744,
+        "MS_strain_n15_n30": [
+         0.502,
+         0.411
+        ],
+        "MS_strain": 0.411
+       },
+       "(a')": {
+        "sigma_el_A4-80_MPa": 557.0,
+        "sigma_el_IN718_MPa": 578.2,
+        "T_C": 45.6,
+        "eps_limit": 0.02744,
+        "MS_strain_n15_n30": [
+         0.503,
+         0.412
+        ],
+        "MS_strain": 0.412
+       },
+       "(a'')": {
+        "sigma_el_A4-80_MPa": 557.4,
+        "sigma_el_IN718_MPa": 578.7,
+        "T_C": 45.6,
+        "eps_limit": 0.02744,
+        "MS_strain_n15_n30": [
+         0.501,
+         0.41
+        ],
+        "MS_strain": 0.41
+       }
+      },
+      "MS_strain": 0.41,
+      "from": "(a'')"
+     }
+    },
+    "4096": {
+     "screw_tension_234_1b": {
+      "N_N": 3602.1,
+      "from": "js5",
+      "sigma_As_MPa": 254.0,
+      "T_C": 45.6,
+      "Fty_IN718_MPa": 1027.0,
+      "Ftu_IN718_MPa": 1229.8,
+      "MS_y": 3.043,
+      "MS_u": 3.841,
+      "A4-80_FE_MS_y_at_FE_N": null
+     },
+     "TC02_thread_shear_An": {
+      "A_n_mm2_FEA3D": 63.53,
+      "T_C": 45.6,
+      "N_N": 3602.1,
+      "tau_MPa": 56.7,
+      "Fsy_MPa": 136.2,
+      "Fsu_MPa": 152.7,
+      "MS_y": 1.402,
+      "MS_u": 1.693,
+      "A4-80_FE": {
+       "MS_y": 1.757,
+       "MS_u": 2.091,
+       "at_N": 3138.2
+      }
+     },
+     "TC01_under_head_band_neuber": {
+      "per_history": {
+       "js5": {
+        "sigma_el_A4-80_MPa": 556.9,
+        "sigma_el_IN718_MPa": 639.2,
+        "T_C": 45.6,
+        "eps_limit": 0.02744,
+        "MS_strain_n15_n30": [
+         0.249,
+         0.164
+        ],
+        "MS_strain": 0.164
+       },
+       "(a)": {
+        "sigma_el_A4-80_MPa": 557.4,
+        "sigma_el_IN718_MPa": 640.2,
+        "T_C": 45.6,
+        "eps_limit": 0.02744,
+        "MS_strain_n15_n30": [
+         0.245,
+         0.161
+        ],
+        "MS_strain": 0.161
+       },
+       "(a')": {
+        "sigma_el_A4-80_MPa": 557.0,
+        "sigma_el_IN718_MPa": 640.5,
+        "T_C": 45.6,
+        "eps_limit": 0.02744,
+        "MS_strain_n15_n30": [
+         0.244,
+         0.16
+        ],
+        "MS_strain": 0.16
+       },
+       "(a'')": {
+        "sigma_el_A4-80_MPa": 557.4,
+        "sigma_el_IN718_MPa": 641.1,
+        "T_C": 45.6,
+        "eps_limit": 0.02744,
+        "MS_strain_n15_n30": [
+         0.242,
+         0.158
+        ],
+        "MS_strain": 0.158
+       }
+      },
+      "MS_strain": 0.158,
+      "from": "(a'')"
+     }
+    }
+   }
+  }
+ },
+ "FA1S_screw_5020A_eq22": {
+  "governing_omitted": 0.301,
+  "included": 0.082,
+  "gauge_omitted": 0.31,
+  "arm_+0.4_sens": {
+   "MS_omitted_governing": 0.165,
+   "MS_included_info": -0.035
+  },
+  "direct_shear_minor_CALC": {
+   "V_N": 3888.1,
+   "tau_MPa": 306.5,
+   "Fsy_MPa": 592.6,
+   "Fsu_MPa": 737.9,
+   "MS_y": 0.933,
+   "MS_u": 1.408
+  },
+  "src": "jfwd_fix_v352_v2.json (published)"
+ },
+ "FA1S_tap_bearing": {
+  "CALC_3888.1": {
+   "V_N": 3888.1,
+   "sigma_MPa": 114.4,
+   "MS_y": 1.891,
+   "MS_u": 2.564
+  },
+  "gauge_3862.0": {
+   "V_N": 3862.0,
+   "sigma_MPa": 113.6,
+   "MS_y": 1.91,
+   "MS_u": 2.588
+  },
+  "note": "FEA3D tap_bearing_derived sigma 106.0 at V 3603.6 (d x L_e 34.00 mm2, L_e 6.85), allowables back-computed (330.6 / 407.6 MPa); V-driven, the same for every screw grade"
+ },
+ "TC02_thread_shear_full_row": {
+  "basis": "tau = N_IN718 (envelope history, per state) / A_n; Fsy = 0.577 Fty(T), Fsu = 0.6 Ftu(T) at FEA3D's TC-02 thread temperature; A_n = jfwd_v352 strip area (M5-6H / 6g: Ds_min 4.826, En_max 4.605, P 0.8) x L_eff",
+  "A_n_bases": {
+   "FEA3D_cell_A_n_mm2 (L_eff 6.35 = v3.5.1 L_e 6.85 - 0.5; THE ROW)": 63.48,
+   "check_strip_area_at_6.35_mm2": 63.49,
+   "v3.5.2 drawing engagement, nominal screw length (BASIS CHECK for FEA3D)": {
+    "L_nom_mm": 10.0,
+    "L_tol_mm": 0.0,
+    "L_e_min_mm": 7.24,
+    "L_eff_min_mm": 6.74,
+    "A_n_mm2": 67.4,
+    "tip_clearance_to_full_thread_end_min_mm": 0.696,
+    "tip_ok": true
+   },
+   "v3.5.2 drawing engagement, ISO 4759-1 length tolerance -0.29 (AS RECALLED)": {
+    "L_nom_mm": 10.0,
+    "L_tol_mm": 0.29,
+    "L_e_min_mm": 6.95,
+    "L_eff_min_mm": 6.45,
+    "A_n_mm2": 64.5,
+    "tip_clearance_to_full_thread_end_min_mm": 0.406,
+    "tip_ok": true
+   }
+  },
+  "rows": {
+   "PRELOAD": {
+    "3750": {
+     "N_N": 3750.0,
+     "from": "js5",
+     "T_C": 20.0,
+     "Fsy_MPa": 138.5,
+     "Fsu_MPa": 156.0,
+     "FEA3D_A_n": {
+      "A_n_mm2": 63.48,
+      "tau_MPa": 59.1,
+      "MS_y": 1.344,
+      "MS_u": 1.641
+     },
+     "drawing_nominal_L": {
+      "A_n_mm2": 67.4,
+      "tau_MPa": 55.6,
+      "MS_y": 1.489,
+      "MS_u": 1.804
+     },
+     "drawing_ISO_L_tol": {
+      "A_n_mm2": 64.5,
+      "tau_MPa": 58.1,
+      "MS_y": 1.382,
+      "MS_u": 1.683
+     }
+    },
+    "4096": {
+     "N_N": 4096.0,
+     "from": "js5",
+     "T_C": 20.0,
+     "Fsy_MPa": 138.5,
+     "Fsu_MPa": 156.0,
+     "FEA3D_A_n": {
+      "A_n_mm2": 63.48,
+      "tau_MPa": 64.5,
+      "MS_y": 1.146,
+      "MS_u": 1.418
+     },
+     "drawing_nominal_L": {
+      "A_n_mm2": 67.4,
+      "tau_MPa": 60.8,
+      "MS_y": 1.279,
+      "MS_u": 1.567
+     },
+     "drawing_ISO_L_tol": {
+      "A_n_mm2": 64.5,
+      "tau_MPa": 63.5,
+      "MS_y": 1.181,
+      "MS_u": 1.457
+     }
+    }
+   },
+   "SOAK70": {
+    "3750": {
+     "N_N": 6924.8,
+     "from": "(a)",
+     "T_C": 97.7,
+     "Fsy_MPa": 131.7,
+     "Fsu_MPa": 146.2,
+     "FEA3D_A_n": {
+      "A_n_mm2": 63.48,
+      "tau_MPa": 109.1,
+      "MS_y": 0.207,
+      "MS_u": 0.34
+     },
+     "drawing_nominal_L": {
+      "A_n_mm2": 67.4,
+      "tau_MPa": 102.7,
+      "MS_y": 0.281,
+      "MS_u": 0.423
+     },
+     "drawing_ISO_L_tol": {
+      "A_n_mm2": 64.5,
+      "tau_MPa": 107.4,
+      "MS_y": 0.226,
+      "MS_u": 0.362
+     }
+    },
+    "4096": {
+     "N_N": 7270.8,
+     "from": "(a)",
+     "T_C": 97.7,
+     "Fsy_MPa": 131.7,
+     "Fsu_MPa": 146.2,
+     "FEA3D_A_n": {
+      "A_n_mm2": 63.48,
+      "tau_MPa": 114.5,
+      "MS_y": 0.149,
+      "MS_u": 0.277
+     },
+     "drawing_nominal_L": {
+      "A_n_mm2": 67.4,
+      "tau_MPa": 107.9,
+      "MS_y": 0.22,
+      "MS_u": 0.356
+     },
+     "drawing_ISO_L_tol": {
+      "A_n_mm2": 64.5,
+      "tau_MPa": 112.7,
+      "MS_y": 0.168,
+      "MS_u": 0.297
+     }
+    }
+   },
+   "SOAK": {
+    "3750": {
+     "N_N": 8110.2,
+     "from": "js5",
+     "T_C": 96.0,
+     "Fsy_MPa": 131.8,
+     "Fsu_MPa": 146.4,
+     "FEA3D_A_n": {
+      "A_n_mm2": 63.48,
+      "tau_MPa": 127.8,
+      "MS_y": 0.032,
+      "MS_u": 0.146
+     },
+     "drawing_nominal_L": {
+      "A_n_mm2": 67.4,
+      "tau_MPa": 120.3,
+      "MS_y": 0.095,
+      "MS_u": 0.217
+     },
+     "drawing_ISO_L_tol": {
+      "A_n_mm2": 64.5,
+      "tau_MPa": 125.7,
+      "MS_y": 0.048,
+      "MS_u": 0.165
+     }
+    },
+    "4096": {
+     "N_N": 8456.2,
+     "from": "js5",
+     "T_C": 96.0,
+     "Fsy_MPa": 131.8,
+     "Fsu_MPa": 146.4,
+     "FEA3D_A_n": {
+      "A_n_mm2": 63.48,
+      "tau_MPa": 133.2,
+      "MS_y": -0.011,
+      "MS_u": 0.099
+     },
+     "drawing_nominal_L": {
+      "A_n_mm2": 67.4,
+      "tau_MPa": 125.5,
+      "MS_y": 0.051,
+      "MS_u": 0.167
+     },
+     "drawing_ISO_L_tol": {
+      "A_n_mm2": 64.5,
+      "tau_MPa": 131.1,
+      "MS_y": 0.005,
+      "MS_u": 0.117
+     }
+    }
+   },
+   "SOAK52": {
+    "3750": {
+     "N_N": 7344.3,
+     "from": "(a')",
+     "T_C": 94.9,
+     "Fsy_MPa": 131.9,
+     "Fsu_MPa": 146.6,
+     "FEA3D_A_n": {
+      "A_n_mm2": 63.48,
+      "tau_MPa": 115.7,
+      "MS_y": 0.14,
+      "MS_u": 0.267
+     },
+     "drawing_nominal_L": {
+      "A_n_mm2": 67.4,
+      "tau_MPa": 109.0,
+      "MS_y": 0.211,
+      "MS_u": 0.345
+     },
+     "drawing_ISO_L_tol": {
+      "A_n_mm2": 64.5,
+      "tau_MPa": 113.9,
+      "MS_y": 0.158,
+      "MS_u": 0.287
+     }
+    },
+    "4096": {
+     "N_N": 7690.3,
+     "from": "(a')",
+     "T_C": 94.9,
+     "Fsy_MPa": 131.9,
+     "Fsu_MPa": 146.6,
+     "FEA3D_A_n": {
+      "A_n_mm2": 63.48,
+      "tau_MPa": 121.1,
+      "MS_y": 0.089,
+      "MS_u": 0.21
+     },
+     "drawing_nominal_L": {
+      "A_n_mm2": 67.4,
+      "tau_MPa": 114.1,
+      "MS_y": 0.156,
+      "MS_u": 0.285
+     },
+     "drawing_ISO_L_tol": {
+      "A_n_mm2": 64.5,
+      "tau_MPa": 119.2,
+      "MS_y": 0.106,
+      "MS_u": 0.229
+     }
+    }
+   },
+   "FA1S": {
+    "3750": {
+     "N_N": 3256.1,
+     "from": "js5",
+     "T_C": 45.6,
+     "Fsy_MPa": 136.2,
+     "Fsu_MPa": 152.8,
+     "FEA3D_A_n": {
+      "A_n_mm2": 63.48,
+      "tau_MPa": 51.3,
+      "MS_y": 1.656,
+      "MS_u": 1.979
+     },
+     "drawing_nominal_L": {
+      "A_n_mm2": 67.4,
+      "tau_MPa": 48.3,
+      "MS_y": 1.82,
+      "MS_u": 2.162
+     },
+     "drawing_ISO_L_tol": {
+      "A_n_mm2": 64.5,
+      "tau_MPa": 50.5,
+      "MS_y": 1.699,
+      "MS_u": 2.026
+     }
+    },
+    "4096": {
+     "N_N": 3602.1,
+     "from": "js5",
+     "T_C": 45.6,
+     "Fsy_MPa": 136.2,
+     "Fsu_MPa": 152.8,
+     "FEA3D_A_n": {
+      "A_n_mm2": 63.48,
+      "tau_MPa": 56.7,
+      "MS_y": 1.401,
+      "MS_u": 1.692
+     },
+     "drawing_nominal_L": {
+      "A_n_mm2": 67.4,
+      "tau_MPa": 53.4,
+      "MS_y": 1.549,
+      "MS_u": 1.859
+     },
+     "drawing_ISO_L_tol": {
+      "A_n_mm2": 64.5,
+      "tau_MPa": 55.8,
+      "MS_y": 1.439,
+      "MS_u": 1.736
+     }
+    }
+   }
+  },
+  "fixes": {
+   "a_lower_J-F1_max": {
+    "F_max_for_MS_y_0_N": 4007,
+    "F_max_for_MS_y_0.05_N": 3609,
+    "note": "on FEA3D's A_n; the J-F1 band at 3.0 N m is 2250-4096 N: a maximum near 4000 N cuts the low-K tail of the lot (J-F1 acceptance statistics decide the reject rate); +0.05 would need a maximum below the 3750 N nominal (not practical)",
+    "slack_effect": "none: the 24-case minimum is set by the 2250 N installation (relax v5: seat -205 / ring +89 N at 2250 N, hi end)",
+    "other_effects": "none on CAD or FD-04; J-F1 acceptance rule only"
+   },
+   "b_custom_IN718_length": {
+    "options": {
+     "M5 x 10.0 +/-0.1": {
+      "L_nom_mm": 10.0,
+      "L_tol_mm": 0.1,
+      "L_e_min_mm": 7.14,
+      "L_eff_min_mm": 6.64,
+      "A_n_mm2": 66.4,
+      "tip_clearance_to_full_thread_end_min_mm": 0.596,
+      "tip_ok": true,
+      "rows_at_governing_state": {
+       "3750": {
+        "tau_MPa": 122.1,
+        "MS_y": 0.079
+       },
+       "4096": {
+        "tau_MPa": 127.4,
+        "MS_y": 0.035
+       }
+      }
+     },
+     "M5 x 10.2 +/-0.1": {
+      "L_nom_mm": 10.2,
+      "L_tol_mm": 0.1,
+      "L_e_min_mm": 7.34,
+      "L_eff_min_mm": 6.84,
+      "A_n_mm2": 68.4,
+      "tip_clearance_to_full_thread_end_min_mm": 0.396,
+      "tip_ok": true,
+      "rows_at_governing_state": {
+       "3750": {
+        "tau_MPa": 118.6,
+        "MS_y": 0.112
+       },
+       "4096": {
+        "tau_MPa": 123.6,
+        "MS_y": 0.066
+       }
+      }
+     },
+     "M5 x 10.4 +/-0.08": {
+      "L_nom_mm": 10.4,
+      "L_tol_mm": 0.08,
+      "L_e_min_mm": 7.56,
+      "L_eff_min_mm": 7.06,
+      "A_n_mm2": 70.6,
+      "tip_clearance_to_full_thread_end_min_mm": 0.216,
+      "tip_ok": true,
+      "rows_at_governing_state": {
+       "3750": {
+        "tau_MPa": 114.9,
+        "MS_y": 0.147
+       },
+       "4096": {
+        "tau_MPa": 119.8,
+        "MS_y": 0.1
+       }
+      }
+     },
+     "M5 x 10.5 +/-0.08": {
+      "L_nom_mm": 10.5,
+      "L_tol_mm": 0.08,
+      "L_e_min_mm": 7.66,
+      "L_eff_min_mm": 7.16,
+      "A_n_mm2": 71.6,
+      "tip_clearance_to_full_thread_end_min_mm": 0.116,
+      "tip_ok": false,
+      "rows_at_governing_state": {
+       "3750": {
+        "tau_MPa": 113.3,
+        "MS_y": 0.164
+       },
+       "4096": {
+        "tau_MPa": 118.1,
+        "MS_y": 0.116
+       }
+      }
+     }
+    },
+    "slack_effect": "none: the free length (grip + 0.5 mouth) is unchanged; in the VDI-form resilience of jfwd_embed the engaged thread is 0.5 d / A_d3 and the tapped part 0.33 d, independent of L_e, so k_b and the 24-case do not move",
+    "other_effects": "no CAD change (tap 4.2 x 9.0 / full thread 8.0 kept), no head-height or FD-04 change; J-F1 calibrates K at the flight length; drawing length tolerance +/-0.08..0.1 instead of ISO js15",
+    "note": "credits the v3.5.2 spot-face engagement (head on the flat at r 31.31) that FEA3D's A_n (v3.5.1 6.85) does not; FEA3D to confirm the A_n basis"
+   },
+   "c_helical_insert": {
+    "part": "Boellhoff HELICOIL plus M5 x 0.8, 1d / 1.5d (order no. 4189 005 0005 / 4189 005 0075)",
+    "source": "RS 471-017 (mfr part 41890050005): 'Drill Size 5.2mm', 'Thread Length 5mm' (https://uk.rs-online.com/web/p/thread-repair-inserts/0471017, accessed 2026-10-20); HELICOIL plus datasheet 0180/10.02 (https://docs.rs-online.com/5ddb/0900766b810150a0.pdf, accessed 2026-10-20) lists M 5 x 5 / 7.5 / 10; its STI tap table (pp. 36/37) is not in that file: the STI major diameter is TO-SOURCE",
+    "tap_wall_effect": "torch-passage tap wall 1.906 mm at az 18 / 342 (measured from the M5 major 5.0): the tap drill grows 4.2 -> 5.2 (-0.50 mm on the drilled wall) and the tapped major grows from 5.0 to the STI major (each 0.1 mm of diameter thins the 1.906 wall by 0.05 mm; at an STI major near 6.0 the wall is about 1.41 mm, the M6-fallback value): probe + FE re-run needed",
+    "slack_effect": "a coil insert adds thread compliance (k_b down, slightly favourable); not quantified without data",
+    "other_effects": "CAD + TC-02 drawing change, insert installation / tang removal on flight hardware, new J-F1 pair (IN718 / insert)"
+   },
+   "d_disc_spring_interaction": "a disc spring under the head that is solid (flat) at the soak force leaves the soak force and this row unchanged; only a spring still active at the soak would lower it (jfwd_spring_v352)"
+  },
+  "engagement_geometry": {
+   "r_flat_CAD_mm": 31.3129,
+   "r_flat_range_spot_d10.5+/-0.2_mm": [
+    31.296,
+    31.3295
+   ],
+   "r_plug_CAD_mm": 28.6,
+   "r_plug_drawing_f7_mm": [
+    28.57,
+    28.585
+   ],
+   "full_thread_mm": 8.0,
+   "mouth_not_credited_mm": 0.5,
+   "tip_clearance_min_mm": 0.2,
+   "src": "jfwd_seat_v352_v1.json a371bdc9fe2d9986 tc02_engagement (L_e CAD 7.287, drawing 7.257-7.272); CAD config jfwd_tap_drill_mm 9.0"
+  },
+  "governing_state": "SOAK"
+ },
+ "TC01_flat_bearing_rev5_worst_stack": {
+  "OD_min_mm": 63.426,
+  "eccentricity_mm": 0.02,
+  "r_flat_max_mm": 31.333,
+  "float_mm": 0.337,
+  "chord_mm": 9.527,
+  "chord_nominal_OD_no_runout_mm": 10.258,
+  "loss_dk9.5_mm2": 0.749,
+  "ring_dk9.5_mm2": 47.12,
+  "overhang_dk9.5_mm": 0.324,
+  "loss_dk9.14_mm2": 0.218,
+  "ring_dk9.14_mm2": 41.85,
+  "overhang_dk9.14_mm": 0.144,
+  "supported_fraction_row_basis": 0.98411,
+  "info_dk9.14_min_head_supported_mm2": 41.63,
+  "info_dk9.14_fraction_of_row_basis": 0.88342
+ },
+ "TC01_membrane_rows_OD_h9": {
+  "source": {
+   "path": "/home/claude/work/shared-fallback/engine/03-cad/calcs/hand_calcs_v2.json",
+   "sha256_16": "c5318dd2ecd00ac8"
+  },
+  "basis_answer": "NOMINAL: hand_calcs_v2 uses case_OD 63.5 and the nominal bore (full wall 3.175, fwd seal land 3.125, collar groove 2.675 mm), not the minimum wall",
+  "d_ro_mm": -0.037,
+  "d_ri_fwd_seal_land_mm": 0.023,
+  "rows": [
+   {
+    "row": "Case full wall 63.50/57.15 [LC1 25.0 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 22.78,
+    "MS_y_nominal": 6.023,
+    "MS_u_nominal": 4.706,
+    "SF": [
+     1.5,
+     2.0
+    ],
+    "h9": {
+     "wall_mm": 3.138,
+     "applied_MPa": 23.02,
+     "MS_y": 5.951,
+     "MS_u": 4.647
+    }
+   },
+   {
+    "row": "Case fwd seal land 57.25 bore [LC1 25.0 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 23.13,
+    "MS_y_nominal": 5.918,
+    "MS_u_nominal": 4.621,
+    "SF": [
+     1.5,
+     2.0
+    ],
+    "h9": {
+     "wall_mm": 3.088,
+     "applied_MPa": 23.37,
+     "MS_y": 5.846,
+     "MS_u": 4.562
+    },
+    "h9_and_H8_max_bore": {
+     "wall_mm": 3.065,
+     "applied_MPa": 23.54,
+     "MS_y": 5.797,
+     "MS_u": 4.523
+    }
+   },
+   {
+    "row": "Case collar groove 62.50 (pivot plane) [LC1 25.0 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 26.42,
+    "MS_y_nominal": 5.057,
+    "MS_u_nominal": 3.921,
+    "SF": [
+     1.5,
+     2.0
+    ],
+    "h9": {
+     "wall_mm": 2.638,
+     "applied_MPa": 26.75,
+     "MS_y": 4.982,
+     "MS_u": 3.86
+    }
+   },
+   {
+    "row": "Case full wall 63.50/57.15 [LC2 45.0 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 41.02,
+    "MS_y_nominal": 2.9,
+    "MS_u_nominal": 2.169,
+    "SF": [
+     1.5,
+     2.0
+    ],
+    "h9": {
+     "wall_mm": 3.138,
+     "applied_MPa": 41.43,
+     "MS_y": 2.861,
+     "MS_u": 2.137
+    }
+   },
+   {
+    "row": "Case fwd seal land 57.25 bore [LC2 45.0 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 41.64,
+    "MS_y_nominal": 2.842,
+    "MS_u_nominal": 2.122,
+    "SF": [
+     1.5,
+     2.0
+    ],
+    "h9": {
+     "wall_mm": 3.088,
+     "applied_MPa": 42.07,
+     "MS_y": 2.803,
+     "MS_u": 2.09
+    },
+    "h9_and_H8_max_bore": {
+     "wall_mm": 3.065,
+     "applied_MPa": 42.37,
+     "MS_y": 2.776,
+     "MS_u": 2.068
+    }
+   },
+   {
+    "row": "Case collar groove 62.50 (pivot plane) [LC2 45.0 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 47.56,
+    "MS_y_nominal": 2.364,
+    "MS_u_nominal": 1.733,
+    "SF": [
+     1.5,
+     2.0
+    ],
+    "h9": {
+     "wall_mm": 2.638,
+     "applied_MPa": 48.15,
+     "MS_y": 2.323,
+     "MS_u": 1.7
+    }
+   },
+   {
+    "row": "Case full wall 63.50/57.15 [LC4 67.5 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 61.53,
+    "MS_y_nominal": 2.9,
+    "MS_u_nominal": null,
+    "SF": [
+     1.0,
+     null
+    ],
+    "h9": {
+     "wall_mm": 3.138,
+     "applied_MPa": 62.15,
+     "MS_y": 2.861,
+     "MS_u": null
+    }
+   },
+   {
+    "row": "Case fwd seal land 57.25 bore [LC4 67.5 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 62.47,
+    "MS_y_nominal": 2.842,
+    "MS_u_nominal": null,
+    "SF": [
+     1.0,
+     null
+    ],
+    "h9": {
+     "wall_mm": 3.088,
+     "applied_MPa": 63.11,
+     "MS_y": 2.803,
+     "MS_u": null
+    },
+    "h9_and_H8_max_bore": {
+     "wall_mm": 3.065,
+     "applied_MPa": 63.56,
+     "MS_y": 2.776,
+     "MS_u": null
+    }
+   },
+   {
+    "row": "Case collar groove 62.50 (pivot plane) [LC4 67.5 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 71.34,
+    "MS_y_nominal": 2.364,
+    "MS_u_nominal": null,
+    "SF": [
+     1.0,
+     null
+    ],
+    "h9": {
+     "wall_mm": 2.638,
+     "applied_MPa": 72.22,
+     "MS_y": 2.323,
+     "MS_u": null
+    }
+   },
+   {
+    "row": "Case full wall 63.50/57.15 [BN 63.1 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 57.5,
+    "MS_y_nominal": 3.174,
+    "MS_u_nominal": null,
+    "SF": [
+     1.0,
+     null
+    ],
+    "h9": {
+     "wall_mm": 3.138,
+     "applied_MPa": 58.1,
+     "MS_y": 3.131,
+     "MS_u": null
+    }
+   },
+   {
+    "row": "Case fwd seal land 57.25 bore [BN 63.1 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 58.38,
+    "MS_y_nominal": 3.111,
+    "MS_u_nominal": null,
+    "SF": [
+     1.0,
+     null
+    ],
+    "h9": {
+     "wall_mm": 3.088,
+     "applied_MPa": 58.99,
+     "MS_y": 3.068,
+     "MS_u": null
+    },
+    "h9_and_H8_max_bore": {
+     "wall_mm": 3.065,
+     "applied_MPa": 59.41,
+     "MS_y": 3.04,
+     "MS_u": null
+    }
+   },
+   {
+    "row": "Case collar groove 62.50 (pivot plane) [BN 63.1 bar]: von Mises at bore (Lame + end load)",
+    "applied_nominal_MPa": 66.67,
+    "MS_y_nominal": 2.6,
+    "MS_u_nominal": null,
+    "SF": [
+     1.0,
+     null
+    ],
+    "h9": {
+     "wall_mm": 2.638,
+     "applied_MPa": 67.51,
+     "MS_y": 2.555,
+     "MS_u": null
+    }
+   }
+  ],
+  "closest_row_on_the_63.5_OD": "Case collar groove 62.50 (pivot plane) [LC2 45.0 bar]: von Mises at bore (Lame + end load)",
+  "note": "the aft seal land (61.0) and the aft thread root (M63 x 1.5) rows are on separate diameters, not the 63.5 OD; the collar groove is evaluated as cut to a depth from the OD (if it is dimensioned as a diameter, h9 does not move it)"
+ },
+ "flags_within_0.05_or_negative": [
+  {
+   "state": "SOAK70",
+   "preload_N": "3750",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "MS_PQ_2Fty",
+   "MS": -0.022,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK70",
+   "preload_N": "3750",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "bound_MS",
+   "MS": -0.082,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK70",
+   "preload_N": "3750",
+   "row": "screw_fibre_soak",
+   "metric": "MS_y_fibre",
+   "MS": 0.032,
+   "flag": "within 0.05: FE confirmation"
+  },
+  {
+   "state": "SOAK70",
+   "preload_N": "4096",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "MS_PQ_2Fty",
+   "MS": -0.024,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK70",
+   "preload_N": "4096",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "bound_MS",
+   "MS": -0.132,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK70",
+   "preload_N": "4096",
+   "row": "ring_line_PQ",
+   "metric": "bound_MS",
+   "MS": 0.018,
+   "flag": "within 0.05: FE confirmation"
+  },
+  {
+   "state": "SOAK70",
+   "preload_N": "4096",
+   "row": "screw_fibre_soak",
+   "metric": "MS_y_fibre",
+   "MS": -0.046,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "3750",
+   "row": "TC02_thread_shear_An",
+   "metric": "MS_y",
+   "MS": 0.032,
+   "flag": "within 0.05: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "3750",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "MS_PQ_2Fty",
+   "MS": -0.037,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "3750",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "bound_MS",
+   "MS": -0.098,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "3750",
+   "row": "ring_line_PQ",
+   "metric": "bound_MS",
+   "MS": 0.008,
+   "flag": "within 0.05: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "3750",
+   "row": "screw_fibre_soak",
+   "metric": "MS_y_fibre",
+   "MS": -0.257,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "4096",
+   "row": "TC02_thread_shear_An",
+   "metric": "MS_y",
+   "MS": -0.01,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "4096",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "MS_PQ_2Fty",
+   "MS": -0.039,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "4096",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "bound_MS",
+   "MS": -0.146,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "4096",
+   "row": "ring_line_PQ",
+   "metric": "bound_MS",
+   "MS": -0.033,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "4096",
+   "row": "screw_fibre_soak",
+   "metric": "MS_y_fibre",
+   "MS": -0.305,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK52",
+   "preload_N": "3750",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "MS_PQ_2Fty",
+   "MS": 0.031,
+   "flag": "within 0.05: FE confirmation"
+  },
+  {
+   "state": "SOAK52",
+   "preload_N": "3750",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "bound_MS",
+   "MS": -0.048,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK52",
+   "preload_N": "3750",
+   "row": "screw_fibre_soak",
+   "metric": "MS_y_fibre",
+   "MS": -0.08,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK52",
+   "preload_N": "4096",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "MS_PQ_2Fty",
+   "MS": 0.029,
+   "flag": "within 0.05: FE confirmation"
+  },
+  {
+   "state": "SOAK52",
+   "preload_N": "4096",
+   "row": "seat_line_d6p051_z0_PQ",
+   "metric": "bound_MS",
+   "MS": -0.092,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK52",
+   "preload_N": "4096",
+   "row": "screw_fibre_soak",
+   "metric": "MS_y_fibre",
+   "MS": -0.148,
+   "flag": "NEGATIVE: FE confirmation"
+  }
+ ],
+ "information_rows_negative_or_within_0.05": [
+  {
+   "state": "PRELOAD",
+   "preload_N": "3750",
+   "row": "TC01_ligament_station_PQ_FEA3D_cell_INFO",
+   "metric": "MS_PQ_2Fty_info",
+   "MS": -0.096,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "PRELOAD",
+   "preload_N": "4096",
+   "row": "TC01_ligament_station_PQ_FEA3D_cell_INFO",
+   "metric": "MS_PQ_2Fty_info",
+   "MS": -0.173,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK70",
+   "preload_N": "3750",
+   "row": "TC01_ligament_station_PQ_FEA3D_cell_INFO",
+   "metric": "MS_PQ_2Fty_info",
+   "MS": -0.44,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK70",
+   "preload_N": "4096",
+   "row": "TC01_ligament_station_PQ_FEA3D_cell_INFO",
+   "metric": "MS_PQ_2Fty_info",
+   "MS": -0.471,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "3750",
+   "row": "TC01_ligament_station_PQ_FEA3D_cell_INFO",
+   "metric": "MS_PQ_2Fty_info",
+   "MS": -0.272,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK",
+   "preload_N": "4096",
+   "row": "TC01_ligament_station_PQ_FEA3D_cell_INFO",
+   "metric": "MS_PQ_2Fty_info",
+   "MS": -0.301,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK52",
+   "preload_N": "3750",
+   "row": "TC01_ligament_station_PQ_FEA3D_cell_INFO",
+   "metric": "MS_PQ_2Fty_info",
+   "MS": -0.283,
+   "flag": "NEGATIVE: FE confirmation"
+  },
+  {
+   "state": "SOAK52",
+   "preload_N": "4096",
+   "row": "TC01_ligament_station_PQ_FEA3D_cell_INFO",
+   "metric": "MS_PQ_2Fty_info",
+   "MS": -0.316,
+   "flag": "NEGATIVE: FE confirmation"
+  }
+ ]
+}
