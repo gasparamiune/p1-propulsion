@@ -299,6 +299,19 @@ for L in o["lines"]:
         L["mass_evidence"] = L["mass_evidence"] + f" | v1.5: HELD on the superseded ID 47.22 (sourced-ID torus {m_src:.3f} g, not carried)"
 o["basis"] = o["basis"] + (" | v1.5 HW-150: AS568-226 size text corrected to the sourced ID 50.39 / CS 3.53 (FNST p. 16; was the -225 ID 47.22, "
                            "AS RECALLED); unit mass held, +0.37 g for the 2 rings stated for the lead's ruling")
+# ---------------------------------------------------------------- v1.6 (2026-10-20): lead 08:40Z item 3 'HW-150 sourced size (AS568-226, ID 50.39 x
+# CS 3.53) accepted. Publish massdelta v7 (+0.37 g)': the HW-150 CALC unit mass moves to the torus on the sourced ID (FKM 1900 kg/m3 ASSUMED).
+for L in o["lines"]:
+    if L["id"] == "HW-150":
+        m_old = L["unit_mass_g"]
+        m_src = math.pi * (50.39 + 3.53) * math.pi / 4.0 * 3.53 ** 2 * 1e-9 * 1900.0 * 1e3
+        L["unit_mass_g"] = round(m_src, 3)
+        L["note"] = (L["note"] + f" | v1.6 (lead 08:40Z item 3, sourced size accepted): unit mass {m_old:.3f} -> {L['unit_mass_g']:.3f} g (torus on the "
+                     f"sourced ID 50.39 x CS 3.53, FKM 1900 kg/m3 ASSUMED), {2 * (L['unit_mass_g'] - m_old):+.2f} g for the 2 rings (massdelta v7)")
+        L["mass_evidence"] = (L["mass_evidence"] + f" | v1.6: CARRIED (lead 08:40Z item 3): CALC torus pi (ID + CS) x pi CS^2 / 4 on the sourced "
+                              "AS568-226 ID 50.39 / CS 3.53 (FNST p. 16) x FKM 1900 kg/m3 ASSUMED; DATASHEET ring mass TO-FETCH")
+o.update({"version": "v1.6", "basis": o["basis"] + " | v1.6 (2026-10-20, lead 08:40Z item 3): HW-150 unit mass on the sourced AS568-226 size "
+          "(CALC torus, FKM 1900 kg/m3 ASSUMED): +0.37 g for the 2 rings; massprops and massdelta v7 re-run"})
 TQ_METHOD = {}
 for L in o["lines"]:
     if L["kind"] != "screw":

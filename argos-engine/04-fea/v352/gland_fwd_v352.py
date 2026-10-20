@@ -1,27 +1,50 @@
-"""TC-02 plug glands S01 / S02 (2x AS568-226 FKM 90A, no back-up ring): extrusion gap at the drawing maximum clearance plus the case's
-radial growth under pressure, plus the rev-4 thermal differential; squeeze / stretch / fill; seal positions vs the J-FWD holes.
-Lead 07:43Z items 1 and 4.  Mechanical, 2026-10-20, v1.  CALC on SIM temperatures; DATASHEET values as cited; every other number DERIVED.
+"""TC-02 plug glands S01 / S02 (2x AS568-226 FKM 90A): v2 adds (A) the FA1S extrusion limit from a second maker's chart (lead 08:40Z
+item 2), (B) the PTFE back-up ring option data for the lead's ruling, (C) the O-ring passage over the ten d5.5 J-FWD holes (lead 09:15Z
+item C).  Mechanical, 2026-10-20, v2.  The v1 rows (gap budget, squeeze / stretch / fill, positions, thermal) are carried unchanged from
+gland_fwd_v352_v1.json (v1 script kept as gland_fwd_v352_v1.py).  DATASHEET values as cited; every other number DERIVED.
 
-Sources:
- [D1] Freudenberg-NOK Sealing Technologies, 'O-Ring Design Quick Reference' (no date / edition printed), p. 6 'Maximum Recommended
-      Extrusion Gap in Inches (mm)', static applications below 1500 psi; gap = bore - piston (diameters), 'unless the hardware can ensure
-      the bore and the piston or rod remain concentric, we have to assume that all of the gap possible can shift to one side'; above
-      1500 psi 'consult Freudenberg-NOK'; no temperature note; p. 5 squeeze >= 5 %, target 20 %, max 30 %; gland fill target 75 %, max 85 %;
-      p. 16 AS568-226 ID 1.984 +/- 0.018 in (50.39 +/- 0.46 mm), CS 0.139 +/- 0.004 in (3.53 +/- 0.10 mm).
-      URL https://fst.com/~/media/files/fst,-d-,com/markets/mobility/broschueren/fnst%20o-ring%20reference%20as568%20sizes.ashx,
-      accessed 2026-10-20.  The durometer columns are not labelled 'Shore A' in the source (presumed Shore A).
- [C1] CAD v3.5.2 (parts_engine.py; TC-01 / TC-02 drawing fits): bore 57.25 H8 (+0.046 / 0), plug 57.20 f7 (-0.030 / -0.060), groove
-      51.65 h9 (0 / -0.074) x 4.85 +0.13 / 0, glands at zf + 3.0 and + 3.0 + 4.85 + 3.0 (zf = injector face z 103.513), J-FWD holes d5.5 at
-      z 127.513 (taps M5-6H), case OD 63.5.
- [M1] engmat 6061-T6 E(T), alpha (secant from 20 C), nu 0.33 (LITERATURE, project tables).
- [T1] rev-4 B1 thermal fields (v352_NF2b_R4_GVLO / _GVHI, chain 8), node histories tb70/hist/<label>_hist.npz (case_tc_hist_v352.py).
-Pressure growth of the case bore: Lame thick cylinder, closed end (the case carries the end load aft of the screw row), at the g1 land
-with E at the land's burn maximum temperature; the full far-field value is used (the land is at the end of the pressurised length, where
-a shell would give about half: not credited).  Plug OD: hollow cylinder (manifold bore d10) under the same external pressure (conservative:
-the land forward of the ring is not pressurised, and the plug's Poisson expansion under its end load would close the gap: not credited).
-Thermal: the change of the bore - plug diametral clearance at the g1 forward land from the case and plug temperatures (secant alpha),
-largest opening over the burn frames (pressurised period), both gap bounds.  Pressure across S01: chamber gauge pressure (the inter-seal
-cavity at ambient: the full differential)."""
+Sources (all accessed 2026-10-20; datasheet / handbook text quoted from the maker's document, never recalled):
+ [D1] Freudenberg-NOK 'O-Ring Design Quick Reference' p. 6 (v1): 90 durometer gap 0.64 / 0.58 / 0.46 / 0.38 / 0.30 mm at
+      500 / 750 / 1000 / 1250 / 1500 psi; above 1500 psi 'consult Freudenberg-NOK'; no temperature statement.
+ [D2] Apple Rubber Products, Seal Design Guide, 'Critical Operating Environmental Factors', p. 3, Illustration 5.2 'Extrusion Limit'
+      (Fluid Pressure (psi) vs Total Diametrical Clearance (in.), curves 70 / 80 / 90 Shore A); text: 'If the point representing the
+      intersection of the lines of sealed pressure and diametrical clearance falls to the right of the material's hardness curve, either
+      the material hardness must be increased, or back-up rings will be required.'  No basis (cycles, temperature) is printed.
+      URL https://applerubber.s3.us-east-1.amazonaws.com/sdg/pdf/CriticalOperatingEnvironmentalFactors.pdf (7 pages).  Digitised from
+      the PDF's vector paths by gland/apple_fig52_read.py (curve identity by the legend tints; the page's own two worked examples at
+      1000 psi / 0.016 in reproduce: 70 A 0.0139-0.0147 in < 0.016 'to the right', 80 A 0.0215-0.0223 in > 0.016 'acceptable').
+ [D3] Dichtomatik (Freudenberg FST), backup rings product page https://dichtomatik.fst.com/products/static-seals/backup-rings/ and
+      solution sheet https://dichtomatik.fst.com/-/media/files/dichtomatik/solution-sheets/en/dichtomatik_backup-ring.pdf (read through
+      WebFetch; direct download refused by the proxy): STR, white, PTFE, >= 51 Shore D, -200 to +260 C, <= 40 MPa; 'The maximum
+      permissible operating pressure depends on clearance, design of the backup ring and operating conditions'; endless or 30 deg slotted.
+ [D4] Greene Tweed, O-Ring & Back-Up Ring Catalog 20 (c) 2020, https://www.gtweed.com/wp-content/uploads/2020/06/o-ring-catalog-en-pb.pdf
+      (WebFetch): AS5857 static gland, -2xx (0.139 in): gland width 0.185 / 0.250 / 0.320 in (+0.010 / -0.000) for 0 / 1 / 2 back-up
+      rings, corner radii 0.010 / 0.025; 'Split BURs are required for use in closed gland configurations'; 'solid BURs are recommended
+      for use in open gland configurations'; installation: 'a lead-in chamfer for all mating hardware is strongly recommended', 'The
+      hardware should also be de-burred'; dash 226 maximum diametrical clearance read as 0.007 in (extraction ambiguous: TO-CONFIRM).
+ [D5] Parker Hannifin (Praedifa), O-Ring Handbook PTD5705-EN, https://www.parker.com/content/dam/Parker-com/Literature/Praedifa/Catalogs/
+      Catalog_O-Ring-Handbook_PTD5705-EN.pdf (WebFetch): 2.5.1 p. 17 'chamfers are necessary on all leading edges', 'All edges must be
+      free from burrs and sharp edges bevelled', Fig. 2.24 15-20 deg, 'Dimension x should be greater than dimension y'; 2.5.2 p. 18
+      'Traversing of cross drilled ports': 'An O-Ring can be sheared when a spool or rod moves in a bore broken by cross drilled ports.
+      The deformed O-Ring returns to its original round cross-section as it enters the port and is sheared as it leaves the drilled
+      area.  To avoid this, connection holes should be repositioned.'  Fig. 2.26 'If repositioning should not be possible, an internal
+      chamfer is recommended.'  Fig. 2.27 'A balancing groove in the area of the bore is the best solution.'; 2.5.3 'Grease used to ease
+      assembly must also be compatible.'; 2.5.5 rolling / spiral failure; 2.5.6 p. 18 'O-Rings should not be drawn over sharp edges.
+      Threads, slits, bores, glands, splines, etc. must be removed or covered.  Fitting aids assist assembly and avoid sharp edges.';
+      2.5.7 Fig. 2.31 'Fitting aid is supplemented by a sleeve to protect the seal from sharp edges.'; static groove table 3.1 p. 20,
+      d2 3.53: b1 4.80-5.00 / b2 5.80-6.00 / b3 6.80-7.00 mm (0 / 1 / 2 back-up rings).  No cross-bore size limit and no chamfer
+      dimension are given.
+ [D6] Parker O-Ring eHandbook 'Installation Damage', https://parker.com/promotionsite/oring-ehandbook/us/en/ehome/Installation-Damage
+      (WebFetch): 'Break all sharp edges on metal components.', 'Provide a 20 deg lead-in chamfer.', lubricant, 'O-ring twisted/pinched
+      during installation' as a cause.  (The full ORD 5700 PDF could not be read: parker.com / arizona.edu downloads are refused by the
+      proxy and the WebFetch copy truncates before Section III.)
+ [D7] ERIKS, Technical Handbook O-rings, ch. 13 'O-ring Assembling Conditions' (o-ring.info PDF, WebFetch): 'Never force the O-ring
+      over sharp threads, keyways, slots and other sharp edges.', 'Prevent the O-ring from being twisted.', lubricated parts; 15-20 deg.
+ [D8] Apple Rubber, Seal Design Guide 'O-Ring Installation' (web page, WebFetch): lubricate with a compatible lubricant, 'make certain to
+      remove any twists', 'Do not turn or twist pistons into cylinders as this may bunch or cut o-rings', stretch <= 100 % in
+      installation; and Apple p. 3 (D2 PDF) CS reduction for stretch CS_R = CS - CS (1 - sqrt(100 / (100 + % stretch))).
+ [L236] CHANGELOG 236 (lead): 'FA1S (js4, 151.04 bar abs, 45.6 C, SF 1.0 / 1.0)': the FA1S case temperature.
+ [M1] engmat densities (project table): AL6061-T6 2700, PTFE 2200 kg/m3."""
 import json, math, hashlib, sys
 from pathlib import Path
 import numpy as np
@@ -29,135 +52,144 @@ sys.path.insert(0, "/home/claude/work/mechanical/v352/engine/04-fea/src")
 import engmat
 
 J = Path("/home/claude/work/mechanical/v352/jfwd")
-HIST = Path("/home/claude/work/mechanical/v352/tb70/hist")
-OUT = J / "gland_fwd_v352_v1.json"
+G = Path("/home/claude/work/mechanical/v352/gland")
+OUT = J / "gland_fwd_v352_v2.json"
 sha = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()[:16]
-M = engmat.MATERIALS["AL6061-T6"]
-E_T = lambda T: float(np.interp(T, M["E"]["T_C"], M["E"]["v"])) / 1e6        # MPa
-A_T = lambda T: float(np.interp(T, M["alpha"]["T_C"], M["alpha"]["v"]))
-NU = M["nu"]["v"]
-BAR_PSI = 14.5038
-# [D1] p. 6, 90 durometer column, (psi, gap mm)
-D1_90 = [(500.0, 0.64), (750.0, 0.58), (1000.0, 0.46), (1250.0, 0.38), (1500.0, 0.30)]
-ZF, BOLT_Z, GW = 103.5134, 127.5134, 4.85
-G1 = (ZF + 3.0, ZF + 3.0 + GW)
-G2 = (G1[1] + 3.0, G1[1] + 3.0 + GW)
-LAND = (G1[1], G2[0])                                   # S01 forward land (the extrusion side of S01)
-BORE, PLUG, GROOVE = (57.250, 57.296), (57.140, 57.170), (51.576, 51.650)
-GW_TOL = (4.85, 4.98)
-ID, CS = (50.39 - 0.46, 50.39 + 0.46), (3.53 - 0.10, 3.53 + 0.10)
-a_b, b_o, r_m = 57.296 / 2.0, 63.5 / 2.0, 5.0         # bore radius (max), case OD radius, plug manifold bore radius
-PRESS = {"MEOP_45_bar_abs": 45.0, "proof_67.5_bar_abs": 67.5, "FA1S_151.04_bar_abs": 151.04}
-P_AMB = 1.01325
+V1 = json.loads((J / "gland_fwd_v352_v1.json").read_text())
+D2 = json.loads((G / "apple_fig52_read_v1.json").read_text())
+IN2MM = 25.4
+RHO_AL = engmat.MATERIALS["AL6061-T6"]["rho"]["v"] * 1e-6      # g/mm3
+RHO_PTFE = engmat.MATERIALS["PTFE"]["rho"]["v"] * 1e-6
 
+# ---------------- (A) FA1S extrusion against [D2]
+fa = V1["extrusion"]["FA1S_151.04_bar_abs"]
+gap = fa["gap_bore_minus_piston_mm"]["total"]
+b90 = D2["bands"]["90 Shore A"]
+r2176 = b90["readings"]["2176_psi"]
+lim = sorted(r2176["log"]["clearance_mm"] + r2176["linear"]["clearance_mm"])
+lim_lo, lim_hi = lim[0], lim[-1]
+p_at_gap = sorted(b90["pressure_at_gap"]["0.2772_mm"]["psi_log"] + b90["pressure_at_gap"]["0.2772_mm"]["psi_linear"])
+cmp_ = {}
+for psi, d1 in ((1000, 0.46), (1500, 0.30)):
+    rr = b90["readings"][f"{psi}_psi"]["log"]["clearance_mm"]
+    cmp_[f"{psi}_psi"] = {"D1_FNST_90_mm": d1, "D2_Apple_90A_mm": rr, "ratio_D1_over_D2_lower": round(d1 / min(rr), 3)}
+ratio = cmp_["1500_psi"]["ratio_D1_over_D2_lower"]
+A = {"pressure_psi_gauge": fa["p_gauge_psi"], "case_temperature_C": 45.6, "case_temperature_source": "[L236] FA1S (js4) 151.04 bar abs, 45.6 C",
+     "gap_diametral_mm": gap, "gap_parts_mm": fa["gap_bore_minus_piston_mm"],
+     "allowable_D2_90A_mm": [lim_lo, lim_hi], "allowable_basis": "lower band edge of the 90 Shore A curve at 2176 psi (log / linear interpolation "
+     "between the 2000 and 3000 psi labels; the chart's labels are equally spaced, not log-uniform)",
+     "MS_D2": round(lim_lo / gap - 1.0, 3), "verdict_D2": "PASS" if gap <= lim_lo else "FAIL",
+     "D2_pressure_at_the_gap_psi": [p_at_gap[0], p_at_gap[-1]],
+     "maker_comparison_90": cmp_,
+     "cross_check_DERIVED_information": {"method": "[D2] 2176-psi limit x the [D1]/[D2] ratio at 1500 psi (the last [D1] row): not a sourced limit",
+                                         "limit_mm": round(lim_lo * ratio, 3), "MS": round(lim_lo * ratio / gap - 1.0, 3)},
+     "MEOP_proof_D2_info": {"note": "[D1] governs MEOP / proof (v1: MS +2.17 / +1.28); [D2] 90 A is wider at those pressures"},
+     "notes": ["[D2] prints no basis (cycles, temperature); FA1S is the FA-1 overpressure case at 45.6 C [L236], so the ring is near "
+               "room temperature at that pressure (the ring reaches 163.0 / 155.8 C GVLO / GVHI only late in the burn at MEOP)",
+               "the two makers differ: at 1500 psi [D1] 0.30 mm vs [D2] 0.627-0.647 mm (ratio 0.48)",
+               "gap: drawing maximum rest 0.156 + pressure growth 0.121 (E at the land's burn-maximum temperature) + thermal 0 = 0.2772"]}
 
-def allow90(psi):
-    if psi > D1_90[-1][0]:
-        return None
-    if psi <= D1_90[0][0]:
-        return D1_90[0][1]
-    return float(np.interp(psi, [p for p, _ in D1_90], [g for _, g in D1_90]))
+# ---------------- (B) PTFE back-up ring option (information for the lead's ruling; no CAD change)
+ZF, GW, LAND_W = 103.5134, 4.85, 3.0
+HOLE_Z0, M5_Z0 = 127.5134 - 2.75, 127.5134 - 2.5
+L_GLAND = (2.80, 2.86)
+D_MEAN_BUR = (57.25 + 51.65) / 2.0
+D_MEAN_GRV = (57.20 + 51.65) / 2.0
+DEPTH_GRV = (57.20 - 51.65) / 2.0
+opts = {}
+for nm, w, w_src in (("none_current", 4.85, "CAD v3.5.2 4.85 +0.13 / 0 ([D5] b1 4.80-5.00; [D4] 0.185 +0.010 in = 4.70-4.95)"),
+                     ("one_BUR_D5", 5.85, "[D5] static table 3.1 b2 5.80-6.00 mm (drawing 5.85 +0.13 / 0 keeps the v1 band inside it)"),
+                     ("one_BUR_D4_AS5857", 6.35, "[D4] AS5857 0.250 +0.010 / -0.000 in = 6.35-6.60 mm")):
+    g1 = (ZF + 3.0, ZF + 3.0 + w)
+    g2 = (g1[1] + LAND_W, g1[1] + LAND_W + w)
+    t_bur = w - GW
+    m_bur = 2 * RHO_PTFE * math.pi * D_MEAN_BUR * L_GLAND[0] * t_bur
+    m_grv = -2 * RHO_AL * math.pi * D_MEAN_GRV * DEPTH_GRV * (w - GW)
+    opts[nm] = {"groove_width_mm": w, "source": w_src, "S01_z_mm": [round(g1[0], 3), round(g1[1], 3)], "S02_z_mm": [round(g2[0], 3), round(g2[1], 3)],
+                "land_S01_S02_mm": LAND_W, "S02_fwd_wall_to_J-FWD_hole_edge_mm": round(HOLE_Z0 - g2[1], 3),
+                "S02_fwd_wall_to_M5_major_mm": round(M5_Z0 - g2[1], 3),
+                "BUR_axial_thickness_allowance_mm": round(t_bur, 2),
+                "mass_delta_g": {"2_PTFE_BUR": round(m_bur, 2), "2_wider_TC-02_grooves": round(m_grv, 2), "net": round(m_bur + m_grv, 2)}}
+B = {"status": "INFORMATION for the lead's ruling: the rule's trigger (fail or not sourced) is not met by [D2]",
+     "placement": "one ring per gland on the low-pressure side = the FORWARD side of S01 and of S02 (the chamber is aft of the injector face; "
+                  "the annulus forward of S02 vents through the J-FWD holes)",
+     "rating_D3": {"maker": "Dichtomatik (Freudenberg FST)", "type": "STR, PTFE, white, >= 51 Shore D", "T_C": [-200, 260], "p_max_MPa": 40,
+                   "qualifier": "'The maximum permissible operating pressure depends on clearance, design of the backup ring and operating conditions'",
+                   "vs_case": {"FA1S_MPa_gauge": round(fa["p_gauge_bar"] / 10.0, 2), "ring_T_max_C": max(V1["thermal_rev4"][g]["ring_T_max_C"] for g in V1["thermal_rev4"])}},
+     "ring_type": "the TC-02 grooves are closed (one-piece plug): [D4] 'Split BURs are required for use in closed gland configurations' -> "
+                  "[D3] STR GS (30 deg slotted); a solid PTFE ring cannot be stretched over the 57.20 plug into the 51.65 groove",
+     "options": opts,
+     "notes": ["the back-up ring also passes the ten J-FWD holes on assembly; a slotted ring's scarf ends must not catch a hole edge "
+               "(covered holes, item C, address this too)",
+               "mass from the gland section (radial 2.80 x the width allowance, mean diameter 54.45) at PTFE 2200 kg/m3, groove removal at "
+               "6061 2700 kg/m3; the TC-02 plug length unchanged",
+               "AS5857 dash-226 maximum diametral clearance read as 0.007 in (0.178 mm) [D4, TO-CONFIRM]: the 0.156 mm drawing maximum is "
+               "inside it at rest; under FA1S the gap is 0.2772"]}
 
+# ---------------- (C) O-ring passage over the J-FWD holes
+CS, CS_TOL = 3.53, 0.10
+GROOVE_R = (51.576 / 2.0, 51.650 / 2.0)
+BORE_R = (57.250 / 2.0, 57.296 / 2.0)
+stretch = [V1["gland"]["stretch_pct"][0], V1["gland"]["stretch_pct"][1]]
+cs_red = lambda cs, st: cs * math.sqrt(100.0 / (100.0 + st))          # [D8]/[D2] p. 3 formula
+y_max = GROOVE_R[1] + cs_red(CS + CS_TOL, stretch[0]) - BORE_R[0]    # ring protrusion beyond the bore before entry, worst stack
+y_nom = 0.5 * (GROOVE_R[0] + GROOVE_R[1]) + cs_red(CS, 0.5 * sum(stretch)) - 0.5 * (BORE_R[0] + BORE_R[1])
+x_leadin = 3.0 * math.tan(math.radians(15.0))
+C = {"geometry": {"holes": "10x d5.5 radial through the TC-01 wall at z 127.513 (zf + 24.0), bore r 28.625-28.648, TC-02 inserted from the "
+                           "forward end through the 15 deg x 3.0 mm lead-in (parts_engine.py); S01 / S02 travel past the hole row to zf + 3.0 / "
+                           "zf + 10.85 (CAD v3.5.2)",
+                  "ring_protrusion_y_mm": {"worst": round(y_max, 3), "nominal": round(y_nom, 3),
+                                           "basis": "groove r + CS reduced for stretch ([D8] formula) - bore r; this is also the most the ring "
+                                                    "section can spring into a hole (free CS minus the gland depth)"},
+                  "leadin_height_x_mm": round(x_leadin, 3),
+                  "leadin_check_D5_Fig2.24_x_gt_y": {"x_minus_y_worst_mm": round(x_leadin - y_max, 4), "x_minus_y_nominal_mm": round(x_leadin - y_nom, 3),
+                                                     "verdict": ("MET at nominal; NOT MET at the worst stack by %.4f mm (x = y to within 0.001)" % (y_max - x_leadin))
+                                                     if y_max > x_leadin else "MET at nominal and at the worst stack",
+                                                     "proposal": "TC-01 lead-in 15 deg x 3.5 mm (x = %.3f, %.3f above the worst y); drawing dimension only, the "
+                                                                 "lead rules before the CAD edit" % (3.5 * math.tan(math.radians(15.0)), 3.5 * math.tan(math.radians(15.0)) - y_max)}},
+     "passage_check": {"guide": "[D5] 2.5.2 / 2.5.6 (+ [D6], [D7], [D8] general)", "hole_size_limit": "none given by any of the guides read",
+                       "finding": "the guide requires more than an edge break: the cross bores must be repositioned, chamfered internally "
+                                  "(Fig. 2.26) or relieved by a balancing groove (Fig. 2.27, 'best'), or, at assembly, 'removed or covered' "
+                                  "(2.5.6).  Repositioning is not possible (the glands must lie between the chamber and the holes, and TC-02 "
+                                  "enters from the forward end).  An internal chamfer that guides a ring springing up to y into the hole would, "
+                                  "by the lead-in rule x > y at 15-20 deg, be about 0.8 mm deep and 2.2-3.0 mm wide around a 5.5 hole in a "
+                                  "3.12 wall, inside the fit-contact annulus FEA3D found at the hole edge (r' 2.43-3.08): a structural change.  "
+                                  "A balancing groove in the TC-01 bore at the screw plane would remove the fit contact there: also structural.",
+                       "proposal": "keep the holes and the bore as drawn; COVER the ten holes during the TC-02 insertion with a fitting aid "
+                                   "([D5] 2.5.6 / 2.5.7) and add the bore-side edge callout (1) and the assembly step (3); no CAD edit of the "
+                                   "engine parts; the fitting aid is a tool drawing (TO-DRAW, Mechanical) if the lead agrees"},
+     "callout_1": ("TC-01, 10x d5.5 J-FWD holes, BORE SIDE: break edge R0.2-R0.4 blended and polished (no chamfer, no step), free of burrs "
+                   "and raised metal; deburr after match-drilling with TC-02 and after any rework, before anodise; 100 % inspection at 10x "
+                   "before assembly (no burr, nick or raised metal at the hole edges or on the bore within 3 mm of a hole); the d10.5 "
+                   "spot-face flat-to-OD edge break 0.1 max stays.  Sizing: R0.2 removes the drilling burr root; R0.4 keeps the edge "
+                   "within 0.4 mm of the FE sharp corner, so the fit-contact annulus (r' 2.43-3.08) is not moved materially (FEA3D keeps "
+                   "its sharp-corner model)."),
+     "fitting_aid_2": ("10x hole plugs, PTFE or POM, d5.5 -0.02/-0.05 shank, inner end machined to the bore radius R28.6 and set flush "
+                       "with the bore (+0 / -0.05) from the OD, retained by an OD band; fitted after deburr / inspection, before TC-02 "
+                       "insertion; withdrawn only after both O-rings (and back-up rings, if adopted) are past the hole row (TC-02 seated on "
+                       "its shoulder), then the screws are fitted.  An equivalent sleeve-type aid is acceptable."),
+     "assembly_step_3": ["clean the bore, the lead-in and the plug; inspect the hole edges and the lead-in at 10x (callout 1)",
+                         "fit the ten flush plugs (fitting aid 2)",
+                         "lubricate the O-rings and the bore lightly with a lubricant compatible with FKM and with the oxidiser service: "
+                         "TO-SELECT (datasheet before use; [D5] 2.5.3: 'Grease used to ease assembly must also be compatible.')",
+                         "stretch each O-ring evenly into its groove (installed stretch 1.43-3.44 %, v1) with a cone or mandrel; no sharp "
+                         "tools; remove any twist ([D8], [D7])",
+                         "clock TC-02 to the TC-01 hole pattern BEFORE the rings enter the lead-in (match-drilled pair marks); push TC-02 "
+                         "in axially without rotation ([D8]: 'Do not turn or twist pistons into cylinders'), steadily, to its shoulder",
+                         "withdraw the plugs; look through each hole at the TC-02 OD for rubber debris (a cut ring leaves debris at the hole); "
+                         "any debris: withdraw TC-02, replace both rings",
+                         "fit and torque the J-FWD screws per J-F1; closure leak check at the existing proof / leak test (reject on any leak)"]}
 
-def lame_bore_growth(p, E):
-    """radial displacement (mm) of the bore of a closed-end thick cylinder under internal gauge pressure p (MPa)."""
-    k = b_o ** 2 - a_b ** 2
-    st, sr, sz = p * (b_o ** 2 + a_b ** 2) / k, -p, p * a_b ** 2 / k
-    return a_b / E * (st - NU * (sr + sz))
-
-
-def plug_shrink(p, E):
-    """radial displacement (mm, negative = inward) of the OD of a hollow plug (bore r_m) under external pressure p (MPa), plane stress."""
-    b = 57.170 / 2.0
-    return -p * b / E * ((b ** 2 + r_m ** 2) / (b ** 2 - r_m ** 2) - NU)
-
-
-# ---- thermal (rev-4 fields): land temperatures and the clearance change, both bounds
-OFF = None
-therm = {}
-for gv in ("GVLO", "GVHI"):
-    lab = f"DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_{gv}"
-    fh = HIST / f"{lab}_hist.npz"
-    z = np.load(fh, allow_pickle=True)
-    info = json.loads(str(z["info"]))
-    off = info["inj_face_z_mm"] - ZF
-    OFF = off
-    t = np.asarray(z["t_s"], float)
-    X1, T1, X2, T2 = z["X_TC01"], z["T_TC01"], z["X_TC02"], z["T_TC02"]
-    w1 = (X1[:, 1] >= LAND[0] + off - 1e-6) & (X1[:, 1] <= LAND[1] + off + 1e-6)
-    w2 = (X2[:, 1] >= LAND[0] + off - 1e-6) & (X2[:, 1] <= LAND[1] + off + 1e-6)
-    rb = X1[w1, 0].min()
-    m1 = w1 & (X1[:, 0] <= rb + 0.15)
-    rp = X2[w2, 0].max()
-    m2 = w2 & (X2[:, 0] >= rp - 0.15)
-    Tc = T1[:, m1].mean(axis=1) - 273.15
-    Tp = T2[:, m2].mean(axis=1) - 273.15
-    dD = np.array([57.25 * (A_T(c) * (c - 20.0) - A_T(q) * (q - 20.0)) for c, q in zip(Tc, Tp)])      # mm, + = clearance opens
-    burn = (t > 0.0) & (t <= 21.651 + 1e-6)
-    ib = int(np.argmax(np.where(burn, dD, -np.inf)))
-    ia = int(np.argmax(dD))
-    # S01 groove: TC-02 groove-bottom / flank nodes and the bore over the groove (the ring's bounding surfaces)
-    g1z = (G1[0] + off, G1[1] + off)
-    mg2 = (X2[:, 1] >= g1z[0] - 1e-6) & (X2[:, 1] <= g1z[1] + 1e-6) & (X2[:, 0] >= GROOVE[0] / 2.0 - 0.1)
-    mg1 = (X1[:, 1] >= g1z[0] - 1e-6) & (X1[:, 1] <= g1z[1] + 1e-6) & (X1[:, 0] <= rb + 0.15)
-    Tring = np.maximum(T2[:, mg2].max(axis=1), T1[:, mg1].max(axis=1)) - 273.15
-    therm[gv] = {"hist": f"tb70/hist/{fh.name}", "sha256_16": sha(fh), "frd_sha256_16": info.get("frd_sha256_16"), "z_offset_thermal_mm": round(off, 4),
-                 "n_nodes_land": [int(m1.sum()), int(m2.sum())], "r_bore_plug_nodes_mm": [round(float(rb), 3), round(float(rp), 3)],
-                 "burn_max_opening": {"t_s": round(float(t[ib]), 3), "T_case_C": round(float(Tc[ib]), 1), "T_plug_C": round(float(Tp[ib]), 1),
-                                      "dD_mm": round(float(dD[ib]), 4)},
-                 "any_frame_max_opening": {"t_s": round(float(t[ia]), 3), "T_case_C": round(float(Tc[ia]), 1), "T_plug_C": round(float(Tp[ia]), 1),
-                                           "dD_mm": round(float(dD[ia]), 4)},
-                 "burn_min_dD_mm": round(float(dD[burn].min()), 4),
-                 "case_land_T_burn_max_C": round(float(Tc[burn].max()), 1), "plug_land_T_burn_max_C": round(float(Tp[burn].max()), 1),
-                 "ring_T_burn_max_C": round(float(Tring[burn].max()), 1), "ring_T_max_C": round(float(Tring.max()), 1),
-                 "t_ring_T_max_s": round(float(t[int(np.argmax(Tring))]), 2)}
-# ---- gap budget per pressure: drawing max clearance + 2 x (case growth - plug OD displacement) + thermal opening (burn max, >= 0)
-c0 = BORE[1] - PLUG[0]
-dth = max(max(therm[g]["burn_max_opening"]["dD_mm"] for g in therm), 0.0)
-Tcase = max(therm[g]["case_land_T_burn_max_C"] for g in therm)
-E_c, E_20 = E_T(Tcase), E_T(20.0)
-rows = {}
-for nm, pa in PRESS.items():
-    pg = (pa - P_AMB) * 0.1
-    ub, up = lame_bore_growth(pg, E_c), plug_shrink(pg, E_c)
-    gap = c0 + 2.0 * (ub - up) + dth
-    psi = (pa - P_AMB) * BAR_PSI
-    al = allow90(psi)
-    rows[nm] = {"p_gauge_bar": round(pa - P_AMB, 2), "p_gauge_psi": round(psi, 0), "case_bore_growth_radial_mm": round(ub, 4),
-                "case_bore_growth_radial_mm_at_20C": round(lame_bore_growth(pg, E_20), 4), "plug_OD_radial_mm": round(up, 4),
-                "gap_bore_minus_piston_mm": {"drawing_max_rest": round(c0, 3), "plus_pressure": round(2.0 * (ub - up), 4), "plus_thermal_burn_max": round(dth, 4),
-                                             "total": round(gap, 4)},
-                "allowable_D1_90duro_mm": al, "MS": (round(al / gap - 1.0, 3) if al else None),
-                "verdict": ("PASS" if al and gap <= al else ("FAIL" if al else "OUTSIDE THE SOURCE TABLE (> 1500 psi: maker to be consulted)"))}
-# ---- squeeze / stretch / fill (static radial gland, [D1] p. 5 criteria)
-L_min, L_max = (BORE[0] - GROOVE[1]) / 2.0, (BORE[1] - GROOVE[0]) / 2.0
-sq_min, sq_max = (CS[0] - L_max) / CS[0], (CS[1] - L_min) / CS[1]
-st_min, st_max = GROOVE[0] / ID[1] - 1.0, GROOVE[1] / ID[0] - 1.0
-fill_max = (math.pi / 4.0 * CS[1] ** 2) / (L_min * GW_TOL[0])
-gland = {"gland_depth_mm": [round(L_min, 3), round(L_max, 3)], "squeeze_pct": [round(100 * sq_min, 1), round(100 * sq_max, 1)],
-         "stretch_pct": [round(100 * st_min, 2), round(100 * st_max, 2)], "fill_max_pct": round(100 * fill_max, 1),
-         "criteria_D1": "squeeze >= 5 %, target 20 %, max 30 %; fill target 75 %, max 85 %",
-         "pass": bool(sq_min >= 0.05 and sq_max <= 0.30 and fill_max <= 0.85)}
-pos = {"S01_z_mm": [round(G1[0], 3), round(G1[1], 3)], "S02_z_mm": [round(G2[0], 3), round(G2[1], 3)], "S01_forward_land_z_mm": [round(LAND[0], 3), round(LAND[1], 3)],
-       "injector_face_z_mm": ZF, "jfwd_hole_d5.5_z_mm": [round(BOLT_Z - 2.75, 3), round(BOLT_Z + 2.75, 3)], "tap_M5_major_z_mm": [round(BOLT_Z - 2.5, 3), round(BOLT_Z + 2.5, 3)],
-       "hole_edge_to_S02_forward_wall_mm": round(BOLT_Z - 2.75 - G2[1], 3), "M5_major_to_S02_forward_wall_mm": round(BOLT_Z - 2.5 - G2[1], 3),
-       "statement": ("S01 (gland 1) and S02 lie between the chamber (aft of the injector face) and the J-FWD holes: from the chamber, the "
-                     "bore / plug annulus is gas-wetted only up to S01; the holes and taps are forward of S02 in the dry annulus, which is "
-                     "vented to ambient through the holes and the case end; the holes are not wetted unless both S01 and S02 leak")}
-out = {"id": "gland_fwd_v352", "version": "v1", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
-       "o_ring": {"part": "HW-150 SAE AS568-226 FKM 90A (BOM; TC-02 drawing note), qty 2 (S01, S02), no back-up ring (groove 4.85 wide, no "
-                          "back-up ring line in the BOM)", "ID_mm": [round(x, 2) for x in ID], "CS_mm": [round(x, 2) for x in CS],
-                  "dims_source": "[D1] p. 16 (the BOM line HW-150 gives ID 47.22 = the -225 ID, AS RECALLED: corrected in hardware v1.5)"},
-       "positions": pos, "thermal_rev4": therm, "E_case_MPa_at_T": {"T_C": Tcase, "E_MPa": round(E_c, 0)}, "extrusion": rows, "gland": gland,
-       "notes": ["the [D1] table carries no temperature statement; the ring temperature at its bounding surfaces is listed per bound "
-                 "(FKM compound rating and hot hardness TO-SOURCE for the purchased ring)",
-                 "MEOP / proof treated as absolute pressures; as gauge they change the gap by < 0.001 mm"]}
+out = {"id": "gland_fwd_v352", "version": "v2", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
+       "inputs": {"gland_fwd_v352_v1.json": sha(J / "gland_fwd_v352_v1.json"), "gland_fwd_v352_v1.py": sha(J / "gland_fwd_v352_v1.py"),
+                  "apple_fig52_read_v1.json": sha(G / "apple_fig52_read_v1.json"), "apple_fig52_read.py": sha(G / "apple_fig52_read.py"),
+                  "D2_pdf_sha256_16": "6d89407fdfa50cba", "D2_digitise": {k: D2[k] for k in ("x_grid_lines_pt", "pt_per_0.008in", "x_origin_grid_pt", "legend_tints")}},
+       "v1_rows_carried": {"extrusion": V1["extrusion"], "gland": V1["gland"], "positions": V1["positions"]},
+       "A_FA1S_extrusion": A, "B_backup_ring_option": B, "C_passage_over_JFWD_holes": C}
 s = json.dumps(out, indent=1, default=float)
 OUT.write_text(s)
-print(OUT, hashlib.sha256(s.encode()).hexdigest()[:16])
-print(json.dumps(pos))
-for g, v in therm.items():
-    print(g, {k: v[k] for k in ("z_offset_thermal_mm", "n_nodes_land", "r_bore_plug_nodes_mm", "burn_max_opening", "any_frame_max_opening", "burn_min_dD_mm", "case_land_T_burn_max_C", "ring_T_burn_max_C", "ring_T_max_C", "t_ring_T_max_s")})
-for k, v in rows.items():
+print(OUT.name, hashlib.sha256(s.encode()).hexdigest()[:16])
+print(json.dumps(A, indent=1)[:2500])
+for k, v in opts.items():
     print(k, v)
-print(gland)
+print(json.dumps(C["geometry"], indent=1))

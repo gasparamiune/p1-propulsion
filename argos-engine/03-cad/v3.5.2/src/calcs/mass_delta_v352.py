@@ -13,7 +13,9 @@ d14.5 thread relief at the d10 shoulder (-39.95 mm3, 6061-T6); TC-03 thread unde
 below the shoulder (-61.03 mm3, GlidCop AL-15); J-FWD head-seat option (a) d10.5 OD spot face kept as a rev-4 parameter, OFF in this set
 (-0.505 g if the lead adopts it at FA1S; v352/checks/test_r4_v1.json).
 v6 (2026-10-20, interim rev 4 + J-FWD head seat (a), lead 07:21Z: d10.5 spot face ADOPTED on FEA3D's FA1S [DERIVED] seat checks):
-TC-01 10x d10.5 flat at r 31.313 (wall 2.688 at the hole), -0.505 g (CAD, 6061-T6; v352/checks/test_r4s_v1.json)."""
+TC-01 10x d10.5 flat at r 31.313 (wall 2.688 at the hole), -0.505 g (CAD, 6061-T6; v352/checks/test_r4s_v1.json).
+v7 (2026-10-20, lead 08:40Z item 3 'HW-150 sourced size (AS568-226, ID 50.39 x CS 3.53) accepted. Publish massdelta v7 (+0.37 g)'):
+hardware_v352 v1.6, HW-150 2x AS568-226 FKM 90A unit mass 2.965 -> 3.150 g (CALC torus on the sourced ID, FKM 1900 kg/m3 ASSUMED)."""
 import json, hashlib, sys
 from pathlib import Path
 CAD = Path(__file__).resolve().parents[2]
@@ -56,7 +58,9 @@ WHY = {"ENG-TC-09": "lead 206 (2a) TC-09 thinning: barrel radial wall 2.47 -> 1.
        "ENG-NZ-06": "lead 212 N-F2: NZ-06 flexible-graphite foil 0.25 mm (CAD)",
        "ENG-HW-101": "item 11 (lead 231 (1)): HW-101 8 -> 10x ISO 7380-1 M5 x 10 A4-80 (CALC)",
        "ENG-HW-103": "item 2: HW-103 2x M3 x 16 A4-70 -> 2x M4 x 20 A4-80 (CALC)",
-       "ENG-HW-103B": "item 2: HW-103B 1x M4 x 16 A4-80 added (CALC)"}
+       "ENG-HW-103B": "item 2: HW-103B 1x M4 x 16 A4-80 added (CALC)",
+       "ENG-HW-150": "hardware v1.6 (lead 08:40Z item 3): 2x AS568-226 FKM 90A on the sourced size ID 50.39 x CS 3.53 (FNST p. 16), CALC torus x FKM "
+                     "1900 kg/m3 ASSUMED, 2.965 -> 3.150 g each (the v3.5.1 CALC used the -225 ID 47.22, AS RECALLED)"}
 for r in rows:
     r["why"] = WHY.get(r["pn"], "hardware carried scale max(0.20 kg, CALC) / host CG redistribution" if r["pn"].startswith("ENG-HW") else "TO-EXPLAIN")
 st = {}
@@ -77,7 +81,7 @@ gnc = {"rule": "GNC re-fly if the CONFIRMED landing-mass growth vs the v3.5.1 le
        "verdict": ("BELOW the trigger with and without the conditional TC-09 thinning: no re-fly by mass" if max(dl, dl - tc09) < TRIG
                    else "AT OR ABOVE the trigger: GNC re-fly"),
        "evidence": "CALC (CAD volume x engmat density + hardware CALC); not weighed, so not a 'confirmed' mass; COTS masses unchanged"}
-out = {"id": "massdelta_v3.5.2_vs_v3.5.1", "version": "v6", "date": "2026-10-20", "owner": "mechanical", "units": "kg, mm, kg m2; engine frame, origin pivot (frozen)",
+out = {"id": "massdelta_v3.5.2_vs_v3.5.1", "version": "v7", "date": "2026-10-20", "owner": "mechanical", "units": "kg, mm, kg m2; engine frame, origin pivot (frozen)",
        "files": {"v351": {"path": "03-cad/v3.5.1/massprops_v3.5.1.json", "sha256_16": sha(A)}, "v352": {"path": "03-cad/v3.5.2/massprops_v3.5.2.json", "sha256_16": sha(B)}},
        "status": ("INTERIM v3.5.2 set (lead resume 2026-10-19: lever roots, J-FD01, J-FD09, J-FWD per line 231 for the FEA3D re-check; rev 4 "
                   "TC-02 / TC-03 seat relief; J-FWD head seat (a) d10.5 spot face, lead 07:21Z); NOT a frozen baseline: TC-09 thinning is conditional on its re-run"),
@@ -90,7 +94,8 @@ out = {"id": "massdelta_v3.5.2_vs_v3.5.1", "version": "v6", "date": "2026-10-20"
                       "J-FD09: A4-80 1.8 N m (item 3, no mass change)", "FD-04 shield top trim (J-FWD screw-head clearance 1.0 mm)",
                       "hardware_v352 v1.4 (v1.3 / v1.4 change torque, test and interval fields only: no mass change vs v1.2)",
                       "rev 4 TC-02 / TC-03 seat relief (lead 05:42Z item 4, 06:05Z item 4, 06:23Z items 2-3): -0.651 g for the pair",
-                      "J-FWD head seat (a): TC-01 10x d10.5 spot face (lead 07:21Z, FEA3D FA1S seat checks): -0.505 g"],
+                      "J-FWD head seat (a): TC-01 10x d10.5 spot face (lead 07:21Z, FEA3D FA1S seat checks): -0.505 g",
+                      "hardware_v352 v1.6: HW-150 2x AS568-226 on the sourced size (lead 08:40Z item 3; CALC torus, FKM 1900 kg/m3 ASSUMED): +0.37 g"],
        "not_in": {"(2b) HW-126 ICD-1L Ti": "-7.47 g CALC, needs the airframe ICD agreement",
                   "(2b) HW-113 / HW-115 / HW-124 Ti": "-8.4 g CALC only if the lead accepts the 50 mm R3 distance (line of sight not credited)",
                   "(2c) 316L -> 6061 upstream of the MV": "only FD-12F (13.5 g 316L, socket for the 316L tank line: dissimilar braze/weld) is upstream; ~9 g; not pursued",
