@@ -1,0 +1,6194 @@
+{
+ "id": "jfwd_head_fillet_v352",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "J-FWD ENG-HW-101-IN718 head-to-shank undercut fillet: a static row and an LCF row on the FE moment at the head end (lead 17:55:55Z F3\nADD: 'the screw's own head-to-shank undercut fillet needs a static row and an LCF row on the FE moment at the head end, with a sourced Kt\ncited by page (TO-SOURCE).  Time-box it like the MJ box.  If it governs over the thread root, say so.').  Mechanical, 2026-10-20, v1.\nCALC on SIM temperatures and FE section resultants; DERIVED unless tagged; software estimate, not a test; negatives SHOWN AS FOUND.\n\nGeometry (F3 ADOPTED): undercut fillet r 0.2-0.3 into the head, entirely above the bearing face; pilot 5.15 h9 (5.120-5.150) x 0.25-0.30;\nda 5.55-5.80; head dk 9.14-9.5 (ISO 7380-1 M5, the rows' fasten.it basis).  The fillet root section is the pilot, d_f = 5.120 (h9 minimum).\nLoads, per state and history (relax v7 / rows v7 histories on FEA3D's ADOPTED envelope v3 0872de4ea7e3601d): the FE section resultants at\nthe HEAD END: M_he = the largest |M| over the screw sections at x' >= 30.9 mm (the seat, i.e. the head bearing face, is at x' 31.313):\ncompare.json 'screw_sections' x' 31.0 for js5 (patch (a)'s global columns) and (a) / (a') / (a'') (patch columns); shank.json x' 31.0 and\n31.25 for (b2) and '(b2) rep'.  N = the rows' section force N_section_max (the largest over the shank; conservative at the head end).  Both\nare scaled to IN718 exactly as the rows' screw-fibre row (N x N_IN718 / N_head; M x tilt ratio x max(1, Fc_IN718 / Fc_FE)) at the J-F1 cap\n3750 N (GOVERNING, lead F1) and 4096 N (information).  The cold end of the firing range is the lowest PRELOAD section force and head-end\nmoment x F_V / 3750 (the rows' convention).  The FE has no spring, no pilot and no fillet: its head-end resultants are carried to the\nroute-(i) screw over the solid spring (a flat washer) - ASSUMED.\nKt (the time-boxed search, 18:12-18:25Z, closed as below):\n  QUOTED (web source, BOOK PAGE TO-SOURCE): stepped round bar with a shoulder fillet, Kt = C1 + C2 (2h/D) + C3 (2h/D)^2 + C4 (2h/D)^3 for\n  2.0 <= h/r <= 20.0, tension and bending coefficients as printed on AMESweb 'Shoulder fillet in a stepped circular shaft'\n  (https://amesweb.info/StressConcentrationFactor/SteppedShaftWithShoulderFillet.aspx, accessed 2026-10-20, read twice), which cites\n  W. D. Pilkey, Formulas for Stress, Strain, and Structural Matrices, 2nd ed., John Wiley & Sons, 2005 (no chart, table or page given on the\n  web page: the page number in Pilkey 2005 is TO-SOURCE).  h = (D - d) / 2 (ASSUMED: the page does not define h); the page renders the cubic\n  as '(C3 (2h/D))^2 + (C4 (2h/D))^3': the standard form is quoted and the page's literal reading is a sensitivity (it gives the larger Kt).\n  NOT SOURCED: the bolt-head (T-head) loading, the head-bearing reaction next to the fillet, which the stepped-bar fit does not contain (it can\n  be unconservative there).  Found, not usable: F. I. Baratta, 'Stress Concentration Factors in T-Heads', AMRA TR 66-36, U.S. Army Materials\n  Research Agency, Nov 1966 (DTIC AD0649808; WebFetch text of a scan), Heywood's empirical formula (R. B. Heywood, Designing by\n  Photoelasticity, Chapman & Hall, 1952, p. 178) as its Eq. 9-10 (p. 5): two-dimensional, validity D/d >= 2.0 and head depth h/d >= 3.0\n  (the ISO 7380-1 head here: D/d 1.78-1.86, head height about 0.54 d): outside its range, and the scan's equation text is not legible\n  (TO-VERIFY).  Not reachable: fchartsoftware.com and the Kyutech repository PDFs (Noda et al.) and apps.dtic.mil by curl (proxy 403, not\n  retried), sack.de (robots).  Roark 8th ed. bending fit (via L. Rogers and R. A. Fleming, ASEE Midwest 2025, peer.asee.org/57831.pdf):\n  0.25 <= h/r <= 2.0 only, not applicable (h/r here 6.6-11.0).\n  So the rows quote the stepped-bar Kt AND the BREAK-EVEN Kt at which the fillet would govern over the thread root and at which it reaches\n  N_allow 50 (MS 0).\nStatic row: net section at the fillet root: nominal fibre S = N / A_f + M / Z_f at each hot state (SOAK70 / SOAK / SOAK52, and FA1S) against\n  IN718 Fty(T) (MS_y) and Ftu(T) (MS_u) at the rows' screw temperature (engmat SMC-045 minima), no Kt (ductile; the rows' screw-fibre\n  convention); the local elastic peak Kt_t S_ax + Kt_b S_b and its Neuber strain (FEA3D's curve, n 15 / 30) as information.\nLCF row: the screw LCF v2 method unchanged (183 (1)(c): N_allow = min(N_f(de) / 20, N_f(2 de)) >= 50; Neuber with Kf; Manson universal slopes\n  on the AMS 5663 minimum RA 0.15, Su = Ftu(T); Masing for the cyclic range) with Kf = Kt (notch sensitivity q = 1, ASSUMED: no credit),\n  the tension and bending peaks combined as Kt_eff = (Kt_t S_ax + Kt_b S_b) / (S_ax + S_b); ranges (i) per firing (cold preload -> hot soak),\n  (ii) assembly from zero (monotonic), (ii') stable re-assembly (information), as the thread-root rows.  The functions are copied from\n  jfwd_screw_lcf_v352.py and one LCF v2 thread-root row is reproduced exactly before use.\nComparison: the thread-root LCF v2 rows (Kf 3.0 on A_s 14.18 / Z_3 6.373 at the max-moment section) at the same preload: the fillet governs\n  where its N_allow is the lower.",
+ "status": "CALC; Kt basis WEB-SOURCED, BOOK PAGE TO-SOURCE; bolt-head (T-head) loading NOT SOURCED; negatives SHOWN AS FOUND",
+ "inputs": {
+  "rows_v7_module": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_in718_rows_v352.py",
+   "sha256_16": "880ffe58c8af05e6"
+  },
+  "rows_v7_json": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_in718_rows_v352_v7.json",
+   "sha256_16": "6113d28b64d0dba5"
+  },
+  "relax_v7_module": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_relax_v352.py",
+   "sha256_16": "82221fdf0035f338"
+  },
+  "screw_lcf_v2": {
+   "path": "/home/claude/work/mechanical/v352/jfwd/jfwd_screw_lcf_v352.py",
+   "sha256_16": "099134dde5574c61",
+   "json": "/home/claude/work/mechanical/v352/jfwd/jfwd_screw_lcf_v352_v2.json",
+   "json_sha256_16": "6acdaa2febdf3f6c"
+  },
+  "fea3d_soak_envelope": {
+   "path": "/home/claude/work/fea3d/results/v352/jfwd_soak_envelope_v352_v3.json",
+   "sha256_16": "0872de4ea7e3601d"
+  },
+  "fe_sections": "compare.json screw_sections (x' 28.7-31.0) and (b2) shank.json sections (x' 26.4-31.25); seat x' 31.313"
+ },
+ "geometry_F3": {
+  "pilot_d_mm": [
+   5.12,
+   5.15
+  ],
+  "fillet_r_mm": [
+   0.2,
+   0.3
+  ],
+  "head_dk_mm": [
+   9.14,
+   9.5
+  ],
+  "d_f_used_mm": 5.12,
+  "A_f_mm2": 20.589,
+  "Z_f_mm3": 13.177,
+  "thread_A_s_mm2": 14.18,
+  "thread_Z_3_mm3": 6.373,
+  "section_ratio_axial_A_s_over_A_f": 0.6887,
+  "section_ratio_bending_Z_3_over_Z_f": 0.4837
+ },
+ "Kt_search_time_box": {
+  "window": "18:12-18:25Z (2026-10-20)",
+  "quoted": {
+   "source": "AMESweb 'Shoulder fillet in a stepped circular shaft', https://amesweb.info/StressConcentrationFactor/SteppedShaftWithShoulderFillet.aspx (accessed 2026-10-20), citing W. D. Pilkey, Formulas for Stress, Strain, and Structural Matrices, 2nd ed., Wiley, 2005",
+   "page": "TO-SOURCE (not given on the web page)",
+   "form": "Kt = C1 + C2 (2h/D) + C3 (2h/D)^2 + C4 (2h/D)^3, 2 <= h/r <= 20",
+   "h_definition": "h = (D - d) / 2 ASSUMED (not defined on the page)",
+   "status": "WEB-SOURCED; book page TO-SOURCE; geometry = stepped bar, not a bolt head"
+  },
+  "not_sourced": "bolt-head (T-head) loading: the head-bearing reaction next to the fillet",
+  "found_not_usable": [
+   "F. I. Baratta, Stress Concentration Factors in T-Heads, AMRA TR 66-36, Nov 1966, DTIC AD0649808: Heywood's formula (Designing by Photoelasticity, 1952, p. 178) as Eq. 9-10 (p. 5); 2-D; valid D/d >= 2.0 and h/d >= 3.0 (here D/d 1.78-1.86, head height ~0.54 d); scan text not legible (TO-VERIFY)",
+   "Roark 8th ed. (Young, Budynas, Sadegh 2011) bending fit via Rogers & Fleming, ASEE Midwest 2025 (peer.asee.org/57831.pdf): 0.25 <= h/r <= 2.0 only (here 6.6-11.0)"
+  ],
+  "not_reachable": [
+   "fchartsoftware.com (curl: proxy 403)",
+   "kyutech.repo.nii.ac.jp PDFs, Noda et al. (curl: proxy 403)",
+   "apps.dtic.mil PDF by curl (proxy 403)",
+   "sack.de (robots)"
+  ],
+  "closed": "PARTLY SOURCED: stepped-bar Kt quoted (web source, page TO-SOURCE); the bolt-head factor is NOT SOURCED; the break-even Kt below says how far the quoted Kt may be wrong before the fillet governs"
+ },
+ "Kt_table": {
+  "D9.14|d5.12|r0.2|tension": {
+   "standard": 2.5602,
+   "page_literal_sensitivity": 2.8445,
+   "h_over_r": 10.05,
+   "two_h_over_D": 0.4398
+  },
+  "D9.14|d5.12|r0.2|bending": {
+   "standard": 2.441,
+   "page_literal_sensitivity": 2.4138,
+   "h_over_r": 10.05,
+   "two_h_over_D": 0.4398
+  },
+  "D9.14|d5.12|r0.3|tension": {
+   "standard": 2.2575,
+   "page_literal_sensitivity": 2.5668,
+   "h_over_r": 6.7,
+   "two_h_over_D": 0.4398
+  },
+  "D9.14|d5.12|r0.3|bending": {
+   "standard": 2.123,
+   "page_literal_sensitivity": 2.0713,
+   "h_over_r": 6.7,
+   "two_h_over_D": 0.4398
+  },
+  "D9.14|d5.15|r0.2|tension": {
+   "standard": 2.5616,
+   "page_literal_sensitivity": 2.8449,
+   "h_over_r": 9.975,
+   "two_h_over_D": 0.4365
+  },
+  "D9.14|d5.15|r0.2|bending": {
+   "standard": 2.4437,
+   "page_literal_sensitivity": 2.4155,
+   "h_over_r": 9.975,
+   "two_h_over_D": 0.4365
+  },
+  "D9.14|d5.15|r0.3|tension": {
+   "standard": 2.2588,
+   "page_literal_sensitivity": 2.5643,
+   "h_over_r": 6.65,
+   "two_h_over_D": 0.4365
+  },
+  "D9.14|d5.15|r0.3|bending": {
+   "standard": 2.1256,
+   "page_literal_sensitivity": 2.0749,
+   "h_over_r": 6.65,
+   "two_h_over_D": 0.4365
+  },
+  "D9.5|d5.12|r0.2|tension": {
+   "standard": 2.5815,
+   "page_literal_sensitivity": 2.857,
+   "h_over_r": 10.95,
+   "two_h_over_D": 0.4611
+  },
+  "D9.5|d5.12|r0.2|bending": {
+   "standard": 2.4557,
+   "page_literal_sensitivity": 2.4487,
+   "h_over_r": 10.95,
+   "two_h_over_D": 0.4611
+  },
+  "D9.5|d5.12|r0.3|tension": {
+   "standard": 2.2747,
+   "page_literal_sensitivity": 2.6057,
+   "h_over_r": 7.3,
+   "two_h_over_D": 0.4611
+  },
+  "D9.5|d5.12|r0.3|bending": {
+   "standard": 2.1323,
+   "page_literal_sensitivity": 2.0745,
+   "h_over_r": 7.3,
+   "two_h_over_D": 0.4611
+  },
+  "D9.5|d5.15|r0.2|tension": {
+   "standard": 2.5832,
+   "page_literal_sensitivity": 2.8597,
+   "h_over_r": 10.875,
+   "two_h_over_D": 0.4579
+  },
+  "D9.5|d5.15|r0.2|bending": {
+   "standard": 2.4586,
+   "page_literal_sensitivity": 2.4494,
+   "h_over_r": 10.875,
+   "two_h_over_D": 0.4579
+  },
+  "D9.5|d5.15|r0.3|tension": {
+   "standard": 2.2762,
+   "page_literal_sensitivity": 2.6041,
+   "h_over_r": 7.25,
+   "two_h_over_D": 0.4579
+  },
+  "D9.5|d5.15|r0.3|bending": {
+   "standard": 2.1351,
+   "page_literal_sensitivity": 2.0782,
+   "h_over_r": 7.25,
+   "two_h_over_D": 0.4579
+  }
+ },
+ "Kt_quoted_r0.2": {
+  "tension": 2.5832,
+  "bending": 2.4586
+ },
+ "Kt_page_literal_r0.2_sensitivity": {
+  "tension": 2.8597,
+  "bending": 2.4494
+ },
+ "Kt_r0.3_info": {
+  "tension": 2.2762,
+  "bending": 2.1351
+ },
+ "rows": {
+  "3750|quoted_r0.2": {
+   "SOAK70|js5": {
+    "T_C": 158.6,
+    "N_section_N": 6180.7,
+    "M_head_end_IN718_Nmm": 1424.0,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK70",
+    "S_axial_MPa": 300.2,
+    "S_bending_MPa": 108.1,
+    "S_nominal_MPa": 408.3,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.44,
+    "static_MS_u_net": 1.891,
+    "local_elastic_peak_MPa_info": 1041.2,
+    "Kt_eff": 2.5502,
+    "local_neuber_strain_n15_n30_info": [
+     0.00591,
+     0.00581
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 704.7,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 210.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 535.8,
+     "local_de": 0.00277,
+     "N_f": 25574523.7,
+     "N_f_at_2de": 121359.1,
+     "N_allow": 121359.1,
+     "MS_cycles_vs_50": 2426.182
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 950.3,
+     "local_de": 0.00591,
+     "N_f": 79602.5,
+     "N_f_at_2de": 2198.7,
+     "N_allow": 2198.7,
+     "MS_cycles_vs_50": 42.974
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1041.2,
+     "local_de": 0.00539,
+     "N_f": 147981.2,
+     "N_f_at_2de": 3184.9,
+     "N_allow": 3184.9,
+     "MS_cycles_vs_50": 62.698
+    }
+   },
+   "SOAK70|(a)": {
+    "T_C": 158.6,
+    "N_section_N": 7026.7,
+    "M_head_end_IN718_Nmm": 2670.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 341.3,
+    "S_bending_MPa": 202.7,
+    "S_nominal_MPa": 544.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.831,
+    "static_MS_u_net": 1.17,
+    "local_elastic_peak_MPa_info": 1379.9,
+    "Kt_eff": 2.5368,
+    "local_neuber_strain_n15_n30_info": [
+     0.00945,
+     0.00965
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 965.6,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 345.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 877.2,
+     "local_de": 0.00454,
+     "N_f": 512347.9,
+     "N_f_at_2de": 6871.5,
+     "N_allow": 6871.5,
+     "MS_cycles_vs_50": 136.43
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1022.3,
+     "local_de": 0.00965,
+     "N_f": 5189.5,
+     "N_f_at_2de": 422.1,
+     "N_allow": 259.5,
+     "MS_cycles_vs_50": 4.19
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1378.4,
+     "local_de": 0.00716,
+     "N_f": 24272.2,
+     "N_f_at_2de": 1087.8,
+     "N_allow": 1087.8,
+     "MS_cycles_vs_50": 20.756
+    }
+   },
+   "SOAK70|(a')": {
+    "T_C": 158.6,
+    "N_section_N": 6098.7,
+    "M_head_end_IN718_Nmm": 1412.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 296.2,
+    "S_bending_MPa": 107.2,
+    "S_nominal_MPa": 403.4,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.469,
+    "static_MS_u_net": 1.926,
+    "local_elastic_peak_MPa_info": 1028.7,
+    "Kt_eff": 2.5501,
+    "local_neuber_strain_n15_n30_info": [
+     0.0058,
+     0.0057
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 696.5,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 205.2,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 523.3,
+     "local_de": 0.00271,
+     "N_f": 31033398.6,
+     "N_f_at_2de": 142819.6,
+     "N_allow": 142819.6,
+     "MS_cycles_vs_50": 2855.392
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 944.9,
+     "local_de": 0.0058,
+     "N_f": 90028.8,
+     "N_f_at_2de": 2365.6,
+     "N_allow": 2365.6,
+     "MS_cycles_vs_50": 46.312
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1028.6,
+     "local_de": 0.00533,
+     "N_f": 161031.0,
+     "N_f_at_2de": 3351.6,
+     "N_allow": 3351.6,
+     "MS_cycles_vs_50": 66.032
+    }
+   },
+   "SOAK70|(a'')": {
+    "T_C": 158.6,
+    "N_section_N": 6094.1,
+    "M_head_end_IN718_Nmm": 1397.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 296.0,
+    "S_bending_MPa": 106.1,
+    "S_nominal_MPa": 402.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.478,
+    "static_MS_u_net": 1.935,
+    "local_elastic_peak_MPa_info": 1025.4,
+    "Kt_eff": 2.5503,
+    "local_neuber_strain_n15_n30_info": [
+     0.00577,
+     0.00567
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 693.9,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 203.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 519.9,
+     "local_de": 0.00269,
+     "N_f": 32713350.5,
+     "N_f_at_2de": 149346.3,
+     "N_allow": 149346.3,
+     "MS_cycles_vs_50": 2985.926
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 943.4,
+     "local_de": 0.00577,
+     "N_f": 93025.1,
+     "N_f_at_2de": 2412.1,
+     "N_allow": 2412.1,
+     "MS_cycles_vs_50": 47.242
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1025.3,
+     "local_de": 0.00531,
+     "N_f": 164706.3,
+     "N_f_at_2de": 3397.7,
+     "N_allow": 3397.7,
+     "MS_cycles_vs_50": 66.954
+    }
+   },
+   "SOAK70|(b2)": {
+    "T_C": 158.6,
+    "N_section_N": 8297.1,
+    "M_head_end_IN718_Nmm": 4401.7,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK70",
+    "S_axial_MPa": 403.0,
+    "S_bending_MPa": 334.0,
+    "S_nominal_MPa": 737.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.351,
+    "static_MS_u_net": 0.601,
+    "local_elastic_peak_MPa_info": 1862.3,
+    "Kt_eff": 2.5267,
+    "local_neuber_strain_n15_n30_info": [
+     0.01616,
+     0.01701
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1272.3,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 538.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1360.3,
+     "local_de": 0.00706,
+     "N_f": 26273.6,
+     "N_f_at_2de": 1140.3,
+     "N_allow": 1140.3,
+     "MS_cycles_vs_50": 21.806
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1056.0,
+     "local_de": 0.01701,
+     "N_f": 617.5,
+     "N_f_at_2de": 96.6,
+     "N_allow": 30.9,
+     "MS_cycles_vs_50": -0.382
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1787.8,
+     "local_de": 0.01005,
+     "N_f": 4322.9,
+     "N_f_at_2de": 375.3,
+     "N_allow": 216.1,
+     "MS_cycles_vs_50": 3.322
+    }
+   },
+   "SOAK|js5": {
+    "T_C": 127.0,
+    "N_section_N": 8257.2,
+    "M_head_end_IN718_Nmm": 4479.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK",
+    "S_axial_MPa": 401.1,
+    "S_bending_MPa": 340.0,
+    "S_nominal_MPa": 741.0,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 0.356,
+    "static_MS_u_net": 0.611,
+    "local_elastic_peak_MPa_info": 1871.9,
+    "Kt_eff": 2.526,
+    "local_neuber_strain_n15_n30_info": [
+     0.01606,
+     0.0169
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1352.1,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 542.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1370.0,
+     "local_de": 0.00705,
+     "N_f": 26934.6,
+     "N_f_at_2de": 1153.8,
+     "N_allow": 1153.8,
+     "MS_cycles_vs_50": 22.076
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1064.9,
+     "local_de": 0.0169,
+     "N_f": 633.7,
+     "N_f_at_2de": 98.3,
+     "N_allow": 31.7,
+     "MS_cycles_vs_50": -0.366
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1799.2,
+     "local_de": 0.01,
+     "N_f": 4460.4,
+     "N_f_at_2de": 382.0,
+     "N_allow": 223.0,
+     "MS_cycles_vs_50": 3.46
+    }
+   },
+   "SOAK|(a)": {
+    "T_C": 127.0,
+    "N_section_N": 6589.0,
+    "M_head_end_IN718_Nmm": 1056.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 320.0,
+    "S_bending_MPa": 80.2,
+    "S_nominal_MPa": 400.2,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.511,
+    "static_MS_u_net": 1.984,
+    "local_elastic_peak_MPa_info": 1023.8,
+    "Kt_eff": 2.5582,
+    "local_neuber_strain_n15_n30_info": [
+     0.00569,
+     0.00558
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 728.6,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 202.0,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 516.8,
+     "local_de": 0.00266,
+     "N_f": 37809454.3,
+     "N_f_at_2de": 168780.7,
+     "N_allow": 168780.7,
+     "MS_cycles_vs_50": 3374.614
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 946.9,
+     "local_de": 0.00569,
+     "N_f": 105129.5,
+     "N_f_at_2de": 2586.9,
+     "N_allow": 2586.9,
+     "MS_cycles_vs_50": 50.738
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1023.8,
+     "local_de": 0.00526,
+     "N_f": 180506.9,
+     "N_f_at_2de": 3581.3,
+     "N_allow": 3581.3,
+     "MS_cycles_vs_50": 70.626
+    }
+   },
+   "SOAK|(a')": {
+    "T_C": 127.0,
+    "N_section_N": 6307.0,
+    "M_head_end_IN718_Nmm": 126.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 306.3,
+    "S_bending_MPa": 9.6,
+    "S_nominal_MPa": 316.0,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 2.18,
+    "static_MS_u_net": 2.779,
+    "local_elastic_peak_MPa_info": 815.0,
+    "Kt_eff": 2.5794,
+    "local_neuber_strain_n15_n30_info": [
+     0.00422,
+     0.00419
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 640.8,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 117.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 303.8,
+     "local_de": 0.00156,
+     "N_f": 3086697355.1,
+     "N_f_at_2de": 10089690.8,
+     "N_allow": 10089690.8,
+     "MS_cycles_vs_50": 201792.816
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 807.6,
+     "local_de": 0.00422,
+     "N_f": 913590.2,
+     "N_f_at_2de": 9988.5,
+     "N_allow": 9988.5,
+     "MS_cycles_vs_50": 198.77
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 815.0,
+     "local_de": 0.00419,
+     "N_f": 979305.3,
+     "N_f_at_2de": 10460.8,
+     "N_allow": 10460.8,
+     "MS_cycles_vs_50": 208.216
+    }
+   },
+   "SOAK|(a'')": {
+    "T_C": 127.0,
+    "N_section_N": 6036.1,
+    "M_head_end_IN718_Nmm": 727.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 293.2,
+    "S_bending_MPa": 55.2,
+    "S_nominal_MPa": 348.4,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.884,
+    "static_MS_u_net": 2.428,
+    "local_elastic_peak_MPa_info": 893.0,
+    "Kt_eff": 2.5635,
+    "local_neuber_strain_n15_n30_info": [
+     0.00471,
+     0.00461
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 539.8,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 150.2,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 385.0,
+     "local_de": 0.00198,
+     "N_f": 431022672.5,
+     "N_f_at_2de": 1521974.1,
+     "N_allow": 1521974.1,
+     "MS_cycles_vs_50": 30438.482
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 870.6,
+     "local_de": 0.00471,
+     "N_f": 404427.4,
+     "N_f_at_2de": 5897.2,
+     "N_allow": 5897.2,
+     "MS_cycles_vs_50": 116.944
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 893.0,
+     "local_de": 0.00459,
+     "N_f": 488718.7,
+     "N_f_at_2de": 6649.7,
+     "N_allow": 6649.7,
+     "MS_cycles_vs_50": 131.994
+    }
+   },
+   "SOAK|(b2)": {
+    "T_C": 127.0,
+    "N_section_N": 5616.9,
+    "M_head_end_IN718_Nmm": 1174.4,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK",
+    "S_axial_MPa": 272.8,
+    "S_bending_MPa": 89.1,
+    "S_nominal_MPa": 361.9,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.776,
+    "static_MS_u_net": 2.299,
+    "local_elastic_peak_MPa_info": 923.9,
+    "Kt_eff": 2.5525,
+    "local_neuber_strain_n15_n30_info": [
+     0.00492,
+     0.0048
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 555.1,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 163.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 418.0,
+     "local_de": 0.00215,
+     "N_f": 217963069.1,
+     "N_f_at_2de": 805566.7,
+     "N_allow": 805566.7,
+     "MS_cycles_vs_50": 16110.334
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 891.9,
+     "local_de": 0.00492,
+     "N_f": 293081.8,
+     "N_f_at_2de": 4821.4,
+     "N_allow": 4821.4,
+     "MS_cycles_vs_50": 95.428
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 923.9,
+     "local_de": 0.00475,
+     "N_f": 379631.9,
+     "N_f_at_2de": 5666.8,
+     "N_allow": 5666.8,
+     "MS_cycles_vs_50": 112.336
+    }
+   },
+   "SOAK|(b2) rep": {
+    "T_C": 127.0,
+    "N_section_N": 6929.1,
+    "M_head_end_IN718_Nmm": 1780.3,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "shank.json SOAK_rep",
+    "S_axial_MPa": 336.5,
+    "S_bending_MPa": 135.1,
+    "S_nominal_MPa": 471.7,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.13,
+    "static_MS_u_net": 1.532,
+    "local_elastic_peak_MPa_info": 1201.6,
+    "Kt_eff": 2.5475,
+    "local_neuber_strain_n15_n30_info": [
+     0.00734,
+     0.00736
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 773.4,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 273.5,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 696.7,
+     "local_de": 0.00358,
+     "N_f": 3352850.8,
+     "N_f_at_2de": 24662.5,
+     "N_allow": 24662.5,
+     "MS_cycles_vs_50": 492.25
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1007.7,
+     "local_de": 0.00736,
+     "N_f": 21013.7,
+     "N_f_at_2de": 995.1,
+     "N_allow": 995.1,
+     "MS_cycles_vs_50": 18.902
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1201.4,
+     "local_de": 0.00617,
+     "N_f": 61069.3,
+     "N_f_at_2de": 1873.5,
+     "N_allow": 1873.5,
+     "MS_cycles_vs_50": 36.47
+    }
+   },
+   "SOAK52|js5": {
+    "T_C": 154.1,
+    "N_section_N": 7232.8,
+    "M_head_end_IN718_Nmm": 3071.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK52",
+    "S_axial_MPa": 351.3,
+    "S_bending_MPa": 233.1,
+    "S_nominal_MPa": 584.4,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.707,
+    "static_MS_u_net": 1.023,
+    "local_elastic_peak_MPa_info": 1480.6,
+    "Kt_eff": 2.5335,
+    "local_neuber_strain_n15_n30_info": [
+     0.01067,
+     0.01098
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1047.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 386.2,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 978.5,
+     "local_de": 0.00506,
+     "N_f": 232369.9,
+     "N_f_at_2de": 4188.3,
+     "N_allow": 4188.3,
+     "MS_cycles_vs_50": 82.766
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1032.4,
+     "local_de": 0.01098,
+     "N_f": 2956.2,
+     "N_f_at_2de": 292.5,
+     "N_allow": 147.8,
+     "MS_cycles_vs_50": 1.956
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1476.3,
+     "local_de": 0.00768,
+     "N_f": 16311.8,
+     "N_f_at_2de": 857.0,
+     "N_allow": 815.6,
+     "MS_cycles_vs_50": 15.312
+    }
+   },
+   "SOAK52|(a)": {
+    "T_C": 154.1,
+    "N_section_N": 6339.7,
+    "M_head_end_IN718_Nmm": 1760.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 307.9,
+    "S_bending_MPa": 133.6,
+    "S_nominal_MPa": 441.5,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 1.259,
+    "static_MS_u_net": 1.678,
+    "local_elastic_peak_MPa_info": 1123.8,
+    "Kt_eff": 2.5455,
+    "local_neuber_strain_n15_n30_info": [
+     0.00666,
+     0.00661
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 772.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 243.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 619.4,
+     "local_de": 0.0032,
+     "N_f": 7959853.1,
+     "N_f_at_2de": 47323.9,
+     "N_allow": 47323.9,
+     "MS_cycles_vs_50": 945.478
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 981.7,
+     "local_de": 0.00666,
+     "N_f": 37422.6,
+     "N_f_at_2de": 1405.9,
+     "N_allow": 1405.9,
+     "MS_cycles_vs_50": 27.118
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1123.8,
+     "local_de": 0.00581,
+     "N_f": 88847.3,
+     "N_f_at_2de": 2346.0,
+     "N_allow": 2346.0,
+     "MS_cycles_vs_50": 45.92
+    }
+   },
+   "SOAK52|(a')": {
+    "T_C": 154.1,
+    "N_section_N": 7454.3,
+    "M_head_end_IN718_Nmm": 3176.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 362.1,
+    "S_bending_MPa": 241.0,
+    "S_nominal_MPa": 603.1,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.654,
+    "static_MS_u_net": 0.96,
+    "local_elastic_peak_MPa_info": 1527.9,
+    "Kt_eff": 2.5334,
+    "local_neuber_strain_n15_n30_info": [
+     0.01129,
+     0.01166
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1080.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 404.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1025.8,
+     "local_de": 0.00531,
+     "N_f": 166128.8,
+     "N_f_at_2de": 3414.0,
+     "N_allow": 3414.0,
+     "MS_cycles_vs_50": 67.28
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1036.2,
+     "local_de": 0.01166,
+     "N_f": 2325.2,
+     "N_f_at_2de": 249.0,
+     "N_allow": 116.3,
+     "MS_cycles_vs_50": 1.326
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1521.2,
+     "local_de": 0.00794,
+     "N_f": 13647.9,
+     "N_f_at_2de": 769.4,
+     "N_allow": 682.4,
+     "MS_cycles_vs_50": 12.648
+    }
+   },
+   "SOAK52|(a'')": {
+    "T_C": 154.1,
+    "N_section_N": 7427.0,
+    "M_head_end_IN718_Nmm": 3217.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 360.7,
+    "S_bending_MPa": 244.1,
+    "S_nominal_MPa": 604.9,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.649,
+    "static_MS_u_net": 0.954,
+    "local_elastic_peak_MPa_info": 1532.1,
+    "Kt_eff": 2.5329,
+    "local_neuber_strain_n15_n30_info": [
+     0.01134,
+     0.01172
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1084.4,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 406.7,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1030.1,
+     "local_de": 0.00533,
+     "N_f": 161291.9,
+     "N_f_at_2de": 3353.5,
+     "N_allow": 3353.5,
+     "MS_cycles_vs_50": 66.07
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1036.5,
+     "local_de": 0.01172,
+     "N_f": 2277.7,
+     "N_f_at_2de": 245.5,
+     "N_allow": 113.9,
+     "MS_cycles_vs_50": 1.278
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1525.2,
+     "local_de": 0.00796,
+     "N_f": 13436.4,
+     "N_f_at_2de": 762.1,
+     "N_allow": 671.8,
+     "MS_cycles_vs_50": 12.436
+    }
+   },
+   "SOAK52|(b2)": {
+    "T_C": 154.1,
+    "N_section_N": 6777.3,
+    "M_head_end_IN718_Nmm": 3084.4,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52",
+    "S_axial_MPa": 329.2,
+    "S_bending_MPa": 234.1,
+    "S_nominal_MPa": 563.3,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.771,
+    "static_MS_u_net": 1.099,
+    "local_elastic_peak_MPa_info": 1425.8,
+    "Kt_eff": 2.5314,
+    "local_neuber_strain_n15_n30_info": [
+     0.00999,
+     0.01023
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 952.6,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 365.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 924.1,
+     "local_de": 0.00478,
+     "N_f": 352089.6,
+     "N_f_at_2de": 5418.0,
+     "N_allow": 5418.0,
+     "MS_cycles_vs_50": 107.36
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1027.7,
+     "local_de": 0.01023,
+     "N_f": 3994.4,
+     "N_f_at_2de": 356.5,
+     "N_allow": 199.7,
+     "MS_cycles_vs_50": 2.994
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1423.4,
+     "local_de": 0.00739,
+     "N_f": 20247.4,
+     "N_f_at_2de": 975.7,
+     "N_allow": 975.7,
+     "MS_cycles_vs_50": 18.514
+    }
+   },
+   "SOAK52|(b2) rep": {
+    "T_C": 154.1,
+    "N_section_N": 8643.5,
+    "M_head_end_IN718_Nmm": 4116.5,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52_rep",
+    "S_axial_MPa": 419.8,
+    "S_bending_MPa": 312.4,
+    "S_nominal_MPa": 732.2,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.362,
+    "static_MS_u_net": 0.614,
+    "local_elastic_peak_MPa_info": 1852.5,
+    "Kt_eff": 2.53,
+    "local_neuber_strain_n15_n30_info": [
+     0.01597,
+     0.0168
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1248.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 534.0,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1350.0,
+     "local_de": 0.007,
+     "N_f": 27764.4,
+     "N_f_at_2de": 1177.8,
+     "N_allow": 1177.8,
+     "MS_cycles_vs_50": 22.556
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1056.7,
+     "local_de": 0.0168,
+     "N_f": 642.3,
+     "N_f_at_2de": 99.5,
+     "N_allow": 32.1,
+     "MS_cycles_vs_50": -0.358
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1782.4,
+     "local_de": 0.00996,
+     "N_f": 4500.9,
+     "N_f_at_2de": 385.1,
+     "N_allow": 225.0,
+     "MS_cycles_vs_50": 3.5
+    }
+   },
+   "FA1S|js5": {
+    "T_C": 45.6,
+    "N_section_N": 3379.5,
+    "M_head_end_IN718_Nmm": 1880.6,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets FA1S",
+    "S_axial_MPa": 164.1,
+    "S_bending_MPa": 142.7,
+    "S_nominal_MPa": 306.9,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.347,
+    "static_MS_u_net": 3.008,
+    "local_elastic_peak_MPa_info": 774.9,
+    "Kt_eff": 2.5252,
+    "local_neuber_strain_n15_n30_info": [
+     0.00391,
+     0.0039
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 791.2
+   },
+   "FA1S|(a)": {
+    "T_C": 45.6,
+    "N_section_N": 3366.5,
+    "M_head_end_IN718_Nmm": 1858.6,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 163.5,
+    "S_bending_MPa": 141.1,
+    "S_nominal_MPa": 304.6,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.372,
+    "static_MS_u_net": 3.038,
+    "local_elastic_peak_MPa_info": 769.2,
+    "Kt_eff": 2.5255,
+    "local_neuber_strain_n15_n30_info": [
+     0.00388,
+     0.00387
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 754.2
+   },
+   "FA1S|(a')": {
+    "T_C": 45.6,
+    "N_section_N": 3336.5,
+    "M_head_end_IN718_Nmm": 1804.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 162.1,
+    "S_bending_MPa": 136.9,
+    "S_nominal_MPa": 299.0,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.435,
+    "static_MS_u_net": 3.113,
+    "local_elastic_peak_MPa_info": 755.3,
+    "Kt_eff": 2.5261,
+    "local_neuber_strain_n15_n30_info": [
+     0.00381,
+     0.0038
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 762.2
+   },
+   "FA1S|(a'')": {
+    "T_C": 45.6,
+    "N_section_N": 3328.7,
+    "M_head_end_IN718_Nmm": 1888.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 161.7,
+    "S_bending_MPa": 143.3,
+    "S_nominal_MPa": 305.0,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.367,
+    "static_MS_u_net": 3.032,
+    "local_elastic_peak_MPa_info": 770.0,
+    "Kt_eff": 2.5246,
+    "local_neuber_strain_n15_n30_info": [
+     0.00389,
+     0.00388
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 790.4
+   },
+   "FA1S|(b2)": {
+    "T_C": 45.6,
+    "N_section_N": 2934.9,
+    "M_head_end_IN718_Nmm": 3113.3,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json FA1S",
+    "S_axial_MPa": 142.5,
+    "S_bending_MPa": 236.3,
+    "S_nominal_MPa": 378.8,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.711,
+    "static_MS_u_net": 2.246,
+    "local_elastic_peak_MPa_info": 949.1,
+    "Kt_eff": 2.5055,
+    "local_neuber_strain_n15_n30_info": [
+     0.00496,
+     0.00484
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 806.8
+   }
+  },
+  "3750|page_literal_r0.2": {
+   "SOAK70|js5": {
+    "T_C": 158.6,
+    "N_section_N": 6180.7,
+    "M_head_end_IN718_Nmm": 1424.0,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK70",
+    "S_axial_MPa": 300.2,
+    "S_bending_MPa": 108.1,
+    "S_nominal_MPa": 408.3,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.44,
+    "static_MS_u_net": 1.891,
+    "local_elastic_peak_MPa_info": 1123.2,
+    "Kt_eff": 2.7511,
+    "local_neuber_strain_n15_n30_info": [
+     0.00666,
+     0.00662
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 704.7,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 210.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 578.0,
+     "local_de": 0.00299,
+     "N_f": 13767555.4,
+     "N_f_at_2de": 72984.6,
+     "N_allow": 72984.6,
+     "MS_cycles_vs_50": 1458.692
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 980.7,
+     "local_de": 0.00666,
+     "N_f": 37090.8,
+     "N_f_at_2de": 1399.1,
+     "N_allow": 1399.1,
+     "MS_cycles_vs_50": 26.982
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1123.1,
+     "local_de": 0.00582,
+     "N_f": 88220.0,
+     "N_f_at_2de": 2337.2,
+     "N_allow": 2337.2,
+     "MS_cycles_vs_50": 45.744
+    }
+   },
+   "SOAK70|(a)": {
+    "T_C": 158.6,
+    "N_section_N": 7026.7,
+    "M_head_end_IN718_Nmm": 2670.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 341.3,
+    "S_bending_MPa": 202.7,
+    "S_nominal_MPa": 544.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.831,
+    "static_MS_u_net": 1.17,
+    "local_elastic_peak_MPa_info": 1472.4,
+    "Kt_eff": 2.7068,
+    "local_neuber_strain_n15_n30_info": [
+     0.01059,
+     0.0109
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 965.6,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 345.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 936.0,
+     "local_de": 0.00485,
+     "N_f": 316758.8,
+     "N_f_at_2de": 5073.9,
+     "N_allow": 5073.9,
+     "MS_cycles_vs_50": 100.478
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1030.6,
+     "local_de": 0.0109,
+     "N_f": 3052.4,
+     "N_f_at_2de": 298.9,
+     "N_allow": 152.6,
+     "MS_cycles_vs_50": 2.052
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1468.5,
+     "local_de": 0.00765,
+     "N_f": 16679.0,
+     "N_f_at_2de": 868.9,
+     "N_allow": 833.9,
+     "MS_cycles_vs_50": 15.678
+    }
+   },
+   "SOAK70|(a')": {
+    "T_C": 158.6,
+    "N_section_N": 6098.7,
+    "M_head_end_IN718_Nmm": 1412.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 296.2,
+    "S_bending_MPa": 107.2,
+    "S_nominal_MPa": 403.4,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.469,
+    "static_MS_u_net": 1.926,
+    "local_elastic_peak_MPa_info": 1109.6,
+    "Kt_eff": 2.7507,
+    "local_neuber_strain_n15_n30_info": [
+     0.00653,
+     0.00648
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 696.5,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 205.2,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 564.4,
+     "local_de": 0.00292,
+     "N_f": 16701349.2,
+     "N_f_at_2de": 85348.1,
+     "N_allow": 85348.1,
+     "MS_cycles_vs_50": 1705.962
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 976.2,
+     "local_de": 0.00653,
+     "N_f": 41873.5,
+     "N_f_at_2de": 1503.2,
+     "N_allow": 1503.2,
+     "MS_cycles_vs_50": 29.064
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1109.5,
+     "local_de": 0.00575,
+     "N_f": 95732.2,
+     "N_f_at_2de": 2453.7,
+     "N_allow": 2453.7,
+     "MS_cycles_vs_50": 48.074
+    }
+   },
+   "SOAK70|(a'')": {
+    "T_C": 158.6,
+    "N_section_N": 6094.1,
+    "M_head_end_IN718_Nmm": 1397.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 296.0,
+    "S_bending_MPa": 106.1,
+    "S_nominal_MPa": 402.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.478,
+    "static_MS_u_net": 1.935,
+    "local_elastic_peak_MPa_info": 1106.2,
+    "Kt_eff": 2.7515,
+    "local_neuber_strain_n15_n30_info": [
+     0.0065,
+     0.00645
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 693.9,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 203.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 560.9,
+     "local_de": 0.00291,
+     "N_f": 17573434.1,
+     "N_f_at_2de": 88969.8,
+     "N_allow": 88969.8,
+     "MS_cycles_vs_50": 1778.396
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 975.0,
+     "local_de": 0.0065,
+     "N_f": 43159.3,
+     "N_f_at_2de": 1530.3,
+     "N_allow": 1530.3,
+     "MS_cycles_vs_50": 29.606
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1106.2,
+     "local_de": 0.00573,
+     "N_f": 97704.0,
+     "N_f_at_2de": 2483.6,
+     "N_allow": 2483.6,
+     "MS_cycles_vs_50": 48.672
+    }
+   },
+   "SOAK70|(b2)": {
+    "T_C": 158.6,
+    "N_section_N": 8297.1,
+    "M_head_end_IN718_Nmm": 4401.7,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK70",
+    "S_axial_MPa": 403.0,
+    "S_bending_MPa": 334.0,
+    "S_nominal_MPa": 737.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.351,
+    "static_MS_u_net": 0.601,
+    "local_elastic_peak_MPa_info": 1970.7,
+    "Kt_eff": 2.6737,
+    "local_neuber_strain_n15_n30_info": [
+     0.01791,
+     0.01895
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1272.3,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 538.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1437.9,
+     "local_de": 0.00748,
+     "N_f": 18891.2,
+     "N_f_at_2de": 936.4,
+     "N_allow": 936.4,
+     "MS_cycles_vs_50": 17.728
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1061.4,
+     "local_de": 0.01895,
+     "N_f": 445.1,
+     "N_f_at_2de": 75.2,
+     "N_allow": 22.3,
+     "MS_cycles_vs_50": -0.554
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1848.8,
+     "local_de": 0.01088,
+     "N_f": 3071.3,
+     "N_f_at_2de": 300.1,
+     "N_allow": 153.6,
+     "MS_cycles_vs_50": 2.072
+    }
+   },
+   "SOAK|js5": {
+    "T_C": 127.0,
+    "N_section_N": 8257.2,
+    "M_head_end_IN718_Nmm": 4479.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK",
+    "S_axial_MPa": 401.1,
+    "S_bending_MPa": 340.0,
+    "S_nominal_MPa": 741.0,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 0.356,
+    "static_MS_u_net": 0.611,
+    "local_elastic_peak_MPa_info": 1979.6,
+    "Kt_eff": 2.6715,
+    "local_neuber_strain_n15_n30_info": [
+     0.01778,
+     0.01881
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1352.1,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 542.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1447.3,
+     "local_de": 0.00746,
+     "N_f": 19406.9,
+     "N_f_at_2de": 948.9,
+     "N_allow": 948.9,
+     "MS_cycles_vs_50": 17.978
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1070.3,
+     "local_de": 0.01881,
+     "N_f": 457.5,
+     "N_f_at_2de": 76.7,
+     "N_allow": 22.9,
+     "MS_cycles_vs_50": -0.542
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1860.7,
+     "local_de": 0.01082,
+     "N_f": 3177.8,
+     "N_f_at_2de": 306.2,
+     "N_allow": 158.9,
+     "MS_cycles_vs_50": 2.178
+    }
+   },
+   "SOAK|(a)": {
+    "T_C": 127.0,
+    "N_section_N": 6589.0,
+    "M_head_end_IN718_Nmm": 1056.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 320.0,
+    "S_bending_MPa": 80.2,
+    "S_nominal_MPa": 400.2,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.511,
+    "static_MS_u_net": 1.984,
+    "local_elastic_peak_MPa_info": 1111.6,
+    "Kt_eff": 2.7775,
+    "local_neuber_strain_n15_n30_info": [
+     0.00646,
+     0.00641
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 728.6,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 202.0,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 561.1,
+     "local_de": 0.00288,
+     "N_f": 19273463.0,
+     "N_f_at_2de": 95845.1,
+     "N_allow": 95845.1,
+     "MS_cycles_vs_50": 1915.902
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 982.0,
+     "local_de": 0.00646,
+     "N_f": 45614.9,
+     "N_f_at_2de": 1576.5,
+     "N_allow": 1576.5,
+     "MS_cycles_vs_50": 30.53
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1111.5,
+     "local_de": 0.00571,
+     "N_f": 102182.5,
+     "N_f_at_2de": 2543.3,
+     "N_allow": 2543.3,
+     "MS_cycles_vs_50": 49.866
+    }
+   },
+   "SOAK|(a')": {
+    "T_C": 127.0,
+    "N_section_N": 6307.0,
+    "M_head_end_IN718_Nmm": 126.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 306.3,
+    "S_bending_MPa": 9.6,
+    "S_nominal_MPa": 316.0,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 2.18,
+    "static_MS_u_net": 2.779,
+    "local_elastic_peak_MPa_info": 899.6,
+    "Kt_eff": 2.8472,
+    "local_neuber_strain_n15_n30_info": [
+     0.00475,
+     0.00465
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 640.8,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 117.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 335.3,
+     "local_de": 0.00172,
+     "N_f": 1357572519.5,
+     "N_f_at_2de": 4547427.8,
+     "N_allow": 4547427.8,
+     "MS_cycles_vs_50": 90947.556
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 875.3,
+     "local_de": 0.00475,
+     "N_f": 377645.1,
+     "N_f_at_2de": 5648.2,
+     "N_allow": 5648.2,
+     "MS_cycles_vs_50": 111.964
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 899.6,
+     "local_de": 0.00462,
+     "N_f": 462693.4,
+     "N_f_at_2de": 6421.9,
+     "N_allow": 6421.9,
+     "MS_cycles_vs_50": 127.438
+    }
+   },
+   "SOAK|(a'')": {
+    "T_C": 127.0,
+    "N_section_N": 6036.1,
+    "M_head_end_IN718_Nmm": 727.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 293.2,
+    "S_bending_MPa": 55.2,
+    "S_nominal_MPa": 348.4,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.884,
+    "static_MS_u_net": 2.428,
+    "local_elastic_peak_MPa_info": 973.6,
+    "Kt_eff": 2.7947,
+    "local_neuber_strain_n15_n30_info": [
+     0.00528,
+     0.00516
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 539.8,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 150.2,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 419.7,
+     "local_de": 0.00216,
+     "N_f": 210666291.0,
+     "N_f_at_2de": 780642.4,
+     "N_allow": 780642.4,
+     "MS_cycles_vs_50": 15611.848
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 921.7,
+     "local_de": 0.00528,
+     "N_f": 174951.9,
+     "N_f_at_2de": 3514.0,
+     "N_allow": 3514.0,
+     "MS_cycles_vs_50": 69.28
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 973.6,
+     "local_de": 0.005,
+     "N_f": 258720.7,
+     "N_f_at_2de": 4463.5,
+     "N_allow": 4463.5,
+     "MS_cycles_vs_50": 88.27
+    }
+   },
+   "SOAK|(b2)": {
+    "T_C": 127.0,
+    "N_section_N": 5616.9,
+    "M_head_end_IN718_Nmm": 1174.4,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK",
+    "S_axial_MPa": 272.8,
+    "S_bending_MPa": 89.1,
+    "S_nominal_MPa": 361.9,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.776,
+    "static_MS_u_net": 2.299,
+    "local_elastic_peak_MPa_info": 998.5,
+    "Kt_eff": 2.7587,
+    "local_neuber_strain_n15_n30_info": [
+     0.00548,
+     0.00536
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 555.1,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 163.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 451.7,
+     "local_de": 0.00232,
+     "N_f": 114638452.3,
+     "N_f_at_2de": 447997.1,
+     "N_allow": 447997.1,
+     "MS_cycles_vs_50": 8958.942
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 934.7,
+     "local_de": 0.00548,
+     "N_f": 135651.2,
+     "N_f_at_2de": 3013.6,
+     "N_allow": 3013.6,
+     "MS_cycles_vs_50": 59.272
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 998.5,
+     "local_de": 0.00513,
+     "N_f": 215748.6,
+     "N_f_at_2de": 3992.4,
+     "N_allow": 3992.4,
+     "MS_cycles_vs_50": 78.848
+    }
+   },
+   "SOAK|(b2) rep": {
+    "T_C": 127.0,
+    "N_section_N": 6929.1,
+    "M_head_end_IN718_Nmm": 1780.3,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "shank.json SOAK_rep",
+    "S_axial_MPa": 336.5,
+    "S_bending_MPa": 135.1,
+    "S_nominal_MPa": 471.7,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.13,
+    "static_MS_u_net": 1.532,
+    "local_elastic_peak_MPa_info": 1293.4,
+    "Kt_eff": 2.7422,
+    "local_neuber_strain_n15_n30_info": [
+     0.00832,
+     0.00842
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 773.4,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 273.5,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 749.9,
+     "local_de": 0.00385,
+     "N_f": 1871722.7,
+     "N_f_at_2de": 16273.1,
+     "N_allow": 16273.1,
+     "MS_cycles_vs_50": 324.462
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1020.4,
+     "local_de": 0.00842,
+     "N_f": 10156.4,
+     "N_f_at_2de": 640.8,
+     "N_allow": 507.8,
+     "MS_cycles_vs_50": 9.156
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1292.8,
+     "local_de": 0.00665,
+     "N_f": 38370.8,
+     "N_f_at_2de": 1423.2,
+     "N_allow": 1423.2,
+     "MS_cycles_vs_50": 27.464
+    }
+   },
+   "SOAK52|js5": {
+    "T_C": 154.1,
+    "N_section_N": 7232.8,
+    "M_head_end_IN718_Nmm": 3071.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK52",
+    "S_axial_MPa": 351.3,
+    "S_bending_MPa": 233.1,
+    "S_nominal_MPa": 584.4,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.707,
+    "static_MS_u_net": 1.023,
+    "local_elastic_peak_MPa_info": 1575.6,
+    "Kt_eff": 2.696,
+    "local_neuber_strain_n15_n30_info": [
+     0.01192,
+     0.01235
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1047.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 386.2,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1041.2,
+     "local_de": 0.00539,
+     "N_f": 149629.4,
+     "N_f_at_2de": 3204.9,
+     "N_allow": 3204.9,
+     "MS_cycles_vs_50": 63.098
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1039.7,
+     "local_de": 0.01235,
+     "N_f": 1855.9,
+     "N_f_at_2de": 213.5,
+     "N_allow": 92.8,
+     "MS_cycles_vs_50": 0.856
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1565.4,
+     "local_de": 0.0082,
+     "N_f": 11476.1,
+     "N_f_at_2de": 692.4,
+     "N_allow": 573.8,
+     "MS_cycles_vs_50": 10.476
+    }
+   },
+   "SOAK52|(a)": {
+    "T_C": 154.1,
+    "N_section_N": 6339.7,
+    "M_head_end_IN718_Nmm": 1760.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 307.9,
+    "S_bending_MPa": 133.6,
+    "S_nominal_MPa": 441.5,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 1.259,
+    "static_MS_u_net": 1.678,
+    "local_elastic_peak_MPa_info": 1207.8,
+    "Kt_eff": 2.7356,
+    "local_neuber_strain_n15_n30_info": [
+     0.0075,
+     0.00753
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 772.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 243.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 665.6,
+     "local_de": 0.00344,
+     "N_f": 4457602.7,
+     "N_f_at_2de": 30465.8,
+     "N_allow": 30465.8,
+     "MS_cycles_vs_50": 608.316
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1002.6,
+     "local_de": 0.00753,
+     "N_f": 18251.4,
+     "N_f_at_2de": 916.9,
+     "N_allow": 912.6,
+     "MS_cycles_vs_50": 17.252
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1207.5,
+     "local_de": 0.00625,
+     "N_f": 55482.7,
+     "N_f_at_2de": 1774.6,
+     "N_allow": 1774.6,
+     "MS_cycles_vs_50": 34.492
+    }
+   },
+   "SOAK52|(a')": {
+    "T_C": 154.1,
+    "N_section_N": 7454.3,
+    "M_head_end_IN718_Nmm": 3176.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 362.1,
+    "S_bending_MPa": 241.0,
+    "S_nominal_MPa": 603.1,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.654,
+    "static_MS_u_net": 0.96,
+    "local_elastic_peak_MPa_info": 1625.8,
+    "Kt_eff": 2.6957,
+    "local_neuber_strain_n15_n30_info": [
+     0.01261,
+     0.01311
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1080.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 404.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1091.5,
+     "local_de": 0.00565,
+     "N_f": 108160.8,
+     "N_f_at_2de": 2637.8,
+     "N_allow": 2637.8,
+     "MS_cycles_vs_50": 51.756
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1043.2,
+     "local_de": 0.01311,
+     "N_f": 1487.4,
+     "N_f_at_2de": 183.0,
+     "N_allow": 74.4,
+     "MS_cycles_vs_50": 0.488
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1610.3,
+     "local_de": 0.00849,
+     "N_f": 9614.0,
+     "N_f_at_2de": 621.1,
+     "N_allow": 480.7,
+     "MS_cycles_vs_50": 8.614
+    }
+   },
+   "SOAK52|(a'')": {
+    "T_C": 154.1,
+    "N_section_N": 7427.0,
+    "M_head_end_IN718_Nmm": 3217.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 360.7,
+    "S_bending_MPa": 244.1,
+    "S_nominal_MPa": 604.9,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.649,
+    "static_MS_u_net": 0.954,
+    "local_elastic_peak_MPa_info": 1629.6,
+    "Kt_eff": 2.6941,
+    "local_neuber_strain_n15_n30_info": [
+     0.01267,
+     0.01317
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1084.4,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 406.7,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1095.6,
+     "local_de": 0.00567,
+     "N_f": 105404.7,
+     "N_f_at_2de": 2597.5,
+     "N_allow": 2597.5,
+     "MS_cycles_vs_50": 50.95
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1043.5,
+     "local_de": 0.01317,
+     "N_f": 1463.3,
+     "N_f_at_2de": 180.9,
+     "N_allow": 73.2,
+     "MS_cycles_vs_50": 0.464
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1613.6,
+     "local_de": 0.00851,
+     "N_f": 9486.6,
+     "N_f_at_2de": 616.0,
+     "N_allow": 474.3,
+     "MS_cycles_vs_50": 8.486
+    }
+   },
+   "SOAK52|(b2)": {
+    "T_C": 154.1,
+    "N_section_N": 6777.3,
+    "M_head_end_IN718_Nmm": 3084.4,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52",
+    "S_axial_MPa": 329.2,
+    "S_bending_MPa": 234.1,
+    "S_nominal_MPa": 563.3,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.771,
+    "static_MS_u_net": 1.099,
+    "local_elastic_peak_MPa_info": 1514.7,
+    "Kt_eff": 2.6892,
+    "local_neuber_strain_n15_n30_info": [
+     0.01111,
+     0.01147
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 952.6,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 365.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 981.7,
+     "local_de": 0.00508,
+     "N_f": 226880.7,
+     "N_f_at_2de": 4127.4,
+     "N_allow": 4127.4,
+     "MS_cycles_vs_50": 81.548
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1035.2,
+     "local_de": 0.01147,
+     "N_f": 2481.9,
+     "N_f_at_2de": 260.2,
+     "N_allow": 124.1,
+     "MS_cycles_vs_50": 1.482
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1508.8,
+     "local_de": 0.00787,
+     "N_f": 14333.4,
+     "N_f_at_2de": 792.6,
+     "N_allow": 716.7,
+     "MS_cycles_vs_50": 13.334
+    }
+   },
+   "SOAK52|(b2) rep": {
+    "T_C": 154.1,
+    "N_section_N": 8643.5,
+    "M_head_end_IN718_Nmm": 4116.5,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52_rep",
+    "S_axial_MPa": 419.8,
+    "S_bending_MPa": 312.4,
+    "S_nominal_MPa": 732.2,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.362,
+    "static_MS_u_net": 0.614,
+    "local_elastic_peak_MPa_info": 1965.8,
+    "Kt_eff": 2.6846,
+    "local_neuber_strain_n15_n30_info": [
+     0.01779,
+     0.01882
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1248.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 534.0,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1431.0,
+     "local_de": 0.00743,
+     "N_f": 19613.7,
+     "N_f_at_2de": 957.3,
+     "N_allow": 957.3,
+     "MS_cycles_vs_50": 18.146
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1062.4,
+     "local_de": 0.01882,
+     "N_f": 454.9,
+     "N_f_at_2de": 76.5,
+     "N_allow": 22.7,
+     "MS_cycles_vs_50": -0.546
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1847.3,
+     "local_de": 0.01082,
+     "N_f": 3145.7,
+     "N_f_at_2de": 304.8,
+     "N_allow": 157.3,
+     "MS_cycles_vs_50": 2.146
+    }
+   },
+   "FA1S|js5": {
+    "T_C": 45.6,
+    "N_section_N": 3379.5,
+    "M_head_end_IN718_Nmm": 1880.6,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets FA1S",
+    "S_axial_MPa": 164.1,
+    "S_bending_MPa": 142.7,
+    "S_nominal_MPa": 306.9,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.347,
+    "static_MS_u_net": 3.008,
+    "local_elastic_peak_MPa_info": 819.0,
+    "Kt_eff": 2.6689,
+    "local_neuber_strain_n15_n30_info": [
+     0.00415,
+     0.00412
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 791.2
+   },
+   "FA1S|(a)": {
+    "T_C": 45.6,
+    "N_section_N": 3366.5,
+    "M_head_end_IN718_Nmm": 1858.6,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 163.5,
+    "S_bending_MPa": 141.1,
+    "S_nominal_MPa": 304.6,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.372,
+    "static_MS_u_net": 3.038,
+    "local_elastic_peak_MPa_info": 813.1,
+    "Kt_eff": 2.6697,
+    "local_neuber_strain_n15_n30_info": [
+     0.00412,
+     0.00409
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 754.2
+   },
+   "FA1S|(a')": {
+    "T_C": 45.6,
+    "N_section_N": 3336.5,
+    "M_head_end_IN718_Nmm": 1804.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 162.1,
+    "S_bending_MPa": 136.9,
+    "S_nominal_MPa": 299.0,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.435,
+    "static_MS_u_net": 3.113,
+    "local_elastic_peak_MPa_info": 798.8,
+    "Kt_eff": 2.6718,
+    "local_neuber_strain_n15_n30_info": [
+     0.00404,
+     0.00402
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 762.2
+   },
+   "FA1S|(a'')": {
+    "T_C": 45.6,
+    "N_section_N": 3328.7,
+    "M_head_end_IN718_Nmm": 1888.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 161.7,
+    "S_bending_MPa": 143.3,
+    "S_nominal_MPa": 305.0,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.367,
+    "static_MS_u_net": 3.032,
+    "local_elastic_peak_MPa_info": 813.4,
+    "Kt_eff": 2.6669,
+    "local_neuber_strain_n15_n30_info": [
+     0.00412,
+     0.00409
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 790.4
+   },
+   "FA1S|(b2)": {
+    "T_C": 45.6,
+    "N_section_N": 2934.9,
+    "M_head_end_IN718_Nmm": 3113.3,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json FA1S",
+    "S_axial_MPa": 142.5,
+    "S_bending_MPa": 236.3,
+    "S_nominal_MPa": 378.8,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.711,
+    "static_MS_u_net": 2.246,
+    "local_elastic_peak_MPa_info": 986.4,
+    "Kt_eff": 2.6038,
+    "local_neuber_strain_n15_n30_info": [
+     0.00522,
+     0.0051
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 806.8
+   }
+  },
+  "3750|r0.3_info": {
+   "SOAK70|js5": {
+    "T_C": 158.6,
+    "N_section_N": 6180.7,
+    "M_head_end_IN718_Nmm": 1424.0,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK70",
+    "S_axial_MPa": 300.2,
+    "S_bending_MPa": 108.1,
+    "S_nominal_MPa": 408.3,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.44,
+    "static_MS_u_net": 1.891,
+    "local_elastic_peak_MPa_info": 914.1,
+    "Kt_eff": 2.2388,
+    "local_neuber_strain_n15_n30_info": [
+     0.0049,
+     0.00479
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 704.7,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 210.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 470.4,
+     "local_de": 0.00244,
+     "N_f": 74600761.8,
+     "N_f_at_2de": 305364.4,
+     "N_allow": 305364.4,
+     "MS_cycles_vs_50": 6106.288
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 883.0,
+     "local_de": 0.0049,
+     "N_f": 292541.3,
+     "N_f_at_2de": 4829.3,
+     "N_allow": 4829.3,
+     "MS_cycles_vs_50": 95.586
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 914.1,
+     "local_de": 0.00473,
+     "N_f": 377099.2,
+     "N_f_at_2de": 5658.5,
+     "N_allow": 5658.5,
+     "MS_cycles_vs_50": 112.17
+    }
+   },
+   "SOAK70|(a)": {
+    "T_C": 158.6,
+    "N_section_N": 7026.7,
+    "M_head_end_IN718_Nmm": 2670.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 341.3,
+    "S_bending_MPa": 202.7,
+    "S_nominal_MPa": 544.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.831,
+    "static_MS_u_net": 1.17,
+    "local_elastic_peak_MPa_info": 1209.6,
+    "Kt_eff": 2.2236,
+    "local_neuber_strain_n15_n30_info": [
+     0.00753,
+     0.00756
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 965.6,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 345.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 768.9,
+     "local_de": 0.00398,
+     "N_f": 1404878.4,
+     "N_f_at_2de": 13378.1,
+     "N_allow": 13378.1,
+     "MS_cycles_vs_50": 266.562
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1001.8,
+     "local_de": 0.00756,
+     "N_f": 17711.6,
+     "N_f_at_2de": 900.9,
+     "N_allow": 885.6,
+     "MS_cycles_vs_50": 16.712
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1209.4,
+     "local_de": 0.00627,
+     "N_f": 54374.4,
+     "N_f_at_2de": 1754.3,
+     "N_allow": 1754.3,
+     "MS_cycles_vs_50": 34.086
+    }
+   },
+   "SOAK70|(a')": {
+    "T_C": 158.6,
+    "N_section_N": 6098.7,
+    "M_head_end_IN718_Nmm": 1412.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 296.2,
+    "S_bending_MPa": 107.2,
+    "S_nominal_MPa": 403.4,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.469,
+    "static_MS_u_net": 1.926,
+    "local_elastic_peak_MPa_info": 903.1,
+    "Kt_eff": 2.2387,
+    "local_neuber_strain_n15_n30_info": [
+     0.00482,
+     0.00472
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 696.5,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 205.2,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 459.4,
+     "local_de": 0.00238,
+     "N_f": 90650194.8,
+     "N_f_at_2de": 363138.9,
+     "N_allow": 363138.9,
+     "MS_cycles_vs_50": 7261.778
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 875.6,
+     "local_de": 0.00482,
+     "N_f": 328427.1,
+     "N_f_at_2de": 5189.6,
+     "N_allow": 5189.6,
+     "MS_cycles_vs_50": 102.792
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 903.1,
+     "local_de": 0.00468,
+     "N_f": 412484.2,
+     "N_f_at_2de": 5987.3,
+     "N_allow": 5987.3,
+     "MS_cycles_vs_50": 118.746
+    }
+   },
+   "SOAK70|(a'')": {
+    "T_C": 158.6,
+    "N_section_N": 6094.1,
+    "M_head_end_IN718_Nmm": 1397.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 296.0,
+    "S_bending_MPa": 106.1,
+    "S_nominal_MPa": 402.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.478,
+    "static_MS_u_net": 1.935,
+    "local_elastic_peak_MPa_info": 900.2,
+    "Kt_eff": 2.239,
+    "local_neuber_strain_n15_n30_info": [
+     0.0048,
+     0.0047
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 693.9,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 203.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 456.4,
+     "local_de": 0.00236,
+     "N_f": 95567761.1,
+     "N_f_at_2de": 380702.8,
+     "N_allow": 380702.8,
+     "MS_cycles_vs_50": 7613.056
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 873.6,
+     "local_de": 0.0048,
+     "N_f": 338519.5,
+     "N_f_at_2de": 5288.6,
+     "N_allow": 5288.6,
+     "MS_cycles_vs_50": 104.772
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 900.2,
+     "local_de": 0.00466,
+     "N_f": 422377.0,
+     "N_f_at_2de": 6077.6,
+     "N_allow": 6077.6,
+     "MS_cycles_vs_50": 120.552
+    }
+   },
+   "SOAK70|(b2)": {
+    "T_C": 158.6,
+    "N_section_N": 8297.1,
+    "M_head_end_IN718_Nmm": 4401.7,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK70",
+    "S_axial_MPa": 403.0,
+    "S_bending_MPa": 334.0,
+    "S_nominal_MPa": 737.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.351,
+    "static_MS_u_net": 0.601,
+    "local_elastic_peak_MPa_info": 1630.5,
+    "Kt_eff": 2.2122,
+    "local_neuber_strain_n15_n30_info": [
+     0.01271,
+     0.01321
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1272.3,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 538.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1191.9,
+     "local_de": 0.00618,
+     "N_f": 59704.6,
+     "N_f_at_2de": 1854.1,
+     "N_allow": 1854.1,
+     "MS_cycles_vs_50": 36.082
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1042.4,
+     "local_de": 0.01321,
+     "N_f": 1443.9,
+     "N_f_at_2de": 179.3,
+     "N_allow": 72.2,
+     "MS_cycles_vs_50": 0.444
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1614.2,
+     "local_de": 0.00853,
+     "N_f": 9373.7,
+     "N_f_at_2de": 611.7,
+     "N_allow": 468.7,
+     "MS_cycles_vs_50": 8.374
+    }
+   },
+   "SOAK|js5": {
+    "T_C": 127.0,
+    "N_section_N": 8257.2,
+    "M_head_end_IN718_Nmm": 4479.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK",
+    "S_axial_MPa": 401.1,
+    "S_bending_MPa": 340.0,
+    "S_nominal_MPa": 741.0,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 0.356,
+    "static_MS_u_net": 0.611,
+    "local_elastic_peak_MPa_info": 1638.7,
+    "Kt_eff": 2.2115,
+    "local_neuber_strain_n15_n30_info": [
+     0.01263,
+     0.01313
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1352.1,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 542.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1200.3,
+     "local_de": 0.00617,
+     "N_f": 61426.2,
+     "N_f_at_2de": 1879.9,
+     "N_allow": 1879.9,
+     "MS_cycles_vs_50": 36.598
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1051.0,
+     "local_de": 0.01313,
+     "N_f": 1490.7,
+     "N_f_at_2de": 182.9,
+     "N_allow": 74.5,
+     "MS_cycles_vs_50": 0.49
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1623.0,
+     "local_de": 0.0085,
+     "N_f": 9687.7,
+     "N_f_at_2de": 622.5,
+     "N_allow": 484.4,
+     "MS_cycles_vs_50": 8.688
+    }
+   },
+   "SOAK|(a)": {
+    "T_C": 127.0,
+    "N_section_N": 6589.0,
+    "M_head_end_IN718_Nmm": 1056.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 320.0,
+    "S_bending_MPa": 80.2,
+    "S_nominal_MPa": 400.2,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.511,
+    "static_MS_u_net": 1.984,
+    "local_elastic_peak_MPa_info": 899.6,
+    "Kt_eff": 2.2479,
+    "local_neuber_strain_n15_n30_info": [
+     0.00475,
+     0.00465
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 728.6,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 202.0,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 454.1,
+     "local_de": 0.00233,
+     "N_f": 109740339.1,
+     "N_f_at_2de": 430706.5,
+     "N_allow": 430706.5,
+     "MS_cycles_vs_50": 8613.13
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 875.4,
+     "local_de": 0.00475,
+     "N_f": 377397.9,
+     "N_f_at_2de": 5645.8,
+     "N_allow": 5645.8,
+     "MS_cycles_vs_50": 111.916
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 899.6,
+     "local_de": 0.00462,
+     "N_f": 462452.6,
+     "N_f_at_2de": 6419.8,
+     "N_allow": 6419.8,
+     "MS_cycles_vs_50": 127.396
+    }
+   },
+   "SOAK|(a')": {
+    "T_C": 127.0,
+    "N_section_N": 6307.0,
+    "M_head_end_IN718_Nmm": 126.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 306.3,
+    "S_bending_MPa": 9.6,
+    "S_nominal_MPa": 316.0,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 2.18,
+    "static_MS_u_net": 2.779,
+    "local_elastic_peak_MPa_info": 717.8,
+    "Kt_eff": 2.2719,
+    "local_neuber_strain_n15_n30_info": [
+     0.00369,
+     0.00369
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 640.8,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 117.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 267.6,
+     "local_de": 0.00137,
+     "N_f": 8877310104.4,
+     "N_f_at_2de": 28424785.5,
+     "N_allow": 28424785.5,
+     "MS_cycles_vs_50": 568494.71
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 716.6,
+     "local_de": 0.00369,
+     "N_f": 2608172.1,
+     "N_f_at_2de": 20572.6,
+     "N_allow": 20572.6,
+     "MS_cycles_vs_50": 410.452
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 717.8,
+     "local_de": 0.00369,
+     "N_f": 2643640.9,
+     "N_f_at_2de": 20772.5,
+     "N_allow": 20772.5,
+     "MS_cycles_vs_50": 414.45
+    }
+   },
+   "SOAK|(a'')": {
+    "T_C": 127.0,
+    "N_section_N": 6036.1,
+    "M_head_end_IN718_Nmm": 727.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 293.2,
+    "S_bending_MPa": 55.2,
+    "S_nominal_MPa": 348.4,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.884,
+    "static_MS_u_net": 2.428,
+    "local_elastic_peak_MPa_info": 785.2,
+    "Kt_eff": 2.2538,
+    "local_neuber_strain_n15_n30_info": [
+     0.00406,
+     0.00403
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 539.8,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 150.2,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 338.5,
+     "local_de": 0.00174,
+     "N_f": 1255231762.3,
+     "N_f_at_2de": 4216546.2,
+     "N_allow": 4216546.2,
+     "MS_cycles_vs_50": 84329.924
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 780.7,
+     "local_de": 0.00406,
+     "N_f": 1250730.3,
+     "N_f_at_2de": 12331.4,
+     "N_allow": 12331.4,
+     "MS_cycles_vs_50": 245.628
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 785.2,
+     "local_de": 0.00403,
+     "N_f": 1306761.4,
+     "N_f_at_2de": 12704.0,
+     "N_allow": 12704.0,
+     "MS_cycles_vs_50": 253.08
+    }
+   },
+   "SOAK|(b2)": {
+    "T_C": 127.0,
+    "N_section_N": 5616.9,
+    "M_head_end_IN718_Nmm": 1174.4,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK",
+    "S_axial_MPa": 272.8,
+    "S_bending_MPa": 89.1,
+    "S_nominal_MPa": 361.9,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.776,
+    "static_MS_u_net": 2.299,
+    "local_elastic_peak_MPa_info": 811.3,
+    "Kt_eff": 2.2415,
+    "local_neuber_strain_n15_n30_info": [
+     0.0042,
+     0.00417
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 555.1,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 163.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 367.0,
+     "local_de": 0.00189,
+     "N_f": 640373601.2,
+     "N_f_at_2de": 2213832.1,
+     "N_allow": 2213832.1,
+     "MS_cycles_vs_50": 44275.642
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 804.4,
+     "local_de": 0.0042,
+     "N_f": 949703.3,
+     "N_f_at_2de": 10249.1,
+     "N_allow": 10249.1,
+     "MS_cycles_vs_50": 203.982
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 811.3,
+     "local_de": 0.00417,
+     "N_f": 1014243.3,
+     "N_f_at_2de": 10708.5,
+     "N_allow": 10708.5,
+     "MS_cycles_vs_50": 213.17
+    }
+   },
+   "SOAK|(b2) rep": {
+    "T_C": 127.0,
+    "N_section_N": 6929.1,
+    "M_head_end_IN718_Nmm": 1780.3,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "shank.json SOAK_rep",
+    "S_axial_MPa": 336.5,
+    "S_bending_MPa": 135.1,
+    "S_nominal_MPa": 471.7,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.13,
+    "static_MS_u_net": 1.532,
+    "local_elastic_peak_MPa_info": 1054.5,
+    "Kt_eff": 2.2358,
+    "local_neuber_strain_n15_n30_info": [
+     0.00595,
+     0.00585
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 773.4,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 273.5,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 611.4,
+     "local_de": 0.00314,
+     "N_f": 9580891.6,
+     "N_f_at_2de": 54616.9,
+     "N_allow": 54616.9,
+     "MS_cycles_vs_50": 1091.338
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 960.3,
+     "local_de": 0.00595,
+     "N_f": 77794.0,
+     "N_f_at_2de": 2162.4,
+     "N_allow": 2162.4,
+     "MS_cycles_vs_50": 42.248
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1054.5,
+     "local_de": 0.00542,
+     "N_f": 146724.0,
+     "N_f_at_2de": 3159.4,
+     "N_allow": 3159.4,
+     "MS_cycles_vs_50": 62.188
+    }
+   },
+   "SOAK52|js5": {
+    "T_C": 154.1,
+    "N_section_N": 7232.8,
+    "M_head_end_IN718_Nmm": 3071.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK52",
+    "S_axial_MPa": 351.3,
+    "S_bending_MPa": 233.1,
+    "S_nominal_MPa": 584.4,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.707,
+    "static_MS_u_net": 1.023,
+    "local_elastic_peak_MPa_info": 1297.3,
+    "Kt_eff": 2.2199,
+    "local_neuber_strain_n15_n30_info": [
+     0.00847,
+     0.00858
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1047.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 386.2,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 857.4,
+     "local_de": 0.00444,
+     "N_f": 616332.9,
+     "N_f_at_2de": 7735.4,
+     "N_allow": 7735.4,
+     "MS_cycles_vs_50": 153.708
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1014.5,
+     "local_de": 0.00858,
+     "N_f": 9110.7,
+     "N_f_at_2de": 600.8,
+     "N_allow": 455.5,
+     "MS_cycles_vs_50": 8.11
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1296.7,
+     "local_de": 0.00671,
+     "N_f": 35479.0,
+     "N_f_at_2de": 1362.2,
+     "N_allow": 1362.2,
+     "MS_cycles_vs_50": 26.244
+    }
+   },
+   "SOAK52|(a)": {
+    "T_C": 154.1,
+    "N_section_N": 6339.7,
+    "M_head_end_IN718_Nmm": 1760.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 307.9,
+    "S_bending_MPa": 133.6,
+    "S_nominal_MPa": 441.5,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 1.259,
+    "static_MS_u_net": 1.678,
+    "local_elastic_peak_MPa_info": 986.1,
+    "Kt_eff": 2.2335,
+    "local_neuber_strain_n15_n30_info": [
+     0.00544,
+     0.00531
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 772.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 243.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 543.4,
+     "local_de": 0.00281,
+     "N_f": 23073464.7,
+     "N_f_at_2de": 111353.9,
+     "N_allow": 111353.9,
+     "MS_cycles_vs_50": 2226.078
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 925.3,
+     "local_de": 0.00544,
+     "N_f": 140360.7,
+     "N_f_at_2de": 3083.8,
+     "N_allow": 3083.8,
+     "MS_cycles_vs_50": 60.676
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 986.1,
+     "local_de": 0.0051,
+     "N_f": 219774.9,
+     "N_f_at_2de": 4047.7,
+     "N_allow": 4047.7,
+     "MS_cycles_vs_50": 79.954
+    }
+   },
+   "SOAK52|(a')": {
+    "T_C": 154.1,
+    "N_section_N": 7454.3,
+    "M_head_end_IN718_Nmm": 3176.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 362.1,
+    "S_bending_MPa": 241.0,
+    "S_nominal_MPa": 603.1,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.654,
+    "static_MS_u_net": 0.96,
+    "local_elastic_peak_MPa_info": 1338.7,
+    "Kt_eff": 2.2198,
+    "local_neuber_strain_n15_n30_info": [
+     0.00894,
+     0.0091
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1080.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 404.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 898.8,
+     "local_de": 0.00465,
+     "N_f": 432459.4,
+     "N_f_at_2de": 6166.6,
+     "N_allow": 6166.6,
+     "MS_cycles_vs_50": 122.332
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1019.1,
+     "local_de": 0.0091,
+     "N_f": 6844.4,
+     "N_f_at_2de": 502.8,
+     "N_allow": 342.2,
+     "MS_cycles_vs_50": 5.844
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1337.8,
+     "local_de": 0.00693,
+     "N_f": 29334.1,
+     "N_f_at_2de": 1216.9,
+     "N_allow": 1216.9,
+     "MS_cycles_vs_50": 23.338
+    }
+   },
+   "SOAK52|(a'')": {
+    "T_C": 154.1,
+    "N_section_N": 7427.0,
+    "M_head_end_IN718_Nmm": 3217.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 360.7,
+    "S_bending_MPa": 244.1,
+    "S_nominal_MPa": 604.9,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.649,
+    "static_MS_u_net": 0.954,
+    "local_elastic_peak_MPa_info": 1342.4,
+    "Kt_eff": 2.2192,
+    "local_neuber_strain_n15_n30_info": [
+     0.00899,
+     0.00914
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1084.4,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 406.7,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 902.6,
+     "local_de": 0.00467,
+     "N_f": 419306.4,
+     "N_f_at_2de": 6047.3,
+     "N_allow": 6047.3,
+     "MS_cycles_vs_50": 119.946
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1019.5,
+     "local_de": 0.00914,
+     "N_f": 6681.4,
+     "N_f_at_2de": 495.2,
+     "N_allow": 334.1,
+     "MS_cycles_vs_50": 5.682
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1341.4,
+     "local_de": 0.00695,
+     "N_f": 28862.3,
+     "N_f_at_2de": 1205.3,
+     "N_allow": 1205.3,
+     "MS_cycles_vs_50": 23.106
+    }
+   },
+   "SOAK52|(b2)": {
+    "T_C": 154.1,
+    "N_section_N": 6777.3,
+    "M_head_end_IN718_Nmm": 3084.4,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52",
+    "S_axial_MPa": 329.2,
+    "S_bending_MPa": 234.1,
+    "S_nominal_MPa": 563.3,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.771,
+    "static_MS_u_net": 1.099,
+    "local_elastic_peak_MPa_info": 1249.0,
+    "Kt_eff": 2.2176,
+    "local_neuber_strain_n15_n30_info": [
+     0.00794,
+     0.008
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 952.6,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 365.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 809.6,
+     "local_de": 0.00419,
+     "N_f": 954871.0,
+     "N_f_at_2de": 10307.9,
+     "N_allow": 10307.9,
+     "MS_cycles_vs_50": 205.158
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1008.4,
+     "local_de": 0.008,
+     "N_f": 13068.2,
+     "N_f_at_2de": 749.4,
+     "N_allow": 653.4,
+     "MS_cycles_vs_50": 12.068
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1248.7,
+     "local_de": 0.00646,
+     "N_f": 44853.6,
+     "N_f_at_2de": 1564.9,
+     "N_allow": 1564.9,
+     "MS_cycles_vs_50": 30.298
+    }
+   },
+   "SOAK52|(b2) rep": {
+    "T_C": 154.1,
+    "N_section_N": 8643.5,
+    "M_head_end_IN718_Nmm": 4116.5,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52_rep",
+    "S_axial_MPa": 419.8,
+    "S_bending_MPa": 312.4,
+    "S_nominal_MPa": 732.2,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.362,
+    "static_MS_u_net": 0.614,
+    "local_elastic_peak_MPa_info": 1622.6,
+    "Kt_eff": 2.216,
+    "local_neuber_strain_n15_n30_info": [
+     0.01257,
+     0.01306
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1248.0,
+    "cold_fibre_MPa": 198.2,
+    "range_firing_MPa": 534.0,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1183.3,
+     "local_de": 0.00612,
+     "N_f": 63247.4,
+     "N_f_at_2de": 1917.7,
+     "N_allow": 1917.7,
+     "MS_cycles_vs_50": 37.354
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1043.0,
+     "local_de": 0.01306,
+     "N_f": 1507.6,
+     "N_f_at_2de": 184.7,
+     "N_allow": 75.4,
+     "MS_cycles_vs_50": 0.508
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1607.5,
+     "local_de": 0.00847,
+     "N_f": 9720.5,
+     "N_f_at_2de": 625.3,
+     "N_allow": 486.0,
+     "MS_cycles_vs_50": 8.72
+    }
+   },
+   "FA1S|js5": {
+    "T_C": 45.6,
+    "N_section_N": 3379.5,
+    "M_head_end_IN718_Nmm": 1880.6,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets FA1S",
+    "S_axial_MPa": 164.1,
+    "S_bending_MPa": 142.7,
+    "S_nominal_MPa": 306.9,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.347,
+    "static_MS_u_net": 3.008,
+    "local_elastic_peak_MPa_info": 678.3,
+    "Kt_eff": 2.2106,
+    "local_neuber_strain_n15_n30_info": [
+     0.00342,
+     0.00341
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 791.2
+   },
+   "FA1S|(a)": {
+    "T_C": 45.6,
+    "N_section_N": 3366.5,
+    "M_head_end_IN718_Nmm": 1858.6,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 163.5,
+    "S_bending_MPa": 141.1,
+    "S_nominal_MPa": 304.6,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.372,
+    "static_MS_u_net": 3.038,
+    "local_elastic_peak_MPa_info": 673.4,
+    "Kt_eff": 2.2109,
+    "local_neuber_strain_n15_n30_info": [
+     0.00339,
+     0.00339
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 754.2
+   },
+   "FA1S|(a')": {
+    "T_C": 45.6,
+    "N_section_N": 3336.5,
+    "M_head_end_IN718_Nmm": 1804.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 162.1,
+    "S_bending_MPa": 136.9,
+    "S_nominal_MPa": 299.0,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.435,
+    "static_MS_u_net": 3.113,
+    "local_elastic_peak_MPa_info": 661.2,
+    "Kt_eff": 2.2116,
+    "local_neuber_strain_n15_n30_info": [
+     0.00333,
+     0.00333
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 762.2
+   },
+   "FA1S|(a'')": {
+    "T_C": 45.6,
+    "N_section_N": 3328.7,
+    "M_head_end_IN718_Nmm": 1888.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 161.7,
+    "S_bending_MPa": 143.3,
+    "S_nominal_MPa": 305.0,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.367,
+    "static_MS_u_net": 3.032,
+    "local_elastic_peak_MPa_info": 674.0,
+    "Kt_eff": 2.2099,
+    "local_neuber_strain_n15_n30_info": [
+     0.00339,
+     0.00339
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 790.4
+   },
+   "FA1S|(b2)": {
+    "T_C": 45.6,
+    "N_section_N": 2934.9,
+    "M_head_end_IN718_Nmm": 3113.3,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json FA1S",
+    "S_axial_MPa": 142.5,
+    "S_bending_MPa": 236.3,
+    "S_nominal_MPa": 378.8,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.711,
+    "static_MS_u_net": 2.246,
+    "local_elastic_peak_MPa_info": 828.9,
+    "Kt_eff": 2.1882,
+    "local_neuber_strain_n15_n30_info": [
+     0.00421,
+     0.00417
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 806.8
+   }
+  },
+  "4096|quoted_r0.2": {
+   "SOAK70|js5": {
+    "T_C": 158.6,
+    "N_section_N": 6531.9,
+    "M_head_end_IN718_Nmm": 1694.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK70",
+    "S_axial_MPa": 317.3,
+    "S_bending_MPa": 128.6,
+    "S_nominal_MPa": 445.8,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.234,
+    "static_MS_u_net": 1.647,
+    "local_elastic_peak_MPa_info": 1135.6,
+    "Kt_eff": 2.5473,
+    "local_neuber_strain_n15_n30_info": [
+     0.00678,
+     0.00675
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 780.4,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 229.4,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 584.2,
+     "local_de": 0.00303,
+     "N_f": 12612356.5,
+     "N_f_at_2de": 68027.0,
+     "N_allow": 68027.0,
+     "MS_cycles_vs_50": 1359.54
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 984.7,
+     "local_de": 0.00678,
+     "N_f": 33266.4,
+     "N_f_at_2de": 1311.8,
+     "N_allow": 1311.8,
+     "MS_cycles_vs_50": 25.236
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1135.6,
+     "local_de": 0.00588,
+     "N_f": 81983.6,
+     "N_f_at_2de": 2237.5,
+     "N_allow": 2237.5,
+     "MS_cycles_vs_50": 43.75
+    }
+   },
+   "SOAK70|(a)": {
+    "T_C": 158.6,
+    "N_section_N": 7377.8,
+    "M_head_end_IN718_Nmm": 2976.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 358.3,
+    "S_bending_MPa": 225.9,
+    "S_nominal_MPa": 584.2,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.705,
+    "static_MS_u_net": 1.02,
+    "local_elastic_peak_MPa_info": 1481.1,
+    "Kt_eff": 2.535,
+    "local_neuber_strain_n15_n30_info": [
+     0.0107,
+     0.01102
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1044.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 367.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 932.3,
+     "local_de": 0.00483,
+     "N_f": 326011.1,
+     "N_f_at_2de": 5165.8,
+     "N_allow": 5165.8,
+     "MS_cycles_vs_50": 102.316
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1031.3,
+     "local_de": 0.01102,
+     "N_f": 2916.3,
+     "N_f_at_2de": 290.0,
+     "N_allow": 145.8,
+     "MS_cycles_vs_50": 1.916
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1476.8,
+     "local_de": 0.00769,
+     "N_f": 16132.7,
+     "N_f_at_2de": 851.6,
+     "N_allow": 806.6,
+     "MS_cycles_vs_50": 15.132
+    }
+   },
+   "SOAK70|(a')": {
+    "T_C": 158.6,
+    "N_section_N": 6449.9,
+    "M_head_end_IN718_Nmm": 1687.3,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 313.3,
+    "S_bending_MPa": 128.0,
+    "S_nominal_MPa": 441.3,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.257,
+    "static_MS_u_net": 1.674,
+    "local_elastic_peak_MPa_info": 1124.1,
+    "Kt_eff": 2.547,
+    "local_neuber_strain_n15_n30_info": [
+     0.00667,
+     0.00663
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 773.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 224.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 572.7,
+     "local_de": 0.00297,
+     "N_f": 14833327.7,
+     "N_f_at_2de": 77510.8,
+     "N_allow": 77510.8,
+     "MS_cycles_vs_50": 1549.216
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 981.0,
+     "local_de": 0.00667,
+     "N_f": 36807.1,
+     "N_f_at_2de": 1392.8,
+     "N_allow": 1392.8,
+     "MS_cycles_vs_50": 26.856
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1124.0,
+     "local_de": 0.00582,
+     "N_f": 87764.9,
+     "N_f_at_2de": 2330.0,
+     "N_allow": 2330.0,
+     "MS_cycles_vs_50": 45.6
+    }
+   },
+   "SOAK70|(a'')": {
+    "T_C": 158.6,
+    "N_section_N": 6445.3,
+    "M_head_end_IN718_Nmm": 1672.4,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 313.0,
+    "S_bending_MPa": 126.9,
+    "S_nominal_MPa": 440.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.264,
+    "static_MS_u_net": 1.682,
+    "local_elastic_peak_MPa_info": 1120.7,
+    "Kt_eff": 2.5473,
+    "local_neuber_strain_n15_n30_info": [
+     0.00664,
+     0.0066
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 770.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 223.5,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 569.3,
+     "local_de": 0.00295,
+     "N_f": 15569987.8,
+     "N_f_at_2de": 80615.2,
+     "N_allow": 80615.2,
+     "MS_cycles_vs_50": 1611.304
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 979.9,
+     "local_de": 0.00664,
+     "N_f": 37912.7,
+     "N_f_at_2de": 1417.4,
+     "N_allow": 1417.4,
+     "MS_cycles_vs_50": 27.348
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1120.6,
+     "local_de": 0.00581,
+     "N_f": 89532.3,
+     "N_f_at_2de": 2357.8,
+     "N_allow": 2357.8,
+     "MS_cycles_vs_50": 46.156
+    }
+   },
+   "SOAK70|(b2)": {
+    "T_C": 158.6,
+    "N_section_N": 8646.1,
+    "M_head_end_IN718_Nmm": 4788.4,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK70",
+    "S_axial_MPa": 419.9,
+    "S_bending_MPa": 363.4,
+    "S_nominal_MPa": 783.3,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.272,
+    "static_MS_u_net": 0.507,
+    "local_elastic_peak_MPa_info": 1978.2,
+    "Kt_eff": 2.5254,
+    "local_neuber_strain_n15_n30_info": [
+     0.01804,
+     0.01909
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1357.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 566.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1428.9,
+     "local_de": 0.00743,
+     "N_f": 19600.5,
+     "N_f_at_2de": 957.4,
+     "N_allow": 957.4,
+     "MS_cycles_vs_50": 18.148
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1061.8,
+     "local_de": 0.01909,
+     "N_f": 435.6,
+     "N_f_at_2de": 74.0,
+     "N_allow": 21.8,
+     "MS_cycles_vs_50": -0.564
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1852.6,
+     "local_de": 0.01094,
+     "N_f": 3000.5,
+     "N_f_at_2de": 295.5,
+     "N_allow": 150.0,
+     "MS_cycles_vs_50": 2.0
+    }
+   },
+   "SOAK|js5": {
+    "T_C": 127.0,
+    "N_section_N": 8609.5,
+    "M_head_end_IN718_Nmm": 4875.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK",
+    "S_axial_MPa": 418.2,
+    "S_bending_MPa": 370.0,
+    "S_nominal_MPa": 788.2,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 0.275,
+    "static_MS_u_net": 0.515,
+    "local_elastic_peak_MPa_info": 1989.9,
+    "Kt_eff": 2.5247,
+    "local_neuber_strain_n15_n30_info": [
+     0.01795,
+     0.019
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1444.9,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 571.7,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1440.7,
+     "local_de": 0.00743,
+     "N_f": 19945.1,
+     "N_f_at_2de": 964.5,
+     "N_allow": 964.5,
+     "MS_cycles_vs_50": 18.29
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1070.8,
+     "local_de": 0.019,
+     "N_f": 444.4,
+     "N_f_at_2de": 75.0,
+     "N_allow": 22.2,
+     "MS_cycles_vs_50": -0.556
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1865.9,
+     "local_de": 0.0109,
+     "N_f": 3079.6,
+     "N_f_at_2de": 299.9,
+     "N_allow": 154.0,
+     "MS_cycles_vs_50": 2.08
+    }
+   },
+   "SOAK|(a)": {
+    "T_C": 127.0,
+    "N_section_N": 6941.7,
+    "M_head_end_IN718_Nmm": 1259.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 337.2,
+    "S_bending_MPa": 95.6,
+    "S_nominal_MPa": 432.8,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.322,
+    "static_MS_u_net": 1.759,
+    "local_elastic_peak_MPa_info": 1106.0,
+    "Kt_eff": 2.5557,
+    "local_neuber_strain_n15_n30_info": [
+     0.00641,
+     0.00635
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 804.3,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 216.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 552.8,
+     "local_de": 0.00284,
+     "N_f": 21787532.1,
+     "N_f_at_2de": 106061.6,
+     "N_allow": 106061.6,
+     "MS_cycles_vs_50": 2120.232
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 980.1,
+     "local_de": 0.00641,
+     "N_f": 47981.7,
+     "N_f_at_2de": 1624.4,
+     "N_allow": 1624.4,
+     "MS_cycles_vs_50": 31.488
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1105.9,
+     "local_de": 0.00568,
+     "N_f": 105728.0,
+     "N_f_at_2de": 2595.7,
+     "N_allow": 2595.7,
+     "MS_cycles_vs_50": 50.914
+    }
+   },
+   "SOAK|(a')": {
+    "T_C": 127.0,
+    "N_section_N": 6659.7,
+    "M_head_end_IN718_Nmm": 153.4,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 323.5,
+    "S_bending_MPa": 11.6,
+    "S_nominal_MPa": 335.1,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.998,
+    "static_MS_u_net": 2.563,
+    "local_elastic_peak_MPa_info": 864.2,
+    "Kt_eff": 2.5789,
+    "local_neuber_strain_n15_n30_info": [
+     0.00452,
+     0.00445
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 706.8,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 118.6,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 305.9,
+     "local_de": 0.00157,
+     "N_f": 2909641552.3,
+     "N_f_at_2de": 9524969.5,
+     "N_allow": 9524969.5,
+     "MS_cycles_vs_50": 190498.39
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 848.8,
+     "local_de": 0.00452,
+     "N_f": 546460.8,
+     "N_f_at_2de": 7142.3,
+     "N_allow": 7142.3,
+     "MS_cycles_vs_50": 141.846
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 864.2,
+     "local_de": 0.00444,
+     "N_f": 625728.7,
+     "N_f_at_2de": 7794.1,
+     "N_allow": 7794.1,
+     "MS_cycles_vs_50": 154.882
+    }
+   },
+   "SOAK|(a'')": {
+    "T_C": 127.0,
+    "N_section_N": 6388.8,
+    "M_head_end_IN718_Nmm": 883.6,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 310.3,
+    "S_bending_MPa": 67.1,
+    "S_nominal_MPa": 377.4,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.662,
+    "static_MS_u_net": 2.164,
+    "local_elastic_peak_MPa_info": 966.5,
+    "Kt_eff": 2.5611,
+    "local_neuber_strain_n15_n30_info": [
+     0.00523,
+     0.0051
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 589.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 160.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 412.1,
+     "local_de": 0.00212,
+     "N_f": 245303479.5,
+     "N_f_at_2de": 898644.6,
+     "N_allow": 898644.6,
+     "MS_cycles_vs_50": 17971.892
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 917.7,
+     "local_de": 0.00523,
+     "N_f": 188262.9,
+     "N_f_at_2de": 3674.0,
+     "N_allow": 3674.0,
+     "MS_cycles_vs_50": 72.48
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 966.5,
+     "local_de": 0.00497,
+     "N_f": 272845.0,
+     "N_f_at_2de": 4612.4,
+     "N_allow": 4612.4,
+     "MS_cycles_vs_50": 91.248
+    }
+   },
+   "SOAK|(b2)": {
+    "T_C": 127.0,
+    "N_section_N": 5966.8,
+    "M_head_end_IN718_Nmm": 1604.0,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK",
+    "S_axial_MPa": 289.8,
+    "S_bending_MPa": 121.7,
+    "S_nominal_MPa": 411.5,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.441,
+    "static_MS_u_net": 1.901,
+    "local_elastic_peak_MPa_info": 1047.9,
+    "Kt_eff": 2.5463,
+    "local_neuber_strain_n15_n30_info": [
+     0.00589,
+     0.00579
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 637.9,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 195.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 496.7,
+     "local_de": 0.00255,
+     "N_f": 52413008.5,
+     "N_f_at_2de": 223769.4,
+     "N_allow": 223769.4,
+     "MS_cycles_vs_50": 4474.388
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 957.6,
+     "local_de": 0.00589,
+     "N_f": 82942.5,
+     "N_f_at_2de": 2246.3,
+     "N_allow": 2246.3,
+     "MS_cycles_vs_50": 43.926
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1047.9,
+     "local_de": 0.00538,
+     "N_f": 153299.9,
+     "N_f_at_2de": 3244.0,
+     "N_allow": 3244.0,
+     "MS_cycles_vs_50": 63.88
+    }
+   },
+   "SOAK|(b2) rep": {
+    "T_C": 127.0,
+    "N_section_N": 7278.9,
+    "M_head_end_IN718_Nmm": 2046.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "shank.json SOAK_rep",
+    "S_axial_MPa": 353.5,
+    "S_bending_MPa": 155.3,
+    "S_nominal_MPa": 508.9,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 0.974,
+    "static_MS_u_net": 1.346,
+    "local_elastic_peak_MPa_info": 1295.2,
+    "Kt_eff": 2.5452,
+    "local_neuber_strain_n15_n30_info": [
+     0.00834,
+     0.00844
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 840.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 292.4,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 744.2,
+     "local_de": 0.00382,
+     "N_f": 1987487.5,
+     "N_f_at_2de": 16970.9,
+     "N_allow": 16970.9,
+     "MS_cycles_vs_50": 338.418
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1020.6,
+     "local_de": 0.00844,
+     "N_f": 10024.2,
+     "N_f_at_2de": 635.7,
+     "N_allow": 501.2,
+     "MS_cycles_vs_50": 9.024
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1294.6,
+     "local_de": 0.00666,
+     "N_f": 38043.6,
+     "N_f_at_2de": 1416.0,
+     "N_allow": 1416.0,
+     "MS_cycles_vs_50": 27.32
+    }
+   },
+   "SOAK52|js5": {
+    "T_C": 154.1,
+    "N_section_N": 7584.0,
+    "M_head_end_IN718_Nmm": 3431.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK52",
+    "S_axial_MPa": 368.4,
+    "S_bending_MPa": 260.4,
+    "S_nominal_MPa": 628.8,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.586,
+    "static_MS_u_net": 0.88,
+    "local_elastic_peak_MPa_info": 1591.8,
+    "Kt_eff": 2.5316,
+    "local_neuber_strain_n15_n30_info": [
+     0.01214,
+     0.01259
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1134.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 412.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1043.8,
+     "local_de": 0.0054,
+     "N_f": 147099.0,
+     "N_f_at_2de": 3172.2,
+     "N_allow": 3172.2,
+     "MS_cycles_vs_50": 62.444
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1040.9,
+     "local_de": 0.01259,
+     "N_f": 1724.6,
+     "N_f_at_2de": 202.9,
+     "N_allow": 86.2,
+     "MS_cycles_vs_50": 0.724
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1580.1,
+     "local_de": 0.0083,
+     "N_f": 10831.0,
+     "N_f_at_2de": 668.3,
+     "N_allow": 541.5,
+     "MS_cycles_vs_50": 9.83
+    }
+   },
+   "SOAK52|(a)": {
+    "T_C": 154.1,
+    "N_section_N": 6691.0,
+    "M_head_end_IN718_Nmm": 2102.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 325.0,
+    "S_bending_MPa": 159.6,
+    "S_nominal_MPa": 484.6,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 1.058,
+    "static_MS_u_net": 1.44,
+    "local_elastic_peak_MPa_info": 1231.8,
+    "Kt_eff": 2.5422,
+    "local_neuber_strain_n15_n30_info": [
+     0.00775,
+     0.0078
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 860.1,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 268.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 681.5,
+     "local_de": 0.00353,
+     "N_f": 3689102.5,
+     "N_f_at_2de": 26492.1,
+     "N_allow": 26492.1,
+     "MS_cycles_vs_50": 528.842
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1006.1,
+     "local_de": 0.0078,
+     "N_f": 14974.7,
+     "N_f_at_2de": 813.9,
+     "N_allow": 748.7,
+     "MS_cycles_vs_50": 13.974
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1231.6,
+     "local_de": 0.00637,
+     "N_f": 48938.3,
+     "N_f_at_2de": 1647.7,
+     "N_allow": 1647.7,
+     "MS_cycles_vs_50": 31.954
+    }
+   },
+   "SOAK52|(a')": {
+    "T_C": 154.1,
+    "N_section_N": 7805.5,
+    "M_head_end_IN718_Nmm": 3517.9,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 379.1,
+    "S_bending_MPa": 267.0,
+    "S_nominal_MPa": 646.1,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.544,
+    "static_MS_u_net": 0.83,
+    "local_elastic_peak_MPa_info": 1635.7,
+    "Kt_eff": 2.5317,
+    "local_neuber_strain_n15_n30_info": [
+     0.01275,
+     0.01326
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1164.5,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 429.6,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1087.6,
+     "local_de": 0.00563,
+     "N_f": 110790.2,
+     "N_f_at_2de": 2676.0,
+     "N_allow": 2676.0,
+     "MS_cycles_vs_50": 52.52
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1043.9,
+     "local_de": 0.01326,
+     "N_f": 1426.1,
+     "N_f_at_2de": 177.7,
+     "N_allow": 71.3,
+     "MS_cycles_vs_50": 0.426
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1618.9,
+     "local_de": 0.00855,
+     "N_f": 9287.7,
+     "N_f_at_2de": 608.0,
+     "N_allow": 464.4,
+     "MS_cycles_vs_50": 8.288
+    }
+   },
+   "SOAK52|(a'')": {
+    "T_C": 154.1,
+    "N_section_N": 7778.2,
+    "M_head_end_IN718_Nmm": 3570.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 377.8,
+    "S_bending_MPa": 271.0,
+    "S_nominal_MPa": 648.8,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.537,
+    "static_MS_u_net": 0.822,
+    "local_elastic_peak_MPa_info": 1642.1,
+    "Kt_eff": 2.5312,
+    "local_neuber_strain_n15_n30_info": [
+     0.01284,
+     0.01336
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1170.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 432.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1094.2,
+     "local_de": 0.00566,
+     "N_f": 106361.9,
+     "N_f_at_2de": 2611.6,
+     "N_allow": 2611.6,
+     "MS_cycles_vs_50": 51.232
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1044.3,
+     "local_de": 0.01336,
+     "N_f": 1388.3,
+     "N_f_at_2de": 174.3,
+     "N_allow": 69.4,
+     "MS_cycles_vs_50": 0.388
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1624.5,
+     "local_de": 0.00859,
+     "N_f": 9083.4,
+     "N_f_at_2de": 599.7,
+     "N_allow": 454.2,
+     "MS_cycles_vs_50": 8.084
+    }
+   },
+   "SOAK52|(b2)": {
+    "T_C": 154.1,
+    "N_section_N": 7125.9,
+    "M_head_end_IN718_Nmm": 3541.6,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52",
+    "S_axial_MPa": 346.1,
+    "S_bending_MPa": 268.8,
+    "S_nominal_MPa": 614.9,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.622,
+    "static_MS_u_net": 0.923,
+    "local_elastic_peak_MPa_info": 1554.9,
+    "Kt_eff": 2.5287,
+    "local_neuber_strain_n15_n30_info": [
+     0.01164,
+     0.01205
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1047.6,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 398.4,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1007.5,
+     "local_de": 0.00521,
+     "N_f": 188658.1,
+     "N_f_at_2de": 3687.8,
+     "N_allow": 3687.8,
+     "MS_cycles_vs_50": 72.756
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1038.2,
+     "local_de": 0.01205,
+     "N_f": 2042.7,
+     "N_f_at_2de": 228.0,
+     "N_allow": 102.1,
+     "MS_cycles_vs_50": 1.042
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1546.4,
+     "local_de": 0.00809,
+     "N_f": 12364.0,
+     "N_f_at_2de": 724.6,
+     "N_allow": 618.2,
+     "MS_cycles_vs_50": 11.364
+    }
+   },
+   "SOAK52|(b2) rep": {
+    "T_C": 154.1,
+    "N_section_N": 8992.4,
+    "M_head_end_IN718_Nmm": 4448.6,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52_rep",
+    "S_axial_MPa": 436.8,
+    "S_bending_MPa": 337.6,
+    "S_nominal_MPa": 774.4,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.288,
+    "static_MS_u_net": 0.527,
+    "local_elastic_peak_MPa_info": 1958.3,
+    "Kt_eff": 2.5289,
+    "local_neuber_strain_n15_n30_info": [
+     0.01767,
+     0.01868
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1324.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 557.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1408.8,
+     "local_de": 0.00731,
+     "N_f": 21524.4,
+     "N_f_at_2de": 1012.1,
+     "N_allow": 1012.1,
+     "MS_cycles_vs_50": 19.242
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1062.0,
+     "local_de": 0.01868,
+     "N_f": 464.8,
+     "N_f_at_2de": 77.8,
+     "N_allow": 23.2,
+     "MS_cycles_vs_50": -0.536
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1843.4,
+     "local_de": 0.01076,
+     "N_f": 3219.1,
+     "N_f_at_2de": 309.5,
+     "N_allow": 161.0,
+     "MS_cycles_vs_50": 2.22
+    }
+   },
+   "FA1S|js5": {
+    "T_C": 45.6,
+    "N_section_N": 3733.6,
+    "M_head_end_IN718_Nmm": 2365.4,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets FA1S",
+    "S_axial_MPa": 181.3,
+    "S_bending_MPa": 179.5,
+    "S_nominal_MPa": 360.9,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.846,
+    "static_MS_u_net": 2.408,
+    "local_elastic_peak_MPa_info": 909.8,
+    "Kt_eff": 2.5212,
+    "local_neuber_strain_n15_n30_info": [
+     0.00469,
+     0.0046
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 958.7
+   },
+   "FA1S|(a)": {
+    "T_C": 45.6,
+    "N_section_N": 3720.7,
+    "M_head_end_IN718_Nmm": 2169.3,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 180.7,
+    "S_bending_MPa": 164.6,
+    "S_nominal_MPa": 345.4,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.974,
+    "static_MS_u_net": 2.561,
+    "local_elastic_peak_MPa_info": 871.6,
+    "Kt_eff": 2.5238,
+    "local_neuber_strain_n15_n30_info": [
+     0.00445,
+     0.00439
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 865.6
+   },
+   "FA1S|(a')": {
+    "T_C": 45.6,
+    "N_section_N": 3690.6,
+    "M_head_end_IN718_Nmm": 2110.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 179.3,
+    "S_bending_MPa": 160.1,
+    "S_nominal_MPa": 339.4,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.026,
+    "static_MS_u_net": 2.623,
+    "local_elastic_peak_MPa_info": 856.8,
+    "Kt_eff": 2.5244,
+    "local_neuber_strain_n15_n30_info": [
+     0.00437,
+     0.00432
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 876.6
+   },
+   "FA1S|(a'')": {
+    "T_C": 45.6,
+    "N_section_N": 3682.9,
+    "M_head_end_IN718_Nmm": 2385.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 178.9,
+    "S_bending_MPa": 181.0,
+    "S_nominal_MPa": 359.9,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.853,
+    "static_MS_u_net": 2.417,
+    "local_elastic_peak_MPa_info": 907.2,
+    "Kt_eff": 2.5205,
+    "local_neuber_strain_n15_n30_info": [
+     0.00468,
+     0.00459
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 961.6
+   },
+   "FA1S|(b2)": {
+    "T_C": 45.6,
+    "N_section_N": 3286.6,
+    "M_head_end_IN718_Nmm": 4823.7,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json FA1S",
+    "S_axial_MPa": 159.6,
+    "S_bending_MPa": 366.1,
+    "S_nominal_MPa": 525.7,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 0.954,
+    "static_MS_u_net": 1.339,
+    "local_elastic_peak_MPa_info": 1312.4,
+    "Kt_eff": 2.4964,
+    "local_neuber_strain_n15_n30_info": [
+     0.00823,
+     0.00832
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1161.1
+   }
+  },
+  "4096|page_literal_r0.2": {
+   "SOAK70|js5": {
+    "T_C": 158.6,
+    "N_section_N": 6531.9,
+    "M_head_end_IN718_Nmm": 1694.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK70",
+    "S_axial_MPa": 317.3,
+    "S_bending_MPa": 128.6,
+    "S_nominal_MPa": 445.8,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.234,
+    "static_MS_u_net": 1.647,
+    "local_elastic_peak_MPa_info": 1222.2,
+    "Kt_eff": 2.7414,
+    "local_neuber_strain_n15_n30_info": [
+     0.00767,
+     0.00771
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 780.4,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 229.4,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 628.7,
+     "local_de": 0.00326,
+     "N_f": 6955081.9,
+     "N_f_at_2de": 42653.9,
+     "N_allow": 42653.9,
+     "MS_cycles_vs_50": 852.078
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1003.7,
+     "local_de": 0.00771,
+     "N_f": 15965.7,
+     "N_f_at_2de": 846.3,
+     "N_allow": 798.3,
+     "MS_cycles_vs_50": 14.966
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1221.9,
+     "local_de": 0.00633,
+     "N_f": 50913.7,
+     "N_f_at_2de": 1687.4,
+     "N_allow": 1687.4,
+     "MS_cycles_vs_50": 32.748
+    }
+   },
+   "SOAK70|(a)": {
+    "T_C": 158.6,
+    "N_section_N": 7377.8,
+    "M_head_end_IN718_Nmm": 2976.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 358.3,
+    "S_bending_MPa": 225.9,
+    "S_nominal_MPa": 584.2,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.705,
+    "static_MS_u_net": 1.02,
+    "local_elastic_peak_MPa_info": 1578.1,
+    "Kt_eff": 2.7011,
+    "local_neuber_strain_n15_n30_info": [
+     0.01198,
+     0.01242
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1044.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 367.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 993.4,
+     "local_de": 0.00515,
+     "N_f": 206072.8,
+     "N_f_at_2de": 3893.2,
+     "N_allow": 3893.2,
+     "MS_cycles_vs_50": 76.864
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1038.8,
+     "local_de": 0.01242,
+     "N_f": 1816.5,
+     "N_f_at_2de": 210.4,
+     "N_allow": 90.8,
+     "MS_cycles_vs_50": 0.816
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1567.5,
+     "local_de": 0.00823,
+     "N_f": 11272.9,
+     "N_f_at_2de": 685.1,
+     "N_allow": 563.6,
+     "MS_cycles_vs_50": 10.272
+    }
+   },
+   "SOAK70|(a')": {
+    "T_C": 158.6,
+    "N_section_N": 6449.9,
+    "M_head_end_IN718_Nmm": 1687.3,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 313.3,
+    "S_bending_MPa": 128.0,
+    "S_nominal_MPa": 441.3,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.257,
+    "static_MS_u_net": 1.674,
+    "local_elastic_peak_MPa_info": 1209.5,
+    "Kt_eff": 2.7407,
+    "local_neuber_strain_n15_n30_info": [
+     0.00753,
+     0.00756
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 773.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 224.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 616.2,
+     "local_de": 0.00319,
+     "N_f": 8181707.2,
+     "N_f_at_2de": 48356.0,
+     "N_allow": 48356.0,
+     "MS_cycles_vs_50": 966.12
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1001.8,
+     "local_de": 0.00756,
+     "N_f": 17725.8,
+     "N_f_at_2de": 901.3,
+     "N_allow": 886.3,
+     "MS_cycles_vs_50": 16.726
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1209.3,
+     "local_de": 0.00627,
+     "N_f": 54401.9,
+     "N_f_at_2de": 1754.9,
+     "N_allow": 1754.9,
+     "MS_cycles_vs_50": 34.098
+    }
+   },
+   "SOAK70|(a'')": {
+    "T_C": 158.6,
+    "N_section_N": 6445.3,
+    "M_head_end_IN718_Nmm": 1672.4,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 313.0,
+    "S_bending_MPa": 126.9,
+    "S_nominal_MPa": 440.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.264,
+    "static_MS_u_net": 1.682,
+    "local_elastic_peak_MPa_info": 1206.1,
+    "Kt_eff": 2.7413,
+    "local_neuber_strain_n15_n30_info": [
+     0.0075,
+     0.00752
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 770.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 223.5,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 612.7,
+     "local_de": 0.00317,
+     "N_f": 8573340.1,
+     "N_f_at_2de": 50147.8,
+     "N_allow": 50147.8,
+     "MS_cycles_vs_50": 1001.956
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1001.3,
+     "local_de": 0.00752,
+     "N_f": 18237.8,
+     "N_f_at_2de": 916.9,
+     "N_allow": 911.9,
+     "MS_cycles_vs_50": 17.238
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1205.9,
+     "local_de": 0.00625,
+     "N_f": 55389.1,
+     "N_f_at_2de": 1773.6,
+     "N_allow": 1773.6,
+     "MS_cycles_vs_50": 34.472
+    }
+   },
+   "SOAK70|(b2)": {
+    "T_C": 158.6,
+    "N_section_N": 8646.1,
+    "M_head_end_IN718_Nmm": 4788.4,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK70",
+    "S_axial_MPa": 419.9,
+    "S_bending_MPa": 363.4,
+    "S_nominal_MPa": 783.3,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.272,
+    "static_MS_u_net": 0.507,
+    "local_elastic_peak_MPa_info": 2091.0,
+    "Kt_eff": 2.6694,
+    "local_neuber_strain_n15_n30_info": [
+     0.01996,
+     0.02123
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1357.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 566.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1507.3,
+     "local_de": 0.00787,
+     "N_f": 14286.1,
+     "N_f_at_2de": 791.3,
+     "N_allow": 714.3,
+     "MS_cycles_vs_50": 13.286
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1066.9,
+     "local_de": 0.02123,
+     "N_f": 321.5,
+     "N_f_at_2de": 58.3,
+     "N_allow": 16.1,
+     "MS_cycles_vs_50": -0.678
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1904.2,
+     "local_de": 0.01189,
+     "N_f": 2144.4,
+     "N_f_at_2de": 235.7,
+     "N_allow": 107.2,
+     "MS_cycles_vs_50": 1.144
+    }
+   },
+   "SOAK|js5": {
+    "T_C": 127.0,
+    "N_section_N": 8609.5,
+    "M_head_end_IN718_Nmm": 4875.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK",
+    "S_axial_MPa": 418.2,
+    "S_bending_MPa": 370.0,
+    "S_nominal_MPa": 788.2,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 0.275,
+    "static_MS_u_net": 0.515,
+    "local_elastic_peak_MPa_info": 2102.1,
+    "Kt_eff": 2.6671,
+    "local_neuber_strain_n15_n30_info": [
+     0.01985,
+     0.0211
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1444.9,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 571.7,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1518.9,
+     "local_de": 0.00786,
+     "N_f": 14570.0,
+     "N_f_at_2de": 798.5,
+     "N_allow": 728.5,
+     "MS_cycles_vs_50": 13.57
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1075.9,
+     "local_de": 0.0211,
+     "N_f": 328.6,
+     "N_f_at_2de": 59.2,
+     "N_allow": 16.4,
+     "MS_cycles_vs_50": -0.672
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1917.8,
+     "local_de": 0.01184,
+     "N_f": 2206.2,
+     "N_f_at_2de": 239.8,
+     "N_allow": 110.3,
+     "MS_cycles_vs_50": 1.206
+    }
+   },
+   "SOAK|(a)": {
+    "T_C": 127.0,
+    "N_section_N": 6941.7,
+    "M_head_end_IN718_Nmm": 1259.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 337.2,
+    "S_bending_MPa": 95.6,
+    "S_nominal_MPa": 432.8,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.322,
+    "static_MS_u_net": 1.759,
+    "local_elastic_peak_MPa_info": 1198.3,
+    "Kt_eff": 2.7691,
+    "local_neuber_strain_n15_n30_info": [
+     0.00731,
+     0.00732
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 804.3,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 216.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 598.9,
+     "local_de": 0.00308,
+     "N_f": 11329838.6,
+     "N_f_at_2de": 62357.1,
+     "N_allow": 62357.1,
+     "MS_cycles_vs_50": 1246.142
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1007.2,
+     "local_de": 0.00732,
+     "N_f": 21600.4,
+     "N_f_at_2de": 1011.7,
+     "N_allow": 1011.7,
+     "MS_cycles_vs_50": 19.234
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1198.2,
+     "local_de": 0.00616,
+     "N_f": 62132.7,
+     "N_f_at_2de": 1892.7,
+     "N_allow": 1892.7,
+     "MS_cycles_vs_50": 36.854
+    }
+   },
+   "SOAK|(a')": {
+    "T_C": 127.0,
+    "N_section_N": 6659.7,
+    "M_head_end_IN718_Nmm": 153.4,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 323.5,
+    "S_bending_MPa": 11.6,
+    "S_nominal_MPa": 335.1,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.998,
+    "static_MS_u_net": 2.563,
+    "local_elastic_peak_MPa_info": 953.5,
+    "Kt_eff": 2.8455,
+    "local_neuber_strain_n15_n30_info": [
+     0.00513,
+     0.00501
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 706.8,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 118.6,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 337.6,
+     "local_de": 0.00173,
+     "N_f": 1284135773.1,
+     "N_f_at_2de": 4310048.9,
+     "N_allow": 4310048.9,
+     "MS_cycles_vs_50": 86199.978
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 910.3,
+     "local_de": 0.00513,
+     "N_f": 215245.5,
+     "N_f_at_2de": 3986.7,
+     "N_allow": 3986.7,
+     "MS_cycles_vs_50": 78.734
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 953.5,
+     "local_de": 0.0049,
+     "N_f": 300983.7,
+     "N_f_at_2de": 4901.6,
+     "N_allow": 4901.6,
+     "MS_cycles_vs_50": 97.032
+    }
+   },
+   "SOAK|(a'')": {
+    "T_C": 127.0,
+    "N_section_N": 6388.8,
+    "M_head_end_IN718_Nmm": 883.6,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 310.3,
+    "S_bending_MPa": 67.1,
+    "S_nominal_MPa": 377.4,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.662,
+    "static_MS_u_net": 2.164,
+    "local_elastic_peak_MPa_info": 1051.6,
+    "Kt_eff": 2.7868,
+    "local_neuber_strain_n15_n30_info": [
+     0.00592,
+     0.00583
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 589.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 160.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 448.4,
+     "local_de": 0.0023,
+     "N_f": 121932488.0,
+     "N_f_at_2de": 473667.5,
+     "N_allow": 473667.5,
+     "MS_cycles_vs_50": 9472.35
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 959.1,
+     "local_de": 0.00592,
+     "N_f": 79992.0,
+     "N_f_at_2de": 2198.5,
+     "N_allow": 2198.5,
+     "MS_cycles_vs_50": 42.97
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1051.6,
+     "local_de": 0.0054,
+     "N_f": 149545.5,
+     "N_f_at_2de": 3195.9,
+     "N_allow": 3195.9,
+     "MS_cycles_vs_50": 62.918
+    }
+   },
+   "SOAK|(b2)": {
+    "T_C": 127.0,
+    "N_section_N": 5966.8,
+    "M_head_end_IN718_Nmm": 1604.0,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK",
+    "S_axial_MPa": 289.8,
+    "S_bending_MPa": 121.7,
+    "S_nominal_MPa": 411.5,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.441,
+    "static_MS_u_net": 1.901,
+    "local_elastic_peak_MPa_info": 1126.9,
+    "Kt_eff": 2.7383,
+    "local_neuber_strain_n15_n30_info": [
+     0.00661,
+     0.00656
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 637.9,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 195.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 534.2,
+     "local_de": 0.00274,
+     "N_f": 28843645.5,
+     "N_f_at_2de": 134105.5,
+     "N_allow": 134105.5,
+     "MS_cycles_vs_50": 2681.11
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 987.2,
+     "local_de": 0.00661,
+     "N_f": 39768.5,
+     "N_f_at_2de": 1453.7,
+     "N_allow": 1453.7,
+     "MS_cycles_vs_50": 28.074
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1126.9,
+     "local_de": 0.00579,
+     "N_f": 93163.2,
+     "N_f_at_2de": 2407.1,
+     "N_allow": 2407.1,
+     "MS_cycles_vs_50": 47.142
+    }
+   },
+   "SOAK|(b2) rep": {
+    "T_C": 127.0,
+    "N_section_N": 7278.9,
+    "M_head_end_IN718_Nmm": 2046.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "shank.json SOAK_rep",
+    "S_axial_MPa": 353.5,
+    "S_bending_MPa": 155.3,
+    "S_nominal_MPa": 508.9,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 0.974,
+    "static_MS_u_net": 1.346,
+    "local_elastic_peak_MPa_info": 1391.5,
+    "Kt_eff": 2.7345,
+    "local_neuber_strain_n15_n30_info": [
+     0.00945,
+     0.00965
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 840.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 292.4,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 799.6,
+     "local_de": 0.00411,
+     "N_f": 1134949.9,
+     "N_f_at_2de": 11547.8,
+     "N_allow": 11547.8,
+     "MS_cycles_vs_50": 229.956
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1031.1,
+     "local_de": 0.00965,
+     "N_f": 5259.3,
+     "N_f_at_2de": 424.6,
+     "N_allow": 263.0,
+     "MS_cycles_vs_50": 4.26
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1389.9,
+     "local_de": 0.00716,
+     "N_f": 24694.2,
+     "N_f_at_2de": 1095.7,
+     "N_allow": 1095.7,
+     "MS_cycles_vs_50": 20.914
+    }
+   },
+   "SOAK52|js5": {
+    "T_C": 154.1,
+    "N_section_N": 7584.0,
+    "M_head_end_IN718_Nmm": 3431.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK52",
+    "S_axial_MPa": 368.4,
+    "S_bending_MPa": 260.4,
+    "S_nominal_MPa": 628.8,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.586,
+    "static_MS_u_net": 0.88,
+    "local_elastic_peak_MPa_info": 1691.3,
+    "Kt_eff": 2.6898,
+    "local_neuber_strain_n15_n30_info": [
+     0.01354,
+     0.01413
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1134.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 412.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1109.0,
+     "local_de": 0.00574,
+     "N_f": 97129.8,
+     "N_f_at_2de": 2473.9,
+     "N_allow": 2473.9,
+     "MS_cycles_vs_50": 48.478
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1047.5,
+     "local_de": 0.01413,
+     "N_f": 1138.7,
+     "N_f_at_2de": 151.4,
+     "N_allow": 56.9,
+     "MS_cycles_vs_50": 0.138
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1665.6,
+     "local_de": 0.00888,
+     "N_f": 7677.9,
+     "N_f_at_2de": 540.3,
+     "N_allow": 383.9,
+     "MS_cycles_vs_50": 6.678
+    }
+   },
+   "SOAK52|(a)": {
+    "T_C": 154.1,
+    "N_section_N": 6691.0,
+    "M_head_end_IN718_Nmm": 2102.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 325.0,
+    "S_bending_MPa": 159.6,
+    "S_nominal_MPa": 484.6,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 1.058,
+    "static_MS_u_net": 1.44,
+    "local_elastic_peak_MPa_info": 1320.2,
+    "Kt_eff": 2.7246,
+    "local_neuber_strain_n15_n30_info": [
+     0.00873,
+     0.00887
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 860.1,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 268.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 730.4,
+     "local_de": 0.00378,
+     "N_f": 2128493.1,
+     "N_f_at_2de": 17841.7,
+     "N_allow": 17841.7,
+     "MS_cycles_vs_50": 355.834
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1017.1,
+     "local_de": 0.00887,
+     "N_f": 7757.3,
+     "N_f_at_2de": 543.7,
+     "N_allow": 387.9,
+     "MS_cycles_vs_50": 6.758
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1319.5,
+     "local_de": 0.00683,
+     "N_f": 31897.2,
+     "N_f_at_2de": 1279.0,
+     "N_allow": 1279.0,
+     "MS_cycles_vs_50": 24.58
+    }
+   },
+   "SOAK52|(a')": {
+    "T_C": 154.1,
+    "N_section_N": 7805.5,
+    "M_head_end_IN718_Nmm": 3517.9,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 379.1,
+    "S_bending_MPa": 267.0,
+    "S_nominal_MPa": 646.1,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.544,
+    "static_MS_u_net": 0.83,
+    "local_elastic_peak_MPa_info": 1738.1,
+    "Kt_eff": 2.6902,
+    "local_neuber_strain_n15_n30_info": [
+     0.01422,
+     0.01488
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1164.5,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 429.6,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1155.6,
+     "local_de": 0.00598,
+     "N_f": 73810.0,
+     "N_f_at_2de": 2101.4,
+     "N_allow": 2101.4,
+     "MS_cycles_vs_50": 41.028
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1050.3,
+     "local_de": 0.01488,
+     "N_f": 953.4,
+     "N_f_at_2de": 133.2,
+     "N_allow": 47.7,
+     "MS_cycles_vs_50": -0.046
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1702.5,
+     "local_de": 0.00918,
+     "N_f": 6558.5,
+     "N_f_at_2de": 489.5,
+     "N_allow": 327.9,
+     "MS_cycles_vs_50": 5.558
+    }
+   },
+   "SOAK52|(a'')": {
+    "T_C": 154.1,
+    "N_section_N": 7778.2,
+    "M_head_end_IN718_Nmm": 3570.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 377.8,
+    "S_bending_MPa": 271.0,
+    "S_nominal_MPa": 648.8,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.537,
+    "static_MS_u_net": 0.822,
+    "local_elastic_peak_MPa_info": 1744.1,
+    "Kt_eff": 2.6883,
+    "local_neuber_strain_n15_n30_info": [
+     0.01431,
+     0.01498
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1170.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 432.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1162.0,
+     "local_de": 0.00601,
+     "N_f": 71175.7,
+     "N_f_at_2de": 2056.6,
+     "N_allow": 2056.6,
+     "MS_cycles_vs_50": 40.132
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1050.7,
+     "local_de": 0.01498,
+     "N_f": 932.5,
+     "N_f_at_2de": 131.1,
+     "N_allow": 46.6,
+     "MS_cycles_vs_50": -0.068
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1707.1,
+     "local_de": 0.00922,
+     "N_f": 6427.9,
+     "N_f_at_2de": 483.3,
+     "N_allow": 321.4,
+     "MS_cycles_vs_50": 5.428
+    }
+   },
+   "SOAK52|(b2)": {
+    "T_C": 154.1,
+    "N_section_N": 7125.9,
+    "M_head_end_IN718_Nmm": 3541.6,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52",
+    "S_axial_MPa": 346.1,
+    "S_bending_MPa": 268.8,
+    "S_nominal_MPa": 614.9,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.622,
+    "static_MS_u_net": 0.923,
+    "local_elastic_peak_MPa_info": 1648.1,
+    "Kt_eff": 2.6804,
+    "local_neuber_strain_n15_n30_info": [
+     0.01292,
+     0.01345
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1047.6,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 398.4,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1067.8,
+     "local_de": 0.00552,
+     "N_f": 125628.4,
+     "N_f_at_2de": 2885.1,
+     "N_allow": 2885.1,
+     "MS_cycles_vs_50": 56.702
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1044.7,
+     "local_de": 0.01345,
+     "N_f": 1354.4,
+     "N_f_at_2de": 171.3,
+     "N_allow": 67.7,
+     "MS_cycles_vs_50": 0.354
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1629.6,
+     "local_de": 0.00862,
+     "N_f": 8898.8,
+     "N_f_at_2de": 592.1,
+     "N_allow": 444.9,
+     "MS_cycles_vs_50": 7.898
+    }
+   },
+   "SOAK52|(b2) rep": {
+    "T_C": 154.1,
+    "N_section_N": 8992.4,
+    "M_head_end_IN718_Nmm": 4448.6,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52_rep",
+    "S_axial_MPa": 436.8,
+    "S_bending_MPa": 337.6,
+    "S_nominal_MPa": 774.4,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.288,
+    "static_MS_u_net": 0.527,
+    "local_elastic_peak_MPa_info": 2076.0,
+    "Kt_eff": 2.6808,
+    "local_neuber_strain_n15_n30_info": [
+     0.01966,
+     0.02089
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1324.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 557.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1490.7,
+     "local_de": 0.00776,
+     "N_f": 15399.4,
+     "N_f_at_2de": 827.7,
+     "N_allow": 770.0,
+     "MS_cycles_vs_50": 14.4
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1067.5,
+     "local_de": 0.02089,
+     "N_f": 336.7,
+     "N_f_at_2de": 60.5,
+     "N_allow": 16.8,
+     "MS_cycles_vs_50": -0.664
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1899.1,
+     "local_de": 0.01174,
+     "N_f": 2259.4,
+     "N_f_at_2de": 244.2,
+     "N_allow": 113.0,
+     "MS_cycles_vs_50": 1.26
+    }
+   },
+   "FA1S|js5": {
+    "T_C": 45.6,
+    "N_section_N": 3733.6,
+    "M_head_end_IN718_Nmm": 2365.4,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets FA1S",
+    "S_axial_MPa": 181.3,
+    "S_bending_MPa": 179.5,
+    "S_nominal_MPa": 360.9,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.846,
+    "static_MS_u_net": 2.408,
+    "local_elastic_peak_MPa_info": 958.3,
+    "Kt_eff": 2.6556,
+    "local_neuber_strain_n15_n30_info": [
+     0.00502,
+     0.0049
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 958.7
+   },
+   "FA1S|(a)": {
+    "T_C": 45.6,
+    "N_section_N": 3720.7,
+    "M_head_end_IN718_Nmm": 2169.3,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 180.7,
+    "S_bending_MPa": 164.6,
+    "S_nominal_MPa": 345.4,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.974,
+    "static_MS_u_net": 2.561,
+    "local_elastic_peak_MPa_info": 920.1,
+    "Kt_eff": 2.6641,
+    "local_neuber_strain_n15_n30_info": [
+     0.00476,
+     0.00466
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 865.6
+   },
+   "FA1S|(a')": {
+    "T_C": 45.6,
+    "N_section_N": 3690.6,
+    "M_head_end_IN718_Nmm": 2110.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 179.3,
+    "S_bending_MPa": 160.1,
+    "S_nominal_MPa": 339.4,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.026,
+    "static_MS_u_net": 2.623,
+    "local_elastic_peak_MPa_info": 904.9,
+    "Kt_eff": 2.6661,
+    "local_neuber_strain_n15_n30_info": [
+     0.00466,
+     0.00457
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 876.6
+   },
+   "FA1S|(a'')": {
+    "T_C": 45.6,
+    "N_section_N": 3682.9,
+    "M_head_end_IN718_Nmm": 2385.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 178.9,
+    "S_bending_MPa": 181.0,
+    "S_nominal_MPa": 359.9,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.853,
+    "static_MS_u_net": 2.417,
+    "local_elastic_peak_MPa_info": 955.0,
+    "Kt_eff": 2.6533,
+    "local_neuber_strain_n15_n30_info": [
+     0.005,
+     0.00488
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 961.6
+   },
+   "FA1S|(b2)": {
+    "T_C": 45.6,
+    "N_section_N": 3286.6,
+    "M_head_end_IN718_Nmm": 4823.7,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json FA1S",
+    "S_axial_MPa": 159.6,
+    "S_bending_MPa": 366.1,
+    "S_nominal_MPa": 525.7,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 0.954,
+    "static_MS_u_net": 1.339,
+    "local_elastic_peak_MPa_info": 1353.2,
+    "Kt_eff": 2.574,
+    "local_neuber_strain_n15_n30_info": [
+     0.00867,
+     0.0088
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1161.1
+   }
+  },
+  "4096|r0.3_info": {
+   "SOAK70|js5": {
+    "T_C": 158.6,
+    "N_section_N": 6531.9,
+    "M_head_end_IN718_Nmm": 1694.1,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK70",
+    "S_axial_MPa": 317.3,
+    "S_bending_MPa": 128.6,
+    "S_nominal_MPa": 445.8,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.234,
+    "static_MS_u_net": 1.647,
+    "local_elastic_peak_MPa_info": 996.6,
+    "Kt_eff": 2.2355,
+    "local_neuber_strain_n15_n30_info": [
+     0.00553,
+     0.00541
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 780.4,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 229.4,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 512.7,
+     "local_de": 0.00266,
+     "N_f": 36679246.6,
+     "N_f_at_2de": 164632.0,
+     "N_allow": 164632.0,
+     "MS_cycles_vs_50": 3291.64
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 930.0,
+     "local_de": 0.00553,
+     "N_f": 124128.1,
+     "N_f_at_2de": 2865.6,
+     "N_allow": 2865.6,
+     "MS_cycles_vs_50": 56.312
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 996.6,
+     "local_de": 0.00516,
+     "N_f": 201319.6,
+     "N_f_at_2de": 3838.2,
+     "N_allow": 3838.2,
+     "MS_cycles_vs_50": 75.764
+    }
+   },
+   "SOAK70|(a)": {
+    "T_C": 158.6,
+    "N_section_N": 7377.8,
+    "M_head_end_IN718_Nmm": 2976.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 358.3,
+    "S_bending_MPa": 225.9,
+    "S_nominal_MPa": 584.2,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.705,
+    "static_MS_u_net": 1.02,
+    "local_elastic_peak_MPa_info": 1298.0,
+    "Kt_eff": 2.2216,
+    "local_neuber_strain_n15_n30_info": [
+     0.00849,
+     0.00861
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1044.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 367.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 817.1,
+     "local_de": 0.00423,
+     "N_f": 878164.2,
+     "N_f_at_2de": 9754.3,
+     "N_allow": 9754.3,
+     "MS_cycles_vs_50": 194.086
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1013.5,
+     "local_de": 0.00861,
+     "N_f": 8947.5,
+     "N_f_at_2de": 594.4,
+     "N_allow": 447.4,
+     "MS_cycles_vs_50": 7.948
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1297.4,
+     "local_de": 0.00673,
+     "N_f": 35017.6,
+     "N_f_at_2de": 1352.3,
+     "N_allow": 1352.3,
+     "MS_cycles_vs_50": 26.046
+    }
+   },
+   "SOAK70|(a')": {
+    "T_C": 158.6,
+    "N_section_N": 6449.9,
+    "M_head_end_IN718_Nmm": 1687.3,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 313.3,
+    "S_bending_MPa": 128.0,
+    "S_nominal_MPa": 441.3,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.257,
+    "static_MS_u_net": 1.674,
+    "local_elastic_peak_MPa_info": 986.5,
+    "Kt_eff": 2.2353,
+    "local_neuber_strain_n15_n30_info": [
+     0.00545,
+     0.00533
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 773.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 224.8,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 502.6,
+     "local_de": 0.0026,
+     "N_f": 43211986.0,
+     "N_f_at_2de": 189494.4,
+     "N_allow": 189494.4,
+     "MS_cycles_vs_50": 3788.888
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 925.0,
+     "local_de": 0.00545,
+     "N_f": 137707.2,
+     "N_f_at_2de": 3049.9,
+     "N_allow": 3049.9,
+     "MS_cycles_vs_50": 59.998
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 986.5,
+     "local_de": 0.00511,
+     "N_f": 216616.9,
+     "N_f_at_2de": 4013.7,
+     "N_allow": 4013.7,
+     "MS_cycles_vs_50": 79.274
+    }
+   },
+   "SOAK70|(a'')": {
+    "T_C": 158.6,
+    "N_section_N": 6445.3,
+    "M_head_end_IN718_Nmm": 1672.4,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK70",
+    "S_axial_MPa": 313.0,
+    "S_bending_MPa": 126.9,
+    "S_nominal_MPa": 440.0,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 1.264,
+    "static_MS_u_net": 1.682,
+    "local_elastic_peak_MPa_info": 983.5,
+    "Kt_eff": 2.2355,
+    "local_neuber_strain_n15_n30_info": [
+     0.00543,
+     0.0053
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 770.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 223.5,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 499.6,
+     "local_de": 0.00259,
+     "N_f": 45368495.4,
+     "N_f_at_2de": 197627.9,
+     "N_allow": 197627.9,
+     "MS_cycles_vs_50": 3951.558
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 923.5,
+     "local_de": 0.00543,
+     "N_f": 141883.3,
+     "N_f_at_2de": 3105.2,
+     "N_allow": 3105.2,
+     "MS_cycles_vs_50": 61.104
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 983.5,
+     "local_de": 0.00509,
+     "N_f": 221255.6,
+     "N_f_at_2de": 4066.1,
+     "N_allow": 4066.1,
+     "MS_cycles_vs_50": 80.322
+    }
+   },
+   "SOAK70|(b2)": {
+    "T_C": 158.6,
+    "N_section_N": 8646.1,
+    "M_head_end_IN718_Nmm": 4788.4,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK70",
+    "S_axial_MPa": 419.9,
+    "S_bending_MPa": 363.4,
+    "S_nominal_MPa": 783.3,
+    "Fty_MPa": 996.1,
+    "Ftu_MPa": 1180.2,
+    "static_MS_y_net": 0.272,
+    "static_MS_u_net": 0.507,
+    "local_elastic_peak_MPa_info": 1731.8,
+    "Kt_eff": 2.2107,
+    "local_neuber_strain_n15_n30_info": [
+     0.01416,
+     0.01481
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1357.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 566.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1252.8,
+     "local_de": 0.00649,
+     "N_f": 43488.0,
+     "N_f_at_2de": 1537.2,
+     "N_allow": 1537.2,
+     "MS_cycles_vs_50": 29.744
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1048.8,
+     "local_de": 0.01481,
+     "N_f": 967.4,
+     "N_f_at_2de": 134.6,
+     "N_allow": 48.4,
+     "MS_cycles_vs_50": -0.032
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1697.2,
+     "local_de": 0.00915,
+     "N_f": 6639.9,
+     "N_f_at_2de": 493.5,
+     "N_allow": 332.0,
+     "MS_cycles_vs_50": 5.64
+    }
+   },
+   "SOAK|js5": {
+    "T_C": 127.0,
+    "N_section_N": 8609.5,
+    "M_head_end_IN718_Nmm": 4875.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK",
+    "S_axial_MPa": 418.2,
+    "S_bending_MPa": 370.0,
+    "S_nominal_MPa": 788.2,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 0.275,
+    "static_MS_u_net": 0.515,
+    "local_elastic_peak_MPa_info": 1741.8,
+    "Kt_eff": 2.21,
+    "local_neuber_strain_n15_n30_info": [
+     0.0141,
+     0.01474
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1444.9,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 571.7,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1263.0,
+     "local_de": 0.00649,
+     "N_f": 44386.0,
+     "N_f_at_2de": 1551.3,
+     "N_allow": 1551.3,
+     "MS_cycles_vs_50": 30.026
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1057.6,
+     "local_de": 0.01474,
+     "N_f": 991.3,
+     "N_f_at_2de": 136.8,
+     "N_allow": 49.6,
+     "MS_cycles_vs_50": -0.008
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1708.1,
+     "local_de": 0.00912,
+     "N_f": 6829.1,
+     "N_f_at_2de": 500.9,
+     "N_allow": 341.5,
+     "MS_cycles_vs_50": 5.83
+    }
+   },
+   "SOAK|(a)": {
+    "T_C": 127.0,
+    "N_section_N": 6941.7,
+    "M_head_end_IN718_Nmm": 1259.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 337.2,
+    "S_bending_MPa": 95.6,
+    "S_nominal_MPa": 432.8,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.322,
+    "static_MS_u_net": 1.759,
+    "local_elastic_peak_MPa_info": 971.6,
+    "Kt_eff": 2.245,
+    "local_neuber_strain_n15_n30_info": [
+     0.00527,
+     0.00514
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 804.3,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 216.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 485.6,
+     "local_de": 0.00249,
+     "N_f": 63161676.6,
+     "N_f_at_2de": 263435.6,
+     "N_allow": 263435.6,
+     "MS_cycles_vs_50": 5267.712
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 920.6,
+     "local_de": 0.00527,
+     "N_f": 178612.5,
+     "N_f_at_2de": 3558.4,
+     "N_allow": 3558.4,
+     "MS_cycles_vs_50": 70.168
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 971.6,
+     "local_de": 0.00499,
+     "N_f": 262623.1,
+     "N_f_at_2de": 4504.9,
+     "N_allow": 4504.9,
+     "MS_cycles_vs_50": 89.098
+    }
+   },
+   "SOAK|(a')": {
+    "T_C": 127.0,
+    "N_section_N": 6659.7,
+    "M_head_end_IN718_Nmm": 153.4,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 323.5,
+    "S_bending_MPa": 11.6,
+    "S_nominal_MPa": 335.1,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.998,
+    "static_MS_u_net": 2.563,
+    "local_elastic_peak_MPa_info": 761.1,
+    "Kt_eff": 2.2713,
+    "local_neuber_strain_n15_n30_info": [
+     0.00392,
+     0.00391
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 706.8,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 118.6,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 269.4,
+     "local_de": 0.00138,
+     "N_f": 8371868412.3,
+     "N_f_at_2de": 26830585.9,
+     "N_allow": 26830585.9,
+     "MS_cycles_vs_50": 536610.718
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 758.3,
+     "local_de": 0.00392,
+     "N_f": 1617691.2,
+     "N_f_at_2de": 14705.6,
+     "N_allow": 14705.6,
+     "MS_cycles_vs_50": 293.112
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 761.1,
+     "local_de": 0.00391,
+     "N_f": 1665935.0,
+     "N_f_at_2de": 15007.5,
+     "N_allow": 15007.5,
+     "MS_cycles_vs_50": 299.15
+    }
+   },
+   "SOAK|(a'')": {
+    "T_C": 127.0,
+    "N_section_N": 6388.8,
+    "M_head_end_IN718_Nmm": 883.6,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK",
+    "S_axial_MPa": 310.3,
+    "S_bending_MPa": 67.1,
+    "S_nominal_MPa": 377.4,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.662,
+    "static_MS_u_net": 2.164,
+    "local_elastic_peak_MPa_info": 849.5,
+    "Kt_eff": 2.2511,
+    "local_neuber_strain_n15_n30_info": [
+     0.00443,
+     0.00437
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 589.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 160.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 362.2,
+     "local_de": 0.00186,
+     "N_f": 715151589.7,
+     "N_f_at_2de": 2459270.7,
+     "N_allow": 2459270.7,
+     "MS_cycles_vs_50": 49184.414
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 837.0,
+     "local_de": 0.00443,
+     "N_f": 636898.4,
+     "N_f_at_2de": 7884.0,
+     "N_allow": 7884.0,
+     "MS_cycles_vs_50": 156.68
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 849.5,
+     "local_de": 0.00436,
+     "N_f": 712658.8,
+     "N_f_at_2de": 8482.0,
+     "N_allow": 8482.0,
+     "MS_cycles_vs_50": 168.64
+    }
+   },
+   "SOAK|(b2)": {
+    "T_C": 127.0,
+    "N_section_N": 5966.8,
+    "M_head_end_IN718_Nmm": 1604.0,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK",
+    "S_axial_MPa": 289.8,
+    "S_bending_MPa": 121.7,
+    "S_nominal_MPa": 411.5,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 1.441,
+    "static_MS_u_net": 1.901,
+    "local_elastic_peak_MPa_info": 919.6,
+    "Kt_eff": 2.2345,
+    "local_neuber_strain_n15_n30_info": [
+     0.00489,
+     0.00478
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 637.9,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 195.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 435.9,
+     "local_de": 0.00224,
+     "N_f": 154099802.2,
+     "N_f_at_2de": 585938.1,
+     "N_allow": 585938.1,
+     "MS_cycles_vs_50": 11717.762
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 889.0,
+     "local_de": 0.00489,
+     "N_f": 306513.7,
+     "N_f_at_2de": 4957.4,
+     "N_allow": 4957.4,
+     "MS_cycles_vs_50": 98.148
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 919.6,
+     "local_de": 0.00472,
+     "N_f": 392946.0,
+     "N_f_at_2de": 5791.1,
+     "N_allow": 5791.1,
+     "MS_cycles_vs_50": 114.822
+    }
+   },
+   "SOAK|(b2) rep": {
+    "T_C": 127.0,
+    "N_section_N": 7278.9,
+    "M_head_end_IN718_Nmm": 2046.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "shank.json SOAK_rep",
+    "S_axial_MPa": 353.5,
+    "S_bending_MPa": 155.3,
+    "S_nominal_MPa": 508.9,
+    "Fty_MPa": 1004.7,
+    "Ftu_MPa": 1194.0,
+    "static_MS_y_net": 0.974,
+    "static_MS_u_net": 1.346,
+    "local_elastic_peak_MPa_info": 1136.4,
+    "Kt_eff": 2.2331,
+    "local_neuber_strain_n15_n30_info": [
+     0.0067,
+     0.00666
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 840.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 292.4,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 653.0,
+     "local_de": 0.00335,
+     "N_f": 5633350.3,
+     "N_f_at_2de": 36258.4,
+     "N_allow": 36258.4,
+     "MS_cycles_vs_50": 724.168
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 990.4,
+     "local_de": 0.0067,
+     "N_f": 36599.7,
+     "N_f_at_2de": 1384.0,
+     "N_allow": 1384.0,
+     "MS_cycles_vs_50": 26.68
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1136.3,
+     "local_de": 0.00584,
+     "N_f": 88096.7,
+     "N_f_at_2de": 2328.3,
+     "N_allow": 2328.3,
+     "MS_cycles_vs_50": 45.566
+    }
+   },
+   "SOAK52|js5": {
+    "T_C": 154.1,
+    "N_section_N": 7584.0,
+    "M_head_end_IN718_Nmm": 3431.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets SOAK52",
+    "S_axial_MPa": 368.4,
+    "S_bending_MPa": 260.4,
+    "S_nominal_MPa": 628.8,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.586,
+    "static_MS_u_net": 0.88,
+    "local_elastic_peak_MPa_info": 1394.5,
+    "Kt_eff": 2.2178,
+    "local_neuber_strain_n15_n30_info": [
+     0.0096,
+     0.00982
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1134.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 412.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 914.4,
+     "local_de": 0.00473,
+     "N_f": 380697.2,
+     "N_f_at_2de": 5690.1,
+     "N_allow": 5690.1,
+     "MS_cycles_vs_50": 112.802
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1024.8,
+     "local_de": 0.00982,
+     "N_f": 4805.2,
+     "N_f_at_2de": 401.7,
+     "N_allow": 240.3,
+     "MS_cycles_vs_50": 3.806
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1392.7,
+     "local_de": 0.00722,
+     "N_f": 23042.1,
+     "N_f_at_2de": 1054.1,
+     "N_allow": 1054.1,
+     "MS_cycles_vs_50": 20.082
+    }
+   },
+   "SOAK52|(a)": {
+    "T_C": 154.1,
+    "N_section_N": 6691.0,
+    "M_head_end_IN718_Nmm": 2102.8,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 325.0,
+    "S_bending_MPa": 159.6,
+    "S_nominal_MPa": 484.6,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 1.058,
+    "static_MS_u_net": 1.44,
+    "local_elastic_peak_MPa_info": 1080.5,
+    "Kt_eff": 2.2297,
+    "local_neuber_strain_n15_n30_info": [
+     0.00625,
+     0.00617
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 860.1,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 268.1,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 597.8,
+     "local_de": 0.00309,
+     "N_f": 10610309.3,
+     "N_f_at_2de": 59272.6,
+     "N_allow": 59272.6,
+     "MS_cycles_vs_50": 1184.452
+    },
+    "ii_assembly_from_zero": {
+     "n": 15,
+     "local_sigma_MPa": 966.5,
+     "local_de": 0.00625,
+     "N_f": 55516.5,
+     "N_f_at_2de": 1775.3,
+     "N_allow": 1775.3,
+     "MS_cycles_vs_50": 34.506
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1080.4,
+     "local_de": 0.00559,
+     "N_f": 115933.4,
+     "N_f_at_2de": 2749.6,
+     "N_allow": 2749.6,
+     "MS_cycles_vs_50": 53.992
+    }
+   },
+   "SOAK52|(a')": {
+    "T_C": 154.1,
+    "N_section_N": 7805.5,
+    "M_head_end_IN718_Nmm": 3517.9,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 379.1,
+    "S_bending_MPa": 267.0,
+    "S_nominal_MPa": 646.1,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.544,
+    "static_MS_u_net": 0.83,
+    "local_elastic_peak_MPa_info": 1433.0,
+    "Kt_eff": 2.2179,
+    "local_neuber_strain_n15_n30_info": [
+     0.01007,
+     0.01033
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1164.5,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 429.6,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 952.8,
+     "local_de": 0.00493,
+     "N_f": 281486.1,
+     "N_f_at_2de": 4713.5,
+     "N_allow": 4713.5,
+     "MS_cycles_vs_50": 93.27
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1028.3,
+     "local_de": 0.01033,
+     "N_f": 3835.1,
+     "N_f_at_2de": 347.1,
+     "N_allow": 191.8,
+     "MS_cycles_vs_50": 2.836
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1430.3,
+     "local_de": 0.00743,
+     "N_f": 19672.2,
+     "N_f_at_2de": 959.0,
+     "N_allow": 959.0,
+     "MS_cycles_vs_50": 18.18
+    }
+   },
+   "SOAK52|(a'')": {
+    "T_C": 154.1,
+    "N_section_N": 7778.2,
+    "M_head_end_IN718_Nmm": 3570.7,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch SOAK52",
+    "S_axial_MPa": 377.8,
+    "S_bending_MPa": 271.0,
+    "S_nominal_MPa": 648.8,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.537,
+    "static_MS_u_net": 0.822,
+    "local_elastic_peak_MPa_info": 1438.5,
+    "Kt_eff": 2.2173,
+    "local_neuber_strain_n15_n30_info": [
+     0.01014,
+     0.01041
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1170.7,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 432.3,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 958.5,
+     "local_de": 0.00496,
+     "N_f": 269611.9,
+     "N_f_at_2de": 4589.6,
+     "N_allow": 4589.6,
+     "MS_cycles_vs_50": 90.792
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1028.8,
+     "local_de": 0.01041,
+     "N_f": 3716.9,
+     "N_f_at_2de": 340.1,
+     "N_allow": 185.8,
+     "MS_cycles_vs_50": 2.716
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1435.7,
+     "local_de": 0.00746,
+     "N_f": 19239.6,
+     "N_f_at_2de": 946.3,
+     "N_allow": 946.3,
+     "MS_cycles_vs_50": 17.926
+    }
+   },
+   "SOAK52|(b2)": {
+    "T_C": 154.1,
+    "N_section_N": 7125.9,
+    "M_head_end_IN718_Nmm": 3541.6,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52",
+    "S_axial_MPa": 346.1,
+    "S_bending_MPa": 268.8,
+    "S_nominal_MPa": 614.9,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.622,
+    "static_MS_u_net": 0.923,
+    "local_elastic_peak_MPa_info": 1361.7,
+    "Kt_eff": 2.2145,
+    "local_neuber_strain_n15_n30_info": [
+     0.00921,
+     0.00939
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1047.6,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 398.4,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 882.3,
+     "local_de": 0.00456,
+     "N_f": 496753.0,
+     "N_f_at_2de": 6734.5,
+     "N_allow": 6734.5,
+     "MS_cycles_vs_50": 133.69
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1021.5,
+     "local_de": 0.00939,
+     "N_f": 5893.8,
+     "N_f_at_2de": 457.5,
+     "N_allow": 294.7,
+     "MS_cycles_vs_50": 4.894
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1360.4,
+     "local_de": 0.00705,
+     "N_f": 26512.1,
+     "N_f_at_2de": 1146.0,
+     "N_allow": 1146.0,
+     "MS_cycles_vs_50": 21.92
+    }
+   },
+   "SOAK52|(b2) rep": {
+    "T_C": 154.1,
+    "N_section_N": 8992.4,
+    "M_head_end_IN718_Nmm": 4448.6,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json SOAK52_rep",
+    "S_axial_MPa": 436.8,
+    "S_bending_MPa": 337.6,
+    "S_nominal_MPa": 774.4,
+    "Fty_MPa": 997.3,
+    "Ftu_MPa": 1182.2,
+    "static_MS_y_net": 0.288,
+    "static_MS_u_net": 0.527,
+    "local_elastic_peak_MPa_info": 1715.0,
+    "Kt_eff": 2.2147,
+    "local_neuber_strain_n15_n30_info": [
+     0.01389,
+     0.01451
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1324.2,
+    "cold_fibre_MPa": 216.5,
+    "range_firing_MPa": 557.9,
+    "i_firing": {
+     "n": 15,
+     "local_sigma_MPa": 1235.3,
+     "local_de": 0.00639,
+     "N_f": 48013.7,
+     "N_f_at_2de": 1629.2,
+     "N_allow": 1629.2,
+     "MS_cycles_vs_50": 31.584
+    },
+    "ii_assembly_from_zero": {
+     "n": 30,
+     "local_sigma_MPa": 1048.9,
+     "local_de": 0.01451,
+     "N_f": 1039.3,
+     "N_f_at_2de": 141.8,
+     "N_allow": 52.0,
+     "MS_cycles_vs_50": 0.04
+    },
+    "ii_stable_reassembly_info": {
+     "n": 15,
+     "local_sigma_MPa": 1684.6,
+     "local_de": 0.00903,
+     "N_f": 7086.5,
+     "N_f_at_2de": 513.9,
+     "N_allow": 354.3,
+     "MS_cycles_vs_50": 6.086
+    }
+   },
+   "FA1S|js5": {
+    "T_C": 45.6,
+    "N_section_N": 3733.6,
+    "M_head_end_IN718_Nmm": 2365.4,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch_a global_same_sets FA1S",
+    "S_axial_MPa": 181.3,
+    "S_bending_MPa": 179.5,
+    "S_nominal_MPa": 360.9,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.846,
+    "static_MS_u_net": 2.408,
+    "local_elastic_peak_MPa_info": 796.0,
+    "Kt_eff": 2.206,
+    "local_neuber_strain_n15_n30_info": [
+     0.00403,
+     0.00401
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 958.7
+   },
+   "FA1S|(a)": {
+    "T_C": 45.6,
+    "N_section_N": 3720.7,
+    "M_head_end_IN718_Nmm": 2169.3,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 180.7,
+    "S_bending_MPa": 164.6,
+    "S_nominal_MPa": 345.4,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.974,
+    "static_MS_u_net": 2.561,
+    "local_elastic_peak_MPa_info": 762.9,
+    "Kt_eff": 2.2089,
+    "local_neuber_strain_n15_n30_info": [
+     0.00385,
+     0.00384
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 865.6
+   },
+   "FA1S|(a')": {
+    "T_C": 45.6,
+    "N_section_N": 3690.6,
+    "M_head_end_IN718_Nmm": 2110.2,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 179.3,
+    "S_bending_MPa": 160.1,
+    "S_nominal_MPa": 339.4,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 2.026,
+    "static_MS_u_net": 2.623,
+    "local_elastic_peak_MPa_info": 749.9,
+    "Kt_eff": 2.2096,
+    "local_neuber_strain_n15_n30_info": [
+     0.00378,
+     0.00377
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 876.6
+   },
+   "FA1S|(a'')": {
+    "T_C": 45.6,
+    "N_section_N": 3682.9,
+    "M_head_end_IN718_Nmm": 2385.5,
+    "M_head_end_x_mm": 31.0,
+    "M_head_end_src": "compare.json patch FA1S",
+    "S_axial_MPa": 178.9,
+    "S_bending_MPa": 181.0,
+    "S_nominal_MPa": 359.9,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 1.853,
+    "static_MS_u_net": 2.417,
+    "local_elastic_peak_MPa_info": 793.7,
+    "Kt_eff": 2.2052,
+    "local_neuber_strain_n15_n30_info": [
+     0.00401,
+     0.00399
+    ],
+    "local_yield_on_loading_info": false,
+    "thread_root_nominal_fibre_MPa": 961.6
+   },
+   "FA1S|(b2)": {
+    "T_C": 45.6,
+    "N_section_N": 3286.6,
+    "M_head_end_IN718_Nmm": 4823.7,
+    "M_head_end_x_mm": 31.25,
+    "M_head_end_src": "shank.json FA1S",
+    "S_axial_MPa": 159.6,
+    "S_bending_MPa": 366.1,
+    "S_nominal_MPa": 525.7,
+    "Fty_MPa": 1027.0,
+    "Ftu_MPa": 1229.8,
+    "static_MS_y_net": 0.954,
+    "static_MS_u_net": 1.339,
+    "local_elastic_peak_MPa_info": 1145.0,
+    "Kt_eff": 2.1779,
+    "local_neuber_strain_n15_n30_info": [
+     0.00655,
+     0.0065
+    ],
+    "local_yield_on_loading_info": true,
+    "thread_root_nominal_fibre_MPa": 1161.1
+   }
+  }
+ },
+ "governing_and_thread_root_comparison": {
+  "3750": {
+   "column": "GOVERNING (J-F1 cap)",
+   "static": {
+    "case": "SOAK70|(b2)",
+    "MS_y_net": 0.351,
+    "MS_u_net": 0.601,
+    "S_nominal_MPa": 737.0,
+    "thread_root_fibre_same_case_MPa": 1272.3,
+    "rows_v7_screw_fibre_MS_y_min": -0.257
+   },
+   "i_firing": {
+    "fillet_case": "SOAK70|(b2)",
+    "fillet_N_allow": 1140.3,
+    "fillet_MS": 21.806,
+    "fillet_Kt_eff": 2.5267,
+    "fillet_page_literal_N_allow": 936.4,
+    "thread_root_case_lcf_v2": "SOAK|3750|js5|Kf3.0",
+    "thread_root_N_allow": 11.9,
+    "thread_root_MS": -0.762,
+    "fillet_governs": false,
+    "break_even_Kt_scale_vs_thread_root": 2.26,
+    "break_even_Kt_t_Kt_b": [
+     5.837,
+     5.555
+    ],
+    "Kt_scale_at_N_allow_50": 1.746,
+    "Kt_t_Kt_b_at_N_allow_50": [
+     4.511,
+     4.294
+    ]
+   },
+   "ii_assembly_from_zero": {
+    "fillet_case": "SOAK70|(b2)",
+    "fillet_N_allow": 30.9,
+    "fillet_MS": -0.382,
+    "fillet_Kt_eff": 2.5267,
+    "fillet_page_literal_N_allow": 22.3,
+    "thread_root_case_lcf_v2": "SOAK|3750|js5|Kf3.0",
+    "thread_root_N_allow": 0.9,
+    "thread_root_MS": -0.982,
+    "fillet_governs": false,
+    "break_even_Kt_scale_vs_thread_root": 2.125,
+    "break_even_Kt_t_Kt_b": [
+     5.49,
+     5.225
+    ],
+    "Kt_scale_at_N_allow_50": 0.925,
+    "Kt_t_Kt_b_at_N_allow_50": [
+     2.389,
+     2.274
+    ]
+   },
+   "ii_stable_reassembly_info": {
+    "fillet_case": "SOAK70|(b2)",
+    "fillet_N_allow": 216.1,
+    "fillet_MS": 3.322,
+    "fillet_Kt_eff": 2.5267,
+    "fillet_page_literal_N_allow": 153.6,
+    "thread_root_case_lcf_v2": "SOAK|3750|js5|Kf3.0",
+    "thread_root_N_allow": 3.5,
+    "thread_root_MS": -0.93,
+    "fillet_governs": false
+   }
+  },
+  "4096": {
+   "column": "INFORMATION (superseded maximum)",
+   "static": {
+    "case": "SOAK70|(b2)",
+    "MS_y_net": 0.272,
+    "MS_u_net": 0.507,
+    "S_nominal_MPa": 783.3,
+    "thread_root_fibre_same_case_MPa": 1357.2,
+    "rows_v7_screw_fibre_MS_y_min": -0.305
+   },
+   "i_firing": {
+    "fillet_case": "SOAK70|(b2)",
+    "fillet_N_allow": 957.4,
+    "fillet_MS": 18.148,
+    "fillet_Kt_eff": 2.5254,
+    "fillet_page_literal_N_allow": 714.3,
+    "thread_root_case_lcf_v2": "SOAK|4096|js5|Kf3.0",
+    "thread_root_N_allow": 8.9,
+    "thread_root_MS": -0.822,
+    "fillet_governs": false,
+    "break_even_Kt_scale_vs_thread_root": 2.279,
+    "break_even_Kt_t_Kt_b": [
+     5.886,
+     5.602
+    ],
+    "Kt_scale_at_N_allow_50": 1.661,
+    "Kt_t_Kt_b_at_N_allow_50": [
+     4.291,
+     4.084
+    ]
+   },
+   "ii_assembly_from_zero": {
+    "fillet_case": "SOAK70|(b2)",
+    "fillet_N_allow": 21.8,
+    "fillet_MS": -0.564,
+    "fillet_Kt_eff": 2.5254,
+    "fillet_page_literal_N_allow": 16.1,
+    "thread_root_case_lcf_v2": "SOAK|4096|js5|Kf3.0",
+    "thread_root_N_allow": 0.7,
+    "thread_root_MS": -0.986,
+    "fillet_governs": false,
+    "break_even_Kt_scale_vs_thread_root": 2.128,
+    "break_even_Kt_t_Kt_b": [
+     5.498,
+     5.233
+    ],
+    "Kt_scale_at_N_allow_50": 0.871,
+    "Kt_t_Kt_b_at_N_allow_50": [
+     2.249,
+     2.141
+    ]
+   },
+   "ii_stable_reassembly_info": {
+    "fillet_case": "SOAK70|(b2)",
+    "fillet_N_allow": 150.0,
+    "fillet_MS": 2.0,
+    "fillet_Kt_eff": 2.5254,
+    "fillet_page_literal_N_allow": 107.2,
+    "thread_root_case_lcf_v2": "SOAK|4096|js5|Kf3.0",
+    "thread_root_N_allow": 2.6,
+    "thread_root_MS": -0.948,
+    "fillet_governs": false
+   }
+  }
+ },
+ "verdict": "At the J-F1 cap 3750 N the fillet root (d 5.120, A 20.59 mm2, Z 13.18 mm3; head-end FE moment, IN718-scaled) carries a nominal fibre of 737.0 MPa at SOAK70|(b2) (thread root of the same case 1272.3 MPa): static net-section MS_y +0.351, MS_u +0.601 (the thread-root screw-fibre MS_y is -0.257, rows v7).  LCF on the quoted stepped-bar Kt (r 0.2: Kt_t 2.583, Kt_b 2.459; Kf = Kt): (i) per firing N_allow 1140.3 (MS +21.806) against the thread root 11.9 (MS -0.762); (ii) assembly from zero N_allow 30.9 (MS -0.382) against 0.9 (MS -0.982).  The fillet does NOT govern over the thread root: it would govern only at Kt x 2.26 ((i); Kt_t / Kt_b [5.837, 5.555]) or x 2.125 ((ii)) of the quoted values; it reaches N_allow 50 at Kt x 1.746 ((i)) / x 0.925 ((ii)).  Kt: stepped-bar fit, web-sourced (AMESweb citing Pilkey 2005), page TO-SOURCE; the bolt-head (T-head) loading is NOT SOURCED.",
+ "t_run_s": 36.4
+}

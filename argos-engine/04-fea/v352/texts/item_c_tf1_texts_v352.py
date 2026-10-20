@@ -1,19 +1,28 @@
 """Item C texts (O-ring passage over the J-FWD holes; v3.5.2 rev 5 + founder procedure) and the T-F1 founder action text, as ruled:
 item C 239 (13) (lead 09:45Z), amended 10:08Z (bore-side break R0.1-R0.2), callout ruled 10:15Z, gland basis 10:10Z (240 (5), (6));
 T-F1 239 (12) (lead 09:59Z: two routes, no recalled or estimated values, (d) OPEN per abort value with the time above 150 C per firing).
-Mechanical, 2026-10-20, v2 (v1 script kept as item_c_tf1_texts_v352_v1.py).  Text only; the numbers come from tf1_exposure_v352_v1.json
-[SIM thermal; ASSUMED TB surrogate as tagged] and engmat AL6061-T6 (10,000 h basis, LITERATURE).
+Mechanical, 2026-10-20, v3 (v2 script kept as item_c_tf1_texts_v352_v2.py, v1 as item_c_tf1_texts_v352_v1.py).  Text only; the numbers come
+from tf1_exposure_v352_v1.json [SIM thermal; ASSUMED TB surrogate as tagged], engmat AL6061-T6 (10,000 h basis, LITERATURE) and, for v3,
+the accepted J-FWD route (i) files (rows v7, spring v4, head fillet v1, tap wall v1, K_js5 v2, screw LCF v2; sha asserted), hardware_v352
+v1.7 and the rev-5 drawing texts and GSE lines (rev5_drawing_texts_v352_v1.json).
 v2 (lead 14:34Z): C1 (a)-(f), C2, C3, C4, C5, C6, C7 and T-F1 ACCEPTED as written in v1 (T-F1 as a GATE before the first static fire);
-C1 (g) Option A ADOPTED (d5.5 +0.12/0, H12; HW-101 gauge pins GO 5.50 / NO-GO 5.62; the line-231 check uses the 5.62 pin); C1 (h)
-ADOPTED (hole position 0.10 dia to A|B, spot face coaxial within 0.10 dia, datum B named on the drawing); C6 (2) carries the pins; C6 (3)
-stays OPEN until the slack-fix ruling.  Nothing here changes CAD (rev 5 carries the callouts).  Writes v352/texts/item_c_tf1_texts_v352_v2.json."""
+C1 (g) Option A ADOPTED; C1 (h) ADOPTED; C6 (2) carries the pins; C6 (3) OPEN until the slack-fix ruling.
+v3 (lead 18:36:37Z item 5, 'the drawing texts (+/-0.25 deg index pin, C4 shoulder-screw registration, J-F1 torque cap at 3750 N, the
+Prescale item, single-use screws with the fillet in the inspection)'; rulings 16:53Z R2 / R3 / R4, 17:55:55Z F1-F5, 18:36:37Z):
+C1 (g) / (h) restated for route (i) (the spring footprint on the flat, da 5.55-5.80 drawn, F3) and the accepted datums (A = 57.25 H8 bore
+axis, B = TC-01 forward end face; the v2 datum FLAG closed); C4 rewritten (hole and tap gauging, the gap-gauge head setting of rev 5 in
+place of 'until seated', the F2 registration with ENG-TC-13, the J-F1 lot torque M-T1J with the 3750 N cap and the Prescale item as a gate,
+the single-use rule); C6 (2) / (3) the single-use founder rule with the head-to-shank fillet in the removed-screw inspection (LEAD ADDITION
+18:36:37Z) and the C6 OPEN status; new C3b (ENG-TC-13 GSE) and C8 (the drawing texts: TC-01 / TC-02 rev 5, ENG-HW-101-IN718, HW-170,
+M-T1J, J-F1) with the lead's five items located and asserted.  C1 (a)-(f), C2, C3, C5, C7 and T-F1 are unchanged from v2.  Nothing here
+changes CAD.  Writes v352/texts/item_c_tf1_texts_v352_v3.json."""
 import json, hashlib, math, sys
 from pathlib import Path
 import numpy as np
 
 T = Path("/home/claude/work/mechanical/v352/texts")
 EXP = T / "tf1_exposure_v352_v1.json"
-OUT = T / "item_c_tf1_texts_v352_v2.json"
+OUT = T / "item_c_tf1_texts_v352_v3.json"
 sys.path.insert(0, "/home/claude/work/mechanical/v352/engine/04-fea/src")
 import engmat
 AL = engmat.MATERIALS["AL6061-T6"]
@@ -23,11 +32,28 @@ def sha(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()[:16]
 
 
+J = Path("/home/claude/work/mechanical/v352/jfwd")
+D3 = Path("/home/claude/work/mechanical/v352/engine/03-cad")
+INP = {"tf1_exposure": (EXP, "d23e72f089cca33a"),
+       "rows_v7": (J / "jfwd_in718_rows_v352_v7.json", "6113d28b64d0dba5"), "spring_v4": (J / "jfwd_spring_v352_v4.json", "a277b996c2d61b83"),
+       "head_fillet_v1": (J / "jfwd_head_fillet_v352_v1.json", "337883c3f2076a32"), "tap_wall_v1": (J / "jfwd_tapwall_v352_v1.json", "bcb21243d57af998"),
+       "K_js5_v2": (J / "jfwd_embed_fit_js5_v352_v2.json", "e2624bf729633fb8"), "screw_lcf_v2": (J / "jfwd_screw_lcf_v352_v2.json", "6acdaa2febdf3f6c"),
+       "hardware_v1.7": (D3 / "src/data/hardware_v352.json", "c2c7b13d3a0086e3"),
+       "rev5_drawing_texts_v1": (T / "rev5_drawing_texts_v352_v1.json", "3eed41f8c4f8a64f")}
+X = {}
+for k, (p, s16) in INP.items():
+    assert sha(p) == s16, (k, p, sha(p))
+    X[k] = json.loads(Path(p).read_text())
+R7, SP4, HF1, TW1, JS2, LC2, HW, DT = (X[k] for k in ("rows_v7", "spring_v4", "head_fillet_v1", "tap_wall_v1", "K_js5_v2", "screw_lcf_v2",
+                                                      "hardware_v1.7", "rev5_drawing_texts_v1"))
+assert HW["version"] == "v1.7"
+
+
 def al(k, Tc):
     return float(np.interp(Tc, AL[k]["T_C"], AL[k]["v"])) / 1e6
 
 
-E = json.loads(EXP.read_text())
+E = X["tf1_exposure"]
 B = E["bounds"]
 lo, hi = B["GVLO"]["parts"], B["GVHI"]["parts"]
 LIFE = 50
@@ -49,6 +75,33 @@ geo = {"contour_sagitta_over_d5.5_mm": round(sag, 4), "wall_at_hole_drawn_range_
                 "one fixed plug length cannot hold 0-0.05 below the bore over the drawn wall range (window "
                 f"{wall_max - 0.05:.3f}-{wall_min:.3f} mm), hence plugs finished to the measured wall")}
 
+# ------------------------------------------------------------------------------------------------ v3 values read from the accepted files
+JF1 = R7["J_F1"]
+F_CAP, F_MIN, T_LOT, KW = JF1["maximum_N"], JF1["minimum_N_today_K_window"], JF1["torque_Nm_today_K_window"], JF1["K_window"]
+assert (F_CAP, F_MIN, T_LOT, KW) == (3750.0, 2057.6, 2.747, [0.1465, 0.267])
+FP = R7["route_i_spring_footprint"]
+A_REG, A_FF = FP["areas_mm2"]["registered_stack_0.4865_F2"], FP["areas_mm2"]["full_float_0.557"]
+assert (A_REG, A_FF) == (46.06, 45.352) and FP["quoted_flat_bearing_basis"] == "registered_stack_0.4865_F2"
+F3 = SP4["fillet"]["F3_adopted"]
+assert F3["da_mm"] == [5.55, 5.8]
+GEOc = SP4["geometry_length_tip_engagement"]["cases"]
+GA, GB = GEOc["spring A t 0.5: 10.7 +/-0.1"], GEOc["spring B t 0.4: 10.6 +/-0.1"]
+assert (GA["L_e_gap_bound_mm"], GB["L_e_gap_bound_mm"]) == (7.294, 7.294)
+TWW = TW1["walls_mm"]
+assert (TWW["ruled_+/-0.25deg_net_GOVERNING"], TWW["+/-0.5deg_net_info"]) == (1.6355, 1.5415)
+HG = HF1["governing_and_thread_root_comparison"]["3750"]
+LCFt = (HG["i_firing"]["thread_root_N_allow"], HG["i_firing"]["thread_root_MS"], HG["ii_assembly_from_zero"]["thread_root_N_allow"],
+        HG["ii_assembly_from_zero"]["thread_root_MS"])
+LCFf = (HG["i_firing"]["fillet_N_allow"], HG["i_firing"]["fillet_MS"], HG["ii_assembly_from_zero"]["fillet_N_allow"],
+        HG["ii_assembly_from_zero"]["fillet_MS"])
+assert LCFt == (11.9, -0.762, 0.9, -0.982) and LCFf == (1140.3, 21.806, 30.9, -0.382)
+assert not HG["i_firing"]["fillet_governs"] and not HG["ii_assembly_from_zero"]["fillet_governs"]
+H101 = next(L for L in HW["lines"] if L["id"] == "HW-101")
+H170 = next(L for L in HW["lines"] if L["id"] == "HW-170")
+MT1J = HW["rules"]["tightening_methods"]["M-T1J"]
+GSE = {L["pn"]: L for L in DT["gse_tool_lines"]}
+assert set(GSE) == {"ENG-TC-12", "ENG-TC-13"}
+
 C = {}
 C["C1_TC01_drawing_callout_rev5"] = (
     "TC-01 drawing, 10x d5.5 J-FWD holes (rev 5): "
@@ -60,16 +113,18 @@ C["C1_TC01_drawing_callout_rev5"] = (
     "(e) 100 % inspection at 10x before assembly: no burr, nick or raised metal at the hole edges or on the bore within 3 mm of a hole. "
     "(f) drawing note: bearing length = wall at the hole minus both breaks (2.665 - 0.2 - 0.1 = 2.365 mm at the drawing-limit wall; the "
     "FA1S hole bearing is quoted at this length, +0.005 / +0.239, CHANGELOG 240 (5)). "
-    "(g) hole size (ADOPTED, lead 14:34Z, Option A): d5.5 +0.12/0 (H12). ENG-HW-101 in-service gauge pins GO 5.50 / NO-GO 5.62 (the "
-    "5.68 NO-GO pin of hardware_v352 v1.4 is superseded); the line-231 post-FA-1 hole check uses the 5.62 pin. The drawn maximum 5.62 "
-    "sets the head-bearing ring inner boundary (max(5.62 + 2 x 0.1 break, da 5.7 TO-VERIFY) = 5.82) and the screw float 0.397 mm of the "
-    "TC-01 flat-bearing rows (rows v5). "
-    "(h) hole position (ADOPTED, lead 14:34Z): position of each hole axis 0.10 dia to A|B; the d10.5 spot face coaxial with its hole "
-    "within 0.10 dia. Datum B is NAMED on the drawing (the frame is 'fwd end face A, axis B'; proposal: B = the axis of the 57.25 H8 "
-    "forward bore, rows v5 rev5_drawing_items). Rows v5 carry "
-    "the eccentricity (float 0.397 + position 0.05) with the OD 63.5 h9 and its 0.04 runout. Drawing consistency FLAG for rev 5: the "
-    "r_flat rule 31.313 +0.020/0 'from datum A' and the OD runout 0.04 'to A' are radial quantities and should read 'from / to axis B' "
-    "(A is the forward end face).")
+    "(g) hole size (ADOPTED, lead 14:34Z, Option A): d5.5 +0.12/0 (H12). ENG-HW-101-IN718 in-service gauge pins GO 5.50 / NO-GO 5.62; the "
+    "line-231 post-FA-1 hole check uses the 5.62 pin. Route (i) (lead 16:53Z R2): the drawn maximum 5.62 plus the 0.1 flat-side break "
+    "each side (5.82) is the inner boundary of the HW-170 disc-spring footprint on the flat (rows v7 route_i_spring_footprint: spring De "
+    f"9.85 / Di 5.32 at its limits, {A_REG} mm2 at the registered stack 0.4865 (lead 17:55:55Z F2), {A_FF} mm2 at full float 0.557); the "
+    f"head bears on the spring, with da {F3['da_mm'][0]:.2f}-{F3['da_mm'][1]:.2f} stated on the ENG-HW-101-IN718 drawing (F3; it replaces the "
+    "v2 'da 5.7 TO-VERIFY'); the v2 basis (head on the flat, float 0.397, rows v5) is superseded. "
+    "(h) hole position (ADOPTED, lead 14:34Z; datums as checked in the rev-5 CAD and ACCEPTED 17:55:55Z): datum A = the axis of the "
+    "forward seal-land bore 57.25 H8; datum B = the TC-01 forward end face, from which the hole row is dimensioned (12.000 BASIC from B); "
+    "each hole axis 0.10 dia to A|B; the d11.2 spot face (rev-5 cutter, P(i)-1) coaxial with its hole within 0.10 dia. The rows v7 "
+    "flat-bearing row takes the registered stack (tangential 0.4865, F2; axial 0.3705, F4) with the OD 63.5 h9 and its 0.04 runout to A. "
+    "The v2 drawing-consistency FLAG (A had been the end face) is CLOSED by these datums: r_flat 31.313 +0.020/0 from A and the OD runout "
+    "0.04 to A read as radial quantities from the bore axis.")
 C["C2_bore_lead_in_rev5"] = (
     "TC-01 forward bore lead-in 15 deg x 3.5 (x 0.938 mm), replacing 15 deg x 3.0 (x 0.804, which missed Parker PTD5705-EN Fig. 2.24 "
     f"x > y by 0.0005 mm at the worst stack); it ends {geo['lead_in_clearance_to_hole_row_mm']:.2f} mm clear of the hole row (holes 12 mm "
@@ -87,16 +142,40 @@ C["C3_fitting_aid_GSE"] = (
     "passing ring's outward push. The plugs come out only after both rings have passed the hole row. "
     "BOM line (rev 5): 'ENG-TC-12 | J-FWD hole plug set, 10 plugs + band, O-ring passage aid | GSE (not flight) | POM | qty 1 set | "
     "TO-DRAW / TO-QUOTE | used at every TC-02 insertion'.")
+C["C3b_registration_shoulder_screws_GSE"] = (
+    "ENG-TC-13 J-FWD registration shoulder screw pair (GSE, not flight mass; TO-DRAW / TO-QUOTE; lead 17:55:55Z F2, ADOPTED into C4): "
+    "two shoulder screws, the shoulder selected to the pin-gauged sizes of their TC-01 holes (d5.5 H12; pins GO 5.50 / NO-GO 5.62), M5 "
+    "into the TC-02 taps; they go into two opposite holes before any flight screw and come out last, each replaced by a flight screw "
+    "(C4 steps 6 and 8); never left in the engine; shoulder length, material and the shoulder size steps TO-DRAW. BOM line (v3.5.2 "
+    f"BOM): '{GSE['ENG-TC-13']['pn']} | {GSE['ENG-TC-13']['name']} | {GSE['ENG-TC-13']['groups']} | {GSE['ENG-TC-13']['material']} | "
+    f"qty {GSE['ENG-TC-13']['qty']} | {GSE['ENG-TC-13']['drawing']} / TO-QUOTE'.")
 C["C4_assembly_step_founder_procedure"] = (
-    "J-FWD build and every re-assembly: "
-    "1. inspect the hole edges and the bore per C1 (e); clean. "
+    "J-FWD build and every re-assembly (v3: route (i), lead 16:53Z R2 / R3, 17:55:55Z F1 / F2, 18:36:37Z): "
+    "0. GATE: J-F1 complete on the flight lots (ENG-HW-101-IN718 screws, HW-170 springs, LOCTITE 243): it sets the lot torque T_lot and "
+    "carries the spring items (K with the spring under the head, the spring flattening, the crack-on torque) and the Fuji Prescale "
+    "footprint item (TO-VERIFY) (hardware_v352 v1.7 HW-101 test). "
+    "1. inspect the hole edges and the bore per C1 (e); gauge the ten TC-01 holes with the pins GO 5.50 / NO-GO 5.62 and record each "
+    "hole's size (ENG-TC-13 is selected to it; a hole that takes the 5.62 pin is rejected, C1 (g)); gauge the ten TC-02 taps M5-6H GO / "
+    "NO-GO (cured locker removed by a thread chaser only, no re-tap); clean. "
     "2. fit the ten ENG-TC-12 plugs in their numbered holes from outside, contour aligned, band on. "
     "3. lubricate S01 and S02 with the selected lubricant (FKM- and N2O-compatible, TO-SELECT with a datasheet; oxygen-clean per the "
     "wetted-part rule); fit them into the TC-02 grooves with an even stretch over a cone, no twist (check the mould line). "
-    "4. clock TC-02 to the match marks BEFORE the rings enter the lead-in, then push it in axially without rotation until seated. "
+    "4. clock TC-02 to the match marks BEFORE the rings enter the lead-in, then push it in axially without rotation until the head "
+    "shoulder stands 2.00 +/-0.02 from the TC-01 forward end face on the gap gauge (rev-5 TC-02 tap note, TO-CONFIRM; TC-02 does not seat "
+    "axially on TC-01, lead 16:53Z R4; v2 read 'until seated'). "
     "5. remove the band and the plugs; look through each hole (10x loupe or borescope) for rubber debris or a cut ring; ANY debris: "
     "withdraw TC-02, replace both rings and repeat from step 1. "
-    "6. fit the ten ENG-HW-101-IN718 screws per J-F1 (LOCTITE 243, 3.0 N m), then the proof / leak test.")
+    "6. REGISTRATION (lead 17:55:55Z F2): fit the two GSE shoulder screws ENG-TC-13 (not flight), selected to the pin-gauged sizes of "
+    "their holes, into two opposite holes before any flight screw. "
+    "7. fit the flight screws ONE AT A TIME into the other eight holes: a NEW ENG-HW-101-IN718 (M5 x 10.7 with spring A; M5 x 10.6 with "
+    "spring B; never mixed in one joint) with a NEW HW-170 disc spring under the head (orientation per the ENG-HW-101-IN718 drawing, "
+    "TO-DEFINE), LOCTITE 243 (flight lot) on the screw thread only, never on the spring or the flat; tighten to the J-F1 LOT TORQUE by "
+    f"method M-T1J (T_lot = {F_CAP:.0f} N x K_min(lot) x 5 mm, so that the lot's K_min gives a maximum preload of {F_CAP:.0f} N or less, "
+    f"lead 17:55:55Z F1; today's K window {KW[0]}-{KW[1]}: {T_LOT:.3f} N m, minimum {F_MIN:.1f} N); record per hole: hole number and its "
+    "pin size, screw and spring lot, torque, wrench (ID and calibration date). "
+    "8. remove the two shoulder screws LAST and replace each with a flight screw per step 7, recorded. "
+    "9. never re-torque a fitted screw; a screw removed for any reason is replaced by a new screw and a new spring (single-use, C6 (3)); "
+    "removed screws are bagged and labelled with their hole number for the C6 (3) inspection; then the proof / leak test.")
 C["C5_record_why_not_moved"] = (
     "Parker Praedifa PTD5705-EN 2.5.2: a cross-drilled port shears the O-ring as it leaves the drilled area, and the first remedy is to "
     "reposition the holes; 2.5.6: bores 'must be removed or covered'. Moving the holes is not possible: S01 and S02 must sit between the "
@@ -105,16 +184,78 @@ C["C5_record_why_not_moved"] = (
     "requires; the R0.1-R0.2 break is capped by the bearing length and the screw bending arm (an R0.4 + 0.1 break gives the FA1S hole bearing -0.070 at the nominal wall / -0.080 at the limit wall).")
 C["C6_founder_action_list_related"] = (
     "(1) S01 and S02 are replaced after any FA-1-class event, together with the line-231 J-FWD inspection (lead 10:10Z rule). "
-    "(2) Line-231 post-FA-1 inspection list: the ten J-FWD screws replaced; the ten holes gauged for elongation and bearing set with "
-    "the HW-101 pins GO 5.50 / NO-GO 5.62 (C1 (g)); a hole that takes the 5.62 pin is rejected; hole edges and the bore within 3 mm of a "
-    "hole at 10x for nicks or raised metal; S01 / S02 replaced. "
-    "(3) J-FWD screw life limit: OPEN until the slack-fix ruling (the screw LCF row 183 (1)(c) is a FOUND NEGATIVE, "
-    "jfwd_screw_lcf_v352_v1.json; quoted as negative, never as passing; the life-limit rows of 2(b) are in bpkg_abort_v352_v1.json).")
+    "(2) Line-231 post-FA-1 inspection list: the ten J-FWD screws and their HW-170 disc springs replaced (new, single-use, (3)); the ten "
+    "holes gauged for elongation and bearing set with the HW-101 pins GO 5.50 / NO-GO 5.62 (C1 (g)); a hole that takes the 5.62 pin is "
+    "rejected; hole edges and the bore within 3 mm of a hole at 10x for nicks or raised metal; S01 / S02 replaced; the removed screws "
+    "inspected per (3). "
+    "(3) J-FWD screw life: SINGLE-USE founder rule until C6 closes (lead 16:53Z R3): the J-FWD screws are new at every assembly, never "
+    "reused or re-torqued; removed screws are kept per hole and inspected at 10x plus dye penetrant at the thread root AND the "
+    "head-to-shank fillet (LEAD ADDITION 18:36:37Z), as data. C6 is OPEN: the screw LCF at the thread root is a FOUND NEGATIVE "
+    f"(183 (1)(c); jfwd_screw_lcf_v352_v2.json, Kf 3.0: per firing N_allow {LCFt[0]} (MS {LCFt[1]:+.3f}), assembly from zero N_allow "
+    f"{LCFt[2]} (MS {LCFt[3]:+.3f})); the head-to-shank fillet from zero is a FOUND NEGATIVE that does not govern (jfwd_head_fillet_v352_v1."
+    f"json: N_allow {LCFf[2]} (MS {LCFf[3]:+.3f}); per firing {LCFf[0]} (MS {LCFf[1]:+.3f}); Kt LITERATURE, secondary via AMESweb citing "
+    "Pilkey 2005, the Pilkey page and the T-head Kt TO-SOURCE; the no-spring head-end resultants carried over ASSUMED); the thread root "
+    "governs. Both are quoted as negative, never as passing. Closure paths 2 (FE levers, (b1) / select-fit band after chain E) and 3 "
+    "(qualification test, TO-DEFINE, founder) remain; path 1 (MJ thread) closed NOT SOURCED. HW-170 disc-spring reuse TO-RULE (Mechanical "
+    "proposes: new with the screw at every assembly).")
 C["C7_datasheet_residuals_gland1"] = (
     "Gland-1 FA1S closes at MS +0.082 on FNST's one-side extrusion limit 0.30 mm (1500 psi row, no interpolation), with the full 0.2772 mm "
     "diametral gap taken as one side (nothing centres the plug), entered at the FA-1 fluid bound 93.64 bar abs = 1343 psig (the chart's "
     "own axis); Apple Rubber Illustration 5.2 halved at 1343 psi gives +0.16 (support); no back-up ring. Residual: the two makers' curves "
     "differ in shape (FNST / Apple 0.48 at 1500 psi) and neither prints a cycle, time or temperature basis.")
+
+# ------------------------------------------------------------------------------------------------ C8: the drawing texts (lead 18:36:37Z item 5)
+DTP = DT["parts"]
+C8 = {
+    "what": ("the J-FWD drawing texts of v3.5.2 rev 5 as they stand for the hub update of lead 18:36:37Z item 5: the TC-01 / TC-02 rev-5 "
+             "texts from the dev rev-5 source (rev5_drawing_texts_v352_v1.json; the FINAL 03-cad v3.5.2 set, released by the lead "
+             "19:09:50Z, carries them), and the ENG-HW-101-IN718 / HW-170 / M-T1J / J-F1 texts of hardware_v352 v1.7 (published with the FINAL 03-cad "
+             "v3.5.2 set, data/hardware_v352.json)"),
+    "ENG-TC-01_rev5": {"notes": DTP["ENG-TC-01"]["notes"], "datum": DTP["ENG-TC-01"]["dwg"]["datum"],
+                       "jfwd_fits_items": DTP["ENG-TC-01"]["jfwd_fits_items"]},
+    "ENG-TC-02_rev5": {"notes": DTP["ENG-TC-02"]["notes"], "datum": DTP["ENG-TC-02"]["dwg"]["datum"],
+                       "jfwd_fits_items": DTP["ENG-TC-02"]["jfwd_fits_items"]},
+    "ENG-HW-101-IN718": {k: H101[k] for k in ("item", "standard", "size", "length_mm", "grade", "head_form_F3", "L_basis", "torque_Nm",
+                                               "torque_basis", "thread_locker", "status", "action", "oxygen_service", "assembly_note", "test")},
+    "HW-170": {k: H170[k] for k in ("item", "standard", "size", "grade", "qty", "L_basis", "status", "action", "assembly_note")},
+    "M-T1J": MT1J,
+    "GSE_lines": {pn: {k: L[k] for k in ("pn", "name", "qty", "material", "process", "drawing", "notes", "groups")} for pn, L in GSE.items()},
+}
+txt = {"TC01": json.dumps(C8["ENG-TC-01_rev5"]), "TC02": json.dumps(C8["ENG-TC-02_rev5"]), "HW101": json.dumps(C8["ENG-HW-101-IN718"]),
+       "HW170": json.dumps(C8["HW-170"]), "MT1J": MT1J, "TC13": json.dumps(C8["GSE_lines"]["ENG-TC-13"]),
+       "C4": C["C4_assembly_step_founder_procedure"], "C6": C["C6_founder_action_list_related"]}
+ITEMS = {   # lead 18:36:37Z item 5: each text and where it stands (substring asserted in that text)
+    "+/-0.25 deg index pin (F5)": [("TC02", "within +/-0.25 deg by an index pin in the match-drill fixture"),
+                                   ("TC01", "within +/-0.25 deg by the index pin of the match-drill fixture"),
+                                   ("HW101", "clocking +/-0.25 deg by an index pin in the drill fixture (F5)")],
+    "C4 shoulder-screw registration (F2)": [("C4", "REGISTRATION (lead 17:55:55Z F2): fit the two GSE shoulder screws ENG-TC-13"),
+                                            ("TC01", "REGISTRATION by two GSE shoulder screws ENG-TC-13"),
+                                            ("MT1J", "C4 registration (lead 17:55:55Z F2): two GSE shoulder screws ENG-TC-13"),
+                                            ("HW101", "C4 registration (lead 17:55:55Z F2)"), ("TC13", "two opposite holes")],
+    "J-F1 torque cap at 3750 N (F1)": [("C4", "maximum preload of 3750 N or less"), ("TC01", "maximum preload capped at 3750 N"),
+                                       ("MT1J", "T_lot = 3750 N x K_min(lot) x 5 mm"), ("HW101", "MAXIMUM preload is <= 3750 N on every")],
+    "Prescale item (F1, TO-VERIFY)": [("C4", "Fuji Prescale footprint item (TO-VERIFY)"), ("TC01", "Fuji Prescale footprint item, TO-VERIFY"),
+                                      ("HW101", "Fuji Prescale pressure-film footprint")],
+    "single-use screws with the fillet in the inspection (R3 + LEAD ADDITION 18:36:37Z)": [
+        ("C6", "dye penetrant at the thread root AND the head-to-shank fillet"), ("C4", "single-use, C6 (3)"),
+        ("TC01", "dye penetrant at the thread root AND the head-to-shank fillet"),
+        ("HW101", "dye penetrant at the thread root AND the head-to-shank fillet")]}
+for k, v in ITEMS.items():
+    for where, a in v:
+        assert a in txt[where], (k, where, a)
+C8["lead_items_18_36_37Z_item5"] = {k: [{"in": where, "text": a} for where, a in v] for k, v in ITEMS.items()}
+C8["where_codes"] = {"TC01": "C8 ENG-TC-01_rev5 (TC-01 drawing, rev 5)", "TC02": "C8 ENG-TC-02_rev5 (TC-02 drawing, rev 5)",
+                     "HW101": "C8 ENG-HW-101-IN718 (hardware v1.7 HW-101; the ENG-HW-101-IN718 drawing is TO-DRAW)",
+                     "MT1J": "C8 M-T1J (hardware v1.7 tightening method)", "TC13": "C8 GSE_lines ENG-TC-13 (BOM GSE line)",
+                     "C4": "item C4", "C6": "item C6"}
+C8["open_items"] = ["ENG-HW-101-IN718 drawing TO-DRAW (F3 head form; pilot coaxiality dia 0.02 TO-CONFIRM with the maker; spring orientation "
+                    "TO-DEFINE)", "ENG-TC-13 drawing TO-DRAW (shoulder length, material, size steps)",
+                    "match-drill fixture with the index pin and the guide bushings: shop tooling TO-DRAW (not BOM lines)",
+                    "head-shoulder gap gauge 2.00 +/-0.02 TO-CONFIRM (rev-5 TC-02 tap note)",
+                    "J-F1 Prescale film grade TO-SELECT; footprint TO-VERIFY", "HW-170 reuse TO-RULE",
+                    "LOCTITE 243 tap-zone temperature at the R1 abort TB states TO-VERIFY (hardware v1.7 thread_locker)",
+                    "J-F1b cycle temperature against the about 160 C spring relaxation basis TO-RULE"]
+C["C8_jfwd_drawing_texts_rev5"] = C8
 
 # ------------------------------------------------------------------------------------------------ T-F1
 tb_rows = []
@@ -182,11 +323,38 @@ TF1 = (
     "No recalled or estimated value may replace either route. Until one closes, every quoted TC-01 / TC-02 row carries (d) OPEN; in the "
     "abort search, (d) is reported OPEN per abort value with the times above.")
 
-out = {"id": "item_c_tf1_texts_v352", "version": "v2", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
-       "inputs": {"tf1_exposure": {"path": str(EXP), "sha256_16": sha(EXP)}, "engmat_AL6061-T6_Fty": AL["Fty"]["src"], "engmat_AL6061-T6_Ftu": AL["Ftu"]["src"]},
+out = {"id": "item_c_tf1_texts_v352", "version": "v3", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
+       "inputs": {**{k: {"path": str(p), "sha256_16": s16} for k, (p, s16) in INP.items()},
+                  "engmat_AL6061-T6_Fty": AL["Fty"]["src"], "engmat_AL6061-T6_Ftu": AL["Ftu"]["src"]},
+       "tags": {"head_fillet_Kt": ("LITERATURE (secondary, via AMESweb citing Pilkey 2005); the Pilkey page and the T-head Kt TO-SOURCE (lead "
+                                   "18:36:37Z; the file's own tag reads 'WEB-SOURCED, BOOK PAGE TO-SOURCE; T-head NOT SOURCED')"),
+                "head_end_resultants": "ASSUMED (the no-spring FE head-end resultants carried over, lead 18:36:37Z)",
+                "under_head_full_float": "ASSUMED (mean-pressure scaling on the spring footprint, lead 17:55:55Z F1 FLAG)"},
+       "changes_vs_v2": {"C1 (g)": "route (i) spring footprint on the flat (rows v7), da 5.55-5.80 drawn (F3)",
+                         "C1 (h)": "datums A = 57.25 H8 bore axis, B = TC-01 forward end face (17:55:55Z); the v2 datum FLAG closed; d11.2 spot face",
+                         "C3b": "new: ENG-TC-13 registration shoulder screw pair (GSE, F2)",
+                         "C4": "rewritten: J-F1 gate (lot torque, spring items, Prescale), hole / tap gauging, gap-gauge head setting (rev 5; v2 "
+                               "'until seated'), F2 registration, one-at-a-time flight screws with new springs to the J-F1 lot torque (M-T1J, "
+                               "3750 N cap), shoulder screws out last, single-use",
+                         "C6": "(2) springs replaced with the screws; (3) the single-use founder rule with the head-to-shank fillet in the "
+                               "removed-screw inspection (LEAD ADDITION 18:36:37Z), C6 OPEN with the thread-root and fillet LCF rows",
+                         "C8": "new: the drawing texts (TC-01 / TC-02 rev 5, ENG-HW-101-IN718, HW-170, M-T1J, J-F1, GSE lines) with the lead's "
+                               "five 18:36:37Z item-5 texts located and asserted",
+                         "unchanged": "C1 (a)-(f), C2, C3, C5, C7, T-F1 (text and tables identical to v2)"},
        "item_C": C, "item_C_geometry_checks": geo, "T-F1": TF1, "T-F1_TB_table": tb_rows, "T-F1_engmat_10000h_values_used_by_the_cells": eng}
+V2 = json.loads((T / "item_c_tf1_texts_v352_v2.json").read_text())
+assert sha(T / "item_c_tf1_texts_v352_v2.json") == "0c679900bb41e408"
+for k in ("C1_TC01_drawing_callout_rev5",):
+    a, b = V2["item_C"][k], C[k]
+    assert a[:a.index("(g) hole size")] == b[:b.index("(g) hole size")], "C1 (a)-(f) changed"
+for k in ("C2_bore_lead_in_rev5", "C3_fitting_aid_GSE", "C5_record_why_not_moved", "C7_datasheet_residuals_gland1"):
+    assert V2["item_C"][k] == C[k], k
+assert V2["T-F1"] == TF1 and V2["T-F1_TB_table"] == tb_rows and V2["T-F1_engmat_10000h_values_used_by_the_cells"] == eng
+assert V2["item_C_geometry_checks"] == geo
 s = json.dumps(out, indent=1)
 OUT.write_text(s)
 print(OUT, hashlib.sha256(s.encode()).hexdigest()[:16])
-print(json.dumps(geo, indent=1))
-print(TF1)
+for k in ("C1_TC01_drawing_callout_rev5", "C3b_registration_shoulder_screws_GSE", "C4_assembly_step_founder_procedure", "C6_founder_action_list_related"):
+    print("==", k)
+    print(C[k])
+print(json.dumps(C8["lead_items_18_36_37Z_item5"], indent=1))

@@ -1,9 +1,39 @@
 """J-FWD screw-dependent rows re-issued for the ruled screw IN718 M5 x10 (ENG-HW-101-IN718), lead 11:25Z item 2, 11:41Z, 12:09Z item 5,
-relay 12:28Z, relay 13:14Z, lead 14:03Z item 3, lead 14:14Z items 3-4, lead 14:34Z items 2-3, lead 15:37Z item 1.  Mechanical, 2026-10-20,
-v6 (v5 cc985da00b81ce97 / json 4d12e0187ac1a9c4 kept as jfwd_in718_rows_v352_v5.py; v4 802559c3a4e10834
+relay 12:28Z, relay 13:14Z, lead 14:03Z item 3, lead 14:14Z items 3-4, lead 14:34Z items 2-3, lead 15:37Z item 1, lead 16:53Z R2 / R4.
+Mechanical, 2026-10-20, v7 (v6 d44587001b0b3c36 / json dbdb965a4160ec6e kept as jfwd_in718_rows_v352_v6.py;
+v5 cc985da00b81ce97 / json 4d12e0187ac1a9c4 kept as jfwd_in718_rows_v352_v5.py; v4 802559c3a4e10834
 / json 6b41f1ce01e489f1 kept as jfwd_in718_rows_v352_v4.py; v3 0a8aa3f87c0fc8bc ACCEPTED by the lead 14:03Z, kept as jfwd_in718_rows_v352_v3.py;
 v2 b92cef86a2bc3919 kept).  [DERIVED] from SIM (FEA3D js5 complete run + seat patches (a), (a') and (a'')); no new run.  CALC / DERIVED,
 not physical approval.
+
+v7 (lead 16:53Z R2 'ROUTE (i) ADOPTED, conditional on the rev-5 CAD check' (the CAD check passed: checks/test_rev5_jfwd_v2.json
+32c41e1e207f9d64, reported 17:49:15Z, ACCEPTED 17:55:55Z) and R4 (union basis 36.401, rows v6 wording fix, datum B), and the lead's
+rulings of 17:55:55Z on F1-F5: F1 the J-F1 MAXIMUM PRELOAD IS CAPPED AT 3750 N (J-F1 sets the flight-lot torque so that the lot's K_min
+gives <= 3750 N; today's K window 0.1465-0.267 -> 2.747 N m and a minimum of 2058 N): the 3750 column is FE-anchored and GOVERNS every
+row, the 4096 column is INFORMATION (superseded maximum); the under-head row is quoted at FULL FLOAT at 3750 N as a FLAG with the ASSUMED
+mean-pressure tag; F2 the C4 registration (two GSE shoulder screws) is adopted: the tangential basis is the registered stack, 0.4865
+(the method does not show that the drilling registration is reproduced, so the two-registration value is used, not 0.4085); F3 the head
+form is adopted (fillet r 0.2-0.3 undercut into the head, pilot 5.15 h9 x 0.25-0.30, da 5.55-5.80); F4 the axial basis is 0.3705; F5
+clocking +/-0.25 deg at match-drilling.  The screw-dependent rows move to route (i): ENG-HW-101-IN718 M5 x 10.7 +/-0.1 with the pilot and
+the disc spring HW-170 (DIN EN 16983 A10 10 x 5.2 x 0.5, spring A baseline; spring B t 0.4 on M5 x 10.6 is the alternate) solid under
+the head.
+ - THE ROW (thread shear) on L 10.7 +/-0.1 with the spring under the head (t 0.44-0.52): L_e min 7.294, A_n 67.93 mm2 (flag +0.005 at
+   SOAK52 4096 N, quoted as a flag by the lead 16:53Z R2); the no-spring L 10.2 row (68.13) is kept as the record.
+ - TC-01 FLAT BEARING on the spring footprint (the spring is solid at every hot frame, spring v3): A_supp = spring annulus (De 9.85 h12
+   minimum, Di 5.32 H12 maximum) on the worst-stack flat (half chord 4.6633 after the 0.1 flat-to-OD break) outside the 5.82 hole-break
+   circle on the hole axis, the spring centre offset tangentially by the stated basis (raster, 0.002 mm; the exact paper area matches CAD
+   within 0.052 mm2 at 9 points, test_rev5_jfwd_v2 (e)); quoted at the registered stack 0.4865 (F2), full float beside; the v6 head-
+   direct row on the ADOPTED union basis (36.401, R4) is kept as the no-spring record.
+ - TC-01 UNDER-HEAD BAND (Neuber) re-stated on the spring footprint (lead 16:53Z R2): sigma_el x A_ANN / A_supp (mean-pressure scaling,
+   ASSUMED; FEA3D's band is under its centred head ring A_ANN 47.12; edge loading where the spring overhangs the flat's tangential edge is
+   not represented: FE confirmation is the closure); every tangential basis is tabled (nominal centred, worst concentric, ruled 0.328,
+   method 0.4085 (+0.04 axial), registered stack 0.4865, full float 0.557); quoted at FULL FLOAT (F1) as a FLAG, tag ASSUMED (the v6
+   force-scaled value is kept beside as the record).
+ - HEAD ON SPRING (IN718 side): dk 9.14 minimum / da 5.80 maximum (head form F3 PROPOSED 17:49:15Z: fillet r 0.2-0.3 undercut into the head,
+   pilot 5.15 h9 x 0.25-0.30, ADOPTED F3), N / A vs IN718 Fty / Ftu at the screw temperature; the spring side (1.4568) is TO-SOURCE.
+ - R4: SLACK_TXT wording corrected (the 24-case minimum is reached at the 2250 N and at the 4096 N installations alike; no number
+   changes); rev5_drawing_items carry the datum frame as built in rev 5 (A = the 57.25 H8 bore axis, B = the TC-01 fwd end face).
+ - the spring module jfwd_spring_v352.py asserts A_THE_ROW == 68.13 (no-spring basis): it is re-based on route (i) at its next run.
 
 v6 (lead 15:37Z item 1, (b2) rulings R1-R3): every FE-anchored row is re-mapped on the adopted envelope = the worst of sharp + (b2)
 ('worst computed instance, not a proven bound'), read through relax v7: (b2) seat_s6L12_mu0 (drawn R0.2 bore-side break) is the fifth
@@ -91,7 +121,7 @@ import json, math, hashlib, importlib.util
 from pathlib import Path
 
 J = Path("/home/claude/work/mechanical/v352/jfwd")
-OUT = J / "jfwd_in718_rows_v352_v6.json"
+OUT = J / "jfwd_in718_rows_v352_v7.json"
 _spec = importlib.util.spec_from_file_location("jfwd_relax_v352_v6", str(J / "jfwd_relax_v352.py"))
 R = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(R)
@@ -108,13 +138,19 @@ exec(compile((J / "jfwd_v352.py").read_text().split("\nOPTS = [")[0], str(J / "j
 strip_area, TH = _ns["strip_area"], _ns["TH"]["M5"]
 IN, A4 = R.IN718_S, R.A4_80
 FV0, FVMAX = 3750.0, 4096.0
+# v7 (lead 17:55:55Z F1): the J-F1 maximum is CAPPED at 3750 N = FV0 (the FE preload): the 3750 column governs; FVMAX 4096 is INFORMATION
+JF1_K_WIN, JF1_D = (0.1465, 0.267), 5.0                               # J-F1 K window (today's lot basis) and the M5 nominal diameter
+JF1_T_NMM = FV0 * JF1_K_WIN[0] * JF1_D                                # torque that gives 3750 N at K_min: 2746.9 N mm (2.747 N m)
+JF1_MIN = JF1_T_NMM / (JF1_K_WIN[1] * JF1_D)                          # 2057.6 N at K_max (lead: 'about 2060 N'; or the J-F1 lot result)
+JF1_TAG = {"3750": "GOVERNING (J-F1 maximum, FE-anchored)", "4096": "INFORMATION (superseded maximum, lead 17:55:55Z F1)"}
 A_S, Z_3 = IN.A_s, IN.Z_3
 HS = R.H
 LBL = R.LABEL
 _RXJ = J / "jfwd_relax_v352_v7.json"                                  # v6: the relax v7 24-case result (run before this script)
 _RX = json.loads(_RXJ.read_text())["worse_end_quoted"]
 _INK = R.IN_KEY                                                       # lead 16:07Z (3) label
-SLACK_TXT = (f"none from this fix: the 24-case minimum is set by the 2250 N installation (relax v7, worse k_b end: seat line "
+SLACK_TXT = (f"none from this fix: the 24-case minimum is reached at the 2250 N and at the 4096 N installations alike (the first-firing "
+             f"wall set at the Fty(T) cap absorbs the installation preload; relax v7, worse k_b end: seat line "
              f"{_RX[_INK + '|seat']['F_S_min_N']} N, {_RX[_INK + '|seat']['n_unseated']} of 24 unseated; ring family "
              f"{_RX[_INK + '|ring']['F_S_min_N']} N, {_RX[_INK + '|ring']['n_unseated']} of 24 unseated)")
 FLAG = 0.05
@@ -273,6 +309,60 @@ A_ROW = FLAT["row_with_OD_break"]["A_ruled_mm2"]
 A_ROW_NOBRK = FLAT["info_without_OD_break"]["A_ruled_mm2"]
 A_UNION = FLAT["info_union_inner_boundary"]["A_mm2"]
 
+# ---- v7 route (i): the disc spring footprint on the TC-01 flat (lead 16:53Z R2, 17:55:55Z F1 / F2; CAD check test_rev5_jfwd_v2 (e), (h))
+CK5 = Path("/home/claude/work/mechanical/v352/checks/test_rev5_jfwd_v2.json")
+_ck5 = json.loads(CK5.read_text())
+assert hashlib.sha256(CK5.read_bytes()).hexdigest()[:16] == "32c41e1e207f9d64", "CAD check v2"
+_h5 = _ck5["h_positional_stack_on_the_method"]
+SPR_DE, SPR_DI = (9.85, 10.0), (5.20, 5.32)      # DIN EN 16983 De h12 / Di H12 (Schnorr brochure 2024-02 p. 10; Lesjofors 7909 'Di tol +0.12')
+HOLE_BRK = HOLE_MAX + 2 * BRK_HOLE                # 5.82: hole max + the 0.1 flat-side break each side (C1 (b))
+UH_BASES = {      # spring centre offset from its hole / flat axis: (tangential, axial) mm; None = the nominal centred like-for-like case
+    "nominal_centred_like_for_like_v6": None,
+    "worst_stack_concentric": (0.0, 0.0),
+    "ruled_0.328_withdrawn_F4": (0.328, 0.0),
+    "method_tangential_stack_0.4085": (_h5["tangential_stack_mm"], 0.040),
+    "registered_stack_0.4865_F2": (_h5["tangential_stack_two_registrations_mm"], 0.040),
+    "full_float_0.557": (_h5["full_float_info_mm"]["value"], 0.0)}
+assert abs(UH_BASES["registered_stack_0.4865_F2"][0] - 0.4865) < 1e-9 and abs(UH_BASES["full_float_0.557"][0] - 0.557) < 1e-9
+QUOTED_UH_BASIS = "full_float_0.557"              # lead 17:55:55Z F1: under-head row at FULL FLOAT, 3750 N, FLAG, ASSUMED
+QUOTED_FLAT_BASIS = "registered_stack_0.4865_F2"  # lead 17:55:55Z F2: the tangential basis is the registered stack (0.4865)
+
+
+def _spring_area(ro, ri, he, rh, e_t, e_z, step=0.002):
+    """spring annulus (ro, ri) centred (e_t, e_z) from the hole axis, inside the flat strip |t| <= he, outside the hole-break circle (rh) on
+    the hole axis; raster (v7; the CAD check v2 (e) cross-checks the same construction within 0.052 mm2)"""
+    import numpy as np
+    n = int(math.ceil(2 * ro / step)) + 2
+    g = (np.arange(n) + 0.5) * step - ro - step
+    T, Z = np.meshgrid(g, g, indexing="ij")
+    rr = T * T + Z * Z
+    tt, zz = T + e_t, Z + e_z
+    ins = (rr <= ro * ro) & (rr >= ri * ri) & (np.abs(tt) <= he) & (tt * tt + zz * zz >= rh * rh)
+    return float(ins.sum()) * step * step
+
+
+HE_WS = FLAT["half_chord_after_OD_break_mm"]
+HC_NOM = math.sqrt(31.75 ** 2 - 31.313 ** 2)
+A_SPR = {}
+for _k, _v in UH_BASES.items():
+    if _v is None:   # nominal: De 10.0 / Di 5.2, hole 5.5 + 0.1 break each side, nominal OD and r_flat (half chord 5.2496 - 0.1), centred
+        A_SPR[_k] = round(_spring_area(5.0, 2.6, HC_NOM - BRK_OD, (5.5 + 2 * BRK_HOLE) / 2.0, 0.0, 0.0), 3)
+    else:
+        A_SPR[_k] = round(_spring_area(SPR_DE[0] / 2.0, SPR_DI[1] / 2.0, HE_WS, HOLE_BRK / 2.0, _v[0], _v[1]), 3)
+# the raster on the CAD check's own construction (De 10 / Di 5.2, no breaks) against every CAD point that returned a body
+_e5 = _ck5["e_supported_area"]
+XCHK = {}
+for _blk, (_he, _rh) in (("nominal_CAD", (HC_NOM, 2.75)), ("worst_stack_tube", (_e5["worst_stack_tube_basis"]["half_chord_mm"], 2.81))):
+    for _key, _rec in _e5[_blk].items():
+        if _rec["A_CAD_mm2"] <= 1.0:
+            continue
+        _et, _ez = (float(_x[3:]) for _x in _key.split("|"))
+        _ar = _spring_area(5.0, 2.6, _he, _rh, _et, _ez)
+        XCHK[f"{_blk}|{_key}"] = {"A_CAD_mm2": _rec["A_CAD_mm2"], "A_raster_mm2": round(_ar, 3), "diff_mm2": round(_rec["A_CAD_mm2"] - _ar, 3)}
+assert len(XCHK) == 9 and max(abs(_v["diff_mm2"]) for _v in XCHK.values()) < 0.06, XCHK
+DA_HEAD_MAX, DK_HEAD_MIN = 5.80, DK_MIN          # F3 ADOPTED 17:55:55Z: fillet r 0.2-0.3 undercut into the head, da 5.55-5.80, dk 9.14 min
+A_HEAD_SPRING = math.pi / 4.0 * (DK_HEAD_MIN ** 2 - DA_HEAD_MAX ** 2)
+
 
 def rows_state(st):
     c = CELLS[st]
@@ -316,13 +406,15 @@ def rows_state(st):
         if st != "FA1S":
             fb = c["TC-01"]["cell"]["seat_values_DERIVED"]["flat_seat_bearing_MS_vs_Fbry"]
             full = (1 + fb) * Nfe_js5 / Nenv - 1.0
-            r["TC01_flat_bearing"] = {"MS_vs_Fbry": round((1 + full) * A_ROW / A_ANN - 1.0, 3),
-                                      "area_mm2": A_ROW, "area_basis": "rev-5 minimum ring dk 9.14 / ID 5.82 less the worst-stack loss (with the 0.1 flat-to-OD break)",
-                                      "info_MS_without_OD_break": round((1 + full) * A_ROW_NOBRK / A_ANN - 1.0, 3), "info_area_without_OD_break_mm2": A_ROW_NOBRK,
-                                      "info_MS_union_inner_boundary_RECOMMENDED": round((1 + full) * A_UNION / A_ANN - 1.0, 3), "info_area_union_mm2": A_UNION,
+            spr_fb = {k: round((1 + full) * A / A_ANN - 1.0, 3) for k, A in A_SPR.items()}
+            r["TC01_flat_bearing"] = {"MS_vs_Fbry": spr_fb[QUOTED_FLAT_BASIS], "area_mm2": A_SPR[QUOTED_FLAT_BASIS],
+                                      "area_basis": (f"route (i): spring footprint at the {QUOTED_FLAT_BASIS} tangential basis (De 9.85 / Di 5.32 on the "
+                                                     "worst-stack flat after the 0.1 OD break, outside the 5.82 hole-break circle)"),
+                                      "MS_by_spring_basis": spr_fb, "areas_by_spring_basis_mm2": A_SPR,
+                                      "NO_SPRING_RECORD_union_basis_R4": round((1 + full) * A_UNION / A_ANN - 1.0, 3), "no_spring_union_area_mm2": A_UNION,
+                                      "NO_SPRING_RECORD_A_ROW": round((1 + full) * A_ROW / A_ANN - 1.0, 3), "no_spring_A_ROW_mm2": A_ROW,
                                       "info_MS_full_flat_on_A_ANN_47.12_superseded": round(full, 3),
-                                      "F_over_Fbry_mm2": round(A_ANN / (1 + full), 3), "INFO_js5_history_A4-80_withdrawn_MS_at_FE_N": fb,
-                                      "v4_row_for_record": round((1 + full) * FLAT_V4["supported_fraction_row_basis"] - 1.0, 3)}
+                                      "F_over_Fbry_mm2": round(A_ANN / (1 + full), 3), "INFO_js5_history_A4-80_withdrawn_MS_at_FE_N": fb}
         uh = {}
         for h in R.H_at(st):
             Nh = R.HISTS[st][h]["N_head_N"]
@@ -339,9 +431,25 @@ def rows_state(st):
             for n in (15, 30):
                 s_, e_ = neuber(sel, E, Fty, n)
                 mss.append(round(el / e_ - 1.0, 3))
-            uh[LBL[h]] = {"sigma_el_A4-80_MPa": sel0, "sigma_el_IN718_MPa": round(sel, 1), "T_C": T, "eps_limit": el, "MS_strain_n15_n30": mss, "MS_strain": min(mss)}
+            spr_uh = {}
+            for k, A in A_SPR.items():
+                spr_uh[k] = min(round(el / neuber(sel * A_ANN / A, E, Fty, n)[1] - 1.0, 3) for n in (15, 30))
+            uh[LBL[h]] = {"sigma_el_A4-80_MPa": sel0, "sigma_el_IN718_MPa": round(sel, 1), "T_C": T, "eps_limit": el,
+                          "V6_RECORD_MS_strain_n15_n30_head_direct_force_scaled": mss, "V6_RECORD_MS_strain": min(mss),
+                          "sigma_el_spring_quoted_MPa": round(sel * A_ANN / A_SPR[QUOTED_UH_BASIS], 1),
+                          "MS_strain_by_spring_basis": spr_uh, "MS_strain": spr_uh[QUOTED_UH_BASIS]}
         hw = min(uh, key=lambda k: uh[k]["MS_strain"])
-        r["TC01_under_head_band_neuber"] = {"per_history": uh, "MS_strain": uh[hw]["MS_strain"], "from": hw}
+        r["TC01_under_head_band_neuber"] = {"per_history": uh, "MS_strain": uh[hw]["MS_strain"], "from": hw,
+                                            "quoted_basis": f"{QUOTED_UH_BASIS} (lead 17:55:55Z F1), mean-pressure scaling ASSUMED",
+                                            "tag": "ASSUMED (sigma_el x A_ANN 47.12 / A_supp; edge loading at the tangential overhang not represented)",
+                                            "by_basis_min": {k: min(uh[q]["MS_strain_by_spring_basis"][k] for q in uh) for k in A_SPR},
+                                            "V6_RECORD_min": min(uh[q]["V6_RECORD_MS_strain"] for q in uh)}
+        # v7: head on the spring (IN718 side), dk 9.14 min / da 5.80 max (F3 ADOPTED); the spring side is TO-SOURCE
+        sig_hs = Nenv / A_HEAD_SPRING
+        r["head_on_spring_IN718"] = {"A_mm2": round(A_HEAD_SPRING, 2), "N_N": round(Nenv, 1), "from": LBL[henv], "sigma_MPa": round(sig_hs, 1), "T_C": Ts,
+                                     "MS_y": ms(Fy, sig_hs), "MS_u": ms(Fu, sig_hs),
+                                     "basis": "dk 9.14 min / da 5.80 max (F3 ADOPTED 17:55:55Z); allowables IN718 Fty / Ftu at the screw temperature, no bearing credit",
+                                     "spring_side": "1.4568 (17-7 PH) condition and allowable: TO-SOURCE from the maker"}
         # (4) FEA3D's TC-01 ligament-station P+Q (cell, js5 station delta 5.688 side +): js5-history scaling; INFORMATION (contact-edge field)
         if st != "FA1S":
             lg = c["TC-01"]["SCL_PQ_ligament_station_max_cad"]
@@ -488,11 +596,18 @@ def eng_rev5(L_nom, tol, t_under=(0.0, 0.0)):
             "tip_ok": clr >= TIP_CLEAR_MIN - 1e-9}
 
 
-THE_ROW = eng_rev5(10.2, 0.1)
+THE_ROW_NS = eng_rev5(10.2, 0.1)                                      # v7: the no-spring row (RULED 12:52Z), kept as the record
+assert abs(THE_ROW_NS["L_e_gap_bound_mm"] - 7.314) < 0.0015 and abs(THE_ROW_NS["A_n_gap_bound_mm2"] - 68.13) < 0.01, THE_ROW_NS
+T_SPRING_A, T_SPRING_B = (0.44, 0.52), (0.34, 0.42)                    # DIN EN 16983 t 0.20-0.60 +0.02 / -0.06 (Schnorr brochure 2024-02 p. 10)
+THE_ROW = eng_rev5(10.7, 0.1, T_SPRING_A)                              # v7 route (i): spring A under the head (lead 16:53Z R2)
+THE_ROW_B = eng_rev5(10.6, 0.1, T_SPRING_B)                            # alternate spring B (t 0.4) on M5 x 10.6 +/-0.1
 A_THE_ROW = THE_ROW["A_n_gap_bound_mm2"]
-assert abs(THE_ROW["L_e_gap_bound_mm"] - 7.314) < 0.0015 and abs(A_THE_ROW - 68.13) < 0.01, THE_ROW
-THE_ROW_LABEL = ("THE ROW (lead 16:07Z (2)): drawn M5 x 10.2 +/-0.1 on the rev-5 flat (r_flat 31.313 +0.020/0 from the bore axis), TC-01 wall "
-                 "seated, 0.078 radial gap bound: L_e min 7.314, A_n 68.13 mm2 (local gap 0: L_e 7.392, information)")
+assert abs(THE_ROW["L_e_gap_bound_mm"] - 7.294) < 0.0015 and abs(A_THE_ROW - 67.93) < 0.01, THE_ROW
+assert THE_ROW_B["A_n_gap_bound_mm2"] == A_THE_ROW and THE_ROW["tip_ok"] and THE_ROW_B["tip_ok"], (THE_ROW, THE_ROW_B)
+THE_ROW_LABEL = ("THE ROW (route (i), lead 16:53Z R2): ENG-HW-101-IN718 M5 x 10.7 +/-0.1 with the disc spring solid under the head (t 0.44-0.52) "
+                 "on the rev-5 flat (r_flat 31.313 +0.020/0 from A), TC-01 wall seated, 0.078 radial gap bound: L_e min 7.294, A_n 67.93 mm2 "
+                 "(local gap 0: L_e 7.372, information); spring B on M5 x 10.6 +/-0.1 gives the same L_e; the no-spring M5 x 10.2 row (L_e 7.314, "
+                 "A_n 68.13, RULED 12:52Z) is the record")
 
 
 def eng_case(L_nom, tol, h_under=0.0):
@@ -515,6 +630,8 @@ def thread_full_row(states):
     e_dwg = eng_case(10.0, 0.0)
     e_iso = eng_case(10.0, ISO_L_TOL)
     bases = {"THE_ROW": {"label": THE_ROW_LABEL, **THE_ROW},
+             "route_i_spring_B_alternate (M5 x 10.6 +/-0.1, t 0.34-0.42)": THE_ROW_B,
+             "RECORD_no_spring_M5x10.2 (RULED 12:52Z, THE ROW until route (i))": THE_ROW_NS,
              "SUPERSEDED_RECORD (13:14Z (2), 14:03Z (2))": {
                  "FEA3D_cell_A_n_mm2 (L_eff 6.35 = v3.5.1 L_e 6.85 - 0.5)": round(An_fea, 2),
                  "check_strip_area_at_6.35_mm2": round(strip_area(TH, 6.35), 2),
@@ -553,33 +670,38 @@ def thread_full_row(states):
     fa0, fa5 = fv_for(0.0), fv_for(0.05)
     out["fixes"]["a_lower_J-F1_max"] = {"F_max_for_MS_y_0_N": round(fa0), "F_max_for_MS_y_0.05_N": round(fa5),
                                         "governing_state": gov, "N_from": LBL[henv], "A_n_mm2": A_THE_ROW,
-                                        "note": (f"on THE ROW (A_n {A_THE_ROW} mm2); the J-F1 band at 3.0 N m is 2250-4096 N: "
-                                                 + ("the 4096 N maximum already holds MS_y >= 0" if fa0 >= FVMAX else
-                                                    f"MS_y >= 0 needs a maximum of {fa0:.0f} N (cuts the low-K tail of the lot: J-F1 acceptance statistics decide the reject rate)")
-                                                 + "; " + ("MS_y >= 0.05 holds at 4096 N" if fa5 >= FVMAX else
-                                                           (f"MS_y >= 0.05 needs a maximum of {fa5:.0f} N" + (" (below the 3750 N nominal: not practical)" if fa5 < FV0 else "")))),
+                                        "note": (f"on THE ROW (route (i), A_n {A_THE_ROW} mm2); the J-F1 MAXIMUM IS CAPPED AT 3750 N (lead 17:55:55Z F1: torque "
+                                                 f"= 3750 x K_min x d on the flight lot; today's K window {JF1_K_WIN[0]}-{JF1_K_WIN[1]} -> "
+                                                 f"{JF1_T_NMM / 1e3:.3f} N m, band {JF1_MIN:.0f}-3750 N): "
+                                                 + ("MS_y >= 0 holds at the 3750 N cap" if fa0 >= FV0 else f"MS_y >= 0 needs a maximum of {fa0:.0f} N")
+                                                 + f" (MS_y 0 at {fa0:.0f} N); "
+                                                 + ("MS_y >= 0.05 holds at 3750 N" if fa5 >= FV0 else f"MS_y >= 0.05 would need {fa5:.0f} N: the 3750 N row is a FLAG")
+                                                 + "; the 4096 N column is information (superseded maximum)"),
+                                        "J_F1_cap_N": FV0, "J_F1_min_N": round(JF1_MIN, 1), "J_F1_torque_Nm_today_K_window": round(JF1_T_NMM / 1e3, 3),
                                         "slack_effect": SLACK_TXT,
                                         "other_effects": "none on CAD or FD-04; J-F1 acceptance rule only"}
     # (b) custom IN718 length within the 8.0 full thread (the IN718 screw is a custom part: TO-SELECT / TO-QUOTE; its length is a drawing number)
     opts = {}
-    for L_nom, tol in ((10.0, 0.1), (10.2, 0.1), (10.4, 0.08), (10.5, 0.08)):
-        e = eng_rev5(L_nom, tol)
+    for L_nom, tol, tu in ((10.2, 0.1, (0.0, 0.0)), (10.7, 0.1, T_SPRING_A), (10.6, 0.1, T_SPRING_B)):
+        e = eng_rev5(L_nom, tol, tu)
+        e["t_under_mm"] = list(tu)
         rws = {}
         for FV in (FV0, FVMAX):
             N = n_in(gov, henv, FV)
             rws[f"{FV:.0f}"] = {"tau_MPa": round(N / e["A_n_gap_bound_mm2"], 1), "MS_y": ms(fsy, N / e["A_n_gap_bound_mm2"])}
         e["rows_at_governing_state"] = rws
-        e["status"] = ("RULED 12:52Z (THE ROW)" if (L_nom, tol) == (10.2, 0.1) else
-                       ("record (v3.5.1 length)" if L_nom == 10.0 else ("tip below 0.2: not allowed" if not e["tip_ok"] else "option")))
-        opts[f"M5 x {L_nom} +/-{tol}"] = e
+        e["status"] = ("record: no spring (RULED 12:52Z)" if L_nom == 10.2 else
+                       ("THE ROW: route (i) spring A (lead 16:53Z R2)" if L_nom == 10.7 else "route (i) alternate: spring B"))
+        opts[f"M5 x {L_nom} +/-{tol}" + (f" over t {tu[0]}-{tu[1]}" if tu[1] > 0 else "")] = e
     out["fixes"]["b_custom_IN718_length"] = {"options": opts,
                                              "slack_effect": ("none: the free length (grip + 0.5 mouth) is unchanged; in the VDI-form resilience of jfwd_embed the "
                                                               "engaged thread is 0.5 d / A_d3 and the tapped part 0.33 d, independent of L_e, so k_b and the 24-case "
                                                               "do not move"),
                                              "other_effects": ("no CAD change (tap 4.2 x 9.0 / full thread 8.0 kept), no head-height or FD-04 change; J-F1 calibrates "
                                                                "K at the flight length; drawing length tolerance +/-0.08..0.1 instead of ISO js15"),
-                                             "note": ("rev-5 basis (r_flat 31.313 +0.020/0 from the bore axis, wall seated, 0.078 gap bound for L_e, wall min "
-                                                      "seated for the tip); 10.2 +/-0.1 is RULED (12:52Z) and is THE ROW")}
+                                             "note": ("rev-5 basis (r_flat 31.313 +0.020/0 from A, wall seated, 0.078 gap bound for L_e, wall min "
+                                                      "seated for the tip); route (i) (lead 16:53Z R2): 10.7 +/-0.1 over spring A is THE ROW, 10.6 "
+                                                      "+/-0.1 over spring B the alternate; 10.2 +/-0.1 (RULED 12:52Z) is the no-spring record")}
     # (c) insert: tap-wall effect (catalogue tap drill; the STI major diameter is TO-SOURCE)
     out["fixes"]["c_helical_insert"] = {"status": "REJECTED by the lead 12:52Z (record only)",
                                         "part": "Boellhoff HELICOIL plus M5 x 0.8, 1d / 1.5d (order no. 4189 005 0005 / 4189 005 0075)",
@@ -593,8 +715,9 @@ def thread_full_row(states):
                                                             "M6-fallback value): probe + FE re-run needed"),
                                         "slack_effect": "a coil insert adds thread compliance (k_b down, slightly favourable); not quantified without data",
                                         "other_effects": "CAD + TC-02 drawing change, insert installation / tang removal on flight hardware, new J-F1 pair (IN718 / insert)"}
-    out["fixes"]["d_disc_spring_interaction"] = ("a disc spring under the head that is solid (flat) at the soak force leaves the soak force and this row "
-                                                 "unchanged; only a spring still active at the soak would lower it (jfwd_spring_v352)")
+    out["fixes"]["d_disc_spring_interaction"] = ("route (i) ADOPTED (lead 16:53Z R2, CAD check passed 17:49Z): the spring is solid (flat) at every hot "
+                                                 "frame (spring v3), so the soak force is the FE-mapped one (the 0.5 mm longer IN718 screw lowers k_b "
+                                                 "slightly: favourable, not credited); the row moves only through L_e (THE ROW above)")
     return out
 
 
@@ -742,10 +865,11 @@ def membrane_minwall():
     out["governing_min_wall_row"] = min(ms_all)[1]
     out["lowest_T_allow_min_wall"] = min((x["min_wall"]["T_allow_C"], x["row"]) for x in out["rows"])
     out["rev5_drawing_items"] = [
-        "TC-01 bore 57.15 +/-0.10 (NEW tolerance; maximum 57.25 = the 57.25 H8 seal-land clean-up bound; minimum wall 3.088 at the h9 OD)",
-        "TC-01 aft thread: make the fits list (6e) and the notes (6g) agree; 6e is the basis of these rows",
-        "datum frame 'fwd end face A, axis B': name the feature that establishes axis B (proposal: the 57.25 H8 forward bore) and write r_flat "
-        "31.313 +0.020/0 'from axis B', OD 63.5 h9 circular runout 0.04 'to B', the d5.5 holes 'position 0.10 dia to A|B'"]
+        "TC-01 bore 57.15 +/-0.10 (ADOPTED 16:53Z R4; maximum 57.25 = the 57.25 H8 seal-land clean-up bound; minimum wall 3.088 at the h9 OD)",
+        "TC-01 aft thread M63 x 1.5-6e in the fits list and in the notes (16:53Z R4; 6e is the basis of these rows)",
+        "datum frame as built in rev 5 (16:53Z R4; CAD check (g): TC-02 seats axially on nothing): A = the 57.25 H8 bore axis, B = the TC-01 "
+        "fwd end face; r_flat 31.313 +0.020/0 from A, OD 63.5 h9 circular runout 0.04 to A, the d5.5 H12 holes position 0.10 dia to A|B at "
+        "12.000 BASIC from B, clocking free (match-drilled)"]
     out["note"] = ("pressure rows act only while pressurised (burn); the TC-01 burn maximum is the part maximum over the whole case (a bound for every "
                    "section; the aft sections run much cooler); the rev-3 merged (perfect-contact) run is the hottest burn case on file and is shown "
                    "as the bound; LC4 is the 20 C proof")
@@ -753,12 +877,16 @@ def membrane_minwall():
 
 
 if __name__ == "__main__":
-    res = {"id": "jfwd_in718_rows_v352", "version": "v6", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
+    res = {"id": "jfwd_in718_rows_v352", "version": "v7", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
            "inputs": {"relax_v7_module": {"path": str(J / "jfwd_relax_v352.py"), "sha256_16": sha(J / "jfwd_relax_v352.py")},
                       "js5_cells": {"path": str(R.F_CELLS), "sha256_16": sha(R.F_CELLS)},
                       "fea3d_soak_envelope": {"path": str(R.F_ENV), "sha256_16": sha(R.F_ENV)},
                       "patch_compare": {LBL[h]: {"path": str(R.PATCHES[h] / "compare.json"), "sha256_16": sha(R.PATCHES[h] / "compare.json")} for h in R.PATCHES},
-                      "fix_v2_json": {"path": str(FIX2), "sha256_16": sha(FIX2)}, "seat_v1_json": {"path": str(SEAT1), "sha256_16": sha(SEAT1)}},
+                      "fix_v2_json": {"path": str(FIX2), "sha256_16": sha(FIX2)}, "seat_v1_json": {"path": str(SEAT1), "sha256_16": sha(SEAT1)},
+                      "rev5_cad_check_v2": {"path": str(CK5), "sha256_16": sha(CK5)}},
+           "J_F1": {"maximum_N": FV0, "minimum_N_today_K_window": round(JF1_MIN, 1), "torque_Nm_today_K_window": round(JF1_T_NMM / 1e3, 3),
+                    "K_window": list(JF1_K_WIN), "rule": "lead 17:55:55Z F1: J-F1 sets the flight-lot torque so that the lot's K_min gives <= 3750 N",
+                    "columns": JF1_TAG},
            "histories": [LBL[h] for h in HS], "k_b_bracket_N_mm": {k: round(v) for k, v in R.KB.items()},
            "IN718_over_A4-80_soak_gain_ratio": {k: round(v, 4) for k, v in RATIO.items()}, "F_sh_ratio_IN718_over_A4-80": {k: round(v, 4) for k, v in FSH_RATIO.items()},
            "FA1S_thermal_delta_IN718_N": round(D_FA1S, 1), "dF_S_per_dF_V_soak": round(D_FVMAX / (FVMAX - FV0), 4)}
@@ -779,6 +907,15 @@ if __name__ == "__main__":
                                        f"({fby:.1f} / {fbu:.1f} MPa); V-driven, the same for every screw grade")
     res["TC02_thread_shear_full_row"] = thread_full_row(("PRELOAD", "SOAK70", "SOAK", "SOAK52", "FA1S"))
     # v5 (a): the rev-5 minimum bearing ring and worst stack behind the flat-bearing rows (v4's stack kept for the record)
+    res["route_i_spring_footprint"] = {
+        "areas_mm2": A_SPR, "offsets_t_z_mm": UH_BASES, "quoted_flat_bearing_basis": QUOTED_FLAT_BASIS, "quoted_under_head_basis": QUOTED_UH_BASIS,
+        "construction": ("spring annulus De 9.85 (h12 min) / Di 5.32 (H12 max) centred (t, z) from the hole axis, inside the worst-stack flat strip "
+                         f"|t| <= {HE_WS} (OD 63.426, eccentricity 0.02, r_flat 31.333, 0.1 flat-to-OD break), outside the hole-break circle "
+                         f"{HOLE_BRK} (hole 5.62 max + 0.1 break each side) on the hole axis; nominal: De 10 / Di 5.2, hole 5.5 + 0.2, half chord "
+                         f"{HC_NOM - BRK_OD:.4f}, centred; raster 0.002 mm"),
+        "cad_crosscheck_raster_vs_CAD": XCHK, "head_on_spring_area_mm2": round(A_HEAD_SPRING, 2),
+        "under_head_scaling": "sigma_el,spring = sigma_el,IN718 (force-scaled FE band) x A_ANN 47.12 / A_supp: mean pressure, ASSUMED (TO-VERIFY: pressure-film footprint at J-F1, founder test item; FE spring-footprint run costed by FEA3D after (b1))",
+        "rulings": "lead 16:53Z R2 / R4; 17:55:55Z F1 (J-F1 cap 3750 N, under-head at full float as a FLAG), F2 (registered stack 0.4865), F3 (head form), F4 (axial 0.3705), F5 (clocking +/-0.25 deg)"}
     res["TC01_flat_bearing_rev5_min_ring"] = FLAT
     res["TC01_flat_bearing_v4_stack_record"] = FLAT_V4
     # v5 (b): TC-01 case membrane rows (hand_calcs_v2.json) on the minimum wall; v4's h9-only re-evaluation kept for the record
@@ -791,9 +928,13 @@ if __name__ == "__main__":
             for k, v in r.items():
                 for mk in ("MS_y", "MS_u", "MS_vs_Fbry", "MS_strain", "MS_PQ_2Fty", "bound_MS", "MS_y_fibre", "MS_shakedown", "MS_PQ_2Fty_info"):
                     if isinstance(v, dict) and mk in v and v[mk] is not None and v[mk] < FLAG:
-                        (fl_info if mk.endswith("_info") else fl).append({"state": st, "preload_N": tag, "row": k, "metric": mk, "MS": v[mk], "flag": flag(v[mk])})
+                        rec = {"state": st, "preload_N": tag, "row": k, "metric": mk, "MS": v[mk], "flag": flag(v[mk])}
+                        if k == "TC01_under_head_band_neuber" and mk == "MS_strain":
+                            rec["tag"] = "ASSUMED (mean-pressure scaling on the spring footprint, full float)"
+                        (fl_info if (mk.endswith("_info") or tag == "4096") else fl).append(rec)
     res["flags_within_0.05_or_negative"] = fl
     res["information_rows_negative_or_within_0.05"] = fl_info
+    res["J_F1_columns"] = JF1_TAG
     s = json.dumps(res, indent=1, default=float)
     OUT.write_text(s)
     print(OUT.name, hashlib.sha256(s.encode()).hexdigest()[:16])
@@ -809,9 +950,13 @@ if __name__ == "__main__":
                 elif k == "TC02_thread_shear_An":
                     line.append(f"thread tau {v['tau_MPa']} y{v['MS_y']:+.3f} u{v['MS_u']:+.3f}")
                 elif k == "TC01_flat_bearing":
-                    line.append(f"flat {v['MS_vs_Fbry']:+.3f} (noOD {v['info_MS_without_OD_break']:+.3f} union {v['info_MS_union_inner_boundary_RECOMMENDED']:+.3f} v4 {v['v4_row_for_record']:+.3f})")
+                    line.append(f"flat {v['MS_vs_Fbry']:+.3f} (ff {v['MS_by_spring_basis']['full_float_0.557']:+.3f} no-spring union {v['NO_SPRING_RECORD_union_basis_R4']:+.3f})")
                 elif k == "TC01_under_head_band_neuber":
-                    line.append(f"UH {v['MS_strain']:+.3f}({v['from']})")
+                    b_ = v["by_basis_min"]
+                    line.append(f"UH {v['MS_strain']:+.3f}({v['from']}) [nom {b_['nominal_centred_like_for_like_v6']:+.3f} conc {b_['worst_stack_concentric']:+.3f} "
+                                f"reg {b_['registered_stack_0.4865_F2']:+.3f} ff {b_['full_float_0.557']:+.3f} v6 {v['V6_RECORD_min']:+.3f}]")
+                elif k == "head_on_spring_IN718":
+                    line.append(f"head/spring {v['MS_y']:+.3f}")
                 elif k == "TC01_ligament_station_PQ_FEA3D_cell_INFO":
                     line.append(f"lig(info) {v['MS_PQ_2Fty_info']:+.3f}/env {v['envelope_scaled_bound_info']['MS']:+.3f}")
                 elif k.endswith("_PQ"):

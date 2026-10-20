@@ -1,4 +1,18 @@
-"""J-FWD disc spring under the head: paper scoping (lead 12:09Z item 4 (iii); lead 12:52Z item 4).  No CAD change, no hardware.
+"""J-FWD disc spring under the head (route (i), lead 16:53Z R2), v4: RE-STATED AT THE J-F1 BAND CAPPED AT 3750 N (lead 17:55:55Z F1:
+'Re-state the rows that depend on the minimum at the new minimum: about 2060 N with today's K range scaled by 3750 / 4096, or the J-F1
+lot result.  That covers the cold-after-embedding seating and the K_js5 rows.  If any turns negative, stop and tell me.').  Mechanical,
+2026-10-20, v4 (v3 04f3079e634c77da / json 150900bd77dc5fc9 kept as jfwd_spring_v352_v3.py).  CALC / DERIVED; not physical approval.
+v4: the harness check (no spring) still reproduces relax v7 at its own installation keys (2250 / 4096 N); every spring run after it is at
+the J-F1 band 2057.6 / 3750 N (torque 3750 x 0.1465 x 5 = 2746.9 N mm on today's K window 0.1465-0.267; the J-F1 lot result replaces the
+band when it exists): the R sweep, the lead-16:07Z table, the relaxation threshold and the embedding sensitivity; the cold end is quoted
+at the J-F1 minimum (2057.6 N); v3's 2250 / 4096 N values are carried as information and the stop test (lead F1) compares them.
+Geometry and bearing are re-based on rows v7 (THE ROW route (i): M5 x 10.7 +/-0.1 over spring A, A_n 67.93 mm2; spring B on 10.6; the
+3750 N column governs, 4096 N is information); the head-on-spring bearing uses the adopted head form (F3: da 5.55-5.80, dk 9.14 min);
+the route-(i) centring / overhang block is SUPERSEDED by rows v7 route_i_spring_footprint and the CAD check test_rev5_jfwd_v2 (F2
+registered stack 0.4865, F4 axial 0.3705, full float 0.557), carried here by reference; the fillet text is the adopted F3 form (the v3
+'rolled-blank neck, da max 5.15' text is withdrawn); the CAD envelope is the rev-5 check v2 (c) (the r4s v1 check is kept as record).
+v3 notes follow.
+J-FWD disc spring under the head: paper scoping (lead 12:09Z item 4 (iii); lead 12:52Z item 4).  No CAD change, no hardware.
 Mechanical, 2026-10-20, v3 (v2 6301f56f42d4a7ae / json 1df11254a2965d56 kept as jfwd_spring_v352_v2.py; v1 7e7a15777f1e33b0 / json
 6fd6420cdc529306 ACCEPTED by the lead 13:20Z, kept as jfwd_spring_v352_v1.py).  CALC / DERIVED on relaxation v7 and catalogue data; not
 physical approval.
@@ -44,7 +58,10 @@ from pathlib import Path
 import numpy as np
 
 J = Path("/home/claude/work/mechanical/v352/jfwd")
-OUT = J / "jfwd_spring_v352_v3.json"
+OUT = J / "jfwd_spring_v352_v4.json"
+ROWS7J, ROWS7_SHA16 = J / "jfwd_in718_rows_v352_v7.json", "6113d28b64d0dba5"
+V3J, V3J_SHA16 = J / "jfwd_spring_v352_v3.json", "150900bd77dc5fc9"
+CK5, CK5_SHA16 = Path("/home/claude/work/mechanical/v352/checks/test_rev5_jfwd_v2.json"), "32c41e1e207f9d64"
 _spec = importlib.util.spec_from_file_location("jfwd_relax_v352_v7", str(J / "jfwd_relax_v352.py"))
 R = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(R)
@@ -169,13 +186,13 @@ def run_cfg(sp, phi, end, fam, emb_add=0.0):
 
 def verdict(cases):
     j = min(cases, key=lambda k: cases[k]["F_S_min_N"])
-    jc = min((k for k in cases if "2250" in k), key=lambda k: cases[k]["cold_end_F_S_N"])
+    jc = min((k for k in cases if k.split("|")[1].startswith("J-F1_min")), key=lambda k: cases[k]["cold_end_F_S_N"])
     hot = [x["hot_F_S_min_N"] for x in cases.values() if x["hot_F_S_min_N"] is not None]
     return {"all_seated": all(x["slack_frames"] == 0 for x in cases.values()), "n_unseated": sum(1 for x in cases.values() if x["slack_frames"] > 0),
             "F_S_min_N": cases[j]["F_S_min_N"], "min_case": j, "min_at": cases[j]["at"], "fit_at_min": cases[j]["fit_at_min"],
             "n_cases_spring_active": sum(1 for x in cases.values() if x["spring_active_frames"] > 0),
             "lift_max_um": max(x["lift_max_um"] for x in cases.values()),
-            "cold_end_F_S_min_2250_N": cases[jc]["cold_end_F_S_N"],
+            "cold_end_F_S_min_at_J_F1_min_N": cases[jc]["cold_end_F_S_N"], "cold_end_case": jc,
             "hot_F_S_min_N": min(hot) if hot else None, "solid_at_every_hot_frame_all_cases": all(x["solid_at_every_hot_frame"] in (True, None) for x in cases.values()),
             "F_S_max_N": max(x["F_S_max_N"] for x in cases.values()), "max_wall_set_um": max(x["wall_set_end_um"] for x in cases.values()),
             "max_screw_set_um": max(x["screw_set_end_um"] for x in cases.values()), "shakedown_min_MS": min(x["shakedown_MS"] for x in cases.values())}
@@ -197,7 +214,8 @@ def geometry_and_bearing():
     _sw = importlib.util.spec_from_file_location("jfwd_in718_rows_v352", str(J / "jfwd_in718_rows_v352.py"))
     W = importlib.util.module_from_spec(_sw)
     _sw.loader.exec_module(W)
-    assert W.A_THE_ROW == 68.13, W.A_THE_ROW
+    assert W.A_THE_ROW == 67.93 and W.THE_ROW_NS["A_n_gap_bound_mm2"] == 68.13 and W.THE_ROW_B["A_n_gap_bound_mm2"] == 67.93, W.A_THE_ROW
+    assert sha(J / "jfwd_in718_rows_v352.py") == "880ffe58c8af05e6", "rows v7 module"
     T_TOL = (+0.02, -0.06)                                        # DIN EN 16983 / DIN 2093 thickness t 0.20-0.60 (Schnorr brochure 2024-02 p. 10)
     SOAK = ("SOAK70", "SOAK", "SOAK52")
     NS, FSY, HENV = {}, {}, {}
@@ -217,10 +235,12 @@ def geometry_and_bearing():
             rows[st] = {"N_from": R.LABEL[HENV[st]], "T_C": T2, "Fsy_MPa": round(fsy, 1),
                         **{f"MS_y_{k}_gap_bound_ROW": round(fsy / (N / e["A_n_gap_bound_mm2"]) - 1.0, 3) for k, N in NS[st].items()},
                         **{f"MS_y_{k}_gap0_info": round(fsy / (N / e["A_n_gap0_mm2"]) - 1.0, 3) for k, N in NS[st].items()}}
-        gmin = min((rows[st][f"MS_y_{k}_gap_bound_ROW"], st, k) for st in SOAK for k in ("3750", "4096"))
+        gmin = min((rows[st][f"MS_y_{k}_gap_bound_ROW"], st, k) for st in SOAK for k in ("3750",))
+        gmin4 = min((rows[st]["MS_y_4096_gap_bound_ROW"], st, "4096") for st in SOAK)
         cases[name] = {"t_solid_min_max_mm": [round(x, 3) for x in tt], **e, "thread_row_soak_states": rows,
-                       "thread_row_min": {"MS_y": gmin[0], "state": gmin[1], "preload_N": gmin[2]}}
-    geo = {"basis": {"rule": "rows v6 eng_rev5: r_flat 31.313 +0.020/0 from the bore axis (rev 5), TC-01 bore 28.625-28.648 (d57.25 H8 on the "
+                       "thread_row_min": {"MS_y": gmin[0], "state": gmin[1], "preload_N": gmin[2], "column": "GOVERNING (J-F1 cap 3750 N)"},
+                       "thread_row_min_4096_info": {"MS_y": gmin4[0], "state": gmin4[1], "column": "INFORMATION (superseded maximum)"}}
+    geo = {"basis": {"rule": "rows v7 eng_rev5 (as v6): r_flat 31.313 +0.020/0 from the bore axis (rev 5), TC-01 bore 28.625-28.648 (d57.25 H8 on the "
                              "f7 plug with the 0.040-0.078 radial gaps), wall at the hole 2.665-2.708; L_e min = L_min - wall_max - t_max (local "
                              "gap 0) and - 0.078 more at the gap bound (THE ROW); tip = wall_min + t_min + 8.0 - L_max >= 0.2",
                      "t_tol_mm": T_TOL, "t_tol_src": "Schnorr SCHNORR_Produktbroschuere_EN_2024-02.pdf p. 10 (DIN EN 16983, previously DIN 2093): t 0.20-0.60 +0.02 / -0.06",
@@ -228,74 +248,39 @@ def geometry_and_bearing():
                      "soak_N_IN718_N": {st: {k: round(v, 1) for k, v in NS[st].items()} for st in SOAK}},
            "cases": cases}
     # bearing at the largest soak N (flat spring = flat washer): head on spring, spring on the anodised 6061 flat
-    stmax = max(SOAK, key=lambda st: NS[st]["4096"])
+    stmax = max(SOAK, key=lambda st: NS[st]["3750"])
     N4096, N3750 = NS[stmax]["4096"], NS[stmax]["3750"]
     dk_min = 9.14                               # ISO 7380-1 M5 dk min (fasten.it DIN EN ISO 7380-1 table, accessed 2026-10-20)
     hole = 5.62                                 # C1 (g) Option A: d5.5 +0.12/0 (H12), lead 14:34Z
     Fty_in = R.tab("IN718", "Fty", 127.0)       # screw at SOAK (FEA3D jfwd_deck: screw 127.0 C)
     bear = {"state": stmax, "N_from": R.LABEL[HENV[stmax]], "N_3750_N": round(N3750, 1), "N_4096_N": round(N4096, 1)}
-    for d_in, tag in ((5.2, "spring ID 5.2 (fillet cleared, da <= 5.2)"), (5.7, "da 5.7 (ISO 4762-like, AS RECALLED, TO-VERIFY for ISO 7380-1)")):
+    for d_in, tag in ((W.DA_HEAD_MAX, "da 5.80 max (F3 ADOPTED: undercut fillet r 0.2-0.3 into the head, da 5.55-5.80)"),
+                      (5.55, "da 5.55 min (F3), information")):
         A = math.pi / 4.0 * (dk_min ** 2 - d_in ** 2)
-        bear[f"head_on_spring|{tag}"] = {"A_mm2": round(A, 2), "sigma_3750_MPa": round(N3750 / A, 1), "sigma_4096_MPa": round(N4096 / A, 1),
-                                         "MS_vs_IN718_Fty_127C": round(Fty_in / (N4096 / A) - 1.0, 3), "IN718_Fty_127C_MPa": round(Fty_in, 1),
-                                         "spring_side": "17-7 PH condition / Fty: TO-SOURCE from the maker"}
-    # ---- route (i) (drawn pilot) with C1 (g) / (h): z-direction centring stack and the 14:01Z tangential overhang (input)
-    major_min = 4.826                           # M5 6g major minimum
-    pilot = (5.12, 5.15)                        # route (i): drawn pilot 5.15 h9 (13:18Z proposal)
-    Di = (5.2, 5.32)                            # spring ID H12 per Lesjofors 7909 'Di tol +0.12' and Schnorr p. 10 (3-6 mm: +0.12 / 0)
-    play = (Di[1] - pilot[0]) / 2.0
-    flt = (hole - major_min) / 2.0              # 0.397: screw float in the H12 hole
-    pos, coax = 0.10 / 2.0, 0.10 / 2.0          # C1 (h): hole position 0.10 dia to A|B; spot face coaxial to its hole 0.10 dia
-    tap_pos = 0.10 / 2.0                        # TC-02 tap position 0.10 dia to A|B: TO-DEFINE (ASSUMED equal to C1 (h))
-    fit = 0.078                                 # TC-01 / TC-02 registration through the bore / plug fit (radial gap bound)
-    stacks = {"full_float (the rows' head-offset basis: float + hole position)": round(flt + pos + play, 3),
-              "positional (pilot play + hole position + spot-face coaxiality + tap position TO-DEFINE + fit registration)":
-                  round(play + pos + coax + tap_pos + fit, 3)}
-    tol_e = {f"cutter d{d:.1f} (min), corner R <= 0.05": round((d - 0.1 - 10.0) / 2.0, 3) for d in (10.5, 10.7, 11.2)}
-    # tangential: worst-stack half chord (rows v6 flat stack: OD 63.426, eccentricity 0.02, r_flat 31.333) with and without the 0.1 break
-    hc = W.FLAT["half_chord_mm"]
-    hcb = W.FLAT["half_chord_after_OD_break_mm"]
-    Ann = math.pi / 4.0 * (10.0 ** 2 - 5.2 ** 2)
-    over = {}
-    for e_t in (0.0, 0.2, stacks["positional (pilot play + hole position + spot-face coaxiality + tap position TO-DEFINE + fit registration)"],
-                stacks["full_float (the rows' head-offset basis: float + hole position)"]):
-        for lab, h_ in (("after_0.1_OD_break", hcb), ("without_break", hc)):
-            a = seg_area(5.0, h_ - e_t) + seg_area(5.0, h_ + e_t)
-            Asup = Ann - a
-            over[f"e_t {e_t:.3f}|{lab}"] = {"overhang_mm2": round(a, 3), "supported_fraction": round(Asup / Ann, 4),
-                                            "spring_on_flat_sigma_4096_MPa": round(N4096 / Asup, 1)}
-    head_ring = W.A_ROW
-    route_i = {"inputs": {"hole_max_mm": hole, "screw_major_min_mm": major_min, "float_mm": round(flt, 3), "pilot_mm": pilot,
-                          "spring_ID_mm": Di, "pilot_play_mm": round(play, 3), "hole_position_radius_mm": pos,
-                          "spot_face_coaxiality_radius_mm": coax, "tap_position_radius_mm_TO-DEFINE": tap_pos, "fit_registration_mm": fit,
-                          "half_chord_worst_stack_mm": hc, "half_chord_after_OD_break_mm": hcb},
-               "z_centring_stack_mm": stacks, "tolerable_e_mm_by_cutter": tol_e,
-               "z_centring_verdict": {k: {c: bool(v <= t + 1e-9) for c, t in tol_e.items()} for k, v in stacks.items()},
-               "tangential_overhang_14_01Z": over,
-               "bearing_note": (f"spring solid at every hot frame (24-case): it bears as a flat washer; the supported annulus at the worst overhang "
-                                f"stays above the head's rev-5 minimum ring ({head_ring} mm2), so the TC-01 flat-bearing row (head ring) is not "
-                                f"worsened; no spreading credit is taken"),
-               "PROPOSALS_do_not_apply": [
-                   ("P(i)-1 z centring: under the rev-5 depth rule the wall at the hole is set by r_flat (31.313 +0.020/0 from the bore axis), "
-                    "not by the cutter diameter, so a larger J-FWD spot-face cutter no longer thins the wall (the 12:09Z d11.5 objection was "
-                    "on the old d-on-OD rule): cutter d11.2 +0.1/0 with corner R <= 0.05 tolerates e 0.55 >= the full-float stack; "
-                    "TO-CHECK in CAD (pocket length vs the TC-01 forward features and FD-04) before any ruling; the FA1S hole-bearing and "
-                    "TC-01 rows are on r_flat and do not move"),
-                   ("P(i)-2 tangential overhang (14:01Z finding): accept the sliver (no wall there, the spring is not tilted; supported "
-                    "fraction >= the value tabled at the full-float stack); a drawing note on the J-FWD flat: 'disc spring may overhang the "
-                    "flat's tangential edges'"),
-                   ("P(i)-3 alternative to P(i)-2: a smaller custom disc spring, OD <= 2 x (half chord after the break - e) = about 8.9 at "
-                    "e 0.2, ID 5.2 H12 (non-DIN size: TO-QUOTE with catalogue load-deflection and relaxation data; any sourced F_flat > 0 "
-                    "seats all 24, see relaxation_threshold_seat_family)")]}
-    # fillet (unchanged from v2)
-    major = (4.826, 4.976)
-    fil = {"spring_ID_mm": Di,
-           "fillet_from_full_major_neck": {"r_min_mm": 0.2, "da_min_mm": round(major[1] + 2 * 0.2, 3),
-                                           "verdict": "da >= 5.376 > ID 5.2: the spring inner edge would sit on the fillet"},
-           "fillet_from_rolled_blank_neck": {"neck_d_mm": "<= 4.75 (rolled-thread blank about d2 4.48)", "r_mm": "0.2-0.3", "da_max_drawn_mm": 5.15,
-                                             "verdict": "clears ID 5.2 with r kept >= 0.2: the ENG-HW-101-IN718 drawing must state neck d <= 4.75, r 0.2-0.3, da max 5.15"},
-           "route_i_pilot": "neck 5.15 h9 with an undercut fillet r >= 0.2 (13:18Z proposal): the pilot centres the spring (play above)",
-           "ISO_7380-1_r_min_and_da_max": "TO-VERIFY (AS RECALLED r min 0.2; da max 5.7 is the ISO 4762 M5 value)"}
+        bear[f"head_on_spring|{tag}"] = {"A_mm2": round(A, 2), "sigma_3750_MPa": round(N3750 / A, 1), "sigma_4096_MPa_info": round(N4096 / A, 1),
+                                         "MS_vs_IN718_Fty_127C_3750": round(Fty_in / (N3750 / A) - 1.0, 3),
+                                         "MS_vs_IN718_Fty_127C_4096_info": round(Fty_in / (N4096 / A) - 1.0, 3), "IN718_Fty_127C_MPa": round(Fty_in, 1),
+                                         "spring_side": "1.4568 (17-7 PH) condition / Fty: TO-SOURCE from the maker (TO-QUOTE DK-6400)"}
+    assert abs(math.pi / 4.0 * (dk_min ** 2 - W.DA_HEAD_MAX ** 2) - W.A_HEAD_SPRING) < 1e-9
+    # ---- route (i) centring / overhang: SUPERSEDED by rows v7 route_i_spring_footprint and the CAD check v2 (carried by reference)
+    route_i = {"SUPERSEDED_by": {"rows_v7": {"path": str(ROWS7J), "sha256_16": sha(ROWS7J), "block": "route_i_spring_footprint"},
+                                 "cad_check_v2": {"path": str(CK5), "sha256_16": sha(CK5), "items": "(e) supported area, (h) positional stack"}},
+               "rulings": "lead 17:55:55Z CAD CHECK accepted; F2 registration ADOPTED (tangential basis = registered stack 0.4865); F4 axial basis "
+                          "0.3705 ACCEPTED (margin 0.18 to the tolerable 0.55); full float 0.557 is the under-head basis (F1)",
+               "A_supp_mm2_by_basis": dict(W.A_SPR), "offsets_t_z_mm_by_basis": {k: v for k, v in W.UH_BASES.items()},
+               "quoted_flat_basis": W.QUOTED_FLAT_BASIS, "quoted_under_head_basis": W.QUOTED_UH_BASIS,
+               "PROPOSALS_status": {"P(i)-1 cutter d11.2": "taken into rev 5 and CAD-checked (test_rev5_jfwd_v2 (a)-(d)): accepted 17:55:55Z",
+                                    "P(i)-2 overhang accepted": "carried: the supported area at each basis is in rows v7 (no spreading credit)",
+                                    "P(i)-3 smaller custom spring": "not taken (route (i) baseline: Schnorr 001 500 A in 1.4568, R2)"}}
+    # fillet / pilot: the adopted head form (F3, lead 17:55:55Z); the v3 'rolled-blank neck, da max 5.15' text is WITHDRAWN
+    fil = {"spring_ID_mm": (5.2, 5.32),
+           "F3_adopted": {"fillet": "undercut fillet r 0.2-0.3 into the head, entirely above the bearing face",
+                          "pilot": "5.15 h9 x 0.25-0.30 long, coaxial to the pitch cylinder within d0.02 (TO-CONFIRM)",
+                          "da_mm": [5.55, 5.80], "da_note": "stated on the drawing (F3)",
+                          "lengths": "spring A on L 10.7 +/-0.1, spring B on L 10.6 +/-0.1: L_e 7.294 (THE ROW)",
+                          "pilot_vs_flat": "the pilot clears the flat by >= 0.04 with spring B (t 0.34 min) and >= 0.14 with spring A (t 0.44 min)"},
+           "head_fillet_rows": "the screw's own head-to-shank fillet: static and LCF rows on the FE head-end moment (F3 ADD), in jfwd_head_fillet v1",
+           "WITHDRAWN_v3": "fillet_from_rolled_blank_neck (neck d <= 4.75, da max 5.15) and the 16:46Z pilot text: superseded by F3"}
     return {"geometry_length_tip_engagement": geo, "bearing_max_soak_N": bear, "fillet": fil, "route_i_pilot_centring_and_overhang": route_i,
             "rows_module": {"path": str(J / "jfwd_in718_rows_v352.py"), "sha256_16": sha(J / "jfwd_in718_rows_v352.py")}}
 
@@ -306,7 +291,7 @@ def LBL_(h):
 
 if __name__ == "__main__":
     t0 = time.time()
-    res = {"id": "jfwd_spring_v352", "version": "v3", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
+    res = {"id": "jfwd_spring_v352", "version": "v4", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
            "inputs": {"relax_v7_module": {"path": str(J / "jfwd_relax_v352.py"), "sha256_16": sha(J / "jfwd_relax_v352.py")},
                       "relax_v7_json": {"path": str(V5J), "sha256_16": sha(V5J)},
                       "fea3d_soak_envelope": {"path": str(R.F_ENV), "sha256_16": sha(R.F_ENV)}},
@@ -327,11 +312,25 @@ if __name__ == "__main__":
             v = verdict(cs)
             ref = v5[f"{IN}|{end}|{fam}"]
             chk[f"{end}|{fam}"] = {"F_S_min_N": v["F_S_min_N"], "n_unseated": v["n_unseated"], "relax_v7_F_S_min_N": ref["F_S_min_N"],
-                                   "relax_v7_n_unseated": ref["n_unseated"], "cold_end_2250_N": v["cold_end_F_S_min_2250_N"],
+                                   "relax_v7_n_unseated": ref["n_unseated"], "cold_end_2250_N": v["cold_end_F_S_min_at_J_F1_min_N"],
                                    "relax_v7_cold_end_2250_N": ref["cold_end_F_S_min_2250_N"], **prm}
             assert abs(v["F_S_min_N"] - ref["F_S_min_N"]) <= 1.0 and v["n_unseated"] == ref["n_unseated"], (end, fam, v["F_S_min_N"], ref["F_S_min_N"])
+            assert abs(v["cold_end_F_S_min_at_J_F1_min_N"] - ref["cold_end_F_S_min_2250_N"]) <= 1.0, (end, fam, v["cold_end_F_S_min_at_J_F1_min_N"])
     res["harness_check_no_spring_vs_v7"] = chk
     print("harness ok", {k: (x["F_S_min_N"], x["n_unseated"]) for k, x in chk.items()}, round(time.time() - t0, 1), flush=True)
+    # v4: the J-F1 band capped at 3750 N (lead 17:55:55Z F1)
+    K_WIN, D_NOM, F_CAP = (0.1465, 0.267), 5.0, 3750.0
+    T_JF1 = F_CAP * K_WIN[0] * D_NOM
+    F_MIN = T_JF1 / (K_WIN[1] * D_NOM)
+    assert sha(ROWS7J) == ROWS7_SHA16 and sha(V3J) == V3J_SHA16
+    _r7 = json.loads(ROWS7J.read_text())
+    assert abs(F_MIN - _r7["J_F1"]["minimum_N_today_K_window"]) < 0.05 and _r7["J_F1"]["maximum_N"] == F_CAP, "rows v7 J_F1 band"
+    INSTALL_V3 = dict(R.INSTALL)
+    R.INSTALL = {"J-F1_min_2058": F_MIN, "J-F1_max_3750": F_CAP}
+    res["J_F1_band"] = {"cap_N": F_CAP, "min_N": round(F_MIN, 1), "torque_Nmm": round(T_JF1, 1), "K_window": list(K_WIN),
+                        "rule": "lead 17:55:55Z F1: J-F1 sets the flight-lot torque so the lot's K_min gives <= 3750 N; the minimum is the lot's "
+                                "K_max result (today's K window: 2057.6 N); every spring run below is at this band",
+                        "harness_install_relax_v7": INSTALL_V3, "runs_install": R.INSTALL}
     # spring runs
     runs, cases_keep = {}, {}
     for sk, sp in SPRINGS.items():
@@ -346,7 +345,7 @@ if __name__ == "__main__":
                     if Rr in (0.0, 0.20):
                         cases_keep[f"{sk}|R{Rr:.2f}|{end}|{fam}"] = cs
             print(sk, Rr, {f"{e}|{fm}": (runs[f"{sk}|R{Rr:.2f}|{e}|{fm}"]["F_S_min_N"], runs[f"{sk}|R{Rr:.2f}|{e}|{fm}"]["lift_max_um"],
-                                         runs[f"{sk}|R{Rr:.2f}|{e}|{fm}"]["cold_end_F_S_min_2250_N"]) for e in R.KB for fm in ("seat", "ring")},
+                                         runs[f"{sk}|R{Rr:.2f}|{e}|{fm}"]["cold_end_F_S_min_at_J_F1_min_N"]) for e in R.KB for fm in ("seat", "ring")},
                   round(time.time() - t0, 1), flush=True)
     res["runs"] = runs
     res["cases_24_R0_and_R20"] = cases_keep
@@ -359,7 +358,7 @@ if __name__ == "__main__":
                     v = runs[f"{sk}|R{Rr:.2f}|{end}|{fam}"]
                     l5[f"{sk}|R{Rr:.2f}|{end}|{fam}"] = {k: v[k] for k in ("all_seated", "n_unseated", "F_S_min_N", "min_case", "lift_max_um", "hot_F_S_min_N",
                                                                          "solid_at_every_hot_frame_all_cases", "F_flat_derated_N", "k_b_N_mm",
-                                                                         "cold_end_F_S_min_2250_N")}
+                                                                         "cold_end_F_S_min_at_J_F1_min_N")}
     res["lead_16_07Z_item5_seated_and_solid"] = l5
     # threshold relaxation: the largest R with all 24 seated at both ends, seat family (the governing one), per spring
     thr = {}
@@ -385,14 +384,36 @@ if __name__ == "__main__":
         for end in R.KB:
             for fam in ("seat", "ring"):
                 v = verdict(run_cfg(spA, PHI_TOL * PHI_E * 0.80, end, fam, emb_add=add)[0])
-                emb[f"+{add * 1e3:.0f}um|{end}|{fam}"] = {k: v[k] for k in ("all_seated", "F_S_min_N", "min_case", "lift_max_um", "cold_end_F_S_min_2250_N")}
+                emb[f"+{add * 1e3:.0f}um|{end}|{fam}"] = {k: v[k] for k in ("all_seated", "F_S_min_N", "min_case", "lift_max_um", "cold_end_F_S_min_at_J_F1_min_N")}
         nos = {}
         for end in R.KB:
             v = verdict(run_cfg(None, 1.0, end, "seat", emb_add=add)[0])
-            nos[end] = {"F_S_min_N": v["F_S_min_N"], "n_unseated": v["n_unseated"], "cold_end_F_S_min_2250_N": v["cold_end_F_S_min_2250_N"]}
+            nos[end] = {"F_S_min_N": v["F_S_min_N"], "n_unseated": v["n_unseated"], "cold_end_F_S_min_at_J_F1_min_N": v["cold_end_F_S_min_at_J_F1_min_N"]}
         emb[f"+{add * 1e3:.0f}um|no_spring_seat"] = nos
     res["embedding_sensitivity_spring_A_R0.20"] = emb
-    print("emb", {k: (v.get("F_S_min_N"), v.get("cold_end_F_S_min_2250_N")) for k, v in emb.items() if "no_spring" not in k}, round(time.time() - t0, 1), flush=True)
+    print("emb", {k: (v.get("F_S_min_N"), v.get("cold_end_F_S_min_at_J_F1_min_N")) for k, v in emb.items() if "no_spring" not in k}, round(time.time() - t0, 1), flush=True)
+    # v4: v3 (2250 / 4096 N) as information, and the stop test (lead F1: 'If any turns negative, stop and tell me')
+    v3 = json.loads(V3J.read_text())
+    cmp3, turned = {}, []
+    for k, v in runs.items():
+        o = v3["runs"][k]
+        cmp3[k] = {"v4_2058_3750": {"all_seated": v["all_seated"], "F_S_min_N": v["F_S_min_N"], "cold_end_N": v["cold_end_F_S_min_at_J_F1_min_N"],
+                                    "lift_max_um": v["lift_max_um"], "hot_F_S_min_N": v["hot_F_S_min_N"], "solid_hot": v["solid_at_every_hot_frame_all_cases"]},
+                   "v3_2250_4096_info": {"all_seated": o["all_seated"], "F_S_min_N": o["F_S_min_N"], "cold_end_N": o["cold_end_F_S_min_2250_N"],
+                                         "lift_max_um": o["lift_max_um"], "hot_F_S_min_N": o["hot_F_S_min_N"], "solid_hot": o["solid_at_every_hot_frame_all_cases"]}}
+        if (not v["all_seated"]) or v["F_S_min_N"] <= 0.0 or v["cold_end_F_S_min_at_J_F1_min_N"] <= 0.0:
+            turned.append(f"{k}: all_seated {v['all_seated']}, F_S min {v['F_S_min_N']} N, cold end {v['cold_end_F_S_min_at_J_F1_min_N']} N")
+        if v["solid_at_every_hot_frame_all_cases"] is False and o["solid_at_every_hot_frame_all_cases"] is True:
+            turned.append(f"{k}: no longer solid at every hot frame")
+    for k, v in emb.items():
+        if "no_spring" in k:
+            continue
+        if (not v["all_seated"]) or v["F_S_min_N"] <= 0.0 or v["cold_end_F_S_min_at_J_F1_min_N"] <= 0.0:
+            turned.append(f"emb {k}: all_seated {v['all_seated']}, F_S min {v['F_S_min_N']} N")
+    res["v4_vs_v3_2250_4096_info"] = cmp3
+    res["stop_test_lead_F1"] = {"turned_negative": turned, "verdict": "NONE TURNED NEGATIVE" if not turned else "STOP: TELL THE LEAD",
+                                "scope": "every spring run (A and B, R 0-0.80, both k_b ends and families) and the embedding sensitivity at 2057.6 / 3750 N"}
+    print("STOP-TEST", res["stop_test_lead_F1"]["verdict"], turned, flush=True)
     res.update(geometry_and_bearing())
     CK = Path("/home/claude/work/mechanical/v352/checks/test_spring_r4s_v1.json")
     ck = json.loads(CK.read_text())
@@ -402,8 +423,20 @@ if __name__ == "__main__":
                                  "note": ("FD-04 clearance is axial (foil top 1 mm below the head edge): the head stays 1.000 mm at every pose for "
                                           "t 0.40-0.52; the spring (d10) is 1.648-1.755 mm from FD-04; no FD-04 trim, no new RC-04 input "
                                           "(the RC-04 re-check of the earlier trim stays TO-DO)")}
+    ck5 = json.loads(CK5.read_text())
+    assert sha(CK5) == CK5_SHA16
+    c5 = ck5["c_raised_head_and_spring_vs_parts"]
+    res["cad_envelope_check_rev5_v2"] = {"path": str(CK5), "sha256_16": sha(CK5),
+                                         "by_config": {k: {"head_dz_mm": v["head_dz_mm"], "spring_dz_mm": v["spring_dz_mm"],
+                                                           "min_FD04_head_mm": min(p["min_FD04_head_mm"] for p in v["poses"].values()),
+                                                           "min_FD04_spring_mm": min(p["min_FD04_spring_mm"] for p in v["poses"].values()),
+                                                           "min_other_mm": min(p["min_other_than_FD04_mm"] for p in v["poses"].values())}
+                                                       for k, v in c5.items() if isinstance(v, dict) and "poses" in v},
+                                         "note": "rev 5 (V352_R5): head 1.000 nominal, 0.789 at the 0.2105 axial offset toward FD-04; spring >= 1.528; "
+                                                 "all other parts >= 2.714 at every pose (accepted 17:55:55Z)"}
+    res["cad_envelope_check"]["status"] = "RECORD (rev 4s); superseded by cad_envelope_check_rev5_v2"
     print("geometry", json.dumps({k: (v["tip_clearance_to_full_thread_end_min_mm"], v["L_e_gap_bound_mm"], v["A_n_gap_bound_mm2"], v["thread_row_min"]) for k, v in res["geometry_length_tip_engagement"]["cases"].items()}),
-          json.dumps(res["route_i_pilot_centring_and_overhang"]["z_centring_stack_mm"]), json.dumps(res["route_i_pilot_centring_and_overhang"]["z_centring_verdict"]),
+          json.dumps(res["route_i_pilot_centring_and_overhang"]["A_supp_mm2_by_basis"]), json.dumps(res["bearing_max_soak_N"]),
           flush=True)
     res["t_run_s"] = round(time.time() - t0, 1)
     s = json.dumps(res, indent=1, default=float)
