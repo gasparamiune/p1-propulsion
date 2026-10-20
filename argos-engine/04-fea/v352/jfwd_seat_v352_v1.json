@@ -1,0 +1,309 @@
+{
+ "id": "jfwd_seat_v352",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "J-FWD 3.0 N m FA1S hand rows at the ADOPTED head seat (a) (lead 07:21Z: d10.5 spot face, flats at r 31.313, wall 2.688 at the hole),\nstated beside FEA3D's FE values (lead 07:21Z item 4).  Mechanical, 2026-10-20, v1.  CALC; every number DERIVED unless tagged.\n\nWhy this file: the TC-01 case cells of jfwd_preload_v352_v2 / jfwd_v352_v1 O1 use the v3.5.1 wall 3.125 (no spot face), and the\njfwd_v352_v1 'O1s' information row used t 2.768 (an earlier spot-face definition, 'wall drops to 2.765').  The adopted flat gives\n2.688 at the hole (nominal: 31.313 - 28.625) and 2.665 at the drawing limit (bore 57.296, flat at r 31.313 +0.03/0 at its low end).\n\nBasis (as jfwd_preload_v352_v2 'selected' FA1S rows): FA1S 151.04 bar abs, SF 1.0 / 1.0, 45.6 C, 10x M5 A4-80, 3.0 N m (F_nom 3000 N,\n+/-25 %, K 0.20 ASSUMED), V per screw = p_abs x pi/4 x 57.25^2 / 10 = 3888.1 N (absolute-pressure basis, 0.7 % above the gauge basis\nV 3862.0 N that FEA3D and jfwd_v352_v1 use; both are shown).  Joint is bearing-type at FA1S (234 (1)(c)): the case cells do not depend on\nthe preload.  Allowables: 6061-T6 Fty / Ftu (T) from engmat (LITERATURE tables of the project); Fbry = 1.4 Fty(T), Fbru = 1.6 Ftu(T) at\ne/D 2.0 (engmat ratios; actual e/D 2.4), Fsy = 0.577 Fty, Fsu = engmat Fsu/Ftu x Ftu, exactly as jfwd_v352_v1.\n\nCells (TC-01, the adopted seat):\n (1) hole bearing sigma = V / (d t), t = the wall at the bearing line (y = 0, the hole's forward / aft generators) = r_flat - r_bore;\n (2) shear-out on two planes from the hole to the case end, A = 2 t (e - D_h / 2) with the same minimum t along the whole path\n     (conservative: along the paths the wall is 2.820 under the flat for 4.47 mm, then >= 3.138 to the case end);\n (3) net section Pm = F / A_net, A_net integrated exactly over the ring section through the hole row (bore r_i, OD R31.75) minus\n     the 10 holes (D_h 5.5 strips) and the 10 flat segments outside the holes (segment between the chord x = r_flat and the OD);\n (4) ligament Pm + Pb, Pb = V / (w_lig t) (bearing resultant at t/3 from the bore, triangular pressure, ASSUMED as jfwd_v352_v1)\n     with t = the wall at the hole (conservative: the ligament carries the full 3.125 wall over 8.47 of its 13.47 mm);\n (5) hole-edge Neuber as jfwd_v352_v1 (iii) (sigma_el = max(FEA3D R3 399 MPa x V / V8, K_tb x bearing), Ramberg-Osgood n 15 / 30,\n     local strain limit 0.52 (0.98 - R)), information beside FEA3D's band Neuber;\n (6) flat-seat head bearing p = F_S / (pi/4 (dk^2 - D_h^2)), dk 9.5 (ISO 7380-1 M5, AS RECALLED, TO-VERIFY; the button-head bearing face\n     may be smaller than dk), against Fbry(T) (FEA3D's stated basis); FA1S with F_S = F_max + the 45.6 C thermal rise (3965 N, v2),\n     the soak with the js4-consistent first-firing maximum (jfwd_embed_v352_v1: 4676 N at the GVLO soak, T01 158.0 C);\n (7) TC-02 engagement with the head on the flat: L_e = 10 - t - gap (CAD 7.287; drawing 7.257-7.272 with the f7 plug) against the\n     8.0 full thread; internal-thread shear and tapped-thread bearing at FA1S at the v2 L_eff 6.35 (kept, conservative) and, for\n     information, at L_e - 0.5 of the drawing minimum.\nScrew rows are unchanged by the seat (fully threaded M5 x 10: the shear plane at the fit interface is in the thread either way): quoted\nfrom jfwd_preload_v352_v2 'selected' FA1S_margins / TC02_internal_thread_shear.",
+ "inputs": {
+  "jfwd_v352.py": "3848fb1f633a8835",
+  "jfwd_preload_v352_v2.json": "d76db66f4bfcff73",
+  "jfwd_embed_v352_v1.json": "8260544f5697b605",
+  "TC-01 STEP (hub 03-cad/v3.5.2/parts/ENG-TC-01.step)": "1ad07e472709b1b2",
+  "T_C": 45.6,
+  "p_abs_bar": 151.04,
+  "allowables_MPa_45.6C": {
+   "Fty": 236.1,
+   "Ftu": 254.6,
+   "Fbry": 330.5,
+   "Fbru": 407.4,
+   "Fsy": 136.2,
+   "Fsu": 152.8
+  }
+ },
+ "tc01_seat_cells": {
+  "abs_nominal_wall": {
+   "label": "3.0 N m rows basis (p abs), wall 2.688 nominal",
+   "V_per_screw_N": 3888.1,
+   "r_bore_mm": 28.625,
+   "t_wall_at_hole_mm": 2.6879,
+   "hole_bearing": {
+    "sigma_br_MPa": 289.3,
+    "Fbry_MPa": 330.5,
+    "Fbru_MPa": 407.4,
+    "MS_y": 0.143,
+    "MS_u": 0.408
+   },
+   "shear_out": {
+    "A_mm2": 49.73,
+    "tau_MPa": 78.2,
+    "Fsy_MPa": 136.2,
+    "Fsu_MPa": 152.8,
+    "MS_y": 0.742,
+    "MS_u": 0.954
+   },
+   "net_section": {
+    "A_net_mm2": 411.83,
+    "hole_strip_mm2_each": 17.211,
+    "flat_segment_outside_hole_mm2_each": 0.8786,
+    "flat_half_chord_at_OD_mm": 5.2502,
+    "Pm_MPa": 94.4,
+    "MS_y": 1.501,
+    "MS_u": 1.697
+   },
+   "ligament_PmPb": {
+    "w_lig_mm": 13.47,
+    "Pb_MPa": 107.4,
+    "PmPb_MPa": 201.8,
+    "MS_y": 0.17,
+    "MS_u": 0.262
+   },
+   "hole_edge_neuber_info": {
+    "sigma_el_MPa": 387.0,
+    "K_tb": 1.338,
+    "sigma_local_MPa": 244.1,
+    "eps_local": 0.00902,
+    "n_RO": 30.0,
+    "eps_limit": 0.0274,
+    "MS_strain": 2.042
+   }
+  },
+  "abs_drawing_limit_wall": {
+   "label": "3.0 N m rows basis (p abs), wall 2.665 (bore 57.296, flat r 31.313 low limit)",
+   "V_per_screw_N": 3888.1,
+   "r_bore_mm": 28.648,
+   "t_wall_at_hole_mm": 2.6649,
+   "hole_bearing": {
+    "sigma_br_MPa": 291.8,
+    "Fbry_MPa": 330.5,
+    "Fbru_MPa": 407.4,
+    "MS_y": 0.133,
+    "MS_u": 0.396
+   },
+   "shear_out": {
+    "A_mm2": 49.3,
+    "tau_MPa": 78.9,
+    "Fsy_MPa": 136.2,
+    "Fsu_MPa": 152.8,
+    "MS_y": 0.727,
+    "MS_u": 0.937
+   },
+   "net_section": {
+    "A_net_mm2": 408.96,
+    "hole_strip_mm2_each": 17.085,
+    "flat_segment_outside_hole_mm2_each": 0.8786,
+    "flat_half_chord_at_OD_mm": 5.2502,
+    "Pm_MPa": 95.1,
+    "MS_y": 1.483,
+    "MS_u": 1.678
+   },
+   "ligament_PmPb": {
+    "w_lig_mm": 13.47,
+    "Pb_MPa": 108.3,
+    "PmPb_MPa": 203.3,
+    "MS_y": 0.161,
+    "MS_u": 0.252
+   },
+   "hole_edge_neuber_info": {
+    "sigma_el_MPa": 390.4,
+    "K_tb": 1.338,
+    "sigma_local_MPa": 244.3,
+    "eps_local": 0.00917,
+    "n_RO": 30.0,
+    "eps_limit": 0.0274,
+    "MS_strain": 1.992
+   }
+  },
+  "gauge_nominal_wall_FE_basis": {
+   "label": "FE basis (p gauge, V 3862), wall 2.688 nominal",
+   "V_per_screw_N": 3862.0,
+   "r_bore_mm": 28.625,
+   "t_wall_at_hole_mm": 2.6879,
+   "hole_bearing": {
+    "sigma_br_MPa": 287.4,
+    "Fbry_MPa": 330.5,
+    "Fbru_MPa": 407.4,
+    "MS_y": 0.15,
+    "MS_u": 0.418
+   },
+   "shear_out": {
+    "A_mm2": 49.73,
+    "tau_MPa": 77.7,
+    "Fsy_MPa": 136.2,
+    "Fsu_MPa": 152.8,
+    "MS_y": 0.754,
+    "MS_u": 0.967
+   },
+   "net_section": {
+    "A_net_mm2": 411.83,
+    "hole_strip_mm2_each": 17.211,
+    "flat_segment_outside_hole_mm2_each": 0.8786,
+    "flat_half_chord_at_OD_mm": 5.2502,
+    "Pm_MPa": 93.8,
+    "MS_y": 1.518,
+    "MS_u": 1.715
+   },
+   "ligament_PmPb": {
+    "w_lig_mm": 13.47,
+    "Pb_MPa": 106.7,
+    "PmPb_MPa": 200.5,
+    "MS_y": 0.178,
+    "MS_u": 0.27
+   },
+   "hole_edge_neuber_info": {
+    "sigma_el_MPa": 384.5,
+    "K_tb": 1.338,
+    "sigma_local_MPa": 243.9,
+    "eps_local": 0.00891,
+    "n_RO": 30.0,
+    "eps_limit": 0.0274,
+    "MS_strain": 2.081
+   }
+  }
+ },
+ "flat_seat_head_bearing": {
+  "A_head_mm2": 47.12,
+  "dk_mm": 9.5,
+  "dk_src": "ISO 7380-1 M5 dk 9.5 AS RECALLED, TO-VERIFY",
+  "FA1S": {
+   "F_S_N": 3965.0,
+   "p_MPa": 84.1,
+   "Fbry_MPa": 330.5,
+   "MS_y": 2.929
+  },
+  "soak_first_firing_js4_consistent": {
+   "F_S_N": 4676,
+   "T01_C": 158.0,
+   "p_MPa": 99.2,
+   "Fbry_MPa": 238.4,
+   "MS_y": 1.403,
+   "source": "jfwd_embed_v352_v1.json 8260544f5697b605 torque_rows 3Nm|CAD_nominal_js4 first_firing"
+  }
+ },
+ "tc02_engagement": {
+  "r_flat_mm": 31.3129,
+  "screw_tip_r_mm": 21.3129,
+  "L_e_CAD_mm": 7.287,
+  "L_e_drawing_mm": [
+   7.257,
+   7.272
+  ],
+  "full_thread_end_r_mm_CAD": 20.6,
+  "tip_short_of_full_thread_end_mm_CAD": 0.713,
+  "v351_L_e_mm": 6.85
+ },
+ "tc02_thread_FA1S": {
+  "v2_basis_L_eff_6.35": {
+   "L_eff_mm": 6.35,
+   "A_n_mm2": 63.5,
+   "internal_thread_shear": {
+    "F_N": 3965.0,
+    "tau_MPa": 62.4,
+    "MS_y": 1.182,
+    "MS_u": 1.446
+   },
+   "tapped_thread_bearing": {
+    "sigma_br_MPa": 148.1,
+    "MS_y": 1.232,
+    "MS_u": 1.751
+   }
+  },
+  "info_drawing_min_L_eff": {
+   "L_eff_mm": 6.757,
+   "A_n_mm2": 67.6,
+   "internal_thread_shear": {
+    "F_N": 3965.0,
+    "tau_MPa": 58.7,
+    "MS_y": 1.321,
+    "MS_u": 1.603
+   },
+   "tapped_thread_bearing": {
+    "sigma_br_MPa": 139.2,
+    "MS_y": 1.375,
+    "MS_u": 1.927
+   }
+  }
+ },
+ "screw_FA1S_3Nm": {
+  "source": "jfwd_preload_v352_v2.json d76db66f4bfcff73 selected (3.0 N m)",
+  "V_per_screw_N": 3888.1,
+  "F_max_N": 3965.0,
+  "ult_interaction_MS": 0.3608,
+  "shear_only_yield_minor_MS": 0.0681,
+  "combined_yield_info_MS": -0.0544,
+  "combined_yield_onset_bar_abs": 140.5,
+  "TC02_internal_thread_FA1S": {
+   "T_C": 45.6,
+   "F_max_N": 3965.0,
+   "A_n_mm2": 63.5,
+   "tau_MPa": 62.4,
+   "Fsy_MPa": 136.2,
+   "Fsu_MPa": 152.8,
+   "MS_y": 1.1815,
+   "MS_u": 1.4465
+  },
+  "unchanged_by_seat": "fully threaded M5 x 10: the shear plane at the fit interface is in the thread with or without the flat"
+ },
+ "FE_beside": {
+  "source": "FEA3D, relayed by the lead 07:21Z / 07:25Z and CHANGELOG 236 (3) / (12) (SIM, [DERIVED]); TO-CONFIRM against FEA3D's report",
+  "basis": "js4 mu 0 at 3750 N (screw) and the FA1S seat checks on the spot-face seat; V 3862 N (5.53 N m comparison basis)",
+  "screw_js4_FA1S": {
+   "N_N": 4036,
+   "V_N": 3618,
+   "ult_interaction_MS": 0.431,
+   "shear_only_yield_MS": 0.148,
+   "combined_vM_info_MS": -0.005
+  },
+  "TC02_thread_FA1S": [
+   1.144,
+   1.404
+  ],
+  "TC01_seat_FA1S": {
+   "hole_bearing_MPa": 268.2,
+   "hole_bearing_MS": [
+    0.232,
+    0.519
+   ],
+   "flat_seat_head_bearing_MS": 2.86,
+   "seat_ligament_PmPb_MS": [
+    0.798,
+    0.939
+   ],
+   "shear_out_bound_MS": 0.644,
+   "band_neuber_MS_membrane_bending2": [
+    0.416,
+    0.061
+   ]
+  },
+  "TC01_seat_soak": {
+   "flat_seat_bearing_vs_Fbry_MS_min": 1.4,
+   "seat_PQ_vs_2Fty_MS_min": 0.577
+  },
+  "TC02_SCL_node13503_FA1S": {
+   "Pm_MPa": 68.9,
+   "Pm_MS": [
+    2.424,
+    2.693
+   ],
+   "PmPb_MPa": 177.6,
+   "PmPb_MS": [
+    0.329,
+    0.434
+   ],
+   "soak_PmPb_MS_min": 2.2
+  }
+ },
+ "superseded_hand_rows": {
+  "jfwd_v352_v1 O1 (wall 3.125, no spot face)": {
+   "hole_bearing_MS": [
+    0.338,
+    0.649
+   ]
+  },
+  "jfwd_v352_v1 O1s (t 2.768, an earlier spot-face definition)": {
+   "hole_bearing_MS": [
+    0.185,
+    0.461
+   ]
+  }
+ }
+}

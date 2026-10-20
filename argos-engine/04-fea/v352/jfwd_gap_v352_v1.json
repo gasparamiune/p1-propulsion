@@ -1,0 +1,449 @@
+{
+ "id": "jfwd_gap_v352",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "J-FWD TC-01 wall cells: hand scaling from js4 (CAD fit gap 0.025 mm) to the drawing gaps (H8 / f7 0.040-0.078 mm radial), lead 07:43Z\nitem 3: 'the TC-01 wall at the hole in the open-fit regime, where the whole screw force bends the wall ... give a hand scaling of the\nTC-01 wall cells (seat P+Q, ligament, hole bearing) from js4 to the drawing max gap as a cross-check' (FEA3D runs the spot-face seat at\nFIT_CLEARANCE 0.078 first).  Mechanical, 2026-10-20, v1.  CALC; every number DERIVED unless tagged; a cross-check, not a closure.\n\nModel: the per-screw two-regime joint of jfwd_embed_v352_v1 (js4-consistent: k_sh 56 kN/mm from js4's 1.4 kN per 0.025 mm, clamped-wall\nk_c, k_b calibrated to js4's +927 N), installation at the +25 % preload 3750 N with no embedding credit (the strength case), rev-3 B1\nGVLO row histories (as jfwd_embed v1).  At each state and gap: screw force F_S, fit contact F_c and the part of the screw force that\npulls the wall in (bends the shell) F_sh = F_S - F_c (with the fit open F_c = 0, F_sh = F_S).\nScaling rule (stated, not proven): the wall stress that the preload causes is linear in F_sh (shell bending + membrane around the hole);\nthe head-seat bearing is linear in F_S; the pressure-driven (primary) stresses do not depend on the fit gap.  Cells:\n - seat P+Q at the soaks (no pressure: preload + thermal only): bound = the whole js4 P+Q scaled by F_sh(g) / F_sh(0.025) (the thermal\n   share is scaled too, so this over-estimates); the F_S ratio is shown beside it;\n - flat-seat head bearing at the soaks: scaled by F_S(g) / F_S(0.025);\n - FA1S hole bearing (V / (d t)), ligament Pm+Pb and shear-out: primary (the shear V from the pressure end load; the preload is a\n   self-limiting radial load, secondary): unchanged by the gap; the FA1S P+Q at the seat is bounded by FEA3D's FA1S ligament stress\n   plus s_Q x F_sh(g), s_Q = js4 soak P+Q / F_sh (MPa per kN, the largest soak state; the thermal share counted as preload), against\n   2 Fty(45.6 C);\n - band Neuber (local strain) is not scaled here (it needs FEA3D's split).\nFE inputs (FEA3D, relayed by the lead 07:21Z and in CHANGELOG 236 (3) / (12), [DERIVED], spot-face seat): soak seat P+Q vs 2 Fty(T)\n+0.645 / +0.577 / +0.598 (SOAK 64.7 s / SOAK70 / SOAK52, GVLO), soak flat-seat bearing +1.40 minimum, FA1S hole bearing +0.232 / +0.519,\nseat ligament Pm+Pb +0.798 / +0.939, shear-out bound +0.644.",
+ "inputs": {
+  "jfwd_embed_v352.py": "e60d52324064460e",
+  "jfwd_embed_v352_v1.json": "8260544f5697b605",
+  "k_sh_N_mm": 56000,
+  "k_c_N_mm": 1595346,
+  "k_b_N_mm": 157898,
+  "F_V_N": 3750.0,
+  "gaps_mm": {
+   "CAD_nominal_js4": 0.025,
+   "drawing_min_H8f7": 0.04,
+   "drawing_mean": 0.059,
+   "drawing_max": 0.078
+  },
+  "FE_beside": {
+   "seat_PQ_soak": {
+    "SOAK": 0.645,
+    "SOAK70": 0.577,
+    "SOAK52": 0.598
+   },
+   "head_bearing_soak_min": 1.4,
+   "FA1S": {
+    "hole_bearing": [
+     0.232,
+     0.519
+    ],
+    "ligament_PmPb": [
+     0.798,
+     0.939
+    ],
+    "shear_out": [
+     0.644,
+     null
+    ]
+   }
+  }
+ },
+ "soak_states": {
+  "SOAK": {
+   "bound": "GVLO",
+   "t_frame_s": 64.651,
+   "T01_C": 158.0,
+   "T02_tap_C": 96.0,
+   "gaps": {
+    "CAD_nominal_js4": {
+     "F_S_N": 4676,
+     "F_c_N": 883,
+     "F_sh_N": 3793,
+     "fit": "closed",
+     "u_um": -0.55,
+     "d_w_um": 5.0,
+     "d_r_um": 42.19,
+     "ratio_F_sh": 1.0,
+     "ratio_F_S": 1.0,
+     "seat_PQ_MS_bound_Fsh": 0.645,
+     "seat_PQ_MS_Fs": 0.645,
+     "head_bearing_MS_from_FE_min": 1.4
+    },
+    "drawing_min_H8f7": {
+     "F_S_N": 4676,
+     "F_c_N": 71,
+     "F_sh_N": 4605,
+     "fit": "closed",
+     "u_um": -0.04,
+     "d_w_um": 5.0,
+     "d_r_um": 42.19,
+     "ratio_F_sh": 1.214,
+     "ratio_F_S": 1.0,
+     "seat_PQ_MS_bound_Fsh": 0.355,
+     "seat_PQ_MS_Fs": 0.645,
+     "head_bearing_MS_from_FE_min": 1.4
+    },
+    "drawing_mean": {
+     "F_S_N": 5382,
+     "F_c_N": 0,
+     "F_sh_N": 5382,
+     "fit": "open",
+     "u_um": 5.07,
+     "d_w_um": 5.0,
+     "d_r_um": 42.19,
+     "ratio_F_sh": 1.419,
+     "ratio_F_S": 1.151,
+     "seat_PQ_MS_bound_Fsh": 0.159,
+     "seat_PQ_MS_Fs": 0.429,
+     "head_bearing_MS_from_FE_min": 1.085
+    },
+    "drawing_max": {
+     "F_S_N": 5700,
+     "F_c_N": 0,
+     "F_sh_N": 5700,
+     "fit": "open",
+     "u_um": 18.39,
+     "d_w_um": 5.0,
+     "d_r_um": 42.19,
+     "ratio_F_sh": 1.503,
+     "ratio_F_S": 1.219,
+     "seat_PQ_MS_bound_Fsh": 0.094,
+     "seat_PQ_MS_Fs": 0.349,
+     "head_bearing_MS_from_FE_min": 0.969
+    }
+   }
+  },
+  "SOAK70": {
+   "bound": "GVLO",
+   "t_frame_s": 70.651,
+   "T01_C": 157.5,
+   "T02_tap_C": 97.1,
+   "gaps": {
+    "CAD_nominal_js4": {
+     "F_S_N": 4664,
+     "F_c_N": 927,
+     "F_sh_N": 3737,
+     "fit": "closed",
+     "u_um": -0.58,
+     "d_w_um": 4.94,
+     "d_r_um": 41.15,
+     "ratio_F_sh": 1.0,
+     "ratio_F_S": 1.0,
+     "seat_PQ_MS_bound_Fsh": 0.577,
+     "seat_PQ_MS_Fs": 0.577,
+     "head_bearing_MS_from_FE_min": 1.4
+    },
+    "drawing_min_H8f7": {
+     "F_S_N": 4664,
+     "F_c_N": 115,
+     "F_sh_N": 4548,
+     "fit": "closed",
+     "u_um": -0.07,
+     "d_w_um": 4.94,
+     "d_r_um": 41.15,
+     "ratio_F_sh": 1.217,
+     "ratio_F_S": 1.0,
+     "seat_PQ_MS_bound_Fsh": 0.296,
+     "seat_PQ_MS_Fs": 0.577,
+     "head_bearing_MS_from_FE_min": 1.4
+    },
+    "drawing_mean": {
+     "F_S_N": 5337,
+     "F_c_N": 0,
+     "F_sh_N": 5337,
+     "fit": "open",
+     "u_um": 4.84,
+     "d_w_um": 4.94,
+     "d_r_um": 41.15,
+     "ratio_F_sh": 1.428,
+     "ratio_F_S": 1.144,
+     "seat_PQ_MS_bound_Fsh": 0.104,
+     "seat_PQ_MS_Fs": 0.378,
+     "head_bearing_MS_from_FE_min": 1.098
+    },
+    "drawing_max": {
+     "F_S_N": 5656,
+     "F_c_N": 0,
+     "F_sh_N": 5656,
+     "fit": "open",
+     "u_um": 18.16,
+     "d_w_um": 4.94,
+     "d_r_um": 41.15,
+     "ratio_F_sh": 1.514,
+     "ratio_F_S": 1.213,
+     "seat_PQ_MS_bound_Fsh": 0.042,
+     "seat_PQ_MS_Fs": 0.3,
+     "head_bearing_MS_from_FE_min": 0.979
+    }
+   }
+  },
+  "SOAK52": {
+   "bound": "GVLO",
+   "t_frame_s": 51.651,
+   "T01_C": 152.6,
+   "T02_tap_C": 93.7,
+   "gaps": {
+    "CAD_nominal_js4": {
+     "F_S_N": 4634,
+     "F_c_N": 958,
+     "F_sh_N": 3677,
+     "fit": "closed",
+     "u_um": -0.6,
+     "d_w_um": 4.78,
+     "d_r_um": 40.05,
+     "ratio_F_sh": 1.0,
+     "ratio_F_S": 1.0,
+     "seat_PQ_MS_bound_Fsh": 0.598,
+     "seat_PQ_MS_Fs": 0.598,
+     "head_bearing_MS_from_FE_min": 1.4
+    },
+    "drawing_min_H8f7": {
+     "F_S_N": 4634,
+     "F_c_N": 146,
+     "F_sh_N": 4488,
+     "fit": "closed",
+     "u_um": -0.09,
+     "d_w_um": 4.78,
+     "d_r_um": 40.05,
+     "ratio_F_sh": 1.221,
+     "ratio_F_S": 1.0,
+     "seat_PQ_MS_bound_Fsh": 0.309,
+     "seat_PQ_MS_Fs": 0.598,
+     "head_bearing_MS_from_FE_min": 1.4
+    },
+    "drawing_mean": {
+     "F_S_N": 5285,
+     "F_c_N": 0,
+     "F_sh_N": 5285,
+     "fit": "open",
+     "u_um": 4.68,
+     "d_w_um": 4.78,
+     "d_r_um": 40.05,
+     "ratio_F_sh": 1.437,
+     "ratio_F_S": 1.14,
+     "seat_PQ_MS_bound_Fsh": 0.112,
+     "seat_PQ_MS_Fs": 0.402,
+     "head_bearing_MS_from_FE_min": 1.105
+    },
+    "drawing_max": {
+     "F_S_N": 5603,
+     "F_c_N": 0,
+     "F_sh_N": 5603,
+     "fit": "open",
+     "u_um": 18.0,
+     "d_w_um": 4.78,
+     "d_r_um": 40.05,
+     "ratio_F_sh": 1.524,
+     "ratio_F_S": 1.209,
+     "seat_PQ_MS_bound_Fsh": 0.049,
+     "seat_PQ_MS_Fs": 0.322,
+     "head_bearing_MS_from_FE_min": 0.985
+    }
+   }
+  }
+ },
+ "max_screw_force_frame": {
+  "CAD_nominal_js4": {
+   "F_S_N": 4677,
+   "F_c_N": 875,
+   "F_sh_N": 3802,
+   "fit": "closed",
+   "u_um": -0.55,
+   "d_w_um": 5.0,
+   "d_r_um": 42.35,
+   "t_s": 61.651,
+   "T01_C": 157.7
+  },
+  "drawing_min_H8f7": {
+   "F_S_N": 4677,
+   "F_c_N": 63,
+   "F_sh_N": 4614,
+   "fit": "closed",
+   "u_um": -0.04,
+   "d_w_um": 5.0,
+   "d_r_um": 42.35,
+   "t_s": 61.651,
+   "T01_C": 157.7
+  },
+  "drawing_mean": {
+   "F_S_N": 5389,
+   "F_c_N": 0,
+   "F_sh_N": 5389,
+   "fit": "open",
+   "u_um": 5.12,
+   "d_w_um": 5.0,
+   "d_r_um": 42.35,
+   "t_s": 61.651,
+   "T01_C": 157.7
+  },
+  "drawing_max": {
+   "F_S_N": 5707,
+   "F_c_N": 0,
+   "F_sh_N": 5707,
+   "fit": "open",
+   "u_um": 18.44,
+   "d_w_um": 5.0,
+   "d_r_um": 42.35,
+   "t_s": 61.651,
+   "T01_C": 157.7
+  }
+ },
+ "FA1S_cold": {
+  "CAD_nominal_js4": {
+   "F_S_N": 3835,
+   "F_c_N": 2353,
+   "F_sh_N": 1483,
+   "fit": "closed",
+   "u_um": -1.47,
+   "d_w_um": 0.59,
+   "d_r_um": 0.0,
+   "ratio_F_sh": 1.0,
+   "primary_cells_unchanged_by_gap": {
+    "hole_bearing_MS": [
+     0.232,
+     0.519
+    ],
+    "ligament_PmPb_MS": [
+     0.798,
+     0.939
+    ],
+    "shear_out_MS": 0.644
+   },
+   "FA1S_seat_PQ_bound": {
+    "sigma_MPa": 222.1,
+    "rule": "FEA3D FA1S ligament stress + s_Q x F_sh (the whole preload share added on top)",
+    "allow_2Fty_45.6C_MPa": 472.2,
+    "MS": 1.127
+   }
+  },
+  "drawing_min_H8f7": {
+   "F_S_N": 3835,
+   "F_c_N": 1541,
+   "F_sh_N": 2294,
+   "fit": "closed",
+   "u_um": -0.97,
+   "d_w_um": 0.59,
+   "d_r_um": 0.0,
+   "ratio_F_sh": 1.547,
+   "primary_cells_unchanged_by_gap": {
+    "hole_bearing_MS": [
+     0.232,
+     0.519
+    ],
+    "ligament_PmPb_MS": [
+     0.798,
+     0.939
+    ],
+    "shear_out_MS": 0.644
+   },
+   "FA1S_seat_PQ_bound": {
+    "sigma_MPa": 271.7,
+    "rule": "FEA3D FA1S ligament stress + s_Q x F_sh (the whole preload share added on top)",
+    "allow_2Fty_45.6C_MPa": 472.2,
+    "MS": 0.738
+   }
+  },
+  "drawing_mean": {
+   "F_S_N": 3835,
+   "F_c_N": 513,
+   "F_sh_N": 3322,
+   "fit": "closed",
+   "u_um": -0.32,
+   "d_w_um": 0.59,
+   "d_r_um": 0.0,
+   "ratio_F_sh": 2.24,
+   "primary_cells_unchanged_by_gap": {
+    "hole_bearing_MS": [
+     0.232,
+     0.519
+    ],
+    "ligament_PmPb_MS": [
+     0.798,
+     0.939
+    ],
+    "shear_out_MS": 0.644
+   },
+   "FA1S_seat_PQ_bound": {
+    "sigma_MPa": 334.6,
+    "rule": "FEA3D FA1S ligament stress + s_Q x F_sh (the whole preload share added on top)",
+    "allow_2Fty_45.6C_MPa": 472.2,
+    "MS": 0.411
+   }
+  },
+  "drawing_max": {
+   "F_S_N": 3774,
+   "F_c_N": 0,
+   "F_sh_N": 3774,
+   "fit": "open",
+   "u_um": 10.6,
+   "d_w_um": 0.59,
+   "d_r_um": 0.0,
+   "ratio_F_sh": 2.545,
+   "primary_cells_unchanged_by_gap": {
+    "hole_bearing_MS": [
+     0.232,
+     0.519
+    ],
+    "ligament_PmPb_MS": [
+     0.798,
+     0.939
+    ],
+    "shear_out_MS": 0.644
+   },
+   "FA1S_seat_PQ_bound": {
+    "sigma_MPa": 362.2,
+    "rule": "FEA3D FA1S ligament stress + s_Q x F_sh (the whole preload share added on top)",
+    "allow_2Fty_45.6C_MPa": 472.2,
+    "MS": 0.304
+   }
+  }
+ },
+ "FA1S_note": {
+  "s_Q_MPa_per_kN_by_soak_state": {
+   "SOAK": 54.6,
+   "SOAK70": 58.1,
+   "SOAK52": 61.2
+  },
+  "s_Q_used": 61.2,
+  "FE_FA1S_ligament_stress_MPa": 131.3,
+  "Fty_Ftu_45.6C_MPa": [
+   236.1,
+   254.6
+  ],
+  "classification": "FA1S hole bearing, shear-out and ligament Pm / Pm+Pb are primary (the shear V of the pressure end load in a bearing-type joint) and do not depend on the fit gap; the preload pull on the wall is a self-limiting radial load (secondary, Q): it enters the P+Q check, bounded here"
+ },
+ "screw_first_firing_from_jfwd_embed": {
+  "CAD_nominal_js4": {
+   "MS_min": 0.4389,
+   "check": "soak_tension_yield",
+   "bound": "GVLO",
+   "t_s": 64.651,
+   "F_S_N": 4676,
+   "head_bearing_MPa_on_spot_face": 99.2,
+   "T01_C": 158.0,
+   "Fty_6061_T01_MPa": 170.3
+  },
+  "drawing_min_H8f7": {
+   "MS_min": 0.4389,
+   "check": "soak_tension_yield",
+   "bound": "GVLO",
+   "t_s": 64.651,
+   "F_S_N": 4676,
+   "head_bearing_MPa_on_spot_face": 99.2,
+   "T01_C": 158.0,
+   "Fty_6061_T01_MPa": 170.3
+  },
+  "drawing_mean": {
+   "MS_min": 0.2494,
+   "check": "soak_tension_yield",
+   "bound": "GVLO",
+   "t_s": 62.651,
+   "F_S_N": 5388,
+   "head_bearing_MPa_on_spot_face": 114.3,
+   "T01_C": 157.8,
+   "Fty_6061_T01_MPa": 170.6
+  },
+  "drawing_max": {
+   "MS_min": 0.1797,
+   "check": "soak_tension_yield",
+   "bound": "GVLO",
+   "t_s": 62.651,
+   "F_S_N": 5706,
+   "head_bearing_MPa_on_spot_face": 121.1,
+   "T01_C": 157.8,
+   "Fty_6061_T01_MPa": 170.6
+  }
+ }
+}

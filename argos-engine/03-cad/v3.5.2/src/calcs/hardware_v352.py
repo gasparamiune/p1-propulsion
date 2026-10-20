@@ -236,6 +236,69 @@ for L in o["lines"]:
                      f"{SEL2['TC02_internal_thread_shear']['soak_119.7C']['MS_y']:+.3f}, gap variants min "
                      f"{min(VR[k]['thread_MS_y_min'] for k in VR if k.endswith('_ksh_x1')):+.3f} (5.53 N m soak: "
                      f"{SEL2['TC02_internal_thread_shear']['at_5.53Nm_soak_MS_y']:+.3f})").strip(" |")
+# ---------------------------------------------------------------- v1.5 (2026-10-20): J-FWD head seat (a) d10.5 spot face ADOPTED (lead 07:21Z)
+# text only: L basis, action, status, note and the J-F1 coupon seat; no torque, mass, quantity or acceptance change
+JS = Path("/home/claude/work/mechanical/v352/jfwd/jfwd_seat_v352_v1.json")
+JE = Path("/home/claude/work/mechanical/v352/jfwd/jfwd_embed_v352_v1.json")
+JSD, JED = json.loads(JS.read_text()), json.loads(JE.read_text())
+JSSHA, JESHA = hashlib.sha256(JS.read_bytes()).hexdigest()[:16], hashlib.sha256(JE.read_bytes()).hexdigest()[:16]
+o.update({"version": "v1.5", "basis": o["basis"] + " | v1.5 (2026-10-20): J-FWD head seat (a) d10.5 spot face ADOPTED (lead 07:21Z): HW-101 L basis, "
+                                                  f"action, status, note and the J-F1 coupon seat restated (04-fea/v352/jfwd_seat_v352_v1.json {JSSHA}, "
+                                                  f"jfwd_embed_v352_v1.json {JESHA}); no torque, mass, quantity or acceptance change"})
+for L in o["lines"]:
+    if L["id"] == "HW-101":
+        cn, cl = JSD["tc01_seat_cells"]["abs_nominal_wall"], JSD["tc01_seat_cells"]["abs_drawing_limit_wall"]
+        eg, hd, fe = JSD["tc02_engagement"], JSD["flat_seat_head_bearing"], JSD["FE_beside"]["TC01_seat_FA1S"]
+        mn = JED["in_service_minimum_after_embedding"]["a_spot_face|basis_um|CAD_nominal_js4"]
+        L["L_basis"] = (f"v3.5.2 head seat (a) (lead 07:21Z): the button head seats on a d10.5 flat spot face at r 31.313 (TC-01 drawing; depth 0.437 at "
+                        f"the screw axis): case wall {cn['t_wall_at_hole_mm']:.3f} at the 5.5 hole + plug gap 0.025 (CAD; 0.040-0.078 on the drawing, H8 / f7) "
+                        f"+ engagement {eg['L_e_CAD_mm']:.3f} (drawing {eg['L_e_drawing_mm'][0]:.3f}-{eg['L_e_drawing_mm'][1]:.3f}) in the TC-02 M5-6H tap (drill "
+                        f"4.2 x 9.0, full thread 8.0: tip {eg['tip_short_of_full_thread_end_mm_CAD']:.2f} short of the full-thread end) = 10.0; 10 holes at az "
+                        "18 + 36k deg, match-drilled TC-01 / TC-02 (the v1.2-v1.4 basis, wall 3.125 with the head on the OD r 31.75 and engagement 6.85, is "
+                        "superseded)")
+        old = "v3.5.1 'spot face TO-DEFINE' CLOSED: no spot face (it would cut the case bearing to +0.19 / -0.05 at 10 / 8 screws); "
+        assert L["action"].startswith(old), L["action"][:120]
+        L["action"] = ("v3.5.1 'spot face TO-DEFINE': ADOPTED as head seat (a), d10.5 flat at r 31.313 (lead 07:21Z, on FEA3D's [DERIVED] FA1S seat "
+                       "checks; the line-contact seat on the R31.75 OD was class DC, CHANGELOG 236 (12)); the v1.2-v1.4 'CLOSED: no spot face' is "
+                       "superseded; " + L["action"][len(old):])
+        L["status"] = ("DEFINED v3.5.2 (lead CHANGELOG 231 (1), 234 (1)(b)/(c), 2026-10-20 3.0 N m decision; head seat (a) adopted 07:21Z; FEA3D's "
+                       "mu 0.2 seat run on the rev-4 TC-01 (PRELOAD, SOAK70 / SOAK, FA1S, LC2N) closes the TC-01 cells: pending)")
+        L["note"] = (L["note"] + f" | v1.5 head seat (a), hand at FA1S 151.04 bar abs SF 1.0, 45.6 C, V {cn['V_per_screw_N']:.1f} N (04-fea/v352/"
+                     f"jfwd_seat_v352_v1.json {JSSHA}): case bearing {cn['hole_bearing']['MS_y']:+.3f} / {cn['hole_bearing']['MS_u']:+.3f} at the wall "
+                     f"{cn['t_wall_at_hole_mm']:.3f} ({cl['hole_bearing']['MS_y']:+.3f} / {cl['hole_bearing']['MS_u']:+.3f} at the drawing-limit wall "
+                     f"{cl['t_wall_at_hole_mm']:.3f}), shear-out {cn['shear_out']['MS_y']:+.3f} / {cn['shear_out']['MS_u']:+.3f}, ligament Pm+Pb "
+                     f"{cn['ligament_PmPb']['MS_y']:+.3f} / {cn['ligament_PmPb']['MS_u']:+.3f}, flat-seat head bearing {hd['FA1S']['MS_y']:+.2f} (soak "
+                     f"{hd['soak_first_firing_js4_consistent']['MS_y']:+.2f}); FE (FEA3D, [DERIVED]): bearing {fe['hole_bearing_MS'][0]:+.3f} / "
+                     f"{fe['hole_bearing_MS'][1]:+.3f}, ligament {fe['seat_ligament_PmPb_MS'][0]:+.3f} / {fe['seat_ligament_PmPb_MS'][1]:+.3f}, shear-out bound "
+                     f"{fe['shear_out_bound_MS']:+.3f}, band Neuber {fe['band_neuber_MS_membrane_bending2'][0]:+.3f} / {fe['band_neuber_MS_membrane_bending2'][1]:+.3f}; "
+                     "screw rows unchanged by the seat; preload after flat-seat embedding (VDI 2230 f_Z 8 um basis, js4-consistent stiffness; 04-fea/v352/"
+                     f"jfwd_embed_v352_v1.json {JESHA}): F_min {mn['F_min_inst_N']} N -> {mn['F_cold_after_embedding_N']} N cold, "
+                     f"{mn['F_min_any_frame_N']} N minimum in the burn (CAD gap 0.025, {mn['at']['bound']} {mn['at']['t_s']:.1f} s) against the "
+                     f"{mn['need_fit_closed_cold_N']} N fit-closing need (MS {mn['MS_vs_fit_closing_cold']:+.3f}): the head stays seated, the fit is not "
+                     "held closed at F_min (bearing-type joint)")
+        w0 = "through a 3.125 mm 6061-T6 wall coupon with a 5.5 hole and the R 31.75 seat"
+        assert w0 in L["test"]["what"], L["test"]["what"]
+        L["test"]["what"] = L["test"]["what"].replace(w0, "through a 2.69 mm 6061-T6 wall coupon with a 5.5 hole and the head seat (a): a d10.5 flat, Ra 1.6 "
+                                                          "max, square to the hole within 0.05 (the TC-01 spot-face state; the under-head friction is part "
+                                                          "of K)")
+# v1.5 HW-150 (text only, 2026-10-20 ~08:15Z): the AS568-226 size text carried the -225 ID (47.22, AS RECALLED in hardware_v351.py); corrected
+# to the sourced dimensions used by 04-fea/v352/gland_fwd_v352_v1.json.  The CALC unit mass is HELD at the v1.4 value (no mass change in v1.5):
+# the torus on the sourced ID is stated beside it for the lead's ruling (it moves the massprops hardware sum, max(0.20 kg, CALC), by +0.37 g).
+FNST = ("Freudenberg-NOK Sealing Technologies, 'O-Ring Design Quick Reference', p. 16 (AS568-226: ID 1.984 +/- 0.018 in, CS 0.139 +/- 0.004 in), "
+        "https://fst.com/~/media/files/fst,-d-,com/markets/mobility/broschueren/fnst%20o-ring%20reference%20as568%20sizes.ashx, accessed 2026-10-20")
+import math
+for L in o["lines"]:
+    if L["id"] == "HW-150":
+        assert L["size"] == "-226 (ID 47.22 x CS 3.53 mm, AS RECALLED)", L["size"]
+        m_src = math.pi * (50.39 + 3.53) * math.pi / 4.0 * 3.53 ** 2 * 1e-9 * 1900.0 * 1e3
+        L["size"] = "-226 (ID 50.39 +/- 0.46 x CS 3.53 +/- 0.10 mm, DATASHEET: " + FNST + ")"
+        L["note"] = (L["note"] + " | v1.5: size text corrected (v1.0-v1.4 '-226 (ID 47.22 x CS 3.53 mm, AS RECALLED)': 47.22 is the -225 ID); unit "
+                     f"mass {L['unit_mass_g']:.3f} g HELD (CALC on the superseded ID; torus on the sourced ID x FKM 1900 ASSUMED = {m_src:.3f} g, "
+                     f"{m_src - L['unit_mass_g']:+.3f} g per ring, {2 * (m_src - L['unit_mass_g']):+.2f} g for the 2 rings): carried only on the lead's "
+                     "ruling (massprops / massdelta re-run); the other AS568 sizes of this list stay AS RECALLED (TO-SOURCE)")
+        L["mass_evidence"] = L["mass_evidence"] + f" | v1.5: HELD on the superseded ID 47.22 (sourced-ID torus {m_src:.3f} g, not carried)"
+o["basis"] = o["basis"] + (" | v1.5 HW-150: AS568-226 size text corrected to the sourced ID 50.39 / CS 3.53 (FNST p. 16; was the -225 ID 47.22, "
+                           "AS RECALLED); unit mass held, +0.37 g for the 2 rings stated for the lead's ruling")
 TQ_METHOD = {}
 for L in o["lines"]:
     if L["kind"] != "screw":

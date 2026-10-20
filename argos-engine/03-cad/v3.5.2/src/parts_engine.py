@@ -176,12 +176,21 @@ def build_engine_parts(P, S, reg, mat):
                            "6061-T6 drawn tube 63.5 x 3.175 (2.5 x 0.125 in): Aluminium-Online.de / Wefa / Metals4U (DK delivery)"),
                  notes=f"v3.2: case ends at the grain aft face (aft section TC-09 carries the post-chamber). Length {z1-z0:.2f} mm. Collar groove {2*(case_R-gd):.2f} h9 x {gwid:.0f} mm at {z1:.1f} mm from the fwd end (pivot plane). "
                        f"Fwd: seal land bored 57.25 H8 x {land:.0f} mm Ra 0.8, 15 deg lead-in; {nb}x {db + 0.5:.1f} radial holes at "
-                       f"{z1-S['bolt_z_fwd']:.0f} mm" + (f" (az {angs[0]:g} + {360.0 / nb:g} k deg; v3.5.2 J-FWD per lead CHANGELOG 231 (1): {nb}x M5 A4-80, no spot face (the "
-                                                       f"button head seats on the OD), holes match-drilled with TC-02)" if (nb != 8 and jl_t <= 0) else "") + (f" (v3.5.2 J-FWD land OD {2*jl_R:.1f} from z {S['jfwd_land']['z_land0']:.1f} to the fwd end, 30 deg taper; 8x spot face d{S['jfwd_land']['spot_d_mm']:.1f} flat, wall {jl_t:.2f} at the hole; stock >= 2.75 x 0.25 in tube, OD turned to 63.5 elsewhere)" if jl_t > 0 else "") + f". Aft: M63x1.5-6g x {P['aft_thread_len']['v']*1e3:.0f} mm (modelled at 63.0 major), relief 61.0 x 2, "
+                       f"{z1-S['bolt_z_fwd']:.0f} mm" + (f" (az {angs[0]:g} + {360.0 / nb:g} k deg; v3.5.2 J-FWD per lead CHANGELOG 231 (1): {nb}x M5 A4-80, "
+                                                       + (f"spot face d{S['jfwd_od_spot']['d_mm']:.1f} flat at r {S['jfwd_od_spot']['r_flat_mm']:.3f} "
+                                                          f"(depth {S['jfwd_od_spot']['depth_at_edge_mm']:.3f} at the screw axis, wall {S['jfwd_od_spot']['wall_at_hole_mm']:.3f} at the hole; "
+                                                          f"head seat option (a), lead 07:21Z)" if S.get('jfwd_od_spot') else "no spot face (the button head seats on the OD)")
+                                                       + ", holes match-drilled with TC-02)" if (nb != 8 and jl_t <= 0) else "") + (f" (v3.5.2 J-FWD land OD {2*jl_R:.1f} from z {S['jfwd_land']['z_land0']:.1f} to the fwd end, 30 deg taper; 8x spot face d{S['jfwd_land']['spot_d_mm']:.1f} flat, wall {jl_t:.2f} at the hole; stock >= 2.75 x 0.25 in tube, OD turned to 63.5 elsewhere)" if jl_t > 0 else "") + f". Aft: M63x1.5-6g x {P['aft_thread_len']['v']*1e3:.0f} mm (modelled at 63.0 major), relief 61.0 x 2, "
                        f"seal land 61.0 f7 x {P['aft_land_len']['v']*1e3:.0f} mm Ra 0.8 with 15 deg lead-in",
                  dwg={"datum": "fwd end face A, axis B", "fits": ["fwd bore 57.25 H8 (+0.046/0) Ra 0.8", "aft land 61.0 f7 (-0.030/-0.060) Ra 0.8",
                                                                 "collar groove 62.50 h9 (0/-0.074) x 20.0 +0.1/0, corner R0.4",
-                                                                "M63x1.5-6e thread, 14 mm (6e: thermal growth into the steel aft section)"],
+                                                                "M63x1.5-6e thread, 14 mm (6e: thermal growth into the steel aft section)"]
+                      + ([f"J-FWD head seats ({nb}x, at each d{db + 0.5:.1f} hole, az {angs[0]:g} + {360.0 / nb:g} k deg): spot face "
+                          f"d{S['jfwd_od_spot']['d_mm']:.1f} +0.2/0 flat, normal to the hole axis, at r {S['jfwd_od_spot']['r_flat_mm']:.3f} +0.03/0 "
+                          f"from axis B (depth {S['jfwd_od_spot']['depth_at_edge_mm']:.3f} 0/-0.03 at the screw axis; the flat runs out on the OD "
+                          f"circumferentially); wall at the hole {S['jfwd_od_spot']['wall_at_hole_mm']:.3f} nominal (>= 2.665 with the bore at "
+                          f"57.296 and the flat at its limit); head seat Ra 1.6 max, flat within 0.02, square to the hole axis within 0.05; "
+                          f"break the flat-to-OD edge 0.1 max"] if S.get('jfwd_od_spot') else []),
                       "finish": "clear anodise (Type II) after machining, seal lands masked", "ht": "T6 as supplied (no welding)"}
                  )).place(T, "engine")
 

@@ -645,14 +645,18 @@ V352_ON = dict(V351_ON, tc09_barrel_wall=0.0018, tc09_socket_R2=0.0345, nz_foil_
 #        edge; tc03_top_gap 0 restores shoulder contact).  (b) + (c) ACCEPTED 06:23Z item 2.  Engaged thread 10.0 -> 7.44 mm.
 #        V352_REV3_ON reproduces the published rev 3 (FEA3D keeps rev 3 for TC-02 / TC-03).
 #        jfwd_od_spot_d (m, lead 06:23Z item 6): J-FWD head-seat option (a) = flat spot face of that diameter on the plain TC-01 OD
-#        R31.75 at each M5 hole (0.0105: wall 3.125 -> 2.69 at the hole); 0 = no spot face (rev 3 / js4 state).  The lead decides
-#        (a) or (b) saddle washer at FEA3D FA1S; V352_R4_JFWD_SPOT builds option (a) for the mass / clearance record.
+#        R31.75 at each M5 hole (0.0105: wall 3.125 -> 2.69 at the hole); 0 = no spot face (rev 3 / js4 state).  Option (a) ADOPTED
+#        by the lead 07:21Z on FEA3D's FA1S [DERIVED] seat checks (hole bearing +0.232 / +0.519, flat-seat head bearing +2.86,
+#        ligament Pm+Pb +0.798 / +0.939, shear-out +0.644, band Neuber +0.416 / +0.061, soak P+Q +0.577): V352_ON carries it;
+#        V352_R4_NOSPOT = rev 4 without it (the state of the rev-4 thermal / S-AX runs: their 214 deg TC-01 section is clear of the
+#        spot faces at az 198 / 234 +/- 9.5 deg, so the section is the same).
 V352_SEAT_R4 = {"tc02_entry_R": 0.5, "tc02_entry_cb_d": 14.0, "tc03_uc_dg": 12.5, "tc03_uc_R": 0.6, "tc03_uc_flank_deg": 45.0,
                 "tc02_top_relief_dg": 14.5, "tc02_top_relief_R": 0.5, "tc03_top_chamfer_r": 6.30, "tc03_top_blend_R": 0.25,
                 "tc03_top_gap": 0.15}
 V352_REV3_ON = dict(V352_ON)
-V352_ON = dict(V352_ON, tc0203_seat_r4=V352_SEAT_R4, jfwd_od_spot_d=0.0)
-V352_R4_JFWD_SPOT = dict(V352_ON, jfwd_od_spot_d=0.0105)
+V352_R4_NOSPOT = dict(V352_ON, tc0203_seat_r4=V352_SEAT_R4, jfwd_od_spot_d=0.0)
+V352_ON = dict(V352_R4_NOSPOT, jfwd_od_spot_d=0.0105)          # rev 4 + J-FWD head seat (a), lead 07:21Z
+V352_R4_JFWD_SPOT = V352_ON
 # J-FWD land (line 230 (1) FA1S option, +21.7 g) WITHDRAWN by lead CHANGELOG 231 (1): kept as a trade key set for the record only
 V352_JFWD_LAND_TRADE = dict(jfwd_land_t=0.0044, jfwd_land_od=0.0669, jfwd_land_aft=0.011, jfwd_spot_d=0.0105, jfwd_screw_len_mm=12.0)
 V352_TC09_ON = dict(V351_ON, tc09_barrel_wall=0.0018, tc09_socket_R2=0.0345)     # TC-09-only sensitivity (thermal tag v352_TC09, mass file)
