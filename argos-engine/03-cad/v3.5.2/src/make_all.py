@@ -793,6 +793,12 @@ def hlr_polylines(shape, view_dir, x_dir, n_seg=24):
     return out
 
 
+def _wrap(t, w, n):
+    """v3.5.2 rev 4: title-block text over up to n lines of w characters (the rev-4 TC-02 / TC-03 callouts exceed one line)."""
+    import textwrap
+    return (textwrap.wrap(t, w) or [""])[:n]
+
+
 def draw_part(p, out_dir, mass_kg, cad_version):
     import matplotlib
     matplotlib.use("Agg")
@@ -852,10 +858,13 @@ def draw_part(p, out_dir, mass_kg, cad_version):
           f"Mass: {mass_kg * 1e3:.1f} g (CAD volume x density)   Units: mm   Frame: modelling frame (+Z forward)   Bounding box: "
           f"{dims[0]:.2f} x {dims[1]:.2f} x {dims[2]:.2f}",
           f"Datum: {d.get('datum', 'TO-DEFINE')}   Finish: {d.get('finish', 'TO-DEFINE')}   Heat treatment: {d.get('ht', 'n/a')}",
-          "Fits / features: " + "; ".join(d.get("fits", []))[:200],
+          *_wrap("Fits / features: " + "; ".join(d.get("fits", [])), 200, 4),
           f"Notes: {p.notes[:220]}",
           f"ARGOS engine CAD {cad_version} - DESIGN-MODEL DRAWING generated from the solid; dimensions from the model; "
           "general tolerances ISO 2768-m unless a fit is listed; NOT released for fabrication (Mechanical, 2026-10-13)",
+          # v3.5.2 rev 4 (lead 2026-10-20 06:05Z item 4 (a)): the general corner note excludes mating corners
+          ("General note: internal corners not modelled with a radius R0.5 min, R2 where both adjacent faces are >= 2 mm long; mating corners "
+           "carry explicit radius and edge-break callouts (Fits / features); this note does not apply to them" if str(cad_version).startswith("v3.5.2") else ""),
           ("Oxygen service: clean to ASTM G93, Krytox only" if p.wetted == "N2O" else "")]
     fig.text(0.02, 0.02, "\n".join(t for t in tb if t), fontsize=7, family="monospace", va="bottom",
              bbox=dict(boxstyle="square", fc="white", ec="black", lw=0.6))
@@ -875,8 +884,9 @@ def draw_part(p, out_dir, mass_kg, cad_version):
 
 def stage_drawings(reg, out):
     rows = []
+    only = [x for x in os.environ.get("MAKE_ALL_DRAW_PN", "").split(",") if x]   # v3.5.2 rev 4: re-draw only these parts
     for p in reg:
-        if not p.drawing:
+        if not p.drawing or (only and p.pn not in only):
             continue
         t1 = time.time()
         try:
@@ -888,7 +898,7 @@ def stage_drawings(reg, out):
             rows.append({"pn": p.pn, "error": repr(ex), "trace": traceback.format_exc()[-600:]})
             log(f"  drawing FAILED {p.pn}: {ex!r}")
     log(f"drawings: {sum(1 for r in rows if 'error' not in r)}/{len(rows)}")
-    jdump(out / "checks" / f"drawings_{CAD_VERSION}.json", {"cad_version": CAD_VERSION, "rows": rows})
+    jdump(out / "checks" / (f"drawings_{CAD_VERSION}_partial.json" if only else f"drawings_{CAD_VERSION}.json"), {"cad_version": CAD_VERSION, "only": only, "rows": rows})
     return rows
 
 

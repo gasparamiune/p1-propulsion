@@ -55,6 +55,18 @@ def localize(shape, z_ref):
     return apply(shape, T_trans(0, 0, -z_ref)), T_trans(0, 0, z_ref)
 
 
+def revolve_path(p0, segs):
+    """v3.5.2 rev 4: closed (r, z) profile (mm) with straight and circular segments revolved 360 deg about +Z.
+    segs: [("L", (r, z)) | ("A", (r_mid, z_mid), (r_end, z_end))]; closed back to p0 by a straight segment."""
+    wp = cq.Workplane("XZ").moveTo(float(p0[0]), float(p0[1]))
+    for s in segs:
+        if s[0] == "L":
+            wp = wp.lineTo(float(s[1][0]), float(s[1][1]))
+        else:
+            wp = wp.threePointArc((float(s[1][0]), float(s[1][1])), (float(s[2][0]), float(s[2][1])))
+    return wp.close().revolve(360.0, (0, 0, 0), (0, 1, 0)).val()
+
+
 def gland_cut(r_groove, r_outer, z0, width):
     """Annular groove for a piston (plug) O-ring: removes r in [r_groove, r_outer+1] over z0..z0+width."""
     return tube(2 * r_outer + 2, 2 * r_groove, z0, z0 + width)
@@ -144,6 +156,15 @@ def build_engine_parts(P, S, reg, mat):
     case = cut_all(case, [radial_hole(db + 0.5, a, S["bolt_z_fwd"], case_r - 1, jl_R + 1) for a in angs])
     if jl_t > 0:                                                            # flat spot faces for the ISO 7380 heads (dk 9.5) on the land
         case = cut_all(case, [radial_hole(S["jfwd_land"]["spot_d_mm"], a, S["bolt_z_fwd"], seal_r + jl_t, jl_R + 1.0) for a in angs])
+    # v3.5.2 rev 4 (lead 2026-10-20 06:23Z item 6): J-FWD head-seat option (a) = flat spot face d jfwd_od_spot_d on the plain OD (no land);
+    # the flat lies at r_flat = sqrt(case_R^2 - (d/2)^2) so the full head (dk 9.5) bears on a plane; wall at the hole = r_flat - seal_r
+    sp_od = float((P.get("jfwd_od_spot_d") or {}).get("v", 0.0) or 0.0) * 1000.0
+    S["jfwd_od_spot"] = None
+    if jl_t <= 0 and sp_od > 0:
+        r_flat = math.sqrt(case_R ** 2 - (sp_od / 2) ** 2)
+        S["jfwd_od_spot"] = {"d_mm": sp_od, "r_flat_mm": round(r_flat, 4), "wall_at_hole_mm": round(r_flat - seal_r, 3),
+                             "depth_at_edge_mm": round(case_R - r_flat, 3)}
+        case = cut_all(case, [radial_hole(sp_od, a, S["bolt_z_fwd"], r_flat, case_R + 1.0) for a in angs])
     gd, gwid = v("collar_groove_depth"), v("collar_w")
     S["collar_groove"] = (case_R - gd, -gwid / 2, gwid / 2)
     case = case.cut(tube(2 * case_R + 2, 2 * (case_R - gd), -gwid / 2, gwid / 2))      # engine-collar groove at the pivot plane
@@ -186,6 +207,27 @@ def build_engine_parts(P, S, reg, mat):
     S["tc03_flange_z"] = (z_fl0, z_fl1)
     cuts = [cyl(13.0, zf - 1, z_ins_top), cyl(20.2, zf - 1, z_fl1),      # M14x1 tap drill 13.0 x 12 + flange counterbore
             cyl(10.0, z_ins_top - 0.01, zt + 1)]                           # manifold bore 10 mm (needle body 6 mm)
+    # v3.5.2 rev 4 (config V352_SEAT_R4; lead DC 2026-10-20 05:42Z item 4 + 06:05Z item 4): seat-bore entry relief = d14.0 x 0.5
+    # counterbore with an R0.5 edge radius tangent to the counterbore floor (r 7.5) and to the d14 wall (first incomplete thread
+    # removed); thread relief at the d10 shoulder = d14.5 groove, one R0.5 arc tangent to the shoulder (r 6.75) through the groove
+    # bottom to 45 deg below it, then a 45 deg run-out to the thread major (r 7.0) 0.96 below the shoulder (no zero-radius concave edge)
+    R4 = (P.get("tc0203_seat_r4") or {}).get("v")
+    S["tc0203_seat_r4"] = R4
+    S45 = math.sqrt(0.5)
+    if R4:
+        Re, rcb = R4["tc02_entry_R"], R4["tc02_entry_cb_d"] / 2
+        cuts.append(revolve_path((0.0, z_fl1 - 0.5), [("L", (rcb + Re, z_fl1 - 0.5)), ("L", (rcb + Re, z_fl1)),
+                                                      ("A", (rcb + Re - Re * S45, z_fl1 + Re - Re * S45), (rcb, z_fl1 + Re)),
+                                                      ("L", (0.0, z_fl1 + Re))]))
+        rg, Rt = R4["tc02_top_relief_dg"] / 2, R4["tc02_top_relief_R"]
+        cxt, czt = rg - Rt, z_ins_top - Rt
+        pa = (cxt + Rt * S45, czt - Rt * S45)
+        z_te = pa[1] - (pa[0] - rcb)
+        a22 = math.radians(22.5)
+        cuts.append(revolve_path((0.0, z_te), [("L", (rcb, z_te)), ("L", pa), ("A", (cxt + Rt * math.cos(a22), czt + Rt * math.sin(a22)), (cxt, z_ins_top)),
+                                               ("L", (0.0, z_ins_top))]))
+        S["tc02_r4"] = {"entry_floor_tangent_r": rcb + Re, "entry_bore_tangent_z": z_fl1 + Re, "thread_end_z_top": z_te,
+                        "shoulder_tangent_r": cxt, "relief_r_max": rg}
     for a in ANG["bonnet_bolts"]:                                         # bonnet: 4x M4
         c = polar(16.5, a)
         cuts.append(cyl(3.3, zt - 10, zt + 1, c[0], c[1]))
@@ -239,7 +281,9 @@ def build_engine_parts(P, S, reg, mat):
     reg.add(Part("ENG-TC-02", "Injector head / forward closure (pintle seat bore, manifold, Pc and torch ports)", "AL6061-T6",
                  "CNC lathe + 3-axis mill (2 setups)", shp, drawing=True, wetted="N2O",
                  notes="Head 63.5 x 28; plug 57.20 f7 with 2 AS568-226 FKM 90A glands (51.65 h9 groove, 4.85 wide); "
-                       "M14x1 seat-insert bore; 10 mm manifold bore; 1/4-18 NPT Pc tap (105 deg, 1/8 in sense line < 0.3 m) with 2 mm passage to the face at r 20.5; "
+                       + ("M14x1 seat-insert bore (v3.5.2 rev 4: d14.0 x 0.5 entry counterbore + R0.5 entry radius, d14.5 thread relief at the d10 shoulder; "
+                          "TC-03 seats on its flange, top clear of the shoulder 0.125-0.225); " if R4 else "M14x1 seat-insert bore; ")
+                       + "10 mm manifold bore; 1/4-18 NPT Pc tap (105 deg, 1/8 in sense line < 0.3 m) with 2 mm passage to the face at r 20.5; "
                        "M10x1 torch seat (0 deg, r 25) with 5.2 mm passage and 3 mm outlet drilled 30 deg inward/aft leaving the face at r 16.9 "
                        "(v3.2 counter-proposal to Combustion's x_face 15 boss); " + (f"{nb}x M5 radial tapped at az {angs[0]:g} + {360.0 / nb:g} k deg (v3.5.2 J-FWD, lead CHANGELOG 231 (1): "
                        "ISO 7380-1 M5 x 10 A4-80, sized at FA1S 151.04 bar abs SF 1.0 in v352/jfwd/jfwd_v352_v1.json; match-drilled with TC-01)" if nb != 8 else
@@ -249,7 +293,14 @@ def build_engine_parts(P, S, reg, mat):
                        + "; 4x M4 bonnet" + (", 4x M3 PD-01 feet (r 26, 8 deep)" if HV69_ON else ", 2x M4 pintle bracket") + "; oxygen-clean, Krytox only",
                  dwg={"datum": "head top face A, axis B", "fits": ["plug 57.20 f7 (-0.030/-0.060)",
                                                                   "gland groove 51.65 h9 x 4.85 +0.13/0, Ra 0.8 groove bottom, Ra 1.6 flanks (Parker ORD 5700)",
-                                                                  "M14x1-6H x 10, M10x1-6H x 10, 1/4-18 NPT, " + (f"M5-6H x {jdrill - 1.0:.1f} full thread (drill 4.2 x {jdrill:.1f})" if jdrill > 6.5 else "M5-6H x 6.5") + ", M4-6H"],
+                                                                  *([f"M14x1-6H full thread {S['tc02_r4']['thread_end_z_top'] - S['tc02_r4']['entry_bore_tangent_z']:.2f} from the d14.0 x 0.5 entry "
+                                                                     "counterbore to the d14.5 relief (rev 4)",
+                                                                     "seat-bore entry R0.5 tangent to the counterbore floor at d15.0 and to the d14.0 wall (rev 4, mating corner)",
+                                                                     "thread relief d14.5 +0.1/0 x 0.96 below the d10 shoulder: R0.5 tangent to the shoulder at d13.5 + 45 deg "
+                                                                     "run-out (DIN 76-1 class, AS RECALLED, TO-VERIFY; rev 4, mating corner)",
+                                                                     "counterbore floor (S03 lands) to d10 shoulder 10.00 +0.05/0 (rev 4: TC-03 top gap 0.125-0.225, nominal 0.15)"]
+                                                                    if R4 else []),
+                                                                  ("M10x1-6H x 10, 1/4-18 NPT, " if R4 else "M14x1-6H x 10, M10x1-6H x 10, 1/4-18 NPT, ") + (f"M5-6H x {jdrill - 1.0:.1f} full thread (drill 4.2 x {jdrill:.1f})" if jdrill > 6.5 else "M5-6H x 6.5") + ", M4-6H"],
                       "finish": "clear anodise Type II except threads and gland; oxygen-clean per ASTM G93 / CGA G-4.1", "ht": "T6 as supplied"}
                  )).place(T, "engine")
 
@@ -258,7 +309,32 @@ def build_engine_parts(P, S, reg, mat):
     z_seat = zf + 5.0
     S["z_seat"] = z_seat
     half_d = math.radians(37.5)
-    if nose_t > 0:   # v3.5.1 TB1: nose (r TC03_NOSE_R) through the TC-10 bore, flange behind the insulator
+    S["tc03_top_z"] = z_ins_top
+    if nose_t > 0 and R4:   # v3.5.2 rev 4: thread undercut at the flange + thread-start chamfer / blend at the top, top 'tc03_top_gap' below the shoulder
+        rug, Ru = R4["tc03_uc_dg"] / 2, R4["tc03_uc_R"]
+        cxu, czu = rug + Ru, z_fl1 + Ru                                   # root arc centre; tangent to the flange top at r cxu
+        a_m, a_e = math.radians(202.5), math.radians(135.0)               # arc 270 -> 135 deg (clockwise) through the root r rug
+        pum = (cxu + Ru * math.cos(a_m), czu + Ru * math.sin(a_m))
+        pue = (cxu + Ru * math.cos(a_e), czu + Ru * math.sin(a_e))        # 45 deg tangent point
+        z_ue = pue[1] + (7.0 - pue[0])                                    # 45 deg run-out reaches the thread major r 7.0
+        z_t3 = z_ins_top - R4["tc03_top_gap"]
+        rc, Rb = R4["tc03_top_chamfer_r"], R4["tc03_top_blend_R"]
+        tb = Rb * math.tan(math.radians(22.5))                            # blend tangent length (45 deg turn)
+        pc1, pc2 = (rc + tb * S45, z_t3 - tb * S45), (rc - tb, z_t3)
+        cb = (rc - tb, z_t3 - Rb)
+        pbm = (cb[0] + Rb * math.cos(math.radians(67.5)), cb[1] + Rb * math.sin(math.radians(67.5)))
+        z_c0 = z_t3 - (7.0 - rc)                                          # chamfer start on the thread major
+        ins = revolve_path((0.0, zf), [("L", (nose_r, zf)), ("L", (nose_r, z_fl0)), ("L", (10.0, z_fl0)), ("L", (10.0, z_fl1)),
+                                       ("L", (cxu, z_fl1)), ("A", pum, pue), ("L", (7.0, z_ue)), ("L", (7.0, z_c0)), ("L", pc1),
+                                       ("A", pbm, pc2), ("L", (0.0, z_t3))])
+        S["tc03_top_z"] = z_t3
+        S["tc03_r4"] = {"uc_flange_tangent_r": cxu, "uc_root_r": rug, "uc_45_tangent": [round(pue[0], 5), round(pue[1] - z_fl1, 5)],
+                        "thread_major_from_z_above_flange": round(z_ue - z_fl1, 5), "chamfer_start_z_below_top": round(z_t3 - z_c0, 5),
+                        "blend_tangents_r_dz": [[round(pc1[0], 5), round(pc1[1] - z_t3, 5)], [round(pc2[0], 5), 0.0]],
+                        "top_gap_nominal": R4["tc03_top_gap"], "top_z_below_shoulder": round(z_ins_top - z_t3, 4)}
+        if "tc02_r4" in S:
+            S["tc0203_engagement_mm"] = round(min(S["tc02_r4"]["thread_end_z_top"], z_c0) - max(S["tc02_r4"]["entry_bore_tangent_z"], z_ue), 4)
+    elif nose_t > 0:   # v3.5.1 TB1: nose (r TC03_NOSE_R) through the TC-10 bore, flange behind the insulator
         ins = revolve([(0, zf), (nose_r, zf), (nose_r, z_fl0), (10.0, z_fl0), (10.0, z_fl1), (7.0, z_fl1), (7.0, z_ins_top), (0, z_ins_top)])
     else:
         ins = revolve([(0, zf), (10.0, zf), (10.0, zf + 2.0), (7.0, zf + 2.0), (7.0, z_ins_top), (0, z_ins_top)])
@@ -304,8 +380,17 @@ def build_engine_parts(P, S, reg, mat):
     reg.add(Part("ENG-TC-03", f"Pintle seat insert ({d_seat:.1f} mm sharp-edged seat, 37.5 deg diffuser)", t3mat, "CNC lathe",
                  shp, drawing=True, wetted="N2O", hot=True,
                  notes=f"M14x1-6g external, flange 20 x 2 with 2 spanner holes; seat {d_seat:.2f} mm sharp edge (land 0.3 mm, no burr), "
-                       f"seat {z_seat-zf:.1f} mm above the face, diffuser 37.5 deg half-angle to {2*r_diff_face:.1f} mm at the face; " + t3seal,
-                 dwg={"datum": "flange face A", "fits": [f"seat {d_seat:.3f} +0.010/0, sharp edge", "M14x1-6g", "approach bore 8.0 H8"],
+                       f"seat {z_seat-zf:.1f} mm above the face, diffuser 37.5 deg half-angle to {2*r_diff_face:.1f} mm at the face; "
+                       + ((f"v3.5.2 rev 4: thread undercut d12.5 R0.6 at the flange, 0.70 x 45 deg thread-start chamfer + R0.25 blend at the top, "
+                           f"seats on the flange (datum A), top 0.125-0.225 clear of the TC-02 shoulder, engaged thread {S.get('tc0203_engagement_mm', 0):.2f}; ")
+                          if (R4 and nose_t > 0) else "") + t3seal,
+                 dwg={"datum": ("flange top (seating) face A = S03 lands, axis B" if (R4 and nose_t > 0) else "flange face A"),
+                      "fits": [f"seat {d_seat:.3f} +0.010/0, sharp edge", "M14x1-6g", "approach bore 8.0 H8"]
+                              + (["thread undercut d12.5 -0.1/0, root R0.6 tangent to the flange top at d13.7, 45 deg run-out, full thread from 1.60 above "
+                                  "the flange (DIN 76-1 class, AS RECALLED, TO-VERIFY; rev 4, mating corner)",
+                                  "top outer edge 0.70 x 45 deg thread-start chamfer to d12.6 + R0.25 tangent blend to the top face (rev 4, mating corner)",
+                                  "flange top (A) to insert top 9.85 +/-0.025; top clear of the TC-02 d10 shoulder: gap 0.125-0.225 mm, nominal 0.15 (rev 4)"]
+                                 if (R4 and nose_t > 0) else []),
                       "finish": "seat lapped with the needle cone (bluing check, 360 deg contact)", "ht": t3ht}
                  )).place(T, "engine")
     if coat is not None:

@@ -436,7 +436,8 @@ def build_gimbal_parts(P, S, reg, info):
                               + "under-arm web outer corner at r 39.0 (v3.5.2 rev, lead 2026-10-20 DC), "
                               if LV["root_v352"].get("arm_loop") else "arm R1.5 (eye side), ")
                            + ("internal corners not modelled with a radius: R0.5 min, R2 where both adjacent faces are >= 2 mm long (v3.5.2 rev 3 "
-                              "general note); " if LV["root_v352"].get("chamfer_runout") else "other internal corners R >= 2 unless modelled; ")
+                              "general note; mating corners carry explicit radius and edge-break callouts, this note does not apply to them: v3.5.2 rev 4, lead 06:05Z (a)); "
+                              if LV["root_v352"].get("chamfer_runout") else "other internal corners R >= 2 unless modelled; ")
                            if (LV and LV.get("root_v352")) else "all internal corners R >= 2 (drawing note); ") + f"bore {2*rc_in:.2f} H9 in the case groove (62.50 h9 x 20.0), width {cw:.1f} -0.05; OD {2*rc_out:.0f}; inner-pin boss 16 mm "
                            f"with 8 P7 x 6.5 blind; 2 clamp bosses with 2x M3 DIN 7984 each (4 total, 1.0 N m); TVC lever cheek with M4 x 5 thread "
                            f"for the pivot stud at r_e {g['r_e']:.1f} mm, z {g['z_lb']:.1f}; arm z {z_arm0:.0f}..{z_arm1:.0f}",

@@ -633,6 +633,26 @@ V5C_LEVER_V352 = dict(V5C_LEVER, root_v352={"half_ang": 22.0, "r_in": 33.25, "r_
 V352_ON = dict(V351_ON, tc09_barrel_wall=0.0018, tc09_socket_R2=0.0345, nz_foil_t=0.00025, nz01_shoulder_R=0.0010, nz_foil_OD=0.0439,
                tvc_lever_v34=V5C_LEVER_V352, n_bolts_chamber=10, jfwd_ang0_deg=18.0, jfwd_screw_len_mm=10.0, jfd01_v352=True,
                fd04_clear_jfwd=True, jfd09_v352=True)          # jfd09_v352: FD-09 note only (HW-127 A4-80 1.8 N m), no geometry
+#  - REV 4 (interim, 2026-10-20, lead DC 05:42Z item 4 + 06:05Z item 4, T-F3 path; geometry in parts_engine TC-02 / TC-03, mm):
+#        TC-02 seat-bore entry: d14.0 x 0.5 counterbore (first incomplete thread removed) + R0.5 edge radius tangent to the counterbore
+#        floor (r 7.5) and to the d14 wall; TC-03 thread undercut at the flange: d12.5, root R0.6 tangent to the flange face (r 6.85),
+#        one arc to the 45 deg run-out, thread major reached 1.60 above the flange (lead: undercut within R0.85); TC-02 thread relief at
+#        the d10 shoulder: d14.5, one R0.5 arc tangent to the shoulder (r 6.75), 45 deg run-out to the thread major 0.96 below the
+#        shoulder (lead 06:05Z (b): Mechanical's call, relief instead of an R0.5 at the tap-drill corner); TC-03 top outer edge:
+#        0.70 x 45 deg thread-start chamfer to r 6.30 with an R0.25 blend to the top face (06:05Z (c)); TC-03 flange-top-to-top 9.85
+#        +/-0.025, TC-02 counterbore-floor-to-shoulder 10.00 +0.05/0: insert top clear of the shoulder, gap 0.125 .. 0.225 mm, nominal
+#        0.15 (tc03_top_gap = nominal; flange seating on datum A = the S03 lands; ACCEPTED by the lead 06:23Z item 3, no R0.3 at the d10
+#        edge; tc03_top_gap 0 restores shoulder contact).  (b) + (c) ACCEPTED 06:23Z item 2.  Engaged thread 10.0 -> 7.44 mm.
+#        V352_REV3_ON reproduces the published rev 3 (FEA3D keeps rev 3 for TC-02 / TC-03).
+#        jfwd_od_spot_d (m, lead 06:23Z item 6): J-FWD head-seat option (a) = flat spot face of that diameter on the plain TC-01 OD
+#        R31.75 at each M5 hole (0.0105: wall 3.125 -> 2.69 at the hole); 0 = no spot face (rev 3 / js4 state).  The lead decides
+#        (a) or (b) saddle washer at FEA3D FA1S; V352_R4_JFWD_SPOT builds option (a) for the mass / clearance record.
+V352_SEAT_R4 = {"tc02_entry_R": 0.5, "tc02_entry_cb_d": 14.0, "tc03_uc_dg": 12.5, "tc03_uc_R": 0.6, "tc03_uc_flank_deg": 45.0,
+                "tc02_top_relief_dg": 14.5, "tc02_top_relief_R": 0.5, "tc03_top_chamfer_r": 6.30, "tc03_top_blend_R": 0.25,
+                "tc03_top_gap": 0.15}
+V352_REV3_ON = dict(V352_ON)
+V352_ON = dict(V352_ON, tc0203_seat_r4=V352_SEAT_R4, jfwd_od_spot_d=0.0)
+V352_R4_JFWD_SPOT = dict(V352_ON, jfwd_od_spot_d=0.0105)
 # J-FWD land (line 230 (1) FA1S option, +21.7 g) WITHDRAWN by lead CHANGELOG 231 (1): kept as a trade key set for the record only
 V352_JFWD_LAND_TRADE = dict(jfwd_land_t=0.0044, jfwd_land_od=0.0669, jfwd_land_aft=0.011, jfwd_spot_d=0.0105, jfwd_screw_len_mm=12.0)
 V352_TC09_ON = dict(V351_ON, tc09_barrel_wall=0.0018, tc09_socket_R2=0.0345)     # TC-09-only sensitivity (thermal tag v352_TC09, mass file)
