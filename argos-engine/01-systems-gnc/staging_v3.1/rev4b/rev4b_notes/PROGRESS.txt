@@ -1,0 +1,17 @@
+GNC rev4b PROGRESS (successor resume note) - started 2026-10-19 ~21:05Z
+Task: coordinator "GNC rev4b at max effort" (lead CHANGELOG 227 (10)): v3.2 staging (document change, no new flight) +
+ENG-11 FE-plant re-run (RV6-14 (a)-(e), staged separately) + DATASHEET-INPUTS-GNC.md; CHANGELOG line; handback
+BEGIN/END GNC-REV4B-HANDBACK.  NOT NOW: 210 m gate-delay arm (GNC open item before flight acceptance).
+Staging folder (chosen): hub 01-systems-gnc/staging_v3.1/rev4b/  (work area /home/claude/work/space/out/rev4b/)
+Inputs verified (sha16): REVIEW-GNC-R4.md d83c93504accd30a; MANIFEST_REV-GNC-6 0102191ef982cb8b; CHANGELOG 228 lines
+ 4ab6945a31b8cc01; interfaces/gnc.json v3.1 4f3209323b0e0ed4; REPORT-FEA3D.md ff24718e9db201e5; HANDBACK 7dfb4f8b53eaf84f;
+ k_stop_c71 fd9ca16b0b3d2304, k_cone_c71 bfb9b56ed85b6a2f, k_pose_neutral_c71 f2cb152b6a0a259c,
+ k_stop045_compliant_c71 85afcccce28d194e, k_range_v351 27421efb09e7daf0, modal_summary_v351 242b38ffab643434.
+Steps: [ ] 1 v3.2 builder + candidate + diff + markers + MANIFEST  [ ] 2 ENG-11 FE re-run  [ ] 3 DATASHEET-INPUTS
+       [ ] 4 stage + MANIFEST  [ ] 5 CHANGELOG (assert 228, append, read back 10 s later)  [ ] 6 handback
+2026-10-19T21:30Z ENG-11 runs: P1 (python 3182) A01.. list; P2 (python 3181) B07,C01,C02,A12,C03,C04; P3 queue bash 3349 waits on 3181 then runs
+  m2_eng11_fe_q.py (wrapper, own tmp name) on P1's list reversed (skips done variants). Logs out/rev4b/logs/eng11fe_run_P{1,2,3}.log.
+  Early: A01 alpha passes 90-120 and 150, fails 125-145 (full-tank coincidence on the stiffer FE plant); B07 (two-mass) alpha fails 95-115.
+2026-10-19T22:04Z deliverable 1 STAGED: hub 01-systems-gnc/staging_v3.1/rev4b/v32/ + withdrawn_markers/ ; candidate 43d58c4aff164b86 (builder v1.0, 2 runs identical: candidate/diff/keydiff/corrlog); MANIFEST_v32_rev4b.sha256 b98396533551b26e (15 files, -c OK); t10 --publication: C06 x8 only (227 (5) reversal; reading json in v32/logs); RV6-10 sidecar ab7263582cfd207a (W2 60 = 32 + 27 lit_k100_hold + hold_trace_lit_k875; W1 release_hold_0p22), index a47bb1371dfbbea3. Note sent to main.
+  ENG-11: m2_eng11_fe_summary.py v1.0 written (bookkeeping only; reads eng11fe_*.json). Partial: A01 both <=90-120 (upper edge alpha 125 coincidence); A02 (J .76) 130->=160; A03 (J 2.7) 120->=160 (beta low-K_s maxq fins corner); B07 tm 150->=160; C01 (bending 0.9) NONE; C02 (1.1) all pass.
+  NEXT: wait for P1/P2/P3 (all 24 variants), run summary, write DATASHEET-INPUTS-GNC.md, stage eng11_fe/ with its manifest, top-level MANIFEST_rev4b, CHANGELOG line 229, handback.
