@@ -1,0 +1,1060 @@
+{
+ "id": "jfwd_v352",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "J-FWD joint sizing at FA1S (lead CHANGELOG 231 (1), INTERIM on REV-MECH-2 RM2-01; replaces line 230 (1)'s '22 % less stress at the hole').\nBasis: FA1S 151.04 bar abs (gauge 150.03 bar), FA-1 factor SF 1.0 on yield AND ultimate (line 188 (9) -> line 177 rule), both members\n(TC-01 case 6061-T6, TC-02 head 6061-T6) and the screw.  T = 45 C for all members (the FEA3D FA-1 field at TC-02 node 25946; the engine\nis at ambient soak at ignition); screws also at 20 C (the reviewer's basis).  Every number DERIVED unless tagged.  Mechanical, 2026-10-20.\nChecks: (i) SCL-type primary stress (hand): TC-01 net ligament Pm (axial, F / A_net) and Pm+Pb (through-wall bending from the bearing\nresultant at t/3 from the bore: triangular bearing pressure across the wall, ASSUMED), TC-01 shear-out path Pm = sqrt(3) tau on the two\nplanes from the hole to the case end; TC-02 net ligament at the tap row (compression, F / A_net, upper bound) and a conservative shear-out\npath from the tap to the gland g2 groove (taken as a free edge although it is backed by the plug body below the groove bottom).\n(ii) joint checks: bearing on the case (Fbry = 1.4 Fty(T), Fbru = 1.6 Ftu(T) at e/D 2.0, engmat ratios; actual e/D 2.4 >= 2.0), shear-out,\nnet tension, screw shear yield (0.577 Rp0.2) and ultimate (0.6 Rm) on the thread minor area (fully threaded screw; the stress area shown\nfor information), TC-02 tapped-thread bearing (V / (D1 L_e,eff), first 0.5 mm of the mouth not credited), TC-02 internal-thread shear\nunder the maximum preload (FED-STD-H28 area form as in joints_v352), screw tension (max preload) + shear interaction at ultimate\n(Rt^2 + Rs^2 <= 1, NASA-STD-5020A form, AS RECALLED, TO-VERIFY).\n(iii) hole-edge peaks by Neuber (sigma eps = sigma_el^2 / E) on a Ramberg-Osgood curve eps = s/E + 0.002 (s/Fty)^n, n 15 and 30 (6061-T6,\nASSUMED range), against the local strain limit eps_L = m2 = 0.52 (0.98 - R), R = Fty/Ftu, at uniaxial triaxiality (free hole edge; ASME BPVC\nVIII-2 Part 5 5.3.3 / Table 5.7 aluminium row, AS RECALLED, TO-VERIFY); elastic peaks: TC-01 hole edge = FEA3D fa1_c71 R3 all-node 399 MPa\n(SIM, full-bore RBE3, not converged; REV-MECH-2) scaled by the per-screw load, and K_tb x bearing stress with K_tb = K_tn / (W/D - 1),\nK_tn 4.0 (pin-loaded lug, W/D 4-5, ASSUMED from the Peterson pinned-joint chart range, TO-VERIFY); TC-02 tap mouth = max(FEA3D all-node\n280.6 MPa at node 25946 scaled, beam-on-elastic-foundation bearing peak 2 V beta / D1, beta = (k / 4 EI)^0.25, k = E_Al, ASSUMED).\nEqual load sharing between the screws is ASSUMED (holes match-drilled through TC-01 into TC-02, drawing note).",
+ "load": {
+  "FA1S_bar_abs": 151.04,
+  "p_gauge_MPa": 15.0027,
+  "D_seal_mm": 57.25,
+  "F_total_N": 38620.0,
+  "SF_y": 1.0,
+  "SF_u": 1.0
+ },
+ "geometry": {
+  "case_OD": 63.5,
+  "case_bore": 57.25,
+  "plug_OD": 57.2,
+  "e_mm": 12.0,
+  "gap": 0.025,
+  "bolt_z": 127.513,
+  "g2_fwd_wall_z": 119.213,
+  "zf": 103.513,
+  "manifold_bore_d": 10.0
+ },
+ "options": [
+  {
+   "option": "O0 v3.5.1: 8x M5 A4-80 x 10, no spot face",
+   "n": 8,
+   "size": "M5",
+   "grade": "A4-80",
+   "grade_src": "ISO 3506-1 class 80 minima (engmat SS-A4-80, LITERATURE)",
+   "L_screw_mm": 10,
+   "T_C": 45.0,
+   "spot_face": false,
+   "t_case_at_hole_mm": 3.125,
+   "V_per_screw_N": 4827.5,
+   "note": "v3.5.1 frozen (reviewer basis)",
+   "screw_shear_minor": {
+    "A_mm2": 12.69,
+    "tau_MPa": 380.5,
+    "Fsy_MPa": 327.8,
+    "Fsu_MPa": 475.6,
+    "MS_y": -0.139,
+    "MS_u": 0.25,
+    "MS_y_20C": -0.09,
+    "MS_u_20C": 0.261
+   },
+   "screw_shear_stress_area_info": {
+    "A_mm2": 14.18,
+    "MS_y_20C": 0.017,
+    "MS_u_20C": 0.41
+   },
+   "preload": {
+    "T_Nm": 5.53,
+    "F_nom_N": 5530.0,
+    "F_max_N": 6912.0
+   },
+   "screw_interaction_ult": {
+    "Rt_max_preload": 0.615,
+    "Rs": 0.8,
+    "Rt2_Rs2": 1.018,
+    "MS": -0.009
+   },
+   "case_bearing": {
+    "e_over_D": 2.4,
+    "sigma_br_MPa": 309.0,
+    "Fbry_MPa": 330.7,
+    "Fbru_MPa": 407.6,
+    "MS_y": 0.07,
+    "MS_u": 0.319
+   },
+   "case_shear_out": {
+    "A_mm2": 57.81,
+    "tau_MPa": 83.5,
+    "MS_y": 0.632,
+    "MS_u": 0.831
+   },
+   "case_net_tension": {
+    "A_net_mm2": 455.2,
+    "Pm_MPa": 84.8,
+    "MS_y": 1.784,
+    "MS_u": 2.003
+   },
+   "i_TC01_net_ligament": {
+    "Pm_MPa": 84.8,
+    "Pb_MPa": 84.8,
+    "PmPb_MPa": 169.7,
+    "ligament_w_mm": 18.21,
+    "MS_Pm_y": 1.784,
+    "MS_Pm_u": 2.003,
+    "MS_PmPb_y": 0.392,
+    "MS_PmPb_u": 0.501
+   },
+   "i_TC01_shear_out_path": {
+    "Pm_vm_MPa": 144.6,
+    "MS_y": 0.633,
+    "MS_u": 0.761
+   },
+   "i_TC02_net_ligament": {
+    "Pm_MPa_compression_upper_bound": 17.6,
+    "MS_y": 12.386,
+    "MS_u": 13.438
+   },
+   "i_TC02_shear_out_path": {
+    "ligament_to_g2_mm": 5.8,
+    "Pm_vm_MPa": 113.5,
+    "MS_y": 1.081,
+    "MS_u": 1.244,
+    "note": "conservative: the g2 groove is taken as a free edge; the bearing load on the tap's aft wall goes into the plug body"
+   },
+   "TC02_tapped_thread_bearing": {
+    "L_e_mm": 6.85,
+    "L_eff_mm": 6.35,
+    "sigma_br_MPa": 183.9,
+    "MS_y": 0.798,
+    "MS_u": 1.217
+   },
+   "TC02_thread_shear_max_preload": {
+    "A_n_mm2": 63.5,
+    "tau_MPa": 108.9,
+    "MS_u": 0.404,
+    "MS_y": 0.252
+   },
+   "iii_neuber": {
+    "TC01_hole_edge": {
+     "sigma_el_MPa": 399.0,
+     "sigma_local_MPa": 244.9,
+     "eps_local": 0.00955,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 1.878,
+     "sources": "max(FEA3D R3 all-node 399 MPa x 1.000, K_tb 1.003 x bearing 309.0); W/D 4.99"
+    },
+    "TC02_tap_mouth": {
+     "sigma_el_MPa": 672.7,
+     "sigma_local_MPa": 255.9,
+     "eps_local": 0.02598,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 0.058,
+     "sources": "max(FEA3D all-node 280.6 MPa x 1.000, BEF 2 V beta / D1 = 672.7 MPa, beta 0.288 /mm)"
+    }
+   },
+   "iii_onset_local_yield_bar_abs": {
+    "TC01": 89.8,
+    "TC02": 53.7
+   },
+   "min_MS": {
+    "value": -0.139,
+    "where": "screw_shear_minor.MS_y",
+    "passes_all": false
+   }
+  },
+  {
+   "option": "O0s v3.5.1 + spot face for the head",
+   "n": 8,
+   "size": "M5",
+   "grade": "A4-80",
+   "grade_src": "ISO 3506-1 class 80 minima (engmat SS-A4-80, LITERATURE)",
+   "L_screw_mm": 10,
+   "T_C": 45.0,
+   "spot_face": true,
+   "t_case_at_hole_mm": 2.768,
+   "V_per_screw_N": 4827.5,
+   "note": "the v3.5.1 HW-101 action 'spot face TO-DEFINE'",
+   "screw_shear_minor": {
+    "A_mm2": 12.69,
+    "tau_MPa": 380.5,
+    "Fsy_MPa": 327.8,
+    "Fsu_MPa": 475.6,
+    "MS_y": -0.139,
+    "MS_u": 0.25,
+    "MS_y_20C": -0.09,
+    "MS_u_20C": 0.261
+   },
+   "screw_shear_stress_area_info": {
+    "A_mm2": 14.18,
+    "MS_y_20C": 0.017,
+    "MS_u_20C": 0.41
+   },
+   "preload": {
+    "T_Nm": 5.53,
+    "F_nom_N": 5530.0,
+    "F_max_N": 6912.0
+   },
+   "screw_interaction_ult": {
+    "Rt_max_preload": 0.615,
+    "Rs": 0.8,
+    "Rt2_Rs2": 1.018,
+    "MS": -0.009
+   },
+   "case_bearing": {
+    "e_over_D": 2.4,
+    "sigma_br_MPa": 348.8,
+    "Fbry_MPa": 330.7,
+    "Fbru_MPa": 407.6,
+    "MS_y": -0.052,
+    "MS_u": 0.168
+   },
+   "case_shear_out": {
+    "A_mm2": 51.2,
+    "tau_MPa": 94.3,
+    "MS_y": 0.445,
+    "MS_u": 0.621
+   },
+   "case_net_tension": {
+    "A_net_mm2": 455.2,
+    "Pm_MPa": 84.8,
+    "MS_y": 1.784,
+    "MS_u": 2.003
+   },
+   "i_TC01_net_ligament": {
+    "Pm_MPa": 84.8,
+    "Pb_MPa": 84.8,
+    "PmPb_MPa": 169.7,
+    "ligament_w_mm": 18.21,
+    "MS_Pm_y": 1.784,
+    "MS_Pm_u": 2.003,
+    "MS_PmPb_y": 0.392,
+    "MS_PmPb_u": 0.501
+   },
+   "i_TC01_shear_out_path": {
+    "Pm_vm_MPa": 163.3,
+    "MS_y": 0.446,
+    "MS_u": 0.56
+   },
+   "i_TC02_net_ligament": {
+    "Pm_MPa_compression_upper_bound": 17.6,
+    "MS_y": 12.386,
+    "MS_u": 13.438
+   },
+   "i_TC02_shear_out_path": {
+    "ligament_to_g2_mm": 5.8,
+    "Pm_vm_MPa": 107.5,
+    "MS_y": 1.198,
+    "MS_u": 1.371,
+    "note": "conservative: the g2 groove is taken as a free edge; the bearing load on the tap's aft wall goes into the plug body"
+   },
+   "TC02_tapped_thread_bearing": {
+    "L_e_mm": 7.207,
+    "L_eff_mm": 6.707,
+    "sigma_br_MPa": 174.1,
+    "MS_y": 0.899,
+    "MS_u": 1.341
+   },
+   "TC02_thread_shear_max_preload": {
+    "A_n_mm2": 67.1,
+    "tau_MPa": 103.1,
+    "MS_u": 0.483,
+    "MS_y": 0.322
+   },
+   "iii_neuber": {
+    "TC01_hole_edge": {
+     "sigma_el_MPa": 399.0,
+     "sigma_local_MPa": 244.9,
+     "eps_local": 0.00955,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 1.878,
+     "sources": "max(FEA3D R3 all-node 399 MPa x 1.000, K_tb 1.003 x bearing 348.8); W/D 4.99"
+    },
+    "TC02_tap_mouth": {
+     "sigma_el_MPa": 672.7,
+     "sigma_local_MPa": 255.9,
+     "eps_local": 0.02598,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 0.058,
+     "sources": "max(FEA3D all-node 280.6 MPa x 1.000, BEF 2 V beta / D1 = 672.7 MPa, beta 0.288 /mm)"
+    }
+   },
+   "iii_onset_local_yield_bar_abs": {
+    "TC01": 89.8,
+    "TC02": 53.7
+   },
+   "min_MS": {
+    "value": -0.139,
+    "where": "screw_shear_minor.MS_y",
+    "passes_all": false
+   }
+  },
+  {
+   "option": "O1 10x M5 A4-80 x 10 at 18 + 36k deg, no spot face",
+   "n": 10,
+   "size": "M5",
+   "grade": "A4-80",
+   "grade_src": "ISO 3506-1 class 80 minima (engmat SS-A4-80, LITERATURE)",
+   "L_screw_mm": 10,
+   "T_C": 45.0,
+   "spot_face": false,
+   "t_case_at_hole_mm": 3.125,
+   "V_per_screw_N": 3862.0,
+   "note": "count change (recommended)",
+   "screw_shear_minor": {
+    "A_mm2": 12.69,
+    "tau_MPa": 304.4,
+    "Fsy_MPa": 327.8,
+    "Fsu_MPa": 475.6,
+    "MS_y": 0.077,
+    "MS_u": 0.562,
+    "MS_y_20C": 0.137,
+    "MS_u_20C": 0.577
+   },
+   "screw_shear_stress_area_info": {
+    "A_mm2": 14.18,
+    "MS_y_20C": 0.271,
+    "MS_u_20C": 0.762
+   },
+   "preload": {
+    "T_Nm": 5.53,
+    "F_nom_N": 5530.0,
+    "F_max_N": 6912.0
+   },
+   "screw_interaction_ult": {
+    "Rt_max_preload": 0.615,
+    "Rs": 0.64,
+    "Rt2_Rs2": 0.788,
+    "MS": 0.127
+   },
+   "case_bearing": {
+    "e_over_D": 2.4,
+    "sigma_br_MPa": 247.2,
+    "Fbry_MPa": 330.7,
+    "Fbru_MPa": 407.6,
+    "MS_y": 0.338,
+    "MS_u": 0.649
+   },
+   "case_shear_out": {
+    "A_mm2": 57.81,
+    "tau_MPa": 66.8,
+    "MS_y": 1.04,
+    "MS_u": 1.288
+   },
+   "case_net_tension": {
+    "A_net_mm2": 420.9,
+    "Pm_MPa": 91.8,
+    "MS_y": 1.574,
+    "MS_u": 1.776
+   },
+   "i_TC01_net_ligament": {
+    "Pm_MPa": 91.8,
+    "Pb_MPa": 91.8,
+    "PmPb_MPa": 183.5,
+    "ligament_w_mm": 13.47,
+    "MS_Pm_y": 1.574,
+    "MS_Pm_u": 1.776,
+    "MS_PmPb_y": 0.287,
+    "MS_PmPb_u": 0.388
+   },
+   "i_TC01_shear_out_path": {
+    "Pm_vm_MPa": 115.7,
+    "MS_y": 1.041,
+    "MS_u": 1.202
+   },
+   "i_TC02_net_ligament": {
+    "Pm_MPa_compression_upper_bound": 18.3,
+    "MS_y": 11.924,
+    "MS_u": 12.94
+   },
+   "i_TC02_shear_out_path": {
+    "ligament_to_g2_mm": 5.8,
+    "Pm_vm_MPa": 90.8,
+    "MS_y": 1.601,
+    "MS_u": 1.805,
+    "note": "conservative: the g2 groove is taken as a free edge; the bearing load on the tap's aft wall goes into the plug body"
+   },
+   "TC02_tapped_thread_bearing": {
+    "L_e_mm": 6.85,
+    "L_eff_mm": 6.35,
+    "sigma_br_MPa": 147.1,
+    "MS_y": 1.248,
+    "MS_u": 1.771
+   },
+   "TC02_thread_shear_max_preload": {
+    "A_n_mm2": 63.5,
+    "tau_MPa": 108.9,
+    "MS_u": 0.404,
+    "MS_y": 0.252
+   },
+   "iii_neuber": {
+    "TC01_hole_edge": {
+     "sigma_el_MPa": 330.7,
+     "sigma_local_MPa": 239.9,
+     "eps_local": 0.0067,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 3.104,
+     "sources": "max(FEA3D R3 all-node 399 MPa x 0.800, K_tb 1.338 x bearing 247.2); W/D 3.99"
+    },
+    "TC02_tap_mouth": {
+     "sigma_el_MPa": 538.2,
+     "sigma_local_MPa": 251.5,
+     "eps_local": 0.01692,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 0.625,
+     "sources": "max(FEA3D all-node 280.6 MPa x 0.800, BEF 2 V beta / D1 = 538.2 MPa, beta 0.288 /mm)"
+    }
+   },
+   "iii_onset_local_yield_bar_abs": {
+    "TC01": 108.2,
+    "TC02": 66.9
+   },
+   "min_MS": {
+    "value": 0.077,
+    "where": "screw_shear_minor.MS_y",
+    "passes_all": true
+   }
+  },
+  {
+   "option": "O2 12x M5 A4-80 x 10",
+   "n": 12,
+   "size": "M5",
+   "grade": "A4-80",
+   "grade_src": "ISO 3506-1 class 80 minima (engmat SS-A4-80, LITERATURE)",
+   "L_screw_mm": 10,
+   "T_C": 45.0,
+   "spot_face": false,
+   "t_case_at_hole_mm": 3.125,
+   "V_per_screw_N": 3218.3,
+   "note": "count change; 12-pitch clashes with the Pc passage (142 deg) or the torch passage (0 deg)",
+   "screw_shear_minor": {
+    "A_mm2": 12.69,
+    "tau_MPa": 253.7,
+    "Fsy_MPa": 327.8,
+    "Fsu_MPa": 475.6,
+    "MS_y": 0.292,
+    "MS_u": 0.875,
+    "MS_y_20C": 0.365,
+    "MS_u_20C": 0.892
+   },
+   "screw_shear_stress_area_info": {
+    "A_mm2": 14.18,
+    "MS_y_20C": 0.525,
+    "MS_u_20C": 1.115
+   },
+   "preload": {
+    "T_Nm": 5.53,
+    "F_nom_N": 5530.0,
+    "F_max_N": 6912.0
+   },
+   "screw_interaction_ult": {
+    "Rt_max_preload": 0.615,
+    "Rs": 0.533,
+    "Rt2_Rs2": 0.663,
+    "MS": 0.228
+   },
+   "case_bearing": {
+    "e_over_D": 2.4,
+    "sigma_br_MPa": 206.0,
+    "Fbry_MPa": 330.7,
+    "Fbru_MPa": 407.6,
+    "MS_y": 0.605,
+    "MS_u": 0.979
+   },
+   "case_shear_out": {
+    "A_mm2": 57.81,
+    "tau_MPa": 55.7,
+    "MS_y": 1.448,
+    "MS_u": 1.746
+   },
+   "case_net_tension": {
+    "A_net_mm2": 386.5,
+    "Pm_MPa": 99.9,
+    "MS_y": 1.364,
+    "MS_u": 1.549
+   },
+   "i_TC01_net_ligament": {
+    "Pm_MPa": 99.9,
+    "Pb_MPa": 99.9,
+    "PmPb_MPa": 199.9,
+    "ligament_w_mm": 10.31,
+    "MS_Pm_y": 1.364,
+    "MS_Pm_u": 1.549,
+    "MS_PmPb_y": 0.182,
+    "MS_PmPb_u": 0.275
+   },
+   "i_TC01_shear_out_path": {
+    "Pm_vm_MPa": 96.4,
+    "MS_y": 1.45,
+    "MS_u": 1.642
+   },
+   "i_TC02_net_ligament": {
+    "Pm_MPa_compression_upper_bound": 19.0,
+    "MS_y": 11.462,
+    "MS_u": 12.441
+   },
+   "i_TC02_shear_out_path": {
+    "ligament_to_g2_mm": 5.8,
+    "Pm_vm_MPa": 75.7,
+    "MS_y": 2.121,
+    "MS_u": 2.366,
+    "note": "conservative: the g2 groove is taken as a free edge; the bearing load on the tap's aft wall goes into the plug body"
+   },
+   "TC02_tapped_thread_bearing": {
+    "L_e_mm": 6.85,
+    "L_eff_mm": 6.35,
+    "sigma_br_MPa": 122.6,
+    "MS_y": 1.697,
+    "MS_u": 2.325
+   },
+   "TC02_thread_shear_max_preload": {
+    "A_n_mm2": 63.5,
+    "tau_MPa": 108.9,
+    "MS_u": 0.404,
+    "MS_y": 0.252
+   },
+   "iii_neuber": {
+    "TC01_hole_edge": {
+     "sigma_el_MPa": 354.4,
+     "sigma_local_MPa": 241.9,
+     "eps_local": 0.00763,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 2.603,
+     "sources": "max(FEA3D R3 all-node 399 MPa x 0.667, K_tb 1.721 x bearing 206.0); W/D 3.32"
+    },
+    "TC02_tap_mouth": {
+     "sigma_el_MPa": 448.5,
+     "sigma_local_MPa": 247.7,
+     "eps_local": 0.01193,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 1.304,
+     "sources": "max(FEA3D all-node 280.6 MPa x 0.667, BEF 2 V beta / D1 = 448.5 MPa, beta 0.288 /mm)"
+    }
+   },
+   "iii_onset_local_yield_bar_abs": {
+    "TC01": 101.0,
+    "TC02": 80.0
+   },
+   "min_MS": {
+    "value": 0.182,
+    "where": "i_TC01_net_ligament.MS_PmPb_y",
+    "passes_all": true
+   }
+  },
+  {
+   "option": "O3 8x M6 A4-80 x 12",
+   "n": 8,
+   "size": "M6",
+   "grade": "A4-80",
+   "grade_src": "ISO 3506-1 class 80 minima (engmat SS-A4-80, LITERATURE)",
+   "L_screw_mm": 12,
+   "T_C": 45.0,
+   "spot_face": false,
+   "t_case_at_hole_mm": 3.125,
+   "V_per_screw_N": 4827.5,
+   "note": "size change: 6.6 holes, M6 taps 5.0 drill deeper than the M5 taps",
+   "screw_shear_minor": {
+    "A_mm2": 17.89,
+    "tau_MPa": 269.8,
+    "Fsy_MPa": 327.8,
+    "Fsu_MPa": 475.6,
+    "MS_y": 0.215,
+    "MS_u": 0.763,
+    "MS_y_20C": 0.283,
+    "MS_u_20C": 0.779
+   },
+   "screw_shear_stress_area_info": {
+    "A_mm2": 20.12,
+    "MS_y_20C": 0.443,
+    "MS_u_20C": 1.001
+   },
+   "preload": {
+    "T_Nm": 9.42,
+    "F_nom_N": 7850.0,
+    "F_max_N": 9812.0
+   },
+   "screw_interaction_ult": {
+    "Rt_max_preload": 0.615,
+    "Rs": 0.567,
+    "Rt2_Rs2": 0.7,
+    "MS": 0.195
+   },
+   "case_bearing": {
+    "e_over_D": 2.0,
+    "sigma_br_MPa": 257.5,
+    "Fbry_MPa": 330.7,
+    "Fbru_MPa": 407.6,
+    "MS_y": 0.284,
+    "MS_u": 0.583
+   },
+   "case_shear_out": {
+    "A_mm2": 54.37,
+    "tau_MPa": 88.8,
+    "MS_y": 0.535,
+    "MS_u": 0.722
+   },
+   "case_net_tension": {
+    "A_net_mm2": 427.7,
+    "Pm_MPa": 90.3,
+    "MS_y": 1.616,
+    "MS_u": 1.822
+   },
+   "i_TC01_net_ligament": {
+    "Pm_MPa": 90.3,
+    "Pb_MPa": 90.3,
+    "PmPb_MPa": 180.6,
+    "ligament_w_mm": 17.11,
+    "MS_Pm_y": 1.616,
+    "MS_Pm_u": 1.822,
+    "MS_PmPb_y": 0.308,
+    "MS_PmPb_u": 0.411
+   },
+   "i_TC01_shear_out_path": {
+    "Pm_vm_MPa": 153.8,
+    "MS_y": 0.536,
+    "MS_u": 0.657
+   },
+   "i_TC02_net_ligament": {
+    "Pm_MPa_compression_upper_bound": 18.1,
+    "MS_y": 12.034,
+    "MS_u": 13.058
+   },
+   "i_TC02_shear_out_path": {
+    "ligament_to_g2_mm": 5.3,
+    "Pm_vm_MPa": 94.5,
+    "MS_y": 1.5,
+    "MS_u": 1.697,
+    "note": "conservative: the g2 groove is taken as a free edge; the bearing load on the tap's aft wall goes into the plug body"
+   },
+   "TC02_tapped_thread_bearing": {
+    "L_e_mm": 8.85,
+    "L_eff_mm": 8.35,
+    "sigma_br_MPa": 117.6,
+    "MS_y": 1.812,
+    "MS_u": 2.467
+   },
+   "TC02_thread_shear_max_preload": {
+    "A_n_mm2": 101.8,
+    "tau_MPa": 96.4,
+    "MS_u": 0.586,
+    "MS_y": 0.414
+   },
+   "iii_neuber": {
+    "TC01_hole_edge": {
+     "sigma_el_MPa": 399.0,
+     "sigma_local_MPa": 244.9,
+     "eps_local": 0.00955,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 1.878,
+     "sources": "max(FEA3D R3 all-node 399 MPa x 1.000, K_tb 1.267 x bearing 257.5); W/D 4.16"
+    },
+    "TC02_tap_mouth": {
+     "sigma_el_MPa": 476.2,
+     "sigma_local_MPa": 249.0,
+     "eps_local": 0.01339,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 1.054,
+     "sources": "max(FEA3D all-node 280.6 MPa x 1.000, BEF 2 V beta / D1 = 476.2 MPa, beta 0.243 /mm)"
+    }
+   },
+   "iii_onset_local_yield_bar_abs": {
+    "TC01": 89.8,
+    "TC02": 75.4
+   },
+   "min_MS": {
+    "value": 0.195,
+    "where": "screw_interaction_ult.MS",
+    "passes_all": true
+   }
+  },
+  {
+   "option": "O1s O1 + spot face for the head (information)",
+   "n": 10,
+   "size": "M5",
+   "grade": "A4-80",
+   "grade_src": "ISO 3506-1 class 80 minima (engmat SS-A4-80, LITERATURE)",
+   "L_screw_mm": 10,
+   "T_C": 45.0,
+   "spot_face": true,
+   "t_case_at_hole_mm": 2.768,
+   "V_per_screw_N": 3862.0,
+   "note": "not adopted: the wall at the hole drops to 2.765",
+   "screw_shear_minor": {
+    "A_mm2": 12.69,
+    "tau_MPa": 304.4,
+    "Fsy_MPa": 327.8,
+    "Fsu_MPa": 475.6,
+    "MS_y": 0.077,
+    "MS_u": 0.562,
+    "MS_y_20C": 0.137,
+    "MS_u_20C": 0.577
+   },
+   "screw_shear_stress_area_info": {
+    "A_mm2": 14.18,
+    "MS_y_20C": 0.271,
+    "MS_u_20C": 0.762
+   },
+   "preload": {
+    "T_Nm": 5.53,
+    "F_nom_N": 5530.0,
+    "F_max_N": 6912.0
+   },
+   "screw_interaction_ult": {
+    "Rt_max_preload": 0.615,
+    "Rs": 0.64,
+    "Rt2_Rs2": 0.788,
+    "MS": 0.127
+   },
+   "case_bearing": {
+    "e_over_D": 2.4,
+    "sigma_br_MPa": 279.1,
+    "Fbry_MPa": 330.7,
+    "Fbru_MPa": 407.6,
+    "MS_y": 0.185,
+    "MS_u": 0.461
+   },
+   "case_shear_out": {
+    "A_mm2": 51.2,
+    "tau_MPa": 75.4,
+    "MS_y": 0.807,
+    "MS_u": 1.027
+   },
+   "case_net_tension": {
+    "A_net_mm2": 420.9,
+    "Pm_MPa": 91.8,
+    "MS_y": 1.574,
+    "MS_u": 1.776
+   },
+   "i_TC01_net_ligament": {
+    "Pm_MPa": 91.8,
+    "Pb_MPa": 91.8,
+    "PmPb_MPa": 183.5,
+    "ligament_w_mm": 13.47,
+    "MS_Pm_y": 1.574,
+    "MS_Pm_u": 1.776,
+    "MS_PmPb_y": 0.287,
+    "MS_PmPb_u": 0.388
+   },
+   "i_TC01_shear_out_path": {
+    "Pm_vm_MPa": 130.6,
+    "MS_y": 0.808,
+    "MS_u": 0.95
+   },
+   "i_TC02_net_ligament": {
+    "Pm_MPa_compression_upper_bound": 18.3,
+    "MS_y": 11.924,
+    "MS_u": 12.94
+   },
+   "i_TC02_shear_out_path": {
+    "ligament_to_g2_mm": 5.8,
+    "Pm_vm_MPa": 86.0,
+    "MS_y": 1.747,
+    "MS_u": 1.963,
+    "note": "conservative: the g2 groove is taken as a free edge; the bearing load on the tap's aft wall goes into the plug body"
+   },
+   "TC02_tapped_thread_bearing": {
+    "L_e_mm": 7.207,
+    "L_eff_mm": 6.707,
+    "sigma_br_MPa": 139.3,
+    "MS_y": 1.374,
+    "MS_u": 1.927
+   },
+   "TC02_thread_shear_max_preload": {
+    "A_n_mm2": 67.1,
+    "tau_MPa": 103.1,
+    "MS_u": 0.483,
+    "MS_y": 0.322
+   },
+   "iii_neuber": {
+    "TC01_hole_edge": {
+     "sigma_el_MPa": 373.4,
+     "sigma_local_MPa": 243.3,
+     "eps_local": 0.00842,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 2.265,
+     "sources": "max(FEA3D R3 all-node 399 MPa x 0.800, K_tb 1.338 x bearing 279.1); W/D 3.99"
+    },
+    "TC02_tap_mouth": {
+     "sigma_el_MPa": 538.2,
+     "sigma_local_MPa": 251.5,
+     "eps_local": 0.01692,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 0.625,
+     "sources": "max(FEA3D all-node 280.6 MPa x 0.800, BEF 2 V beta / D1 = 538.2 MPa, beta 0.288 /mm)"
+    }
+   },
+   "iii_onset_local_yield_bar_abs": {
+    "TC01": 95.9,
+    "TC02": 66.9
+   },
+   "min_MS": {
+    "value": 0.077,
+    "where": "screw_shear_minor.MS_y",
+    "passes_all": true
+   }
+  },
+  {
+   "option": "O4 8x M5 Rp0.2 >= 800 MPa stainless x 10 (5.53 N m kept)",
+   "n": 8,
+   "size": "M5",
+   "grade": "Rp800",
+   "grade_src": "ISO 3506-1:2020 class 100 minima (A4-100) or an equivalent >= 800 / 1000 MPa stainless: availability and datasheet TO-VERIFY (e.g. BUMAX 109 class) - not a standard stock item in ISO 7380-1 M5",
+   "L_screw_mm": 10,
+   "T_C": 45.0,
+   "spot_face": false,
+   "t_case_at_hole_mm": 3.125,
+   "V_per_screw_N": 4827.5,
+   "note": "grade change: 0 g, no part change; procurement / datasheet risk; torque kept at the A4-80 value (a 0.65 Rp0.2 torque, 7.37 N m, gives TC-02 thread shear yield -0.06)",
+   "screw_shear_minor": {
+    "A_mm2": 12.69,
+    "tau_MPa": 380.5,
+    "Fsy_MPa": 437.1,
+    "Fsu_MPa": 594.5,
+    "MS_y": 0.149,
+    "MS_u": 0.562,
+    "MS_y_20C": 0.213,
+    "MS_u_20C": 0.577
+   },
+   "screw_shear_stress_area_info": {
+    "A_mm2": 14.18,
+    "MS_y_20C": 0.356,
+    "MS_u_20C": 0.762
+   },
+   "preload": {
+    "T_Nm": 5.53,
+    "F_nom_N": 5530.0,
+    "F_max_N": 6912.0
+   },
+   "screw_interaction_ult": {
+    "Rt_max_preload": 0.492,
+    "Rs": 0.64,
+    "Rt2_Rs2": 0.652,
+    "MS": 0.239
+   },
+   "case_bearing": {
+    "e_over_D": 2.4,
+    "sigma_br_MPa": 309.0,
+    "Fbry_MPa": 330.7,
+    "Fbru_MPa": 407.6,
+    "MS_y": 0.07,
+    "MS_u": 0.319
+   },
+   "case_shear_out": {
+    "A_mm2": 57.81,
+    "tau_MPa": 83.5,
+    "MS_y": 0.632,
+    "MS_u": 0.831
+   },
+   "case_net_tension": {
+    "A_net_mm2": 455.2,
+    "Pm_MPa": 84.8,
+    "MS_y": 1.784,
+    "MS_u": 2.003
+   },
+   "i_TC01_net_ligament": {
+    "Pm_MPa": 84.8,
+    "Pb_MPa": 84.8,
+    "PmPb_MPa": 169.7,
+    "ligament_w_mm": 18.21,
+    "MS_Pm_y": 1.784,
+    "MS_Pm_u": 2.003,
+    "MS_PmPb_y": 0.392,
+    "MS_PmPb_u": 0.501
+   },
+   "i_TC01_shear_out_path": {
+    "Pm_vm_MPa": 144.6,
+    "MS_y": 0.633,
+    "MS_u": 0.761
+   },
+   "i_TC02_net_ligament": {
+    "Pm_MPa_compression_upper_bound": 17.6,
+    "MS_y": 12.386,
+    "MS_u": 13.438
+   },
+   "i_TC02_shear_out_path": {
+    "ligament_to_g2_mm": 5.8,
+    "Pm_vm_MPa": 113.5,
+    "MS_y": 1.081,
+    "MS_u": 1.244,
+    "note": "conservative: the g2 groove is taken as a free edge; the bearing load on the tap's aft wall goes into the plug body"
+   },
+   "TC02_tapped_thread_bearing": {
+    "L_e_mm": 6.85,
+    "L_eff_mm": 6.35,
+    "sigma_br_MPa": 183.9,
+    "MS_y": 0.798,
+    "MS_u": 1.217
+   },
+   "TC02_thread_shear_max_preload": {
+    "A_n_mm2": 63.5,
+    "tau_MPa": 108.9,
+    "MS_u": 0.404,
+    "MS_y": 0.252
+   },
+   "iii_neuber": {
+    "TC01_hole_edge": {
+     "sigma_el_MPa": 399.0,
+     "sigma_local_MPa": 244.9,
+     "eps_local": 0.00955,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 1.878,
+     "sources": "max(FEA3D R3 all-node 399 MPa x 1.000, K_tb 1.003 x bearing 309.0); W/D 4.99"
+    },
+    "TC02_tap_mouth": {
+     "sigma_el_MPa": 672.7,
+     "sigma_local_MPa": 255.9,
+     "eps_local": 0.02598,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 0.058,
+     "sources": "max(FEA3D all-node 280.6 MPa x 1.000, BEF 2 V beta / D1 = 672.7 MPa, beta 0.288 /mm)"
+    }
+   },
+   "iii_onset_local_yield_bar_abs": {
+    "TC01": 89.8,
+    "TC02": 53.7
+   },
+   "min_MS": {
+    "value": 0.058,
+    "where": "iii_neuber.TC02_tap_mouth.MS_strain",
+    "passes_all": true
+   }
+  },
+  {
+   "option": "O5 (withdrawn) interim land: 8x M5 A4-80 x 12, wall 4.40",
+   "n": 8,
+   "size": "M5",
+   "grade": "A4-80",
+   "grade_src": "ISO 3506-1 class 80 minima (engmat SS-A4-80, LITERATURE)",
+   "L_screw_mm": 12,
+   "T_C": 45.0,
+   "spot_face": false,
+   "t_case_at_hole_mm": 4.4,
+   "V_per_screw_N": 4827.5,
+   "note": "line 230 FA1S option, withdrawn by 231",
+   "screw_shear_minor": {
+    "A_mm2": 12.69,
+    "tau_MPa": 380.5,
+    "Fsy_MPa": 327.8,
+    "Fsu_MPa": 475.6,
+    "MS_y": -0.139,
+    "MS_u": 0.25,
+    "MS_y_20C": -0.09,
+    "MS_u_20C": 0.261
+   },
+   "screw_shear_stress_area_info": {
+    "A_mm2": 14.18,
+    "MS_y_20C": 0.017,
+    "MS_u_20C": 0.41
+   },
+   "preload": {
+    "T_Nm": 5.53,
+    "F_nom_N": 5530.0,
+    "F_max_N": 6912.0
+   },
+   "screw_interaction_ult": {
+    "Rt_max_preload": 0.615,
+    "Rs": 0.8,
+    "Rt2_Rs2": 1.018,
+    "MS": -0.009
+   },
+   "case_bearing": {
+    "e_over_D": 2.4,
+    "sigma_br_MPa": 219.4,
+    "Fbry_MPa": 330.7,
+    "Fbru_MPa": 407.6,
+    "MS_y": 0.507,
+    "MS_u": 0.858
+   },
+   "case_shear_out": {
+    "A_mm2": 81.4,
+    "tau_MPa": 59.3,
+    "MS_y": 1.298,
+    "MS_u": 1.577
+   },
+   "case_net_tension": {
+    "A_net_mm2": 455.2,
+    "Pm_MPa": 84.8,
+    "MS_y": 1.784,
+    "MS_u": 2.003
+   },
+   "i_TC01_net_ligament": {
+    "Pm_MPa": 84.8,
+    "Pb_MPa": 84.8,
+    "PmPb_MPa": 169.7,
+    "ligament_w_mm": 18.21,
+    "MS_Pm_y": 1.784,
+    "MS_Pm_u": 2.003,
+    "MS_PmPb_y": 0.392,
+    "MS_PmPb_u": 0.501
+   },
+   "i_TC01_shear_out_path": {
+    "Pm_vm_MPa": 102.7,
+    "MS_y": 1.299,
+    "MS_u": 1.48
+   },
+   "i_TC02_net_ligament": {
+    "Pm_MPa_compression_upper_bound": 17.6,
+    "MS_y": 12.386,
+    "MS_u": 13.438
+   },
+   "i_TC02_shear_out_path": {
+    "ligament_to_g2_mm": 5.8,
+    "Pm_vm_MPa": 101.9,
+    "MS_y": 1.318,
+    "MS_u": 1.501,
+    "note": "conservative: the g2 groove is taken as a free edge; the bearing load on the tap's aft wall goes into the plug body"
+   },
+   "TC02_tapped_thread_bearing": {
+    "L_e_mm": 7.575,
+    "L_eff_mm": 7.075,
+    "sigma_br_MPa": 165.1,
+    "MS_y": 1.003,
+    "MS_u": 1.47
+   },
+   "TC02_thread_shear_max_preload": {
+    "A_n_mm2": 70.7,
+    "tau_MPa": 97.7,
+    "MS_u": 0.564,
+    "MS_y": 0.395
+   },
+   "iii_neuber": {
+    "TC01_hole_edge": {
+     "sigma_el_MPa": 399.0,
+     "sigma_local_MPa": 244.9,
+     "eps_local": 0.00955,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 1.878,
+     "sources": "max(FEA3D R3 all-node 399 MPa x 1.000, K_tb 1.003 x bearing 219.4); W/D 4.99"
+    },
+    "TC02_tap_mouth": {
+     "sigma_el_MPa": 672.7,
+     "sigma_local_MPa": 255.9,
+     "eps_local": 0.02598,
+     "n_RO": 30.0,
+     "eps_limit": 0.0275,
+     "MS_strain": 0.058,
+     "sources": "max(FEA3D all-node 280.6 MPa x 1.000, BEF 2 V beta / D1 = 672.7 MPa, beta 0.288 /mm)"
+    }
+   },
+   "iii_onset_local_yield_bar_abs": {
+    "TC01": 89.8,
+    "TC02": 53.7
+   },
+   "min_MS": {
+    "value": -0.139,
+    "where": "screw_shear_minor.MS_y",
+    "passes_all": false
+   }
+  }
+ ],
+ "recommended": "O1",
+ "mass_O1_g": {
+  "screws": "+2 x 2.028 = +4.06 (CALC, hardware_v352 HW-101)",
+  "holes": "TC-01 2 x 5.5 x 3.125 and TC-02 2 x 4.2 x 9.0: about -0.7 (CAD)",
+  "net": "about +3.4 g"
+ },
+ "why": "cheapest change that passes (i)-(iii) on both members with a stock fastener: +2 screws (CALC +4.06 g) and 2 more holes in TC-01 / TC-02 (-0.7 g), no case-wall change; O4 (0 g) needs a >= 800 MPa stainless M5 button head that is not a stock item (datasheet and availability TO-VERIFY) and keeps the case bearing at +0.08; O3 (M6) costs ~+8 g and deeper taps; O2 has no free 12-pitch pattern (Pc 142 deg / torch 0 deg passages); O0s shows a spot face for the head would make the case bearing negative, so the button head stays on the cylinder (line contact; preload is not a strength item in this bearing-type joint)",
+ "inspect_or_replace_rule": "after any Pc excursion above 60 bar abs recorded by the Pc channel (FA-1 class; below the ~66 bar abs onset of local yield at the TC-02 tap mouth estimated here): replace all J-FWD screws (HW-101), inspect the TC-01 holes (pin gauge 5.50 go / 5.55 no-go: elongation <= 0.05 mm, no edge cracks under 10x) and the TC-02 taps (M5-6H go / no-go); scrap TC-01 or TC-02 on a failed gauge.  Needs a Pc channel that resolves sub-ms peaks (Electronics: sampling rate TO-CONFIRM)"
+}

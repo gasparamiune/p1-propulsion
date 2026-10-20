@@ -1,0 +1,27 @@
+{
+ "id": "set_v3.5.2",
+ "version": "interim",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "status": "INTERIM v3.5.2 CAD set for the FEA3D 3D re-check (lead resume 2026-10-19 items 1-3 + 11, CHANGELOG 231 (1)); not a frozen baseline; TC-09 thinning (206 (2a)) is conditional on the v352 thermal + S-AX re-run; nothing here is physical approval",
+ "config": "03-cad/src config.V352_ON (src/config.py in this folder), MAKE_ALL_CAD=v352 make_all.py --stages build,parts,assembly,glb,bom,mass,placements",
+ "changed_parts_vs_v3.5.1": [
+  "ENG-FD-01",
+  "ENG-FD-02",
+  "ENG-FD-04",
+  "ENG-GM-01",
+  "ENG-GM-02",
+  "ENG-NZ-01",
+  "ENG-NZ-02",
+  "ENG-NZ-06",
+  "ENG-TC-01",
+  "ENG-TC-02",
+  "ENG-TC-09"
+ ],
+ "how_changed_was_found": "make_all v3.5.2 vs v3.5.1 part files: STL bytes differ or volume differs (> 1e-6 rel) for exactly these 11 part numbers (NZ-06 new); the other 101 part STL files are byte-identical and their STEP DATA sections differ only in the OCC translator counter of the PRODUCT name",
+ "unchanged_parts": "use 03-cad/v3.5.1/parts/ (geometry identical)",
+ "placements_note": "assembly/placements_v3.5.2.json verified (checks/verify_placements352_v1.json: T @ part STEP = neutral instance, 149 / 149 within 0.01 mm; GM-12 transport lock identity). RECORD CORRECTION: the frozen 03-cad/v3.5.1/assembly/placements_v3.5.1.json carries the identity for the 20 pushrod-item instances (GM-17 x2, GM-18 x2, GM-19 x6, GM-20 x2, HW-22 x4, HW-22-IR x4; bbox error 39-84 mm, checks/verify_placements351_v1.json); the v3.5.2 transforms of these instances reproduce the v3.5.1 build exactly (0.000 mm) and can be used for v3.5.1; the v3.5.1 assembly STEP / GLB are correct",
+ "interference": "checks/clear_interim352_v2.json (changed parts vs every instance, neutral all pairs + 18 poses moving pairs) and checks/test_interim352b_v1.json (BL-03E x FD-01 relief, TC-02 tap walls, FD-01 ear wall, J-FWD screw-head envelopes)",
+ "calcs": "04-fea/v352/ (J-FWD, J-FD01 / J-FD09, lever root, Ti screws)",
+ "files_written": 74
+}

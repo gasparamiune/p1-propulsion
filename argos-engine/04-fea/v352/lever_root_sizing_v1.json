@@ -1,0 +1,661 @@
+{
+ "id": "lever_root_sizing",
+ "version": "v1",
+ "date": "2026-10-19",
+ "owner": "mechanical",
+ "method": "GM-01 / GM-02 lever-root design change (v3.5.2, lead 2026-10-19 item 1): hand-calc sizing from the FEA3D loads.\n\nMethod [DERIVED]: the rod force F (vertical at neutral, at the lever eye rho_F 53.075 mm along the arm azimuth a_ch, tau_F 6.453 mm off the arm\nplane toward the eye; CAD v3.5.1 numbers from tvc_kinematics.geometry) is carried into the collar band through the root/band junction\n(horizontal section at the band bottom z -9.95).  Nominal stress on that section = eccentric normal force: s = -F/A - F(rho_F-rho_c)(rho-rho_c)/I_t\n- F tau_F tau / I_r (beam theory on the junction footprint, numerical integration).  The FEA3D R3 regular-node peaks (LC3 runaway SR 609 N:\nGM-02 435.1 MPa, GM-01 431.0 MPa; F2 GS 552 N: GM-02 403 MPa (alpha-), GM-01 396 MPa (alpha+)) calibrate an effective concentration factor\nKt_eff = s_FE / s_nom(v3.5.1 footprint).  The changed footprint is then scored as s_peak = Kt_eff x s_nom(new) x Kt_ratio, with Kt_ratio 1.00\n(same local fillet scale: R1.2 side / R0.5 inner -> one R1.25 chain, corners rounded) and a +15 % sensitivity.  Hot increment x1.05 (FEA3D\nhot bounds: LC3 L1 +0.182 -> +0.128, F2 -0.330 -> -0.362).  7075-T6 Fty 470 / Ftu 540 MPa [LITERATURE, engmat; temperature table RM1-06 open],\nSF 1.5 / 2.0 (188 (9)).  Mechanical, 2026-10-19.",
+ "loads_fea3d": {
+  "SR_GM02": {
+   "F_rod_N": 609.0,
+   "vm_R3_MPa": 435.1
+  },
+  "SR_GM01": {
+   "F_rod_N": 609.0,
+   "vm_R3_MPa": 431.0
+  },
+  "GS_GM02": {
+   "F_rod_N": 552.0,
+   "vm_R3_MPa": 403.0
+  },
+  "GS_GM01": {
+   "F_rod_N": 552.0,
+   "vm_R3_MPa": 396.0
+  }
+ },
+ "eye_in_arm_frame_mm": {
+  "rho_F": 53.075,
+  "tau_F": 6.453,
+  "z_eye": -28.0,
+  "z_junction": -9.95
+ },
+ "v351": {
+  "footprint": "r 32.5..37.0 (band OD), +/-16 deg, sharp inner corners (R1.2 side / R0.5 inner junction fillets)",
+  "A_mm2": 87.34,
+  "rho_c_mm": 34.348,
+  "I_t_mm4": 157.5,
+  "I_r_mm4": 2710.3,
+  "SR_GM02": {
+   "s_nom_MPa": 230.6,
+   "at_rho_tau_mm": [
+    31.25,
+    -8.95
+   ],
+   "Kt_eff": 1.887
+  },
+  "SR_GM01": {
+   "s_nom_MPa": 230.6,
+   "at_rho_tau_mm": [
+    31.25,
+    -8.95
+   ],
+   "Kt_eff": 1.869
+  },
+  "GS_GM02": {
+   "s_nom_MPa": 209.0,
+   "at_rho_tau_mm": [
+    31.25,
+    -8.95
+   ],
+   "Kt_eff": 1.928
+  },
+  "GS_GM01": {
+   "s_nom_MPa": 209.0,
+   "at_rho_tau_mm": [
+    31.25,
+    -8.95
+   ],
+   "Kt_eff": 1.895
+  }
+ },
+ "candidates": {
+  "C1 boss r38.5, r_in 32.5, +/-16": {
+   "r_in": 32.5,
+   "r_out": 38.5,
+   "half_ang_deg": 16.0,
+   "R_v": 0.0,
+   "A_mm2": 118.96,
+   "rho_c_mm": 35.124,
+   "I_t_mm4": 367.1,
+   "I_r_mm4": 3864.1,
+   "cases": {
+    "SR_GM02": {
+     "s_nom_MPa": 119.4,
+     "ratio_to_v351": 0.518,
+     "vm_est_cold_MPa": 225.4,
+     "MS_y_u_cold": [
+      0.39,
+      0.198
+     ],
+     "MS_y_u_hot": [
+      0.324,
+      0.141
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.209,
+      0.042
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.151,
+      -0.008
+     ]
+    },
+    "SR_GM01": {
+     "s_nom_MPa": 119.4,
+     "ratio_to_v351": 0.518,
+     "vm_est_cold_MPa": 223.3,
+     "MS_y_u_cold": [
+      0.403,
+      0.209
+     ],
+     "MS_y_u_hot": [
+      0.336,
+      0.152
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.22,
+      0.051
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.162,
+      0.001
+     ]
+    },
+    "GS_GM02": {
+     "s_nom_MPa": 108.3,
+     "ratio_to_v351": 0.518,
+     "vm_est_cold_MPa": 208.8,
+     "MS_y_u_cold": [
+      0.501,
+      0.293
+     ],
+     "MS_y_u_hot": [
+      0.429,
+      0.232
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.305,
+      0.124
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.243,
+      0.071
+     ]
+    },
+    "GS_GM01": {
+     "s_nom_MPa": 108.3,
+     "ratio_to_v351": 0.518,
+     "vm_est_cold_MPa": 205.2,
+     "MS_y_u_cold": [
+      0.527,
+      0.316
+     ],
+     "MS_y_u_hot": [
+      0.454,
+      0.253
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.328,
+      0.144
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.265,
+      0.09
+     ]
+    }
+   }
+  },
+  "C2 boss r38.5, r_in 33.25, +/-16, Rv 2.5": {
+   "r_in": 33.25,
+   "r_out": 38.5,
+   "half_ang_deg": 16.0,
+   "R_v": 2.5,
+   "A_mm2": 102.79,
+   "rho_c_mm": 35.54,
+   "I_t_mm4": 232.8,
+   "I_r_mm4": 3296.1,
+   "cases": {
+    "SR_GM02": {
+     "s_nom_MPa": 143.7,
+     "ratio_to_v351": 0.623,
+     "vm_est_cold_MPa": 271.2,
+     "MS_y_u_cold": [
+      0.155,
+      -0.004
+     ],
+     "MS_y_u_hot": [
+      0.1,
+      -0.052
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.005,
+      -0.134
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      -0.043,
+      -0.176
+     ]
+    },
+    "SR_GM01": {
+     "s_nom_MPa": 143.7,
+     "ratio_to_v351": 0.623,
+     "vm_est_cold_MPa": 268.7,
+     "MS_y_u_cold": [
+      0.166,
+      0.005
+     ],
+     "MS_y_u_hot": [
+      0.111,
+      -0.043
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.014,
+      -0.126
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      -0.034,
+      -0.168
+     ]
+    },
+    "GS_GM02": {
+     "s_nom_MPa": 130.3,
+     "ratio_to_v351": 0.623,
+     "vm_est_cold_MPa": 251.2,
+     "MS_y_u_cold": [
+      0.247,
+      0.075
+     ],
+     "MS_y_u_hot": [
+      0.188,
+      0.024
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.085,
+      -0.065
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.033,
+      -0.11
+     ]
+    },
+    "GS_GM01": {
+     "s_nom_MPa": 130.3,
+     "ratio_to_v351": 0.623,
+     "vm_est_cold_MPa": 246.8,
+     "MS_y_u_cold": [
+      0.269,
+      0.094
+     ],
+     "MS_y_u_hot": [
+      0.209,
+      0.042
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.104,
+      -0.049
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.051,
+      -0.094
+     ]
+    }
+   }
+  },
+  "C3 boss r38.5, r_in 33.25, +/-20, Rv 2.5": {
+   "r_in": 33.25,
+   "r_out": 38.5,
+   "half_ang_deg": 20.0,
+   "R_v": 2.5,
+   "A_mm2": 129.09,
+   "rho_c_mm": 35.275,
+   "I_t_mm4": 317.8,
+   "I_r_mm4": 6448.9,
+   "cases": {
+    "SR_GM02": {
+     "s_nom_MPa": 117.5,
+     "ratio_to_v351": 0.51,
+     "vm_est_cold_MPa": 221.8,
+     "MS_y_u_cold": [
+      0.413,
+      0.217
+     ],
+     "MS_y_u_hot": [
+      0.345,
+      0.159
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.228,
+      0.059
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.17,
+      0.008
+     ]
+    },
+    "SR_GM01": {
+     "s_nom_MPa": 117.5,
+     "ratio_to_v351": 0.51,
+     "vm_est_cold_MPa": 219.7,
+     "MS_y_u_cold": [
+      0.426,
+      0.229
+     ],
+     "MS_y_u_hot": [
+      0.358,
+      0.17
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.24,
+      0.069
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.181,
+      0.018
+     ]
+    },
+    "GS_GM02": {
+     "s_nom_MPa": 106.5,
+     "ratio_to_v351": 0.51,
+     "vm_est_cold_MPa": 205.4,
+     "MS_y_u_cold": [
+      0.525,
+      0.314
+     ],
+     "MS_y_u_hot": [
+      0.453,
+      0.252
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.326,
+      0.143
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.263,
+      0.088
+     ]
+    },
+    "GS_GM01": {
+     "s_nom_MPa": 106.5,
+     "ratio_to_v351": 0.51,
+     "vm_est_cold_MPa": 201.9,
+     "MS_y_u_cold": [
+      0.552,
+      0.338
+     ],
+     "MS_y_u_hot": [
+      0.478,
+      0.274
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.35,
+      0.163
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.286,
+      0.108
+     ]
+    }
+   }
+  },
+  "C4 boss r38.5, r_in 33.25, +/-22, Rv 2.5": {
+   "r_in": 33.25,
+   "r_out": 38.5,
+   "half_ang_deg": 22.0,
+   "R_v": 2.5,
+   "A_mm2": 142.24,
+   "rho_c_mm": 35.122,
+   "I_t_mm4": 373.2,
+   "I_r_mm4": 8573.6,
+   "cases": {
+    "SR_GM02": {
+     "s_nom_MPa": 106.8,
+     "ratio_to_v351": 0.463,
+     "vm_est_cold_MPa": 201.6,
+     "MS_y_u_cold": [
+      0.554,
+      0.339
+     ],
+     "MS_y_u_hot": [
+      0.48,
+      0.276
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.352,
+      0.165
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.287,
+      0.109
+     ]
+    },
+    "SR_GM01": {
+     "s_nom_MPa": 106.8,
+     "ratio_to_v351": 0.463,
+     "vm_est_cold_MPa": 199.7,
+     "MS_y_u_cold": [
+      0.569,
+      0.352
+     ],
+     "MS_y_u_hot": [
+      0.495,
+      0.288
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.365,
+      0.176
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.3,
+      0.12
+     ]
+    },
+    "GS_GM02": {
+     "s_nom_MPa": 96.8,
+     "ratio_to_v351": 0.463,
+     "vm_est_cold_MPa": 186.7,
+     "MS_y_u_cold": [
+      0.678,
+      0.446
+     ],
+     "MS_y_u_hot": [
+      0.598,
+      0.377
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.459,
+      0.258
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.39,
+      0.198
+     ]
+    },
+    "GS_GM01": {
+     "s_nom_MPa": 96.8,
+     "ratio_to_v351": 0.463,
+     "vm_est_cold_MPa": 183.5,
+     "MS_y_u_cold": [
+      0.708,
+      0.472
+     ],
+     "MS_y_u_hot": [
+      0.627,
+      0.402
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.485,
+      0.28
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.414,
+      0.219
+     ]
+    }
+   }
+  },
+  "C5 no boss (r37), r_in 32.5, +/-22": {
+   "r_in": 32.5,
+   "r_out": 37.0,
+   "half_ang_deg": 22.0,
+   "R_v": 0.0,
+   "A_mm2": 120.09,
+   "rho_c_mm": 33.95,
+   "I_t_mm4": 261.5,
+   "I_r_mm4": 6948.4,
+   "cases": {
+    "SR_GM02": {
+     "s_nom_MPa": 171.5,
+     "ratio_to_v351": 0.744,
+     "vm_est_cold_MPa": 323.6,
+     "MS_y_u_cold": [
+      -0.032,
+      -0.166
+     ],
+     "MS_y_u_hot": [
+      -0.078,
+      -0.205
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      -0.158,
+      -0.274
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      -0.198,
+      -0.309
+     ]
+    },
+    "SR_GM01": {
+     "s_nom_MPa": 171.5,
+     "ratio_to_v351": 0.744,
+     "vm_est_cold_MPa": 320.5,
+     "MS_y_u_cold": [
+      -0.022,
+      -0.158
+     ],
+     "MS_y_u_hot": [
+      -0.069,
+      -0.198
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      -0.15,
+      -0.268
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      -0.19,
+      -0.302
+     ]
+    },
+    "GS_GM02": {
+     "s_nom_MPa": 155.4,
+     "ratio_to_v351": 0.744,
+     "vm_est_cold_MPa": 299.7,
+     "MS_y_u_cold": [
+      0.045,
+      -0.099
+     ],
+     "MS_y_u_hot": [
+      -0.004,
+      -0.142
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      -0.091,
+      -0.217
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      -0.134,
+      -0.254
+     ]
+    },
+    "GS_GM01": {
+     "s_nom_MPa": 155.4,
+     "ratio_to_v351": 0.744,
+     "vm_est_cold_MPa": 294.5,
+     "MS_y_u_cold": [
+      0.064,
+      -0.083
+     ],
+     "MS_y_u_hot": [
+      0.013,
+      -0.127
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      -0.075,
+      -0.203
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      -0.119,
+      -0.241
+     ]
+    }
+   }
+  },
+  "C6 boss r38.5, r_in 33.0, +/-20, Rv 2.5": {
+   "r_in": 33.0,
+   "r_out": 38.5,
+   "half_ang_deg": 20.0,
+   "R_v": 2.5,
+   "A_mm2": 134.87,
+   "rho_c_mm": 35.158,
+   "I_t_mm4": 360.1,
+   "I_r_mm4": 6705.2,
+   "cases": {
+    "SR_GM02": {
+     "s_nom_MPa": 108.1,
+     "ratio_to_v351": 0.469,
+     "vm_est_cold_MPa": 204.0,
+     "MS_y_u_cold": [
+      0.536,
+      0.324
+     ],
+     "MS_y_u_hot": [
+      0.463,
+      0.261
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.336,
+      0.151
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.272,
+      0.096
+     ]
+    },
+    "SR_GM01": {
+     "s_nom_MPa": 108.1,
+     "ratio_to_v351": 0.469,
+     "vm_est_cold_MPa": 202.0,
+     "MS_y_u_cold": [
+      0.551,
+      0.336
+     ],
+     "MS_y_u_hot": [
+      0.477,
+      0.273
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.349,
+      0.162
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.284,
+      0.107
+     ]
+    },
+    "GS_GM02": {
+     "s_nom_MPa": 98.0,
+     "ratio_to_v351": 0.469,
+     "vm_est_cold_MPa": 188.9,
+     "MS_y_u_cold": [
+      0.659,
+      0.429
+     ],
+     "MS_y_u_hot": [
+      0.58,
+      0.361
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.442,
+      0.243
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.374,
+      0.184
+     ]
+    },
+    "GS_GM01": {
+     "s_nom_MPa": 98.0,
+     "ratio_to_v351": 0.469,
+     "vm_est_cold_MPa": 185.6,
+     "MS_y_u_cold": [
+      0.688,
+      0.455
+     ],
+     "MS_y_u_hot": [
+      0.608,
+      0.385
+     ],
+     "MS_y_u_cold_Kt+15%": [
+      0.468,
+      0.265
+     ],
+     "MS_y_u_hot_Kt+15%": [
+      0.398,
+      0.205
+     ]
+    }
+   }
+  }
+ },
+ "Kt_eff_used": 1.928,
+ "rod_force_alternative": {
+  "MS_u_+0.00_hot": {
+   "vm_allow_MPa": 257.1,
+   "F_SR_N": 359.9,
+   "F_GS_cone_N": 352.2
+  },
+  "MS_u_+0.10_hot": {
+   "vm_allow_MPa": 233.8,
+   "F_SR_N": 327.2,
+   "F_GS_cone_N": 320.2
+  }
+ }
+}

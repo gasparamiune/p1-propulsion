@@ -1,14 +1,26 @@
 {
  "id": "hardware_v352",
- "version": "v1.1",
+ "version": "v1.2",
  "cad_version": "v3.5.2",
- "date": "2026-10-13",
+ "date": "2026-10-20",
  "owner": "mechanical",
- "basis": "Standard hardware, O-rings and seals of CAD v3.5.1 (REV-MECH-1 RM1-12, lead CHANGELOG 188 (11)), v1, 2026-10-13, Mechanical. | v3.5.2: lead CHANGELOG 206 (2b) Ti-6Al-4V screws (v352/ti/ti_screws_v352_v1.json, sha256/16 recorded below)",
+ "basis": "Standard hardware, O-rings and seals of CAD v3.5.1 (REV-MECH-1 RM1-12, lead CHANGELOG 188 (11)), v1, 2026-10-13, Mechanical. | v3.5.2: lead CHANGELOG 206 (2b) Ti-6Al-4V screws (v352/ti/ti_screws_v352_v1.json, sha256/16 recorded below) | v1.2 (2026-10-20): J-FWD HW-101 10x M5 x 10 A4-80 (item 11 per lead 231 (1)), J-FD01 3x M4 A4-80 (item 2), J-FD09 A4-80 1.8 N m (item 3), tightening method + preload scatter per screw line (04-fea/v352/joints_v352_v1.json)",
  "rules": {
   "K_nut": 0.2,
   "preload_fraction_Rp02": 0.65,
-  "mass": "CALC values are NOT datasheet masses; lead 188 (11) allowance 0.20 kg stays"
+  "mass": "CALC values are NOT datasheet masses; lead 188 (11) allowance 0.20 kg stays",
+  "tightening_methods": {
+   "M-T1": "torque-controlled: calibrated setting torque wrench (ISO 6789-1 Type II; tool tolerance per its class, TO-VERIFY at purchase), screws snugged then taken to the final torque in one pass, opposite-pair / cross order on multi-screw patterns; threads clean, lubrication state as on the drawing (the K basis); N2O-system joints: oxygen-compatible PFPE grease only",
+   "M-T2": "as M-T1 with a calibrated setting torque screwdriver (ISO 6789-1 Type II) for final torques below 1 N m",
+   "M-T1L": "as M-T1 (M-T2 tool below 1 N m) on threads coated with the thread locker of the line (cure per the maker sheet before load); torque applied on the wet locker",
+   "M-T1Ti": "as M-T1; torque from a torque-tension test of the anodised (AMS 2488 Type 2) + PFPE-lubricated Ti screw (K TO-VERIFY); the v3.5.1 A4-70 torque shown until that test",
+   "M-NONE": "not a torque joint (dowel, insert, seal, washer, clip, consumable)"
+  },
+  "preload_scatter": "+/-25 % about F = T / (K d), K 0.20 (both ASSUMED; the FEA3D F4 basis, alpha_A = 1.25 / 0.75 = 1.67): the joint margins of 04-fea/assembly3d F4 and 04-fea/v352/joints_v352_v1.json use it; a torque-tension test on the original parts that shows a wider scatter re-opens those joints",
+  "joint_basis_v352": {
+   "file": "04-fea/v352/joints_v352_v1.json",
+   "sha256_16": "460a2caceeb1391b"
+  }
  },
  "lines": [
   {
@@ -19,19 +31,21 @@
    "size": "M5",
    "length_mm": 10,
    "grade": "A4-80",
-   "qty": 8,
+   "qty": 10,
    "host": "ENG-TC-01/ENG-TC-02",
    "joint": "J-FWD",
    "group": "engine",
-   "L_basis": "case wall 3.14 at the 5.5 hole (hole census) + plug gap 0.025 + engagement 6.83 = 10.0; v3.5.1 TC-02 taps deepened to drill 4.2 x 9.0, M5-6H full thread 8.0 (v3.5 6.42 deep: M5 x 10 bottomed, M5 x 8 gave 4.84 mm engagement vs joints.py LE 6.0)",
+   "L_basis": "v3.5.1 geometry kept: case wall 3.125 at the 5.5 hole (no spot face; the button head seats on the OD r 31.75) + plug gap 0.025 + engagement 6.85 in the TC-02 M5-6H tap (drill 4.2 x 9.0, full thread 8.0) = 10.0; 10 holes at az 18 + 36k deg, match-drilled TC-01 / TC-02",
    "unit_mass_g": 2.028,
    "mass_evidence": "CALC (standard nominal geometry AS RECALLED x engmat density); DATASHEET TO-FETCH",
    "torque_Nm": 5.53,
-   "torque_basis": "DERIVED: T = 0.2 x F x d, F = 0.65 x Rp0.2,min 600 MPa x As 14.18 mm2 = 5531 N (K and preload fraction ASSUMED)",
+   "torque_basis": "DERIVED: T = 0.2 x F x d, F = 0.65 x Rp0.2,min 600 MPa x As 14.18 mm2 = 5531 N (K and preload fraction ASSUMED) | v3.5.2: unchanged (preload is not a strength item in this bearing-type joint)",
    "thread_locker": "",
-   "status": "DEFINED (A4-80 in ISO 7380-1 availability TO-VERIFY at quote; fallback ISO 4762 A4-80 needs a head-clearance check)",
-   "action": "spot face on the case OD (dk 9.5 head on R 31.75: sagitta 0.36 mm) TO-DEFINE on the TC-01 drawing",
-   "note": "lead 177 (2) A4-80; 194: yield at 93 bar abs (0.1 < T <= 1 ms) / FA1S until the J-FWD period is shown (modal closure)"
+   "status": "DEFINED v3.5.2 (lead CHANGELOG 231 (1); FEA3D one-sector contact sub-model re-check pending)",
+   "action": "v3.5.1 'spot face TO-DEFINE' CLOSED: no spot face (it would cut the case bearing to +0.19 / -0.05 at 10 / 8 screws); inspect-or-replace after any Pc excursion above 60 bar abs (v352/jfwd/jfwd_v352_v1.json)",
+   "note": "lead 177 (2) A4-80; 194: yield at 93 bar abs (0.1 < T <= 1 ms) / FA1S until the J-FWD period is shown (modal closure) | v3.5.2 (lead 231 (1)): 8 -> 10 screws; FA1S 151.04 bar abs SF 1.0 min MS +0.077 (screw shear yield on the minor area at 45 C; +0.137 at 20 C), case bearing +0.34 / +0.65, TC-02 tap mouth Neuber +0.62 (04-fea/v352/jfwd_v352_v1.json)",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-102",
@@ -53,29 +67,57 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "head clearance to the TC-04 boss and the PD-01 frame not modelled: TO-VERIFY in CAD",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-103",
    "kind": "screw",
-   "item": "FD-01 inlet block screw (into TC-02 flat)",
+   "item": "FD-01 inlet block screw, lower pair (FD-01 ears into the TC-02 flat r 29.5)",
    "standard": "DIN 7984",
-   "size": "M3",
-   "length_mm": 16,
-   "grade": "A4-70",
+   "size": "M4",
+   "length_mm": 20,
+   "grade": "A4-80",
    "qty": 2,
    "host": "ENG-FD-01/ENG-TC-02",
    "joint": "J-FD01",
    "group": "engine",
-   "L_basis": "DESIGN (FD-01 note: 2x M3 DIN 7984 A4-70 x 16); FD-01 clearance 3.01 / 10.5 under the counterbores, TC-02 M3 tap 8 deep",
-   "unit_mass_g": 1.066,
+   "L_basis": "v3.5.2: FD-01 ear grip 11.5 (cbore d8 seat r 41.0 to the flat r 29.5) + engagement 8.5 (2.1 d) in the TC-02 M4 tap (drill 3.3 x 10.5, full thread 9.0: tip 0.5 short of the thread end) = 20.0; y +/-8.5 at zb+5 beside the riser socket (1.41 mm FD-01 web)",
+   "unit_mass_g": 2.372,
    "mass_evidence": "CALC (standard nominal geometry AS RECALLED x engmat density); DATASHEET TO-FETCH",
-   "torque_Nm": 1.0,
-   "torque_basis": "DESIGN (FD-01 note)",
+   "torque_Nm": 1.8,
+   "torque_basis": "DESIGN v3.5.2 (04-fea/v352/joints_v352_v1.json 460a2caceeb1391b: F4 bounding MS +0.122 / Phi0.2 +0.403 at +/-25 %; window 1.5-2.0 N m: 1.5 N m +0.198 (slip), 2.1 N m -0.003)",
    "thread_locker": "",
-   "status": "DEFINED",
-   "action": "engagement differs between the two holes (grip 3.0 vs 10.5 in the hole census): length per hole TO-VERIFY on the drawing",
-   "note": ""
+   "status": "DEFINED v3.5.2 (FEA3D re-check pending)",
+   "action": "the v3.5.1 J-FD01 (2x M3 A4-70 x 16, 1.0 N m) could not be assembled: lower screw axis through the FD-01 riser socket and the FD-03 riser tube (v352/jfd/probe_fd01.py); replaced",
+   "note": "lead 2026-10-19 item 2 (FEA3D F4 -0.41 / -0.20 on the v3.5.1 joint)",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
+  },
+  {
+   "id": "HW-103B",
+   "kind": "screw",
+   "item": "FD-01 inlet block screw, upper (FD-01 body into the TC-02 flat r 29.5, above the passages)",
+   "standard": "DIN 7984",
+   "size": "M4",
+   "length_mm": 16,
+   "grade": "A4-80",
+   "qty": 1,
+   "host": "ENG-FD-01/ENG-TC-02",
+   "joint": "J-FD01",
+   "group": "engine",
+   "L_basis": "v3.5.2: FD-01 grip 10.5 (cbore d8 seat r 40.0 to the flat r 29.5) + engagement 5.5 (1.38 d, below the 1.5 d rule: host-thread strip checked in joints_v352_v1.json, not governing) in the TC-02 M4 tap (drill 3.3 x 7.5, full thread 6.5: tip 1.0 short of the thread end) = 16.0; y 0 at zb+24",
+   "unit_mass_g": 2.056,
+   "mass_evidence": "CALC (standard nominal geometry AS RECALLED x engmat density); DATASHEET TO-FETCH",
+   "torque_Nm": 1.8,
+   "torque_basis": "DESIGN v3.5.2 (04-fea/v352/joints_v352_v1.json 460a2caceeb1391b: F4 bounding MS +0.122 / Phi0.2 +0.403 at +/-25 %; window 1.5-2.0 N m: 1.5 N m +0.198 (slip), 2.1 N m -0.003)",
+   "thread_locker": "",
+   "status": "DEFINED v3.5.2 (FEA3D re-check pending)",
+   "action": "",
+   "note": "lead 2026-10-19 item 2",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-104",
@@ -97,7 +139,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "TC-04 drawing: 2x M2.5-6H x 6 full thread at the BL-01 pattern",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-105",
@@ -119,7 +163,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-106",
@@ -141,7 +187,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-107",
@@ -163,7 +211,9 @@
    "thread_locker": "",
    "status": "TO-VERIFY (servo ear thickness from the HV69 sheet)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-108",
@@ -185,7 +235,9 @@
    "thread_locker": "",
    "status": "DEFINED (rail counterbore depth per HIWIN sheet TO-VERIFY)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-109",
@@ -207,7 +259,9 @@
    "thread_locker": "",
    "status": "TO-VERIFY (block thread depth)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-110",
@@ -229,7 +283,9 @@
    "thread_locker": "",
    "status": "TO-VERIFY (PD-02 end-face tap depth >= 4)",
    "action": "lengthen to M2 x 8 if the PD-02 tap is >= 5 deep",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-111",
@@ -251,7 +307,9 @@
    "thread_locker": "",
    "status": "TO-DEFINE",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-112",
@@ -273,7 +331,9 @@
    "thread_locker": "",
    "status": "TO-VERIFY",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-113",
@@ -295,7 +355,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-114",
@@ -317,7 +379,9 @@
    "thread_locker": "Loctite 243",
    "status": "TO-VERIFY",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1L",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-115",
@@ -339,7 +403,9 @@
    "thread_locker": "LOCTITE 222 (Henkel; low strength, fasteners < 6.35 mm, removable with hand tools, application -55..150 C, breakaway 6.0 N m on M10 steel; DATASHEET https://www.henkel-adhesives.com/za/en/product/threadlockers/loctite_222.html, accessed 2026-10-13); activator need on the passive substrates (A2-70 screw, anodised 6061 tap) TO-VERIFY with Henkel",
    "status": "TO-VERIFY (holder by Electronics)",
    "action": "",
-   "note": "v3.5.2 v1.1: A2-70 M2 on a 1.5 mm grip keeps 2 % of the assembly preload after 7 um embedding + -20 C (ti_screws_v352_v1.json, DERIVED): preload alone does not hold it; thread locker specified (lead)"
+   "note": "v3.5.2 v1.1: A2-70 M2 on a 1.5 mm grip keeps 2 % of the assembly preload after 7 um embedding + -20 C (ti_screws_v352_v1.json, DERIVED): preload alone does not hold it; thread locker specified (lead)",
+   "tightening_method": "M-T1L",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-120",
@@ -361,7 +427,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-121",
@@ -384,7 +452,9 @@
    "status": "DEFINED v3.5.2 (Ti, lead 206 (2b)); DEFINED",
    "action": "",
    "note": "v3.5.2 Ti: J-FRAME-L 157.2 mm from FD-05 (R3 100 mm); preload over -20..+80 C in ti_screws_v352_v1.json",
-   "grade_v351": "A4-70"
+   "grade_v351": "A4-70",
+   "tightening_method": "M-T1Ti",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-122",
@@ -406,7 +476,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": "8 deep in the post + 8 of the 10 through hole in the ring (hole census)"
+   "note": "8 deep in the post + 8 of the 10 through hole in the ring (hole census)",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-123",
@@ -429,7 +501,9 @@
    "status": "DEFINED v3.5.2 (Ti, lead 206 (2b)); DEFINED",
    "action": "",
    "note": "v3.5.2 Ti: J-BRKT 161.6 mm from FD-07B (R3 100 mm); preload over -20..+80 C in ti_screws_v352_v1.json",
-   "grade_v351": "A4-70"
+   "grade_v351": "A4-70",
+   "tightening_method": "M-T1Ti",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-124",
@@ -451,7 +525,9 @@
    "thread_locker": "",
    "status": "TO-VERIFY (servo ear thickness, received servo)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-125",
@@ -473,7 +549,9 @@
    "thread_locker": "",
    "status": "TO-DEFINE (ICD-AIRFRAME: head type, grade, skin thickness)",
    "action": "",
-   "note": "joints.py 16 x M5 airframe ring screws: A4-70 class ASSUMED"
+   "note": "joints.py 16 x M5 airframe ring screws: A4-70 class ASSUMED",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-126",
@@ -495,7 +573,9 @@
    "thread_locker": "",
    "status": "TO-DEFINE (ICD-AIRFRAME)",
    "action": "",
-   "note": "v3.5.2: Ti candidate (159.8 mm from FD-07, -7.47 g) referred to the ICD-AIRFRAME discussion (lead, after CHANGELOG 209); A4-70 until agreed"
+   "note": "v3.5.2: Ti candidate (159.8 mm from FD-07, -7.47 g) referred to the ICD-AIRFRAME discussion (lead, after CHANGELOG 209); A4-70 until agreed",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-127",
@@ -504,7 +584,7 @@
    "standard": "ISO 4762",
    "size": "M4",
    "length_mm": 12,
-   "grade": "A4-70",
+   "grade": "A4-80",
    "qty": 2,
    "host": "ENG-FD-09/ENG-GM-09",
    "joint": "J-FD09",
@@ -512,12 +592,14 @@
    "L_basis": "DESIGN (FD-09 note: 2x M4 x 12 A4-70 into GM-09, helicoil 1.5 D); foot 6.0 + 6.0 engagement",
    "unit_mass_g": 2.055,
    "mass_evidence": "CALC (standard nominal geometry AS RECALLED x engmat density); DATASHEET TO-FETCH",
-   "torque_Nm": 2.05,
-   "torque_basis": "DERIVED: T = 0.2 x F x d, F = 0.65 x Rp0.2,min 450 MPa x As 8.78 mm2 = 2568 N (K and preload fraction ASSUMED)",
+   "torque_Nm": 1.8,
+   "torque_basis": "DESIGN v3.5.2 (04-fea/v352/joints_v352_v1.json 460a2caceeb1391b: F4 bounding MS EI 0.184 +0.476 / EI 0.5 +0.221; Phi0.2 +0.66 / +0.586 at +/-25 %; 1.5 N m: EI 0.5 slip -0.241, A4-70 at 1.8 N m: EI 0.5 -0.085)",
    "thread_locker": "",
-   "status": "DEFINED",
+   "status": "DEFINED v3.5.2 (FEA3D re-check pending)",
    "action": "GM-09 drawing: 2x M4 STI (helicoil) holes at az 284.5 r 57.5/64.5 (not cut in the GM-09 solid)",
-   "note": ""
+   "note": "v3.5.2 item 3: A4-70 2.05 N m gave F4 -0.167 (EI 0.5) / -0.011 (EI 0.184)",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-128",
@@ -539,7 +621,9 @@
    "thread_locker": "",
    "status": "DEFINED (maker TO-SELECT)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-129",
@@ -561,7 +645,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "FD-09 base drawing: M3 tap full thread >= 8.5 (drill 9.5); otherwise M3 x 16 gives only 3.4 engagement",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-130",
@@ -583,7 +669,9 @@
    "thread_locker": "",
    "status": "TO-DEFINE (ICD)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-131",
@@ -605,7 +693,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-132",
@@ -627,7 +717,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "FS-01B drawing: M4 tap full thread >= 7.5 at the FD-12F pattern",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-133",
@@ -649,7 +741,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "FS-01B drawing: M4 tap full thread >= 10 (drill 12) or M4 x 22 (DIN 912) with 6.2 engagement",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-134",
@@ -671,7 +765,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-135",
@@ -693,7 +789,9 @@
    "thread_locker": "",
    "status": "TO-VERIFY (screw form)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-136",
@@ -715,7 +813,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-137",
@@ -737,7 +837,9 @@
    "thread_locker": "",
    "status": "TO-DEFINE (ICD-2)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-138",
@@ -759,7 +861,9 @@
    "thread_locker": "",
    "status": "TO-SELECT (valve)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T2",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-139",
@@ -781,7 +885,9 @@
    "thread_locker": "",
    "status": "TO-DEFINE (ICD-14)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-T1",
+   "preload_scatter": "+/-25 % (ASSUMED, K 0.20)"
   },
   {
    "id": "HW-150",
@@ -803,7 +909,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": "FKM 90A (TC-02 note)"
+   "note": "FKM 90A (TC-02 note)",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-151",
@@ -825,7 +933,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": "v3.5.1 TB1: under the flange behind TC-10"
+   "note": "v3.5.1 TB1: under the flange behind TC-10",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-152",
@@ -847,7 +957,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": "FKM 75"
+   "note": "FKM 75",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-153",
@@ -869,7 +981,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": "FKM 75"
+   "note": "FKM 75",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-154",
@@ -891,7 +1005,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": "FKM 75"
+   "note": "FKM 75",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-155",
@@ -913,7 +1029,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": "FKM 75"
+   "note": "FKM 75",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-156",
@@ -935,7 +1053,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": "FKM 75"
+   "note": "FKM 75",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-157",
@@ -957,7 +1077,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": "FKM 75"
+   "note": "FKM 75",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-158",
@@ -979,7 +1101,9 @@
    "thread_locker": "",
    "status": "TO-SELECT (maker)",
    "action": "",
-   "note": "TO-VERIFY in N2O (TC-04 note)"
+   "note": "TO-VERIFY in N2O (TC-04 note)",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-159",
@@ -1001,7 +1125,9 @@
    "thread_locker": "",
    "status": "TO-SELECT",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-160",
@@ -1023,7 +1149,9 @@
    "thread_locker": "",
    "status": "TO-SELECT (size and groove)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-161",
@@ -1045,7 +1173,9 @@
    "thread_locker": "",
    "status": "TO-SELECT",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-162",
@@ -1067,7 +1197,9 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-163",
@@ -1089,7 +1221,9 @@
    "thread_locker": "",
    "status": "TO-SELECT (with Electronics' transducers)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-164",
@@ -1111,7 +1245,9 @@
    "thread_locker": "",
    "status": "TO-SELECT",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-165",
@@ -1133,7 +1269,9 @@
    "thread_locker": "",
    "status": "TO-SELECT",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-166",
@@ -1155,7 +1293,9 @@
    "thread_locker": "",
    "status": "TO-SELECT (valve)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-167",
@@ -1177,7 +1317,9 @@
    "thread_locker": "",
    "status": "TO-DEFINE (size)",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-168",
@@ -1199,7 +1341,9 @@
    "thread_locker": "",
    "status": "TO-DESIGN",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   },
   {
    "id": "HW-169",
@@ -1221,18 +1365,20 @@
    "thread_locker": "",
    "status": "DEFINED",
    "action": "",
-   "note": ""
+   "note": "",
+   "tightening_method": "M-NONE",
+   "preload_scatter": ""
   }
  ],
- "n_lines": 55,
- "n_items": 161,
+ "n_lines": 56,
+ "n_items": 164,
  "calc_mass_by_group_g": {
-  "engine": 58.53,
+  "engine": 67.26,
   "horn": 1.89,
   "ring": 0.55,
   "fixed": 149.3
  },
- "calc_mass_total_g": 210.28,
+ "calc_mass_total_g": 219.0,
  "lines_without_mass": [
   "HW-128",
   "HW-158",
@@ -1258,5 +1404,5 @@
   "strength": "DATASHEET: ASTM F468 alloy Ti 5 (R56400) Rm >= 896 MPa, Rp0.2 >= 827 MPa (TorqBolt table, accessed 2026-10-13); Accu Ltd Grade 5 >= 895 MPa",
   "anti_galling": "AMS 2488 Type 2 anodise + PFPE thread lubricant; no helicoil under Ti"
  },
- "delta_vs_v351_g": -13.59
+ "delta_vs_v351_g": -4.87
 }

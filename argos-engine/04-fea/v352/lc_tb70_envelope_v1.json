@@ -1,0 +1,293 @@
+{
+ "id": "lc_tb70_envelope",
+ "version": "v1",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "status": "DERIVED from the analysed structural cases (S-AX / FEA3D SIM); not physical approval; v3.5.2 margins replace the v3.5.1 rows after the v352 chain",
+ "pressure": "head-end static pressure, bar abs (the Pc channel at the head); tau = time since the first crossing of MEOP 45 bar abs in the event",
+ "zones": {
+  "Z0": {
+   "P_bar_abs": [
+    null,
+    45.0
+   ],
+   "tau_s": [
+    0,
+    null
+   ],
+   "case": "LC2 (MEOP)",
+   "SF": "1.5 / 2.0 (188 (9))"
+  },
+  "Z1": {
+   "P_bar_abs": [
+    45.0,
+    58.1
+   ],
+   "tau_s": [
+    0,
+    0.3
+   ],
+   "case": "LC-TB70 (S6 70 % throat block, blocked distribution, case at the 448.15 K abort)",
+   "SF": "1.5 / 2.0"
+  },
+  "Z2": {
+   "P_bar_abs": [
+    58.1,
+    63.1
+   ],
+   "tau_s": [
+    0,
+    0.3
+   ],
+   "case": "LC-TB-S (blocked static, BN feed limit)",
+   "SF": "1.0 / 1.5 (abnormal)"
+  },
+  "Z3": {
+   "P_bar_abs": [
+    63.1,
+    75.519
+   ],
+   "tau_s": [
+    0,
+    0.003
+   ],
+   "case": "FA-1 pulse (structure at FA1S 151.04 bar abs, DLF 2.0 bound)",
+   "SF": "1.0 (FA-1 rule)",
+   "extra": "total time above 63.1 bar abs <= 3.0 ms; 10-90 % rise >= 0.8 ms"
+  }
+ },
+ "polyline_nominal_SF1p5_2p0": [
+  [
+   0.0,
+   58.1
+  ],
+  [
+   0.3,
+   58.1
+  ],
+  [
+   0.3,
+   45.0
+  ],
+  [
+   10.0,
+   45.0
+  ]
+ ],
+ "polyline_all_cases": [
+  [
+   0.0,
+   75.519
+  ],
+  [
+   0.003,
+   75.519
+  ],
+  [
+   0.003,
+   63.1
+  ],
+  [
+   0.3,
+   63.1
+  ],
+  [
+   0.3,
+   45.0
+  ],
+  [
+   10.0,
+   45.0
+  ]
+ ],
+ "rules": [
+  "any head excursion above 60.0 bar abs: replace all J-FWD screws (HW-101) and gauge the TC-01 holes / TC-02 taps before the next run",
+  "an event that leaves the envelope is outside the structural basis: no margin claim, engine quarantined for inspection"
+ ],
+ "cases_checked": [
+  {
+   "case": "S6 v2.10 throat_blocked_70pct_500N_24C_Cd0p8",
+   "peak_bar_abs": 53.419,
+   "t_above_MEOP_ms": 34.0,
+   "inside": true,
+   "zone_max": 1,
+   "reasons": [],
+   "jfwd_rule_triggered": false,
+   "src": "06-electronics/results/sil_v2p10/S6_aborts.json Pc_max_abs_Pa 5341909, t_Pc_above_MEOP_s 0.034 (SIM)"
+  },
+  {
+   "case": "S6 v2.7 throat block 70 % (plant)",
+   "peak_bar_abs": 55.7,
+   "t_above_MEOP_ms": 72.0,
+   "inside": true,
+   "zone_max": 1,
+   "reasons": [],
+   "jfwd_rule_triggered": false,
+   "src": "CHANGELOG line 88 (SIM): plant 55.7 bar abs, > MEOP 72 ms"
+  },
+  {
+   "case": "S6 v2.7 throat block 70 % (transducer peak, as LC-TB70)",
+   "peak_bar_abs": 58.1,
+   "t_above_MEOP_ms": 72.0,
+   "inside": true,
+   "zone_max": 1,
+   "reasons": [],
+   "jfwd_rule_triggered": false,
+   "src": "CHANGELOG line 88 (SIM): transducer 58.1"
+  },
+  {
+   "case": "S6 v2.11 in-window: 50 bar step, abort",
+   "peak_bar_abs": 50.0,
+   "t_above_MEOP_ms": 150.0,
+   "inside": true,
+   "zone_max": 1,
+   "reasons": [],
+   "jfwd_rule_triggered": false,
+   "src": "illustration: plateau 50 bar abs, 150 ms above MEOP"
+  },
+  {
+   "case": "S6 v2.11 in-window: ramp to 60 bar, abort",
+   "peak_bar_abs": 60.0,
+   "t_above_MEOP_ms": 150.0,
+   "inside": true,
+   "zone_max": 2,
+   "reasons": [],
+   "jfwd_rule_triggered": false,
+   "src": "illustration: plateau 60 bar abs (Z2 abnormal + J-FWD rule)"
+  },
+  {
+   "case": "FA-1 pulse (Combustion v2.4 worst row)",
+   "peak_bar_abs": 75.519,
+   "t_above_MEOP_ms": 3.0,
+   "inside": true,
+   "zone_max": 3,
+   "reasons": [],
+   "jfwd_rule_triggered": true,
+   "src": "sax.py FA1 (SIM)"
+  },
+  {
+   "case": "FA-1 pulse followed by a 48 bar plateau for 200 ms",
+   "peak_bar_abs": 75.519,
+   "inside": true,
+   "zone_max": 3,
+   "reasons": [],
+   "jfwd_rule_triggered": true,
+   "src": "illustration of the S6 'FA-1 followed by 35-50 bar plateaus' family"
+  }
+ ],
+ "purge_tail": {
+  "basis": "lead CHANGELOG 230 (3): 29.25 g/s at 289.5 K (ADOPTED); warm-end band 27.58-31.06 g/s; Cd sensitivity 25.30-33.13 g/s",
+  "model": "choked cold-gas flow of N2O vapour through the open throat fraction: P0 = mdot c* / A*, c* = sqrt(R T) / Gamma(gamma 1.27 ASSUMED)",
+  "c_star_m_s": 353.4,
+  "rows": [
+   {
+    "throat_open_fraction": 1.0,
+    "mdot_kg_s": 0.02925,
+    "P0_bar_abs": 0.7
+   },
+   {
+    "throat_open_fraction": 1.0,
+    "mdot_kg_s": 0.03313,
+    "P0_bar_abs": 0.79
+   },
+   {
+    "throat_open_fraction": 0.3,
+    "mdot_kg_s": 0.02925,
+    "P0_bar_abs": 2.33
+   },
+   {
+    "throat_open_fraction": 0.3,
+    "mdot_kg_s": 0.03313,
+    "P0_bar_abs": 2.64
+   },
+   {
+    "throat_open_fraction": 0.1,
+    "mdot_kg_s": 0.02925,
+    "P0_bar_abs": 6.99
+   },
+   {
+    "throat_open_fraction": 0.1,
+    "mdot_kg_s": 0.03313,
+    "P0_bar_abs": 7.92
+   }
+  ],
+  "verdict": "the purge cannot re-enter the envelope: <= 7.9 bar abs even with 90 % of the throat blocked at the top of the Cd band (DERIVED); rows below ~1.8 bar abs are not choked (the chamber stays near ambient, the formula value is only a bound); a fully blocked throat is the BN / LC-TB-S static case (<= 63.1 bar abs, Z2)"
+ },
+ "v351_min_margins_regular_set": {
+  "LC2": {
+   "n_parts": 9,
+   "negatives_regular_set": [
+    {
+     "part": "ENG-TC-02",
+     "MS": "0.2445",
+     "MS_ult": "-0.0154",
+     "MS_all_nodes": "-0.0677",
+     "T_C": "149.192",
+     "SF": [
+      "1.5",
+      "2.0"
+     ]
+    },
+    {
+     "part": "ENG-NZ-01",
+     "MS": "-0.4651",
+     "MS_ult": "n/a",
+     "MS_all_nodes": "-0.8244",
+     "T_C": "1331.07",
+     "SF": [
+      "1.5",
+      "2.0"
+     ]
+    }
+   ]
+  },
+  "TB70": {
+   "n_parts": 9,
+   "negatives_regular_set": [
+    {
+     "part": "ENG-TC-02",
+     "MS": "0.0057",
+     "MS_ult": "-0.152",
+     "MS_all_nodes": "-0.1957",
+     "T_C": "181.1913",
+     "SF": [
+      "1.5",
+      "2.0"
+     ]
+    },
+    {
+     "part": "ENG-NZ-01",
+     "MS": "-0.0392",
+     "MS_ult": "n/a",
+     "MS_all_nodes": "-0.7748",
+     "T_C": "1935.0925",
+     "SF": [
+      "1.5",
+      "2.0"
+     ]
+    },
+    {
+     "part": "ENG-NZ-03",
+     "MS": "-0.1579",
+     "MS_ult": "n/a",
+     "MS_all_nodes": "-0.721",
+     "T_C": "1311.8612",
+     "SF": [
+      "1.5",
+      "2.0"
+     ]
+    }
+   ]
+  },
+  "TBS": {
+   "n_parts": 9,
+   "negatives_regular_set": []
+  },
+  "FA1S": {
+   "n_parts": 9,
+   "negatives_regular_set": []
+  }
+ },
+ "note_negatives": "Z1 (LC-TB70) is analysed but NOT all-positive: v3.5.1 TC-02 MS_ult -0.152, NZ-01 -0.039, NZ-03 -0.158 (SF 1.5 / 2.0, SHOWN AS FOUND; items 4 / 5 of the resume); Z2 (LC-TB-S, SF 1.0 / 1.5) has no negative in the regular set",
+ "how_to_use": "Electronics: sample the S6 head-pressure trace (plant Pc at the head), find tau from the first sample above 45 bar abs, and check every sample against the zones (function inside() in lc_tb70_envelope.py); report the zone reached and the J-FWD rule flag"
+}
