@@ -1,0 +1,3420 @@
+{
+ "id": "rebuild_from_hub_v352",
+ "version": "v2",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "script_revision": 3,
+ "basis": "Rebuild proof of the FINAL v3.5.2 03-cad set from the hub copy of the archive (lead 19:53:27Z item 3; rulings 20:04:32Z (a), (b1),\n(c), 20:16:57Z G1-G4 and 20:30:00Z P1-P3).  Software check on the CAD files, not physical validation.  Mechanical, 2026-10-20, script\nrevision 3, record checks/rebuild_from_hub_v352_v2.json.  History: revision 1 (68a5158d9affb2cb) stopped at 20:02:17Z on the missing\nsrc/calcs/hose_frame.py (not a result); revision 2 (f433fa517d4c4a5c) ran 20:24:17-20:25:13Z and wrote checks/rebuild_from_hub_v352_v1.json\n(d3ce49e52e7f93b5, ALL_OK false: massprops /cg_iteration[0]/t_s run time, massdelta sha field, the two assembly STEP DATA sections, and two\nclassification flags), kept unchanged beside this record.\nRevision 3 changes (lead 20:30:00Z): P1 massprops and massdelta are compared with exactly two JSON pointers masked, massprops\n/cg_iteration[0]/t_s (run time written by the generator) and massdelta /files/v352/sha256_16 (massdelta carries the massprops sha; each\nside's value is asserted equal to its own massprops sha); every other field is asserted identical (order-preserving).  P2 the two assembly\nSTEP files are compared canonically: each DATA entity is hashed (sha256) from its type and its non-reference parameters as written\n(whitespace outside strings removed; no string carries a line break), with each #reference replaced by the referenced entity's hash\n(Merkle); the multisets of entity hashes and the multisets of root entities (referenced by no entity) must be equal; the entity counts,\nthe first differing line and the entity types whose order differs are reported; a reference cycle, a dangling reference, or any hash in one\nmultiset and not the other is a failure.  P3 the module sitecustomize is classified as stdlib by its /usr/lib/python3.13 path (Debian\nsystem-Python symlink; realpath noted); /root/.cache/ezdxf/font_manager_cache.json and /root/.config/ezdxf/ezdxf.ini are listed as tool\ncache / config reads by ezdxf (imported by cadquery), not design inputs; everything else stays strict.\n\nScratch copy (a new empty folder, deleted in a finally block on every exit path):\n  <scratch>/03-cad/v3.5.2/src            = the hub 03-cad/v3.5.2/src, every file sha256-checked against the hub MANIFEST\n                                           + src/engmat.py = engmat v1.7 (d41807bf675951b1, ruled (A))\n                                           + src/calcs/hose_frame.py, src/calcs/hardware_v351.py = byte copies of the hub 03-cad/calcs/\n                                             files (01813094106c7778, c2bed292cd7dc2d7, ruled (a))\n  <scratch>/03-cad/v3.5.2/massprops_v3.5.1.json = copy of the hub 03-cad/v3.5.1/massprops_v3.5.1.json (488b47f9d55ff91b, named input;\n                                           read by make_all's mass stage and by calcs/mass_delta_v352.py)\n  <scratch>/03-cad/interfaces/mechanical.json = copy of the hub 03-cad/v3.5.2/history/mechanical.json.e4d3e7c9df529171 (interface v2.1,\n                                           ruled (b1): the mass stage's comparison input at HERE.parents[1]/interfaces/mechanical.json)\n  <scratch>/iface_snapshot/               = empty; ENGINE_IFACE_SNAPSHOT (G2: config.py writes its interface snapshot copies there)\nNamed config inputs (G1), read in place from the hub (package root /home/claude/work/shared-fallback/engine), sha-checked before and\nafter the build; any other hub file read in place fails the check:\n  interfaces/ENGINE-BASELINE-v0.json v0 508faa652ccbd539, interfaces/combustion.json v2.4b fd3a7da6d27c7c66, interfaces/gnc.json v3.1\n  4f3209323b0e0ed4, interfaces/electronics.json v3 38bf149f368c1d4c, 02-combustion/data/v2/nozzle_contour_v2.csv b00aed4fab46bb6f.\nBuild: MAKE_ALL_CAD=v352 make_all.py --stages build,parts,assembly,glb,placements,bom,mass --out <scratch set>, then\nsrc/calcs/mass_delta_v352.py, in one child process (python -I -B, nice 19, no ccx) under an audit hook that records every file opened from\nPython and sys.monitoring line coverage of the scratch src (one LINE event per location, then disabled); the imported modules are listed\nfrom sys.modules after the run.  The parent polls free space and the scratch size every 2 s and kills only its own child below 2.20 GiB\nfree or above 100 MB of scratch.\nStatic scan (lead 20:04:32Z (c)): every site where the src code builds a path that can leave src/ (Path .parent/.parents, '..', __file__,\nabsolute literals, os.path / Path / open / glob / exists calls, environment reads, sys.path edits, imports at module and function level) is\nlisted with its file, line, enclosing function and whether the run executed it; the sites classified on / off the v3.5.2 build path in the\n20:15:43Z report are checked against the coverage.\nComparison against the hub MANIFEST (a94851ae4dc22cc4): STL byte-identical; part STEP DATA sections identical (header timestamps excepted;\nthe OCC translator counter normalised as in publish_v352.py); the two assembly STEP files by the canonical comparison (P2); BOM json / csv\nbyte-identical; massprops and massdelta as P1; GLB byte-identical; assembly/placements_v3.5.2.json byte-identical on the same UTC day (it\nembeds the UTC date; run before 24:00Z); assembly/assembly_manifest_v3.5.2.json byte-identical; the other build outputs (checks/*.json)\ncompared with run-time fields and STEP-file shas masked (stated).  Any difference is reported, never fixed here.\nClaim written only on PASS (lead 20:30:00Z, exact wording): \"the v3.5.2 set rebuilds from the hub copy of the archive with the five named\ninputs (shas checked): STL, part STEP DATA, BOM, GLB, placements and manifests byte-identical; massprops identical except the run-time field\n/cg_iteration[0]/t_s (massdelta follows); the two assembly STEP files identical up to entity order and numbering (OCCT colour/style writer\norder)\"; it is not a claim about a fresh GitHub checkout (not tested).\nUsage: rebuild_from_hub_v352.py            (parent)\n       <runner> --child <scratch>          (internal: the child, written into the scratch folder by the parent)",
+ "previous_record": {
+  "file": "checks/rebuild_from_hub_v352_v1.json",
+  "sha256_16": "d3ce49e52e7f93b5",
+  "script_revision": 2,
+  "script_sha256_16": "f433fa517d4c4a5c",
+  "ALL_OK": false,
+  "kept": "unchanged beside this record as the record of revision 2 (lead 20:30:00Z)"
+ },
+ "lead": "19:53:27Z item 3 (rebuild proof before the engmat (A) publish), item 2 ruled (A); 20:04:32Z (a), (b1), (c); 20:16:57Z G1-G4 and items 1-3; 20:30:00Z P1-P3 and the claim wording",
+ "start_utc": "20:35:14Z",
+ "claim": "the v3.5.2 set rebuilds from the hub copy of the archive with the five named inputs (shas checked): STL, part STEP DATA, BOM, GLB, placements and manifests byte-identical; massprops identical except the run-time field /cg_iteration[0]/t_s (massdelta follows); the two assembly STEP files identical up to entity order and numbering (OCCT colour/style writer order)",
+ "claim_comparison_rules": "lead 19:53:27Z item 3: STL byte-identical; STEP DATA sections identical (header timestamps excepted); BOM json / csv byte-identical; GLB byte-identical; lead 20:16:57Z item 3: placements_v3.5.2.json byte-identical on the same UTC day; lead 20:30:00Z P1: massprops and massdelta compared with exactly two JSON pointers masked (massprops /cg_iteration[0]/t_s, run time written by the generator; massdelta /files/v352/sha256_16, the massprops sha it carries), every other field identical; P2: the two assembly STEP files by the Merkle entity-hash multisets and root multisets (identical up to entity order and numbering); P3: sitecustomize by its stdlib path, the two ezdxf cache / config files as tool reads",
+ "named_inputs": {
+  "package_root": "/home/claude/work/shared-fallback/engine",
+  "rule": "read in place by config.py; sha256/16 checked before and after the build",
+  "inputs": {
+   "interfaces/ENGINE-BASELINE-v0.json": {
+    "version": "v0",
+    "named_sha256_16": "508faa652ccbd539",
+    "sha_before": "508faa652ccbd539",
+    "sha_after": "508faa652ccbd539",
+    "read_in_place_by_the_build": true
+   },
+   "interfaces/combustion.json": {
+    "version": "v2.4b",
+    "named_sha256_16": "fd3a7da6d27c7c66",
+    "sha_before": "fd3a7da6d27c7c66",
+    "sha_after": "fd3a7da6d27c7c66",
+    "read_in_place_by_the_build": true
+   },
+   "interfaces/gnc.json": {
+    "version": "v3.1",
+    "named_sha256_16": "4f3209323b0e0ed4",
+    "sha_before": "4f3209323b0e0ed4",
+    "sha_after": "4f3209323b0e0ed4",
+    "read_in_place_by_the_build": true
+   },
+   "interfaces/electronics.json": {
+    "version": "v3",
+    "named_sha256_16": "38bf149f368c1d4c",
+    "sha_before": "38bf149f368c1d4c",
+    "sha_after": "38bf149f368c1d4c",
+    "read_in_place_by_the_build": true
+   },
+   "02-combustion/data/v2/nozzle_contour_v2.csv": {
+    "version": "(Combustion data v2)",
+    "named_sha256_16": "b00aed4fab46bb6f",
+    "sha_before": "b00aed4fab46bb6f",
+    "sha_after": "b00aed4fab46bb6f",
+    "read_in_place_by_the_build": true
+   }
+  },
+  "unnamed_hub_reads": [],
+  "named_not_read": [],
+  "named_inputs_ok": true
+ },
+ "engmat_v17_vs_hub_v16": {
+  "v1.7": "d41807bf675951b1 MATERIALS_VERSION v1.7",
+  "v1.6": "hub 04-fea/src/engmat.py 46ba163b864c7fc5 MATERIALS_VERSION v1.6",
+  "added": [
+   "FLEX-GRAPHITE-TH"
+  ],
+  "removed": [],
+  "changed": []
+ },
+ "scratch": {
+  "root": "/tmp/claude-0/-home-claude/05bcfa66-42da-580c-a72f-ba0b32235147/scratchpad/rebuild352_r3",
+  "set_copy": "03-cad/v3.5.2",
+  "src_files_copied_from_hub": 24,
+  "src_copy_sha256_16": {
+   "src/build.py": "244377a3c6d1cce0",
+   "src/calcs/hardware_v352.py": "b3561e5eac935583",
+   "src/calcs/inlet_e1m.py": "15f11720daf08811",
+   "src/calcs/inlet_e1m_v1.json": "22330f02906679a8",
+   "src/calcs/mass_delta_v352.py": "14590e5df50c9364",
+   "src/calcs/write_mechanical_json_v352.py": "95dc582b1deeccde",
+   "src/checks.py": "4ec87294c5435911",
+   "src/config.py": "e9656237ab0b5e2d",
+   "src/data/feed_plan_v341.json": "6df1491cf4ba312c",
+   "src/data/hardware_v351.json": "0938bd1c13701524",
+   "src/data/hardware_v352.json": "c2c7b13d3a0086e3",
+   "src/geom.py": "e8fbea6a60afe9c3",
+   "src/layout.py": "163ccdb66a8df182",
+   "src/make_all.py": "09586ec505ca8449",
+   "src/partlib.py": "01477dc0792d4262",
+   "src/parts_bleed.py": "c1d6b20859038456",
+   "src/parts_engine.py": "8e3df6841d149c88",
+   "src/parts_feed.py": "2337efe35f733250",
+   "src/parts_gimbal.py": "c45d6d38818516d9",
+   "src/parts_inlet.py": "daa9ed06f5d51dbe",
+   "src/parts_pintle.py": "57711046d6891a2c",
+   "src/sweep.py": "69afc0adb0209fb6",
+   "src/tvc_kinematics.py": "ffb860e11a1ffd8d",
+   "src/viz.py": "fafa7bb5a2a2531b"
+  },
+  "added": {
+   "src/engmat.py": "d41807bf675951b1 (engmat v1.7, ruled (A))",
+   "src/calcs/hose_frame.py": "01813094106c7778 (byte copy of hub 03-cad/calcs/hose_frame.py, ruled (a))",
+   "src/calcs/hardware_v351.py": "c2bed292cd7dc2d7 (byte copy of hub 03-cad/calcs/hardware_v351.py, ruled (a))",
+   "massprops_v3.5.1.json": "488b47f9d55ff91b (copy of 03-cad/v3.5.1/massprops_v3.5.1.json, named input)",
+   "../interfaces/mechanical.json": "e4d3e7c9df529171 (copy of history/mechanical.json.e4d3e7c9df529171, interface v2.1, ruled (b1); scratch only)"
+  },
+  "iface_snapshot": "iface_snapshot/ (empty; ENGINE_IFACE_SNAPSHOT, G2)"
+ },
+ "env_set": {
+  "MAKE_ALL_CAD": "v352",
+  "ENGINE_IFACE_SNAPSHOT": "/tmp/claude-0/-home-claude/05bcfa66-42da-580c-a72f-ba0b32235147/scratchpad/rebuild352_r3/iface_snapshot",
+  "ENGINE_USE_FALLBACK": "1",
+  "OMP_NUM_THREADS": "1",
+  "OPENBLAS_NUM_THREADS": "1",
+  "MKL_NUM_THREADS": "1",
+  "ENGINE_INTERFACES": "(unset: config.py:21 default <package root>/interfaces)"
+ },
+ "child": {
+  "pid": 25734,
+  "returncode": 0,
+  "t_s": 52.1,
+  "stopped": null,
+  "log_tail": "re-fly if the CONFIRMED landing-mass growth vs the v3.5.1 ledger is >= 0.10 kg (lead / GNC trigger)\", \"landing_state\": \"burnout (group all); the delta is the same in every state (no propellant or grain change)\", \"dm_landing_kg\": -0.0662, \"dm_landing_without_TC09_thinning_kg\": 0.0118, \"TC09_thinning_kg\": -0.078, \"verdict\": \"BELOW the trigger with and without the conditional TC-09 thinning: no re-fly by mass\", \"evidence\": \"CALC (CAD volume x engmat density + hardware CALC); not weighed, so not a 'confirmed' mass; COTS masses unchanged\"}\n  ENG-FD-01    engine     +8.51 g\n  ENG-FD-04    engine     -0.17 g\n  ENG-GM-01    engine     +4.21 g\n  ENG-GM-02    engine     +4.21 g\n  ENG-HW-101   engine     +5.57 g\n  ENG-HW-103   engine     +2.61 g\n  ENG-HW-103B  engine     +2.06 g\n  ENG-HW-121   fixed      -6.26 g\n  ENG-HW-123   fixed      -7.33 g\n  ENG-HW-150   engine     +0.37 g\n  ENG-HW-170   engine     +2.26 g\n  ENG-NZ-01    engine     -0.41 g\n  ENG-NZ-06    engine     +0.20 g\n  ENG-TC-01    engine     -1.19 g\n  ENG-TC-02    engine     -2.27 g\n  ENG-TC-03    engine     -0.54 g\n  ENG-TC-09    engine    -78.01 g\nwet engine -0.05259 dcg [-0.241, 0.014, 5.23] dI [-0.0020198, -0.0019996, -6.57e-05] | fixed -0.01359 | all -0.06618 5.34303\nmid engine -0.05259 dcg [-0.249, 0.015, 5.412] dI [-0.0020198, -0.0019997, -6.58e-05] | fixed -0.01359 | all -0.06618 5.26003\nburnout engine -0.05259 dcg [-0.259, 0.016, 5.608] dI [-0.0020198, -0.0019997, -6.58e-05] | fixed -0.01359 | all -0.06618 5.17703\n",
+  "rc": {
+   "make_all": 0,
+   "mass_delta": 0
+  },
+  "flags": {
+   "isolated": 1,
+   "dont_write_bytecode": 1
+  },
+  "executable": "/opt/engine-venv/bin/python"
+ },
+ "disk": {
+  "free_MiB_start": 2542.8,
+  "free_MiB_min": 2486.0,
+  "free_MiB_end_before_delete": 2486.0,
+  "limit_MiB": 2252.8,
+  "scratch_peak_MB": 58.7,
+  "scratch_limit_MB": 100.0
+ },
+ "isolation": {
+  "modules": {
+   "n_scratch_copy": 18,
+   "scratch_copy": [
+    "03-cad/v3.5.2/src/build.py",
+    "03-cad/v3.5.2/src/calcs/hose_frame.py",
+    "03-cad/v3.5.2/src/calcs/inlet_e1m.py",
+    "03-cad/v3.5.2/src/checks.py",
+    "03-cad/v3.5.2/src/config.py",
+    "03-cad/v3.5.2/src/engmat.py",
+    "03-cad/v3.5.2/src/geom.py",
+    "03-cad/v3.5.2/src/layout.py",
+    "03-cad/v3.5.2/src/partlib.py",
+    "03-cad/v3.5.2/src/parts_bleed.py",
+    "03-cad/v3.5.2/src/parts_engine.py",
+    "03-cad/v3.5.2/src/parts_feed.py",
+    "03-cad/v3.5.2/src/parts_gimbal.py",
+    "03-cad/v3.5.2/src/parts_inlet.py",
+    "03-cad/v3.5.2/src/parts_pintle.py",
+    "03-cad/v3.5.2/src/sweep.py",
+    "03-cad/v3.5.2/src/tvc_kinematics.py",
+    "runner_child.py"
+   ],
+   "n_stdlib_or_site_packages": 1488,
+   "stdlib_by_path_symlink_P3": [
+    {
+     "module": "sitecustomize",
+     "path": "/usr/lib/python3.13/sitecustomize.py",
+     "realpath": "/etc/python3.13/sitecustomize.py"
+    }
+   ],
+   "OTHER": [],
+   "python_roots": [
+    "/opt/engine-venv/lib/python3.13",
+    "/opt/engine-venv/lib/python3.13/site-packages",
+    "/usr/lib/python3.13"
+   ]
+  },
+  "files_opened_from_python": {
+   "scratch": 290,
+   "hub_read_in_place": {
+    "02-combustion/data/v2/nozzle_contour_v2.csv": "b00aed4fab46bb6f",
+    "interfaces/ENGINE-BASELINE-v0.json": "508faa652ccbd539",
+    "interfaces/combustion.json": "fd3a7da6d27c7c66",
+    "interfaces/electronics.json": "38bf149f368c1d4c",
+    "interfaces/gnc.json": "4f3209323b0e0ed4"
+   },
+   "python_stdlib_or_site": 1183,
+   "system": [],
+   "DEV_TREE": [],
+   "MNT": [],
+   "tool_cache_config_reads_ezdxf_P3": [
+    {
+     "exists": false,
+     "path": "/root/.config/ezdxf/ezdxf.ini",
+     "sha256_16": null
+    },
+    {
+     "exists": true,
+     "path": "/root/.cache/ezdxf/font_manager_cache.json",
+     "sha256_16": "68c572826deec177"
+    }
+   ],
+   "OTHER": [],
+   "writes_outside_scratch": []
+  },
+  "note": "the audit hook sees opens made from Python; OCCT writes the STEP / STL files in C++ to the paths make_all passes (all under the scratch set, listed below as outputs)",
+  "modules_ok": true,
+  "inputs_ok": true
+ },
+ "static_scan": {
+  "n_sites": 321,
+  "n_executed": 168,
+  "classified_sites_20_15_43Z": [
+   {
+    "site": "config.py:18",
+    "what": "FALLBACK_ROOT absolute hub path (named inputs G1)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "config.py:21",
+    "what": "INTERFACES = ENGINE_INTERFACES or <hub>/interfaces (G1)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "config.py:28",
+    "what": "SNAPSHOT = ENGINE_IFACE_SNAPSHOT (G2)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "config.py:36",
+    "what": "_load reads the interface file in place (G1)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "config.py:40",
+    "what": "_load writes the snapshot copy (G2)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "config.py:71",
+    "what": "shared(): returns the hub path of the contour csv (G1)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "layout.py:24",
+    "what": "read_contour opens config.shared(path) (G1)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "build.py:17",
+    "what": "sys.path <03-cad>/04-fea/src (absent in the archive layout)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "build.py:20",
+    "what": "import engmat -> src/engmat.py (A)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "make_all.py:46",
+    "what": "sys.path <03-cad>/04-fea/src (absent in the archive layout)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "make_all.py:52",
+    "what": "import engmat -> src/engmat.py (A)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "make_all.py:57",
+    "what": "MAKE_ALL_CAD (named: v352)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "make_all.py:622",
+    "what": "BOM: src/data/hardware_v352.json (in the set)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "make_all.py:716",
+    "what": "mass: src/data/hardware_v352.json (in the set)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "make_all.py:745",
+    "what": "mass: CAD/massprops_v3.5.json path (absent; not needed)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "make_all.py:747",
+    "what": "mass: massprops_v3.5.json read (branch not taken)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "make_all.py:756",
+    "what": "mass: CAD/massprops_v3.5.1.json read (named input, G3)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "make_all.py:764",
+    "what": "mass: HERE.parents[1]/interfaces/mechanical.json read (b1)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "parts_feed.py:269",
+    "what": "src/data/feed_plan_v341.json read (in the set)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "parts_feed.py:712",
+    "what": "import hose_frame from src/calcs (a)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "parts_inlet.py:14",
+    "what": "from calcs.inlet_e1m import E1M (in the set)",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "calcs/mass_delta_v352.py:31",
+    "what": "massprops_v3.5.1.json + massprops_v3.5.2.json read",
+    "expected_on_build_path": true,
+    "executed_in_run": true
+   },
+   {
+    "site": "config.py:77",
+    "what": "mount branch open (ENGINE_USE_FALLBACK=0 only)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "config.py:469",
+    "what": "relay() body (relay inactive: combustion.json v2.4b)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "build.py:39",
+    "what": "import parts_misc (branch not taken)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "make_all.py:113",
+    "what": "build_fingerprint (checks stage)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "make_all.py:913",
+    "what": "MAKE_ALL_DRAW_PN (drawings stage)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "make_all.py:934",
+    "what": "stage_readme sources (readme stage)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "layout.py:139",
+    "what": "sys.path '.' under __main__",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "tvc_kinematics.py:176",
+    "what": "sys.path '.' under __main__",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "parts_feed.py:825",
+    "what": "--freeze-plan under __main__",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "parts_feed.py:836",
+    "what": "--freeze-plan write under __main__",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "viz.py:17",
+    "what": "import engmat in viz (viz never imported)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "calcs/inlet_e1m.py:60",
+    "what": "stations() sys.path (calc main only)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "calcs/inlet_e1m.py:156",
+    "what": "COMB_MIRROR dev-tree read (main only)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "calcs/hardware_v352.py:24",
+    "what": "dev-tree input (module not imported by the build, G4)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "calcs/hardware_v352.py:51",
+    "what": "import hardware_v351 (module not imported by the build)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "calcs/hardware_v351.py:27",
+    "what": "sys.path <03-cad>/04-fea/src for engmat (module not imported by the build, G4)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "calcs/write_mechanical_json_v352.py:15",
+    "what": "hub path of the mechanical.json writer (not a build step)",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "calcs/hose_frame.py:197",
+    "what": "hose_frame main() write",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   },
+   {
+    "site": "engmat.py:545",
+    "what": "engmat __main__ export",
+    "expected_on_build_path": false,
+    "executed_in_run": false
+   }
+  ],
+  "classification_mismatches": [],
+  "n_lines_covered_in_src": 4494,
+  "files_with_coverage": [
+   "build.py",
+   "calcs/hose_frame.py",
+   "calcs/inlet_e1m.py",
+   "calcs/mass_delta_v352.py",
+   "checks.py",
+   "config.py",
+   "engmat.py",
+   "geom.py",
+   "layout.py",
+   "make_all.py",
+   "partlib.py",
+   "parts_bleed.py",
+   "parts_engine.py",
+   "parts_feed.py",
+   "parts_gimbal.py",
+   "parts_inlet.py",
+   "parts_pintle.py",
+   "sweep.py",
+   "tvc_kinematics.py"
+  ],
+  "sites": [
+   [
+    "build.py",
+    13,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    15,
+    "path navigation .parent",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    15,
+    "io / path call Path",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    15,
+    "__file__",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    16,
+    "sys.path edit",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    17,
+    "sys.path edit",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    17,
+    "path navigation .parents",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    18,
+    "import config",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    19,
+    "import layout",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    20,
+    "import engmat",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    21,
+    "import partlib",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    22,
+    "import geom",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    23,
+    "import tvc_kinematics",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    29,
+    "import parts_engine",
+    "_one_build",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    29,
+    "import parts_gimbal",
+    "_one_build",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    33,
+    "import parts_feed",
+    "_one_build",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    36,
+    "import parts_bleed",
+    "_one_build",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    39,
+    "import parts_misc",
+    "_one_build",
+    false,
+    false
+   ],
+   [
+    "build.py",
+    116,
+    "import parts_gimbal",
+    "mass_ledger",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    207,
+    "import parts_gimbal",
+    "posed_instances",
+    false,
+    true
+   ],
+   [
+    "build.py",
+    223,
+    "import parts_feed",
+    "posed_instances",
+    false,
+    true
+   ],
+   [
+    "calcs/hardware_v351.py",
+    25,
+    "path navigation .parent",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    25,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    25,
+    "__file__",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    26,
+    "io / path call (HERE.parent / 'src').is_dir",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    26,
+    "path navigation .parent",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    27,
+    "sys.path edit",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    27,
+    "path navigation .parents",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    28,
+    "import engmat",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    251,
+    "io / path call Path",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    268,
+    "io / path call out.parent.mkdir",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    268,
+    "path navigation .parent",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v351.py",
+    269,
+    "io / path call out.write_text",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    15,
+    "path navigation .parent",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    15,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    15,
+    "__file__",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    16,
+    "path navigation .parent",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    17,
+    "path navigation .parent",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    20,
+    "io / path call SRC.read_text",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    24,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    24,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    25,
+    "io / path call tif.read_bytes",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    50,
+    "sys.path edit",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    51,
+    "import hardware_v351",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    52,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    52,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    53,
+    "io / path call JF.read_bytes",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    114,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    114,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    115,
+    "io / path call JP.read_text",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    116,
+    "io / path call JP.read_bytes",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    142,
+    "io / path call Path('/home/claude/work/mechanical/v352/",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    142,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    142,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    181,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    181,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    182,
+    "io / path call JP2.read_text",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    183,
+    "io / path call JP2.read_bytes",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    243,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    243,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    244,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    244,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    245,
+    "io / path call JS.read_text",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    245,
+    "io / path call JE.read_text",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    246,
+    "io / path call JS.read_bytes",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    246,
+    "io / path call JE.read_bytes",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    323,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    323,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    329,
+    "io / path call _p.read_bytes",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    330,
+    "io / path call _p.read_text",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    589,
+    "io / path call OUT.write_text",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hardware_v352.py",
+    590,
+    "io / path call OUT.read_bytes",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/hose_frame.py",
+    19,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/hose_frame.py",
+    197,
+    "io / path call open",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    24,
+    "path navigation .parent",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    24,
+    "io / path call Path",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    24,
+    "__file__",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    26,
+    "io / path call Path",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    26,
+    "absolute path literal",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    60,
+    "sys.path edit",
+    "stations",
+    false,
+    false
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    60,
+    "path navigation .parent",
+    "stations",
+    false,
+    false
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    61,
+    "import build",
+    "stations",
+    false,
+    false
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    135,
+    "import CoolProp.CoolProp",
+    "trapped",
+    false,
+    false
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    156,
+    "io / path call COMB_MIRROR.read_text",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    161,
+    "io / path call COMB_MIRROR.read_bytes",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/inlet_e1m.py",
+    252,
+    "io / path call OUT.write_text",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/mass_delta_v352.py",
+    26,
+    "path navigation .parents",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/mass_delta_v352.py",
+    26,
+    "io / path call Path",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/mass_delta_v352.py",
+    26,
+    "__file__",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/mass_delta_v352.py",
+    30,
+    "io / path call f.read_bytes",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/mass_delta_v352.py",
+    31,
+    "io / path call A.read_text",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/mass_delta_v352.py",
+    31,
+    "io / path call B.read_text",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/mass_delta_v352.py",
+    125,
+    "io / path call OUT.write_text",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    15,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    15,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    19,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    19,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    20,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    20,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    21,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    21,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    27,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    27,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    35,
+    "io / path call Path",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    35,
+    "absolute path literal",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    40,
+    "io / path call Path(p).read_bytes",
+    "sha",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    40,
+    "io / path call Path",
+    "sha",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    45,
+    "io / path call CL.read_text",
+    "cl_segment",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    55,
+    "io / path call HUB.read_bytes",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    66,
+    "io / path call hub.exists",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    68,
+    "io / path call hub.exists",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    69,
+    "io / path call Path(p).read_text",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    69,
+    "io / path call Path",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    79,
+    "io / path call p.read_text",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    80,
+    "io / path call p.read_bytes",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    91,
+    "io / path call Path",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    91,
+    "__file__",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    236,
+    "io / path call HUB.read_bytes",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    238,
+    "io / path call HUB.write_text",
+    "main",
+    false,
+    false
+   ],
+   [
+    "calcs/write_mechanical_json_v352.py",
+    239,
+    "io / path call HUB.read_text",
+    "main",
+    false,
+    false
+   ],
+   [
+    "checks.py",
+    16,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "checks.py",
+    17,
+    "import cadquery",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "checks.py",
+    18,
+    "import OCP.BRepAlgoAPI",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "checks.py",
+    19,
+    "import OCP.BRepExtrema",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "checks.py",
+    20,
+    "import OCP.GProp",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "checks.py",
+    21,
+    "import OCP.BRepGProp",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "checks.py",
+    22,
+    "import OCP.BRepCheck",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "checks.py",
+    23,
+    "import geom",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "checks.py",
+    122,
+    "import geom",
+    "common_volume",
+    false,
+    false
+   ],
+   [
+    "checks.py",
+    268,
+    "import build",
+    "bay_wall_sweep",
+    false,
+    false
+   ],
+   [
+    "checks.py",
+    268,
+    "import parts_gimbal",
+    "bay_wall_sweep",
+    false,
+    false
+   ],
+   [
+    "checks.py",
+    268,
+    "import parts_feed",
+    "bay_wall_sweep",
+    false,
+    false
+   ],
+   [
+    "checks.py",
+    268,
+    "import tvc_kinematics",
+    "bay_wall_sweep",
+    false,
+    false
+   ],
+   [
+    "checks.py",
+    300,
+    "import parts_bleed",
+    "bay_wall_sweep",
+    false,
+    false
+   ],
+   [
+    "checks.py",
+    395,
+    "import build",
+    "fixed_wall_check",
+    false,
+    false
+   ],
+   [
+    "config.py",
+    17,
+    "io / path call Path",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    17,
+    "absolute path literal",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    18,
+    "io / path call Path",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    18,
+    "absolute path literal",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    19,
+    "environment",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    21,
+    "io / path call Path",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    21,
+    "environment",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    28,
+    "io / path call Path",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    28,
+    "environment",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    28,
+    "absolute path literal",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    35,
+    "io / path call p.exists",
+    "_load",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    36,
+    "io / path call p.read_text",
+    "_load",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    39,
+    "io / path call SNAPSHOT.mkdir",
+    "_load",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    40,
+    "io / path call (SNAPSHOT / name).write_text",
+    "_load",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    49,
+    "io / path call q.exists",
+    "_load",
+    false,
+    false
+   ],
+   [
+    "config.py",
+    51,
+    "io / path call q.read_text",
+    "_load",
+    false,
+    false
+   ],
+   [
+    "config.py",
+    63,
+    "absolute path literal",
+    "shared",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    64,
+    "absolute path literal",
+    "shared",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    65,
+    "absolute path literal",
+    "shared",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    68,
+    "path navigation .parent",
+    "shared",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    69,
+    "io / path call fb.exists",
+    "shared",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    72,
+    "io / path call mirror.exists",
+    "shared",
+    false,
+    false
+   ],
+   [
+    "config.py",
+    77,
+    "io / path call open",
+    "shared",
+    false,
+    false
+   ],
+   [
+    "config.py",
+    81,
+    "io / path call mirror.parent.mkdir",
+    "shared",
+    false,
+    false
+   ],
+   [
+    "config.py",
+    81,
+    "path navigation .parent",
+    "shared",
+    false,
+    false
+   ],
+   [
+    "config.py",
+    82,
+    "io / path call mirror.write_bytes",
+    "shared",
+    false,
+    false
+   ],
+   [
+    "config.py",
+    88,
+    "io / path call mirror.exists",
+    "shared",
+    false,
+    false
+   ],
+   [
+    "config.py",
+    485,
+    "absolute path literal",
+    "build",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    490,
+    "absolute path literal",
+    "build",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    491,
+    "absolute path literal",
+    "build",
+    false,
+    true
+   ],
+   [
+    "config.py",
+    492,
+    "absolute path literal",
+    "build",
+    false,
+    true
+   ],
+   [
+    "engmat.py",
+    26,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "engmat.py",
+    545,
+    "io / path call Path(path).write_text",
+    "export_json",
+    false,
+    false
+   ],
+   [
+    "engmat.py",
+    545,
+    "io / path call Path",
+    "export_json",
+    false,
+    false
+   ],
+   [
+    "engmat.py",
+    550,
+    "path navigation .parents",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "engmat.py",
+    550,
+    "io / path call Path",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "engmat.py",
+    550,
+    "__file__",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "geom.py",
+    4,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "geom.py",
+    5,
+    "import cadquery",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "geom.py",
+    6,
+    "import OCP.gp",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "geom.py",
+    7,
+    "import OCP.GProp",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "geom.py",
+    8,
+    "import OCP.BRepGProp",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "geom.py",
+    9,
+    "import OCP.Bnd",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "geom.py",
+    10,
+    "import OCP.BRepBndLib",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "layout.py",
+    13,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "layout.py",
+    23,
+    "import config",
+    "read_contour",
+    false,
+    true
+   ],
+   [
+    "layout.py",
+    24,
+    "io / path call open",
+    "read_contour",
+    false,
+    true
+   ],
+   [
+    "layout.py",
+    139,
+    "sys.path edit",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "layout.py",
+    140,
+    "import config",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "make_all.py",
+    40,
+    "environment",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    41,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    43,
+    "path navigation .parent",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    43,
+    "io / path call Path",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    43,
+    "__file__",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    44,
+    "path navigation .parent",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    45,
+    "sys.path edit",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    46,
+    "sys.path edit",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    46,
+    "path navigation .parents",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    47,
+    "import cadquery",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    48,
+    "import config",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    49,
+    "import build",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    50,
+    "import checks",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    51,
+    "import sweep",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    52,
+    "import engmat",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    53,
+    "import geom",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    57,
+    "environment",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    74,
+    "io / path call open",
+    "sha16",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    81,
+    "io / path call path.parent.mkdir",
+    "jdump",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    81,
+    "path navigation .parent",
+    "jdump",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    82,
+    "io / path call path.write_text",
+    "jdump",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    93,
+    "import OCP.Bnd",
+    "bounds_of",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    94,
+    "import OCP.BRepBndLib",
+    "bounds_of",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    114,
+    "io / path call HERE.glob",
+    "build_fingerprint",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    114,
+    "io / path call (HERE / 'data').glob",
+    "build_fingerprint",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    114,
+    "path navigation .parents",
+    "build_fingerprint",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    115,
+    "io / path call f.is_file",
+    "build_fingerprint",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    117,
+    "io / path call f.read_bytes",
+    "build_fingerprint",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    188,
+    "io / path call old_path.exists",
+    "stage_checks",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    190,
+    "io / path call old_path.read_text",
+    "stage_checks",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    269,
+    "io / path call cq.importers.importStep",
+    "roundtrip",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    282,
+    "io / path call pdir.mkdir",
+    "stage_parts",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    314,
+    "io / path call adir.mkdir",
+    "stage_assembly",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    318,
+    "import tvc_kinematics",
+    "stage_assembly",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    331,
+    "io / path call cq.importers.importStep",
+    "stage_assembly",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    352,
+    "import parts_gimbal",
+    "stage_placements",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    384,
+    "import trimesh",
+    "stage_glb",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    386,
+    "io / path call adir.mkdir",
+    "stage_glb",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    579,
+    "io / path call open",
+    "stage_bom",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    622,
+    "io / path call HARDWARE_FILE.read_text",
+    "hardware_lines",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    716,
+    "io / path call HARDWARE_FILE.read_text",
+    "stage_mass",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    746,
+    "io / path call f35.exists",
+    "stage_mass",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    747,
+    "io / path call f35.read_text",
+    "stage_mass",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    755,
+    "io / path call f351.exists",
+    "stage_mass",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    756,
+    "io / path call f351.read_text",
+    "stage_mass",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    762,
+    "path navigation .parents",
+    "stage_mass",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    763,
+    "io / path call fmj.exists",
+    "stage_mass",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    764,
+    "io / path call fmj.read_text",
+    "stage_mass",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    793,
+    "import OCP.HLRBRep",
+    "hlr_polylines",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    794,
+    "import OCP.HLRAlgo",
+    "hlr_polylines",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    795,
+    "import OCP.gp",
+    "hlr_polylines",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    829,
+    "import matplotlib",
+    "draw_part",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    831,
+    "import matplotlib.pyplot",
+    "draw_part",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    832,
+    "import ezdxf",
+    "draw_part",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    897,
+    "io / path call out_dir.mkdir",
+    "draw_part",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    913,
+    "environment",
+    "stage_drawings",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    913,
+    "environment",
+    "stage_drawings",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    934,
+    "io / path call (HERE / 'data').glob",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    934,
+    "io / path call (HERE.parent / 'calcs').glob",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    934,
+    "io / path call HERE.glob",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    934,
+    "io / path call (HERE / 'calcs').glob",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    934,
+    "path navigation .parent",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    935,
+    "io / path call out.rglob",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    935,
+    "io / path call p.is_file",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    944,
+    "io / path call p.relative_to",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    944,
+    "path navigation .parents",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    945,
+    "io / path call p.relative_to",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    950,
+    "io / path call (out / 'checks' / f'checks_summary_{CAD_",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    951,
+    "io / path call (out / 'checks' / f'checks_summary_{CAD_",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    1013,
+    "io / path call (out / 'README.md').write_text",
+    "stage_readme",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    1034,
+    "io / path call Path",
+    "main",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    1035,
+    "io / path call out.mkdir",
+    "main",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    1044,
+    "io / path call f.exists",
+    "main",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    1045,
+    "io / path call f.read_text",
+    "main",
+    false,
+    false
+   ],
+   [
+    "make_all.py",
+    1061,
+    "io / path call (out / 'checks' / f'roundtrip_parts_{CAD",
+    "main",
+    false,
+    true
+   ],
+   [
+    "make_all.py",
+    1061,
+    "io / path call (out / 'checks' / f'roundtrip_parts_{CAD",
+    "main",
+    false,
+    true
+   ],
+   [
+    "partlib.py",
+    6,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_bleed.py",
+    21,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_bleed.py",
+    22,
+    "import cadquery",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_bleed.py",
+    23,
+    "import partlib",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_bleed.py",
+    24,
+    "import geom",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_bleed.py",
+    84,
+    "import parts_feed",
+    "build_bleed_parts",
+    false,
+    true
+   ],
+   [
+    "parts_bleed.py",
+    161,
+    "import parts_inlet",
+    "build_bleed_parts",
+    false,
+    true
+   ],
+   [
+    "parts_engine.py",
+    39,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_engine.py",
+    40,
+    "import cadquery",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_engine.py",
+    41,
+    "import geom",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_engine.py",
+    43,
+    "import partlib",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_engine.py",
+    351,
+    "import parts_inlet",
+    "build_engine_parts",
+    false,
+    true
+   ],
+   [
+    "parts_engine.py",
+    890,
+    "import parts_pintle",
+    "build_engine_parts",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    27,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    28,
+    "import cadquery",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    29,
+    "import geom",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    30,
+    "import partlib",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    75,
+    "import scipy.interpolate",
+    "smooth_curve",
+    false,
+    false
+   ],
+   [
+    "parts_feed.py",
+    115,
+    "import scipy.optimize",
+    "plan_curve",
+    false,
+    false
+   ],
+   [
+    "parts_feed.py",
+    116,
+    "import scipy.interpolate",
+    "plan_curve",
+    false,
+    false
+   ],
+   [
+    "parts_feed.py",
+    259,
+    "path navigation .parent",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    259,
+    "io / path call Path",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    259,
+    "__file__",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    269,
+    "io / path call PLAN_FROZEN.read_text",
+    "_frozen_plan",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    711,
+    "sys.path edit",
+    "hose_modes",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    711,
+    "path navigation .parent",
+    "hose_modes",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    711,
+    "io / path call Path",
+    "hose_modes",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    711,
+    "__file__",
+    "hose_modes",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    712,
+    "import hose_frame",
+    "hose_modes",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    730,
+    "import tvc_kinematics",
+    "hose_centreline_at",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    747,
+    "import parts_bleed",
+    "posed_flex",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    747,
+    "import tvc_kinematics",
+    "posed_flex",
+    false,
+    true
+   ],
+   [
+    "parts_feed.py",
+    825,
+    "environment",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "parts_feed.py",
+    825,
+    "environment",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "parts_feed.py",
+    830,
+    "io / path call PLAN_FROZEN.parent.mkdir",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "parts_feed.py",
+    830,
+    "path navigation .parent",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "parts_feed.py",
+    836,
+    "io / path call PLAN_FROZEN.write_text",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "parts_gimbal.py",
+    21,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_gimbal.py",
+    22,
+    "import cadquery",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_gimbal.py",
+    23,
+    "import geom",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_gimbal.py",
+    25,
+    "import partlib",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_gimbal.py",
+    26,
+    "import tvc_kinematics",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_gimbal.py",
+    698,
+    "import parts_engine",
+    "build_gimbal_parts",
+    false,
+    true
+   ],
+   [
+    "parts_inlet.py",
+    10,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_inlet.py",
+    11,
+    "import cadquery",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_inlet.py",
+    12,
+    "import geom",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_inlet.py",
+    13,
+    "import partlib",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_inlet.py",
+    14,
+    "import calcs.inlet_e1m",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_inlet.py",
+    179,
+    "import parts_feed",
+    "build_inlet_parts",
+    false,
+    true
+   ],
+   [
+    "parts_pintle.py",
+    20,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_pintle.py",
+    21,
+    "import cadquery",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_pintle.py",
+    22,
+    "import geom",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_pintle.py",
+    23,
+    "import partlib",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "parts_pintle.py",
+    61,
+    "import geom",
+    "_link_T",
+    false,
+    true
+   ],
+   [
+    "sweep.py",
+    13,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "tvc_kinematics.py",
+    21,
+    "import numpy",
+    "<module>",
+    false,
+    true
+   ],
+   [
+    "tvc_kinematics.py",
+    176,
+    "sys.path edit",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "tvc_kinematics.py",
+    177,
+    "import config",
+    "<module>",
+    true,
+    false
+   ],
+   [
+    "viz.py",
+    3,
+    "import numpy",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "viz.py",
+    4,
+    "import pyvista",
+    "<module>",
+    false,
+    false
+   ],
+   [
+    "viz.py",
+    17,
+    "import engmat",
+    "color_of",
+    false,
+    false
+   ]
+  ],
+  "sites_columns": [
+   "file",
+   "line",
+   "kind",
+   "enclosing function",
+   "under __main__ guard",
+   "executed in this run"
+  ]
+ },
+ "comparison": {
+  "stl": {
+   "n": 112,
+   "byte_identical": 112,
+   "differ": []
+  },
+  "step": {
+   "n": 114,
+   "byte_identical": 0,
+   "data_identical_header_only": 112,
+   "header_fields_differing": [
+    "FILE_NAME"
+   ],
+   "differ": [],
+   "assembly_data_identical": [],
+   "assembly_canonical": {
+    "assembly/ENGINE_v3.5.2_neutral.step": {
+     "method": "Merkle sha256 per DATA entity: type + non-reference parameters as written (whitespace outside strings removed), each #reference replaced by the referenced entity's hash; multisets of all entity hashes and of root entities compared",
+     "entity_counts": {
+      "hub": 199641,
+      "rebuild": 199641
+     },
+     "data_lines": {
+      "hub": 275310,
+      "rebuild": 275310
+     },
+     "first_differing_data_line": {
+      "index_from_DATA": 273940,
+      "hub": "    #198422),#171661);",
+      "rebuild": "    #198422),#193465);"
+     },
+     "root_entities": {
+      "hub": 599,
+      "rebuild": 599,
+      "multisets_equal": true,
+      "root_types_hub": {
+       "SHAPE_DEFINITION_REPRESENTATION": 150,
+       "PRODUCT_RELATED_PRODUCT_CATEGORY": 150,
+       "CONTEXT_DEPENDENT_SHAPE_REPRESENTATION": 149,
+       "MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION": 149,
+       "APPLICATION_PROTOCOL_DEFINITION": 1
+      }
+     },
+     "hash_multisets_equal": true,
+     "n_hashes_only_in_hub": 0,
+     "n_hashes_only_in_rebuild": 0,
+     "types_whose_order_differs": [
+      "COLOUR_RGB",
+      "FILL_AREA_STYLE",
+      "FILL_AREA_STYLE_COLOUR",
+      "MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION",
+      "PRESENTATION_STYLE_ASSIGNMENT",
+      "STYLED_ITEM",
+      "SURFACE_SIDE_STYLE",
+      "SURFACE_STYLE_FILL_AREA",
+      "SURFACE_STYLE_USAGE"
+     ],
+     "types_whose_content_differs": [],
+     "entities_per_type_hub": {
+      "ADVANCED_BREP_SHAPE_REPRESENTATION": 148,
+      "ADVANCED_FACE": 2356,
+      "APPLICATION_CONTEXT": 1,
+      "APPLICATION_PROTOCOL_DEFINITION": 1,
+      "AXIS2_PLACEMENT_2D": 1807,
+      "AXIS2_PLACEMENT_3D": 4888,
+      "B_SPLINE_CURVE_WITH_KNOTS": 2748,
+      "CARTESIAN_POINT": 77512,
+      "CIRCLE": 3598,
+      "CLOSED_SHELL": 150,
+      "COLOUR_RGB": 22,
+      "COMPLEX[BOUNDED_CURVE+B_SPLINE_CURVE+B_SPLINE_CURVE_WITH_KNOTS+CURVE+GEOMETRIC_REPRESENTATION_ITEM+RATIONAL_B_SPLINE_CURVE+REPRESENTATION_ITEM]": 135,
+      "COMPLEX[BOUNDED_SURFACE+B_SPLINE_SURFACE+B_SPLINE_SURFACE_WITH_KNOTS+GEOMETRIC_REPRESENTATION_ITEM+RATIONAL_B_SPLINE_SURFACE+REPRESENTATION_ITEM+SURFACE]": 8,
+      "COMPLEX[GEOMETRIC_REPRESENTATION_CONTEXT+GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT+GLOBAL_UNIT_ASSIGNED_CONTEXT+REPRESENTATION_CONTEXT]": 150,
+      "COMPLEX[GEOMETRIC_REPRESENTATION_CONTEXT+PARAMETRIC_REPRESENTATION_CONTEXT+REPRESENTATION_CONTEXT]": 10460,
+      "COMPLEX[LENGTH_UNIT+NAMED_UNIT+SI_UNIT]": 150,
+      "COMPLEX[NAMED_UNIT+PLANE_ANGLE_UNIT+SI_UNIT]": 150,
+      "COMPLEX[NAMED_UNIT+SI_UNIT+SOLID_ANGLE_UNIT]": 150,
+      "COMPLEX[REPRESENTATION_RELATIONSHIP+REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION+SHAPE_REPRESENTATION_RELATIONSHIP]": 149,
+      "CONICAL_SURFACE": 53,
+      "CONTEXT_DEPENDENT_SHAPE_REPRESENTATION": 149,
+      "CYLINDRICAL_SURFACE": 897,
+      "DEFINITIONAL_REPRESENTATION": 10460,
+      "DIRECTION": 20195,
+      "EDGE_CURVE": 5230,
+      "EDGE_LOOP": 3082,
+      "ELLIPSE": 583,
+      "FACE_BOUND": 3082,
+      "FILL_AREA_STYLE": 150,
+      "FILL_AREA_STYLE_COLOUR": 150,
+      "HYPERBOLA": 18,
+      "ITEM_DEFINED_TRANSFORMATION": 149,
+      "LINE": 8610,
+      "MANIFOLD_SOLID_BREP": 150,
+      "MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION": 149,
+      "NEXT_ASSEMBLY_USAGE_OCCURRENCE": 149,
+      "ORIENTED_EDGE": 10462,
+      "PCURVE": 10460,
+      "PLANE": 1311,
+      "PRESENTATION_STYLE_ASSIGNMENT": 150,
+      "PRODUCT": 150,
+      "PRODUCT_CONTEXT": 150,
+      "PRODUCT_DEFINITION": 150,
+      "PRODUCT_DEFINITION_CONTEXT": 150,
+      "PRODUCT_DEFINITION_FORMATION": 150,
+      "PRODUCT_DEFINITION_SHAPE": 299,
+      "PRODUCT_RELATED_PRODUCT_CATEGORY": 150,
+      "SEAM_CURVE": 730,
+      "SHAPE_DEFINITION_REPRESENTATION": 150,
+      "SHAPE_REPRESENTATION": 2,
+      "SPHERICAL_SURFACE": 64,
+      "STYLED_ITEM": 150,
+      "SURFACE_CURVE": 4500,
+      "SURFACE_OF_LINEAR_EXTRUSION": 2,
+      "SURFACE_SIDE_STYLE": 150,
+      "SURFACE_STYLE_FILL_AREA": 150,
+      "SURFACE_STYLE_USAGE": 150,
+      "TOROIDAL_SURFACE": 21,
+      "UNCERTAINTY_MEASURE_WITH_UNIT": 150,
+      "VECTOR": 8612,
+      "VERTEX_POINT": 3389
+     },
+     "PASS": true
+    },
+    "assembly/ENGINE_v3.5.2_stop045.step": {
+     "method": "Merkle sha256 per DATA entity: type + non-reference parameters as written (whitespace outside strings removed), each #reference replaced by the referenced entity's hash; multisets of all entity hashes and of root entities compared",
+     "entity_counts": {
+      "hub": 180729,
+      "rebuild": 180729
+     },
+     "data_lines": {
+      "hub": 242341,
+      "rebuild": 242341
+     },
+     "first_differing_data_line": {
+      "index_from_DATA": 240971,
+      "hub": "    #179510),#44943);",
+      "rebuild": "    #179510),#129984);"
+     },
+     "root_entities": {
+      "hub": 599,
+      "rebuild": 599,
+      "multisets_equal": true,
+      "root_types_hub": {
+       "SHAPE_DEFINITION_REPRESENTATION": 150,
+       "PRODUCT_RELATED_PRODUCT_CATEGORY": 150,
+       "CONTEXT_DEPENDENT_SHAPE_REPRESENTATION": 149,
+       "MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION": 149,
+       "APPLICATION_PROTOCOL_DEFINITION": 1
+      }
+     },
+     "hash_multisets_equal": true,
+     "n_hashes_only_in_hub": 0,
+     "n_hashes_only_in_rebuild": 0,
+     "types_whose_order_differs": [
+      "COLOUR_RGB",
+      "FILL_AREA_STYLE",
+      "FILL_AREA_STYLE_COLOUR",
+      "MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION",
+      "PRESENTATION_STYLE_ASSIGNMENT",
+      "STYLED_ITEM",
+      "SURFACE_SIDE_STYLE",
+      "SURFACE_STYLE_FILL_AREA",
+      "SURFACE_STYLE_USAGE"
+     ],
+     "types_whose_content_differs": [],
+     "entities_per_type_hub": {
+      "ADVANCED_BREP_SHAPE_REPRESENTATION": 148,
+      "ADVANCED_FACE": 2356,
+      "APPLICATION_CONTEXT": 1,
+      "APPLICATION_PROTOCOL_DEFINITION": 1,
+      "AXIS2_PLACEMENT_2D": 1807,
+      "AXIS2_PLACEMENT_3D": 4888,
+      "B_SPLINE_CURVE_WITH_KNOTS": 2748,
+      "CARTESIAN_POINT": 58600,
+      "CIRCLE": 3598,
+      "CLOSED_SHELL": 150,
+      "COLOUR_RGB": 22,
+      "COMPLEX[BOUNDED_CURVE+B_SPLINE_CURVE+B_SPLINE_CURVE_WITH_KNOTS+CURVE+GEOMETRIC_REPRESENTATION_ITEM+RATIONAL_B_SPLINE_CURVE+REPRESENTATION_ITEM]": 135,
+      "COMPLEX[BOUNDED_SURFACE+B_SPLINE_SURFACE+B_SPLINE_SURFACE_WITH_KNOTS+GEOMETRIC_REPRESENTATION_ITEM+RATIONAL_B_SPLINE_SURFACE+REPRESENTATION_ITEM+SURFACE]": 8,
+      "COMPLEX[GEOMETRIC_REPRESENTATION_CONTEXT+GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT+GLOBAL_UNIT_ASSIGNED_CONTEXT+REPRESENTATION_CONTEXT]": 150,
+      "COMPLEX[GEOMETRIC_REPRESENTATION_CONTEXT+PARAMETRIC_REPRESENTATION_CONTEXT+REPRESENTATION_CONTEXT]": 10460,
+      "COMPLEX[LENGTH_UNIT+NAMED_UNIT+SI_UNIT]": 150,
+      "COMPLEX[NAMED_UNIT+PLANE_ANGLE_UNIT+SI_UNIT]": 150,
+      "COMPLEX[NAMED_UNIT+SI_UNIT+SOLID_ANGLE_UNIT]": 150,
+      "COMPLEX[REPRESENTATION_RELATIONSHIP+REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION+SHAPE_REPRESENTATION_RELATIONSHIP]": 149,
+      "CONICAL_SURFACE": 53,
+      "CONTEXT_DEPENDENT_SHAPE_REPRESENTATION": 149,
+      "CYLINDRICAL_SURFACE": 897,
+      "DEFINITIONAL_REPRESENTATION": 10460,
+      "DIRECTION": 20195,
+      "EDGE_CURVE": 5230,
+      "EDGE_LOOP": 3082,
+      "ELLIPSE": 583,
+      "FACE_BOUND": 3082,
+      "FILL_AREA_STYLE": 150,
+      "FILL_AREA_STYLE_COLOUR": 150,
+      "HYPERBOLA": 18,
+      "ITEM_DEFINED_TRANSFORMATION": 149,
+      "LINE": 8610,
+      "MANIFOLD_SOLID_BREP": 150,
+      "MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION": 149,
+      "NEXT_ASSEMBLY_USAGE_OCCURRENCE": 149,
+      "ORIENTED_EDGE": 10462,
+      "PCURVE": 10460,
+      "PLANE": 1311,
+      "PRESENTATION_STYLE_ASSIGNMENT": 150,
+      "PRODUCT": 150,
+      "PRODUCT_CONTEXT": 150,
+      "PRODUCT_DEFINITION": 150,
+      "PRODUCT_DEFINITION_CONTEXT": 150,
+      "PRODUCT_DEFINITION_FORMATION": 150,
+      "PRODUCT_DEFINITION_SHAPE": 299,
+      "PRODUCT_RELATED_PRODUCT_CATEGORY": 150,
+      "SEAM_CURVE": 730,
+      "SHAPE_DEFINITION_REPRESENTATION": 150,
+      "SHAPE_REPRESENTATION": 2,
+      "SPHERICAL_SURFACE": 64,
+      "STYLED_ITEM": 150,
+      "SURFACE_CURVE": 4500,
+      "SURFACE_OF_LINEAR_EXTRUSION": 2,
+      "SURFACE_SIDE_STYLE": 150,
+      "SURFACE_STYLE_FILL_AREA": 150,
+      "SURFACE_STYLE_USAGE": 150,
+      "TOROIDAL_SURFACE": 21,
+      "UNCERTAINTY_MEASURE_WITH_UNIT": 150,
+      "VECTOR": 8612,
+      "VERTEX_POINT": 3389
+     },
+     "PASS": true
+    }
+   }
+  },
+  "main_files": {
+   "BOM_v3.5.2.csv": {
+    "hub_sha256_16": "96138bab77e95884",
+    "rebuild_sha256_16": "96138bab77e95884",
+    "byte_identical": true
+   },
+   "BOM_v3.5.2.json": {
+    "hub_sha256_16": "9234c953c5b6beb8",
+    "rebuild_sha256_16": "9234c953c5b6beb8",
+    "byte_identical": true
+   },
+   "massdelta_v3.5.2_vs_v3.5.1.json": {
+    "hub_sha256_16": "6f39368668acafd1",
+    "rebuild_sha256_16": "c19120483c344d3b",
+    "byte_identical": false,
+    "masked_pointer_rfc6901": "/files/v352/sha256_16",
+    "masked_values": {
+     "hub": "c1ff170be0ac8cc5",
+     "rebuild": "fc459c599f316d98"
+    },
+    "every_other_field_identical_order_preserving": true,
+    "masked_value_check": {
+     "hub_massdelta_field_equals_hub_massprops_sha": true,
+     "rebuild_massdelta_field_equals_rebuild_massprops_sha": true
+    }
+   },
+   "massprops_v3.5.2.json": {
+    "hub_sha256_16": "c1ff170be0ac8cc5",
+    "rebuild_sha256_16": "fc459c599f316d98",
+    "byte_identical": false,
+    "masked_pointer_rfc6901": "/cg_iteration/0/t_s",
+    "masked_values": {
+     "hub": 30.2,
+     "rebuild": 22.3
+    },
+    "every_other_field_identical_order_preserving": true
+   }
+  },
+  "glb": {
+   "assembly/ENGINE_v3.5.2_neutral.glb": {
+    "hub_sha256_16": "4bcc264f683e128f",
+    "rebuild_sha256_16": "4bcc264f683e128f",
+    "byte_identical": true
+   }
+  },
+  "placements": {
+   "assembly/placements_v3.5.2.json": {
+    "hub_sha256_16": "415cbe4464a945d9",
+    "rebuild_sha256_16": "415cbe4464a945d9",
+    "byte_identical": true,
+    "hub_date": "2026-10-20",
+    "rebuild_date": "2026-10-20"
+   }
+  },
+  "other_outputs": {
+   "assembly/assembly_manifest_v3.5.2.json": {
+    "hub_sha256_16": "b2ffac1bdefd288c",
+    "rebuild_sha256_16": "b2ffac1bdefd288c",
+    "byte_identical": true
+   },
+   "checks/bleed_topology_v3.5.2.json": {
+    "hub_sha256_16": "d4e0639e319e3581",
+    "rebuild_sha256_16": "d4e0639e319e3581",
+    "byte_identical": true
+   },
+   "checks/build_log_v3.5.2.json": {
+    "hub_sha256_16": "10d1d762cb89e7e2",
+    "rebuild_sha256_16": "8a614800e6190ca5",
+    "byte_identical": false,
+    "identical_with_run_time_and_step_sha_masked": true
+   },
+   "checks/glb_readback_v3.5.2.json": {
+    "hub_sha256_16": "e95fe38bffac9c44",
+    "rebuild_sha256_16": "e95fe38bffac9c44",
+    "byte_identical": true
+   },
+   "checks/make_all_log_v3.5.2.json": {
+    "hub_sha256_16": "d197f76b2caaae6f",
+    "rebuild_sha256_16": "beed393a159be384",
+    "byte_identical": false,
+    "identical_with_run_time_and_step_sha_masked": true
+   },
+   "checks/roundtrip_assembly_v3.5.2.json": {
+    "hub_sha256_16": "dfde8ec50a32dbf9",
+    "rebuild_sha256_16": "e8e887904f6374c7",
+    "byte_identical": false,
+    "identical_with_run_time_and_step_sha_masked": true
+   },
+   "checks/roundtrip_parts_v3.5.2.json": {
+    "hub_sha256_16": "e8734d8d4fcf6896",
+    "rebuild_sha256_16": "176777d7dd43e14d",
+    "byte_identical": false,
+    "identical_with_run_time_and_step_sha_masked": true
+   }
+  },
+  "produced_not_in_hub_set": [],
+  "hub_outputs_not_produced": [],
+  "hub_changed_since_manifest": []
+ },
+ "verdict": {
+  "isolation_modules_ok": true,
+  "inputs_ok_named_inputs_only_shas_checked": true,
+  "static_classification_confirmed_by_coverage": true,
+  "stl_112_byte_identical_and_part_step_data_identical": true,
+  "assembly_step_identical_up_to_entity_order_and_numbering_P2": true,
+  "bom_json_csv_byte_identical": true,
+  "massprops_massdelta_identical_except_the_two_masked_pointers_P1": true,
+  "glb_byte_identical": true,
+  "placements_byte_identical_same_utc_day": true,
+  "assembly_manifest_byte_identical": true,
+  "other_outputs_ok_run_time_and_step_sha_masked": true,
+  "ALL_OK": true
+ },
+ "claim_scope": "hub copy of the archive (package root /home/claude/work/shared-fallback/engine) with the five named inputs, shas checked; not tested from a fresh GitHub checkout",
+ "scratch_deleted": {
+  "deleted": true,
+  "utc": "20:36:14Z",
+  "free_MiB_after": 2542.7
+ },
+ "t_total_s": 59.8
+}
