@@ -27,6 +27,7 @@ P_FA1S_ABS, P_AMB = 151.04, 1.01325           # bar abs (line 230 / 231), ambien
 PG = (P_FA1S_ABS - P_AMB) * 0.1                # MPa gauge
 D_SEAL = 57.25                                 # case bore at the plug O-rings (TC-01 seal land 57.25 H8): pressure area
 F_TOT = PG * math.pi / 4.0 * D_SEAL ** 2       # N
+F_TOT_ABS = P_FA1S_ABS * 0.1 * math.pi / 4.0 * D_SEAL ** 2   # N, absolute-pressure basis (v2 rows, lead 10:28Z)
 T_C = 45.0
 GEO = {"case_OD": 63.5, "case_bore": 57.25, "plug_OD": 57.20, "e_mm": 12.0, "gap": 0.025, "bolt_z": 127.513, "g2_fwd_wall_z": 114.363 + 4.85,
        "zf": 103.513, "manifold_bore_d": 10.0}
@@ -77,7 +78,7 @@ def ms(cap, dem):
     return round(cap / dem - 1.0, 3)
 
 
-def option(key, n, size, grade, L_screw, t_case=None, T=T_C, torque=None, spot_face=False, note=""):
+def option(key, n, size, grade, L_screw, t_case=None, T=T_C, torque=None, spot_face=False, note="", l_bear=None, F=None):
     th = TH[size]
     Rp20, Rm20, gsrc = GRADES[grade]
     Rp, Rm = Rp20 * kT(T), Rm20 * kTu(T)
@@ -89,7 +90,7 @@ def option(key, n, size, grade, L_screw, t_case=None, T=T_C, torque=None, spot_f
     t0 = (GEO["case_OD"] - GEO["case_bore"]) / 2.0
     sag = GEO["case_OD"] / 2.0 - math.sqrt((GEO["case_OD"] / 2.0) ** 2 - (th["dk"] / 2.0) ** 2)
     t = t_case if t_case else (t0 - sag if spot_face else t0)
-    V = F_TOT / n
+    V = (F if F else F_TOT) / n
     D, Dh, e = th["d"], th["hole"], GEO["e_mm"]
     r = {"option": key, "n": n, "size": size, "grade": grade, "grade_src": gsrc, "L_screw_mm": L_screw, "T_C": T, "spot_face": spot_face,
          "t_case_at_hole_mm": round(t, 3), "V_per_screw_N": round(V, 1), "note": note}
@@ -108,8 +109,8 @@ def option(key, n, size, grade, L_screw, t_case=None, T=T_C, torque=None, spot_f
     r["screw_interaction_ult"] = {"Rt_max_preload": round(Rt, 3), "Rs": round(Rs, 3), "Rt2_Rs2": round(Rt ** 2 + Rs ** 2, 3),
                                   "MS": round(1.0 / math.sqrt(Rt ** 2 + Rs ** 2) - 1.0, 3)}
     # ---- (ii) case TC-01
-    sbr = V / (D * t)
-    r["case_bearing"] = {"e_over_D": round(e / D, 2), "sigma_br_MPa": round(sbr, 1), "Fbry_MPa": round(Fbry, 1), "Fbru_MPa": round(Fbru, 1),
+    sbr = V / (D * (l_bear if l_bear else t))
+    r["case_bearing"] = {"e_over_D": round(e / D, 2), "L_bearing_mm": round(l_bear if l_bear else t, 3), "sigma_br_MPa": round(sbr, 1), "Fbry_MPa": round(Fbry, 1), "Fbru_MPa": round(Fbru, 1),
                          "MS_y": ms(Fbry, sbr), "MS_u": ms(Fbru, sbr)}
     A_so = 2.0 * t * (e - Dh / 2.0)
     tso = V / A_so
@@ -184,8 +185,15 @@ OPTS = [option("O0 v3.5.1: 8x M5 A4-80 x 10, no spot face", 8, "M5", "A4-80", 10
         option("O1s O1 + spot face for the head (information)", 10, "M5", "A4-80", 10, spot_face=True, note="not adopted: the wall at the hole drops to 2.765"),
         option("O4 8x M5 Rp0.2 >= 800 MPa stainless x 10 (5.53 N m kept)", 8, "M5", "Rp800", 10, torque=5.53,
                note="grade change: 0 g, no part change; procurement / datasheet risk; torque kept at the A4-80 value (a 0.65 Rp0.2 torque, 7.37 N m, gives TC-02 thread shear yield -0.06)"),
-        option("O5 (withdrawn) interim land: 8x M5 A4-80 x 12, wall 4.40", 8, "M5", "A4-80", 12, t_case=4.40, note="line 230 FA1S option, withdrawn by 231")]
-out = {"id": "jfwd_v352", "version": "v1", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
+        option("O5 (withdrawn) interim land: 8x M5 A4-80 x 12, wall 4.40", 8, "M5", "A4-80", 12, t_case=4.40, note="line 230 FA1S option, withdrawn by 231"),
+        option("O1v2 10x M5 A4-80 x 10, head seat (a): nominal wall 2.688, L_eff 2.388, CALC V abs", 10, "M5", "A4-80", 10, t_case=2.688, l_bear=2.388,
+               F=F_TOT_ABS, T=45.6, note="v2 (lead 10:15Z O1 FIX): spot-face wall 2.688 at the hole, bearing length 2.688 - 0.2 (bore-side R0.2 hard max) - 0.1 (flat-side 0.1 x 45); V 3888.1 (lead 10:28Z)"),
+        option("O1v2L 10x M5 A4-80 x 10, head seat (a): drawing-limit wall 2.665, L_eff 2.365, CALC V abs (governing)", 10, "M5", "A4-80", 10, t_case=2.665,
+               l_bear=2.365, F=F_TOT_ABS, T=45.6, note="v2: bore 57.296 / flat at its low end; the datasheet quotes this row (lead 10:15Z). Only the case-bearing row is the O1 fix; the other TC-01 rows of this table keep the v1 method (Pb on the 3.125 wall) and are superseded by the jfwd_seat_v352_v1 / jfwd_fix_v352_v1 seat cells")]
+out = {"id": "jfwd_v352", "version": "v2", "date": "2026-10-20", "owner": "mechanical", "basis": __doc__.strip(),
+       "v2": ("lead 10:15Z O1 FIX accepted: O1v2 / O1v2L rows on the adopted head seat (a) (spot-face wall 2.688 nominal / 2.665 drawing limit, effective bearing length wall - 0.3) at CALC V 3888.1 (lead 10:28Z); v1 (jfwd_v352_v1.py / jfwd_v352_v1.json) kept, SUPERSEDED: its O1 row used the v3.5.1 wall 3.125 (+0.338 / +0.649); its screw rows (shear on the minor area, Rt^2 + Rs^2 AS RECALLED) are superseded by the NASA-STD-5020A Eq. 22 cells in jfwd_fix_v352_v1.json (lead 10:24Z / 10:47Z: preload omitted governing, included beside it)"),
+       "superseded": {"O1 (wall 3.125, no spot face)": "by O1v2 / O1v2L", "screw rows of every option": "by jfwd_fix_v352_v1 (5020A Eq. 22)",
+                      "recommended O1 / why / mass_O1_g (v1 text)": "kept as the v1 record; the FA1S fix is ruled on jfwd_fix_v352_v1"},
        "load": {"FA1S_bar_abs": P_FA1S_ABS, "p_gauge_MPa": round(PG, 4), "D_seal_mm": D_SEAL, "F_total_N": round(F_TOT, 0), "SF_y": 1.0, "SF_u": 1.0},
        "geometry": GEO, "options": OPTS,
        "recommended": "O1",
@@ -202,8 +210,8 @@ out = {"id": "jfwd_v352", "version": "v1", "date": "2026-10-20", "owner": "mecha
                                    "(M5-6H go / no-go); scrap TC-01 or TC-02 on a failed gauge.  Needs a Pc channel that resolves sub-ms "
                                    "peaks (Electronics: sampling rate TO-CONFIRM)")}
 s = json.dumps(out, indent=1)
-open("/home/claude/work/mechanical/v352/jfwd/jfwd_v352_v1.json", "w").write(s)
-print("jfwd_v352_v1.json", hashlib.sha256(s.encode()).hexdigest()[:16], "F_total", round(F_TOT), "N")
+open("/home/claude/work/mechanical/v352/jfwd/jfwd_v352_v2.json", "w").write(s)
+print("jfwd_v352_v2.json", hashlib.sha256(s.encode()).hexdigest()[:16], "F_total", round(F_TOT), "N")
 for o in OPTS:
     print(f"{o['option'][:58]:58s} V {o['V_per_screw_N']:7.1f} | scr {o['screw_shear_minor']['MS_y']:+.3f}/{o['screw_shear_minor']['MS_u']:+.3f} "
           f"(20C {o['screw_shear_minor']['MS_y_20C']:+.3f}) | brg {o['case_bearing']['MS_y']:+.3f}/{o['case_bearing']['MS_u']:+.3f} | "

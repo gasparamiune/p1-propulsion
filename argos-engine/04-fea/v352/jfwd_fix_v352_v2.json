@@ -1,0 +1,3808 @@
+{
+ "id": "jfwd_fix_v352",
+ "version": "v2",
+ "date": "2026-10-20",
+ "owner": "mechanical",
+ "basis": "J-FWD FA1S screw fix sizing and the no-slack knock-ons, for the lead's joint ruling (lead 10:24Z (b) rulings 1-4, 10:28Z V basis,\n10:47Z basis and additions).  Mechanical, 2026-10-20, v2 (v1 json fd5c76a38774d195 kept as jfwd_fix_v352_v1.json; v1 script as\njfwd_fix_v352_v1.py).  CALC / DERIVED unless tagged; nothing here is physical approval.\nv2 adds, with every v1 row unchanged: (a) the direct screw shear on the thread minor area per option (line 231 (ii): Fsy = 0.577 Fty(T),\nFsu = 0.6 Ftu(T), V abs and gauge, no bending; as jfwd_v352 O1v2); (b) the seat-line P+Q at SOAK70 per option (the 10:24Z knock-on): the\nrelax v3 joint model (jfwd_relax_v352.py, imported, module level only) moves FEA3D's SOAK70 shell pull by the option's model change (screw\nalpha / E, k_sh, k_b) and the FE coefficient 345.7 / 4294.0 (x the wall-bending ratio for M6) turns it into the seat-line P+Q against\n2 Fty(157.6 C); A4-80 reproduces relax v3 (-0.011 / -0.012, gap at 2 Fty 0.0766 / 0.0764); size options are ESTIMATES (no FE); (c) the\nselect-fit band per option: the ring-line seating floor and the seat-line result from relax v3's sweep, the P+Q gap ceiling from (b),\nand the thermal-field (GV) consequence from ax_thermal.py's gap-variant basis (GVLO J1 = drawing max 0.078 + free-ring opening <= 0.0091\n+ rounding = 0.090 hot; GVHI J1 = drawing min 0.040 - free-ring closing <= 0.0092 = 0.031 hot).\n\nFA1S screw cell [LITERATURE criterion]: NASA-STD-5020A sec. 4.4.4 Eq. 22 (threads in the shear plane, elastic bending, no plastic\ncredit): (Psu / Psu-allow)^1.2 + (Ptu / Ptu-allow + fbu / Ftu)^2 <= 1, Psu-allow = Fsu Am (Eq. 13, Am = minor-diameter area),\nFsu = 0.6 Ftu (TO-VERIFY), Ptu-allow = Ftu As.  Eq. 23 (fbu / Fbu with Fbu = 1.70 Ftu, a section-geometry factor, NOT a sourced Fbu) is\ninformation.  MS = lambda - 1, lambda scaling V and M together with N fixed (the FA1S pressure loads), by bisection.\nPreload OMITTED (governing, lead 10:47Z [LITERATURE] 5020A 4.4.4 p. 33 / 5020B; the 2012 NASA-STD-5020 A.7 rationale; A4-80 0.3d\nfull-size elongation, Bossard T.019): Ptu = 0 (the FE FA1S screw tension falls below the preload, 3092.8-3211.6 N vs 3680-3820 N at\nPRELOAD, so the external tensile part is zero).  Preload INCLUDED (information, required beside it): Ptu = 3211.6 N, FEA3D's FA1S\nmaximum-section tension (screw_bend.json b15096bcd367dae2, 3750 N installation), kept for every option (same installed band).\nV (lead 10:28Z): CALC 3888.1 N per screw (151.04 bar abs on pi/4 57.25^2, / 10) or the gauge value 3862.0; FE V rows are information.\nArm to the thread entry: 0.920 mm sharp (FEA3D FA1S M 3339.1 / V 3629.5 at x' 28.6) and +0.2 for the R0.2 bore-side break (governing,\n1.120 mm), the same arm for every option (ASSUMED for the M6 and 12x rows until an FE arm exists); arm sensitivity 1.32 / 1.52 shown.\nScrew allowables at 45.6 C: A4-80 Rm 800 x kTu (SS316L Ftu ratio, engmat) = 792.5; class 100 (A4-100) Rm 1000 x kTu = 990.6\n(ISO 3506-1:2020 class 100 TO-VERIFY; BUMAX 109 catalogue Rm 1000 / Rp0.2 900 / 0.2d up to M12); IN718 Ftu(T) engmat DATASHEET (Special\nMetals SMC-045, AMS 5662/5663 minimum 1241 MPa RT, linear to 965 at 649 C) = 1229.8.\nTC-01 joint rows (lead 10:15Z (a)): hole bearing sigma = V / (D L_eff), L_eff = wall - 0.2 (bore-side R0.2 hard max) - 0.1 (flat-side\n0.1 x 45), at the nominal and the drawing-limit wall (bore 57.296, flat at its low end); shear-out, net section and ligament Pm+Pb as\njfwd_seat_v352_v1 (a371bdc9fe2d9986) with the option's hole, spot face and count; Fbry / Fbru = 1.4 Fty / 1.6 Ftu (engmat, e/D 2.0).\nTC-02 rows as jfwd_v352 (tapped-thread bearing V / (D1 L_eff), L_eff = L_e - 0.5; internal-thread shear at F_max + the 45.6 C thermal\nrise (3965 N, 3.0 N m band, kept for every option at the same preload band); tap-row net ligament; shear-out to the g2 groove).\nNo-slack knock-ons: jfwd_relax_v352_v3.json (read here; the 24 cases on the seat-line and ring-line bounds per option, the select-fit\nand higher-preload fixes, the information sensitivities).  Availability, CAD, BOM and mass deltas per option are stated with sources.",
+ "inputs": {
+  "jfwd_relax_v352_v3.json": "fafb2d1e7fb3aeb6",
+  "jfwd_seat_v352_v1.json": "a371bdc9fe2d9986",
+  "screw_bend.json": "b15096bcd367dae2",
+  "jfwd_v352.py": "bb41df8742a771b9",
+  "V_abs_N": 3888.1,
+  "V_gauge_N": 3862.0,
+  "arm_sharp_mm": 0.92,
+  "arm_gov_mm": 1.12,
+  "N_included_N": 3211.6,
+  "T_C": 45.6,
+  "Al_allowables_MPa": {
+   "Fty": 236.1,
+   "Ftu": 254.6,
+   "Fbry": 330.5,
+   "Fbru": 407.4,
+   "Fsy": 136.2,
+   "Fsu": 152.8
+  },
+  "spot_face_volumes_mm3": {
+   "d10.5": 28.42,
+   "d11.5": 40.95
+  },
+  "screw_mass_g_A4": {
+   "M5x10": 2.028,
+   "M6x10": 2.848
+  }
+ },
+ "options": {
+  "A4-80 M5 x10 (baseline)": {
+   "screw_FA1S_5020A": {
+    "size": "M5",
+    "grade": "A4-80",
+    "n": 10,
+    "Ftu_45.6C_MPa": 792.5,
+    "Fsu_MPa": 475.5,
+    "A_m_mm2": 12.686,
+    "A_s_mm2": 14.18,
+    "Z_3_mm3": 6.373,
+    "Psu_allow_N": 6031.9,
+    "Ptu_allow_N": 11237.0,
+    "N_included_N": 3211.6,
+    "allowable_src": "ISO 3506-1 class 80 minima Rm 800 / Rp0.2 600 x SS316L ratios (engmat LITERATURE); A 0.3d full size (Bossard 'Materials screws & nuts' 2005 T.019; BUMAX 88 catalogue Rm 800 / Rp0.2 640 / 0.3d)",
+    "direct_shear_minor_231ii": {
+     "CALC_abs_3888.1": {
+      "V_N": 3888.1,
+      "tau_MPa": 306.5,
+      "Fsy_MPa": 327.4,
+      "Fsu_MPa": 475.5,
+      "MS_y": 0.068,
+      "MS_u": 0.551
+     },
+     "gauge_3862.0": {
+      "V_N": 3862.0,
+      "tau_MPa": 304.4,
+      "Fsy_MPa": 327.4,
+      "Fsu_MPa": 475.5,
+      "MS_y": 0.075,
+      "MS_u": 0.562
+     }
+    },
+    "rows": {
+     "CALC_abs_3888.1|arm_+0.2_governing": {
+      "V_N": 3888.1,
+      "arm_mm": 1.12,
+      "M_Nmm": 4354.6,
+      "fbu_MPa": 683.3,
+      "Psu_over_allow": 0.6446,
+      "fbu_over_Ftu": 0.8622,
+      "MS_omitted_governing": -0.162,
+      "interaction_omitted": 1.334,
+      "MS_included_info": -0.383,
+      "interaction_included": 1.908,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": -0.081
+     },
+     "CALC_abs_3888.1|arm_sharp_info": {
+      "V_N": 3888.1,
+      "arm_mm": 0.92,
+      "M_Nmm": 3577.0,
+      "fbu_MPa": 561.3,
+      "Psu_over_allow": 0.6446,
+      "fbu_over_Ftu": 0.7083,
+      "MS_omitted_governing": -0.055,
+      "interaction_omitted": 1.092,
+      "MS_included_info": -0.298,
+      "interaction_included": 1.579,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": -0.006
+     },
+     "CALC_abs_3888.1|arm_+0.4_sens": {
+      "V_N": 3888.1,
+      "arm_mm": 1.32,
+      "M_Nmm": 5132.2,
+      "fbu_MPa": 805.3,
+      "Psu_over_allow": 0.6446,
+      "fbu_over_Ftu": 1.0162,
+      "MS_omitted_governing": -0.25,
+      "interaction_omitted": 1.623,
+      "MS_included_info": -0.451,
+      "interaction_included": 2.286,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": -0.145
+     },
+     "CALC_abs_3888.1|arm_+0.6_sens": {
+      "V_N": 3888.1,
+      "arm_mm": 1.52,
+      "M_Nmm": 5909.8,
+      "fbu_MPa": 927.3,
+      "Psu_over_allow": 0.6446,
+      "fbu_over_Ftu": 1.1702,
+      "MS_omitted_governing": -0.322,
+      "interaction_omitted": 1.96,
+      "MS_included_info": -0.506,
+      "interaction_included": 2.71,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": -0.202
+     },
+     "gauge_3862.0|arm_+0.2_governing": {
+      "V_N": 3862.0,
+      "arm_mm": 1.12,
+      "M_Nmm": 4325.4,
+      "fbu_MPa": 678.7,
+      "Psu_over_allow": 0.6403,
+      "fbu_over_Ftu": 0.8564,
+      "MS_omitted_governing": -0.156,
+      "interaction_omitted": 1.319,
+      "MS_included_info": -0.379,
+      "interaction_included": 1.89,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": -0.074
+     },
+     "gauge_3862.0|arm_sharp_info": {
+      "V_N": 3862.0,
+      "arm_mm": 0.92,
+      "M_Nmm": 3553.0,
+      "fbu_MPa": 557.5,
+      "Psu_over_allow": 0.6403,
+      "fbu_over_Ftu": 0.7035,
+      "MS_omitted_governing": -0.048,
+      "interaction_omitted": 1.081,
+      "MS_included_info": -0.293,
+      "interaction_included": 1.564,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.0
+     },
+     "gauge_3862.0|arm_+0.4_sens": {
+      "V_N": 3862.0,
+      "arm_mm": 1.32,
+      "M_Nmm": 5097.8,
+      "fbu_MPa": 799.9,
+      "Psu_over_allow": 0.6403,
+      "fbu_over_Ftu": 1.0094,
+      "MS_omitted_governing": -0.244,
+      "interaction_omitted": 1.604,
+      "MS_included_info": -0.447,
+      "interaction_included": 2.263,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": -0.139
+     },
+     "gauge_3862.0|arm_+0.6_sens": {
+      "V_N": 3862.0,
+      "arm_mm": 1.52,
+      "M_Nmm": 5870.2,
+      "fbu_MPa": 921.1,
+      "Psu_over_allow": 0.6403,
+      "fbu_over_Ftu": 1.1623,
+      "MS_omitted_governing": -0.317,
+      "interaction_omitted": 1.937,
+      "MS_included_info": -0.502,
+      "interaction_included": 2.683,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": -0.196
+     },
+     "FE_V_3629.5_sharp_info_only": {
+      "V_N": 3629.5,
+      "M_Nmm": 3339.1,
+      "MS_omitted": 0.013,
+      "MS_included": -0.248,
+      "note": "information only (lead 10:28Z: FE V is 0.934 of the load balance)"
+     }
+    },
+    "governing": -0.162,
+    "included_at_governing_row": -0.383,
+    "gauge_governing": -0.156
+   },
+   "TC01": {
+    "r_flat_mm": 31.3129,
+    "spot_face_d_mm": 10.5,
+    "hole_d_mm": 5.5,
+    "nominal_wall": {
+     "t_wall_mm": 2.6879,
+     "L_eff_bearing_mm": 2.3879,
+     "hole_bearing": {
+      "sigma_MPa": 325.6,
+      "MS_y": 0.015,
+      "MS_u": 0.251
+     },
+     "shear_out": {
+      "tau_MPa": 78.2,
+      "MS_y": 0.742,
+      "MS_u": 0.954
+     },
+     "net_section": {
+      "A_net_mm2": 411.83,
+      "Pm_MPa": 94.4,
+      "MS_y": 1.501,
+      "MS_u": 1.697
+     },
+     "ligament_PmPb": {
+      "w_lig_mm": 13.47,
+      "PmPb_MPa": 201.8,
+      "MS_y": 0.17,
+      "MS_u": 0.262
+     },
+     "hole_edge_neuber_info": {
+      "sigma_el_MPa": 435.7,
+      "eps_local": 0.0113,
+      "eps_limit": 0.0274,
+      "MS_strain": 1.428
+     }
+    },
+    "drawing_limit_wall": {
+     "t_wall_mm": 2.6649,
+     "L_eff_bearing_mm": 2.3649,
+     "hole_bearing": {
+      "sigma_MPa": 328.8,
+      "MS_y": 0.005,
+      "MS_u": 0.239
+     },
+     "shear_out": {
+      "tau_MPa": 78.9,
+      "MS_y": 0.727,
+      "MS_u": 0.937
+     },
+     "net_section": {
+      "A_net_mm2": 408.96,
+      "Pm_MPa": 95.1,
+      "MS_y": 1.483,
+      "MS_u": 1.678
+     },
+     "ligament_PmPb": {
+      "w_lig_mm": 13.47,
+      "PmPb_MPa": 203.3,
+      "MS_y": 0.161,
+      "MS_u": 0.252
+     },
+     "hole_edge_neuber_info": {
+      "sigma_el_MPa": 439.9,
+      "eps_local": 0.01151,
+      "eps_limit": 0.0274,
+      "MS_strain": 1.384
+     }
+    }
+   },
+   "TC02": {
+    "L_e_mm": 7.287,
+    "L_eff_mm": 6.787,
+    "tapped_thread_bearing": {
+     "sigma_MPa": 138.6,
+     "MS_y": 1.385,
+     "MS_u": 1.94
+    },
+    "internal_thread_shear_at_F_max_thermal": {
+     "F_N": 3965.0,
+     "A_n_mm2": 67.9,
+     "tau_MPa": 58.4,
+     "MS_y": 1.332,
+     "MS_u": 1.615
+    },
+    "tap_row_net_ligament_compression": {
+     "Pm_MPa": 18.4,
+     "MS_y": 11.832
+    },
+    "shear_out_to_g2": {
+     "ligament_mm": 5.8,
+     "Pm_vm_MPa": 85.5,
+     "MS_y": 1.76
+    }
+   },
+   "no_slack": {
+    "A4-80 M5 x10 (baseline)": {
+     "seat_line": {
+      "n_unseated": 9,
+      "F_S_min_N": -106,
+      "max_wall_set_um": 61.71,
+      "F_S_max_N": 3216,
+      "fibre_over_Rp_max": 0.516
+     },
+     "ring_line": {
+      "n_unseated": 0,
+      "F_S_min_N": 151,
+      "max_wall_set_um": 49.682
+     },
+     "tag": "FE-calibrated"
+    }
+   },
+   "availability": {
+    "status": "STOCK (A4-80-class)",
+    "part": "BUMAX 88-MKT M5 x 10, ISO 7380 button head, hexalobular drive, 316L HiMo (1.4436), Rm 800 / Rp0.2 640 / A 0.3d",
+    "src": "BUMAX product catalogue (Bufab Stainless AB, SE-693 03 Svarta; https://local.bufab.com/wp-content/uploads/sites/4/2014/10/BUMAX-product-catalogue.pdf, accessed 2026-10-20; catalogue date not printed); Bufab Denmark folder https://local.bufab.com/wp-content/uploads/sites/4/2013/08/Folder-Bumax_DK.pdf",
+    "delivery_DK6400": "Bufab DK distributor: TO-QUOTE (price, lead time); current range vs the catalogue TO-VERIFY"
+   },
+   "CAD_geometry": "no change",
+   "mass": {
+    "delta_g": 0.0
+   },
+   "torque_tension": "3.0 N m (F_nom 3000 N, K 0.20 ASSUMED, J-F1 TO-DO)",
+   "corrosion_oxygen": "taps on the DRY side (forward of both bore seals, CAD): not N2O-wetted; A4 / 6061 couple sealed by the locker; as v3.5.2",
+   "BOM": "ENG-HW-101 ISO 7380-1 M5 x 10 A4-80 x10 (supplier TO-SELECT: BUMAX 88-MKT M5 x 10 candidate)"
+  },
+  "A4-100 M5 x10": {
+   "screw_FA1S_5020A": {
+    "size": "M5",
+    "grade": "A4-100",
+    "n": 10,
+    "Ftu_45.6C_MPa": 990.6,
+    "Fsu_MPa": 594.3,
+    "A_m_mm2": 12.686,
+    "A_s_mm2": 14.18,
+    "Z_3_mm3": 6.373,
+    "Psu_allow_N": 7539.8,
+    "Ptu_allow_N": 14046.3,
+    "N_included_N": 3211.6,
+    "allowable_src": "property class 100 minima Rm 1000 / Rp0.2 800 (ISO 3506-1:2020 class 100: TO-VERIFY, table not readable) x SS316L ratios; BUMAX 109 (catalogue) Rm 1000 / Rp0.2 900 / 0.2d up to M12",
+    "direct_shear_minor_231ii": {
+     "CALC_abs_3888.1": {
+      "V_N": 3888.1,
+      "tau_MPa": 306.5,
+      "Fsy_MPa": 436.5,
+      "Fsu_MPa": 594.3,
+      "MS_y": 0.424,
+      "MS_u": 0.939
+     },
+     "gauge_3862.0": {
+      "V_N": 3862.0,
+      "tau_MPa": 304.4,
+      "Fsy_MPa": 436.5,
+      "Fsu_MPa": 594.3,
+      "MS_y": 0.434,
+      "MS_u": 0.952
+     }
+    },
+    "rows": {
+     "CALC_abs_3888.1|arm_+0.2_governing": {
+      "V_N": 3888.1,
+      "arm_mm": 1.12,
+      "M_Nmm": 4354.6,
+      "fbu_MPa": 683.3,
+      "Psu_over_allow": 0.5157,
+      "fbu_over_Ftu": 0.6898,
+      "MS_omitted_governing": 0.048,
+      "interaction_omitted": 0.927,
+      "MS_included_info": -0.172,
+      "interaction_included": 1.295,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.149
+     },
+     "CALC_abs_3888.1|arm_sharp_info": {
+      "V_N": 3888.1,
+      "arm_mm": 0.92,
+      "M_Nmm": 3577.0,
+      "fbu_MPa": 561.3,
+      "Psu_over_allow": 0.5157,
+      "fbu_over_Ftu": 0.5666,
+      "MS_omitted_governing": 0.182,
+      "interaction_omitted": 0.773,
+      "MS_included_info": -0.059,
+      "interaction_included": 1.084,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.242
+     },
+     "CALC_abs_3888.1|arm_+0.4_sens": {
+      "V_N": 3888.1,
+      "arm_mm": 1.32,
+      "M_Nmm": 5132.2,
+      "fbu_MPa": 805.3,
+      "Psu_over_allow": 0.5157,
+      "fbu_over_Ftu": 0.813,
+      "MS_omitted_governing": -0.062,
+      "interaction_omitted": 1.113,
+      "MS_included_info": -0.262,
+      "interaction_included": 1.537,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.068
+     },
+     "CALC_abs_3888.1|arm_+0.6_sens": {
+      "V_N": 3888.1,
+      "arm_mm": 1.52,
+      "M_Nmm": 5909.8,
+      "fbu_MPa": 927.3,
+      "Psu_over_allow": 0.5157,
+      "fbu_over_Ftu": 0.9361,
+      "MS_omitted_governing": -0.152,
+      "interaction_omitted": 1.328,
+      "MS_included_info": -0.336,
+      "interaction_included": 1.808,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": -0.002
+     },
+     "gauge_3862.0|arm_+0.2_governing": {
+      "V_N": 3862.0,
+      "arm_mm": 1.12,
+      "M_Nmm": 4325.4,
+      "fbu_MPa": 678.7,
+      "Psu_over_allow": 0.5122,
+      "fbu_over_Ftu": 0.6851,
+      "MS_omitted_governing": 0.055,
+      "interaction_omitted": 0.917,
+      "MS_included_info": -0.166,
+      "interaction_included": 1.283,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.157
+     },
+     "gauge_3862.0|arm_sharp_info": {
+      "V_N": 3862.0,
+      "arm_mm": 0.92,
+      "M_Nmm": 3553.0,
+      "fbu_MPa": 557.5,
+      "Psu_over_allow": 0.5122,
+      "fbu_over_Ftu": 0.5628,
+      "MS_omitted_governing": 0.19,
+      "interaction_omitted": 0.765,
+      "MS_included_info": -0.053,
+      "interaction_included": 1.074,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.251
+     },
+     "gauge_3862.0|arm_+0.4_sens": {
+      "V_N": 3862.0,
+      "arm_mm": 1.32,
+      "M_Nmm": 5097.8,
+      "fbu_MPa": 799.9,
+      "Psu_over_allow": 0.5122,
+      "fbu_over_Ftu": 0.8075,
+      "MS_omitted_governing": -0.056,
+      "interaction_omitted": 1.1,
+      "MS_included_info": -0.257,
+      "interaction_included": 1.522,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.076
+     },
+     "gauge_3862.0|arm_+0.6_sens": {
+      "V_N": 3862.0,
+      "arm_mm": 1.52,
+      "M_Nmm": 5870.2,
+      "fbu_MPa": 921.1,
+      "Psu_over_allow": 0.5122,
+      "fbu_over_Ftu": 0.9298,
+      "MS_omitted_governing": -0.147,
+      "interaction_omitted": 1.313,
+      "MS_included_info": -0.331,
+      "interaction_included": 1.79,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.005
+     },
+     "FE_V_3629.5_sharp_info_only": {
+      "V_N": 3629.5,
+      "M_Nmm": 3339.1,
+      "MS_omitted": 0.266,
+      "MS_included": 0.008,
+      "note": "information only (lead 10:28Z: FE V is 0.934 of the load balance)"
+     }
+    },
+    "governing": 0.048,
+    "included_at_governing_row": -0.172,
+    "gauge_governing": 0.055
+   },
+   "TC01": {
+    "r_flat_mm": 31.3129,
+    "spot_face_d_mm": 10.5,
+    "hole_d_mm": 5.5,
+    "nominal_wall": {
+     "t_wall_mm": 2.6879,
+     "L_eff_bearing_mm": 2.3879,
+     "hole_bearing": {
+      "sigma_MPa": 325.6,
+      "MS_y": 0.015,
+      "MS_u": 0.251
+     },
+     "shear_out": {
+      "tau_MPa": 78.2,
+      "MS_y": 0.742,
+      "MS_u": 0.954
+     },
+     "net_section": {
+      "A_net_mm2": 411.83,
+      "Pm_MPa": 94.4,
+      "MS_y": 1.501,
+      "MS_u": 1.697
+     },
+     "ligament_PmPb": {
+      "w_lig_mm": 13.47,
+      "PmPb_MPa": 201.8,
+      "MS_y": 0.17,
+      "MS_u": 0.262
+     },
+     "hole_edge_neuber_info": {
+      "sigma_el_MPa": 435.7,
+      "eps_local": 0.0113,
+      "eps_limit": 0.0274,
+      "MS_strain": 1.428
+     }
+    },
+    "drawing_limit_wall": {
+     "t_wall_mm": 2.6649,
+     "L_eff_bearing_mm": 2.3649,
+     "hole_bearing": {
+      "sigma_MPa": 328.8,
+      "MS_y": 0.005,
+      "MS_u": 0.239
+     },
+     "shear_out": {
+      "tau_MPa": 78.9,
+      "MS_y": 0.727,
+      "MS_u": 0.937
+     },
+     "net_section": {
+      "A_net_mm2": 408.96,
+      "Pm_MPa": 95.1,
+      "MS_y": 1.483,
+      "MS_u": 1.678
+     },
+     "ligament_PmPb": {
+      "w_lig_mm": 13.47,
+      "PmPb_MPa": 203.3,
+      "MS_y": 0.161,
+      "MS_u": 0.252
+     },
+     "hole_edge_neuber_info": {
+      "sigma_el_MPa": 439.9,
+      "eps_local": 0.01151,
+      "eps_limit": 0.0274,
+      "MS_strain": 1.384
+     }
+    }
+   },
+   "TC02": {
+    "L_e_mm": 7.287,
+    "L_eff_mm": 6.787,
+    "tapped_thread_bearing": {
+     "sigma_MPa": 138.6,
+     "MS_y": 1.385,
+     "MS_u": 1.94
+    },
+    "internal_thread_shear_at_F_max_thermal": {
+     "F_N": 3965.0,
+     "A_n_mm2": 67.9,
+     "tau_MPa": 58.4,
+     "MS_y": 1.332,
+     "MS_u": 1.615
+    },
+    "tap_row_net_ligament_compression": {
+     "Pm_MPa": 18.4,
+     "MS_y": 11.832
+    },
+    "shear_out_to_g2": {
+     "ligament_mm": 5.8,
+     "Pm_vm_MPa": 85.5,
+     "MS_y": 1.76
+    }
+   },
+   "no_slack": {
+    "A4-100 M5 x10": {
+     "seat_line": {
+      "n_unseated": 9,
+      "F_S_min_N": -106,
+      "max_wall_set_um": 61.71,
+      "F_S_max_N": 3216,
+      "fibre_over_Rp_max": 0.387
+     },
+     "ring_line": {
+      "n_unseated": 0,
+      "F_S_min_N": 151,
+      "max_wall_set_um": 49.682
+     },
+     "tag": "grade: same alpha / E as A4-80"
+    }
+   },
+   "availability": {
+    "status": "NOT FOUND",
+    "part": "no class-100 stainless M5 head part fitting the d10.5 spot face and the 1.0 mm FD-04 envelope found",
+    "src": "BUMAX catalogue: BUMAX 109 only as ISO 4762 M6-M12 (no M5, no button head; BUMAX 88 is the only ISO 7380); web search 'ISO 7380 A4-100 M5', 'A4-100 M5 ISO 4762 / 7380 / 14580' (2026-10-20): no stock listing",
+    "delivery_DK6400": "a special-order class-100 M5 button head would be a custom part (TO-QUOTE); per the lead: go to the next option"
+   },
+   "CAD_geometry": "no CAD change (screw grade only)",
+   "mass": {
+    "delta_g": 0.0,
+    "parts": "screw grade only"
+   },
+   "torque_tension": "3.0 N m kept (same band); K TO-VERIFY by J-F1 on the flight lot",
+   "corrosion_oxygen": "as baseline (same alloy family, A4)",
+   "BOM": "ENG-HW-101 grade A4-100: no part"
+  },
+  "IN718 M5 x10": {
+   "screw_FA1S_5020A": {
+    "size": "M5",
+    "grade": "IN718",
+    "n": 10,
+    "Ftu_45.6C_MPa": 1229.8,
+    "Fsu_MPa": 737.9,
+    "A_m_mm2": 12.686,
+    "A_s_mm2": 14.18,
+    "Z_3_mm3": 6.373,
+    "Psu_allow_N": 9360.5,
+    "Ptu_allow_N": 17438.1,
+    "N_included_N": 3211.6,
+    "allowable_src": "IN718 AMS 5662/5663 minima (Special Metals SMC-045, engmat DATASHEET), linear 20-649 C; Fsu / Ftu 0.6 (engmat LITERATURE-approx, TO-VERIFY)",
+    "direct_shear_minor_231ii": {
+     "CALC_abs_3888.1": {
+      "V_N": 3888.1,
+      "tau_MPa": 306.5,
+      "Fsy_MPa": 592.6,
+      "Fsu_MPa": 737.9,
+      "MS_y": 0.933,
+      "MS_u": 1.408
+     },
+     "gauge_3862.0": {
+      "V_N": 3862.0,
+      "tau_MPa": 304.4,
+      "Fsy_MPa": 592.6,
+      "Fsu_MPa": 737.9,
+      "MS_y": 0.947,
+      "MS_u": 1.424
+     }
+    },
+    "rows": {
+     "CALC_abs_3888.1|arm_+0.2_governing": {
+      "V_N": 3888.1,
+      "arm_mm": 1.12,
+      "M_Nmm": 4354.6,
+      "fbu_MPa": 683.3,
+      "Psu_over_allow": 0.4154,
+      "fbu_over_Ftu": 0.5556,
+      "MS_omitted_governing": 0.301,
+      "interaction_omitted": 0.657,
+      "MS_included_info": 0.082,
+      "interaction_included": 0.896,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.427
+     },
+     "CALC_abs_3888.1|arm_sharp_info": {
+      "V_N": 3888.1,
+      "arm_mm": 0.92,
+      "M_Nmm": 3577.0,
+      "fbu_MPa": 561.3,
+      "Psu_over_allow": 0.4154,
+      "fbu_over_Ftu": 0.4564,
+      "MS_omitted_governing": 0.467,
+      "interaction_omitted": 0.557,
+      "MS_included_info": 0.228,
+      "interaction_included": 0.759,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.542
+     },
+     "CALC_abs_3888.1|arm_+0.4_sens": {
+      "V_N": 3888.1,
+      "arm_mm": 1.32,
+      "M_Nmm": 5132.2,
+      "fbu_MPa": 805.3,
+      "Psu_over_allow": 0.4154,
+      "fbu_over_Ftu": 0.6548,
+      "MS_omitted_governing": 0.165,
+      "interaction_omitted": 0.777,
+      "MS_included_info": -0.035,
+      "interaction_included": 1.052,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.326
+     },
+     "CALC_abs_3888.1|arm_+0.6_sens": {
+      "V_N": 3888.1,
+      "arm_mm": 1.52,
+      "M_Nmm": 5909.8,
+      "fbu_MPa": 927.3,
+      "Psu_over_allow": 0.4154,
+      "fbu_over_Ftu": 0.754,
+      "MS_omitted_governing": 0.052,
+      "interaction_omitted": 0.917,
+      "MS_included_info": -0.13,
+      "interaction_included": 1.229,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.239
+     },
+     "gauge_3862.0|arm_+0.2_governing": {
+      "V_N": 3862.0,
+      "arm_mm": 1.12,
+      "M_Nmm": 4325.4,
+      "fbu_MPa": 678.7,
+      "Psu_over_allow": 0.4126,
+      "fbu_over_Ftu": 0.5519,
+      "MS_omitted_governing": 0.31,
+      "interaction_omitted": 0.65,
+      "MS_included_info": 0.089,
+      "interaction_included": 0.887,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.436
+     },
+     "gauge_3862.0|arm_sharp_info": {
+      "V_N": 3862.0,
+      "arm_mm": 0.92,
+      "M_Nmm": 3553.0,
+      "fbu_MPa": 557.5,
+      "Psu_over_allow": 0.4126,
+      "fbu_over_Ftu": 0.4533,
+      "MS_omitted_governing": 0.477,
+      "interaction_omitted": 0.551,
+      "MS_included_info": 0.236,
+      "interaction_included": 0.752,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.553
+     },
+     "gauge_3862.0|arm_+0.4_sens": {
+      "V_N": 3862.0,
+      "arm_mm": 1.32,
+      "M_Nmm": 5097.8,
+      "fbu_MPa": 799.9,
+      "Psu_over_allow": 0.4126,
+      "fbu_over_Ftu": 0.6504,
+      "MS_omitted_governing": 0.173,
+      "interaction_omitted": 0.769,
+      "MS_included_info": -0.028,
+      "interaction_included": 1.042,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.335
+     },
+     "gauge_3862.0|arm_+0.6_sens": {
+      "V_N": 3862.0,
+      "arm_mm": 1.52,
+      "M_Nmm": 5870.2,
+      "fbu_MPa": 921.1,
+      "Psu_over_allow": 0.4126,
+      "fbu_over_Ftu": 0.749,
+      "MS_omitted_governing": 0.059,
+      "interaction_omitted": 0.907,
+      "MS_included_info": -0.125,
+      "interaction_included": 1.216,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.247
+     },
+     "FE_V_3629.5_sharp_info_only": {
+      "V_N": 3629.5,
+      "M_Nmm": 3339.1,
+      "MS_omitted": 0.571,
+      "MS_included": 0.315,
+      "note": "information only (lead 10:28Z: FE V is 0.934 of the load balance)"
+     }
+    },
+    "governing": 0.301,
+    "included_at_governing_row": 0.082,
+    "gauge_governing": 0.31
+   },
+   "TC01": {
+    "r_flat_mm": 31.3129,
+    "spot_face_d_mm": 10.5,
+    "hole_d_mm": 5.5,
+    "nominal_wall": {
+     "t_wall_mm": 2.6879,
+     "L_eff_bearing_mm": 2.3879,
+     "hole_bearing": {
+      "sigma_MPa": 325.6,
+      "MS_y": 0.015,
+      "MS_u": 0.251
+     },
+     "shear_out": {
+      "tau_MPa": 78.2,
+      "MS_y": 0.742,
+      "MS_u": 0.954
+     },
+     "net_section": {
+      "A_net_mm2": 411.83,
+      "Pm_MPa": 94.4,
+      "MS_y": 1.501,
+      "MS_u": 1.697
+     },
+     "ligament_PmPb": {
+      "w_lig_mm": 13.47,
+      "PmPb_MPa": 201.8,
+      "MS_y": 0.17,
+      "MS_u": 0.262
+     },
+     "hole_edge_neuber_info": {
+      "sigma_el_MPa": 435.7,
+      "eps_local": 0.0113,
+      "eps_limit": 0.0274,
+      "MS_strain": 1.428
+     }
+    },
+    "drawing_limit_wall": {
+     "t_wall_mm": 2.6649,
+     "L_eff_bearing_mm": 2.3649,
+     "hole_bearing": {
+      "sigma_MPa": 328.8,
+      "MS_y": 0.005,
+      "MS_u": 0.239
+     },
+     "shear_out": {
+      "tau_MPa": 78.9,
+      "MS_y": 0.727,
+      "MS_u": 0.937
+     },
+     "net_section": {
+      "A_net_mm2": 408.96,
+      "Pm_MPa": 95.1,
+      "MS_y": 1.483,
+      "MS_u": 1.678
+     },
+     "ligament_PmPb": {
+      "w_lig_mm": 13.47,
+      "PmPb_MPa": 203.3,
+      "MS_y": 0.161,
+      "MS_u": 0.252
+     },
+     "hole_edge_neuber_info": {
+      "sigma_el_MPa": 439.9,
+      "eps_local": 0.01151,
+      "eps_limit": 0.0274,
+      "MS_strain": 1.384
+     }
+    }
+   },
+   "TC02": {
+    "L_e_mm": 7.287,
+    "L_eff_mm": 6.787,
+    "tapped_thread_bearing": {
+     "sigma_MPa": 138.6,
+     "MS_y": 1.385,
+     "MS_u": 1.94
+    },
+    "internal_thread_shear_at_F_max_thermal": {
+     "F_N": 3965.0,
+     "A_n_mm2": 67.9,
+     "tau_MPa": 58.4,
+     "MS_y": 1.332,
+     "MS_u": 1.615
+    },
+    "tap_row_net_ligament_compression": {
+     "Pm_MPa": 18.4,
+     "MS_y": 11.832
+    },
+    "shear_out_to_g2": {
+     "ligament_mm": 5.8,
+     "Pm_vm_MPa": 85.5,
+     "MS_y": 1.76
+    }
+   },
+   "no_slack": {
+    "IN718 M5 x10": {
+     "seat_line": {
+      "n_unseated": 9,
+      "F_S_min_N": -133,
+      "max_wall_set_um": 61.9,
+      "F_S_max_N": 3526,
+      "fibre_over_Rp_max": 0.254
+     },
+     "ring_line": {
+      "n_unseated": 0,
+      "F_S_min_N": 154,
+      "max_wall_set_um": 49.874
+     },
+     "tag": "grade: alpha IN718, k_b x E ratio"
+    }
+   },
+   "availability": {
+    "status": "CUSTOM (no stock part found)",
+    "part": "M5 x 10 button head in IN718 (AMS 5662 bar, aged to AMS 5663), drawing to ISO 7380-1 dk 9.5 / k 2.75, rolled thread after ageing TO-DEFINE",
+    "src": "Fasteners Clearinghouse network search 'ISO 7380 superalloy' (2026-10-20): Inconel 600 M5 x 12 and 1/4-20 IN718 ANNEALED button heads only, US stock",
+    "delivery_DK6400": "custom fastener maker TO-SELECT, TO-QUOTE (lead time weeks)"
+   },
+   "CAD_geometry": "no CAD change; HW-101 becomes a drawn special part (IN718, ageing, thread rolling, cleanliness)",
+   "mass": {
+    "delta_g": 0.48,
+    "parts": "screw material only (density 8.19 vs 8.00)"
+   },
+   "torque_tension": "3.0 N m for the same band; IN718 on 6061 with LOCTITE 243: K TO-VERIFY by J-F1 (new lot, new pair)",
+   "corrosion_oxygen": "as baseline for wetting (dry side); IN718 / 6061 couple: both cathodic to Al like A4 (no change in kind); oxygen service not a driver (dry side); new material on the engine: Combustion's compatibility list TO-UPDATE",
+   "BOM": "ENG-HW-101 -> special part ENG-HW-101-IN718 (drawing, AMS 5662/5663, x10 + spares)"
+  },
+  "A4-80 M6 x10": {
+   "screw_FA1S_5020A": {
+    "size": "M6",
+    "grade": "A4-80",
+    "n": 10,
+    "Ftu_45.6C_MPa": 792.5,
+    "Fsu_MPa": 475.5,
+    "A_m_mm2": 17.893,
+    "A_s_mm2": 20.12,
+    "Z_3_mm3": 10.675,
+    "Psu_allow_N": 8507.4,
+    "Ptu_allow_N": 15944.2,
+    "N_included_N": 3211.6,
+    "allowable_src": "ISO 3506-1 class 80 minima Rm 800 / Rp0.2 600 x SS316L ratios (engmat LITERATURE); A 0.3d full size (Bossard 'Materials screws & nuts' 2005 T.019; BUMAX 88 catalogue Rm 800 / Rp0.2 640 / 0.3d)",
+    "direct_shear_minor_231ii": {
+     "CALC_abs_3888.1": {
+      "V_N": 3888.1,
+      "tau_MPa": 217.3,
+      "Fsy_MPa": 327.4,
+      "Fsu_MPa": 475.5,
+      "MS_y": 0.507,
+      "MS_u": 1.188
+     },
+     "gauge_3862.0": {
+      "V_N": 3862.0,
+      "tau_MPa": 215.8,
+      "Fsy_MPa": 327.4,
+      "Fsu_MPa": 475.5,
+      "MS_y": 0.517,
+      "MS_u": 1.203
+     }
+    },
+    "rows": {
+     "CALC_abs_3888.1|arm_+0.2_governing": {
+      "V_N": 3888.1,
+      "arm_mm": 1.12,
+      "M_Nmm": 4354.6,
+      "fbu_MPa": 407.9,
+      "Psu_over_allow": 0.457,
+      "fbu_over_Ftu": 0.5148,
+      "MS_omitted_governing": 0.314,
+      "interaction_omitted": 0.656,
+      "MS_included_info": 0.078,
+      "interaction_included": 0.904,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.389
+     },
+     "CALC_abs_3888.1|arm_sharp_info": {
+      "V_N": 3888.1,
+      "arm_mm": 0.92,
+      "M_Nmm": 3577.0,
+      "fbu_MPa": 335.1,
+      "Psu_over_allow": 0.457,
+      "fbu_over_Ftu": 0.4228,
+      "MS_omitted_governing": 0.463,
+      "interaction_omitted": 0.57,
+      "MS_included_info": 0.21,
+      "interaction_included": 0.78,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.488
+     },
+     "CALC_abs_3888.1|arm_+0.4_sens": {
+      "V_N": 3888.1,
+      "arm_mm": 1.32,
+      "M_Nmm": 5132.2,
+      "fbu_MPa": 480.8,
+      "Psu_over_allow": 0.457,
+      "fbu_over_Ftu": 0.6067,
+      "MS_omitted_governing": 0.188,
+      "interaction_omitted": 0.759,
+      "MS_included_info": -0.03,
+      "interaction_included": 1.044,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.301
+     },
+     "CALC_abs_3888.1|arm_+0.6_sens": {
+      "V_N": 3888.1,
+      "arm_mm": 1.52,
+      "M_Nmm": 5909.8,
+      "fbu_MPa": 553.6,
+      "Psu_over_allow": 0.457,
+      "fbu_over_Ftu": 0.6986,
+      "MS_omitted_governing": 0.081,
+      "interaction_omitted": 0.879,
+      "MS_included_info": -0.121,
+      "interaction_included": 1.201,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.223
+     },
+     "gauge_3862.0|arm_+0.2_governing": {
+      "V_N": 3862.0,
+      "arm_mm": 1.12,
+      "M_Nmm": 4325.4,
+      "fbu_MPa": 405.2,
+      "Psu_over_allow": 0.454,
+      "fbu_over_Ftu": 0.5113,
+      "MS_omitted_governing": 0.323,
+      "interaction_omitted": 0.649,
+      "MS_included_info": 0.086,
+      "interaction_included": 0.896,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.398
+     },
+     "gauge_3862.0|arm_sharp_info": {
+      "V_N": 3862.0,
+      "arm_mm": 0.92,
+      "M_Nmm": 3553.0,
+      "fbu_MPa": 332.8,
+      "Psu_over_allow": 0.454,
+      "fbu_over_Ftu": 0.42,
+      "MS_omitted_governing": 0.473,
+      "interaction_omitted": 0.564,
+      "MS_included_info": 0.218,
+      "interaction_included": 0.774,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.498
+     },
+     "gauge_3862.0|arm_+0.4_sens": {
+      "V_N": 3862.0,
+      "arm_mm": 1.32,
+      "M_Nmm": 5097.8,
+      "fbu_MPa": 477.5,
+      "Psu_over_allow": 0.454,
+      "fbu_over_Ftu": 0.6026,
+      "MS_omitted_governing": 0.196,
+      "interaction_omitted": 0.751,
+      "MS_included_info": -0.024,
+      "interaction_included": 1.034,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.31
+     },
+     "gauge_3862.0|arm_+0.6_sens": {
+      "V_N": 3862.0,
+      "arm_mm": 1.52,
+      "M_Nmm": 5870.2,
+      "fbu_MPa": 549.9,
+      "Psu_over_allow": 0.454,
+      "fbu_over_Ftu": 0.6939,
+      "MS_omitted_governing": 0.089,
+      "interaction_omitted": 0.869,
+      "MS_included_info": -0.115,
+      "interaction_included": 1.189,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.231
+     }
+    },
+    "governing": 0.314,
+    "included_at_governing_row": 0.078,
+    "gauge_governing": 0.323
+   },
+   "TC01": {
+    "r_flat_mm": 31.225,
+    "spot_face_d_mm": 11.5,
+    "hole_d_mm": 6.6,
+    "nominal_wall": {
+     "t_wall_mm": 2.6,
+     "L_eff_bearing_mm": 2.3,
+     "hole_bearing": {
+      "sigma_MPa": 281.7,
+      "MS_y": 0.173,
+      "MS_u": 0.446
+     },
+     "shear_out": {
+      "tau_MPa": 85.9,
+      "MS_y": 0.585,
+      "MS_u": 0.778
+     },
+     "net_section": {
+      "A_net_mm2": 376.62,
+      "Pm_MPa": 103.2,
+      "MS_y": 1.287,
+      "MS_u": 1.467
+     },
+     "ligament_PmPb": {
+      "w_lig_mm": 12.37,
+      "PmPb_MPa": 224.2,
+      "MS_y": 0.053,
+      "MS_u": 0.136
+     },
+     "hole_edge_neuber_info": {
+      "sigma_el_MPa": 484.8,
+      "eps_local": 0.01386,
+      "eps_limit": 0.0274,
+      "MS_strain": 0.98
+     }
+    },
+    "drawing_limit_wall": {
+     "t_wall_mm": 2.577,
+     "L_eff_bearing_mm": 2.277,
+     "hole_bearing": {
+      "sigma_MPa": 284.6,
+      "MS_y": 0.161,
+      "MS_u": 0.432
+     },
+     "shear_out": {
+      "tau_MPa": 86.7,
+      "MS_y": 0.571,
+      "MS_u": 0.762
+     },
+     "net_section": {
+      "A_net_mm2": 374.0,
+      "Pm_MPa": 104.0,
+      "MS_y": 1.271,
+      "MS_u": 1.449
+     },
+     "ligament_PmPb": {
+      "w_lig_mm": 12.37,
+      "PmPb_MPa": 225.9,
+      "MS_y": 0.045,
+      "MS_u": 0.127
+     },
+     "hole_edge_neuber_info": {
+      "sigma_el_MPa": 489.6,
+      "eps_local": 0.01412,
+      "eps_limit": 0.0274,
+      "MS_strain": 0.942
+     }
+    }
+   },
+   "TC02": {
+    "L_e_mm": 7.375,
+    "L_eff_mm": 6.875,
+    "tapped_thread_bearing": {
+     "sigma_MPa": 115.0,
+     "MS_y": 1.874,
+     "MS_u": 2.542
+    },
+    "internal_thread_shear_at_F_max_thermal": {
+     "F_N": 3965.0,
+     "A_n_mm2": 83.8,
+     "tau_MPa": 47.3,
+     "MS_y": 1.88,
+     "MS_u": 2.229
+    },
+    "tap_row_net_ligament_compression": {
+     "Pm_MPa": 19.0,
+     "MS_y": 11.395
+    },
+    "shear_out_to_g2": {
+     "ligament_mm": 5.3,
+     "Pm_vm_MPa": 92.4,
+     "MS_y": 1.555
+    }
+   },
+   "no_slack": {
+    "A4-80 M6 x10": {
+     "seat_line": {
+      "n_unseated": 9,
+      "F_S_min_N": -71,
+      "max_wall_set_um": 59.617,
+      "F_S_max_N": 2970,
+      "fibre_over_Rp_max": 0.336
+     },
+     "ring_line": {
+      "n_unseated": 0,
+      "F_S_min_N": 110,
+      "max_wall_set_um": 47.212
+     },
+     "tag": "ESTIMATE (no FE)"
+    }
+   },
+   "availability": {
+    "status": "STOCK (A4-80-class)",
+    "part": "BUMAX 88-MKT M6 x 10, ISO 7380 button head (catalogue lists M5, M6, M8)",
+    "src": "BUMAX product catalogue (as above)",
+    "delivery_DK6400": "Bufab DK: TO-QUOTE"
+   },
+   "CAD_geometry": "TC-01: 10x d6.6 holes (match-drilled), d11.5 flat spot faces at r 31.225 (wall 2.600 nominal, 2.577 at the drawing limit; depth 0.525 at the screw axis); TC-02: 10x M6-6H taps, drill 5.0 x 9.0, full thread 8.0 (engagement 7.375 with M6 x 10); the tap-to-cavity walls drop by the 0.5 mm larger major radius: 1.906 -> about 1.41 mm at az 18 / 342 (torch passage) and 2.719 -> about 2.22 at az 126 (CAD probe of the M5 set, checks/test_interim352b_v1.json; TO-PROBE on the M6 set); FD-04: head dk 10.5 -> foil and upper clip top trimmed 0.5 mm more (z_cap = screw axis - 5.25 - 1.0; RC-04 re-check); GSE fitting plugs for d6.6 holes; ISO 7380 M6 head k 3.3 (0.55 taller, minus the 0.088 deeper flat)",
+   "mass": {
+    "delta_g": 5.78,
+    "parts": "screws +10 x 0.820 g; TC-01 holes 6.6 and d11.5 spot faces, TC-02 drill 5.0 x 9.0 (Al removed)"
+   },
+   "torque_tension": "3.6 N m for the same band (0.20 x 3000 x 6 mm); K TO-VERIFY by J-F1 (M6 into 6061)",
+   "corrosion_oxygen": "as baseline, provided the M6 taps keep a positive wall to the torch and Pc passages (TO-PROBE): a breakthrough would wet the tap with torch gas and the locker would then be in oxygen service",
+   "BOM": "ENG-HW-101 -> ISO 7380 M6 x 10 A4-80 x10 (BUMAX 88-MKT M6 x 10 candidate); TC-01 / TC-02 / FD-04 drawings; GSE plugs d6.6"
+  },
+  "A4-80 12x M5": {
+   "screw_FA1S_5020A": {
+    "size": "M5",
+    "grade": "A4-80",
+    "n": 12,
+    "Ftu_45.6C_MPa": 792.5,
+    "Fsu_MPa": 475.5,
+    "A_m_mm2": 12.686,
+    "A_s_mm2": 14.18,
+    "Z_3_mm3": 6.373,
+    "Psu_allow_N": 6031.9,
+    "Ptu_allow_N": 11237.0,
+    "N_included_N": 3211.6,
+    "allowable_src": "ISO 3506-1 class 80 minima Rm 800 / Rp0.2 600 x SS316L ratios (engmat LITERATURE); A 0.3d full size (Bossard 'Materials screws & nuts' 2005 T.019; BUMAX 88 catalogue Rm 800 / Rp0.2 640 / 0.3d)",
+    "direct_shear_minor_231ii": {
+     "CALC_abs_3888.1": {
+      "V_N": 3240.0,
+      "tau_MPa": 255.4,
+      "Fsy_MPa": 327.4,
+      "Fsu_MPa": 475.5,
+      "MS_y": 0.282,
+      "MS_u": 0.862
+     },
+     "gauge_3862.0": {
+      "V_N": 3218.3,
+      "tau_MPa": 253.7,
+      "Fsy_MPa": 327.4,
+      "Fsu_MPa": 475.5,
+      "MS_y": 0.29,
+      "MS_u": 0.874
+     }
+    },
+    "rows": {
+     "CALC_abs_3888.1|arm_+0.2_governing": {
+      "V_N": 3240.0,
+      "arm_mm": 1.12,
+      "M_Nmm": 3628.8,
+      "fbu_MPa": 569.4,
+      "Psu_over_allow": 0.5372,
+      "fbu_over_Ftu": 0.7185,
+      "MS_omitted_governing": 0.006,
+      "interaction_omitted": 0.991,
+      "MS_included_info": -0.259,
+      "interaction_included": 1.483,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.103
+     },
+     "CALC_abs_3888.1|arm_sharp_info": {
+      "V_N": 3240.0,
+      "arm_mm": 0.92,
+      "M_Nmm": 2980.8,
+      "fbu_MPa": 467.7,
+      "Psu_over_allow": 0.5372,
+      "fbu_over_Ftu": 0.5902,
+      "MS_omitted_governing": 0.134,
+      "interaction_omitted": 0.823,
+      "MS_included_info": -0.157,
+      "interaction_included": 1.242,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.193
+     },
+     "CALC_abs_3888.1|arm_+0.4_sens": {
+      "V_N": 3240.0,
+      "arm_mm": 1.32,
+      "M_Nmm": 4276.8,
+      "fbu_MPa": 671.1,
+      "Psu_over_allow": 0.5372,
+      "fbu_over_Ftu": 0.8468,
+      "MS_omitted_governing": -0.099,
+      "interaction_omitted": 1.191,
+      "MS_included_info": -0.341,
+      "interaction_included": 1.757,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.026
+     },
+     "CALC_abs_3888.1|arm_+0.6_sens": {
+      "V_N": 3240.0,
+      "arm_mm": 1.52,
+      "M_Nmm": 4924.8,
+      "fbu_MPa": 772.7,
+      "Psu_over_allow": 0.5372,
+      "fbu_over_Ftu": 0.9751,
+      "MS_omitted_governing": -0.186,
+      "interaction_omitted": 1.425,
+      "MS_included_info": -0.407,
+      "interaction_included": 2.064,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": -0.042
+     },
+     "gauge_3862.0|arm_+0.2_governing": {
+      "V_N": 3218.3,
+      "arm_mm": 1.12,
+      "M_Nmm": 3604.5,
+      "fbu_MPa": 565.6,
+      "Psu_over_allow": 0.5336,
+      "fbu_over_Ftu": 0.7137,
+      "MS_omitted_governing": 0.013,
+      "interaction_omitted": 0.98,
+      "MS_included_info": -0.254,
+      "interaction_included": 1.47,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.111
+     },
+     "gauge_3862.0|arm_sharp_info": {
+      "V_N": 3218.3,
+      "arm_mm": 0.92,
+      "M_Nmm": 2960.8,
+      "fbu_MPa": 464.6,
+      "Psu_over_allow": 0.5336,
+      "fbu_over_Ftu": 0.5862,
+      "MS_omitted_governing": 0.142,
+      "interaction_omitted": 0.814,
+      "MS_included_info": -0.151,
+      "interaction_included": 1.231,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.201
+     },
+     "gauge_3862.0|arm_+0.4_sens": {
+      "V_N": 3218.3,
+      "arm_mm": 1.32,
+      "M_Nmm": 4248.1,
+      "fbu_MPa": 666.6,
+      "Psu_over_allow": 0.5336,
+      "fbu_over_Ftu": 0.8411,
+      "MS_omitted_governing": -0.093,
+      "interaction_omitted": 1.178,
+      "MS_included_info": -0.336,
+      "interaction_included": 1.741,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": 0.033
+     },
+     "gauge_3862.0|arm_+0.6_sens": {
+      "V_N": 3218.3,
+      "arm_mm": 1.52,
+      "M_Nmm": 4891.8,
+      "fbu_MPa": 767.6,
+      "Psu_over_allow": 0.5336,
+      "fbu_over_Ftu": 0.9686,
+      "MS_omitted_governing": -0.181,
+      "interaction_omitted": 1.409,
+      "MS_included_info": -0.403,
+      "interaction_included": 2.044,
+      "MS_eq23_omitted_info_Fbu_1.70Ftu_geometry_only": -0.036
+     }
+    },
+    "governing": 0.006,
+    "included_at_governing_row": -0.259,
+    "gauge_governing": 0.013
+   },
+   "TC01": {
+    "r_flat_mm": 31.3129,
+    "spot_face_d_mm": 10.5,
+    "hole_d_mm": 5.5,
+    "nominal_wall": {
+     "t_wall_mm": 2.6879,
+     "L_eff_bearing_mm": 2.3879,
+     "hole_bearing": {
+      "sigma_MPa": 271.4,
+      "MS_y": 0.218,
+      "MS_u": 0.501
+     },
+     "shear_out": {
+      "tau_MPa": 65.2,
+      "MS_y": 1.091,
+      "MS_u": 1.345
+     },
+     "net_section": {
+      "A_net_mm2": 375.65,
+      "Pm_MPa": 103.5,
+      "MS_y": 1.281,
+      "MS_u": 1.46
+     },
+     "ligament_PmPb": {
+      "w_lig_mm": 10.31,
+      "PmPb_MPa": 220.5,
+      "MS_y": 0.071,
+      "MS_u": 0.155
+     },
+     "hole_edge_neuber_info": {
+      "sigma_el_MPa": 466.9,
+      "eps_local": 0.0129,
+      "eps_limit": 0.0274,
+      "MS_strain": 1.128
+     }
+    },
+    "drawing_limit_wall": {
+     "t_wall_mm": 2.6649,
+     "L_eff_bearing_mm": 2.3649,
+     "hole_bearing": {
+      "sigma_MPa": 274.0,
+      "MS_y": 0.206,
+      "MS_u": 0.487
+     },
+     "shear_out": {
+      "tau_MPa": 65.7,
+      "MS_y": 1.073,
+      "MS_u": 1.325
+     },
+     "net_section": {
+      "A_net_mm2": 373.03,
+      "Pm_MPa": 104.2,
+      "MS_y": 1.265,
+      "MS_u": 1.443
+     },
+     "ligament_PmPb": {
+      "w_lig_mm": 10.31,
+      "PmPb_MPa": 222.1,
+      "MS_y": 0.063,
+      "MS_u": 0.146
+     },
+     "hole_edge_neuber_info": {
+      "sigma_el_MPa": 471.4,
+      "eps_local": 0.01314,
+      "eps_limit": 0.0274,
+      "MS_strain": 1.089
+     }
+    }
+   },
+   "TC02": {
+    "L_e_mm": 7.287,
+    "L_eff_mm": 6.787,
+    "tapped_thread_bearing": {
+     "sigma_MPa": 115.5,
+     "MS_y": 1.862,
+     "MS_u": 2.528
+    },
+    "internal_thread_shear_at_F_max_thermal": {
+     "F_N": 3965.0,
+     "A_n_mm2": 67.9,
+     "tau_MPa": 58.4,
+     "MS_y": 1.332,
+     "MS_u": 1.615
+    },
+    "tap_row_net_ligament_compression": {
+     "Pm_MPa": 19.1,
+     "MS_y": 11.373
+    },
+    "shear_out_to_g2": {
+     "ligament_mm": 5.8,
+     "Pm_vm_MPa": 71.3,
+     "MS_y": 2.312
+    }
+   },
+   "no_slack": {
+    "A4-80 12x M5 (local k_sh)": {
+     "seat_line": {
+      "n_unseated": 9,
+      "F_S_min_N": -106,
+      "max_wall_set_um": 61.71,
+      "F_S_max_N": 3216,
+      "fibre_over_Rp_max": 0.516
+     },
+     "ring_line": {
+      "n_unseated": 0,
+      "F_S_min_N": 151,
+      "max_wall_set_um": 49.682
+     },
+     "tag": "ESTIMATE: per-screw joint unchanged"
+    },
+    "A4-80 12x M5 (ring k_sh x10/12)": {
+     "seat_line": {
+      "n_unseated": 0,
+      "F_S_min_N": 131,
+      "max_wall_set_um": 49.931,
+      "F_S_max_N": 3264,
+      "fibre_over_Rp_max": 0.524
+     },
+     "ring_line": {
+      "n_unseated": 0,
+      "F_S_min_N": 131,
+      "max_wall_set_um": 35.537
+     },
+     "tag": "ESTIMATE: ring-dominated shell"
+    }
+   },
+   "availability": {
+    "status": "STOCK",
+    "part": "as baseline, qty 12",
+    "src": "as baseline",
+    "delivery_DK6400": "TO-QUOTE"
+   },
+   "CAD_geometry": "NO UNIFORM PATTERN FITS: at a 30 deg pitch no phase keeps every screw >= 16-18 deg from both the torch passage (0 deg) and the Pc passage (142 deg) (the 10-pitch set at 18 + 36k already has the minimum walls 1.906 mm at 18 deg from the torch and 2.719 mm at 16 deg from the Pc, CAD probe; jfwd_v352_v1 O2 note); a non-uniform pattern breaks equal load sharing; +2 TC-01 holes / spot faces (ligament w 10.31 mm at the bore vs 12.49 for 10), +2 TC-02 taps, +2 O-ring passage holes for the S01 / S02 assembly (2 more GSE fitting plugs, same item C callout and fitting aid)",
+   "mass": {
+    "delta_g": 2.88,
+    "parts": "+2 screws (2.028 g each), +2 TC-01 holes / spot faces, +2 TC-02 taps (Al removed)"
+   },
+   "torque_tension": "3.0 N m (as baseline)",
+   "corrosion_oxygen": "as baseline; the 12-pitch clash with the torch / Pc passages is a wetting risk (see geometry)",
+   "BOM": "ENG-HW-101 qty 12; TC-01 / TC-02 drawings (pattern); GSE plugs x12"
+  }
+ },
+ "shoulder_or_part_threaded": "NONE FITS: the stock full-body option, ISO 7379 hexagon socket shoulder screw with an M5 thread (d_s 6.5, dk max 10, k max 4.5, thread b max 9.75, nominal shoulder lengths 10-120; fasten.it ISO 7379 table, ISO 7379:1983, https://fasten.it/en/norms/norm/iso_7379, accessed 2026-10-20), breaks the 1.0 mm FD-04 envelope (dk / 2 + 1.0 = 6.0 > 5.75 below the screw axis) and its shortest 10 mm shoulder through the 2.688 wall puts the thread end about 19.5 mm into TC-02 (r ~ 9 vs the 9.0 mm tap to r 19.6 now) through the TC-02 cavities; it also clamps on its shoulder end, not on TC-01; no part-threaded M5 in a ~10 mm length was found (short ISO 4762 / 7380 M5 are threaded to the head)",
+ "slack_fixes": {
+  "i_select_fit": {
+   "A4-80 M5 x10 (baseline)": {
+    "seat_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -1063,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.735
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -987,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.776
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -911,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.818
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -835,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.859
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -759,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.9
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -683,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.942
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -607,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.983
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -532,
+       "max_wall_set_um": 1.47,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -456,
+       "max_wall_set_um": 3.959,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -380,
+       "max_wall_set_um": 6.449,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -304,
+       "max_wall_set_um": 8.938,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -228,
+       "max_wall_set_um": 11.427,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -152,
+       "max_wall_set_um": 13.916,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 16.406,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 18.895,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 21.384,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 23.873,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    },
+    "ring_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -1063,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.613
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -987,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.647
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -911,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.681
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -835,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.716
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -759,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.75
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -683,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.785
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -607,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.819
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -532,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.854
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -456,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.888
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -380,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.923
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -304,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.957
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -228,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.992
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -152,
+       "max_wall_set_um": 1.889,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -76,
+       "max_wall_set_um": 4.378,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -1,
+       "max_wall_set_um": 6.867,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 75,
+       "max_wall_set_um": 9.357,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 151,
+       "max_wall_set_um": 11.846,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    }
+   },
+   "A4-100 M5 x10": {
+    "seat_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -1063,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.735
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -987,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.776
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -911,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.818
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -835,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.859
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -759,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.9
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -683,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.942
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -607,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.983
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -532,
+       "max_wall_set_um": 1.47,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -456,
+       "max_wall_set_um": 3.959,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -380,
+       "max_wall_set_um": 6.449,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -304,
+       "max_wall_set_um": 8.938,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -228,
+       "max_wall_set_um": 11.427,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -152,
+       "max_wall_set_um": 13.916,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 16.406,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 18.895,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 21.384,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 23.873,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    },
+    "ring_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -1063,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.613
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -987,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.647
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -911,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.681
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -835,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.716
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -759,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.75
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -683,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.785
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -607,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.819
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -532,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.854
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -456,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.888
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -380,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.923
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -304,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.957
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -228,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.992
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -152,
+       "max_wall_set_um": 1.889,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -76,
+       "max_wall_set_um": 4.378,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -1,
+       "max_wall_set_um": 6.867,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 75,
+       "max_wall_set_um": 9.357,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 151,
+       "max_wall_set_um": 11.846,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    }
+   },
+   "IN718 M5 x10": {
+    "seat_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -1063,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.738
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -987,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.78
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -911,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.821
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -835,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.862
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -759,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.904
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -683,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.945
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -607,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.986
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -531,
+       "max_wall_set_um": 1.667,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -454,
+       "max_wall_set_um": 4.156,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -378,
+       "max_wall_set_um": 6.645,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -302,
+       "max_wall_set_um": 9.134,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -226,
+       "max_wall_set_um": 11.623,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -150,
+       "max_wall_set_um": 14.112,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -133,
+       "max_wall_set_um": 16.601,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -133,
+       "max_wall_set_um": 19.09,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -133,
+       "max_wall_set_um": 21.579,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -133,
+       "max_wall_set_um": 24.068,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    },
+    "ring_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -1063,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.615
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -987,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.65
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -911,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.684
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -835,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.719
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -759,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.753
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -683,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.788
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -607,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.822
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -531,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.856
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -454,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.891
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -378,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.925
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -302,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.96
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -226,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.994
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -150,
+       "max_wall_set_um": 2.086,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -74,
+       "max_wall_set_um": 4.575,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 2,
+       "max_wall_set_um": 7.064,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 78,
+       "max_wall_set_um": 9.553,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 154,
+       "max_wall_set_um": 12.042,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    }
+   },
+   "A4-80 M6 x10": {
+    "seat_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -1015,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.71
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -945,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.75
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -874,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.79
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -804,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.83
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -734,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.87
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -664,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.91
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -593,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.95
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -523,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.99
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -453,
+       "max_wall_set_um": 1.89,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -382,
+       "max_wall_set_um": 4.378,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -312,
+       "max_wall_set_um": 6.867,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -242,
+       "max_wall_set_um": 9.355,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -172,
+       "max_wall_set_um": 11.843,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -101,
+       "max_wall_set_um": 14.331,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -71,
+       "max_wall_set_um": 16.82,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -71,
+       "max_wall_set_um": 19.308,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -71,
+       "max_wall_set_um": 21.796,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    },
+    "ring_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -1015,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.592
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -945,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.625
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -874,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.658
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -804,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.692
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -734,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.725
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -664,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.759
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -593,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.792
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -523,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.825
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -453,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.859
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -382,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.892
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -312,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.926
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -242,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.959
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -172,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.992
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -101,
+       "max_wall_set_um": 1.926,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -31,
+       "max_wall_set_um": 4.414,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 39,
+       "max_wall_set_um": 6.903,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 110,
+       "max_wall_set_um": 9.391,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    }
+   },
+   "A4-80 12x M5 (local k_sh)": {
+    "seat_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -1063,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.735
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -987,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.776
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -911,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.818
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -835,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.859
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -759,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.9
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -683,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.942
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -607,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.983
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -532,
+       "max_wall_set_um": 1.47,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -456,
+       "max_wall_set_um": 3.959,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -380,
+       "max_wall_set_um": 6.449,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -304,
+       "max_wall_set_um": 8.938,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -228,
+       "max_wall_set_um": 11.427,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -152,
+       "max_wall_set_um": 13.916,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 16.406,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 18.895,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 21.384,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -106,
+       "max_wall_set_um": 23.873,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    },
+    "ring_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -1063,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.613
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -987,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.647
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -911,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.681
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -835,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.716
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -759,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.75
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -683,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.785
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -607,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.819
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -532,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.854
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -456,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.888
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -380,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.923
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -304,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.957
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -228,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.992
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -152,
+       "max_wall_set_um": 1.889,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -76,
+       "max_wall_set_um": 4.378,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -1,
+       "max_wall_set_um": 6.867,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 75,
+       "max_wall_set_um": 9.357,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 151,
+       "max_wall_set_um": 11.846,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    }
+   },
+   "A4-80 12x M5 (ring k_sh x10/12)": {
+    "seat_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -896,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.614
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -832,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.649
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -768,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.683
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -704,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.718
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -640,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.752
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -575,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.787
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -511,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.822
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -447,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.856
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -383,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.891
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -318,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.925
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -254,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.96
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -190,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.995
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -126,
+       "max_wall_set_um": 2.104,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -61,
+       "max_wall_set_um": 4.595,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 3,
+       "max_wall_set_um": 7.086,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 67,
+       "max_wall_set_um": 9.577,
+       "max_seat_over_Fty": 1.0
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 131,
+       "max_wall_set_um": 12.068,
+       "max_seat_over_Fty": 1.0
+      }
+     ]
+    },
+    "ring_line": {
+     "g_cap_mm": null,
+     "note": "slack even at zero radial gap",
+     "sweep": [
+      {
+       "gap_mm": 0.0,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -896,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.512
+      },
+      {
+       "gap_mm": 0.0025,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -832,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.541
+      },
+      {
+       "gap_mm": 0.005,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -768,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.569
+      },
+      {
+       "gap_mm": 0.0075,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -704,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.598
+      },
+      {
+       "gap_mm": 0.01,
+       "all_seated": false,
+       "n_unseated": 6,
+       "F_S_min_N": -640,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.627
+      },
+      {
+       "gap_mm": 0.0125,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -575,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.656
+      },
+      {
+       "gap_mm": 0.015,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -511,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.685
+      },
+      {
+       "gap_mm": 0.0175,
+       "all_seated": false,
+       "n_unseated": 5,
+       "F_S_min_N": -447,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.714
+      },
+      {
+       "gap_mm": 0.02,
+       "all_seated": false,
+       "n_unseated": 4,
+       "F_S_min_N": -383,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.742
+      },
+      {
+       "gap_mm": 0.0225,
+       "all_seated": false,
+       "n_unseated": 3,
+       "F_S_min_N": -318,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.771
+      },
+      {
+       "gap_mm": 0.025,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -254,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.8
+      },
+      {
+       "gap_mm": 0.0275,
+       "all_seated": false,
+       "n_unseated": 2,
+       "F_S_min_N": -190,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.829
+      },
+      {
+       "gap_mm": 0.03,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -126,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.858
+      },
+      {
+       "gap_mm": 0.0325,
+       "all_seated": false,
+       "n_unseated": 1,
+       "F_S_min_N": -61,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.887
+      },
+      {
+       "gap_mm": 0.035,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 3,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.915
+      },
+      {
+       "gap_mm": 0.0375,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 67,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.944
+      },
+      {
+       "gap_mm": 0.04,
+       "all_seated": true,
+       "n_unseated": 0,
+       "F_S_min_N": 131,
+       "max_wall_set_um": 0.0,
+       "max_seat_over_Fty": 0.973
+      }
+     ]
+    }
+   }
+  },
+  "ii_higher_preload": {
+   "A4-80 M5 x10 (baseline)": {
+    "seat_line": {
+     "F_min_N": 8000.0,
+     "F_max_N": 13333,
+     "all_seated": true,
+     "n_unseated": 0,
+     "F_S_min_N": 226,
+     "F_S_max_N": 8351,
+     "fibre_over_Rp_max": 1.0,
+     "max_screw_set_um": 18.495,
+     "max_wall_set_um": 63.763,
+     "max_seat_over_Fty": 1.0,
+     "F_nom_N": 10667,
+     "torque_Nm_K0p20": 10.67
+    },
+    "ring_line": {
+     "F_min_N": 2250.0,
+     "F_max_N": 3750,
+     "all_seated": true,
+     "n_unseated": 0,
+     "F_S_min_N": 151,
+     "F_S_max_N": 2997,
+     "fibre_over_Rp_max": 0.558,
+     "max_screw_set_um": 0.0,
+     "max_wall_set_um": 49.467,
+     "max_seat_over_Fty": 1.0,
+     "F_nom_N": 3000,
+     "torque_Nm_K0p20": 3.0
+    }
+   },
+   "A4-100 M5 x10": {
+    "seat_line": {
+     "F_min_N": 8000.0,
+     "F_max_N": 13333,
+     "all_seated": true,
+     "n_unseated": 0,
+     "F_S_min_N": 226,
+     "F_S_max_N": 10647,
+     "fibre_over_Rp_max": 1.0,
+     "max_screw_set_um": 12.286,
+     "max_wall_set_um": 65.064,
+     "max_seat_over_Fty": 1.0,
+     "F_nom_N": 10667,
+     "torque_Nm_K0p20": 10.67
+    },
+    "ring_line": {
+     "F_min_N": 2250.0,
+     "F_max_N": 3750,
+     "all_seated": true,
+     "n_unseated": 0,
+     "F_S_min_N": 151,
+     "F_S_max_N": 2997,
+     "fibre_over_Rp_max": 0.418,
+     "max_screw_set_um": 0.0,
+     "max_wall_set_um": 49.467,
+     "max_seat_over_Fty": 1.0,
+     "F_nom_N": 3000,
+     "torque_Nm_K0p20": 3.0
+    }
+   },
+   "IN718 M5 x10": {
+    "seat_line": {
+     "F_min_N": 8000.0,
+     "F_max_N": 13333,
+     "all_seated": true,
+     "n_unseated": 0,
+     "F_S_min_N": 71,
+     "F_S_max_N": 12723,
+     "fibre_over_Rp_max": 0.917,
+     "max_screw_set_um": 0.0,
+     "max_wall_set_um": 67.664,
+     "max_seat_over_Fty": 1.0,
+     "F_nom_N": 10667,
+     "torque_Nm_K0p20": 10.67
+    },
+    "ring_line": {
+     "F_min_N": 2250.0,
+     "F_max_N": 3750,
+     "all_seated": true,
+     "n_unseated": 0,
+     "F_S_min_N": 154,
+     "F_S_max_N": 3267,
+     "fibre_over_Rp_max": 0.266,
+     "max_screw_set_um": 0.0,
+     "max_wall_set_um": 49.658,
+     "max_seat_over_Fty": 1.0,
+     "F_nom_N": 3000,
+     "torque_Nm_K0p20": 3.0
+    }
+   }
+  },
+  "ii_knock_ons_seat_line_band": {
+   "A4-80 M5 x10 (baseline)": {
+    "band_N": [
+     8000.0,
+     13333
+    ],
+    "F_nom_N": 10667,
+    "torque_Nm_K0.20": 10.67,
+    "install_F_max_over_proof_Rp20_As": 1.567,
+    "TC02_thread_at_F_S_max": {
+     "F_S_max_N": 8351,
+     "A_n_mm2": 67.9,
+     "tau_MPa": 123.1,
+     "MS_y": -0.01,
+     "MS_u": 0.094
+    },
+    "flat_seat_head_bearing": {
+     "p_MPa": 177.2,
+     "Fbry_158C_MPa": 238.4,
+     "MS_y": 0.345
+    },
+    "screw_set_um": 18.495,
+    "wall_set_um": 63.763,
+    "seat_line_P_Q_over_Fty_max": 1.0
+   },
+   "A4-100 M5 x10": {
+    "band_N": [
+     8000.0,
+     13333
+    ],
+    "F_nom_N": 10667,
+    "torque_Nm_K0.20": 10.67,
+    "install_F_max_over_proof_Rp20_As": 1.175,
+    "TC02_thread_at_F_S_max": {
+     "F_S_max_N": 10647,
+     "A_n_mm2": 67.9,
+     "tau_MPa": 156.9,
+     "MS_y": -0.224,
+     "MS_u": -0.142
+    },
+    "flat_seat_head_bearing": {
+     "p_MPa": 225.9,
+     "Fbry_158C_MPa": 238.4,
+     "MS_y": 0.055
+    },
+    "screw_set_um": 12.286,
+    "wall_set_um": 65.064,
+    "seat_line_P_Q_over_Fty_max": 1.0
+   },
+   "IN718 M5 x10": {
+    "band_N": [
+     8000.0,
+     13333
+    ],
+    "F_nom_N": 10667,
+    "torque_Nm_K0.20": 10.67,
+    "install_F_max_over_proof_Rp20_As": 0.909,
+    "TC02_thread_at_F_S_max": {
+     "F_S_max_N": 12723,
+     "A_n_mm2": 67.9,
+     "tau_MPa": 187.5,
+     "MS_y": -0.35,
+     "MS_u": -0.282
+    },
+    "flat_seat_head_bearing": {
+     "p_MPa": 270.0,
+     "Fbry_158C_MPa": 238.4,
+     "MS_y": -0.117
+    },
+    "screw_set_um": 0.0,
+    "wall_set_um": 67.664,
+    "seat_line_P_Q_over_Fty_max": 1.0
+   }
+  },
+  "info": {
+   "seat_line_cap_at_limit_load_x1.5": {
+    "all_seated": true,
+    "n_cases": 24,
+    "F_S_max_N": 3454,
+    "fibre_over_Rp_max": 0.691,
+    "fibre_over_Rp_max_case": "H8f7_mean|J-F1_max_4096|basis|GVLO",
+    "max_seat_over_Fty": 1.0,
+    "n_unseated": 0,
+    "unseated_cases": [],
+    "min_case": "H8f7_min|J-F1_min_2250|sens|GVLO",
+    "F_S_min_N": 151,
+    "max_wall_set_um": 31.631,
+    "max_screw_set_um": 0.0,
+    "max_cold_loss_N": 980,
+    "all_second_firing_elastic": true,
+    "n_second_firing_not_elastic": 0,
+    "screw_shakedown_min_MS": 2.796,
+    "screw_fibre_max_MPa": 327.4,
+    "screw_fibre_range_max_MPa": 235.9,
+    "cold_end_F_S_min_N": 771
+   },
+   "kb_series_compliance": {
+    "k_b_x0.75": {
+     "all_seated": false,
+     "n_cases": 24,
+     "F_S_max_N": 3399,
+     "fibre_over_Rp_max": 0.546,
+     "fibre_over_Rp_max_case": "H8f7_min|J-F1_max_4096|basis|GVLO",
+     "max_seat_over_Fty": 1.0,
+     "n_unseated": 9,
+     "unseated_cases": [
+      "H8f7_min|J-F1_min_2250|basis|GVLO",
+      "H8f7_min|J-F1_min_2250|sens|GVLO",
+      "H8f7_min|J-F1_max_4096|sens|GVLO",
+      "H8f7_mean|J-F1_min_2250|basis|GVLO",
+      "H8f7_mean|J-F1_min_2250|sens|GVLO",
+      "H8f7_mean|J-F1_max_4096|sens|GVLO",
+      "H8f7_max|J-F1_min_2250|basis|GVLO",
+      "H8f7_max|J-F1_min_2250|sens|GVLO",
+      "H8f7_max|J-F1_max_4096|sens|GVLO"
+     ],
+     "min_case": "H8f7_min|J-F1_min_2250|basis|GVLO",
+     "F_S_min_N": -56,
+     "max_wall_set_um": 61.859,
+     "max_screw_set_um": 0.0,
+     "max_cold_loss_N": 1594,
+     "all_second_firing_elastic": true,
+     "n_second_firing_not_elastic": 0,
+     "screw_shakedown_min_MS": 5.293,
+     "screw_fibre_max_MPa": 244.2,
+     "screw_fibre_range_max_MPa": 142.3,
+     "cold_end_F_S_min_N": 549
+    },
+    "k_b_x0.5": {
+     "all_seated": true,
+     "n_cases": 24,
+     "F_S_max_N": 3604,
+     "fibre_over_Rp_max": 0.579,
+     "fibre_over_Rp_max_case": "H8f7_min|J-F1_max_4096|basis|GVLO",
+     "max_seat_over_Fty": 1.0,
+     "n_unseated": 0,
+     "unseated_cases": [],
+     "min_case": "H8f7_min|J-F1_min_2250|sens|GVLO",
+     "F_S_min_N": 36,
+     "max_wall_set_um": 62.026,
+     "max_screw_set_um": 0.0,
+     "max_cold_loss_N": 1617,
+     "all_second_firing_elastic": true,
+     "n_second_firing_not_elastic": 0,
+     "screw_shakedown_min_MS": 5.41,
+     "screw_fibre_max_MPa": 259.0,
+     "screw_fibre_range_max_MPa": 139.7,
+     "cold_end_F_S_min_N": 614
+    },
+    "k_b_x0.25": {
+     "all_seated": true,
+     "n_cases": 24,
+     "F_S_max_N": 3835,
+     "fibre_over_Rp_max": 0.616,
+     "fibre_over_Rp_max_case": "H8f7_min|J-F1_max_4096|basis|GVLO",
+     "max_seat_over_Fty": 1.0,
+     "n_unseated": 0,
+     "unseated_cases": [],
+     "min_case": "H8f7_min|J-F1_min_2250|sens|GVLO",
+     "F_S_min_N": 270,
+     "max_wall_set_um": 62.213,
+     "max_screw_set_um": 0.0,
+     "max_cold_loss_N": 1269,
+     "all_second_firing_elastic": true,
+     "n_second_firing_not_elastic": 0,
+     "screw_shakedown_min_MS": 6.285,
+     "screw_fibre_max_MPa": 275.5,
+     "screw_fibre_range_max_MPa": 122.9,
+     "cold_end_F_S_min_N": 778
+    },
+    "k_b_x0.1": {
+     "all_seated": true,
+     "n_cases": 24,
+     "F_S_max_N": 3988,
+     "fibre_over_Rp_max": 0.64,
+     "fibre_over_Rp_max_case": "H8f7_min|J-F1_max_4096|basis|GVLO",
+     "max_seat_over_Fty": 1.0,
+     "n_unseated": 0,
+     "unseated_cases": [],
+     "min_case": "H8f7_max|J-F1_min_2250|sens|GVLO",
+     "F_S_min_N": 881,
+     "max_wall_set_um": 62.337,
+     "max_screw_set_um": 0.0,
+     "max_cold_loss_N": 762,
+     "all_second_firing_elastic": true,
+     "n_second_firing_not_elastic": 0,
+     "screw_shakedown_min_MS": 10.341,
+     "screw_fibre_max_MPa": 286.5,
+     "screw_fibre_range_max_MPa": 79.0,
+     "cold_end_F_S_min_N": 1096
+    }
+   },
+   "gap_sweep_0p040_0p120_seat_line": [
+    {
+     "gap_mm": 0.04,
+     "all_seated": false,
+     "n_unseated": 3,
+     "F_S_min_N": -106,
+     "max_wall_set_um": 23.873
+    },
+    {
+     "gap_mm": 0.05,
+     "all_seated": false,
+     "n_unseated": 3,
+     "F_S_min_N": -106,
+     "max_wall_set_um": 33.83
+    },
+    {
+     "gap_mm": 0.06,
+     "all_seated": false,
+     "n_unseated": 3,
+     "F_S_min_N": -106,
+     "max_wall_set_um": 43.787
+    },
+    {
+     "gap_mm": 0.07,
+     "all_seated": false,
+     "n_unseated": 3,
+     "F_S_min_N": -106,
+     "max_wall_set_um": 53.744
+    },
+    {
+     "gap_mm": 0.08,
+     "all_seated": false,
+     "n_unseated": 3,
+     "F_S_min_N": -106,
+     "max_wall_set_um": 63.701
+    },
+    {
+     "gap_mm": 0.09,
+     "all_seated": false,
+     "n_unseated": 3,
+     "F_S_min_N": -106,
+     "max_wall_set_um": 73.658
+    },
+    {
+     "gap_mm": 0.1,
+     "all_seated": false,
+     "n_unseated": 3,
+     "F_S_min_N": -106,
+     "max_wall_set_um": 83.615
+    },
+    {
+     "gap_mm": 0.11,
+     "all_seated": false,
+     "n_unseated": 3,
+     "F_S_min_N": -106,
+     "max_wall_set_um": 93.572
+    },
+    {
+     "gap_mm": 0.12,
+     "all_seated": false,
+     "n_unseated": 3,
+     "F_S_min_N": -106,
+     "max_wall_set_um": 103.529
+    }
+   ]
+  },
+  "break_even_k_sh": {
+   "seat_line": {
+    "bound": "seat line (c = max(c_pre, c_soak))",
+    "at_K_js5": {
+     "slack": true,
+     "n_unseated": 9,
+     "F_S_min_N": -106,
+     "k_b": 423022
+    },
+    "at_1000": {
+     "slack": false,
+     "F_S_min_N": 5
+    },
+    "k_sh_break_even_N_mm": 31582,
+    "k_b_at_break_even": 427412,
+    "F_S_min_at_break_even_N": 0,
+    "first_slack_cases_just_above": [
+     "H8f7_min|J-F1_min_2250|basis|GVLO",
+     "H8f7_min|J-F1_min_2250|sens|GVLO",
+     "H8f7_min|J-F1_max_4096|sens|GVLO"
+    ],
+    "vs_K_js5_33433": -0.055,
+    "vs_js4_scaled_35640": -0.114
+   },
+   "ring_line": {
+    "bound": "ring line (information bound)",
+    "at_K_js5": {
+     "slack": false,
+     "n_unseated": 0,
+     "F_S_min_N": 151,
+     "k_b": 423022
+    },
+    "at_120000": {
+     "slack": true,
+     "F_S_min_N": -464
+    },
+    "k_sh_break_even_N_mm": 38600,
+    "k_b_at_break_even": 411280,
+    "F_S_min_at_break_even_N": 0,
+    "first_slack_cases_just_above": [
+     "H8f7_min|J-F1_min_2250|basis|GVLO",
+     "H8f7_min|J-F1_min_2250|sens|GVLO",
+     "H8f7_min|J-F1_max_4096|sens|GVLO"
+    ],
+    "vs_K_js5_33433": 0.155,
+    "vs_js4_scaled_35640": 0.083
+   }
+  },
+  "screw_set_bounds": {
+   "v3_basis_tilt_on_capped_pull": {
+    "all_seated": false,
+    "n_cases": 24,
+    "F_S_max_N": 3216,
+    "fibre_over_Rp_max": 0.516,
+    "fibre_over_Rp_max_case": "H8f7_min|J-F1_max_4096|basis|GVLO",
+    "max_seat_over_Fty": 1.0,
+    "n_unseated": 9,
+    "unseated_cases": [
+     "H8f7_min|J-F1_min_2250|basis|GVLO",
+     "H8f7_min|J-F1_min_2250|sens|GVLO",
+     "H8f7_min|J-F1_max_4096|sens|GVLO",
+     "H8f7_mean|J-F1_min_2250|basis|GVLO",
+     "H8f7_mean|J-F1_min_2250|sens|GVLO",
+     "H8f7_mean|J-F1_max_4096|sens|GVLO",
+     "H8f7_max|J-F1_min_2250|basis|GVLO",
+     "H8f7_max|J-F1_min_2250|sens|GVLO",
+     "H8f7_max|J-F1_max_4096|sens|GVLO"
+    ],
+    "min_case": "H8f7_min|J-F1_min_2250|basis|GVLO",
+    "F_S_min_N": -106,
+    "max_wall_set_um": 61.71,
+    "max_screw_set_um": 0.0,
+    "max_cold_loss_N": 1581,
+    "all_second_firing_elastic": true,
+    "n_second_firing_not_elastic": 0,
+    "screw_shakedown_min_MS": 4.491,
+    "screw_fibre_max_MPa": 231.1,
+    "screw_fibre_range_max_MPa": 163.0,
+    "cold_end_F_S_min_N": 514
+   },
+   "tilt_on_elastic_equivalent_pull": {
+    "all_seated": false,
+    "n_cases": 24,
+    "F_S_max_N": 3216,
+    "fibre_over_Rp_max": 0.93,
+    "fibre_over_Rp_max_case": "H8f7_max|J-F1_max_4096|basis|GVLO",
+    "max_seat_over_Fty": 1.0,
+    "n_unseated": 9,
+    "unseated_cases": [
+     "H8f7_min|J-F1_min_2250|basis|GVLO",
+     "H8f7_min|J-F1_min_2250|sens|GVLO",
+     "H8f7_min|J-F1_max_4096|sens|GVLO",
+     "H8f7_mean|J-F1_min_2250|basis|GVLO",
+     "H8f7_mean|J-F1_min_2250|sens|GVLO",
+     "H8f7_mean|J-F1_max_4096|sens|GVLO",
+     "H8f7_max|J-F1_min_2250|basis|GVLO",
+     "H8f7_max|J-F1_min_2250|sens|GVLO",
+     "H8f7_max|J-F1_max_4096|sens|GVLO"
+    ],
+    "min_case": "H8f7_min|J-F1_min_2250|basis|GVLO",
+    "F_S_min_N": -106,
+    "max_wall_set_um": 61.71,
+    "max_screw_set_um": 0.0,
+    "max_cold_loss_N": 1581,
+    "all_second_firing_elastic": true,
+    "n_second_firing_not_elastic": 0,
+    "screw_shakedown_min_MS": 1.44,
+    "screw_fibre_max_MPa": 416.3,
+    "screw_fibre_range_max_MPa": 367.0,
+    "cold_end_F_S_min_N": 514
+   },
+   "wall_elastic_screw_takes_the_set": {
+    "all_seated": true,
+    "n_cases": 24,
+    "F_S_max_N": 3834,
+    "fibre_over_Rp_max": 1.0,
+    "fibre_over_Rp_max_case": "H8f7_max|J-F1_max_4096|basis|GVLO",
+    "max_seat_over_Fty": 1.921,
+    "n_unseated": 0,
+    "unseated_cases": [],
+    "min_case": "H8f7_min|J-F1_min_2250|sens|GVLO",
+    "F_S_min_N": 151,
+    "max_wall_set_um": 0.0,
+    "max_screw_set_um": 5.225,
+    "max_cold_loss_N": 162,
+    "all_second_firing_elastic": true,
+    "n_second_firing_not_elastic": 0,
+    "screw_shakedown_min_MS": 1.76,
+    "screw_fibre_max_MPa": 447.8,
+    "screw_fibre_range_max_MPa": 324.5,
+    "cold_end_F_S_min_N": 771
+   }
+  },
+  "i_select_fit_band_v2": {
+   "per_option": {
+    "A4-80 M5 x10 (baseline)": {
+     "seat_line": "no gap 0-0.040 seats all 24 (smaller gaps are worse: the fit becomes the stop for embedding); 0.0325-0.120 pinned at F_S_min -106 N",
+     "ring_line_floor_mm": 0.0375,
+     "PQ_ceiling_mm_g_at_2Fty": 0.0764,
+     "ring_line_band_mm": [
+      0.04,
+      0.0764
+     ],
+     "PQ_passes_full_H8f7_0.040_0.078": false,
+     "PQ_MS_at_0.070": 0.052
+    },
+    "A4-100 M5 x10": {
+     "seat_line": "no gap 0-0.040 seats all 24 (smaller gaps are worse: the fit becomes the stop for embedding); 0.0325-0.120 pinned at F_S_min -106 N",
+     "ring_line_floor_mm": 0.0375,
+     "PQ_ceiling_mm_g_at_2Fty": 0.0764,
+     "ring_line_band_mm": [
+      0.04,
+      0.0764
+     ],
+     "PQ_passes_full_H8f7_0.040_0.078": false,
+     "PQ_MS_at_0.070": 0.052
+    },
+    "IN718 M5 x10": {
+     "seat_line": "no gap 0-0.040 seats all 24 (smaller gaps are worse: the fit becomes the stop for embedding); 0.0325-0.120 pinned at F_S_min -133 N",
+     "ring_line_floor_mm": 0.035,
+     "PQ_ceiling_mm_g_at_2Fty": 0.0761,
+     "ring_line_band_mm": [
+      0.04,
+      0.0761
+     ],
+     "PQ_passes_full_H8f7_0.040_0.078": false,
+     "PQ_MS_at_0.070": 0.05
+    },
+    "A4-80 M6 x10": {
+     "seat_line": "no gap 0-0.040 seats all 24 (smaller gaps are worse: the fit becomes the stop for embedding); 0.0325-0.120 pinned at F_S_min -71 N",
+     "ring_line_floor_mm": 0.0375,
+     "PQ_ceiling_mm_g_at_2Fty": 0.0795,
+     "ring_line_band_mm": [
+      0.04,
+      0.078
+     ],
+     "PQ_passes_full_H8f7_0.040_0.078": true,
+     "PQ_MS_at_0.070": 0.076
+    },
+    "A4-80 12x M5 (local k_sh)": {
+     "seat_line": "no gap 0-0.040 seats all 24 (smaller gaps are worse: the fit becomes the stop for embedding); 0.0325-0.120 pinned at F_S_min -106 N",
+     "ring_line_floor_mm": 0.0375,
+     "PQ_ceiling_mm_g_at_2Fty": 0.0764,
+     "ring_line_band_mm": [
+      0.04,
+      0.0764
+     ],
+     "PQ_passes_full_H8f7_0.040_0.078": false,
+     "PQ_MS_at_0.070": 0.052
+    },
+    "A4-80 12x M5 (ring k_sh x10/12)": {
+     "seat_line": "seated from 0.035",
+     "ring_line_floor_mm": 0.035,
+     "PQ_ceiling_mm_g_at_2Fty": 0.1002,
+     "ring_line_band_mm": [
+      0.04,
+      0.078
+     ],
+     "PQ_passes_full_H8f7_0.040_0.078": true,
+     "PQ_MS_at_0.070": 0.241
+    }
+   },
+   "GV_consequence": "GVLO (low-conductance bound) is built on the H8/f7 maximum 0.078 (J1 0.090 hot = 0.078 + free-ring opening <= 0.0091 + rounding) and stays conservative for any band whose maximum is <= 0.078; a band maximum of 0.070 would allow a narrower GVLO J1 (0.070 + 0.0091 -> about 0.080 hot), which raises the J1 conductance and would cut the GVLO through-wall difference the seat-line slack sits on: NOT RUN (it needs a GVLO thermal + T-F2 re-run). GVHI (high-conductance bound) is built on the H8/f7 minimum 0.040 (J1 0.031 hot = 0.040 - free-ring closing <= 0.0092) and is unchanged while the band minimum stays at 0.040; a band reaching below 0.040 needs a new GVHI pass (J1 toward contact: GVCC pass 0 closes about 0.020 in the burn at 0.078)."
+  }
+ },
+ "seat_line_PQ_SOAK70_per_option_v2": {
+  "two_Fty_MPa": 342.0,
+  "c_FE_MPa_per_N": 0.080508,
+  "jfwd_relax_v352.py": "48c2ab7d2698bb2f",
+  "rows": {
+   "A4-80 M5 x10 (baseline)": {
+    "tag": "FE-calibrated",
+    "3750N": {
+     "g_at_2Fty_mm": 0.0766,
+     "MS_PQ_at_0.078": -0.011,
+     "MS_PQ_at_0.070": 0.054,
+     "MS_PQ_at_0.059": 0.157,
+     "MS_PQ_at_0.040": 0.393,
+     "F_S_SOAK70_model_at_0.078_N": 5694.7
+    },
+    "4096N": {
+     "g_at_2Fty_mm": 0.0764,
+     "MS_PQ_at_0.078": -0.012,
+     "MS_PQ_at_0.070": 0.052,
+     "MS_PQ_at_0.059": 0.155,
+     "MS_PQ_at_0.040": 0.39,
+     "F_S_SOAK70_model_at_0.078_N": 6040.7
+    }
+   },
+   "A4-100 M5 x10": {
+    "tag": "as A4-80 (same alpha / E)",
+    "3750N": {
+     "g_at_2Fty_mm": 0.0766,
+     "MS_PQ_at_0.078": -0.011,
+     "MS_PQ_at_0.070": 0.054,
+     "MS_PQ_at_0.059": 0.157,
+     "MS_PQ_at_0.040": 0.393,
+     "F_S_SOAK70_model_at_0.078_N": 5694.7
+    },
+    "4096N": {
+     "g_at_2Fty_mm": 0.0764,
+     "MS_PQ_at_0.078": -0.012,
+     "MS_PQ_at_0.070": 0.052,
+     "MS_PQ_at_0.059": 0.155,
+     "MS_PQ_at_0.040": 0.39,
+     "F_S_SOAK70_model_at_0.078_N": 6040.7
+    }
+   },
+   "IN718 M5 x10": {
+    "tag": "grade: alpha IN718, k_b x E ratio",
+    "3750N": {
+     "g_at_2Fty_mm": 0.0763,
+     "MS_PQ_at_0.078": -0.013,
+     "MS_PQ_at_0.070": 0.051,
+     "MS_PQ_at_0.059": 0.154,
+     "MS_PQ_at_0.040": 0.389,
+     "F_S_SOAK70_model_at_0.078_N": 6088.8
+    },
+    "4096N": {
+     "g_at_2Fty_mm": 0.0761,
+     "MS_PQ_at_0.078": -0.014,
+     "MS_PQ_at_0.070": 0.05,
+     "MS_PQ_at_0.059": 0.152,
+     "MS_PQ_at_0.040": 0.386,
+     "F_S_SOAK70_model_at_0.078_N": 6434.8
+    }
+   },
+   "A4-80 M6 x10": {
+    "tag": "ESTIMATE (no FE)",
+    "3750N": {
+     "g_at_2Fty_mm": 0.0797,
+     "MS_PQ_at_0.078": 0.013,
+     "MS_PQ_at_0.070": 0.078,
+     "MS_PQ_at_0.059": 0.183,
+     "MS_PQ_at_0.040": 0.421,
+     "F_S_SOAK70_model_at_0.078_N": 5998.9
+    },
+    "4096N": {
+     "g_at_2Fty_mm": 0.0795,
+     "MS_PQ_at_0.078": 0.011,
+     "MS_PQ_at_0.070": 0.076,
+     "MS_PQ_at_0.059": 0.18,
+     "MS_PQ_at_0.040": 0.418,
+     "F_S_SOAK70_model_at_0.078_N": 6344.9
+    }
+   },
+   "A4-80 12x M5 (local k_sh)": {
+    "tag": "ESTIMATE: per-screw joint unchanged",
+    "3750N": {
+     "g_at_2Fty_mm": 0.0766,
+     "MS_PQ_at_0.078": -0.011,
+     "MS_PQ_at_0.070": 0.054,
+     "MS_PQ_at_0.059": 0.157,
+     "MS_PQ_at_0.040": 0.393,
+     "F_S_SOAK70_model_at_0.078_N": 5694.7
+    },
+    "4096N": {
+     "g_at_2Fty_mm": 0.0764,
+     "MS_PQ_at_0.078": -0.012,
+     "MS_PQ_at_0.070": 0.052,
+     "MS_PQ_at_0.059": 0.155,
+     "MS_PQ_at_0.040": 0.39,
+     "F_S_SOAK70_model_at_0.078_N": 6040.7
+    }
+   },
+   "A4-80 12x M5 (ring k_sh x10/12)": {
+    "tag": "ESTIMATE: ring-dominated shell",
+    "3750N": {
+     "g_at_2Fty_mm": 0.1004,
+     "MS_PQ_at_0.078": 0.169,
+     "MS_PQ_at_0.070": 0.244,
+     "MS_PQ_at_0.059": 0.364,
+     "MS_PQ_at_0.040": 0.637,
+     "F_S_SOAK70_model_at_0.078_N": 5646.9
+    },
+    "4096N": {
+     "g_at_2Fty_mm": 0.1002,
+     "MS_PQ_at_0.078": 0.167,
+     "MS_PQ_at_0.070": 0.241,
+     "MS_PQ_at_0.059": 0.361,
+     "MS_PQ_at_0.040": 0.634,
+     "F_S_SOAK70_model_at_0.078_N": 5992.9
+    }
+   }
+  }
+ }
+}

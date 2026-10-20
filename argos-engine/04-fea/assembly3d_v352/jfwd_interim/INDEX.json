@@ -1,0 +1,163 @@
+{
+ "id": "jfwd_interim_index",
+ "date": "2026-10-20",
+ "owner": "fea3d",
+ "written_utc": "2026-10-20T11:2xZ (see files)",
+ "what": "FEA3D v3.5.2 J-FWD one-sector contact sub-model js5_mu0_T3750_g078 (mesh s5 = TC-01 spot face, sharp hole edges, mu 0, preload 3750 N, FIT clearance 0.078 mm): COMPLETE run (DONE 10:49:04Z, rc 0, 8879 s, peak RSS 5.971 GB; .frd 63628859472e5885 gzipped 11:12Z -> .frd.gz 76ddf518913a2c2b, kept locally) and its full posts for all steps PRELOAD, SOAK70 (GVLO B1_70.7 mapped), FA1S (151.04 bar abs, 45.6 C), SOAK (64.7 s GVLO row means), SOAK52 (GVLO B1_51.7 mapped).  The upto4 partial files (10:05Z) are superseded (kept, marked).  Interim per lead 09:47Z (5); the final package supersedes these files.",
+ "evidence": "SIM (CalculiX 2.21 contact sub-model) + DERIVED (posts: SCL, cells, screw checks); allowables AL6061-T6 LITERATURE 10,000 h basis, screw A4-80 proxy k_T ASSUMED",
+ "notes": [
+  "jfwd_ligament.py fixed 09:56Z: a partial run took 20 C allowables for the TC-02 wall SCL and the RM2-01 (f) edge profile (no post.json yet); now from post_partial.json (step temperatures); cells re-run 10:03Z",
+  "screw_bend.json: NEW shear-plane bending rows (SIM resultants, DERIVED check), not in the 234 (1)(b) rows of cells.json nor in Mechanical's CALC",
+  "11:05Z NEW jfwd_seatforce.py -> seatforce.json (lead 10:47Z): seat contact normal force under the screw (TC-02 plug OD on the TC-01 bore, exact K u with consistent pressure loads, tie and symmetry reactions removed), screw tension (HEAD and the exact shear-plane N), shell pull (tie pull - seat along the axis, and directly from the TC-02 symmetry-plane reactions), the TC-01-side check and the contact footprint (centroid, extents, area, clusters)",
+  "11:05Z jfwd_shank.py: FA1S load balance now exact (jfwd_seatforce.decompose): applied 3888.1 = tie 3750.7 + FIT edge contact z 136.3 + springs 1.0 + symmetry 0.8 - unclassified 0.8 (remainder 0.1 N); the 10:40Z local shank.json 'remainder 222 N' (no consistent-pressure subtraction, no tie correction) is withdrawn; 11:10Z the tip-side BEAR check excludes the tie nodes",
+  "11:10Z jfwd_deck.py: BEAR slave widened to the TC-01 hole edge-break faces (meshes with brk_r / brk_c > 0: s6..s9); s5 unchanged",
+  "11:15Z jfwd_seat.py: remesh mode (patch on another mesh, global field interpolated body-wise with quadratic C3D10 shape functions) + optional no-SEAT field output and end-of-step-only output (*TIME POINTS)"
+ ],
+ "files": {
+  "jfwd_ligament.py": {
+   "sha256_16": "330419c903931bf4",
+   "bytes": 18104
+  },
+  "jfwd_screw_bend.py": {
+   "sha256_16": "7d052d6bbdb72388",
+   "bytes": 5608
+  },
+  "js5_mu0_T3750_g078_upto4_cells.json": {
+   "sha256_16": "51b55719f27c0182",
+   "bytes": 22990,
+   "superseded_by": "js5_mu0_T3750_g078_cells.json (complete run, all 6 steps, posted 2026-10-20 11:05-11:10Z)"
+  },
+  "js5_mu0_T3750_g078_upto4_ligament_partial.json": {
+   "sha256_16": "7b97a892b464bcf7",
+   "bytes": 27602,
+   "superseded_by": "js5_mu0_T3750_g078_ligament.json (complete run, all 6 steps, posted 2026-10-20 11:05-11:10Z)"
+  },
+  "js5_mu0_T3750_g078_upto4_meta.json": {
+   "sha256_16": "782bb37c280f9efa",
+   "bytes": 2393
+  },
+  "js5_mu0_T3750_g078_upto4_midbay_partial.json": {
+   "sha256_16": "101c8b638b26bd38",
+   "bytes": 121696,
+   "superseded_by": "js5_mu0_T3750_g078_midbay.json (complete run, all 6 steps, posted 2026-10-20 11:05-11:10Z)"
+  },
+  "js5_mu0_T3750_g078_upto4_post_partial.json": {
+   "sha256_16": "9a568bbfd6ad7878",
+   "bytes": 38159,
+   "superseded_by": "js5_mu0_T3750_g078_post.json (complete run, all 6 steps, posted 2026-10-20 11:05-11:10Z)"
+  },
+  "js5_mu0_T3750_g078_upto4_relax_partial.json": {
+   "sha256_16": "6567b87950f1c8fd",
+   "bytes": 146121,
+   "superseded_by": "js5_mu0_T3750_g078_relax.json (complete run, all 6 steps, posted 2026-10-20 11:05-11:10Z)"
+  },
+  "js5_mu0_T3750_g078_upto4_screw_bend.json": {
+   "sha256_16": "b15096bcd367dae2",
+   "bytes": 5443,
+   "superseded_by": "js5_mu0_T3750_g078_screw_bend.json (complete run, all 6 steps, posted 2026-10-20 11:05-11:10Z)"
+  },
+  "js5_mu0_T3750_g078_upto4_spotface.json": {
+   "sha256_16": "76d5611881b8806d",
+   "bytes": 3751,
+   "superseded_by": "js5_mu0_T3750_g078_spotface.json (complete run, all 6 steps, posted 2026-10-20 11:05-11:10Z)"
+  },
+  "js5_mu0_T3750_g078_post.json": {
+   "sha256_16": "0a7a6a6f678957f7",
+   "bytes": 61378,
+   "from": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/post.json"
+  },
+  "js5_mu0_T3750_g078_ligament.json": {
+   "sha256_16": "5c1ad7c5293c5e5c",
+   "bytes": 44257,
+   "from": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/ligament.json"
+  },
+  "js5_mu0_T3750_g078_midbay.json": {
+   "sha256_16": "08c2487411ae906b",
+   "bytes": 201943,
+   "from": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/midbay.json"
+  },
+  "js5_mu0_T3750_g078_relax.json": {
+   "sha256_16": "4279825ae8af65b2",
+   "bytes": 180972,
+   "from": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/relax.json"
+  },
+  "js5_mu0_T3750_g078_spotface.json": {
+   "sha256_16": "62fc7329a8990fc4",
+   "bytes": 6110,
+   "from": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/spotface.json"
+  },
+  "js5_mu0_T3750_g078_cells.json": {
+   "sha256_16": "f9ed41727b0d4a46",
+   "bytes": 33693,
+   "from": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/cells.json"
+  },
+  "js5_mu0_T3750_g078_screw_bend.json": {
+   "sha256_16": "6d926dd20af13e77",
+   "bytes": 8763,
+   "from": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/screw_bend.json"
+  },
+  "js5_mu0_T3750_g078_shank.json": {
+   "sha256_16": "7393149774aec641",
+   "bytes": 38355,
+   "from": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/shank.json"
+  },
+  "js5_mu0_T3750_g078_seatforce.json": {
+   "sha256_16": "a57642fe4a61f9ac",
+   "bytes": 25373,
+   "from": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/seatforce.json"
+  },
+  "js5_mu0_T3750_g078_ccx_run.json": {
+   "sha256_16": "8e0184a6d9eed516",
+   "bytes": 526,
+   "from": "/home/claude/work/fea3d/jfwd/runs/js5_mu0_T3750_g078/ccx_run.json"
+  },
+  "jfwd_seatforce.py": {
+   "sha256_16": "5bc4ab8e3f897595",
+   "bytes": 23772
+  },
+  "jfwd_shank.py": {
+   "sha256_16": "6a3645dec9e3046f",
+   "bytes": 10250
+  },
+  "jfwd_seat.py": {
+   "sha256_16": "3c0cdbf6c2c11771",
+   "bytes": 18555
+  },
+  "jfwd_deck.py": {
+   "sha256_16": "2ca250e4aad4196d",
+   "bytes": 31580
+  },
+  "jfwd_post.py": {
+   "sha256_16": "a8d742c285ba8a5a",
+   "bytes": 28757
+  },
+  "jfwd_relax.py": {
+   "sha256_16": "fae6632181c9a50e",
+   "bytes": 13396
+  },
+  "jfwd_cells.py": {
+   "sha256_16": "6e7790c5bd4e7ab0",
+   "bytes": 18708
+  },
+  "jfwd_midbay.py": {
+   "sha256_16": "299ccea1c64d597c",
+   "bytes": 10684
+  },
+  "jfwd_spotface.py": {
+   "sha256_16": "a160b0037d07267d",
+   "bytes": 5066
+  },
+  "jfwd_cforce.py": {
+   "sha256_16": "94912ad749baaf74",
+   "bytes": 5938
+  },
+  "jfwd_sub.py": {
+   "sha256_16": "cbc4c2ae2a1b61fd",
+   "bytes": 20250
+  },
+  "jfwd_seat_cmp.py": {
+   "sha256_16": "f6999f634c07dcd4",
+   "bytes": 20139
+  }
+ }
+}

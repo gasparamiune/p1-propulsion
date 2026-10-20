@@ -1,0 +1,2415 @@
+{
+ "job": "js5_mu0_T3750_g078",
+ "doc": "J-FWD TC-01 net-ligament SCL averaged across the ligament (fea3d 2026-10-20 ~07:05Z; replaces the 'TC01_net_ligament_hole_flank'\nlines of jfwd_post.py as the CHANGELOG 231 (1)(i) net-ligament value).  DERIVED from the SIM stress field of the run (.frd / .frd.gz,\nstreamed), no new run.\n\nWhy: the jfwd_post.py hole-flank line (offset 2.80 mm from the hole axis, then turned radial through its mid-point azimuth) lies, over its\ninner ~1.1 mm, up to 0.11 mm INSIDE the hole (radial line at 5.30 deg: r sin(5.30 deg) < 2.75 for r < 29.77), so it was extrapolated\n(min barycentric -0.20 / -0.34); and a hole-edge line carries the in-plane concentration, which for a typical ligament of a uniform hole\npattern is peak F (ASME VIII-2 Table 5.6, 'perforated shell, typical ligament': Pm = membrane averaged through the ligament cross section,\nPb = bending averaged across the ligament width with its gradient through the plate, peak F).\n\nPer frd step:\n  * ligament average on the hole-centre plane z = Z_SCREW - shift, TC-01 net section r 28.627 .. 31.748, az 0 .. 18 - asin(2.75 / r) and\n    18 + asin(2.75 / r) .. 36 (the hole cut exactly): Gauss-Legendre in r and az, dA = r dr dtheta, stress tensor rotated to (r, theta, z)\n    at each point before averaging; Pm = vM(<s>), Pm+Pb = max vM(<s> +- <s_b>), <s_b> = (6 / A) int s (0.5 - (r - r_in) / t) dA;\n    per side and both sides (by cyclic symmetry the two sides are the two halves of one full ligament); the section force int s_zz dA is\n    printed as a check against the screw load;\n  * stations: full-wall radial lines at azimuth offsets delta >= asin(2.76 / 28.627) (wholly in the material), linearised in (r, theta, z);\n    the first station is the corrected hole-edge line (local, in-plane Kt: information, the local check is the Neuber (iii));\n  * spot-face sensitivity (lead 06:17Z, DERIVED): per station the local wall t'(delta) = min(R_OD, 31.313 / cos(delta)) - R_bore\n    (d10.5 flat at x' 31.313), membrane x t / t', bending x (t / t')^2 (same force and moment per unit width), recombined:\n    Pm' = sum(s_m t dw) / sum(t' dw), Pb' = sum(k^2 s_b dw) / sum(dw);\n  * TC-02 band also excluding 1 mm about the TC-01 hole-edge footprint on the TC-02 OD (the FIT contact edge), beside the published band\n    (> 1 mm from the tap), and the position of the FIT CPRESS maximum against that footprint.",
+ "z_hole_plane": 127.273,
+ "shift": 0.24,
+ "seat": "spot",
+ "note_seat": "spot-face mesh: 'ligament_avg_CAD' and the 'cad' / 'seat' station averages are all on the FE spot-face geometry (no scaling)",
+ "steps": {
+  "PRELOAD": {
+   "ligament_avg_CAD": {
+    "side-": {
+     "A_mm2": 20.496,
+     "width_mid_mm": 6.567,
+     "Pm": 42.8,
+     "PmPb": 128.3,
+     "s_m_rtz": [
+      -10.03,
+      -44.55,
+      -0.11,
+      -7.93,
+      1.0,
+      -1.27
+     ],
+     "s_b_rtz": [
+      6.59,
+      -8.91,
+      91.43,
+      -0.7,
+      -1.34,
+      0.13
+     ],
+     "Fz_N": -2.2,
+     "min_bary": -0.1456
+    },
+    "side+": {
+     "A_mm2": 20.496,
+     "width_mid_mm": 6.567,
+     "Pm": 40.5,
+     "PmPb": 128.1,
+     "s_m_rtz": [
+      -15.57,
+      -44.02,
+      0.22,
+      6.46,
+      -0.63,
+      -1.15
+     ],
+     "s_b_rtz": [
+      -1.75,
+      -7.58,
+      89.51,
+      -1.65,
+      0.11,
+      -1.7
+     ],
+     "Fz_N": 4.5,
+     "min_bary": 0.0
+    },
+    "both": {
+     "A_mm2": 40.991,
+     "Pm": 39.6,
+     "PmPb": 127.4,
+     "s_m_rtz": [
+      -12.8,
+      -44.28,
+      0.06,
+      -0.73,
+      0.18,
+      -1.21
+     ],
+     "s_b_rtz": [
+      2.42,
+      -8.24,
+      90.47,
+      -1.17,
+      -0.62,
+      -0.79
+     ],
+     "Fz_N": 2.3,
+     "min_bary": -0.1456
+    }
+   },
+   "stations": [
+    {
+     "delta_deg": 5.688,
+     "side": "-",
+     "y_mid_mm": 2.992,
+     "t_seat_mm": 2.839,
+     "Pm": 77.7,
+     "PmPb": 202.0,
+     "Pm_seat": 77.7,
+     "PmPb_seat": 202.0,
+     "min_bary": 0.0006
+    },
+    {
+     "delta_deg": 5.688,
+     "side": "+",
+     "y_mid_mm": 2.992,
+     "t_seat_mm": 2.839,
+     "Pm": 183.9,
+     "PmPb": 531.2,
+     "Pm_seat": 183.9,
+     "PmPb_seat": 531.2,
+     "min_bary": 0.0021
+    },
+    {
+     "delta_deg": 8.8,
+     "side": "-",
+     "y_mid_mm": 4.618,
+     "t_seat_mm": 3.057,
+     "Pm": 46.9,
+     "PmPb": 114.3,
+     "Pm_seat": 46.9,
+     "PmPb_seat": 114.3,
+     "min_bary": 0.0009
+    },
+    {
+     "delta_deg": 8.8,
+     "side": "+",
+     "y_mid_mm": 4.618,
+     "t_seat_mm": 3.057,
+     "Pm": 48.1,
+     "PmPb": 111.0,
+     "Pm_seat": 48.1,
+     "PmPb_seat": 111.0,
+     "min_bary": 0.0008
+    },
+    {
+     "delta_deg": 11.912,
+     "side": "-",
+     "y_mid_mm": 6.231,
+     "t_seat_mm": 3.121,
+     "Pm": 58.1,
+     "PmPb": 139.4,
+     "Pm_seat": 58.1,
+     "PmPb_seat": 139.4,
+     "min_bary": -0.0281
+    },
+    {
+     "delta_deg": 11.912,
+     "side": "+",
+     "y_mid_mm": 6.231,
+     "t_seat_mm": 3.121,
+     "Pm": 57.3,
+     "PmPb": 139.4,
+     "Pm_seat": 57.3,
+     "PmPb_seat": 139.4,
+     "min_bary": -0.0004
+    },
+    {
+     "delta_deg": 17.824,
+     "side": "-",
+     "y_mid_mm": 9.24,
+     "t_seat_mm": 3.121,
+     "Pm": 63.6,
+     "PmPb": 158.5,
+     "Pm_seat": 63.6,
+     "PmPb_seat": 158.5,
+     "min_bary": -0.001
+    },
+    {
+     "delta_deg": 17.824,
+     "side": "+",
+     "y_mid_mm": 9.24,
+     "t_seat_mm": 3.121,
+     "Pm": 62.8,
+     "PmPb": 158.3,
+     "Pm_seat": 62.8,
+     "PmPb_seat": 158.3,
+     "min_bary": -0.0008
+    }
+   ],
+   "station_average": {
+    "cad": {
+     "Pm": 41.3,
+     "PmPb": 131.4,
+     "s_m_rtz": [
+      -11.74,
+      -45.17,
+      0.94,
+      -0.75,
+      0.19,
+      -1.22
+     ],
+     "s_b_rtz": [
+      3.06,
+      -9.82,
+      92.22,
+      -1.32,
+      -0.58,
+      -0.77
+     ],
+     "station_max_PmPb": {
+      "PmPb": 531.2,
+      "Pm": 183.9,
+      "delta_deg": 5.688,
+      "side": "+",
+      "t_mm": 2.839,
+      "min_bary": 0.0021
+     }
+    },
+    "seat": {
+     "Pm": 41.3,
+     "PmPb": 131.4,
+     "s_m_rtz": [
+      -11.74,
+      -45.17,
+      0.94,
+      -0.75,
+      0.19,
+      -1.22
+     ],
+     "s_b_rtz": [
+      3.06,
+      -9.82,
+      92.22,
+      -1.32,
+      -0.58,
+      -0.77
+     ],
+     "station_max_PmPb": {
+      "PmPb": 531.2,
+      "Pm": 183.9,
+      "delta_deg": 5.688,
+      "side": "+",
+      "t_mm": 2.839,
+      "min_bary": 0.0021
+     }
+    }
+   },
+   "stations_min_bary": -0.1002,
+   "TC02_band": {
+    "band_gt1_tap": {
+     "vm_MPa": 45.9,
+     "node": 69921,
+     "X_mm": [
+      27.216,
+      6.412,
+      124.871
+     ],
+     "x_prime": 27.865,
+     "d_tap_mm": 1.011,
+     "d_TC01_hole_edge_mm": 0.908
+    },
+    "band_gt1_tap_and_gt1_TC01_hole_edge": {
+     "vm_MPa": 40.2,
+     "node": 1110,
+     "X_mm": [
+      25.183,
+      0.0,
+      126.429
+     ],
+     "x_prime": 23.951,
+     "d_tap_mm": 5.357,
+     "d_TC01_hole_edge_mm": 6.814
+    }
+   },
+   "TC02_wall_SCL": {
+    "node_13503": {
+     "t_mm": 12.1,
+     "Pm": 0.7802271858630505,
+     "PmPb": 1.4640484846514086,
+     "peak_on_line": 2.3540511789358805,
+     "min_bary": -0.04308476625922131,
+     "sm": [
+      0.5891016741138696,
+      1.4708773820919532,
+      0.873172043112339,
+      -0.003786189364553918,
+      0.00465627949171337,
+      -0.01740105427832151
+     ],
+     "sb": [
+      0.0425967433082095,
+      -0.7408258593400128,
+      -0.2751279277821653,
+      0.0030717879420761912,
+      -0.002736835559595267,
+      0.04090359251300022
+     ],
+     "from_mm": [
+      17.024,
+      0.0,
+      149.21
+     ],
+     "to_mm": [
+      4.924,
+      0.0,
+      149.21
+     ],
+     "dir": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "node": 13503,
+     "T_C": 20.0,
+     "Fty_MPa": 240.0,
+     "Ftu_MPa": 260.0,
+     "MS_y_Pm_SF1": 306.603,
+     "MS_y_PmPb_SF1": 162.929,
+     "MS_u_Pm_SF1": 332.236,
+     "MS_u_PmPb_SF1": 176.59
+    },
+    "band_node": {
+     "t_mm": 23.08,
+     "Pm": 12.43360162013145,
+     "PmPb": 23.97710679214145,
+     "peak_on_line": 45.56935603672939,
+     "min_bary": -0.0411493740960309,
+     "sm": [
+      7.043146248024403,
+      9.329292706138983,
+      -1.3244991849100398,
+      2.6577509877783356,
+      1.621565157730981,
+      3.22187776191689
+     ],
+     "sb": [
+      1.3072203341315687,
+      2.5806404776948857,
+      4.408836463082214,
+      5.7088005040177165,
+      3.6087146042319143,
+      5.413133496632435
+     ],
+     "from_mm": [
+      27.214,
+      6.412,
+      124.871
+     ],
+     "to_mm": [
+      4.749,
+      1.119,
+      124.871
+     ],
+     "dir": [
+      -0.9734,
+      -0.2293,
+      -0.0
+     ],
+     "node": 69921,
+     "T_C": 20.0,
+     "Fty_MPa": 240.0,
+     "Ftu_MPa": 260.0,
+     "MS_y_Pm_SF1": 18.303,
+     "MS_y_PmPb_SF1": 9.01,
+     "MS_u_Pm_SF1": 19.911,
+     "MS_u_PmPb_SF1": 9.844
+    }
+   },
+   "edge_profile_RM2_01f": {
+    "TC-01": [
+     {
+      "band_mm": [
+       0.0,
+       0.5
+      ],
+      "vm_max_MPa": 3490.3,
+      "MS_y_SF1": -0.931,
+      "node": 330,
+      "T_C_used": 20.0
+     },
+     {
+      "band_mm": [
+       0.5,
+       1.0
+      ],
+      "vm_max_MPa": 319.3,
+      "MS_y_SF1": -0.248,
+      "node": 4298,
+      "T_C_used": 20.0
+     },
+     {
+      "band_mm": [
+       1.0,
+       1.5
+      ],
+      "vm_max_MPa": 197.8,
+      "MS_y_SF1": 0.213,
+      "node": 4037,
+      "T_C_used": 20.0
+     },
+     {
+      "band_mm": [
+       1.5,
+       2.0
+      ],
+      "vm_max_MPa": 184.6,
+      "MS_y_SF1": 0.3,
+      "node": 11556,
+      "T_C_used": 20.0
+     },
+     {
+      "band_mm": [
+       2.0,
+       3.0
+      ],
+      "vm_max_MPa": 186.9,
+      "MS_y_SF1": 0.284,
+      "node": 535,
+      "T_C_used": 20.0
+     },
+     {
+      "band_mm": [
+       3.0,
+       4.0
+      ],
+      "vm_max_MPa": 158.0,
+      "MS_y_SF1": 0.519,
+      "node": 3706,
+      "T_C_used": 20.0
+     }
+    ],
+    "TC-02": [
+     {
+      "band_mm": [
+       0.0,
+       0.5
+      ],
+      "vm_max_MPa": 1779.6,
+      "MS_y_SF1": -0.865,
+      "node": 1660,
+      "T_C_used": 20.0
+     },
+     {
+      "band_mm": [
+       0.5,
+       1.0
+      ],
+      "vm_max_MPa": 587.5,
+      "MS_y_SF1": -0.591,
+      "node": 18034,
+      "T_C_used": 20.0
+     },
+     {
+      "band_mm": [
+       1.0,
+       1.5
+      ],
+      "vm_max_MPa": 45.9,
+      "MS_y_SF1": 4.23,
+      "node": 69921,
+      "T_C_used": 20.0
+     },
+     {
+      "band_mm": [
+       1.5,
+       2.0
+      ],
+      "vm_max_MPa": 28.7,
+      "MS_y_SF1": 7.376,
+      "node": 15356,
+      "T_C_used": 20.0
+     },
+     {
+      "band_mm": [
+       2.0,
+       3.0
+      ],
+      "vm_max_MPa": 32.0,
+      "MS_y_SF1": 6.505,
+      "node": 15983,
+      "T_C_used": 20.0
+     },
+     {
+      "band_mm": [
+       3.0,
+       4.0
+      ],
+      "vm_max_MPa": 29.2,
+      "MS_y_SF1": 7.229,
+      "node": 16728,
+      "T_C_used": 20.0
+     }
+    ]
+   },
+   "FIT_CPRESS_max_on_TC02": {
+    "CPRESS_MPa": 9508.0,
+    "node": 18423,
+    "X_mm": [
+     27.618,
+     7.431,
+     125.117
+    ],
+    "d_tap_mm": 0.31,
+    "d_TC01_hole_edge_mm": 0.143
+   }
+  },
+  "SOAK70": {
+   "ligament_avg_CAD": {
+    "side-": {
+     "A_mm2": 20.496,
+     "width_mid_mm": 6.567,
+     "Pm": 71.3,
+     "PmPb": 217.1,
+     "s_m_rtz": [
+      -12.7,
+      -72.0,
+      0.07,
+      -13.4,
+      2.77,
+      -5.41
+     ],
+     "s_b_rtz": [
+      9.4,
+      -17.57,
+      155.45,
+      -0.93,
+      -8.42,
+      0.75
+     ],
+     "Fz_N": 1.5,
+     "min_bary": -0.1456
+    },
+    "side+": {
+     "A_mm2": 20.496,
+     "width_mid_mm": 6.567,
+     "Pm": 68.9,
+     "PmPb": 215.5,
+     "s_m_rtz": [
+      -17.62,
+      -71.24,
+      0.89,
+      11.74,
+      -2.51,
+      -5.82
+     ],
+     "s_b_rtz": [
+      3.03,
+      -15.91,
+      152.98,
+      -1.19,
+      7.17,
+      -2.09
+     ],
+     "Fz_N": 18.3,
+     "min_bary": 0.0
+    },
+    "both": {
+     "A_mm2": 40.991,
+     "Pm": 66.4,
+     "PmPb": 215.0,
+     "s_m_rtz": [
+      -15.16,
+      -71.62,
+      0.48,
+      -0.83,
+      0.13,
+      -5.61
+     ],
+     "s_b_rtz": [
+      6.21,
+      -16.74,
+      154.22,
+      -1.06,
+      -0.63,
+      -0.67
+     ],
+     "Fz_N": 19.8,
+     "min_bary": -0.1456
+    }
+   },
+   "stations": [
+    {
+     "delta_deg": 5.688,
+     "side": "-",
+     "y_mid_mm": 2.992,
+     "t_seat_mm": 2.839,
+     "Pm": 119.5,
+     "PmPb": 341.8,
+     "Pm_seat": 119.5,
+     "PmPb_seat": 341.8,
+     "min_bary": 0.0006
+    },
+    {
+     "delta_deg": 5.688,
+     "side": "+",
+     "y_mid_mm": 2.992,
+     "t_seat_mm": 2.839,
+     "Pm": 200.1,
+     "PmPb": 571.6,
+     "Pm_seat": 200.1,
+     "PmPb_seat": 571.6,
+     "min_bary": 0.0021
+    },
+    {
+     "delta_deg": 8.8,
+     "side": "-",
+     "y_mid_mm": 4.618,
+     "t_seat_mm": 3.057,
+     "Pm": 75.9,
+     "PmPb": 193.4,
+     "Pm_seat": 75.9,
+     "PmPb_seat": 193.4,
+     "min_bary": 0.0009
+    },
+    {
+     "delta_deg": 8.8,
+     "side": "+",
+     "y_mid_mm": 4.618,
+     "t_seat_mm": 3.057,
+     "Pm": 78.5,
+     "PmPb": 188.4,
+     "Pm_seat": 78.5,
+     "PmPb_seat": 188.4,
+     "min_bary": 0.0008
+    },
+    {
+     "delta_deg": 11.912,
+     "side": "-",
+     "y_mid_mm": 6.231,
+     "t_seat_mm": 3.121,
+     "Pm": 94.2,
+     "PmPb": 233.0,
+     "Pm_seat": 94.2,
+     "PmPb_seat": 233.0,
+     "min_bary": -0.0281
+    },
+    {
+     "delta_deg": 11.912,
+     "side": "+",
+     "y_mid_mm": 6.231,
+     "t_seat_mm": 3.121,
+     "Pm": 92.9,
+     "PmPb": 233.3,
+     "Pm_seat": 92.9,
+     "PmPb_seat": 233.3,
+     "min_bary": -0.0004
+    },
+    {
+     "delta_deg": 17.824,
+     "side": "-",
+     "y_mid_mm": 9.24,
+     "t_seat_mm": 3.121,
+     "Pm": 103.5,
+     "PmPb": 262.6,
+     "Pm_seat": 103.5,
+     "PmPb_seat": 262.6,
+     "min_bary": -0.001
+    },
+    {
+     "delta_deg": 17.824,
+     "side": "+",
+     "y_mid_mm": 9.24,
+     "t_seat_mm": 3.121,
+     "Pm": 102.5,
+     "PmPb": 262.3,
+     "Pm_seat": 102.5,
+     "PmPb_seat": 262.3,
+     "min_bary": -0.0008
+    }
+   ],
+   "station_average": {
+    "cad": {
+     "Pm": 69.0,
+     "PmPb": 221.9,
+     "s_m_rtz": [
+      -14.42,
+      -73.19,
+      1.83,
+      -0.84,
+      0.13,
+      -5.17
+     ],
+     "s_b_rtz": [
+      6.74,
+      -19.71,
+      156.87,
+      -1.23,
+      -0.61,
+      -1.02
+     ],
+     "station_max_PmPb": {
+      "PmPb": 571.6,
+      "Pm": 200.1,
+      "delta_deg": 5.688,
+      "side": "+",
+      "t_mm": 2.839,
+      "min_bary": 0.0021
+     }
+    },
+    "seat": {
+     "Pm": 69.0,
+     "PmPb": 221.9,
+     "s_m_rtz": [
+      -14.42,
+      -73.19,
+      1.83,
+      -0.84,
+      0.13,
+      -5.17
+     ],
+     "s_b_rtz": [
+      6.74,
+      -19.71,
+      156.87,
+      -1.23,
+      -0.61,
+      -1.02
+     ],
+     "station_max_PmPb": {
+      "PmPb": 571.6,
+      "Pm": 200.1,
+      "delta_deg": 5.688,
+      "side": "+",
+      "t_mm": 2.839,
+      "min_bary": 0.0021
+     }
+    }
+   },
+   "stations_min_bary": -0.1002,
+   "TC02_band": {
+    "band_gt1_tap": {
+     "vm_MPa": 72.6,
+     "node": 69921,
+     "X_mm": [
+      27.216,
+      6.412,
+      124.871
+     ],
+     "x_prime": 27.865,
+     "d_tap_mm": 1.011,
+     "d_TC01_hole_edge_mm": 0.908
+    },
+    "band_gt1_tap_and_gt1_TC01_hole_edge": {
+     "vm_MPa": 72.0,
+     "node": 49207,
+     "X_mm": [
+      20.698,
+      3.165,
+      128.097
+     ],
+     "x_prime": 20.663,
+     "d_tap_mm": 1.018,
+     "d_TC01_hole_edge_mm": 7.87
+    }
+   },
+   "TC02_wall_SCL": {
+    "node_13503": {
+     "t_mm": 12.1,
+     "Pm": 1.5691463622916977,
+     "PmPb": 2.901783021594762,
+     "peak_on_line": 4.60569346997726,
+     "min_bary": -0.04308476625922131,
+     "sm": [
+      1.1982547778423862,
+      2.9276935092505427,
+      1.6096053358791251,
+      -0.009110739294719655,
+      0.007866092191478236,
+      -0.0658878929849502
+     ],
+     "sb": [
+      0.13827099554138939,
+      -1.391935662647656,
+      -0.42977789540760725,
+      0.00895497545062325,
+      -0.004764516311144729,
+      0.028752741908209298
+     ],
+     "from_mm": [
+      17.024,
+      0.0,
+      149.21
+     ],
+     "to_mm": [
+      4.924,
+      0.0,
+      149.21
+     ],
+     "dir": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "node": 13503,
+     "T_C": 97.6,
+     "Fty_MPa": 228.2,
+     "Ftu_MPa": 243.7,
+     "MS_y_Pm_SF1": 144.424,
+     "MS_y_PmPb_SF1": 77.638,
+     "MS_u_Pm_SF1": 154.326,
+     "MS_u_PmPb_SF1": 82.993
+    },
+    "band_node": {
+     "t_mm": 23.08,
+     "Pm": 20.8096941656006,
+     "PmPb": 47.98044478920918,
+     "peak_on_line": 72.16243086087772,
+     "min_bary": -0.0411493740960309,
+     "sm": [
+      7.960914703813712,
+      12.276794819289641,
+      -1.752820302251815,
+      3.9486242033949477,
+      7.463132586877993,
+      4.628413811809897
+     ],
+     "sb": [
+      -4.288829626135029,
+      -0.8036335887158776,
+      8.42737051026965,
+      6.933782142647331,
+      15.163994491480473,
+      6.3932771079881245
+     ],
+     "from_mm": [
+      27.214,
+      6.412,
+      124.871
+     ],
+     "to_mm": [
+      4.749,
+      1.119,
+      124.871
+     ],
+     "dir": [
+      -0.9734,
+      -0.2293,
+      -0.0
+     ],
+     "node": 69921,
+     "T_C": 97.6,
+     "Fty_MPa": 228.2,
+     "Ftu_MPa": 243.7,
+     "MS_y_Pm_SF1": 9.966,
+     "MS_y_PmPb_SF1": 3.756,
+     "MS_u_Pm_SF1": 10.712,
+     "MS_u_PmPb_SF1": 4.08
+    }
+   },
+   "edge_profile_RM2_01f": {
+    "TC-01": [
+     {
+      "band_mm": [
+       0.0,
+       0.5
+      ],
+      "vm_max_MPa": 2255.6,
+      "MS_y_SF1": -0.923,
+      "node": 330,
+      "T_C_used": 156.5
+     },
+     {
+      "band_mm": [
+       0.5,
+       1.0
+      ],
+      "vm_max_MPa": 472.2,
+      "MS_y_SF1": -0.634,
+      "node": 10390,
+      "T_C_used": 156.5
+     },
+     {
+      "band_mm": [
+       1.0,
+       1.5
+      ],
+      "vm_max_MPa": 377.0,
+      "MS_y_SF1": -0.541,
+      "node": 11688,
+      "T_C_used": 156.5
+     },
+     {
+      "band_mm": [
+       1.5,
+       2.0
+      ],
+      "vm_max_MPa": 293.4,
+      "MS_y_SF1": -0.411,
+      "node": 3217,
+      "T_C_used": 156.5
+     },
+     {
+      "band_mm": [
+       2.0,
+       3.0
+      ],
+      "vm_max_MPa": 351.9,
+      "MS_y_SF1": -0.509,
+      "node": 12157,
+      "T_C_used": 156.5
+     },
+     {
+      "band_mm": [
+       3.0,
+       4.0
+      ],
+      "vm_max_MPa": 273.2,
+      "MS_y_SF1": -0.367,
+      "node": 3124,
+      "T_C_used": 156.5
+     }
+    ],
+    "TC-02": [
+     {
+      "band_mm": [
+       0.0,
+       0.5
+      ],
+      "vm_max_MPa": 1034.8,
+      "MS_y_SF1": -0.779,
+      "node": 1660,
+      "T_C_used": 97.6
+     },
+     {
+      "band_mm": [
+       0.5,
+       1.0
+      ],
+      "vm_max_MPa": 811.3,
+      "MS_y_SF1": -0.719,
+      "node": 18042,
+      "T_C_used": 97.6
+     },
+     {
+      "band_mm": [
+       1.0,
+       1.5
+      ],
+      "vm_max_MPa": 72.6,
+      "MS_y_SF1": 2.145,
+      "node": 69921,
+      "T_C_used": 97.6
+     },
+     {
+      "band_mm": [
+       1.5,
+       2.0
+      ],
+      "vm_max_MPa": 59.8,
+      "MS_y_SF1": 2.816,
+      "node": 50893,
+      "T_C_used": 97.6
+     },
+     {
+      "band_mm": [
+       2.0,
+       3.0
+      ],
+      "vm_max_MPa": 66.6,
+      "MS_y_SF1": 2.425,
+      "node": 16196,
+      "T_C_used": 97.6
+     },
+     {
+      "band_mm": [
+       3.0,
+       4.0
+      ],
+      "vm_max_MPa": 61.4,
+      "MS_y_SF1": 2.716,
+      "node": 16179,
+      "T_C_used": 97.6
+     }
+    ]
+   },
+   "FIT_CPRESS_max_on_TC02": {
+    "CPRESS_MPa": 10652.1,
+    "node": 18394,
+    "X_mm": [
+     26.319,
+     11.192,
+     126.75
+    ],
+    "d_tap_mm": 0.125,
+    "d_TC01_hole_edge_mm": 0.185
+   }
+  },
+  "FA1S": {
+   "ligament_avg_CAD": {
+    "side-": {
+     "A_mm2": 20.496,
+     "width_mid_mm": 6.567,
+     "Pm": 100.8,
+     "PmPb": 195.8,
+     "s_m_rtz": [
+      -6.79,
+      3.07,
+      94.05,
+      -4.93,
+      15.95,
+      4.19
+     ],
+     "s_b_rtz": [
+      2.73,
+      1.36,
+      98.29,
+      0.66,
+      4.46,
+      0.6
+     ],
+     "Fz_N": 1927.6,
+     "min_bary": -0.1456
+    },
+    "side+": {
+     "A_mm2": 20.496,
+     "width_mid_mm": 6.567,
+     "Pm": 104.1,
+     "PmPb": 201.6,
+     "s_m_rtz": [
+      -13.18,
+      3.25,
+      94.1,
+      3.09,
+      -15.51,
+      4.54
+     ],
+     "s_b_rtz": [
+      -7.19,
+      3.11,
+      95.53,
+      -3.4,
+      -6.0,
+      -1.16
+     ],
+     "Fz_N": 1928.6,
+     "min_bary": 0.0
+    },
+    "both": {
+     "A_mm2": 40.991,
+     "Pm": 98.5,
+     "PmPb": 195.2,
+     "s_m_rtz": [
+      -9.99,
+      3.16,
+      94.07,
+      -0.92,
+      0.22,
+      4.37
+     ],
+     "s_b_rtz": [
+      -2.23,
+      2.24,
+      96.91,
+      -1.37,
+      -0.77,
+      -0.28
+     ],
+     "Fz_N": 3856.2,
+     "min_bary": -0.1456
+    }
+   },
+   "stations": [
+    {
+     "delta_deg": 5.688,
+     "side": "-",
+     "y_mid_mm": 2.992,
+     "t_seat_mm": 2.839,
+     "Pm": 292.6,
+     "PmPb": 432.3,
+     "Pm_seat": 292.6,
+     "PmPb_seat": 432.3,
+     "min_bary": 0.0006
+    },
+    {
+     "delta_deg": 5.688,
+     "side": "+",
+     "y_mid_mm": 2.992,
+     "t_seat_mm": 2.839,
+     "Pm": 379.3,
+     "PmPb": 757.9,
+     "Pm_seat": 379.3,
+     "PmPb_seat": 757.9,
+     "min_bary": 0.0021
+    },
+    {
+     "delta_deg": 8.8,
+     "side": "-",
+     "y_mid_mm": 4.618,
+     "t_seat_mm": 3.057,
+     "Pm": 120.2,
+     "PmPb": 212.7,
+     "Pm_seat": 120.2,
+     "PmPb_seat": 212.7,
+     "min_bary": 0.0009
+    },
+    {
+     "delta_deg": 8.8,
+     "side": "+",
+     "y_mid_mm": 4.618,
+     "t_seat_mm": 3.057,
+     "Pm": 121.8,
+     "PmPb": 213.1,
+     "Pm_seat": 121.8,
+     "PmPb_seat": 213.1,
+     "min_bary": 0.0008
+    },
+    {
+     "delta_deg": 11.912,
+     "side": "-",
+     "y_mid_mm": 6.231,
+     "t_seat_mm": 3.121,
+     "Pm": 75.8,
+     "PmPb": 178.8,
+     "Pm_seat": 75.8,
+     "PmPb_seat": 178.8,
+     "min_bary": -0.0281
+    },
+    {
+     "delta_deg": 11.912,
+     "side": "+",
+     "y_mid_mm": 6.231,
+     "t_seat_mm": 3.121,
+     "Pm": 76.0,
+     "PmPb": 178.9,
+     "Pm_seat": 76.0,
+     "PmPb_seat": 178.9,
+     "min_bary": -0.0004
+    },
+    {
+     "delta_deg": 17.824,
+     "side": "-",
+     "y_mid_mm": 9.24,
+     "t_seat_mm": 3.121,
+     "Pm": 63.6,
+     "PmPb": 172.8,
+     "Pm_seat": 63.6,
+     "PmPb_seat": 172.8,
+     "min_bary": -0.001
+    },
+    {
+     "delta_deg": 17.824,
+     "side": "+",
+     "y_mid_mm": 9.24,
+     "t_seat_mm": 3.121,
+     "Pm": 63.6,
+     "PmPb": 172.9,
+     "Pm_seat": 63.6,
+     "PmPb_seat": 172.9,
+     "min_bary": -0.0008
+    }
+   ],
+   "station_average": {
+    "cad": {
+     "Pm": 95.9,
+     "PmPb": 201.5,
+     "s_m_rtz": [
+      -9.06,
+      3.27,
+      92.15,
+      -0.95,
+      0.23,
+      4.05
+     ],
+     "s_b_rtz": [
+      -1.38,
+      3.15,
+      106.66,
+      -1.54,
+      -0.74,
+      0.14
+     ],
+     "station_max_PmPb": {
+      "PmPb": 757.9,
+      "Pm": 379.3,
+      "delta_deg": 5.688,
+      "side": "+",
+      "t_mm": 2.839,
+      "min_bary": 0.0021
+     }
+    },
+    "seat": {
+     "Pm": 95.9,
+     "PmPb": 201.5,
+     "s_m_rtz": [
+      -9.06,
+      3.27,
+      92.15,
+      -0.95,
+      0.23,
+      4.05
+     ],
+     "s_b_rtz": [
+      -1.38,
+      3.15,
+      106.66,
+      -1.54,
+      -0.74,
+      0.14
+     ],
+     "station_max_PmPb": {
+      "PmPb": 757.9,
+      "Pm": 379.3,
+      "delta_deg": 5.688,
+      "side": "+",
+      "t_mm": 2.839,
+      "min_bary": 0.0021
+     }
+    }
+   },
+   "stations_min_bary": -0.1002,
+   "TC02_band": {
+    "band_gt1_tap": {
+     "vm_MPa": 204.5,
+     "node": 18694,
+     "X_mm": [
+      27.155,
+      8.971,
+      131.015
+     ],
+     "x_prime": 28.598,
+     "d_tap_mm": 1.005,
+     "d_TC01_hole_edge_mm": 0.995
+    },
+    "band_gt1_tap_and_gt1_TC01_hole_edge": {
+     "vm_MPa": 191.2,
+     "node": 54528,
+     "X_mm": [
+      26.591,
+      8.679,
+      131.115
+     ],
+     "x_prime": 27.972,
+     "d_tap_mm": 1.102,
+     "d_TC01_hole_edge_mm": 1.272
+    }
+   },
+   "TC02_wall_SCL": {
+    "node_13503": {
+     "t_mm": 12.1,
+     "Pm": 6.740450943434409,
+     "PmPb": 8.667284913366334,
+     "peak_on_line": 10.417626595482954,
+     "min_bary": -0.04308476625922131,
+     "sm": [
+      1.9364845538629216,
+      5.9962620422948785,
+      -1.1413129823013288,
+      -0.01861499973598034,
+      0.015295624983063841,
+      -1.5255745821712394
+     ],
+     "sb": [
+      -0.04966491582957,
+      -1.1770178073031476,
+      1.635778990275006,
+      0.009385678341072717,
+      -0.00935598773261556,
+      -1.0042597246500355
+     ],
+     "from_mm": [
+      17.024,
+      0.0,
+      149.21
+     ],
+     "to_mm": [
+      4.924,
+      0.0,
+      149.21
+     ],
+     "dir": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "node": 13503,
+     "T_C": 45.6,
+     "Fty_MPa": 236.1,
+     "Ftu_MPa": 254.6,
+     "MS_y_Pm_SF1": 34.028,
+     "MS_y_PmPb_SF1": 26.241,
+     "MS_u_Pm_SF1": 36.777,
+     "MS_u_PmPb_SF1": 28.379
+    },
+    "band_node": {
+     "t_mm": 7.4,
+     "Pm": 83.90726606662035,
+     "PmPb": 175.348903513322,
+     "peak_on_line": 207.76229132289797,
+     "min_bary": -0.0492857263394714,
+     "sm": [
+      38.67005952133585,
+      8.016989147573788,
+      49.71613912065464,
+      7.860098115649301,
+      -11.273868668139526,
+      -41.12405084702848
+     ],
+     "sb": [
+      3.5256508124151944,
+      12.297440479788488,
+      100.68984955194989,
+      -5.334262447916379,
+      -6.5955649683745845,
+      -30.089511043061293
+     ],
+     "from_mm": [
+      27.153,
+      8.97,
+      131.015
+     ],
+     "to_mm": [
+      20.127,
+      6.649,
+      131.015
+     ],
+     "dir": [
+      -0.9495,
+      -0.3137,
+      -0.0
+     ],
+     "node": 18694,
+     "T_C": 45.6,
+     "Fty_MPa": 236.1,
+     "Ftu_MPa": 254.6,
+     "MS_y_Pm_SF1": 1.814,
+     "MS_y_PmPb_SF1": 0.346,
+     "MS_u_Pm_SF1": 2.035,
+     "MS_u_PmPb_SF1": 0.452
+    }
+   },
+   "edge_profile_RM2_01f": {
+    "TC-01": [
+     {
+      "band_mm": [
+       0.0,
+       0.5
+      ],
+      "vm_max_MPa": 3921.3,
+      "MS_y_SF1": -0.94,
+      "node": 330,
+      "T_C_used": 45.6
+     },
+     {
+      "band_mm": [
+       0.5,
+       1.0
+      ],
+      "vm_max_MPa": 703.5,
+      "MS_y_SF1": -0.664,
+      "node": 9636,
+      "T_C_used": 45.6
+     },
+     {
+      "band_mm": [
+       1.0,
+       1.5
+      ],
+      "vm_max_MPa": 556.9,
+      "MS_y_SF1": -0.576,
+      "node": 11688,
+      "T_C_used": 45.6
+     },
+     {
+      "band_mm": [
+       1.5,
+       2.0
+      ],
+      "vm_max_MPa": 452.5,
+      "MS_y_SF1": -0.478,
+      "node": 9510,
+      "T_C_used": 45.6
+     },
+     {
+      "band_mm": [
+       2.0,
+       3.0
+      ],
+      "vm_max_MPa": 455.2,
+      "MS_y_SF1": -0.481,
+      "node": 12133,
+      "T_C_used": 45.6
+     },
+     {
+      "band_mm": [
+       3.0,
+       4.0
+      ],
+      "vm_max_MPa": 258.2,
+      "MS_y_SF1": -0.086,
+      "node": 4367,
+      "T_C_used": 45.6
+     }
+    ],
+    "TC-02": [
+     {
+      "band_mm": [
+       0.0,
+       0.5
+      ],
+      "vm_max_MPa": 2148.3,
+      "MS_y_SF1": -0.89,
+      "node": 1660,
+      "T_C_used": 45.6
+     },
+     {
+      "band_mm": [
+       0.5,
+       1.0
+      ],
+      "vm_max_MPa": 526.6,
+      "MS_y_SF1": -0.552,
+      "node": 18034,
+      "T_C_used": 45.6
+     },
+     {
+      "band_mm": [
+       1.0,
+       1.5
+      ],
+      "vm_max_MPa": 204.5,
+      "MS_y_SF1": 0.155,
+      "node": 18694,
+      "T_C_used": 45.6
+     },
+     {
+      "band_mm": [
+       1.5,
+       2.0
+      ],
+      "vm_max_MPa": 137.6,
+      "MS_y_SF1": 0.716,
+      "node": 54440,
+      "T_C_used": 45.6
+     },
+     {
+      "band_mm": [
+       2.0,
+       3.0
+      ],
+      "vm_max_MPa": 101.5,
+      "MS_y_SF1": 1.326,
+      "node": 18122,
+      "T_C_used": 45.6
+     },
+     {
+      "band_mm": [
+       3.0,
+       4.0
+      ],
+      "vm_max_MPa": 68.3,
+      "MS_y_SF1": 2.456,
+      "node": 15540,
+      "T_C_used": 45.6
+     }
+    ]
+   },
+   "FIT_CPRESS_max_on_TC02": {
+    "CPRESS_MPa": 10318.6,
+    "node": 1655,
+    "X_mm": [
+     26.327,
+     11.173,
+     127.291
+    ],
+    "d_tap_mm": 0.0,
+    "d_TC01_hole_edge_mm": 0.26
+   }
+  },
+  "SOAK": {
+   "ligament_avg_CAD": {
+    "side-": {
+     "A_mm2": 20.496,
+     "width_mid_mm": 6.567,
+     "Pm": 77.3,
+     "PmPb": 218.6,
+     "s_m_rtz": [
+      -14.95,
+      -76.06,
+      -0.17,
+      -13.91,
+      5.35,
+      -12.35
+     ],
+     "s_b_rtz": [
+      11.62,
+      -13.57,
+      154.76,
+      -1.31,
+      -19.92,
+      0.27
+     ],
+     "Fz_N": -3.4,
+     "min_bary": -0.1456
+    },
+    "side+": {
+     "A_mm2": 20.496,
+     "width_mid_mm": 6.567,
+     "Pm": 77.3,
+     "PmPb": 217.9,
+     "s_m_rtz": [
+      -16.71,
+      -75.75,
+      0.93,
+      13.25,
+      -5.38,
+      -13.13
+     ],
+     "s_b_rtz": [
+      12.1,
+      -13.1,
+      153.21,
+      0.96,
+      19.64,
+      -0.9
+     ],
+     "Fz_N": 19.1,
+     "min_bary": 0.0
+    },
+    "both": {
+     "A_mm2": 40.991,
+     "Pm": 73.0,
+     "PmPb": 215.3,
+     "s_m_rtz": [
+      -15.83,
+      -75.91,
+      0.38,
+      -0.33,
+      -0.02,
+      -12.74
+     ],
+     "s_b_rtz": [
+      11.86,
+      -13.34,
+      153.99,
+      -0.17,
+      -0.14,
+      -0.32
+     ],
+     "Fz_N": 15.7,
+     "min_bary": -0.1456
+    }
+   },
+   "stations": [
+    {
+     "delta_deg": 5.688,
+     "side": "-",
+     "y_mid_mm": 2.992,
+     "t_seat_mm": 2.839,
+     "Pm": 176.3,
+     "PmPb": 418.8,
+     "Pm_seat": 176.3,
+     "PmPb_seat": 418.8,
+     "min_bary": 0.0006
+    },
+    {
+     "delta_deg": 5.688,
+     "side": "+",
+     "y_mid_mm": 2.992,
+     "t_seat_mm": 2.839,
+     "Pm": 193.6,
+     "PmPb": 425.7,
+     "Pm_seat": 193.6,
+     "PmPb_seat": 425.7,
+     "min_bary": 0.0021
+    },
+    {
+     "delta_deg": 8.8,
+     "side": "-",
+     "y_mid_mm": 4.618,
+     "t_seat_mm": 3.057,
+     "Pm": 84.2,
+     "PmPb": 200.5,
+     "Pm_seat": 84.2,
+     "PmPb_seat": 200.5,
+     "min_bary": 0.0009
+    },
+    {
+     "delta_deg": 8.8,
+     "side": "+",
+     "y_mid_mm": 4.618,
+     "t_seat_mm": 3.057,
+     "Pm": 88.2,
+     "PmPb": 197.1,
+     "Pm_seat": 88.2,
+     "PmPb_seat": 197.1,
+     "min_bary": 0.0008
+    },
+    {
+     "delta_deg": 11.912,
+     "side": "-",
+     "y_mid_mm": 6.231,
+     "t_seat_mm": 3.121,
+     "Pm": 99.5,
+     "PmPb": 234.0,
+     "Pm_seat": 99.5,
+     "PmPb_seat": 234.0,
+     "min_bary": -0.0281
+    },
+    {
+     "delta_deg": 11.912,
+     "side": "+",
+     "y_mid_mm": 6.231,
+     "t_seat_mm": 3.121,
+     "Pm": 98.9,
+     "PmPb": 236.0,
+     "Pm_seat": 98.9,
+     "PmPb_seat": 236.0,
+     "min_bary": -0.0004
+    },
+    {
+     "delta_deg": 17.824,
+     "side": "-",
+     "y_mid_mm": 9.24,
+     "t_seat_mm": 3.121,
+     "Pm": 106.1,
+     "PmPb": 259.0,
+     "Pm_seat": 106.1,
+     "PmPb_seat": 259.0,
+     "min_bary": -0.001
+    },
+    {
+     "delta_deg": 17.824,
+     "side": "+",
+     "y_mid_mm": 9.24,
+     "t_seat_mm": 3.121,
+     "Pm": 105.7,
+     "PmPb": 259.4,
+     "Pm_seat": 105.7,
+     "PmPb_seat": 259.4,
+     "min_bary": -0.0008
+    }
+   ],
+   "station_average": {
+    "cad": {
+     "Pm": 75.3,
+     "PmPb": 222.8,
+     "s_m_rtz": [
+      -15.05,
+      -77.54,
+      2.17,
+      -0.34,
+      -0.02,
+      -11.45
+     ],
+     "s_b_rtz": [
+      11.9,
+      -16.58,
+      156.46,
+      -0.29,
+      -0.17,
+      -0.99
+     ],
+     "station_max_PmPb": {
+      "PmPb": 425.7,
+      "Pm": 193.6,
+      "delta_deg": 5.688,
+      "side": "+",
+      "t_mm": 2.839,
+      "min_bary": 0.0021
+     }
+    },
+    "seat": {
+     "Pm": 75.3,
+     "PmPb": 222.8,
+     "s_m_rtz": [
+      -15.05,
+      -77.54,
+      2.17,
+      -0.34,
+      -0.02,
+      -11.45
+     ],
+     "s_b_rtz": [
+      11.9,
+      -16.58,
+      156.46,
+      -0.29,
+      -0.17,
+      -0.99
+     ],
+     "station_max_PmPb": {
+      "PmPb": 425.7,
+      "Pm": 193.6,
+      "delta_deg": 5.688,
+      "side": "+",
+      "t_mm": 2.839,
+      "min_bary": 0.0021
+     }
+    }
+   },
+   "stations_min_bary": -0.1002,
+   "TC02_band": {
+    "band_gt1_tap": {
+     "vm_MPa": 78.2,
+     "node": 69921,
+     "X_mm": [
+      27.216,
+      6.412,
+      124.871
+     ],
+     "x_prime": 27.865,
+     "d_tap_mm": 1.011,
+     "d_TC01_hole_edge_mm": 0.908
+    },
+    "band_gt1_tap_and_gt1_TC01_hole_edge": {
+     "vm_MPa": 67.5,
+     "node": 1109,
+     "X_mm": [
+      25.292,
+      0.0,
+      127.935
+     ],
+     "x_prime": 24.054,
+     "d_tap_mm": 5.327,
+     "d_TC01_hole_edge_mm": 6.757
+    }
+   },
+   "TC02_wall_SCL": {
+    "node_13503": {
+     "t_mm": 12.1,
+     "Pm": 1.3891532008661085,
+     "PmPb": 2.5459602077077292,
+     "peak_on_line": 4.030448419946593,
+     "min_bary": -0.04308476625922131,
+     "sm": [
+      1.0119749851526583,
+      2.531676562000336,
+      1.3531543186027204,
+      -0.006713189627791614,
+      0.007931890519240418,
+      -0.08566839334539232
+     ],
+     "sb": [
+      0.0785059490285193,
+      -1.2453545746278905,
+      -0.38859352073856024,
+      0.005089407237524072,
+      -0.004848193874872747,
+      0.0301423891077654
+     ],
+     "from_mm": [
+      17.024,
+      0.0,
+      149.21
+     ],
+     "to_mm": [
+      4.924,
+      0.0,
+      149.21
+     ],
+     "dir": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "node": 13503,
+     "T_C": 96.0,
+     "Fty_MPa": 228.4,
+     "Ftu_MPa": 244.1,
+     "MS_y_Pm_SF1": 163.442,
+     "MS_y_PmPb_SF1": 88.724,
+     "MS_u_Pm_SF1": 174.693,
+     "MS_u_PmPb_SF1": 94.863
+    },
+    "band_node": {
+     "t_mm": 23.08,
+     "Pm": 18.72118686773048,
+     "PmPb": 36.671016338755884,
+     "peak_on_line": 77.61089659339629,
+     "min_bary": -0.0411493740960309,
+     "sm": [
+      9.610480175936837,
+      13.531384160087768,
+      -1.6073646390660332,
+      3.2118295555553433,
+      3.720861120068606,
+      5.561871545172665
+     ],
+     "sb": [
+      -1.5744944858531729,
+      0.6677447669526829,
+      8.140530979200895,
+      6.379105473517244,
+      7.963553232236059,
+      8.694399909661575
+     ],
+     "from_mm": [
+      27.214,
+      6.412,
+      124.871
+     ],
+     "to_mm": [
+      4.749,
+      1.119,
+      124.871
+     ],
+     "dir": [
+      -0.9734,
+      -0.2293,
+      -0.0
+     ],
+     "node": 69921,
+     "T_C": 96.0,
+     "Fty_MPa": 228.4,
+     "Ftu_MPa": 244.1,
+     "MS_y_Pm_SF1": 11.202,
+     "MS_y_PmPb_SF1": 5.229,
+     "MS_u_Pm_SF1": 12.037,
+     "MS_u_PmPb_SF1": 5.656
+    }
+   },
+   "edge_profile_RM2_01f": {
+    "TC-01": [
+     {
+      "band_mm": [
+       0.0,
+       0.5
+      ],
+      "vm_max_MPa": 2005.4,
+      "MS_y_SF1": -0.915,
+      "node": 3760,
+      "T_C_used": 158.0
+     },
+     {
+      "band_mm": [
+       0.5,
+       1.0
+      ],
+      "vm_max_MPa": 576.4,
+      "MS_y_SF1": -0.705,
+      "node": 3179,
+      "T_C_used": 158.0
+     },
+     {
+      "band_mm": [
+       1.0,
+       1.5
+      ],
+      "vm_max_MPa": 379.6,
+      "MS_y_SF1": -0.551,
+      "node": 11688,
+      "T_C_used": 158.0
+     },
+     {
+      "band_mm": [
+       1.5,
+       2.0
+      ],
+      "vm_max_MPa": 356.4,
+      "MS_y_SF1": -0.522,
+      "node": 11731,
+      "T_C_used": 158.0
+     },
+     {
+      "band_mm": [
+       2.0,
+       3.0
+      ],
+      "vm_max_MPa": 330.9,
+      "MS_y_SF1": -0.485,
+      "node": 12405,
+      "T_C_used": 158.0
+     },
+     {
+      "band_mm": [
+       3.0,
+       4.0
+      ],
+      "vm_max_MPa": 284.1,
+      "MS_y_SF1": -0.401,
+      "node": 3124,
+      "T_C_used": 158.0
+     }
+    ],
+    "TC-02": [
+     {
+      "band_mm": [
+       0.0,
+       0.5
+      ],
+      "vm_max_MPa": 2100.4,
+      "MS_y_SF1": -0.891,
+      "node": 1642,
+      "T_C_used": 96.0
+     },
+     {
+      "band_mm": [
+       0.5,
+       1.0
+      ],
+      "vm_max_MPa": 825.2,
+      "MS_y_SF1": -0.723,
+      "node": 18048,
+      "T_C_used": 96.0
+     },
+     {
+      "band_mm": [
+       1.0,
+       1.5
+      ],
+      "vm_max_MPa": 78.2,
+      "MS_y_SF1": 1.92,
+      "node": 69921,
+      "T_C_used": 96.0
+     },
+     {
+      "band_mm": [
+       1.5,
+       2.0
+      ],
+      "vm_max_MPa": 48.4,
+      "MS_y_SF1": 3.72,
+      "node": 50935,
+      "T_C_used": 96.0
+     },
+     {
+      "band_mm": [
+       2.0,
+       3.0
+      ],
+      "vm_max_MPa": 54.2,
+      "MS_y_SF1": 3.214,
+      "node": 16209,
+      "T_C_used": 96.0
+     },
+     {
+      "band_mm": [
+       3.0,
+       4.0
+      ],
+      "vm_max_MPa": 49.7,
+      "MS_y_SF1": 3.596,
+      "node": 16728,
+      "T_C_used": 96.0
+     }
+    ]
+   },
+   "FIT_CPRESS_max_on_TC02": {
+    "CPRESS_MPa": 4534.3,
+    "node": 18407,
+    "X_mm": [
+     26.227,
+     11.406,
+     127.269
+    ],
+    "d_tap_mm": 0.254,
+    "d_TC01_hole_edge_mm": 0.025
+   }
+  },
+  "SOAK52": {
+   "ligament_avg_CAD": {
+    "side-": {
+     "A_mm2": 20.496,
+     "width_mid_mm": 6.567,
+     "Pm": 73.2,
+     "PmPb": 213.4,
+     "s_m_rtz": [
+      -15.14,
+      -72.99,
+      -0.01,
+      -12.66,
+      4.41,
+      -10.97
+     ],
+     "s_b_rtz": [
+      8.87,
+      -13.99,
+      151.73,
+      -0.66,
+      -16.69,
+      0.49
+     ],
+     "Fz_N": -0.1,
+     "min_bary": -0.1456
+    },
+    "side+": {
+     "A_mm2": 20.496,
+     "width_mid_mm": 6.567,
+     "Pm": 72.8,
+     "PmPb": 213.2,
+     "s_m_rtz": [
+      -17.9,
+      -72.6,
+      1.08,
+      11.82,
+      -4.4,
+      -12.04
+     ],
+     "s_b_rtz": [
+      7.63,
+      -13.6,
+      149.92,
+      0.11,
+      16.01,
+      -1.91
+     ],
+     "Fz_N": 22.2,
+     "min_bary": 0.0
+    },
+    "both": {
+     "A_mm2": 40.991,
+     "Pm": 69.4,
+     "PmPb": 211.1,
+     "s_m_rtz": [
+      -16.52,
+      -72.79,
+      0.54,
+      -0.42,
+      0.0,
+      -11.51
+     ],
+     "s_b_rtz": [
+      8.25,
+      -13.8,
+      150.83,
+      -0.27,
+      -0.34,
+      -0.71
+     ],
+     "Fz_N": 22.0,
+     "min_bary": -0.1456
+    }
+   },
+   "stations": [
+    {
+     "delta_deg": 5.688,
+     "side": "-",
+     "y_mid_mm": 2.992,
+     "t_seat_mm": 2.839,
+     "Pm": 171.2,
+     "PmPb": 422.1,
+     "Pm_seat": 171.2,
+     "PmPb_seat": 422.1,
+     "min_bary": 0.0006
+    },
+    {
+     "delta_deg": 5.688,
+     "side": "+",
+     "y_mid_mm": 2.992,
+     "t_seat_mm": 2.839,
+     "Pm": 203.4,
+     "PmPb": 461.3,
+     "Pm_seat": 203.4,
+     "PmPb_seat": 461.3,
+     "min_bary": 0.0021
+    },
+    {
+     "delta_deg": 8.8,
+     "side": "-",
+     "y_mid_mm": 4.618,
+     "t_seat_mm": 3.057,
+     "Pm": 78.6,
+     "PmPb": 193.3,
+     "Pm_seat": 78.6,
+     "PmPb_seat": 193.3,
+     "min_bary": 0.0009
+    },
+    {
+     "delta_deg": 8.8,
+     "side": "+",
+     "y_mid_mm": 4.618,
+     "t_seat_mm": 3.057,
+     "Pm": 82.3,
+     "PmPb": 190.2,
+     "Pm_seat": 82.3,
+     "PmPb_seat": 190.2,
+     "min_bary": 0.0008
+    },
+    {
+     "delta_deg": 11.912,
+     "side": "-",
+     "y_mid_mm": 6.231,
+     "t_seat_mm": 3.121,
+     "Pm": 95.3,
+     "PmPb": 229.1,
+     "Pm_seat": 95.3,
+     "PmPb_seat": 229.1,
+     "min_bary": -0.0281
+    },
+    {
+     "delta_deg": 11.912,
+     "side": "+",
+     "y_mid_mm": 6.231,
+     "t_seat_mm": 3.121,
+     "Pm": 94.6,
+     "PmPb": 231.2,
+     "Pm_seat": 94.6,
+     "PmPb_seat": 231.2,
+     "min_bary": -0.0004
+    },
+    {
+     "delta_deg": 17.824,
+     "side": "-",
+     "y_mid_mm": 9.24,
+     "t_seat_mm": 3.121,
+     "Pm": 102.9,
+     "PmPb": 256.0,
+     "Pm_seat": 102.9,
+     "PmPb_seat": 256.0,
+     "min_bary": -0.001
+    },
+    {
+     "delta_deg": 17.824,
+     "side": "+",
+     "y_mid_mm": 9.24,
+     "t_seat_mm": 3.121,
+     "Pm": 102.4,
+     "PmPb": 256.6,
+     "Pm_seat": 102.4,
+     "PmPb_seat": 256.6,
+     "min_bary": -0.0008
+    }
+   ],
+   "station_average": {
+    "cad": {
+     "Pm": 71.6,
+     "PmPb": 218.2,
+     "s_m_rtz": [
+      -15.55,
+      -74.34,
+      2.16,
+      -0.44,
+      -0.0,
+      -10.29
+     ],
+     "s_b_rtz": [
+      8.75,
+      -16.8,
+      153.47,
+      -0.39,
+      -0.37,
+      -1.25
+     ],
+     "station_max_PmPb": {
+      "PmPb": 461.3,
+      "Pm": 203.4,
+      "delta_deg": 5.688,
+      "side": "+",
+      "t_mm": 2.839,
+      "min_bary": 0.0021
+     }
+    },
+    "seat": {
+     "Pm": 71.6,
+     "PmPb": 218.2,
+     "s_m_rtz": [
+      -15.55,
+      -74.34,
+      2.16,
+      -0.44,
+      -0.0,
+      -10.29
+     ],
+     "s_b_rtz": [
+      8.75,
+      -16.8,
+      153.47,
+      -0.39,
+      -0.37,
+      -1.25
+     ],
+     "station_max_PmPb": {
+      "PmPb": 461.3,
+      "Pm": 203.4,
+      "delta_deg": 5.688,
+      "side": "+",
+      "t_mm": 2.839,
+      "min_bary": 0.0021
+     }
+    }
+   },
+   "stations_min_bary": -0.1002,
+   "TC02_band": {
+    "band_gt1_tap": {
+     "vm_MPa": 87.8,
+     "node": 69921,
+     "X_mm": [
+      27.216,
+      6.412,
+      124.871
+     ],
+     "x_prime": 27.865,
+     "d_tap_mm": 1.011,
+     "d_TC01_hole_edge_mm": 0.908
+    },
+    "band_gt1_tap_and_gt1_TC01_hole_edge": {
+     "vm_MPa": 70.7,
+     "node": 49207,
+     "X_mm": [
+      20.698,
+      3.165,
+      128.097
+     ],
+     "x_prime": 20.663,
+     "d_tap_mm": 1.018,
+     "d_TC01_hole_edge_mm": 7.87
+    }
+   },
+   "TC02_wall_SCL": {
+    "node_13503": {
+     "t_mm": 12.1,
+     "Pm": 1.7446804459597434,
+     "PmPb": 3.234827966953196,
+     "peak_on_line": 5.173536857331232,
+     "min_bary": -0.04308476625922131,
+     "sm": [
+      1.3677319490323026,
+      3.323402472083342,
+      1.9310698404660287,
+      -0.011211462125838297,
+      0.008094662586803988,
+      -0.03184719410482258
+     ],
+     "sb": [
+      0.1841644598696203,
+      -1.5298959537212489,
+      -0.5015790311149384,
+      0.011723154165889985,
+      -0.004675950996585165,
+      0.04712086776929738
+     ],
+     "from_mm": [
+      17.024,
+      0.0,
+      149.21
+     ],
+     "to_mm": [
+      4.924,
+      0.0,
+      149.21
+     ],
+     "dir": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "node": 13503,
+     "T_C": 94.6,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.4,
+     "MS_y_Pm_SF1": 130.054,
+     "MS_y_PmPb_SF1": 69.683,
+     "MS_u_Pm_SF1": 139.059,
+     "MS_u_PmPb_SF1": 74.54
+    },
+    "band_node": {
+     "t_mm": 23.08,
+     "Pm": 19.699079131496234,
+     "PmPb": 46.22510716309218,
+     "peak_on_line": 87.3123777446336,
+     "min_bary": -0.0411493740960309,
+     "sm": [
+      6.585515450792143,
+      11.416156831768562,
+      -1.5747611116573887,
+      3.3046826805228813,
+      7.439974690037231,
+      4.467911004667143
+     ],
+     "sb": [
+      -7.001947724217445,
+      -2.0547473190118093,
+      8.169727057627792,
+      5.259486782673435,
+      15.104728021866029,
+      5.790827105754397
+     ],
+     "from_mm": [
+      27.214,
+      6.412,
+      124.871
+     ],
+     "to_mm": [
+      4.749,
+      1.119,
+      124.871
+     ],
+     "dir": [
+      -0.9734,
+      -0.2293,
+      -0.0
+     ],
+     "node": 69921,
+     "T_C": 94.6,
+     "Fty_MPa": 228.6,
+     "Ftu_MPa": 244.4,
+     "MS_y_Pm_SF1": 10.607,
+     "MS_y_PmPb_SF1": 3.946,
+     "MS_u_Pm_SF1": 11.405,
+     "MS_u_PmPb_SF1": 4.286
+    }
+   },
+   "edge_profile_RM2_01f": {
+    "TC-01": [
+     {
+      "band_mm": [
+       0.0,
+       0.5
+      ],
+      "vm_max_MPa": 2654.1,
+      "MS_y_SF1": -0.931,
+      "node": 3652,
+      "T_C_used": 151.0
+     },
+     {
+      "band_mm": [
+       0.5,
+       1.0
+      ],
+      "vm_max_MPa": 483.3,
+      "MS_y_SF1": -0.622,
+      "node": 4277,
+      "T_C_used": 151.0
+     },
+     {
+      "band_mm": [
+       1.0,
+       1.5
+      ],
+      "vm_max_MPa": 384.5,
+      "MS_y_SF1": -0.525,
+      "node": 9512,
+      "T_C_used": 151.0
+     },
+     {
+      "band_mm": [
+       1.5,
+       2.0
+      ],
+      "vm_max_MPa": 371.9,
+      "MS_y_SF1": -0.509,
+      "node": 10576,
+      "T_C_used": 151.0
+     },
+     {
+      "band_mm": [
+       2.0,
+       3.0
+      ],
+      "vm_max_MPa": 360.2,
+      "MS_y_SF1": -0.493,
+      "node": 9966,
+      "T_C_used": 151.0
+     },
+     {
+      "band_mm": [
+       3.0,
+       4.0
+      ],
+      "vm_max_MPa": 280.7,
+      "MS_y_SF1": -0.35,
+      "node": 3124,
+      "T_C_used": 151.0
+     }
+    ],
+    "TC-02": [
+     {
+      "band_mm": [
+       0.0,
+       0.5
+      ],
+      "vm_max_MPa": 1298.7,
+      "MS_y_SF1": -0.824,
+      "node": 17845,
+      "T_C_used": 94.6
+     },
+     {
+      "band_mm": [
+       0.5,
+       1.0
+      ],
+      "vm_max_MPa": 860.5,
+      "MS_y_SF1": -0.734,
+      "node": 18048,
+      "T_C_used": 94.6
+     },
+     {
+      "band_mm": [
+       1.0,
+       1.5
+      ],
+      "vm_max_MPa": 87.8,
+      "MS_y_SF1": 1.603,
+      "node": 69921,
+      "T_C_used": 94.6
+     },
+     {
+      "band_mm": [
+       1.5,
+       2.0
+      ],
+      "vm_max_MPa": 58.7,
+      "MS_y_SF1": 2.893,
+      "node": 50893,
+      "T_C_used": 94.6
+     },
+     {
+      "band_mm": [
+       2.0,
+       3.0
+      ],
+      "vm_max_MPa": 65.6,
+      "MS_y_SF1": 2.486,
+      "node": 16196,
+      "T_C_used": 94.6
+     },
+     {
+      "band_mm": [
+       3.0,
+       4.0
+      ],
+      "vm_max_MPa": 60.5,
+      "MS_y_SF1": 2.777,
+      "node": 16179,
+      "T_C_used": 94.6
+     }
+    ]
+   },
+   "FIT_CPRESS_max_on_TC02": {
+    "CPRESS_MPa": 8204.7,
+    "node": 18354,
+    "X_mm": [
+     27.915,
+     6.22,
+     126.944
+    ],
+    "d_tap_mm": 0.27,
+    "d_TC01_hole_edge_mm": 0.031
+   }
+  }
+ }
+}
