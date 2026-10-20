@@ -1,0 +1,1875 @@
+{
+ "job": "seat_s6L12_mu0",
+ "patch": true,
+ "mesh": "s6",
+ "frd": "/home/claude/work/fea3d/jfwd/runs/seat_s6L12_mu0/seat_s6L12_mu0.frd",
+ "doc": "J-FWD seat contact under the screw (TC-02 plug OD on the TC-01 bore = the FIT pair), screw tension and shell pull, per step\n(fea3d 2026-10-20 ~11:00Z; lead 10:47Z: '(a), (b2) and (b1) each report the integrated seat contact normal force under the screw at every\nstep: PRELOAD, SOAK70, SOAK52 and FA1S ... next to the screw tension and the shell pull, and give the contact footprint (its centroid and\nits extent along z and around the circumference).  Do the same from the existing js5 results ... js5 at SOAK70 has 5695 N head force\nagainst 4294 N shell pull, which leaves roughly 1.4 kN on the seat.  Confirm or correct that.').\n\nAll forces EXACT from the solved displacements (DERIVED from the SIM .frd): nodal internal forces f = sum_e int B^T sigma dV per body\n(jfwd_cforce.body_forces, the deck's E(T), alpha(T), the step's nodal temperatures) minus the applied nodal loads (consistent pressure\nloads on the wetted straight T6 faces: midside nodes p A n / 3, corners 0; the cap and M14 z-tractions of the global deck) = the external\n(contact / tie / boundary) force at each node; every node of a body is put in exactly one class, so the class sums close exactly.\n  seat     TC-02 FIT slave nodes (plug OD r 28.6): the contact force from TC-01.  At the 1:1 thread-tie nodes on the FIT surface (tap\n           mouth) the tie force is removed (F_c[b] = g[b] + f_screw[a], a the tied screw node); at symmetry-plane nodes the plane-normal\n           component (the symmetry reaction) is removed (frictionless contact is in-plane there).  Normal force F_n = -F_c . e_r (+ =\n           compressive).  Totals: scalar radial sum, and along the screw axis n.  Footprint: the CPRESS > 0 nodes (contact zone) and the\n           force-carrying nodes (|F_n| > 1 % of the largest nodal F_n): force-weighted centroid (az from the screw plane az 18 deg, arc at\n           r 28.6, z and z' = z - 127.513 = from the screw / tap axis), extents in z and around the circumference (min / max of the\n           CPRESS > 0 nodes and the 5-95 % quantiles of the cumulative F_n), contact area (faces with mean CPRESS > 0, as\n           jfwd_post.contact_summary), and the connected clusters of force-carrying faces; 'window' = |daz| <= 9 deg and |z'| <= 9 mm.\n  tension  the screw head contact force on the screw along n (HEAD), the exact shear-plane resultant N_plane (screw nodal internal\n           forces summed over the tip side x' < 28.61, as jfwd_shank; + = tension), and the thread-tie pull on TC-02 along n.\n  shell    the TC-02 ring's share: the symmetry-plane reactions on TC-02 (global sector: az 0 u_y, az 36 u_theta) along n, the pressure\n           resultant on TC-02 along n, and in a patch the prescribed cut-boundary reactions (TC-02, and the screw section at x'cut, which\n           stands for the thread below the cut).  Shell pull := tie pull - seat (along n) = -(symmetry + pressure + cut)_n (+ springs,\n           unclassified; z-only loads have no n component).\n  TC-01    the same split on the case: HEAD (from the screw), FIT (bore), BEAR (hole), shared hole-edge nodes, symmetry, pressure, aft cut /\n           patch cut; the seat force seen by TC-01 must equal the TC-02 one (and the indirect jfwd_post.contact_forces_exact value).",
+ "evidence": "SIM (.frd) + DERIVED (exact nodal internal forces, consistent loads)",
+ "z_axis_mm": 127.513,
+ "az_screw_deg": 18.0,
+ "steps": {
+  "PRELOAD": {
+   "label": "PRELOAD",
+   "Pc_MPa": 0.0,
+   "screw": {
+    "HEAD_on_screw_along_n_N": 3749.9,
+    "HEAD_on_screw_vec_N": [
+     3566.4,
+     1158.7,
+     0.0
+    ],
+    "N_plane_N_tension_pos": 3750.0,
+    "V_plane_N": 0.1,
+    "tie_force_on_screw_along_n_N": -1951.5,
+    "n_tie_screw_nodes_also_in_screw_contact": 198,
+    "n_tie_screw_nodes_prescribed": 0,
+    "cut_reaction_on_screw_vec_N": [
+     -1722.3,
+     -519.2,
+     -5.1
+    ],
+    "cut_reaction_on_screw_along_n_N": -1798.4
+   },
+   "seat_TC02": {
+    "normal_force_radial_sum_N": 895.9,
+    "along_n_inward_N": 887.7,
+    "vec_on_TC02_N": [
+     -846.5,
+     -267.4,
+     -37.4
+    ],
+    "z_on_TC02_N": -37.4,
+    "n_fit_nodes": 7024,
+    "n_fit_tie_nodes_with_contaminated_screw_node": 198,
+    "footprint": {
+     "centroid_force_weighted": {
+      "daz_deg": -0.033,
+      "arc_mm": -0.017,
+      "z_mm": 126.527,
+      "z_prime_mm": -0.986
+     },
+     "n_nodes_CPRESS_pos": 1195,
+     "extent_CPRESS_pos": {
+      "z_mm": [
+       124.243,
+       137.697
+      ],
+      "z_prime_mm": [
+       -3.27,
+       10.184
+      ],
+      "daz_deg": [
+       -8.98,
+       6.004
+      ],
+      "arc_mm": [
+       -4.483,
+       2.997
+      ],
+      "r_prime_mm": [
+       2.656,
+       10.536
+      ],
+      "max_CPRESS_MPa_edge_penalty_artefact": 15643.3
+     },
+     "r_prime_force_weighted_mm": 2.985,
+     "r_prime_quantiles_5_95_mm": [
+      2.731,
+      3.196
+     ],
+     "Fn_on_CPRESS_pos_nodes_N": 901.0,
+     "Fn_on_other_nodes_N": -5.2,
+     "area_faces_mean_CPRESS_pos_mm2": 35.168,
+     "n_faces_mean_CPRESS_pos": 1313,
+     "n_force_carrying_nodes": 872,
+     "extent_force_carrying": {
+      "z_prime_mm": [
+       -6.587,
+       12.302
+      ],
+      "daz_deg": [
+       -18.0,
+       18.0
+      ]
+     },
+     "quantiles_5_95_of_Fn": {
+      "z_prime_mm": [
+       -3.164,
+       2.598
+      ],
+      "arc_mm": [
+       -2.89,
+       2.911
+      ]
+     },
+     "window_daz9_zp9_N": 901.4,
+     "outside_window_N": -5.6,
+     "clusters": [
+      {
+       "Fn_N": 541.3,
+       "n_nodes": 1355,
+       "centroid": {
+        "daz_deg": -0.501,
+        "z_prime_mm": -2.464
+       },
+       "z_prime_mm": [
+        -3.376,
+        -0.471
+       ],
+       "daz_deg": [
+        -6.164,
+        5.676
+       ]
+      },
+      {
+       "Fn_N": 159.2,
+       "n_nodes": 573,
+       "centroid": {
+        "daz_deg": 5.195,
+        "z_prime_mm": 0.726
+       },
+       "z_prime_mm": [
+        -0.875,
+        2.29
+       ],
+       "daz_deg": [
+        3.161,
+        6.181
+       ]
+      },
+      {
+       "Fn_N": 52.2,
+       "n_nodes": 181,
+       "centroid": {
+        "daz_deg": -5.776,
+        "z_prime_mm": 0.235
+       },
+       "z_prime_mm": [
+        -0.3,
+        0.875
+       ],
+       "daz_deg": [
+        -6.204,
+        -5.391
+       ]
+      },
+      {
+       "Fn_N": 44.9,
+       "n_nodes": 219,
+       "centroid": {
+        "daz_deg": -4.794,
+        "z_prime_mm": 1.433
+       },
+       "z_prime_mm": [
+        0.827,
+        2.059
+       ],
+       "daz_deg": [
+        -5.545,
+        -3.771
+       ]
+      },
+      {
+       "Fn_N": 40.2,
+       "n_nodes": 168,
+       "centroid": {
+        "daz_deg": 0.568,
+        "z_prime_mm": 2.694
+       },
+       "z_prime_mm": [
+        2.496,
+        2.851
+       ],
+       "daz_deg": [
+        -0.447,
+        1.828
+       ]
+      },
+      {
+       "Fn_N": 27.4,
+       "n_nodes": 64,
+       "centroid": {
+        "daz_deg": -3.294,
+        "z_prime_mm": 2.213
+       },
+       "z_prime_mm": [
+        2.047,
+        2.427
+       ],
+       "daz_deg": [
+        -3.665,
+        -2.942
+       ]
+      }
+     ],
+     "n_clusters": 14
+    }
+   },
+   "shell_TC02": {
+    "tie_pull_on_TC02_along_n_N": 1951.5,
+    "tie_vec_on_TC02_N": [
+     1844.1,
+     639.6,
+     -5.2
+    ],
+    "shell_pull_N_tie_minus_seat": 1063.8,
+    "shell_pull_direct_minus_sym_cut_press_N": 1063.8,
+    "sym_reaction_along_n_N": -44.9,
+    "sym_reaction_vec_N": [
+     -35.1,
+     -37.2,
+     -0.0
+    ],
+    "sym_inplane_residual_max_N": 0.0108,
+    "cut_reaction_TC02_along_n_N": -1018.9,
+    "cut_reaction_TC02_vec_N": [
+     -962.5,
+     -335.1,
+     42.7
+    ],
+    "pressure_on_TC02_along_n_N": 0.0,
+    "applied_on_TC02_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "springs_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "unclassified_vec_N": [
+     -0.049,
+     -0.017,
+     -0.072
+    ],
+    "n_unclassified_nodes": 10326,
+    "closure_residual_vec_N": [
+     -0.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "TC01": {
+    "FIT_only_along_n_N": 941.3,
+    "FIT_only_radial_sum_N": 927.6,
+    "FIT_BEAR_shared_edge_along_n_N": 27.6,
+    "FIT_BEAR_shared_edge_radial_N": 27.6,
+    "HEAD_only_along_n_N": -3746.4,
+    "HEAD_BEAR_shared_along_n_N": -3.6,
+    "BEAR_only_vec_N": [
+     -0.0,
+     0.0,
+     -0.0
+    ],
+    "sym_along_n_N": 2738.3,
+    "cut_patch_along_n_N": 42.9,
+    "aft_cut_z_N": 0.0,
+    "pressure_on_TC01_along_n_N": 0.0,
+    "unclassified_vec_N": [
+     0.052,
+     -0.146,
+     0.043
+    ],
+    "n_unclassified_nodes": 30039
+   }
+  },
+  "SOAK52": {
+   "label": "soak GVLO B1_51.7 mapped (S-AX field), unpressurised",
+   "Pc_MPa": 0.0,
+   "screw": {
+    "HEAD_on_screw_along_n_N": 6228.4,
+    "HEAD_on_screw_vec_N": [
+     5923.5,
+     1924.7,
+     4.2
+    ],
+    "N_plane_N_tension_pos": 6228.2,
+    "V_plane_N": 3.8,
+    "tie_force_on_screw_along_n_N": -2422.3,
+    "n_tie_screw_nodes_also_in_screw_contact": 198,
+    "n_tie_screw_nodes_prescribed": 0,
+    "cut_reaction_on_screw_vec_N": [
+     -3640.8,
+     -1111.4,
+     -79.1
+    ],
+    "cut_reaction_on_screw_along_n_N": -3806.0
+   },
+   "seat_TC02": {
+    "normal_force_radial_sum_N": 1797.7,
+    "along_n_inward_N": 1783.9,
+    "vec_on_TC02_N": [
+     -1701.2,
+     -537.0,
+     -48.9
+    ],
+    "z_on_TC02_N": -48.9,
+    "n_fit_nodes": 7024,
+    "n_fit_tie_nodes_with_contaminated_screw_node": 198,
+    "footprint": {
+     "centroid_force_weighted": {
+      "daz_deg": -0.07,
+      "arc_mm": -0.035,
+      "z_mm": 125.224,
+      "z_prime_mm": -2.289
+     },
+     "n_nodes_CPRESS_pos": 1040,
+     "extent_CPRESS_pos": {
+      "z_mm": [
+       124.243,
+       128.047
+      ],
+      "z_prime_mm": [
+       -3.27,
+       0.534
+      ],
+      "daz_deg": [
+       -6.009,
+       6.004
+      ],
+      "arc_mm": [
+       -3.0,
+       2.997
+      ],
+      "r_prime_mm": [
+       2.81,
+       3.273
+      ],
+      "max_CPRESS_MPa_edge_penalty_artefact": 15030.1
+     },
+     "r_prime_force_weighted_mm": 3.078,
+     "r_prime_quantiles_5_95_mm": [
+      2.967,
+      3.171
+     ],
+     "Fn_on_CPRESS_pos_nodes_N": 1802.5,
+     "Fn_on_other_nodes_N": -4.7,
+     "area_faces_mean_CPRESS_pos_mm2": 3.048,
+     "n_faces_mean_CPRESS_pos": 938,
+     "n_force_carrying_nodes": 798,
+     "extent_force_carrying": {
+      "z_prime_mm": [
+       -6.587,
+       12.302
+      ],
+      "daz_deg": [
+       -18.0,
+       18.0
+      ]
+     },
+     "quantiles_5_95_of_Fn": {
+      "z_prime_mm": [
+       -3.145,
+       -0.559
+      ],
+      "arc_mm": [
+       -2.824,
+       2.846
+      ]
+     },
+     "window_daz9_zp9_N": 1802.8,
+     "outside_window_N": -5.1,
+     "clusters": [
+      {
+       "Fn_N": 1781.1,
+       "n_nodes": 1722,
+       "centroid": {
+        "daz_deg": 0.018,
+        "z_prime_mm": -2.311
+       },
+       "z_prime_mm": [
+        -3.352,
+        0.114
+       ],
+       "daz_deg": [
+        -6.233,
+        6.181
+       ]
+      },
+      {
+       "Fn_N": 20.2,
+       "n_nodes": 100,
+       "centroid": {
+        "daz_deg": -5.865,
+        "z_prime_mm": -0.01
+       },
+       "z_prime_mm": [
+        -0.258,
+        0.403
+       ],
+       "daz_deg": [
+        -6.204,
+        -5.54
+       ]
+      },
+      {
+       "Fn_N": -3.8,
+       "n_nodes": 39,
+       "centroid": {
+        "daz_deg": 13.359,
+        "z_prime_mm": 3.505
+       },
+       "z_prime_mm": [
+        0.373,
+        7.806
+       ],
+       "daz_deg": [
+        9.305,
+        18.0
+       ]
+      },
+      {
+       "Fn_N": -1.0,
+       "n_nodes": 146,
+       "centroid": {
+        "daz_deg": -16.719,
+        "z_prime_mm": -12.55
+       },
+       "z_prime_mm": [
+        -8.3,
+        12.302
+       ],
+       "daz_deg": [
+        -18.0,
+        18.0
+       ]
+      },
+      {
+       "Fn_N": 1.0,
+       "n_nodes": 28,
+       "centroid": {
+        "daz_deg": 5.79,
+        "z_prime_mm": 0.331
+       },
+       "z_prime_mm": [
+        0.216,
+        0.453
+       ],
+       "daz_deg": [
+        5.575,
+        6.012
+       ]
+      },
+      {
+       "Fn_N": -0.4,
+       "n_nodes": 12,
+       "centroid": {
+        "daz_deg": 18.653,
+        "z_prime_mm": -3.375
+       },
+       "z_prime_mm": [
+        -5.822,
+        -0.866
+       ],
+       "daz_deg": [
+        12.824,
+        18.0
+       ]
+      }
+     ],
+     "n_clusters": 6
+    }
+   },
+   "shell_TC02": {
+    "tie_pull_on_TC02_along_n_N": 2422.3,
+    "tie_vec_on_TC02_N": [
+     2282.7,
+     813.4,
+     -74.5
+    ],
+    "shell_pull_N_tie_minus_seat": 638.5,
+    "shell_pull_direct_minus_sym_cut_press_N": 638.5,
+    "sym_reaction_along_n_N": -82.2,
+    "sym_reaction_vec_N": [
+     -73.6,
+     -39.6,
+     0.1
+    ],
+    "sym_inplane_residual_max_N": 0.0876,
+    "cut_reaction_TC02_along_n_N": -556.0,
+    "cut_reaction_TC02_vec_N": [
+     -507.8,
+     -236.5,
+     125.0
+    ],
+    "pressure_on_TC02_along_n_N": 0.0,
+    "applied_on_TC02_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "springs_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "unclassified_vec_N": [
+     -0.176,
+     -0.241,
+     -1.651
+    ],
+    "n_unclassified_nodes": 10326,
+    "closure_residual_vec_N": [
+     0.0,
+     -0.0,
+     -0.0
+    ]
+   },
+   "TC01": {
+    "FIT_only_along_n_N": 1865.4,
+    "FIT_only_radial_sum_N": 1847.9,
+    "FIT_BEAR_shared_edge_along_n_N": 9.6,
+    "FIT_BEAR_shared_edge_radial_N": 9.6,
+    "HEAD_only_along_n_N": -6202.9,
+    "HEAD_BEAR_shared_along_n_N": -25.5,
+    "BEAR_only_vec_N": [
+     0.0,
+     0.0,
+     0.1
+    ],
+    "sym_along_n_N": 4297.4,
+    "cut_patch_along_n_N": 56.2,
+    "aft_cut_z_N": 0.0,
+    "pressure_on_TC01_along_n_N": 0.0,
+    "unclassified_vec_N": [
+     -0.154,
+     -0.1,
+     -0.541
+    ],
+    "n_unclassified_nodes": 30039
+   }
+  },
+  "SOAK": {
+   "label": "soak 64.7 s GVLO row means, unpressurised",
+   "Pc_MPa": 0.0,
+   "screw": {
+    "HEAD_on_screw_along_n_N": 5252.5,
+    "HEAD_on_screw_vec_N": [
+     4995.4,
+     1623.1,
+     8.8
+    ],
+    "N_plane_N_tension_pos": 5252.3,
+    "V_plane_N": 9.5,
+    "tie_force_on_screw_along_n_N": -2607.7,
+    "n_tie_screw_nodes_also_in_screw_contact": 198,
+    "n_tie_screw_nodes_prescribed": 0,
+    "cut_reaction_on_screw_vec_N": [
+     -2535.3,
+     -755.6,
+     72.5
+    ],
+    "cut_reaction_on_screw_along_n_N": -2644.7
+   },
+   "seat_TC02": {
+    "normal_force_radial_sum_N": 631.9,
+    "along_n_inward_N": 619.9,
+    "vec_on_TC02_N": [
+     -592.2,
+     -183.3,
+     -49.1
+    ],
+    "z_on_TC02_N": -49.1,
+    "n_fit_nodes": 7024,
+    "n_fit_tie_nodes_with_contaminated_screw_node": 198,
+    "footprint": {
+     "centroid_force_weighted": {
+      "daz_deg": 0.071,
+      "arc_mm": 0.036,
+      "z_mm": 127.164,
+      "z_prime_mm": -0.349
+     },
+     "n_nodes_CPRESS_pos": 1197,
+     "extent_CPRESS_pos": {
+      "z_mm": [
+       124.08,
+       130.261
+      ],
+      "z_prime_mm": [
+       -3.433,
+       2.748
+      ],
+      "daz_deg": [
+       -6.009,
+       6.004
+      ],
+      "arc_mm": [
+       -3.0,
+       2.997
+      ],
+      "r_prime_mm": [
+       2.663,
+       3.447
+      ],
+      "max_CPRESS_MPa_edge_penalty_artefact": 16238.8
+     },
+     "r_prime_force_weighted_mm": 2.929,
+     "r_prime_quantiles_5_95_mm": [
+      2.749,
+      3.283
+     ],
+     "Fn_on_CPRESS_pos_nodes_N": 639.4,
+     "Fn_on_other_nodes_N": -7.4,
+     "area_faces_mean_CPRESS_pos_mm2": 4.606,
+     "n_faces_mean_CPRESS_pos": 1253,
+     "n_force_carrying_nodes": 779,
+     "extent_force_carrying": {
+      "z_prime_mm": [
+       -6.587,
+       12.302
+      ],
+      "daz_deg": [
+       -18.0,
+       18.0
+      ]
+     },
+     "quantiles_5_95_of_Fn": {
+      "z_prime_mm": [
+       -3.233,
+       2.411
+      ],
+      "arc_mm": [
+       -2.916,
+       2.928
+      ]
+     },
+     "window_daz9_zp9_N": 639.4,
+     "outside_window_N": -7.5,
+     "clusters": [
+      {
+       "Fn_N": 220.5,
+       "n_nodes": 985,
+       "centroid": {
+        "daz_deg": -2.033,
+        "z_prime_mm": -2.424
+       },
+       "z_prime_mm": [
+        -3.507,
+        -0.471
+       ],
+       "daz_deg": [
+        -6.164,
+        4.08
+       ]
+      },
+      {
+       "Fn_N": 205.6,
+       "n_nodes": 597,
+       "centroid": {
+        "daz_deg": 5.281,
+        "z_prime_mm": 0.68
+       },
+       "z_prime_mm": [
+        -0.996,
+        2.29
+       ],
+       "daz_deg": [
+        3.161,
+        6.181
+       ]
+      },
+      {
+       "Fn_N": 129.7,
+       "n_nodes": 389,
+       "centroid": {
+        "daz_deg": -5.361,
+        "z_prime_mm": 0.763
+       },
+       "z_prime_mm": [
+        -0.258,
+        1.999
+       ],
+       "daz_deg": [
+        -6.204,
+        -3.782
+       ]
+      },
+      {
+       "Fn_N": 31.3,
+       "n_nodes": 181,
+       "centroid": {
+        "daz_deg": 4.965,
+        "z_prime_mm": -1.814
+       },
+       "z_prime_mm": [
+        -2.467,
+        -1.317
+       ],
+       "daz_deg": [
+        4.041,
+        5.676
+       ]
+      },
+      {
+       "Fn_N": 20.7,
+       "n_nodes": 64,
+       "centroid": {
+        "daz_deg": -3.302,
+        "z_prime_mm": 2.218
+       },
+       "z_prime_mm": [
+        2.047,
+        2.427
+       ],
+       "daz_deg": [
+        -3.665,
+        -2.942
+       ]
+      },
+      {
+       "Fn_N": 13.6,
+       "n_nodes": 36,
+       "centroid": {
+        "daz_deg": 2.623,
+        "z_prime_mm": 2.42
+       },
+       "z_prime_mm": [
+        2.296,
+        2.557
+       ],
+       "daz_deg": [
+        2.404,
+        2.905
+       ]
+      }
+     ],
+     "n_clusters": 12
+    }
+   },
+   "shell_TC02": {
+    "tie_pull_on_TC02_along_n_N": 2607.7,
+    "tie_vec_on_TC02_N": [
+     2460.0,
+     867.6,
+     82.8
+    ],
+    "shell_pull_N_tie_minus_seat": 1987.9,
+    "shell_pull_direct_minus_sym_cut_press_N": 1987.9,
+    "sym_reaction_along_n_N": -78.3,
+    "sym_reaction_vec_N": [
+     -65.4,
+     -52.0,
+     -0.1
+    ],
+    "sym_inplane_residual_max_N": 0.0893,
+    "cut_reaction_TC02_along_n_N": -1909.4,
+    "cut_reaction_TC02_vec_N": [
+     -1802.3,
+     -631.9,
+     -34.2
+    ],
+    "pressure_on_TC02_along_n_N": 0.0,
+    "applied_on_TC02_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "springs_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "unclassified_vec_N": [
+     -0.069,
+     -0.446,
+     0.571
+    ],
+    "n_unclassified_nodes": 10326,
+    "closure_residual_vec_N": [
+     -0.0,
+     -0.0,
+     -0.0
+    ]
+   },
+   "TC01": {
+    "FIT_only_along_n_N": 863.5,
+    "FIT_only_radial_sum_N": 837.5,
+    "FIT_BEAR_shared_edge_along_n_N": 10.6,
+    "FIT_BEAR_shared_edge_radial_N": 10.6,
+    "HEAD_only_along_n_N": -5252.3,
+    "HEAD_BEAR_shared_along_n_N": -0.0,
+    "BEAR_only_vec_N": [
+     -0.0,
+     0.1,
+     -0.1
+    ],
+    "sym_along_n_N": 4324.4,
+    "cut_patch_along_n_N": 54.0,
+    "aft_cut_z_N": 0.0,
+    "pressure_on_TC01_along_n_N": 0.0,
+    "unclassified_vec_N": [
+     -0.044,
+     -0.334,
+     -0.283
+    ],
+    "n_unclassified_nodes": 30039
+   }
+  },
+  "SOAK70": {
+   "label": "soak GVLO B1_70.7 mapped (S-AX field), unpressurised",
+   "Pc_MPa": 0.0,
+   "screw": {
+    "HEAD_on_screw_along_n_N": 7471.8,
+    "HEAD_on_screw_vec_N": [
+     7106.1,
+     2308.8,
+     9.4
+    ],
+    "N_plane_N_tension_pos": 7471.8,
+    "V_plane_N": 3.0,
+    "tie_force_on_screw_along_n_N": -3297.1,
+    "n_tie_screw_nodes_also_in_screw_contact": 198,
+    "n_tie_screw_nodes_prescribed": 0,
+    "cut_reaction_on_screw_vec_N": [
+     -3993.8,
+     -1219.1,
+     -184.0
+    ],
+    "cut_reaction_on_screw_along_n_N": -4175.0
+   },
+   "seat_TC02": {
+    "normal_force_radial_sum_N": 3117.2,
+    "along_n_inward_N": 3101.6,
+    "vec_on_TC02_N": [
+     -2954.3,
+     -944.6,
+     -82.1
+    ],
+    "z_on_TC02_N": -82.1,
+    "n_fit_nodes": 7024,
+    "n_fit_tie_nodes_with_contaminated_screw_node": 198,
+    "footprint": {
+     "centroid_force_weighted": {
+      "daz_deg": 0.03,
+      "arc_mm": 0.015,
+      "z_mm": 125.37,
+      "z_prime_mm": -2.143
+     },
+     "n_nodes_CPRESS_pos": 1756,
+     "extent_CPRESS_pos": {
+      "z_mm": [
+       124.261,
+       130.295
+      ],
+      "z_prime_mm": [
+       -3.252,
+       2.782
+      ],
+      "daz_deg": [
+       -6.009,
+       6.012
+      ],
+      "arc_mm": [
+       -3.0,
+       3.001
+      ],
+      "r_prime_mm": [
+       2.799,
+       3.272
+      ],
+      "max_CPRESS_MPa_edge_penalty_artefact": 12316.7
+     },
+     "r_prime_force_weighted_mm": 2.993,
+     "r_prime_quantiles_5_95_mm": [
+      2.901,
+      3.147
+     ],
+     "Fn_on_CPRESS_pos_nodes_N": 3123.2,
+     "Fn_on_other_nodes_N": -6.0,
+     "area_faces_mean_CPRESS_pos_mm2": 5.741,
+     "n_faces_mean_CPRESS_pos": 1343,
+     "n_force_carrying_nodes": 1423,
+     "extent_force_carrying": {
+      "z_prime_mm": [
+       -6.587,
+       12.302
+      ],
+      "daz_deg": [
+       -18.0,
+       18.0
+      ]
+     },
+     "quantiles_5_95_of_Fn": {
+      "z_prime_mm": [
+       -3.083,
+       -0.532
+      ],
+      "arc_mm": [
+       -2.824,
+       2.84
+      ]
+     },
+     "window_daz9_zp9_N": 3123.4,
+     "outside_window_N": -6.2,
+     "clusters": [
+      {
+       "Fn_N": 3117.0,
+       "n_nodes": 2296,
+       "centroid": {
+        "daz_deg": 0.04,
+        "z_prime_mm": -2.144
+       },
+       "z_prime_mm": [
+        -3.352,
+        0.114
+       ],
+       "daz_deg": [
+        -6.233,
+        6.181
+       ]
+      },
+      {
+       "Fn_N": -5.8,
+       "n_nodes": 153,
+       "centroid": {
+        "daz_deg": 6.833,
+        "z_prime_mm": 1.845
+       },
+       "z_prime_mm": [
+        -0.866,
+        12.302
+       ],
+       "daz_deg": [
+        -18.0,
+        18.0
+       ]
+      },
+      {
+       "Fn_N": 4.1,
+       "n_nodes": 70,
+       "centroid": {
+        "daz_deg": 4.336,
+        "z_prime_mm": 2.074
+       },
+       "z_prime_mm": [
+        1.628,
+        2.53
+       ],
+       "daz_deg": [
+        3.681,
+        5.212
+       ]
+      },
+      {
+       "Fn_N": 0.7,
+       "n_nodes": 22,
+       "centroid": {
+        "daz_deg": 2.579,
+        "z_prime_mm": 2.747
+       },
+       "z_prime_mm": [
+        2.638,
+        3.177
+       ],
+       "daz_deg": [
+        2.241,
+        3.141
+       ]
+      },
+      {
+       "Fn_N": 0.6,
+       "n_nodes": 22,
+       "centroid": {
+        "daz_deg": -3.162,
+        "z_prime_mm": 2.585
+       },
+       "z_prime_mm": [
+        2.427,
+        2.792
+       ],
+       "daz_deg": [
+        -3.652,
+        -2.9
+       ]
+      },
+      {
+       "Fn_N": -0.4,
+       "n_nodes": 12,
+       "centroid": {
+        "daz_deg": 17.863,
+        "z_prime_mm": -3.627
+       },
+       "z_prime_mm": [
+        -5.822,
+        -0.866
+       ],
+       "daz_deg": [
+        12.824,
+        18.0
+       ]
+      }
+     ],
+     "n_clusters": 9
+    }
+   },
+   "shell_TC02": {
+    "tie_pull_on_TC02_along_n_N": 3297.0,
+    "tie_vec_on_TC02_N": [
+     3112.7,
+     1089.5,
+     -188.0
+    ],
+    "shell_pull_N_tie_minus_seat": 195.4,
+    "shell_pull_direct_minus_sym_cut_press_N": 195.4,
+    "sym_reaction_along_n_N": -80.7,
+    "sym_reaction_vec_N": [
+     -69.8,
+     -46.3,
+     -0.1
+    ],
+    "sym_inplane_residual_max_N": 0.1075,
+    "cut_reaction_TC02_along_n_N": -114.4,
+    "cut_reaction_TC02_vec_N": [
+     -88.2,
+     -98.8,
+     269.3
+    ],
+    "pressure_on_TC02_along_n_N": 0.0,
+    "applied_on_TC02_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "springs_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "unclassified_vec_N": [
+     -0.367,
+     0.275,
+     0.93
+    ],
+    "n_unclassified_nodes": 10326,
+    "closure_residual_vec_N": [
+     -0.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "TC01": {
+    "FIT_only_along_n_N": 3065.0,
+    "FIT_only_radial_sum_N": 3052.0,
+    "FIT_BEAR_shared_edge_along_n_N": 3.1,
+    "FIT_BEAR_shared_edge_radial_N": 3.1,
+    "HEAD_only_along_n_N": -7410.4,
+    "HEAD_BEAR_shared_along_n_N": -61.1,
+    "BEAR_only_vec_N": [
+     -0.1,
+     -0.0,
+     13.0
+    ],
+    "sym_along_n_N": 4315.5,
+    "cut_patch_along_n_N": 88.4,
+    "aft_cut_z_N": 0.0,
+    "pressure_on_TC01_along_n_N": 0.0,
+    "unclassified_vec_N": [
+     -0.429,
+     -0.053,
+     0.231
+    ],
+    "n_unclassified_nodes": 30039
+   }
+  },
+  "FA1S": {
+   "label": "FA1S 151.04 bar abs, 45.6 C",
+   "Pc_MPa": 15.104,
+   "screw": {
+    "HEAD_on_screw_along_n_N": 2723.1,
+    "HEAD_on_screw_vec_N": [
+     2589.8,
+     841.5,
+     6.9
+    ],
+    "N_plane_N_tension_pos": 2734.6,
+    "V_plane_N": 3766.5,
+    "tie_force_on_screw_along_n_N": -1153.0,
+    "n_tie_screw_nodes_also_in_screw_contact": 198,
+    "n_tie_screw_nodes_prescribed": 0,
+    "cut_reaction_on_screw_vec_N": [
+     -1521.7,
+     -433.8,
+     281.1
+    ],
+    "cut_reaction_on_screw_along_n_N": -1581.2
+   },
+   "seat_TC02": {
+    "normal_force_radial_sum_N": 456.2,
+    "along_n_inward_N": 458.4,
+    "vec_on_TC02_N": [
+     -425.2,
+     -174.9,
+     12.6
+    ],
+    "z_on_TC02_N": 12.6,
+    "n_fit_nodes": 7024,
+    "n_fit_tie_nodes_with_contaminated_screw_node": 198,
+    "footprint": {
+     "centroid_force_weighted": {
+      "daz_deg": -0.219,
+      "arc_mm": -0.109,
+      "z_mm": 127.468,
+      "z_prime_mm": -0.045
+     },
+     "n_nodes_CPRESS_pos": 853,
+     "extent_CPRESS_pos": {
+      "z_mm": [
+       124.243,
+       130.261
+      ],
+      "z_prime_mm": [
+       -3.27,
+       2.748
+      ],
+      "daz_deg": [
+       -6.009,
+       6.004
+      ],
+      "arc_mm": [
+       -3.0,
+       2.997
+      ],
+      "r_prime_mm": [
+       2.663,
+       3.273
+      ],
+      "max_CPRESS_MPa_edge_penalty_artefact": 15679.7
+     },
+     "r_prime_force_weighted_mm": 2.903,
+     "r_prime_quantiles_5_95_mm": [
+      2.751,
+      3.187
+     ],
+     "Fn_on_CPRESS_pos_nodes_N": 462.4,
+     "Fn_on_other_nodes_N": -6.2,
+     "area_faces_mean_CPRESS_pos_mm2": 3.429,
+     "n_faces_mean_CPRESS_pos": 1036,
+     "n_force_carrying_nodes": 578,
+     "extent_force_carrying": {
+      "z_prime_mm": [
+       -6.587,
+       12.302
+      ],
+      "daz_deg": [
+       -18.0,
+       16.202
+      ]
+     },
+     "quantiles_5_95_of_Fn": {
+      "z_prime_mm": [
+       -2.239,
+       2.572
+      ],
+      "arc_mm": [
+       -2.939,
+       2.93
+      ]
+     },
+     "window_daz9_zp9_N": 462.5,
+     "outside_window_N": -6.2,
+     "clusters": [
+      {
+       "Fn_N": 184.2,
+       "n_nodes": 580,
+       "centroid": {
+        "daz_deg": 5.418,
+        "z_prime_mm": 0.496
+       },
+       "z_prime_mm": [
+        -0.917,
+        2.29
+       ],
+       "daz_deg": [
+        3.275,
+        6.181
+       ]
+      },
+      {
+       "Fn_N": 111.2,
+       "n_nodes": 379,
+       "centroid": {
+        "daz_deg": -5.444,
+        "z_prime_mm": 0.661
+       },
+       "z_prime_mm": [
+        -0.3,
+        1.965
+       ],
+       "daz_deg": [
+        -6.204,
+        -4.002
+       ]
+      },
+      {
+       "Fn_N": 88.5,
+       "n_nodes": 423,
+       "centroid": {
+        "daz_deg": -5.398,
+        "z_prime_mm": -1.241
+       },
+       "z_prime_mm": [
+        -2.766,
+        -0.429
+       ],
+       "daz_deg": [
+        -6.233,
+        -3.181
+       ]
+      },
+      {
+       "Fn_N": 37.1,
+       "n_nodes": 214,
+       "centroid": {
+        "daz_deg": 4.999,
+        "z_prime_mm": -1.767
+       },
+       "z_prime_mm": [
+        -2.45,
+        -1.262
+       ],
+       "daz_deg": [
+        3.958,
+        5.676
+       ]
+      },
+      {
+       "Fn_N": 12.3,
+       "n_nodes": 64,
+       "centroid": {
+        "daz_deg": -3.301,
+        "z_prime_mm": 2.216
+       },
+       "z_prime_mm": [
+        2.047,
+        2.427
+       ],
+       "daz_deg": [
+        -3.665,
+        -2.942
+       ]
+      },
+      {
+       "Fn_N": 8.5,
+       "n_nodes": 29,
+       "centroid": {
+        "daz_deg": 2.611,
+        "z_prime_mm": 2.422
+       },
+       "z_prime_mm": [
+        2.296,
+        2.557
+       ],
+       "daz_deg": [
+        2.404,
+        2.737
+       ]
+      }
+     ],
+     "n_clusters": 15
+    }
+   },
+   "shell_TC02": {
+    "tie_pull_on_TC02_along_n_N": 1153.0,
+    "tie_vec_on_TC02_N": [
+     1081.3,
+     403.5,
+     -3486.8
+    ],
+    "shell_pull_N_tie_minus_seat": 694.6,
+    "shell_pull_direct_minus_sym_cut_press_N": 694.6,
+    "sym_reaction_along_n_N": -162.6,
+    "sym_reaction_vec_N": [
+     -96.8,
+     -228.1,
+     0.1
+    ],
+    "sym_inplane_residual_max_N": 0.0975,
+    "cut_reaction_TC02_along_n_N": -532.1,
+    "cut_reaction_TC02_vec_N": [
+     -559.3,
+     -0.6,
+     3473.6
+    ],
+    "pressure_on_TC02_along_n_N": 0.0,
+    "applied_on_TC02_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "springs_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "unclassified_vec_N": [
+     0.059,
+     0.147,
+     0.48
+    ],
+    "n_unclassified_nodes": 10326,
+    "closure_residual_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "TC01": {
+    "FIT_only_along_n_N": 580.0,
+    "FIT_only_radial_sum_N": 565.5,
+    "FIT_BEAR_shared_edge_along_n_N": 8.4,
+    "FIT_BEAR_shared_edge_radial_N": 8.4,
+    "HEAD_only_along_n_N": -2716.6,
+    "HEAD_BEAR_shared_along_n_N": -6.4,
+    "BEAR_only_vec_N": [
+     -13.2,
+     4.1,
+     3773.1
+    ],
+    "sym_along_n_N": 2009.2,
+    "cut_patch_along_n_N": 136.9,
+    "aft_cut_z_N": 0.0,
+    "pressure_on_TC01_along_n_N": 0.0,
+    "unclassified_vec_N": [
+     -0.199,
+     0.059,
+     0.026
+    ],
+    "n_unclassified_nodes": 30039
+   }
+  },
+  "SOAK_rep": {
+   "label": "soak 64.7 s GVLO row means, unpressurised [repeat of SOAK, after FA1S]",
+   "Pc_MPa": 0.0,
+   "screw": {
+    "HEAD_on_screw_along_n_N": 6336.7,
+    "HEAD_on_screw_vec_N": [
+     6026.6,
+     1958.0,
+     -8.9
+    ],
+    "N_plane_N_tension_pos": 6337.0,
+    "V_plane_N": 8.0,
+    "tie_force_on_screw_along_n_N": -3568.8,
+    "n_tie_screw_nodes_also_in_screw_contact": 198,
+    "n_tie_screw_nodes_prescribed": 0,
+    "cut_reaction_on_screw_vec_N": [
+     -2652.7,
+     -793.2,
+     188.1
+    ],
+    "cut_reaction_on_screw_along_n_N": -2767.9
+   },
+   "seat_TC02": {
+    "normal_force_radial_sum_N": 1756.5,
+    "along_n_inward_N": 1741.9,
+    "vec_on_TC02_N": [
+     -1658.0,
+     -534.3,
+     -63.7
+    ],
+    "z_on_TC02_N": -63.7,
+    "n_fit_nodes": 7024,
+    "n_fit_tie_nodes_with_contaminated_screw_node": 198,
+    "footprint": {
+     "centroid_force_weighted": {
+      "daz_deg": 0.1,
+      "arc_mm": 0.05,
+      "z_mm": 129.25,
+      "z_prime_mm": 1.737
+     },
+     "n_nodes_CPRESS_pos": 921,
+     "extent_CPRESS_pos": {
+      "z_mm": [
+       125.559,
+       130.265
+      ],
+      "z_prime_mm": [
+       -1.954,
+       2.752
+      ],
+      "daz_deg": [
+       -6.009,
+       6.004
+      ],
+      "arc_mm": [
+       -3.0,
+       2.997
+      ],
+      "r_prime_mm": [
+       2.625,
+       3.167
+      ],
+      "max_CPRESS_MPa_edge_penalty_artefact": 16501.3
+     },
+     "r_prime_force_weighted_mm": 2.758,
+     "r_prime_quantiles_5_95_mm": [
+      2.69,
+      2.92
+     ],
+     "Fn_on_CPRESS_pos_nodes_N": 1760.7,
+     "Fn_on_other_nodes_N": -4.2,
+     "area_faces_mean_CPRESS_pos_mm2": 2.902,
+     "n_faces_mean_CPRESS_pos": 888,
+     "n_force_carrying_nodes": 771,
+     "extent_force_carrying": {
+      "z_prime_mm": [
+       -6.587,
+       12.302
+      ],
+      "daz_deg": [
+       -18.0,
+       18.0
+      ]
+     },
+     "quantiles_5_95_of_Fn": {
+      "z_prime_mm": [
+       0.013,
+       2.679
+      ],
+      "arc_mm": [
+       -2.828,
+       2.865
+      ]
+     },
+     "window_daz9_zp9_N": 1760.7,
+     "outside_window_N": -4.2,
+     "clusters": [
+      {
+       "Fn_N": 1749.6,
+       "n_nodes": 1732,
+       "centroid": {
+        "daz_deg": 0.126,
+        "z_prime_mm": 1.739
+       },
+       "z_prime_mm": [
+        -0.633,
+        2.851
+       ],
+       "daz_deg": [
+        -6.153,
+        6.181
+       ]
+      },
+      {
+       "Fn_N": 6.6,
+       "n_nodes": 40,
+       "centroid": {
+        "daz_deg": -5.837,
+        "z_prime_mm": -0.63
+       },
+       "z_prime_mm": [
+        -0.797,
+        -0.471
+       ],
+       "daz_deg": [
+        -6.164,
+        -5.672
+       ]
+      },
+      {
+       "Fn_N": 3.1,
+       "n_nodes": 42,
+       "centroid": {
+        "daz_deg": -5.701,
+        "z_prime_mm": -1.012
+       },
+       "z_prime_mm": [
+        -1.184,
+        -0.813
+       ],
+       "daz_deg": [
+        -5.963,
+        -5.446
+       ]
+      },
+      {
+       "Fn_N": -2.1,
+       "n_nodes": 36,
+       "centroid": {
+        "daz_deg": -12.72,
+        "z_prime_mm": -5.825
+       },
+       "z_prime_mm": [
+        -8.3,
+        -2.105
+       ],
+       "daz_deg": [
+        -18.0,
+        -7.373
+       ]
+      },
+      {
+       "Fn_N": 1.2,
+       "n_nodes": 22,
+       "centroid": {
+        "daz_deg": 5.805,
+        "z_prime_mm": -0.741
+       },
+       "z_prime_mm": [
+        -0.875,
+        -0.667
+       ],
+       "daz_deg": [
+        5.634,
+        6.128
+       ]
+      },
+      {
+       "Fn_N": -1.1,
+       "n_nodes": 39,
+       "centroid": {
+        "daz_deg": 16.312,
+        "z_prime_mm": 5.312
+       },
+       "z_prime_mm": [
+        0.373,
+        7.806
+       ],
+       "daz_deg": [
+        9.305,
+        18.0
+       ]
+      }
+     ],
+     "n_clusters": 8
+    }
+   },
+   "shell_TC02": {
+    "tie_pull_on_TC02_along_n_N": 3568.9,
+    "tie_vec_on_TC02_N": [
+     3374.1,
+     1164.9,
+     179.9
+    ],
+    "shell_pull_N_tie_minus_seat": 1826.9,
+    "shell_pull_direct_minus_sym_cut_press_N": 1826.9,
+    "sym_reaction_along_n_N": -78.4,
+    "sym_reaction_vec_N": [
+     -65.6,
+     -51.8,
+     -0.2
+    ],
+    "sym_inplane_residual_max_N": 0.0958,
+    "cut_reaction_TC02_along_n_N": -1748.2,
+    "cut_reaction_TC02_vec_N": [
+     -1650.1,
+     -578.6,
+     -116.5
+    ],
+    "pressure_on_TC02_along_n_N": 0.0,
+    "applied_on_TC02_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "springs_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "unclassified_vec_N": [
+     -0.379,
+     -0.163,
+     0.512
+    ],
+    "n_unclassified_nodes": 10326,
+    "closure_residual_vec_N": [
+     -0.0,
+     -0.0,
+     0.0
+    ]
+   },
+   "TC01": {
+    "FIT_only_along_n_N": 1987.3,
+    "FIT_only_radial_sum_N": 1962.8,
+    "FIT_BEAR_shared_edge_along_n_N": 27.2,
+    "FIT_BEAR_shared_edge_radial_N": 27.2,
+    "HEAD_only_along_n_N": -6318.1,
+    "HEAD_BEAR_shared_along_n_N": -18.8,
+    "BEAR_only_vec_N": [
+     -0.0,
+     0.0,
+     -0.1
+    ],
+    "sym_along_n_N": 4238.1,
+    "cut_patch_along_n_N": 84.3,
+    "aft_cut_z_N": 0.0,
+    "pressure_on_TC01_along_n_N": 0.0,
+    "unclassified_vec_N": [
+     0.042,
+     -0.132,
+     -0.249
+    ],
+    "n_unclassified_nodes": 30039
+   }
+  },
+  "SOAK52_rep": {
+   "label": "soak GVLO B1_51.7 mapped (S-AX field), unpressurised [repeat of SOAK52, after SOAK_rep]",
+   "Pc_MPa": 0.0,
+   "screw": {
+    "HEAD_on_screw_along_n_N": 7764.2,
+    "HEAD_on_screw_vec_N": [
+     7384.3,
+     2398.9,
+     0.6
+    ],
+    "N_plane_N_tension_pos": 7764.0,
+    "V_plane_N": 1.0,
+    "tie_force_on_screw_along_n_N": -3572.9,
+    "n_tie_screw_nodes_also_in_screw_contact": 198,
+    "n_tie_screw_nodes_prescribed": 0,
+    "cut_reaction_on_screw_vec_N": [
+     -4007.9,
+     -1229.3,
+     -137.6
+    ],
+    "cut_reaction_on_screw_along_n_N": -4191.6
+   },
+   "seat_TC02": {
+    "normal_force_radial_sum_N": 3408.4,
+    "along_n_inward_N": 3393.0,
+    "vec_on_TC02_N": [
+     -3231.5,
+     -1034.2,
+     -104.6
+    ],
+    "z_on_TC02_N": -104.6,
+    "n_fit_nodes": 7024,
+    "n_fit_tie_nodes_with_contaminated_screw_node": 198,
+    "footprint": {
+     "centroid_force_weighted": {
+      "daz_deg": -0.011,
+      "arc_mm": -0.006,
+      "z_mm": 125.746,
+      "z_prime_mm": -1.767
+     },
+     "n_nodes_CPRESS_pos": 1947,
+     "extent_CPRESS_pos": {
+      "z_mm": [
+       124.261,
+       130.869
+      ],
+      "z_prime_mm": [
+       -3.252,
+       3.356
+      ],
+      "daz_deg": [
+       -6.009,
+       6.004
+      ],
+      "arc_mm": [
+       -3.0,
+       2.997
+      ],
+      "r_prime_mm": [
+       2.799,
+       3.469
+      ],
+      "max_CPRESS_MPa_edge_penalty_artefact": 10394.9
+     },
+     "r_prime_force_weighted_mm": 3.008,
+     "r_prime_quantiles_5_95_mm": [
+      2.905,
+      3.153
+     ],
+     "Fn_on_CPRESS_pos_nodes_N": 3412.8,
+     "Fn_on_other_nodes_N": -4.4,
+     "area_faces_mean_CPRESS_pos_mm2": 9.361,
+     "n_faces_mean_CPRESS_pos": 1458,
+     "n_force_carrying_nodes": 1508,
+     "extent_force_carrying": {
+      "z_prime_mm": [
+       -6.587,
+       12.302
+      ],
+      "daz_deg": [
+       -18.0,
+       18.0
+      ]
+     },
+     "quantiles_5_95_of_Fn": {
+      "z_prime_mm": [
+       -3.082,
+       2.867
+      ],
+      "arc_mm": [
+       -2.812,
+       2.818
+      ]
+     },
+     "window_daz9_zp9_N": 3413.0,
+     "outside_window_N": -4.6,
+     "clusters": [
+      {
+       "Fn_N": 3139.3,
+       "n_nodes": 2292,
+       "centroid": {
+        "daz_deg": 0.021,
+        "z_prime_mm": -2.161
+       },
+       "z_prime_mm": [
+        -3.352,
+        0.114
+       ],
+       "daz_deg": [
+        -6.233,
+        6.181
+       ]
+      },
+      {
+       "Fn_N": 273.3,
+       "n_nodes": 487,
+       "centroid": {
+        "daz_deg": -0.227,
+        "z_prime_mm": 2.8
+       },
+       "z_prime_mm": [
+        1.488,
+        4.019
+       ],
+       "daz_deg": [
+        -5.46,
+        5.212
+       ]
+      },
+      {
+       "Fn_N": -3.7,
+       "n_nodes": 39,
+       "centroid": {
+        "daz_deg": 13.378,
+        "z_prime_mm": 3.559
+       },
+       "z_prime_mm": [
+        0.373,
+        7.806
+       ],
+       "daz_deg": [
+        9.305,
+        18.0
+       ]
+      },
+      {
+       "Fn_N": -0.9,
+       "n_nodes": 110,
+       "centroid": {
+        "daz_deg": -13.976,
+        "z_prime_mm": -11.578
+       },
+       "z_prime_mm": [
+        -3.344,
+        12.302
+       ],
+       "daz_deg": [
+        -18.0,
+        18.0
+       ]
+      },
+      {
+       "Fn_N": -0.3,
+       "n_nodes": 12,
+       "centroid": {
+        "daz_deg": 18.309,
+        "z_prime_mm": -3.328
+       },
+       "z_prime_mm": [
+        -5.822,
+        -0.866
+       ],
+       "daz_deg": [
+        12.824,
+        18.0
+       ]
+      },
+      {
+       "Fn_N": 0.3,
+       "n_nodes": 26,
+       "centroid": {
+        "daz_deg": -8.745,
+        "z_prime_mm": -6.509
+       },
+       "z_prime_mm": [
+        -8.3,
+        -4.316
+       ],
+       "daz_deg": [
+        -18.0,
+        -7.373
+       ]
+      }
+     ],
+     "n_clusters": 6
+    }
+   },
+   "shell_TC02": {
+    "tie_pull_on_TC02_along_n_N": 3572.9,
+    "tie_vec_on_TC02_N": [
+     3376.8,
+     1169.4,
+     -135.9
+    ],
+    "shell_pull_N_tie_minus_seat": 179.9,
+    "shell_pull_direct_minus_sym_cut_press_N": 179.9,
+    "sym_reaction_along_n_N": -81.0,
+    "sym_reaction_vec_N": [
+     -71.8,
+     -41.3,
+     -0.1
+    ],
+    "sym_inplane_residual_max_N": 0.0939,
+    "cut_reaction_TC02_along_n_N": -98.7,
+    "cut_reaction_TC02_vec_N": [
+     -73.3,
+     -93.8,
+     241.5
+    ],
+    "pressure_on_TC02_along_n_N": 0.0,
+    "applied_on_TC02_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "springs_vec_N": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "unclassified_vec_N": [
+     -0.192,
+     0.033,
+     -0.948
+    ],
+    "n_unclassified_nodes": 10326,
+    "closure_residual_vec_N": [
+     -0.0,
+     0.0,
+     -0.0
+    ]
+   },
+   "TC01": {
+    "FIT_only_along_n_N": 3425.5,
+    "FIT_only_radial_sum_N": 3411.6,
+    "FIT_BEAR_shared_edge_along_n_N": -0.1,
+    "FIT_BEAR_shared_edge_radial_N": -0.1,
+    "HEAD_only_along_n_N": -7702.3,
+    "HEAD_BEAR_shared_along_n_N": -61.7,
+    "BEAR_only_vec_N": [
+     0.0,
+     -0.0,
+     0.1
+    ],
+    "sym_along_n_N": 4253.2,
+    "cut_patch_along_n_N": 85.7,
+    "aft_cut_z_N": 0.0,
+    "pressure_on_TC01_along_n_N": 0.0,
+    "unclassified_vec_N": [
+     -0.251,
+     0.04,
+     -0.977
+    ],
+    "n_unclassified_nodes": 30039
+   }
+  }
+ },
+ "global_job": "js5_mu0_T3750_g078"
+}
