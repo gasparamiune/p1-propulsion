@@ -1,19 +1,20 @@
 {
  "id": "combustion",
- "version": "v2.4b",
- "date": "2026-10-19",
+ "version": "v2.4c",
+ "date": "2026-10-21",
  "owner": "combustion",
- "revision_note": "v2.4b (2026-10-13): targeted patch for REV-COMB-3 (a786101f28d45d6f, REVISE targeted) R3-01..R3-17 with the lead decisions of CHANGELOG lines 186 and 194 and the coordinator relays of lines 203-205: release-hold population table by command profile and per-record classes (release_hold_v2p4b); FA-1 head and aft pressure spectra to 50 ms with the LEAD 194 (1) period domain and the long-period thrust spectrum (fa1_spectra_v2p4b); cold-flow start-lift bound CONDITIONAL with the CF-3 start-lift acceptance (cold_flow_start_lift_v2p4b); THE start-level lift (start_level_lift_v2p4b) and its lit thrust history (start_level_lit_thrust_v2p4b); H19 for the IN718 lip; stand dynamic Pc channel proof rating; NZ-01 frozen prediction; tank-outlet dip onset; purge flow basis and the 2.55 s cap; E2 rule; firmware constant sources; Pc port passage gas sound speed (line 205); T1-T4 v3 and CF-4 v2.1; stale text replaced (values kept under *_superseded keys); LEAD line 213: A1 apogee target about 210 m, the 300 m and 285 m A1 values kept as comparators (a1_apogee_target_v2p4b). All v2.4a keys kept. Final fold (2026-10-19): LEAD CHANGELOG lines 214-228 and the lead requests of 2026-10-19: FA-1 spectra as data with damping (fa1_spectra_damped_v2p4b), the per-mode TC-01 equivalent pressure (fa1_per_mode_peq_v2p4b), ONE purge flow basis 29.25 g/s (purge_basis_line216_v2p4b), the start-level lift at the A1 relight state (start_level_lift_v2p4b.v.line216_9), the GNC P4c lit side (p4c_lit_side_v2p4b), the 2.20 kg tank option (tank_2p20kg_option_v2p4b), the datasheet inputs (datasheet_inputs_v2p4b); A1 210 m decided (214, 227 (1)) and the A1 duty-cycle statement corrected (227 (9)); open items OI-50 to OI-52 (final_fold_v2p4b).",
+ "revision_note": "v2.4c (2026-10-21, lead): text-only corrections from REV-COMB-4 (reviews/REVIEW-COMBUSTION-R4.md 2908321d7f75d439; R4-01 to R4-08, R4-12, R4-14 to R4-18 and the section 6 open-item texts) and the decisions of CHANGELOG lines 227 (5), 230, 243 (3), 249 (4), 253 (7), 256 and 257 (2), applied by 02-combustion/src/apply_v2p4c_rev_comb_4.py; no model run and no SIM, CEA or FE result changed; decided values updated (purge flow 2.43 s and cap 2.39 s, re-set after CF-4 from the measured Cd x A, proof values, case-TC relight limit 403.15 K, pcf_tmax 0.8 s, closure deadline E0 + 0.16 s). Every replaced leaf is kept in superseded_v2p4c with its finding; new blocks fa1_p_torch_v2p4c, fa1_grid_statistics_v2p4c, purge_decision_v2p4c, electronics_open_issues_v2p4c, igniter_sequence_fields_v2p4c (OI-GEN-TABLES), t4_duration_note_v2p4c, lead_decisions_folded_v2p4c, datasheet_inputs_v2p4c, edit_log_v2p4c. All v2.4b keys kept.",
  "revision_history": [
   "v2.2 (2026-10-12, lead request on the HV69 in-line pintle drive): valves_and_actuators.pintle_actuator.full_stroke_time_s 0.08 s RETIRED (no combustion basis; it was derived from the v1 ENG-03 throttle-response target) and replaced by speed_checks (actuator_rate_check_v2.json: start transient, start rule, hard-start inventory, ENG-05 tail-off vs drive speed); lead decision logged: pre-MECO throttle-down to <= 75 %, spring-assisted closing, closing time at 25 bar in B-PNT-1, ENG-05 wording unchanged (OI-14); ignition_v2.json v2.2 shutdown wording (the 50 mm/s closing cap retired) and ramp marked as a cap; ENG-04 floor-start t90 added (OI-2); thermal_and_loads.head_end_bc added (injector face, forward closure, pintle stem; burn, MECO coast, relight, post-landing soak; x0.5-2 band; headend_thermal_v2.py v2.2b with CAD v3.2 geometry; first-cut run without re-radiation superseded and kept as evidence) with OI-15 for the servo-mount check. Everything else unchanged from v2.1.",
   "v2.1 (2026-10-12, same day as v2): soak-back wording corrected per lead (240 C is the aluminium lip allowable at 51 MPa; steel judged against its own allowable); lip/case temperatures for the lead's governing cases added (thermal_and_loads.relight_after_coast: TS-1 at relight after the MECO coast with the pressure at that time, TS-2 post-landing soak over 3600 s with times above 150/200/240/300 C); soak-back numbers in the text now read from the data files; gnc.json v2 (published 20:34:31Z, during the first v2.1 write) read: the duty-cycle results apply unchanged (identical F/F_cmd histories), settling recomputed on the v2 cycles, OI-1/2/9/10/11 updated, OI-12 (relight 'purged' wording) and OI-13 (deadband / Pc resolution) added",
   "v2 (2026-10-12): M2 second pass (supersedes v1)",
   "v2.3 (2026-10-12, lead requests on Mechanical pintle v2 3 mm stem and the S3 spring baseline): valves_and_actuators.pintle_actuator.needle_force_v2p3 (stem not in the flow model: throttle map unchanged; force laws L0/L1/L2; Mechanical C1/C2 re-run: S3 on the PTFE mu 0.20 guide fails flight C2 under L1, rolling guide passes; spring window) and seat_and_seal_review_v2p3 (metal seat 111-379 MPa elastic at the S3 loads incl. relief; hot soak; polymer not feasible; galling and lap conditions; self-locking wedge break-out; leak test; spring-energised seal classes TO-VERIFY); OI-7 (40 um CAD screen) and OI-11 updated; head-end stem note; two unknowns added. Everything else unchanged from v2.2 (sha256 660df2c526025ede).",
   "v2.4 (2026-10-13): answer to REVIEW-COMBUSTION (RC-01..RC-20), REV-GNC-1 and the Electronics SIL items, with the lead decisions to CHANGELOG line 164 and Mechanical line 162. igniter.sequence rewritten for firmware v2.8 (A5 deleted, PURGE at E0 - 2.90 s, FA-1 (a)/(b)); new keys relight_purge, light_windows, abort_matrix_v2p4, late_light_and_meop, meop_basis_v2p4, fmea_input, cf4_gate, stored_energy, nozzle_joint, drogue_release_hold, superseded_v2p4. All v2.3 keys kept.",
-  "v2.4a (2026-10-13): targeted patch for REV-COMB-2 (e6bf189fb271e652) R2-01..R2-10 with the lead decisions to CHANGELOG line 177. A4 on the filtered channel (166 (4)); E1 closure term (166 (3)); one stand safing rule (172 (1)); stale values superseded in place; relief_v2p4a; FA-1 envelope and the line-173 load; guard band; stand dynamic Pc channel; T1-T4 v2 (reversed burden); PURGE commit rule of line 175 (3) with Combustion's unpurged-start finding; tank-outlet coverage screening; answers to LEAD line 181 (2) (unpurged start: LO or HI, outcome classes, L*), (4) (cold-flow apparent thrust under the drogue after a flame-out) and (10) (coverage on liquid depletion). All v2.4 keys kept."
+  "v2.4a (2026-10-13): targeted patch for REV-COMB-2 (e6bf189fb271e652) R2-01..R2-10 with the lead decisions to CHANGELOG line 177. A4 on the filtered channel (166 (4)); E1 closure term (166 (3)); one stand safing rule (172 (1)); stale values superseded in place; relief_v2p4a; FA-1 envelope and the line-173 load; guard band; stand dynamic Pc channel; T1-T4 v2 (reversed burden); PURGE commit rule of line 175 (3) with Combustion's unpurged-start finding; tank-outlet coverage screening; answers to LEAD line 181 (2) (unpurged start: LO or HI, outcome classes, L*), (4) (cold-flow apparent thrust under the drogue after a flame-out) and (10) (coverage on liquid depletion). All v2.4 keys kept.",
+  "v2.4b (2026-10-13): targeted patch for REV-COMB-3 (a786101f28d45d6f, REVISE targeted) R3-01..R3-17 with the lead decisions of CHANGELOG lines 186 and 194 and the coordinator relays of lines 203-205: release-hold population table by command profile and per-record classes (release_hold_v2p4b); FA-1 head and aft pressure spectra to 50 ms with the LEAD 194 (1) period domain and the long-period thrust spectrum (fa1_spectra_v2p4b); cold-flow start-lift bound CONDITIONAL with the CF-3 start-lift acceptance (cold_flow_start_lift_v2p4b); THE start-level lift (start_level_lift_v2p4b) and its lit thrust history (start_level_lit_thrust_v2p4b); H19 for the IN718 lip; stand dynamic Pc channel proof rating; NZ-01 frozen prediction; tank-outlet dip onset; purge flow basis and the 2.55 s cap; E2 rule; firmware constant sources; Pc port passage gas sound speed (line 205); T1-T4 v3 and CF-4 v2.1; stale text replaced (values kept under *_superseded keys); LEAD line 213: A1 apogee target about 210 m, the 300 m and 285 m A1 values kept as comparators (a1_apogee_target_v2p4b). All v2.4a keys kept. Final fold (2026-10-19): LEAD CHANGELOG lines 214-228 and the lead requests of 2026-10-19: FA-1 spectra as data with damping (fa1_spectra_damped_v2p4b), the per-mode TC-01 equivalent pressure (fa1_per_mode_peq_v2p4b), ONE purge flow basis 29.25 g/s (purge_basis_line216_v2p4b), the start-level lift at the A1 relight state (start_level_lift_v2p4b.v.line216_9), the GNC P4c lit side (p4c_lit_side_v2p4b), the 2.20 kg tank option (tank_2p20kg_option_v2p4b), the datasheet inputs (datasheet_inputs_v2p4b); A1 210 m decided (214, 227 (1)) and the A1 duty-cycle statement corrected (227 (9)); open items OI-50 to OI-52 (final_fold_v2p4b)."
  ],
- "status": "v2.4b REVISION (digital only, Por revisar), final fold 2026-10-19. Design point unchanged. No number is MEASURED. The relight claim is gated by CF-4; FA-1 is accepted for design continuation only. Decided by the lead and folded: L* = 1.3 s with no unpurged relight below it (186 (1)); the R2 command hold at the start level (186 (2), margin CONDITIONAL 194 (4)); the FA-1 period domain (194 (1)), which the published all-case spectrum exceeds below 1 ms (OI-41; restatement and per-mode rule proposed, final_fold_v2p4b); the unpurged alternative NOT ADOPTED (204 (2)); A1 apogee target 210 m DECIDED (214, 227 (1)): the A1 values are 300 m / 285 m comparators until the 210 m record, the A1 duty cycle does not shorten (227 (9)), B1 governs sizing; tank 2.00 kg (219), 2.20 kg an option with B1 / thermal / erosion TO-VERIFY (OI-50). Nothing here is physical approval.",
- "supersedes": "combustion.json v2.4a (5237d4584bad38c4), kept as 02-combustion/data/v2/combustion_interface_v2p4a_as_published.json and 02-combustion/superseded/v2p4a/combustion.json",
+ "status": "v2.4c REVISION (digital only), 2026-10-21: the lead's text-only fold of REV-COMB-4 (ACCEPT WITH CORRECTIONS, accepted in CHANGELOG line 256). Design point unchanged. No number is MEASURED. The relight claim is gated by CF-4; FA-1 is accepted for design continuation only. Folded: OI-41 DECIDED (230 (2) band values 94 / 121 / 147 / 94 bar abs; FA1S 151.04 bar abs bounds every period and is the design case for gas-filled passages, 230 (1), R4-01); flight Pc proof >= 166.14 bar abs (249 (4)); purge FINAL: 2.43 s scheduled flow with the 2.39 s both-open cap and conditions (a)-(c) (253 (7)(ii), 256 (2)), and (d) the CF-4 re-set from the measured Cd x A that keeps the 297.15 K vent <= 76 g (257 (2)); pcf_tmax 0.8 s (227 (5)); closure deadline = torch gate E0 + 0.16 s (Electronics v4); case-TC relight limit 403.15 K (249 (4)). Open: the Z3 restatement (R4-02, Mechanical; fa1_grid_statistics_v2p4c); the PURGE command time (Electronics v2.12); OI-49 to OI-52. A1 apogee target 210 m DECIDED; tank 2.00 kg. Nothing here is physical approval.",
+ "supersedes": "combustion.json v2.4b (fd3a7da6d27c7c66), kept as 02-combustion/superseded/v2p4b/combustion.json; v2.4a (5237d4584bad38c4) as before (02-combustion/data/v2/combustion_interface_v2p4a_as_published.json and 02-combustion/superseded/v2p4a/combustion.json)",
  "units": "SI (m, kg, s, N, Pa, K, J, W) unless the key says otherwise",
  "conventions": "x_face = axial distance from the injector face toward the nozzle exit [m]. CAD +Z points forward (nozzle -> injector), so z_CAD = x_exit_face - x_face. Contour CSV radii are gas-side wall radii. Mechanical CAD v3.1: engine aft-most face = insert bottom = exit plane - 3 mm.",
  "inputs_read": {
@@ -1690,22 +1691,24 @@
      "tank 15-24 C at ARM (ENG-12 as amended); T_tank <= 24 C at ARM and at ignition (liquid-line interlock, §2.8) with the thresholds lowered by the channel uncertainty (interlock_guard_band); tank heater hard-disabled at ARM",
      "pintle seated, encoder healthy; MV-P closed; bleed valves V1 and V2 closed, drivers inhibited",
      "P_torch auto-zero; ARM refused if P_torch > 1.05 bar abs",
-     "Pc transducer: flight unit RESELECTED by Electronics (LEAD 205): miniature seat-mounted, body within 12 mm x 30 mm, front dead volume <= 20 mm3, proof >= 1.1 x 102 = 112 bar abs (lead basis; Combustion's all-case 0.1-1 ms spectrum gives 1.1 x 120.3 = 132 bar abs, OI-41), range covering the 45 bar MEOP with the 30 bar abort resolvable, >= 120 C; over-range bit and above-full-scale flag (LEAD 203 (1)(a)); P_torch 0-70 bar class (ENG-09); P_feed, P_tank healthy; Pc reads ambient",
+     "Pc transducer: flight unit RESELECTED by Electronics (LEAD 205): miniature seat-mounted, body within 12 mm x 30 mm, front dead volume <= 20 mm3, proof >= 166.14 bar abs (1.1 x FA1S 151.04; LEAD 249 (4)); C1 Kulite XTL-190SM-2000A 206.8 bar abs (DATASHEET 1.5x rule) meets it; OI-41 DECIDED by LEAD 230 (2), range covering the 45 bar MEOP with the 30 bar abort resolvable, >= 120 C; over-range bit and above-full-scale flag (LEAD 203 (1)(a)); P_torch 0-70 bar class (ENG-09; it sees the FA-1 passage pressure, design case FA1S 151.04 bar abs: its proof (>= 166.14 bar abs, or isolation) and its saturation and recovery are Electronics v2.12 items, REV-COMB-4 R4-12); P_feed, P_tank healthy; Pc reads ambient",
      "igniter continuity (spark coil, SOL1, SOL2); photodiode healthy (needed for the 2oo2 E1)",
-     "relight only: chamber vented; RELIGHT refused if a case thermocouple reads > 433.15 K"
+     "relight only: chamber vented; RELIGHT refused if a case thermocouple reads > 403.15 K (130 C; kCaseRelightMax_K, LEAD 249 (4); the start and ARM limit on TC1 / TC2 is the same value; the 433.15 K of v2.4b is superseded)"
     ],
     "start": [
      {
       "epoch": "PURGE (A1 relight only)",
       "t_s": -2.9,
       "t_rel_E0_s": -2.9,
-      "action": "PURGE commits iff the lead to the plain relight trigger is >= L* = 1.3 s (LEAD 186 (1), ADOPTED for both wall heat-transfer brackets; replaces the 1.7 s interim of 181 (2) and the PROVISIONAL rule of 175 (3)); below L* no purge and no unpurged relight on that pass (drogue descent; vehicle loss in the FMEA); the ECU unpurged RELIGHT guard enforces it (LEAD 203 (7), v2.11). A commit lead below about 2.1 s is not counted as a landing (LEAD 204 (1), GNC). When committed: MV latch and opener ramp (0.35 s) with the pintle seated; V1 and V2 open; both taps flow 2.5 s; the close command leads by the measured valve closing time so the flow stops by E0 - 0.05 s (scheduled flow end, LEAD line 164). Closure (V1 first, on P_mid) is confirmed by the closure deadline <= the torch gate (Electronics: E0 + 0.15 s), otherwise BLEED_FAULT (see E1). ECU both-open cap <= 2.55 s (LEAD 203 (3)); vented mass on the Combustion record basis <= 72.93 g at 2.50 s and <= 76.05 g at 2.60 s of flow (purge_basis_v2p4b)",
+      "action": "PURGE commits iff the lead to the plain relight trigger is >= L* = 1.3 s (LEAD 186 (1), ADOPTED for both wall heat-transfer brackets; replaces the 1.7 s interim of 181 (2) and the PROVISIONAL rule of 175 (3)); below L* no purge and no unpurged relight on that pass (drogue descent; vehicle loss in the FMEA); the ECU unpurged RELIGHT guard enforces it (LEAD 203 (7), v2.11). A commit lead below about 2.1 s is not counted as a landing (LEAD 204 (1), GNC). When committed: MV latch and opener ramp (0.35 s) with the pintle seated; V1 and V2 open; both taps flow 2.43 s (the decided scheduled flow, LEAD 253 (7)(ii), final in 256 (2); the v2.4b records were run with 2.5 s of flow); the close command leads by the measured valve closing time so the flow stops by E0 - 0.05 s (scheduled flow end, LEAD line 164). Closure (V1 first, on P_mid) is confirmed by the closure deadline <= the torch gate (Electronics v4: E0 + 0.16 s = the torch gate, 160 ms, kTorchGate_s), otherwise BLEED_FAULT (see E1). ECU both-open cap <= 2.39 s (LEAD 253 (7)(ii), final in 256 (2); it replaces the 2.55 s of 203 (3)); vented N2O at 2.43 s, unlined, Cd 0.70 <= 66.7 / 70.8 / 75.1 g at 283.15 / 289.5 / 297.15 K and 75.75 g at the 2.44 s of flow the cap allows; at Cd 0.80 the fixed schedule would vent about 80.5 g at 289.5 K and 85.5 g at 297.15 K [ESTIMATE], so after CF-4 the flow and cap are re-set from the measured Cd x A, never above 2.43 / 2.39 s, keeping the 297.15 K vent <= 76 g (LEAD 257 (2); REV-COMB-4 R4-07; REV-GNC-7; purge_decision_v2p4c)",
       "action_superseded": {
        "v": "PURGE commits no later than the plain relight trigger - 1.7 s; otherwise no purge (LEAD line 175 (3), PROVISIONAL; T_fire delay <= 0.6 s; SUPERSEDED: line 164 \"the FC delays T_fire\", withdrawn). Combustion's unpurged-start check refutes the \"relight proceeds unpurged\" branch (purge_commit_rule_v2p4a). When committed: MV latch and opener ramp (0.35 s) with the pintle seated; V1 and V2 open; both taps flow 2.5 s; the close command leads by the measured valve closing time so the flow stops by E0 - 0.05 s (scheduled flow end, LEAD line 164). Closure (V1 first, on P_mid) is confirmed by the closure deadline <= the torch gate (Electronics: E0 + 0.15 s), otherwise BLEED_FAULT (see E1). ECU cap = 2.5 s of flow + measured valve times",
        "version": "v2.4a",
        "superseded_by": "v2.4b (2026-10-13)",
-       "why": "LEAD 186 (1) adopted L* = 1.3 s; 194 (3) and 204 (2) settle the unpurged alternative (NOT ADOPTED); 203 (3) sets the cap"
-      }
+       "why": "LEAD 186 (1) adopted L* = 1.3 s; 194 (3) and 204 (2) settle the unpurged alternative (NOT ADOPTED); 203 (3) sets the cap",
+       "note_v2p4c": "the E0 + 0.15 s of this history text is superseded: Electronics v4 E0 + 0.16 s (REV-COMB-4 R4-06)"
+      },
+      "t_s_note_v2p4c": "-2.90 s is the analysed command time (2.5 s of flow ending at E0 - 0.05 s); with the decided 2.43 s of flow the flow ends at E0 - 0.12 s if PURGE stays at E0 - 2.90 s, or PURGE moves to E0 - 2.83 s for an end at E0 - 0.05 s [DERIVED: 0.35 s MV ramp]; Electronics v2.12 states which"
      },
      {
       "epoch": "E0",
@@ -1765,8 +1768,8 @@
     ],
     "relight": [
      "MV closed during coasts (LEAD); the v2.3 text \"the isolation valve may stay open between burns\" is withdrawn",
-     "A1 relight: PURGE at E0 - 2.90 s (2.5 s of flow, theta <= 2 deg, balanced or axial vent), then the start sequence from E0",
-     "settling: liquid at the tank outlet from E0 - 2.90 s - t_settle (§2.4 note); RELIGHT refused if a case thermocouple > 433.15 K",
+     "A1 relight: PURGE at E0 - 2.90 s (2.5 s of flow as analysed in the v2.4b records; the decided scheduled flow is 2.43 s with the 2.39 s cap, LEAD 253 (7)(ii) and 256 (2); Electronics v2.12 states the command time, E0 - 2.90 s or E0 - 2.83 s; theta <= 2 deg, balanced or axial vent), then the start sequence from E0",
+     "settling: liquid at the tank outlet from E0 - 2.90 s - t_settle (§2.4 note); RELIGHT refused if a case thermocouple > 403.15 K (LEAD 249 (4))",
      "light window W 0.65 s; E0 -> E2 max 0.626 s on the worst purged line state (rg01_line_states_v2p4); the 0.81 s plan holds on the predictor path (PURGE committed with lead >= L* = 1.3 s; LEAD 181 (2) scope); after a commit lead below L* there is no relight on that pass"
     ],
     "flashback_and_backflow": [
@@ -5952,7 +5955,7 @@
    "issue": "Pc transducer 0-34.5 bar (electronics.json v1) vs chamber MEOP 45 bar, proof 67.5 bar and full-stroke failure Pc up to 42.9 bar (S230, 30 C, Cd 0.8; 35.4 bar at 20 C, Cd 0.7): the ~30 bar abort is inside the range, the failure transient saturates.",
    "action": "SUPERSEDED (v2.4a): \"0-69 bar\" option: ENG-09 requires a Pc range >= 70 bar and igniter.sequence uses the 0-70 bar class; the stand also carries the dynamic channel pc_dynamic_channel",
    "with": "Electronics",
-   "status": "RE-OPENED by LEAD 205: the flight Pc transducer is reselected (seat-mounted, proof >= 112 bar abs per the lead; Combustion's all-case 0.1-1 ms value gives 132 bar abs: OI-41); Electronics selects, Mechanical makes the CC-2 head",
+   "status": "RE-OPENED by LEAD 205: the flight Pc transducer is reselected (seat-mounted, proof >= 166.14 bar abs (1.1 x FA1S 151.04; LEAD 249 (4)); C1 Kulite XTL-190SM-2000A 206.8 bar abs (DATASHEET 1.5x rule) meets it; OI-41 DECIDED by LEAD 230 (2)); Electronics selects, Mechanical makes the CC-2 head",
    "status_superseded": {
     "v": "CLOSED by ENG-09 (range >= 70 bar)",
     "version": "v2.4a",
@@ -6073,6 +6076,27 @@
     "final_fold_builder": "02-combustion/src/build_final_fold_v2p4b.py"
    },
    "tag": "index"
+  },
+  "v2p4c": {
+   "v": {
+    "report": "02-combustion/REPORT.md v2.4c (section 17 lists every change)",
+    "response": "02-combustion/REVISION-RESPONSE-R3.md (v2.4c annotations; sha256/16 370875c3645eb49c)",
+    "specs": {
+     "02-combustion/T1-T4-REGRESSION-SPEC.md": {
+      "version": "v3.1 (v2.4c)",
+      "sha256_16": "b00b2d852ed3475c"
+     },
+     "02-combustion/CF-4-SPEC.md": {
+      "version": "v2.2 (v2.4c)",
+      "sha256_16": "4e36be703a9e7d44"
+     }
+    },
+    "datasheet_inputs": "02-combustion/DATASHEET-INPUTS-COMBUSTION.md v2.4c (29ed6d45c55ff234)",
+    "writer": "02-combustion/src/apply_v2p4c_rev_comb_4.py (lead; sha256/16 063195b1b3a12bed)",
+    "archive_v2p4b": "02-combustion/superseded/v2p4b/ (combustion.json, REPORT, REVISION-RESPONSE-R3, CF-4, T1-T4, DATASHEET-INPUTS; HASHES.txt)",
+    "review": "reviews/REVIEW-COMBUSTION-R4.md (2908321d7f75d439)"
+   },
+   "tag": "index"
   }
  },
  "light_windows": {
@@ -6103,15 +6127,23 @@
     "margin_at_2p5_s": 0.558,
     "CdA_for_0p3s_margin_mm2": 0.63,
     "two_flow_grid": "not run (margin >= 0.3 s); run if measured Cd.A < 0.63 mm2",
-    "tag": "DERIVED fd01_element_deficit_v2p4.json"
+    "tag": "DERIVED fd01_element_deficit_v2p4.json",
+    "margins_at_2p43_s_v2p4c": "at the decided 2.43 s of flow: 0.23 / 0.53 / 0.63 s over the needed flow at 283.15 / 289.5 / 297.15 K (unlined); 0.18 / 0.13 s at 283.15 K with the FD-01 element bounds (REV-COMB-4, DERIVED); margin_at_2p5_s is the analysed basis"
    },
    "timing_s": {
     "PURGE_command_rel_E0": -2.9,
     "MV_ramp": 0.35,
-    "flow": 2.5,
+    "flow": 2.43,
     "flow_end_rel_E0": -0.05,
     "needed_flow_unlined": 1.9,
-    "min_flow_before_T_fire_delay": 1.9
+    "min_flow_before_T_fire_delay": 2.2,
+    "flow_analysed_v2p4b": 2.5,
+    "both_open_cap_decided_v2p4c": 2.39,
+    "needed_flow_unlined_283p15K": 2.2,
+    "needed_flow_unlined_297p15K": 1.8,
+    "needed_flow_lined_283p15K": 2.5,
+    "needed_flow_unlined_note_v2p4c": "needed_flow_unlined 1.9 s is the 289.5 K value; 2.2 s at 283.15 K and 1.8 s at 297.15 K (REV-COMB-4 R4-07, DERIVED on the author's model); 2.2 s is stated wherever 1.9 s is quoted (LEAD 256 (2)(a))",
+    "PURGE_command_rel_E0_note_v2p4c": "-2.9 is the analysed command time; with 2.43 s of flow it ends the flow at E0 - 0.12 s, or PURGE moves to E0 - 2.83 s for an end at E0 - 0.05 s [DERIVED]; Electronics v2.12 decides"
    },
    "flows_g_s": {
     "liquid_per_tap": 15.62,
@@ -6337,7 +6369,9 @@
    "line_states_file": "rg01_line_states_v2p4.json (2939549811d4c381)",
    "gate": "CF-4 (02-combustion/CF-4-SPEC.md)"
   },
-  "tag": "SIM/DERIVED on ASSUMED Cd and slip brackets; LEAD lines 160, 161, 164; Mechanical line 162"
+  "tag": "SIM/DERIVED on ASSUMED Cd and slip brackets; LEAD lines 160, 161, 164; Mechanical line 162",
+  "decision_note_v2p4c": "the records in this block were run with 2.5 s of flow (the analysed basis); the decided schedule is 2.43 s of flow with the 2.39 s both-open cap (purge_decision_v2p4c)",
+  "E2_note_v2p4c": "the holds and latencies here are counted from the model E2 (Pc > 3.0 bar abs for 10 ms); the ECU flight E2 is the relative rule and comes at most 14.7 ms before the model E2 (E2_rule_v2p4b; OI-UNPURGED-RELIGHT (c), REV-COMB-4 section 6)"
  },
  "abort_matrix_v2p4": {
   "v": {
@@ -6345,7 +6379,7 @@
    "A4": "Pc > 30 bar abs on the FILTERED channel for 5 ms (LEAD line 166 (4); amends line 160 \"raw\"); the hardware OVP comparator (31.47 bar g) stays the fast path for a blocked throat. Decomposition spike filtered peak <= 21.4 bar: no trip",
    "A5": "DELETED -> LIGHT_SPIKE log",
    "A7": "Pc loss or implausibility, bands and the flight START high-side rule (Electronics sets values)",
-   "A14": "bleed valve fault, or closure not confirmed by the closure deadline (<= torch gate E0 + 0.16 s; Electronics E0 + 0.15 s) -> BLEED_FAULT to the FC (FC action LOG-ONLY, line 168); flight: V2 commanded closed and the lift proceeds (E1 term, line 166 (3)); stand: abort; fail-closed -> no purge -> no relight on that pass; closure from P_mid is a pad go/no-go (line 168). SUPERSEDED (v2.4a): \"closure not confirmed by E0 - 0.05 s\" (E0 - 0.05 s stays the scheduled flow end only)",
+   "A14": "bleed valve fault, or closure not confirmed by the closure deadline (closure deadline = torch gate, E0 + 0.16 s; Electronics v4) -> BLEED_FAULT to the FC (FC action LOG-ONLY, line 168); flight: V2 commanded closed and the lift proceeds (E1 term, line 166 (3)); stand: abort; fail-closed -> no purge -> no relight on that pass; closure from P_mid is a pad go/no-go (line 168). SUPERSEDED (v2.4a): \"closure not confirmed by E0 - 0.05 s\" (E0 - 0.05 s stays the scheduled flow end only)",
    "A15": "pintle or chamber anomaly during PURGE: inhibit torch, close MV",
    "A16": "torch loss on BOTH sensors >= 5 ms between E1 and E2: close pintle and MV",
    "A3_unpurged_note_v2p4a": "A3 trips on the post-light vapour gap of an unpurged start (ratio <= 0.24 against 0.40 for >= 22 ms), after the drogue-release term is already true: see purge_commit_rule_v2p4a; unpurged relight excluded by design (LEAD 186 (1); ECU guard 203 (7))",
@@ -6468,7 +6502,7 @@
     "P3 cap clears FD-01 crown <= 2.3 s after flow start",
     "P4 per tap and per phase: vapour >= 3.4 g/s per tap (80 % of HEM 4.25), liquid >= 12.5 g/s per tap (80 % of Dyer 15.62), Cd_eff >= 0.56, dP V1+V2 <= 11 %; judged against the open-element reading; the barrier-element T4 stall is a model construct (bubble point ~0.7 kPa vs 45.5 bar) and a measured stall is a finding",
     "P5 <= 76 g vented (IS-1, IS-2)",
-    "P6 flow stopped by E0 - 0.05 s (scheduled); closure confirmed (V1 first, P_mid) by the deadline <= torch gate (Electronics E0 + 0.15 s); one valve held open -> BLEED_FAULT at the deadline; flight build: V2 commanded closed and the lift proceeds; stand build: abort",
+    "P6 flow stopped by E0 - 0.05 s (scheduled); closure confirmed (V1 first, P_mid) by the deadline <= torch gate (Electronics v4: E0 + 0.16 s); one valve held open -> BLEED_FAULT at the deadline; flight build: V2 commanded closed and the lift proceeds; stand build: abort",
     "P7 no unfiltered path to the seat"
    ],
    "void_budget_file": "cf4_void_budget_v2p4.json (6c294cf2dec7af5d)",
@@ -6485,7 +6519,7 @@
    "baseline_v2p4b": "re-baselined on the frozen v3.5.1 bleed path (LEAD 194 (8)); bleed-path part numbers and lengths are taken from Mechanical's v3.5.1 freeze (mechanical.json v2.2 not yet published: MISSING in the hub)"
   },
   "tag": "LEAD line 164 (accepted as the gate), 166 (3); CF-4-SPEC v2.0; physical execution by the founders; CF-4-SPEC v2.1 (v2.4b): red lines, abort criteria, IS-1/IS-2 preparation, probe threshold, budget (194 (8))",
-  "spec_version": "CF-4-SPEC v2.1 (v2.4b final fold, 60bbc51f6f487682)",
+  "spec_version": "CF-4-SPEC v2.2 (v2.4c, 4e36be703a9e7d44)",
   "spec_version_superseded": {
    "v": "CF-4-SPEC v2.0 (v2.4a)",
    "version": "v2.4a",
@@ -6635,7 +6669,7 @@
     0.48
    ],
    "unlit_rise_max_bar": 0.508,
-   "line175_5_note_v2p4a": "LEAD line 175 (5): the time-only 0xFFFF term is REPLACED in design by R2 (Pc invalid: release iff ECU RUN AND accelerometer thrust >= 37.16 N for 3 frames at 100 Hz, otherwise hold the drogue and ECU ABORT at t_E2 + 0.5 s: pcf_tmax 0.5 s, LEAD 181 (4); 0.8 s not adopted). While the drogue is attached with Pc invalid the open-loop command is held at the start level (LEAD 186 (2)); GNC R2 v2 uses F_cold plus the grain_q1d start-level lit history (start_level_lit_thrust_v2p4b), not 62.5 N x pcf_k (194 (4); SUPERSEDED 204 (4)). The Pc-valid terms are unchanged. Unpurged starts are excluded by design (186 (1)); on such a start the Pc-valid term would release before the post-light vapour gap (H20)",
+   "line175_5_note_v2p4a": "LEAD line 175 (5): the time-only 0xFFFF term is REPLACED in design by R2 (Pc invalid: release iff ECU RUN AND accelerometer thrust >= 37.16 N for 3 frames at 100 Hz, otherwise hold the drogue and ECU ABORT at t_E2 + 0.8 s: pcf_tmax 0.8 s, ADOPTED by LEAD 227 (5) for the W10 < 6 m/s launch-commit envelope (reverses 181 (4); Electronics v2.11 S17 confirms or returns it)). While the drogue is attached with Pc invalid the open-loop command is held at the start level (LEAD 186 (2)); GNC R2 v2 uses F_cold plus the grain_q1d start-level lit history (start_level_lit_thrust_v2p4b), not 62.5 N x pcf_k (194 (4); SUPERSEDED 204 (4)). The Pc-valid terms are unchanged. Unpurged starts are excluded by design (186 (1)); on such a start the Pc-valid term would release before the post-light vapour gap (H20)",
    "line181_4_cold_flow_note_v2p4a": "Under Pc invalid the dead engine still produces cold-flow thrust that follows the open-loop lift: <= 13.3 N at the start level, <= 37.5 N at 200 N, <= 120 N at 500 N, <= 207 N at the stroke (bound, 283.15-289.5 K): see cold_flow_thrust_v2p4a",
    "line175_5_note_v2p4a_superseded": {
     "v": "LEAD line 175 (5): the time-only 0xFFFF term is REPLACED in design by R2 (Pc invalid: release iff ECU RUN AND accelerometer thrust >= 37.16 N for 3 frames at 100 Hz, otherwise hold the drogue and ECU ABORT at t_E2 + 0.8 s; PROPOSAL to be flown). The Pc-valid terms are unchanged. On an unpurged start the Pc-valid term releases before the post-light vapour gap (purge_commit_rule_v2p4a)",
@@ -6672,7 +6706,8 @@
      "file": "start_level_lit_thrust_v2p4b"
     },
     "tag": "SIM grain_q1d v2 (quasi-steady, ASSUMED laws/bands; 72 corners); not physical evidence"
-   }
+   },
+   "pcf_tmax_condition_v2p4c": "pcf_tmax 0.8 s holds on the dead side only with the photodiode main-chamber view (FLAMEOUT_OPT armed) or the GNC reference re-taken at the ECU E2 / light; photodiode-blind families release 42 (normal_noopt) / 98 (starved040_noopt) of 1000 dead runs at 0.8 s (OI-PHOTODIODE-VIEW, HIGH, open for IGN-1; REV-COMB-4 section 6)"
   },
   "tag": "SIM/DERIVED drogue_hold_check_v2p4.json; LEAD line 175 (5)"
  },
@@ -7148,8 +7183,8 @@
  },
  "pc_dynamic_channel": {
   "v": {
-   "stand": ">= 10-20 kHz sampling with an anti-alias filter; flush-mounted transducer or a characterised short sense line (resonance measured); range >= 100 bar abs (FA-1 construct head peak up to 88.0 bar abs; LEAD 194 (7)); proof rating >= 1.1 x the all-case FA-1 spectrum at the transducer path period: flush mount (T <= 0.1 ms) >= 103 bar abs (1.1 x 93.6), carried as the 112 bar abs class of the flight unit (LEAD 205); path period 0.1-1 ms >= 132 bar abs (1.1 x 120.3); path period > 1 ms not acceptable for the dynamic channel; passage free of liquid N2O (pc_port_gas_v2p4b); founder instrumentation item, TO-QUOTE delivered to Sonderborg DK-6400",
-   "flight": "flight Pc transducer RESELECTED (LEAD 205): seat-mounted miniature unit, proof >= 112 bar abs (lead), range covering 45 bar MEOP with the 30 bar abort resolvable; control channel 1 kHz; LIGHT_SPIKE values logged at 1 kHz are LOWER BOUNDS of a 1-3 ms spike; non-sticky over-range bit and above-full-scale flag (LEAD 203 (1)(a)); the 070BG over-range behaviour is MISSING (B-PC-1 row, TE inquiry)",
+   "stand": ">= 10-20 kHz sampling with an anti-alias filter; flush-mounted transducer or a characterised short sense line (resonance measured); range >= 100 bar abs flush, >= 132 bar abs with a sense line (FA-1 construct head peak up to 88.0 bar abs; LEAD 194 (7); REV-COMB-4 R4-09); proof rating >= 1.1 x the decided FA-1 band value at the transducer path period: flush mount (path period <= 0.1 ms) >= 103.4 bar abs (1.1 x 94); 0.1-1 ms path >= 133.1 bar abs (1.1 x 121) (LEAD 230 (2)); the flight unit's >= 166.14 bar abs (LEAD 249 (4)) covers every path period; path period > 1 ms not acceptable for the dynamic channel; passage free of liquid N2O (pc_port_gas_v2p4b); founder instrumentation item, TO-QUOTE delivered to Sonderborg DK-6400",
+   "flight": "flight Pc transducer RESELECTED (LEAD 205): seat-mounted miniature unit, proof >= 166.14 bar abs (1.1 x FA1S; LEAD 249 (4)), range covering 45 bar MEOP with the 30 bar abort resolvable; control channel 1 kHz; LIGHT_SPIKE values logged at 1 kHz are LOWER BOUNDS of a 1-3 ms spike; non-sticky over-range bit and above-full-scale flag (LEAD 203 (1)(a)); the 070BG over-range behaviour is MISSING (B-PC-1 row, TE inquiry)",
    "why": "modelled spikes last 1-3 ms (raw above 30 bar <= 1.9 ms); 1L and Helmholtz modes at 1.1-1.8 kHz alias at 1 kHz",
    "stand_superseded": {
     "v": ">= 10-20 kHz sampling with an anti-alias filter; flush-mounted transducer or a characterised short sense line (resonance measured); ranges covering the FA-1 envelope (>= 100 bar abs)",
@@ -7165,20 +7200,23 @@
    },
    "stand_proof_rating_v2p4b": {
     "v": {
-     "rule": "proof >= 1.1 x P_eq(all cases) at the transducer path period (LEAD 205 uses 1.1 x 102 = 112 bar abs for the flight unit)",
+     "rule": "proof >= 1.1 x P_eq(all cases) at the transducer path period (flight unit: 1.1 x FA1S = 166.14 bar abs, LEAD 249 (4))",
      "flush_T_le_0p1ms_bar_abs": {
       "spectrum": 93.6,
       "x1p1": 103.0,
-      "adopted": 112.0
+      "adopted": 103.4,
+      "band_value_LEAD_230_2": 94
      },
      "path_0p1_to_1ms_bar_abs": {
       "spectrum": 120.3,
       "x1p1": 132.3,
-      "adopted": 132.0,
-      "baseline_spectrum": 102.5
+      "adopted": 133.1,
+      "baseline_spectrum": 102.5,
+      "band_value_LEAD_230_2": 121
      },
      "path_gt_1ms": "not acceptable (head all-case up to 146.9 bar abs at 1-20 ms; the channel would not resolve the 1-3 ms spike)",
-     "contradiction": "the lead's 112 bar abs uses 102 bar (the 194 (1) 0.1-1 ms ultimate); the dense all-case value is 120.3 bar abs (OI-41)"
+     "contradiction": "RESOLVED by LEAD 230 (2) (band values 94 / 121 / 147 / 94 bar abs; FA1S bounds every period) and 249 (4) (flight Pc proof >= 166.14 bar abs)",
+     "flight_unit_all_periods_bar_abs": 166.14
     },
     "tag": "DERIVED (SDOF on SIM construct histories); proof rule DESIGN; physical rating DATASHEET of the selected unit (MISSING)"
    }
@@ -7275,7 +7313,7 @@
      "unit": "s",
      "note": "use the HI value: purge whenever the lead to the plain trigger is >= 1.3 s"
     },
-    "below_L_star": "LEAD 194 (3): the \"E2 + 0.22 s\" hold of 186 (1) is WITHDRAWN (derived from one state). Population hold table (release_hold_v2p4b): H >= 0.30 s on the 2500 N/s ramp to 200 N (0.31 s with the 10 ms frame margin), >= 0.19 s on the ramp to 500 N, no admissible hold with the flow held at the start lift (0.75 s > W). The alternative is NOT ADOPTED (LEAD 204 (2)); the classes are comparator data for GNC P4c",
+    "below_L_star": "LEAD 194 (3): the \"E2 + 0.22 s\" hold of 186 (1) is WITHDRAWN (derived from one state). Population hold table (release_hold_v2p4b): H >= 0.30 s unlined / 0.31 s lined on the 2500 N/s ramp to 200 N (latest A3 trip 0.282 / 0.290 s + one 10 ms frame, rounded up to 10 ms; REV-COMB-4 R4-14), >= 0.19 s on the ramp to 500 N, no admissible hold with the flow held at the start lift (0.75 s > W). The alternative is NOT ADOPTED (LEAD 204 (2)); the classes are comparator data for GNC P4c",
     "hazard": "RELEASED_THEN_A3 (outside the abort model): light -> drogue release at E2 (Pc >= 3 bar abs) -> post-light vapour gap -> A3 abort -> dead vehicle released (GNC touchdown class about -32 m/s against about -22 m/s on the drogue)",
     "outcome_classes_worst_states": {
      "LO_worst_unlined_[12.49,11.21,23.44]": {
@@ -8314,8 +8352,9 @@
    "rule": "PURGE commits iff the lead to the plain relight trigger is >= L* = 1.3 s; below L* no purge and no unpurged relight on that pass",
    "basis": "LEAD 186 (1) (adopted for both LO and HI); 194 (3) (baseline unchanged); 204 (1) (L* stays; a commit lead below about 2.1 s is not counted as a landing; nominal leads >= 2.65 s); 203 (7) (ECU unpurged RELIGHT guard, v2.11)",
    "unpurged_alternative": "NOT ADOPTED (LEAD 204 (2)); comparator data: release_hold_v2p4b",
-   "ecu_cap": "both-open cap <= 2.55 s (LEAD 203 (3)); Combustion basis in purge_basis_v2p4b: 76.05 g on the bound at 2.60 s of flow, at the 76 g limit within 0.05 g; strict <= 76 g needs both-open <= 2.548 s (OI-42)",
-   "LO_HI": "open: CF-4 generation runs and T4 measure it (LEAD 186 (1))"
+   "ecu_cap": "both-open cap <= 2.39 s with the 2.43 s scheduled flow (LEAD 253 (7)(ii), FINAL in 256 (2); it replaces the 2.55 s of 203 (3)): flow at the cap 2.44 s, 71.37 g at 29.25 g/s and 75.75 g on the warm-end bound (75.79 g at 31.06 g/s), inside the 76 g basis; after CF-4 / B-BLEED-1 the flow and cap are re-set from the measured Cd x A by the measured-time form, overlap <= 76 g / mdot(297.15 K) - (t_close - t_open) with mdot(297.15 K) from the measured Cd x A, never above 2.43 / 2.39 s (LEAD 257 (2); OI-42)",
+   "LO_HI": "open: CF-4 generation runs and T4 measure it (LEAD 186 (1))",
+   "unprimed_line_v2p4c": "an unprimed or UNKNOWN-line relight with the bleed fitted stays refused for A1 (fail-safe) (LEAD 253 (7)(iv); OI-UNPURGED-RELIGHT (a)); GNC states the lost-relight mission outcome in gnc.json v3.2"
   },
   "tag": "LEAD decisions; Combustion SIM/DERIVED basis"
  },
@@ -8418,7 +8457,8 @@
    "answer_superseded": "Neither constant rate is right. The vented mass is the purge-record mass M(t), not a rate times t. The records (vented_mass_brackets_v2p4a, SIM on ASSUMED Cd 0.70 and slip brackets) start with vapour at the taps (8.49 g/s line) and turn to liquid (31.24 g/s line); M(2.5 s) <= 72.93 g (open element; barrier 72.06 g). After 2.5 s the marginal rate is at most the all-liquid rate 31.24 g/s (two taps at 0.707 mm, Cd 0.70 ASSUMED, Dyer 56843 kg/m2s at the coast state 46.45 bar, 289.5 K: an upper-bound flux); the maximum record itself ends at 30.6 g/s (2.4-2.5 s). 29.2 g/s x t is right only at t = 2.5 s and understates the slope after it by <= 2.0 g/s; 31.44-32.0 g/s x t applies the all-liquid rate from t = 0, i.e. assumes the line holds no vapour when the purge starts, which is the condition the purge exists to remove: it overstates M(2.5 s) by 5.7 g (+7.8 %). The SIL liquid rate (31.44 g/s nominal, 31.86 g/s maximum in S12 v2.9) is 0.6-2.0 % above the Combustion all-liquid rate: a plant-state/flux-model difference (SIL flux 57187 kg/m2s at Cd 0.70 on the 1.0 mm area), not a basis disagreement."
   },
   "tag": "DERIVED from SIM purge records (ASSUMED Cd 0.70, slip brackets); lead_items_203_205_v2p4b item 1",
-  "line213_note": "LEAD line 213: A1 apogee target about 210 m. The A1-profile values here are from the 300 m / 285 m records and stay as comparators. A1-3: RISES with the relight state (DERIVED scaling, records not re-run): liquid rate +0.27 g/s per K and M(2.5 s) +0.66 g per K above 289.5 K; the 2.5 s schedule stays <= 76 g up to 294.21 K; the 2.55 s cap is at the limit at 289.5 K (76.05 g) and above it at any warmer state; at the 297.15 K ARM limit M(2.5 s) = 77.76 g and M(2.60 s) = 81.07 g. Status: TO-VERIFY at the 210 m warm-end relight state (GNC record) and in CF-4 (P5 read at that state); the 289.5 K \"upper-bound flux\" is an upper bound only for relight states <= 289.5 K (a1_apogee_target_v2p4b)"
+  "line213_note": "LEAD line 213: A1 apogee target about 210 m. The A1-profile values here are from the 300 m / 285 m records and stay as comparators. A1-3: RISES with the relight state (DERIVED scaling, records not re-run): liquid rate +0.27 g/s per K and M(2.5 s) +0.66 g per K above 289.5 K; the 2.5 s schedule stays <= 76 g up to 294.21 K; the 2.55 s cap is at the limit at 289.5 K (76.05 g) and above it at any warmer state; at the 297.15 K ARM limit M(2.5 s) = 77.76 g and M(2.60 s) = 81.07 g. Status: TO-VERIFY at the 210 m warm-end relight state (GNC record) and in CF-4 (P5 read at that state); the 289.5 K \"upper-bound flux\" is an upper bound only for relight states <= 289.5 K (a1_apogee_target_v2p4b)",
+  "decision_note_v2p4c": "the 2.5 s schedule and the 2.55 s cap analysed here are superseded by the decided 2.43 s flow with the 2.39 s both-open cap (LEAD 253 (7)(ii), final in 256 (2); purge_decision_v2p4c); the basis 29.25 g/s stands"
  },
  "release_hold_v2p4b": {
   "v": {
@@ -8904,7 +8944,8 @@
    }
   },
   "tag": "SIM on ASSUMED delays + DERIVED line states; bracket records, NOT probability-weighted",
-  "line213_note": "LEAD line 213: A1 apogee target about 210 m. The A1-profile values here are from the 300 m / 285 m records and stay as comparators. A1-9: shorter coast, warmer tank: not re-run. Status: COMPARATOR data only; the alternative is NOT ADOPTED (204 (2), strengthened by 208 (3)) (a1_apogee_target_v2p4b)"
+  "line213_note": "LEAD line 213: A1 apogee target about 210 m. The A1-profile values here are from the 300 m / 285 m records and stay as comparators. A1-9: shorter coast, warmer tank: not re-run. Status: COMPARATOR data only; the alternative is NOT ADOPTED (204 (2), strengthened by 208 (3)) (a1_apogee_target_v2p4b)",
+  "E2_note_v2p4c": "the holds and latencies here are counted from the model E2 (Pc > 3.0 bar abs for 10 ms); the ECU flight E2 is the relative rule and comes at most 14.7 ms before the model E2 (E2_rule_v2p4b; OI-UNPURGED-RELIGHT (c), REV-COMB-4 section 6)"
  },
  "E2_rule_v2p4b": {
   "v": {
@@ -9137,7 +9178,7 @@
     "T_0p1_to_1ms_ultimate": 102.0,
     "T_gt_1ms": "all-case spectrum or FA1S about 151"
    },
-   "contradiction": "OI-41 (for the lead): the all-case head value exceeds 90 bar abs for T <= 0.1 ms (93.6; baseline 88.6); for 0.1-1 ms the baseline is 102.5 and the all-case 120.3 bar abs against yield 93 / ultimate 102; in the ENG-TC-02 band (0.272-0.385 ms) baseline 99.5, all-case 111.7 bar abs (undamped). FA1S (about 151 bar abs) bounds every period (max 146.9). Which group governs each domain is the lead's decision; the flight Pc proof (1.1 x 102 = 112) follows from it",
+   "contradiction": "RESOLVED by LEAD 230 (2) (band values 94 / 121 / 147 / 94 bar abs; FA1S bounds every period) and 249 (4) (flight Pc proof >= 166.14 bar abs)",
    "tc02_band": {
     "item": "ENG-TC-02 forward closure (head) on its 8 screws",
     "dominant_part": "ENG-TC-02",
@@ -9337,7 +9378,8 @@
    "file": "cold_flow_start_lift_v2p4b.json 28ce48092f33da1b"
   },
   "tag": "DERIVED (adiabatic isentropic-equilibrium bound; Cd 0.80 ASSUMED limit); not physical evidence",
-  "line213_note": "LEAD line 213: A1 apogee target about 210 m. The A1-profile values here are from the 300 m / 285 m records and stay as comparators. A1-4: RISES with the relight state (DERIVED, functions unchanged): 13.87 N at 293.15 K and 14.93 N at the 297.15 K ARM limit at the map lift (map clamped at its 5.0 MPa row above 50 bar), 14.41 N at h_s(T) at 297.15 K; all below the 16.31 N inside-W10 < 6 m/s margin; the factor on Cd x A x G to 16.31 N falls to 1.09. Status: still CONDITIONAL on Cd x A x G at the start lift (CF-3), as before (a1_apogee_target_v2p4b)"
+  "line213_note": "LEAD line 213: A1 apogee target about 210 m. The A1-profile values here are from the 300 m / 285 m records and stay as comparators. A1-4: RISES with the relight state (DERIVED, functions unchanged): 13.87 N at 293.15 K and 14.93 N at the 297.15 K ARM limit at the map lift (map clamped at its 5.0 MPa row above 50 bar), 14.41 N at h_s(T) at 297.15 K; all below the 16.31 N inside-W10 < 6 m/s margin; the factor on Cd x A x G to 16.31 N falls to 1.09. Status: still CONDITIONAL on Cd x A x G at the start lift (CF-3), as before (a1_apogee_target_v2p4b)",
+  "spi_note_v2p4c": "with the SPI flux the cold-flow bound is 19.0-20.1 N over 283.15-289.5 K (F_bound_SPI_N; 19.5 N at 286.70 K per REV-COMB-4), above the 16.31 N margin: the CF-3 start-lift acceptance is not a formality (REV-COMB-4 R4-17)"
  },
  "start_level_lift_v2p4b": {
   "v": {
@@ -11031,7 +11073,8 @@
    "script": "02-combustion/src/a1_profile_line213_v2p4b.py d94fd3d8ee7ecbd9"
   },
   "tag": "LEAD target (CHANGELOG line 213, founder decision); SIM comparators (GNC 300 m records, read only); DERIVED directions and sensitivities (records not re-run); nothing here is physical approval",
-  "src": "REPORT v2.4b §15.15"
+  "src": "REPORT v2.4b §15.15",
+  "throat_growth_basis_note_v2p4c": "1.90 / 2.10 % = 1.86 / 2.05 % x 8.443 / 8.258 s = 1.902 / 2.096 % [DERIVED]; if the 1.86 % belongs to the 8.24 s record (REPORT 16.8), the values are 1.906 / 2.100 %, rounding to 1.91 / 2.10 %; the NZ-01 conclusions do not change (REV-COMB-4 R4-15)"
  },
  "lead_decisions_folded_v2p4b": {
   "v": {
@@ -11082,7 +11125,8 @@
     "owner": "Lead; Mechanical",
     "item_superseded": "FA-1 dense spectrum vs the LEAD 194 (1) values (all-case 93.6 > 90 bar abs at T <= 0.1 ms; 0.1-1 ms baseline 102.5, all-case 120.3 vs 93/102; TC-02 band 99.5/111.7)",
     "action_superseded": "lead: state which case group governs each domain; Mechanical re-checks TC-02 and the flight Pc proof follows",
-    "owner_superseded": "Lead, Mechanical"
+    "owner_superseded": "Lead, Mechanical",
+    "status": "DECIDED by LEAD 230 (2) (final on REV-COMB-4): band values 94 / 121 / 147 / 94 bar abs for structural SDOF paths; FA1S 151.04 bar abs bounds every period and case (max 146.88, margin 4.16 bar) and is the design case for pressure-filled passages; per-mode values are an analysis path only; flight Pc proof >= 166.14 bar abs (249 (4))"
    },
    {
     "id": "OI-42",
@@ -11091,7 +11135,8 @@
     "owner": "Lead; Electronics; founders",
     "item_superseded": "2.55 s both-open cap gives 76.05 g on the Combustion bound (76 g limit); strict cap 2.548 s; Cd ASSUMED (+-0.7 g per 1 %)",
     "action_superseded": "lead: accept 76.05 g as 76 g or set the cap to 2.54 s; CF-4/B-BLEED-1 measure the flow",
-    "owner_superseded": "Lead, Electronics, founders"
+    "owner_superseded": "Lead, Electronics, founders",
+    "status": "2.43 s scheduled flow with the 2.39 s cap ADOPTED (253 (7)(ii); final on REV-COMB-4, LEAD 256 (2)): needed 2.2 / 1.9 / 1.8 s at 283.15 / 289.5 / 297.15 K unlined; vented <= 66.7 / 70.8 / 75.1 g at Cd 0.70; conditions (a) cold-corner 2.2 s stated, (b) measured Cd x A >= 0.91 x the Cd 0.70 value, (c) unlined; (d) after CF-4 the flow and cap are re-set from the measured Cd x A by the measured-time form, never above 2.43 / 2.39 s, so the 297.15 K vent stays <= 76 g (LEAD 257 (2), on REV-GNC-7: at Cd 0.80 the fixed schedule vents about 85.5 g at 297.15 K and fails the A1 reserve test)"
    },
    {
     "id": "OI-43",
@@ -11146,7 +11191,7 @@
    {
     "id": "OI-51",
     "item": "FEA3D share vector: the full signed modal shares c_i (60 modes) of the principal (and tensor) stress functional at every assessed node, and the tensor 0.1-1 ms absolute sum; 9 of 60 are published at TC-01 J-FWD, so the per-mode Peq is an interval",
-    "action": "FEA3D publishes the vector from modal_v351ca2b_c71 (fa1_band_sensitivity.py already forms it); Combustion re-runs fa1_per_mode_peq / fa1_modal_th_bound (minutes) and the interval collapses to a number",
+    "action": "FEA3D publishes the vector from modal_v351ca2c_c71 (ca2b is superseded by the ca2c modal fold, line 243) (fa1_band_sensitivity.py already forms it); Combustion re-runs fa1_per_mode_peq / fa1_modal_th_bound (minutes) and the interval collapses to a number",
     "owner": "FEA3D (Mechanical); Combustion"
    },
    {
@@ -11168,7 +11213,11 @@
      "OI-37": "decided by 186 (4); mechanical.json v2.2 not yet in the hub",
      "OI-38": "ADOPTED, margin CONDITIONAL; CF-3",
      "OI-40": "DECIDED (186 (3), 194 (5)); procedure nz01_criterion_v2p4b",
-     "OI-41 (final fold)": "restatement / per-mode rule proposed (final_fold_v2p4b)"
+     "OI-41 (final fold)": "restatement / per-mode rule proposed (final_fold_v2p4b)",
+     "OI-41 (v2.4c)": "DECIDED by LEAD 230 (2) and 249 (4) (REV-COMB-4 R4-08)",
+     "OI-42 (v2.4c)": "2.43 s flow / 2.39 s cap ADOPTED, final (253 (7)(ii), 256 (2))",
+     "OI-49 (v2.4c)": "still open: gnc.json is v3.1 (4f3209323b0e0ed4) at v2.4c, with no 210 m record; v3.2 follows REV-GNC-7",
+     "OI-51 (v2.4c)": "action names modal_v351ca2c_c71 (REV-COMB-4 R4-18)"
     }
    }
   ],
@@ -11181,7 +11230,7 @@
    "R2 command hold PROPOSAL (OI-38)": "ADOPTED (186 (2)); margin CONDITIONAL (194 (4))",
    "NZ-01 criterion PROPOSAL (OI-40)": "decided (186 (3)) with the 194 (5) wording; nz01_criterion_v2p4b",
    "FA-1 load 90 bar for every part, 92 bar design (173)": "period domain 90 / 93-102 / spectrum or FA1S (194 (1))",
-   "ABORT at t_E2 + 0.8 s": "t_E2 + 0.5 s (181 (4))",
+   "ABORT at t_E2 + 0.8 s": "t_E2 + 0.5 s (181 (4)); reversed by LEAD 227 (5): t_E2 + 0.8 s is current",
    "the 0.81 s plan holds (unscoped)": "on the predictor path (181 (2))",
    "316L lip melt 1.07-5.70 s (lumped)": "IN718 1.10-5.88 s (lumped, 342 C start)",
    "Pc transducer 0-70 bar class (070BG)": "flight unit reselected (205); stand channel >= 100 bar abs with proof rating",
@@ -11255,7 +11304,8 @@
    "sha256_16": "ca2ee1f0ea0f0194"
   },
   "tag": "DERIVED (from SIM records on ASSUMED Cd 0.70 and slip brackets; valve times ASSUMED); LEAD 216 (5) request",
-  "src": "REPORT v2.4b §16.5"
+  "src": "REPORT v2.4b §16.5",
+  "decision_note_v2p4c": "the 2.5 s schedule and the 2.55 s cap analysed here are superseded by the decided 2.43 s flow with the 2.39 s both-open cap (LEAD 253 (7)(ii), final in 256 (2); purge_decision_v2p4c); the basis 29.25 g/s stands"
  },
  "p4c_lit_side_v2p4b": {
   "v": {
@@ -11295,7 +11345,7 @@
     "298.15K": 14.57
    },
    "implications": {
-    "pcf_tmax": "lit side at 0.21776 mm, torch 0: every corner that reaches 37.16 N does so by E2 + 0.205 s (+ 3 frames: 0.235 s), inside both windows; 3 of 72 corners never reach 37.16 N in the 0.8 s window (3 in 0.5 s): a longer window does not rescue them (F at 1 s >= 36.33 N), so pcf_tmax 0.8 s (line 227 (5)) is not limited by the lit side",
+    "pcf_tmax": "lit side at 0.21776 mm, torch 0: every corner that reaches 37.16 N within E2 + 0.857 s does so by E2 + 0.205 s (+3 frames: 0.235 s); 3 of 72 corners never reach 37.16 N in the 0.5 or 0.8 s window: one (Cd0.65|a0.6|n0.68|ri0.3|eta0.85) crosses at E2 + 0.857 s (a window >= 0.887 s with 3 frames would rescue it), the other two stay below 37.16 N to the end of the 1.0 s record (36.33 / 36.80 N, still rising); the count is the same for every window from 0.235 to 0.857 s, so pcf_tmax 0.8 s (227 (5)) is not limited by the lit side; the low corners are a threshold matter (GNC / lead) (REV-COMB-4 R4-03, DERIVED on SIM)",
     "threshold": "the lit minimum in the 0.8 s window is 33.14 N at 0.21776 mm (worst corner Cd0.65|a0.6|n0.68|ri0|eta0.85) against the 37.16 N threshold; the raw dead-engine bound is <= 12.86 N at the A1 state and 14.41 N at the 297.15 K ARM limit; GNC states its fo / lit statistics on the R2 estimate; raising the lift to lift the low corners conflicts with the 37.1 / 37.4 g/s start-flow caps (hard start, line 194); threshold and window are GNC / lead decisions",
     "what_gnc_needs": [
      "the per-corner lit histories at 0.21776 mm (A1 state) and 0.2039 mm",
@@ -11885,7 +11935,8 @@
    }
   },
   "tag": "DERIVED (SDOF / modal superposition bounds) on SIM shares (FEA3D modal_v351ca2b_c71, read only) and SIM histories; damping ASSUMED; break-even SIM (FEA3D); not a margin approval",
-  "src": "REPORT v2.4b §16.4"
+  "src": "REPORT v2.4b §16.4",
+  "note_v2p4c": "shares FEA3D modal_v351ca2b_c71 (9af80c657eed11ac); ca2c (619272cd3b66072b) changes the bin-level bounds by -0.6 to +0.2 bar (REV-COMB-4); analysis path only (230 (2))"
  },
  "tank_2p20kg_option_v2p4b": {
   "v": {
@@ -12090,5 +12141,1570 @@
   },
   "tag": "index; not physical evidence; nothing here is physical approval",
   "src": "REPORT v2.4b §16"
+ },
+ "fa1_p_torch_v2p4c": {
+  "v": {
+   "design_case": "P_torch during FA-1: design case FA1S 151.04 bar abs uniform over the passage (REV-COMB-4 R4-01); linear lossless passage peaks <= 129.9 bar abs at the J-FWD tap and <= 148.7 at the torch seat for c 150-1200 m/s; the band values 94 / 121 / 147 / 94 do not bound gas-filled passages",
+   "tap_station_peak_bar_abs_by_c_m_s": {
+    "150": 129.85,
+    "181": 121.96,
+    "202": 116.61,
+    "222": 108.0
+   },
+   "cases_above_102_bar_abs_at_tap_by_c_m_s": {
+    "150": 48,
+    "181": 42,
+    "202": 36,
+    "222": 12,
+    "400-450": 22
+   },
+   "seat_peak_max_bar_abs": 148.72,
+   "cases_above_FA1S_any_station_c_150_to_1200": 0,
+   "mechanical_row": "tap-wall v2 at FA1S 151.04 bar abs uniform, DLF 1.0 (Mechanical work tree jfwd_tapwall_v352_v2.json 9f8849412d4419d7, read by the reviewer): sigma 136.9 MPa; MS_y +0.670 / MS_u +0.785 at the thread temperature (SOAK52); MS_y +0.294 at the screw temperature (SOAK52); +0.275 at SOAK70 (governing); Lame factor 2.2094 [CALC on SIM]; the reviewer's linear-term estimate agrees within 0.002; R4-01 closes when Mechanical publishes the row with the ligament's lowest local natural frequency (expected well above 10 kHz)",
+   "DLF_note": "151.04 exceeds the linear tap peak by >= 16 % (129.85 at c 150; >= 24 % at c >= 181), so a local ligament DLF up to 1.16 is covered; the tap-ligament local mode should sit far above the passage periods 0.29-2.02 ms",
+   "not_modelled": [
+    "wave steepening and shock reflection",
+    "losses",
+    "torch-chamber compliance",
+    "N2O decomposition",
+    "a blocked-outlet deflagration"
+   ],
+   "other_load_cases": "MEOP: dead-ended passage, uniform Pc <= 45 bar abs (quasi-static); torch run about 3 bar abs; the 75.5 bar FA-1 pulse row is superseded (head peak 88.02 bar abs, which the passage amplifies); the line-176 rows (90 / 102 bar abs) do not cover the passage",
+   "pc_port_face_R4_09": "lossless bound over c 181-1200 m/s: 130.2 / 131.3 / 130.5 bar abs (CC-1 6 mm3 / CC-1 20 mm3 / CC-2); C1 over-range margin >= 6.6 bar at c >= 181 m/s (Electronics v2.12 states it)",
+   "transducer_R4_12": "the P_torch transducer TE M3234-000005-070BG (74.4 bar g full scale) sees the passage pressure and over-ranges during FA-1: proof >= 166.14 bar abs or isolation, and its saturation and recovery (Electronics v2.12)"
+  },
+  "tag": "DERIVED by the reviewer (linear lossless two-segment duct, ASSUMED) on SIM FA-1 head histories; design case LEAD 230 (1); Mechanical row CALC on SIM",
+  "src": "reviews/REVIEW-COMBUSTION-R4.md R4-01, R4-09, R4-12 (2908321d7f75d439); reviews/combustion/r4/r4_torch_passage.json (8cb4b0c80173b88d), r4_pc_port_face.json (94f5a39166a8f778)"
+ },
+ "fa1_grid_statistics_v2p4c": {
+  "v": {
+   "statement": "the FA-1 head peaks above the Z3 ceiling are physical SIM bracket cases on an ASSUMED construct, not an artefact (the v2.4b histories equal v2.4a to 1e-9)",
+   "thresholds_bar_abs": [
+    75.519,
+    63.1,
+    60.0
+   ],
+   "cases_above_all_896": [
+    46,
+    141,
+    185
+   ],
+   "cases_above_baseline_168": [
+    5,
+    19,
+    26
+   ],
+   "as_written_448_above_75p519": 28,
+   "max_head_peak_bar_abs": 88.02,
+   "by_OF_above_75p519": {
+    "OF4": {
+     "n": 11,
+     "max": 88.02
+    },
+    "OF8": {
+     "n": 1,
+     "max": 75.85
+    },
+    "OF10": {
+     "n": 0
+    },
+    "OF12": {
+     "n": 0
+    }
+   },
+   "shape_of_the_46": {
+    "outside_Z3_by": "peak only",
+    "time_above_63p1_ms_max": 1.669,
+    "Z3_limit_ms": 3.0,
+    "rise_10_90_ms_min": 0.842,
+    "Z3_rise_limit_ms": 0.8,
+    "time_above_75p519_ms_max": 0.699
+   },
+   "pulse_check": {
+    "Z3_as_written_ESP_max_bar_abs": 147.29,
+    "ceiling_88p1_same_shapes_ESP_bar_abs_at_3p0_1p7_1p0_ms_above_63p1": [
+     171.45,
+     165.03,
+     152.6
+    ],
+    "FA1S_bar_abs": 151.04,
+    "conclusion": "raising only the ceiling admits pulses above FA1S"
+   },
+   "spectrum_bound": "FA1S bounds every grid spectrum at every period 0.005-2000 ms: max 146.88 bar abs at 3.5 ms (margin 4.16 bar)",
+   "proposed_Z3_prime": "Z3': head peak <= 88.1 bar abs AND undamped SDOF ESP of the head history <= 151.04 bar abs at every period 0.02-50 ms (every FA-1 grid case meets it: max 146.88 at 3.5 ms)",
+   "alternatives": "tighter shape limits that imply it, or a higher FA1S (needs FE; not in this package)",
+   "owners": "Mechanical (LC-TB70 envelope v2: the restated Z3 and the joint-replacement rule); Electronics v2.12 re-classifies the 10 S6R runs and the 29-33 N-04 burn-on cases against it",
+   "line_253_8_wording": "a 60 bar replace-all rule would mark the joint used in 185 of the 896 FA-1 hard-start bracket cases (a SIM grid count on an ASSUMED construct, not a rate of normal lights) (LEAD 256 (4), REV-COMB-4 R4-10)",
+   "status": "OPEN: the lead rules on Z3' or Mechanical's alternative at Mechanical's pre-publication post; 253 (7)(i) stays adopted on that condition (256 (3))"
+  },
+  "tag": "DERIVED by the reviewer on SIM histories (ASSUMED construct)",
+  "src": "reviews/REVIEW-COMBUSTION-R4.md R4-02; reviews/combustion/r4/r4_fa1_envelope_stats.json (9a4f010f2fd37049), r4_z3_pulse_check.json (8807b744c7e3b74b)"
+ },
+ "purge_decision_v2p4c": {
+  "v": {
+   "decision": "2.43 s scheduled purge flow (both-open overlap 2.38 s + 0.05 s) with the 2.39 s both-open cap, ADOPTED by LEAD 253 (7)(ii) and FINAL in 256 (2) on REV-COMB-4; it replaces the 2.5 s schedule and the 2.55 s cap",
+   "flow_s": 2.43,
+   "both_open_overlap_s": 2.38,
+   "cap_both_open_s": 2.39,
+   "flow_at_cap_s": 2.44,
+   "analysed_basis": "the v2.4b records, tables and CF-4 model numbers were run with 2.5 s of flow ending at E0 - 0.05 s (PURGE at E0 - 2.90 s); they stay the analysed basis, which is more flow than decided",
+   "needed_flow_unlined_s": {
+    "283.15 K": 2.2,
+    "289.5 K": 1.9,
+    "297.15 K": 1.8
+   },
+   "needed_flow_lined_283p15K_s": 2.5,
+   "P_abort_lined_283p15K_at_2p43s": 0.061,
+   "P_abort_unlined_at_2p43s": "0 at all three corners (W 0.65 s; the author model)",
+   "margins_at_2p43s_unlined_s": {
+    "283.15 K": 0.23,
+    "289.5 K": 0.53,
+    "297.15 K": 0.63
+   },
+   "margins_283p15K_with_FD01_element_bounds_s": [
+    0.18,
+    0.13
+   ],
+   "vented_N2O_at_2p43s_unlined_Cd0p70_g": {
+    "283.15 K": [
+     30.7,
+     66.7
+    ],
+    "289.5 K": [
+     32.6,
+     70.8
+    ],
+    "297.15 K": [
+     33.4,
+     75.1
+    ]
+   },
+   "vented_N2O_bound_law_g": {
+    "283.15 K": 66.4,
+    "289.5 K": 70.7,
+    "297.15 K": 75.4,
+    "at_cap_2p44s_of_flow": 75.75
+   },
+   "vented_N2O_Cd0p80_fixed_schedule_g": {
+    "289.5 K": 80.5,
+    "297.15 K": 85.5,
+    "297.15 K, 2.44 s of flow at the cap": 85.8
+   },
+   "vented_N2O_Cd0p80_tag": "ESTIMATE: 2.43 s x 33.13 g/s at 289.5 K (average rate); at 297.15 K the Cd 0.80 / 0.70 ratio 1.1326 on 31.06 g/s (REV-GNC-7 interim 2); with the fixed 2.43 / 2.39 s schedule, which (d) re-sets after CF-4",
+   "a1_reserve_test_REV_GNC_7": {
+    "test": "CHANGELOG line 208 against the v3d reference (A1 210 m, v351, N = 500 per base, dip onset 80 g)",
+    "76 g": "UB95 0.854 pp liquid / 0.617 pp powered: PASS",
+    "80.5 g": "UB95 0.972 / 0.617 pp: PASS (margin 0.028 pp)",
+    "first_fail_g": 82.1,
+    "85.5-85.8 g": "UB95 1.206 pp liquid: FAIL (powered 0.736 pp passes)",
+    "tag": "DERIVED from SIM by REV-GNC-7 (interim 2, 09:25:51Z); above 80 g a linear per-run shift, ESTIMATE"
+   },
+   "conditions_LEAD_256_2": {
+    "a": "wherever 1.9 s is quoted as the needed flow, 2.2 s at the 283.15 K cold corner is stated with it",
+    "b": "CF-4 / B-BLEED-1 shows a measured Cd x A of the two-tap path >= 0.91 x the Cd 0.70 value (>= 0.95 x with the FD-01 element bound), else the flow is re-sized",
+    "c": "the line stays unlined (lined, 283.15 K needs 2.5 s)"
+   },
+   "condition_d_LEAD_257_2": "after CF-4 / B-BLEED-1, kPurgeFlow_s and the both-open cap are re-set from the measured Cd x A by the measured-time form of purge_basis_line216_v2p4b, with the mass flow taken at 297.15 K: both-open overlap <= 76 g / mdot(297.15 K) - (t_close - t_open), never above the decided 2.43 s / 2.39 s; the 297.15 K vent then stays <= 76 g at any measured Cd x A, and the 283.15 K need stays met because need and limit both scale with 1 / (Cd x A) (margin on the 10 ms steps 0.23 s at a Cd x A ratio of 1, 0.21 s at 1.08 and 1.13 (Cd 0.80), 0.19 s at 1.2) [DERIVED; the scaling is ASSUMED, as in (b)]; if the constants are not re-set, the measured Cd x A must also be <= 1.08 x the Cd 0.70 value (vent <= 82 g at the cap, REV-GNC-7's bound) or GNC re-runs the A1 reserve test at the measured vented mass; a temperature-scheduled flow (1.8 s needed at 297.15 K) is not adopted",
+   "reserve": "vented N2O is judged against the 76 g basis (G73 decided, G80 sensitivity) and the A1 N2O reserve (a1_reserve_test_REV_GNC_7); with (d) the vent stays <= 76 g, which passes; the 253 (7)(ii) re-fly-trigger wording is withdrawn (REV-COMB-4 R4-11)",
+   "basis": "29.25 g/s = 76 g / 2.5982 s of flow at 289.5 K (27.58-31.06 g/s over 283.15-297.15 K; purge_basis_line216_v2p4b)",
+   "PURGE_command_time": "open: Electronics v2.12 states E0 - 2.90 s (the flow ends at E0 - 0.12 s) or E0 - 2.83 s (the flow ends at E0 - 0.05 s) [DERIVED]",
+   "CF4": "CF-4 v2.2 runs the decided flow, adds a run at or below 283.15 K or states the cold corner model-only, checks the Cd x A acceptance in P5 and records the measured Cd x A that re-sets the flow and cap (d)",
+   "electronics": "kPurgeFlow_s 2.43 s; command span 2.38 s inside the 2.39 s cap; flow at the cap 2.44 s (Electronics v4 head_end_bleed_provision.cap_decision_230_3.option_not_made, now decided); after CF-4 both are calibration constants re-set by (d), never above these values"
+  },
+  "tag": "LEAD (decision and conditions); DERIVED by REV-COMB-4 on the author's SIM model (Cd 0.70 ASSUMED); ESTIMATE (Cd 0.80 mass); A1 reserve test DERIVED from SIM by REV-GNC-7 (ESTIMATE above 80 g)",
+  "src": "CHANGELOG 253 (7)(ii), 256 (2), 257 (2); reviews/REVIEW-COMBUSTION-R4.md R4-07; reviews/combustion/r4/r4_purge_corners.json (9249ed093c21a3a3); REV-GNC-7 interim 2 (the review file follows)"
+ },
+ "electronics_open_issues_v2p4c": {
+  "v": {
+   "OI-UNPURGED-RELIGHT": {
+    "severity": "MEDIUM (Electronics v4)",
+    "a": "an unprimed or UNKNOWN-line relight with the bleed fitted stays refused for A1 (fail-safe) (LEAD 253 (7)(iv)); purge_commit_rule_v2p4b.v.unprimed_line_v2p4c",
+    "b": "the torch-kept ride-through of the post-light vapour gap stays a research option (not implemented)",
+    "c": "the latency and hold blocks use the model E2 (Pc > 3.0 bar abs for 10 ms); the ECU flight E2 comes at most 14.7 ms earlier (E2_rule_v2p4b); notes added in release_hold_v2p4b and relight_purge",
+    "status": "OPEN until Combustion models an unpurged relight (253 (7)(iv))"
+   },
+   "OI-PHOTODIODE-VIEW": {
+    "severity": "HIGH (Electronics v4)",
+    "condition": "pcf_tmax 0.8 s holds on the dead side only with the photodiode main-chamber view (FLAMEOUT_OPT armed) or the GNC reference re-taken at the ECU E2 / light; photodiode-blind families release 42 (normal_noopt) / 98 (starved040_noopt) of 1000 dead runs at 0.8 s (OI-PHOTODIODE-VIEW, HIGH, open for IGN-1; REV-COMB-4 section 6)",
+    "status": "OPEN for IGN-1 (view proven with the torch closed) or the GNC reference choice"
+   },
+   "OI-GEN-TABLES": {
+    "severity": "MEDIUM (Electronics v4)",
+    "answer": "machine-readable igniter sequence added: igniter_sequence_fields_v2p4c (one field per value; Electronics v4 requests[7]); gen_tables v3.4 reads it, regenerates, diffs and re-runs the SIL record",
+    "status": "Combustion part DONE in v2.4c; Electronics part open"
+   },
+   "OI-E2-LATENCY": "LOW; open (IGN-1)",
+   "OI-STAND-LATE-LIGHT": "LOW; open (IGN-1)",
+   "OI-SEAT-RINGING": "MEDIUM; open (B-DPC-1 / HIL-TR-1); the FA-1 grid's minimum 10-90 % rise is 0.842 ms against the ideal 25 us steps",
+   "OI-38-R2-COMMAND-HOLD": "HIGH; open (GNC R2 v2 / B-FC-1 / CF-3)",
+   "routed_to_electronics_v2p12": [
+    "R4-09: Pc-port face bound 130.2 / 131.3 / 130.5 bar abs over c 181-1200 m/s; C1 over-range margin >= 6.6 bar",
+    "R4-12: P_torch 070BG proof against FA1S 151.04 bar abs (>= 166.14 bar abs or isolate); saturation and recovery",
+    "R4-13: config.h:831 cites the superseded purge_sizing_v2p4.json; cite purge_duration_v2p4.json (1ff6bfcd7d2f454c): 1.9 s at 289.5 K on 2 x 0.707 mm and 2.2 s at 283.15 K",
+    "R4-02: re-classify the 10 S6R runs and the 29-33 N-04 burn-on cases against the restated Z3",
+    "LEAD 256 (2)(a): state 2.2 s at 283.15 K wherever 1.9 s is quoted",
+    "LEAD 256 (2): the PURGE command time with 2.43 s of flow (E0 - 2.90 or - 2.83 s)",
+    "LEAD 257 (2): kPurgeFlow_s and the both-open cap are calibration constants, re-set after CF-4 from the measured Cd x A by the measured-time form (mdot at 297.15 K), never above 2.43 / 2.39 s"
+   ]
+  },
+  "tag": "REV-COMB-4 section 6 dispositions; Electronics v4 open_issues (electronics.json 11f7896ad0d0613b)",
+  "src": "reviews/REVIEW-COMBUSTION-R4.md section 6"
+ },
+ "igniter_sequence_fields_v2p4c": {
+  "v": {
+   "format": "one field per value: id, v, unit, src (a combustion.json path or a LEAD line), tag; times are relative to E0 unless the id says otherwise; for gen_tables (OI-GEN-TABLES; Electronics v4 requests[7])",
+   "fields": [
+    {
+     "id": "purge.commit_lead_L_star",
+     "v": 1.3,
+     "unit": "s",
+     "src": "igniter.sequence.v.start[0]; LEAD 186 (1)",
+     "tag": "LEAD"
+    },
+    {
+     "id": "purge.PURGE_command_analysed",
+     "v": -2.9,
+     "unit": "s",
+     "src": "relight_purge.v.timing_s; Electronics v2.12 states the flight value",
+     "tag": "DESIGN (analysed)"
+    },
+    {
+     "id": "purge.MV_ramp",
+     "v": 0.35,
+     "unit": "s",
+     "src": "relight_purge.v.timing_s",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "purge.flow_scheduled",
+     "v": 2.43,
+     "unit": "s",
+     "src": "purge_decision_v2p4c; LEAD 253 (7)(ii), 256 (2)",
+     "tag": "LEAD"
+    },
+    {
+     "id": "purge.flow_end",
+     "v": -0.05,
+     "unit": "s",
+     "src": "LEAD line 164",
+     "tag": "LEAD"
+    },
+    {
+     "id": "purge.both_open_cap",
+     "v": 2.39,
+     "unit": "s",
+     "src": "purge_decision_v2p4c; LEAD 256 (2)",
+     "tag": "LEAD"
+    },
+    {
+     "id": "purge.needed_flow_unlined_283p15K",
+     "v": 2.2,
+     "unit": "s",
+     "src": "purge_decision_v2p4c; REV-COMB-4 R4-07",
+     "tag": "DERIVED"
+    },
+    {
+     "id": "purge.needed_flow_unlined_289p5K",
+     "v": 1.9,
+     "unit": "s",
+     "src": "relight_purge.v.timing_s.needed_flow_unlined",
+     "tag": "SIM"
+    },
+    {
+     "id": "purge.valve_open_close_times",
+     "v": [
+      0.03,
+      0.08
+     ],
+     "unit": "s",
+     "src": "purge_basis_line216_v2p4b.v.cap_rule",
+     "tag": "ASSUMED"
+    },
+    {
+     "id": "purge.closure_deadline",
+     "v": 0.16,
+     "unit": "s",
+     "src": "igniter.sequence.v.start[3]; Electronics v4 kTorchGate_s (= the torch gate)",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "spark.rate",
+     "v": 50,
+     "unit": "Hz",
+     "src": "igniter.sequence.v.start[1]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "spark.energy",
+     "v": 0.05,
+     "unit": "J",
+     "src": "igniter.sequence.v.start[1] (50 mJ)",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "spark.start",
+     "v": 0.02,
+     "unit": "s",
+     "src": "igniter.sequence.v.start[1]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "spark.train_max",
+     "v": 0.5,
+     "unit": "s",
+     "src": "firmware_constant_sources_v2p4b kSparkTrain_s",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "torch_gate.latest_E1",
+     "v": 0.16,
+     "unit": "s",
+     "src": "igniter.sequence.v.start[2]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "E1.median",
+     "v": 0.09,
+     "unit": "s",
+     "src": "igniter.sequence.v.start[3] (torch_gate_v2p4)",
+     "tag": "SIM"
+    },
+    {
+     "id": "E1.persistence",
+     "v": 0.01,
+     "unit": "s",
+     "src": "igniter.sequence.v.start[3]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "E1_to_E2.torch_loss_both_sensors",
+     "v": 0.005,
+     "unit": "s",
+     "src": "igniter.sequence.v.start[3] (FA-1 (b), A16)",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "start_lift.h_s_20C",
+     "v": 0.2039,
+     "unit": "mm",
+     "src": "igniter.sequence.v.start[3]; start_level_lift_v2p4b",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "start_lift.h_s_A1_286p70K",
+     "v": 0.21776,
+     "unit": "mm",
+     "src": "start_level_lift_v2p4b.v.line216_9 (ECU row)",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "start_lift.t_lift",
+     "v": [
+      0.0287,
+      0.0295
+     ],
+     "unit": "s",
+     "src": "igniter.sequence.v.start[3]",
+     "tag": "DERIVED"
+    },
+    {
+     "id": "start_lift.flow_cap_20C",
+     "v": 37.1,
+     "unit": "g/s",
+     "src": "igniter.sequence.v.start[3]; CF-3",
+     "tag": "LEAD (cap)"
+    },
+    {
+     "id": "start_lift.flow_cap_A1",
+     "v": 37.4,
+     "unit": "g/s",
+     "src": "igniter.sequence.v.start[3]; CF-3",
+     "tag": "LEAD (cap)"
+    },
+    {
+     "id": "W.flight_first_start_from_lift_command",
+     "v": 0.4,
+     "unit": "s",
+     "src": "igniter.sequence.v.light_windows_W_s",
+     "tag": "LEAD"
+    },
+    {
+     "id": "W.flight_relight_from_lift_command",
+     "v": 0.65,
+     "unit": "s",
+     "src": "igniter.sequence.v.light_windows_W_s",
+     "tag": "LEAD"
+    },
+    {
+     "id": "W.stand_from_lift_command",
+     "v": 0.35,
+     "unit": "s",
+     "src": "igniter.sequence.v.light_windows_W_s",
+     "tag": "LEAD"
+    },
+    {
+     "id": "W.relight_plan_limit_E2",
+     "v": 0.81,
+     "unit": "s",
+     "src": "igniter.sequence.v.start[4] (torch gate 0.16 + W 0.65)",
+     "tag": "LEAD"
+    },
+    {
+     "id": "E2.rise_over_prelift_baseline",
+     "v": 0.8,
+     "unit": "bar",
+     "src": "igniter.sequence.v.start[5] (filtered AND raw Pc)",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "E2.persistence",
+     "v": 0.01,
+     "unit": "s",
+     "src": "igniter.sequence.v.start[5]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "E2.floor",
+     "v": 1.8,
+     "unit": "bar abs",
+     "src": "igniter.sequence.v.start[5]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "E2.SOL2_after_SOL1_max",
+     "v": 0.02,
+     "unit": "s",
+     "src": "igniter.sequence.v.start[5]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "E2.ECU_before_model_max",
+     "v": 0.0147,
+     "unit": "s",
+     "src": "E2_rule_v2p4b.v.shift_bound_s",
+     "tag": "DERIVED"
+    },
+    {
+     "id": "E2.worst_purged_median_p99_max",
+     "v": [
+      0.442,
+      0.589,
+      0.626
+     ],
+     "unit": "s",
+     "src": "igniter.sequence.v.start[5] (rg01_line_states_v2p4)",
+     "tag": "SIM"
+    },
+    {
+     "id": "E3.thrust_fraction_of_command",
+     "v": 0.9,
+     "unit": "-",
+     "src": "igniter.sequence.v.start[6] (ENG-04)",
+     "tag": "REQ"
+    },
+    {
+     "id": "propane.SOL2_close_backstop_time",
+     "v": 0.4,
+     "unit": "s",
+     "src": "firmware_constant_sources_v2p4b kPropaneOffPcAbs_Pa",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "propane.SOL2_close_backstop_Pc",
+     "v": 5.0,
+     "unit": "bar abs",
+     "src": "firmware_constant_sources_v2p4b kPropaneOffPcAbs_Pa",
+     "tag": "DERIVED"
+    },
+    {
+     "id": "ramp.start_ramp_max",
+     "v": 2500,
+     "unit": "N/s",
+     "src": "firmware_constant_sources_v2p4b kStartRamp_Nps",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "ramp.pintle_to_ignition_lift_legacy",
+     "v": 0.12,
+     "unit": "s",
+     "src": "firmware_constant_sources_v2p4b kPintleToIgnitionLift_s",
+     "tag": "DESIGN (legacy)"
+    },
+    {
+     "id": "shutdown.throttle_down_before_MECO_max",
+     "v": 0.75,
+     "unit": "-",
+     "src": "igniter.sequence.v.shutdown[0] (ENG-05)",
+     "tag": "LEAD"
+    },
+    {
+     "id": "shutdown.MV_seat_confirm_Pc_below",
+     "v": 2.0,
+     "unit": "bar abs",
+     "src": "igniter.sequence.v.shutdown[2]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "shutdown.MV_deenergise_after_command_max",
+     "v": 0.3,
+     "unit": "s",
+     "src": "igniter.sequence.v.shutdown[2]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "shutdown.ground_hold_before_safing",
+     "v": 30,
+     "unit": "s",
+     "src": "igniter.sequence.v.shutdown[3]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "arm.tank_T_range",
+     "v": [
+      15,
+      24
+     ],
+     "unit": "C",
+     "src": "igniter.sequence.v.arm_preconditions[0] (ENG-12; interlock_guard_band)",
+     "tag": "REQ"
+    },
+    {
+     "id": "arm.P_torch_refuse_above",
+     "v": 1.05,
+     "unit": "bar abs",
+     "src": "igniter.sequence.v.arm_preconditions[2]",
+     "tag": "DESIGN"
+    },
+    {
+     "id": "arm.relight_case_TC_refuse_above",
+     "v": 403.15,
+     "unit": "K",
+     "src": "igniter.sequence.v.arm_preconditions[5]; LEAD 249 (4) kCaseRelightMax_K",
+     "tag": "LEAD"
+    },
+    {
+     "id": "release.accel_thrust_threshold",
+     "v": 37.16,
+     "unit": "N",
+     "src": "drogue_release_hold.v.line175_5_note_v2p4a (LEAD 175 (5))",
+     "tag": "LEAD"
+    },
+    {
+     "id": "release.frames",
+     "v": 3,
+     "unit": "-",
+     "src": "drogue_release_hold.v.line175_5_note_v2p4a",
+     "tag": "LEAD"
+    },
+    {
+     "id": "release.frame_rate",
+     "v": 100,
+     "unit": "Hz",
+     "src": "drogue_release_hold.v.line175_5_note_v2p4a",
+     "tag": "LEAD"
+    },
+    {
+     "id": "release.pcf_tmax",
+     "v": 0.8,
+     "unit": "s",
+     "src": "drogue_release_hold.v.line175_5_note_v2p4a; LEAD 227 (5)",
+     "tag": "LEAD"
+    },
+    {
+     "id": "stand_abort.N2_purge_min",
+     "v": 60,
+     "unit": "s",
+     "src": "igniter.sequence.v.abort_if_no_ignition[1]",
+     "tag": "LEAD"
+    },
+    {
+     "id": "stand_abort.N2_purge_rate_min",
+     "v": 10,
+     "unit": "g/s",
+     "src": "igniter.sequence.v.abort_if_no_ignition[1]",
+     "tag": "LEAD"
+    },
+    {
+     "id": "stand_abort.hold_before_approach_min",
+     "v": 15,
+     "unit": "min",
+     "src": "igniter.sequence.v.abort_if_no_ignition[1]",
+     "tag": "LEAD"
+    }
+   ]
+  },
+  "tag": "index of values already in this file or decided by the lead (LEAD 249 (4), 256 (2)); no new model value",
+  "src": "REV-COMB-4 section 6 (OI-GEN-TABLES)"
+ },
+ "t4_duration_note_v2p4c": {
+  "v": {
+   "finding": "N-07: T1-T4 v3's own objectives fix no DC-D or DC-C duration; its T4 row reads 'DC-D ... law check only' with 7.02 kg; the durations come from GNC's DC-D v2 (32.0 + 8.0 + 10.0 s; 6.31 kg ox) [ASSUMED]",
+   "objectives": "erosion per cycle and soak temperatures need the B1 sizing duty (B1 p99 21.76 s at mean throttle 0.257, 1.54 kg; B1 max 23.58 s, 1.63 kg); relight latency needs an A1-like relight from a soaked state (A1 p99 record: 3.78 s at 0.88, coast to 22.79 s, then 4.59 s at 0.47)",
+   "shortest_firing_estimate": "burn 1 on the B1 p99 profile (21.76 s; 23.58 s if the life rule is sized on max), a coast of about 19 s, then one relight of about 4.6 s at about 0.47 throttle: about 2.0 kg of N2O against 7.02 kg; a third start is a repeat only; DC-C (27.0 + 9.5 s, 2.39 kg) carries no Combustion T4 objective",
+   "status": "GNC (REV-GNC-7) confirms the T4 profile; 7.02 kg stays the planning value until then (T1-T4 v3.1 line 294)"
+  },
+  "tag": "ESTIMATE (REV-COMB-4 from the GNC records)",
+  "src": "reviews/REVIEW-COMBUSTION-R4.md section 6 (N-07)"
+ },
+ "lead_decisions_folded_v2p4c": {
+  "v": {
+   "227 (5)": "R2 starve window pcf_tmax 0.8 s ADOPTED for the W10 < 6 m/s launch-commit envelope (reverses 181 (4))",
+   "230 (1)": "TC-01 J-FWD not met on a conservative basis; design change sized to FA1S 151.04 bar abs (Mechanical; re-map published in line 254)",
+   "230 (2)": "band values RESTATED to 94 / 121 / 147 / 94 bar abs; FA1S stays the bound for every period; the per-mode rule stays an analysis path",
+   "230 (3)": "ONE purge flow basis 29.25 g/s ADOPTED; 2.39 s fixed cap if the scheduled flow fits",
+   "243 (3)": "case TC abort A = 150 C (423.15 K) ADOPTED (supersedes the 175 C of 188 (5)); channel accepted in 249 (1)",
+   "249 (4)": "kCaseRelightMax_K 403.15 K (130 C); flight Pc proof >= 166 bar abs = 1.1 x FA1S (written 166.14, REV-COMB-4 R4-05); the C1 pick meets it",
+   "253 (7)(i)": "ride-through ADOPTED with conditions; Z3 restatement added (256 (3))",
+   "253 (7)(ii)": "2.43 s scheduled flow with the 2.39 s cap, FINAL in 256 (2) with conditions (a)-(c)",
+   "253 (7)(iv)": "an unprimed or UNKNOWN-line relight with the bleed fitted stays refused for A1 (fail-safe)",
+   "253 (8)": "provisional TB-state used-joint aborts; wording corrected by 256 (4)",
+   "256": "REV-COMB-4 ACCEPTED; combustion v2.4c is text only (this revision)",
+   "257 (2)": "purge condition (d): after CF-4 the flow and cap are re-set from the measured Cd x A by the measured-time form (mass flow at 297.15 K), never above 2.43 / 2.39 s, so the vent stays <= 76 g (on REV-GNC-7: the fixed schedule at Cd 0.80 vents about 85.5 g at 297.15 K and fails the A1 reserve test)"
+  },
+  "tag": "LEAD (CHANGELOG)",
+  "src": "CHANGELOG lines 227, 230, 243, 249, 253, 256, 257"
+ },
+ "datasheet_inputs_v2p4c": {
+  "v": {
+   "file": "02-combustion/DATASHEET-INPUTS-COMBUSTION.md",
+   "version": "v2.4c",
+   "sha256_16": "29ed6d45c55ff234",
+   "builder": "02-combustion/src/apply_v2p4c_rev_comb_4.py (lead edit of the v2.4b file 46a8222018666b1d)",
+   "changes": "R4-03, R4-08, R4-17; LEAD 230 (2), 249 (4), 256 (2), 257 (2); rows added: FA-1 in gas-filled passages, Pc transducer proof"
+  },
+  "tag": "index (each row carries its own tag)",
+  "src": "REPORT v2.4c section 17"
+ },
+ "superseded_v2p4c": {
+  "v": {
+   "igniter.sequence.v.arm_preconditions[3]": {
+    "v": "Pc transducer: flight unit RESELECTED by Electronics (LEAD 205): miniature seat-mounted, body within 12 mm x 30 mm, front dead volume <= 20 mm3, proof >= 1.1 x 102 = 112 bar abs (lead basis; Combustion's all-case 0.1-1 ms spectrum gives 1.1 x 120.3 = 132 bar abs, OI-41), range covering the 45 bar MEOP with the 30 bar abort resolvable, >= 120 C; over-range bit and above-full-scale flag (LEAD 203 (1)(a)); P_torch 0-70 bar class (ENG-09); P_feed, P_tank healthy; Pc reads ambient",
+    "replaced_by": [
+     "R4-05",
+     "R4-12"
+    ]
+   },
+   "open_interface_issues[5].status": {
+    "v": "RE-OPENED by LEAD 205: the flight Pc transducer is reselected (seat-mounted, proof >= 112 bar abs per the lead; Combustion's all-case 0.1-1 ms value gives 132 bar abs: OI-41); Electronics selects, Mechanical makes the CC-2 head",
+    "replaced_by": [
+     "R4-05"
+    ]
+   },
+   "pc_dynamic_channel.v.stand": {
+    "v": ">= 10-20 kHz sampling with an anti-alias filter; flush-mounted transducer or a characterised short sense line (resonance measured); range >= 100 bar abs (FA-1 construct head peak up to 88.0 bar abs; LEAD 194 (7)); proof rating >= 1.1 x the all-case FA-1 spectrum at the transducer path period: flush mount (T <= 0.1 ms) >= 103 bar abs (1.1 x 93.6), carried as the 112 bar abs class of the flight unit (LEAD 205); path period 0.1-1 ms >= 132 bar abs (1.1 x 120.3); path period > 1 ms not acceptable for the dynamic channel; passage free of liquid N2O (pc_port_gas_v2p4b); founder instrumentation item, TO-QUOTE delivered to Sonderborg DK-6400",
+    "replaced_by": [
+     "R4-05, R4-09"
+    ]
+   },
+   "pc_dynamic_channel.v.flight": {
+    "v": "flight Pc transducer RESELECTED (LEAD 205): seat-mounted miniature unit, proof >= 112 bar abs (lead), range covering 45 bar MEOP with the 30 bar abort resolvable; control channel 1 kHz; LIGHT_SPIKE values logged at 1 kHz are LOWER BOUNDS of a 1-3 ms spike; non-sticky over-range bit and above-full-scale flag (LEAD 203 (1)(a)); the 070BG over-range behaviour is MISSING (B-PC-1 row, TE inquiry)",
+    "replaced_by": [
+     "R4-05"
+    ]
+   },
+   "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.rule": {
+    "v": "proof >= 1.1 x P_eq(all cases) at the transducer path period (LEAD 205 uses 1.1 x 102 = 112 bar abs for the flight unit)",
+    "replaced_by": [
+     "R4-05"
+    ]
+   },
+   "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.flush_T_le_0p1ms_bar_abs.adopted": {
+    "v": 112.0,
+    "replaced_by": [
+     "R4-05"
+    ]
+   },
+   "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.path_0p1_to_1ms_bar_abs.adopted": {
+    "v": 132.0,
+    "replaced_by": [
+     "R4-05"
+    ]
+   },
+   "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.contradiction": {
+    "v": "the lead's 112 bar abs uses 102 bar (the 194 (1) 0.1-1 ms ultimate); the dense all-case value is 120.3 bar abs (OI-41)",
+    "replaced_by": [
+     "R4-05"
+    ]
+   },
+   "fa1_spectra_v2p4b.v.contradiction": {
+    "v": "OI-41 (for the lead): the all-case head value exceeds 90 bar abs for T <= 0.1 ms (93.6; baseline 88.6); for 0.1-1 ms the baseline is 102.5 and the all-case 120.3 bar abs against yield 93 / ultimate 102; in the ENG-TC-02 band (0.272-0.385 ms) baseline 99.5, all-case 111.7 bar abs (undamped). FA1S (about 151 bar abs) bounds every period (max 146.9). Which group governs each domain is the lead's decision; the flight Pc proof (1.1 x 102 = 112) follows from it",
+    "replaced_by": [
+     "R4-05"
+    ]
+   },
+   "igniter.sequence.v.start[0].action": {
+    "v": "PURGE commits iff the lead to the plain relight trigger is >= L* = 1.3 s (LEAD 186 (1), ADOPTED for both wall heat-transfer brackets; replaces the 1.7 s interim of 181 (2) and the PROVISIONAL rule of 175 (3)); below L* no purge and no unpurged relight on that pass (drogue descent; vehicle loss in the FMEA); the ECU unpurged RELIGHT guard enforces it (LEAD 203 (7), v2.11). A commit lead below about 2.1 s is not counted as a landing (LEAD 204 (1), GNC). When committed: MV latch and opener ramp (0.35 s) with the pintle seated; V1 and V2 open; both taps flow 2.5 s; the close command leads by the measured valve closing time so the flow stops by E0 - 0.05 s (scheduled flow end, LEAD line 164). Closure (V1 first, on P_mid) is confirmed by the closure deadline <= the torch gate (Electronics: E0 + 0.15 s), otherwise BLEED_FAULT (see E1). ECU both-open cap <= 2.55 s (LEAD 203 (3)); vented mass on the Combustion record basis <= 72.93 g at 2.50 s and <= 76.05 g at 2.60 s of flow (purge_basis_v2p4b)",
+    "replaced_by": [
+     "R4-06",
+     "LEAD 256 (2)"
+    ]
+   },
+   "abort_matrix_v2p4.v.A14": {
+    "v": "bleed valve fault, or closure not confirmed by the closure deadline (<= torch gate E0 + 0.16 s; Electronics E0 + 0.15 s) -> BLEED_FAULT to the FC (FC action LOG-ONLY, line 168); flight: V2 commanded closed and the lift proceeds (E1 term, line 166 (3)); stand: abort; fail-closed -> no purge -> no relight on that pass; closure from P_mid is a pad go/no-go (line 168). SUPERSEDED (v2.4a): \"closure not confirmed by E0 - 0.05 s\" (E0 - 0.05 s stays the scheduled flow end only)",
+    "replaced_by": [
+     "R4-06"
+    ]
+   },
+   "cf4_gate.v.pass_criteria[5]": {
+    "v": "P6 flow stopped by E0 - 0.05 s (scheduled); closure confirmed (V1 first, P_mid) by the deadline <= torch gate (Electronics E0 + 0.15 s); one valve held open -> BLEED_FAULT at the deadline; flight build: V2 commanded closed and the lift proceeds; stand build: abort",
+    "replaced_by": [
+     "R4-06"
+    ]
+   },
+   "igniter.sequence.v.relight[1]": {
+    "v": "A1 relight: PURGE at E0 - 2.90 s (2.5 s of flow, theta <= 2 deg, balanced or axial vent), then the start sequence from E0",
+    "replaced_by": [
+     "LEAD 256 (2)"
+    ]
+   },
+   "relight_purge.v.timing_s.flow": {
+    "v": 2.5,
+    "replaced_by": [
+     "LEAD 256 (2)"
+    ]
+   },
+   "relight_purge.v.timing_s.min_flow_before_T_fire_delay": {
+    "v": 1.9,
+    "replaced_by": [
+     "LEAD 256 (2)(a)"
+    ]
+   },
+   "purge_commit_rule_v2p4b.v.ecu_cap": {
+    "v": "both-open cap <= 2.55 s (LEAD 203 (3)); Combustion basis in purge_basis_v2p4b: 76.05 g on the bound at 2.60 s of flow, at the 76 g limit within 0.05 g; strict <= 76 g needs both-open <= 2.548 s (OI-42)",
+    "replaced_by": [
+     "LEAD 256 (2), 257 (2)"
+    ]
+   },
+   "igniter.sequence.v.arm_preconditions[5]": {
+    "v": "relight only: chamber vented; RELIGHT refused if a case thermocouple reads > 433.15 K",
+    "replaced_by": [
+     "LEAD 249 (4)"
+    ]
+   },
+   "igniter.sequence.v.relight[2]": {
+    "v": "settling: liquid at the tank outlet from E0 - 2.90 s - t_settle (§2.4 note); RELIGHT refused if a case thermocouple > 433.15 K",
+    "replaced_by": [
+     "LEAD 249 (4)"
+    ]
+   },
+   "drogue_release_hold.v.line175_5_note_v2p4a": {
+    "v": "LEAD line 175 (5): the time-only 0xFFFF term is REPLACED in design by R2 (Pc invalid: release iff ECU RUN AND accelerometer thrust >= 37.16 N for 3 frames at 100 Hz, otherwise hold the drogue and ECU ABORT at t_E2 + 0.5 s: pcf_tmax 0.5 s, LEAD 181 (4); 0.8 s not adopted). While the drogue is attached with Pc invalid the open-loop command is held at the start level (LEAD 186 (2)); GNC R2 v2 uses F_cold plus the grain_q1d start-level lit history (start_level_lit_thrust_v2p4b), not 62.5 N x pcf_k (194 (4); SUPERSEDED 204 (4)). The Pc-valid terms are unchanged. Unpurged starts are excluded by design (186 (1)); on such a start the Pc-valid term would release before the post-light vapour gap (H20)",
+    "replaced_by": [
+     "R4-04"
+    ]
+   },
+   "superseded_v2p4b.v.ABORT at t_E2 + 0.8 s": {
+    "v": "t_E2 + 0.5 s (181 (4))",
+    "replaced_by": [
+     "R4-04"
+    ]
+   },
+   "p4c_lit_side_v2p4b.v.implications.pcf_tmax": {
+    "v": "lit side at 0.21776 mm, torch 0: every corner that reaches 37.16 N does so by E2 + 0.205 s (+ 3 frames: 0.235 s), inside both windows; 3 of 72 corners never reach 37.16 N in the 0.8 s window (3 in 0.5 s): a longer window does not rescue them (F at 1 s >= 36.33 N), so pcf_tmax 0.8 s (line 227 (5)) is not limited by the lit side",
+    "replaced_by": [
+     "R4-03"
+    ]
+   },
+   "purge_commit_rule_v2p4a.v.line181_2_answer.below_L_star": {
+    "v": "LEAD 194 (3): the \"E2 + 0.22 s\" hold of 186 (1) is WITHDRAWN (derived from one state). Population hold table (release_hold_v2p4b): H >= 0.30 s on the 2500 N/s ramp to 200 N (0.31 s with the 10 ms frame margin), >= 0.19 s on the ramp to 500 N, no admissible hold with the flow held at the start lift (0.75 s > W). The alternative is NOT ADOPTED (LEAD 204 (2)); the classes are comparator data for GNC P4c",
+    "replaced_by": [
+     "R4-14"
+    ]
+   },
+   "open_items_v2p4b.v[10].action": {
+    "v": "FEA3D publishes the vector from modal_v351ca2b_c71 (fa1_band_sensitivity.py already forms it); Combustion re-runs fa1_per_mode_peq / fa1_modal_th_bound (minutes) and the interval collapses to a number",
+    "replaced_by": [
+     "R4-18"
+    ]
+   },
+   "cf4_gate.spec_version": {
+    "v": "CF-4-SPEC v2.1 (v2.4b final fold, 60bbc51f6f487682)",
+    "replaced_by": [
+     "v2.4c"
+    ]
+   },
+   "version": {
+    "v": "v2.4b",
+    "replaced_by": [
+     "v2.4c"
+    ]
+   },
+   "date": {
+    "v": "2026-10-19",
+    "replaced_by": [
+     "v2.4c"
+    ]
+   },
+   "revision_note": {
+    "v": "v2.4b (2026-10-13): targeted patch for REV-COMB-3 (a786101f28d45d6f, REVISE targeted) R3-01..R3-17 with the lead decisions of CHANGELOG lines 186 and 194 and the coordinator relays of lines 203-205: release-hold population table by command profile and per-record classes (release_hold_v2p4b); FA-1 head and aft pressure spectra to 50 ms with the LEAD 194 (1) period domain and the long-period thrust spectrum (fa1_spectra_v2p4b); cold-flow start-lift bound CONDITIONAL with the CF-3 start-lift acceptance (cold_flow_start_lift_v2p4b); THE start-level lift (start_level_lift_v2p4b) and its lit thrust history (start_level_lit_thrust_v2p4b); H19 for the IN718 lip; stand dynamic Pc channel proof rating; NZ-01 frozen prediction; tank-outlet dip onset; purge flow basis and the 2.55 s cap; E2 rule; firmware constant sources; Pc port passage gas sound speed (line 205); T1-T4 v3 and CF-4 v2.1; stale text replaced (values kept under *_superseded keys); LEAD line 213: A1 apogee target about 210 m, the 300 m and 285 m A1 values kept as comparators (a1_apogee_target_v2p4b). All v2.4a keys kept. Final fold (2026-10-19): LEAD CHANGELOG lines 214-228 and the lead requests of 2026-10-19: FA-1 spectra as data with damping (fa1_spectra_damped_v2p4b), the per-mode TC-01 equivalent pressure (fa1_per_mode_peq_v2p4b), ONE purge flow basis 29.25 g/s (purge_basis_line216_v2p4b), the start-level lift at the A1 relight state (start_level_lift_v2p4b.v.line216_9), the GNC P4c lit side (p4c_lit_side_v2p4b), the 2.20 kg tank option (tank_2p20kg_option_v2p4b), the datasheet inputs (datasheet_inputs_v2p4b); A1 210 m decided (214, 227 (1)) and the A1 duty-cycle statement corrected (227 (9)); open items OI-50 to OI-52 (final_fold_v2p4b).",
+    "replaced_by": [
+     "v2.4c"
+    ]
+   },
+   "status": {
+    "v": "v2.4b REVISION (digital only, Por revisar), final fold 2026-10-19. Design point unchanged. No number is MEASURED. The relight claim is gated by CF-4; FA-1 is accepted for design continuation only. Decided by the lead and folded: L* = 1.3 s with no unpurged relight below it (186 (1)); the R2 command hold at the start level (186 (2), margin CONDITIONAL 194 (4)); the FA-1 period domain (194 (1)), which the published all-case spectrum exceeds below 1 ms (OI-41; restatement and per-mode rule proposed, final_fold_v2p4b); the unpurged alternative NOT ADOPTED (204 (2)); A1 apogee target 210 m DECIDED (214, 227 (1)): the A1 values are 300 m / 285 m comparators until the 210 m record, the A1 duty cycle does not shorten (227 (9)), B1 governs sizing; tank 2.00 kg (219), 2.20 kg an option with B1 / thermal / erosion TO-VERIFY (OI-50). Nothing here is physical approval.",
+    "replaced_by": [
+     "v2.4c"
+    ]
+   },
+   "supersedes": {
+    "v": "combustion.json v2.4a (5237d4584bad38c4), kept as 02-combustion/data/v2/combustion_interface_v2p4a_as_published.json and 02-combustion/superseded/v2p4a/combustion.json",
+    "replaced_by": [
+     "v2.4c"
+    ]
+   }
+  },
+  "version": "v2.4b",
+  "superseded_by": "v2.4c (2026-10-21)",
+  "tag": "history: every leaf replaced in v2.4c, keyed by its path, with the finding or decision that replaced it"
+ },
+ "edit_log_v2p4c": {
+  "v": [
+   {
+    "file": "combustion.json",
+    "where": "igniter.sequence.v.arm_preconditions[3]",
+    "by": "R4-05",
+    "what": "flight Pc proof 112 -> 166.14 bar abs (1.1 x FA1S); C1 meets it; OI-41 decided"
+   },
+   {
+    "file": "combustion.json",
+    "where": "igniter.sequence.v.arm_preconditions[3]",
+    "by": "R4-12",
+    "what": "P_torch transducer: FA-1 passage pressure note routed to Electronics"
+   },
+   {
+    "file": "combustion.json",
+    "where": "open_interface_issues[5].status",
+    "by": "R4-05",
+    "what": "OI-6 status: proof 166.14 bar abs"
+   },
+   {
+    "file": "combustion.json",
+    "where": "pc_dynamic_channel.v.stand",
+    "by": "R4-05, R4-09",
+    "what": "stand channel: proof 103.4 / 133.1 bar abs, range 132 bar abs with a sense line"
+   },
+   {
+    "file": "combustion.json",
+    "where": "pc_dynamic_channel.v.flight",
+    "by": "R4-05",
+    "what": "flight unit proof 166.14 bar abs"
+   },
+   {
+    "file": "combustion.json",
+    "where": "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.rule",
+    "by": "R4-05",
+    "what": "proof rule: flight unit 166.14 bar abs"
+   },
+   {
+    "file": "combustion.json",
+    "where": "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.flush_T_le_0p1ms_bar_abs.adopted",
+    "by": "R4-05",
+    "what": "flush proof adopted 112.0 -> 103.4 (1.1 x 94)"
+   },
+   {
+    "file": "combustion.json",
+    "where": "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.flush_T_le_0p1ms_bar_abs.band_value_LEAD_230_2 (new)",
+    "by": "R4-05",
+    "what": "decided band value 94 bar abs"
+   },
+   {
+    "file": "combustion.json",
+    "where": "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.path_0p1_to_1ms_bar_abs.adopted",
+    "by": "R4-05",
+    "what": "0.1-1 ms proof adopted 132.0 -> 133.1 (1.1 x 121)"
+   },
+   {
+    "file": "combustion.json",
+    "where": "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.path_0p1_to_1ms_bar_abs.band_value_LEAD_230_2 (new)",
+    "by": "R4-05",
+    "what": "decided band value 121 bar abs"
+   },
+   {
+    "file": "combustion.json",
+    "where": "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.flight_unit_all_periods_bar_abs (new)",
+    "by": "R4-05",
+    "what": "flight unit proof 166.14 bar abs (249 (4))"
+   },
+   {
+    "file": "combustion.json",
+    "where": "pc_dynamic_channel.v.stand_proof_rating_v2p4b.v.contradiction",
+    "by": "R4-05",
+    "what": "OI-41 contradiction RESOLVED (230 (2), 249 (4))"
+   },
+   {
+    "file": "combustion.json",
+    "where": "fa1_spectra_v2p4b.v.contradiction",
+    "by": "R4-05",
+    "what": "OI-41 contradiction RESOLVED (230 (2), 249 (4))"
+   },
+   {
+    "file": "combustion.json",
+    "where": "igniter.sequence.v.start[0].action",
+    "by": "R4-06",
+    "what": "closure deadline E0 + 0.16 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "abort_matrix_v2p4.v.A14",
+    "by": "R4-06",
+    "what": "A14: closure deadline E0 + 0.16 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "cf4_gate.v.pass_criteria[5]",
+    "by": "R4-06",
+    "what": "CF-4 P6: closure deadline E0 + 0.16 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "igniter.sequence.v.start[0].action_superseded.note_v2p4c (new)",
+    "by": "R4-06",
+    "what": "history note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "igniter.sequence.v.start[0].action",
+    "by": "LEAD 256 (2)",
+    "what": "scheduled flow 2.5 -> 2.43 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "igniter.sequence.v.start[0].action",
+    "by": "LEAD 256 (2)",
+    "what": "cap 2.55 -> 2.39 s; vented mass at 2.43 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "igniter.sequence.v.start[0].t_s_note_v2p4c (new)",
+    "by": "LEAD 256 (2)",
+    "what": "PURGE command time note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "igniter.sequence.v.relight[1]",
+    "by": "LEAD 256 (2)",
+    "what": "relight: decided flow and command time"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.v.timing_s.flow",
+    "by": "LEAD 256 (2)",
+    "what": "flow 2.5 -> 2.43 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.v.timing_s.flow_analysed_v2p4b (new)",
+    "by": "LEAD 256 (2)",
+    "what": "analysed flow 2.5 s kept"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.v.timing_s.both_open_cap_decided_v2p4c (new)",
+    "by": "LEAD 256 (2)",
+    "what": "cap 2.39 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.v.timing_s.needed_flow_unlined_283p15K (new)",
+    "by": "R4-07",
+    "what": "cold corner 2.2 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.v.timing_s.needed_flow_unlined_297p15K (new)",
+    "by": "R4-07",
+    "what": "warm corner 1.8 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.v.timing_s.needed_flow_lined_283p15K (new)",
+    "by": "R4-07",
+    "what": "lined cold corner 2.5 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.v.timing_s.needed_flow_unlined_note_v2p4c (new)",
+    "by": "LEAD 256 (2)(a)",
+    "what": "note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.v.timing_s.min_flow_before_T_fire_delay",
+    "by": "LEAD 256 (2)(a)",
+    "what": "minimum flow 1.9 -> 2.2 s (cold corner)"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.v.timing_s.PURGE_command_rel_E0_note_v2p4c (new)",
+    "by": "LEAD 256 (2)",
+    "what": "note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.v.filter_F2.margins_at_2p43_s_v2p4c (new)",
+    "by": "R4-07",
+    "what": "margins at 2.43 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.decision_note_v2p4c (new)",
+    "by": "LEAD 256 (2)",
+    "what": "note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "purge_commit_rule_v2p4b.v.ecu_cap",
+    "by": "LEAD 256 (2), 257 (2)",
+    "what": "ECU cap 2.39 s; CF-4 re-set"
+   },
+   {
+    "file": "combustion.json",
+    "where": "purge_basis_v2p4b.decision_note_v2p4c (new)",
+    "by": "LEAD 256 (2)",
+    "what": "note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "purge_basis_line216_v2p4b.decision_note_v2p4c (new)",
+    "by": "LEAD 256 (2)",
+    "what": "note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "igniter.sequence.v.arm_preconditions[5]",
+    "by": "LEAD 249 (4)",
+    "what": "relight refusal 433.15 -> 403.15 K"
+   },
+   {
+    "file": "combustion.json",
+    "where": "igniter.sequence.v.relight[2]",
+    "by": "LEAD 249 (4)",
+    "what": "relight refusal 403.15 K"
+   },
+   {
+    "file": "combustion.json",
+    "where": "drogue_release_hold.v.line175_5_note_v2p4a",
+    "by": "R4-04",
+    "what": "ABORT at t_E2 + 0.8 s (227 (5))"
+   },
+   {
+    "file": "combustion.json",
+    "where": "superseded_v2p4b.v.ABORT at t_E2 + 0.8 s",
+    "by": "R4-04",
+    "what": "history entry corrected"
+   },
+   {
+    "file": "combustion.json",
+    "where": "drogue_release_hold.v.pcf_tmax_condition_v2p4c (new)",
+    "by": "REV-COMB-4 section 6",
+    "what": "photodiode condition"
+   },
+   {
+    "file": "combustion.json",
+    "where": "p4c_lit_side_v2p4b.v.implications.pcf_tmax",
+    "by": "R4-03",
+    "what": "one low corner crosses at E2 + 0.857 s"
+   },
+   {
+    "file": "combustion.json",
+    "where": "purge_commit_rule_v2p4a.v.line181_2_answer.below_L_star",
+    "by": "R4-14",
+    "what": "hold wording 0.30 s unlined / 0.31 s lined"
+   },
+   {
+    "file": "combustion.json",
+    "where": "a1_apogee_target_v2p4b.throat_growth_basis_note_v2p4c (new)",
+    "by": "R4-15",
+    "what": "time-basis note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "cold_flow_start_lift_v2p4b.spi_note_v2p4c (new)",
+    "by": "R4-17",
+    "what": "SPI-flux note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "fa1_per_mode_peq_v2p4b.note_v2p4c (new)",
+    "by": "R4-18",
+    "what": "ca2b / ca2c note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "open_items_v2p4b.v[0].status (new)",
+    "by": "R4-08",
+    "what": "OI-41 DECIDED"
+   },
+   {
+    "file": "combustion.json",
+    "where": "open_items_v2p4b.v[1].status (new)",
+    "by": "R4-08",
+    "what": "OI-42 ADOPTED"
+   },
+   {
+    "file": "combustion.json",
+    "where": "open_items_v2p4b.v[10].action",
+    "by": "R4-18",
+    "what": "OI-51 names ca2c"
+   },
+   {
+    "file": "combustion.json",
+    "where": "open_items_v2p4b.v[12].items.OI-41 (v2.4c) (new)",
+    "by": "R4-08",
+    "what": "update"
+   },
+   {
+    "file": "combustion.json",
+    "where": "open_items_v2p4b.v[12].items.OI-42 (v2.4c) (new)",
+    "by": "R4-08",
+    "what": "update"
+   },
+   {
+    "file": "combustion.json",
+    "where": "open_items_v2p4b.v[12].items.OI-49 (v2.4c) (new)",
+    "by": "R4-08",
+    "what": "update"
+   },
+   {
+    "file": "combustion.json",
+    "where": "open_items_v2p4b.v[12].items.OI-51 (v2.4c) (new)",
+    "by": "R4-18",
+    "what": "update"
+   },
+   {
+    "file": "combustion.json",
+    "where": "purge_commit_rule_v2p4b.v.unprimed_line_v2p4c (new)",
+    "by": "REV-COMB-4 section 6",
+    "what": "OI-UNPURGED-RELIGHT (a)"
+   },
+   {
+    "file": "combustion.json",
+    "where": "release_hold_v2p4b.E2_note_v2p4c (new)",
+    "by": "REV-COMB-4 section 6",
+    "what": "OI-UNPURGED-RELIGHT (c)"
+   },
+   {
+    "file": "combustion.json",
+    "where": "relight_purge.E2_note_v2p4c (new)",
+    "by": "REV-COMB-4 section 6",
+    "what": "OI-UNPURGED-RELIGHT (c)"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "line 3",
+    "by": "v2.4c",
+    "what": "version header v2.2"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "line 15",
+    "by": "R4-06",
+    "what": "closure deadline E0 + 0.16 s"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "line 26",
+    "by": "LEAD 256 (2)",
+    "what": "decided flow 2.43 s"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "line 33",
+    "by": "LEAD 256 (2)",
+    "what": "C-RL with 2.43 s"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "line 35",
+    "by": "R4-07; LEAD 256 (2)(a)",
+    "what": "needed flow with the cold corner"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "line 64",
+    "by": "R4-07",
+    "what": "cold-corner run or model-only statement"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "line 66",
+    "by": "LEAD 256 (2), 257 (2)",
+    "what": "vented mass of the decided schedule"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "line 90",
+    "by": "LEAD 256 (2)",
+    "what": "PURGE command time from Electronics"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "line 102",
+    "by": "LEAD 256 (2)(b), 257 (2)",
+    "what": "P5: Cd x A acceptance and the re-set"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "line 103",
+    "by": "R4-06",
+    "what": "P6: closure deadline E0 + 0.16 s"
+   },
+   {
+    "file": "T1-T4-REGRESSION-SPEC.md",
+    "where": "line 1",
+    "by": "v2.4c",
+    "what": "title v3.1"
+   },
+   {
+    "file": "T1-T4-REGRESSION-SPEC.md",
+    "where": "line 3",
+    "by": "v2.4c",
+    "what": "version header v3.1"
+   },
+   {
+    "file": "T1-T4-REGRESSION-SPEC.md",
+    "where": "line 83",
+    "by": "R4-05",
+    "what": "stand proof 103.4 / 133.1 bar abs"
+   },
+   {
+    "file": "T1-T4-REGRESSION-SPEC.md",
+    "where": "line 83",
+    "by": "R4-05",
+    "what": "flight unit proof 166.14 bar abs"
+   },
+   {
+    "file": "T1-T4-REGRESSION-SPEC.md",
+    "where": "line 294",
+    "by": "N-07",
+    "what": "T4 N2O note"
+   },
+   {
+    "file": "REVISION-RESPONSE-R3.md",
+    "where": "line 3",
+    "by": "v2.4c",
+    "what": "v2.4c header note"
+   },
+   {
+    "file": "REVISION-RESPONSE-R3.md",
+    "where": "line 17",
+    "by": "R4-14",
+    "what": "R3-01 row: hold wording"
+   },
+   {
+    "file": "REVISION-RESPONSE-R3.md",
+    "where": "line 117",
+    "by": "R4-14",
+    "what": "section 6 point 3 annotated"
+   },
+   {
+    "file": "REVISION-RESPONSE-R3.md",
+    "where": "line 158",
+    "by": "R4-03",
+    "what": "section 9 item 3 annotated"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 3",
+    "by": "v2.4c",
+    "what": "version header v2.4c"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 24",
+    "by": "R4-07; LEAD 256 (2)",
+    "what": "needed flow with the cold corner; decided flow"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 45",
+    "by": "R4-14",
+    "what": "hold wording"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 50",
+    "by": "R4-05, R4-09",
+    "what": "stand channel proof and range"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 461, 740, 1968",
+    "by": "R4-06",
+    "what": "closure deadline E0 + 0.16 s"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 1788, 1888",
+    "by": "R4-06",
+    "what": "closure deadline E0 + 0.16 s"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 2433",
+    "by": "R4-06",
+    "what": "closure deadline E0 + 0.16 s"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 519",
+    "by": "R4-07",
+    "what": "cold-corner needed flow"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 691",
+    "by": "R4-16, R4-07",
+    "what": "Table 2.13 note"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 695, 696",
+    "by": "R4-16",
+    "what": "Table 2.13 unlined s 1.0: 1.1 -> 1.2 s"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 697, 698",
+    "by": "R4-16",
+    "what": "Table 2.13 lined swall: 1.2 -> 1.3 s"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 1175",
+    "by": "R4-05",
+    "what": "flight Pc proof 166.14 bar abs"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 1687",
+    "by": "LEAD 243 (3), 249 (4)",
+    "what": "case TC limits 423.15 / 403.15 K"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 1807",
+    "by": "R4-04",
+    "what": "ABORT at t_E2 + 0.8 s"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 1866",
+    "by": "R4-05",
+    "what": "flight Pc proof 166.14 bar abs"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 1866",
+    "by": "R4-12",
+    "what": "P_torch transducer note"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 1884",
+    "by": "LEAD 249 (4)",
+    "what": "relight refusal 403.15 K"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 1966",
+    "by": "LEAD 243 (3)",
+    "what": "A12 case abort 423.15 K"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 1966",
+    "by": "LEAD 249 (4)",
+    "what": "A12 relight refusal 403.15 K"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 2106",
+    "by": "R4-05",
+    "what": "OI-41 decided"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 2279",
+    "by": "R4-05",
+    "what": "flight Pc proof 166.14 bar abs"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 2396",
+    "by": "R4-05, R4-09",
+    "what": "stand channel proof and range"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 2408",
+    "by": "R4-05, R4-09",
+    "what": "stand channel proof and range"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 2520",
+    "by": "R4-05",
+    "what": "OI-6 row: proof 166.14 bar abs"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 2553",
+    "by": "R4-05, R4-09",
+    "what": "OI-34 row: proof and range"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 2560",
+    "by": "R4-08",
+    "what": "OI-41 row DECIDED"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 2561",
+    "by": "R4-08",
+    "what": "OI-42 row ADOPTED"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 2639",
+    "by": "R4-04",
+    "what": "superseded-evidence row"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 3120",
+    "by": "R4-03",
+    "what": "P4c sentence corrected"
+   },
+   {
+    "file": "REPORT.md",
+    "where": "line 3136",
+    "by": "R4-15",
+    "what": "time-basis note"
+   },
+   {
+    "file": "DATASHEET-INPUTS-COMBUSTION.md",
+    "where": "header",
+    "by": "v2.4c",
+    "what": "version header v2.4c"
+   },
+   {
+    "file": "DATASHEET-INPUTS-COMBUSTION.md",
+    "where": "row Worst-case steady thrust",
+    "by": "R4-17",
+    "what": "876 N labelled SUPERSEDED"
+   },
+   {
+    "file": "DATASHEET-INPUTS-COMBUSTION.md",
+    "where": "row Start level",
+    "by": "R4-03, R4-17",
+    "what": "low corner and SPI-flux bound"
+   },
+   {
+    "file": "DATASHEET-INPUTS-COMBUSTION.md",
+    "where": "row Relight purge flow",
+    "by": "LEAD 256 (2), 257 (2); R4-08",
+    "what": "row replaced with the decided flow"
+   },
+   {
+    "file": "DATASHEET-INPUTS-COMBUSTION.md",
+    "where": "row FA-1 structural load",
+    "by": "R4-08; LEAD 230 (2)",
+    "what": "band values DECIDED"
+   },
+   {
+    "file": "DATASHEET-INPUTS-COMBUSTION.md",
+    "where": "new rows",
+    "by": "R4-01, R4-05, R4-09",
+    "what": "FA-1 in gas-filled passages; Pc transducer proof"
+   },
+   {
+    "file": "DATASHEET-INPUTS-COMBUSTION.md",
+    "where": "row FA-1 at TC-01 J-FWD",
+    "by": "R4-08, R4-18",
+    "what": "analysis path only; ca2c"
+   },
+   {
+    "file": "DATASHEET-INPUTS-COMBUSTION.md",
+    "where": "notes",
+    "by": "R4-08; REV-COMB-4 section 6",
+    "what": "OI-41 decided; open items; photodiode condition"
+   },
+   {
+    "file": "CF-4-SPEC.md",
+    "where": "section 13 (new, at the end)",
+    "by": "v2.4c",
+    "what": "v2.2 change list"
+   },
+   {
+    "file": "combustion.json",
+    "where": "cf4_gate.spec_version",
+    "by": "v2.4c",
+    "what": "CF-4 v2.2"
+   },
+   {
+    "file": "combustion.json",
+    "where": "files.v2p4c (new)",
+    "by": "v2.4c",
+    "what": "file index v2.4c"
+   },
+   {
+    "file": "combustion.json",
+    "where": "version",
+    "by": "v2.4c",
+    "what": "version"
+   },
+   {
+    "file": "combustion.json",
+    "where": "date",
+    "by": "v2.4c",
+    "what": "date"
+   },
+   {
+    "file": "combustion.json",
+    "where": "revision_note",
+    "by": "v2.4c",
+    "what": "revision note"
+   },
+   {
+    "file": "combustion.json",
+    "where": "revision_history[6] (new)",
+    "by": "v2.4c",
+    "what": "v2.4b revision note kept"
+   },
+   {
+    "file": "combustion.json",
+    "where": "status",
+    "by": "v2.4c",
+    "what": "status"
+   },
+   {
+    "file": "combustion.json",
+    "where": "supersedes",
+    "by": "v2.4c",
+    "what": "supersedes"
+   }
+  ],
+  "script": "02-combustion/src/apply_v2p4c_rev_comb_4.py",
+  "script_sha256_16": "063195b1b3a12bed",
+  "stamp_utc": "2026-10-21T09:35:44Z",
+  "inputs_sha256_16": {
+   "interfaces/combustion.json": "fd3a7da6d27c7c66",
+   "02-combustion/REPORT.md": "d8b795478d4013ee",
+   "02-combustion/CF-4-SPEC.md": "60bbc51f6f487682",
+   "02-combustion/T1-T4-REGRESSION-SPEC.md": "b0c42b09ba47cb9c",
+   "02-combustion/REVISION-RESPONSE-R3.md": "21791d15dc88eaeb",
+   "02-combustion/DATASHEET-INPUTS-COMBUSTION.md": "46a8222018666b1d"
+  },
+  "outputs_sha256_16": {
+   "02-combustion/CF-4-SPEC.md": "4e36be703a9e7d44",
+   "02-combustion/T1-T4-REGRESSION-SPEC.md": "b00b2d852ed3475c",
+   "02-combustion/REVISION-RESPONSE-R3.md": "370875c3645eb49c",
+   "02-combustion/DATASHEET-INPUTS-COMBUSTION.md": "29ed6d45c55ff234"
+  },
+  "note": "the REPORT rows of section 17 are added after this file is written; REPORT cites this file by sha",
+  "tag": "index"
  }
 }
