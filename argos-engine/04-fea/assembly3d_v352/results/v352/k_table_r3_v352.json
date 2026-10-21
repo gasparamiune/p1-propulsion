@@ -1,0 +1,2171 @@
+{
+ "id": "k_table_r3_v352",
+ "date_utc": "2026-10-20T18:48:19Z",
+ "units": "N m/rad",
+ "for": "REV-GNC-7 (lead 17:33:40Z)",
+ "doc": "R3 pose stiffness table for REV-GNC-7 (fea3d, written 2026-10-20T18:02:43Z (date -u); lead 17:33:40Z: \"For REV-GNC-7: the R3 K\ntable must carry each pose's own values and its fraction.  It must state that cone poses stiffen more than stop045 did (combined045\n+14.4 % coupled alpha against +13.35 %).  GNC sets its K band from the full R3 table\").\n\nPer pose (8 stops at 8 deg, neutral, 8 range-cone poses at 7 deg) and per quantity (FE rigid servo, servo k_s 58 / 174 N m/rad in series;\ncoupled = other axis moment-free, diagonal = other axis held; alpha = outer axis X, beta = inner axis ring Y), all N m/rad:\n  v3.5.1   the RM2-05 corrected v3.5.1 value of the c71 pose run (results/k_stop_c71_v352.json / k_cone_c71_v352.json);\n  R3       the v3.5.2 R3 lever-run value (results/k_pose_<pose>_v352r3R3.json; stop045: results/k_stop045_v352r3R3_check.json);\n  delta    R3 / v3.5.1 - 1;  fraction = delta / (the stop045 delta of the same quantity), the measure the release bands use\n           (original RM2-05 band [v351, v351 (1 + d)], lead 14:11Z (2); cone-pose band [v351, v351 (1 + 1.25 d)], lead 17:33:40Z (b)).\nRange: min / max of every quantity over the posted R3 poses, with the pose: the input GNC sets its K band from.\nEvidence: SIM (FE unit angular-acceleration steps EAX / EAY on the v3.5.2 R3 pose runs) + DERIVED (servo output compliance in series,\nr_eff per servo and pose; k_s 58 / 174 N m/rad ASSUMED, TO-VERIFY bench B-TVC).  Poses not yet posted are listed as PENDING.\n2026-10-20T18:16:48Z (date -u), lead 18:04:32Z: \"Record the sign pattern (beta > 0 cones split on the with-servo pairs, beta < 0 cones on\nthe FE pairs) as information for the REV-GNC-7 K-table note\": 'pair_pattern' / 'pair_pattern_note' (computed from the posted cone poses),\nwith the release rule's pair envelope (item 2 as recalibrated 18:04:32Z: FE 0.17 / with servo 0.71 % of K).\n2026-10-20T18:41:24Z (date -u), lead 18:40:44Z (acceptance of the 13 chain-E R3 poses): the table is the REV-GNC-7 input and carries\neach pose's own values and fractions, the poses above the original band named as ACCEPTED ABOVE THE ORIGINAL BAND (lead 18:40:44Z),\nthe beta sign trend of the fraction (computed from the posted poses) and stop045's 'no fbd record' note.  Lead finding (18:40:44Z):\n\"the original band assumed the stop045 delta bounds every pose, and that does not hold ... a consistent geometric effect, not a run\ndefect.  The band stays a screen for a gross model error (several % of K)\".",
+ "evidence": "SIM (FE unit steps on the v3.5.2 R3 pose runs) + DERIVED (servo in series; k_s 58 / 174 N m/rad ASSUMED, TO-VERIFY bench B-TVC)",
+ "stop045_delta_pct": {
+  "FE_coupled_alpha": 13.35,
+  "FE_diagonal_alpha": 13.394,
+  "k_s58_coupled_alpha": 2.456,
+  "k_s58_diagonal_alpha": 3.074,
+  "k_s174_coupled_alpha": 5.386,
+  "k_s174_diagonal_alpha": 6.094,
+  "FE_coupled_beta": 8.388,
+  "FE_diagonal_beta": 8.43,
+  "k_s58_coupled_beta": 1.901,
+  "k_s58_diagonal_beta": 2.515,
+  "k_s174_coupled_beta": 3.924,
+  "k_s174_diagonal_beta": 4.621
+ },
+ "statement": "Cone poses stiffen more than stop045 did between v3.5.1 and v3.5.2 R3: combined045 FE coupled alpha +14.4 % against stop045's +13.35 %; poses with a fraction above 1 (largest per pose): cone poses beta+ 1.201, combined045 1.081, combined315 1.077; stop poses stop000 1.208.  The RM2-05 band built from the stop045 delta therefore does not bound every pose; GNC sets its K band from the full R3 table (the range below), not from stop045.",
+ "pair_pattern": [
+  {
+   "pose": "combined045",
+   "beta_deg": 4.944,
+   "FE_pairs_pct_of_K": [
+    0.031,
+    0.033
+   ],
+   "with_servo_pairs_pct_of_K": [
+    0.346,
+    0.432
+   ],
+   "splits_on": "with-servo pairs"
+  },
+  {
+   "pose": "combined135",
+   "beta_deg": -4.944,
+   "FE_pairs_pct_of_K": [
+    0.084,
+    0.089
+   ],
+   "with_servo_pairs_pct_of_K": [
+    0.03,
+    0.059
+   ],
+   "splits_on": "FE pairs"
+  },
+  {
+   "pose": "combined225",
+   "beta_deg": -4.944,
+   "FE_pairs_pct_of_K": [
+    0.1,
+    0.107
+   ],
+   "with_servo_pairs_pct_of_K": [
+    0.027,
+    0.056
+   ],
+   "splits_on": "FE pairs"
+  },
+  {
+   "pose": "combined315",
+   "beta_deg": 4.944,
+   "FE_pairs_pct_of_K": [
+    0.04,
+    0.042
+   ],
+   "with_servo_pairs_pct_of_K": [
+    0.325,
+    0.406
+   ],
+   "splits_on": "with-servo pairs"
+  }
+ ],
+ "pair_pattern_note": "Information (lead 18:04:32Z): coupled / diagonal split of the cone poses (|coupled delta % - diagonal delta %|, % of K): combined045 (beta +4.94 deg) splits on the with-servo pairs: FE 0.031-0.033, with servo 0.346-0.432; combined135 (beta -4.94 deg) splits on the FE pairs: FE 0.084-0.089, with servo 0.030-0.059; combined225 (beta -4.94 deg) splits on the FE pairs: FE 0.100-0.107, with servo 0.027-0.056; combined315 (beta +4.94 deg) splits on the with-servo pairs: FE 0.040-0.042, with servo 0.325-0.406.  Pattern: beta > 0 cones split on the with-servo pairs, beta < 0 cones on the FE pairs.  Release rule item 2 (lead 18:04:32Z): per pair type, the split must not exceed its envelope over the poses accepted under the original band, FE 0.17 / with servo 0.71 % of K (runs/cone_pair_check_allposes.json 9840d1c4ca64c166); all 4 posted cone poses are inside it.",
+ "accepted_above_original_band": [
+  {
+   "pose": "stop000",
+   "fraction_max": 1.2085,
+   "fraction_min": 0.8879,
+   "status": "ACCEPTED ABOVE THE ORIGINAL BAND (lead 18:40:44Z)",
+   "band_class": "stop / single-axis pose: above the original band [v351, v351 (1 + d)] of its class (no wider band applies)"
+  },
+  {
+   "pose": "beta+",
+   "fraction_max": 1.2013,
+   "fraction_min": 0.8799,
+   "status": "ACCEPTED ABOVE THE ORIGINAL BAND (lead 18:40:44Z)",
+   "band_class": "stop / single-axis pose: above the original band [v351, v351 (1 + d)] of its class (no wider band applies)"
+  },
+  {
+   "pose": "combined045",
+   "fraction_max": 1.081,
+   "fraction_min": 0.9159,
+   "status": "ACCEPTED ABOVE THE ORIGINAL BAND (lead 18:40:44Z)",
+   "band_class": "cone pose (alpha and beta non-zero): inside its cone band [v351, v351 (1 + 1.25 d)] (lead 17:33:40Z), above the original band [v351, v351 (1 + d)]"
+  },
+  {
+   "pose": "combined315",
+   "fraction_max": 1.077,
+   "fraction_min": 0.8936,
+   "status": "ACCEPTED ABOVE THE ORIGINAL BAND (lead 18:40:44Z)",
+   "band_class": "cone pose (alpha and beta non-zero): inside its cone band [v351, v351 (1 + 1.25 d)] (lead 17:33:40Z), above the original band [v351, v351 (1 + d)]"
+  }
+ ],
+ "beta_sign_trend": {
+  "beta > 0": {
+   "poses": [
+    "stop000",
+    "stop315",
+    "beta+",
+    "combined045",
+    "combined315"
+   ],
+   "fraction_min": 0.8799,
+   "fraction_max": 1.2085,
+   "fraction_max_per_pose": {
+    "stop000": 1.2085,
+    "stop315": 0.9976,
+    "beta+": 1.2013,
+    "combined045": 1.081,
+    "combined315": 1.077
+   }
+  },
+  "beta = 0": {
+   "poses": [
+    "stop090",
+    "stop270",
+    "neutral",
+    "alpha+",
+    "alpha-"
+   ],
+   "fraction_min": 0.5159,
+   "fraction_max": 0.9896,
+   "fraction_max_per_pose": {
+    "stop090": 0.8722,
+    "stop270": 0.871,
+    "neutral": 0.9896,
+    "alpha+": 0.9575,
+    "alpha-": 0.9578
+   }
+  },
+  "beta < 0": {
+   "poses": [
+    "stop135",
+    "stop180",
+    "stop225",
+    "beta-",
+    "combined135",
+    "combined225"
+   ],
+   "fraction_min": 0.1716,
+   "fraction_max": 0.8207,
+   "fraction_max_per_pose": {
+    "stop135": 0.7247,
+    "stop180": 0.6636,
+    "stop225": 0.7247,
+    "beta-": 0.7637,
+    "combined135": 0.8202,
+    "combined225": 0.8207
+   }
+  }
+ },
+ "beta_sign_trend_note": "Beta sign trend (computed over the 16 non-reference poses posted): the fraction of the stop045 delta runs from 0.17 to 1.208 and follows the sign of beta: beta > 0: stop000 1.208, beta+ 1.201, combined045 1.081, combined315 1.077, stop315 0.998; beta = 0: 0.52-0.99; beta < 0: 0.17-0.82 (fraction_max per pose for beta > 0; min-max otherwise).",
+ "stop045_note": "stop045 (the band reference, run 08:19Z): no fbd record (check_fbd postdates it; its fields were (C)-trimmed at 13:30Z); ACCEPTED without a re-solve (lead 18:40:44Z); its mirror pose stop315 corroborates its delta (fractions 0.955-0.998, fbd 0.0087 N); its env npz and posts are present.",
+ "acceptance": "lead 18:40:44Z: all 13 chain-E R3 poses ACCEPTED (runs/.hb3_trim_ok)",
+ "n_posted": 17,
+ "n_poses": 17,
+ "pending": [],
+ "range_over_posted_R3_poses": {
+  "FE_coupled_alpha": {
+   "min": 7293.95,
+   "min_pose": "stop000",
+   "max": 9337.08,
+   "max_pose": "stop180",
+   "n_poses": 17
+  },
+  "FE_diagonal_alpha": {
+   "min": 7294.05,
+   "min_pose": "stop000",
+   "max": 9337.32,
+   "max_pose": "stop180",
+   "n_poses": 17
+  },
+  "k_s58_coupled_alpha": {
+   "min": 1149.93,
+   "min_pose": "neutral",
+   "max": 1426.19,
+   "max_pose": "stop000",
+   "n_poses": 17
+  },
+  "k_s58_diagonal_alpha": {
+   "min": 1149.93,
+   "min_pose": "neutral",
+   "max": 1520.79,
+   "max_pose": "stop315",
+   "n_poses": 17
+  },
+  "k_s174_coupled_alpha": {
+   "min": 2697.48,
+   "min_pose": "neutral",
+   "max": 3075.77,
+   "max_pose": "stop000",
+   "n_poses": 17
+  },
+  "k_s174_diagonal_alpha": {
+   "min": 2697.48,
+   "min_pose": "neutral",
+   "max": 3165.81,
+   "max_pose": "stop315",
+   "n_poses": 17
+  },
+  "FE_coupled_beta": {
+   "min": 3971.84,
+   "min_pose": "stop180",
+   "max": 7172.12,
+   "max_pose": "stop000",
+   "n_poses": 17
+  },
+  "FE_diagonal_beta": {
+   "min": 3971.94,
+   "min_pose": "stop180",
+   "max": 7172.21,
+   "max_pose": "stop000",
+   "n_poses": 17
+  },
+  "k_s58_coupled_beta": {
+   "min": 790.77,
+   "min_pose": "stop180",
+   "max": 1799.09,
+   "max_pose": "stop000",
+   "n_poses": 17
+  },
+  "k_s58_diagonal_beta": {
+   "min": 790.77,
+   "min_pose": "stop180",
+   "max": 1799.09,
+   "max_pose": "stop000",
+   "n_poses": 17
+  },
+  "k_s174_coupled_beta": {
+   "min": 1696.7,
+   "min_pose": "stop180",
+   "max": 3594.13,
+   "max_pose": "stop000",
+   "n_poses": 17
+  },
+  "k_s174_diagonal_beta": {
+   "min": 1696.7,
+   "min_pose": "stop180",
+   "max": 3594.14,
+   "max_pose": "stop000",
+   "n_poses": 17
+  }
+ },
+ "rows": [
+  {
+   "pose": "stop000",
+   "status": "posted",
+   "run": "pose_stop000_v352r3R3",
+   "pose_deg": [
+    -0.0,
+    8.0
+   ],
+   "kind": "stop (8 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 6400.49,
+     "R3": 7293.95,
+     "delta_pct": 13.959,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 1.0457
+    },
+    "FE_diagonal_alpha": {
+     "v351": 6400.6,
+     "R3": 7294.05,
+     "delta_pct": 13.959,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 1.0422
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1388.3,
+     "R3": 1426.19,
+     "delta_pct": 2.729,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 1.1113
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1388.3,
+     "R3": 1426.19,
+     "delta_pct": 2.729,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.8879
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2904.78,
+     "R3": 3075.77,
+     "delta_pct": 5.886,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 1.0928
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2904.79,
+     "R3": 3075.77,
+     "delta_pct": 5.886,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.966
+    },
+    "FE_coupled_beta": {
+     "v351": 6570.48,
+     "R3": 7172.12,
+     "delta_pct": 9.157,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 1.0917
+    },
+    "FE_diagonal_beta": {
+     "v351": 6570.58,
+     "R3": 7172.21,
+     "delta_pct": 9.156,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 1.0862
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1758.69,
+     "R3": 1799.09,
+     "delta_pct": 2.297,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 1.2085
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1758.7,
+     "R3": 1799.09,
+     "delta_pct": 2.297,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.9132
+    },
+    "k_s174_coupled_beta": {
+     "v351": 3436.44,
+     "R3": 3594.13,
+     "delta_pct": 4.589,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 1.1695
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 3436.46,
+     "R3": 3594.14,
+     "delta_pct": 4.589,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.993
+    }
+   },
+   "fraction_min": 0.8879,
+   "fraction_max": 1.2085,
+   "stiffens_more_than_stop045": [
+    "FE_coupled_alpha",
+    "FE_diagonal_alpha",
+    "k_s58_coupled_alpha",
+    "k_s174_coupled_alpha",
+    "FE_coupled_beta",
+    "FE_diagonal_beta",
+    "k_s58_coupled_beta",
+    "k_s174_coupled_beta"
+   ],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.0,
+    "k_s58 alpha": 0.0,
+    "k_s174 alpha": 0.0,
+    "FE beta": 0.001,
+    "k_s58 beta": 0.0,
+    "k_s174 beta": 0.0
+   },
+   "v351_source": "k_stop_c71_v352.json"
+  },
+  {
+   "pose": "stop045",
+   "status": "posted",
+   "run": "pose_stop045_v352r3R3",
+   "pose_deg": [
+    -5.675,
+    5.648
+   ],
+   "kind": "stop (8 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 6531.32,
+     "R3": 7403.23,
+     "delta_pct": 13.35,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "FE_diagonal_alpha": {
+     "v351": 6532.82,
+     "R3": 7407.81,
+     "delta_pct": 13.394,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1329.41,
+     "R3": 1362.07,
+     "delta_pct": 2.456,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1474.95,
+     "R3": 1520.29,
+     "delta_pct": 3.074,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2834.39,
+     "R3": 2987.06,
+     "delta_pct": 5.386,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2981.56,
+     "R3": 3163.25,
+     "delta_pct": 6.094,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "FE_coupled_beta": {
+     "v351": 6348.14,
+     "R3": 6880.6,
+     "delta_pct": 8.388,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "FE_diagonal_beta": {
+     "v351": 6349.6,
+     "R3": 6884.84,
+     "delta_pct": 8.43,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1530.11,
+     "R3": 1559.2,
+     "delta_pct": 1.901,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1697.62,
+     "R3": 1740.32,
+     "delta_pct": 2.515,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "k_s174_coupled_beta": {
+     "v351": 3097.26,
+     "R3": 3218.78,
+     "delta_pct": 3.924,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 1.0
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 3258.08,
+     "R3": 3408.64,
+     "delta_pct": 4.621,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 1.0
+    }
+   },
+   "fraction_min": 1.0,
+   "fraction_max": 1.0,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.044,
+    "k_s58 alpha": 0.618,
+    "k_s174 alpha": 0.708,
+    "FE beta": 0.042,
+    "k_s58 beta": 0.614,
+    "k_s174 beta": 0.697
+   },
+   "v351_source": "k_stop_c71_v352.json"
+  },
+  {
+   "pose": "stop090",
+   "status": "posted",
+   "run": "pose_stop090_v352r3R3",
+   "pose_deg": [
+    -8.0,
+    0.0
+   ],
+   "kind": "stop (8 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 6954.49,
+     "R3": 7756.13,
+     "delta_pct": 11.527,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.8635
+    },
+    "FE_diagonal_alpha": {
+     "v351": 6960.62,
+     "R3": 7773.75,
+     "delta_pct": 11.682,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.8722
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1169.55,
+     "R3": 1190.24,
+     "delta_pct": 1.769,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.7202
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1225.56,
+     "R3": 1250.5,
+     "delta_pct": 2.035,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.6621
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2625.57,
+     "R3": 2732.18,
+     "delta_pct": 4.06,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.7538
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2698.14,
+     "R3": 2818.73,
+     "delta_pct": 4.47,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.7335
+    },
+    "FE_coupled_beta": {
+     "v351": 5487.86,
+     "R3": 5808.44,
+     "delta_pct": 5.842,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.6965
+    },
+    "FE_diagonal_beta": {
+     "v351": 5492.7,
+     "R3": 5821.63,
+     "delta_pct": 5.989,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.7104
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1111.3,
+     "R3": 1123.86,
+     "delta_pct": 1.13,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.5947
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1164.52,
+     "R3": 1180.76,
+     "delta_pct": 1.395,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.5546
+    },
+    "k_s174_coupled_beta": {
+     "v351": 2372.88,
+     "R3": 2430.89,
+     "delta_pct": 2.445,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.6231
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 2438.47,
+     "R3": 2507.9,
+     "delta_pct": 2.847,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.6162
+    }
+   },
+   "fraction_min": 0.5546,
+   "fraction_max": 0.8722,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.155,
+    "k_s58 alpha": 0.266,
+    "k_s174 alpha": 0.41,
+    "FE beta": 0.147,
+    "k_s58 beta": 0.265,
+    "k_s174 beta": 0.402
+   },
+   "v351_source": "k_stop_c71_v352.json"
+  },
+  {
+   "pose": "stop135",
+   "status": "posted",
+   "run": "pose_stop135_v352r3R3",
+   "pose_deg": [
+    -5.675,
+    -5.648
+   ],
+   "kind": "stop (8 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 7844.31,
+     "R3": 8594.86,
+     "delta_pct": 9.568,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.7167
+    },
+    "FE_diagonal_alpha": {
+     "v351": 7850.17,
+     "R3": 8612.11,
+     "delta_pct": 9.706,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.7247
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1168.61,
+     "R3": 1184.01,
+     "delta_pct": 1.318,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.5367
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1172.57,
+     "R3": 1188.47,
+     "delta_pct": 1.356,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.4411
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2701.04,
+     "R3": 2784.78,
+     "delta_pct": 3.1,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.5756
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2707.87,
+     "R3": 2793.88,
+     "delta_pct": 3.176,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.5212
+    },
+    "FE_coupled_beta": {
+     "v351": 4426.23,
+     "R3": 4568.72,
+     "delta_pct": 3.219,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.3838
+    },
+    "FE_diagonal_beta": {
+     "v351": 4429.54,
+     "R3": 4577.89,
+     "delta_pct": 3.349,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.3973
+    },
+    "k_s58_coupled_beta": {
+     "v351": 866.12,
+     "R3": 871.44,
+     "delta_pct": 0.614,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.3231
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 869.06,
+     "R3": 874.72,
+     "delta_pct": 0.651,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.259
+    },
+    "k_s174_coupled_beta": {
+     "v351": 1867.5,
+     "R3": 1892.4,
+     "delta_pct": 1.333,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.3398
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 1872.22,
+     "R3": 1898.59,
+     "delta_pct": 1.408,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.3047
+    }
+   },
+   "fraction_min": 0.259,
+   "fraction_max": 0.7247,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.138,
+    "k_s58 alpha": 0.038,
+    "k_s174 alpha": 0.076,
+    "FE beta": 0.13,
+    "k_s58 beta": 0.037,
+    "k_s174 beta": 0.075
+   },
+   "v351_source": "k_stop_c71_v352.json"
+  },
+  {
+   "pose": "stop180",
+   "status": "posted",
+   "run": "pose_stop180_v352r3R3",
+   "pose_deg": [
+    -0.0,
+    -8.0
+   ],
+   "kind": "stop (8 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 8577.27,
+     "R3": 9337.08,
+     "delta_pct": 8.858,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.6636
+    },
+    "FE_diagonal_alpha": {
+     "v351": 8577.53,
+     "R3": 9337.32,
+     "delta_pct": 8.858,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.6614
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1275.23,
+     "R3": 1290.85,
+     "delta_pct": 1.225,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.4986
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1275.23,
+     "R3": 1290.85,
+     "delta_pct": 1.225,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.3984
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2948.85,
+     "R3": 3033.72,
+     "delta_pct": 2.878,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.5344
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2948.86,
+     "R3": 3033.73,
+     "delta_pct": 2.878,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.4723
+    },
+    "FE_coupled_beta": {
+     "v351": 3887.56,
+     "R3": 3971.84,
+     "delta_pct": 2.168,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.2585
+    },
+    "FE_diagonal_beta": {
+     "v351": 3887.68,
+     "R3": 3971.94,
+     "delta_pct": 2.167,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.2571
+    },
+    "k_s58_coupled_beta": {
+     "v351": 787.37,
+     "R3": 790.77,
+     "delta_pct": 0.432,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.2271
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 787.37,
+     "R3": 790.77,
+     "delta_pct": 0.432,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.1716
+    },
+    "k_s174_coupled_beta": {
+     "v351": 1681.13,
+     "R3": 1696.7,
+     "delta_pct": 0.926,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.236
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 1681.14,
+     "R3": 1696.7,
+     "delta_pct": 0.926,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.2004
+    }
+   },
+   "fraction_min": 0.1716,
+   "fraction_max": 0.6636,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.0,
+    "k_s58 alpha": 0.0,
+    "k_s174 alpha": 0.0,
+    "FE beta": 0.001,
+    "k_s58 beta": 0.0,
+    "k_s174 beta": 0.0
+   },
+   "v351_source": "k_stop_c71_v352.json"
+  },
+  {
+   "pose": "stop225",
+   "status": "posted",
+   "run": "pose_stop225_v352r3R3",
+   "pose_deg": [
+    5.675,
+    -5.648
+   ],
+   "kind": "stop (8 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 7856.04,
+     "R3": 8605.84,
+     "delta_pct": 9.544,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.7149
+    },
+    "FE_diagonal_alpha": {
+     "v351": 7866.95,
+     "R3": 8630.5,
+     "delta_pct": 9.706,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.7247
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1168.87,
+     "R3": 1184.22,
+     "delta_pct": 1.313,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.5347
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1173.04,
+     "R3": 1188.87,
+     "delta_pct": 1.349,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.4389
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2702.43,
+     "R3": 2785.93,
+     "delta_pct": 3.09,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.5736
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2710.25,
+     "R3": 2796.02,
+     "delta_pct": 3.164,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.5193
+    },
+    "FE_coupled_beta": {
+     "v351": 4162.4,
+     "R3": 4267.94,
+     "delta_pct": 2.535,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.3023
+    },
+    "FE_diagonal_beta": {
+     "v351": 4168.19,
+     "R3": 4280.17,
+     "delta_pct": 2.687,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.3187
+    },
+    "k_s58_coupled_beta": {
+     "v351": 855.51,
+     "R3": 859.88,
+     "delta_pct": 0.511,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.2688
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 858.57,
+     "R3": 863.26,
+     "delta_pct": 0.546,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.2172
+    },
+    "k_s174_coupled_beta": {
+     "v351": 1818.86,
+     "R3": 1838.73,
+     "delta_pct": 1.092,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.2784
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 1824.13,
+     "R3": 1845.39,
+     "delta_pct": 1.166,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.2522
+    }
+   },
+   "fraction_min": 0.2172,
+   "fraction_max": 0.7247,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.162,
+    "k_s58 alpha": 0.036,
+    "k_s174 alpha": 0.074,
+    "FE beta": 0.152,
+    "k_s58 beta": 0.035,
+    "k_s174 beta": 0.074
+   },
+   "v351_source": "k_stop_c71_v352.json"
+  },
+  {
+   "pose": "stop270",
+   "status": "posted",
+   "run": "pose_stop270_v352r3R3",
+   "pose_deg": [
+    8.0,
+    -0.0
+   ],
+   "kind": "stop (8 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 6963.56,
+     "R3": 7763.92,
+     "delta_pct": 11.494,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.861
+    },
+    "FE_diagonal_alpha": {
+     "v351": 6973.58,
+     "R3": 7787.15,
+     "delta_pct": 11.666,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.871
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1169.81,
+     "R3": 1190.43,
+     "delta_pct": 1.762,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.7175
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1226.08,
+     "R3": 1250.76,
+     "delta_pct": 2.013,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.6549
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2626.86,
+     "R3": 2733.14,
+     "delta_pct": 4.046,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.7512
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2701.0,
+     "R3": 2820.7,
+     "delta_pct": 4.432,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.7273
+    },
+    "FE_coupled_beta": {
+     "v351": 5176.37,
+     "R3": 5442.59,
+     "delta_pct": 5.143,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.6131
+    },
+    "FE_diagonal_beta": {
+     "v351": 5183.82,
+     "R3": 5458.87,
+     "delta_pct": 5.306,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.6294
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1097.92,
+     "R3": 1109.43,
+     "delta_pct": 1.048,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.5516
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1150.73,
+     "R3": 1165.66,
+     "delta_pct": 1.297,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.5159
+    },
+    "k_s174_coupled_beta": {
+     "v351": 2312.7,
+     "R3": 2364.37,
+     "delta_pct": 2.234,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.5694
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 2377.98,
+     "R3": 2440.11,
+     "delta_pct": 2.613,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.5654
+    }
+   },
+   "fraction_min": 0.5159,
+   "fraction_max": 0.871,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.172,
+    "k_s58 alpha": 0.251,
+    "k_s174 alpha": 0.386,
+    "FE beta": 0.163,
+    "k_s58 beta": 0.249,
+    "k_s174 beta": 0.379
+   },
+   "v351_source": "k_stop_c71_v352.json"
+  },
+  {
+   "pose": "stop315",
+   "status": "posted",
+   "run": "pose_stop315_v352r3R3",
+   "pose_deg": [
+    5.675,
+    5.648
+   ],
+   "kind": "stop (8 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 6532.79,
+     "R3": 7402.04,
+     "delta_pct": 13.306,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.9967
+    },
+    "FE_diagonal_alpha": {
+     "v351": 6536.38,
+     "R3": 7409.75,
+     "delta_pct": 13.362,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.9976
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1329.48,
+     "R3": 1362.03,
+     "delta_pct": 2.448,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.9968
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1475.94,
+     "R3": 1520.79,
+     "delta_pct": 3.039,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.9885
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2834.67,
+     "R3": 2986.87,
+     "delta_pct": 5.369,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.9968
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2985.37,
+     "R3": 3165.81,
+     "delta_pct": 6.044,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.9919
+    },
+    "FE_coupled_beta": {
+     "v351": 6182.66,
+     "R3": 6677.77,
+     "delta_pct": 8.008,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.9547
+    },
+    "FE_diagonal_beta": {
+     "v351": 6186.06,
+     "R3": 6684.72,
+     "delta_pct": 8.061,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.9563
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1520.31,
+     "R3": 1548.54,
+     "delta_pct": 1.857,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.977
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1687.8,
+     "R3": 1729.04,
+     "delta_pct": 2.444,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.9717
+    },
+    "k_s174_coupled_beta": {
+     "v351": 3057.33,
+     "R3": 3173.69,
+     "delta_pct": 3.806,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.97
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 3219.86,
+     "R3": 3363.82,
+     "delta_pct": 4.471,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.9675
+    }
+   },
+   "fraction_min": 0.9547,
+   "fraction_max": 0.9976,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.056,
+    "k_s58 alpha": 0.591,
+    "k_s174 alpha": 0.675,
+    "FE beta": 0.053,
+    "k_s58 beta": 0.587,
+    "k_s174 beta": 0.665
+   },
+   "v351_source": "k_stop_c71_v352.json"
+  },
+  {
+   "pose": "neutral",
+   "status": "posted",
+   "run": "pose_neutral_v352r3R3",
+   "pose_deg": [
+    0.0,
+    0.0
+   ],
+   "kind": "neutral",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 7284.07,
+     "R3": 8246.32,
+     "delta_pct": 13.21,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.9896
+    },
+    "FE_diagonal_alpha": {
+     "v351": 7284.13,
+     "R3": 8246.35,
+     "delta_pct": 13.21,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.9863
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1129.13,
+     "R3": 1149.93,
+     "delta_pct": 1.842,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.75
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1129.13,
+     "R3": 1149.93,
+     "delta_pct": 1.842,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.5993
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2585.75,
+     "R3": 2697.48,
+     "delta_pct": 4.321,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.8023
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2585.75,
+     "R3": 2697.48,
+     "delta_pct": 4.321,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.7091
+    },
+    "FE_coupled_beta": {
+     "v351": 5369.93,
+     "R3": 5763.5,
+     "delta_pct": 7.329,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.8738
+    },
+    "FE_diagonal_beta": {
+     "v351": 5369.97,
+     "R3": 5763.52,
+     "delta_pct": 7.329,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.8694
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1070.01,
+     "R3": 1084.77,
+     "delta_pct": 1.379,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.7258
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1070.01,
+     "R3": 1084.77,
+     "delta_pct": 1.379,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.5485
+    },
+    "k_s174_coupled_beta": {
+     "v351": 2295.3,
+     "R3": 2364.31,
+     "delta_pct": 3.007,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.7662
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 2295.31,
+     "R3": 2364.32,
+     "delta_pct": 3.006,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.6506
+    }
+   },
+   "fraction_min": 0.5485,
+   "fraction_max": 0.9896,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.0,
+    "k_s58 alpha": 0.0,
+    "k_s174 alpha": 0.0,
+    "FE beta": 0.0,
+    "k_s58 beta": 0.0,
+    "k_s174 beta": 0.001
+   },
+   "v351_source": "k_cone_c71_v352.json"
+  },
+  {
+   "pose": "alpha+",
+   "status": "posted",
+   "run": "pose_alpha+_v352r3R3",
+   "pose_deg": [
+    7.0,
+    0.0
+   ],
+   "kind": "range cone, single axis (7 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 6991.71,
+     "R3": 7879.67,
+     "delta_pct": 12.7,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.9513
+    },
+    "FE_diagonal_alpha": {
+     "v351": 6997.28,
+     "R3": 7894.59,
+     "delta_pct": 12.824,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.9575
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1156.63,
+     "R3": 1178.6,
+     "delta_pct": 1.9,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.7734
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1192.0,
+     "R3": 1216.78,
+     "delta_pct": 2.079,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.6764
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2607.26,
+     "R3": 2721.63,
+     "delta_pct": 4.387,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.8144
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2654.14,
+     "R3": 2777.99,
+     "delta_pct": 4.666,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.7658
+    },
+    "FE_coupled_beta": {
+     "v351": 5183.53,
+     "R3": 5501.24,
+     "delta_pct": 6.129,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.7308
+    },
+    "FE_diagonal_beta": {
+     "v351": 5187.65,
+     "R3": 5511.66,
+     "delta_pct": 6.246,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.7409
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1092.08,
+     "R3": 1105.53,
+     "delta_pct": 1.232,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.6481
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1125.47,
+     "R3": 1141.34,
+     "delta_pct": 1.41,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.5607
+    },
+    "k_s174_coupled_beta": {
+     "v351": 2304.99,
+     "R3": 2365.75,
+     "delta_pct": 2.636,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.6718
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 2346.44,
+     "R3": 2414.73,
+     "delta_pct": 2.911,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.6299
+    }
+   },
+   "fraction_min": 0.5607,
+   "fraction_max": 0.9575,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.124,
+    "k_s58 alpha": 0.179,
+    "k_s174 alpha": 0.279,
+    "FE beta": 0.117,
+    "k_s58 beta": 0.178,
+    "k_s174 beta": 0.275
+   },
+   "v351_source": "k_cone_c71_v352.json"
+  },
+  {
+   "pose": "alpha-",
+   "status": "posted",
+   "run": "pose_alpha-_v352r3R3",
+   "pose_deg": [
+    -7.0,
+    0.0
+   ],
+   "kind": "range cone, single axis (7 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 6984.88,
+     "R3": 7873.34,
+     "delta_pct": 12.72,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.9528
+    },
+    "FE_diagonal_alpha": {
+     "v351": 6987.77,
+     "R3": 7884.19,
+     "delta_pct": 12.829,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.9578
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1156.44,
+     "R3": 1178.46,
+     "delta_pct": 1.904,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.7751
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1191.52,
+     "R3": 1216.5,
+     "delta_pct": 2.097,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.6821
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2606.31,
+     "R3": 2720.88,
+     "delta_pct": 4.396,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.8161
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2651.75,
+     "R3": 2776.26,
+     "delta_pct": 4.695,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.7706
+    },
+    "FE_coupled_beta": {
+     "v351": 5453.35,
+     "R3": 5823.16,
+     "delta_pct": 6.781,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.8085
+    },
+    "FE_diagonal_beta": {
+     "v351": 5455.6,
+     "R3": 5831.19,
+     "delta_pct": 6.885,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.8167
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1103.58,
+     "R3": 1117.95,
+     "delta_pct": 1.302,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.685
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1137.05,
+     "R3": 1154.04,
+     "delta_pct": 1.494,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.5939
+    },
+    "k_s174_coupled_beta": {
+     "v351": 2356.85,
+     "R3": 2423.36,
+     "delta_pct": 2.822,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.7193
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 2397.94,
+     "R3": 2472.69,
+     "delta_pct": 3.117,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.6746
+    }
+   },
+   "fraction_min": 0.5939,
+   "fraction_max": 0.9578,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.109,
+    "k_s58 alpha": 0.193,
+    "k_s174 alpha": 0.299,
+    "FE beta": 0.104,
+    "k_s58 beta": 0.192,
+    "k_s174 beta": 0.295
+   },
+   "v351_source": "k_cone_c71_v352.json"
+  },
+  {
+   "pose": "beta+",
+   "status": "posted",
+   "run": "pose_beta+_v352r3R3",
+   "pose_deg": [
+    0.0,
+    7.0
+   ],
+   "kind": "range cone, single axis (7 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 6429.6,
+     "R3": 7393.15,
+     "delta_pct": 14.986,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 1.1226
+    },
+    "FE_diagonal_alpha": {
+     "v351": 6429.68,
+     "R3": 7393.23,
+     "delta_pct": 14.986,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 1.1189
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1299.24,
+     "R3": 1334.39,
+     "delta_pct": 2.705,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 1.1013
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1299.24,
+     "R3": 1334.39,
+     "delta_pct": 2.705,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.8799
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2775.87,
+     "R3": 2941.38,
+     "delta_pct": 5.962,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 1.1069
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2775.88,
+     "R3": 2941.39,
+     "delta_pct": 5.962,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.9784
+    },
+    "FE_coupled_beta": {
+     "v351": 6380.23,
+     "R3": 7004.96,
+     "delta_pct": 9.792,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 1.1674
+    },
+    "FE_diagonal_beta": {
+     "v351": 6380.32,
+     "R3": 7005.03,
+     "delta_pct": 9.791,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 1.1615
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1597.0,
+     "R3": 1633.47,
+     "delta_pct": 2.283,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 1.2013
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1597.0,
+     "R3": 1633.47,
+     "delta_pct": 2.283,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.9078
+    },
+    "k_s174_coupled_beta": {
+     "v351": 3192.71,
+     "R3": 3341.85,
+     "delta_pct": 4.671,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 1.1905
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 3192.72,
+     "R3": 3341.85,
+     "delta_pct": 4.671,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 1.0108
+    }
+   },
+   "fraction_min": 0.8799,
+   "fraction_max": 1.2013,
+   "stiffens_more_than_stop045": [
+    "FE_coupled_alpha",
+    "FE_diagonal_alpha",
+    "k_s58_coupled_alpha",
+    "k_s174_coupled_alpha",
+    "FE_coupled_beta",
+    "FE_diagonal_beta",
+    "k_s58_coupled_beta",
+    "k_s174_coupled_beta",
+    "k_s174_diagonal_beta"
+   ],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.0,
+    "k_s58 alpha": 0.0,
+    "k_s174 alpha": 0.0,
+    "FE beta": 0.001,
+    "k_s58 beta": 0.0,
+    "k_s174 beta": 0.0
+   },
+   "v351_source": "k_cone_c71_v352.json"
+  },
+  {
+   "pose": "beta-",
+   "status": "posted",
+   "run": "pose_beta-_v352r3R3",
+   "pose_deg": [
+    0.0,
+    -7.0
+   ],
+   "kind": "range cone, single axis (7 deg)",
+   "band_rule": "original RM2-05 band [v351, v351 (1 + d)] (lead 14:11Z (2))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 8363.65,
+     "R3": 9216.31,
+     "delta_pct": 10.195,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.7637
+    },
+    "FE_diagonal_alpha": {
+     "v351": 8363.86,
+     "R3": 9216.49,
+     "delta_pct": 10.194,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.7611
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1245.89,
+     "R3": 1263.3,
+     "delta_pct": 1.397,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.569
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1245.89,
+     "R3": 1263.3,
+     "delta_pct": 1.397,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.4546
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2879.71,
+     "R3": 2974.46,
+     "delta_pct": 3.29,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.6109
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2879.72,
+     "R3": 2974.47,
+     "delta_pct": 3.29,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.5399
+    },
+    "FE_coupled_beta": {
+     "v351": 4081.93,
+     "R3": 4222.88,
+     "delta_pct": 3.453,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.4117
+    },
+    "FE_diagonal_beta": {
+     "v351": 4082.03,
+     "R3": 4222.96,
+     "delta_pct": 3.453,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.4096
+    },
+    "k_s58_coupled_beta": {
+     "v351": 820.69,
+     "R3": 826.23,
+     "delta_pct": 0.676,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.3555
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 820.69,
+     "R3": 826.23,
+     "delta_pct": 0.676,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.2686
+    },
+    "k_s174_coupled_beta": {
+     "v351": 1755.97,
+     "R3": 1781.55,
+     "delta_pct": 1.457,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.3713
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 1755.98,
+     "R3": 1781.56,
+     "delta_pct": 1.457,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.3152
+    }
+   },
+   "fraction_min": 0.2686,
+   "fraction_max": 0.7637,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.001,
+    "k_s58 alpha": 0.0,
+    "k_s174 alpha": 0.0,
+    "FE beta": 0.0,
+    "k_s58 beta": 0.0,
+    "k_s174 beta": 0.0
+   },
+   "v351_source": "k_cone_c71_v352.json"
+  },
+  {
+   "pose": "combined045",
+   "status": "posted",
+   "run": "pose_combined045_v352r3R3",
+   "pose_deg": [
+    -4.962,
+    4.944
+   ],
+   "kind": "cone pose, alpha and beta both non-zero (7 deg)",
+   "band_rule": "cone-pose band [v351, v351 (1 + 1.25 d)] (lead 17:33:40Z (b))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 6562.95,
+     "R3": 7507.87,
+     "delta_pct": 14.398,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 1.0785
+    },
+    "FE_diagonal_alpha": {
+     "v351": 6563.65,
+     "R3": 7510.83,
+     "delta_pct": 14.431,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 1.0774
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1258.94,
+     "R3": 1290.09,
+     "delta_pct": 2.474,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 1.0073
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1331.22,
+     "R3": 1368.78,
+     "delta_pct": 2.821,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.9178
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2729.61,
+     "R3": 2880.39,
+     "delta_pct": 5.524,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 1.0255
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2807.83,
+     "R3": 2975.05,
+     "delta_pct": 5.956,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.9774
+    },
+    "FE_coupled_beta": {
+     "v351": 6183.58,
+     "R3": 6744.26,
+     "delta_pct": 9.067,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 1.081
+    },
+    "FE_diagonal_beta": {
+     "v351": 6184.25,
+     "R3": 6746.91,
+     "delta_pct": 9.098,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 1.0793
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1428.4,
+     "R3": 1456.37,
+     "delta_pct": 1.958,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 1.0301
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1510.41,
+     "R3": 1545.2,
+     "delta_pct": 2.304,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.9159
+    },
+    "k_s174_coupled_beta": {
+     "v351": 2931.06,
+     "R3": 3051.3,
+     "delta_pct": 4.102,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 1.0455
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 3015.05,
+     "R3": 3151.58,
+     "delta_pct": 4.528,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.9799
+    }
+   },
+   "fraction_min": 0.9159,
+   "fraction_max": 1.081,
+   "stiffens_more_than_stop045": [
+    "FE_coupled_alpha",
+    "FE_diagonal_alpha",
+    "k_s58_coupled_alpha",
+    "k_s174_coupled_alpha",
+    "FE_coupled_beta",
+    "FE_diagonal_beta",
+    "k_s58_coupled_beta",
+    "k_s174_coupled_beta"
+   ],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.033,
+    "k_s58 alpha": 0.347,
+    "k_s174 alpha": 0.432,
+    "FE beta": 0.031,
+    "k_s58 beta": 0.346,
+    "k_s174 beta": 0.426
+   },
+   "v351_source": "k_cone_c71_v352.json"
+  },
+  {
+   "pose": "combined135",
+   "status": "posted",
+   "run": "pose_combined135_v352r3R3",
+   "pose_deg": [
+    -4.962,
+    -4.944
+   ],
+   "kind": "cone pose, alpha and beta both non-zero (7 deg)",
+   "band_rule": "cone-pose band [v351, v351 (1 + 1.25 d)] (lead 17:33:40Z (b))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 7779.2,
+     "R3": 8626.86,
+     "delta_pct": 10.896,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.8162
+    },
+    "FE_diagonal_alpha": {
+     "v351": 7781.61,
+     "R3": 8636.43,
+     "delta_pct": 10.985,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.8202
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1167.27,
+     "R3": 1184.73,
+     "delta_pct": 1.496,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.6093
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1170.18,
+     "R3": 1188.04,
+     "delta_pct": 1.527,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.4967
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2693.49,
+     "R3": 2788.35,
+     "delta_pct": 3.522,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.6539
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2698.15,
+     "R3": 2794.76,
+     "delta_pct": 3.581,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.5877
+    },
+    "FE_coupled_beta": {
+     "v351": 4552.06,
+     "R3": 4754.14,
+     "delta_pct": 4.439,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.5293
+    },
+    "FE_diagonal_beta": {
+     "v351": 4553.47,
+     "R3": 4759.42,
+     "delta_pct": 4.523,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.5366
+    },
+    "k_s58_coupled_beta": {
+     "v351": 891.93,
+     "R3": 899.42,
+     "delta_pct": 0.84,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.4419
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 894.15,
+     "R3": 901.93,
+     "delta_pct": 0.87,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.3459
+    },
+    "k_s174_coupled_beta": {
+     "v351": 1922.43,
+     "R3": 1957.57,
+     "delta_pct": 1.828,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.4659
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 1925.75,
+     "R3": 1962.07,
+     "delta_pct": 1.886,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.4081
+    }
+   },
+   "fraction_min": 0.3459,
+   "fraction_max": 0.8202,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.089,
+    "k_s58 alpha": 0.031,
+    "k_s174 alpha": 0.059,
+    "FE beta": 0.084,
+    "k_s58 beta": 0.03,
+    "k_s174 beta": 0.058
+   },
+   "v351_source": "k_cone_c71_v352.json"
+  },
+  {
+   "pose": "combined225",
+   "status": "posted",
+   "run": "pose_combined225_v352r3R3",
+   "pose_deg": [
+    4.962,
+    -4.944
+   ],
+   "kind": "cone pose, alpha and beta both non-zero (7 deg)",
+   "band_rule": "cone-pose band [v351, v351 (1 + 1.25 d)] (lead 17:33:40Z (b))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 7788.01,
+     "R3": 8635.82,
+     "delta_pct": 10.886,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 0.8155
+    },
+    "FE_diagonal_alpha": {
+     "v351": 7793.62,
+     "R3": 8650.36,
+     "delta_pct": 10.993,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 0.8207
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1167.47,
+     "R3": 1184.9,
+     "delta_pct": 1.494,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 0.6081
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1170.55,
+     "R3": 1188.36,
+     "delta_pct": 1.521,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.4949
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2694.54,
+     "R3": 2789.29,
+     "delta_pct": 3.516,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 0.6528
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2699.98,
+     "R3": 2796.43,
+     "delta_pct": 3.572,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.5862
+    },
+    "FE_coupled_beta": {
+     "v351": 4325.93,
+     "R3": 4491.88,
+     "delta_pct": 3.836,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 0.4574
+    },
+    "FE_diagonal_beta": {
+     "v351": 4329.05,
+     "R3": 4499.44,
+     "delta_pct": 3.936,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 0.4669
+    },
+    "k_s58_coupled_beta": {
+     "v351": 882.89,
+     "R3": 889.59,
+     "delta_pct": 0.76,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 0.3997
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 885.22,
+     "R3": 892.19,
+     "delta_pct": 0.787,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.313
+    },
+    "k_s174_coupled_beta": {
+     "v351": 1880.91,
+     "R3": 1911.61,
+     "delta_pct": 1.633,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 0.4161
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 1884.7,
+     "R3": 1916.51,
+     "delta_pct": 1.688,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.3652
+    }
+   },
+   "fraction_min": 0.313,
+   "fraction_max": 0.8207,
+   "stiffens_more_than_stop045": [],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.107,
+    "k_s58 alpha": 0.027,
+    "k_s174 alpha": 0.056,
+    "FE beta": 0.1,
+    "k_s58 beta": 0.027,
+    "k_s174 beta": 0.055
+   },
+   "v351_source": "k_cone_c71_v352.json"
+  },
+  {
+   "pose": "combined315",
+   "status": "posted",
+   "run": "pose_combined315_v352r3R3",
+   "pose_deg": [
+    4.962,
+    4.944
+   ],
+   "kind": "cone pose, alpha and beta both non-zero (7 deg)",
+   "band_rule": "cone-pose band [v351, v351 (1 + 1.25 d)] (lead 17:33:40Z (b))",
+   "values": {
+    "FE_coupled_alpha": {
+     "v351": 6564.08,
+     "R3": 7507.82,
+     "delta_pct": 14.377,
+     "stop045_delta_pct": 13.35,
+     "fraction_of_stop045_delta": 1.077
+    },
+    "FE_diagonal_alpha": {
+     "v351": 6566.2,
+     "R3": 7513.0,
+     "delta_pct": 14.419,
+     "stop045_delta_pct": 13.394,
+     "fraction_of_stop045_delta": 1.0766
+    },
+    "k_s58_coupled_alpha": {
+     "v351": 1258.98,
+     "R3": 1290.09,
+     "delta_pct": 2.47,
+     "stop045_delta_pct": 2.456,
+     "fraction_of_stop045_delta": 1.0059
+    },
+    "k_s58_diagonal_alpha": {
+     "v351": 1331.92,
+     "R3": 1369.18,
+     "delta_pct": 2.798,
+     "stop045_delta_pct": 3.074,
+     "fraction_of_stop045_delta": 0.9102
+    },
+    "k_s174_coupled_alpha": {
+     "v351": 2729.81,
+     "R3": 2880.38,
+     "delta_pct": 5.516,
+     "stop045_delta_pct": 5.386,
+     "fraction_of_stop045_delta": 1.024
+    },
+    "k_s174_diagonal_alpha": {
+     "v351": 2810.45,
+     "R3": 2976.89,
+     "delta_pct": 5.922,
+     "stop045_delta_pct": 6.094,
+     "fraction_of_stop045_delta": 0.9719
+    },
+    "FE_coupled_beta": {
+     "v351": 6034.3,
+     "R3": 6559.77,
+     "delta_pct": 8.708,
+     "stop045_delta_pct": 8.388,
+     "fraction_of_stop045_delta": 1.0382
+    },
+    "FE_diagonal_beta": {
+     "v351": 6036.25,
+     "R3": 6564.3,
+     "delta_pct": 8.748,
+     "stop045_delta_pct": 8.43,
+     "fraction_of_stop045_delta": 1.0378
+    },
+    "k_s58_coupled_beta": {
+     "v351": 1420.28,
+     "R3": 1447.58,
+     "delta_pct": 1.922,
+     "stop045_delta_pct": 1.901,
+     "fraction_of_stop045_delta": 1.011
+    },
+    "k_s58_diagonal_beta": {
+     "v351": 1502.56,
+     "R3": 1536.33,
+     "delta_pct": 2.247,
+     "stop045_delta_pct": 2.515,
+     "fraction_of_stop045_delta": 0.8936
+    },
+    "k_s174_coupled_beta": {
+     "v351": 2897.09,
+     "R3": 3012.96,
+     "delta_pct": 4.0,
+     "stop045_delta_pct": 3.924,
+     "fraction_of_stop045_delta": 1.0194
+    },
+    "k_s174_diagonal_beta": {
+     "v351": 2982.67,
+     "R3": 3113.91,
+     "delta_pct": 4.4,
+     "stop045_delta_pct": 4.621,
+     "fraction_of_stop045_delta": 0.9522
+    }
+   },
+   "fraction_min": 0.8936,
+   "fraction_max": 1.077,
+   "stiffens_more_than_stop045": [
+    "FE_coupled_alpha",
+    "FE_diagonal_alpha",
+    "k_s58_coupled_alpha",
+    "k_s174_coupled_alpha",
+    "FE_coupled_beta",
+    "FE_diagonal_beta",
+    "k_s58_coupled_beta",
+    "k_s174_coupled_beta"
+   ],
+   "coupled_vs_diagonal_delta_diff_pct_of_K": {
+    "FE alpha": 0.042,
+    "k_s58 alpha": 0.328,
+    "k_s174 alpha": 0.406,
+    "FE beta": 0.04,
+    "k_s58 beta": 0.325,
+    "k_s174 beta": 0.4
+   },
+   "v351_source": "k_cone_c71_v352.json"
+  }
+ ],
+ "sources_sha16": {
+  "k_pose_stop000_v352r3R3.json": "717a1f961bb32f36",
+  "k_stop045_v352r3R3_check.json": "dedbac67afcd7f19",
+  "k_pose_stop090_v352r3R3.json": "2f6f6b6c16456e2f",
+  "k_pose_stop135_v352r3R3.json": "cf2b4b5a96a03b5f",
+  "k_pose_stop180_v352r3R3.json": "f8e4aaeb5846bd6a",
+  "k_pose_stop225_v352r3R3.json": "5171aa7a5ae9832b",
+  "k_pose_stop270_v352r3R3.json": "56084c452952dc40",
+  "k_pose_stop315_v352r3R3.json": "fdd1a36e24b32cf0",
+  "k_pose_neutral_v352r3R3.json": "bd0e6c41ec388020",
+  "k_pose_alpha+_v352r3R3.json": "f4a708c9778aa63f",
+  "k_pose_alpha-_v352r3R3.json": "bc4c5c0c786446da",
+  "k_pose_beta+_v352r3R3.json": "6677cec40c12cb9e",
+  "k_pose_beta-_v352r3R3.json": "74f38ccde07e7bcf",
+  "k_pose_combined045_v352r3R3.json": "13ac5d4d0bbd1a4f",
+  "k_pose_combined135_v352r3R3.json": "a5bf69fe04c97de2",
+  "k_pose_combined225_v352r3R3.json": "7be9507106fdafe6",
+  "k_pose_combined315_v352r3R3.json": "6e6fc6112deee077",
+  "k_stop_c71_v352.json": "5876f4c1bf0b7cc8",
+  "k_cone_c71_v352.json": "49315997223026de"
+ }
+}

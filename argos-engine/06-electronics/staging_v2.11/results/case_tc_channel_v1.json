@@ -1,0 +1,369 @@
+{
+ "script": "calc/v2p11/case_tc_channel_v1.py",
+ "version": "v1",
+ "date": "2026-10-20",
+ "status": "CALC / DERIVED on SIM inputs and DATASHEET / LITERATURE / ASSUMED terms as tagged; not physical approval",
+ "inputs": {
+  "B1_rev3_merged": {
+   "file": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_hist.npz",
+   "sha256_16": "f53ecacdf306259f",
+   "tag": "SIM (Mechanical CalculiX thermal, read only; 20 C start in every run)"
+  },
+  "B1_rev4_GVHI": {
+   "file": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVHI_hist.npz",
+   "sha256_16": "e525fa1ad783b7de",
+   "tag": "SIM (Mechanical CalculiX thermal, read only; 20 C start in every run)"
+  },
+  "B1_rev4_GVLO": {
+   "file": "/home/claude/work/mechanical/v352/tb70/hist/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_R4_GVLO_hist.npz",
+   "sha256_16": "b51e5672fb41058e",
+   "tag": "SIM (Mechanical CalculiX thermal, read only; 20 C start in every run)"
+  },
+  "A1_rev3_merged": {
+   "file": "/home/claude/work/mechanical/v352/tb70/hist/DC-A1dispp99_tg711_hi_SS316L_L2.5_v352_NF2b_hist.npz",
+   "sha256_16": "f0631ef8700cb546",
+   "tag": "SIM (Mechanical CalculiX thermal, read only; 20 C start in every run)"
+  },
+  "bpkg": {
+   "file": "/home/claude/work/shared-fallback/engine/04-fea/v352/bpkg/bpkg_abort_v352_v1.json",
+   "sha256_16": "4b6f849e76708a24",
+   "tag": "Mechanical (b) package (SIM / CALC)"
+  },
+  "firmware_v2p10_hub": {
+   "engine_ecu.cpp": "06-electronics/firmware/src/core/engine_ecu.cpp 6e62a7e4e37930bd: l.1043 hot = MV latched/OPEN AND tc_K > kCaseOverTemp_K; l.1050 p_otemp_.step(hot, kOverTempTime_s, dt) -> OVER_TEMP abort in IGNITION / RUN / PREPRESS / PURGE; l.763 ARM check (direct, no persistence, k < 3 incl. the nozzle holder TC3)",
+   "config.h": "l.391 kCaseOverTemp_K 448.15; l.397 kCaseRelightMax_K 433.15; l.404 kOverTempTime_s 0.20 s [MECH 2026-10-13]",
+   "engine_ecu.h": "l.191 caseHot(): direct comparison with kCaseRelightMax_K (relight / start refusal CASE_HOT)",
+   "correction_to_brief": "the v2.10 in-burn case-TC abort HAS a 0.2 s persistence (one Persist shared by TC1 / TC2 / TC3); the direct comparisons are the ARM check and the start refusal"
+  }
+ },
+ "notes": [],
+ "station_history_B1": {
+  "B1_rev3_merged": {
+   "armed_end_t_s": 21.651,
+   "station_max_C": 137.74200439453125,
+   "rate_end_K_per_s": 6.507,
+   "node_spread_K": 3.427001953125,
+   "profile_C_at_mm": {
+    "12.60": 138.199,
+    "13.00": 137.99,
+    "13.48": 137.739,
+    "14.00": 137.362,
+    "15.10": 136.488,
+    "16.10": 135.536,
+    "17.60": 133.768
+   },
+   "post_burn_1s_C": 143.63400268554688
+  },
+  "B1_rev4_GVHI": {
+   "armed_end_t_s": 21.651,
+   "station_max_C": 117.0830078125,
+   "rate_end_K_per_s": 6.993,
+   "node_spread_K": 1.907012939453125,
+   "profile_C_at_mm": {
+    "12.60": 117.186,
+    "13.00": 117.139,
+    "13.48": 117.084,
+    "14.00": 116.921,
+    "15.10": 116.5,
+    "16.10": 115.96,
+    "17.60": 114.811
+   },
+   "post_burn_1s_C": 123.9320068359375
+  },
+  "B1_rev4_GVLO": {
+   "armed_end_t_s": 21.651,
+   "station_max_C": 108.1820068359375,
+   "rate_end_K_per_s": 6.727,
+   "node_spread_K": 0.842010498046875,
+   "profile_C_at_mm": {
+    "12.60": 108.014,
+    "13.00": 108.09,
+    "13.48": 108.181,
+    "14.00": 108.172,
+    "15.10": 108.073,
+    "16.10": 107.818,
+    "17.60": 107.082
+   },
+   "post_burn_1s_C": 114.8380126953125
+  }
+ },
+ "A1a_false_trip_side": {
+  "criterion": "true station at 137.74 C (B1 rev-3 merged perfect contact, armed maximum at the end of the burn): reading must stay <= 150.00 C; margin 12.26 K",
+  "terms": [
+   {
+    "term": "tc_wire_class1",
+    "bound_K": 1.5,
+    "source": "LITERATURE IEC 60584-1:2013 tolerance classes, type K Class 1 +/-1.5 C over -40..375 C (AS RECALLED, TO-VERIFY against the standard); BOM v2.2 row 203 specifies Class 1",
+    "note": "EMF deviation of the supplied TC pair"
+   },
+   {
+    "term": "cj_sensor",
+    "bound_K": 0.7,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media): cold-junction temperature error +/-0.7 C (TA -20..+85 C)",
+    "note": "x S(25 C)/S(137.7 C) = 0.999; board -20..+85 C ASSUMED (bay; ARM <= 45 C bay)"
+   },
+   {
+    "term": "cj_gradient_terminal_to_die",
+    "bound_K": 1.0,
+    "source": "ASSUMED (layout not started): J605/J606 within 5 mm of U604/U605, isothermal copper pour, no power part within 20 mm (datasheet: keep heat sources away from the cold junction)",
+    "note": "includes the die self-heating 2 mA x 3.3 V x 110 K/W (TSSOP-14 theta_JA AS RECALLED) = 0.73 K max, DERIVED; B-TC-1 measures it"
+   },
+   {
+    "term": "adc_fullscale_inl",
+    "bound_K": 2.89,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media): Full-Scale and INL Error +/-0.15 %FS (TA -20..+85 C), FS 78.125 mV",
+    "note": "datasheet-literal bound at any input (117.2 uV); a pure gain error would give 0.15 % of the 4.6 mV signal = 0.17 K (information, not taken)"
+   },
+   {
+    "term": "adc_offset",
+    "bound_K": 0.289,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media): input offset +/-11.7 uV (AV 8, TA -20..+85 C)",
+    "note": ""
+   },
+   {
+    "term": "linearisation",
+    "bound_K": 0.13,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media): Thermocouple Linearity Correction Error type K -0.13 / +0.12 C",
+    "note": ""
+   },
+   {
+    "term": "noise_6sigma",
+    "bound_K": 0.192,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media): input-referred noise 1.3 uVrms (AV 8), AVGSEL = 1 sample",
+    "note": "6 sigma of one conversion"
+   },
+   {
+    "term": "bias_current_x_leads",
+    "bound_K": 0.031,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media): TC bias current -10..+65 nA, differential +/-4 nA (-40..+85 C); leads ASSUMED 3 m 24 AWG K (Chromel 3.44 / Alumel 1.43 ohm/m AS RECALLED) + 2 x 100 ohm filter",
+    "note": "DERIVED, negligible"
+   },
+   {
+    "term": "emi_ground_offset",
+    "bound_K": 0.5,
+    "source": "ASSUMED: ungrounded (isolated) junction, BIAS to T- (DS), shielded twisted pair, 100 ohm + 100 nF + 2 x 10 nF filter (schematic v2.5), 50 Hz notch; spikes of one conversion are rejected by the persistence",
+    "note": "TO-VERIFY at B-TC-1 (servos, pintle rail and spark running) and IGN-1"
+   },
+   {
+    "term": "wire_inhomogeneity_install",
+    "bound_K": 0.3,
+    "source": "ASSUMED: cold work from forming / clamping in the gradient zone (no anneal)",
+    "note": "TO-VERIFY at B-TC-1 (in-situ comparison)"
+   },
+   {
+    "term": "junction_placement_13p5_pm0p5_mm",
+    "bound_K": 0.25,
+    "source": "DERIVED from the merged B1 end-of-burn OD profile (SIM)",
+    "note": "callout: junction centre 13.5 +/- 0.5 mm aft of the injector face (the hottest station node 13.48 mm); at the band's forward edge 12.6 mm it would be +0.46 K"
+   },
+   {
+    "term": "surface_contact_and_lag",
+    "bound_K": 0.0,
+    "source": "DERIVED (sign): on a rising or steady hotter case the junction reads LOW (lag, fin and pad heat loss); leads routed on the hoop isotherm, no path over a hotter region",
+    "note": "a credit on the false-trip side, NOT taken"
+   },
+   {
+    "term": "persistence_filter",
+    "bound_K": 0.0,
+    "source": "config.h kOverTempTime_s 0.20 s",
+    "note": "no static error; needs 2-3 consecutive conversions above A (98-110 ms each), so one corrupted conversion cannot trip; on the B1 ramp ending at disarm it is a further credit, NOT taken"
+   }
+  ],
+  "worst_case_K": 7.78,
+  "rss_K": 3.55,
+  "margin_K": 12.26,
+  "worst_case_spare_K": 4.48,
+  "rss_spare_K": 8.71,
+  "verdict": "INSIDE +12.3 K (worst case and RSS)",
+  "board_hot_variant": {
+   "note": "if the ECU board runs -40..+105 C: FS+INL 0.2 %FS and CJ +/-1.0 C [DS]",
+   "worst_case_K": 9.08
+  },
+  "armed_window": "the abort is armed only in IGNITION / RUN (and PREPRESS / PURGE) with the MV latched or OPEN; MECO enters SHUTDOWN and ends the arming at the command (burning = IGNITION || RUN), so the post-burn soak (+5.9 K in the first second, SIM) never meets the abort; in SHUTDOWN it can only set the OVER_TEMP fault bit",
+  "hot_day_sensitivity": {
+   "basis": "every Mechanical thermal run starts at 20 C (ASSUMED); for a convective-conductive case with T_gas >> T_case dT_station/dT0 = 1 - (T - T0)/(T_aw - T0) = about 0.96 (T_aw about 2800 K ASSUMED) [DERIVED]",
+   "margin_K_at_T0_C": {
+    "20": 12.26,
+    "25": 7.46,
+    "30": 2.66,
+    "35": -2.14,
+    "40": -6.94
+   },
+   "finding": "the 12.26 K margin is a 20 C-start margin: a stand B1-length burn with the engine at T0 > about 24.7 C no longer covers the worst-case channel, > about 29.1 C not the RSS; flight A1 (station armed max 83.46 C) keeps > 45 K at a 40 C day. Lead / Mechanical: a hot-day B1 run or a stand T0 limit for B1-length burns"
+  }
+ },
+ "A1b_low_reading_tolerance": {
+  "definition": "true station metal minus the reading when the abort command is issued (reading crossed 150.00 C and the persistence completed), on a station heating at rate r",
+  "static_terms": [
+   {
+    "term": "tc_wire_class1",
+    "bound_K": 1.5,
+    "source": "LITERATURE IEC 60584-1:2013 tolerance classes, type K Class 1 +/-1.5 C over -40..375 C (AS RECALLED, TO-VERIFY against the standard)"
+   },
+   {
+    "term": "cj_sensor",
+    "bound_K": 0.704,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media)"
+   },
+   {
+    "term": "cj_gradient_terminal_to_die",
+    "bound_K": 1.0,
+    "source": "ASSUMED (as above)"
+   },
+   {
+    "term": "adc_fullscale_inl",
+    "bound_K": 2.909,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media)"
+   },
+   {
+    "term": "adc_offset",
+    "bound_K": 0.29,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media)"
+   },
+   {
+    "term": "linearisation",
+    "bound_K": 0.13,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media)"
+   },
+   {
+    "term": "noise_6sigma",
+    "bound_K": 0.194,
+    "source": "DATASHEET Maxim/ADI MAX31856 19-7534 Rev 0 (2/15), Electrical Characteristics; retrieved 2026-10-20 from www-cce.cldnet.analog.com/media/en/technical-documentation/data-sheets/MAX31856.pdf (analog.com media)"
+   },
+   {
+    "term": "bias_current_x_leads",
+    "bound_K": 0.031,
+    "source": "DERIVED"
+   },
+   {
+    "term": "emi_ground_offset",
+    "bound_K": 0.5,
+    "source": "ASSUMED"
+   },
+   {
+    "term": "wire_inhomogeneity_install",
+    "bound_K": 0.3,
+    "source": "ASSUMED"
+   }
+  ],
+  "static_worst_K": 7.56,
+  "static_rss_K": 3.56,
+  "placement_K": {
+   "v": 0.38,
+   "basis": "junction up to 0.5 mm aft of the hottest station node (callout 13.5 +/- 0.5 mm); max over the three B1 bounds, field shape of the end of burn (the TB surrogate is a uniform shift) [DERIVED SIM]"
+  },
+  "surface_mount": {
+   "installation_DESIGN": "TC junction spot-welded to a 4 x 4 x 0.05 mm 304 SS shim; 25 um polyimide film between shim and the 6061 case OD (electrical isolation: the MAX31856 needs a floating TC, BIAS to T-, DS Note 6); high-temperature filled adhesive both sides (>= 200 C continuous rating: soak 190.9 C SIM); 0.25 mm glass-braid K leads anchored 15 mm along the hoop isotherm, then strain-relieved; no connector (continuous Class 1 wire to J605 / J606)",
+   "R_contact_K_per_W": 16.15,
+   "C_junction_J_per_K": 0.0064,
+   "tau_calc_s": 0.103,
+   "steady_error_K": 1.11,
+   "steady_basis": "pad top-face loss (h 18.3 W/m2K incl. radiation ASSUMED) and the lead fin through R_contact at 150 C case / 25 C bay [DERIVED]",
+   "tau_target_s": 0.25,
+   "tau_basis": "DESIGN target (the calculated pad tau is shorter; a void or a thicker bond line raises it): B-TC-1 measures tau and the steady offset; acceptance tau <= 0.25 s, |offset| <= 0.6 K"
+  },
+  "detection_delay_s": {
+   "v": 0.38,
+   "basis": "half a 110 ms conversion (result = window average) + the 123 ms worst conversion gap (DS: 98-110 ms at 50 Hz + 13 ms OC test every 16th) + 2 ms HAL read + 0.200 s persistence"
+  },
+  "rows": [
+   {
+    "rate_K_per_s": 3.5,
+    "lag_K": 0.88,
+    "detection_delay_K": 1.33,
+    "worst_case_K": 11.26,
+    "rss_static_plus_deterministic_K": 7.26,
+    "T_F1_station_C_worst": 161.3
+   },
+   {
+    "rate_K_per_s": 6.99,
+    "lag_K": 1.75,
+    "detection_delay_K": 2.66,
+    "worst_case_K": 13.46,
+    "rss_static_plus_deterministic_K": 9.46,
+    "T_F1_station_C_worst": 163.5
+   },
+   {
+    "rate_K_per_s": 14.0,
+    "lag_K": 3.5,
+    "detection_delay_K": 5.32,
+    "worst_case_K": 17.87,
+    "rss_static_plus_deterministic_K": 13.87,
+    "T_F1_station_C_worst": 167.9
+   },
+   {
+    "rate_K_per_s": 28.0,
+    "lag_K": 7.0,
+    "detection_delay_K": 10.64,
+    "worst_case_K": 26.69,
+    "rss_static_plus_deterministic_K": 22.69,
+    "T_F1_station_C_worst": 176.7
+   }
+  ],
+  "basis_rate_K_per_s": 6.99,
+  "basis_rate_note": "highest B1 end-of-burn station rate of the three bounds (GVHI 6.99 K/s; merged 6.51, GVLO 6.73) = a burn overrunning at the nominal heating rate; a faster failure (film-cooling loss, hot streak) gives delta = static + placement + steady + r x (tau + t_det)",
+  "formula_K": "delta_lo = 9.05 + r x 0.630 (worst case); 5.05 + r x 0.630 (RSS of the static terms)",
+  "T_F1_exposure_station_C": {
+   "worst_case_at_basis_rate": 163.5,
+   "rss_static_at_basis_rate": 159.5,
+   "note": "Mechanical adds its station-to-part offset (TC-01 max about A + 1.4 to 2.6 K, 243 (3)(c))"
+  },
+  "valve_closure_after_command": "MV-P closes about 30 ms after the abort (ASSUMED, B-MV-1): + r x 0.03 s, in Mechanical's post-trip history, not in this tolerance",
+  "after_B_TC_1_calibration": {
+   "method": "each case TC on its pad on a heated 6061 coupon with its own ECU channel against a reference thermometer at 150 C; offset written to CJTO (DS: +/-8 C, 0.0625 C LSB)",
+   "terms_K": {
+    "reference": 0.3,
+    "cj_variation": 0.5,
+    "adc_residual_tempco": 1.94,
+    "linearisation": 0.13,
+    "noise_6sigma": 0.194,
+    "emi": 0.5,
+    "cj_gradient_residual": 0.5,
+    "inhomogeneity": 0.3
+   },
+   "static_worst_K": 4.36,
+   "adc_residual_basis": "DS FS+INL 0.15 %FS (-20..85 C) minus 0.05 %FS (25 C) = 0.10 %FS: board-temperature residual (bound)",
+   "worst_case_at_basis_rate_K": 10.26
+  }
+ },
+ "persistence": {
+  "as_built_v2p10": "0.200 s of 1 ms ticks on the HAL-held reading (one Persist for TC1 / TC2 / nozzle holder)",
+  "conversion_count": "2 consecutive conversions above A when the conversion period is >= 100 ms, 3 when < 100 ms (DS 98-110 ms)",
+  "v2p11": "kept (no change); the HAL rule is made explicit: auto mode, 50 Hz notch, AVGSEL 1, OC test every 16 conversions, any SR fault bit -> tc_valid false for that channel",
+  "trip_delay_cost": {
+   "t_det_s": 0.38,
+   "of_which_persistence_s": 0.2,
+   "K_at_basis_rate": 2.66,
+   "K_per_K_per_s": 0.38
+  },
+  "alternative_not_proposed": "0.12 s (still >= 2 conversions at <= 110 ms) would save 0.08 s (0.56 K at 7 K/s) at the cost of a single-conversion spike rejection margin of 10 ms; not proposed"
+ },
+ "A2_relight_refusal": {
+  "v2p10": "kCaseRelightMax_K 433.15 K (160 C) > the new A 150 C: a start would be accepted at a case reading that aborts as soon as the MV latches (PURGE / PREPRESS / IGNITION are armed) -> relight lockout; the v2.10 static_assert (kCaseRelightMax_K <= kCaseOverTemp_K) fails to compile at A = 423.15 K",
+  "check_points": "startBlock() refuses CASE_HOT in ARMED / COAST / PREPRESS (engine_ecu.cpp l.546), i.e. at the PURGE command and at a COAST relight; not re-checked inside PURGE",
+  "A1_merged_SIM": {
+   "station_at_PURGE_cmd_C": 71.69,
+   "station_at_relight_E0_C": 73.95,
+   "station_end_relight_burn_C": 83.46,
+   "rise_purge_K": 2.26,
+   "rise_relight_burn_K": 9.52,
+   "rate_end_relight_burn_K_per_s": 3.14
+  },
+  "allowance_K": {
+   "v": 15.91,
+   "basis": "purge rise + relight-burn rise (A1 rev-3 merged dispersed p99, SIM) + 1.0 s longer relight burn at its end rate + 1.0 K relative channel error between two readings seconds apart (noise, EMI, CJ drift; offset terms cancel on the same channel) [DERIVED]"
+  },
+  "proposed_C": 130.0,
+  "proposed_K": 403.15,
+  "check_consistency": "130 C + 15.9 K = 145.9 C <= A 150 C",
+  "check_no_nominal_refusal": "A1 nominal start reading <= 99.5 C (station at the PURGE command 71.7 C + 20 K hot-day shift ASSUMED + high-side channel 7.8 K) < 130 C",
+  "firmware_v2p11": "kCaseRelightMax_K = proposed value, kCaseRelightRise_K = 150 - proposed; static_assert(kCaseRelightMax_K + kCaseRelightRise_K <= kCaseOverTemp_K); ARM refuses a case TC above kCaseRelightMax_K (the start limit) and the nozzle holder above kNozzleHolderOverTemp_K (v2.10 compared all three with the abort value)",
+  "status": "PROPOSED, lead decides"
+ },
+ "seebeck_uV_per_K": {
+  "25C": 40.52,
+  "137.74C": 40.55,
+  "150C": 40.28,
+  "tag": "LITERATURE NIST ITS-90 type K reference function (NIST Monograph 175), coefficients AS RECALLED, checked E(100 C) = 4.096 mV"
+ }
+}

@@ -1,0 +1,532 @@
+{
+ "id": "tc02_t215_v352",
+ "date": "2026-10-20",
+ "owner": "fea3d",
+ "doc": "TC-02 at the instant of the S-AX TC-02 maximum (fea3d 2026-10-20 ~15:25Z; REV-MECH-2 RM2-13 correction 5, CHANGELOG 234 (7)).\n\nThe S-AX TC-02 thermal maximum (GVLO 187.7 C / GVHI 181.3 C, both at t = 21.5 s, forward-face OD corner by the TC-10 contact; Mechanical\ngapvar_fields_v352_v2 envelope_parts) is not an S-AX L1 state: the L1 states nearest it are B1_19 and B1_21.65, both among the four mapped\nstates of the 3-D re-posts (repost_5b_v352.py).  This script reads the 21.501 s frame of Mechanical's thermal result (and, as a check, the\n19.001 and 21.651 s frames, which are the S-AX L1 states B1_19 / B1_21.65) and interpolates T at the 3-D TC-02 governing nodes of the\nre-post (seat all-node, seat regular, forward face), on the TC-02 part of the thermal mesh (6-node triangles split in 4 linear ones, as\nfit_dT_sax.py; thermal z = S-AX z + 6.544 mm, index basis).  Then a constant-stress row per node: the vM of that node held at the larger\nof its two bracketing states (B1_19, B1_21.65) and of LC1 / LC2, with the 6061-T6 allowables at T(21.5 s) [DERIVED; assumption: the\nstress at 21.5 s does not exceed the larger bracketing state; the 3-D model has no 21.5 s state, so this is not a solved value].\nRead-only on Mechanical's files (thermal frd.gz, envelope_nodes.npz, frames.npz).  Evidence: SIM (Mechanical S-AX thermal) + DERIVED.",
+ "evidence": "SIM (Mechanical S-AX thermal frames) + DERIVED (interpolation, constant-stress rows)",
+ "bounds": {
+  "GVLO": {
+   "thermal_run": "/home/claude/work/mechanical/runs/thermal/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVLO",
+   "frd_sha16": "00c8f9eaf7edf1d6",
+   "frames_npz_sha16": "f737d22e23ead051",
+   "frame_check_max_abs_K_vs_frames_npz": {
+    "19.001": 0.0,
+    "21.651": 0.0
+   },
+   "TC02_part_max_C": {
+    "19.001": {
+     "T_C": 183.64,
+     "r_z_thermal_mm": [
+      24.85,
+      110.057
+     ]
+    },
+    "21.501": {
+     "T_C": 187.73,
+     "r_z_thermal_mm": [
+      24.85,
+      110.057
+     ]
+    },
+    "21.651": {
+     "T_C": 182.43,
+     "r_z_thermal_mm": [
+      24.85,
+      110.057
+     ]
+    }
+   },
+   "nodes": {
+    "n26422 (TC-02 seat (r <= 12, z 105-118); all)": {
+     "region": "TC-02 seat (r <= 12, z 105-118)",
+     "node_set": "all",
+     "r_theta_z": [
+      6.5,
+      -0.0,
+      107.513
+     ],
+     "node_class": "ID",
+     "T_thermal_interp_C": {
+      "19.001": 173.04,
+      "21.501": 167.65,
+      "21.651": 165.0
+     },
+     "interp": "nearest TC-02 thermal node (outside the triangulation; distance 0.500 mm)",
+     "T_3D_mapped_C": {
+      "B1_19 LC1": 173.0,
+      "B1_19 LC2": 173.0,
+      "B1_21.65 LC1": 165.0,
+      "B1_21.65 LC2": 165.0
+     },
+     "posted": {
+      "B1_19 LC1": {
+       "MS_y": -0.006,
+       "MS_u": -0.179,
+       "vm_MPa": 96.5
+      },
+      "B1_19 LC2": {
+       "MS_y": -0.023,
+       "MS_u": -0.193,
+       "vm_MPa": 98.2
+      },
+      "B1_21.65 LC1": {
+       "MS_y": 0.513,
+       "MS_u": 0.229,
+       "vm_MPa": 69.6
+      },
+      "B1_21.65 LC2": {
+       "MS_y": 0.477,
+       "MS_u": 0.2,
+       "vm_MPa": 71.3
+      }
+     },
+     "at_21.5s": {
+      "T_C": 167.65,
+      "vm_held_MPa": 98.2,
+      "vm_from": "B1_19 LC2",
+      "Fty_MPa": 153.4,
+      "Ftu_MPa": 167.0,
+      "MS_y": 0.041,
+      "MS_u": -0.15
+     }
+    },
+    "n30265 (TC-02 seat (r <= 12, z 105-118); regular)": {
+     "region": "TC-02 seat (r <= 12, z 105-118)",
+     "node_set": "regular",
+     "r_theta_z": [
+      7.98,
+      20.0,
+      107.513
+     ],
+     "node_class": "regular",
+     "T_thermal_interp_C": {
+      "19.001": 170.09,
+      "21.501": 165.53,
+      "21.651": 163.61
+     },
+     "interp": "nearest TC-02 thermal node (outside the triangulation; distance 0.104 mm)",
+     "T_3D_mapped_C": {
+      "B1_19 LC1": 169.5,
+      "B1_19 LC2": 169.5,
+      "B1_21.65 LC1": 163.3,
+      "B1_21.65 LC2": 163.3
+     },
+     "posted": {
+      "B1_19 LC1": {
+       "MS_y": 0.496,
+       "MS_u": 0.226,
+       "vm_MPa": 66.9
+      },
+      "B1_19 LC2": {
+       "MS_y": 0.469,
+       "MS_u": 0.204,
+       "vm_MPa": 68.1
+      },
+      "B1_21.65 LC1": {
+       "MS_y": 1.231,
+       "MS_u": 0.806,
+       "vm_MPa": 48.1
+      },
+      "B1_21.65 LC2": {
+       "MS_y": 1.168,
+       "MS_u": 0.756,
+       "vm_MPa": 49.5
+      }
+     },
+     "at_21.5s": {
+      "T_C": 165.53,
+      "vm_held_MPa": 68.1,
+      "vm_from": "B1_19 LC2",
+      "Fty_MPa": 157.1,
+      "Ftu_MPa": 170.3,
+      "MS_y": 0.538,
+      "MS_u": 0.25
+     }
+    },
+    "n26625 (TC-02 forward face (z 103.513, 12 < r < 28.6); all)": {
+     "region": "TC-02 forward face (z 103.513, 12 < r < 28.6)",
+     "node_set": "all",
+     "r_theta_z": [
+      24.781,
+      6.7,
+      103.513
+     ],
+     "node_class": "regular",
+     "T_thermal_interp_C": {
+      "19.001": 183.64,
+      "21.501": 187.73,
+      "21.651": 182.43
+     },
+     "interp": "nearest TC-02 thermal node (outside the triangulation; distance 0.069 mm)",
+     "T_3D_mapped_C": {
+      "B1_19 LC1": 183.6,
+      "B1_19 LC2": 183.6,
+      "B1_21.65 LC1": 182.4,
+      "B1_21.65 LC2": 182.4
+     },
+     "posted": {
+      "B1_19 LC1": {
+       "MS_y": 0.716,
+       "MS_u": 0.457,
+       "vm_MPa": 48.7
+      },
+      "B1_19 LC2": {
+       "MS_y": 0.763,
+       "MS_u": 0.497,
+       "vm_MPa": 47.4
+      },
+      "B1_21.65 LC1": {
+       "MS_y": 1.277,
+       "MS_u": 0.926,
+       "vm_MPa": 37.3
+      },
+      "B1_21.65 LC2": {
+       "MS_y": 1.36,
+       "MS_u": 0.997,
+       "vm_MPa": 36.0
+      }
+     },
+     "at_21.5s": {
+      "T_C": 187.73,
+      "vm_held_MPa": 48.7,
+      "vm_from": "B1_19 LC1",
+      "Fty_MPa": 118.1,
+      "Ftu_MPa": 135.4,
+      "MS_y": 0.617,
+      "MS_u": 0.39
+     }
+    },
+    "n26625 (TC-02 forward face (z 103.513, 12 < r < 28.6); regular)": {
+     "region": "TC-02 forward face (z 103.513, 12 < r < 28.6)",
+     "node_set": "regular",
+     "r_theta_z": [
+      24.781,
+      6.7,
+      103.513
+     ],
+     "node_class": "regular",
+     "T_thermal_interp_C": {
+      "19.001": 183.64,
+      "21.501": 187.73,
+      "21.651": 182.43
+     },
+     "interp": "nearest TC-02 thermal node (outside the triangulation; distance 0.069 mm)",
+     "T_3D_mapped_C": {
+      "B1_19 LC1": 183.6,
+      "B1_19 LC2": 183.6,
+      "B1_21.65 LC1": 182.4,
+      "B1_21.65 LC2": 182.4
+     },
+     "posted": {
+      "B1_19 LC1": {
+       "MS_y": 0.716,
+       "MS_u": 0.457,
+       "vm_MPa": 48.7
+      },
+      "B1_19 LC2": {
+       "MS_y": 0.763,
+       "MS_u": 0.497,
+       "vm_MPa": 47.4
+      },
+      "B1_21.65 LC1": {
+       "MS_y": 1.277,
+       "MS_u": 0.926,
+       "vm_MPa": 37.3
+      },
+      "B1_21.65 LC2": {
+       "MS_y": 1.36,
+       "MS_u": 0.997,
+       "vm_MPa": 36.0
+      }
+     },
+     "at_21.5s": {
+      "T_C": 187.73,
+      "vm_held_MPa": 48.7,
+      "vm_from": "B1_19 LC1",
+      "Fty_MPa": 118.1,
+      "Ftu_MPa": 135.4,
+      "MS_y": 0.617,
+      "MS_u": 0.39
+     }
+    }
+   },
+   "governing_nodes_from": "repost_5b_lc1v352g.json"
+  },
+  "GVHI": {
+   "thermal_run": "/home/claude/work/mechanical/runs/thermal/DC-B1v3p99_tg711_hi_SS316L_L2.5_v352_NF2b_GVHI",
+   "frd_sha16": "3dae2cb923129ff2",
+   "frames_npz_sha16": "e18dc711c895dcc0",
+   "frame_check_max_abs_K_vs_frames_npz": {
+    "19.001": 0.0,
+    "21.651": 0.0
+   },
+   "TC02_part_max_C": {
+    "19.001": {
+     "T_C": 176.91,
+     "r_z_thermal_mm": [
+      24.85,
+      110.057
+     ]
+    },
+    "21.501": {
+     "T_C": 181.3,
+     "r_z_thermal_mm": [
+      24.85,
+      110.057
+     ]
+    },
+    "21.651": {
+     "T_C": 176.01,
+     "r_z_thermal_mm": [
+      24.85,
+      110.057
+     ]
+    }
+   },
+   "nodes": {
+    "n26422 (TC-02 seat (r <= 12, z 105-118); all)": {
+     "region": "TC-02 seat (r <= 12, z 105-118)",
+     "node_set": "all",
+     "r_theta_z": [
+      6.5,
+      -0.0,
+      107.513
+     ],
+     "node_class": "ID",
+     "T_thermal_interp_C": {
+      "19.001": 171.03,
+      "21.501": 165.56,
+      "21.651": 162.91
+     },
+     "interp": "nearest TC-02 thermal node (outside the triangulation; distance 0.500 mm)",
+     "T_3D_mapped_C": {
+      "B1_19 LC1": 171.0,
+      "B1_19 LC2": 171.0,
+      "B1_21.65 LC1": 162.9,
+      "B1_21.65 LC2": 162.9
+     },
+     "posted": {
+      "B1_19 LC1": {
+       "MS_y": -0.007,
+       "MS_u": -0.183,
+       "vm_MPa": 99.0
+      },
+      "B1_19 LC2": {
+       "MS_y": -0.023,
+       "MS_u": -0.197,
+       "vm_MPa": 100.6
+      },
+      "B1_21.65 LC1": {
+       "MS_y": 0.501,
+       "MS_u": 0.215,
+       "vm_MPa": 71.8
+      },
+      "B1_21.65 LC2": {
+       "MS_y": 0.467,
+       "MS_u": 0.187,
+       "vm_MPa": 73.5
+      }
+     },
+     "at_21.5s": {
+      "T_C": 165.56,
+      "vm_held_MPa": 100.6,
+      "vm_from": "B1_19 LC2",
+      "Fty_MPa": 157.0,
+      "Ftu_MPa": 170.2,
+      "MS_y": 0.041,
+      "MS_u": -0.154
+     }
+    },
+    "n30265 (TC-02 seat (r <= 12, z 105-118); regular)": {
+     "region": "TC-02 seat (r <= 12, z 105-118)",
+     "node_set": "regular",
+     "r_theta_z": [
+      7.98,
+      20.0,
+      107.513
+     ],
+     "node_class": "regular",
+     "T_thermal_interp_C": {
+      "19.001": 167.94,
+      "21.501": 163.3,
+      "21.651": 161.38
+     },
+     "interp": "nearest TC-02 thermal node (outside the triangulation; distance 0.104 mm)",
+     "T_3D_mapped_C": {
+      "B1_19 LC1": 167.4,
+      "B1_19 LC2": 167.4,
+      "B1_21.65 LC1": 161.1
+     },
+     "posted": {
+      "B1_19 LC1": {
+       "MS_y": 0.498,
+       "MS_u": 0.223,
+       "vm_MPa": 68.5
+      },
+      "B1_19 LC2": {
+       "MS_y": 0.472,
+       "MS_u": 0.202,
+       "vm_MPa": 69.7
+      },
+      "B1_21.65 LC1": {
+       "MS_y": 1.225,
+       "MS_u": 0.794,
+       "vm_MPa": 49.4
+      }
+     },
+     "at_21.5s": {
+      "T_C": 163.3,
+      "vm_held_MPa": 69.7,
+      "vm_from": "B1_19 LC2",
+      "Fty_MPa": 161.0,
+      "Ftu_MPa": 173.8,
+      "MS_y": 0.54,
+      "MS_u": 0.247
+     }
+    },
+    "n31012 (TC-02 seat (r <= 12, z 105-118); regular)": {
+     "region": "TC-02 seat (r <= 12, z 105-118)",
+     "node_set": "regular",
+     "r_theta_z": [
+      6.375,
+      -91.6,
+      110.055
+     ],
+     "node_class": "regular",
+     "T_thermal_interp_C": {
+      "19.001": 146.46,
+      "21.501": 147.04,
+      "21.651": 146.83
+     },
+     "interp": "nearest TC-02 thermal node (outside the triangulation; distance 0.626 mm)",
+     "T_3D_mapped_C": {
+      "B1_21.65 LC2": 146.9
+     },
+     "posted": {
+      "B1_21.65 LC2": {
+       "MS_y": 1.162,
+       "MS_u": 0.712,
+       "vm_MPa": 57.9
+      }
+     },
+     "at_21.5s": {
+      "T_C": 147.04,
+      "vm_held_MPa": 57.9,
+      "vm_from": "B1_21.65 LC2",
+      "Fty_MPa": 187.8,
+      "Ftu_MPa": 198.1,
+      "MS_y": 1.162,
+      "MS_u": 0.711
+     }
+    },
+    "n26625 (TC-02 forward face (z 103.513, 12 < r < 28.6); all)": {
+     "region": "TC-02 forward face (z 103.513, 12 < r < 28.6)",
+     "node_set": "all",
+     "r_theta_z": [
+      24.781,
+      6.7,
+      103.513
+     ],
+     "node_class": "regular",
+     "T_thermal_interp_C": {
+      "19.001": 176.91,
+      "21.501": 181.3,
+      "21.651": 176.01
+     },
+     "interp": "nearest TC-02 thermal node (outside the triangulation; distance 0.069 mm)",
+     "T_3D_mapped_C": {
+      "B1_19 LC1": 176.9,
+      "B1_19 LC2": 176.9,
+      "B1_21.65 LC1": 176.0,
+      "B1_21.65 LC2": 176.0
+     },
+     "posted": {
+      "B1_19 LC1": {
+       "MS_y": 1.008,
+       "MS_u": 0.674,
+       "vm_MPa": 45.5
+      },
+      "B1_19 LC2": {
+       "MS_y": 1.067,
+       "MS_u": 0.723,
+       "vm_MPa": 44.2
+      },
+      "B1_21.65 LC1": {
+       "MS_y": 1.684,
+       "MS_u": 1.233,
+       "vm_MPa": 34.5
+      },
+      "B1_21.65 LC2": {
+       "MS_y": 1.79,
+       "MS_u": 1.321,
+       "vm_MPa": 33.1
+      }
+     },
+     "at_21.5s": {
+      "T_C": 181.3,
+      "vm_held_MPa": 45.5,
+      "vm_from": "B1_19 LC1",
+      "Fty_MPa": 129.4,
+      "Ftu_MPa": 145.5,
+      "MS_y": 0.896,
+      "MS_u": 0.599
+     }
+    },
+    "n26625 (TC-02 forward face (z 103.513, 12 < r < 28.6); regular)": {
+     "region": "TC-02 forward face (z 103.513, 12 < r < 28.6)",
+     "node_set": "regular",
+     "r_theta_z": [
+      24.781,
+      6.7,
+      103.513
+     ],
+     "node_class": "regular",
+     "T_thermal_interp_C": {
+      "19.001": 176.91,
+      "21.501": 181.3,
+      "21.651": 176.01
+     },
+     "interp": "nearest TC-02 thermal node (outside the triangulation; distance 0.069 mm)",
+     "T_3D_mapped_C": {
+      "B1_19 LC1": 176.9,
+      "B1_19 LC2": 176.9,
+      "B1_21.65 LC1": 176.0,
+      "B1_21.65 LC2": 176.0
+     },
+     "posted": {
+      "B1_19 LC1": {
+       "MS_y": 1.008,
+       "MS_u": 0.674,
+       "vm_MPa": 45.5
+      },
+      "B1_19 LC2": {
+       "MS_y": 1.067,
+       "MS_u": 0.723,
+       "vm_MPa": 44.2
+      },
+      "B1_21.65 LC1": {
+       "MS_y": 1.684,
+       "MS_u": 1.233,
+       "vm_MPa": 34.5
+      },
+      "B1_21.65 LC2": {
+       "MS_y": 1.79,
+       "MS_u": 1.321,
+       "vm_MPa": 33.1
+      }
+     },
+     "at_21.5s": {
+      "T_C": 181.3,
+      "vm_held_MPa": 45.5,
+      "vm_from": "B1_19 LC1",
+      "Fty_MPa": 129.4,
+      "Ftu_MPa": 145.5,
+      "MS_y": 0.896,
+      "MS_u": 0.599
+     }
+    }
+   },
+   "governing_nodes_from": "repost_5b_lc1v352h.json"
+  }
+ }
+}

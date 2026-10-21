@@ -1,0 +1,1125 @@
+{
+ "doc": "F2 / LC3 rod-force change v3.5.1 -> v3.5.2: the cause, from the solver decks and the posts (fea3d 2026-10-20, written after the\n22:10:56Z date -u reading; report section 9B).  Python only, no solve; the decks are streamed read-only (xz / gz), nothing is written\nto the run tree.\n\nStatics: the two rod springs are the only moment path about the two gimbal axes (post_lc3 note), so a unit step's rod tensions follow\nfrom the step's applied moment about those axes alone: t = A^-1 (-Q), A = the rod moment matrix from rod_geom (as post_lc3).  An OP\n(chamber pressure) step on a closed cavity with an axisymmetric exit has its resultant on the engine axis, i.e. no moment about the pivot;\nany moment the model carries is a discretisation residue of the pressure faces (the uniform 'residual correction' traction of\npressure.json removes the lateral FORCE imbalance, not the moment).\nThis script records, per deck (OP step: *DLOAD element-face pressures on C3D10 faces, 6-point degree-4 rule on the quadratic face,\noutward normal away from the element's 4th corner; *CLOAD nodal forces):\n  total force / moment (checked against pressure.json OP_net and the FBD connector moment), per-part contributions, the lateral (engine\n  frame) pressure force per part, the statics rod tensions, and the same with the two TC-09 aft-boundary faces at p = 1.0 (the uniform\n  residual correction re-balanced at the wetted-area centroid) = 'TC-09 boundary removed';\nper LC3 post (stop045: c71, v352L1 = asm v1.2 on CAD v3.5.2, v352L1x = asm v1.3 tiex, v352r3R3): the unit-step rod tensions recovered\n  by least squares from the 32 hold sub-cases (rank 5, residual ~1e-13);\nper FBD file: the engine CG implied by the connector moments (inertial steps).\nTags: SIM inputs, DERIVED (statics, quadrature).  Not physical approval.",
+ "decks": [
+  {
+   "run": "pose_alpha+_c71",
+   "deck": "runs/pose_alpha+_c71/B1_21.65/f1.inp.gz",
+   "deck_sha16": "790bc8e695a213e9",
+   "cad": "v351",
+   "version": "fea3d-asm v1.2",
+   "tb1": "faces",
+   "tiex": null,
+   "n_pressure_faces": 6650,
+   "n_nodal_load_nodes": 10155,
+   "total_F_N_per_MPa": [
+    -0.0,
+    -24.6098,
+    200.4304
+   ],
+   "pressure_json_OP_net_N_per_MPa": [
+    -0.0,
+    -24.6098,
+    200.4304
+   ],
+   "total_M_about_pivot_Nmm_per_MPa": [
+    -331.35,
+    204.07,
+    24.21
+   ],
+   "Q_gimbal_axes_Nmm_per_MPa": [
+    -331.35,
+    205.5
+   ],
+   "rod_moment_matrix_Nmm_per_N": [
+    [
+     -42.004,
+     30.485
+    ],
+    [
+     -37.114,
+     -36.72
+    ]
+   ],
+   "rods_OP_statics_N_per_MPa": [
+    -2.207,
+    7.828
+   ],
+   "per_part": {
+    "nodal NZ-01": {
+     "F": [
+      -0.1546,
+      -0.124,
+      -0.0152
+     ],
+     "F_lateral_engine_frame": [
+      -0.1546,
+      -0.125
+     ],
+     "QX": -27.25,
+     "QY": 33.72,
+     "n": 1114
+    },
+    "nodal NZ-02": {
+     "F": [
+      -0.2048,
+      -0.1643,
+      -0.0202
+     ],
+     "F_lateral_engine_frame": [
+      -0.2048,
+      -0.1655
+     ],
+     "QX": -36.37,
+     "QY": 45.0,
+     "n": 516
+    },
+    "nodal NZ-03": {
+     "F": [
+      -0.0168,
+      -0.0135,
+      -0.0017
+     ],
+     "F_lateral_engine_frame": [
+      -0.0168,
+      -0.0136
+     ],
+     "QX": -3.12,
+     "QY": 3.87,
+     "n": 169
+    },
+    "nodal NZ-04": {
+     "F": [
+      -0.0024,
+      -0.0019,
+      -0.0002
+     ],
+     "F_lateral_engine_frame": [
+      -0.0024,
+      -0.0019
+     ],
+     "QX": -0.45,
+     "QY": 0.56,
+     "n": 128
+    },
+    "nodal TC-01": {
+     "F": [
+      -1.6635,
+      -1.3343,
+      -0.1638
+     ],
+     "F_lateral_engine_frame": [
+      -1.6635,
+      -1.3443
+     ],
+     "QX": -35.85,
+     "QY": 44.37,
+     "n": 5263
+    },
+    "nodal TC-02": {
+     "F": [
+      -0.2254,
+      -15.1785,
+      122.1245
+     ],
+     "F_lateral_engine_frame": [
+      -0.2254,
+      -0.1822
+     ],
+     "QX": 936.07,
+     "QY": -445.55,
+     "n": 1495
+    },
+    "nodal TC-03": {
+     "F": [
+      -0.0199,
+      -0.0159,
+      -0.002
+     ],
+     "F_lateral_engine_frame": [
+      -0.0199,
+      -0.0161
+     ],
+     "QX": 1.69,
+     "QY": -2.1,
+     "n": 581
+    },
+    "nodal TC-09": {
+     "F": [
+      -0.5686,
+      -0.4561,
+      -0.056
+     ],
+     "F_lateral_engine_frame": [
+      -0.5686,
+      -0.4595
+     ],
+     "QX": -86.13,
+     "QY": 106.58,
+     "n": 888
+    },
+    "nodal extra": {
+     "F": [
+      0.0,
+      -2.8954,
+      23.5812
+     ],
+     "F_lateral_engine_frame": [
+      0.0,
+      0.0
+     ],
+     "QX": 0.0,
+     "QY": 0.0,
+     "n": 1
+    },
+    "pressure B_NZ01": {
+     "F": [
+      0.001,
+      150.5969,
+      -1226.5154
+     ],
+     "F_lateral_engine_frame": [
+      0.001,
+      -0.0003
+     ],
+     "QX": 0.01,
+     "QY": 93.33,
+     "n": 731
+    },
+    "pressure B_NZ02": {
+     "F": [
+      -0.0,
+      38.613,
+      -314.478
+     ],
+     "F_lateral_engine_frame": [
+      -0.0,
+      0.0
+     ],
+     "QX": -1.53,
+     "QY": -455.77,
+     "n": 334
+    },
+    "pressure B_NZ03": {
+     "F": [
+      0.0,
+      22.9934,
+      -187.2663
+     ],
+     "F_lateral_engine_frame": [
+      0.0,
+      -0.0
+     ],
+     "QX": -8.67,
+     "QY": 311.23,
+     "n": 96
+    },
+    "pressure B_NZ04": {
+     "F": [
+      0.7722,
+      0.1959,
+      0.024
+     ],
+     "F_lateral_engine_frame": [
+      0.7722,
+      0.1974
+     ],
+     "QX": 45.75,
+     "QY": -179.14,
+     "n": 64
+    },
+    "pressure B_TC01": {
+     "F": [
+      1.2815,
+      -40.9614,
+      349.4533
+     ],
+     "F_lateral_engine_frame": [
+      1.2815,
+      1.9315
+     ],
+     "QX": -240.58,
+     "QY": 147.48,
+     "n": 3487
+    },
+    "pressure B_TC02": {
+     "F": [
+      -4.3822,
+      -259.7988,
+      2107.6841
+     ],
+     "F_lateral_engine_frame": [
+      -4.3822,
+      -1.0002
+     ],
+     "QX": -749.36,
+     "QY": -50.34,
+     "n": 981
+    },
+    "pressure B_TC03": {
+     "F": [
+      5.1836,
+      -33.8968,
+      285.7463
+     ],
+     "F_lateral_engine_frame": [
+      5.1836,
+      1.1796
+     ],
+     "QX": -125.56,
+     "QY": 552.28,
+     "n": 377
+    },
+    "pressure B_TC09": {
+     "F": [
+      -0.0,
+      117.8319,
+      -959.6643
+     ],
+     "F_lateral_engine_frame": [
+      -0.0,
+      -0.0
+     ],
+     "QX": -0.0,
+     "QY": -0.0,
+     "n": 580
+    }
+   },
+   "TC09_fractional_faces": [],
+   "TC09_deficit_F_engine_N_per_MPa": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "wetted_area_mm2": 87736.9,
+   "wetted_centroid_posed_mm": [
+    0.2,
+    9.19,
+    -73.92
+   ],
+   "TC09_boundary_removed": {
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     -331.35,
+     205.5
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     -2.207,
+     7.828
+    ]
+   }
+  },
+  {
+   "run": "pose_alpha+_v352r3R3",
+   "deck": "runs/pose_alpha+_v352r3R3/B1_21.65/f1.inp.xz",
+   "deck_sha16": "de0848593174cc78",
+   "cad": "v352",
+   "version": "fea3d-asm v1.3",
+   "tb1": "thread",
+   "tiex": true,
+   "n_pressure_faces": 6773,
+   "n_nodal_load_nodes": 10339,
+   "total_F_N_per_MPa": [
+    0.0,
+    -24.8856,
+    202.6765
+   ],
+   "pressure_json_OP_net_N_per_MPa": [
+    0.0,
+    -24.8855,
+    202.6765
+   ],
+   "total_M_about_pivot_Nmm_per_MPa": [
+    307.25,
+    2279.86,
+    288.98
+   ],
+   "Q_gimbal_axes_Nmm_per_MPa": [
+    307.25,
+    2298.09
+   ],
+   "rod_moment_matrix_Nmm_per_N": [
+    [
+     -42.004,
+     30.485
+    ],
+    [
+     -37.114,
+     -36.72
+    ]
+   ],
+   "rods_OP_statics_N_per_MPa": [
+    30.421,
+    31.837
+   ],
+   "per_part": {
+    "nodal NZ-01": {
+     "F": [
+      0.332,
+      0.1389,
+      0.0171
+     ],
+     "F_lateral_engine_frame": [
+      0.332,
+      0.14
+     ],
+     "QX": 30.53,
+     "QY": -72.4,
+     "n": 1114
+    },
+    "nodal NZ-02": {
+     "F": [
+      0.4398,
+      0.1841,
+      0.0226
+     ],
+     "F_lateral_engine_frame": [
+      0.4398,
+      0.1855
+     ],
+     "QX": 40.74,
+     "QY": -96.62,
+     "n": 516
+    },
+    "nodal NZ-03": {
+     "F": [
+      0.0361,
+      0.0151,
+      0.0019
+     ],
+     "F_lateral_engine_frame": [
+      0.0361,
+      0.0152
+     ],
+     "QX": 3.5,
+     "QY": -8.3,
+     "n": 169
+    },
+    "nodal NZ-04": {
+     "F": [
+      0.0051,
+      0.0021,
+      0.0003
+     ],
+     "F_lateral_engine_frame": [
+      0.0051,
+      0.0022
+     ],
+     "QX": 0.5,
+     "QY": -1.19,
+     "n": 128
+    },
+    "nodal TC-01": {
+     "F": [
+      3.5713,
+      1.4947,
+      0.1835
+     ],
+     "F_lateral_engine_frame": [
+      3.5713,
+      1.506
+     ],
+     "QX": 40.17,
+     "QY": -95.26,
+     "n": 5274
+    },
+    "nodal TC-02": {
+     "F": [
+      0.4843,
+      -14.795,
+      122.1716
+     ],
+     "F_lateral_engine_frame": [
+      0.4843,
+      0.2042
+     ],
+     "QX": 891.13,
+     "QY": -363.01,
+     "n": 1495
+    },
+    "nodal TC-03": {
+     "F": [
+      0.0432,
+      0.0181,
+      0.0022
+     ],
+     "F_lateral_engine_frame": [
+      0.0432,
+      0.0182
+     ],
+     "QX": -1.92,
+     "QY": 4.55,
+     "n": 581
+    },
+    "nodal TC-09": {
+     "F": [
+      1.2208,
+      0.5109,
+      0.0627
+     ],
+     "F_lateral_engine_frame": [
+      1.2208,
+      0.5148
+     ],
+     "QX": 96.47,
+     "QY": -228.77,
+     "n": 1061
+    },
+    "nodal extra": {
+     "F": [
+      0.0,
+      -2.8954,
+      23.5812
+     ],
+     "F_lateral_engine_frame": [
+      0.0,
+      0.0
+     ],
+     "QX": 0.0,
+     "QY": 0.0,
+     "n": 1
+    },
+    "pressure B_NZ01": {
+     "F": [
+      0.001,
+      150.5969,
+      -1226.5154
+     ],
+     "F_lateral_engine_frame": [
+      0.001,
+      -0.0003
+     ],
+     "QX": 0.01,
+     "QY": 93.33,
+     "n": 731
+    },
+    "pressure B_NZ02": {
+     "F": [
+      -0.0,
+      38.613,
+      -314.478
+     ],
+     "F_lateral_engine_frame": [
+      -0.0,
+      0.0
+     ],
+     "QX": -1.53,
+     "QY": -455.77,
+     "n": 334
+    },
+    "pressure B_NZ03": {
+     "F": [
+      0.0,
+      22.9934,
+      -187.2663
+     ],
+     "F_lateral_engine_frame": [
+      0.0,
+      -0.0
+     ],
+     "QX": -8.67,
+     "QY": 311.23,
+     "n": 96
+    },
+    "pressure B_NZ04": {
+     "F": [
+      -0.2705,
+      -0.5808,
+      -0.0713
+     ],
+     "F_lateral_engine_frame": [
+      -0.2705,
+      -0.5852
+     ],
+     "QX": -135.75,
+     "QY": 62.71,
+     "n": 64
+    },
+    "pressure B_TC01": {
+     "F": [
+      4.1188,
+      -44.9019,
+      348.5696
+     ],
+     "F_lateral_engine_frame": [
+      4.1188,
+      -2.0872
+     ],
+     "QX": 187.82,
+     "QY": 444.9,
+     "n": 3494
+    },
+    "pressure B_TC02": {
+     "F": [
+      0.0,
+      -258.806,
+      2107.806
+     ],
+     "F_lateral_engine_frame": [
+      0.0,
+      0.0
+     ],
+     "QX": -855.9,
+     "QY": 416.43,
+     "n": 982
+    },
+    "pressure B_TC03": {
+     "F": [
+      0.0,
+      -35.0529,
+      285.4831
+     ],
+     "F_lateral_engine_frame": [
+      0.0,
+      -0.0
+     ],
+     "QX": 0.0,
+     "QY": 0.0,
+     "n": 378
+    },
+    "pressure B_TC09": {
+     "F": [
+      -9.9817,
+      117.5792,
+      -956.8943
+     ],
+     "F_lateral_engine_frame": [
+      -9.9817,
+      0.0867
+     ],
+     "QX": 20.15,
+     "QY": 2286.25,
+     "n": 694
+    }
+   },
+   "TC09_fractional_faces": [
+    {
+     "element": 24664,
+     "face": 2,
+     "p_over_Pc": 0.75,
+     "centroid_engine_mm": [
+      24.25,
+      4.86,
+      -230.62
+     ],
+     "area_mm2": 19.323,
+     "normal_engine": [
+      -0.982,
+      -0.173,
+      0.072
+     ]
+    },
+    {
+     "element": 23610,
+     "face": 1,
+     "p_over_Pc": 0.75,
+     "centroid_engine_mm": [
+      24.18,
+      -5.12,
+      -230.47
+     ],
+     "area_mm2": 21.298,
+     "normal_engine": [
+      -0.984,
+      0.173,
+      0.051
+     ]
+    }
+   ],
+   "TC09_deficit_F_engine_N_per_MPa": [
+    9.9817,
+    -0.0867,
+    -0.6185
+   ],
+   "wetted_area_mm2": 87777.6,
+   "wetted_centroid_posed_mm": [
+    0.19,
+    9.2,
+    -73.87
+   ],
+   "TC09_boundary_removed": {
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     293.56,
+     754.89
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     12.638,
+     7.784
+    ]
+   }
+  },
+  {
+   "run": "pose_stop045_v352r3R3",
+   "deck": "runs/pose_stop045_v352r3R3/B1_21.65/f1.inp.xz",
+   "deck_sha16": "ba14bda9ab0f9c48",
+   "cad": "v352",
+   "version": "fea3d-asm v1.3",
+   "tb1": "thread",
+   "tiex": true,
+   "n_pressure_faces": 6773,
+   "n_nodal_load_nodes": 10339,
+   "total_F_N_per_MPa": [
+    20.0952,
+    20.0952,
+    202.2113
+   ],
+   "pressure_json_OP_net_N_per_MPa": [
+    20.0952,
+    20.0952,
+    202.2113
+   ],
+   "total_M_about_pivot_Nmm_per_MPa": [
+    306.65,
+    2284.71,
+    -248.46
+   ],
+   "Q_gimbal_axes_Nmm_per_MPa": [
+    306.65,
+    2298.09
+   ],
+   "rod_moment_matrix_Nmm_per_N": [
+    [
+     -33.409,
+     39.529
+    ],
+    [
+     -41.255,
+     -41.327
+    ]
+   ],
+   "rods_OP_statics_N_per_MPa": [
+    34.373,
+    21.294
+   ],
+   "per_part": {
+    "nodal NZ-01": {
+     "F": [
+      0.3304,
+      0.1361,
+      -0.0464
+     ],
+     "F_lateral_engine_frame": [
+      0.332,
+      0.14
+     ],
+     "QX": 30.38,
+     "QY": -72.4,
+     "n": 1114
+    },
+    "nodal NZ-02": {
+     "F": [
+      0.4377,
+      0.1803,
+      -0.0614
+     ],
+     "F_lateral_engine_frame": [
+      0.4398,
+      0.1855
+     ],
+     "QX": 40.55,
+     "QY": -96.62,
+     "n": 516
+    },
+    "nodal NZ-03": {
+     "F": [
+      0.0359,
+      0.0148,
+      -0.005
+     ],
+     "F_lateral_engine_frame": [
+      0.0361,
+      0.0152
+     ],
+     "QX": 3.48,
+     "QY": -8.3,
+     "n": 169
+    },
+    "nodal NZ-04": {
+     "F": [
+      0.0051,
+      0.0021,
+      -0.0007
+     ],
+     "F_lateral_engine_frame": [
+      0.0051,
+      0.0022
+     ],
+     "QX": 0.5,
+     "QY": -1.19,
+     "n": 128
+    },
+    "nodal TC-01": {
+     "F": [
+      3.554,
+      1.4638,
+      -0.4987
+     ],
+     "F_lateral_engine_frame": [
+      3.5713,
+      1.506
+     ],
+     "QX": 39.97,
+     "QY": -95.26,
+     "n": 5274
+    },
+    "nodal TC-02": {
+     "F": [
+      12.5927,
+      12.3093,
+      121.7988
+     ],
+     "F_lateral_engine_frame": [
+      0.4843,
+      0.2042
+     ],
+     "QX": 886.79,
+     "QY": -363.01,
+     "n": 1495
+    },
+    "nodal TC-03": {
+     "F": [
+      0.0429,
+      0.0177,
+      -0.006
+     ],
+     "F_lateral_engine_frame": [
+      0.0432,
+      0.0182
+     ],
+     "QX": -1.91,
+     "QY": 4.55,
+     "n": 581
+    },
+    "nodal TC-09": {
+     "F": [
+      1.2148,
+      0.5004,
+      -0.1705
+     ],
+     "F_lateral_engine_frame": [
+      1.2208,
+      0.5148
+     ],
+     "QX": 96.0,
+     "QY": -228.77,
+     "n": 1061
+    },
+    "nodal extra": {
+     "F": [
+      2.3381,
+      2.3381,
+      23.5271
+     ],
+     "F_lateral_engine_frame": [
+      0.0,
+      0.0
+     ],
+     "QX": 0.0,
+     "QY": -0.0,
+     "n": 1
+    },
+    "pressure B_NZ01": {
+     "F": [
+      -121.6072,
+      -121.6084,
+      -1223.7004
+     ],
+     "F_lateral_engine_frame": [
+      0.001,
+      -0.0003
+     ],
+     "QX": 0.12,
+     "QY": 93.33,
+     "n": 731
+    },
+    "pressure B_NZ02": {
+     "F": [
+      -31.1803,
+      -31.1803,
+      -313.7562
+     ],
+     "F_lateral_engine_frame": [
+      0.0,
+      -0.0
+     ],
+     "QX": -1.52,
+     "QY": -455.77,
+     "n": 334
+    },
+    "pressure B_NZ03": {
+     "F": [
+      -18.5673,
+      -18.5673,
+      -186.8365
+     ],
+     "F_lateral_engine_frame": [
+      -0.0,
+      0.0
+     ],
+     "QX": -8.62,
+     "QY": 311.23,
+     "n": 96
+    },
+    "pressure B_NZ04": {
+     "F": [
+      -0.2692,
+      -0.5797,
+      0.0844
+     ],
+     "F_lateral_engine_frame": [
+      -0.2705,
+      -0.5852
+     ],
+     "QX": -135.15,
+     "QY": 62.71,
+     "n": 64
+    },
+    "pressure B_TC01": {
+     "F": [
+      38.6845,
+      32.4686,
+      347.8264
+     ],
+     "F_lateral_engine_frame": [
+      4.1188,
+      -2.0872
+     ],
+     "QX": 187.93,
+     "QY": 444.9,
+     "n": 3494
+    },
+    "pressure B_TC02": {
+     "F": [
+      208.9875,
+      208.9875,
+      2102.9682
+     ],
+     "F_lateral_engine_frame": [
+      0.0,
+      -0.0
+     ],
+     "QX": -851.74,
+     "QY": 416.43,
+     "n": 982
+    },
+    "pressure B_TC03": {
+     "F": [
+      28.3054,
+      28.3054,
+      284.8278
+     ],
+     "F_lateral_engine_frame": [
+      -0.0,
+      0.0
+     ],
+     "QX": -0.0,
+     "QY": -0.0,
+     "n": 378
+    },
+    "pressure B_TC09": {
+     "F": [
+      -104.8097,
+      -94.693,
+      -953.7397
+     ],
+     "F_lateral_engine_frame": [
+      -9.9817,
+      0.0867
+     ],
+     "QX": 19.88,
+     "QY": 2286.25,
+     "n": 694
+    }
+   },
+   "TC09_fractional_faces": [
+    {
+     "element": 24664,
+     "face": 2,
+     "p_over_Pc": 0.75,
+     "centroid_engine_mm": [
+      24.25,
+      4.86,
+      -230.62
+     ],
+     "area_mm2": 19.323,
+     "normal_engine": [
+      -0.982,
+      -0.173,
+      0.072
+     ]
+    },
+    {
+     "element": 23610,
+     "face": 1,
+     "p_over_Pc": 0.75,
+     "centroid_engine_mm": [
+      24.18,
+      -5.12,
+      -230.47
+     ],
+     "area_mm2": 21.298,
+     "normal_engine": [
+      -0.984,
+      0.173,
+      0.051
+     ]
+    }
+   ],
+   "TC09_deficit_F_engine_N_per_MPa": [
+    9.9817,
+    -0.0867,
+    -0.6185
+   ],
+   "wetted_area_mm2": 87777.6,
+   "wetted_centroid_posed_mm": [
+    -7.13,
+    -7.2,
+    -73.75
+   ],
+   "TC09_boundary_removed": {
+    "Q_gimbal_axes_Nmm_per_MPa": [
+     293.32,
+     754.88
+    ],
+    "rods_OP_statics_N_per_MPa": [
+     13.934,
+     4.356
+    ]
+   }
+  }
+ ],
+ "lc3_unit_rods": [
+  {
+   "post": "f1_post_lc3_pose_stop045_c71.json",
+   "post_sha16": "22cd759765570825",
+   "version": "fea3d-asm v1.2",
+   "tb1": "faces",
+   "tiex": null,
+   "ROD_1": {
+    "OP_N_per_MPa": 0.502,
+    "G_lat_X_N_per_g": 0.168,
+    "G_lat_Y_N_per_g": -0.111,
+    "GZ_N_per_g": -1.392,
+    "EA_N_per_rad_s2": 0.0207,
+    "rank": 5,
+    "max_residual_N": 1.0658141036401503e-14
+   },
+   "ROD_2": {
+    "OP_N_per_MPa": 9.084,
+    "G_lat_X_N_per_g": 0.134,
+    "G_lat_Y_N_per_g": -0.11,
+    "GZ_N_per_g": -0.523,
+    "EA_N_per_rad_s2": -0.9867,
+    "rank": 5,
+    "max_residual_N": 2.1316282072803006e-13
+   }
+  },
+  {
+   "post": "f1_post_lc3_pose_stop045_v352L1.json",
+   "post_sha16": "da546e9bc799984d",
+   "version": "fea3d-asm v1.2",
+   "tb1": "thread",
+   "tiex": null,
+   "ROD_1": {
+    "OP_N_per_MPa": 35.179,
+    "G_lat_X_N_per_g": -1.335,
+    "G_lat_Y_N_per_g": 1.286,
+    "GZ_N_per_g": -2.024,
+    "EA_N_per_rad_s2": 0.0474,
+    "rank": 5,
+    "max_residual_N": 7.105427357601002e-14
+   },
+   "ROD_2": {
+    "OP_N_per_MPa": 24.199,
+    "G_lat_X_N_per_g": -1.167,
+    "G_lat_Y_N_per_g": -1.738,
+    "GZ_N_per_g": -0.978,
+    "EA_N_per_rad_s2": -0.8062,
+    "rank": 5,
+    "max_residual_N": 1.7053025658242404e-13
+   }
+  },
+  {
+   "post": "f1_post_lc3_pose_stop045_v352L1x.json",
+   "post_sha16": "c72077e766df4cc6",
+   "version": "fea3d-asm v1.3",
+   "tb1": "thread",
+   "tiex": true,
+   "ROD_1": {
+    "OP_N_per_MPa": 34.373,
+    "G_lat_X_N_per_g": -1.641,
+    "G_lat_Y_N_per_g": 1.828,
+    "GZ_N_per_g": -1.368,
+    "EA_N_per_rad_s2": 0.0184,
+    "rank": 5,
+    "max_residual_N": 2.842170943040401e-14
+   },
+   "ROD_2": {
+    "OP_N_per_MPa": 21.294,
+    "G_lat_X_N_per_g": -1.387,
+    "G_lat_Y_N_per_g": -1.973,
+    "GZ_N_per_g": -0.131,
+    "EA_N_per_rad_s2": -0.9817,
+    "rank": 5,
+    "max_residual_N": 2.2737367544323206e-13
+   }
+  },
+  {
+   "post": "f1_post_lc3_pose_stop045_v352r3R3.json",
+   "post_sha16": "0e9c1661b89c16d9",
+   "version": "fea3d-asm v1.3",
+   "tb1": "thread",
+   "tiex": true,
+   "ROD_1": {
+    "OP_N_per_MPa": 34.373,
+    "G_lat_X_N_per_g": -1.642,
+    "G_lat_Y_N_per_g": 1.829,
+    "GZ_N_per_g": -1.37,
+    "EA_N_per_rad_s2": 0.0184,
+    "rank": 5,
+    "max_residual_N": 2.842170943040401e-14
+   },
+   "ROD_2": {
+    "OP_N_per_MPa": 21.294,
+    "G_lat_X_N_per_g": -1.388,
+    "G_lat_Y_N_per_g": -1.975,
+    "GZ_N_per_g": -0.133,
+    "EA_N_per_rad_s2": -0.9816,
+    "rank": 5,
+    "max_residual_N": 1.7053025658242404e-13
+   }
+  }
+ ],
+ "fbd_engine_cg_mm": {
+  "fbd_pose_stop045_c71_B1_21.65.json": [
+   -2.642,
+   0.812,
+   -0.554
+  ],
+  "v352/fbd_pose_stop045_v352L1_B1_21.65.json": [
+   -3.343,
+   1.062,
+   3.517
+  ],
+  "v352/fbd_pose_stop045_v352L1x_B1_21.65.json": [
+   -2.242,
+   1.335,
+   4.398
+  ],
+  "fbd_pose_alpha+_v352r3R3_B1_21.65.json": [
+   -2.679,
+   0.364,
+   4.364
+  ],
+  "fbd_pose_neutral_v352r3R3_B1_21.65.json": [
+   -2.68,
+   0.893,
+   4.287
+  ]
+ },
+ "fbd_sha16": {
+  "fbd_pose_stop045_c71_B1_21.65.json": "79f385c6cf31e08f",
+  "v352/fbd_pose_stop045_v352L1_B1_21.65.json": "c79683c72e073ade",
+  "v352/fbd_pose_stop045_v352L1x_B1_21.65.json": "d023774de3d18326",
+  "fbd_pose_alpha+_v352r3R3_B1_21.65.json": "514d5ff9cdbe9eb8",
+  "fbd_pose_neutral_v352r3R3_B1_21.65.json": "2c0af2d0975e0990"
+ }
+}
